@@ -1,4 +1,6 @@
 from pathlib import Path
+import subprocess
+import sys
 import pandas as pd
 import pytest
 
@@ -14,6 +16,31 @@ def source(tmp_path, content, name="x.csv"):
     path = tmp_path/name; path.write_text(content); return path
 def load(tmp_path, content, instrument="CNY", tf="M1", name="x.csv"):
     return stitch_finam([source(tmp_path, content, name)], instrument, tf)
+
+def test_phase1b_entry_point_launches_from_project_root(tmp_path):
+    project_root = Path(__file__).resolve().parents[1]
+    environment = tmp_path / "venv"
+    subprocess.run(
+        [sys.executable, "-m", "venv", "--system-site-packages", str(environment)],
+        check=True,
+        cwd=project_root,
+    )
+    python = environment / "bin" / "python"
+    subprocess.run(
+        [python, "-m", "pip", "install", "--no-deps", "-e", "."],
+        check=True,
+        cwd=project_root,
+        capture_output=True,
+        text=True,
+    )
+    launched = subprocess.run(
+        [environment / "bin" / "phase1b-validate", "--help"],
+        check=True,
+        cwd=project_root,
+        capture_output=True,
+        text=True,
+    )
+    assert "eight enumerated 2026 Phase 1B" in launched.stdout
 
 def test_valid_csv_and_timezone_and_m1_close(tmp_path):
     result = load(tmp_path, HEADER + row())

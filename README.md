@@ -16,6 +16,24 @@ filename aliases), M1 and M5, from 2026-01-01 through the inclusive end of
 2026-07-01 in `Europe/Moscow`. Finam timestamps are candle **open** times.
 Calendar year 2025 is locked TRUE OOS and forbidden in development workflows.
 
-Run `pytest -vv` for contract tests. Run `python scripts/validate_phase1b.py`
-only against the eight explicitly enumerated 2026 source files; it hashes them
-before and after and writes its ignored report under `results/`.
+## Fresh-checkout setup and commands
+
+From the repository root, create an isolated environment and install the project
+(including its test dependency):
+
+```bash
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install -e '.[test]'
+```
+
+The single standard Phase 1B validator command is:
+
+```bash
+phase1b-validate
+```
+
+The installed entry point imports the package using normal src-layout packaging;
+no local `PYTHONPATH` is required. It reads only the eight explicitly enumerated
+2026 source files, verifies their hashes before and after, and writes its ignored
+report under `results/`. Run the contract suite with `pytest -vv`.

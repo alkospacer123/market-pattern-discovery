@@ -15,3 +15,9 @@ test = ["pytest>=8"]
 pythonpath = ["src"]
 testpaths = ["tests"]
 
+
+[project.scripts]
+phase1b-validate = "market_pattern_discovery.validation.phase1b:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
