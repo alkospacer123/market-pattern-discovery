@@ -91,6 +91,16 @@ def test_cost_validation():
     with pytest.raises(ValueError): CostModel(-1, 0)
     with pytest.raises(ValueError): CostModel(0, -1)
 
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+def test_transaction_cost_rejects_non_finite(value):
+    with pytest.raises(ValueError, match="finite"):
+        CostModel(value, 0)
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+def test_slippage_rejects_non_finite(value):
+    with pytest.raises(ValueError, match="finite"):
+        CostModel(0, value)
+
 def test_exact_causal_m5_boundary():
     opened=pd.Timestamp("2026-01-05 10:10", tz="Europe/Moscow")
     m5=pd.DataFrame({"close_time":[opened+pd.Timedelta(minutes=5)], "value":[7]})
@@ -101,4 +111,3 @@ def test_causal_rejects_naive_and_unordered():
     ordered=pd.DataFrame({"close_time":pd.to_datetime(["2026-01-01 10:05","2026-01-01 10:10"], utc=True)})
     with pytest.raises(ValueError, match="timezone-aware"): latest_closed_m5(ordered, pd.Timestamp("2026-01-01"))
     with pytest.raises(ValueError, match="ordered"): latest_closed_m5(ordered.iloc[::-1], pd.Timestamp("2026-01-02", tz="UTC"))
-
