@@ -1,0 +1,7 @@
+timezone = "Europe/Moscow"
+development_start = "2026-01-01T00:00:00+03:00"
+development_end_inclusive = "2026-07-01T23:59:59.999999+03:00"
+instruments = ["CNYRUBF", "USDRUBF"]
+timeframes = ["M1", "M5"]
+true_oos_year = 2025
+

@@ -1,0 +1,12 @@
+*.csv
+*.parquet
+raw/
+data/raw/
+results/
+logs/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
