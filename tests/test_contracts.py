@@ -6,7 +6,7 @@ import pytest
 
 from market_pattern_discovery.backtest import CostModel
 from market_pattern_discovery.data.finam import IngestionError, stitch_finam
-from market_pattern_discovery.validation.causal import latest_closed_m5
+from market_pattern_discovery.validation.causal import causal_alignment, latest_closed_m5
 from market_pattern_discovery.validation.temporal import DEV_END, DEV_START, sequential_split
 
 HEADER = "<TICKER>;<PER>;<DATE>;<TIME>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\n"
@@ -133,6 +133,11 @@ def test_exact_causal_m5_boundary():
     m5=pd.DataFrame({"close_time":[opened+pd.Timedelta(minutes=5)], "value":[7]})
     assert latest_closed_m5(m5, pd.Timestamp("2026-01-05 10:14", tz="Europe/Moscow")) is None
     assert latest_closed_m5(m5, pd.Timestamp("2026-01-05 10:15", tz="Europe/Moscow")).value==7
+    m1_open = pd.Timestamp("2026-01-05 10:14", tz="Europe/Moscow")
+    m1 = pd.DataFrame({"open_time": [m1_open], "close_time": [m1_open+pd.Timedelta(minutes=1)]})
+    aligned = causal_alignment(m1, m5)
+    assert aligned.loc[0, "matched_m5_close"] == m1.loc[0, "close_time"]
+    assert not aligned.loc[0, "causal_violation"]
 
 def test_causal_rejects_naive_and_unordered():
     ordered=pd.DataFrame({"close_time":pd.to_datetime(["2026-01-01 10:05","2026-01-01 10:10"], utc=True)})

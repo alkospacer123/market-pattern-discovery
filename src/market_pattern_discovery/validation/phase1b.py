@@ -44,7 +44,9 @@ def main() -> None:
         causal = {"available_closed_m5": int(aligned.matched_m5_close.notna().sum()),
                   "without_prior_closed_m5": int(aligned.matched_m5_close.isna().sum()),
                   "violations": int(aligned.causal_violation.sum())}
-        expected_causal = (len(loaded[name]["M1"])-1, 1, 0)
+        # M1 features are decided at the current candle close. Exact equality
+        # makes the first native M5 close available to its coincident M1 close.
+        expected_causal = (len(loaded[name]["M1"]), 0, 0)
         if tuple(causal.values()) != expected_causal:
             raise RuntimeError(f"causal discrepancy {name}: {causal}")
         report["causal"][name] = causal
@@ -60,4 +62,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
