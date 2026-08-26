@@ -23,6 +23,7 @@ def _grid(price: float, step: Decimal) -> tuple[float, float, float]:
 
 def add_round_level_features(frame: pd.DataFrame, config: RoundLevelConfig) -> tuple[pd.DataFrame, list[str]]:
     out = frame.copy(); step = Decimal(str(config.round_level_step))
+    tolerance = Decimal(str(config.touch_tolerance))
     grids = [_grid(p, step) for p in out.close]
     below = pd.Series([x[0] for x in grids], index=out.index)
     above = pd.Series([x[1] for x in grids], index=out.index)
@@ -37,8 +38,8 @@ def add_round_level_features(frame: pd.DataFrame, config: RoundLevelConfig) -> t
     out["distance_to_nearest_round_level_over_atr_20"] = _ratio(out.distance_to_nearest_round_level, out.atr_20)
     exact = [(Decimal(str(lo)), Decimal(str(hi)), Decimal(str(cl)), Decimal(str(ref)))
              for lo, hi, cl, ref in zip(out.low, out.high, out.close, nearest, strict=True)]
-    out["touches_nearest_round_level"] = np.fromiter((lo <= ref <= hi for lo, hi, _, ref in exact), dtype=np.int8)
-    out["crosses_nearest_round_level"] = np.fromiter((lo < ref < hi for lo, hi, _, ref in exact), dtype=np.int8)
+    out["touches_nearest_round_level"] = np.fromiter((lo-tolerance <= ref <= hi+tolerance for lo, hi, _, ref in exact), dtype=np.int8)
+    out["crosses_nearest_round_level"] = np.fromiter((lo < ref-tolerance and hi > ref+tolerance for lo, hi, _, ref in exact), dtype=np.int8)
     out["closes_above_nearest_round_level"] = np.fromiter((cl > ref for _, _, cl, ref in exact), dtype=np.int8)
     out["closes_below_nearest_round_level"] = np.fromiter((cl < ref for _, _, cl, ref in exact), dtype=np.int8)
     out["penetration_distance"] = np.where(out.close >= nearest, (out.high-nearest).clip(lower=0), (nearest-out.low).clip(lower=0))
@@ -62,19 +63,19 @@ def add_round_level_features(frame: pd.DataFrame, config: RoundLevelConfig) -> t
         values["bars_since_last_touch"] = np.full(len(day), np.nan)
         values["bars_since_last_cross"] = np.full(len(day), np.nan)
         for pos, ref in enumerate(refs):
-            start = int((lows[pos] / step).to_integral_value(rounding=ROUND_FLOOR))
-            stop = int((highs[pos] / step).to_integral_value(rounding=ROUND_FLOOR))
+            start = int(((lows[pos]-tolerance) / step).to_integral_value(rounding=ROUND_FLOOR))
+            stop = int(((highs[pos]+tolerance) / step).to_integral_value(rounding=ROUND_FLOOR))
             for multiple in range(start, stop + 1):
                 level = multiple * step
-                if lows[pos] <= level <= highs[pos]:
+                if lows[pos]-tolerance <= level <= highs[pos]+tolerance:
                     last_touch[level] = pos
-                if lows[pos] < level < highs[pos]:
+                if lows[pos] < level-tolerance and highs[pos] > level+tolerance:
                     last_cross[level] = pos
             for n in STRUCTURE_WINDOWS:
                 if pos + 1 >= n:
                     first = pos - n + 1
-                    values[f"touch_count_{n}"][pos] = sum(lows[j] <= ref <= highs[j] for j in range(first, pos + 1))
-                    values[f"cross_count_{n}"][pos] = sum(lows[j] < ref < highs[j] for j in range(first, pos + 1))
+                    values[f"touch_count_{n}"][pos] = sum(lows[j]-tolerance <= ref <= highs[j]+tolerance for j in range(first, pos + 1))
+                    values[f"cross_count_{n}"][pos] = sum(lows[j] < ref-tolerance and highs[j] > ref+tolerance for j in range(first, pos + 1))
             if ref in last_touch: values["bars_since_last_touch"][pos] = pos-last_touch[ref]
             if ref in last_cross: values["bars_since_last_cross"][pos] = pos-last_cross[ref]
         out.loc[day.index, list(values)] = pd.DataFrame(values, index=day.index)

@@ -75,7 +75,35 @@ def test_si_canonical_grid_and_configuration_validation():
     assert out.loc[0, "round_level_above"] == pytest.approx(85.10)
     assert out.loc[3, "nearest_round_level"] == pytest.approx(85.10)
     with pytest.raises(ValueError): RoundLevelConfig("0", "0.10")
+    with pytest.raises(ValueError): RoundLevelConfig("-0.01", "0.10")
+    with pytest.raises(ValueError): RoundLevelConfig("0.01", "0")
+    with pytest.raises(ValueError): RoundLevelConfig("0.01", "-0.10")
+    with pytest.raises(ValueError): RoundLevelConfig("0.01", "0.10", "-0.01")
     with pytest.raises(ValueError): RoundLevelConfig("0.03", "0.10")
+
+
+@pytest.mark.parametrize("field", ["tick_size", "round_level_step", "touch_tolerance"])
+@pytest.mark.parametrize("value", ["NaN", "Infinity", "-Infinity"])
+def test_round_level_configuration_rejects_non_finite_values(field, value):
+    values = {"tick_size": "0.001", "round_level_step": "0.05", "touch_tolerance": "0"}
+    values[field] = value
+    with pytest.raises(ValueError, match="finite"):
+        RoundLevelConfig(**values)
+
+
+def test_native_m5_instrument_identity_is_required():
+    cny_m1 = candles(10, timeframe="M1")
+    cny_m5 = candles(3, timeframe="M5")
+    si_m1 = cny_m1.copy(); si_m1.instrument = "USDRUBF"
+    si_m5 = cny_m5.copy(); si_m5.instrument = "USDRUBF"
+    cny_config = RoundLevelConfig("0.001", "0.05")
+    si_config = RoundLevelConfig("0.01", "0.10")
+    assert len(build_features(cny_m1, timeframe="M1", round_levels=cny_config, native_m5=cny_m5).frame) == 10
+    assert len(build_features(si_m1, timeframe="M1", round_levels=si_config, native_m5=si_m5).frame) == 10
+    with pytest.raises(ValueError, match="instruments must match"):
+        build_features(cny_m1, timeframe="M1", round_levels=cny_config, native_m5=si_m5)
+    with pytest.raises(ValueError, match="instruments must match"):
+        build_features(si_m1, timeframe="M1", round_levels=si_config, native_m5=cny_m5)
 
 
 def test_historical_counts_use_current_reference_level_and_reset_by_day():

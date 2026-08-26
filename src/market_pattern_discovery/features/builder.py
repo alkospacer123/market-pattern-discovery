@@ -21,6 +21,10 @@ def build_features(frame: pd.DataFrame, *, timeframe: str, round_levels: RoundLe
     if native_m5 is not None:
         if timeframe != "M1":
             raise ValueError("native_m5 context is valid only for M1")
+        if "instrument" not in native_m5 or native_m5.instrument.nunique(dropna=False) != 1:
+            raise ValueError("native M5 input must contain exactly one instrument")
+        if str(frame.instrument.iloc[0]) != str(native_m5.instrument.iloc[0]):
+            raise ValueError("M1 and native M5 instruments must match")
         m5_built = build_features(native_m5, timeframe="M5", round_levels=round_levels).frame
         out, attached = attach_m5_context(out, m5_built)
         context, cross = attached[:-6], attached[-6:]

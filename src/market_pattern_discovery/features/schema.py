@@ -16,12 +16,19 @@ class RoundLevelConfig:
 
     tick_size: str | float
     round_level_step: str | float
+    touch_tolerance: str | float = "0"
 
     def __post_init__(self) -> None:
         from decimal import Decimal
-        tick, step = Decimal(str(self.tick_size)), Decimal(str(self.round_level_step))
+        tick = Decimal(str(self.tick_size))
+        step = Decimal(str(self.round_level_step))
+        tolerance = Decimal(str(self.touch_tolerance))
+        if not all(value.is_finite() for value in (tick, step, tolerance)):
+            raise ValueError("round-level configuration values must be finite")
         if tick <= 0 or step <= 0:
             raise ValueError("tick_size and round_level_step must be positive")
+        if tolerance < 0:
+            raise ValueError("touch_tolerance must be non-negative")
         ticks = step / tick
         if abs(ticks - ticks.to_integral_value()) > Decimal("1e-9"):
             raise ValueError("round_level_step / tick_size must be an integer")
