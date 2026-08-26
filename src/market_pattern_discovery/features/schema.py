@@ -12,15 +12,24 @@ STRUCTURE_WINDOWS = (5, 10, 20, 60)
 
 @dataclass(frozen=True)
 class RoundLevelConfig:
-    """Explicit price-grid configuration; it is never inferred from outcomes."""
+    """Canonical exchange tick and independent research round-level grid."""
 
-    step: str
-    touch_tolerance: str = "0"
+    tick_size: str | float
+    round_level_step: str | float
 
     def __post_init__(self) -> None:
         from decimal import Decimal
-        if Decimal(self.step) <= 0 or Decimal(self.touch_tolerance) < 0:
-            raise ValueError("round-level step must be positive and tolerance non-negative")
+        tick, step = Decimal(str(self.tick_size)), Decimal(str(self.round_level_step))
+        if tick <= 0 or step <= 0:
+            raise ValueError("tick_size and round_level_step must be positive")
+        ticks = step / tick
+        if abs(ticks - ticks.to_integral_value()) > Decimal("1e-9"):
+            raise ValueError("round_level_step / tick_size must be an integer")
+
+    @property
+    def round_level_step_ticks(self) -> int:
+        from decimal import Decimal
+        return int((Decimal(str(self.round_level_step)) / Decimal(str(self.tick_size))).to_integral_value())
 
 
 @dataclass(frozen=True)

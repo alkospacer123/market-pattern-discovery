@@ -13,9 +13,8 @@ from market_pattern_discovery.data.finam import file_sha256, stitch_finam
 from market_pattern_discovery.features import RoundLevelConfig, build_features
 from market_pattern_discovery.validation.phase1b import FILES
 
-# No repository convention exists for Si. 1000 is an explicit validation-only
-# assumption requiring domain-owner confirmation; it is never inferred/tuned.
-CONFIG = {"CNY": RoundLevelConfig("0.05"), "Si": RoundLevelConfig("1000")}
+CONFIG = {"CNY": RoundLevelConfig("0.001", "0.05"),
+          "Si": RoundLevelConfig("0.01", "0.10")}
 
 
 def parse_args() -> argparse.Namespace:
@@ -36,7 +35,9 @@ def main() -> None:
               for name, groups in FILES.items()}
     report = {"feature_builder_version": "1.1", "datasets": {}, "source_hashes_unchanged": False,
               "true_oos_2025_accessed": False,
-              "si_round_level_assumption": "1000; canonical value absent and confirmation required"}
+              "price_configuration": {name: {"tick_size": cfg.tick_size,
+                  "round_level_step": cfg.round_level_step,
+                  "round_level_step_ticks": cfg.round_level_step_ticks} for name, cfg in CONFIG.items()}}
     for name, frames in loaded.items():
         for tf, source in frames.items():
             result = build_features(source, timeframe=tf, round_levels=CONFIG[name],
@@ -52,13 +53,13 @@ def main() -> None:
             prefix_mismatch = _mismatches(out.iloc[:cutoff], prefix)
             future_m5_mismatch = 0
             if tf == "M1":
-                cutoff_time = source.iloc[cutoff-1].open_time
+                cutoff_time = source.iloc[cutoff-1].close_time
                 changed_m5 = frames["M5"].copy()
                 mask = changed_m5.close_time > cutoff_time
                 changed_m5.loc[mask, ["open", "high", "low", "close", "volume"]] *= 10
                 perturbed = build_features(source.iloc[:cutoff].copy(), timeframe=tf, round_levels=CONFIG[name], native_m5=changed_m5).frame
                 future_m5_mismatch = _mismatches(prefix, perturbed)
-            violations = int((out.m5_source_close_time > out.open_time).sum()) if tf == "M1" else 0
+            violations = int((out.m5_source_close_time > out.close_time).sum()) if tf == "M1" else 0
             report["datasets"][f"{name}_{tf}"] = {
                 "input_rows": len(source), "output_rows": len(out), "phase2a_feature_count": len(meta["phase2a_feature_names"]),
                 "structure_feature_count": len(meta["structure_feature_names"]),

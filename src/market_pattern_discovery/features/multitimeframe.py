@@ -1,7 +1,7 @@
 """Causal native-M5 context for M1 decision rows.
 
-Alignment deliberately reuses Phase 1B's decision timestamp (M1 ``open_time``):
-only M5 rows with ``close_time <= open_time`` on the same Moscow date match.
+M1 features describe its current closed candle, so decision time is M1
+``close_time``. Only M5 rows closed by then on the same Moscow date match.
 """
 from __future__ import annotations
 
@@ -34,8 +34,8 @@ def attach_m5_context(m1: pd.DataFrame, m5: pd.DataFrame) -> tuple[pd.DataFrame,
         columns={"open_time": "m5_source_open_time", "close_time": "m5_source_close_time",
                  **{name: f"m5_{name}" for name in M5_CONTEXT_SOURCE_COLUMNS}})
     # merge_asof requires globally ordered join keys; the date equality prevents carry.
-    merged = pd.merge_asof(left.sort_values("open_time"), payload.sort_values("m5_source_close_time"),
-                           left_on="open_time", right_on="m5_source_close_time",
+    merged = pd.merge_asof(left.sort_values("close_time"), payload.sort_values("m5_source_close_time"),
+                           left_on="close_time", right_on="m5_source_close_time",
                            by="_decision_date", direction="backward", allow_exact_matches=True)
     merged = merged.sort_values("open_time").drop(columns="_decision_date").reset_index(drop=True)
     merged["direction_agreement_m1_m5"] = (merged.candle_direction == merged.m5_candle_direction).where(merged.m5_candle_direction.notna()).astype(float)

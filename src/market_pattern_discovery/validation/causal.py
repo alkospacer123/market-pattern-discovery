@@ -10,10 +10,10 @@ def latest_closed_m5(m5: pd.DataFrame, decision_time: pd.Timestamp) -> pd.Series
     return None if available.empty else available.iloc[-1]
 
 def causal_alignment(m1: pd.DataFrame, m5: pd.DataFrame) -> pd.DataFrame:
-    if not m1.open_time.is_monotonic_increasing or not m5.close_time.is_monotonic_increasing:
+    """Attach the latest M5 closed by the M1 candle's actual decision time."""
+    if not m1.close_time.is_monotonic_increasing or not m5.close_time.is_monotonic_increasing:
         raise ValueError("inputs must be ordered")
     out = pd.merge_asof(m1, m5[["close_time"]].rename(columns={"close_time": "matched_m5_close"}),
-                        left_on="open_time", right_on="matched_m5_close", direction="backward")
-    out["causal_violation"] = out.matched_m5_close > out.open_time
+                        left_on="close_time", right_on="matched_m5_close", direction="backward")
+    out["causal_violation"] = out.matched_m5_close > out.close_time
     return out
-

@@ -16,7 +16,7 @@ def candles(count=70, start="2026-01-05 10:00", timeframe="M1"):
 
 def build(frame, m5=None):
     return build_features(frame, timeframe=frame.timeframe.iloc[0],
-                          round_levels=RoundLevelConfig("0.05"), native_m5=m5)
+                          round_levels=RoundLevelConfig("0.001", "0.05"), native_m5=m5)
 
 
 def test_manual_structure_prior_excludes_current_and_resets():
@@ -32,7 +32,7 @@ def test_manual_structure_prior_excludes_current_and_resets():
     assert broken.loc[5, "break_above_prior_high_5"] == 1
 
 
-def test_decimal_round_grid_tie_touch_cross_and_history():
+def test_cny_decimal_round_grid_tick_boundaries_and_tie():
     frame = candles()
     frame.loc[0, ["open", "high", "low", "close"]] = [11.1, 11.1, 11.1, 11.1]
     frame.loc[1, ["open", "high", "low", "close"]] = [11.10, 11.11, 11.09, 11.10]
@@ -43,8 +43,7 @@ def test_decimal_round_grid_tie_touch_cross_and_history():
     assert out.loc[2, "nearest_round_level"] == 11.15  # midpoint ties upward
     assert out.loc[0, "signed_distance_to_nearest_round_level"] == pytest.approx(0)
     assert out.loc[1, "touches_nearest_round_level"] == 1 and out.loc[1, "crosses_nearest_round_level"] == 1
-    assert out.loc[4, "touch_count_5"] == 2
-    assert out.loc[2, "bars_since_last_touch"] == 1
+    assert pd.isna(out.loc[2, "bars_since_last_touch"])  # current reference changed to 11.15
     artifacts = candles()
     artifacts.loc[0:2, "close"] = [11.10-1e-12, 11.10, 11.10+1e-12]
     artifacts.loc[0:2, "open"] = artifacts.loc[0:2, "close"]
@@ -52,17 +51,61 @@ def test_decimal_round_grid_tie_touch_cross_and_history():
     artifacts.loc[0:2, "low"] = artifacts.loc[0:2, "close"]-1e-5
     classified = build(artifacts).frame
     assert classified.loc[:2, "nearest_round_level"].tolist() == pytest.approx([11.10]*3)
+    cny = candles()
+    cny.loc[:3, "close"] = [12.600, 12.601, 12.599, 12.625]
+    cny.loc[:3, "open"] = cny.loc[:3, "close"]
+    cny.loc[:3, "high"] = cny.loc[:3, "close"]
+    cny.loc[:3, "low"] = cny.loc[:3, "close"]
+    levels = build(cny).frame
+    assert levels.loc[:2, "nearest_round_level"].tolist() == pytest.approx([12.60]*3)
+    assert levels.loc[0, "round_level_above"] == pytest.approx(12.65)
+    assert levels.loc[3, "nearest_round_level"] == pytest.approx(12.65)
+
+
+def test_si_canonical_grid_and_configuration_validation():
+    frame = candles(); frame.instrument = "USDRUBF"
+    frame.loc[:3, "close"] = [85.00, 85.01, 84.99, 85.05]
+    frame.loc[:3, "open"] = frame.loc[:3, "close"]
+    frame.loc[:3, "high"] = frame.loc[:3, "close"]
+    frame.loc[:3, "low"] = frame.loc[:3, "close"]
+    cfg = RoundLevelConfig("0.01", "0.10")
+    out = build_features(frame, timeframe="M1", round_levels=cfg).frame
+    assert cfg.round_level_step_ticks == 10
+    assert out.loc[:2, "nearest_round_level"].tolist() == pytest.approx([85.0]*3)
+    assert out.loc[0, "round_level_above"] == pytest.approx(85.10)
+    assert out.loc[3, "nearest_round_level"] == pytest.approx(85.10)
+    with pytest.raises(ValueError): RoundLevelConfig("0", "0.10")
+    with pytest.raises(ValueError): RoundLevelConfig("0.03", "0.10")
+
+
+def test_historical_counts_use_current_reference_level_and_reset_by_day():
+    frame = candles(70)
+    # Rows 5, 7, 9 touch/cross 11.50. Other closes still select 11.50 as
+    # current reference without touching it; expected values are hand specified.
+    frame.loc[:9, ["open", "high", "low", "close"]] = [11.476, 11.48, 11.47, 11.476]
+    for i in (5, 7, 9): frame.loc[i, ["open", "high", "low", "close"]] = [11.49, 11.51, 11.49, 11.50]
+    out = build(frame).frame
+    assert out.loc[9, "nearest_round_level"] == pytest.approx(11.50)
+    assert out.loc[5, "touch_count_5"] == 1
+    assert out.loc[7, "touch_count_5"] == 2
+    assert out.loc[9, "touch_count_5"] == 3 and out.loc[9, "cross_count_5"] == 3
+    assert out.loc[6, "bars_since_last_touch"] == 1
+    assert out.loc[8, "bars_since_last_touch"] == 1
+    assert out.loc[9, "bars_since_last_touch"] == 0
+    next_day = candles(5, "2026-01-06 10:00")
+    next_day.loc[0, ["open", "high", "low", "close"]] = 11.461
+    combined = build(pd.concat([frame, next_day], ignore_index=True)).frame
+    assert pd.isna(combined.loc[70, "bars_since_last_touch"])
 
 
 def test_m5_exact_boundary_missing_day_and_cross_timeframe():
     m5 = candles(3, "2026-01-05 10:00", "M5")
     m1 = candles(7, "2026-01-05 10:04", "M1")
     out = build(m1, m5).frame
-    assert pd.isna(out.loc[0, "m5_source_close_time"])
-    assert out.loc[1, "m5_source_open_time"] == m5.loc[0, "open_time"]  # equality at 10:05
-    assert out.loc[5, "m5_source_open_time"] == m5.loc[0, "open_time"]  # 10:09 cannot see 10:05
-    assert out.loc[6, "m5_source_open_time"] == m5.loc[1, "open_time"]  # 10:10 may
-    assert out.loc[1, "direction_agreement_m1_m5"] == 1
+    assert out.loc[0, "m5_source_open_time"] == m5.loc[0, "open_time"]  # M1 close equality at 10:05
+    assert out.loc[4, "m5_source_open_time"] == m5.loc[0, "open_time"]  # close 10:09 cannot see next M5
+    assert out.loc[5, "m5_source_open_time"] == m5.loc[1, "open_time"]  # close 10:10 may
+    assert out.loc[0, "direction_agreement_m1_m5"] == 1
     next_day = candles(1, "2026-01-06 10:00")
     assert pd.isna(build(next_day, m5).frame.loc[0, "m5_source_close_time"])
 
