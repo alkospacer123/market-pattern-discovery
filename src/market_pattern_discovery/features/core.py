@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-from .schema import FEATURE_BUILDER_VERSION, CoreFeatureConfig
+from .schema import CORE_FEATURE_BUILDER_VERSION, CoreFeatureConfig
 
 REQUIRED = ("open", "high", "low", "close", "volume", "instrument", "timeframe", "open_time", "close_time")
 
@@ -157,7 +157,7 @@ def build_core_features(frame: pd.DataFrame, *, timeframe: str,
         raise ArithmeticError("feature output contains infinity")
     feature_names = [column for column in out.columns if column not in frame.columns]
     warmup = {str(window): int(out[f"atr_{window}"].isna().sum()) for window in cfg.rolling_windows}
-    metadata = {"feature_builder_version": FEATURE_BUILDER_VERSION,
+    metadata = {"feature_builder_version": CORE_FEATURE_BUILDER_VERSION,
                 "instrument": str(out.instrument.iloc[0]), "timeframe": timeframe,
                 "input_rows": len(frame), "output_rows": len(out), "feature_names": feature_names,
                 "configured_windows": {"general": list(cfg.general_windows), "rolling": list(cfg.rolling_windows)},
