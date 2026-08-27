@@ -66,12 +66,12 @@ def test_cluster_target_isolation_and_seed_determinism():
 
 
 def _effect():
-    return {"effect_id":"EFF-1","experiment_id":"EXP-1","method":"univariate_screen","pattern_definition":{"representation":"quantile_state"},"feature_conditions":[],"target_behavior":"y","instrument":"CNY","timeframe":"M1","sample_size":100,"unique_days":12,"coverage":.1,"baseline_size":1000,"baseline_distribution":{},"candidate_distribution":{},"effect_metrics":{"primary_effect":.1},"uncertainty":{"lower":.01,"upper":.2},"raw_p":.01,"adjusted_q":.02,"fold_results":[{"effect":.1},{"effect":.2}],"replication_result":"not_tested","multiplicity_family":"fam","rank_within_experiment":1,"screening_status":"promoted","candidate_id":None,"target_family":"DIRECTIONAL"}
+    return {"hypothesis_id":"HYP-U-000000001","target_role":"HORIZON","contrast":"PRIMARY","horizon":60,"effect_id":"EFF-1","experiment_id":"EXP-1","method":"univariate_screen","pattern_definition":{"representation":"quantile_state"},"feature_conditions":[],"target_behavior":"y","instrument":"CNY","timeframe":"M1","sample_size":100,"unique_days":12,"coverage":.1,"baseline_size":1000,"baseline_distribution":{},"candidate_distribution":{},"effect_metrics":{"primary_effect":.1,"primary_effect_signed":.1,"primary_effect_absolute":.1},"uncertainty":{"lower":.01,"upper":.2},"raw_p":.01,"adjusted_q":.02,"fold_results":[{"effect":.1},{"effect":.2}],"replication_result":{"classification":"not_tested"},"multiplicity_family":"fam","rank_within_experiment":1,"screening_status":"promoted","candidate_id":None,"target_family":"DIRECTIONAL"}
 
 
-def test_candidate_screening_lineage_and_immutability():
+def test_candidate_screening_lineage_and_immutability(tmp_path):
     effect=_effect(); ok,reasons=screen_effect(effect,load_discovery_protocol()["candidate_screening_policy"]); assert ok and not reasons
-    candidate=create_candidate_from_effect(effect,code_commit="abc",signatures={"x":"y"},discovery_data_period=["a","b"])
+    candidate=create_candidate_from_effect(effect,code_commit="abc",signatures={"x":"y"},discovery_data_period=["a","b"],directory=tmp_path)
     frozen=freeze_for_confirmation(candidate); changed=copy.deepcopy(frozen); changed["pattern_definition"]["state"]="other"
     with pytest.raises(ValueError,match="new Candidate ID"): assert_candidate_immutable(frozen,changed)
 

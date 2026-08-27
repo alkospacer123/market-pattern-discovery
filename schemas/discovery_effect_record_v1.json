@@ -1,1 +1,208 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Discovery Effect Record v1","type":"object","required":["effect_id","experiment_id","method","pattern_definition","feature_conditions","target_behavior","instrument","timeframe","sample_size","unique_days","coverage","baseline_size","baseline_distribution","candidate_distribution","effect_metrics","uncertainty","raw_p","adjusted_q","fold_results","replication_result","multiplicity_family","rank_within_experiment","screening_status","candidate_id"],"properties":{"effect_id":{"type":"string"},"experiment_id":{"type":"string"},"method":{"type":"string"},"pattern_definition":{"type":"object"},"feature_conditions":{"type":"array"},"target_behavior":{"type":"string"},"instrument":{"type":"string"},"timeframe":{"type":"string"},"sample_size":{"type":"integer"},"unique_days":{"type":"integer"},"coverage":{"type":"number"},"baseline_size":{"type":"integer"},"baseline_distribution":{"type":"object"},"candidate_distribution":{"type":"object"},"effect_metrics":{"type":"object"},"uncertainty":{"type":"object"},"raw_p":{"type":["number","null"]},"adjusted_q":{"type":["number","null"]},"fold_results":{"type":"array"},"replication_result":{"enum":["not_applicable","not_tested","directionally_consistent","strong_replication","failed_replication"]},"multiplicity_family":{"type":"string"},"rank_within_experiment":{"type":"integer"},"screening_status":{"type":"string"},"candidate_id":{"type":["string","null"]}}}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "adjusted_q": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "baseline_distribution": {
+      "type": "object"
+    },
+    "baseline_size": {
+      "type": "integer"
+    },
+    "candidate_distribution": {
+      "type": "object"
+    },
+    "candidate_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contrast": {
+      "type": "string"
+    },
+    "coverage": {
+      "type": "number"
+    },
+    "effect_id": {
+      "type": "string"
+    },
+    "effect_metrics": {
+      "additionalProperties": true,
+      "properties": {
+        "primary_effect": {
+          "type": "number"
+        },
+        "primary_effect_absolute": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "primary_effect_signed": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "primary_effect_signed",
+        "primary_effect_absolute"
+      ],
+      "type": "object"
+    },
+    "experiment_id": {
+      "type": "string"
+    },
+    "feature_conditions": {
+      "type": "array"
+    },
+    "fold_results": {
+      "type": "array"
+    },
+    "horizon": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "hypothesis_id": {
+      "type": "string"
+    },
+    "instrument": {
+      "type": "string"
+    },
+    "method": {
+      "type": "string"
+    },
+    "multiplicity_family": {
+      "type": "string"
+    },
+    "pattern_definition": {
+      "type": "object"
+    },
+    "rank_within_experiment": {
+      "type": "integer"
+    },
+    "raw_p": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "replication_result": {
+      "additionalProperties": false,
+      "properties": {
+        "classification": {
+          "enum": [
+            "not_applicable",
+            "not_tested",
+            "directionally_consistent",
+            "strong_replication",
+            "failed_replication"
+          ]
+        },
+        "coverage": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "effect": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "uncertainty": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "unique_days": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "classification"
+      ],
+      "type": "object"
+    },
+    "sample_size": {
+      "type": "integer"
+    },
+    "screening_status": {
+      "enum": [
+        "enumerated",
+        "ineligible",
+        "evaluated",
+        "screened_out",
+        "screened",
+        "promoted",
+        "duplicate_mask"
+      ]
+    },
+    "target_behavior": {
+      "type": "string"
+    },
+    "target_family": {
+      "type": "string"
+    },
+    "target_role": {
+      "type": "string"
+    },
+    "timeframe": {
+      "type": "string"
+    },
+    "uncertainty": {
+      "type": "object"
+    },
+    "unique_days": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "contrast",
+    "horizon",
+    "target_role",
+    "target_family",
+    "hypothesis_id",
+    "effect_id",
+    "experiment_id",
+    "method",
+    "pattern_definition",
+    "feature_conditions",
+    "target_behavior",
+    "instrument",
+    "timeframe",
+    "sample_size",
+    "unique_days",
+    "coverage",
+    "baseline_size",
+    "baseline_distribution",
+    "candidate_distribution",
+    "effect_metrics",
+    "uncertainty",
+    "raw_p",
+    "adjusted_q",
+    "fold_results",
+    "replication_result",
+    "multiplicity_family",
+    "rank_within_experiment",
+    "screening_status",
+    "candidate_id"
+  ],
+  "title": "Discovery Effect Record v1",
+  "type": "object"
+}
