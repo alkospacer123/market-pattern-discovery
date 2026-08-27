@@ -1,0 +1,2597 @@
+{
+  "artifact_schemas": [
+    "search_space.json",
+    "multiplicity_families.json",
+    "effect_table",
+    "checkpoint_manifest",
+    "replication_results",
+    "shortlist",
+    "candidate_summary",
+    "phase5b_summary"
+  ],
+  "baseline": "all target-valid rows, same instrument/timeframe/DISCOVERY interval",
+  "batch_keys": [
+    "method",
+    "instrument",
+    "timeframe",
+    "target_family",
+    "fixed_hypothesis_range"
+  ],
+  "bootstrap": {
+    "ci": [
+      0.025,
+      0.975
+    ],
+    "method": "complete Moscow trading-date block resampling",
+    "replications": 1000,
+    "seed": 20260401
+  },
+  "candidate_path": "promoted effect -> research.registry.create_candidate -> discovered -> screened",
+  "checkpoint_root": "results/",
+  "completeness_checks": [
+    "data_scope",
+    "feature_universe",
+    "feature_type",
+    "feature_state",
+    "state_fitting",
+    "state_ordering",
+    "target_mapping",
+    "target_contrasts",
+    "valid_domain",
+    "baseline",
+    "hypothesis_enumeration",
+    "hypothesis_ids",
+    "pair_enumeration",
+    "interaction_states",
+    "subgroup_enumeration",
+    "subgroup_cap",
+    "effect_metrics",
+    "uncertainty",
+    "null_inference",
+    "p_value",
+    "fdr",
+    "walk_forward",
+    "eligibility",
+    "screening",
+    "screening_statuses",
+    "candidate_creation",
+    "candidate_lifecycle",
+    "candidate_ids",
+    "replication",
+    "replication_classes",
+    "ranking",
+    "shortlist",
+    "experiment_preregistration",
+    "experiment_finalization",
+    "batching",
+    "checkpoint_resume",
+    "artifact_schemas",
+    "completeness_reconciliation"
+  ],
+  "discovery_execution_version": "1.0",
+  "eligibility": {
+    "minimum_baseline_observations": 100,
+    "minimum_candidate_observations": 30,
+    "minimum_candidate_unique_days_bootstrap": 5,
+    "minimum_valid_bootstrap_blocks": 5,
+    "promotion_minimum_coverage": 0.01,
+    "promotion_minimum_unique_days": 10
+  },
+  "execution_seed": 20260401,
+  "experiment_methods": [
+    "univariate_screen",
+    "interaction_search",
+    "subgroup_discovery"
+  ],
+  "fdr_family": [
+    "instrument",
+    "timeframe",
+    "discovery_method",
+    "target_family",
+    "target_role_or_horizon"
+  ],
+  "feature_inventory": {
+    "M1": [
+      {
+        "exclusion_reason": "identifier / nontransferable calendar-date key; retained only for grouping, block inference, lineage, and temporal analysis",
+        "feature": "trading_date",
+        "index": 0,
+        "representation": "excluded"
+      },
+      {
+        "feature": "candle_range",
+        "index": 1,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_body",
+        "index": 2,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "abs_body",
+        "index": 3,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "upper_wick",
+        "index": 4,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "lower_wick",
+        "index": 5,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "body_to_range",
+        "index": 6,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "upper_wick_to_range",
+        "index": 7,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "lower_wick_to_range",
+        "index": 8,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_position_in_range",
+        "index": 9,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "open_position_in_range",
+        "index": 10,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "candle_direction",
+        "index": 11,
+        "representation": "categorical"
+      },
+      {
+        "feature": "open_to_close_return",
+        "index": 12,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "high_to_close_distance",
+        "index": 13,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "low_to_close_distance",
+        "index": 14,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "local_hour",
+        "index": 15,
+        "representation": "integer_categorical"
+      },
+      {
+        "feature": "local_minute",
+        "index": 16,
+        "representation": "integer_categorical"
+      },
+      {
+        "feature": "minute_of_day",
+        "index": 17,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "weekday",
+        "index": 18,
+        "representation": "integer_categorical"
+      },
+      {
+        "feature": "minutes_since_first_available_candle_of_day",
+        "index": 19,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "true_range",
+        "index": 20,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "consecutive_up_candles",
+        "index": 21,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "consecutive_down_candles",
+        "index": 22,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_delta_1",
+        "index": 23,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_return_1",
+        "index": 24,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "log_return_1",
+        "index": 25,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cumulative_absolute_movement_1",
+        "index": 26,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_up_bars_1",
+        "index": 27,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_down_bars_1",
+        "index": 28,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_direction_balance_1",
+        "index": 29,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_delta_3",
+        "index": 30,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_return_3",
+        "index": 31,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "log_return_3",
+        "index": 32,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cumulative_absolute_movement_3",
+        "index": 33,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "directional_efficiency_3",
+        "index": 34,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_up_bars_3",
+        "index": 35,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_down_bars_3",
+        "index": 36,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_direction_balance_3",
+        "index": 37,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_delta_5",
+        "index": 38,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_return_5",
+        "index": 39,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "log_return_5",
+        "index": 40,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cumulative_absolute_movement_5",
+        "index": 41,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "directional_efficiency_5",
+        "index": 42,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_up_bars_5",
+        "index": 43,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_down_bars_5",
+        "index": 44,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_direction_balance_5",
+        "index": 45,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_delta_10",
+        "index": 46,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_return_10",
+        "index": 47,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "log_return_10",
+        "index": 48,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cumulative_absolute_movement_10",
+        "index": 49,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "directional_efficiency_10",
+        "index": 50,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_up_bars_10",
+        "index": 51,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_down_bars_10",
+        "index": 52,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_direction_balance_10",
+        "index": 53,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_delta_20",
+        "index": 54,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_return_20",
+        "index": 55,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "log_return_20",
+        "index": 56,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cumulative_absolute_movement_20",
+        "index": 57,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "directional_efficiency_20",
+        "index": 58,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_up_bars_20",
+        "index": 59,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_down_bars_20",
+        "index": 60,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_direction_balance_20",
+        "index": 61,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_delta_30",
+        "index": 62,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_return_30",
+        "index": 63,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "log_return_30",
+        "index": 64,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cumulative_absolute_movement_30",
+        "index": 65,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "directional_efficiency_30",
+        "index": 66,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_up_bars_30",
+        "index": 67,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_down_bars_30",
+        "index": 68,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_direction_balance_30",
+        "index": 69,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_delta_60",
+        "index": 70,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_return_60",
+        "index": 71,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "log_return_60",
+        "index": 72,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cumulative_absolute_movement_60",
+        "index": 73,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "directional_efficiency_60",
+        "index": 74,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_up_bars_60",
+        "index": 75,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_down_bars_60",
+        "index": 76,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_direction_balance_60",
+        "index": 77,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "atr_5",
+        "index": 78,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_range_5",
+        "index": 79,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "median_range_5",
+        "index": 80,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "range_std_5",
+        "index": 81,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "return_std_5",
+        "index": 82,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_abs_return_5",
+        "index": 83,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "candle_range_over_atr_5",
+        "index": 84,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "abs_body_over_atr_5",
+        "index": 85,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_mean_5",
+        "index": 86,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_median_5",
+        "index": 87,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "relative_volume_5",
+        "index": 88,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_change_5",
+        "index": 89,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "atr_10",
+        "index": 90,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_range_10",
+        "index": 91,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "median_range_10",
+        "index": 92,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "range_std_10",
+        "index": 93,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "return_std_10",
+        "index": 94,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_abs_return_10",
+        "index": 95,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "candle_range_over_atr_10",
+        "index": 96,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "abs_body_over_atr_10",
+        "index": 97,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_mean_10",
+        "index": 98,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_median_10",
+        "index": 99,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "relative_volume_10",
+        "index": 100,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_change_10",
+        "index": 101,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "atr_20",
+        "index": 102,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_range_20",
+        "index": 103,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "median_range_20",
+        "index": 104,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "range_std_20",
+        "index": 105,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "return_std_20",
+        "index": 106,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_abs_return_20",
+        "index": 107,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "candle_range_over_atr_20",
+        "index": 108,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "abs_body_over_atr_20",
+        "index": 109,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_mean_20",
+        "index": 110,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_median_20",
+        "index": 111,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "relative_volume_20",
+        "index": 112,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_change_20",
+        "index": 113,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_zscore_20",
+        "index": 114,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "atr_60",
+        "index": 115,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_range_60",
+        "index": 116,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "median_range_60",
+        "index": 117,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "range_std_60",
+        "index": 118,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "return_std_60",
+        "index": 119,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_abs_return_60",
+        "index": 120,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "candle_range_over_atr_60",
+        "index": 121,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "abs_body_over_atr_60",
+        "index": 122,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_mean_60",
+        "index": 123,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_median_60",
+        "index": 124,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "relative_volume_60",
+        "index": 125,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_change_60",
+        "index": 126,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_zscore_60",
+        "index": 127,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "atr_5_over_atr_20",
+        "index": 128,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "atr_10_over_atr_60",
+        "index": 129,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_range_5_over_mean_range_20",
+        "index": 130,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_range_10_over_mean_range_60",
+        "index": 131,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_high_5",
+        "index": 132,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_low_5",
+        "index": 133,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_range_5",
+        "index": 134,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_rolling_high_5",
+        "index": 135,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_rolling_low_5",
+        "index": 136,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "position_in_rolling_range_5",
+        "index": 137,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "prior_high_5",
+        "index": 138,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "prior_low_5",
+        "index": 139,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_prior_high_5",
+        "index": 140,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_prior_low_5",
+        "index": 141,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "break_above_prior_high_5",
+        "index": 142,
+        "representation": "binary"
+      },
+      {
+        "feature": "break_below_prior_low_5",
+        "index": 143,
+        "representation": "binary"
+      },
+      {
+        "feature": "new_high_5",
+        "index": 144,
+        "representation": "binary"
+      },
+      {
+        "feature": "new_low_5",
+        "index": 145,
+        "representation": "binary"
+      },
+      {
+        "feature": "rolling_high_10",
+        "index": 146,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_low_10",
+        "index": 147,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_range_10",
+        "index": 148,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_rolling_high_10",
+        "index": 149,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_rolling_low_10",
+        "index": 150,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "position_in_rolling_range_10",
+        "index": 151,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "prior_high_10",
+        "index": 152,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "prior_low_10",
+        "index": 153,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_prior_high_10",
+        "index": 154,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_prior_low_10",
+        "index": 155,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "break_above_prior_high_10",
+        "index": 156,
+        "representation": "binary"
+      },
+      {
+        "feature": "break_below_prior_low_10",
+        "index": 157,
+        "representation": "binary"
+      },
+      {
+        "feature": "new_high_10",
+        "index": 158,
+        "representation": "binary"
+      },
+      {
+        "feature": "new_low_10",
+        "index": 159,
+        "representation": "binary"
+      },
+      {
+        "feature": "rolling_high_20",
+        "index": 160,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_low_20",
+        "index": 161,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_range_20",
+        "index": 162,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_rolling_high_20",
+        "index": 163,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_rolling_low_20",
+        "index": 164,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "position_in_rolling_range_20",
+        "index": 165,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "prior_high_20",
+        "index": 166,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "prior_low_20",
+        "index": 167,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_prior_high_20",
+        "index": 168,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_prior_low_20",
+        "index": 169,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "break_above_prior_high_20",
+        "index": 170,
+        "representation": "binary"
+      },
+      {
+        "feature": "break_below_prior_low_20",
+        "index": 171,
+        "representation": "binary"
+      },
+      {
+        "feature": "new_high_20",
+        "index": 172,
+        "representation": "binary"
+      },
+      {
+        "feature": "new_low_20",
+        "index": 173,
+        "representation": "binary"
+      },
+      {
+        "feature": "bars_since_new_high_20",
+        "index": 174,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "bars_since_new_low_20",
+        "index": 175,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_high_change_20",
+        "index": 176,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_low_change_20",
+        "index": 177,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_range_change_20",
+        "index": 178,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_from_range_midpoint_20",
+        "index": 179,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "normalized_distance_from_midpoint_20",
+        "index": 180,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_high_60",
+        "index": 181,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_low_60",
+        "index": 182,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_range_60",
+        "index": 183,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_rolling_high_60",
+        "index": 184,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_rolling_low_60",
+        "index": 185,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "position_in_rolling_range_60",
+        "index": 186,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "prior_high_60",
+        "index": 187,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "prior_low_60",
+        "index": 188,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_prior_high_60",
+        "index": 189,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_prior_low_60",
+        "index": 190,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "break_above_prior_high_60",
+        "index": 191,
+        "representation": "binary"
+      },
+      {
+        "feature": "break_below_prior_low_60",
+        "index": 192,
+        "representation": "binary"
+      },
+      {
+        "feature": "new_high_60",
+        "index": 193,
+        "representation": "binary"
+      },
+      {
+        "feature": "new_low_60",
+        "index": 194,
+        "representation": "binary"
+      },
+      {
+        "feature": "nearest_round_level",
+        "index": 195,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "round_level_below",
+        "index": 196,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "round_level_above",
+        "index": 197,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_nearest_round_level",
+        "index": 198,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_round_level_below",
+        "index": 199,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_round_level_above",
+        "index": 200,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_distance_to_nearest_round_level",
+        "index": 201,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "position_between_round_levels",
+        "index": 202,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_nearest_round_level_in_steps",
+        "index": 203,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_nearest_round_level_over_atr_20",
+        "index": 204,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "touches_nearest_round_level",
+        "index": 205,
+        "representation": "binary"
+      },
+      {
+        "feature": "crosses_nearest_round_level",
+        "index": 206,
+        "representation": "binary"
+      },
+      {
+        "feature": "closes_above_nearest_round_level",
+        "index": 207,
+        "representation": "binary"
+      },
+      {
+        "feature": "closes_below_nearest_round_level",
+        "index": 208,
+        "representation": "binary"
+      },
+      {
+        "feature": "penetration_distance",
+        "index": 209,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "touch_count_5",
+        "index": 210,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "touch_count_10",
+        "index": 211,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "touch_count_20",
+        "index": 212,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "touch_count_60",
+        "index": 213,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cross_count_5",
+        "index": 214,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cross_count_10",
+        "index": 215,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cross_count_20",
+        "index": 216,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cross_count_60",
+        "index": 217,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "bars_since_last_touch",
+        "index": 218,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "bars_since_last_cross",
+        "index": 219,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "m5_candle_direction",
+        "index": 220,
+        "representation": "categorical"
+      },
+      {
+        "feature": "m5_candle_range",
+        "index": 221,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "m5_body_to_range",
+        "index": 222,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "m5_close_return_5",
+        "index": 223,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "m5_atr_5",
+        "index": 224,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "m5_atr_20",
+        "index": 225,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "m5_position_in_rolling_range_20",
+        "index": 226,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "m5_distance_to_prior_high_20",
+        "index": 227,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "m5_distance_to_prior_low_20",
+        "index": 228,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "m5_nearest_round_level",
+        "index": 229,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "m5_distance_to_nearest_round_level",
+        "index": 230,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "m5_touches_nearest_round_level",
+        "index": 231,
+        "representation": "binary"
+      },
+      {
+        "feature": "m5_crosses_nearest_round_level",
+        "index": 232,
+        "representation": "binary"
+      },
+      {
+        "feature": "m5_high",
+        "index": 233,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "m5_low",
+        "index": 234,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "direction_agreement_m1_m5",
+        "index": 235,
+        "representation": "categorical"
+      },
+      {
+        "feature": "m1_range_over_m5_range",
+        "index": 236,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "m1_atr5_over_m5_atr5",
+        "index": 237,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "m1_close_position_relative_to_m5_range",
+        "index": 238,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_m5_high",
+        "index": 239,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_m5_low",
+        "index": 240,
+        "representation": "continuous_quantile"
+      }
+    ],
+    "M5": [
+      {
+        "exclusion_reason": "identifier / nontransferable calendar-date key; retained only for grouping, block inference, lineage, and temporal analysis",
+        "feature": "trading_date",
+        "index": 0,
+        "representation": "excluded"
+      },
+      {
+        "feature": "candle_range",
+        "index": 1,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_body",
+        "index": 2,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "abs_body",
+        "index": 3,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "upper_wick",
+        "index": 4,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "lower_wick",
+        "index": 5,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "body_to_range",
+        "index": 6,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "upper_wick_to_range",
+        "index": 7,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "lower_wick_to_range",
+        "index": 8,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_position_in_range",
+        "index": 9,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "open_position_in_range",
+        "index": 10,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "candle_direction",
+        "index": 11,
+        "representation": "categorical"
+      },
+      {
+        "feature": "open_to_close_return",
+        "index": 12,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "high_to_close_distance",
+        "index": 13,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "low_to_close_distance",
+        "index": 14,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "local_hour",
+        "index": 15,
+        "representation": "integer_categorical"
+      },
+      {
+        "feature": "local_minute",
+        "index": 16,
+        "representation": "integer_categorical"
+      },
+      {
+        "feature": "minute_of_day",
+        "index": 17,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "weekday",
+        "index": 18,
+        "representation": "integer_categorical"
+      },
+      {
+        "feature": "minutes_since_first_available_candle_of_day",
+        "index": 19,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "true_range",
+        "index": 20,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "consecutive_up_candles",
+        "index": 21,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "consecutive_down_candles",
+        "index": 22,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_delta_1",
+        "index": 23,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_return_1",
+        "index": 24,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "log_return_1",
+        "index": 25,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cumulative_absolute_movement_1",
+        "index": 26,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_up_bars_1",
+        "index": 27,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_down_bars_1",
+        "index": 28,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_direction_balance_1",
+        "index": 29,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_delta_3",
+        "index": 30,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_return_3",
+        "index": 31,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "log_return_3",
+        "index": 32,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cumulative_absolute_movement_3",
+        "index": 33,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "directional_efficiency_3",
+        "index": 34,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_up_bars_3",
+        "index": 35,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_down_bars_3",
+        "index": 36,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_direction_balance_3",
+        "index": 37,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_delta_5",
+        "index": 38,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_return_5",
+        "index": 39,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "log_return_5",
+        "index": 40,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cumulative_absolute_movement_5",
+        "index": 41,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "directional_efficiency_5",
+        "index": 42,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_up_bars_5",
+        "index": 43,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_down_bars_5",
+        "index": 44,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_direction_balance_5",
+        "index": 45,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_delta_10",
+        "index": 46,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_return_10",
+        "index": 47,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "log_return_10",
+        "index": 48,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cumulative_absolute_movement_10",
+        "index": 49,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "directional_efficiency_10",
+        "index": 50,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_up_bars_10",
+        "index": 51,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_down_bars_10",
+        "index": 52,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_direction_balance_10",
+        "index": 53,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_delta_20",
+        "index": 54,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_return_20",
+        "index": 55,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "log_return_20",
+        "index": 56,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cumulative_absolute_movement_20",
+        "index": 57,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "directional_efficiency_20",
+        "index": 58,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_up_bars_20",
+        "index": 59,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_down_bars_20",
+        "index": 60,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_direction_balance_20",
+        "index": 61,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_delta_30",
+        "index": 62,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_return_30",
+        "index": 63,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "log_return_30",
+        "index": 64,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cumulative_absolute_movement_30",
+        "index": 65,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "directional_efficiency_30",
+        "index": 66,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_up_bars_30",
+        "index": 67,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_down_bars_30",
+        "index": 68,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_direction_balance_30",
+        "index": 69,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_delta_60",
+        "index": 70,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "close_return_60",
+        "index": 71,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "log_return_60",
+        "index": 72,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cumulative_absolute_movement_60",
+        "index": 73,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "directional_efficiency_60",
+        "index": 74,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_up_bars_60",
+        "index": 75,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "fraction_down_bars_60",
+        "index": 76,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_direction_balance_60",
+        "index": 77,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "atr_5",
+        "index": 78,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_range_5",
+        "index": 79,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "median_range_5",
+        "index": 80,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "range_std_5",
+        "index": 81,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "return_std_5",
+        "index": 82,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_abs_return_5",
+        "index": 83,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "candle_range_over_atr_5",
+        "index": 84,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "abs_body_over_atr_5",
+        "index": 85,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_mean_5",
+        "index": 86,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_median_5",
+        "index": 87,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "relative_volume_5",
+        "index": 88,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_change_5",
+        "index": 89,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "atr_10",
+        "index": 90,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_range_10",
+        "index": 91,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "median_range_10",
+        "index": 92,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "range_std_10",
+        "index": 93,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "return_std_10",
+        "index": 94,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_abs_return_10",
+        "index": 95,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "candle_range_over_atr_10",
+        "index": 96,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "abs_body_over_atr_10",
+        "index": 97,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_mean_10",
+        "index": 98,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_median_10",
+        "index": 99,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "relative_volume_10",
+        "index": 100,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_change_10",
+        "index": 101,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "atr_20",
+        "index": 102,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_range_20",
+        "index": 103,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "median_range_20",
+        "index": 104,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "range_std_20",
+        "index": 105,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "return_std_20",
+        "index": 106,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_abs_return_20",
+        "index": 107,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "candle_range_over_atr_20",
+        "index": 108,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "abs_body_over_atr_20",
+        "index": 109,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_mean_20",
+        "index": 110,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_median_20",
+        "index": 111,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "relative_volume_20",
+        "index": 112,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_change_20",
+        "index": 113,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_zscore_20",
+        "index": 114,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "atr_60",
+        "index": 115,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_range_60",
+        "index": 116,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "median_range_60",
+        "index": 117,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "range_std_60",
+        "index": 118,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "return_std_60",
+        "index": 119,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_abs_return_60",
+        "index": 120,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "candle_range_over_atr_60",
+        "index": 121,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "abs_body_over_atr_60",
+        "index": 122,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_mean_60",
+        "index": 123,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_median_60",
+        "index": 124,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "relative_volume_60",
+        "index": 125,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_change_60",
+        "index": 126,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "volume_zscore_60",
+        "index": 127,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "atr_5_over_atr_20",
+        "index": 128,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "atr_10_over_atr_60",
+        "index": 129,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_range_5_over_mean_range_20",
+        "index": 130,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "mean_range_10_over_mean_range_60",
+        "index": 131,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_high_5",
+        "index": 132,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_low_5",
+        "index": 133,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_range_5",
+        "index": 134,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_rolling_high_5",
+        "index": 135,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_rolling_low_5",
+        "index": 136,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "position_in_rolling_range_5",
+        "index": 137,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "prior_high_5",
+        "index": 138,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "prior_low_5",
+        "index": 139,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_prior_high_5",
+        "index": 140,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_prior_low_5",
+        "index": 141,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "break_above_prior_high_5",
+        "index": 142,
+        "representation": "binary"
+      },
+      {
+        "feature": "break_below_prior_low_5",
+        "index": 143,
+        "representation": "binary"
+      },
+      {
+        "feature": "new_high_5",
+        "index": 144,
+        "representation": "binary"
+      },
+      {
+        "feature": "new_low_5",
+        "index": 145,
+        "representation": "binary"
+      },
+      {
+        "feature": "rolling_high_10",
+        "index": 146,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_low_10",
+        "index": 147,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_range_10",
+        "index": 148,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_rolling_high_10",
+        "index": 149,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_rolling_low_10",
+        "index": 150,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "position_in_rolling_range_10",
+        "index": 151,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "prior_high_10",
+        "index": 152,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "prior_low_10",
+        "index": 153,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_prior_high_10",
+        "index": 154,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_prior_low_10",
+        "index": 155,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "break_above_prior_high_10",
+        "index": 156,
+        "representation": "binary"
+      },
+      {
+        "feature": "break_below_prior_low_10",
+        "index": 157,
+        "representation": "binary"
+      },
+      {
+        "feature": "new_high_10",
+        "index": 158,
+        "representation": "binary"
+      },
+      {
+        "feature": "new_low_10",
+        "index": 159,
+        "representation": "binary"
+      },
+      {
+        "feature": "rolling_high_20",
+        "index": 160,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_low_20",
+        "index": 161,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_range_20",
+        "index": 162,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_rolling_high_20",
+        "index": 163,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_rolling_low_20",
+        "index": 164,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "position_in_rolling_range_20",
+        "index": 165,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "prior_high_20",
+        "index": 166,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "prior_low_20",
+        "index": 167,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_prior_high_20",
+        "index": 168,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_prior_low_20",
+        "index": 169,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "break_above_prior_high_20",
+        "index": 170,
+        "representation": "binary"
+      },
+      {
+        "feature": "break_below_prior_low_20",
+        "index": 171,
+        "representation": "binary"
+      },
+      {
+        "feature": "new_high_20",
+        "index": 172,
+        "representation": "binary"
+      },
+      {
+        "feature": "new_low_20",
+        "index": 173,
+        "representation": "binary"
+      },
+      {
+        "feature": "bars_since_new_high_20",
+        "index": 174,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "bars_since_new_low_20",
+        "index": 175,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_high_change_20",
+        "index": 176,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_low_change_20",
+        "index": 177,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_range_change_20",
+        "index": 178,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_from_range_midpoint_20",
+        "index": 179,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "normalized_distance_from_midpoint_20",
+        "index": 180,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_high_60",
+        "index": 181,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_low_60",
+        "index": 182,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "rolling_range_60",
+        "index": 183,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_rolling_high_60",
+        "index": 184,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_rolling_low_60",
+        "index": 185,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "position_in_rolling_range_60",
+        "index": 186,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "prior_high_60",
+        "index": 187,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "prior_low_60",
+        "index": 188,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_prior_high_60",
+        "index": 189,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_prior_low_60",
+        "index": 190,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "break_above_prior_high_60",
+        "index": 191,
+        "representation": "binary"
+      },
+      {
+        "feature": "break_below_prior_low_60",
+        "index": 192,
+        "representation": "binary"
+      },
+      {
+        "feature": "new_high_60",
+        "index": 193,
+        "representation": "binary"
+      },
+      {
+        "feature": "new_low_60",
+        "index": 194,
+        "representation": "binary"
+      },
+      {
+        "feature": "nearest_round_level",
+        "index": 195,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "round_level_below",
+        "index": 196,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "round_level_above",
+        "index": 197,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_nearest_round_level",
+        "index": 198,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_round_level_below",
+        "index": 199,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_round_level_above",
+        "index": 200,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "signed_distance_to_nearest_round_level",
+        "index": 201,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "position_between_round_levels",
+        "index": 202,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_nearest_round_level_in_steps",
+        "index": 203,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "distance_to_nearest_round_level_over_atr_20",
+        "index": 204,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "touches_nearest_round_level",
+        "index": 205,
+        "representation": "binary"
+      },
+      {
+        "feature": "crosses_nearest_round_level",
+        "index": 206,
+        "representation": "binary"
+      },
+      {
+        "feature": "closes_above_nearest_round_level",
+        "index": 207,
+        "representation": "binary"
+      },
+      {
+        "feature": "closes_below_nearest_round_level",
+        "index": 208,
+        "representation": "binary"
+      },
+      {
+        "feature": "penetration_distance",
+        "index": 209,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "touch_count_5",
+        "index": 210,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "touch_count_10",
+        "index": 211,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "touch_count_20",
+        "index": 212,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "touch_count_60",
+        "index": 213,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cross_count_5",
+        "index": 214,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cross_count_10",
+        "index": 215,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cross_count_20",
+        "index": 216,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "cross_count_60",
+        "index": 217,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "bars_since_last_touch",
+        "index": 218,
+        "representation": "continuous_quantile"
+      },
+      {
+        "feature": "bars_since_last_cross",
+        "index": 219,
+        "representation": "continuous_quantile"
+      }
+    ]
+  },
+  "feature_typing_policy": {
+    "categorical_semantic_direction": [
+      "candle_direction",
+      "m5_candle_direction",
+      "direction_agreement_m1_m5"
+    ],
+    "high_cardinality_ordinal_as_continuous_quantile": [
+      "minute_of_day",
+      "minutes_since_first_available_candle_of_day",
+      "consecutive_up_candles",
+      "consecutive_down_candles",
+      "touch_count_*",
+      "cross_count_*",
+      "bars_since_*"
+    ],
+    "identifier": [
+      "trading_date excluded from all discovery hypotheses and candidate definitions"
+    ],
+    "low_cardinality_integer_categorical": [
+      "local_hour",
+      "local_minute",
+      "weekday"
+    ],
+    "outcomes_consulted": false
+  },
+  "final_statuses": [
+    "completed",
+    "governed_stop",
+    "failed"
+  ],
+  "ids": {
+    "effect": "EFF-{method_letter}-{ordinal:09d}",
+    "interaction": "HYP-I-{ordinal:09d}",
+    "subgroup": "HYP-S-{ordinal:09d}",
+    "univariate": "HYP-U-{ordinal:09d}"
+  },
+  "interaction_pair_cap": 500,
+  "null": {
+    "exchangeability": "within-day phase stationarity; days and row identities remain fixed",
+    "method": "within_day_circular_membership_shift",
+    "null_hypothesis": "target outcomes are invariant to within-Moscow-day phase of the complete candidate membership sequence",
+    "p_value": "(1 + count(abs(T_null) >= abs(T_observed))) / (B + 1)",
+    "preserves": [
+      "row identity",
+      "day boundary",
+      "day length",
+      "membership count per day",
+      "membership serial structure"
+    ],
+    "replications": 1000,
+    "seed": 20260401,
+    "truncation": false
+  },
+  "orders": {
+    "instrument": [
+      "CNY",
+      "Si"
+    ],
+    "interaction": "unordered frozen indices i<j; same-family allowed; first 500",
+    "subgroup": "depth 2 then 3; feature combinations then Cartesian states",
+    "timeframe": [
+      "M1",
+      "M5"
+    ],
+    "univariate": [
+      "feature",
+      "state",
+      "target_mapping",
+      "contrast"
+    ]
+  },
+  "pairwise_selection": {
+    "cap": 500,
+    "eligible": "included discovery predictors only",
+    "identity": [
+      "execution_seed",
+      "timeframe",
+      "feature_a_frozen_index",
+      "feature_a_name",
+      "feature_b_frozen_index",
+      "feature_b_name"
+    ],
+    "method": "canonical_sha256_rank_all_i_lt_j",
+    "same_family_allowed": true
+  },
+  "quantile_fitting": {
+    "full": "DISCOVERY instrument/timeframe feature values only",
+    "ties": "lower interval",
+    "walk_forward": "TRAIN only; unchanged on VALIDATE"
+  },
+  "ranking": [
+    "promoted_first",
+    "replication_priority",
+    "same_direction_folds_desc",
+    "normalized_effect_desc",
+    "q_asc_nan_last",
+    "coverage_desc",
+    "unique_days_desc",
+    "effect_id_asc"
+  ],
+  "replication": {
+    "classes": [
+      "not_applicable",
+      "not_tested",
+      "directionally_consistent",
+      "strong_replication",
+      "failed_replication"
+    ],
+    "scope": "all promoted effects where semantic analogue exists",
+    "strong_ratio": 0.5,
+    "zero_tolerance": 0.0
+  },
+  "representation_types": [
+    "continuous_quantile",
+    "categorical",
+    "binary",
+    "integer_categorical",
+    "excluded"
+  ],
+  "safety": {
+    "backtest_run": false,
+    "feature_outcome_relationships_analyzed": false,
+    "internal_confirmation_accessed": false,
+    "known_hypotheses_tested": 0,
+    "profitability_used": false,
+    "real_candidates_created": 0,
+    "real_discovery_run": false,
+    "source_data_modified": false,
+    "true_oos_2025_accessed": false
+  },
+  "shortlist": {
+    "exact_mask_dedupe": true,
+    "semantic_bucket_cap": 3,
+    "total_cap": 50
+  },
+  "signature_sha256": "86ffcde7a45c8126f2f199e67c1fcdc51baa41729a93d0d8eeac39fa957755c2",
+  "state_order": {
+    "binary": [
+      "0",
+      "1",
+      "MISSING"
+    ],
+    "categorical": "canonical_json_scalar_order_then_MISSING",
+    "continuous_quantile": [
+      "LE_P10",
+      "P10_P25",
+      "P25_P75",
+      "P75_P90",
+      "GE_P90",
+      "MISSING"
+    ],
+    "integer_categorical": "numeric_ascending_then_MISSING"
+  },
+  "statuses": [
+    "enumerated",
+    "ineligible",
+    "evaluated",
+    "screened_out",
+    "screened",
+    "promoted",
+    "duplicate_mask"
+  ],
+  "subgroup_rule_cap": 100000,
+  "subgroup_selection": {
+    "cap": 100000,
+    "depth_allocation": {
+      "2": 0.5,
+      "3": 0.5
+    },
+    "eligible": "included discovery predictors only",
+    "method": "seeded_hash_feature_order_with_cyclic_balanced_combinations_then_sha256_rule_rank",
+    "target_inputs": false
+  },
+  "temporal_stability": {
+    "minimum_same_direction_folds": 2,
+    "zero_same_direction": false
+  },
+  "upstream_signatures": {
+    "behavior_target_set": "f95c9a9ae991ebeb9edbd9f7d9131c02b4e804df12f02e2ecbe699b245fe004b",
+    "discovery_protocol": "2398bd620ea3e974e8046b0546bafd002ee6c967f1528d12c974df4a09bfa419",
+    "discovery_target_mapping": "158da282d2972016ee07de22982e7de289df2c4e3f390b76ccbe0a0fd36272dd",
+    "feature_set": "0b5ffb328d217e5e8d575ff0b84be794647bc0850e548b354d737ce91342024d",
+    "research_protocol": "291b270f1b6caff614213d09680bfd3d47a104db476b65e3d2044fe6bf9a0659",
+    "target_definitions": "65f8eab0cc43a531908d5e959055a95fd140869e6e70c9a7d5720618e9c2ba51"
+  },
+  "walk_forward": [
+    "WF-01",
+    "WF-02",
+    "WF-03",
+    "WF-04"
+  ]
+}
