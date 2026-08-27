@@ -21,6 +21,7 @@ phase1b-validate = "market_pattern_discovery.validation.phase1b:main"
 phase2a-validate = "market_pattern_discovery.validation.phase2a:main"
 phase2b-validate = "market_pattern_discovery.validation.phase2b:main"
 phase2c-validate = "market_pattern_discovery.validation.phase2c:main"
+phase3a-validate = "market_pattern_discovery.validation.phase3a:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
