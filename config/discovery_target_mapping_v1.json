@@ -1,0 +1,1383 @@
+{
+  "baseline_policy": {
+    "candidate_relation": "candidate rows are a subset of that exact baseline domain",
+    "invalid_targets": "excluded from both candidate and baseline",
+    "rows": "all target-valid rows in the same instrument, timeframe, and DISCOVERY period"
+  },
+  "canonical_families": {
+    "DIRECTIONAL": [
+      "direction",
+      "normalized_displacement"
+    ],
+    "FIRST_PASSAGE": [
+      "first_passage_0_5_atr",
+      "first_passage_1_0_atr"
+    ],
+    "MULTI_HORIZON": [
+      "compact_shape_descriptor"
+    ],
+    "PATH": [
+      "efficiency",
+      "active_nondirectional",
+      "quiet"
+    ],
+    "VOLATILITY": [
+      "future_range",
+      "large_movement",
+      "path_length"
+    ]
+  },
+  "created_utc": "2026-08-27T00:00:00Z",
+  "discovery_target_mapping_version": "1.0",
+  "mapping": {
+    "M1": [
+      {
+        "classification": "generic",
+        "column_name": "behavior_signed_displacement_atr_5",
+        "core": true,
+        "elapsed_minutes": 5,
+        "encoding": null,
+        "family": "DIRECTIONAL",
+        "horizon": 5,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "SHORT_SIGNED_DISPLACEMENT",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_5_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_signed_displacement_atr_15",
+        "core": true,
+        "elapsed_minutes": 15,
+        "encoding": null,
+        "family": "DIRECTIONAL",
+        "horizon": 15,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "MEDIUM_SIGNED_DISPLACEMENT",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_15_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_signed_displacement_atr_60",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": null,
+        "family": "DIRECTIONAL",
+        "horizon": 60,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "LONG_SIGNED_DISPLACEMENT",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_60_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_direction_5",
+        "core": true,
+        "elapsed_minutes": 5,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "down",
+            "0": "unchanged",
+            "1": "up"
+          },
+          "nan": "invalid; excluded, never converted to class 0"
+        },
+        "family": "DIRECTIONAL",
+        "horizon": 5,
+        "hypothesis_contrasts": [
+          "P(+1 | feature_state) - P(+1 | baseline)",
+          "P(-1 | feature_state) - P(-1 | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "SHORT_DIRECTION_CLASS",
+        "target_type": "multiclass",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_5_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_direction_15",
+        "core": true,
+        "elapsed_minutes": 15,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "down",
+            "0": "unchanged",
+            "1": "up"
+          },
+          "nan": "invalid; excluded, never converted to class 0"
+        },
+        "family": "DIRECTIONAL",
+        "horizon": 15,
+        "hypothesis_contrasts": [
+          "P(+1 | feature_state) - P(+1 | baseline)",
+          "P(-1 | feature_state) - P(-1 | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "MEDIUM_DIRECTION_CLASS",
+        "target_type": "multiclass",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_15_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_direction_60",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "down",
+            "0": "unchanged",
+            "1": "up"
+          },
+          "nan": "invalid; excluded, never converted to class 0"
+        },
+        "family": "DIRECTIONAL",
+        "horizon": 60,
+        "hypothesis_contrasts": [
+          "P(+1 | feature_state) - P(+1 | baseline)",
+          "P(-1 | feature_state) - P(-1 | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "LONG_DIRECTION_CLASS",
+        "target_type": "multiclass",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_60_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_future_range_atr_5",
+        "core": true,
+        "elapsed_minutes": 5,
+        "encoding": null,
+        "family": "VOLATILITY",
+        "horizon": 5,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "SHORT_FUTURE_RANGE",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_5_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_future_range_atr_15",
+        "core": true,
+        "elapsed_minutes": 15,
+        "encoding": null,
+        "family": "VOLATILITY",
+        "horizon": 15,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "MEDIUM_FUTURE_RANGE",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_15_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_future_range_atr_60",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": null,
+        "family": "VOLATILITY",
+        "horizon": 60,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "LONG_FUTURE_RANGE",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_60_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_path_length_atr_15",
+        "core": true,
+        "elapsed_minutes": 15,
+        "encoding": null,
+        "family": "VOLATILITY",
+        "horizon": 15,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "MEDIUM_PATH_LENGTH",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_15_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_path_length_atr_60",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": null,
+        "family": "VOLATILITY",
+        "horizon": 60,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "LONG_PATH_LENGTH",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_60_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_path_efficiency_15",
+        "core": true,
+        "elapsed_minutes": 15,
+        "encoding": null,
+        "family": "PATH",
+        "horizon": 15,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "MEDIUM_PATH_EFFICIENCY",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_15_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_path_efficiency_60",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": null,
+        "family": "PATH",
+        "horizon": 60,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "LONG_PATH_EFFICIENCY",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_60_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_direction_persistence_60",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": null,
+        "family": "PATH",
+        "horizon": 60,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "LONG_DIRECTION_PERSISTENCE",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_60_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_direction_changes_60",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": null,
+        "family": "PATH",
+        "horizon": 60,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "LONG_DIRECTION_CHANGES",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_60_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_extreme_order_60",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": {
+          "classes": [
+            -1,
+            1
+          ],
+          "meanings": {
+            "-1": "low before high",
+            "1": "high before low"
+          },
+          "nan": "same-candle ambiguity or invalid; excluded"
+        },
+        "family": "PATH",
+        "horizon": 60,
+        "hypothesis_contrasts": [
+          "P(+1 high-before-low | feature_state) - P(+1 high-before-low | baseline)"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "LONG_EXTREME_ORDER",
+        "target_type": "binary",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_60_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_first_passage_0p5_5",
+        "core": true,
+        "elapsed_minutes": 5,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "lower first",
+            "0": "neither",
+            "1": "upper first"
+          },
+          "nan": "same-candle ambiguity or invalid; excluded, never converted to class 0"
+        },
+        "family": "FIRST_PASSAGE",
+        "horizon": 5,
+        "hypothesis_contrasts": [
+          "P(+1 upper-first | feature_state) - P(+1 upper-first | baseline)",
+          "P(-1 lower-first | feature_state) - P(-1 lower-first | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "SHORT_FIRST_PASSAGE_0p5_ATR",
+        "target_type": "multiclass",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_5_and_atr_20_finite_positive_and_no_same_candle_first_passage_ambiguity"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_first_passage_1p0_5",
+        "core": true,
+        "elapsed_minutes": 5,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "lower first",
+            "0": "neither",
+            "1": "upper first"
+          },
+          "nan": "same-candle ambiguity or invalid; excluded, never converted to class 0"
+        },
+        "family": "FIRST_PASSAGE",
+        "horizon": 5,
+        "hypothesis_contrasts": [
+          "P(+1 upper-first | feature_state) - P(+1 upper-first | baseline)",
+          "P(-1 lower-first | feature_state) - P(-1 lower-first | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "SHORT_FIRST_PASSAGE_1p0_ATR",
+        "target_type": "multiclass",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_5_and_atr_20_finite_positive_and_no_same_candle_first_passage_ambiguity"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_first_passage_0p5_15",
+        "core": true,
+        "elapsed_minutes": 15,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "lower first",
+            "0": "neither",
+            "1": "upper first"
+          },
+          "nan": "same-candle ambiguity or invalid; excluded, never converted to class 0"
+        },
+        "family": "FIRST_PASSAGE",
+        "horizon": 15,
+        "hypothesis_contrasts": [
+          "P(+1 upper-first | feature_state) - P(+1 upper-first | baseline)",
+          "P(-1 lower-first | feature_state) - P(-1 lower-first | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "MEDIUM_FIRST_PASSAGE_0p5_ATR",
+        "target_type": "multiclass",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_15_and_atr_20_finite_positive_and_no_same_candle_first_passage_ambiguity"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_first_passage_1p0_15",
+        "core": true,
+        "elapsed_minutes": 15,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "lower first",
+            "0": "neither",
+            "1": "upper first"
+          },
+          "nan": "same-candle ambiguity or invalid; excluded, never converted to class 0"
+        },
+        "family": "FIRST_PASSAGE",
+        "horizon": 15,
+        "hypothesis_contrasts": [
+          "P(+1 upper-first | feature_state) - P(+1 upper-first | baseline)",
+          "P(-1 lower-first | feature_state) - P(-1 lower-first | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "MEDIUM_FIRST_PASSAGE_1p0_ATR",
+        "target_type": "multiclass",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_15_and_atr_20_finite_positive_and_no_same_candle_first_passage_ambiguity"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_first_passage_0p5_60",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "lower first",
+            "0": "neither",
+            "1": "upper first"
+          },
+          "nan": "same-candle ambiguity or invalid; excluded, never converted to class 0"
+        },
+        "family": "FIRST_PASSAGE",
+        "horizon": 60,
+        "hypothesis_contrasts": [
+          "P(+1 upper-first | feature_state) - P(+1 upper-first | baseline)",
+          "P(-1 lower-first | feature_state) - P(-1 lower-first | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "LONG_FIRST_PASSAGE_0p5_ATR",
+        "target_type": "multiclass",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_60_and_atr_20_finite_positive_and_no_same_candle_first_passage_ambiguity"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_first_passage_1p0_60",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "lower first",
+            "0": "neither",
+            "1": "upper first"
+          },
+          "nan": "same-candle ambiguity or invalid; excluded, never converted to class 0"
+        },
+        "family": "FIRST_PASSAGE",
+        "horizon": 60,
+        "hypothesis_contrasts": [
+          "P(+1 upper-first | feature_state) - P(+1 upper-first | baseline)",
+          "P(-1 lower-first | feature_state) - P(-1 lower-first | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "LONG_FIRST_PASSAGE_1p0_ATR",
+        "target_type": "multiclass",
+        "timeframe": "M1",
+        "validity_source": "target_future_valid_60_and_atr_20_finite_positive_and_no_same_candle_first_passage_ambiguity"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_early_to_mid_increment_atr",
+        "core": true,
+        "elapsed_minutes": null,
+        "encoding": null,
+        "family": "MULTI_HORIZON",
+        "horizon": null,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "EARLY_TO_MID_INCREMENT",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "multi_horizon_anchor_validity_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_mid_to_late_increment_atr",
+        "core": true,
+        "elapsed_minutes": null,
+        "encoding": null,
+        "family": "MULTI_HORIZON",
+        "horizon": null,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "MID_TO_LATE_INCREMENT",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "multi_horizon_anchor_validity_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_peak_abs_displacement_hindex",
+        "core": true,
+        "elapsed_minutes": null,
+        "encoding": null,
+        "family": "MULTI_HORIZON",
+        "horizon": null,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "PEAK_ABSOLUTE_DISPLACEMENT_HORIZON_INDEX",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "multi_horizon_anchor_validity_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_final_vs_peak_abs_ratio",
+        "core": true,
+        "elapsed_minutes": null,
+        "encoding": null,
+        "family": "MULTI_HORIZON",
+        "horizon": null,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "FINAL_VS_PEAK_ABSOLUTE_RATIO",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "multi_horizon_anchor_validity_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_horizon_sign_changes",
+        "core": true,
+        "elapsed_minutes": null,
+        "encoding": null,
+        "family": "MULTI_HORIZON",
+        "horizon": null,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "HORIZON_SIGN_CHANGES",
+        "target_type": "continuous",
+        "timeframe": "M1",
+        "validity_source": "multi_horizon_anchor_validity_and_atr_20_finite_positive"
+      }
+    ],
+    "M5": [
+      {
+        "classification": "generic",
+        "column_name": "behavior_signed_displacement_atr_1",
+        "core": true,
+        "elapsed_minutes": 5,
+        "encoding": null,
+        "family": "DIRECTIONAL",
+        "horizon": 1,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "SHORT_SIGNED_DISPLACEMENT",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_1_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_signed_displacement_atr_3",
+        "core": true,
+        "elapsed_minutes": 15,
+        "encoding": null,
+        "family": "DIRECTIONAL",
+        "horizon": 3,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "MEDIUM_SIGNED_DISPLACEMENT",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_3_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_signed_displacement_atr_12",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": null,
+        "family": "DIRECTIONAL",
+        "horizon": 12,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "LONG_SIGNED_DISPLACEMENT",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_12_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_direction_1",
+        "core": true,
+        "elapsed_minutes": 5,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "down",
+            "0": "unchanged",
+            "1": "up"
+          },
+          "nan": "invalid; excluded, never converted to class 0"
+        },
+        "family": "DIRECTIONAL",
+        "horizon": 1,
+        "hypothesis_contrasts": [
+          "P(+1 | feature_state) - P(+1 | baseline)",
+          "P(-1 | feature_state) - P(-1 | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "SHORT_DIRECTION_CLASS",
+        "target_type": "multiclass",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_1_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_direction_3",
+        "core": true,
+        "elapsed_minutes": 15,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "down",
+            "0": "unchanged",
+            "1": "up"
+          },
+          "nan": "invalid; excluded, never converted to class 0"
+        },
+        "family": "DIRECTIONAL",
+        "horizon": 3,
+        "hypothesis_contrasts": [
+          "P(+1 | feature_state) - P(+1 | baseline)",
+          "P(-1 | feature_state) - P(-1 | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "MEDIUM_DIRECTION_CLASS",
+        "target_type": "multiclass",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_3_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_direction_12",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "down",
+            "0": "unchanged",
+            "1": "up"
+          },
+          "nan": "invalid; excluded, never converted to class 0"
+        },
+        "family": "DIRECTIONAL",
+        "horizon": 12,
+        "hypothesis_contrasts": [
+          "P(+1 | feature_state) - P(+1 | baseline)",
+          "P(-1 | feature_state) - P(-1 | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "LONG_DIRECTION_CLASS",
+        "target_type": "multiclass",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_12_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_future_range_atr_1",
+        "core": true,
+        "elapsed_minutes": 5,
+        "encoding": null,
+        "family": "VOLATILITY",
+        "horizon": 1,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "SHORT_FUTURE_RANGE",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_1_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_future_range_atr_3",
+        "core": true,
+        "elapsed_minutes": 15,
+        "encoding": null,
+        "family": "VOLATILITY",
+        "horizon": 3,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "MEDIUM_FUTURE_RANGE",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_3_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_future_range_atr_12",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": null,
+        "family": "VOLATILITY",
+        "horizon": 12,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "LONG_FUTURE_RANGE",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_12_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_path_length_atr_3",
+        "core": true,
+        "elapsed_minutes": 15,
+        "encoding": null,
+        "family": "VOLATILITY",
+        "horizon": 3,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "MEDIUM_PATH_LENGTH",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_3_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_path_length_atr_12",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": null,
+        "family": "VOLATILITY",
+        "horizon": 12,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "LONG_PATH_LENGTH",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_12_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_path_efficiency_3",
+        "core": true,
+        "elapsed_minutes": 15,
+        "encoding": null,
+        "family": "PATH",
+        "horizon": 3,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "MEDIUM_PATH_EFFICIENCY",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_3_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_path_efficiency_12",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": null,
+        "family": "PATH",
+        "horizon": 12,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "LONG_PATH_EFFICIENCY",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_12_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_direction_persistence_12",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": null,
+        "family": "PATH",
+        "horizon": 12,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "LONG_DIRECTION_PERSISTENCE",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_12_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_direction_changes_12",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": null,
+        "family": "PATH",
+        "horizon": 12,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "LONG_DIRECTION_CHANGES",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_12_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_extreme_order_12",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": {
+          "classes": [
+            -1,
+            1
+          ],
+          "meanings": {
+            "-1": "low before high",
+            "1": "high before low"
+          },
+          "nan": "same-candle ambiguity or invalid; excluded"
+        },
+        "family": "PATH",
+        "horizon": 12,
+        "hypothesis_contrasts": [
+          "P(+1 high-before-low | feature_state) - P(+1 high-before-low | baseline)"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "LONG_EXTREME_ORDER",
+        "target_type": "binary",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_12_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_first_passage_0p5_1",
+        "core": true,
+        "elapsed_minutes": 5,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "lower first",
+            "0": "neither",
+            "1": "upper first"
+          },
+          "nan": "same-candle ambiguity or invalid; excluded, never converted to class 0"
+        },
+        "family": "FIRST_PASSAGE",
+        "horizon": 1,
+        "hypothesis_contrasts": [
+          "P(+1 upper-first | feature_state) - P(+1 upper-first | baseline)",
+          "P(-1 lower-first | feature_state) - P(-1 lower-first | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "SHORT_FIRST_PASSAGE_0p5_ATR",
+        "target_type": "multiclass",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_1_and_atr_20_finite_positive_and_no_same_candle_first_passage_ambiguity"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_first_passage_1p0_1",
+        "core": true,
+        "elapsed_minutes": 5,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "lower first",
+            "0": "neither",
+            "1": "upper first"
+          },
+          "nan": "same-candle ambiguity or invalid; excluded, never converted to class 0"
+        },
+        "family": "FIRST_PASSAGE",
+        "horizon": 1,
+        "hypothesis_contrasts": [
+          "P(+1 upper-first | feature_state) - P(+1 upper-first | baseline)",
+          "P(-1 lower-first | feature_state) - P(-1 lower-first | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "SHORT_FIRST_PASSAGE_1p0_ATR",
+        "target_type": "multiclass",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_1_and_atr_20_finite_positive_and_no_same_candle_first_passage_ambiguity"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_first_passage_0p5_3",
+        "core": true,
+        "elapsed_minutes": 15,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "lower first",
+            "0": "neither",
+            "1": "upper first"
+          },
+          "nan": "same-candle ambiguity or invalid; excluded, never converted to class 0"
+        },
+        "family": "FIRST_PASSAGE",
+        "horizon": 3,
+        "hypothesis_contrasts": [
+          "P(+1 upper-first | feature_state) - P(+1 upper-first | baseline)",
+          "P(-1 lower-first | feature_state) - P(-1 lower-first | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "MEDIUM_FIRST_PASSAGE_0p5_ATR",
+        "target_type": "multiclass",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_3_and_atr_20_finite_positive_and_no_same_candle_first_passage_ambiguity"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_first_passage_1p0_3",
+        "core": true,
+        "elapsed_minutes": 15,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "lower first",
+            "0": "neither",
+            "1": "upper first"
+          },
+          "nan": "same-candle ambiguity or invalid; excluded, never converted to class 0"
+        },
+        "family": "FIRST_PASSAGE",
+        "horizon": 3,
+        "hypothesis_contrasts": [
+          "P(+1 upper-first | feature_state) - P(+1 upper-first | baseline)",
+          "P(-1 lower-first | feature_state) - P(-1 lower-first | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "MEDIUM_FIRST_PASSAGE_1p0_ATR",
+        "target_type": "multiclass",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_3_and_atr_20_finite_positive_and_no_same_candle_first_passage_ambiguity"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_first_passage_0p5_12",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "lower first",
+            "0": "neither",
+            "1": "upper first"
+          },
+          "nan": "same-candle ambiguity or invalid; excluded, never converted to class 0"
+        },
+        "family": "FIRST_PASSAGE",
+        "horizon": 12,
+        "hypothesis_contrasts": [
+          "P(+1 upper-first | feature_state) - P(+1 upper-first | baseline)",
+          "P(-1 lower-first | feature_state) - P(-1 lower-first | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "LONG_FIRST_PASSAGE_0p5_ATR",
+        "target_type": "multiclass",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_12_and_atr_20_finite_positive_and_no_same_candle_first_passage_ambiguity"
+      },
+      {
+        "classification": "generic",
+        "column_name": "label_first_passage_1p0_12",
+        "core": true,
+        "elapsed_minutes": 60,
+        "encoding": {
+          "classes": [
+            -1,
+            0,
+            1
+          ],
+          "meanings": {
+            "-1": "lower first",
+            "0": "neither",
+            "1": "upper first"
+          },
+          "nan": "same-candle ambiguity or invalid; excluded, never converted to class 0"
+        },
+        "family": "FIRST_PASSAGE",
+        "horizon": 12,
+        "hypothesis_contrasts": [
+          "P(+1 upper-first | feature_state) - P(+1 upper-first | baseline)",
+          "P(-1 lower-first | feature_state) - P(-1 lower-first | baseline)"
+        ],
+        "hypothesis_units_per_state": 2,
+        "multiplicity_units": 2,
+        "semantic_role": "LONG_FIRST_PASSAGE_1p0_ATR",
+        "target_type": "multiclass",
+        "timeframe": "M5",
+        "validity_source": "target_future_valid_12_and_atr_20_finite_positive_and_no_same_candle_first_passage_ambiguity"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_early_to_mid_increment_atr",
+        "core": true,
+        "elapsed_minutes": null,
+        "encoding": null,
+        "family": "MULTI_HORIZON",
+        "horizon": null,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "EARLY_TO_MID_INCREMENT",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "multi_horizon_anchor_validity_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_mid_to_late_increment_atr",
+        "core": true,
+        "elapsed_minutes": null,
+        "encoding": null,
+        "family": "MULTI_HORIZON",
+        "horizon": null,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "MID_TO_LATE_INCREMENT",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "multi_horizon_anchor_validity_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_peak_abs_displacement_hindex",
+        "core": true,
+        "elapsed_minutes": null,
+        "encoding": null,
+        "family": "MULTI_HORIZON",
+        "horizon": null,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "PEAK_ABSOLUTE_DISPLACEMENT_HORIZON_INDEX",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "multi_horizon_anchor_validity_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_final_vs_peak_abs_ratio",
+        "core": true,
+        "elapsed_minutes": null,
+        "encoding": null,
+        "family": "MULTI_HORIZON",
+        "horizon": null,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "FINAL_VS_PEAK_ABSOLUTE_RATIO",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "multi_horizon_anchor_validity_and_atr_20_finite_positive"
+      },
+      {
+        "classification": "generic",
+        "column_name": "behavior_horizon_sign_changes",
+        "core": true,
+        "elapsed_minutes": null,
+        "encoding": null,
+        "family": "MULTI_HORIZON",
+        "horizon": null,
+        "hypothesis_contrasts": [
+          "median_difference"
+        ],
+        "hypothesis_units_per_state": 1,
+        "multiplicity_units": 1,
+        "semantic_role": "HORIZON_SIGN_CHANGES",
+        "target_type": "continuous",
+        "timeframe": "M5",
+        "validity_source": "multi_horizon_anchor_validity_and_atr_20_finite_positive"
+      }
+    ]
+  },
+  "multiplicity_policy": {
+    "family_key_fields": [
+      "instrument",
+      "timeframe",
+      "discovery_method",
+      "target_family",
+      "target_role_or_horizon"
+    ],
+    "family_key_separator": "|",
+    "hypothesis_definition": "one feature-state times one registered primary contrast is one hypothesis unit",
+    "prohibition": "do not combine unrelated families and do not form one family per individual feature-state test",
+    "target_role_or_horizon": "semantic_role plus horizon when applicable; semantic_role alone for MULTI_HORIZON"
+  },
+  "phase5b_linkage": {
+    "required": true,
+    "requirements": [
+      "discovery_protocol_signature",
+      "discovery_target_mapping_signature"
+    ]
+  },
+  "purpose": "Target-independent representative mapping required with Discovery Protocol v1.0 before Phase 5B; no market outcomes or feature-target relationships informed selection.",
+  "representative_horizons": {
+    "M1": {
+      "LONG": {
+        "elapsed_minutes": 60,
+        "horizon": 60
+      },
+      "MEDIUM": {
+        "elapsed_minutes": 15,
+        "horizon": 15
+      },
+      "SHORT": {
+        "elapsed_minutes": 5,
+        "horizon": 5
+      }
+    },
+    "M5": {
+      "LONG": {
+        "elapsed_minutes": 60,
+        "horizon": 12
+      },
+      "MEDIUM": {
+        "elapsed_minutes": 15,
+        "horizon": 3
+      },
+      "SHORT": {
+        "elapsed_minutes": 5,
+        "horizon": 1
+      }
+    }
+  },
+  "required_signatures": {
+    "behavior_target_set": "f95c9a9ae991ebeb9edbd9f7d9131c02b4e804df12f02e2ecbe699b245fe004b",
+    "discovery_protocol": "2398bd620ea3e974e8046b0546bafd002ee6c967f1528d12c974df4a09bfa419",
+    "feature_set": "0b5ffb328d217e5e8d575ff0b84be794647bc0850e548b354d737ce91342024d",
+    "research_protocol": "291b270f1b6caff614213d09680bfd3d47a104db476b65e3d2044fe6bf9a0659",
+    "target_definitions": "65f8eab0cc43a531908d5e959055a95fd140869e6e70c9a7d5720618e9c2ba51"
+  },
+  "safety_attestations": {
+    "feature_outcome_relationships_analyzed": false,
+    "internal_confirmation_accessed": false,
+    "profitability_used": false,
+    "real_discovery_run": false,
+    "true_oos_2025_accessed": false
+  },
+  "selection_methodology": {
+    "basis": "elapsed-time scales and semantic coverage from frozen contracts only",
+    "h1_path_exclusion": "Phase 3C removed H1 path length, efficiency, persistence, direction changes, and extreme order; short volatility therefore uses retained future range only and path geometry begins at MEDIUM.",
+    "known_hypothesis_labels_included": false,
+    "no_post_result_discretion": true,
+    "upper_hit_lower_hit_binary_columns_included": false
+  },
+  "signature_sha256": "158da282d2972016ee07de22982e7de289df2c4e3f390b76ccbe0a0fd36272dd",
+  "test_semantics": {
+    "binary": {
+      "hypothesis_units_per_state": 1,
+      "primary_effect": "absolute_probability_difference",
+      "secondary_descriptive_effects": [
+        "relative_risk",
+        "odds_ratio"
+      ]
+    },
+    "continuous": {
+      "hypothesis_units_per_state": 1,
+      "primary_effect": "median_difference",
+      "secondary_descriptive_effects": [
+        "mean_difference",
+        "probability_of_superiority"
+      ]
+    },
+    "direction": {
+      "hypothesis_units_per_state": 2,
+      "primary_tested_classes": [
+        1,
+        -1
+      ],
+      "reported_not_independently_screened": [
+        0
+      ]
+    },
+    "first_passage": {
+      "hypothesis_units_per_state": 2,
+      "primary_tested_classes": [
+        1,
+        -1
+      ],
+      "reported_not_independently_screened": [
+        0
+      ]
+    },
+    "multiclass_policy": "fixed_one_vs_baseline_class_probability_contrasts"
+  },
+  "valid_domain_policy": {
+    "atr_normalized": "also require frozen causal atr_20 finite and greater than zero",
+    "eligible_rows": "target column non-NaN under Behavior/Target Set v1.0 validity",
+    "first_passage": "same-candle ordering ambiguity remains NaN and excluded",
+    "horizon_specific": "inherit frozen target_future_valid_H semantics",
+    "nan_handling": "exclude from candidate and baseline target domain; never convert NaN to class 0"
+  }
+}
