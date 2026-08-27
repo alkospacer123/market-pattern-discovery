@@ -1,0 +1,143 @@
+{
+  "allowed_methods": [
+    "univariate_screen",
+    "interaction_search",
+    "subgroup_discovery",
+    "clustering",
+    "rare_state",
+    "cross_instrument_replication",
+    "motif_sequence"
+  ],
+  "bootstrap": {
+    "method": "moscow_trading_date_resampling",
+    "replications": 1000,
+    "seed": 20260401
+  },
+  "candidate_screening_policy": {
+    "finite_uncertainty": true,
+    "minimum_coverage": 0.01,
+    "minimum_unique_days": 10,
+    "multiplicity_complete": true,
+    "practical_effect_thresholds": {
+      "DIRECTIONAL": 0.05,
+      "FIRST_PASSAGE": 0.02,
+      "MULTI_HORIZON": 0.05,
+      "PATH": 0.05,
+      "VOLATILITY": 0.05
+    },
+    "require_same_sign_folds": 2
+  },
+  "canonical_target_families": {
+    "DIRECTIONAL": [
+      "direction",
+      "normalized_displacement"
+    ],
+    "FIRST_PASSAGE": [
+      "first_passage_0_5_atr",
+      "first_passage_1_0_atr"
+    ],
+    "MULTI_HORIZON": [
+      "compact_shape_descriptor"
+    ],
+    "PATH": [
+      "efficiency",
+      "active_nondirectional",
+      "quiet"
+    ],
+    "VOLATILITY": [
+      "future_range",
+      "large_movement",
+      "path_length"
+    ]
+  },
+  "cluster": {
+    "algorithm": "deterministic_kmeans",
+    "k_grid": [
+      4,
+      8,
+      12,
+      16
+    ],
+    "max_missing_fraction": 0.2,
+    "selection_criteria": [
+      "silhouette",
+      "inertia",
+      "feature_space_stability"
+    ],
+    "target_guided_selection": false
+  },
+  "discovery_protocol_version": "1.0",
+  "diversity_policy": {
+    "automatic_dedupe": "exact_row_mask",
+    "review_dimensions": [
+      "feature_set_overlap",
+      "candidate_row_overlap",
+      "target_family",
+      "feature_family"
+    ],
+    "stored_effect_suppression": false
+  },
+  "fdr_policy": {
+    "effect_size_primary": true,
+    "method": "benjamini_hochberg",
+    "nan_policy": "preserve",
+    "scope": "preregistered_multiplicity_family"
+  },
+  "missingness_policy": {
+    "bin_and_rule": "explicit_MISSING_state",
+    "clustering": "exclude_features_above_max_missing_fraction_then_median_fit_on_discovery_features_only",
+    "target_encoding": false
+  },
+  "pairwise": {
+    "exclude_exact_duplicates": true,
+    "exclude_provenance": true,
+    "maximum_feature_pairs": 500,
+    "same_predeclared_bins": true
+  },
+  "quantile_binning": {
+    "cut_probabilities": [
+      0.1,
+      0.25,
+      0.75,
+      0.9
+    ],
+    "fit_scope": "registered_discovery_experiment",
+    "labels": [
+      "LE_P10",
+      "P10_P25",
+      "P25_P75",
+      "P75_P90",
+      "GE_P90"
+    ],
+    "target_independent": true
+  },
+  "ranking_dimensions": [
+    "effect_magnitude",
+    "uncertainty",
+    "coverage",
+    "temporal_stability",
+    "replication",
+    "multiplicity_adjusted_evidence"
+  ],
+  "replication_policy": {
+    "classes": [
+      "not_applicable",
+      "not_tested",
+      "directionally_consistent",
+      "strong_replication",
+      "failed_replication"
+    ],
+    "raw_threshold_remapping": false
+  },
+  "required_signatures": {
+    "behavior_target_set": "f95c9a9ae991ebeb9edbd9f7d9131c02b4e804df12f02e2ecbe699b245fe004b",
+    "feature_set": "0b5ffb328d217e5e8d575ff0b84be794647bc0850e548b354d737ce91342024d",
+    "research_protocol": "291b270f1b6caff614213d09680bfd3d47a104db476b65e3d2044fe6bf9a0659"
+  },
+  "rule": {
+    "continuous_threshold_optimization": false,
+    "maximum_depth": 3,
+    "minimum_coverage_preregistered": true
+  },
+  "signature_sha256": "2398bd620ea3e974e8046b0546bafd002ee6c967f1528d12c974df4a09bfa419"
+}

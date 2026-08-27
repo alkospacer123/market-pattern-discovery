@@ -3,6 +3,7 @@
 raw/
 data/raw/
 results/
+results/discovery/
 logs/
 __pycache__/
 *.py[cod]
