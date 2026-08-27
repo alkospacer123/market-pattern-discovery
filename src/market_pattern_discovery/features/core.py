@@ -119,10 +119,16 @@ def build_core_features(frame: pd.DataFrame, *, timeframe: str,
             columns[f"close_return_{window}"] = _ratio(close - lag, lag)
             ratio = _ratio(close, lag)
             columns[f"log_return_{window}"] = np.log(ratio.where(ratio.gt(0)))
-            columns[f"net_price_movement_{window}"] = close - lag
+            # ``net_price_movement_N`` was byte-for-byte identical to the
+            # canonical ``close_delta_N`` definition.  It is excluded from
+            # frozen Feature Set v1.0 rather than carrying a second name.
             cumulative = abs_move.rolling(window, min_periods=window).sum()
             columns[f"cumulative_absolute_movement_{window}"] = cumulative
-            columns[f"directional_efficiency_{window}"] = _ratio((close - lag).abs(), cumulative)
+            # At a one-bar horizon the numerator and denominator are the same
+            # absolute move, so this is identically one whenever it is defined.
+            # Feature Set v1.0 removes that objectively redundant column.
+            if window != 1:
+                columns[f"directional_efficiency_{window}"] = _ratio((close - lag).abs(), cumulative)
             rolling_direction = direction.rolling(window, min_periods=window)
             columns[f"fraction_up_bars_{window}"] = direction.eq(1).rolling(window, min_periods=window).mean()
             columns[f"fraction_down_bars_{window}"] = direction.eq(-1).rolling(window, min_periods=window).mean()

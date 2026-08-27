@@ -43,7 +43,8 @@ def add_round_level_features(frame: pd.DataFrame, config: RoundLevelConfig) -> t
     out["closes_above_nearest_round_level"] = np.fromiter((cl > ref for _, _, cl, ref in exact), dtype=np.int8)
     out["closes_below_nearest_round_level"] = np.fromiter((cl < ref for _, _, cl, ref in exact), dtype=np.int8)
     out["penetration_distance"] = np.where(out.close >= nearest, (out.high-nearest).clip(lower=0), (nearest-out.low).clip(lower=0))
-    out["rejection_distance"] = np.where(out.close >= nearest, (out.close-nearest).clip(lower=0), (nearest-out.close).clip(lower=0))
+    # ``rejection_distance`` reduced exactly to the absolute
+    # ``distance_to_nearest_round_level`` and is excluded by Feature Set v1.0.
     base = list(out.columns[len(frame.columns):])
     history = ([f"touch_count_{n}" for n in STRUCTURE_WINDOWS]
                + [f"cross_count_{n}" for n in STRUCTURE_WINDOWS]

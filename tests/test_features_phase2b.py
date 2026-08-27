@@ -141,7 +141,7 @@ def test_m5_exact_boundary_missing_day_and_cross_timeframe():
 def test_phase2b_prefix_future_and_future_m5_invariance_and_count():
     frame = candles(90); m5 = candles(20, timeframe="M5")
     full = build(frame, m5)
-    assert len(full.metadata["feature_names"]) == 250
+    assert len(full.metadata["feature_names"]) == 241  # frozen v1.0 removes nine objective redundancies
     prefix = build(frame.iloc[:60].copy(), m5.iloc[:12].copy()).frame
     pd.testing.assert_frame_equal(full.frame.iloc[:60].reset_index(drop=True), prefix, check_exact=True)
     changed = m5.copy(); changed.loc[12:, ["open", "high", "low", "close", "volume"]] *= 10
