@@ -59,3 +59,64 @@ report under `results/`. Run the contract suite with `pytest -vv`.
 
 Validate the Phase 3A outcome matrix on the four approved 2026 datasets with
 `phase3a-validate`.
+
+## Research Protocol v1.0
+
+Phase 4A freezes a one-way, chronological research process. The approved 2026
+coverage is described without predictive selection; discovery is limited to
+2026-01-05 through 2026-05-15 (Europe/Moscow calendar dates), and the untouched
+internal-confirmation interval begins 2026-05-16 and runs through 2026-07-01.
+The split is a simple mid-month boundary at roughly three quarters of the actual
+calendar coverage and was selected without examining target behavior. Random
+row splitting is forbidden. Expanding monthly folds validate February, March,
+April, and the first half of May using only earlier training blocks.
+
+The four explicit access modes are `DESCRIPTIVE_DEVELOPMENT`, `DISCOVERY`,
+`INTERNAL_CONFIRMATION`, and `TRUE_OOS`. Descriptive development may summarize
+all approved 2026 data only in aggregate and must not rank or select predictive
+feature-to-outcome relationships. Confirmation requires a frozen candidate;
+TRUE OOS requires a strategy candidate frozen for that one access. Attempts at
+either protected interval are audited without logging market contents.
+
+The two parallel tracks, `unknown_discovery` and `known_hypothesis`, are kept
+separate. An unknown machine-derived definition is recorded before any later
+human interpretation. CNY and Si can be studied independently or as replication
+instruments. M1 with causally available native M5 context is primary, while
+standalone M5 is separate; their overlapping observations are not independent.
+Future inference must address serial dependence with block/day resampling,
+valid temporal permutations, day-clustered uncertainty, and effective sample
+considerations. Every experiment accounts for its hypothesis family, and
+effect size, stability, replication, uncertainty, and coverage precede mere
+significance. No universal minimum event count or single winning metric applies.
+
+The governance flow is:
+
+```text
+2026 descriptive research
+        ↓
+2026 discovery period
+        ↓
+candidate definition frozen
+        ↓
+2026 internal confirmation
+        ↓
+strategy construction / robustness
+        ↓
+strategy frozen
+        ↓
+2025 TRUE OOS exactly once
+        ↓
+pass/fail
+        ↓
+no OOS retuning
+```
+
+Candidate states are one way: `discovered → screened →
+frozen_for_confirmation → internally_confirmed|internally_rejected`; confirmed
+candidates may continue through `strategy_candidate → frozen_for_true_oos →
+true_oos_pass|true_oos_fail`. If a definition changes after confirmation or OOS
+was seen, it receives a new candidate identity and that previously seen period
+is not untouched for the new version. The immutable experiment, candidate, and
+known-hypothesis registries live under `research/`. Stochastic work uses seed
+`20260401` unless a different seed was preregistered; seed shopping is forbidden.
+Validate this contract without running discovery using `phase4a-validate`.

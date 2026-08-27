@@ -1,0 +1,57 @@
+{
+  "access_modes": {
+    "DESCRIPTIVE_DEVELOPMENT": "Aggregate 2026 descriptions only; predictive feature-to-outcome ranking or selection is forbidden.",
+    "DISCOVERY": "Discovery-period data only.",
+    "INTERNAL_CONFIRMATION": "Requires a candidate frozen_for_confirmation or later.",
+    "TRUE_OOS": "Requires a candidate frozen_for_true_oos; unavailable during Phase 4A."
+  },
+  "actual_coverage": {
+    "CNY_M1": ["2026-01-05T05:59:00Z", "2026-07-01T20:49:00Z"],
+    "CNY_M5": ["2026-01-05T05:55:00Z", "2026-07-01T20:45:00Z"],
+    "Si_M1": ["2026-01-05T05:59:00Z", "2026-07-01T20:49:00Z"],
+    "Si_M5": ["2026-01-05T05:55:00Z", "2026-07-01T20:45:00Z"]
+  },
+  "candidate_lifecycle": {
+    "discovered": ["screened"],
+    "screened": ["frozen_for_confirmation"],
+    "frozen_for_confirmation": ["internally_confirmed", "internally_rejected"],
+    "internally_confirmed": ["strategy_candidate"],
+    "internally_rejected": [],
+    "strategy_candidate": ["frozen_for_true_oos"],
+    "frozen_for_true_oos": ["true_oos_pass", "true_oos_fail"],
+    "true_oos_pass": [],
+    "true_oos_fail": []
+  },
+  "confirmation_lock": "Outcomes in the confirmation period may be accessed only after a candidate definition is frozen; changes require a new candidate identity.",
+  "default_seed": 20260401,
+  "development_data_year": 2026,
+  "discovery_period": {"end_utc_exclusive": "2026-05-15T21:00:00Z", "end_moscow_exclusive": "2026-05-16T00:00:00+03:00", "start_moscow": "2026-01-05T00:00:00+03:00", "start_utc": "2026-01-04T21:00:00Z"},
+  "experiment_types": ["descriptive", "known_hypothesis_test", "univariate_screen", "subgroup_discovery", "interaction_search", "clustering", "motif_sequence", "rare_state", "cross_instrument_replication", "robustness", "internal_confirmation", "strategy_construction", "backtest", "true_oos"],
+  "immutability_rules": ["Registered specifications are immutable.", "Material setting changes require a new experiment ID.", "Retuning a candidate after confirmation or OOS access requires a new candidate ID.", "Specifications and generated result artifacts are stored separately."],
+  "instrument_scopes": ["CNY", "Si", "cross_instrument"],
+  "internal_confirmation_period": {"end_utc_exclusive": "2026-07-01T21:00:00Z", "end_moscow_exclusive": "2026-07-02T00:00:00+03:00", "start_moscow": "2026-05-16T00:00:00+03:00", "start_utc": "2026-05-15T21:00:00Z"},
+  "monthly_blocks": [
+    {"block_id": "2026-01", "start_utc": "2025-12-31T21:00:00Z", "end_utc_exclusive": "2026-01-31T21:00:00Z", "start_moscow": "2026-01-01T00:00:00+03:00", "end_moscow_exclusive": "2026-02-01T00:00:00+03:00"},
+    {"block_id": "2026-02", "start_utc": "2026-01-31T21:00:00Z", "end_utc_exclusive": "2026-02-28T21:00:00Z", "start_moscow": "2026-02-01T00:00:00+03:00", "end_moscow_exclusive": "2026-03-01T00:00:00+03:00"},
+    {"block_id": "2026-03", "start_utc": "2026-02-28T21:00:00Z", "end_utc_exclusive": "2026-03-31T21:00:00Z", "start_moscow": "2026-03-01T00:00:00+03:00", "end_moscow_exclusive": "2026-04-01T00:00:00+03:00"},
+    {"block_id": "2026-04", "start_utc": "2026-03-31T21:00:00Z", "end_utc_exclusive": "2026-04-30T21:00:00Z", "start_moscow": "2026-04-01T00:00:00+03:00", "end_moscow_exclusive": "2026-05-01T00:00:00+03:00"},
+    {"block_id": "2026-05", "start_utc": "2026-04-30T21:00:00Z", "end_utc_exclusive": "2026-05-31T21:00:00Z", "start_moscow": "2026-05-01T00:00:00+03:00", "end_moscow_exclusive": "2026-06-01T00:00:00+03:00"},
+    {"block_id": "2026-06", "start_utc": "2026-05-31T21:00:00Z", "end_utc_exclusive": "2026-06-30T21:00:00Z", "start_moscow": "2026-06-01T00:00:00+03:00", "end_moscow_exclusive": "2026-07-01T00:00:00+03:00"},
+    {"block_id": "2026-07-partial", "start_utc": "2026-06-30T21:00:00Z", "end_utc_exclusive": "2026-07-01T21:00:00Z", "start_moscow": "2026-07-01T00:00:00+03:00", "end_moscow_exclusive": "2026-07-02T00:00:00+03:00"}
+  ],
+  "multiple_testing_policy": {"accounting": "Every experiment records an exact or defensible effective number_of_hypotheses_tested and multiple_testing_family.", "future_methods": ["Benjamini-Hochberg FDR", "family-wise reporting", "block permutation/bootstrap", "untouched temporal confirmation"]},
+  "protocol_version": "1.0",
+  "research_principles": ["Effect size, stability, replication, uncertainty, and coverage precede significance.", "No single metric determines a winner.", "Rare states require uncertainty and effective-sample reporting, not a universal cutoff.", "Multiple complementary pattern families may be retained; portfolio optimization is out of scope."],
+  "research_tracks": ["unknown_discovery", "known_hypothesis"],
+  "sample_size_reporting": ["raw_observation_count", "unique_trading_days", "event_count", "instrument_count", "time_span", "effective_sample_size_or_uncertainty"],
+  "seed_policy": "Use the canonical default unless preregistered otherwise; never shop seeds.",
+  "serial_dependence_policy": {"iid_default": false, "methods": ["block bootstrap", "day-level resampling", "valid temporal permutation", "cluster-robust day-level uncertainty", "effective sample considerations"], "overlap_note": "M1 with native M5 context and standalone M5 overlap in time and are not independent samples."},
+  "timeframes": ["M1_with_native_M5_context", "M5_standalone"],
+  "true_oos_year": 2025,
+  "walk_forward_folds": [
+    {"fold_id": "WF-01", "train": ["2026-01-04T21:00:00Z", "2026-01-31T21:00:00Z"], "validate": ["2026-01-31T21:00:00Z", "2026-02-28T21:00:00Z"]},
+    {"fold_id": "WF-02", "train": ["2026-01-04T21:00:00Z", "2026-02-28T21:00:00Z"], "validate": ["2026-02-28T21:00:00Z", "2026-03-31T21:00:00Z"]},
+    {"fold_id": "WF-03", "train": ["2026-01-04T21:00:00Z", "2026-03-31T21:00:00Z"], "validate": ["2026-03-31T21:00:00Z", "2026-04-30T21:00:00Z"]},
+    {"fold_id": "WF-04", "train": ["2026-01-04T21:00:00Z", "2026-04-30T21:00:00Z"], "validate": ["2026-04-30T21:00:00Z", "2026-05-15T21:00:00Z"]}
+  ]
+}
