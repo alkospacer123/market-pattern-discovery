@@ -13,12 +13,21 @@ def validate_effect_record(record: dict[str, Any]) -> None:
     if missing: raise ValueError(f"effect record missing {sorted(missing)}")
 
 
-def create_candidate_from_effect(effect: dict[str, Any], *, code_commit: str, signatures: dict[str,str], discovery_data_period: list[str]) -> dict[str, Any]:
+def create_candidate_from_effect(effect: dict[str, Any], *, code_commit: str, signatures: dict[str,str], discovery_data_period: list[str], directory=None) -> dict[str, Any]:
+    """Canonical adapter: promoted effect -> persistent research registry candidate."""
+    from market_pattern_discovery.research.registry import create_candidate
+    import tempfile
+    from pathlib import Path
     validate_effect_record(effect)
-    if effect["screening_status"] != "promoted": raise ValueError("only screened effects may be candidates")
-    value={"effect_id":effect["effect_id"],"experiment_id":effect["experiment_id"],"method":effect["method"],"pattern_definition":copy.deepcopy(effect["pattern_definition"]),"target_behavior":effect["target_behavior"],"discovery_data_period":discovery_data_period,"signatures":signatures,"code_commit":code_commit,"status":"screened","frozen_definition":False}
-    validate_candidate_lineage(value); return value
-
+    if effect["screening_status"] != "promoted": raise ValueError("only promoted effects may be candidates")
+    spec={"source_experiment_id":effect["experiment_id"],"research_track":"unknown_discovery","pattern_definition":copy.deepcopy(effect["pattern_definition"]),"instrument_scope":effect["instrument"],"timeframe_scope":effect["timeframe"],"behavior_target":effect["target_behavior"],"direction_of_effect":effect["effect_metrics"]["primary_effect"],"discovery_sample_size":effect["sample_size"],"discovery_effect_summary":{"effect_id":effect["effect_id"],"hypothesis_id":effect.get("hypothesis_id"),"coverage":effect["coverage"],"unique_days":effect["unique_days"],"raw_p":effect["raw_p"],"adjusted_q":effect["adjusted_q"],"signatures":signatures,"discovery_execution_signature":signatures.get("discovery_execution"),"code_commit":code_commit,"discovery_period":discovery_data_period},"notes":"Phase 5B promoted effect; registry lifecycle begins discovered"}
+    if directory is None:
+        with tempfile.TemporaryDirectory() as tmp:
+            value=create_candidate(spec, directory=Path(tmp))
+    else:
+        value=create_candidate(spec, directory=directory)
+    value.update({"effect_id":effect["effect_id"],"experiment_id":effect["experiment_id"],"method":effect["method"],"target_behavior":effect["target_behavior"],"discovery_data_period":discovery_data_period,"signatures":signatures,"code_commit":code_commit})
+    return value
 
 def validate_candidate_lineage(candidate: dict[str, Any]) -> None:
     missing=REQUIRED_LINEAGE-candidate.keys()
