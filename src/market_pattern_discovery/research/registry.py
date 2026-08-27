@@ -46,8 +46,12 @@ def register_experiment(specification: dict[str, Any], directory: Path = EXPERIM
         raise ValueError("known hypothesis experiments require hypothesis_id")
     if specification["research_track"] == "unknown_discovery" and specification.get("hypothesis_id"):
         raise ValueError("unknown discovery may not be retroactively assigned a hypothesis")
-    if not isinstance(specification["number_of_hypotheses_tested"], int) or specification["number_of_hypotheses_tested"] < 1:
-        raise ValueError("number_of_hypotheses_tested must be a positive integer")
+    count = specification["number_of_hypotheses_tested"]
+    descriptive = specification.get("experiment_type") == "descriptive"
+    if not isinstance(count, int) or count < 0 or (not descriptive and count < 1):
+        raise ValueError("hypothesis count must be zero for descriptive work or positive otherwise")
+    if descriptive and count != 0:
+        raise ValueError("descriptive experiments test zero hypotheses")
     _validate_signatures(specification)
     value = dict(specification); value["experiment_id"] = _next_id(directory, "EXP")
     value["created_at"] = datetime.now(timezone.utc).isoformat(); value.setdefault("parent_experiment_id", None)
