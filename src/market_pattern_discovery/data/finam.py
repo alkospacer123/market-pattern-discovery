@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
 from typing import Iterable
+import csv
 
 import numpy as np
 import pandas as pd
@@ -113,3 +114,69 @@ def stitch_finam(paths: Iterable[str | Path], instrument: str, timeframe: str) -
     result["gap_from_previous"] = result.open_time.diff() > pd.Timedelta(minutes=1 if timeframe == "M1" else 5)
     result["is_weekend"] = result.open_time.dt.dayofweek >= 5
     return LoadResult(result, [item[1] for item in loaded], len(frame), equivalent)
+
+def load_finam_window(path: str | Path, instrument: str, timeframe: str,
+                      start: pd.Timestamp, end: pd.Timestamp) -> LoadResult:
+    """Strictly load ``[start, end)`` without parsing out-of-window OHLCV.
+
+    The CSV is scanned as text to locate timestamps.  Only selected raw records
+    are passed to the numeric market-data validator.  This distinction is
+    intentional: boundary detection must not evaluate future OHLCV values.
+    """
+    path = Path(path)
+    start = pd.Timestamp(start)
+    end = pd.Timestamp(end)
+    if start.tzinfo is None or end.tzinfo is None or start >= end:
+        raise IngestionError("window boundaries must be ordered timezone-aware timestamps")
+    start = start.tz_convert("Europe/Moscow"); end = end.tz_convert("Europe/Moscow")
+    selected: list[tuple[int, list[str]]] = []
+    with path.open("r", encoding="utf-8-sig", newline="") as stream:
+        reader = csv.reader(stream, delimiter=";")
+        try: header = next(reader)
+        except StopIteration: raise IngestionError(f"empty source: {path.name}")
+        if header != SCHEMA:
+            raise IngestionError(f"schema mismatch in {path.name}: {header!r}")
+        for source_row, fields in enumerate(reader, 2):
+            if len(fields) != len(SCHEMA):
+                raise IngestionError(f"malformed row {source_row} in {path.name}")
+            try:
+                stamp = pd.to_datetime(fields[2] + fields[3].zfill(6), format="%Y%m%d%H%M%S").tz_localize("Europe/Moscow")
+            except Exception as exc:
+                raise IngestionError(f"invalid timestamp at {path.name}:{source_row}") from exc
+            if start <= stamp < end:
+                selected.append((source_row, fields))
+    if not selected:
+        raise IngestionError(f"no rows in requested window for {path.name}")
+    import io
+    payload = io.StringIO()
+    writer = csv.writer(payload, delimiter=";", lineterminator="\n")
+    writer.writerow(SCHEMA); writer.writerows(fields for _, fields in selected)
+    # Reuse the complete validation path via a private in-memory equivalent,
+    # while retaining the original file identity and physical source rows.
+    raw = pd.read_csv(io.StringIO(payload.getvalue()), sep=";", dtype=str, keep_default_na=False)
+    expected = _instrument(instrument); per_value = 1 if timeframe == "M1" else 5
+    if timeframe not in {"M1", "M5"}: raise IngestionError(f"unsupported timeframe: {timeframe}")
+    if list(raw.columns) != SCHEMA: raise IngestionError("schema mismatch")
+    per = pd.to_numeric(raw["<PER>"], errors="coerce")
+    if per.isna().any() or not per.eq(per_value).all(): raise IngestionError(f"wrong PER for {timeframe} in {path.name}")
+    tickers = raw["<TICKER>"].map(lambda v: ALIASES.get(v.upper()))
+    if tickers.isna().any() or not tickers.eq(expected).all(): raise IngestionError(f"ticker mismatch in {path.name}")
+    nums = raw[["<OPEN>","<HIGH>","<LOW>","<CLOSE>","<VOL>"]].apply(pd.to_numeric, errors="coerce")
+    if nums.isna().any().any() or not np.isfinite(nums.to_numpy()).all(): raise IngestionError(f"non-numeric or non-finite value in {path.name}")
+    nums.columns = OHLCV
+    if (nums[["open","high","low","close"]] <= 0).any().any(): raise IngestionError("prices must be positive")
+    if nums.volume.lt(0).any(): raise IngestionError("volume must be non-negative")
+    if ((nums.high < nums[["open","close","low"]].max(axis=1)) | (nums.low > nums[["open","close","high"]].min(axis=1))).any(): raise IngestionError("OHLC invariant violation")
+    opened = pd.Series([pd.to_datetime(f[2]+f[3].zfill(6), format="%Y%m%d%H%M%S").tz_localize("Europe/Moscow") for _,f in selected])
+    frame=nums.copy(); frame["instrument"]=expected; frame["timeframe"]=timeframe; frame["open_time"]=opened
+    frame["open_local"]=opened.dt.tz_localize(None); frame["open_utc"]=opened.dt.tz_convert("UTC"); frame["close_time"]=opened+pd.Timedelta(minutes=per_value)
+    frame["source_filename"]=path.name; frame["source_row"]=[r for r,_ in selected]
+    frame=frame.sort_values(["open_time","source_row"],kind="mergesort").reset_index(drop=True)
+    dup=frame.duplicated("open_time",keep=False); equivalent=0
+    for stamp,g in frame.loc[dup].groupby("open_time",sort=False):
+        if not (g[OHLCV].to_numpy()==g.iloc[0][OHLCV].to_numpy()).all(): raise IngestionError(f"conflicting duplicate at {stamp.isoformat()}")
+        equivalent += len(g)-1
+    frame=frame.loc[~frame.duplicated("open_time")].reset_index(drop=True)
+    frame["gap_from_previous"]=frame.open_time.diff()>pd.Timedelta(minutes=per_value); frame["is_weekend"]=frame.open_time.dt.dayofweek>=5
+    provenance={"filename":path.name,"instrument":expected,"timeframe":timeframe,"raw_rows":len(selected),"window_start":start.isoformat(),"window_end":end.isoformat(),"sha256":file_sha256(path),"file_size":path.stat().st_size}
+    return LoadResult(frame,[provenance],len(selected),equivalent)

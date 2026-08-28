@@ -1,0 +1,21 @@
+{
+  "contract_version":"3.0.0",
+  "periods":{"DEV":["2026-01-05T00:00:00+03:00","2026-03-01T00:00:00+03:00"],"VALIDATION_A":["2026-03-01T00:00:00+03:00","2026-05-01T00:00:00+03:00"],"VALIDATION_B":["2026-05-01T00:00:00+03:00","2026-05-16T00:00:00+03:00"]},
+  "instruments":["CNYRUBF","USDRUBF"],"ticks":{"CNYRUBF":0.001,"USDRUBF":0.01},
+  "timeframes":{"source":"M1","signal":"closed causal M5","m5_observations":5},
+  "friction":{"GROSS":0,"BASE":1,"STRESS":2,"unit":"adverse ticks per side"},"commission_model":"NOT_INCLUDED",
+  "execution":{"entry":"exact common next M1 open equal to signal_time","stop_target_tie":"STOP_FIRST","gap_aware":true,"day_end_reason":"DAY_END"},
+  "position_exclusivity":"instrument_variant_id","simultaneous_signal_policy":"AMBIGUOUS_SIMULTANEOUS_SIGNAL_SKIP",
+  "tick_rounding":"ROUND_HALF_UP_NEAREST_TICK",
+  "families":{"STRUCTURAL":["REJECTION","SIMPLE_SWEEP","COMPLEX_FALSE_BREAK","BREAKOUT_RETEST","GERCHIK_A_M5_PROXY"],"ORB":["DIRECT","BREAKOUT_RETEST","FAILED_BREAKOUT_DIAGNOSTIC"],"TREND_PULLBACK":["EMA20_50","EMA20_100"],"PAIRS":["DISTANCE","OLS"],"BOLLINGER_RSI":["REENTRY_2R","REENTRY_FIXED_MID"]},
+  "parameter_grids":{"STRUCTURAL":{"tolerance_ticks":[1,2,3],"min_touches":[2,3],"target_r":[2,3]},"ORB":{"length":[5,15,30],"stop_mode":["STOP_OPPOSITE_OR","STOP_MIDPOINT"],"target_r":[1.5,2.0]},"TREND_PULLBACK":{"slow_ema":[50,100],"target_r":[2,3],"pullback_max_m5":6},"PAIRS":{"model":["DISTANCE","OLS"],"window":[240,480,960],"z_entry":[1.5,2.0,2.5]},"BOLLINGER_RSI":{"bb_n":20,"k":[1.5,2.0,2.5],"rsi_thresholds":[[25,75],[30,70]],"exit":["REENTRY_2R","REENTRY_FIXED_MID"]}},
+  "max_holding":{"STRUCTURAL":120,"GERCHIK_A_M5_PROXY":120,"ORB":120,"TREND_PULLBACK":120,"PAIRS":120,"BOLLINGER_RSI":60},
+  "pair_alignment":"exact common close_time and consistent open_time; entry exact common open_time",
+  "pair_exit_rules":{"CONVERGENCE":"crossing known at close, execute next exact common open","TIME":"120th aligned bar close","DAY_END":"final common trading-date close"},
+  "selection_policy":{"slots":["STRUCTURAL","ORB","TREND_PULLBACK","PAIRS","BOLLINGER_RSI"],"minimum_base_trades":20,"minimum_base_expectancy_bps_exclusive":0,"minimum_base_profit_factor_exclusive":1,"order":["sample_tier_desc","base_pf_desc","stress_pf_desc","base_expectancy_bps_desc","base_max_drawdown_bps_asc","complexity_asc","variant_id_asc"],"diagnostic_selection_eligible":false},
+  "validation_status_policy":{"insufficient_sample_below":10,"rejected_if":"combined BASE expectancy_bps <= 0 OR PF <= 1","robust_minimum_combined_trades":20,"robust_requires_positive_a_b":true,"robust_stress_expectancy_minimum":0,"otherwise":"WEAK_CANDIDATE"},
+  "source_fidelity":{"GERCHIK_A_M5_PROXY":{"source_fidelity":"PROXY_NOT_EXACT_SOURCE_REPLICATION","deviations":["M5 state detection","next-M1-open executable approximation","no 30-second pre-close placement","EMA local-trend proxy","clustered market level rather than exact source discretionary level process"]},"structural_adaptations":{"source_mapping":"STRUCTURAL_ADAPTATION","deviation":"daily-key-level/time-window/discretionary source filters are not fully reproduced"},"rsi_formula":"RSI14_EWM_ALPHA_1_OVER_N"},
+  "indicator_state":{"EMA_BB_RSI":"continuous across trading dates","pullback_episode":"trading-date local","bollinger_pending":"trading-date local"},
+  "true_oos_policy":{"year":2025,"status":"LOCKED_TRUE_OOS_DO_NOT_ACCESS"},
+  "manual_audit_policy":{"manual_audit_required":true,"minimum_per_family_where_available":5,"status":"MANUAL_AUDIT_PENDING"}
+}

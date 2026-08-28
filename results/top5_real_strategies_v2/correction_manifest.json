@@ -1,0 +1,15 @@
+{
+  "source_commit": "e395f65ade0889a366fc714e2d46c43ffbac8334",
+  "new_commit": "44c7ea5",
+  "branch": "top5-contract-fix-v2",
+  "2025_accessed": false,
+  "validation_a_accessed": false,
+  "validation_b_accessed": false,
+  "max_market_timestamp_accessed": "2026-02-27 23:50:00+03:00",
+  "tests_passed": 236,
+  "smoke_status": "PASS",
+  "projected_full_dev_seconds": 459.0006070830168,
+  "performance_gate": "PASS",
+  "full_benchmark_run": false,
+  "source_data_modified": false
+}

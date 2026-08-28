@@ -1,0 +1,28 @@
+# Top-5 V2 DEV performance profile
+
+```json
+{
+  "data_loading": 1.3583137500008888,
+  "m5_construction": 0.04533752300085325,
+  "indicator_calculation": 0.013023372001043754,
+  "pivot_generation": 1.158156831001179,
+  "structural_clustering": 11.817088648000208,
+  "structural_signal_generation": 6.53886128799968,
+  "explicit_order_simulation": 26.883956591000242,
+  "orb_generation": 0.6615217799990205,
+  "trend_generation": 3.822599914999955,
+  "pair_feature_distance": 0.01639314500062028,
+  "pair_feature_ols": 0.019709374000740354,
+  "pair_signal_generation": 15.459188732998882,
+  "pair_simulation": 0.9929873990004126,
+  "bollinger_rsi_signal_generation": 1.3332705250013532,
+  "canonical_total_seconds": 70.12040887400508,
+  "rows_processed": 62253,
+  "signals_generated": 68190,
+  "trades_executed": 65812,
+  "peak_rss_kb": 306376,
+  "projected_full_dev_seconds": 459.0006070830168,
+  "performance_gate": "PASS",
+  "max_market_timestamp_accessed": "2026-02-27 23:50:00+03:00"
+}
+```
