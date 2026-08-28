@@ -32,36 +32,135 @@
     "PD-02"
   ],
   "skipped": {
-    "EH-01": "No authoritative causal EH/EL reference-price primitive exists.",
-    "EH-02": "No authoritative causal EH/EL reference-price primitive exists."
+    "EH-01": "No authoritative causal Equal High/Equal Low reference-price primitive is exposed.",
+    "EH-02": "No authoritative causal Equal High/Equal Low reference-price primitive is exposed."
   },
+  "raw_signal_counts": [
+    {
+      "strategy_id": "MOM-01",
+      "instrument": "CNYRUBF",
+      "signals": 56082
+    },
+    {
+      "strategy_id": "MOM-01",
+      "instrument": "USDRUBF",
+      "signals": 55664
+    },
+    {
+      "strategy_id": "MOM-02",
+      "instrument": "CNYRUBF",
+      "signals": 54233
+    },
+    {
+      "strategy_id": "MOM-02",
+      "instrument": "USDRUBF",
+      "signals": 54483
+    },
+    {
+      "strategy_id": "NR-01",
+      "instrument": "CNYRUBF",
+      "signals": 14178
+    },
+    {
+      "strategy_id": "NR-01",
+      "instrument": "USDRUBF",
+      "signals": 15414
+    },
+    {
+      "strategy_id": "PD-01",
+      "instrument": "CNYRUBF",
+      "signals": 481
+    },
+    {
+      "strategy_id": "PD-01",
+      "instrument": "USDRUBF",
+      "signals": 471
+    },
+    {
+      "strategy_id": "PD-02",
+      "instrument": "CNYRUBF",
+      "signals": 485
+    },
+    {
+      "strategy_id": "PD-02",
+      "instrument": "USDRUBF",
+      "signals": 395
+    },
+    {
+      "strategy_id": "RH-01",
+      "instrument": "CNYRUBF",
+      "signals": 6152
+    },
+    {
+      "strategy_id": "RH-01",
+      "instrument": "USDRUBF",
+      "signals": 5963
+    },
+    {
+      "strategy_id": "RH-02",
+      "instrument": "CNYRUBF",
+      "signals": 3224
+    },
+    {
+      "strategy_id": "RH-02",
+      "instrument": "USDRUBF",
+      "signals": 2581
+    },
+    {
+      "strategy_id": "RL-01",
+      "instrument": "CNYRUBF",
+      "signals": 5702
+    },
+    {
+      "strategy_id": "RL-01",
+      "instrument": "USDRUBF",
+      "signals": 27899
+    },
+    {
+      "strategy_id": "RL-02",
+      "instrument": "CNYRUBF",
+      "signals": 2720
+    },
+    {
+      "strategy_id": "RL-02",
+      "instrument": "USDRUBF",
+      "signals": 6592
+    },
+    {
+      "strategy_id": "RL-03",
+      "instrument": "CNYRUBF",
+      "signals": 3373
+    },
+    {
+      "strategy_id": "RL-03",
+      "instrument": "USDRUBF",
+      "signals": 7768
+    },
+    {
+      "strategy_id": "RL-04",
+      "instrument": "CNYRUBF",
+      "signals": 1499
+    },
+    {
+      "strategy_id": "RL-04",
+      "instrument": "USDRUBF",
+      "signals": 4265
+    }
+  ],
   "raw_signals": 329624,
-  "raw_signal_counts": {
-    "MOM-01/CNYRUBF": 56082,
-    "MOM-01/USDRUBF": 55664,
-    "MOM-02/CNYRUBF": 54233,
-    "MOM-02/USDRUBF": 54483,
-    "NR-01/CNYRUBF": 14178,
-    "NR-01/USDRUBF": 15414,
-    "PD-01/CNYRUBF": 481,
-    "PD-01/USDRUBF": 471,
-    "PD-02/CNYRUBF": 485,
-    "PD-02/USDRUBF": 395,
-    "RH-01/CNYRUBF": 6152,
-    "RH-01/USDRUBF": 5963,
-    "RH-02/CNYRUBF": 3224,
-    "RH-02/USDRUBF": 2581,
-    "RL-01/CNYRUBF": 5702,
-    "RL-01/USDRUBF": 27899,
-    "RL-02/CNYRUBF": 2720,
-    "RL-02/USDRUBF": 6592,
-    "RL-03/CNYRUBF": 3373,
-    "RL-03/USDRUBF": 7768,
-    "RL-04/CNYRUBF": 1499,
-    "RL-04/USDRUBF": 4265
-  },
   "actual_trade_paths": 1200714,
-  "ledger_rows": 3602142,
+  "ledger_rows_including_friction": 3602142,
+  "atr_source": "phase6b fallback: standard causal Wilder ATR(14)",
+  "atr_definition": "TR=max(high-low,abs(high-prev_close),abs(low-prev_close)); seed=mean(first 14 TR); Wilder recurrence alpha=1/14",
+  "atr_reset_policy": "continuous per instrument; no day reset",
+  "trading_date_source": "market_pattern_discovery.features.core.canonical_trading_date",
+  "round_level_semantic_source": "Phase 2 Decimal grid semantics; actual touched/crossed grid level",
+  "tie_policy": "stop first when intrabar order unknown",
+  "gap_policy": "adverse stop gaps fill at open; target gaps fill at target",
+  "day_boundary_policy": "entry and complete holding path restricted to signal trading_date; DAY_END close",
+  "event_outcome_reference_price": "open of t+1; complete same-day horizons only",
+  "source_modified": false,
+  "runtime_seconds": 962.9194106540001,
   "provenance": [
     {
       "filename": "CNY_2026_Q1_M1.csv",
@@ -108,33 +207,27 @@
       "originally_sorted": true
     }
   ],
-  "atr_source": "phase6b fallback (no authoritative ATR14 exists)",
-  "atr_definition": "Wilder ATR(14), causal TR including prior available close",
-  "atr_reset_policy": "continuous_per_instrument_no_day_reset",
-  "trading_date_source": "market_pattern_discovery.features.core.canonical_trading_date",
-  "round_level_semantic_source": "Phase 2 instrument grid; actual touched/crossed grid level",
-  "tie_policy": "gap checks then stop first when intrabar order unknown",
-  "gap_policy": "adverse stop gap fills at open; favorable target gap capped at target",
-  "day_boundary_policy": "entry and complete path confined to signal trading_date; DAY_END close",
-  "event_outcome_reference_price": "next M1 open; complete same-day horizons only",
-  "runtime_seconds": 1279.164843938,
-  "source_modified": false,
   "regenerate_command": "PYTHONPATH=src python scripts/run_phase6b.py",
-  "output_files": {
+  "outputs": {
     "strategy_summary.csv": {
       "rows": 594,
-      "bytes": 165712,
-      "sha256": "f26fda6287e26dbbb007049aba684edd058b80721ea9e39d971d6336b1a6ad3b"
+      "bytes": 261581,
+      "sha256": "1cd30565b75a4d29ffee836892b160a2f7d5014d12067e7769af7f866121b29c"
     },
     "strategy_parameter_surface.csv": {
       "rows": 396,
-      "bytes": 122224,
-      "sha256": "437be050255f616c9e9dfbda2cb7cd8e82f2234701aed2f5fb16d9fcdbaa7646"
+      "bytes": 186828,
+      "sha256": "e2cfc65c0d9cd082ff323bdeb54ac3e4afba5c6002c8d846afd724efdaa6660f"
     },
     "monthly_summary.csv": {
       "rows": 2970,
-      "bytes": 343684,
-      "sha256": "7f6cb81846db500b9c1ec58e6cb228638534e08df3e8df7777988cbcc909ee07"
+      "bytes": 402515,
+      "sha256": "803829949fbfc48ac7fea8efa7bb3c103722a47d02e3e1d47b374bf4fa1176dc"
+    },
+    "trade_audit_sample.csv": {
+      "rows": 41,
+      "bytes": 15637,
+      "sha256": "5df18c11956c165633580755a127a178d5dcfe79f77a29ae80755c30bf34d0a6"
     },
     "event_outcomes.csv": {
       "rows": 1275859,
@@ -143,13 +236,23 @@
     },
     "trade_ledger.csv": {
       "rows": 3602142,
-      "bytes": 1483571758,
-      "sha256": "e1523edc52189710b108802b3c346da451c86bd32ae06ecdf0ed1452c78d346e"
-    },
-    "trade_audit_sample.csv": {
-      "rows": 250,
-      "bytes": 97203,
-      "sha256": "dad6b33afdd198577f709ec30b159bf38669776006a9d96b91eae42afced0060"
+      "bytes": 1366347838,
+      "sha256": "537a49e51b2aa121bf88283ef157fa932b22e74e12fd1d2a9c4390f32bbdaa08"
     }
+  },
+  "smoke_test": {
+    "instrument": "CNYRUBF",
+    "complete_trading_days": 5,
+    "rows": 4092,
+    "signals": {
+      "RH-02": 154,
+      "RL-02": 141,
+      "PD-01": 26
+    },
+    "actual_trade_paths": 439,
+    "ledger_rows": 1317,
+    "runtime_seconds": 2.528561423000042,
+    "projected_full_seconds": 95.38089614090774,
+    "peak_rss_kb": 127792
   }
 }

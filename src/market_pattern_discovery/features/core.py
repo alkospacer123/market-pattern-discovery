@@ -12,7 +12,7 @@ REQUIRED = ("open", "high", "low", "close", "volume", "instrument", "timeframe",
 
 
 def canonical_trading_date(open_time: pd.Series) -> pd.Series:
-    """Canonical project trading date: calendar date of the Moscow-local open."""
+    """Canonical project trading date: the Moscow-local calendar date."""
     return open_time.dt.tz_convert("Europe/Moscow").dt.date
 
 
