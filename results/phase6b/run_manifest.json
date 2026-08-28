@@ -32,11 +32,36 @@
     "PD-02"
   ],
   "skipped": {
-    "EH-01": "No existing causal Equal High/Equal Low reference-price primitive is exposed by the frozen feature builder.",
-    "EH-02": "No existing causal Equal High/Equal Low reference-price primitive is exposed by the frozen feature builder."
+    "EH-01": "No authoritative causal EH/EL reference-price primitive exists.",
+    "EH-02": "No authoritative causal EH/EL reference-price primitive exists."
   },
-  "raw_signals": 329085,
-  "trade_simulations": 3564858,
+  "raw_signals": 329624,
+  "raw_signal_counts": {
+    "MOM-01/CNYRUBF": 56082,
+    "MOM-01/USDRUBF": 55664,
+    "MOM-02/CNYRUBF": 54233,
+    "MOM-02/USDRUBF": 54483,
+    "NR-01/CNYRUBF": 14178,
+    "NR-01/USDRUBF": 15414,
+    "PD-01/CNYRUBF": 481,
+    "PD-01/USDRUBF": 471,
+    "PD-02/CNYRUBF": 485,
+    "PD-02/USDRUBF": 395,
+    "RH-01/CNYRUBF": 6152,
+    "RH-01/USDRUBF": 5963,
+    "RH-02/CNYRUBF": 3224,
+    "RH-02/USDRUBF": 2581,
+    "RL-01/CNYRUBF": 5702,
+    "RL-01/USDRUBF": 27899,
+    "RL-02/CNYRUBF": 2720,
+    "RL-02/USDRUBF": 6592,
+    "RL-03/CNYRUBF": 3373,
+    "RL-03/USDRUBF": 7768,
+    "RL-04/CNYRUBF": 1499,
+    "RL-04/USDRUBF": 4265
+  },
+  "actual_trade_paths": 1200714,
+  "ledger_rows": 3602142,
   "provenance": [
     {
       "filename": "CNY_2026_Q1_M1.csv",
@@ -83,6 +108,48 @@
       "originally_sorted": true
     }
   ],
-  "tie_policy": "stop first",
-  "source_modified": false
+  "atr_source": "phase6b fallback (no authoritative ATR14 exists)",
+  "atr_definition": "Wilder ATR(14), causal TR including prior available close",
+  "atr_reset_policy": "continuous_per_instrument_no_day_reset",
+  "trading_date_source": "market_pattern_discovery.features.core.canonical_trading_date",
+  "round_level_semantic_source": "Phase 2 instrument grid; actual touched/crossed grid level",
+  "tie_policy": "gap checks then stop first when intrabar order unknown",
+  "gap_policy": "adverse stop gap fills at open; favorable target gap capped at target",
+  "day_boundary_policy": "entry and complete path confined to signal trading_date; DAY_END close",
+  "event_outcome_reference_price": "next M1 open; complete same-day horizons only",
+  "runtime_seconds": 1279.164843938,
+  "source_modified": false,
+  "regenerate_command": "PYTHONPATH=src python scripts/run_phase6b.py",
+  "output_files": {
+    "strategy_summary.csv": {
+      "rows": 594,
+      "bytes": 165712,
+      "sha256": "f26fda6287e26dbbb007049aba684edd058b80721ea9e39d971d6336b1a6ad3b"
+    },
+    "strategy_parameter_surface.csv": {
+      "rows": 396,
+      "bytes": 122224,
+      "sha256": "437be050255f616c9e9dfbda2cb7cd8e82f2234701aed2f5fb16d9fcdbaa7646"
+    },
+    "monthly_summary.csv": {
+      "rows": 2970,
+      "bytes": 343684,
+      "sha256": "7f6cb81846db500b9c1ec58e6cb228638534e08df3e8df7777988cbcc909ee07"
+    },
+    "event_outcomes.csv": {
+      "rows": 1275859,
+      "bytes": 156099570,
+      "sha256": "9f855324cdda69bdbfddfdb482bdf9ffb0927d22ec2eac0b8cc28a2facb0c94d"
+    },
+    "trade_ledger.csv": {
+      "rows": 3602142,
+      "bytes": 1483571758,
+      "sha256": "e1523edc52189710b108802b3c346da451c86bd32ae06ecdf0ed1452c78d346e"
+    },
+    "trade_audit_sample.csv": {
+      "rows": 250,
+      "bytes": 97203,
+      "sha256": "dad6b33afdd198577f709ec30b159bf38669776006a9d96b91eae42afced0060"
+    }
+  }
 }
