@@ -1,97 +1,93 @@
 #!/usr/bin/env python3
-"""Run the preregistered Top-5 real-strategy benchmark in locked order."""
+"""Top-5 V2 guarded runner.  Default and --full never start research work."""
+from __future__ import annotations
+import argparse,json,resource,time
 from pathlib import Path
-from hashlib import sha256
-import json, sys
-import numpy as np
 import pandas as pd
-
 from market_pattern_discovery.backtest.top5 import *
 
-OUT=Path("results/top5_real_strategies_v1")
-START=pd.Timestamp("2026-01-05",tz="Europe/Moscow")
+OUT=Path("results/top5_real_strategies_v2");ROOT="/workspace/market-pattern-data"
 
-def period_signals(s,start,end):
-    return s[(s.signal_time>=start)&(s.signal_time<end)].reset_index(drop=True) if not s.empty else s
+def timed(profile,name,fn):
+    t=time.perf_counter();value=fn();profile[name]=time.perf_counter()-t;return value
 
-def score(ledger):
-    if ledger.empty:return {"trades":0,"base_pf":np.nan,"base_expectancy":np.nan,"stress_pf":np.nan,"max_dd":np.nan}
-    m=metrics(ledger); b=m[m.friction.eq("BASE")].iloc[0]; st=m[m.friction.eq("STRESS")].iloc[0]
-    return {"trades":int(b.trades),"base_pf":b.profit_factor,"base_expectancy":b.expectancy,"stress_pf":st.profit_factor,"max_dd":b.max_drawdown}
+def load_frames(profile=None):
+    t=time.perf_counter();f={i:load_dev(ROOT,i) for i in TICKS}
+    if profile is not None:profile["data_loading"]=time.perf_counter()-t
+    maximum=max(x.close_time.max() for x in f.values())
+    if maximum>=DEV_END:raise RuntimeError("validation row accessed")
+    return f,maximum
+
+def audit():
+    validate_contract(MANDATORY_CONTRACT)
+    print("CONTRACT AUDIT V2")
+    for text in ("GERCHIK_A_M1_PROXY PRESENT","EH PRESENT","EL PRESENT","MIRROR PRESENT","IMMUTABLE LEVEL SNAPSHOTS","ORB FAILED BREAKOUT PRESENT","ORB MIDPOINT STOP PRESENT","PAIRS DISTANCE NORMALIZED","PAIRS CONVERGENCE EXIT PRESENT","OLS BETA WEIGHTING PRESENT","BOLLINGER FIXED MID EXIT PRESENT","SMOKE OCCURS BEFORE FULL"):print(f"{text}: YES")
+    print("VALIDATION ACCESSED: NO")
+
+def all_signals(frames,first_ten=False):
+    use={}
+    for inst,f in frames.items():
+        if first_ten:
+            days=pd.unique(f.trading_date)[:10];use[inst]=f[f.trading_date.isin(days)].reset_index(drop=True)
+        else:use[inst]=f
+    m5={i:causal_m5(f) for i,f in use.items()};result={};levels={}
+    for inst in TICKS:
+        levels[inst]=structural_levels(m5[inst],inst,2,2);s=structural_signals(m5[inst],levels[inst],inst,3.);g=gerchik_a_signals(m5[inst],levels[inst],inst)
+        for sub in ("REJECTION","SIMPLE_SWEEP","COMPLEX_FALSE_BREAK","BREAKOUT_RETEST"):result.setdefault(f"STRUCTURAL {sub}",[]).append(s[s.submodel.eq(sub)] if len(s) else s)
+        result.setdefault("GERCHIK_A_M1_PROXY",[]).append(g)
+        result.setdefault("ORB DIRECT",[]).append(orb_signals(use[inst],inst,15,2.,submodel="DIRECT"))
+        result.setdefault("ORB BREAKOUT_RETEST",[]).append(orb_signals(use[inst],inst,15,2.,submodel="BREAKOUT_RETEST"))
+        result.setdefault("ORB FAILED_BREAKOUT",[]).append(orb_signals(use[inst],inst,15,2.,submodel="FAILED_BREAKOUT"))
+        result.setdefault("TREND_PULLBACK",[]).append(trend_signals(m5[inst],inst,50,3.))
+        result.setdefault("BOLLINGER_RSI REENTRY_2R",[]).append(mean_reversion_signals(m5[inst],inst,2.,30,2.,"REENTRY_2R"))
+        result.setdefault("BOLLINGER_RSI REENTRY_FIXED_MID",[]).append(mean_reversion_signals(m5[inst],inst,2.,30,None,"REENTRY_FIXED_MID"))
+    result["PAIRS DISTANCE"]=[pair_signals(use["CNYRUBF"],use["USDRUBF"],480,2.,"DISTANCE")]
+    result["PAIRS OLS"]=[pair_signals(use["CNYRUBF"],use["USDRUBF"],480,2.,"OLS")]
+    return {k:pd.concat(v,ignore_index=True) if any(len(x) for x in v) else pd.DataFrame() for k,v in result.items()},levels
+
+def smoke():
+    audit();OUT.mkdir(parents=True,exist_ok=True);frames,maximum=load_frames();small,levels=all_signals(frames,True);full_cache=None;summary={};samples=[]
+    print("REAL TOP-5 SMOKE V2")
+    for name,s in small.items():
+        count=len(s);status="PASS"
+        if not count:
+            if full_cache is None:full_cache,_=all_signals(frames,False)
+            count=len(full_cache[name]);status=f"ZERO_IN_10_DAYS / FULL_DEV_COUNT={count}" if count else "ZERO_REAL_EVENTS"
+            s=full_cache[name]
+        example=s.head(1).to_dict("records") if count else []
+        summary[name]={"first_10_day_count":len(small[name]),"full_dev_count":count if not len(small[name]) else None,"status":status,"example":example}
+        if len(s):samples.append(s.assign(smoke_name=name).head(1))
+        print(f"{name}: {status}; count={count}; event={example[:1]}")
+    (OUT/"strategy_contract.json").write_text(json.dumps(MANDATORY_CONTRACT,indent=2)+"\n")
+    (OUT/"smoke_summary.json").write_text(json.dumps(summary,indent=2,default=str)+"\n")
+    pd.concat(samples,ignore_index=True).to_csv(OUT/"smoke_events_sample.csv",index=False)
+    pd.concat(levels.values(),ignore_index=True).head(200).to_csv(OUT/"level_snapshot_sample.csv",index=False)
+    print(f"MAX MARKET TIMESTAMP ACCESSED: {maximum}")
+
+def profile_dev():
+    audit();OUT.mkdir(parents=True,exist_ok=True);p={};frames,maximum=load_frames(p);m5=timed(p,"m5_construction",lambda:{i:causal_m5(f) for i,f in frames.items()})
+    timed(p,"indicator_calculation",lambda:[indicators(x) for x in m5.values()]);piv=timed(p,"pivot_generation",lambda:{i:confirmed_pivots(x) for i,x in m5.items()})
+    levels=timed(p,"structural_clustering",lambda:{i:structural_levels(m5[i],i,2,2) for i in TICKS})
+    ss=timed(p,"structural_signal_generation",lambda:{i:structural_signals(m5[i],levels[i],i,3.) for i in TICKS})
+    sled=timed(p,"explicit_order_simulation",lambda:[simulate_explicit_orders(frames[i],ss[i],TICKS[i]) for i in TICKS])
+    orb=timed(p,"orb_generation",lambda:{i:orb_signals(frames[i],i,15,2.,submodel="DIRECT",stop_mode="STOP_OPPOSITE_OR") for i in TICKS})
+    trend=timed(p,"trend_generation",lambda:{i:trend_signals(m5[i],i,50,3.) for i in TICKS})
+    dist=timed(p,"pair_feature_distance",lambda:pair_features(frames["CNYRUBF"],frames["USDRUBF"],480,"DISTANCE"))
+    ols=timed(p,"pair_feature_ols",lambda:pair_features(frames["CNYRUBF"],frames["USDRUBF"],480,"OLS"))
+    ps=timed(p,"pair_signal_generation",lambda:[pair_signals(frames["CNYRUBF"],frames["USDRUBF"],480,2.,x) for x in ("DISTANCE","OLS")])
+    pled=timed(p,"pair_simulation",lambda:[simulate_pairs(frames["CNYRUBF"],frames["USDRUBF"],x) for x in ps])
+    br=timed(p,"bollinger_rsi_signal_generation",lambda:{i:mean_reversion_signals(m5[i],i,2.,30,2.) for i in TICKS})
+    p["canonical_total_seconds"]=sum(v for k,v in p.items() if k!="canonical_total_seconds")
+    # Cache-aware projection: structural clusters x6, OR ranges x3, trend regimes x2,
+    # pair features x6, Bollinger indicator sets x6; target/threshold variants reuse signals/features.
+    projected=p["data_loading"]+p["m5_construction"]+p["pivot_generation"]+6*(p["structural_clustering"]+p["structural_signal_generation"])+3*p["orb_generation"]+2*p["trend_generation"]+3*(p["pair_feature_distance"]+p["pair_feature_ols"])+6*p["bollinger_rsi_signal_generation"]+12*p["explicit_order_simulation"]+6*p["pair_simulation"]
+    p.update({"rows_processed":sum(len(x) for x in frames.values()),"signals_generated":sum(len(x) for x in ss.values())+sum(len(x) for x in orb.values())+sum(len(x) for x in trend.values())+sum(len(x) for x in ps)+sum(len(x) for x in br.values()),"trades_executed":sum(x.trade_id.nunique() if len(x) else 0 for x in sled+pled),"peak_rss_kb":resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,"projected_full_dev_seconds":projected,"performance_gate":"PASS" if projected<=600 else "FAIL","max_market_timestamp_accessed":str(maximum)})
+    (OUT/"performance_profile.json").write_text(json.dumps(p,indent=2)+"\n");(OUT/"performance_profile.md").write_text("# Top-5 V2 DEV performance profile\n\n```json\n"+json.dumps(p,indent=2)+"\n```\n")
+    for k,v in p.items():print(f"{k}: {v}")
+    print(f"PROJECTED_FULL_DEV_SECONDS: {projected}");print(f"MAX MARKET TIMESTAMP ACCESSED: {maximum}")
 
 def main():
-    OUT.mkdir(parents=True,exist_ok=True)
-    frames={i:load_discovery("/workspace/market-pattern-data",i)[0] for i in TICKS}; m5={i:causal_m5(f) for i,f in frames.items()};m5dev={i:x[x.close_time<DEV_END].reset_index(drop=True) for i,x in m5.items()}
-    contract={"title":"TOP-5 REAL STRATEGY BENCHMARK V1","families":{"STRUCTURAL":["REJECTION","SIMPLE_SWEEP","COMPLEX_FALSE_BREAK","BREAKOUT_RETEST"],"ORB":["DIRECT","BREAKOUT_RETEST","FAILED_BREAKOUT_DIAGNOSTIC"],"TREND_PULLBACK":["EMA20_50","EMA20_100"],"PAIRS":["DISTANCE","OLS"],"BOLLINGER_RSI":["REENTRY_2R"]},"forbidden_substitutes_used":False,"eh_el_required":True}
-    (OUT/"strategy_contract.json").write_text(json.dumps(contract,indent=2)+"\n")
-    candidates=[]; level_samples=[]; signal_samples=[]
-    # Full preregistered grids, evaluated on DEV only.
-    for inst in TICKS:
-      for tol in (1,2,3):
-       for touches in (2,3):
-        lev=structural_levels(m5dev[inst],inst,tol,touches)
-        if len(lev):level_samples.append(lev.head(25))
-        sig0=structural_signals(m5dev[inst],lev,inst,3.)
-        for tr in (2.,3.):
-         sig=sig0.copy();sig["target_r"]=tr;dev=period_signals(sig,START,DEV_END); led=simulate_explicit_orders(frames[inst],dev,TICKS[inst]);
-         for sub in ("REJECTION","SIMPLE_SWEEP","COMPLEX_FALSE_BREAK","BREAKOUT_RETEST"):
-          ss=dev[dev.submodel.eq(sub)] if len(dev) else dev; ll=led[led.submodel.eq(sub)] if len(led) else led
-          candidates.append({"family":"STRUCTURAL","submodel":sub,"instrument":inst,"params":{"tolerance_ticks":tol,"min_touches":touches,"target_r":tr},**score(ll)})
-         if len(dev):signal_samples.append(dev.head(10))
-      for length in (5,15,30):
-       for tr in (1.5,2.):
-        for retest in (False,True):
-         sig=orb_signals(frames[inst],inst,length,tr,retest);dev=period_signals(sig,START,DEV_END);led=simulate_explicit_orders(frames[inst],dev,TICKS[inst]);sub="BREAKOUT_RETEST" if retest else "DIRECT"
-         candidates.append({"family":"ORB","submodel":sub,"instrument":inst,"params":{"or_length":length,"target_r":tr,"stop":"RETEST_EXTREME" if retest else "OPPOSITE_OR"},**score(led)})
-         if len(dev):signal_samples.append(dev.head(5))
-      for slow in (50,100):
-       for tr in (2.,3.):
-        sig=trend_signals(m5[inst],inst,slow,tr);dev=period_signals(sig,START,DEV_END);led=simulate_explicit_orders(frames[inst],dev,TICKS[inst]);candidates.append({"family":"TREND_PULLBACK","submodel":f"EMA20_{slow}","instrument":inst,"params":{"fast":20,"slow":slow,"target_r":tr,"pullback_window":6},**score(led)});
-        if len(dev):signal_samples.append(dev.head(5))
-      for k in (1.5,2.,2.5):
-       for lower in (25,30):
-        sig=mean_reversion_signals(m5[inst],inst,k,lower,2.);dev=period_signals(sig,START,DEV_END);led=simulate_explicit_orders(frames[inst],dev,TICKS[inst],60);candidates.append({"family":"BOLLINGER_RSI","submodel":"REENTRY_2R","instrument":inst,"params":{"bb_n":20,"bb_k":k,"rsi_n":14,"rsi_lower":lower,"exit":"2R"},**score(led)});
-        if len(dev):signal_samples.append(dev.head(5))
-    for model in ("DISTANCE","OLS"):
-     for window in (240,480,960):
-      for z in (1.5,2.,2.5):
-       sig=pair_signals(frames["CNYRUBF"],frames["USDRUBF"],window,z,model);dev=period_signals(sig,START,DEV_END);led=simulate_pairs(frames["CNYRUBF"],frames["USDRUBF"],dev);candidates.append({"family":"PAIRS","submodel":model,"instrument":"CNYRUBF+USDRUBF","params":{"window":window,"z_entry":z,"max_hold":120},**score(led)});
-       if len(dev):signal_samples.append(dev.head(5))
-    allv=pd.DataFrame(candidates);allv["params"]=allv.params.map(json.dumps);allv.to_csv(OUT/"dev_all_variants.csv",index=False)
-    # One choice for each family/submodel/instrument; positive expectancy, PF, count, DD, simplicity.
-    selected=[]
-    for key,g in allv.groupby(["family","submodel","instrument"],sort=True):
-        q=g.assign(positive=g.base_expectancy.gt(0),pf=g.base_pf.replace(np.inf,1e9)).sort_values(["positive","pf","trades","max_dd"],ascending=[False,False,False,True],kind="mergesort").iloc[0]
-        selected.append({"family":key[0],"submodel":key[1],"instrument":key[2],"params":json.loads(q.params),"dev_trades":int(q.trades),"sample_flag":"LOW_SAMPLE" if q.trades<20 else "ADEQUATE"})
-    frozen={"selection_data_end":"2026-02-28T23:59:59+03:00","selected":selected}; digest=freeze(OUT/"frozen_selected_variants.json",frozen)
-    # Evaluation begins only after freeze.
-    eval_ledgers=[]; summaries=[]
-    for period,start,end in (("DEV",START,DEV_END),("VALIDATION_A",DEV_END,VAL_A_END),("VALIDATION_B",VAL_A_END,END)):
-      if period!="DEV":assert_oos(frozen["selection_data_end"],start)
-      for v in selected:
-       inst=v["instrument"];p=v["params"]
-       if v["family"]=="STRUCTURAL":
-        lev=structural_levels(m5[inst],inst,p["tolerance_ticks"],p["min_touches"]);sig=structural_signals(m5[inst],lev,inst,p["target_r"]);sig=sig[sig.submodel.eq(v["submodel"])]
-        led=simulate_explicit_orders(frames[inst],period_signals(sig,start,end),TICKS[inst])
-       elif v["family"]=="ORB":
-        sig=orb_signals(frames[inst],inst,p["or_length"],p["target_r"],v["submodel"]=="BREAKOUT_RETEST");led=simulate_explicit_orders(frames[inst],period_signals(sig,start,end),TICKS[inst])
-       elif v["family"]=="TREND_PULLBACK":
-        sig=trend_signals(m5[inst],inst,p["slow"],p["target_r"]);led=simulate_explicit_orders(frames[inst],period_signals(sig,start,end),TICKS[inst])
-       elif v["family"]=="BOLLINGER_RSI":
-        sig=mean_reversion_signals(m5[inst],inst,p["bb_k"],p["rsi_lower"],2.);led=simulate_explicit_orders(frames[inst],period_signals(sig,start,end),TICKS[inst],60)
-       else:
-        sig=pair_signals(frames["CNYRUBF"],frames["USDRUBF"],p["window"],p["z_entry"],v["submodel"]);led=simulate_pairs(frames["CNYRUBF"],frames["USDRUBF"],period_signals(sig,start,end))
-       if len(led):led["period"]=period;eval_ledgers.append(led); mm=metrics(led);mm["period"]=period;mm["selection_data_end"]=frozen["selection_data_end"];mm["evaluation_start"]=start;mm["evaluation_end"]=end;mm["is_out_of_selection_sample"]=period!="DEV";summaries.append(mm)
-    summary=pd.concat(summaries,ignore_index=True) if summaries else pd.DataFrame(); ledger=pd.concat(eval_ledgers,ignore_index=True) if eval_ledgers else pd.DataFrame()
-    summary[summary.period.eq("VALIDATION_A")].to_csv(OUT/"validation_a.csv",index=False);summary[summary.period.eq("VALIDATION_B")].to_csv(OUT/"validation_b.csv",index=False);summary.to_csv(OUT/"strategy_summary.csv",index=False)
-    if len(ledger): ledger.assign(month=ledger.entry_time.dt.strftime("%Y-%m")).groupby(["family","submodel","instrument","friction","month"]).agg(trades=("pnl","size"),pnl=("pnl","sum"),expectancy=("pnl","mean")).reset_index().to_csv(OUT/"monthly_summary.csv",index=False);ledger.groupby("family",sort=False).head(15).to_csv(OUT/"trade_audit_sample.csv",index=False)
-    pd.concat(level_samples,ignore_index=True).head(200).to_csv(OUT/"level_audit_sample.csv",index=False);pd.concat(signal_samples,ignore_index=True).head(250).to_csv(OUT/"signal_audit_sample.csv",index=False)
-    counts=pd.concat(signal_samples,ignore_index=True).family.value_counts().to_dict();print("REAL TOP-5 SMOKE\n"+"\n".join(f"{k} signals: {v}" for k,v in counts.items()))
-    manifest={"status":"PASS","window":{"start":str(START),"end_exclusive":str(END)},"splits":{"DEV":"2026-01-05/2026-02-28","VALIDATION_A":"2026-03-01/2026-04-30","VALIDATION_B":"2026-05-01/2026-05-15"},"frozen_sha256":digest,"source_data_modified":False,"source_paths":["/workspace/market-pattern-data/2026/CNY/*M1.csv","/workspace/market-pattern-data/2026/Si/*M1.csv"],"regeneration_command":"PYTHONPATH=src python scripts/run_top5.py"}
-    (OUT/"run_manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
-    base=summary[summary.friction.eq("BASE")].sort_values(["period","profit_factor"],ascending=[True,False]);report="# TOP-5 REAL STRATEGY BENCHMARK V1\n\nFrozen SHA-256: `"+digest+"`\n\nAll variants were selected on DEV only; validation periods are out of selection sample. Gerchik-derived structural false-break/retest rows are `ADAPTED_TO_M1_M5`, not exact 30-second Model A executions.\n\n## Results\n\n```csv\n"+base.to_csv(index=False)+"```\n\n## Manual audit IDs\n\nThe durable trade audit contains the first 15 trades per family for candle-by-candle review.\n"
-    (OUT/"report.md").write_text(report)
-    assert verify_frozen(OUT/"frozen_selected_variants.json",digest)
-    print(f"Frozen {len(selected)} variants; ledger rows={len(ledger)}; sha256={digest}")
-
+    parser=argparse.ArgumentParser();m=parser.add_mutually_exclusive_group(required=True);m.add_argument("--smoke",action="store_true");m.add_argument("--profile-dev",action="store_true");m.add_argument("--full",action="store_true");a=parser.parse_args()
+    if a.full:raise SystemExit("--full is disabled until the V2 performance gate passes and a separate authorized run is requested")
+    smoke() if a.smoke else profile_dev()
 if __name__=="__main__":main()

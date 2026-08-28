@@ -1,0 +1,51 @@
+{
+  "families": {
+    "STRUCTURAL": [
+      "REJECTION",
+      "SIMPLE_SWEEP",
+      "COMPLEX_FALSE_BREAK",
+      "BREAKOUT_RETEST",
+      "GERCHIK_A_M1_PROXY"
+    ],
+    "ORB": [
+      "DIRECT",
+      "BREAKOUT_RETEST",
+      "FAILED_BREAKOUT"
+    ],
+    "TREND_PULLBACK": [
+      "EMA20_50",
+      "EMA20_100"
+    ],
+    "PAIRS": [
+      "DISTANCE",
+      "OLS"
+    ],
+    "BOLLINGER_RSI": [
+      "REENTRY_2R",
+      "REENTRY_FIXED_MID"
+    ]
+  },
+  "requirements": {
+    "EH_EL": "REQUIRED",
+    "MIRROR_LEVEL": "REQUIRED",
+    "HISTORICAL_FLAG": "REQUIRED",
+    "ROUND_NUMBER": "CONFLUENCE_ONLY"
+  },
+  "source_mappings": {
+    "GERCHIK_SIMPLE_FALSE_BREAK": {
+      "source_mapping": "SIMPLE_SWEEP",
+      "source_fidelity": "ADAPTED_TO_M1_M5"
+    },
+    "GERCHIK_COMPLEX_FALSE_BREAK": {
+      "source_mapping": "COMPLEX_FALSE_BREAK",
+      "source_fidelity": "ADAPTED_TO_M1_M5"
+    },
+    "GERCHIK_BREAKOUT_RETEST": {
+      "source_mapping": "BREAKOUT_RETEST",
+      "source_fidelity": "ADAPTED_TO_M1_M5"
+    },
+    "GERCHIK_A_M1_PROXY": {
+      "source_fidelity": "PROXY"
+    }
+  }
+}

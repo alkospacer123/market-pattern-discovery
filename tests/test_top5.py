@@ -112,3 +112,108 @@ def test_combined_metrics_same_rows_and_not_cny_label():
 
 def test_exit_is_part_of_frozen_variant(tmp_path):
     p=tmp_path/"f";h=freeze(p,{"exit":"2R"});assert json.loads(p.read_text())["exit"]=="2R" and verify_frozen(p,h)
+
+def test_strategy_contract_is_complete():
+    assert validate_contract(MANDATORY_CONTRACT)
+    bad=json.loads(json.dumps(MANDATORY_CONTRACT));bad["families"]["ORB"].remove("FAILED_BREAKOUT")
+    with pytest.raises(ValueError):validate_contract(bad)
+
+def snapshot_bars(order="HL"):
+    if order=="HL":
+        hi=np.array([2.2,2.3,3.,2.4,2.5,3.7,3.8,3.7,3.8,3.9,4.,4.1]);lo=np.array([1.8,1.9,2.,2.1,2.2,3.4,3.3,3.,3.4,3.5,3.6,3.7])
+    else:
+        hi=np.array([4.2,4.1,4.,4.1,4.2,2.6,2.7,3.,2.7,2.6,2.5,2.4]);lo=np.array([3.5,3.4,3.,3.4,3.5,2.1,2.,2.2,2.1,2.,1.9,1.8])
+    c=(hi+lo)/2;x=m5bars(c,hi,lo)
+    return x
+
+@pytest.mark.parametrize("order",["HL","LH"])
+def test_mirror_both_orders_and_not_early(order):
+    z=structural_levels(snapshot_bars(order),"CNYRUBF",2,2)
+    mirrors=z[z.mirror]
+    assert len(mirrors) and (mirrors.level_type=="MIRROR").all()
+    assert mirrors.valid_from.min()>=snapshot_bars(order).close_time.iloc[9]
+
+def test_immutable_snapshots_and_historical_flag():
+    x=m5bars([1,2,3,2,1,2,3.001,2,1,2,3.002,2,1]);z=structural_levels(x,"CNYRUBF",3,2)
+    eh=z[z.level_type.eq("EH")];assert len(eh)>=2 and eh.snapshot_version.is_monotonic_increasing
+    old=eh.iloc[0].copy();assert eh.iloc[0].touch_count==2 and eh.iloc[-1].touch_count>=3
+    assert old.level_price==eh.iloc[0].level_price and old.valid_from==eh.iloc[0].valid_from
+
+def test_future_mutation_preserves_snapshots_and_signals():
+    x=m5bars([1,2,3,2,1,2,3.001,2,1,2,2,2,2]);cut=x.close_time.iloc[8];a=structural_levels(x,"CNYRUBF",3,2);sa=structural_signals(x,a,"CNYRUBF")
+    y=x.copy();y.loc[9:,["high","low","close"]]=[99,-99,50];b=structural_levels(y,"CNYRUBF",3,2);sb=structural_signals(y,b,"CNYRUBF")
+    cols=["level_snapshot_id","snapshot_version","level_price","valid_from","touch_count"]
+    assert a[a.valid_from<=cut][cols].reset_index(drop=True).equals(b[b.valid_from<=cut][cols].reset_index(drop=True))
+    if len(sa):assert sa[sa.signal_time<=cut].reset_index(drop=True).equals(sb[sb.signal_time<=cut].reset_index(drop=True))
+
+def test_historical_flag_cross_day():
+    x=m5bars([1,2,3,2,1,2,3,2,1]);x.loc[5:,"close_time"]+=pd.Timedelta(days=1);x.loc[5:,"open_time"]+=pd.Timedelta(days=1);x["trading_date"]=x.close_time.dt.date
+    z=structural_levels(x,"CNYRUBF",2,2);assert z.historical.any()
+
+def gerchik_fixture(direction=1):
+    c=np.linspace(10,12,70) if direction==1 else np.linspace(12,10,70);x=m5bars(c);i=60;tick=.001;level=round(c[i]/tick)*tick
+    if direction==1:
+        x.loc[i,"low"]=level;x.loc[i+1,"low"]=level;x.loc[i+1,"close"]=level+.01;typ="EL"
+    else:
+        x.loc[i,"high"]=level;x.loc[i+1,"high"]=level;x.loc[i+1,"close"]=level-.01;typ="EH"
+    lev=pd.DataFrame([{"level_family_id":"F","level_snapshot_id":"S","snapshot_version":1,"level_type":typ,"level_price":level,"valid_from":x.close_time.iloc[55],"first_touch":x.close_time.iloc[50],"known_index":55}])
+    return x,lev
+
+@pytest.mark.parametrize("direction",[1,-1])
+def test_gerchik_proxy_long_short_and_fidelity(direction):
+    x,l=gerchik_fixture(direction);s=gerchik_a_signals(x,l,"CNYRUBF");assert len(s)==1 and s.direction.iloc[0]==direction and s.source_fidelity.iloc[0]=="PROXY" and s.target_r.iloc[0]==3
+
+def test_breakout_retest_keeps_snapshot():
+    x=m5bars([2]*8);x.loc[1,"close"]=2.01;x.loc[2,["low","close"]]=[1.999,2.005]
+    l=pd.DataFrame([{"level_family_id":"F","level_snapshot_id":"F-V1","snapshot_version":1,"level_type":"EH","level_price":2.,"valid_from":x.close_time.iloc[0],"tolerance_ticks":2,"round_confluence":False,"historical":False,"mirror":False}])
+    s=structural_signals(x,l,"CNYRUBF");r=s[s.submodel.eq("BREAKOUT_RETEST")];assert len(r) and (r.breakout_level_snapshot_id=="F-V1").all()
+
+def orb_fixture(down=False):
+    x=bars(12);x.loc[:4,["high","low","close"]]=[10.01,9.99,10]
+    if down:x.loc[5,["high","low","close"]]=[10,9.98,9.98];x.loc[6,["high","low","close"]]=[10,9.97,10]
+    else:x.loc[5,["high","low","close"]]=[10.02,10,10.02];x.loc[6,["high","low","close"]]=[10.03,10,10]
+    return x
+
+def test_orb_stop_variants_and_failed_both_sides():
+    x=orb_fixture();a=orb_signals(x,"CNYRUBF",5,2.,submodel="DIRECT",stop_mode="STOP_OPPOSITE_OR");b=orb_signals(x,"CNYRUBF",5,2.,submodel="DIRECT",stop_mode="STOP_MIDPOINT")
+    assert np.isclose(a.stop_price.iloc[0],9.99) and np.isclose(b.stop_price.iloc[0],10.)
+    short=orb_signals(x,"CNYRUBF",5,2.,submodel="FAILED_BREAKOUT");long=orb_signals(orb_fixture(True),"CNYRUBF",5,2.,submodel="FAILED_BREAKOUT")
+    assert short.direction.iloc[0]==-1 and short.stop_price.iloc[0]>short.failed_excursion_high.iloc[0]
+    assert long.direction.iloc[0]==1 and long.stop_price.iloc[0]<long.failed_excursion_low.iloc[0]
+
+def distance_reference(c,s,w,i):
+    c0,s0=c[i-w],s[i-w];hist=c[i-w:i]/c0-s[i-w:i]/s0;cur=c[i]/c0-s[i]/s0;return (cur-hist.mean())/hist.std(ddof=1)
+
+def test_distance_matches_reference_and_is_past_only():
+    c=np.linspace(10,12,30)+np.sin(np.arange(30))*.01;s=np.linspace(90,92,30)+np.cos(np.arange(30))*.02;a=bars(30,close=c);b=bars(30,"USDRUBF",s);z=pair_features(a,b,10,"DISTANCE")
+    assert np.isclose(z.z.iloc[20],distance_reference(c,s,10,20));before=z.z.iloc[20];a.loc[21:,"close"]=999;assert pair_features(a,b,10,"DISTANCE").z.iloc[20]==before
+
+def test_ols_current_and_future_excluded():
+    a=bars(30,close=np.linspace(10,11,30));b=bars(30,"USDRUBF",np.linspace(90,92,30));before=pair_features(a,b,10,"OLS").beta.iloc[20];a.loc[20:,"close"]=999;after=pair_features(a,b,10,"OLS").beta.iloc[20];assert before==after
+
+def pair_frame(zs,dates=None):
+    a=bars(len(zs));a["z"]=zs;a["beta"]=2.;a["spread"]=zs
+    if dates is not None:a["trading_date"]=dates
+    return a
+
+def test_pair_convergence_time_day_end_and_weights():
+    a=bars(130,close=np.linspace(10,11,130));b=bars(130,"USDRUBF",np.linspace(90,91,130));s=pd.DataFrame([{"submodel":"OLS","signal_time":a.close_time.iloc[0],"direction_cny":-1,"direction_si":1,"beta_at_entry":2.,"entry_z":2.,"exit_z":-.1,"planned_exit_time":a.close_time.iloc[3],"planned_exit_reason":"CONVERGENCE"}]);l=simulate_pairs(a,b,s);assert set(l.exit_reason)=={"CONVERGENCE"} and np.isclose(l.w_cny.iloc[0],1/3) and np.isclose(l.w_si.iloc[0],2/3)
+    assert l[l.friction.eq("BASE")].total_pnl.iloc[0]<l[l.friction.eq("GROSS")].total_pnl.iloc[0]
+
+def test_fixed_middle_target_frozen_and_explicit_execution():
+    c=np.r_[np.ones(20)*10,8,10,10];x=m5bars(c);s=mean_reversion_signals(x,"CNYRUBF",1.5,30,None,"REENTRY_FIXED_MID")
+    if len(s):
+        target=s.target_price.iloc[0];x.loc[x.index[-1],"close"]=99;assert s.target_price.iloc[0]==target
+    m=bars(6);sig=pd.DataFrame([_signal("X","MID","CNYRUBF",m.close_time.iloc[0],1,10,9.9,None,target_price=10.01)]);l=simulate_explicit_orders(m,sig,.001);assert (l.target_price==10.01).all()
+
+def test_conflicting_target_rejected():
+    m=bars(6);sig=pd.DataFrame([_signal("X","Y","CNYRUBF",m.close_time.iloc[0],1,10,9.9,2,target_price=10.1)])
+    with pytest.raises(ValueError):simulate_explicit_orders(m,sig,.001)
+
+def test_selection_prefers_sample_tier_before_pf():
+    x=pd.DataFrame([{"base_expectancy":1,"trades":6,"base_pf":20,"max_dd":1,"complexity":1},{"base_expectancy":.1,"trades":50,"base_pf":1.6,"max_dd":2,"complexity":2}]);assert select_variant(x).trades==50
+
+def test_dev_loader_guard_and_modes_do_not_default_full():
+    import subprocess,sys
+    p=subprocess.run([sys.executable,"scripts/run_top5.py"],capture_output=True,text=True);assert p.returncode!=0 and "required" in p.stderr
+    f=load_dev("/workspace/market-pattern-data","CNYRUBF");assert f.open_time.max()<DEV_END and f.open_time.dt.year.eq(2026).all()
