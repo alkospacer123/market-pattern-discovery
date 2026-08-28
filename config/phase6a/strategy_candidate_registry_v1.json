@@ -1,0 +1,4915 @@
+{
+  "registry_version": "1.0",
+  "phase": "6A",
+  "real_results_included": false,
+  "families": [
+    {
+      "strategy_family_id": "KRL-01",
+      "family_name": "Round Level Rejection",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Round Level Rejection is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "round_level",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "instrument_semantics": {
+        "CNYRUBF": {
+          "tick": 0.001,
+          "round_level_step": 0.05
+        },
+        "USDRUBF": {
+          "tick": 0.01,
+          "round_level_step": 0.1
+        },
+        "Si": {
+          "tick": 0.01,
+          "round_level_step": 0.1
+        }
+      },
+      "fingerprint": "2cde7d96b38f333026f0bdfbc6f18d311382502cddf76660a4828fb4eaac68cf"
+    },
+    {
+      "strategy_family_id": "KRL-02",
+      "family_name": "Round Level Breakout",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Round Level Breakout is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "round_level",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "instrument_semantics": {
+        "CNYRUBF": {
+          "tick": 0.001,
+          "round_level_step": 0.05
+        },
+        "USDRUBF": {
+          "tick": 0.01,
+          "round_level_step": 0.1
+        },
+        "Si": {
+          "tick": 0.01,
+          "round_level_step": 0.1
+        }
+      },
+      "fingerprint": "a7d055b76e833b7df31d0e1be557988f0307532bd138d9a3da040b3d51ed1818"
+    },
+    {
+      "strategy_family_id": "KRL-03",
+      "family_name": "Round Level False Breakout",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Round Level False Breakout is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "round_level",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "instrument_semantics": {
+        "CNYRUBF": {
+          "tick": 0.001,
+          "round_level_step": 0.05
+        },
+        "USDRUBF": {
+          "tick": 0.01,
+          "round_level_step": 0.1
+        },
+        "Si": {
+          "tick": 0.01,
+          "round_level_step": 0.1
+        }
+      },
+      "fingerprint": "3ddf7cde2d16f45c2aedbd37a92df4f98cfb1484d02222961778d59e310c4380"
+    },
+    {
+      "strategy_family_id": "KRL-04",
+      "family_name": "Round Level Breakout + Retest",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Round Level Breakout + Retest is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "round_level",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "instrument_semantics": {
+        "CNYRUBF": {
+          "tick": 0.001,
+          "round_level_step": 0.05
+        },
+        "USDRUBF": {
+          "tick": 0.01,
+          "round_level_step": 0.1
+        },
+        "Si": {
+          "tick": 0.01,
+          "round_level_step": 0.1
+        }
+      },
+      "fingerprint": "afa6a067b564faaea18c52a65b4ae43b03fb75b3fa19fdbab23f934945ef630f"
+    },
+    {
+      "strategy_family_id": "KRL-05",
+      "family_name": "Repeated Round-Level Tests",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Repeated Round-Level Tests is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "round_level",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "instrument_semantics": {
+        "CNYRUBF": {
+          "tick": 0.001,
+          "round_level_step": 0.05
+        },
+        "USDRUBF": {
+          "tick": 0.01,
+          "round_level_step": 0.1
+        },
+        "Si": {
+          "tick": 0.01,
+          "round_level_step": 0.1
+        }
+      },
+      "fingerprint": "8e8783fb8f8dee6d6b336cb648600228892f8845ed94bb78a9b699d9b71c5eff"
+    },
+    {
+      "strategy_family_id": "KGC-01",
+      "family_name": "Mirror Level",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Mirror Level is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "structural_level",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "b6bd6d9973828309f5b41eb0a98cbf85032995ba46255be4385655aa2e1cb37d"
+    },
+    {
+      "strategy_family_id": "KGC-02",
+      "family_name": "False Breakout of Structural Level",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "False Breakout of Structural Level is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "structural_level",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "13efa2c1feb406147f0c46ba4f730a27eccc86cc7fd52aa6d85747bd9f8eb605"
+    },
+    {
+      "strategy_family_id": "KGC-03",
+      "family_name": "Breakout + Acceptance",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Breakout + Acceptance is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "structural_level",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "7ad5845617dc915e1a46d7ba7125475a5c6ad319e924a0d7285ec436639fc842"
+    },
+    {
+      "strategy_family_id": "KGC-04",
+      "family_name": "Breakout + Retest",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Breakout + Retest is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "structural_level",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "024ccf32babd95fbef38a10ae85b1f136976ef1fe518b0f0bb16924283f64aae"
+    },
+    {
+      "strategy_family_id": "KGC-05",
+      "family_name": "Accumulation Near Level -> Breakout",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Accumulation Near Level -> Breakout is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "structural_level",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "1750f8c062de7ba3781ec1b631e622ede871b11d0e56ce6c21db85025f039cd7"
+    },
+    {
+      "strategy_family_id": "KGC-06",
+      "family_name": "Strong Approach to Level",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Strong Approach to Level is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "structural_level",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "e2bb3c12ca7e66eb3bc7ea9a9906ad30d897250c476a0f587bc06a569664a9ee"
+    },
+    {
+      "strategy_family_id": "KGC-07",
+      "family_name": "Weak/Decelerating Approach -> Rejection",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Weak/Decelerating Approach -> Rejection is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "structural_level",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "6d32071f022823868e8b4b0a34b9838e840f2e27142a7dd9f24b4d6a7f0873df"
+    },
+    {
+      "strategy_family_id": "KEH-01",
+      "family_name": "Equal High -> Reversal",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Equal High -> Reversal is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "equal_high_low",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "1067bfbe5530406b2e3e1d6e50b269fe758ceca6199533717d222843c7646ba2"
+    },
+    {
+      "strategy_family_id": "KEH-02",
+      "family_name": "Equal High Sweep -> Continuation",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Equal High Sweep -> Continuation is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "equal_high_low",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "9891c2c35667d49861fb514069305f7057e95cca86c184036380644439b642b2"
+    },
+    {
+      "strategy_family_id": "KEL-01",
+      "family_name": "Equal Low -> Reversal",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Equal Low -> Reversal is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "equal_high_low",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "394f1f2869aaed74a4cdb9ff682076d5f96e5e2662935c1f53c33845ccddd478"
+    },
+    {
+      "strategy_family_id": "KEL-02",
+      "family_name": "Equal Low Sweep -> Continuation",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Equal Low Sweep -> Continuation is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "equal_high_low",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "2523e8aaadc3cb2d980bb2128ad2ee1ffa6ab986005e11d880657dc9fee128f5"
+    },
+    {
+      "strategy_family_id": "KEH-03",
+      "family_name": "Equal H/L + Round Level",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Equal H/L + Round Level is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "equal_high_low",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "52ee602298c78662c5002eaad2730f4826cbedc2e7262f9dc052a930603d795c"
+    },
+    {
+      "strategy_family_id": "KEH-04",
+      "family_name": "Equal H/L + Structural Level",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Equal H/L + Structural Level is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "equal_high_low",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "e7683612c68af50c17799c73a0a5ce58c1e934d56a2854d8618bbefc85ee3868"
+    },
+    {
+      "strategy_family_id": "KEH-05",
+      "family_name": "Equal H/L + closed M5 context",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Equal H/L + closed M5 context is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "equal_high_low",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "964c97d0f305120921e2609dc2d3940daaaf3dffda92b359b04cad862e927ca6"
+    },
+    {
+      "strategy_family_id": "KEH-06",
+      "family_name": "Equal H/L + volatility compression",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Equal H/L + volatility compression is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "equal_high_low",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "067dc0216f163034b1fe75a4159c23e255fe67e6c68ba507f45a966fd42d3965"
+    },
+    {
+      "strategy_family_id": "KSR-01",
+      "family_name": "Support/Resistance Rejection",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Support/Resistance Rejection is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "support_resistance",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "624104be7e247de70d968bc97c4025578fadc0c79d96ea3ca0a18020a04772c5"
+    },
+    {
+      "strategy_family_id": "KSR-02",
+      "family_name": "Support/Resistance Breakout",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Support/Resistance Breakout is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "support_resistance",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "7adb117af44b301a97a7e4810f20eaaf3eccaea88a07828d60418715b7f38f97"
+    },
+    {
+      "strategy_family_id": "KSR-03",
+      "family_name": "Failed Breakout",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Failed Breakout is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "support_resistance",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "1deaa11818c95ceb55065d8585f50ca3e88d64854889a9c519901966e732e3d4"
+    },
+    {
+      "strategy_family_id": "KSR-04",
+      "family_name": "Breakout + Retest",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Breakout + Retest is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "support_resistance",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "95cfb32c5191fd5eeb4e015051ea8c62f57ad0f47b74698e36bcfb44ef331366"
+    },
+    {
+      "strategy_family_id": "KSR-05",
+      "family_name": "Multiple Tests -> Breakout/Rejection",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Multiple Tests -> Breakout/Rejection is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "support_resistance",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "6f13efec2d2dfbbcf43fb21f626caac9e1ac4b843947f836f66b8e9b291c33cf"
+    },
+    {
+      "strategy_family_id": "KMT-01",
+      "family_name": "Short-Term Momentum",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Short-Term Momentum is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At candle close, evaluate signed returns over a fixed trailing window using only closed candles; optional volume, volatility, or closed-M5 predicates are conjunctive.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "momentum_trend",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "4614edf7eb3842f24eedf4b0e374e62a18e06fe75efe690ba10a9225bb62ee4b"
+    },
+    {
+      "strategy_family_id": "KMT-02",
+      "family_name": "Momentum + Volume",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Momentum + Volume is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At candle close, evaluate signed returns over a fixed trailing window using only closed candles; optional volume, volatility, or closed-M5 predicates are conjunctive.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "momentum_trend",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "c41a9fe77e6d9b936048d72b0d3754168e130870da6bd7c8b9ec8c2ae2a185ab"
+    },
+    {
+      "strategy_family_id": "KMT-03",
+      "family_name": "Momentum + Volatility Expansion",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Momentum + Volatility Expansion is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At candle close, evaluate signed returns over a fixed trailing window using only closed candles; optional volume, volatility, or closed-M5 predicates are conjunctive.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "momentum_trend",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "834bad76e85dd0143b34eeb2e70496c8290f93f2d55491caa3131075cee15b25"
+    },
+    {
+      "strategy_family_id": "KMT-04",
+      "family_name": "M1 Momentum + closed M5 Direction",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "M1 Momentum + closed M5 Direction is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At candle close, evaluate signed returns over a fixed trailing window using only closed candles; optional volume, volatility, or closed-M5 predicates are conjunctive.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "momentum_trend",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "a58afea397c0993ab917029e0c4488c078a5c3e46d177ecde919063102c2dc19"
+    },
+    {
+      "strategy_family_id": "KMT-05",
+      "family_name": "Trend Pullback",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Trend Pullback is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At candle close, evaluate signed returns over a fixed trailing window using only closed candles; optional volume, volatility, or closed-M5 predicates are conjunctive.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "momentum_trend",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "c8e485d5ab0857c9f8738f425e5a0a2cf07b71c95dd240627f71bc6b31a55390"
+    },
+    {
+      "strategy_family_id": "KMT-06",
+      "family_name": "Breakout Momentum",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Breakout Momentum is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At candle close, evaluate signed returns over a fixed trailing window using only closed candles; optional volume, volatility, or closed-M5 predicates are conjunctive.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "momentum_trend",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "74d41c0b6ecb6b7f7decdb7aad6e40c405dad2e975dfe4c0adc698dc517e3765"
+    },
+    {
+      "strategy_family_id": "KVC-01",
+      "family_name": "Narrow Range -> Expansion",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Narrow Range -> Expansion is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "volatility_compression",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "ba7f996f68c899132afb2ec0a47467fe739876a3dcefda81ee95c8285c70f19e"
+    },
+    {
+      "strategy_family_id": "KVC-02",
+      "family_name": "ATR Compression -> Expansion",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "ATR Compression -> Expansion is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "volatility_compression",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "561f724e66c31bd0e464af103cf15f2eecabb4740dc858eb017fc710fb38e670"
+    },
+    {
+      "strategy_family_id": "KVC-03",
+      "family_name": "Balance Compression -> Breakout",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Balance Compression -> Breakout is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "volatility_compression",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "d4104f6f3598bbd19591833e830fe3e6db55a548c13d7fa8372c62831613c7e4"
+    },
+    {
+      "strategy_family_id": "KVC-04",
+      "family_name": "Compression Near Round Level",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Compression Near Round Level is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "volatility_compression",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "bc7f7351b378d602b0513e34a809f168cca5bc3fae2b8adfa40c205300f27e07"
+    },
+    {
+      "strategy_family_id": "KVC-05",
+      "family_name": "Compression Near Structural Level",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Compression Near Structural Level is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "volatility_compression",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "6702487b1e3ce462956ae18e44a50a19160ed84d5fff4bebc0bd3ac4d41dc3a9"
+    },
+    {
+      "strategy_family_id": "KVC-06",
+      "family_name": "Compression + Prior Impulse Direction",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Compression + Prior Impulse Direction is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "volatility_compression",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "11233a36410f77d9c7bfe2f5449c1b525dd82fc78976d0fd97d1b3ff47d7a30b"
+    },
+    {
+      "strategy_family_id": "KOR-01",
+      "family_name": "5-minute Opening Range Breakout",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "5-minute Opening Range Breakout is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "After the configured MOEX session opening interval has fully closed, compare a later closed candle with the prefix-fixed opening high/low; never assume a US session clock.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "opening_range",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "653a3d3e70f536200a249e33c07b4dbf1f098e530d91754c8d24c4889fecd43a"
+    },
+    {
+      "strategy_family_id": "KOR-02",
+      "family_name": "15-minute Opening Range Breakout",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "15-minute Opening Range Breakout is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "After the configured MOEX session opening interval has fully closed, compare a later closed candle with the prefix-fixed opening high/low; never assume a US session clock.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "opening_range",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "d2146288fe2171e74eb6623b5e9778191a1ed9fa18523ccd61cc7e766dd07e02"
+    },
+    {
+      "strategy_family_id": "KOR-03",
+      "family_name": "30-minute Opening Range Breakout",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "30-minute Opening Range Breakout is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "After the configured MOEX session opening interval has fully closed, compare a later closed candle with the prefix-fixed opening high/low; never assume a US session clock.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "opening_range",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "5000ed6edcfeab309cb1d862a4768e42f9104c3230ac0a7abf33587869511da0"
+    },
+    {
+      "strategy_family_id": "KOR-04",
+      "family_name": "ORB + Volatility",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "ORB + Volatility is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "After the configured MOEX session opening interval has fully closed, compare a later closed candle with the prefix-fixed opening high/low; never assume a US session clock.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "opening_range",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "e620c9b2292c3e13f3b819da4fd507cc80b0a2d3a6d7c4acb197eb2e5c41a5de"
+    },
+    {
+      "strategy_family_id": "KOR-05",
+      "family_name": "ORB + Volume",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "ORB + Volume is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "After the configured MOEX session opening interval has fully closed, compare a later closed candle with the prefix-fixed opening high/low; never assume a US session clock.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "opening_range",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "eb54d0da024dc8303357cac54be7bfe327033587ac2848b2d8425c6d007cfb11"
+    },
+    {
+      "strategy_family_id": "KOR-06",
+      "family_name": "ORB False Breakout",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "ORB False Breakout is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "After the configured MOEX session opening interval has fully closed, compare a later closed candle with the prefix-fixed opening high/low; never assume a US session clock.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "opening_range",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "1cb60de8090770cc2a8aeaa1442357da77538294d958f03d8388f630a0d25e31"
+    },
+    {
+      "strategy_family_id": "KOR-07",
+      "family_name": "ORB Breakout + Retest",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "ORB Breakout + Retest is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "After the configured MOEX session opening interval has fully closed, compare a later closed candle with the prefix-fixed opening high/low; never assume a US session clock.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "opening_range",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "387c09ab4d8d33123936e1553f7efb76e0149e9bbb8ca905e051fcbbef3648a5"
+    },
+    {
+      "strategy_family_id": "KMR-01",
+      "family_name": "Extreme Short-Term Return -> Reversal",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Extreme Short-Term Return -> Reversal is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At candle close, compare the closed price/return with a trailing prefix-only ATR, VWAP, range, or dispersion reference and require a measurable signed extreme.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "mean_reversion",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "f79c9a2efd1373699e10a43bcc0fdcb5503be673d84db9f0732121c912980a13"
+    },
+    {
+      "strategy_family_id": "KMR-02",
+      "family_name": "ATR Deviation -> Reversal",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "ATR Deviation -> Reversal is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At candle close, compare the closed price/return with a trailing prefix-only ATR, VWAP, range, or dispersion reference and require a measurable signed extreme.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "mean_reversion",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "22b0ee2d39026ce1b619ab2cf69282b348900680bb8ab8541b00510965132c90"
+    },
+    {
+      "strategy_family_id": "KMR-03",
+      "family_name": "VWAP Deviation -> VWAP",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "VWAP Deviation -> VWAP is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At candle close, compare the closed price/return with a trailing prefix-only ATR, VWAP, range, or dispersion reference and require a measurable signed extreme.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "mean_reversion",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "178a7307f25d9c772027cb2ef8f26104d3b1b69d1653e84eec9e181d83b9312e"
+    },
+    {
+      "strategy_family_id": "KMR-04",
+      "family_name": "Bollinger-type Extreme -> Mean",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Bollinger-type Extreme -> Mean is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At candle close, compare the closed price/return with a trailing prefix-only ATR, VWAP, range, or dispersion reference and require a measurable signed extreme.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "mean_reversion",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "462179bf6df933bd99ec4c1ce41b74fe2982ae2a68423612f53b4f0647edf1b8"
+    },
+    {
+      "strategy_family_id": "KMR-05",
+      "family_name": "Failed Momentum -> Reversal",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Failed Momentum -> Reversal is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At candle close, compare the closed price/return with a trailing prefix-only ATR, VWAP, range, or dispersion reference and require a measurable signed extreme.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "mean_reversion",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "bbc08eb2a50b0e5fd49109867e1ff2778cc291cbc8e9aaa873b60ab284ad71a5"
+    },
+    {
+      "strategy_family_id": "KMR-06",
+      "family_name": "Extreme Range Candle -> Reversal",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Extreme Range Candle -> Reversal is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At candle close, compare the closed price/return with a trailing prefix-only ATR, VWAP, range, or dispersion reference and require a measurable signed extreme.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "mean_reversion",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "f9a5e42c6e6e9983ae63a846aa0fa29ca9e4119d184966946bc427b51a5fe8c0"
+    },
+    {
+      "strategy_family_id": "KMR-07",
+      "family_name": "Exhaustion + Volume",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Exhaustion + Volume is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At candle close, compare the closed price/return with a trailing prefix-only ATR, VWAP, range, or dispersion reference and require a measurable signed extreme.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "mean_reversion",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "f59d220a08a1fee3667bbbafa2ef8c6992bf58a9965729e75fa037be8ce38def"
+    },
+    {
+      "strategy_family_id": "KHL-01",
+      "family_name": "Previous Day High Breakout",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Previous Day High Breakout is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "previous_session_high_low",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "35586473c3b170d05de9a48cc69a8b8e298befa088e235a95695bb857503abab"
+    },
+    {
+      "strategy_family_id": "KHL-02",
+      "family_name": "Previous Day Low Breakout",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Previous Day Low Breakout is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "previous_session_high_low",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "18ef53c7b338e56bfbfc0950f5df53866b839b778c5479bea051b38a33155de6"
+    },
+    {
+      "strategy_family_id": "KHL-03",
+      "family_name": "Previous Day High False Breakout",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Previous Day High False Breakout is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "previous_session_high_low",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "f26e91af97c00a0bc54dcdec7686a5d11f71a2ede4a99f73541e2e8f942618a5"
+    },
+    {
+      "strategy_family_id": "KHL-04",
+      "family_name": "Previous Day Low False Breakout",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Previous Day Low False Breakout is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "previous_session_high_low",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "1387e5d4e0f0bd8cb3afcf4ed0f47fb4bb777e811fcf9dcd56b59d95c298bb14"
+    },
+    {
+      "strategy_family_id": "KHL-05",
+      "family_name": "Previous Session H/L",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Previous Session H/L is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "previous_session_high_low",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "88a288fc81a462ac5bc24b427704e988d2ac5bc592c50123f32acd933f876e77"
+    },
+    {
+      "strategy_family_id": "KHL-06",
+      "family_name": "Current Session H/L",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "Current Session H/L is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "previous_session_high_low",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "fd49b46043dd07c1abed309085495af2b05490a9f25625e9d8a56e3ddc3d3dca"
+    },
+    {
+      "strategy_family_id": "KHL-07",
+      "family_name": "H/L Sweep -> Reversal",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "H/L Sweep -> Reversal is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "previous_session_high_low",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "dafd94cecd22266f90902581494e4fd2fdd48f1348f120a9509cbf99cea6beee"
+    },
+    {
+      "strategy_family_id": "KHL-08",
+      "family_name": "H/L Sweep -> Continuation",
+      "origin_track": "KNOWN",
+      "scientific_status": "preregistered",
+      "rationale": "H/L Sweep -> Continuation is a machine-testable hypothesis, not a validated trading truth.",
+      "instrument_scope": [
+        "CNYRUBF",
+        "USDRUBF"
+      ],
+      "timeframe_scope": [
+        "M1"
+      ],
+      "event_definition": "At a closed decision candle, compare closed OHLCV and prefix-only rolling statistics with a reference level observed no later than the decision close; the named rejection/breakout/sweep/compression condition is a conjunction of signed close position, touch/cross state, and bounded prefix counts.",
+      "direction_semantics": "LONG and SHORT are mirrored by reversing signed comparisons; no future bar confirms an entry.",
+      "causal_inputs": [
+        "closed_ohlcv",
+        "trading_date",
+        "session_id",
+        "prefix_rolling_features"
+      ],
+      "optional_context_filters": [
+        "closed_m5_context",
+        "causal_volatility",
+        "causal_volume"
+      ],
+      "candidate_parameter_space": {
+        "core_parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "number",
+            "allowed_domain": [
+              5,
+              10
+            ],
+            "scientific_reason": "Preregistered interpretable core control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "context_parameters": [
+          {
+            "name": "context_mode",
+            "type": "string",
+            "allowed_domain": [
+              "none"
+            ],
+            "scientific_reason": "Preregistered interpretable context control; not selected from results.",
+            "discovery_tunable": true,
+            "freeze_before_confirmation": true
+          }
+        ],
+        "execution_parameters": [
+          {
+            "name": "entry_delay_bars",
+            "type": "number",
+            "allowed_domain": [
+              1
+            ],
+            "scientific_reason": "Preregistered interpretable execution control; not selected from results.",
+            "discovery_tunable": false,
+            "freeze_before_confirmation": true
+          }
+        ]
+      },
+      "exit_concepts": [
+        "preregistered time exit",
+        "preregistered causal stop",
+        "preregistered causal target"
+      ],
+      "known_risks": [
+        "multiple testing",
+        "regime dependence",
+        "cost sensitivity",
+        "level-definition instability"
+      ],
+      "source_category": "previous_session_high_low",
+      "implementation_status": "architecture_only",
+      "preregistered_before_results": true,
+      "version": "1.0",
+      "fingerprint": "c29c5710cea3450d36d1120a3ac7093e4d415be13093262d1da827f301193fa5"
+    }
+  ]
+}
