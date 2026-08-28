@@ -1,0 +1,88 @@
+{
+  "status": "PARTIAL",
+  "window": {
+    "start": "2026-01-05T00:00:00+03:00",
+    "end_exclusive": "2026-05-16T00:00:00+03:00"
+  },
+  "rows": {
+    "CNYRUBF": 77789,
+    "USDRUBF": 76567
+  },
+  "dates": {
+    "CNYRUBF": [
+      "2026-01-05T08:59:00+03:00",
+      "2026-05-15T23:50:00+03:00"
+    ],
+    "USDRUBF": [
+      "2026-01-05T08:59:00+03:00",
+      "2026-05-15T23:50:00+03:00"
+    ]
+  },
+  "strategies_executed": [
+    "RL-01",
+    "RL-02",
+    "RL-03",
+    "RL-04",
+    "MOM-01",
+    "MOM-02",
+    "NR-01",
+    "RH-01",
+    "RH-02",
+    "PD-01",
+    "PD-02"
+  ],
+  "skipped": {
+    "EH-01": "No existing causal Equal High/Equal Low reference-price primitive is exposed by the frozen feature builder.",
+    "EH-02": "No existing causal Equal High/Equal Low reference-price primitive is exposed by the frozen feature builder."
+  },
+  "raw_signals": 329085,
+  "trade_simulations": 3564858,
+  "provenance": [
+    {
+      "filename": "CNY_2026_Q1_M1.csv",
+      "instrument": "CNYRUBF",
+      "timeframe": "M1",
+      "raw_rows": 50920,
+      "timestamp_min": "2026-01-05T08:59:00+03:00",
+      "timestamp_max": "2026-04-01T23:49:00+03:00",
+      "file_size": 3000070,
+      "sha256": "8f0b92494f6a43213e546dde4fd24a52f046059dab62739189d5b1edac98ad33",
+      "originally_sorted": true
+    },
+    {
+      "filename": "CNY_2026_Q2_M1.csv",
+      "instrument": "CNYRUBF",
+      "timeframe": "M1",
+      "raw_rows": 55825,
+      "timestamp_min": "2026-04-01T08:59:00+03:00",
+      "timestamp_max": "2026-07-01T23:49:00+03:00",
+      "file_size": 3294942,
+      "sha256": "eb999f906c67d829463469a1de67a35be04536dbc9fe6e7484283f7f64d99f3d",
+      "originally_sorted": true
+    },
+    {
+      "filename": "Si_2026_Q1_M1.csv",
+      "instrument": "USDRUBF",
+      "timeframe": "M1",
+      "raw_rows": 50206,
+      "timestamp_min": "2026-01-05T08:59:00+03:00",
+      "timestamp_max": "2026-04-01T23:49:00+03:00",
+      "file_size": 2710251,
+      "sha256": "a733523c10f7905e5e0d78ae59d2bae2d77a9558d32ebc02ad48a813f6502273",
+      "originally_sorted": true
+    },
+    {
+      "filename": "Si_2026_Q2_M1.csv",
+      "instrument": "USDRUBF",
+      "timeframe": "M1",
+      "raw_rows": 55003,
+      "timestamp_min": "2026-04-01T08:59:00+03:00",
+      "timestamp_max": "2026-07-01T23:49:00+03:00",
+      "file_size": 2971852,
+      "sha256": "fb69ce3b387b7059b66f88b11e70bc064861f10244acc36b990177a193800a86",
+      "originally_sorted": true
+    }
+  ],
+  "tie_policy": "stop first",
+  "source_modified": false
+}
