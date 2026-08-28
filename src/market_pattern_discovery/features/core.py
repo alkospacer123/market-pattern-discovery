@@ -11,6 +11,11 @@ from .schema import CORE_FEATURE_BUILDER_VERSION, CoreFeatureConfig
 REQUIRED = ("open", "high", "low", "close", "volume", "instrument", "timeframe", "open_time", "close_time")
 
 
+def canonical_trading_date(open_time: pd.Series) -> pd.Series:
+    """Canonical project trading date: the Moscow-local calendar date."""
+    return open_time.dt.tz_convert("Europe/Moscow").dt.date
+
+
 class FeatureInputError(ValueError):
     """Input is not a validated, ordered causal candle frame."""
 
@@ -75,7 +80,7 @@ def build_core_features(frame: pd.DataFrame, *, timeframe: str,
     _validate(frame, timeframe)
     out = frame.copy(deep=True).reset_index(drop=True)
     local_open = out.open_time.dt.tz_convert("Europe/Moscow")
-    out["trading_date"] = local_open.dt.date
+    out["trading_date"] = canonical_trading_date(out.open_time)
     groups = out.groupby("trading_date", sort=False, observed=True)
 
     # Geometry and time are known at the candle's close/decision time.
