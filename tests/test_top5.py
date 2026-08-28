@@ -115,7 +115,7 @@ def test_exit_is_part_of_frozen_variant(tmp_path):
 
 def test_strategy_contract_is_complete():
     assert validate_contract(MANDATORY_CONTRACT)
-    bad=json.loads(json.dumps(MANDATORY_CONTRACT));bad["families"]["ORB"].remove("FAILED_BREAKOUT")
+    bad=json.loads(json.dumps(MANDATORY_CONTRACT));bad["families"]["ORB"].remove("FAILED_BREAKOUT_DIAGNOSTIC")
     with pytest.raises(ValueError):validate_contract(bad)
 
 def snapshot_bars(order="HL"):
@@ -177,7 +177,7 @@ def orb_fixture(down=False):
 def test_orb_stop_variants_and_failed_both_sides():
     x=orb_fixture();a=orb_signals(x,"CNYRUBF",5,2.,submodel="DIRECT",stop_mode="STOP_OPPOSITE_OR");b=orb_signals(x,"CNYRUBF",5,2.,submodel="DIRECT",stop_mode="STOP_MIDPOINT")
     assert np.isclose(a.stop_price.iloc[0],9.99) and np.isclose(b.stop_price.iloc[0],10.)
-    short=orb_signals(x,"CNYRUBF",5,2.,submodel="FAILED_BREAKOUT");long=orb_signals(orb_fixture(True),"CNYRUBF",5,2.,submodel="FAILED_BREAKOUT")
+    short=orb_signals(x,"CNYRUBF",5,2.,submodel="FAILED_BREAKOUT_DIAGNOSTIC");long=orb_signals(orb_fixture(True),"CNYRUBF",5,2.,submodel="FAILED_BREAKOUT_DIAGNOSTIC")
     assert short.direction.iloc[0]==-1 and short.stop_price.iloc[0]>short.failed_excursion_high.iloc[0]
     assert long.direction.iloc[0]==1 and long.stop_price.iloc[0]<long.failed_excursion_low.iloc[0]
 
@@ -196,8 +196,8 @@ def pair_frame(zs,dates=None):
     if dates is not None:a["trading_date"]=dates
     return a
 
-def test_pair_convergence_time_day_end_and_weights():
-    a=bars(130,close=np.linspace(10,11,130));b=bars(130,"USDRUBF",np.linspace(90,91,130));s=pd.DataFrame([{"submodel":"OLS","signal_time":a.close_time.iloc[0],"direction_cny":-1,"direction_si":1,"beta_at_entry":2.,"entry_z":2.,"exit_z":-.1,"planned_exit_time":a.close_time.iloc[3],"planned_exit_reason":"CONVERGENCE"}]);l=simulate_pairs(a,b,s);assert set(l.exit_reason)=={"CONVERGENCE"} and np.isclose(l.w_cny.iloc[0],1/3) and np.isclose(l.w_si.iloc[0],2/3)
+def test_pair_time_and_weights():
+    a=bars(130,close=np.linspace(10,11,130));b=bars(130,"USDRUBF",np.linspace(90,91,130));s=pd.DataFrame([{"submodel":"OLS","signal_time":a.close_time.iloc[0],"direction_cny":-1,"direction_si":1,"beta_at_entry":2.,"entry_z":2.}]);l=simulate_pairs(a,b,s);assert set(l.exit_reason)=={"TIME"} and np.isclose(l.w_cny.iloc[0],1/3) and np.isclose(l.w_si.iloc[0],2/3)
     assert l[l.friction.eq("BASE")].total_pnl.iloc[0]<l[l.friction.eq("GROSS")].total_pnl.iloc[0]
 
 def test_fixed_middle_target_frozen_and_explicit_execution():
