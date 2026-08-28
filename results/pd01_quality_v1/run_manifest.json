@@ -1,0 +1,226 @@
+{
+  "status": "PASS",
+  "repository_base": "db17ba8",
+  "discovery_start": "2026-01-05T00:00:00+03:00",
+  "discovery_end_exclusive": "2026-05-16T00:00:00+03:00",
+  "source_modified": false,
+  "source_file_hashes": {
+    "/workspace/market-pattern-data/2026/CNY/CNY_2026_Q1_M1.csv": "8f0b92494f6a43213e546dde4fd24a52f046059dab62739189d5b1edac98ad33",
+    "/workspace/market-pattern-data/2026/CNY/CNY_2026_Q2_M1.csv": "eb999f906c67d829463469a1de67a35be04536dbc9fe6e7484283f7f64d99f3d",
+    "/workspace/market-pattern-data/2026/Si/Si_2026_Q1_M1.csv": "a733523c10f7905e5e0d78ae59d2bae2d77a9558d32ebc02ad48a813f6502273",
+    "/workspace/market-pattern-data/2026/Si/Si_2026_Q2_M1.csv": "fb69ce3b387b7059b66f88b11e70bc064861f10244acc36b990177a193800a86"
+  },
+  "instrument_rows": {
+    "CNYRUBF": 77789,
+    "USDRUBF": 76567
+  },
+  "pd01_raw_event_counts": {
+    "CNYRUBF": 481,
+    "USDRUBF": 471
+  },
+  "pd01_episode_counts": {
+    "CNYRUBF": 183,
+    "USDRUBF": 166
+  },
+  "feature_count": 140,
+  "feature_list_sha256": "61d02b9ea85814a75972fdabf783da0ba78dd11dd664bdb6617d9f333c32c5ef",
+  "label_definitions_sha256": "db9f3dea91a0f7326e30794df4df5282ef4f10dc09f6196409c8325cc026351c",
+  "ml": {
+    "model": "DecisionTreeRegressor",
+    "max_depth": 4,
+    "seed": 2601
+  },
+  "walk_forward_folds": [
+    [
+      "F1",
+      "2026-02-01",
+      "2026-03-01"
+    ],
+    [
+      "F2",
+      "2026-03-01",
+      "2026-04-01"
+    ],
+    [
+      "F3",
+      "2026-04-01",
+      "2026-05-01"
+    ],
+    [
+      "F4",
+      "2026-05-01",
+      "2026-05-16"
+    ]
+  ],
+  "walk_forward_counts": [
+    {
+      "fold": "F1",
+      "train_events": 127,
+      "validation_events": 159,
+      "train_days": 15,
+      "validation_days": 15
+    },
+    {
+      "fold": "F2",
+      "train_events": 286,
+      "validation_events": 232,
+      "train_days": 30,
+      "validation_days": 21
+    },
+    {
+      "fold": "F3",
+      "train_events": 518,
+      "validation_events": 303,
+      "train_days": 51,
+      "validation_days": 20
+    },
+    {
+      "fold": "F4",
+      "train_events": 821,
+      "validation_events": 131,
+      "train_days": 71,
+      "validation_days": 8
+    }
+  ],
+  "preliminary_rules": 42,
+  "deduplicated_rules": 42,
+  "backtested_rules": 42,
+  "robustness_tested_rules": 15,
+  "baseline_results": [
+    {
+      "instrument": "CNYRUBF",
+      "exit_configuration": "STOP_1.0_TARGET_1.5",
+      "GROSS_PF": 1.1637723223062193,
+      "GROSS_expectancy": 0.09238603662295376,
+      "BASE_PF": 0.5508933703858359,
+      "BASE_expectancy": -0.3739039420557538,
+      "STRESS_PF": 0.25653511084968106,
+      "STRESS_expectancy": -0.8401939207352898,
+      "executed_trades": 377,
+      "max_drawdown": 142.52380467026143
+    },
+    {
+      "instrument": "CNYRUBF",
+      "exit_configuration": "STOP_1.0_TARGET_2.0",
+      "GROSS_PF": 1.2247868326651847,
+      "GROSS_expectancy": 0.13879322065972796,
+      "BASE_PF": 0.6467445635469219,
+      "BASE_expectancy": -0.3201499617507338,
+      "STRESS_PF": 0.3550030417131531,
+      "STRESS_expectancy": -0.7790931441620108,
+      "executed_trades": 368,
+      "max_drawdown": 120.87720443951191
+    },
+    {
+      "instrument": "CNYRUBF",
+      "exit_configuration": "TIME_30",
+      "GROSS_PF": 0.7895429089862696,
+      "GROSS_expectancy": -0.4055648290534249,
+      "BASE_PF": 0.600319854045531,
+      "BASE_expectancy": -0.8701088616498506,
+      "STRESS_PF": 0.4554060842196527,
+      "STRESS_expectancy": -1.3346528942471012,
+      "executed_trades": 223,
+      "max_drawdown": 194.472081724222
+    },
+    {
+      "instrument": "CNYRUBF",
+      "exit_configuration": "TIME_60",
+      "GROSS_PF": 1.0021193824323704,
+      "GROSS_expectancy": 0.004867134075238305,
+      "BASE_PF": 0.8232867598430461,
+      "BASE_expectancy": -0.4507482728287576,
+      "STRESS_PF": 0.6801050793609177,
+      "STRESS_expectancy": -0.9063636797335628,
+      "executed_trades": 174,
+      "max_drawdown": 96.1457106332679
+    },
+    {
+      "instrument": "USDRUBF",
+      "exit_configuration": "STOP_1.0_TARGET_1.5",
+      "GROSS_PF": 1.023773927839927,
+      "GROSS_expectancy": 0.014321169400324145,
+      "BASE_PF": 0.3541721772883343,
+      "BASE_expectancy": -0.6423409702651347,
+      "STRESS_PF": 0.10499155534738312,
+      "STRESS_expectancy": -1.2990031099296602,
+      "executed_trades": 377,
+      "max_drawdown": 242.5026561183404
+    },
+    {
+      "instrument": "USDRUBF",
+      "exit_configuration": "STOP_1.0_TARGET_2.0",
+      "GROSS_PF": 1.037804911599788,
+      "GROSS_expectancy": 0.025150126943087808,
+      "BASE_PF": 0.4294607035893867,
+      "BASE_expectancy": -0.6207154797828822,
+      "STRESS_PF": 0.17631925349358854,
+      "STRESS_expectancy": -1.2665810865079346,
+      "executed_trades": 365,
+      "max_drawdown": 227.40126044913708
+    },
+    {
+      "instrument": "USDRUBF",
+      "exit_configuration": "TIME_30",
+      "GROSS_PF": 1.1341588968643257,
+      "GROSS_expectancy": 0.19870372601745573,
+      "BASE_PF": 0.761913737432223,
+      "BASE_expectancy": -0.43202968603828446,
+      "STRESS_PF": 0.5186924921213639,
+      "STRESS_expectancy": -1.0627630980931284,
+      "executed_trades": 211,
+      "max_drawdown": 97.80214086665843
+    },
+    {
+      "instrument": "USDRUBF",
+      "exit_configuration": "TIME_60",
+      "GROSS_PF": 1.302705316234798,
+      "GROSS_expectancy": 0.5306253891758707,
+      "BASE_PF": 0.9663726931065535,
+      "BASE_expectancy": -0.06893019881048189,
+      "STRESS_PF": 0.7204365069406076,
+      "STRESS_expectancy": -0.6684857867959825,
+      "executed_trades": 155,
+      "max_drawdown": 78.08918820538419
+    }
+  ],
+  "runtime_seconds": 57.457175673999984,
+  "2025_accessed": false,
+  "internal_confirmation_accessed": false,
+  "post_discovery_accessed": false,
+  "regeneration_command": "PYTHONPATH=src python scripts/run_pd01_quality_v1.py",
+  "outputs": {
+    "event_audit_sample.csv": {
+      "bytes": 163096,
+      "sha256": "c2077c06aa400fb183fae7cb04fd532d7fba6f09e6605194d1aebcc81ea7de08"
+    },
+    "candidate_rules.json": {
+      "bytes": 35227,
+      "sha256": "e9a141bb89ec70eaef0afbec3b4200a271a81f2255c7697cdb8f0a0cdfb7fdf6"
+    },
+    "robustness_summary.csv": {
+      "bytes": 8726,
+      "sha256": "515c78a56b7b1267c5b79313b919d57a2d1d72bec89452274e05e06922d185c5"
+    },
+    "walkforward_summary.csv": {
+      "bytes": 21320,
+      "sha256": "7768b86afedd1da5bb922dd782bc4d05ebb88581bcbcf27f55d8b8c2f7666ace"
+    },
+    "feature_schema.json": {
+      "bytes": 38461,
+      "sha256": "016c49c0685d09bb3dc76dd88ef8636e11f90bf872458160635700252846916b"
+    },
+    "candidate_summary.csv": {
+      "bytes": 6640,
+      "sha256": "ace23eadf9e48c4d380c669964ac5c67063d76765ffdefb96b957baaa4427e47"
+    },
+    "report.md": {
+      "bytes": 13123,
+      "sha256": "1cb7a917360dcd1cd18b14ff8f5fb704ad93c3c5eee04818c6e6e9415283c063"
+    },
+    "baseline_summary.csv": {
+      "bytes": 1428,
+      "sha256": "ed9ff167a0cf08de08dc5b61bcb4deb4332f3b81689e1bc8c8b6f9a5f2bdbf1a"
+    }
+  }
+}

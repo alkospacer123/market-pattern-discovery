@@ -1,0 +1,1310 @@
+[
+  {
+    "rule_id": "R001",
+    "predicates": [
+      {
+        "feature": "return_240_ATR",
+        "op": ">=",
+        "threshold": 3.161838173866272
+      },
+      {
+        "feature": "minute_of_day",
+        "op": ">=",
+        "threshold": 623.5
+      },
+      {
+        "feature": "minute_of_day",
+        "op": "<",
+        "threshold": 1031.0
+      },
+      {
+        "feature": "distance_from_day_open_ticks",
+        "op": "<",
+        "threshold": 38.0
+      }
+    ],
+    "canonical": "distance_from_day_open_ticks < 38 AND minute_of_day < 1031 AND minute_of_day >= 623.5 AND return_240_ATR >= 3.1618382",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F1",
+    "instrument_applicability": "COMBINED",
+    "training_events": 30,
+    "training_target_mean": 7.466666666666689,
+    "event_count": 194,
+    "episode_count": 74
+  },
+  {
+    "rule_id": "R002",
+    "predicates": [
+      {
+        "feature": "return_240_ATR",
+        "op": ">=",
+        "threshold": 3.161838173866272
+      },
+      {
+        "feature": "minute_of_day",
+        "op": ">=",
+        "threshold": 623.5
+      },
+      {
+        "feature": "minute_of_day",
+        "op": "<",
+        "threshold": 1031.0
+      },
+      {
+        "feature": "distance_from_day_open_ticks",
+        "op": ">=",
+        "threshold": 38.0
+      }
+    ],
+    "canonical": "distance_from_day_open_ticks >= 38 AND minute_of_day < 1031 AND minute_of_day >= 623.5 AND return_240_ATR >= 3.1618382",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F1",
+    "instrument_applicability": "COMBINED",
+    "training_events": 12,
+    "training_target_mean": 30.583333333333275,
+    "event_count": 159,
+    "episode_count": 72
+  },
+  {
+    "rule_id": "R003",
+    "predicates": [
+      {
+        "feature": "range_240_ATR",
+        "op": ">=",
+        "threshold": 9.17095947265625
+      },
+      {
+        "feature": "opposite_extreme_distance_ticks",
+        "op": "<",
+        "threshold": 123.5
+      }
+    ],
+    "canonical": "opposite_extreme_distance_ticks < 123.5 AND range_240_ATR >= 9.1709595",
+    "conditions": 2,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F1",
+    "instrument_applicability": "CNYRUBF",
+    "training_events": 15,
+    "training_target_mean": 12.066666666666922,
+    "event_count": 179,
+    "episode_count": 70
+  },
+  {
+    "rule_id": "R004",
+    "predicates": [
+      {
+        "feature": "range_240_ticks",
+        "op": "<",
+        "threshold": 58.0
+      },
+      {
+        "feature": "range_10_ticks",
+        "op": "<",
+        "threshold": 16.5
+      },
+      {
+        "feature": "distance_to_level_tminus15_ATR",
+        "op": "<",
+        "threshold": 1.541894793510437
+      }
+    ],
+    "canonical": "distance_to_level_tminus15_ATR < 1.5418948 AND range_10_ticks < 16.5 AND range_240_ticks < 58",
+    "conditions": 3,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F1",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 12,
+    "training_target_mean": 0.24999999999984843,
+    "event_count": 161,
+    "episode_count": 54
+  },
+  {
+    "rule_id": "R005",
+    "predicates": [
+      {
+        "feature": "range_240_ticks",
+        "op": ">=",
+        "threshold": 58.0
+      },
+      {
+        "feature": "bars_since_first_touch_60",
+        "op": "<",
+        "threshold": 29.0
+      }
+    ],
+    "canonical": "bars_since_first_touch_60 < 29 AND range_240_ticks >= 58",
+    "conditions": 2,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F1",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 14,
+    "training_target_mean": 25.071428571428516,
+    "event_count": 61,
+    "episode_count": 32
+  },
+  {
+    "rule_id": "R006",
+    "predicates": [
+      {
+        "feature": "range_240_ticks",
+        "op": ">=",
+        "threshold": 58.0
+      },
+      {
+        "feature": "bars_since_first_touch_60",
+        "op": ">=",
+        "threshold": 29.0
+      }
+    ],
+    "canonical": "bars_since_first_touch_60 >= 29 AND range_240_ticks >= 58",
+    "conditions": 2,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F1",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 11,
+    "training_target_mean": 3.3636363636362656,
+    "event_count": 100,
+    "episode_count": 42
+  },
+  {
+    "rule_id": "R007",
+    "predicates": [
+      {
+        "feature": "realized_vol_15_ticks",
+        "op": "<",
+        "threshold": 73.5
+      },
+      {
+        "feature": "distance_from_day_open_ATR",
+        "op": "<",
+        "threshold": 13.240413188934326
+      },
+      {
+        "feature": "day_of_week",
+        "op": ">=",
+        "threshold": 1.5
+      },
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.33777590095996857
+      }
+    ],
+    "canonical": "day_of_week >= 1.5 AND distance_from_day_open_ATR < 13.240413 AND position_range_240 >= 0.3377759 AND realized_vol_15_ticks < 73.5",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F2",
+    "instrument_applicability": "COMBINED",
+    "training_events": 67,
+    "training_target_mean": 5.895522388059551,
+    "event_count": 227,
+    "episode_count": 87
+  },
+  {
+    "rule_id": "R008",
+    "predicates": [
+      {
+        "feature": "realized_vol_15_ticks",
+        "op": "<",
+        "threshold": 73.5
+      },
+      {
+        "feature": "distance_from_day_open_ATR",
+        "op": ">=",
+        "threshold": 13.240413188934326
+      },
+      {
+        "feature": "return_240_ATR",
+        "op": "<",
+        "threshold": 16.48274564743042
+      },
+      {
+        "feature": "distance_from_day_open_ATR",
+        "op": "<",
+        "threshold": 17.582841873168945
+      }
+    ],
+    "canonical": "distance_from_day_open_ATR < 17.582842 AND distance_from_day_open_ATR >= 13.240413 AND realized_vol_15_ticks < 73.5 AND return_240_ATR < 16.482746",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F2",
+    "instrument_applicability": "COMBINED",
+    "training_events": 15,
+    "training_target_mean": 17.200000000000014,
+    "event_count": 87,
+    "episode_count": 51
+  },
+  {
+    "rule_id": "R009",
+    "predicates": [
+      {
+        "feature": "realized_vol_15_ticks",
+        "op": "<",
+        "threshold": 73.5
+      },
+      {
+        "feature": "distance_from_day_open_ATR",
+        "op": ">=",
+        "threshold": 13.240413188934326
+      },
+      {
+        "feature": "return_240_ATR",
+        "op": "<",
+        "threshold": 16.48274564743042
+      },
+      {
+        "feature": "distance_from_day_open_ATR",
+        "op": ">=",
+        "threshold": 17.582841873168945
+      }
+    ],
+    "canonical": "distance_from_day_open_ATR >= 13.240413 AND distance_from_day_open_ATR >= 17.582842 AND realized_vol_15_ticks < 73.5 AND return_240_ATR < 16.482746",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F2",
+    "instrument_applicability": "COMBINED",
+    "training_events": 15,
+    "training_target_mean": 36.93333333333329,
+    "event_count": 101,
+    "episode_count": 36
+  },
+  {
+    "rule_id": "R010",
+    "predicates": [
+      {
+        "feature": "realized_vol_15_ticks",
+        "op": "<",
+        "threshold": 73.5
+      },
+      {
+        "feature": "return_240_ticks",
+        "op": "<",
+        "threshold": 10.5
+      }
+    ],
+    "canonical": "realized_vol_15_ticks < 73.5 AND return_240_ticks < 10.5",
+    "conditions": 2,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F2",
+    "instrument_applicability": "CNYRUBF",
+    "training_events": 15,
+    "training_target_mean": 15.5999999999996,
+    "event_count": 79,
+    "episode_count": 40
+  },
+  {
+    "rule_id": "R011",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": "<",
+        "threshold": 0.3360215127468109
+      },
+      {
+        "feature": "distance_from_day_open_ATR",
+        "op": "<",
+        "threshold": 13.468140125274658
+      },
+      {
+        "feature": "current_day_position",
+        "op": ">=",
+        "threshold": 0.1739952713251114
+      },
+      {
+        "feature": "other_range_60_ticks",
+        "op": ">=",
+        "threshold": 60.0
+      }
+    ],
+    "canonical": "current_day_position >= 0.17399527 AND distance_from_day_open_ATR < 13.46814 AND other_range_60_ticks >= 60 AND position_range_240 < 0.33602151",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F2",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 15,
+    "training_target_mean": 1.999999999999962,
+    "event_count": 27,
+    "episode_count": 10
+  },
+  {
+    "rule_id": "R012",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": "<",
+        "threshold": 0.3360215127468109
+      },
+      {
+        "feature": "distance_from_day_open_ATR",
+        "op": ">=",
+        "threshold": 13.468140125274658
+      }
+    ],
+    "canonical": "distance_from_day_open_ATR >= 13.46814 AND position_range_240 < 0.33602151",
+    "conditions": 2,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F2",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 14,
+    "training_target_mean": 15.357142857142906,
+    "event_count": 45,
+    "episode_count": 17
+  },
+  {
+    "rule_id": "R013",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.3360215127468109
+      },
+      {
+        "feature": "minutes_since_trading_day_start",
+        "op": ">=",
+        "threshold": 92.0
+      },
+      {
+        "feature": "range_240_ATR",
+        "op": "<",
+        "threshold": 14.821556091308594
+      }
+    ],
+    "canonical": "minutes_since_trading_day_start >= 92 AND position_range_240 >= 0.33602151 AND range_240_ATR < 14.821556",
+    "conditions": 3,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F2",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 14,
+    "training_target_mean": 37.71428571428573,
+    "event_count": 81,
+    "episode_count": 35
+  },
+  {
+    "rule_id": "R014",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.3360215127468109
+      },
+      {
+        "feature": "minutes_since_trading_day_start",
+        "op": ">=",
+        "threshold": 92.0
+      },
+      {
+        "feature": "range_240_ATR",
+        "op": ">=",
+        "threshold": 14.821556091308594
+      }
+    ],
+    "canonical": "minutes_since_trading_day_start >= 92 AND position_range_240 >= 0.33602151 AND range_240_ATR >= 14.821556",
+    "conditions": 3,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F2",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 18,
+    "training_target_mean": 10.222222222221923,
+    "event_count": 131,
+    "episode_count": 44
+  },
+  {
+    "rule_id": "R015",
+    "predicates": [
+      {
+        "feature": "range_240_ATR",
+        "op": "<",
+        "threshold": 10.70882272720337
+      },
+      {
+        "feature": "realized_vol_240_ticks",
+        "op": "<",
+        "threshold": 476.5
+      },
+      {
+        "feature": "position_range_15",
+        "op": ">=",
+        "threshold": 0.08578431606292725
+      },
+      {
+        "feature": "distance_from_day_open_ATR",
+        "op": ">=",
+        "threshold": 3.7736623287200928
+      }
+    ],
+    "canonical": "distance_from_day_open_ATR >= 3.7736623 AND position_range_15 >= 0.085784316 AND range_240_ATR < 10.708823 AND realized_vol_240_ticks < 476.5",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F3",
+    "instrument_applicability": "COMBINED",
+    "training_events": 45,
+    "training_target_mean": 7.622222222222439,
+    "event_count": 74,
+    "episode_count": 49
+  },
+  {
+    "rule_id": "R016",
+    "predicates": [
+      {
+        "feature": "range_240_ATR",
+        "op": ">=",
+        "threshold": 10.70882272720337
+      },
+      {
+        "feature": "current_day_position",
+        "op": "<",
+        "threshold": 0.3656862825155258
+      },
+      {
+        "feature": "opposite_extreme_distance_ATR",
+        "op": "<",
+        "threshold": 37.241371154785156
+      },
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.33777590095996857
+      }
+    ],
+    "canonical": "current_day_position < 0.36568628 AND opposite_extreme_distance_ATR < 37.241371 AND position_range_240 >= 0.3377759 AND range_240_ATR >= 10.708823",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F3",
+    "instrument_applicability": "COMBINED",
+    "training_events": 26,
+    "training_target_mean": 16.269230769230727,
+    "event_count": 35,
+    "episode_count": 18
+  },
+  {
+    "rule_id": "R017",
+    "predicates": [
+      {
+        "feature": "range_240_ATR",
+        "op": ">=",
+        "threshold": 10.70882272720337
+      },
+      {
+        "feature": "current_day_position",
+        "op": ">=",
+        "threshold": 0.3656862825155258
+      },
+      {
+        "feature": "current_day_position",
+        "op": "<",
+        "threshold": 0.7202380895614624
+      },
+      {
+        "feature": "previous_day_range_ticks",
+        "op": "<",
+        "threshold": 144.5
+      }
+    ],
+    "canonical": "current_day_position < 0.72023809 AND current_day_position >= 0.36568628 AND previous_day_range_ticks < 144.5 AND range_240_ATR >= 10.708823",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F3",
+    "instrument_applicability": "COMBINED",
+    "training_events": 43,
+    "training_target_mean": 15.906976744185926,
+    "event_count": 148,
+    "episode_count": 53
+  },
+  {
+    "rule_id": "R018",
+    "predicates": [
+      {
+        "feature": "range_240_ATR",
+        "op": ">=",
+        "threshold": 10.70882272720337
+      },
+      {
+        "feature": "current_day_position",
+        "op": ">=",
+        "threshold": 0.3656862825155258
+      },
+      {
+        "feature": "current_day_position",
+        "op": "<",
+        "threshold": 0.7202380895614624
+      },
+      {
+        "feature": "previous_day_range_ticks",
+        "op": ">=",
+        "threshold": 144.5
+      }
+    ],
+    "canonical": "current_day_position < 0.72023809 AND current_day_position >= 0.36568628 AND previous_day_range_ticks >= 144.5 AND range_240_ATR >= 10.708823",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F3",
+    "instrument_applicability": "COMBINED",
+    "training_events": 27,
+    "training_target_mean": 49.925925925925895,
+    "event_count": 66,
+    "episode_count": 24
+  },
+  {
+    "rule_id": "R019",
+    "predicates": [
+      {
+        "feature": "range_240_ATR",
+        "op": ">=",
+        "threshold": 10.70882272720337
+      },
+      {
+        "feature": "current_day_position",
+        "op": ">=",
+        "threshold": 0.3656862825155258
+      },
+      {
+        "feature": "current_day_position",
+        "op": ">=",
+        "threshold": 0.7202380895614624
+      },
+      {
+        "feature": "other_range_15_ticks",
+        "op": ">=",
+        "threshold": 14.5
+      }
+    ],
+    "canonical": "current_day_position >= 0.36568628 AND current_day_position >= 0.72023809 AND other_range_15_ticks >= 14.5 AND range_240_ATR >= 10.708823",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F3",
+    "instrument_applicability": "COMBINED",
+    "training_events": 74,
+    "training_target_mean": 7.540540540540539,
+    "event_count": 99,
+    "episode_count": 53
+  },
+  {
+    "rule_id": "R020",
+    "predicates": [
+      {
+        "feature": "cross_normalized_difference_60",
+        "op": "<",
+        "threshold": 26.0
+      },
+      {
+        "feature": "previous_day_range_ticks",
+        "op": "<",
+        "threshold": 216.5
+      },
+      {
+        "feature": "distance_from_day_open_ATR",
+        "op": ">=",
+        "threshold": 2.464096426963806
+      },
+      {
+        "feature": "return_5_ATR",
+        "op": "<",
+        "threshold": -0.3558249771595001
+      }
+    ],
+    "canonical": "cross_normalized_difference_60 < 26 AND distance_from_day_open_ATR >= 2.4640964 AND previous_day_range_ticks < 216.5 AND return_5_ATR < -0.35582498",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F3",
+    "instrument_applicability": "CNYRUBF",
+    "training_events": 18,
+    "training_target_mean": 23.166666666666533,
+    "event_count": 54,
+    "episode_count": 45
+  },
+  {
+    "rule_id": "R021",
+    "predicates": [
+      {
+        "feature": "cross_normalized_difference_60",
+        "op": "<",
+        "threshold": 26.0
+      },
+      {
+        "feature": "previous_day_range_ticks",
+        "op": ">=",
+        "threshold": 216.5
+      }
+    ],
+    "canonical": "cross_normalized_difference_60 < 26 AND previous_day_range_ticks >= 216.5",
+    "conditions": 2,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F3",
+    "instrument_applicability": "CNYRUBF",
+    "training_events": 13,
+    "training_target_mean": 48.076923076923194,
+    "event_count": 13,
+    "episode_count": 8
+  },
+  {
+    "rule_id": "R022",
+    "predicates": [
+      {
+        "feature": "cross_normalized_difference_60",
+        "op": ">=",
+        "threshold": 26.0
+      },
+      {
+        "feature": "return_240_ATR",
+        "op": ">=",
+        "threshold": 2.5699414014816284
+      },
+      {
+        "feature": "minutes_since_trading_day_start",
+        "op": ">=",
+        "threshold": 82.0
+      },
+      {
+        "feature": "near_touches_30",
+        "op": "<",
+        "threshold": 2.5
+      }
+    ],
+    "canonical": "cross_normalized_difference_60 >= 26 AND minutes_since_trading_day_start >= 82 AND near_touches_30 < 2.5 AND return_240_ATR >= 2.5699414",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F3",
+    "instrument_applicability": "CNYRUBF",
+    "training_events": 14,
+    "training_target_mean": 11.571428571428664,
+    "event_count": 22,
+    "episode_count": 18
+  },
+  {
+    "rule_id": "R023",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": "<",
+        "threshold": 0.2898981273174286
+      },
+      {
+        "feature": "realized_vol_60_ticks",
+        "op": "<",
+        "threshold": 166.5
+      },
+      {
+        "feature": "distance_from_day_open_ATR",
+        "op": "<",
+        "threshold": 13.468140125274658
+      },
+      {
+        "feature": "other_range_60_ticks",
+        "op": ">=",
+        "threshold": 60.0
+      }
+    ],
+    "canonical": "distance_from_day_open_ATR < 13.46814 AND other_range_60_ticks >= 60 AND position_range_240 < 0.28989813 AND realized_vol_60_ticks < 166.5",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F3",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 18,
+    "training_target_mean": 6.777777777777768,
+    "event_count": 26,
+    "episode_count": 15
+  },
+  {
+    "rule_id": "R024",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": "<",
+        "threshold": 0.2898981273174286
+      },
+      {
+        "feature": "realized_vol_60_ticks",
+        "op": "<",
+        "threshold": 166.5
+      },
+      {
+        "feature": "distance_from_day_open_ATR",
+        "op": ">=",
+        "threshold": 13.468140125274658
+      }
+    ],
+    "canonical": "distance_from_day_open_ATR >= 13.46814 AND position_range_240 < 0.28989813 AND realized_vol_60_ticks < 166.5",
+    "conditions": 3,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F3",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 14,
+    "training_target_mean": 15.357142857142906,
+    "event_count": 41,
+    "episode_count": 16
+  },
+  {
+    "rule_id": "R025",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.2898981273174286
+      },
+      {
+        "feature": "position_range_5",
+        "op": "<",
+        "threshold": 0.25833334028720856
+      },
+      {
+        "feature": "vol_ratio_5_30",
+        "op": "<",
+        "threshold": 0.1640399768948555
+      }
+    ],
+    "canonical": "position_range_240 >= 0.28989813 AND position_range_5 < 0.25833334 AND vol_ratio_5_30 < 0.16403998",
+    "conditions": 3,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F3",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 16,
+    "training_target_mean": 36.81250000000005,
+    "event_count": 37,
+    "episode_count": 21
+  },
+  {
+    "rule_id": "R026",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.2898981273174286
+      },
+      {
+        "feature": "position_range_5",
+        "op": "<",
+        "threshold": 0.25833334028720856
+      },
+      {
+        "feature": "vol_ratio_5_30",
+        "op": ">=",
+        "threshold": 0.1640399768948555
+      }
+    ],
+    "canonical": "position_range_240 >= 0.28989813 AND position_range_5 < 0.25833334 AND vol_ratio_5_30 >= 0.16403998",
+    "conditions": 3,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F3",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 17,
+    "training_target_mean": 13.76470588235273,
+    "event_count": 57,
+    "episode_count": 29
+  },
+  {
+    "rule_id": "R027",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.2898981273174286
+      },
+      {
+        "feature": "position_range_5",
+        "op": ">=",
+        "threshold": 0.25833334028720856
+      },
+      {
+        "feature": "range_240_ticks",
+        "op": "<",
+        "threshold": 44.5
+      },
+      {
+        "feature": "distance_from_day_open_ATR",
+        "op": ">=",
+        "threshold": 3.8186898231506348
+      }
+    ],
+    "canonical": "distance_from_day_open_ATR >= 3.8186898 AND position_range_240 >= 0.28989813 AND position_range_5 >= 0.25833334 AND range_240_ticks < 44.5",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F3",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 41,
+    "training_target_mean": 2.4634146341463374,
+    "event_count": 57,
+    "episode_count": 29
+  },
+  {
+    "rule_id": "R028",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.2898981273174286
+      },
+      {
+        "feature": "position_range_5",
+        "op": ">=",
+        "threshold": 0.25833334028720856
+      },
+      {
+        "feature": "range_240_ticks",
+        "op": ">=",
+        "threshold": 44.5
+      },
+      {
+        "feature": "return_240_ticks",
+        "op": "<",
+        "threshold": 40.5
+      }
+    ],
+    "canonical": "position_range_240 >= 0.28989813 AND position_range_5 >= 0.25833334 AND range_240_ticks >= 44.5 AND return_240_ticks < 40.5",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F3",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 49,
+    "training_target_mean": 17.346938775510186,
+    "event_count": 72,
+    "episode_count": 35
+  },
+  {
+    "rule_id": "R029",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": "<",
+        "threshold": 0.33777590095996857
+      },
+      {
+        "feature": "efficiency_240",
+        "op": "<",
+        "threshold": 0.07350592315196991
+      },
+      {
+        "feature": "realized_vol_60_ticks",
+        "op": "<",
+        "threshold": 162.0
+      },
+      {
+        "feature": "vol_ratio_15_60",
+        "op": ">=",
+        "threshold": 0.3086080700159073
+      }
+    ],
+    "canonical": "efficiency_240 < 0.073505923 AND position_range_240 < 0.3377759 AND realized_vol_60_ticks < 162 AND vol_ratio_15_60 >= 0.30860807",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F4",
+    "instrument_applicability": "COMBINED",
+    "training_events": 41,
+    "training_target_mean": 2.853658536585414,
+    "event_count": 52,
+    "episode_count": 38
+  },
+  {
+    "rule_id": "R030",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": "<",
+        "threshold": 0.33777590095996857
+      },
+      {
+        "feature": "efficiency_240",
+        "op": ">=",
+        "threshold": 0.07350592315196991
+      },
+      {
+        "feature": "day_of_week",
+        "op": "<",
+        "threshold": 1.5
+      }
+    ],
+    "canonical": "day_of_week < 1.5 AND efficiency_240 >= 0.073505923 AND position_range_240 < 0.3377759",
+    "conditions": 3,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F4",
+    "instrument_applicability": "COMBINED",
+    "training_events": 42,
+    "training_target_mean": 12.119047619047542,
+    "event_count": 53,
+    "episode_count": 29
+  },
+  {
+    "rule_id": "R031",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": "<",
+        "threshold": 0.33777590095996857
+      },
+      {
+        "feature": "efficiency_240",
+        "op": ">=",
+        "threshold": 0.07350592315196991
+      },
+      {
+        "feature": "day_of_week",
+        "op": ">=",
+        "threshold": 1.5
+      },
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.15085697174072266
+      }
+    ],
+    "canonical": "day_of_week >= 1.5 AND efficiency_240 >= 0.073505923 AND position_range_240 < 0.3377759 AND position_range_240 >= 0.15085697",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F4",
+    "instrument_applicability": "COMBINED",
+    "training_events": 45,
+    "training_target_mean": 2.133333333333427,
+    "event_count": 50,
+    "episode_count": 26
+  },
+  {
+    "rule_id": "R032",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.33777590095996857
+      },
+      {
+        "feature": "current_day_position",
+        "op": "<",
+        "threshold": 0.7051424384117126
+      },
+      {
+        "feature": "efficiency_60",
+        "op": "<",
+        "threshold": 0.1197647750377655
+      },
+      {
+        "feature": "near_touches_30",
+        "op": ">=",
+        "threshold": 7.5
+      }
+    ],
+    "canonical": "current_day_position < 0.70514244 AND efficiency_60 < 0.11976478 AND near_touches_30 >= 7.5 AND position_range_240 >= 0.3377759",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F4",
+    "instrument_applicability": "COMBINED",
+    "training_events": 105,
+    "training_target_mean": 9.590476190476133,
+    "event_count": 132,
+    "episode_count": 48
+  },
+  {
+    "rule_id": "R033",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.33777590095996857
+      },
+      {
+        "feature": "current_day_position",
+        "op": "<",
+        "threshold": 0.7051424384117126
+      },
+      {
+        "feature": "efficiency_60",
+        "op": ">=",
+        "threshold": 0.1197647750377655
+      }
+    ],
+    "canonical": "current_day_position < 0.70514244 AND efficiency_60 >= 0.11976478 AND position_range_240 >= 0.3377759",
+    "conditions": 3,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F4",
+    "instrument_applicability": "COMBINED",
+    "training_events": 77,
+    "training_target_mean": 20.805194805194738,
+    "event_count": 95,
+    "episode_count": 50
+  },
+  {
+    "rule_id": "R034",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.33777590095996857
+      },
+      {
+        "feature": "current_day_position",
+        "op": ">=",
+        "threshold": 0.7051424384117126
+      },
+      {
+        "feature": "STRESS_cost_as_ATR",
+        "op": ">=",
+        "threshold": 0.7606768012046814
+      },
+      {
+        "feature": "other_efficiency_15",
+        "op": ">=",
+        "threshold": 0.36181819438934326
+      }
+    ],
+    "canonical": "STRESS_cost_as_ATR >= 0.7606768 AND current_day_position >= 0.70514244 AND other_efficiency_15 >= 0.36181819 AND position_range_240 >= 0.3377759",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F4",
+    "instrument_applicability": "COMBINED",
+    "training_events": 48,
+    "training_target_mean": 9.541666666666895,
+    "event_count": 50,
+    "episode_count": 38
+  },
+  {
+    "rule_id": "R035",
+    "predicates": [
+      {
+        "feature": "cross_normalized_difference_5",
+        "op": "<",
+        "threshold": 39.5
+      },
+      {
+        "feature": "distance_to_level_tminus3_ticks",
+        "op": "<",
+        "threshold": 13.5
+      },
+      {
+        "feature": "distance_from_day_open_ATR",
+        "op": ">=",
+        "threshold": 2.610384702682495
+      },
+      {
+        "feature": "distance_to_level_tminus5_ATR",
+        "op": "<",
+        "threshold": -1.353430688381195
+      }
+    ],
+    "canonical": "cross_normalized_difference_5 < 39.5 AND distance_from_day_open_ATR >= 2.6103847 AND distance_to_level_tminus3_ticks < 13.5 AND distance_to_level_tminus5_ATR < -1.3534307",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F4",
+    "instrument_applicability": "CNYRUBF",
+    "training_events": 37,
+    "training_target_mean": 16.243243243243263,
+    "event_count": 45,
+    "episode_count": 38
+  },
+  {
+    "rule_id": "R036",
+    "predicates": [
+      {
+        "feature": "cross_normalized_difference_5",
+        "op": "<",
+        "threshold": 39.5
+      },
+      {
+        "feature": "distance_to_level_tminus3_ticks",
+        "op": ">=",
+        "threshold": 13.5
+      }
+    ],
+    "canonical": "cross_normalized_difference_5 < 39.5 AND distance_to_level_tminus3_ticks >= 13.5",
+    "conditions": 2,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F4",
+    "instrument_applicability": "CNYRUBF",
+    "training_events": 21,
+    "training_target_mean": 28.904761904761774,
+    "event_count": 24,
+    "episode_count": 24
+  },
+  {
+    "rule_id": "R037",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": "<",
+        "threshold": 0.2898981273174286
+      },
+      {
+        "feature": "realized_vol_60_ticks",
+        "op": "<",
+        "threshold": 166.5
+      },
+      {
+        "feature": "other_range_30_ticks",
+        "op": "<",
+        "threshold": 42.5
+      },
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.1839323490858078
+      }
+    ],
+    "canonical": "other_range_30_ticks < 42.5 AND position_range_240 < 0.28989813 AND position_range_240 >= 0.18393235 AND realized_vol_60_ticks < 166.5",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F4",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 26,
+    "training_target_mean": 0.1923076923077754,
+    "event_count": 35,
+    "episode_count": 23
+  },
+  {
+    "rule_id": "R038",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": "<",
+        "threshold": 0.2898981273174286
+      },
+      {
+        "feature": "realized_vol_60_ticks",
+        "op": "<",
+        "threshold": 166.5
+      },
+      {
+        "feature": "other_range_30_ticks",
+        "op": ">=",
+        "threshold": 42.5
+      },
+      {
+        "feature": "realized_vol_60_ticks",
+        "op": ">=",
+        "threshold": 120.5
+      }
+    ],
+    "canonical": "other_range_30_ticks >= 42.5 AND position_range_240 < 0.28989813 AND realized_vol_60_ticks < 166.5 AND realized_vol_60_ticks >= 120.5",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F4",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 23,
+    "training_target_mean": 13.260869565217352,
+    "event_count": 24,
+    "episode_count": 14
+  },
+  {
+    "rule_id": "R039",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.2898981273174286
+      },
+      {
+        "feature": "realized_vol_240_ticks",
+        "op": "<",
+        "threshold": 574.5
+      },
+      {
+        "feature": "BASE_cost_as_ATR",
+        "op": "<",
+        "threshold": 0.45327532291412354
+      },
+      {
+        "feature": "realized_vol_5_ticks",
+        "op": ">=",
+        "threshold": 18.5
+      }
+    ],
+    "canonical": "BASE_cost_as_ATR < 0.45327532 AND position_range_240 >= 0.28989813 AND realized_vol_240_ticks < 574.5 AND realized_vol_5_ticks >= 18.5",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F4",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 25,
+    "training_target_mean": 0.9600000000000364,
+    "event_count": 25,
+    "episode_count": 18
+  },
+  {
+    "rule_id": "R040",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.2898981273174286
+      },
+      {
+        "feature": "realized_vol_240_ticks",
+        "op": "<",
+        "threshold": 574.5
+      },
+      {
+        "feature": "BASE_cost_as_ATR",
+        "op": ">=",
+        "threshold": 0.45327532291412354
+      },
+      {
+        "feature": "opposite_extreme_distance_ATR",
+        "op": "<",
+        "threshold": 25.16165828704834
+      }
+    ],
+    "canonical": "BASE_cost_as_ATR >= 0.45327532 AND opposite_extreme_distance_ATR < 25.161658 AND position_range_240 >= 0.28989813 AND realized_vol_240_ticks < 574.5",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F4",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 49,
+    "training_target_mean": 16.5918367346937,
+    "event_count": 61,
+    "episode_count": 27
+  },
+  {
+    "rule_id": "R041",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.2898981273174286
+      },
+      {
+        "feature": "realized_vol_240_ticks",
+        "op": "<",
+        "threshold": 574.5
+      },
+      {
+        "feature": "BASE_cost_as_ATR",
+        "op": ">=",
+        "threshold": 0.45327532291412354
+      },
+      {
+        "feature": "opposite_extreme_distance_ATR",
+        "op": ">=",
+        "threshold": 25.16165828704834
+      }
+    ],
+    "canonical": "BASE_cost_as_ATR >= 0.45327532 AND opposite_extreme_distance_ATR >= 25.161658 AND position_range_240 >= 0.28989813 AND realized_vol_240_ticks < 574.5",
+    "conditions": 4,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F4",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 127,
+    "training_target_mean": 0.7480314960630217,
+    "event_count": 144,
+    "episode_count": 50
+  },
+  {
+    "rule_id": "R042",
+    "predicates": [
+      {
+        "feature": "position_range_240",
+        "op": ">=",
+        "threshold": 0.2898981273174286
+      },
+      {
+        "feature": "realized_vol_240_ticks",
+        "op": ">=",
+        "threshold": 574.5
+      }
+    ],
+    "canonical": "position_range_240 >= 0.28989813 AND realized_vol_240_ticks >= 574.5",
+    "conditions": 2,
+    "source": "DecisionTreeRegressor",
+    "training_fold": "F4",
+    "instrument_applicability": "USDRUBF",
+    "training_events": 27,
+    "training_target_mean": 21.1851851851852,
+    "event_count": 27,
+    "episode_count": 6
+  }
+]

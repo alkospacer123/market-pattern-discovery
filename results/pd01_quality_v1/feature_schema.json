@@ -1,0 +1,982 @@
+[
+  {
+    "feature_name": "ATR_at_signal",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "ATR_in_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "BASE_cost_as_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "BASE_roundtrip_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "STRESS_cost_as_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "approach_speed_10_ticks_per_bar",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "approach_speed_15_ticks_per_bar",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "approach_speed_30_ticks_per_bar",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "approach_speed_5_ticks_per_bar",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "bars_since_first_touch_60",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "bars_since_last_touch",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "body_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "body_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "body_to_range",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "break_distance_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "break_distance_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "close_location_value",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "cross_normalized_difference_15",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "cross_normalized_difference_30",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "cross_normalized_difference_5",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "cross_normalized_difference_60",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "cross_sign_agreement_1",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "cross_sign_agreement_15",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "cross_sign_agreement_30",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "cross_sign_agreement_5",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "cross_sign_agreement_60",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "current_day_position",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "current_day_range_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "current_day_range_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "current_volume",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "day_of_week",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "distance_from_day_open_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "distance_from_day_open_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "distance_to_level_tminus10_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "distance_to_level_tminus10_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "distance_to_level_tminus15_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "distance_to_level_tminus15_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "distance_to_level_tminus1_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "distance_to_level_tminus1_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "distance_to_level_tminus30_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "distance_to_level_tminus30_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "distance_to_level_tminus3_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "distance_to_level_tminus3_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "distance_to_level_tminus5_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "distance_to_level_tminus5_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "efficiency_1",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "efficiency_10",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "efficiency_15",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "efficiency_240",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "efficiency_3",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "efficiency_30",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "efficiency_5",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "efficiency_60",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "hour",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "lower_wick_ratio",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "minute_of_day",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "minutes_since_trading_day_start",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "near_touches_15",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "near_touches_30",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "near_touches_60",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "opposite_extreme_distance_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "opposite_extreme_distance_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "other_ATR_in_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "other_efficiency_1",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "other_efficiency_15",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "other_efficiency_30",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "other_efficiency_5",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "other_efficiency_60",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "other_range_15_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "other_range_1_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "other_range_30_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "other_range_5_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "other_range_60_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "other_return_15_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "other_return_1_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "other_return_30_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "other_return_5_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "other_return_60_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "position_range_1",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "position_range_10",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "position_range_15",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "position_range_240",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "position_range_3",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "position_range_30",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "position_range_5",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "position_range_60",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "previous_day_position",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "previous_day_range_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "previous_day_range_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_10_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_10_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_15_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_15_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_1_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_1_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_240_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_240_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_30_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_30_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_3_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_3_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_5_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_5_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_60_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_60_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_ratio_15_60",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_ratio_5_30",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "range_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "realized_vol_10_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "realized_vol_15_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "realized_vol_1_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "realized_vol_240_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "realized_vol_30_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "realized_vol_3_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "realized_vol_5_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "realized_vol_60_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "relative_volume_20",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "relative_volume_60",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "return_10_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "return_10_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "return_15_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "return_15_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "return_1_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "return_1_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "return_240_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "return_240_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "return_30_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "return_30_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "return_3_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "return_3_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "return_5_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "return_5_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "return_60_ATR",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "return_60_ticks",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "upper_wick_ratio",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "vol_ratio_15_60",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "vol_ratio_5_30",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "volume_zscore_20",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  },
+  {
+    "feature_name": "volume_zscore_60",
+    "description": "Causal event-time predictor; see implementation formulas.",
+    "lookback": "current/past, bounded at 240 M1 bars",
+    "units": "encoded in name or ratio",
+    "available_at": "closed signal M1 candle"
+  }
+]
