@@ -1,0 +1,64 @@
+{
+  "version": "1.0",
+  "scope": {
+    "allowed_source_target_families": [
+      "DIRECTIONAL",
+      "FIRST_PASSAGE"
+    ],
+    "signal_policy": "false_to_true_state_transition",
+    "entry": "next_exact_M1_open_after_fully_closed_signal_bar",
+    "one_position_per_pattern_configuration": true,
+    "same_day_only": true,
+    "stop_first_tie": true,
+    "adverse_stop_gap": "raw_open",
+    "favourable_target_gap": "frozen_target"
+  },
+  "grid": {
+    "stop_atr": [
+      0.5,
+      0.75,
+      1.0,
+      1.25,
+      1.5
+    ],
+    "target_r": [
+      1.5,
+      2.0,
+      2.5,
+      3.0,
+      4.0
+    ],
+    "max_hold_minutes": [
+      15,
+      30,
+      60
+    ]
+  },
+  "friction_ticks_per_side": {
+    "GROSS": 0,
+    "BASE": 1,
+    "STRESS": 2
+  },
+  "discovery_gate": {
+    "minimum_trades": 30,
+    "minimum_unique_days": 15,
+    "base_profit_factor": 2.0,
+    "base_expectancy_r": 0.0,
+    "stress_profit_factor": 1.5,
+    "stress_expectancy_r": 0.0,
+    "minimum_positive_calendar_blocks": 3,
+    "maximum_largest_winner_share": 0.25
+  },
+  "robustness": {
+    "neighbor_base_pf_floor": 1.25,
+    "neighbor_positive_expectancy_required": true,
+    "minimum_passing_neighbors": 2,
+    "months_are_calendar_2026_Jan_to_partial_May": true
+  },
+  "safety": {
+    "internal_confirmation_accessed": false,
+    "true_oos_2025_accessed": false,
+    "profitability_may_not_feed_back_into_phase5b_pattern_enumeration": true
+  },
+  "signature_sha256": "059a8e650b7ac6eb71ccc46946b482db53aa3910f83510127e4ab47495285449"
+}
