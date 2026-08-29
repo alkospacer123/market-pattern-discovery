@@ -27,7 +27,7 @@ from market_pattern_discovery.features.builder import build_features
 from market_pattern_discovery.features.schema import RoundLevelConfig
 from market_pattern_discovery.targets.behavior import build_behaviors
 from market_pattern_discovery.discovery.protocol import (
-    categorical_states, day_block_bootstrap, quantile_states,
+    apply_cutpoints, categorical_states, day_block_bootstrap, quantile_states,
 )
 from market_pattern_discovery.discovery.execution_contract import (
     canonical_bytes, effect_id, enumerate_pairs, feature_inventory,
@@ -342,6 +342,58 @@ def _fast_null_p_value(
     return float((1 + exceed) / (replications + 1))
 
 
+def _fold_results(
+    matrix: DiscoveryMatrix, spec: dict[str, Any], target: pd.Series, kind: str
+) -> list[dict[str, Any]]:
+    protocol = load_protocol()
+    rep_map = {
+        x["feature"]: x["representation"]
+        for x in feature_inventory(matrix.timeframe, included_only=True)
+    }
+    timestamps = pd.to_datetime(matrix.frame["timestamp"], utc=True)
+    output = []
+    for fold in protocol["walk_forward_folds"]:
+        train_start, train_end = map(pd.Timestamp, fold["train"])
+        val_start, val_end = map(pd.Timestamp, fold["validate"])
+        train_rows = (timestamps >= train_start) & (timestamps < train_end)
+        val_rows = (timestamps >= val_start) & (timestamps < val_end)
+        selected = pd.Series(False, index=matrix.frame.index)
+        selected.loc[val_rows] = True
+        for feature, state in spec["conditions"]:
+            representation = rep_map[feature]
+            if "quantile" in representation:
+                _, cuts = quantile_states(matrix.frame.loc[train_rows, feature])
+                val_state = apply_cutpoints(matrix.frame.loc[val_rows, feature], cuts)
+            else:
+                val_state, _ = _build_state(
+                    matrix.frame.loc[val_rows, feature], representation
+                )
+            condition = pd.Series(False, index=matrix.frame.index)
+            condition.loc[val_rows] = val_state.eq(state).to_numpy()
+            selected &= condition
+        valid = val_rows & target.notna()
+        candidate = valid & selected
+        if not candidate.any() or not valid.any():
+            effect = np.nan
+        else:
+            effect = _fast_primary_effect(
+                target.loc[candidate], target.loc[valid], kind
+            )["primary_effect_signed"]
+        output.append({
+            "fold_id": fold["fold_id"],
+            "train": fold["train"],
+            "validate": fold["validate"],
+            "definition_source": "TRAIN_ONLY_QUANTILE_CUTPOINTS",
+            "effect": float(effect) if np.isfinite(effect) else np.nan,
+            "coverage": float(candidate.sum() / valid.sum()) if valid.sum() else 0.0,
+            "candidate_observations": int(candidate.sum()),
+            "unique_days": int(
+                matrix.frame.loc[candidate, "moscow_trading_date"].nunique()
+            ),
+        })
+    return output
+
+
 def evaluate_hypothesis(
     matrix: DiscoveryMatrix, spec: dict[str, Any], *, infer: bool = True
 ) -> dict[str, Any]:
@@ -381,6 +433,7 @@ def evaluate_hypothesis(
             matrix.instrument, matrix.timeframe, spec["method"],
             spec["target"]["family"], spec["target"]["semantic_role"],
         ]),
+        "fold_results": _fold_results(matrix, spec, target, kind),
     })
     if infer:
         inference_frame = pd.DataFrame({
