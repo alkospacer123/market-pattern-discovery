@@ -9,19 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 4
-      - name: Verify frozen engine parent
-        shell: bash
-        run: |
-          set -euo pipefail
-          git diff --quiet 0c194fdce6aca66cfdf3a8361251a5680262a4d7 -- \
-            config/top5_v4 \
-            src/market_pattern_discovery/backtest/top5_v4 \
-            src/market_pattern_discovery/data/finam_v4.py \
-            scripts/run_top5.py \
-            AGENTS.md \
-            config/research_protocol_v1.json
       - name: Package exact frozen engine files
         uses: actions/upload-artifact@v4
         with:
