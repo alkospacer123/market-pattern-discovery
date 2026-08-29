@@ -57,10 +57,30 @@ def simulate_explicit_orders(m1,signals,instrument,max_hold=120):
         if not ((piv.GROSS>=piv.BASE)&(piv.BASE>=piv.STRESS)).all():raise AssertionError("friction monotonicity violation")
     _assert_conservation(signals,ledger,skips_df);return ledger,skips_df
 
+def _next_pair_convergence(features):
+    """Nearest strictly-future finite z crossing for each row, constrained to trading_date."""
+    n=len(features);nonpos=np.full(n,-1,dtype=np.int64);nonneg=np.full(n,-1,dtype=np.int64)
+    if n==0:return nonpos,nonneg
+    dates=features.trading_date.to_numpy();z=features.z.to_numpy(float);start=0
+    while start<n:
+        end=start+1
+        while end<n and dates[end]==dates[start]:end+=1
+        last_nonpos=-1;last_nonneg=-1
+        for i in range(end-1,start-1,-1):
+            nonpos[i]=last_nonpos;nonneg[i]=last_nonneg;zi=z[i]
+            if np.isfinite(zi):
+                if zi<=0:last_nonpos=i
+                if zi>=0:last_nonneg=i
+        start=end
+    return nonpos,nonneg
+
 def simulate_pairs(cny,si,signals,features_by_candidate,max_hold=120):
     rows=[];skips=[]
     if signals.empty:return pd.DataFrame(),pd.DataFrame()
-    common=pair_frame(cny,si);open_lookup={pd.Timestamp(t):i for i,t in enumerate(common.open_time)};busy={};amb=_ambiguous_signal_ids(signals)
+    common=pair_frame(cny,si);open_lookup={pd.Timestamp(t):i for i,t in enumerate(common.open_time)};busy={};amb=_ambiguous_signal_ids(signals);day_end=np.empty(len(common),dtype=np.int64)
+    for _,idx in common.groupby("trading_date",sort=False).indices.items():
+        idx=np.asarray(idx,dtype=np.int64);day_end[idx]=idx[-1]
+    convergence_cache={cid:_next_pair_convergence(features) for cid,features in features_by_candidate.items()}
     for s in signals.sort_values(["signal_time","candidate_id","signal_id"],kind="mergesort").itertuples(index=False):
         base={"signal_id":s.signal_id,"candidate_id":s.candidate_id,"instrument":s.instrument,"signal_time":s.signal_time}
         if s.signal_id in amb:skips.append(base|{"reason":"AMBIGUOUS_SIMULTANEOUS_SIGNAL"});continue
@@ -69,16 +89,10 @@ def simulate_pairs(cny,si,signals,features_by_candidate,max_hold=120):
         if entry_i is None:skips.append(base|{"reason":"DATA_GAP_NO_COMMON_OPEN"});continue
         day=common.trading_date.iloc[entry_i]
         if day!=s.signal_trading_date:skips.append(base|{"reason":"TRADING_DATE_MISMATCH"});continue
-        same=[i for i in range(entry_i,len(common)) if common.trading_date.iloc[i]==day]
-        if not same:skips.append(base|{"reason":"NO_SAME_DAY_EXECUTION_BAR"});continue
-        time_i=entry_i+max_hold-1 if entry_i+max_hold-1<=same[-1] else None;day_end_i=same[-1];features=features_by_candidate[s.candidate_id];fi=int(s.feature_index);conv=None;conv_z=np.nan
-        for fj in range(fi+1,len(features)):
-            q=features.iloc[fj]
-            if q.trading_date!=day:break
-            if not np.isfinite(q.z):continue
-            if float(q.z)==0 or np.sign(float(q.z))!=np.sign(float(s.entry_z)):
-                close_stamp=pd.Timestamp(q.close_time);noi=open_lookup.get(close_stamp)
-                conv="NO_NEXT_OPEN" if noi is None or common.trading_date.iloc[noi]!=day else int(noi);conv_z=float(q.z);break
+        day_end_i=int(day_end[entry_i]);time_i=entry_i+max_hold-1 if entry_i+max_hold-1<=day_end_i else None;features=features_by_candidate[s.candidate_id];fi=int(s.feature_index);conv=None;conv_z=np.nan
+        nonpos,nonneg=convergence_cache[s.candidate_id];fj=int(nonpos[fi] if float(s.entry_z)>0 else nonneg[fi])
+        if fj>=0:
+            q=features.iloc[fj];close_stamp=pd.Timestamp(q.close_time);noi=open_lookup.get(close_stamp);conv="NO_NEXT_OPEN" if noi is None or common.trading_date.iloc[noi]!=day else int(noi);conv_z=float(q.z)
         if time_i is not None:
             if isinstance(conv,int) and conv<=time_i:exit_i,mode,at_open=conv,"CONVERGENCE",True
             else:exit_i,mode,at_open=time_i,"TIME",False
