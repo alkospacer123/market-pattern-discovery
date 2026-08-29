@@ -1,5 +1,6 @@
 import importlib.util,json,os,subprocess,sys
 from pathlib import Path
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -44,3 +45,10 @@ def test_candidate_registry_file_is_exact_descriptor():
 
 def test_validation_workflow_classification_not_internal_confirmation():
     c=load_contract();x=c['validation_workflow']['classification'];assert 'nested inside repository 2026 DISCOVERY period' in x and 'not repository INTERNAL_CONFIRMATION' in x
+
+def test_selected_semantic_hash_ignores_only_all_null_union_schema_columns():
+    base=pd.DataFrame([{'candidate_id':'CAND-x','signal_id':'SIG-x','trade_id':'TRADE-x','friction':'BASE','pnl_bps':1.25}])
+    union=base.assign(beta_at_entry=np.nan,entry_z=np.nan,w_cny=np.nan,w_si=np.nan)
+    assert semantic_ledger_hash(base)==semantic_ledger_hash(union)
+    populated=base.assign(beta_at_entry=0.5)
+    assert semantic_ledger_hash(base)!=semantic_ledger_hash(populated)

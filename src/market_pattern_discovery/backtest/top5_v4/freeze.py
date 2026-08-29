@@ -22,7 +22,12 @@ def _semantic_scalar(value):
     return value
 def semantic_ledger_hash(ledger):
     if ledger.empty:return sha256(b"[]").hexdigest()
-    cols=sorted(ledger.columns);x=ledger[cols].copy();sort_cols=[c for c in ("candidate_id","signal_id","trade_id","friction") if c in x]
+    # A selected ledger is a semantic projection of the full multi-family union.
+    # Family-specific columns contributed by *unselected* families can survive
+    # pandas concat as columns that are null in every selected row.  Those empty
+    # union-schema columns are not trade semantics and must not make DEV freeze
+    # hashes depend on which unrelated families were present in the full grid.
+    cols=sorted(c for c in ledger.columns if not ledger[c].isna().all());x=ledger[cols].copy();sort_cols=[c for c in ("candidate_id","signal_id","trade_id","friction") if c in x]
     if sort_cols:x=x.sort_values(sort_cols,kind="mergesort")
     records=[{c:_semantic_scalar(v) for c,v in row.items()} for row in x.to_dict("records")];return sha256(canonical_json(records).encode()).hexdigest()
 def freeze_manifest(engine_commit,contract_path,registry_path,dependency_versions,selected_path,dev_ledger_path,environments,data_hashes,access_ledger_path,selected_dev_semantic_ledger_hash,code_hashes=None):
