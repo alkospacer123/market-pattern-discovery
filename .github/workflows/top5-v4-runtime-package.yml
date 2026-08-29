@@ -1,4 +1,4 @@
-name: Top5 V4 frozen engine package
+name: Top5 V4 exact repo package
 on:
   push:
     branches: [top5-v4-runtime-temp]
@@ -9,16 +9,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Package exact frozen engine files
+        with:
+          fetch-depth: 0
+      - name: Checkout exact working V4 branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin top5-contract-fix-v4
+          git checkout -B top5-contract-fix-v4 origin/top5-contract-fix-v4
+          git status --porcelain
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/top5-contract-fix-v4)"
+          git bundle create /tmp/top5-v4-current.bundle HEAD
+          tar --exclude=.git -czf /tmp/top5-v4-current.tar.gz .
+      - name: Upload exact repo
         uses: actions/upload-artifact@v4
         with:
-          name: top5-v4-engine-e2
+          name: top5-v4-current-full-repo
           path: |
-            config/top5_v4
-            src/market_pattern_discovery/backtest/top5_v4
-            src/market_pattern_discovery/data/finam_v4.py
-            scripts/run_top5.py
-            AGENTS.md
-            config/research_protocol_v1.json
+            /tmp/top5-v4-current.bundle
+            /tmp/top5-v4-current.tar.gz
           if-no-files-found: error
           compression-level: 0
