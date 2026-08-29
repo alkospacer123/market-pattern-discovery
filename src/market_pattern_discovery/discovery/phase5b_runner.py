@@ -125,6 +125,12 @@ def _build_state(
     if "quantile" in representation:
         state, _ = quantile_states(series)
         return state, ["LE_P10", "P10_P25", "P25_P75", "P75_P90", "GE_P90", "MISSING"]
+    if representation == "binary":
+        numeric = pd.to_numeric(series, errors="coerce")
+        state = pd.Series("MISSING", index=series.index, dtype="object")
+        valid = numeric.notna()
+        state.loc[valid] = numeric.loc[valid].astype(int).astype(str)
+        return state, ["0", "1", "MISSING"]
     state = categorical_states(series)
     return state, states_for(
         {"representation": representation}, categories=state.tolist()
