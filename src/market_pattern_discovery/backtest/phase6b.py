@@ -4,7 +4,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from hashlib import sha256
 from time import perf_counter
-import json, math, resource
+import json, math
+try:  # Optional diagnostic only; unavailable on Windows.
+    import resource as _resource
+except ImportError:  # pragma: no cover - exercised by import-blocking portability test
+    _resource = None
 import numpy as np
 import pandas as pd
 from market_pattern_discovery.data.finam import discover_finam_sources, stitch_finam
@@ -27,12 +31,15 @@ class ExecutionContext:
     timeframe: str = 'M1'
     strategies: tuple[str, ...] | None = None
     exit_configurations: tuple[tuple[str, float | None, float | None, int], ...] | None = None
+    pattern_strategy: dict | None = None
 
     def __post_init__(self):
         if self.instrument is not None and self.instrument not in INSTRUMENT_ALIASES:
             raise ValueError(f'unsupported instrument: {self.instrument}')
         if self.timeframe not in {'M1','M5'}:
             raise ValueError(f'unsupported timeframe: {self.timeframe}')
+        if self.pattern_strategy is not None and self.strategies is not None:
+            raise ValueError('known and synthesized signal definitions are mutually exclusive')
         if self.strategies is not None and (not self.strategies or any(x not in STRATEGIES for x in self.strategies)):
             raise ValueError('unsupported or empty strategy selection')
         if self.exit_configurations is not None and not self.exit_configurations:
@@ -48,7 +55,8 @@ class ExecutionContext:
         exit_configs=metadata.get('exit_configurations')
         return cls(instrument=instrument,timeframe=timeframe,
                    strategies=tuple(strategies) if strategies is not None else None,
-                   exit_configurations=tuple(tuple(x) for x in exit_configs) if exit_configs is not None else None)
+                   exit_configurations=tuple(tuple(x) for x in exit_configs) if exit_configs is not None else None,
+                   pattern_strategy=dict(metadata['pattern_strategy']) if metadata.get('pattern_strategy') else None)
 
     @property
     def instruments(self):
@@ -275,7 +283,7 @@ def smoke(data_root='/workspace/market-pattern-data'):
     ledger=simulate(f,e,.001,configs);elapsed=perf_counter()-start;paths=ledger.trade_path_id.nunique() if len(ledger) else 0
     result={'rows':len(f),'date_range':[str(f.trading_date.min()),str(f.trading_date.max())],'signals':e.strategy_id.value_counts().to_dict(),'actual_trade_paths':paths,'ledger_rows':len(ledger),
       'friction_rows':ledger.friction_scenario.value_counts().to_dict(),'elapsed_seconds':elapsed,'rows_per_second':len(f)/elapsed,'projected_full_seconds':elapsed*154356/len(f),
-      'peak_rss_kb':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,'first_5_trades':ledger.head().to_dict('records')}
+      'peak_rss_kb':(_resource.getrusage(_resource.RUSAGE_SELF).ru_maxrss if _resource else None),'first_5_trades':ledger.head().to_dict('records')}
     print('REAL SMOKE TEST\n'+json.dumps(result,indent=2,default=str),flush=True);return result
 
 def run(data_root,output,context=None):
@@ -288,16 +296,28 @@ def run(data_root,output,context=None):
     started=perf_counter();output=Path(output);output.mkdir(parents=True,exist_ok=True);frames={};events=[];ledgers=[];provenance=[]
     for inst in context.instruments:
         f,p=load_discovery(data_root,inst,context.timeframe);frames[inst]=f;provenance+=p;print(f'Loaded {inst} {context.timeframe}: {len(f):,} rows',flush=True)
-        e=generate_signals(f,inst,context.strategies);events.append(e);print(f'Generated {inst}: {len(e):,} signals',flush=True)
+        if context.pattern_strategy is not None:
+            from market_pattern_discovery.strategy_synthesis import PatternStrategySpec, generate_pattern_signals
+            pattern_spec=PatternStrategySpec.from_dict(context.pattern_strategy)
+            if INSTRUMENT_ALIASES[pattern_spec.instrument] != inst or pattern_spec.timeframe != context.timeframe:
+                raise ValueError('pattern strategy scope does not match ExecutionContext')
+            native_m5=load_discovery(data_root,inst,'M5')[0] if context.timeframe == 'M1' else None
+            e=generate_pattern_signals(f,pattern_spec,native_m5=native_m5)
+        else:
+            e=generate_signals(f,inst,context.strategies)
+        events.append(e);print(f'Generated {inst}: {len(e):,} signals',flush=True)
         ledgers.append(simulate(f,e,SPECS[inst][0],context.exit_configurations,progress=True))
     events=pd.concat(events,ignore_index=True);ledger=pd.concat(ledgers,ignore_index=True);summary=metrics(ledger);outcomes=pd.concat([event_outcomes(frames[i],events[events.instrument.eq(i)]) for i in frames],ignore_index=True)
     monthly=ledger.assign(month=ledger.entry_time.dt.strftime('%Y-%m')).groupby(['strategy_id','instrument','exit_configuration','friction_scenario','month']).agg(trades=('net_pnl_price','size'),net_result_price=('net_pnl_price','sum'),net_result_ATR=('pnl_atr','sum'),expectancy_ATR=('pnl_atr','mean'),net_result_R=('pnl_R','sum'),expectancy_R=('pnl_R','mean')).reset_index()
     surface=summary[summary.exit_configuration.str.startswith('STOP')].copy();audit=_audit_sample(ledger)
     outputs=((summary,'strategy_summary.csv'),(surface,'strategy_parameter_surface.csv'),(monthly,'monthly_summary.csv'),(audit,'trade_audit_sample.csv'),(outcomes,'event_outcomes.csv'),(ledger,'trade_ledger.csv'))
+    if context.pattern_strategy is not None:
+        # Scientific signal audit only; these rows are definitions, never passive trade input.
+        outputs += ((events,'pattern_signal_audit.csv'),)
     for df,name in outputs:df.to_csv(output/name,index=False)
     signal_counts=events.groupby(['strategy_id','instrument']).size().rename('signals').reset_index().to_dict('records');runtime=perf_counter()-started
     manifest={'status':'PARTIAL' if SKIPPED else 'PASS','timeframe':context.timeframe,'instruments':list(context.instruments),'window':{'start':START.isoformat(),'end_exclusive':END.isoformat()},'rows':{i:len(f) for i,f in frames.items()},'dates':{i:[f.open_time.min().isoformat(),f.close_time.max().isoformat()] for i,f in frames.items()},
-      'strategies_executed':list(context.strategies or STRATEGIES),'skipped':SKIPPED,'raw_signal_counts':signal_counts,'raw_signals':len(events),'actual_trade_paths':int(ledger.groupby('instrument').trade_path_id.nunique().sum()),'ledger_rows_including_friction':len(ledger),
+      'strategies_executed':([context.pattern_strategy['pattern_strategy_id']] if context.pattern_strategy else list(context.strategies or STRATEGIES)),'signal_definition_type':'PATTERN_STRATEGY' if context.pattern_strategy else 'KNOWN_STRATEGY','skipped':SKIPPED,'raw_signal_counts':signal_counts,'raw_signals':len(events),'actual_trade_paths':int(ledger.groupby('instrument').trade_path_id.nunique().sum()),'ledger_rows_including_friction':len(ledger),
       'atr_source':ATR_SOURCE,'atr_definition':ATR_DEFINITION,'atr_reset_policy':'continuous per instrument; no day reset','trading_date_source':TRADING_DATE_SOURCE,
       'round_level_semantic_source':'Phase 2 Decimal grid semantics; actual touched/crossed grid level','tie_policy':'stop first when intrabar order unknown','gap_policy':'adverse stop gaps fill at open; target gaps fill at target',
       'day_boundary_policy':'entry and complete holding path restricted to signal trading_date; DAY_END close','event_outcome_reference_price':'open of t+1; complete same-day horizons only','source_modified':False,'runtime_seconds':runtime,'provenance':provenance,

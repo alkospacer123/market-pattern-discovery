@@ -28,6 +28,11 @@ class RankingView(StrEnum):
     TOP_EXPECTANCY = "TOP_EXPECTANCY"
     TOP_ROBUST = "TOP_ROBUST"
     CHAMPIONS = "CHAMPIONS"
+    TOP_BASE_PF = "TOP_BASE_PF"
+    TOP_BASE_EXPECTANCY = "TOP_BASE_EXPECTANCY"
+    TOP_STRESS_PF = "TOP_STRESS_PF"
+    TOP_RECOVERY = "TOP_RECOVERY"
+    TRADING_SURVIVORS = "TRADING_SURVIVORS"
 
 
 class PatternStatus(StrEnum):
@@ -263,6 +268,18 @@ class ResearchMemory:
         if view is RankingView.CHAMPIONS:
             selected = [candidate for candidate in selected if candidate.status is CandidateStatus.PROMOTED]
             selected.sort(key=lambda candidate: candidate.candidate_id)
+        elif view is RankingView.TRADING_SURVIVORS:
+            selected = [c for c in selected if c.parameters.get("trading_survivor") is True]
+            selected.sort(key=lambda c: c.candidate_id)
+        elif view in {RankingView.TOP_BASE_PF, RankingView.TOP_BASE_EXPECTANCY,
+                      RankingView.TOP_STRESS_PF, RankingView.TOP_RECOVERY}:
+            referenced = {row["evaluation_id"]: row["metrics"] for row in self.evaluation_history()}
+            scenario = "STRESS" if view is RankingView.TOP_STRESS_PF else "BASE"
+            key = {RankingView.TOP_BASE_PF:"profit_factor", RankingView.TOP_BASE_EXPECTANCY:"expectancy",
+                   RankingView.TOP_STRESS_PF:"profit_factor", RankingView.TOP_RECOVERY:"recovery"}[view]
+            selected = [c for c in selected if c.parameters.get("friction_scenario") == scenario
+                        and key in referenced.get(c.metrics_reference,{})]
+            selected.sort(key=lambda c: (-referenced[c.metrics_reference][key], c.candidate_id))
         else:
             key = {RankingView.TOP_PF: "profit_factor", RankingView.TOP_EXPECTANCY: "expectancy",
                    RankingView.TOP_ROBUST: "robustness"}[view]
