@@ -45,7 +45,7 @@ class ExperimentSpec:
     def research_track(self) -> str:
         """Explicit routing identity; legacy specs remain known-strategy specs."""
         value = str(self.metadata.get("research_track", "KNOWN_STRATEGY"))
-        if value not in {"KNOWN_STRATEGY", "UNKNOWN_PATTERN"}:
+        if value not in {"KNOWN_STRATEGY", "UNKNOWN_PATTERN", "SYNTHESIZED_STRATEGY"}:
             raise ValueError(f"unsupported research_track: {value}")
         return value
 
@@ -88,11 +88,26 @@ def adapt_v3_results(spec: ExperimentSpec, manifest: Mapping[str, Any]) -> list[
         for row in csv.DictReader(stream):
             identity = {key: row[key] for key in ("strategy_id", "instrument", "exit_configuration",
                                                    "friction_scenario")}
-            candidate_id = deterministic_hash({"experiment_id": spec.experiment_id, **identity})
+            pattern = spec.metadata.get("pattern_strategy") or {}
+            if spec.research_track == "SYNTHESIZED_STRATEGY":
+                from market_pattern_discovery.strategy_synthesis import execution_cell_id
+                cell_id = execution_cell_id(pattern["pattern_strategy_id"],
+                    next(x for x in spec.metadata["exit_configurations"] if x[0] == row["exit_configuration"]))
+                candidate_id = deterministic_hash({"execution_search_cell_id": cell_id,
+                                                   "friction_scenario": row["friction_scenario"]})
+            else:
+                cell_id = spec.search_cell_id
+                candidate_id = deterministic_hash({"experiment_id": spec.experiment_id, **identity})
             evaluation_id = deterministic_hash({"candidate_id": candidate_id, "kind": "v3_metrics"})
             candidate = CandidateRecord(candidate_id, row["strategy_id"], row["instrument"], timeframe,
                 {"exit_configuration": row["exit_configuration"], "friction_scenario": row["friction_scenario"],
-                 "search_cell_id": spec.search_cell_id},
+                 "search_cell_id": cell_id, "execution_search_cell_id": cell_id,
+                 "pattern_strategy_id": pattern.get("pattern_strategy_id"),
+                 "source_pattern_cell_id": pattern.get("source_pattern_cell_id"),
+                 "source_target_family": (pattern.get("source_scientific_definition") or {}).get("target_family"),
+                 "source_target_role": (pattern.get("source_scientific_definition") or {}).get("target_role"),
+                 "direction": pattern.get("direction"), "direction_mapping": pattern.get("direction_mapping"),
+                 "signal_activation_rule": pattern.get("signal_activation_rule")},
                 evaluation_id, spec.cycle_number)
             adapted.append((candidate, _finite_metrics(row)))
     return adapted
@@ -107,8 +122,8 @@ class ExperimentRunner:
         self.pipeline = pipeline
 
     def run(self, spec: ExperimentSpec) -> ExperimentResult:
-        if spec.research_track != "KNOWN_STRATEGY":
-            raise ValueError("ExperimentRunner accepts KNOWN_STRATEGY only")
+        if spec.research_track not in {"KNOWN_STRATEGY", "SYNTHESIZED_STRATEGY"}:
+            raise ValueError("ExperimentRunner accepts executable strategies only")
         spec.output_directory.mkdir(parents=True, exist_ok=True)
         context = ExecutionContext.from_metadata(spec.metadata)
         # Keep injected legacy two-argument adapters working while the real V3
@@ -129,10 +144,19 @@ class ExperimentRunner:
                  "parent_search_cell_id": spec.metadata.get("parent_search_cell_id"),
                  "selection_provenance": spec.metadata.get("selection_provenance"),
                  "parent_friction_metrics": spec.metadata.get("parent_friction_metrics"),
+                 "research_track": spec.research_track,
+                 "pattern_strategy": spec.metadata.get("pattern_strategy"),
+                 "exit_configurations": spec.metadata.get("exit_configurations"),
+                 "execution_search_cell_ids": spec.metadata.get("execution_search_cell_ids"),
                  "v3_manifest": dict(manifest)})
             for candidate, metric_values in adapted:
-                self.memory.add_candidate(candidate)
-                self.memory.record_evaluation(candidate.metrics_reference, candidate.candidate_id, metric_values,
-                                              {"source": "V3 strategy_summary.csv"})
+                # Semantic candidate IDs make resumed synthesis-cell ingestion
+                # idempotent even if a prior process stopped between siblings.
+                if candidate.candidate_id not in self.memory.candidates():
+                    self.memory.add_candidate(candidate)
+                if not any(row["evaluation_id"] == candidate.metrics_reference
+                           for row in self.memory.evaluation_history()):
+                    self.memory.record_evaluation(candidate.metrics_reference, candidate.candidate_id, metric_values,
+                                                  {"source": "V3 strategy_summary.csv"})
         return ExperimentResult(spec.experiment_id, dict(manifest),
                                 tuple(candidate for candidate, _ in adapted), spec.output_directory)
