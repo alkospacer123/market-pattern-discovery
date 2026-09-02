@@ -50,6 +50,25 @@ def _artifact_experiments(memory: ResearchMemory, pattern_strategy_id: str) -> d
     return found
 
 
+def completed_surface_assessment(memory: ResearchMemory, pattern_strategy_id: str,
+                                 configs: list[tuple[Any, ...]]) -> bool:
+    """Return whether every semantic cell has a completed assessment fact."""
+    latest = memory.latest_synthesis_assessments()
+    return all((row := latest.get(execution_cell_id(pattern_strategy_id, config))) is not None
+               and row.get("pattern_strategy_id") == pattern_strategy_id
+               and row.get("assessment_complete") is True
+               for config in configs)
+
+
+def _assessment_changed(previous: dict[str, Any] | None, current: dict[str, Any]) -> bool:
+    """Compare scientific evidence while ignoring invocation-only provenance."""
+    if previous is None:
+        return True
+    ignored = {"cycle"}
+    return ({key: value for key, value in previous.items() if key not in ignored}
+            != {key: value for key, value in current.items() if key not in ignored})
+
+
 def persist_surface_assessment(memory: ResearchMemory, spec: Any, configs: list[tuple[Any, ...]],
                                cycle: int) -> tuple[bool, list[str]]:
     """Rebuild V3 evidence after restart, assess once complete, and append facts."""
@@ -66,6 +85,7 @@ def persist_surface_assessment(memory: ResearchMemory, spec: Any, configs: list[
             evidence[name] = persisted_exit_evidence(metadata["output_directory"], name)
     assessed = assess_exit_surface(evidence) if complete and len(evidence) == len(configs) else {}
     survivors = []
+    latest = memory.latest_synthesis_assessments()
     for config in configs:
         name = str(config[0]); cell = states[name]["execution_search_cell_id"]
         row = assessed.get(name)
@@ -86,7 +106,8 @@ def persist_surface_assessment(memory: ResearchMemory, spec: Any, configs: list[
             "cycle": cycle,
             "experiment_id": artifacts.get(name, {}).get("_experiment_id"),
         }
-        memory.record_synthesis_assessment(payload)
+        if _assessment_changed(latest.get(cell), payload):
+            memory.record_synthesis_assessment(payload)
         if payload["trading_survivor"]:
             survivors.append(name)
     return complete, survivors
@@ -106,10 +127,13 @@ def run_synthesis(data_root: Path, memory_root: Path, output_root: Path, cycle: 
         if spec is None:
             item = {"source_pattern_cell_id": record.pattern_cell_id, "reason": decision.reason}
             manifest["non_actionable"].append(item); continue
-        if remaining == 0:
-            break
         before = execution_cell_states(memory, spec.pattern_strategy_id, configs)
         missing = [config for config in configs if not before[str(config[0])]["complete"]]
+        if not missing and completed_surface_assessment(memory, spec.pattern_strategy_id, configs):
+            manifest["skipped_completed"].append(spec.pattern_strategy_id)
+            continue
+        if remaining == 0:
+            break
         executed = []
         scheduled = missing if exit_cell_budget is None else missing[:exit_cell_budget]
         if scheduled:
@@ -143,8 +167,6 @@ def run_synthesis(data_root: Path, memory_root: Path, output_root: Path, cycle: 
             "assessment_complete": assessment_complete, "trading_survivor_exit_cells": survivors,
             "zero_signal_status": "ZERO_EXECUTABLE_SIGNALS" if zero else None,
             "zero_signal_exit_cells": zero, **rankings})
-        if not missing:
-            manifest["skipped_completed"].append(spec.pattern_strategy_id)
         remaining -= 1
     output_root.mkdir(parents=True, exist_ok=True)
     path = output_root / f"synthesis_manifest_cycle_{cycle}.json"

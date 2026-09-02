@@ -1,4 +1,6 @@
 from dataclasses import replace
+import importlib.util
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -13,6 +15,13 @@ from market_pattern_discovery.strategy_synthesis import (
     execution_cell_id, persisted_exit_evidence,
 )
 
+_SCRIPT_SPEC = importlib.util.spec_from_file_location(
+    "run_pattern_synthesis", Path(__file__).parents[1] / "scripts" / "run_pattern_synthesis.py")
+assert _SCRIPT_SPEC and _SCRIPT_SPEC.loader
+_SCRIPT = importlib.util.module_from_spec(_SCRIPT_SPEC)
+_SCRIPT_SPEC.loader.exec_module(_SCRIPT)
+run_synthesis = _SCRIPT.run_synthesis
+
 
 def survivor(status=PatternStatus.PATTERN_SURVIVOR, **changes):
     definition = {"instrument":"CNYRUBF", "timeframe":"M1", "feature_conditions":[["candle_direction","1"]],
@@ -20,6 +29,25 @@ def survivor(status=PatternStatus.PATTERN_SURVIVOR, **changes):
                   "target_type":"continuous", "contrast":"median_difference", "contract_signatures":{"feature":"abc"}}
     definition.update(changes)
     return PatternEffectRecord("p1", "b1", definition, {"primary_effect_signed":1.0}, status, "e1", 1)
+
+
+def _stored_survivor(identifier):
+    return replace(survivor(feature_conditions=[["candle_direction", "1"],
+        ["session", identifier]]), pattern_cell_id=identifier, pattern_batch_id=f"b-{identifier}",
+        originating_experiment_id=f"e-{identifier}")
+
+
+class _ZeroSignalRunner:
+    calls = []
+
+    def __init__(self, memory):
+        self.memory = memory
+
+    def run(self, spec):
+        self.calls.append(spec)
+        metadata = dict(spec.metadata)
+        metadata["v3_manifest"] = {"raw_signals": 0}
+        self.memory.record_experiment(spec.experiment_id, metadata)
 
 
 @pytest.mark.parametrize("status", [PatternStatus.INELIGIBLE, PatternStatus.INFERENCE_PENDING,
@@ -130,3 +158,54 @@ def test_synthesis_rankings_exclude_known_candidates_and_legacy_views_do_not(tmp
     assert [c.candidate_id for c in memory.view(RankingView.TOP_PF)] == ["known", "synth"]
     assert {c.candidate_id for c in memory.view(RankingView.TOP_EXPECTANCY)} == {"known", "synth"}
     assert {c.candidate_id for c in memory.view(RankingView.TOP_ROBUST)} == {"known", "synth"}
+
+
+def test_completed_surfaces_do_not_consume_budget_or_duplicate_assessments(tmp_path):
+    memory_root = tmp_path / "memory"
+    memory = ResearchMemory(memory_root)
+    for identifier in ("A", "B"):
+        memory.add_pattern_effect(_stored_survivor(identifier))
+    _ZeroSignalRunner.calls = []
+    first = run_synthesis(tmp_path / "data", memory_root, tmp_path / "out", 1, 2,
+                          runner_factory=_ZeroSignalRunner)
+    assert len(first["processed"]) == 2
+    history_size = len(ResearchMemory(memory_root).synthesis_assessment_history())
+
+    # Reopen append-only memory before adding later survivors: this is the small
+    # production-resume smoke and deliberately places completed IDs first.
+    reopened = ResearchMemory(memory_root)
+    for identifier in ("C", "D"):
+        reopened.add_pattern_effect(_stored_survivor(identifier))
+    _ZeroSignalRunner.calls = []
+    resumed = run_synthesis(tmp_path / "data", memory_root, tmp_path / "out", 2, 2,
+                            runner_factory=_ZeroSignalRunner)
+
+    assert len(_ZeroSignalRunner.calls) == 2
+    assert [row["source_pattern_cell_id"] for row in resumed["processed"]] == ["C", "D"]
+    assert len(resumed["skipped_completed"]) == 2
+    assert len(ResearchMemory(memory_root).synthesis_assessment_history()) == history_size + 18
+
+    _ZeroSignalRunner.calls = []
+    again = run_synthesis(tmp_path / "data", memory_root, tmp_path / "out", 3, 2,
+                          runner_factory=_ZeroSignalRunner)
+    assert not again["processed"] and len(again["skipped_completed"]) == 4
+    assert not _ZeroSignalRunner.calls
+    assert len(ResearchMemory(memory_root).synthesis_assessment_history()) == history_size + 18
+
+
+def test_partial_resume_consumes_one_slot_then_next_survivor_uses_second(tmp_path):
+    memory_root = tmp_path / "memory"
+    memory = ResearchMemory(memory_root)
+    memory.add_pattern_effect(_stored_survivor("B"))
+    _ZeroSignalRunner.calls = []
+    partial = run_synthesis(tmp_path / "data", memory_root, tmp_path / "out", 1, 1,
+                            runner_factory=_ZeroSignalRunner, exit_cell_budget=3)
+    assert partial["processed"][0]["exit_cells_remaining"] == 6
+
+    ResearchMemory(memory_root).add_pattern_effect(_stored_survivor("C"))
+    _ZeroSignalRunner.calls = []
+    resumed = run_synthesis(tmp_path / "data", memory_root, tmp_path / "out", 2, 2,
+                            runner_factory=_ZeroSignalRunner)
+    assert [row["source_pattern_cell_id"] for row in resumed["processed"]] == ["B", "C"]
+    assert [len(row["exit_cells_executed_this_run"]) for row in resumed["processed"]] == [6, 9]
+    assert len(_ZeroSignalRunner.calls) == 2
