@@ -228,7 +228,12 @@ def simulate(frame,events,tick,configs=None,progress=False):
                  'gross_pnl_price':gross,'net_pnl_price':net,'pnl_atr':pnl_atr,'pnl_R':net/risk_price if np.isfinite(risk_price) else np.nan,'MFE':mfe,'MAE':mae})
         done+=1
         if progress:print(f'[{done}/{total}] {strategy} {name}: signals={len(ordered)} paths={path_id} elapsed={perf_counter()-start:.1f}s',flush=True)
-    return pd.DataFrame(raw)
+    columns=['trade_path_id','strategy_id','instrument','exit_configuration','friction_scenario',
+     'signal_time','entry_time','entry_price_raw','entry_price_adjusted','side','ATR_at_entry',
+     'reference_level','risk_price','stop_price','target_price','exit_time','exit_price_raw',
+     'exit_price_adjusted','exit_reason','bars_held','gross_pnl_price','net_pnl_price','pnl_atr',
+     'pnl_R','MFE','MAE']
+    return pd.DataFrame(raw,columns=columns)
 
 def _unit_metrics(x):
     v=x.dropna().to_numpy(float); wins=v[v>0];losses=v[v<0]
@@ -257,7 +262,13 @@ def metrics(ledger):
           'sortino_ATR':a['expectancy']/downside_sd*np.sqrt(len(g)) if len(g)>=30 and downside_sd else np.nan,
           'max_consecutive_losses':longest,'average_holding_bars':g.bars_held.mean(),'median_holding_bars':g.bars_held.median(),'sample_flag':'VERY_LOW_SAMPLE' if len(g)<20 else 'LOW_SAMPLE' if len(g)<50 else 'MODERATE_SAMPLE' if len(g)<100 else 'BETTER_SAMPLE'}
         rows.append(row)
-    return pd.DataFrame(rows)
+    columns=keys+['trades','wins','losses','win_rate','gross_pnl_price','net_pnl_price',
+      'average_trade_price','median_trade_price','average_win_price','average_loss_price',
+      'payoff_ratio_price','profit_factor_ATR','expectancy_ATR','max_drawdown_ATR',
+      'net_result_ATR','profit_factor_R','expectancy_R','max_drawdown_R','net_result_R',
+      'recovery_factor_ATR','sharpe_ATR','sortino_ATR','max_consecutive_losses',
+      'average_holding_bars','median_holding_bars','sample_flag']
+    return pd.DataFrame(rows,columns=columns)
 
 def _hash_info(path,rows=None):
     h=sha256();
@@ -266,6 +277,7 @@ def _hash_info(path,rows=None):
     return {'rows':rows,'bytes':path.stat().st_size,'sha256':h.hexdigest()}
 
 def _audit_sample(ledger):
+    if ledger.empty:return ledger.copy()
     parts=[ledger.sort_values('trade_path_id').groupby('strategy_id').head(2),ledger[ledger.friction_scenario.eq('BASE')].head(10),ledger[ledger.exit_reason.eq('DAY_END')].head(10)]
     return pd.concat(parts).drop_duplicates().sort_values(['trade_path_id','friction_scenario']).head(100)
 
@@ -274,7 +286,8 @@ def _report(manifest,summary):
     time=base[base.exit_configuration.str.startswith('TIME')].sort_values('expectancy_ATR',ascending=False).head(15);common=base.sort_values('expectancy_ATR',ascending=False).head(15)
     fam=[]
     for (strategy,fr),g in summary.groupby(['strategy_id','friction_scenario']):fam.append(g.sort_values('expectancy_ATR',ascending=False).head(1))
-    robust=pd.concat(fam).sort_values(['strategy_id','friction_scenario'])
+    robust=(pd.concat(fam).sort_values(['strategy_id','friction_scenario'])
+            if fam else summary.copy())
     return '# Phase 6B corrected real known-strategy backtest\n\n```json\n'+json.dumps(manifest,indent=2,default=str)+'\n```\n\n## Stop/target BASE leaderboard (R)\n\n```csv\n'+stop.to_csv(index=False)+'```\n\n## Time-exit BASE leaderboard (ATR)\n\n```csv\n'+time.to_csv(index=False)+'```\n\n## Common BASE leaderboard (ATR)\n\n```csv\n'+common.to_csv(index=False)+'```\n\n## Best cell by family and friction (ATR)\n\n```csv\n'+robust.to_csv(index=False)+'```\n'
 
 def smoke(data_root='/workspace/market-pattern-data'):
@@ -307,8 +320,15 @@ def run(data_root,output,context=None):
             e=generate_signals(f,inst,context.strategies)
         events.append(e);print(f'Generated {inst}: {len(e):,} signals',flush=True)
         ledgers.append(simulate(f,e,SPECS[inst][0],context.exit_configurations,progress=True))
-    events=pd.concat(events,ignore_index=True);ledger=pd.concat(ledgers,ignore_index=True);summary=metrics(ledger);outcomes=pd.concat([event_outcomes(frames[i],events[events.instrument.eq(i)]) for i in frames],ignore_index=True)
-    monthly=ledger.assign(month=ledger.entry_time.dt.strftime('%Y-%m')).groupby(['strategy_id','instrument','exit_configuration','friction_scenario','month']).agg(trades=('net_pnl_price','size'),net_result_price=('net_pnl_price','sum'),net_result_ATR=('pnl_atr','sum'),expectancy_ATR=('pnl_atr','mean'),net_result_R=('pnl_R','sum'),expectancy_R=('pnl_R','mean')).reset_index()
+    events=pd.concat(events,ignore_index=True);ledger=pd.concat(ledgers,ignore_index=True);summary=metrics(ledger)
+    outcome_parts=[event_outcomes(frames[i],events[events.instrument.eq(i)]) for i in frames]
+    outcomes=pd.concat(outcome_parts,ignore_index=True) if any(not x.empty for x in outcome_parts) else pd.DataFrame()
+    monthly_columns=['strategy_id','instrument','exit_configuration','friction_scenario','month',
+                     'trades','net_result_price','net_result_ATR','expectancy_ATR','net_result_R','expectancy_R']
+    if ledger.empty:
+        monthly=pd.DataFrame(columns=monthly_columns)
+    else:
+        monthly=ledger.assign(month=ledger.entry_time.dt.strftime('%Y-%m')).groupby(['strategy_id','instrument','exit_configuration','friction_scenario','month']).agg(trades=('net_pnl_price','size'),net_result_price=('net_pnl_price','sum'),net_result_ATR=('pnl_atr','sum'),expectancy_ATR=('pnl_atr','mean'),net_result_R=('pnl_R','sum'),expectancy_R=('pnl_R','mean')).reset_index()
     surface=summary[summary.exit_configuration.str.startswith('STOP')].copy();audit=_audit_sample(ledger)
     outputs=((summary,'strategy_summary.csv'),(surface,'strategy_parameter_surface.csv'),(monthly,'monthly_summary.csv'),(audit,'trade_audit_sample.csv'),(outcomes,'event_outcomes.csv'),(ledger,'trade_ledger.csv'))
     if context.pattern_strategy is not None:

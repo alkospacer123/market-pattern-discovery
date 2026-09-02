@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from market_pattern_discovery.backtest.phase6b import add_wilder_atr14,event_outcomes,generate_signals,simulate
+from market_pattern_discovery.backtest.phase6b import add_wilder_atr14,event_outcomes,generate_signals,metrics,simulate
 from market_pattern_discovery.features.core import canonical_trading_date,build_core_features
 
 def bars(values,dates=None,lows=None,highs=None,opens=None):
@@ -68,3 +68,11 @@ def test_future_mutation_and_outcomes_cannot_change_signal():
 def test_event_outcome_uses_next_open_and_never_crosses_day():
     d=[pd.Timestamp('2026-01-05').date()]*20+[pd.Timestamp('2026-01-06').date()]*10;f=bars([10]*30,dates=d);f.loc[15,'open']=11
     o=event_outcomes(f,event(f,14),);assert np.isclose(o[o.horizon==5].signed_move_atr.iloc[0],-10) and not (o.horizon>5).any()
+
+def test_zero_signal_execution_produces_valid_empty_v3_tables():
+    f=bars([10]*20);empty=generate_signals(f,'CNYRUBF',('RL-02',))
+    ledger=simulate(f,empty,.001,[('TIME_15',None,None,15)])
+    summary=metrics(ledger)
+    assert ledger.empty and summary.empty
+    assert {'entry_time','pnl_atr','friction_scenario'} <= set(ledger)
+    assert {'profit_factor_ATR','expectancy_ATR','recovery_factor_ATR'} <= set(summary)

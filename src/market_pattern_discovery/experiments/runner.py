@@ -144,10 +144,19 @@ class ExperimentRunner:
                  "parent_search_cell_id": spec.metadata.get("parent_search_cell_id"),
                  "selection_provenance": spec.metadata.get("selection_provenance"),
                  "parent_friction_metrics": spec.metadata.get("parent_friction_metrics"),
+                 "research_track": spec.research_track,
+                 "pattern_strategy": spec.metadata.get("pattern_strategy"),
+                 "exit_configurations": spec.metadata.get("exit_configurations"),
+                 "execution_search_cell_ids": spec.metadata.get("execution_search_cell_ids"),
                  "v3_manifest": dict(manifest)})
             for candidate, metric_values in adapted:
-                self.memory.add_candidate(candidate)
-                self.memory.record_evaluation(candidate.metrics_reference, candidate.candidate_id, metric_values,
-                                              {"source": "V3 strategy_summary.csv"})
+                # Semantic candidate IDs make resumed synthesis-cell ingestion
+                # idempotent even if a prior process stopped between siblings.
+                if candidate.candidate_id not in self.memory.candidates():
+                    self.memory.add_candidate(candidate)
+                if not any(row["evaluation_id"] == candidate.metrics_reference
+                           for row in self.memory.evaluation_history()):
+                    self.memory.record_evaluation(candidate.metrics_reference, candidate.candidate_id, metric_values,
+                                                  {"source": "V3 strategy_summary.csv"})
         return ExperimentResult(spec.experiment_id, dict(manifest),
                                 tuple(candidate for candidate, _ in adapted), spec.output_directory)

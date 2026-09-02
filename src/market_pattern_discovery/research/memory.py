@@ -113,6 +113,7 @@ class ResearchMemory:
         self._candidates = self.directory / "candidate_history.jsonl"
         self._evaluations = self.directory / "evaluation_history.jsonl"
         self._patterns = self.directory / "pattern_effect_history.jsonl"
+        self._synthesis_assessments = self.directory / "synthesis_assessment_history.jsonl"
 
     @staticmethod
     def _read(path: Path) -> list[dict[str, Any]]:
@@ -143,8 +144,9 @@ class ResearchMemory:
         if any(row["experiment_id"] == experiment_id for row in existing):
             raise ValueError(f"experiment already exists: {experiment_id}")
         search_cell_id = metadata.get("search_cell_id")
-        if search_cell_id and any(row["metadata"].get("search_cell_id") == search_cell_id
-                                  for row in existing):
+        if (search_cell_id and metadata.get("research_track") != "SYNTHESIZED_STRATEGY"
+                and any(row["metadata"].get("search_cell_id") == search_cell_id
+                        for row in existing)):
             raise ValueError(f"search cell already completed: {search_cell_id}")
         self._append(self._experiments, {"experiment_id": experiment_id, "metadata": dict(metadata)})
 
@@ -183,6 +185,25 @@ class ResearchMemory:
 
     def pattern_effect_history(self) -> list[dict[str, Any]]:
         return self._read(self._patterns)
+
+    def synthesis_assessment_history(self) -> list[dict[str, Any]]:
+        """Return immutable Phase 4C assessment events in append order."""
+        return self._read(self._synthesis_assessments)
+
+    def record_synthesis_assessment(self, assessment: Mapping[str, Any]) -> None:
+        """Append an assessment fact; candidate lifecycle records are never edited."""
+        required = {"pattern_strategy_id", "source_pattern_cell_id",
+                    "execution_search_cell_id", "exit_configuration",
+                    "assessment_complete", "trading_survivor"}
+        missing = required - assessment.keys()
+        if missing:
+            raise ValueError(f"missing synthesis assessment fields: {sorted(missing)}")
+        self._append(self._synthesis_assessments, dict(assessment))
+
+    def latest_synthesis_assessments(self) -> dict[str, dict[str, Any]]:
+        """Latest append-only assessment keyed by semantic execution cell."""
+        return {row["execution_search_cell_id"]: row
+                for row in self.synthesis_assessment_history()}
 
     def completed_pattern_cell_ids(self) -> set[str]:
         return {row["pattern_cell_id"] for row in self.pattern_effect_history()
@@ -269,15 +290,22 @@ class ResearchMemory:
             selected = [candidate for candidate in selected if candidate.status is CandidateStatus.PROMOTED]
             selected.sort(key=lambda candidate: candidate.candidate_id)
         elif view is RankingView.TRADING_SURVIVORS:
-            selected = [c for c in selected if c.parameters.get("trading_survivor") is True]
+            passing = {cell for cell, row in self.latest_synthesis_assessments().items()
+                       if row.get("assessment_complete") is True
+                       and row.get("trading_survivor") is True}
+            selected = [c for c in selected
+                        if c.parameters.get("pattern_strategy_id") is not None
+                        and c.parameters.get("friction_scenario") == "BASE"
+                        and c.parameters.get("execution_search_cell_id") in passing]
             selected.sort(key=lambda c: c.candidate_id)
         elif view in {RankingView.TOP_BASE_PF, RankingView.TOP_BASE_EXPECTANCY,
                       RankingView.TOP_STRESS_PF, RankingView.TOP_RECOVERY}:
             referenced = {row["evaluation_id"]: row["metrics"] for row in self.evaluation_history()}
             scenario = "STRESS" if view is RankingView.TOP_STRESS_PF else "BASE"
             key = {RankingView.TOP_BASE_PF:"profit_factor", RankingView.TOP_BASE_EXPECTANCY:"expectancy",
-                   RankingView.TOP_STRESS_PF:"profit_factor", RankingView.TOP_RECOVERY:"recovery"}[view]
-            selected = [c for c in selected if c.parameters.get("friction_scenario") == scenario
+                   RankingView.TOP_STRESS_PF:"profit_factor", RankingView.TOP_RECOVERY:"robustness"}[view]
+            selected = [c for c in selected if c.parameters.get("pattern_strategy_id") is not None
+                        and c.parameters.get("friction_scenario") == scenario
                         and key in referenced.get(c.metrics_reference,{})]
             selected.sort(key=lambda c: (-referenced[c.metrics_reference][key], c.candidate_id))
         else:

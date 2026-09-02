@@ -248,3 +248,51 @@ def assess_exit_surface(evidence: Mapping[str, Mapping[str, Any]]) -> dict[str, 
                         "trading_survivor": all(checks.values()),
                         "candidate_status": "GENERATED"}
     return result
+
+
+def persisted_exit_evidence(output_directory: str | Any, exit_configuration: str) -> dict[str, Any]:
+    """Read one evidence unit exclusively from V3's persisted CSV artifacts.
+
+    All performance values use the common ATR-normalized basis frozen for
+    Phase 4C.  Entry dates are converted to Moscow civil dates before counting.
+    """
+    from pathlib import Path
+    root = Path(output_directory)
+    summary_path, monthly_path, ledger_path = (root / name for name in
+        ("strategy_summary.csv", "monthly_summary.csv", "trade_ledger.csv"))
+    if not all(path.is_file() for path in (summary_path, monthly_path, ledger_path)):
+        raise FileNotFoundError(f"incomplete V3 artifacts: {root}")
+    summary = pd.read_csv(summary_path)
+    monthly = pd.read_csv(monthly_path)
+    ledger = pd.read_csv(ledger_path)
+    summary = summary[summary.get("exit_configuration", pd.Series(dtype=str)).eq(exit_configuration)]
+    monthly = monthly[monthly.get("exit_configuration", pd.Series(dtype=str)).eq(exit_configuration)]
+    ledger = ledger[ledger.get("exit_configuration", pd.Series(dtype=str)).eq(exit_configuration)]
+
+    def scenario(name: str) -> dict[str, Any]:
+        rows = summary[summary.friction_scenario.eq(name)] if "friction_scenario" in summary else summary.iloc[0:0]
+        if rows.empty:
+            return {}
+        row = rows.iloc[0]
+        result = {"profit_factor": float(row["profit_factor_ATR"]),
+                  "expectancy": float(row["expectancy_ATR"])}
+        if name == "BASE":
+            result.update(trades=int(row["trades"]),
+                          max_drawdown=float(row["max_drawdown_ATR"]),
+                          recovery=float(row["recovery_factor_ATR"]))
+        return result
+
+    base_ledger = ledger[ledger.friction_scenario.eq("BASE")] if "friction_scenario" in ledger else ledger.iloc[0:0]
+    pnl = pd.to_numeric(base_ledger.get("pnl_atr", pd.Series(dtype=float)), errors="coerce").dropna()
+    winners = pnl[pnl > 0]
+    entry = pd.to_datetime(base_ledger.get("entry_time", pd.Series(dtype=str)), utc=True, errors="coerce")
+    base_monthly = monthly[monthly.friction_scenario.eq("BASE")] if "friction_scenario" in monthly else monthly.iloc[0:0]
+    return {
+        "BASE": scenario("BASE"), "STRESS": scenario("STRESS"),
+        "unique_trading_days": int(entry.dt.tz_convert("Europe/Moscow").dt.date.nunique()),
+        "positive_calendar_blocks": int((pd.to_numeric(base_monthly.get("expectancy_ATR", pd.Series(dtype=float)),
+                                                     errors="coerce") > 0).sum()),
+        "largest_winner_share": (float(winners.max() / winners.sum()) if not winners.empty else math.inf),
+        "artifact_paths": {"strategy_summary": str(summary_path), "monthly_summary": str(monthly_path),
+                           "trade_ledger": str(ledger_path)},
+    }

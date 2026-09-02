@@ -3,10 +3,14 @@ from dataclasses import replace
 import pandas as pd
 import pytest
 
-from market_pattern_discovery.research.memory import PatternEffectRecord, PatternStatus
+from market_pattern_discovery.research.memory import (
+    CandidateRecord, CandidateStatus, PatternEffectRecord, PatternStatus,
+    RankingView, ResearchMemory,
+)
 from market_pattern_discovery.strategy_synthesis import (
     ACTIVATION_RULE, PatternStrategySpec, assess_exit_surface, exit_neighbours,
     map_direction, synthesize_pattern,
+    execution_cell_id, persisted_exit_evidence,
 )
 
 
@@ -70,3 +74,59 @@ def test_signal_module_has_no_future_target_dependency():
     assert "build_behaviors" not in source
     assert "load_discovery_matrix" not in source
     assert "targets.behavior" not in source
+
+
+def test_persisted_v3_atr_evidence_and_assessment_view(tmp_path):
+    root = tmp_path / "v3"; root.mkdir()
+    pd.DataFrame([
+        {"strategy_id":"s", "instrument":"CNYRUBF", "exit_configuration":"TIME_30",
+         "friction_scenario":"BASE", "trades":30, "profit_factor_ATR":2.1,
+         "expectancy_ATR":.1, "max_drawdown_ATR":.5, "recovery_factor_ATR":3.0},
+        {"strategy_id":"s", "instrument":"CNYRUBF", "exit_configuration":"TIME_30",
+         "friction_scenario":"STRESS", "trades":30, "profit_factor_ATR":1.6,
+         "expectancy_ATR":.01, "max_drawdown_ATR":.8, "recovery_factor_ATR":1.0},
+    ]).to_csv(root / "strategy_summary.csv", index=False)
+    pd.DataFrame([{"exit_configuration":"TIME_30", "friction_scenario":"BASE",
+                   "expectancy_ATR":x} for x in (.1,.2,.3)]).to_csv(root / "monthly_summary.csv", index=False)
+    pd.DataFrame([{"exit_configuration":"TIME_30", "friction_scenario":"BASE",
+                   "entry_time":f"2026-01-{i:02d}T08:00:00Z", "pnl_atr":1.0}
+                  for i in range(1,16)]).to_csv(root / "trade_ledger.csv", index=False)
+    evidence = persisted_exit_evidence(root, "TIME_30")
+    assert evidence["BASE"] == {"trades":30, "profit_factor":2.1, "expectancy":.1,
+                                 "max_drawdown":.5, "recovery":3.0}
+    assert evidence["STRESS"] == {"profit_factor":1.6, "expectancy":.01}
+    assert evidence["unique_trading_days"] == 15 and evidence["positive_calendar_blocks"] == 3
+
+    memory = ResearchMemory(tmp_path / "memory")
+    cell = "cell"
+    siblings = []
+    for friction in ("GROSS", "BASE", "STRESS"):
+        candidate = CandidateRecord(f"c-{friction}", "s", "CNYRUBF", "M1",
+            {"pattern_strategy_id":"ps", "execution_search_cell_id":cell,
+             "friction_scenario":friction}, f"e-{friction}", 1)
+        memory.add_candidate(candidate)
+        memory.record_evaluation(f"e-{friction}", candidate.candidate_id,
+            {"profit_factor":2.1, "expectancy":.1, "robustness":3.0})
+        siblings.append(candidate)
+    memory.record_synthesis_assessment({"pattern_strategy_id":"ps", "source_pattern_cell_id":"p",
+        "execution_search_cell_id":cell, "exit_configuration":"TIME_30",
+        "assessment_complete":True, "trading_survivor":True})
+    assert [c.candidate_id for c in memory.view(RankingView.TRADING_SURVIVORS)] == ["c-BASE"]
+    assert memory.view(RankingView.TRADING_SURVIVORS)[0].status is CandidateStatus.GENERATED
+    assert [c.candidate_id for c in memory.view(RankingView.TOP_RECOVERY)] == ["c-BASE"]
+
+
+def test_synthesis_rankings_exclude_known_candidates_and_legacy_views_do_not(tmp_path):
+    memory = ResearchMemory(tmp_path)
+    for identifier, pattern in (("known", None), ("synth", "ps")):
+        candidate = CandidateRecord(identifier, identifier, "CNYRUBF", "M1",
+            {"pattern_strategy_id":pattern, "friction_scenario":"BASE"}, identifier + "-eval", 1)
+        memory.add_candidate(candidate)
+        memory.record_evaluation(identifier + "-eval", identifier,
+            {"profit_factor":9 if identifier == "known" else 2, "expectancy":1,
+             "robustness":3})
+    for view in (RankingView.TOP_BASE_PF, RankingView.TOP_BASE_EXPECTANCY, RankingView.TOP_RECOVERY):
+        assert [c.candidate_id for c in memory.view(view)] == ["synth"]
+    assert [c.candidate_id for c in memory.view(RankingView.TOP_PF)] == ["known", "synth"]
+    assert {c.candidate_id for c in memory.view(RankingView.TOP_EXPECTANCY)} == {"known", "synth"}
+    assert {c.candidate_id for c in memory.view(RankingView.TOP_ROBUST)} == {"known", "synth"}
