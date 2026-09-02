@@ -1,0 +1,206 @@
+from dataclasses import asdict, replace
+
+import numpy as np
+import pandas as pd
+import pytest
+
+from market_pattern_discovery.experiments.runner import ExperimentRunner, ExperimentSpec
+from market_pattern_discovery.discovery.unknown import DiscoveryMatrix, evaluate_hypothesis
+from market_pattern_discovery.orchestration.unknown import (
+    PatternBatch, PatternExperimentRunner, PatternSearchCell, UnknownPatternScheduler,
+    finalize_multiplicity_family,
+)
+from market_pattern_discovery.research.memory import (
+    PatternEffectRecord, PatternRankingView, PatternStatus, RankingView, ResearchMemory,
+)
+
+SIGS = (("feature_set", "a"), ("targets", "b"))
+
+def cell(**changes):
+    values = dict(instrument="CNYRUBF", timeframe="M1", method="univariate_screen",
+        feature_conditions=(("candle_range", "LE_P10"),), target="behavior_signed_displacement_atr_5",
+        target_family="DIRECTIONAL", target_role="SHORT_SIGNED_DISPLACEMENT",
+        contrast="median_difference", contract_signatures=SIGS)
+    values.update(changes)
+    return PatternSearchCell(**values)
+
+def test_scientific_identity_is_deterministic_and_execution_independent(tmp_path):
+    assert cell().pattern_cell_id == cell().pattern_cell_id
+    a = UnknownPatternScheduler(ResearchMemory(tmp_path/"m"), "/data", tmp_path/"a", search_space=(cell(),)).plan(1, 1)
+    b = UnknownPatternScheduler(ResearchMemory(tmp_path/"n"), "/data", tmp_path/"b", search_space=(cell(),)).plan(99, 1)
+    assert a["pattern_batch"].cells[0].pattern_cell_id == b["pattern_batch"].cells[0].pattern_cell_id
+
+def test_substantive_and_contract_changes_change_identity():
+    base = cell().pattern_cell_id
+    assert cell(feature_conditions=(("candle_range", "GE_P90"),)).pattern_cell_id != base
+    assert cell(target="other").pattern_cell_id != base
+    assert cell(contrast="probability_difference").pattern_cell_id != base
+    assert cell(contract_signatures=(("feature_set", "drift"),)).pattern_cell_id != base
+
+def test_batch_identity_is_ordered_and_separate():
+    other = cell(instrument="USDRUBF")
+    batch = PatternBatch((cell(), other))
+    assert batch.pattern_batch_id != cell().pattern_cell_id
+    assert batch.pattern_batch_id != PatternBatch((other, cell())).pattern_batch_id
+    with pytest.raises(ValueError): PatternBatch((cell(), cell()))
+
+def record(c, cycle=0):
+    return PatternEffectRecord(c.pattern_cell_id, PatternBatch((c,)).pattern_batch_id,
+        {"definition": "effect"}, {"primary_effect_absolute": .2, "coverage": .1,
+        "primary_effect_signed": .2, "fold_results": [{"effect": .1}]},
+        PatternStatus.INCOMPLETE_FAMILY, "experiment", cycle)
+
+def test_memory_rejects_duplicate_and_patterns_never_enter_trading_views(tmp_path):
+    memory = ResearchMemory(tmp_path)
+    memory.add_pattern_effect(record(cell()))
+    with pytest.raises(ValueError): memory.add_pattern_effect(record(cell(), 2))
+    assert memory.pattern_view(PatternRankingView.TOP_EFFECT_MAGNITUDE)
+    assert memory.view(RankingView.TOP_PF) == []
+
+def test_scheduler_deterministic_resumable_balanced_and_exhausted(tmp_path):
+    cells = tuple(cell(instrument=i, timeframe=t) for i in ("CNYRUBF", "USDRUBF") for t in ("M1", "M5"))
+    memory = ResearchMemory(tmp_path/"m")
+    scheduler = UnknownPatternScheduler(memory, "/data", tmp_path, search_space=cells)
+    p1 = scheduler.plan(1, 2)
+    assert [x.pattern_cell_id for x in p1["pattern_batch"].cells] == [x.pattern_cell_id for x in scheduler.plan(1,2)["pattern_batch"].cells]
+    for c in p1["pattern_batch"].cells: memory.add_pattern_effect(record(c))
+    p2 = scheduler.plan(2, 2)
+    assert not ({x.pattern_cell_id for x in p1["pattern_batch"].cells} & {x.pattern_cell_id for x in p2["pattern_batch"].cells})
+    for c in p2["pattern_batch"].cells: memory.add_pattern_effect(record(c))
+    assert scheduler.plan(3, 1)["scheduler_status"] == "SEARCH_SPACE_EXHAUSTED"
+
+def test_incomplete_family_has_no_q_and_complete_family_gets_bh():
+    base = {"raw_p": .01, "multiplicity_family": "f", "coverage": .2, "unique_days": 20,
+        "uncertainty": {"lower": .1, "upper": .2}, "primary_effect_signed": .1,
+        "effect_metrics": {"primary_effect_signed": .1, "primary_effect_absolute": .1}, "target_family": "DIRECTIONAL",
+        "fold_results": [{"effect": .1}, {"effect": .1}]}
+    incomplete = finalize_multiplicity_family([base], expected_family_size=2)[0]
+    assert incomplete["fdr_status"] == "INCOMPLETE_FAMILY" and incomplete["q_value"] is None
+    complete = finalize_multiplicity_family([base, {**base, "raw_p": .04}], expected_family_size=2)
+    assert [x["q_value"] for x in complete] == pytest.approx([.02, .04])
+
+
+def test_real_evaluate_result_obeys_screening_effect_contract():
+    dates = np.repeat(pd.date_range("2021-01-01", periods=12, tz="UTC"), 10)
+    frame = pd.DataFrame({"timestamp": dates,
+        "moscow_trading_date": pd.Series(dates).dt.date,
+        "target": np.tile(np.arange(10, dtype=float), 12),
+        "candle_range": np.tile(np.arange(10, dtype=float), 12)})
+    states = pd.Series(np.tile(["LE_P10"] * 5 + ["other"] * 5, 12))
+    target = {"column_name": "target", "family": "DIRECTIONAL",
+              "semantic_role": "SHORT_SIGNED_DISPLACEMENT", "target_type": "continuous"}
+    matrix = DiscoveryMatrix("CNYRUBF", "M1", frame, {"candle_range": states},
+                             {"candle_range": ["LE_P10", "other"]}, [target], [])
+    result = evaluate_hypothesis(matrix, {"hypothesis_id": "h", "effect_id": "e",
+        "ordinal": 1, "method": "univariate_screen",
+        "conditions": [("candle_range", "LE_P10")], "target": target,
+        "contrast": "median_difference"}, infer=False)
+    result.update({"raw_p": .02, "uncertainty": {"lower": -1., "upper": 1.}})
+    finalized = finalize_multiplicity_family([result], expected_family_size=1)
+    assert finalized[0]["family_complete"] is True
+    assert "primary_effect" not in result["effect_metrics"]
+
+def test_known_runner_calls_v3_once_and_rejects_unknown(tmp_path):
+    calls=[]
+    def pipeline(data, output): calls.append(1); return {}
+    runner=ExperimentRunner(pipeline=pipeline)
+    runner.run(ExperimentSpec("known", tmp_path, tmp_path/"out"))
+    assert calls == [1]
+    with pytest.raises(ValueError):
+        runner.run(ExperimentSpec("unknown", tmp_path, tmp_path/"u", metadata={"research_track":"UNKNOWN_PATTERN"}))
+    assert calls == [1]
+
+
+def _evaluation(effect=.10, raw_p=None):
+    value = {"status": "evaluated", "effect_id": "effect", "coverage": .2,
+        "unique_days": 20, "primary_effect_signed": effect,
+        "primary_effect_absolute": abs(effect),
+        "effect_metrics": {"primary_effect_signed": effect,
+                           "primary_effect_absolute": abs(effect)},
+        "target_family": "DIRECTIONAL", "multiplicity_family": "family",
+        "fold_results": [{"effect": effect}, {"effect": effect}],
+        "uncertainty": {"lower": effect / 2, "upper": effect * 1.5},
+        "family_complete": False, "q_value": None, "fdr_status": "INCOMPLETE_FAMILY"}
+    if raw_p is not None:
+        value["raw_p"] = raw_p
+    return value
+
+
+def test_append_only_inference_and_cross_restart_family_finalization(tmp_path):
+    first = cell()
+    second = cell(feature_conditions=(("candle_range", "GE_P90"),))
+    batch = PatternBatch((first, second))
+    memory = ResearchMemory(tmp_path / "memory")
+    for item in (first, second):
+        memory.add_pattern_effect(PatternEffectRecord(
+            item.pattern_cell_id, batch.pattern_batch_id, asdict(item),
+            {k: v for k, v in _evaluation().items() if k not in {"raw_p", "uncertainty"}},
+            PatternStatus.INFERENCE_PENDING, "experiment", 1))
+    assert len(memory.completed_pattern_cell_ids()) == 2
+    assert all(x.screening_status is PatternStatus.INFERENCE_PENDING
+               for x in memory.pattern_effects().values())
+
+    # Reopen between batches: inference is evidence, never a second discovery.
+    memory = ResearchMemory(tmp_path / "memory")
+    memory.enrich_pattern(first.pattern_cell_id,
+        {"raw_p": .01, "uncertainty": _evaluation()["uncertainty"]},
+        PatternStatus.INCOMPLETE_FAMILY, event="INFERENCE_ADDED")
+    runner = PatternExperimentRunner(memory)
+    assert runner.finalize_ready_families((first, second)) == ()
+    assert memory.pattern_effects()[first.pattern_cell_id].screening_status is PatternStatus.INCOMPLETE_FAMILY
+
+    memory = ResearchMemory(tmp_path / "memory")
+    memory.enrich_pattern(second.pattern_cell_id,
+        {"raw_p": .04, "uncertainty": _evaluation()["uncertainty"]},
+        PatternStatus.INCOMPLETE_FAMILY, event="INFERENCE_ADDED")
+    history_before = len(memory.pattern_effect_history())
+    assert set(runner.__class__(memory).finalize_ready_families((first, second))) == {
+        first.pattern_cell_id, second.pattern_cell_id}
+    effective = memory.pattern_effects()
+    assert all(r.screening_status is PatternStatus.PATTERN_SURVIVOR for r in effective.values())
+    assert len(memory.pattern_effect_history()) == history_before + 2
+    assert runner.__class__(memory).finalize_ready_families((first, second)) == ()
+    assert len(memory.pattern_effect_history()) == history_before + 2
+    assert len(memory.pattern_view(PatternRankingView.PATTERN_SURVIVORS)) == 2
+    assert memory.view(RankingView.TOP_PF) == []
+
+
+def test_complete_family_can_screen_out_without_a_q_cutoff():
+    failing = _evaluation(effect=.01, raw_p=.9)
+    finalized = finalize_multiplicity_family([failing], expected_family_size=1)
+    assert finalized[0]["q_value"] == pytest.approx(.9)
+    assert finalized[0]["screening_status"] == PatternStatus.SCREENED_OUT
+    assert "practical_effect" in finalized[0]["screening_failures"]
+
+
+def test_pending_inference_selection_is_deterministic_and_resumable(tmp_path):
+    cells = (cell(), cell(feature_conditions=(("candle_range", "GE_P90"),)))
+    memory = ResearchMemory(tmp_path / "memory")
+    for item in cells:
+        memory.add_pattern_effect(PatternEffectRecord(item.pattern_cell_id,
+            PatternBatch((item,)).pattern_batch_id, asdict(item), _evaluation(),
+            PatternStatus.INFERENCE_PENDING, "experiment", 1))
+    expected = UnknownPatternScheduler(memory, tmp_path / "data", tmp_path / "out",
+                                       search_space=cells).pending_inference_cells(2)
+    reopened = UnknownPatternScheduler(ResearchMemory(tmp_path / "memory"),
+        tmp_path / "other-data", tmp_path / "other-out", search_space=cells)
+    assert reopened.pending_inference_cells(2) == expected
+    ResearchMemory(tmp_path / "memory").enrich_pattern(expected[0].pattern_cell_id,
+        {"raw_p": .2}, PatternStatus.INCOMPLETE_FAMILY, event="INFERENCE_ADDED")
+    assert reopened.pending_inference_cells(2) == (expected[1],)
+
+
+def test_absolute_roots_do_not_change_identity_batch_or_ranking(tmp_path):
+    item = cell()
+    results = []
+    for root in (tmp_path / "temp_A", tmp_path / "temp_B"):
+        memory = ResearchMemory(root / "memory")
+        plan = UnknownPatternScheduler(memory, root / "data", root / "output",
+            search_space=(item,)).plan(1, 1)
+        memory.add_pattern_effect(PatternEffectRecord(item.pattern_cell_id,
+            plan["pattern_batch"].pattern_batch_id, asdict(item), _evaluation(),
+            PatternStatus.INFERENCE_PENDING, "experiment", 1))
+        results.append((item.pattern_cell_id, plan["pattern_batch"].pattern_batch_id,
+                        memory.pattern_view(PatternRankingView.TOP_EFFECT_MAGNITUDE)))
+    assert results[0] == results[1]
+    assert str(tmp_path) not in repr(results[0])
