@@ -25,12 +25,18 @@ class ExecutionContext:
     """The data scope selected by V3.5 metadata for one causal V3 run."""
     instrument: str | None = None
     timeframe: str = 'M1'
+    strategies: tuple[str, ...] | None = None
+    exit_configurations: tuple[tuple[str, float | None, float | None, int], ...] | None = None
 
     def __post_init__(self):
         if self.instrument is not None and self.instrument not in INSTRUMENT_ALIASES:
             raise ValueError(f'unsupported instrument: {self.instrument}')
         if self.timeframe not in {'M1','M5'}:
             raise ValueError(f'unsupported timeframe: {self.timeframe}')
+        if self.strategies is not None and (not self.strategies or any(x not in STRATEGIES for x in self.strategies)):
+            raise ValueError('unsupported or empty strategy selection')
+        if self.exit_configurations is not None and not self.exit_configurations:
+            raise ValueError('exit configuration selection cannot be empty')
 
     @classmethod
     def from_metadata(cls, metadata):
@@ -38,7 +44,11 @@ class ExecutionContext:
         metadata=dict(metadata or {})
         instrument=metadata.get('instrument',metadata.get('instrument_scope'))
         timeframe=metadata.get('timeframe',metadata.get('timeframe_scope','M1'))
-        return cls(instrument=instrument,timeframe=timeframe)
+        strategies=metadata.get('strategies')
+        exit_configs=metadata.get('exit_configurations')
+        return cls(instrument=instrument,timeframe=timeframe,
+                   strategies=tuple(strategies) if strategies is not None else None,
+                   exit_configurations=tuple(tuple(x) for x in exit_configs) if exit_configs is not None else None)
 
     @property
     def instruments(self):
@@ -278,8 +288,8 @@ def run(data_root,output,context=None):
     started=perf_counter();output=Path(output);output.mkdir(parents=True,exist_ok=True);frames={};events=[];ledgers=[];provenance=[]
     for inst in context.instruments:
         f,p=load_discovery(data_root,inst,context.timeframe);frames[inst]=f;provenance+=p;print(f'Loaded {inst} {context.timeframe}: {len(f):,} rows',flush=True)
-        e=generate_signals(f,inst);events.append(e);print(f'Generated {inst}: {len(e):,} signals',flush=True)
-        ledgers.append(simulate(f,e,SPECS[inst][0],progress=True))
+        e=generate_signals(f,inst,context.strategies);events.append(e);print(f'Generated {inst}: {len(e):,} signals',flush=True)
+        ledgers.append(simulate(f,e,SPECS[inst][0],context.exit_configurations,progress=True))
     events=pd.concat(events,ignore_index=True);ledger=pd.concat(ledgers,ignore_index=True);summary=metrics(ledger);outcomes=pd.concat([event_outcomes(frames[i],events[events.instrument.eq(i)]) for i in frames],ignore_index=True)
     monthly=ledger.assign(month=ledger.entry_time.dt.strftime('%Y-%m')).groupby(['strategy_id','instrument','exit_configuration','friction_scenario','month']).agg(trades=('net_pnl_price','size'),net_result_price=('net_pnl_price','sum'),net_result_ATR=('pnl_atr','sum'),expectancy_ATR=('pnl_atr','mean'),net_result_R=('pnl_R','sum'),expectancy_R=('pnl_R','mean')).reset_index()
     surface=summary[summary.exit_configuration.str.startswith('STOP')].copy();audit=_audit_sample(ledger)
@@ -287,7 +297,7 @@ def run(data_root,output,context=None):
     for df,name in outputs:df.to_csv(output/name,index=False)
     signal_counts=events.groupby(['strategy_id','instrument']).size().rename('signals').reset_index().to_dict('records');runtime=perf_counter()-started
     manifest={'status':'PARTIAL' if SKIPPED else 'PASS','timeframe':context.timeframe,'instruments':list(context.instruments),'window':{'start':START.isoformat(),'end_exclusive':END.isoformat()},'rows':{i:len(f) for i,f in frames.items()},'dates':{i:[f.open_time.min().isoformat(),f.close_time.max().isoformat()] for i,f in frames.items()},
-      'strategies_executed':list(STRATEGIES),'skipped':SKIPPED,'raw_signal_counts':signal_counts,'raw_signals':len(events),'actual_trade_paths':int(ledger.groupby('instrument').trade_path_id.nunique().sum()),'ledger_rows_including_friction':len(ledger),
+      'strategies_executed':list(context.strategies or STRATEGIES),'skipped':SKIPPED,'raw_signal_counts':signal_counts,'raw_signals':len(events),'actual_trade_paths':int(ledger.groupby('instrument').trade_path_id.nunique().sum()),'ledger_rows_including_friction':len(ledger),
       'atr_source':ATR_SOURCE,'atr_definition':ATR_DEFINITION,'atr_reset_policy':'continuous per instrument; no day reset','trading_date_source':TRADING_DATE_SOURCE,
       'round_level_semantic_source':'Phase 2 Decimal grid semantics; actual touched/crossed grid level','tie_policy':'stop first when intrabar order unknown','gap_policy':'adverse stop gaps fill at open; target gaps fill at target',
       'day_boundary_policy':'entry and complete holding path restricted to signal trading_date; DAY_END close','event_outcome_reference_price':'open of t+1; complete same-day horizons only','source_modified':False,'runtime_seconds':runtime,'provenance':provenance,

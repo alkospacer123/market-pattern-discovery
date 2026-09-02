@@ -35,6 +35,12 @@ class ExperimentSpec:
         return deterministic_hash({"name": self.name, "data_root": self.data_root,
                                    "cycle_number": self.cycle_number, "metadata": self.metadata})
 
+    @property
+    def search_cell_id(self) -> str | None:
+        """Scientific identity, intentionally independent of execution identity."""
+        value = self.metadata.get("search_cell_id")
+        return str(value) if value is not None else None
+
 
 @dataclass(frozen=True, slots=True)
 class ExperimentResult:
@@ -77,7 +83,8 @@ def adapt_v3_results(spec: ExperimentSpec, manifest: Mapping[str, Any]) -> list[
             candidate_id = deterministic_hash({"experiment_id": spec.experiment_id, **identity})
             evaluation_id = deterministic_hash({"candidate_id": candidate_id, "kind": "v3_metrics"})
             candidate = CandidateRecord(candidate_id, row["strategy_id"], row["instrument"], timeframe,
-                {"exit_configuration": row["exit_configuration"], "friction_scenario": row["friction_scenario"]},
+                {"exit_configuration": row["exit_configuration"], "friction_scenario": row["friction_scenario"],
+                 "search_cell_id": spec.search_cell_id},
                 evaluation_id, spec.cycle_number)
             adapted.append((candidate, _finite_metrics(row)))
     return adapted
@@ -106,7 +113,13 @@ class ExperimentRunner:
         if self.memory is not None:
             self.memory.record_experiment(spec.experiment_id,
                 {"name": spec.name, "cycle_number": spec.cycle_number,
-                 "output_directory": spec.output_directory.as_posix(), "v3_manifest": dict(manifest)})
+                 "output_directory": spec.output_directory.as_posix(),
+                 "search_cell_id": spec.search_cell_id, "search_spec": spec.metadata.get("search_spec"),
+                 "selection_mode": spec.metadata.get("selection_mode"),
+                 "parent_search_cell_id": spec.metadata.get("parent_search_cell_id"),
+                 "selection_provenance": spec.metadata.get("selection_provenance"),
+                 "parent_friction_metrics": spec.metadata.get("parent_friction_metrics"),
+                 "v3_manifest": dict(manifest)})
             for candidate, metric_values in adapted:
                 self.memory.add_candidate(candidate)
                 self.memory.record_evaluation(candidate.metrics_reference, candidate.candidate_id, metric_values,
