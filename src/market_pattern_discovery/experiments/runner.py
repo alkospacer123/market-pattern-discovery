@@ -41,6 +41,14 @@ class ExperimentSpec:
         value = self.metadata.get("search_cell_id")
         return str(value) if value is not None else None
 
+    @property
+    def research_track(self) -> str:
+        """Explicit routing identity; legacy specs remain known-strategy specs."""
+        value = str(self.metadata.get("research_track", "KNOWN_STRATEGY"))
+        if value not in {"KNOWN_STRATEGY", "UNKNOWN_PATTERN"}:
+            raise ValueError(f"unsupported research_track: {value}")
+        return value
+
 
 @dataclass(frozen=True, slots=True)
 class ExperimentResult:
@@ -99,6 +107,8 @@ class ExperimentRunner:
         self.pipeline = pipeline
 
     def run(self, spec: ExperimentSpec) -> ExperimentResult:
+        if spec.research_track != "KNOWN_STRATEGY":
+            raise ValueError("ExperimentRunner accepts KNOWN_STRATEGY only")
         spec.output_directory.mkdir(parents=True, exist_ok=True)
         context = ExecutionContext.from_metadata(spec.metadata)
         # Keep injected legacy two-argument adapters working while the real V3

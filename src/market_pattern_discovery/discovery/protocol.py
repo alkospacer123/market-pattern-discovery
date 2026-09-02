@@ -89,10 +89,14 @@ def day_block_bootstrap(frame: pd.DataFrame, mask: pd.Series, target: str, stati
     """Resample complete Moscow trading dates; overlapping rows never split."""
     if "moscow_trading_date" not in frame: raise ValueError("Moscow trading date is required")
     days = pd.unique(frame["moscow_trading_date"]); rng = np.random.default_rng(seed); estimates=[]
+    numeric = pd.to_numeric(frame[target], errors="coerce").to_numpy(float)
+    membership = mask.to_numpy(bool)
+    blocks = [(numeric[pos := np.flatnonzero(frame["moscow_trading_date"].eq(day).to_numpy())], membership[pos]) for day in days]
     for _ in range(replications):
-        chosen = rng.choice(days, len(days), replace=True)
-        parts = [frame.loc[frame["moscow_trading_date"].eq(day)].assign(_mask=mask.loc[frame["moscow_trading_date"].eq(day)].to_numpy()) for day in chosen]
-        sample = pd.concat(parts, ignore_index=True); a=sample.loc[sample._mask,target].to_numpy(); b=sample[target].to_numpy()
+        chosen = rng.integers(0, len(blocks), len(blocks))
+        b = np.concatenate([blocks[index][0] for index in chosen])
+        a = np.concatenate([blocks[index][0][blocks[index][1]] for index in chosen])
+        a, b = a[np.isfinite(a)], b[np.isfinite(b)]
         if statistic == "probability_difference": estimates.append(float(np.mean(a)-np.mean(b)))
         elif statistic == "mean_difference": estimates.append(float(np.mean(a)-np.mean(b)))
         elif statistic == "rank_effect": estimates.append(continuous_effect(a,b)["probability_of_superiority"]-.5)

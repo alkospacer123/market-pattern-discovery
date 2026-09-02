@@ -13,3 +13,5 @@ __all__ = ["authorize_experiment", "benjamini_hochberg", "binary_effect", "categ
 __all__ += ["hypothesis_units", "load_discovery_target_mapping", "mapped_targets",
             "mapping_signature", "primary_contrasts", "validate_mapping_against_behavior_set",
             "verify_phase5b_contracts"]
+from .unknown import DiscoveryMatrix, evaluate_hypothesis, load_discovery_matrix
+__all__ += ["DiscoveryMatrix", "evaluate_hypothesis", "load_discovery_matrix"]

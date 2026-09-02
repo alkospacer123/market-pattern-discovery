@@ -29,6 +29,39 @@ class RankingView(StrEnum):
     CHAMPIONS = "CHAMPIONS"
 
 
+class PatternStatus(StrEnum):
+    INELIGIBLE = "INELIGIBLE"
+    INCOMPLETE_FAMILY = "INCOMPLETE_FAMILY"
+    SCREENED_OUT = "SCREENED_OUT"
+    PATTERN_SURVIVOR = "PATTERN_SURVIVOR"
+
+
+class PatternRankingView(StrEnum):
+    TOP_EFFECT_MAGNITUDE = "TOP_EFFECT_MAGNITUDE"
+    TOP_TEMPORAL_STABILITY = "TOP_TEMPORAL_STABILITY"
+    TOP_COVERAGE = "TOP_COVERAGE"
+    PATTERN_SURVIVORS = "PATTERN_SURVIVORS"
+
+
+@dataclass(frozen=True, slots=True)
+class PatternEffectRecord:
+    pattern_cell_id: str
+    pattern_batch_id: str
+    scientific_definition: Mapping[str, Any]
+    evaluation: Mapping[str, Any]
+    screening_status: PatternStatus
+    originating_experiment_id: str
+    creation_cycle: int
+
+    def __post_init__(self) -> None:
+        if not all((self.pattern_cell_id, self.pattern_batch_id,
+                    self.originating_experiment_id)):
+            raise ValueError("pattern identities are required")
+        object.__setattr__(self, "scientific_definition", dict(self.scientific_definition))
+        object.__setattr__(self, "evaluation", dict(self.evaluation))
+        object.__setattr__(self, "screening_status", PatternStatus(self.screening_status))
+
+
 @dataclass(frozen=True, slots=True)
 class CandidateRecord:
     candidate_id: str
@@ -72,6 +105,7 @@ class ResearchMemory:
         self._experiments = self.directory / "experiments.jsonl"
         self._candidates = self.directory / "candidate_history.jsonl"
         self._evaluations = self.directory / "evaluation_history.jsonl"
+        self._patterns = self.directory / "pattern_effect_history.jsonl"
 
     @staticmethod
     def _read(path: Path) -> list[dict[str, Any]]:
@@ -131,6 +165,38 @@ class ResearchMemory:
 
     def evaluation_history(self) -> list[dict[str, Any]]:
         return self._read(self._evaluations)
+
+    def pattern_effect_history(self) -> list[dict[str, Any]]:
+        return self._read(self._patterns)
+
+    def completed_pattern_cell_ids(self) -> set[str]:
+        return {row["pattern_cell_id"] for row in self.pattern_effect_history()}
+
+    def add_pattern_effect(self, record: PatternEffectRecord) -> None:
+        if record.pattern_cell_id in self.completed_pattern_cell_ids():
+            raise ValueError(f"pattern cell already completed: {record.pattern_cell_id}")
+        value = asdict(record)
+        value["screening_status"] = record.screening_status.value
+        self._append(self._patterns, value)
+
+    def pattern_view(self, view: PatternRankingView, *, limit: int | None = None) -> list[dict[str, Any]]:
+        rows = self.pattern_effect_history()
+        view = PatternRankingView(view)
+        if view is PatternRankingView.PATTERN_SURVIVORS:
+            rows = [r for r in rows if r["screening_status"] == PatternStatus.PATTERN_SURVIVOR]
+            rows.sort(key=lambda r: r["pattern_cell_id"])
+        elif view is PatternRankingView.TOP_EFFECT_MAGNITUDE:
+            rows.sort(key=lambda r: (-r["evaluation"].get("primary_effect_absolute", float("-inf")), r["pattern_cell_id"]))
+        elif view is PatternRankingView.TOP_COVERAGE:
+            rows.sort(key=lambda r: (-r["evaluation"].get("coverage", float("-inf")), r["pattern_cell_id"]))
+        else:
+            def stability(row):
+                effects = [x.get("effect") for x in row["evaluation"].get("fold_results", [])]
+                effects = [x for x in effects if isinstance(x, (int, float))]
+                signed = row["evaluation"].get("primary_effect_signed", 0)
+                return sum((x > 0) == (signed > 0) for x in effects if x != 0)
+            rows.sort(key=lambda r: (-stability(r), r["pattern_cell_id"]))
+        return rows[:limit] if limit is not None else rows
 
     def candidates(self) -> dict[str, CandidateRecord]:
         result: dict[str, CandidateRecord] = {}
