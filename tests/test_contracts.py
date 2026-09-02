@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 
 from market_pattern_discovery.backtest import CostModel
-from market_pattern_discovery.data.finam import IngestionError, stitch_finam
+from market_pattern_discovery.data.finam import IngestionError, discover_finam_sources, stitch_finam
 from market_pattern_discovery.validation.causal import causal_alignment, latest_closed_m5
 from market_pattern_discovery.validation.temporal import DEV_END, DEV_START, sequential_split
 
@@ -53,6 +53,17 @@ def test_valid_csv_and_timezone_and_m1_close(tmp_path):
 def test_m5_close(tmp_path):
     candle = load(tmp_path, HEADER + row(per=5), tf="M5").frame.iloc[0]
     assert candle.close_time - candle.open_time == pd.Timedelta(minutes=5)
+
+@pytest.mark.parametrize(("instrument", "folder"), [("CNY", "CNY"), ("Si", "Si")])
+def test_discover_finam_sources_uses_repository_timeframe_naming(tmp_path, instrument, folder):
+    root = tmp_path / "2026" / folder
+    root.mkdir(parents=True)
+    m5 = [root / f"{folder}_2026_Q{q}.csv" for q in (1, 2)]
+    m1 = [root / f"{folder}_2026_Q{q}_M1.csv" for q in (1, 2)]
+    for path in (*m5, *m1):
+        path.touch()
+    assert discover_finam_sources(tmp_path, instrument, "M5") == m5
+    assert discover_finam_sources(tmp_path, instrument, "M1") == m1
 
 @pytest.mark.parametrize("content,match", [
     ("bad;schema\n1;2\n", "schema"),
