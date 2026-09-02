@@ -61,14 +61,35 @@ class AutonomousSearchScheduler:
         return sorted(cells, key=lambda c: deterministic_hash(
             {"seed": self.seed, "search_cell_id": c.search_cell_id}))
 
-    def _parents(self) -> list[str]:
+    def _friction_metrics(self) -> dict[str, dict[str, dict[str, float]]]:
+        """Return persisted friction evidence grouped by semantic search cell."""
+        evaluations = {row["evaluation_id"]: row["metrics"]
+                       for row in self.memory.evaluation_history()}
+        result: dict[str, dict[str, dict[str, float]]] = {}
+        for candidate in sorted(self.memory.candidates().values(),
+                                key=lambda row: row.candidate_id):
+            cell_id = candidate.parameters.get("search_cell_id")
+            scenario = candidate.parameters.get("friction_scenario")
+            metrics = evaluations.get(candidate.metrics_reference)
+            if cell_id and scenario in {"GROSS", "BASE", "STRESS"} and metrics is not None:
+                result.setdefault(str(cell_id), {})[str(scenario)] = dict(metrics)
+        return result
+
+    def _parents(self) -> tuple[list[str], dict[str, dict[str, dict[str, float]]]]:
+        friction_metrics = self._friction_metrics()
+        evaluations = {row["evaluation_id"]: row["metrics"]
+                       for row in self.memory.evaluation_history()}
         result: list[str] = []
         for view in (RankingView.TOP_PF, RankingView.TOP_EXPECTANCY, RankingView.TOP_ROBUST):
             for candidate in self.memory.view(view):
                 cell_id = candidate.parameters.get("search_cell_id")
-                if cell_id and cell_id not in result:
+                metrics = evaluations.get(candidate.metrics_reference, {})
+                eligible = (candidate.parameters.get("friction_scenario") == "BASE"
+                            and metrics.get("profit_factor", float("-inf")) > 1.0
+                            and metrics.get("expectancy", float("-inf")) > 0.0)
+                if eligible and cell_id not in result:
                     result.append(str(cell_id))
-        return result
+        return result, friction_metrics
 
     @staticmethod
     def _neighbor(parent: SearchCell, other: SearchCell) -> bool:
@@ -91,7 +112,7 @@ class AutonomousSearchScheduler:
         unseen = [cell for cell in self.search_space if cell.search_cell_id not in completed]
         target_explore = (budget * 60 + 50) // 100 if self.exploration_fraction == .60 else round(budget * self.exploration_fraction)
         target_explore = min(budget, int(target_explore))
-        parent_ids = self._parents()
+        parent_ids, friction_metrics = self._parents()
         by_id = {cell.search_cell_id: cell for cell in self.search_space}
         refinement: list[tuple[SearchCell, str]] = []
         for parent_id in parent_ids:
@@ -112,6 +133,7 @@ class AutonomousSearchScheduler:
                 "parameters": dict(cell.parameters),
                 "selection_mode": mode, "selection_provenance": mode if parent is None else f"NEIGHBOR_OF:{parent}",
                 "parent_search_cell_id": parent, "instrument": cell.instrument,
+                "parent_friction_metrics": friction_metrics.get(parent) if parent else None,
                 "timeframe": cell.timeframe, "strategies": [cell.strategy],
                 "exit_configurations": [list(cell.exit_configuration)]}
             specs.append(ExperimentSpec(f"cell-{cell.search_cell_id[:12]}", self.data_root,

@@ -117,6 +117,8 @@ class ExperimentRunner:
                  "search_cell_id": spec.search_cell_id, "search_spec": spec.metadata.get("search_spec"),
                  "selection_mode": spec.metadata.get("selection_mode"),
                  "parent_search_cell_id": spec.metadata.get("parent_search_cell_id"),
+                 "selection_provenance": spec.metadata.get("selection_provenance"),
+                 "parent_friction_metrics": spec.metadata.get("parent_friction_metrics"),
                  "v3_manifest": dict(manifest)})
             for candidate, metric_values in adapted:
                 self.memory.add_candidate(candidate)
