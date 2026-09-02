@@ -120,3 +120,23 @@ is not untouched for the new version. The immutable experiment, candidate, and
 known-hypothesis registries live under `research/`. Stochastic work uses seed
 `20260401` unless a different seed was preregistered; seed shopping is forbidden.
 Validate this contract without running discovery using `phase4a-validate`.
+# Local UNKNOWN_PATTERN execution
+
+The Phase 4B track is a deterministic, single-process Python workflow suitable
+for an Intel Windows or Linux workstation. Paths are operational inputs and do
+not enter scientific identities. A cycle first discovers unseen frozen cells;
+`--inference-budget` then enriches existing `INFERENCE_PENDING` cells using the
+canonical 1,000-replication inference contract. ResearchMemory is authoritative
+on restart, while an auditable cycle manifest is written beneath `output-root`.
+
+```text
+python -m market_pattern_discovery.orchestration.unknown \
+  --data-root D:\market-data --memory-root D:\research-memory \
+  --output-root D:\pattern-output --cycle 1 --budget 20 \
+  --methods univariate_screen --inference-budget 2
+```
+
+Repeat with an incremented `--cycle` and the same memory root to resume. Use
+`--mode discovery --inference-budget 0` for fast discovery-only cycles, or
+`--mode inference --inference-budget 1` for an inference-only resume. The CLI never accesses
+trading profitability and does not create strategies or trading candidates.

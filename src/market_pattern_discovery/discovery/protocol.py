@@ -156,10 +156,14 @@ def screen_effect(record: dict, policy: dict) -> tuple[bool,list[str]]:
     uncertainty=record.get("uncertainty",{}); values=[uncertainty.get("lower"),uncertainty.get("upper")]
     if policy["finite_uncertainty"] and not all(np.isfinite(values)): failures.append("uncertainty")
     if policy["multiplicity_complete"] and not record.get("multiplicity_family"): failures.append("multiplicity")
-    effects=[x.get("effect",np.nan) for x in record.get("fold_results",[])]; sign=np.sign(record["effect_metrics"]["primary_effect"])
+    # ``primary_effect_signed`` is the one canonical signed effect emitted and
+    # persisted by evaluate_hypothesis.  Keeping screening on that field avoids
+    # a second value which could silently drift from the scientific result.
+    primary_effect = record["effect_metrics"]["primary_effect_signed"]
+    effects=[x.get("effect",np.nan) for x in record.get("fold_results",[])]; sign=np.sign(primary_effect)
     if sum(np.sign(x)==sign for x in effects if np.isfinite(x)) < policy["require_same_sign_folds"]: failures.append("temporal_stability")
     threshold=policy["practical_effect_thresholds"][record["target_family"]]
-    if abs(record["effect_metrics"]["primary_effect"]) < threshold: failures.append("practical_effect")
+    if abs(primary_effect) < threshold: failures.append("practical_effect")
     if record.get("invalidity") or record.get("leakage"): failures.append("invalidity")
     return not failures, failures
 
