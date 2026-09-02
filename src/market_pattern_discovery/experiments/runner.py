@@ -3,12 +3,13 @@ from __future__ import annotations
 
 import csv
 import json
+import inspect
 import math
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
-from market_pattern_discovery.backtest.phase6b import run as run_v3
+from market_pattern_discovery.backtest.phase6b import ExecutionContext, run as run_v3
 from market_pattern_discovery.contracts import deterministic_hash
 from market_pattern_discovery.research.memory import CandidateRecord, ResearchMemory
 
@@ -86,13 +87,19 @@ class ExperimentRunner:
     """Invoke V3 exactly once, then persist only an adapter view of its artifacts."""
 
     def __init__(self, memory: ResearchMemory | None = None,
-                 pipeline: Callable[[str | Path, str | Path], Mapping[str, Any]] = run_v3) -> None:
+                 pipeline: Callable[..., Mapping[str, Any]] = run_v3) -> None:
         self.memory = memory
         self.pipeline = pipeline
 
     def run(self, spec: ExperimentSpec) -> ExperimentResult:
         spec.output_directory.mkdir(parents=True, exist_ok=True)
-        manifest = self.pipeline(spec.data_root, spec.output_directory)  # the one and only V3 call
+        context = ExecutionContext.from_metadata(spec.metadata)
+        # Keep injected legacy two-argument adapters working while the real V3
+        # entry point receives the explicit execution scope.
+        parameters = inspect.signature(self.pipeline).parameters.values()
+        accepts_context = any(p.kind in (p.VAR_POSITIONAL,p.VAR_KEYWORD) for p in parameters) or len(parameters) >= 3
+        args = (spec.data_root, spec.output_directory, context) if accepts_context else (spec.data_root, spec.output_directory)
+        manifest = self.pipeline(*args)  # the one and only V3 call
         if manifest is None:
             manifest = json.loads((spec.output_directory / "run_manifest.json").read_text())
         adapted = adapt_v3_results(spec, manifest)

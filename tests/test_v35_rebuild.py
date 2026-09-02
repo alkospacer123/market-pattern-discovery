@@ -5,7 +5,7 @@ import pytest
 
 from market_pattern_discovery.backtest.phase6b import metrics
 from market_pattern_discovery.contracts import CandleContract, ManifestContract, canonical_json, deterministic_hash
-from market_pattern_discovery.experiments import ExperimentRunner, ExperimentSpec
+from market_pattern_discovery.experiments import ExecutionContext, ExperimentRunner, ExperimentSpec
 from market_pattern_discovery.orchestration import CycleManifest, CycleRunner
 from market_pattern_discovery.research import ResearchMemory
 
@@ -41,6 +41,37 @@ def test_experiment_calls_v3_once_and_persists_adapter(tmp_path):
     assert len(calls) == 1 and len(result.candidates) == 1
     assert memory.experiments()[0]["experiment_id"] == spec.experiment_id
     assert set(memory.candidates()) == {result.candidates[0].candidate_id}
+
+
+def test_legacy_two_argument_v3_adapter_is_unchanged(tmp_path):
+    calls = []
+
+    def v3(data_root, output):
+        calls.append((data_root, output))
+        return {"status": "PASS"}
+
+    spec = ExperimentSpec("legacy", tmp_path / "data", tmp_path / "output")
+    ExperimentRunner(pipeline=v3).run(spec)
+    assert calls == [(spec.data_root, spec.output_directory)]
+
+
+@pytest.mark.parametrize(("instrument", "canonical"), [
+    ("CNY", "CNYRUBF"), ("Si", "USDRUBF"),
+])
+@pytest.mark.parametrize("timeframe", ["M1", "M5"])
+def test_scoped_execution_context_reaches_v3(tmp_path, instrument, canonical, timeframe):
+    calls = []
+
+    def v3(data_root, output, context):
+        calls.append(context)
+        return {"status": "PASS", "timeframe": context.timeframe}
+
+    spec = ExperimentSpec(f"{instrument}-{timeframe}", tmp_path / "data", tmp_path / "output",
+                          metadata={"instrument": instrument, "timeframe": timeframe})
+    result = ExperimentRunner(pipeline=v3).run(spec)
+    assert calls == [ExecutionContext(instrument, timeframe)]
+    assert calls[0].instruments == (canonical,)
+    assert result.timeframe == timeframe
 
 
 @pytest.mark.parametrize("timeframe", ["M1", "M5"])
