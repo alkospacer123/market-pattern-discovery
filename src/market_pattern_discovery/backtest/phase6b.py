@@ -7,7 +7,7 @@ from time import perf_counter
 import json, math, resource
 import numpy as np
 import pandas as pd
-from market_pattern_discovery.data.finam import stitch_finam
+from market_pattern_discovery.data.finam import discover_finam_sources, stitch_finam
 from market_pattern_discovery.features.core import canonical_trading_date
 
 START=pd.Timestamp('2026-01-05',tz='Europe/Moscow'); END=pd.Timestamp('2026-05-16',tz='Europe/Moscow')
@@ -55,8 +55,8 @@ def add_wilder_atr14(frame):
     f['atr14']=out; return f
 
 def load_discovery(data_root,instrument,timeframe='M1'):
-    tick,_,folder=SPECS[instrument]
-    paths=sorted((Path(data_root)/'2026'/folder).glob(f'*_2026_Q[12]_{timeframe}.csv'))
+    tick,_,_=SPECS[instrument]
+    paths=discover_finam_sources(data_root,instrument,timeframe)
     result=stitch_finam(paths,instrument,timeframe); f=result.frame
     f=f.loc[(f.open_time>=START)&(f.close_time<END)].copy()
     if f.empty or f.open_time.dt.year.ne(2026).any() or f.close_time.max()>=END: raise ValueError('discovery boundary violation')
