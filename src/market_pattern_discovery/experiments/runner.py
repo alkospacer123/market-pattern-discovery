@@ -42,6 +42,11 @@ class ExperimentResult:
     candidates: tuple[CandidateRecord, ...]
     output_directory: Path
 
+    @property
+    def timeframe(self) -> str:
+        """Return the experiment timeframe recorded by the V3 manifest."""
+        return str(self.manifest.get("timeframe", "M1"))
+
 
 def _finite_metrics(row: Mapping[str, str]) -> dict[str, float]:
     aliases = {"profit_factor_ATR": "profit_factor", "expectancy_ATR": "expectancy",
@@ -63,13 +68,14 @@ def adapt_v3_results(spec: ExperimentSpec, manifest: Mapping[str, Any]) -> list[
     if not summary.is_file():
         return []
     adapted = []
+    timeframe = str(manifest.get("timeframe", "M1"))
     with summary.open(newline="", encoding="utf-8") as stream:
         for row in csv.DictReader(stream):
             identity = {key: row[key] for key in ("strategy_id", "instrument", "exit_configuration",
                                                    "friction_scenario")}
             candidate_id = deterministic_hash({"experiment_id": spec.experiment_id, **identity})
             evaluation_id = deterministic_hash({"candidate_id": candidate_id, "kind": "v3_metrics"})
-            candidate = CandidateRecord(candidate_id, row["strategy_id"], row["instrument"], "M1",
+            candidate = CandidateRecord(candidate_id, row["strategy_id"], row["instrument"], timeframe,
                 {"exit_configuration": row["exit_configuration"], "friction_scenario": row["friction_scenario"]},
                 evaluation_id, spec.cycle_number)
             adapted.append((candidate, _finite_metrics(row)))

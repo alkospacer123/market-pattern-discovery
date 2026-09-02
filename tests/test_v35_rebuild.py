@@ -43,6 +43,23 @@ def test_experiment_calls_v3_once_and_persists_adapter(tmp_path):
     assert set(memory.candidates()) == {result.candidates[0].candidate_id}
 
 
+@pytest.mark.parametrize("timeframe", ["M1", "M5"])
+def test_experiment_manifest_timeframe_is_persisted_on_candidate(tmp_path, timeframe):
+    memory = ResearchMemory(tmp_path / "memory")
+
+    def v3(_, output):
+        _summary(output)
+        return {"status": "PASS", "timeframe": timeframe}
+
+    result = ExperimentRunner(memory, v3).run(
+        ExperimentSpec(f"{timeframe}-experiment", tmp_path / "data", tmp_path / "output")
+    )
+
+    assert result.timeframe == timeframe
+    assert result.candidates[0].timeframe == timeframe
+    assert next(iter(memory.candidates().values())).timeframe == timeframe
+
+
 def test_cycle_order_failure_isolation_and_candidate_collection(tmp_path):
     def v3(_, output):
         if output.name == "bad":
