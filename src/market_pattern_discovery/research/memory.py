@@ -90,8 +90,13 @@ class ResearchMemory:
             os.close(fd)
 
     def record_experiment(self, experiment_id: str, metadata: Mapping[str, Any]) -> None:
-        if any(row["experiment_id"] == experiment_id for row in self._read(self._experiments)):
+        existing = self._read(self._experiments)
+        if any(row["experiment_id"] == experiment_id for row in existing):
             raise ValueError(f"experiment already exists: {experiment_id}")
+        search_cell_id = metadata.get("search_cell_id")
+        if search_cell_id and any(row["metadata"].get("search_cell_id") == search_cell_id
+                                  for row in existing):
+            raise ValueError(f"search cell already completed: {search_cell_id}")
         self._append(self._experiments, {"experiment_id": experiment_id, "metadata": dict(metadata)})
 
     def add_candidate(self, candidate: CandidateRecord) -> None:

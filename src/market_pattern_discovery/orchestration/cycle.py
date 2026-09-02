@@ -21,6 +21,9 @@ class CycleManifest:
         ordered = tuple(sorted(self.experiments, key=lambda spec: (spec.name, spec.experiment_id)))
         if len({spec.experiment_id for spec in ordered}) != len(ordered):
             raise ValueError("duplicate experiment in cycle")
+        cell_ids = [spec.search_cell_id for spec in ordered if spec.search_cell_id is not None]
+        if len(cell_ids) != len(set(cell_ids)):
+            raise ValueError("duplicate search_cell_id in cycle")
         if any(spec.cycle_number != self.cycle_number for spec in ordered):
             raise ValueError("experiment cycle_number must match its cycle manifest")
         object.__setattr__(self, "experiments", ordered)
@@ -43,6 +46,20 @@ class CycleReport:
     @property
     def succeeded(self) -> bool:
         return not self.failures
+
+    def audit(self, manifest: CycleManifest, memory) -> Mapping[str, Any]:
+        """Return a JSON-serializable planning/execution and ranking snapshot."""
+        from market_pattern_discovery.research.memory import RankingView
+        rankings = {view.value: [row.candidate_id for row in memory.view(view)] for view in RankingView}
+        return {"cycle_number": manifest.cycle_number, "cycle_id": self.cycle_id,
+            "planned_experiments": [{"experiment_id": spec.experiment_id,
+                "search_cell_id": spec.search_cell_id,
+                "selection_mode": spec.metadata.get("selection_mode"),
+                "parent_search_cell_id": spec.metadata.get("parent_search_cell_id"),
+                "parameters": spec.metadata.get("parameters"),
+                **dict(spec.metadata.get("search_spec") or {})} for spec in manifest.experiments],
+            **dict(manifest.metadata), "failures": dict(self.failures),
+            "candidate_count": len(self.candidates), "rankings": rankings}
 
 
 class CycleRunner:

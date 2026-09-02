@@ -53,7 +53,10 @@ def assert_confirmation_not_accessed(mode: AccessMode, period: tuple[str | datet
 
 def assert_true_oos_not_accessed(period: tuple[str | datetime, str | datetime], protocol: dict | None = None) -> None:
     p = protocol or load_protocol(); start, end = _period(period)
-    if start.year <= p["true_oos_year"] < end.year or start.year == p["true_oos_year"]:
+    year = p["true_oos_year"]
+    sealed_start = datetime(year, 1, 1, tzinfo=timezone.utc)
+    sealed_end = datetime(year + 1, 1, 1, tzinfo=timezone.utc)
+    if start < sealed_end and end > sealed_start:
         raise PermissionError("2025 TRUE OOS is sealed")
 
 def request_access(mode: AccessMode, period: tuple[str | datetime, str | datetime], *, candidate: dict | None = None,
