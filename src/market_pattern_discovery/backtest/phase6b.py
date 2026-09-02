@@ -1,22 +1,48 @@
 """Corrected causal Phase 6B known-strategy benchmark."""
 from __future__ import annotations
+from dataclasses import dataclass
 from pathlib import Path
 from hashlib import sha256
 from time import perf_counter
 import json, math, resource
 import numpy as np
 import pandas as pd
-from market_pattern_discovery.data.finam import stitch_finam
+from market_pattern_discovery.data.finam import discover_finam_sources, stitch_finam
 from market_pattern_discovery.features.core import canonical_trading_date
 
 START=pd.Timestamp('2026-01-05',tz='Europe/Moscow'); END=pd.Timestamp('2026-05-16',tz='Europe/Moscow')
 SPECS={'CNYRUBF':(.001,.05,'CNY'),'USDRUBF':(.01,.10,'Si')}
+INSTRUMENT_ALIASES={'CNY':'CNYRUBF','CNYRUBF':'CNYRUBF','Si':'USDRUBF','SI':'USDRUBF','USDRUBF':'USDRUBF'}
 STRATEGIES=('RL-01','RL-02','RL-03','RL-04','MOM-01','MOM-02','NR-01','RH-01','RH-02','PD-01','PD-02')
 SKIPPED={'EH-01':'No authoritative causal Equal High/Equal Low reference-price primitive is exposed.',
          'EH-02':'No authoritative causal Equal High/Equal Low reference-price primitive is exposed.'}
 TRADING_DATE_SOURCE='market_pattern_discovery.features.core.canonical_trading_date'
 ATR_SOURCE='phase6b fallback: standard causal Wilder ATR(14)'
 ATR_DEFINITION='TR=max(high-low,abs(high-prev_close),abs(low-prev_close)); seed=mean(first 14 TR); Wilder recurrence alpha=1/14'
+
+@dataclass(frozen=True, slots=True)
+class ExecutionContext:
+    """The data scope selected by V3.5 metadata for one causal V3 run."""
+    instrument: str | None = None
+    timeframe: str = 'M1'
+
+    def __post_init__(self):
+        if self.instrument is not None and self.instrument not in INSTRUMENT_ALIASES:
+            raise ValueError(f'unsupported instrument: {self.instrument}')
+        if self.timeframe not in {'M1','M5'}:
+            raise ValueError(f'unsupported timeframe: {self.timeframe}')
+
+    @classmethod
+    def from_metadata(cls, metadata):
+        """Build a scope from ExperimentSpec metadata, retaining V3 defaults."""
+        metadata=dict(metadata or {})
+        instrument=metadata.get('instrument',metadata.get('instrument_scope'))
+        timeframe=metadata.get('timeframe',metadata.get('timeframe_scope','M1'))
+        return cls(instrument=instrument,timeframe=timeframe)
+
+    @property
+    def instruments(self):
+        return tuple(SPECS) if self.instrument is None else (INSTRUMENT_ALIASES[self.instrument],)
 
 def add_wilder_atr14(frame):
     """Continuous per-instrument Wilder ATR; deliberately never resets by day."""
@@ -28,9 +54,10 @@ def add_wilder_atr14(frame):
         for i in range(14,len(f)): out[i]=(out[i-1]*13+tr[i])/14
     f['atr14']=out; return f
 
-def load_discovery(data_root,instrument):
-    tick,_,folder=SPECS[instrument]; paths=sorted((Path(data_root)/'2026'/folder).glob('*_2026_Q[12]_M1.csv'))
-    result=stitch_finam(paths,instrument,'M1'); f=result.frame
+def load_discovery(data_root,instrument,timeframe='M1'):
+    tick,_,_=SPECS[instrument]
+    paths=discover_finam_sources(data_root,instrument,timeframe)
+    result=stitch_finam(paths,instrument,timeframe); f=result.frame
     f=f.loc[(f.open_time>=START)&(f.close_time<END)].copy()
     if f.empty or f.open_time.dt.year.ne(2026).any() or f.close_time.max()>=END: raise ValueError('discovery boundary violation')
     f['trading_date']=canonical_trading_date(f.open_time); f=add_wilder_atr14(f); f['tick']=tick
@@ -241,10 +268,16 @@ def smoke(data_root='/workspace/market-pattern-data'):
       'peak_rss_kb':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,'first_5_trades':ledger.head().to_dict('records')}
     print('REAL SMOKE TEST\n'+json.dumps(result,indent=2,default=str),flush=True);return result
 
-def run(data_root,output):
+def run(data_root,output,context=None):
+    """Run V3, optionally restricted by a V3.5 execution context.
+
+    Omitting ``context`` retains the historical two-argument M1 execution over
+    both instruments.
+    """
+    context=context or ExecutionContext()
     started=perf_counter();output=Path(output);output.mkdir(parents=True,exist_ok=True);frames={};events=[];ledgers=[];provenance=[]
-    for inst in SPECS:
-        f,p=load_discovery(data_root,inst);frames[inst]=f;provenance+=p;print(f'Loaded {inst}: {len(f):,} rows',flush=True)
+    for inst in context.instruments:
+        f,p=load_discovery(data_root,inst,context.timeframe);frames[inst]=f;provenance+=p;print(f'Loaded {inst} {context.timeframe}: {len(f):,} rows',flush=True)
         e=generate_signals(f,inst);events.append(e);print(f'Generated {inst}: {len(e):,} signals',flush=True)
         ledgers.append(simulate(f,e,SPECS[inst][0],progress=True))
     events=pd.concat(events,ignore_index=True);ledger=pd.concat(ledgers,ignore_index=True);summary=metrics(ledger);outcomes=pd.concat([event_outcomes(frames[i],events[events.instrument.eq(i)]) for i in frames],ignore_index=True)
@@ -253,7 +286,7 @@ def run(data_root,output):
     outputs=((summary,'strategy_summary.csv'),(surface,'strategy_parameter_surface.csv'),(monthly,'monthly_summary.csv'),(audit,'trade_audit_sample.csv'),(outcomes,'event_outcomes.csv'),(ledger,'trade_ledger.csv'))
     for df,name in outputs:df.to_csv(output/name,index=False)
     signal_counts=events.groupby(['strategy_id','instrument']).size().rename('signals').reset_index().to_dict('records');runtime=perf_counter()-started
-    manifest={'status':'PARTIAL' if SKIPPED else 'PASS','window':{'start':START.isoformat(),'end_exclusive':END.isoformat()},'rows':{i:len(f) for i,f in frames.items()},'dates':{i:[f.open_time.min().isoformat(),f.close_time.max().isoformat()] for i,f in frames.items()},
+    manifest={'status':'PARTIAL' if SKIPPED else 'PASS','timeframe':context.timeframe,'instruments':list(context.instruments),'window':{'start':START.isoformat(),'end_exclusive':END.isoformat()},'rows':{i:len(f) for i,f in frames.items()},'dates':{i:[f.open_time.min().isoformat(),f.close_time.max().isoformat()] for i,f in frames.items()},
       'strategies_executed':list(STRATEGIES),'skipped':SKIPPED,'raw_signal_counts':signal_counts,'raw_signals':len(events),'actual_trade_paths':int(ledger.groupby('instrument').trade_path_id.nunique().sum()),'ledger_rows_including_friction':len(ledger),
       'atr_source':ATR_SOURCE,'atr_definition':ATR_DEFINITION,'atr_reset_policy':'continuous per instrument; no day reset','trading_date_source':TRADING_DATE_SOURCE,
       'round_level_semantic_source':'Phase 2 Decimal grid semantics; actual touched/crossed grid level','tie_policy':'stop first when intrabar order unknown','gap_policy':'adverse stop gaps fill at open; target gaps fill at target',

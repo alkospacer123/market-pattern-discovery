@@ -14,6 +14,7 @@ from market_pattern_discovery.validation.temporal import require_development
 SCHEMA = ["<TICKER>", "<PER>", "<DATE>", "<TIME>", "<OPEN>", "<HIGH>", "<LOW>", "<CLOSE>", "<VOL>"]
 OHLCV = ["open", "high", "low", "close", "volume"]
 ALIASES = {"CNYRUBF": "CNYRUBF", "CNY": "CNYRUBF", "USDRUBF": "USDRUBF", "SI": "USDRUBF"}
+SOURCE_FOLDERS = {"CNYRUBF": "CNY", "USDRUBF": "Si"}
 
 class IngestionError(ValueError):
     """The source violates a strict ingestion contract."""
@@ -38,6 +39,22 @@ def _instrument(value: str) -> str:
         return ALIASES[value.upper()]
     except KeyError as exc:
         raise IngestionError(f"unsupported ticker/instrument: {value}") from exc
+
+def discover_finam_sources(data_root: str | Path, instrument: str, timeframe: str) -> list[Path]:
+    """Resolve the repository's deterministic 2026 Finam source names for one scope.
+
+    Historical M5 files use ``<symbol>_2026_QN.csv`` while M1 files carry the
+    explicit ``_M1.csv`` suffix.  File naming is therefore resolved separately
+    from the Finam ``<PER>`` timeframe validation performed by :func:`_read`.
+    """
+    canonical = _instrument(instrument)
+    if timeframe not in {"M1", "M5"}:
+        raise IngestionError(f"unsupported timeframe: {timeframe}")
+    folder = SOURCE_FOLDERS[canonical]
+    root = Path(data_root) / "2026" / folder
+    suffix = "_M1.csv" if timeframe == "M1" else ".csv"
+    return [root / f"{folder}_2026_Q{quarter}{suffix}" for quarter in (1, 2)
+            if (root / f"{folder}_2026_Q{quarter}{suffix}").is_file()]
 
 def _read(path: Path, expected_instrument: str, timeframe: str) -> tuple[pd.DataFrame, dict]:
     expected_instrument = _instrument(expected_instrument)
