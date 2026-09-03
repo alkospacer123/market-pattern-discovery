@@ -27,12 +27,13 @@ def _next_cycle_number(state_directory: Path) -> int:
 
 
 def run(data_root: Path, memory_root: Path, output_root: Path, *, budget: int,
-        mode: str, sleep_seconds: float) -> None:
+        mode: str, sleep_seconds: float, track: str = "known") -> None:
     """Run one cycle, or cycles until the finite search space is exhausted."""
     memory = ResearchMemory(memory_root)
     scheduler = AutonomousSearchScheduler(memory, data_root, output_root)
     state_directory = output_root / "autonomous-state"
-    worker = AutonomousResearchWorker(scheduler, memory, state_directory)
+    worker = AutonomousResearchWorker(
+        scheduler, memory, state_directory, track=track)
     cycle_number = _next_cycle_number(state_directory)
 
     while True:
@@ -52,6 +53,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--budget", type=int, required=True)
     parser.add_argument("--mode", choices=("once", "continuous"), default="once")
+    parser.add_argument(
+        "--track", choices=("known", "unknown", "mixed"), default="known")
     parser.add_argument("--sleep-seconds", type=float, default=0.0)
     args = parser.parse_args(argv)
     if args.budget <= 0:
@@ -60,7 +63,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         parser.error("--sleep-seconds must be non-negative")
 
     run(args.data_root, args.memory_root, args.output_root, budget=args.budget,
-        mode=args.mode, sleep_seconds=args.sleep_seconds)
+        mode=args.mode, sleep_seconds=args.sleep_seconds, track=args.track)
     return 0
 
 

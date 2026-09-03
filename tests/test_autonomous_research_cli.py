@@ -30,6 +30,7 @@ def test_help_works():
     assert result.returncode == 0
     assert "--data-root" in result.stdout
     assert "--mode {once,continuous}" in result.stdout
+    assert "--track {known,unknown,mixed}" in result.stdout
 
 
 def test_once_mode_invokes_worker(monkeypatch, tmp_path, capsys):
@@ -44,8 +45,8 @@ def test_once_mode_invokes_worker(monkeypatch, tmp_path, capsys):
         validation: dict
 
     class Worker:
-        def __init__(self, scheduler, memory, state_directory):
-            calls.append((scheduler, memory, state_directory))
+        def __init__(self, scheduler, memory, state_directory, *, track):
+            calls.append((scheduler, memory, state_directory, track))
 
         def run_once(self, *, cycle_number, budget):
             calls.append((cycle_number, budget))
@@ -62,6 +63,34 @@ def test_once_mode_invokes_worker(monkeypatch, tmp_path, capsys):
     assert '"status": "COMPLETED"' in capsys.readouterr().out
 
 
+def test_unknown_track_is_forwarded_to_worker(monkeypatch, tmp_path):
+    tracks = []
+
+    @dataclass
+    class Result:
+        cycle_number: int = 0
+        status: str = "SEARCH_SPACE_EXHAUSTED"
+        cycle_id: str | None = None
+        failures: dict = None
+        validation: dict = None
+
+    class Worker:
+        def __init__(self, scheduler, memory, state_directory, *, track):
+            tracks.append(track)
+
+        def run_once(self, *, cycle_number, budget):
+            return Result(failures={}, validation={})
+
+    monkeypatch.setattr(cli, "AutonomousResearchWorker", Worker)
+    assert cli.main([
+        "--data-root", str(tmp_path / "data"),
+        "--memory-root", str(tmp_path / "memory"),
+        "--output-root", str(tmp_path / "output"),
+        "--budget", "1", "--track", "unknown",
+    ]) == 0
+    assert tracks == ["unknown"]
+
+
 def test_invalid_mode_fails(tmp_path):
     result = subprocess.run([
         sys.executable, str(SCRIPT),
@@ -69,6 +98,18 @@ def test_invalid_mode_fails(tmp_path):
         "--memory-root", str(tmp_path / "memory"),
         "--output-root", str(tmp_path / "output"),
         "--budget", "1", "--mode", "sometimes",
+    ], capture_output=True, text=True, env=_environment())
+    assert result.returncode != 0
+    assert "invalid choice" in result.stderr
+
+
+def test_invalid_track_fails(tmp_path):
+    result = subprocess.run([
+        sys.executable, str(SCRIPT),
+        "--data-root", str(tmp_path / "data"),
+        "--memory-root", str(tmp_path / "memory"),
+        "--output-root", str(tmp_path / "output"),
+        "--budget", "1", "--track", "experimental",
     ], capture_output=True, text=True, env=_environment())
     assert result.returncode != 0
     assert "invalid choice" in result.stderr

@@ -30,11 +30,14 @@ class AutonomousResearchWorker:
     """Run one deterministic, resumable, budget-capped research cycle."""
 
     def __init__(self, scheduler, memory: ResearchMemory, state_directory: str | Path,
-                 *, runner: CycleRunner | None = None) -> None:
+                 *, runner: CycleRunner | None = None, track: str = "known") -> None:
+        if track not in {"known", "unknown", "mixed"}:
+            raise ValueError("track must be known, unknown, or mixed")
         self.scheduler = scheduler
         self.memory = memory
         self.state_directory = Path(state_directory)
         self.runner = runner or CycleRunner()
+        self.track = track
 
     def _completed_cycles(self) -> set[int]:
         if not self.state_directory.exists():
