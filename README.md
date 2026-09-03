@@ -10,6 +10,11 @@ Outcome Engine v1.0 now exist. Outcomes intentionally inspect future candles;
 features never import or consume them. No outcome is a target label, signal,
 trade, profitability measure, or optimization result.
 
+Phase 6A also provides a governed, deterministic candidate strategy generator.
+It expands only the preregistered, result-free family registry; it does not read
+market data, rank candidates, backtest, optimize, or execute trades. See
+[`docs/candidate_strategy_generator.md`](docs/candidate_strategy_generator.md).
+
 ## Phase 3A future-path contract
 
 Finam timestamps are candle opens. `decision_time` is the fully closed current
