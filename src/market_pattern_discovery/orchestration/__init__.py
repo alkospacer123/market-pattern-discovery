@@ -2,6 +2,7 @@
 
 from .cycle import CycleManifest, CycleReport, CycleRunner
 from .autonomous import AutonomousSearchScheduler, SearchCell, executable_search_space
+from .worker import AutonomousResearchWorker, WorkerResult
 from .unknown import (PatternBatch, PatternExperimentRunner, PatternSearchCell,
                       UnknownPatternScheduler, cells_for_matrix,
                       finalize_multiplicity_family)
