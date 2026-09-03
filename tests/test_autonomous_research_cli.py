@@ -33,6 +33,17 @@ def test_help_works():
     assert "--track {known,unknown,mixed}" in result.stdout
 
 
+def test_unknown_track_is_recognized_before_required_argument_validation():
+    """Guard the exact invocation that exposed stale-checkout CLI behavior."""
+    result = subprocess.run([
+        sys.executable, str(SCRIPT), "--track", "unknown",
+    ], capture_output=True, text=True, env=_environment())
+
+    assert result.returncode != 0
+    assert "the following arguments are required" in result.stderr
+    assert "unrecognized arguments: --track unknown" not in result.stderr
+
+
 def test_once_mode_invokes_worker(monkeypatch, tmp_path, capsys):
     calls = []
 
