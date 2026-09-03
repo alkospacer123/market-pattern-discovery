@@ -1,6 +1,7 @@
 import copy
 import json
 from pathlib import Path
+import subprocess
 
 import numpy as np
 import pandas as pd
@@ -9,7 +10,7 @@ import pytest
 from market_pattern_discovery.discovery.execution_contract import *
 from market_pattern_discovery.discovery.protocol import benjamini_hochberg
 from market_pattern_discovery.discovery.records import create_candidate_from_effect, validate_effect_record
-from market_pattern_discovery.validation.phase5a2 import _effect, validate
+from market_pattern_discovery.validation.phase5a2 import _effect, _market_data_root, validate
 
 
 def contract(): return load_execution_contract()
@@ -107,10 +108,21 @@ def test_checkpoint_and_contract_drift(tmp_path):
     with pytest.raises(ValueError,match="signature drift"):load_execution_contract(path)
 
 def test_validator_semantics_and_corruption(tmp_path):
-    result=validate(); assert result["remaining_execution_degrees_of_freedom"]==[]
+    data_root=tmp_path/"market-data";data_root.mkdir()
+    subprocess.run(["git","init","-q",str(data_root)],check=True)
+    result=validate(data_root=data_root); assert result["remaining_execution_degrees_of_freedom"]==[]
     bad=copy.deepcopy(contract());next(x for x in bad["feature_inventory"]["M1"] if x["feature"]=="trading_date")["representation"]="categorical"
     bad.pop("signature_sha256");bad["signature_sha256"]=execution_signature(bad);path=tmp_path/"bad.json";path.write_text(json.dumps(bad))
-    with pytest.raises(AssertionError,match="identifier exclusions"):validate(path)
+    with pytest.raises(AssertionError,match="identifier exclusions"):validate(path,data_root=data_root)
+
+def test_validator_accepts_windows_data_root_from_environment(monkeypatch):
+    windows_root = r"C:\market-pattern-data"
+    calls = []
+    monkeypatch.setenv("MARKET_PATTERN_DATA_ROOT", windows_root)
+    monkeypatch.setattr("market_pattern_discovery.validation.phase5a2.subprocess.run", lambda command, **kwargs: calls.append(command) or subprocess.CompletedProcess(command, 0, "", ""))
+    assert validate()["market_data_repo_clean"] is True
+    assert calls == [["git", "-C", windows_root, "status", "--short"]]
+    assert str(_market_data_root()) == windows_root
 
 def test_json_schema_and_runtime_effect_contract_consistency(tmp_path):
     from jsonschema import Draft202012Validator

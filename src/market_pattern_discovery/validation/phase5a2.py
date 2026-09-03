@@ -1,6 +1,7 @@
 """Semantic, contract-only Phase 5A.2 validator; opens no market rows."""
 from __future__ import annotations
 import json
+import os
 import subprocess
 import tempfile
 from collections import Counter
@@ -18,7 +19,12 @@ ROOT = Path(__file__).resolve().parents[3]
 def _effect() -> dict:
     return {"hypothesis_id":"HYP-U-000000001","effect_id":"EFF-U-000000001","experiment_id":"EXP-TEST","method":"univariate_screen","pattern_definition":{"representation":"quantile_state","feature":"x","state":"GE_P90"},"feature_conditions":[{"feature":"x","state":"GE_P90"}],"target_behavior":"synthetic_target","target_family":"PATH","target_role":"HORIZON","horizon":60,"contrast":"PRIMARY","instrument":"CNY","timeframe":"M1","sample_size":40,"unique_days":12,"coverage":.02,"baseline_size":1000,"baseline_distribution":{},"candidate_distribution":{},"effect_metrics":{"primary_effect":1.0,"primary_effect_signed":1.0,"primary_effect_absolute":1.0},"uncertainty":{"lower":.2,"upper":1.8,"standard_error":.2},"raw_p":.01,"adjusted_q":.02,"fold_results":[{"fold_id":"WF-01","effect":.8}],"replication_result":{"classification":"not_tested"},"multiplicity_family":"family","rank_within_experiment":1,"screening_status":"promoted","candidate_id":None}
 
-def validate(path: Path | None = None) -> dict:
+def _market_data_root(data_root: str | Path | None = None) -> Path:
+    """Resolve the read-only market-data repository without assuming a platform."""
+    return Path(data_root or os.environ.get("MARKET_PATTERN_DATA_ROOT", "/workspace/market-pattern-data"))
+
+
+def validate(path: Path | None = None, data_root: str | Path | None = None) -> dict:
     contract = load_execution_contract(path or ROOT / "config/discovery_execution_v1.json")
     manifest = json.loads((ROOT / "config/feature_set_v1.json").read_text())
     expected = {"M1":manifest["ordered_predictive_features"],"M5":manifest["m5_ordered_predictive_features"]}
@@ -58,7 +64,7 @@ def validate(path: Path | None = None) -> dict:
     if checkpoint_id("E","B","H1","H2")!=checkpoint_id("E","B","H1","H2"): raise AssertionError("checkpoint nondeterminism")
     remaining=remaining_execution_degrees(contract)
     if remaining: raise AssertionError(f"execution degrees remain: {remaining}")
-    market=subprocess.run(["git","-C","/workspace/market-pattern-data","status","--short"],check=True,capture_output=True,text=True).stdout
+    market=subprocess.run(["git","-C",str(_market_data_root(data_root)),"status","--short"],check=True,capture_output=True,text=True).stdout
     if market: raise AssertionError("market data repository dirty")
     return {"phase":"5A.2","status":"PASS","discovery_execution_version":contract["discovery_execution_version"],"discovery_execution_signature":execution_signature(contract),"upstream_signatures":contract["upstream_signatures"],"feature_typing":counts,"pair_coverage_check":True,"subgroup_coverage_check":True,"unequal_day_null_check":True,"screening_schema_check":True,"candidate_persistence_check":True,"candidate_lineage_check":True,"remaining_execution_degrees_of_freedom":remaining,**contract["safety"],"market_data_repo_clean":True}
 

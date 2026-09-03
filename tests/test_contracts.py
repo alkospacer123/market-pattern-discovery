@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 import subprocess
 import sys
 import pandas as pd
@@ -25,7 +26,8 @@ def test_phase1b_entry_point_launches_from_project_root(tmp_path):
         check=True,
         cwd=project_root,
     )
-    python = environment / "bin" / "python"
+    scripts = environment / ("Scripts" if os.name == "nt" else "bin")
+    python = scripts / ("python.exe" if os.name == "nt" else "python")
     subprocess.run(
         [python, "-m", "pip", "install", "--no-deps", "-e", "."],
         check=True,
@@ -34,7 +36,7 @@ def test_phase1b_entry_point_launches_from_project_root(tmp_path):
         text=True,
     )
     launched = subprocess.run(
-        [environment / "bin" / "phase1b-validate", "--help"],
+        [scripts / ("phase1b-validate.exe" if os.name == "nt" else "phase1b-validate"), "--help"],
         check=True,
         cwd=project_root,
         capture_output=True,
