@@ -7,10 +7,14 @@ from __future__ import annotations
 
 import json
 import math
-import resource
 import time
 from pathlib import Path
 from typing import Any
+
+try:
+    import resource as _resource
+except ImportError:  # pragma: no cover - exercised by the Windows compatibility test
+    _resource = None
 
 import numpy as np
 import pandas as pd
@@ -135,4 +139,6 @@ def write_reports(reports: dict[str, Any], output: Path) -> dict[str, int]:
 
 
 def memory_mb() -> float:
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+    if _resource is None:
+        return 0.0
+    return _resource.getrusage(_resource.RUSAGE_SELF).ru_maxrss / 1024
