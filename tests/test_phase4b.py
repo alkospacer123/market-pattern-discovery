@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import builtins
+import importlib
 import json
 from pathlib import Path
+import sys
 
 import numpy as np
 import pandas as pd
@@ -59,6 +62,23 @@ def test_report_schema(tmp_path: Path):
     sizes = write_reports(reports, tmp_path)
     assert set(sizes) == {f"{x}.json" for x in REPORT_NAMES} | {"summary.json"}
     assert all(isinstance(json.loads(path.read_text()), dict) for path in tmp_path.glob("*.json"))
+
+
+def test_import_and_memory_fallback_without_resource(monkeypatch):
+    module_name = "market_pattern_discovery.analysis.phase4b"
+    original_import = builtins.__import__
+
+    def import_without_resource(name, *args, **kwargs):
+        if name == "resource":
+            raise ModuleNotFoundError("No module named 'resource'")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.delitem(sys.modules, module_name)
+    monkeypatch.setattr(builtins, "__import__", import_without_resource)
+
+    phase4b = importlib.import_module(module_name)
+
+    assert phase4b.memory_mb() == 0.0
 
 
 def test_contract_signatures_and_static_safety():
