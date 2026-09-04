@@ -12,7 +12,11 @@ from typing import Sequence
 from market_pattern_discovery.orchestration import (
     AutonomousResearchWorker,
     AutonomousSearchScheduler,
+    PatternExperimentRunner,
+    UnknownPatternScheduler,
+    cells_for_matrix,
 )
+from market_pattern_discovery.discovery.unknown import load_discovery_matrix
 from market_pattern_discovery.research import ResearchMemory
 
 
@@ -32,8 +36,22 @@ def run(data_root: Path, memory_root: Path, output_root: Path, *, budget: int,
     memory = ResearchMemory(memory_root)
     scheduler = AutonomousSearchScheduler(memory, data_root, output_root)
     state_directory = output_root / "autonomous-state"
+    worker_options = {"track": track}
+    if track in {"unknown", "mixed"}:
+        search_space = tuple(
+            cell
+            for instrument in ("CNYRUBF", "USDRUBF")
+            for timeframe in ("M1", "M5")
+            for cell in cells_for_matrix(
+                load_discovery_matrix(data_root, instrument, timeframe))
+        )
+        worker_options.update(
+            unknown_scheduler=UnknownPatternScheduler(
+                memory, data_root, output_root, search_space=search_space),
+            unknown_runner=PatternExperimentRunner(memory),
+        )
     worker = AutonomousResearchWorker(
-        scheduler, memory, state_directory, track=track)
+        scheduler, memory, state_directory, **worker_options)
     cycle_number = _next_cycle_number(state_directory)
 
     while True:
