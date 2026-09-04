@@ -140,3 +140,11 @@ Repeat with an incremented `--cycle` and the same memory root to resume. Use
 `--mode discovery --inference-budget 0` for fast discovery-only cycles, or
 `--mode inference --inference-budget 1` for an inference-only resume. The CLI never accesses
 trading profitability and does not create strategies or trading candidates.
+
+The Phase 7 production entry point accepts the same `--inference-budget` and
+runs pending-cell inference and ready-family finalization after UNKNOWN_PATTERN
+discovery. Its `--budget` controls discovery only. In `mixed` mode that total is
+split deterministically: KNOWN receives `ceil(N / 2)` and UNKNOWN_PATTERN
+receives `floor(N / 2)` (so a budget of 50 is 25 + 25); a zero share is skipped.
+Inference has its own explicit cap and does not cause either discovery track to
+receive the full mixed budget.

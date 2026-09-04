@@ -48,8 +48,8 @@ def test_once_mode_invokes_worker(monkeypatch, tmp_path, capsys):
         def __init__(self, scheduler, memory, state_directory, *, track):
             calls.append((scheduler, memory, state_directory, track))
 
-        def run_once(self, *, cycle_number, budget):
-            calls.append((cycle_number, budget))
+        def run_once(self, *, cycle_number, budget, inference_budget):
+            calls.append((cycle_number, budget, inference_budget))
             return Result(cycle_number, "COMPLETED", "cycle", {}, {})
 
     monkeypatch.setattr(cli, "AutonomousResearchWorker", Worker)
@@ -59,7 +59,7 @@ def test_once_mode_invokes_worker(monkeypatch, tmp_path, capsys):
         "--output-root", str(tmp_path / "output"),
         "--budget", "3", "--mode", "once",
     ]) == 0
-    assert calls[-1] == (0, 3)
+    assert calls[-1] == (0, 3, 0)
     assert '"status": "COMPLETED"' in capsys.readouterr().out
 
 
@@ -79,7 +79,8 @@ def test_unknown_track_is_forwarded_to_worker(monkeypatch, tmp_path):
                      unknown_scheduler, unknown_runner):
             constructions.append((track, unknown_scheduler, unknown_runner))
 
-        def run_once(self, *, cycle_number, budget):
+        def run_once(self, *, cycle_number, budget, inference_budget):
+            assert inference_budget == 2
             return Result(failures={}, validation={})
 
     monkeypatch.setattr(cli, "AutonomousResearchWorker", Worker)
@@ -94,7 +95,7 @@ def test_unknown_track_is_forwarded_to_worker(monkeypatch, tmp_path):
         "--data-root", str(tmp_path / "data"),
         "--memory-root", str(tmp_path / "memory"),
         "--output-root", str(tmp_path / "output"),
-        "--budget", "1", "--track", "unknown",
+        "--budget", "1", "--track", "unknown", "--inference-budget", "2",
     ]) == 0
     assert constructions == [("unknown", unknown_scheduler, unknown_runner)]
 

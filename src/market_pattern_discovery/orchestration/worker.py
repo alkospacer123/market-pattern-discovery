@@ -24,6 +24,11 @@ class WorkerResult:
     cycle_id: str | None
     failures: dict[str, str]
     validation: dict[str, Any]
+    patterns_created: int = 0
+    inference_pending: int = 0
+    inference_completed: int = 0
+    survivors: int = 0
+    screened_out: int = 0
 
 
 class AutonomousResearchWorker:
@@ -64,33 +69,72 @@ class AutonomousResearchWorker:
         return ("COMPLETED" if report.succeeded else "COMPLETED_WITH_FAILURES",
                 report.cycle_id, dict(report.failures))
 
-    def _run_unknown(self, cycle_number: int, budget: int) -> tuple[str, str | None, dict[str, str]]:
+    def _run_unknown(self, cycle_number: int, budget: int, inference_budget: int
+                     ) -> tuple[str, str | None, dict[str, str], dict[str, int]]:
         plan = self.unknown_scheduler.plan(cycle_number, budget)
         batch = plan.get("pattern_batch")
-        if batch is None:
-            return "SEARCH_SPACE_EXHAUSTED", None, {}
-        self.unknown_runner.run(plan, infer=False)
-        return "COMPLETED", batch.pattern_batch_id, {}
+        created = self.unknown_runner.run(plan, infer=False) if batch is not None else ()
 
-    def run_once(self, *, cycle_number: int, budget: int) -> WorkerResult:
-        if cycle_number < 0 or budget <= 0:
-            raise ValueError("cycle_number must be non-negative and budget must be positive")
+        # Inference is deliberately selected from memory after discovery.  It
+        # can therefore consume cells created by this cycle or resume cells
+        # left pending by an earlier process invocation.
+        pending = self.unknown_scheduler.pending_inference_cells(inference_budget)
+        inferred = self.unknown_runner.add_inference(
+            pending, self.unknown_scheduler.data_root)
+        finalized = self.unknown_runner.finalize_ready_families(
+            self.unknown_scheduler.search_space)
+        effective = self.memory.pattern_effects()
+        metrics = {
+            "patterns_created": len(created),
+            "inference_pending": len(self.unknown_scheduler.pending_inference_cells(
+                len(self.unknown_scheduler.search_space))),
+            "inference_completed": len(inferred),
+            "survivors": sum(effective[cell_id].screening_status.value == "PATTERN_SURVIVOR"
+                             for cell_id in finalized),
+            "screened_out": sum(effective[cell_id].screening_status.value == "SCREENED_OUT"
+                                for cell_id in finalized),
+        }
+        status = ("SEARCH_SPACE_EXHAUSTED"
+                  if batch is None and metrics["inference_pending"] == 0
+                  else "COMPLETED")
+        return status, batch.pattern_batch_id if batch is not None else None, {}, metrics
+
+    def run_once(self, *, cycle_number: int, budget: int,
+                 inference_budget: int = 0) -> WorkerResult:
+        if cycle_number < 0 or budget <= 0 or inference_budget < 0:
+            raise ValueError("cycle_number and inference_budget must be non-negative; "
+                             "budget must be positive")
         if cycle_number in self._completed_cycles():
             raise ValueError(f"cycle already finalized: {cycle_number}")
 
         if self.track == "known":
             status, cycle_id, failures = self._run_known(cycle_number, budget)
+            metrics = {}
         elif self.track == "unknown":
-            status, cycle_id, failures = self._run_unknown(cycle_number, budget)
+            status, cycle_id, failures, metrics = self._run_unknown(
+                cycle_number, budget, inference_budget)
         else:
             outcomes = []
             failures = {}
             cycle_ids = []
             # Track order is part of the reproducibility contract.  An error in
             # one track must not prevent the other track from receiving its turn.
-            for name, execute in (("known", self._run_known), ("unknown", self._run_unknown)):
+            metrics = {}
+            # The total discovery budget is split in stable track order.  For
+            # odd budgets KNOWN receives the extra unit; zero-budget tracks are
+            # skipped rather than violating planner preconditions.
+            allocations = {"known": (budget + 1) // 2, "unknown": budget // 2}
+            executions = (("known", self._run_known), ("unknown", self._run_unknown))
+            for name, execute in executions:
+                if allocations[name] == 0:
+                    continue
                 try:
-                    outcome, identifier, track_failures = execute(cycle_number, budget)
+                    if name == "unknown":
+                        outcome, identifier, track_failures, metrics = execute(
+                            cycle_number, allocations[name], inference_budget)
+                    else:
+                        outcome, identifier, track_failures = execute(
+                            cycle_number, allocations[name])
                     outcomes.append(outcome)
                     if identifier is not None:
                         cycle_ids.append(f"{name}:{identifier}")
@@ -107,6 +151,6 @@ class AutonomousResearchWorker:
         validation = validate_research_loop(self.memory).as_dict()
         if status == "COMPLETED" and not validation["valid"]:
             status = "COMPLETED_WITH_FAILURES"
-        result = WorkerResult(cycle_number, status, cycle_id, failures, validation)
+        result = WorkerResult(cycle_number, status, cycle_id, failures, validation, **metrics)
         self._atomic_json(self.state_directory / f"cycle-{cycle_number:06d}.json", asdict(result))
         return result
