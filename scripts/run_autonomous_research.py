@@ -59,7 +59,7 @@ def run(data_root: Path, memory_root: Path, output_root: Path, *, budget: int,
         result = worker.run_once(cycle_number=cycle_number, budget=budget,
                                  inference_budget=inference_budget)
         print(json.dumps(asdict(result), sort_keys=True), flush=True)
-        if mode == "once" or result.status == "SEARCH_SPACE_EXHAUSTED":
+        if mode == "once" or result.status in {"SEARCH_SPACE_EXHAUSTED", "INFERENCE_PENDING"}:
             return
         cycle_number += 1
         time.sleep(sleep_seconds)

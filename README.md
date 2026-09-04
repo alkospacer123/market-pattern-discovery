@@ -148,3 +148,7 @@ split deterministically: KNOWN receives `ceil(N / 2)` and UNKNOWN_PATTERN
 receives `floor(N / 2)` (so a budget of 50 is 25 + 25); a zero share is skipped.
 Inference has its own explicit cap and does not cause either discovery track to
 receive the full mixed budget.
+When discovery is exhausted but inference remains and its configured budget
+cannot make progress, the cycle reports `INFERENCE_PENDING` rather than
+incorrectly declaring the research space exhausted or continuously writing
+empty cycle state.

@@ -94,9 +94,14 @@ class AutonomousResearchWorker:
             "screened_out": sum(effective[cell_id].screening_status.value == "SCREENED_OUT"
                                 for cell_id in finalized),
         }
-        status = ("SEARCH_SPACE_EXHAUSTED"
-                  if batch is None and metrics["inference_pending"] == 0
-                  else "COMPLETED")
+        if batch is None and metrics["inference_pending"] == 0:
+            status = "SEARCH_SPACE_EXHAUSTED"
+        elif batch is None and not inferred:
+            # Distinguish work that exists but cannot progress under this
+            # invocation's inference cap from a genuinely exhausted search.
+            status = "INFERENCE_PENDING"
+        else:
+            status = "COMPLETED"
         return status, batch.pattern_batch_id if batch is not None else None, {}, metrics
 
     def run_once(self, *, cycle_number: int, budget: int,
@@ -143,9 +148,15 @@ class AutonomousResearchWorker:
                 except Exception as error:  # execution failures are persisted per track
                     outcomes.append("COMPLETED_WITH_FAILURES")
                     failures[name] = f"{type(error).__name__}: {error}"
-            status = ("SEARCH_SPACE_EXHAUSTED" if all(
-                value == "SEARCH_SPACE_EXHAUSTED" for value in outcomes)
-                else "COMPLETED_WITH_FAILURES" if failures else "COMPLETED")
+            if outcomes and all(value == "SEARCH_SPACE_EXHAUSTED" for value in outcomes):
+                status = "SEARCH_SPACE_EXHAUSTED"
+            elif failures:
+                status = "COMPLETED_WITH_FAILURES"
+            elif all(value in {"SEARCH_SPACE_EXHAUSTED", "INFERENCE_PENDING"}
+                     for value in outcomes):
+                status = "INFERENCE_PENDING"
+            else:
+                status = "COMPLETED"
             cycle_id = "|".join(cycle_ids) or None
 
         validation = validate_research_loop(self.memory).as_dict()

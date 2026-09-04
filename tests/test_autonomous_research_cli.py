@@ -31,6 +31,7 @@ def test_help_works():
     assert "--data-root" in result.stdout
     assert "--mode {once,continuous}" in result.stdout
     assert "--track {known,unknown,mixed}" in result.stdout
+    assert "--inference-budget" in result.stdout
 
 
 def test_once_mode_invokes_worker(monkeypatch, tmp_path, capsys):

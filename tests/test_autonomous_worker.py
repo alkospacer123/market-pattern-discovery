@@ -130,6 +130,44 @@ def test_mixed_budget_is_one_total_budget(tmp_path):
     assert sum(value for _, value in allocations) == 5
 
 
+@pytest.mark.parametrize("inference_budget, inferred, expected_status", [
+    (1, ("pending-cell",), "COMPLETED"),
+    (0, (), "INFERENCE_PENDING"),
+])
+def test_unknown_exhaustion_preserves_and_services_pending_inference(
+        tmp_path, inference_budget, inferred, expected_status):
+    calls = []
+
+    class ExhaustedUnknownScheduler(UnknownScheduler):
+        def plan(self, cycle_number, budget):
+            calls.append("unknown-exhausted")
+            return {"pattern_batch": None, "cycle_number": cycle_number}
+
+        def pending_inference_cells(self, budget):
+            calls.append(("pending", budget))
+            return ("pending-cell",) if budget else ()
+
+    class InferenceRunner(UnknownRunner):
+        def add_inference(self, cells, data_root):
+            calls.append(("inference", cells, data_root))
+            return inferred
+
+    worker = AutonomousResearchWorker(
+        Scheduler(), ResearchMemory(tmp_path / "memory"), tmp_path / "state",
+        runner=Runner(), track="unknown",
+        unknown_scheduler=ExhaustedUnknownScheduler(calls),
+        unknown_runner=InferenceRunner(calls))
+    result = worker.run_once(
+        cycle_number=1, budget=1, inference_budget=inference_budget)
+
+    assert result.status == expected_status
+    assert calls[0] == "unknown-exhausted"
+    assert calls[1:3] == [
+        ("pending", inference_budget),
+        ("inference", ("pending-cell",) if inference_budget else (), "/data"),
+    ]
+
+
 @pytest.mark.parametrize("failing_track", ["known", "unknown"])
 def test_mixed_track_isolates_failures(tmp_path, failing_track):
     calls = []
