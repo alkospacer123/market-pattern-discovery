@@ -10,7 +10,7 @@ import json
 import os
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from market_pattern_discovery.orchestration.cycle import CycleRunner
 from market_pattern_discovery.research.memory import ResearchMemory
@@ -36,7 +36,9 @@ class AutonomousResearchWorker:
 
     def __init__(self, scheduler, memory: ResearchMemory, state_directory: str | Path,
                  *, runner: CycleRunner | None = None, track: str = "known",
-                 unknown_scheduler=None, unknown_runner=None) -> None:
+                 unknown_scheduler=None, unknown_runner=None,
+                 unknown_components_factory: Callable[[], tuple[Any, Any]] | None = None
+                 ) -> None:
         if track not in {"known", "unknown", "mixed"}:
             raise ValueError("track must be known, unknown, or mixed")
         self.scheduler = scheduler
@@ -46,8 +48,26 @@ class AutonomousResearchWorker:
         self.track = track
         self.unknown_scheduler = unknown_scheduler
         self.unknown_runner = unknown_runner
-        if track in {"unknown", "mixed"} and (unknown_scheduler is None or unknown_runner is None):
-            raise ValueError("unknown and mixed tracks require an unknown scheduler and runner")
+        self.unknown_components_factory = unknown_components_factory
+        direct_components = unknown_scheduler is not None or unknown_runner is not None
+        if direct_components and (unknown_scheduler is None or unknown_runner is None):
+            raise ValueError("unknown scheduler and runner must be provided together")
+        if direct_components and unknown_components_factory is not None:
+            raise ValueError("provide direct unknown components or a factory, not both")
+        if (track in {"unknown", "mixed"} and not direct_components
+                and unknown_components_factory is None):
+            raise ValueError("unknown and mixed tracks require unknown components")
+
+    def _initialize_unknown(self) -> None:
+        """Construct UNKNOWN components on first execution, never during setup."""
+        if self.unknown_scheduler is not None:
+            return
+        if self.unknown_components_factory is None:  # guarded by __init__
+            raise RuntimeError("unknown components are unavailable")
+        scheduler, runner = self.unknown_components_factory()
+        if scheduler is None or runner is None:
+            raise ValueError("unknown component factory must return a scheduler and runner")
+        self.unknown_scheduler, self.unknown_runner = scheduler, runner
 
     def _completed_cycles(self) -> set[int]:
         if not self.state_directory.exists():
@@ -71,6 +91,7 @@ class AutonomousResearchWorker:
 
     def _run_unknown(self, cycle_number: int, budget: int, inference_budget: int
                      ) -> tuple[str, str | None, dict[str, str], dict[str, int]]:
+        self._initialize_unknown()
         plan = self.unknown_scheduler.plan(cycle_number, budget)
         batch = plan.get("pattern_batch")
         created = self.unknown_runner.run(plan, infer=False) if batch is not None else ()

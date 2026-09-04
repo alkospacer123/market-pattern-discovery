@@ -7,6 +7,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+import pytest
+
 
 SCRIPT = Path(__file__).parents[1] / "scripts" / "run_autonomous_research.py"
 SPEC = importlib.util.spec_from_file_location("run_autonomous_research", SCRIPT)
@@ -77,8 +79,8 @@ def test_unknown_track_is_forwarded_to_worker(monkeypatch, tmp_path):
 
     class Worker:
         def __init__(self, scheduler, memory, state_directory, *, track,
-                     unknown_scheduler, unknown_runner):
-            constructions.append((track, unknown_scheduler, unknown_runner))
+                     unknown_components_factory):
+            constructions.append((track, unknown_components_factory))
 
         def run_once(self, *, cycle_number, budget, inference_budget):
             assert inference_budget == 2
@@ -98,7 +100,43 @@ def test_unknown_track_is_forwarded_to_worker(monkeypatch, tmp_path):
         "--output-root", str(tmp_path / "output"),
         "--budget", "1", "--track", "unknown", "--inference-budget", "2",
     ]) == 0
-    assert constructions == [("unknown", unknown_scheduler, unknown_runner)]
+    assert len(constructions) == 1
+    track, factory = constructions[0]
+    assert track == "unknown"
+    assert factory() == (unknown_scheduler, unknown_runner)
+
+
+def test_unknown_matrices_are_not_loaded_during_cli_construction(monkeypatch, tmp_path):
+    constructed = []
+
+    @dataclass
+    class Result:
+        cycle_number: int
+        status: str = "SEARCH_SPACE_EXHAUSTED"
+        cycle_id: str | None = None
+        failures: dict = None
+        validation: dict = None
+
+    class Worker:
+        def __init__(self, scheduler, memory, state_directory, *, track,
+                     unknown_components_factory):
+            constructed.append((track, unknown_components_factory))
+
+        def run_once(self, *, cycle_number, budget, inference_budget):
+            return Result(cycle_number, failures={}, validation={})
+
+    monkeypatch.setattr(cli, "AutonomousResearchWorker", Worker)
+    monkeypatch.setattr(
+        cli, "load_discovery_matrix",
+        lambda *args: pytest.fail("UNKNOWN matrix loaded during CLI construction"))
+
+    assert cli.main([
+        "--data-root", str(tmp_path / "data"),
+        "--memory-root", str(tmp_path / "memory"),
+        "--output-root", str(tmp_path / "output"),
+        "--budget", "1", "--track", "unknown",
+    ]) == 0
+    assert len(constructed) == 1
 
 
 def test_invalid_mode_fails(tmp_path):
