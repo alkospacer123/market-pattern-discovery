@@ -31,7 +31,8 @@ def _next_cycle_number(state_directory: Path) -> int:
 
 
 def run(data_root: Path, memory_root: Path, output_root: Path, *, budget: int,
-        mode: str, sleep_seconds: float, track: str = "known") -> None:
+        mode: str, sleep_seconds: float, track: str = "known",
+        inference_budget: int = 0) -> None:
     """Run one cycle, or cycles until the finite search space is exhausted."""
     memory = ResearchMemory(memory_root)
     scheduler = AutonomousSearchScheduler(memory, data_root, output_root)
@@ -55,9 +56,10 @@ def run(data_root: Path, memory_root: Path, output_root: Path, *, budget: int,
     cycle_number = _next_cycle_number(state_directory)
 
     while True:
-        result = worker.run_once(cycle_number=cycle_number, budget=budget)
+        result = worker.run_once(cycle_number=cycle_number, budget=budget,
+                                 inference_budget=inference_budget)
         print(json.dumps(asdict(result), sort_keys=True), flush=True)
-        if mode == "once" or result.status == "SEARCH_SPACE_EXHAUSTED":
+        if mode == "once" or result.status in {"SEARCH_SPACE_EXHAUSTED", "INFERENCE_PENDING"}:
             return
         cycle_number += 1
         time.sleep(sleep_seconds)
@@ -70,6 +72,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--memory-root", type=Path, required=True)
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--budget", type=int, required=True)
+    parser.add_argument(
+        "--inference-budget", type=int, default=0,
+        help="maximum pending UNKNOWN_PATTERN cells to enrich per cycle")
     parser.add_argument("--mode", choices=("once", "continuous"), default="once")
     parser.add_argument(
         "--track", choices=("known", "unknown", "mixed"), default="known")
@@ -79,9 +84,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         parser.error("--budget must be positive")
     if args.sleep_seconds < 0:
         parser.error("--sleep-seconds must be non-negative")
+    if args.inference_budget < 0:
+        parser.error("--inference-budget must be non-negative")
 
     run(args.data_root, args.memory_root, args.output_root, budget=args.budget,
-        mode=args.mode, sleep_seconds=args.sleep_seconds, track=args.track)
+        mode=args.mode, sleep_seconds=args.sleep_seconds, track=args.track,
+        inference_budget=args.inference_budget)
     return 0
 
 

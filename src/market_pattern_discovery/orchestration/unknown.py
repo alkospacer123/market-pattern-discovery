@@ -287,6 +287,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     pending = scheduler.pending_inference_cells(inference_budget)
     inferred = runner.add_inference(pending, args.data_root)
     finalized = runner.finalize_ready_families(search_space)
+    effective = memory.pattern_effects()
     resumed = scheduler.plan(args.cycle + 1, 1)
     args.output_root.mkdir(parents=True, exist_ok=True)
     batch = plan.get("pattern_batch")
@@ -295,7 +296,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         "pattern_cell_ids": [c.pattern_cell_id for c in batch.cells] if batch else [],
         "execution_mode": args.mode.upper(),
         "inference_mode": "ENABLED" if inference_budget else "DISABLED",
-        "completed": [r.pattern_cell_id for r in discovered], "inference_completed": list(inferred),
+        "completed": [r.pattern_cell_id for r in discovered],
+        "patterns_created": len(discovered),
+        "inference_pending": len(scheduler.pending_inference_cells(len(search_space))),
+        "inference_completed": len(inferred),
+        "survivors": sum(effective[cell_id].screening_status is PatternStatus.PATTERN_SURVIVOR
+                         for cell_id in finalized),
+        "screened_out": sum(effective[cell_id].screening_status is PatternStatus.SCREENED_OUT
+                            for cell_id in finalized),
         "families_finalized": list(finalized), "failed": [],
         "remaining_discovery_cells": resumed["search_space_remaining"] + (1 if resumed["pattern_batch"] else 0),
         "remaining_inference_pending_cells": len(scheduler.pending_inference_cells(len(search_space))),
