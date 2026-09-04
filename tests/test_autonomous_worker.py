@@ -130,6 +130,28 @@ def test_mixed_budget_is_one_total_budget(tmp_path):
     assert sum(value for _, value in allocations) == 5
 
 
+def test_mixed_initializes_unknown_only_after_known_execution(tmp_path):
+    calls = []
+
+    class KnownScheduler(Scheduler):
+        def plan(self, cycle_number, budget):
+            calls.append("known")
+            return super().plan(cycle_number, budget)
+
+    def build_unknown_components():
+        calls.append("initialize-unknown")
+        return UnknownScheduler(calls), UnknownRunner(calls)
+
+    worker = AutonomousResearchWorker(
+        KnownScheduler(), ResearchMemory(tmp_path / "memory"), tmp_path / "state",
+        runner=Runner(), track="mixed",
+        unknown_components_factory=build_unknown_components)
+
+    assert calls == []
+    worker.run_once(cycle_number=1, budget=2)
+    assert calls[:3] == ["known", "initialize-unknown", "unknown"]
+
+
 @pytest.mark.parametrize("inference_budget, inferred, expected_status", [
     (1, ("pending-cell",), "COMPLETED"),
     (0, (), "INFERENCE_PENDING"),

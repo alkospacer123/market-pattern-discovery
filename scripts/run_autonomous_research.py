@@ -39,18 +39,24 @@ def run(data_root: Path, memory_root: Path, output_root: Path, *, budget: int,
     state_directory = output_root / "autonomous-state"
     worker_options = {"track": track}
     if track in {"unknown", "mixed"}:
-        search_space = tuple(
-            cell
-            for instrument in ("CNYRUBF", "USDRUBF")
-            for timeframe in ("M1", "M5")
-            for cell in cells_for_matrix(
-                load_discovery_matrix(data_root, instrument, timeframe))
-        )
-        worker_options.update(
-            unknown_scheduler=UnknownPatternScheduler(
-                memory, data_root, output_root, search_space=search_space),
-            unknown_runner=PatternExperimentRunner(memory),
-        )
+        def build_unknown_components():
+            # Loading matrices and enumerating the frozen search space can be
+            # expensive.  Defer both until the worker actually gives UNKNOWN
+            # its turn (after KNOWN in MIXED mode).
+            search_space = tuple(
+                cell
+                for instrument in ("CNYRUBF", "USDRUBF")
+                for timeframe in ("M1", "M5")
+                for cell in cells_for_matrix(
+                    load_discovery_matrix(data_root, instrument, timeframe))
+            )
+            return (
+                UnknownPatternScheduler(
+                    memory, data_root, output_root, search_space=search_space),
+                PatternExperimentRunner(memory),
+            )
+
+        worker_options["unknown_components_factory"] = build_unknown_components
     worker = AutonomousResearchWorker(
         scheduler, memory, state_directory, **worker_options)
     cycle_number = _next_cycle_number(state_directory)
