@@ -64,7 +64,7 @@ def test_once_mode_invokes_worker(monkeypatch, tmp_path, capsys):
 
 
 def test_unknown_track_is_forwarded_to_worker(monkeypatch, tmp_path):
-    tracks = []
+    constructions = []
 
     @dataclass
     class Result:
@@ -75,20 +75,28 @@ def test_unknown_track_is_forwarded_to_worker(monkeypatch, tmp_path):
         validation: dict = None
 
     class Worker:
-        def __init__(self, scheduler, memory, state_directory, *, track):
-            tracks.append(track)
+        def __init__(self, scheduler, memory, state_directory, *, track,
+                     unknown_scheduler, unknown_runner):
+            constructions.append((track, unknown_scheduler, unknown_runner))
 
         def run_once(self, *, cycle_number, budget):
             return Result(failures={}, validation={})
 
     monkeypatch.setattr(cli, "AutonomousResearchWorker", Worker)
+    monkeypatch.setattr(cli, "load_discovery_matrix", lambda *args: object())
+    monkeypatch.setattr(cli, "cells_for_matrix", lambda matrix: ())
+    unknown_scheduler = object()
+    unknown_runner = object()
+    monkeypatch.setattr(cli, "UnknownPatternScheduler",
+                        lambda *args, **kwargs: unknown_scheduler)
+    monkeypatch.setattr(cli, "PatternExperimentRunner", lambda memory: unknown_runner)
     assert cli.main([
         "--data-root", str(tmp_path / "data"),
         "--memory-root", str(tmp_path / "memory"),
         "--output-root", str(tmp_path / "output"),
         "--budget", "1", "--track", "unknown",
     ]) == 0
-    assert tracks == ["unknown"]
+    assert constructions == [("unknown", unknown_scheduler, unknown_runner)]
 
 
 def test_invalid_mode_fails(tmp_path):
