@@ -295,6 +295,39 @@ def test_append_only_inference_and_cross_restart_family_finalization(tmp_path):
     assert memory.view(RankingView.TOP_PF) == []
 
 
+def test_family_finalization_uses_compact_sizes_and_never_iterates_lazy_space(tmp_path, monkeypatch):
+    import market_pattern_discovery.orchestration.unknown as unknown
+    target = {"column_name": "target", "family": "DIRECTIONAL",
+              "semantic_role": "ROLE", "hypothesis_contrasts": ["a", "b"]}
+    matrix = DiscoveryMatrix("CNYRUBF", "M1", pd.DataFrame(), {},
+        {"f": ["x", "y"]}, [target], [])
+    monkeypatch.setattr(unknown, "feature_inventory", lambda *a, **k: [{"feature": "f"}])
+
+    class NoIterationSpace(PatternSearchSpace):
+        def __iter__(self):
+            raise AssertionError("family readiness expanded the logical universe")
+
+    space = NoIterationSpace((matrix,), methods=("univariate_screen",))
+    assert next(iter(space.family_sizes.values())) == 4
+    item = space[0]
+    memory = ResearchMemory(tmp_path / "memory")
+    memory.add_pattern_effect(PatternEffectRecord(
+        item.pattern_cell_id, PatternBatch((item,)).pattern_batch_id, asdict(item),
+        _evaluation(raw_p=.01), PatternStatus.INCOMPLETE_FAMILY, "experiment", 1))
+    assert PatternExperimentRunner(memory).finalize_ready_families(space) == ()
+
+
+def test_family_finalization_fails_closed_for_persisted_definition_drift(tmp_path):
+    item = cell()
+    memory = ResearchMemory(tmp_path / "memory")
+    memory.add_pattern_effect(PatternEffectRecord(
+        item.pattern_cell_id, PatternBatch((item,)).pattern_batch_id,
+        {**asdict(item), "target_role": "STALE_ROLE"}, _evaluation(raw_p=.01),
+        PatternStatus.INCOMPLETE_FAMILY, "experiment", 1))
+    with pytest.raises(ValueError, match="semantic ID mismatch"):
+        PatternExperimentRunner(memory).finalize_ready_families((item,))
+
+
 def test_complete_family_can_screen_out_without_a_q_cutoff():
     failing = _evaluation(effect=.01, raw_p=.9)
     finalized = finalize_multiplicity_family([failing], expected_family_size=1)
