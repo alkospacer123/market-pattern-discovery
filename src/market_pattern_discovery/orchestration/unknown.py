@@ -200,6 +200,29 @@ class PatternSearchSpace(Sequence[PatternSearchCell]):
             result[f"{scope[0]}:{scope[1]}"] = domains
         return result
 
+    @property
+    def family_sizes(self) -> Mapping[tuple[str, str, str, str, str], int]:
+        """Exact frozen multiplicity-family cardinalities without cell expansion.
+
+        A block contains every condition-state combination crossed with the
+        scope's ordered outcomes.  Consequently its contribution to a family
+        is exactly ``condition combinations * matching outcomes``.  This is
+        the same product traversed by :meth:`__iter__`, expressed from the
+        immutable compact universe definition.
+        """
+        result: dict[tuple[str, str, str, str, str], int] = {}
+        for instrument, timeframe, blocks, _, targets, _, _ in self._scopes:
+            outcome_count = len(targets)
+            target_counts: dict[tuple[str, str], int] = {}
+            for _, family, role, _ in targets:
+                target_counts[(family, role)] = target_counts.get((family, role), 0) + 1
+            for block in blocks:
+                combinations = block.size // outcome_count
+                for (family, role), count in target_counts.items():
+                    key = (instrument, timeframe, block.method, family, role)
+                    result[key] = result.get(key, 0) + combinations * count
+        return result
+
     def universe_binding(self, scheduler_seed: int) -> Mapping[str, Any]:
         """Return compact canonical evidence for every enumeration input."""
         return {
@@ -687,30 +710,67 @@ class PatternExperimentRunner:
         return tuple(completed)
 
     def finalize_ready_families(self, search_space: Sequence[PatternSearchCell]) -> tuple[str, ...]:
-        """Finalize whole frozen families using persistent evidence across runs."""
-        expected: dict[tuple[str, str, str, str, str], list[PatternSearchCell]] = {}
-        for cell in search_space:
-            expected.setdefault(family_key(cell), []).append(cell)
+        """Finalize touched, complete frozen families from persistent evidence.
+
+        Production ``PatternSearchSpace`` cardinalities are derived from its
+        compact immutable blocks.  The eager path remains an intentionally
+        small legacy/audit oracle for tests and third-party sequences.
+        """
+        eager_members: dict[tuple[str, str, str, str, str], dict[str, PatternSearchCell]] | None = None
+        if isinstance(search_space, PatternSearchSpace):
+            expected_sizes = search_space.family_sizes
+        else:
+            eager_members = {}
+            for cell in search_space:
+                eager_members.setdefault(family_key(cell), {})[cell.pattern_cell_id] = cell
+            expected_sizes = {key: len(members) for key, members in eager_members.items()}
+
+        # Reconstruct and validate only effective memory records.  This proves
+        # active-universe membership without accepting persisted family fields
+        # on trust and without walking unrelated logical cells.
+        effective = self.memory.pattern_effects()
+        touched: dict[tuple[str, str, str, str, str], list[PatternEffectRecord]] = {}
+        for record in effective.values():
+            definition = dict(record.scientific_definition)
+            definition["feature_conditions"] = tuple(
+                tuple(item) for item in definition.get("feature_conditions", ()))
+            definition["contract_signatures"] = tuple(
+                tuple(item) for item in definition.get("contract_signatures", ()))
+            try:
+                cell = PatternSearchCell(**definition)
+            except (TypeError, ValueError) as error:
+                raise ValueError(f"invalid persisted UNKNOWN scientific definition: {record.pattern_cell_id}") from error
+            if cell.pattern_cell_id != record.pattern_cell_id:
+                raise ValueError(f"persisted UNKNOWN semantic ID mismatch: {record.pattern_cell_id}")
+            key = family_key(cell)
+            if isinstance(search_space, PatternSearchSpace):
+                if search_space.ordinal_of(cell) is None:
+                    raise ValueError(f"persisted UNKNOWN cell is outside active universe: {record.pattern_cell_id}")
+            elif eager_members is not None and eager_members.get(key, {}).get(record.pattern_cell_id) != cell:
+                raise ValueError(f"persisted UNKNOWN cell is outside active universe: {record.pattern_cell_id}")
+            if key not in expected_sizes:
+                raise ValueError(f"persisted UNKNOWN family is outside active universe: {key}")
+            touched.setdefault(key, []).append(record)
+
         finalized: list[str] = []
-        for key in sorted(expected):
-            cells = sorted(expected[key], key=lambda c: c.pattern_cell_id)
-            effective = self.memory.pattern_effects()
-            records = [effective.get(c.pattern_cell_id) for c in cells]
-            if not all(records):
+        for key in sorted(touched):
+            records = touched[key]
+            if len(records) != expected_sizes[key]:
                 continue
-            eligible = [(cell, record) for cell, record in zip(cells, records)
+            records.sort(key=lambda record: record.pattern_cell_id)
+            eligible = [record for record in records
                         if record.screening_status is not PatternStatus.INELIGIBLE]
-            if (not eligible or any("raw_p" not in record.evaluation for _, record in eligible)
-                    or all(record.evaluation.get("family_complete") for _, record in eligible)):
+            if (not eligible or any("raw_p" not in record.evaluation for record in eligible)
+                    or all(record.evaluation.get("family_complete") for record in eligible)):
                 continue
             evaluated = finalize_multiplicity_family(
-                [dict(record.evaluation) for _, record in eligible],
+                [dict(record.evaluation) for record in eligible],
                 expected_family_size=len(eligible))
-            for (cell, _), result in zip(eligible, evaluated):
+            for record, result in zip(eligible, evaluated):
                 status = PatternStatus(result["screening_status"])
-                self.memory.enrich_pattern(cell.pattern_cell_id, result, status,
+                self.memory.enrich_pattern(record.pattern_cell_id, result, status,
                                            event="FAMILY_FINALIZED")
-                finalized.append(cell.pattern_cell_id)
+                finalized.append(record.pattern_cell_id)
         return tuple(finalized)
 
 
