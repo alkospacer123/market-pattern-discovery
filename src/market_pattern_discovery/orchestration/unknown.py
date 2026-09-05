@@ -2,13 +2,22 @@
 from __future__ import annotations
 
 import argparse
+import bisect
+import heapq
+import hashlib
 import json
+import os
+import sqlite3
+import struct
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Iterable, Iterator, Mapping, Sequence, overload
 
 from market_pattern_discovery.contracts import deterministic_hash
 from market_pattern_discovery.discovery.execution_contract import load_execution_contract
+from market_pattern_discovery.discovery.execution_contract import (
+    enumerate_pairs, feature_inventory, subgroup_rules,
+)
 from market_pattern_discovery.discovery.protocol import (
     benjamini_hochberg, load_discovery_protocol, screen_effect,
 )
@@ -59,22 +68,353 @@ class PatternBatch:
     def pattern_batch_id(self) -> str:
         return deterministic_hash({"ordered_pattern_cell_ids": [c.pattern_cell_id for c in self.cells]})
 
+    @classmethod
+    def from_manifest_cells(cls, cells: tuple[PatternSearchCell, ...]) -> "PatternBatch":
+        """Construct cells already proven unique by the immutable manifest."""
+        if not cells:
+            raise ValueError("batch must not be empty")
+        batch = object.__new__(cls)
+        object.__setattr__(batch, "cells", cells)
+        return batch
 
-def cells_for_matrix(matrix, *, methods: Sequence[str] = tuple(METHODS),
-                     limit: int | None = None) -> tuple[PatternSearchCell, ...]:
+
+def _cell_factory(matrix, methods: Sequence[str]) -> Iterator[PatternSearchCell]:
     contract = load_execution_contract()
     signatures = tuple(sorted({**contract["upstream_signatures"],
                                "discovery_execution": contract["signature_sha256"]}.items()))
-    cells = []
     for method in methods:
         for spec in _hypotheses(matrix, method, contract):
             target = spec["target"]
-            cells.append(PatternSearchCell(matrix.instrument, matrix.timeframe, method,
+            yield PatternSearchCell(matrix.instrument, matrix.timeframe, method,
                 tuple(tuple(x) for x in spec["conditions"]), target["column_name"],
-                target["family"], target["semantic_role"], spec["contrast"], signatures))
-            if limit is not None and len(cells) >= limit:
-                return tuple(cells)
-    return tuple(cells)
+                target["family"], target["semantic_role"], spec["contrast"], signatures)
+
+
+def cells_for_matrix(matrix, *, methods: Sequence[str] = tuple(METHODS),
+                     limit: int | None = None) -> tuple[PatternSearchCell, ...]:
+    """Legacy eager enumerator, retained as the equivalence/audit oracle."""
+    iterator = _cell_factory(matrix, methods)
+    if limit is None:
+        return tuple(iterator)
+    from itertools import islice
+    return tuple(islice(iterator, limit))
+
+
+@dataclass(frozen=True, slots=True)
+class _ConditionBlock:
+    method: str
+    features: tuple[str, ...]
+    domains: tuple[tuple[Any, ...], ...]
+    size: int
+
+
+class PatternSearchSpace(Sequence[PatternSearchCell]):
+    """Restartable, immutable indexed view of the frozen logical universe.
+
+    Only compact condition blocks are resident.  Cells are reconstructed on
+    demand, in precisely the nesting order used by :func:`_hypotheses`.
+    """
+    def __init__(self, scopes: Iterable[Any], *, methods: Sequence[str] = tuple(METHODS),
+                 state_domains: Mapping[str, Mapping[str, Sequence[Any]]] | None = None):
+        contract = load_execution_contract()
+        self._contract_sha256 = deterministic_hash(contract)
+        self._methods = tuple(methods)
+        self._scopes = []
+        self._ends: list[int] = []
+        total = 0
+        for matrix in scopes:
+            domain_key = f"{matrix.instrument}:{matrix.timeframe}"
+            domains_for_scope = (state_domains or {}).get(domain_key, matrix.state_values)
+            inventory = feature_inventory(matrix.timeframe, included_only=True,
+                                          contract=contract)
+            blocks: list[_ConditionBlock] = []
+            for method in methods:
+                if method == "univariate_screen":
+                    definitions = [(entry["feature"],) for entry in inventory]
+                elif method == "interaction_search":
+                    definitions = [tuple(pair) for pair in enumerate_pairs(
+                        inventory, cap=contract["pairwise_selection"]["cap"],
+                        timeframe=matrix.timeframe, seed=contract["execution_seed"])]
+                else:
+                    feature_states = [(x["feature"], domains_for_scope[x["feature"]])
+                                      for x in inventory]
+                    rules = subgroup_rules(
+                        feature_states, cap=contract["subgroup_selection"]["cap"],
+                        seed=contract["execution_seed"], depth2_fraction=
+                        contract["subgroup_selection"]["depth_allocation"]["2"])
+                    outcomes = sum(len(t["hypothesis_contrasts"]) for t in matrix.targets)
+                    for rule in rules:
+                        features = tuple(name for name, _ in rule)
+                        domains = tuple((state,) for _, state in rule)
+                        blocks.append(_ConditionBlock(method, features, domains, outcomes))
+                    continue
+                outcomes = sum(len(t["hypothesis_contrasts"]) for t in matrix.targets)
+                for features in definitions:
+                    domains = tuple(tuple(domains_for_scope[name]) for name in features)
+                    combinations = 1
+                    for domain in domains:
+                        combinations *= len(domain)
+                    blocks.append(_ConditionBlock(method, features, domains,
+                                                  combinations * outcomes))
+            signatures = tuple(sorted({**contract["upstream_signatures"],
+                "discovery_execution": contract["signature_sha256"]}.items()))
+            block_ends = []
+            scope_total = 0
+            for block in blocks:
+                scope_total += block.size
+                block_ends.append(scope_total)
+            targets = tuple((t["column_name"], t["family"], t["semantic_role"], contrast)
+                for t in matrix.targets for contrast in t["hypothesis_contrasts"])
+            self._scopes.append((matrix.instrument, matrix.timeframe, tuple(blocks),
+                                 tuple(block_ends), targets, signatures, scope_total))
+            total += scope_total
+            self._ends.append(total)
+
+    def __len__(self) -> int:
+        return self._ends[-1] if self._ends else 0
+
+    @property
+    def scope_counts(self) -> Mapping[tuple[str, str], int]:
+        return {(s[0], s[1]): s[6] for s in self._scopes}
+
+    @property
+    def scope_ranges(self) -> Mapping[tuple[str, str], range]:
+        start = 0
+        result = {}
+        for scope in self._scopes:
+            result[(scope[0], scope[1])] = range(start, start + scope[6])
+            start += scope[6]
+        return result
+
+    @property
+    def state_domains(self) -> Mapping[str, Mapping[str, list[Any]]]:
+        result = {}
+        for scope in self._scopes:
+            domains = {}
+            for block in scope[2]:
+                for feature, domain in zip(block.features, block.domains):
+                    current = domains.get(feature)
+                    values = list(domain)
+                    if current is None or len(values) > len(current):
+                        domains[feature] = values
+            result[f"{scope[0]}:{scope[1]}"] = domains
+        return result
+
+    def universe_binding(self, scheduler_seed: int) -> Mapping[str, Any]:
+        """Return compact canonical evidence for every enumeration input."""
+        return {
+            "iterator_schema": "unknown-pattern-space-v1",
+            "semantic_id_schema": "dataclass-asdict-canonical-json-sha256-v1",
+            "scheduler_seed": scheduler_seed,
+            "methods": list(self._methods),
+            "execution_contract_sha256": self._contract_sha256,
+            "total_count": len(self),
+            "scopes": [{
+                "instrument": scope[0], "timeframe": scope[1],
+                "count": scope[6],
+                "blocks": [{"method": block.method,
+                    "features": list(block.features),
+                    "domains": [list(domain) for domain in block.domains],
+                    "size": block.size} for block in scope[2]],
+                "targets": [list(target) for target in scope[4]],
+                "contract_signatures": [list(item) for item in scope[5]],
+            } for scope in self._scopes],
+        }
+
+    @overload
+    def __getitem__(self, index: int) -> PatternSearchCell: ...
+    @overload
+    def __getitem__(self, index: slice) -> tuple[PatternSearchCell, ...]: ...
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            return tuple(self[i] for i in range(*index.indices(len(self))))
+        if index < 0:
+            index += len(self)
+        if index < 0 or index >= len(self):
+            raise IndexError(index)
+        scope_index = bisect.bisect_right(self._ends, index)
+        scope_start = 0 if scope_index == 0 else self._ends[scope_index - 1]
+        instrument, timeframe, blocks, block_ends, targets, signatures, _ = self._scopes[scope_index]
+        local = index - scope_start
+        block_index = bisect.bisect_right(block_ends, local)
+        block_start = 0 if block_index == 0 else block_ends[block_index - 1]
+        block = blocks[block_index]
+        within = local - block_start
+        outcome_count = len(targets)
+        state_ordinal, outcome_ordinal = divmod(within, outcome_count)
+        states = [None] * len(block.domains)
+        for pos in range(len(block.domains) - 1, -1, -1):
+            state_ordinal, digit = divmod(state_ordinal, len(block.domains[pos]))
+            states[pos] = block.domains[pos][digit]
+        target, family, role, contrast = targets[outcome_ordinal]
+        return PatternSearchCell(instrument, timeframe, block.method,
+            tuple(zip(block.features, states)), target, family, role, contrast, signatures)
+
+    def __iter__(self) -> Iterator[PatternSearchCell]:
+        for instrument, timeframe, blocks, _, targets, signatures, _ in self._scopes:
+            for block in blocks:
+                combinations = block.size // len(targets)
+                for state_ordinal in range(combinations):
+                    value = state_ordinal
+                    states = [None] * len(block.domains)
+                    for pos in range(len(block.domains) - 1, -1, -1):
+                        value, digit = divmod(value, len(block.domains[pos]))
+                        states[pos] = block.domains[pos][digit]
+                    conditions = tuple(zip(block.features, states))
+                    for target, family, role, contrast in targets:
+                        yield PatternSearchCell(instrument, timeframe, block.method,
+                            conditions, target, family, role, contrast, signatures)
+
+
+class _ReverseKey:
+    __slots__ = ("value",)
+    def __init__(self, value): self.value = value
+    def __lt__(self, other): return self.value > other.value
+
+
+class UnknownUniverseIndex:
+    """Fail-closed reader for the release-generated exact rank permutation."""
+    VERSION = 1
+    EXPECTED_TOTAL = 17_024_040
+
+    def __init__(self, root: str | Path, space: PatternSearchSpace, seed: int):
+        self.root = Path(root)
+        path = self.root / "manifest.json"
+        try:
+            raw = path.read_bytes()
+            manifest = json.loads(raw)
+        except (OSError, UnicodeError, json.JSONDecodeError) as error:
+            raise ValueError(f"UNKNOWN universe manifest unavailable or corrupt: {path}") from error
+        content_digest = manifest.pop("content_sha256", None)
+        if content_digest != deterministic_hash(manifest):
+            raise ValueError("UNKNOWN universe manifest content digest mismatch")
+        if manifest.get("manifest_version") != self.VERSION:
+            raise ValueError("UNKNOWN universe manifest version mismatch")
+        if manifest.get("iterator_schema") != "unknown-pattern-space-v1":
+            raise ValueError("UNKNOWN universe iterator schema mismatch")
+        binding = space.universe_binding(seed)
+        if manifest.get("universe_binding_sha256") != deterministic_hash(binding):
+            raise ValueError("UNKNOWN universe contract/state-domain/seed mismatch")
+        if len(space) != self.EXPECTED_TOTAL or manifest.get("total_count") != len(space):
+            raise ValueError("UNKNOWN universe total count mismatch")
+        expected_counts = {f"{k[0]}:{k[1]}": v for k, v in space.scope_counts.items()}
+        if manifest.get("scope_counts") != expected_counts:
+            raise ValueError("UNKNOWN universe scope counts mismatch")
+        if manifest.get("uniqueness") != "EXACT_FULL_SHA256_IDS_UNIQUE":
+            raise ValueError("UNKNOWN universe lacks exact uniqueness proof")
+        self._files = {}
+        for key, count in space.scope_counts.items():
+            name = f"rank-{key[0]}-{key[1]}.u32"
+            metadata = manifest.get("rank_indexes", {}).get(name)
+            rank_path = self.root / name
+            if not isinstance(metadata, dict) or metadata.get("count") != count:
+                raise ValueError(f"UNKNOWN rank index metadata mismatch: {name}")
+            try:
+                payload = rank_path.read_bytes()
+            except OSError as error:
+                raise ValueError(f"UNKNOWN rank index unavailable: {name}") from error
+            if len(payload) != count * 4 or hashlib.sha256(payload).hexdigest() != metadata.get("sha256"):
+                raise ValueError(f"UNKNOWN rank index corrupt or truncated: {name}")
+            self._files[key] = payload
+        self.manifest = manifest
+
+    def ranked_ordinals(self, key: tuple[str, str]) -> Iterator[int]:
+        payload = self._files[key]
+        return (item[0] for item in struct.iter_unpack("<I", payload))
+
+
+def _audit_cell_id(cell: PatternSearchCell) -> str:
+    """Faster audit-only spelling of the unchanged canonical ID algorithm."""
+    payload = json.dumps(asdict(cell), ensure_ascii=False, sort_keys=True,
+                         separators=(",", ":"), allow_nan=False).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _audit_rank(cell_id: str, seed: int) -> bytes:
+    payload = json.dumps({"seed": seed, "id": cell_id}, ensure_ascii=False,
+                         sort_keys=True, separators=(",", ":"),
+                         allow_nan=False).encode("utf-8")
+    return hashlib.sha256(payload).digest()
+
+
+def load_manifest_state_domains(root: str | Path) -> Mapping[str, Mapping[str, Sequence[Any]]]:
+    """Read only content-digest-protected domains needed to build the view."""
+    path = Path(root) / "manifest.json"
+    try:
+        manifest = json.loads(path.read_bytes())
+    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+        raise ValueError(f"UNKNOWN universe manifest unavailable or corrupt: {path}") from error
+    digest = manifest.pop("content_sha256", None)
+    if digest != deterministic_hash(manifest):
+        raise ValueError("UNKNOWN universe manifest content digest mismatch")
+    if manifest.get("manifest_version") != UnknownUniverseIndex.VERSION:
+        raise ValueError("UNKNOWN universe manifest version mismatch")
+    domains = manifest.get("state_domains")
+    if not isinstance(domains, dict):
+        raise ValueError("UNKNOWN universe manifest has no frozen state domains")
+    return domains
+
+
+def build_unknown_universe_index(space: PatternSearchSpace, destination: str | Path,
+                                 *, seed: int = 20260401) -> Mapping[str, Any]:
+    """Explicit slow release/audit operation; never called by normal research."""
+    if len(space) != UnknownUniverseIndex.EXPECTED_TOTAL:
+        raise ValueError("refusing to certify a non-production UNKNOWN universe")
+    destination = Path(destination)
+    destination.mkdir(parents=True, exist_ok=True)
+    ordered = hashlib.sha256()
+    indexes = {}
+    database = destination / "audit-uniqueness.sqlite3"
+    connection = sqlite3.connect(database)
+    try:
+        connection.execute("PRAGMA journal_mode=OFF")
+        connection.execute("PRAGMA synchronous=OFF")
+        connection.execute("CREATE TABLE ranks (cell_id BLOB PRIMARY KEY, scope TEXT NOT NULL, rank BLOB NOT NULL, ordinal INTEGER NOT NULL)")
+        for key, indices in space.scope_ranges.items():
+            batch = []
+            for ordinal, global_index in enumerate(indices):
+                cell = space[global_index]
+                semantic_id = _audit_cell_id(cell)
+                if ordinal == 0 and semantic_id != cell.pattern_cell_id:
+                    raise ValueError("audit serializer does not match contractual semantic ID")
+                cell_id = bytes.fromhex(semantic_id)
+                ordered.update(cell_id)
+                rank = _audit_rank(semantic_id, seed)
+                batch.append((cell_id, f"{key[0]}:{key[1]}", rank, ordinal))
+                if len(batch) == 10_000:
+                    connection.executemany("INSERT INTO ranks VALUES (?,?,?,?)", batch)
+                    batch.clear()
+            if batch:
+                connection.executemany("INSERT INTO ranks VALUES (?,?,?,?)", batch)
+            connection.commit()
+            output = destination / f"rank-{key[0]}-{key[1]}.u32"
+            digest = hashlib.sha256()
+            with output.open("wb") as stream:
+                for (ordinal,) in connection.execute(
+                        "SELECT ordinal FROM ranks WHERE scope=? ORDER BY rank, ordinal",
+                        (f"{key[0]}:{key[1]}",)):
+                    value = struct.pack("<I", ordinal)
+                    stream.write(value); digest.update(value)
+            indexes[output.name] = {"count": len(indices), "sha256": digest.hexdigest()}
+    except sqlite3.IntegrityError as error:
+        raise ValueError("duplicate semantic ID in UNKNOWN universe") from error
+    finally:
+        connection.close()
+        database.unlink(missing_ok=True)
+    binding = space.universe_binding(seed)
+    manifest = {"manifest_version": UnknownUniverseIndex.VERSION,
+        "iterator_schema": binding["iterator_schema"], "scheduler_seed": seed,
+        "total_count": len(space),
+        "scope_counts": {f"{k[0]}:{k[1]}": v for k, v in space.scope_counts.items()},
+        "ordered_universe_sha256": ordered.hexdigest(),
+        "uniqueness": "EXACT_FULL_SHA256_IDS_UNIQUE",
+        "state_domains": space.state_domains,
+        "universe_binding_sha256": deterministic_hash(binding), "rank_indexes": indexes}
+    manifest["content_sha256"] = deterministic_hash(manifest)
+    temporary = destination / "manifest.json.tmp"
+    temporary.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    os.replace(temporary, destination / "manifest.json")
+    return manifest
 
 
 def finalize_multiplicity_family(rows: Sequence[dict[str, Any]], *,
@@ -111,30 +451,82 @@ class UnknownPatternScheduler:
 
     def __init__(self, memory: ResearchMemory, data_root: str | Path,
                  output_root: str | Path, *, search_space: Sequence[PatternSearchCell],
-                 seed: int = 20260401) -> None:
+                 seed: int = 20260401, index_root: str | Path | None = None) -> None:
         self.memory, self.data_root = memory, Path(data_root)
         self.output_root, self.seed = Path(output_root), seed
-        self.search_space = tuple(search_space)
-        ids = [x.pattern_cell_id for x in self.search_space]
-        if len(ids) != len(set(ids)):
-            raise ValueError("duplicate cells in pattern search space")
+        # Preserve lazy/indexed views.  Small caller-provided sequences retain
+        # the legacy exact duplicate guard; production universes are validated
+        # by their immutable construction contract rather than a 17M-string set.
+        self.search_space = search_space
+        self.rank_index = None
+        if isinstance(search_space, PatternSearchSpace):
+            if index_root is None:
+                raise ValueError("lazy UNKNOWN search space requires a validated rank index")
+            self.rank_index = UnknownUniverseIndex(index_root, search_space, seed)
+        else:
+            self.search_space = tuple(search_space)
+            ids = [x.pattern_cell_id for x in self.search_space]
+            if len(ids) != len(set(ids)):
+                raise ValueError("duplicate cells in pattern search space")
 
     def plan(self, cycle_number: int, budget: int) -> Mapping[str, Any]:
         if budget <= 0:
             raise ValueError("budget must be positive")
         completed = self.memory.completed_pattern_cell_ids()
-        unseen = [x for x in self.search_space if x.pattern_cell_id not in completed]
-        # Hash ordering is deterministic; scope prefix round-robin keeps markets balanced.
+        if self.rank_index is not None:
+            finalists = {}
+            for key, scope_range in self.search_space.scope_ranges.items():
+                chosen = []
+                for ordinal in self.rank_index.ranked_ordinals(key):
+                    cell = self.search_space[scope_range.start + ordinal]
+                    cell_id = cell.pattern_cell_id
+                    if cell_id not in completed:
+                        chosen.append(cell)
+                        if len(chosen) == budget:
+                            break
+                finalists[key] = chosen
+            selected = []
+            while len(selected) < budget and any(finalists.values()):
+                for key in sorted(finalists):
+                    if finalists[key] and len(selected) < budget:
+                        selected.append(finalists[key].pop(0))
+            batch = PatternBatch.from_manifest_cells(tuple(selected)) if selected else None
+            return {"cycle_number": cycle_number,
+                "scheduler_status": "PLANNED" if batch else "SEARCH_SPACE_EXHAUSTED",
+                "pattern_batch": batch, "data_root": self.data_root,
+                "output_root": self.output_root, "research_track": "UNKNOWN_PATTERN",
+                "search_space_total": len(self.search_space),
+                "completed_cells": len(completed),
+                "search_space_remaining": max(0, len(self.search_space) - len(completed)
+                                              - len(selected)), "seed": self.seed}
+        # Each heap retains exactly the prefix which a full stable bucket sort
+        # could consume.  The semantic ID is computed once in this pass and is
+        # carried with the finalist into batch construction.
         buckets = {(i, t): [] for i in ("CNYRUBF", "USDRUBF") for t in ("M1", "M5")}
-        for cell in unseen:
-            buckets.setdefault((cell.instrument, cell.timeframe), []).append(cell)
-        for key in buckets:
-            buckets[key].sort(key=lambda c: deterministic_hash({"seed": self.seed, "id": c.pattern_cell_id}))
+        scope_ordinals = {key: 0 for key in buckets}
+        unseen_count = 0
+        for cell in self.search_space:
+            key = (cell.instrument, cell.timeframe)
+            ordinal = scope_ordinals.setdefault(key, 0)
+            scope_ordinals[key] = ordinal + 1
+            cell_id = cell.pattern_cell_id
+            if cell_id in completed:
+                continue
+            unseen_count += 1
+            rank = deterministic_hash({"seed": self.seed, "id": cell_id})
+            item = (_ReverseKey((rank, ordinal)), rank, ordinal, cell_id, cell)
+            heap = buckets.setdefault(key, [])
+            if len(heap) < budget:
+                heapq.heappush(heap, item)
+            elif (rank, ordinal) < heap[0][0].value:
+                heapq.heapreplace(heap, item)
+        for key, heap in buckets.items():
+            buckets[key] = sorted(heap, key=lambda item: (item[1], item[2]))
         selected = []
         while len(selected) < budget and any(buckets.values()):
             for key in sorted(buckets):
                 if buckets[key] and len(selected) < budget:
-                    selected.append(buckets[key].pop(0))
+                    selected.append(buckets[key].pop(0)[4])
         batch = PatternBatch(tuple(selected)) if selected else None
         return {"cycle_number": cycle_number,
                 "scheduler_status": "PLANNED" if batch else "SEARCH_SPACE_EXHAUSTED",
@@ -142,7 +534,7 @@ class UnknownPatternScheduler:
                 "output_root": self.output_root, "research_track": "UNKNOWN_PATTERN",
                 "search_space_total": len(self.search_space),
                 "completed_cells": len(completed),
-                "search_space_remaining": len(unseen) - len(selected), "seed": self.seed}
+                "search_space_remaining": unseen_count - len(selected), "seed": self.seed}
 
     def pending_inference_cells(self, budget: int) -> tuple[PatternSearchCell, ...]:
         """Select existing, eligible cells lacking inference in stable seed order."""

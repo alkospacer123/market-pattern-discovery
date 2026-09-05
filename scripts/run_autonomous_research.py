@@ -13,11 +13,15 @@ from market_pattern_discovery.orchestration import (
     AutonomousResearchWorker,
     AutonomousSearchScheduler,
     PatternExperimentRunner,
+    PatternSearchSpace,
     UnknownPatternScheduler,
+    load_manifest_state_domains,
     cells_for_matrix,
 )
 from market_pattern_discovery.discovery.unknown import load_discovery_matrix
 from market_pattern_discovery.research import ResearchMemory
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def _next_cycle_number(state_directory: Path) -> int:
@@ -32,7 +36,8 @@ def _next_cycle_number(state_directory: Path) -> int:
 
 def run(data_root: Path, memory_root: Path, output_root: Path, *, budget: int,
         mode: str, sleep_seconds: float, track: str = "known",
-        inference_budget: int = 0) -> None:
+        inference_budget: int = 0,
+        unknown_index_root: Path = ROOT / "config" / "unknown_universe_v1") -> None:
     """Run one cycle, or cycles until the finite search space is exhausted."""
     memory = ResearchMemory(memory_root)
     scheduler = AutonomousSearchScheduler(memory, data_root, output_root)
@@ -43,16 +48,16 @@ def run(data_root: Path, memory_root: Path, output_root: Path, *, budget: int,
             # Loading matrices and enumerating the frozen search space can be
             # expensive.  Defer both until the worker actually gives UNKNOWN
             # its turn (after KNOWN in MIXED mode).
-            search_space = tuple(
-                cell
-                for instrument in ("CNYRUBF", "USDRUBF")
-                for timeframe in ("M1", "M5")
-                for cell in cells_for_matrix(
-                    load_discovery_matrix(data_root, instrument, timeframe))
+            search_space = PatternSearchSpace(
+                (load_discovery_matrix(data_root, instrument, timeframe)
+                 for instrument in ("CNYRUBF", "USDRUBF")
+                 for timeframe in ("M1", "M5")),
+                state_domains=load_manifest_state_domains(unknown_index_root),
             )
             return (
                 UnknownPatternScheduler(
-                    memory, data_root, output_root, search_space=search_space),
+                    memory, data_root, output_root, search_space=search_space,
+                    index_root=unknown_index_root),
                 PatternExperimentRunner(memory),
             )
 
@@ -85,6 +90,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument(
         "--track", choices=("known", "unknown", "mixed"), default="known")
     parser.add_argument("--sleep-seconds", type=float, default=0.0)
+    parser.add_argument("--unknown-index-root", type=Path,
+        default=ROOT / "config" / "unknown_universe_v1",
+        help="directory containing the release-generated UNKNOWN manifest/index")
     args = parser.parse_args(argv)
     if args.budget <= 0:
         parser.error("--budget must be positive")
@@ -95,7 +103,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     run(args.data_root, args.memory_root, args.output_root, budget=args.budget,
         mode=args.mode, sleep_seconds=args.sleep_seconds, track=args.track,
-        inference_budget=args.inference_budget)
+        inference_budget=args.inference_budget,
+        unknown_index_root=args.unknown_index_root)
     return 0
 
 
