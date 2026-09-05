@@ -107,8 +107,7 @@ class AutonomousResearchWorker:
         effective = self.memory.pattern_effects()
         metrics = {
             "patterns_created": len(created),
-            "inference_pending": len(self.unknown_scheduler.pending_inference_cells(
-                len(self.unknown_scheduler.search_space))),
+            "inference_pending": self.unknown_scheduler.pending_inference_count(),
             "inference_completed": len(inferred),
             "survivors": sum(effective[cell_id].screening_status.value == "PATTERN_SURVIVOR"
                              for cell_id in finalized),

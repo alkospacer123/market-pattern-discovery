@@ -265,6 +265,41 @@ class PatternSearchSpace(Sequence[PatternSearchCell]):
                         yield PatternSearchCell(instrument, timeframe, block.method,
                             conditions, target, family, role, contrast, signatures)
 
+    def ordinal_of(self, cell: PatternSearchCell) -> int | None:
+        """Return a cell's logical ordinal without enumerating the universe."""
+        scope_start = 0
+        for instrument, timeframe, blocks, block_ends, targets, signatures, size in self._scopes:
+            if (cell.instrument, cell.timeframe) != (instrument, timeframe):
+                scope_start += size
+                continue
+            if tuple(cell.contract_signatures) != signatures:
+                return None
+            conditions = tuple(tuple(item) for item in cell.feature_conditions)
+            target = (cell.target, cell.target_family, cell.target_role, cell.contrast)
+            try:
+                outcome_ordinal = targets.index(target)
+            except ValueError:
+                return None
+            for block_index, block in enumerate(blocks):
+                if block.method != cell.method or tuple(name for name, _ in conditions) != block.features:
+                    continue
+                state_ordinal = 0
+                for (_, value), domain in zip(conditions, block.domains):
+                    try:
+                        digit = domain.index(value)
+                    except ValueError:
+                        break
+                    state_ordinal = state_ordinal * len(domain) + digit
+                else:
+                    block_start = 0 if block_index == 0 else block_ends[block_index - 1]
+                    ordinal = scope_start + block_start + state_ordinal * len(targets) + outcome_ordinal
+                    # Subgroup blocks can share feature names.  Verify the exact
+                    # inverse before accepting the compact arithmetic lookup.
+                    if self[ordinal].pattern_cell_id == cell.pattern_cell_id:
+                        return ordinal
+            return None
+        return None
+
 
 class _ReverseKey:
     __slots__ = ("value",)
@@ -468,6 +503,8 @@ class UnknownPatternScheduler:
             ids = [x.pattern_cell_id for x in self.search_space]
             if len(ids) != len(set(ids)):
                 raise ValueError("duplicate cells in pattern search space")
+            self._cells_by_id = {cell_id: (ordinal, cell)
+                                 for ordinal, (cell_id, cell) in enumerate(zip(ids, self.search_space))}
 
     def plan(self, cycle_number: int, budget: int) -> Mapping[str, Any]:
         if budget <= 0:
@@ -537,16 +574,48 @@ class UnknownPatternScheduler:
                 "search_space_remaining": unseen_count - len(selected), "seed": self.seed}
 
     def pending_inference_cells(self, budget: int) -> tuple[PatternSearchCell, ...]:
-        """Select existing, eligible cells lacking inference in stable seed order."""
+        """Select existing, eligible cells lacking inference in stable seed order.
+
+        This is deliberately memory-driven: persisted scientific definitions
+        reconstruct only effective pending records.  The logical ordinal is a
+        secondary key solely to preserve the stable-sort tie behaviour of the
+        former eager universe scan.
+        """
         if budget < 0:
             raise ValueError("inference budget must be non-negative")
-        effective = self.memory.pattern_effects()
-        pending = [cell for cell in self.search_space
-                   if cell.pattern_cell_id in effective
-                   and effective[cell.pattern_cell_id].screening_status is PatternStatus.INFERENCE_PENDING
-                   and "raw_p" not in effective[cell.pattern_cell_id].evaluation]
-        pending.sort(key=lambda c: deterministic_hash({"seed": self.seed, "id": c.pattern_cell_id}))
-        return tuple(pending[:budget])
+        pending = list(self._pending_inference_candidates())
+        pending.sort(key=lambda item: (
+            deterministic_hash({"seed": self.seed, "id": item[1].pattern_cell_id}), item[0]))
+        return tuple(cell for _, cell in pending[:budget])
+
+    def pending_inference_count(self) -> int:
+        """Count pending cells from effective memory without materializing the universe."""
+        return sum(1 for _ in self._pending_inference_candidates())
+
+    def _pending_inference_candidates(self) -> Iterator[tuple[int, PatternSearchCell]]:
+        for record in self.memory.pattern_effects().values():
+            if (record.screening_status is not PatternStatus.INFERENCE_PENDING
+                    or "raw_p" in record.evaluation):
+                continue
+            if self.rank_index is None:
+                resolved = self._cells_by_id.get(record.pattern_cell_id)
+                if resolved is not None:
+                    yield resolved
+                continue
+            definition = dict(record.scientific_definition)
+            definition["feature_conditions"] = tuple(
+                tuple(item) for item in definition.get("feature_conditions", ()))
+            definition["contract_signatures"] = tuple(
+                tuple(item) for item in definition.get("contract_signatures", ()))
+            try:
+                cell = PatternSearchCell(**definition)
+            except (TypeError, ValueError):
+                continue
+            if cell.pattern_cell_id != record.pattern_cell_id:
+                continue
+            ordinal = self.search_space.ordinal_of(cell)
+            if ordinal is not None:
+                yield ordinal, cell
 
 
 class PatternExperimentRunner:
@@ -690,7 +759,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "inference_mode": "ENABLED" if inference_budget else "DISABLED",
         "completed": [r.pattern_cell_id for r in discovered],
         "patterns_created": len(discovered),
-        "inference_pending": len(scheduler.pending_inference_cells(len(search_space))),
+        "inference_pending": scheduler.pending_inference_count(),
         "inference_completed": len(inferred),
         "survivors": sum(effective[cell_id].screening_status is PatternStatus.PATTERN_SURVIVOR
                          for cell_id in finalized),
@@ -698,7 +767,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                             for cell_id in finalized),
         "families_finalized": list(finalized), "failed": [],
         "remaining_discovery_cells": resumed["search_space_remaining"] + (1 if resumed["pattern_batch"] else 0),
-        "remaining_inference_pending_cells": len(scheduler.pending_inference_cells(len(search_space))),
+        "remaining_inference_pending_cells": scheduler.pending_inference_count(),
         "source_provenance_hashes": matrix.provenance,
         "contract_signatures": dict(search_space[0].contract_signatures) if search_space else {}}
     destination = args.output_root / f"cycle-{args.cycle:06d}.json"
