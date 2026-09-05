@@ -1,0 +1,7270 @@
+{
+  "content_sha256": "3540be44e5d7dac5f8e4081b59a2c659c9babff302707bb1fc97f7a836f3a91a",
+  "iterator_schema": "unknown-pattern-space-v1",
+  "manifest_version": 1,
+  "ordered_universe_sha256": "23881a0707b0443daa0b9ab686d2e8366fdb7f065196ce8782f689cb02b2b841",
+  "rank_indexes": {
+    "rank-CNYRUBF-M1.u32": {
+      "count": 4268772,
+      "sha256": "9c47e1480299aa55672fb847f94daf70b742aaea857564892ae46073696851f4"
+    },
+    "rank-CNYRUBF-M5.u32": {
+      "count": 4243248,
+      "sha256": "c85b381bf4ce83581ce5defe5b62b4eeda260e3d181fb285785688b01fc709f3"
+    },
+    "rank-USDRUBF-M1.u32": {
+      "count": 4268772,
+      "sha256": "95a2ecd1b396fbc4c1e4bf8fb551e00630cb7841cd6e6656eefedb169085e896"
+    },
+    "rank-USDRUBF-M5.u32": {
+      "count": 4243248,
+      "sha256": "0e2be84e9c57dbfed2f27d9e84079ebb99add073bb3c54c04087cf370b247709"
+    }
+  },
+  "scheduler_seed": 20260401,
+  "scope_counts": {
+    "CNYRUBF:M1": 4268772,
+    "CNYRUBF:M5": 4243248,
+    "USDRUBF:M1": 4268772,
+    "USDRUBF:M5": 4243248
+  },
+  "state_domains": {
+    "CNYRUBF:M1": {
+      "abs_body": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "abs_body_over_atr_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "abs_body_over_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "abs_body_over_atr_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "abs_body_over_atr_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_10_over_atr_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_5_over_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "bars_since_last_cross": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "bars_since_last_touch": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "bars_since_new_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "bars_since_new_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "body_to_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "break_above_prior_high_10": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_above_prior_high_20": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_above_prior_high_5": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_above_prior_high_60": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_below_prior_low_10": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_below_prior_low_20": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_below_prior_low_5": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_below_prior_low_60": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "candle_direction": [
+        -1,
+        0,
+        1
+      ],
+      "candle_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "candle_range_over_atr_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "candle_range_over_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "candle_range_over_atr_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "candle_range_over_atr_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_position_in_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "closes_above_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "closes_below_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "consecutive_down_candles": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "consecutive_up_candles": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cross_count_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cross_count_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cross_count_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cross_count_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "crosses_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "direction_agreement_m1_m5": [
+        "MISSING",
+        0.0,
+        1.0
+      ],
+      "directional_efficiency_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_from_range_midpoint_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_m5_high": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_m5_low": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_nearest_round_level": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_nearest_round_level_in_steps": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_nearest_round_level_over_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_high_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_high_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_high_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_low_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_low_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_low_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_high_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_high_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_high_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_low_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_low_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_low_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_round_level_above": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_round_level_below": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "high_to_close_distance": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "local_hour": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        8,
+        9
+      ],
+      "local_minute": [
+        0,
+        1,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        2,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        3,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        4,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        5,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        6,
+        7,
+        8,
+        9
+      ],
+      "log_return_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "low_to_close_distance": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "lower_wick": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "lower_wick_to_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m1_atr5_over_m5_atr5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m1_close_position_relative_to_m5_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m1_range_over_m5_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_atr_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_body_to_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_candle_direction": [
+        "MISSING",
+        -1.0,
+        0.0,
+        1.0
+      ],
+      "m5_candle_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_close_return_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_crosses_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "m5_distance_to_nearest_round_level": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_distance_to_prior_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_distance_to_prior_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_high": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_low": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_nearest_round_level": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_position_in_rolling_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_touches_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "mean_abs_return_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_abs_return_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_abs_return_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_abs_return_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_10_over_mean_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_5_over_mean_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "median_range_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "median_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "median_range_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "median_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "minute_of_day": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "minutes_since_first_available_candle_of_day": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "nearest_round_level": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "new_high_10": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_high_20": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_high_5": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_high_60": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_low_10": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_low_20": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_low_5": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_low_60": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "normalized_distance_from_midpoint_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "open_position_in_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "open_to_close_return": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "penetration_distance": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_between_round_levels": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_in_rolling_range_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_in_rolling_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_in_rolling_range_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_in_rolling_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_high_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_high_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_high_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_low_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_low_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_low_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "range_std_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "range_std_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "range_std_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "range_std_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "relative_volume_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "relative_volume_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "relative_volume_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "relative_volume_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "return_std_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "return_std_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "return_std_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "return_std_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_change_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_change_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_change_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "round_level_above": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "round_level_below": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_body": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_distance_to_nearest_round_level": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touch_count_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touch_count_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touch_count_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touch_count_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touches_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "true_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "upper_wick": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "upper_wick_to_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_change_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_change_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_change_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_change_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_mean_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_mean_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_mean_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_mean_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_median_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_median_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_median_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_median_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_zscore_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_zscore_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "weekday": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "CNYRUBF:M5": {
+      "abs_body": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "abs_body_over_atr_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "abs_body_over_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "abs_body_over_atr_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "abs_body_over_atr_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_10_over_atr_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_5_over_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "bars_since_last_cross": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "bars_since_last_touch": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "bars_since_new_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "bars_since_new_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "body_to_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "break_above_prior_high_10": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_above_prior_high_20": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_above_prior_high_5": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_above_prior_high_60": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_below_prior_low_10": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_below_prior_low_20": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_below_prior_low_5": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_below_prior_low_60": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "candle_direction": [
+        -1,
+        0,
+        1
+      ],
+      "candle_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "candle_range_over_atr_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "candle_range_over_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "candle_range_over_atr_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "candle_range_over_atr_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_position_in_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "closes_above_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "closes_below_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "consecutive_down_candles": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "consecutive_up_candles": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cross_count_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cross_count_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cross_count_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cross_count_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "crosses_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_from_range_midpoint_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_nearest_round_level": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_nearest_round_level_in_steps": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_nearest_round_level_over_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_high_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_high_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_high_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_low_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_low_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_low_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_high_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_high_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_high_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_low_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_low_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_low_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_round_level_above": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_round_level_below": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "high_to_close_distance": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "local_hour": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        8,
+        9
+      ],
+      "local_minute": [
+        0,
+        10,
+        15,
+        20,
+        25,
+        30,
+        35,
+        40,
+        45,
+        5,
+        50,
+        55
+      ],
+      "log_return_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "low_to_close_distance": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "lower_wick": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "lower_wick_to_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_abs_return_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_abs_return_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_abs_return_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_abs_return_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_10_over_mean_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_5_over_mean_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "median_range_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "median_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "median_range_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "median_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "minute_of_day": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "minutes_since_first_available_candle_of_day": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "nearest_round_level": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "new_high_10": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_high_20": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_high_5": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_high_60": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_low_10": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_low_20": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_low_5": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_low_60": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "normalized_distance_from_midpoint_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "open_position_in_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "open_to_close_return": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "penetration_distance": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_between_round_levels": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_in_rolling_range_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_in_rolling_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_in_rolling_range_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_in_rolling_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_high_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_high_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_high_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_low_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_low_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_low_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "range_std_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "range_std_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "range_std_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "range_std_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "relative_volume_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "relative_volume_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "relative_volume_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "relative_volume_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "return_std_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "return_std_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "return_std_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "return_std_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_change_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_change_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_change_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "round_level_above": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "round_level_below": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_body": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_distance_to_nearest_round_level": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touch_count_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touch_count_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touch_count_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touch_count_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touches_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "true_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "upper_wick": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "upper_wick_to_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_change_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_change_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_change_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_change_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_mean_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_mean_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_mean_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_mean_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_median_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_median_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_median_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_median_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_zscore_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_zscore_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "weekday": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "USDRUBF:M1": {
+      "abs_body": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "abs_body_over_atr_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "abs_body_over_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "abs_body_over_atr_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "abs_body_over_atr_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_10_over_atr_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_5_over_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "bars_since_last_cross": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "bars_since_last_touch": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "bars_since_new_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "bars_since_new_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "body_to_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "break_above_prior_high_10": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_above_prior_high_20": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_above_prior_high_5": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_above_prior_high_60": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_below_prior_low_10": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_below_prior_low_20": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_below_prior_low_5": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_below_prior_low_60": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "candle_direction": [
+        -1,
+        0,
+        1
+      ],
+      "candle_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "candle_range_over_atr_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "candle_range_over_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "candle_range_over_atr_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "candle_range_over_atr_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_position_in_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "closes_above_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "closes_below_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "consecutive_down_candles": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "consecutive_up_candles": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cross_count_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cross_count_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cross_count_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cross_count_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "crosses_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "direction_agreement_m1_m5": [
+        "MISSING",
+        0.0,
+        1.0
+      ],
+      "directional_efficiency_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_from_range_midpoint_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_m5_high": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_m5_low": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_nearest_round_level": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_nearest_round_level_in_steps": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_nearest_round_level_over_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_high_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_high_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_high_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_low_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_low_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_low_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_high_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_high_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_high_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_low_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_low_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_low_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_round_level_above": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_round_level_below": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "high_to_close_distance": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "local_hour": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        8,
+        9
+      ],
+      "local_minute": [
+        0,
+        1,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        2,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        3,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        4,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        5,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        6,
+        7,
+        8,
+        9
+      ],
+      "log_return_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "low_to_close_distance": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "lower_wick": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "lower_wick_to_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m1_atr5_over_m5_atr5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m1_close_position_relative_to_m5_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m1_range_over_m5_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_atr_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_body_to_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_candle_direction": [
+        "MISSING",
+        -1.0,
+        0.0,
+        1.0
+      ],
+      "m5_candle_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_close_return_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_crosses_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "m5_distance_to_nearest_round_level": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_distance_to_prior_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_distance_to_prior_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_high": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_low": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_nearest_round_level": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_position_in_rolling_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "m5_touches_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "mean_abs_return_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_abs_return_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_abs_return_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_abs_return_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_10_over_mean_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_5_over_mean_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "median_range_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "median_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "median_range_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "median_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "minute_of_day": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "minutes_since_first_available_candle_of_day": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "nearest_round_level": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "new_high_10": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_high_20": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_high_5": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_high_60": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_low_10": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_low_20": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_low_5": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_low_60": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "normalized_distance_from_midpoint_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "open_position_in_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "open_to_close_return": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "penetration_distance": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_between_round_levels": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_in_rolling_range_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_in_rolling_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_in_rolling_range_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_in_rolling_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_high_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_high_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_high_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_low_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_low_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_low_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "range_std_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "range_std_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "range_std_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "range_std_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "relative_volume_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "relative_volume_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "relative_volume_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "relative_volume_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "return_std_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "return_std_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "return_std_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "return_std_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_change_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_change_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_change_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "round_level_above": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "round_level_below": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_body": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_distance_to_nearest_round_level": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touch_count_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touch_count_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touch_count_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touch_count_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touches_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "true_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "upper_wick": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "upper_wick_to_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_change_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_change_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_change_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_change_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_mean_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_mean_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_mean_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_mean_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_median_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_median_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_median_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_median_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_zscore_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_zscore_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "weekday": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "USDRUBF:M5": {
+      "abs_body": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "abs_body_over_atr_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "abs_body_over_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "abs_body_over_atr_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "abs_body_over_atr_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_10_over_atr_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_5_over_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "atr_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "bars_since_last_cross": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "bars_since_last_touch": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "bars_since_new_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "bars_since_new_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "body_to_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "break_above_prior_high_10": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_above_prior_high_20": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_above_prior_high_5": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_above_prior_high_60": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_below_prior_low_10": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_below_prior_low_20": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_below_prior_low_5": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "break_below_prior_low_60": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "candle_direction": [
+        -1,
+        0,
+        1
+      ],
+      "candle_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "candle_range_over_atr_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "candle_range_over_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "candle_range_over_atr_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "candle_range_over_atr_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_delta_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_position_in_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "close_return_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "closes_above_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "closes_below_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "consecutive_down_candles": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "consecutive_up_candles": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cross_count_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cross_count_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cross_count_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cross_count_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "crosses_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "cumulative_absolute_movement_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "directional_efficiency_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_from_range_midpoint_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_nearest_round_level": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_nearest_round_level_in_steps": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_nearest_round_level_over_atr_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_high_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_high_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_high_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_low_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_low_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_prior_low_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_high_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_high_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_high_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_low_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_low_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_rolling_low_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_round_level_above": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "distance_to_round_level_below": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_down_bars_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "fraction_up_bars_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "high_to_close_distance": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "local_hour": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        8,
+        9
+      ],
+      "local_minute": [
+        0,
+        10,
+        15,
+        20,
+        25,
+        30,
+        35,
+        40,
+        45,
+        5,
+        50,
+        55
+      ],
+      "log_return_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "log_return_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "low_to_close_distance": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "lower_wick": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "lower_wick_to_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_abs_return_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_abs_return_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_abs_return_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_abs_return_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_10_over_mean_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_5_over_mean_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "mean_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "median_range_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "median_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "median_range_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "median_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "minute_of_day": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "minutes_since_first_available_candle_of_day": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "nearest_round_level": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "new_high_10": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_high_20": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_high_5": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_high_60": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_low_10": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_low_20": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_low_5": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "new_low_60": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "normalized_distance_from_midpoint_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "open_position_in_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "open_to_close_return": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "penetration_distance": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_between_round_levels": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_in_rolling_range_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_in_rolling_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_in_rolling_range_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "position_in_rolling_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_high_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_high_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_high_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_low_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_low_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "prior_low_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "range_std_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "range_std_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "range_std_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "range_std_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "relative_volume_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "relative_volume_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "relative_volume_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "relative_volume_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "return_std_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "return_std_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "return_std_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "return_std_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_high_change_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_low_change_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "rolling_range_change_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "round_level_above": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "round_level_below": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_body": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_1": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_3": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_30": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_direction_balance_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "signed_distance_to_nearest_round_level": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touch_count_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touch_count_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touch_count_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touch_count_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "touches_nearest_round_level": [
+        "0",
+        "1",
+        "MISSING"
+      ],
+      "true_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "upper_wick": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "upper_wick_to_range": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_change_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_change_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_change_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_change_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_mean_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_mean_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_mean_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_mean_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_median_10": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_median_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_median_5": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_median_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_zscore_20": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "volume_zscore_60": [
+        "LE_P10",
+        "P10_P25",
+        "P25_P75",
+        "P75_P90",
+        "GE_P90",
+        "MISSING"
+      ],
+      "weekday": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    }
+  },
+  "total_count": 17024040,
+  "uniqueness": "EXACT_FULL_SHA256_IDS_UNIQUE",
+  "universe_binding_sha256": "0a1f6a39f41b9a63c8c79e0155350f57563e684f197c625aa4791de749f96539"
+}

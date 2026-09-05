@@ -88,7 +88,9 @@ def test_unknown_track_is_forwarded_to_worker(monkeypatch, tmp_path):
 
     monkeypatch.setattr(cli, "AutonomousResearchWorker", Worker)
     monkeypatch.setattr(cli, "load_discovery_matrix", lambda *args: object())
-    monkeypatch.setattr(cli, "PatternSearchSpace", lambda matrices: tuple(matrices))
+    monkeypatch.setattr(cli, "load_manifest_state_domains", lambda root: {})
+    monkeypatch.setattr(cli, "PatternSearchSpace",
+                        lambda matrices, **kwargs: tuple(matrices))
     unknown_scheduler = object()
     unknown_runner = object()
     monkeypatch.setattr(cli, "UnknownPatternScheduler",

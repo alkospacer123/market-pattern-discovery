@@ -1,4 +1,6 @@
 from dataclasses import asdict, replace
+import json
+import shutil
 
 import numpy as np
 import pandas as pd
@@ -8,7 +10,7 @@ from market_pattern_discovery.experiments.runner import ExperimentRunner, Experi
 from market_pattern_discovery.discovery.unknown import DiscoveryMatrix, evaluate_hypothesis
 from market_pattern_discovery.orchestration.unknown import (
     PatternBatch, PatternExperimentRunner, PatternSearchCell, PatternSearchSpace,
-    UnknownPatternScheduler,
+    UnknownPatternScheduler, UnknownUniverseIndex, build_unknown_universe_index,
     finalize_multiplicity_family,
 )
 from market_pattern_discovery.research.memory import (
@@ -37,6 +39,20 @@ def test_substantive_and_contract_changes_change_identity():
     assert cell(target="other").pattern_cell_id != base
     assert cell(contrast="probability_difference").pattern_cell_id != base
     assert cell(contract_signatures=(("feature_set", "drift"),)).pattern_cell_id != base
+
+
+def test_audit_serializer_is_exact_for_unicode_punctuation_and_state_types():
+    import market_pattern_discovery.orchestration.unknown as unknown
+    representatives = (
+        cell(feature_conditions=(("цена/Δ", "≤ p10; \"quoted\""),)),
+        cell(method="interaction_search", timeframe="M5",
+             feature_conditions=(("binary", 1), ("flag", True)),
+             contrast="P(+1) − P(−1)"),
+        cell(method="subgroup_discovery", instrument="USDRUBF",
+             feature_conditions=(("missing", None),)),
+    )
+    for item in representatives:
+        assert unknown._audit_cell_id(item) == item.pattern_cell_id
 
 def test_batch_identity_is_ordered_and_separate():
     other = cell(instrument="USDRUBF")
@@ -115,6 +131,73 @@ def test_bounded_planner_matches_legacy_and_stable_collision_order(tmp_path, mon
         for key in sorted(buckets):
             if buckets[key] and len(expected) < 9: expected.append(buckets[key].pop(0))
     assert plan["pattern_batch"].cells == tuple(expected)
+
+
+def test_manifest_rank_index_validation_and_exact_planning(tmp_path, monkeypatch):
+    import market_pattern_discovery.orchestration.unknown as unknown
+    import market_pattern_discovery.discovery.unknown as discovery_unknown
+    target = {"column_name": "target", "family": "DIRECTIONAL",
+              "semantic_role": "ROLE", "hypothesis_contrasts": ["a", "b"]}
+    matrices = [DiscoveryMatrix(i, t, pd.DataFrame(), {}, {"f": ["x", "y"]},
+        [target], []) for i in ("CNYRUBF", "USDRUBF") for t in ("M1", "M5")]
+    inventory = lambda *a, **k: [{"feature": "f"}]
+    monkeypatch.setattr(unknown, "feature_inventory", inventory)
+    monkeypatch.setattr(discovery_unknown, "feature_inventory", inventory)
+    space = PatternSearchSpace(matrices, methods=("univariate_screen",))
+    monkeypatch.setattr(UnknownUniverseIndex, "EXPECTED_TOTAL", len(space))
+    root = tmp_path / "index"
+    manifest = build_unknown_universe_index(space, root, seed=17)
+    assert manifest["total_count"] == 16
+    indexed_memory = ResearchMemory(tmp_path / "indexed")
+    eager_memory = ResearchMemory(tmp_path / "eager")
+    def compare(budget):
+        indexed = UnknownPatternScheduler(indexed_memory, "/data", tmp_path,
+            search_space=space, seed=17, index_root=root).plan(1, budget)
+        eager = UnknownPatternScheduler(eager_memory, "/data", tmp_path,
+            search_space=tuple(space), seed=17).plan(1, budget)
+        assert indexed["scheduler_status"] == eager["scheduler_status"]
+        assert indexed["search_space_remaining"] == eager["search_space_remaining"]
+        left = indexed["pattern_batch"]; right = eager["pattern_batch"]
+        assert ([c.pattern_cell_id for c in left.cells] if left else []) == [
+            c.pattern_cell_id for c in right.cells] if right else []
+        return left
+    for budget in (1, 2, 3, 4, 5, 11):
+        compare(budget)
+    top = compare(1).cells[0]
+    indexed_memory.add_pattern_effect(record(top))
+    eager_memory.add_pattern_effect(record(top))
+    compare(5)
+    # Exhaust one complete scope, then reopen both memories and compare resume.
+    for item in tuple(space)[:4]:
+        if item.pattern_cell_id != top.pattern_cell_id:
+            indexed_memory.add_pattern_effect(record(item))
+            eager_memory.add_pattern_effect(record(item))
+    indexed_memory = ResearchMemory(tmp_path / "indexed")
+    eager_memory = ResearchMemory(tmp_path / "eager")
+    compare(7)
+
+    cases = ("missing", "corrupt", "truncated", "version", "schema",
+             "binding", "seed", "rank")
+    for case in cases:
+        broken = tmp_path / case
+        shutil.copytree(root, broken)
+        path = broken / "manifest.json"
+        value = json.loads(path.read_text())
+        if case == "missing": path.unlink()
+        elif case == "corrupt": path.write_text("not json")
+        elif case == "truncated": path.write_text(path.read_text()[:20])
+        elif case == "rank":
+            rank_path = next(broken.glob("rank-*.u32"))
+            rank_path.write_bytes(rank_path.read_bytes()[:-1])
+        else:
+            if case == "version": value["manifest_version"] += 1
+            elif case == "schema": value["iterator_schema"] = "stale"
+            elif case in {"binding", "seed"}: value["universe_binding_sha256"] = "0" * 64
+            value["content_sha256"] = unknown.deterministic_hash(
+                {k: v for k, v in value.items() if k != "content_sha256"})
+            path.write_text(json.dumps(value))
+        with pytest.raises(ValueError):
+            UnknownUniverseIndex(broken, space, 18 if case == "seed" else 17)
 
 def test_incomplete_family_has_no_q_and_complete_family_gets_bh():
     base = {"raw_p": .01, "multiplicity_family": "f", "coverage": .2, "unique_days": 20,
