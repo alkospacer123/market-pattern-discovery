@@ -39,6 +39,10 @@ class UnknownScheduler:
         self.calls.append(("pending", budget))
         return ()
 
+    def pending_inference_count(self):
+        self.calls.append("pending-count")
+        return 0
+
 
 class UnknownRunner:
     def __init__(self, calls):
@@ -84,7 +88,7 @@ def test_worker_records_exhausted_search_space(tmp_path):
 @pytest.mark.parametrize("track, expected", [
     ("known", ["known"]),
     ("unknown", ["unknown", "unknown-runner", ("pending", 2), "inference",
-                 "finalize", ("pending", 1)]),
+                 "finalize", "pending-count"]),
     ("mixed", ["known"]),
 ])
 def test_worker_routes_tracks_in_deterministic_order(tmp_path, track, expected):
@@ -168,6 +172,10 @@ def test_unknown_exhaustion_preserves_and_services_pending_inference(
         def pending_inference_cells(self, budget):
             calls.append(("pending", budget))
             return ("pending-cell",) if budget else ()
+
+        def pending_inference_count(self):
+            calls.append("pending-count")
+            return 1
 
     class InferenceRunner(UnknownRunner):
         def add_inference(self, cells, data_root):

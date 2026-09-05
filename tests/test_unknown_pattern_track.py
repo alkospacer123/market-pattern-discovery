@@ -320,6 +320,93 @@ def test_pending_inference_selection_is_deterministic_and_resumable(tmp_path):
     assert reopened.pending_inference_cells(2) == (expected[1],)
 
 
+def test_memory_driven_pending_selection_matches_eager_legacy_oracle(tmp_path):
+    cells = tuple(cell(feature_conditions=(("candle_range", value),))
+                  for value in ("LE_P10", "MID", "GE_P90", "OTHER"))
+    memory = ResearchMemory(tmp_path / "memory")
+
+    def add(item, status, *, evaluation=None):
+        memory.add_pattern_effect(PatternEffectRecord(
+            item.pattern_cell_id, PatternBatch((item,)).pattern_batch_id,
+            asdict(item), evaluation if evaluation is not None else _evaluation(),
+            status, "experiment", 1))
+
+    # Deliberately append in a different order from the frozen universe.
+    add(cells[2], PatternStatus.INFERENCE_PENDING,
+        evaluation={**_evaluation(), "inference_enabled": False})
+    add(cells[0], PatternStatus.INELIGIBLE)
+    add(cells[3], PatternStatus.INFERENCE_PENDING,
+        evaluation={**_evaluation(), "inference_enabled": True})
+    add(cells[1], PatternStatus.INCOMPLETE_FAMILY,
+        evaluation={**_evaluation(), "raw_p": .2, "family_complete": True})
+
+    def legacy(limit):
+        effective = memory.pattern_effects()
+        pending = [item for item in cells
+                   if item.pattern_cell_id in effective
+                   and effective[item.pattern_cell_id].screening_status
+                   is PatternStatus.INFERENCE_PENDING
+                   and "raw_p" not in effective[item.pattern_cell_id].evaluation]
+        from market_pattern_discovery.contracts import deterministic_hash
+        pending.sort(key=lambda item: deterministic_hash(
+            {"seed": 20260401, "id": item.pattern_cell_id}))
+        return tuple(pending[:limit])
+
+    scheduler = UnknownPatternScheduler(
+        memory, tmp_path / "data", tmp_path / "out", search_space=cells)
+    assert scheduler.pending_inference_cells(0) == legacy(0) == ()
+    assert scheduler.pending_inference_cells(1) == legacy(1)
+    assert scheduler.pending_inference_cells(99) == legacy(99)
+    assert scheduler.pending_inference_count() == len(legacy(len(cells))) == 2
+
+    reopened = UnknownPatternScheduler(
+        ResearchMemory(tmp_path / "memory"), tmp_path / "data2", tmp_path / "out2",
+        search_space=cells)
+    assert reopened.pending_inference_cells(99) == legacy(99)
+    assert reopened.pending_inference_count() == 2
+
+
+def test_pending_reconstructs_existing_memory_definition_without_universe_scan(
+        tmp_path, monkeypatch):
+    import market_pattern_discovery.orchestration.unknown as unknown
+    target = {"column_name": "target", "family": "DIRECTIONAL",
+              "semantic_role": "ROLE", "hypothesis_contrasts": ["a"]}
+    matrix = DiscoveryMatrix("CNYRUBF", "M1", pd.DataFrame(), {},
+                             {"f": ["x", "y"]}, [target], [])
+    monkeypatch.setattr(unknown, "feature_inventory", lambda *a, **k: [{"feature": "f"}])
+    lazy = PatternSearchSpace((matrix,), methods=("univariate_screen",))
+    item = lazy[1]
+    memory = ResearchMemory(tmp_path / "memory")
+    memory.add_pattern_effect(PatternEffectRecord(
+        item.pattern_cell_id, PatternBatch((item,)).pattern_batch_id, asdict(item),
+        _evaluation(), PatternStatus.INFERENCE_PENDING, "experiment", 1))
+
+    # Exercise the production reconstruction branch without requiring a
+    # 17-million-cell release manifest for this representative space.
+    scheduler = UnknownPatternScheduler(
+        memory, tmp_path / "data", tmp_path / "out", search_space=(item,))
+    scheduler.search_space = lazy
+    scheduler.rank_index = object()
+    assert scheduler.pending_inference_cells(1) == (item,)
+    assert scheduler.pending_inference_count() == 1
+
+
+def test_pending_hash_ties_retain_frozen_universe_order(tmp_path, monkeypatch):
+    items = (cell(feature_conditions=(("candle_range", "FIRST"),)),
+             cell(feature_conditions=(("candle_range", "SECOND"),)))
+    memory = ResearchMemory(tmp_path / "memory")
+    for item in reversed(items):
+        memory.add_pattern_effect(PatternEffectRecord(
+            item.pattern_cell_id, PatternBatch((item,)).pattern_batch_id, asdict(item),
+            _evaluation(), PatternStatus.INFERENCE_PENDING, "experiment", 1))
+    scheduler = UnknownPatternScheduler(
+        memory, tmp_path / "data", tmp_path / "out", search_space=items)
+    monkeypatch.setattr(
+        "market_pattern_discovery.orchestration.unknown.deterministic_hash",
+        lambda value: "tied-rank")
+    assert scheduler.pending_inference_cells(2) == items
+
+
 def test_absolute_roots_do_not_change_identity_batch_or_ranking(tmp_path):
     item = cell()
     results = []
