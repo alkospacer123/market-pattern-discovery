@@ -13,6 +13,7 @@ from market_pattern_discovery.orchestration import (
     AutonomousResearchWorker,
     AutonomousSearchScheduler,
     PatternExperimentRunner,
+    PatternSearchSpace,
     UnknownPatternScheduler,
     cells_for_matrix,
 )
@@ -43,12 +44,10 @@ def run(data_root: Path, memory_root: Path, output_root: Path, *, budget: int,
             # Loading matrices and enumerating the frozen search space can be
             # expensive.  Defer both until the worker actually gives UNKNOWN
             # its turn (after KNOWN in MIXED mode).
-            search_space = tuple(
-                cell
+            search_space = PatternSearchSpace(
+                load_discovery_matrix(data_root, instrument, timeframe)
                 for instrument in ("CNYRUBF", "USDRUBF")
                 for timeframe in ("M1", "M5")
-                for cell in cells_for_matrix(
-                    load_discovery_matrix(data_root, instrument, timeframe))
             )
             return (
                 UnknownPatternScheduler(

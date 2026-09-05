@@ -7,7 +7,8 @@ import pytest
 from market_pattern_discovery.experiments.runner import ExperimentRunner, ExperimentSpec
 from market_pattern_discovery.discovery.unknown import DiscoveryMatrix, evaluate_hypothesis
 from market_pattern_discovery.orchestration.unknown import (
-    PatternBatch, PatternExperimentRunner, PatternSearchCell, UnknownPatternScheduler,
+    PatternBatch, PatternExperimentRunner, PatternSearchCell, PatternSearchSpace,
+    UnknownPatternScheduler,
     finalize_multiplicity_family,
 )
 from market_pattern_discovery.research.memory import (
@@ -68,6 +69,52 @@ def test_scheduler_deterministic_resumable_balanced_and_exhausted(tmp_path):
     assert not ({x.pattern_cell_id for x in p1["pattern_batch"].cells} & {x.pattern_cell_id for x in p2["pattern_batch"].cells})
     for c in p2["pattern_batch"].cells: memory.add_pattern_effect(record(c))
     assert scheduler.plan(3, 1)["scheduler_status"] == "SEARCH_SPACE_EXHAUSTED"
+
+
+def test_lazy_indexed_space_exactly_matches_legacy_enumerator(monkeypatch):
+    import market_pattern_discovery.orchestration.unknown as unknown
+    import market_pattern_discovery.discovery.unknown as discovery_unknown
+    target = {"column_name": "target", "family": "DIRECTIONAL",
+              "semantic_role": "ROLE", "hypothesis_contrasts": ["a", "b"]}
+    matrix = DiscoveryMatrix("CNYRUBF", "M1", pd.DataFrame(), {},
+        {"f": ["x", "y"], "g": [0, 1, 2]}, [target], [])
+    monkeypatch.setattr(unknown, "feature_inventory", lambda *a, **k:
+                        [{"feature": "f"}, {"feature": "g"}])
+    monkeypatch.setattr(unknown, "enumerate_pairs", lambda *a, **k: [("f", "g")])
+    monkeypatch.setattr(unknown, "subgroup_rules", lambda *a, **k:
+                        [(('f', 'x'),), (('f', 'y'), ('g', 2))])
+    monkeypatch.setattr(discovery_unknown, "feature_inventory", unknown.feature_inventory)
+    monkeypatch.setattr(discovery_unknown, "enumerate_pairs", unknown.enumerate_pairs)
+    monkeypatch.setattr(discovery_unknown, "subgroup_rules", unknown.subgroup_rules)
+    methods = tuple(unknown.METHODS)
+    eager = unknown.cells_for_matrix(matrix, methods=methods)
+    lazy = PatternSearchSpace((matrix,), methods=methods)
+    assert len(lazy) == len(eager)
+    assert tuple(lazy) == eager
+    assert lazy[0] == eager[0] and lazy[-1] == eager[-1]
+    assert lazy[3:9] == eager[3:9]
+    assert tuple(lazy) == tuple(lazy)  # restartable, not generator state
+
+
+def test_bounded_planner_matches_legacy_and_stable_collision_order(tmp_path, monkeypatch):
+    import market_pattern_discovery.orchestration.unknown as unknown
+    cells = tuple(cell(instrument=i, timeframe=t,
+        feature_conditions=(("candle_range", str(n)),))
+        for i in ("CNYRUBF", "USDRUBF") for t in ("M1", "M5") for n in range(7))
+    real_hash = unknown.deterministic_hash
+    monkeypatch.setattr(unknown, "deterministic_hash", lambda value:
+        "collision" if isinstance(value, dict) and set(value) == {"seed", "id"}
+        else real_hash(value))
+    scheduler = UnknownPatternScheduler(ResearchMemory(tmp_path / "memory"),
+        "/data", tmp_path, search_space=cells)
+    plan = scheduler.plan(1, 9)
+    buckets = {(i, t): [] for i in ("CNYRUBF", "USDRUBF") for t in ("M1", "M5")}
+    for item in cells: buckets[(item.instrument, item.timeframe)].append(item)
+    expected = []
+    while len(expected) < 9:
+        for key in sorted(buckets):
+            if buckets[key] and len(expected) < 9: expected.append(buckets[key].pop(0))
+    assert plan["pattern_batch"].cells == tuple(expected)
 
 def test_incomplete_family_has_no_q_and_complete_family_gets_bh():
     base = {"raw_p": .01, "multiplicity_family": "f", "coverage": .2, "unique_days": 20,

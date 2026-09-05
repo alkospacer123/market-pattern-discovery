@@ -2,13 +2,18 @@
 from __future__ import annotations
 
 import argparse
+import bisect
+import heapq
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Iterable, Iterator, Mapping, Sequence, overload
 
 from market_pattern_discovery.contracts import deterministic_hash
 from market_pattern_discovery.discovery.execution_contract import load_execution_contract
+from market_pattern_discovery.discovery.execution_contract import (
+    enumerate_pairs, feature_inventory, subgroup_rules,
+)
 from market_pattern_discovery.discovery.protocol import (
     benjamini_hochberg, load_discovery_protocol, screen_effect,
 )
@@ -60,21 +65,149 @@ class PatternBatch:
         return deterministic_hash({"ordered_pattern_cell_ids": [c.pattern_cell_id for c in self.cells]})
 
 
-def cells_for_matrix(matrix, *, methods: Sequence[str] = tuple(METHODS),
-                     limit: int | None = None) -> tuple[PatternSearchCell, ...]:
+def _cell_factory(matrix, methods: Sequence[str]) -> Iterator[PatternSearchCell]:
     contract = load_execution_contract()
     signatures = tuple(sorted({**contract["upstream_signatures"],
                                "discovery_execution": contract["signature_sha256"]}.items()))
-    cells = []
     for method in methods:
         for spec in _hypotheses(matrix, method, contract):
             target = spec["target"]
-            cells.append(PatternSearchCell(matrix.instrument, matrix.timeframe, method,
+            yield PatternSearchCell(matrix.instrument, matrix.timeframe, method,
                 tuple(tuple(x) for x in spec["conditions"]), target["column_name"],
-                target["family"], target["semantic_role"], spec["contrast"], signatures))
-            if limit is not None and len(cells) >= limit:
-                return tuple(cells)
-    return tuple(cells)
+                target["family"], target["semantic_role"], spec["contrast"], signatures)
+
+
+def cells_for_matrix(matrix, *, methods: Sequence[str] = tuple(METHODS),
+                     limit: int | None = None) -> tuple[PatternSearchCell, ...]:
+    """Legacy eager enumerator, retained as the equivalence/audit oracle."""
+    iterator = _cell_factory(matrix, methods)
+    if limit is None:
+        return tuple(iterator)
+    from itertools import islice
+    return tuple(islice(iterator, limit))
+
+
+@dataclass(frozen=True, slots=True)
+class _ConditionBlock:
+    method: str
+    features: tuple[str, ...]
+    domains: tuple[tuple[Any, ...], ...]
+    size: int
+
+
+class PatternSearchSpace(Sequence[PatternSearchCell]):
+    """Restartable, immutable indexed view of the frozen logical universe.
+
+    Only compact condition blocks are resident.  Cells are reconstructed on
+    demand, in precisely the nesting order used by :func:`_hypotheses`.
+    """
+    def __init__(self, scopes: Iterable[Any], *, methods: Sequence[str] = tuple(METHODS)):
+        contract = load_execution_contract()
+        self._scopes = []
+        self._ends: list[int] = []
+        total = 0
+        for matrix in scopes:
+            inventory = feature_inventory(matrix.timeframe, included_only=True,
+                                          contract=contract)
+            blocks: list[_ConditionBlock] = []
+            for method in methods:
+                if method == "univariate_screen":
+                    definitions = [(entry["feature"],) for entry in inventory]
+                elif method == "interaction_search":
+                    definitions = [tuple(pair) for pair in enumerate_pairs(
+                        inventory, cap=contract["pairwise_selection"]["cap"],
+                        timeframe=matrix.timeframe, seed=contract["execution_seed"])]
+                else:
+                    feature_states = [(x["feature"], matrix.state_values[x["feature"]])
+                                      for x in inventory]
+                    rules = subgroup_rules(
+                        feature_states, cap=contract["subgroup_selection"]["cap"],
+                        seed=contract["execution_seed"], depth2_fraction=
+                        contract["subgroup_selection"]["depth_allocation"]["2"])
+                    outcomes = sum(len(t["hypothesis_contrasts"]) for t in matrix.targets)
+                    for rule in rules:
+                        features = tuple(name for name, _ in rule)
+                        domains = tuple((state,) for _, state in rule)
+                        blocks.append(_ConditionBlock(method, features, domains, outcomes))
+                    continue
+                outcomes = sum(len(t["hypothesis_contrasts"]) for t in matrix.targets)
+                for features in definitions:
+                    domains = tuple(tuple(matrix.state_values[name]) for name in features)
+                    combinations = 1
+                    for domain in domains:
+                        combinations *= len(domain)
+                    blocks.append(_ConditionBlock(method, features, domains,
+                                                  combinations * outcomes))
+            signatures = tuple(sorted({**contract["upstream_signatures"],
+                "discovery_execution": contract["signature_sha256"]}.items()))
+            block_ends = []
+            scope_total = 0
+            for block in blocks:
+                scope_total += block.size
+                block_ends.append(scope_total)
+            targets = tuple((t["column_name"], t["family"], t["semantic_role"], contrast)
+                for t in matrix.targets for contrast in t["hypothesis_contrasts"])
+            self._scopes.append((matrix.instrument, matrix.timeframe, tuple(blocks),
+                                 tuple(block_ends), targets, signatures, scope_total))
+            total += scope_total
+            self._ends.append(total)
+
+    def __len__(self) -> int:
+        return self._ends[-1] if self._ends else 0
+
+    @property
+    def scope_counts(self) -> Mapping[tuple[str, str], int]:
+        return {(s[0], s[1]): s[6] for s in self._scopes}
+
+    @overload
+    def __getitem__(self, index: int) -> PatternSearchCell: ...
+    @overload
+    def __getitem__(self, index: slice) -> tuple[PatternSearchCell, ...]: ...
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            return tuple(self[i] for i in range(*index.indices(len(self))))
+        if index < 0:
+            index += len(self)
+        if index < 0 or index >= len(self):
+            raise IndexError(index)
+        scope_index = bisect.bisect_right(self._ends, index)
+        scope_start = 0 if scope_index == 0 else self._ends[scope_index - 1]
+        instrument, timeframe, blocks, block_ends, targets, signatures, _ = self._scopes[scope_index]
+        local = index - scope_start
+        block_index = bisect.bisect_right(block_ends, local)
+        block_start = 0 if block_index == 0 else block_ends[block_index - 1]
+        block = blocks[block_index]
+        within = local - block_start
+        outcome_count = len(targets)
+        state_ordinal, outcome_ordinal = divmod(within, outcome_count)
+        states = [None] * len(block.domains)
+        for pos in range(len(block.domains) - 1, -1, -1):
+            state_ordinal, digit = divmod(state_ordinal, len(block.domains[pos]))
+            states[pos] = block.domains[pos][digit]
+        target, family, role, contrast = targets[outcome_ordinal]
+        return PatternSearchCell(instrument, timeframe, block.method,
+            tuple(zip(block.features, states)), target, family, role, contrast, signatures)
+
+    def __iter__(self) -> Iterator[PatternSearchCell]:
+        for instrument, timeframe, blocks, _, targets, signatures, _ in self._scopes:
+            for block in blocks:
+                combinations = block.size // len(targets)
+                for state_ordinal in range(combinations):
+                    value = state_ordinal
+                    states = [None] * len(block.domains)
+                    for pos in range(len(block.domains) - 1, -1, -1):
+                        value, digit = divmod(value, len(block.domains[pos]))
+                        states[pos] = block.domains[pos][digit]
+                    conditions = tuple(zip(block.features, states))
+                    for target, family, role, contrast in targets:
+                        yield PatternSearchCell(instrument, timeframe, block.method,
+                            conditions, target, family, role, contrast, signatures)
+
+
+class _ReverseKey:
+    __slots__ = ("value",)
+    def __init__(self, value): self.value = value
+    def __lt__(self, other): return self.value > other.value
 
 
 def finalize_multiplicity_family(rows: Sequence[dict[str, Any]], *,
@@ -114,27 +247,48 @@ class UnknownPatternScheduler:
                  seed: int = 20260401) -> None:
         self.memory, self.data_root = memory, Path(data_root)
         self.output_root, self.seed = Path(output_root), seed
-        self.search_space = tuple(search_space)
-        ids = [x.pattern_cell_id for x in self.search_space]
-        if len(ids) != len(set(ids)):
-            raise ValueError("duplicate cells in pattern search space")
+        # Preserve lazy/indexed views.  Small caller-provided sequences retain
+        # the legacy exact duplicate guard; production universes are validated
+        # by their immutable construction contract rather than a 17M-string set.
+        self.search_space = search_space
+        if not isinstance(search_space, PatternSearchSpace):
+            self.search_space = tuple(search_space)
+            ids = [x.pattern_cell_id for x in self.search_space]
+            if len(ids) != len(set(ids)):
+                raise ValueError("duplicate cells in pattern search space")
 
     def plan(self, cycle_number: int, budget: int) -> Mapping[str, Any]:
         if budget <= 0:
             raise ValueError("budget must be positive")
         completed = self.memory.completed_pattern_cell_ids()
-        unseen = [x for x in self.search_space if x.pattern_cell_id not in completed]
-        # Hash ordering is deterministic; scope prefix round-robin keeps markets balanced.
+        # Each heap retains exactly the prefix which a full stable bucket sort
+        # could consume.  The semantic ID is computed once in this pass and is
+        # carried with the finalist into batch construction.
         buckets = {(i, t): [] for i in ("CNYRUBF", "USDRUBF") for t in ("M1", "M5")}
-        for cell in unseen:
-            buckets.setdefault((cell.instrument, cell.timeframe), []).append(cell)
-        for key in buckets:
-            buckets[key].sort(key=lambda c: deterministic_hash({"seed": self.seed, "id": c.pattern_cell_id}))
+        scope_ordinals = {key: 0 for key in buckets}
+        unseen_count = 0
+        for cell in self.search_space:
+            key = (cell.instrument, cell.timeframe)
+            ordinal = scope_ordinals.setdefault(key, 0)
+            scope_ordinals[key] = ordinal + 1
+            cell_id = cell.pattern_cell_id
+            if cell_id in completed:
+                continue
+            unseen_count += 1
+            rank = deterministic_hash({"seed": self.seed, "id": cell_id})
+            item = (_ReverseKey((rank, ordinal)), rank, ordinal, cell_id, cell)
+            heap = buckets.setdefault(key, [])
+            if len(heap) < budget:
+                heapq.heappush(heap, item)
+            elif (rank, ordinal) < heap[0][0].value:
+                heapq.heapreplace(heap, item)
+        for key, heap in buckets.items():
+            buckets[key] = sorted(heap, key=lambda item: (item[1], item[2]))
         selected = []
         while len(selected) < budget and any(buckets.values()):
             for key in sorted(buckets):
                 if buckets[key] and len(selected) < budget:
-                    selected.append(buckets[key].pop(0))
+                    selected.append(buckets[key].pop(0)[4])
         batch = PatternBatch(tuple(selected)) if selected else None
         return {"cycle_number": cycle_number,
                 "scheduler_status": "PLANNED" if batch else "SEARCH_SPACE_EXHAUSTED",
@@ -142,7 +296,7 @@ class UnknownPatternScheduler:
                 "output_root": self.output_root, "research_track": "UNKNOWN_PATTERN",
                 "search_space_total": len(self.search_space),
                 "completed_cells": len(completed),
-                "search_space_remaining": len(unseen) - len(selected), "seed": self.seed}
+                "search_space_remaining": unseen_count - len(selected), "seed": self.seed}
 
     def pending_inference_cells(self, budget: int) -> tuple[PatternSearchCell, ...]:
         """Select existing, eligible cells lacking inference in stable seed order."""
