@@ -220,6 +220,11 @@ class ResearchMemory:
     def research_attempts(self) -> list[dict[str, Any]]:
         return self._read(self._attempts)
 
+    def completed_hypothesis_ids(self) -> set[str]:
+        """Level-2 memory used by the restart-safe hypothesis scheduler."""
+        return {row["hypothesis_id"] for row in self.research_attempts()
+                if row.get("hypothesis_id")}
+
     def record_research_attempt(self, attempt: Any) -> bool:
         """Idempotently append one semantic attempt; return whether it was new."""
         value = asdict(attempt)
@@ -247,7 +252,9 @@ class ResearchMemory:
 
     def record_scientific_finding(self, evaluation: Any, evidence: Any,
                                   effect: Any | None) -> bool:
-        """Persist compact Evaluation→Evidence→PatternEffect lineage once."""
+        """Persist compact Hypothesis→Evaluation→Evidence→PatternEffect lineage once."""
+        if not evaluation.hypothesis_id:
+            raise ValueError("scientific evaluation must reference a hypothesis")
         if evidence.evaluation_id != evaluation.evaluation_id:
             raise ValueError("evidence does not reference evaluation")
         if effect is not None and effect.evaluation_id != evaluation.evaluation_id:
