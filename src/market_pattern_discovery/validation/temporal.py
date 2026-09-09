@@ -3,7 +3,7 @@ import pandas as pd
 
 TZ = "Europe/Moscow"
 DEV_START = pd.Timestamp("2026-01-01 00:00:00", tz=TZ)
-DEV_END = pd.Timestamp("2026-07-01 23:59:59.999999", tz=TZ)
+DEV_END = pd.Timestamp("2026-08-31 23:59:59.999999", tz=TZ)
 
 def require_aware(value: pd.Timestamp) -> None:
     if value.tzinfo is None:
@@ -20,4 +20,3 @@ def sequential_split(values: pd.Series, split: pd.Timestamp) -> tuple[pd.Series,
     if values.dt.tz is None or not values.is_monotonic_increasing:
         raise ValueError("ordered timezone-aware timestamps required")
     return values < split, values >= split
-
