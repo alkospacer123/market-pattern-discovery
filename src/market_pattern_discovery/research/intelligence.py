@@ -26,6 +26,12 @@ class Evaluation:
     target: str = ""
     method: str = ""
     context: tuple[str, ...] = ()
+    uncertainty: Mapping[str, Any] | None = None
+    state_definition: Mapping[str, Any] | None = None
+    baseline_definition: str = ""
+    stability: Mapping[str, Any] | None = None
+    null_comparison: Mapping[str, Any] | None = None
+    multiplicity: Mapping[str, Any] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -33,6 +39,10 @@ class Evidence:
     evaluation_id: str
     qualifies: bool
     rationale: str
+    sufficient_sample: bool = False
+    practical_effect: bool = False
+    statistically_reliable: bool = False
+    stable: bool = False
 
 
 @dataclass(frozen=True, slots=True)
