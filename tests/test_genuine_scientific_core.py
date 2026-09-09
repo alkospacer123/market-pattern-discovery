@@ -35,7 +35,9 @@ def test_known_and_unknown_are_data_dependent_and_lineaged():
     assert known.evidence.evaluation_id == known.evaluation.evaluation_id
     changed = _unknown(cell=unknown_cell, market_data=market, context=context_for(unknown_cell),
                        features=prepared(scale=10)[2])
-    assert changed.hypothesis_id != unknown.hypothesis_id
+    # Scientific questions are data-independent: changed observations change
+    # statistics, never the deterministic hypothesis identity.
+    assert changed.hypothesis_id == unknown.hypothesis_id
 
 
 def test_unknown_schedule_contains_all_genuine_methods_and_all_timeframes():
