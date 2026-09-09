@@ -83,12 +83,12 @@ def test_aliases(tmp_path, alias, ticker):
     assert load(tmp_path, HEADER + row(ticker=ticker), alias).frame.instrument.iloc[0] == ticker
 
 def test_development_boundaries(tmp_path):
-    content = HEADER + row(date="20260101", time="000000") + row(date="20260701", time="235959")
+    content = HEADER + row(date="20260101", time="000000") + row(date="20260831", time="235959")
     result = load(tmp_path, content)
     assert result.frame.open_time.iloc[0] == DEV_START
     assert result.frame.open_time.iloc[-1] <= DEV_END
 
-@pytest.mark.parametrize("date", ["20251231", "20260702"])
+@pytest.mark.parametrize("date", ["20251231", "20260901"])
 def test_oos_and_outside_development_rejected(tmp_path, date):
     with pytest.raises(IngestionError, match="development interval"):
         load(tmp_path, HEADER + row(date=date))

@@ -71,7 +71,7 @@ def _read(path: Path, expected_instrument: str, timeframe: str, *, development_r
         # Mixed archive files (currently D1) are projected to the explicit
         # development interval before any market values are parsed or exposed.
         dates = pd.to_numeric(raw["<DATE>"], errors="coerce")
-        raw = raw.loc[(dates >= 20260101) & (dates <= 20260701)].copy()
+        raw = raw.loc[(dates >= 20260101) & (dates <= 20260831)].copy()
         if raw.empty:
             raise IngestionError(f"source has no permitted development rows: {path.name}")
     expected_per = definition.finam_period
