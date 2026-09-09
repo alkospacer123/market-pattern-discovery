@@ -20,6 +20,12 @@ class Evaluation:
     effect: float | None
     sample_size: int
     metadata: Mapping[str, Any]
+    hypothesis_id: str = ""
+    baseline_statistic: float | None = None
+    conditional_statistic: float | None = None
+    target: str = ""
+    method: str = ""
+    context: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

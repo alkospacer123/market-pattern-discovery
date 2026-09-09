@@ -6,6 +6,7 @@ from typing import Any, Callable, Mapping
 
 from market_pattern_discovery.contracts import deterministic_hash
 from .cells import ResearchCell, ResearchTrack
+from .hypotheses import Hypothesis
 from .intelligence import Evidence, Evaluation
 
 
@@ -31,6 +32,7 @@ class ResearchAttempt:
     evidence_state: str
     research_track: ResearchTrack
     cell_id: str
+    hypothesis_id: str = ""
 
     @property
     def identity(self) -> str:
@@ -48,9 +50,11 @@ class UnifiedResearchExecutor:
         self._handlers = {ResearchTrack.KNOWN: known, ResearchTrack.UNKNOWN: unknown}
 
     def execute(self, cell: ResearchCell, market_data: Any, context: Any,
-                features: Any) -> tuple[ResearchAttempt, ScientificResult]:
+                features: Any, hypothesis: Hypothesis | None = None) -> tuple[ResearchAttempt, ScientificResult]:
         contract = {"cell": cell, "market_data": market_data, "context": context,
                     "features": features}
+        if hypothesis is not None:
+            contract["hypothesis"] = hypothesis
         result = self._handlers[cell.research_track](**contract)
         if not isinstance(result, ScientificResult):
             raise TypeError("research handler must return ScientificResult, not labels/metadata")
@@ -59,5 +63,6 @@ class UnifiedResearchExecutor:
         method = result.discovery_method
         state = "QUALIFIED" if result.evidence.qualifies else "UNRESOLVED"
         attempt = ResearchAttempt(cell.symbol, cell.research_horizon.value,
-            cell.primary_timeframe, method, state, cell.research_track, cell.identity)
+            cell.primary_timeframe, method, state, cell.research_track, cell.identity,
+            result.hypothesis_id)
         return attempt, result

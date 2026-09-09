@@ -13,7 +13,8 @@ from market_pattern_discovery.contracts import deterministic_hash
 from market_pattern_discovery.data import MarketDataLoader
 from market_pattern_discovery.features.context import CausalContextEngine
 from market_pattern_discovery.research import (
-    Evidence, Evaluation, KnowledgeRecord, MultiHorizonScheduler, ResearchCell,
+    Evidence, Evaluation, Hypothesis, HypothesisScheduler, KnowledgeRecord,
+    MultiHorizonScheduler, ResearchCell,
     ResearchIntelligence, ResearchMemory, ScientificResult, UnifiedResearchExecutor,
     create_pattern_effect,
 )
@@ -28,7 +29,7 @@ def _context_definition(cell: ResearchCell, context: pd.DataFrame) -> list[str]:
     return columns
 
 
-def _scientific_result(cell: ResearchCell, method: str, definition: dict[str, Any],
+def _scientific_result(cell: ResearchCell, hypothesis: Hypothesis,
                        mask: pd.Series, target: pd.Series) -> ScientificResult:
     """Compare a causal state with the unconditional same-day behavioural baseline."""
     valid = target.notna()
@@ -39,83 +40,76 @@ def _scientific_result(cell: ResearchCell, method: str, definition: dict[str, An
     conditional_stat = float(conditional.mean()) if len(conditional) else None
     effect = (conditional_stat - baseline_stat
               if conditional_stat is not None and baseline_stat is not None else None)
-    hypothesis = {
-        "cell_id": cell.identity, "track": cell.research_track.value,
-        "method": method, "state": definition,
-        "target": ("next_native_bar_signed_return_cross_day_D1" if
-                   cell.primary_timeframe == "D1" else
-                   "next_native_bar_signed_return_same_trading_day"),
-        "baseline": ("all rows with an observable next native D1 bar" if
-                     cell.primary_timeframe == "D1" else
-                     "all rows with an observable same-day next native bar"),
-        "primary_timeframe": cell.primary_timeframe,
-        "context_timeframes": list(cell.context_timeframes),
-    }
-    hypothesis_id = deterministic_hash(hypothesis)
+    hypothesis_id = hypothesis.hypothesis_id
     evaluation_id = deterministic_hash({"hypothesis_id": hypothesis_id,
                                         "scientific_contract": "multi-horizon-v2"})
-    metadata = {**hypothesis, "hypothesis_id": hypothesis_id,
+    metadata = {"cell_id": cell.identity, "track": hypothesis.track,
+                "method": hypothesis.method, "state": hypothesis.state_definition,
+                "target": hypothesis.target_definition,
+                "baseline": hypothesis.baseline_definition,
+                "hypothesis_id": hypothesis_id,
                 "baseline_sample_size": int(valid.sum()),
                 "baseline_statistic": baseline_stat,
                 "conditional_statistic": conditional_stat,
                 "context_consumed": True}
-    evaluation = Evaluation(evaluation_id, effect, int(selected.sum()), metadata)
+    evaluation = Evaluation(evaluation_id, effect, int(selected.sum()), metadata,
+        hypothesis_id, baseline_stat, conditional_stat, hypothesis.target_definition,
+        hypothesis.method, hypothesis.context_timeframes)
     qualifies = bool(len(baseline) >= 10 and len(conditional) >= 5 and effect is not None)
     evidence = Evidence(evaluation_id, qualifies,
         "minimum baseline=10 and condition=5 satisfied" if qualifies
         else "insufficient baseline or conditional observations")
-    return ScientificResult(method, hypothesis_id, evaluation, evidence)
+    return ScientificResult(hypothesis.method, hypothesis_id, evaluation, evidence)
+
+
+def _condition_mask(condition: dict[str, Any], market_data: pd.DataFrame,
+                    features: pd.DataFrame) -> pd.Series:
+    feature, operator = condition["feature"], condition["operator"]
+    values = market_data["close"] if feature == "close" else features[feature]
+    if operator.startswith("quantile_"):
+        threshold = float(values.quantile(float(condition["quantile"])))
+        return values >= threshold if operator == "quantile_ge" else values <= threshold
+    if operator == "nonnegative": return values >= 0
+    if operator == "negative": return values < 0
+    if operator == "above_prior_high_20": return values > features["prior_high_20"]
+    if operator == "not_above_prior_high_20": return values <= features["prior_high_20"]
+    raise ValueError(f"unsupported causal state operator: {operator}")
 
 
 def _known(*, cell: ResearchCell, market_data: pd.DataFrame,
-           context: pd.DataFrame, features: pd.DataFrame) -> ScientificResult:
+           context: pd.DataFrame, features: pd.DataFrame,
+           hypothesis: Hypothesis | None = None) -> ScientificResult:
     """Measure a deterministic pre-existing causal market-event hypothesis."""
     context_columns = _context_definition(cell, context)
-    families = ("momentum", "narrow_range", "recent_high_break")
-    family = families[int(cell.identity[:8], 16) % len(families)]
-    if family == "momentum":
-        mask = features["return_1"] > 0
-        state = {"family": family, "condition": "closed-bar return_1 > 0"}
-    elif family == "narrow_range":
-        mask = features["range"] <= features["range_median_7"]
-        state = {"family": family, "condition": "range <= trailing-7 median range"}
-    else:
-        mask = market_data["close"] > features["prior_high_20"]
-        state = {"family": family, "condition": "close > prior-20-bar high"}
-    # Context is an explicit tested condition, not decorative metadata.
-    mask &= features["context_direction"] >= 0
-    state["context_condition"] = "mean fully-closed context return >= 0"
-    state["context_columns"] = context_columns
-    return _scientific_result(cell, "known_event_evaluation", state, mask,
-                              features["future_signed_return"])
+    if hypothesis is None:
+        from market_pattern_discovery.research import known_hypotheses
+        hypothesis = next(known_hypotheses(cell))
+    mask = pd.Series(True, index=features.index)
+    for condition in hypothesis.state_definition["conditions"]:
+        mask &= _condition_mask(condition, market_data, features)
+    return _scientific_result(cell, hypothesis, mask, features["future_signed_return"])
 
 
 def _unknown(*, cell: ResearchCell, market_data: pd.DataFrame,
-             context: pd.DataFrame, features: pd.DataFrame) -> ScientificResult:
+             context: pd.DataFrame, features: pd.DataFrame,
+             hypothesis: Hypothesis | None = None) -> ScientificResult:
     """Run one bounded autonomous state hypothesis, unrestricted by known families."""
     context_columns = _context_definition(cell, context)
-    method = UNKNOWN_METHODS[int(cell.identity[-8:], 16) % len(UNKNOWN_METHODS)]
-    q_return = float(features["return_1"].quantile(.75))
-    q_range = float(features["range"].quantile(.25))
-    conditions: list[tuple[str, pd.Series, str]] = [
-        ("return_1", features["return_1"] >= q_return, f">={q_return:.12g}"),
-        ("range", features["range"] <= q_range, f"<={q_range:.12g}"),
-        ("context_direction", features["context_direction"] >= 0, ">=0"),
-    ]
-    if method == "univariate_screen":
-        selected = conditions[2:]
-    elif method == "interaction_search":
-        selected = (conditions[0], conditions[2])
-    else:
-        selected = conditions
+    if hypothesis is None:
+        from market_pattern_discovery.research import unknown_hypotheses
+        # Preserve direct-call coverage of all methods deterministically.
+        wanted = UNKNOWN_METHODS[int(cell.identity[-8:], 16) % len(UNKNOWN_METHODS)]
+        hypothesis = next(h for h in unknown_hypotheses(cell) if h.method == wanted and
+            (h.state_definition.get("subgroup", {}).get("feature") == "context_direction" or
+             any(c["feature"] == "context_direction" for c in
+                 h.state_definition["conditions"])))
     mask = pd.Series(True, index=features.index)
-    for _, condition, _ in selected:
-        mask &= condition
-    state = {"conditions": [{"feature": name, "state": label}
-                             for name, _, label in selected],
-             "context_columns": context_columns}
-    return _scientific_result(cell, method, state, mask,
-                              features["future_signed_return"])
+    definitions = list(hypothesis.state_definition["conditions"])
+    subgroup = hypothesis.state_definition.get("subgroup")
+    if subgroup: definitions.append(subgroup)
+    for condition in definitions:
+        mask &= _condition_mask(condition, market_data, features)
+    return _scientific_result(cell, hypothesis, mask, features["future_signed_return"])
 
 
 @dataclass(frozen=True, slots=True)
@@ -130,7 +124,8 @@ class MultiHorizonResearchRunner:
     def __init__(self, data_root: str | Path, memory_root: str | Path, *, seed: int = 35) -> None:
         self.loader = MarketDataLoader(data_root)
         self.memory = ResearchMemory(memory_root)
-        self.scheduler = MultiHorizonScheduler(seed=seed)
+        self.cells = {cell.identity: cell for cell in MultiHorizonScheduler(seed=seed).cells}
+        self.scheduler = HypothesisScheduler(tuple(self.cells.values()), seed=seed)
         self.context = CausalContextEngine()
         self.executor = UnifiedResearchExecutor(_known, _unknown)
 
@@ -162,12 +157,13 @@ class MultiHorizonResearchRunner:
             raise ValueError("budget must be positive")
         results = []
         for cycle in range(cycles):
-            completed = {row["cell_id"] for row in self.memory.research_attempts()}
-            cells = self.scheduler.plan(completed, budget)
+            completed = self.memory.completed_hypothesis_ids()
+            hypotheses = self.scheduler.plan(completed, budget)
             recorded = evaluated = 0
-            for cell in cells:
+            for hypothesis in hypotheses:
+                cell = self.cells[hypothesis.cell_id]
                 market, context, features = self._prepare(cell)
-                attempt, result = self.executor.execute(cell, market, context, features)
+                attempt, result = self.executor.execute(cell, market, context, features, hypothesis)
                 if not self.memory.record_research_attempt(attempt):
                     continue
                 evaluated += 1
@@ -184,7 +180,7 @@ class MultiHorizonResearchRunner:
                      "evidence_qualifies": evidence.qualifies,
                      "evidence_rationale": evidence.rationale})
                 recorded += int(self.memory.add_knowledge_record(record))
-            results.append(CycleResult(cycle, len(cells), evaluated, recorded))
+            results.append(CycleResult(cycle, len(hypotheses), evaluated, recorded))
         return tuple(results)
 
 
