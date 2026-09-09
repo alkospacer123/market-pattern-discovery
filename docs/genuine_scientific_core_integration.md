@@ -66,9 +66,8 @@ the hypothesis rather than merely loaded metadata.
 
 ## Verification and restart smoke
 
-Focused integration result: `16 passed in 1.08s` (before the final D1 target
-clarification; covered tests were rerun in the final verification).  Full suite:
-`314 passed in 25.95s` (also rerun after the final documentation/code update).
+Focused integration result: `17 passed in 0.90s`.  Full suite:
+`315 passed in 26.21s`.
 
 Fresh real-data state: `/tmp/marketai_genuine_science_smoke_001/`, budget one
 hypothesis/cell/cycle.  Process A ran five cycles and added 5 cells, 5 genuine
@@ -85,13 +84,13 @@ Representative findings (statistics are signed returns):
 
 * KNOWN: Si / Scalping / M1 / M15; `known_event_evaluation`; narrow range plus
   non-negative closed M15 context; target next same-day native-bar return;
-  n=53,683; baseline 2.9848310761e-7; conditional -2.1212514024e-7; effect
+  n=85,290; baseline 2.9848310761e-7; conditional -2.1212514024e-7; effect
   -5.1060824785e-7; qualified, negative; evaluation
-  `721d081a...e1d`; effect `9730f14c...3d5`; knowledge `013139be...663`.
+  `2a086254...fed`; effect `fa370eb2...5b9`; knowledge `1d2e4995...e96`.
 * UNKNOWN: CNY / Intraday / M30 / H1,D1; `univariate_screen`; mean fully closed
-  context return >=0; n=2,643; baseline 1.7590234777e-5; conditional
+  context return >=0; n=4,025; baseline 1.7590234777e-5; conditional
   1.7790013433e-5; effect 1.9977865669e-7; qualified, positive; evaluation
-  `e4a28b44...72f`; effect `e2d0c9b2...87e`; knowledge `52dd8449...f4b`.
+  `265f992b...2cc`; effect `2df7d231...ce4`; knowledge `61ba7ac0...4bb`.
 * The KNOWN example is also a negative, explicitly context-dependent finding;
   it demonstrates that knowledge is not filtered to positive results.
 

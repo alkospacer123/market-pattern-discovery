@@ -45,7 +45,9 @@ def _scientific_result(cell: ResearchCell, method: str, definition: dict[str, An
         "target": ("next_native_bar_signed_return_cross_day_D1" if
                    cell.primary_timeframe == "D1" else
                    "next_native_bar_signed_return_same_trading_day"),
-        "baseline": "all rows with an observable same-day next native bar",
+        "baseline": ("all rows with an observable next native D1 bar" if
+                     cell.primary_timeframe == "D1" else
+                     "all rows with an observable same-day next native bar"),
         "primary_timeframe": cell.primary_timeframe,
         "context_timeframes": list(cell.context_timeframes),
     }
