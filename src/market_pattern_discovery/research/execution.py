@@ -6,6 +6,20 @@ from typing import Any, Callable, Mapping
 
 from market_pattern_discovery.contracts import deterministic_hash
 from .cells import ResearchCell, ResearchTrack
+from .intelligence import Evidence, Evaluation
+
+
+@dataclass(frozen=True, slots=True)
+class ScientificResult:
+    """The only valid output of a production research-track handler.
+
+    Keeping evaluation and evidence together makes it impossible for an
+    orchestrator to turn a label-only handler response into knowledge.
+    """
+    discovery_method: str
+    hypothesis_id: str
+    evaluation: Evaluation
+    evidence: Evidence
 
 
 @dataclass(frozen=True, slots=True)
@@ -34,11 +48,16 @@ class UnifiedResearchExecutor:
         self._handlers = {ResearchTrack.KNOWN: known, ResearchTrack.UNKNOWN: unknown}
 
     def execute(self, cell: ResearchCell, market_data: Any, context: Any,
-                features: Any) -> tuple[ResearchAttempt, Mapping[str, Any]]:
-        contract = {"market_data": market_data, "context": context, "features": features}
+                features: Any) -> tuple[ResearchAttempt, ScientificResult]:
+        contract = {"cell": cell, "market_data": market_data, "context": context,
+                    "features": features}
         result = self._handlers[cell.research_track](**contract)
-        method = str(result.get("discovery_method", cell.research_track.value.lower()))
-        state = str(result.get("evidence_state", "UNRESOLVED"))
+        if not isinstance(result, ScientificResult):
+            raise TypeError("research handler must return ScientificResult, not labels/metadata")
+        if result.evidence.evaluation_id != result.evaluation.evaluation_id:
+            raise ValueError("scientific evidence does not reference its evaluation")
+        method = result.discovery_method
+        state = "QUALIFIED" if result.evidence.qualifies else "UNRESOLVED"
         attempt = ResearchAttempt(cell.symbol, cell.research_horizon.value,
             cell.primary_timeframe, method, state, cell.research_track, cell.identity)
         return attempt, result

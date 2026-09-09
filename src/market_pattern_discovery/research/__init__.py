@@ -7,7 +7,7 @@ from .historical_registry import build_historical_registry, write_historical_reg
 from .protocol import AccessMode, DEFAULT_RESEARCH_SEED, load_protocol, protocol_signature
 from .cells import (MultiHorizonScheduler, PROFILES, ResearchCell,
                     ResearchHorizon, ResearchTrack, research_space)
-from .execution import ResearchAttempt, UnifiedResearchExecutor
+from .execution import ResearchAttempt, ScientificResult, UnifiedResearchExecutor
 from .intelligence import (Conclusion, Evidence, Evaluation, KnowledgeConclusion,
                            PatternEffect, ResearchIntelligence, create_pattern_effect)
 
@@ -19,7 +19,7 @@ __all__ = [
     "write_historical_registry",
     "MultiHorizonScheduler", "PROFILES", "ResearchCell", "ResearchHorizon",
     "ResearchTrack", "research_space",
-    "ResearchAttempt", "UnifiedResearchExecutor",
+    "ResearchAttempt", "ScientificResult", "UnifiedResearchExecutor",
     "Conclusion", "Evidence", "Evaluation", "KnowledgeConclusion", "PatternEffect",
     "ResearchIntelligence", "create_pattern_effect",
 ]
