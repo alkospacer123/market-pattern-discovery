@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 
 from market_pattern_discovery.validation.temporal import require_development
+from .timeframes import timeframe as get_timeframe
 
 SCHEMA = ["<TICKER>", "<PER>", "<DATE>", "<TIME>", "<OPEN>", "<HIGH>", "<LOW>", "<CLOSE>", "<VOL>"]
 OHLCV = ["open", "high", "low", "close", "volume"]
@@ -48,18 +49,16 @@ def discover_finam_sources(data_root: str | Path, instrument: str, timeframe: st
     from the Finam ``<PER>`` timeframe validation performed by :func:`_read`.
     """
     canonical = _instrument(instrument)
-    if timeframe not in {"M1", "M5"}:
-        raise IngestionError(f"unsupported timeframe: {timeframe}")
+    get_timeframe(timeframe)
     folder = SOURCE_FOLDERS[canonical]
     root = Path(data_root) / "2026" / folder
     suffix = "_M1.csv" if timeframe == "M1" else ".csv"
     return [root / f"{folder}_2026_Q{quarter}{suffix}" for quarter in (1, 2)
             if (root / f"{folder}_2026_Q{quarter}{suffix}").is_file()]
 
-def _read(path: Path, expected_instrument: str, timeframe: str) -> tuple[pd.DataFrame, dict]:
+def _read(path: Path, expected_instrument: str, timeframe: str, *, development_rows_only: bool = False) -> tuple[pd.DataFrame, dict]:
     expected_instrument = _instrument(expected_instrument)
-    if timeframe not in {"M1", "M5"}:
-        raise IngestionError(f"unsupported timeframe: {timeframe}")
+    definition = get_timeframe(timeframe)
     try:
         raw = pd.read_csv(path, sep=";", dtype=str, keep_default_na=False)
     except Exception as exc:
@@ -68,8 +67,15 @@ def _read(path: Path, expected_instrument: str, timeframe: str) -> tuple[pd.Data
         raise IngestionError(f"schema mismatch in {path.name}: {list(raw.columns)!r}")
     if raw.empty:
         raise IngestionError(f"empty source: {path.name}")
-    expected_per = 1 if timeframe == "M1" else 5
-    per = pd.to_numeric(raw["<PER>"], errors="coerce")
+    if development_rows_only:
+        # Mixed archive files (currently D1) are projected to the explicit
+        # development interval before any market values are parsed or exposed.
+        dates = pd.to_numeric(raw["<DATE>"], errors="coerce")
+        raw = raw.loc[(dates >= 20260101) & (dates <= 20260701)].copy()
+        if raw.empty:
+            raise IngestionError(f"source has no permitted development rows: {path.name}")
+    expected_per = definition.finam_period
+    per = raw["<PER>"] if isinstance(expected_per, str) else pd.to_numeric(raw["<PER>"], errors="coerce")
     if per.isna().any() or not (per == expected_per).all():
         raise IngestionError(f"wrong PER for {timeframe} in {path.name}")
     instruments = raw["<TICKER>"].map(lambda x: ALIASES.get(x.upper()))
@@ -101,7 +107,7 @@ def _read(path: Path, expected_instrument: str, timeframe: str) -> tuple[pd.Data
     frame["open_local"] = naive
     frame["open_time"] = opened
     frame["open_utc"] = opened.dt.tz_convert("UTC")
-    frame["close_time"] = opened + pd.Timedelta(minutes=expected_per)
+    frame["close_time"] = opened + definition.duration
     frame["source_filename"] = path.name
     frame["source_row"] = np.arange(2, len(frame) + 2)
     sorted_originally = bool(opened.is_monotonic_increasing)
