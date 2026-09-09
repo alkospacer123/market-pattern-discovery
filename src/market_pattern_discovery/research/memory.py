@@ -9,10 +9,13 @@ from __future__ import annotations
 import json
 import math
 import os
+import errno
 from dataclasses import asdict, dataclass, replace
 from enum import StrEnum
 from pathlib import Path
 from typing import Any, Iterable, Mapping
+
+from market_pattern_discovery.contracts import deterministic_hash
 
 
 class CandidateStatus(StrEnum):
@@ -48,6 +51,34 @@ class PatternRankingView(StrEnum):
     TOP_TEMPORAL_STABILITY = "TOP_TEMPORAL_STABILITY"
     TOP_COVERAGE = "TOP_COVERAGE"
     PATTERN_SURVIVORS = "PATTERN_SURVIVORS"
+
+
+@dataclass(frozen=True, slots=True)
+class KnowledgeRecord:
+    symbol: str
+    horizon: str
+    primary_timeframe: str
+    context_timeframe: str
+    research_track: str
+    evidence_reference: str
+    conclusion: str
+    status: str
+    metadata: Mapping[str, Any]
+    schema_version: str = "1"
+
+    def __post_init__(self) -> None:
+        required = (self.symbol, self.horizon, self.primary_timeframe,
+            self.context_timeframe, self.research_track, self.evidence_reference,
+            self.conclusion, self.status, self.schema_version)
+        if not all(required):
+            raise ValueError("knowledge record fields are required")
+        if self.conclusion not in {"positive", "negative", "unresolved"}:
+            raise ValueError("invalid knowledge conclusion")
+        object.__setattr__(self, "metadata", dict(self.metadata))
+
+    @property
+    def identity(self) -> str:
+        return deterministic_hash(asdict(self))
 
 
 @dataclass(frozen=True, slots=True)
@@ -114,6 +145,8 @@ class ResearchMemory:
         self._evaluations = self.directory / "evaluation_history.jsonl"
         self._patterns = self.directory / "pattern_effect_history.jsonl"
         self._synthesis_assessments = self.directory / "synthesis_assessment_history.jsonl"
+        self._attempts = self.directory / "research_attempts.jsonl"
+        self._knowledge = self.directory / "knowledge_records.jsonl"
 
     @staticmethod
     def _read(path: Path) -> list[dict[str, Any]]:
@@ -135,7 +168,13 @@ class ResearchMemory:
         fd = os.open(path, os.O_APPEND | os.O_CREAT | os.O_WRONLY, 0o644)
         try:
             os.write(fd, (encoded + "\n").encode())
-            os.fsync(fd)
+            try:
+                os.fsync(fd)
+            except OSError as exc:
+                # Some overlay/remote filesystems cannot provide fsync.  The
+                # append and close still preserve process-restart semantics.
+                if exc.errno not in {errno.EINVAL, errno.EIO, errno.ENOTSUP}:
+                    raise
         finally:
             os.close(fd)
 
@@ -176,6 +215,31 @@ class ResearchMemory:
 
     def experiments(self) -> list[dict[str, Any]]:
         return self._read(self._experiments)
+
+    def research_attempts(self) -> list[dict[str, Any]]:
+        return self._read(self._attempts)
+
+    def record_research_attempt(self, attempt: Any) -> bool:
+        """Idempotently append one semantic attempt; return whether it was new."""
+        value = asdict(attempt)
+        value["research_track"] = str(attempt.research_track.value)
+        value["attempt_id"] = attempt.identity
+        if any(row["attempt_id"] == attempt.identity for row in self.research_attempts()):
+            return False
+        self._append(self._attempts, value)
+        return True
+
+    def knowledge_records(self) -> list[dict[str, Any]]:
+        return self._read(self._knowledge)
+
+    def add_knowledge_record(self, record: KnowledgeRecord) -> bool:
+        """Append once across restarts while leaving legacy histories untouched."""
+        if any(row["knowledge_id"] == record.identity for row in self.knowledge_records()):
+            return False
+        value = asdict(record)
+        value["knowledge_id"] = record.identity
+        self._append(self._knowledge, value)
+        return True
 
     def candidate_history(self) -> list[dict[str, Any]]:
         return self._read(self._candidates)

@@ -6,3 +6,6 @@ from .schema import CoreFeatureConfig, RoundLevelConfig
 
 __all__ = ["CoreFeatureConfig", "RoundLevelConfig", "FeatureBuildResult", "FeatureInputError",
            "build_core_features", "build_features"]
+from .context import CausalContextEngine
+
+__all__ = ["CausalContextEngine"]
