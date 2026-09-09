@@ -11,8 +11,17 @@ def test_runner_requires_explicit_finite_cycles(tmp_path):
 
 def test_runner_restart_skips_persisted_cells(monkeypatch, tmp_path):
     runner = MultiHorizonResearchRunner(tmp_path, tmp_path / "memory", seed=1)
-    monkeypatch.setattr(runner, "_prepare", lambda cell: (object(), object(),
-        __import__("pandas").DataFrame({"close_change": [None, 1, -1]})))
+    import pandas as pd
+    market = pd.DataFrame({"close": range(1, 31), "high": range(2, 32)})
+    features = pd.DataFrame({
+        "return_1": [0.1] * 30, "range": [1.] * 30,
+        "range_median_7": [1.] * 30, "prior_high_20": [0.] * 30,
+        "context_direction": [0.1] * 30,
+        "future_signed_return": [0.01, -0.01] * 15,
+    })
+    context = lambda cell: pd.DataFrame({f"context_{tf}_close": range(30)
+                                         for tf in cell.context_timeframes})
+    monkeypatch.setattr(runner, "_prepare", lambda cell: (market, context(cell), features))
     assert runner.run(2)[-1].recorded == 1
     restarted = MultiHorizonResearchRunner(tmp_path, tmp_path / "memory", seed=1)
     monkeypatch.setattr(restarted, "_prepare", runner._prepare)
@@ -20,3 +29,26 @@ def test_runner_restart_skips_persisted_cells(monkeypatch, tmp_path):
     memory = ResearchMemory(tmp_path / "memory")
     assert len(memory.research_attempts()) == 3
     assert len({row["attempt_id"] for row in memory.research_attempts()}) == 3
+    assert len(memory.scientific_findings()) == 3
+    for finding, knowledge in zip(memory.scientific_findings(), memory.knowledge_records()):
+        evaluation_id = finding["evaluation"]["evaluation_id"]
+        assert finding["evidence"]["evaluation_id"] == evaluation_id
+        if finding["pattern_effect"]:
+            assert finding["pattern_effect"]["evaluation_id"] == evaluation_id
+        assert knowledge["evidence_reference"] == evaluation_id
+
+
+def test_unresolved_finding_is_persisted_without_manufactured_effect(monkeypatch, tmp_path):
+    import pandas as pd
+    runner = MultiHorizonResearchRunner(tmp_path, tmp_path / "memory", seed=1)
+    market = pd.DataFrame({"close": [1, 2, 3], "high": [2, 3, 4]})
+    features = pd.DataFrame({"return_1": [0., 1., 1.], "range": [1.] * 3,
+        "range_median_7": [1.] * 3, "prior_high_20": [0.] * 3,
+        "context_direction": [1.] * 3, "future_signed_return": [1., -1., None]})
+    monkeypatch.setattr(runner, "_prepare", lambda cell: (market,
+        pd.DataFrame({f"context_{tf}_close": range(3) for tf in cell.context_timeframes}),
+        features))
+    assert runner.run(1)[0].recorded == 1
+    memory = ResearchMemory(tmp_path / "memory")
+    assert memory.knowledge_records()[0]["conclusion"] == "unresolved"
+    assert memory.scientific_findings()[0]["pattern_effect"] is None

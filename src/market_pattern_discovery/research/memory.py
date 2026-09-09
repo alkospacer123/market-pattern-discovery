@@ -147,6 +147,7 @@ class ResearchMemory:
         self._synthesis_assessments = self.directory / "synthesis_assessment_history.jsonl"
         self._attempts = self.directory / "research_attempts.jsonl"
         self._knowledge = self.directory / "knowledge_records.jsonl"
+        self._scientific = self.directory / "scientific_findings.jsonl"
 
     @staticmethod
     def _read(path: Path) -> list[dict[str, Any]]:
@@ -239,6 +240,25 @@ class ResearchMemory:
         value = asdict(record)
         value["knowledge_id"] = record.identity
         self._append(self._knowledge, value)
+        return True
+
+    def scientific_findings(self) -> list[dict[str, Any]]:
+        return self._read(self._scientific)
+
+    def record_scientific_finding(self, evaluation: Any, evidence: Any,
+                                  effect: Any | None) -> bool:
+        """Persist compact Evaluation→Evidence→PatternEffect lineage once."""
+        if evidence.evaluation_id != evaluation.evaluation_id:
+            raise ValueError("evidence does not reference evaluation")
+        if effect is not None and effect.evaluation_id != evaluation.evaluation_id:
+            raise ValueError("pattern effect does not reference evaluation")
+        if any(row["evaluation"]["evaluation_id"] == evaluation.evaluation_id
+               for row in self.scientific_findings()):
+            return False
+        self._append(self._scientific, {
+            "evaluation": asdict(evaluation), "evidence": asdict(evidence),
+            "pattern_effect": asdict(effect) if effect is not None else None,
+        })
         return True
 
     def candidate_history(self) -> list[dict[str, Any]]:
