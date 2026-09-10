@@ -10,6 +10,36 @@ Outcome Engine v1.0 now exist. Outcomes intentionally inspect future candles;
 features never import or consume them. No outcome is a target label, signal,
 trade, profitability measure, or optimization result.
 
+## Hypothesis-to-trade boundary
+
+The executable path is deliberately one way:
+
+```text
+Scientific Hypothesis
+        ↓  freeze the observable condition, direction, and timing
+Executable Trading Signal
+        ↓  evaluate on the next eligible candle with explicit costs
+Backtest Engine
+        ↓  apply the frozen entry, risk, and exit rules
+Trade
+```
+
+These labels are distinct contracts, not interchangeable names for the same
+record. A scientific hypothesis states a falsifiable relationship using only
+information observable at its decision time. Strategy construction translates
+a qualified, frozen hypothesis into deterministic signal, entry, risk, and exit
+rules; it may not inspect backtest profitability while doing so. A signal is
+executable only after every candle and higher-timeframe context value it uses
+has closed. The backtest then enters no earlier than the next eligible execution
+candle and emits immutable trades after applying configured commission and
+slippage.
+
+Backtest results are evidence about a frozen strategy, never permission to
+rewrite the originating hypothesis or signal. Any changed condition, timing,
+direction, entry, risk, exit, or cost assumption is a new candidate identity
+and must repeat the development and validation path. Calendar year 2025 remains
+locked TRUE OOS until a strategy is frozen for its single authorized access.
+
 ## Phase 3A future-path contract
 
 Finam timestamps are candle opens. `decision_time` is the fully closed current
