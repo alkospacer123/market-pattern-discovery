@@ -5,6 +5,7 @@ import pytest
 
 from market_pattern_discovery.backtest import BacktestEngine, CostModel
 from market_pattern_discovery.contracts import deterministic_hash
+from market_pattern_discovery.ranking import RankingStatus, StrategyRankingEngine
 from market_pattern_discovery.research import (CandidateFamily, EntryDefinition, EntryType,
     ExitDefinition, ExitType, ResearchMemory, RiskDefinition, RiskType, StrategyCandidate,
     StrategyCandidateStatus, TradingCandidate, TradingCandidateStatus, TradingDirection)
@@ -117,3 +118,68 @@ def test_validation_memory_is_append_only_and_restart_safe(tmp_path):
     collision = replace(report, reason="different payload")
     with pytest.raises(ValueError, match="collision"):
         memory_b.add_validation_report(collision)
+
+
+def test_strategy_ranking_components_acceptance_positions_and_no_leakage():
+    strategy, data, trading = candidate(), market(), source()
+    original = deterministic_hash(strategy)
+    report = ValidationEngine(CostModel(0, 0),
+        thresholds=ValidationThresholds(minimum_trades=2)).validate(
+            strategy, baseline(strategy, data), data, split=DataSplit.calendar_v1(),
+            data_version="ranking-v1")
+    engine = StrategyRankingEngine()
+    first = engine.rank(((report, strategy, trading),))
+    second = engine.rank(((report, strategy, trading),))
+    assert first == second
+    ranking = first[0]
+    assert ranking.status is RankingStatus.RANKED and ranking.position == 1
+    assert all(0 <= value <= 20 for value in (ranking.scientific_score,
+        ranking.statistical_score, ranking.backtest_score, ranking.validation_score,
+        ranking.risk_score))
+    assert ranking.composite_score == round(sum((ranking.scientific_score,
+        ranking.statistical_score, ranking.backtest_score, ranking.validation_score,
+        ranking.risk_score)), 8)
+    assert ranking.trading_candidate_id == strategy.source_trading_candidate_id
+    assert ranking.pattern_effect_id == trading.source_pattern_effect_id
+    assert deterministic_hash(strategy) == original
+    assert not hasattr(engine, "optimize") and not hasattr(engine, "create_trades")
+
+    trading_b = replace(trading, candidate_id="source-validation-b")
+    strategy_b = replace(strategy, strategy_id="strategy-validation-b",
+                         source_trading_candidate_id=trading_b.candidate_id)
+    report_b = replace(report, validation_id="accepted-validation-b",
+                       strategy_id=strategy_b.strategy_id)
+    positioned = engine.rank(((report_b, strategy_b, trading_b),
+                              (report, strategy, trading)))
+    assert [(row.strategy_id, row.position) for row in positioned] == [
+        ("strategy-validation", 1), ("strategy-validation-b", 2)]
+
+    rejected_report = replace(report, validation_id="rejected-validation",
+                              status=ValidationStatus.REJECTED)
+    insufficient_report = replace(report, validation_id="insufficient-validation",
+                                  status=ValidationStatus.INSUFFICIENT_DATA)
+    audited = engine.rank(((rejected_report, strategy, trading),
+                           (insufficient_report, strategy, trading)))
+    assert {row.status for row in audited} == {RankingStatus.INSUFFICIENT_DATA,
+                                               RankingStatus.REJECTED}
+    assert all(row.position is None and row.composite_score == 0 for row in audited)
+
+
+def test_strategy_ranking_memory_restart_and_collision(tmp_path):
+    strategy, data, trading = candidate(), market(), source()
+    result = baseline(strategy, data)
+    report = ValidationEngine(CostModel(0, 0),
+        thresholds=ValidationThresholds(minimum_trades=2)).validate(
+            strategy, result, data, split=DataSplit.calendar_v1(), data_version="ranking-memory-v1")
+    ranking = StrategyRankingEngine().rank(((report, strategy, trading),))[0]
+    memory_a = ResearchMemory(tmp_path)
+    memory_a.add_trading_candidate(trading)
+    memory_a.add_strategy_candidate(strategy)
+    memory_a.add_backtest_result(result)
+    memory_a.add_validation_report(report)
+    assert memory_a.add_strategy_ranking(ranking)
+    memory_b = ResearchMemory(tmp_path)
+    assert not memory_b.add_strategy_ranking(ranking)
+    assert memory_b.strategy_rankings()[ranking.ranking_id] == ranking
+    with pytest.raises(ValueError, match="collision"):
+        memory_b.add_strategy_ranking(replace(ranking, composite_score=1.0))
