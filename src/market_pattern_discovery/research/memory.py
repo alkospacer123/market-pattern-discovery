@@ -152,6 +152,7 @@ class ResearchMemory:
         self._strategy_candidates = self.directory / "strategy_candidates.jsonl"
         self._backtest_results = self.directory / "backtest_results.jsonl"
         self._validation_reports = self.directory / "validation_reports.jsonl"
+        self._strategy_rankings = self.directory / "strategy_rankings.jsonl"
 
     @staticmethod
     def _read(path: Path) -> list[dict[str, Any]]:
@@ -350,6 +351,42 @@ class ResearchMemory:
                 raise ValueError("validation identity collision")
             return False
         self._append(self._validation_reports, report.to_dict())
+        return True
+
+    def strategy_rankings(self) -> dict[str, Any]:
+        """Reload immutable, versioned validation ranking facts."""
+        from market_pattern_discovery.ranking import StrategyRanking
+        return {row["ranking_id"]: StrategyRanking.from_dict(row)
+                for row in self._read(self._strategy_rankings)}
+
+    def add_strategy_ranking(self, ranking: Any) -> bool:
+        """Append once, enforcing the complete persisted validation lineage."""
+        from market_pattern_discovery.ranking import StrategyRanking
+        if not isinstance(ranking, StrategyRanking):
+            raise TypeError("only StrategyRanking objects can be persisted")
+        reports = self.validation_reports()
+        if ranking.validation_id not in reports:
+            raise ValueError("ranking ValidationReport is not in memory")
+        report = reports[ranking.validation_id]
+        if report.strategy_id != ranking.strategy_id:
+            raise ValueError("ranking strategy lineage is inconsistent")
+        strategies, sources = self.strategy_candidates(), self.trading_candidates()
+        strategy = strategies.get(ranking.strategy_id)
+        if strategy is None or strategy.source_trading_candidate_id != ranking.trading_candidate_id:
+            raise ValueError("ranking TradingCandidate lineage is inconsistent")
+        source = sources.get(ranking.trading_candidate_id)
+        if source is None or source.source_pattern_effect_id != ranking.pattern_effect_id:
+            raise ValueError("ranking PatternEffect lineage is inconsistent")
+        expected = deterministic_hash({"validation_id": ranking.validation_id,
+                                       "ranking_version": ranking.ranking_version})
+        if ranking.ranking_id != expected:
+            raise ValueError("ranking identity is not deterministic")
+        existing = self.strategy_rankings()
+        if ranking.ranking_id in existing:
+            if existing[ranking.ranking_id] != ranking:
+                raise ValueError("ranking identity collision")
+            return False
+        self._append(self._strategy_rankings, ranking.to_dict())
         return True
 
     def candidate_history(self) -> list[dict[str, Any]]:
