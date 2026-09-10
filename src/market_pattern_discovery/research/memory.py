@@ -148,6 +148,7 @@ class ResearchMemory:
         self._attempts = self.directory / "research_attempts.jsonl"
         self._knowledge = self.directory / "knowledge_records.jsonl"
         self._scientific = self.directory / "scientific_findings.jsonl"
+        self._trading_candidates = self.directory / "trading_candidates.jsonl"
 
     @staticmethod
     def _read(path: Path) -> list[dict[str, Any]]:
@@ -266,6 +267,22 @@ class ResearchMemory:
             "evaluation": asdict(evaluation), "evidence": asdict(evidence),
             "pattern_effect": asdict(effect) if effect is not None else None,
         })
+        return True
+
+    def trading_candidates(self) -> dict[str, Any]:
+        """Reload the deterministic, append-only trade-hypothesis registry."""
+        from .trading_candidates import TradingCandidate
+        return {row["candidate_id"]: TradingCandidate(**row)
+                for row in self._read(self._trading_candidates)}
+
+    def add_trading_candidate(self, candidate: Any) -> bool:
+        """Persist a candidate once; identical regeneration is a restart-safe skip."""
+        from .trading_candidates import TradingCandidate, trading_candidate_dict
+        if not isinstance(candidate, TradingCandidate):
+            raise TypeError("only TradingCandidate objects can be persisted")
+        if candidate.candidate_id in self.trading_candidates():
+            return False
+        self._append(self._trading_candidates, trading_candidate_dict(candidate))
         return True
 
     def candidate_history(self) -> list[dict[str, Any]]:
