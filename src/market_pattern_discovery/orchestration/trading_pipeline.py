@@ -1,7 +1,7 @@
 """Restart-safe orchestration of the existing post-research trading engines."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Callable
 
 from market_pattern_discovery.backtest import BacktestEngine
@@ -10,6 +10,7 @@ from market_pattern_discovery.research.hypotheses import Hypothesis
 from market_pattern_discovery.research.intelligence import Evidence, Evaluation, PatternEffect
 from market_pattern_discovery.research.strategy_candidates import StrategyBuilder
 from market_pattern_discovery.research.trading_candidates import TradingCandidateGenerator
+from market_pattern_discovery.signals import ScientificSignalTranslator
 from market_pattern_discovery.validation import DataSplit, ValidationEngine
 
 
@@ -17,11 +18,17 @@ from market_pattern_discovery.validation import DataSplit, ValidationEngine
 class PipelineRunReport:
     trading_candidates: int = 0
     strategy_candidates: int = 0
+    executable_signals: int = 0
     backtests: int = 0
     validations: int = 0
     rankings: int = 0
     skipped: int = 0
     failures: int = 0
+    total_evaluated_candles: int = 0
+    potential_signals: int = 0
+    confirmed_signals: int = 0
+    executed_entries: int = 0
+    trades: int = 0
 
 
 class AutonomousTradingPipeline:
@@ -88,14 +95,28 @@ class AutonomousTradingPipeline:
                 counts["failures"] += self._fail("STRATEGY", candidate.candidate_id, error)
 
         backtests = self.memory.backtest_results()
+        signals = self.memory.executable_signal_definitions()
         for strategy in sorted(strategies.values(), key=lambda x: x.strategy_id):
             if any(row.strategy_id == strategy.strategy_id for row in backtests.values()):
                 counts["skipped"] += 1
                 continue
             try:
+                signal = ScientificSignalTranslator().translate(strategy)
+                counts["executable_signals"] += int(
+                    self.memory.add_executable_signal_definition(signal))
+                signals[signal.signal_id] = signal
                 data = self._complete_context(strategy, self.data_provider(strategy))
-                result = self.backtest_engine.run(strategy, data, data_version=self.data_version)
+                result = self.backtest_engine.run(signal, data, data_version=self.data_version)
+                # Test doubles and older engine plugins may omit the newly
+                # required reference; bind it before crossing the memory gate.
+                if not result.signal_id:
+                    result = replace(result, signal_id=signal.signal_id)
                 counts["backtests"] += int(self.memory.add_backtest_result(result))
+                counts["total_evaluated_candles"] += result.condition_evaluations
+                counts["potential_signals"] += result.potential_signals
+                counts["confirmed_signals"] += result.confirmed_signals
+                counts["executed_entries"] += result.executed_entries
+                counts["trades"] += result.total_trades
                 backtests[result.backtest_id] = result
             except Exception as error:
                 counts["failures"] += self._fail("BACKTEST", strategy.strategy_id, error)
@@ -108,7 +129,8 @@ class AutonomousTradingPipeline:
             strategy = strategies[backtest.strategy_id]
             try:
                 data = self._complete_context(strategy, self.data_provider(strategy))
-                report = self.validation_engine.validate(strategy, backtest, data,
+                signal = signals[backtest.signal_id]
+                report = self.validation_engine.validate(signal, backtest, data,
                     split=self.split, data_version=self.data_version)
                 counts["validations"] += int(self.memory.add_validation_report(report))
                 validations[report.validation_id] = report

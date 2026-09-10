@@ -150,6 +150,7 @@ class ResearchMemory:
         self._scientific = self.directory / "scientific_findings.jsonl"
         self._trading_candidates = self.directory / "trading_candidates.jsonl"
         self._strategy_candidates = self.directory / "strategy_candidates.jsonl"
+        self._executable_signals = self.directory / "executable_signal_definitions.jsonl"
         self._backtest_results = self.directory / "backtest_results.jsonl"
         self._validation_reports = self.directory / "validation_reports.jsonl"
         self._strategy_rankings = self.directory / "strategy_rankings.jsonl"
@@ -323,6 +324,32 @@ class ResearchMemory:
         self._append(self._strategy_candidates, strategy_candidate_dict(candidate))
         return True
 
+    def executable_signal_definitions(self) -> dict[str, Any]:
+        """Reload the append-only executable-signal compiler output."""
+        from market_pattern_discovery.signals import ExecutableSignalDefinition
+        return {row["signal_id"]: ExecutableSignalDefinition.from_dict(row)
+                for row in self._read(self._executable_signals)}
+
+    def add_executable_signal_definition(self, signal: Any) -> bool:
+        """Append once and reject missing or inconsistent strategy lineage."""
+        from market_pattern_discovery.signals import (ExecutableSignalDefinition,
+                                                       ScientificSignalTranslator)
+        if not isinstance(signal, ExecutableSignalDefinition):
+            raise TypeError("only ExecutableSignalDefinition objects can be persisted")
+        strategy = self.strategy_candidates().get(signal.source_strategy_candidate_id)
+        if strategy is None:
+            raise ValueError("executable signal source StrategyCandidate is not in memory")
+        expected = ScientificSignalTranslator().translate(strategy)
+        if expected != signal:
+            raise ValueError("executable signal identity or strategy lineage is inconsistent")
+        existing = self.executable_signal_definitions()
+        if signal.signal_id in existing:
+            if existing[signal.signal_id] != signal:
+                raise ValueError("executable signal identity collision")
+            return False
+        self._append(self._executable_signals, signal.to_dict())
+        return True
+
     def backtest_results(self) -> dict[str, Any]:
         """Reload immutable StrategyCandidate evaluation facts."""
         from market_pattern_discovery.backtest import BacktestResult
@@ -334,8 +361,21 @@ class ResearchMemory:
         from market_pattern_discovery.backtest import BacktestResult
         if not isinstance(result, BacktestResult):
             raise TypeError("only BacktestResult objects can be persisted")
-        if result.strategy_id not in self.strategy_candidates():
-            raise ValueError("backtest StrategyCandidate is not in memory")
+        signals = self.executable_signal_definitions()
+        signal = signals.get(result.signal_id)
+        if signal is None and result.strategy_id in self.strategy_candidates():
+            # Restart-safe migration path for callers that evaluated through
+            # BacktestEngine's legacy StrategyCandidate boundary adapter.
+            from market_pattern_discovery.signals import ScientificSignalTranslator
+            compiled = ScientificSignalTranslator().translate(
+                self.strategy_candidates()[result.strategy_id])
+            if compiled.signal_id == result.signal_id:
+                self.add_executable_signal_definition(compiled)
+                signal = compiled
+        if signal is None:
+            raise ValueError("backtest ExecutableSignalDefinition is not in memory")
+        if signal.source_strategy_candidate_id != result.strategy_id:
+            raise ValueError("backtest executable signal lineage is inconsistent")
         existing = self.backtest_results()
         if result.backtest_id in existing:
             if existing[result.backtest_id] != result:
