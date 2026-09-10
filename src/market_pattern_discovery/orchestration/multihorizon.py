@@ -8,10 +8,12 @@ from typing import Any
 import json
 
 import pandas as pd
+import numpy as np
 
 from market_pattern_discovery.contracts import deterministic_hash
 from market_pattern_discovery.data import MarketDataLoader
 from market_pattern_discovery.features.context import CausalContextEngine
+from market_pattern_discovery.discovery.protocol import benjamini_hochberg, day_block_bootstrap
 from market_pattern_discovery.research import (
     Evidence, Evaluation, Hypothesis, HypothesisScheduler, KnowledgeRecord,
     MultiHorizonScheduler, ResearchCell,
@@ -43,6 +45,29 @@ def _scientific_result(cell: ResearchCell, hypothesis: Hypothesis,
     hypothesis_id = hypothesis.hypothesis_id
     evaluation_id = deterministic_hash({"hypothesis_id": hypothesis_id,
                                         "scientific_contract": "multi-horizon-v2"})
+    frame = pd.DataFrame({"target": target, "moscow_trading_date": target.index.map(
+        lambda _: None)}, index=target.index)
+    # The target carries the causal preparation frame's trading dates in attrs.
+    frame["moscow_trading_date"] = target.attrs.get("trading_date", pd.Series(target.index, index=target.index))
+    uncertainty = (day_block_bootstrap(frame, selected, "target", statistic="mean_difference",
+        replications=5, seed=20260401) if len(baseline) and len(conditional) else
+        {"method": "moscow_trading_date_resampling", "replications": 0,
+         "seed": 20260401, "lower": None, "upper": None, "standard_error": None})
+    fold_effects = []
+    for positions in np.array_split(np.arange(len(target)), 3):
+        fold_valid = valid.iloc[positions]
+        fold_selected = selected.iloc[positions]
+        b = pd.to_numeric(target.iloc[positions][fold_valid], errors="coerce")
+        a = pd.to_numeric(target.iloc[positions][fold_selected], errors="coerce")
+        fold_effects.append(float(a.mean() - b.mean()) if len(a) and len(b) else None)
+    same_sign = int(sum(value is not None and effect is not None and
+                        np.sign(value) == np.sign(effect) for value in fold_effects))
+    lower, upper = uncertainty.get("lower"), uncertainty.get("upper")
+    reliable = bool(lower is not None and upper is not None and (lower > 0 or upper < 0))
+    raw_p = float(min(1.0, 2 * min(sum(value <= 0 for value in fold_effects if value is not None),
+                                   sum(value >= 0 for value in fold_effects if value is not None)) /
+                            max(1, sum(value is not None for value in fold_effects))))
+    adjusted = float(benjamini_hochberg([raw_p])[0])
     metadata = {"cell_id": cell.identity, "track": hypothesis.track,
                 "method": hypothesis.method, "state": hypothesis.state_definition,
                 "target": hypothesis.target_definition,
@@ -51,14 +76,25 @@ def _scientific_result(cell: ResearchCell, hypothesis: Hypothesis,
                 "baseline_sample_size": int(valid.sum()),
                 "baseline_statistic": baseline_stat,
                 "conditional_statistic": conditional_stat,
-                "context_consumed": True}
+                "context_consumed": True, "feature_version": "scientific-inventory-v1",
+                "target_version": "behavioural-targets-v1"}
     evaluation = Evaluation(evaluation_id, effect, int(selected.sum()), metadata,
         hypothesis_id, baseline_stat, conditional_stat, hypothesis.target_definition,
-        hypothesis.method, hypothesis.context_timeframes)
-    qualifies = bool(len(baseline) >= 10 and len(conditional) >= 5 and effect is not None)
+        hypothesis.method, hypothesis.context_timeframes, uncertainty,
+        hypothesis.state_definition, hypothesis.baseline_definition,
+        {"method": "three_ordered_walk_forward_blocks", "fold_effects": fold_effects,
+         "same_sign_folds": same_sign},
+        {"method": "zero_effect_null", "raw_p": raw_p},
+        {"method": "benjamini_hochberg", "family": f"{cell.symbol}|{cell.primary_timeframe}|{hypothesis.method}|{hypothesis.target_definition}",
+         "family_size_observed": 1, "adjusted_q": adjusted})
+    enough = bool(len(baseline) >= 10 and len(conditional) >= 5)
+    practical = bool(effect is not None and abs(effect) > 1e-12)
+    stable = same_sign >= 2
+    qualifies = enough and practical and reliable and stable and adjusted <= .05
     evidence = Evidence(evaluation_id, qualifies,
-        "minimum baseline=10 and condition=5 satisfied" if qualifies
-        else "insufficient baseline or conditional observations")
+        "sample, effect, bootstrap reliability, walk-forward stability and BH qualification satisfied"
+        if qualifies else "one or more scientific qualification gates failed",
+        enough, practical, reliable and adjusted <= .05, stable)
     return ScientificResult(hypothesis.method, hypothesis_id, evaluation, evidence)
 
 
@@ -87,7 +123,9 @@ def _known(*, cell: ResearchCell, market_data: pd.DataFrame,
     mask = pd.Series(True, index=features.index)
     for condition in hypothesis.state_definition["conditions"]:
         mask &= _condition_mask(condition, market_data, features)
-    return _scientific_result(cell, hypothesis, mask, features["future_signed_return"])
+    key = hypothesis.target_definition.removesuffix("_same_trading_day").removesuffix("_cross_day_D1")
+    return _scientific_result(cell, hypothesis, mask,
+                              features[key] if key in features else features["future_signed_return"])
 
 
 def _unknown(*, cell: ResearchCell, market_data: pd.DataFrame,
@@ -109,7 +147,9 @@ def _unknown(*, cell: ResearchCell, market_data: pd.DataFrame,
     if subgroup: definitions.append(subgroup)
     for condition in definitions:
         mask &= _condition_mask(condition, market_data, features)
-    return _scientific_result(cell, hypothesis, mask, features["future_signed_return"])
+    key = hypothesis.target_definition.removesuffix("_same_trading_day").removesuffix("_cross_day_D1")
+    return _scientific_result(cell, hypothesis, mask,
+                              features[key] if key in features else features["future_signed_return"])
 
 
 @dataclass(frozen=True, slots=True)
@@ -128,8 +168,11 @@ class MultiHorizonResearchRunner:
         self.scheduler = HypothesisScheduler(tuple(self.cells.values()), seed=seed)
         self.context = CausalContextEngine()
         self.executor = UnifiedResearchExecutor(_known, _unknown)
+        self._prepared: dict[str, tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]] = {}
 
     def _prepare(self, cell: ResearchCell) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        if cell.identity in self._prepared:
+            return self._prepared[cell.identity]
         market = self.loader.load(cell.symbol, cell.primary_timeframe)
         aligned = market
         context_returns = []
@@ -144,11 +187,35 @@ class MultiHorizonResearchRunner:
         features = pd.DataFrame(index=market.index)
         features["return_1"] = market.close.pct_change(fill_method=None)
         features["range"] = market.high - market.low
-        features["range_median_7"] = features["range"].shift(1).rolling(7).median()
-        features["prior_high_20"] = market.high.shift(1).rolling(20).max()
+        features["body_to_range"] = (market.close - market.open).abs().div(features["range"].replace(0, np.nan))
+        features["close_position"] = market.close.sub(market.low).div(features["range"].replace(0, np.nan))
+        grouped_return = features["return_1"].groupby(trading_day)
+        grouped_range = features["range"].groupby(trading_day)
+        features["volatility_5"] = grouped_return.transform(lambda x: x.shift(1).rolling(5).std())
+        features["range_percentile_20"] = grouped_range.transform(
+            lambda x: x.shift(1).rolling(20).rank(pct=True))
+        features["momentum_5"] = market.close.groupby(trading_day).pct_change(5)
+        prior_low = market.low.groupby(trading_day).transform(lambda x: x.shift(1).rolling(20).min())
+        prior_high = market.high.groupby(trading_day).transform(lambda x: x.shift(1).rolling(20).max())
+        features["position_in_range_20"] = market.close.sub(prior_low).div(prior_high.sub(prior_low))
+        features["range_median_7"] = grouped_range.transform(
+            lambda x: x.shift(1).rolling(7).median())
+        features["prior_high_20"] = prior_high
         features["context_direction"] = pd.concat(context_returns, axis=1).mean(axis=1)
         features["future_signed_return"] = next_close.div(market.close).sub(1)
-        return market, aligned, features
+        features["future_volatility"] = features["future_signed_return"].abs()
+        features["future_range_expansion"] = features["range"].shift(-1).div(features["range"].replace(0, np.nan)).sub(1)
+        features["future_direction"] = np.sign(features["future_signed_return"])
+        features["future_state_transition"] = np.sign(features["return_1"].shift(-1)).ne(
+            np.sign(features["return_1"])).astype(float)
+        for column in ("future_signed_return", "future_volatility", "future_range_expansion",
+                       "future_direction", "future_state_transition"):
+            if cell.primary_timeframe != "D1":
+                features[column] = features[column].where(trading_day.eq(trading_day.shift(-1)))
+            features[column].attrs["trading_date"] = pd.Series(trading_day, index=features.index)
+        prepared = (market, aligned, features)
+        self._prepared[cell.identity] = prepared
+        return prepared
 
     def run(self, cycles: int, *, budget: int = 1) -> tuple[CycleResult, ...]:
         if cycles <= 0:
