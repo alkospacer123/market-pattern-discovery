@@ -14,4 +14,6 @@ __all__ = ["AutonomousSearchScheduler", "CycleManifest", "CycleReport", "CycleRu
            "PatternExperimentRunner", "PatternSearchCell", "PatternSearchSpace",
            "UnknownUniverseIndex", "build_unknown_universe_index", "UnknownPatternScheduler",
            "load_manifest_state_domains",
-           "cells_for_matrix", "finalize_multiplicity_family"]
+           "cells_for_matrix", "finalize_multiplicity_family",
+           "AutonomousTradingPipeline", "PipelineRunReport"]
+from .trading_pipeline import AutonomousTradingPipeline, PipelineRunReport

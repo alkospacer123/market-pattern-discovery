@@ -153,6 +153,7 @@ class ResearchMemory:
         self._backtest_results = self.directory / "backtest_results.jsonl"
         self._validation_reports = self.directory / "validation_reports.jsonl"
         self._strategy_rankings = self.directory / "strategy_rankings.jsonl"
+        self._pipeline_failures = self.directory / "pipeline_failures.jsonl"
 
     @staticmethod
     def _read(path: Path) -> list[dict[str, Any]]:
@@ -256,7 +257,7 @@ class ResearchMemory:
         return self._read(self._scientific)
 
     def record_scientific_finding(self, evaluation: Any, evidence: Any,
-                                  effect: Any | None) -> bool:
+                                  effect: Any | None, hypothesis: Any | None = None) -> bool:
         """Persist compact Hypothesis→Evaluation→Evidence→PatternEffect lineage once."""
         if not evaluation.hypothesis_id:
             raise ValueError("scientific evaluation must reference a hypothesis")
@@ -270,8 +271,22 @@ class ResearchMemory:
         self._append(self._scientific, {
             "evaluation": asdict(evaluation), "evidence": asdict(evidence),
             "pattern_effect": asdict(effect) if effect is not None else None,
+            "hypothesis": asdict(hypothesis) if hypothesis is not None else None,
         })
         return True
+
+    def pipeline_failures(self) -> list[dict[str, Any]]:
+        """Return immutable stage failures in execution order."""
+        return self._read(self._pipeline_failures)
+
+    def record_pipeline_failure(self, stage: str, object_id: str, error: Exception) -> None:
+        """Persist a deterministic failure fact without creating downstream lineage."""
+        value = {"stage": stage, "object_id": object_id,
+                 "error_type": type(error).__name__, "message": str(error)}
+        failure_id = deterministic_hash(value)
+        if any(row["failure_id"] == failure_id for row in self.pipeline_failures()):
+            return
+        self._append(self._pipeline_failures, {"failure_id": failure_id, **value})
 
     def trading_candidates(self) -> dict[str, Any]:
         """Reload the deterministic, append-only trade-hypothesis registry."""

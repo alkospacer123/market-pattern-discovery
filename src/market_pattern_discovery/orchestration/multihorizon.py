@@ -237,7 +237,7 @@ class MultiHorizonResearchRunner:
                 evaluation, evidence = result.evaluation, result.evidence
                 effect = create_pattern_effect(evaluation, evidence)
                 conclusion = ResearchIntelligence().conclude(evaluation, evidence, effect)
-                self.memory.record_scientific_finding(evaluation, evidence, effect)
+                self.memory.record_scientific_finding(evaluation, evidence, effect, hypothesis)
                 if effect is not None:
                     candidate = TradingCandidateGenerator().generate(
                         effect, evaluation, evidence, hypothesis)

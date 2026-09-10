@@ -26,6 +26,7 @@ class Hypothesis:
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "state_definition", dict(self.state_definition))
+        object.__setattr__(self, "context_timeframes", tuple(self.context_timeframes))
 
     @property
     def hypothesis_id(self) -> str:
