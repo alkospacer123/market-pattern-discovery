@@ -151,6 +151,7 @@ class ResearchMemory:
         self._trading_candidates = self.directory / "trading_candidates.jsonl"
         self._strategy_candidates = self.directory / "strategy_candidates.jsonl"
         self._backtest_results = self.directory / "backtest_results.jsonl"
+        self._validation_reports = self.directory / "validation_reports.jsonl"
 
     @staticmethod
     def _read(path: Path) -> list[dict[str, Any]]:
@@ -325,6 +326,30 @@ class ResearchMemory:
                 raise ValueError("backtest identity collision")
             return False
         self._append(self._backtest_results, result.to_dict())
+        return True
+
+    def validation_reports(self) -> dict[str, Any]:
+        """Reload immutable BacktestResult validation facts."""
+        from market_pattern_discovery.validation import ValidationReport
+        return {row["validation_id"]: ValidationReport.from_dict(row)
+                for row in self._read(self._validation_reports)}
+
+    def add_validation_report(self, report: Any) -> bool:
+        """Append once and enforce complete StrategyCandidate→BacktestResult lineage."""
+        from market_pattern_discovery.validation import ValidationReport
+        if not isinstance(report, ValidationReport):
+            raise TypeError("only ValidationReport objects can be persisted")
+        backtests = self.backtest_results()
+        if report.backtest_id not in backtests:
+            raise ValueError("validation BacktestResult is not in memory")
+        if backtests[report.backtest_id].strategy_id != report.strategy_id:
+            raise ValueError("validation strategy lineage is inconsistent")
+        existing = self.validation_reports()
+        if report.validation_id in existing:
+            if existing[report.validation_id] != report:
+                raise ValueError("validation identity collision")
+            return False
+        self._append(self._validation_reports, report.to_dict())
         return True
 
     def candidate_history(self) -> list[dict[str, Any]]:
