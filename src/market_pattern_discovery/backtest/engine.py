@@ -116,6 +116,23 @@ class _Candle:
     values: Mapping[str, Any]
 
 
+@dataclass(frozen=True, slots=True)
+class PreparedMarketData:
+    """Validated, immutable indexes used by repeated backtest evaluations.
+
+    ``context_positions[timeframe][i]`` is the last context candle whose close
+    is observable at execution candle ``i``.  A value of ``-1`` means that no
+    candle is available yet.  The indexes are built with a monotonic cursor,
+    so preparation is linear rather than a historical scan per observation.
+    """
+
+    execution_timeframe: str
+    timeframe_index: Mapping[str, tuple[_Candle, ...]]
+    candle_close_timestamps: Mapping[str, tuple[datetime, ...]]
+    context_positions: Mapping[str, tuple[int, ...]]
+    symbol_index: Mapping[str, tuple[int, ...]]
+
+
 class BacktestEngine:
     """Single-pass simulator; it evaluates and never mutates or searches strategies."""
 
@@ -133,7 +150,13 @@ class BacktestEngine:
         if not data_version:
             raise ValueError("data_version is required")
         before = deterministic_hash(strategy)
-        execution, contexts = self._load(market_data, strategy.execution_timeframe)
+        prepared = (market_data if isinstance(market_data, PreparedMarketData)
+                    else self.prepare(market_data, strategy.execution_timeframe))
+        if prepared.execution_timeframe != strategy.execution_timeframe:
+            raise ValueError("prepared data execution timeframe does not match strategy")
+        execution = prepared.timeframe_index[strategy.execution_timeframe]
+        contexts = {tf: rows for tf, rows in prepared.timeframe_index.items()
+                    if tf != strategy.execution_timeframe}
         if len(execution) < 2:
             raise ValueError("at least two execution candles are required")
         if self.forbid_true_oos and any(c.time.year == 2025 for c in execution):
@@ -141,15 +164,16 @@ class BacktestEngine:
         missing = set(strategy.context_timeframes) - contexts.keys()
         if missing:
             raise ValueError(f"missing context timeframes: {sorted(missing)}")
-        trades = self._simulate(strategy, execution, contexts)
+        trades = self._simulate(strategy, execution, contexts, prepared.context_positions)
         if deterministic_hash(strategy) != before:
             raise RuntimeError("StrategyCandidate was modified during evaluation")
         identity = deterministic_hash({"strategy_id": strategy.strategy_id,
             "data_version": data_version, "engine_version": self.engine_version})
         return self._result(identity, strategy, execution, trades, data_version)
 
-    @staticmethod
-    def _load(data: Any, timeframe: str) -> tuple[list[_Candle], dict[str, list[_Candle]]]:
+    @classmethod
+    def prepare(cls, data: Any, timeframe: str) -> PreparedMarketData:
+        """Validate market data once and precompute strictly causal lookups."""
         if isinstance(data, Mapping):
             if timeframe not in data:
                 raise ValueError(f"execution timeframe {timeframe} is unavailable")
@@ -157,9 +181,34 @@ class BacktestEngine:
             raw_contexts = {str(k): v for k, v in data.items() if str(k) != timeframe}
         else:
             raw_execution, raw_contexts = data, {}
-        execution = BacktestEngine._candles(raw_execution)
-        contexts = {key: BacktestEngine._candles(value) for key, value in raw_contexts.items()}
-        return execution, contexts
+        execution = tuple(cls._candles(raw_execution))
+        contexts = {key: tuple(cls._candles(value)) for key, value in raw_contexts.items()}
+        timeframe_index = {timeframe: execution, **contexts}
+        close_times = {key: tuple(c.time for c in rows)
+                       for key, rows in timeframe_index.items()}
+        positions: dict[str, tuple[int, ...]] = {}
+        for key, rows in contexts.items():
+            cursor = -1
+            aligned = []
+            for observation in execution:
+                while cursor + 1 < len(rows) and rows[cursor + 1].time <= observation.time:
+                    cursor += 1
+                aligned.append(cursor)
+            positions[key] = tuple(aligned)
+        symbols: dict[str, list[int]] = {}
+        for index, candle in enumerate(execution):
+            symbol = str(candle.values.get("symbol", "*"))
+            symbols.setdefault(symbol, []).append(index)
+        return PreparedMarketData(timeframe, timeframe_index, close_times, positions,
+                                  {key: tuple(value) for key, value in symbols.items()})
+
+    @classmethod
+    def _load(cls, data: Any, timeframe: str) -> tuple[list[_Candle], dict[str, list[_Candle]]]:
+        """Compatibility loader retained for callers that inspect validated rows."""
+        prepared = cls.prepare(data, timeframe)
+        return (list(prepared.timeframe_index[timeframe]),
+                {key: list(rows) for key, rows in prepared.timeframe_index.items()
+                 if key != timeframe})
 
     @staticmethod
     def _candles(rows: Iterable[Any]) -> list[_Candle]:
@@ -179,12 +228,25 @@ class BacktestEngine:
             raise ValueError("candles must be strictly ordered without duplicates")
         return result
 
-    def _simulate(self, s: StrategyCandidate, candles: list[_Candle],
-                  contexts: Mapping[str, list[_Candle]]) -> tuple[Trade, ...]:
+    def _simulate(self, s: StrategyCandidate, candles: Iterable[_Candle],
+                  contexts: Mapping[str, Iterable[_Candle]],
+                  context_positions: Mapping[str, tuple[int, ...]] | None = None) -> tuple[Trade, ...]:
+        candles = list(candles)
+        contexts = {tf: list(rows) for tf, rows in contexts.items()}
+        if context_positions is None:
+            # Private-method compatibility; production runs always pass prepared indexes.
+            context_positions = self.prepare(
+                {s.execution_timeframe: candles, **contexts},
+                s.execution_timeframe).context_positions
         trades, i = [], 0
         while i < len(candles) - 1:
             signal = candles[i]
-            visible = {tf: [c for c in rows if c.time <= signal.time] for tf, rows in contexts.items()}
+            # Existing signal/exit semantics inspect only the most recent visible
+            # context candle.  A one-element prefix therefore has identical
+            # behaviour without allocating and rescanning the full history.
+            visible = {tf: ([] if context_positions[tf][i] < 0
+                            else [rows[context_positions[tf][i]]])
+                       for tf, rows in contexts.items()}
             if not all(visible.values()) or not self._signal(s.market_condition, signal.values, visible):
                 i += 1; continue
             entry = self._entry(s, candles, i)
