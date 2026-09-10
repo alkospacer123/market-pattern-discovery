@@ -1,0 +1,306 @@
+"""Causal, deterministic evaluation of an already-defined strategy candidate."""
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from enum import StrEnum
+from math import isfinite
+from typing import Any, Iterable, Mapping
+
+from market_pattern_discovery.contracts import deterministic_hash
+from market_pattern_discovery.research.strategy_candidates import (
+    EntryType, ExitType, RiskType, StrategyCandidate,
+)
+from market_pattern_discovery.research.trading_candidates import TradingDirection
+
+from .costs import CostModel
+
+
+class TradeDirection(StrEnum):
+    LONG = "LONG"
+    SHORT = "SHORT"
+
+
+@dataclass(frozen=True, slots=True)
+class Trade:
+    trade_id: str
+    strategy_id: str
+    entry_time: datetime
+    entry_price: float
+    exit_time: datetime
+    exit_price: float
+    direction: TradeDirection
+    gross_pnl: float
+    net_pnl: float
+    holding_bars: int
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "entry_time", _time(self.entry_time))
+        object.__setattr__(self, "exit_time", _time(self.exit_time))
+        object.__setattr__(self, "direction", TradeDirection(self.direction))
+        if self.exit_time < self.entry_time or self.holding_bars < 0:
+            raise ValueError("trade exits must not precede entry")
+
+
+@dataclass(frozen=True, slots=True)
+class BacktestResult:
+    backtest_id: str
+    strategy_id: str
+    symbol: str
+    timeframe: str
+    context_timeframes: tuple[str, ...]
+    start_time: datetime
+    end_time: datetime
+    total_trades: int
+    winning_trades: int
+    losing_trades: int
+    gross_profit: float
+    gross_loss: float
+    net_result: float
+    profit_factor: float | None
+    expectancy: float
+    win_rate: float
+    max_drawdown: float
+    largest_win: float
+    largest_loss: float
+    average_holding_bars: float
+    average_holding_time: timedelta
+    commission_model: str
+    slippage_model: str
+    data_version: str
+    engine_version: str
+    trades: tuple[Trade, ...] = ()
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "context_timeframes", tuple(self.context_timeframes))
+        object.__setattr__(self, "start_time", _time(self.start_time))
+        object.__setattr__(self, "end_time", _time(self.end_time))
+        object.__setattr__(self, "average_holding_time", _duration(self.average_holding_time))
+        object.__setattr__(self, "trades", tuple(t if isinstance(t, Trade) else Trade(**t)
+                                                 for t in self.trades))
+
+    def to_dict(self) -> dict[str, Any]:
+        value = asdict(self)
+        value["start_time"] = self.start_time.isoformat()
+        value["end_time"] = self.end_time.isoformat()
+        value["average_holding_time"] = self.average_holding_time.total_seconds()
+        for raw, trade in zip(value["trades"], self.trades):
+            raw["entry_time"] = trade.entry_time.isoformat()
+            raw["exit_time"] = trade.exit_time.isoformat()
+            raw["direction"] = trade.direction.value
+        return value
+
+    @classmethod
+    def from_dict(cls, value: Mapping[str, Any]) -> "BacktestResult":
+        return cls(**dict(value))
+
+
+def _time(value: Any) -> datetime:
+    result = value if isinstance(value, datetime) else datetime.fromisoformat(str(value))
+    if result.tzinfo is None:
+        raise ValueError("candle and trade timestamps must be timezone-aware")
+    return result
+
+
+def _duration(value: Any) -> timedelta:
+    return value if isinstance(value, timedelta) else timedelta(seconds=float(value))
+
+
+@dataclass(frozen=True)
+class _Candle:
+    time: datetime
+    open: float
+    high: float
+    low: float
+    close: float
+    values: Mapping[str, Any]
+
+
+class BacktestEngine:
+    """Single-pass simulator; it evaluates and never mutates or searches strategies."""
+
+    def __init__(self, costs: CostModel, *, engine_version: str = "backtest-engine-v1",
+                 forbid_true_oos: bool = True) -> None:
+        if not engine_version:
+            raise ValueError("engine_version is required")
+        self.costs, self.engine_version, self.forbid_true_oos = costs, engine_version, forbid_true_oos
+
+    def run(self, strategy: StrategyCandidate, market_data: Any, *, data_version: str) -> BacktestResult:
+        if not isinstance(strategy, StrategyCandidate):
+            raise TypeError("BacktestEngine requires a StrategyCandidate")
+        if strategy.direction not in {TradingDirection.LONG, TradingDirection.SHORT}:
+            raise ValueError("backtests require a LONG or SHORT direction")
+        if not data_version:
+            raise ValueError("data_version is required")
+        before = deterministic_hash(strategy)
+        execution, contexts = self._load(market_data, strategy.execution_timeframe)
+        if len(execution) < 2:
+            raise ValueError("at least two execution candles are required")
+        if self.forbid_true_oos and any(c.time.year == 2025 for c in execution):
+            raise ValueError("calendar year 2025 TRUE OOS is locked")
+        missing = set(strategy.context_timeframes) - contexts.keys()
+        if missing:
+            raise ValueError(f"missing context timeframes: {sorted(missing)}")
+        trades = self._simulate(strategy, execution, contexts)
+        if deterministic_hash(strategy) != before:
+            raise RuntimeError("StrategyCandidate was modified during evaluation")
+        identity = deterministic_hash({"strategy_id": strategy.strategy_id,
+            "data_version": data_version, "engine_version": self.engine_version})
+        return self._result(identity, strategy, execution, trades, data_version)
+
+    @staticmethod
+    def _load(data: Any, timeframe: str) -> tuple[list[_Candle], dict[str, list[_Candle]]]:
+        if isinstance(data, Mapping):
+            if timeframe not in data:
+                raise ValueError(f"execution timeframe {timeframe} is unavailable")
+            raw_execution = data[timeframe]
+            raw_contexts = {str(k): v for k, v in data.items() if str(k) != timeframe}
+        else:
+            raw_execution, raw_contexts = data, {}
+        execution = BacktestEngine._candles(raw_execution)
+        contexts = {key: BacktestEngine._candles(value) for key, value in raw_contexts.items()}
+        return execution, contexts
+
+    @staticmethod
+    def _candles(rows: Iterable[Any]) -> list[_Candle]:
+        if hasattr(rows, "to_dict"):
+            rows = rows.to_dict("records")
+        result = []
+        for row in rows:
+            raw = dict(row) if isinstance(row, Mapping) else asdict(row)
+            stamp = raw.get("close_time", raw.get("time", raw.get("timestamp")))
+            candle = _Candle(_time(stamp), *(float(raw[k]) for k in ("open", "high", "low", "close")), raw)
+            if not all(isfinite(v) for v in (candle.open, candle.high, candle.low, candle.close)):
+                raise ValueError("OHLC values must be finite")
+            if candle.low > min(candle.open, candle.close) or candle.high < max(candle.open, candle.close):
+                raise ValueError("invalid OHLC candle")
+            result.append(candle)
+        if any(a.time >= b.time for a, b in zip(result, result[1:])):
+            raise ValueError("candles must be strictly ordered without duplicates")
+        return result
+
+    def _simulate(self, s: StrategyCandidate, candles: list[_Candle],
+                  contexts: Mapping[str, list[_Candle]]) -> tuple[Trade, ...]:
+        trades, i = [], 0
+        while i < len(candles) - 1:
+            signal = candles[i]
+            visible = {tf: [c for c in rows if c.time <= signal.time] for tf, rows in contexts.items()}
+            if not all(visible.values()) or not self._signal(s.market_condition, signal.values, visible):
+                i += 1; continue
+            entry = self._entry(s, candles, i)
+            if entry is None:
+                i += 1; continue
+            entry_i, raw_entry = entry
+            stop = self._stop(s, candles, i, entry_i, raw_entry)
+            exit_i, raw_exit = self._exit(s, candles, entry_i, raw_entry, stop, visible)
+            direction = 1 if s.direction is TradingDirection.LONG else -1
+            actual_entry = raw_entry + direction * self.costs.slippage
+            actual_exit = raw_exit - direction * self.costs.slippage
+            gross = direction * (raw_exit - raw_entry)
+            net = direction * (actual_exit - actual_entry) - self.costs.transaction_cost
+            trade_id = deterministic_hash({"strategy_id": s.strategy_id,
+                "entry_time": candles[entry_i].time, "exit_time": candles[exit_i].time})
+            trades.append(Trade(trade_id, s.strategy_id, candles[entry_i].time, actual_entry,
+                candles[exit_i].time, actual_exit, TradeDirection(s.direction.value), gross, net,
+                exit_i - entry_i))
+            i = exit_i + 1
+        return tuple(trades)
+
+    @staticmethod
+    def _signal(condition: Mapping[str, Any], candle: Mapping[str, Any],
+                contexts: Mapping[str, list[_Candle]]) -> bool:
+        if "signal" in candle:
+            return bool(candle["signal"])
+        return BacktestEngine._condition(condition, candle, contexts)
+
+    @staticmethod
+    def _condition(condition: Mapping[str, Any], candle: Mapping[str, Any],
+                   contexts: Mapping[str, list[_Candle]]) -> bool:
+        for key, expected in condition.items():
+            if key.startswith("context."):
+                _, timeframe, field = key.split(".", 2)
+                if timeframe not in contexts or contexts[timeframe][-1].values.get(field) != expected:
+                    return False
+            elif key not in candle or candle[key] != expected:
+                return False
+        return True
+
+    @staticmethod
+    def _entry(s: StrategyCandidate, candles: list[_Candle], signal_i: int) -> tuple[int, float] | None:
+        if candles[signal_i + 1].time.date() != candles[signal_i].time.date():
+            return None
+        if s.entry.entry_type is EntryType.CLOSE_ENTRY:
+            return signal_i + 1, candles[signal_i + 1].open
+        if s.entry.entry_type is EntryType.CONFIRMATION_ENTRY:
+            confirmation = candles[signal_i + 1]
+            good = confirmation.close > confirmation.open if s.direction is TradingDirection.LONG else confirmation.close < confirmation.open
+            return (signal_i + 1, confirmation.close) if good else None
+        level = candles[signal_i].high if s.direction is TradingDirection.LONG else candles[signal_i].low
+        for index in range(signal_i + 1, len(candles)):
+            if candles[index].time.date() != candles[signal_i].time.date():
+                break
+            crossed = candles[index].high >= level if s.direction is TradingDirection.LONG else candles[index].low <= level
+            if crossed:
+                return index, level
+        return None
+
+    @staticmethod
+    def _stop(s: StrategyCandidate, candles: list[_Candle], signal_i: int,
+              entry_i: int, entry: float) -> float:
+        direction = 1 if s.direction is TradingDirection.LONG else -1
+        if s.risk.risk_type is RiskType.FIXED_DISTANCE_STOP:
+            distance = float(s.risk.parameters.get("distance_units", 1))
+        elif s.risk.risk_type is RiskType.STRUCTURE_STOP:
+            return candles[signal_i].low if direction == 1 else candles[signal_i].high
+        else:
+            period = int(s.risk.parameters.get("atr_period", 14))
+            known = candles[max(0, entry_i - period):entry_i]
+            previous = candles[max(0, entry_i - period - 1):entry_i - 1]
+            tr = [max(c.high - c.low, abs(c.high - p.close), abs(c.low - p.close))
+                  for c, p in zip(known, previous)]
+            distance = (sum(tr) / len(tr) if tr else candles[signal_i].high - candles[signal_i].low)
+            distance *= float(s.risk.parameters.get("atr_multiple", 1))
+        if distance <= 0:
+            raise ValueError("stop distance must be positive")
+        return entry - direction * distance
+
+    @staticmethod
+    def _exit(s: StrategyCandidate, candles: list[_Candle], entry_i: int,
+              entry: float, stop: float, context: Mapping[str, list[_Candle]]) -> tuple[int, float]:
+        direction = 1 if s.direction is TradingDirection.LONG else -1
+        bars = int(s.exit.parameters.get("bars", 10))
+        target = entry + direction * float(s.exit.parameters.get("distance_units", 1))
+        for index in range(entry_i, len(candles)):
+            candle = candles[index]
+            if candle.time.date() != candles[entry_i].time.date():
+                return index - 1, candles[index - 1].close
+            stopped = candle.low <= stop if direction == 1 else candle.high >= stop
+            if stopped:
+                return index, stop
+            if s.exit.exit_type is ExitType.SIMPLE_TARGET_EXIT:
+                hit = candle.high >= target if direction == 1 else candle.low <= target
+                if hit: return index, target
+            elif s.exit.exit_type is ExitType.TIME_EXIT and index - entry_i >= bars:
+                return index, candle.close
+            elif s.exit.exit_type is ExitType.STATE_INVALIDATION_EXIT and not BacktestEngine._condition(s.market_condition, candle.values, context):
+                return index, candle.close
+        return len(candles) - 1, candles[-1].close
+
+    def _result(self, identity: str, s: StrategyCandidate, candles: list[_Candle],
+                trades: tuple[Trade, ...], version: str) -> BacktestResult:
+        wins, losses = [t.net_pnl for t in trades if t.net_pnl > 0], [t.net_pnl for t in trades if t.net_pnl < 0]
+        gross_profit, gross_loss = sum(max(t.gross_pnl, 0) for t in trades), sum(min(t.gross_pnl, 0) for t in trades)
+        equity = peak = drawdown = 0.0
+        for trade in trades:
+            equity += trade.net_pnl; peak = max(peak, equity); drawdown = max(drawdown, peak - equity)
+        n = len(trades); span = sum((t.exit_time - t.entry_time for t in trades), timedelta())
+        return BacktestResult(identity, s.strategy_id, s.symbol, s.execution_timeframe,
+            s.context_timeframes, candles[0].time, candles[-1].time, n, len(wins), len(losses),
+            gross_profit, gross_loss, sum(t.net_pnl for t in trades),
+            (sum(wins) / abs(sum(losses)) if losses else None),
+            sum(t.net_pnl for t in trades) / n if n else 0.0, len(wins) / n if n else 0.0,
+            drawdown, max((t.net_pnl for t in trades), default=0.0),
+            min((t.net_pnl for t in trades), default=0.0),
+            sum(t.holding_bars for t in trades) / n if n else 0.0, span / n if n else timedelta(),
+            f"fixed:{self.costs.transaction_cost}", f"fixed_per_fill:{self.costs.slippage}",
+            version, self.engine_version, trades)
