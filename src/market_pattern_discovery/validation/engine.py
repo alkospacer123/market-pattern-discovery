@@ -133,6 +133,8 @@ class ValidationReport:
     reason: str
     engine_version: str
     data_version: str
+    missing_requirements: tuple[str, ...] = ()
+    execution_period: Period | None = None
 
     def __post_init__(self) -> None:
         for name in ("training_period", "validation_period", "true_oos_period"):
@@ -140,12 +142,17 @@ class ValidationReport:
             object.__setattr__(self, name, value if isinstance(value, Period) else Period(**value))
         object.__setattr__(self, "walk_forward_result_references", tuple(self.walk_forward_result_references))
         object.__setattr__(self, "status", ValidationStatus(self.status))
+        object.__setattr__(self, "missing_requirements", tuple(self.missing_requirements))
+        if self.execution_period is not None and not isinstance(self.execution_period, Period):
+            object.__setattr__(self, "execution_period", Period(**self.execution_period))
 
     def to_dict(self) -> dict[str, Any]:
         value = asdict(self)
         for name in ("training_period", "validation_period", "true_oos_period"):
             value[name] = getattr(self, name).to_dict()
         value["status"] = self.status.value
+        if self.execution_period is not None:
+            value["execution_period"] = self.execution_period.to_dict()
         return value
 
     @classmethod
@@ -170,21 +177,38 @@ class ValidationEngine:
         self.costs = costs
         self.thresholds = thresholds or ValidationThresholds()
         self.engine_version = engine_version
+        self._availability_cache: dict[tuple[int, str, tuple[str, ...], str],
+                                       tuple[Any, tuple[str, ...], int]] = {}
 
     def validate(self, strategy: StrategyCandidate, backtest: BacktestResult, market_data: Any,
                  *, split: DataSplit, data_version: str) -> ValidationReport:
-        if backtest.strategy_id != strategy.strategy_id:
-            raise ValueError("backtest does not reference the supplied StrategyCandidate")
+        self._validate_contract(strategy, backtest, data_version)
+        data = self._mapping(market_data)
+        cache_key = (id(market_data), strategy.execution_timeframe,
+                     tuple(strategy.context_timeframes), split.version)
+        cached = self._availability_cache.get(cache_key)
+        if cached is not None and cached[0] is market_data and cached[1]:
+            return self._insufficient(strategy, backtest, split, data_version,
+                                      cached[2], cached[1])
+        rows = {str(tf): self._rows(values) for tf, values in data.items()}
+        missing = self._missing_requirements(strategy, rows, split)
+        sample_size = sum(len(value) for value in rows.values())
+        # Retain the object itself so Python cannot recycle an id into a false
+        # cache hit when callers provide short-lived mappings.
+        self._availability_cache[cache_key] = (market_data, missing, sample_size)
+        if missing:
+            return self._insufficient(strategy, backtest, split, data_version,
+                                      sample_size, missing)
         before = deterministic_hash(strategy)
-        train = self._run(strategy, market_data, split.training_period, data_version, "train")
-        validation = self._run(strategy, market_data, split.validation_period, data_version, "validation")
-        oos = self._run(strategy, market_data, split.true_oos_period, data_version, "true-oos")
+        train = self._run(strategy, rows, split.training_period, data_version, "train")
+        validation = self._run(strategy, rows, split.validation_period, data_version, "validation")
+        oos = self._run(strategy, rows, split.true_oos_period, data_version, "true-oos")
         window_pairs = tuple((
-            self._run(strategy, market_data, window.train, data_version, f"wf-{i}-train"),
-            self._run(strategy, market_data, window.test, data_version, f"wf-{i}-test"),
+            self._run(strategy, rows, window.train, data_version, f"wf-{i}-train"),
+            self._run(strategy, rows, window.test, data_version, f"wf-{i}-test"),
         ) for i, window in enumerate(split.walk_forward_windows, 1))
         windows = tuple(test for _, test in window_pairs)
-        sensitivity = self._sensitivity(strategy, market_data, split.validation_period, data_version,
+        sensitivity = self._sensitivity(strategy, rows, split.validation_period, data_version,
                                         validation.expectancy)
         if deterministic_hash(strategy) != before:
             raise RuntimeError("validation modified StrategyCandidate")
@@ -196,14 +220,69 @@ class ValidationEngine:
         validation_version = f"{self.engine_version}/{self.thresholds.version}/{split.version}"
         identity = deterministic_hash({"backtest_id": backtest.backtest_id,
             "validation_version": validation_version, "data_version": data_version})
-        sample_size = sum(len(self._rows(rows)) for rows in self._mapping(market_data).values())
+        sample_size = sum(len(value) for value in rows.values())
         return ValidationReport(identity, backtest.backtest_id, strategy.strategy_id, strategy.symbol,
             strategy.execution_timeframe, validation_version, split.training_period, split.validation_period,
             split.true_oos_period, train.backtest_id, validation.backtest_id, oos.backtest_id,
             tuple(row.backtest_id for pair in window_pairs for row in pair),
             wf_score, stability, sensitivity, sample_size,
             total, oos.profit_factor, oos.expectancy, max(validation.max_drawdown, oos.max_drawdown),
-            status, reason, self.engine_version, data_version)
+            status, reason, self.engine_version, data_version, (),
+            Period(backtest.start_time, backtest.end_time))
+
+    @staticmethod
+    def _validate_contract(strategy: StrategyCandidate, backtest: BacktestResult,
+                           data_version: str) -> None:
+        """Reject malformed lineage; absence of observations is handled separately."""
+        if not isinstance(backtest, BacktestResult):
+            raise TypeError("validation requires a BacktestResult")
+        if backtest.strategy_id != strategy.strategy_id:
+            raise ValueError("backtest does not reference the supplied StrategyCandidate")
+        if (backtest.symbol, backtest.timeframe) != (strategy.symbol, strategy.execution_timeframe):
+            raise ValueError("backtest market scope or timeframe conflicts with strategy")
+        if tuple(backtest.context_timeframes) != tuple(strategy.context_timeframes):
+            raise ValueError("backtest context timeframes conflict with strategy")
+        if backtest.data_version != data_version:
+            raise ValueError("backtest data version conflicts with validation data version")
+        if backtest.start_time > backtest.end_time:
+            raise ValueError("backtest execution period is invalid")
+        if backtest.total_trades != len(backtest.trades) and backtest.trades:
+            raise ValueError("backtest trade information is inconsistent")
+
+    def _missing_requirements(self, strategy: StrategyCandidate, rows: Mapping[str, list[Any]],
+                              split: DataSplit) -> tuple[str, ...]:
+        missing: list[str] = []
+        execution = rows.get(strategy.execution_timeframe, [])
+        if strategy.execution_timeframe not in rows:
+            missing.append(f"execution timeframe {strategy.execution_timeframe}")
+        for timeframe in strategy.context_timeframes:
+            if not rows.get(timeframe):
+                missing.append(f"context timeframe {timeframe}")
+        periods = [("training", split.training_period), ("validation", split.validation_period),
+                   ("true_oos", split.true_oos_period)]
+        periods.extend((f"walk_forward_{i}_{label}", period)
+                       for i, window in enumerate(split.walk_forward_windows, 1)
+                       for label, period in (("train", window.train), ("test", window.test)))
+        for label, period in periods:
+            count = sum(period.contains(self._stamp(row)) for row in execution)
+            if count < 2:
+                missing.append(f"{label} execution candles: {count} < 2")
+        return tuple(sorted(set(missing)))
+
+    def _insufficient(self, strategy: StrategyCandidate, backtest: BacktestResult, split: DataSplit,
+                      data_version: str, sample_size: int,
+                      missing: tuple[str, ...]) -> ValidationReport:
+        version = f"{self.engine_version}/{self.thresholds.version}/{split.version}"
+        identity = deterministic_hash({"backtest_id": backtest.backtest_id,
+            "validation_version": version, "data_version": data_version})
+        reason = "validation requirements unavailable: " + "; ".join(missing)
+        return ValidationReport(identity, backtest.backtest_id, strategy.strategy_id,
+            strategy.symbol, strategy.execution_timeframe, version, split.training_period,
+            split.validation_period, split.true_oos_period, "", "", "", (), 0.0, 0.0,
+            0.0, sample_size, backtest.total_trades,
+            backtest.profit_factor, backtest.expectancy, backtest.max_drawdown,
+            ValidationStatus.INSUFFICIENT_DATA, reason, self.engine_version, data_version,
+            missing, Period(backtest.start_time, backtest.end_time))
 
     def _run(self, strategy: StrategyCandidate, data: Any, period: Period,
              data_version: str, label: str) -> BacktestResult:
