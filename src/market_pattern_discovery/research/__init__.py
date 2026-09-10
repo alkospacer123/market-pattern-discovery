@@ -14,6 +14,9 @@ from .hypotheses import (Hypothesis, HypothesisScheduler, hypotheses_for,
                          known_hypotheses, unknown_hypotheses)
 from .trading_candidates import (CandidateFamily, TradingCandidate,
     TradingCandidateGenerator, TradingCandidateStatus, TradingDirection)
+from .strategy_candidates import (EntryDefinition, EntryType, ExitDefinition,
+    ExitType, RiskDefinition, RiskType, StrategyBuilder, StrategyCandidate,
+    StrategyCandidateStatus)
 
 __all__ = [
     "AccessMode", "CandidateRecord", "CandidateStatus", "DEFAULT_RESEARCH_SEED", "RankingView",
@@ -30,4 +33,7 @@ __all__ = [
     "unknown_hypotheses",
     "CandidateFamily", "TradingCandidate", "TradingCandidateGenerator",
     "TradingCandidateStatus", "TradingDirection",
+    "EntryDefinition", "EntryType", "ExitDefinition", "ExitType",
+    "RiskDefinition", "RiskType", "StrategyBuilder", "StrategyCandidate",
+    "StrategyCandidateStatus",
 ]
