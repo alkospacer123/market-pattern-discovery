@@ -12,6 +12,8 @@ from .intelligence import (Conclusion, Evidence, Evaluation, KnowledgeConclusion
                            PatternEffect, ResearchIntelligence, create_pattern_effect)
 from .hypotheses import (Hypothesis, HypothesisScheduler, hypotheses_for,
                          known_hypotheses, unknown_hypotheses)
+from .trading_candidates import (CandidateFamily, TradingCandidate,
+    TradingCandidateGenerator, TradingCandidateStatus, TradingDirection)
 
 __all__ = [
     "AccessMode", "CandidateRecord", "CandidateStatus", "DEFAULT_RESEARCH_SEED", "RankingView",
@@ -26,4 +28,6 @@ __all__ = [
     "ResearchIntelligence", "create_pattern_effect",
     "Hypothesis", "HypothesisScheduler", "hypotheses_for", "known_hypotheses",
     "unknown_hypotheses",
+    "CandidateFamily", "TradingCandidate", "TradingCandidateGenerator",
+    "TradingCandidateStatus", "TradingDirection",
 ]
