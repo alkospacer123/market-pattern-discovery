@@ -11,7 +11,8 @@ import pandas as pd
 import numpy as np
 
 from market_pattern_discovery.contracts import deterministic_hash
-from market_pattern_discovery.data import MarketDataLoader
+from market_pattern_discovery.backtest import BacktestEngine, CostModel
+from market_pattern_discovery.data import MarketDataLoader, timeframe
 from market_pattern_discovery.features.context import CausalContextEngine
 from market_pattern_discovery.discovery.protocol import benjamini_hochberg, day_block_bootstrap
 from market_pattern_discovery.research import (
@@ -20,8 +21,13 @@ from market_pattern_discovery.research import (
     ResearchIntelligence, ResearchMemory, ScientificResult, UnifiedResearchExecutor,
     StrategyBuilder, TradingCandidateGenerator, create_pattern_effect,
 )
+from market_pattern_discovery.validation import ValidationEngine
+
+from .trading_pipeline import AutonomousTradingPipeline
 
 UNKNOWN_METHODS = ("univariate_screen", "interaction_search", "subgroup_discovery")
+PRODUCTION_COSTS = CostModel(transaction_cost=.001, slippage=.0005)
+PRODUCTION_DATA_VERSION = "finam-development-2026-v1"
 
 
 def _context_definition(cell: ResearchCell, context: pd.DataFrame) -> list[str]:
@@ -169,6 +175,28 @@ class MultiHorizonResearchRunner:
         self.context = CausalContextEngine()
         self.executor = UnifiedResearchExecutor(_known, _unknown)
         self._prepared: dict[str, tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]] = {}
+        self._trading_data: dict[tuple[str, tuple[str, ...]], dict[str, pd.DataFrame]] = {}
+        self.trading_pipeline = AutonomousTradingPipeline(
+            self.memory, self._strategy_market_data,
+            backtest_engine=BacktestEngine(PRODUCTION_COSTS),
+            validation_engine=ValidationEngine(PRODUCTION_COSTS),
+            data_version=PRODUCTION_DATA_VERSION,
+        )
+
+    def _strategy_market_data(self, strategy: Any) -> dict[str, pd.DataFrame]:
+        """Load the candidate's exact scope with timestamps at bar availability."""
+        timeframes = (strategy.execution_timeframe, *strategy.context_timeframes)
+        key = (strategy.symbol, timeframes)
+        if key not in self._trading_data:
+            frames = {}
+            for timeframe_id in dict.fromkeys(timeframes):
+                frame = self.loader.load(strategy.symbol, timeframe_id).copy()
+                # MarketDataLoader timestamps are candle opens. Trading engines
+                # consume observation times, so expose a bar only at its close.
+                frame["timestamp"] = frame["timestamp"] + timeframe(timeframe_id).duration
+                frames[timeframe_id] = frame
+            self._trading_data[key] = frames
+        return self._trading_data[key]
 
     def _prepare(self, cell: ResearchCell) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         if cell.identity in self._prepared:
@@ -253,6 +281,10 @@ class MultiHorizonResearchRunner:
                      "evidence_rationale": evidence.rationale})
                 recorded += int(self.memory.add_knowledge_record(record))
             results.append(CycleResult(cycle, len(hypotheses), evaluated, recorded))
+        # This is the sole production hand-off into trading execution. The
+        # restart-safe pipeline discovers all newly persisted strategies and
+        # independently advances every stage that is still missing.
+        self.trading_pipeline.run()
         return tuple(results)
 
 

@@ -9,6 +9,42 @@ def test_runner_requires_explicit_finite_cycles(tmp_path):
         runner.run(0)
 
 
+def test_runner_hands_persisted_research_to_trading_pipeline(monkeypatch, tmp_path):
+    runner = MultiHorizonResearchRunner(tmp_path, tmp_path / "memory")
+    calls = []
+    monkeypatch.setattr(runner.scheduler, "plan", lambda completed, budget: ())
+    monkeypatch.setattr(runner.trading_pipeline, "run", lambda: calls.append("run"))
+
+    runner.run(3)
+
+    assert calls == ["run"]
+
+
+def test_strategy_market_data_uses_close_availability_and_exact_scope(monkeypatch, tmp_path):
+    from datetime import datetime, timezone
+    from types import SimpleNamespace
+    import pandas as pd
+
+    runner = MultiHorizonResearchRunner(tmp_path, tmp_path / "memory")
+    opened = pd.Timestamp(datetime(2026, 1, 1, 10, tzinfo=timezone.utc))
+    loaded = []
+
+    def load(symbol, timeframe_id):
+        loaded.append((symbol, timeframe_id))
+        return pd.DataFrame({"timestamp": [opened], "timeframe": [timeframe_id]})
+
+    monkeypatch.setattr(runner.loader, "load", load)
+    strategy = SimpleNamespace(symbol="CNY", execution_timeframe="M5",
+                               context_timeframes=("H1", "D1"))
+    data = runner._strategy_market_data(strategy)
+
+    assert tuple(data) == ("M5", "H1", "D1")
+    assert data["M5"].timestamp.iloc[0] == opened + pd.Timedelta(minutes=5)
+    assert data["H1"].timestamp.iloc[0] == opened + pd.Timedelta(hours=1)
+    assert data["D1"].timestamp.iloc[0] == opened + pd.Timedelta(days=1)
+    assert loaded == [("CNY", "M5"), ("CNY", "H1"), ("CNY", "D1")]
+
+
 def test_runner_restart_skips_persisted_cells(monkeypatch, tmp_path):
     runner = MultiHorizonResearchRunner(tmp_path, tmp_path / "memory", seed=1)
     import pandas as pd
