@@ -150,6 +150,7 @@ class ResearchMemory:
         self._scientific = self.directory / "scientific_findings.jsonl"
         self._trading_candidates = self.directory / "trading_candidates.jsonl"
         self._strategy_candidates = self.directory / "strategy_candidates.jsonl"
+        self._backtest_results = self.directory / "backtest_results.jsonl"
 
     @staticmethod
     def _read(path: Path) -> list[dict[str, Any]]:
@@ -303,6 +304,27 @@ class ResearchMemory:
         if candidate.strategy_id in self.strategy_candidates():
             return False
         self._append(self._strategy_candidates, strategy_candidate_dict(candidate))
+        return True
+
+    def backtest_results(self) -> dict[str, Any]:
+        """Reload immutable StrategyCandidate evaluation facts."""
+        from market_pattern_discovery.backtest import BacktestResult
+        return {row["backtest_id"]: BacktestResult.from_dict(row)
+                for row in self._read(self._backtest_results)}
+
+    def add_backtest_result(self, result: Any) -> bool:
+        """Append a result once, requiring its strategy lineage to be present."""
+        from market_pattern_discovery.backtest import BacktestResult
+        if not isinstance(result, BacktestResult):
+            raise TypeError("only BacktestResult objects can be persisted")
+        if result.strategy_id not in self.strategy_candidates():
+            raise ValueError("backtest StrategyCandidate is not in memory")
+        existing = self.backtest_results()
+        if result.backtest_id in existing:
+            if existing[result.backtest_id] != result:
+                raise ValueError("backtest identity collision")
+            return False
+        self._append(self._backtest_results, result.to_dict())
         return True
 
     def candidate_history(self) -> list[dict[str, Any]]:
