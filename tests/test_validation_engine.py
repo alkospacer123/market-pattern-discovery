@@ -91,15 +91,55 @@ def test_all_deterministic_acceptance_outcomes():
     split = DataSplit.calendar_v1()
     accepted = ValidationEngine(CostModel(0, 0), thresholds=ValidationThresholds(minimum_trades=2))
     assert accepted.validate(strategy, base, good, split=split,
-                             data_version="good").status is ValidationStatus.ACCEPTED
+                             data_version="fixture-v1").status is ValidationStatus.ACCEPTED
     rejected_data = market(losing=True)
     rejected_base = baseline(strategy, rejected_data)
     assert accepted.validate(strategy, rejected_base, rejected_data, split=split,
-                             data_version="bad").status is ValidationStatus.REJECTED
+                             data_version="fixture-v1").status is ValidationStatus.REJECTED
     insufficient = ValidationEngine(CostModel(0, 0),
                                     thresholds=ValidationThresholds(minimum_trades=99))
     assert insufficient.validate(strategy, base, good, split=split,
-                                 data_version="small").status is ValidationStatus.INSUFFICIENT_DATA
+                                 data_version="fixture-v1").status is ValidationStatus.INSUFFICIENT_DATA
+
+
+def test_insufficient_execution_candles_create_a_report_not_an_exception():
+    strategy, data = candidate(), market()
+    result = baseline(strategy, data)
+    sparse = {"M5": data["M5"][:1], "M15": data["M15"]}
+    report = ValidationEngine(CostModel(0, 0)).validate(
+        strategy, result, sparse, split=DataSplit.calendar_v1(), data_version="fixture-v1")
+    assert report.status is ValidationStatus.INSUFFICIENT_DATA
+    assert report.backtest_id == result.backtest_id
+    assert report.sample_size == len(sparse["M5"]) + len(sparse["M15"])
+    assert report.missing_requirements
+    assert "execution candles" in report.reason
+
+
+@pytest.mark.parametrize("timeframe", ["H1", "D1"])
+def test_missing_declared_context_is_deterministic_insufficient_data(timeframe):
+    base_strategy, data = candidate(), market()
+    strategy = replace(base_strategy, context_timeframes=(timeframe,))
+    complete = {**data, timeframe: data["M15"]}
+    result = baseline(strategy, complete)
+    engine = ValidationEngine(CostModel(0, 0))
+    first = engine.validate(strategy, result, data, split=DataSplit.calendar_v1(),
+                            data_version="fixture-v1")
+    second = engine.validate(strategy, result, data, split=DataSplit.calendar_v1(),
+                             data_version="fixture-v1")
+    assert first == second
+    assert first.status is ValidationStatus.INSUFFICIENT_DATA
+    assert f"context timeframe {timeframe}" in first.missing_requirements
+
+
+def test_validation_requires_backtest_result_and_matching_contract():
+    strategy, data = candidate(), market()
+    engine = ValidationEngine(CostModel(0, 0))
+    with pytest.raises(TypeError, match="BacktestResult"):
+        engine.validate(strategy, object(), data, split=DataSplit.calendar_v1(),
+                        data_version="fixture-v1")
+    with pytest.raises(ValueError, match="data version"):
+        engine.validate(strategy, baseline(strategy, data), data,
+                        split=DataSplit.calendar_v1(), data_version="different")
 
 
 def test_validation_memory_is_append_only_and_restart_safe(tmp_path):
@@ -126,7 +166,7 @@ def test_strategy_ranking_components_acceptance_positions_and_no_leakage():
     report = ValidationEngine(CostModel(0, 0),
         thresholds=ValidationThresholds(minimum_trades=2)).validate(
             strategy, baseline(strategy, data), data, split=DataSplit.calendar_v1(),
-            data_version="ranking-v1")
+            data_version="fixture-v1")
     engine = StrategyRankingEngine()
     first = engine.rank(((report, strategy, trading),))
     second = engine.rank(((report, strategy, trading),))
@@ -170,7 +210,7 @@ def test_strategy_ranking_memory_restart_and_collision(tmp_path):
     result = baseline(strategy, data)
     report = ValidationEngine(CostModel(0, 0),
         thresholds=ValidationThresholds(minimum_trades=2)).validate(
-            strategy, result, data, split=DataSplit.calendar_v1(), data_version="ranking-memory-v1")
+            strategy, result, data, split=DataSplit.calendar_v1(), data_version="fixture-v1")
     ranking = StrategyRankingEngine().rank(((report, strategy, trading),))[0]
     memory_a = ResearchMemory(tmp_path)
     memory_a.add_trading_candidate(trading)

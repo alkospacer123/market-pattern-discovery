@@ -46,6 +46,14 @@ class AutonomousTradingPipeline:
         self.memory.record_pipeline_failure(stage, identifier, error)
         return 1
 
+    @staticmethod
+    def _complete_context(strategy: Any, data: Any) -> Any:
+        """Represent absent declared context explicitly, never by silently dropping it."""
+        if not isinstance(data, dict):
+            return data
+        missing = tuple(tf for tf in strategy.context_timeframes if tf not in data)
+        return data if not missing else {**data, **{tf: [] for tf in missing}}
+
     def run(self) -> PipelineRunReport:
         counts = {name: 0 for name in PipelineRunReport.__dataclass_fields__}
 
@@ -85,8 +93,8 @@ class AutonomousTradingPipeline:
                 counts["skipped"] += 1
                 continue
             try:
-                result = self.backtest_engine.run(
-                    strategy, self.data_provider(strategy), data_version=self.data_version)
+                data = self._complete_context(strategy, self.data_provider(strategy))
+                result = self.backtest_engine.run(strategy, data, data_version=self.data_version)
                 counts["backtests"] += int(self.memory.add_backtest_result(result))
                 backtests[result.backtest_id] = result
             except Exception as error:
@@ -99,8 +107,9 @@ class AutonomousTradingPipeline:
                 continue
             strategy = strategies[backtest.strategy_id]
             try:
-                report = self.validation_engine.validate(strategy, backtest,
-                    self.data_provider(strategy), split=self.split, data_version=self.data_version)
+                data = self._complete_context(strategy, self.data_provider(strategy))
+                report = self.validation_engine.validate(strategy, backtest, data,
+                    split=self.split, data_version=self.data_version)
                 counts["validations"] += int(self.memory.add_validation_report(report))
                 validations[report.validation_id] = report
             except Exception as error:
