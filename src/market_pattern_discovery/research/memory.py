@@ -149,6 +149,7 @@ class ResearchMemory:
         self._knowledge = self.directory / "knowledge_records.jsonl"
         self._scientific = self.directory / "scientific_findings.jsonl"
         self._trading_candidates = self.directory / "trading_candidates.jsonl"
+        self._strategy_candidates = self.directory / "strategy_candidates.jsonl"
 
     @staticmethod
     def _read(path: Path) -> list[dict[str, Any]]:
@@ -283,6 +284,25 @@ class ResearchMemory:
         if candidate.candidate_id in self.trading_candidates():
             return False
         self._append(self._trading_candidates, trading_candidate_dict(candidate))
+        return True
+
+    def strategy_candidates(self) -> dict[str, Any]:
+        """Reload the deterministic, append-only strategy registry."""
+        from .strategy_candidates import StrategyCandidate
+        return {row["strategy_id"]: StrategyCandidate(**row)
+                for row in self._read(self._strategy_candidates)}
+
+    def add_strategy_candidate(self, candidate: Any) -> bool:
+        """Append a strategy once; regenerated identities are harmless skips."""
+        from .strategy_candidates import StrategyCandidate, strategy_candidate_dict
+        if not isinstance(candidate, StrategyCandidate):
+            raise TypeError("only StrategyCandidate objects can be persisted")
+        sources = self.trading_candidates()
+        if candidate.source_trading_candidate_id not in sources:
+            raise ValueError("strategy source TradingCandidate is not in memory")
+        if candidate.strategy_id in self.strategy_candidates():
+            return False
+        self._append(self._strategy_candidates, strategy_candidate_dict(candidate))
         return True
 
     def candidate_history(self) -> list[dict[str, Any]]:

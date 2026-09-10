@@ -18,7 +18,7 @@ from market_pattern_discovery.research import (
     Evidence, Evaluation, Hypothesis, HypothesisScheduler, KnowledgeRecord,
     MultiHorizonScheduler, ResearchCell,
     ResearchIntelligence, ResearchMemory, ScientificResult, UnifiedResearchExecutor,
-    TradingCandidateGenerator, create_pattern_effect,
+    StrategyBuilder, TradingCandidateGenerator, create_pattern_effect,
 )
 
 UNKNOWN_METHODS = ("univariate_screen", "interaction_search", "subgroup_discovery")
@@ -242,6 +242,7 @@ class MultiHorizonResearchRunner:
                     candidate = TradingCandidateGenerator().generate(
                         effect, evaluation, evidence, hypothesis)
                     self.memory.add_trading_candidate(candidate)
+                    StrategyBuilder().build_and_persist(candidate, self.memory)
                 record = KnowledgeRecord(
                     cell.symbol, cell.research_horizon.value, cell.primary_timeframe,
                     ",".join(cell.context_timeframes), cell.research_track.value,
