@@ -8,11 +8,14 @@ seed.
 
 Each run contains `manifest.json`, `source_commit.txt`,
 `data_manifest.sha256`, the six stage JSONL files (`hypotheses`, `strategies`,
-`signals`, `backtests`, `validations`, and `rankings`), and three diagnostic
-files: `audit_metadata.json`, `direction_bias_report.json`, and
-`horizon_report.json`. The audit metadata contains per-strategy definitions,
-per-backtest trade diagnostics, and pipeline funnel counts. Empty stages are
-represented by readable empty JSONL files.
+`signals`, `backtests`, `validations`, and `rankings`), the provenance JSONL
+files (`research_attempts`, `knowledge_records`, `scientific_findings`,
+`trading_candidates`, and `strategy_candidates`), and three diagnostic files:
+`audit_metadata.json`, `direction_bias_report.json`, and `horizon_report.json`.
+The manifest records its UTC creation timestamp and the bounded launch
+parameters. The audit metadata contains per-strategy definitions, per-backtest
+trade diagnostics, and pipeline funnel counts. Empty stages are represented by
+readable empty JSONL files.
 
 `AutonomousRunArtifacts.export` writes atomically, records every artifact hash
 and JSONL record count, and then reopens the bundle with

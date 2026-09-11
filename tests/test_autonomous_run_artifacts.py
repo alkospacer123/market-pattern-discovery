@@ -11,6 +11,8 @@ from market_pattern_discovery.orchestration import ARTIFACT_FILES, AutonomousRun
 
 
 class EmptyMemory:
+    def research_attempts(self): return []
+    def knowledge_records(self): return []
     def scientific_findings(self):
         return [{"hypothesis": {"hypothesis_id": "h-2"}},
                 {"hypothesis": {"hypothesis_id": "h-1"}},
@@ -93,6 +95,8 @@ def test_bundle_survives_process_boundary(tmp_path):
     process_a = """
 from market_pattern_discovery.orchestration import AutonomousRunArtifacts
 class M:
+ def research_attempts(self): return []
+ def knowledge_records(self): return []
  def scientific_findings(self): return []
  def trading_candidates(self): return {}
  def strategy_candidates(self): return {}

@@ -14,7 +14,9 @@ from typing import Any, Iterable, Mapping
 DEFAULT_ARTIFACT_ROOT = Path("/workspace/market-pattern-artifacts")
 ARTIFACT_FILES = (
     "hypotheses.jsonl", "strategies.jsonl", "signals.jsonl", "backtests.jsonl",
-    "validations.jsonl", "rankings.jsonl",
+    "validations.jsonl", "rankings.jsonl", "research_attempts.jsonl",
+    "knowledge_records.jsonl", "scientific_findings.jsonl",
+    "trading_candidates.jsonl", "strategy_candidates.jsonl",
 )
 DIAGNOSTIC_FILES = ("audit_metadata.json", "direction_bias_report.json", "horizon_report.json")
 RUN_REGISTRY = "runs_registry.json"
@@ -79,6 +81,8 @@ class AutonomousRunArtifacts:
     @staticmethod
     def _collections(memory: Any) -> dict[str, list[Any]]:
         return {
+            "attempts": list(memory.research_attempts()),
+            "knowledge": list(memory.knowledge_records()),
             "findings": list(memory.scientific_findings()),
             "trading": list(memory.trading_candidates().values()) if hasattr(memory, "trading_candidates") else [],
             "strategies": list(memory.strategy_candidates().values()),
@@ -98,6 +102,11 @@ class AutonomousRunArtifacts:
             "backtests.jsonl": (_dict(row) for row in items["backtests"]),
             "validations.jsonl": (_dict(row) for row in items["validations"]),
             "rankings.jsonl": (_dict(row) for row in items["rankings"]),
+            "research_attempts.jsonl": (_dict(row) for row in items["attempts"]),
+            "knowledge_records.jsonl": (_dict(row) for row in items["knowledge"]),
+            "scientific_findings.jsonl": (_dict(row) for row in items["findings"]),
+            "trading_candidates.jsonl": (_dict(row) for row in items["trading"]),
+            "strategy_candidates.jsonl": (strategy_candidate_dict(row) for row in items["strategies"]),
         }
 
     @staticmethod
@@ -123,7 +132,7 @@ class AutonomousRunArtifacts:
             trades = row.get("trades", [])
             trade_diagnostics.append({key: row.get(key) for key in (
                 "strategy_id", "total_trades", "win_rate", "profit_factor", "expectancy", "max_drawdown",
-                "average_holding_time") } | {
+                "net_result", "average_holding_time") } | {
                 "LONG_trades": sum(t.get("direction") == "LONG" for t in trades),
                 "SHORT_trades": sum(t.get("direction") == "SHORT" for t in trades),
             })
@@ -145,9 +154,13 @@ class AutonomousRunArtifacts:
         profiles = {"SCALPING": {"execution": ["M1", "M5"], "context": ["M15"]},
                     "INTRADAY": {"execution": ["M5", "M15", "M30"], "context": ["H1", "D1"]},
                     "MEDIUM TERM": {"execution": ["H1", "D1"], "context": ["H1", "D1"]}}
-        created = {(row.get("horizon"), row.get("execution_timeframe")) for row in strategies}
+        horizon_names = {"Scalping": "SCALPING", "Intraday": "INTRADAY",
+                         "Medium-Term": "MEDIUM TERM"}
+        created = {(horizon_names.get(row.get("horizon"), row.get("horizon")),
+                    row.get("execution_timeframe")) for row in strategies}
         traded_ids = {row.get("strategy_id") for row in backtests}
-        traded = {(row.get("horizon"), row.get("execution_timeframe")) for row in strategies if row.get("strategy_id") in traded_ids}
+        traded = {(horizon_names.get(row.get("horizon"), row.get("horizon")),
+                   row.get("execution_timeframe")) for row in strategies if row.get("strategy_id") in traded_ids}
         horizon = {name: {"expected_execution_timeframes": spec["execution"],
                           "expected_context_timeframes": spec["context"],
                           "created": sorted(tf for h, tf in created if h == name),
@@ -157,7 +170,8 @@ class AutonomousRunArtifacts:
         return audit, bias, horizon
 
     def export(self, memory: Any, *, data_manifest: str | Path, repository: str | Path,
-               run_id: str | None = None, seed: int | None = None) -> Mapping[str, Any]:
+               run_id: str | None = None, seed: int | None = None,
+               launch_parameters: Mapping[str, Any] | None = None) -> Mapping[str, Any]:
         data_manifest, repository = Path(data_manifest), Path(repository)
         if not data_manifest.is_file():
             raise FileNotFoundError(f"data manifest does not exist: {data_manifest}")
@@ -176,8 +190,12 @@ class AutonomousRunArtifacts:
         _write_atomic(root / "source_commit.txt", f"{commit}\n")
         _write_atomic(root / "data_manifest.sha256", f"{data_digest}\n")
         inventory = (*ARTIFACT_FILES, *DIAGNOSTIC_FILES, "source_commit.txt", "data_manifest.sha256")
-        manifest = {"schema_version": "2", "run_id": run_id, "status": "VERIFYING",
+        existing_manifest = root / "manifest.json"
+        created_at = (json.loads(existing_manifest.read_text()).get("created_at")
+                      if existing_manifest.is_file() else datetime.now(timezone.utc).isoformat())
+        manifest = {"schema_version": "3", "run_id": run_id, "status": "VERIFYING",
                     "source_commit": commit, "data_manifest_sha256": data_digest, "seed": seed,
+                    "created_at": created_at, "launch_parameters": dict(launch_parameters or {}),
                     "zero_look_ahead": True, "true_oos_2025_accessed": False,
                     "artifacts": {name: {"records": sum(1 for _ in (root / name).open()) if name.endswith(".jsonl") else None,
                                                    "sha256": _sha256(root / name)} for name in inventory}}
