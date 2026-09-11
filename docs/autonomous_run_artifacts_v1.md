@@ -1,34 +1,36 @@
-# Autonomous run artifacts v1
+# Persistent autonomous-run artifacts v2
 
-The production multi-horizon command can export a compact, deterministic run
-bundle after the trading pipeline completes:
+The canonical storage root is **`/workspace/market-pattern-artifacts`**. It is a
+workspace path, not `/tmp` and not a process-specific directory. Every export
+is isolated below `<root>/<run_id>/`; callers may supply `--run-id`, otherwise a
+deterministic identifier is derived from source commit, data-manifest hash, and
+seed.
 
-```text
-/workspace/autonomous_runs/
-├── manifest.json
-├── source_commit.txt
-├── data_manifest.sha256
-├── hypotheses.jsonl
-├── strategies.jsonl
-├── signals.jsonl
-├── backtests.jsonl
-├── validations.jsonl
-└── rankings.jsonl
+Each run contains `manifest.json`, `source_commit.txt`,
+`data_manifest.sha256`, the six stage JSONL files (`hypotheses`, `strategies`,
+`signals`, `backtests`, `validations`, and `rankings`), and three diagnostic
+files: `audit_metadata.json`, `direction_bias_report.json`, and
+`horizon_report.json`. The audit metadata contains per-strategy definitions,
+per-backtest trade diagnostics, and pipeline funnel counts. Empty stages are
+represented by readable empty JSONL files.
+
+`AutonomousRunArtifacts.export` writes atomically, records every artifact hash
+and JSONL record count, and then reopens the bundle with
+`AutonomousRunArtifacts.verify`. Status becomes `READY_FOR_AUDIT` only after
+all required files exist, hashes match, and every JSONL record parses. A
+verification error records `FAILED` and raises. A consumer in a later process
+can call `AutonomousRunArtifacts.verify(run_directory)` before trusting it.
+
+The production command requires `--data-manifest`; its default artifact root is
+the canonical path:
+
+```bash
+multihorizon-research --data-root READ_ONLY_DATA --memory-root MEMORY \
+  --cycles 1 --data-manifest DATA_MANIFEST --run-id RUN_ID
 ```
 
-Pass `--artifacts-root /workspace/autonomous_runs` together with
-`--data-manifest PATH` to `multihorizon-research`. The manifest path identifies
-an external inventory of the read-only source data; only its SHA-256 digest is
-written. Source candles are neither opened by the exporter nor copied into the
-repository or run bundle.
-
-All JSONL records are serialized canonically and sorted by their canonical
-representation. Empty stages still produce empty files. `manifest.json`
-records each file's count and digest, the Git source commit, and explicit
-ZERO LOOK-AHEAD / locked-2025 declarations. It contains no wall-clock value, so
-exporting unchanged memory again produces byte-identical files.
-
-The two export arguments are an inseparable pair and the command fails closed
-when only one is supplied. The export occurs only after the bounded research
-and trading stages return successfully; a partial run is not labelled
-`COMPLETED`.
+The manifest binds the bundle to the Git commit and external read-only data
+inventory without copying or reading source candles. Calendar year 2025 remains
+explicitly marked unaccessed. Export serialization and ordering are canonical,
+so the same memory, commit, data manifest, seed, and run ID produce identical
+artifact bytes and strategy/ranking order.

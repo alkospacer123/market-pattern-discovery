@@ -16,6 +16,6 @@ __all__ = ["AutonomousSearchScheduler", "CycleManifest", "CycleReport", "CycleRu
            "load_manifest_state_domains",
            "cells_for_matrix", "finalize_multiplicity_family",
            "AutonomousTradingPipeline", "PipelineRunReport",
-           "ARTIFACT_FILES", "AutonomousRunArtifacts"]
+           "ARTIFACT_FILES", "DEFAULT_ARTIFACT_ROOT", "AutonomousRunArtifacts"]
 from .trading_pipeline import AutonomousTradingPipeline, PipelineRunReport
-from .run_artifacts import ARTIFACT_FILES, AutonomousRunArtifacts
+from .run_artifacts import ARTIFACT_FILES, DEFAULT_ARTIFACT_ROOT, AutonomousRunArtifacts
