@@ -1,0 +1,11 @@
+{
+  "audit_status": "AUDIT BLOCKED",
+  "bundle": "/workspace/market-pattern-artifacts/smoke-v2-20260911T083829Z-661a3a41/",
+  "blocker": "Requested artifact bundle does not exist",
+  "horizons": {
+    "SCALPING": {"expected_execution_timeframes": ["M1", "M5"], "expected_context_timeframes": ["M15"], "created": null, "strategy_candidates": null, "signals": null, "backtests": null, "traded": null},
+    "INTRADAY": {"expected_execution_timeframes": ["M5", "M15", "M30"], "expected_context_timeframes": ["H1", "D1"], "created": null, "strategy_candidates": null, "signals": null, "backtests": null, "traded": null},
+    "MEDIUM_TERM": {"expected_execution_timeframes": ["H1", "D1"], "expected_context_timeframes": ["H1", "D1"], "created": null, "strategy_candidates": null, "signals": null, "backtests": null, "traded": null}
+  },
+  "note": "Expected timeframes reproduce the audit questions and are not evidence that a horizon participated."
+}
