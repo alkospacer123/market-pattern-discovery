@@ -308,7 +308,8 @@ def main(argv=None) -> int:
     result = runner.run(args.cycles, budget=args.budget)
     AutonomousRunArtifacts(args.artifacts_root).export(
         runner.memory, data_manifest=args.data_manifest,
-        repository=Path(__file__).resolve().parents[3], run_id=args.run_id)
+        repository=Path(__file__).resolve().parents[3], run_id=args.run_id, seed=35,
+        launch_parameters={"cycles": args.cycles, "budget": args.budget, "seed": 35})
     print(json.dumps([asdict(row) for row in result], sort_keys=True))
     return 0
 
