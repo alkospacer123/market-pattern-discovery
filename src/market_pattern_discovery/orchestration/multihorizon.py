@@ -296,18 +296,19 @@ def main(argv=None) -> int:
     parser.add_argument("--cycles", required=True, type=int)
     parser.add_argument("--budget", type=int, default=1)
     parser.add_argument("--artifacts-root", type=Path,
-        help="write the completed autonomous-run bundle to this directory")
+        default=Path("/workspace/market-pattern-artifacts"),
+        help="persistent storage root (default: /workspace/market-pattern-artifacts)")
+    parser.add_argument("--run-id", help="stable run directory name")
     parser.add_argument("--data-manifest", type=Path,
         help="manifest whose bytes bind the run to its external, read-only data")
     args = parser.parse_args(argv)
-    if bool(args.artifacts_root) != bool(args.data_manifest):
-        parser.error("--artifacts-root and --data-manifest must be supplied together")
+    if not args.data_manifest:
+        parser.error("--data-manifest is required for the persistent artifact bundle")
     runner = MultiHorizonResearchRunner(args.data_root, args.memory_root)
     result = runner.run(args.cycles, budget=args.budget)
-    if args.artifacts_root:
-        AutonomousRunArtifacts(args.artifacts_root).export(
-            runner.memory, data_manifest=args.data_manifest,
-            repository=Path(__file__).resolve().parents[3])
+    AutonomousRunArtifacts(args.artifacts_root).export(
+        runner.memory, data_manifest=args.data_manifest,
+        repository=Path(__file__).resolve().parents[3], run_id=args.run_id)
     print(json.dumps([asdict(row) for row in result], sort_keys=True))
     return 0
 
