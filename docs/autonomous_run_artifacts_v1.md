@@ -20,6 +20,12 @@ and JSONL record count, and then reopens the bundle with
 all required files exist, hashes match, and every JSONL record parses. A
 verification error records `FAILED` and raises. A consumer in a later process
 can call `AutonomousRunArtifacts.verify(run_directory)` before trusting it.
+After that verification succeeds, export atomically publishes the run ID,
+commit, status, and registration time in `<root>/runs_registry.json`. A later
+process that knows only the storage root can call `AutonomousRunArtifacts.latest()`
+to discover and reverify the newest registered bundle. Verification rejects a
+`READY_FOR_AUDIT` manifest if its required inventory, any required file, any
+SHA256, or a JSONL record/count is missing or invalid.
 
 The production command requires `--data-manifest`; its default artifact root is
 the canonical path:
