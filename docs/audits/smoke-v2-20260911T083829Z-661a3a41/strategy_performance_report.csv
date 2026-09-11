@@ -1,0 +1,1 @@
+strategy_id,symbol,horizon,execution_timeframe,context_timeframes,direction,signal_type,entry_logic,exit_logic,stop_loss,take_profit,risk_reward,total_trades,long_trades,short_trades,win_rate,profit_factor,expectancy,net_result,max_drawdown,average_holding_time

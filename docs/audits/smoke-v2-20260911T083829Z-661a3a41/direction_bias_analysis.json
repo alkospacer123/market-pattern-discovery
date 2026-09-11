@@ -1,0 +1,22 @@
+{
+  "audit_status": "AUDIT BLOCKED",
+  "bundle": "/workspace/market-pattern-artifacts/smoke-v2-20260911T083829Z-661a3a41/",
+  "blocker": "Requested artifact bundle does not exist",
+  "stage_statistics": {
+    "pattern_effect": {"long_count": null, "short_count": null, "long_percent": null, "short_percent": null},
+    "trading_candidate": {"long_count": null, "short_count": null, "long_percent": null, "short_percent": null},
+    "strategy_candidate": {"long_count": null, "short_count": null, "long_percent": null, "short_percent": null},
+    "executable_signal": {"long_count": null, "short_count": null, "long_percent": null, "short_percent": null},
+    "backtest_trades": {"long_count": null, "short_count": null, "long_percent": null, "short_percent": null}
+  },
+  "first_bias_stage": null,
+  "cause_selection": null,
+  "cause_options": [
+    "A_RESEARCH_HYPOTHESIS_GENERATION",
+    "B_PATTERN_EFFECT_INTERPRETATION",
+    "C_STRATEGY_BUILDER",
+    "D_SIGNAL_TRANSLATION",
+    "E_EXECUTION_ENGINE"
+  ],
+  "conclusion": "No cause can be selected without artifact records."
+}
