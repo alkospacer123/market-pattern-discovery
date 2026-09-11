@@ -113,3 +113,19 @@ print('PERSISTENCE TEST PASS')
     result = subprocess.run([sys.executable, "-c", process_b], check=True, env=environment,
                             capture_output=True, text=True)
     assert result.stdout.strip() == "PERSISTENCE TEST PASS"
+    assert AutonomousRunArtifacts(root).latest() == root / "process-test"
+
+
+def test_ready_for_audit_fails_closed_without_files_or_hashes(tmp_path):
+    run = tmp_path / "broken"
+    run.mkdir()
+    (run / "manifest.json").write_text(json.dumps({
+        "status": "READY_FOR_AUDIT", "source_commit": "abc",
+        "data_manifest_sha256": "def", "artifacts": {},
+    }))
+    try:
+        AutonomousRunArtifacts.verify(run)
+    except ValueError as error:
+        assert "required artifacts absent" in str(error)
+    else:
+        raise AssertionError("READY_FOR_AUDIT without artifacts must fail closed")

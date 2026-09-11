@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import subprocess
+from datetime import datetime, timezone
 from dataclasses import asdict, is_dataclass
 from pathlib import Path
 from typing import Any, Iterable, Mapping
@@ -16,6 +17,9 @@ ARTIFACT_FILES = (
     "validations.jsonl", "rankings.jsonl",
 )
 DIAGNOSTIC_FILES = ("audit_metadata.json", "direction_bias_report.json", "horizon_report.json")
+RUN_REGISTRY = "runs_registry.json"
+REQUIRED_BUNDLE_FILES = (*ARTIFACT_FILES, "audit_metadata.json", "source_commit.txt",
+                         "data_manifest.sha256")
 
 
 def _canonical(value: Any) -> str:
@@ -178,16 +182,43 @@ class AutonomousRunArtifacts:
                     "artifacts": {name: {"records": sum(1 for _ in (root / name).open()) if name.endswith(".jsonl") else None,
                                                    "sha256": _sha256(root / name)} for name in inventory}}
         _write_atomic(root / "manifest.json", f"{_canonical(manifest)}\n")
+        manifest["status"] = "READY_FOR_AUDIT"
+        _write_atomic(root / "manifest.json", f"{_canonical(manifest)}\n")
         try:
             self.verify(root)
         except Exception:
             manifest["status"] = "FAILED"
             _write_atomic(root / "manifest.json", f"{_canonical(manifest)}\n")
             raise
-        manifest["status"] = "READY_FOR_AUDIT"
-        _write_atomic(root / "manifest.json", f"{_canonical(manifest)}\n")
-        self.verify(root)
+        self._register(manifest)
         return manifest
+
+    def _register(self, manifest: Mapping[str, Any]) -> None:
+        """Publish a verified run so a later process can discover it by run id."""
+        self.storage_root.mkdir(parents=True, exist_ok=True)
+        path = self.storage_root / RUN_REGISTRY
+        registry = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {
+            "schema_version": "1", "runs": []}
+        runs = [row for row in registry.get("runs", []) if row.get("run_id") != manifest["run_id"]]
+        runs.append({"run_id": manifest["run_id"], "status": "READY_FOR_AUDIT",
+                     "source_commit": manifest["source_commit"],
+                     "registered_at": datetime.now(timezone.utc).isoformat()})
+        registry["runs"] = sorted(runs, key=lambda row: (row["registered_at"], row["run_id"]))
+        _write_atomic(path, f"{_canonical(registry)}\n")
+
+    def latest(self) -> Path:
+        """Find the latest registered run without requiring its bundle path."""
+        path = self.storage_root / RUN_REGISTRY
+        if not path.is_file():
+            raise FileNotFoundError(f"artifact run registry missing: {path}")
+        registry = json.loads(path.read_text(encoding="utf-8"))
+        runs = registry.get("runs", [])
+        if not runs:
+            raise FileNotFoundError(f"artifact run registry is empty: {path}")
+        run = max(runs, key=lambda row: (row["registered_at"], row["run_id"]))
+        root = self.storage_root / run["run_id"]
+        self.verify(root)
+        return root
 
     @staticmethod
     def verify(run_root: str | Path) -> Mapping[str, Any]:
@@ -195,8 +226,18 @@ class AutonomousRunArtifacts:
         if not root.is_dir() or not (root / "manifest.json").is_file():
             raise FileNotFoundError(f"persistent run or manifest missing: {root}")
         manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
-        for name, expected in manifest.get("artifacts", {}).items():
+        artifacts = manifest.get("artifacts")
+        if manifest.get("status") != "READY_FOR_AUDIT" or not isinstance(artifacts, dict):
+            raise ValueError("run is not READY_FOR_AUDIT with an artifact inventory")
+        missing = set(REQUIRED_BUNDLE_FILES) - set(artifacts)
+        if missing:
+            raise ValueError(f"required artifacts absent from manifest: {sorted(missing)}")
+        if not manifest.get("source_commit") or not manifest.get("data_manifest_sha256"):
+            raise ValueError("commit or data-manifest hash missing")
+        for name, expected in artifacts.items():
             path = root / name
+            if not isinstance(expected, dict) or not expected.get("sha256"):
+                raise ValueError(f"artifact hash missing: {name}")
             if not path.is_file() or _sha256(path) != expected["sha256"]:
                 raise ValueError(f"artifact missing or hash mismatch: {name}")
             if name.endswith(".jsonl"):
