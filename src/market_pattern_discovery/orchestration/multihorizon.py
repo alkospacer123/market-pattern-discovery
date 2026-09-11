@@ -24,6 +24,7 @@ from market_pattern_discovery.research import (
 from market_pattern_discovery.validation import ValidationEngine
 
 from .trading_pipeline import AutonomousTradingPipeline
+from .run_artifacts import AutonomousRunArtifacts
 
 UNKNOWN_METHODS = ("univariate_screen", "interaction_search", "subgroup_discovery")
 PRODUCTION_COSTS = CostModel(transaction_cost=.001, slippage=.0005)
@@ -294,8 +295,19 @@ def main(argv=None) -> int:
     parser.add_argument("--memory-root", required=True, type=Path)
     parser.add_argument("--cycles", required=True, type=int)
     parser.add_argument("--budget", type=int, default=1)
+    parser.add_argument("--artifacts-root", type=Path,
+        help="write the completed autonomous-run bundle to this directory")
+    parser.add_argument("--data-manifest", type=Path,
+        help="manifest whose bytes bind the run to its external, read-only data")
     args = parser.parse_args(argv)
-    result = MultiHorizonResearchRunner(args.data_root, args.memory_root).run(args.cycles, budget=args.budget)
+    if bool(args.artifacts_root) != bool(args.data_manifest):
+        parser.error("--artifacts-root and --data-manifest must be supplied together")
+    runner = MultiHorizonResearchRunner(args.data_root, args.memory_root)
+    result = runner.run(args.cycles, budget=args.budget)
+    if args.artifacts_root:
+        AutonomousRunArtifacts(args.artifacts_root).export(
+            runner.memory, data_manifest=args.data_manifest,
+            repository=Path(__file__).resolve().parents[3])
     print(json.dumps([asdict(row) for row in result], sort_keys=True))
     return 0
 
