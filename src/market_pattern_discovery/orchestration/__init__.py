@@ -15,5 +15,7 @@ __all__ = ["AutonomousSearchScheduler", "CycleManifest", "CycleReport", "CycleRu
            "UnknownUniverseIndex", "build_unknown_universe_index", "UnknownPatternScheduler",
            "load_manifest_state_domains",
            "cells_for_matrix", "finalize_multiplicity_family",
-           "AutonomousTradingPipeline", "PipelineRunReport"]
+           "AutonomousTradingPipeline", "PipelineRunReport",
+           "ARTIFACT_FILES", "AutonomousRunArtifacts"]
 from .trading_pipeline import AutonomousTradingPipeline, PipelineRunReport
+from .run_artifacts import ARTIFACT_FILES, AutonomousRunArtifacts
