@@ -1,0 +1,132 @@
+{
+  "audit_scope": {
+    "strategy": "T3_MTF_Trend_v1.0",
+    "first_entry": "2023-02-20T20:00:00+00:00",
+    "last_exit": "2024-12-12T10:00:00+00:00",
+    "true_oos_2025_read": false,
+    "parameters_optimized": false,
+    "source_metrics_reconciliation": {
+      "trades": true,
+      "long_trades": true,
+      "short_trades": true,
+      "net_profit": true,
+      "profit_factor": true,
+      "expectancy": true,
+      "average_R": true,
+      "win_rate": true,
+      "max_drawdown": true
+    }
+  },
+  "overall": {
+    "trades": 109,
+    "net_profit": 56524.75516561773,
+    "profit_factor": 2.098284631752035,
+    "expectancy": 518.5757354643829,
+    "average_R": 0.47802307756209034,
+    "win_rate": 0.43119266055045874,
+    "max_drawdown": -17847.639641848655,
+    "long_trades": 74,
+    "short_trades": 35,
+    "median_R": -0.3338901511942267,
+    "maximum_winning_streak": 6,
+    "maximum_losing_streak": 10,
+    "recovery_factor": 3.1670717416929484
+  },
+  "r_distribution": {
+    "mean_R": 0.47802307756209034,
+    "median_R": -0.3338901511942267,
+    "standard_deviation_R": 2.1884014274840142,
+    "percentile_25_R": -0.9663216478038305,
+    "percentile_75_R": 0.9757194914750018,
+    "best_trade_R": 13.994410684464109,
+    "worst_trade_R": -1.0,
+    "large_trade_dependence": {
+      "top_1_share_of_positive_R": 0.1409877406737056,
+      "top_3_share_of_positive_R": 0.28824887196266213,
+      "top_5_share_of_positive_R": 0.3864706656951767,
+      "total_R": 52.10451545426785,
+      "total_R_without_best_trade": 38.11010476980374,
+      "total_R_without_top_5_trades": 13.743526141349406
+    }
+  },
+  "by_instrument": {
+    "CNY": {
+      "trades": 48,
+      "net_profit": 34736.733696623116,
+      "profit_factor": 2.540654818968078,
+      "expectancy": 723.6819520129816,
+      "average_R": 0.6534689034724651,
+      "win_rate": 0.4166666666666667,
+      "max_drawdown": -5848.680391241669
+    },
+    "Si": {
+      "trades": 61,
+      "net_profit": 21788.02146899462,
+      "profit_factor": 1.7533981139496002,
+      "expectancy": 357.18067981958393,
+      "average_R": 0.33996734569818887,
+      "win_rate": 0.4426229508196721,
+      "max_drawdown": -12312.537109276664
+    }
+  },
+  "by_direction": {
+    "LONG": {
+      "trades": 74,
+      "net_profit": 30850.517172732165,
+      "profit_factor": 1.9153585992014555,
+      "expectancy": 416.89888071259685,
+      "average_R": 0.367236437915734,
+      "win_rate": 0.43243243243243246,
+      "max_drawdown": -15613.421006667175
+    },
+    "SHORT": {
+      "trades": 35,
+      "net_profit": 25674.23799288556,
+      "profit_factor": 2.4453614450291563,
+      "expectancy": 733.5496569395874,
+      "average_R": 0.7122576871001007,
+      "win_rate": 0.42857142857142855,
+      "max_drawdown": -4687.345687483914
+    }
+  },
+  "year_analysis": {
+    "profitable_years": 2,
+    "years": 2,
+    "largest_year_share_of_total_net_profit": 0.7251212595751162,
+    "all_profit_from_one_year_red_flag": false
+  },
+  "monthly_analysis": {
+    "best_month": {
+      "month": "2024-06",
+      "return_R": 22.882146215138665,
+      "trades": 7,
+      "drawdown": -2.408484930371407
+    },
+    "worst_month": {
+      "month": "2023-10",
+      "return_R": -4.300992552197593,
+      "trades": 6,
+      "drawdown": -4.300992552197593
+    },
+    "profitable_months": 10,
+    "months_with_trades": 22,
+    "equity_drawdown_durations": {
+      "episode_count": 11,
+      "longest": {
+        "start": "2023-08-21T14:00:00+00:00",
+        "end": "2024-06-20T08:00:00+00:00",
+        "calendar_days": 303.75
+      }
+    }
+  },
+  "mae_mfe": {
+    "status": "not_calculable",
+    "reason": "No intratrade OHLC path is present in supplied artifacts."
+  },
+  "limitations": [
+    "Commission and slippage are zero in the frozen baseline.",
+    "Only 109 trades and two calendar years are available.",
+    "MAE/MFE require causal intratrade bar paths, which were not supplied."
+  ],
+  "decision": "NEEDS_RESEARCH"
+}
