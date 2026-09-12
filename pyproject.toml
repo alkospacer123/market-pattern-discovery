@@ -17,6 +17,7 @@ testpaths = ["tests"]
 
 
 [project.scripts]
+bbw-backtest = "bbw_system.cli:main"
 phase1b-validate = "market_pattern_discovery.validation.phase1b:main"
 phase2a-validate = "market_pattern_discovery.validation.phase2a:main"
 phase2b-validate = "market_pattern_discovery.validation.phase2b:main"
@@ -33,3 +34,4 @@ multihorizon-research = "market_pattern_discovery.orchestration.multihorizon:mai
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["market_pattern_discovery*", "bbw_system*"]
