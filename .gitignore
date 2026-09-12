@@ -11,3 +11,8 @@ __pycache__/
 .pytest_cache/
 .venv/
 venv/
+
+# Trading System Lab result plots must remain reviewable text artifacts (SVG).
+TradingSystemLab/results/**/*.png
+TradingSystemLab/results/**/*.jpg
+TradingSystemLab/results/**/*.jpeg

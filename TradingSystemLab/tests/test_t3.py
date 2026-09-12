@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 import pytest
 
@@ -29,3 +31,15 @@ def test_loader_rejects_true_oos_before_research(tmp_path):
     path.write_text("Date,Time,Open,High,Low,Close\n20250101,100000,1,2,0,1\n")
     with pytest.raises(ValueError, match="TRUE OOS"):
         DataLoader(timezone="UTC").load_csv(path)
+
+
+def test_generated_results_contain_no_binary_plot_artifacts():
+    """Research result plots must be text SVGs so that PRs stay reviewable."""
+    results = Path(__file__).parents[1] / "results"
+    binary_suffixes = {".png", ".jpg", ".jpeg"}
+    binary_plots = sorted(
+        path.relative_to(results).as_posix()
+        for path in results.rglob("*")
+        if path.is_file() and path.suffix.lower() in binary_suffixes
+    )
+    assert binary_plots == []
