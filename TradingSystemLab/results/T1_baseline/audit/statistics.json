@@ -1,0 +1,103 @@
+{
+  "R_distribution": {
+    "best_trade_R": 4.076125739294533,
+    "mean_R": -0.08832437439659309,
+    "median_R": -0.4218471935194046,
+    "percentile_25_R": -0.8976893725294217,
+    "percentile_75_R": -0.0372459720345691,
+    "standard_deviation_R": 1.286257881779627,
+    "top_10_share_of_positive_R": 1.0,
+    "top_1_share_of_positive_R": 0.37043228016529783,
+    "top_3_share_of_positive_R": 0.8190207123446067,
+    "top_5_share_of_positive_R": 0.9619358137392724,
+    "worst_trade_R": -1.0
+  },
+  "best_month": "2023-07",
+  "directions": {
+    "LONG": {
+      "average_R": 0.04734866275417609,
+      "expectancy": 36.7709977874545,
+      "long_trades": 14,
+      "max_drawdown": -4253.597737363667,
+      "max_losing_streak": 8,
+      "max_winning_streak": 1,
+      "median_R": -0.5874914885113758,
+      "net_profit": 514.7939690243629,
+      "profit_factor": 1.0712498921222904,
+      "recovery_factor": 0.12102554139109227,
+      "short_trades": 0,
+      "trades": 14,
+      "win_rate": 0.14285714285714285
+    },
+    "SHORT": {
+      "average_R": -0.22399741154736222,
+      "expectancy": -224.54142946171626,
+      "long_trades": 0,
+      "max_drawdown": -3758.7289520152435,
+      "max_losing_streak": 6,
+      "max_winning_streak": 2,
+      "median_R": -0.2415269840675566,
+      "net_profit": -3143.5800124640277,
+      "profit_factor": 0.5000114215403781,
+      "recovery_factor": -0.83634123465556,
+      "short_trades": 14,
+      "trades": 14,
+      "win_rate": 0.2857142857142857
+    }
+  },
+  "frozen_metrics_reconciled": true,
+  "instruments": {
+    "CNY": {
+      "average_R": -0.22775337201320808,
+      "expectancy": -231.14054459114362,
+      "long_trades": 8,
+      "max_drawdown": -4479.04067312736,
+      "max_losing_streak": 6,
+      "max_winning_streak": 1,
+      "median_R": -0.7796626919540907,
+      "net_profit": -3467.1081688671543,
+      "profit_factor": 0.579742582385753,
+      "recovery_factor": -0.7740738300655678,
+      "short_trades": 7,
+      "trades": 15,
+      "win_rate": 0.13333333333333333
+    },
+    "Si": {
+      "average_R": 0.07255523823796264,
+      "expectancy": 64.48631734057612,
+      "long_trades": 6,
+      "max_drawdown": -2948.389317044413,
+      "max_losing_streak": 5,
+      "max_winning_streak": 2,
+      "median_R": -0.288067232759476,
+      "net_profit": 838.3221254274896,
+      "profit_factor": 1.1593002070294223,
+      "recovery_factor": 0.28433223542807373,
+      "short_trades": 7,
+      "trades": 13,
+      "win_rate": 0.3076923076923077
+    }
+  },
+  "maximum_drawdown_duration_days": 416,
+  "overall": {
+    "average_R": -0.08832437439659309,
+    "expectancy": -93.88521583713084,
+    "long_trades": 14,
+    "max_drawdown": -6283.0120460910985,
+    "max_losing_streak": 6,
+    "max_winning_streak": 2,
+    "median_R": -0.4218471935194046,
+    "net_profit": -2628.7860434396634,
+    "profit_factor": 0.8054551425635295,
+    "recovery_factor": -0.4183958305595055,
+    "short_trades": 14,
+    "trades": 28,
+    "win_rate": 0.21428571428571427
+  },
+  "sample": {
+    "end": "2024-12-30 08:00:00+00:00",
+    "start": "2023-02-15 10:00:00+00:00"
+  },
+  "strategy": "T1_BBW_Donchian_v1.0",
+  "worst_month": "2024-10"
+}

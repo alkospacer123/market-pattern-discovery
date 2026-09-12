@@ -118,7 +118,7 @@ def _line_svg(path: Path, trades: pd.DataFrame) -> None:
         for i in range(1, len(x)) if dd[i]
     )
     points = " ".join(f"{a:.2f},{b:.2f}" for a, b in zip(x, y))
-    _svg(path, "T3 cumulative R (red = drawdown)", shaded +
+    _svg(path, "Cumulative R (red = drawdown)", shaded +
          f'<polyline points="{points}" fill="none" stroke="#2563eb" stroke-width="2"/>')
 
 
@@ -132,7 +132,7 @@ def _histogram_svg(path: Path, trades: pd.DataFrame) -> None:
         bars.append(f'<rect x="{x}" y="{370-height:.2f}" width="{width}" height="{height:.2f}" fill="#2563eb"/>')
     labels = (f'<text x="50" y="400" font-family="sans-serif" font-size="12">{edges[0]:.2f} R</text>'
               f'<text x="820" y="400" font-family="sans-serif" font-size="12">{edges[-1]:.2f} R</text>')
-    _svg(path, "T3 trade R distribution", "".join(bars) + labels)
+    _svg(path, "Trade R distribution", "".join(bars) + labels)
 
 
 def _maximum_drawdown_duration(trades: pd.DataFrame) -> int:
@@ -157,7 +157,9 @@ def _fmt(value: object) -> str:
     return f"{value:.6f}" if isinstance(value, float) else str(value)
 
 
-def run_audit(source: Path = BASELINE_DIR, output: Path | None = None) -> dict:
+def run_audit(source: Path = BASELINE_DIR, output: Path | None = None, *,
+              strategy_name: str = "T3_MTF_Trend_v1.0",
+              audit_verdict: str = "NEEDS_RESEARCH") -> dict:
     """Build the audit and return its statistics. Raises on OOS or mismatch."""
     source, output = Path(source), Path(output or source / "audit")
     frozen, trades, _equity = _load_inputs(source)
@@ -203,7 +205,7 @@ def run_audit(source: Path = BASELINE_DIR, output: Path | None = None) -> dict:
     pd.DataFrame({"trade_number": range(1, len(trades) + 1), "MAE": [pd.NA] * len(trades),
                   "MFE": [pd.NA] * len(trades)}).to_csv(output / "mae_mfe_analysis.csv", index=False,
                                                         lineterminator="\n")
-    statistics = {"strategy": "T3_MTF_Trend_v1.0", "sample": {"start": str(trades.entry_time.min()),
+    statistics = {"strategy": strategy_name, "sample": {"start": str(trades.entry_time.min()),
                   "end": str(trades.exit_time.max())}, "frozen_metrics_reconciled": True,
                   "overall": overall, "R_distribution": distribution, "instruments": instruments,
                   "directions": directions, "best_month": best_month, "worst_month": worst_month,
@@ -215,11 +217,11 @@ def run_audit(source: Path = BASELINE_DIR, output: Path | None = None) -> dict:
     top1 = distribution["top_1_share_of_positive_R"]
     # Pre-declared audit interpretation: visible cross-instrument/cross-year edge,
     # but only 109 trades, zero recorded costs, and no intratrade path.
-    verdict = "NEEDS_RESEARCH"
-    summary = f"""# T3 Baseline Audit
+    verdict = audit_verdict
+    summary = f"""# Baseline Audit
 
 ## Strategy
-`T3_MTF_Trend_v1.0`; descriptive audit only. Strategy and parameters were not rerun or changed.
+`{strategy_name}`; descriptive audit only. Strategy and parameters were not rerun or changed.
 
 ## Sample
 {statistics['sample']['start']} through {statistics['sample']['end']}; {overall['trades']} closed trades. Calendar year 2025 and later is rejected.
@@ -247,7 +249,9 @@ Intratrade OHLC path is required.
 Frozen trades record zero transaction costs; execution robustness therefore remains unverified. This audit does not access source market data or TRUE OOS.
 
 ## Verdict
-**{verdict}** — positive expectancy appears across both instruments and both years, but the modest sample, absent intratrade path, and zero recorded costs are material limitations.
+**{verdict}** — this is a descriptive frozen-baseline audit. The modest sample,
+zero baseline costs, and any cross-instrument or cross-year instability shown above
+must be assessed by the separate cost-robustness verdict.
 """
     (output / "summary.md").write_text(summary, encoding="utf-8")
     return statistics
