@@ -7,9 +7,10 @@ from .metrics import calculate_metrics
 from .portfolio import FixedRiskPortfolio
 from .strategy import Strategy
 
-TRADE_COLUMNS = ["strategy", "symbol", "direction", "entry_time", "entry_price",
-                 "exit_time", "exit_price", "stop_loss", "exit_reason",
-                 "profit_points", "profit_R", "quantity", "costs", "net_profit"]
+TRADE_COLUMNS = ["trade_id", "strategy", "symbol", "direction", "entry_time", "entry_price",
+                 "initial_stop", "initial_risk", "exit_time", "exit_price", "exit_reason",
+                 "bars_held", "gross_profit", "gross_R", "MAE_points", "MFE_points",
+                 "MAE_R", "MFE_R", "profit_points", "profit_R", "quantity", "costs", "net_profit"]
 
 
 @dataclass(frozen=True)
@@ -21,12 +22,15 @@ class BacktestResult:
 
 class Backtester:
     def __init__(self, portfolio: FixedRiskPortfolio | None = None, *,
-                 commission_per_unit: float = 0.0, slippage_points: float = 0.0) -> None:
-        if commission_per_unit < 0 or slippage_points < 0:
+                 commission_per_unit: float = 0.0, slippage_points: float = 0.0,
+                 cost_ticks_per_side: float = 0.0, tick_size: float = 1.0) -> None:
+        if min(commission_per_unit, slippage_points, cost_ticks_per_side) < 0 or tick_size <= 0:
             raise ValueError("costs and slippage must be non-negative")
         self.portfolio = portfolio or FixedRiskPortfolio()
         self.commission_per_unit = commission_per_unit
         self.slippage_points = slippage_points
+        self.cost_ticks_per_side = cost_ticks_per_side
+        self.tick_size = tick_size
 
     def run(self, strategy: Strategy, symbol: str, h1: pd.DataFrame, h4: pd.DataFrame) -> BacktestResult:
         if h1.empty or h4.empty:
@@ -54,18 +58,38 @@ class Backtester:
                     exit_price = gap_price - self.slippage_points if direction == "LONG" else gap_price + self.slippage_points
                     sign = 1 if direction == "LONG" else -1
                     points = sign * (exit_price - position["entry_price"])
-                    costs = 2 * self.commission_per_unit * position["quantity"]
+                    # A stop bar is deliberately excluded from path extrema: OHLC
+                    # cannot establish whether its favourable move preceded the stop.
+                    costs = 2 * (self.commission_per_unit + self.cost_ticks_per_side * self.tick_size *
+                                 self.portfolio.point_value) * position["quantity"]
                     net = points * position["quantity"] * self.portfolio.point_value - costs
                     initial_risk = abs(position["entry_price"] - position["initial_stop"])
-                    records.append({"strategy": strategy.name, "symbol": symbol, "direction": direction,
+                    gross = points * position["quantity"] * self.portfolio.point_value
+                    mae = (position["entry_price"] - position["min_low"] if direction == "LONG" else
+                           position["max_high"] - position["entry_price"])
+                    # The execution price is observable on the exit candle; lows/highs
+                    # beyond it are not. Include only adverse travel through execution.
+                    mae = max(mae, position["entry_price"] - exit_price if direction == "LONG"
+                              else exit_price - position["entry_price"])
+                    mfe = (position["max_high"] - position["entry_price"] if direction == "LONG" else
+                           position["entry_price"] - position["min_low"])
+                    records.append({"trade_id": f"{symbol}-{position['sequence']:06d}",
+                        "strategy": strategy.name, "symbol": symbol, "direction": direction,
                         "entry_time": position["entry_time"], "entry_price": position["entry_price"],
-                        "exit_time": timestamp, "exit_price": exit_price, "stop_loss": position["initial_stop"],
-                        "exit_reason": "ATR_TRAILING_STOP", "profit_points": points,
+                        "initial_stop": position["initial_stop"], "initial_risk": initial_risk,
+                        "exit_time": timestamp, "exit_price": exit_price, "exit_reason": "ATR_TRAILING_STOP",
+                        "bars_held": position["bars_held"] + 1, "gross_profit": gross,
+                        "gross_R": points / initial_risk, "MAE_points": max(0.0, mae),
+                        "MFE_points": max(0.0, mfe), "MAE_R": max(0.0, mae) / initial_risk,
+                        "MFE_R": max(0.0, mfe) / initial_risk, "profit_points": points,
                         "profit_R": points / initial_risk - costs / (position["quantity"] * self.portfolio.point_value * initial_risk),
                         "quantity": position["quantity"], "costs": costs, "net_profit": net})
                     equity += net
                     position = None
                 else:
+                    position["bars_held"] += 1
+                    position["min_low"] = min(position["min_low"], float(bar["Low"]))
+                    position["max_high"] = max(position["max_high"], float(bar["High"]))
                     if position["direction"] == "LONG":
                         position["extreme"] = max(position["extreme"], bar["High"])
                         position["active_stop"] = max(old_stop, strategy.manage_position("LONG", position["extreme"], bar["ATR"]))
@@ -80,7 +104,9 @@ class Backtester:
                     stop = strategy.calculate_stop_loss(signal, entry, float(bar["ATR"]))
                     position = {"direction": signal, "entry_time": timestamp, "entry_price": entry,
                                 "initial_stop": stop, "active_stop": stop, "extreme": entry,
-                                "quantity": self.portfolio.size(equity, entry, stop)}
+                                "quantity": self.portfolio.size(equity, entry, stop),
+                                "sequence": len(records) + 1, "bars_held": 0,
+                                "min_low": entry, "max_high": entry}
             curve.append({"time": timestamp, "equity": equity})
         trades = pd.DataFrame(records, columns=TRADE_COLUMNS)
         equity_curve = pd.DataFrame(curve).set_index("time")
