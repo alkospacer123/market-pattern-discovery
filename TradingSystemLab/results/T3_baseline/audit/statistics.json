@@ -1,0 +1,103 @@
+{
+  "R_distribution": {
+    "best_trade_R": 13.994410684464109,
+    "mean_R": 0.47802307756209034,
+    "median_R": -0.3338901511942267,
+    "percentile_25_R": -0.9663216478038305,
+    "percentile_75_R": 0.9757194914750018,
+    "standard_deviation_R": 2.1884014274840142,
+    "top_10_share_of_positive_R": 0.570524640072219,
+    "top_1_share_of_positive_R": 0.14098774067370562,
+    "top_3_share_of_positive_R": 0.2882488719626622,
+    "top_5_share_of_positive_R": 0.38647066569517674,
+    "worst_trade_R": -1.0
+  },
+  "best_month": "2024-06",
+  "directions": {
+    "LONG": {
+      "average_R": 0.367236437915734,
+      "expectancy": 416.89888071259685,
+      "long_trades": 74,
+      "max_drawdown": -15613.421006667175,
+      "max_losing_streak": 12,
+      "max_winning_streak": 5,
+      "median_R": -0.31592393227498516,
+      "net_profit": 30850.517172732165,
+      "profit_factor": 1.9153585992014555,
+      "recovery_factor": 1.9758973487974552,
+      "short_trades": 0,
+      "trades": 74,
+      "win_rate": 0.43243243243243246
+    },
+    "SHORT": {
+      "average_R": 0.7122576871001007,
+      "expectancy": 733.5496569395874,
+      "long_trades": 0,
+      "max_drawdown": -4687.345687483914,
+      "max_losing_streak": 5,
+      "max_winning_streak": 4,
+      "median_R": -0.4084849303714072,
+      "net_profit": 25674.23799288556,
+      "profit_factor": 2.4453614450291563,
+      "recovery_factor": 5.477351086232141,
+      "short_trades": 35,
+      "trades": 35,
+      "win_rate": 0.42857142857142855
+    }
+  },
+  "frozen_metrics_reconciled": true,
+  "instruments": {
+    "CNY": {
+      "average_R": 0.6534689034724651,
+      "expectancy": 723.6819520129816,
+      "long_trades": 31,
+      "max_drawdown": -5848.680391241669,
+      "max_losing_streak": 5,
+      "max_winning_streak": 4,
+      "median_R": -0.34497209942158374,
+      "net_profit": 34736.733696623116,
+      "profit_factor": 2.540654818968078,
+      "recovery_factor": 5.939242935661345,
+      "short_trades": 17,
+      "trades": 48,
+      "win_rate": 0.4166666666666667
+    },
+    "Si": {
+      "average_R": 0.33996734569818887,
+      "expectancy": 357.18067981958393,
+      "long_trades": 43,
+      "max_drawdown": -12312.537109276664,
+      "max_losing_streak": 7,
+      "max_winning_streak": 4,
+      "median_R": -0.3334138007593512,
+      "net_profit": 21788.02146899462,
+      "profit_factor": 1.7533981139496002,
+      "recovery_factor": 1.7695801665912396,
+      "short_trades": 18,
+      "trades": 61,
+      "win_rate": 0.4426229508196721
+    }
+  },
+  "maximum_drawdown_duration_days": 303,
+  "overall": {
+    "average_R": 0.47802307756209034,
+    "expectancy": 518.5757354643829,
+    "long_trades": 74,
+    "max_drawdown": -17847.639641848655,
+    "max_losing_streak": 10,
+    "max_winning_streak": 6,
+    "median_R": -0.3338901511942267,
+    "net_profit": 56524.75516561773,
+    "profit_factor": 2.098284631752035,
+    "recovery_factor": 3.1670717416929484,
+    "short_trades": 35,
+    "trades": 109,
+    "win_rate": 0.43119266055045874
+  },
+  "sample": {
+    "end": "2024-12-12 10:00:00+00:00",
+    "start": "2023-02-20 20:00:00+00:00"
+  },
+  "strategy": "T3_MTF_Trend_v1.0",
+  "worst_month": "2023-10"
+}
