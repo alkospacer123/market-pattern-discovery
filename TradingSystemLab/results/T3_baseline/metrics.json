@@ -1,0 +1,11 @@
+{
+  "trades": 109,
+  "win_rate": 0.43119266055045874,
+  "profit_factor": 2.098284631752035,
+  "expectancy": 518.5757354643829,
+  "average_R": 0.47802307756209034,
+  "max_drawdown": -17847.639641848655,
+  "net_profit": 56524.75516561773,
+  "long_trades": 74,
+  "short_trades": 35
+}
