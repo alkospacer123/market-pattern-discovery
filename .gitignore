@@ -11,3 +11,8 @@ __pycache__/
 .pytest_cache/
 .venv/
 venv/
+
+# Generated research plots must remain text-reviewable in pull requests.
+TradingSystemLab/results/**/*.png
+TradingSystemLab/results/**/*.jpg
+TradingSystemLab/results/**/*.jpeg
