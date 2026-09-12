@@ -14,7 +14,9 @@ from .core.portfolio import FixedRiskPortfolio
 from .strategies.trend.T3_MTF_Trend import T3MTFTrend
 
 SCENARIOS = {"C0": 0.0, "C0.5": 0.5, "C1": 1.0, "C2": 2.0}
-TICK_SIZE = {"Si": 1.0, "CNY": 0.001}
+# Source prices are RUB per currency unit.  The Si exchange quote step of one
+# RUB per USD 1,000 therefore converts to 0.001 in these source price units.
+TICK_SIZE = {"Si": 0.001, "CNY": 0.001}
 IDENTITY = ["trade_id", "symbol", "direction", "entry_time", "exit_time", "exit_reason"]
 
 
@@ -23,10 +25,12 @@ def _stats(frame: pd.DataFrame) -> dict:
     gains, losses = r[r > 0].sum(), -r[r < 0].sum()
     cumulative = r.cumsum()
     dd = cumulative - cumulative.cummax().clip(lower=0)
+    pf = gains / losses if losses else None
     return {"trades": len(frame), "net_R": r.sum(),
-            "profit_factor": gains / losses if losses else None,
-            "expectancy": r.mean(), "average_R": r.mean(),
-            "max_drawdown": dd.min() if len(dd) else 0.0, "win_rate": (r > 0).mean()}
+            "profit_factor": pf, "profit_factor_R": pf,
+            "expectancy": r.mean(), "expectancy_R": r.mean(), "average_R": r.mean(),
+            "max_drawdown": dd.min() if len(dd) else 0.0,
+            "max_DD_R": dd.min() if len(dd) else 0.0, "win_rate": (r > 0).mean()}
 
 
 def _svg(path: Path, title: str, series: list[tuple[str, np.ndarray]]) -> None:

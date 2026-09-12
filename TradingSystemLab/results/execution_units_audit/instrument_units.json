@@ -1,0 +1,14 @@
+{
+  "Si": {
+    "configured_tick_size": 0.001,
+    "observed_min_positive_price_increment": 0.009999999999990905,
+    "source": "TradingSystemLab/configs/Si.yaml; exchange quote point converted to repository RUB/USD price units",
+    "status": "OK"
+  },
+  "CNY": {
+    "configured_tick_size": 0.001,
+    "observed_min_positive_price_increment": 0.0009999999999994458,
+    "source": "TradingSystemLab/configs/CNY.yaml; instrument configuration",
+    "status": "OK"
+  }
+}

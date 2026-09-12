@@ -6,11 +6,13 @@ import pandas as pd
 from .metrics import calculate_metrics
 from .portfolio import FixedRiskPortfolio
 from .strategy import Strategy
+from .execution import tick_cost_r
 
 TRADE_COLUMNS = ["trade_id", "strategy", "symbol", "direction", "entry_time", "entry_price",
                  "initial_stop", "initial_risk", "exit_time", "exit_price", "exit_reason",
                  "bars_held", "gross_profit", "gross_R", "MAE_points", "MFE_points",
-                 "MAE_R", "MFE_R", "profit_points", "profit_R", "quantity", "costs", "net_profit"]
+                 "MAE_R", "MFE_R", "profit_points", "profit_R", "quantity", "costs", "net_profit",
+                 "tick_size", "initial_risk_ticks", "cost_R"]
 
 
 @dataclass(frozen=True)
@@ -64,6 +66,8 @@ class Backtester:
                                  self.portfolio.point_value) * position["quantity"]
                     net = points * position["quantity"] * self.portfolio.point_value - costs
                     initial_risk = abs(position["entry_price"] - position["initial_stop"])
+                    cost_r = tick_cost_r(position["entry_price"], position["initial_stop"],
+                                         self.tick_size, self.cost_ticks_per_side)
                     gross = points * position["quantity"] * self.portfolio.point_value
                     mae = (position["entry_price"] - position["min_low"] if direction == "LONG" else
                            position["max_high"] - position["entry_price"])
@@ -82,8 +86,12 @@ class Backtester:
                         "gross_R": points / initial_risk, "MAE_points": max(0.0, mae),
                         "MFE_points": max(0.0, mfe), "MAE_R": max(0.0, mae) / initial_risk,
                         "MFE_R": max(0.0, mfe) / initial_risk, "profit_points": points,
-                        "profit_R": points / initial_risk - costs / (position["quantity"] * self.portfolio.point_value * initial_risk),
-                        "quantity": position["quantity"], "costs": costs, "net_profit": net})
+                        "profit_R": points / initial_risk - cost_r - 2 * self.commission_per_unit /
+                        (self.portfolio.point_value * initial_risk),
+                        "quantity": position["quantity"], "costs": costs, "net_profit": net,
+                        "tick_size": self.tick_size, "initial_risk_ticks": initial_risk / self.tick_size,
+                        "cost_R": cost_r + 2 * self.commission_per_unit /
+                        (self.portfolio.point_value * initial_risk)})
                     equity += net
                     position = None
                 else:

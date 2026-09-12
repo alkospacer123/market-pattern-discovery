@@ -7,7 +7,7 @@ T3_MTF_Trend_v1.0: H4 EMA100/slope/ADX14/ATR expansion; H1 Donchian 20; SL 2 ATR
 Si and CNY, 2023–2024 only. Calendar 2025+ is rejected before indicator calculation.
 
 ## Cost stress
-C0 PF 2.1050, net R 52.1045; C1 PF 0.2522, expectancy -1.6241 R, net R -177.0296. Break-even 0.4548 round-trip ticks.
+C0 PF 2.1050, net R 52.1045; C1 PF 2.0503, expectancy 0.4634 R, net R 50.5153. Break-even 65.5719 round-trip ticks.
 
 ## MAE/MFE
 See `mae_mfe/mae_mfe_report.md`; path statistics are collected sequentially, excluding entry and stop candles.
@@ -25,7 +25,7 @@ See `reports/direction_report.csv` (C1).
 See `reports/year_report.csv` (C1; 2023 and 2024 only).
 
 ## Profit concentration
-C1 top-5 share of positive R: 0.5671.
+C1 top-5 share of positive R: 0.3881.
 
 ## Final verdict
-**NO_EDGE**
+**ROBUST_CANDIDATE**

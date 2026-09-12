@@ -2,6 +2,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="920" height="430">
 <rect width="100%" height="100%" fill="white"/>
 <text x="20" y="28" font-family="sans-serif" font-size="18">Cost sensitivity</text>
-<polyline points="55.00,65.00 325.00,140.00 595.00,215.00 865.00,365.00" fill="none" stroke="#2563eb" stroke-width="2"/>
+<polyline points="55.00,65.00 325.00,69.58 595.00,74.15 865.00,83.30" fill="none" stroke="#2563eb" stroke-width="2"/>
 <text x="60" y="405" font-family="sans-serif" font-size="12" fill="#2563eb">net R</text>
 </svg>
