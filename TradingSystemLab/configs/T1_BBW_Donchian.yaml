@@ -1,0 +1,14 @@
+strategy:
+  name: T1_BBW_Donchian_v1
+
+parameters:
+  bb_period: 20
+  bb_std: 2
+  bbw_percentile_window: 100
+  bbw_compression_percentile: 30
+  atr_period: 14
+  atr_expansion_window: 20
+  donchian_period: 20
+  ema_period: 50
+  stop_atr: 2
+  trail_atr: 3

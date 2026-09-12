@@ -40,3 +40,23 @@ def adx(frame: pd.DataFrame, period: int = 14) -> pd.Series:
 
 def ema_slope(values: pd.Series, lookback: int) -> pd.Series:
     return values - values.shift(lookback)
+
+
+def bollinger_bandwidth(values: pd.Series, period: int = 20,
+                        deviations: float = 2.0) -> pd.Series:
+    """Bollinger bandwidth using only observations available at each close."""
+    middle = values.rolling(period, min_periods=period).mean()
+    deviation = values.rolling(period, min_periods=period).std(ddof=0)
+    return (2.0 * deviations * deviation / middle).where(middle != 0)
+
+
+def rolling_percentile_rank(values: pd.Series, window: int) -> pd.Series:
+    """Causal percentile rank of the current value in its trailing window.
+
+    Ties use the deterministic weak rank (the share of values <= current).
+    The window includes the current, already-closed candle and never crosses
+    the beginning of the supplied series.
+    """
+    return values.rolling(window, min_periods=window).apply(
+        lambda sample: 100.0 * (sample <= sample[-1]).sum() / len(sample), raw=True
+    )
