@@ -12,7 +12,7 @@ __pycache__/
 .venv/
 venv/
 
-# Generated research plots must remain text-reviewable in pull requests.
+# Trading System Lab result plots must remain reviewable text artifacts (SVG).
 TradingSystemLab/results/**/*.png
 TradingSystemLab/results/**/*.jpg
 TradingSystemLab/results/**/*.jpeg
