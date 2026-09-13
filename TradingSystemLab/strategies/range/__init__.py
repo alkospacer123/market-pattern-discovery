@@ -1,0 +1,1 @@
+"""Frozen range strategy implementations."""
