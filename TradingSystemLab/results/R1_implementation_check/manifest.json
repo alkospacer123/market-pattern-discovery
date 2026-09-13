@@ -1,0 +1,37 @@
+{
+  "strategy_id": "R1_Bollinger_False_Breakout_Mean_Reversion_v1.0",
+  "implementation_version": "1.0",
+  "symbols": [
+    "Si",
+    "CNY"
+  ],
+  "timeframe": "H1",
+  "development_start": "2023-01-01",
+  "development_end": "2024-12-31",
+  "frozen_parameters": {
+    "bollinger_period": 20,
+    "bollinger_std": 2.0,
+    "bbw_percentile_lookback": 100,
+    "bbw_percentile_threshold": 50.0,
+    "adx_period": 14,
+    "adx_range_max": 20.0,
+    "range_failure_adx": 25.0,
+    "atr_period": 14,
+    "ema_flat_period": 200,
+    "ema_slope_lookback": 10,
+    "ema_slope_max_atr": 0.25,
+    "confirmation_window": 1,
+    "stop_buffer_atr": 0.1,
+    "max_initial_stop_atr": 2.0,
+    "max_holding_bars": 10,
+    "target": "bollinger_middle_previous_bar"
+  },
+  "cost_scenarios": {
+    "C0": "zero cost",
+    "C1": "1 tick per side"
+  },
+  "true_oos_blocked": true,
+  "implementation_check_only": true,
+  "optimization_performed": false,
+  "walk_forward_performed": false
+}

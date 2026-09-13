@@ -4,6 +4,16 @@ from __future__ import annotations
 import pandas as pd
 
 
+def bollinger_bands(values: pd.Series, period: int = 20,
+                    deviations: float = 2.0) -> pd.DataFrame:
+    """Return causal Bollinger middle/upper/lower bands (population std)."""
+    middle = values.rolling(period, min_periods=period).mean()
+    deviation = values.rolling(period, min_periods=period).std(ddof=0)
+    return pd.DataFrame({"middle": middle,
+                         "upper": middle + deviations * deviation,
+                         "lower": middle - deviations * deviation}, index=values.index)
+
+
 def ema(values: pd.Series, period: int) -> pd.Series:
     return values.ewm(span=period, adjust=False, min_periods=period).mean()
 
@@ -45,9 +55,14 @@ def ema_slope(values: pd.Series, lookback: int) -> pd.Series:
 def bollinger_bandwidth(values: pd.Series, period: int = 20,
                         deviations: float = 2.0) -> pd.Series:
     """Bollinger bandwidth using only observations available at each close."""
-    middle = values.rolling(period, min_periods=period).mean()
-    deviation = values.rolling(period, min_periods=period).std(ddof=0)
-    return (2.0 * deviations * deviation / middle).where(middle != 0)
+    bands = bollinger_bands(values, period, deviations)
+    return ((bands.upper - bands.lower) / bands.middle).where(bands.middle != 0)
+
+
+def previous_window_percentile(values: pd.Series, window: int,
+                               percentile: float = 50.0) -> pd.Series:
+    """Percentile of the previous ``window`` observations, excluding current."""
+    return values.shift(1).rolling(window, min_periods=window).quantile(percentile / 100.0)
 
 
 def rolling_percentile_rank(values: pd.Series, window: int) -> pd.Series:
