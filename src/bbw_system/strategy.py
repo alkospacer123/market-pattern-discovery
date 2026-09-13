@@ -6,6 +6,7 @@ import math
 import pandas as pd
 
 from .config import BBWConfig, InstrumentConfig
+from .prices import align_price
 
 
 class State(StrEnum):
@@ -52,6 +53,11 @@ class StopResult:
     stop_atr: float
     stop_range_ratio: float
     rejection: Rejection | None
+
+    @property
+    def distance_ticks(self) -> float:
+        """Deprecated without tick metadata; callers log an exact normalized value."""
+        return self.distance
 
 
 def compression_threshold(bbw: pd.Series, dates: pd.Series, window_days: int = 10,
@@ -130,9 +136,11 @@ def trend_ok(direction: str, close: float, ema_now: float, ema_back: float, mini
 
 def evaluate_retest(bar: pd.Series, direction: str, level: float, range_width: float, tick_size: float, config: BBWConfig) -> tuple[bool, Rejection | None, float]:
     penetration = max(0.0, level - float(bar.low)) if direction == "LONG" else max(0.0, float(bar.high) - level)
-    maximum = min(config.penetration_ticks * tick_size, config.penetration_range_pct * range_width) if config.penetration_ticks > 0 else config.penetration_range_pct * range_width
-    touched = bar.low <= level if direction == "LONG" else bar.high >= level
-    if penetration > maximum:
+    # Both independent limits must pass. A zero tick allowance means no
+    # penetration; it does not disable the tick constraint.
+    maximum = min(config.penetration_ticks * tick_size, config.penetration_range_pct * range_width)
+    touched = bool(bar.low <= level) if direction == "LONG" else bool(bar.high >= level)
+    if penetration - maximum > max(1e-12, tick_size * 1e-9):
         return False, Rejection.RETEST_TOO_DEEP, penetration
     return touched, None, penetration
 
@@ -153,7 +161,8 @@ def entry_rejection(entry: float, level: float, atr_value: float, range_width: f
 
 def structural_stop(direction: str, entry: float, value: Range, atr_value: float, config: BBWConfig, instrument: InstrumentConfig) -> StopResult:
     offset = config.stop_offset_price + config.stop_offset_ticks * instrument.tick_size
-    stop = value.low - offset if direction == "LONG" else value.high + offset
+    raw_stop = value.low - offset if direction == "LONG" else value.high + offset
+    stop = align_price(raw_stop, instrument.tick_size, "down" if direction == "LONG" else "up")
     distance = abs(entry - stop)
     stop_atr, ratio = distance / atr_value, distance / value.width
     rejection = Rejection.STOP_TOO_SMALL if stop_atr < config.min_stop_atr or ratio < config.min_stop_range_ratio else Rejection.STOP_TOO_LARGE if stop_atr > config.max_stop_atr or ratio > config.max_stop_range_ratio else None
@@ -161,10 +170,21 @@ def structural_stop(direction: str, entry: float, value: Range, atr_value: float
 
 
 def position_size(equity: float, stop_distance: float, instrument: InstrumentConfig, config: BBWConfig) -> int:
-    stop_money = stop_distance / instrument.tick_size * instrument.tick_value * instrument.lot
+    # tick_value is explicitly per contract. ``lot``/``point_value`` survive
+    # only as input compatibility metadata and are never multiplied here.
+    stop_money = stop_distance / instrument.tick_size * instrument.tick_value_per_contract
     by_risk = math.floor(equity * config.risk_pct / stop_money) if stop_money > 0 else 0
-    by_margin = math.floor(equity * config.max_margin_pct / instrument.go) if instrument.go > 0 else 0
+    by_margin = math.floor(equity * config.max_margin_pct / instrument.go_per_contract) if instrument.go_per_contract > 0 else 0
     return min(by_risk, by_margin)
+
+
+def retest_bar_allowed(bars_after_breakout: int, config: BBWConfig) -> bool:
+    """A touch is eligible on ordinal ``retest_min_bars`` after breakout.
+
+    Thus baseline value 5 means bars 1--4 cannot retest and bar 5 can. It does
+    not mean setup age or touch duration. The maximum is inclusive too.
+    """
+    return config.retest_min_bars <= bars_after_breakout <= config.retest_max_bars
 
 
 ALLOWED_TRANSITIONS = {

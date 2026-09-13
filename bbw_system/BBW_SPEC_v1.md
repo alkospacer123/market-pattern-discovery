@@ -99,3 +99,34 @@ including same-day history requires explicit opt-in. Holidays are explicit
 `start_at_compression`, and `rolling_after_compression`; every decision receives
 only the observable prefix, uses the longest eligible capped window, and never
 uses breakout outcome as a tie-breaker.
+
+## Task 02B execution and temporal policies
+
+Timestamps are candle opens. An H4 candle opened at 14:00 is known at 18:00;
+its 14:00--17:00 constituent H1 candles cannot be retests. Diagnostics retain
+setup open/close, `breakout_known_at`, and the first entry-TF open at or after
+that instant. Confirmation fills only on the next actually present candle open.
+
+`retest_min_bars=5` means entry-TF bars 1--4 after the known breakout are
+ineligible and bar 5 is first eligible; maximum is inclusive. Penetration must
+be within both tick and range-percent caps. Exact equality passes, as it does
+for all four inclusive stop-filter bounds. The structural stop remains the
+range boundary plus tick offset and is never adjusted to pass a filter.
+
+`tick_value` means tick value per contract and `go` means GO per contract.
+`lot` and `point_value` remain compatibility metadata and are not multiplied
+into risk. Prices use Decimal tick normalization. Exit allocation is
+`floor(50%)`, `floor(30%)`, then all integer remainder; a one-contract position
+therefore has no fractional early exits.
+
+Without lower-TF ordering, the stop active at bar open wins every ambiguous
+stop/target OHLC bar. A stop moved by a target is not eligible until a later
+bar. `lower_tf` fails when sequencing data is absent unless explicit stop-first
+fallback is enabled. A gap through any active stop fills from actual adverse
+open, then slippage. BUY slips upward and SELL downward, including targets.
+Commission applies to entry and every exit fill. `gross_R` excludes commission;
+`net_R` is net cash PnL divided by initial structural-risk cash. Closed net PnL
+updates equity before the next size.
+
+Concurrent candidates sort by timestamp, configured instrument priority, then
+stable symbol; the portfolio reservation admits only the first candidate.

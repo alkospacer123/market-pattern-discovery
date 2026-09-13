@@ -7,6 +7,17 @@ from .config import SessionConfig
 from .market import filter_session, trading_date
 
 
+def setup_availability(setup_open: pd.Timestamp, setup_hours: int,
+                       entry_index: pd.DatetimeIndex) -> dict[str, pd.Timestamp]:
+    """Return causal availability metadata for open-stamped setup/entry bars."""
+    close = setup_open + pd.Timedelta(hours=setup_hours)
+    eligible = entry_index[entry_index >= close]
+    if eligible.empty:
+        raise ValueError("no entry-timeframe bar exists after setup close")
+    return {"setup_bar_open_time": setup_open, "setup_bar_close_time": close,
+            "breakout_known_at": close, "first_allowed_retest_bar": eligible[0]}
+
+
 def synthetic_bars(h1: pd.DataFrame, hours: int, session: SessionConfig,
                    completion_policy: str = "strict_source_count") -> pd.DataFrame:
     """Aggregate H1 bars into causal, anchor-aligned setup bars.
