@@ -1,0 +1,7 @@
+{
+  "inventory_version": "1.0",
+  "workspace_scan": "/workspace/market-pattern-discovery",
+  "historical_market_datasets": [],
+  "finding": "No source OHLCV datasets for the five target instruments were available. Existing CSV files are derived research/backtest result artifacts and were not treated as source market data.",
+  "local_runner": "python -m bbw_system.data_cli audit --data-root <PATH> --output <PATH>"
+}
