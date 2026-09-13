@@ -9,6 +9,7 @@ import pandas as pd
 from .data_pipeline import (NormalizationConfig, build_manifest, coverage_report,
     file_sha256, infer_identity, liquidity_profile, normalize, read_source)
 from .preflight import assert_baseline_ready, load_document
+from .data_freeze import run_freeze
 
 
 def inventory(root: Path) -> list[dict[str, Any]]:
@@ -76,8 +77,10 @@ def main(argv=None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     audit = sub.add_parser("audit"); audit.add_argument("--data-root", type=Path, required=True); audit.add_argument("--output", type=Path, required=True); audit.add_argument("--passport-root", type=Path, default=Path("bbw_system/config/instruments"))
     check = sub.add_parser("baseline-preflight"); check.add_argument("--passport", type=Path, required=True); check.add_argument("--strategy", type=Path, required=True)
+    freeze = sub.add_parser("freeze"); freeze.add_argument("--data-root", type=Path, required=True); freeze.add_argument("--output-root", type=Path, required=True); freeze.add_argument("--passport-root", type=Path, default=Path("bbw_system/config/instruments"))
     args = parser.parse_args(argv)
     if args.command == "audit": return run_audit(args.data_root, args.output, args.passport_root)
+    if args.command == "freeze": return run_freeze(args.data_root, args.output_root, args.passport_root)
     assert_baseline_ready(load_document(args.passport), load_document(args.strategy)); print("Baseline preflight: READY"); return 0
 
 

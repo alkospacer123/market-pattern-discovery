@@ -6,6 +6,9 @@ bbw_system/data/raw/
 bbw_system/data/normalized/
 bbw_system/results/
 bbw_system/cache/
+# Local freeze payload; only the explicitly reviewed compact bundle belongs in Git.
+BBW_DATA_FREEZE/
+bbw_system/data_freeze/*.csv
 results/
 results/discovery/
 logs/
