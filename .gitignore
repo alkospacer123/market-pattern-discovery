@@ -2,6 +2,10 @@
 *.parquet
 raw/
 data/raw/
+bbw_system/data/raw/
+bbw_system/data/normalized/
+bbw_system/results/
+bbw_system/cache/
 results/
 results/discovery/
 logs/

@@ -1,0 +1,89 @@
+{
+  "symbol": "BR",
+  "aliases": [],
+  "exchange": {
+    "value": null,
+    "verified": false
+  },
+  "currency": {
+    "value": null,
+    "verified": false
+  },
+  "source_timezone": {
+    "value": null,
+    "verified": false
+  },
+  "exchange_timezone": {
+    "value": null,
+    "verified": false
+  },
+  "session": {
+    "value": null,
+    "verified": false
+  },
+  "session_anchor": {
+    "value": null,
+    "verified": false
+  },
+  "breaks": {
+    "value": null,
+    "verified": false
+  },
+  "tick_size": {
+    "value": null,
+    "verified": false
+  },
+  "tick_value_per_contract": {
+    "value": null,
+    "verified": false
+  },
+  "go_per_contract": {
+    "value": null,
+    "verified": false
+  },
+  "commission_model": {
+    "value": null,
+    "verified": false
+  },
+  "commission_value": {
+    "value": null,
+    "verified": false
+  },
+  "default_slippage_ticks": {
+    "value": null,
+    "verified": false
+  },
+  "series_type": {
+    "value": "unknown",
+    "verified": false
+  },
+  "rollover_policy": {
+    "value": "reject_crossing_setup",
+    "verified": true
+  },
+  "max_width_pct": {
+    "value": null,
+    "verified": false,
+    "requires_decision": true
+  },
+  "metadata_source": {
+    "value": null,
+    "verified": false
+  },
+  "metadata_verified": false,
+  "calendar": {
+    "holiday_dates": [],
+    "shortened_session_dates": {},
+    "special_session_dates": {}
+  },
+  "parameter_readiness": {
+    "stop_offset_status": "UNRESOLVED",
+    "penetration_points_status": "UNRESOLVED",
+    "penetration_range_pct": {
+      "status": "FIXED",
+      "value": 0.2
+    },
+    "stop_bounds": "UNRESOLVED",
+    "entry_quality_limits": "UNRESOLVED"
+  }
+}
