@@ -25,8 +25,8 @@ class DataLoader:
             if duplicate.groupby(level=0)[OHLC + (["Volume"] if "Volume" in result else [])].nunique().gt(1).any().any():
                 raise ValueError("conflicting duplicate timestamps")
             result = result[~result.index.duplicated(keep="first")]
-        if self.forbid_true_oos and (result.index.year == 2025).any():
-            raise ValueError("calendar year 2025 TRUE OOS is locked and may not be loaded")
+        if self.forbid_true_oos and (result.index.year >= 2025).any():
+            raise ValueError("calendar year 2025+ TRUE OOS is locked and may not be loaded")
         return result
 
     def _read(self, path: Path) -> pd.DataFrame:

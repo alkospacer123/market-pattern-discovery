@@ -1,0 +1,7 @@
+parameter,tested_range,positive_configs,negative_configs,low_sample_configs,baseline_value,lower_stable_neighbor,upper_stable_neighbor,classification
+donchian,10..55,6,0,0,20.0,15.0,30.0,ROBUST_PLATEAU
+adx,15..30,4,0,0,20.0,15.0,25.0,ROBUST_PLATEAU
+ema,50..200,5,0,0,100.0,75.0,150.0,ROBUST_PLATEAU
+atr_regime,10..50,4,0,0,20.0,10.0,30.0,ROBUST_PLATEAU
+stop_atr,1.5..3.0,4,0,0,2.0,1.5,2.5,ROBUST_PLATEAU
+trail_atr,2.0..4.0,5,0,0,3.0,2.5,3.5,ROBUST_PLATEAU
