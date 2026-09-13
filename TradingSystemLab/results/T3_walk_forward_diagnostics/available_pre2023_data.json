@@ -1,0 +1,10 @@
+{
+  "discovery": "FILENAME_METADATA_ONLY",
+  "files": {
+    "CNY": [],
+    "Si": []
+  },
+  "pre2023_candidates_found": false,
+  "searched_root": "/workspace/market-pattern-data",
+  "timestamp_requirement": "pre-2023; candidates not loaded or used"
+}
