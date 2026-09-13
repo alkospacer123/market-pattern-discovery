@@ -1,0 +1,18 @@
+{
+  "trades": 95,
+  "LONG_trades": 68,
+  "SHORT_trades": 27,
+  "Si_trades": 50,
+  "CNY_trades": 45,
+  "gross_R": 52.45354559224812,
+  "net_R_C1": 50.58321227784875,
+  "PF_C0": 2.328372255850885,
+  "PF_C1": 2.2478652452905274,
+  "expectancy_C0": 0.5521425851815591,
+  "expectancy_C1": 0.5324548660826184,
+  "winrate": 0.4,
+  "max_DD_R_C1": -9.726628404554976,
+  "initial_stop_exit_count": 17,
+  "trailing_exit_count": 71,
+  "EMA50_exit_count": 7
+}
