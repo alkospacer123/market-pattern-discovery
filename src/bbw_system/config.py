@@ -29,6 +29,16 @@ class InstrumentConfig:
     max_width_pct: float
     session: SessionConfig = field(default_factory=SessionConfig)
 
+    @property
+    def tick_value_per_contract(self) -> float:
+        """Cash value of one tick for one contract (``lot`` is legacy metadata)."""
+        return self.tick_value
+
+    @property
+    def go_per_contract(self) -> float:
+        """Initial margin required for one contract."""
+        return self.go
+
 
 @dataclass(frozen=True)
 class BBWConfig:
@@ -69,6 +79,8 @@ class BBWConfig:
     commission_per_contract: float = 0.0
     slippage_ticks: float = 0.0
     conservative_policy: str = "STOP_FIRST"
+    intrabar_policy: str = "stop_first"
+    allow_lower_tf_fallback: bool = False
     partial_levels: tuple[float, ...] = (1.0, 2.0, 3.0)
     partial_fractions: tuple[float, ...] = (0.5, 0.3, 0.2)
 
