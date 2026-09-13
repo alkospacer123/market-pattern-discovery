@@ -34,14 +34,28 @@ class Backtester:
         self.cost_ticks_per_side = cost_ticks_per_side
         self.tick_size = tick_size
 
-    def run(self, strategy: Strategy, symbol: str, h1: pd.DataFrame, h4: pd.DataFrame) -> BacktestResult:
+    def run(self, strategy: Strategy, symbol: str, h1: pd.DataFrame, h4: pd.DataFrame, *,
+            entry_start: pd.Timestamp | None = None,
+            entry_end: pd.Timestamp | None = None) -> BacktestResult:
+        """Run a strategy, optionally admitting entries only in ``[start, end)``.
+
+        Indicator calculation still receives the preceding history as causal
+        warm-up.  Iteration starts at ``entry_start`` with a deliberately flat
+        position, and a position admitted before ``entry_end`` may continue to
+        its natural exit afterwards.  This makes independent forward folds
+        possible without carrying train or previous-fold position state.
+        """
         if h1.empty or h4.empty:
             raise ValueError("H1 and H4 closed-candle data are required")
         if h1.index.tz is None or h4.index.tz is None or not h1.index.is_monotonic_increasing or not h4.index.is_monotonic_increasing:
             raise ValueError("timestamps must be timezone-aware and sorted")
         if (h1.index.year >= 2025).any() or (h4.index.year >= 2025).any():
             raise ValueError("calendar year 2025+ TRUE OOS is locked")
+        if entry_start is not None and entry_end is not None and entry_start >= entry_end:
+            raise ValueError("entry_start must precede entry_end")
         low, high = strategy.calculate_indicators(h1, h4)
+        if entry_start is not None:
+            low = low.loc[low.index >= entry_start]
         high_cursor, position, records = -1, None, []
         equity = self.portfolio.initial_capital
         curve = []
@@ -104,7 +118,8 @@ class Backtester:
                     else:
                         position["extreme"] = min(position["extreme"], bar["Low"])
                         position["active_stop"] = min(old_stop, strategy.manage_position("SHORT", position["extreme"], bar["ATR"]))
-            if position is None and pd.notna(bar["ATR"]):
+            entries_open = entry_end is None or timestamp < entry_end
+            if position is None and entries_open and pd.notna(bar["ATR"]):
                 signal = strategy.generate_signal(bar, current_regime)
                 if signal:
                     raw_entry = float(bar["Close"])

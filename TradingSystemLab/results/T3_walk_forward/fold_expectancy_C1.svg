@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="410"><rect width="100%" height="100%" fill="white"/><text x="20" y="25">Fold C1 expectancy</text><line x1="55" y1="285.6" x2="885" y2="285.6" stroke="#888"/><polyline points="70.0,350.0 470.0,70.0 870.0,255.4" fill="none" stroke="#2563eb" stroke-width="2"/><text x="70.0" y="385" text-anchor="middle">WF01</text><text x="470.0" y="385" text-anchor="middle">WF02</text><text x="870.0" y="385" text-anchor="middle">WF03</text></svg>
