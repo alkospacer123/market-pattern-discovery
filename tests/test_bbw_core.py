@@ -5,14 +5,14 @@ import pandas as pd
 import pytest
 
 from bbw_system.config import BBWConfig, InstrumentConfig, SessionConfig, load_config
-from bbw_system.data import reject_true_oos, validate_ohlcv
+from bbw_system.data import validate_ohlcv
 from bbw_system.engine import CoreEngine
 from bbw_system.exits import BaselineExitManager, Position
 from bbw_system.indicators import atr, bbw, ema, true_range
 from bbw_system.market import filter_session, trading_date
 from bbw_system.reports import DiagnosticWriter
 from bbw_system.strategy import (Range, Rejection, State, StateMachine, breakout,
-    compression_threshold, construct_range, entry_rejection, evaluate_retest,
+    compression_threshold, construct_range, detect_range, entry_rejection, evaluate_retest,
     horizontality, structural_stop)
 from bbw_system.timeframes import synthetic_bars
 
@@ -52,6 +52,20 @@ def test_incomplete_setup_bar_is_marked_or_dropped():
     assert marked.complete.tolist() == [True, False]
 
 
+def test_session_end_completion_policy_accepts_short_bucket_but_not_gap():
+    session = replace(SESSION, session_end_overrides=(("2026-01-05", "06:00"),))
+    complete = bars(pd.date_range("2026-01-05 01:00", periods=6, freq="h"))
+    assert synthetic_bars(complete, 4, session, "session_end_valid").source_bars.tolist() == [4, 2]
+    with_gap = complete.drop(complete.index[-1])
+    assert synthetic_bars(with_gap, 4, session, "session_end_valid").source_bars.tolist() == [4]
+
+
+def test_strict_completion_policy_rejects_short_session_end_bucket():
+    session = replace(SESSION, session_end="06:00")
+    source = bars(pd.date_range("2026-01-05 01:00", periods=6, freq="h"))
+    assert synthetic_bars(source, 4, session, "strict_source_count").source_bars.tolist() == [4]
+
+
 def test_bbw_population_formula():
     result = bbw(pd.Series([1., 2., 3.]), 3, 2).iloc[-1]
     assert result.middle == 2
@@ -85,12 +99,50 @@ def test_threshold_excludes_current_bar_and_records_audit():
     assert .001 not in result.iloc[6].minima
 
 
+def test_threshold_uses_previous_unique_completed_trading_dates():
+    idx = pd.date_range("2026-01-01", periods=24, freq="12h")
+    dates = pd.Series(idx.date)
+    values = pd.Series(np.arange(24) / 100 + .01, index=idx)
+    result = compression_threshold(values, dates, window_days=10, minima=6)
+    row = result.iloc[-1]
+    assert len(row.trading_dates) == 10
+    assert idx[-1].date() not in row.trading_dates
+    assert values.iloc[-2] not in row.minima
+
+
+def test_threshold_current_day_history_is_explicit_opt_in():
+    idx = pd.date_range("2026-01-01", periods=8, freq="12h")
+    dates = pd.Series(idx.date)
+    values = pd.Series([.9, .8, .7, .6, .5, .4, .001, .3], index=idx)
+    strict = compression_threshold(values, dates, minima=6).iloc[-1]
+    inclusive = compression_threshold(values, dates, minima=6, include_current_day_history=True).iloc[-1]
+    assert .001 not in strict.minima
+    assert .001 in inclusive.minima
+
+
+def test_threshold_uses_ceiling_not_rounding():
+    idx = pd.date_range("2026-01-01", periods=7, freq="D")
+    values = pd.Series([.01201] * 6 + [.001], index=idx)
+    result = compression_threshold(values, pd.Series(idx.date), minima=6)
+    assert result.iloc[-1].threshold == .013
+
+
 def test_range_construction_and_horizontal_filter():
     frame = bars(pd.date_range("2026-01-05", periods=6, freq="4h"), [10] * 6)
     value = construct_range(frame)
     assert value == Range(11, 9, 2, 6)
     assert horizontality(pd.Series([10, 10.4]), 1, .5)[0]
     assert not horizontality(pd.Series([10, 10.6]), 1, .5)[0]
+
+
+@pytest.mark.parametrize("mode", ["end_at_compression", "start_at_compression", "rolling_after_compression"])
+def test_range_selection_cannot_see_future_breakout(mode):
+    source = bars(pd.date_range("2026-01-05", periods=12, freq="4h"), [10] * 11 + [100])
+    config = replace(BBWConfig(), range_anchor_mode=mode, range_min_bars=6, range_max_bars=10)
+    before = detect_range(source, 0 if mode != "end_at_compression" else 5, config, decision_position=5)
+    source.iloc[-1, source.columns.get_loc("high")] = 1000
+    after = detect_range(source, 0 if mode != "end_at_compression" else 5, config, decision_position=5)
+    assert before == after
 
 
 def test_breakout_requires_close_not_wick():
@@ -169,13 +221,25 @@ def test_data_diagnostics_sort_duplicates_gaps_and_ohlc():
     assert clean.index.is_monotonic_increasing and report.duplicate_timestamps and report.missing_timestamps and report.invalid_ohlc_rows
 
 
-def test_true_oos_guard():
-    with pytest.raises(ValueError, match="locked TRUE OOS"):
-        reject_true_oos(bars(pd.to_datetime(["2025-01-01"])))
+def test_no_hardcoded_calendar_year_restriction():
+    for year in (2022, 2023, 2024, 2025, 2026):
+        clean, _ = validate_ohlcv(bars(pd.to_datetime([f"{year}-01-03 01:00"])))
+        assert len(clean) == 1
+
+
+def test_explicit_holiday_excluded_from_days_threshold_and_setup_bars():
+    session = replace(SESSION, excluded_dates=("2026-01-06",))
+    source = bars(pd.date_range("2026-01-05 01:00", periods=52, freq="h"))
+    filtered = filter_session(source, session)
+    dates = pd.Series([trading_date(ts, session) for ts in filtered.index])
+    assert pd.Timestamp("2026-01-06").date() not in set(dates)
+    assert pd.Timestamp("2026-01-06").date() not in set(synthetic_bars(source, 4, session, "mark").trading_date)
+    threshold = compression_threshold(pd.Series(np.linspace(.01, .5, len(filtered)), index=filtered.index), dates, minima=1)
+    assert pd.Timestamp("2026-01-06").date() not in set(sum((list(v) for v in threshold.trading_dates), []))
 
 
 def test_config_and_reports(tmp_path):
     config, instrument = load_config("bbw_system/config/base.yaml")
-    assert config.bbw_period == 10 and instrument.session.excluded_weekdays == [5, 6]
+    assert config.bbw_period == 10 and instrument.session.excluded_weekdays == (5, 6)
     writer = DiagnosticWriter(); writer.write(tmp_path)
     assert all((tmp_path / f"{name}.csv").exists() for name in writer.FILES)

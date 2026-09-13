@@ -54,12 +54,17 @@ class StopResult:
     rejection: Rejection | None
 
 
-def compression_threshold(bbw: pd.Series, dates: pd.Series, window_days: int = 10, minima: int = 6, decimals: int = 3) -> pd.DataFrame:
+def compression_threshold(bbw: pd.Series, dates: pd.Series, window_days: int = 10,
+                          minima: int = 6, decimals: int = 3,
+                          include_current_day_history: bool = False) -> pd.DataFrame:
     """Threshold at t uses only rows strictly before t and prior trading dates."""
     records = []
     for i, (timestamp, current) in enumerate(bbw.items()):
         current_date = dates.iloc[i]
-        prior_dates = list(dict.fromkeys(dates.iloc[:i].tolist()))
+        eligible = dates.iloc[:i]
+        if not include_current_day_history:
+            eligible = eligible[eligible != current_date]
+        prior_dates = list(dict.fromkeys(eligible.tolist()))
         selected_dates = prior_dates[-window_days:]
         history = bbw.iloc[:i].iloc[dates.iloc[:i].isin(selected_dates).to_numpy()].dropna()
         lows = sorted(map(float, history), key=float)[:minima]
@@ -70,6 +75,32 @@ def compression_threshold(bbw: pd.Series, dates: pd.Series, window_days: int = 1
 
 def construct_range(bars: pd.DataFrame) -> Range:
     return Range(float(bars.high.max()), float(bars.low.min()), float(bars.high.max() - bars.low.min()), len(bars))
+
+
+def detect_range(bars: pd.DataFrame, compression_position: int, config: BBWConfig,
+                 decision_position: int | None = None) -> Range:
+    """Select a range deterministically using rows observable at the decision.
+
+    The longest eligible window wins; ties are therefore independent of any
+    later breakout. ``rolling_after_compression`` is called at each timestamp
+    and can only use the prefix through that timestamp.
+    """
+    decision_position = len(bars) - 1 if decision_position is None else decision_position
+    if not 0 <= compression_position <= decision_position < len(bars):
+        raise ValueError("positions must identify an observable prefix")
+    observable = bars.iloc[:decision_position + 1]
+    if config.range_anchor_mode == "end_at_compression":
+        available = bars.iloc[:compression_position + 1]
+    elif config.range_anchor_mode == "start_at_compression":
+        available = observable.iloc[compression_position:]
+    elif config.range_anchor_mode == "rolling_after_compression":
+        available = observable.iloc[max(compression_position, len(observable) - config.range_max_bars):]
+    else:
+        raise ValueError("unknown range_anchor_mode")
+    available = available.iloc[:config.range_max_bars] if config.range_anchor_mode != "end_at_compression" else available.iloc[-config.range_max_bars:]
+    if len(available) < config.range_min_bars:
+        raise ValueError(Rejection.NO_VALID_RANGE.value)
+    return construct_range(available)
 
 
 def range_rejection(value: Range, atr_value: float, price: float, config: BBWConfig, instrument: InstrumentConfig) -> Rejection | None:

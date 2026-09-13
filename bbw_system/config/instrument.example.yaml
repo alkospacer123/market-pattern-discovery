@@ -6,5 +6,5 @@
   "go": 1000.0,
   "point_value": 100.0,
   "max_width_pct": 0.05,
-  "session": {"timezone": "UTC", "session_start": "00:00", "session_end": "23:59", "session_anchor": "01:00", "excluded_weekdays": [5, 6], "excluded_intervals": []}
+  "session": {"timezone": "UTC", "session_start": "00:00", "session_end": "23:59", "session_anchor": "01:00", "excluded_weekdays": [5, 6], "excluded_intervals": [], "excluded_dates": [], "session_end_overrides": []}
 }

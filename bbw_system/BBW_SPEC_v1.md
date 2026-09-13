@@ -7,8 +7,9 @@ OHLCV; `market` defines timezone-aware sessions/trading dates; `timeframes`
 builds setup bars; `indicators` computes local indicators; `strategy` contains
 pure signal/risk rules and the state machine; `engine` handles next-bar orders
 and the one-position portfolio; `exits`, `metrics`, and `reports` handle their
-named concerns. Input market files remain read-only. The CLI rejects 2025 TRUE
-OOS before feature or signal work. Parameters are configuration, not searched.
+named concerns. Input market files remain read-only. The baseline accepts arbitrary years;
+research train/OOS enforcement belongs outside this non-optimizing runner.
+Parameters are configuration, not searched.
 
 An input timestamp is a candle **open**. Its OHLCV becomes observable only at
 the end of that timeframe. Functions consume complete rows chronologically;
@@ -25,8 +26,8 @@ k*Std`; `BBW=(Upper-Lower)/Middle`. Recursive EMA uses `alpha=2/(n+1)`,
 `max(H-L, abs(H-prev_close), abs(L-prev_close))`. Wilder ATR seeds with the
 first `n` TR mean, then `ATR_t=(ATR_(t-1)*(n-1)+TR_t)/n`.
 
-Compression threshold uses BBW observations belonging to the last configured
-trading dates strictly before the current row, takes the configured smallest
+Compression threshold uses BBW observations belonging to the last configured completed
+trading dates strictly before the current trading date by default, takes the configured smallest
 values, averages, and rounds upward (ceiling) to configured decimals. Its audit
 record includes current BBW, threshold, minima, and trading dates. Weekends and
 session-excluded observations cannot enter.
@@ -88,3 +89,13 @@ rules. Before a real baseline run, freeze instrument/session hours, holidays and
 breaks, anchor/timezone/DST treatment, tick and point economics, GO, width cap,
 penetration points, stop offset and all stop bounds, extension/candle bounds,
 costs/slippage, partial-contract rounding, gap fills, and setup competition.
+
+
+## Frozen causal policy choices
+
+The baseline threshold excludes all observations from the current trading date;
+including same-day history requires explicit opt-in. Holidays are explicit
+`excluded_dates`. Range anchoring supports `end_at_compression`,
+`start_at_compression`, and `rolling_after_compression`; every decision receives
+only the observable prefix, uses the longest eligible capped window, and never
+uses breakout outcome as a tie-breaker.

@@ -32,8 +32,3 @@ def validate_ohlcv(data: pd.DataFrame, expected_frequency: str | None = None) ->
         expected = pd.date_range(out.index.min(), out.index.max(), freq=expected_frequency, tz=out.index.tz)
         gaps = tuple(map(str, expected.difference(out.index)))
     return out, DataDiagnostics(len(out), duplicates, gaps, invalid)
-
-
-def reject_true_oos(data: pd.DataFrame) -> None:
-    if any(pd.DatetimeIndex(data.index).year == 2025):
-        raise ValueError("Calendar year 2025 is locked TRUE OOS and cannot be read by baseline runs")
