@@ -1,0 +1,16 @@
+{
+  "bootstrap_iterations": 10000,
+  "bootstrap_seed": 20260913,
+  "cost_scenario": "C1",
+  "diagnostic_classification": "MIXED_EVIDENCE",
+  "folds": [
+    "WF01",
+    "WF02",
+    "WF03"
+  ],
+  "forward_trades": 39,
+  "source_manifest_sha256": "50b85a15201124d1c6fb166a84a2fccc3822e0498d670c1bd7c2d847fa659c39",
+  "source_walk_forward_manifest": "TradingSystemLab/results/T3_walk_forward/manifest.json",
+  "strategy_id": "T3_MTF_Trend_v1.0",
+  "true_oos_blocked": true
+}

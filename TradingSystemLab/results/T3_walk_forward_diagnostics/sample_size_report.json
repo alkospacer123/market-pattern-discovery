@@ -1,0 +1,13 @@
+{
+  "additional_trades_needed_for_PASS": 11,
+  "estimated_trades_per_year": 39.0,
+  "folds_available": 3,
+  "folds_required_minimum": 8,
+  "forward_calendar_years": 1,
+  "forward_folds": 3,
+  "forward_trades": 39,
+  "months_tested": 9,
+  "trades_per_fold_mean": 13.0,
+  "trades_per_fold_median": 13.0,
+  "trades_required_for_PASS": 50
+}
