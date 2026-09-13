@@ -14,6 +14,8 @@ class SessionConfig:
     session_anchor: str = "00:00"
     excluded_weekdays: tuple[int, ...] = (5, 6)
     excluded_intervals: tuple[tuple[str, str], ...] = ()
+    excluded_dates: tuple[str, ...] = ()
+    session_end_overrides: tuple[tuple[str, str], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -36,6 +38,9 @@ class BBWConfig:
     threshold_days: int = 10
     threshold_minima: int = 6
     threshold_decimals: int = 3
+    threshold_include_current_trading_day_history: bool = False
+    setup_bar_completion_policy: str = "strict_source_count"
+    range_anchor_mode: str = "end_at_compression"
     ema_period: int = 50
     ema_slope_lag: int = 10
     ema_min_slope_pct: float = 0.001
@@ -71,9 +76,14 @@ class BBWConfig:
 def load_config(path: str | Path) -> tuple[BBWConfig, InstrumentConfig]:
     """Load JSON-compatible YAML without adding an opaque parser dependency."""
     raw: dict[str, Any] = json.loads(Path(path).read_text(encoding="utf-8"))
-    session = SessionConfig(**raw["instrument"].pop("session"))
-    instrument = InstrumentConfig(session=session, **raw["instrument"])
-    strategy = raw["strategy"]
+    instrument_raw = dict(raw["instrument"])
+    session_raw = dict(instrument_raw.pop("session"))
+    for key in ("excluded_weekdays", "excluded_intervals", "excluded_dates", "session_end_overrides"):
+        if key in session_raw:
+            session_raw[key] = tuple(tuple(v) if isinstance(v, list) else v for v in session_raw[key])
+    session = SessionConfig(**session_raw)
+    instrument = InstrumentConfig(session=session, **instrument_raw)
+    strategy = dict(raw["strategy"])
     for key in ("partial_levels", "partial_fractions"):
         if key in strategy:
             strategy[key] = tuple(strategy[key])

@@ -6,6 +6,9 @@
     "threshold_days": 10,
     "threshold_minima": 6,
     "threshold_decimals": 3,
+    "threshold_include_current_trading_day_history": false,
+    "setup_bar_completion_policy": "strict_source_count",
+    "range_anchor_mode": "end_at_compression",
     "ema_period": 50,
     "ema_slope_lag": 10,
     "ema_min_slope_pct": 0.001,
@@ -51,7 +54,9 @@
       "session_end": "23:59",
       "session_anchor": "01:00",
       "excluded_weekdays": [5, 6],
-      "excluded_intervals": []
+      "excluded_intervals": [],
+      "excluded_dates": [],
+      "session_end_overrides": []
     }
   }
 }

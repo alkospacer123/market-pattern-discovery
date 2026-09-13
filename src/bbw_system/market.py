@@ -20,9 +20,14 @@ def localize_index(data: pd.DataFrame, config: SessionConfig) -> pd.DataFrame:
 
 
 def in_session(ts: pd.Timestamp, config: SessionConfig) -> bool:
-    if ts.weekday() in config.excluded_weekdays:
+    session_date = trading_date(ts, config)
+    if str(session_date) in config.excluded_dates:
         return False
-    value, start, end = ts.timetz().replace(tzinfo=None), _clock(config.session_start), _clock(config.session_end)
+    if session_date.weekday() in config.excluded_weekdays:
+        return False
+    overrides = dict(config.session_end_overrides)
+    value, start = ts.timetz().replace(tzinfo=None), _clock(config.session_start)
+    end = _clock(overrides.get(str(session_date), config.session_end))
     accepted = start <= value <= end if start <= end else value >= start or value <= end
     return accepted and not any(_clock(a) <= value < _clock(b) for a, b in config.excluded_intervals)
 

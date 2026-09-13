@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 
 from .config import load_config
-from .data import reject_true_oos, validate_ohlcv
+from .data import validate_ohlcv
 from .reports import DiagnosticWriter
 from .timeframes import synthetic_bars
 
@@ -18,8 +18,8 @@ def main() -> None:
     strategy, instrument = load_config(args.config)
     raw = pd.read_csv(args.h1, parse_dates=["datetime"])
     clean, diagnostics = validate_ohlcv(raw, "1h")
-    reject_true_oos(clean)
-    h4 = synthetic_bars(clean, strategy.setup_hours, instrument.session)
+    h4 = synthetic_bars(clean, strategy.setup_hours, instrument.session,
+                        strategy.setup_bar_completion_policy)
     output = Path(args.output); output.mkdir(parents=True, exist_ok=True)
     h4.to_csv(output / "synthetic_setup_bars.csv")
     pd.DataFrame([diagnostics.__dict__]).to_json(output / "data_diagnostics.json", orient="records", indent=2)
