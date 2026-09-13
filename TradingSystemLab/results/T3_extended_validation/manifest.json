@@ -1,0 +1,34 @@
+{
+  "common_end": null,
+  "common_start": null,
+  "cost_primary": "C1: 1 tick per side",
+  "data_files": [],
+  "data_hashes": {},
+  "fold_count": 0,
+  "forward_trade_count": 0,
+  "forward_year_count": 0,
+  "frozen_parameters": {
+    "adx_period": 14,
+    "adx_threshold": 20.0,
+    "atr_average_period": 20,
+    "atr_period": 14,
+    "breakout_period": 20,
+    "ema_period": 100,
+    "ema_slope_definition": "EMA[t] - EMA[t-slope_lookback]",
+    "slope_lookback": 5,
+    "stop_atr": 2.0,
+    "trail_atr": 3.0
+  },
+  "initial_train_months": 12,
+  "parameter_source": "TradingSystemLab/results/T3_parameter_robustness/frozen_baseline.json",
+  "parity_status": "PASS",
+  "step_months": 3,
+  "strategy_id": "T3_MTF_Trend_v1.0",
+  "test_months": 3,
+  "tick_sizes": {
+    "CNY": 0.001,
+    "Si": 0.001
+  },
+  "true_oos_blocked": true,
+  "verdict": "DATA_BLOCKED"
+}

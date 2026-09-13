@@ -1,0 +1,12 @@
+{
+  "actual_PF_C1": 2.092928448988337,
+  "actual_expectancy_C1": 0.4994669848709337,
+  "actual_net_R_C1": 19.479212409966415,
+  "actual_trades": 39,
+  "expected_PF_C1": 2.092928448988337,
+  "expected_expectancy_C1": 0.4994669848709337,
+  "expected_net_R_C1": 19.479212409966415,
+  "expected_trades": 39,
+  "max_numeric_difference": 4.979128220838902e-11,
+  "status": "PASS"
+}
