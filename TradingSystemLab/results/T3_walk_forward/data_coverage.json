@@ -1,0 +1,15 @@
+{
+  "CNY": {
+    "H1_bars": 7486,
+    "first_timestamp": "2023-01-03T10:00:00+03:00",
+    "last_timestamp_pre_oos": "2024-12-31T00:00:00+03:00"
+  },
+  "Si": {
+    "H1_bars": 7487,
+    "first_timestamp": "2023-01-03T10:00:00+03:00",
+    "last_timestamp_pre_oos": "2024-12-31T00:00:00+03:00"
+  },
+  "common_end": "2024-12-31T00:00:00+03:00",
+  "common_months": 23,
+  "common_start": "2023-01-03T10:00:00+03:00"
+}

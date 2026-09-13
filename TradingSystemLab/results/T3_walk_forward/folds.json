@@ -1,0 +1,53 @@
+[
+  {
+    "cost_scenarios": {
+      "C0": 0.0,
+      "C1": 1.0,
+      "C2": 2.0
+    },
+    "fold_id": "WF01",
+    "parameters_hash": "d6676f77bb68bcabd0c474742db615263d7529e97ea637c3af1b97d9565e3c9a",
+    "status": "COMPLETE",
+    "strategy_id": "T3_MTF_Trend_v1.0",
+    "test_end": "2024-05-01T00:00:00+03:00",
+    "test_months": 3,
+    "test_start": "2024-02-01T00:00:00+03:00",
+    "train_end": "2024-02-01T00:00:00+03:00",
+    "train_months": 13,
+    "train_start": "2023-01-03T10:00:00+03:00"
+  },
+  {
+    "cost_scenarios": {
+      "C0": 0.0,
+      "C1": 1.0,
+      "C2": 2.0
+    },
+    "fold_id": "WF02",
+    "parameters_hash": "d6676f77bb68bcabd0c474742db615263d7529e97ea637c3af1b97d9565e3c9a",
+    "status": "COMPLETE",
+    "strategy_id": "T3_MTF_Trend_v1.0",
+    "test_end": "2024-08-01T00:00:00+03:00",
+    "test_months": 3,
+    "test_start": "2024-05-01T00:00:00+03:00",
+    "train_end": "2024-05-01T00:00:00+03:00",
+    "train_months": 16,
+    "train_start": "2023-01-03T10:00:00+03:00"
+  },
+  {
+    "cost_scenarios": {
+      "C0": 0.0,
+      "C1": 1.0,
+      "C2": 2.0
+    },
+    "fold_id": "WF03",
+    "parameters_hash": "d6676f77bb68bcabd0c474742db615263d7529e97ea637c3af1b97d9565e3c9a",
+    "status": "COMPLETE",
+    "strategy_id": "T3_MTF_Trend_v1.0",
+    "test_end": "2024-11-01T00:00:00+03:00",
+    "test_months": 3,
+    "test_start": "2024-08-01T00:00:00+03:00",
+    "train_end": "2024-08-01T00:00:00+03:00",
+    "train_months": 19,
+    "train_start": "2023-01-03T10:00:00+03:00"
+  }
+]

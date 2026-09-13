@@ -1,0 +1,21 @@
+{
+  "PF_C0": 2.1633879457920053,
+  "PF_C1": 2.092928448988337,
+  "PF_C2": 2.025980994231163,
+  "average_R_C1": 0.4994669848709337,
+  "expectancy_C0": 0.5180777924717406,
+  "expectancy_C1": 0.4994669848709337,
+  "expectancy_C2": 0.4808561772701269,
+  "max_drawdown_R_C1": -9.503225672430931,
+  "max_losing_streak": 6,
+  "max_winning_streak": 4,
+  "median_R_C1": -0.3933583613795032,
+  "negative_folds": 1,
+  "net_R_C0": 20.205033906397883,
+  "net_R_C1": 19.479212409966415,
+  "net_R_C2": 18.75339091353495,
+  "positive_folds": 2,
+  "recovery_factor": 2.04974743117761,
+  "total_trades": 39,
+  "win_rate_C1": 0.41025641025641024
+}
