@@ -1,0 +1,12 @@
+{
+  "adx_period": 14,
+  "adx_threshold": 20.0,
+  "atr_average_period": 20,
+  "atr_period": 14,
+  "breakout_period": 20,
+  "ema_period": 100,
+  "ema_slope_definition": "EMA[t] - EMA[t-slope_lookback]",
+  "slope_lookback": 5,
+  "stop_atr": 2.0,
+  "trail_atr": 3.0
+}

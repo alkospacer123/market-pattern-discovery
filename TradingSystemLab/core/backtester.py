@@ -39,8 +39,8 @@ class Backtester:
             raise ValueError("H1 and H4 closed-candle data are required")
         if h1.index.tz is None or h4.index.tz is None or not h1.index.is_monotonic_increasing or not h4.index.is_monotonic_increasing:
             raise ValueError("timestamps must be timezone-aware and sorted")
-        if (h1.index.year == 2025).any() or (h4.index.year == 2025).any():
-            raise ValueError("calendar year 2025 TRUE OOS is locked")
+        if (h1.index.year >= 2025).any() or (h4.index.year >= 2025).any():
+            raise ValueError("calendar year 2025+ TRUE OOS is locked")
         low, high = strategy.calculate_indicators(h1, h4)
         high_cursor, position, records = -1, None, []
         equity = self.portfolio.initial_capital

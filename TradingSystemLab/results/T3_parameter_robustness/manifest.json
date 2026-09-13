@@ -1,0 +1,33 @@
+{
+  "code_commit_if_available": null,
+  "cost_scenario": "C1: 1 configured tick per side",
+  "dataset_end": "2024-12-31",
+  "dataset_start": "2023-01-01",
+  "frozen_parameters": {
+    "adx_period": 14,
+    "adx_threshold": 20.0,
+    "atr_average_period": 20,
+    "atr_period": 14,
+    "breakout_period": 20,
+    "ema_period": 100,
+    "ema_slope_definition": "EMA[t] - EMA[t-slope_lookback]",
+    "slope_lookback": 5,
+    "stop_atr": 2.0,
+    "trail_atr": 3.0
+  },
+  "interaction_set_count": 36,
+  "oat_parameter_sets": 28,
+  "oos_blocked": "2025-01-01 and later",
+  "parity": {
+    "C0": "PASS",
+    "C1": "PASS",
+    "tolerance": 1e-10
+  },
+  "strategy_id": "T3_MTF_Trend_v1.0",
+  "symbols": [
+    "Si",
+    "CNY"
+  ],
+  "total_runs": 94,
+  "unique_configurations": 47
+}
