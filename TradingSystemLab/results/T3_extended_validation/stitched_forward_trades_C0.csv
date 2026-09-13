@@ -1,0 +1,1 @@
+trade_id,fold_id,symbol,direction,entry_time,entry_price,initial_stop,exit_time,exit_price,exit_reason,bars_held,gross_R,cost_R,net_R,MAE_R,MFE_R
