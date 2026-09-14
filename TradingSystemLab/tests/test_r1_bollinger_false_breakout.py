@@ -7,7 +7,7 @@ from pandas.testing import assert_frame_equal
 from TradingSystemLab.core.indicators import bollinger_bands, bollinger_bandwidth, previous_window_percentile
 from TradingSystemLab.core.portfolio import FixedRiskPortfolio
 from TradingSystemLab.strategies.range.R1_Bollinger_False_Breakout import R1BollingerFalseBreakout, R1Parameters
-from TradingSystemLab.run_r1_implementation_check import metrics_for
+from TradingSystemLab.run_r1_implementation_check import instrument_tick_size, metrics_for
 
 TZ="Europe/Moscow"
 def raw(n=340):
@@ -77,6 +77,10 @@ def test_fixed_risk_and_cost_conversion(monkeypatch):
     t=run_rows(monkeypatch,[{"Low":97.5,"Close":97.8},{"Close":99.},{"Low":96.}],R1Parameters(max_holding_bars=1))
     assert t.quantity.iloc[0]==FixedRiskPortfolio().size(100000.,t.entry_price.iloc[0],t.initial_stop.iloc[0])
     assert t.cost_R_C1.iloc[0]==pytest.approx(.002/t.initial_risk_points.iloc[0])
+
+def test_runner_uses_frozen_instrument_tick_sizes():
+    assert instrument_tick_size("Si") == pytest.approx(0.001)
+    assert instrument_tick_size("CNY") == pytest.approx(0.001)
 
 def test_previous_middle_target_and_priority(monkeypatch):
     # Current Middle deliberately differs; executable previous-middle column wins.
