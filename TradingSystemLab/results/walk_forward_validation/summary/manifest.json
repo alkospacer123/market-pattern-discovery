@@ -1,0 +1,82 @@
+{
+  "candidate_ids": [
+    "T2_candidate_v1",
+    "T3_candidate_v1"
+  ],
+  "data_coverage": {
+    "CNY": {
+      "bars": 7486,
+      "first_close": "2023-01-03T10:00:00+03:00",
+      "last_close": "2024-12-31T00:00:00+03:00"
+    },
+    "Si": {
+      "bars": 7487,
+      "first_close": "2023-01-03T10:00:00+03:00",
+      "last_close": "2024-12-31T00:00:00+03:00"
+    }
+  },
+  "deterministic": true,
+  "fold_schedule": [
+    {
+      "fold": "WF01",
+      "test": [
+        "2023-01-01",
+        "2023-06-30 23:59:59"
+      ],
+      "train": [
+        "2021-01-01",
+        "2022-12-31 23:59:59"
+      ]
+    },
+    {
+      "fold": "WF02",
+      "test": [
+        "2023-07-01",
+        "2023-12-31 23:59:59"
+      ],
+      "train": [
+        "2021-01-01",
+        "2023-06-30 23:59:59"
+      ]
+    },
+    {
+      "fold": "WF03",
+      "test": [
+        "2024-01-01",
+        "2024-06-30 23:59:59"
+      ],
+      "train": [
+        "2021-01-01",
+        "2023-12-31 23:59:59"
+      ]
+    },
+    {
+      "fold": "WF04",
+      "test": [
+        "2024-07-01",
+        "2024-12-31 23:59:59"
+      ],
+      "train": [
+        "2021-01-01",
+        "2024-06-30 23:59:59"
+      ]
+    }
+  ],
+  "frozen_parameter_hashes": {
+    "T2_candidate_v1": "2b0494cdd24bfbfa8ce7d657d6f83d1408f07b9f565d38d093dec5b4856e3c00",
+    "T3_candidate_v1": "938b6b3b78f680010115a204b9a49e7eef962db119f4ea121e388c00741920ba"
+  },
+  "optimization": false,
+  "phase": "4",
+  "ranking": false,
+  "status": "PHASE_4_WALK_FORWARD_COMPLETE",
+  "true_oos": {
+    "cutoff": "2025-01-01",
+    "read": false,
+    "status": "BLOCKED"
+  },
+  "verdicts": {
+    "T2": "WALK_FORWARD_BORDERLINE",
+    "T3": "WALK_FORWARD_BORDERLINE"
+  }
+}
