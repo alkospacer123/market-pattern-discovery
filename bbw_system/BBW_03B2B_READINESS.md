@@ -7,8 +7,9 @@
 | Requirement | Result |
 |---|---|
 | timestamp semantics | PASS — START; M1→M5/M15/M30/H1 pass and END fails |
-| weekday evening trading date | UNRESOLVED — authoritative calendar artifact missing |
-| weekend trading date | UNRESOLVED — authoritative calendar artifact missing |
+| frozen calendar loader | PASS — explicit provenance, dates, day/session flags, regimes, and intervals required |
+| weekday evening trading date | UNRESOLVED — authoritative calendar artifact not supplied |
+| weekend and special-session trading date | UNRESOLVED — authoritative calendar artifact not supplied |
 | session and clearing boundaries | UNRESOLVED — extended audit requires external frozen bundle |
 | H1 edge completeness | UNRESOLVED — extended audit requires external frozen bundle |
 | future-fill safety | implemented fail-closed; empirical rerun required |

@@ -1,2 +1,2 @@
-date,regime,bar_count,first_timestamp,last_timestamp,expected_first_time,expected_last_time,first_boundary_match,last_boundary_match,outside_session_count,clearing_bar_count,weekend,status,reason
-,,,,,,,,,,,,UNRESOLVED,extended audit requires external frozen bundle and authoritative calendar
+date,regime,trading_date,bar_count,first_timestamp,last_timestamp,expected_first_time,expected_last_time,first_boundary_match,last_boundary_match,outside_session_count,clearing_bar_count,weekend,working_day,weekend_session,special_session,shortened_session,status,reason
+,,,,,,,,,,,,,,,,,UNRESOLVED,authoritative frozen calendar and external freeze bundle were not supplied together

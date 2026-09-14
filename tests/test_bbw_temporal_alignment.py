@@ -6,7 +6,7 @@ import pytest
 from bbw_system.instrument_metadata import load_metadata
 from bbw_system.temporal_alignment import (
     TemporalAlignmentError, aggregate_m1, assign_trading_dates, infer_timestamp_semantics,
-    load_frozen_datasets, validate_daily, validate_h1, validate_sessions,
+    load_frozen_calendar, load_frozen_datasets, validate_daily, validate_h1, validate_sessions,
 )
 
 PASSPORT = Path("bbw_system/config/instruments/cnyrubf.yaml")
@@ -21,6 +21,24 @@ def bars(start="2024-01-03 09:00", periods=60):
 
 def reference(source, timeframe, semantics="START"):
     return aggregate_m1(source, timeframe, semantics).drop(columns="source_bar_count")
+
+
+def frozen_calendar(tmp_path, days):
+    path = tmp_path / "moex-calendar.json"
+    path.write_text(__import__("json").dumps({"schema_version": "bbw.moex-calendar.v1",
+        "artifact_id": "official-fixture-v1", "source_url": "https://www.moex.com/ru/tradingcalendar/",
+        "retrieved_at": "2026-09-14T00:00:00Z", "days": days}), encoding="utf-8")
+    return load_frozen_calendar(path)
+
+
+def calendar_day(day, trading_date=None, regime="weekday_0900", intervals=None, **flags):
+    return {"calendar_date": day, "trading_date": trading_date or day,
+        "working_day": flags.get("working_day", True),
+        "weekend_session": flags.get("weekend_session", False),
+        "special_session": flags.get("special_session", False),
+        "shortened_session": flags.get("shortened_session", False),
+        "exchange_regime": regime, "trading_intervals": intervals or [["09:00", "14:00"], ["14:05", "18:50"], ["19:05", "23:50"]],
+        "clearing_intervals": flags.get("clearing_intervals", [["14:00", "14:05"], ["18:50", "19:05"]])}
 
 
 def test_timestamp_semantics_is_empirically_resolved_and_ties_fail_closed():
@@ -46,11 +64,12 @@ def test_m1_to_h1_and_h1_safety():
     assert validate_h1(minute.iloc[:-1], hourly, "START")["H1_ALIGNMENT"] == "FAIL"
 
 
-def test_session_boundaries_and_clearing_are_diagnostic_only():
+def test_session_boundaries_and_clearing_are_diagnostic_only(tmp_path):
     metadata = load_metadata(PASSPORT)
     source = pd.concat([bars(periods=2), bars("2024-01-03 14:01", periods=1)], ignore_index=True)
     original = source.copy(deep=True)
-    result = validate_sessions(source, metadata)
+    calendar = frozen_calendar(tmp_path, [calendar_day("2024-01-03")])
+    result = validate_sessions(source, metadata, calendar)
     assert result[0]["regime"] == "weekday_0900"
     assert result[0]["clearing_bar_count"] == 1
     assert result[0]["status"] == "FAIL"
@@ -62,7 +81,7 @@ def test_session_boundaries_and_clearing_are_diagnostic_only():
     ("2026-03-23", "09:00", "23:49", "unified_0850"),
     ("2026-07-14", "07:00", "23:49", "unified_0650"),
 ])
-def test_session_regime_transitions_and_boundaries(day, first, last, regime):
+def test_session_regime_transitions_and_boundaries(tmp_path, day, first, last, regime):
     metadata = load_metadata(PASSPORT)
     intervals = {
         "weekday_0850": [("09:00", "14:00"), ("14:05", "18:50"), ("19:05", "23:50")],
@@ -73,32 +92,58 @@ def test_session_regime_transitions_and_boundaries(day, first, last, regime):
     for begin, end in intervals:
         stamps = stamps.append(pd.date_range(f"{day} {begin}", f"{day} {end}", freq="min", inclusive="left"))
     source = bars(periods=len(stamps)).assign(timestamp=stamps)
-    result = validate_sessions(source, metadata)[0]
+    calendar = frozen_calendar(tmp_path, [calendar_day(day, regime=regime,
+        intervals=[list(x) for x in intervals], clearing_intervals=[])])
+    result = validate_sessions(source, metadata, calendar)[0]
     assert (result["regime"], result["status"]) == (regime, "PASS")
     assert result["first_timestamp"].endswith(first + ":00")
     assert result["last_timestamp"].endswith(last + ":00")
 
 
-def test_trading_date_evening_and_weekend_require_calendar_evidence():
+def test_trading_date_evening_and_weekend_require_calendar_evidence(tmp_path):
     metadata = load_metadata(PASSPORT)
     source = bars("2024-01-05 19:05", periods=1)
     assert assign_trading_dates(source, metadata, None)["status"] == "UNRESOLVED"
-    assigned = assign_trading_dates(source, metadata, set())
+    assigned = assign_trading_dates(source, metadata, frozen_calendar(tmp_path,
+        [calendar_day("2024-01-05", "2024-01-08")]))
     assert assigned["trading_dates"].iloc[0].isoformat() == "2024-01-08"
     weekend = bars("2025-03-01 10:00", periods=1)
-    result = assign_trading_dates(weekend, metadata, set())
+    result = assign_trading_dates(weekend, metadata, frozen_calendar(tmp_path,
+        [calendar_day("2025-03-01", "2025-03-03", regime="weekend_2025",
+                      intervals=[["09:50", "19:00"]], working_day=False, weekend_session=True)]))
     assert result["status"] == "PASS"
     assert result["trading_dates"].iloc[0].isoformat() == "2025-03-03"
 
 
-def test_h1_session_edge_accepts_only_exact_observable_minutes():
+def test_h1_session_edge_accepts_only_exact_observable_minutes(tmp_path):
     metadata = load_metadata(PASSPORT)
     minute = bars("2024-01-03 23:00", periods=50)
     hourly = reference(minute, "H1")
-    assert validate_h1(minute, hourly, "START", metadata)["H1_ALIGNMENT"] == "PASS"
-    assert validate_h1(minute.iloc[:-1], hourly, "START", metadata)["H1_ALIGNMENT"] == "FAIL"
+    calendar = frozen_calendar(tmp_path, [calendar_day("2024-01-03")])
+    assert validate_h1(minute, hourly, "START", metadata, calendar)["H1_ALIGNMENT"] == "PASS"
+    assert validate_h1(minute.iloc[:-1], hourly, "START", metadata, calendar)["H1_ALIGNMENT"] == "FAIL"
     future = pd.concat([hourly, hourly.assign(timestamp=pd.Timestamp("2024-01-04 09:00"))])
-    assert validate_h1(minute, future, "START", metadata)["future_filled_count"] == 1
+    assert validate_h1(minute, future, "START", metadata, calendar)["future_filled_count"] == 1
+
+
+def test_frozen_calendar_loading_special_shortened_and_missing_coverage(tmp_path):
+    record = calendar_day("2024-01-03", special_session=True, shortened_session=True,
+                          intervals=[["09:00", "12:00"]])
+    calendar = frozen_calendar(tmp_path, [record])
+    assert calendar.days[pd.Timestamp("2024-01-03").date()]["special_session"] is True
+    metadata = load_metadata(PASSPORT)
+    stamps = pd.date_range("2024-01-03 09:00", "2024-01-03 12:00", freq="min", inclusive="left")
+    session = validate_sessions(bars(periods=len(stamps)).assign(timestamp=stamps), metadata, calendar)[0]
+    assert session["status"] == "PASS"
+    assert session["special_session"] is True and session["shortened_session"] is True
+    assert assign_trading_dates(bars("2024-01-04", 1), metadata, calendar)["status"] == "UNRESOLVED"
+
+
+def test_frozen_calendar_rejects_incomplete_days(tmp_path):
+    record = calendar_day("2024-01-03")
+    del record["exchange_regime"]
+    with pytest.raises(TemporalAlignmentError, match="incomplete"):
+        frozen_calendar(tmp_path, [record])
 
 
 def test_d1_calendar_and_trading_date_validation():

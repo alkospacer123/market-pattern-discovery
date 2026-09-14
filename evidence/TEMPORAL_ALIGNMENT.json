@@ -1,6 +1,6 @@
 {
   "blockers": [
-    "The versioned MOEX annual/special-day calendar required by frozen metadata is not present in the evidence bundle.",
+    "The audit supports a provenance-bearing bbw.moex-calendar.v1 input, but no authoritative frozen MOEX calendar artifact was supplied for this rerun.",
     "Weekday-evening and weekend TRADING_DATE assignment therefore cannot be validated without inventing a fallback.",
     "The extended session-boundary, clearing-interval, and H1-edge audit must be rerun against the external hash-verified freeze bundle."
   ],
@@ -8,6 +8,7 @@
     "daily_bar_semantics": "UNRESOLVED"
   },
   "h1_edge_completeness": "UNRESOLVED",
+  "frozen_calendar": null,
   "ready_for_normalization": false,
   "schema_version": "bbw.temporal-alignment.v1",
   "session_boundary_status": "UNRESOLVED",
@@ -30,7 +31,7 @@
     "timestamp_semantics": "START"
   },
   "trading_date_validation": {
-    "reason": "authoritative frozen exchange calendar is missing",
+    "reason": "external authoritative frozen exchange calendar was not supplied; missing dates fail closed",
     "status": "UNRESOLVED"
   },
   "status": "UNRESOLVED"
