@@ -2,9 +2,29 @@
 from __future__ import annotations
 import argparse, json
 from pathlib import Path
+import re
 import pandas as pd
 from .core.data_loader import DataLoader
 from .strategies.range.R1_Bollinger_False_Breakout import STRATEGY_ID, R1BollingerFalseBreakout
+
+CONFIG_ROOT = Path(__file__).resolve().parent / "configs"
+
+
+def instrument_tick_size(symbol: str) -> float:
+    """Read the frozen execution unit from the existing instrument config."""
+    config = CONFIG_ROOT / f"{symbol}.yaml"
+    if not config.is_file():
+        raise FileNotFoundError(f"instrument config is missing: {config}")
+    match = re.search(
+        r"(?m)^tick_size:\s*([0-9]+(?:\.[0-9]+)?)\s*(?:#.*)?$",
+        config.read_text(encoding="utf-8"),
+    )
+    if match is None:
+        raise ValueError(f"tick_size is missing or invalid in {config}")
+    tick_size = float(match.group(1))
+    if tick_size <= 0:
+        raise ValueError(f"tick_size must be positive in {config}")
+    return tick_size
 
 def load_h1(root: Path, symbol: str) -> pd.DataFrame:
     paths=[p for year in (2023,2024) for p in sorted((root/"2026"/symbol).glob(f"{symbol}_H1_{year}_Q*.csv"))]
@@ -32,7 +52,7 @@ def metrics_for(t):
       "mean_MFE_R":mean(t.MFE_R),"median_MFE_R":median(t.MFE_R)}
 
 def run(data_root:Path,output:Path):
-    strategy=R1BollingerFalseBreakout(); pieces=[strategy.run(load_h1(data_root,s),s,tick_size=.001) for s in ("Si","CNY")]
+    strategy=R1BollingerFalseBreakout(); pieces=[strategy.run(load_h1(data_root,s),s,tick_size=instrument_tick_size(s)) for s in ("Si","CNY")]
     t=pd.concat(pieces,ignore_index=True).sort_values(["exit_time","symbol","trade_id"],kind="mergesort").reset_index(drop=True)
     output.mkdir(parents=True,exist_ok=True); m=metrics_for(t)
     t.to_csv(output/"trades.csv",index=False,date_format="%Y-%m-%dT%H:%M:%S%z")

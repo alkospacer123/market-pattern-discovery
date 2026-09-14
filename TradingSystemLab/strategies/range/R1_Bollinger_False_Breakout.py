@@ -4,7 +4,14 @@ from dataclasses import asdict, dataclass
 from enum import Enum
 import pandas as pd
 
-from ...core.indicators import adx, atr, bollinger_bands, ema, previous_window_percentile
+from ...core.indicators import (
+    adx,
+    atr,
+    bollinger_bands,
+    bollinger_bandwidth,
+    ema,
+    previous_window_percentile,
+)
 from ...core.portfolio import FixedRiskPortfolio
 
 STRATEGY_ID = "R1_Bollinger_False_Breakout_Mean_Reversion_v1.0"
@@ -64,7 +71,11 @@ class R1BollingerFalseBreakout:
         p, out = self.parameters, h1.copy()
         bands = bollinger_bands(out.Close, p.bollinger_period, p.bollinger_std)
         out[["Middle", "Upper", "Lower"]] = bands[["middle", "upper", "lower"]]
-        out["BBW"] = ((out.Upper - out.Lower) / out.Middle).where(out.Middle != 0)
+        # Use the shared implementation so R1 cannot silently diverge from the
+        # Bollinger/BBW convention used by the other lab strategies.
+        out["BBW"] = bollinger_bandwidth(
+            out.Close, p.bollinger_period, p.bollinger_std
+        )
         out["BBW_reference"] = previous_window_percentile(out.BBW, p.bbw_percentile_lookback, p.bbw_percentile_threshold)
         # Diagnostic percentile rank against the same strictly-prior distribution.
         out["BBW_percentile"] = pd.Series([
