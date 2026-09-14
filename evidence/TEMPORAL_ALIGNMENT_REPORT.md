@@ -1,33 +1,19 @@
 # BBW 03B-2B temporal alignment report — CNYRUBF
 
-## Scope
+**Status: UNRESOLVED**
 
-The audit implementation covers raw M1 comparison with Finam M5, M15, M30
-and H1, effective-dated weekday/weekend session diagnostics, D1 convention
-comparison, and H1 completeness/future-fill checks. It performs no
-normalization, price correction, synthetic H4 construction, indicator,
-strategy, trade, backtest, optimization, or performance operation.
+## Confirmed evidence
 
-## Inputs found
+The completed local Intel comparison resolves Finam intraday timestamp semantics as **START**. M1→M5, M1→M15, M1→M30, and M1→H1 pass under START; all four END hypotheses fail. This conclusion is retained unchanged.
 
-The instrument metadata registry is present at
-`bbw_system/config/instruments/cnyrubf.yaml`. No hash-verified frozen raw
-CNYRUBF dataset bundle or `FREEZE_MANIFEST.json` is present in this checkout.
-Source market data was not downloaded or copied into the repository.
+## Remaining gates
 
-## Empirical results
+The audit now checks effective-dated first/last M1 session boundaries, clearing intervals, bars outside the allowed sessions, weekend sessions, and the three requested schedule regimes. It also requires every H1 dataset edge to contain exactly the observable session minutes; it neither fills missing minutes nor accepts partial edge candles.
 
-* Checked source candles: **0**.
-* Timestamp semantics: **UNRESOLVED** (no empirical comparisons).
-* M1 → M5/M15/M30/H1: **UNRESOLVED**, not passed.
-* Session regimes A–E and weekend sessions: **UNRESOLVED**.
-* D1 semantics: **UNRESOLVED**.
-* H1 alignment: **FAIL** (cannot establish completeness or absence of future fill).
-* Found data mismatches: **0 observed**, which is not evidence of a match.
+TRADING_DATE remains **UNRESOLVED**. Frozen metadata explicitly requires a versioned MOEX annual/special-day calendar, but that calendar is absent. Consequently weekday-evening and weekend assignments cannot be used to choose TRADING_DATE versus CALENDAR_DATE without inventing a fallback.
 
-## Verdict
+The extended runner must be executed on the external, read-only, hash-verified freeze bundle to populate per-date session and H1 evidence. No raw market data is stored or modified here.
 
-**NOT READY FOR NORMALIZATION.** The audit fails closed until an external,
-read-only, hash-verified freeze manifest provides all six requested raw
-timeframes. Re-running the audit must not mutate those sources and must retain
-the resulting complete evidence bundle.
+## Decision
+
+**UNRESOLVED.** 03B-2B is not ready for normalization. No normalization, synthetic candles, indicators, BBW processing, baseline, optimization, or backtesting was performed.

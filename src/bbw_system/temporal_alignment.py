@@ -16,7 +16,8 @@ import pandas as pd
 
 from .data_freeze import resolve_identity
 from .data_pipeline import file_sha256, read_source
-from .instrument_metadata import load_metadata, session_on, weekend_session_on
+from .instrument_metadata import (MetadataLookupError, load_metadata, session_on,
+                                  trading_date_for, weekend_session_on)
 
 INTRADAY = {"M5": "5min", "M15": "15min", "M30": "30min", "H1": "1h"}
 OHLCV = ("open", "high", "low", "close", "volume")
@@ -114,16 +115,52 @@ def validate_sessions(frame: pd.DataFrame, metadata: dict[str, Any]) -> list[dic
             clearing = pd.Series(False, index=group.index)
             for start, end in regime.get("clearing_intervals", []):
                 clearing |= minute.between(clock(start), clock(end), inclusive="left")
+            expected_first = clock(intervals[0][0])
+            expected_last = clock(intervals[-1][1]) - 1
+            first_minute, last_minute = int(minute.iloc[0]), int(minute.iloc[-1])
+            boundaries_match = first_minute == expected_first and last_minute == expected_last
             rows.append({"date": day.isoformat(), "regime": regime["id"], "bar_count": len(group),
                 "first_timestamp": str(group.timestamp.iloc[0]), "last_timestamp": str(group.timestamp.iloc[-1]),
+                "expected_first_time": intervals[0][0],
+                "expected_last_time": f"{expected_last // 60:02d}:{expected_last % 60:02d}",
+                "first_boundary_match": first_minute == expected_first,
+                "last_boundary_match": last_minute == expected_last,
                 "outside_session_count": int((~inside).sum()), "clearing_bar_count": int(clearing.sum()),
-                "weekend": day.weekday() >= 5, "status": "PASS" if inside.all() and not clearing.any() else "FAIL"})
+                "weekend": day.weekday() >= 5, "status": "PASS" if inside.all() and not clearing.any() and boundaries_match else "FAIL"})
         except Exception as exc:
             rows.append({"date": day.isoformat(), "regime": "UNRESOLVED", "bar_count": len(group),
                 "first_timestamp": str(group.timestamp.iloc[0]), "last_timestamp": str(group.timestamp.iloc[-1]),
                 "outside_session_count": None, "clearing_bar_count": None, "weekend": day.weekday() >= 5,
                 "status": "UNRESOLVED", "reason": str(exc)})
     return rows
+
+
+def assign_trading_dates(frame: pd.DataFrame, metadata: dict[str, Any],
+                         nonworking_dates: set[Any] | None) -> dict[str, Any]:
+    """Assign exchange trading dates only with an explicit frozen calendar.
+
+    Naive Finam wall-clock labels are interpreted in the metadata's exchange
+    timezone.  No weekday/holiday fallback is made when calendar evidence is
+    absent.
+    """
+    bars = _bars(frame)
+    if nonworking_dates is None:
+        return {"status": "UNRESOLVED", "reason": "authoritative frozen exchange calendar is missing",
+                "trading_dates": None, "weekday_evening_bars": 0, "weekend_bars": 0}
+    zone = metadata["time_semantics"]["exchange_timezone"]["value"]
+    assigned = []
+    try:
+        for stamp in bars.timestamp:
+            aware = stamp.tz_localize(zone).to_pydatetime()
+            assigned.append(trading_date_for(metadata, aware, nonworking_dates=nonworking_dates))
+    except (MetadataLookupError, ValueError) as exc:
+        return {"status": "UNRESOLVED", "reason": str(exc), "trading_dates": None,
+                "weekday_evening_bars": 0, "weekend_bars": 0}
+    evening = (bars.timestamp.dt.weekday < 5) & (bars.timestamp.dt.time >= pd.Timestamp("19:05").time())
+    weekend = bars.timestamp.dt.weekday >= 5
+    return {"status": "PASS", "reason": "assigned exclusively from effective-dated metadata and frozen calendar",
+            "trading_dates": pd.Series(assigned), "weekday_evening_bars": int(evening.sum()),
+            "weekend_bars": int(weekend.sum())}
 
 
 def validate_daily(intraday: pd.DataFrame, daily: pd.DataFrame,
@@ -150,15 +187,31 @@ def validate_daily(intraday: pd.DataFrame, daily: pd.DataFrame,
     return {"daily_bar_semantics": winners[0] if len(winners) == 1 else "UNRESOLVED", "evidence": results}
 
 
-def validate_h1(m1: pd.DataFrame, h1: pd.DataFrame, semantics: str) -> dict[str, Any]:
+def validate_h1(m1: pd.DataFrame, h1: pd.DataFrame, semantics: str,
+                metadata: dict[str, Any] | None = None) -> dict[str, Any]:
     result = compare_aggregation(m1, h1, "H1", semantics)
     aggregate = aggregate_m1(m1, "H1", semantics)
-    expected = 60
-    # Intraday clearing can make an intentional short bucket.  The dedicated
-    # session audit diagnoses those intervals; this safety check is narrowly
-    # about truncated coverage at the two dataset edges.
-    edges = aggregate.iloc[[0, -1]].drop_duplicates("timestamp") if len(aggregate) else aggregate
-    incomplete = edges.loc[edges.source_bar_count.ne(expected), "timestamp"].astype(str).tolist()
+    incomplete = []
+    bars = _bars(m1)
+    # Every observed bucket is checked; this necessarily includes both dataset
+    # edges, where a matching but partial M1/H1 pair must not pass silently.
+    for bucket in aggregate.itertuples():
+        start = bucket.timestamp
+        expected_minutes = pd.date_range(start, periods=60, freq="min")
+        if metadata is not None:
+            try:
+                day = start.date()
+                regime = weekend_session_on(metadata, day) if day.weekday() >= 5 else session_on(metadata, day)
+                def inside(stamp: pd.Timestamp) -> bool:
+                    clock = stamp.strftime("%H:%M")
+                    return any(begin <= clock < end for begin, end in regime["trading_intervals"])
+                expected_minutes = pd.DatetimeIndex([stamp for stamp in expected_minutes if inside(stamp)])
+            except MetadataLookupError:
+                expected_minutes = pd.DatetimeIndex([])
+        observed = pd.DatetimeIndex(bars.loc[(bars.timestamp >= start) &
+            (bars.timestamp < start + pd.Timedelta(hours=1)), "timestamp"])
+        if expected_minutes.empty or not observed.equals(expected_minutes):
+            incomplete.append(str(start))
     return {"H1_ALIGNMENT": "PASS" if result.matches and not incomplete else "FAIL",
             "comparison": asdict(result), "incomplete_h1_bars": incomplete,
             "future_filled_count": int((_bars(h1).timestamp > _bars(m1).timestamp.max()).sum())}
