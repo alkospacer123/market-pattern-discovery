@@ -5,7 +5,7 @@ import pytest
 
 from bbw_system.instrument_metadata import load_metadata
 from bbw_system.temporal_alignment import (
-    TemporalAlignmentError, aggregate_m1, infer_timestamp_semantics,
+    TemporalAlignmentError, aggregate_m1, assign_trading_dates, infer_timestamp_semantics,
     load_frozen_datasets, validate_daily, validate_h1, validate_sessions,
 )
 
@@ -55,6 +55,50 @@ def test_session_boundaries_and_clearing_are_diagnostic_only():
     assert result[0]["clearing_bar_count"] == 1
     assert result[0]["status"] == "FAIL"
     pd.testing.assert_frame_equal(source, original)
+
+
+@pytest.mark.parametrize(("day", "first", "last", "regime"), [
+    ("2026-03-20", "09:00", "23:49", "weekday_0850"),
+    ("2026-03-23", "09:00", "23:49", "unified_0850"),
+    ("2026-07-14", "07:00", "23:49", "unified_0650"),
+])
+def test_session_regime_transitions_and_boundaries(day, first, last, regime):
+    metadata = load_metadata(PASSPORT)
+    intervals = {
+        "weekday_0850": [("09:00", "14:00"), ("14:05", "18:50"), ("19:05", "23:50")],
+        "unified_0850": [("09:00", "14:00"), ("14:05", "23:50")],
+        "unified_0650": [("07:00", "14:00"), ("14:05", "23:50")],
+    }[regime]
+    stamps = pd.DatetimeIndex([])
+    for begin, end in intervals:
+        stamps = stamps.append(pd.date_range(f"{day} {begin}", f"{day} {end}", freq="min", inclusive="left"))
+    source = bars(periods=len(stamps)).assign(timestamp=stamps)
+    result = validate_sessions(source, metadata)[0]
+    assert (result["regime"], result["status"]) == (regime, "PASS")
+    assert result["first_timestamp"].endswith(first + ":00")
+    assert result["last_timestamp"].endswith(last + ":00")
+
+
+def test_trading_date_evening_and_weekend_require_calendar_evidence():
+    metadata = load_metadata(PASSPORT)
+    source = bars("2024-01-05 19:05", periods=1)
+    assert assign_trading_dates(source, metadata, None)["status"] == "UNRESOLVED"
+    assigned = assign_trading_dates(source, metadata, set())
+    assert assigned["trading_dates"].iloc[0].isoformat() == "2024-01-08"
+    weekend = bars("2025-03-01 10:00", periods=1)
+    result = assign_trading_dates(weekend, metadata, set())
+    assert result["status"] == "PASS"
+    assert result["trading_dates"].iloc[0].isoformat() == "2025-03-03"
+
+
+def test_h1_session_edge_accepts_only_exact_observable_minutes():
+    metadata = load_metadata(PASSPORT)
+    minute = bars("2024-01-03 23:00", periods=50)
+    hourly = reference(minute, "H1")
+    assert validate_h1(minute, hourly, "START", metadata)["H1_ALIGNMENT"] == "PASS"
+    assert validate_h1(minute.iloc[:-1], hourly, "START", metadata)["H1_ALIGNMENT"] == "FAIL"
+    future = pd.concat([hourly, hourly.assign(timestamp=pd.Timestamp("2024-01-04 09:00"))])
+    assert validate_h1(minute, future, "START", metadata)["future_filled_count"] == 1
 
 
 def test_d1_calendar_and_trading_date_validation():

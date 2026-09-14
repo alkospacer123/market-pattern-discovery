@@ -1,21 +1,37 @@
 {
-  "H1_ALIGNMENT": "FAIL",
   "blockers": [
-    "No hash-verified frozen CNYRUBF M1/M5/M15/M30/H1/D1 raw bundle is present in this checkout.",
-    "Timestamp semantics therefore has no empirical evidence.",
-    "Session regimes, D1 convention, and H1 completeness cannot be empirically validated."
+    "The versioned MOEX annual/special-day calendar required by frozen metadata is not present in the evidence bundle.",
+    "Weekday-evening and weekend TRADING_DATE assignment therefore cannot be validated without inventing a fallback.",
+    "The extended session-boundary, clearing-interval, and H1-edge audit must be rerun against the external hash-verified freeze bundle."
   ],
-  "daily_bar_semantics": "UNRESOLVED",
-  "datasets_used": [],
-  "mtf_aggregation_passed": false,
-  "mtf_alignment": [
-    {"timeframe": "M5", "matches": false, "checked_bars": 0, "mismatch_count": 0, "status": "UNRESOLVED"},
-    {"timeframe": "M15", "matches": false, "checked_bars": 0, "mismatch_count": 0, "status": "UNRESOLVED"},
-    {"timeframe": "M30", "matches": false, "checked_bars": 0, "mismatch_count": 0, "status": "UNRESOLVED"},
-    {"timeframe": "H1", "matches": false, "checked_bars": 0, "mismatch_count": 0, "status": "UNRESOLVED"}
-  ],
+  "daily_alignment": {
+    "daily_bar_semantics": "UNRESOLVED"
+  },
+  "h1_edge_completeness": "UNRESOLVED",
   "ready_for_normalization": false,
-  "session_boundaries_validated": false,
-  "timestamp_semantics": "UNRESOLVED",
-  "verdict": "NOT_READY"
+  "schema_version": "bbw.temporal-alignment.v1",
+  "session_boundary_status": "UNRESOLVED",
+  "symbol": "CNYRUBF",
+  "timestamp_alignment": {
+    "evidence": {
+      "END": [
+        {"matches": false, "timeframe": "M5"},
+        {"matches": false, "timeframe": "M15"},
+        {"matches": false, "timeframe": "M30"},
+        {"matches": false, "timeframe": "H1"}
+      ],
+      "START": [
+        {"matches": true, "timeframe": "M5"},
+        {"matches": true, "timeframe": "M15"},
+        {"matches": true, "timeframe": "M30"},
+        {"matches": true, "timeframe": "H1"}
+      ]
+    },
+    "timestamp_semantics": "START"
+  },
+  "trading_date_validation": {
+    "reason": "authoritative frozen exchange calendar is missing",
+    "status": "UNRESOLVED"
+  },
+  "status": "UNRESOLVED"
 }
