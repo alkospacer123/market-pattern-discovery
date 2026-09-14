@@ -1,0 +1,7 @@
+strategy,reference_source,expected_trades,actual_trades,trade_identity_match,max_numeric_diff,C0_metrics_match,C1_metrics_match,status
+T1,TradingSystemLab/results/T1_baseline/trades.csv,28,28,True,0,True,True,PASS
+T2,TradingSystemLab/results/T2_implementation_check/trades.csv,95,95,True,0,True,True,PASS
+T3,TradingSystemLab/results/T3_robust/trades/trades_C0.csv,109,109,True,0,True,True,PASS
+R1,TradingSystemLab/results/R1_implementation_check/trades.csv,60,60,True,0,True,True,PASS
+R2,TradingSystemLab/results/R2_implementation_check/trades.csv,173,173,True,0,True,True,PASS
+R3,TradingSystemLab/results/R3_implementation_check/trades.csv,3708,3708,True,0,True,True,PASS
