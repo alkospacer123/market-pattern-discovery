@@ -1,0 +1,63 @@
+{
+  "artifact_sha256": {
+    "bootstrap_report.csv": "9d0b2a828d9d8893e96a76fdc60b209e7029816cfff10124584d2750745f81fc",
+    "concentration_report.csv": "87432271fc3c1c3dbbb8a0a1a13a9d4c6b15959b899f3bf36ca45d8fbda47e9e",
+    "correlation_report.csv": "4e84d8ed8a7e4a0e5ead0724fe813a963bde289284da2d4f16955f40e19abaed",
+    "drawdown_report.csv": "e5b2cb9f73b7258f9299c67539bcab2da938c7ca469c36cc818378c6764910a5",
+    "equity_curve.csv": "77dea0844052b16682c82f5cd1d450017c61e72a75ced82137c3480dad8031fb",
+    "monthly_report.csv": "5fc725bd2f0c3f6b127f5c8995262656320bcce8061f18a9e06d1281cac7bcac",
+    "overlap_report.csv": "36a7b6d71c89fcb2a8139f3b1b13fbe8aadfd978c24f633716d97de7dc228d0e",
+    "portfolio_metrics.csv": "5a6743c4705b230a13fc5a7606bf50704888c88e36756083fad17a4bf9780a51",
+    "portfolio_summary.md": "a248cfb92c88590e67349940c4da0ca74f64227917cb00fdfeac9bdaff296129",
+    "quarterly_report.csv": "b2872690ca59849f83a179f7a3de015ddf06e3188c1a6f0baefdfe070ee81b71",
+    "strategy_contribution.csv": "d267578d000810b486936c50a9d00bfe99ead8575e9054810dd02b55e5237b2d",
+    "yearly_report.csv": "2c2cab1d813a6b599a4fb01f327979970e975affd936d0e21c05a187a2bd4503"
+  },
+  "bootstrap": {
+    "iterations": 10000,
+    "seed": 62025
+  },
+  "candidate_ids": [
+    "T2_candidate_v1",
+    "T3_candidate_v1"
+  ],
+  "deterministic": true,
+  "frozen_parameter_hashes": {
+    "T2_candidate_v1": "2b0494cdd24bfbfa8ce7d657d6f83d1408f07b9f565d38d093dec5b4856e3c00",
+    "T3_candidate_v1": "938b6b3b78f680010115a204b9a49e7eef962db119f4ea121e388c00741920ba"
+  },
+  "optimization": false,
+  "phase": "6",
+  "ranking": false,
+  "source_manifest_sha256": "c0cf34ef74c05d25300a91c196dae82b0d1686d2e8874e2338078aee882462a4",
+  "source_trade_sha256": {
+    "T2": "efc026b7a3b26f9457f670a1ea3da44bf71bd242a8d46b954a9e93fb18e2a3cd",
+    "T3": "aa8da10eb878790ef353b106a47ccb4ea9685391c8c445d67e279799f8ec5e8c"
+  },
+  "status": "PHASE_6_PORTFOLIO_CONSTRUCTION_COMPLETE",
+  "true_oos_barrier": {
+    "development_rows_read": 0,
+    "enabled": true,
+    "start": "2025-01-01"
+  },
+  "verdict": "PORTFOLIO_READY",
+  "walk_forward": false,
+  "weights": {
+    "A": {
+      "T2": 1.0,
+      "T3": 0.0
+    },
+    "B": {
+      "T2": 0.0,
+      "T3": 1.0
+    },
+    "C": {
+      "T2": 0.5,
+      "T3": 0.5
+    },
+    "D": {
+      "T2": 0.48130385526987524,
+      "T3": 0.5186961447301247
+    }
+  }
+}
