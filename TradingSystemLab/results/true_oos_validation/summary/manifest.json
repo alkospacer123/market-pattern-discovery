@@ -1,0 +1,83 @@
+{
+  "artifact_sha256": {
+    "T2/bootstrap_report.csv": "fb61f04866d7abbab7aafc0627fbdea5d85e82d519ba9f1fe7b575907e9d0310",
+    "T2/concentration_report.csv": "750510573af8d62e573e04ab42188a6ac7991a92ac9093af9ef3928c9efb1fe0",
+    "T2/direction_report.csv": "ff6ef760cdf2c6a539bd7eb40ac213e1cc148ffc0039a029a77db3a67ce30640",
+    "T2/final_report.md": "4c57f506768d26edc096e3500ac1f252980a22e5986422c9aa5e3e93f4c2ef8d",
+    "T2/instrument_report.csv": "98fe66eb80f73255798847cd50e4c68b8a3905924e62f2b9cdd9b94ed1026a66",
+    "T2/mae_mfe_report.csv": "6481fab9deb4f73052e632df64877e19d33c2856a8cd8704d616310b2f5fe18d",
+    "T2/metrics.json": "30e51d37356fa14868a17c133e578fd4358bec029d26061ac5ae162a483d51eb",
+    "T2/quarterly_report.csv": "48f837355dcf99a3cbbcb8fa442f663a78368208831e52e85bf422bb810a51f3",
+    "T2/trades.csv": "efc026b7a3b26f9457f670a1ea3da44bf71bd242a8d46b954a9e93fb18e2a3cd",
+    "T2/yearly_report.csv": "4537fb0be48296e8c1ff460c3f406c981fde05451b2a6f68dc63fe08b98c7985",
+    "T3/bootstrap_report.csv": "550a1376538f07cf128bf188315ed1fcd1de0565a6d2d1733d70a9196bbbdbae",
+    "T3/concentration_report.csv": "f1a8a9d8a68aa09a3200714eb6510bee5fc7aea25ac3f2ac99c1663d8568ac18",
+    "T3/direction_report.csv": "14b84b8c9cd017104014deaff9956859a199aaaf40c7f3cb6513f01ad359267c",
+    "T3/final_report.md": "cc45db592df4eca926c50eac2d6c7f0fcc2fcd2819d1e07a5905fe5f1bbd6327",
+    "T3/instrument_report.csv": "25d33999e2fb11f7fcaaa56e4911727ac4478534ce0e8a5cbf69d85e58d973ae",
+    "T3/mae_mfe_report.csv": "c85f775bc166a77dce7d51cf3f21309a3cc8d4356c3d88917e87dace4dac0dd8",
+    "T3/metrics.json": "5ffa557d69e93186dd4e7e2b95089d5c866f6ddbed47da34c44950cefd3445a8",
+    "T3/quarterly_report.csv": "d092b3bd757baba8cb20fbb620b5ee48bcf2a22080225bcb77edd5c28e950907",
+    "T3/trades.csv": "aa8da10eb878790ef353b106a47ccb4ea9685391c8c445d67e279799f8ec5e8c",
+    "T3/yearly_report.csv": "897d24797cb816b3950c22811cffd8dfc74eecafdd709b445837108949cf1cc8",
+    "summary/comparison.csv": "21a40442ca8e7b6dc075cd0e59016f1f027820a82536aa69a06591e6d14bb6db",
+    "summary/final_true_oos_report.md": "a97d21865b84056fc116d20f2b32df2ed5137ee1f935bb9a0a73b9b4fe98aa59"
+  },
+  "bootstrap": {
+    "diagnostic_only": true,
+    "iterations": 10000,
+    "seed": 5102025
+  },
+  "candidate_ids": [
+    "T2_candidate_v1",
+    "T3_candidate_v1"
+  ],
+  "classifications": {
+    "T2": "PASS",
+    "T3": "PASS"
+  },
+  "cost_ticks_per_side": 1.0,
+  "coverage": {
+    "CNY": {
+      "bars": 6641,
+      "first_close": "2025-01-03T11:00:00+03:00",
+      "last_close": "2026-08-30T19:00:00+03:00",
+      "source_files": [
+        "CNY_H1_2025_Q1.csv",
+        "CNY_H1_2025_Q2.csv",
+        "CNY_H1_2025_Q3.csv",
+        "CNY_H1_2026_Q1.csv",
+        "CNY_H1_2026_Q2.csv"
+      ]
+    },
+    "Si": {
+      "bars": 6621,
+      "first_close": "2025-01-03T11:00:00+03:00",
+      "last_close": "2026-08-30T19:00:00+03:00",
+      "source_files": [
+        "Si_H1_2025_Q1.csv",
+        "Si_H1_2025_Q2.csv",
+        "Si_H1_2025_Q3.csv",
+        "Si_H1_2026_Q1.csv",
+        "Si_H1_2026_Q2.csv"
+      ]
+    }
+  },
+  "deterministic": true,
+  "optimization": false,
+  "parameters_frozen": true,
+  "phase": "5",
+  "ranking": false,
+  "start_state": "FLAT",
+  "status": "PHASE_5_TRUE_OOS_VALIDATION_COMPLETE",
+  "strategy_code_sha256": {
+    "T2": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+    "T3": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
+  },
+  "true_oos_barrier": {
+    "development_rows_read": 0,
+    "enabled": true,
+    "start": "2025-01-01"
+  },
+  "walk_forward": false
+}
