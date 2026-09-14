@@ -1,0 +1,2 @@
+strategy,tested_configurations,plateau_classification,robust_configurations,baseline_configuration_id,baseline_expectancy_C1,baseline_PF_C1,baseline_net_R_C1,recommendation
+R1,14,LOCAL_SPIKE,0,R1-0006-9ac11e56b037,-0.14204671852,0.656918694982,-8.52280311119,CONTINUE_RESEARCH

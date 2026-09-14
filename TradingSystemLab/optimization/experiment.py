@@ -54,8 +54,10 @@ class Experiment:
         if self.experiment_id and self.experiment_id != expected:
             raise ValueError("experiment_id does not match deterministic content")
         object.__setattr__(self, "experiment_id", expected)
-        if not self.baseline_only or self.optimization_enabled or self.walk_forward_enabled:
-            raise ValueError("PHASE_3_1_BASELINE_ONLY")
+        if self.baseline_only == self.optimization_enabled:
+            raise ValueError("PHASE_3_1_BASELINE_ONLY: exactly one of baseline_only and optimization_enabled is required")
+        if self.walk_forward_enabled:
+            raise ValueError("WALK_FORWARD_NOT_BOUNDED_OPTIMIZATION")
         if not self.true_oos_blocked:
             raise ValueError("TRUE_OOS_MUST_BE_BLOCKED")
 

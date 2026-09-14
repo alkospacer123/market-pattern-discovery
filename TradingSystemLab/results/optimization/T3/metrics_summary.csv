@@ -1,0 +1,2 @@
+strategy,tested_configurations,plateau_classification,robust_configurations,baseline_configuration_id,baseline_expectancy_C1,baseline_PF_C1,baseline_net_R_C1,recommendation
+T3,22,ROBUST_PLATEAU,5,T3-0006-782a150195d6,0.463442957611,2.05031716776,50.5152823796,ROBUST_CANDIDATE
