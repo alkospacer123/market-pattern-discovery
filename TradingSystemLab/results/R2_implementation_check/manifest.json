@@ -1,0 +1,38 @@
+{
+  "strategy_id": "R2_Liquidity_Sweep_False_Breakout_v1.0",
+  "implementation_version": "1.0",
+  "symbols": [
+    "Si",
+    "CNY"
+  ],
+  "context_timeframe": "H1",
+  "execution_timeframe": "M15",
+  "development_start": "2023-01-01",
+  "development_end": "2024-12-31",
+  "frozen_parameters": {
+    "context_timeframe": "H1",
+    "execution_timeframe": "M15",
+    "range_lookback_h1": 20,
+    "adx_period": 14,
+    "adx_range_max": 25.0,
+    "ema_period": 200,
+    "ema_slope_lookback": 10,
+    "ema_slope_max_atr": 0.35,
+    "atr_period_m15": 14,
+    "minimum_sweep_atr": 0.05,
+    "maximum_sweep_atr": 1.0,
+    "require_half_bar_rejection": true,
+    "stop_buffer_atr": 0.1,
+    "max_initial_stop_atr": 1.5,
+    "target": "range_midpoint",
+    "max_holding_bars_m15": 16
+  },
+  "cost_scenarios": {
+    "C0": "zero cost",
+    "C1": "1 tick per side"
+  },
+  "true_oos_blocked": true,
+  "implementation_check_only": true,
+  "optimization_performed": false,
+  "walk_forward_performed": false
+}
