@@ -182,3 +182,21 @@ When discovery is exhausted but inference remains and its configured budget
 cannot make progress, the cycle reports `INFERENCE_PENDING` rather than
 incorrectly declaring the research space exhausted or continuously writing
 empty cycle state.
+
+## Local Intel temporal-alignment audit
+
+After producing the 03B-1 freeze, run the read-only alignment audit from the
+repository root in PowerShell. The runner accepts either the freeze root (with
+an `evidence` child) or the evidence directory itself:
+
+```powershell
+python -m bbw_system.temporal_alignment_cli `
+    --freeze-root C:\BBW\results\data_freeze\03B1_R3 `
+    --output-root C:\BBW\results\temporal_alignment\03B2B_R1 `
+    --symbol CNYRUBF
+```
+
+Every source hash is checked before any frozen market-data file is read. The
+runner does not normalize, repair, future-fill, or synthesize candles and
+reports `UNRESOLVED` rather than choosing a convention without sufficient
+evidence.
