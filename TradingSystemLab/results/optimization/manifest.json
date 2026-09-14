@@ -1,0 +1,11 @@
+{
+  "baseline_only": true,
+  "experiment_id": "phase3-203cf035c5a07030b7fb",
+  "optimization_type": "BOUNDED_ONLY",
+  "parameter_search_performed": false,
+  "phase": "PHASE_3",
+  "search_space_limit": 5000,
+  "search_space_size": 1,
+  "true_oos_blocked": true,
+  "walk_forward": false
+}

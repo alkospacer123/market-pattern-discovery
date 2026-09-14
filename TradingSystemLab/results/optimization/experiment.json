@@ -1,0 +1,46 @@
+{
+  "baseline_config": {
+    "frozen_parameter_hashes": {
+      "R1": "231ae54161cce9dfb062cbf968fe693d2e63f1d06249412ff0d2b184e11077f3",
+      "R2": "f1265ba2b6f0836b0d6440836ba3624711c2d3f71691de85ef74560253b2f6e6",
+      "R3": "560fe46ae1eb86d6f5f3b3cd8572aa43977869ee8dc530990568bcd258fecaf0",
+      "T1": "bfd95f92a3db9fba874756a0d3accfd836b7ed453dc46e473b290a423bcf99ae",
+      "T2": "d3614150fc50b056cbfdb6ca7f011adf7581577b43bdc67ea82028c6c7ad67fb",
+      "T3": "90dd22c5e91c1b0245c168de73c9634a4387aa7dbe051662716726eb4940ddfb"
+    }
+  },
+  "baseline_config_hash": "f0db5d32d38b650296724507737a278195d6f8932bfb21bee3ef6a32d3c9c2f7",
+  "baseline_only": true,
+  "constraints": [],
+  "cost_scenarios": [
+    "C0",
+    "C0.5",
+    "C1",
+    "C2"
+  ],
+  "data_period": {
+    "end": "2024-12-31",
+    "start": "2023-01-01"
+  },
+  "experiment_id": "phase3-203cf035c5a07030b7fb",
+  "metrics_required": [
+    "PF_R_C1",
+    "expectancy_C1",
+    "net_R_C1",
+    "max_DD_R_C1",
+    "recovery_factor",
+    "trade_count",
+    "top3_concentration"
+  ],
+  "optimization_enabled": false,
+  "parameter_space": {},
+  "parameter_space_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+  "seed": 0,
+  "strategy_id": "UNIFIED_SIX_STRATEGY_BASELINE",
+  "symbols": [
+    "Si",
+    "CNY"
+  ],
+  "true_oos_blocked": true,
+  "walk_forward_enabled": false
+}
