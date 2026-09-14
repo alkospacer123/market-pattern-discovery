@@ -22,11 +22,17 @@ from ..optimization.experiment import stable_hash
 from ..optimization.phase32 import PARAMETERS, SCENARIOS, SPACES, execute
 from ..optimization.validation import reject_true_oos
 
+DEVELOPMENT_START = pd.Timestamp("2023-01-01", tz="UTC")
+TRUE_OOS_START = pd.Timestamp("2025-01-01", tz="UTC")
+
+# Predeclared calendar-quarter tests give four observations while retaining a
+# full development year for the first training window.  Every later training
+# interval contains all earlier test intervals; none reaches TRUE OOS.
 SCHEDULE = (
-    ("WF01", "2021-01-01", "2022-12-31 23:59:59", "2023-01-01", "2023-06-30 23:59:59"),
-    ("WF02", "2021-01-01", "2023-06-30 23:59:59", "2023-07-01", "2023-12-31 23:59:59"),
-    ("WF03", "2021-01-01", "2023-12-31 23:59:59", "2024-01-01", "2024-06-30 23:59:59"),
-    ("WF04", "2021-01-01", "2024-06-30 23:59:59", "2024-07-01", "2024-12-31 23:59:59"),
+    ("WF01", "2023-01-01", "2023-12-31 23:59:59", "2024-01-01", "2024-03-31 23:59:59"),
+    ("WF02", "2023-01-01", "2024-03-31 23:59:59", "2024-04-01", "2024-06-30 23:59:59"),
+    ("WF03", "2023-01-01", "2024-06-30 23:59:59", "2024-07-01", "2024-09-30 23:59:59"),
+    ("WF04", "2023-01-01", "2024-09-30 23:59:59", "2024-10-01", "2024-12-31 23:59:59"),
 )
 KEYS = ("T2", "T3")
 EXPECTED_IDS = {"T2": "T2_candidate_v1", "T3": "T3_candidate_v1"}
@@ -70,11 +76,15 @@ def load_h1(data_root: Path) -> tuple[dict[tuple[str, str], pd.DataFrame], dict]
     data = {}; coverage = {}
     for symbol in ("Si", "CNY"):
         # Filename selection itself excludes locked years: 2025+ files are never read.
-        paths = [p for year in range(2020, 2025) for p in sorted((data_root / "2026" / symbol).glob(f"{symbol}_H1_{year}_Q*.csv"))]
+        paths = [p for year in (2023, 2024) for p in sorted((data_root / "2026" / symbol).glob(f"{symbol}_H1_{year}_Q*.csv"))]
         if not paths:
             raise FileNotFoundError(f"no pre-2025 H1 data for {symbol}")
         frame = DataLoader().close_index(DataLoader().load_csv(paths), "1h")
         reject_true_oos(frame.index)
+        # Defence in depth: filenames prevent opening TRUE OOS and the content
+        # gate above rejects it.  Keep only the approved development interval.
+        frame = frame.loc[(frame.index >= DEVELOPMENT_START.tz_convert(frame.index.tz)) &
+                          (frame.index < TRUE_OOS_START.tz_convert(frame.index.tz))]
         data[(symbol, "H1")] = frame
         coverage[symbol] = {"first_close": frame.index.min().isoformat(), "last_close": frame.index.max().isoformat(), "bars": len(frame)}
     return data, coverage
@@ -135,8 +145,20 @@ def run(data_root: Path, output: Path = Path("TradingSystemLab/results/walk_forw
     data, coverage = load_h1(Path(data_root)); output=Path(output)
     if output.exists(): shutil.rmtree(output)
     output.mkdir(parents=True); (output/"summary").mkdir()
-    insufficient = any(pd.Timestamp(v["first_close"]) > pd.Timestamp("2021-01-02",tz="UTC") or pd.Timestamp(v["last_close"]) < pd.Timestamp("2024-12-30",tz="UTC") for v in coverage.values())
-    if insufficient: _json(output/"DATA_COVERAGE_REPORT.json", {"status":"INSUFFICIENT_MINIMUM_COVERAGE","minimum":["2021-01-01","2024-12-31"],"actual":coverage,"simulated":False})
+    # Jan 1 is not necessarily a trading day.  Coverage is sufficient when it
+    # begins in the first calendar week of 2023 and reaches the final trading
+    # days of 2024.  No 2021/2022 history is part of the Phase 4 contract.
+    insufficient = any(
+        pd.Timestamp(v["first_close"]) >= pd.Timestamp("2023-01-08", tz="UTC")
+        or pd.Timestamp(v["last_close"]) < pd.Timestamp("2024-12-30", tz="UTC")
+        for v in coverage.values()
+    )
+    coverage_report = {"status":"INSUFFICIENT_MINIMUM_COVERAGE" if insufficient else "SUFFICIENT",
+                       "minimum":["2023-01-01","2025-01-01"], "end_exclusive":True,
+                       "actual":coverage,"simulated":False,"true_oos_blocked":True}
+    _json(output/"DATA_COVERAGE_REPORT.json", coverage_report)
+    if insufficient:
+        raise RuntimeError("DATA_COVERAGE_INSUFFICIENT: requires 2023-2024 development coverage")
     verdicts={}; comparison=[]
     for candidate in candidates:
         key=candidate["strategy"]; target=output/key; target.mkdir(); folds=[]; pieces=[]; decay=[]
@@ -160,10 +182,12 @@ def run(data_root: Path, output: Path = Path("TradingSystemLab/results/walk_forw
         (target/"final_report.md").write_text(f"# {candidate['candidate_id']} Walk Forward\n\n**{verdict}**\n\nFrozen parameters; no ranking or optimization. Complete folds: {len(valid)}/4. Forward trades: {c1['trades']}. Each fold started FLAT. TRUE OOS remained blocked.\n",encoding="utf-8")
         comparison.append({"candidate_id":candidate["candidate_id"],"verdict":verdict,**c1})
     _csv(output/"summary"/"comparison.csv",comparison)
-    manifest={"phase":"4","status":"PHASE_4_WALK_FORWARD_COMPLETE","candidate_ids":[c["candidate_id"] for c in candidates],"frozen_parameter_hashes":{c["candidate_id"]:stable_hash(c["parameters"]) for c in candidates},"data_coverage":coverage,"fold_schedule":[{"fold":x[0],"train":[x[1],x[2]],"test":[x[3],x[4]]} for x in SCHEDULE],"true_oos":{"cutoff":"2025-01-01","status":"BLOCKED","read":False},"optimization":False,"ranking":False,"deterministic":True,"verdicts":verdicts}
+    phase_status = ("PHASE_4_WALK_FORWARD_COMPLETE" if all(v == "WALK_FORWARD_PASS" for v in verdicts.values())
+                    else "PHASE_4_BORDERLINE")
+    manifest={"phase":"4","status":phase_status,"development_coverage":["2023-01-01","2024-12-31"],"candidate_ids":[c["candidate_id"] for c in candidates],"frozen_parameter_hashes":{c["candidate_id"]:stable_hash(c["parameters"]) for c in candidates},"parameters_frozen":True,"data_coverage":coverage,"fold_schedule":[{"fold":x[0],"train":[x[1],x[2]],"test":[x[3],x[4]]} for x in SCHEDULE],"true_oos":{"cutoff":"2025-01-01","status":"BLOCKED","read":False},"true_oos_blocked":True,"optimization":False,"ranking":False,"deterministic":True,"verdicts":verdicts}
     _json(output/"summary"/"manifest.json",manifest)
     phase5=[EXPECTED_IDS[k] for k,v in verdicts.items() if v=="WALK_FORWARD_PASS"]
-    (output/"summary"/"final_walk_forward_report.md").write_text("# Phase 4 Walk Forward Validation\n\n"+"\n".join(f"- **{EXPECTED_IDS[k]}: {v.replace('WALK_FORWARD_','')}**" for k,v in verdicts.items())+f"\n\nPhase 5 Portfolio Construction: {', '.join(phase5) or 'NONE'}.\n\nPHASE_4_WALK_FORWARD_COMPLETE\n",encoding="utf-8")
+    (output/"summary"/"final_walk_forward_report.md").write_text("# Phase 4 Walk Forward Validation\n\n"+"\n".join(f"- **{EXPECTED_IDS[k]}: {v.replace('WALK_FORWARD_','')}**" for k,v in verdicts.items())+f"\n\n- Development coverage: 2023-2024\n- TRUE OOS: blocked >=2025\n- Optimization: false\n- Ranking: false\n- Parameters frozen: true\n\nPhase 5 Portfolio Construction: {', '.join(phase5) or 'NONE'}.\n\n{phase_status}\n",encoding="utf-8")
     return manifest
 
 

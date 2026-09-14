@@ -1,37 +1,37 @@
 {
   "aggregate": {
     "C0": {
-      "PF": 2.2560341861216866,
-      "expectancy": 0.5095695404655581,
-      "losing_streak": 10,
-      "max_drawdown": -15.199145320413574,
-      "net_R": 50.956954046555815,
-      "recovery_factor": 3.3526197014589276,
-      "trades": 100,
-      "win_rate": 0.44,
-      "winning_streak": 6
+      "PF": 3.4919719302104073,
+      "expectancy": 0.9861855165327362,
+      "losing_streak": 3,
+      "max_drawdown": -4.907016315175544,
+      "net_R": 33.53030756211303,
+      "recovery_factor": 6.833135536643007,
+      "trades": 34,
+      "win_rate": 0.5,
+      "winning_streak": 4
     },
     "C1": {
-      "PF": 2.191230886788667,
-      "expectancy": 0.49405621353769524,
-      "losing_streak": 10,
-      "max_drawdown": -15.683893378944411,
-      "net_R": 49.405621353769526,
-      "recovery_factor": 3.1500865352793364,
-      "trades": 100,
-      "win_rate": 0.44,
-      "winning_streak": 6
+      "PF": 3.3803276720178377,
+      "expectancy": 0.9679913199721701,
+      "losing_streak": 3,
+      "max_drawdown": -5.038562132510952,
+      "net_R": 32.91170487905379,
+      "recovery_factor": 6.531963685967754,
+      "trades": 34,
+      "win_rate": 0.5,
+      "winning_streak": 4
     },
     "C2": {
-      "PF": 2.128475517704281,
-      "expectancy": 0.47854288660983235,
-      "losing_streak": 10,
-      "max_drawdown": -16.168641437475237,
-      "net_R": 47.85428866098324,
-      "recovery_factor": 2.9596975630907285,
-      "trades": 100,
-      "win_rate": 0.43,
-      "winning_streak": 6
+      "PF": 3.2745214858949083,
+      "expectancy": 0.9497971234116042,
+      "losing_streak": 3,
+      "max_drawdown": -5.1701079498463605,
+      "net_R": 32.29310219599454,
+      "recovery_factor": 6.246117587729323,
+      "trades": 34,
+      "win_rate": 0.5,
+      "winning_streak": 4
     }
   },
   "candidate_id": "T3_candidate_v1",

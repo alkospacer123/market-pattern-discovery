@@ -22,12 +22,18 @@ def test_true_oos_rejection_is_hard_fail():
 def test_fold_schedule_is_causal_nonoverlapping_and_expanding():
     previous_test_end = None
     for _, train_start, train_end, test_start, test_end in phase4.SCHEDULE:
-        assert train_start == "2021-01-01"
+        assert train_start == "2023-01-01"
         assert pd.Timestamp(train_end) < pd.Timestamp(test_start)
         assert pd.Timestamp(test_end) < pd.Timestamp("2025-01-01")
         if previous_test_end is not None:
             assert pd.Timestamp(test_start) > pd.Timestamp(previous_test_end)
         previous_test_end = test_end
+
+
+def test_schedule_uses_only_approved_development_period():
+    assert phase4.SCHEDULE[0][3] == "2024-01-01"
+    assert phase4.SCHEDULE[-1][4] == "2024-12-31 23:59:59"
+    assert all(pd.Timestamp(row[1]) >= pd.Timestamp("2023-01-01") for row in phase4.SCHEDULE)
 
 
 def test_interval_execution_has_no_future_rows_and_new_flat_state(monkeypatch):
