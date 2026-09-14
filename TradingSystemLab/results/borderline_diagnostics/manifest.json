@@ -1,0 +1,61 @@
+{
+  "bootstrap": {
+    "diagnostic_only": true,
+    "iterations": 10000,
+    "seed": 4102025
+  },
+  "candidate_ids": [
+    "T2_candidate_v1",
+    "T3_candidate_v1"
+  ],
+  "classifications": {
+    "T2": "SAMPLE_LIMITED",
+    "T3": "SAMPLE_LIMITED"
+  },
+  "deterministic": true,
+  "frozen_parameter_hashes": {
+    "T2_candidate_v1": "2b0494cdd24bfbfa8ce7d657d6f83d1408f07b9f565d38d093dec5b4856e3c00",
+    "T3_candidate_v1": "938b6b3b78f680010115a204b9a49e7eef962db119f4ea121e388c00741920ba"
+  },
+  "optimization": false,
+  "phase": "4.1",
+  "phase_3_3_provenance": {
+    "candidate_registry": "TradingSystemLab/results/robustness_validation/candidate_registry.json",
+    "configuration_ids": {
+      "T2_candidate_v1": "T2-0007-608dc87d09f1",
+      "T3_candidate_v1": "T3-0014-0050d828c1a8"
+    },
+    "sha256": "388d65dc2137f423cd5e23823451536cc45caad593b7ac4691240349d553bb39"
+  },
+  "phase_4_artifact_hashes": {
+    "DATA_COVERAGE_REPORT.json": "efa1d5cb93ca709dfcbfe6c664104a7999964023dfae20dfe5114159c04b8bb5",
+    "T2/concentration.csv": "9d267db8078f993911bfa9a1e62532ca6a300c873d637d6e639d9b0ba9d4423f",
+    "T2/direction_report.csv": "ccd9ffcab6d19651ea1ffd63069ad4a87f6df7d4ab519418f8129779419a54f4",
+    "T2/final_report.md": "31a69d29b9675aeb7c5e4eab843559effa4ecfe3108f22e9e79f55ade5e653c2",
+    "T2/folds.csv": "c212e0ccc18ed06a50b01cb7e109b1f31ce959b4a07831ca0d3096a9142b7ef1",
+    "T2/instrument_report.csv": "bbd7b32ef761cd8f0188481ccadfaded39b0f9f1070272e4394c4d3a9bb7eb00",
+    "T2/leave_one_fold_out.csv": "83452d72e98b4832c5b32b5b9e9479387b8c292689f4637cbe13a979fe2a3c1c",
+    "T2/mae_mfe.csv": "1c5fb2835c839106d89c8d47004201fb2eee1f73833fc56ebb9b5aa11fd67bf3",
+    "T2/metrics.json": "4a6daf9e4242d70258b05754140836bd94451bde7ab34bb1defeed133261332d",
+    "T2/trades.csv": "eb62818c6d2f56c278ddcb8e4047ea052a690d38f1432146f5284046a7e8e6c3",
+    "T2/train_test_decay.csv": "ebd07b55a3b8403eb85e6a8297a8b2598b9d19e725ca7b82c81be2e8e8049956",
+    "T2/year_report.csv": "2a43bfc773783e24b9754a7c5f85af4bcf95208bc5ca4e113a13ee1b54aa6459",
+    "T3/concentration.csv": "50e419dc11677f07e3922eeec581a05b027a3ce837b233f19b86e4f229ccf0bf",
+    "T3/direction_report.csv": "1091b8a626ce1e8055ef896c3bf8a8e97d4d7cc1385c9a865bb9fc8bc6620d88",
+    "T3/final_report.md": "5215e3a264cd7c171065f2a4ce0daadf5dea98955e9e8273d21c2fd4a5232d1f",
+    "T3/folds.csv": "dd6b9be41b7c1f65b61ff34e5ebd40e0eb0e110e4ff2edc748a28bed333a9de1",
+    "T3/instrument_report.csv": "0948e7fe8a5aa27cd3d32b3528cd25e3fa0a2702d0b9366bfc3c6f2f18b070b6",
+    "T3/leave_one_fold_out.csv": "fd20974a49e8279ffe510ef7f1ab0630d8905301cf5cb72d4f9a805ccc3fcd17",
+    "T3/mae_mfe.csv": "4cef800d9a08a97324e18c2a176ffb1df5b8629b99d84779d0c17f96994bb3f5",
+    "T3/metrics.json": "c265b7ab0bb20dc5d5df5c1b4e922f498a41fae3972568696a2c6d29493b2388",
+    "T3/trades.csv": "12e2945aca6901934fae0e23ee34d2c46b0ede126936503084bbc5df17768edd",
+    "T3/train_test_decay.csv": "5788c878cbdd3f7f30c6f58cd099f7bc5c4997f54538fec61113961e7a323eaf",
+    "T3/year_report.csv": "3750de4a59b054438f353cda0a30878f8bd078f4ae3b526e907ea9dc2b9d80a1",
+    "summary/comparison.csv": "df30fbc745ff56a176ef0834b02806bcdd389f88142991a36494b7102311b6b5",
+    "summary/final_walk_forward_report.md": "8909adf2bbe93c9a43ee82e244207510f53c0a00232fb4a9050b32a9869938ce",
+    "summary/manifest.json": "8f9001be9c5592301fd89a68cfe16f3512da69ba968ea92345c13269cb64c76f"
+  },
+  "ranking": false,
+  "status": "PHASE_4_1_BORDERLINE_DIAGNOSTICS_COMPLETE",
+  "true_oos_blocked": true
+}
