@@ -20,6 +20,7 @@ testpaths = ["tests"]
 bbw-backtest = "bbw_system.cli:main"
 bbw-data = "bbw_system.data_cli:main"
 bbw-normalize = "bbw_system.normalization_cli:main"
+bbw-engine = "bbw_system.bbw_engine_cli:main"
 phase1b-validate = "market_pattern_discovery.validation.phase1b:main"
 phase2a-validate = "market_pattern_discovery.validation.phase2a:main"
 phase2b-validate = "market_pattern_discovery.validation.phase2b:main"
