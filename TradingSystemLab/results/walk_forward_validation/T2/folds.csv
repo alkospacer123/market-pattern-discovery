@@ -1,0 +1,5 @@
+fold,train_start,train_end,test_start,test_end,status,included_in_pass,reason,trades,PF,expectancy,net_R,max_drawdown,recovery_factor,win_rate,winning_streak,losing_streak
+WF01,2021-01-01,2022-12-31 23:59:59,2023-01-01,2023-06-30 23:59:59,incomplete,False,requested train/test calendar is not fully covered,13,4.57320058859,1.28497461494,16.7046699942,-3.21487843367,5.19605028273,0.461538461538,2,3
+WF02,2021-01-01,2023-06-30 23:59:59,2023-07-01,2023-12-31 23:59:59,incomplete,False,requested train/test calendar is not fully covered,21,2.59256350907,0.66987190268,14.0673099563,-3.7951386027,3.70666566598,0.428571428571,3,4
+WF03,2021-01-01,2023-12-31 23:59:59,2024-01-01,2024-06-30 23:59:59,incomplete,False,requested train/test calendar is not fully covered,15,1.13158589712,0.0735387621486,1.10308143223,-5.42161523109,0.203459925725,0.266666666667,2,5
+WF04,2021-01-01,2024-06-30 23:59:59,2024-07-01,2024-12-31 23:59:59,incomplete,False,requested train/test calendar is not fully covered,25,4.8185691474,1.15287200104,28.821800026,-1.46347121484,19.6941352407,0.6,4,2

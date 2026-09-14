@@ -1,0 +1,41 @@
+{
+  "aggregate": {
+    "C0": {
+      "PF": 3.179088406364139,
+      "expectancy": 0.8422276979617564,
+      "losing_streak": 7,
+      "max_drawdown": -8.803534160391283,
+      "net_R": 62.32484964916998,
+      "recovery_factor": 7.079526075968549,
+      "trades": 74,
+      "win_rate": 0.4594594594594595,
+      "winning_streak": 5
+    },
+    "C1": {
+      "PF": 3.0617918835293505,
+      "expectancy": 0.8202278568740321,
+      "losing_streak": 7,
+      "max_drawdown": -9.216753833790229,
+      "net_R": 60.69686140867837,
+      "recovery_factor": 6.585492300570412,
+      "trades": 74,
+      "win_rate": 0.4594594594594595,
+      "winning_streak": 5
+    },
+    "C2": {
+      "PF": 2.9456302251785313,
+      "expectancy": 0.7982280157863076,
+      "losing_streak": 7,
+      "max_drawdown": -9.629973507189188,
+      "net_R": 59.06887316818676,
+      "recovery_factor": 6.133856248315669,
+      "trades": 74,
+      "win_rate": 0.43243243243243246,
+      "winning_streak": 5
+    }
+  },
+  "candidate_id": "T2_candidate_v1",
+  "complete_folds": 0,
+  "positive_complete_fold_share": 0,
+  "verdict": "WALK_FORWARD_BORDERLINE"
+}

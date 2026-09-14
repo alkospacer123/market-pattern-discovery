@@ -1,0 +1,20 @@
+{
+  "actual": {
+    "CNY": {
+      "bars": 7486,
+      "first_close": "2023-01-03T10:00:00+03:00",
+      "last_close": "2024-12-31T00:00:00+03:00"
+    },
+    "Si": {
+      "bars": 7487,
+      "first_close": "2023-01-03T10:00:00+03:00",
+      "last_close": "2024-12-31T00:00:00+03:00"
+    }
+  },
+  "minimum": [
+    "2021-01-01",
+    "2024-12-31"
+  ],
+  "simulated": false,
+  "status": "INSUFFICIENT_MINIMUM_COVERAGE"
+}
