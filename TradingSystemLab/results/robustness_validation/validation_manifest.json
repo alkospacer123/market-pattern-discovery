@@ -1,0 +1,42 @@
+{
+  "bootstrap": {
+    "diagnostic_only": true,
+    "iterations": 10000,
+    "seed": 3302025
+  },
+  "candidate_selection_precedes_validation": true,
+  "classifications": {
+    "T2": "ROBUST_READY",
+    "T3": "ROBUST_READY"
+  },
+  "development_period": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "expected_inputs": {
+    "source": "external read-only market data",
+    "symbols": [
+      "Si",
+      "CNY"
+    ],
+    "timeframes": [
+      "H1",
+      "M15"
+    ]
+  },
+  "optimization_performed": false,
+  "parameter_search_expanded": false,
+  "phase": "3.3",
+  "phase4_schedule": {
+    "action": "expanding-window walk-forward",
+    "candidate_ids": [
+      "T2_candidate_v1",
+      "T3_candidate_v1"
+    ],
+    "status": "PREPARED_NOT_EXECUTED"
+  },
+  "status": "PHASE_3_3_ROBUSTNESS_VALIDATION_COMPLETE",
+  "true_oos_blocked": true,
+  "true_oos_cutoff": "2025-01-01",
+  "walk_forward_executed": false
+}
