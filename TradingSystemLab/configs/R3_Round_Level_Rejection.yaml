@@ -1,0 +1,15 @@
+strategy_id: R3_Round_Level_Rejection_v1.0
+execution_timeframe: M15
+instrument_round_level_steps:
+  Si: 0.10
+  CNY: 0.05
+atr_period_m15: 14
+minimum_penetration_atr: 0.05
+maximum_penetration_atr: 0.75
+require_half_bar_rejection: true
+minimum_close_distance_atr: 0.05
+stop_buffer_atr: 0.10
+max_initial_stop_atr: 1.25
+target_fraction_of_step: 0.50
+max_holding_bars_m15: 12
+h1_diagnostics_enabled: true

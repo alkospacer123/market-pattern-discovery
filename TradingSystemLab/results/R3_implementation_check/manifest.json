@@ -1,0 +1,38 @@
+{
+  "strategy_id": "R3_Round_Level_Rejection_v1.0",
+  "implementation_version": "1.0",
+  "symbols": [
+    "Si",
+    "CNY"
+  ],
+  "execution_timeframe": "M15",
+  "round_level_steps": {
+    "Si": 0.1,
+    "CNY": 0.05
+  },
+  "development_start": "2023-01-01",
+  "development_end": "2024-12-31",
+  "frozen_parameters": {
+    "execution_timeframe": "M15",
+    "atr_period_m15": 14,
+    "minimum_penetration_atr": 0.05,
+    "maximum_penetration_atr": 0.75,
+    "require_half_bar_rejection": true,
+    "minimum_close_distance_atr": 0.05,
+    "stop_buffer_atr": 0.1,
+    "max_initial_stop_atr": 1.25,
+    "target_fraction_of_step": 0.5,
+    "max_holding_bars_m15": 12,
+    "h1_diagnostics_enabled": true,
+    "h1_ema_period": 200,
+    "h1_ema_slope_lookback": 10
+  },
+  "cost_scenarios": {
+    "C0": "zero cost",
+    "C1": "1 execution tick per side"
+  },
+  "true_oos_blocked": true,
+  "implementation_check_only": true,
+  "optimization_performed": false,
+  "walk_forward_performed": false
+}
