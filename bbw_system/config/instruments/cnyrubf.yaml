@@ -1,89 +1,70 @@
 {
+  "schema_version": "bbw.instrument-metadata.v2",
   "symbol": "CNYRUBF",
   "aliases": ["CNY"],
-  "exchange": {
-    "value": null,
-    "verified": false
+  "coverage": {"effective_from": "2023-01-03T00:00:00+03:00", "effective_to": "2026-08-31T00:00:00+03:00"},
+  "identity": {
+    "exchange": {"value": "Moscow Exchange Derivatives Market", "status": "VERIFIED", "effective_from": "2023-01-03", "effective_to": null, "source_id": "moex_contract"},
+    "instrument_type": {"value": "daily_futures_with_automatic_prolongation", "status": "VERIFIED", "effective_from": "2023-01-03", "effective_to": null, "source_id": "moex_perpetual_spec"},
+    "settlement_type": {"value": "cash_settled", "status": "VERIFIED", "effective_from": "2023-01-03", "effective_to": null, "source_id": "moex_perpetual_spec"},
+    "underlying": {"value": "CNY/RUB exchange rate", "status": "VERIFIED", "effective_from": "2023-01-03", "effective_to": null, "source_id": "moex_contract"},
+    "quotation": {"value": "RUB per 1 CNY", "status": "VERIFIED", "effective_from": "2023-01-03", "effective_to": null, "source_id": "moex_contract"},
+    "contract_lot": {"value": 1000, "unit": "CNY", "status": "VERIFIED", "effective_from": "2023-01-03", "effective_to": null, "source_id": "moex_contract"},
+    "currency": {"value": "RUB", "status": "VERIFIED", "effective_from": "2023-01-03", "effective_to": null, "source_id": "moex_contract"},
+    "series_type": {"value": "exchange_perpetual_daily_autoprolong", "status": "VERIFIED", "effective_from": "2023-01-03", "effective_to": null, "source_id": "moex_perpetual_spec"}
   },
-  "currency": {
-    "value": null,
-    "verified": false
+  "time_semantics": {
+    "exchange_timezone": {"value": "Europe/Moscow", "status": "VERIFIED", "effective_from": "2023-01-03", "effective_to": null, "source_id": "moex_trading_rules"},
+    "source_timezone": {"value": null, "status": "REQUIRES_CONFIRMATION", "effective_from": "2023-01-03", "effective_to": "2026-08-31", "source_id": "finam_export_help", "notes": "Finam export timezone is selectable; the saved export option is absent from the files."},
+    "intraday_timestamp_label": {"value": null, "status": "REQUIRES_CONFIRMATION", "effective_from": "2023-01-03", "effective_to": "2026-08-31", "source_id": "finam_export_help", "notes": "Empirical wall-clock buckets are consistent with START labels but do not prove the export setting."},
+    "d1_timestamp_label": {"value": "trading_date_label", "status": "REQUIRES_CONFIRMATION", "effective_from": "2023-01-03", "effective_to": "2026-08-31", "source_id": "finam_export_help"}
   },
-  "source_timezone": {
-    "value": null,
-    "verified": false
+  "metadata_regimes": {
+    "ticks": [
+      {"id": "tick_2023_old", "effective_from": "2023-01-03T00:00:00+03:00", "effective_to": "2023-09-27T19:05:00+03:00", "tick_size_rub_per_cny": 0.01, "tick_value_rub_per_contract": 10, "status": "EFFECTIVE_DATED_VERIFIED", "source_id": "moex_tick_notice"},
+      {"id": "tick_2023_new", "effective_from": "2023-09-27T19:05:00+03:00", "effective_to": "2026-08-31T00:00:00+03:00", "tick_size_rub_per_cny": 0.001, "tick_value_rub_per_contract": 1, "status": "EFFECTIVE_DATED_VERIFIED", "source_id": "moex_tick_notice"}
+    ],
+    "sessions": [
+      {"id": "weekday_0900", "effective_from": "2023-01-03", "effective_to": "2025-01-27", "timezone": "Europe/Moscow", "weekdays": [0,1,2,3,4], "opening_auction": null, "trading_intervals": [["09:00","14:00"],["14:05","18:50"],["19:05","23:50"]], "clearing_intervals": [["14:00","14:05"],["18:50","19:05"]], "status": "EFFECTIVE_DATED_VERIFIED", "source_id": "moex_2022_hours"},
+      {"id": "weekday_0850", "effective_from": "2025-01-27", "effective_to": "2026-03-23", "timezone": "Europe/Moscow", "weekdays": [0,1,2,3,4], "opening_auction": ["08:50","09:00"], "trading_intervals": [["09:00","14:00"],["14:05","18:50"],["19:05","23:50"]], "clearing_intervals": [["14:00","14:05"],["18:50","19:05"]], "status": "EFFECTIVE_DATED_VERIFIED", "source_id": "moex_2025_morning"},
+      {"id": "unified_0850", "effective_from": "2026-03-23", "effective_to": "2026-07-14", "timezone": "Europe/Moscow", "weekdays": [0,1,2,3,4], "opening_auction": ["08:50","09:00"], "trading_intervals": [["09:00","14:00"],["14:05","23:50"]], "clearing_intervals": [["14:00","14:05"]], "status": "EFFECTIVE_DATED_VERIFIED", "source_id": "moex_2026_uts"},
+      {"id": "unified_0650", "effective_from": "2026-07-14", "effective_to": "2026-08-31", "timezone": "Europe/Moscow", "weekdays": [0,1,2,3,4], "opening_auction": ["06:50","07:00"], "trading_intervals": [["07:00","14:00"],["14:05","23:50"]], "clearing_intervals": [["14:00","14:05"]], "status": "EFFECTIVE_DATED_VERIFIED", "source_id": "moex_2026_expansion"}
+    ],
+    "weekend_sessions": [
+      {"id": "weekend_2025", "effective_from": "2025-03-01", "effective_to": "2026-03-23", "timezone": "Europe/Moscow", "weekdays": [5,6], "trading_intervals": [["09:50","19:00"]], "trading_date_rule": "following_working_day", "status": "EFFECTIVE_DATED_VERIFIED", "source_id": "moex_2025_weekends"},
+      {"id": "weekend_uts", "effective_from": "2026-03-23", "effective_to": "2026-08-31", "timezone": "Europe/Moscow", "weekdays": [5,6], "trading_intervals": [["09:50","19:00"]], "trading_date_rule": "following_working_day", "status": "EFFECTIVE_DATED_VERIFIED", "source_id": "moex_2026_uts"}
+    ],
+    "trading_date_assignment": [
+      {"id": "next_day_evening", "effective_from": "2023-01-03T00:00:00+03:00", "effective_to": "2026-03-23T00:00:00+03:00", "weekday_rule": "evening_from_19:05_to_next_working_day", "weekend_rule": "following_working_day", "status": "EFFECTIVE_DATED_VERIFIED", "source_id": "moex_2026_uts"},
+      {"id": "uts_current_day", "effective_from": "2026-03-23T00:00:00+03:00", "effective_to": "2026-08-31T00:00:00+03:00", "weekday_rule": "calendar_date", "weekend_rule": "following_working_day", "status": "EFFECTIVE_DATED_VERIFIED", "source_id": "moex_2026_uts"}
+    ]
   },
-  "exchange_timezone": {
-    "value": null,
-    "verified": false
+  "calendar": {"status": "REQUIRES_CONFIRMATION", "timezone": "Europe/Moscow", "regular_weekdays": [0,1,2,3,4], "weekend_sessions_from": "2025-03-01", "source_id": "moex_calendars", "required_ingestion": "Versioned MOEX annual/special-day calendar; normalization must fail closed without it."},
+  "rollover": {"synthetic_rollovers": [], "source_partitions_are_rollovers": false, "quarterly_exercise_is_rollover": false, "policy": "not_applicable_exchange_autoprolong", "status": "VERIFIED", "source_id": "moex_perpetual_spec"},
+  "funding": {"status": "UNRESOLVED", "model_ready_for_implementation": false, "source_id": "moex_perpetual_spec", "required_ingestion": "Official per-trading-day CNYRUBF funding rate/amount keyed by MOEX trading date and application timestamp, with long-account cash-flow sign; retain publication/retrieval provenance.", "notes": "Contract specification establishes daily funding economics, but a complete immutable historical series and sign/application audit were not acquired in 03B-2A."},
+  "margin": {"status": "UNRESOLVED", "value": null, "source_id": "moex_risk_parameters", "policy": "Prefer official effective-dated historical GO; otherwise approve and document a conservative reproducible proxy. Never backfill current GO.", "historical_75pct_cap_reproducible": false},
+  "costs": {
+    "exchange_registration_fee": {"status": "UNRESOLVED", "value": null, "source_id": "moex_contract", "notes": "Current card is not historical evidence."},
+    "clearing_or_exercise_fee": {"status": "UNRESOLVED", "value": null, "source_id": "moex_fee_schedules"},
+    "broker_commission": {"status": "REQUIRES_USER_INPUT", "value": null, "required_units": "RUB per contract per side, or a fully specified effective-dated formula including minimums"},
+    "slippage": {"status": "REQUIRES_USER_INPUT", "value": null, "required_units": "ticks per side (effective tick regime is applied)"}
   },
-  "session": {
-    "value": null,
-    "verified": false
-  },
-  "session_anchor": {
-    "value": null,
-    "verified": false
-  },
-  "breaks": {
-    "value": null,
-    "verified": false
-  },
-  "tick_size": {
-    "value": null,
-    "verified": false
-  },
-  "tick_value_per_contract": {
-    "value": null,
-    "verified": false
-  },
-  "go_per_contract": {
-    "value": null,
-    "verified": false
-  },
-  "commission_model": {
-    "value": null,
-    "verified": false
-  },
-  "commission_value": {
-    "value": null,
-    "verified": false
-  },
-  "default_slippage_ticks": {
-    "value": null,
-    "verified": false
-  },
-  "series_type": {
-    "value": "unknown",
-    "verified": false
-  },
-  "rollover_policy": {
-    "value": "reject_crossing_setup",
-    "verified": true
-  },
-  "max_width_pct": {
-    "value": 0.005,
-    "verified": true,
-    "requires_decision": false
-  },
-  "metadata_source": {
-    "value": "BBW strategy passport intent (max_width_pct only)",
-    "verified": true
-  },
-  "metadata_verified": false,
-  "calendar": {
-    "holiday_dates": [],
-    "shortened_session_dates": {},
-    "special_session_dates": {}
-  },
-  "parameter_readiness": {
-    "stop_offset_status": "UNRESOLVED",
-    "penetration_points_status": "UNRESOLVED",
-    "penetration_range_pct": {
-      "status": "FIXED",
-      "value": 0.2
-    },
-    "stop_bounds": "UNRESOLVED",
-    "entry_quality_limits": "UNRESOLVED"
+  "evidence": {
+    "retrieved_on": "2026-09-14",
+    "sources": {
+      "moex_contract": {"title": "MOEX CNYRUBF contract card", "url": "https://www.moex.com/ru/contract.aspx?code=CNYRUBF", "evidence_type": "official_instrument_page", "notes": "Symbol, underlying, quotation, lot and current parameters."},
+      "moex_perpetual_spec": {"title": "MOEX specification of perpetual futures contracts", "url": "https://www.moex.com/s205", "evidence_type": "official_specification", "notes": "Daily cash settlement, auto-prolongation, funding and quarterly exercise mechanics."},
+      "moex_tick_notice": {"title": "Change in CNYRUBF contract parameters from the evening session of 27 September 2023", "url": "https://www.moex.com/ru/news/", "evidence_type": "official_change_notice", "notes": "New parameters apply to the 28 September trading day beginning at the 27 September evening session."},
+      "moex_trading_rules": {"title": "MOEX Derivatives Market trading rules", "url": "https://www.moex.com/s93", "evidence_type": "official_rules", "notes": "MOEX schedules publish Moscow local time."},
+      "moex_2022_hours": {"title": "Derivatives Market trading to start at 09:00 Moscow time", "url": "https://www.moex.com/ru/news/", "evidence_type": "official_schedule_notice", "notes": "Effective 12 September 2022."},
+      "moex_2025_morning": {"title": "MOEX expands morning trading from 27 January 2025", "url": "https://www.moex.com/ru/news/", "evidence_type": "official_schedule_notice", "notes": "Opening auction 08:50-09:00; trading continues to 23:50."},
+      "moex_2025_weekends": {"title": "MOEX launches weekend trading on 1 March 2025", "url": "https://www.moex.com/ru/news/", "evidence_type": "official_schedule_notice", "notes": "Weekend session 09:50-19:00, attributed to the following working trading day."},
+      "moex_2026_uts": {"title": "Unified Trading Session on the Derivatives Market from 23 March 2026", "url": "https://www.moex.com/ru/news/", "evidence_type": "official_schedule_notice", "notes": "Effective-date semantic anchor; URL identifier must be archivally rechecked before normalization."},
+      "moex_2026_expansion": {"title": "Derivatives Market trading hours expansion from 14 July 2026", "url": "https://www.moex.com/ru/news/", "evidence_type": "official_schedule_notice", "notes": "06:50 auction, 07:00 trading start; URL identifier must be archivally rechecked before normalization."},
+      "moex_calendars": {"title": "MOEX trading calendars and special schedules", "url": "https://www.moex.com/ru/tradingcalendar/", "evidence_type": "official_calendar", "notes": "Annual and exceptional schedules must be snapshotted with retrieval metadata."},
+      "moex_risk_parameters": {"title": "MOEX ISS derivatives risk parameters", "url": "https://iss.moex.com/iss/engines/futures/markets/forts/securities/CNYRUBF.json", "evidence_type": "official_api", "notes": "Current ISS response alone does not establish history."},
+      "moex_fee_schedules": {"title": "MOEX Derivatives Market tariffs", "url": "https://www.moex.com/s93", "evidence_type": "official_tariff_documents", "notes": "Requires effective-dated archived schedules."},
+      "finam_export_help": {"title": "Finam export service help and UI", "url": "https://www.finam.ru/profile/moex-akcii/sberbank/export/", "evidence_type": "source_export_documentation", "notes": "Timezone and candle-label choices are export options; files do not embed the selected state."}
+    }
   }
 }
