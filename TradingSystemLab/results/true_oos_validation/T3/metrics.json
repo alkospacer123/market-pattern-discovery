@@ -1,0 +1,17 @@
+{
+  "aggregate": {
+    "PF": 2.6772282036510675,
+    "average_loss": -0.6318922160097977,
+    "average_win": 2.124485157393632,
+    "expectancy": 0.5900070319937848,
+    "max_drawdown": -11.49993866788077,
+    "net_R": 57.23068210339713,
+    "recovery_factor": 4.976607593851082,
+    "total_trades": 97,
+    "win_rate": 0.44329896907216493
+  },
+  "candidate_id": "T3_candidate_v1",
+  "classification": "PASS",
+  "cost_ticks_per_side": 1.0,
+  "start_state": "FLAT"
+}

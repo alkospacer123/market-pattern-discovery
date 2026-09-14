@@ -25,7 +25,8 @@ class BacktestResult:
 class Backtester:
     def __init__(self, portfolio: FixedRiskPortfolio | None = None, *,
                  commission_per_unit: float = 0.0, slippage_points: float = 0.0,
-                 cost_ticks_per_side: float = 0.0, tick_size: float = 1.0) -> None:
+                 cost_ticks_per_side: float = 0.0, tick_size: float = 1.0,
+                 allow_true_oos: bool = False) -> None:
         if min(commission_per_unit, slippage_points, cost_ticks_per_side) < 0 or tick_size <= 0:
             raise ValueError("costs and slippage must be non-negative")
         self.portfolio = portfolio or FixedRiskPortfolio()
@@ -33,6 +34,7 @@ class Backtester:
         self.slippage_points = slippage_points
         self.cost_ticks_per_side = cost_ticks_per_side
         self.tick_size = tick_size
+        self.allow_true_oos = allow_true_oos
 
     def run(self, strategy: Strategy, symbol: str, h1: pd.DataFrame, h4: pd.DataFrame, *,
             entry_start: pd.Timestamp | None = None,
@@ -49,7 +51,7 @@ class Backtester:
             raise ValueError("H1 and H4 closed-candle data are required")
         if h1.index.tz is None or h4.index.tz is None or not h1.index.is_monotonic_increasing or not h4.index.is_monotonic_increasing:
             raise ValueError("timestamps must be timezone-aware and sorted")
-        if (h1.index.year >= 2025).any() or (h4.index.year >= 2025).any():
+        if not self.allow_true_oos and ((h1.index.year >= 2025).any() or (h4.index.year >= 2025).any()):
             raise ValueError("calendar year 2025+ TRUE OOS is locked")
         if entry_start is not None and entry_end is not None and entry_start >= entry_end:
             raise ValueError("entry_start must precede entry_end")
