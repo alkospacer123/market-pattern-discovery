@@ -1,0 +1,68 @@
+[
+  {
+    "structure": "ROLL30",
+    "direction": "SHORT",
+    "rejection_type": "wick_rejection",
+    "session": "0900_1700",
+    "stop_ticks": 10,
+    "target_r": 4,
+    "candidate_id": "ROLL30__SHORT__wick_rejection__0900_1700__10__4",
+    "selection_base": {
+      "n": 36,
+      "net_r": 25.00000000000187,
+      "pf": 2.0638297872341824,
+      "pf_infinite": false
+    },
+    "forward_base": {
+      "n": 61,
+      "net_r": -34.89999999999543,
+      "pf": 0.4407051282051687,
+      "pf_infinite": false
+    },
+    "forward_stress": {
+      "n": 61,
+      "net_r": -59.90000000000377,
+      "pf": 0.25311720698252077,
+      "pf_infinite": false
+    },
+    "bootstrap_lower_net_r": -56.79999999999537,
+    "monthly_net_r": {
+      "2026-03": -28.199999999997274,
+      "2026-04": -6.899999999998638,
+      "2026-05-01_15": 0.20000000000051155
+    }
+  },
+  {
+    "structure": "ROLL30",
+    "direction": "SHORT",
+    "rejection_type": "wick_rejection",
+    "session": "0900_1700",
+    "stop_ticks": 10,
+    "target_r": 5,
+    "candidate_id": "ROLL30__SHORT__wick_rejection__0900_1700__10__5",
+    "selection_base": {
+      "n": 36,
+      "net_r": 23.600000000003533,
+      "pf": 2.0042553191491432,
+      "pf_infinite": false
+    },
+    "forward_base": {
+      "n": 61,
+      "net_r": -31.999999999994717,
+      "pf": 0.4871794871795417,
+      "pf_infinite": false
+    },
+    "forward_stress": {
+      "n": 61,
+      "net_r": -57.200000000003314,
+      "pf": 0.2867830423939967,
+      "pf_infinite": false
+    },
+    "bootstrap_lower_net_r": -55.5049999999952,
+    "monthly_net_r": {
+      "2026-03": -25.199999999996802,
+      "2026-04": -6.999999999998405,
+      "2026-05-01_15": 0.20000000000051155
+    }
+  }
+]

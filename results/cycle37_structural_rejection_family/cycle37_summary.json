@@ -1,0 +1,31 @@
+{
+  "protocol_id": "cycle37-structural-rejection-family-v1",
+  "research_question": "Does rejection from independent structural levels produce repeatable high-R edge?",
+  "combined_or_strategy": false,
+  "instruments": [
+    {
+      "instrument": "CNYRUBF",
+      "generated": 864,
+      "shortlisted": 2,
+      "survivors": 0,
+      "survivors_by_family": {
+        "ROUND": 0,
+        "ROLL30": 0,
+        "ROLL60": 0,
+        "PREVIOUS_DAY_HIGH_LOW": 0
+      }
+    },
+    {
+      "instrument": "USDRUBF",
+      "generated": 864,
+      "shortlisted": 0,
+      "survivors": 0,
+      "survivors_by_family": {
+        "ROUND": 0,
+        "ROLL30": 0,
+        "ROLL60": 0,
+        "PREVIOUS_DAY_HIGH_LOW": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "protocol_id": "cycle37-structural-rejection-family-v1",
+  "context": "autonomous-search-v3",
+  "research_question": "Does rejection from independent structural levels produce repeatable high-R edge?",
+  "timezone": "Europe/Moscow",
+  "instruments": {
+    "CNYRUBF": {"tick_size": 0.001, "round_step": 0.05, "stop_ticks": [8, 10, 12]},
+    "USDRUBF": {"tick_size": 1.0, "round_step": 100.0, "stop_ticks": [9, 12, 15]}
+  },
+  "structures": ["ROUND", "ROLL30", "ROLL60", "PREVIOUS_DAY_HIGH_LOW"],
+  "directions": ["LONG", "SHORT"],
+  "rejection_types": ["wick_rejection", "close_rejection", "sweep_reclaim", "failed_breakout"],
+  "session_windows": [{"id": "0900_1200", "start": "09:00", "end": "12:00"}, {"id": "0900_1500", "start": "09:00", "end": "15:00"}, {"id": "0900_1700", "start": "09:00", "end": "17:00"}],
+  "targets_r": [3, 4, 5],
+  "periods": {"selection": ["2026-01-01", "2026-03-01"], "forward": ["2026-03-01", "2026-05-16"], "true_oos_year": 2025},
+  "execution": {"setup_timeframe": "M5", "execution_timeframe": "M1", "entry": "first_M1_open_at_or_after_M5_close", "one_position_at_a_time": true, "ambiguous_bar": "stop_first", "session_exit": true},
+  "costs": {"CNYRUBF": {"transaction_cost_ticks_per_side": 1.0, "slippage_ticks_per_side": 1.0}, "USDRUBF": {"transaction_cost_ticks_per_side": 1.0, "slippage_ticks_per_side": 1.0}},
+  "bootstrap": {"samples": 2000, "seed": 370037, "lower_quantile": 0.025, "positive_when_lower_bound_gt": 0.0},
+  "gates": {"base": {"pf_min": 2.0, "trades_min": 30}, "stress": {"pf_min": 1.5, "trades_min": 20}, "monthly_net_r_positive": ["2026-03", "2026-04", "2026-05-01_15"], "neighbor_net_r_positive": true},
+  "stress": {"cost_multiplier": 2.0, "slippage_multiplier": 2.0},
+  "determinism": {"candidate_sort": ["structure", "direction", "rejection_type", "session", "stop_ticks", "target_r"], "level_tie_break": "distance_then_LOW_before_HIGH_then_numeric_level", "signal_tie_break": "configured_candidate_order"}
+}

@@ -1,0 +1,37 @@
+{
+  "protocol_id": "cycle37-structural-rejection-family-v1",
+  "instrument": "CNYRUBF",
+  "source_files": {
+    "M1": [
+      {
+        "path": "/workspace/market-pattern-data/2026/CNY/CNY_M1_2026_Q1.csv",
+        "sha256": "7a51c8e4cf0e4dd0edff8b756d632aa7e1769721f1504645163a3b127afdbb8c",
+        "bytes": 4078434
+      },
+      {
+        "path": "/workspace/market-pattern-data/2026/CNY/CNY_M1_2026_Q2.csv",
+        "sha256": "267ad0fcea8adaba2ff1ee42eec3eeb3861adccd203ad0966a411c139425100d",
+        "bytes": 4755561
+      }
+    ],
+    "M5": [
+      {
+        "path": "/workspace/market-pattern-data/2026/CNY/CNY_M5_2026_Q1.csv",
+        "sha256": "47ec6a577fd77cca47c7f021f55c519e1ad400da127ff777c693d147b462432a",
+        "bytes": 861000
+      },
+      {
+        "path": "/workspace/market-pattern-data/2026/CNY/CNY_M5_2026_Q2.csv",
+        "sha256": "469250bd5544754834ebdb10f59eb3b99b8e38a786d705b948a78e4a30868754",
+        "bytes": 1007188
+      }
+    ]
+  },
+  "rows": {
+    "M1": 149805,
+    "M5": 31242
+  },
+  "candidate_count": 864,
+  "family_isolation": true,
+  "combined_or_strategy": false
+}
