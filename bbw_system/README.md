@@ -40,3 +40,21 @@ an identity normalization of valid START-labelled OHLCV bars: gaps are reported
 but never filled, and no calendar, session filter, interpolation, correction,
 aggregation, or synthetic candle is applied. The missing authoritative MOEX
 trading calendar remains an explicit report limitation.
+
+## BBW Engine
+
+Build the indicator-only H1 feature dataset from the normalization output:
+
+```bash
+python -m bbw_system.bbw_engine_cli \
+  --input-root data/normalized \
+  --output-root results/bbw_engine/R1 \
+  --symbol CNYRUBF
+```
+
+The command verifies `NORMALIZED_MANIFEST.json` and the H1 source hash, rejects
+locked TRUE OOS year 2025, and writes `CNYRUBF_H1_BBW_FEATURES.csv` together
+with `BBW_ENGINE_REPORT.md`. The layer implements only causal BBW(10, 2),
+EMA(50) and ten-candle slope, Wilder ATR(14), and the fixed ten-trading-day
+squeeze threshold. It does not aggregate candles or implement Baseline,
+signals, entries, exits, trades, backtesting, or optimization.
