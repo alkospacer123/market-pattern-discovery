@@ -2,4 +2,4 @@
 
 **WALK_FORWARD_BORDERLINE**
 
-Frozen parameters; no ranking or optimization. Complete folds: 0/4. Forward trades: 100. Each fold started FLAT. TRUE OOS remained blocked.
+Frozen parameters; no ranking or optimization. Complete folds: 0/4. Forward trades: 34. Each fold started FLAT. TRUE OOS remained blocked.
