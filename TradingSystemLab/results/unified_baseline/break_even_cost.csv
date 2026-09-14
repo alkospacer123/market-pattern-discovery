@@ -1,0 +1,7 @@
+strategy,break_even_round_trip_ticks,economic_status
+T1,,negative / null economic break-even
+T2,56.0900511031,positive
+T3,65.5718991578,positive
+R1,,negative / null economic break-even
+R2,1.15655543464,positive
+R3,,negative / null economic break-even

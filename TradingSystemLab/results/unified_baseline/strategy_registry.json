@@ -1,0 +1,68 @@
+[
+  {
+    "config_path": "TradingSystemLab/configs/T1_BBW_Donchian.yaml",
+    "context_timeframe": "H1",
+    "execution_timeframe": "H1",
+    "family": "TREND",
+    "frozen_parameters_hash": "bfd95f92a3db9fba874756a0d3accfd836b7ed453dc46e473b290a423bcf99ae",
+    "implementation_path": "TradingSystemLab/strategies/trend/T1_BBW_Donchian.py",
+    "reference_artifact_path": "TradingSystemLab/results/T1_baseline/trades.csv",
+    "strategy_id": "T1_BBW_Donchian_v1.0",
+    "strategy_key": "T1"
+  },
+  {
+    "config_path": "TradingSystemLab/configs/T2_Trend_Pullback.yaml",
+    "context_timeframe": "H1",
+    "execution_timeframe": "H1",
+    "family": "TREND",
+    "frozen_parameters_hash": "d3614150fc50b056cbfdb6ca7f011adf7581577b43bdc67ea82028c6c7ad67fb",
+    "implementation_path": "TradingSystemLab/strategies/trend/T2_Trend_Pullback.py",
+    "reference_artifact_path": "TradingSystemLab/results/T2_implementation_check/trades.csv",
+    "strategy_id": "T2_Trend_Pullback_Continuation_v1.0",
+    "strategy_key": "T2"
+  },
+  {
+    "config_path": "TradingSystemLab/results/T3_parameter_robustness/frozen_baseline.json",
+    "context_timeframe": "H4",
+    "execution_timeframe": "H1",
+    "family": "TREND",
+    "frozen_parameters_hash": "90dd22c5e91c1b0245c168de73c9634a4387aa7dbe051662716726eb4940ddfb",
+    "implementation_path": "TradingSystemLab/strategies/trend/T3_MTF_Trend.py",
+    "reference_artifact_path": "TradingSystemLab/results/T3_robust/trades/trades_C0.csv",
+    "strategy_id": "T3_MTF_Trend_v1.0",
+    "strategy_key": "T3"
+  },
+  {
+    "config_path": "TradingSystemLab/configs/R1_Bollinger_False_Breakout.yaml",
+    "context_timeframe": "H1",
+    "execution_timeframe": "H1",
+    "family": "RANGE_REVERSAL",
+    "frozen_parameters_hash": "231ae54161cce9dfb062cbf968fe693d2e63f1d06249412ff0d2b184e11077f3",
+    "implementation_path": "TradingSystemLab/strategies/range/R1_Bollinger_False_Breakout.py",
+    "reference_artifact_path": "TradingSystemLab/results/R1_implementation_check/trades.csv",
+    "strategy_id": "R1_Bollinger_False_Breakout_Mean_Reversion_v1.0",
+    "strategy_key": "R1"
+  },
+  {
+    "config_path": "TradingSystemLab/configs/R2_Liquidity_Sweep.yaml",
+    "context_timeframe": "H1",
+    "execution_timeframe": "M15",
+    "family": "RANGE_REVERSAL",
+    "frozen_parameters_hash": "f1265ba2b6f0836b0d6440836ba3624711c2d3f71691de85ef74560253b2f6e6",
+    "implementation_path": "TradingSystemLab/strategies/range/R2_Liquidity_Sweep.py",
+    "reference_artifact_path": "TradingSystemLab/results/R2_implementation_check/trades.csv",
+    "strategy_id": "R2_Liquidity_Sweep_False_Breakout_v1.0",
+    "strategy_key": "R2"
+  },
+  {
+    "config_path": "TradingSystemLab/configs/R3_Round_Level_Rejection.yaml",
+    "context_timeframe": "H1_DIAGNOSTIC",
+    "execution_timeframe": "M15",
+    "family": "RANGE_REVERSAL",
+    "frozen_parameters_hash": "560fe46ae1eb86d6f5f3b3cd8572aa43977869ee8dc530990568bcd258fecaf0",
+    "implementation_path": "TradingSystemLab/strategies/range/R3_Round_Level_Rejection.py",
+    "reference_artifact_path": "TradingSystemLab/results/R3_implementation_check/trades.csv",
+    "strategy_id": "R3_Round_Level_Rejection_v1.0",
+    "strategy_key": "R3"
+  }
+]

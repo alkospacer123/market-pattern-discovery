@@ -1,0 +1,32 @@
+[
+  {
+    "discovery": "existing trade artifact with frozen strategy id and development coverage",
+    "selected_source": "TradingSystemLab/results/T1_baseline/trades.csv",
+    "strategy": "T1"
+  },
+  {
+    "discovery": "existing trade artifact with frozen strategy id and development coverage",
+    "selected_source": "TradingSystemLab/results/T2_implementation_check/trades.csv",
+    "strategy": "T2"
+  },
+  {
+    "discovery": "existing trade artifact with frozen strategy id and development coverage",
+    "selected_source": "TradingSystemLab/results/T3_robust/trades/trades_C0.csv",
+    "strategy": "T3"
+  },
+  {
+    "discovery": "existing trade artifact with frozen strategy id and development coverage",
+    "selected_source": "TradingSystemLab/results/R1_implementation_check/trades.csv",
+    "strategy": "R1"
+  },
+  {
+    "discovery": "existing trade artifact with frozen strategy id and development coverage",
+    "selected_source": "TradingSystemLab/results/R2_implementation_check/trades.csv",
+    "strategy": "R2"
+  },
+  {
+    "discovery": "existing trade artifact with frozen strategy id and development coverage",
+    "selected_source": "TradingSystemLab/results/R3_implementation_check/trades.csv",
+    "strategy": "R3"
+  }
+]

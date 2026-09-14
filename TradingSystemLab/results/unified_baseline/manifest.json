@@ -1,0 +1,44 @@
+{
+  "cost_scenarios": {
+    "C0": 0.0,
+    "C0.5": 0.5,
+    "C1": 1.0,
+    "C2": 2.0
+  },
+  "development_end": "2024-12-31",
+  "development_start": "2023-01-01",
+  "frozen_parameter_hashes": {
+    "R1": "231ae54161cce9dfb062cbf968fe693d2e63f1d06249412ff0d2b184e11077f3",
+    "R2": "f1265ba2b6f0836b0d6440836ba3624711c2d3f71691de85ef74560253b2f6e6",
+    "R3": "560fe46ae1eb86d6f5f3b3cd8572aa43977869ee8dc530990568bcd258fecaf0",
+    "T1": "bfd95f92a3db9fba874756a0d3accfd836b7ed453dc46e473b290a423bcf99ae",
+    "T2": "d3614150fc50b056cbfdb6ca7f011adf7581577b43bdc67ea82028c6c7ad67fb",
+    "T3": "90dd22c5e91c1b0245c168de73c9634a4387aa7dbe051662716726eb4940ddfb"
+  },
+  "optimization_performed": false,
+  "parity_status": "PASS",
+  "phase": 2,
+  "primary_cost_scenario": "C1",
+  "strategies": [
+    "T1",
+    "T2",
+    "T3",
+    "R1",
+    "R2",
+    "R3"
+  ],
+  "strategy_ids": [
+    "T1_BBW_Donchian_v1.0",
+    "T2_Trend_Pullback_Continuation_v1.0",
+    "T3_MTF_Trend_v1.0",
+    "R1_Bollinger_False_Breakout_Mean_Reversion_v1.0",
+    "R2_Liquidity_Sweep_False_Breakout_v1.0",
+    "R3_Round_Level_Rejection_v1.0"
+  ],
+  "symbols": [
+    "Si",
+    "CNY"
+  ],
+  "true_oos_blocked": true,
+  "walk_forward_performed": false
+}
