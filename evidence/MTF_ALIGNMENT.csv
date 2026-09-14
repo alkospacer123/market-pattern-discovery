@@ -1,0 +1,5 @@
+timeframe,matches,checked_bars,mismatch_count,missing_aggregate_count,missing_reference_count,status
+M5,false,0,0,0,0,UNRESOLVED
+M15,false,0,0,0,0,UNRESOLVED
+M30,false,0,0,0,0,UNRESOLVED
+H1,false,0,0,0,0,UNRESOLVED
