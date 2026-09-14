@@ -22,3 +22,21 @@ intraday `excluded_intervals`, and date-specific `session_end_overrides`.
 `strict_source_count` or `session_end_valid`; the latter accepts a shortened
 final bucket only when all session-expected H1 slots are present. Range anchoring
 is explicit and deterministic; no candidate is selected using a later breakout.
+
+## 03B-3 CNYRUBF normalization
+
+Run the deterministic normalizer against a local 03B-1 freeze bundle:
+
+```bash
+python -m bbw_system.normalization_cli \
+  --freeze-root <PATH_TO_FREEZE> \
+  --output-root data/normalized/CNYRUBF
+```
+
+The command verifies every frozen source hash before reading market data and
+writes six timeframe CSVs plus `NORMALIZED_MANIFEST.json` and
+`NORMALIZATION_REPORT.md`. Source data remains external and read-only. This is
+an identity normalization of valid START-labelled OHLCV bars: gaps are reported
+but never filled, and no calendar, session filter, interpolation, correction,
+aggregation, or synthetic candle is applied. The missing authoritative MOEX
+trading calendar remains an explicit report limitation.
