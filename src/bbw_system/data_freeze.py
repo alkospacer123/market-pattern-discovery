@@ -138,8 +138,14 @@ def _metadata(passport: dict[str, Any]) -> tuple[list[str], dict[str, Any]]:
 
 
 def _series_type(frame: pd.DataFrame, passport: dict[str, Any]) -> tuple[str, str]:
-    configured, item = _value(passport, "series_type"), passport.get("series_type", {})
-    if configured in {"individual_contract", "continuous_unadjusted", "continuous_adjusted"} and isinstance(item, dict) and item.get("verified"):
+    item = passport.get("series_type", {})
+    if passport.get("schema_version") == "bbw.instrument-metadata.v2":
+        item = passport.get("identity", {}).get("series_type", {})
+    configured = item.get("value") if isinstance(item, dict) else item
+    verified = isinstance(item, dict) and (item.get("verified") is True or item.get("status") == "VERIFIED")
+    supported = {"individual_contract", "continuous_unadjusted", "continuous_adjusted",
+                 "exchange_perpetual_daily_autoprolong"}
+    if configured in supported and verified:
         return configured, "verified instrument passport"
     if "contract" in frame and frame.contract.notna().any():
         return "individual_contract", "contract column"
