@@ -6,19 +6,20 @@ This procedure audits data only. It does **not** calculate BBW signals, trades, 
 
 1. Update the repository (`git pull`) on the Intel Windows machine.
 2. Activate the repository Python environment and install the project if needed (`python -m pip install -e .`).
-3. Complete and verify the instrument passports in `bbw_system/config/instruments` (especially source/exchange timezones and session bounds). Never guess these values.
+3. Leave unresolved timezone/session passport fields null until the metadata freeze. The runner completes its raw audit first and records normalization as `PENDING_METADATA`; never guess these values.
 4. From the repository root run:
 
    ```powershell
    .\bbw_system\scripts\run_bbw_data_freeze.ps1 `
-       -DataRoot "C:\TradingBacktest" `
-       -OutputRoot "C:\TradingBacktest\BBW_DATA_FREEZE" `
-       -InstrumentConfigRoot ".\bbw_system\config\instruments"
+       -DataRoot "C:\BBW\data\raw" `
+       -OutputRoot "C:\BBW\results\data_freeze\03B1_R2" `
+       -InstrumentConfigRoot ".\bbw_system\config\instruments" `
+       -Symbols "CNYRUBF"
    ```
 
-   `-InstrumentConfigRoot` is optional and defaults relative to the repository. `DataRoot` is searched recursively for `.csv` and `.txt` files. Only target instruments (including passport aliases) and D1/H1/M30/M15/M5/M1 are normalized.
+   `-InstrumentConfigRoot` and `-Symbols` are optional. `DataRoot` is searched recursively for `.csv` and `.txt` files while implementation/cache/output directories are skipped. Finam `<TICKER>` and `<PER>` columns provide stronger identity evidence than filename tokens; contradictions fail explicitly. Raw audit does not require timezone or session metadata.
 5. Check `$LASTEXITCODE` is `0`. Individual unrecognized or invalid files are recorded without aborting the batch.
-6. Find the compact bundle in `C:\TradingBacktest\BBW_DATA_FREEZE\evidence`.
+6. Find the compact bundle in `C:\BBW\results\data_freeze\03B1_R2\evidence`.
 
 ## Outputs and handoff
 
