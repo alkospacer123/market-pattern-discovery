@@ -1,0 +1,6 @@
+regime,effective_from,effective_to,checked_days,checked_bars,status,reason
+weekday_0900,2023-01-03,2025-01-27,0,0,UNRESOLVED,frozen raw bundle unavailable
+weekday_0850,2025-01-27,2026-03-23,0,0,UNRESOLVED,frozen raw bundle unavailable
+weekend_2025,2025-03-01,2026-03-23,0,0,UNRESOLVED,frozen raw bundle unavailable
+unified_0850,2026-03-23,2026-07-14,0,0,UNRESOLVED,frozen raw bundle unavailable
+unified_0650,2026-07-14,2026-08-31,0,0,UNRESOLVED,frozen raw bundle unavailable

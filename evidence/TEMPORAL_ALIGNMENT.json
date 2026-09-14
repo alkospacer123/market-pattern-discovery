@@ -1,0 +1,21 @@
+{
+  "H1_ALIGNMENT": "FAIL",
+  "blockers": [
+    "No hash-verified frozen CNYRUBF M1/M5/M15/M30/H1/D1 raw bundle is present in this checkout.",
+    "Timestamp semantics therefore has no empirical evidence.",
+    "Session regimes, D1 convention, and H1 completeness cannot be empirically validated."
+  ],
+  "daily_bar_semantics": "UNRESOLVED",
+  "datasets_used": [],
+  "mtf_aggregation_passed": false,
+  "mtf_alignment": [
+    {"timeframe": "M5", "matches": false, "checked_bars": 0, "mismatch_count": 0, "status": "UNRESOLVED"},
+    {"timeframe": "M15", "matches": false, "checked_bars": 0, "mismatch_count": 0, "status": "UNRESOLVED"},
+    {"timeframe": "M30", "matches": false, "checked_bars": 0, "mismatch_count": 0, "status": "UNRESOLVED"},
+    {"timeframe": "H1", "matches": false, "checked_bars": 0, "mismatch_count": 0, "status": "UNRESOLVED"}
+  ],
+  "ready_for_normalization": false,
+  "session_boundaries_validated": false,
+  "timestamp_semantics": "UNRESOLVED",
+  "verdict": "NOT_READY"
+}
