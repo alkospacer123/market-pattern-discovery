@@ -1,0 +1,96 @@
+{
+  "cartesian_space_size": 8000,
+  "cost_scenarios_ticks_per_side": {
+    "C0": 0.0,
+    "C0.5": 0.5,
+    "C1": 1.0,
+    "C2": 2.0
+  },
+  "design": "BASELINE_PLUS_ONE_FACTOR_AT_A_TIME",
+  "development_period": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "experiment_id": "phase32-335e446a72c33929f81a",
+  "frozen_baseline": {
+    "adx_period": 14,
+    "adx_threshold": 20.0,
+    "atr_average_period": 20,
+    "atr_period": 14,
+    "breakout_period": 20,
+    "ema_period": 100,
+    "slope_lookback": 5,
+    "stop_atr": 2.0,
+    "trail_atr": 3.0
+  },
+  "parameter_space": {
+    "adx_threshold": {
+      "type": "float",
+      "values": [
+        15.0,
+        20.0,
+        25.0,
+        30.0
+      ]
+    },
+    "atr_average_period": {
+      "type": "int",
+      "values": [
+        10,
+        20,
+        30,
+        50
+      ]
+    },
+    "breakout_period": {
+      "type": "int",
+      "values": [
+        10,
+        20,
+        30,
+        40,
+        55
+      ]
+    },
+    "ema_period": {
+      "type": "int",
+      "values": [
+        50,
+        75,
+        100,
+        150,
+        200
+      ]
+    },
+    "stop_atr": {
+      "type": "float",
+      "values": [
+        1.5,
+        2.0,
+        2.5,
+        3.0
+      ]
+    },
+    "trail_atr": {
+      "type": "float",
+      "values": [
+        2.0,
+        2.5,
+        3.0,
+        3.5,
+        4.0
+      ]
+    }
+  },
+  "phase": "3.2",
+  "search_space_limit": 5000,
+  "seed": 0,
+  "strategy_id": "T3_MTF_Trend_v1.0",
+  "strategy_key": "T3",
+  "symbols": [
+    "Si",
+    "CNY"
+  ],
+  "tested_configurations": 22,
+  "true_oos_blocked": true
+}

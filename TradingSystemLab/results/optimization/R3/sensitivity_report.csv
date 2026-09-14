@@ -1,0 +1,16 @@
+parameter,value,configurations,positive_C1_share,mean_expectancy_C1,std_expectancy_C1
+max_holding_bars_m15,8,1,0,-0.215367212096,0
+max_holding_bars_m15,12,8,0,-0.223704468089,0.0398970645244
+max_holding_bars_m15,16,1,0,-0.210943010224,0
+max_initial_stop_atr,1,1,0,-0.206940777521,0
+max_initial_stop_atr,1.25,9,0,-0.223222798835,0.0375402914462
+maximum_penetration_atr,0.5,1,0,-0.224662772947,0
+maximum_penetration_atr,0.75,8,0,-0.222632064775,0.0399606072963
+maximum_penetration_atr,1,1,0,-0.210226675889,0
+minimum_close_distance_atr,0.05,9,0,-0.2217327952,0.0378892189867
+minimum_close_distance_atr,0.1,1,0,-0.220350810238,0
+minimum_penetration_atr,0.05,9,0,-0.223443953776,0.0374377174496
+minimum_penetration_atr,0.1,1,0,-0.204950383047,0
+target_fraction_of_step,0.25,1,0,-0.325116076653,0
+target_fraction_of_step,0.5,8,0,-0.213222439523,0.00621624883458
+target_fraction_of_step,0.75,1,0,-0.185050374197,0

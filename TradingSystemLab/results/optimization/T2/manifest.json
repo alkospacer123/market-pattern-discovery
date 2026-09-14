@@ -1,0 +1,17 @@
+{
+  "cost_scenarios": {
+    "C0": 0.0,
+    "C0.5": 0.5,
+    "C1": 1.0,
+    "C2": 2.0
+  },
+  "deterministic": true,
+  "experiment_id": "phase32-0a42caf242ce3128c491",
+  "optimization_type": "BOUNDED_ROBUSTNESS",
+  "phase": "3.2",
+  "selection_objective": "PLATEAU_NOT_MAXIMUM_PF",
+  "source_data_copied": false,
+  "strategy": "T2",
+  "tested_configurations": 19,
+  "true_oos_blocked": true
+}

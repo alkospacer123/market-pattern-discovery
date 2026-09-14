@@ -1,0 +1,2 @@
+strategy,tested_configurations,plateau_classification,robust_configurations,baseline_configuration_id,baseline_expectancy_C1,baseline_PF_C1,baseline_net_R_C1,recommendation
+R3,10,NO_EDGE,0,R3-0003-90afb5cbd41d,-0.212337874223,0.551018883662,-787.34883762,NO_EDGE
