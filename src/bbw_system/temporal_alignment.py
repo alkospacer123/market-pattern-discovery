@@ -9,6 +9,7 @@ from __future__ import annotations
 import csv
 import json
 from dataclasses import dataclass, asdict
+from datetime import date
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -36,6 +37,67 @@ class AlignmentResult:
     mismatch_count: int
     missing_aggregate_count: int
     missing_reference_count: int
+
+
+@dataclass(frozen=True)
+class FrozenCalendar:
+    """Validated, externally supplied exchange-calendar snapshot.
+
+    ``days`` is keyed by the wall-clock calendar date.  There is intentionally
+    no method that manufactures an entry for a missing date.
+    """
+
+    path: str
+    artifact_id: str
+    source_url: str
+    retrieved_at: str
+    days: Mapping[date, Mapping[str, Any]]
+
+
+CALENDAR_DAY_FIELDS = {"calendar_date", "trading_date", "working_day",
+                       "weekend_session", "special_session", "shortened_session",
+                       "exchange_regime", "trading_intervals", "clearing_intervals"}
+
+
+def load_frozen_calendar(path: str | Path) -> FrozenCalendar:
+    """Load a complete, provenance-bearing calendar artifact, fail closed.
+
+    Dates and session properties are accepted only as explicit artifact data;
+    weekdays and absent values are never used as defaults.
+    """
+    source = Path(path)
+    data = json.loads(source.read_text(encoding="utf-8"))
+    if data.get("schema_version") != "bbw.moex-calendar.v1":
+        raise TemporalAlignmentError("unsupported frozen calendar schema")
+    if not all(isinstance(data.get(key), str) and data[key] for key in
+               ("artifact_id", "source_url", "retrieved_at")):
+        raise TemporalAlignmentError("frozen calendar provenance is incomplete")
+    records = data.get("days")
+    if not isinstance(records, list) or not records:
+        raise TemporalAlignmentError("frozen calendar contains no days")
+    days: dict[date, Mapping[str, Any]] = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict) or CALENDAR_DAY_FIELDS - record.keys():
+            raise TemporalAlignmentError(f"frozen calendar day {position} is incomplete")
+        try:
+            calendar_day = date.fromisoformat(record["calendar_date"])
+            date.fromisoformat(record["trading_date"])
+        except (TypeError, ValueError) as exc:
+            raise TemporalAlignmentError(f"invalid frozen calendar date at day {position}") from exc
+        for field in ("working_day", "weekend_session", "special_session", "shortened_session"):
+            if type(record[field]) is not bool:
+                raise TemporalAlignmentError(f"frozen calendar {field} must be boolean")
+        if not isinstance(record["exchange_regime"], str) or not record["exchange_regime"]:
+            raise TemporalAlignmentError("frozen calendar exchange_regime is required")
+        for field in ("trading_intervals", "clearing_intervals"):
+            intervals = record[field]
+            if not isinstance(intervals, list) or any(not isinstance(pair, list) or len(pair) != 2 for pair in intervals):
+                raise TemporalAlignmentError(f"invalid frozen calendar {field}")
+        if calendar_day in days:
+            raise TemporalAlignmentError(f"duplicate frozen calendar date: {calendar_day}")
+        days[calendar_day] = record
+    return FrozenCalendar(str(source.resolve()), data["artifact_id"], data["source_url"],
+                          data["retrieved_at"], days)
 
 
 def _bars(frame: pd.DataFrame) -> pd.DataFrame:
@@ -98,22 +160,28 @@ def infer_timestamp_semantics(m1: pd.DataFrame, references: Mapping[str, pd.Data
             "explanation": "unique positive empirical OHLCV/count score" if resolved != "UNRESOLVED" else "evidence is absent or does not distinguish START from END"}
 
 
-def validate_sessions(frame: pd.DataFrame, metadata: dict[str, Any]) -> list[dict[str, Any]]:
+def validate_sessions(frame: pd.DataFrame, metadata: dict[str, Any],
+                      calendar: FrozenCalendar | None = None) -> list[dict[str, Any]]:
     """Diagnose each observed date against effective-dated session metadata."""
     bars = _bars(frame)
     rows = []
     for day, group in bars.groupby(bars.timestamp.dt.date, sort=True):
         minute = group.timestamp.dt.hour * 60 + group.timestamp.dt.minute
         try:
+            if calendar is None or day not in calendar.days:
+                raise MetadataLookupError(f"frozen calendar has no entry for {day.isoformat()}")
+            calendar_day = calendar.days[day]
             regime = weekend_session_on(metadata, day) if day.weekday() >= 5 else session_on(metadata, day)
-            intervals = regime["trading_intervals"]
+            intervals = calendar_day["trading_intervals"]
+            if calendar_day["exchange_regime"] != regime["id"]:
+                raise MetadataLookupError("calendar/metadata exchange regime mismatch")
             def clock(value: str) -> int:
                 hour, mins = map(int, value.split(":")); return hour * 60 + mins
             inside = pd.Series(False, index=group.index)
             for start, end in intervals:
                 inside |= minute.between(clock(start), clock(end), inclusive="left")
             clearing = pd.Series(False, index=group.index)
-            for start, end in regime.get("clearing_intervals", []):
+            for start, end in calendar_day["clearing_intervals"]:
                 clearing |= minute.between(clock(start), clock(end), inclusive="left")
             expected_first = clock(intervals[0][0])
             expected_last = clock(intervals[-1][1]) - 1
@@ -126,7 +194,10 @@ def validate_sessions(frame: pd.DataFrame, metadata: dict[str, Any]) -> list[dic
                 "first_boundary_match": first_minute == expected_first,
                 "last_boundary_match": last_minute == expected_last,
                 "outside_session_count": int((~inside).sum()), "clearing_bar_count": int(clearing.sum()),
-                "weekend": day.weekday() >= 5, "status": "PASS" if inside.all() and not clearing.any() and boundaries_match else "FAIL"})
+                "weekend": day.weekday() >= 5, "working_day": calendar_day["working_day"],
+                "weekend_session": calendar_day["weekend_session"], "special_session": calendar_day["special_session"],
+                "shortened_session": calendar_day["shortened_session"], "trading_date": calendar_day["trading_date"],
+                "status": "PASS" if inside.all() and not clearing.any() and boundaries_match else "FAIL"})
         except Exception as exc:
             rows.append({"date": day.isoformat(), "regime": "UNRESOLVED", "bar_count": len(group),
                 "first_timestamp": str(group.timestamp.iloc[0]), "last_timestamp": str(group.timestamp.iloc[-1]),
@@ -136,7 +207,7 @@ def validate_sessions(frame: pd.DataFrame, metadata: dict[str, Any]) -> list[dic
 
 
 def assign_trading_dates(frame: pd.DataFrame, metadata: dict[str, Any],
-                         nonworking_dates: set[Any] | None) -> dict[str, Any]:
+                         calendar: FrozenCalendar | None) -> dict[str, Any]:
     """Assign exchange trading dates only with an explicit frozen calendar.
 
     Naive Finam wall-clock labels are interpreted in the metadata's exchange
@@ -144,15 +215,27 @@ def assign_trading_dates(frame: pd.DataFrame, metadata: dict[str, Any],
     absent.
     """
     bars = _bars(frame)
-    if nonworking_dates is None:
+    if calendar is None:
         return {"status": "UNRESOLVED", "reason": "authoritative frozen exchange calendar is missing",
                 "trading_dates": None, "weekday_evening_bars": 0, "weekend_bars": 0}
-    zone = metadata["time_semantics"]["exchange_timezone"]["value"]
     assigned = []
     try:
         for stamp in bars.timestamp:
+            day = stamp.date()
+            if day not in calendar.days:
+                raise MetadataLookupError(f"frozen calendar has no entry for {day.isoformat()}")
+            record = calendar.days[day]
+            # Metadata lookup is still mandatory, including weekend availability
+            # and both effective-dated trading-date regime transitions.
+            zone = metadata["time_semantics"]["exchange_timezone"]["value"]
             aware = stamp.tz_localize(zone).to_pydatetime()
-            assigned.append(trading_date_for(metadata, aware, nonworking_dates=nonworking_dates))
+            if day.weekday() >= 5:
+                weekend_session_on(metadata, day)
+                if not record["weekend_session"]:
+                    raise MetadataLookupError("weekend bar lacks calendar weekend-session evidence")
+            else:
+                trading_date_for(metadata, aware, nonworking_dates=set())
+            assigned.append(date.fromisoformat(record["trading_date"]))
     except (MetadataLookupError, ValueError) as exc:
         return {"status": "UNRESOLVED", "reason": str(exc), "trading_dates": None,
                 "weekday_evening_bars": 0, "weekend_bars": 0}
@@ -188,7 +271,8 @@ def validate_daily(intraday: pd.DataFrame, daily: pd.DataFrame,
 
 
 def validate_h1(m1: pd.DataFrame, h1: pd.DataFrame, semantics: str,
-                metadata: dict[str, Any] | None = None) -> dict[str, Any]:
+                metadata: dict[str, Any] | None = None,
+                calendar: FrozenCalendar | None = None) -> dict[str, Any]:
     result = compare_aggregation(m1, h1, "H1", semantics)
     aggregate = aggregate_m1(m1, "H1", semantics)
     incomplete = []
@@ -201,7 +285,9 @@ def validate_h1(m1: pd.DataFrame, h1: pd.DataFrame, semantics: str,
         if metadata is not None:
             try:
                 day = start.date()
-                regime = weekend_session_on(metadata, day) if day.weekday() >= 5 else session_on(metadata, day)
+                if calendar is None or day not in calendar.days:
+                    raise MetadataLookupError(f"frozen calendar has no entry for {day}")
+                regime = calendar.days[day]
                 def inside(stamp: pd.Timestamp) -> bool:
                     clock = stamp.strftime("%H:%M")
                     return any(begin <= clock < end for begin, end in regime["trading_intervals"])

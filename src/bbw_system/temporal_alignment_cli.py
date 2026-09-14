@@ -4,13 +4,12 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import date
 from pathlib import Path
 from typing import Any
 
 from .temporal_alignment import (TemporalAlignmentError, infer_timestamp_semantics,
     assign_trading_dates, load_frozen_datasets, validate_daily, validate_h1,
-    validate_sessions, write_evidence)
+    load_frozen_calendar, validate_sessions, write_evidence)
 
 
 def _manifest(root: Path) -> Path:
@@ -49,7 +48,8 @@ def _report(document: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def run(freeze_root: Path, output_root: Path, symbol: str) -> int:
+def run(freeze_root: Path, output_root: Path, symbol: str,
+        calendar_path: Path | None = None) -> int:
     symbol = symbol.upper()
     manifest = _manifest(freeze_root)
     passport = Path("bbw_system/config/instruments") / f"{symbol.lower()}.yaml"
@@ -58,15 +58,12 @@ def run(freeze_root: Path, output_root: Path, symbol: str) -> int:
     datasets, metadata = load_frozen_datasets(manifest, passport, symbol)
     references = {tf: datasets[tf] for tf in ("M5", "M15", "M30", "H1")}
     alignment = infer_timestamp_semantics(datasets["M1"], references)
-    sessions = validate_sessions(datasets["M1"], metadata)
-    calendar = metadata.get("calendar", {})
-    frozen_calendar = ({date.fromisoformat(value)
-                        for value in calendar.get("nonworking_dates", [])}
-                       if calendar.get("status") in {"VERIFIED", "EFFECTIVE_DATED_VERIFIED"} else None)
+    frozen_calendar = load_frozen_calendar(calendar_path) if calendar_path is not None else None
+    sessions = validate_sessions(datasets["M1"], metadata, frozen_calendar)
     trading_date = assign_trading_dates(datasets["M1"], metadata, frozen_calendar)
     daily = validate_daily(datasets["M1"], datasets["D1"], trading_date["trading_dates"])
     semantics = alignment["timestamp_semantics"]
-    h1_candidates = {name: validate_h1(datasets["M1"], datasets["H1"], name, metadata) for name in ("START", "END")}
+    h1_candidates = {name: validate_h1(datasets["M1"], datasets["H1"], name, metadata, frozen_calendar) for name in ("START", "END")}
     h1 = h1_candidates.get(semantics)
     session_status = "PASS" if sessions and all(row["status"] == "PASS" for row in sessions) else "UNRESOLVED"
     clearing_status = "PASS" if sessions and all(row.get("clearing_bar_count") == 0 for row in sessions) else "UNRESOLVED"
@@ -78,6 +75,9 @@ def run(freeze_root: Path, output_root: Path, symbol: str) -> int:
                 session_status == "PASS", clearing_status == "PASS", h1_edges == "PASS", future_count == 0)
     document = {"schema_version": "bbw.temporal-alignment.v1", "symbol": symbol,
         "status": "READY_FOR_NORMALIZATION" if all(required) else "UNRESOLVED", "freeze_manifest": str(manifest.resolve()),
+        "frozen_calendar": ({"path": frozen_calendar.path, "artifact_id": frozen_calendar.artifact_id,
+            "source_url": frozen_calendar.source_url, "retrieved_at": frozen_calendar.retrieved_at}
+            if frozen_calendar else None),
         "timestamp_alignment": alignment, "trading_date_validation": {key: value for key, value in trading_date.items() if key != "trading_dates"},
         "daily_alignment": daily, "sessions": sessions,
         "session_boundary_status": session_status, "clearing_interval_status": clearing_status,
@@ -98,9 +98,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--freeze-root", required=True, type=Path)
     parser.add_argument("--output-root", required=True, type=Path)
     parser.add_argument("--symbol", required=True)
+    parser.add_argument("--calendar", type=Path,
+        help="external frozen MOEX calendar JSON (absence leaves the gate UNRESOLVED)")
     args = parser.parse_args(argv)
     try:
-        return run(args.freeze_root, args.output_root, args.symbol)
+        return run(args.freeze_root, args.output_root, args.symbol, args.calendar)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(f"temporal alignment failed closed: {exc}", file=sys.stderr)
         return 2
