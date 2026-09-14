@@ -1,0 +1,12 @@
+{
+  "penetration_range_pct": 0.2,
+  "range_atr_max": 2.0,
+  "range_atr_min": 1.0,
+  "range_max_bars": 30,
+  "range_min_bars": 6,
+  "retest_max_bars": 30,
+  "retest_min_bars": 5,
+  "stop_offset": 4.0,
+  "tp_fractions": [0.5, 0.3, 0.2],
+  "tp_levels": [1.0, 2.0, 3.0]
+}
