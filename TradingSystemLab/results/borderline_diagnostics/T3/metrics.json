@@ -1,0 +1,37 @@
+{
+  "aggregate": {
+    "PF": 3.3803276720209823,
+    "expectancy": 0.9679913199735469,
+    "max_drawdown": -5.038562132511479,
+    "net_R": 32.9117048791006,
+    "trades": 34,
+    "win_rate": 0.5
+  },
+  "bootstrap": {
+    "diagnostic_only": true,
+    "iterations": 10000,
+    "lower_2_5_pct": 0.07946322740721462,
+    "lower_5_pct": 0.17198664228743454,
+    "median": 0.9192310885041135,
+    "probability_mean_R_gt_0": 0.9856,
+    "seed": 4102025,
+    "upper_95_pct": 1.8839229313875119,
+    "upper_97_5_pct": 2.1176190768995697
+  },
+  "candidate_id": "T3_candidate_v1",
+  "classification": "SAMPLE_LIMITED",
+  "concentration_edge_survives_top_5_removal": false,
+  "direction_classification": "both directions contribute",
+  "instrument_classification": "instrument independent",
+  "leave_one_fold_out_edge_survives_all": true,
+  "optimization": false,
+  "phase4_coverage_warning": "all four folds are marked incomplete because requested calendar endpoints exceed actual bar timestamps",
+  "possible_failure_mode": "regime mismatch",
+  "quarter_classification": "one regime-dependent quarter",
+  "ranking": false,
+  "single_fold_dependency": true,
+  "strongest_fold": "WF02",
+  "strongest_fold_net_share": 0.7652694125811805,
+  "true_oos_read": false,
+  "weakest_fold": "WF01"
+}

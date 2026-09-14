@@ -1,0 +1,2 @@
+iterations,seed,diagnostic_only,lower_2_5_pct,lower_5_pct,median,upper_95_pct,upper_97_5_pct,probability_mean_R_gt_0
+10000,4102025,True,-0.0180732233201,0.0710129860114,0.760018324617,1.77100749041,2.01557016162,0.9706
