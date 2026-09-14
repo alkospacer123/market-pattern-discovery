@@ -1,0 +1,17 @@
+strategy_id: R2_Liquidity_Sweep_False_Breakout_v1.0
+context_timeframe: H1
+execution_timeframe: M15
+range_lookback_h1: 20
+adx_period: 14
+adx_range_max: 25
+ema_period: 200
+ema_slope_lookback: 10
+ema_slope_max_atr: 0.35
+atr_period_m15: 14
+minimum_sweep_atr: 0.05
+maximum_sweep_atr: 1.00
+require_half_bar_rejection: true
+stop_buffer_atr: 0.10
+max_initial_stop_atr: 1.50
+target: range_midpoint
+max_holding_bars_m15: 16
