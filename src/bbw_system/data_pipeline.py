@@ -85,6 +85,9 @@ def read_source(path: str | Path) -> tuple[pd.DataFrame, dict[str, Any]]:
             raise ValueError("No timestamp column")
         raw["timestamp"] = pd.to_datetime(raw[candidate], errors="coerce")
     rename = {columns[k]: k for k in ("open", "high", "low", "close", "volume", "contract", "open_interest", "roll_flag") if k in columns}
+    # Finam's canonical field is <VOL>; expose it as canonical ``volume``.
+    if "volume" not in columns and "vol" in columns:
+        rename[columns["vol"]] = "volume"
     raw = raw.rename(columns=rename)
     return raw, {"format": "finam_csv" if finam else "csv", "delimiter": delimiter, "encoding": encoding}
 

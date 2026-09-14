@@ -1,6 +1,6 @@
 {
   "symbol": "CNYRUBF",
-  "aliases": [],
+  "aliases": ["CNY"],
   "exchange": {
     "value": null,
     "verified": false
