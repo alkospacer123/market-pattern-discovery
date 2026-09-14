@@ -164,25 +164,37 @@ def validate_h1(m1: pd.DataFrame, h1: pd.DataFrame, semantics: str) -> dict[str,
             "future_filled_count": int((_bars(h1).timestamp > _bars(m1).timestamp.max()).sum())}
 
 
-def load_frozen_datasets(manifest_path: str | Path, metadata_path: str | Path) -> tuple[dict[str, pd.DataFrame], dict[str, Any]]:
-    """Load only hash-verified raw CNYRUBF files named by a freeze manifest."""
+def load_frozen_datasets(manifest_path: str | Path, metadata_path: str | Path,
+                         symbol: str = "CNYRUBF") -> tuple[dict[str, pd.DataFrame], dict[str, Any]]:
+    """Load only raw files named by a manifest, after verifying every hash."""
     manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8")); metadata = load_metadata(metadata_path)
     datasets: dict[str, list[pd.DataFrame]] = {}
-    records = manifest.get("instruments", {}).get("CNYRUBF", {})
+    symbol = symbol.upper()
+    records = manifest.get("instruments", {}).get(symbol, {})
+    entries_by_timeframe = {}
     for timeframe in ("M1", "M5", "M15", "M30", "H1", "D1"):
         entries = records.get(timeframe, [])
         if not entries:
-            raise TemporalAlignmentError(f"frozen raw dataset missing: CNYRUBF {timeframe}")
+            raise TemporalAlignmentError(f"frozen raw dataset missing: {symbol} {timeframe}")
+        entries_by_timeframe[timeframe] = entries
         for entry in entries:
             path = Path(entry["source_path"])
             if not path.is_file() or file_sha256(path) != entry["source_sha256"]:
                 raise TemporalAlignmentError(f"source missing or hash changed: {path}")
+    # No market-data file is opened until the complete bundle has passed hash
+    # verification.  This prevents a partially verified audit.
+    for timeframe, entries in entries_by_timeframe.items():
+        for entry in entries:
+            path = Path(entry["source_path"])
             raw, info = read_source(path)
-            identity = resolve_identity(path, raw, info, {"CNYRUBF": metadata})
-            if identity["detected_symbol"] != "CNYRUBF" or identity["detected_timeframe"] != timeframe:
+            identity = resolve_identity(path, raw, info, {symbol: metadata})
+            if identity["detected_symbol"] != symbol or identity["detected_timeframe"] != timeframe:
                 raise TemporalAlignmentError(f"frozen identity mismatch: {path}")
             datasets.setdefault(timeframe, []).append(raw)
-    return {key: _bars(pd.concat(parts, ignore_index=True)) for key, parts in datasets.items()}, metadata
+    result = {key: _bars(pd.concat(parts, ignore_index=True)) for key, parts in datasets.items()}
+    if any(frame.empty for frame in result.values()):
+        raise TemporalAlignmentError("frozen raw dataset is empty")
+    return result, metadata
 
 
 def write_evidence(output: str | Path, document: dict[str, Any], mtf: list[dict[str, Any]],
