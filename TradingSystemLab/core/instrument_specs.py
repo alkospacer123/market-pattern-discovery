@@ -25,10 +25,14 @@ class InstrumentSpec:
 _SPECS = {
     "USDRUBF": InstrumentSpec("USDRUBF", "MOEX", 0.01, 1000, 0.001, 0.10),
     "CNYRUBF": InstrumentSpec("CNYRUBF", "MOEX", 0.01, 1000, 0.001, 0.05),
+    "EURRUBF": InstrumentSpec("EURRUBF", "MOEX", 0.01, 1000, 0.001, 0.10),
+    "HKDRUBF": InstrumentSpec("HKDRUBF", "MOEX", 0.01, 1000, 0.001, 0.10),
 }
 INSTRUMENT_SPECS = MappingProxyType(_SPECS)
 ALIASES = MappingProxyType({"Si": "USDRUBF", "USDRUBF": "USDRUBF",
-                            "CNY": "CNYRUBF", "CNYRUBF": "CNYRUBF"})
+                            "CNY": "CNYRUBF", "CNYRUBF": "CNYRUBF",
+                            "EUR": "EURRUBF", "EURRUBF": "EURRUBF",
+                            "HKD": "HKDRUBF", "HKDRUBF": "HKDRUBF"})
 
 
 def get_instrument_spec(symbol: str) -> InstrumentSpec:

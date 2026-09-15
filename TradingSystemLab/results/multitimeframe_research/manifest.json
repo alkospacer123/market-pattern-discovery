@@ -1,0 +1,314 @@
+{
+  "candidate_ids": [
+    "T2_candidate_v1",
+    "T3_candidate_v1"
+  ],
+  "cost_ticks_per_side": 1.0,
+  "development_period": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "frozen_parameter_hashes": {
+    "T2": "2b0494cdd24bfbfa8ce7d657d6f83d1408f07b9f565d38d093dec5b4856e3c00",
+    "T3": "938b6b3b78f680010115a204b9a49e7eef962db119f4ea121e388c00741920ba"
+  },
+  "frozen_strategy_hashes": {
+    "T2": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+    "T3": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
+  },
+  "future_compatible_timeframes": [
+    "M15",
+    "M5",
+    "M1"
+  ],
+  "instrument_availability": [
+    {
+      "instrument": "USDRUBF",
+      "status": "AVAILABLE",
+      "strategy": "T2",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "status": "AVAILABLE",
+      "strategy": "T2",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "EURRUBF",
+      "status": "DATA_UNAVAILABLE",
+      "strategy": "T2",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "HKDRUBF",
+      "status": "DATA_UNAVAILABLE",
+      "strategy": "T2",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "USDRUBF",
+      "status": "AVAILABLE",
+      "strategy": "T2",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "status": "AVAILABLE",
+      "strategy": "T2",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "EURRUBF",
+      "status": "DATA_UNAVAILABLE",
+      "strategy": "T2",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "HKDRUBF",
+      "status": "DATA_UNAVAILABLE",
+      "strategy": "T2",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "USDRUBF",
+      "status": "AVAILABLE",
+      "strategy": "T2",
+      "timeframe": "H4"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "status": "AVAILABLE",
+      "strategy": "T2",
+      "timeframe": "H4"
+    },
+    {
+      "instrument": "EURRUBF",
+      "status": "DATA_UNAVAILABLE",
+      "strategy": "T2",
+      "timeframe": "H4"
+    },
+    {
+      "instrument": "HKDRUBF",
+      "status": "DATA_UNAVAILABLE",
+      "strategy": "T2",
+      "timeframe": "H4"
+    },
+    {
+      "instrument": "USDRUBF",
+      "status": "AVAILABLE",
+      "strategy": "T2",
+      "timeframe": "D1"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "status": "AVAILABLE",
+      "strategy": "T2",
+      "timeframe": "D1"
+    },
+    {
+      "instrument": "EURRUBF",
+      "status": "DATA_UNAVAILABLE",
+      "strategy": "T2",
+      "timeframe": "D1"
+    },
+    {
+      "instrument": "HKDRUBF",
+      "status": "DATA_UNAVAILABLE",
+      "strategy": "T2",
+      "timeframe": "D1"
+    },
+    {
+      "instrument": "USDRUBF",
+      "status": "AVAILABLE",
+      "strategy": "T3",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "status": "AVAILABLE",
+      "strategy": "T3",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "EURRUBF",
+      "status": "DATA_UNAVAILABLE",
+      "strategy": "T3",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "HKDRUBF",
+      "status": "DATA_UNAVAILABLE",
+      "strategy": "T3",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "USDRUBF",
+      "status": "AVAILABLE",
+      "strategy": "T3",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "status": "AVAILABLE",
+      "strategy": "T3",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "EURRUBF",
+      "status": "DATA_UNAVAILABLE",
+      "strategy": "T3",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "HKDRUBF",
+      "status": "DATA_UNAVAILABLE",
+      "strategy": "T3",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "USDRUBF",
+      "status": "AVAILABLE",
+      "strategy": "T3",
+      "timeframe": "H4"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "status": "AVAILABLE",
+      "strategy": "T3",
+      "timeframe": "H4"
+    },
+    {
+      "instrument": "EURRUBF",
+      "status": "DATA_UNAVAILABLE",
+      "strategy": "T3",
+      "timeframe": "H4"
+    },
+    {
+      "instrument": "HKDRUBF",
+      "status": "DATA_UNAVAILABLE",
+      "strategy": "T3",
+      "timeframe": "H4"
+    },
+    {
+      "instrument": "USDRUBF",
+      "status": "AVAILABLE",
+      "strategy": "T3",
+      "timeframe": "D1"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "status": "AVAILABLE",
+      "strategy": "T3",
+      "timeframe": "D1"
+    },
+    {
+      "instrument": "EURRUBF",
+      "status": "DATA_UNAVAILABLE",
+      "strategy": "T3",
+      "timeframe": "D1"
+    },
+    {
+      "instrument": "HKDRUBF",
+      "status": "DATA_UNAVAILABLE",
+      "strategy": "T3",
+      "timeframe": "D1"
+    }
+  ],
+  "optimization_performed": false,
+  "phase": "7.1",
+  "ranking_performed": false,
+  "selection_performed": false,
+  "source_data_copied": false,
+  "source_discovery": [
+    {
+      "files": [
+        "CNY_H1_2023_Q1.csv",
+        "CNY_H1_2023_Q2.csv",
+        "CNY_H1_2023_Q3.csv",
+        "CNY_H1_2024_Q1.csv",
+        "CNY_H1_2024_Q2.csv",
+        "CNY_H1_2024_Q3.csv"
+      ],
+      "instrument": "CNYRUBF",
+      "source_timeframe": "H1",
+      "status": "AVAILABLE"
+    },
+    {
+      "files": [
+        "CNY_M30_2023_Q1.csv",
+        "CNY_M30_2023_Q2.csv",
+        "CNY_M30_2023_Q3.csv",
+        "CNY_M30_2024_Q1.csv",
+        "CNY_M30_2024_Q2.csv",
+        "CNY_M30_2024_Q3.csv"
+      ],
+      "instrument": "CNYRUBF",
+      "source_timeframe": "M30",
+      "status": "AVAILABLE"
+    },
+    {
+      "files": [
+        "Si_H1_2023_Q1.csv",
+        "Si_H1_2023_Q2.csv",
+        "Si_H1_2023_Q3.csv",
+        "Si_H1_2024_Q1.csv",
+        "Si_H1_2024_Q2.csv",
+        "Si_H1_2024_Q3.csv"
+      ],
+      "instrument": "USDRUBF",
+      "source_timeframe": "H1",
+      "status": "AVAILABLE"
+    },
+    {
+      "files": [
+        "Si_M30_2023_Q1.csv",
+        "Si_M30_2023_Q2.csv",
+        "Si_M30_2023_Q3.csv",
+        "Si_M30_2024_Q1.csv",
+        "Si_M30_2024_Q2.csv",
+        "Si_M30_2024_Q3.csv"
+      ],
+      "instrument": "USDRUBF",
+      "source_timeframe": "M30",
+      "status": "AVAILABLE"
+    },
+    {
+      "files": [],
+      "instrument": "EURRUBF",
+      "source_timeframe": "H1",
+      "status": "DATA_UNAVAILABLE"
+    },
+    {
+      "files": [],
+      "instrument": "EURRUBF",
+      "source_timeframe": "M30",
+      "status": "DATA_UNAVAILABLE"
+    },
+    {
+      "files": [],
+      "instrument": "HKDRUBF",
+      "source_timeframe": "H1",
+      "status": "DATA_UNAVAILABLE"
+    },
+    {
+      "files": [],
+      "instrument": "HKDRUBF",
+      "source_timeframe": "M30",
+      "status": "DATA_UNAVAILABLE"
+    }
+  ],
+  "status": "PHASE_7_1_MULTITIMEFRAME_RESEARCH_COMPLETE",
+  "strategies": [
+    "T2",
+    "T3"
+  ],
+  "timeframes": [
+    "M30",
+    "H1",
+    "H4",
+    "D1"
+  ],
+  "true_oos_blocked": true,
+  "walk_forward_performed": false
+}
