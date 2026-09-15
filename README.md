@@ -200,3 +200,18 @@ Every source hash is checked before any frozen market-data file is read. The
 runner does not normalize, repair, future-fill, or synthesize candles and
 reports `UNRESOLVED` rather than choosing a convention without sufficient
 evidence.
+
+## BBW Baseline identities
+
+The **Frozen Baseline** is the unchanged original BBW strategy. Its existing
+configuration and artifacts remain frozen; optimization results never promote
+or rewrite it automatically.
+
+**Candidate Baseline v1** is a separate, research-only configuration selected
+as the conservative representative of the stable region reported by BBW
+Optimization R2. Its canonical configuration is
+`config/bbw_candidate_v1.json`, with a reviewable artifact bundle at
+`results/candidate_baseline/v1`. It has status `RESEARCH_CANDIDATE`: it is an
+input for the next Robustness stage, not a trading configuration, and its actual
+fitness has not been established. No Robustness, Walk Forward, TRUE OOS access,
+or further optimization is performed by the candidate artifact.
