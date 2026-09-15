@@ -5,6 +5,7 @@ import csv
 import itertools
 import json
 import re
+from datetime import date
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -166,6 +167,32 @@ def _source_paths(root: Path) -> Iterable[Path]:
             yield path
 
 
+def _date_window(start_date: str | None, end_date: str | None) -> tuple[date | None, date | None]:
+    """Parse an inclusive raw-timestamp date window, failing closed on bad input."""
+    try:
+        start = date.fromisoformat(start_date) if start_date is not None else None
+        end = date.fromisoformat(end_date) if end_date is not None else None
+    except (TypeError, ValueError) as exc:
+        raise ValueError("--start-date and --end-date must use YYYY-MM-DD") from exc
+    if start is not None and end is not None and start > end:
+        raise ValueError("--start-date must be on or before --end-date")
+    return start, end
+
+
+def _filter_dates(frame: pd.DataFrame, start: date | None, end: date | None) -> pd.DataFrame:
+    """Select rows by their observable source date; both boundaries are inclusive."""
+    if start is None and end is None:
+        return frame
+    timestamps = pd.to_datetime(frame["timestamp"], errors="coerce")
+    dates = timestamps.dt.date
+    selected = timestamps.notna()
+    if start is not None:
+        selected &= dates >= start
+    if end is not None:
+        selected &= dates <= end
+    return frame.loc[selected].copy()
+
+
 def _aggregate_coverage(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     rows = []
     usable = [r for r in records if r.get("raw_parse_status") == "PASS"]
@@ -181,9 +208,11 @@ def _aggregate_coverage(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def run_freeze(data_root: Path, output_root: Path, passport_root: Path,
-               symbols: Iterable[str] | None = None) -> int:
+               symbols: Iterable[str] | None = None, start_date: str | None = None,
+               end_date: str | None = None) -> int:
     """Raw-audit every source independently; normalize only when metadata is explicit."""
     data_root, output_root = data_root.resolve(), output_root.resolve()
+    window_start, window_end = _date_window(start_date, end_date)
     requested = tuple(dict.fromkeys(s.upper() for s in symbols)) if symbols else TARGETS
     unknown = sorted(set(requested) - set(TARGETS))
     if unknown: raise ValueError(f"Unknown --symbols: {unknown}")
@@ -213,6 +242,7 @@ def run_freeze(data_root: Path, output_root: Path, passport_root: Path,
             record["reason"] = "target symbol/timeframe not identified"; inventory.append(record); continue
         if symbol not in requested:
             record.update({"raw_parse_status":"OUT_OF_SCOPE","status":"OUT_OF_SCOPE","reason":"excluded by --symbols"}); inventory.append(record); continue
+        raw = _filter_dates(raw, window_start, window_end)
         audit = raw_audit(raw, timeframe); record.update(audit)
         record.update({"first_timestamp":audit["first_raw_timestamp"],"last_timestamp":audit["last_raw_timestamp"],"rows":audit["row_count"]})
         record["raw_parse_status"] = "FAIL_CORRUPTION" if audit["fatal_corruption"] else "PASS"
@@ -251,6 +281,13 @@ def run_freeze(data_root: Path, output_root: Path, passport_root: Path,
     aggregate = _aggregate_coverage(inventory)
     manifest_doc={"freeze_version":"1.1","created_at":None,"created_at_note":"intentionally null: wall-clock time is excluded from deterministic evidence",
         "normalization_version":NORMALIZATION_VERSION,"scope":{"symbols":list(requested)},"aggregate_coverage":aggregate,"instruments":{}}
+    if start_date is not None or end_date is not None:
+        manifest_doc["scope"]["date_window"] = {
+            "start_date": window_start.isoformat() if window_start is not None else None,
+            "end_date": window_end.isoformat() if window_end is not None else None,
+            "boundaries": "inclusive",
+            "timestamp_basis": "raw_source_timestamp",
+        }
     for item in manifests: manifest_doc["instruments"].setdefault(item["instrument"],{}).setdefault(item["timeframe"],[]).append(item)
     (evidence/"FREEZE_MANIFEST.json").write_text(json.dumps(manifest_doc,indent=2,sort_keys=True)+"\n",encoding="utf-8")
     fields=("portable_id","source_path","filename","bytes","source_sha256","detected_format","detected_symbol","symbol_evidence","detected_timeframe","timeframe_evidence","rows","first_timestamp","last_timestamp","raw_parse_status","normalization_status","normalization_block_reason","status","reason")
