@@ -13,7 +13,7 @@ from typing import Any
 
 import pandas as pd
 
-from .data_freeze import resolve_identity
+from .data_freeze import _date_window, _filter_dates, resolve_identity
 from .data_pipeline import file_sha256, read_source
 from .instrument_metadata import load_metadata
 from .temporal_alignment import TemporalAlignmentError
@@ -43,6 +43,20 @@ def _csv_bytes(frame: pd.DataFrame) -> bytes:
 def _load(freeze_root: Path, metadata_path: Path) -> tuple[dict[str, pd.DataFrame], list[dict[str, Any]]]:
     """Verify the complete bundle before opening any market-data source."""
     manifest = json.loads(_manifest_path(freeze_root).read_text(encoding="utf-8"))
+    date_window = manifest.get("scope", {}).get("date_window")
+    if date_window is None:
+        window_start, window_end = None, None
+    else:
+        if not isinstance(date_window, dict):
+            raise TemporalAlignmentError("freeze date window must be an object")
+        if (date_window.get("boundaries") != "inclusive"
+                or date_window.get("timestamp_basis") != "raw_source_timestamp"):
+            raise TemporalAlignmentError("unsupported freeze date-window semantics")
+        try:
+            window_start, window_end = _date_window(
+                date_window.get("start_date"), date_window.get("end_date"))
+        except ValueError as exc:
+            raise TemporalAlignmentError(f"invalid freeze date window: {exc}") from exc
     metadata = load_metadata(metadata_path)
     records = manifest.get("instruments", {}).get("CNYRUBF", {})
     entries: list[tuple[str, dict[str, Any], Path]] = []
@@ -65,7 +79,7 @@ def _load(freeze_root: Path, metadata_path: Path) -> tuple[dict[str, pd.DataFram
         identity = resolve_identity(path, raw, info, {"CNYRUBF": metadata})
         if identity["detected_symbol"] != "CNYRUBF" or identity["detected_timeframe"] != timeframe:
             raise TemporalAlignmentError(f"frozen identity mismatch: {path}")
-        parts[timeframe].append(raw)
+        parts[timeframe].append(_filter_dates(raw, window_start, window_end))
     return {key: pd.concat(value, ignore_index=True) for key, value in parts.items()}, sources
 
 
