@@ -8,7 +8,7 @@ import pandas as pd
 import pytest
 
 from bbw_system.baseline import (
-    BaselineConfig, BreakoutEvent, TradeSignal, find_breakouts,
+    BASELINE_CONFIG_NAME, BaselineConfig, BreakoutEvent, TradeSignal, find_breakouts,
     find_trade_signals, form_range, run_baseline, simulate_trades, trade_levels,
 )
 from bbw_system.baseline_cli import main
@@ -105,9 +105,36 @@ def test_runner_cli_is_deterministic_and_inputs_are_read_only(tmp_path: Path) ->
     assert first["sha256"] == second["sha256"]
     assert (tmp_path / "out1" / "BASELINE_TRADES.csv").read_bytes() == (tmp_path / "out2" / "BASELINE_TRADES.csv").read_bytes()
     assert (tmp_path / "out1" / "BASELINE_REPORT.md").is_file()
+    assert (tmp_path / "out1" / BASELINE_CONFIG_NAME).read_bytes() == Path("config/bbw_baseline.json").read_bytes()
     assert [path.read_bytes() for path in sources] == before
     assert main(["--feature-root", str(features), "--normalized-root", str(normalized),
                  "--output-root", str(tmp_path / "cli"), "--symbol", "CNYRUBF"]) == 0
+
+
+def test_cli_snapshots_config_with_stable_hash_and_report_metadata(tmp_path: Path) -> None:
+    features, normalized = write_bundle(tmp_path)
+    config_path = tmp_path / "custom-baseline.json"
+    config_payload = Path("config/bbw_baseline.json").read_bytes()
+    config_path.write_bytes(config_payload)
+    before = config_path.read_bytes()
+    expected_hash = hashlib.sha256(config_payload).hexdigest()
+
+    results = []
+    for name in ("first", "second"):
+        output = tmp_path / name
+        assert main(["--feature-root", str(features), "--normalized-root", str(normalized),
+                     "--output-root", str(output), "--symbol", "CNYRUBF",
+                     "--config", str(config_path)]) == 0
+        snapshot = output / BASELINE_CONFIG_NAME
+        assert snapshot.read_bytes() == config_payload
+        results.append(hashlib.sha256(snapshot.read_bytes()).hexdigest())
+
+    assert results == [expected_hash, expected_hash]
+    assert config_path.read_bytes() == before
+    report = (tmp_path / "first" / "BASELINE_REPORT.md").read_text(encoding="utf-8")
+    assert f"- Source config: `{config_path.resolve()}`" in report
+    assert f"- Config SHA-256: `{expected_hash}`" in report
+    assert f"- Config parameter count: {len(json.loads(config_payload))}" in report
 
 
 def test_true_oos_is_rejected() -> None:
