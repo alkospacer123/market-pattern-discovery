@@ -7,7 +7,7 @@ no optimization, robustness analysis, parameter search, or new indicators.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from hashlib import sha256
 import json
 from pathlib import Path
@@ -21,6 +21,7 @@ TRADE_COLUMNS = (
     "entry_time", "exit_time", "direction", "entry_price", "stop_price",
     "tp1", "tp2", "tp3", "result_R", "exit_reason",
 )
+BASELINE_CONFIG_NAME = "BASELINE_CONFIG.json"
 
 
 class BaselineError(ValueError):
@@ -61,9 +62,14 @@ class TradeSignal:
     range_width: float
 
 
+def default_baseline_config_path() -> Path:
+    """Return the repository's default Baseline configuration path."""
+    return Path(__file__).resolve().parents[2] / "config" / "bbw_baseline.json"
+
+
 def load_baseline_config(path: Path | None = None) -> BaselineConfig:
     if path is None:
-        path = Path(__file__).resolve().parents[2] / "config" / "bbw_baseline.json"
+        path = default_baseline_config_path()
     raw = json.loads(path.read_text(encoding="utf-8"))
     for key in ("tp_levels", "tp_fractions"):
         if key in raw:
@@ -217,7 +223,8 @@ def _resolve(root: Path, symbol: str, filename: str) -> Path:
     raise BaselineError(f"{filename} not found under {root}")
 
 
-def _report(trades: pd.DataFrame, first: pd.Timestamp, last: pd.Timestamp, digest: str) -> str:
+def _report(trades: pd.DataFrame, first: pd.Timestamp, last: pd.Timestamp, digest: str,
+            config_source: str, config_digest: str, parameter_count: int) -> str:
     count = len(trades)
     wins = int((trades.result_R > 0).sum()) if count else 0
     gross_win = float(trades.loc[trades.result_R > 0, "result_R"].sum()) if count else 0.0
@@ -234,14 +241,32 @@ def _report(trades: pd.DataFrame, first: pd.Timestamp, last: pd.Timestamp, diges
         f"- Direction: LONG={int(directions.get('LONG', 0))}, SHORT={int(directions.get('SHORT', 0))}",
         f"- Win rate: {(100 * wins / count if count else 0):.6f}%", f"- Mean R: {(trades.result_R.mean() if count else 0):.6f}",
         f"- Profit factor: {pf}", f"- Maximum losing streak: {maximum}", f"- Mean duration: {duration:.6f} minutes",
+        f"- Source config: `{config_source}`", f"- Config SHA-256: `{config_digest}`",
+        f"- Config parameter count: {parameter_count}",
         f"- BASELINE_TRADES.csv SHA-256: `{digest}`", "", "H1 and M15 inputs are START-labelled. Decisions use bars only after their close; ranges reset at calendar-day boundaries. Same-bar stop/target ambiguity is resolved stop-first. No commissions, slippage, trailing, news filter, or parameter search is applied in this requested first baseline.", ""])
 
 
 def run_baseline(feature_root: Path, normalized_root: Path, output_root: Path,
-                 symbol: str, config: BaselineConfig | None = None) -> dict[str, Any]:
+                 symbol: str, config: BaselineConfig | None = None,
+                 config_path: Path | None = None) -> dict[str, Any]:
     if symbol != "CNYRUBF":
         raise BaselineError("Baseline currently permits only CNYRUBF")
-    config = config or load_baseline_config()
+    if config_path is None and config is not None:
+        config_raw = asdict(config)
+        config_payload = (json.dumps(config_raw, indent=2, sort_keys=True) + "\n").encode("utf-8")
+        config_source = "in-memory BaselineConfig"
+    else:
+        config_path = config_path or default_baseline_config_path()
+        config_payload = config_path.read_bytes()
+        config_raw = json.loads(config_payload.decode("utf-8"))
+        if not isinstance(config_raw, dict):
+            raise BaselineError("Baseline config must be a JSON object")
+        source_config = load_baseline_config(config_path)
+        if config is not None and config != source_config:
+            raise BaselineError("provided Baseline config does not match its source config")
+        config = source_config
+        config_source = str(config_path.resolve())
+    config_digest = sha256(config_payload).hexdigest()
     feature_path = _resolve(feature_root, symbol, OUTPUT_NAME)
     m15_path = _resolve(normalized_root, symbol, "M15.csv")
     manifest_path = _resolve(normalized_root, symbol, "NORMALIZED_MANIFEST.json")
@@ -251,7 +276,8 @@ def run_baseline(feature_root: Path, normalized_root: Path, output_root: Path,
     expected_m15 = manifest.get("timeframes", {}).get("M15", {}).get("sha256")
     if not expected_m15 or file_sha256(m15_path) != expected_m15:
         raise BaselineError("normalized M15 hash does not match its manifest")
-    before = {path: file_sha256(path) for path in (feature_path, m15_path)}
+    input_paths = (feature_path, m15_path) + ((config_path,) if config_path is not None else ())
+    before = {path: file_sha256(path) for path in input_paths}
     h1, m15 = pd.read_csv(feature_path), pd.read_csv(m15_path)
     events = find_breakouts(h1, config)
     signals = find_trade_signals(events, m15, symbol, config)
@@ -260,8 +286,12 @@ def run_baseline(feature_root: Path, normalized_root: Path, output_root: Path,
     digest = sha256(payload).hexdigest()
     output_root.mkdir(parents=True, exist_ok=True)
     (output_root / "BASELINE_TRADES.csv").write_bytes(payload)
+    (output_root / BASELINE_CONFIG_NAME).write_bytes(config_payload)
     m15_times = pd.to_datetime(m15.timestamp)
-    (output_root / "BASELINE_REPORT.md").write_text(_report(trades, m15_times.iloc[0], m15_times.iloc[-1] + pd.Timedelta(minutes=15), digest), encoding="utf-8")
+    (output_root / "BASELINE_REPORT.md").write_text(_report(
+        trades, m15_times.iloc[0], m15_times.iloc[-1] + pd.Timedelta(minutes=15), digest,
+        config_source, config_digest, len(config_raw)), encoding="utf-8")
     if any(file_sha256(path) != digest_before for path, digest_before in before.items()):
         raise BaselineError("input data mutated during Baseline execution")
-    return {"trades": len(trades), "breakout_events": len(events), "trade_signals": len(signals), "sha256": digest}
+    return {"trades": len(trades), "breakout_events": len(events), "trade_signals": len(signals),
+            "sha256": digest, "config_sha256": config_digest}
