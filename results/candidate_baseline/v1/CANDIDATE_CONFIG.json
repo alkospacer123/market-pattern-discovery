@@ -1,0 +1,14 @@
+{
+  "atr_max": 3.0,
+  "atr_min": 1.0,
+  "bbw_period": 10,
+  "bbw_std": 1.5,
+  "ema_period": 20,
+  "ema_slope_threshold": 0.0,
+  "penetration": 0.2,
+  "range_max_bars": 40,
+  "range_min_bars": 3,
+  "retest_max_bars": 30,
+  "retest_min_bars": 3,
+  "squeeze_window": 5
+}
