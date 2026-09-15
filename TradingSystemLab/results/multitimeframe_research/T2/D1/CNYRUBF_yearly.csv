@@ -1,0 +1,3 @@
+year,trades,PF,expectancy,net_R,max_drawdown,recovery_factor,win_rate,average_holding_hours,average_MAE_R,average_MFE_R
+2023,0,,,0,0,,,,,
+2024,2,1.15440772944,0.0358970994871,0.0717941989742,-0.46496505863,0.154407729445,0.5,336,0.523604939661,1.79276453572
