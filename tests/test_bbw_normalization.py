@@ -13,15 +13,16 @@ from bbw_system.temporal_alignment import aggregate_m1
 METADATA = Path("bbw_system/config/instruments/cnyrubf.yaml")
 
 
-def _freeze(tmp_path: Path) -> tuple[Path, list[Path]]:
+def _freeze(tmp_path: Path, *, years: tuple[int, ...] = (2024,),
+            date_window: tuple[str, str] | None = None) -> tuple[Path, list[Path]]:
     root, raw_root = tmp_path / "freeze", tmp_path / "raw"
     (root / "evidence").mkdir(parents=True)
     raw_root.mkdir()
-    minute = pd.DataFrame({
-        "timestamp": pd.date_range("2024-01-03 09:00", periods=60, freq="min"),
+    minute = pd.concat([pd.DataFrame({
+        "timestamp": pd.date_range(f"{year}-01-03 09:00", periods=60, freq="min"),
         "open": range(60), "high": range(60), "low": range(60),
         "close": range(60), "volume": [1] * 60,
-    })
+    }) for year in years], ignore_index=True)
     frames = {"M1": minute}
     for timeframe in TIMEFRAMES[1:-1]:
         frames[timeframe] = aggregate_m1(minute, timeframe, "START").drop(columns="source_bar_count")
@@ -35,8 +36,12 @@ def _freeze(tmp_path: Path) -> tuple[Path, list[Path]]:
         paths.append(path)
         records["CNYRUBF"][timeframe] = [{"source_path": str(path.resolve()),
             "source_sha256": file_sha256(path)}]
-    (root / "evidence" / "FREEZE_MANIFEST.json").write_text(
-        json.dumps({"instruments": records}), encoding="utf-8")
+    manifest = {"instruments": records}
+    if date_window is not None:
+        manifest["scope"] = {"date_window": {
+            "start_date": date_window[0], "end_date": date_window[1],
+            "boundaries": "inclusive", "timestamp_basis": "raw_source_timestamp"}}
+    (root / "evidence" / "FREEZE_MANIFEST.json").write_text(json.dumps(manifest), encoding="utf-8")
     return root, paths
 
 
@@ -92,3 +97,29 @@ def test_cli_writes_required_dataset_and_reports(tmp_path):
     assert {path.name for path in output.iterdir()} == {
         *(f"{timeframe}.csv" for timeframe in TIMEFRAMES),
         "NORMALIZATION_REPORT.md", "NORMALIZED_MANIFEST.json"}
+
+
+def test_train_freeze_window_excludes_locked_year_before_normalization(tmp_path):
+    freeze, sources = _freeze(
+        tmp_path, years=(2023, 2024, 2025, 2026),
+        date_window=("2023-01-01", "2024-12-31"))
+    before = {path: file_sha256(path) for path in sources}
+    output = tmp_path / "normalized"
+
+    assert main(["--freeze-root", str(freeze), "--output-root", str(output)]) == 0
+
+    for timeframe in TIMEFRAMES:
+        normalized = pd.read_csv(output / f"{timeframe}.csv", parse_dates=["timestamp"])
+        assert set(normalized["timestamp"].dt.year) == {2023, 2024}
+    assert before == {path: file_sha256(path) for path in sources}
+
+
+def test_full_freeze_window_containing_locked_year_remains_blocked(tmp_path):
+    freeze, sources = _freeze(
+        tmp_path, years=(2023, 2024, 2025, 2026),
+        date_window=("2023-01-01", "2026-12-31"))
+    before = {path: file_sha256(path) for path in sources}
+
+    assert main(["--freeze-root", str(freeze),
+                 "--output-root", str(tmp_path / "normalized")]) == 2
+    assert before == {path: file_sha256(path) for path in sources}
