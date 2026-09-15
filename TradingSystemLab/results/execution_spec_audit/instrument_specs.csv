@@ -1,0 +1,3 @@
+symbol,exchange_name,tick_size,lot_size,price_precision,round_level_step
+CNYRUBF,MOEX,0.01,1000,0.001,0.05
+USDRUBF,MOEX,0.01,1000,0.001,0.10

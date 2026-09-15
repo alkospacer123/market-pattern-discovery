@@ -1,0 +1,63 @@
+{
+  "artifact_schema": "phase_6_1_execution_spec_audit.v1",
+  "compatibility_status": "PASS_FROZEN_RUNNERS_UNCHANGED",
+  "frozen_artifact_integrity": {
+    "R1_implementation_check": {
+      "actual_sha256": "0cd7becc41ca35cc77432fafd34163df7b7ee9fcfc9feaf1c0f728bc55484864",
+      "expected_sha256": "0cd7becc41ca35cc77432fafd34163df7b7ee9fcfc9feaf1c0f728bc55484864",
+      "status": "PASS"
+    },
+    "R2_implementation_check": {
+      "actual_sha256": "fcf8681a46d1a78a8396a58599f33fe0569019ebd1f5450824be16f547e0acdc",
+      "expected_sha256": "fcf8681a46d1a78a8396a58599f33fe0569019ebd1f5450824be16f547e0acdc",
+      "status": "PASS"
+    },
+    "R3_implementation_check": {
+      "actual_sha256": "3624d26ebe9f72259476697c4d4c9805ea6c1fe182d776d87f19f077d77da200",
+      "expected_sha256": "3624d26ebe9f72259476697c4d4c9805ea6c1fe182d776d87f19f077d77da200",
+      "status": "PASS"
+    },
+    "T1_baseline": {
+      "actual_sha256": "3cf927fb18c08cc6bdbc7f38631ad56ab383bfdfe7f7e109550163db5590bb3d",
+      "expected_sha256": "3cf927fb18c08cc6bdbc7f38631ad56ab383bfdfe7f7e109550163db5590bb3d",
+      "status": "PASS"
+    },
+    "T2_implementation_check": {
+      "actual_sha256": "7046279447feda8170ab9c1050aa9945185becfe612f33fb015f9ca243162a63",
+      "expected_sha256": "7046279447feda8170ab9c1050aa9945185becfe612f33fb015f9ca243162a63",
+      "status": "PASS"
+    },
+    "T3_baseline": {
+      "actual_sha256": "813ff85b4efbf99754737f0fc826c8d86c4bab038156e8d87d7d3766f91332f9",
+      "expected_sha256": "813ff85b4efbf99754737f0fc826c8d86c4bab038156e8d87d7d3766f91332f9",
+      "status": "PASS"
+    },
+    "portfolio_construction": {
+      "actual_sha256": "637e3910e1e39eb317e9d4c168ba8ebb3ee313865a422c02fd0254a435565efc",
+      "expected_sha256": "637e3910e1e39eb317e9d4c168ba8ebb3ee313865a422c02fd0254a435565efc",
+      "status": "PASS"
+    },
+    "true_oos_validation": {
+      "actual_sha256": "2c50a0365899bba0fa908ac0b1d163b2a97656f85bdb712ab1d4f7cabe6bbb67",
+      "expected_sha256": "2c50a0365899bba0fa908ac0b1d163b2a97656f85bdb712ab1d4f7cabe6bbb67",
+      "status": "PASS"
+    }
+  },
+  "instruments": {
+    "CNYRUBF": {
+      "exchange_name": "MOEX",
+      "lot_size": 1000,
+      "price_precision": 0.001,
+      "round_level_step": 0.05,
+      "tick_size": 0.01
+    },
+    "USDRUBF": {
+      "exchange_name": "MOEX",
+      "lot_size": 1000,
+      "price_precision": 0.001,
+      "round_level_step": 0.1,
+      "tick_size": 0.01
+    }
+  },
+  "status": "PHASE_6_1_EXECUTION_SPEC_AUDIT_COMPLETE"
+}
