@@ -89,3 +89,22 @@ def test_run_is_deterministic_and_does_not_modify_inputs_or_baseline(tmp_path: P
     assert (tmp_path / "out1" / "BBW_OPTIMIZATION_RESULTS.csv").read_bytes() == (tmp_path / "out2" / "BBW_OPTIMIZATION_RESULTS.csv").read_bytes()
     assert (tmp_path / "out1" / "BBW_OPTIMIZATION_REPORT.md").is_file()
     assert all(before[path][0] == path.read_bytes() for path in sources)
+
+
+def test_run_loads_baseline_config_artifact_with_priority(tmp_path: Path) -> None:
+    feature, normalized, baseline = bundle(tmp_path)
+    legacy = baseline / "bbw_baseline.json"
+    artifact = baseline / "BASELINE_CONFIG.json"
+    artifact.write_bytes(legacy.read_bytes())
+    legacy.write_text("not valid JSON")
+
+    result = run_optimization(
+        feature,
+        normalized,
+        baseline,
+        tmp_path / "out",
+        "CNYRUBF",
+        grid=[parameters()],
+    )
+
+    assert result["combinations"] == 1
