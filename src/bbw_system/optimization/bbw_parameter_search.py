@@ -188,7 +188,11 @@ def _resolve(root: Path, symbol: str, filename: str) -> Path:
 def _config_path(root: Path) -> Path:
     if root.is_file():
         return root
-    for path in (root / "bbw_baseline.json", root / "config" / "bbw_baseline.json"):
+    for path in (
+        root / "BASELINE_CONFIG.json",
+        root / "bbw_baseline.json",
+        root / "config" / "bbw_baseline.json",
+    ):
         if path.is_file():
             return path
     raise OptimizationError(f"baseline config not found under {root}")
