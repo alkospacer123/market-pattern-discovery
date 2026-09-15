@@ -58,3 +58,23 @@ with `BBW_ENGINE_REPORT.md`. The layer implements only causal BBW(10, 2),
 EMA(50) and ten-candle slope, Wilder ATR(14), and the fixed ten-trading-day
 squeeze threshold. It does not aggregate candles or implement Baseline,
 signals, entries, exits, trades, backtesting, or optimization.
+
+## Baseline diagnostics
+
+After an unchanged Baseline run, generate its read-only decision-funnel report:
+
+```bash
+python -m bbw_system.baseline_diagnostics_cli \
+  --feature-root <BBW_ENGINE_OUTPUT> \
+  --normalized-root <NORMALIZED_ROOT> \
+  --baseline-root <BASELINE_OUTPUT> \
+  --output-root <DIAGNOSTICS_OUTPUT> \
+  --symbol CNYRUBF
+```
+
+The command writes `BASELINE_DIAGNOSTICS.md` and
+`BASELINE_DIAGNOSTICS.csv`. It verifies the normalized M15 manifest, rejects
+locked TRUE OOS year 2025, records decisions at candle-close availability, and
+hashes all inputs before checking that they remain unchanged. This layer does
+not alter the Baseline strategy or parameters and performs neither Optimization
+nor Robustness.
