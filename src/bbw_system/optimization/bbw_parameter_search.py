@@ -11,7 +11,7 @@ from dataclasses import asdict, dataclass, replace
 from hashlib import sha256
 import json
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 import numpy as np
 import pandas as pd
@@ -217,7 +217,9 @@ def _evaluate(parameters: OptimizationParameters, h1: pd.DataFrame, m15: pd.Data
 def run_optimization(feature_root: Path, normalized_root: Path, baseline_root: Path,
                      output_root: Path, symbol: str, *, grid_limit: int = DEFAULT_GRID_LIMIT,
                      transaction_cost_r: float = 0.0, slippage_r: float = 0.0,
-                     grid: Iterable[OptimizationParameters] | None = None) -> dict[str, Any]:
+                     grid: Iterable[OptimizationParameters] | None = None,
+                     report_builder: Callable[[pd.DataFrame, dict[str, Any], str, float, float], str]
+                     = build_report) -> dict[str, Any]:
     """Execute controlled TRAIN-only research and write deterministic artifacts."""
     if symbol != "CNYRUBF":
         raise OptimizationError("optimization currently permits only CNYRUBF")
@@ -250,7 +252,7 @@ def run_optimization(feature_root: Path, normalized_root: Path, baseline_root: P
     digest = sha256(payload).hexdigest()
     output_root.mkdir(parents=True, exist_ok=True)
     (output_root / "BBW_OPTIMIZATION_RESULTS.csv").write_bytes(payload)
-    report = build_report(results, baseline_metrics, digest, transaction_cost_r, slippage_r)
+    report = report_builder(results, baseline_metrics, digest, transaction_cost_r, slippage_r)
     (output_root / "BBW_OPTIMIZATION_REPORT.md").write_text(report, encoding="utf-8")
     if any(file_sha256(path) != old_hash for path, old_hash in before.items()):
         raise OptimizationError("an input file was modified during optimization")

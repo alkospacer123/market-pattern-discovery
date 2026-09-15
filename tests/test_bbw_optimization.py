@@ -12,6 +12,9 @@ from bbw_system.optimization.bbw_parameter_search import (
     OptimizationParameters, calculate_candidate_features, calculate_metrics,
     generate_parameter_grid, run_optimization,
 )
+from bbw_system.optimization.bbw_optimization_r2 import (
+    R2_BASELINE, R2_SPACE, generate_r2_parameter_grid, run_r2_optimization,
+)
 
 
 BASELINE = {
@@ -108,3 +111,42 @@ def test_run_loads_baseline_config_artifact_with_priority(tmp_path: Path) -> Non
     )
 
     assert result["combinations"] == 1
+
+
+def test_r2_grid_is_bounded_deterministic_in_allowed_space_and_includes_baseline() -> None:
+    first = generate_r2_parameter_grid()
+    assert first == generate_r2_parameter_grid()
+    assert len(first) == 1024
+    assert R2_BASELINE in first
+    for candidate in first:
+        for name, allowed in R2_SPACE.items():
+            assert getattr(candidate, name) in allowed
+    with pytest.raises(ValueError, match="between 500 and 2000"):
+        generate_r2_parameter_grid(499)
+
+
+def test_r2_run_is_separate_deterministic_train_only_and_preserves_baseline(tmp_path: Path) -> None:
+    feature, normalized, baseline = bundle(tmp_path)
+    baseline_path = baseline / "bbw_baseline.json"
+    before = baseline_path.read_bytes()
+    # A 500-point real evaluation is unnecessary for this integration check;
+    # identical constant-price outcomes still exercise deterministic R2 output.
+    first = run_r2_optimization(feature, normalized, baseline, tmp_path / "R2-a", "CNYRUBF",
+                                grid_limit=500)
+    second = run_r2_optimization(feature, normalized, baseline, tmp_path / "R2-b", "CNYRUBF",
+                                 grid_limit=500)
+    assert first["combinations"] == 500
+    assert first["sha256"] == second["sha256"]
+    assert baseline_path.read_bytes() == before
+    report = (tmp_path / "R2-a" / "BBW_OPTIMIZATION_REPORT.md").read_text()
+    assert "R1 vs R2" in report and "Robustness and Walk Forward were not performed" in report
+
+
+def test_r2_rejects_true_oos_before_search(tmp_path: Path) -> None:
+    feature, normalized, baseline = bundle(tmp_path)
+    h1, m15 = frames(2025)
+    h1.to_csv(feature / OUTPUT_NAME, index=False)
+    m15.to_csv(normalized / "CNYRUBF" / "M15.csv", index=False)
+    with pytest.raises(ValueError, match="TRUE OOS"):
+        run_r2_optimization(feature, normalized, baseline, tmp_path / "R2", "CNYRUBF",
+                            grid_limit=500)
