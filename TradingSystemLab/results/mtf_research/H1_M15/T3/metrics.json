@@ -1,0 +1,14 @@
+{
+  "PF": 1.6707047476526138,
+  "average_MAE_R": 0.5986068465627391,
+  "average_MFE_R": 1.7042354357597054,
+  "average_holding_hours": 9.426121372031663,
+  "expectancy_R": 0.2871657781801897,
+  "losing_streak": 10,
+  "max_drawdown_R": -29.432355502670674,
+  "net_R": 108.83582993029188,
+  "recovery_factor": 3.6978294149924964,
+  "status": "AVAILABLE",
+  "total_trades": 379,
+  "win_rate": 0.41160949868073876
+}
