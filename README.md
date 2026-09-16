@@ -90,6 +90,30 @@ report under `results/`. Run the contract suite with `pytest -vv`.
 Validate the Phase 3A outcome matrix on the four approved 2026 datasets with
 `phase3a-validate`.
 
+## BBW Robustness Research
+
+BBW Candidate Baseline v1 is a `RESEARCH_CANDIDATE` sourced from Optimization
+R2; it is not a production trading system.  The separate robustness layer
+evaluates fixed cost cases, a predefined parameter neighbourhood, result
+concentration, and trade distribution using TRAIN data only.  It neither
+changes nor selects Candidate parameters and never changes the Frozen Baseline.
+
+Run it with explicit read-only input and output locations:
+
+```powershell
+python -m bbw_system.robustness_cli `
+  --symbol CNYRUBF `
+  --candidate-root C:\BBW\results\candidate_baseline\v1 `
+  --feature-root C:\BBW\results\bbw_engine\R1 `
+  --normalized-root C:\BBW\data\normalized\TRAIN `
+  --output-root C:\BBW\results\robustness\v1
+```
+
+The resulting `ROBUSTNESS_RESULTS.csv` and `ROBUSTNESS_REPORT.md` determine the
+next research step.  Walk Forward may be performed only after a
+`ROBUSTNESS_PASS`; this command itself performs neither optimization nor Walk
+Forward and rejects locked TRUE OOS calendar year 2025.
+
 ## Research Protocol v1.0
 
 Phase 4A freezes a one-way, chronological research process. The approved 2026
