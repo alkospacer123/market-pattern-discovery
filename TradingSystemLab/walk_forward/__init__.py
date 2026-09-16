@@ -1,1 +1,1 @@
-"""Frozen, causal Phase 4 walk-forward validation."""
+"""Walk-forward validation implementations."""
