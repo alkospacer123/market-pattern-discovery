@@ -36,7 +36,9 @@ def test_development_barrier_rejects_2025() -> None:
 def test_determinism_provenance_and_baseline_protection(tmp_path: Path,
                                                         monkeypatch: pytest.MonkeyPatch) -> None:
     import TradingSystemLab.optimization.phase82 as phase82
-    monkeypatch.setattr(phase82, "load_m1_development", lambda *args: (pd.DataFrame({"Close": [1]}), []))
+    index = pd.DatetimeIndex(["2023-12-31T21:00:00Z", "2024-01-01T00:00:00Z"])
+    monkeypatch.setattr(phase82, "load_m1_development", lambda *args: (
+        pd.DataFrame({"Close": [1, 2]}, index=index), []))
     monkeypatch.setattr(phase82, "_execute", _trades)
     baseline_hash = hash_tree(phase82.BASELINE_ROOT)
     output = tmp_path / "M1"
@@ -46,6 +48,10 @@ def test_determinism_provenance_and_baseline_protection(tmp_path: Path,
     assert first == second
     assert first_hash == hash_tree(output)
     assert baseline_hash == hash_tree(phase82.BASELINE_ROOT)
+    assert phase82._WORKER_DATA is None
+    assert pd.Timestamp("2024-01-01", tz="Europe/Moscow") == phase82.OPTIMIZATION_START
+    manifest = pd.read_json(output / "manifest.json", typ="series")
+    assert manifest["development_period"] == ["2024-01-01", "2024-12-31"]
     for key in ("T2", "T3"):
         registry = (output / key / "candidate_registry.json").read_text()
         assert f'"candidate_id": "{key}_M1_candidate_v1"' in registry
