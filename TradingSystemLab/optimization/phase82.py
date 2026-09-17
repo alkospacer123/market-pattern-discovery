@@ -46,6 +46,8 @@ RANGES: dict[str, dict[str, list[Any]]] = {
            "stop_atr": [1.5, 2, 2.5], "trail_atr": [2, 3, 4]},
 }
 MAX_CONFIGURATIONS = 5000
+OPTIMIZATION_START = pd.Timestamp("2024-01-01", tz="Europe/Moscow")
+OPTIMIZATION_END = pd.Timestamp("2025-01-01", tz="Europe/Moscow")
 
 
 def _sha(path: Path) -> str:
@@ -177,8 +179,11 @@ def _run_strategy(key: str, baseline_row: dict, loaded: dict, output: Path,
         tasks.append((key, config, cid))
     global _WORKER_DATA
     _WORKER_DATA = loaded
+    results = []
     with mp.get_context("fork").Pool(processes=min(8, len(tasks))) as pool:
-        results = pool.map(_evaluate, tasks)
+        for completed, result in enumerate(pool.imap(_evaluate, tasks, chunksize=1), start=1):
+            results.append(result)
+            print(f"{key}: configuration {completed}/{len(tasks)} completed", flush=True)
     _WORKER_DATA = None
     plateau, stability = _plateau(key, configs, results)
     plateau_ids = {r["configuration_id"] for r in plateau if r["classification"] == "ROBUST_PLATEAU"}
@@ -227,6 +232,9 @@ def run(data_root: Path = APPROVED_DATA_ROOT, output: Path = OUTPUT) -> dict[str
     verify_frozen_strategies(); baselines = baseline_candidates()
     protected_before = {str(path): hash_tree(path) for path in PROTECTED}
     loaded = {alias: load_m1_development(Path(data_root), alias) for _, alias in INSTRUMENTS}
+    loaded = {alias: (None if frame is None else frame.loc[
+        (frame.index >= OPTIMIZATION_START) & (frame.index < OPTIMIZATION_END)], paths)
+        for alias, (frame, paths) in loaded.items()}
     sources = [{"instrument": instrument, "alias": alias,
                 "files": [{"name": p.name, "sha256": _sha(p)} for p in loaded[alias][1]]}
                for instrument, alias in INSTRUMENTS]
@@ -238,7 +246,7 @@ def run(data_root: Path = APPROVED_DATA_ROOT, output: Path = OUTPUT) -> dict[str
     protected_after = {str(path): hash_tree(path) for path in PROTECTED}
     if protected_before != protected_after: raise RuntimeError("PROTECTED_ARTIFACT_MUTATION")
     manifest = {"phase": "8.2", "status": "PHASE_8_2_M1_OPTIMIZATION_COMPLETE", "timeframe": "M1",
-        "development_period": ["2023-01-01", "2024-12-31"], "instruments": [x[0] for x in INSTRUMENTS],
+        "development_period": ["2024-01-01", "2024-12-31"], "instruments": [x[0] for x in INSTRUMENTS],
         "strategies": ["T2_M1_candidate_v1", "T3_M1_candidate_v1"], "source_data_hashes": sources,
         "baseline_artifact_hashes": {str(BASELINE_ROOT): protected_before[str(BASELINE_ROOT)]},
         "strategy_hashes": {k: {"file": STRATEGY_FILES[k], "sha256": STRATEGY_SHA256[k]} for k in ("T2", "T3")},
