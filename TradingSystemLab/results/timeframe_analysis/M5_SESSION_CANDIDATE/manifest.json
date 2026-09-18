@@ -1,0 +1,43 @@
+{
+  "baseline_candidate_ids": {
+    "T2": "T2_M5_candidate_v1",
+    "T3": "T3_M5_candidate_v1"
+  },
+  "candidate_research": true,
+  "deterministic": true,
+  "development_period": {
+    "end": "2024-12-31",
+    "start": "2023-01-01"
+  },
+  "diagnostic_only": false,
+  "optimization": false,
+  "parameter_changes": false,
+  "phase": "M5_SESSION_CANDIDATE",
+  "session_candidate_ids": {
+    "T2": "T2_M5_session_candidate_v1",
+    "T3": "T3_M5_session_candidate_v1"
+  },
+  "session_definition": {
+    "end_exclusive": "17:00",
+    "start_inclusive": "10:00",
+    "timezone": "existing_project_trading_timezone",
+    "weekdays": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ]
+  },
+  "source_hashes": {
+    "TradingSystemLab/results/timeframe_optimization/M5/T2/candidate_registry.json": "4f9fbd928b343e185ff88d947e9b3cd0d0092cdcf353e89b7fdc913b6275f21e",
+    "TradingSystemLab/results/timeframe_optimization/M5/T3/candidate_registry.json": "68b0be050b0d11b54aab3a98bd7ddbdd65909926d3c0d0362b5de29e8548f2f4",
+    "TradingSystemLab/results/timeframe_validation/M5/T2/trades.csv": "eb00d9d4a64a0691b07e84fc0cb7c9e16cbf5da94b3524711b6c5a72ab20ae96",
+    "TradingSystemLab/results/timeframe_validation/M5/T3/trades.csv": "24c05f3be7cdbc2894e0d2acd09803a0490fb52b68084df9336c10b4d3b5ce92"
+  },
+  "status": "PHASE_M5_SESSION_CANDIDATE_COMPLETE",
+  "strategy_changes": false,
+  "true_oos_access": false,
+  "true_oos_cutoff": "2025-01-01",
+  "winner_selection": false
+}
