@@ -1,0 +1,137 @@
+{
+  "central_candidate_id": "T2_candidate_v1",
+  "central_candidate_parameter_hash": "2b0494cdd24bfbfa8ce7d657d6f83d1408f07b9f565d38d093dec5b4856e3c00",
+  "central_configuration_id": "T2-M30-0008-2b0494cdd24b",
+  "central_phase32_configuration_id": "T2-0007-608dc87d09f1",
+  "design": "BASELINE_PLUS_ONE_FACTOR_AT_A_TIME",
+  "deterministic_seed": 0,
+  "development_period": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "methodological_source": "H1_PHASE_3_2",
+  "optimization_type": "BOUNDED_OAT",
+  "parameter_space": {
+    "adx_threshold": [
+      15,
+      20,
+      25,
+      30
+    ],
+    "confirmation_window": [
+      2,
+      3,
+      4
+    ],
+    "ema_fast": [
+      15,
+      20,
+      25,
+      30
+    ],
+    "ema_slow": [
+      150,
+      200,
+      250
+    ],
+    "ema_trend": [
+      40,
+      50,
+      60
+    ],
+    "impulse_distance_atr": [
+      0.3,
+      0.5,
+      0.7
+    ],
+    "max_initial_stop_atr": [
+      2.0,
+      2.5,
+      3.0
+    ],
+    "trailing_atr": [
+      2.0,
+      3.0,
+      4.0
+    ]
+  },
+  "phase": "M30_OPTIMIZATION",
+  "primary_cost_model": "H1_C1",
+  "source_files": [
+    {
+      "alias": "Si",
+      "instrument": "USDRUBF",
+      "name": "Si_M30_2023_Q1.csv",
+      "sha256": "1a5f20a86c273d65ad9d5dacf175bc93cfc147a4d0fc6b564d7cc8cb58454203"
+    },
+    {
+      "alias": "Si",
+      "instrument": "USDRUBF",
+      "name": "Si_M30_2023_Q2.csv",
+      "sha256": "51b6e7ee688bb3c601546aee3da1ac82b58c7d55c93ba05139ac0de23e2b882f"
+    },
+    {
+      "alias": "Si",
+      "instrument": "USDRUBF",
+      "name": "Si_M30_2023_Q3.csv",
+      "sha256": "38e264b1da9ab7ac6f9ad30ebd8d85f0afb58cb5af502222c240fb45a4593515"
+    },
+    {
+      "alias": "Si",
+      "instrument": "USDRUBF",
+      "name": "Si_M30_2024_Q1.csv",
+      "sha256": "7ad322dddfd753fa9329ea3391e9b6e187ee7c1a8c1f8967309e5b62d15cadc6"
+    },
+    {
+      "alias": "Si",
+      "instrument": "USDRUBF",
+      "name": "Si_M30_2024_Q2.csv",
+      "sha256": "9f5580b2c2c24bf0f4adddba7574c933955d972c327a594aea9172740029df4d"
+    },
+    {
+      "alias": "Si",
+      "instrument": "USDRUBF",
+      "name": "Si_M30_2024_Q3.csv",
+      "sha256": "1b0351c307a37900101b0bf4dd291a569e7f92b3ec50f1d6c17a947b19b20b60"
+    },
+    {
+      "alias": "CNY",
+      "instrument": "CNYRUBF",
+      "name": "CNY_M30_2023_Q1.csv",
+      "sha256": "08f6100d5b335898a290a50e7d3abe609e8e6cd97fcc1029cddf6cda848b5e34"
+    },
+    {
+      "alias": "CNY",
+      "instrument": "CNYRUBF",
+      "name": "CNY_M30_2023_Q2.csv",
+      "sha256": "c41f78bcd6d47769380aa5ce9e0e4e29bc1f60defdb3a6d96a9085ef04459969"
+    },
+    {
+      "alias": "CNY",
+      "instrument": "CNYRUBF",
+      "name": "CNY_M30_2023_Q3.csv",
+      "sha256": "7504d5ce0ef3343b756b25dec08f383d6f9664bda4c5ad73e8725bd5c93cab66"
+    },
+    {
+      "alias": "CNY",
+      "instrument": "CNYRUBF",
+      "name": "CNY_M30_2024_Q1.csv",
+      "sha256": "c0f572fa1257b880bd25a3a68cf3a13de5e0d2a714656f3ad46fa91763ea2d72"
+    },
+    {
+      "alias": "CNY",
+      "instrument": "CNYRUBF",
+      "name": "CNY_M30_2024_Q2.csv",
+      "sha256": "f5d0f742914a5690ffc88a23f03ed1a73f7c4a1c00905c49ec8a8887fd48f214"
+    },
+    {
+      "alias": "CNY",
+      "instrument": "CNYRUBF",
+      "name": "CNY_M30_2024_Q3.csv",
+      "sha256": "985cf315c6ec017f4f623a6e81ae11875379da94255ddce4cc3ca82e4ef661ea"
+    }
+  ],
+  "tested_configuration_count": 19,
+  "timeframe": "M30",
+  "true_oos_blocked": true
+}
