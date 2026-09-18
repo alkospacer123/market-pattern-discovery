@@ -1,0 +1,5 @@
+dimension,period,share_of_positive_R,net_R_without_top5,PF_without_top5,positive_R_contribution
+trade,TOP_1,0.0419819320762,,,
+trade,TOP_5,0.14364636036,76.7771289087,1.40456131086,
+year,2023,0.554815924624,,,172.696681064
+year,2024,0.445184075376,,,138.571747615
