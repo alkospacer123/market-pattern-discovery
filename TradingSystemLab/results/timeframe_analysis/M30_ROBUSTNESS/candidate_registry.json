@@ -1,0 +1,52 @@
+{
+  "T2": {
+    "candidate_id": "T2_M30_candidate_v1",
+    "optimization_classification": "ROBUST_PLATEAU",
+    "optimization_configuration_id": "T2-M30-0008-2b0494cdd24b",
+    "parameter_hash": "2b0494cdd24bfbfa8ce7d657d6f83d1408f07b9f565d38d093dec5b4856e3c00",
+    "parameters": {
+      "adx_threshold": 20,
+      "confirmation_window": 3,
+      "ema_fast": 20,
+      "ema_slow": 200,
+      "ema_trend": 50,
+      "impulse_distance_atr": 0.5,
+      "max_initial_stop_atr": 2.5,
+      "trailing_atr": 3
+    },
+    "parent_candidate_id": "T2_candidate_v1",
+    "selection_locked_before_validation": true,
+    "source_optimization_artifact_hashes": {
+      "manifest.json": "a1ef327e0b1add3518be4e2936ffe50da00f3ec208057f77a7e9e7b09f3a3c05",
+      "parameters.csv": "608e70947e93da4eb2d73189bf3a89d6bad880783f2bcfde3198333eac8402aa",
+      "plateau_report.csv": "a76bacbd166a55245e94a46e28199b7e23c2cf2c7f430f2528f6751d841b5a78",
+      "results.csv": "6a08d3f40235f6c49251bb5937e720987eac484a4eb05c596a1a65baebcd2f3a"
+    },
+    "strategy": "T2",
+    "strategy_hash": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774"
+  },
+  "T3": {
+    "candidate_id": "T3_M30_candidate_v1",
+    "optimization_classification": "ROBUST_PLATEAU",
+    "optimization_configuration_id": "T3-M30-0020-816e9e819790",
+    "parameter_hash": "816e9e819790e1523aa5408bc1437119fae03f840c9e672c74f9974983e429c3",
+    "parameters": {
+      "adx_threshold": 25,
+      "atr_average_period": 20,
+      "breakout_period": 20,
+      "ema_period": 75,
+      "stop_atr": 2.0,
+      "trail_atr": 3.0
+    },
+    "parent_candidate_id": "T3_candidate_v1",
+    "selection_locked_before_validation": true,
+    "source_optimization_artifact_hashes": {
+      "manifest.json": "0220328b7480d3568d79b0f5e24ade4ace4f51086b9db1fefe968831c3014bec",
+      "parameters.csv": "a2459c7e15383b93f2f88bbc226ff3271b609a49eb27f6d374bbda627cd146bb",
+      "plateau_report.csv": "ad0a8591f22d63ee1e3386e54b604d9f033d394e42a3d6400a73b23e7411c5e0",
+      "results.csv": "9d059924c6d95d4dfd53c4355abb26687fc8c94344042c6304cc4ec0434890d5"
+    },
+    "strategy": "T3",
+    "strategy_hash": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
+  }
+}
