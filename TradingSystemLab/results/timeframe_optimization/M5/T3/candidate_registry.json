@@ -1,0 +1,81 @@
+{
+  "baseline_candidate_id": "T3_candidate_v1",
+  "baseline_parameter_hash": "938b6b3b78f680010115a204b9a49e7eef962db119f4ea121e388c00741920ba",
+  "candidate_id": "T3_M5_candidate_v1",
+  "configuration_id": "T3-M5-0011-76dd2f3526c3",
+  "parameter_hash": "76dd2f3526c38a3c7abfd3117d2a9ea4a78d0954c868bd01260736011726ba69",
+  "parameters": {
+    "adx_threshold": 20,
+    "atr_average_period": 20,
+    "breakout_period": 20,
+    "ema_period": 75,
+    "stop_atr": 2.0,
+    "trail_atr": 3.5
+  },
+  "selection_status": "ROBUST_PLATEAU",
+  "source_hashes": [
+    {
+      "alias": "Si",
+      "files": [
+        {
+          "name": "Si_M5_2023_Q1.csv",
+          "sha256": "9fecd144e0d16358ef082bc7e5ebc1692cdcb44739e34d68eb54802734d3d777"
+        },
+        {
+          "name": "Si_M5_2023_Q2.csv",
+          "sha256": "bad646079cdfa7125fe40d23b8be2e06a4489a9791868cb5bb8f27f9026ff795"
+        },
+        {
+          "name": "Si_M5_2023_Q3.csv",
+          "sha256": "c1ec35fb318ae1cc0613752f49b84c1be3069fb8f792cfec4cadf4189222f876"
+        },
+        {
+          "name": "Si_M5_2024_Q1.csv",
+          "sha256": "74b49f91848f84802fedc78a7b08ad98436848bfa15fdaefc0829a5c63ca3364"
+        },
+        {
+          "name": "Si_M5_2024_Q2.csv",
+          "sha256": "443f6421091aa88c1d3328ffbf9533e462811c1c230bd3677f56b43393a8ba7a"
+        },
+        {
+          "name": "Si_M5_2024_Q3.csv",
+          "sha256": "55e7558d7314832b32c9cb47e797799cd2dbaf9f38bb6a5b495a8f3df66a7278"
+        }
+      ],
+      "instrument": "USDRUBF"
+    },
+    {
+      "alias": "CNY",
+      "files": [
+        {
+          "name": "CNY_M5_2023_Q1.csv",
+          "sha256": "7de169d3ca36965ffe8fa4cf658aeccc86ebb9dbb7189aa99640626368121f3b"
+        },
+        {
+          "name": "CNY_M5_2023_Q2.csv",
+          "sha256": "b707832b1e0b9ea91040ae77c1357bf646c73a49935a75d58f973930229e1e34"
+        },
+        {
+          "name": "CNY_M5_2023_Q3.csv",
+          "sha256": "c0b49d854ebd611b00482b7de48d600a12c521c593d6f33c6700da8b207a4ee0"
+        },
+        {
+          "name": "CNY_M5_2024_Q1.csv",
+          "sha256": "8c9ba03a026d72da33e6e2bd770b937b5547c04299c08ec251acce7c5ba4fb25"
+        },
+        {
+          "name": "CNY_M5_2024_Q2.csv",
+          "sha256": "d776aed4f35f4fc2c103afec863b32ef0143e4e861caf5da9a33fabe32d6fbe8"
+        },
+        {
+          "name": "CNY_M5_2024_Q3.csv",
+          "sha256": "82dbc143778ef4bd98b682001c9041ead350362f3cbaeef8d7b0ff9cc1b8e84b"
+        }
+      ],
+      "instrument": "CNYRUBF"
+    }
+  ],
+  "strategy": "T3",
+  "strategy_hash": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c",
+  "timeframe": "M5"
+}
