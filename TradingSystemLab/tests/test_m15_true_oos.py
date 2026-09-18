@@ -21,7 +21,11 @@ def _candles(start: str = "2025-01-01 10:00", periods: int = 220) -> pd.DataFram
 
 def test_frozen_registry_ids_and_parameter_hashes_are_exact():
     registries = m15.load_frozen_registry()
+    assert {key: row["candidate_id"] for key, row in registries.items()} == m15.EVALUATED_CANDIDATES
     assert {key: row["baseline_candidate_id"] for key, row in registries.items()} == m15.ALLOWED_CANDIDATES
+    assert {key: row["configuration_id"] for key, row in registries.items()} == {
+        key: value[1] for key, value in m15.EXPECTED_REGISTRY.items()}
+    assert {key: row["strategy_hash"] for key, row in registries.items()} == m15.STRATEGY_SHA256
     assert all(stable_hash(row["parameters"]) == row["parameter_hash"] for row in registries.values())
     with pytest.raises(TypeError, match="frozen"):
         registries["T2"]["parameters"]["ema_fast"] = 1
@@ -73,3 +77,36 @@ def test_execution_only_source_guard_and_declared_flags():
     assert "optimization" not in inspect.signature(m15.run).parameters
     assert "ranking" not in inspect.signature(m15.run).parameters
     assert '"optimization": False' in source and '"ranking": False' in source
+    assert "parameters" not in inspect.signature(m15.run).parameters
+    assert m15.STATUS == "PHASE_M15_TRUE_OOS_COMPLETE"
+
+
+def test_walk_forward_verdicts_bootstrap_and_execution_contract_are_frozen():
+    assert m15.PRE_OOS_VERDICTS == {"T2": "WALK_FORWARD_BORDERLINE", "T3": "WALK_FORWARD_FAIL"}
+    assert m15.BOOTSTRAP_SEED == 5102025 and m15.BOOTSTRAP_ITERATIONS == 10_000
+    first = m15.bootstrap(pd.Series([-.5, .25, 1.0]))
+    assert first == m15.bootstrap(pd.Series([-.5, .25, 1.0]))
+
+
+def test_exact_h1_phase5_classification_rules():
+    base = {"trades": 50, "expectancy_R": .1}
+    quarters = [{"trades": 1, "expectancy_R": .1}] * 3 + [{"trades": 1, "expectancy_R": -.1}] * 2
+    slices = [{"trades": 1, "expectancy_R": 0}]
+    boot, conc = {"probability_mean_R_gt_0": .95}, {"net_R_without_top5": .01}
+    assert m15.classify(base, quarters, slices, slices, boot, conc) == "PASS"
+    assert m15.classify({**base, "expectancy_R": 0}, quarters, slices, slices, boot, conc) == "FAIL"
+    assert m15.classify(base, quarters, slices, slices, {"probability_mean_R_gt_0": .5}, conc) == "FAIL"
+    assert m15.classify(base, quarters, slices, slices, {"probability_mean_R_gt_0": .94}, conc) == "BORDERLINE"
+    # Empty quarters do not dilute the observed-quarter denominator.
+    assert m15.classify(base, quarters + [{"trades": 0, "expectancy_R": None}], slices, slices, boot, conc) == "PASS"
+    assert m15.classify(base, quarters, [{"trades": 1, "expectancy_R": -.01}], slices, boot, conc) == "BORDERLINE"
+    assert m15.classify(base, quarters, slices, [{"trades": 1, "expectancy_R": -.01}], boot, conc) == "BORDERLINE"
+    assert m15.classify(base, quarters, slices, slices, boot, {"net_R_without_top5": 0}) == "BORDERLINE"
+
+
+def test_causal_context_rejects_incomplete_nonconsecutive_and_cross_day_groups():
+    candles = _candles(periods=9)
+    candles = candles.drop(candles.index[5])
+    assert list(m15.causal_h1_context(candles).index) == [candles.index[3]]
+    next_day = _candles("2025-01-02 10:00", 3)
+    assert len(m15.causal_h1_context(pd.concat([candles.iloc[:2], next_day]))) == 0

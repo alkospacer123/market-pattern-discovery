@@ -17,6 +17,7 @@ import shutil
 from typing import Any, Mapping
 
 import pandas as pd
+import numpy as np
 
 from ..core.backtester import Backtester
 from ..core.data_loader import DataLoader
@@ -34,13 +35,19 @@ from ..timeframe_validation.m15_baseline import INSTRUMENTS, TRADE_COLUMNS, caus
 
 TIMEFRAME = "M15"
 PHASE = "M15_TRUE_OOS"
-STATUS = "PHASE_M15_TRUE_OOS_PREPARED"
+STATUS = "PHASE_M15_TRUE_OOS_COMPLETE"
 DEVELOPMENT_PERIOD = ["2023-01-01", "2024-12-31"]
 TRUE_OOS_PERIOD = ["2025-01-01", None]
 OUTPUT = Path("TradingSystemLab/results/true_oos_validation/M15")
 FROZEN_REGISTRY = Path("TradingSystemLab/results/timeframe_optimization/M15")
 WALK_FORWARD = Path("TradingSystemLab/results/walk_forward/M15")
+BASELINE = Path("TradingSystemLab/results/timeframe_validation/M15")
+ROBUSTNESS = Path("TradingSystemLab/results/timeframe_analysis/M15_ROBUSTNESS")
 ALLOWED_CANDIDATES = {"T2": "T2_candidate_v1", "T3": "T3_candidate_v1"}
+EVALUATED_CANDIDATES = {"T2": "T2_M15_candidate_v1", "T3": "T3_M15_candidate_v1"}
+PRE_OOS_VERDICTS = {"T2": "WALK_FORWARD_BORDERLINE", "T3": "WALK_FORWARD_FAIL"}
+BOOTSTRAP_ITERATIONS = 10_000
+BOOTSTRAP_SEED = 5102025
 EXPECTED_REGISTRY = {
     "T2": ("T2_M15_candidate_v1", "T2-M15-0014-26fb9b19bd4f", "26fb9b19bd4fca7805d88d08817831d516d5de51b118bfd428d8626e593da317"),
     "T3": ("T3_M15_candidate_v1", "T3-M15-0011-76dd2f3526c3", "76dd2f3526c38a3c7abfd3117d2a9ea4a78d0954c868bd01260736011726ba69"),
@@ -121,6 +128,9 @@ def load_frozen_registry(registry_root: Path = FROZEN_REGISTRY,
                 wf.get("parameter_hashes", {}).get(key), wf.get("candidate_registry_hashes", {}).get(key)) != (
                 expected_id, configuration, parameter_hash, _sha(path)):
             raise RuntimeError(f"{key}_WALK_FORWARD_IDENTITY_MISMATCH")
+        aggregate = json.loads((Path(walk_forward) / key / "aggregate_metrics.json").read_text(encoding="utf-8"))
+        if aggregate.get("candidate_id") != expected_id or aggregate.get("verdict") != PRE_OOS_VERDICTS[key]:
+            raise RuntimeError(f"{key}_WALK_FORWARD_VERDICT_MISMATCH")
         row["parameters"] = FrozenParameters(row["parameters"])
         result[key] = row
     return result
@@ -213,8 +223,40 @@ def _metric(frame: pd.DataFrame) -> dict[str, Any]:
     return {"trades": item["trades"], "PF": finite(item["PF_R"]),
         "expectancy_R": finite(item["expectancy"]), "net_R": item["net_R"],
         "max_drawdown_R": item["max_DD_R"], "recovery_factor": finite(item["recovery_factor"]),
-        "win_rate": finite(item["winrate"]), "max_winning_streak": item["max_winning_streak"],
+        "win_rate": finite(item["winrate"]), "average_win": finite(item["average_win_R"]),
+        "average_loss": finite(item["average_loss_R"]), "max_winning_streak": item["max_winning_streak"],
         "max_losing_streak": item["max_losing_streak"]}
+
+
+def bootstrap(values: pd.Series) -> dict[str, Any]:
+    """Canonical Phase 5 deterministic trade bootstrap."""
+    x = np.asarray(values, dtype=np.float64)
+    empty = {k: None for k in ("mean_R_2.5%", "mean_R_5%", "mean_R_50%", "mean_R_95%",
+                                "mean_R_97.5%", "probability_mean_R_gt_0")}
+    if not len(x):
+        return {"iterations": BOOTSTRAP_ITERATIONS, "seed": BOOTSTRAP_SEED, "trades": 0, **empty}
+    means = np.random.default_rng(BOOTSTRAP_SEED).choice(
+        x, size=(BOOTSTRAP_ITERATIONS, len(x)), replace=True).mean(axis=1)
+    q = np.quantile(means, [.025, .05, .5, .95, .975])
+    return {"iterations": BOOTSTRAP_ITERATIONS, "seed": BOOTSTRAP_SEED, "trades": len(x),
+            "mean_R_2.5%": q[0], "mean_R_5%": q[1], "mean_R_50%": q[2],
+            "mean_R_95%": q[3], "mean_R_97.5%": q[4],
+            "probability_mean_R_gt_0": float((means > 0).mean())}
+
+
+def classify(metrics: Mapping[str, Any], quarters: list[dict], instruments: list[dict],
+             directions: list[dict], boot: Mapping[str, Any], conc: Mapping[str, Any]) -> str:
+    """Apply the frozen H1 Phase 5 PASS/FAIL/BORDERLINE thresholds."""
+    observed = [row for row in quarters if row["trades"]]
+    fraction = sum((row["expectancy_R"] or 0) > 0 for row in observed) / len(observed) if observed else 0
+    expectancy = metrics["expectancy_R"] or 0
+    probability = boot["probability_mean_R_gt_0"] or 0
+    passing = (metrics["trades"] >= 50 and expectancy > 0
+               and probability >= .95 and fraction >= .60
+               and all(row["expectancy_R"] >= 0 for row in instruments + directions if row["trades"])
+               and conc["net_R_without_top5"] > 0)
+    failing = expectancy <= 0 or probability <= .50
+    return "PASS" if passing else ("FAIL" if failing else "BORDERLINE")
 
 
 def _svg(path: Path, values: list[float], title: str, *, cumulative: bool = False) -> None:
@@ -237,33 +279,48 @@ def _svg(path: Path, values: list[float], title: str, *, cumulative: bool = Fals
 def _reports(target: Path, key: str, registry: dict, trades: pd.DataFrame) -> dict:
     target.mkdir(parents=True)
     _csv(target / "trades.csv", trades)
-    metrics = {"candidate_id": ALLOWED_CANDIDATES[key], "registry_candidate_id": registry["candidate_id"],
+    metrics = {"candidate_id": registry["candidate_id"], "baseline_candidate_id": registry["baseline_candidate_id"],
+        "configuration_id": registry["configuration_id"],
         "parameter_hash": registry["parameter_hash"], "initial_state": "FLAT", "resets": 0,
         "continuous_period": True, "cost_ticks_per_side": COST_TICKS_PER_SIDE, **_metric(trades)}
-    _json(target / "metrics.json", metrics)
     _csv(target / "period_summary.csv", [{"period_id": "TRUE_OOS", "start": "2025-01-01",
         "end": None, "initial_state": "FLAT", "resets": 0, **_metric(trades)}])
     group = lambda column, value: _metric(trades.loc[trades[column].eq(value)])
-    _csv(target / "instrument_report.csv", [{"instrument": name, **group("instrument", name)} for name, _ in INSTRUMENTS])
-    _csv(target / "direction_report.csv", [{"direction": value, **group("direction", value)} for value in ("LONG", "SHORT")])
-    years = pd.to_datetime(trades.exit_time, utc=True).dt.year if len(trades) else pd.Series(dtype=int)
-    yearly = trades.assign(year=years)
-    _csv(target / "year_report.csv", [{"year": int(year), **_metric(yearly.loc[yearly.year.eq(year)])} for year in sorted(years.unique())])
-    _csv(target / "concentration.csv", [concentration(trades.net_R if len(trades) else pd.Series(dtype=float))])
+    instruments = [{"instrument": name, **group("instrument", name)} for name, _ in INSTRUMENTS]
+    directions = [{"direction": value, **group("direction", value)} for value in ("LONG", "SHORT")]
+    _csv(target / "instrument_report.csv", instruments); _csv(target / "direction_report.csv", directions)
+    exits = pd.to_datetime(trades.exit_time, utc=True) if len(trades) else pd.Series(dtype="datetime64[ns, UTC]")
+    years = exits.dt.year
+    quarters_value = exits.dt.year.astype(str) + "Q" + (((exits.dt.month - 1) // 3) + 1).astype(str)
+    yearly_frame, quarterly_frame = trades.assign(year=years), trades.assign(quarter=quarters_value)
+    yearly = [{"year": int(year), **_metric(yearly_frame.loc[yearly_frame.year.eq(year)])} for year in sorted(years.unique())]
+    quarterly = [{"quarter": quarter, **_metric(quarterly_frame.loc[quarterly_frame.quarter.eq(quarter)])} for quarter in sorted(quarters_value.unique())]
+    _csv(target / "yearly_report.csv", yearly); _csv(target / "quarterly_report.csv", quarterly)
+    conc = concentration(trades.net_R if len(trades) else pd.Series(dtype=float))
+    _csv(target / "concentration_report.csv", [conc])
     excursions = []
     for label, sample in (("ALL", trades), ("WINNERS", trades.loc[trades.net_R > 0]), ("LOSERS", trades.loc[trades.net_R <= 0])):
         excursions.append({"group": label, "trades": len(sample), **{f"{name}_{stat}":
             (finite(getattr(sample[name].astype(float), stat)()) if len(sample) else None)
             for name in ("MAE_R", "MFE_R") for stat in ("mean", "median", "min", "max")}})
-    _csv(target / "mae_mfe.csv", excursions)
-    _svg(target / "equity_curve.svg", trades.net_R.tolist(), f"{ALLOWED_CANDIDATES[key]} TRUE OOS equity (R)", cumulative=True)
+    _csv(target / "mae_mfe_report.csv", excursions)
+    boot = bootstrap(trades.net_R if len(trades) else pd.Series(dtype=float))
+    _csv(target / "bootstrap_report.csv", [boot])
+    classification = classify(metrics, quarterly, instruments, directions, boot, conc)
+    observed = [row for row in quarterly if row["trades"]]
+    metrics.update({"bootstrap_probability_mean_R_gt_0": boot["probability_mean_R_gt_0"],
+                    "positive_quarters": sum(row["expectancy_R"] > 0 for row in observed),
+                    "observed_quarters": len(observed), "net_R_without_top5": conc["net_R_without_top5"],
+                    "classification": classification})
+    _json(target / "metrics.json", metrics)
+    _svg(target / "equity_curve.svg", trades.net_R.tolist(), f"{registry['candidate_id']} TRUE OOS equity (R)", cumulative=True)
     ordered = sorted(trades.net_R.astype(float).tolist()) if len(trades) else []
-    _svg(target / "r_distribution.svg", ordered, f"{ALLOWED_CANDIDATES[key]} R distribution")
-    (target / "summary.md").write_text(
-        f"# {ALLOWED_CANDIDATES[key]} — M15 TRUE OOS\n\n"
+    _svg(target / "r_distribution.svg", ordered, f"{registry['candidate_id']} R distribution")
+    (target / "final_report.md").write_text(
+        f"# {registry['candidate_id']} — M15 TRUE OOS\n\n**Classification: {classification}**\n\n"
         "One continuous 2025+ period, initialized FLAT with no internal reset. Parameters are loaded from the "
         "frozen registry; no retraining, optimization, ranking, selection, filters, or parameter changes occur.\n\n"
-        f"Trades: {metrics['trades']}; PF: {metrics['PF']}; expectancy: {metrics['expectancy_R']} R; net: {metrics['net_R']} R.\n",
+        f"Pre-OOS Walk Forward verdict: {PRE_OOS_VERDICTS[key]}.\n\nTrades: {metrics['trades']}; PF: {metrics['PF']}; expectancy: {metrics['expectancy_R']} R; net: {metrics['net_R']} R.\n",
         encoding="utf-8")
     return metrics
 
@@ -277,8 +334,15 @@ def run(data_root: Path = APPROVED_DATA_ROOT, output: Path = OUTPUT,
         registry_root: Path = FROZEN_REGISTRY, walk_forward: Path = WALK_FORWARD) -> dict[str, Any]:
     """Run the locked validation. No strategy or parameter arguments exist."""
     _assert_execution_only(); verify_frozen_strategies()
+    prerequisites = ((BASELINE, "PHASE_M15_BASELINE_COMPLETE"),
+                     (Path(registry_root), "PHASE_M15_OPTIMIZATION_COMPLETE"),
+                     (ROBUSTNESS, "PHASE_M15_ROBUSTNESS_COMPLETE"),
+                     (Path(walk_forward), "PHASE_M15_WALK_FORWARD_COMPLETE"))
+    for root, expected in prerequisites:
+        if json.loads((root / "manifest.json").read_text(encoding="utf-8")).get("status") != expected:
+            raise RuntimeError(f"M15_PREREQUISITE_INVALID:{root}")
     registries = load_frozen_registry(Path(registry_root), Path(walk_forward))
-    protected = (Path(registry_root), Path(walk_forward))
+    protected = (BASELINE, Path(registry_root), ROBUSTNESS, Path(walk_forward))
     before = {str(path): hash_tree(path) for path in protected}
     loaded, coverage = {}, []
     for instrument, alias in INSTRUMENTS:
@@ -294,18 +358,43 @@ def run(data_root: Path = APPROVED_DATA_ROOT, output: Path = OUTPUT,
                  for key in ("T2", "T3")}
     if before != {str(path): hash_tree(path) for path in protected}:
         raise RuntimeError("M15_TRUE_OOS_FROZEN_ARTIFACT_MUTATION")
+    comparison = []
+    for key in ("T2", "T3"):
+        development = json.loads((ROBUSTNESS / key / "metrics.json").read_text(encoding="utf-8"))
+        forward = json.loads((Path(walk_forward) / key / "aggregate_metrics.json").read_text(encoding="utf-8"))
+        oos = summaries[key]
+        comparison.append({"candidate_id": registries[key]["candidate_id"],
+            **{f"development_{name}": development[name] for name in ("trades", "PF", "expectancy_R", "net_R", "max_drawdown_R")},
+            **{f"walk_forward_{name}": forward[name] for name in ("trades", "PF", "expectancy_R", "net_R", "max_drawdown_R")},
+            **{f"true_oos_{name}": oos[name] for name in ("trades", "PF", "expectancy_R", "net_R", "max_drawdown_R")},
+            "PF_decay_development_to_true_oos": None if development["PF"] is None or oos["PF"] is None else oos["PF"] - development["PF"],
+            "expectancy_decay_development_to_true_oos": None if oos["expectancy_R"] is None else oos["expectancy_R"] - development["expectancy_R"],
+            "drawdown_change_walk_forward_to_true_oos": abs(oos["max_drawdown_R"]) - abs(forward["max_drawdown_R"])})
+    _csv(output / "comparison.csv", comparison)
+    (output / "final_true_oos_report.md").write_text(
+        "# M15 TRUE OOS Validation\n\n" + "\n".join(
+            f"- **{registries[k]['candidate_id']}: {summaries[k]['classification']}** (pre-OOS: {PRE_OOS_VERDICTS[k]})"
+            for k in ("T2", "T3")) +
+        "\n\nCandidates were evaluated independently and are not ranked or reselected.\n\nPHASE_M15_TRUE_OOS_COMPLETE\n",
+        encoding="utf-8")
     manifest = {"phase": PHASE, "status": STATUS, "timeframe": TIMEFRAME,
         "development_period": DEVELOPMENT_PERIOD, "true_oos_period": TRUE_OOS_PERIOD,
-        "candidate_ids": ALLOWED_CANDIDATES, "registry_candidate_ids": {k: registries[k]["candidate_id"] for k in registries},
+        "candidate_ids": EVALUATED_CANDIDATES, "baseline_candidate_ids": ALLOWED_CANDIDATES,
+        "configuration_ids": {k: registries[k]["configuration_id"] for k in registries},
         "parameter_hashes": {k: registries[k]["parameter_hash"] for k in registries},
         "candidate_registry_hashes": {k: _sha(Path(registry_root) / k / "candidate_registry.json") for k in registries},
-        "walk_forward_manifest_hash": _sha(Path(walk_forward) / "manifest.json"), "strategy_hashes": STRATEGY_SHA256,
+        "walk_forward_manifest_hash": _sha(Path(walk_forward) / "manifest.json"),
+        "pre_true_oos_walk_forward_verdicts": PRE_OOS_VERDICTS, "strategy_hashes": STRATEGY_SHA256,
+        "classifications": {k: summaries[k]["classification"] for k in summaries},
         "coverage": coverage, "summaries": summaries, "initial_state": "FLAT", "continuous_period": True,
         "internal_resets": 0, "retraining": False, "optimization": False, "ranking": False,
         "selection": False, "parameters_frozen": True, "parameter_change": False,
         "true_oos_isolated": True, "development_rows_read": 0, "deterministic": True,
         "cost_model": {"name": "H1_C1", "cost_ticks_per_side": COST_TICKS_PER_SIDE,
-                       "round_trip_ticks": 2 * COST_TICKS_PER_SIDE, "slippage_ticks_per_side": 0.0}}
+                       "round_trip_ticks": 2 * COST_TICKS_PER_SIDE, "slippage_ticks_per_side": 0.0},
+        "bootstrap": {"iterations": BOOTSTRAP_ITERATIONS, "seed": BOOTSTRAP_SEED},
+        "protected_artifact_hashes_before": before,
+        "protected_artifacts_unchanged": True}
     _json(output / "manifest.json", manifest)
     manifest["artifact_sha256"] = artifact_sha256(output)
     _json(output / "manifest.json", manifest)
