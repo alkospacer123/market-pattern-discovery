@@ -1,0 +1,2 @@
+fold,trades,PF,expectancy_R,net_R,max_drawdown_R,recovery_factor,win_rate,average_holding_time,losing_streak,top_1_positive_R_concentration,top_5_positive_R_concentration,longest_recovery_trades,longest_recovery_minutes,recovery_status
+WF01,61,2.33834606629,0.584105510256,35.6304361256,-10.6129566205,3.35725824573,0.426229508197,87.7049180328,9,0.208539909216,0.586509885041,38,190945,RECOVERED
