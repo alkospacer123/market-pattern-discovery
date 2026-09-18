@@ -1,0 +1,17 @@
+{
+  "PF": 0.3902906646655534,
+  "PF_without_top5": 0.2021960449587561,
+  "average_MAE_R": 0.7644385160624372,
+  "average_MFE_R": 1.0209917981159242,
+  "average_holding_minutes": 104.0,
+  "expectancy_R": -0.37517269693988314,
+  "losing_streak": 10,
+  "max_drawdown_R": -32.65790877213436,
+  "net_R": -28.137952270491237,
+  "net_R_without_top5": -36.818477768338326,
+  "recovery_factor": -0.8615968789312126,
+  "top_1_positive_R_concentration": 0.19761186648737072,
+  "top_5_positive_R_concentration": 0.4819347136267753,
+  "trades": 75,
+  "win_rate": 0.29333333333333333
+}
