@@ -1,0 +1,341 @@
+{
+  "baseline_artifact_hashes": {
+    "TradingSystemLab/results/timeframe_validation/M5": {
+      "T2/concentration_report.csv": "2880995b3c6cf3309072768bbf73dcc2680016cc2c2f733834d6b13d7e42bfda",
+      "T2/direction_report.csv": "4fd21f61fed0593c0935e8ba1c832e6154d2399447824fa22aa75f8b07db3f09",
+      "T2/final_report.md": "6ba1ef4b90ca27a7f7a99050dfd46048e4d555b54ce0ca6e455f35cd13b4e7c0",
+      "T2/instrument_report.csv": "8f7d4c9342c34acd4867af0cb9509a015074a0a9195eab17a79fe8e2507024db",
+      "T2/mae_mfe_report.csv": "d7dcf2bee4381f1a19eb38a39b55b17606c28e1ef8fc75ef1551c3ef0f6d77e4",
+      "T2/metrics.json": "bce9e4d0b2bb4bdf179896391ec8c01d65f66472c0f9a7b58a4f47a7bd71200e",
+      "T2/trades.csv": "eb00d9d4a64a0691b07e84fc0cb7c9e16cbf5da94b3524711b6c5a72ab20ae96",
+      "T2/yearly_report.csv": "0d45231a0d44fda57f1195b548ed5607ef4947ec044777d231e15b7213a96f63",
+      "T3/concentration_report.csv": "e8ad3b283f1849acc921c9bf83c97834b266edc79ea341b3a3a21db8f0d66990",
+      "T3/direction_report.csv": "53208b1d96fe6f9f42c18c3e851ad01899f8e1602a40be4de40ac1f35298fa61",
+      "T3/final_report.md": "8456628ce6894be8a62a48e2258baf265d1fc5c70d41d298b0f0b616d01b890e",
+      "T3/instrument_report.csv": "8d35512d6f79f06d00f0cac154156846dac75c4139373a1df2256cf29a60159d",
+      "T3/mae_mfe_report.csv": "afa273ab08d0de2460636bc819084d190d731595dac881d58deac62a57262987",
+      "T3/metrics.json": "a8edb021bb23196e8e7d5455b6723dd3e43da312bc321cb890edea60e246d8d4",
+      "T3/trades.csv": "24c05f3be7cdbc2894e0d2acd09803a0490fb52b68084df9336c10b4d3b5ce92",
+      "T3/yearly_report.csv": "70714bc88dad19d2035fdd74dabfec06f1a3db75f4d6426044334e2d44f0d564",
+      "comparison.csv": "baa87816f93534da75908fdcc3c57aeec2f900ae64f6e39c70978b68d3aa1ccd",
+      "m5_baseline_report.md": "3eff17e512cdb2052dbc7cb3626b3c72920fb78942dc6aec226ff6a705c6ce53",
+      "manifest.json": "f3472c305585e68f8db8a5e09b2cdc12e42ef136f5dea67ad79d7c661ab1ff35"
+    }
+  },
+  "configuration_limit_per_strategy": 5000,
+  "configurations_tested": {
+    "T2": 19,
+    "T3": 22
+  },
+  "cost_model": {
+    "cost_ticks_per_side": 1.0,
+    "round_trip_ticks": 2.0,
+    "slippage_ticks_per_side": 0.0
+  },
+  "cross_timeframe_ranking": false,
+  "design": "BASELINE_PLUS_ONE_FACTOR_AT_A_TIME",
+  "deterministic": true,
+  "development_period": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "frozen_parameter_hashes": {
+    "T2": "2b0494cdd24bfbfa8ce7d657d6f83d1408f07b9f565d38d093dec5b4856e3c00",
+    "T3": "938b6b3b78f680010115a204b9a49e7eef962db119f4ea121e388c00741920ba"
+  },
+  "frozen_strategy_hashes": {
+    "T2": {
+      "file": "T2_Trend_Pullback.py",
+      "sha256": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774"
+    },
+    "T3": {
+      "file": "T3_MTF_Trend.py",
+      "sha256": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
+    }
+  },
+  "instruments": [
+    "USDRUBF",
+    "CNYRUBF"
+  ],
+  "optimization": true,
+  "optimization_ranges": {
+    "T2": {
+      "adx_threshold": [
+        15,
+        20,
+        25,
+        30
+      ],
+      "confirmation_window": [
+        2,
+        3,
+        4
+      ],
+      "ema_fast": [
+        15,
+        20,
+        25,
+        30
+      ],
+      "ema_slow": [
+        150,
+        200,
+        250
+      ],
+      "ema_trend": [
+        40,
+        50,
+        60
+      ],
+      "impulse_distance_atr": [
+        0.3,
+        0.5,
+        0.7
+      ],
+      "max_initial_stop_atr": [
+        2,
+        2.5,
+        3
+      ],
+      "trailing_atr": [
+        2,
+        3,
+        4
+      ]
+    },
+    "T3": {
+      "adx_threshold": [
+        15,
+        20,
+        25,
+        30
+      ],
+      "atr_average_period": [
+        10,
+        20,
+        30,
+        50
+      ],
+      "breakout_period": [
+        10,
+        20,
+        30,
+        40,
+        55
+      ],
+      "ema_period": [
+        50,
+        75,
+        100,
+        150,
+        200
+      ],
+      "stop_atr": [
+        1.5,
+        2,
+        2.5,
+        3
+      ],
+      "trail_atr": [
+        2,
+        2.5,
+        3,
+        3.5,
+        4
+      ]
+    }
+  },
+  "phase": "M5_OPTIMIZATION",
+  "portfolio": false,
+  "protected_artifact_hashes": {
+    "TradingSystemLab/results/T2_implementation_check": {
+      "manifest.json": "7975df0bb90f64f24fd3728e9f7ec598400717cce2877d5aefc7a86e0c820a64",
+      "metrics.json": "e11d6a4e9c494744e67e74a4eefcc728c31330f94a7ff14578631b971a110388",
+      "summary.md": "7f86b9a766578c8900018fc8f65fef331bfcc7d977f1318bb4e9873040696f40",
+      "trades.csv": "2fadb3457283cf72ff02eb42574fc7d449a4120f308330589ae01ff5b6a77486"
+    },
+    "TradingSystemLab/results/T3_robust": {
+      "costs/break_even_cost.json": "569dd6d49f9f622e06715a369bed61ac0e9f7e86bb8e8bb1635f64f902011873",
+      "costs/cost_report.md": "770e084579a5a9aea4ac6f80ec41ee403aaaaa4dd320470d4a8f598881cec823",
+      "costs/cost_sensitivity.csv": "1425b3c4b385fa9e94c9101132e562add61408e4765ffeead1cafc59a8496fdd",
+      "final_report.md": "836f7d0a65d1b542037043e66b276c44e52ecf327529c99e8a86dd942cab81e9",
+      "mae_mfe/exit_efficiency.csv": "888841f1817d0f1df056460e5af413aa53f9ab9c9148732fca4c29857577b6b3",
+      "mae_mfe/mae_mfe.csv": "11ea5bd7023ac66407021d8f35f4a34205c8f901017ea4def8817c8455232098",
+      "mae_mfe/mae_mfe_report.md": "a5d85b5b6d417be81b1c4eacd35c603bc71c7152b8a5a4e4f76898178f242958",
+      "mae_mfe/mae_mfe_summary.csv": "ead103751810e13073b19c4e9bed80f17253188700f5780facfb774cf02c6969",
+      "reports/cost_sensitivity.svg": "3bd159a1f943f8e5d4aa1ef931464597ad883c611f92a1cb5b5a2d2f3f662a2d",
+      "reports/direction_report.csv": "edb5def32d7cea5e42203ea47aef3f7ce46e7ad77b20904dd48e9799b4b35a5d",
+      "reports/equity_C0.svg": "cff0288726b7d1f10453a99fcf719ab52c799bb698e021a0ed3e0fcd2d474103",
+      "reports/equity_C1.svg": "3a5b7b34cc09b4382623221b6c6001de6a67e31fc64de80720cd9487f18331dd",
+      "reports/final_report.md": "836f7d0a65d1b542037043e66b276c44e52ecf327529c99e8a86dd942cab81e9",
+      "reports/instrument_report.csv": "cc4128e05b24b8a83c61ee52fa73df5f646341cc8060296573d5f112fb1919ef",
+      "reports/mae_mfe_distribution.svg": "2c0837bdafb185f1483998b69b6befe2d0e8eaa1abe16ec940fabd24bf70a411",
+      "reports/profit_concentration.csv": "1787d3c84550ec0ffa2d899c73947427cd6a1c11f22165b1b3bc0813fa20f808",
+      "reports/year_report.csv": "9ade233ebb285684beb0d8411bea1568130e307c40f751e660be8f8db51e8b26",
+      "trades/trades_C0.csv": "11ea5bd7023ac66407021d8f35f4a34205c8f901017ea4def8817c8455232098",
+      "trades/trades_C0_5.csv": "45eb60df51de43886f7249611d98cb66d3787917cf097f1476db62bf6a042ef6",
+      "trades/trades_C1.csv": "9bcff3e26660aa6ca2e1608dbbf397dc22a6489642b25037e9e8414f26f9975a",
+      "trades/trades_C2.csv": "2a93619a4a53acca4fd8fede87dc012484e8de41eaefb8bcb23527177eb326a3"
+    },
+    "TradingSystemLab/results/multitimeframe_research": {
+      "T2/D1/CNYRUBF_direction.csv": "edc09819db53808215e3e7a22232b8a2f5e435be2b2458f15f9eebc501ec3575",
+      "T2/D1/CNYRUBF_instrument.csv": "42e144ff0eec7fcded3e8cbbfe6c758566ab55c2e34b913456364a91e9c4aaf4",
+      "T2/D1/CNYRUBF_trades.csv": "5012c0b949faf8a4d5680f3ec12ac231cb012350c6c1a7727a3d5d096eb44c0f",
+      "T2/D1/CNYRUBF_yearly.csv": "15ff606cf40c55149cf12ce4a3308fa9a1546bf79417e4f61c9cb1a517548011",
+      "T2/D1/USDRUBF_direction.csv": "bb828afde42b0e9914e1240763b7e67483f2f5f5e2bc1e284be0a0ff7ba491b6",
+      "T2/D1/USDRUBF_instrument.csv": "a8fc5ee1dd6401ec76bfff00d7aed5564345647c50445ef29ef51f93f8c6dfbf",
+      "T2/D1/USDRUBF_trades.csv": "74f7e4261aacdda9d13a7133e239243311ac7a90d3078756a85128b730a3c0df",
+      "T2/D1/USDRUBF_yearly.csv": "80a222eb1a5bc387745b459bec8edf7859005dc743b2e656d88afbe31d7bfa2d",
+      "T2/H1/CNYRUBF_direction.csv": "d6e4f2e4568e72fc157efb9c4225e33dec578eae145254de0d4b99e6089f155e",
+      "T2/H1/CNYRUBF_instrument.csv": "7182837e625b38ba1ed9b37be9b84d286de12b72ecd545296e9241f321c30f0a",
+      "T2/H1/CNYRUBF_trades.csv": "a2cc40af3eda9769d73e65f9c266fcf21d3a30dbb2ad2946de6ffd0c890d02d0",
+      "T2/H1/CNYRUBF_yearly.csv": "948821c9f2bf1e52256f3353536372db1d9b0e53f52196c990abdbfbf0a2382c",
+      "T2/H1/USDRUBF_direction.csv": "d2242bfa43b335e773dfe10ce3986a593b7ed566f7cd5c37aa075669c7077934",
+      "T2/H1/USDRUBF_instrument.csv": "0be9d73fd15d1e6a1c4c8b78efb9f1bdfd5d170fd96f62819ae02d7551f506c3",
+      "T2/H1/USDRUBF_trades.csv": "70fb7077d7f91465a8bd4a2744b67f03eaf3e3392b3d4f47dac298ba9863ac0a",
+      "T2/H1/USDRUBF_yearly.csv": "18f8f111081f5c64fffb4512493f0faeec3bdabc238a9e387265580fd7fd9364",
+      "T2/H4/CNYRUBF_direction.csv": "34c0608b945f6e275fd06d6e32f502f2c4e0d79a4c7ab046590c9d4a9338dcc9",
+      "T2/H4/CNYRUBF_instrument.csv": "a078fe51b3c52ecf8146e55dc53f38256e66ce663b02e9f5a77c841fc75426b5",
+      "T2/H4/CNYRUBF_trades.csv": "39cd70d3a337d44e654ac1ff00c533c20896fa1cb4151e2c5781c696a2e452c3",
+      "T2/H4/CNYRUBF_yearly.csv": "e9a8dbda3b6d1fd2e8ce0e19387a4beb59fbe4d90902f88e6d682904dd3f6251",
+      "T2/H4/USDRUBF_direction.csv": "753f3c052e3193e799428f33fb7785a398ffd3e81d3315915ba225214c7f0a80",
+      "T2/H4/USDRUBF_instrument.csv": "44ffd0f6ef138e17b67eb346603f0eac1b066ba8687b55b51424828d5bfd0e35",
+      "T2/H4/USDRUBF_trades.csv": "313863815b355a2fc491a457ec3edb79299771ad826f0c108c363cc9df2cd28e",
+      "T2/H4/USDRUBF_yearly.csv": "62f889b3df4352c92ab0818b635966297098058666b07c813ade1e456626054e",
+      "T2/M30/CNYRUBF_direction.csv": "f00b1712dfe4d7dd1e744883184af7d1f4f2a15570ccb79ad5b343b56f520d68",
+      "T2/M30/CNYRUBF_instrument.csv": "b6c0f1eadb84fab712cd5e7d2fb12300f76b392d9aa18e4d64213ec5d7a3af72",
+      "T2/M30/CNYRUBF_trades.csv": "f45d7eaaf0f16bd364583cf16be15f17cd1777ff9b906719114865d84256d6f6",
+      "T2/M30/CNYRUBF_yearly.csv": "8a88cf1256b44d708ab5b864d13c6f8606589e6c161cfce79542aeef2e99abfa",
+      "T2/M30/USDRUBF_direction.csv": "b822e78fb26059373f777c49fc13b7264e61d7e6367482b2a15c0acb84ba9fc9",
+      "T2/M30/USDRUBF_instrument.csv": "2af09c6bcb15679f93a76893f71a04562008093dea9a2bd7a1033c75ae734d3a",
+      "T2/M30/USDRUBF_trades.csv": "50f77989729406d02af80fb4d0c0ecb0adbc42f4b83dcbaab8f7babde3843de3",
+      "T2/M30/USDRUBF_yearly.csv": "5168364e3c744e63cb0442f33ef091209fd9bb61cc0c5b5211298671b6539781",
+      "T3/D1/CNYRUBF_direction.csv": "8cfe209ba99a1f190d8ef16e66369619f15a1214ba43db8ba82de27d32d47fef",
+      "T3/D1/CNYRUBF_instrument.csv": "e60aa353e0dc8fa0f2d6f4b951c453a7022ae3e96f72f112e22b8efdfb548e3f",
+      "T3/D1/CNYRUBF_trades.csv": "3b4affa5f6f743edf23f77d60fcec1ed7c91fbd9607b1162f28d702b637e4f5b",
+      "T3/D1/CNYRUBF_yearly.csv": "05421d2de2fcca96c55830f2aa895fb8eda4f3beffbbc9b3faedb221445ca3df",
+      "T3/D1/USDRUBF_direction.csv": "01d714520cdded984b70030bc822ee652bd0905f98d2c5f2d37442bc9f128e73",
+      "T3/D1/USDRUBF_instrument.csv": "3328bc62fcff0b97cc3725866cf140485702a52d4eaaed73c3b5761bd1a60adf",
+      "T3/D1/USDRUBF_trades.csv": "6bac60f2f770795f9efd363e20ac6be8faf8c272e3ca15ee7000eb96ed1d5fc0",
+      "T3/D1/USDRUBF_yearly.csv": "20aacf556af0e29f706132f822ac418abf2f5000889350b3b01f4f846fd0b04c",
+      "T3/H1/CNYRUBF_direction.csv": "8c9aee2ebb0ecee49a7a86c2be1fbe5233d0a7b8e8850b22fc0be60d8897beb7",
+      "T3/H1/CNYRUBF_instrument.csv": "76bc9b4caee70321aa3d2d965322ca02263214b68f029b3cbfad0beb402f4b97",
+      "T3/H1/CNYRUBF_trades.csv": "8f33a53f023745c661c658bb6f5beb9b20ee4a10f388e32c0b4220c5ce03f0ff",
+      "T3/H1/CNYRUBF_yearly.csv": "e7fa9f1e087a09195e01b53da7d9db3c43c4359a84547847f8d2c2b4768d01d2",
+      "T3/H1/USDRUBF_direction.csv": "7e81d8c1553aa0092d3152cbd2825bc4e6fb3e7fde00e64949df8840e699d717",
+      "T3/H1/USDRUBF_instrument.csv": "b00d3c77d4f5c0702cd64134800d6375687bcec0b5289e8a498531942b514592",
+      "T3/H1/USDRUBF_trades.csv": "1067bf1e2fdbc9eb31529f7097882147883b6150dfa7a441b5dc3e9b2723991b",
+      "T3/H1/USDRUBF_yearly.csv": "a2bcec65456c5c37264f63e5d844c247cef803b94e92de5e46ad1d93cb00e56f",
+      "T3/H4/CNYRUBF_direction.csv": "70f7086f3f1012133f999bbb5bc2fb9c6958a6a26d9258eec1eccaa6754622a7",
+      "T3/H4/CNYRUBF_instrument.csv": "0385427ae9433c107b138b61ea3a20c757e3f7b43698d52d6f64ce324ae0d673",
+      "T3/H4/CNYRUBF_trades.csv": "b58d177f7e00293fc554ca5dfc9c4b00c1c95773956d5e8603d9f96e8fc6789b",
+      "T3/H4/CNYRUBF_yearly.csv": "ab6ae79bd9c761aded0b30ce8e595d0666fcf0f6f844890933ac4995ccc52413",
+      "T3/H4/USDRUBF_direction.csv": "8a59e671cfa8695a7897d687604b2a8079586762783adbc4cba28ce1f3d4393b",
+      "T3/H4/USDRUBF_instrument.csv": "d76148fb46e935fc396d88a1f09500a5538a7bb9be3add71550a8e938255ebcc",
+      "T3/H4/USDRUBF_trades.csv": "db8a60dbbbd6393daec23a3681fc5853c7f38dfc485ad7cd0b4f47baa2d58931",
+      "T3/H4/USDRUBF_yearly.csv": "141cb061fd23ecfddd6a7b6dcba01c1b69e3aa678ba3cd73bd5bb6486876560f",
+      "T3/M30/CNYRUBF_direction.csv": "801c2e3b30a19fd908d8a116c0b656c234a4bd6fcce59e8d0f0b372dd3732278",
+      "T3/M30/CNYRUBF_instrument.csv": "8828a5b6ec6cdf0f9e20f13a0eaa5e7d2210be6a14672ea2dd3a22fb44710fe6",
+      "T3/M30/CNYRUBF_trades.csv": "eb56cbfa45121eba39c75b9d15595db488c990f14a2233dbfe0c41732725897d",
+      "T3/M30/CNYRUBF_yearly.csv": "d1fc5db723d69788e0e09b268b5e8e4f8b5eeaea8ece96ed68caec77cb68aaab",
+      "T3/M30/USDRUBF_direction.csv": "7e0ecc191db7521b369a2bd70e7319ebcffd4dd41f0537a8b9677618ca72dd2a",
+      "T3/M30/USDRUBF_instrument.csv": "e08d51a1a8f4e627361c4ce793bbb182c8562e5679cd23948d042c19952ba567",
+      "T3/M30/USDRUBF_trades.csv": "d5ed693654e8ca69b762678e9b2620de76b97f462856f3f3aae6766bbfb10265",
+      "T3/M30/USDRUBF_yearly.csv": "d6811a82c98534d26b916f026a20a27903ec587c37811049151f3c18961b89e5",
+      "comparison.csv": "45744ab9d5524effa58504609bce159a3207544fdb5f3bb2c75f6b6b1d17a3ad",
+      "manifest.json": "e0266c4719c1f2616ad8dac90a03ffd217dcdc0063ac49c59d417f8f74fd1ae3",
+      "multitimeframe_report.md": "7623975b2bc75c25099b948e4bc95707ed886568fa7d5dc311173abb283641d5"
+    },
+    "TradingSystemLab/results/timeframe_validation/M5": {
+      "T2/concentration_report.csv": "2880995b3c6cf3309072768bbf73dcc2680016cc2c2f733834d6b13d7e42bfda",
+      "T2/direction_report.csv": "4fd21f61fed0593c0935e8ba1c832e6154d2399447824fa22aa75f8b07db3f09",
+      "T2/final_report.md": "6ba1ef4b90ca27a7f7a99050dfd46048e4d555b54ce0ca6e455f35cd13b4e7c0",
+      "T2/instrument_report.csv": "8f7d4c9342c34acd4867af0cb9509a015074a0a9195eab17a79fe8e2507024db",
+      "T2/mae_mfe_report.csv": "d7dcf2bee4381f1a19eb38a39b55b17606c28e1ef8fc75ef1551c3ef0f6d77e4",
+      "T2/metrics.json": "bce9e4d0b2bb4bdf179896391ec8c01d65f66472c0f9a7b58a4f47a7bd71200e",
+      "T2/trades.csv": "eb00d9d4a64a0691b07e84fc0cb7c9e16cbf5da94b3524711b6c5a72ab20ae96",
+      "T2/yearly_report.csv": "0d45231a0d44fda57f1195b548ed5607ef4947ec044777d231e15b7213a96f63",
+      "T3/concentration_report.csv": "e8ad3b283f1849acc921c9bf83c97834b266edc79ea341b3a3a21db8f0d66990",
+      "T3/direction_report.csv": "53208b1d96fe6f9f42c18c3e851ad01899f8e1602a40be4de40ac1f35298fa61",
+      "T3/final_report.md": "8456628ce6894be8a62a48e2258baf265d1fc5c70d41d298b0f0b616d01b890e",
+      "T3/instrument_report.csv": "8d35512d6f79f06d00f0cac154156846dac75c4139373a1df2256cf29a60159d",
+      "T3/mae_mfe_report.csv": "afa273ab08d0de2460636bc819084d190d731595dac881d58deac62a57262987",
+      "T3/metrics.json": "a8edb021bb23196e8e7d5455b6723dd3e43da312bc321cb890edea60e246d8d4",
+      "T3/trades.csv": "24c05f3be7cdbc2894e0d2acd09803a0490fb52b68084df9336c10b4d3b5ce92",
+      "T3/yearly_report.csv": "70714bc88dad19d2035fdd74dabfec06f1a3db75f4d6426044334e2d44f0d564",
+      "comparison.csv": "baa87816f93534da75908fdcc3c57aeec2f900ae64f6e39c70978b68d3aa1ccd",
+      "m5_baseline_report.md": "3eff17e512cdb2052dbc7cb3626b3c72920fb78942dc6aec226ff6a705c6ce53",
+      "manifest.json": "f3472c305585e68f8db8a5e09b2cdc12e42ef136f5dea67ad79d7c661ab1ff35"
+    }
+  },
+  "source_data_hashes": [
+    {
+      "alias": "Si",
+      "files": [
+        {
+          "name": "Si_M5_2023_Q1.csv",
+          "sha256": "9fecd144e0d16358ef082bc7e5ebc1692cdcb44739e34d68eb54802734d3d777"
+        },
+        {
+          "name": "Si_M5_2023_Q2.csv",
+          "sha256": "bad646079cdfa7125fe40d23b8be2e06a4489a9791868cb5bb8f27f9026ff795"
+        },
+        {
+          "name": "Si_M5_2023_Q3.csv",
+          "sha256": "c1ec35fb318ae1cc0613752f49b84c1be3069fb8f792cfec4cadf4189222f876"
+        },
+        {
+          "name": "Si_M5_2024_Q1.csv",
+          "sha256": "74b49f91848f84802fedc78a7b08ad98436848bfa15fdaefc0829a5c63ca3364"
+        },
+        {
+          "name": "Si_M5_2024_Q2.csv",
+          "sha256": "443f6421091aa88c1d3328ffbf9533e462811c1c230bd3677f56b43393a8ba7a"
+        },
+        {
+          "name": "Si_M5_2024_Q3.csv",
+          "sha256": "55e7558d7314832b32c9cb47e797799cd2dbaf9f38bb6a5b495a8f3df66a7278"
+        }
+      ],
+      "instrument": "USDRUBF"
+    },
+    {
+      "alias": "CNY",
+      "files": [
+        {
+          "name": "CNY_M5_2023_Q1.csv",
+          "sha256": "7de169d3ca36965ffe8fa4cf658aeccc86ebb9dbb7189aa99640626368121f3b"
+        },
+        {
+          "name": "CNY_M5_2023_Q2.csv",
+          "sha256": "b707832b1e0b9ea91040ae77c1357bf646c73a49935a75d58f973930229e1e34"
+        },
+        {
+          "name": "CNY_M5_2023_Q3.csv",
+          "sha256": "c0b49d854ebd611b00482b7de48d600a12c521c593d6f33c6700da8b207a4ee0"
+        },
+        {
+          "name": "CNY_M5_2024_Q1.csv",
+          "sha256": "8c9ba03a026d72da33e6e2bd770b937b5547c04299c08ec251acce7c5ba4fb25"
+        },
+        {
+          "name": "CNY_M5_2024_Q2.csv",
+          "sha256": "d776aed4f35f4fc2c103afec863b32ef0143e4e861caf5da9a33fabe32d6fbe8"
+        },
+        {
+          "name": "CNY_M5_2024_Q3.csv",
+          "sha256": "82dbc143778ef4bd98b682001c9041ead350362f3cbaeef8d7b0ff9cc1b8e84b"
+        }
+      ],
+      "instrument": "CNYRUBF"
+    }
+  ],
+  "status": "PHASE_M5_OPTIMIZATION_COMPLETE",
+  "strategies": [
+    "T2_M5_candidate_v1",
+    "T3_M5_candidate_v1"
+  ],
+  "timeframe": "M5",
+  "true_oos_blocked": true,
+  "walk_forward": false
+}
