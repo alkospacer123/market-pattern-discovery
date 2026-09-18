@@ -1,0 +1,21 @@
+{
+  "PF": 0.9265540842951125,
+  "candidate_id": "T3_M15_candidate_v1",
+  "configuration_id": "T3-M15-0011-76dd2f3526c3",
+  "expectancy_R": -0.0423128402859986,
+  "max_drawdown_R": -31.30136775277552,
+  "max_losing_streak": 12,
+  "max_winning_streak": 4,
+  "median_R": -0.7406928842128966,
+  "net_R": -6.770054445759776,
+  "parameter_hash": "76dd2f3526c38a3c7abfd3117d2a9ea4a78d0954c868bd01260736011726ba69",
+  "positive_fold_share": 0.3333333333333333,
+  "positive_folds": 1,
+  "recovery_factor": -0.2162862178813087,
+  "top_1_fold_positive_R_share": 0.4225028814675651,
+  "top_2_fold_positive_R_share": 0.7930151239143587,
+  "total_folds": 3,
+  "trades": 160,
+  "verdict": "WALK_FORWARD_FAIL",
+  "win_rate": 0.3125
+}
