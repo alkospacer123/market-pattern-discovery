@@ -1,0 +1,2 @@
+period_id,start,end,initial_state,resets,trades,PF,expectancy_R,net_R,max_drawdown_R,recovery_factor,win_rate,average_win,average_loss,max_winning_streak,max_losing_streak
+TRUE_OOS,2025-01-01,,FLAT,0,272,0.859947679094,-0.0703213922426,-19.12741869,-44.6109963021,-0.428760177433,0.305147058824,1.41501156889,-0.722610470411,5,13
