@@ -1,0 +1,3 @@
+outcome,trades,average_minutes,median_minutes,minimum_minutes,maximum_minutes,percentile_25_minutes,percentile_75_minutes
+WINNING,251,180.796812749,145,5,3505,92.5,195
+LOSING,579,95.2504317789,35,5,3660,15,65
