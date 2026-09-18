@@ -1,0 +1,92 @@
+{
+  "candidate_identities": {
+    "M5_BASELINE": {
+      "rules": "existing cost-adjusted T2/T3 strategy logic unchanged"
+    },
+    "M5_SESSION_CANDIDATE": {
+      "entry_end_exclusive": "17:00",
+      "entry_start_inclusive": "10:00",
+      "weekdays": "Monday-Friday"
+    },
+    "M5_SESSION_EMA50_NORMAL": {
+      "ema50_distance_classification": "normal",
+      "entry_end_exclusive": "17:00",
+      "entry_start_inclusive": "10:00",
+      "weekdays": "Monday-Friday"
+    }
+  },
+  "cost_model": {
+    "cost_ticks_per_side": 1.0,
+    "round_trip_ticks": 2.0,
+    "slippage_ticks_per_side": 0.0
+  },
+  "deterministic": true,
+  "development_period": "2023-01-01 to 2024-12-31",
+  "execution_hash": "ea0fa432414dca456e7812a17fc602c757d44050dad7e0c0dd156664de9026f9",
+  "fold_schedule": [
+    {
+      "fold": "WF01",
+      "test": {
+        "end_inclusive": "2023-12-31",
+        "start": "2023-07-01"
+      },
+      "train": {
+        "end_inclusive": "2023-06-30",
+        "start": "2023-01-01"
+      }
+    },
+    {
+      "fold": "WF02",
+      "test": {
+        "end_inclusive": "2024-06-30",
+        "start": "2024-01-01"
+      },
+      "train": {
+        "end_inclusive": "2023-12-31",
+        "start": "2023-01-01"
+      }
+    },
+    {
+      "fold": "WF03",
+      "test": {
+        "end_inclusive": "2024-12-31",
+        "start": "2024-07-01"
+      },
+      "train": {
+        "end_inclusive": "2024-06-30",
+        "start": "2023-01-01"
+      }
+    }
+  ],
+  "optimization": false,
+  "parameter_change": false,
+  "phase": "M5_WALK_FORWARD",
+  "ranking": false,
+  "source_hashes": {
+    "/workspace/market-pattern-data/2026/CNY/CNY_M5_2023_Q1.csv": "7de169d3ca36965ffe8fa4cf658aeccc86ebb9dbb7189aa99640626368121f3b",
+    "/workspace/market-pattern-data/2026/CNY/CNY_M5_2023_Q2.csv": "b707832b1e0b9ea91040ae77c1357bf646c73a49935a75d58f973930229e1e34",
+    "/workspace/market-pattern-data/2026/CNY/CNY_M5_2023_Q3.csv": "c0b49d854ebd611b00482b7de48d600a12c521c593d6f33c6700da8b207a4ee0",
+    "/workspace/market-pattern-data/2026/CNY/CNY_M5_2024_Q1.csv": "8c9ba03a026d72da33e6e2bd770b937b5547c04299c08ec251acce7c5ba4fb25",
+    "/workspace/market-pattern-data/2026/CNY/CNY_M5_2024_Q2.csv": "d776aed4f35f4fc2c103afec863b32ef0143e4e861caf5da9a33fabe32d6fbe8",
+    "/workspace/market-pattern-data/2026/CNY/CNY_M5_2024_Q3.csv": "82dbc143778ef4bd98b682001c9041ead350362f3cbaeef8d7b0ff9cc1b8e84b",
+    "/workspace/market-pattern-data/2026/Si/Si_M5_2023_Q1.csv": "9fecd144e0d16358ef082bc7e5ebc1692cdcb44739e34d68eb54802734d3d777",
+    "/workspace/market-pattern-data/2026/Si/Si_M5_2023_Q2.csv": "bad646079cdfa7125fe40d23b8be2e06a4489a9791868cb5bb8f27f9026ff795",
+    "/workspace/market-pattern-data/2026/Si/Si_M5_2023_Q3.csv": "c1ec35fb318ae1cc0613752f49b84c1be3069fb8f792cfec4cadf4189222f876",
+    "/workspace/market-pattern-data/2026/Si/Si_M5_2024_Q1.csv": "74b49f91848f84802fedc78a7b08ad98436848bfa15fdaefc0829a5c63ca3364",
+    "/workspace/market-pattern-data/2026/Si/Si_M5_2024_Q2.csv": "443f6421091aa88c1d3328ffbf9533e462811c1c230bd3677f56b43393a8ba7a",
+    "/workspace/market-pattern-data/2026/Si/Si_M5_2024_Q3.csv": "55e7558d7314832b32c9cb47e797799cd2dbaf9f38bb6a5b495a8f3df66a7278",
+    "TradingSystemLab/results/timeframe_optimization/M5/T2/candidate_registry.json": "4f9fbd928b343e185ff88d947e9b3cd0d0092cdcf353e89b7fdc913b6275f21e",
+    "TradingSystemLab/results/timeframe_optimization/M5/T3/candidate_registry.json": "68b0be050b0d11b54aab3a98bd7ddbdd65909926d3c0d0362b5de29e8548f2f4",
+    "TradingSystemLab/results/timeframe_validation/M5/T2/trades.csv": "eb00d9d4a64a0691b07e84fc0cb7c9e16cbf5da94b3524711b6c5a72ab20ae96",
+    "TradingSystemLab/results/timeframe_validation/M5/T3/trades.csv": "24c05f3be7cdbc2894e0d2acd09803a0490fb52b68084df9336c10b4d3b5ce92",
+    "TradingSystemLab/results/timeframe_validation/M5/manifest.json": "f3472c305585e68f8db8a5e09b2cdc12e42ef136f5dea67ad79d7c661ab1ff35"
+  },
+  "status": "PHASE_M5_WALK_FORWARD_COMPLETE",
+  "strategy_change": false,
+  "true_oos_access": false,
+  "true_oos_boundary": "2025-01-01",
+  "underlying_candidate_ids": {
+    "T2": "T2_M5_candidate_v1",
+    "T3": "T3_M5_candidate_v1"
+  }
+}
