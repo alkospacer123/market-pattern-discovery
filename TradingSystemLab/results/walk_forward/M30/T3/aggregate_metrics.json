@@ -1,0 +1,21 @@
+{
+  "PF": 1.8642790304708174,
+  "candidate_id": "T3_M30_candidate_v1",
+  "configuration_id": "T3-M30-0020-816e9e819790",
+  "expectancy_R": 0.35876975558775787,
+  "max_drawdown_R": -8.949224596662896,
+  "max_losing_streak": 6,
+  "max_winning_streak": 4,
+  "median_R": -0.2913268936481793,
+  "net_R": 21.52618533526547,
+  "parameter_hash": "816e9e819790e1523aa5408bc1437119fae03f840c9e672c74f9974983e429c3",
+  "positive_fold_share": 0.6666666666666666,
+  "positive_folds": 2,
+  "recovery_factor": 2.40536876717704,
+  "top_1_fold_positive_R_share": 0.4961327903743567,
+  "top_2_fold_positive_R_share": 0.8533600989490062,
+  "total_folds": 3,
+  "trades": 60,
+  "verdict": "WALK_FORWARD_PASS",
+  "win_rate": 0.4166666666666667
+}
