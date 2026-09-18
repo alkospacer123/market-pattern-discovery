@@ -1,0 +1,20 @@
+{
+  "baseline_configuration_id": "T3-M30-0010-938b6b3b78f6",
+  "baseline_parity": "EXACT",
+  "classification_counts": {
+    "LOCAL_SPIKE": 13,
+    "NO_EDGE": 0,
+    "ROBUST_PLATEAU": 9
+  },
+  "deterministic": true,
+  "overall_plateau_classification": "ROBUST_PLATEAU",
+  "phase": "M30_OPTIMIZATION",
+  "robustness": false,
+  "status": "PHASE_M30_OPTIMIZATION_COMPLETE",
+  "strategy": "T3",
+  "tested_configurations": 22,
+  "timeframe": "M30",
+  "true_oos_blocked": true,
+  "walk_forward": false,
+  "winner_selection": false
+}
