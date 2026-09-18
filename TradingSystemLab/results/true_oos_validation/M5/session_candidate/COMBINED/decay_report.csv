@@ -1,0 +1,2 @@
+walk_forward_expectancy_R,true_oos_expectancy_R,expectancy_decay_R,walk_forward_PF,true_oos_PF,PF_decay,walk_forward_max_drawdown_R,true_oos_max_drawdown_R,drawdown_expansion_R,walk_forward_trades_per_year,true_oos_trades_per_year,trade_frequency_decay_per_year
+0.137201997267,-0.0303209270658,-0.167522924333,1.27085349113,0.945153138921,-0.325700352208,-34.0692462804,-83.3752330529,49.3059867725,734.651581109,719.176637854,-15.4749432544
