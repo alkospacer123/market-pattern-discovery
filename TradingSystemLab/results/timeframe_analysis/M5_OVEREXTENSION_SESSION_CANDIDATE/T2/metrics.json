@@ -1,0 +1,69 @@
+{
+  "baseline": {
+    "PF": 1.105729333922172,
+    "average_holding_time": 121.12048192771084,
+    "expectancy_R": 0.06103566802799661,
+    "losing_streak": 18,
+    "max_drawdown_R": -56.422612500734616,
+    "net_R": 50.65960446323719,
+    "recovery_factor": 0.897859957522839,
+    "top_1_positive_R_concentration": 0.027619729386429384,
+    "top_5_positive_R_concentration": 0.11528667229160207,
+    "trades": 830,
+    "win_rate": 0.3024096385542169
+  },
+  "ema50_distance": {
+    "extended": {
+      "PF": 0.8885658244906768,
+      "average_holding_time": 139.22787193973636,
+      "expectancy_R": -0.06685837341573408,
+      "losing_streak": 17,
+      "max_drawdown_R": -72.91981912288287,
+      "net_R": -35.5017962837548,
+      "recovery_factor": -0.4868607288222692,
+      "top_1_positive_R_concentration": 0.03446971142537594,
+      "top_5_positive_R_concentration": 0.1431700755596699,
+      "trades": 531,
+      "win_rate": 0.2994350282485876
+    },
+    "near": {
+      "PF": 1.3826315355347267,
+      "average_holding_time": 140.96774193548387,
+      "expectancy_R": 0.1703431801768032,
+      "losing_streak": 13,
+      "max_drawdown_R": -8.8331923957181,
+      "net_R": 5.280638585480899,
+      "recovery_factor": 0.5978176800542343,
+      "top_1_positive_R_concentration": 0.6027980724980505,
+      "top_5_positive_R_concentration": 0.969254894028899,
+      "trades": 31,
+      "win_rate": 0.22580645161290322
+    },
+    "normal": {
+      "PF": 1.551133134089794,
+      "average_holding_time": 82.94776119402985,
+      "expectancy_R": 0.3017938886623549,
+      "losing_streak": 12,
+      "max_drawdown_R": -15.46954171146831,
+      "net_R": 80.88076216151111,
+      "recovery_factor": 5.228387735723958,
+      "top_1_positive_R_concentration": 0.06428309231034492,
+      "top_5_positive_R_concentration": 0.24156255744425156,
+      "trades": 268,
+      "win_rate": 0.31716417910447764
+    }
+  },
+  "session_candidate": {
+    "PF": 1.3157170892358239,
+    "average_holding_time": 77.92523364485982,
+    "expectancy_R": 0.17361139944744086,
+    "losing_streak": 16,
+    "max_drawdown_R": -23.42122396180699,
+    "net_R": 92.88209870438087,
+    "recovery_factor": 3.965723518798325,
+    "top_1_positive_R_concentration": 0.03780403036745968,
+    "top_5_positive_R_concentration": 0.15779665322921285,
+    "trades": 535,
+    "win_rate": 0.30280373831775703
+  }
+}
