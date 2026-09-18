@@ -1,0 +1,63 @@
+{
+  "candidate_identities": {
+    "T2": "T2_M5_candidate_v1",
+    "T3": "T3_M5_candidate_v1"
+  },
+  "candidate_selection": false,
+  "deterministic": true,
+  "development_period": {
+    "end": "2024-12-31",
+    "start": "2023-01-01"
+  },
+  "optimization_performed": false,
+  "parameter_changes": false,
+  "phase": "M5_FULL_DIAGNOSTIC",
+  "ranking": false,
+  "session_definitions": {
+    "Session_A": "[00:00,10:00)",
+    "Session_B": "[10:00,17:00)",
+    "Session_C": "[17:00,24:00)"
+  },
+  "source_artifact_hashes": {
+    "TradingSystemLab/results/timeframe_optimization/M5/T2/baseline_vs_optimized.csv": "13bdcc190596c67a35d5dcbe335fe24141b53c155652c06e1074eb9b9adebf79",
+    "TradingSystemLab/results/timeframe_optimization/M5/T2/candidate_registry.json": "4f9fbd928b343e185ff88d947e9b3cd0d0092cdcf353e89b7fdc913b6275f21e",
+    "TradingSystemLab/results/timeframe_optimization/M5/T2/final_report.md": "d6ebf11b2f7cddad687ae0d01120f369a89bb828d9f9f402ce3311cd0393fdf8",
+    "TradingSystemLab/results/timeframe_optimization/M5/T2/metrics.json": "e2a53719931964ed0c3018d9484419367fd64a4cfb024f0446efe0a3e68425bb",
+    "TradingSystemLab/results/timeframe_optimization/M5/T2/optimization_results.csv": "6769fae4c42e09f4cbaca3b50b270feb8cbca9d35ac4f1712062a847f0cdf5a1",
+    "TradingSystemLab/results/timeframe_optimization/M5/T2/parameter_stability.csv": "1f5fd4b5a90b02826e035ef195b9bda9a09a3d72c75e93163299e356ab2051d6",
+    "TradingSystemLab/results/timeframe_optimization/M5/T2/plateau_analysis.csv": "ecbf376c1f631cad817909bec8311dad5dd7964d587e1013335d00c6b6e2c572",
+    "TradingSystemLab/results/timeframe_optimization/M5/T3/baseline_vs_optimized.csv": "62a75b0c9aadbe3b94903074cf4e1c9a20dbf1828903ed048c6619bd6ce79bc2",
+    "TradingSystemLab/results/timeframe_optimization/M5/T3/candidate_registry.json": "68b0be050b0d11b54aab3a98bd7ddbdd65909926d3c0d0362b5de29e8548f2f4",
+    "TradingSystemLab/results/timeframe_optimization/M5/T3/final_report.md": "78e1a8129132b8d92ef848701abdd35229d1b10510c17460bb9e8c2621174669",
+    "TradingSystemLab/results/timeframe_optimization/M5/T3/metrics.json": "6aa8094e24aae5d2aec3f93ed91461f7ec4c8300e0f19466cf746f1cf73fd3b6",
+    "TradingSystemLab/results/timeframe_optimization/M5/T3/optimization_results.csv": "dc5046ef0584a1098725e0941a2692352b9c448c75bf9e17d42da3c73bcd01be",
+    "TradingSystemLab/results/timeframe_optimization/M5/T3/parameter_stability.csv": "9e24304d19ac50b10b52f287e2e9a99ffb29b2399c57dada91848e4949f2c0f4",
+    "TradingSystemLab/results/timeframe_optimization/M5/T3/plateau_analysis.csv": "edee69aa65438808dccfd6a1368f3efe26d385217f4fe4f8e4282ead56ebde3f",
+    "TradingSystemLab/results/timeframe_optimization/M5/comparison.csv": "bf785c4f64161d74fb4920a005a427ec243504831e372ecfcf07ed0e80ad191e",
+    "TradingSystemLab/results/timeframe_optimization/M5/m5_optimization_report.md": "de2b749ce6e88096d950baa24154a7f4f313827d321e854c302b89cf09d2d4da",
+    "TradingSystemLab/results/timeframe_optimization/M5/manifest.json": "c6eb4d12cfa0521357e655d8f6431ef54e28c9712c51b322818999a9b4c51f97",
+    "TradingSystemLab/results/timeframe_validation/M5/T2/concentration_report.csv": "2880995b3c6cf3309072768bbf73dcc2680016cc2c2f733834d6b13d7e42bfda",
+    "TradingSystemLab/results/timeframe_validation/M5/T2/direction_report.csv": "4fd21f61fed0593c0935e8ba1c832e6154d2399447824fa22aa75f8b07db3f09",
+    "TradingSystemLab/results/timeframe_validation/M5/T2/final_report.md": "6ba1ef4b90ca27a7f7a99050dfd46048e4d555b54ce0ca6e455f35cd13b4e7c0",
+    "TradingSystemLab/results/timeframe_validation/M5/T2/instrument_report.csv": "8f7d4c9342c34acd4867af0cb9509a015074a0a9195eab17a79fe8e2507024db",
+    "TradingSystemLab/results/timeframe_validation/M5/T2/mae_mfe_report.csv": "d7dcf2bee4381f1a19eb38a39b55b17606c28e1ef8fc75ef1551c3ef0f6d77e4",
+    "TradingSystemLab/results/timeframe_validation/M5/T2/metrics.json": "bce9e4d0b2bb4bdf179896391ec8c01d65f66472c0f9a7b58a4f47a7bd71200e",
+    "TradingSystemLab/results/timeframe_validation/M5/T2/trades.csv": "eb00d9d4a64a0691b07e84fc0cb7c9e16cbf5da94b3524711b6c5a72ab20ae96",
+    "TradingSystemLab/results/timeframe_validation/M5/T2/yearly_report.csv": "0d45231a0d44fda57f1195b548ed5607ef4947ec044777d231e15b7213a96f63",
+    "TradingSystemLab/results/timeframe_validation/M5/T3/concentration_report.csv": "e8ad3b283f1849acc921c9bf83c97834b266edc79ea341b3a3a21db8f0d66990",
+    "TradingSystemLab/results/timeframe_validation/M5/T3/direction_report.csv": "53208b1d96fe6f9f42c18c3e851ad01899f8e1602a40be4de40ac1f35298fa61",
+    "TradingSystemLab/results/timeframe_validation/M5/T3/final_report.md": "8456628ce6894be8a62a48e2258baf265d1fc5c70d41d298b0f0b616d01b890e",
+    "TradingSystemLab/results/timeframe_validation/M5/T3/instrument_report.csv": "8d35512d6f79f06d00f0cac154156846dac75c4139373a1df2256cf29a60159d",
+    "TradingSystemLab/results/timeframe_validation/M5/T3/mae_mfe_report.csv": "afa273ab08d0de2460636bc819084d190d731595dac881d58deac62a57262987",
+    "TradingSystemLab/results/timeframe_validation/M5/T3/metrics.json": "a8edb021bb23196e8e7d5455b6723dd3e43da312bc321cb890edea60e246d8d4",
+    "TradingSystemLab/results/timeframe_validation/M5/T3/trades.csv": "24c05f3be7cdbc2894e0d2acd09803a0490fb52b68084df9336c10b4d3b5ce92",
+    "TradingSystemLab/results/timeframe_validation/M5/T3/yearly_report.csv": "70714bc88dad19d2035fdd74dabfec06f1a3db75f4d6426044334e2d44f0d564",
+    "TradingSystemLab/results/timeframe_validation/M5/comparison.csv": "baa87816f93534da75908fdcc3c57aeec2f900ae64f6e39c70978b68d3aa1ccd",
+    "TradingSystemLab/results/timeframe_validation/M5/m5_baseline_report.md": "3eff17e512cdb2052dbc7cb3626b3c72920fb78942dc6aec226ff6a705c6ce53",
+    "TradingSystemLab/results/timeframe_validation/M5/manifest.json": "f3472c305585e68f8db8a5e09b2cdc12e42ef136f5dea67ad79d7c661ab1ff35"
+  },
+  "status": "PHASE_M5_FULL_DIAGNOSTIC_COMPLETE",
+  "strategy_changes": false,
+  "true_oos_access": false,
+  "true_oos_cutoff": "2025-01-01"
+}

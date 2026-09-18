@@ -1,0 +1,7 @@
+analysis,status,source_fields
+volatility_ATR,DATA_UNAVAILABLE,
+trend_ADX,DATA_UNAVAILABLE,
+trend_EMA_context,DATA_UNAVAILABLE,
+pullback_characteristics,AVAILABLE,setup_age_bars;pullback_time
+impulse_distance,DATA_UNAVAILABLE,
+trend_context,DATA_UNAVAILABLE,
