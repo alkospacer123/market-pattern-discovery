@@ -1,0 +1,26 @@
+{
+  "analysis_source": "completed development-period trades.csv",
+  "candidates_analyzed": [
+    "T2_M5_candidate_v1",
+    "T3_M5_candidate_v1"
+  ],
+  "deterministic": true,
+  "optimization_performed": false,
+  "parameters_modified": false,
+  "phase": "M5_DIAGNOSTIC",
+  "session_boundaries": {
+    "Session_A": "[10:00,17:00)",
+    "Session_B": "[17:00,24:00)",
+    "Session_C": "[00:00,10:00)"
+  },
+  "source_artifacts_hashes": {
+    "TradingSystemLab/results/timeframe_optimization/M5/T2/candidate_registry.json": "4f9fbd928b343e185ff88d947e9b3cd0d0092cdcf353e89b7fdc913b6275f21e",
+    "TradingSystemLab/results/timeframe_optimization/M5/T3/candidate_registry.json": "68b0be050b0d11b54aab3a98bd7ddbdd65909926d3c0d0362b5de29e8548f2f4",
+    "TradingSystemLab/results/timeframe_validation/M5/T2/trades.csv": "eb00d9d4a64a0691b07e84fc0cb7c9e16cbf5da94b3524711b6c5a72ab20ae96",
+    "TradingSystemLab/results/timeframe_validation/M5/T3/trades.csv": "24c05f3be7cdbc2894e0d2acd09803a0490fb52b68084df9336c10b4d3b5ce92"
+  },
+  "status": "PHASE_M5_DIAGNOSTIC_COMPLETE",
+  "strategy_modified": false,
+  "timeframe": "M5",
+  "true_oos_accessed": false
+}
