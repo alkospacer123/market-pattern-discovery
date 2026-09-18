@@ -1,0 +1,22 @@
+{
+  "baseline": {
+    "PF": 1.1574920463357858,
+    "expectancy_R": 0.07739191009617423,
+    "max_drawdown_R": -42.81216229219696,
+    "net_R": 87.53025031877306,
+    "recovery_factor": 2.0445183245212193,
+    "trades": 1131,
+    "win_rate": 0.3748894783377542
+  },
+  "baseline_candidate_id": "T3_M5_candidate_v1",
+  "session_candidate_id": "T3_M5_session_candidate_v1",
+  "session_filter_candidate": {
+    "PF": 1.2877869999197504,
+    "expectancy_R": 0.1389224424908676,
+    "max_drawdown_R": -24.258024378782835,
+    "net_R": 113.08286818756622,
+    "recovery_factor": 4.661668502834617,
+    "trades": 814,
+    "win_rate": 0.3845208845208845
+  }
+}
