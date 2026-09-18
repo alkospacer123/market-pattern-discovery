@@ -1,0 +1,22 @@
+{
+  "PF": 1.6401650508028935,
+  "average_MAE_R": 0.653192295456737,
+  "average_MFE_R": 1.8761053538596533,
+  "average_holding_minutes": 663.3291770573566,
+  "candidate_id": "T3_M15_candidate_v1",
+  "concentration_top_1": 0.04198193207620335,
+  "concentration_top_5": 0.1436463603603823,
+  "configuration_id": "T3-M15-0011-76dd2f3526c3",
+  "expectancy_R": 0.302966847340464,
+  "losing_streak": 12,
+  "max_drawdown_R": -31.30136775277552,
+  "net_R": 121.48970578352606,
+  "recovery_factor": 3.88129064336984,
+  "robust_plateau_configurations": 9,
+  "selection_status": "ROBUST_PLATEAU",
+  "tested_configurations": 22,
+  "top_five_trade_dependency_PF": 1.404561310864757,
+  "top_five_trade_dependency_net_R": 76.77712890872911,
+  "trades": 401,
+  "win_rate": 0.40399002493765584
+}
