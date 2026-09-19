@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from TradingSystemLab.timeframe_robustness import h4
 
@@ -38,6 +39,52 @@ def test_registry_and_canonical_optimization_provenance():
     for row in registry:
         plateau=pd.read_csv(h4.OPTIMIZATION/row["strategy"]/"plateau_report.csv")
         assert plateau.loc[plateau.configuration_id.eq(row["source_h4_optimization_configuration_id"]),"classification"].tolist()==["ROBUST_PLATEAU"]
+
+
+def test_current_sources_equal_both_canonical_manifests():
+    baseline_manifest=json.loads((h4.baseline.OUTPUT/"manifest.json").read_text())
+    optimization_manifest=json.loads((h4.OPTIMIZATION/"manifest.json").read_text())
+    _, verified=h4._load_verified_development(h4.APPROVED_DATA_ROOT, {
+        "baseline":baseline_manifest,"optimization":optimization_manifest})
+    assert verified == optimization_manifest["source_files"]
+    assert verified == baseline_manifest["source_files"]
+
+
+@pytest.mark.parametrize("failure", ["changed", "missing", "unexpected"])
+def test_source_provenance_mismatch_fails_closed(monkeypatch, tmp_path, failure):
+    source=tmp_path/"Si_H1_2023_Q1.csv"; source.write_text("current bytes")
+    extra=tmp_path/"Si_H1_2023_Q2.csv"; extra.write_text("unexpected bytes")
+    frame=pd.DataFrame({"close":[1.0]})
+    expected=[{"instrument":"USDRUBF","alias":"Si","name":source.name,"sha256":h4._sha(source)}]
+    paths=[source]
+    if failure == "changed": expected[0]["sha256"]="0"*64
+    elif failure == "missing": paths=[]
+    else: paths.append(extra)
+    monkeypatch.setattr(h4.baseline,"INSTRUMENTS",(("USDRUBF","Si"),))
+    monkeypatch.setattr(h4.baseline,"load_h1_development",lambda *_: (frame if paths else None, paths))
+    with pytest.raises(RuntimeError,match="^H4_ROBUSTNESS_SOURCE_HASH_MISMATCH$"):
+        h4._load_verified_development(tmp_path,{"baseline":{"source_files":expected},
+                                                  "optimization":{"source_files":expected}})
+
+
+def test_candidate_execution_never_starts_after_provenance_failure(monkeypatch, tmp_path):
+    source=tmp_path/"Si_H1_2023_Q1.csv"; source.write_text("modified")
+    expected=[{"instrument":"USDRUBF","alias":"Si","name":source.name,"sha256":"0"*64}]
+    provenance={"baseline":{"source_files":expected},"optimization":{"source_files":expected}}
+    monkeypatch.setattr(h4,"protected_snapshot",lambda: {})
+    monkeypatch.setattr(h4,"_validate_prerequisites",lambda: (provenance, []))
+    monkeypatch.setattr(h4.baseline,"INSTRUMENTS",(("USDRUBF","Si"),))
+    monkeypatch.setattr(h4.baseline,"load_h1_development",lambda *_: (pd.DataFrame({"close":[1.0]}),[source]))
+    monkeypatch.setattr(h4.baseline,"_execute",lambda *_: pytest.fail("candidate execution began"))
+    with pytest.raises(RuntimeError,match="^H4_ROBUSTNESS_SOURCE_HASH_MISMATCH$"):
+        h4.run(tmp_path,tmp_path/"output")
+    assert not (tmp_path/"output").exists()
+
+
+def test_manifest_records_verified_current_run_sources():
+    manifest=json.loads((ROOT/"manifest.json").read_text())
+    assert manifest["source_hashes"] == manifest["verified_source_files"]
+    assert manifest["verified_source_files"] == manifest["expected_source_files"]
 
 
 def test_period_cost_bootstrap_and_prohibited_actions():
