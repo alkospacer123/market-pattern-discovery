@@ -1,0 +1,1 @@
+trade_id,strategy_id,symbol,direction,entry_time,exit_time,gross_R,initial_risk_ticks,MAE_R,MFE_R,instrument,strategy,timeframe,net_R,fold,fold_start_state

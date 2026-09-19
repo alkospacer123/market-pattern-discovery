@@ -1,0 +1,7 @@
+scope,metric,trades,mean,median,p75,p90
+ALL,MAE_R,0,,,,
+ALL,MFE_R,0,,,,
+WINNERS,MAE_R,0,,,,
+WINNERS,MFE_R,0,,,,
+LOSERS,MAE_R,0,,,,
+LOSERS,MFE_R,0,,,,

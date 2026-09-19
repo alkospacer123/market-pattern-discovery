@@ -1,0 +1,5 @@
+fold,train_start,train_end,test_start,test_end,status,included_in_pass,reason,fold_start_state,trades,PF_C1,expectancy_C1,net_R_C1,max_DD_C1,recovery_factor,win_rate,max_winning_streak,max_losing_streak
+WF01,2023-01-01,2023-12-31 23:59:59,2024-01-01,2024-03-31 23:59:59,incomplete,False,requested train/test calendar is not fully covered,FLAT,0,,,0,0,,,0,0
+WF02,2023-01-01,2024-03-31 23:59:59,2024-04-01,2024-06-30 23:59:59,incomplete,False,requested train/test calendar is not fully covered,FLAT,0,,,0,0,,,0,0
+WF03,2023-01-01,2024-06-30 23:59:59,2024-07-01,2024-09-30 23:59:59,incomplete,False,requested train/test calendar is not fully covered,FLAT,0,,,0,0,,,0,0
+WF04,2023-01-01,2024-09-30 23:59:59,2024-10-01,2024-12-31 23:59:59,incomplete,False,requested train/test calendar is not fully covered,FLAT,0,,,0,0,,,0,0

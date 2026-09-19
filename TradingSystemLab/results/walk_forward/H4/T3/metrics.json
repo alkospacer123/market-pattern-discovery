@@ -1,0 +1,20 @@
+{
+  "aggregate": {
+    "PF_C1": null,
+    "expectancy_C1": null,
+    "max_DD_C1": 0.0,
+    "max_losing_streak": 0,
+    "max_winning_streak": 0,
+    "net_R_C1": 0.0,
+    "recovery_factor": null,
+    "trades": 0,
+    "win_rate": null
+  },
+  "best_fold_contribution": null,
+  "candidate_id": "T3_H4_candidate_v1",
+  "complete_folds": 0,
+  "cost_scenario": "C1",
+  "parameter_hash": "9b1e60957d918a086d58a9a721faa60c5dbd66d73721b08c733be460c930215f",
+  "positive_complete_fold_share": 0,
+  "verdict": "WALK_FORWARD_BORDERLINE"
+}
