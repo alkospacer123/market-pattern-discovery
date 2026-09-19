@@ -1,0 +1,2 @@
+strategy,tested_configurations,baseline_configuration_id,baseline_parity,overall_classification,ROBUST_PLATEAU,LOCAL_SPIKE,NO_EDGE
+T3,22,T3-D1-0010-938b6b3b78f6,EXACT,LOCAL_SPIKE,0,4,18

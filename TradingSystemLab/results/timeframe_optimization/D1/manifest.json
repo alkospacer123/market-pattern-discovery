@@ -1,0 +1,240 @@
+{
+  "baseline_parity": {
+    "T2": "EXACT",
+    "T3": "EXACT"
+  },
+  "candidates": {
+    "T2": {
+      "candidate_id": "T2_candidate_v1",
+      "parameter_hash": "2b0494cdd24bfbfa8ce7d657d6f83d1408f07b9f565d38d093dec5b4856e3c00",
+      "phase32_configuration_id": "T2-0007-608dc87d09f1",
+      "strategy_hash": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774"
+    },
+    "T3": {
+      "candidate_id": "T3_candidate_v1",
+      "parameter_hash": "938b6b3b78f680010115a204b9a49e7eef962db119f4ea121e388c00741920ba",
+      "phase32_configuration_id": "T3-0014-0050d828c1a8",
+      "strategy_hash": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
+    }
+  },
+  "canonical_d1_baseline_merge": "132c64158a7a28dbe66a1e2bbd2629dc3144eb01",
+  "cartesian_grid": false,
+  "cost_model": {
+    "additional_slippage_ticks": 0.0,
+    "round_trip_ticks": 2.0,
+    "scenario": "C1",
+    "ticks_per_side": 1.0
+  },
+  "d1_baseline_manifest_sha256": "6d92e5c5ee9138ecd05568ebc60484796c6461783d809e35c0eda23092b64a77",
+  "d1_baseline_trade_ledger_sha256": {
+    "T2": "aa17ec2f4a73608aae30619e2ea96f7693b234e8a26aa253251a0a71dbab0920",
+    "T3": "48fa72e5d44f033022c5b823c15ef623afa019ebf706282a1cf2aefcc849ea92"
+  },
+  "deterministic_execution": true,
+  "development_period": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "methodological_source": "H1_PHASE_3_2",
+  "one_factor_at_a_time": true,
+  "parameter_space_expansion": false,
+  "parameter_spaces": {
+    "T2": {
+      "adx_threshold": [
+        15,
+        20,
+        25,
+        30
+      ],
+      "confirmation_window": [
+        2,
+        3,
+        4
+      ],
+      "ema_fast": [
+        15,
+        20,
+        25,
+        30
+      ],
+      "ema_slow": [
+        150,
+        200,
+        250
+      ],
+      "ema_trend": [
+        40,
+        50,
+        60
+      ],
+      "impulse_distance_atr": [
+        0.3,
+        0.5,
+        0.7
+      ],
+      "max_initial_stop_atr": [
+        2.0,
+        2.5,
+        3.0
+      ],
+      "trailing_atr": [
+        2.0,
+        3.0,
+        4.0
+      ]
+    },
+    "T3": {
+      "adx_threshold": [
+        15,
+        20,
+        25,
+        30
+      ],
+      "atr_average_period": [
+        10,
+        20,
+        30,
+        50
+      ],
+      "breakout_period": [
+        10,
+        20,
+        30,
+        40,
+        55
+      ],
+      "ema_period": [
+        50,
+        75,
+        100,
+        150,
+        200
+      ],
+      "stop_atr": [
+        1.5,
+        2.0,
+        2.5,
+        3.0
+      ],
+      "trail_atr": [
+        2.0,
+        2.5,
+        3.0,
+        3.5,
+        4.0
+      ]
+    }
+  },
+  "phase": "D1_OPTIMIZATION",
+  "protected_research_unchanged": true,
+  "ranking": false,
+  "robustness": false,
+  "selection": false,
+  "source_files": [
+    {
+      "alias": "Si",
+      "filename": "Si_H1_2023_Q1.csv",
+      "instrument": "USDRUBF",
+      "sha256": "c20749249b2fb255d96fd10308a18e6a3cdb10bc9f886102b3d53fb4a95ae173"
+    },
+    {
+      "alias": "Si",
+      "filename": "Si_H1_2023_Q2.csv",
+      "instrument": "USDRUBF",
+      "sha256": "062d87acee579e796049583a666422f4d7a19e19c1d8875f844870b009b432f9"
+    },
+    {
+      "alias": "Si",
+      "filename": "Si_H1_2023_Q3.csv",
+      "instrument": "USDRUBF",
+      "sha256": "3e42caa14335b679c1f54cecb9c1b33ae44fd68ccb2997fd845a53a06f775a8f"
+    },
+    {
+      "alias": "Si",
+      "filename": "Si_H1_2024_Q1.csv",
+      "instrument": "USDRUBF",
+      "sha256": "1720fe0e9ab7d713228a9b7edab5bc69d6eef08041fa20cbdfae10390a568e01"
+    },
+    {
+      "alias": "Si",
+      "filename": "Si_H1_2024_Q2.csv",
+      "instrument": "USDRUBF",
+      "sha256": "f53bf71939dff7328d5e4fb9224739064c62e0d110cfac4cb345a44113ed6440"
+    },
+    {
+      "alias": "Si",
+      "filename": "Si_H1_2024_Q3.csv",
+      "instrument": "USDRUBF",
+      "sha256": "70288971fc8683b4b1d488d1ea9951f6e2a50075efee535f8d6d4130a0f1e689"
+    },
+    {
+      "alias": "CNY",
+      "filename": "CNY_H1_2023_Q1.csv",
+      "instrument": "CNYRUBF",
+      "sha256": "f989d438dd14fc63e64b340c654ce707a4db9c343f7e65df94369887f9eb55c0"
+    },
+    {
+      "alias": "CNY",
+      "filename": "CNY_H1_2023_Q2.csv",
+      "instrument": "CNYRUBF",
+      "sha256": "961fb72baeca8413cb2091d151c789a2f7a76e0823761e887b000b47d92a9cba"
+    },
+    {
+      "alias": "CNY",
+      "filename": "CNY_H1_2023_Q3.csv",
+      "instrument": "CNYRUBF",
+      "sha256": "7738b88314dffc77f390a422a35eab90de77aafeeb5ccdc78c16c1d19cdf066e"
+    },
+    {
+      "alias": "CNY",
+      "filename": "CNY_H1_2024_Q1.csv",
+      "instrument": "CNYRUBF",
+      "sha256": "062d85d3a96b6e645e4aff9a8b3abb4f4b293a1f5636e0e74f6927b894e62891"
+    },
+    {
+      "alias": "CNY",
+      "filename": "CNY_H1_2024_Q2.csv",
+      "instrument": "CNYRUBF",
+      "sha256": "825faffa38387912e2388db9e492eb8e77bca6883a9ac6e154252c6229c585e7"
+    },
+    {
+      "alias": "CNY",
+      "filename": "CNY_H1_2024_Q3.csv",
+      "instrument": "CNYRUBF",
+      "sha256": "157592e02b756ca5afb708805c0e149987ec4e8b65d86b5995f54a84fbb3695d"
+    }
+  ],
+  "status": "PHASE_D1_OPTIMIZATION_COMPLETE",
+  "strategies": {
+    "T2": {
+      "LOCAL_SPIKE": 1,
+      "NO_EDGE": 18,
+      "ROBUST_PLATEAU": 0,
+      "baseline_configuration_id": "T2-D1-0008-2b0494cdd24b",
+      "baseline_parity": "EXACT",
+      "overall_classification": "LOCAL_SPIKE",
+      "strategy": "T2",
+      "tested_configurations": 19
+    },
+    "T3": {
+      "LOCAL_SPIKE": 4,
+      "NO_EDGE": 18,
+      "ROBUST_PLATEAU": 0,
+      "baseline_configuration_id": "T3-D1-0010-938b6b3b78f6",
+      "baseline_parity": "EXACT",
+      "overall_classification": "LOCAL_SPIKE",
+      "strategy": "T3",
+      "tested_configurations": 22
+    }
+  },
+  "strategy_change": false,
+  "tested_configurations": {
+    "T2": 19,
+    "T3": 22
+  },
+  "timeframe": "D1",
+  "true_oos_blocked": true,
+  "true_oos_cutoff": "2025-01-01",
+  "walk_forward": false,
+  "winner_selection": false
+}
