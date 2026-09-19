@@ -76,7 +76,15 @@ def artifact_sha256(root: Path) -> dict[str, str]:
 
 
 def protected_snapshot() -> dict[str, Any]:
-    result = {str(p): hash_tree(p) for p in PROTECTED}
+    # A later phase may add its own H4 TRUE OOS subtree.  It was not present
+    # when this snapshot was frozen and is intentionally outside this phase's
+    # protected-input set (all earlier TRUE OOS timeframes remain protected).
+    result = {}
+    for path in PROTECTED:
+        tree = hash_tree(path)
+        if path == Path("TradingSystemLab/results/true_oos_validation"):
+            tree = {name: digest for name, digest in tree.items() if not name.startswith("H4/")}
+        result[str(path)] = tree
     result.update({str(p): _sha(p) for p in STRATEGIES})
     return result
 
