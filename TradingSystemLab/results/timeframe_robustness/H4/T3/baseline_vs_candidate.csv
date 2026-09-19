@@ -1,0 +1,3 @@
+version,cost_scenario,trades,PF,expectancy,net_R,max_DD,recovery_factor,win_rate,max_winning_streak,max_losing_streak
+baseline,C1,27,1.96268204212,0.476923494462,12.8769343505,-4.81350417062,2.67516842077,0.444444444444,4,4
+candidate,C1,25,2.24830622691,0.584987026212,14.6246756553,-5.18579878022,2.82013943755,0.44,4,4

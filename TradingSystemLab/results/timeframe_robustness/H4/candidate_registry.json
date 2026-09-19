@@ -1,0 +1,46 @@
+[
+  {
+    "candidate_id": "T2_H4_candidate_v1",
+    "optimization_manifest_sha256": "a698ae2aa2fa9216db2abb7ae5c12f5e9fa28798789cfb12a84f96e89164c9a5",
+    "optimization_merge_commit": "06805ef673607b3302715bf03903c534a3694b85",
+    "parameter_hash": "2b0494cdd24bfbfa8ce7d657d6f83d1408f07b9f565d38d093dec5b4856e3c00",
+    "parameters": {
+      "adx_threshold": 20,
+      "confirmation_window": 3,
+      "ema_fast": 20,
+      "ema_slow": 200,
+      "ema_trend": 50,
+      "impulse_distance_atr": 0.5,
+      "max_initial_stop_atr": 2.5,
+      "trailing_atr": 3
+    },
+    "selection_locked_before_validation": true,
+    "selection_reason": "Predeclared ROBUST_PLATEAU member with materially better instrument/year balance and lower concentration than the other T2 plateau candidate. Not selected by maximum PF or expectancy.",
+    "source_h1_candidate_id": "T2_candidate_v1",
+    "source_h4_optimization_configuration_id": "T2-H4-0008-2b0494cdd24b",
+    "strategy": "T2",
+    "strategy_hash": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+    "timeframe": "H4"
+  },
+  {
+    "candidate_id": "T3_H4_candidate_v1",
+    "optimization_manifest_sha256": "a698ae2aa2fa9216db2abb7ae5c12f5e9fa28798789cfb12a84f96e89164c9a5",
+    "optimization_merge_commit": "06805ef673607b3302715bf03903c534a3694b85",
+    "parameter_hash": "9b1e60957d918a086d58a9a721faa60c5dbd66d73721b08c733be460c930215f",
+    "parameters": {
+      "adx_threshold": 20,
+      "atr_average_period": 20,
+      "breakout_period": 20,
+      "ema_period": 100,
+      "stop_atr": 2.0,
+      "trail_atr": 3.0
+    },
+    "selection_locked_before_validation": true,
+    "selection_reason": "Predeclared ROBUST_PLATEAU member with positive expectancy in both instruments and both development years. It was not selected by maximum PF, maximum expectancy or minimum drawdown.",
+    "source_h1_candidate_id": "T3_candidate_v1",
+    "source_h4_optimization_configuration_id": "T3-H4-0003-9b1e60957d91",
+    "strategy": "T3",
+    "strategy_hash": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c",
+    "timeframe": "H4"
+  }
+]
