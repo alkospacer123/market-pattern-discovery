@@ -35,7 +35,7 @@
     "T2": "fe6bd1a03e8bbbb85e7d7ed67187dbec0f4a710cbea58ab8576c5050309065eb",
     "T3": "fde4ca84d7ea6dd3080605c9ebe1be7774570cd4d19495b893e52e594923df4c"
   },
-  "methodological_source": "original H1 bounded OAT methodology",
+  "methodological_source": "H1_PHASE_3_2",
   "one_factor_at_a_time": true,
   "optimization": true,
   "overall_plateau_classification": {
@@ -1172,7 +1172,7 @@
     "T3": 22
   },
   "ticks_per_side": 1,
-  "timeframe": "M30",
+  "timeframe": "H4",
   "true_oos_blocked": true,
   "true_oos_cutoff": "2025-01-01",
   "walk_forward": false,
