@@ -121,4 +121,12 @@ def test_h4_identity_causal_context_and_protected_hashes():
     assert manifest["phase"]=="H4_ROBUSTNESS" and manifest["timeframe"]=="H4"
     assert "TimeframeAdapter(\"D1\").execution(h1)" in Path("TradingSystemLab/timeframe_validation/h4_baseline.py").read_text()
     assert manifest["strategy_hashes"] == h4.STRATEGY_SHA256
-    assert manifest["protected_artifact_hashes"] == h4.protected_snapshot()
+    # Later phases may add a new subtree below a protected parent.  Verify that
+    # every artifact frozen by Robustness is still byte-identical, without
+    # treating the additive H4 Walk Forward output as a mutation.
+    current=h4.protected_snapshot()
+    for root, frozen in manifest["protected_artifact_hashes"].items():
+        if isinstance(frozen, dict):
+            assert {name:current[root].get(name) for name in frozen} == frozen
+        else:
+            assert current[root] == frozen

@@ -1,0 +1,5 @@
+fold,train_expectancy_C1,test_expectancy_C1,expectancy_decay,train_PF_C1,test_PF_C1,PF_change,train_win_rate,test_win_rate,win_rate_change
+WF01,-0.32670481117,,,0.65412556614,,,0.25,,
+WF02,-0.50347417421,,,0.412202532736,,,0.142857142857,,
+WF03,0.550458861152,,,1.82413444333,,,0.333333333333,,
+WF04,0.343540513926,,,1.53671238179,,,0.333333333333,,
