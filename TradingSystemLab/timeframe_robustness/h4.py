@@ -119,6 +119,25 @@ def _validate_prerequisites() -> tuple[dict, list[dict]]:
     return {"baseline": base, "optimization": opt}, registry
 
 
+def _load_verified_development(data_root: Path, provenance: dict[str, dict]) -> tuple[dict[str, pd.DataFrame], list[dict]]:
+    """Load development data and bind this run to both frozen source lists."""
+    loaded = {alias: baseline.load_h1_development(Path(data_root), alias)
+              for _, alias in baseline.INSTRUMENTS}
+    verified = []
+    for instrument, alias in baseline.INSTRUMENTS:
+        frame, paths = loaded[alias]
+        if frame is None:
+            raise RuntimeError("H4_ROBUSTNESS_SOURCE_HASH_MISMATCH")
+        verified.extend({"instrument": instrument, "alias": alias, "name": path.name,
+                         "sha256": _sha(path)} for path in paths)
+    expected_optimization = provenance["optimization"].get("source_files")
+    expected_baseline = provenance["baseline"].get("source_files")
+    if (verified != expected_optimization or verified != expected_baseline or
+            expected_optimization != expected_baseline):
+        raise RuntimeError("H4_ROBUSTNESS_SOURCE_HASH_MISMATCH")
+    return {alias: item[0] for alias, item in loaded.items()}, verified
+
+
 def _bootstrap(values: pd.Series) -> dict[str, Any]:
     a = values.to_numpy(float); rng = np.random.default_rng(SEED); means = np.empty(ITERATIONS)
     for start in range(0, ITERATIONS, 1000):
@@ -154,14 +173,13 @@ def _mae_mfe(trades: pd.DataFrame) -> list[dict]:
 
 def run(data_root: Path = APPROVED_DATA_ROOT, output: Path = OUTPUT) -> dict[str, Any]:
     before = protected_snapshot(); provenance, registry = _validate_prerequisites()
+    data, verified_sources = _load_verified_development(Path(data_root), provenance)
     output=Path(output)
     if output.exists(): shutil.rmtree(output)
     output.mkdir(parents=True)
-    # Auditable ordering guarantee: freeze the registry on disk before the sole market-data read.
+    # Auditable ordering guarantee: freeze the registry on disk before candidate execution.
     _json(output/"candidate_registry.json", registry)
-    loaded={alias: baseline.load_h1_development(Path(data_root),alias) for _,alias in baseline.INSTRUMENTS}
-    if any(frame is None for frame,_ in loaded.values()): raise RuntimeError("DATA_UNAVAILABLE")
-    data={alias:item[0] for alias,item in loaded.items()}; classifications={}; flags_by_strategy={}
+    classifications={}; flags_by_strategy={}
     for item in registry:
         key=item["strategy"]; target=output/key; target.mkdir()
         candidate=pd.concat([baseline._execute(key,item["parameters"],alias,data[alias]) for _,alias in baseline.INSTRUMENTS],ignore_index=True)
@@ -202,7 +220,9 @@ def run(data_root: Path = APPROVED_DATA_ROOT, output: Path = OUTPUT) -> dict[str
         "diagnostic_flags":flags_by_strategy,"baseline_merge_commit":BASELINE_COMMIT,"optimization_merge_commit":OPTIMIZATION_COMMIT,
         "baseline_manifest_sha256":_sha(baseline.OUTPUT/"manifest.json"),"optimization_manifest_sha256":_sha(OPTIMIZATION/"manifest.json"),
         "candidate_hashes":{x["strategy"]:x["parameter_hash"] for x in registry},
-        "strategy_hashes":STRATEGY_SHA256,"source_hashes":provenance["optimization"]["source_files"],
+        "strategy_hashes":STRATEGY_SHA256,"source_hashes":verified_sources,
+        "expected_source_files":provenance["optimization"]["source_files"],
+        "verified_source_files":verified_sources,
         "protected_artifact_hashes":after,"deterministic_artifacts":True}
     _json(output/"manifest.json",manifest)
     lines=["# H4 Robustness Validation","","H1 Phase 3.3 methodology adapted only for H4 and C1.",""]
