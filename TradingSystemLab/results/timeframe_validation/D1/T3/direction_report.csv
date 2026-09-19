@@ -1,0 +1,3 @@
+direction,trades,PF,expectancy_R,net_R,max_drawdown_R,recovery_factor,win_rate,average_win_R,average_loss_R,max_winning_streak,max_losing_streak,average_holding_minutes,median_holding_minutes,average_MAE_R,average_MFE_R
+LONG,0,,,0,0,,,,,0,0,,,,
+SHORT,4,0.102216885043,-0.371388985669,-1.48555594268,-1.48555594268,-1,0.25,0.169137621869,-0.551564521515,1,2,14040,12960,0.430871498198,1.16765652324
