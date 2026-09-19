@@ -1,0 +1,71 @@
+{
+  "cartesian_grid": false,
+  "center": {
+    "adx_threshold": 20,
+    "confirmation_window": 3,
+    "ema_fast": 20,
+    "ema_slow": 200,
+    "ema_trend": 50,
+    "impulse_distance_atr": 0.5,
+    "max_initial_stop_atr": 2.5,
+    "trailing_atr": 3
+  },
+  "cost_scenarios": {
+    "C1": 1.0
+  },
+  "design": "BASELINE_PLUS_ONE_FACTOR_AT_A_TIME",
+  "development_period": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "methodological_source": "H1_PHASE_3_2",
+  "one_factor_at_a_time": true,
+  "parameter_space": {
+    "adx_threshold": [
+      15,
+      20,
+      25,
+      30
+    ],
+    "confirmation_window": [
+      2,
+      3,
+      4
+    ],
+    "ema_fast": [
+      15,
+      20,
+      25,
+      30
+    ],
+    "ema_slow": [
+      150,
+      200,
+      250
+    ],
+    "ema_trend": [
+      40,
+      50,
+      60
+    ],
+    "impulse_distance_atr": [
+      0.3,
+      0.5,
+      0.7
+    ],
+    "max_initial_stop_atr": [
+      2.0,
+      2.5,
+      3.0
+    ],
+    "trailing_atr": [
+      2.0,
+      3.0,
+      4.0
+    ]
+  },
+  "phase": "D1_OPTIMIZATION",
+  "strategy": "T2",
+  "tested_configurations": 19,
+  "true_oos_blocked": true
+}

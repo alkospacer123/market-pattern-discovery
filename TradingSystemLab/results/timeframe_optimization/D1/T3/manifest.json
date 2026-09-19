@@ -1,0 +1,22 @@
+{
+  "C1_only": true,
+  "LOCAL_SPIKE": 4,
+  "NO_EDGE": 18,
+  "ROBUST_PLATEAU": 0,
+  "baseline_configuration_id": "T3-D1-0010-938b6b3b78f6",
+  "baseline_parity": "EXACT",
+  "deterministic_execution": true,
+  "methodological_source": "H1_PHASE_3_2",
+  "overall_classification": "LOCAL_SPIKE",
+  "phase": "D1_OPTIMIZATION",
+  "ranking": false,
+  "robustness": false,
+  "selection": false,
+  "status": "PHASE_D1_OPTIMIZATION_COMPLETE",
+  "strategy": "T3",
+  "tested_configurations": 22,
+  "timeframe": "D1",
+  "true_oos_blocked": true,
+  "walk_forward": false,
+  "winner_selection": false
+}
