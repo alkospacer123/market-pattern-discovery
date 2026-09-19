@@ -1,16 +1,16 @@
 {
   "aggregate": {
-    "PF_C1": null,
-    "expectancy_C1": null,
-    "max_DD_C1": 0.0,
-    "max_losing_streak": 0,
-    "max_winning_streak": 0,
-    "net_R_C1": 0.0,
-    "recovery_factor": null,
-    "trades": 0,
-    "win_rate": null
+    "PF_C1": 2.0501357399181908,
+    "expectancy_C1": 0.5611028421662976,
+    "max_DD_C1": -4.236778035610387,
+    "max_losing_streak": 5,
+    "max_winning_streak": 2,
+    "net_R_C1": 6.733234105995571,
+    "recovery_factor": 1.5892345667869106,
+    "trades": 12,
+    "win_rate": 0.3333333333333333
   },
-  "best_fold_contribution": null,
+  "best_fold_contribution": 1.4068011768096478,
   "candidate_id": "T2_H4_candidate_v1",
   "complete_folds": 0,
   "cost_scenario": "C1",

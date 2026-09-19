@@ -1,0 +1,5 @@
+fold,context_start,trade_start,trade_end,h1_context_bars,h4_context_bars,d1_context_bars,test_h4_bars,first_admitted_trading_timestamp,flat_start,pretest_entries,future_context_used,warmup_sufficient
+WF01,2023-01-01,2024-01-01,2024-03-31 23:59:59,9411,1882,,366,2024-01-03T13:00:00+03:00,True,0,False,True
+WF02,2023-01-01,2024-04-01,2024-06-30 23:59:59,11277,2260,,378,2024-04-01T13:00:00+03:00,True,0,False,True
+WF03,2023-01-01,2024-07-01,2024-09-30 23:59:59,13123,2656,,396,2024-07-01T14:00:00+03:00,True,0,False,True
+WF04,2023-01-01,2024-10-01,2024-12-31 23:59:59,14973,3052,,396,2024-10-01T13:00:00+03:00,True,0,False,True
