@@ -1,0 +1,3 @@
+year,trades,PF,expectancy_R,net_R,max_drawdown_R,recovery_factor,win_rate,average_win,average_win_R,average_loss_R,max_winning_streak,max_losing_streak,average_holding_minutes,median_holding_minutes
+2025,6,0,-0.585747840941,-3.51448704565,-3.51448704565,-1,0,,,-0.585747840941,0,6,7920,6480
+2026,14,0.892842241995,-0.0586946672294,-0.821725341212,-6.06186779425,-0.135556460336,0.428571428571,1.14110745006,1.14110745006,-0.958546255198,3,5,8091.42857143,7830
