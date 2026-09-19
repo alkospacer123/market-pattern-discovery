@@ -1,0 +1,20 @@
+{
+  "baseline_configuration_id": "T2-H4-0008-2b0494cdd24b",
+  "baseline_parity": "EXACT",
+  "classification_counts": {
+    "LOCAL_SPIKE": 16,
+    "NO_EDGE": 1,
+    "ROBUST_PLATEAU": 2
+  },
+  "deterministic": true,
+  "overall_plateau_classification": "ROBUST_PLATEAU",
+  "phase": "H4_OPTIMIZATION",
+  "robustness": false,
+  "status": "PHASE_H4_OPTIMIZATION_COMPLETE",
+  "strategy": "T2",
+  "tested_configurations": 19,
+  "timeframe": "M30",
+  "true_oos_blocked": true,
+  "walk_forward": false,
+  "winner_selection": false
+}
