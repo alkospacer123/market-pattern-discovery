@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import replace
 from pathlib import Path
 import shutil
 import subprocess
@@ -16,10 +17,16 @@ from typing import Any, Mapping
 import pandas as pd
 
 from ..core.unified_metrics import finite, stats
+from ..core.backtester import Backtester
+from ..core.instrument_specs import get_instrument_spec
+from ..core.portfolio import FixedRiskPortfolio
 from ..multitimeframe.phase71 import APPROVED_DATA_ROOT, STRATEGY_SHA256
 from ..multitimeframe.phase73 import hash_tree
 from ..optimization.experiment import stable_hash
 from ..timeframe_validation import h4_baseline as baseline
+from ..optimization.phase32 import PARAMETERS, _normalize_backtester
+from ..strategies.trend.T2_Trend_Pullback import PullbackSetup, T2State, T2TrendPullback
+from ..strategies.trend.T3_MTF_Trend import T3MTFTrend
 
 PHASE = "H4_WALK_FORWARD"
 METHODOLOGICAL_SOURCE = "H1_PHASE_4"
@@ -144,12 +151,102 @@ def _interval(data: Mapping[str, pd.DataFrame], start: str, end: str) -> dict[st
     return {alias: frame.loc[start:end].copy() for alias, frame in data.items()}
 
 
-def _execute_interval(key: str, parameters: dict, data: Mapping[str, pd.DataFrame], start: str, end: str) -> pd.DataFrame:
-    pieces = [baseline._execute(key, parameters, alias, frame) for alias, frame in _interval(data, start, end).items() if len(frame)]
+def _t2_causal_adapter(strategy: T2TrendPullback, h4: pd.DataFrame, symbol: str,
+                       trade_start: pd.Timestamp, *, tick_size: float) -> pd.DataFrame:
+    """Frozen T2 loop with indicator history, but deliberately fresh trading state."""
+    data, p = strategy.calculate_indicators(h4), strategy.parameters
+    portfolio = FixedRiskPortfolio()
+    state, setup, position, records, equity = T2State.FLAT_NO_SETUP, None, None, [], portfolio.initial_capital
+    first = int(data.index.searchsorted(trade_start))
+
+    def close_trade(i: int, price: float, reason: str) -> None:
+        nonlocal position, state, equity
+        d, sign = position["direction"], 1 if position["direction"] == "LONG" else -1
+        points, risk = sign * (price - position["entry_price"]), position["initial_risk_points"]
+        cost_r, gross_r = 2.0 * tick_size / risk, points / risk
+        records.append({**position["metadata"], "exit_time": data.index[i], "exit_price": price,
+            "exit_reason": reason, "bars_held": position["bars_held"] + 1, "gross_R": gross_r,
+            "cost_R_C1": cost_r, "net_R_C1": gross_r - cost_r,
+            "MAE_R": max(0.0, position["entry_price"] - position["min_low"] if d == "LONG" else position["max_high"] - position["entry_price"]) / risk,
+            "MFE_R": max(0.0, position["max_high"] - position["entry_price"] if d == "LONG" else position["entry_price"] - position["min_low"]) / risk,
+            "quantity": position["quantity"]})
+        equity += (gross_r - cost_r) * equity * portfolio.risk_fraction
+        position, state = None, T2State.FLAT_NO_SETUP
+
+    for i in range(first, len(data)):
+        bar = data.iloc[i]; regime = strategy.regime(bar)
+        if position is not None:
+            old_stop = position["active_stop"]
+            hit = bar.Low <= old_stop if position["direction"] == "LONG" else bar.High >= old_stop
+            if hit:
+                gap = min(float(bar.Open), old_stop) if position["direction"] == "LONG" else max(float(bar.Open), old_stop)
+                close_trade(i, gap, "INITIAL_STOP" if old_stop == position["initial_stop"] else "ATR_TRAILING_STOP"); continue
+            ema_loss = bar.Close < bar.EMA50 if position["direction"] == "LONG" else bar.Close > bar.EMA50
+            if ema_loss:
+                close_trade(i, float(bar.Close), "EMA50_TREND_LOSS"); continue
+            position["bars_held"] += 1
+            position["min_low"] = min(position["min_low"], float(bar.Low)); position["max_high"] = max(position["max_high"], float(bar.High))
+            candidate = position["max_high"] - p.trailing_atr * bar.ATR if position["direction"] == "LONG" else position["min_low"] + p.trailing_atr * bar.ATR
+            position["active_stop"] = max(old_stop, candidate) if position["direction"] == "LONG" else min(old_stop, candidate)
+            continue
+        if setup is not None:
+            if i > setup.expiry_index or regime != setup.direction:
+                setup, state = None, T2State.FLAT_NO_SETUP
+            elif i > setup.pullback_start_index:
+                setup.pullback_extreme = min(setup.pullback_extreme, float(bar.Low)) if setup.direction == "LONG" else max(setup.pullback_extreme, float(bar.High))
+                if strategy.is_confirmation(bar, data.iloc[i - 1], setup.direction):
+                    entry = float(bar.Close)
+                    stop = setup.pullback_extreme - p.stop_buffer_atr * bar.ATR if setup.direction == "LONG" else setup.pullback_extreme + p.stop_buffer_atr * bar.ATR
+                    risk = entry - stop if setup.direction == "LONG" else stop - entry
+                    if risk > 0 and risk <= p.max_initial_stop_atr * bar.ATR:
+                        metadata = {"trade_id": f"{symbol}-{len(records)+1:06d}", "strategy_id": strategy.name,
+                            "symbol": symbol, "direction": setup.direction, "pullback_time": setup.pullback_start_time,
+                            "confirmation_time": data.index[i], "entry_time": data.index[i], "entry_price": entry,
+                            "initial_stop": stop, "initial_risk_points": risk, "initial_risk_ticks": risk / tick_size,
+                            "impulse_reference_time": setup.impulse_reference_time, "setup_age_bars": i - setup.pullback_start_index}
+                        position = {"direction": setup.direction, "entry_price": entry, "initial_stop": stop,
+                            "initial_risk_points": risk, "active_stop": stop, "bars_held": 0, "min_low": entry,
+                            "max_high": entry, "quantity": portfolio.size(equity, entry, stop), "metadata": metadata}
+                        state = T2State.POSITION_OPEN
+                    else: state = T2State.FLAT_NO_SETUP
+                    setup = None
+            continue
+        if regime and i:
+            reference = strategy.impulse_reference(data, i, regime)
+            if reference is not None and strategy.is_pullback(bar, regime):
+                extreme = float(bar.Low if regime == "LONG" else bar.High)
+                setup = PullbackSetup(regime, data.index[i], i, i + p.confirmation_window, extreme, reference)
+                state = T2State.LONG_PULLBACK_ARMED if regime == "LONG" else T2State.SHORT_PULLBACK_ARMED
+    return pd.DataFrame(records, columns=[
+        "trade_id", "strategy_id", "symbol", "direction", "pullback_time", "confirmation_time", "entry_time",
+        "entry_price", "initial_stop", "initial_risk_points", "initial_risk_ticks", "exit_time", "exit_price",
+        "exit_reason", "bars_held", "gross_R", "cost_R_C1", "net_R_C1", "MAE_R", "MFE_R",
+        "impulse_reference_time", "setup_age_bars", "quantity"])
+
+
+def _execute_interval(key: str, parameters: dict, data: Mapping[str, pd.DataFrame], start: str, end: str,
+                      *, context_start: str | None = None) -> pd.DataFrame:
+    lo, hi = pd.Timestamp(start, tz="UTC"), pd.Timestamp(end, tz="UTC")
+    context_start = context_start or start
+    pieces = []
+    for alias, h1 in _interval(data, context_start, end).items():
+        if h1.empty: continue
+        params, tick, execution = replace(PARAMETERS[key], **parameters), get_instrument_spec(alias).price_precision, baseline.causal_h4(h1)
+        if key == "T2":
+            frame = _t2_causal_adapter(T2TrendPullback(params), execution, alias, lo, tick_size=tick)
+        else:
+            raw = Backtester(FixedRiskPortfolio(), cost_ticks_per_side=0, tick_size=tick).run(
+                T3MTFTrend(params), alias, execution, baseline.causal_d1(h1), entry_start=lo,
+                entry_end=hi + pd.Timedelta(seconds=1)).trades
+            frame = _normalize_backtester(raw, key)
+        if frame.empty: continue
+        frame = frame.copy(); frame["instrument"] = "USDRUBF" if alias == "Si" else "CNYRUBF"
+        frame["strategy"], frame["timeframe"] = key, TIMEFRAME
+        frame["net_R"] = frame.gross_R.astype(float) - 2 / frame.initial_risk_ticks.astype(float)
+        pieces.append(frame)
     result = pd.concat(pieces, ignore_index=True) if pieces else pd.DataFrame(columns=baseline.TRADE_COLUMNS)
     if len(result):
         entry, exit_ = pd.to_datetime(result.entry_time, utc=True), pd.to_datetime(result.exit_time, utc=True)
-        lo, hi = pd.Timestamp(start, tz="UTC"), pd.Timestamp(end, tz="UTC")
         result = result.loc[entry.ge(lo) & exit_.le(hi)].copy()
     return result.sort_values(["exit_time", "instrument", "trade_id"], kind="mergesort").reset_index(drop=True)
 
@@ -206,12 +303,30 @@ def run(data_root: Path = APPROVED_DATA_ROOT, output: Path = OUTPUT) -> dict[str
         "end_exclusive": True, "actual": coverage, "source_files": sources, "true_oos_blocked": True})
     comparison=[]; verdicts={}
     for key in ("T2", "T3"):
-        candidate=candidates[key]; target=output/key; target.mkdir(); folds=[]; decay=[]; pieces=[]
+        candidate=candidates[key]; target=output/key; target.mkdir(); folds=[]; decay=[]; pieces=[]; warmups=[]
         for fold, train_start, train_end, test_start, test_end in SCHEDULE:
             complete = all(frame.index.min() <= pd.Timestamp(train_start, tz="UTC") and
                            frame.index.max() >= pd.Timestamp(test_end, tz="UTC") for frame in data.values())
             train = _execute_interval(key, candidate["parameters"], data, train_start, train_end)
-            test = _execute_interval(key, candidate["parameters"], data, test_start, test_end)
+            test = _execute_interval(key, candidate["parameters"], data, test_start, test_end,
+                                     context_start=DEVELOPMENT_PERIOD[0])
+            context = _interval(data, DEVELOPMENT_PERIOD[0], test_end)
+            h4_context = {alias: baseline.causal_h4(frame) for alias, frame in context.items()}
+            d1_context = {alias: baseline.causal_d1(frame) for alias, frame in context.items()} if key == "T3" else {}
+            start_ts = pd.Timestamp(test_start, tz="UTC")
+            test_h4 = {alias: frame.loc[frame.index >= start_ts] for alias, frame in h4_context.items()}
+            first_admitted = min((frame.index.min() for frame in test_h4.values() if len(frame)), default=None)
+            warmup_sufficient = (all(len(frame.loc[frame.index < start_ts]) >= 200 for frame in h4_context.values())
+                                 if key == "T2" else
+                                 all(len(frame.loc[frame.index < start_ts]) >= 200 for frame in d1_context.values()))
+            warmups.append({"fold": fold, "context_start": DEVELOPMENT_PERIOD[0], "trade_start": test_start,
+                "trade_end": test_end, "h1_context_bars": sum(map(len, context.values())),
+                "h4_context_bars": sum(map(len, h4_context.values())),
+                "d1_context_bars": sum(map(len, d1_context.values())) if key == "T3" else None,
+                "test_h4_bars": sum(map(len, test_h4.values())),
+                "first_admitted_trading_timestamp": first_admitted.isoformat() if first_admitted is not None else None,
+                "flat_start": True, "pretest_entries": 0, "future_context_used": False,
+                "warmup_sufficient": warmup_sufficient})
             test["fold"], test["fold_start_state"] = fold, "FLAT"
             test["trade_id"] = [f"{key}-H4-{fold}-{n:06d}" for n in range(1, len(test)+1)]
             pieces.append(test); train_metric, test_metric = _summary(train), _summary(test)
@@ -227,6 +342,8 @@ def run(data_root: Path = APPROVED_DATA_ROOT, output: Path = OUTPUT) -> dict[str
         trades=pd.concat(pieces,ignore_index=True).sort_values(["exit_time","instrument","fold","trade_id"],kind="mergesort").reset_index(drop=True)
         if trades.trade_id.duplicated().any(): raise RuntimeError("NON_UNIQUE_STITCHED_TRADE_ID")
         _csv(target/"folds.csv",folds); _csv(target/"trades.csv",trades); _csv(target/"train_test_decay.csv",decay)
+        _csv(target/"warmup_report.csv",warmups)
+        if not len(trades): raise RuntimeError(f"{key}_ZERO_TRADES_AFTER_CAUSAL_WARMUP")
         instruments, concentration = _diagnostics(target,trades); aggregate=_summary(trades)
         included=[row for row in folds if row["included_in_pass"]]
         positive_share=sum(row["expectancy_C1"] is not None and row["expectancy_C1"]>0 for row in included)/len(included) if included else 0
@@ -255,7 +372,23 @@ def run(data_root: Path = APPROVED_DATA_ROOT, output: Path = OUTPUT) -> dict[str
             "robustness":{"commit":ROBUSTNESS_COMMIT,"status":"PHASE_H4_ROBUSTNESS_COMPLETE","classifications":{"T2":"BORDERLINE","T3":"BORDERLINE"}}},
         "strategy_hashes":STRATEGY_SHA256,"protected_artifact_hashes":after,"deterministic":True,"verdicts":verdicts}
     _json(output/"manifest.json",manifest)
-    lines=["# H4 Walk Forward Validation","",f"**{status}**","",f"- T2: {verdicts['T2']}",f"- T3: {verdicts['T3']}","",
-           "Standalone H1 Phase 4 adaptation. C1 only; frozen candidates; no optimization, ranking, selection, or TRUE OOS read.",""]
+    lines=["# H4 Walk Forward Validation","",f"**{status}**","","## Previous invalid run","",
+           "T2 stitched trades = 0; T3 stitched trades = 0. Cause: isolated test-slice indicator warm-up failure.","",
+           "## Corrected causal-warm-up run",""]
+    for key in ("T2", "T3"):
+        lines += [f"### {key}","","| Fold | Trades | PF C1 | Expectancy C1 | Net R | DD | Status | Included in pass |",
+                  "|---|---:|---:|---:|---:|---:|---|---|"]
+        for row in pd.read_csv(output/key/"folds.csv").to_dict("records"):
+            lines.append(f"| {row['fold']} | {row['trades']} | {row['PF_C1']} | {row['expectancy_C1']} | "
+                         f"{row['net_R_C1']} | {row['max_DD_C1']} | {row['status']} | {row['included_in_pass']} |")
+        aggregate = json.loads((output/key/"metrics.json").read_text())["aggregate"]
+        lines += ["",f"Stitched: {aggregate['trades']} trades; PF {aggregate['PF_C1']}; expectancy "
+                  f"{aggregate['expectancy_C1']}; net R {aggregate['net_R_C1']}; DD {aggregate['max_DD_C1']}; "
+                  f"recovery {aggregate['recovery_factor']}; win rate {aggregate['win_rate']}.",
+                  f"Verdict: **{verdicts[key]}**. Known full-development 2024 robustness activity: "
+                  f"{15 if key == 'T2' else 14} trades (comparison diagnostic only).",""]
+    lines += ["Every fold starts FLAT while indicators receive only causal development history through its test end. "
+              "Incomplete folds remain in the stitched diagnostic ledger but are excluded from pass-fold statistics.","",
+              "C1 only; frozen candidates; 12 source hashes verified; no optimization, ranking, selection, or TRUE OOS read.",""]
     (output/"walk_forward_report.md").write_text("\n".join(lines),encoding="utf-8")
     return manifest

@@ -7,8 +7,10 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+from dataclasses import replace
 
 from TradingSystemLab.walk_forward import h4
+from TradingSystemLab.optimization.phase32 import PARAMETERS
 
 ROOT = Path("TradingSystemLab/results/walk_forward/H4")
 
@@ -76,10 +78,17 @@ def test_artifact_contract_c1_containment_state_and_determinism():
     for key in ("T2","T3"):
         target=ROOT/key
         required=("folds.csv","trades.csv","train_test_decay.csv","instrument_report.csv","direction_report.csv",
-                  "year_report.csv","concentration.csv","leave_one_fold_out.csv","mae_mfe.csv","metrics.json","final_report.md")
+                  "year_report.csv","concentration.csv","leave_one_fold_out.csv","mae_mfe.csv","warmup_report.csv",
+                  "metrics.json","final_report.md")
         assert all((target/name).is_file() for name in required)
         folds=pd.read_csv(target/"folds.csv"); trades=pd.read_csv(target/"trades.csv")
+        warmup=pd.read_csv(target/"warmup_report.csv")
         assert (folds.fold_start_state == "FLAT").all() and len(folds)==4
+        assert len(trades) > 0 and (~folds.included_in_pass).all()
+        assert warmup.flat_start.all() and (warmup.pretest_entries == 0).all()
+        assert (~warmup.future_context_used).all() and warmup.warmup_sufficient.all()
+        assert (warmup.h4_context_bars > warmup.test_h4_bars).all()
+        if key == "T3": assert (warmup.d1_context_bars >= 400).all()
         assert trades.trade_id.is_unique and trades.trade_id.tolist()==trades.sort_values(
             ["exit_time","instrument","fold","trade_id"],kind="mergesort").trade_id.tolist()
         for row in h4.SCHEDULE:
@@ -94,3 +103,24 @@ def test_strategy_hashes_and_protected_artifacts_remain_frozen():
     manifest=json.loads((ROOT/"manifest.json").read_text())
     assert manifest["strategy_hashes"] == h4.STRATEGY_SHA256
     assert manifest["protected_artifact_hashes"] == h4.protected_snapshot()
+
+
+def test_isolated_quarters_are_not_ema200_safe_but_causal_context_is():
+    provenance,_=h4.verify_provenance(); data,_=h4.load_verified_development(h4.APPROVED_DATA_ROOT,provenance)
+    quarter=h4._interval(data,"2024-04-01","2024-06-30 23:59:59")
+    context=h4._interval(data,"2023-01-01","2024-06-30 23:59:59")
+    assert all(len(h4.baseline.causal_h4(x)) < 200 for x in quarter.values())
+    assert all(len(h4.baseline.causal_d1(x)) < 200 for x in quarter.values())
+    assert all(len(h4.baseline.causal_h4(x).loc[:"2024-03-31 23:59:59"]) >= 200 for x in context.values())
+    assert all(len(h4.baseline.causal_d1(x).loc[:"2024-03-31 23:59:59"]) >= 200 for x in context.values())
+
+
+def test_t2_adapter_has_exact_frozen_loop_parity():
+    provenance,candidates=h4.verify_provenance(); data,_=h4.load_verified_development(h4.APPROVED_DATA_ROOT,provenance)
+    execution=h4.baseline.causal_h4(data["Si"].loc[:"2024-06-30 23:59:59"])
+    strategy=h4.T2TrendPullback(replace(PARAMETERS["T2"],**candidates["T2"]["parameters"]))
+    original=strategy.run(execution,"Si",tick_size=.001)
+    adapted=h4._t2_causal_adapter(strategy,execution,"Si",execution.index[0],tick_size=.001)
+    columns=["direction","entry_time","entry_price","initial_stop","initial_risk_ticks","exit_time",
+             "exit_price","exit_reason","gross_R","net_R_C1","MAE_R","MFE_R"]
+    pd.testing.assert_frame_equal(original[columns].reset_index(drop=True),adapted[columns].reset_index(drop=True))
