@@ -2,12 +2,23 @@
 from __future__ import annotations
 
 import json
+import ast
 
 import pandas as pd
 
 from TradingSystemLab.optimization.experiment import stable_hash
 from TradingSystemLab.timeframe_optimization import h4
 from TradingSystemLab.timeframe_validation import h4_baseline as baseline
+
+
+def test_standalone_architecture_has_no_timeframe_optimization_dependency():
+    source = h4.Path(h4.__file__).read_text(encoding="utf-8")
+    tree = ast.parse(source)
+    imports = [node.module or "" for node in ast.walk(tree)
+               if isinstance(node, ast.ImportFrom)]
+    assert not any("timeframe_optimization" in name for name in imports)
+    assert ".m30" not in source and "_common" not in source
+    assert "H1_PHASE_3_2" in source
 
 
 def test_baseline_prerequisite_and_locked_period():
@@ -126,3 +137,16 @@ def test_committed_outputs_have_required_deterministic_tree():
     assert manifest["one_factor_at_a_time"] is True
     assert manifest["robustness"] is False
     assert manifest["walk_forward"] is False
+    assert manifest["methodological_source"] == "H1_PHASE_3_2"
+    assert manifest["cost_model"] == "H1_C1"
+    assert manifest["cost_scenarios"] == ["C1"]
+    assert manifest["selection"] is False
+    for key in ("T2", "T3"):
+        child = json.loads((h4.OUTPUT / key / "manifest.json").read_text())
+        experiment = json.loads((h4.OUTPUT / key / "experiment.json").read_text())
+        assert child["timeframe"] == experiment["timeframe"] == "H4"
+
+
+def test_m30_manifest_remains_m30():
+    path = h4.Path("TradingSystemLab/results/timeframe_optimization/M30/manifest.json")
+    assert json.loads(path.read_text())["timeframe"] == "M30"

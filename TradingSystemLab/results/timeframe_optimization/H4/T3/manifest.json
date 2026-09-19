@@ -13,7 +13,7 @@
   "status": "PHASE_H4_OPTIMIZATION_COMPLETE",
   "strategy": "T3",
   "tested_configurations": 22,
-  "timeframe": "M30",
+  "timeframe": "H4",
   "true_oos_blocked": true,
   "walk_forward": false,
   "winner_selection": false
