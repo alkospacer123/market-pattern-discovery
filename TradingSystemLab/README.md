@@ -1,5 +1,18 @@
 # Trading System Lab research domain
 
+## Persistent project memory (read first)
+
+This repository, not conversation history, is the project record.  A new human
+or AI session should read these files in order:
+
+1. [`CURRENT_STATE.md`](CURRENT_STATE.md) — current handoff and permitted next action
+2. [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) — scope, identities, and safety boundaries
+3. [`METHODOLOGY.md`](METHODOLOGY.md) — the implemented research lifecycle
+4. [`ROADMAP.md`](ROADMAP.md) — evidence-based completion and plans
+5. [`AUDIT_PROTOCOL.md`](AUDIT_PROTOCOL.md) — evidence and audit vocabulary
+
+Completed audit reports belong in [`audits/`](audits/README.md).
+
 ## Purpose
 
 Trading System Lab evaluates the independently specified T1–T3 trend systems
