@@ -74,3 +74,11 @@ multi-timeframe, TRUE OOS, audit, and portfolio artifacts. An invocation may
 use another explicit output directory for a temporary run, but such a run is
 not canonical until its provenance and intended status are documented; it must
 never target the BBW `results/` tree.
+
+## Phase 0 smoke test
+
+The development-only T2/Si/M30 pipeline check can be run with
+`python -m TradingSystemLab.run_phase0_smoke`. It reads the consolidated
+`futures_quarterly/Si/Si_M30.csv` source only up to the locked 2025 boundary,
+uses the frozen T2 implementation and C1 costs, and writes deterministic
+artifacts under `TradingSystemLab/results/phase0_smoke/T2_Si_M30`.
