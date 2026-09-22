@@ -1,0 +1,36 @@
+{
+  "cost_model": {
+    "additional_slippage_ticks": 0,
+    "name": "C1",
+    "round_trip_ticks": 2,
+    "ticks_per_side": 1
+  },
+  "development_period": [
+    "2020-01-01",
+    "2024-12-31"
+  ],
+  "instrument": "Si",
+  "mtf": false,
+  "optimization": false,
+  "parameter_hash": "938b6b3b78f680010115a204b9a49e7eef962db119f4ea121e388c00741920ba",
+  "parameters": {
+    "adx_threshold": 20,
+    "atr_average_period": 20,
+    "breakout_period": 20,
+    "ema_period": 75,
+    "stop_atr": 2.0,
+    "trail_atr": 3.0
+  },
+  "phase": "PHASE_1_BASELINE",
+  "ranking": false,
+  "selection": false,
+  "source_data_copied": false,
+  "source_file": "/workspace/market-pattern-data/futures_quarterly/Si/Si_H1.csv",
+  "status": "COMPLETE",
+  "strategy": "T3",
+  "strategy_hash": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c",
+  "timeframe": "H1",
+  "true_oos_blocked": true,
+  "true_oos_cutoff": "2025-01-01",
+  "walk_forward": false
+}

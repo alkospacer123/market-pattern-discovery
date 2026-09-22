@@ -1,0 +1,10 @@
+{
+  "development_frame_sha256": "8bd42b526f1b8c5fe5d5806b4ba91ca693b43ed5d290ebb96f6106d36e07906e",
+  "duplicate_timestamps": 0,
+  "first_close": "2020-01-03T10:30:00+03:00",
+  "last_close": "2024-12-31T00:00:00+03:00",
+  "monotonic": true,
+  "rows": 36910,
+  "timezone": "Europe/Moscow",
+  "true_oos_rows_read": 0
+}
