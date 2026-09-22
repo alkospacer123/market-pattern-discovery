@@ -1,0 +1,161 @@
+{
+  "cost_models": [
+    {
+      "additional_slippage_ticks": 0,
+      "name": "C1",
+      "round_trip_ticks": 2,
+      "ticks_per_side": 1
+    }
+  ],
+  "declared_runs": [
+    {
+      "instrument": "Si",
+      "strategy": "T2",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "Si",
+      "strategy": "T2",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "CNY",
+      "strategy": "T2",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "CNY",
+      "strategy": "T2",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "GD",
+      "strategy": "T2",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "GD",
+      "strategy": "T2",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "BR",
+      "strategy": "T2",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "BR",
+      "strategy": "T2",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "MIX",
+      "strategy": "T2",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "MIX",
+      "strategy": "T2",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "NG",
+      "strategy": "T2",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "NG",
+      "strategy": "T2",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "Si",
+      "strategy": "T3",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "Si",
+      "strategy": "T3",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "CNY",
+      "strategy": "T3",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "CNY",
+      "strategy": "T3",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "GD",
+      "strategy": "T3",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "GD",
+      "strategy": "T3",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "BR",
+      "strategy": "T3",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "BR",
+      "strategy": "T3",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "MIX",
+      "strategy": "T3",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "MIX",
+      "strategy": "T3",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "NG",
+      "strategy": "T3",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "NG",
+      "strategy": "T3",
+      "timeframe": "H1"
+    }
+  ],
+  "frozen_strategy_hashes": {
+    "T2": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+    "T3": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
+  },
+  "instruments": [
+    "Si",
+    "CNY",
+    "GD",
+    "BR",
+    "MIX",
+    "NG"
+  ],
+  "mtf": false,
+  "optimization": false,
+  "phase": "PHASE_1_BASELINE",
+  "ranking": false,
+  "run_count": 24,
+  "selection": false,
+  "status": "PHASE_1_BASELINE_COMPLETE",
+  "strategies": [
+    "T2",
+    "T3"
+  ],
+  "timeframes": [
+    "M30",
+    "H1"
+  ],
+  "true_oos_blocked": true,
+  "walk_forward": false
+}
