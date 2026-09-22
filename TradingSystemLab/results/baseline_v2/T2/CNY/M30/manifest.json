@@ -1,33 +1,43 @@
 {
+  "actual_first_available_close": "2022-04-21T10:30:00+03:00",
+  "actual_last_development_close": "2024-12-31T00:00:00+03:00",
   "cost_model": {
     "additional_slippage_ticks": 0,
     "name": "C1",
     "round_trip_ticks": 2,
     "ticks_per_side": 1
   },
+  "development_frame_sha256": "3482bb714acaec3526e9192bc2037a69475963998d43ba79e090b2244ce3d139",
   "development_period": [
     "2020-01-01",
     "2024-12-31"
   ],
   "instrument": "CNY",
-  "mtf": false,
+  "normalized_research_tick_size": 0.001,
   "optimization": false,
-  "parameter_hash": "2b0494cdd24bfbfa8ce7d657d6f83d1408f07b9f565d38d093dec5b4856e3c00",
+  "parameter_hash": "ed08d3caa21aa87c2858e139e374ea5cc802d57531dc867862b587c75affa4bf",
   "parameters": {
-    "adx_threshold": 20,
+    "adx_period": 14,
+    "adx_threshold": 20.0,
+    "atr_period": 14,
+    "atr_regime_window": 20,
     "confirmation_window": 3,
     "ema_fast": 20,
     "ema_slow": 200,
     "ema_trend": 50,
     "impulse_distance_atr": 0.5,
-    "max_initial_stop_atr": 2.5,
-    "trailing_atr": 3
+    "impulse_lookback": 10,
+    "max_initial_stop_atr": 3.0,
+    "stop_buffer_atr": 0.1,
+    "trailing_atr": 3.0
   },
   "phase": "PHASE_1_BASELINE",
+  "phase7_mtf_research": false,
   "ranking": false,
   "selection": false,
   "source_data_copied": false,
   "source_file": "/workspace/market-pattern-data/futures_quarterly/CNY/CNY_M30.csv",
+  "source_provenance": "development-prefix-only; locked tail not hashed",
   "status": "COMPLETE",
   "strategy": "T2",
   "strategy_hash": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",

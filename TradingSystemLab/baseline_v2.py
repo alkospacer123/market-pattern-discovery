@@ -1,7 +1,7 @@
 """Frozen, development-only TradingSystemLab v2 Phase 1 baseline matrix."""
 from __future__ import annotations
 
-from dataclasses import replace
+from dataclasses import asdict
 import argparse
 import hashlib
 import json
@@ -17,9 +17,9 @@ from .core.portfolio import FixedRiskPortfolio
 from .core.unified_metrics import finite, stats
 from .multitimeframe.phase71 import STRATEGY_SHA256, verify_frozen_strategies
 from .optimization.experiment import stable_hash
-from .optimization.phase32 import PARAMETERS, _normalize_backtester
-from .strategies.trend.T2_Trend_Pullback import T2TrendPullback
-from .strategies.trend.T3_MTF_Trend import T3MTFTrend
+from .optimization.phase32 import _normalize_backtester
+from .strategies.trend.T2_Trend_Pullback import T2Parameters, T2TrendPullback
+from .strategies.trend.T3_MTF_Trend import T3MTFTrend, T3Parameters
 
 DATA_ROOT = Path("/workspace/market-pattern-data/futures_quarterly")
 OUTPUT_ROOT = Path("TradingSystemLab/results/baseline_v2")
@@ -30,17 +30,17 @@ DEVELOPMENT_START = pd.Timestamp("2020-01-01", tz="Europe/Moscow")
 TRUE_OOS_START = pd.Timestamp("2025-01-01", tz="Europe/Moscow")
 COST_MODEL = {"name": "C1", "ticks_per_side": 1, "round_trip_ticks": 2,
               "additional_slippage_ticks": 0}
-# The frozen lab model historically expresses costs in this strategy price unit.
+# This is the normalized research cost unit used by the original H1 cycle.  It
+# is not an assertion about any instrument's exchange price step.
 FROZEN_TICK_SIZE = 0.001
 RUNS = tuple((strategy, instrument, timeframe) for strategy in STRATEGIES
              for instrument in INSTRUMENTS for timeframe in TIMEFRAMES)
-FROZEN_PARAMETERS = {
-    "T2": {"adx_threshold": 20, "confirmation_window": 3, "ema_fast": 20,
-           "ema_slow": 200, "ema_trend": 50, "impulse_distance_atr": .5,
-           "max_initial_stop_atr": 2.5, "trailing_atr": 3},
-    "T3": {"adx_threshold": 20, "atr_average_period": 20, "breakout_period": 20,
-           "ema_period": 75, "stop_atr": 2.0, "trail_atr": 3.0},
-}
+# Phase 1 always starts from the original constructor defaults.  Keeping the
+# complete dataclass serialization here makes accidental optimized overrides
+# visible in manifests and regression tests.
+BASELINE_PARAMETERS = {"T2": asdict(T2Parameters()), "T3": asdict(T3Parameters())}
+# Compatibility name used by existing artifact consumers.
+FROZEN_PARAMETERS = BASELINE_PARAMETERS
 
 
 def _frame_sha(frame: pd.DataFrame) -> str:
@@ -79,16 +79,19 @@ def load_development(data_root: Path, instrument: str, timeframe: str) -> tuple[
 
 
 def _execute(strategy: str, instrument: str, timeframe: str, frame: pd.DataFrame) -> pd.DataFrame:
-    parameters = replace(PARAMETERS[strategy], **FROZEN_PARAMETERS[strategy])
+    parameters = T2Parameters() if strategy == "T2" else T3Parameters()
     if strategy == "T2":
         trades = T2TrendPullback(parameters).run(frame, instrument, tick_size=FROZEN_TICK_SIZE)
         trades = trades.rename(columns={"net_R_C1": "net_R", "cost_R_C1": "cost_R"})
     else:
-        # Phase 1 is explicitly single-timeframe: T3 receives the same closed-bar
-        # stream for execution and regime calculation. No derived MTF series exists.
+        # Original H1 methodology: the regime context contains only completed,
+        # non-overlapping four-execution-bar blocks, reset at each local day.
+        context = four_bar_context(frame)
+        if context is frame:
+            raise RuntimeError("T3_EXECUTION_CONTEXT_ALIAS")
         raw = Backtester(FixedRiskPortfolio(), cost_ticks_per_side=1,
                          tick_size=FROZEN_TICK_SIZE).run(
-                             T3MTFTrend(parameters), instrument, frame, frame).trades
+                             T3MTFTrend(parameters), instrument, frame, context).trades
         trades = _normalize_backtester(raw, strategy)
         trades["net_R"] = trades["gross_R"] - trades["cost_R"]
     if len(trades):
@@ -99,6 +102,11 @@ def _execute(strategy: str, instrument: str, timeframe: str, frame: pd.DataFrame
                               for n in range(1, len(trades) + 1)]
         trades = trades.sort_values(["exit_time", "trade_id"], kind="mergesort")
     return trades.reset_index(drop=True)
+
+
+def four_bar_context(execution: pd.DataFrame) -> pd.DataFrame:
+    """Build causal context from four completed bars without crossing local days."""
+    return DataLoader.h4_from_h1(execution)
 
 
 def _metrics(trades: pd.DataFrame) -> dict[str, Any]:
@@ -122,15 +130,22 @@ def _write_run(target: Path, strategy: str, instrument: str, timeframe: str,
                "duplicate_timestamps": int(frame.index.duplicated().sum()),
                "true_oos_rows_read": 0, "development_frame_sha256": _frame_sha(frame)}
     _json(target / "data_quality.json", quality)
+    frame_hash = _frame_sha(frame)
     manifest = {"phase": "PHASE_1_BASELINE", "strategy": strategy,
                 "instrument": instrument, "timeframe": timeframe,
                 "development_period": ["2020-01-01", "2024-12-31"],
+                "actual_first_available_close": frame.index.min().isoformat(),
+                "actual_last_development_close": frame.index.max().isoformat(),
                 "true_oos_cutoff": "2025-01-01", "true_oos_blocked": True,
                 "cost_model": COST_MODEL, "strategy_hash": STRATEGY_SHA256[strategy],
                 "parameter_hash": stable_hash(FROZEN_PARAMETERS[strategy]),
                 "parameters": FROZEN_PARAMETERS[strategy], "source_file": str(source),
+                "development_frame_sha256": frame_hash,
+                "source_provenance": "development-prefix-only; locked tail not hashed",
+                "normalized_research_tick_size": FROZEN_TICK_SIZE,
                 "source_data_copied": False, "optimization": False, "ranking": False,
-                "selection": False, "walk_forward": False, "mtf": False,
+                "selection": False, "walk_forward": False,
+                "phase7_mtf_research": False,
                 "status": "COMPLETE"}
     _json(target / "manifest.json", manifest)
     (target / "report.md").write_text(
@@ -139,7 +154,8 @@ def _write_run(target: Path, strategy: str, instrument: str, timeframe: str,
         f"Trades: {metrics['trades']}; PF: {metrics['PF']}; expectancy: "
         f"{metrics['expectancy_R']}; Net R: {metrics['net_R']}; DD: "
         f"{metrics['max_drawdown_R']}; win rate: {metrics['win_rate']}.\n\n"
-        "No optimization, ranking, selection, walk-forward, MTF, or TRUE OOS access.\n",
+        "No optimization, ranking, selection, walk-forward, Phase 7 MTF research, "
+        "or TRUE OOS access. T3 uses the intrinsic causal four-bar context.\n",
         encoding="utf-8")
     return {"strategy": strategy, "instrument": instrument, "timeframe": timeframe,
             **metrics, "status": "COMPLETE"}
@@ -166,7 +182,8 @@ def run(data_root: Path = DATA_ROOT, output: Path = OUTPUT_ROOT) -> dict[str, An
         raise RuntimeError("BASELINE_MATRIX_INCOMPLETE")
     lines = ["# TradingSystemLab v2 — Phase 1 Baseline", "",
              "Frozen development-only baseline. C1 only; no optimization, ranking, selection, "
-             "walk-forward, MTF, or TRUE OOS access.", "",
+             "walk-forward, Phase 7 MTF research, or TRUE OOS access. T3 uses the "
+             "original intrinsic causal four-bar context.", "",
              "| Strategy | Instrument | Timeframe | Trades | PF | Expectancy | Net R | DD | Win rate | Status |",
              "|---|---|---|---:|---:|---:|---:|---:|---:|---|"]
     fmt = lambda value: "" if value is None else (f"{value:.6g}" if isinstance(value, float) else str(value))
@@ -180,7 +197,9 @@ def run(data_root: Path = DATA_ROOT, output: Path = OUTPUT_ROOT) -> dict[str, An
           "strategies": list(STRATEGIES), "instruments": list(INSTRUMENTS),
           "timeframes": list(TIMEFRAMES), "cost_models": [COST_MODEL],
           "frozen_strategy_hashes": STRATEGY_SHA256, "optimization": False,
-          "ranking": False, "selection": False, "walk_forward": False, "mtf": False,
+          "ranking": False, "selection": False, "walk_forward": False,
+          "phase7_mtf_research": False,
+          "normalized_research_tick_size": FROZEN_TICK_SIZE,
           "true_oos_blocked": True, "status": "PHASE_1_BASELINE_COMPLETE"})
     return {"status": "PHASE_1_BASELINE_COMPLETE", "runs": 24}
 

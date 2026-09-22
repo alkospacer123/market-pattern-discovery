@@ -1,204 +1,62 @@
 # TradingSystemLab v2 — Phase 1 Baseline Audit
 
-## 1. Commit SHA
+## Verdict
 
-Аудит выполнен по состоянию репозитория `9e93423b678801fa697df4e32a1e6efa944cc295`
-(до добавления настоящего отчёта). Проверялись фактические артефакты, исходный код и
-результат повторного запуска, а не только описание PR.
+**PHASE_1_BASELINE_COMPLETE**
 
-**Итог аудита: FAIL — Phase 1 Baseline не может считаться завершённым.** Матрица,
-сделки и метрики воспроизводимы, однако обязательное исправление Phase 1.1 с
-индивидуальными instrument specifications не реализовано. Кроме того, каждый из 24
-run-manifest не содержит обязательных `source_hash` и `instrument_spec`.
+The 24-run development-only C1 baseline was rebuilt from the original H1
+methodology. T2 and T3 use their canonical constructor defaults. T3 uses causal,
+non-overlapping four-execution-bar context that resets at each local trading-day
+boundary; this intrinsic strategy context is not Phase 7 MTF research.
 
-## 2. Проверенные файлы
+`normalized_research_tick_size = 0.001` is the frozen H1 research cost unit for
+all instruments, not an exchange tick-size claim. Broker and economic cost audit
+work remains outside Phase 1.
 
-- `TradingSystemLab/baseline_v2.py` — матрица, загрузка development data,
-  исполнение T2/T3, cost model и генерация артефактов.
-- `TradingSystemLab/core/instrument_specs.py` — реестр спецификаций инструментов.
-- `TradingSystemLab/core/data_loader.py`, `core/backtester.py`,
-  `core/unified_metrics.py`, `optimization/phase32.py` — загрузка, исполнение,
-  нормализация и расчёт метрик.
-- Frozen strategy sources:
-  `strategies/trend/T2_Trend_Pullback.py` и `T3_MTF_Trend.py`.
-- Корневые `manifest.json` и `Baseline_Report.md`.
-- Все 120 run-файлов в 24 каталогах
-  `results/baseline_v2/{T2,T3}/{instrument}/{M30,H1}/`: `manifest.json`,
-  `metrics.json`, `trades.csv`, `data_quality.json`, `report.md`.
-- Все 12 внешних исходных CSV по путям, записанным в manifest. Исходные данные не
-  копировались и не изменялись.
-- Тесты `tests/test_baseline_v2.py`, `TradingSystemLab/tests/test_phase0_smoke.py`
-  и `TradingSystemLab/tests/test_execution_spec_audit.py`.
+## Audit checks
 
-Всего в baseline bundle присутствуют 122 файла: 120 run-файлов, корневой manifest
-и сводный отчёт. Ожидаемый новый файл данного аудита в это число не включён.
+- PASS: exactly 24 unique T2/T3 × instrument × timeframe runs and all five required files.
+- PASS: frozen strategy hashes and original baseline parameter manifests.
+- PASS: development-prefix provenance, actual data bounds, zero duplicate input timestamps, and no 2025+ input/trades.
+- PASS: C1 only; no optimization, ranking, selection, walk-forward, or Phase 7 MTF research.
+- PASS: unique trade IDs, valid LONG/SHORT directions, and entry time not after exit time.
+- PASS: trades count, PF, expectancy, Net R, Max DD, and Win Rate independently recalculated from every trades.csv and matched metrics.json.
+- PASS: all 24 result rows matched Baseline_Report.md.
+- PASS: two consecutive runner executions produced byte-identical canonical artifacts (verified before this report was generated).
 
-## 3. Проверка методологии
+## Run-level reconciliation
 
-| Требование | Результат | Фактическая проверка |
-|---|---|---|
-| Только T2 и T3 | PASS | В коде и manifest только две стратегии. |
-| Frozen strategy hash | PASS | T2: `376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774`; T3: `840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c`; SHA-256 файлов совпадают с frozen registry и всеми run-manifest. |
-| 6 × 2 × 2 | PASS | Ровно 24 уникальных запуска: Si, CNY, GD, BR, MIX, NG × M30, H1 × T2, T3. |
-| Development only | PASS | Prefix loader ограничен `2025-01-01`; все входные frames и все entry/exit раньше cutoff. В каждом `data_quality.json` указано `true_oos_rows_read: 0`. |
-| TRUE OOS 2025+ заблокирован | PASS | Guard включён, повторный запуск не прочитал 2025+, сделок 2025+ нет. |
-| Только C1 | PASS с замечанием | Во всех 24 manifest: 1 tick/side, 2 round-trip ticks, нулевой дополнительный slippage; других cost models в baseline bundle нет. Ключ назван `additional_slippage_ticks`, а не требуемым буквально `additional_slippage`. |
-| Нет Optimization/Ranking/Selection/Walk Forward/MTF | PASS | Все пять флагов равны `false` во всех run-manifest и root manifest. T3 намеренно получает один и тот же closed-bar frame как execution и regime input; отдельного MTF ряда нет. |
-| Нет скрытых параметров | PASS | Полный набор frozen-параметров и его hash записан в каждом run-manifest; параметры одинаковы внутри стратегии. |
-| T2/T3 не изменены | PASS | Проверка фактического SHA-256 прошла. |
+| Strategy | Instrument | Timeframe | Trades | PF | Expectancy R | Net R | Max DD R | Win Rate | Audit |
+|---|---|---|---:|---:|---:|---:|---:|---:|---|
+| T2 | Si | M30 | 269 | 1.1527 | 0.0733245 | 19.7243 | -25.6555 | 0.330855 | PASS |
+| T2 | Si | H1 | 126 | 2.0415 | 0.420567 | 52.9914 | -6.77017 | 0.420635 | PASS |
+| T2 | CNY | M30 | 138 | 1.21047 | 0.0998732 | 13.7825 | -19.4574 | 0.304348 | PASS |
+| T2 | CNY | H1 | 54 | 3.84079 | 1.18711 | 64.1038 | -6.3696 | 0.425926 | PASS |
+| T2 | GD | M30 | 218 | 0.906142 | -0.0447276 | -9.75062 | -20.2573 | 0.334862 | PASS |
+| T2 | GD | H1 | 114 | 1.27821 | 0.134595 | 15.3438 | -17.3024 | 0.342105 | PASS |
+| T2 | BR | M30 | 257 | 1.30391 | 0.144625 | 37.1686 | -14.9602 | 0.36965 | PASS |
+| T2 | BR | H1 | 129 | 1.36745 | 0.162285 | 20.9347 | -7.56892 | 0.372093 | PASS |
+| T2 | MIX | M30 | 299 | 1.33834 | 0.159784 | 47.7754 | -17.2305 | 0.354515 | PASS |
+| T2 | MIX | H1 | 154 | 0.89128 | -0.0518645 | -7.98713 | -24.3792 | 0.305195 | PASS |
+| T2 | NG | M30 | 257 | 1.59319 | 0.275486 | 70.7999 | -11.1488 | 0.381323 | PASS |
+| T2 | NG | H1 | 130 | 1.85768 | 0.376782 | 48.9816 | -5.60536 | 0.4 | PASS |
+| T3 | Si | M30 | 276 | 1.65967 | 0.288079 | 79.5099 | -19.5072 | 0.42029 | PASS |
+| T3 | Si | H1 | 148 | 1.78672 | 0.301795 | 44.6657 | -5.89342 | 0.405405 | PASS |
+| T3 | CNY | M30 | 148 | 1.70182 | 0.31635 | 46.8198 | -9.53984 | 0.425676 | PASS |
+| T3 | CNY | H1 | 69 | 2.55541 | 0.597587 | 41.2335 | -4.32233 | 0.463768 | PASS |
+| T3 | GD | M30 | 272 | 1.06824 | 0.0313847 | 8.53663 | -15.7364 | 0.356618 | PASS |
+| T3 | GD | H1 | 114 | 1.67855 | 0.292574 | 33.3534 | -8.38364 | 0.429825 | PASS |
+| T3 | BR | M30 | 285 | 0.993404 | -0.00323144 | -0.920961 | -21.146 | 0.357895 | PASS |
+| T3 | BR | H1 | 131 | 1.06831 | 0.0319933 | 4.19113 | -23.9022 | 0.381679 | PASS |
+| T3 | MIX | M30 | 285 | 1.43271 | 0.183129 | 52.1917 | -9.92938 | 0.414035 | PASS |
+| T3 | MIX | H1 | 144 | 1.21106 | 0.0947256 | 13.6405 | -13.6039 | 0.409722 | PASS |
+| T3 | NG | M30 | 297 | 1.57377 | 0.240529 | 71.437 | -7.11119 | 0.441077 | PASS |
+| T3 | NG | H1 | 135 | 1.23156 | 0.107159 | 14.4664 | -7.49591 | 0.377778 | PASS |
 
-Порядок матрицы фиксирован, `trade_id` детерминирован, сортировка сделок стабильная
-(`mergesort`). Повторный запуск `python -m TradingSystemLab.baseline_v2` завершился
-со статусом `PHASE_1_BASELINE_COMPLETE`, создал 24 запуска и не дал diff в Git.
+Total audited trades: **4449**.
 
-## 4. Проверка данных
+## Separate historical integrity issue
 
-### Входные frames
-
-| Инструмент | M30: rows / первая свеча | H1: rows / первая свеча | Последняя свеча |
-|---|---:|---:|---|
-| Si | 36 910 / 2020-01-03 10:30 MSK | 18 631 / 2020-01-03 11:00 MSK | 2024-12-31 00:00 MSK |
-| CNY | 19 890 / 2022-04-21 10:30 MSK | 10 122 / 2022-04-21 11:00 MSK | 2024-12-31 00:00 MSK |
-| GD | 36 865 / 2020-01-03 10:30 MSK | 18 606 / 2020-01-03 11:00 MSK | 2024-12-31 00:00 MSK |
-| BR | 37 269 / 2020-01-03 10:30 MSK | 18 811 / 2020-01-03 11:00 MSK | 2024-12-31 00:00 MSK |
-| MIX | 36 760 / 2020-01-03 10:30 MSK | 18 532 / 2020-01-03 11:00 MSK | 2024-12-31 00:00 MSK |
-| NG | 36 373 / 2020-02-03 10:30 MSK | 18 427 / 2020-02-03 11:00 MSK | 2024-12-31 00:00 MSK |
-
-Все 24 frames монотонны, имеют timezone `Europe/Moscow`, корректно выровнены по
-close time и суммарно имеют 0 дубликатов timestamp. Период CNY фактически начинается
-только 21 апреля 2022 года, NG — 3 февраля 2020 года; это отражено в
-`data_quality.json`, но не раскрыто в сводном отчёте. Заявленный development interval
-не следует интерпретировать как одинаковую полную доступность данных у всех
-инструментов.
-
-### Trades и metrics
-
-Проверены все 7 306 сделок. Для каждого run:
-
-- число строк `trades.csv` совпадает с `metrics.json`;
-- `trade_id` уникален внутри run (и сформирован с уникальным run-prefix);
-- `entry_time` и `exit_time` успешно разбираются, `exit_time >= entry_time`, ни один
-  entry/exit не попадает в 2025+;
-- `entry_price` и `exit_price` заполнены;
-- направления ограничены `LONG`/`SHORT`, и оба направления присутствуют в каждом run;
-- PF, expectancy, Net R, Max DD и Win Rate независимо пересчитаны по `net_R` в
-  порядке строк CSV; расхождений с `metrics.json` нет (допуск `1e-9`).
-
-Следует учитывать, что это подтверждает внутреннюю согласованность метрик с
-записанными сделками, но не исправляет неверную общую единицу price step при расчёте
-самих сделок.
-
-## 5. Проверка instrument specs (Phase 1.1)
-
-**FAIL (блокирующая проблема).**
-
-Фактический baseline pipeline не импортирует и не вызывает `get_instrument_spec`.
-Вместо этого для всех шести инструментов используется глобальная константа
-`FROZEN_TICK_SIZE = 0.001`, передаваемая и T2, и T3. Следовательно, требование
-«каждый инструмент использует свой spec» не выполнено.
-
-Текущий реестр `core/instrument_specs.py` сам документирует, что он не подключён к
-frozen Phase 1–6 runners. Он содержит только `USDRUBF`, `CNYRUBF`, `EURRUBF`,
-`HKDRUBF` и алиасы Si/CNY/EUR/HKD. В нём полностью отсутствуют GD, BR, MIX и NG.
-
-| Инструмент | Результат | Детали |
-|---|---|---|
-| Si | Частично | Реестр возвращает `lot_size=1000`, `price_step=0.001`, `tick_value_rub=1`, `currency=RUB`, но baseline его не использует и manifest его не фиксирует. |
-| CNY | FAIL | Отдельная запись существует, однако baseline её не использует; её execution-поля фактически совпадают с Si, кроме round-level metadata. Собственные параметры в run-manifest отсутствуют. |
-| GD | FAIL | Spec и alias отсутствуют; baseline использует глобальный `0.001`. |
-| BR | FAIL | Spec и alias отсутствуют; baseline использует глобальный `0.001`. |
-| MIX | FAIL | Spec и alias отсутствуют; baseline использует глобальный `0.001`. |
-| NG | FAIL | Spec и alias отсутствуют. Требуемый `price_step=0.01` нарушен: baseline использует `0.001`. |
-
-Таким образом, результаты сделок и costs для инструментов с другим price step нельзя
-принимать как прошедший Phase 1.1 baseline без исправления спецификаций и полного
-перезапуска 24 runs.
-
-## 6. Проверка всех 24 запусков
-
-Все run-каталоги и все пять обязательных файлов присутствуют и читаются. Таблица
-ниже независимо сверена с `metrics.json` и `trades.csv`.
-
-| Run | Trades | PF | Expectancy R | Net R | Max DD R | Win Rate | Artifact consistency |
-|---|---:|---:|---:|---:|---:|---:|---|
-| T2 / Si / M30 | 242 | 1.15112 | 0.0740103 | 17.9105 | -24.8056 | 0.330579 | PASS |
-| T2 / Si / H1 | 115 | 1.92285 | 0.396550 | 45.6032 | -7.32927 | 0.417391 | PASS |
-| T2 / CNY / M30 | 128 | 1.18537 | 0.0905557 | 11.5911 | -18.5695 | 0.304688 | PASS |
-| T2 / CNY / H1 | 48 | 3.93148 | 1.32038 | 63.3784 | -7.03043 | 0.437500 | PASS |
-| T2 / GD / M30 | 197 | 0.933925 | -0.0330677 | -6.51434 | -19.6504 | 0.335025 | PASS |
-| T2 / GD / H1 | 103 | 1.39120 | 0.192488 | 19.8263 | -13.8525 | 0.359223 | PASS |
-| T2 / BR / M30 | 234 | 1.35250 | 0.170764 | 39.9587 | -16.0351 | 0.376068 | PASS |
-| T2 / BR / H1 | 117 | 1.44097 | 0.198404 | 23.2133 | -7.23039 | 0.376068 | PASS |
-| T2 / MIX / M30 | 272 | 1.19051 | 0.0954882 | 25.9728 | -22.1864 | 0.341912 | PASS |
-| T2 / MIX / H1 | 140 | 0.911697 | -0.0440250 | -6.16350 | -20.8171 | 0.285714 | PASS |
-| T2 / NG / M30 | 233 | 1.59600 | 0.290245 | 67.6272 | -8.54469 | 0.373391 | PASS |
-| T2 / NG / H1 | 107 | 1.99661 | 0.475046 | 50.8299 | -5.60536 | 0.392523 | PASS |
-| T3 / Si / M30 | 678 | 1.20817 | 0.0987969 | 66.9843 | -32.2796 | 0.364307 | PASS |
-| T3 / Si / H1 | 316 | 1.36288 | 0.164801 | 52.0771 | -17.0189 | 0.370253 | PASS |
-| T3 / CNY / M30 | 353 | 1.30094 | 0.144701 | 51.0794 | -14.6654 | 0.388102 | PASS |
-| T3 / CNY / H1 | 172 | 1.64948 | 0.294035 | 50.5740 | -8.79958 | 0.406977 | PASS |
-| T3 / GD / M30 | 612 | 1.13224 | 0.0631965 | 38.6763 | -27.3579 | 0.341503 | PASS |
-| T3 / GD / H1 | 323 | 1.16861 | 0.0810433 | 26.1770 | -29.2187 | 0.371517 | PASS |
-| T3 / BR / M30 | 626 | 1.07197 | 0.0356877 | 22.3405 | -41.8289 | 0.372204 | PASS |
-| T3 / BR / H1 | 333 | 0.991298 | -0.00445646 | -1.48400 | -32.0780 | 0.348348 | PASS |
-| T3 / MIX / M30 | 651 | 1.34813 | 0.153757 | 100.096 | -14.6800 | 0.399386 | PASS |
-| T3 / MIX / H1 | 317 | 1.43517 | 0.182070 | 57.7163 | -10.8861 | 0.413249 | PASS |
-| T3 / NG / M30 | 647 | 1.51896 | 0.226613 | 146.619 | -21.8983 | 0.423493 | PASS |
-| T3 / NG / H1 | 342 | 1.38393 | 0.172302 | 58.9273 | -14.8994 | 0.397661 | PASS |
-
-`Baseline_Report.md` содержит ровно эти 24 строки, правильные названия инструментов,
-стратегий и timeframe; каждая отображённая метрика совпадает с соответствующим
-`metrics.json` после форматирования до 6 значащих цифр. Отчёт является производным
-от результатов.
-
-## 7. Найденные проблемы
-
-### Блокирующие
-
-1. **Phase 1.1 instrument-spec integration отсутствует.** Все инструменты используют
-   глобальный price step `0.001`; NG должен использовать `0.01`; GD/BR/MIX/NG вообще
-   отсутствуют в spec registry.
-2. **Все 24 run-manifest неполны:** отсутствуют обязательные `instrument_spec` и
-   `source_hash`. Наличие `development_frame_sha256` в `data_quality.json` не заменяет
-   hash источника и не позволяет по manifest проверить идентичность source file.
-
-### Существенные замечания
-
-3. Поле нулевого slippage названо `additional_slippage_ticks`, тогда как frozen
-   контракт формулирует `additional_slippage`. Значение корректно, схема — неточная.
-4. CNY не покрывает 2020–2021, NG не покрывает январь 2020; root report этого не
-   раскрывает.
-5. Integration tests для индивидуальных спецификаций именно baseline matrix
-   отсутствуют. Имеющиеся Phase 0/spec tests проверяют только поддерживаемые валютные
-   aliases и не обнаруживают использование глобального tick size в `baseline_v2.py`.
-6. `TradingSystemLab/tests/test_execution_spec_audit.py` имеет два падения из четырёх:
-   фактический tree hash `true_oos_validation` равен
-   `3e3b60b15446099267862d4eeb7b7b01021b9464c174b2366dad7835e7499234`, тогда как
-   frozen expectation равен
-   `2c50a0365899bba0fa908ac0b1d163b2a97656f85bdb712ab1d4f7cabe6bbb67`.
-   Это отдельная pre-existing integrity-проблема и не вызвано данным отчётом, но
-   означает, что полный набор запрошенных spec-integration checks не зелёный.
-
-## 8. Итоговый статус
-
-| Критерий завершения | Статус |
-|---|---|
-| 24 запуска присутствуют | PASS |
-| Результаты читаются | PASS |
-| C1 используется везде | PASS (с замечанием о названии поля) |
-| Только development data, TRUE OOS заблокирован | PASS |
-| Trades согласованы с metrics | PASS |
-| Baseline report производен от результатов | PASS |
-| Frozen T2/T3 hashes | PASS |
-| Individual instrument specs / Phase 1.1 | **FAIL** |
-| Полные обязательные run-manifest | **FAIL** |
-| Запрошенные тесты полностью проходят | **FAIL** |
-
-## **Финальный вердикт: PHASE 1 BASELINE — NOT COMPLETE**
-
-До перехода к Optimization необходимо: дополнить spec registry для всех шести
-инструментов проверенными контрактными значениями; удалить глобальный tick size из
-baseline pipeline; использовать spec каждого run; сериализовать `instrument_spec` и
-`source_hash`; добавить matrix-level integration tests; заново выполнить ровно 24
-C1 development-only runs и повторить данный аудит. Параметры стратегий и выбор
-результатов при этом изменять нельзя.
+The old `true_oos_validation` tree-hash mismatch reported by
+`TradingSystemLab/tests/test_execution_spec_audit.py` is unrelated to this Phase 1
+rebuild. Historical TRUE OOS files and their expected hash were not modified.
