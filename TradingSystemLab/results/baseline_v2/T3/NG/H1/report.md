@@ -2,6 +2,6 @@
 
 Frozen Phase 1 baseline, C1 only. Status: **COMPLETE**.
 
-Trades: 342; PF: 1.3839344784703536; expectancy: 0.17230193561532522; Net R: 58.92726198044123; DD: -14.899428749681576; win rate: 0.39766081871345027.
+Trades: 342; PF: 0.9200831375128014; expectancy: -0.04746564519104885; Net R: -16.233250655338708; DD: -60.83048024664589; win rate: 0.3538011695906433.
 
 No optimization, ranking, selection, walk-forward, MTF, or TRUE OOS access.

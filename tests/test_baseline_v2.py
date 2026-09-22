@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from TradingSystemLab import baseline_v2
+from TradingSystemLab.core.instrument_specs import get_instrument_spec
 
 
 def test_frozen_matrix_contract() -> None:
@@ -57,6 +58,24 @@ def test_generated_manifest_is_auditable() -> None:
     assert len(manifest["declared_runs"]) == 24
     assert manifest["cost_models"] == [baseline_v2.COST_MODEL]
     assert manifest["frozen_strategy_hashes"] == baseline_v2.STRATEGY_SHA256
+    assert all(run["instrument_spec"] == baseline_v2._instrument_spec(
+        get_instrument_spec(run["instrument"])) for run in manifest["declared_runs"])
     for flag in ("optimization", "ranking", "selection", "walk_forward", "mtf"):
         assert manifest[flag] is False
     assert manifest["true_oos_blocked"] is True
+
+
+def test_baseline_matrix_has_instrument_specific_execution_specs() -> None:
+    specs = {instrument: get_instrument_spec(instrument)
+             for instrument in baseline_v2.INSTRUMENTS}
+    assert set(specs) == set(baseline_v2.INSTRUMENTS)
+    assert specs["NG"].price_step == 0.01
+    assert specs["Si"].price_step == 0.001
+    assert {spec.price_step for spec in specs.values()} != {0.001}
+    for spec in specs.values():
+        assert baseline_v2._instrument_spec(spec) == {
+            "price_step": spec.price_step,
+            "tick_value_rub": spec.tick_value_rub,
+            "currency": spec.currency,
+            "lot_size": spec.lot_size,
+        }
