@@ -1,10 +1,15 @@
 import hashlib
 import json
+from dataclasses import asdict
+import inspect
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 from TradingSystemLab import baseline_v2
+from TradingSystemLab.strategies.trend.T2_Trend_Pullback import T2Parameters
+from TradingSystemLab.strategies.trend.T3_MTF_Trend import T3Parameters
 
 
 def test_frozen_matrix_contract() -> None:
@@ -20,8 +25,53 @@ def test_frozen_matrix_contract() -> None:
 
 def test_phase_exclusions_are_explicit() -> None:
     source = Path(baseline_v2.__file__).read_text(encoding="utf-8")
-    for flag in ("optimization", "ranking", "selection", "walk_forward", "mtf"):
+    for flag in ("optimization", "ranking", "selection", "walk_forward", "phase7_mtf_research"):
         assert f'"{flag}": False' in source
+    assert tuple(inspect.signature(baseline_v2.run).parameters) == ("data_root", "output")
+
+
+def test_original_h1_baseline_parameters() -> None:
+    assert baseline_v2.BASELINE_PARAMETERS["T2"] == asdict(T2Parameters())
+    assert baseline_v2.BASELINE_PARAMETERS["T2"]["max_initial_stop_atr"] == 3.0
+    assert baseline_v2.BASELINE_PARAMETERS["T3"] == asdict(T3Parameters())
+    assert baseline_v2.BASELINE_PARAMETERS["T3"]["ema_period"] == 100
+
+
+def _bars(times: list[str]) -> pd.DataFrame:
+    index = pd.DatetimeIndex(times, tz="Europe/Moscow", name="CloseTime")
+    return pd.DataFrame({"Open": range(len(index)), "High": range(1, len(index) + 1),
+                         "Low": range(len(index)), "Close": range(1, len(index) + 1)},
+                        index=index, dtype=float)
+
+
+@pytest.mark.parametrize("minutes", [30, 60], ids=["M30", "H1"])
+def test_t3_context_uses_four_completed_execution_bars(minutes: int) -> None:
+    start = pd.Timestamp("2024-01-03 10:00", tz="Europe/Moscow")
+    execution = _bars([(start + pd.Timedelta(minutes=minutes * n)).isoformat()
+                       for n in range(9)])
+    context = baseline_v2.four_bar_context(execution)
+    assert context is not execution
+    assert context.index.tolist() == [execution.index[3], execution.index[7]]
+    assert context.iloc[0].to_dict() == {"Open": 0.0, "High": 4.0, "Low": 0.0,
+                                         "Close": 4.0}
+
+
+def test_four_bar_context_never_crosses_days_or_emits_incomplete_blocks() -> None:
+    execution = _bars(["2024-01-03 21:00", "2024-01-03 22:00", "2024-01-03 23:00",
+                       "2024-01-04 10:00", "2024-01-04 11:00", "2024-01-04 12:00",
+                       "2024-01-04 13:00", "2024-01-04 14:00", "2024-01-04 15:00"])
+    context = baseline_v2.four_bar_context(execution)
+    assert context.index.tolist() == [execution.index[6]]
+    assert context.iloc[0]["Open"] == execution.iloc[3]["Open"]
+
+
+def test_normalized_tick_and_only_c1_for_all_instruments() -> None:
+    assert baseline_v2.FROZEN_TICK_SIZE == 0.001
+    assert {instrument: baseline_v2.FROZEN_TICK_SIZE
+            for instrument in baseline_v2.INSTRUMENTS} == dict.fromkeys(
+                baseline_v2.INSTRUMENTS, 0.001)
+    assert baseline_v2.COST_MODEL["name"] == "C1"
+    assert not hasattr(baseline_v2, "SCENARIOS")
 
 
 def test_frozen_strategy_hashes() -> None:
@@ -57,6 +107,19 @@ def test_generated_manifest_is_auditable() -> None:
     assert len(manifest["declared_runs"]) == 24
     assert manifest["cost_models"] == [baseline_v2.COST_MODEL]
     assert manifest["frozen_strategy_hashes"] == baseline_v2.STRATEGY_SHA256
-    for flag in ("optimization", "ranking", "selection", "walk_forward", "mtf"):
+    for flag in ("optimization", "ranking", "selection", "walk_forward", "phase7_mtf_research"):
         assert manifest[flag] is False
     assert manifest["true_oos_blocked"] is True
+    assert manifest["normalized_research_tick_size"] == 0.001
+
+    for strategy, instrument, timeframe in baseline_v2.RUNS:
+        run = path.parent / strategy / instrument / timeframe
+        detail = json.loads((run / "manifest.json").read_text(encoding="utf-8"))
+        quality = json.loads((run / "data_quality.json").read_text(encoding="utf-8"))
+        assert detail["parameters"] == baseline_v2.BASELINE_PARAMETERS[strategy]
+        assert detail["development_frame_sha256"] == quality["development_frame_sha256"]
+        assert detail["actual_first_available_close"] == quality["first_close"]
+        assert detail["actual_last_development_close"] == quality["last_close"]
+        assert detail["normalized_research_tick_size"] == 0.001
+        assert detail["cost_model"] == baseline_v2.COST_MODEL
+        assert quality["true_oos_rows_read"] == 0

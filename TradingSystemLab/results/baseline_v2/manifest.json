@@ -141,9 +141,10 @@
     "MIX",
     "NG"
   ],
-  "mtf": false,
+  "normalized_research_tick_size": 0.001,
   "optimization": false,
   "phase": "PHASE_1_BASELINE",
+  "phase7_mtf_research": false,
   "ranking": false,
   "run_count": 24,
   "selection": false,

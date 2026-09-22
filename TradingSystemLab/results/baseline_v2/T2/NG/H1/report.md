@@ -2,6 +2,6 @@
 
 Frozen Phase 1 baseline, C1 only. Status: **COMPLETE**.
 
-Trades: 107; PF: 1.9966074176245863; expectancy: 0.47504613334736295; Net R: 50.829936268167835; DD: -5.605361903219232; win rate: 0.3925233644859813.
+Trades: 130; PF: 1.8576833790992782; expectancy: 0.3767817471605606; Net R: 48.98162713087288; DD: -5.605361903219232; win rate: 0.4.
 
-No optimization, ranking, selection, walk-forward, MTF, or TRUE OOS access.
+No optimization, ranking, selection, walk-forward, Phase 7 MTF research, or TRUE OOS access. T3 uses the intrinsic causal four-bar context.
