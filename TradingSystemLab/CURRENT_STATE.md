@@ -55,8 +55,20 @@ or replaced by a later timeframe/MTF implementation.
 - **Current corrected Baseline identity:** T2 source default 3.0 and T3 source
   default 100. The historical v2 hashes do not apply. Exact run manifests must
   bind the complete parameter sets and computed hashes when the rerun occurs.
-- **Data scope:** reproduce the original H1 Baseline scope: Si and CNY, native
-  H1, development-only 2023-01-01 through 2024-12-31. No 2025 read.
+- **Methodology versus scope:** the methodology comes from the original H1
+  cycle; the research universe is the current expansion and does not revert to
+  the historical Si/CNY-only H1 universe.
+- **Data scope:** T2/T3 × Si/CNY/GD/BR/MIX/NG × M30/H1 = **24 Baseline runs**,
+  development-only from 2020-01-01 through 2024-12-31. TRUE OOS is locked from
+  2025-01-01 onward. Actual source availability may begin later per instrument
+  (historically CNY and NG do); each run/data-quality artifact must disclose its
+  actual coverage rather than imply full declared-interval coverage.
+- **T3 causal context:** H1 execution uses higher context formed only from
+  complete consecutive 4×H1 blocks; M30 execution uses complete consecutive
+  4×M30 blocks. Incomplete blocks are not emitted, aggregation cannot cross a
+  trading-day boundary, and future fill/look-ahead is prohibited. This adapts
+  the original causal context rule to the expanded matrix; it is not a new
+  phase or optimization.
 - **Costs/execution:** reproduce original H1 cost scenarios with C1 primary;
   retain `FROZEN_TICK_SIZE = 0.001` for **all instruments**, with no
   instrument-specific substitution, throughout the entire current five-stage
@@ -67,10 +79,11 @@ or replaced by a later timeframe/MTF implementation.
 
 ## Next permitted action
 
-Execute the corrected Baseline under the original H1 methodology with the
-identity, scope, costs, and frozen tick size above; then perform an artifact
-audit under `AUDIT_PROTOCOL.md`. Proceed to Optimization only after that
-Baseline is accepted by audit.
+Execute and audit the corrected 24-run Baseline matrix—T2/T3 ×
+Si,CNY,GD,BR,MIX,NG × M30,H1—over the declared development interval 2020-01-01
+through 2024-12-31 under the original H1 Baseline methodology, identity, causal
+rules, costs, and frozen tick size above. Proceed to Optimization only after
+that Baseline is accepted by audit.
 
 ## Forbidden next actions
 

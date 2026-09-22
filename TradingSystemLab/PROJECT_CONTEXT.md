@@ -25,6 +25,18 @@ D1 implementations and MTF work are historical evidence, not alternative
 templates.  Failed or superseded attempts remain immutable provenance but do
 not control future methodology.
 
+### Methodological source versus current research expansion
+
+The **methodological source** is the original H1 cycle and frozen H1 candidate
+provenance. The **current research expansion** is T2/T3 × Si/CNY/GD/BR/MIX/NG ×
+M30/H1: 2 strategies × 6 instruments × 2 timeframes = **24 Baseline runs** over
+the declared development interval 2020-01-01 through 2024-12-31. TRUE OOS is
+locked from 2025-01-01 onward. Expanding instruments, timeframes, and history is
+research coverage, not a methodological change, and does not restore the old
+Si/CNY-only H1 universe. Actual source availability can begin later (the
+historical matrix records later starts for CNY and NG) and must be disclosed in
+run/data-quality artifacts.
+
 ## Identity generations
 
 The identities must not be conflated:
@@ -70,6 +82,13 @@ The current cycle intentionally freezes `FROZEN_TICK_SIZE = 0.001` for every
 instrument through all five canonical stages.  Instrument-specific tick-size
 work is not a prerequisite and may occur only later as a separately authorized
 audit/recalculation branch; it must not rewrite current or historical results.
+
+For T3 in the corrected matrix, the original causal higher-context principle is
+adapted deterministically: H1 execution consumes context only from complete
+consecutive 4×H1 blocks, and M30 execution consumes context only from complete
+consecutive 4×M30 blocks. Incomplete blocks are not emitted, aggregation cannot
+cross trading-day boundaries, and future fill/look-ahead is prohibited. This is
+causal construction within Baseline, not a new phase or optimization.
 
 Validated historical work is immutable evidence with its own code, manifest,
 ledger, metrics, classification, and provenance.  New research must receive a

@@ -23,6 +23,13 @@ through all five stages.  Per-instrument tick-size investigation is deferred to
 a separately authorized post-cycle audit/recalculation branch and cannot
 silently revise this cycle or historical artifacts.
 
+Methodological reproduction does not mean restoring the historical H1 research
+universe. The current Baseline applies that methodology to T2/T3 ×
+Si/CNY/GD/BR/MIX/NG × M30/H1 (24 runs), declared development-only from
+2020-01-01 through 2024-12-31; 2025-01-01 onward remains locked TRUE OOS. Actual
+per-instrument coverage must be recorded when it starts later than the declared
+interval.
+
 ## Lifecycle: Baseline → Optimization → Robustness → Walk Forward → TRUE OOS
 
 ### 1. Baseline
@@ -45,6 +52,13 @@ because per-instrument execution specs and required manifest provenance are
 missing.  Generated status is therefore not the same as audit acceptance.
 Its T2 2.5 / T3 75 overrides are not the original baseline defaults (3.0 / 100)
 and do not define the corrected Baseline identity.
+
+For corrected-matrix T3, H1 execution derives higher context only from complete
+consecutive 4×H1 blocks and M30 execution only from complete consecutive 4×M30
+blocks. Incomplete blocks are not emitted; aggregation does not cross a trading-
+day boundary; no future fill or look-ahead is allowed. This is the approved
+timeframe adaptation of the original causal context rule, not an added phase or
+optimization.
 
 ### 2. Optimization
 

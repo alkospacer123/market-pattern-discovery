@@ -53,14 +53,19 @@ a separate, explicitly authorized post-cycle audit branch.
 **Corrected Baseline: approved to execute, not yet executed or audited.** It
 returns to the original H1 Baseline methodology and frozen T2/T3 strategy
 identities (T2 baseline default 3.0; T3 baseline default 100), rather than the
-historical v2 2.5/75 override identity. This documentation correction is not a
-research phase.
+historical v2 2.5/75 override identity. Its expanded research universe is
+T2/T3 × Si/CNY/GD/BR/MIX/NG × M30/H1 = **24 runs**, declared development-only
+from 2020-01-01 through 2024-12-31, with 2025-01-01 onward locked TRUE OOS.
+Using the expanded universe is a coverage change, not a change to the original
+H1 methodology. This documentation correction is not a research phase.
 
 ## Planned
 
-1. Execute the corrected Baseline with `FROZEN_TICK_SIZE = 0.001` and audit its
-   actual code, manifests, ledgers, metrics, grouped outputs, determinism, and
-   verdict evidence.
+1. Execute and audit the corrected 24-run Baseline matrix—T2/T3 ×
+   Si,CNY,GD,BR,MIX,NG × M30,H1—over 2020-01-01 through 2024-12-31, using the
+   original H1 Baseline methodology and `FROZEN_TICK_SIZE = 0.001`. Inspect its
+   actual code, manifests, ledgers, metrics, grouped outputs, determinism, causal
+   T3 context construction, data coverage, and verdict evidence.
 2. Only after Baseline audit acceptance, perform the original-H1-template
    Optimization; then independently audit it.
 3. Only after each predecessor is accepted, continue in order through
