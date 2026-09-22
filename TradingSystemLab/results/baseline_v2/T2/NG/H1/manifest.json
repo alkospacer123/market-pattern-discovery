@@ -1,0 +1,38 @@
+{
+  "cost_model": {
+    "additional_slippage_ticks": 0,
+    "name": "C1",
+    "round_trip_ticks": 2,
+    "ticks_per_side": 1
+  },
+  "development_period": [
+    "2020-01-01",
+    "2024-12-31"
+  ],
+  "instrument": "NG",
+  "mtf": false,
+  "optimization": false,
+  "parameter_hash": "2b0494cdd24bfbfa8ce7d657d6f83d1408f07b9f565d38d093dec5b4856e3c00",
+  "parameters": {
+    "adx_threshold": 20,
+    "confirmation_window": 3,
+    "ema_fast": 20,
+    "ema_slow": 200,
+    "ema_trend": 50,
+    "impulse_distance_atr": 0.5,
+    "max_initial_stop_atr": 2.5,
+    "trailing_atr": 3
+  },
+  "phase": "PHASE_1_BASELINE",
+  "ranking": false,
+  "selection": false,
+  "source_data_copied": false,
+  "source_file": "/workspace/market-pattern-data/futures_quarterly/NG/NG_H1.csv",
+  "status": "COMPLETE",
+  "strategy": "T2",
+  "strategy_hash": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+  "timeframe": "H1",
+  "true_oos_blocked": true,
+  "true_oos_cutoff": "2025-01-01",
+  "walk_forward": false
+}
