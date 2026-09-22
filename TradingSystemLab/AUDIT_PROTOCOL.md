@@ -71,3 +71,13 @@ and tolerances, causality/OOS/cost/provenance/determinism conclusions,
 discrepancies, final status, and unresolved issues.  Store completed reports
 under `audits/` using its README convention; do not create retrospective reports
 without evidence.
+
+## Persistent AI operating rule
+
+After every Codex/research task, inspect the actual PR/commit and changed files,
+then the relevant source, configs, manifests, generated artifacts, trade ledger
+(or equivalent), metrics, and grouped reports.  Independently recompute key
+values where applicable and verify methodology compliance before accepting the
+task or advancing the roadmap.  A Codex Summary alone is never completion
+evidence.  Treat the public Git repository as the primary accessible project
+source and record exactly what was inspected.

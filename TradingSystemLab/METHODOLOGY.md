@@ -4,6 +4,25 @@ This is a reconstruction of the lifecycle encoded by the runners and committed
 phase artifacts.  It does not redesign that lifecycle.  Every phase is causal,
 development/OOS separated, cost-aware, deterministic, and provenance-bound.
 
+## Canonical methodology authority
+
+> **All future TradingSystemLab timeframe research uses only the original H1
+> cycle and frozen H1 strategy identities as its methodological template.**
+
+The mandatory sequence is **Baseline → Optimization → Robustness → Walk Forward
+→ TRUE OOS**.  Each new timeframe must reproduce each corresponding original
+H1 stage as closely as applicable and pass it independently.  No extra
+qualification stage may be inserted, and another timeframe cannot supply or
+waive a stage.  Later timeframe and MTF implementations are historical
+provenance only: they may be audited, but may not redesign the cycle.  New
+optimization, ranking, candidate-generation logic, or methodological gates
+require explicit authorization as a separate future research project.
+
+The current cycle also freezes `FROZEN_TICK_SIZE = 0.001` for all instruments
+through all five stages.  Per-instrument tick-size investigation is deferred to
+a separately authorized post-cycle audit/recalculation branch and cannot
+silently revise this cycle or historical artifacts.
+
 ## Lifecycle: Baseline → Optimization → Robustness → Walk Forward → TRUE OOS
 
 ### 1. Baseline
@@ -20,10 +39,12 @@ trade ledger, metrics, and report.  Stable ordering, candle-close semantics,
 repeatable identifiers, strategy/parameter hashes, source identity, and costs
 are required.
 
-The v2 Phase 1 implementation is a 24-run C1-only matrix.  Its generated
+The historical v2 Phase 1 implementation is a 24-run C1-only matrix.  Its generated
 manifests say complete, but the subsequent audit verdict is **NOT COMPLETE**
 because per-instrument execution specs and required manifest provenance are
 missing.  Generated status is therefore not the same as audit acceptance.
+Its T2 2.5 / T3 75 overrides are not the original baseline defaults (3.0 / 100)
+and do not define the corrected Baseline identity.
 
 ### 2. Optimization
 
@@ -113,6 +134,10 @@ robustness/walk-forward/TRUE-OOS variants.  Their own manifests, candidate IDs,
 coverage, gates, and verdicts are authoritative.  Code existing for a later
 stage is not evidence that its run completed; only committed artifacts and
 verdicts establish completion.
+
+Historical differences are preserved, not retroactively harmonized.  In
+particular, their existence never promotes their phase logic into a second
+methodological template.
 
 ## Universal evidence requirements
 

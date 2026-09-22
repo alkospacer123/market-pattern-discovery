@@ -14,21 +14,42 @@ The current v2 baseline matrix uses only the trend-engine T2 and T3 strategies;
 the existence of range implementations or artifacts does not make them part of
 that matrix.
 
-## Frozen v2 identities
+## Canonical methodology authority
 
-The active v2 baseline freezes the following source identities and parameter
-sets in `baseline_v2.py` and records them in every run manifest:
+**Every new timeframe must use the original H1 research cycle and frozen H1
+strategy identities as its sole methodological authority:** **Baseline →
+Optimization → Robustness → Walk Forward → TRUE OOS**.  A timeframe must pass
+each stage independently; no intermediate phase or result from another
+timeframe may substitute for one of these five stages.  Later M1/M5/M15/M30/H4/
+D1 implementations and MTF work are historical evidence, not alternative
+templates.  Failed or superseded attempts remain immutable provenance but do
+not control future methodology.
+
+## Identity generations
+
+The identities must not be conflated:
+
+1. **Original H1 baseline / current corrected Baseline identity.** The frozen
+   strategy sources identify T2 as `T2_Trend_Pullback_Continuation_v1.0` with
+   default `max_initial_stop_atr = 3.0`, and T3 as `T3_MTF_Trend_v1.0` with
+   default `ema_period = 100`.  These baseline defaults, the original H1 cycle,
+   and its provenance are authoritative for the corrected Baseline rerun.
+2. **Frozen post-Optimization H1 candidates.** The original Phase 3.3 registry
+   names `T2_candidate_v1` (`T2-0007-608dc87d09f1`) and `T3_candidate_v1`
+   (`T3-0014-0050d828c1a8`).  Their candidate parameters include 2.5 and 75,
+   respectively.  They are downstream frozen H1 candidates, not evidence that
+   those values were original Baseline defaults.
+3. **Historical v2 Phase 1 identity.** `baseline_v2.py` independently applied
+   those 2.5/75 values to its rejected/unaudited baseline matrix and recorded:
 
 | Name / implementation ID | Strategy source SHA-256 | v2 parameter hash | Frozen v2 overrides |
 |---|---|---|---|
 | T2 / `T2_Trend_Pullback_Continuation_v1.0` | `376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774` | `2b0494cdd24bfbfa8ce7d657d6f83d1408f07b9f565d38d093dec5b4856e3c00` | EMA 20/50/200; ADX threshold 20; confirmation 3; impulse distance 0.5 ATR; maximum initial stop 2.5 ATR; trailing 3 ATR |
 | T3 / `T3_MTF_Trend_v1.0` | `840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c` | `938b6b3b78f680010115a204b9a49e7eef962db119f4ea121e388c00741920ba` | EMA 75; ADX threshold 20; ATR average 20; breakout 20; stop 2 ATR; trail 3 ATR |
 
-These v2 overrides are not identical to every class/config default.  In
-particular, the T2 YAML and class default state a 3.0 ATR maximum initial stop,
-whereas the v2 baseline manifest freezes 2.5; T3's class default EMA is 100,
-whereas v2 freezes 75.  The manifests are authoritative for the v2 runs.  Do
-not silently replace one generation's identity with another.
+The hashes remain authoritative only for the historical v2 runs.  They do not
+define the corrected Baseline.  Do not silently replace one generation's
+identity with another or invent a new parameter set.
 
 Earlier artifacts also use candidate labels such as `T2_candidate_v1`,
 `T3_candidate_v1`, and timeframe-specific variants.  Their identities and
@@ -44,6 +65,11 @@ committed, independent generations contain USDRUBF/CNYRUBF research on M1, M5,
 M15, M30, H1, H4, and D1 and true MTF combinations H1→M15, H1→M30, and H4→H1.
 Presence in the tree means “supported by a recorded workflow,” not “validated”
 or “currently selected.”
+
+The current cycle intentionally freezes `FROZEN_TICK_SIZE = 0.001` for every
+instrument through all five canonical stages.  Instrument-specific tick-size
+work is not a prerequisite and may occur only later as a separately authorized
+audit/recalculation branch; it must not rewrite current or historical results.
 
 Validated historical work is immutable evidence with its own code, manifest,
 ledger, metrics, classification, and provenance.  New research must receive a
