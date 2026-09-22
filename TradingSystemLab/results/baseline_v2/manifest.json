@@ -10,121 +10,265 @@
   "declared_runs": [
     {
       "instrument": "Si",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 1000,
+        "price_step": 0.001,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T2",
       "timeframe": "M30"
     },
     {
       "instrument": "Si",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 1000,
+        "price_step": 0.001,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T2",
       "timeframe": "H1"
     },
     {
       "instrument": "CNY",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 1000,
+        "price_step": 0.001,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T2",
       "timeframe": "M30"
     },
     {
       "instrument": "CNY",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 1000,
+        "price_step": 0.001,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T2",
       "timeframe": "H1"
     },
     {
       "instrument": "GD",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 1,
+        "price_step": 0.1,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T2",
       "timeframe": "M30"
     },
     {
       "instrument": "GD",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 1,
+        "price_step": 0.1,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T2",
       "timeframe": "H1"
     },
     {
       "instrument": "BR",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 10,
+        "price_step": 0.01,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T2",
       "timeframe": "M30"
     },
     {
       "instrument": "BR",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 10,
+        "price_step": 0.01,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T2",
       "timeframe": "H1"
     },
     {
       "instrument": "MIX",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 1,
+        "price_step": 25.0,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T2",
       "timeframe": "M30"
     },
     {
       "instrument": "MIX",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 1,
+        "price_step": 25.0,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T2",
       "timeframe": "H1"
     },
     {
       "instrument": "NG",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 100,
+        "price_step": 0.01,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T2",
       "timeframe": "M30"
     },
     {
       "instrument": "NG",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 100,
+        "price_step": 0.01,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T2",
       "timeframe": "H1"
     },
     {
       "instrument": "Si",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 1000,
+        "price_step": 0.001,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T3",
       "timeframe": "M30"
     },
     {
       "instrument": "Si",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 1000,
+        "price_step": 0.001,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T3",
       "timeframe": "H1"
     },
     {
       "instrument": "CNY",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 1000,
+        "price_step": 0.001,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T3",
       "timeframe": "M30"
     },
     {
       "instrument": "CNY",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 1000,
+        "price_step": 0.001,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T3",
       "timeframe": "H1"
     },
     {
       "instrument": "GD",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 1,
+        "price_step": 0.1,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T3",
       "timeframe": "M30"
     },
     {
       "instrument": "GD",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 1,
+        "price_step": 0.1,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T3",
       "timeframe": "H1"
     },
     {
       "instrument": "BR",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 10,
+        "price_step": 0.01,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T3",
       "timeframe": "M30"
     },
     {
       "instrument": "BR",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 10,
+        "price_step": 0.01,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T3",
       "timeframe": "H1"
     },
     {
       "instrument": "MIX",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 1,
+        "price_step": 25.0,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T3",
       "timeframe": "M30"
     },
     {
       "instrument": "MIX",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 1,
+        "price_step": 25.0,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T3",
       "timeframe": "H1"
     },
     {
       "instrument": "NG",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 100,
+        "price_step": 0.01,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T3",
       "timeframe": "M30"
     },
     {
       "instrument": "NG",
+      "instrument_spec": {
+        "currency": "RUB",
+        "lot_size": 100,
+        "price_step": 0.01,
+        "tick_value_rub": 1.0
+      },
       "strategy": "T3",
       "timeframe": "H1"
     }
