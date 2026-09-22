@@ -13,6 +13,7 @@ import pandas as pd
 
 from .core.backtester import Backtester
 from .core.data_loader import DataLoader
+from .core.instrument_specs import InstrumentSpec, get_instrument_spec
 from .core.portfolio import FixedRiskPortfolio
 from .core.unified_metrics import finite, stats
 from .multitimeframe.phase71 import STRATEGY_SHA256, verify_frozen_strategies
@@ -30,8 +31,6 @@ DEVELOPMENT_START = pd.Timestamp("2020-01-01", tz="Europe/Moscow")
 TRUE_OOS_START = pd.Timestamp("2025-01-01", tz="Europe/Moscow")
 COST_MODEL = {"name": "C1", "ticks_per_side": 1, "round_trip_ticks": 2,
               "additional_slippage_ticks": 0}
-# The frozen lab model historically expresses costs in this strategy price unit.
-FROZEN_TICK_SIZE = 0.001
 RUNS = tuple((strategy, instrument, timeframe) for strategy in STRATEGIES
              for instrument in INSTRUMENTS for timeframe in TIMEFRAMES)
 FROZEN_PARAMETERS = {
@@ -78,16 +77,23 @@ def load_development(data_root: Path, instrument: str, timeframe: str) -> tuple[
     return frame, path
 
 
-def _execute(strategy: str, instrument: str, timeframe: str, frame: pd.DataFrame) -> pd.DataFrame:
+def _instrument_spec(spec: InstrumentSpec) -> dict[str, Any]:
+    """Return the execution fields required in baseline audit artifacts."""
+    return {"price_step": spec.price_step, "tick_value_rub": spec.tick_value_rub,
+            "currency": spec.currency, "lot_size": spec.lot_size}
+
+
+def _execute(strategy: str, instrument: str, timeframe: str, frame: pd.DataFrame,
+             spec: InstrumentSpec) -> pd.DataFrame:
     parameters = replace(PARAMETERS[strategy], **FROZEN_PARAMETERS[strategy])
     if strategy == "T2":
-        trades = T2TrendPullback(parameters).run(frame, instrument, tick_size=FROZEN_TICK_SIZE)
+        trades = T2TrendPullback(parameters).run(frame, instrument, tick_size=spec.price_step)
         trades = trades.rename(columns={"net_R_C1": "net_R", "cost_R_C1": "cost_R"})
     else:
         # Phase 1 is explicitly single-timeframe: T3 receives the same closed-bar
         # stream for execution and regime calculation. No derived MTF series exists.
         raw = Backtester(FixedRiskPortfolio(), cost_ticks_per_side=1,
-                         tick_size=FROZEN_TICK_SIZE).run(
+                         tick_size=spec.price_step).run(
                              T3MTFTrend(parameters), instrument, frame, frame).trades
         trades = _normalize_backtester(raw, strategy)
         trades["net_R"] = trades["gross_R"] - trades["cost_R"]
@@ -110,7 +116,8 @@ def _metrics(trades: pd.DataFrame) -> dict[str, Any]:
 
 
 def _write_run(target: Path, strategy: str, instrument: str, timeframe: str,
-               frame: pd.DataFrame, source: Path, trades: pd.DataFrame) -> dict[str, Any]:
+               frame: pd.DataFrame, source: Path, trades: pd.DataFrame,
+               spec: InstrumentSpec) -> dict[str, Any]:
     target.mkdir(parents=True)
     metrics = _metrics(trades)
     trades.map(finite).to_csv(target / "trades.csv", index=False, lineterminator="\n",
@@ -124,6 +131,7 @@ def _write_run(target: Path, strategy: str, instrument: str, timeframe: str,
     _json(target / "data_quality.json", quality)
     manifest = {"phase": "PHASE_1_BASELINE", "strategy": strategy,
                 "instrument": instrument, "timeframe": timeframe,
+                "instrument_spec": _instrument_spec(spec),
                 "development_period": ["2020-01-01", "2024-12-31"],
                 "true_oos_cutoff": "2025-01-01", "true_oos_blocked": True,
                 "cost_model": COST_MODEL, "strategy_hash": STRATEGY_SHA256[strategy],
@@ -155,13 +163,14 @@ def run(data_root: Path = DATA_ROOT, output: Path = OUTPUT_ROOT) -> dict[str, An
     cache: dict[tuple[str, str], tuple[pd.DataFrame, Path]] = {}
     rows = []
     for strategy, instrument, timeframe in RUNS:
+        spec = get_instrument_spec(instrument)
         key = (instrument, timeframe)
         if key not in cache:
             cache[key] = load_development(Path(data_root), instrument, timeframe)
         frame, source = cache[key]
-        trades = _execute(strategy, instrument, timeframe, frame)
+        trades = _execute(strategy, instrument, timeframe, frame, spec)
         rows.append(_write_run(output / strategy / instrument / timeframe, strategy,
-                               instrument, timeframe, frame, source, trades))
+                               instrument, timeframe, frame, source, trades, spec))
     if len(rows) != 24:
         raise RuntimeError("BASELINE_MATRIX_INCOMPLETE")
     lines = ["# TradingSystemLab v2 — Phase 1 Baseline", "",
@@ -176,7 +185,9 @@ def run(data_root: Path = DATA_ROOT, output: Path = OUTPUT_ROOT) -> dict[str, An
                       "net_R", "max_drawdown_R", "win_rate", "status")) + " |")
     (output / "Baseline_Report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     _json(output / "manifest.json", {"phase": "PHASE_1_BASELINE", "run_count": 24,
-          "declared_runs": [{"strategy": s, "instrument": i, "timeframe": t} for s, i, t in RUNS],
+          "declared_runs": [{"strategy": s, "instrument": i, "timeframe": t,
+                             "instrument_spec": _instrument_spec(get_instrument_spec(i))}
+                            for s, i, t in RUNS],
           "strategies": list(STRATEGIES), "instruments": list(INSTRUMENTS),
           "timeframes": list(TIMEFRAMES), "cost_models": [COST_MODEL],
           "frozen_strategy_hashes": STRATEGY_SHA256, "optimization": False,

@@ -10,6 +10,12 @@
     "2024-12-31"
   ],
   "instrument": "BR",
+  "instrument_spec": {
+    "currency": "RUB",
+    "lot_size": 10,
+    "price_step": 0.01,
+    "tick_value_rub": 1.0
+  },
   "mtf": false,
   "optimization": false,
   "parameter_hash": "2b0494cdd24bfbfa8ce7d657d6f83d1408f07b9f565d38d093dec5b4856e3c00",
