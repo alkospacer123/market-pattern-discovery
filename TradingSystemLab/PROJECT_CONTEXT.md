@@ -10,7 +10,7 @@ optimization, robustness, chronological walk-forward evaluation, TRUE OOS
 validation, multi-timeframe (MTF) research, execution/cost audits, and portfolio
 construction.  The implementation is split conceptually into a **TREND ENGINE**
 (`strategies/trend/`, T1–T3) and a **RANGE ENGINE** (`strategies/range/`, R1–R3).
-The current v2 baseline matrix uses only the trend-engine T2 and T3 strategies;
+The current corrected Baseline uses only the trend-engine T2 and T3 strategies;
 the existence of range implementations or artifacts does not make them part of
 that matrix.
 
