@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import csv
 import re
 
 import pandas as pd
@@ -29,6 +30,57 @@ class DataLoader:
             raise ValueError("calendar year 2025+ TRUE OOS is locked and may not be loaded")
         return result
 
+    def load_csv_prefix(self, path: str | Path, *, start: pd.Timestamp,
+                        end_exclusive: pd.Timestamp) -> pd.DataFrame:
+        """Load a sorted development prefix without ingesting locked later rows.
+
+        This entry point exists for consolidated, chronologically ordered source
+        files which also contain TRUE OOS observations.  It stops as soon as the
+        first timestamp at ``end_exclusive`` is encountered; later fields and
+        rows are never parsed into a dataframe.
+        """
+        source = Path(path)
+        start = self._localized_bound(start)
+        end_exclusive = self._localized_bound(end_exclusive)
+        rows: list[dict[str, str]] = []
+        with source.open("r", encoding="utf-8-sig", newline="") as stream:
+            sample = stream.read(4096)
+            stream.seek(0)
+            header = sample.splitlines()[0] if sample else ""
+            delimiter = max((",", ";", "\t"), key=header.count)
+            if header.count(delimiter) == 0:
+                raise ValueError(f"{source}: CSV delimiter is missing")
+            reader = csv.DictReader(stream, delimiter=delimiter)
+            if reader.fieldnames is None:
+                raise ValueError(f"{source}: CSV header is missing")
+            names = {re.sub(r"[<>]", "", name).strip().title(): name for name in reader.fieldnames}
+            time_name = next((names[name] for name in ("Datetime", "Timestamp", "Date") if name in names), None)
+            if time_name is None:
+                raise ValueError(f"{source}: datetime column is missing")
+            for raw in reader:
+                stamp = pd.Timestamp(raw[time_name])
+                stamp = stamp.tz_localize(self.timezone, ambiguous="raise", nonexistent="raise") if stamp.tz is None else stamp.tz_convert(self.timezone)
+                if stamp >= end_exclusive:
+                    break
+                if stamp >= start:
+                    rows.append(raw)
+        if not rows:
+            raise ValueError(f"{source}: no rows in requested development interval")
+        frame = pd.DataFrame(rows).rename(columns=lambda c: re.sub(r"[<>]", "", str(c)).strip().title())
+        stamp = pd.to_datetime(frame[next(c for c in ("Datetime", "Timestamp", "Date") if c in frame)], errors="raise")
+        stamp = pd.DatetimeIndex(stamp)
+        stamp = stamp.tz_localize(self.timezone, ambiguous="raise", nonexistent="raise") if stamp.tz is None else stamp.tz_convert(self.timezone)
+        result = self._validated_ohlc(frame, stamp, source)
+        if result.index.has_duplicates:
+            raise ValueError(f"{source}: duplicate timestamps")
+        if not result.index.is_monotonic_increasing:
+            raise ValueError(f"{source}: timestamps are not sorted")
+        return result
+
+    def _localized_bound(self, value: pd.Timestamp) -> pd.Timestamp:
+        value = pd.Timestamp(value)
+        return value.tz_localize(self.timezone) if value.tz is None else value.tz_convert(self.timezone)
+
     def _read(self, path: Path) -> pd.DataFrame:
         # Header inspection does not modify or copy source data.
         frame = pd.read_csv(path, sep=None, engine="python")
@@ -43,6 +95,11 @@ class DataLoader:
             stamp = pd.to_datetime(frame[time_column], errors="raise")
         stamp = pd.DatetimeIndex(stamp)
         stamp = stamp.tz_localize(self.timezone, ambiguous="raise", nonexistent="raise") if stamp.tz is None else stamp.tz_convert(self.timezone)
+        return self._validated_ohlc(frame, stamp, path)
+
+    @staticmethod
+    def _validated_ohlc(frame: pd.DataFrame, stamp: pd.DatetimeIndex,
+                        path: Path) -> pd.DataFrame:
         missing = set(OHLC) - set(frame.columns)
         if missing:
             raise ValueError(f"{path}: missing columns {sorted(missing)}")

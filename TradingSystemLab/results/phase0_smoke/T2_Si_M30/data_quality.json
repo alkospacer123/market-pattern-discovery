@@ -1,0 +1,10 @@
+{
+  "duplicate_timestamps": 0,
+  "first_close": "2020-01-03T10:30:00+03:00",
+  "last_close": "2024-12-31T00:00:00+03:00",
+  "ohlc_valid": true,
+  "rows": 36910,
+  "sorted": true,
+  "status": "PASS",
+  "timezone": "Europe/Moscow"
+}

@@ -20,6 +20,13 @@ class InstrumentSpec:
     lot_size: int
     price_precision: float
     round_level_step: float
+    tick_value_rub: float = 1.0
+    currency: str = "RUB"
+
+    @property
+    def price_step(self) -> float:
+        """Strategy/source price step used by the frozen lab execution model."""
+        return self.price_precision
 
 
 _SPECS = {
