@@ -95,6 +95,20 @@ ledger, metrics, classification, and provenance.  New research must receive a
 new, explicit identity and repeat the applicable lifecycle.  It may not rewrite
 an earlier verdict or use later diagnostics to retroactively select a candidate.
 
+## Current v2 lifecycle state
+
+The accepted current cycle has completed **Phase 1 Baseline** and **Phase 2
+Optimization**. The final artifact-only Phase 2 audit verified 82 bounded OAT
+configuration studies and classified T2/M30, T2/H1, T3/M30, and T3/H1 as
+`ROBUST_PLATEAU`. This is not a performance ranking and no strategy/timeframe is
+declared superior.
+
+The next roadmap stage is **Phase 3 Robustness**, but no Phase 3 candidate has
+yet been selected or frozen. Candidate selection/freeze is the next dedicated
+task and must precede Robustness execution. TRUE OOS 2025+ remains sealed. No
+Robustness, Walk Forward, TRUE OOS execution, portfolio selection, or Phase 7
+MTF research was performed by the Phase 2 consolidation audit.
+
 ## Evaluation and execution contract
 
 - Results are evaluated in fixed-risk multiples (`R`); the ledgers distinguish
