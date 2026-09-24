@@ -1,7 +1,7 @@
 # Current state — read first
 
-> Persistent handoff snapshot after the independently accepted TradingSystemLab
-> v2 Phase 2 consolidation audit. Canonical provenance anchors are Phase 1 merge
+> Persistent handoff snapshot after the independently audited TradingSystemLab
+> v2 Phase 3 candidate freeze. Canonical provenance anchors are Phase 1 merge
 > `2aae07a3d12907d1869eb603e6ac1a6fb8d851dd`, T2 Phase 2A merge
 > `a252f076a09495d3093854c8509b1551701ba2b4`, and T3 Phase 2B merge
 > `f8f28834db4bc016a995b55aed1ff7fd53a4a0e8`.
@@ -28,8 +28,10 @@ OOS until its preauthorized stage.
   `ROBUST_PLATEAU` (4), T3/M30 `ROBUST_PLATEAU` (9), and T3/H1
   `ROBUST_PLATEAU` (9). These counts are a descriptive stable-region inventory,
   not a ranking.
-- No Phase 3 candidate has been selected or frozen. Historical H1 candidates do
-  not automatically become v2 candidates.
+- **Phase 3 Candidate Selection / Freeze: COMPLETE.** Exactly one predeclared
+  candidate is immutable for each study: T2/M30 → `T2_M30_candidate_v2`, T2/H1
+  → `T2_H1_candidate_v2`, T3/M30 → `T3_M30_candidate_v2`, and T3/H1 →
+  `T3_H1_candidate_v2`. Historical H1 candidates were provenance only.
 - The consolidation did not rerun Optimization and makes no claim of a second
   byte-identical Phase 2A/2B execution.
 
@@ -44,15 +46,15 @@ cycle retains `FROZEN_TICK_SIZE = 0.001` for every instrument.
 
 ## Next roadmap stage
 
-**Phase 3 Robustness**, but candidate selection/freeze is the next dedicated
-prerequisite task before any Robustness execution. That task may inventory and
-freeze candidates under explicit authorization; it must not open TRUE OOS or
-silently reuse historical candidates.
+**Phase 3 Robustness execution** is the next permitted action. It must consume
+exactly `results/phase3_candidate_freeze/candidate_registry.json`. No Robustness
+has yet been executed, and TRUE OOS 2025+ remains sealed.
 
 ## Forbidden next actions
 
-- Do not execute Robustness before the dedicated Phase 3 candidate selection and
-  freeze is completed and accepted.
+- Do not modify or replace a frozen candidate after observing Robustness. The
+  parameters are immutable for Phase 3; any change requires returning to an
+  earlier research stage under a new identity.
 - Do not execute Walk Forward, TRUE OOS, portfolio selection, or Phase 7 MTF
   research out of sequence.
 - Do not access 2025+ data during candidate selection, optimize or rank by PF,

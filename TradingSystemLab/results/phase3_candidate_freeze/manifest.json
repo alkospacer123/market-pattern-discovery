@@ -1,0 +1,26 @@
+{
+  "phase": "PHASE_3_CANDIDATE_FREEZE",
+  "status": "PHASE_3_CANDIDATE_FREEZE_COMPLETE",
+  "methodological_source": "original H1 Phase 3.3 predeclared candidate contract",
+  "phase2_reference_commit": "9206e2f2ca9a6524ddf78ba473b9b882938aefc6",
+  "candidate_count": 4,
+  "strategies": ["T2", "T3"],
+  "timeframes": ["M30", "H1"],
+  "instruments": ["Si", "CNY", "GD", "BR", "MIX", "NG"],
+  "development_period": ["2020-01-01", "2024-12-31"],
+  "true_oos_start": "2025-01-01",
+  "selection_locked_before_validation": true,
+  "raw_market_data_read": false,
+  "optimization_executed": false,
+  "parameter_search_executed": false,
+  "ranking_executed": false,
+  "robustness_executed": false,
+  "walk_forward_executed": false,
+  "true_oos_executed": false,
+  "phase7_mtf_research": false,
+  "true_oos_blocked": true,
+  "artifact_sha256": {
+    "candidate_registry.json": "9afc08573222439c2e6289c288b0f0fbfd04116f8638df01e4bf6127141bb349",
+    "Candidate_Freeze_Report.md": "4b18270916cb036dee7ad39ba19530cf706155f5a7c877fda9ef159bcfa5445e"
+  }
+}

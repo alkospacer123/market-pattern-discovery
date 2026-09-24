@@ -97,17 +97,19 @@ an earlier verdict or use later diagnostics to retroactively select a candidate.
 
 ## Current v2 lifecycle state
 
-The accepted current cycle has completed **Phase 1 Baseline** and **Phase 2
-Optimization**. The final artifact-only Phase 2 audit verified 82 bounded OAT
+The accepted current cycle has completed **Phase 1 Baseline**, **Phase 2
+Optimization**, and **Phase 3 Candidate Selection / Freeze**. The final artifact-only Phase 2 audit verified 82 bounded OAT
 configuration studies and classified T2/M30, T2/H1, T3/M30, and T3/H1 as
 `ROBUST_PLATEAU`. This is not a performance ranking and no strategy/timeframe is
 declared superior.
 
-The next roadmap stage is **Phase 3 Robustness**, but no Phase 3 candidate has
-yet been selected or frozen. Candidate selection/freeze is the next dedicated
-task and must precede Robustness execution. TRUE OOS 2025+ remains sealed. No
-Robustness, Walk Forward, TRUE OOS execution, portfolio selection, or Phase 7
-MTF research was performed by the Phase 2 consolidation audit.
+The immutable registry freezes T2/M30 `T2_M30_candidate_v2`, T2/H1
+`T2_H1_candidate_v2`, T3/M30 `T3_M30_candidate_v2`, and T3/H1
+`T3_H1_candidate_v2` before validation. **Phase 3 Robustness execution** is the
+next permitted action and must consume exactly that registry. TRUE OOS 2025+
+remains sealed; no Robustness, Walk Forward, or TRUE OOS has yet been executed
+for these candidates. Any parameter change requires an earlier research stage
+and a new identity.
 
 ## Evaluation and execution contract
 
