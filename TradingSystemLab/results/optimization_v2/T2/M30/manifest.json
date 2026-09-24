@@ -1,0 +1,143 @@
+{
+  "C1_only": true,
+  "actual_source_availability": [
+    {
+      "first_close": "2020-01-03T10:30:00+03:00",
+      "instrument": "Si",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "rows": 36910,
+      "source_file": "/workspace/market-pattern-data/futures_quarterly/Si/Si_M30.csv"
+    },
+    {
+      "first_close": "2022-04-21T10:30:00+03:00",
+      "instrument": "CNY",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "rows": 19890,
+      "source_file": "/workspace/market-pattern-data/futures_quarterly/CNY/CNY_M30.csv"
+    },
+    {
+      "first_close": "2020-01-03T10:30:00+03:00",
+      "instrument": "GD",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "rows": 36865,
+      "source_file": "/workspace/market-pattern-data/futures_quarterly/GD/GD_M30.csv"
+    },
+    {
+      "first_close": "2020-01-03T10:30:00+03:00",
+      "instrument": "BR",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "rows": 37269,
+      "source_file": "/workspace/market-pattern-data/futures_quarterly/BR/BR_M30.csv"
+    },
+    {
+      "first_close": "2020-01-03T10:30:00+03:00",
+      "instrument": "MIX",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "rows": 36760,
+      "source_file": "/workspace/market-pattern-data/futures_quarterly/MIX/MIX_M30.csv"
+    },
+    {
+      "first_close": "2020-02-03T10:30:00+03:00",
+      "instrument": "NG",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "rows": 36373,
+      "source_file": "/workspace/market-pattern-data/futures_quarterly/NG/NG_M30.csv"
+    }
+  ],
+  "baseline": {
+    "adx_threshold": 20.0,
+    "confirmation_window": 3,
+    "ema_fast": 20,
+    "ema_slow": 200,
+    "ema_trend": 50,
+    "impulse_distance_atr": 0.5,
+    "max_initial_stop_atr": 3.0,
+    "trailing_atr": 3.0
+  },
+  "candidate_selection": false,
+  "canonical_baseline_parameter_hash": "ed08d3caa21aa87c2858e139e374ea5cc802d57531dc867862b587c75affa4bf",
+  "cost_models": [
+    {
+      "additional_slippage_ticks": 0,
+      "name": "C1",
+      "round_trip_ticks": 2,
+      "ticks_per_side": 1
+    }
+  ],
+  "development_interval": [
+    "2020-01-01",
+    "2024-12-31"
+  ],
+  "experiment_id": "phase2a-M30-7d5c06e4b435ea150f11",
+  "frozen_strategy_hash": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+  "instruments": [
+    "Si",
+    "CNY",
+    "GD",
+    "BR",
+    "MIX",
+    "NG"
+  ],
+  "methodological_source": "original H1 Phase 3.2",
+  "normalized_research_tick": 0.001,
+  "optimization_design": "BASELINE_PLUS_ONE_FACTOR_AT_A_TIME",
+  "overall": "ROBUST_PLATEAU",
+  "parameter_space": {
+    "adx_threshold": [
+      15,
+      20,
+      25,
+      30
+    ],
+    "confirmation_window": [
+      2,
+      3,
+      4
+    ],
+    "ema_fast": [
+      15,
+      20,
+      25,
+      30
+    ],
+    "ema_slow": [
+      150,
+      200,
+      250
+    ],
+    "ema_trend": [
+      40,
+      50,
+      60
+    ],
+    "impulse_distance_atr": [
+      0.3,
+      0.5,
+      0.7
+    ],
+    "max_initial_stop_atr": [
+      2.0,
+      2.5,
+      3.0
+    ],
+    "trailing_atr": [
+      2.0,
+      3.0,
+      4.0
+    ]
+  },
+  "phase": "PHASE_2_OPTIMIZATION",
+  "phase1_reference_commit": "2aae07a3d12907d1869eb603e6ac1a6fb8d851dd",
+  "phase7_mtf_research": false,
+  "ranking": false,
+  "robustness": false,
+  "selection_objective": "PLATEAU_NOT_MAXIMUM_PF",
+  "source_data_copied": false,
+  "strategy": "T2",
+  "strategy_id": "T2_Trend_Pullback_Continuation_v1.0",
+  "tested_configurations": 19,
+  "timeframe": "M30",
+  "true_oos_blocked": true,
+  "true_oos_execution": false,
+  "walk_forward": false
+}
