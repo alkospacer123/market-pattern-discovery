@@ -50,27 +50,23 @@ a separate, explicitly authorized post-cycle audit branch.
 
 ## Current
 
-**Corrected Baseline: approved to execute, not yet executed or audited.** It
-returns to the original H1 Baseline methodology and frozen T2/T3 strategy
-identities (T2 baseline default 3.0; T3 baseline default 100), rather than the
-historical v2 2.5/75 override identity. Its expanded research universe is
-T2/T3 × Si/CNY/GD/BR/MIX/NG × M30/H1 = **24 runs**, declared development-only
-from 2020-01-01 through 2024-12-31, with 2025-01-01 onward locked TRUE OOS.
-Using the expanded universe is a coverage change, not a change to the original
-H1 methodology. This documentation correction is not a research phase.
+**Phase 1 Baseline: COMPLETE. Phase 2 Optimization: COMPLETE.** The accepted
+Phase 2 universe contains four independent Development studies and 82 bounded
+Baseline + OAT configurations. T2/M30, T2/H1, T3/M30, and T3/H1 each classify
+as `ROBUST_PLATEAU`; the stable-region inventory is descriptive and unranked.
+TRUE OOS 2025+ remains sealed, and no Phase 3 candidate has been selected or
+frozen.
 
 ## Planned
 
-1. Execute and audit the corrected 24-run Baseline matrix—T2/T3 ×
-   Si,CNY,GD,BR,MIX,NG × M30,H1—over 2020-01-01 through 2024-12-31, using the
-   original H1 Baseline methodology and `FROZEN_TICK_SIZE = 0.001`. Inspect its
-   actual code, manifests, ledgers, metrics, grouped outputs, determinism, causal
-   T3 context construction, data coverage, and verdict evidence.
-2. Only after Baseline audit acceptance, perform the original-H1-template
-   Optimization; then independently audit it.
-3. Only after each predecessor is accepted, continue in order through
-   Robustness, Walk Forward, and the single preauthorized TRUE OOS stage.
+1. Perform a dedicated Phase 3 candidate selection/freeze task without opening
+   TRUE OOS, chasing maximum PF, or automatically reusing historical H1
+   candidates.
+2. After candidate freeze acceptance, execute **Phase 3 Robustness** under the
+   original H1 methodology, C1 contract, and normalized research tick `0.001`.
+3. Only after each predecessor is accepted, continue in order through Walk
+   Forward and the single preauthorized TRUE OOS stage.
 
-Per-instrument tick-size work is deferred. If later authorized, it is a separate
-audit/recalculation branch and cannot silently modify this cycle or historical
-results.
+Per-instrument tick-size work remains deferred. If later authorized, it is a
+separate audit/recalculation branch and cannot silently modify this cycle or
+historical results.
