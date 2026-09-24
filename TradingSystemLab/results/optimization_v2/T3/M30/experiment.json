@@ -1,0 +1,79 @@
+{
+  "baseline": {
+    "adx_threshold": 20.0,
+    "atr_average_period": 20,
+    "breakout_period": 20,
+    "ema_period": 100,
+    "stop_atr": 2.0,
+    "trail_atr": 3.0
+  },
+  "cost_models": [
+    {
+      "additional_slippage_ticks": 0,
+      "name": "C1",
+      "round_trip_ticks": 2,
+      "ticks_per_side": 1
+    }
+  ],
+  "development_interval": [
+    "2020-01-01",
+    "2024-12-31"
+  ],
+  "experiment_id": "phase2b-M30-bbd1877e73d7b1b9a4dc",
+  "instruments": [
+    "Si",
+    "CNY",
+    "GD",
+    "BR",
+    "MIX",
+    "NG"
+  ],
+  "methodological_source": "original H1 Phase 3.2",
+  "optimization_design": "BASELINE_PLUS_ONE_FACTOR_AT_A_TIME",
+  "parameter_space": {
+    "adx_threshold": [
+      15,
+      20,
+      25,
+      30
+    ],
+    "atr_average_period": [
+      10,
+      20,
+      30,
+      50
+    ],
+    "breakout_period": [
+      10,
+      20,
+      30,
+      40,
+      55
+    ],
+    "ema_period": [
+      50,
+      75,
+      100,
+      150,
+      200
+    ],
+    "stop_atr": [
+      1.5,
+      2.0,
+      2.5,
+      3.0
+    ],
+    "trail_atr": [
+      2.0,
+      2.5,
+      3.0,
+      3.5,
+      4.0
+    ]
+  },
+  "phase": "PHASE_2_OPTIMIZATION",
+  "strategy": "T3",
+  "strategy_id": "T3_MTF_Trend_v1.0",
+  "tested_configurations": 22,
+  "timeframe": "M30"
+}

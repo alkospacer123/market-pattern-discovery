@@ -1,0 +1,13 @@
+{
+  "candidate_selection": false,
+  "configurations_per_study": 22,
+  "phase": "PHASE_2_OPTIMIZATION",
+  "strategy": "T3",
+  "studies": 2,
+  "timeframes": [
+    "M30",
+    "H1"
+  ],
+  "total_configuration_studies": 44,
+  "true_oos_blocked": true
+}
