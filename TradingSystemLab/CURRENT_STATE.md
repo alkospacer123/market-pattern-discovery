@@ -4,15 +4,16 @@
 > v2 Phase 5 TRUE OOS execution. Canonical provenance anchors are Phase 1 merge
 > `2aae07a3d12907d1869eb603e6ac1a6fb8d851dd`, T2 Phase 2A merge
 > `a252f076a09495d3093854c8509b1551701ba2b4`, and T3 Phase 2B merge
-> `f8f28834db4bc016a995b55aed1ff7fd53a4a0e8`.
+> `f8f28834db4bc016a995b55aed1ff7fd53a4a0e8`. The canonical Phase 5 merge is
+> `2d7cd61b8d4d399901ebce397d1c2b7111ae427c`.
 
 ## Governing rule
 
 The original H1 cycle and frozen H1 strategy identities remain the sole
 methodological authority: **Baseline → Optimization → Robustness → Walk Forward
 → TRUE OOS**. No stage may be skipped, borrowed from another timeframe, or
-replaced by later timeframe/MTF work. Calendar year 2025+ remains locked TRUE
-OOS until its preauthorized stage.
+replaced by later timeframe/MTF work. Calendar year 2025+ was opened only at
+its preauthorized Phase 5 stage.
 
 ## Accepted current cycle
 
@@ -51,6 +52,8 @@ OOS until its preauthorized stage.
   started cold and FLAT on admitted 2025+ observations. T2/M30, T2/H1,
   T3/M30, and T3/H1 each classified `BORDERLINE`. No candidate was replaced,
   optimized, or ranked after TRUE OOS was opened.
+- The canonical Phase 5 procedural status is
+  `PHASE_5_TRUE_OOS_VALIDATION_COMPLETE`.
 - The consolidation did not rerun Optimization and makes no claim of a second
   byte-identical Phase 2A/2B execution.
 
@@ -63,20 +66,30 @@ context made from complete, non-overlapping four-execution-bar blocks reset at
 local trading-day boundaries. T2 remains standalone. The current five-stage
 cycle retains `FROZEN_TICK_SIZE = 0.001` for every instrument.
 
-## Next roadmap stage
+## Completed current cycle
 
-**Phase 5 TRUE OOS** is the next permitted action for the same four recorded
-research identities. Phase 4 verdicts are evidence, not permission to prune,
-replace, or reselect candidates. TRUE OOS 2025+ remains sealed and Phase 5 was
-not executed in Phase 4.
+- Phase 1 Baseline — **COMPLETE**
+- Phase 2 Optimization — **COMPLETE**
+- Phase 3 Candidate Selection / Freeze — **COMPLETE**
+- Phase 3 Robustness — **COMPLETE**
+- Phase 4 Walk Forward — **COMPLETE as a procedure** / root `PHASE_4_BORDERLINE`
+- Phase 5 TRUE OOS — **COMPLETE as a procedure**
+
+The Phase 5 classifications are T2/M30 → `BORDERLINE`, T2/H1 → `BORDERLINE`,
+T3/M30 → `BORDERLINE`, and T3/H1 → `BORDERLINE`.
+
+TRUE OOS 2025+ was opened once in the authorized Phase 5 cold-start evaluation
+and must not be reused to retune or reselect these same frozen identities. The
+five-stage single-system cycle is complete. No next phase is automatically
+authorized.
 
 ## Forbidden next actions
 
 - Do not modify or replace a frozen candidate after observing Robustness. The
   parameters are immutable for Phase 3; any change requires returning to an
   earlier research stage under a new identity.
-- Do not execute TRUE OOS, portfolio selection, or Phase 7 MTF research out of
-  sequence.
+- Do not reuse consumed TRUE OOS, select a portfolio, or begin MTF research
+  without a new user decision.
 - Do not access 2025+ data during candidate selection, optimize or rank by PF,
   change the frozen strategies, replace the normalized research tick, or rewrite
   the accepted Phase 1/2 artifact trees.
@@ -91,5 +104,5 @@ substitute for this accepted v2 lifecycle.
 
 Update this file after every accepted research phase or major audit. Record the
 canonical commits, current and last-completed stages, candidate identity or the
-explicit absence of one, scope, costs, TRUE OOS seal, next permitted action,
-and forbidden actions.
+explicit absence of one, scope, costs, TRUE OOS consumption state, next
+permitted action, and forbidden actions.
