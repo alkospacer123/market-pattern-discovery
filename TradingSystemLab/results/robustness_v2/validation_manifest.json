@@ -1,0 +1,52 @@
+{
+  "C1_only": true,
+  "bootstrap": {
+    "diagnostic_only": true,
+    "iterations": 10000,
+    "seed": 3302025
+  },
+  "candidate_count": 4,
+  "candidate_replacement_performed": false,
+  "candidate_selection_precedes_validation": true,
+  "classifications": {
+    "T2/H1": "BORDERLINE",
+    "T2/M30": "ROBUST_READY",
+    "T3/H1": "ROBUST_READY",
+    "T3/M30": "ROBUST_READY"
+  },
+  "development_period": [
+    "2020-01-01",
+    "2024-12-31"
+  ],
+  "freeze_reference_commit": "ff0db54b35544086f4265c303b1018d57d3849e7",
+  "instruments": [
+    "Si",
+    "CNY",
+    "GD",
+    "BR",
+    "MIX",
+    "NG"
+  ],
+  "methodological_source": "original H1 Phase 3.3",
+  "normalized_research_tick": 0.001,
+  "optimization_performed": false,
+  "parameter_search_expanded": false,
+  "phase": "PHASE_3_ROBUSTNESS",
+  "phase7_mtf_research": false,
+  "reproducibility_note": "Second full rerun not completed because of runtime; deterministic ordering and seed were retained.",
+  "second_complete_execution_compared": false,
+  "selection_locked_before_validation": true,
+  "status": "PHASE_3_ROBUSTNESS_COMPLETE",
+  "strategies": [
+    "T2",
+    "T3"
+  ],
+  "timeframes": [
+    "M30",
+    "H1"
+  ],
+  "true_oos_blocked": true,
+  "true_oos_executed": false,
+  "true_oos_start": "2025-01-01",
+  "walk_forward_executed": false
+}

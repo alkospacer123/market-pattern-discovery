@@ -1,0 +1,46 @@
+{
+  "candidate_id": "T2_H1_candidate_v2",
+  "candidate_parameter_hash": "a98459cab4f22e598fbfd705fb60cfb8a65f1771fa7d903bafa581544faa35ea",
+  "candidate_parameters": {
+    "adx_threshold": 20.0,
+    "confirmation_window": 3,
+    "ema_fast": 25,
+    "ema_slow": 200,
+    "ema_trend": 50,
+    "impulse_distance_atr": 0.5,
+    "max_initial_stop_atr": 3.0,
+    "trailing_atr": 3.0
+  },
+  "candidate_registry_path": "TradingSystemLab/results/phase3_candidate_freeze/candidate_registry.json",
+  "candidate_registry_sha256": "9afc08573222439c2e6289c288b0f0fbfd04116f8638df01e4bf6127141bb349",
+  "candidate_replacement_executed": false,
+  "classification": "BORDERLINE",
+  "cost_models": [
+    "C1"
+  ],
+  "development_period": [
+    "2020-01-01",
+    "2024-12-31"
+  ],
+  "diagnostic_flags": [
+    "INSTRUMENT_DEPENDENT"
+  ],
+  "execution_context": "none",
+  "freeze_reference_commit": "ff0db54b35544086f4265c303b1018d57d3849e7",
+  "frozen_strategy_source_hash": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+  "methodological_source": "original H1 Phase 3.3",
+  "normalized_research_tick": 0.001,
+  "optimization_executed": false,
+  "parameter_search_executed": false,
+  "phase": "PHASE_3_ROBUSTNESS",
+  "phase2_configuration_id": "T2-H1-a98459cab4f2",
+  "phase7_mtf_research": false,
+  "selection_locked_before_validation": true,
+  "severe_concentration": false,
+  "strategy": "T2",
+  "timeframe": "H1",
+  "true_oos_blocked": true,
+  "true_oos_executed": false,
+  "true_oos_start": "2025-01-01",
+  "walk_forward_executed": false
+}

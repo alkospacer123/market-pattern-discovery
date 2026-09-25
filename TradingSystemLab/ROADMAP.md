@@ -51,23 +51,26 @@ a separate, explicitly authorized post-cycle audit branch.
 ## Current
 
 **Phase 1 Baseline: COMPLETE. Phase 2 Optimization: COMPLETE. Phase 3 Candidate
-Selection / Freeze: COMPLETE.** The accepted
+Selection / Freeze: COMPLETE. Phase 3 Robustness: COMPLETE.** The accepted
 Phase 2 universe contains four independent Development studies and 82 bounded
 Baseline + OAT configurations. T2/M30, T2/H1, T3/M30, and T3/H1 each classify
 as `ROBUST_PLATEAU`; the stable-region inventory is descriptive and unranked.
 TRUE OOS 2025+ remains sealed. Frozen candidates are T2/M30
 `T2_M30_candidate_v2`, T2/H1 `T2_H1_candidate_v2`, T3/M30
 `T3_M30_candidate_v2`, and T3/H1 `T3_H1_candidate_v2`. Their parameters are
-immutable for Phase 3, and no Robustness has yet been executed.
+immutable for Phase 3. Robustness classified T2/M30 `ROBUST_READY`, T2/H1
+`BORDERLINE`, T3/M30 `ROBUST_READY`, and T3/H1 `ROBUST_READY`; the T2/H1
+candidate remains frozen and records `INSTRUMENT_DEPENDENT`. The candidate
+freeze is anchored at `ff0db54b35544086f4265c303b1018d57d3849e7`. TRUE OOS
+2025+ remains sealed.
 
 ## Planned
 
-1. Execute **Phase 3 Robustness** under the
-   original H1 methodology, C1 contract, and normalized research tick `0.001`.
-   It must consume exactly the immutable Phase 3 candidate registry; a parameter
-   change requires returning to an earlier research stage under a new identity.
-2. Only after each predecessor is accepted, continue in order through Walk
-   Forward and the single preauthorized TRUE OOS stage.
+1. Execute **Phase 4 Walk Forward** for the same four frozen identities. The
+   Phase 3 classifications are evidence, not authorization for post-hoc pruning
+   or replacement.
+2. Only after Walk Forward is accepted may the single preauthorized TRUE OOS
+   stage proceed.
 
 Per-instrument tick-size work remains deferred. If later authorized, it is a
 separate audit/recalculation branch and cannot silently modify this cycle or
