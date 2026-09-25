@@ -132,3 +132,17 @@ has not been executed for v3. The next permitted action is v3 Phase 2B T3
 M30/H1 Optimization, followed by a separate Phase 2 consolidation. The
 governing lifecycle remains exactly Baseline → Optimization → Robustness → Walk
 Forward → TRUE OOS.
+
+## v3 perpetual Phase 2B T3 optimization closeout
+
+Phase 1 remains **COMPLETE** and Phase 2A T2 remains **COMPLETE and
+immutable**. Phase 2B T3 is now **COMPLETE**: both T3/M30 and T3/H1 are
+classified `ROBUST_PLATEAU`, with 9 plateau configurations in each study.
+The two 22-configuration bounded OAT studies used C1 and separate causal
+four-bar context data; configurations were not ranked and no candidate was
+selected. Robustness, Walk Forward, and TRUE OOS were not executed, and TRUE
+OOS remains `BLOCKED_NOT_READ_NOT_EXECUTED`.
+
+Phase 2 overall is still awaiting its separate artifact-only consolidation
+and independent audit. The next permitted task is **v3 Phase 2 Consolidation /
+Independent Audit**, not Robustness.

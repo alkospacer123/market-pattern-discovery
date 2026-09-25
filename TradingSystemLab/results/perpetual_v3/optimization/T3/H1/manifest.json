@@ -1,0 +1,126 @@
+{
+  "C1_only": true,
+  "actual_source_availability": [
+    {
+      "first_close": "2023-01-03T10:00:00+03:00",
+      "instrument": "USDRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "rows": 7813,
+      "source_file": "/workspace/market-pattern-data/forever/USDRUBF/USDRUBF_H1.csv"
+    },
+    {
+      "first_close": "2023-01-03T10:00:00+03:00",
+      "instrument": "CNYRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "rows": 7816,
+      "source_file": "/workspace/market-pattern-data/forever/CNYRUBF/CNYRUBF_H1.csv"
+    },
+    {
+      "first_close": "2023-07-11T11:00:00+03:00",
+      "instrument": "GLDRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "rows": 5851,
+      "source_file": "/workspace/market-pattern-data/forever/GLDRUBF/GLDRUBF_H1.csv"
+    },
+    {
+      "first_close": "2023-11-14T11:00:00+03:00",
+      "instrument": "IMOEXF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "rows": 4398,
+      "source_file": "/workspace/market-pattern-data/forever/IMOEXF/IMOEXF_H1.csv"
+    }
+  ],
+  "baseline": {
+    "adx_threshold": 20.0,
+    "atr_average_period": 20,
+    "breakout_period": 20,
+    "ema_period": 100,
+    "stop_atr": 2.0,
+    "trail_atr": 3.0
+  },
+  "candidate_selection": false,
+  "canonical_baseline_parameter_hash": "e14cf46c120592752519063d6f32d79aa81e698c672c119622945f1444732c0b",
+  "context": "four completed execution bars; local-day reset",
+  "cost_models": [
+    {
+      "additional_slippage_ticks": 0,
+      "name": "C1",
+      "round_trip_ticks": 2,
+      "ticks_per_side": 1
+    }
+  ],
+  "data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+  "development_interval": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "experiment_id": "phase2b-H1-ff915b98188d252f8b0f",
+  "frozen_strategy_hash": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c",
+  "instruments": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "methodological_source": "original H1 Phase 3.2",
+  "normalized_research_tick": 0.001,
+  "optimization_design": "BASELINE_PLUS_ONE_FACTOR_AT_A_TIME",
+  "overall": "ROBUST_PLATEAU",
+  "parameter_space": {
+    "adx_threshold": [
+      15,
+      20,
+      25,
+      30
+    ],
+    "atr_average_period": [
+      10,
+      20,
+      30,
+      50
+    ],
+    "breakout_period": [
+      10,
+      20,
+      30,
+      40,
+      55
+    ],
+    "ema_period": [
+      50,
+      75,
+      100,
+      150,
+      200
+    ],
+    "stop_atr": [
+      1.5,
+      2.0,
+      2.5,
+      3.0
+    ],
+    "trail_atr": [
+      2.0,
+      2.5,
+      3.0,
+      3.5,
+      4.0
+    ]
+  },
+  "phase": "PHASE_2_OPTIMIZATION",
+  "phase1_audit_reference_commit": "a9c9815a9865a2c20fa555292de2c9924aadca96",
+  "phase1_reference_commit": "f8ee11841eedb11cb6ec98debc74ad8bc8c0c8a9",
+  "phase2a_t2_reference_commit": "7559953fd3dda8582af17f747ee38d94a93c42ad",
+  "phase7_mtf_research": false,
+  "ranking": false,
+  "robustness": false,
+  "selection_objective": "PLATEAU_NOT_MAXIMUM_PF",
+  "source_data_copied": false,
+  "strategy": "T3",
+  "strategy_id": "T3_MTF_Trend_v1.0",
+  "tested_configurations": 22,
+  "timeframe": "H1",
+  "true_oos_blocked": true,
+  "true_oos_execution": false,
+  "walk_forward": false
+}
