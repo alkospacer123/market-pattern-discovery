@@ -20,12 +20,13 @@ causal-context checks. The Phase 2A T2 and Phase 2B T3 provenance anchors are
 `3b3cb3046f3f68c602d6d65f715d23090ab4a17c`; the canonical Phase 2
 consolidation merge is `272eabd5a4261a18a763356964b82b4b5b5673ea`.
 
-TRUE OOS >= 2025-01-01 remains `BLOCKED_NOT_READ_NOT_EXECUTED`. No candidate
-has been selected, and Robustness, Walk Forward, TRUE OOS execution, portfolio
-selection, and v3 MTF research have not been performed. The next permitted
-action is procedural v3 candidate identity fixation/freeze as preparation for
-Robustness, strictly according to the original H1 methodology; this is not a
-new lifecycle phase.
+The artifact-only v3 Candidate Freeze is **COMPLETE**. Frozen identities are
+T2/M30 `T2_M30_candidate_v3` / `T2-M30-608dc87d09f1`, T2/H1
+`T2_H1_candidate_v3` / `T2-H1-608dc87d09f1`, T3/M30
+`T3_M30_candidate_v3` / `T3-M30-d6feb972db57`, and T3/H1
+`T3_H1_candidate_v3` / `T3-H1-4e73cdb77246`. TRUE OOS >= 2025-01-01 remains
+`BLOCKED_NOT_READ_NOT_EXECUTED`; Robustness is **NOT EXECUTED**. The next
+permitted action is v3 Phase 3 Robustness using the exact frozen registry.
 
 > Persistent handoff snapshot after the independently audited TradingSystemLab
 > v2 Phase 5 TRUE OOS execution. Canonical provenance anchors are Phase 1 merge
@@ -137,15 +138,17 @@ permitted action, and forbidden actions.
 ## v3 Perpetual independent generation
 
 v1 and v2 remain immutable historical evidence. For `v3_perpetual`, Phase 1,
-Phase 2A T2, Phase 2B T3, and Phase 2 Optimization overall are **COMPLETE**.
+Phase 2A T2, Phase 2B T3, Phase 2 Optimization overall, and the procedural
+Candidate Freeze are **COMPLETE**.
 The artifact-only independent consolidation status is
 `V3_PERPETUAL_PHASE_2_OPTIMIZATION_COMPLETE`: T2/M30 is `ROBUST_PLATEAU`
 (3 configurations), T2/H1 is `ROBUST_PLATEAU` (4), T3/M30 is
 `ROBUST_PLATEAU` (9), and T3/H1 is `ROBUST_PLATEAU` (9), for 25 total.
 No Optimization was rerun and this inventory is not a ranking.
 
-TRUE OOS >= 2025-01-01 remains `BLOCKED_NOT_READ_NOT_EXECUTED`. No candidate
-was selected; Robustness, Walk Forward, TRUE OOS execution, portfolio selection,
-or MTF research was performed. The next permitted action is candidate identity
-fixation/freeze, strictly under the original H1 methodology as procedural
-preparation for Robustness; it is not a new lifecycle phase.
+Frozen candidates are T2/M30 `T2_M30_candidate_v3`, T2/H1
+`T2_H1_candidate_v3`, T3/M30 `T3_M30_candidate_v3`, and T3/H1
+`T3_H1_candidate_v3`. TRUE OOS >= 2025-01-01 remains
+`BLOCKED_NOT_READ_NOT_EXECUTED`. Robustness is **NOT EXECUTED**; the next
+permitted action is v3 Phase 3 Robustness. Candidate replacement or a second
+selection is forbidden.
