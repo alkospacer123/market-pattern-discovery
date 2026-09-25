@@ -1,0 +1,82 @@
+{
+  "baseline": {
+    "adx_threshold": 20.0,
+    "confirmation_window": 3,
+    "ema_fast": 20,
+    "ema_slow": 200,
+    "ema_trend": 50,
+    "impulse_distance_atr": 0.5,
+    "max_initial_stop_atr": 3.0,
+    "trailing_atr": 3.0
+  },
+  "cost_models": [
+    {
+      "additional_slippage_ticks": 0,
+      "name": "C1",
+      "round_trip_ticks": 2,
+      "ticks_per_side": 1
+    }
+  ],
+  "development_interval": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "experiment_id": "phase2a-M30-7d5c06e4b435ea150f11",
+  "instruments": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "methodological_source": "original H1 Phase 3.2",
+  "optimization_design": "BASELINE_PLUS_ONE_FACTOR_AT_A_TIME",
+  "parameter_space": {
+    "adx_threshold": [
+      15,
+      20,
+      25,
+      30
+    ],
+    "confirmation_window": [
+      2,
+      3,
+      4
+    ],
+    "ema_fast": [
+      15,
+      20,
+      25,
+      30
+    ],
+    "ema_slow": [
+      150,
+      200,
+      250
+    ],
+    "ema_trend": [
+      40,
+      50,
+      60
+    ],
+    "impulse_distance_atr": [
+      0.3,
+      0.5,
+      0.7
+    ],
+    "max_initial_stop_atr": [
+      2.0,
+      2.5,
+      3.0
+    ],
+    "trailing_atr": [
+      2.0,
+      3.0,
+      4.0
+    ]
+  },
+  "phase": "PHASE_2_OPTIMIZATION",
+  "strategy": "T2",
+  "strategy_id": "T2_Trend_Pullback_Continuation_v1.0",
+  "tested_configurations": 19,
+  "timeframe": "M30"
+}
