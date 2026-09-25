@@ -1,0 +1,40 @@
+{
+  "C1_only": true,
+  "candidate_selection": false,
+  "configurations_per_study": 22,
+  "data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+  "development_period": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "generation": "v3_perpetual",
+  "instruments": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "mtf": false,
+  "normalized_research_tick": 0.001,
+  "optimization_design": "BASELINE_PLUS_ONE_FACTOR_AT_A_TIME",
+  "phase": "PHASE_2_OPTIMIZATION",
+  "phase1_audit_reference_merge": "a9c9815a9865a2c20fa555292de2c9924aadca96",
+  "phase1_reference_merge": "f8ee11841eedb11cb6ec98debc74ad8bc8c0c8a9",
+  "phase2a_t2_reference_merge": "7559953fd3dda8582af17f747ee38d94a93c42ad",
+  "ranking": false,
+  "robustness": false,
+  "status": "V3_PERPETUAL_PHASE_2B_T3_COMPLETE",
+  "strategy": "T3",
+  "strategy_source_hash": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c",
+  "studies": 2,
+  "subphase": "PHASE_2B_T3",
+  "timeframes": [
+    "M30",
+    "H1"
+  ],
+  "total_configuration_studies": 44,
+  "true_oos_blocked": true,
+  "true_oos_execution": false,
+  "true_oos_start": "2025-01-01",
+  "walk_forward": false
+}
