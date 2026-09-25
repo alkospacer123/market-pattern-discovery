@@ -124,6 +124,11 @@ v1 and v2 are complete and remain immutable historical evidence. The independent
 `v3_perpetual` generation uses exactly USDRUBF, CNYRUBF, GLDRUBF, IMOEXF; M30
 and H1; and frozen T2 and T3. Phase 1 Baseline is **COMPLETE** on development
 2023-01-01 through 2024-12-31, preserving natural later instrument starts.
-TRUE OOS >= 2025-01-01 remains **BLOCKED**. The next permitted action is Phase
-2 Optimization. The governing lifecycle remains exactly Baseline → Optimization
-→ Robustness → Walk Forward → TRUE OOS.
+TRUE OOS >= 2025-01-01 remains **BLOCKED**. Phase 2A T2 is **COMPLETE**:
+T2/M30 is `ROBUST_PLATEAU` with 3 plateau configurations, and T2/H1 is
+`ROBUST_PLATEAU` with 4 plateau configurations. No configurations were ranked
+and no candidate was selected. Phase 2 overall is **NOT COMPLETE**; Robustness
+has not been executed for v3. The next permitted action is v3 Phase 2B T3
+M30/H1 Optimization, followed by a separate Phase 2 consolidation. The
+governing lifecycle remains exactly Baseline → Optimization → Robustness → Walk
+Forward → TRUE OOS.
