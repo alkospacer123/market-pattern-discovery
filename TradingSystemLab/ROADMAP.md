@@ -74,3 +74,13 @@ The canonical Phase 5 merge is
 is authorized. The lifecycle must **STOP** here until a new user decision is
 made. Do not automatically add a portfolio phase, MTF, cost recalculation, new
 optimization, or session research.
+
+## v3 Perpetual independent generation
+
+- v1 and v2: complete; immutable historical evidence.
+- Scope: USDRUBF, CNYRUBF, GLDRUBF, IMOEXF × M30, H1 × T2, T3.
+- Phase 1 Baseline: **COMPLETE**, development 2023-01-01 through 2024-12-31,
+  retaining natural later instrument starts.
+- TRUE OOS >= 2025-01-01: **BLOCKED** at Phase 1.
+- Next permitted action: Phase 2 Optimization.
+- Lifecycle: Baseline → Optimization → Robustness → Walk Forward → TRUE OOS.

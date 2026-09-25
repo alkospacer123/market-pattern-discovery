@@ -163,3 +163,12 @@ The statements above derive from `README.md`, `baseline_v2.py`,
 `core/data_loader.py`, `multitimeframe/`, `true_oos/`, and the manifests and
 reports below `results/`.  Current defects and conflicts are recorded in
 `CURRENT_STATE.md`, not resolved by this context summary.
+
+## v3 Perpetual generation
+
+The independent v3 generation does not replace v1 or v2 historical evidence.
+Its universe is USDRUBF, CNYRUBF, GLDRUBF, IMOEXF; its timeframes are M30 and
+H1; and its strategies are frozen T2 and T3. Phase 1 Baseline is complete for
+2023-01-01 through 2024-12-31 with natural later starts. TRUE OOS >= 2025-01-01
+is blocked. Next permitted action: Phase 2 Optimization, under the unchanged
+Baseline → Optimization → Robustness → Walk Forward → TRUE OOS lifecycle.
