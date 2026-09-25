@@ -106,3 +106,13 @@ Update this file after every accepted research phase or major audit. Record the
 canonical commits, current and last-completed stages, candidate identity or the
 explicit absence of one, scope, costs, TRUE OOS consumption state, next
 permitted action, and forbidden actions.
+
+## v3 Perpetual independent generation
+
+v1 and v2 are complete and remain immutable historical evidence. The independent
+`v3_perpetual` generation uses exactly USDRUBF, CNYRUBF, GLDRUBF, IMOEXF; M30
+and H1; and frozen T2 and T3. Phase 1 Baseline is **COMPLETE** on development
+2023-01-01 through 2024-12-31, preserving natural later instrument starts.
+TRUE OOS >= 2025-01-01 remains **BLOCKED**. The next permitted action is Phase
+2 Optimization. The governing lifecycle remains exactly Baseline → Optimization
+→ Robustness → Walk Forward → TRUE OOS.

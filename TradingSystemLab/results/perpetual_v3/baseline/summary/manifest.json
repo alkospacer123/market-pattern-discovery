@@ -1,0 +1,95 @@
+{
+  "data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+  "generation": "v3_perpetual",
+  "mtf": false,
+  "optimization": false,
+  "phase": "PHASE_1_BASELINE",
+  "portfolio": false,
+  "ranking": false,
+  "run_count": 16,
+  "runs": [
+    {
+      "instrument": "USDRUBF",
+      "strategy": "T2",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "strategy": "T2",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "GLDRUBF",
+      "strategy": "T2",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "IMOEXF",
+      "strategy": "T2",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "USDRUBF",
+      "strategy": "T2",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "strategy": "T2",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "GLDRUBF",
+      "strategy": "T2",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "IMOEXF",
+      "strategy": "T2",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "USDRUBF",
+      "strategy": "T3",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "strategy": "T3",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "GLDRUBF",
+      "strategy": "T3",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "IMOEXF",
+      "strategy": "T3",
+      "timeframe": "M30"
+    },
+    {
+      "instrument": "USDRUBF",
+      "strategy": "T3",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "strategy": "T3",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "GLDRUBF",
+      "strategy": "T3",
+      "timeframe": "H1"
+    },
+    {
+      "instrument": "IMOEXF",
+      "strategy": "T3",
+      "timeframe": "H1"
+    }
+  ],
+  "selection": false,
+  "status": "V3_PERPETUAL_PHASE_1_BASELINE_COMPLETE",
+  "true_oos_status": "BLOCKED_NOT_READ_NOT_EXECUTED"
+}
