@@ -1,0 +1,185 @@
+{
+  "C1_only": true,
+  "T2_execution": "standalone",
+  "T3_context": "four completed non-overlapping H1 bars; local trading-day reset",
+  "analysis_type": "RETROSPECTIVE_DIAGNOSTIC",
+  "candidate_selection": false,
+  "classification": "NOT_APPLICABLE_RETROSPECTIVE_DIAGNOSTIC",
+  "closeout_merge": "45739ebb7a1c4fff2dd93134146e83bf0a2c9f51",
+  "cold_start": true,
+  "common_cutoff": "2026-08-30T19:00:00+03:00",
+  "common_start": "2025-01-01",
+  "core_factorial_execution_count": 8,
+  "current_v2_verdicts_modified": false,
+  "execution_count": 12,
+  "execution_design": [
+    {
+      "data_generation": "LEGACY_CONTINUOUS",
+      "parameter_generation": "LEGACY_PARAMS",
+      "run_id": "LEGACY_DATA__LEGACY_PARAMS",
+      "universe": "SICNY"
+    },
+    {
+      "data_generation": "LEGACY_CONTINUOUS",
+      "parameter_generation": "V2_H1_PARAMS",
+      "run_id": "LEGACY_DATA__V2_PARAMS",
+      "universe": "SICNY"
+    },
+    {
+      "data_generation": "QUARTERLY_V2",
+      "parameter_generation": "LEGACY_PARAMS",
+      "run_id": "QUARTERLY_DATA__LEGACY_PARAMS",
+      "universe": "SICNY"
+    },
+    {
+      "data_generation": "QUARTERLY_V2",
+      "parameter_generation": "V2_H1_PARAMS",
+      "run_id": "QUARTERLY_DATA__V2_PARAMS",
+      "universe": "SICNY"
+    },
+    {
+      "data_generation": "QUARTERLY_V2",
+      "parameter_generation": "LEGACY_PARAMS",
+      "run_id": "QUARTERLY_ALL6__LEGACY_PARAMS",
+      "universe": "ALL6"
+    },
+    {
+      "data_generation": "QUARTERLY_V2",
+      "parameter_generation": "V2_H1_PARAMS",
+      "run_id": "QUARTERLY_ALL6__V2_PARAMS",
+      "universe": "ALL6"
+    }
+  ],
+  "historical_h1_verdicts_modified": false,
+  "no_pre_2025_warmup": true,
+  "normalized_research_tick": 0.001,
+  "optimization": false,
+  "parameter_generations": {
+    "LEGACY_PARAMS": {
+      "T2": {
+        "adx_threshold": 20,
+        "confirmation_window": 3,
+        "ema_fast": 20,
+        "ema_slow": 200,
+        "ema_trend": 50,
+        "impulse_distance_atr": 0.5,
+        "max_initial_stop_atr": 2.5,
+        "trailing_atr": 3.0
+      },
+      "T3": {
+        "adx_threshold": 20,
+        "atr_average_period": 20,
+        "breakout_period": 20,
+        "ema_period": 75,
+        "stop_atr": 2.0,
+        "trail_atr": 3.0
+      }
+    },
+    "V2_H1_PARAMS": {
+      "T2": {
+        "adx_threshold": 20.0,
+        "confirmation_window": 3,
+        "ema_fast": 25,
+        "ema_slow": 200,
+        "ema_trend": 50,
+        "impulse_distance_atr": 0.5,
+        "max_initial_stop_atr": 3.0,
+        "trailing_atr": 3.0
+      },
+      "T3": {
+        "adx_threshold": 20.0,
+        "atr_average_period": 30,
+        "breakout_period": 20,
+        "ema_period": 100,
+        "stop_atr": 2.0,
+        "trail_atr": 3.0
+      }
+    }
+  },
+  "parameter_hashes": {
+    "T2_V2": "a98459cab4f22e598fbfd705fb60cfb8a65f1771fa7d903bafa581544faa35ea",
+    "T3_V2": "aeeb96942cf33d9551b5635f33d2f2745aefad572f57f7ea92b9791c2d992a39"
+  },
+  "phase5_merge": "2d7cd61b8d4d399901ebce397d1c2b7111ae427c",
+  "portfolio_selection": false,
+  "ranking": false,
+  "second_deterministic_execution_compared": true,
+  "source_hashes": {
+    "legacy_CNY": {
+      "/workspace/market-pattern-data/2026/CNY/CNY_H1_2025_Q1.csv": "09e1894398389f674c1c7c4a593f089bb1b687129bfb9d111a2441904fd4fc23",
+      "/workspace/market-pattern-data/2026/CNY/CNY_H1_2025_Q2.csv": "b1027a341770b7d4f171b6dbee44c60f706df73a136500ed11ad8d12ab2e567f",
+      "/workspace/market-pattern-data/2026/CNY/CNY_H1_2025_Q3.csv": "9593a882e4f430b081dc65cf05142ba0e4313cdea5046bd4b328d947a72374da",
+      "/workspace/market-pattern-data/2026/CNY/CNY_H1_2026_Q1.csv": "e114af596b0ff8536850322783dba69e39a7be68b0052062464a75a09a78cb88",
+      "/workspace/market-pattern-data/2026/CNY/CNY_H1_2026_Q2.csv": "3cd84776a927ab4a2033c5146009d8b097946782eff531e336e814980e46c8ad"
+    },
+    "legacy_Si": {
+      "/workspace/market-pattern-data/2026/Si/Si_H1_2025_Q1.csv": "00ba46d64540f23c508707dc8afe608cc979ddcc899b86a0d39bc5c52e98a128",
+      "/workspace/market-pattern-data/2026/Si/Si_H1_2025_Q2.csv": "cf7932c6da60182fa65f1c886e003c16c072e3913d02e23b74d9b3cef31c6c06",
+      "/workspace/market-pattern-data/2026/Si/Si_H1_2025_Q3.csv": "4564fce256e80c5a38564dbacf156addbcf08aaf0284202f9b1476f24280513c",
+      "/workspace/market-pattern-data/2026/Si/Si_H1_2026_Q1.csv": "545ad31b170af7219dda0ecebced509f7868d7f1e5114d5f21a5b13c1ba5f875",
+      "/workspace/market-pattern-data/2026/Si/Si_H1_2026_Q2.csv": "99301721be7367e2fb98ec05369e44c184f0c19960455270fa0d2036b17f7caa"
+    },
+    "quarterly_BR": {
+      "/workspace/market-pattern-data/futures_quarterly/BR/BR_H1.csv": "c988c127f7e12a6125aa8d80b479dcf2182eaa4d4087997dec73eac42614f6be"
+    },
+    "quarterly_CNY": {
+      "/workspace/market-pattern-data/futures_quarterly/CNY/CNY_H1.csv": "0f8e033f9b41495dcaaf8aed0d0be6d3018e86a92d7a2bacee02cd228ba580d4"
+    },
+    "quarterly_GD": {
+      "/workspace/market-pattern-data/futures_quarterly/GD/GD_H1.csv": "2911950344bd6b9471fbe570f12020cba64f65efb59da424d9ab2b7440e44bb3"
+    },
+    "quarterly_MIX": {
+      "/workspace/market-pattern-data/futures_quarterly/MIX/MIX_H1.csv": "1aebe871790d3a5e4c8d155a253c77666c38cc6f668e9eeb468bbac4c6d4eac5"
+    },
+    "quarterly_NG": {
+      "/workspace/market-pattern-data/futures_quarterly/NG/NG_H1.csv": "4c932cf3679c506c57297d53706a97900a7e94b8299462102c1168fc2a4a3fbe"
+    },
+    "quarterly_Si": {
+      "/workspace/market-pattern-data/futures_quarterly/Si/Si_H1.csv": "5d9f749322f22faf775a2d52019f0c19a6309b71fbd35dca717b3944c1035b08"
+    }
+  },
+  "source_paths": {
+    "legacy_CNY": [
+      "/workspace/market-pattern-data/2026/CNY/CNY_H1_2025_Q1.csv",
+      "/workspace/market-pattern-data/2026/CNY/CNY_H1_2025_Q2.csv",
+      "/workspace/market-pattern-data/2026/CNY/CNY_H1_2025_Q3.csv",
+      "/workspace/market-pattern-data/2026/CNY/CNY_H1_2026_Q1.csv",
+      "/workspace/market-pattern-data/2026/CNY/CNY_H1_2026_Q2.csv"
+    ],
+    "legacy_Si": [
+      "/workspace/market-pattern-data/2026/Si/Si_H1_2025_Q1.csv",
+      "/workspace/market-pattern-data/2026/Si/Si_H1_2025_Q2.csv",
+      "/workspace/market-pattern-data/2026/Si/Si_H1_2025_Q3.csv",
+      "/workspace/market-pattern-data/2026/Si/Si_H1_2026_Q1.csv",
+      "/workspace/market-pattern-data/2026/Si/Si_H1_2026_Q2.csv"
+    ],
+    "quarterly_BR": [
+      "/workspace/market-pattern-data/futures_quarterly/BR/BR_H1.csv"
+    ],
+    "quarterly_CNY": [
+      "/workspace/market-pattern-data/futures_quarterly/CNY/CNY_H1.csv"
+    ],
+    "quarterly_GD": [
+      "/workspace/market-pattern-data/futures_quarterly/GD/GD_H1.csv"
+    ],
+    "quarterly_MIX": [
+      "/workspace/market-pattern-data/futures_quarterly/MIX/MIX_H1.csv"
+    ],
+    "quarterly_NG": [
+      "/workspace/market-pattern-data/futures_quarterly/NG/NG_H1.csv"
+    ],
+    "quarterly_Si": [
+      "/workspace/market-pattern-data/futures_quarterly/Si/Si_H1.csv"
+    ]
+  },
+  "start_state": "FLAT",
+  "status": "H1_LEGACY_VS_V2_DECOMPOSITION_COMPLETE",
+  "strategy_hashes": {
+    "T2": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+    "T3": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
+  },
+  "ticks_per_side": 1,
+  "timeframe": "H1",
+  "true_oos_status": "CONSUMED_PREVIOUSLY_NOT_NEW_OOS",
+  "universe_control_execution_count": 4
+}
