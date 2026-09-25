@@ -1,15 +1,31 @@
 # Current state — read first
 
-## v3 Perpetual Phase 1 audit closeout
+## v3 Perpetual current handoff
 
-The immutable v3 Perpetual Phase 1 result artifacts remain unchanged and Phase
-1 remains `V3_PERPETUAL_PHASE_1_BASELINE_COMPLETE`.  Its canonical merge is
-`f8ee11841eedb11cb6ec98debc74ad8bc8c0c8a9`.  The implementation-independent
-audit was hardened and passes all 16 ledgers (1,124 trades), eight source data
-files, report reconciliations, and causal-context checks.  TRUE OOS 2025+
-remains `BLOCKED_NOT_READ_NOT_EXECUTED`; the next permitted v3 action remains
-Phase 2 Optimization after this audit closeout is merged and independently
-verified.  This closeout is not a new research phase.
+The independent `v3_perpetual` generation has completed Phase 1 Baseline
+(`V3_PERPETUAL_PHASE_1_BASELINE_COMPLETE`) and Phase 2 Optimization
+(`V3_PERPETUAL_PHASE_2_OPTIMIZATION_COMPLETE`). Phase 2 classified T2/M30 as
+`ROBUST_PLATEAU` (3 configurations), T2/H1 as `ROBUST_PLATEAU` (4), T3/M30 as
+`ROBUST_PLATEAU` (9), and T3/H1 as `ROBUST_PLATEAU` (9): 25 robust-plateau
+configurations across 82 total bounded OAT configurations. Consolidation did
+not rerun Optimization, rank the configurations, declare a winner, or select a
+candidate.
+
+The canonical Phase 1 merge is `f8ee11841eedb11cb6ec98debc74ad8bc8c0c8a9`,
+and its independently hardened audit closeout is
+`a9c9815a9865a2c20fa555292de2c9924aadca96`. That audit passes all 16 ledgers
+(1,124 trades), eight source data files, report reconciliations, and
+causal-context checks. The Phase 2A T2 and Phase 2B T3 provenance anchors are
+`7559953fd3dda8582af17f747ee38d94a93c42ad` and
+`3b3cb3046f3f68c602d6d65f715d23090ab4a17c`; the canonical Phase 2
+consolidation merge is `272eabd5a4261a18a763356964b82b4b5b5673ea`.
+
+TRUE OOS >= 2025-01-01 remains `BLOCKED_NOT_READ_NOT_EXECUTED`. No candidate
+has been selected, and Robustness, Walk Forward, TRUE OOS execution, portfolio
+selection, and v3 MTF research have not been performed. The next permitted
+action is procedural v3 candidate identity fixation/freeze as preparation for
+Robustness, strictly according to the original H1 methodology; this is not a
+new lifecycle phase.
 
 > Persistent handoff snapshot after the independently audited TradingSystemLab
 > v2 Phase 5 TRUE OOS execution. Canonical provenance anchors are Phase 1 merge
