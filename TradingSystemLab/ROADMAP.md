@@ -18,6 +18,7 @@ a separate, explicitly authorized post-cycle audit branch.
   5 TRUE OOS are complete as procedures. Phase 4 is `PHASE_4_BORDERLINE`
   (canonical merge `0b0027665fdcc0f847b6b9a10cb5928fcfd2d553`); Phase 5
   independently classifies T2/M30, T2/H1, T3/M30, and T3/H1 `BORDERLINE`.
+  The Phase 5 canonical merge is `2d7cd61b8d4d399901ebce397d1c2b7111ae427c`.
   The cycle stops at evidence: no portfolio, MTF, cost branch, or replacement.
 
 - **Original H1:** committed unified Baseline (Phase 2), bounded Optimization
@@ -55,34 +56,21 @@ a separate, explicitly authorized post-cycle audit branch.
   NOT COMPLETE**. Its instrument-spec and provenance findings remain historical
   evidence, not the controlling roadmap.
 
-## Current
+## Current v2 single-system cycle
 
-**Phase 1 Baseline: COMPLETE. Phase 2 Optimization: COMPLETE. Phase 3 Candidate
-Selection / Freeze: COMPLETE. Phase 3 Robustness: COMPLETE. Phase 4 Walk
-Forward: COMPLETE as a procedure.** The accepted
-Phase 2 universe contains four independent Development studies and 82 bounded
-Baseline + OAT configurations. T2/M30, T2/H1, T3/M30, and T3/H1 each classify
-as `ROBUST_PLATEAU`; the stable-region inventory is descriptive and unranked.
-TRUE OOS 2025+ remains sealed. Frozen candidates are T2/M30
-`T2_M30_candidate_v2`, T2/H1 `T2_H1_candidate_v2`, T3/M30
-`T3_M30_candidate_v2`, and T3/H1 `T3_H1_candidate_v2`. Their parameters are
-immutable for Phase 3. Robustness classified T2/M30 `ROBUST_READY`, T2/H1
-`BORDERLINE`, T3/M30 `ROBUST_READY`, and T3/H1 `ROBUST_READY`; the T2/H1
-candidate remains frozen and records `INSTRUMENT_DEPENDENT`. The candidate
-freeze is anchored at `ff0db54b35544086f4265c303b1018d57d3849e7`. TRUE OOS
-2025+ remains sealed. Phase 3 Robustness is anchored at
-`d89d0f1f7ba3259e0f08e43a0832bd16f4d15f6b`. Phase 4 retained all four frozen
-identities and recorded their individual verdicts without ranking or pruning.
-T2/M30, T2/H1, T3/M30, and T3/H1 each recorded
-`WALK_FORWARD_BORDERLINE`.
+**COMPLETE as a procedure across all five stages.** Phase 1 Baseline, Phase 2
+Optimization, Phase 3 Candidate Selection / Freeze, Phase 3 Robustness, Phase
+4 Walk Forward, and Phase 5 TRUE OOS are complete.
 
-## Planned
+The final Phase 5 classifications are:
 
-1. Execute **Phase 5 TRUE OOS** only as the separately authorized next stage,
-   for the same four recorded frozen research identities. Phase 3 and Phase 4
-   classifications are evidence, not authorization for post-hoc pruning or
-   replacement. Phase 5 was not executed during Phase 4.
+- T2/M30 `BORDERLINE`
+- T2/H1 `BORDERLINE`
+- T3/M30 `BORDERLINE`
+- T3/H1 `BORDERLINE`
 
-Per-instrument tick-size work remains deferred. If later authorized, it is a
-separate audit/recalculation branch and cannot silently modify this cycle or
-historical results.
+The canonical Phase 5 merge is
+`2d7cd61b8d4d399901ebce397d1c2b7111ae427c`. No automatic next research phase
+is authorized. The lifecycle must **STOP** here until a new user decision is
+made. Do not automatically add a portfolio phase, MTF, cost recalculation, new
+optimization, or session research.

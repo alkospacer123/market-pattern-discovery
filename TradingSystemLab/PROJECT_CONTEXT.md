@@ -17,7 +17,8 @@ that matrix.
 The current v2 five-stage single-system cycle is complete as a procedure.
 Phase 5 admitted 2025+ data once, with cold/FLAT state, and classified all four
 frozen studies (T2/M30, T2/H1, T3/M30, T3/H1) `BORDERLINE`. The canonical
-Phase 4 merge is `0b0027665fdcc0f847b6b9a10cb5928fcfd2d553`. No selection,
+Phase 4 merge is `0b0027665fdcc0f847b6b9a10cb5928fcfd2d553`; the canonical
+Phase 5 merge is `2d7cd61b8d4d399901ebce397d1c2b7111ae427c`. No selection,
 replacement, optimization, ranking, or portfolio construction followed.
 
 ## Canonical methodology authority
@@ -36,9 +37,11 @@ not control future methodology.
 The **methodological source** is the original H1 cycle and frozen H1 candidate
 provenance. The **current research expansion** is T2/T3 × Si/CNY/GD/BR/MIX/NG ×
 M30/H1: 2 strategies × 6 instruments × 2 timeframes = **24 Baseline runs** over
-the declared development interval 2020-01-01 through 2024-12-31. TRUE OOS is
-locked from 2025-01-01 onward. Expanding instruments, timeframes, and history is
-research coverage, not a methodological change, and does not restore the old
+the declared development interval 2020-01-01 through 2024-12-31. The TRUE OOS
+period from 2025-01-01 onward was kept untouched until the authorized Phase 5
+evaluation and is now consumed for these identities. Expanding instruments,
+timeframes, and history is research coverage, not a methodological change, and
+does not restore the old
 Si/CNY-only H1 universe. Actual source availability can begin later (the
 historical matrix records later starts for CNY and NG) and must be disclosed in
 run/data-quality artifacts.
@@ -103,27 +106,19 @@ an earlier verdict or use later diagnostics to retroactively select a candidate.
 
 ## Current v2 lifecycle state
 
-The accepted current cycle has completed **Phase 1 Baseline**, **Phase 2
-Optimization**, **Phase 3 Candidate Selection / Freeze**, **Phase 3
-Robustness**, and **Phase 4 Walk Forward** (complete as a procedure). The final artifact-only Phase 2 audit verified 82 bounded OAT
-configuration studies and classified T2/M30, T2/H1, T3/M30, and T3/H1 as
-`ROBUST_PLATEAU`. This is not a performance ranking and no strategy/timeframe is
-declared superior.
+**Baseline → Optimization → Robustness → Walk Forward → TRUE OOS** is complete
+as a procedure for T2/M30, T2/H1, T3/M30, and T3/H1.
 
-The immutable registry freezes T2/M30 `T2_M30_candidate_v2`, T2/H1
-`T2_H1_candidate_v2`, T3/M30 `T3_M30_candidate_v2`, and T3/H1
-`T3_H1_candidate_v2` before validation. The freeze is anchored at merge
-`ff0db54b35544086f4265c303b1018d57d3849e7`. Phase 3 Robustness consumed those
-identities unchanged and classified T2/M30 `ROBUST_READY`, T2/H1 `BORDERLINE`,
-T3/M30 `ROBUST_READY`, and T3/H1 `ROBUST_READY`. T2/H1 records the factual
-`INSTRUMENT_DEPENDENT` flag; no replacement was selected. Robustness is anchored
-at merge `d89d0f1f7ba3259e0f08e43a0832bd16f4d15f6b`. Phase 4 executed all four
-identities unchanged on the four expanding quarterly 2024 tests, retained C1
-only, and classified T2/M30, T2/H1, T3/M30, and T3/H1
-`WALK_FORWARD_BORDERLINE` without ranking, optimization, or replacement.
-**Phase 5 TRUE OOS** is the next permitted stage. TRUE OOS
-2025+ remains sealed and was not executed by Phase 4. Any parameter change
-requires an earlier research stage and a new identity.
+The immutable registry freezes one candidate per study. Robustness classified
+T2/M30 `ROBUST_READY`, T2/H1 `BORDERLINE`, T3/M30 `ROBUST_READY`, and T3/H1
+`ROBUST_READY`. All four Walk Forward outcomes are `WALK_FORWARD_BORDERLINE`.
+All four TRUE OOS outcomes are `BORDERLINE`. These outcomes are evidence, not a
+ranking.
+
+TRUE OOS data has now been consumed for these frozen identities. It may not be
+reused as untouched OOS after post-hoc parameter or candidate changes. Changing
+parameters now creates a new research identity requiring a new lifecycle. No
+portfolio selection or MTF decision has yet been made from the v2 results.
 
 ## Evaluation and execution contract
 
@@ -143,10 +138,9 @@ requires an earlier research stage and a new identity.
   Results must identify the input paths/ranges and record enough hashes to audit
   the admitted data.  The current v2 audit identifies missing source hashes as a
   defect, not permission to omit provenance.
-- Calendar year 2025 is locked **TRUE OOS**.  It must not be read during
-  ingestion, feature engineering, discovery, optimization, ranking, selection,
-  or candidate freeze.  TRUE OOS is accessed only by its preauthorized phase and
-  cannot be used to retune a failed or borderline system.
+- Calendar year 2025 was locked **TRUE OOS** through candidate freeze and was
+  read only by its preauthorized Phase 5 evaluation. It cannot now be treated
+  as untouched OOS or used to retune a failed or borderline system.
 - Target leakage, look-ahead, favorable-subset selection, omitted configured
   costs, and silent strategy changes are prohibited.  Validation reproduces the
   frozen strategy; a logic change creates a new identity and requires a new
