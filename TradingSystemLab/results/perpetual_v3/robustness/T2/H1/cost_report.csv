@@ -1,0 +1,2 @@
+version,scenario,trade_count,PF,expectancy,net_R,max_DD,recovery_factor,win_rate,max_winning_streak,max_losing_streak
+candidate,C1,156,2.39295957746,0.575052042961,89.708118702,-6.88205022139,13.0350863211,0.423076923077,5,7

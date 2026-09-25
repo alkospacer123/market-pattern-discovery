@@ -1,0 +1,54 @@
+{
+  "C1_only": true,
+  "bootstrap": {
+    "diagnostic_only": true,
+    "iterations": 10000,
+    "seed": 3302025
+  },
+  "candidate_count": 4,
+  "candidate_replacement_performed": false,
+  "candidate_selection_precedes_validation": true,
+  "classifications": {
+    "T2/H1": "ROBUST_READY",
+    "T2/M30": "ROBUST_READY",
+    "T3/H1": "ROBUST_READY",
+    "T3/M30": "ROBUST_READY"
+  },
+  "development_period": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "freeze_reference_commit": "f123f1468c6b5f1f0719154aba73d4635e6de0ea",
+  "generation": "v3_perpetual",
+  "instruments": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "lifecycle_phase": "Robustness",
+  "methodological_source": "original H1 Phase 3.3",
+  "normalized_research_tick": 0.001,
+  "optimization_performed": false,
+  "parameter_search_expanded": false,
+  "phase": "PHASE_3_ROBUSTNESS",
+  "phase2_reference_commit": "272eabd5a4261a18a763356964b82b4b5b5673ea",
+  "phase7_mtf_research": false,
+  "reproducibility_note": "A second full execution produced byte-identical pre-audit research artifacts.",
+  "second_complete_execution_compared": true,
+  "selection_locked_before_validation": true,
+  "status": "V3_PERPETUAL_PHASE_3_ROBUSTNESS_COMPLETE",
+  "strategies": [
+    "T2",
+    "T3"
+  ],
+  "timeframes": [
+    "M30",
+    "H1"
+  ],
+  "true_oos_blocked": true,
+  "true_oos_executed": false,
+  "true_oos_start": "2025-01-01",
+  "true_oos_status": "BLOCKED_NOT_READ_NOT_EXECUTED",
+  "walk_forward_executed": false
+}

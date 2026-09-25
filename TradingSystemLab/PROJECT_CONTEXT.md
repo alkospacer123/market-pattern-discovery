@@ -21,6 +21,14 @@ Phase 4 merge is `0b0027665fdcc0f847b6b9a10cb5928fcfd2d553`; the canonical
 Phase 5 merge is `2d7cd61b8d4d399901ebce397d1c2b7111ae427c`. No selection,
 replacement, optimization, ranking, or portfolio construction followed.
 
+## v3 perpetual generation status
+
+Phase 1 Baseline, Phase 2 Optimization, Candidate Freeze, and Phase 3
+Robustness are complete. The immutable T2/M30, T2/H1, T3/M30, and T3/H1
+candidates each classify `ROBUST_READY` under original H1 Phase 3.3. TRUE OOS
+from 2025-01-01 remains `BLOCKED_NOT_READ_NOT_EXECUTED`; Walk Forward has not
+been executed. The next permitted lifecycle action is Phase 4 Walk Forward.
+
 ## Canonical methodology authority
 
 **Every new timeframe must use the original H1 research cycle and frozen H1

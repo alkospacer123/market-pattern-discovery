@@ -1,0 +1,10 @@
+{
+  "classifications": {
+    "T2/H1": "ROBUST_READY",
+    "T2/M30": "ROBUST_READY",
+    "T3/H1": "ROBUST_READY",
+    "T3/M30": "ROBUST_READY"
+  },
+  "status": "PASS",
+  "studies": 4
+}
