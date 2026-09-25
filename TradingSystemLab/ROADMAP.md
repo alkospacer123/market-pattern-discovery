@@ -93,6 +93,15 @@ optimization, or session research.
   (`V3_PERPETUAL_PHASE_4_WALK_FORWARD_COMPLETE`). All studies have four valid
   folds. T2/M30, T2/H1, and T3/M30 are `WALK_FORWARD_BORDERLINE`; T3/H1 is
   `WALK_FORWARD_PASS`.
-- TRUE OOS >= 2025-01-01: `BLOCKED_NOT_READ_NOT_EXECUTED`; Phase 5 was not
+- Historical pre-Phase-5 checkpoint — TRUE OOS >= 2025-01-01: `BLOCKED_NOT_READ_NOT_EXECUTED`; Phase 5 was not
   executed.
 - Next permitted action: Phase 5 TRUE OOS only after a separate explicit task.
+
+## v3 perpetual lifecycle — COMPLETE
+
+The prescribed five-stage v3 lifecycle is **complete as a procedure**. Phase 1
+Baseline, Phase 2 Optimization, Candidate Freeze, Phase 3 Robustness, Phase 4
+Walk Forward, and Phase 5 TRUE OOS are COMPLETE. Fixed-order Phase 5 results are
+T2/M30 `BORDERLINE`, T2/H1 `BORDERLINE`, T3/M30 `PASS`, and T3/H1 `PASS`.
+No ranking or winner selection was performed, no portfolio phase is created,
+and no additional lifecycle phase is authorized by this closeout.

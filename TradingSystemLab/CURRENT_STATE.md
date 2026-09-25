@@ -30,7 +30,7 @@ T2/M30 `T2_M30_candidate_v3` / `T2-M30-608dc87d09f1`, T2/H1
 (`V3_PERPETUAL_PHASE_4_WALK_FORWARD_COMPLETE`): T2/M30, T2/H1, and T3/M30
 classify `WALK_FORWARD_BORDERLINE`; T3/H1 classifies `WALK_FORWARD_PASS`. Each
 study has four valid expanding-window quarterly folds. TRUE OOS >= 2025-01-01
-remains `BLOCKED_NOT_READ_NOT_EXECUTED`; Phase 5 was not executed. The next
+remains `BLOCKED_NOT_READ_NOT_EXECUTED`; Phase 5 had not yet been executed at that checkpoint. The next
 permitted action is Phase 5 TRUE OOS only after a separate explicit task.
 
 > Persistent handoff snapshot after the independently audited TradingSystemLab
@@ -153,7 +153,18 @@ No Optimization was rerun and this inventory is not a ranking.
 
 Frozen candidates are T2/M30 `T2_M30_candidate_v3`, T2/H1
 `T2_H1_candidate_v3`, T3/M30 `T3_M30_candidate_v3`, and T3/H1
-`T3_H1_candidate_v3`. TRUE OOS >= 2025-01-01 remains
+`T3_H1_candidate_v3`. At that historical checkpoint, TRUE OOS >= 2025-01-01 was
 `BLOCKED_NOT_READ_NOT_EXECUTED`. Robustness is **NOT EXECUTED**; the next
 permitted action is v3 Phase 3 Robustness. Candidate replacement or a second
 selection is forbidden.
+
+## v3 perpetual lifecycle closeout — Phase 5 TRUE OOS
+
+The v3 perpetual five-stage lifecycle is **complete as a procedure**: Phase 1
+Baseline, Phase 2 Optimization, Candidate Freeze, Phase 3 Robustness, Phase 4
+Walk Forward, and Phase 5 TRUE OOS are COMPLETE. The audited one-shot outcomes
+in fixed lifecycle order are T2/M30 `BORDERLINE`, T2/H1 `BORDERLINE`, T3/M30
+`PASS`, and T3/H1 `PASS`. Every evaluation began cold and `FLAT`, admitted zero
+Development rows, and used frozen candidates, parameters, strategy code, and C1.
+No optimization, ranking, replacement, recommendation, or portfolio phase was
+performed. Status: `V3_PERPETUAL_PHASE_5_TRUE_OOS_COMPLETE`.
