@@ -1,7 +1,7 @@
 # Current state — read first
 
 > Persistent handoff snapshot after the independently audited TradingSystemLab
-> v2 Phase 3 candidate freeze. Canonical provenance anchors are Phase 1 merge
+> v2 Phase 3 robustness execution. Canonical provenance anchors are Phase 1 merge
 > `2aae07a3d12907d1869eb603e6ac1a6fb8d851dd`, T2 Phase 2A merge
 > `a252f076a09495d3093854c8509b1551701ba2b4`, and T3 Phase 2B merge
 > `f8f28834db4bc016a995b55aed1ff7fd53a4a0e8`.
@@ -32,6 +32,13 @@ OOS until its preauthorized stage.
   candidate is immutable for each study: T2/M30 → `T2_M30_candidate_v2`, T2/H1
   → `T2_H1_candidate_v2`, T3/M30 → `T3_M30_candidate_v2`, and T3/H1 →
   `T3_H1_candidate_v2`. Historical H1 candidates were provenance only.
+- **Phase 3 Robustness: COMPLETE.** The original H1 Phase 3.3 methodology,
+  adapted only to the frozen v2 C1-only contract, classified T2/M30
+  `ROBUST_READY`, T2/H1 `BORDERLINE`, T3/M30 `ROBUST_READY`, and T3/H1
+  `ROBUST_READY`. T2/H1 retained its frozen identity and records
+  `INSTRUMENT_DEPENDENT`; it was not replaced.
+- The canonical candidate-freeze merge anchor is
+  `ff0db54b35544086f4265c303b1018d57d3849e7`.
 - The consolidation did not rerun Optimization and makes no claim of a second
   byte-identical Phase 2A/2B execution.
 
@@ -46,9 +53,9 @@ cycle retains `FROZEN_TICK_SIZE = 0.001` for every instrument.
 
 ## Next roadmap stage
 
-**Phase 3 Robustness execution** is the next permitted action. It must consume
-exactly `results/phase3_candidate_freeze/candidate_registry.json`. No Robustness
-has yet been executed, and TRUE OOS 2025+ remains sealed.
+**Phase 4 Walk Forward** is the next permitted action. The four robustness
+classifications are evidence for that stage, not permission to prune, replace,
+or reselect candidates. TRUE OOS 2025+ remains sealed.
 
 ## Forbidden next actions
 
