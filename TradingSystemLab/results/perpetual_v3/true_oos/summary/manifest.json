@@ -213,6 +213,7 @@
   "phase": "PHASE_5_TRUE_OOS",
   "procedural_status_after_audit": "V3_PERPETUAL_PHASE_5_TRUE_OOS_COMPLETE",
   "ranking": false,
+  "reproducibility_note": "Independent closeout produced a second full isolated Phase 5 execution and verified SHA-256 equality for every defined research artifact (50/50).",
   "second_complete_execution_compared": true,
   "start_state": "FLAT",
   "status": "V3_PERPETUAL_PHASE_5_TRUE_OOS_COMPLETE",

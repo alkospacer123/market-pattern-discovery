@@ -1,13 +1,16 @@
-"""Independent, read-only, fail-closed audit of committed v3 perpetual Phase 5 evidence.
+"""Independent, fail-closed audit and closeout of v3 perpetual Phase 5 evidence.
 
-This module deliberately does not import the Phase 5 runner.  Its calculations
-are a second implementation over committed CSV/JSON artifacts only.
+The semantic calculations are a second implementation over CSV/JSON artifacts
+and deliberately do not import the Phase 5 runner.  Only after those checks
+pass, closeout invokes that runner in a separate process and isolated directory.
 """
 from __future__ import annotations
 
 import hashlib
 import json
 import subprocess
+import sys
+import tempfile
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -22,7 +25,6 @@ STUDIES = (("T2", "M30"), ("T2", "H1"), ("T3", "M30"), ("T3", "H1"))
 INSTRUMENTS = ("USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF")
 BOOTSTRAP_ITERATIONS = 10_000
 BOOTSTRAP_SEED = 5_102_025
-PHASE5_MERGE = "d5aa616186c2750d5f0b0b9c60eddbf5d096c98f"
 STRATEGY_HASHES = {
     "T2": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
     "T3": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c",
@@ -74,7 +76,18 @@ def independent_summary(values: pd.Series) -> dict[str, Any]:
         "average_win": float(winners.mean()) if len(winners) else None,
         "average_loss": float(losers.mean()) if len(losers) else None,
         "recovery_factor": net / abs(drawdown) if drawdown else None,
-    }
+}
+
+
+RESEARCH_FILES = tuple(
+    f"{strategy}/{timeframe}/{filename}"
+    for strategy, timeframe in STUDIES
+    for filename in sorted(REQUIRED)
+) + ("summary/comparison.csv", "summary/Final_TRUE_OOS_Report.md")
+REPRODUCIBILITY_NOTE = (
+    "Independent closeout produced a second full isolated Phase 5 execution and "
+    "verified SHA-256 equality for every defined research artifact (50/50)."
+)
 
 
 def independent_bootstrap(values: pd.Series) -> dict[str, Any]:
@@ -139,8 +152,91 @@ def _documentation_checks() -> None:
         req("complete as a procedure" in text.lower(), f"INCOMPLETE_DOCUMENTATION:{path}")
 
 
-def audit(root: Path = OUTPUT_ROOT, *, check_git_trees: bool = True) -> dict[str, Any]:
-    """Audit artifacts without writing files, loading market data, or running a strategy."""
+def research_artifact_hashes(root: Path) -> dict[str, str]:
+    """Hash exactly the 50 deterministic, pre-audit Phase 5 research outputs."""
+    root = Path(root)
+    req(len(RESEARCH_FILES) == 50 and len(set(RESEARCH_FILES)) == 50,
+        "RESEARCH_ARTIFACT_DEFINITION_INVALID")
+    missing = [relative for relative in RESEARCH_FILES if not (root / relative).is_file()]
+    req(not missing, f"RESEARCH_ARTIFACT_MISSING:{','.join(missing)}")
+    return {relative: hashlib.sha256((root / relative).read_bytes()).hexdigest()
+            for relative in RESEARCH_FILES}
+
+
+def _approved_data_root(manifest: Mapping[str, Any]) -> Path:
+    roots = {Path(item["source_path"]).resolve().parents[1]
+             for timeframe in manifest["coverage"].values() for item in timeframe.values()}
+    req(len(roots) == 1, "MARKET_DATA_ROOT_INCONSISTENT")
+    return roots.pop()
+
+
+def _isolated_regeneration(canonical_root: Path, manifest: Mapping[str, Any]) -> dict[str, str]:
+    """Run the canonical generator out-of-process and compare its research tree."""
+    canonical = research_artifact_hashes(canonical_root)
+    with tempfile.TemporaryDirectory(prefix="perpetual-v3-phase5-closeout-") as temporary:
+        regenerated_root = Path(temporary) / "true_oos"
+        command = [sys.executable, "-m", "TradingSystemLab.true_oos.perpetual_v3_phase5",
+                   "--data-root", str(_approved_data_root(manifest)),
+                   "--output", str(regenerated_root)]
+        completed = subprocess.run(command, check=False, capture_output=True, text=True)
+        req(completed.returncode == 0,
+            f"SECOND_EXECUTION_REPRODUCIBILITY_FAILURE:runner:{completed.stderr.strip()}")
+        regenerated = research_artifact_hashes(regenerated_root)
+    req(canonical == regenerated, "SECOND_EXECUTION_REPRODUCIBILITY_FAILURE")
+    return canonical
+
+
+def _write_json(path: Path, payload: Mapping[str, Any]) -> None:
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n",
+                    encoding="utf-8")
+
+
+def _finalize(root: Path, manifest: dict[str, Any], classes: Mapping[str, str],
+              hashes: Mapping[str, str]) -> dict[str, Any]:
+    """Persist closeout evidence only after every semantic and hash check passed."""
+    complete = "V3_PERPETUAL_PHASE_5_TRUE_OOS_COMPLETE"
+    manifest.update({
+        "status": complete,
+        "procedural_status_after_audit": complete,
+        "audit_status": "V3_PERPETUAL_PHASE_5_TRUE_OOS_AUDIT_PASSED",
+        "second_complete_execution_compared": True,
+        "independently_regenerated_artifact_count": len(hashes),
+        "compared_artifact_sha256": dict(hashes),
+        "reproducibility_note": REPRODUCIBILITY_NOTE,
+    })
+    result = {
+        "status": "V3_PERPETUAL_PHASE_5_TRUE_OOS_AUDIT_PASSED",
+        "closeout_consistency": "PASS",
+        "classifications": dict(classes),
+        "development_rows_admitted": 0,
+        "cold_start": True,
+        "start_state": "FLAT",
+        "second_complete_execution_compared": True,
+        "independently_regenerated_artifact_count": len(hashes),
+        "compared_artifact_sha256": dict(hashes),
+        "reproducibility_note": REPRODUCIBILITY_NOTE,
+    }
+    report = """# v3 Perpetual Phase 5 TRUE OOS — Independent Audit
+
+**V3_PERPETUAL_PHASE_5_TRUE_OOS_AUDIT_PASSED**
+
+- Independent metric and classification reconciliation: **PASS**.
+- Isolated second full Phase 5 generation: **performed; 50/50 research artifacts SHA-256 matched**.
+- Development rows admitted: **0**; execution start: **cold / FLAT**.
+- Frozen candidates, parameters, and strategy sources: **unchanged**.
+- Classifications: **T2/M30 BORDERLINE; T2/H1 BORDERLINE; T3/M30 PASS; T3/H1 PASS**.
+- Protected Phase 1–4 and historical result trees: **unchanged**.
+- Closeout consistency: **PASS**.
+"""
+    _write_json(root / "summary/manifest.json", manifest)
+    _write_json(root / "audit_result.json", result)
+    (root / "Phase_5_TRUE_OOS_Audit_Report.md").write_text(report, encoding="utf-8")
+    return result
+
+
+def audit(root: Path = OUTPUT_ROOT, *, check_git_trees: bool = True,
+          finalize: bool = True) -> dict[str, Any]:
+    """Independently audit evidence and, by default, reproduce and finalize it."""
     root = Path(root)
     if check_git_trees:
         _git_tree_checks()
@@ -246,10 +342,14 @@ def audit(root: Path = OUTPUT_ROOT, *, check_git_trees: bool = True) -> dict[str
     expected_classes = {"T2/M30":"BORDERLINE","T2/H1":"BORDERLINE","T3/M30":"PASS","T3/H1":"PASS"}
     req(classes == expected_classes and manifest["classifications"] == expected_classes,
         "ROOT_CLASSIFICATIONS_INVALID")
-    hashes = {path: hashlib.sha256((root / path).read_bytes()).hexdigest()
-              for path in manifest["artifact_sha256"]}
+    hashes = research_artifact_hashes(root)
     req(hashes == manifest["artifact_sha256"], "ARTIFACT_HASH_INVALID")
-    return {"status": "V3_PERPETUAL_PHASE_5_TRUE_OOS_AUDIT_PASSED", "classifications": classes}
+    semantic_result = {"status": "V3_PERPETUAL_PHASE_5_TRUE_OOS_AUDIT_PASSED",
+                       "classifications": classes}
+    if not finalize:
+        return semantic_result
+    compared_hashes = _isolated_regeneration(root, manifest)
+    return _finalize(root, manifest, classes, compared_hashes)
 
 
 if __name__ == "__main__":
