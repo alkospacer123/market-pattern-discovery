@@ -1,7 +1,7 @@
 # Current state — read first
 
 > Persistent handoff snapshot after the independently audited TradingSystemLab
-> v2 Phase 3 robustness execution. Canonical provenance anchors are Phase 1 merge
+> v2 Phase 4 Walk Forward execution. Canonical provenance anchors are Phase 1 merge
 > `2aae07a3d12907d1869eb603e6ac1a6fb8d851dd`, T2 Phase 2A merge
 > `a252f076a09495d3093854c8509b1551701ba2b4`, and T3 Phase 2B merge
 > `f8f28834db4bc016a995b55aed1ff7fd53a4a0e8`.
@@ -39,6 +39,12 @@ OOS until its preauthorized stage.
   `INSTRUMENT_DEPENDENT`; it was not replaced.
 - The canonical candidate-freeze merge anchor is
   `ff0db54b35544086f4265c303b1018d57d3849e7`.
+- The canonical Phase 3 Robustness merge anchor is
+  `d89d0f1f7ba3259e0f08e43a0832bd16f4d15f6b`.
+- **Phase 4 Walk Forward: COMPLETE as a procedure.** All four immutable
+  candidates were executed independently on four expanding-window quarterly
+  tests in 2024, C1 only. T2/M30, T2/H1, T3/M30, and T3/H1 each received
+  `WALK_FORWARD_BORDERLINE`; no candidate was pruned or replaced.
 - The consolidation did not rerun Optimization and makes no claim of a second
   byte-identical Phase 2A/2B execution.
 
@@ -53,17 +59,18 @@ cycle retains `FROZEN_TICK_SIZE = 0.001` for every instrument.
 
 ## Next roadmap stage
 
-**Phase 4 Walk Forward** is the next permitted action. The four robustness
-classifications are evidence for that stage, not permission to prune, replace,
-or reselect candidates. TRUE OOS 2025+ remains sealed.
+**Phase 5 TRUE OOS** is the next permitted action for the same four recorded
+research identities. Phase 4 verdicts are evidence, not permission to prune,
+replace, or reselect candidates. TRUE OOS 2025+ remains sealed and Phase 5 was
+not executed in Phase 4.
 
 ## Forbidden next actions
 
 - Do not modify or replace a frozen candidate after observing Robustness. The
   parameters are immutable for Phase 3; any change requires returning to an
   earlier research stage under a new identity.
-- Do not execute Walk Forward, TRUE OOS, portfolio selection, or Phase 7 MTF
-  research out of sequence.
+- Do not execute TRUE OOS, portfolio selection, or Phase 7 MTF research out of
+  sequence.
 - Do not access 2025+ data during candidate selection, optimize or rank by PF,
   change the frozen strategies, replace the normalized research tick, or rewrite
   the accepted Phase 1/2 artifact trees.

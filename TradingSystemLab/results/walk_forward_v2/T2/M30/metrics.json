@@ -1,0 +1,31 @@
+{
+  "aggregate": {
+    "C1": {
+      "PF": 1.1360183365173933,
+      "expectancy": 0.06706748879791687,
+      "losing_streak": 8,
+      "max_drawdown": -13.570926455772806,
+      "net_R": 14.084172647562543,
+      "recovery_factor": 1.0378195396948313,
+      "trades": 210,
+      "win_rate": 0.4,
+      "winning_streak": 5
+    }
+  },
+  "best_fold_contribution": 1.0731928038605167,
+  "candidate_id": "T2_M30_candidate_v2",
+  "candidate_replacement": false,
+  "complete_folds": 4,
+  "execution_context": "none",
+  "frozen_parameter_hash": "7c89b4a215cd8b68f96de2fc0938c2b99e755158b919a1284dfc07c6c2547ac6",
+  "instrument_gate": false,
+  "optimization": false,
+  "parameters_frozen": true,
+  "phase2_configuration_id": "T2-M30-7c89b4a215cd",
+  "positive_complete_fold_share": 0.75,
+  "ranking": false,
+  "strategy": "T2",
+  "timeframe": "M30",
+  "true_oos_blocked": true,
+  "verdict": "WALK_FORWARD_BORDERLINE"
+}

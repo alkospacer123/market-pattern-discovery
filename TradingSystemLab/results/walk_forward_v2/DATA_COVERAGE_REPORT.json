@@ -1,0 +1,166 @@
+{
+  "status": "SUFFICIENT",
+  "timeframes": {
+    "H1": {
+      "BR": {
+        "actual_history_limitation": null,
+        "first_admitted_close": "2020-01-03T11:00:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 18811,
+        "source_file": "/workspace/market-pattern-data/futures_quarterly/BR/BR_H1.csv"
+      },
+      "CNY": {
+        "actual_history_limitation": "source begins after Development start",
+        "first_admitted_close": "2022-04-21T11:00:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 10122,
+        "source_file": "/workspace/market-pattern-data/futures_quarterly/CNY/CNY_H1.csv"
+      },
+      "GD": {
+        "actual_history_limitation": null,
+        "first_admitted_close": "2020-01-03T11:00:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 18606,
+        "source_file": "/workspace/market-pattern-data/futures_quarterly/GD/GD_H1.csv"
+      },
+      "MIX": {
+        "actual_history_limitation": null,
+        "first_admitted_close": "2020-01-03T11:00:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 18532,
+        "source_file": "/workspace/market-pattern-data/futures_quarterly/MIX/MIX_H1.csv"
+      },
+      "NG": {
+        "actual_history_limitation": "source begins after Development start",
+        "first_admitted_close": "2020-02-03T11:00:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 18427,
+        "source_file": "/workspace/market-pattern-data/futures_quarterly/NG/NG_H1.csv"
+      },
+      "Si": {
+        "actual_history_limitation": null,
+        "first_admitted_close": "2020-01-03T11:00:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 18631,
+        "source_file": "/workspace/market-pattern-data/futures_quarterly/Si/Si_H1.csv"
+      }
+    },
+    "M30": {
+      "BR": {
+        "actual_history_limitation": null,
+        "first_admitted_close": "2020-01-03T10:30:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 37269,
+        "source_file": "/workspace/market-pattern-data/futures_quarterly/BR/BR_M30.csv"
+      },
+      "CNY": {
+        "actual_history_limitation": "source begins after Development start",
+        "first_admitted_close": "2022-04-21T10:30:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 19890,
+        "source_file": "/workspace/market-pattern-data/futures_quarterly/CNY/CNY_M30.csv"
+      },
+      "GD": {
+        "actual_history_limitation": null,
+        "first_admitted_close": "2020-01-03T10:30:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 36865,
+        "source_file": "/workspace/market-pattern-data/futures_quarterly/GD/GD_M30.csv"
+      },
+      "MIX": {
+        "actual_history_limitation": null,
+        "first_admitted_close": "2020-01-03T10:30:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 36760,
+        "source_file": "/workspace/market-pattern-data/futures_quarterly/MIX/MIX_M30.csv"
+      },
+      "NG": {
+        "actual_history_limitation": "source begins after Development start",
+        "first_admitted_close": "2020-02-03T10:30:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 36373,
+        "source_file": "/workspace/market-pattern-data/futures_quarterly/NG/NG_M30.csv"
+      },
+      "Si": {
+        "actual_history_limitation": null,
+        "first_admitted_close": "2020-01-03T10:30:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 36910,
+        "source_file": "/workspace/market-pattern-data/futures_quarterly/Si/Si_M30.csv"
+      }
+    }
+  },
+  "true_oos_read": false
+}

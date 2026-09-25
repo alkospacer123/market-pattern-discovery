@@ -98,8 +98,8 @@ an earlier verdict or use later diagnostics to retroactively select a candidate.
 ## Current v2 lifecycle state
 
 The accepted current cycle has completed **Phase 1 Baseline**, **Phase 2
-Optimization**, **Phase 3 Candidate Selection / Freeze**, and **Phase 3
-Robustness**. The final artifact-only Phase 2 audit verified 82 bounded OAT
+Optimization**, **Phase 3 Candidate Selection / Freeze**, **Phase 3
+Robustness**, and **Phase 4 Walk Forward** (complete as a procedure). The final artifact-only Phase 2 audit verified 82 bounded OAT
 configuration studies and classified T2/M30, T2/H1, T3/M30, and T3/H1 as
 `ROBUST_PLATEAU`. This is not a performance ranking and no strategy/timeframe is
 declared superior.
@@ -110,10 +110,14 @@ The immutable registry freezes T2/M30 `T2_M30_candidate_v2`, T2/H1
 `ff0db54b35544086f4265c303b1018d57d3849e7`. Phase 3 Robustness consumed those
 identities unchanged and classified T2/M30 `ROBUST_READY`, T2/H1 `BORDERLINE`,
 T3/M30 `ROBUST_READY`, and T3/H1 `ROBUST_READY`. T2/H1 records the factual
-`INSTRUMENT_DEPENDENT` flag; no replacement was selected. **Phase 4 Walk
-Forward** is the next permitted stage. TRUE OOS 2025+ remains sealed, and no
-Walk Forward or TRUE OOS has been executed for these candidates. Any parameter
-change requires an earlier research stage and a new identity.
+`INSTRUMENT_DEPENDENT` flag; no replacement was selected. Robustness is anchored
+at merge `d89d0f1f7ba3259e0f08e43a0832bd16f4d15f6b`. Phase 4 executed all four
+identities unchanged on the four expanding quarterly 2024 tests, retained C1
+only, and classified T2/M30, T2/H1, T3/M30, and T3/H1
+`WALK_FORWARD_BORDERLINE` without ranking, optimization, or replacement.
+**Phase 5 TRUE OOS** is the next permitted stage. TRUE OOS
+2025+ remains sealed and was not executed by Phase 4. Any parameter change
+requires an earlier research stage and a new identity.
 
 ## Evaluation and execution contract
 
