@@ -77,10 +77,13 @@ optimization, or session research.
 
 ## v3 Perpetual independent generation
 
-- v1 and v2: complete; immutable historical evidence.
-- Scope: USDRUBF, CNYRUBF, GLDRUBF, IMOEXF × M30, H1 × T2, T3.
-- Phase 1 Baseline: **COMPLETE**, development 2023-01-01 through 2024-12-31,
-  retaining natural later instrument starts.
-- TRUE OOS >= 2025-01-01: **BLOCKED** at Phase 1.
-- Next permitted action: Phase 2 Optimization.
-- Lifecycle: Baseline → Optimization → Robustness → Walk Forward → TRUE OOS.
+- Phase 1 Baseline: **COMPLETE**.
+- Phase 2A T2: **COMPLETE**; M30/H1 `ROBUST_PLATEAU` counts are 3/4.
+- Phase 2B T3: **COMPLETE**; M30/H1 `ROBUST_PLATEAU` counts are 9/9.
+- Phase 2 overall: `V3_PERPETUAL_PHASE_2_OPTIMIZATION_COMPLETE`; 82 bounded
+  OAT configurations and 25 robust-plateau configurations were independently
+  consolidated without rerunning Optimization.
+- TRUE OOS >= 2025-01-01: `BLOCKED_NOT_READ_NOT_EXECUTED`. No candidate has
+  been selected and Robustness has not been executed.
+- Next permitted action: procedural v3 candidate identity fixation/freeze as
+  preparation for Robustness, strictly according to original H1 methodology.
