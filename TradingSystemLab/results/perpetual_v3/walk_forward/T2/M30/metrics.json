@@ -1,0 +1,47 @@
+{
+  "aggregate": {
+    "C1": {
+      "PF": 1.7074129968565543,
+      "expectancy": 0.31812238662977244,
+      "losing_streak": 8,
+      "max_drawdown": -7.448901409603776,
+      "net_R": 61.397620619546075,
+      "recovery_factor": 8.242506813204278,
+      "trades": 193,
+      "win_rate": 0.38341968911917096,
+      "winning_streak": 4
+    }
+  },
+  "best_fold_contribution": 0.5084881971838785,
+  "candidate_id": "T2_M30_candidate_v3",
+  "candidate_replacement": false,
+  "complete_folds": 4,
+  "execution_context": "none",
+  "frozen_parameter_hash": "608dc87d09f10aa0e03026ebb525f6b8ec865060c7890cee08fa0c7ed14cf86b",
+  "full_execution_parameters": {
+    "adx_period": 14,
+    "adx_threshold": 20.0,
+    "atr_period": 14,
+    "atr_regime_window": 20,
+    "confirmation_window": 3,
+    "ema_fast": 20,
+    "ema_slow": 200,
+    "ema_trend": 50,
+    "impulse_distance_atr": 0.5,
+    "impulse_lookback": 10,
+    "max_initial_stop_atr": 2.5,
+    "stop_buffer_atr": 0.1,
+    "trailing_atr": 3.0
+  },
+  "instrument_gate": false,
+  "optimization": false,
+  "parameters_frozen": true,
+  "phase2_configuration_id": "T2-M30-608dc87d09f1",
+  "positive_complete_fold_share": 1.0,
+  "ranking": false,
+  "strategy": "T2",
+  "strategy_source_hash": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+  "timeframe": "M30",
+  "true_oos_blocked": true,
+  "verdict": "WALK_FORWARD_BORDERLINE"
+}
