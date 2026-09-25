@@ -1,0 +1,63 @@
+{
+  "candidate_id": "T2_M30_candidate_v3",
+  "candidate_parameter_hash": "608dc87d09f10aa0e03026ebb525f6b8ec865060c7890cee08fa0c7ed14cf86b",
+  "candidate_parameters": {
+    "adx_threshold": 20.0,
+    "confirmation_window": 3,
+    "ema_fast": 20,
+    "ema_slow": 200,
+    "ema_trend": 50,
+    "impulse_distance_atr": 0.5,
+    "max_initial_stop_atr": 2.5,
+    "trailing_atr": 3.0
+  },
+  "candidate_registry_path": "TradingSystemLab/results/perpetual_v3/phase3_candidate_freeze/candidate_registry.json",
+  "candidate_registry_sha256": "e134e37764ef02288a6788c6b81134261a48d38b5be4d347e81266795af08f7f",
+  "candidate_replacement_executed": false,
+  "classification": "ROBUST_READY",
+  "cost_models": [
+    "C1"
+  ],
+  "development_period": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "diagnostic_flags": [],
+  "execution_context": "none",
+  "freeze_reference_commit": "f123f1468c6b5f1f0719154aba73d4635e6de0ea",
+  "frozen_strategy_source_hash": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+  "full_execution_parameters": {
+    "adx_period": 14,
+    "adx_threshold": 20.0,
+    "atr_period": 14,
+    "atr_regime_window": 20,
+    "confirmation_window": 3,
+    "ema_fast": 20,
+    "ema_slow": 200,
+    "ema_trend": 50,
+    "impulse_distance_atr": 0.5,
+    "impulse_lookback": 10,
+    "max_initial_stop_atr": 2.5,
+    "stop_buffer_atr": 0.1,
+    "trailing_atr": 3.0
+  },
+  "generation": "v3_perpetual",
+  "lifecycle_phase": "Robustness",
+  "methodological_source": "original H1 Phase 3.3",
+  "normalized_research_tick": 0.001,
+  "optimization_executed": false,
+  "parameter_search_executed": false,
+  "phase": "PHASE_3_ROBUSTNESS",
+  "phase2_configuration_id": "T2-M30-608dc87d09f1",
+  "phase2_reference_commit": "272eabd5a4261a18a763356964b82b4b5b5673ea",
+  "phase7_mtf_research": false,
+  "selection_locked_before_validation": true,
+  "severe_concentration": false,
+  "strategy": "T2",
+  "timeframe": "M30",
+  "true_oos_blocked": true,
+  "true_oos_executed": false,
+  "true_oos_start": "2025-01-01",
+  "true_oos_status": "BLOCKED_NOT_READ_NOT_EXECUTED",
+  "walk_forward_executed": false
+}

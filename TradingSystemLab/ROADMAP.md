@@ -86,6 +86,9 @@ optimization, or session research.
 - Candidate Freeze: **COMPLETE**. T2/M30 `T2_M30_candidate_v3`, T2/H1
   `T2_H1_candidate_v3`, T3/M30 `T3_M30_candidate_v3`, and T3/H1
   `T3_H1_candidate_v3` are immutable.
-- TRUE OOS >= 2025-01-01: `BLOCKED_NOT_READ_NOT_EXECUTED`. Robustness has not
+- Phase 3 Robustness: **COMPLETE** (`V3_PERPETUAL_PHASE_3_ROBUSTNESS_COMPLETE`).
+  T2/M30, T2/H1, T3/M30, and T3/H1 each classify `ROBUST_READY`; this is not a
+  ranking or candidate replacement.
+- TRUE OOS >= 2025-01-01: `BLOCKED_NOT_READ_NOT_EXECUTED`. Walk Forward has not
   been executed.
-- Next permitted action: v3 Phase 3 Robustness using the exact frozen registry.
+- Next permitted action: v3 Phase 4 Walk Forward under the original H1 lifecycle.
