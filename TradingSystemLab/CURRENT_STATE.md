@@ -1,5 +1,16 @@
 # Current state — read first
 
+## v3 Perpetual Phase 1 audit closeout
+
+The immutable v3 Perpetual Phase 1 result artifacts remain unchanged and Phase
+1 remains `V3_PERPETUAL_PHASE_1_BASELINE_COMPLETE`.  Its canonical merge is
+`f8ee11841eedb11cb6ec98debc74ad8bc8c0c8a9`.  The implementation-independent
+audit was hardened and passes all 16 ledgers (1,124 trades), eight source data
+files, report reconciliations, and causal-context checks.  TRUE OOS 2025+
+remains `BLOCKED_NOT_READ_NOT_EXECUTED`; the next permitted v3 action remains
+Phase 2 Optimization after this audit closeout is merged and independently
+verified.  This closeout is not a new research phase.
+
 > Persistent handoff snapshot after the independently audited TradingSystemLab
 > v2 Phase 5 TRUE OOS execution. Canonical provenance anchors are Phase 1 merge
 > `2aae07a3d12907d1869eb603e6ac1a6fb8d851dd`, T2 Phase 2A merge
