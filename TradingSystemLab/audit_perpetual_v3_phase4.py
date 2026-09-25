@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 from typing import Any
 
 import numpy as np
@@ -18,11 +19,32 @@ from TradingSystemLab.walk_forward.perpetual_v3_phase4 import (
     EXPECTED_IDS, FREEZE_REFERENCE_COMMIT, PHASE2_REFERENCE_COMMIT, INSTRUMENTS, OUTPUT_ROOT,
     REGISTRY_PATH, ROBUSTNESS, ROBUSTNESS_REFERENCE_COMMIT, ROBUSTNESS_ROOT,
     SCHEDULE, STUDIES, classify,
+    DATA_ROOT, run,
 )
 
 REQUIRED = {"folds.csv", "trades.csv", "train_test_decay.csv", "instrument_report.csv",
             "direction_report.csv", "year_report.csv", "concentration.csv",
             "leave_one_fold_out.csv", "mae_mfe.csv", "metrics.json", "manifest.json", "final_report.md"}
+REPRODUCIBILITY_NOTE = (
+    "The independent audit generated Phase 4 a second time in an isolated directory and "
+    "verified identical SHA-256 hashes for every defined research artifact."
+)
+
+
+def research_artifact_hashes(root: Path) -> dict[str, str]:
+    """Hash only pre-audit research evidence, never audit-mutated closeout files."""
+    relative = [Path("DATA_COVERAGE_REPORT.json"), Path("summary/comparison.csv")]
+    relative.extend(Path(strategy) / timeframe / name
+                    for strategy, timeframe in STUDIES for name in sorted(REQUIRED))
+    return {path.as_posix(): hashlib.sha256((root / path).read_bytes()).hexdigest()
+            for path in relative}
+
+
+def _finalize_report(path: Path, status: str) -> None:
+    text = path.read_text(encoding="utf-8").rstrip()
+    marker = text.rsplit("\n", 1)[-1]
+    _require(marker in {"PENDING_AUDIT", status}, f"REPORT_STATUS_INVALID:{path}")
+    path.write_text(text[:-len(marker)] + status + "\n", encoding="utf-8")
 
 
 def _require(value: bool, message: str) -> None:
@@ -45,7 +67,7 @@ def _same(actual: Any, expected: Any, label: str) -> None:
     _require(_close(actual, expected), f"RECONCILIATION_FAILURE:{label}:{actual}:{expected}")
 
 
-def audit(root: Path = OUTPUT_ROOT) -> dict[str, Any]:
+def audit(root: Path = OUTPUT_ROOT, data_root: Path = DATA_ROOT) -> dict[str, Any]:
     registry_raw = REGISTRY_PATH.read_bytes(); registry = json.loads(registry_raw)
     candidates = registry["candidates"]
     _require(registry.get("immutable") is True and len(candidates) == 4, "FREEZE_REGISTRY_INVALID")
@@ -134,22 +156,32 @@ def audit(root: Path = OUTPUT_ROOT) -> dict[str, Any]:
     status = "V3_PERPETUAL_PHASE_4_WALK_FORWARD_COMPLETE"
     _require(manifest["status"] in {"PENDING_AUDIT", status}, "ROOT_STATUS_INVALID")
     _require(manifest["procedural_status_after_audit"] == status, "PROCEDURAL_STATUS_INVALID")
-    if manifest["status"] == "PENDING_AUDIT":
-        manifest["status"] = status
-        (root / "summary/manifest.json").write_text(
-            json.dumps(manifest, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8")
-        (root / "validation_manifest.json").write_text(
-            json.dumps(manifest, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8")
-        report = root / "summary/Final_Walk_Forward_Report.md"
-        text = report.read_text(encoding="utf-8")
-        _require(text.rstrip().endswith("PENDING_AUDIT"), "ROOT_REPORT_PENDING_MARKER_MISSING")
-        report.write_text(text.rstrip()[:-len("PENDING_AUDIT")] + status + "\n", encoding="utf-8")
+    canonical_hashes = research_artifact_hashes(root)
+    with tempfile.TemporaryDirectory(prefix="phase4-reproduction-") as directory:
+        reproduction = Path(directory) / "walk_forward"
+        run(data_root=data_root, output=reproduction)
+        reproduced_hashes = research_artifact_hashes(reproduction)
+    _require(canonical_hashes == reproduced_hashes, "SECOND_EXECUTION_REPRODUCIBILITY_FAILURE")
+    manifest["status"] = status
+    manifest["second_complete_execution_compared"] = True
+    manifest["reproducibility_note"] = REPRODUCIBILITY_NOTE
+    for path in (root / "summary/manifest.json", root / "validation_manifest.json"):
+        path.write_text(json.dumps(manifest, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8")
+    for path in (root / "Final_Walk_Forward_Report.md",
+                 root / "summary/Final_Walk_Forward_Report.md"):
+        _finalize_report(path, status)
     result = {"status": "V3_PERPETUAL_PHASE_4_WALK_FORWARD_AUDIT_PASSED", "verdicts": verdicts,
-              "checks": 24, "true_oos_status": "BLOCKED_NOT_READ_NOT_EXECUTED"}
+              "checks": 26, "closeout_consistency": "PASS",
+              "reproducibility_artifact_count": len(canonical_hashes),
+              "reproducibility_hashes": canonical_hashes,
+              "true_oos_status": "BLOCKED_NOT_READ_NOT_EXECUTED"}
     (root / "audit_result.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (root / "Phase_4_Walk_Forward_Audit_Report.md").write_text(
-        "# v3 Perpetual Phase 4 Independent Audit\n\n**PASS** — all 24 fail-closed checks reconciled.\n\n"
-        "Frozen candidates and parameters were unchanged; forward-only C1 ledgers reconcile; "
+        "# v3 Perpetual Phase 4 Independent Audit\n\n**PASS** — all 26 fail-closed checks reconciled.\n\n"
+        "A second generation in an isolated temporary directory reproduced all defined research "
+        f"artifacts ({len(canonical_hashes)} SHA-256 comparisons). Both final reports and manifests "
+        "were synchronized to the completed lifecycle state. Frozen candidates and parameters "
+        "were unchanged; forward-only C1 ledgers reconcile; "
         "TRUE OOS remained BLOCKED_NOT_READ_NOT_EXECUTED.\n", encoding="utf-8")
     return result
 

@@ -6,11 +6,12 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from TradingSystemLab.audit_perpetual_v3_phase4 import audit
+from TradingSystemLab.audit_perpetual_v3_phase4 import audit, research_artifact_hashes
 from TradingSystemLab.robustness.perpetual_v3_phase3 import load_frozen_registry
 from TradingSystemLab.walk_forward.perpetual_v3_phase4 import (
     EXPECTED_IDS, OUTPUT_ROOT, REGISTRY_PATH, SCHEDULE, STUDIES, classify,
     full_parameters, _verify_before_data,
+    run,
 )
 
 
@@ -61,4 +62,40 @@ def test_committed_cost_context_oos_and_forward_only_contract():
         if strategy=="T3": assert "four completed non-overlapping" in manifest["t3_execution_context"]
 
 def test_independent_audit_reconciles_all_artifacts():
-    assert audit()["status"] == "V3_PERPETUAL_PHASE_4_WALK_FORWARD_AUDIT_PASSED"
+    result = audit()
+    assert result["status"] == "V3_PERPETUAL_PHASE_4_WALK_FORWARD_AUDIT_PASSED"
+    assert result["closeout_consistency"] == "PASS"
+
+
+def test_two_isolated_generations_and_closeout_are_reproducible(tmp_path):
+    first, second = tmp_path / "first", tmp_path / "second"
+    run(output=first)
+    first_hashes = research_artifact_hashes(first)
+    run(output=second)
+    assert first_hashes == research_artifact_hashes(second)
+    audit(first)
+    manifests = [json.loads((first / name).read_text()) for name in
+                 ("summary/manifest.json", "validation_manifest.json")]
+    assert manifests[0] == manifests[1]
+    assert manifests[0]["status"] == "V3_PERPETUAL_PHASE_4_WALK_FORWARD_COMPLETE"
+    assert manifests[0]["second_complete_execution_compared"] is True
+    assert manifests[0]["reproducibility_note"] == manifests[1]["reproducibility_note"]
+    for report in (first / "Final_Walk_Forward_Report.md",
+                   first / "summary/Final_Walk_Forward_Report.md"):
+        assert report.read_text().rstrip().endswith("V3_PERPETUAL_PHASE_4_WALK_FORWARD_COMPLETE")
+
+
+def test_canonical_metrics_and_classifications_do_not_drift():
+    expected = {
+        ("T2", "M30"): (193, 1.70741299686, .31812238663, 61.3976206195, -7.4489014096, 8.2425068132, "WALK_FORWARD_BORDERLINE"),
+        ("T2", "H1"): (85, 2.41850664449, .568312563729, 48.306567917, -7.37014448231, 6.55435833489, "WALK_FORWARD_BORDERLINE"),
+        ("T3", "M30"): (171, 1.60064574312, .272899850925, 46.6658745082, -18.3781479418, 2.53920442124, "WALK_FORWARD_BORDERLINE"),
+        ("T3", "H1"): (66, 3.29825125816, .580199228678, 38.2931490927, -2.33918741216, 16.3702783683, "WALK_FORWARD_PASS"),
+    }
+    for study, values in expected.items():
+        metrics = json.loads((OUTPUT_ROOT / study[0] / study[1] / "metrics.json").read_text())
+        aggregate = metrics["aggregate"]["C1"]
+        assert aggregate["trades"] == values[0]
+        assert tuple(aggregate[key] for key in
+                     ("PF", "expectancy", "net_R", "max_drawdown", "recovery_factor")) == pytest.approx(values[1:6], abs=1e-9)
+        assert metrics["verdict"] == values[6]
