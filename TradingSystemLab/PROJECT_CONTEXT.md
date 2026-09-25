@@ -14,6 +14,12 @@ The current corrected Baseline uses only the trend-engine T2 and T3 strategies;
 the existence of range implementations or artifacts does not make them part of
 that matrix.
 
+The current v2 five-stage single-system cycle is complete as a procedure.
+Phase 5 admitted 2025+ data once, with cold/FLAT state, and classified all four
+frozen studies (T2/M30, T2/H1, T3/M30, T3/H1) `BORDERLINE`. The canonical
+Phase 4 merge is `0b0027665fdcc0f847b6b9a10cb5928fcfd2d553`. No selection,
+replacement, optimization, ranking, or portfolio construction followed.
+
 ## Canonical methodology authority
 
 **Every new timeframe must use the original H1 research cycle and frozen H1

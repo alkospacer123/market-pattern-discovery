@@ -1,0 +1,207 @@
+{
+  "C1_only": true,
+  "artifact_sha256": {
+    "T2/H1/bootstrap_report.csv": "fe091ffcc6f9673899b64e93b7c8c7b91e73d835ae6506490be0d7047ed35a41",
+    "T2/H1/concentration_report.csv": "3a858fbf593b5826019fd08804523774566fc8038fc7809b18fe59fb08be11fd",
+    "T2/H1/direction_report.csv": "a2202085936e00cb934d63c099ae2ef7e986ade6d3dd3dff939a5ec51e5f564a",
+    "T2/H1/final_report.md": "ad90415d6830a3cdba242b602b41d652ee8003f0590774a96a80f748e90aecd6",
+    "T2/H1/instrument_report.csv": "7cd80469cc59484b908e269bbb5e7906ddd06ab674b349b780be326e3da58898",
+    "T2/H1/mae_mfe_report.csv": "dba325a71c959212f2ac9656e7324d66f9196748cd72e94295b1a47ade751e10",
+    "T2/H1/manifest.json": "81d80e7bcd76b35481f826433552aec7dcc87d0aecb20f77233eb1481d30b81c",
+    "T2/H1/metrics.json": "b1300efbc5ed8fc50441035f9e6301d0dc9e0611075ae54c2771caecfb433d6d",
+    "T2/H1/quarterly_report.csv": "590c33413450856a20bc6914249123a8958110ec0882ab7c10c4aa56cc9fdc1d",
+    "T2/H1/trades.csv": "6ae4da3b991305aad14f3c68a6d37f297a623a95c863a54d0be129f06c6ebbb6",
+    "T2/H1/yearly_report.csv": "2dcf54758eaa828e5e78dd599e447a37066a03cbec48fae2a7c929ae5d5ab0a1",
+    "T2/M30/bootstrap_report.csv": "79ba03e19c8c253a4654f189f129e0d20cc8b09366d950b5b62cd04253387543",
+    "T2/M30/concentration_report.csv": "50129a38de8741e7546f4b25355c080d686e6ad5e47c6c91b65ea773699fa838",
+    "T2/M30/direction_report.csv": "bc389e4637e386ba641d7767e9b60889cdd01f9d58942e10253a208a57c5f347",
+    "T2/M30/final_report.md": "82ed925b67991494e8d1e55bc81b576212214a6b93642874cf9680b0cca80a48",
+    "T2/M30/instrument_report.csv": "3d3fb0857e45f13e2c902170e1eeeb87fc04ca2e64cc3de901683435f959cb35",
+    "T2/M30/mae_mfe_report.csv": "f01ce2efb12cd2aa719c86798cb0f21f73eb8504bbf37333736fa22f7a25b2f9",
+    "T2/M30/manifest.json": "5ecc30ea504bb45c7050d578b009f03f7d273074577a01d429413e1911a2aed1",
+    "T2/M30/metrics.json": "770f9c70d17d1018ca4aa949294ac1af6216c7de6bde91b1b2b194130255d30a",
+    "T2/M30/quarterly_report.csv": "2ff2443d06611f384b2c00b518b60614200d76aa87dc1813d2dff70d3863a9da",
+    "T2/M30/trades.csv": "8e1f7b06b35ffa734377b856d2d67cfb9f59b59d6e79d203aa4ca9a36a6207fb",
+    "T2/M30/yearly_report.csv": "7ee6dcaf7160a59819e61de3b9a920c8c370305654ff0f4d7f4456c2077ca95e",
+    "T3/H1/bootstrap_report.csv": "53219ba3c651309ead89f3fd668968eda5b68cffb8e5b67b1a3909bc7457367e",
+    "T3/H1/concentration_report.csv": "f8edd6c969d7ab1a4e4f1f1f82fca6cf146e174eac2cd43b59636f9b3f30bce1",
+    "T3/H1/direction_report.csv": "187a61bf9f7bfb46771b5ca08bb47a975bf29af8135518c8b4ce9e8018f7660c",
+    "T3/H1/final_report.md": "749b84f046333c821d1f164f6b996b6d584863ed792a8cd2dc8bd7e489562c5e",
+    "T3/H1/instrument_report.csv": "093b55442a149c1d439b49825ec88257ba76c70fe5cbc6cd8dcc943285d3fee8",
+    "T3/H1/mae_mfe_report.csv": "3e7a715708085d68333ec3c36d8cabc914a74c2fa150f47c2a8872b96d0fe193",
+    "T3/H1/manifest.json": "59614a29983606e1f2cfad0f373fb062f70d7c47ccb07340a0feeaadc56f305c",
+    "T3/H1/metrics.json": "7da626353458eae7672e1e497e04d45cae33a4c41a95fed036b819018ae10d9b",
+    "T3/H1/quarterly_report.csv": "44b6aa2b34ac6b4ac8933732e629562bbd1f4ed676278a6dd629dcf5227be1c2",
+    "T3/H1/trades.csv": "8aba877adb218dce4cda9be7bc2bdb07b6a760f3e0a341880db250f23c2e076c",
+    "T3/H1/yearly_report.csv": "8e4b82c58633ba55574ef5f1417ff09db962e438e669165ecd8c842b78e84433",
+    "T3/M30/bootstrap_report.csv": "4bd8e53090e6fbcb6e8fd9d18fdd605765669b8ed6622423d40855face2ee011",
+    "T3/M30/concentration_report.csv": "1148f8e7dd455abcfeb24fa8976aa3aef9de4ec1fad91bab45ff71187e6456d4",
+    "T3/M30/direction_report.csv": "5dc2be4fd3c6ad80df916c30b4ea6b01bcd00023dccbe77a036c94f7bf2299f1",
+    "T3/M30/final_report.md": "5bdae22428899069b529a214be922b03b46270365cee9037855b775f38c7fa5c",
+    "T3/M30/instrument_report.csv": "d988967bcdaf290e9cb4e457dff84f0e62ea6c52e84891f58d8f9ed954d41571",
+    "T3/M30/mae_mfe_report.csv": "6430f7c784e61f4c2d1575497c39fd39872c6be17500f2f306610025b6e1186f",
+    "T3/M30/manifest.json": "2b90e85481b7b400537e4d3553189e75ff4297a2ec549b97347fbb32648242ec",
+    "T3/M30/metrics.json": "ac136c8f756cf74e921f337ce1bf6e357e33cd0fa44b1bedc2f640e761492496",
+    "T3/M30/quarterly_report.csv": "87551b2514102dec8c32ec4f379cc9600dc8ff4774efa43fa0c0fecf52b80e40",
+    "T3/M30/trades.csv": "d09387234ed8b6836387f7f0b36f2f268c68df939761feb57692f30c75716029",
+    "T3/M30/yearly_report.csv": "b32a56962bd6b16cf69149f3162b6d9ff1d76845f2b5cf91c3960659973914a0",
+    "summary/Final_TRUE_OOS_Report.md": "5ee3f3fc7d8715b845b3280129f32ea0539e0c4edeeec260eeb4c5c674d40eef",
+    "summary/comparison.csv": "00dc876862467409d733aa71d35277ee12bc76b81edbfc43ad2351289067f5a5"
+  },
+  "bootstrap": {
+    "diagnostic_only": true,
+    "iterations": 10000,
+    "seed": 5102025
+  },
+  "candidate_count": 4,
+  "candidate_ids": [
+    "T2_M30_candidate_v2",
+    "T2_H1_candidate_v2",
+    "T3_M30_candidate_v2",
+    "T3_H1_candidate_v2"
+  ],
+  "candidate_registry_sha256": "9afc08573222439c2e6289c288b0f0fbfd04116f8638df01e4bf6127141bb349",
+  "candidate_replacement": false,
+  "classifications": {
+    "T2/H1": "BORDERLINE",
+    "T2/M30": "BORDERLINE",
+    "T3/H1": "BORDERLINE",
+    "T3/M30": "BORDERLINE"
+  },
+  "cold_start": true,
+  "coverage": {
+    "H1": {
+      "BR": {
+        "admitted_frame_sha256": "ce8e729015013a0903f9f27887c046e828a35ace1bd0f988c99430c981bb6441",
+        "admitted_oos_rows": 7502,
+        "development_rows_admitted": 0,
+        "first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+        "last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+        "source_path": "/workspace/market-pattern-data/futures_quarterly/BR/BR_H1.csv"
+      },
+      "CNY": {
+        "admitted_frame_sha256": "dadf61ca9751bbf1166775d0dad42adb3ba05ebb3e3237b47337599b868f567e",
+        "admitted_oos_rows": 7098,
+        "development_rows_admitted": 0,
+        "first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+        "last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+        "source_path": "/workspace/market-pattern-data/futures_quarterly/CNY/CNY_H1.csv"
+      },
+      "GD": {
+        "admitted_frame_sha256": "bb97ebce3c74762f07932030bd2c7d45777f38be039d723d22af5bdfa32c9ddc",
+        "admitted_oos_rows": 7792,
+        "development_rows_admitted": 0,
+        "first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+        "last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+        "source_path": "/workspace/market-pattern-data/futures_quarterly/GD/GD_H1.csv"
+      },
+      "MIX": {
+        "admitted_frame_sha256": "c58952dc2dcb5bdcad7a79c8b6bad42bac0fd293720a0efa4a6d11f13255f624",
+        "admitted_oos_rows": 7813,
+        "development_rows_admitted": 0,
+        "first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+        "last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+        "source_path": "/workspace/market-pattern-data/futures_quarterly/MIX/MIX_H1.csv"
+      },
+      "NG": {
+        "admitted_frame_sha256": "6f2a8966020b4857c16570e762ce9ec8bcf7ab4f75689746c36e256544f27cd5",
+        "admitted_oos_rows": 7852,
+        "development_rows_admitted": 0,
+        "first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+        "last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+        "source_path": "/workspace/market-pattern-data/futures_quarterly/NG/NG_H1.csv"
+      },
+      "Si": {
+        "admitted_frame_sha256": "6b05b7c82d82f31e93d22050e4358856e362b75caf8623fe5423921b978590c8",
+        "admitted_oos_rows": 7064,
+        "development_rows_admitted": 0,
+        "first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+        "last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+        "source_path": "/workspace/market-pattern-data/futures_quarterly/Si/Si_H1.csv"
+      }
+    },
+    "M30": {
+      "BR": {
+        "admitted_frame_sha256": "41a17a9f8a1e8d7bb0b94dfd0b636618d6c93b76027ac02a2192419c5454d03b",
+        "admitted_oos_rows": 14516,
+        "development_rows_admitted": 0,
+        "first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+        "last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+        "source_path": "/workspace/market-pattern-data/futures_quarterly/BR/BR_M30.csv"
+      },
+      "CNY": {
+        "admitted_frame_sha256": "b6c30443c0644bf07f1e129fe5f271ad4c09d74279e7711485dabb4ef14aa012",
+        "admitted_oos_rows": 13755,
+        "development_rows_admitted": 0,
+        "first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+        "last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+        "source_path": "/workspace/market-pattern-data/futures_quarterly/CNY/CNY_M30.csv"
+      },
+      "GD": {
+        "admitted_frame_sha256": "b1d287d9e489abdcf1c85ebe21a0454a08a592f8fce3792d042daf818cc84478",
+        "admitted_oos_rows": 15077,
+        "development_rows_admitted": 0,
+        "first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+        "last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+        "source_path": "/workspace/market-pattern-data/futures_quarterly/GD/GD_M30.csv"
+      },
+      "MIX": {
+        "admitted_frame_sha256": "9a82230e6611f5a8f42f748c390e0c9195b214015b621f027e3a69a24191b392",
+        "admitted_oos_rows": 15125,
+        "development_rows_admitted": 0,
+        "first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+        "last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+        "source_path": "/workspace/market-pattern-data/futures_quarterly/MIX/MIX_M30.csv"
+      },
+      "NG": {
+        "admitted_frame_sha256": "97918e9f07e89b9de67060f0449bf240d633b5ede1bb7aa3883f3928fa073a4d",
+        "admitted_oos_rows": 15194,
+        "development_rows_admitted": 0,
+        "first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+        "last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+        "source_path": "/workspace/market-pattern-data/futures_quarterly/NG/NG_M30.csv"
+      },
+      "Si": {
+        "admitted_frame_sha256": "a79d2a6939149fac639cf6c52026a6ef24287dfcc4a49b82d3053a86aebf9c13",
+        "admitted_oos_rows": 13691,
+        "development_rows_admitted": 0,
+        "first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+        "last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+        "source_path": "/workspace/market-pattern-data/futures_quarterly/Si/Si_M30.csv"
+      }
+    }
+  },
+  "deterministic": true,
+  "development_rows_admitted": 0,
+  "instruments": [
+    "Si",
+    "CNY",
+    "GD",
+    "BR",
+    "MIX",
+    "NG"
+  ],
+  "methodological_source": "original H1 Phase 5",
+  "normalized_research_tick": 0.001,
+  "optimization": false,
+  "parameters_frozen": true,
+  "phase": "PHASE_5_TRUE_OOS",
+  "ranking": false,
+  "second_complete_execution_compared": false,
+  "start_state": "FLAT",
+  "status": "PHASE_5_TRUE_OOS_VALIDATION_COMPLETE",
+  "strategies": [
+    "T2",
+    "T3"
+  ],
+  "strategy_code_hashes": {
+    "T2": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+    "T3": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
+  },
+  "timeframes": [
+    "M30",
+    "H1"
+  ],
+  "true_oos_start": "2025-01-01",
+  "walk_forward_reference_commit": "0b0027665fdcc0f847b6b9a10cb5928fcfd2d553"
+}

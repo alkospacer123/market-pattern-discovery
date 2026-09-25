@@ -1,0 +1,29 @@
+{
+  "aggregate": {
+    "PF": 1.6303934582938977,
+    "average_loss": -0.7632353736522811,
+    "average_win": 2.48022481136495,
+    "expectancy": 0.3203920565823088,
+    "max_drawdown": -17.903358590665587,
+    "net_R": 140.01132872646895,
+    "recovery_factor": 7.820394593418229,
+    "total_trades": 437,
+    "win_rate": 0.3340961098398169
+  },
+  "bootstrap_probability_mean_R_gt_0": 0.9549,
+  "candidate_id": "T2_M30_candidate_v2",
+  "classification": "BORDERLINE",
+  "cost_ticks_per_side": 1,
+  "direction_gate": true,
+  "frozen_parameter_hash": "7c89b4a215cd8b68f96de2fc0938c2b99e755158b919a1284dfc07c6c2547ac6",
+  "instrument_gate": false,
+  "net_R_without_top5": -6.336021395842897,
+  "normalized_research_tick": 0.001,
+  "observed_quarters": 7,
+  "phase2_configuration_id": "T2-M30-7c89b4a215cd",
+  "positive_observed_quarters": 6,
+  "positive_quarter_share": 0.8571428571428571,
+  "start_state": "FLAT",
+  "strategy": "T2",
+  "timeframe": "M30"
+}
