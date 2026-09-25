@@ -13,6 +13,13 @@ a separate, explicitly authorized post-cycle audit branch.
 
 ## Completed
 
+- **Current v2 single-system cycle:** Phase 1 Baseline, Phase 2 Optimization,
+  Phase 3 Candidate Freeze, Phase 3 Robustness, Phase 4 Walk Forward, and Phase
+  5 TRUE OOS are complete as procedures. Phase 4 is `PHASE_4_BORDERLINE`
+  (canonical merge `0b0027665fdcc0f847b6b9a10cb5928fcfd2d553`); Phase 5
+  independently classifies T2/M30, T2/H1, T3/M30, and T3/H1 `BORDERLINE`.
+  The cycle stops at evidence: no portfolio, MTF, cost branch, or replacement.
+
 - **Original H1:** committed unified Baseline (Phase 2), bounded Optimization
   (Phase 3.2), Robustness (Phase 3.3), Walk Forward (Phase 4), diagnostics
   (Phase 4.1), TRUE OOS (Phase 5), and portfolio construction (Phase 6).

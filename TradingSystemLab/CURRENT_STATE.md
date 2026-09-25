@@ -1,7 +1,7 @@
 # Current state — read first
 
 > Persistent handoff snapshot after the independently audited TradingSystemLab
-> v2 Phase 4 Walk Forward execution. Canonical provenance anchors are Phase 1 merge
+> v2 Phase 5 TRUE OOS execution. Canonical provenance anchors are Phase 1 merge
 > `2aae07a3d12907d1869eb603e6ac1a6fb8d851dd`, T2 Phase 2A merge
 > `a252f076a09495d3093854c8509b1551701ba2b4`, and T3 Phase 2B merge
 > `f8f28834db4bc016a995b55aed1ff7fd53a4a0e8`.
@@ -45,6 +45,12 @@ OOS until its preauthorized stage.
   candidates were executed independently on four expanding-window quarterly
   tests in 2024, C1 only. T2/M30, T2/H1, T3/M30, and T3/H1 each received
   `WALK_FORWARD_BORDERLINE`; no candidate was pruned or replaced.
+- The canonical Phase 4 merge anchor is
+  `0b0027665fdcc0f847b6b9a10cb5928fcfd2d553`.
+- **Phase 5 TRUE OOS: COMPLETE as a procedure.** All four frozen identities
+  started cold and FLAT on admitted 2025+ observations. T2/M30, T2/H1,
+  T3/M30, and T3/H1 each classified `BORDERLINE`. No candidate was replaced,
+  optimized, or ranked after TRUE OOS was opened.
 - The consolidation did not rerun Optimization and makes no claim of a second
   byte-identical Phase 2A/2B execution.
 

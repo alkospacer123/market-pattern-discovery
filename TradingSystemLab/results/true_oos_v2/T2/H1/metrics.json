@@ -1,0 +1,29 @@
+{
+  "aggregate": {
+    "PF": 1.2699888349108461,
+    "average_loss": -0.7630818850070687,
+    "average_win": 1.6714846708932065,
+    "expectancy": 0.1304122382021231,
+    "max_drawdown": -21.627641450926323,
+    "net_R": 38.73243474603056,
+    "recovery_factor": 1.7908764963537729,
+    "total_trades": 297,
+    "win_rate": 0.367003367003367
+  },
+  "bootstrap_probability_mean_R_gt_0": 0.9085,
+  "candidate_id": "T2_H1_candidate_v2",
+  "classification": "BORDERLINE",
+  "cost_ticks_per_side": 1,
+  "direction_gate": true,
+  "frozen_parameter_hash": "a98459cab4f22e598fbfd705fb60cfb8a65f1771fa7d903bafa581544faa35ea",
+  "instrument_gate": false,
+  "net_R_without_top5": -1.2393064760115653,
+  "normalized_research_tick": 0.001,
+  "observed_quarters": 7,
+  "phase2_configuration_id": "T2-H1-a98459cab4f2",
+  "positive_observed_quarters": 4,
+  "positive_quarter_share": 0.5714285714285714,
+  "start_state": "FLAT",
+  "strategy": "T2",
+  "timeframe": "H1"
+}
