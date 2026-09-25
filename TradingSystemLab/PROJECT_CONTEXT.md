@@ -27,7 +27,7 @@ Phase 1 Baseline, Phase 2 Optimization, Candidate Freeze, Phase 3 Robustness,
 and Phase 4 Walk Forward are complete. The four immutable candidates retained
 their identities in four valid expanding-window quarterly folds each. T2/M30,
 T2/H1, and T3/M30 classify `WALK_FORWARD_BORDERLINE`; T3/H1 classifies
-`WALK_FORWARD_PASS`. TRUE OOS from 2025-01-01 remains
+`WALK_FORWARD_PASS`. At that historical checkpoint, TRUE OOS from 2025-01-01 was
 `BLOCKED_NOT_READ_NOT_EXECUTED`; Phase 5 has not been executed. The next
 permitted lifecycle action is Phase 5 TRUE OOS only after a separate task.
 
@@ -189,6 +189,16 @@ Optimization artifact audit (`V3_PERPETUAL_PHASE_2_OPTIMIZATION_COMPLETE`).
 The four studies contain 19/19/22/22 configurations and independently reconcile
 to `ROBUST_PLATEAU` counts 3/4/9/9 (25 total). The artifact-only Candidate
 Freeze is complete with one immutable predeclared identity for each study.
-TRUE OOS remains `BLOCKED_NOT_READ_NOT_EXECUTED`, Robustness is not executed,
+At that historical checkpoint TRUE OOS was `BLOCKED_NOT_READ_NOT_EXECUTED`, Robustness is not executed,
 and the next permitted action is v3 Phase 3 Robustness under the original H1
 lifecycle using the exact frozen registry bytes.
+
+## v3 perpetual five-stage completion
+
+The v3 perpetual lifecycle is **complete as a procedure** through Phase 5 TRUE
+OOS. Phase 1, Phase 2, Candidate Freeze, Phase 3, Phase 4, and Phase 5 are
+COMPLETE. Fixed-order TRUE OOS classifications are T2/M30 `BORDERLINE`, T2/H1
+`BORDERLINE`, T3/M30 `PASS`, and T3/H1 `PASS`. This is empirical evidence only;
+there is no ranking, candidate recommendation, replacement, optimization, or
+automatic portfolio phase. TRUE OOS used cold/FLAT starts and zero Development
+rows.

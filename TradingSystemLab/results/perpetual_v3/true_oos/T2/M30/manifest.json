@@ -1,0 +1,81 @@
+{
+  "C1_only": true,
+  "actual_first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+  "actual_last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+  "admitted_oos_rows": 57835,
+  "candidate_id": "T2_M30_candidate_v3",
+  "candidate_replacement": false,
+  "classification": "BORDERLINE",
+  "cold_start": true,
+  "coverage": {
+    "CNYRUBF": {
+      "admitted_frame_sha256": "7c5611a6699f6213148314bed1ab33814f85d63df77025454b4a3ea5ada5ce0c",
+      "admitted_oos_rows": 13750,
+      "development_rows_admitted": 0,
+      "first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+      "last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+      "source_path": "/workspace/market-pattern-data/forever/CNYRUBF/CNYRUBF_M30.csv"
+    },
+    "GLDRUBF": {
+      "admitted_frame_sha256": "c005a8f29e564bcdf925132ce4e7f9f16de1e552abf222584c0f921a06f16c5e",
+      "admitted_oos_rows": 15175,
+      "development_rows_admitted": 0,
+      "first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+      "last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+      "source_path": "/workspace/market-pattern-data/forever/GLDRUBF/GLDRUBF_M30.csv"
+    },
+    "IMOEXF": {
+      "admitted_frame_sha256": "3c168cd77086aba2ecb7f0b9dd6359874823b9c873a12536fd2e83c9e743f7ea",
+      "admitted_oos_rows": 15195,
+      "development_rows_admitted": 0,
+      "first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+      "last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+      "source_path": "/workspace/market-pattern-data/forever/IMOEXF/IMOEXF_M30.csv"
+    },
+    "USDRUBF": {
+      "admitted_frame_sha256": "7a70f5820e287a513d34b7c35a440916047e59cce7741362ad0c2c99e79fb324",
+      "admitted_oos_rows": 13715,
+      "development_rows_admitted": 0,
+      "first_admitted_oos_close": "2025-01-03T10:00:00+03:00",
+      "last_admitted_oos_close": "2026-09-16T00:00:00+03:00",
+      "source_path": "/workspace/market-pattern-data/forever/USDRUBF/USDRUBF_M30.csv"
+    }
+  },
+  "development_rows_admitted": 0,
+  "development_state_reused": false,
+  "execution_context": "none",
+  "freeze_reference_commit": "f123f1468c6b5f1f0719154aba73d4635e6de0ea",
+  "frozen_parameter_hash": "608dc87d09f10aa0e03026ebb525f6b8ec865060c7890cee08fa0c7ed14cf86b",
+  "frozen_strategy_source_hash": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+  "full_execution_parameters": {
+    "adx_period": 14,
+    "adx_threshold": 20.0,
+    "atr_period": 14,
+    "atr_regime_window": 20,
+    "confirmation_window": 3,
+    "ema_fast": 20,
+    "ema_slow": 200,
+    "ema_trend": 50,
+    "impulse_distance_atr": 0.5,
+    "impulse_lookback": 10,
+    "max_initial_stop_atr": 2.5,
+    "stop_buffer_atr": 0.1,
+    "trailing_atr": 3.0
+  },
+  "generation": "v3_perpetual",
+  "methodological_source": "original H1 Phase 5",
+  "normalized_research_tick": 0.001,
+  "oos_dataframe_sha256": "a2210fc8b226727071c6333b12f3a9fb8184bd272797bfc0bff661ef81757b74",
+  "optimization": false,
+  "parameters_frozen": true,
+  "phase": "PHASE_5_TRUE_OOS",
+  "phase2_configuration_id": "T2-M30-608dc87d09f1",
+  "phase7_mtf_research": false,
+  "ranking": false,
+  "robustness_reference_commit": "d684bfb7f321c2183eab36159c77fa687bd6092b",
+  "start_state": "FLAT",
+  "strategy": "T2",
+  "timeframe": "M30",
+  "true_oos_start": "2025-01-01",
+  "walk_forward_reference_commit": "d5aa616186c2750d5f0b0b9c60eddbf5d096c98f"
+}

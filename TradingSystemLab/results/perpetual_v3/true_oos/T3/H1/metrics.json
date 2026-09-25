@@ -1,0 +1,29 @@
+{
+  "aggregate": {
+    "PF": 2.245443699112794,
+    "average_loss": -0.5999287435974213,
+    "average_win": 1.770034913333788,
+    "expectancy": 0.42427665588038777,
+    "max_drawdown": -11.977240021572477,
+    "net_R": 84.43105452019716,
+    "recovery_factor": 7.0492913532772565,
+    "total_trades": 199,
+    "win_rate": 0.4321608040201005
+  },
+  "bootstrap_probability_mean_R_gt_0": 0.9999,
+  "candidate_id": "T3_H1_candidate_v3",
+  "classification": "PASS",
+  "cost_ticks_per_side": 1,
+  "direction_gate": true,
+  "frozen_parameter_hash": "4e73cdb77246cb07b5953160b9fc0ab36bfd4bd6d9a7f7faaae7e6e392ee340a",
+  "instrument_gate": true,
+  "net_R_without_top5": 45.65439835410838,
+  "normalized_research_tick": 0.001,
+  "observed_quarters": 7,
+  "phase2_configuration_id": "T3-H1-4e73cdb77246",
+  "positive_observed_quarters": 6,
+  "positive_quarter_share": 0.8571428571428571,
+  "start_state": "FLAT",
+  "strategy": "T3",
+  "timeframe": "H1"
+}
