@@ -1,0 +1,52 @@
+{
+  "OAT": true,
+  "ROBUST_PLATEAU_configurations": 25,
+  "T2_configurations": 38,
+  "T3_configurations": 44,
+  "candidate_selection": false,
+  "cost": {
+    "additional_slippage_ticks": 0,
+    "name": "C1",
+    "round_trip_ticks": 2,
+    "ticks_per_side": 1
+  },
+  "data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+  "development_period": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "failed_checks": [],
+  "generation": "v3_perpetual",
+  "instruments": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "methodological_source": "original H1 Phase 3.2",
+  "mtf": false,
+  "normalized_research_tick": 0.001,
+  "phase": "PHASE_2_OPTIMIZATION",
+  "phase1_audit_reference_merge": "a9c9815a9865a2c20fa555292de2c9924aadca96",
+  "phase1_reference_merge": "f8ee11841eedb11cb6ec98debc74ad8bc8c0c8a9",
+  "phase2a_t2_reference_merge": "7559953fd3dda8582af17f747ee38d94a93c42ad",
+  "phase2b_t3_reference_merge": "3b3cb3046f3f68c602d6d65f715d23090ab4a17c",
+  "portfolio": false,
+  "ranking": false,
+  "robustness": false,
+  "status": "V3_PERPETUAL_PHASE_2_OPTIMIZATION_COMPLETE",
+  "strategies": [
+    "T2",
+    "T3"
+  ],
+  "studies": 4,
+  "timeframes": [
+    "M30",
+    "H1"
+  ],
+  "total_configuration_studies": 82,
+  "true_oos_blocked": true,
+  "true_oos_execution": false,
+  "true_oos_start": "2025-01-01",
+  "walk_forward": false
+}

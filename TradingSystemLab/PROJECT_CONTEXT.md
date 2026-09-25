@@ -169,6 +169,15 @@ reports below `results/`.  Current defects and conflicts are recorded in
 The independent v3 generation does not replace v1 or v2 historical evidence.
 Its universe is USDRUBF, CNYRUBF, GLDRUBF, IMOEXF; its timeframes are M30 and
 H1; and its strategies are frozen T2 and T3. Phase 1 Baseline is complete for
-2023-01-01 through 2024-12-31 with natural later starts. TRUE OOS >= 2025-01-01
-is blocked. Next permitted action: Phase 2 Optimization, under the unchanged
-Baseline → Optimization → Robustness → Walk Forward → TRUE OOS lifecycle.
+2023-01-01 through 2024-12-31 with natural later starts. The unchanged lifecycle
+is Baseline → Optimization → Robustness → Walk Forward → TRUE OOS.
+
+## v3 Perpetual Phase 2 consolidation
+
+The separate v3 generation has completed Phase 1 and the complete Phase 2
+Optimization artifact audit (`V3_PERPETUAL_PHASE_2_OPTIMIZATION_COMPLETE`).
+The four studies contain 19/19/22/22 configurations and independently reconcile
+to `ROBUST_PLATEAU` counts 3/4/9/9 (25 total). TRUE OOS remains
+`BLOCKED_NOT_READ_NOT_EXECUTED`; no candidate is selected and Robustness is not
+executed. The next permitted action is procedural v3 candidate freeze /
+identity fixation before Robustness under the original H1 lifecycle.

@@ -120,29 +120,16 @@ permitted action, and forbidden actions.
 
 ## v3 Perpetual independent generation
 
-v1 and v2 are complete and remain immutable historical evidence. The independent
-`v3_perpetual` generation uses exactly USDRUBF, CNYRUBF, GLDRUBF, IMOEXF; M30
-and H1; and frozen T2 and T3. Phase 1 Baseline is **COMPLETE** on development
-2023-01-01 through 2024-12-31, preserving natural later instrument starts.
-TRUE OOS >= 2025-01-01 remains **BLOCKED**. Phase 2A T2 is **COMPLETE**:
-T2/M30 is `ROBUST_PLATEAU` with 3 plateau configurations, and T2/H1 is
-`ROBUST_PLATEAU` with 4 plateau configurations. No configurations were ranked
-and no candidate was selected. Phase 2 overall is **NOT COMPLETE**; Robustness
-has not been executed for v3. The next permitted action is v3 Phase 2B T3
-M30/H1 Optimization, followed by a separate Phase 2 consolidation. The
-governing lifecycle remains exactly Baseline → Optimization → Robustness → Walk
-Forward → TRUE OOS.
+v1 and v2 remain immutable historical evidence. For `v3_perpetual`, Phase 1,
+Phase 2A T2, Phase 2B T3, and Phase 2 Optimization overall are **COMPLETE**.
+The artifact-only independent consolidation status is
+`V3_PERPETUAL_PHASE_2_OPTIMIZATION_COMPLETE`: T2/M30 is `ROBUST_PLATEAU`
+(3 configurations), T2/H1 is `ROBUST_PLATEAU` (4), T3/M30 is
+`ROBUST_PLATEAU` (9), and T3/H1 is `ROBUST_PLATEAU` (9), for 25 total.
+No Optimization was rerun and this inventory is not a ranking.
 
-## v3 perpetual Phase 2B T3 optimization closeout
-
-Phase 1 remains **COMPLETE** and Phase 2A T2 remains **COMPLETE and
-immutable**. Phase 2B T3 is now **COMPLETE**: both T3/M30 and T3/H1 are
-classified `ROBUST_PLATEAU`, with 9 plateau configurations in each study.
-The two 22-configuration bounded OAT studies used C1 and separate causal
-four-bar context data; configurations were not ranked and no candidate was
-selected. Robustness, Walk Forward, and TRUE OOS were not executed, and TRUE
-OOS remains `BLOCKED_NOT_READ_NOT_EXECUTED`.
-
-Phase 2 overall is still awaiting its separate artifact-only consolidation
-and independent audit. The next permitted task is **v3 Phase 2 Consolidation /
-Independent Audit**, not Robustness.
+TRUE OOS >= 2025-01-01 remains `BLOCKED_NOT_READ_NOT_EXECUTED`. No candidate
+was selected; Robustness, Walk Forward, TRUE OOS execution, portfolio selection,
+or MTF research was performed. The next permitted action is candidate identity
+fixation/freeze, strictly under the original H1 methodology as procedural
+preparation for Robustness; it is not a new lifecycle phase.
