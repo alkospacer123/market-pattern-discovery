@@ -61,6 +61,7 @@
   },
   "development_rows_admitted": 0,
   "independently_regenerated_artifact_count": 50,
+  "reproducibility_note": "Independent closeout produced a second full isolated Phase 5 execution and verified SHA-256 equality for every defined research artifact (50/50).",
   "second_complete_execution_compared": true,
   "start_state": "FLAT",
   "status": "V3_PERPETUAL_PHASE_5_TRUE_OOS_AUDIT_PASSED"
