@@ -46,8 +46,13 @@ def test_generated_tree_has_no_selection_or_ranking():
 
 
 def test_deterministic_artifact_tree(tmp_path):
-    # The production validation runs twice; this test byte-hashes the committed tree.
-    files = sorted(p for p in OUTPUT_ROOT.rglob("*") if p.is_file())
-    first = [(p.relative_to(OUTPUT_ROOT).as_posix(), hashlib.sha256(p.read_bytes()).hexdigest()) for p in files]
-    second = [(p.relative_to(OUTPUT_ROOT).as_posix(), hashlib.sha256(p.read_bytes()).hexdigest()) for p in files]
+    def hashes(root):
+        return {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                for p in sorted(root.rglob("*")) if p.is_file()}
+
+    first_root, second_root = tmp_path / "a", tmp_path / "b"
+    run(DATA_ROOT, first_root)
+    run(DATA_ROOT, second_root)
+    first, second = hashes(first_root), hashes(second_root)
     assert first == second and len(first) == 16 * 8 + 6
+    assert first == hashes(OUTPUT_ROOT)
