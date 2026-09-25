@@ -1,0 +1,3 @@
+symbol,legacy_first_close,legacy_last_close,legacy_bars,quarterly_first_close,quarterly_last_close,quarterly_bars,shared_timestamps,only_legacy,only_quarterly,overlap_percentage
+Si,2025-01-03 11:00:00+03:00,2026-08-30 19:00:00+03:00,6621,2025-01-03 10:00:00+03:00,2026-08-30 19:00:00+03:00,6828,6591,30,237,96.1067366579
+CNY,2025-01-03 11:00:00+03:00,2026-08-30 19:00:00+03:00,6641,2025-01-03 10:00:00+03:00,2026-08-30 19:00:00+03:00,6862,6638,3,224,96.6933721777
