@@ -177,7 +177,8 @@ is Baseline → Optimization → Robustness → Walk Forward → TRUE OOS.
 The separate v3 generation has completed Phase 1 and the complete Phase 2
 Optimization artifact audit (`V3_PERPETUAL_PHASE_2_OPTIMIZATION_COMPLETE`).
 The four studies contain 19/19/22/22 configurations and independently reconcile
-to `ROBUST_PLATEAU` counts 3/4/9/9 (25 total). TRUE OOS remains
-`BLOCKED_NOT_READ_NOT_EXECUTED`; no candidate is selected and Robustness is not
-executed. The next permitted action is procedural v3 candidate freeze /
-identity fixation before Robustness under the original H1 lifecycle.
+to `ROBUST_PLATEAU` counts 3/4/9/9 (25 total). The artifact-only Candidate
+Freeze is complete with one immutable predeclared identity for each study.
+TRUE OOS remains `BLOCKED_NOT_READ_NOT_EXECUTED`, Robustness is not executed,
+and the next permitted action is v3 Phase 3 Robustness under the original H1
+lifecycle using the exact frozen registry bytes.

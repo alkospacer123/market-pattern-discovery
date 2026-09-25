@@ -1,0 +1,44 @@
+{
+  "generation": "v3_perpetual",
+  "phase": "PHASE_3_CANDIDATE_FREEZE",
+  "status": "V3_PERPETUAL_PHASE_3_CANDIDATE_FREEZE_COMPLETE",
+  "methodological_source": "original H1 Phase 3.3 predeclared-candidate contract",
+  "phase2_reference_merge": "272eabd5a4261a18a763356964b82b4b5b5673ea",
+  "docs_reference_merge": "2a811672fe6619b8914fcc604769f2c2deeeb425",
+  "candidate_count": 4,
+  "strategies": [
+    "T2",
+    "T3"
+  ],
+  "timeframes": [
+    "M30",
+    "H1"
+  ],
+  "instruments": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "development_period": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "true_oos_start": "2025-01-01",
+  "selection_locked_before_validation": true,
+  "raw_market_data_read": false,
+  "optimization_executed": false,
+  "parameter_search_executed": false,
+  "ranking_executed": false,
+  "robustness_executed": false,
+  "walk_forward_executed": false,
+  "true_oos_executed": false,
+  "portfolio_executed": false,
+  "mtf_executed": false,
+  "true_oos_blocked": true,
+  "next_action": "PHASE_3_ROBUSTNESS",
+  "artifact_sha256": {
+    "candidate_registry.json": "e134e37764ef02288a6788c6b81134261a48d38b5be4d347e81266795af08f7f",
+    "Candidate_Freeze_Report.md": "3f358357f0bc2851d1e20932624d650088f4e02a87dba5ed4a779ffb08bc0931"
+  }
+}

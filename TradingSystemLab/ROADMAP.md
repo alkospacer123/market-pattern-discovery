@@ -83,7 +83,9 @@ optimization, or session research.
 - Phase 2 overall: `V3_PERPETUAL_PHASE_2_OPTIMIZATION_COMPLETE`; 82 bounded
   OAT configurations and 25 robust-plateau configurations were independently
   consolidated without rerunning Optimization.
-- TRUE OOS >= 2025-01-01: `BLOCKED_NOT_READ_NOT_EXECUTED`. No candidate has
-  been selected and Robustness has not been executed.
-- Next permitted action: procedural v3 candidate identity fixation/freeze as
-  preparation for Robustness, strictly according to original H1 methodology.
+- Candidate Freeze: **COMPLETE**. T2/M30 `T2_M30_candidate_v3`, T2/H1
+  `T2_H1_candidate_v3`, T3/M30 `T3_M30_candidate_v3`, and T3/H1
+  `T3_H1_candidate_v3` are immutable.
+- TRUE OOS >= 2025-01-01: `BLOCKED_NOT_READ_NOT_EXECUTED`. Robustness has not
+  been executed.
+- Next permitted action: v3 Phase 3 Robustness using the exact frozen registry.
