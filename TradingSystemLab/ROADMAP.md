@@ -89,6 +89,10 @@ optimization, or session research.
 - Phase 3 Robustness: **COMPLETE** (`V3_PERPETUAL_PHASE_3_ROBUSTNESS_COMPLETE`).
   T2/M30, T2/H1, T3/M30, and T3/H1 each classify `ROBUST_READY`; this is not a
   ranking or candidate replacement.
-- TRUE OOS >= 2025-01-01: `BLOCKED_NOT_READ_NOT_EXECUTED`. Walk Forward has not
-  been executed.
-- Next permitted action: v3 Phase 4 Walk Forward under the original H1 lifecycle.
+- Phase 4 Walk Forward: **COMPLETE**
+  (`V3_PERPETUAL_PHASE_4_WALK_FORWARD_COMPLETE`). All studies have four valid
+  folds. T2/M30, T2/H1, and T3/M30 are `WALK_FORWARD_BORDERLINE`; T3/H1 is
+  `WALK_FORWARD_PASS`.
+- TRUE OOS >= 2025-01-01: `BLOCKED_NOT_READ_NOT_EXECUTED`; Phase 5 was not
+  executed.
+- Next permitted action: Phase 5 TRUE OOS only after a separate explicit task.

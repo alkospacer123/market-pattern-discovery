@@ -1,0 +1,114 @@
+{
+  "status": "SUFFICIENT",
+  "timeframes": {
+    "H1": {
+      "CNYRUBF": {
+        "actual_history_limitation": null,
+        "first_admitted_close": "2023-01-03T10:00:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 7816,
+        "source_file": "/workspace/market-pattern-data/forever/CNYRUBF/CNYRUBF_H1.csv"
+      },
+      "GLDRUBF": {
+        "actual_history_limitation": "source begins after Development start",
+        "first_admitted_close": "2023-07-11T11:00:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 5851,
+        "source_file": "/workspace/market-pattern-data/forever/GLDRUBF/GLDRUBF_H1.csv"
+      },
+      "IMOEXF": {
+        "actual_history_limitation": "source begins after Development start",
+        "first_admitted_close": "2023-11-14T11:00:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 4398,
+        "source_file": "/workspace/market-pattern-data/forever/IMOEXF/IMOEXF_H1.csv"
+      },
+      "USDRUBF": {
+        "actual_history_limitation": null,
+        "first_admitted_close": "2023-01-03T10:00:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 7813,
+        "source_file": "/workspace/market-pattern-data/forever/USDRUBF/USDRUBF_H1.csv"
+      }
+    },
+    "M30": {
+      "CNYRUBF": {
+        "actual_history_limitation": null,
+        "first_admitted_close": "2023-01-03T09:30:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 15288,
+        "source_file": "/workspace/market-pattern-data/forever/CNYRUBF/CNYRUBF_M30.csv"
+      },
+      "GLDRUBF": {
+        "actual_history_limitation": "source begins after Development start",
+        "first_admitted_close": "2023-07-11T10:30:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 11370,
+        "source_file": "/workspace/market-pattern-data/forever/GLDRUBF/GLDRUBF_M30.csv"
+      },
+      "IMOEXF": {
+        "actual_history_limitation": "source begins after Development start",
+        "first_admitted_close": "2023-11-14T10:30:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 8567,
+        "source_file": "/workspace/market-pattern-data/forever/IMOEXF/IMOEXF_M30.csv"
+      },
+      "USDRUBF": {
+        "actual_history_limitation": null,
+        "first_admitted_close": "2023-01-03T09:30:00+03:00",
+        "fold_coverage_status": {
+          "WF01": "COMPLETE",
+          "WF02": "COMPLETE",
+          "WF03": "COMPLETE",
+          "WF04": "COMPLETE"
+        },
+        "last_admitted_close": "2024-12-31T00:00:00+03:00",
+        "rows": 15307,
+        "source_file": "/workspace/market-pattern-data/forever/USDRUBF/USDRUBF_M30.csv"
+      }
+    }
+  },
+  "true_oos_read": false
+}

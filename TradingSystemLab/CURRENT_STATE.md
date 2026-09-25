@@ -26,9 +26,12 @@ T2/M30 `T2_M30_candidate_v3` / `T2-M30-608dc87d09f1`, T2/H1
 `T3_M30_candidate_v3` / `T3-M30-d6feb972db57`, and T3/H1
 `T3_H1_candidate_v3` / `T3-H1-4e73cdb77246`. Phase 3 Robustness is **COMPLETE**
 (`V3_PERPETUAL_PHASE_3_ROBUSTNESS_COMPLETE`): all four frozen studies classify
-`ROBUST_READY`. TRUE OOS >= 2025-01-01 remains
-`BLOCKED_NOT_READ_NOT_EXECUTED`; Walk Forward was not executed. The next
-permitted action is v3 Phase 4 Walk Forward under the original H1 lifecycle.
+`ROBUST_READY`. Phase 4 Walk Forward is **COMPLETE** as a procedure
+(`V3_PERPETUAL_PHASE_4_WALK_FORWARD_COMPLETE`): T2/M30, T2/H1, and T3/M30
+classify `WALK_FORWARD_BORDERLINE`; T3/H1 classifies `WALK_FORWARD_PASS`. Each
+study has four valid expanding-window quarterly folds. TRUE OOS >= 2025-01-01
+remains `BLOCKED_NOT_READ_NOT_EXECUTED`; Phase 5 was not executed. The next
+permitted action is Phase 5 TRUE OOS only after a separate explicit task.
 
 > Persistent handoff snapshot after the independently audited TradingSystemLab
 > v2 Phase 5 TRUE OOS execution. Canonical provenance anchors are Phase 1 merge

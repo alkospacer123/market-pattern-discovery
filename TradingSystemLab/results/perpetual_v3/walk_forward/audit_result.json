@@ -1,0 +1,11 @@
+{
+  "checks": 24,
+  "status": "V3_PERPETUAL_PHASE_4_WALK_FORWARD_AUDIT_PASSED",
+  "true_oos_status": "BLOCKED_NOT_READ_NOT_EXECUTED",
+  "verdicts": {
+    "T2/H1": "WALK_FORWARD_BORDERLINE",
+    "T2/M30": "WALK_FORWARD_BORDERLINE",
+    "T3/H1": "WALK_FORWARD_PASS",
+    "T3/M30": "WALK_FORWARD_BORDERLINE"
+  }
+}

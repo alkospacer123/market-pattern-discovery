@@ -1,0 +1,87 @@
+{
+  "C1_only": true,
+  "candidate_count": 4,
+  "candidate_ids": [
+    "T2_M30_candidate_v3",
+    "T2_H1_candidate_v3",
+    "T3_M30_candidate_v3",
+    "T3_H1_candidate_v3"
+  ],
+  "candidate_registry_path": "TradingSystemLab/results/perpetual_v3/phase3_candidate_freeze/candidate_registry.json",
+  "candidate_registry_sha256": "e134e37764ef02288a6788c6b81134261a48d38b5be4d347e81266795af08f7f",
+  "candidate_replacement": false,
+  "deterministic": true,
+  "development_coverage": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "fold_schedule": [
+    {
+      "fold": "WF01",
+      "test_end": "2024-03-31 23:59:59",
+      "test_start": "2024-01-01",
+      "train_end": "2023-12-31 23:59:59",
+      "train_start": "2023-01-01"
+    },
+    {
+      "fold": "WF02",
+      "test_end": "2024-06-30 23:59:59",
+      "test_start": "2024-04-01",
+      "train_end": "2024-03-31 23:59:59",
+      "train_start": "2023-01-01"
+    },
+    {
+      "fold": "WF03",
+      "test_end": "2024-09-30 23:59:59",
+      "test_start": "2024-07-01",
+      "train_end": "2024-06-30 23:59:59",
+      "train_start": "2023-01-01"
+    },
+    {
+      "fold": "WF04",
+      "test_end": "2024-12-31 23:59:59",
+      "test_start": "2024-10-01",
+      "train_end": "2024-09-30 23:59:59",
+      "train_start": "2023-01-01"
+    }
+  ],
+  "freeze_reference_commit": "f123f1468c6b5f1f0719154aba73d4635e6de0ea",
+  "instruments": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "methodological_source": "original H1 Phase 4",
+  "normalized_research_tick": 0.001,
+  "optimization": false,
+  "parameters_frozen": true,
+  "phase": "PHASE_4_WALK_FORWARD",
+  "phase7_mtf_research": false,
+  "procedural_status_after_audit": "V3_PERPETUAL_PHASE_4_WALK_FORWARD_COMPLETE",
+  "ranking": false,
+  "reproducibility_note": "A second full execution reproduced the forward ledgers and aggregate classifications.",
+  "robustness_reexecution": false,
+  "robustness_reference_commit": "d684bfb7f321c2183eab36159c77fa687bd6092b",
+  "second_complete_execution_compared": true,
+  "status": "V3_PERPETUAL_PHASE_4_WALK_FORWARD_COMPLETE",
+  "strategies": [
+    "T2",
+    "T3"
+  ],
+  "timeframes": [
+    "M30",
+    "H1"
+  ],
+  "true_oos_blocked": true,
+  "true_oos_executed": false,
+  "true_oos_read": false,
+  "true_oos_start": "2025-01-01",
+  "true_oos_status": "BLOCKED_NOT_READ_NOT_EXECUTED",
+  "verdicts": {
+    "T2/H1": "WALK_FORWARD_BORDERLINE",
+    "T2/M30": "WALK_FORWARD_BORDERLINE",
+    "T3/H1": "WALK_FORWARD_PASS",
+    "T3/M30": "WALK_FORWARD_BORDERLINE"
+  }
+}

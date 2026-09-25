@@ -1,0 +1,75 @@
+{
+  "additional_slippage": 0,
+  "candidate_freeze_merge": "f123f1468c6b5f1f0719154aba73d4635e6de0ea",
+  "candidate_id": "T3_M30_candidate_v3",
+  "candidate_parameter_hash": "d6feb972db575bf6e66ac901be95fe079dccc82d9e2c3e880d17faeae8d1adf9",
+  "candidate_replacement": false,
+  "classification": "WALK_FORWARD_BORDERLINE",
+  "cost_model": "C1",
+  "cost_ticks_per_side": 1,
+  "development_interval": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "fold_schedule_definition": [
+    {
+      "fold": "WF01",
+      "forward_end": "2024-03-31 23:59:59",
+      "forward_start": "2024-01-01",
+      "train_end": "2023-12-31 23:59:59",
+      "train_start": "2023-01-01"
+    },
+    {
+      "fold": "WF02",
+      "forward_end": "2024-06-30 23:59:59",
+      "forward_start": "2024-04-01",
+      "train_end": "2024-03-31 23:59:59",
+      "train_start": "2023-01-01"
+    },
+    {
+      "fold": "WF03",
+      "forward_end": "2024-09-30 23:59:59",
+      "forward_start": "2024-07-01",
+      "train_end": "2024-06-30 23:59:59",
+      "train_start": "2023-01-01"
+    },
+    {
+      "fold": "WF04",
+      "forward_end": "2024-12-31 23:59:59",
+      "forward_start": "2024-10-01",
+      "train_end": "2024-09-30 23:59:59",
+      "train_start": "2023-01-01"
+    }
+  ],
+  "full_execution_parameters": {
+    "adx_period": 14,
+    "adx_threshold": 20.0,
+    "atr_average_period": 20,
+    "atr_period": 14,
+    "breakout_period": 30,
+    "ema_period": 100,
+    "slope_lookback": 5,
+    "stop_atr": 2.0,
+    "trail_atr": 3.0
+  },
+  "generation": "v3_perpetual",
+  "instrument_universe": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "lifecycle_phase": "Walk Forward",
+  "methodological_source": "original H1 Phase 4",
+  "normalized_tick": 0.001,
+  "optimization": false,
+  "phase2_configuration_id": "T3-M30-d6feb972db57",
+  "phase2_consolidation_merge": "272eabd5a4261a18a763356964b82b4b5b5673ea",
+  "phase3_canonical_merge": "d684bfb7f321c2183eab36159c77fa687bd6092b",
+  "round_trip_ticks": 2,
+  "strategy_source_hash": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c",
+  "t3_execution_context": "four completed non-overlapping M30 bars; local-day reset",
+  "timeframe": "M30",
+  "true_oos_execution": false,
+  "true_oos_status": "BLOCKED_NOT_READ_NOT_EXECUTED"
+}

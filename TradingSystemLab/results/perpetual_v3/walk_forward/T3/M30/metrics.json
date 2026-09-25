@@ -1,0 +1,43 @@
+{
+  "aggregate": {
+    "C1": {
+      "PF": 1.6006457431151304,
+      "expectancy": 0.27289985092512065,
+      "losing_streak": 14,
+      "max_drawdown": -18.378147941846276,
+      "net_R": 46.66587450819563,
+      "recovery_factor": 2.539204421243088,
+      "trades": 171,
+      "win_rate": 0.39766081871345027,
+      "winning_streak": 4
+    }
+  },
+  "best_fold_contribution": 0.7480044101240158,
+  "candidate_id": "T3_M30_candidate_v3",
+  "candidate_replacement": false,
+  "complete_folds": 4,
+  "execution_context": "four completed non-overlapping M30 bars; local-day reset",
+  "frozen_parameter_hash": "d6feb972db575bf6e66ac901be95fe079dccc82d9e2c3e880d17faeae8d1adf9",
+  "full_execution_parameters": {
+    "adx_period": 14,
+    "adx_threshold": 20.0,
+    "atr_average_period": 20,
+    "atr_period": 14,
+    "breakout_period": 30,
+    "ema_period": 100,
+    "slope_lookback": 5,
+    "stop_atr": 2.0,
+    "trail_atr": 3.0
+  },
+  "instrument_gate": true,
+  "optimization": false,
+  "parameters_frozen": true,
+  "phase2_configuration_id": "T3-M30-d6feb972db57",
+  "positive_complete_fold_share": 0.75,
+  "ranking": false,
+  "strategy": "T3",
+  "strategy_source_hash": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c",
+  "timeframe": "M30",
+  "true_oos_blocked": true,
+  "verdict": "WALK_FORWARD_BORDERLINE"
+}

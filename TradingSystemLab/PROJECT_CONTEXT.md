@@ -23,11 +23,13 @@ replacement, optimization, ranking, or portfolio construction followed.
 
 ## v3 perpetual generation status
 
-Phase 1 Baseline, Phase 2 Optimization, Candidate Freeze, and Phase 3
-Robustness are complete. The immutable T2/M30, T2/H1, T3/M30, and T3/H1
-candidates each classify `ROBUST_READY` under original H1 Phase 3.3. TRUE OOS
-from 2025-01-01 remains `BLOCKED_NOT_READ_NOT_EXECUTED`; Walk Forward has not
-been executed. The next permitted lifecycle action is Phase 4 Walk Forward.
+Phase 1 Baseline, Phase 2 Optimization, Candidate Freeze, Phase 3 Robustness,
+and Phase 4 Walk Forward are complete. The four immutable candidates retained
+their identities in four valid expanding-window quarterly folds each. T2/M30,
+T2/H1, and T3/M30 classify `WALK_FORWARD_BORDERLINE`; T3/H1 classifies
+`WALK_FORWARD_PASS`. TRUE OOS from 2025-01-01 remains
+`BLOCKED_NOT_READ_NOT_EXECUTED`; Phase 5 has not been executed. The next
+permitted lifecycle action is Phase 5 TRUE OOS only after a separate task.
 
 ## Canonical methodology authority
 
