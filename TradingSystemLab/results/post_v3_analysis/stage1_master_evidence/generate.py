@@ -360,7 +360,11 @@ def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def manifest(ss, inventory):
-    outputs=[p for p in sorted(OUT.iterdir()) if p.is_file() and p.name not in {"manifest.json","generate.py","audit.py"}]
+    # Independent-audit closeout records are intentionally auditor-owned and
+    # excluded to avoid circular self-hashing and generator-authored PASS state.
+    operational={"manifest.json","generate.py","audit.py","audit_result.json",
+                 "Stage_1_Master_Evidence_Audit_Report.md"}
+    outputs=[p for p in sorted(OUT.iterdir()) if p.is_file() and p.name not in operational]
     sources=sorted({x["repository_path"] for x in inventory if x["exists"]})
     def count(name):
         with (OUT/name).open(newline="",encoding="utf-8") as fh: return sum(1 for _ in csv.DictReader(fh))

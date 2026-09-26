@@ -12,6 +12,7 @@
     "source_inventory.csv": "07e1cd583230678dec926362cc3d30d3c45ef5aeda42a40cffa872fe8b57bcb6",
     "yearly_statistics.csv": "56f9fcb9c0e4c6bff35e1b9273badb27aad10125ddd9c9734deff30ef5eb0630"
   },
+  "audit_status": "POST_V3_STAGE_1_MASTER_EVIDENCE_AUDIT_PASSED",
   "controls": {
     "C1_normalization_verified": true,
     "canonical_aggregate_reconciliation": true,

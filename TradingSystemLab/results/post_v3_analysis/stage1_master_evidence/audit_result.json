@@ -1,0 +1,23 @@
+{
+  "C1_regression": "PASS",
+  "aggregate_reconciliations_checked": 24,
+  "baseline_reconciliations_checked": 12,
+  "canonical_main_provenance": "3265a3d9f6d26a78d6ecd8e1b51296092e00e426",
+  "canonical_stage1_base": "6fec3311500b2169e3254a256c5369b91805df22",
+  "classifications": "PASS",
+  "deterministic_rerun": "PASS",
+  "direction_reports": 10,
+  "direction_row_count": 72,
+  "instrument_reports": 10,
+  "instrument_row_count": 144,
+  "monthly_reports": 6,
+  "monthly_row_count": 789,
+  "output_artifact_hashes_checked": 11,
+  "phase2": "PASS",
+  "quarterly_reports": 10,
+  "source_artifact_count": 106,
+  "status": "POST_V3_STAGE_1_MASTER_EVIDENCE_AUDIT_PASSED",
+  "study_row_count": 36,
+  "verdicts": "PASS",
+  "yearly_reports": 10
+}
