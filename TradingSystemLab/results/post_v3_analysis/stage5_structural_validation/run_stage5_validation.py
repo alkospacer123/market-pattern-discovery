@@ -105,14 +105,16 @@ def preflight() -> dict:
             "stage4_hashes": STAGE4_HASHES, "strategy_hashes": STRATEGY_HASHES}
 
 
-def run() -> None:
-    preflight()
-    raise RuntimeError(
-        "STAGE5_FAIL_CLOSED: exact lifecycle re-execution adapters are not yet "
-        "implemented; normalized MFE/MAE must not be used to fabricate causal "
-        "completed-bar trigger timing"
-    )
+def run(mode: str = "CANONICAL_COMPARATOR", variants: tuple[str, ...] = ()) -> dict:
+    """Run only the authenticated canonical comparator, never a Stage 4 variant."""
+    authenticated = preflight()
+    from TradingSystemLab.results.post_v3_analysis.stage5_structural_validation.stage5_lifecycle_adapter import run_comparator
+    result = run_comparator(Path(authenticated["data_root"]), mode, variants)
+    if result.get("status") != "STAGE5_CANONICAL_COMPARATOR_RECONCILIATION_PASSED":
+        raise RuntimeError("STAGE5_COMPARATOR_RECONCILIATION_FAILED")
+    result["checkpoint"] = "STAGE5_COMPARATOR_ONLY_CHECKPOINT_PASSED_VARIANTS_NOT_YET_EXECUTED"
+    return result
 
 
 if __name__ == "__main__":
-    run()
+    print(json.dumps(run(), sort_keys=True))

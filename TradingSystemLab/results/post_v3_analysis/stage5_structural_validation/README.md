@@ -1,23 +1,28 @@
 # Stage 5 — Separate structural validation
 
-Status: **FAIL CLOSED / implementation incomplete**.
+Status: **OPEN — comparator-only checkpoint**.
 
-The initial fail-closed gate was intentional. The committed normalized ledgers expose final MAE and MFE, but not the ordered
-completed bars at which the frozen 1R triggers first became observable.  Using
-those final extrema to rewrite outcomes would introduce look-ahead and violate
-the repository research contract.  `run_stage5_validation.py` therefore first
-authenticates Stage 4, both canonical strategy sources, and the external frozen
-market-data repository. The repository is resolved from
-`MARKET_PATTERN_DATA_ROOT`, the sibling repository, or the canonical
-`/workspace/market-pattern-data` fallback, in that order; its HEAD must still
-equal the frozen commit.
+The initial fail-closed gate was intentional. The committed normalized ledgers
+expose final MAE and MFE, but not the ordered completed bars at which a frozen
+trigger first became observable. Using those extrema to rewrite outcomes would
+introduce look-ahead. The runner therefore authenticates Stage 4, both strategy
+sources, and the external market-data repository at its frozen commit before
+any market-data byte is opened.
 
-The auditor now owns a deliberately duplicated authentication implementation.
-It does not import the runner, an execution adapter, or shared Stage 5 metric
-generation logic. Exact lifecycle-aware causal adapters have not yet been
-implemented, so the runner continues to stop after authentication rather than
-emit fabricated evidence. No MFE/MAE outcome rewriting is used.
+The independent-authentication checkpoint followed that initial checkpoint and
+preserved its history. Its auditor owns a deliberately duplicated
+implementation and does not import the Stage 5 runner or execution adapter.
 
-No Stage 5 result, classification, audit PASS, CLOSED status, or new TRUE OOS
-claim is emitted by this checkpoint.  The only permitted evidence label for a
-future completed implementation remains `RETROSPECTIVE_CAUSAL_VALIDATION`.
+The canonical-comparator reconstruction checkpoint delegates to the actual
+v2/v3 baseline, fold-level walk-forward, and historical TRUE OOS runners. It
+writes no duplicate canonical ledgers and reconciles freshly executed ledgers
+against the existing canonical files. No MFE/MAE outcome rewriting is used.
+The separate comparator auditor likewise imports neither the runner nor the
+adapter.
+
+The reconstruction evidence is labelled only
+`RETROSPECTIVE_CAUSAL_VALIDATION`; it is not new, fresh, or unseen OOS evidence.
+Its successful status is `STAGE5_CANONICAL_COMPARATOR_RECONCILIATION_PASSED`
+and `STAGE5_COMPARATOR_ONLY_CHECKPOINT_COMPLETE`. BE1, TRAIL1, and
+TOTAL_OPEN_RISK_CAP remain disabled and unexecuted. No hypothesis
+classification or final Stage 5 manifest exists: **Stage 5 remains OPEN**.

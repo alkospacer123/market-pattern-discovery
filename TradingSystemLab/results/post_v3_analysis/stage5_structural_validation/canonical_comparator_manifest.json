@@ -1,0 +1,40 @@
+{
+  "C1_contract": {
+    "additional_slippage_ticks": 0,
+    "name": "C1",
+    "round_trip_ticks": 2,
+    "ticks_per_side": 1
+  },
+  "canonical_base": "9852e5f3c50a469932c5f2c9d86706b8849bab5d",
+  "data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+  "evidence_label": "RETROSPECTIVE_CAUSAL_VALIDATION",
+  "folds_attempted": 32,
+  "folds_reconciled": 32,
+  "frozen_tick_size": 0.001,
+  "hypothesis_execution": false,
+  "lifecycle_registry_hash": "f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6",
+  "maximum_metric_delta": 0.0,
+  "no_parameter_search": true,
+  "no_stage6": true,
+  "output_hashes": {
+    "aggregate": "6642583855bdf2a494b8dc3c87d54de2a7842889395323ac3f1a4b074c915689",
+    "registry": "f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6",
+    "report": "432f50f012617bdb3711e7fadf755c364f233a0885e57a961acccd2ebf8e8e0b",
+    "trades": "c4dec322e4052c2e74f6f43d8a1db49294d6b8f1695cdbdc946db4926bc19f1a"
+  },
+  "stage4_hashes": {
+    "structural_hypothesis_evidence.csv": "c25f9d7f8fe551a8ebdf6e7d044f3468c0f6cae7a2b067af64dc9f22f90ce30f",
+    "structural_hypothesis_registry.csv": "584a7c89dcb9e8985b4a0a9c5e432264b2c549675e2d45df9402cc12fb699fc8",
+    "structural_hypothesis_validation_contract.csv": "5d5da406fdbd34aaaee005f4a9736ef7b8b4c56873919dfe2e7ac21f03bc00ac"
+  },
+  "status": "STAGE5_CANONICAL_COMPARATOR_RECONCILIATION_PASSED",
+  "strategy_hashes": {
+    "T2": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+    "T3": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
+  },
+  "studies_attempted": 24,
+  "studies_reconciled": 24,
+  "trade_level_mismatch_count": 0,
+  "trade_rows_expected": 9694,
+  "trade_rows_reconciled": 9694
+}
