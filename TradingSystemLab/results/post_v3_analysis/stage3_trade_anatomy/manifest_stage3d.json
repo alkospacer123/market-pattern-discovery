@@ -1,0 +1,33 @@
+{
+  "audit_status": "POST_V3_STAGE_3D_INDEPENDENT_CLOSEOUT_AUDIT_PASSED",
+  "canonical_base_commit": "ed7028745c987afa77908cb74741acce480a181c",
+  "evidence_registry_sha256": "65ad4e5c11fdbc1848b5b16477fcb2c3c2a211b2f5eddde76212a5be123a5efe",
+  "global_row_count": 10993,
+  "scope": {
+    "no_new_diagnostics": true,
+    "no_raw_market_data": true,
+    "no_rule_testing": true,
+    "no_stage4": true,
+    "no_strategy_execution": true
+  },
+  "stage3_status": "POST_V3_STAGE_3_TRADE_ANATOMY_FAILURE_ANALYSIS_CLOSED",
+  "stage3a": {
+    "audit_sha256": "3f16c61365ce187a33055a86099075927951f5a16f25596e7747ff96598222f1",
+    "audit_status": "POST_V3_STAGE_3A4_V3_CORE_NORMALIZATION_AUDIT_PASSED",
+    "manifest_sha256": "9460fa46a1b106ae255dd42be8251fb641ae47b91bfc2dc6d882fbc7368bfdfd",
+    "status": "STAGE_3A_CORE_NORMALIZATION_CLOSED"
+  },
+  "stage3b": {
+    "audit_sha256": "ba8a220651b49902882a4e249307131edf2410b336056cb0a8e94fc79d58b145",
+    "audit_status": "POST_V3_STAGE_3B_TRADE_ANATOMY_TABLES_AUDIT_PASSED",
+    "manifest_sha256": "7267fdf14b24fd9b6bb9f147b7e51956d29e5ac8719ee07eb9274dab7e77ad3d"
+  },
+  "stage3c": {
+    "audit_sha256": "e30dc30f815a7492cd6c5e9aee2883fa01c95ea54f249ba3316f35d510583de7",
+    "audit_status": "POST_V3_STAGE_3C_FAILURE_MECHANICS_AUDIT_PASSED",
+    "manifest_sha256": "4a3c08d42d79bc67dd989579b95fef44a1bcb60724c5392e79d95641ead866fd"
+  },
+  "status": "POST_V3_STAGE_3D_CLOSEOUT_COMPLETE",
+  "study_count": 36,
+  "summary_sha256": "87b2bccec8ae60abb0b04b6d2bcf326bf9c6adb412be7c45938cb7d1bea10f3e"
+}
