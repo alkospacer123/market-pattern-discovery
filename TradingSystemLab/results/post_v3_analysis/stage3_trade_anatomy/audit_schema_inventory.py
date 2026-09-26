@@ -22,6 +22,8 @@ S2_COMMIT = "c90e519f2fd4ee6720d9b0da0b1a11ac28cc0c05"
 GENERATED = ["trade_source_inventory.csv", "trade_schema_registry.csv", "trade_field_availability.csv",
              "study_expected_counts.csv", "Stage_3A1_Schema_Provenance_Report.md", "manifest_stage3a1.json"]
 ALLOWED = set(GENERATED + ["schema_inventory.py", "audit_schema_inventory.py", "audit_stage3a1_result.json"])
+FINAL_STATUS = "POST_V3_STAGE_3A1_SCHEMA_PROVENANCE_AUDIT_PASSED"
+PENDING_STATUS = "PENDING_INDEPENDENT_AUDIT"
 
 
 def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -45,8 +47,12 @@ def c1(row, contract):
     return float(row[contract])
 
 
+def require_final_manifest(manifest):
+    require(manifest.get("audit_status") == FINAL_STATUS, "final manifest audit status is not PASS")
+
+
 def mutation_tests(sample_schema, sample_source, sample_study, target):
-    """Seven in-memory negative controls; every mutation must be detected."""
+    """Eight in-memory negative controls; every mutation must be detected."""
     tests = {}
     tests["corrupt_C1_mapping"] = "DOES_NOT_EXIST" not in sample_source["columns"]
     tests["change_source_SHA"] = ("0" * 64) != sample_source["sha"]
@@ -55,21 +61,31 @@ def mutation_tests(sample_schema, sample_source, sample_study, target):
     tests["substitute_v1_C0_PF"] = not math.isclose(target, 3.49197193021, rel_tol=1e-9, abs_tol=1e-9)
     tests["unknown_schema"] = "UNKNOWN_SCHEMA" != sample_schema
     tests["alter_output_SHA"] = ("f" * 64) != sha(OUT / "trade_schema_registry.csv")
+    pending = {"audit_status": PENDING_STATUS}
+    try:
+        require_final_manifest(pending)
+    except AssertionError:
+        tests["reject_pending_final_manifest"] = True
+    else:
+        tests["reject_pending_final_manifest"] = False
     require(all(tests.values()), f"mutation test failed: {tests}")
     return tests
 
 
-def audit():
+def semantic_audit():
     # Canonical state and audit statuses are independently checked.
     require(git_has(S1_COMMIT) and git_has(S2_COMMIT), "canonical closeout commit missing")
     s1a = json.loads((S1 / "audit_result.json").read_text()); s2a = json.loads((S2 / "audit_result.json").read_text())
     require((s1a.get("status") or s1a.get("audit_status")) == "POST_V3_STAGE_1_MASTER_EVIDENCE_AUDIT_PASSED", "Stage 1 status")
     require((s2a.get("status") or s2a.get("audit_status")) == "POST_V3_STAGE_2_PORTFOLIO_DIVERSIFICATION_AUDIT_PASSED", "Stage 2 status")
     manifest = json.loads((OUT / "manifest_stage3a1.json").read_text())
+    require(manifest.get("audit_status") == PENDING_STATUS, "generator manifest must be pending before closeout")
     require(manifest["stage1_provenance"]["commit"] == S1_COMMIT and manifest["stage1_provenance"]["audit_sha256"] == sha(S1/"audit_result.json"), "Stage 1 provenance")
     require(manifest["stage2_provenance"]["commit"] == S2_COMMIT and manifest["stage2_provenance"]["audit_sha256"] == sha(S2/"audit_result.json"), "Stage 2 provenance")
 
     inv, regs, avail, studies = load_csv("trade_source_inventory.csv"), load_csv("trade_schema_registry.csv"), load_csv("trade_field_availability.csv"), load_csv("study_expected_counts.csv")
+    require(len(inv) == 72 and len(regs) == 19, "canonical source/schema counts changed")
+    require(manifest["counts_per_generation"] == {"v1":1299,"v2":6954,"v3":2740}, "generation counts changed")
     require(len(studies) == 36 and all(x["status"] == "PASS" for x in studies), "36 reconciliations required")
     require(len(inv) == manifest["source_ledgers"], "ledger count mismatch")
     require(set(p.name for p in OUT.iterdir() if p.is_file()) <= ALLOWED, "unexpected Stage 3A.1 artifact")
@@ -126,11 +142,23 @@ def audit():
         expected = (int(ref["total_trades"]),float(ref["net_R"]),float(ref["expectancy_R"]),float(ref["PF"]),float(ref["win_rate"]))
         require(calc[0] == expected[0] and all(math.isclose(a,b,rel_tol=1e-9,abs_tol=1e-9) for a,b in zip(calc[1:],expected[1:])), f"aggregate mismatch {key}")
         max_delta = max(max_delta, *(abs(a-b) for a,b in zip(calc[1:],expected[1:])))
+    require(max_delta == 4.706919298769208e-10, "maximum reconciliation delta changed")
     target = next(x for x in studies if (x["generation"],x["lifecycle_stage"],x["strategy"],x["timeframe"]) == ("v1","walk_forward","T3","H1"))
     target_pf = float(target["reconstructed_PF"])
     require(int(target["reconstructed_trade_count"]) == 34 and math.isclose(target_pf,3.3803276720178377,rel_tol=1e-9,abs_tol=1e-9), "v1 C1 regression")
     require(math.isclose(float(target["reconstructed_expectancy_R"]),.9679913199721701,rel_tol=1e-9,abs_tol=1e-9) and math.isclose(float(target["reconstructed_net_R"]),32.91170487905379,rel_tol=1e-9,abs_tol=1e-9), "v1 C1 values")
     mutations = mutation_tests(regs[0]["source_schema_id"], source_meta[0], {"pf":float(studies[0]["Stage1_PF"])}, target_pf)
+
+    for name, digest in manifest["generated_output_hashes"].items():
+        require(sha(OUT/name) == digest, f"output hash {name}")
+    return {"inv":inv, "regs":regs, "rows_scanned":rows_scanned, "invalid_ts":invalid_ts,
+        "invalid_direction":invalid_direction, "target":target, "target_pf":target_pf,
+        "max_delta":max_delta, "mutations":mutations}
+
+
+def audit():
+    # Both lifecycle states compared below are generator-owned, pre-audit states.
+    semantic_audit()
 
     # Isolated deterministic rerun: compare every generator-owned byte.
     before = {x:sha(OUT/x) for x in GENERATED}
@@ -138,17 +166,28 @@ def audit():
     require(proc.returncode == 0, f"generator rerun failed: {proc.stderr}")
     after = {x:sha(OUT/x) for x in GENERATED}
     require(before == after, "generator is not deterministic")
-    regenerated = json.loads((OUT/"manifest_stage3a1.json").read_text())
-    for name, digest in regenerated["generated_output_hashes"].items(): require(sha(OUT/name) == digest, f"output hash {name}")
-    result = {"status":"POST_V3_STAGE_3A1_SCHEMA_PROVENANCE_AUDIT_PASSED","sources_checked":len(inv),
-        "schemas_checked":len(regs),"studies_reconciled":36,"source_trade_rows_scanned":rows_scanned,
-        "invalid_timestamp_count":invalid_ts,"invalid_direction_count":invalid_direction,
-        "C1_regression":{"status":"PASS","trades":34,"PF":target_pf,"expectancy_R":float(target["reconstructed_expectancy_R"]),
-            "net_R":float(target["reconstructed_net_R"]),"DD_source_reference":-5.038562132510952,"legacy_C0_PF_rejected":3.49197193021},
-        "maximum_reconciliation_delta":max_delta,"source_hashes":{x["source_path"]:x["source_sha256"] for x in inv},
-        "output_hashes":after,"deterministic_rerun":"PASS","mutation_tests_passed":mutations}
+    second = semantic_audit()
+
+    # The auditor, and only the auditor, changes the generator's pending status.
+    manifest_path = OUT / "manifest_stage3a1.json"
+    finalized = json.loads(manifest_path.read_text())
+    require(finalized.get("audit_status") == PENDING_STATUS, "generator manifest must be pending before closeout")
+    finalized["audit_status"] = FINAL_STATUS
+    manifest_path.write_text(json.dumps(finalized,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+    finalized = json.loads(manifest_path.read_text())
+    require_final_manifest(finalized)
+
+    result = {"status":FINAL_STATUS,"manifest_closeout":"PASS","manifest_audit_status":finalized["audit_status"],
+        "sources_checked":len(second["inv"]), "schemas_checked":len(second["regs"]),"studies_reconciled":36,
+        "source_trade_rows_scanned":second["rows_scanned"], "invalid_timestamp_count":second["invalid_ts"],
+        "invalid_direction_count":second["invalid_direction"],
+        "C1_regression":{"status":"PASS","trades":34,"PF":second["target_pf"],"expectancy_R":float(second["target"]["reconstructed_expectancy_R"]),
+            "net_R":float(second["target"]["reconstructed_net_R"]),"DD_source_reference":-5.038562132510952,"legacy_C0_PF_rejected":3.49197193021},
+        "maximum_reconciliation_delta":second["max_delta"],"source_hashes":{x["source_path"]:x["source_sha256"] for x in second["inv"]},
+        "output_hashes":{name:sha(OUT/name) for name in GENERATED},"deterministic_rerun":"PASS",
+        "mutation_tests_passed":second["mutations"]}
     (OUT/"audit_stage3a1_result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n",encoding="utf-8")
-    print(f"{result['status']}: {len(inv)} sources, {rows_scanned} rows, 36 studies")
+    print(f"{result['status']}: {len(second['inv'])} sources, {second['rows_scanned']} rows, 36 studies")
 
 
 if __name__ == "__main__": audit()
