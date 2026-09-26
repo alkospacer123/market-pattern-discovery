@@ -1,0 +1,58 @@
+{
+  "deterministic_isolated_regeneration": "PASS",
+  "failure_concentration": "PASS",
+  "giveback_formula": "PASS",
+  "loss_streak_ordering": "PASS",
+  "mae_mfe_order": "MAE_MFE_ORDER_UNAVAILABLE",
+  "mutation_control_count": 15,
+  "mutation_tests_passed": {
+    "alter_MFE_threshold_classification": true,
+    "alter_failure_concentration": true,
+    "alter_giveback_formula": true,
+    "alter_loss_streak_order": true,
+    "alter_normalized_hash": true,
+    "alter_output_hash": true,
+    "alter_stage3b_hash": true,
+    "alter_threshold_1_0_to_0_9": true,
+    "change_exit_reason_label": true,
+    "claim_MAE_before_MFE": true,
+    "clip_negative_retention_ratio": true,
+    "cross_lifecycle_streak": true,
+    "inject_BE_counterfactual": true,
+    "inject_ranking_column": true,
+    "inject_stage4_recommendation": true
+  },
+  "normalized_rows": 10993,
+  "output_hashes": {
+    "Stage_3C_Failure_Mechanics_Report.md": "e3482fadfe5eb568ee69328a000a3c689082642ef5f938df58fe2459cc1a7311",
+    "exit_efficiency.csv": "847066d33f8c38f475c62e7261035c9ae6bfe13c7960c8ea86356956df331f01",
+    "failure_concentration.csv": "6ef6229f7c6a545685a9e0c0d91065514acecd996823af0bdf17d123263eea09",
+    "holding_outcome_profile.csv": "07fbb33add2d65ab76e80ea7643490107291551fb50653023efac467bebdf100",
+    "loss_excursion_profile.csv": "0b84a7b083c41d7333aca0e0ebc0f56cd96f8cebe60aa7d8bae581fd09977178",
+    "loss_streak_profile.csv": "40fdc02af600e9fe74678bd5d02f4535197de44a7192f32dd2a0cb2a11d58840",
+    "mae_mfe_semantics.json": "83367feaac2c2952b7dc5af6d9cfad909264902bc29aed4debb692b4acf92c87",
+    "manifest_stage3c.json": "4a3c08d42d79bc67dd989579b95fef44a1bcb60724c5392e79d95641ead866fd",
+    "mfe_threshold_outcomes.csv": "172d025ec87021642055f2a5a9cb30e03526f2f32819d89bb1c30165c9b30f6c",
+    "stop_exit_profile.csv": "8bb126c3b84c541c2cff6e0e8ef5c66a00329338af968160a823d7e0371c5451",
+    "winner_giveback.csv": "84f4ee91c6546e40d2ec626da0a9adcb3454c641e11c5c401517529cf7ea06e1"
+  },
+  "parent_studies_reconciled": "36/36",
+  "retention_formula": "PASS",
+  "scope": {
+    "diagnostic_only": true,
+    "no_counterfactual_simulation": true,
+    "no_optimization": true,
+    "no_ranking": true,
+    "no_rule_testing": true,
+    "no_stage4": true,
+    "no_strategy_changes": true
+  },
+  "status": "POST_V3_STAGE_3C_FAILURE_MECHANICS_AUDIT_PASSED",
+  "threshold_reconciliation": "PASS",
+  "thresholds": [
+    0.5,
+    1.0,
+    2.0
+  ],
+  "unique_trade_keys": 10993
+}
