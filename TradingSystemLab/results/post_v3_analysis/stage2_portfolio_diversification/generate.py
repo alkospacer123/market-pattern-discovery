@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import csv, hashlib, itertools, json, math, statistics
 from collections import defaultdict
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -18,6 +18,17 @@ PROVENANCE = "05e2cdb30ba8ec341403583d37e02712d179a6a7"
 PASS1 = "POST_V3_STAGE_1_MASTER_EVIDENCE_AUDIT_PASSED"
 UNIVERSES = {"v2": ("quarterly", ("Si", "CNY", "GD", "BR", "MIX", "NG")),
              "v3": ("perpetual", ("USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF"))}
+# Authenticated market-history boundaries.  These are provenance, not properties
+# of a strategy ledger, and consequently never depend on the first trade.
+COVERAGE_START = {
+    "v2": {"Si": date(2020, 1, 1), "GD": date(2020, 1, 1),
+           "BR": date(2020, 1, 1), "MIX": date(2020, 1, 1),
+           "NG": date(2020, 2, 3), "CNY": date(2022, 4, 21)},
+    # Canonical v3 baseline manifests record these first source bars (the date
+    # is identical for M30/H1 and all strategies).
+    "v3": {"USDRUBF": date(2023, 1, 3), "CNYRUBF": date(2023, 1, 3),
+           "GLDRUBF": date(2023, 7, 11), "IMOEXF": date(2023, 11, 14)},
+}
 STAGES = ("baseline", "walk_forward", "true_oos")
 OUTPUTS = ("monthly_instrument_matrix.csv", "monthly_portfolio_summary.csv",
            "portfolio_stability_summary.csv", "instrument_stability_summary.csv",
@@ -113,17 +124,20 @@ def build():
       future,universe=UNIVERSES[gen]; trades=load(paths,gen,stage)
       unknown={i for _,i,_ in trades}-set(universe)
       if unknown: raise RuntimeError(f"unexpected instruments {unknown}")
-      months=sorted({m for m,_,_ in trades}); first={i:min(m for m,j,_ in trades if j==i) for i in universe if any(j==i for _,j,_ in trades)}
+      months=sorted({m for m,_,_ in trades})
       grouped=defaultdict(list)
       for m,i,r in trades: grouped[m,i].append(r)
       cells={}; rows=[]
       for m in months:
        for i in universe:
-        if i not in first or m<first[i]: available=False; status="NOT_YET_AVAILABLE"; vals=[]; net=0.0
+        coverage_start=COVERAGE_START[gen][i]; coverage_month=coverage_start.strftime("%Y-%m")
+        if m<coverage_month: available=False; status="NOT_YET_AVAILABLE"; vals=[]; net=0.0
         else:
          available=True; vals=grouped[m,i]; net=sum(vals); status="AVAILABLE" if vals else "NO_TRADES"
         rec=dict(generation=gen,futures_type=future,lifecycle_stage=stage,strategy=strategy,timeframe=tf,**{"YYYY-MM":m},instrument=i,
-          instrument_available=available,coverage_status=status,trades=len(vals),net_R=net,
+          coverage_start_date=coverage_start.isoformat(),instrument_available=available,
+          partial_coverage_month=available and m==coverage_month and coverage_start.day!=1,
+          coverage_status=status,trades=len(vals),net_R=net,
           positive_month=net>0,negative_month=net<0,zero_month=available and net==0)
         rows.append(rec); matrix.append(rec); cells[m,i]=rec
       pvals=[]
@@ -177,7 +191,8 @@ def build():
        ov=[m for m in months if cells[m,a]['instrument_available'] and cells[m,b]['instrument_available']]; av=[cells[m,a]['net_R'] for m in ov]; bv=[cells[m,b]['net_R'] for m in ov]
        pear=statistics.correlation(av,bv) if len(av)>1 and std(av)>0 and std(bv)>0 else None; cov=statistics.covariance(av,bv) if len(av)>1 else None
        same=sum((x>0 and y>0) or (x<0 and y<0) or (x==0 and y==0) for x,y in zip(av,bv)); opp=sum(x*y<0 for x,y in zip(av,bv)); bn=sum(x<0 and y<0 for x,y in zip(av,bv)); bp=sum(x>0 and y>0 for x,y in zip(av,bv))
-       key=base|dict(instrument_a=a,instrument_b=b,overlapping_months=len(ov))
+       partial=sum(cells[m,a]['partial_coverage_month'] or cells[m,b]['partial_coverage_month'] for m in ov)
+       key=base|dict(instrument_a=a,instrument_b=b,overlapping_months=len(ov),partial_overlap_months=partial)
        corrs.append(key|dict(pearson_monthly_R=pear,covariance_monthly_R=cov,same_sign_months=same,opposite_sign_months=opp,same_sign_share=pct(same,len(ov)),opposite_sign_share=pct(opp,len(ov)),both_negative_months=bn,both_positive_months=bp,sample_flag='ADEQUATE' if len(ov)>=6 else 'LOW_SAMPLE'))
        both=[x+y for x,y in zip(av,bv) if x<0 and y<0]; opposite=[x+y for x,y in zip(av,bv) if x*y<0]
        an=sum(x<0 for x in av); bneg=sum(x<0 for x in bv)
@@ -188,12 +203,12 @@ def build():
        loo.append(base|dict(original_instrument_count=len(universe),removed_instrument=removed,remaining_instruments='|'.join(i for i in universe if i!=removed),**{k:lm[k] for k in ('months_observed','total_net_R','mean_monthly_R','median_monthly_R','positive_month_share','monthly_R_std','worst_month_R','monthly_equity_max_drawdown_R','longest_negative_month_streak')},
         delta_total_R_vs_full=lm['total_net_R']-pm['total_net_R'],delta_positive_month_share=lm['positive_month_share']-pm['positive_month_share'],delta_monthly_std=lm['monthly_R_std']-pm['monthly_R_std'],delta_worst_month_R=lm['worst_month_R']-pm['worst_month_R'],delta_monthly_equity_DD=lm['monthly_equity_max_drawdown_R']-pm['monthly_equity_max_drawdown_R']))
     identity=['generation','futures_type','lifecycle_stage','strategy','timeframe']
-    write('monthly_instrument_matrix.csv',identity+['YYYY-MM','instrument','instrument_available','coverage_status','trades','net_R','positive_month','negative_month','zero_month'],matrix)
+    write('monthly_instrument_matrix.csv',identity+['YYYY-MM','instrument','coverage_start_date','instrument_available','partial_coverage_month','coverage_status','trades','net_R','positive_month','negative_month','zero_month'],matrix)
     write('monthly_portfolio_summary.csv',identity+['YYYY-MM','active_instruments','trading_instruments','total_trades','portfolio_net_R','positive_instruments','negative_instruments','zero_instruments','best_instrument','best_instrument_R','worst_instrument','worst_instrument_R','max_single_instrument_positive_contribution','max_single_instrument_negative_contribution','same_sign_loss_count','same_sign_gain_count'],portfolios)
     stabfields=identity+['instruments']+[k for k in stability[0] if k not in identity+['instruments']]; write('portfolio_stability_summary.csv',stabfields,stability)
     write('instrument_stability_summary.csv',identity+['instrument']+[k for k in inststats[0] if k not in identity+['instruments','instrument']],inststats)
     write('instrument_contribution_summary.csv',identity+['instrument']+[k for k in contributions[0] if k not in identity+['instruments','instrument']],contributions)
-    pairbase=identity+['instrument_a','instrument_b','overlapping_months']; write('pairwise_monthly_correlation.csv',pairbase+[k for k in corrs[0] if k not in pairbase+['instruments']],corrs); write('pairwise_co_loss_statistics.csv',pairbase+[k for k in coloss[0] if k not in pairbase+['instruments']],coloss)
+    pairbase=identity+['instrument_a','instrument_b','overlapping_months','partial_overlap_months']; write('pairwise_monthly_correlation.csv',pairbase+[k for k in corrs[0] if k not in pairbase+['instruments']],corrs); write('pairwise_co_loss_statistics.csv',pairbase+[k for k in coloss[0] if k not in pairbase+['instruments']],coloss)
     write('leave_one_instrument_out.csv',identity+['removed_instrument']+[k for k in loo[0] if k not in identity+['instruments','removed_instrument']],loo)
     comparisons=[]
     for stage in STAGES:
@@ -217,12 +232,14 @@ def build():
     manifest={'status':'POST_V3_STAGE_2_PORTFOLIO_DIVERSIFICATION_COMPLETE','audit_status':'PENDING_INDEPENDENT_AUDIT','stage1_canonical_provenance':PROVENANCE,'stage1_audit_status':PASS1,
       'stage1_files_used':['master_study_comparison.csv','instrument_statistics.csv','direction_statistics.csv','chronological_monthly_statistics.csv','calendar_month_of_year_statistics.csv','yearly_statistics.csv','quarterly_statistics.csv','monthly_stability_summary.csv','comparability_matrix.csv','manifest.json','audit_result.json'],
       'stage1_artifact_sha256':man['artifacts'],'source_sha256':{x['path']:x['sha256'] for x in man['source_files_used']},'output_sha256':hashes,'row_counts':rows,
-      'controls':{'no_strategy_execution':True,'no_optimization':True,'no_ranking':True,'no_production_selection':True,'no_trade_modification':True,'no_risk_weighting':True,'deterministic_rerun':True}}
+      'controls':{'no_strategy_execution':True,'no_optimization':True,'no_ranking':True,'no_production_selection':True,'no_trade_modification':True,'no_risk_weighting':True,'deterministic_rerun':True,
+                  'coverage_dates_verified':False,'availability_not_derived_from_first_trade':False,'partial_coverage_months_explicit':False,'pairwise_overlap_coverage_verified':False}}
     (HERE/'manifest.json').write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
 
 def make_report(stability,corrs,coloss,inststats,loo,comp):
     o=["# Stage 2 — Portfolio / Diversification Analysis","","## 1. Scope","","Artifact-only descriptive analysis of Stage 1-authenticated committed C1 ledgers. No strategy execution, optimization, ranking, weighting, production selection, or trade modification was performed.","",
     "## 2. Research history","","v2 is the quarterly-futures diversification experiment (Si, CNY, GD, BR, MIX, NG). v3 is the perpetual-futures stability replication (USDRUBF, CNYRUBF, GLDRUBF, IMOEXF). Cross-generation results are `PARTIALLY_COMPARABLE`.","",
+    "## Historical Availability Contract","","Availability describes authenticated instrument history, not the first strategy trade. Canonical v2 starts are Si: 2020-01-01; GD: 2020-01-01; BR: 2020-01-01; MIX: 2020-01-01; NG: 2020-02-03; CNY: 2022-04-21. Canonical v3 starts from source provenance are USDRUBF: 2023-01-03; CNYRUBF: 2023-01-03; GLDRUBF: 2023-07-11; IMOEXF: 2023-11-14.","","A pre-coverage month is `NOT_YET_AVAILABLE`; an available zero-trade month is `NO_TRADES`; a month with trades is `AVAILABLE`. The first available calendar month is retained and `partial_coverage_month=true` when coverage starts after its first day. Pairwise samples include `NO_TRADES` as zero R, exclude `NOT_YET_AVAILABLE`, and report overlaps containing either instrument's partial month.","",
     "## 3. Portfolio monthly behavior","","The tables preserve generation, lifecycle, strategy, and timeframe. TRUE OOS is presented first below, then Walk Forward; baseline is context only.",""]
     for stage in ('true_oos','walk_forward','baseline'):
      o += [f"### {stage}","","| generation | study | months | total R | positive share | std | worst | monthly equity DD |","|---|---:|---:|---:|---:|---:|---:|---:|"]
@@ -236,7 +253,7 @@ def make_report(stability,corrs,coloss,inststats,loo,comp):
     "## 8. M30 versus H1","","M30 and H1 remain separate in every artifact. Differences in monthly dispersion, synchronized loss, and offset behavior are evidence only, not selection.","",
     "## 9. Leave-one-out diagnostics","","Each row removes exactly one instrument from the full equal-unit-R universe. Deltas report the factual change in total R, positive-month share, monthly standard deviation, worst month, and monthly-equity drawdown. They do not prescribe elimination.","",
     "## 10. Stage 3 implications","","Stage 3 should investigate why repeated bad months occur and whether losses cluster by session, direction, holding time, MAE/MFE, or exit reason. None of those trade-anatomy hypotheses is tested here.","",
-    "## Definitions","","* Portfolio monthly R is the unweighted sum of canonical instrument R.","* `AVAILABLE` has trades; `NO_TRADES` is an available month with zero trades; `NOT_YET_AVAILABLE` precedes the first authenticated observation in that study and is excluded from pair calculations.","* Offset: at least one positive and one negative instrument. Rescue: a loss exists but portfolio R is positive. Reduction: portfolio R remains negative while a positive instrument offsets part of losses.","* All-negative/all-positive requires every currently available instrument to have that strict sign. `same_sign_*_count` is the available-instrument count in such a month, otherwise zero.","* `monthly_equity_max_drawdown_R` is peak-to-trough drawdown of cumulative monthly R, not trade-level drawdown."]
+    "## Definitions","","* Portfolio monthly R is the unweighted sum of canonical instrument R.","* `AVAILABLE` has trades; `NO_TRADES` is an available month with zero trades; `NOT_YET_AVAILABLE` precedes canonical authenticated instrument coverage and is excluded from pair calculations.","* Offset: at least one positive and one negative instrument. Rescue: a loss exists but portfolio R is positive. Reduction: portfolio R remains negative while a positive instrument offsets part of losses.","* All-negative/all-positive requires every currently available instrument to have that strict sign. `same_sign_*_count` is the available-instrument count in such a month, otherwise zero.","* `monthly_equity_max_drawdown_R` is peak-to-trough drawdown of cumulative monthly R, not trade-level drawdown."]
     (HERE/'Stage_2_Portfolio_Diversification_Report.md').write_text('\n'.join(o)+'\n')
 
 if __name__=='__main__': build()

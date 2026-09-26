@@ -1,26 +1,30 @@
 {
   "audit_status": "POST_V3_STAGE_2_PORTFOLIO_DIVERSIFICATION_AUDIT_PASSED",
   "controls": {
+    "availability_not_derived_from_first_trade": true,
+    "coverage_dates_verified": true,
     "deterministic_rerun": true,
     "no_optimization": true,
     "no_production_selection": true,
     "no_ranking": true,
     "no_risk_weighting": true,
     "no_strategy_execution": true,
-    "no_trade_modification": true
+    "no_trade_modification": true,
+    "pairwise_overlap_coverage_verified": true,
+    "partial_coverage_months_explicit": true
   },
   "output_sha256": {
-    "Stage_2_Portfolio_Diversification_Report.md": "df05c0e66424c375a41f5d75e537c70f22895ef396b864a7289f59607c847692",
+    "Stage_2_Portfolio_Diversification_Report.md": "ac64acd68c85179c21e0cdf1f8388f36100712c4a223f6b49b14de398468b9da",
     "instrument_contribution_summary.csv": "5ee2f5f4a34112ae593956fcad4ac39825d9b5cf4ca05483372084ecbcf74966",
-    "instrument_stability_summary.csv": "14e2f4afde2089e2a6742f06e51fdc5eaad5bba69c18ca082bb55874253fb5fe",
+    "instrument_stability_summary.csv": "6e229125af55b3cb7ded1d57900ceb213de34e6212369d2c96358cfb1ed8badc",
     "leave_one_instrument_out.csv": "aab3f6692e8fd8129135ae42dac7d3f394e7624fe52ce9921d954fdc9bcc8bf0",
-    "monthly_instrument_matrix.csv": "14d29667ceb2b03508674ed91b23d8d17c1a24fc7319a174df98b6c1bcfb14e9",
-    "monthly_portfolio_summary.csv": "f9ffce8ee69b0c2063386c83ea3f582f22f67804b0fedc06c610812028d9035c",
-    "pairwise_co_loss_statistics.csv": "2f008f0d32ad1c35c3dda18043715b1ad68c6102fa9f93bd5977ab332f0dccfa",
-    "pairwise_monthly_correlation.csv": "5c97fea2e2d0947344619943a11d7b73b70f07acde1d95413d73767a032826e5",
-    "portfolio_stability_summary.csv": "d940f4163063a117ba48104404d6f3cac3144eff7a0da42bc448aeac676c4d9a",
-    "true_oos_portfolio_summary.csv": "0a44dbe17cc5644840ca93bc63e33cb4adcca8159c20f1c374c326a04718faf4",
-    "v2_v3_portfolio_comparison.csv": "363579b350d8df289b52074ca4ddd89c34ef3ccddfd418f2be299b47cc30535a"
+    "monthly_instrument_matrix.csv": "0645f7a2f6242c14342fed8a7f4fcad52005266cb357f634b1c8e43825318bcf",
+    "monthly_portfolio_summary.csv": "f5d787bf6dcf48b23d8b87fb47b8f6bb7b40dbfb6f2f1c07d6c6ee5621b7d70a",
+    "pairwise_co_loss_statistics.csv": "2d7f0d9ab071ff075b0dd026c787620b77d7a0cff359469514e4738b9593a928",
+    "pairwise_monthly_correlation.csv": "bd85bafa0c1eb52571355cc36cf51789a347b255de0d8513d43bd12be90505a3",
+    "portfolio_stability_summary.csv": "c8f4aafa21f3c85a5ab6e804bec6d78fd6e75bfce492e662e4d44856b998f6f2",
+    "true_oos_portfolio_summary.csv": "d7b30cae415135b872add863d71ca8e0b5fa81b1fa1c5b812e3450ed382b47b3",
+    "v2_v3_portfolio_comparison.csv": "b95f2e5d0692ddbd4e949a81035c2895d0997de938d76789faf8577746d88f6e"
   },
   "row_counts": {
     "instrument_contribution_summary.csv": 120,

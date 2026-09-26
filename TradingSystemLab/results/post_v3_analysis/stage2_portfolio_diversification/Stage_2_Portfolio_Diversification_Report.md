@@ -8,6 +8,12 @@ Artifact-only descriptive analysis of Stage 1-authenticated committed C1 ledgers
 
 v2 is the quarterly-futures diversification experiment (Si, CNY, GD, BR, MIX, NG). v3 is the perpetual-futures stability replication (USDRUBF, CNYRUBF, GLDRUBF, IMOEXF). Cross-generation results are `PARTIALLY_COMPARABLE`.
 
+## Historical Availability Contract
+
+Availability describes authenticated instrument history, not the first strategy trade. Canonical v2 starts are Si: 2020-01-01; GD: 2020-01-01; BR: 2020-01-01; MIX: 2020-01-01; NG: 2020-02-03; CNY: 2022-04-21. Canonical v3 starts from source provenance are USDRUBF: 2023-01-03; CNYRUBF: 2023-01-03; GLDRUBF: 2023-07-11; IMOEXF: 2023-11-14.
+
+A pre-coverage month is `NOT_YET_AVAILABLE`; an available zero-trade month is `NO_TRADES`; a month with trades is `AVAILABLE`. The first available calendar month is retained and `partial_coverage_month=true` when coverage starts after its first day. Pairwise samples include `NO_TRADES` as zero R, exclude `NOT_YET_AVAILABLE`, and report overlaps containing either instrument's partial month.
+
 ## 3. Portfolio monthly behavior
 
 The tables preserve generation, lifecycle, strategy, and timeframe. TRUE OOS is presented first below, then Walk Forward; baseline is context only.
@@ -82,7 +88,7 @@ Stage 3 should investigate why repeated bad months occur and whether losses clus
 ## Definitions
 
 * Portfolio monthly R is the unweighted sum of canonical instrument R.
-* `AVAILABLE` has trades; `NO_TRADES` is an available month with zero trades; `NOT_YET_AVAILABLE` precedes the first authenticated observation in that study and is excluded from pair calculations.
+* `AVAILABLE` has trades; `NO_TRADES` is an available month with zero trades; `NOT_YET_AVAILABLE` precedes canonical authenticated instrument coverage and is excluded from pair calculations.
 * Offset: at least one positive and one negative instrument. Rescue: a loss exists but portfolio R is positive. Reduction: portfolio R remains negative while a positive instrument offsets part of losses.
 * All-negative/all-positive requires every currently available instrument to have that strict sign. `same_sign_*_count` is the available-instrument count in such a month, otherwise zero.
 * `monthly_equity_max_drawdown_R` is peak-to-trough drawdown of cumulative monthly R, not trade-level drawdown.
