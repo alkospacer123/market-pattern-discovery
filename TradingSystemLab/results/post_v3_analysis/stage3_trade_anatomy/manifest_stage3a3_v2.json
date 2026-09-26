@@ -1,0 +1,82 @@
+{
+  "audit_status": "POST_V3_STAGE_3A3_V2_NORMALIZATION_AUDIT_PASSED",
+  "counts_by_instrument": {
+    "BR": 1211,
+    "CNY": 806,
+    "GD": 1120,
+    "MIX": 1343,
+    "NG": 1256,
+    "Si": 1218
+  },
+  "counts_by_lifecycle": {
+    "baseline": 4449,
+    "true_oos": 1759,
+    "walk_forward": 746
+  },
+  "counts_by_strategy": {
+    "T2": 3206,
+    "T3": 3748
+  },
+  "counts_by_timeframe": {
+    "H1": 2284,
+    "M30": 4670
+  },
+  "no_analysis": true,
+  "no_optimization": true,
+  "no_ranking": true,
+  "no_rule_testing": true,
+  "no_v1_rows": true,
+  "no_v3_rows": true,
+  "normalized_row_count": 6954,
+  "output_hashes": {
+    "Stage_3A3_v2_Normalization_Report.md": "84f14a0edca8cb10c9d0bd5701d577dc403b0f217b5def5294d431a7329afeba",
+    "normalized_trades_v2_baseline.csv": "10ef69946689348a3ed00db46f3d7a17f9b35d38b85c4ca22865b4c5eea4f487",
+    "normalized_trades_v2_true_oos.csv": "fc1ab3c6d212042d0e74c2e72c98858557562f6556bd58e54e3de3edb1e4b6f0",
+    "normalized_trades_v2_walk_forward.csv": "a390c07a83e4068d5d6d35869a71634a1bcdf161da4a0174f8931765a9686689",
+    "v2_normalization_reconciliation.csv": "67f86932198f23c2026b349b5735e4139e5508c5de8194285b157889b1657f14"
+  },
+  "partition_hashes": {
+    "normalized_trades_v2_baseline.csv": "10ef69946689348a3ed00db46f3d7a17f9b35d38b85c4ca22865b4c5eea4f487",
+    "normalized_trades_v2_true_oos.csv": "fc1ab3c6d212042d0e74c2e72c98858557562f6556bd58e54e3de3edb1e4b6f0",
+    "normalized_trades_v2_walk_forward.csv": "a390c07a83e4068d5d6d35869a71634a1bcdf161da4a0174f8931765a9686689"
+  },
+  "source_hashes": {
+    "TradingSystemLab/results/baseline_v2/T2/BR/H1/trades.csv": "26297e2f3c6f46448bee4672b206e7ef8ae7d32c60bc42570c1b81cc82ce19ae",
+    "TradingSystemLab/results/baseline_v2/T2/BR/M30/trades.csv": "4c2761724189efc3cb77ebd43a04ea6f0dd86db474b0c0c36ebe2ebe4995de78",
+    "TradingSystemLab/results/baseline_v2/T2/CNY/H1/trades.csv": "01168d9816eb146967a1b1d1af5e378517864973dee6ac8d09fd3eb7fc599e9c",
+    "TradingSystemLab/results/baseline_v2/T2/CNY/M30/trades.csv": "af869feaaa3d1c5436352cc60eedc3fb8ca616044485b3495354e4685a65f208",
+    "TradingSystemLab/results/baseline_v2/T2/GD/H1/trades.csv": "a8d1448e8209892951e598fe1777a6da9add1144fba5c848cac67df7368dcf1c",
+    "TradingSystemLab/results/baseline_v2/T2/GD/M30/trades.csv": "d0cf37ea3e2567ada96c8ac2221e410bbc35ae1f7dbac9af4db240993884067d",
+    "TradingSystemLab/results/baseline_v2/T2/MIX/H1/trades.csv": "7a4ab0af91c3e6c70dbc8f42c3a8b5f1ef9de7766b39a44a0e03fd7e7006572b",
+    "TradingSystemLab/results/baseline_v2/T2/MIX/M30/trades.csv": "3a6a603ca6bcd44a3c71539482bbf89d640eddf38132d5c0f906ff0e5db07d4c",
+    "TradingSystemLab/results/baseline_v2/T2/NG/H1/trades.csv": "641a104aebf1c7d2c0bdeff96d5a31daf24e077d78400508fdfbabdd602094bd",
+    "TradingSystemLab/results/baseline_v2/T2/NG/M30/trades.csv": "91fcecdde21e19c0fa12b0966249925b9a60ab90f9a0932ecf91f1f892e20e06",
+    "TradingSystemLab/results/baseline_v2/T2/Si/H1/trades.csv": "3dbca87f164a0f181bd36ec1a74dcd0e13cad0b1f312e66a8378fe02a3ebef7d",
+    "TradingSystemLab/results/baseline_v2/T2/Si/M30/trades.csv": "647896968203a979b5e155f14d58b335a23e585836958d993d4e6397185f8f59",
+    "TradingSystemLab/results/baseline_v2/T3/BR/H1/trades.csv": "4fb2e966c2e63acafdf9c024ca79128eb9532d6fac0762e8dc2799258ec66727",
+    "TradingSystemLab/results/baseline_v2/T3/BR/M30/trades.csv": "b16748613af9224aaddb692a1904b9eed6cfdd7e4a2e4169e27f9ac81db961ed",
+    "TradingSystemLab/results/baseline_v2/T3/CNY/H1/trades.csv": "fd66043bb1281cc3062fca3afbf0df932071846cf7af21bc4122020c1cd930ba",
+    "TradingSystemLab/results/baseline_v2/T3/CNY/M30/trades.csv": "ec61548f87955c2aeafa7ebda85fa020eb4d0f80064b1abfe9da2a1864b2f215",
+    "TradingSystemLab/results/baseline_v2/T3/GD/H1/trades.csv": "53f31bc96611bae062e9deee6c8c30a315ec43498128bab698944ce43e92fdd1",
+    "TradingSystemLab/results/baseline_v2/T3/GD/M30/trades.csv": "7bd486c62278825f3d61701b20f3534e8c6dbd4212d0dc47528c3f4e573c00fb",
+    "TradingSystemLab/results/baseline_v2/T3/MIX/H1/trades.csv": "93a5f06f02a5d88668c8b94a7ffa5c24d671d9635bb14fbf7e886d2160b7a47b",
+    "TradingSystemLab/results/baseline_v2/T3/MIX/M30/trades.csv": "36886a399dc21faa5d77d8ab925aeb0917f50de5c6ea398438b5fda2e2ebae2f",
+    "TradingSystemLab/results/baseline_v2/T3/NG/H1/trades.csv": "d8c84c83087021c56188dc8bd7143256c27187a296272df7627ddc2263a1a9af",
+    "TradingSystemLab/results/baseline_v2/T3/NG/M30/trades.csv": "db90785c49bd60f1e6e5ff377cb3fefe59e23fd3240111022830102e2447ebe3",
+    "TradingSystemLab/results/baseline_v2/T3/Si/H1/trades.csv": "8efa8c32b29fb42a8a04f11347bd4d582f7dbe98feaf10ef4dfabf4c2b1308ed",
+    "TradingSystemLab/results/baseline_v2/T3/Si/M30/trades.csv": "cf55c695e0306760bada4c3cc9ff20dcc41237ef174247feb843a6a962d7a539",
+    "TradingSystemLab/results/true_oos_v2/T2/H1/trades.csv": "6ae4da3b991305aad14f3c68a6d37f297a623a95c863a54d0be129f06c6ebbb6",
+    "TradingSystemLab/results/true_oos_v2/T2/M30/trades.csv": "8e1f7b06b35ffa734377b856d2d67cfb9f59b59d6e79d203aa4ca9a36a6207fb",
+    "TradingSystemLab/results/true_oos_v2/T3/H1/trades.csv": "8aba877adb218dce4cda9be7bc2bdb07b6a760f3e0a341880db250f23c2e076c",
+    "TradingSystemLab/results/true_oos_v2/T3/M30/trades.csv": "d09387234ed8b6836387f7f0b36f2f268c68df939761feb57692f30c75716029",
+    "TradingSystemLab/results/walk_forward_v2/T2/H1/trades.csv": "e19fc1e694fee45307dc47a34f681506eca8e53f7866fa3be2474f332a4ae1e8",
+    "TradingSystemLab/results/walk_forward_v2/T2/M30/trades.csv": "1a82378a94be7e2cf492054116b3eea18c11a54027dde221dffab3ec558189e7",
+    "TradingSystemLab/results/walk_forward_v2/T3/H1/trades.csv": "f8e92c767aca913160cd321e7c4e90652fd7443a2c2c4b478d32be3b327dfb29",
+    "TradingSystemLab/results/walk_forward_v2/T3/M30/trades.csv": "191b6c28e813dc100e7415838813b40488c0dce0fac14e63523bc3d6f121d091"
+  },
+  "stage3a1_audit_sha256": "90373bbf2dbb80b0a8590c149b12f9b4d6c986ace3ebec09c60333e3f6c74d51",
+  "stage3a1_manifest_sha256": "3173403205798cef5ec34b7b9824962090a75148638d6dc455e5303e025360c4",
+  "stage3a2_audit_sha256": "466f39a53588f0cc942241a7b3aa09759f91db2285d640bb64aaa43c05d8e3fc",
+  "stage3a2_manifest_sha256": "322c5a245f63cfaeb037a741f580b126f480f2b1bcef706a5e6d12e637b51682",
+  "status": "POST_V3_STAGE_3A3_V2_NORMALIZATION_COMPLETE"
+}
