@@ -1,0 +1,67 @@
+study_a,study_b,comparability,reasons
+v1/T2/M30,v1/T2/H1,NOT_DIRECTLY_COMPARABLE,different timeframe
+v1/T2/M30,v1/T3/M30,NOT_DIRECTLY_COMPARABLE,different strategy
+v1/T2/M30,v1/T3/H1,NOT_DIRECTLY_COMPARABLE,different strategy; different timeframe
+v1/T2/M30,v2/T2/M30,PARTIALLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly
+v1/T2/M30,v2/T2/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different timeframe
+v1/T2/M30,v2/T3/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different strategy
+v1/T2/M30,v2/T3/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different strategy; different timeframe
+v1/T2/M30,v3/T2/M30,PARTIALLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity
+v1/T2/M30,v3/T2/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; different timeframe
+v1/T2/M30,v3/T3/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; different strategy
+v1/T2/M30,v3/T3/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; different strategy; different timeframe
+v1/T2/H1,v1/T3/M30,NOT_DIRECTLY_COMPARABLE,different strategy; different timeframe
+v1/T2/H1,v1/T3/H1,NOT_DIRECTLY_COMPARABLE,different strategy
+v1/T2/H1,v2/T2/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different timeframe
+v1/T2/H1,v2/T2/H1,PARTIALLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly
+v1/T2/H1,v2/T3/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different strategy; different timeframe
+v1/T2/H1,v2/T3/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different strategy
+v1/T2/H1,v3/T2/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; different timeframe
+v1/T2/H1,v3/T2/H1,PARTIALLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity
+v1/T2/H1,v3/T3/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; different strategy; different timeframe
+v1/T2/H1,v3/T3/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; different strategy
+v1/T3/M30,v1/T3/H1,NOT_DIRECTLY_COMPARABLE,different timeframe
+v1/T3/M30,v2/T2/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different strategy
+v1/T3/M30,v2/T2/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different strategy; different timeframe
+v1/T3/M30,v2/T3/M30,PARTIALLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly
+v1/T3/M30,v2/T3/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different timeframe
+v1/T3/M30,v3/T2/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; different strategy
+v1/T3/M30,v3/T2/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; different strategy; different timeframe
+v1/T3/M30,v3/T3/M30,PARTIALLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity
+v1/T3/M30,v3/T3/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; different timeframe
+v1/T3/H1,v2/T2/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different strategy; different timeframe
+v1/T3/H1,v2/T2/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different strategy
+v1/T3/H1,v2/T3/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different timeframe
+v1/T3/H1,v2/T3/H1,PARTIALLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly
+v1/T3/H1,v3/T2/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; different strategy; different timeframe
+v1/T3/H1,v3/T2/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; different strategy
+v1/T3/H1,v3/T3/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; different timeframe
+v1/T3/H1,v3/T3/H1,PARTIALLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity
+v2/T2/M30,v2/T2/H1,NOT_DIRECTLY_COMPARABLE,different timeframe
+v2/T2/M30,v2/T3/M30,NOT_DIRECTLY_COMPARABLE,different strategy
+v2/T2/M30,v2/T3/H1,NOT_DIRECTLY_COMPARABLE,different strategy; different timeframe
+v2/T2/M30,v3/T2/M30,PARTIALLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly
+v2/T2/M30,v3/T2/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different timeframe
+v2/T2/M30,v3/T3/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different strategy
+v2/T2/M30,v3/T3/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different strategy; different timeframe
+v2/T2/H1,v2/T3/M30,NOT_DIRECTLY_COMPARABLE,different strategy; different timeframe
+v2/T2/H1,v2/T3/H1,NOT_DIRECTLY_COMPARABLE,different strategy
+v2/T2/H1,v3/T2/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different timeframe
+v2/T2/H1,v3/T2/H1,PARTIALLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly
+v2/T2/H1,v3/T3/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different strategy; different timeframe
+v2/T2/H1,v3/T3/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different strategy
+v2/T3/M30,v2/T3/H1,NOT_DIRECTLY_COMPARABLE,different timeframe
+v2/T3/M30,v3/T2/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different strategy
+v2/T3/M30,v3/T2/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different strategy; different timeframe
+v2/T3/M30,v3/T3/M30,PARTIALLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly
+v2/T3/M30,v3/T3/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different timeframe
+v2/T3/H1,v3/T2/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different strategy; different timeframe
+v2/T3/H1,v3/T2/H1,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different strategy
+v2/T3/H1,v3/T3/M30,NOT_DIRECTLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly; different timeframe
+v2/T3/H1,v3/T3/H1,PARTIALLY_COMPARABLE,different instrument universe; different development period; different sample size; different lifecycle evidence maturity; perpetual vs quarterly
+v3/T2/M30,v3/T2/H1,NOT_DIRECTLY_COMPARABLE,different timeframe
+v3/T2/M30,v3/T3/M30,NOT_DIRECTLY_COMPARABLE,different strategy
+v3/T2/M30,v3/T3/H1,NOT_DIRECTLY_COMPARABLE,different strategy; different timeframe
+v3/T2/H1,v3/T3/M30,NOT_DIRECTLY_COMPARABLE,different strategy; different timeframe
+v3/T2/H1,v3/T3/H1,NOT_DIRECTLY_COMPARABLE,different strategy
+v3/T3/M30,v3/T3/H1,NOT_DIRECTLY_COMPARABLE,different timeframe

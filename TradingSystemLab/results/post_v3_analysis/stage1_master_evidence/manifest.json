@@ -1,0 +1,414 @@
+{
+  "artifacts": {
+    "Stage_1_Master_Evidence_Report.md": "3027201d9c4f218c1095cef6c6875cc5ddf561d9fcf0367e6c492ddfc6236455",
+    "calendar_month_of_year_statistics.csv": "979d26f61d92d0538fa0966f875efe85573034c6289e62edd66ec1e451ba2460",
+    "chronological_monthly_statistics.csv": "d494c88d897303cdf3b68c7076fb9c5bd79b6107bd03cc4f2a35de90addec435",
+    "comparability_matrix.csv": "e3bd1bd2445c90ab9c178316b171f7dd322b834fab7bd176c01ee0cbd84ed523",
+    "direction_statistics.csv": "c62ba19798d71aa4031f99b5489350b14c789cecb4d1283b34dfc78650ea2d79",
+    "instrument_statistics.csv": "ac723ccf88976a6360a9d66c0463c1a2e376b4539c4e2ce1ead64826178e03c2",
+    "master_study_comparison.csv": "ec4bb26571a06d34ba7615c900fcecef164e6aecc15a103189d486947f280abe",
+    "monthly_stability_summary.csv": "2a4a7c70f5a023dda64293963220e246d63f89d03bd9812e0d9d739cdd8530e6",
+    "quarterly_statistics.csv": "b39c42c387f3eecee93acbac6fd2b1e869dbad418434364d979d73e3e5d1d777",
+    "source_inventory.csv": "5ad7275534df679b2e483e376a5ac059f9427f1f67e15f49be8ee1203c774795",
+    "yearly_statistics.csv": "a4594c1e6c7f22de71ff47f4f912e675ca06d4509cbdb00002a02d849ac3721d"
+  },
+  "controls": {
+    "no_candidate_replacement": true,
+    "no_optimization": true,
+    "no_ranking": true,
+    "no_strategy_execution": true,
+    "no_trade_modification": true
+  },
+  "generation_labels": [
+    "v1",
+    "v2",
+    "v3"
+  ],
+  "source_files_used": [
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T2/BR/H1/trades.csv",
+      "sha256": "26297e2f3c6f46448bee4672b206e7ef8ae7d32c60bc42570c1b81cc82ce19ae"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T2/BR/M30/trades.csv",
+      "sha256": "4c2761724189efc3cb77ebd43a04ea6f0dd86db474b0c0c36ebe2ebe4995de78"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T2/CNY/H1/trades.csv",
+      "sha256": "01168d9816eb146967a1b1d1af5e378517864973dee6ac8d09fd3eb7fc599e9c"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T2/CNY/M30/trades.csv",
+      "sha256": "af869feaaa3d1c5436352cc60eedc3fb8ca616044485b3495354e4685a65f208"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T2/GD/H1/trades.csv",
+      "sha256": "a8d1448e8209892951e598fe1777a6da9add1144fba5c848cac67df7368dcf1c"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T2/GD/M30/trades.csv",
+      "sha256": "d0cf37ea3e2567ada96c8ac2221e410bbc35ae1f7dbac9af4db240993884067d"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T2/MIX/H1/trades.csv",
+      "sha256": "7a4ab0af91c3e6c70dbc8f42c3a8b5f1ef9de7766b39a44a0e03fd7e7006572b"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T2/MIX/M30/trades.csv",
+      "sha256": "3a6a603ca6bcd44a3c71539482bbf89d640eddf38132d5c0f906ff0e5db07d4c"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T2/NG/H1/trades.csv",
+      "sha256": "641a104aebf1c7d2c0bdeff96d5a31daf24e077d78400508fdfbabdd602094bd"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T2/NG/M30/trades.csv",
+      "sha256": "91fcecdde21e19c0fa12b0966249925b9a60ab90f9a0932ecf91f1f892e20e06"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T2/Si/H1/trades.csv",
+      "sha256": "3dbca87f164a0f181bd36ec1a74dcd0e13cad0b1f312e66a8378fe02a3ebef7d"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T2/Si/M30/trades.csv",
+      "sha256": "647896968203a979b5e155f14d58b335a23e585836958d993d4e6397185f8f59"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T3/BR/H1/trades.csv",
+      "sha256": "4fb2e966c2e63acafdf9c024ca79128eb9532d6fac0762e8dc2799258ec66727"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T3/BR/M30/trades.csv",
+      "sha256": "b16748613af9224aaddb692a1904b9eed6cfdd7e4a2e4169e27f9ac81db961ed"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T3/CNY/H1/trades.csv",
+      "sha256": "fd66043bb1281cc3062fca3afbf0df932071846cf7af21bc4122020c1cd930ba"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T3/CNY/M30/trades.csv",
+      "sha256": "ec61548f87955c2aeafa7ebda85fa020eb4d0f80064b1abfe9da2a1864b2f215"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T3/GD/H1/trades.csv",
+      "sha256": "53f31bc96611bae062e9deee6c8c30a315ec43498128bab698944ce43e92fdd1"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T3/GD/M30/trades.csv",
+      "sha256": "7bd486c62278825f3d61701b20f3534e8c6dbd4212d0dc47528c3f4e573c00fb"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T3/MIX/H1/trades.csv",
+      "sha256": "93a5f06f02a5d88668c8b94a7ffa5c24d671d9635bb14fbf7e886d2160b7a47b"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T3/MIX/M30/trades.csv",
+      "sha256": "36886a399dc21faa5d77d8ab925aeb0917f50de5c6ea398438b5fda2e2ebae2f"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T3/NG/H1/trades.csv",
+      "sha256": "d8c84c83087021c56188dc8bd7143256c27187a296272df7627ddc2263a1a9af"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T3/NG/M30/trades.csv",
+      "sha256": "db90785c49bd60f1e6e5ff377cb3fefe59e23fd3240111022830102e2447ebe3"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T3/Si/H1/trades.csv",
+      "sha256": "8efa8c32b29fb42a8a04f11347bd4d582f7dbe98feaf10ef4dfabf4c2b1308ed"
+    },
+    {
+      "path": "TradingSystemLab/results/baseline_v2/T3/Si/M30/trades.csv",
+      "sha256": "cf55c695e0306760bada4c3cc9ff20dcc41237ef174247feb843a6a962d7a539"
+    },
+    {
+      "path": "TradingSystemLab/results/multitimeframe_research/T2/H1/CNYRUBF_trades.csv",
+      "sha256": "a2cc40af3eda9769d73e65f9c266fcf21d3a30dbb2ad2946de6ffd0c890d02d0"
+    },
+    {
+      "path": "TradingSystemLab/results/multitimeframe_research/T2/H1/USDRUBF_trades.csv",
+      "sha256": "70fb7077d7f91465a8bd4a2744b67f03eaf3e3392b3d4f47dac298ba9863ac0a"
+    },
+    {
+      "path": "TradingSystemLab/results/multitimeframe_research/T2/M30/CNYRUBF_trades.csv",
+      "sha256": "f45d7eaaf0f16bd364583cf16be15f17cd1777ff9b906719114865d84256d6f6"
+    },
+    {
+      "path": "TradingSystemLab/results/multitimeframe_research/T2/M30/USDRUBF_trades.csv",
+      "sha256": "50f77989729406d02af80fb4d0c0ecb0adbc42f4b83dcbaab8f7babde3843de3"
+    },
+    {
+      "path": "TradingSystemLab/results/multitimeframe_research/T3/H1/CNYRUBF_trades.csv",
+      "sha256": "8f33a53f023745c661c658bb6f5beb9b20ee4a10f388e32c0b4220c5ce03f0ff"
+    },
+    {
+      "path": "TradingSystemLab/results/multitimeframe_research/T3/H1/USDRUBF_trades.csv",
+      "sha256": "1067bf1e2fdbc9eb31529f7097882147883b6150dfa7a441b5dc3e9b2723991b"
+    },
+    {
+      "path": "TradingSystemLab/results/multitimeframe_research/T3/M30/CNYRUBF_trades.csv",
+      "sha256": "eb56cbfa45121eba39c75b9d15595db488c990f14a2233dbfe0c41732725897d"
+    },
+    {
+      "path": "TradingSystemLab/results/multitimeframe_research/T3/M30/USDRUBF_trades.csv",
+      "sha256": "d5ed693654e8ca69b762678e9b2620de76b97f462856f3f3aae6766bbfb10265"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/baseline/T2/H1/CNYRUBF/trades.csv",
+      "sha256": "13c2dd5ef08deef8c36787f13144f1bce42e8a192b409fef96ebc8eb8060c3e5"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/baseline/T2/H1/GLDRUBF/trades.csv",
+      "sha256": "9b0b111d48f03c9cd3e2138a2f07122102a4c01f8f1b3642eee9070562c6af89"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/baseline/T2/H1/IMOEXF/trades.csv",
+      "sha256": "2bdcea9e51fb6ab650a137660595d9136bf256b10a6172581b59b32a6c871505"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/baseline/T2/H1/USDRUBF/trades.csv",
+      "sha256": "a49ec4233fa4bffa917c2db24abddfc6ccdfa4b7a9bc843ce10f306a5f3fdbcf"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/baseline/T2/M30/CNYRUBF/trades.csv",
+      "sha256": "491bec26266e5911c415ba8e65d4def660aeb514b9099edf1e3eca0c13692f30"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/baseline/T2/M30/GLDRUBF/trades.csv",
+      "sha256": "44a7f2dcc68e75d431d2d89fbc4719c5ce713fcc1e14200ad636f0cb024528e2"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/baseline/T2/M30/IMOEXF/trades.csv",
+      "sha256": "62e3d39973f3b019fec8fad5fe933a601bfc27351173a4197c53170fda3476d3"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/baseline/T2/M30/USDRUBF/trades.csv",
+      "sha256": "35c0eda88cf9b26f4e1bb41b73fee769d1ce18411e141bcf2e4c5c7360dbc94d"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/baseline/T3/H1/CNYRUBF/trades.csv",
+      "sha256": "30e996f64f0ecf38890eb59cd603f111c6fd14aae71e9fa2d0aaaea35eafaa39"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/baseline/T3/H1/GLDRUBF/trades.csv",
+      "sha256": "d228cae9a943b9f32a10b24cc6e2e9c41a3d76df603375e33ca56d281dbb71d3"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/baseline/T3/H1/IMOEXF/trades.csv",
+      "sha256": "4de6f8bdb8dd02fc8e5e875fa0de1ce65fdac9979a091801b7eab7ff828e358f"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/baseline/T3/H1/USDRUBF/trades.csv",
+      "sha256": "b88cdd3b7179f51f03874055e64ea04f0e41d43d7801f165519e90a26ee78a51"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/baseline/T3/M30/CNYRUBF/trades.csv",
+      "sha256": "e2243d73ccc9cea55b05b273ebfc0fd3911fe9ffa872ad22a04a1b0101ca77c6"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/baseline/T3/M30/GLDRUBF/trades.csv",
+      "sha256": "bc232c69fae2d536350e9fb5e3661dfcbe9c0fcb0c30fd588dd74b8a582e00fb"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/baseline/T3/M30/IMOEXF/trades.csv",
+      "sha256": "a0cf090e3eb2686b206c3e19c6b0b72737d494b24e86df110b519cb4123d682e"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/baseline/T3/M30/USDRUBF/trades.csv",
+      "sha256": "f5e9131807710bca579b4ecfa2c714d49c3c99987bf783e05125f54f23c78b63"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/true_oos/T2/H1/metrics.json",
+      "sha256": "9786789539608bf21db4f9223e19f7985f82492ed9908259e4f8e9cb549541f0"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/true_oos/T2/H1/trades.csv",
+      "sha256": "b7cd970fca5ff07b1191e58023ba8b5bccb58b4c79afbc2706c7be648f30b2f5"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/true_oos/T2/M30/metrics.json",
+      "sha256": "84daa5a2262ff0e286d699bcb0b1ebd6ac18a74c0c7326f4bb74f76978da6ca4"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/true_oos/T2/M30/trades.csv",
+      "sha256": "f3b9edf67503aedebc73a7d6cf9c7333f3b195fe924a09156c5bf4ba4b79352d"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/true_oos/T3/H1/metrics.json",
+      "sha256": "1623f39ffc9023298d9079859c64d150647a2ef30b58a6ce6e6a86726bd5aafc"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/true_oos/T3/H1/trades.csv",
+      "sha256": "aef2ec72e2e10622d25744b42a53b004229ec1fa96ded2af96697267c8512df7"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/true_oos/T3/M30/metrics.json",
+      "sha256": "cc18c831c13944877af648209b4fa1e28ac6453a0f7910922a97f18a0d6a8f50"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/true_oos/T3/M30/trades.csv",
+      "sha256": "a8ee0efc40407ec649a73982bf6a184d36052b6d83c6fd32d2050c1ee21a8820"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/walk_forward/T2/H1/metrics.json",
+      "sha256": "22a9e80b1dbbcc001d9508c89f21d461b694e2e58edf9322f3b92163d3c0a0ce"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/walk_forward/T2/H1/trades.csv",
+      "sha256": "e19738606fa39d6fa3ad7d1a979a8faf41556a4e813e6f54eea6ab0cb14932e8"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/walk_forward/T2/M30/metrics.json",
+      "sha256": "e53cb4cbe6111ce7aa318b03eb0094eb15002729e9df6f2c4dfffbf9bccc5b6a"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/walk_forward/T2/M30/trades.csv",
+      "sha256": "9e8d0342abae4aa999ef6b323be7c5ae369e429929dd62dcee3330e4171e4760"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/walk_forward/T3/H1/metrics.json",
+      "sha256": "4f364ec15b7bd3ca66ffa2b148d4b6cc4f66680dbdfcd4e27633cf186b00d4d1"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/walk_forward/T3/H1/trades.csv",
+      "sha256": "792554bf0f6841e31ffc2f42b39098b2c1090a78ed5b3d0b5f287a3bfe720b54"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/walk_forward/T3/M30/metrics.json",
+      "sha256": "4d0887b3b0a61d2d735a82c0cbe65331a67178e8c299cbd74337713f1fda0edb"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/walk_forward/T3/M30/trades.csv",
+      "sha256": "e61175b02d5c4453ea5e592c1c90b6e0ab2490efc9b7043f919b12cc6c5f9059"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_v2/T2/H1/metrics.json",
+      "sha256": "b1300efbc5ed8fc50441035f9e6301d0dc9e0611075ae54c2771caecfb433d6d"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_v2/T2/H1/trades.csv",
+      "sha256": "6ae4da3b991305aad14f3c68a6d37f297a623a95c863a54d0be129f06c6ebbb6"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_v2/T2/M30/metrics.json",
+      "sha256": "770f9c70d17d1018ca4aa949294ac1af6216c7de6bde91b1b2b194130255d30a"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_v2/T2/M30/trades.csv",
+      "sha256": "8e1f7b06b35ffa734377b856d2d67cfb9f59b59d6e79d203aa4ca9a36a6207fb"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_v2/T3/H1/metrics.json",
+      "sha256": "7da626353458eae7672e1e497e04d45cae33a4c41a95fed036b819018ae10d9b"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_v2/T3/H1/trades.csv",
+      "sha256": "8aba877adb218dce4cda9be7bc2bdb07b6a760f3e0a341880db250f23c2e076c"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_v2/T3/M30/metrics.json",
+      "sha256": "ac136c8f756cf74e921f337ce1bf6e357e33cd0fa44b1bedc2f640e761492496"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_v2/T3/M30/trades.csv",
+      "sha256": "d09387234ed8b6836387f7f0b36f2f268c68df939761feb57692f30c75716029"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_validation/M30/T2/metrics.json",
+      "sha256": "7fa34cffe34ca597d07b5a62820da9383515c028d25a683b6f59ca3b44a1e4c6"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_validation/M30/T2/trades.csv",
+      "sha256": "93e92be47ec42a0b06a262bf2be08ace1a82a2b5c9e534a395dce00a501d5adb"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_validation/M30/T3/metrics.json",
+      "sha256": "49c9da60eb4206653d4542c2d0b0f0fa52c2791ceb19cf65c2eac88c5eccec14"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_validation/M30/T3/trades.csv",
+      "sha256": "853f6633d3a4671d817bb42a6c2e9de84354b6bf97b41a3b462ff83005ae47d5"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_validation/T2/metrics.json",
+      "sha256": "30e51d37356fa14868a17c133e578fd4358bec029d26061ac5ae162a483d51eb"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_validation/T2/trades.csv",
+      "sha256": "efc026b7a3b26f9457f670a1ea3da44bf71bd242a8d46b954a9e93fb18e2a3cd"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_validation/T3/metrics.json",
+      "sha256": "5ffa557d69e93186dd4e7e2b95089d5c866f6ddbed47da34c44950cefd3445a8"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_validation/T3/trades.csv",
+      "sha256": "aa8da10eb878790ef353b106a47ccb4ea9685391c8c445d67e279799f8ec5e8c"
+    },
+    {
+      "path": "TradingSystemLab/results/walk_forward/M30/T2/aggregate_metrics.json",
+      "sha256": "5b97d26b4dd2113df325f9e159e7ffb0a06394a1050164abfcaa55bee8e9e54d"
+    },
+    {
+      "path": "TradingSystemLab/results/walk_forward/M30/T2/stitched_forward_trades.csv",
+      "sha256": "b4b800c6825cbe77a546fb84bf51b1b493b4dd44ba20e6ec5eeaeb42d1b5a700"
+    },
+    {
+      "path": "TradingSystemLab/results/walk_forward/M30/T3/aggregate_metrics.json",
+      "sha256": "9d495a5d9388205fb31aa091ed7a3d0f7cf450145a03dda96216487e9346d6e3"
+    },
+    {
+      "path": "TradingSystemLab/results/walk_forward/M30/T3/stitched_forward_trades.csv",
+      "sha256": "368491b87637415b022052fb1dd52202c64c88bf19c5d7c35bbf1a4d348a61a2"
+    },
+    {
+      "path": "TradingSystemLab/results/walk_forward_v2/T2/H1/metrics.json",
+      "sha256": "49263ebb6049065428a3bce2749b697653c3f7307cabb58435c1c590cccb9a54"
+    },
+    {
+      "path": "TradingSystemLab/results/walk_forward_v2/T2/H1/trades.csv",
+      "sha256": "e19fc1e694fee45307dc47a34f681506eca8e53f7866fa3be2474f332a4ae1e8"
+    },
+    {
+      "path": "TradingSystemLab/results/walk_forward_v2/T2/M30/metrics.json",
+      "sha256": "2be73934dc828d15cc972be5060059ec972f3b98193928bd207ba9d088ef47ba"
+    },
+    {
+      "path": "TradingSystemLab/results/walk_forward_v2/T2/M30/trades.csv",
+      "sha256": "1a82378a94be7e2cf492054116b3eea18c11a54027dde221dffab3ec558189e7"
+    },
+    {
+      "path": "TradingSystemLab/results/walk_forward_v2/T3/H1/metrics.json",
+      "sha256": "5d4ed88d6a71dbcc89db7a48bf4bdf745e2735a2a305f4a6b4e746b8e2f72e15"
+    },
+    {
+      "path": "TradingSystemLab/results/walk_forward_v2/T3/H1/trades.csv",
+      "sha256": "f8e92c767aca913160cd321e7c4e90652fd7443a2c2c4b478d32be3b327dfb29"
+    },
+    {
+      "path": "TradingSystemLab/results/walk_forward_v2/T3/M30/metrics.json",
+      "sha256": "0ed0c3221231f8eab7a89dede09fd26b06a63020f1a213bdf0acace5aa9d962a"
+    },
+    {
+      "path": "TradingSystemLab/results/walk_forward_v2/T3/M30/trades.csv",
+      "sha256": "191b6c28e813dc100e7415838813b40488c0dce0fac14e63523bc3d6f121d091"
+    },
+    {
+      "path": "TradingSystemLab/results/walk_forward_validation/T2/metrics.json",
+      "sha256": "4a6daf9e4242d70258b05754140836bd94451bde7ab34bb1defeed133261332d"
+    },
+    {
+      "path": "TradingSystemLab/results/walk_forward_validation/T2/trades.csv",
+      "sha256": "eb62818c6d2f56c278ddcb8e4047ea052a690d38f1432146f5284046a7e8e6c3"
+    },
+    {
+      "path": "TradingSystemLab/results/walk_forward_validation/T3/metrics.json",
+      "sha256": "c265b7ab0bb20dc5d5df5c1b4e922f498a41fae3972568696a2c6d29493b2388"
+    },
+    {
+      "path": "TradingSystemLab/results/walk_forward_validation/T3/trades.csv",
+      "sha256": "12e2945aca6901934fae0e23ee34d2c46b0ede126936503084bbc5df17768edd"
+    }
+  ],
+  "status": "POST_V3_STAGE_1_MASTER_EVIDENCE_COMPLETE"
+}
