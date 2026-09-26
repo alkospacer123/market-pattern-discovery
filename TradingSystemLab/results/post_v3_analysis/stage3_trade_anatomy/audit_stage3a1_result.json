@@ -11,6 +11,8 @@
   "deterministic_rerun": "PASS",
   "invalid_direction_count": 0,
   "invalid_timestamp_count": 0,
+  "manifest_audit_status": "POST_V3_STAGE_3A1_SCHEMA_PROVENANCE_AUDIT_PASSED",
+  "manifest_closeout": "PASS",
   "maximum_reconciliation_delta": 4.706919298769208e-10,
   "mutation_tests_passed": {
     "alter_output_SHA": true,
@@ -18,12 +20,13 @@
     "change_source_SHA": true,
     "change_trade_count": true,
     "corrupt_C1_mapping": true,
+    "reject_pending_final_manifest": true,
     "substitute_v1_C0_PF": true,
     "unknown_schema": true
   },
   "output_hashes": {
     "Stage_3A1_Schema_Provenance_Report.md": "47a24e46fc8c3244d95ec60a46d54d9f713d745d83d32449738568699284b016",
-    "manifest_stage3a1.json": "2c27d24b74227394c426a5738bb99c59e0e44e923360a2f84e876db7fa86ff5d",
+    "manifest_stage3a1.json": "3173403205798cef5ec34b7b9824962090a75148638d6dc455e5303e025360c4",
     "study_expected_counts.csv": "7e2fc15add5ad50590f9374e46043eafd460edf148a88ebcda45fd82af05de62",
     "trade_field_availability.csv": "ca315982f644fb74ca12b8013dbae3b8edcaeb43582738f37908f2f1ae1bea94",
     "trade_schema_registry.csv": "0c5d8faa1792cf24555ade1725ffa1c3d570650bcd4bf0c38748ca25ab704f15",

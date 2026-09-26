@@ -1,5 +1,5 @@
 {
-  "audit_status": "PENDING_INDEPENDENT_AUDIT",
+  "audit_status": "POST_V3_STAGE_3A1_SCHEMA_PROVENANCE_AUDIT_PASSED",
   "counts_per_generation": {
     "v1": 1299,
     "v2": 6954,
