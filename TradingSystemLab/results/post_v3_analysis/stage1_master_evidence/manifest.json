@@ -1,29 +1,37 @@
 {
   "artifacts": {
-    "Stage_1_Master_Evidence_Report.md": "3027201d9c4f218c1095cef6c6875cc5ddf561d9fcf0367e6c492ddfc6236455",
-    "calendar_month_of_year_statistics.csv": "979d26f61d92d0538fa0966f875efe85573034c6289e62edd66ec1e451ba2460",
-    "chronological_monthly_statistics.csv": "d494c88d897303cdf3b68c7076fb9c5bd79b6107bd03cc4f2a35de90addec435",
+    "Stage_1_Master_Evidence_Report.md": "1c974d8177a949e8a291ac870e4b325a5892aa3b179eb19e8d462ebc07596265",
+    "calendar_month_of_year_statistics.csv": "7c603d730a19562e39c8b031e6a8769cbabd40e70abcb96f189ec919dc3f32a6",
+    "chronological_monthly_statistics.csv": "230903739dddf474273a57814aa713dfadf8aa1d52668047b9c50e47bd058bfb",
     "comparability_matrix.csv": "e3bd1bd2445c90ab9c178316b171f7dd322b834fab7bd176c01ee0cbd84ed523",
-    "direction_statistics.csv": "c62ba19798d71aa4031f99b5489350b14c789cecb4d1283b34dfc78650ea2d79",
-    "instrument_statistics.csv": "ac723ccf88976a6360a9d66c0463c1a2e376b4539c4e2ce1ead64826178e03c2",
-    "master_study_comparison.csv": "ec4bb26571a06d34ba7615c900fcecef164e6aecc15a103189d486947f280abe",
-    "monthly_stability_summary.csv": "2a4a7c70f5a023dda64293963220e246d63f89d03bd9812e0d9d739cdd8530e6",
-    "quarterly_statistics.csv": "b39c42c387f3eecee93acbac6fd2b1e869dbad418434364d979d73e3e5d1d777",
-    "source_inventory.csv": "5ad7275534df679b2e483e376a5ac059f9427f1f67e15f49be8ee1203c774795",
-    "yearly_statistics.csv": "a4594c1e6c7f22de71ff47f4f912e675ca06d4509cbdb00002a02d849ac3721d"
+    "direction_statistics.csv": "22164ccaf1657ad5887c3ba96b5b591f07f2642577c0a036c4d5f3bd6f1bd71f",
+    "instrument_statistics.csv": "926e7c44fd67e7ef90ec10b89660ab34ad1429493824a691a9610da786f9d5de",
+    "master_study_comparison.csv": "7bd9c7824a19ffe5f565245881ccc28ad40d4b242434cc4908baa14597f1145a",
+    "monthly_stability_summary.csv": "7617cb3f8bf27c8e70828d612a4c695d59b797508a448366a67c34594767f8a8",
+    "quarterly_statistics.csv": "33b007d1f692248cf0f083b4ed188d438ff9da257818f358310c159dd2ac07ce",
+    "source_inventory.csv": "07e1cd583230678dec926362cc3d30d3c45ef5aeda42a40cffa872fe8b57bcb6",
+    "yearly_statistics.csv": "56f9fcb9c0e4c6bff35e1b9273badb27aad10125ddd9c9734deff30ef5eb0630"
   },
   "controls": {
+    "C1_normalization_verified": true,
+    "canonical_aggregate_reconciliation": true,
+    "deterministic_rerun": true,
     "no_candidate_replacement": true,
     "no_optimization": true,
     "no_ranking": true,
     "no_strategy_execution": true,
-    "no_trade_modification": true
+    "no_trade_modification": true,
+    "phase2_candidate_metrics_verified": true
   },
+  "direction_row_count": 72,
   "generation_labels": [
     "v1",
     "v2",
     "v3"
   ],
+  "instrument_row_count": 144,
+  "monthly_row_count": 789,
+  "source_artifact_count": 106,
   "source_files_used": [
     {
       "path": "TradingSystemLab/results/baseline_v2/T2/BR/H1/trades.csv",
@@ -222,12 +230,20 @@
       "sha256": "9786789539608bf21db4f9223e19f7985f82492ed9908259e4f8e9cb549541f0"
     },
     {
+      "path": "TradingSystemLab/results/perpetual_v3/true_oos/T2/H1/monthly_report.csv",
+      "sha256": "984ebe45e42936a81c0f19c6c986d6c39a553575153121a336d09f0a3088b350"
+    },
+    {
       "path": "TradingSystemLab/results/perpetual_v3/true_oos/T2/H1/trades.csv",
       "sha256": "b7cd970fca5ff07b1191e58023ba8b5bccb58b4c79afbc2706c7be648f30b2f5"
     },
     {
       "path": "TradingSystemLab/results/perpetual_v3/true_oos/T2/M30/metrics.json",
       "sha256": "84daa5a2262ff0e286d699bcb0b1ebd6ac18a74c0c7326f4bb74f76978da6ca4"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/true_oos/T2/M30/monthly_report.csv",
+      "sha256": "e3115fe685b473b285dd4fad2f3a5eb2f4c022de0b248bfd1916bfa75f5031b2"
     },
     {
       "path": "TradingSystemLab/results/perpetual_v3/true_oos/T2/M30/trades.csv",
@@ -238,6 +254,10 @@
       "sha256": "1623f39ffc9023298d9079859c64d150647a2ef30b58a6ce6e6a86726bd5aafc"
     },
     {
+      "path": "TradingSystemLab/results/perpetual_v3/true_oos/T3/H1/monthly_report.csv",
+      "sha256": "c03bf996d41ffc00aaa804e9f1be9e7bbbca0596faca8fb735372938117fc85b"
+    },
+    {
       "path": "TradingSystemLab/results/perpetual_v3/true_oos/T3/H1/trades.csv",
       "sha256": "aef2ec72e2e10622d25744b42a53b004229ec1fa96ded2af96697267c8512df7"
     },
@@ -246,8 +266,16 @@
       "sha256": "cc18c831c13944877af648209b4fa1e28ac6453a0f7910922a97f18a0d6a8f50"
     },
     {
+      "path": "TradingSystemLab/results/perpetual_v3/true_oos/T3/M30/monthly_report.csv",
+      "sha256": "5d3ebe7d5c3c34d85856480e691cde291efd09b38f1ab637cefa1d075e7036ed"
+    },
+    {
       "path": "TradingSystemLab/results/perpetual_v3/true_oos/T3/M30/trades.csv",
       "sha256": "a8ee0efc40407ec649a73982bf6a184d36052b6d83c6fd32d2050c1ee21a8820"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/true_oos/summary/comparison.csv",
+      "sha256": "9489059eb2829b41bae4eab584c18ec54dbd2a9fe1d8038cd207e5266d09e2dd"
     },
     {
       "path": "TradingSystemLab/results/perpetual_v3/walk_forward/T2/H1/metrics.json",
@@ -282,6 +310,10 @@
       "sha256": "e61175b02d5c4453ea5e592c1c90b6e0ab2490efc9b7043f919b12cc6c5f9059"
     },
     {
+      "path": "TradingSystemLab/results/timeframe_analysis/M30_ROBUSTNESS/comparison.csv",
+      "sha256": "202675f60e5f561fe85cea5bde4f42de6ecbce27fc122116384b315cfae46b15"
+    },
+    {
       "path": "TradingSystemLab/results/true_oos_v2/T2/H1/metrics.json",
       "sha256": "b1300efbc5ed8fc50441035f9e6301d0dc9e0611075ae54c2771caecfb433d6d"
     },
@@ -314,8 +346,16 @@
       "sha256": "d09387234ed8b6836387f7f0b36f2f268c68df939761feb57692f30c75716029"
     },
     {
+      "path": "TradingSystemLab/results/true_oos_v2/summary/comparison.csv",
+      "sha256": "00dc876862467409d733aa71d35277ee12bc76b81edbfc43ad2351289067f5a5"
+    },
+    {
       "path": "TradingSystemLab/results/true_oos_validation/M30/T2/metrics.json",
       "sha256": "7fa34cffe34ca597d07b5a62820da9383515c028d25a683b6f59ca3b44a1e4c6"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_validation/M30/T2/monthly_report.csv",
+      "sha256": "86a5cd2ec247fedea2f8c84e6c0b99ddb0da664b43423466bac6c23ee0f3c295"
     },
     {
       "path": "TradingSystemLab/results/true_oos_validation/M30/T2/trades.csv",
@@ -324,6 +364,10 @@
     {
       "path": "TradingSystemLab/results/true_oos_validation/M30/T3/metrics.json",
       "sha256": "49c9da60eb4206653d4542c2d0b0f0fa52c2791ceb19cf65c2eac88c5eccec14"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_validation/M30/T3/monthly_report.csv",
+      "sha256": "ff0d8ff69801b1c9f1ae3a0af413c23c8f5a71942b14b6639d356a81079987d1"
     },
     {
       "path": "TradingSystemLab/results/true_oos_validation/M30/T3/trades.csv",
@@ -344,6 +388,10 @@
     {
       "path": "TradingSystemLab/results/true_oos_validation/T3/trades.csv",
       "sha256": "aa8da10eb878790ef353b106a47ccb4ea9685391c8c445d67e279799f8ec5e8c"
+    },
+    {
+      "path": "TradingSystemLab/results/true_oos_validation/summary/comparison.csv",
+      "sha256": "21a40442ca8e7b6dc075cd0e59016f1f027820a82536aa69a06591e6d14bb6db"
     },
     {
       "path": "TradingSystemLab/results/walk_forward/M30/T2/aggregate_metrics.json",
@@ -410,5 +458,6 @@
       "sha256": "12e2945aca6901934fae0e23ee34d2c46b0ede126936503084bbc5df17768edd"
     }
   ],
-  "status": "POST_V3_STAGE_1_MASTER_EVIDENCE_COMPLETE"
+  "status": "POST_V3_STAGE_1_MASTER_EVIDENCE_COMPLETE",
+  "study_row_count": 36
 }

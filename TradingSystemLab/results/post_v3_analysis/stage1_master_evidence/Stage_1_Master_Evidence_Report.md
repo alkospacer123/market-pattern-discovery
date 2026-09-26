@@ -10,13 +10,19 @@ Stage 1 is an artifact-only consolidation. It executes no strategy, optimizer, o
 
 ## Exact coverage
 
-The source inventory contains **96 artifacts** and the consolidation contains **36 study rows**, **144 instrument rows**, **72 direction rows**, and **789 chronological month rows**. Canonical trade-ledger trees used are `multitimeframe_research`, `walk_forward`, and `true_oos_validation` (v1); `baseline_v2`, `walk_forward_v2`, and `true_oos_v2` (v2); and `perpetual_v3/baseline`, `perpetual_v3/walk_forward`, and `perpetual_v3/true_oos` (v3). The v3 closeout provenance supplied by the brief is `aab2659cfc91846631bbe22ff3b45e3e4e4af85f`.
+The source inventory contains **106 artifacts** and the consolidation contains **36 study rows**, **144 instrument rows**, **72 direction rows**, and **789 chronological month rows**. Canonical trade-ledger trees used are `multitimeframe_research`, `walk_forward`, and `true_oos_validation` (v1); `baseline_v2`, `walk_forward_v2`, and `true_oos_v2` (v2); and `perpetual_v3/baseline`, `perpetual_v3/walk_forward`, and `perpetual_v3/true_oos` (v3). The v3 closeout provenance supplied by the brief is `aab2659cfc91846631bbe22ff3b45e3e4e4af85f`.
 
 Robustness reports are not promoted to trade-level study rows because the canonical trees do not contain complete robustness trade ledgers. Their absence is explicit rather than inferred.
 
+## Baseline, Phase 2, and C1 contract
+
+Baseline metrics are descriptive evidence from the frozen baseline execution. Phase 2 metrics describe the actual frozen candidate that entered robustness, walk-forward, and TRUE OOS. They are not interchangeable: the lifecycle columns preserve both independently. Phase 2 comes from the canonical comparison artifacts, including the v1 M30 robustness candidate comparison and the v1 H1, v2, and v3 TRUE OOS comparisons.
+
+All comparable P&L/R statistics use canonical C1 where available. The source-contract map selects a named C1 column for each schema. The legacy v1 T3 ledgers that contain only C0 are deterministically normalized by subtracting one frozen 0.001 research tick per side, and the rebuilt aggregates are required to reconcile with canonical C1 metrics before publication.
+
 ## Unavailable historical fields
 
-Bootstrap and gate fields for older/development stages; historical candidate ids and verdicts where source metrics omit them; top-1/top-3 source concentration reports (derived descriptive shares are supplied); robustness-stage trade ledgers for all generations. `NA` means unavailable/not applicable, never zero.
+Canonical observation boundaries and trade frequency where source artifacts omit them; some legacy bootstrap/gate fields; top-1/top-3 source concentration reports (explicit c1-derived diagnostics are supplied); robustness-stage trade ledgers. `NA` means unavailable/not applicable, never zero.
 
 ## Factual observations (not rankings)
 
