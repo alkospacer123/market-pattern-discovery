@@ -17,14 +17,26 @@ This section is the controlling roadmap for work after the v3 Perpetual lifecycl
 closeout. It does **not** retroactively add a stage to v1, v2, or v3 and must not
 be used to rewrite their frozen evidence.
 
+### Primary objective
+
+The practical objective is to assemble the most stable and profitable production
+basket supported by the completed evidence, with particular emphasis on
+calendar-month stability and cross-instrument diversification. The expected
+production basket is small (approximately 2–3 instruments), but its composition
+must be determined from the evidence rather than fixed in advance. A stronger
+standalone PF is not sufficient if the instrument worsens portfolio drawdown,
+monthly stability, or correlation concentration. Methodology must remain simple:
+use the existing evidence, transparent diagnostics, and a small number of
+predeclared structural hypotheses only.
+
 ### Research lineage
 
-- **v1 — broad strategy/timeframe discovery.** The first generation researched
-  trend strategies T1/T2/T3 and range strategies R1/R2/R3 across M1, M5, M15,
-  M30, H1, H4, and D1. The purpose was to identify which strategy/timeframe
-  domains were worth deeper development. M30 and H1 emerged as the preferred
-  timeframes for subsequent T2/T3 research, so later generations deliberately
-  focus on those two timeframes rather than treating them as newly introduced.
+- **v1 — broad strategy/timeframe discovery on perpetual futures.** The first
+  generation researched USDRUBF and CNYRUBF with trend strategies T1/T2/T3 and
+  range strategies R1/R2/R3 across M1, M5, M15, M30, H1, H4, and D1. The
+  purpose was to identify which strategy/timeframe domains were worth deeper
+  development. T2/T3 on M30/H1 emerged as the most stable domain for subsequent
+  research, so later generations deliberately focus on those combinations.
 - **v2 — quarterly-futures diversification test.** The second generation kept
   T2/T3 on M30/H1 and expanded the market universe with quarterly futures
   (Si, CNY, GD, BR, MIX, NG). The explicit research purpose was cross-market
@@ -189,10 +201,10 @@ The final Phase 5 classifications are:
 - T3/H1 `BORDERLINE`
 
 The canonical Phase 5 merge is
-`2d7cd61b8d4d399901ebce397d1c2b7111ae427c`. No automatic next research phase
-is authorized. The lifecycle must **STOP** here until a new user decision is
-made. Do not automatically add a portfolio phase, MTF, cost recalculation, new
-optimization, or session research.
+`2d7cd61b8d4d399901ebce397d1c2b7111ae427c`. The v2 lifecycle itself remains
+closed and frozen. The explicit post-v3 program defined above is now authorized;
+it analyzes the frozen evidence but does not reopen v2 Optimization, change its
+candidates, or rewrite its TRUE OOS verdicts.
 
 ## v3 Perpetual independent generation
 
@@ -212,9 +224,10 @@ optimization, or session research.
   (`V3_PERPETUAL_PHASE_4_WALK_FORWARD_COMPLETE`). All studies have four valid
   folds. T2/M30, T2/H1, and T3/M30 are `WALK_FORWARD_BORDERLINE`; T3/H1 is
   `WALK_FORWARD_PASS`.
-- Historical pre-Phase-5 checkpoint — TRUE OOS >= 2025-01-01: `BLOCKED_NOT_READ_NOT_EXECUTED`; Phase 5 was not
-  executed.
-- Next permitted action: Phase 5 TRUE OOS only after a separate explicit task.
+- Phase 5 TRUE OOS and reproducible closeout: **COMPLETE**. Canonical closeout
+  merge: `aab2659cfc91846631bbe22ff3b45e3e4e4af85f`. The canonical auditor
+  independently reconciles semantics, performs an isolated second generation,
+  and verifies an exact 50/50 research-artifact SHA-256 match before finalizing.
 
 ## v3 perpetual lifecycle — COMPLETE
 
