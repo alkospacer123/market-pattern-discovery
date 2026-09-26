@@ -1,0 +1,10 @@
+generation,futures_type,lifecycle_stage,normalized_trade_count,source_trade_count,count_match,unique_key_count,duplicate_key_count,invalid_timestamp_count,invalid_direction_count,source_rows_reconciled,normalization_status
+v1,perpetual,baseline,606,606,true,606,0,0,0,606,PASS
+v1,perpetual,walk_forward,194,194,true,194,0,0,0,194,PASS
+v1,perpetual,true_oos,499,499,true,499,0,0,0,499,PASS
+v2,quarterly,baseline,4449,4449,true,4449,0,0,0,4449,PASS
+v2,quarterly,walk_forward,746,746,true,746,0,0,0,746,PASS
+v2,quarterly,true_oos,1759,1759,true,1759,0,0,0,1759,PASS
+v3,perpetual,baseline,1124,1124,true,1124,0,0,0,1124,PASS
+v3,perpetual,walk_forward,515,515,true,515,0,0,0,515,PASS
+v3,perpetual,true_oos,1101,1101,true,1101,0,0,0,1101,PASS
