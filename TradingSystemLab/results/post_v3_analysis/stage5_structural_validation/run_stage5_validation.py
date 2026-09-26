@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 
@@ -21,7 +22,6 @@ import subprocess
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 STAGE4 = HERE.parent / "stage4_structural_hypotheses"
-DATA = Path("/workspace/market-pattern-data")
 DATA_COMMIT = "50f1fd2178c18b7ab3bd969be82ad01f47a34745"
 BASE_COMMIT = "1378cc2868095823655bab9eebbb8a2d01db9376"
 HYPOTHESES = [
@@ -48,13 +48,39 @@ def git(*args: str, cwd: Path = ROOT) -> str:
     return subprocess.check_output(["git", *args], cwd=cwd, text=True).strip()
 
 
+def resolve_data_root() -> Path:
+    """Resolve the external repository without weakening its identity check.
+
+    Resolution order is part of the Stage 5 contract.  Merely finding a
+    directory is not authentication; :func:`preflight` verifies the exact
+    detached/branch HEAD before any market-data file is opened.
+    """
+    candidates: list[Path] = []
+    configured = os.environ.get("MARKET_PATTERN_DATA_ROOT")
+    if configured:
+        candidates.append(Path(configured).expanduser())
+    candidates.extend((ROOT.parent / "market-pattern-data", Path("/workspace/market-pattern-data")))
+    seen: set[Path] = set()
+    for candidate in candidates:
+        resolved = candidate.resolve()
+        if resolved not in seen and resolved.is_dir():
+            return resolved
+        seen.add(resolved)
+    raise RuntimeError("FROZEN_MARKET_DATA_REPOSITORY_UNAVAILABLE")
+
+
+def _canonical_base_is_ancestor() -> bool:
+    return subprocess.run(
+        ["git", "merge-base", "--is-ancestor", BASE_COMMIT, "HEAD"],
+        cwd=ROOT,
+        check=False,
+    ).returncode == 0
+
+
 def preflight() -> dict:
     """Authenticate all inputs before any market-data byte is opened."""
-    if git("rev-parse", "HEAD") != BASE_COMMIT:
-        # A Stage 5 working commit is allowed only when its first parent is the
-        # canonical base.  This also makes reruns work after committing Stage 5.
-        if not git("merge-base", "--is-ancestor", BASE_COMMIT, "HEAD") == "":
-            raise RuntimeError("CANONICAL_BASE_NOT_ANCESTOR")
+    if git("rev-parse", "HEAD") != BASE_COMMIT and not _canonical_base_is_ancestor():
+        raise RuntimeError("CANONICAL_BASE_NOT_ANCESTOR")
     s4 = json.loads((STAGE4 / "manifest_stage4.json").read_text())
     if s4.get("audit_status") != "POST_V3_STAGE_4_STRUCTURAL_HYPOTHESIS_SET_AUDIT_PASSED":
         raise RuntimeError("STAGE4_AUDIT_STATUS_MISMATCH")
@@ -68,12 +94,14 @@ def preflight() -> dict:
     for name, expected in STRATEGY_HASHES.items():
         if sha(ROOT / name) != expected:
             raise RuntimeError(f"CANONICAL_STRATEGY_HASH_MISMATCH:{name}")
-    if not DATA.is_dir() or git("rev-parse", "HEAD", cwd=DATA) != DATA_COMMIT:
+    data = resolve_data_root()
+    if git("rev-parse", "HEAD", cwd=data) != DATA_COMMIT:
         raise RuntimeError("FROZEN_MARKET_DATA_REPOSITORY_UNAVAILABLE")
-    required = [DATA / "futures_quarterly", DATA / "forever"]
+    required = [data / "futures_quarterly", data / "forever"]
     if not all(p.is_dir() for p in required):
         raise RuntimeError("FROZEN_MARKET_DATA_UNIVERSE_UNAVAILABLE")
     return {"base": BASE_COMMIT, "data_commit": DATA_COMMIT,
+            "data_root": str(data),
             "stage4_hashes": STAGE4_HASHES, "strategy_hashes": STRATEGY_HASHES}
 
 
