@@ -1,0 +1,18 @@
+{
+  "MAE_semantics": "non-negative maximum adverse excursion magnitude divided by positive initial risk",
+  "MFE_semantics": "non-negative maximum favorable excursion divided by positive initial risk",
+  "ordered_event_inference_supported": false,
+  "ordering_status": "MAE_MFE_ORDER_UNAVAILABLE",
+  "sign_convention_status": "AUTHENTICATED_NON_NEGATIVE_MAGNITUDES",
+  "source_hashes": {
+    "TradingSystemLab/core/backtester.py": "8b5632e21ce38e82a6f5da7d01be03d300e604ab7af21ecd3a7674d5dff5356d",
+    "TradingSystemLab/strategies/trend/T2_Trend_Pullback.py": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+    "TradingSystemLab/strategies/trend/T3_MTF_Trend.py": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
+  },
+  "supporting_source_files": [
+    "TradingSystemLab/core/backtester.py",
+    "TradingSystemLab/strategies/trend/T2_Trend_Pullback.py",
+    "TradingSystemLab/strategies/trend/T3_MTF_Trend.py"
+  ],
+  "threshold_inference_supported": true
+}
