@@ -1,0 +1,72 @@
+{
+  "all_evidence_sha_checks": "PASS",
+  "canonical_base_commit": "ed7028745c987afa77908cb74741acce480a181c",
+  "deterministic_full_cycles": "PASS",
+  "evidence_artifact_count": 43,
+  "global_rows": 10993,
+  "headline_diagnostics": {
+    "initial_stop_MFE_ge_1_share": 0.050199203187251,
+    "initial_stop_count": 1255,
+    "initial_stop_mean_MAE": 0.5899240178217228,
+    "initial_stop_mean_MFE": 0.29387693883368216,
+    "initial_stop_mean_final_R": -1.041555793884741,
+    "initial_stop_share": 0.11416355862821796,
+    "longest_loss_streak": 16,
+    "max_worst_10_loss_share": 0.763426015891393,
+    "max_worst_1_loss_share": 0.0925707420796073,
+    "negative_trades": 6729,
+    "positive_trades": 4264,
+    "retention_eligible": 10398,
+    "retention_median": -0.3011787641484001,
+    "winner_giveback_mean": 1.5804400716010985,
+    "winner_giveback_median": 1.442805981291279,
+    "worst_streak_R": -13.357307543122
+  },
+  "mutation_control_count": 18,
+  "mutation_tests_passed": {
+    "alter_failure_concentration": true,
+    "alter_initial_stop_count": true,
+    "alter_longest_streak": true,
+    "alter_output_SHA": true,
+    "alter_retention_median": true,
+    "alter_stage3a_hash": true,
+    "alter_stage3b_hash": true,
+    "alter_stage3c_hash": true,
+    "alter_threshold_count": true,
+    "claim_ordered_inference": true,
+    "drop_study": true,
+    "duplicate_canonical_key": true,
+    "global_trade_count": true,
+    "inject_optimization_ranking": true,
+    "inject_stage4_hypothesis": true,
+    "invent_pattern": true,
+    "substitute_C0_PF": true,
+    "threshold_1_to_0_9": true
+  },
+  "output_hashes": {
+    "Stage_3D_Independent_Closeout_Report.md": "a5176c37f60ee90087011fadfff8b66ba0138e4977090e5de1b0de8e92b1c01d",
+    "manifest_stage3d.json": "989069e03599c2c7a16112ce0baf7be571920446c083915be49b418acd878710",
+    "stage3_closeout_summary.csv": "87b2bccec8ae60abb0b04b6d2bcf326bf9c6adb412be7c45938cb7d1bea10f3e",
+    "stage3_evidence_registry.csv": "65ad4e5c11fdbc1848b5b16477fcb2c3c2a211b2f5eddde76212a5be123a5efe"
+  },
+  "protected_tree": "PASS",
+  "semantic_checks": "PASS",
+  "stage3_status": "POST_V3_STAGE_3_TRADE_ANATOMY_FAILURE_ANALYSIS_CLOSED",
+  "status": "POST_V3_STAGE_3D_INDEPENDENT_CLOSEOUT_AUDIT_PASSED",
+  "studies": "36/36",
+  "threshold_occurrence": {
+    "0.5": {
+      "final_nonpositive": 3077,
+      "reached": 7337
+    },
+    "1.0": {
+      "final_nonpositive": 1135,
+      "reached": 5322
+    },
+    "2.0": {
+      "final_nonpositive": 54,
+      "reached": 2954
+    }
+  },
+  "unique_canonical_keys": 10993
+}

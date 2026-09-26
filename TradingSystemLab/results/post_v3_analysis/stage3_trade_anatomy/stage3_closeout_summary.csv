@@ -1,0 +1,19 @@
+check_id,expected,observed,status,evidence_artifact,notes
+core_population,v1=1299;v2=6954;v3=2740;global=10993,"{'v1': 1299, 'v2': 6954, 'v3': 2740}; unique=10993",PASS,normalized files,Independent verification; no new diagnostic.
+study_identity,36 (12 each generation),36,PASS,normalized files,Independent verification; no new diagnostic.
+Stage3A_reconciliation,36 PASS,36 PASS,PASS,reconciliation CSVs,Independent verification; no new diagnostic.
+Stage3B_hierarchical_reconciliation,six partitions; tolerance <=1e-9,all reconciled,PASS,anatomy tables,Independent verification; no new diagnostic.
+MAE_coverage,10993,10993,PASS,anatomy_mae_mfe_summary.csv,Independent verification; no new diagnostic.
+MFE_coverage,10993,10993,PASS,anatomy_mae_mfe_summary.csv,Independent verification; no new diagnostic.
+MAE_MFE_semantics,threshold=true; ordered=false,MAE_MFE_ORDER_UNAVAILABLE,PASS,mae_mfe_semantics.json,Independent verification; no new diagnostic.
+threshold_0_5,frozen exact count,"{""reached"":7337,""final_nonpositive"":3077}",PASS,mfe_threshold_outcomes.csv,Independent verification; no new diagnostic.
+threshold_1_0,frozen exact count,"{""reached"":5322,""final_nonpositive"":1135}",PASS,mfe_threshold_outcomes.csv,Independent verification; no new diagnostic.
+threshold_2_0,frozen exact count,"{""reached"":2954,""final_nonpositive"":54}",PASS,mfe_threshold_outcomes.csv,Independent verification; no new diagnostic.
+winner_giveback,4264; exact mean/median,4264; 1.5804400716010985; 1.442805981291279,PASS,winner_giveback.csv,Independent verification; no new diagnostic.
+initial_stop,1255; frozen mechanics,"{""initial_stop_count"":1255,""initial_stop_share"":0.11416355862821796,""initial_stop_mean_final_R"":-1.041555793884741,""initial_stop_mean_MAE"":0.5899240178217228,""initial_stop_mean_MFE"":0.29387693883368216,""initial_stop_MFE_ge_1_share"":0.050199203187251}",PASS,stop_exit_profile.csv,Independent verification; no new diagnostic.
+exit_retention,10398; exact median,10398; -0.3011787641484001,PASS,exit_efficiency.csv,Independent verification; no new diagnostic.
+loss_streak,16; exact worst cumulative R,16; -13.357307543122,PASS,loss_streak_profile.csv,Independent verification; no new diagnostic.
+loss_concentration,exact maxima,0.0925707420796073; 0.763426015891393,PASS,failure_concentration.csv,Independent verification; no new diagnostic.
+repeated_pattern_registry,FM_MFE1_FINAL_NONPOSITIVE; multi-generation + TRUE OOS,supported by 36 parent rows,PASS,mfe_threshold_outcomes.csv,Independent verification; no new diagnostic.
+protected_tree,no changes outside six Stage 3D files,PASS,PASS,git canonical base,Independent verification; no new diagnostic.
+deterministic_reproducibility,byte-identical generation,PASS,PASS,audit_stage3d_result.json,Independent verification; no new diagnostic.
