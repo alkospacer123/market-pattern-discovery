@@ -1,0 +1,16 @@
+{
+  "availability_handling": "PASS",
+  "co_loss_reconciliation": "PASS",
+  "deterministic_rerun": "PASS",
+  "leave_one_out_reconciliation": "PASS",
+  "monthly_reconciliation": "PASS",
+  "mutation_tests_passed": 8,
+  "output_hashes": "PASS",
+  "pairwise_reconciliation": "PASS",
+  "portfolio_studies": 24,
+  "source_hashes": "PASS",
+  "stage1_integrity": "PASS",
+  "status": "POST_V3_STAGE_2_PORTFOLIO_DIVERSIFICATION_AUDIT_PASSED",
+  "study_reconciliation": "PASS",
+  "true_oos_reconciliation": "PASS"
+}
