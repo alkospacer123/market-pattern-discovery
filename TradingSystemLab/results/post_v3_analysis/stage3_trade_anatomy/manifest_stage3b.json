@@ -1,0 +1,46 @@
+{
+  "audit_status": "POST_V3_STAGE_3B_TRADE_ANATOMY_TABLES_AUDIT_PASSED",
+  "no_optimization": true,
+  "no_ranking": true,
+  "no_rule_testing": true,
+  "no_stage3c": true,
+  "no_stage4": true,
+  "no_strategy_execution": true,
+  "no_trade_level_output": true,
+  "normalized_row_count": 10993,
+  "output_hashes": {
+    "Stage_3B_Trade_Anatomy_Report.md": "a1011416c09c53d83e6d678fb270870101e69ff6a07bbb3bc95069e805b90f70",
+    "anatomy_by_direction.csv": "6553870e32937c6422da909e9948bb94f1a324043392230c40b1dbe916ee383e",
+    "anatomy_by_entry_hour.csv": "22a88d022b7923c78c9ce17a56ac48aef9a645e6f50fa70055d676d601081d85",
+    "anatomy_by_entry_weekday.csv": "da5d3e6ca13a632310b518820537513661627596bf3698cb65a468c127d7b760",
+    "anatomy_by_exit_reason.csv": "666d9f09157d28dbd568b51d1dd43a9051cfc0dec3470a635251887c1aa2b0f2",
+    "anatomy_by_generation.csv": "1afe707d4a477228244cfc146d075ff6ef60db577edc68f9b878fd812e8be917",
+    "anatomy_by_holding_bucket.csv": "5d205eb291b5032b2c2351b338a290d1f5eb372d5d596d347de81fe8f22a19f4",
+    "anatomy_by_instrument.csv": "3af68323fd3997442839050857fb6712ba8e1adef83fd7d35f039d74428a8fba",
+    "anatomy_by_strategy_timeframe.csv": "1f2ea57a962dd3ab59e6c2bbc25631d3d5935b5f03669f0cf3b88e4618152891",
+    "anatomy_mae_mfe_summary.csv": "330d4efc8cbd0337ea4e7a68371f50dea5bf955ea3db34f65ff47627e2b9447e"
+  },
+  "prerequisite_hashes": {
+    "normalized_trades_v1.csv": "ac6c859b8f25a1047200dbbbd055f41b90dd4e1b53c507ed320690db11f2a9d8",
+    "normalized_trades_v2_baseline.csv": "10ef69946689348a3ed00db46f3d7a17f9b35d38b85c4ca22865b4c5eea4f487",
+    "normalized_trades_v2_true_oos.csv": "fc1ab3c6d212042d0e74c2e72c98858557562f6556bd58e54e3de3edb1e4b6f0",
+    "normalized_trades_v2_walk_forward.csv": "a390c07a83e4068d5d6d35869a71634a1bcdf161da4a0174f8931765a9686689",
+    "normalized_trades_v3_baseline.csv": "ce2640daf31fcc242c44bed15f5dac9c70e21e02f1c0d52bbe57a783ff81e93b",
+    "normalized_trades_v3_true_oos.csv": "4f059ded2ad12ec11d4b9017e059899dce5f51a48f5af494f520a5cc2d135231",
+    "normalized_trades_v3_walk_forward.csv": "874733e1daaffcdbd92d54fa32c7113ac982dd7048ca4c844f16df40d50f9974"
+  },
+  "stage3a_canonical_closeout_commit": "65e9a702f60d11636c1e78a29a47b576b9f22c27",
+  "status": "POST_V3_STAGE_3B_TRADE_ANATOMY_TABLES_COMPLETE",
+  "table_row_counts": {
+    "anatomy_by_direction.csv": 72,
+    "anatomy_by_entry_hour.csv": 549,
+    "anatomy_by_entry_weekday.csv": 209,
+    "anatomy_by_exit_reason.csv": 72,
+    "anatomy_by_generation.csv": 36,
+    "anatomy_by_holding_bucket.csv": 265,
+    "anatomy_by_instrument.csv": 144,
+    "anatomy_by_strategy_timeframe.csv": 36,
+    "anatomy_mae_mfe_summary.csv": 36
+  },
+  "unique_trade_keys": 10993
+}
