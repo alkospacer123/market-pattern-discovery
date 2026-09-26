@@ -1,0 +1,38 @@
+{
+  "admitted_hypotheses": 3,
+  "canonical_prerequisites": "PASS",
+  "evidence_hashes": "PASS",
+  "mutation_tests_passed": {
+    "add_combined_hypothesis": true,
+    "add_parameter_grid": true,
+    "add_sixth_hypothesis": true,
+    "add_two_BE_thresholds": true,
+    "add_unsupported_hypothesis": true,
+    "allow_posthoc_tuning": true,
+    "alter_evidence_SHA": true,
+    "alter_stage3d_hash": true,
+    "claim_MAE_MFE_event_ordering": true,
+    "convert_diagnostic_to_causal_claim": true,
+    "inject_backtest_result": true,
+    "inject_optimization": true,
+    "inject_production_selection": true,
+    "inject_ranking": true,
+    "mark_old_identity_reusable": true,
+    "modify_protected_strategy_file": true,
+    "remove_evidence_reference": true,
+    "remove_falsification_condition": true
+  },
+  "output_hashes": {
+    "Stage_4_Structural_Hypothesis_Set.md": "83cbbe5b21a0009b5981e996007943e81577dd4b0a4a736bb3e5a71cdc77ea1c",
+    "audit_structural_hypotheses.py": "339c1b3b96f187b35841d9c7ce4d1d16b1c54986266cb3dc21cb3d5568352ec8",
+    "build_structural_hypotheses.py": "edb310fe02292c8ed397794a1ffbd1507c0915888407fa777f82a8e54811ffd4",
+    "manifest_stage4.json": "00dcb2141602dd6813f194a57b8539aca79ce807de98a6c2f85093c664741abf",
+    "structural_hypothesis_evidence.csv": "c25f9d7f8fe551a8ebdf6e7d044f3468c0f6cae7a2b067af64dc9f22f90ce30f",
+    "structural_hypothesis_registry.csv": "584a7c89dcb9e8985b4a0a9c5e432264b2c549675e2d45df9402cc12fb699fc8",
+    "structural_hypothesis_validation_contract.csv": "5d5da406fdbd34aaaee005f4a9736ef7b8b4c56873919dfe2e7ac21f03bc00ac"
+  },
+  "protected_tree": "PASS",
+  "semantic_checks": "PASS",
+  "stage4_status": "POST_V3_STAGE_4_STRUCTURAL_HYPOTHESIS_SET_CLOSED",
+  "status": "POST_V3_STAGE_4_STRUCTURAL_HYPOTHESIS_SET_AUDIT_PASSED"
+}

@@ -1,0 +1,38 @@
+{
+  "admitted_hypothesis_count": 3,
+  "admitted_hypothesis_ids": [
+    "H4_01_PROFIT_PROTECTION_BE1",
+    "H4_02_PROFIT_PROTECTION_TRAIL1",
+    "H4_03_TOTAL_OPEN_RISK_CAP"
+  ],
+  "audit_status": "POST_V3_STAGE_4_STRUCTURAL_HYPOTHESIS_SET_AUDIT_PASSED",
+  "canonical_stage3d_commit": "244a5adac2baee3bb28d697efa25299b0a1973ef",
+  "controls": {
+    "individual_testing_only": true,
+    "no_backtest": true,
+    "no_combined_variants": true,
+    "no_optimization": true,
+    "no_parameter_grid": true,
+    "no_production_selection": true,
+    "no_ranking": true,
+    "no_raw_market_data": true,
+    "no_stage5": true,
+    "no_strategy_execution": true
+  },
+  "evidence_sha256": "c25f9d7f8fe551a8ebdf6e7d044f3468c0f6cae7a2b067af64dc9f22f90ce30f",
+  "final_status": "POST_V3_STAGE_4_STRUCTURAL_HYPOTHESIS_SET_CLOSED",
+  "mutation_tests": "18/18 PASS",
+  "registry_sha256": "584a7c89dcb9e8985b4a0a9c5e432264b2c549675e2d45df9402cc12fb699fc8",
+  "stage1_evidence_hashes_used": {
+    "manifest.json": "16989669ddf2b99865ff6f053a7a5bbf5af13a60fe54ffbdee2c0521851dfd98",
+    "master_study_comparison.csv": "7bd9c7824a19ffe5f565245881ccc28ad40d4b242434cc4908baa14597f1145a"
+  },
+  "stage2_evidence_hashes_used": {
+    "manifest.json": "19181db5ecbbc307e9c4d47d6483616e95dd1230be9840042d9c2b77633daf41",
+    "portfolio_stability_summary.csv": "c8f4aafa21f3c85a5ab6e804bec6d78fd6e75bfce492e662e4d44856b998f6f2"
+  },
+  "stage3d_audit_sha256": "8600f4e57731dacb6dad67c5841ae6ff8d7bb9ff102ec1844f716dcfb4e78e14",
+  "stage3d_manifest_sha256": "989069e03599c2c7a16112ce0baf7be571920446c083915be49b418acd878710",
+  "status": "POST_V3_STAGE_4_STRUCTURAL_HYPOTHESIS_SET_COMPLETE",
+  "validation_contract_sha256": "5d5da406fdbd34aaaee005f4a9736ef7b8b4c56873919dfe2e7ac21f03bc00ac"
+}
