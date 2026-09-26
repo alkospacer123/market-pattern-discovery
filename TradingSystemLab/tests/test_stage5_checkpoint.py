@@ -78,3 +78,37 @@ def test_t3_causality_guards_are_canonical() -> None:
     strategy=(ROOT/"TradingSystemLab/strategies/trend/T3_MTF_Trend.py").read_text()
     assert "groupby" in loader and "if len(block) != 4" in loader
     assert ".shift(1)" in strategy
+
+
+def test_comparator_auditor_owns_prerequisite_authentication() -> None:
+    source = (STAGE5 / "audit_stage5_comparator.py").read_text()
+    tree = ast.parse(source)
+    functions = {node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)}
+    assert {"authenticate_stage4", "resolve_data_root", "authenticate_data_repo"} <= functions
+    assert "git\", \"-C\"" in source and "rev-parse\", \"HEAD\"" in source
+
+
+def test_comparator_auditor_reconstructs_exact_registry_and_executes() -> None:
+    source = (STAGE5 / "audit_stage5_comparator.py").read_text()
+    tree = ast.parse(source)
+    functions = {node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)}
+    assert {"reconstruct_registry", "authenticate_registry", "execute_independently", "_run_wf"} <= functions
+    assert "LIFECYCLE_REGISTRY_NOT_EXACT" in source
+    assert "WF01--WF04" in source
+
+
+def test_comparator_auditor_scope_and_contract_guards() -> None:
+    source = (STAGE5 / "audit_stage5_comparator.py").read_text()
+    assert '"added v1"' in source
+    assert '"C0"' in source and '"tick 0.01"' in source
+    assert '"hypothesis execution true"' in source and '"Stage 6 work flag"' in source
+    assert "structural_hypothesis_execution" in source and '"Stage5_status": "OPEN"' in source
+
+
+def test_comparator_auditor_has_executable_t3_invariants() -> None:
+    source = (STAGE5 / "audit_stage5_comparator.py").read_text()
+    assert "ast.parse(loader)" in source and "ast.parse(strategy)" in source
+    assert '"if len(block) != 4"' in source
+    assert '".index.normalize()"' in source
+    assert 'n.func.attr == "shift"' in source
+    assert '"PriorHigh"' in source and '"PriorLow"' in source
