@@ -1,0 +1,56 @@
+{
+  "C1_regression": {
+    "PF": 3.38032767202098,
+    "expectancy_R": 0.967991319973547,
+    "legacy_C0_PF_rejected": 3.49197193021,
+    "net_R": 32.9117048791006,
+    "status": "PASS",
+    "trades": 34
+  },
+  "deterministic_rerun": "PASS",
+  "duplicate_trade_keys": 0,
+  "invalid_direction_count": 0,
+  "invalid_timestamp_count": 0,
+  "manifest_closeout": "PASS",
+  "maximum_reconciliation_delta": 1.141984284913633e-10,
+  "mutation_tests_passed": {
+    "alter_normalized_output_SHA": true,
+    "change_canonical_C1_R": true,
+    "change_source_hash": true,
+    "change_source_row_number": true,
+    "change_source_trade_id": true,
+    "duplicate_canonical_trade_key": true,
+    "exit_before_entry": true,
+    "incorrect_instrument_alias": true,
+    "invalid_direction": true,
+    "replace_T3_H1_WF_C1_by_C0": true
+  },
+  "normalized_rows": 1299,
+  "output_hashes": {
+    "Stage_3A2_v1_Normalization_Report.md": "362fb99d2fb1b4576e2f0d6ce145c6da6a42bc8e3fc0bc6f95dd05b52d938fed",
+    "manifest_stage3a2_v1.json": "322c5a245f63cfaeb037a741f580b126f480f2b1bcef706a5e6d12e637b51682",
+    "normalized_trades_v1.csv": "ac6c859b8f25a1047200dbbbd055f41b90dd4e1b53c507ed320690db11f2a9d8",
+    "v1_normalization_reconciliation.csv": "1e47cc5ee3a9fd5beedd5f6b46122ed7d7d465456c2fb1ff3b13be9d41c6756a"
+  },
+  "source_hashes": {
+    "TradingSystemLab/results/multitimeframe_research/T2/H1/CNYRUBF_trades.csv": "a2cc40af3eda9769d73e65f9c266fcf21d3a30dbb2ad2946de6ffd0c890d02d0",
+    "TradingSystemLab/results/multitimeframe_research/T2/H1/USDRUBF_trades.csv": "70fb7077d7f91465a8bd4a2744b67f03eaf3e3392b3d4f47dac298ba9863ac0a",
+    "TradingSystemLab/results/multitimeframe_research/T2/M30/CNYRUBF_trades.csv": "f45d7eaaf0f16bd364583cf16be15f17cd1777ff9b906719114865d84256d6f6",
+    "TradingSystemLab/results/multitimeframe_research/T2/M30/USDRUBF_trades.csv": "50f77989729406d02af80fb4d0c0ecb0adbc42f4b83dcbaab8f7babde3843de3",
+    "TradingSystemLab/results/multitimeframe_research/T3/H1/CNYRUBF_trades.csv": "8f33a53f023745c661c658bb6f5beb9b20ee4a10f388e32c0b4220c5ce03f0ff",
+    "TradingSystemLab/results/multitimeframe_research/T3/H1/USDRUBF_trades.csv": "1067bf1e2fdbc9eb31529f7097882147883b6150dfa7a441b5dc3e9b2723991b",
+    "TradingSystemLab/results/multitimeframe_research/T3/M30/CNYRUBF_trades.csv": "eb56cbfa45121eba39c75b9d15595db488c990f14a2233dbfe0c41732725897d",
+    "TradingSystemLab/results/multitimeframe_research/T3/M30/USDRUBF_trades.csv": "d5ed693654e8ca69b762678e9b2620de76b97f462856f3f3aae6766bbfb10265",
+    "TradingSystemLab/results/true_oos_validation/M30/T2/trades.csv": "93e92be47ec42a0b06a262bf2be08ace1a82a2b5c9e534a395dce00a501d5adb",
+    "TradingSystemLab/results/true_oos_validation/M30/T3/trades.csv": "853f6633d3a4671d817bb42a6c2e9de84354b6bf97b41a3b462ff83005ae47d5",
+    "TradingSystemLab/results/true_oos_validation/T2/trades.csv": "efc026b7a3b26f9457f670a1ea3da44bf71bd242a8d46b954a9e93fb18e2a3cd",
+    "TradingSystemLab/results/true_oos_validation/T3/trades.csv": "aa8da10eb878790ef353b106a47ccb4ea9685391c8c445d67e279799f8ec5e8c",
+    "TradingSystemLab/results/walk_forward/M30/T2/stitched_forward_trades.csv": "b4b800c6825cbe77a546fb84bf51b1b493b4dd44ba20e6ec5eeaeb42d1b5a700",
+    "TradingSystemLab/results/walk_forward/M30/T3/stitched_forward_trades.csv": "368491b87637415b022052fb1dd52202c64c88bf19c5d7c35bbf1a4d348a61a2",
+    "TradingSystemLab/results/walk_forward_validation/T2/trades.csv": "eb62818c6d2f56c278ddcb8e4047ea052a690d38f1432146f5284046a7e8e6c3",
+    "TradingSystemLab/results/walk_forward_validation/T3/trades.csv": "12e2945aca6901934fae0e23ee34d2c46b0ede126936503084bbc5df17768edd"
+  },
+  "source_rows_reconciled": 1299,
+  "status": "POST_V3_STAGE_3A2_V1_NORMALIZATION_AUDIT_PASSED",
+  "studies_reconciled": "12/12"
+}
