@@ -17,8 +17,8 @@
     },
     "trail1_mechanism_report.csv": {
       "identical": true,
-      "run_1_sha256": "4139fb69831e21d8f43e7c3f20fb3f87bdbf7381e07f06577342d61c27571019",
-      "run_2_sha256": "4139fb69831e21d8f43e7c3f20fb3f87bdbf7381e07f06577342d61c27571019"
+      "run_1_sha256": "82a43adaa2384830911b5dde200375c2b6a6a4432c79c6c37d92cbd00e3bd5b3",
+      "run_2_sha256": "82a43adaa2384830911b5dde200375c2b6a6a4432c79c6c37d92cbd00e3bd5b3"
     },
     "trail1_study_summary.csv": {
       "identical": true,
@@ -27,13 +27,13 @@
     },
     "trail1_trade_digest.csv": {
       "identical": true,
-      "run_1_sha256": "1c15e910aaaee38e97bac37fed405764616b1e4fe54b181be4be3eb53098321e",
-      "run_2_sha256": "1c15e910aaaee38e97bac37fed405764616b1e4fe54b181be4be3eb53098321e"
+      "run_1_sha256": "1672985f0a717a0440c4c1ed85ffcca52a04da33afa8bd0f3e83563a08a4c366",
+      "run_2_sha256": "1672985f0a717a0440c4c1ed85ffcca52a04da33afa8bd0f3e83563a08a4c366"
     }
   },
   "cost_contract": "CORRECTED_SINGLE_C1",
   "data_repo_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
-  "execution_source_sha": "680ba042f8c2bea2034655266b12aacec7084f00",
+  "execution_source_sha": "e289767ec1b918d2de00ed9ca3a36c68273fb393",
   "ledger_determinism": "PASS",
   "run_1_ledger_sha256": "b773811cb39df3c2585bf3aa278195ccb6e1777dcc664b714b2c74a2bc3badde",
   "run_2_ledger_sha256": "b773811cb39df3c2585bf3aa278195ccb6e1777dcc664b714b2c74a2bc3badde",
