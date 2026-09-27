@@ -1,0 +1,21 @@
+generation,phase_or_lifecycle,strategy,timeframe,affected,historical_formula,correct_formula,trade_path_affected,economic_metrics_affected,candidate_selection_may_be_affected,notes
+v2,Baseline,T3,M30,True,raw_R - C1 - C1,raw_R - C1,False,True,False,Frozen path or classification; no rerun performed.
+v2,Baseline,T3,H1,True,raw_R - C1 - C1,raw_R - C1,False,True,False,Frozen path or classification; no rerun performed.
+v2,Optimization,T3,M30,True,raw_R - C1 - C1,raw_R - C1,False,True,True,Frozen path; accounting overlay only. Predeclared candidate was not metric-ranked.
+v2,Optimization,T3,H1,True,raw_R - C1 - C1,raw_R - C1,False,True,True,Frozen path; accounting overlay only. Predeclared candidate was not metric-ranked.
+v2,Robustness,T3,M30,True,raw_R - C1 - C1,raw_R - C1,False,True,True,Frozen path; accounting overlay only. Predeclared candidate was not metric-ranked.
+v2,Robustness,T3,H1,True,raw_R - C1 - C1,raw_R - C1,False,True,True,Frozen path; accounting overlay only. Predeclared candidate was not metric-ranked.
+v2,WF,T3,M30,True,raw_R - C1 - C1,raw_R - C1,False,True,False,Frozen path or classification; no rerun performed.
+v2,WF,T3,H1,True,raw_R - C1 - C1,raw_R - C1,False,True,False,Frozen path or classification; no rerun performed.
+v2,historical OOS,T3,M30,True,raw_R - C1 - C1,raw_R - C1,False,True,False,Frozen path or classification; no rerun performed.
+v2,historical OOS,T3,H1,True,raw_R - C1 - C1,raw_R - C1,False,True,False,Frozen path or classification; no rerun performed.
+v3,Baseline,T3,M30,True,raw_R - C1 - C1,raw_R - C1,False,True,False,Frozen path or classification; no rerun performed.
+v3,Baseline,T3,H1,True,raw_R - C1 - C1,raw_R - C1,False,True,False,Frozen path or classification; no rerun performed.
+v3,Optimization,T3,M30,True,raw_R - C1 - C1,raw_R - C1,False,True,True,Frozen path; accounting overlay only. Predeclared candidate was not metric-ranked.
+v3,Optimization,T3,H1,True,raw_R - C1 - C1,raw_R - C1,False,True,True,Frozen path; accounting overlay only. Predeclared candidate was not metric-ranked.
+v3,Robustness,T3,M30,True,raw_R - C1 - C1,raw_R - C1,False,True,True,Frozen path; accounting overlay only. Predeclared candidate was not metric-ranked.
+v3,Robustness,T3,H1,True,raw_R - C1 - C1,raw_R - C1,False,True,True,Frozen path; accounting overlay only. Predeclared candidate was not metric-ranked.
+v3,WF,T3,M30,True,raw_R - C1 - C1,raw_R - C1,False,True,False,Frozen path or classification; no rerun performed.
+v3,WF,T3,H1,True,raw_R - C1 - C1,raw_R - C1,False,True,False,Frozen path or classification; no rerun performed.
+v3,historical OOS,T3,M30,True,raw_R - C1 - C1,raw_R - C1,False,True,False,Frozen path or classification; no rerun performed.
+v3,historical OOS,T3,H1,True,raw_R - C1 - C1,raw_R - C1,False,True,False,Frozen path or classification; no rerun performed.
