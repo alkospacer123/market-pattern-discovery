@@ -1,8 +1,15 @@
 # TRAIL1 Retrospective Causal Validation
 
-**STAGE5_TRAIL1_CAUSAL_VALIDATION_EXECUTION_PASSED**
+## Final closeout
 
-Evidence label: `RETROSPECTIVE_CAUSAL_VALIDATION`. Stage 5 remains **OPEN**.
+`H4_02_PROFIT_PROTECTION_TRAIL1 = SUPPORTED_RETROSPECTIVELY`
+
+**TRAIL1 = CLOSED**
+**Stage 5 = OPEN**
+
+TRAIL1 improved Net R in 21/24 studies, all 6/6 lifecycle aggregates, and 7/8 historical-OOS slices. T3 v3 improved all 8/8 walk-forward folds across H1 and M30, and the accepted concentration diagnostics remain acceptable. This is recurrent retrospective support for a structural candidate, not universal superiority: not every month or drawdown improves, it is not a guarantee of future improvement, and no production decision has been made. Production assembly remains future Stage 6 work.
+
+## Frozen study evidence
 
 | generation   | lifecycle           | strategy   | timeframe   |   canonical_trades |   canonical_PF |   canonical_expectancy_R |   canonical_net_R |   canonical_max_DD |   canonical_recovery_factor |   canonical_win_rate |   canonical_median_R |   canonical_average_holding_hours |   trail1_trades |   trail1_PF |   trail1_expectancy_R |   trail1_net_R |   trail1_max_DD |   trail1_recovery_factor |   trail1_win_rate |   trail1_median_R |   trail1_average_holding_hours |   delta_trades |    delta_PF |   delta_expectancy_R |   delta_net_R |   delta_max_DD |   delta_recovery_factor |   delta_win_rate |   delta_median_R |
 |:-------------|:--------------------|:-----------|:------------|-------------------:|---------------:|-------------------------:|------------------:|-------------------:|----------------------------:|---------------------:|---------------------:|----------------------------------:|----------------:|------------:|----------------------:|---------------:|----------------:|-------------------------:|------------------:|------------------:|-------------------------------:|---------------:|------------:|---------------------:|--------------:|---------------:|------------------------:|-----------------:|-----------------:|

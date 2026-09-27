@@ -106,7 +106,9 @@ def authenticate(data_root: Path) -> dict[str, Any]:
     }
 
 
-def run(data_root: Path, output: Path) -> dict[str, Any]:
+def run(data_root: Path, output: Path, *, certify: bool = False,
+        execution_source_sha: str | None = None,
+        evidence_commit_sha: str | None = None) -> dict[str, Any]:
     """Authenticate before dispatching the causal study implementation.
 
     Publishing partial or synthetic evidence is intentionally impossible.  The
@@ -115,19 +117,27 @@ def run(data_root: Path, output: Path) -> dict[str, Any]:
     """
     identities = authenticate(data_root)
     from TradingSystemLab.results.post_v3_analysis.stage5_structural_validation.stage5_trail1_lifecycle import execute
-    return execute(data_root, output, identities)
+    return execute(data_root, output, identities, certify=certify,
+                   execution_source_sha=execution_source_sha,
+                   evidence_commit_sha=evidence_commit_sha)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-root", type=Path)
     parser.add_argument("--output", type=Path, default=HERE / "trail1")
+    parser.add_argument("--certify", action="store_true",
+                        help="perform two independent raw-data executions and certify determinism")
+    parser.add_argument("--execution-source-sha")
+    parser.add_argument("--evidence-commit-sha")
     args = parser.parse_args()
     if args.data_root is None:
         data_root, _ = resolve_data_root()
     else:
         data_root = args.data_root
-    print(json.dumps(run(data_root, args.output), sort_keys=True))
+    print(json.dumps(run(data_root, args.output, certify=args.certify,
+                         execution_source_sha=args.execution_source_sha,
+                         evidence_commit_sha=args.evidence_commit_sha), sort_keys=True))
 
 
 if __name__ == "__main__":

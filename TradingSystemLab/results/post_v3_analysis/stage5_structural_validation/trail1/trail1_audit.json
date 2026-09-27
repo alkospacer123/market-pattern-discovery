@@ -1,11 +1,44 @@
 {
-  "canonical_accounting_basis": "CORRECTED_SINGLE_C1",
   "canonical_arithmetic_mismatches": 0,
-  "canonical_maximum_delta": 0.0,
+  "canonical_arithmetic_rows_checked": 9694,
+  "canonical_maximum_arithmetic_delta": 0.0,
+  "canonical_path_mismatches": 0,
   "canonical_rows_checked": 9694,
-  "determinism": "PASS",
+  "compact_artifact_determinism": {
+    "trail1_canonical_path_reconciliation.csv": {
+      "identical": true,
+      "run_1_sha256": "02427b3b0b9f2d08884f8c1d9cfa80fafabb78866e5317579d613a6a8ae22d1c",
+      "run_2_sha256": "02427b3b0b9f2d08884f8c1d9cfa80fafabb78866e5317579d613a6a8ae22d1c"
+    },
+    "trail1_lifecycle_report.csv": {
+      "identical": true,
+      "run_1_sha256": "993f99a122bab0d0c5ceaeabc2cb80121f1d5c1cf421fa168cf8b296ef652a05",
+      "run_2_sha256": "993f99a122bab0d0c5ceaeabc2cb80121f1d5c1cf421fa168cf8b296ef652a05"
+    },
+    "trail1_mechanism_report.csv": {
+      "identical": true,
+      "run_1_sha256": "4139fb69831e21d8f43e7c3f20fb3f87bdbf7381e07f06577342d61c27571019",
+      "run_2_sha256": "4139fb69831e21d8f43e7c3f20fb3f87bdbf7381e07f06577342d61c27571019"
+    },
+    "trail1_study_summary.csv": {
+      "identical": true,
+      "run_1_sha256": "8fe8ca6f41cd303eb3e222cfaac6baa64b2b70f4a47c18357757affc25c8a8d4",
+      "run_2_sha256": "8fe8ca6f41cd303eb3e222cfaac6baa64b2b70f4a47c18357757affc25c8a8d4"
+    },
+    "trail1_trade_digest.csv": {
+      "identical": true,
+      "run_1_sha256": "1c15e910aaaee38e97bac37fed405764616b1e4fe54b181be4be3eb53098321e",
+      "run_2_sha256": "1c15e910aaaee38e97bac37fed405764616b1e4fe54b181be4be3eb53098321e"
+    }
+  },
+  "cost_contract": "CORRECTED_SINGLE_C1",
+  "data_repo_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+  "execution_source_sha": "680ba042f8c2bea2034655266b12aacec7084f00",
+  "ledger_determinism": "PASS",
+  "run_1_ledger_sha256": "b773811cb39df3c2585bf3aa278195ccb6e1777dcc664b714b2c74a2bc3badde",
+  "run_2_ledger_sha256": "b773811cb39df3c2585bf3aa278195ccb6e1777dcc664b714b2c74a2bc3badde",
   "status": "PASS",
   "trail1_arithmetic_mismatches": 0,
-  "trail1_maximum_delta": 0.0,
+  "trail1_maximum_arithmetic_delta": 0.0,
   "trail1_rows_checked": 9486
 }
