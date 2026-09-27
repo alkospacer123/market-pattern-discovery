@@ -17,7 +17,7 @@ from typing import Any
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
-CANONICAL_BASE = "6bcf1077b9d61f2b30f9a3fabe6a4551dd611e7f"
+CANONICAL_BASE = "09e6b85d428ca738e0a12d193d0b411eb57a2706"
 DATA_COMMIT = "50f1fd2178c18b7ab3bd969be82ad01f47a34745"
 T2_HASH = "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774"
 T3_HASH = "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"

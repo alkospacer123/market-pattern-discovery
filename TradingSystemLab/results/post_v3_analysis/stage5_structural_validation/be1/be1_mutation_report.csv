@@ -1,0 +1,31 @@
+actual_guard,expected_guard,mutated_object,mutation_id,mutation_name,pass,rejected,validation_surface
+TERMINAL_MFE_TRIGGER,TERMINAL_MFE_TRIGGER,terminal_mfe,1,trigger from terminal MFE,True,True,frozen_contract_validator
+SAME_BAR_ACTIVATION,SAME_BAR_ACTIVATION,same_bar,2,activate BE inside trigger bar,True,True,frozen_contract_validator
+TRIGGER_NOT_1R_LOW,TRIGGER_NOT_1R_LOW,trigger_r,3,trigger at 0.5R,True,True,frozen_contract_validator
+TRIGGER_NOT_1R_HIGH,TRIGGER_NOT_1R_HIGH,trigger_r,4,trigger at 1.5R,True,True,frozen_contract_validator
+INITIAL_R_MUTATED,INITIAL_R_MUTATED,risk_frozen,5,redefine initial R after stop movement,True,True,frozen_contract_validator
+LONG_STOP_LOOSENED,LONG_STOP_LOOSENED,long_never_loosen,6,loosen tighter LONG stop,True,True,frozen_contract_validator
+SHORT_STOP_LOOSENED,SHORT_STOP_LOOSENED,short_never_loosen,7,loosen tighter SHORT stop,True,True,frozen_contract_validator
+GAP_FILL_FORCED,GAP_FILL_FORCED,canonical_gap_fill,8,force gap fill at BE entry price,True,True,frozen_contract_validator
+EXIT_SOURCE_FALSE,EXIT_SOURCE_FALSE,exit_source_precise,9,misclassify tighter canonical trail as BE_LEVEL,True,True,frozen_contract_validator
+C1_REMOVED,C1_REMOVED,cost,10,remove C1,True,True,frozen_contract_validator
+TICK_INVALID,TICK_INVALID,tick,11,tick = 0.01,True,True,frozen_contract_validator
+T2_HASH_INVALID,T2_HASH_INVALID,t2_hash,12,wrong T2 hash,True,True,frozen_contract_validator
+T3_HASH_INVALID,T3_HASH_INVALID,t3_hash,13,wrong T3 hash,True,True,frozen_contract_validator
+DATA_COMMIT_INVALID,DATA_COMMIT_INVALID,data_commit,14,wrong market-data commit,True,True,frozen_contract_validator
+SOURCE_SHA_INVALID,SOURCE_SHA_INVALID,source_sha,15,wrong source SHA,True,True,frozen_contract_validator
+T3_CONTEXT_INVALID,T3_CONTEXT_INVALID,context_bars,16,break T3 four-bar context,True,True,frozen_contract_validator
+DAY_RESET_REMOVED,DAY_RESET_REMOVED,day_reset,17,remove local-day reset,True,True,frozen_contract_validator
+DONCHIAN_UNSHIFTED,DONCHIAN_UNSHIFTED,donchian_shift,18,remove Donchian shift,True,True,frozen_contract_validator
+BE_STATE_CARRIED,BE_STATE_CARRIED,cold_be,19,carry BE state across WF fold,True,True,frozen_contract_validator
+POSITION_CARRIED,POSITION_CARRIED,cold_position,20,carry open position across WF fold,True,True,frozen_contract_validator
+TRAIL1_ENABLED,TRAIL1_ENABLED,trail1,21,enable TRAIL1,True,True,frozen_contract_validator
+RISK_CAP_ENABLED,RISK_CAP_ENABLED,risk_cap,22,enable TOTAL_OPEN_RISK_CAP,True,True,frozen_contract_validator
+MIN_HOLD_ENABLED,MIN_HOLD_ENABLED,minimum_hold,23,enable minimum-hold,True,True,frozen_contract_validator
+SESSION_FILTER_ENABLED,SESSION_FILTER_ENABLED,session_filter,24,enable session filter,True,True,frozen_contract_validator
+EVIDENCE_LABEL_INVALID,EVIDENCE_LABEL_INVALID,label,25,relabel evidence as fresh OOS,True,True,frozen_contract_validator
+STAGE6_ENABLED,STAGE6_ENABLED,stage6,26,enable Stage 6,True,True,frozen_contract_validator
+TRIGGER_EVENT_MUTATED,TRIGGER_EVENT_MUTATED,trigger_event,27,mutate trigger event,True,True,producer_auditor_reconciliation
+ACTIVATION_EVENT_MUTATED,ACTIVATION_EVENT_MUTATED,activation_event,28,mutate activation event,True,True,producer_auditor_reconciliation
+EXIT_R_MUTATED,EXIT_R_MUTATED,exit_r,29,mutate exit R,True,True,producer_auditor_reconciliation
+SUMMARY_FALSE_PASS,SUMMARY_FALSE_PASS,numeric_evidence,30,false producer PASS with incorrect numeric evidence,True,True,producer_auditor_reconciliation

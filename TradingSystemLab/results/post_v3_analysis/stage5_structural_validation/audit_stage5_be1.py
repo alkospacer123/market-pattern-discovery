@@ -16,6 +16,10 @@ from TradingSystemLab.results.post_v3_analysis.stage5_structural_validation.stag
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[3]
 DATA_COMMIT='50f1fd2178c18b7ab3bd969be82ad01f47a34745'
+CANONICAL_BASE='09e6b85d428ca738e0a12d193d0b411eb57a2706'
+T2_HASH='376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774'
+T3_HASH='840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c'
+STAGE4_HASHES={'manifest_stage4.json':'00dcb2141602dd6813f194a57b8539aca79ce807de98a6c2f85093c664741abf','audit_stage4_result.json':'7a764cd15975835d7469d0cae58634fd7751a54db79e1bf62aec59f5d8593863','structural_hypothesis_registry.csv':'584a7c89dcb9e8985b4a0a9c5e432264b2c549675e2d45df9402cc12fb699fc8','structural_hypothesis_evidence.csv':'c25f9d7f8fe551a8ebdf6e7d044f3468c0f6cae7a2b067af64dc9f22f90ce30f','structural_hypothesis_validation_contract.csv':'5d5da406fdbd34aaaee005f4a9736ef7b8b4c56873919dfe2e7ac21f03bc00ac'}
 TOLERANCE=1e-9
 
 @dataclass
@@ -43,6 +47,26 @@ class IndependentBE1:
         return result
 
 def _sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+def authenticate_prerequisites(data_root):
+    """Independently authenticate every frozen input before raw execution."""
+    subprocess.run(['git','-C',str(ROOT),'merge-base','--is-ancestor',CANONICAL_BASE,'HEAD'],check=True,capture_output=True)
+    if subprocess.check_output(['git','-C',str(data_root),'rev-parse','HEAD'],text=True).strip()!=DATA_COMMIT:raise RuntimeError('DATA_COMMIT_INVALID')
+    comparator=json.loads((HERE/'canonical_comparator_audit_result.json').read_text())
+    required={'status':'STAGE5_CANONICAL_COMPARATOR_INDEPENDENT_AUDIT_PASSED','studies_reconciled':'24/24','folds_reconciled':'32/32','trade_rows_reconciled':9694,'trade_level_mismatches':0,'maximum_metric_delta':0.0,'deterministic_audit_rerun':'PASS'}
+    if any(comparator.get(k)!=v for k,v in required.items()) or comparator.get('mutation_tests',{}).get('passed')!=30:raise RuntimeError('COMPARATOR_PREREQUISITE_INVALID')
+    stage4=HERE.parent/'stage4_structural_hypotheses'
+    if {n:_sha(stage4/n) for n in STAGE4_HASHES}!=STAGE4_HASHES:raise RuntimeError('STAGE4_HASH_INVALID')
+    strategies=ROOT/'TradingSystemLab/strategies/trend'
+    if _sha(strategies/'T2_Trend_Pullback.py')!=T2_HASH:raise RuntimeError('T2_HASH_INVALID')
+    if _sha(strategies/'T3_MTF_Trend.py')!=T3_HASH:raise RuntimeError('T3_HASH_INVALID')
+    expected=comparator['source_data_hashes'];actual={n:_sha(Path(data_root)/n) for n in expected}
+    if len(expected)!=20 or actual!=expected:raise RuntimeError('SOURCE_SHA_INVALID')
+    registry=pd.read_csv(HERE/'canonical_lifecycle_registry.csv',keep_default_na=False)
+    if len(registry)!=240 or set(registry.generation)!={'v2_quarterly','v3_perpetual'} or set(registry.lifecycle)!={'baseline','walk_forward','historical_true_oos'}:raise RuntimeError('LIFECYCLE_REGISTRY_INVALID')
+    if set(registry.cost_contract)!={'C1'} or set(registry.tick_size)!={.001} or set(registry.evidence_label)!={'RETROSPECTIVE_CAUSAL_VALIDATION'}:raise RuntimeError('LIFECYCLE_REGISTRY_INVALID')
+    wf=registry[registry.lifecycle.eq('walk_forward')]
+    if set(wf.fold_id)!={'WF01','WF02','WF03','WF04'} or not registry.cold_start.all():raise RuntimeError('LIFECYCLE_REGISTRY_INVALID')
+    return {'source_hashes':expected,'lifecycle_registry_sha256':_sha(HERE/'canonical_lifecycle_registry.csv')}
 def _metrics(f):
     x=pd.to_numeric(f.net_R_C1);wins=x[x>0].sum();loss=x[x<0].sum();curve=pd.concat([pd.Series([0.]),x.reset_index(drop=True).cumsum()]);dd=float((curve-curve.cummax()).min());positive=x[x>0];top=x.nlargest(5)
     hold=(pd.to_datetime(f.exit_time,utc=True)-pd.to_datetime(f.entry_time,utc=True)).dt.total_seconds().mean()/3600
@@ -73,13 +97,25 @@ def validate_contract(x):
         if key=='trigger_r':continue
         if x[key]!=CLEAN[key]:raise ValueError(guard)
     return 'PASS'
-def executable_mutations():
+def executable_mutations(producer=None, independent=None):
     assert validate_contract(dict(CLEAN))=='PASS';rows=[]
     for i,(name,key,value,expected) in enumerate(GUARDS,1):
         mutated=dict(CLEAN);mutated[key]=value;actual='NOT_REJECTED';rejected=False
-        try:validate_contract(mutated)
+        surface='frozen_contract_validator'
+        try:
+            # Evidence mutations are applied to real generated rows and sent
+            # through the same reconciliation used by certification.
+            if producer is not None and independent is not None and key in {'trigger_event','activation_event','exit_r','numeric_evidence'}:
+                altered=independent.copy(deep=True);surface='producer_auditor_reconciliation'
+                if key=='trigger_event':altered.loc[altered.index[0],'trigger_bar_time']='2099-01-01T00:00:00Z'
+                elif key=='activation_event':altered.loc[altered.index[0],'be_activation_time']='2099-01-02T00:00:00Z'
+                else:altered.loc[altered.index[0],'net_R_C1']=float(altered.loc[altered.index[0],'net_R_C1'])+1
+                result,_=_compare(producer,altered)
+                if not any(result.values()):raise AssertionError('mutation escaped reconciliation')
+                raise ValueError(expected)
+            validate_contract(mutated)
         except ValueError as exc:actual=str(exc);rejected=True
-        rows.append({'mutation_id':i,'mutation_name':name,'mutated_object':key,'expected_guard':expected,'actual_guard':actual,'rejected':rejected,'pass':rejected and actual==expected})
+        rows.append({'mutation_id':i,'mutation_name':name,'mutated_object':key,'validation_surface':surface,'expected_guard':expected,'actual_guard':actual,'rejected':rejected,'pass':rejected and actual==expected})
     assert validate_contract(dict(CLEAN))=='PASS'
     return rows
 
@@ -89,14 +125,19 @@ def resolve_data_root():
         if (p/'futures_quarterly').is_dir() and (p/'forever').is_dir():return p
     raise RuntimeError('BE1_MARKET_DATA_ROOT_NOT_FOUND')
 def run(data_root,producer_path,output):
-    if subprocess.check_output(['git','-C',str(data_root),'rev-parse','HEAD'],text=True).strip()!=DATA_COMMIT:raise RuntimeError('BE1_MARKET_DATA_COMMIT_INVALID')
+    authentication=authenticate_prerequisites(data_root)
     output=Path(output);output.mkdir(parents=True,exist_ok=True)
     independent=execute_independent(data_root,HERE/'canonical_lifecycle_registry.csv',output)
+    # Reconcile the two actual evidence surfaces.  Both ledgers use the frozen
+    # deterministic 12-significant-digit CSV contract; comparing an in-memory
+    # pre-serialization frame to a serialized producer would create artificial
+    # sub-micro rounding mismatches rather than test reproducibility.
+    independent=pd.read_csv(output/'independent_be1_trade_events.csv')
     producer=pd.read_csv(producer_path);comparison,metrics=_compare(producer,independent)
     if any(comparison.values()):raise RuntimeError(f'BE1_INDEPENDENT_RECONCILIATION_FAILED {comparison}')
-    mutations=executable_mutations()
+    mutations=executable_mutations(producer,independent)
     if not all(x['pass'] for x in mutations):raise RuntimeError('BE1_MUTATION_REJECTION_FAILED')
-    result={'status':'STAGE5_BE1_INDEPENDENT_AUDIT_PASSED','Stage5_status':'OPEN','evidence_label':'RETROSPECTIVE_CAUSAL_VALIDATION','independent_execution':{'raw_data':True,'trades':len(independent),'ledger_sha256':_sha(output/'independent_be1_trade_events.csv')},'producer_vs_auditor':comparison,'independent_metrics':metrics,'mutation_tests':{'mode':'EXECUTABLE_ADVERSARIAL','passed':30,'total':30,'results':mutations},'clean_control_before':'PASS','clean_control_after':'PASS'}
+    result={'status':'STAGE5_BE1_INDEPENDENT_AUDIT_PASSED','Stage5_status':'OPEN','evidence_label':'RETROSPECTIVE_CAUSAL_VALIDATION','authentication':authentication,'independent_execution':{'raw_data':True,'trades':len(independent),'ledger_sha256':_sha(output/'independent_be1_trade_events.csv')},'producer_vs_auditor':comparison,'independent_metrics':metrics,'mutation_tests':{'mode':'EXECUTABLE_ADVERSARIAL','passed':30,'total':30,'results':mutations},'clean_control_before':'PASS','clean_control_after':'PASS'}
     (output/'audit_be1_result.json').write_text(json.dumps(result,indent=2,sort_keys=True,allow_nan=False)+'\n');return result
 
 def main():

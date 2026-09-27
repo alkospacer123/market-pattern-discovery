@@ -1,20 +1,52 @@
 {
   "Stage5_status": "OPEN",
-  "clean_controls": "PASS",
-  "deterministic_audit": "PASS",
+  "authentication": {
+    "lifecycle_registry_sha256": "f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6",
+    "source_hashes": {
+      "forever/CNYRUBF/CNYRUBF_H1.csv": "a3815b88a11aa5878b8bd104140f002859349c2c8d7f6ff0476a0d4c4d9a612e",
+      "forever/CNYRUBF/CNYRUBF_M30.csv": "0bad02e0afd194bdedf6ec77f08021a3973768db71c54ece57d7c26c6cefb0b4",
+      "forever/GLDRUBF/GLDRUBF_H1.csv": "12a626ba6cc47fce2f392d4a6ce3bdb8a3c1aad074306a73ab480fcfbb83b87e",
+      "forever/GLDRUBF/GLDRUBF_M30.csv": "c939d6167d45b680e3ee02e0cffeb0a1276f5abb7183e7ae20683e873ad5d93f",
+      "forever/IMOEXF/IMOEXF_H1.csv": "119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110",
+      "forever/IMOEXF/IMOEXF_M30.csv": "171f0daf06ad3b56ca26e461d7ed58681fca72f881f87d0973bd17c0e5b2d0b3",
+      "forever/USDRUBF/USDRUBF_H1.csv": "f0ca366d816a6213742271242e87c53d1e23f5a5fc4655df0123217df418a226",
+      "forever/USDRUBF/USDRUBF_M30.csv": "51d30a3ed1195f50a32ae696a84f803b960cc7449d5f3532fd1b539f4d407518",
+      "futures_quarterly/BR/BR_H1.csv": "c988c127f7e12a6125aa8d80b479dcf2182eaa4d4087997dec73eac42614f6be",
+      "futures_quarterly/BR/BR_M30.csv": "d8159ae007492e0e638729ef5a29f734166dcbda0c0fc2deff52479745e5c8a5",
+      "futures_quarterly/CNY/CNY_H1.csv": "0f8e033f9b41495dcaaf8aed0d0be6d3018e86a92d7a2bacee02cd228ba580d4",
+      "futures_quarterly/CNY/CNY_M30.csv": "02ae23e564e2eba474df333feb662d209df95dcec0bd9bd23f0d7f152b4cf194",
+      "futures_quarterly/GD/GD_H1.csv": "2911950344bd6b9471fbe570f12020cba64f65efb59da424d9ab2b7440e44bb3",
+      "futures_quarterly/GD/GD_M30.csv": "7638178141a33e8b8f3d480d7ca1b9ef79de3ec9440b4dc2d1a1a46209437cf6",
+      "futures_quarterly/MIX/MIX_H1.csv": "1aebe871790d3a5e4c8d155a253c77666c38cc6f668e9eeb468bbac4c6d4eac5",
+      "futures_quarterly/MIX/MIX_M30.csv": "f2a600b420a8d992b76cac45f812367751b820fe593b69380e19bed23f113d65",
+      "futures_quarterly/NG/NG_H1.csv": "4c932cf3679c506c57297d53706a97900a7e94b8299462102c1168fc2a4a3fbe",
+      "futures_quarterly/NG/NG_M30.csv": "16957ceba7a617722e03285871d1d3c722a75d3dc8c4535910358b6c2d3f0162",
+      "futures_quarterly/Si/Si_H1.csv": "5d9f749322f22faf775a2d52019f0c19a6309b71fbd35dca717b3944c1035b08",
+      "futures_quarterly/Si/Si_M30.csv": "596235ef65fc8f48b314153faee1b3f1b98d3bbdb9263139a9a15f291ef23acc"
+    }
+  },
+  "clean_control_after": "PASS",
+  "clean_control_before": "PASS",
   "evidence_label": "RETROSPECTIVE_CAUSAL_VALIDATION",
+  "independent_execution": {
+    "ledger_sha256": "d5a58ecc65cd19237c378cb1238f4b99b20dbd8f3342d625e265bcc8d04cfbb8",
+    "raw_data": true,
+    "trades": 9819
+  },
   "independent_metrics": {
-    "PF": 1.536700500422606,
-    "expectancy": 0.22542695077974265,
-    "max_DD": -31.20016774636909,
-    "median_R": -0.169403838474,
-    "net_R": 2213.467229706293,
-    "net_R_ex_top5": 2042.659770400693,
-    "recovery": 70.94408106071431,
-    "top_1_positive_R_concentration": 0.014313739048832368,
-    "top_5_concentration": 0.026951100507815767,
+    "PF": 1.5217856215566086,
+    "average_holding_hours": 24.39102759955189,
+    "ex_top5_PF": 1.4806492388511945,
+    "ex_top5_net_R": 1995.7631154218625,
+    "expectancy_R": 0.22065083763392018,
+    "max_DD": -33.06245693277202,
+    "median_R": -0.180282689904,
+    "net_R": 2166.5705747274624,
+    "recovery": 65.52963015219609,
+    "top_1_positive_R_concentration": 0.014356521149272718,
+    "top_5_positive_R_concentration": 0.027031654211147213,
     "trades": 9819,
-    "win_rate": 0.3625623790610042
+    "win_rate": 0.36184947550667074
   },
   "mutation_tests": {
     "mode": "EXECUTABLE_ADVERSARIAL",
@@ -23,217 +55,306 @@
       {
         "actual_guard": "TERMINAL_MFE_TRIGGER",
         "expected_guard": "TERMINAL_MFE_TRIGGER",
-        "mutation": "TERMINAL_MFE_TRIGGER",
+        "mutated_object": "terminal_mfe",
         "mutation_id": 1,
-        "status": "PASS"
+        "mutation_name": "trigger from terminal MFE",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "SAME_BAR_ACTIVATION",
         "expected_guard": "SAME_BAR_ACTIVATION",
-        "mutation": "SAME_BAR_ACTIVATION",
+        "mutated_object": "same_bar",
         "mutation_id": 2,
-        "status": "PASS"
+        "mutation_name": "activate BE inside trigger bar",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "TRIGGER_NOT_1R_LOW",
         "expected_guard": "TRIGGER_NOT_1R_LOW",
-        "mutation": "TRIGGER_NOT_1R_LOW",
+        "mutated_object": "trigger_r",
         "mutation_id": 3,
-        "status": "PASS"
+        "mutation_name": "trigger at 0.5R",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "TRIGGER_NOT_1R_HIGH",
         "expected_guard": "TRIGGER_NOT_1R_HIGH",
-        "mutation": "TRIGGER_NOT_1R_HIGH",
+        "mutated_object": "trigger_r",
         "mutation_id": 4,
-        "status": "PASS"
+        "mutation_name": "trigger at 1.5R",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "INITIAL_R_MUTATED",
         "expected_guard": "INITIAL_R_MUTATED",
-        "mutation": "INITIAL_R_MUTATED",
+        "mutated_object": "risk_frozen",
         "mutation_id": 5,
-        "status": "PASS"
+        "mutation_name": "redefine initial R after stop movement",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "LONG_STOP_LOOSENED",
         "expected_guard": "LONG_STOP_LOOSENED",
-        "mutation": "LONG_STOP_LOOSENED",
+        "mutated_object": "long_never_loosen",
         "mutation_id": 6,
-        "status": "PASS"
+        "mutation_name": "loosen tighter LONG stop",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "SHORT_STOP_LOOSENED",
         "expected_guard": "SHORT_STOP_LOOSENED",
-        "mutation": "SHORT_STOP_LOOSENED",
+        "mutated_object": "short_never_loosen",
         "mutation_id": 7,
-        "status": "PASS"
+        "mutation_name": "loosen tighter SHORT stop",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "GAP_FILL_FORCED",
         "expected_guard": "GAP_FILL_FORCED",
-        "mutation": "GAP_FILL_FORCED",
+        "mutated_object": "canonical_gap_fill",
         "mutation_id": 8,
-        "status": "PASS"
+        "mutation_name": "force gap fill at BE entry price",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "EXIT_SOURCE_FALSE",
         "expected_guard": "EXIT_SOURCE_FALSE",
-        "mutation": "EXIT_SOURCE_FALSE",
+        "mutated_object": "exit_source_precise",
         "mutation_id": 9,
-        "status": "PASS"
+        "mutation_name": "misclassify tighter canonical trail as BE_LEVEL",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "C1_REMOVED",
         "expected_guard": "C1_REMOVED",
-        "mutation": "C1_REMOVED",
+        "mutated_object": "cost",
         "mutation_id": 10,
-        "status": "PASS"
+        "mutation_name": "remove C1",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "TICK_INVALID",
         "expected_guard": "TICK_INVALID",
-        "mutation": "TICK_INVALID",
+        "mutated_object": "tick",
         "mutation_id": 11,
-        "status": "PASS"
+        "mutation_name": "tick = 0.01",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "T2_HASH_INVALID",
         "expected_guard": "T2_HASH_INVALID",
-        "mutation": "T2_HASH_INVALID",
+        "mutated_object": "t2_hash",
         "mutation_id": 12,
-        "status": "PASS"
+        "mutation_name": "wrong T2 hash",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "T3_HASH_INVALID",
         "expected_guard": "T3_HASH_INVALID",
-        "mutation": "T3_HASH_INVALID",
+        "mutated_object": "t3_hash",
         "mutation_id": 13,
-        "status": "PASS"
+        "mutation_name": "wrong T3 hash",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "DATA_COMMIT_INVALID",
         "expected_guard": "DATA_COMMIT_INVALID",
-        "mutation": "DATA_COMMIT_INVALID",
+        "mutated_object": "data_commit",
         "mutation_id": 14,
-        "status": "PASS"
+        "mutation_name": "wrong market-data commit",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "SOURCE_SHA_INVALID",
         "expected_guard": "SOURCE_SHA_INVALID",
-        "mutation": "SOURCE_SHA_INVALID",
+        "mutated_object": "source_sha",
         "mutation_id": 15,
-        "status": "PASS"
+        "mutation_name": "wrong source SHA",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "T3_CONTEXT_INVALID",
         "expected_guard": "T3_CONTEXT_INVALID",
-        "mutation": "T3_CONTEXT_INVALID",
+        "mutated_object": "context_bars",
         "mutation_id": 16,
-        "status": "PASS"
+        "mutation_name": "break T3 four-bar context",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "DAY_RESET_REMOVED",
         "expected_guard": "DAY_RESET_REMOVED",
-        "mutation": "DAY_RESET_REMOVED",
+        "mutated_object": "day_reset",
         "mutation_id": 17,
-        "status": "PASS"
+        "mutation_name": "remove local-day reset",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "DONCHIAN_UNSHIFTED",
         "expected_guard": "DONCHIAN_UNSHIFTED",
-        "mutation": "DONCHIAN_UNSHIFTED",
+        "mutated_object": "donchian_shift",
         "mutation_id": 18,
-        "status": "PASS"
+        "mutation_name": "remove Donchian shift",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "BE_STATE_CARRIED",
         "expected_guard": "BE_STATE_CARRIED",
-        "mutation": "BE_STATE_CARRIED",
+        "mutated_object": "cold_be",
         "mutation_id": 19,
-        "status": "PASS"
+        "mutation_name": "carry BE state across WF fold",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "POSITION_CARRIED",
         "expected_guard": "POSITION_CARRIED",
-        "mutation": "POSITION_CARRIED",
+        "mutated_object": "cold_position",
         "mutation_id": 20,
-        "status": "PASS"
+        "mutation_name": "carry open position across WF fold",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "TRAIL1_ENABLED",
         "expected_guard": "TRAIL1_ENABLED",
-        "mutation": "TRAIL1_ENABLED",
+        "mutated_object": "trail1",
         "mutation_id": 21,
-        "status": "PASS"
+        "mutation_name": "enable TRAIL1",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "RISK_CAP_ENABLED",
         "expected_guard": "RISK_CAP_ENABLED",
-        "mutation": "RISK_CAP_ENABLED",
+        "mutated_object": "risk_cap",
         "mutation_id": 22,
-        "status": "PASS"
+        "mutation_name": "enable TOTAL_OPEN_RISK_CAP",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "MIN_HOLD_ENABLED",
         "expected_guard": "MIN_HOLD_ENABLED",
-        "mutation": "MIN_HOLD_ENABLED",
+        "mutated_object": "minimum_hold",
         "mutation_id": 23,
-        "status": "PASS"
+        "mutation_name": "enable minimum-hold",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "SESSION_FILTER_ENABLED",
         "expected_guard": "SESSION_FILTER_ENABLED",
-        "mutation": "SESSION_FILTER_ENABLED",
+        "mutated_object": "session_filter",
         "mutation_id": 24,
-        "status": "PASS"
+        "mutation_name": "enable session filter",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "EVIDENCE_LABEL_INVALID",
         "expected_guard": "EVIDENCE_LABEL_INVALID",
-        "mutation": "EVIDENCE_LABEL_INVALID",
+        "mutated_object": "label",
         "mutation_id": 25,
-        "status": "PASS"
+        "mutation_name": "relabel evidence as fresh OOS",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "STAGE6_ENABLED",
         "expected_guard": "STAGE6_ENABLED",
-        "mutation": "STAGE6_ENABLED",
+        "mutated_object": "stage6",
         "mutation_id": 26,
-        "status": "PASS"
+        "mutation_name": "enable Stage 6",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "frozen_contract_validator"
       },
       {
         "actual_guard": "TRIGGER_EVENT_MUTATED",
         "expected_guard": "TRIGGER_EVENT_MUTATED",
-        "mutation": "TRIGGER_EVENT_MUTATED",
+        "mutated_object": "trigger_event",
         "mutation_id": 27,
-        "status": "PASS"
+        "mutation_name": "mutate trigger event",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "producer_auditor_reconciliation"
       },
       {
         "actual_guard": "ACTIVATION_EVENT_MUTATED",
         "expected_guard": "ACTIVATION_EVENT_MUTATED",
-        "mutation": "ACTIVATION_EVENT_MUTATED",
+        "mutated_object": "activation_event",
         "mutation_id": 28,
-        "status": "PASS"
+        "mutation_name": "mutate activation event",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "producer_auditor_reconciliation"
       },
       {
         "actual_guard": "EXIT_R_MUTATED",
         "expected_guard": "EXIT_R_MUTATED",
-        "mutation": "EXIT_R_MUTATED",
+        "mutated_object": "exit_r",
         "mutation_id": 29,
-        "status": "PASS"
+        "mutation_name": "mutate exit R",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "producer_auditor_reconciliation"
       },
       {
         "actual_guard": "SUMMARY_FALSE_PASS",
         "expected_guard": "SUMMARY_FALSE_PASS",
-        "mutation": "SUMMARY_FALSE_PASS",
+        "mutated_object": "numeric_evidence",
         "mutation_id": 30,
-        "status": "PASS"
+        "mutation_name": "false producer PASS with incorrect numeric evidence",
+        "pass": true,
+        "rejected": true,
+        "validation_surface": "producer_auditor_reconciliation"
       }
     ],
     "total": 30
   },
-  "producer_ledger_sha256": "bd7e41783d545bb88b41aefca15f5d3988e471883865b47f2d63429bba7fd225",
   "producer_vs_auditor": {
     "event_mismatches": 0,
     "maximum_metric_delta": 0.0,
