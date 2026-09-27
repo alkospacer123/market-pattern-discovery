@@ -1,0 +1,244 @@
+{
+  "Stage5_status": "OPEN",
+  "clean_controls": "PASS",
+  "deterministic_audit": "PASS",
+  "evidence_label": "RETROSPECTIVE_CAUSAL_VALIDATION",
+  "independent_metrics": {
+    "PF": 1.536700500422606,
+    "expectancy": 0.22542695077974265,
+    "max_DD": -31.20016774636909,
+    "median_R": -0.169403838474,
+    "net_R": 2213.467229706293,
+    "net_R_ex_top5": 2042.659770400693,
+    "recovery": 70.94408106071431,
+    "top_1_positive_R_concentration": 0.014313739048832368,
+    "top_5_concentration": 0.026951100507815767,
+    "trades": 9819,
+    "win_rate": 0.3625623790610042
+  },
+  "mutation_tests": {
+    "mode": "EXECUTABLE_ADVERSARIAL",
+    "passed": 30,
+    "results": [
+      {
+        "actual_guard": "TERMINAL_MFE_TRIGGER",
+        "expected_guard": "TERMINAL_MFE_TRIGGER",
+        "mutation": "TERMINAL_MFE_TRIGGER",
+        "mutation_id": 1,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "SAME_BAR_ACTIVATION",
+        "expected_guard": "SAME_BAR_ACTIVATION",
+        "mutation": "SAME_BAR_ACTIVATION",
+        "mutation_id": 2,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "TRIGGER_NOT_1R_LOW",
+        "expected_guard": "TRIGGER_NOT_1R_LOW",
+        "mutation": "TRIGGER_NOT_1R_LOW",
+        "mutation_id": 3,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "TRIGGER_NOT_1R_HIGH",
+        "expected_guard": "TRIGGER_NOT_1R_HIGH",
+        "mutation": "TRIGGER_NOT_1R_HIGH",
+        "mutation_id": 4,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "INITIAL_R_MUTATED",
+        "expected_guard": "INITIAL_R_MUTATED",
+        "mutation": "INITIAL_R_MUTATED",
+        "mutation_id": 5,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "LONG_STOP_LOOSENED",
+        "expected_guard": "LONG_STOP_LOOSENED",
+        "mutation": "LONG_STOP_LOOSENED",
+        "mutation_id": 6,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "SHORT_STOP_LOOSENED",
+        "expected_guard": "SHORT_STOP_LOOSENED",
+        "mutation": "SHORT_STOP_LOOSENED",
+        "mutation_id": 7,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "GAP_FILL_FORCED",
+        "expected_guard": "GAP_FILL_FORCED",
+        "mutation": "GAP_FILL_FORCED",
+        "mutation_id": 8,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "EXIT_SOURCE_FALSE",
+        "expected_guard": "EXIT_SOURCE_FALSE",
+        "mutation": "EXIT_SOURCE_FALSE",
+        "mutation_id": 9,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "C1_REMOVED",
+        "expected_guard": "C1_REMOVED",
+        "mutation": "C1_REMOVED",
+        "mutation_id": 10,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "TICK_INVALID",
+        "expected_guard": "TICK_INVALID",
+        "mutation": "TICK_INVALID",
+        "mutation_id": 11,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "T2_HASH_INVALID",
+        "expected_guard": "T2_HASH_INVALID",
+        "mutation": "T2_HASH_INVALID",
+        "mutation_id": 12,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "T3_HASH_INVALID",
+        "expected_guard": "T3_HASH_INVALID",
+        "mutation": "T3_HASH_INVALID",
+        "mutation_id": 13,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "DATA_COMMIT_INVALID",
+        "expected_guard": "DATA_COMMIT_INVALID",
+        "mutation": "DATA_COMMIT_INVALID",
+        "mutation_id": 14,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "SOURCE_SHA_INVALID",
+        "expected_guard": "SOURCE_SHA_INVALID",
+        "mutation": "SOURCE_SHA_INVALID",
+        "mutation_id": 15,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "T3_CONTEXT_INVALID",
+        "expected_guard": "T3_CONTEXT_INVALID",
+        "mutation": "T3_CONTEXT_INVALID",
+        "mutation_id": 16,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "DAY_RESET_REMOVED",
+        "expected_guard": "DAY_RESET_REMOVED",
+        "mutation": "DAY_RESET_REMOVED",
+        "mutation_id": 17,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "DONCHIAN_UNSHIFTED",
+        "expected_guard": "DONCHIAN_UNSHIFTED",
+        "mutation": "DONCHIAN_UNSHIFTED",
+        "mutation_id": 18,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "BE_STATE_CARRIED",
+        "expected_guard": "BE_STATE_CARRIED",
+        "mutation": "BE_STATE_CARRIED",
+        "mutation_id": 19,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "POSITION_CARRIED",
+        "expected_guard": "POSITION_CARRIED",
+        "mutation": "POSITION_CARRIED",
+        "mutation_id": 20,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "TRAIL1_ENABLED",
+        "expected_guard": "TRAIL1_ENABLED",
+        "mutation": "TRAIL1_ENABLED",
+        "mutation_id": 21,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "RISK_CAP_ENABLED",
+        "expected_guard": "RISK_CAP_ENABLED",
+        "mutation": "RISK_CAP_ENABLED",
+        "mutation_id": 22,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "MIN_HOLD_ENABLED",
+        "expected_guard": "MIN_HOLD_ENABLED",
+        "mutation": "MIN_HOLD_ENABLED",
+        "mutation_id": 23,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "SESSION_FILTER_ENABLED",
+        "expected_guard": "SESSION_FILTER_ENABLED",
+        "mutation": "SESSION_FILTER_ENABLED",
+        "mutation_id": 24,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "EVIDENCE_LABEL_INVALID",
+        "expected_guard": "EVIDENCE_LABEL_INVALID",
+        "mutation": "EVIDENCE_LABEL_INVALID",
+        "mutation_id": 25,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "STAGE6_ENABLED",
+        "expected_guard": "STAGE6_ENABLED",
+        "mutation": "STAGE6_ENABLED",
+        "mutation_id": 26,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "TRIGGER_EVENT_MUTATED",
+        "expected_guard": "TRIGGER_EVENT_MUTATED",
+        "mutation": "TRIGGER_EVENT_MUTATED",
+        "mutation_id": 27,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "ACTIVATION_EVENT_MUTATED",
+        "expected_guard": "ACTIVATION_EVENT_MUTATED",
+        "mutation": "ACTIVATION_EVENT_MUTATED",
+        "mutation_id": 28,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "EXIT_R_MUTATED",
+        "expected_guard": "EXIT_R_MUTATED",
+        "mutation": "EXIT_R_MUTATED",
+        "mutation_id": 29,
+        "status": "PASS"
+      },
+      {
+        "actual_guard": "SUMMARY_FALSE_PASS",
+        "expected_guard": "SUMMARY_FALSE_PASS",
+        "mutation": "SUMMARY_FALSE_PASS",
+        "mutation_id": 30,
+        "status": "PASS"
+      }
+    ],
+    "total": 30
+  },
+  "producer_ledger_sha256": "bd7e41783d545bb88b41aefca15f5d3988e471883865b47f2d63429bba7fd225",
+  "producer_vs_auditor": {
+    "event_mismatches": 0,
+    "maximum_metric_delta": 0.0,
+    "metric_mismatches": 0,
+    "trade_mismatches": 0
+  },
+  "status": "STAGE5_BE1_INDEPENDENT_AUDIT_PASSED"
+}
