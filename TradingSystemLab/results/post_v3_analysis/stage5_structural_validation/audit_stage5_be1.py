@@ -13,6 +13,10 @@ class IndependentBE1:
     triggered: bool = False
     activated: bool = False
     trigger_time: object = None
+    be_level_touched: bool = False
+    protective_stop_touched_after_be: bool = False
+    gap_through_be_level: bool = False
+    exit_protection_source: str = "CANONICAL"
 
     def __post_init__(self) -> None:
         self.risk = self.entry - self.initial_stop if self.direction == "LONG" else self.initial_stop - self.entry
@@ -30,5 +34,21 @@ class IndependentBE1:
         self.activated = True
         return max(stop, self.entry) if self.direction == "LONG" else min(stop, self.entry)
 
-    def fill(self, open_: float, stop: float) -> float:
-        return min(open_, stop) if self.direction == "LONG" else max(open_, stop)
+    def fill(self, open_: float, stop: float, *, low: float | None = None,
+             high: float | None = None) -> float:
+        result = min(open_, stop) if self.direction == "LONG" else max(open_, stop)
+        if self.activated:
+            self.protective_stop_touched_after_be = True
+            at_be = abs(stop - self.entry) <= 1e-12
+            self.be_level_touched = (low <= self.entry if self.direction == "LONG" and low is not None
+                                     else high >= self.entry if self.direction == "SHORT" and high is not None
+                                     else at_be)
+            self.gap_through_be_level = (result < self.entry if self.direction == "LONG"
+                                         else result > self.entry)
+            if at_be:
+                self.exit_protection_source = "BE_LEVEL"
+            elif stop > self.entry if self.direction == "LONG" else stop < self.entry:
+                self.exit_protection_source = "CANONICAL_TRAIL_AFTER_BE"
+            else:
+                self.exit_protection_source = "OTHER_CANONICAL_PROTECTIVE_EXIT"
+        return result

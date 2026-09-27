@@ -34,8 +34,11 @@ class BE1State:
     stop_before_activation: float | None = None
     stop_after_activation: float | None = None
     canonical_stop_already_tighter: bool = False
-    be_stop_touched: bool = False
-    gap_through_be: bool = False
+    be_level_touched: bool = False
+    protective_stop_touched_after_be: bool = False
+    gap_through_be_level: bool = False
+    current_protective_stop_at_exit: float | None = None
+    exit_protection_source: str = "CANONICAL"
 
     def __post_init__(self) -> None:
         risk = (self.entry_price - self.initial_stop_price if self.direction == "LONG"
@@ -78,12 +81,32 @@ class BE1State:
             self.trigger_bar_low = float(low)
         return reached
 
-    def stop_fill(self, bar_open: float, stop: float) -> float:
-        """Canonical gap-aware stop fill, while recording BE diagnostics."""
+    def stop_fill(self, bar_open: float, stop: float, *,
+                  bar_low: float | None = None,
+                  bar_high: float | None = None) -> float:
+        """Return the canonical gap fill and classify the protection precisely.
+
+        ``bar_low``/``bar_high`` should be supplied by lifecycle runners.  They
+        are optional only for compatibility with the small contract primitive;
+        without them the method makes the conservative assertion that the BE
+        level was touched only when the executable stop itself is at BE.
+        """
         fill = min(float(bar_open), stop) if self.direction == "LONG" else max(float(bar_open), stop)
+        self.current_protective_stop_at_exit = float(stop)
         if self.activated:
-            self.be_stop_touched = True
-            self.gap_through_be = (fill < stop if self.direction == "LONG" else fill > stop)
+            self.protective_stop_touched_after_be = True
+            at_be = abs(float(stop) - self.entry_price) <= 1e-12
+            self.be_level_touched = (bar_low <= self.entry_price if self.direction == "LONG" and bar_low is not None
+                                     else bar_high >= self.entry_price if self.direction == "SHORT" and bar_high is not None
+                                     else at_be)
+            self.gap_through_be_level = (fill < self.entry_price if self.direction == "LONG"
+                                         else fill > self.entry_price)
+            if at_be:
+                self.exit_protection_source = "BE_LEVEL"
+            elif (stop > self.entry_price if self.direction == "LONG" else stop < self.entry_price):
+                self.exit_protection_source = "CANONICAL_TRAIL_AFTER_BE"
+            else:
+                self.exit_protection_source = "OTHER_CANONICAL_PROTECTIVE_EXIT"
         return fill
 
     def event_fields(self) -> dict[str, Any]:
@@ -101,8 +124,12 @@ class BE1State:
             "protective_stop_after_activation": self.stop_after_activation,
             "canonical_stop_already_tighter": self.canonical_stop_already_tighter,
             "be_activated": self.activated,
-            "be_stop_touched": self.be_stop_touched,
-            "gap_through_be": self.gap_through_be,
+            "be_level": self.entry_price,
+            "be_level_touched": self.be_level_touched,
+            "protective_stop_touched_after_be": self.protective_stop_touched_after_be,
+            "current_protective_stop_at_exit": self.current_protective_stop_at_exit,
+            "exit_protection_source": self.exit_protection_source,
+            "gap_through_be_level": self.gap_through_be_level,
         }
 
 

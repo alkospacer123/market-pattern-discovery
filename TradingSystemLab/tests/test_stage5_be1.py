@@ -55,7 +55,30 @@ def test_gap_through_uses_canonical_fill():
     state.observe_completed_bar("t1", 102, 100)
     stop = state.activate_before_event("t2", 98)
     assert state.stop_fill(97, stop) == 97
-    assert state.gap_through_be
+    assert state.gap_through_be_level
+
+
+def test_tighter_trail_touch_is_not_automatically_be_level_touch():
+    state = be.BE1State("LONG", 100, 98)
+    state.observe_completed_bar("t1", 102, 100)
+    state.activate_before_event("t2", 98)
+    # The canonical trail has tightened beyond entry.  A bar can touch that
+    # stop without ever trading at the distinct BE level.
+    assert state.stop_fill(102, 101, bar_low=100.5, bar_high=103) == 101
+    fields = state.event_fields()
+    assert fields["protective_stop_touched_after_be"]
+    assert not fields["be_level_touched"]
+    assert fields["exit_protection_source"] == "CANONICAL_TRAIL_AFTER_BE"
+
+
+def test_independent_diagnostic_classification_agrees():
+    state = audit.IndependentBE1("SHORT", 100, 102)
+    state.observe("t1", 100, 98)
+    assert state.activate("t2", 102) == 100
+    assert state.fill(98, 99, low=97, high=99.5) == 99
+    assert state.protective_stop_touched_after_be
+    assert not state.be_level_touched
+    assert state.exit_protection_source == "CANONICAL_TRAIL_AFTER_BE"
 
 
 def test_exit_on_trigger_bar_cannot_fabricate_activation():
