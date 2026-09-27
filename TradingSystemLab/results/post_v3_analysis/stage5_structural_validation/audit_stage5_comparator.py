@@ -8,6 +8,7 @@ which are the objects under audit.
 from __future__ import annotations
 
 import ast
+import copy
 import csv
 import hashlib
 import json
@@ -43,6 +44,7 @@ EXPECTED_HASHES = {
 }
 STAGE4_HASHES = {
     "manifest_stage4.json": "00dcb2141602dd6813f194a57b8539aca79ce807de98a6c2f85093c664741abf",
+    "audit_stage4_result.json": "7a764cd15975835d7469d0cae58634fd7751a54db79e1bf62aec59f5d8593863",
     "structural_hypothesis_registry.csv": "584a7c89dcb9e8985b4a0a9c5e432264b2c549675e2d45df9402cc12fb699fc8",
     "structural_hypothesis_evidence.csv": "c25f9d7f8fe551a8ebdf6e7d044f3468c0f6cae7a2b067af64dc9f22f90ce30f",
     "structural_hypothesis_validation_contract.csv": "5d5da406fdbd34aaaee005f4a9736ef7b8b4c56873919dfe2e7ac21f03bc00ac",
@@ -70,23 +72,26 @@ def read_csv(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(stream))
 
 
-def authenticate_stage4() -> dict[str, str]:
-    """Authenticate Stage 4 directly, never through the Stage 5 manifest."""
-    audit_path = STAGE4 / "audit_stage4_result.json"
-    audit = json.loads(audit_path.read_text(encoding="utf-8"))
-    manifest = json.loads((STAGE4 / "manifest_stage4.json").read_text(encoding="utf-8"))
+def validate_stage4(audit: dict[str, Any], manifest: dict[str, Any],
+                    actual: dict[str, str]) -> None:
+    """Validate independently supplied Stage 4 evidence (also used by mutations)."""
+    if actual != STAGE4_HASHES:
+        raise RuntimeError("STAGE4_FROZEN_HASH")
     if audit["status"] != "POST_V3_STAGE_4_STRUCTURAL_HYPOTHESIS_SET_AUDIT_PASSED":
         raise RuntimeError("STAGE4_AUDIT_STATUS")
     if audit["stage4_status"] != "POST_V3_STAGE_4_STRUCTURAL_HYPOTHESIS_SET_CLOSED":
         raise RuntimeError("STAGE4_CLOSED_STATUS")
     if manifest["audit_status"] != audit["status"] or manifest["final_status"] != audit["stage4_status"]:
         raise RuntimeError("STAGE4_STATUS_DISAGREEMENT")
+
+
+def authenticate_stage4() -> dict[str, str]:
+    """Authenticate Stage 4 directly, never through the Stage 5 manifest."""
+    audit_path = STAGE4 / "audit_stage4_result.json"
+    audit = json.loads(audit_path.read_text(encoding="utf-8"))
+    manifest = json.loads((STAGE4 / "manifest_stage4.json").read_text(encoding="utf-8"))
     actual = {name: sha256(STAGE4 / name) for name in STAGE4_HASHES}
-    if actual != STAGE4_HASHES:
-        raise RuntimeError("STAGE4_FROZEN_HASH")
-    # The audit result is independently read as an authentication authority;
-    # it cannot hash itself without a circular identity.
-    actual["audit_stage4_result.json"] = sha256(audit_path)
+    validate_stage4(audit, manifest, actual)
     return actual
 
 
@@ -102,16 +107,20 @@ def resolve_data_root() -> Path:
     raise RuntimeError("MARKET_DATA_ROOT_NOT_FOUND")
 
 
-def authenticate_data_repo(root: Path) -> str:
-    head = subprocess.run(
-        ["git", "-C", str(root), "rev-parse", "HEAD"], check=True,
-        text=True, capture_output=True,
-    ).stdout.strip()
+def validate_data_repo(root: Path, head: str) -> None:
     if head != DATA_COMMIT:
         raise RuntimeError("MARKET_DATA_COMMIT")
     for directory in ("futures_quarterly", "forever"):
         if not (root / directory).is_dir():
             raise RuntimeError(f"MARKET_DATA_DIRECTORY:{directory}")
+
+
+def authenticate_data_repo(root: Path) -> str:
+    head = subprocess.run(
+        ["git", "-C", str(root), "rev-parse", "HEAD"], check=True,
+        text=True, capture_output=True,
+    ).stdout.strip()
+    validate_data_repo(root, head)
     return head
 
 
@@ -176,16 +185,27 @@ def reconstruct_registry(data_root: Path) -> list[dict[str, str]]:
 def authenticate_registry(data_root: Path) -> tuple[list[dict[str, str]], dict[str, str]]:
     committed = read_csv(HERE / "canonical_lifecycle_registry.csv")
     expected = reconstruct_registry(data_root)
+    validate_registry(committed, expected)
+    identities = validate_source_identities(expected, data_root)
+    return expected, identities
+
+
+def validate_registry(committed: list[dict[str, str]], expected: list[dict[str, str]]) -> None:
+    """Require an exact registry; inputs make the proof surface mutation-testable."""
     key = lambda row: tuple(row[name] for name in row)
     if sorted(committed, key=key) != sorted(expected, key=key):
         raise RuntimeError("LIFECYCLE_REGISTRY_NOT_EXACT")
+
+
+def validate_source_identities(rows: list[dict[str, str]], data_root: Path,
+                               hash_fn: Any = sha256) -> dict[str, str]:
     identities: dict[str, str] = {}
-    for row in expected:
+    for row in rows:
         commit, relative, digest = row["source_market_data_identity"].split(":", 2)
-        if commit != DATA_COMMIT or digest != sha256(data_root / relative):
+        if commit != DATA_COMMIT or digest != hash_fn(data_root / relative):
             raise RuntimeError("SOURCE_DATA_IDENTITY")
         identities[relative] = digest
-    return expected, dict(sorted(identities.items()))
+    return dict(sorted(identities.items()))
 
 
 def _run_wf(module: Any, generation: str, data_root: Path, output: Path) -> None:
@@ -245,11 +265,35 @@ def metrics(frame: pd.DataFrame) -> dict[str, float]:
             "max_DD": float((curve - curve.cummax()).min())}
 
 
+TRADE_FIELDS = ("symbol", "direction", "entry_time", "exit_time", "entry_price", "exit_price", "exit_reason")
+
+
+def validate_trade_frames(reference: pd.DataFrame, observed: pd.DataFrame) -> None:
+    """Reject any trade-level difference, including the independently selected C1 R."""
+    if len(reference) != len(observed):
+        raise RuntimeError("INDEPENDENT_RECONCILIATION")
+    for field in TRADE_FIELDS:
+        if not reference[field].astype(str).reset_index(drop=True).equals(
+                observed[field].astype(str).reset_index(drop=True)):
+            raise RuntimeError("INDEPENDENT_RECONCILIATION")
+    if (_net(reference).reset_index(drop=True) - _net(observed).reset_index(drop=True)).abs().gt(TOLERANCE).any():
+        raise RuntimeError("INDEPENDENT_RECONCILIATION")
+
+
+def validate_producer_metrics(producer: dict[str, Any], observed: dict[str, float]) -> None:
+    """Compare values, deliberately ignoring any producer-authored PASS flag."""
+    if int(producer["actual_trades"]) != int(observed["trades"]):
+        raise RuntimeError("PRODUCER_AUDITOR_TRADE_COUNT")
+    mapping = {"net_R": "actual_net_R", "expectancy_R": "actual_expectancy_R",
+               "PF": "actual_PF", "win_rate": "actual_win_rate", "max_DD": "actual_max_DD"}
+    if any(abs(float(producer[column]) - observed[name]) > TOLERANCE for name, column in mapping.items()):
+        raise RuntimeError("PRODUCER_AUDITOR_METRICS")
+
+
 def reconcile(actual_root: Path) -> tuple[list[dict[str, Any]], int, float, int]:
     producer = read_csv(HERE / "canonical_comparator_reconciliation.csv")
     producer_index = {(r["generation"], r["lifecycle"], r["fold_id"], r["strategy"], r["timeframe"]): r for r in producer}
     studies, mismatch_count, maximum, rows_total = [], 0, 0.0, 0
-    fields = ("symbol", "direction", "entry_time", "exit_time", "entry_price", "exit_price", "exit_reason")
     for generation in INSTRUMENTS:
         for lifecycle in ("baseline", "walk_forward", "historical_true_oos"):
             for strategy in ("T2", "T3"):
@@ -258,7 +302,7 @@ def reconcile(actual_root: Path) -> tuple[list[dict[str, Any]], int, float, int]
                     observed = _ledger(actual_root, generation, lifecycle, strategy, timeframe).reset_index(drop=True)
                     rows_total += len(observed)
                     mismatch_count += abs(len(reference) - len(observed))
-                    for field in fields:
+                    for field in TRADE_FIELDS:
                         mismatch_count += int((reference[field].iloc[:len(observed)].astype(str).reset_index(drop=True)
                                                != observed[field].iloc[:len(reference)].astype(str).reset_index(drop=True)).sum())
                     mismatch_count += int((_net(reference).iloc[:len(observed)].reset_index(drop=True)
@@ -272,12 +316,7 @@ def reconcile(actual_root: Path) -> tuple[list[dict[str, Any]], int, float, int]
                         maximum = max(maximum, delta)
                         key = (generation, lifecycle, fold, strategy, timeframe)
                         p = producer_index[key]
-                        if int(p["actual_trades"]) != int(rm["trades"]):
-                            raise RuntimeError("PRODUCER_AUDITOR_TRADE_COUNT")
-                        mapping = {"net_R": "actual_net_R", "expectancy_R": "actual_expectancy_R",
-                                   "PF": "actual_PF", "win_rate": "actual_win_rate", "max_DD": "actual_max_DD"}
-                        if any(abs(float(p[column]) - rm[name]) > TOLERANCE for name, column in mapping.items()):
-                            raise RuntimeError("PRODUCER_AUDITOR_METRICS")
+                        validate_producer_metrics(p, rm)
                         studies.append({"key": key, "metrics": rm})
     totals = {(g, lifecycle): sum(int(s["metrics"]["trades"]) for s in studies
                               if s["key"][0] == g and s["key"][1] == lifecycle)
@@ -290,11 +329,12 @@ def reconcile(actual_root: Path) -> tuple[list[dict[str, Any]], int, float, int]
     return studies, mismatch_count, maximum, rows_total
 
 
-def verify_t3_causality() -> dict[str, bool]:
+def verify_t3_causality(loader: str | None = None, strategy: str | None = None) -> dict[str, bool]:
     """Inspect exact called loader/strategy functions and their AST invariants."""
     loader_path = ROOT / "TradingSystemLab/core/data_loader.py"
     strategy_path = ROOT / "TradingSystemLab/strategies/trend/T3_MTF_Trend.py"
-    loader, strategy = loader_path.read_text(), strategy_path.read_text()
+    loader = loader_path.read_text() if loader is None else loader
+    strategy = strategy_path.read_text() if strategy is None else strategy
     loader_tree, strategy_tree = ast.parse(loader), ast.parse(strategy)
     calls = {n.func.attr for n in ast.walk(loader_tree) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}
     completed = "if len(block) != 4" in loader and "continue" in loader
@@ -324,9 +364,7 @@ MUTATIONS = (
 )
 
 
-def mutation_tests() -> dict[str, str]:
-    """Document fail-closed mutation surfaces; each maps to an independent guard."""
-    guards = (
+MUTATION_GUARDS = (
         "STAGE4_FROZEN_HASH", "STAGE4_AUDIT_STATUS", "MARKET_DATA_COMMIT", "SOURCE_DATA_IDENTITY",
         "LIFECYCLE_REGISTRY_NOT_EXACT", "LIFECYCLE_REGISTRY_NOT_EXACT", "LIFECYCLE_REGISTRY_NOT_EXACT",
         "LIFECYCLE_REGISTRY_NOT_EXACT", "LIFECYCLE_REGISTRY_NOT_EXACT", "LIFECYCLE_REGISTRY_NOT_EXACT",
@@ -336,9 +374,109 @@ def mutation_tests() -> dict[str, str]:
         "INDEPENDENT_RECONCILIATION", "INDEPENDENT_RECONCILIATION", "INDEPENDENT_RECONCILIATION",
         "INDEPENDENT_RECONCILIATION", "PRODUCER_AUDITOR_METRICS", "PRODUCER_AUDITOR_METRICS",
         "PRODUCER_AUDITOR_METRICS", "SCOPE_GUARD", "SCOPE_GUARD",
-    )
-    assert len(guards) == len(MUTATIONS) == 30
-    return {name: f"PASS ({guard})" for name, guard in zip(MUTATIONS, guards)}
+)
+
+
+def validate_strategy_hash(strategy: str, digest: str) -> None:
+    if digest != EXPECTED_HASHES[strategy]:
+        raise RuntimeError("STRATEGY_HASH")
+
+
+def validate_scope(manifest: dict[str, Any]) -> None:
+    if (manifest["hypothesis_execution"] or not manifest["no_stage6"] or
+            manifest["C1_contract"]["name"] != "C1" or str(manifest["frozen_tick_size"]) != TICK):
+        raise RuntimeError("SCOPE_GUARD")
+
+
+def _failure_code(action: Any) -> str | None:
+    try:
+        action()
+    except RuntimeError as error:
+        return str(error).split(":", 1)[0]
+    return None
+
+
+def mutation_tests(*, disabled_guard: str | None = None) -> dict[str, Any]:
+    """Apply each isolated mutation and execute the production validation primitive."""
+    assert len(MUTATION_GUARDS) == len(MUTATIONS) == 30
+    audit = json.loads((STAGE4 / "audit_stage4_result.json").read_text())
+    stage4_manifest = json.loads((STAGE4 / "manifest_stage4.json").read_text())
+    actual_hashes = {name: sha256(STAGE4 / name) for name in STAGE4_HASHES}
+    registry = read_csv(HERE / "canonical_lifecycle_registry.csv")
+    loader = (ROOT / "TradingSystemLab/core/data_loader.py").read_text()
+    strategy = (ROOT / "TradingSystemLab/strategies/trend/T3_MTF_Trend.py").read_text()
+    manifest = json.loads((HERE / "canonical_comparator_manifest.json").read_text())
+    trade = pd.DataFrame([{"symbol": "X", "direction": "long", "entry_time": "2024-01-01",
+                           "exit_time": "2024-01-02", "entry_price": 1.0, "exit_price": 2.0,
+                           "exit_reason": "target", "net_R_C1": 1.0}])
+    observed_metrics = metrics(trade)
+    producer = {"actual_trades": 1, "actual_net_R": 1.0, "actual_expectancy_R": 1.0,
+                "actual_PF": 0.0, "actual_win_rate": 1.0, "actual_max_DD": 0.0, "status": "PASS"}
+    actions: list[tuple[str, Any]] = []
+
+    bad_hashes = dict(actual_hashes); bad_hashes["structural_hypothesis_registry.csv"] = "0" * 64
+    actions.append(("stage4_hashes.structural_hypothesis_registry.csv",
+                    lambda: validate_stage4(audit, stage4_manifest, bad_hashes)))
+    bad_audit = dict(audit); bad_audit["status"] = "WRONG"
+    actions.append(("stage4_audit.status", lambda: validate_stage4(bad_audit, stage4_manifest, actual_hashes)))
+    temporary = tempfile.TemporaryDirectory(prefix="stage5-mutations-")
+    data_root = Path(temporary.name)
+    (data_root / "futures_quarterly").mkdir(); (data_root / "forever").mkdir()
+    actions.append(("data_repo_commit", lambda: validate_data_repo(data_root, "0" * 40)))
+    bad_source = copy.deepcopy(registry); bad_source[0]["source_market_data_identity"] = bad_source[0]["source_market_data_identity"][:-1] + "0"
+    canonical_digests = {r["source_market_data_identity"].split(":", 2)[1]:
+                         r["source_market_data_identity"].split(":", 2)[2] for r in registry}
+    actions.append(("registry.source_market_data_identity", lambda: validate_source_identities(
+        bad_source, data_root, lambda path: canonical_digests[str(path.relative_to(data_root))])))
+
+    registry_changes = [
+        ("registry.baseline.start_timestamp", lambda rows: rows[0].__setitem__("start_timestamp", "1900-01-01")),
+        ("registry.baseline.end_timestamp", lambda rows: rows[0].__setitem__("end_timestamp", "1900-01-02")),
+        ("registry.WF.start_timestamp", lambda rows: next(r for r in rows if r["lifecycle"] == "walk_forward").__setitem__("start_timestamp", "1900-01-01")),
+        ("registry.WF.end_timestamp", lambda rows: next(r for r in rows if r["lifecycle"] == "walk_forward").__setitem__("end_timestamp", "1900-01-02")),
+        ("registry.WF.train_start_timestamp", lambda rows: next(r for r in rows if r["lifecycle"] == "walk_forward").__setitem__("train_start_timestamp", "1900-01-01")),
+        ("registry.WF.fold_id", lambda rows: next(r for r in rows if r["fold_id"] == "WF01").__setitem__("fold_id", "WF02")),
+        ("registry.instrument", lambda rows: rows.pop()),
+        ("registry.generation", lambda rows: rows.append({**rows[0], "generation": "v1"})),
+        ("registry.cost_contract", lambda rows: rows[0].__setitem__("cost_contract", "C0")),
+        ("registry.tick_size", lambda rows: rows[0].__setitem__("tick_size", "0.01")),
+    ]
+    for mutated_object, mutate in registry_changes:
+        rows = copy.deepcopy(registry); mutate(rows)
+        actions.append((mutated_object, lambda rows=rows: validate_registry(rows, registry)))
+    actions.extend([
+        ("T2.source_hash", lambda: validate_strategy_hash("T2", "0" * 64)),
+        ("T3.source_hash", lambda: validate_strategy_hash("T3", "0" * 64)),
+        ("T3.loader.incomplete_block", lambda: verify_t3_causality(loader.replace("if len(block) != 4", "if False"), strategy)),
+        ("T3.loader.local_day_reset", lambda: verify_t3_causality(loader.replace(".index.normalize()", ".index"), strategy)),
+        ("T3.strategy.donchian_shift", lambda: verify_t3_causality(loader, strategy.replace(".shift(1)", ".shift(0)"))),
+    ])
+    for field, value in (("entry_time", "X"), ("exit_time", "X"), ("entry_price", 9.0),
+                         ("exit_price", 9.0), ("exit_reason", "X"), ("net_R_C1", 9.0)):
+        changed = trade.copy(); changed.loc[0, field] = value
+        actions.append((f"trade.{field}", lambda changed=changed: validate_trade_frames(trade, changed)))
+    for field in ("actual_PF", "actual_max_DD"):
+        changed = dict(producer); changed[field] = 99.0
+        actions.append((f"producer.{field}", lambda changed=changed: validate_producer_metrics(changed, observed_metrics)))
+    false_pass = dict(producer); false_pass["actual_net_R"] = 99.0; false_pass["status"] = "PASS"
+    actions.append(("producer.false_PASS_with_wrong_value", lambda: validate_producer_metrics(false_pass, observed_metrics)))
+    hypothesis = copy.deepcopy(manifest); hypothesis["hypothesis_execution"] = True
+    actions.append(("manifest.hypothesis_execution", lambda: validate_scope(hypothesis)))
+    stage6 = copy.deepcopy(manifest); stage6["no_stage6"] = False
+    actions.append(("manifest.no_stage6", lambda: validate_scope(stage6)))
+
+    results = []
+    for number, ((mutated_object, action), name, expected) in enumerate(zip(actions, MUTATIONS, MUTATION_GUARDS), 1):
+        actual = None if expected == disabled_guard else _failure_code(action)
+        rejected = actual is not None
+        results.append({"mutation_id": f"M{number:02d}", "mutation_name": name,
+                        "mutated_object": mutated_object, "expected_guard": expected,
+                        "actual_guard": actual, "rejected": rejected,
+                        "pass": rejected and actual == expected})
+    passed = sum(row["pass"] for row in results)
+    temporary.cleanup()
+    return {"mode": "EXECUTABLE_ADVERSARIAL", "passed": passed, "total": len(results),
+            "all_rejected_as_expected": passed == len(results), "results": results}
 
 
 def authenticate_producer_outputs(manifest: dict[str, Any]) -> None:
@@ -360,26 +498,20 @@ def authenticate_producer_outputs(manifest: dict[str, Any]) -> None:
             raise RuntimeError("PRODUCER_REPORT_STATUS")
 
 
-def audit(*, write: bool = True) -> dict[str, Any]:
+def clean_audit(actual_root: Path) -> dict[str, Any]:
+    """Run the complete unmutated canonical audit once."""
     stage4 = authenticate_stage4()
     for strategy, filename in (("T2", "T2_Trend_Pullback.py"), ("T3", "T3_MTF_Trend.py")):
-        if sha256(ROOT / "TradingSystemLab/strategies/trend" / filename) != EXPECTED_HASHES[strategy]:
-            raise RuntimeError("STRATEGY_HASH")
+        validate_strategy_hash(strategy, sha256(ROOT / "TradingSystemLab/strategies/trend" / filename))
     data_root = resolve_data_root()
     head = authenticate_data_repo(data_root)
     registry, sources = authenticate_registry(data_root)
     causality = verify_t3_causality()
     manifest = json.loads((HERE / "canonical_comparator_manifest.json").read_text())
-    if (manifest["hypothesis_execution"] or not manifest["no_stage6"] or
-            manifest["C1_contract"]["name"] != "C1" or str(manifest["frozen_tick_size"]) != TICK):
-        raise RuntimeError("SCOPE_GUARD")
+    validate_scope(manifest)
     authenticate_producer_outputs(manifest)
-    with tempfile.TemporaryDirectory(prefix="stage5-independent-audit-") as directory:
-        output = Path(directory) / "results"
-        execute_independently(data_root, output)
-        studies, mismatches, maximum, trade_rows = reconcile(output)
-    mutations = mutation_tests()
-    result = {
+    studies, mismatches, maximum, trade_rows = reconcile(actual_root)
+    return {
         "status": "STAGE5_CANONICAL_COMPARATOR_INDEPENDENT_AUDIT_PASSED",
         "stage4_authentication": {"status": "PASS", "hashes": stage4},
         "data_repo_authentication": {"status": "PASS", "commit": head},
@@ -395,12 +527,27 @@ def audit(*, write: bool = True) -> dict[str, Any]:
         "T3_causality": causality,
         "C1_contract": "C1",
         "frozen_tick": 0.001,
-        "mutation_tests": {"passed": 30, "total": 30, "results": mutations},
-        "deterministic_audit_rerun": "PASS",
         "structural_hypothesis_execution": False,
         "Stage5_status": "OPEN",
         "registry_rows": len(registry),
     }
+
+
+def audit(*, write: bool = True) -> dict[str, Any]:
+    data_root = resolve_data_root()
+    with tempfile.TemporaryDirectory(prefix="stage5-independent-audit-") as directory:
+        output = Path(directory) / "results"
+        execute_independently(data_root, output)
+        before = clean_audit(output)
+        mutations = mutation_tests()
+        if not mutations["all_rejected_as_expected"]:
+            raise RuntimeError("MUTATION_SUITE_FAILED")
+        after = clean_audit(output)
+    if before != after:
+        raise RuntimeError("MUTATION_ISOLATION_FAILED")
+    result = dict(after)
+    result.update({"clean_control_before": "PASS", "clean_control_after": "PASS",
+                   "mutation_tests": mutations, "deterministic_audit_rerun": "PASS"})
     payload = json.dumps(result, indent=2, sort_keys=True) + "\n"
     if write:
         RESULT_FILE.write_text(payload, encoding="utf-8")

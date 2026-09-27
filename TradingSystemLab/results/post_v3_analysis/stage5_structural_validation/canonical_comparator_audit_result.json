@@ -9,6 +9,8 @@
     "local_trading_day_reset": true,
     "separate_causal_context": true
   },
+  "clean_control_after": "PASS",
+  "clean_control_before": "PASS",
   "data_repo_authentication": {
     "commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
     "status": "PASS"
@@ -20,39 +22,281 @@
   "lifecycle_registry_exact_match": true,
   "maximum_metric_delta": 0.0,
   "mutation_tests": {
+    "all_rejected_as_expected": true,
+    "mode": "EXECUTABLE_ADVERSARIAL",
     "passed": 30,
-    "results": {
-      "C0": "PASS (LIFECYCLE_REGISTRY_NOT_EXACT)",
-      "Stage 6 work flag": "PASS (SCOPE_GUARD)",
-      "T2 source hash": "PASS (STRATEGY_HASH)",
-      "T3 source hash": "PASS (STRATEGY_HASH)",
-      "added v1": "PASS (LIFECYCLE_REGISTRY_NOT_EXACT)",
-      "altered WF end": "PASS (LIFECYCLE_REGISTRY_NOT_EXACT)",
-      "altered WF start": "PASS (LIFECYCLE_REGISTRY_NOT_EXACT)",
-      "altered baseline end": "PASS (LIFECYCLE_REGISTRY_NOT_EXACT)",
-      "altered baseline start": "PASS (LIFECYCLE_REGISTRY_NOT_EXACT)",
-      "altered train bound": "PASS (LIFECYCLE_REGISTRY_NOT_EXACT)",
-      "changed C1 R": "PASS (INDEPENDENT_RECONCILIATION)",
-      "changed PF": "PASS (PRODUCER_AUDITOR_METRICS)",
-      "changed entry price": "PASS (INDEPENDENT_RECONCILIATION)",
-      "changed entry time": "PASS (INDEPENDENT_RECONCILIATION)",
-      "changed exit price": "PASS (INDEPENDENT_RECONCILIATION)",
-      "changed exit reason": "PASS (INDEPENDENT_RECONCILIATION)",
-      "changed exit time": "PASS (INDEPENDENT_RECONCILIATION)",
-      "changed max DD": "PASS (PRODUCER_AUDITOR_METRICS)",
-      "hypothesis execution true": "PASS (SCOPE_GUARD)",
-      "incomplete T3 context block": "PASS (T3_CAUSALITY)",
-      "no local-day reset": "PASS (T3_CAUSALITY)",
-      "omitted instrument": "PASS (LIFECYCLE_REGISTRY_NOT_EXACT)",
-      "producer reconciliation falsely says PASS": "PASS (PRODUCER_AUDITOR_METRICS)",
-      "swapped WF fold": "PASS (LIFECYCLE_REGISTRY_NOT_EXACT)",
-      "tick 0.01": "PASS (LIFECYCLE_REGISTRY_NOT_EXACT)",
-      "unshifted Donchian": "PASS (T3_CAUSALITY)",
-      "wrong Stage 4 registry SHA": "PASS (STAGE4_FROZEN_HASH)",
-      "wrong Stage 4 status": "PASS (STAGE4_AUDIT_STATUS)",
-      "wrong data repo HEAD": "PASS (MARKET_DATA_COMMIT)",
-      "wrong source market-data SHA": "PASS (SOURCE_DATA_IDENTITY)"
-    },
+    "results": [
+      {
+        "actual_guard": "STAGE4_FROZEN_HASH",
+        "expected_guard": "STAGE4_FROZEN_HASH",
+        "mutated_object": "stage4_hashes.structural_hypothesis_registry.csv",
+        "mutation_id": "M01",
+        "mutation_name": "wrong Stage 4 registry SHA",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "STAGE4_AUDIT_STATUS",
+        "expected_guard": "STAGE4_AUDIT_STATUS",
+        "mutated_object": "stage4_audit.status",
+        "mutation_id": "M02",
+        "mutation_name": "wrong Stage 4 status",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "MARKET_DATA_COMMIT",
+        "expected_guard": "MARKET_DATA_COMMIT",
+        "mutated_object": "data_repo_commit",
+        "mutation_id": "M03",
+        "mutation_name": "wrong data repo HEAD",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "SOURCE_DATA_IDENTITY",
+        "expected_guard": "SOURCE_DATA_IDENTITY",
+        "mutated_object": "registry.source_market_data_identity",
+        "mutation_id": "M04",
+        "mutation_name": "wrong source market-data SHA",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "expected_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "mutated_object": "registry.baseline.start_timestamp",
+        "mutation_id": "M05",
+        "mutation_name": "altered baseline start",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "expected_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "mutated_object": "registry.baseline.end_timestamp",
+        "mutation_id": "M06",
+        "mutation_name": "altered baseline end",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "expected_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "mutated_object": "registry.WF.start_timestamp",
+        "mutation_id": "M07",
+        "mutation_name": "altered WF start",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "expected_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "mutated_object": "registry.WF.end_timestamp",
+        "mutation_id": "M08",
+        "mutation_name": "altered WF end",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "expected_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "mutated_object": "registry.WF.train_start_timestamp",
+        "mutation_id": "M09",
+        "mutation_name": "altered train bound",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "expected_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "mutated_object": "registry.WF.fold_id",
+        "mutation_id": "M10",
+        "mutation_name": "swapped WF fold",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "expected_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "mutated_object": "registry.instrument",
+        "mutation_id": "M11",
+        "mutation_name": "omitted instrument",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "expected_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "mutated_object": "registry.generation",
+        "mutation_id": "M12",
+        "mutation_name": "added v1",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "expected_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "mutated_object": "registry.cost_contract",
+        "mutation_id": "M13",
+        "mutation_name": "C0",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "expected_guard": "LIFECYCLE_REGISTRY_NOT_EXACT",
+        "mutated_object": "registry.tick_size",
+        "mutation_id": "M14",
+        "mutation_name": "tick 0.01",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "STRATEGY_HASH",
+        "expected_guard": "STRATEGY_HASH",
+        "mutated_object": "T2.source_hash",
+        "mutation_id": "M15",
+        "mutation_name": "T2 source hash",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "STRATEGY_HASH",
+        "expected_guard": "STRATEGY_HASH",
+        "mutated_object": "T3.source_hash",
+        "mutation_id": "M16",
+        "mutation_name": "T3 source hash",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "T3_CAUSALITY",
+        "expected_guard": "T3_CAUSALITY",
+        "mutated_object": "T3.loader.incomplete_block",
+        "mutation_id": "M17",
+        "mutation_name": "incomplete T3 context block",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "T3_CAUSALITY",
+        "expected_guard": "T3_CAUSALITY",
+        "mutated_object": "T3.loader.local_day_reset",
+        "mutation_id": "M18",
+        "mutation_name": "no local-day reset",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "T3_CAUSALITY",
+        "expected_guard": "T3_CAUSALITY",
+        "mutated_object": "T3.strategy.donchian_shift",
+        "mutation_id": "M19",
+        "mutation_name": "unshifted Donchian",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "INDEPENDENT_RECONCILIATION",
+        "expected_guard": "INDEPENDENT_RECONCILIATION",
+        "mutated_object": "trade.entry_time",
+        "mutation_id": "M20",
+        "mutation_name": "changed entry time",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "INDEPENDENT_RECONCILIATION",
+        "expected_guard": "INDEPENDENT_RECONCILIATION",
+        "mutated_object": "trade.exit_time",
+        "mutation_id": "M21",
+        "mutation_name": "changed exit time",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "INDEPENDENT_RECONCILIATION",
+        "expected_guard": "INDEPENDENT_RECONCILIATION",
+        "mutated_object": "trade.entry_price",
+        "mutation_id": "M22",
+        "mutation_name": "changed entry price",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "INDEPENDENT_RECONCILIATION",
+        "expected_guard": "INDEPENDENT_RECONCILIATION",
+        "mutated_object": "trade.exit_price",
+        "mutation_id": "M23",
+        "mutation_name": "changed exit price",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "INDEPENDENT_RECONCILIATION",
+        "expected_guard": "INDEPENDENT_RECONCILIATION",
+        "mutated_object": "trade.exit_reason",
+        "mutation_id": "M24",
+        "mutation_name": "changed exit reason",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "INDEPENDENT_RECONCILIATION",
+        "expected_guard": "INDEPENDENT_RECONCILIATION",
+        "mutated_object": "trade.net_R_C1",
+        "mutation_id": "M25",
+        "mutation_name": "changed C1 R",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "PRODUCER_AUDITOR_METRICS",
+        "expected_guard": "PRODUCER_AUDITOR_METRICS",
+        "mutated_object": "producer.actual_PF",
+        "mutation_id": "M26",
+        "mutation_name": "changed PF",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "PRODUCER_AUDITOR_METRICS",
+        "expected_guard": "PRODUCER_AUDITOR_METRICS",
+        "mutated_object": "producer.actual_max_DD",
+        "mutation_id": "M27",
+        "mutation_name": "changed max DD",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "PRODUCER_AUDITOR_METRICS",
+        "expected_guard": "PRODUCER_AUDITOR_METRICS",
+        "mutated_object": "producer.false_PASS_with_wrong_value",
+        "mutation_id": "M28",
+        "mutation_name": "producer reconciliation falsely says PASS",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "SCOPE_GUARD",
+        "expected_guard": "SCOPE_GUARD",
+        "mutated_object": "manifest.hypothesis_execution",
+        "mutation_id": "M29",
+        "mutation_name": "hypothesis execution true",
+        "pass": true,
+        "rejected": true
+      },
+      {
+        "actual_guard": "SCOPE_GUARD",
+        "expected_guard": "SCOPE_GUARD",
+        "mutated_object": "manifest.no_stage6",
+        "mutation_id": "M30",
+        "mutation_name": "Stage 6 work flag",
+        "pass": true,
+        "rejected": true
+      }
+    ],
     "total": 30
   },
   "producer_vs_auditor_match": true,
