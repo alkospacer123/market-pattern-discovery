@@ -35,7 +35,7 @@ def _record(meta,pos,state,t,price,reason):
     d={**meta,'trade_id':f"{meta['strategy']}-{meta['timeframe']}-{meta['instrument']}-{pos['seq']:06d}",'direction':pos['direction'],'entry_time':pos['entry_time'],'entry_price':pos['entry'],'exit_time':t,'exit_price':price,'exit_reason':reason,'gross_R':gross,'cost_R':cost,'net_R_C1':gross-cost,'bars_held':pos['bars']+1,**state.event_fields()}
     d['be1_strategy_identity']='H4_01_PROFIT_PROTECTION_BE1'; return d
 
-def run_t2(frame,symbol,p,meta):
+def run_t2(frame,symbol,p,meta,be_enabled=True):
     st=T2TrendPullback(p); st._validate=lambda x:None; data=st.calculate_indicators(frame); setup=pos=None; out=[]; equity=100000.
     for i,(t,b) in enumerate(data.iterrows()):
       regime=st.regime(b)
@@ -56,7 +56,7 @@ def run_t2(frame,symbol,p,meta):
           if st.is_confirmation(b,data.iloc[i-1],setup.direction):
             entry=float(b.Close); stop=setup.pullback_extreme-p.stop_buffer_atr*b.ATR if setup.direction=='LONG' else setup.pullback_extreme+p.stop_buffer_atr*b.ATR; risk=entry-stop if setup.direction=='LONG' else stop-entry
             if risk>0 and risk<=p.max_initial_stop_atr*b.ATR:
-              bs=BE1State(setup.direction,entry,float(stop)); pos={'direction':setup.direction,'entry':entry,'entry_time':t,'initial':float(stop),'risk':float(risk),'stop':float(stop),'bars':0,'lo':entry,'hi':entry,'seq':len(out)+1,'be':bs}
+              bs=BE1State(setup.direction,entry,float(stop),enabled=be_enabled); pos={'direction':setup.direction,'entry':entry,'entry_time':t,'initial':float(stop),'risk':float(risk),'stop':float(stop),'bars':0,'lo':entry,'hi':entry,'seq':len(out)+1,'be':bs}
             setup=None
         continue
       if regime and i:
@@ -64,7 +64,7 @@ def run_t2(frame,symbol,p,meta):
         if ref is not None and st.is_pullback(b,regime):setup=PullbackSetup(regime,t,i,i+p.confirmation_window,float(b.Low if regime=='LONG' else b.High),ref)
     return out
 
-def run_t3(frame,symbol,p,meta):
+def run_t3(frame,symbol,p,meta,be_enabled=True):
     strategy=T3MTFTrend(p); high=DataLoader.h4_from_h1(frame); low,high=strategy.calculate_indicators(frame,high); cursor=-1;pos=None;out=[]
     for t,b in low.iterrows():
       while cursor+1<len(high) and high.index[cursor+1]<=t:cursor+=1
@@ -79,7 +79,7 @@ def run_t3(frame,symbol,p,meta):
       if pos is None and pd.notna(b.ATR):
         signal=strategy.generate_signal(b,regime)
         if signal:
-          entry=float(b.Close);stop=float(strategy.calculate_stop_loss(signal,entry,float(b.ATR)));pos={'direction':signal,'entry':entry,'entry_time':t,'initial':stop,'risk':abs(entry-stop),'stop':stop,'extreme':entry,'bars':0,'lo':entry,'hi':entry,'seq':len(out)+1,'be':BE1State(signal,entry,stop)}
+          entry=float(b.Close);stop=float(strategy.calculate_stop_loss(signal,entry,float(b.ATR)));pos={'direction':signal,'entry':entry,'entry_time':t,'initial':stop,'risk':abs(entry-stop),'stop':stop,'extreme':entry,'bars':0,'lo':entry,'hi':entry,'seq':len(out)+1,'be':BE1State(signal,entry,stop,enabled=be_enabled)}
     return out
 
 def metrics(f):
@@ -117,43 +117,95 @@ def _comparison(canonical,be1,cols):
   rows.append(r)
  return rows
 
+def path_divergences(canonical,be1):
+ cols=['generation','lifecycle','fold_id','strategy','timeframe','instrument'];rows=[]
+ keys=set(tuple(x) for x in canonical[cols].fillna('').itertuples(index=False,name=None))|set(tuple(x) for x in be1[cols].fillna('').itertuples(index=False,name=None))
+ for key in sorted(keys):
+  def select(frame):
+   mask=pd.Series(True,index=frame.index)
+   for c,v in zip(cols,key):mask&=frame[c].fillna('').eq(v)
+   return frame[mask].sort_values(['entry_time','direction','entry_price'],kind='mergesort').reset_index(drop=True)
+  a,b=select(canonical),select(be1);prefix=0;reason='NONE';stamp=''
+  for i in range(min(len(a),len(b))):
+   if str(a.at[i,'direction'])!=str(b.at[i,'direction']) or str(pd.Timestamp(a.at[i,'entry_time']))!=str(pd.Timestamp(b.at[i,'entry_time'])) or abs(float(a.at[i,'entry_price'])-float(b.at[i,'entry_price']))>1e-9:reason='ENTRY_SEQUENCE_DIVERGED';stamp=min(str(a.at[i,'entry_time']),str(b.at[i,'entry_time']));break
+   if str(pd.Timestamp(a.at[i,'exit_time']))!=str(pd.Timestamp(b.at[i,'exit_time'])) or abs(float(a.at[i,'exit_price'])-float(b.at[i,'exit_price']))>1e-9 or str(a.at[i,'exit_reason'])!=str(b.at[i,'exit_reason']):reason='EXIT_CHANGED_BY_BE1';stamp=str(b.at[i,'exit_time']);break
+   prefix+=1
+  else:
+   if len(a)!=len(b):reason='EXTRA_OR_MISSING_TRADE';stamp=str((a if len(a)>len(b) else b).at[prefix,'entry_time'])
+  rows.append({**dict(zip(cols,key)),'canonical_trade_count':len(a),'be1_trade_count':len(b),'exact_paired_prefix_trades':prefix,'first_divergence_trade_index':prefix if reason!='NONE' else '','first_divergence_timestamp':stamp,'divergence_reason':reason,'canonical_downstream_trades':len(a)-prefix,'be1_downstream_trades':len(b)-prefix,'delta_downstream_trades':len(b)-len(a)})
+ return rows
+
+def concentration_rows(frame):
+ rows=[]
+ for key,g in frame.groupby(['generation','lifecycle','strategy','timeframe'],sort=True):
+  p=g[g.net_R_C1>0].sort_values('net_R_C1',ascending=False);total=p.net_R_C1.sum();top=p.head(5)
+  rows.append({**dict(zip(['generation','lifecycle','strategy','timeframe'],key)),'diagnostic_label':'LIFECYCLE_SPECIFIC','top_1_positive_R_share':float(p.head(1).net_R_C1.sum()/total),'top_5_positive_R_share':float(top.net_R_C1.sum()/total),'net_R_ex_top5':float(g.net_R_C1.sum()-top.net_R_C1.sum()),'PF_ex_top5':metrics(g.drop(top.index))['PF']})
+ return rows
+
+def tail_rows(canonical,be1):
+ rows=[];cols=['generation','lifecycle','strategy','timeframe']
+ keys=set(tuple(x) for x in canonical[cols].itertuples(index=False,name=None))
+ for key in sorted(keys):
+  masks=[]
+  for f in (canonical,be1):
+   m=pd.Series(True,index=f.index)
+   for c,v in zip(cols,key):m&=f[c].eq(v)
+   masks.append(f[m])
+  for threshold in (2,3,5):
+   ca=masks[0].loc[masks[0].net_R_C1>threshold,'net_R_C1'];ba=masks[1].loc[masks[1].net_R_C1>threshold,'net_R_C1']
+   rows.append({**dict(zip(cols,key)),'threshold_R':threshold,'canonical_count':len(ca),'be1_count':len(ba),'delta_count':len(ba)-len(ca),'canonical_R_contribution':float(ca.sum()),'be1_R_contribution':float(ba.sum()),'delta_R_contribution':float(ba.sum()-ca.sum())})
+ return rows
+
 def _execute_row(item):
-    r, root = item
+    r, root, be_enabled = item
     universe='futures_quarterly' if r['generation']=='v2_quarterly' else 'forever'
     path=Path(root)/universe/r['instrument']/f"{r['instrument']}_{r['timeframe']}.csv"
     raw=DataLoader(forbid_true_oos=False).load_csv(path)
     frame=DataLoader.close_index(raw,'30min' if r['timeframe']=='M30' else '1h').loc[r['start_timestamp']:r['end_timestamp']].copy()
     _params.tf=r['timeframe'];p=_params(r['generation'],r['strategy'],r['lifecycle'])
     meta={k:r[k] for k in ('generation','lifecycle','fold_id','strategy','timeframe','instrument','candidate_config_identity')}
-    return (run_t2 if r['strategy']=='T2' else run_t3)(frame,r['instrument'],p,meta)
+    return (run_t2 if r['strategy']=='T2' else run_t3)(frame,r['instrument'],p,meta,be_enabled)
+
+def _dispatch(registry,data_root,be_enabled):
+    events=[]
+    with ProcessPoolExecutor(max_workers=min(8, os.cpu_count() or 1)) as pool:
+      for rows in pool.map(_execute_row, [(r,str(data_root),be_enabled) for r in registry], chunksize=1): events.extend(rows)
+    return pd.DataFrame(events).reindex(columns=EVENT_COLUMNS)
+
+def _canonical_reconciliation(actual,expected):
+    keys=['generation','lifecycle','fold_id','strategy','timeframe','instrument','direction','entry_time','entry_price','exit_time','exit_price','exit_reason','net_R_C1']
+    def norm(f):
+      x=f.copy()
+      for c in ('entry_time','exit_time'):x[c]=pd.to_datetime(x[c],utc=True).astype(str)
+      return x.sort_values(keys[:-4],kind='mergesort').reset_index(drop=True)
+    a,e=norm(actual),norm(expected); mismatches=abs(len(a)-len(e)); maximum=0.0
+    for c in keys:
+      if c in ('entry_price','exit_price','net_R_C1'):
+        d=(pd.to_numeric(a[c].iloc[:len(e)])-pd.to_numeric(e[c].iloc[:len(a)])).abs();mismatches+=int(d.gt(1e-9).sum());maximum=max(maximum,float(d.max()) if len(d) else 0.0)
+      else:mismatches+=int(a[c].iloc[:min(len(a),len(e))].fillna('').astype(str).ne(e[c].iloc[:min(len(a),len(e))].fillna('').astype(str)).sum())
+    counts=a.groupby(['generation','lifecycle']).size().to_dict()
+    required={('v2_quarterly','baseline'):4449,('v2_quarterly','walk_forward'):746,('v2_quarterly','historical_true_oos'):1759,('v3_perpetual','baseline'):1124,('v3_perpetual','walk_forward'):515,('v3_perpetual','historical_true_oos'):1101}
+    if len(a)!=9694 or counts!=required or mismatches or maximum!=0.0:raise RuntimeError(f'BE1_CANONICAL_MODE_RECONCILIATION_FAILED trades={len(a)} mismatches={mismatches} max={maximum} counts={counts}')
+    return {'trades':len(a),'trade_mismatches':mismatches,'maximum_metric_delta':maximum,'counts':{f'{g}:{l}':n for (g,l),n in counts.items()}}
 
 def execute(data_root:Path,output:Path,identities:dict)->dict:
-    # Mandatory raw canonical anti-regression. Preserve accepted comparator files byte-for-byte.
-    if os.environ.get('BE1_USE_AUTHENTICATED_COMPARATOR') == '1':
-      canonical={'trade_rows_reconciled':9694,'trade_level_mismatch_count':0,'maximum_metric_delta':0.0}
-    else:
-      saved={k:p.read_bytes() for k,p in adapter.FILES.items()}; canonical=adapter.run_comparator(data_root)
-      for k,p in adapter.FILES.items():p.write_bytes(saved[k])
-    if canonical['trade_rows_reconciled']!=9694 or canonical['trade_level_mismatch_count'] or canonical['maximum_metric_delta']!=0:raise RuntimeError('BE1_CANONICAL_MODE_RECONCILIATION_FAILED')
+    if os.environ.get('BE1_USE_AUTHENTICATED_COMPARATOR') == '1':raise RuntimeError('NON_CERTIFYING_SHORTCUT_FORBIDDEN')
     output=Path(output);shutil.rmtree(output,ignore_errors=True);output.mkdir(parents=True)
-    registry=list(csv.DictReader((HERE/'canonical_lifecycle_registry.csv').open()));events=[]
-    with ProcessPoolExecutor(max_workers=min(8, os.cpu_count() or 1)) as pool:
-      for rows in pool.map(_execute_row, [(r,str(data_root)) for r in registry], chunksize=1): events.extend(rows)
-    ev=pd.DataFrame(events).reindex(columns=EVENT_COLUMNS);ev=ev.sort_values(['generation','lifecycle','strategy','timeframe','fold_id','exit_time','instrument','trade_id'],kind='mergesort').reset_index(drop=True);_csv(output/'be1_trade_events.csv',ev,EVENT_COLUMNS)
-    canonical_frame=_canonical_frame();studies=_comparison(canonical_frame,ev,['generation','lifecycle','strategy','timeframe']);_csv(output/'be1_study_summary.csv',studies)
+    registry=list(csv.DictReader((HERE/'canonical_lifecycle_registry.csv').open()));canonical_frame=_canonical_frame()
+    disabled=_dispatch(registry,data_root,False);canonical=_canonical_reconciliation(disabled,canonical_frame)
+    ev=_dispatch(registry,data_root,True);ev=ev.sort_values(['generation','lifecycle','strategy','timeframe','fold_id','exit_time','instrument','trade_id'],kind='mergesort').reset_index(drop=True);_csv(output/'be1_trade_events.csv',ev,EVENT_COLUMNS)
+    studies=_comparison(canonical_frame,ev,['generation','lifecycle','strategy','timeframe']);_csv(output/'be1_study_summary.csv',studies)
     for name,cols in [('lifecycle',['generation','lifecycle']),('fold',['generation','fold_id','strategy','timeframe']),('instrument',['generation','lifecycle','instrument']),('direction',['generation','lifecycle','direction'])]:_csv(output/f'be1_{name}_report.csv',_comparison(canonical_frame,ev,cols))
     times=pd.to_datetime(ev.exit_time,utc=True);ev2=ev.assign(month=times.dt.strftime('%Y-%m'),quarter=times.dt.to_period('Q').astype(str),year=times.dt.year)
     ct=pd.to_datetime(canonical_frame.exit_time,utc=True);c2=canonical_frame.assign(month=ct.dt.strftime('%Y-%m'),quarter=ct.dt.to_period('Q').astype(str),year=ct.dt.year)
-    for name,col in [('monthly','month'),('quarterly','quarter'),('yearly','year')]:_csv(output/f'be1_{name}_report.csv',_comparison(c2,ev2,[col]))
+    for name,col in [('monthly','month'),('quarterly','quarter'),('yearly','year')]:_csv(output/f'be1_{name}_report.csv',_comparison(c2,ev2,['generation','lifecycle','strategy','timeframe',col]))
     mech=[]
     for key,g in ev.groupby(['generation','lifecycle','strategy','timeframe'],sort=True):
-      mech.append(dict(zip(['generation','lifecycle','strategy','timeframe'],key),total_trades=len(g),triggers=int(g.be_triggered.sum()),activations=int(g.be_activation_time.notna().sum()),be_level_exits=int(g.exit_protection_source.eq('BE_LEVEL').sum()),trail_after_be_exits=int(g.exit_protection_source.eq('CANONICAL_TRAIL_AFTER_BE').sum()),other_protective_exits=int(g.exit_protection_source.eq('OTHER_CANONICAL_PROTECTIVE_EXIT').sum()),gap_through_cases=int(g.gap_through_be_level.sum()),canonical_stop_already_tighter=int(g.canonical_stop_already_tighter.sum()),path_divergences=0))
+      mech.append(dict(zip(['generation','lifecycle','strategy','timeframe'],key),total_trades=len(g),triggers=int(g.be_triggered.sum()),activations=int(g.be_activation_time.notna().sum()),be_level_exits=int(g.exit_protection_source.eq('BE_LEVEL').sum()),trail_after_be_exits=int(g.exit_protection_source.eq('CANONICAL_TRAIL_AFTER_BE').sum()),other_protective_exits=int(g.exit_protection_source.eq('OTHER_CANONICAL_PROTECTIVE_EXIT').sum()),gap_through_cases=int(g.gap_through_be_level.sum()),canonical_stop_already_tighter=int(g.canonical_stop_already_tighter.sum())))
     _csv(output/'be1_mechanism_report.csv',mech)
-    x=ev.sort_values('net_R_C1',ascending=False);positive=x[x.net_R_C1>0];total=positive.net_R_C1.sum();_csv(output/'be1_concentration_report.csv',[{**metrics(ev),'top_1_positive_R_concentration':positive.head(1).net_R_C1.sum()/total,'top_5_concentration':positive.head(5).net_R_C1.sum()/total,'net_R_ex_top5':ev.net_R_C1.sum()-positive.head(5).net_R_C1.sum(),'PF_ex_top5':metrics(ev.drop(positive.head(5).index))['PF']}])
-    tail=[]
-    for threshold in (2,3,5):tail.append({'threshold_R':threshold,'count':int(ev.net_R_C1.gt(threshold).sum()),'R_contribution':float(ev.loc[ev.net_R_C1.gt(threshold),'net_R_C1'].sum())})
-    _csv(output/'be1_tail_winner_report.csv',tail);_csv(output/'be1_path_divergence_report.csv',[{'status':'NO_FORCED_PAIRING','path_divergences':'not_pairable_after_first_divergence'}])
-    _csv(output/'be1_canonical_reconciliation.csv',[{'expected_trades':9694,'actual_trades':canonical['trade_rows_reconciled'],'trade_mismatches':0,'maximum_metric_delta':0.0,'status':'PASS'}])
+    _csv(output/'be1_concentration_report.csv',concentration_rows(ev))
+    _csv(output/'be1_tail_winner_report.csv',tail_rows(canonical_frame,ev));_csv(output/'be1_path_divergence_report.csv',path_divergences(canonical_frame,ev))
+    _csv(output/'be1_canonical_reconciliation.csv',[{'expected_trades':9694,'actual_trades':canonical['trades'],'trade_mismatches':canonical['trade_mismatches'],'maximum_metric_delta':canonical['maximum_metric_delta'],'status':'PASS'}])
     (output/'BE1_Validation_Report.md').write_text('# BE1 Retrospective Causal Validation\n\n**STAGE5_BE1_CAUSAL_VALIDATION_EXECUTION_PASSED**\n\nEvidence label: `RETROSPECTIVE_CAUSAL_VALIDATION`. Stage 5 remains **OPEN**.\n\n'+pd.DataFrame(studies).to_markdown(index=False)+'\n')
     manifest={'status':'STAGE5_BE1_CAUSAL_VALIDATION_EXECUTION_PASSED','Stage5_status':'OPEN','hypothesis_id':'H4_01_PROFIT_PROTECTION_BE1','trigger':'first completed execution bar after entry reaching +1.0 frozen initial R','activation':'next executable event','action':'tighten protective stop to entry; never loosen','evidence_label':'RETROSPECTIVE_CAUSAL_VALIDATION','implementation_base_sha':identities['canonical_base'],'actual_execution_commit_sha':__import__('subprocess').check_output(['git','rev-parse','HEAD'],text=True).strip(),'data_repo_commit':'50f1fd2178c18b7ab3bd969be82ad01f47a34745','source_hashes':identities['source_hashes'],'strategy_hashes':{'T2':'376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774','T3':'840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c'},'comparator_artifact_hashes':identities['comparator_artifact_hashes'],'stage4_artifact_hashes':identities['stage4_artifact_hashes'],'cost_contract':'C1','tick':TICK,'lifecycle_registry_identity':_sha(HERE/'canonical_lifecycle_registry.csv'),'canonical_mode_result':{'trades':9694,'mismatches':0,'maximum_metric_delta':0.0},'no_optimization':True,'no_parameter_search':True,'no_posthoc_tuning':True,'no_combined_variants':True,'TRAIL1':False,'RISK_CAP':False,'minimum_hold':False,'session_filter':False,'Stage6':False}
     manifest['output_hashes']={p.name:_sha(p) for p in sorted(output.glob('*')) if p.is_file()};_json(output/'manifest_be1.json',manifest);return manifest

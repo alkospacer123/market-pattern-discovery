@@ -15,6 +15,7 @@ def load(name):
 
 be = load("stage5_be1_execution")
 audit = load("audit_stage5_be1")
+lifecycle = load("stage5_be1_lifecycle")
 
 
 @pytest.mark.parametrize("direction,entry,stop,high,low", [
@@ -105,3 +106,58 @@ def test_independent_implementation_reconciles_contract():
 def test_invalid_initial_risk_rejected():
     with pytest.raises(ValueError, match="BE1_INITIAL_RISK_NOT_POSITIVE"):
         be.BE1State("LONG", 100, 100)
+
+
+def test_be_disabled_state_is_inert_for_both_execution_loops():
+    for direction, stop, high, low in (("LONG", 98, 110, 90), ("SHORT", 102, 110, 90)):
+        state = be.BE1State(direction, 100, stop, enabled=False)
+        assert not state.observe_completed_bar("bar", high, low)
+        assert state.activate_before_event("next", stop) == stop
+
+
+def test_independent_auditor_has_no_producer_imports():
+    source = (BASE / "audit_stage5_be1.py").read_text()
+    for forbidden in ("run_stage5_be1", "stage5_be1_lifecycle", "stage5_be1_execution"):
+        assert forbidden not in source
+
+
+def test_executable_mutations_really_reject_and_match_guards():
+    rows = audit.executable_mutations()
+    assert len(rows) == 30
+    assert all(row["rejected"] and row["pass"] for row in rows)
+    bad = dict(audit.CLEAN); bad["trigger_r"] = .5
+    with pytest.raises(ValueError, match="TRIGGER_NOT_1R_LOW"):
+        audit.validate_contract(bad)
+
+
+def _trade(entry, exit_, exit_price=101):
+    return {"generation":"v2_quarterly","lifecycle":"baseline","fold_id":"",
+            "strategy":"T2","timeframe":"H1","instrument":"X","direction":"LONG",
+            "entry_time":entry,"entry_price":100.,"exit_time":exit_,
+            "exit_price":exit_price,"exit_reason":"ATR_TRAILING_STOP","net_R_C1":.4}
+
+
+def test_path_divergence_detects_changed_exit():
+    import pandas as pd
+    canonical = pd.DataFrame([_trade("2024-01-01", "2024-01-02")])
+    changed = pd.DataFrame([_trade("2024-01-01", "2024-01-03")])
+    row = lifecycle.path_divergences(canonical, changed)[0]
+    assert row["divergence_reason"] == "EXIT_CHANGED_BY_BE1"
+    assert row["exact_paired_prefix_trades"] == 0
+
+
+def test_path_divergence_detects_inserted_trade_without_forced_pairing():
+    import pandas as pd
+    canonical = pd.DataFrame([_trade("2024-01-01", "2024-01-02")])
+    inserted = pd.DataFrame([_trade("2024-01-01", "2024-01-02"),
+                             _trade("2024-02-01", "2024-02-02")])
+    row = lifecycle.path_divergences(canonical, inserted)[0]
+    assert row["divergence_reason"] == "EXTRA_OR_MISSING_TRADE"
+    assert row["exact_paired_prefix_trades"] == 1
+
+
+def test_deterministic_json_serialization(tmp_path):
+    left, right = tmp_path / "a.json", tmp_path / "b.json"
+    lifecycle._json(left, {"z": 1, "a": [2, 3]})
+    lifecycle._json(right, {"a": [2, 3], "z": 1})
+    assert left.read_bytes() == right.read_bytes()
