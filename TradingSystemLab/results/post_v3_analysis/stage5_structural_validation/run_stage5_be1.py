@@ -10,13 +10,14 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 from typing import Any
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
-CANONICAL_BASE = "5c5cd426a4830ec9c433109ef5b2a290a8890a4c"
+CANONICAL_BASE = "a2a46079976bcd85ada8a990a996c8ab26b44490"
 DATA_COMMIT = "50f1fd2178c18b7ab3bd969be82ad01f47a34745"
 T2_HASH = "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774"
 T3_HASH = "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
@@ -36,6 +37,30 @@ def sha(path: Path) -> str:
 def _git(path: Path, *args: str) -> str:
     return subprocess.run(["git", "-C", str(path), *args], check=True,
                           text=True, capture_output=True).stdout.strip()
+
+
+def resolve_data_root() -> tuple[Path, str]:
+    """Resolve the read-only data checkout using the frozen precedence.
+
+    An explicitly configured path is authoritative and therefore fails closed
+    when missing rather than silently selecting a different checkout.
+    """
+    configured = os.environ.get("MARKET_PATTERN_DATA_ROOT")
+    candidates = ([(Path(configured), "env")] if configured else []) + [
+        (ROOT.parent / "market-pattern-data", "sibling"),
+        (Path("/workspace/market-pattern-data"), "workspace"),
+    ]
+    seen: set[Path] = set()
+    for candidate, source in candidates:
+        candidate = candidate.expanduser().resolve()
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        if candidate.is_dir() and all((candidate / x).is_dir() for x in ("futures_quarterly", "forever")):
+            return candidate, source
+        if source == "env":
+            raise RuntimeError(f"BE1_CONFIGURED_MARKET_DATA_ROOT_INVALID: {candidate}")
+    raise RuntimeError("BE1_MARKET_DATA_ROOT_NOT_FOUND: checked env, sibling, workspace")
 
 
 def authenticate(data_root: Path) -> dict[str, Any]:
@@ -97,10 +122,14 @@ def run(data_root: Path, output: Path) -> dict[str, Any]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data-root", type=Path, default=Path("/workspace/market-pattern-data"))
+    parser.add_argument("--data-root", type=Path)
     parser.add_argument("--output", type=Path, default=HERE / "be1")
     args = parser.parse_args()
-    print(json.dumps(run(args.data_root, args.output), sort_keys=True))
+    if args.data_root is None:
+        data_root, _ = resolve_data_root()
+    else:
+        data_root = args.data_root
+    print(json.dumps(run(data_root, args.output), sort_keys=True))
 
 
 if __name__ == "__main__":
