@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 
 from TradingSystemLab.results.post_v3_analysis.stage5_structural_validation.stage5_trail1_execution import Trail1State, tighten
-from TradingSystemLab.results.post_v3_analysis.stage5_structural_validation.stage5_trail1_lifecycle import metrics, _record
+from TradingSystemLab.results.post_v3_analysis.stage5_structural_validation.stage5_trail1_lifecycle import metrics, _record, _arithmetic_audit
 
 
 def test_entry_bar_cannot_trigger_and_trigger_candidate_is_deferred():
@@ -87,3 +87,15 @@ def test_new_trade_has_fresh_state():
 def test_no_break_even_move_is_present():
     s=Trail1State('LONG',100,90);s.observe_completed_bar(1,110,99,95,90)
     assert s.activate_before_event(2,90)==95 != s.entry_price
+
+
+def test_certification_arithmetic_uses_price_risk_and_single_c1():
+    frame = pd.DataFrame({
+        'direction': ['LONG', 'SHORT'], 'entry_price': [100., 100.],
+        'exit_price': [110., 90.], 'initial_risk_price': [10., 10.],
+        'net_R_C1': [.9998, .9998],
+    })
+    assert _arithmetic_audit(frame) == (0, 0.0)
+    frame.loc[1, 'net_R_C1'] += 1e-6
+    mismatches, maximum = _arithmetic_audit(frame)
+    assert mismatches == 1 and maximum > 1e-9

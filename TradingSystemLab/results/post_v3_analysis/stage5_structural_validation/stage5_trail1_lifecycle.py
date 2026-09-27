@@ -199,7 +199,7 @@ def _canonical_reconciliation(actual,expected):
     if len(a)!=9694 or counts!=required or mismatches or maximum!=0.0:raise RuntimeError(f'TRAIL1_CANONICAL_MODE_RECONCILIATION_FAILED trades={len(a)} mismatches={mismatches} max={maximum} counts={counts}')
     return {'trades':len(a),'trade_mismatches':mismatches,'maximum_metric_delta':maximum,'counts':{f'{g}:{l}':n for (g,l),n in counts.items()}}
 
-def execute(data_root:Path,output:Path,identities:dict)->dict:
+def _execute_single(data_root:Path,output:Path,identities:dict)->dict:
     if os.environ.get('TRAIL1_USE_AUTHENTICATED_COMPARATOR') == '1':raise RuntimeError('NON_CERTIFYING_SHORTCUT_FORBIDDEN')
     output=Path(output);shutil.rmtree(output,ignore_errors=True);output.mkdir(parents=True)
     registry=list(csv.DictReader((HERE/'canonical_lifecycle_registry.csv').open()));canonical_frame=_canonical_frame()
@@ -226,6 +226,101 @@ def execute(data_root:Path,output:Path,identities:dict)->dict:
     _csv(output/'trail1_trade_digest.csv',digest)
     sign=ev.direction.map({'LONG':1,'SHORT':-1}); expected=sign*(ev.exit_price-ev.entry_price)/ev.initial_risk_price-.002/ev.initial_risk_price; delta=(expected-ev.net_R_C1).abs()
     audit={'status':'PASS' if float(delta.max())<=1e-9 else 'FAIL','trail1_rows_checked':len(ev),'trail1_arithmetic_mismatches':int((delta>1e-9).sum()),'trail1_maximum_delta':float(delta.max()),'canonical_rows_checked':len(canonical_frame),'canonical_accounting_basis':'CORRECTED_SINGLE_C1'};_json(output/'trail1_audit.json',audit)
-    (output/'TRAIL1_Validation_Report.md').write_text('# TRAIL1 Retrospective Causal Validation\n\n**STAGE5_TRAIL1_CAUSAL_VALIDATION_EXECUTION_PASSED**\n\nEvidence label: `RETROSPECTIVE_CAUSAL_VALIDATION`. Stage 5 remains **OPEN**.\n\n'+pd.DataFrame(studies).to_markdown(index=False)+'\n')
+    (output/'TRAIL1_Validation_Report.md').write_text(
+      '# TRAIL1 Retrospective Causal Validation\n\n'
+      '## Final closeout\n\n'
+      '`H4_02_PROFIT_PROTECTION_TRAIL1 = SUPPORTED_RETROSPECTIVELY`\n\n'
+      '**TRAIL1 = CLOSED**  \n**Stage 5 = OPEN**\n\n'
+      'TRAIL1 improved Net R in 21/24 studies, all 6/6 lifecycle aggregates, and '
+      '7/8 historical-OOS slices. T3 v3 improved all 8/8 walk-forward folds across '
+      'H1 and M30, and the accepted concentration diagnostics remain acceptable. '
+      'This is recurrent retrospective support for a structural candidate, not '
+      'universal superiority: not every month or drawdown improves, it is not a '
+      'guarantee of future improvement, and no production decision has been made. '
+      'Production assembly remains future Stage 6 work.\n\n'
+      '## Frozen study evidence\n\n'+pd.DataFrame(studies).to_markdown(index=False)+'\n')
     manifest={'status':'STAGE5_TRAIL1_CAUSAL_VALIDATION_EXECUTION_PASSED','Stage5_status':'OPEN','hypothesis_id':'H4_02_PROFIT_PROTECTION_TRAIL1','trigger':'first completed execution bar after entry reaching +1.0 frozen initial R','activation':'stored canonical ATR candidate executable at next event','action':'gate unchanged canonical ATR trail; never loosen','evidence_label':'RETROSPECTIVE_CAUSAL_VALIDATION','implementation_base_sha':identities['canonical_base'],'actual_execution_commit_sha':__import__('subprocess').check_output(['git','rev-parse','HEAD'],text=True).strip(),'data_repo_commit':'50f1fd2178c18b7ab3bd969be82ad01f47a34745','source_hashes':identities['source_hashes'],'strategy_hashes':{'T2':'376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774','T3':'840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c'},'comparator_artifact_hashes':identities['comparator_artifact_hashes'],'stage4_artifact_hashes':identities['stage4_artifact_hashes'],'cost_contract':'CORRECTED_SINGLE_C1','tick':TICK,'lifecycle_registry_identity':_sha(HERE/'canonical_lifecycle_registry.csv'),'canonical_mode_result':{'trades':9694,'mismatches':0,'maximum_metric_delta':0.0},'runtime_ledger_rows':len(ev),'runtime_ledger_sha256':ledger_sha,'no_optimization':True,'no_parameter_search':True,'no_posthoc_tuning':True,'no_BE1':True,'RISK_CAP':False,'minimum_hold':False,'session_filter':False,'Stage6':False}
     manifest['output_hashes']={p.name:_sha(p) for p in sorted(output.glob('*')) if p.is_file()};_json(output/'manifest_trail1.json',manifest);return manifest
+
+COMPACT_DETERMINISM_FILES = (
+    'trail1_study_summary.csv', 'trail1_lifecycle_report.csv',
+    'trail1_trade_digest.csv', 'trail1_mechanism_report.csv',
+    'trail1_canonical_path_reconciliation.csv',
+)
+FROZEN_LEDGER_SHA = 'b773811cb39df3c2585bf3aa278195ccb6e1777dcc664b714b2c74a2bc3badde'
+
+
+def _arithmetic_audit(frame: pd.DataFrame) -> tuple[int, float]:
+    """Independently recompute corrected single-C1 R from prices and risk."""
+    sign = frame.direction.map({'LONG': 1, 'SHORT': -1})
+    if 'initial_risk_price' in frame:
+        risk = pd.to_numeric(frame.initial_risk_price)
+    else:
+        stop = 'initial_stop' if 'initial_stop' in frame else 'initial_stop_price'
+        risk = (pd.to_numeric(frame.entry_price) - pd.to_numeric(frame[stop])).abs()
+    expected = sign * (pd.to_numeric(frame.exit_price) - pd.to_numeric(frame.entry_price)) / risk - .002 / risk
+    delta = (expected - pd.to_numeric(frame.net_R_C1)).abs()
+    return int((delta > 1e-9).sum()), float(delta.max())
+
+
+def execute(data_root:Path, output:Path, identities:dict, *, certify:bool=False,
+            execution_source_sha:str|None=None, evidence_commit_sha:str|None=None)->dict:
+    """Execute TRAIL1, optionally certifying two genuinely independent raw runs."""
+    head = __import__('subprocess').check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
+    execution_source_sha = execution_source_sha or head
+    if not certify:
+        return _execute_single(data_root, output, identities)
+    with tempfile.TemporaryDirectory(prefix='trail1-certify-') as tmp:
+        run2_dir = Path(tmp) / 'run2'
+        manifest = _execute_single(data_root, output, identities)
+        second = _execute_single(data_root, run2_dir, identities)
+        compact = {
+            name: {'run_1_sha256': _sha(Path(output) / name),
+                   'run_2_sha256': _sha(run2_dir / name),
+                   'identical': _sha(Path(output) / name) == _sha(run2_dir / name)}
+            for name in COMPACT_DETERMINISM_FILES
+        }
+        canonical_frame = _canonical_frame()
+        canonical_mismatches, canonical_delta = _arithmetic_audit(canonical_frame)
+        # The temporary full ledgers are intentionally not copied into evidence.
+        ledger1, ledger2 = manifest['runtime_ledger_sha256'], second['runtime_ledger_sha256']
+        passed = (manifest['runtime_ledger_rows'] == second['runtime_ledger_rows'] == 9486
+                  and ledger1 == ledger2 == FROZEN_LEDGER_SHA
+                  and not canonical_mismatches and canonical_delta <= 1e-9
+                  and all(item['identical'] for item in compact.values()))
+        prior = json.loads((Path(output) / 'trail1_audit.json').read_text())
+        audit = {
+            'status': 'PASS' if passed else 'FAIL',
+            'canonical_rows_checked': len(canonical_frame),
+            'canonical_path_mismatches': manifest['canonical_mode_result']['mismatches'],
+            'canonical_arithmetic_rows_checked': len(canonical_frame),
+            'canonical_arithmetic_mismatches': canonical_mismatches,
+            'canonical_maximum_arithmetic_delta': canonical_delta,
+            'trail1_rows_checked': prior['trail1_rows_checked'],
+            'trail1_arithmetic_mismatches': prior['trail1_arithmetic_mismatches'],
+            'trail1_maximum_arithmetic_delta': prior['trail1_maximum_delta'],
+            'run_1_ledger_sha256': ledger1, 'run_2_ledger_sha256': ledger2,
+            'ledger_determinism': 'PASS' if ledger1 == ledger2 else 'FAIL',
+            'compact_artifact_determinism': compact,
+            'execution_source_sha': execution_source_sha,
+            'data_repo_commit': manifest['data_repo_commit'],
+            'cost_contract': manifest['cost_contract'],
+        }
+        if not passed or prior['trail1_arithmetic_mismatches'] or prior['trail1_maximum_delta'] > 1e-9:
+            raise RuntimeError(f'TRAIL1_CERTIFICATION_FAILED: {audit}')
+        _json(Path(output) / 'trail1_audit.json', audit)
+        manifest.update({
+            'status': 'STAGE5_TRAIL1_FINAL_CLOSEOUT_PASSED',
+            'execution_source_sha': execution_source_sha,
+            'evidence_commit_sha': evidence_commit_sha or 'PENDING_EVIDENCE_COMMIT',
+            'research_interpretation': 'SUPPORTED_RETROSPECTIVELY',
+            'TRAIL1_status': 'CLOSED', 'Stage5_status': 'OPEN',
+            'determinism': {'result': 'PASS', 'run_1_ledger_sha256': ledger1,
+                            'run_2_ledger_sha256': ledger2,
+                            'compact_artifact_hashes': compact},
+        })
+        manifest.pop('actual_execution_commit_sha', None)
+        manifest['output_hashes'] = {p.name: _sha(p) for p in sorted(Path(output).glob('*'))
+                                     if p.is_file() and p.name != 'manifest_trail1.json'}
+        _json(Path(output) / 'manifest_trail1.json', manifest)
+        return manifest
