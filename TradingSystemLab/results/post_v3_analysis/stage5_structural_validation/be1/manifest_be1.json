@@ -28,6 +28,14 @@
   "cost_contract": "C1",
   "data_repo_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
   "evidence_label": "RETROSPECTIVE_CAUSAL_VALIDATION",
+  "final_c1_accounting_closeout": {
+    "be1_status": "CLOSED",
+    "corrected_economics_artifact": "be1_c1_corrected_study_summary.csv",
+    "final_classification": "MIXED_RETROSPECTIVE_EVIDENCE",
+    "status": "BE1_FINAL_ECONOMIC_AUDIT_PASSED",
+    "t3_double_c1_confirmed": true,
+    "trade_paths_changed": false
+  },
   "hypothesis_id": "H4_01_PROFIT_PROTECTION_BE1",
   "implementation_base_sha": "09e6b85d428ca738e0a12d193d0b411eb57a2706",
   "lifecycle_registry_identity": "f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6",
