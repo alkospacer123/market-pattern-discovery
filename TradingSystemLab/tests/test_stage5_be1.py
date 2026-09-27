@@ -130,6 +130,33 @@ def test_executable_mutations_really_reject_and_match_guards():
         audit.validate_contract(bad)
 
 
+def test_independent_source_and_registry_authentication():
+    root = Path("/workspace/market-pattern-data")
+    if not root.is_dir():
+        pytest.skip("frozen read-only data checkout unavailable")
+    authenticated = audit.authenticate_prerequisites(root)
+    assert len(authenticated["source_hashes"]) == 20
+    assert len(authenticated["lifecycle_registry_sha256"]) == 64
+
+
+def test_real_event_corruption_hits_reconciliation():
+    row = _trade("2024-01-01", "2024-01-02")
+    row.update(initial_stop_price=98., initial_risk_price=2., trigger_price=102.,
+               be_triggered=True, trigger_bar_time="2024-01-01T01:00:00Z",
+               trigger_bar_high=103., trigger_bar_low=99.,
+               be_activation_time="2024-01-01T02:00:00Z",
+               protective_stop_before_activation=98.,
+               protective_stop_after_activation=100.,
+               canonical_stop_already_tighter=False,
+               exit_protection_source="BE_LEVEL", gap_through_be_level=False)
+    import pandas as pd
+    clean = pd.DataFrame([row])
+    rows = audit.executable_mutations(clean, clean)
+    assert all(r["pass"] for r in rows)
+    assert all(r["validation_surface"] == "producer_auditor_reconciliation"
+               for r in rows[-4:])
+
+
 def _trade(entry, exit_, exit_price=101):
     return {"generation":"v2_quarterly","lifecycle":"baseline","fold_id":"",
             "strategy":"T2","timeframe":"H1","instrument":"X","direction":"LONG",

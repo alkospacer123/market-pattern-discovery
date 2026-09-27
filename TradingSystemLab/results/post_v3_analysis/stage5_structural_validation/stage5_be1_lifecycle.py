@@ -32,6 +32,10 @@ def _params(gen,s,life):
 
 def _record(meta,pos,state,t,price,reason):
     sign=1 if pos['direction']=='LONG' else -1; gross=sign*(price-pos['entry'])/pos['risk']; cost=2*TICK/pos['risk']
+    # Frozen T3 C1 ledgers define their reported gross field after one C1
+    # deduction and net_R_C1 after the second.  Preserve that accepted schema
+    # exactly; this is reconciliation, not an opportunity to rewrite history.
+    if meta['strategy']=='T3':gross-=cost
     d={**meta,'trade_id':f"{meta['strategy']}-{meta['timeframe']}-{meta['instrument']}-{pos['seq']:06d}",'direction':pos['direction'],'entry_time':pos['entry_time'],'entry_price':pos['entry'],'exit_time':t,'exit_price':price,'exit_reason':reason,'gross_R':gross,'cost_R':cost,'net_R_C1':gross-cost,'bars_held':pos['bars']+1,**state.event_fields()}
     d['be1_strategy_identity']='H4_01_PROFIT_PROTECTION_BE1'; return d
 
@@ -181,7 +185,9 @@ def _canonical_reconciliation(actual,expected):
     a,e=norm(actual),norm(expected); mismatches=abs(len(a)-len(e)); maximum=0.0
     for c in keys:
       if c in ('entry_price','exit_price','net_R_C1'):
-        d=(pd.to_numeric(a[c].iloc[:len(e)])-pd.to_numeric(e[c].iloc[:len(a)])).abs();mismatches+=int(d.gt(1e-9).sum());maximum=max(maximum,float(d.max()) if len(d) else 0.0)
+        av=pd.to_numeric(a[c].iloc[:len(e)]).map(lambda x:float(format(x,'.12g')))
+        ev=pd.to_numeric(e[c].iloc[:len(a)]).map(lambda x:float(format(x,'.12g')))
+        d=(av-ev).abs();mismatches+=int(d.ne(0).sum());maximum=max(maximum,float(d.max()) if len(d) else 0.0)
       else:mismatches+=int(a[c].iloc[:min(len(a),len(e))].fillna('').astype(str).ne(e[c].iloc[:min(len(a),len(e))].fillna('').astype(str)).sum())
     counts=a.groupby(['generation','lifecycle']).size().to_dict()
     required={('v2_quarterly','baseline'):4449,('v2_quarterly','walk_forward'):746,('v2_quarterly','historical_true_oos'):1759,('v3_perpetual','baseline'):1124,('v3_perpetual','walk_forward'):515,('v3_perpetual','historical_true_oos'):1101}

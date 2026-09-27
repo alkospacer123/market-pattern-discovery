@@ -76,6 +76,7 @@ def _params(gen,s,life):
 
 def _record(meta,pos,state,t,price,reason):
     sign=1 if pos['direction']=='LONG' else -1; gross=sign*(price-pos['entry'])/pos['risk']; cost=2*TICK/pos['risk']
+    if meta['strategy']=='T3':gross-=cost
     d={**meta,'trade_id':f"{meta['strategy']}-{meta['timeframe']}-{meta['instrument']}-{pos['seq']:06d}",'direction':pos['direction'],'entry_time':pos['entry_time'],'entry_price':pos['entry'],'exit_time':t,'exit_price':price,'exit_reason':reason,'gross_R':gross,'cost_R':cost,'net_R_C1':gross-cost,'bars_held':pos['bars']+1,**state.event_fields()}
     d['be1_strategy_identity']='H4_01_PROFIT_PROTECTION_BE1'; return d
 

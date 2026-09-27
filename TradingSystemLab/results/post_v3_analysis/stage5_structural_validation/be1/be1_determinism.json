@@ -1,0 +1,11 @@
+{
+  "audit_result_sha256_run1": "0798953da9d57c76883f83ac8e9c82dd0dc9a127e6cafec8cffb7fbaf5688e6e",
+  "audit_result_sha256_run2": "0798953da9d57c76883f83ac8e9c82dd0dc9a127e6cafec8cffb7fbaf5688e6e",
+  "auditor_byte_identical": true,
+  "independent_ledger_sha256_run1": "d5a58ecc65cd19237c378cb1238f4b99b20dbd8f3342d625e265bcc8d04cfbb8",
+  "independent_ledger_sha256_run2": "d5a58ecc65cd19237c378cb1238f4b99b20dbd8f3342d625e265bcc8d04cfbb8",
+  "producer_byte_identical": true,
+  "producer_determinism": "PASS",
+  "producer_run1_tree_sha256": "ea6d96b3185befdb0f645d43332d69b90c85241f10d966df11c2335bb05b93ac",
+  "producer_run2_tree_sha256": "ea6d96b3185befdb0f645d43332d69b90c85241f10d966df11c2335bb05b93ac"
+}
