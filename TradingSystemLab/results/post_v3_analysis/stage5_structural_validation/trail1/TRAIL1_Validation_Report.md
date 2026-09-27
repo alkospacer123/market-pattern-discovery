@@ -4,7 +4,7 @@
 
 `H4_02_PROFIT_PROTECTION_TRAIL1 = SUPPORTED_RETROSPECTIVELY`
 
-**TRAIL1 = CLOSED**
+**TRAIL1 = CLOSED**  
 **Stage 5 = OPEN**
 
 TRAIL1 improved Net R in 21/24 studies, all 6/6 lifecycle aggregates, and 7/8 historical-OOS slices. T3 v3 improved all 8/8 walk-forward folds across H1 and M30, and the accepted concentration diagnostics remain acceptable. This is recurrent retrospective support for a structural candidate, not universal superiority: not every month or drawdown improves, it is not a guarantee of future improvement, and no production decision has been made. Production assembly remains future Stage 6 work.
@@ -37,7 +37,3 @@ TRAIL1 improved Net R in 21/24 studies, all 6/6 lifecycle aggregates, and 7/8 hi
 | v3_perpetual | walk_forward        | T2         | M30         |                193 |        1.70741 |                0.318122  |           61.3976 |           -7.4489  |                     8.24251 |             0.38342  |           -0.385804  |                           17.3705 |             191 |     1.65617 |             0.315118  |        60.1876 |        -8.90343 |                  6.76005 |          0.403141 |        -0.390389  |                        18.0995 |             -2 | -0.0512462  |         -0.00300393  |     -1.20999  |     -1.45453   |              -1.48246   |        0.0197217 |      -0.00458527 |
 | v3_perpetual | walk_forward        | T3         | H1          |                 66 |        3.35642 |                0.586816  |           38.7299 |           -2.30039 |                    16.8362  |             0.545455 |            0.150123  |                           46.2576 |              63 |     3.65597 |             0.743258  |        46.8252 |        -2.43842 |                 19.2031  |          0.698413 |         0.570111  |                        57.7302 |             -3 |  0.299547   |          0.156441    |      8.09536  |     -0.138028  |               2.3669    |        0.152958  |       0.419988   |
 | v3_perpetual | walk_forward        | T3         | M30         |                171 |        1.63828 |                0.284908  |           48.7192 |          -17.4648  |                     2.78957 |             0.397661 |           -0.392099  |                           21.386  |             162 |     1.78429 |             0.368708  |        59.7306 |       -15.2773  |                  3.90977 |          0.475309 |        -0.0987361 |                        25.1728 |             -9 |  0.146007   |          0.0837999   |     11.0114   |      2.18752   |               1.1202    |        0.0776478 |       0.293363   |
-
-## Determinism and closeout
-
-Two raw-data executions produced the identical full-ledger SHA-256 `b773811cb39df3c2585bf3aa278195ccb6e1777dcc664b714b2c74a2bc3badde`. Canonical mode reconciled 9,694 paths with zero mismatches. T3 economics use `CORRECTED_SINGLE_C1`. Formal interpretation: `FORMAL_LABEL_LEFT_FOR_REVIEW`. Stage 5 remains **OPEN**.

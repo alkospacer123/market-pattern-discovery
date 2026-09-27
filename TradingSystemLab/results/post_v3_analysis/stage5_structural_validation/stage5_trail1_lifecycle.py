@@ -264,7 +264,7 @@ def _arithmetic_audit(frame: pd.DataFrame) -> tuple[int, float]:
 
 
 def execute(data_root:Path, output:Path, identities:dict, *, certify:bool=False,
-            execution_source_sha:str|None=None, evidence_commit_sha:str|None=None)->dict:
+            execution_source_sha:str|None=None)->dict:
     """Execute TRAIL1, optionally certifying two genuinely independent raw runs."""
     head = __import__('subprocess').check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
     execution_source_sha = execution_source_sha or head
@@ -312,7 +312,6 @@ def execute(data_root:Path, output:Path, identities:dict, *, certify:bool=False,
         manifest.update({
             'status': 'STAGE5_TRAIL1_FINAL_CLOSEOUT_PASSED',
             'execution_source_sha': execution_source_sha,
-            'evidence_commit_sha': evidence_commit_sha or 'PENDING_EVIDENCE_COMMIT',
             'research_interpretation': 'SUPPORTED_RETROSPECTIVELY',
             'TRAIL1_status': 'CLOSED', 'Stage5_status': 'OPEN',
             'determinism': {'result': 'PASS', 'run_1_ledger_sha256': ledger1,
@@ -322,5 +321,8 @@ def execute(data_root:Path, output:Path, identities:dict, *, certify:bool=False,
         manifest.pop('actual_execution_commit_sha', None)
         manifest['output_hashes'] = {p.name: _sha(p) for p in sorted(Path(output).glob('*'))
                                      if p.is_file() and p.name != 'manifest_trail1.json'}
+        evidence_index = ''.join(f'{name}\0{digest}\n' for name, digest in
+                                 sorted(manifest['output_hashes'].items()))
+        manifest['evidence_tree_hash'] = hashlib.sha256(evidence_index.encode()).hexdigest()
         _json(Path(output) / 'manifest_trail1.json', manifest)
         return manifest

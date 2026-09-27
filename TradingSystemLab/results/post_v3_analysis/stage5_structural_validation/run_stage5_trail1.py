@@ -17,7 +17,7 @@ from typing import Any
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
-CANONICAL_BASE = "e7f6eb69f7584cd832ddcfd28bf342d2585da7df"
+CANONICAL_BASE = "25977a55f444b7b9a30905fa577e07881e64f592"
 DATA_COMMIT = "50f1fd2178c18b7ab3bd969be82ad01f47a34745"
 T2_HASH = "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774"
 T3_HASH = "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
@@ -27,6 +27,11 @@ STAGE4_FILES = (
     "audit_stage4_result.json", "manifest_stage4.json",
     "structural_hypothesis_evidence.csv", "structural_hypothesis_registry.csv",
     "structural_hypothesis_validation_contract.csv",
+)
+CERTIFICATION_FILES = (
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/run_stage5_trail1.py",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_trail1_lifecycle.py",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_trail1_execution.py",
 )
 
 
@@ -60,7 +65,28 @@ def resolve_data_root() -> tuple[Path, str]:
             return candidate, source
         if source == "env":
             raise RuntimeError(f"TRAIL1_CONFIGURED_MARKET_DATA_ROOT_INVALID: {candidate}")
-    raise RuntimeError("TRAIL1_MARKET_DATA_ROOT_NOT_FOUND: checked env, sibling, workspace")
+    destination = (ROOT.parent / "market-pattern-data").resolve()
+    if destination.exists():
+        raise RuntimeError(f"TRAIL1_MARKET_DATA_CLONE_DESTINATION_INVALID: {destination}")
+    subprocess.run([
+        "git", "clone", "https://github.com/alkospacer123/market-pattern-data.git",
+        str(destination),
+    ], check=True)
+    subprocess.run(["git", "-C", str(destination), "checkout", "--detach", DATA_COMMIT],
+                   check=True)
+    return destination, "cloned"
+
+
+def execution_source() -> str:
+    """Return the committed, reachable source revision actually being executed."""
+    head = _git(ROOT, "rev-parse", "HEAD")
+    subprocess.run(["git", "-C", str(ROOT), "cat-file", "-e", f"{head}^{{commit}}"],
+                   check=True, capture_output=True)
+    subprocess.run(["git", "-C", str(ROOT), "merge-base", "--is-ancestor",
+                    CANONICAL_BASE, head], check=True, capture_output=True)
+    subprocess.run(["git", "-C", str(ROOT), "diff", "--quiet", head, "--",
+                    *CERTIFICATION_FILES], check=True)
+    return head
 
 
 def authenticate(data_root: Path) -> dict[str, Any]:
@@ -107,19 +133,18 @@ def authenticate(data_root: Path) -> dict[str, Any]:
 
 
 def run(data_root: Path, output: Path, *, certify: bool = False,
-        execution_source_sha: str | None = None,
-        evidence_commit_sha: str | None = None) -> dict[str, Any]:
+        ) -> dict[str, Any]:
     """Authenticate before dispatching the causal study implementation.
 
     Publishing partial or synthetic evidence is intentionally impossible.  The
     full data checkout is mandatory and output is untouched until authentication
     succeeds.
     """
+    source_sha = execution_source()
     identities = authenticate(data_root)
     from TradingSystemLab.results.post_v3_analysis.stage5_structural_validation.stage5_trail1_lifecycle import execute
     return execute(data_root, output, identities, certify=certify,
-                   execution_source_sha=execution_source_sha,
-                   evidence_commit_sha=evidence_commit_sha)
+                   execution_source_sha=source_sha)
 
 
 def main() -> None:
@@ -128,16 +153,12 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=HERE / "trail1")
     parser.add_argument("--certify", action="store_true",
                         help="perform two independent raw-data executions and certify determinism")
-    parser.add_argument("--execution-source-sha")
-    parser.add_argument("--evidence-commit-sha")
     args = parser.parse_args()
     if args.data_root is None:
         data_root, _ = resolve_data_root()
     else:
         data_root = args.data_root
-    print(json.dumps(run(data_root, args.output, certify=args.certify,
-                         execution_source_sha=args.execution_source_sha,
-                         evidence_commit_sha=args.evidence_commit_sha), sort_keys=True))
+    print(json.dumps(run(data_root, args.output, certify=args.certify), sort_keys=True))
 
 
 if __name__ == "__main__":
