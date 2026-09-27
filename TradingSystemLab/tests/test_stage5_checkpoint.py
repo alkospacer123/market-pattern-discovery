@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import ast
 import importlib.util
+import json
 from pathlib import Path
 
 import pytest
@@ -112,3 +113,65 @@ def test_comparator_auditor_has_executable_t3_invariants() -> None:
     assert '".index.normalize()"' in source
     assert 'n.func.attr == "shift"' in source
     assert '"PriorHigh"' in source and '"PriorLow"' in source
+
+
+@pytest.fixture(scope="module")
+def comparator_auditor():
+    return _load("audit_stage5_comparator")
+
+
+@pytest.fixture(scope="module")
+def executable_mutations(comparator_auditor):
+    return comparator_auditor.mutation_tests()
+
+
+def test_all_thirty_mutations_execute_and_reject(executable_mutations) -> None:
+    assert executable_mutations["mode"] == "EXECUTABLE_ADVERSARIAL"
+    assert executable_mutations["total"] == executable_mutations["passed"] == 30
+    assert executable_mutations["all_rejected_as_expected"] is True
+    assert [row["mutation_id"] for row in executable_mutations["results"]] == [f"M{x:02d}" for x in range(1, 31)]
+    assert all(row["rejected"] and row["pass"] for row in executable_mutations["results"])
+    assert all(row["actual_guard"] == row["expected_guard"] for row in executable_mutations["results"])
+
+
+def test_mutation_suite_fails_when_guard_does_not_reject(comparator_auditor) -> None:
+    result = comparator_auditor.mutation_tests(disabled_guard="MARKET_DATA_COMMIT")
+    assert result["all_rejected_as_expected"] is False
+    assert result["passed"] == 29
+    assert result["results"][2]["rejected"] is False
+
+
+def test_fifth_stage4_hash_is_frozen_and_wrong_hash_rejected(comparator_auditor) -> None:
+    expected = "7a764cd15975835d7469d0cae58634fd7751a54db79e1bf62aec59f5d8593863"
+    assert comparator_auditor.STAGE4_HASHES["audit_stage4_result.json"] == expected
+    audit = json.loads((comparator_auditor.STAGE4 / "audit_stage4_result.json").read_text())
+    manifest = json.loads((comparator_auditor.STAGE4 / "manifest_stage4.json").read_text())
+    hashes = {name: comparator_auditor.sha256(comparator_auditor.STAGE4 / name)
+              for name in comparator_auditor.STAGE4_HASHES}
+    hashes["audit_stage4_result.json"] = "0" * 64
+    with pytest.raises(RuntimeError, match="STAGE4_FROZEN_HASH"):
+        comparator_auditor.validate_stage4(audit, manifest, hashes)
+
+
+@pytest.mark.parametrize(("mutation_id", "guard"), [
+    ("M03", "MARKET_DATA_COMMIT"), ("M04", "SOURCE_DATA_IDENTITY"),
+    ("M20", "INDEPENDENT_RECONCILIATION"), ("M26", "PRODUCER_AUDITOR_METRICS"),
+    ("M17", "T3_CAUSALITY"), ("M29", "SCOPE_GUARD"),
+])
+def test_representative_proof_surfaces_are_executable(executable_mutations, mutation_id, guard) -> None:
+    row = next(item for item in executable_mutations["results"] if item["mutation_id"] == mutation_id)
+    assert row["mutated_object"]
+    assert row["actual_guard"] == guard
+    assert row["rejected"] is True
+
+
+def test_mutation_evidence_is_deterministic(comparator_auditor, executable_mutations) -> None:
+    rerun = comparator_auditor.mutation_tests()
+    assert json.dumps(executable_mutations, sort_keys=True) == json.dumps(rerun, sort_keys=True)
+
+
+def test_committed_result_records_both_clean_controls_and_executable_evidence() -> None:
+    result = json.loads((STAGE5 / "canonical_comparator_audit_result.json").read_text())
+    assert result["clean_control_before"] == result["clean_control_after"] == "PASS"
+    assert result["mutation_tests"]["mode"] == "EXECUTABLE_ADVERSARIAL"
+    assert len(result["mutation_tests"]["results"]) == 30
