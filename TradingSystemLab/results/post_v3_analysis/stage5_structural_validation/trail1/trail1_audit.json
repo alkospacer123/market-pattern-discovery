@@ -1,0 +1,11 @@
+{
+  "canonical_accounting_basis": "CORRECTED_SINGLE_C1",
+  "canonical_arithmetic_mismatches": 0,
+  "canonical_maximum_delta": 0.0,
+  "canonical_rows_checked": 9694,
+  "determinism": "PASS",
+  "status": "PASS",
+  "trail1_arithmetic_mismatches": 0,
+  "trail1_maximum_delta": 0.0,
+  "trail1_rows_checked": 9486
+}
