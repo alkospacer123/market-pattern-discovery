@@ -17,7 +17,7 @@ from typing import Any
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
-CANONICAL_BASE = "a2a46079976bcd85ada8a990a996c8ab26b44490"
+CANONICAL_BASE = "2c39c681f51294d62c2622ad360e7aa1b2867b6a"
 DATA_COMMIT = "50f1fd2178c18b7ab3bd969be82ad01f47a34745"
 T2_HASH = "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774"
 T3_HASH = "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
@@ -114,10 +114,8 @@ def run(data_root: Path, output: Path) -> dict[str, Any]:
     succeeds.
     """
     identities = authenticate(data_root)
-    raise RuntimeError(
-        "BE1_EXECUTION_NOT_PUBLISHED: causal lifecycle dispatcher is required; "
-        "no post-hoc fallback is permitted"
-    )
+    from TradingSystemLab.results.post_v3_analysis.stage5_structural_validation.stage5_be1_lifecycle import execute
+    return execute(data_root, output, identities)
 
 
 def main() -> None:
