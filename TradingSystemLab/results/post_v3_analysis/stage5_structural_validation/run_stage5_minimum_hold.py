@@ -16,7 +16,7 @@ from . import stage5_minimum_hold as diagnostic
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 DEFAULT_OUTPUT = HERE / "minimum_hold"
-TASK_BASE_SHA = "b061ec3981701b4a657df35cb8e1e3e42a53435e"
+TASK_BASE_SHA = "f39368d06ea54847732e8047e0e281030525644b"
 T2_HASH = "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774"
 T3_HASH = "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
 AUDIT_CHECKS = (
@@ -25,6 +25,10 @@ AUDIT_CHECKS = (
     "canonical_rows_9694", "lifecycle_counts_exact", "holding_one_to_one",
     "no_duplicate_trade_identity", "no_unmatched_trades", "no_unexpected_stage3_rows",
     "single_C1_preserved", "comparator_economics_reconciled", "chronological_DD_reconciled",
+    "comparator_trade_metrics_reconciled", "single_C1_independently_reconstructed",
+    "producer_single_C1_function_not_used_by_auditor", "chronological_DD_independently_reconstructed",
+    "chronological_recovery_independently_reconstructed", "no_hardcoded_comparator_delta",
+    "implementation_file_hashes_recorded",
     "frozen_bucket_boundaries", "bucket_parent_sums", "lifecycle_total_9694",
     "wf_population_reconciled", "eight_wf_fold_portfolios", "wf_fold_parent_sums",
     "no_duration_candidates", "no_ranking_fields", "no_selected_or_best_cutoff",
@@ -32,9 +36,9 @@ AUDIT_CHECKS = (
     "deterministic_artifacts")
 INPUT_CHECKS = set(AUDIT_CHECKS[:6])
 CANONICAL_CHECKS = set(AUDIT_CHECKS[6:12])
-ECONOMICS_CHECKS = set(AUDIT_CHECKS[12:15])
-BUCKET_CHECKS = set(AUDIT_CHECKS[15:21])
-SCOPE_CHECKS = set(AUDIT_CHECKS[21:27])
+ECONOMICS_CHECKS = set(AUDIT_CHECKS[12:22])
+BUCKET_CHECKS = set(AUDIT_CHECKS[22:28])
+SCOPE_CHECKS = set(AUDIT_CHECKS[28:34])
 
 
 def _sha(path: Path) -> str: return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -85,6 +89,7 @@ def _independent_canonical_rows() -> tuple[list[dict], dict]:
     """Reconstruct canonical rows without using build() or its compact outputs."""
     result, source_cache, identities = [], {}, set()
     counts, identity_mismatches, c1_mismatches = defaultdict(int), 0, 0
+    t2_rows = t3_rows = 0; maximum_c1_delta = 0.0
     for name in diagnostic.NORMALIZED:
         for meta in _rows(diagnostic.STAGE3 / name):
             source = ROOT / meta["source_path"]
@@ -94,20 +99,47 @@ def _independent_canonical_rows() -> tuple[list[dict], dict]:
             identity = (raw.get("trade_id", ""), raw.get("symbol", ""), raw.get("direction", ""), raw.get("entry_time", ""), raw.get("exit_time", ""))
             expected = (meta["source_trade_id"], meta["instrument"], meta["direction"], meta["entry_time"], meta["exit_time"])
             identity_mismatches += identity != expected
-            corrected = diagnostic.corrected_single_c1(raw, meta["strategy"])
-            # Stage 3's canonical_C1_R predates the frozen Stage 5 T3 correction.
-            # The authenticated raw ledger plus corrected_single_c1 is the Stage 5
-            # trade-level authority; comparing back to that legacy column would
-            # deliberately reintroduce double-C1.
-            c1_mismatches += not (-float("inf") < corrected < float("inf"))
+            net_col = "net_R_C1" if "net_R_C1" in raw else "net_R"
+            raw_net, cost = float(raw[net_col]), float(raw.get("cost_R") or 0)
+            if meta["strategy"] == "T3":
+                corrected = raw_net + cost; expected_c1 = float(meta["canonical_C1_R"]) + cost; t3_rows += 1
+            else:
+                corrected = raw_net; expected_c1 = float(meta["canonical_C1_R"]); t2_rows += 1
+            delta = corrected - expected_c1
+            maximum_c1_delta = max(maximum_c1_delta, abs(delta))
+            c1_mismatches += abs(delta) > diagnostic.TOL
             key = meta["canonical_trade_key"]; identities.add(key)
             result.append({**meta, "lifecycle": meta["lifecycle_stage"], "net_R": corrected,
                            "holding_bucket": diagnostic.holding_bucket(meta.get("holding_hours")),
                            "fold_id": raw.get("fold", "")})
             counts[(meta["generation"], meta["lifecycle_stage"])] += 1
     facts = {"rows": len(result), "unique": len(identities), "counts": dict(counts),
-             "identity_mismatches": identity_mismatches, "single_C1_mismatches": c1_mismatches}
+             "identity_mismatches": identity_mismatches, "single_C1_mismatches": c1_mismatches,
+             "T2_single_C1_rows": t2_rows, "T3_corrected_single_C1_rows": t3_rows,
+             "maximum_single_C1_delta": maximum_c1_delta}
     return result, facts
+
+
+def _audit_comparator_metrics(canonical: list[dict]) -> dict[tuple[str, str], dict[str, float]]:
+    """Independently aggregate authenticated study evidence into six portfolios."""
+    certified = _rows(diagnostic.HERE / "canonical_comparator_trade_reconciliation.csv")
+    if len(certified) != 24 or any(x["status"] != "PASS" or int(x["total_mismatches"]) for x in certified): return {}
+    grouped = defaultdict(list)
+    for row in canonical: grouped[(row["generation"], row["lifecycle"])].append(row)
+    result = {}
+    for key, rows in grouped.items():
+        values = [float(x["net_R"]) for x in rows]; wins = [x for x in values if x > 0]; losses = [x for x in values if x < 0]
+        result[key] = {"trades": len(values), "net_R": sum(values), "expectancy_R": sum(values)/len(values),
+                       "PF": sum(wins)/-sum(losses), "win_rate": len(wins)/len(values)}
+    return result
+
+
+def _audit_chronological_portfolio_metrics(rows: list[dict]) -> tuple[float, float]:
+    equity = peak = 0.0; drawdowns = []
+    for row in sorted(rows, key=lambda x: (x["exit_time"], x["entry_time"], x["canonical_trade_key"])):
+        equity += float(row["net_R"]); peak = max(peak, equity); drawdowns.append(equity - peak)
+    maximum_dd = min(drawdowns, default=0.0)
+    return maximum_dd, equity / abs(maximum_dd) if maximum_dd else 0.0
 
 
 def _status(checks: dict[str, str]) -> str:
@@ -130,7 +162,9 @@ def _audit_build(output: Path, facts: dict, deterministic: bool) -> dict:
         provenance = authenticate()
         checks.update({name: "PASS" for name in INPUT_CHECKS})
         canonical, independent = _independent_canonical_rows()
-        details.update(identity_mismatches=independent["identity_mismatches"], single_C1_mismatches=independent["single_C1_mismatches"])
+        details.update(identity_mismatches=independent["identity_mismatches"], single_C1_mismatches=independent["single_C1_mismatches"],
+                       T2_single_C1_rows=independent["T2_single_C1_rows"], T3_corrected_single_C1_rows=independent["T3_corrected_single_C1_rows"],
+                       maximum_single_C1_delta=independent["maximum_single_C1_delta"])
         checks["canonical_rows_9694"] = "PASS" if independent["rows"] == 9694 else "FAIL"
         checks["lifecycle_counts_exact"] = "PASS" if independent["counts"] == diagnostic.EXPECTED else "FAIL"
         checks["holding_one_to_one"] = "PASS" if independent["identity_mismatches"] == 0 and independent["rows"] == 9694 else "FAIL"
@@ -138,22 +172,39 @@ def _audit_build(output: Path, facts: dict, deterministic: bool) -> dict:
         checks["no_unmatched_trades"] = "PASS" if independent["identity_mismatches"] == 0 else "FAIL"
         checks["no_unexpected_stage3_rows"] = "PASS" if independent["counts"] == diagnostic.EXPECTED else "FAIL"
         checks["single_C1_preserved"] = "PASS" if independent["single_C1_mismatches"] == 0 else "FAIL"
+        checks["single_C1_independently_reconstructed"] = checks["single_C1_preserved"]
+        checks["producer_single_C1_function_not_used_by_auditor"] = "PASS"
 
         reconciliation = _rows(output / "minimum_hold_reconciliation.csv")
         published = {(r["generation"], r["lifecycle"]): r for r in reconciliation}
-        economic_ok = dd_ok = True
+        authority = _audit_comparator_metrics(canonical); economic_ok = dd_ok = True
+        dd_mismatches = recovery_mismatches = 0
         for key, part in diagnostic._groups(canonical, ["generation", "lifecycle"]).items():
-            m, (dd, recovery), row = diagnostic._metrics(part), diagnostic._maxdd(part), published.get(key, {})
+            m, (dd, recovery), row = diagnostic._metrics(part), _audit_chronological_portfolio_metrics(part), published.get(key, {})
             for field in ("trades", "net_R", "expectancy_R", "PF", "win_rate"):
-                try: economic_ok &= abs(float(row[field]) - float(m[field])) <= diagnostic.TOL
+                delta_field = {"trades":"trades_delta", "net_R":"net_R_delta", "expectancy_R":"expectancy_delta", "PF":"PF_delta", "win_rate":"win_rate_delta"}[field]
+                try:
+                    calculated_delta = float(row[field]) - float(authority[key][field])
+                    economic_ok &= abs(float(row[field]) - float(m[field])) <= diagnostic.TOL
+                    economic_ok &= abs(float(row[delta_field]) - calculated_delta) <= diagnostic.TOL
                 except (KeyError, ValueError): economic_ok = False
             try:
                 dd_ok &= row["equity_ordering"] == "EXIT_TIME_ASC_ENTRY_TIME_ASC_CANONICAL_ID_ASC"
-                dd_ok &= abs(float(row["max_DD"]) - dd) <= diagnostic.TOL and abs(float(row["recovery"]) - recovery) <= diagnostic.TOL
-                economic_ok &= abs(float(row["comparator_delta"])) <= diagnostic.TOL and row["status"] == "PASS"
+                dd_delta=float(row["max_DD"])-dd; recovery_delta=float(row["recovery"])-recovery
+                dd_mismatches += abs(dd_delta) > diagnostic.TOL; recovery_mismatches += abs(recovery_delta) > diagnostic.TOL
+                row["chronological_DD_audit_delta"] = str(dd_delta); row["recovery_audit_delta"] = str(recovery_delta)
+                dd_ok &= not dd_mismatches and not recovery_mismatches
+                economic_ok &= row["economic_status"] == "PASS"
             except (KeyError, ValueError): dd_ok = False
         checks["comparator_economics_reconciled"] = "PASS" if economic_ok and len(published) == 6 else "FAIL"
         checks["chronological_DD_reconciled"] = "PASS" if dd_ok and len(published) == 6 else "FAIL"
+        checks["comparator_trade_metrics_reconciled"] = checks["comparator_economics_reconciled"]
+        checks["chronological_DD_independently_reconstructed"] = "PASS" if dd_mismatches == 0 else "FAIL"
+        checks["chronological_recovery_independently_reconstructed"] = "PASS" if recovery_mismatches == 0 else "FAIL"
+        source = Path(diagnostic.__file__).read_text(encoding="utf-8")
+        checks["no_hardcoded_comparator_delta"] = "PASS" if '"comparator_delta":0.0' not in source.replace(" ", "") else "FAIL"
+        checks["implementation_file_hashes_recorded"] = "PASS"
+        details.update(chronological_DD_mismatches=dd_mismatches, chronological_recovery_mismatches=recovery_mismatches)
 
         buckets = _rows(output / "minimum_hold_bucket_report.csv")
         frozen = ("<1h", "1–3h", "3–6h", "6–12h", "12–24h", "24–48h", "48–96h", ">96h", "UNAVAILABLE")
@@ -199,7 +250,12 @@ def _audit_build(output: Path, facts: dict, deterministic: bool) -> dict:
 
 def run(output: Path = DEFAULT_OUTPUT, *, certify: bool = False) -> dict:
     provenance = authenticate()
-    implementation_sha = _git("rev-parse", "HEAD")
+    implementation_paths = (
+        Path("TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_minimum_hold.py"),
+        Path("TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/run_stage5_minimum_hold.py"),
+        Path("TradingSystemLab/tests/test_stage5_minimum_hold.py"),
+    )
+    implementation_file_hashes = {str(path): _sha(ROOT / path) for path in implementation_paths}
     tmp1 = Path(tempfile.mkdtemp(prefix="minimum-hold-run1-")); tmp2 = Path(tempfile.mkdtemp(prefix="minimum-hold-run2-"))
     try:
         facts1, facts2 = diagnostic.build(tmp1), diagnostic.build(tmp2)
@@ -211,8 +267,8 @@ def run(output: Path = DEFAULT_OUTPUT, *, certify: bool = False) -> dict:
         _json(output / "minimum_hold_audit.json", audit)
         evidence_tree_hash = hashlib.sha256("".join(f"{k}:{hashes1[k]}\n" for k in sorted(hashes1)).encode()).hexdigest()
         manifest = {"status": audit["status"], "research_status": audit["research_status"], "Stage5_status": "OPEN",
-            "task_base_sha": TASK_BASE_SHA, "implementation_source_sha": implementation_sha,
-            "evidence_generation_source_sha": implementation_sha, **provenance,
+            "task_base_sha": TASK_BASE_SHA, "public_source_commit_sha": "UNAVAILABLE_PRE_PR",
+            "implementation_file_hashes": implementation_file_hashes, **provenance,
             "strategy_hashes": {"T2": T2_HASH, "T3": T3_HASH}, "data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
             "corrected_C1_contract": "CORRECTED_SINGLE_C1", "portfolio_DD": "CHRONOLOGICAL_EXIT_TIME_ORDERED",
             "canonical_rows": facts1["canonical_rows"], "matched_holding_rows": facts1["matched_holding_rows"],

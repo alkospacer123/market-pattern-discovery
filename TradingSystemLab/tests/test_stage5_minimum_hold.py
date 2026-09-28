@@ -119,6 +119,59 @@ def test_single_c1_mutation_causes_economics_failure(certified, tmp_path):
     assert _audit(path)["status"] == mh.FAIL_ECONOMICS
 
 
+@pytest.mark.parametrize("field", ["net_R", "PF", "expectancy_R"])
+def test_published_economic_mutations_fail(certified, tmp_path, field):
+    path=_copy(certified,tmp_path); report=path/"minimum_hold_reconciliation.csv"
+    rows=list(csv.DictReader(report.open())); rows[0][field]=str(float(rows[0][field])+0.01)
+    with report.open("w",newline="") as f:
+        w=csv.DictWriter(f,fieldnames=rows[0]); w.writeheader(); w.writerows(rows)
+    assert _audit(path)["status"] == mh.FAIL_ECONOMICS
+
+
+def test_auditor_never_calls_producer_c1_or_dd(certified, monkeypatch):
+    monkeypatch.setattr(mh,"corrected_single_c1",lambda *_: (_ for _ in ()).throw(AssertionError("producer C1 called")))
+    monkeypatch.setattr(mh,"_maxdd",lambda *_: (_ for _ in ()).throw(AssertionError("producer DD called")))
+    assert _audit(certified[0])["status"] == mh.STATUS
+
+
+def test_wrong_producer_c1_is_caught_by_independent_auditor(tmp_path, monkeypatch):
+    monkeypatch.setattr(mh,"corrected_single_c1",lambda raw, strategy: float(raw.get("net_R_C1",raw.get("net_R"))))
+    mh.build(tmp_path)
+    assert _audit(tmp_path)["checks"]["comparator_economics_reconciled"] == "FAIL"
+
+
+@pytest.mark.parametrize("field", ["max_DD", "recovery"])
+def test_wrong_published_portfolio_metrics_fail(certified, tmp_path, field):
+    path=_copy(certified,tmp_path); report=path/"minimum_hold_reconciliation.csv"
+    rows=list(csv.DictReader(report.open())); rows[0][field]=str(float(rows[0][field])+1)
+    with report.open("w",newline="") as f:
+        w=csv.DictWriter(f,fieldnames=rows[0]); w.writeheader(); w.writerows(rows)
+    assert _audit(path)["status"] == mh.FAIL_ECONOMICS
+
+
+def test_no_hardcoded_comparator_delta_and_real_deltas(certified):
+    source=Path(mh.__file__).read_text().replace(" ","")
+    assert '"comparator_delta":0.0' not in source
+    rows=list(csv.DictReader((certified[0]/"minimum_hold_reconciliation.csv").open()))
+    assert "comparator_delta" not in rows[0]
+    assert all(field in rows[0] for field in ("net_R_delta","PF_delta","expectancy_delta","win_rate_delta"))
+
+
+def test_implementation_hashes_are_byte_exact_and_git_sha_is_not_local(certified):
+    manifest=certified[1]
+    assert manifest["public_source_commit_sha"] == "UNAVAILABLE_PRE_PR"
+    assert len(manifest["implementation_file_hashes"]) == 3
+    for relative,digest in manifest["implementation_file_hashes"].items():
+        assert runner._sha(runner.ROOT/relative) == digest
+
+
+def test_independent_single_c1_counts_reconcile(certified):
+    audit=json.loads((certified[0]/"minimum_hold_audit.json").read_text())
+    assert audit["T2_single_C1_rows"] + audit["T3_corrected_single_C1_rows"] == 9694
+    assert audit["single_C1_mismatches"] == 0
+    assert audit["maximum_single_C1_delta"] <= mh.TOL
+
+
 def test_holding_identity_mutation_causes_canonical_failure(certified, monkeypatch):
     original=runner._independent_canonical_rows
     def mutated():

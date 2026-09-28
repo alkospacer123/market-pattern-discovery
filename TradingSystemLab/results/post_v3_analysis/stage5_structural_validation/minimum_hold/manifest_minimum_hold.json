@@ -22,27 +22,27 @@
   "data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
   "determinism": {
     "run1": {
-      "Minimum_Hold_Diagnostics_Report.md": "45bed0f576510478ef8abce24b29ddafe5725bd199836ea5c7279cbfeae5d397",
+      "Minimum_Hold_Diagnostics_Report.md": "fd15f70a1c46ec0c91bb5c2ef826b28774062ca9cef48b89b62a27466f8e03cd",
       "minimum_hold_bucket_report.csv": "8e29fe474d214a5919b148087eee799681e5e7524594b44a8c685b922b4318ed",
       "minimum_hold_cumulative_report.csv": "4357bc3038190886ff3a3c198653f4cb1c09e52c0a51f01803c93b6dfed223b4",
       "minimum_hold_direction_report.csv": "b46f871c53133080f59e128068a2234aab7587eaa7dadb76428e5178cf06625a",
       "minimum_hold_exit_reason_report.csv": "9c794359c6d6d335d51e2e49d521f0813ddbf7fb84564ddff358a21caa858bcd",
       "minimum_hold_instrument_report.csv": "9f99854397180e734e3d7254cf4db39a83c190cd4199a584ae1c4255c821a3df",
       "minimum_hold_lifecycle_report.csv": "447d5af2e0ab366403cc893d002cb3b07b64fcb02438709d02cfdc3c42e690b4",
-      "minimum_hold_reconciliation.csv": "ba745c74f4f3d5e4ff26d9d73f66dcefd9ac55e1c6f909a54619ccd58d84b6f4",
+      "minimum_hold_reconciliation.csv": "7251bd1cc1d64e9896baa384dcae603f5ad1efd4ce888e10df284bda35663979",
       "minimum_hold_recurrence_report.csv": "8661f31b528d125d98c0ebdf10fe141ea6a2df68990f0a20a2c1250c19fa9195",
       "minimum_hold_strategy_timeframe_report.csv": "d9c5e69d015b78aa65a175e78960322d2226b42ec39ff758d5abefcebf6e5c0d",
       "minimum_hold_wf_fold_report.csv": "367c41f560efd31224d29a496e827735aedc46cad7cb64585bc4a2c038a2b1bc"
     },
     "run2": {
-      "Minimum_Hold_Diagnostics_Report.md": "45bed0f576510478ef8abce24b29ddafe5725bd199836ea5c7279cbfeae5d397",
+      "Minimum_Hold_Diagnostics_Report.md": "fd15f70a1c46ec0c91bb5c2ef826b28774062ca9cef48b89b62a27466f8e03cd",
       "minimum_hold_bucket_report.csv": "8e29fe474d214a5919b148087eee799681e5e7524594b44a8c685b922b4318ed",
       "minimum_hold_cumulative_report.csv": "4357bc3038190886ff3a3c198653f4cb1c09e52c0a51f01803c93b6dfed223b4",
       "minimum_hold_direction_report.csv": "b46f871c53133080f59e128068a2234aab7587eaa7dadb76428e5178cf06625a",
       "minimum_hold_exit_reason_report.csv": "9c794359c6d6d335d51e2e49d521f0813ddbf7fb84564ddff358a21caa858bcd",
       "minimum_hold_instrument_report.csv": "9f99854397180e734e3d7254cf4db39a83c190cd4199a584ae1c4255c821a3df",
       "minimum_hold_lifecycle_report.csv": "447d5af2e0ab366403cc893d002cb3b07b64fcb02438709d02cfdc3c42e690b4",
-      "minimum_hold_reconciliation.csv": "ba745c74f4f3d5e4ff26d9d73f66dcefd9ac55e1c6f909a54619ccd58d84b6f4",
+      "minimum_hold_reconciliation.csv": "7251bd1cc1d64e9896baa384dcae603f5ad1efd4ce888e10df284bda35663979",
       "minimum_hold_recurrence_report.csv": "8661f31b528d125d98c0ebdf10fe141ea6a2df68990f0a20a2c1250c19fa9195",
       "minimum_hold_strategy_timeframe_report.csv": "d9c5e69d015b78aa65a175e78960322d2226b42ec39ff758d5abefcebf6e5c0d",
       "minimum_hold_wf_fold_report.csv": "367c41f560efd31224d29a496e827735aedc46cad7cb64585bc4a2c038a2b1bc"
@@ -50,28 +50,32 @@
     "status": "PASS"
   },
   "duplicate_canonical_identities": 0,
-  "evidence_generation_source_sha": "b78289d8d0badd9a67164069e2a91ad364a50cf4",
-  "evidence_tree_hash": "7a1ec4772e8d962c19125da211adaddd6fed8b505489e72f35f7412ca5c1de84",
-  "implementation_source_sha": "b78289d8d0badd9a67164069e2a91ad364a50cf4",
+  "evidence_tree_hash": "673808c61314a4bddc50d849c17df1c015533b067aa3792330cc661b060d35c0",
+  "implementation_file_hashes": {
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/run_stage5_minimum_hold.py": "dbb14a528b06c65770cc6cd2800f0e947d407f6e1ab6c1c17fd553fc18df8b4d",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_minimum_hold.py": "f145c500a0e24d3d2ebef36edf4fce790fa1e05285c504d1f750f149cc0d5f8e",
+    "TradingSystemLab/tests/test_stage5_minimum_hold.py": "80fb539cb217a12d931fda252eea038c944d28aa3768997e608f5059cd45e0c1"
+  },
   "matched_holding_rows": 9694,
   "no_counterfactual_execution": true,
   "no_new_hypothesis": true,
   "no_parameter_search": true,
   "no_posthoc_tuning": true,
   "output_hashes": {
-    "Minimum_Hold_Diagnostics_Report.md": "45bed0f576510478ef8abce24b29ddafe5725bd199836ea5c7279cbfeae5d397",
+    "Minimum_Hold_Diagnostics_Report.md": "fd15f70a1c46ec0c91bb5c2ef826b28774062ca9cef48b89b62a27466f8e03cd",
     "minimum_hold_bucket_report.csv": "8e29fe474d214a5919b148087eee799681e5e7524594b44a8c685b922b4318ed",
     "minimum_hold_cumulative_report.csv": "4357bc3038190886ff3a3c198653f4cb1c09e52c0a51f01803c93b6dfed223b4",
     "minimum_hold_direction_report.csv": "b46f871c53133080f59e128068a2234aab7587eaa7dadb76428e5178cf06625a",
     "minimum_hold_exit_reason_report.csv": "9c794359c6d6d335d51e2e49d521f0813ddbf7fb84564ddff358a21caa858bcd",
     "minimum_hold_instrument_report.csv": "9f99854397180e734e3d7254cf4db39a83c190cd4199a584ae1c4255c821a3df",
     "minimum_hold_lifecycle_report.csv": "447d5af2e0ab366403cc893d002cb3b07b64fcb02438709d02cfdc3c42e690b4",
-    "minimum_hold_reconciliation.csv": "ba745c74f4f3d5e4ff26d9d73f66dcefd9ac55e1c6f909a54619ccd58d84b6f4",
+    "minimum_hold_reconciliation.csv": "7251bd1cc1d64e9896baa384dcae603f5ad1efd4ce888e10df284bda35663979",
     "minimum_hold_recurrence_report.csv": "8661f31b528d125d98c0ebdf10fe141ea6a2df68990f0a20a2c1250c19fa9195",
     "minimum_hold_strategy_timeframe_report.csv": "d9c5e69d015b78aa65a175e78960322d2226b42ec39ff758d5abefcebf6e5c0d",
     "minimum_hold_wf_fold_report.csv": "367c41f560efd31224d29a496e827735aedc46cad7cb64585bc4a2c038a2b1bc"
   },
   "portfolio_DD": "CHRONOLOGICAL_EXIT_TIME_ORDERED",
+  "public_source_commit_sha": "UNAVAILABLE_PRE_PR",
   "research_status": "DIAGNOSTIC_ONLY_NO_HYPOTHESIS_ADMISSION",
   "stage3_hashes": {
     "normalized_trades_v2_baseline.csv": "10ef69946689348a3ed00db46f3d7a17f9b35d38b85c4ca22865b4c5eea4f487",
@@ -94,7 +98,7 @@
     "T2": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
     "T3": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
   },
-  "task_base_sha": "b061ec3981701b4a657df35cb8e1e3e42a53435e",
+  "task_base_sha": "f39368d06ea54847732e8047e0e281030525644b",
   "unexpected_stage3_v2_v3_rows": 0,
   "unmatched_stage5_trades": 0,
   "wf_fold_count": 8
