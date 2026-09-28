@@ -1,0 +1,58 @@
+{
+  "audit_status": "POST_V3_STAGE_6_PRODUCTION_ASSEMBLY_DECISION_AUDIT_PASSED",
+  "canonical_economic_contract": "CORRECTED_SINGLE_C1",
+  "decision_outcome": "SELECTED",
+  "determinism": "BYTE_IDENTICAL_FRESH_BUILDS",
+  "evidence_tree_hash": "4d3f5303d8768d511c20a2d593747a3d2fa308210518e059280d92291e05b816",
+  "implementation_file_hashes": {
+    "run_stage6_production_assembly.py": "3ea192fe3e78b556905ad44a604266cfc478491e8a3c2734faa84fb99135bb09",
+    "stage6_production_assembly.py": "c9a84eec52d758751ff8536bafb53cf4d99463f2ae7e233f8a2613162543bcc2"
+  },
+  "no_cross_generation_mix": true,
+  "no_cross_strategy_mix": true,
+  "no_cross_timeframe_mix": true,
+  "no_new_backtest": true,
+  "no_new_hypothesis": true,
+  "no_optimizer": true,
+  "no_parameter_search": true,
+  "output_hashes": {
+    "Stage_6_Production_Assembly_Decision_Report.md": "7986225ab49887ff409480e75216d7cffc818b4b8e5852a54ea201431019a1f2",
+    "production_assembly_decision.csv": "1efdaac2b689e2537b17371407a4d219dec5334c490a56c2378b065b9055431b",
+    "production_exclusion_log.csv": "a8136855fe7c307316e60bb3a1932206d8977234b56170f311fa83637ad52d3f",
+    "production_instrument_decision.csv": "67ad5c2a3615a3ada08e5b0e8af2735b42cc48c6c766bd52506ad7add07cf5d2",
+    "production_instrument_evidence.csv": "6ff69981a02bbcd5932c46bfc439e002fbfff0611c8c146ef23a006e259bcc6d",
+    "production_parent_decision.csv": "cc85fd39edb354aef79ed9b8f54e115e9878a303198a3e86374beb74acc975a5",
+    "production_parent_evidence.csv": "24e6168ce1c4feb13417e72f45239b3086d4f726f034f2ed1ef984067bf956d0",
+    "selected_assembly_direction_evidence.csv": "cf0554213636d278d0f0454012e7c80829ac0433c95ac25e315c4d38ac7d9b75",
+    "selected_assembly_monthly_series.csv": "02fa550cea361de7bcf615d727cbb46467c7bf4a208a5aff9bc09309a4ac75e6",
+    "selected_assembly_parent_comparison.csv": "164e5b7c43998f5f15274e91b9c6c0e1699e22fd16a63afb2997f4544916b5dc",
+    "selected_assembly_summary.csv": "7c0483e8fa5213a2855dc67ff9dd19c314e4cfc61b78e10078cc3789a5acff73",
+    "selected_pair_diversification_evidence.csv": "393dac206bd8c31a1c5dbe77e53f54b2e4ab8c80d44a32bc3449635f70b6d98d",
+    "stage6_decision_trace.csv": "cb0adf4311f29f028af60b943ebdfcdc99df1c6fa4b000d34889242098b65d1c",
+    "stage6_stage7_handoff.csv": "ab024f6d272993de5312b28e4734ead014300bf0ad51759288cc3592551677b0",
+    "structural_overlay_decision.csv": "b6262bb5187f8d66df6529720473885e5e783581b1b6431f6ebb810c8281e10b"
+  },
+  "production_assembly_id": "PROD_STAGE6_83C7B31BB42C",
+  "research_tick": 0.001,
+  "selected_futures_type": "perpetual",
+  "selected_generation": "v3",
+  "selected_instruments": [
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "selected_strategy": "T3",
+  "selected_structural_overlay": "TRAIL1",
+  "selected_timeframe": "H1",
+  "source_tree_hashes": {
+    "results/post_v3_analysis/stage1_master_evidence": "e00163364a3753d66c8c34734e178ceb740dce0a",
+    "results/post_v3_analysis/stage2_portfolio_diversification": "5588b68100a49c14a30745c4b15105224ce4782f",
+    "results/post_v3_analysis/stage3_trade_anatomy": "7a649a463710f46e5444cb3c1562779a3270317e",
+    "results/post_v3_analysis/stage4_structural_hypotheses": "361ece21b9dd3ea18c38d7eb19b1545920abca95",
+    "results/post_v3_analysis/stage5_structural_validation": "bdea573bbf65fae70b63d0ada8bce1b89241a5ad",
+    "strategies/trend": "5c7714984e5a6f57937083e1b8dfdc82738ca6ad"
+  },
+  "stage7_status": "NEXT",
+  "status": "POST_V3_STAGE_6_PRODUCTION_ASSEMBLY_DECISION_COMPLETE",
+  "task_base_sha": "fdee91b474ccdebcf9d7dc56d8e87a112d37e50e"
+}
