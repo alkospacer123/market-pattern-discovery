@@ -1,0 +1,105 @@
+{
+  "Stage5_status": "OPEN",
+  "canonical_rows": 9694,
+  "comparator_hashes": {
+    "canonical_comparator_reconciliation.csv": "6642583855bdf2a494b8dc3c87d54de2a7842889395323ac3f1a4b074c915689",
+    "canonical_comparator_trade_reconciliation.csv": "c4dec322e4052c2e74f6f43d8a1db49294d6b8f1695cdbdc946db4926bc19f1a",
+    "canonical_lifecycle_registry.csv": "f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6"
+  },
+  "corrected_C1_contract": "CORRECTED_SINGLE_C1",
+  "data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+  "determinism": {
+    "run1": {
+      "Session_Time_of_Day_Diagnostics_Report.md": "1e70fa5d0ad9901ce588e7c785d0b12cb20de7ba3e7da466f0ed65303e36f0c8",
+      "session_direction_report.csv": "d5837ea11807138aaf4f7e4bc9d3d0ef0d640b76e6b46303c992958308a11133",
+      "session_entry_hour_report.csv": "acdc58cb07edb48cbfca770864c28fedd3bb80c47aebdfd40a453736d9a3b4fe",
+      "session_instrument_report.csv": "ae0528a87f3a60fa9ea83f938a0f373f2b773a2a00d8bf38ea3041d5674d704c",
+      "session_lifecycle_hour_report.csv": "4654fed327993015255edf21286db0c22a161b0a0d8331c11cd5bd1c49278599",
+      "session_recurrence_report.csv": "943f39cf1696bc13ea93ada21caec04a7968d8b01d738d9d3f4e4c146616129d",
+      "session_strategy_timeframe_report.csv": "e02a1f9932d758a7846f716c0008b52987f14239c34998770a39cb5bdbe27fb0",
+      "session_time_reconciliation.csv": "dd1fc9c6b9c8223b04a673c4774444da3ec91e839f93acac5ba0f954d23a37ee",
+      "session_timezone_report.csv": "b05b98571cd6cfdcf1677388a688ae70abe41e4c34540d7b3dd4057ee2b12931",
+      "session_wf_fold_report.csv": "0fdcad09d0873f7fdd2460a9bd40f0ac3bea46ebbaf9dfcb01cb51eab56fc3b1",
+      "session_wf_window_report.csv": "2d16432ddd91e90262012a7cf210462d235c208c99270c8de5ffc0a0603fb763",
+      "session_window_lifecycle_report.csv": "4edb410ebd6edfabceff1e47eb8b006d2f59ef11648733cdc689c95e5fc25c32",
+      "session_window_report.csv": "4f85e185fd96b4d8b2b627992f986fd9f6a7987abea1ba82da46da55b7c0c77d"
+    },
+    "run2": {
+      "Session_Time_of_Day_Diagnostics_Report.md": "1e70fa5d0ad9901ce588e7c785d0b12cb20de7ba3e7da466f0ed65303e36f0c8",
+      "session_direction_report.csv": "d5837ea11807138aaf4f7e4bc9d3d0ef0d640b76e6b46303c992958308a11133",
+      "session_entry_hour_report.csv": "acdc58cb07edb48cbfca770864c28fedd3bb80c47aebdfd40a453736d9a3b4fe",
+      "session_instrument_report.csv": "ae0528a87f3a60fa9ea83f938a0f373f2b773a2a00d8bf38ea3041d5674d704c",
+      "session_lifecycle_hour_report.csv": "4654fed327993015255edf21286db0c22a161b0a0d8331c11cd5bd1c49278599",
+      "session_recurrence_report.csv": "943f39cf1696bc13ea93ada21caec04a7968d8b01d738d9d3f4e4c146616129d",
+      "session_strategy_timeframe_report.csv": "e02a1f9932d758a7846f716c0008b52987f14239c34998770a39cb5bdbe27fb0",
+      "session_time_reconciliation.csv": "dd1fc9c6b9c8223b04a673c4774444da3ec91e839f93acac5ba0f954d23a37ee",
+      "session_timezone_report.csv": "b05b98571cd6cfdcf1677388a688ae70abe41e4c34540d7b3dd4057ee2b12931",
+      "session_wf_fold_report.csv": "0fdcad09d0873f7fdd2460a9bd40f0ac3bea46ebbaf9dfcb01cb51eab56fc3b1",
+      "session_wf_window_report.csv": "2d16432ddd91e90262012a7cf210462d235c208c99270c8de5ffc0a0603fb763",
+      "session_window_lifecycle_report.csv": "4edb410ebd6edfabceff1e47eb8b006d2f59ef11648733cdc689c95e5fc25c32",
+      "session_window_report.csv": "4f85e185fd96b4d8b2b627992f986fd9f6a7987abea1ba82da46da55b7c0c77d"
+    },
+    "status": "PASS"
+  },
+  "entry_hour_mismatches": 0,
+  "evidence_tree_hash": "5ede5d09f3310d1194f2f0d878b68839a5e404bc55aa952ac2f40b7f2152d65f",
+  "implementation_file_hashes": {
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/run_stage5_session_time.py": "590f6326262179e42eb9d147d514668f3fc33cee6307d189453ff209f2a60af5",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_session_time.py": "27b243aba7bf4ad53983fa046a924cdc7c4fefea1d720e54b8ffeb78317c3ac8",
+    "TradingSystemLab/tests/test_stage5_session_time.py": "5687bfc8b1966318eb63b1a0507922af008bb511070d3883f23db10ed8d7bf6f"
+  },
+  "matched_time_rows": 9694,
+  "no_counterfactual_execution": true,
+  "no_hour_selection": true,
+  "no_new_hypothesis": true,
+  "no_parameter_search": true,
+  "no_session_selection": true,
+  "observed_timezone_offsets": [
+    "+03:00"
+  ],
+  "output_hashes": {
+    "Session_Time_of_Day_Diagnostics_Report.md": "1e70fa5d0ad9901ce588e7c785d0b12cb20de7ba3e7da466f0ed65303e36f0c8",
+    "session_direction_report.csv": "d5837ea11807138aaf4f7e4bc9d3d0ef0d640b76e6b46303c992958308a11133",
+    "session_entry_hour_report.csv": "acdc58cb07edb48cbfca770864c28fedd3bb80c47aebdfd40a453736d9a3b4fe",
+    "session_instrument_report.csv": "ae0528a87f3a60fa9ea83f938a0f373f2b773a2a00d8bf38ea3041d5674d704c",
+    "session_lifecycle_hour_report.csv": "4654fed327993015255edf21286db0c22a161b0a0d8331c11cd5bd1c49278599",
+    "session_recurrence_report.csv": "943f39cf1696bc13ea93ada21caec04a7968d8b01d738d9d3f4e4c146616129d",
+    "session_strategy_timeframe_report.csv": "e02a1f9932d758a7846f716c0008b52987f14239c34998770a39cb5bdbe27fb0",
+    "session_time_reconciliation.csv": "dd1fc9c6b9c8223b04a673c4774444da3ec91e839f93acac5ba0f954d23a37ee",
+    "session_timezone_report.csv": "b05b98571cd6cfdcf1677388a688ae70abe41e4c34540d7b3dd4057ee2b12931",
+    "session_wf_fold_report.csv": "0fdcad09d0873f7fdd2460a9bd40f0ac3bea46ebbaf9dfcb01cb51eab56fc3b1",
+    "session_wf_window_report.csv": "2d16432ddd91e90262012a7cf210462d235c208c99270c8de5ffc0a0603fb763",
+    "session_window_lifecycle_report.csv": "4edb410ebd6edfabceff1e47eb8b006d2f59ef11648733cdc689c95e5fc25c32",
+    "session_window_report.csv": "4f85e185fd96b4d8b2b627992f986fd9f6a7987abea1ba82da46da55b7c0c77d"
+  },
+  "research_status": "DIAGNOSTIC_ONLY_NO_HYPOTHESIS_ADMISSION",
+  "session_contract": {
+    "FULL": "all entries",
+    "SESSION_10_17": "[10:00,17:00)",
+    "SESSION_10_21": "[10:00,21:00)"
+  },
+  "stage3_hashes": {
+    "normalized_trades_v2_baseline.csv": "10ef69946689348a3ed00db46f3d7a17f9b35d38b85c4ca22865b4c5eea4f487",
+    "normalized_trades_v2_true_oos.csv": "fc1ab3c6d212042d0e74c2e72c98858557562f6556bd58e54e3de3edb1e4b6f0",
+    "normalized_trades_v2_walk_forward.csv": "a390c07a83e4068d5d6d35869a71634a1bcdf161da4a0174f8931765a9686689",
+    "normalized_trades_v3_baseline.csv": "ce2640daf31fcc242c44bed15f5dac9c70e21e02f1c0d52bbe57a783ff81e93b",
+    "normalized_trades_v3_true_oos.csv": "4f059ded2ad12ec11d4b9017e059899dce5f51a48f5af494f520a5cc2d135231",
+    "normalized_trades_v3_walk_forward.csv": "874733e1daaffcdbd92d54fa32c7113ac982dd7048ca4c844f16df40d50f9974"
+  },
+  "stage4_hashes": {
+    "Stage_4_Structural_Hypothesis_Set.md": "83cbbe5b21a0009b5981e996007943e81577dd4b0a4a736bb3e5a71cdc77ea1c",
+    "structural_hypothesis_evidence.csv": "c25f9d7f8fe551a8ebdf6e7d044f3468c0f6cae7a2b067af64dc9f22f90ce30f",
+    "structural_hypothesis_registry.csv": "584a7c89dcb9e8985b4a0a9c5e432264b2c549675e2d45df9402cc12fb699fc8",
+    "structural_hypothesis_validation_contract.csv": "5d5da406fdbd34aaaee005f4a9736ef7b8b4c56873919dfe2e7ac21f03bc00ac"
+  },
+  "status": "STAGE5_5_5_SESSION_TIME_DIAGNOSTICS_COMPLETE",
+  "strategy_hashes": {
+    "T2": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+    "T3": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
+  },
+  "task_base_sha": "405a0318989fcbd9f1cfa330c1596ebafe804b0c",
+  "time_basis": "SOURCE_LOCAL_OFFSET_AWARE_ENTRY_TIME",
+  "timezone_contract_violations": 0,
+  "timezone_conversion": "NONE",
+  "window_contract_violations": 0
+}
