@@ -1,0 +1,7 @@
+generation,lifecycle,timezone_offset,trades,entry_hour_mismatches,timestamp_parse_failures,time_basis,timezone_conversion
+v2,baseline,+03:00,4449,0,0,SOURCE_LOCAL_OFFSET_AWARE_ENTRY_TIME,NONE
+v2,true_oos,+03:00,1759,0,0,SOURCE_LOCAL_OFFSET_AWARE_ENTRY_TIME,NONE
+v2,walk_forward,+03:00,746,0,0,SOURCE_LOCAL_OFFSET_AWARE_ENTRY_TIME,NONE
+v3,baseline,+03:00,1124,0,0,SOURCE_LOCAL_OFFSET_AWARE_ENTRY_TIME,NONE
+v3,true_oos,+03:00,1101,0,0,SOURCE_LOCAL_OFFSET_AWARE_ENTRY_TIME,NONE
+v3,walk_forward,+03:00,515,0,0,SOURCE_LOCAL_OFFSET_AWARE_ENTRY_TIME,NONE
