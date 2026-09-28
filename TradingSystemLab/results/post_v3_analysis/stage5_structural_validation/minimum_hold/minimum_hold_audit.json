@@ -67,6 +67,11 @@
   "chronological_recovery_mismatches": 0,
   "duplicate_canonical_identities": 0,
   "identity_mismatches": 0,
+  "implementation_file_hashes": {
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/run_stage5_minimum_hold.py": "61819c0d8d4b5c3ea82b7313c7aeef9f9a76766c5794d70226c908d9bad879eb",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_minimum_hold.py": "f145c500a0e24d3d2ebef36edf4fce790fa1e05285c504d1f750f149cc0d5f8e",
+    "TradingSystemLab/tests/test_stage5_minimum_hold.py": "a14bbc44c273d75cc9726e93c886f0aa7efba5378424e2c8d6001493e7ffe42f"
+  },
   "matched_holding_rows": 9694,
   "maximum_single_C1_delta": 0.0,
   "path_mismatches": 0,

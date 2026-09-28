@@ -140,6 +140,29 @@ def test_wrong_producer_c1_is_caught_by_independent_auditor(tmp_path, monkeypatc
     assert _audit(tmp_path)["checks"]["comparator_economics_reconciled"] == "FAIL"
 
 
+def test_comparator_authority_is_calculated_not_copied(certified, monkeypatch):
+    original = runner._audit_comparator_metrics
+    def shifted(canonical):
+        authority = original(canonical)
+        first = sorted(authority)[0]
+        authority[first] = {**authority[first], "net_R": authority[first]["net_R"] + 1}
+        return authority
+    monkeypatch.setattr(runner, "_audit_comparator_metrics", shifted)
+    assert _audit(certified[0])["status"] == mh.FAIL_ECONOMICS
+
+
+@pytest.mark.parametrize("strategy", ["T2", "T3"])
+def test_source_economics_mutation_fails_independent_reconciliation(certified, monkeypatch, strategy):
+    original = runner._independent_canonical_rows
+    def mutated():
+        rows, facts = original()
+        row = next(item for item in rows if item["strategy"] == strategy)
+        row["net_R"] = float(row["net_R"]) + 0.25
+        return rows, facts
+    monkeypatch.setattr(runner, "_independent_canonical_rows", mutated)
+    assert _audit(certified[0])["status"] == mh.FAIL_ECONOMICS
+
+
 @pytest.mark.parametrize("field", ["max_DD", "recovery"])
 def test_wrong_published_portfolio_metrics_fail(certified, tmp_path, field):
     path=_copy(certified,tmp_path); report=path/"minimum_hold_reconciliation.csv"
@@ -147,6 +170,21 @@ def test_wrong_published_portfolio_metrics_fail(certified, tmp_path, field):
     with report.open("w",newline="") as f:
         w=csv.DictWriter(f,fieldnames=rows[0]); w.writeheader(); w.writerows(rows)
     assert _audit(path)["status"] == mh.FAIL_ECONOMICS
+
+
+@pytest.mark.parametrize("field", ["chronological_DD_audit_delta", "recovery_audit_delta"])
+def test_wrong_published_portfolio_delta_fails(certified, tmp_path, field):
+    path=_copy(certified,tmp_path); report=path/"minimum_hold_reconciliation.csv"
+    rows=list(csv.DictReader(report.open())); rows[0][field]="1"
+    with report.open("w",newline="") as f:
+        w=csv.DictWriter(f,fieldnames=rows[0]); w.writeheader(); w.writerows(rows)
+    assert _audit(path)["status"] == mh.FAIL_ECONOMICS
+
+
+def test_independent_dd_is_stable_under_shuffle():
+    rows=[_trade(str(i),f"2020-01-01 0{i}:00:00",v) for i,v in enumerate((2,-4,3),1)]
+    shuffled=rows[:]; random.Random(84).shuffle(shuffled)
+    assert runner._audit_chronological_portfolio_metrics(rows) == runner._audit_chronological_portfolio_metrics(shuffled)
 
 
 def test_no_hardcoded_comparator_delta_and_real_deltas(certified):
