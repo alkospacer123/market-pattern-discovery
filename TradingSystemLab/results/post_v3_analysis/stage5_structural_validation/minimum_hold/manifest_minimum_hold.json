@@ -1,6 +1,5 @@
 {
   "Stage5_status": "OPEN",
-  "base_sha": "78268399dceda7284a0a5af6e8971b2a9c46c0b3",
   "bucket_contract": [
     "<1h",
     "1\u20133h",
@@ -15,36 +14,35 @@
   "bucket_contract_status": "FROZEN_STAGE3_CONTRACT_PRESERVED",
   "canonical_rows": 9694,
   "comparator_hashes": {
-    "canonical_comparator_audit_result.json": "7649678085a3e11dc3dbcd008e9e5ad0bec2e53fcd60537216e279917b7909b4",
-    "canonical_comparator_manifest.json": "bed5ea874d3e7b00d1aeca89a5cab14f67662c59a09804479488897ec4288178",
     "canonical_comparator_reconciliation.csv": "6642583855bdf2a494b8dc3c87d54de2a7842889395323ac3f1a4b074c915689",
-    "canonical_comparator_trade_reconciliation.csv": "c4dec322e4052c2e74f6f43d8a1db49294d6b8f1695cdbdc946db4926bc19f1a"
+    "canonical_comparator_trade_reconciliation.csv": "c4dec322e4052c2e74f6f43d8a1db49294d6b8f1695cdbdc946db4926bc19f1a",
+    "canonical_lifecycle_registry.csv": "f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6"
   },
   "corrected_C1_contract": "CORRECTED_SINGLE_C1",
   "data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
   "determinism": {
     "run1": {
-      "Minimum_Hold_Diagnostics_Report.md": "f56c9aa969287e22b1a0ef88e72c5e676a8feb3a22163f529085db4b225e6d49",
+      "Minimum_Hold_Diagnostics_Report.md": "45bed0f576510478ef8abce24b29ddafe5725bd199836ea5c7279cbfeae5d397",
       "minimum_hold_bucket_report.csv": "8e29fe474d214a5919b148087eee799681e5e7524594b44a8c685b922b4318ed",
       "minimum_hold_cumulative_report.csv": "4357bc3038190886ff3a3c198653f4cb1c09e52c0a51f01803c93b6dfed223b4",
       "minimum_hold_direction_report.csv": "b46f871c53133080f59e128068a2234aab7587eaa7dadb76428e5178cf06625a",
       "minimum_hold_exit_reason_report.csv": "9c794359c6d6d335d51e2e49d521f0813ddbf7fb84564ddff358a21caa858bcd",
       "minimum_hold_instrument_report.csv": "9f99854397180e734e3d7254cf4db39a83c190cd4199a584ae1c4255c821a3df",
       "minimum_hold_lifecycle_report.csv": "447d5af2e0ab366403cc893d002cb3b07b64fcb02438709d02cfdc3c42e690b4",
-      "minimum_hold_reconciliation.csv": "f228991dadc4a54511fa461dbb67bf86373b23def4a8c08c576403aaf2db62c2",
+      "minimum_hold_reconciliation.csv": "ba745c74f4f3d5e4ff26d9d73f66dcefd9ac55e1c6f909a54619ccd58d84b6f4",
       "minimum_hold_recurrence_report.csv": "8661f31b528d125d98c0ebdf10fe141ea6a2df68990f0a20a2c1250c19fa9195",
       "minimum_hold_strategy_timeframe_report.csv": "d9c5e69d015b78aa65a175e78960322d2226b42ec39ff758d5abefcebf6e5c0d",
       "minimum_hold_wf_fold_report.csv": "367c41f560efd31224d29a496e827735aedc46cad7cb64585bc4a2c038a2b1bc"
     },
     "run2": {
-      "Minimum_Hold_Diagnostics_Report.md": "f56c9aa969287e22b1a0ef88e72c5e676a8feb3a22163f529085db4b225e6d49",
+      "Minimum_Hold_Diagnostics_Report.md": "45bed0f576510478ef8abce24b29ddafe5725bd199836ea5c7279cbfeae5d397",
       "minimum_hold_bucket_report.csv": "8e29fe474d214a5919b148087eee799681e5e7524594b44a8c685b922b4318ed",
       "minimum_hold_cumulative_report.csv": "4357bc3038190886ff3a3c198653f4cb1c09e52c0a51f01803c93b6dfed223b4",
       "minimum_hold_direction_report.csv": "b46f871c53133080f59e128068a2234aab7587eaa7dadb76428e5178cf06625a",
       "minimum_hold_exit_reason_report.csv": "9c794359c6d6d335d51e2e49d521f0813ddbf7fb84564ddff358a21caa858bcd",
       "minimum_hold_instrument_report.csv": "9f99854397180e734e3d7254cf4db39a83c190cd4199a584ae1c4255c821a3df",
       "minimum_hold_lifecycle_report.csv": "447d5af2e0ab366403cc893d002cb3b07b64fcb02438709d02cfdc3c42e690b4",
-      "minimum_hold_reconciliation.csv": "f228991dadc4a54511fa461dbb67bf86373b23def4a8c08c576403aaf2db62c2",
+      "minimum_hold_reconciliation.csv": "ba745c74f4f3d5e4ff26d9d73f66dcefd9ac55e1c6f909a54619ccd58d84b6f4",
       "minimum_hold_recurrence_report.csv": "8661f31b528d125d98c0ebdf10fe141ea6a2df68990f0a20a2c1250c19fa9195",
       "minimum_hold_strategy_timeframe_report.csv": "d9c5e69d015b78aa65a175e78960322d2226b42ec39ff758d5abefcebf6e5c0d",
       "minimum_hold_wf_fold_report.csv": "367c41f560efd31224d29a496e827735aedc46cad7cb64585bc4a2c038a2b1bc"
@@ -52,26 +50,28 @@
     "status": "PASS"
   },
   "duplicate_canonical_identities": 0,
-  "evidence_tree_hash": "fe6bf462e4d3f372aafbd2d5c3df6b7a9c3d900ade07858df900a4fa351e397d",
-  "implementation_source_sha": "78268399dceda7284a0a5af6e8971b2a9c46c0b3",
+  "evidence_generation_source_sha": "b78289d8d0badd9a67164069e2a91ad364a50cf4",
+  "evidence_tree_hash": "7a1ec4772e8d962c19125da211adaddd6fed8b505489e72f35f7412ca5c1de84",
+  "implementation_source_sha": "b78289d8d0badd9a67164069e2a91ad364a50cf4",
   "matched_holding_rows": 9694,
   "no_counterfactual_execution": true,
   "no_new_hypothesis": true,
   "no_parameter_search": true,
   "no_posthoc_tuning": true,
   "output_hashes": {
-    "Minimum_Hold_Diagnostics_Report.md": "f56c9aa969287e22b1a0ef88e72c5e676a8feb3a22163f529085db4b225e6d49",
+    "Minimum_Hold_Diagnostics_Report.md": "45bed0f576510478ef8abce24b29ddafe5725bd199836ea5c7279cbfeae5d397",
     "minimum_hold_bucket_report.csv": "8e29fe474d214a5919b148087eee799681e5e7524594b44a8c685b922b4318ed",
     "minimum_hold_cumulative_report.csv": "4357bc3038190886ff3a3c198653f4cb1c09e52c0a51f01803c93b6dfed223b4",
     "minimum_hold_direction_report.csv": "b46f871c53133080f59e128068a2234aab7587eaa7dadb76428e5178cf06625a",
     "minimum_hold_exit_reason_report.csv": "9c794359c6d6d335d51e2e49d521f0813ddbf7fb84564ddff358a21caa858bcd",
     "minimum_hold_instrument_report.csv": "9f99854397180e734e3d7254cf4db39a83c190cd4199a584ae1c4255c821a3df",
     "minimum_hold_lifecycle_report.csv": "447d5af2e0ab366403cc893d002cb3b07b64fcb02438709d02cfdc3c42e690b4",
-    "minimum_hold_reconciliation.csv": "f228991dadc4a54511fa461dbb67bf86373b23def4a8c08c576403aaf2db62c2",
+    "minimum_hold_reconciliation.csv": "ba745c74f4f3d5e4ff26d9d73f66dcefd9ac55e1c6f909a54619ccd58d84b6f4",
     "minimum_hold_recurrence_report.csv": "8661f31b528d125d98c0ebdf10fe141ea6a2df68990f0a20a2c1250c19fa9195",
     "minimum_hold_strategy_timeframe_report.csv": "d9c5e69d015b78aa65a175e78960322d2226b42ec39ff758d5abefcebf6e5c0d",
     "minimum_hold_wf_fold_report.csv": "367c41f560efd31224d29a496e827735aedc46cad7cb64585bc4a2c038a2b1bc"
   },
+  "portfolio_DD": "CHRONOLOGICAL_EXIT_TIME_ORDERED",
   "research_status": "DIAGNOSTIC_ONLY_NO_HYPOTHESIS_ADMISSION",
   "stage3_hashes": {
     "normalized_trades_v2_baseline.csv": "10ef69946689348a3ed00db46f3d7a17f9b35d38b85c4ca22865b4c5eea4f487",
@@ -81,7 +81,11 @@
     "normalized_trades_v3_true_oos.csv": "4f059ded2ad12ec11d4b9017e059899dce5f51a48f5af494f520a5cc2d135231",
     "normalized_trades_v3_walk_forward.csv": "874733e1daaffcdbd92d54fa32c7113ac982dd7048ca4c844f16df40d50f9974"
   },
-  "stage4_hash": "584a7c89dcb9e8985b4a0a9c5e432264b2c549675e2d45df9402cc12fb699fc8",
+  "stage4_hashes": {
+    "structural_hypothesis_evidence.csv": "c25f9d7f8fe551a8ebdf6e7d044f3468c0f6cae7a2b067af64dc9f22f90ce30f",
+    "structural_hypothesis_registry.csv": "584a7c89dcb9e8985b4a0a9c5e432264b2c549675e2d45df9402cc12fb699fc8",
+    "structural_hypothesis_validation_contract.csv": "5d5da406fdbd34aaaee005f4a9736ef7b8b4c56873919dfe2e7ac21f03bc00ac"
+  },
   "stage4_registry_unchanged": true,
   "stage4_report_hash": "83cbbe5b21a0009b5981e996007943e81577dd4b0a4a736bb3e5a71cdc77ea1c",
   "stage4_status": "NOT_ADMITTED",
@@ -90,6 +94,7 @@
     "T2": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
     "T3": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
   },
+  "task_base_sha": "b061ec3981701b4a657df35cb8e1e3e42a53435e",
   "unexpected_stage3_v2_v3_rows": 0,
   "unmatched_stage5_trades": 0,
   "wf_fold_count": 8

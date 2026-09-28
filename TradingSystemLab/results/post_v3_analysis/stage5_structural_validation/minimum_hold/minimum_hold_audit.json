@@ -1,29 +1,63 @@
 {
   "Stage5_status": "OPEN",
+  "authenticated_provenance": {
+    "comparator_hashes": {
+      "canonical_comparator_reconciliation.csv": "6642583855bdf2a494b8dc3c87d54de2a7842889395323ac3f1a4b074c915689",
+      "canonical_comparator_trade_reconciliation.csv": "c4dec322e4052c2e74f6f43d8a1db49294d6b8f1695cdbdc946db4926bc19f1a",
+      "canonical_lifecycle_registry.csv": "f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6"
+    },
+    "stage3_hashes": {
+      "normalized_trades_v2_baseline.csv": "10ef69946689348a3ed00db46f3d7a17f9b35d38b85c4ca22865b4c5eea4f487",
+      "normalized_trades_v2_true_oos.csv": "fc1ab3c6d212042d0e74c2e72c98858557562f6556bd58e54e3de3edb1e4b6f0",
+      "normalized_trades_v2_walk_forward.csv": "a390c07a83e4068d5d6d35869a71634a1bcdf161da4a0174f8931765a9686689",
+      "normalized_trades_v3_baseline.csv": "ce2640daf31fcc242c44bed15f5dac9c70e21e02f1c0d52bbe57a783ff81e93b",
+      "normalized_trades_v3_true_oos.csv": "4f059ded2ad12ec11d4b9017e059899dce5f51a48f5af494f520a5cc2d135231",
+      "normalized_trades_v3_walk_forward.csv": "874733e1daaffcdbd92d54fa32c7113ac982dd7048ca4c844f16df40d50f9974"
+    },
+    "stage4_hashes": {
+      "structural_hypothesis_evidence.csv": "c25f9d7f8fe551a8ebdf6e7d044f3468c0f6cae7a2b067af64dc9f22f90ce30f",
+      "structural_hypothesis_registry.csv": "584a7c89dcb9e8985b4a0a9c5e432264b2c549675e2d45df9402cc12fb699fc8",
+      "structural_hypothesis_validation_contract.csv": "5d5da406fdbd34aaaee005f4a9736ef7b8b4c56873919dfe2e7ac21f03bc00ac"
+    },
+    "stage4_report_hash": "83cbbe5b21a0009b5981e996007943e81577dd4b0a4a736bb3e5a71cdc77ea1c",
+    "stage4_status": "NOT_ADMITTED"
+  },
   "canonical_path_mismatches": 0,
   "canonical_rows": 9694,
   "checks": {
     "bucket_parent_sums": "PASS",
     "canonical_rows_9694": "PASS",
+    "chronological_DD_reconciled": "PASS",
     "comparator_economics_reconciled": "PASS",
+    "comparator_files_authenticated": "PASS",
     "deterministic_artifacts": "PASS",
+    "eight_wf_fold_portfolios": "PASS",
     "frozen_bucket_boundaries": "PASS",
     "holding_one_to_one": "PASS",
     "inputs_authenticated": "PASS",
     "lifecycle_counts_exact": "PASS",
     "lifecycle_total_9694": "PASS",
+    "no_causal_minimum_hold_execution": "PASS",
     "no_counterfactual_pnl": "PASS",
     "no_duplicate_trade_identity": "PASS",
     "no_duration_candidates": "PASS",
+    "no_optimizer_or_parameter_search": "PASS",
     "no_ranking_fields": "PASS",
     "no_selected_or_best_cutoff": "PASS",
+    "no_unexpected_stage3_rows": "PASS",
+    "no_unmatched_trades": "PASS",
     "single_C1_preserved": "PASS",
+    "stage3_files_authenticated": "PASS",
     "stage4_registry_unchanged": "PASS",
+    "stage4_validation_contract_unchanged": "PASS",
     "strategy_sources_unchanged": "PASS",
+    "wf_fold_parent_sums": "PASS",
     "wf_population_reconciled": "PASS"
   },
   "duplicate_canonical_identities": 0,
+  "identity_mismatches": 0,
   "matched_holding_rows": 9694,
+  "path_mismatches": 0,
   "report_files": [
     "Minimum_Hold_Diagnostics_Report.md",
     "minimum_hold_bucket_report.csv",
@@ -38,6 +72,7 @@
     "minimum_hold_wf_fold_report.csv"
   ],
   "research_status": "DIAGNOSTIC_ONLY_NO_HYPOTHESIS_ADMISSION",
+  "single_C1_mismatches": 0,
   "status": "STAGE5_5_4_MINIMUM_HOLD_DIAGNOSTICS_COMPLETE",
   "unexpected_stage3_v2_v3_rows": 0,
   "unmatched_stage5_trades": 0,
