@@ -1,4 +1,4 @@
-lifecycle_stage,months,total_net_R,mean_monthly_R,median_monthly_R,positive_months,negative_months,positive_month_share,monthly_R_std,worst_month_R,best_month_R,monthly_equity_max_DD_R,longest_negative_month_streak,loss_rescue_months,synchronized_loss_months
-baseline,23,54.3951944185,2.36500845298,1.15770137569,13,10,0.565217391304,4.64911410378,-2.83525573256,15.2319596128,-9.25311915619,6,8,0
-walk_forward,8,26.249612948,3.2812016185,2.22337859664,5,3,0.625,4.20810330239,-0.793919150874,12.1855676902,-0.793919150874,1,5,0
-true_oos,20,61.1433647238,3.05716823619,0.267750648536,12,8,0.6,6.30565547361,-3.6581668307,19.2992568993,-5.58524823295,2,7,3
+lifecycle_stage,portfolio_economic_basis,verification_label,months,total_net_R,mean_monthly_R,median_monthly_R,positive_months,negative_months,positive_month_share,monthly_R_std,worst_month_R,best_month_R,monthly_equity_max_DD_R,longest_negative_month_streak,loss_rescue_months,synchronized_loss_months
+baseline,CANONICAL_BASE_EXIT,CANONICAL_BASE_EXIT_BASKET_VERIFICATION,23,54.3951944185,2.36500845298,1.15770137569,13,10,0.565217391304,4.64911410378,-2.83525573256,15.2319596128,-9.25311915619,6,8,0
+walk_forward,CANONICAL_BASE_EXIT,CANONICAL_BASE_EXIT_BASKET_VERIFICATION,8,26.249612948,3.2812016185,2.22337859664,5,3,0.625,4.20810330239,-0.793919150874,12.1855676902,-0.793919150874,1,5,0
+true_oos,CANONICAL_BASE_EXIT,CANONICAL_BASE_EXIT_BASKET_VERIFICATION,20,61.1433647238,3.05716823619,0.267750648536,12,8,0.6,6.30565547361,-3.6581668307,19.2992568993,-5.58524823295,2,7,3

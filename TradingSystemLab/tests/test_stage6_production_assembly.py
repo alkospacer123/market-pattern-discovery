@@ -13,7 +13,7 @@ stage6 = importlib.util.module_from_spec(SPEC); SPEC.loader.exec_module(stage6)
 
 @pytest.fixture()
 def built(tmp_path):
-    stage6.build(tmp_path)
+    stage6.build_artifacts(tmp_path)
     return tmp_path
 
 
@@ -117,6 +117,99 @@ def test_forbidden_schema_contamination_fails(built,column):
 
 
 def test_two_fresh_builds_are_byte_identical(tmp_path):
-    a,b=tmp_path/"a",tmp_path/"b"; stage6.build(a); stage6.build(b)
+    a,b=tmp_path/"a",tmp_path/"b"; stage6.build_artifacts(a); stage6.build_artifacts(b)
     for p in a.iterdir():
         if p.suffix in {".csv",".json",".md"} and p.name!="manifest_stage6.json": assert p.read_bytes()==(b/p.name).read_bytes()
+
+
+def test_checks_start_fail_closed(monkeypatch, built):
+    assert set(stage6.CHECK_NAMES)
+    source = (HERE / "stage6_production_assembly.py").read_text()
+    assert 'checks = {name: "NOT_CHECKED" for name in CHECK_NAMES}' in source
+    monkeypatch.setattr(stage6, "CHECK_NAMES", stage6.CHECK_NAMES + ("deliberately_unexecuted",))
+    audit = stage6.independent_audit(built)
+    assert audit["checks"]["deliberately_unexecuted"] == "NOT_CHECKED"
+    assert audit["status"] != stage6.AUDIT_STATUS
+
+
+@pytest.mark.parametrize("relative", stage6.PROTECTED)
+def test_each_protected_tree_mutation_fails(relative, built):
+    root = stage6.ROOT / relative
+    target = next(path for path in root.rglob("*") if path.is_file())
+    original = target.read_bytes()
+    try:
+        target.write_bytes(original + b"\n")
+        audit = stage6.independent_audit(built)
+        assert audit["counters"]["protected_source_mutations"] > 0
+        assert audit["status"] == "STAGE6_PROTECTED_SOURCE_MUTATION_FAILED"
+    finally:
+        target.write_bytes(original)
+
+
+@pytest.mark.parametrize("field", ["pearson_monthly_R", "both_negative_months", "opposite_sign_months", "overlap_jaccard", "overlapping_trade_pairs", "both_final_negative_pairs", "sample_flag"])
+def test_every_pair_evidence_field_is_reconciled(field, built):
+    mutate_csv(built / "selected_pair_diversification_evidence.csv", lambda rows, _: rows[0].__setitem__(field, "MUTATED"))
+    assert counter(built, "pair_diversification_mismatches") > 0
+
+
+@pytest.mark.parametrize("field", ["selected_total_R", "parent_total_R", "selected_positive_month_share", "parent_positive_month_share", "selected_monthly_std", "parent_monthly_std", "selected_worst_month", "parent_worst_month", "selected_monthly_DD", "parent_monthly_DD"])
+def test_parent_comparison_fields_are_reconciled(field, built):
+    mutate_csv(built / "selected_assembly_parent_comparison.csv", lambda rows, _: rows[0].__setitem__(field, "999"))
+    assert counter(built, "parent_comparison_mismatches") > 0
+
+
+@pytest.mark.parametrize("field", ["delta_net_R", "delta_max_DD", "delta_recovery", "evidence_label"])
+def test_overlay_parent_evidence_is_reconciled(field, built):
+    mutate_csv(built / "selected_overlay_parent_evidence.csv", lambda rows, _: rows[1].__setitem__(field, "999"))
+    assert counter(built, "overlay_parent_evidence_mismatches") > 0
+
+
+def test_false_trail1_dominance_claim_fails(built):
+    report = built / "Stage_6_Production_Assembly_Decision_Report.md"
+    report.write_text(report.read_text() + "\nTRAIL1 dominates canonical on all risk/return metrics\n")
+    assert counter(built, "scope_violations") > 0
+
+
+def test_canonical_basket_cannot_be_relabelled_trail1(built):
+    mutate_csv(built / "selected_assembly_monthly_series.csv", lambda rows, _: rows[0].__setitem__("portfolio_economic_basis", "TRAIL1"))
+    audit = stage6.independent_audit(built)
+    assert audit["checks"]["canonical_basket_basis_labeled"] == "FAIL"
+
+
+@pytest.mark.parametrize("item", ["production assembly ID", "generation", "strategy", "timeframe", "instrument set", "structural overlay choice"])
+def test_each_frozen_handoff_value_is_reconciled(item, built):
+    def change(rows, _):
+        next(row for row in rows if row["item"] == item)["value_or_owner"] = "MUTATED"
+    mutate_csv(built / "stage6_stage7_handoff.csv", change)
+    assert counter(built, "stage7_handoff_mismatches") > 0
+
+
+def test_pending_handoff_cannot_be_falsely_frozen(built):
+    mutate_csv(built / "stage6_stage7_handoff.csv", lambda rows, _: rows[-1].__setitem__("freeze_state", "FROZEN_BY_STAGE6"))
+    assert counter(built, "stage7_handoff_mismatches") > 0
+
+
+def test_output_hash_mutation_fails(tmp_path):
+    stage6.certify(tmp_path)
+    target = tmp_path / "production_parent_decision.csv"
+    target.write_bytes(target.read_bytes() + b"\n")
+    audit = stage6.independent_audit(tmp_path, verify_provenance=True, determinism_verified=True)
+    assert audit["counters"]["output_hash_mismatches"] > 0
+
+
+def test_implementation_hash_mutation_fails(tmp_path):
+    stage6.certify(tmp_path)
+    target = HERE / "run_stage6_production_assembly.py"
+    original = target.read_bytes()
+    try:
+        target.write_bytes(original + b"\n")
+        audit = stage6.independent_audit(tmp_path, verify_provenance=True, determinism_verified=True)
+        assert audit["counters"]["implementation_hash_mismatches"] > 0
+    finally:
+        target.write_bytes(original)
+
+
+def test_determinism_is_a_hard_gate(built):
+    audit = stage6.independent_audit(built, verify_provenance=True, determinism_verified=False)
+    assert audit["counters"]["determinism_mismatches"] > 0
+    assert audit["status"] == "STAGE6_IMPLEMENTATION_PROVENANCE_FAILED" or audit["status"] == "STAGE6_DETERMINISM_FAILED"
