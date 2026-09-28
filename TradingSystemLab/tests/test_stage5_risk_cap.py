@@ -5,14 +5,15 @@ import pytest
 
 from TradingSystemLab.results.post_v3_analysis.stage5_structural_validation.stage5_risk_cap_execution import OpenRisk, allocation, economics, signal_priority
 from TradingSystemLab.results.post_v3_analysis.stage5_structural_validation.stage5_risk_cap_lifecycle import (
-    EXPECTED, StreamState, audit_admission_risk, entries_open, metrics,
-    position_accounting,
+    EXPECTED, StreamState, audit_admission_risk, certification_status,
+    entries_open, manifest_with_audit_status, metrics, position_accounting,
 )
 
 
 def test_cap_disabled_reproduces_full_risk(): assert allocation(99,False)==(1.,1.,'FULL')
 def test_empty_portfolio_admits_one_r(): assert allocation(0)==(1.,1.,'FULL')
 def test_one_r_skips_second_signal(): assert allocation(1)[2]=='SKIPPED_ZERO_CAPACITY'
+def test_sub_tolerance_capacity_records_exact_zero(): assert allocation(1-1e-16)[1:]==(0.,'SKIPPED_ZERO_CAPACITY')
 def test_six_tenths_admits_four_tenths(): r,a,status=allocation(.6); assert r==pytest.approx(.4) and a==pytest.approx(.4) and status=='PARTIAL'
 
 @pytest.mark.parametrize('items,expected',[
@@ -87,3 +88,35 @@ def test_baseline_boundary_never_opens_true_oos_entry(): assert not entries_open
 def test_independent_admission_audit_catches_mutated_assigned_risk():
  frame=pd.DataFrame([{"_open_risk_snapshot_R":(.6,),"open_risk_before_R":.6,"residual_capacity_R":.4,"assigned_risk_R":.5,"open_risk_after_R":1.,"status":"PARTIAL"}])
  assert audit_admission_risk(frame)["risk_accounting_mismatches"]==1
+
+def _clean_audit(**updates):
+ audit={"canonical_rows":9694,"canonical_path_mismatches":0,
+        "canonical_arithmetic_mismatches":0,"capped_arithmetic_mismatches":0,
+        "capped_admitted_positions":10,"capped_closed_positions":10,
+        "terminal_open_positions":0,"silent_dropped_positions":0,
+        "risk_accounting_mismatches":0,"risk_cap_violations":0,
+        "negative_risk_events":0,"allocation_above_one":0}
+ audit.update(updates);return audit
+
+@pytest.mark.parametrize("field",["risk_accounting_mismatches","risk_cap_violations",
+                                  "canonical_arithmetic_mismatches"])
+def test_nonzero_accounting_gate_cannot_pass(field):
+ assert certification_status(_clean_audit(**{field:1}),True)=="RISK_CAP_ACCOUNTING_CERTIFICATION_FAILED"
+
+def test_silent_drop_cannot_pass():
+ assert certification_status(_clean_audit(silent_dropped_positions=1),True)=="RISK_CAP_POSITION_ACCOUNTING_FAILED"
+
+def test_terminal_open_is_incomplete_not_pass():
+ audit=_clean_audit(capped_closed_positions=9,terminal_open_positions=1)
+ assert certification_status(audit,True)=="FINAL_ECONOMIC_CERTIFICATION_INCOMPLETE_TERMINAL_OPEN_POSITIONS"
+
+def test_canonical_mismatch_fails():
+ assert certification_status(_clean_audit(canonical_path_mismatches=1),True)=="RISK_CAP_CANONICAL_RECONCILIATION_FAILED"
+
+def test_clean_deterministic_certification_passes():
+ assert certification_status(_clean_audit(),True)=="STAGE5_RISK_CAP_FINAL_CERTIFICATION_PASSED"
+
+def test_manifest_status_mirrors_audit_status():
+ audit=_clean_audit(terminal_open_positions=1,capped_closed_positions=9)
+ audit["status"]=certification_status(audit,True)
+ assert manifest_with_audit_status({"status":"forbidden-independent-status"},audit)["status"]==audit["status"]
