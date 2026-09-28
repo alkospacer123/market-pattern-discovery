@@ -18,6 +18,7 @@ COHORTS = ("FULL", "SESSION_10_17", "SESSION_10_21")
 TOL = 1e-7
 STATUS = "STAGE5_5_5_SESSION_TIME_DIAGNOSTICS_COMPLETE"
 RESEARCH_STATUS = "DIAGNOSTIC_ONLY_NO_HYPOTHESIS_ADMISSION"
+COMPARATOR_RECONCILIATION = HERE / "canonical_comparator_reconciliation.csv"
 FAIL_INPUT="SESSION_TIME_INPUT_AUTHENTICATION_FAILED"
 FAIL_CANONICAL="SESSION_TIME_CANONICAL_RECONCILIATION_FAILED"
 FAIL_TIME="SESSION_TIME_TIME_METADATA_CONTRACT_FAILED"
@@ -114,6 +115,21 @@ def report(rows: list[dict[str,Any]], keys:list[str], *, share_parent:list[str]|
         item["small_sample_flag"]=len(part)<30; out.append(item)
     return out
 
+def comparator_lifecycle_authority() -> dict[tuple[str,str],dict[str,Any]]:
+    """Rebuild corrected economics from rows authenticated by Stage 5 evidence."""
+    certified=read_csv(HERE/"canonical_comparator_trade_reconciliation.csv")
+    if len(certified)!=24 or any(r["status"]!="PASS" or int(r["total_mismatches"]) for r in certified):
+        raise RuntimeError(FAIL_ECONOMICS)
+    values=defaultdict(list);cache={}
+    for name in NORMALIZED:
+        for meta in read_csv(STAGE3/name):
+            source=ROOT/meta["source_path"]
+            if source not in cache:cache[source]=read_csv(source)
+            raw=cache[source][int(meta["source_row_number"])-2]
+            value=corrected_single_c1(raw,meta["strategy"])
+            values[(meta["generation"],meta["lifecycle_stage"])].append({"net_R":value})
+    return {key:metrics(part,False) for key,part in values.items()}
+
 def build(output: Path) -> dict[str,Any]:
     output.mkdir(parents=True,exist_ok=True); rows,facts=canonical_rows(); validate_time_metadata(rows)
     base=["generation","lifecycle","strategy","timeframe"]
@@ -152,7 +168,7 @@ def build(output: Path) -> dict[str,Any]:
         recurrence.append({"cohort_type":"SESSION_COHORT","cohort":cohort,"parent_cells":24,"sufficiently_populated_cells":len(sufficient),
             "positive_expectancy_cells":sum(metrics(p,False)["expectancy_R"]>0 for p in sufficient),"negative_expectancy_cells":sum(metrics(p,False)["expectancy_R"]<0 for p in sufficient),
             "zero_expectancy_cells":sum(metrics(p,False)["expectancy_R"]==0 for p in sufficient),"small_sample_cells":24-len(sufficient)})
-    comparator={k:metrics(p,False) for k,p in groups(rows,["generation","lifecycle"]).items()}
+    comparator=comparator_lifecycle_authority()
     reconciliation=[]
     for key,p in sorted(groups(rows,["generation","lifecycle"]).items()):
         m=metrics(p,False); a=comparator[key]; deltas={"trades_delta":m["trades"]-a["trades"],"net_R_delta":m["net_R"]-a["net_R"],"expectancy_delta":m["expectancy_R"]-a["expectancy_R"],"PF_delta":m["PF"]-a["PF"],"win_rate_delta":m["win_rate"]-a["win_rate"]}
