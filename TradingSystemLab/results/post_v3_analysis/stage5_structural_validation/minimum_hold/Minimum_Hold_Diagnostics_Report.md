@@ -100,6 +100,14 @@ It is unknown how a canonical trade closed early would have ended had its exit b
 `STAGE5_5_4_MINIMUM_HOLD_DIAGNOSTICS_COMPLETE` / `DIAGNOSTIC_ONLY_NO_HYPOTHESIS_ADMISSION`. The independent audit is the authority for manifest status.
 
 ## 17. Conclusion and next roadmap step
-Stage 5.4 Minimum-Holding Diagnostics completed. The evidence is descriptive only and does not admit or validate a minimum-hold rule. Stage 4 NOT_ADMITTED status remains unchanged. Stage 5 remains OPEN.
+Stage 5.4 finds a strong recurring descriptive association between very short realized holding times and poor canonical outcomes. This does not establish that preventing early exits would improve results.
+
+`Stage4 minimum-hold status = NOT_ADMITTED`
+
+`Stage4 registry unchanged = true`
+
+`Research status = DIAGNOSTIC_ONLY_NO_HYPOTHESIS_ADMISSION`
+
+`Stage5 status = OPEN`
 
 Next roadmap step: 5.5 Session/time-of-day diagnostics.
