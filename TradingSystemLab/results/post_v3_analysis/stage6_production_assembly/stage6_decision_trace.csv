@@ -1,12 +1,12 @@
 decision_step,evidence_domain,evidence_artifact,fact,effect_on_decision
 1,lifecycle durability,Stage 1 master_study_comparison.csv,v3/T3/H1 is the sole parent with WF PASS and TRUE OOS PASS,selected parent
-2,profitability,Stage 1 and Stage 2 evidence,"Selected parent and instruments pass positive WF/OOS expectancy, Net R, and PF gates",eligible
-3,drawdown/recovery,Stage 1 master_study_comparison.csv,v3/T3/H1 WF DD -2.339R and OOS DD -11.977R; recoveries 16.370 and 7.049,supports parent with residual loss risk
-4,monthly stability,Stage 1 monthly_stability_summary.csv,"OOS positive share 0.65, median 0.566R, std 9.111R, worst -5.025R, streak 2",supports stable calendar profile
-5,diversification,Stage 2 pairwise evidence,All selected pairs ADEQUATE; IMOEXF has low/negative monthly relation to other selected sleeves,supports equity sleeve; no cutoff
-6,direction stability,Stage 1 direction_statistics.csv,Both LONG and SHORT retained and documented,no direction rule
-7,concentration,Stage 1 master_study_comparison.csv,OOS net R without top five is 45.654R > 0,hard guard passes
-8,trade anatomy,Stage 3 closeout,1135 MFE>=1R nonpositive; giveback mean 1.5804400716R; initial-stop share 0.1141635586; loss streak 16,structural risk acknowledged; no slice filter
-9,Stage5 structural overlay,Stage 5 closeout,TRAIL1 supported retrospectively; BE1 mixed; risk cap unresolved,TRAIL1 selected with retrospective label
-10,execution practicality,Stage 1 source evidence,H1 reduces monitoring load; perpetual research symbols require explicit executable-contract mapping,mapping deferred to Stage 7
-11,portfolio risk,Stage 5.6 overlap evidence,Temporal overlap and concurrency remain; no suppression or new cap introduced,risk allocation deferred to Stage 7
+2,profitability,Stage 1 and Stage 2 evidence,Selected parent and all four parent instruments satisfy independently recomputed gates,eligible
+3,drawdown/recovery,Stage 1 master_study_comparison.csv,Selected parent WF and OOS drawdown/recovery are retained,residual risk disclosed
+4,monthly stability,Stage 1 monthly_stability_summary.csv,Selected-parent OOS calendar distribution retained,calendar evidence
+5,diversification,Stage 2 and Stage 5.6 pair evidence,Selected pairs reconcile; CNYRUBF/USDRUBF redundancy is documented,supports documented instrument decision
+6,direction stability,Stage 1 direction_statistics.csv,Both LONG and SHORT are retained,no direction filter
+7,concentration,Stage 1 master_study_comparison.csv,Selected-parent OOS net R without top five is positive,hard guard passes
+8,trade anatomy,Stage 3 closeout,Winner giveback and stop-loss evidence remains counter-evidence,no slice filter
+9,Stage5 structural overlay,Stage 5 TRAIL1 authority,TRAIL1 is supported retrospectively with DD/recovery counter-evidence,selected with recorded risk tradeoff
+10,execution practicality,Stage 1 source evidence,Perpetual research symbols require executable-contract mapping,mapping deferred to Stage 7
+11,portfolio risk,Stage 5.6 overlap evidence,Concurrency remains descriptive and creates no production rule,risk design deferred to Stage 7

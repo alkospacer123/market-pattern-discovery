@@ -1,13 +1,14 @@
 {
   "checks": {
+    "canonical_basket_basis_labeled": "PASS",
     "concentration_guard_passed": "PASS",
     "decision_trace_complete": "PASS",
     "deterministic_artifacts": "PASS",
     "direction_evidence_reconciled": "PASS",
-    "exactly_one_parent_selected": "PASS",
     "implementation_hashes_verified": "PASS",
     "instrument_eligibility_reconciled": "PASS",
     "instrument_evidence_reconciled": "PASS",
+    "instrument_selection_contract_reconciled": "PASS",
     "instrument_universe_reconciled": "PASS",
     "no_be1_trail1_combination": "PASS",
     "no_cross_generation_mix": "PASS",
@@ -19,14 +20,17 @@
     "no_new_optimizer": "PASS",
     "no_numeric_score": "PASS",
     "no_unvalidated_rule_promoted": "PASS",
+    "output_hashes_verified": "PASS",
+    "overlay_authority_authenticated": "PASS",
+    "pair_diversification_evidence_reconciled": "PASS",
     "parent_comparison_reconciled": "PASS",
     "parent_eligibility_reconciled": "PASS",
     "parent_evidence_reconciled": "PASS",
+    "parent_selection_contract_reconciled": "PASS",
     "parent_universe_exact_8": "PASS",
     "protected_source_trees_unchanged": "PASS",
-    "selected_instrument_count_2_or_3": "PASS",
-    "selected_instruments_belong_to_parent": "PASS",
     "selected_monthly_series_reconciled": "PASS",
+    "selected_overlay_parent_evidence_reconciled": "PASS",
     "selected_pair_samples_adequate": "PASS",
     "selected_summary_reconciled": "PASS",
     "stage1_authenticated": "PASS",
@@ -35,7 +39,9 @@
     "stage4_authenticated": "PASS",
     "stage5_authenticated": "PASS",
     "stage7_boundary_preserved": "PASS",
-    "structural_overlay_status_reconciled": "PASS"
+    "stage7_handoff_reconciled": "PASS",
+    "structural_overlay_status_reconciled": "PASS",
+    "trail1_tradeoff_disclosed": "PASS"
   },
   "counters": {
     "decision_trace_mismatches": 0,
@@ -45,6 +51,8 @@
     "instrument_eligibility_mismatches": 0,
     "instrument_evidence_mismatches": 0,
     "instrument_selection_violations": 0,
+    "output_hash_mismatches": 0,
+    "overlay_parent_evidence_mismatches": 0,
     "overlay_status_mismatches": 0,
     "pair_diversification_mismatches": 0,
     "parent_comparison_mismatches": 0,
@@ -58,5 +66,6 @@
     "source_authentication_mismatches": 0,
     "stage7_handoff_mismatches": 0
   },
+  "failure_precedence": "input authentication -> protected source integrity -> parent evidence -> parent decision contract -> instrument evidence -> instrument decision contract -> diversification evidence -> selected basket reconstruction -> overlay evidence -> Stage7 handoff -> scope -> implementation hashes -> determinism -> success",
   "status": "POST_V3_STAGE_6_PRODUCTION_ASSEMBLY_DECISION_AUDIT_PASSED"
 }
