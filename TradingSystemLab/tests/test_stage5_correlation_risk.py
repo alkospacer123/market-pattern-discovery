@@ -36,9 +36,27 @@ def _mutate(certified,tmp_path,file,field,amount=1):
 @pytest.mark.parametrize(("file","field","status"),[("corrected_monthly_instrument_matrix.csv","net_R",cr.FAIL_MONTHLY),("corrected_pairwise_monthly_correlation.csv","corrected_pearson_monthly_R",cr.FAIL_MONTHLY),("corrected_pairwise_monthly_correlation.csv","corrected_covariance_monthly_R",cr.FAIL_MONTHLY),("corrected_pairwise_monthly_correlation.csv","corrected_both_negative_months",cr.FAIL_MONTHLY),("entry_concurrency_context.csv","open_positions_before_entry",cr.FAIL_CONCURRENCY),("correlation_risk_reconciliation.csv","duration_identity_delta",cr.FAIL_CONCURRENCY),("correlation_overlap_bridge.csv","both_final_negative_pairs",cr.FAIL_OVERLAP),("portfolio_instrument_overlap_report.csv","overlap_jaccard",cr.FAIL_OVERLAP)])
 def test_artifact_mutations_fail(certified,tmp_path,file,field,status):assert _mutate(certified,tmp_path,file,field)["status"]==status
 def test_independent_auditor_never_calls_producer_helpers(certified,monkeypatch):
-    for name in ("corrected_single_c1","interval_overlap","union_intervals","shared_duration","sweep","correlation","pair_metrics","monthly_matrix"):
+    for name in ("corrected_single_c1","interval_overlap","union_intervals","shared_duration","sweep","correlation","pair_metrics","monthly_matrix","pairwise_monthly"):
       monkeypatch.setattr(cr,name,lambda *_a,**_k:(_ for _ in ()).throw(AssertionError(name)))
     assert runner._audit_build(certified[0])["status"]==cr.STATUS
+def _replace_and_resign(certified,tmp_path,file,field,value):
+    target=tmp_path/(file.replace(".csv", "-semantic"));shutil.copytree(certified[0],target);p=target/file;rows=list(csv.DictReader(p.open()));rows[0][field]=value
+    with p.open("w",newline="") as f:w=csv.DictWriter(f,fieldnames=rows[0]);w.writeheader();w.writerows(rows)
+    manifest_path=target/"manifest_correlation_risk.json";manifest=json.loads(manifest_path.read_text());manifest["output_hashes"][file]=runner._sha(p);manifest_path.write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\n")
+    return runner._audit_build(target)
+
+def test_signed_wrong_zero_month_semantics_fails_independent_audit(certified,tmp_path):
+    rows=list(csv.DictReader((certified[0]/"corrected_monthly_instrument_matrix.csv").open()));index=next(i for i,r in enumerate(rows) if r["coverage_status"]=="NOT_YET_AVAILABLE")
+    target=tmp_path/"wrong-zero";shutil.copytree(certified[0],target);p=target/"corrected_monthly_instrument_matrix.csv";rows[index]["zero_month"]="true"
+    with p.open("w",newline="") as f:w=csv.DictWriter(f,fieldnames=rows[0]);w.writeheader();w.writerows(rows)
+    mp=target/"manifest_correlation_risk.json";m=json.loads(mp.read_text());m["output_hashes"][p.name]=runner._sha(p);mp.write_text(json.dumps(m,indent=2,sort_keys=True)+"\n")
+    audit=runner._audit_build(target);assert audit["status"]==cr.FAIL_MONTHLY;assert audit["details"]["not_yet_available_zero_flag_violations"]==1
+
+def test_published_availability_contract(certified):
+    rows=list(csv.DictReader((certified[0]/"corrected_monthly_instrument_matrix.csv").open()));nya=[r for r in rows if r["coverage_status"]=="NOT_YET_AVAILABLE"];no=[r for r in rows if r["coverage_status"]=="NO_TRADES"]
+    assert nya and all(r["zero_month"]=="false" for r in nya)
+    assert no and all(r["zero_month"]=="true" for r in no)
+
 def test_pair_partitions_and_symmetry(certified):
     for name in ("correlation_overlap_bridge.csv","portfolio_instrument_overlap_report.csv","same_instrument_cross_stream_overlap_report.csv"):
       rows=list(csv.DictReader((certified[0]/name).open()))
