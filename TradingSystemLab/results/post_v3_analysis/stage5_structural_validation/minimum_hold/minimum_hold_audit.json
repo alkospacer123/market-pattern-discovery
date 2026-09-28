@@ -1,5 +1,7 @@
 {
   "Stage5_status": "OPEN",
+  "T2_single_C1_rows": 4559,
+  "T3_corrected_single_C1_rows": 5135,
   "authenticated_provenance": {
     "comparator_hashes": {
       "canonical_comparator_reconciliation.csv": "6642583855bdf2a494b8dc3c87d54de2a7842889395323ac3f1a4b074c915689",
@@ -27,13 +29,17 @@
   "checks": {
     "bucket_parent_sums": "PASS",
     "canonical_rows_9694": "PASS",
+    "chronological_DD_independently_reconstructed": "PASS",
     "chronological_DD_reconciled": "PASS",
+    "chronological_recovery_independently_reconstructed": "PASS",
     "comparator_economics_reconciled": "PASS",
     "comparator_files_authenticated": "PASS",
+    "comparator_trade_metrics_reconciled": "PASS",
     "deterministic_artifacts": "PASS",
     "eight_wf_fold_portfolios": "PASS",
     "frozen_bucket_boundaries": "PASS",
     "holding_one_to_one": "PASS",
+    "implementation_file_hashes_recorded": "PASS",
     "inputs_authenticated": "PASS",
     "lifecycle_counts_exact": "PASS",
     "lifecycle_total_9694": "PASS",
@@ -41,11 +47,14 @@
     "no_counterfactual_pnl": "PASS",
     "no_duplicate_trade_identity": "PASS",
     "no_duration_candidates": "PASS",
+    "no_hardcoded_comparator_delta": "PASS",
     "no_optimizer_or_parameter_search": "PASS",
     "no_ranking_fields": "PASS",
     "no_selected_or_best_cutoff": "PASS",
     "no_unexpected_stage3_rows": "PASS",
     "no_unmatched_trades": "PASS",
+    "producer_single_C1_function_not_used_by_auditor": "PASS",
+    "single_C1_independently_reconstructed": "PASS",
     "single_C1_preserved": "PASS",
     "stage3_files_authenticated": "PASS",
     "stage4_registry_unchanged": "PASS",
@@ -54,9 +63,12 @@
     "wf_fold_parent_sums": "PASS",
     "wf_population_reconciled": "PASS"
   },
+  "chronological_DD_mismatches": 0,
+  "chronological_recovery_mismatches": 0,
   "duplicate_canonical_identities": 0,
   "identity_mismatches": 0,
   "matched_holding_rows": 9694,
+  "maximum_single_C1_delta": 0.0,
   "path_mismatches": 0,
   "report_files": [
     "Minimum_Hold_Diagnostics_Report.md",

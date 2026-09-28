@@ -9,6 +9,10 @@ Authenticated Stage 3 normalized metadata and the Stage 5 canonical comparator a
 ## 3. Canonical 9,694 reconciliation
 Exactly **9,694** v2/v3 trades reconcile with zero canonical path mismatches. Six-lifecycle counts are 4,449 / 746 / 1,759 for v2 and 1,124 / 515 / 1,101 for v3.
 
+The five trade metrics (count, Net R, expectancy, PF, and win rate) are independently rebuilt from the 24 studies authenticated by the canonical comparator trade-reconciliation contract. Portfolio DD and recovery are not claimed as comparator metrics; they carry the separate `CHRONOLOGICAL_PORTFOLIO_RECONSTRUCTION` status and are independently reconstructed by the certification auditor.
+
+For T2, the auditor reads the authoritative single-C1 source field. For T3, it independently applies the frozen historical correction `corrected_net_R = raw_net_R_C1 + cost_R`; the comparator trade artifact authenticates row identity and execution reconciliation but is not treated as proof of this corrected representation.
+
 ## 4. Holding metadata reconciliation
 All **9,694 / 9,694** records match one-to-one by authenticated source path, source row, and trade identity. Duplicate, unmatched, and unexpected counts are zero.
 
@@ -101,6 +105,8 @@ It is unknown how a canonical trade closed early would have ended had its exit b
 
 ## 17. Conclusion and next roadmap step
 Stage 5.4 finds a strong recurring descriptive association between very short realized holding times and poor canonical outcomes. This does not establish that preventing early exits would improve results.
+
+**NO CAUSAL MINIMUM-HOLD CONCLUSION**
 
 `Stage4 minimum-hold status = NOT_ADMITTED`
 
