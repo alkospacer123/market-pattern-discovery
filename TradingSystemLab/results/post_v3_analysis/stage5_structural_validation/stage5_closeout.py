@@ -32,11 +32,26 @@ CHECK_NAMES = (
     "minimum_hold_not_admitted_preserved", "session_authority_authenticated",
     "session_not_admitted_preserved", "correlation_authority_authenticated",
     "correlation_not_admitted_preserved", "declared_output_hashes_verified",
-    "implementation_hashes_verified", "status_matrix_reconciled",
-    "downstream_constraints_reconciled", "unresolved_items_reconciled",
+    "implementation_hashes_verified", "status_matrix_independently_reconciled",
+    "downstream_constraints_independently_reconciled", "unresolved_items_independently_reconciled",
+    "evidence_registry_reconciled", "manifest_reconciled",
+    "protected_stage5_sources_unchanged",
     "no_new_hypothesis", "no_ranking", "no_selection", "no_production_assembly",
     "no_new_execution", "deterministic_artifacts",
 )
+
+# Frozen at TASK_BASE_SHA.  These are directory Merkle identities, not values
+# learned from the files being audited.
+PROTECTED_TREE_HASHES = {
+    "be1": "1d70586cf6394304ac4c3d59b7ad2a556faf5a5f9356859653c702ab468572bb",
+    "trail1": "91e2668ecb33dc2a6f54972c202fe5079e937d9150f4da8f7dca5c3e191fe022",
+    "risk_cap": "72a64c5bfd0c2aa4ae0d442456ce3cbd62ffb0c16f5c40b07cb2d8639e08cf6d",
+    "minimum_hold": "3bae9916fa16da8decd78040bededc573fae5f1ebaca840fea5f28b59dc29f9b",
+    "session_time": "266baa50e7fcddd4ac72faea04bfa3d8970036cfdbcd84a5585bfd46a6b2d7c0",
+    "correlation_risk": "01982bff05656e98fabde5a30924108683c18e5af13d40cce9e3b0e60a1a1277",
+    "canonical": "53f9c002a811b7199dcf8e06209c18e928270dfab19b4aeb86c214945bc49f4c",
+    "stage4": "1ba63be799aa36800c5563b157640402ee7633b9bbdc009bcafb3c8d3d787ec5",
+}
 
 COMPONENTS = [
     ("5.1", "H4_01_PROFIT_PROTECTION_BE1", "CAUSAL_STRUCTURAL_VALIDATION", "ADMITTED", "CLOSED", "MIXED_RETROSPECTIVE_EVIDENCE", "MIXED_RETROSPECTIVE_EVIDENCE", True, False, False),
@@ -92,9 +107,22 @@ def _manifest_hash_checks(manifest_path: Path) -> tuple[int, int]:
         implementation_bad += int(not target.is_file() or sha256(target) != expected)
     return output_bad, implementation_bad
 
+def _tree_hash(paths: list[Path], relative_to: Path) -> str:
+    digest = hashlib.sha256()
+    for path in sorted(p for root in paths for p in ([root] if root.is_file() else root.rglob("*")) if p.is_file()):
+        digest.update(str(path.relative_to(relative_to)).encode() + b"\0" + hashlib.sha256(path.read_bytes()).digest())
+    return digest.hexdigest()
+
+def protected_source_mismatches(base: Path = HERE, stage4: Path | None = None) -> int:
+    stage4 = STAGE4 if stage4 is None else stage4
+    actual = {name: _tree_hash([base/name], base) for name in PROTECTED_TREE_HASHES if name not in {"canonical", "stage4"}}
+    actual["canonical"] = _tree_hash(list(base.glob("canonical_*")) + [base/"Stage_5_Comparator_Reconstruction_Report.md"], base.parent)
+    actual["stage4"] = _tree_hash([stage4], stage4.parent)
+    return sum(actual[name] != expected for name, expected in PROTECTED_TREE_HASHES.items())
+
 def authenticate_inputs(base: Path = HERE) -> tuple[dict, list[dict]]:
     """Authenticate source bytes and final authority; raise on every mismatch."""
-    counters = {k: 0 for k in ("canonical_mismatches", "stage4_status_mismatches", "be1_status_mismatches", "trail1_status_mismatches", "risk_cap_status_mismatches", "minimum_hold_status_mismatches", "session_status_mismatches", "correlation_status_mismatches", "declared_output_hash_mismatches", "implementation_hash_mismatches", "status_matrix_mismatches", "downstream_constraint_mismatches", "unresolved_item_mismatches", "forbidden_scope_violations", "protected_stage5_source_mutations")}
+    counters = {k: 0 for k in ("canonical_mismatches", "stage4_status_mismatches", "be1_status_mismatches", "trail1_status_mismatches", "risk_cap_status_mismatches", "minimum_hold_status_mismatches", "session_status_mismatches", "correlation_status_mismatches", "declared_output_hash_mismatches", "implementation_hash_mismatches", "status_matrix_mismatches", "downstream_constraint_mismatches", "unresolved_item_mismatches", "evidence_registry_mismatches", "manifest_mismatches", "documentation_mismatches", "forbidden_scope_violations", "protected_stage5_source_mutations")}
     required = [base/"canonical_comparator_manifest.json", base/"canonical_comparator_audit_result.json", STAGE4/"manifest_stage4.json", STAGE4/"audit_stage4_result.json", STAGE4/"structural_hypothesis_registry.csv", STAGE4/"structural_hypothesis_validation_contract.csv"]
     required += [base / p for pair in BRANCHES.values() for p in pair]
     if any(not p.is_file() for p in required): raise RuntimeError("STAGE5_CLOSEOUT_INPUT_AUTHENTICATION_FAILED")
@@ -115,7 +143,7 @@ def authenticate_inputs(base: Path = HERE) -> tuple[dict, list[dict]]:
     counters["trail1_status_mismatches"] = int(manifests["TRAIL1"].get("status") != "STAGE5_TRAIL1_FINAL_CLOSEOUT_PASSED" or manifests["TRAIL1"].get("research_interpretation") != "SUPPORTED_RETROSPECTIVELY" or audits["TRAIL1"].get("status") != "PASS")
     ra = audits["TOTAL_OPEN_RISK_CAP"]
     counters["risk_cap_status_mismatches"] = int(manifests["TOTAL_OPEN_RISK_CAP"].get("status") != "FINAL_ECONOMIC_CERTIFICATION_INCOMPLETE_TERMINAL_OPEN_POSITIONS" or manifests["TOTAL_OPEN_RISK_CAP"].get("formal_research_label") != "FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED" or ra.get("canonical_rows") != 9694 or ra.get("terminal_open_positions") != 7 or ra.get("capped_closed_positions") != 7636 or ra.get("risk_cap_violations") != 0 or ra.get("terminal_open_assigned_R") != 6.912766365112272 or ra.get("terminal_open_remaining_R") != 0.8574190498245575 or ra.get("raw_execution_determinism") != "PASS")
-    for key, counter, status in (("MINIMUM_HOLD", "minimum_hold_status_mismatches", COMPONENTS[3][4]), ("SESSION_TIME_OF_DAY", "session_status_mismatches", COMPONENTS[4][4]), ("CORRELATION_SIMULTANEOUS_RISK", "correlation_status_mismatches", COMPONENTS[5][4])):
+    for key, counter, status in (("MINIMUM_HOLD", "minimum_hold_status_mismatches", "STAGE5_5_4_MINIMUM_HOLD_DIAGNOSTICS_COMPLETE"), ("SESSION_TIME_OF_DAY", "session_status_mismatches", "STAGE5_5_5_SESSION_TIME_DIAGNOSTICS_COMPLETE"), ("CORRELATION_SIMULTANEOUS_RISK", "correlation_status_mismatches", "STAGE5_5_6_CORRELATION_SIMULTANEOUS_RISK_DIAGNOSTICS_COMPLETE")):
         counters[counter] = int(manifests[key].get("status") != status or manifests[key].get("research_status") != "DIAGNOSTIC_ONLY_NO_HYPOTHESIS_ADMISSION" or audits[key].get("status") != status)
     correlation_details = audits["CORRELATION_SIMULTANEOUS_RISK"].get("details", {})
     semantic_keys = ("corrected_monthly_matrix_mismatches","not_yet_available_zero_flag_violations","corrected_pairwise_mismatches","bridge_overlap_mismatches","portfolio_overlap_mismatches","cross_stream_overlap_mismatches","entry_context_mismatches","concurrency_distribution_mismatches","concurrency_summary_mismatches","duration_identity_mismatches","wf_concurrency_mismatches","wf_overlap_mismatches","pair_partition_mismatches","single_C1_mismatches","signed_artifact_hash_mismatches")
@@ -131,9 +159,11 @@ def authenticate_inputs(base: Path = HERE) -> tuple[dict, list[dict]]:
         try: return str(path.relative_to(ROOT))
         except ValueError: return str(path)
     registry = [{"component": "STAGE5_CLOSEOUT_INPUT", "artifact_path": display_path(p), "artifact_role": "AUTHORITATIVE_INPUT", "sha256": sha256(p), "authority_level": "FINAL_COMMITTED_AUTHORITY", "declared_status": "AUTHENTICATED", "verified": "true"} for p in dict.fromkeys(evidence_paths)]
+    counters["protected_stage5_source_mutations"] = protected_source_mismatches(base, STAGE4)
     if counters["canonical_mismatches"]: raise RuntimeError("STAGE5_CLOSEOUT_INPUT_AUTHENTICATION_FAILED")
     if counters["stage4_status_mismatches"]: raise RuntimeError("STAGE5_CLOSEOUT_STAGE4_RECONCILIATION_FAILED")
     if any(counters[k] for k in counters if k.endswith("status_mismatches") and k != "stage4_status_mismatches"): raise RuntimeError("STAGE5_CLOSEOUT_COMPONENT_STATUS_RECONCILIATION_FAILED")
+    if counters["protected_stage5_source_mutations"]: raise RuntimeError("STAGE5_CLOSEOUT_PROTECTED_SOURCE_MUTATION_FAILED")
     if counters["declared_output_hash_mismatches"] or counters["implementation_hash_mismatches"]: raise RuntimeError("STAGE5_CLOSEOUT_ARTIFACT_HASH_RECONCILIATION_FAILED")
     return counters, registry
 
@@ -156,6 +186,84 @@ def downstream_rows() -> list[dict]:
 
 def unresolved_rows() -> list[dict]:
     return [{"component":"H4_03_TOTAL_OPEN_RISK_CAP","type":"RIGHT_CENSORED_FORMAL_VERDICT","status":"FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED","reason":"FINAL_ECONOMIC_CERTIFICATION_INCOMPLETE_TERMINAL_OPEN_POSITIONS","action_in_stage5":"NONE","stage5_blocking":"false","production_validation_claim_allowed":"false"}]
+
+def _independent_status_rows() -> list[dict]:
+    """Expected rows reconstructed without consulting producer constants."""
+    facts = [
+      ("5.1","H4_01_PROFIT_PROTECTION_BE1","CAUSAL_STRUCTURAL_VALIDATION","ADMITTED","CLOSED","MIXED_RETROSPECTIVE_EVIDENCE","MIXED_RETROSPECTIVE_EVIDENCE","true","false","false"),
+      ("5.2","H4_02_PROFIT_PROTECTION_TRAIL1","CAUSAL_STRUCTURAL_VALIDATION","ADMITTED","CLOSED","SUPPORTED_RETROSPECTIVELY","SUPPORTED_RETROSPECTIVELY","true","false","false"),
+      ("5.3","H4_03_TOTAL_OPEN_RISK_CAP","CAUSAL_STRUCTURAL_VALIDATION","ADMITTED","FINAL_ECONOMIC_CERTIFICATION_INCOMPLETE_TERMINAL_OPEN_POSITIONS","FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED","NOT_ASSIGNED","true","false","true"),
+      ("5.4","MINIMUM_HOLD","DIAGNOSTIC","NOT_ADMITTED","STAGE5_5_4_MINIMUM_HOLD_DIAGNOSTICS_COMPLETE","DIAGNOSTIC_ONLY_NO_HYPOTHESIS_ADMISSION","NOT_APPLICABLE","false","true","false"),
+      ("5.5","SESSION_TIME_OF_DAY","DIAGNOSTIC","NOT_ADMITTED","STAGE5_5_5_SESSION_TIME_DIAGNOSTICS_COMPLETE","DIAGNOSTIC_ONLY_NO_HYPOTHESIS_ADMISSION","NOT_APPLICABLE","false","true","false"),
+      ("5.6","CORRELATION_SIMULTANEOUS_RISK","DIAGNOSTIC","NOT_ADMITTED","STAGE5_5_6_CORRELATION_SIMULTANEOUS_RISK_DIAGNOSTICS_COMPLETE","DIAGNOSTIC_ONLY_NO_HYPOTHESIS_ADMISSION","NOT_APPLICABLE","false","true","false"),
+    ]
+    keys=("stage_id","component_id","component_type","stage4_admission_status","technical_status","research_status","formal_research_verdict","causal_execution_performed","diagnostic_only","terminal_censoring")
+    common={"canonical_population":"9694","economic_contract":"CORRECTED_SINGLE_C1","parameter_search":"false","ranking":"false","counterfactual_filter":"false","final_stage5_state":"CLOSED","downstream_constraint":"STAGE_6_DECISION_REQUIRED_NO_AUTOMATIC_PRODUCTION_INFERENCE"}
+    return [{**dict(zip(keys,row)),**common} for row in facts]
+
+def _read_csv(path: Path) -> list[dict]:
+    try:
+        with path.open(encoding="utf-8", newline="") as handle: return list(csv.DictReader(handle))
+    except OSError as exc: raise RuntimeError("STAGE5_CLOSEOUT_TABLE_RECONCILIATION_FAILED") from exc
+
+def audit_generated(output: Path, counters: dict, registry_authority: list[dict], determinism_verified: bool) -> dict:
+    checks={k:"NOT_CHECKED" for k in CHECK_NAMES}
+    # Input checks have already succeeded, including independent authority parsing.
+    for name in CHECK_NAMES[:18]: checks[name]="PASS"
+    checks["protected_stage5_sources_unchanged"]="PASS"
+    expected=_independent_status_rows(); actual=_read_csv(output/"stage5_closeout_status_matrix.csv")
+    expected_by={r["component_id"]:r for r in expected}; actual_by={r.get("component_id"):r for r in actual}
+    counters["status_matrix_mismatches"] = abs(len(actual)-6)+int(len(actual_by)!=len(actual))+len(set(expected_by)^set(actual_by))
+    for cid,row in expected_by.items():
+        counters["status_matrix_mismatches"] += sum(actual_by.get(cid,{}).get(k)!=v for k,v in row.items())
+    if counters["status_matrix_mismatches"]: raise RuntimeError("STAGE5_CLOSEOUT_COMPONENT_STATUS_RECONCILIATION_FAILED")
+    checks["status_matrix_independently_reconciled"]="PASS"
+
+    downstream=_read_csv(output/"stage5_downstream_constraints.csv"); down_by={r.get("component_id"):r for r in downstream}
+    counters["downstream_constraint_mismatches"] = abs(len(downstream)-6)+int(len(down_by)!=len(downstream))+len(set(expected_by)^set(down_by))
+    for cid in expected_by:
+        row=down_by.get(cid,{})
+        wanted_new="true" if expected_by[cid]["stage4_admission_status"]=="NOT_ADMITTED" else "false"
+        counters["downstream_constraint_mismatches"] += sum((row.get("stage6_may_consider_evidence")!="true",row.get("automatic_production_inclusion")!="false",row.get("automatic_production_exclusion")!="false",row.get("requires_new_hypothesis_before_rule_use")!=wanted_new))
+    risk_limit=down_by.get("H4_03_TOTAL_OPEN_RISK_CAP",{}).get("limitation","").lower()
+    counters["downstream_constraint_mismatches"] += int(not all(x in risk_limit for x in ("unresolved","not be represented as fully validated")))
+    if counters["downstream_constraint_mismatches"]: raise RuntimeError("STAGE5_CLOSEOUT_TABLE_RECONCILIATION_FAILED")
+    checks["downstream_constraints_independently_reconciled"]="PASS"
+
+    unresolved=_read_csv(output/"stage5_unresolved_items.csv")
+    wanted={"component":"H4_03_TOTAL_OPEN_RISK_CAP","type":"RIGHT_CENSORED_FORMAL_VERDICT","status":"FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED","reason":"FINAL_ECONOMIC_CERTIFICATION_INCOMPLETE_TERMINAL_OPEN_POSITIONS","action_in_stage5":"NONE","stage5_blocking":"false","production_validation_claim_allowed":"false"}
+    counters["unresolved_item_mismatches"] = abs(len(unresolved)-1)+(sum(unresolved[0].get(k)!=v for k,v in wanted.items()) if unresolved else 1)
+    if counters["unresolved_item_mismatches"]: raise RuntimeError("STAGE5_CLOSEOUT_TABLE_RECONCILIATION_FAILED")
+    checks["unresolved_items_independently_reconciled"]="PASS"
+
+    evidence=_read_csv(output/"stage5_closeout_evidence_registry.csv"); paths=[r.get("artifact_path") for r in evidence]
+    required_paths={r["artifact_path"] for r in registry_authority}
+    counters["evidence_registry_mismatches"] = int(len(paths)!=len(set(paths)))+len(required_paths-set(paths))
+    for row in evidence:
+        path=ROOT/row.get("artifact_path","")
+        counters["evidence_registry_mismatches"] += sum((not path.is_file(), path.is_file() and sha256(path)!=row.get("sha256"), row.get("verified")!="true", row.get("authority_level")!="FINAL_COMMITTED_AUTHORITY"))
+    if counters["evidence_registry_mismatches"]: raise RuntimeError("STAGE5_CLOSEOUT_TABLE_RECONCILIATION_FAILED")
+    checks["evidence_registry_reconciled"]="PASS"
+
+    # Inspect real generated schemas and narrowly targeted positive decisions.
+    forbidden_schema={"rank","score","winner","tier"}|FORBIDDEN_KEYS
+    violations=0
+    for csv_path in output.glob("*.csv"):
+        with csv_path.open(encoding="utf-8",newline="") as handle: fields={x.lower() for x in (csv.DictReader(handle).fieldnames or [])}
+        violations += len(fields & forbidden_schema)
+    report=(output/"Stage_5_Final_Closeout_Report.md").read_text(encoding="utf-8")
+    positive=("selected_overlay =","production_basket =","winner =","selected_strategy =","portfolio_weights =")
+    violations += sum(token in report.lower() for token in positive)
+    counters["forbidden_scope_violations"]=violations
+    if violations: raise RuntimeError("STAGE5_CLOSEOUT_SCOPE_VIOLATION")
+    checks.update({"no_new_hypothesis":"PASS","no_ranking":"PASS","no_selection":"PASS","no_production_assembly":"PASS"})
+    source=(HERE/"stage5_closeout.py").read_text(encoding="utf-8")
+    forbidden_interfaces=tuple(a+b+"(" for a,b in (("run_","strategy"),("back","test"),("simulate_","trade"),("load_market_","data"),("optim","izer"),("parameter_","grid"),("rank_","candidates"),("select_","portfolio")))
+    if any(x in source for x in forbidden_interfaces): raise RuntimeError("STAGE5_CLOSEOUT_SCOPE_VIOLATION")
+    checks["no_new_execution"]="PASS"
+    checks["declared_output_hashes_verified"]="PASS"; checks["implementation_hashes_verified"]="PASS"
+    checks["deterministic_artifacts"]="PASS" if determinism_verified else "NOT_CHECKED"
+    return {"checks":checks,"expected":expected}
 
 def _report() -> str:
     return """# Stage 5 Final Closeout Report
@@ -226,22 +334,34 @@ Stage 5: **CLOSED**. Status: `POST_V3_STAGE_5_STRUCTURAL_VALIDATION_CLOSED`.
 **Stage 6 — Production Assembly Decision** is NEXT and is not executed here. Its allowed inputs are master v1/v2/v3 consolidated evidence, portfolio/diversification evidence, trade anatomy evidence, the Stage 4 registry, and this Stage 5 closeout evidence; it must consider the full ROADMAP evidence set.
 """
 
-def build(output: Path = DEFAULT_OUTPUT, deterministic: bool = True) -> dict:
+def build(output: Path = DEFAULT_OUTPUT, deterministic: bool = False) -> dict:
     counters, registry = authenticate_inputs(); output.mkdir(parents=True, exist_ok=True)
     rows, downstream, unresolved = status_rows(), downstream_rows(), unresolved_rows()
     write_csv(output/"stage5_closeout_status_matrix.csv", list(rows[0]), rows)
     write_csv(output/"stage5_downstream_constraints.csv", list(downstream[0]), downstream)
     write_csv(output/"stage5_closeout_evidence_registry.csv", list(registry[0]), registry)
-    write_csv(output/"stage5_unresolved_items.csv", list(unresolved[0]), unresolved)
+    unresolved_fields=["component","type","status","reason","action_in_stage5","stage5_blocking","production_validation_claim_allowed"]
+    write_csv(output/"stage5_unresolved_items.csv", unresolved_fields, unresolved)
     (output/"Stage_5_Final_Closeout_Report.md").write_text(_report(), encoding="utf-8")
-    checks = {k:"PASS" for k in CHECK_NAMES}
     corr = read_json(HERE/"correlation_risk/correlation_risk_audit.json")["details"]
     counters.update({k:corr[k] for k in ("corrected_monthly_matrix_mismatches","not_yet_available_zero_flag_violations","corrected_pairwise_mismatches","bridge_overlap_mismatches","portfolio_overlap_mismatches","cross_stream_overlap_mismatches","entry_context_mismatches","concurrency_distribution_mismatches","concurrency_summary_mismatches","duration_identity_mismatches","wf_concurrency_mismatches","wf_overlap_mismatches","pair_partition_mismatches","single_C1_mismatches","signed_artifact_hash_mismatches")})
     outputs = ["Stage_5_Final_Closeout_Report.md","stage5_closeout_status_matrix.csv","stage5_downstream_constraints.csv","stage5_closeout_evidence_registry.csv","stage5_unresolved_items.csv"]
     output_hashes = {n:sha256(output/n) for n in outputs}; tree = hashlib.sha256("".join(f"{k}:{v}\n" for k,v in sorted(output_hashes.items())).encode()).hexdigest()
     impl = [HERE/"stage5_closeout.py", HERE/"run_stage5_closeout.py", ROOT/"TradingSystemLab/tests/test_stage5_closeout.py"]
     manifest={"task_base_sha":TASK_BASE_SHA,"stage5_status":STAGE_STATUS,"audit_status":STATUS,"next_roadmap_step":"STAGE_6_PRODUCTION_ASSEMBLY_DECISION","canonical_rows":9694,"economic_contract":ECONOMIC_CONTRACT,"stage4_status":"CLOSED","stage4_hypothesis_count":3,"component_statuses":{r["component_id"]:r["research_status"] for r in rows},"unresolved_component_count":1,"unresolved_components":["H4_03_TOTAL_OPEN_RISK_CAP"],"strategy_hashes":{"T2":T2_HASH,"T3":T3_HASH},"data_commit":DATA_COMMIT,"input_artifact_hashes":{r["artifact_path"]:r["sha256"] for r in registry},"implementation_file_hashes":{str(p.relative_to(ROOT)):sha256(p) for p in impl},"output_hashes":output_hashes,"determinism":{"run1_hashes":output_hashes,"run2_hashes":output_hashes,"byte_identical":bool(deterministic)},"evidence_tree_hash":tree,"no_new_execution":True,"no_new_hypothesis":True,"no_ranking":True,"no_selection":True,"no_production_assembly":True}
+    write_json(output/"manifest_stage5_closeout.json",manifest)
+    result=audit_generated(output,counters,registry,bool(deterministic)); checks=result["checks"]
+    expected_manifest={"stage5_status":STAGE_STATUS,"audit_status":STATUS,"canonical_rows":9694,"economic_contract":ECONOMIC_CONTRACT,"stage4_hypothesis_count":3,"unresolved_component_count":1,"unresolved_components":["H4_03_TOTAL_OPEN_RISK_CAP"],"next_roadmap_step":"STAGE_6_PRODUCTION_ASSEMBLY_DECISION","no_new_execution":True,"no_new_hypothesis":True,"no_ranking":True,"no_selection":True,"no_production_assembly":True}
+    counters["manifest_mismatches"]=sum(manifest.get(k)!=v for k,v in expected_manifest.items())
+    if counters["manifest_mismatches"]: raise RuntimeError("STAGE5_CLOSEOUT_TABLE_RECONCILIATION_FAILED")
+    checks["manifest_reconciled"]="PASS"
+    docs=[ROOT/"TradingSystemLab/CURRENT_STATE.md",ROOT/"TradingSystemLab/PROJECT_CONTEXT.md",ROOT/"TradingSystemLab/ROADMAP.md",HERE/"README.md"]
+    documentation="\n".join(p.read_text(encoding="utf-8") for p in docs)
+    phrases=("Stage 5 CLOSED","Stage 6 Production Assembly Decision: NEXT","MIXED_RETROSPECTIVE_EVIDENCE","SUPPORTED_RETROSPECTIVELY","FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED","Minimum Hold = NOT_ADMITTED","Session = NOT_ADMITTED","Correlated-risk grouping = NOT_ADMITTED")
+    counters["documentation_mismatches"]=sum(x not in documentation for x in phrases)
+    if counters["documentation_mismatches"]: raise RuntimeError("STAGE5_CLOSEOUT_TABLE_RECONCILIATION_FAILED")
+    if any(v=="NOT_CHECKED" for v in checks.values()): raise RuntimeError("STAGE5_CLOSEOUT_DETERMINISM_FAILED")
     audit={"status":STATUS,"stage5_status":STAGE_STATUS,"checks":checks,"mismatch_counters":counters,"canonical_rows":9694,"component_status_mismatches":sum(counters[k] for k in counters if k.endswith("status_mismatches") and k!="stage4_status_mismatches"),"unresolved_formal_research_verdicts":1,"determinism":{"byte_identical":bool(deterministic),"evidence_tree_hash":tree}}
     if not audit_scope(manifest) or not audit_scope(audit): raise RuntimeError("STAGE5_CLOSEOUT_SCOPE_VIOLATION")
-    write_json(output/"manifest_stage5_closeout.json",manifest); write_json(output/"audit_stage5_closeout.json",audit)
+    write_json(output/"audit_stage5_closeout.json",audit)
     return audit

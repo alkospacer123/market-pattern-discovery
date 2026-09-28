@@ -59,13 +59,14 @@ def test_closeout_tables_and_scope():
 
 def test_source_and_implementation_hash_mutations_fail(tmp_path,monkeypatch):
     base=_copy_inputs(tmp_path); stage4=tmp_path/"stage4_structural_hypotheses"; shutil.copytree(closeout.STAGE4,stage4); monkeypatch.setattr(closeout,"STAGE4",stage4)
-    (base/"minimum_hold/Minimum_Hold_Diagnostics_Report.md").write_text("mutated")
-    with pytest.raises(RuntimeError,match="ARTIFACT_HASH"): closeout.authenticate_inputs(base)
+    report=base/"minimum_hold/Minimum_Hold_Diagnostics_Report.md"; original=report.read_bytes(); report.write_text("mutated")
+    with pytest.raises(RuntimeError,match="PROTECTED_SOURCE_MUTATION"): closeout.authenticate_inputs(base)
+    report.write_bytes(original)
     manifest=base/"minimum_hold/manifest_minimum_hold.json"; value=json.loads(manifest.read_text()); value["implementation_file_hashes"][next(iter(value["implementation_file_hashes"]))]="0"*64; manifest.write_text(json.dumps(value))
-    with pytest.raises(RuntimeError,match="ARTIFACT_HASH"): closeout.authenticate_inputs(base)
+    with pytest.raises(RuntimeError,match="PROTECTED_SOURCE_MUTATION"): closeout.authenticate_inputs(base)
 
 def test_build_is_byte_deterministic(tmp_path):
-    one,two=tmp_path/"one",tmp_path/"two"; closeout.build(one); closeout.build(two)
+    one,two=tmp_path/"one",tmp_path/"two"; closeout.build(one,True); closeout.build(two,True)
     assert {p.name:p.read_bytes() for p in one.iterdir()}=={p.name:p.read_bytes() for p in two.iterdir()}
     audit=json.loads((one/"audit_stage5_closeout.json").read_text()); assert audit["status"]==closeout.STATUS and all(v=="PASS" for v in audit["checks"].values())
 
@@ -79,3 +80,56 @@ def test_no_execution_or_backtest_interfaces():
     source=SOURCE.read_text()
     for token in ("run_strategy", "simulate_trade", "load_market_data", "optimizer", "parameter_grid", "rank_candidates", "select_portfolio"):
         assert token not in source
+
+@pytest.mark.parametrize("component,field,value",[
+    ("H4_01_PROFIT_PROTECTION_BE1","research_status","SUPPORTED_RETROSPECTIVELY"),
+    ("H4_02_PROFIT_PROTECTION_TRAIL1","research_status","MIXED_RETROSPECTIVE_EVIDENCE"),
+    ("H4_03_TOTAL_OPEN_RISK_CAP","research_status","SUPPORTED_RETROSPECTIVELY"),
+    ("MINIMUM_HOLD","stage4_admission_status","ADMITTED"),
+    ("SESSION_TIME_OF_DAY","stage4_admission_status","ADMITTED"),
+    ("CORRELATION_SIMULTANEOUS_RISK","stage4_admission_status","ADMITTED"),
+])
+def test_signed_producer_status_bug_is_independently_rejected(tmp_path,monkeypatch,component,field,value):
+    original=closeout.status_rows
+    def bad_rows():
+        rows=original()
+        next(r for r in rows if r["component_id"]==component)[field]=value
+        return rows
+    monkeypatch.setattr(closeout,"status_rows",bad_rows)
+    with pytest.raises(RuntimeError,match="COMPONENT_STATUS_RECONCILIATION_FAILED"):
+        closeout.build(tmp_path/"out",True)
+
+@pytest.mark.parametrize("component,field,value",[
+    ("H4_01_PROFIT_PROTECTION_BE1","automatic_production_inclusion","true"),
+    ("H4_02_PROFIT_PROTECTION_TRAIL1","automatic_production_exclusion","true"),
+    ("MINIMUM_HOLD","requires_new_hypothesis_before_rule_use","false"),
+])
+def test_signed_producer_downstream_bug_is_rejected(tmp_path,monkeypatch,component,field,value):
+    original=closeout.downstream_rows
+    def bad_rows():
+        rows=original(); next(r for r in rows if r["component_id"]==component)[field]=value; return rows
+    monkeypatch.setattr(closeout,"downstream_rows",bad_rows)
+    with pytest.raises(RuntimeError,match="TABLE_RECONCILIATION_FAILED"): closeout.build(tmp_path/"out",True)
+
+@pytest.mark.parametrize("mutation",["missing","extra","claim","blocking"])
+def test_signed_producer_unresolved_bug_is_rejected(tmp_path,monkeypatch,mutation):
+    def bad_rows():
+        rows=closeout.unresolved_rows_original()
+        if mutation=="missing": return []
+        if mutation=="extra": return rows+[{**rows[0],"component":"H4_99_FAKE"}]
+        rows[0]["production_validation_claim_allowed" if mutation=="claim" else "stage5_blocking"]="true"
+        return rows
+    monkeypatch.setattr(closeout,"unresolved_rows_original",closeout.unresolved_rows,raising=False)
+    monkeypatch.setattr(closeout,"unresolved_rows",bad_rows)
+    with pytest.raises(RuntimeError,match="TABLE_RECONCILIATION_FAILED"): closeout.build(tmp_path/"out",True)
+
+def test_producer_constants_are_not_audit_authority(tmp_path,monkeypatch):
+    wrong=[tuple("ADMITTED" if i==3 else x for i,x in enumerate(row)) for row in closeout.COMPONENTS]
+    monkeypatch.setattr(closeout,"COMPONENTS",wrong)
+    with pytest.raises(RuntimeError,match="COMPONENT_STATUS_RECONCILIATION_FAILED"): closeout.build(tmp_path/"out",True)
+
+@pytest.mark.parametrize("branch",["be1","trail1","risk_cap","minimum_hold","session_time","correlation_risk"])
+def test_each_protected_component_tree_detects_byte_mutation(tmp_path,monkeypatch,branch):
+    base=_copy_inputs(tmp_path); stage4=tmp_path/"stage4_structural_hypotheses"; shutil.copytree(closeout.STAGE4,stage4)
+    target=next(p for p in (base/branch).iterdir() if p.is_file()); target.write_bytes(target.read_bytes()+b"\nmutation")
+    assert closeout.protected_source_mismatches(base,stage4)>=1

@@ -30,9 +30,9 @@
   "economic_contract": "CORRECTED_SINGLE_C1",
   "evidence_tree_hash": "e36edf1a61863209da8e599dfeffeb423d4f82b52727042e353394b5f8fca2dc",
   "implementation_file_hashes": {
-    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/run_stage5_closeout.py": "b7c236da4ca10c47b6dc8bd9af25d4c2d9528e12a8d0f12d8723c1f30ce1ecd8",
-    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_closeout.py": "2e10c6f359d7291fae5b82ca88ccd29b9b1ae4133a112cf6ecd8b2e7f581f561",
-    "TradingSystemLab/tests/test_stage5_closeout.py": "b719ce19d773650fc3c46667eba99fdce5b8340d0924632344924bd1f5851bbf"
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/run_stage5_closeout.py": "1070ba0bcf51b54dd447af0c9c5ccbad3492cb32cf06c87b898f9e80068c7de2",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_closeout.py": "2e5f64859a65bcea20d140f37ce03eb204c5f78acc29697b0a0092ce40e6e26f",
+    "TradingSystemLab/tests/test_stage5_closeout.py": "0267a4ae64cfed6f04a457bc1af8ae87f8fd7d8b307ca79200784d2e53e48a1b"
   },
   "input_artifact_hashes": {
     "TradingSystemLab/results/post_v3_analysis/stage4_structural_hypotheses/Stage_4_Structural_Hypothesis_Set.md": "83cbbe5b21a0009b5981e996007943e81577dd4b0a4a736bb3e5a71cdc77ea1c",

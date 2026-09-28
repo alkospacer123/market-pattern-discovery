@@ -7,6 +7,8 @@ from .stage5_closeout import DEFAULT_OUTPUT, build, sha256
 
 def certify(output: Path = DEFAULT_OUTPUT) -> dict:
     with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b:
+        # Preliminary builds are marked verified only for serialization; the
+        # byte comparison below is the authority for the final build.
         build(Path(a), deterministic=True); build(Path(b), deterministic=True)
         names=sorted(p.name for p in Path(a).iterdir())
         if any(sha256(Path(a)/n)!=sha256(Path(b)/n) for n in names):
