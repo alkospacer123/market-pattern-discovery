@@ -1,0 +1,81 @@
+{
+  "Stage5_status": "OPEN",
+  "admission_event_rows": 11754,
+  "admission_event_sha256": "6f6c58cd27c8005a2bf9f319a2b6eebd4c8a07fc9c449b0662452c3136d1e403",
+  "canonical_mode_result": {
+    "mismatches": 0,
+    "trades": 9694
+  },
+  "capped_trade_ledger_sha256": "bcc71ef9c0649ddeb6e1c4794e0f05c7f5c38b4a99144bc4f118bc2c7f0464af",
+  "capped_trade_rows": 7625,
+  "cost_contract": "CORRECTED_SINGLE_C1",
+  "data_repo_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+  "determinism": {
+    "result": "PASS",
+    "run_1_admission_sha256": "6f6c58cd27c8005a2bf9f319a2b6eebd4c8a07fc9c449b0662452c3136d1e403",
+    "run_1_ledger_sha256": "bcc71ef9c0649ddeb6e1c4794e0f05c7f5c38b4a99144bc4f118bc2c7f0464af",
+    "run_2_admission_sha256": "6f6c58cd27c8005a2bf9f319a2b6eebd4c8a07fc9c449b0662452c3136d1e403",
+    "run_2_ledger_sha256": "bcc71ef9c0649ddeb6e1c4794e0f05c7f5c38b4a99144bc4f118bc2c7f0464af"
+  },
+  "evidence_tree_hash": "b989115ed2d8ad3baf04e5577fe81d67dc5e44cc7bc27722215d5e8572c3ac72",
+  "execution_source_sha": "d20a7efffda1945d8bd749a531ed1c125015dde4",
+  "formal_research_label": "FORMAL_LABEL_LEFT_FOR_REVIEW",
+  "hypothesis_id": "H4_03_TOTAL_OPEN_RISK_CAP",
+  "implementation_base_sha": "f4c2173b853fb54130ed047be3b25fc466e91c34",
+  "lifecycle_registry_identity": "f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6",
+  "no_optimization": true,
+  "output_hashes": {
+    "RISK_CAP_Validation_Report.md": "9cb8ef072c88c5c97efe2f5e179baff7d8dd4bff6609525d1c3f4e67883b855d",
+    "risk_cap_admission_report.csv": "90225069b2bdffc28661e35e21c2e3fb25cdd4da68e1fc913c00083abbdda8e7",
+    "risk_cap_audit.json": "b5cda12db7b66e2168696b12cac313099aa36b7777e18490eed95d8c4571873f",
+    "risk_cap_canonical_path_reconciliation.csv": "9cf819ae5adb95fdeae65a6cf4c678a16d4a7c53f690e6365cd10abdc289a81b",
+    "risk_cap_concentration_report.csv": "431990902b78ef730205ebbc857ffecb51359602ef191914ab4478292d0e109c",
+    "risk_cap_fold_report.csv": "c8935e2d6312e7d1ff298c7933c89ce3ce77c8e3c77294493283a9ee3395426b",
+    "risk_cap_instrument_report.csv": "5fd11f4a7109e8abbadaa9a231b1abcd1170f091882aa89089c1908f939fcb20",
+    "risk_cap_lifecycle_report.csv": "ced8d7e88a40d3b131fabd66d7ea78dd04b48008e723d5ad4eb5907f195b8db7",
+    "risk_cap_monthly_report.csv": "c9f61c0e1ff862cb39663baadf1af3715612b30a96a9bdda5eea1a6265183357",
+    "risk_cap_open_risk_report.csv": "a226979aad92dc570bf8478d41d5fe570e37bdcd4749796dc3aa927b880330c2",
+    "risk_cap_portfolio_summary.csv": "ced8d7e88a40d3b131fabd66d7ea78dd04b48008e723d5ad4eb5907f195b8db7",
+    "risk_cap_quarterly_report.csv": "882ea146405de508ac6f09e1515e4936ba9c0244e9c0c624eb2af7ebd6f5c4f2",
+    "risk_cap_simultaneous_loss_report.csv": "3bf8caf1d99db22b637c84a637cc62da84b20c737a57a20517dd4a6db2d49c68",
+    "risk_cap_strategy_timeframe_report.csv": "4e837ebf2578a07882b22b04c8633957881221435ddfee3eee7d7ceddad61913",
+    "risk_cap_trade_digest.csv": "07e8f3684bcae771d51b3052e2957e2af82c0d2962a93456e0cdd23e2135721f"
+  },
+  "risk_cap_violations": 0,
+  "source_hashes": {
+    "forever/CNYRUBF/CNYRUBF_H1.csv": "a3815b88a11aa5878b8bd104140f002859349c2c8d7f6ff0476a0d4c4d9a612e",
+    "forever/CNYRUBF/CNYRUBF_M30.csv": "0bad02e0afd194bdedf6ec77f08021a3973768db71c54ece57d7c26c6cefb0b4",
+    "forever/GLDRUBF/GLDRUBF_H1.csv": "12a626ba6cc47fce2f392d4a6ce3bdb8a3c1aad074306a73ab480fcfbb83b87e",
+    "forever/GLDRUBF/GLDRUBF_M30.csv": "c939d6167d45b680e3ee02e0cffeb0a1276f5abb7183e7ae20683e873ad5d93f",
+    "forever/IMOEXF/IMOEXF_H1.csv": "119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110",
+    "forever/IMOEXF/IMOEXF_M30.csv": "171f0daf06ad3b56ca26e461d7ed58681fca72f881f87d0973bd17c0e5b2d0b3",
+    "forever/USDRUBF/USDRUBF_H1.csv": "f0ca366d816a6213742271242e87c53d1e23f5a5fc4655df0123217df418a226",
+    "forever/USDRUBF/USDRUBF_M30.csv": "51d30a3ed1195f50a32ae696a84f803b960cc7449d5f3532fd1b539f4d407518",
+    "futures_quarterly/BR/BR_H1.csv": "c988c127f7e12a6125aa8d80b479dcf2182eaa4d4087997dec73eac42614f6be",
+    "futures_quarterly/BR/BR_M30.csv": "d8159ae007492e0e638729ef5a29f734166dcbda0c0fc2deff52479745e5c8a5",
+    "futures_quarterly/CNY/CNY_H1.csv": "0f8e033f9b41495dcaaf8aed0d0be6d3018e86a92d7a2bacee02cd228ba580d4",
+    "futures_quarterly/CNY/CNY_M30.csv": "02ae23e564e2eba474df333feb662d209df95dcec0bd9bd23f0d7f152b4cf194",
+    "futures_quarterly/GD/GD_H1.csv": "2911950344bd6b9471fbe570f12020cba64f65efb59da424d9ab2b7440e44bb3",
+    "futures_quarterly/GD/GD_M30.csv": "7638178141a33e8b8f3d480d7ca1b9ef79de3ec9440b4dc2d1a1a46209437cf6",
+    "futures_quarterly/MIX/MIX_H1.csv": "1aebe871790d3a5e4c8d155a253c77666c38cc6f668e9eeb468bbac4c6d4eac5",
+    "futures_quarterly/MIX/MIX_M30.csv": "f2a600b420a8d992b76cac45f812367751b820fe593b69380e19bed23f113d65",
+    "futures_quarterly/NG/NG_H1.csv": "4c932cf3679c506c57297d53706a97900a7e94b8299462102c1168fc2a4a3fbe",
+    "futures_quarterly/NG/NG_M30.csv": "16957ceba7a617722e03285871d1d3c722a75d3dc8c4535910358b6c2d3f0162",
+    "futures_quarterly/Si/Si_H1.csv": "5d9f749322f22faf775a2d52019f0c19a6309b71fbd35dca717b3944c1035b08",
+    "futures_quarterly/Si/Si_M30.csv": "596235ef65fc8f48b314153faee1b3f1b98d3bbdb9263139a9a15f291ef23acc"
+  },
+  "stage4_artifact_hashes": {
+    "audit_stage4_result.json": "7a764cd15975835d7469d0cae58634fd7751a54db79e1bf62aec59f5d8593863",
+    "manifest_stage4.json": "00dcb2141602dd6813f194a57b8539aca79ce807de98a6c2f85093c664741abf",
+    "structural_hypothesis_evidence.csv": "c25f9d7f8fe551a8ebdf6e7d044f3468c0f6cae7a2b067af64dc9f22f90ce30f",
+    "structural_hypothesis_registry.csv": "584a7c89dcb9e8985b4a0a9c5e432264b2c549675e2d45df9402cc12fb699fc8",
+    "structural_hypothesis_validation_contract.csv": "5d5da406fdbd34aaaee005f4a9736ef7b8b4c56873919dfe2e7ac21f03bc00ac"
+  },
+  "status": "STAGE5_RISK_CAP_CAUSAL_VALIDATION_PASSED",
+  "strategy_hashes": {
+    "T2": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+    "T3": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
+  },
+  "v2_v3_separate": true,
+  "wf_cold_start": true
+}
