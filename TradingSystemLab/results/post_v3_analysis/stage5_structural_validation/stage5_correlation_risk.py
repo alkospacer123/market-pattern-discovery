@@ -89,7 +89,7 @@ def monthly_matrix(rows):
     for h in historical:
         key=(h["generation"],h["lifecycle_stage"],h["strategy"],h["timeframe"],h["YYYY-MM"],h["instrument"]); vals=sums.get(key,[])
         available=h["instrument_available"].lower()=="true"; net=math.fsum(vals) if available else 0.0; trades=len(vals) if available else 0
-        out.append({**h,"trades":trades,"net_R":net,"positive_month":net>0,"negative_month":net<0,"zero_month":net==0,
+        out.append({**h,"trades":trades,"net_R":net,"positive_month":available and net>0,"negative_month":available and net<0,"zero_month":available and net==0,
                     "economic_contract":"CORRECTED_SINGLE_C1_CURRENT_AUTHORITY"})
     return out
 def correlation(x,y):

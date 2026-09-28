@@ -3,18 +3,20 @@
     "canonical_identity_reconciled": "PASS",
     "canonical_rows_9694": "PASS",
     "comparator_authenticated": "PASS",
-    "concurrency_distribution_reconciled": "PASS",
-    "concurrency_duration_identity": "PASS",
-    "corrected_monthly_matrix_reconciled": "PASS",
+    "concurrency_distribution_independently_reconstructed": "PASS",
+    "concurrency_duration_identity_independently_verified": "PASS",
+    "concurrency_summary_independently_reconstructed": "PASS",
+    "corrected_monthly_matrix_independently_reconstructed": "PASS",
     "corrected_pairwise_independently_reconstructed": "PASS",
-    "correlation_overlap_bridge_reconciled": "PASS",
+    "correlation_overlap_bridge_metrics_reconciled": "PASS",
+    "cross_stream_overlap_metrics_reconciled": "PASS",
     "deterministic_artifacts": "PASS",
     "eight_wf_fold_portfolios": "PASS",
-    "entry_concurrency_independently_reconstructed": "PASS",
     "entry_context_9694": "PASS",
+    "entry_context_all_fields_reconciled": "PASS",
     "entry_exit_timestamp_contract": "PASS",
-    "exit_before_entry_tie_break": "PASS",
-    "half_open_interval_contract": "PASS",
+    "exit_before_entry_tie_break_independently_verified": "PASS",
+    "half_open_interval_independently_verified": "PASS",
     "implementation_file_hashes_verified": "PASS",
     "inputs_authenticated": "PASS",
     "no_causal_risk_rule": "PASS",
@@ -25,19 +27,20 @@
     "no_optimizer": "PASS",
     "no_pair_ranking": "PASS",
     "no_parameter_search": "PASS",
+    "not_yet_available_zero_flag_contract": "PASS",
     "pair_outcome_partition_reconciled": "PASS",
     "pairwise_identity_252": "PASS",
-    "portfolio_instrument_overlap_reconciled": "PASS",
-    "same_instrument_cross_stream_overlap_reconciled": "PASS",
+    "portfolio_instrument_overlap_metrics_reconciled": "PASS",
+    "signed_artifact_hashes_verified": "PASS",
     "single_C1_independently_reconstructed": "PASS",
     "stage2_authenticated": "PASS",
-    "stage2_availability_preserved": "PASS",
+    "stage2_availability_semantics_exact": "PASS",
     "stage4_registry_unchanged": "PASS",
     "strategy_sources_unchanged": "PASS",
     "t2_monthly_regression_exact": "PASS",
     "t2_pairwise_regression_exact": "PASS",
-    "wf_concurrency_reconciled": "PASS",
-    "wf_overlap_reconciled": "PASS",
+    "wf_concurrency_independently_reconstructed": "PASS",
+    "wf_overlap_independently_reconstructed": "PASS",
     "wf_population_reconciled": "PASS"
   },
   "determinism": {
@@ -45,7 +48,7 @@
     "run1": {
       "concurrency_distribution_report.csv": "d58ca6eca6917942d2b5bf4f101fa3d6f43f522090935831509db37f8d3f0350",
       "concurrency_summary_report.csv": "b4aafa5600dd0fef36a9d25f8dd0cbc7c42299fdb54e6d9e356f6cc26abeb866",
-      "corrected_monthly_instrument_matrix.csv": "bcbe58de158553a2c865cfe116d4a4d40e803bee9b242028291b45f63505ff81",
+      "corrected_monthly_instrument_matrix.csv": "ac3e415936f7a0f376d7815e77aa0af851e0c044574878b62fe90b02a775f1cd",
       "corrected_pairwise_monthly_correlation.csv": "f449801c7aa025a2a3c5b1cfc5bc1926ff48fd2277d69301978abe8ba7922f10",
       "correlation_overlap_bridge.csv": "d5456447e8b7e1aba116d1bfa2bf4231794c0ac61a03ea4818bc6fe13c3ed440",
       "correlation_risk_reconciliation.csv": "c30f6667e39c0410fd39539e93e5bc9c2ec23d434b36d7e09e07aca39acebeb5",
@@ -59,7 +62,7 @@
     "run2": {
       "concurrency_distribution_report.csv": "d58ca6eca6917942d2b5bf4f101fa3d6f43f522090935831509db37f8d3f0350",
       "concurrency_summary_report.csv": "b4aafa5600dd0fef36a9d25f8dd0cbc7c42299fdb54e6d9e356f6cc26abeb866",
-      "corrected_monthly_instrument_matrix.csv": "bcbe58de158553a2c865cfe116d4a4d40e803bee9b242028291b45f63505ff81",
+      "corrected_monthly_instrument_matrix.csv": "ac3e415936f7a0f376d7815e77aa0af851e0c044574878b62fe90b02a775f1cd",
       "corrected_pairwise_monthly_correlation.csv": "f449801c7aa025a2a3c5b1cfc5bc1926ff48fd2277d69301978abe8ba7922f10",
       "correlation_overlap_bridge.csv": "d5456447e8b7e1aba116d1bfa2bf4231794c0ac61a03ea4818bc6fe13c3ed440",
       "correlation_risk_reconciliation.csv": "c30f6667e39c0410fd39539e93e5bc9c2ec23d434b36d7e09e07aca39acebeb5",
@@ -71,17 +74,17 @@
       "wf_instrument_overlap_report.csv": "e5f7b4835c1a2c780c436a95834d61dc011bbf6ea2979bfe6ea0e6879a0b2c64"
     }
   },
-  "evidence_tree_hash": "948900d0b39d61e2878fdb9f94c9bc66c0a1c0846847e892be48788b2acd65a1",
+  "evidence_tree_hash": "8ecf78e96a2867d7f7d46605bd5024ffe9e68c6740d6914d9da2847d389c299f",
   "implementation_file_hashes": {
-    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/run_stage5_correlation_risk.py": "a61bdf636845cd280789c4b9a8fae482106658ab7aaae5c0330733d6fe2601bd",
-    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_correlation_risk.py": "0a301d31841ebbf6dbbfa8b3dc0395f729f382ea08b97a5c3b14c1063cf0090b",
-    "TradingSystemLab/tests/test_stage5_correlation_risk.py": "f26d3c24e7e2cdaccf45580efa0ee641e9eb1a15af9049596e47caecd57899a1"
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/run_stage5_correlation_risk.py": "056f77427f63ac6cc8fb6cdc4fd897fd18a092596b55f5a4310006855bce3534",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_correlation_risk.py": "6cba77da14c6c58734699a1e6fe4eae88ad30d7c3a42d1cc2ea68c8800315cdd",
+    "TradingSystemLab/tests/test_stage5_correlation_risk.py": "a52c3b8ef15bedb119713110b4d387b9b3242e06501037c4ee553b6a1e3d22e5"
   },
   "output_hashes": {
     "Correlation_Simultaneous_Risk_Diagnostics_Report.md": "65ef9c73b57d7e4b15880c13dce010f8903e0bd3f2f8d59b03073b4862047cc1",
     "concurrency_distribution_report.csv": "d58ca6eca6917942d2b5bf4f101fa3d6f43f522090935831509db37f8d3f0350",
     "concurrency_summary_report.csv": "b4aafa5600dd0fef36a9d25f8dd0cbc7c42299fdb54e6d9e356f6cc26abeb866",
-    "corrected_monthly_instrument_matrix.csv": "bcbe58de158553a2c865cfe116d4a4d40e803bee9b242028291b45f63505ff81",
+    "corrected_monthly_instrument_matrix.csv": "ac3e415936f7a0f376d7815e77aa0af851e0c044574878b62fe90b02a775f1cd",
     "corrected_pairwise_monthly_correlation.csv": "f449801c7aa025a2a3c5b1cfc5bc1926ff48fd2277d69301978abe8ba7922f10",
     "correlation_overlap_bridge.csv": "d5456447e8b7e1aba116d1bfa2bf4231794c0ac61a03ea4818bc6fe13c3ed440",
     "correlation_risk_reconciliation.csv": "c30f6667e39c0410fd39539e93e5bc9c2ec23d434b36d7e09e07aca39acebeb5",
@@ -96,7 +99,7 @@
   "run1_hashes": {
     "concurrency_distribution_report.csv": "d58ca6eca6917942d2b5bf4f101fa3d6f43f522090935831509db37f8d3f0350",
     "concurrency_summary_report.csv": "b4aafa5600dd0fef36a9d25f8dd0cbc7c42299fdb54e6d9e356f6cc26abeb866",
-    "corrected_monthly_instrument_matrix.csv": "bcbe58de158553a2c865cfe116d4a4d40e803bee9b242028291b45f63505ff81",
+    "corrected_monthly_instrument_matrix.csv": "ac3e415936f7a0f376d7815e77aa0af851e0c044574878b62fe90b02a775f1cd",
     "corrected_pairwise_monthly_correlation.csv": "f449801c7aa025a2a3c5b1cfc5bc1926ff48fd2277d69301978abe8ba7922f10",
     "correlation_overlap_bridge.csv": "d5456447e8b7e1aba116d1bfa2bf4231794c0ac61a03ea4818bc6fe13c3ed440",
     "correlation_risk_reconciliation.csv": "c30f6667e39c0410fd39539e93e5bc9c2ec23d434b36d7e09e07aca39acebeb5",
@@ -110,7 +113,7 @@
   "run2_hashes": {
     "concurrency_distribution_report.csv": "d58ca6eca6917942d2b5bf4f101fa3d6f43f522090935831509db37f8d3f0350",
     "concurrency_summary_report.csv": "b4aafa5600dd0fef36a9d25f8dd0cbc7c42299fdb54e6d9e356f6cc26abeb866",
-    "corrected_monthly_instrument_matrix.csv": "bcbe58de158553a2c865cfe116d4a4d40e803bee9b242028291b45f63505ff81",
+    "corrected_monthly_instrument_matrix.csv": "ac3e415936f7a0f376d7815e77aa0af851e0c044574878b62fe90b02a775f1cd",
     "corrected_pairwise_monthly_correlation.csv": "f449801c7aa025a2a3c5b1cfc5bc1926ff48fd2277d69301978abe8ba7922f10",
     "correlation_overlap_bridge.csv": "d5456447e8b7e1aba116d1bfa2bf4231794c0ac61a03ea4818bc6fe13c3ed440",
     "correlation_risk_reconciliation.csv": "c30f6667e39c0410fd39539e93e5bc9c2ec23d434b36d7e09e07aca39acebeb5",
@@ -122,5 +125,5 @@
     "wf_instrument_overlap_report.csv": "e5f7b4835c1a2c780c436a95834d61dc011bbf6ea2979bfe6ea0e6879a0b2c64"
   },
   "status": "STAGE5_5_6_CORRELATION_SIMULTANEOUS_RISK_DIAGNOSTICS_COMPLETE",
-  "task_base_sha": "fb5e6d1d03dbea3c42af07df155971683f3fdb70"
+  "task_base_sha": "8a0f6b7cc8ee423b2cf9d8c4d2ca7a07b13ae09a"
 }
