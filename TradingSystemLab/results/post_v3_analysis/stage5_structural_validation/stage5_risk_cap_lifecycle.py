@@ -15,6 +15,10 @@ HERE=Path(__file__).resolve().parent; ROOT=HERE.parents[3]
 GROUP=['generation','lifecycle','fold_id']; STREAM=['strategy','timeframe','instrument']
 EXPECTED={('v2_quarterly','baseline'):4449,('v2_quarterly','walk_forward'):746,('v2_quarterly','historical_true_oos'):1759,('v3_perpetual','baseline'):1124,('v3_perpetual','walk_forward'):515,('v3_perpetual','historical_true_oos'):1101}
 
+def entries_open(timestamp,entry_end): return pd.Timestamp(timestamp)<pd.Timestamp(entry_end)
+def position_accounting(admitted,closed,terminal):
+ return {'admitted_positions':int(admitted),'closed_positions':int(closed),'terminal_open_positions':int(terminal),'silent_dropped_positions':int(admitted)-int(closed)-int(terminal),'status':'PASS' if int(admitted)==int(closed)+int(terminal) else 'FAIL'}
+
 def _sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def _csv(p,x,cols=None):
  f=x if isinstance(x,pd.DataFrame) else pd.DataFrame(x); f=f.reindex(columns=cols) if cols else f
@@ -45,7 +49,26 @@ class StreamState:
  def __init__(self,row,root):
   self.meta={k:row[k] for k in GROUP+STREAM+['candidate_config_identity']}; self.s=row['strategy']; self.p=_params(row['generation'],self.s,row['timeframe'],row['lifecycle'])
   path=Path(root)/('futures_quarterly' if row['generation']=='v2_quarterly' else 'forever')/row['instrument']/f"{row['instrument']}_{row['timeframe']}.csv"
-  raw=DataLoader(forbid_true_oos=False).load_csv(path); frame=DataLoader.close_index(raw,'30min' if row['timeframe']=='M30' else '1h').loc[row['start_timestamp']:row['end_timestamp']].copy()
+  delta=pd.Timedelta('30min' if row['timeframe']=='M30' else '1h')
+  loader=DataLoader();self.entry_start=loader._localized_bound(pd.Timestamp(row['start_timestamp']));boundary=loader._localized_bound(pd.Timestamp(row['end_timestamp']))
+  # Registry bounds which name an actual close are inclusive.  Schedule bounds
+  # end at 23:59:59 and are already an exclusive boundary for close timestamps.
+  self.entry_end=boundary if boundary.second==59 else boundary+delta
+  if row['lifecycle']=='walk_forward':
+   # The canonical fold receives the complete development dataframe.  It starts
+   # FLAT at entry_start, closes admission at entry_end, and may consume later
+   # development bars solely to finish an admitted position.
+   raw=DataLoader().load_csv_prefix(path,start=pd.Timestamp('1900-01-01'),end_exclusive=pd.Timestamp('2025-01-01'))
+   execution_end=pd.Timestamp('2025-01-01',tz='Europe/Moscow')
+  elif row['lifecycle']=='baseline':
+   # Never parse locked TRUE OOS merely to close a development position.
+   raw=DataLoader().load_csv_prefix(path,start=pd.Timestamp('1900-01-01'),end_exclusive=pd.Timestamp('2025-01-01'))
+   execution_end=self.entry_end
+  else:
+   # The authenticated OOS source endpoint is the lawful terminal boundary.
+   raw=DataLoader(forbid_true_oos=False).load_csv(path);execution_end=self.entry_end
+  closed=DataLoader.close_index(raw,'30min' if row['timeframe']=='M30' else '1h')
+  frame=closed.loc[(closed.index>=self.entry_start)&(closed.index<execution_end)].copy()
   self.strategy=T2TrendPullback(self.p) if self.s=='T2' else T3MTFTrend(self.p)
   if self.s=='T2': self.strategy._validate=lambda x:None; self.data=self.strategy.calculate_indicators(frame);self.high=None
   else:self.data,self.high=self.strategy.calculate_indicators(frame,DataLoader.h4_from_h1(frame))
@@ -56,6 +79,9 @@ class StreamState:
  def process(self,t):
   """Process exits/stop updates, then return an eligible close signal if any."""
   if t not in self.lookup:return None,None
+  if not entries_open(t,self.entry_end) and self.pos is None:
+   self.setup=None
+   return None,None
   i=self.lookup[t];b=self.data.iloc[i]; self.blocked=False
   if self.s=='T3':
    while self.cursor+1<len(self.high) and self.high.index[self.cursor+1]<=t:self.cursor+=1
@@ -74,6 +100,12 @@ class StreamState:
     p['bars']+=1;p['lo']=min(p['lo'],float(b.Low));p['hi']=max(p['hi'],float(b.High));p['extreme']=max(p['extreme'],b.High) if p['direction']=='LONG' else min(p['extreme'],b.Low)
     cand=(p['hi']-self.p.trailing_atr*b.ATR if p['direction']=='LONG' else p['lo']+self.p.trailing_atr*b.ATR) if self.s=='T2' else self.strategy.manage_position(p['direction'],p['extreme'],b.ATR)
     p['stop']=max(old,float(cand)) if p['direction']=='LONG' else min(old,float(cand));return None,None
+  admission_open=entries_open(t,self.entry_end)
+  if not admission_open:
+   # A pre-boundary setup is not a position and cannot become a post-boundary
+   # entry.  Existing positions were handled above and continue naturally.
+   self.setup=None
+   return exitrow,None
   if self.s=='T2':
    if self.setup is not None:
     q=self.setup
@@ -109,20 +141,39 @@ def replay(registry,root,enabled,prepared=None):
  for key,streams in sorted(groups.items()):
   times=sorted(set().union(*(s.data.index for s in streams)))
   for t in times:
+   if all(not entries_open(t,s.entry_end) for s in streams) and all(s.pos is None for s in streams):
+    break
    signals=[]
    for s in streams:
     ex,sig=s.process(t)
     if ex is not None:trades.append(ex)
     if sig is not None:signals.append((s,sig))
    for s,sig in sorted(signals,key=lambda x:signal_priority(*[x[0].meta[k] for k in STREAM])):
-    before=sum(x.risk() for x in streams);residual,assigned,status=allocation(before,enabled)
+    snapshot=tuple(x.risk() for x in streams if x.pos is not None);before=sum(snapshot);residual,assigned,status=allocation(before,enabled)
     after=before
     if assigned>EPSILON:s.admit(t,sig,assigned);after=sum(x.risk() for x in streams)
-    admissions.append({**s.meta,'timestamp':t,'direction':sig[0],'open_risk_before_R':before,'residual_capacity_R':residual,'assigned_risk_R':assigned,'status':status,'open_risk_after_R':after})
+    admissions.append({**s.meta,'timestamp':t,'direction':sig[0],'open_risk_before_R':before,'residual_capacity_R':residual,'assigned_risk_R':assigned,'status':status,'open_risk_after_R':after,'_open_risk_snapshot_R':snapshot})
     if enabled and after>1+EPSILON:raise RuntimeError('RISK_CAP_INVARIANT_VIOLATION')
    risk_events.append({**dict(zip(GROUP,key)),'timestamp':t,'open_risk_R':sum(x.risk() for x in streams),'open_positions':sum(x.pos is not None for x in streams)})
-  # Canonical engines do not force-close at lifecycle end; all expected ledgers end flat.
- return pd.DataFrame(trades),pd.DataFrame(admissions),pd.DataFrame(risk_events)
+  # Never synthesize a terminal close.  The caller accounts for every live
+  # position explicitly after the last lawful execution bar.
+ terminals=[]
+ for key,streams in sorted(groups.items()):
+  for s in streams:
+   if s.pos is not None:
+    terminals.append({**s.meta,'assigned_risk_R':s.pos['assigned'],'remaining_risk_R':s.risk(),'entry_time':s.pos['entry_time']})
+ return pd.DataFrame(trades),pd.DataFrame(admissions),pd.DataFrame(risk_events),pd.DataFrame(terminals)
+
+def audit_admission_risk(admissions,enabled=True,tolerance=1e-12):
+ """Independently reconstruct allocation from recorded open-position risks."""
+ mismatches=0
+ for _,row in admissions.iterrows():
+  before=float(sum(row['_open_risk_snapshot_R']));residual,assigned,status=allocation(before,enabled)
+  after=before+(assigned if assigned>EPSILON else 0.)
+  values=((before,row.open_risk_before_R),(residual,row.residual_capacity_R),
+          (assigned,row.assigned_risk_R),(after,row.open_risk_after_R))
+  mismatches+=int(any(abs(float(a)-float(b))>tolerance for a,b in values) or status!=row.status)
+ return {'risk_accounting_events_checked':len(admissions),'risk_accounting_mismatches':mismatches}
 
 def _norm_path(f):
  cols=GROUP+STREAM+['direction','entry_time','entry_price','exit_time','exit_price','exit_reason'];x=f[cols].copy()
@@ -144,18 +195,29 @@ def _hash_frame(f):return hashlib.sha256(f.to_csv(index=False,lineterminator='\n
 
 def _single(data_root,output,identities):
  output=Path(output);shutil.rmtree(output,ignore_errors=True);output.mkdir(parents=True);registry=list(csv.DictReader((HERE/'canonical_lifecycle_registry.csv').open()));canonical=_canonical();prepared=prepare(registry,data_root)
- uncapped,ua,ur=replay(registry,data_root,False,prepared);mismatches=reconcile(uncapped,canonical);capped,adm,rr=replay(registry,data_root,True,prepared)
+ uncapped,ua,ur,uterm=replay(registry,data_root,False,prepared);mismatches=reconcile(uncapped,canonical);capped,adm,rr,terminal=replay(registry,data_root,True,prepared)
  trade_hash=_hash_frame(capped);admission_hash=_hash_frame(adm)
  rows=[]
  for key in EXPECTED:
   c=canonical[(canonical.generation==key[0])&(canonical.lifecycle==key[1])];q=capped[(capped.generation==key[0])&(capped.lifecycle==key[1])];a=adm[(adm.generation==key[0])&(adm.lifecycle==key[1])];r=rr[(rr.generation==key[0])&(rr.lifecycle==key[1])];u=ur[(ur.generation==key[0])&(ur.lifecycle==key[1])]
   cm,qm=metrics(c),metrics(q);status=a.status.value_counts()
-  rows.append({'generation':key[0],'lifecycle':key[1],'eligible_signals':len(a),'entered_trades':len(q),'full_entries':int(status.get('FULL',0)),'partial_entries':int(status.get('PARTIAL',0)),'skipped_signals':int(status.get('SKIPPED_ZERO_CAPACITY',0)),'total_assigned_R':float(a.assigned_risk_R.sum()),'average_assigned_risk':float(a[a.assigned_risk_R>0].assigned_risk_R.mean()),'median_assigned_risk':float(a[a.assigned_risk_R>0].assigned_risk_R.median()),'minimum_nonzero_assigned_risk':float(a[a.assigned_risk_R>0].assigned_risk_R.min()),'maximum_assigned_risk':float(a.assigned_risk_R.max()),'maximum_open_positions':int(r.open_positions.max()),'uncapped_maximum_open_risk':float(u.open_risk_R.max()),'capped_maximum_open_risk':float(r.open_risk_R.max()),'mean_capped_open_risk':float(r.open_risk_R.mean()),'uncapped_timestamps_above_1R':int((u.open_risk_R>1+EPSILON).sum()),'cap_violations':int((r.open_risk_R>1+EPSILON).sum()),**{'canonical_'+k:v for k,v in cm.items()},**{'capped_'+k:v for k,v in qm.items()},'delta_net_R':qm['net_R']-cm['net_R'],'delta_max_DD':qm['max_DD']-cm['max_DD']})
+  admitted=int((a.assigned_risk_R>0).sum());term=len(terminal[(terminal.generation==key[0])&(terminal.lifecycle==key[1])]) if len(terminal) else 0
+  rows.append({'generation':key[0],'lifecycle':key[1],'eligible_signals':len(a),'admitted_positions':admitted,'closed_positions':len(q),'terminal_open_positions':term,'entered_trades':len(q),'full_entries':int(status.get('FULL',0)),'partial_entries':int(status.get('PARTIAL',0)),'skipped_signals':int(status.get('SKIPPED_ZERO_CAPACITY',0)),'total_assigned_R':float(a.assigned_risk_R.sum()),'average_assigned_risk':float(a[a.assigned_risk_R>0].assigned_risk_R.mean()),'median_assigned_risk':float(a[a.assigned_risk_R>0].assigned_risk_R.median()),'minimum_nonzero_assigned_risk':float(a[a.assigned_risk_R>0].assigned_risk_R.min()),'maximum_assigned_risk':float(a.assigned_risk_R.max()),'maximum_open_positions':int(r.open_positions.max()),'uncapped_maximum_open_risk':float(u.open_risk_R.max()),'capped_maximum_open_risk':float(r.open_risk_R.max()),'mean_capped_open_risk':float(r.open_risk_R.mean()),'uncapped_timestamps_above_1R':int((u.open_risk_R>1+EPSILON).sum()),'cap_violations':int((r.open_risk_R>1+EPSILON).sum()),**{'canonical_'+k:v for k,v in cm.items()},**{'capped_'+k:v for k,v in qm.items()},'delta_net_R':qm['net_R']-cm['net_R'],'delta_max_DD':qm['max_DD']-cm['max_DD']})
  summary=pd.DataFrame(rows);_csv(output/'risk_cap_portfolio_summary.csv',summary);_csv(output/'risk_cap_lifecycle_report.csv',summary)
  ar=[]
  for key,g in adm.groupby(GROUP+STREAM,dropna=False,sort=True):
   vc=g.status.value_counts();ar.append({**dict(zip(GROUP+STREAM,key)),'eligible_signals':len(g),'full_entries':int(vc.get('FULL',0)),'partial_entries':int(vc.get('PARTIAL',0)),'skipped_zero_capacity':int(vc.get('SKIPPED_ZERO_CAPACITY',0)),'entered_trades':int((g.assigned_risk_R>0).sum()),'total_assigned_R':float(g.assigned_risk_R.sum()),'mean_assigned_R':float(g[g.assigned_risk_R>0].assigned_risk_R.mean())})
  _csv(output/'risk_cap_admission_report.csv',ar)
+ terminals=[]
+ stream_keys=[tuple(r[k] for k in GROUP+STREAM) for r in registry]
+ for key in sorted(set(stream_keys)):
+  filters=dict(zip(GROUP+STREAM,key));a=adm.copy();q=capped.copy();z=terminal.copy()
+  for c,v in filters.items():
+   a=a[a[c].fillna('').eq(v)];q=q[q[c].fillna('').eq(v)]
+   if len(z):z=z[z[c].fillna('').eq(v)]
+  admitted=int((a.assigned_risk_R>0).sum());opened=len(z)
+  terminals.append({**filters,'admitted_positions':admitted,'closed_positions':len(q),'terminal_open_positions':opened,'terminal_open_assigned_R':float(z.assigned_risk_R.sum()) if opened else 0.,'terminal_open_remaining_R':float(z.remaining_risk_R.sum()) if opened else 0.,'status':'PASS' if admitted==len(q)+opened else 'FAIL'})
+ _csv(output/'risk_cap_terminal_positions.csv',terminals)
  orows=[]
  for key,g in rr.groupby(GROUP,dropna=False,sort=True):
   u=ur
@@ -170,7 +232,12 @@ def _single(data_root,output,identities):
    for c,v in zip(cols,key):q=q[q[c].fillna('').astype(str).eq(str(v))];a=a[a[c].fillna('').astype(str).eq(str(v))]
    vc=a.status.value_counts();out.append({**dict(zip(cols,key)),'eligible_signals':len(a),'entered_trades':len(q),'full_entries':int(vc.get('FULL',0)),'partial_entries':int(vc.get('PARTIAL',0)),'skips':int(vc.get('SKIPPED_ZERO_CAPACITY',0)),'allocated_R':float(a.assigned_risk_R.sum()),'net_allocated_R':float(q.allocated_net_R.sum()),**metrics(q)})
   _csv(output/f'risk_cap_{name}_report.csv',out)
- grouped_report('fold',GROUP+STREAM[:2]);grouped_report('instrument',['generation','lifecycle','instrument']);grouped_report('strategy_timeframe',['generation','lifecycle','strategy','timeframe'])
+ grouped_report('fold_strategy_timeframe',GROUP+STREAM[:2]);grouped_report('instrument',['generation','lifecycle','instrument']);grouped_report('strategy_timeframe',['generation','lifecycle','strategy','timeframe'])
+ folds=[]
+ for key,a in adm[adm.lifecycle.eq('walk_forward')].groupby(['generation','fold_id'],sort=True):
+  q=capped[(capped.generation==key[0])&(capped.lifecycle=='walk_forward')&(capped.fold_id==key[1])];c=canonical[(canonical.generation==key[0])&(canonical.lifecycle=='walk_forward')&(canonical.fold_id==key[1])];z=terminal[(terminal.generation==key[0])&(terminal.lifecycle=='walk_forward')&(terminal.fold_id==key[1])] if len(terminal) else terminal;vc=a.status.value_counts();cm,qm=metrics(c),metrics(q);risk=rr[(rr.generation==key[0])&(rr.lifecycle=='walk_forward')&(rr.fold_id==key[1])]
+  folds.append({'generation':key[0],'fold_id':key[1],'canonical_trades':len(c),'capped_closed_trades':len(q),'terminal_open_trades':len(z),'eligible_signals':len(a),'full_entries':int(vc.get('FULL',0)),'partial_entries':int(vc.get('PARTIAL',0)),'skips':int(vc.get('SKIPPED_ZERO_CAPACITY',0)),'total_assigned_R':float(a.assigned_risk_R.sum()),'canonical_net_R':cm['net_R'],'capped_net_R':qm['net_R'],'delta_net_R':qm['net_R']-cm['net_R'],'canonical_DD':cm['max_DD'],'capped_DD':qm['max_DD'],'delta_DD':qm['max_DD']-cm['max_DD'],'PF':qm['PF'],'expectancy':qm['expectancy_R'],'recovery':qm['recovery'],'max_open_risk':float(risk.open_risk_R.max())})
+ _csv(output/'risk_cap_fold_report.csv',folds)
  def period(name,freq):
   q=capped.assign(period=pd.to_datetime(capped.exit_time,utc=True).dt.to_period(freq).astype(str));c=canonical.assign(period=pd.to_datetime(canonical.exit_time,utc=True).dt.to_period(freq).astype(str));out=[]
   for key,g in q.groupby(['generation','lifecycle','period'],sort=True):
@@ -189,11 +256,11 @@ def _single(data_root,output,identities):
   dig.append({**dict(zip(GROUP+STREAM,key)),'entered_rows':len(g),'full_entries':int((g.assigned_risk_R>=1-EPSILON).sum()),'partial_entries':int((g.assigned_risk_R<1-EPSILON).sum()),'assigned_R':float(g.assigned_risk_R.sum()),'first_entry':g.entry_time.min(),'last_exit':g.exit_time.max(),'ledger_hash':_hash_frame(g),'net_allocated_R':float(g.allocated_net_R.sum())})
  _csv(output/'risk_cap_trade_digest.csv',dig)
  _csv(output/'risk_cap_canonical_path_reconciliation.csv',[{'expected_trades':9694,'actual_trades':len(uncapped),'path_mismatches':mismatches,'status':'PASS'}])
- cdelta=(capped.allocated_net_R-capped.assigned_risk_R*(capped.direction.map({'LONG':1,'SHORT':-1})*(capped.exit_price-capped.entry_price)/capped.initial_risk_price-.002/capped.initial_risk_price)).abs();udelta=(uncapped.net_R_C1-(uncapped.direction.map({'LONG':1,'SHORT':-1})*(uncapped.exit_price-uncapped.entry_price)/uncapped.initial_risk_price-.002/uncapped.initial_risk_price)).abs();audit={'status':'PASS','canonical_rows':len(uncapped),'canonical_path_mismatches':mismatches,'canonical_arithmetic_mismatches':int((udelta>1e-9).sum()),'capped_rows':len(capped),'capped_arithmetic_mismatches':int((cdelta>1e-9).sum()),'maximum_arithmetic_delta':float(max(cdelta.max(),udelta.max())),'risk_accounting_events':len(adm),'risk_cap_violations':int((adm.open_risk_after_R>1+EPSILON).sum()),'negative_risk_events':int((adm.open_risk_before_R < -EPSILON).sum()),'allocation_above_one':int((adm.assigned_risk_R>1+EPSILON).sum())};_json(output/'risk_cap_audit.json',audit)
+ cdelta=(capped.allocated_net_R-capped.assigned_risk_R*(capped.direction.map({'LONG':1,'SHORT':-1})*(capped.exit_price-capped.entry_price)/capped.initial_risk_price-.002/capped.initial_risk_price)).abs();udelta=(uncapped.net_R_C1-(uncapped.direction.map({'LONG':1,'SHORT':-1})*(uncapped.exit_price-uncapped.entry_price)/uncapped.initial_risk_price-.002/uncapped.initial_risk_price)).abs();ra=audit_admission_risk(adm);admitted=int((adm.assigned_risk_R>0).sum());audit={'status':'PASS','canonical_rows':len(uncapped),'canonical_path_mismatches':mismatches,'capped_admitted_positions':admitted,'capped_closed_positions':len(capped),'terminal_open_positions':len(terminal),'silent_dropped_positions':admitted-len(capped)-len(terminal),'canonical_arithmetic_mismatches':int((udelta>1e-9).sum()),'capped_arithmetic_mismatches':int((cdelta>1e-9).sum()),'maximum_arithmetic_delta':float(max(cdelta.max(),udelta.max())),**ra,'risk_cap_violations':int((adm.open_risk_after_R>1+EPSILON).sum()),'negative_risk_events':int((adm.open_risk_before_R < -EPSILON).sum()),'allocation_above_one':int((adm.assigned_risk_R>1+EPSILON).sum())};_json(output/'risk_cap_audit.json',audit)
  report='# H4_03 TOTAL_OPEN_RISK_CAP Retrospective Causal Validation\n\n**Formal research label: `FORMAL_LABEL_LEFT_FOR_REVIEW`**  \n**Stage 5: OPEN**\n\nRaw chronological replay completed without combining BE1 or TRAIL1. Realized-R drawdown is ordered by exits; all diagnostics are descriptive and no tuning or selection occurred.\n\n## Portfolio evidence\n\n'+summary.to_markdown(index=False)+'\n';(output/'RISK_CAP_Validation_Report.md').write_text(report)
  manifest={'status':'STAGE5_RISK_CAP_CAUSAL_VALIDATION_PASSED','hypothesis_id':'H4_03_TOTAL_OPEN_RISK_CAP','formal_research_label':'FORMAL_LABEL_LEFT_FOR_REVIEW','Stage5_status':'OPEN','implementation_base_sha':identities['canonical_base'],'execution_source_sha':identities['execution_source_sha'],'data_repo_commit':'50f1fd2178c18b7ab3bd969be82ad01f47a34745','source_hashes':identities['source_hashes'],'strategy_hashes':identities['strategy_hashes'],'stage4_artifact_hashes':identities['stage4_artifact_hashes'],'lifecycle_registry_identity':_sha(HERE/'canonical_lifecycle_registry.csv'),'canonical_mode_result':{'trades':len(uncapped),'mismatches':mismatches},'capped_trade_rows':len(capped),'capped_trade_ledger_sha256':trade_hash,'admission_event_rows':len(adm),'admission_event_sha256':admission_hash,'risk_cap_violations':audit['risk_cap_violations'],'cost_contract':'CORRECTED_SINGLE_C1','no_optimization':True,'v2_v3_separate':True,'wf_cold_start':True};return manifest
 
-COMPACT=['risk_cap_canonical_path_reconciliation.csv','risk_cap_portfolio_summary.csv','risk_cap_lifecycle_report.csv','risk_cap_admission_report.csv','risk_cap_open_risk_report.csv','risk_cap_trade_digest.csv']
+COMPACT=['risk_cap_canonical_path_reconciliation.csv','risk_cap_portfolio_summary.csv','risk_cap_lifecycle_report.csv','risk_cap_admission_report.csv','risk_cap_open_risk_report.csv','risk_cap_trade_digest.csv','risk_cap_terminal_positions.csv','risk_cap_fold_report.csv','risk_cap_monthly_report.csv','risk_cap_quarterly_report.csv','risk_cap_instrument_report.csv','risk_cap_strategy_timeframe_report.csv','risk_cap_simultaneous_loss_report.csv','risk_cap_concentration_report.csv']
 def execute(data_root,output,identities,certify=False):
  first=_single(data_root,output,identities)
  if certify:
