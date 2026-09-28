@@ -47,13 +47,53 @@ def _mutate(certified,tmp_path,file,field,amount=.01):
     with p.open("w",newline="") as f:w=csv.DictWriter(f,fieldnames=rows[0]);w.writeheader();w.writerows(rows)
     return runner._audit_build(target)
 
+def _mutate_matching(certified,tmp_path,file,field,predicate,amount=1):
+    target=tmp_path/"e";shutil.copytree(certified[0],target);p=target/file;rows=list(csv.DictReader(p.open()));row=next(r for r in rows if predicate(r));row[field]=str(float(row[field])+amount)
+    with p.open("w",newline="") as f:w=csv.DictWriter(f,fieldnames=rows[0]);w.writeheader();w.writerows(rows)
+    return runner._audit_build(target)
+
 @pytest.mark.parametrize("field",["net_R","PF","expectancy_R","win_rate"])
 def test_full_economic_mutations_fail(certified,tmp_path,field):assert _mutate(certified,tmp_path,"session_time_reconciliation.csv",field)["status"]==st.FAIL_ECONOMICS
 
 def test_independent_auditor_does_not_call_producer_helpers(certified,monkeypatch):
     monkeypatch.setattr(st,"session_membership",lambda *_:(_ for _ in ()).throw(AssertionError()))
     monkeypatch.setattr(st,"metrics",lambda *_args,**_kwargs:(_ for _ in ()).throw(AssertionError()))
+    monkeypatch.setattr(st,"groups",lambda *_args,**_kwargs:(_ for _ in ()).throw(AssertionError()))
+    monkeypatch.setattr(st,"canonical_rows",lambda *_args,**_kwargs:(_ for _ in ()).throw(AssertionError()))
     assert runner._audit_build(certified[0])["status"]==st.STATUS
+
+@pytest.mark.parametrize(("file","field"),[
+    ("session_entry_hour_report.csv","net_R"),("session_entry_hour_report.csv","expectancy_R"),("session_entry_hour_report.csv","PF"),("session_entry_hour_report.csv","win_rate"),
+    ("session_window_report.csv","net_R"),("session_window_report.csv","expectancy_R"),("session_window_report.csv","PF"),("session_window_report.csv","trade_share_of_full"),
+    ("session_window_lifecycle_report.csv","net_R"),("session_wf_fold_report.csv","net_R"),("session_wf_window_report.csv","net_R"),
+    ("session_direction_report.csv","net_R"),("session_instrument_report.csv","expectancy_R")])
+def test_diagnostic_economic_mutations_fail(certified,tmp_path,file,field):
+    assert _mutate(certified,tmp_path,file,field)["status"]==st.FAIL_ECONOMICS
+
+@pytest.mark.parametrize(("predicate","field"),[
+    (lambda r:r["cohort_type"]=="ENTRY_HOUR" and r["cohort"]=="12","positive_expectancy_cells"),
+    (lambda r:r["cohort_type"]=="SESSION_COHORT" and r["cohort"]=="SESSION_10_17","negative_expectancy_cells"),
+    (lambda r:r["cohort_type"]=="ENTRY_HOUR" and r["cohort"]=="0","small_sample_cells")])
+def test_recurrence_mutations_fail(certified,tmp_path,predicate,field):
+    assert _mutate_matching(certified,tmp_path,"session_recurrence_report.csv",field,predicate)["status"]==st.FAIL_ECONOMICS
+
+def test_external_comparator_authority_mutation_fails(certified,monkeypatch):
+    rows,_=runner.independent_rows();authority=runner._comparator_authority(rows);authority[("v2","baseline")]["net_R"]+=1
+    monkeypatch.setattr(runner,"_comparator_authority",lambda _rows:authority)
+    assert runner._audit_build(certified[0])["status"]==st.FAIL_ECONOMICS
+
+def test_fake_self_comparison_cannot_pass(certified,tmp_path):
+    result=_mutate(certified,tmp_path,"session_time_reconciliation.csv","net_R",1)
+    assert result["full_comparator_mismatches"]>0 and result["status"]==st.FAIL_ECONOMICS
+
+def test_implementation_hashes_are_byte_exact(certified):
+    out,manifest=certified;audit=json.loads((out/"session_time_audit.json").read_text())
+    actual={p:runner._sha(runner.ROOT/p) for p in runner.IMPLEMENTATION_PATHS}
+    assert manifest["implementation_file_hashes"]==audit["implementation_file_hashes"]==actual
+
+def test_missing_implementation_hash_fails(certified,tmp_path):
+    target=tmp_path/"e";shutil.copytree(certified[0],target);p=target/"manifest_session_time.json";manifest=json.loads(p.read_text());manifest["implementation_file_hashes"].pop(runner.IMPLEMENTATION_PATHS[0]);p.write_text(json.dumps(manifest))
+    assert runner._audit_build(target)["status"]==st.FAIL_INPUT
 
 def test_window_counts_nested_and_wf(certified):
     rows=list(csv.DictReader((certified[0]/"session_window_report.csv").open()));counts={c:sum(int(r["trades"]) for r in rows if r["session_cohort"]==c) for c in st.COHORTS}

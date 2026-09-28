@@ -44,9 +44,9 @@
   "entry_hour_mismatches": 0,
   "evidence_tree_hash": "5ede5d09f3310d1194f2f0d878b68839a5e404bc55aa952ac2f40b7f2152d65f",
   "implementation_file_hashes": {
-    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/run_stage5_session_time.py": "590f6326262179e42eb9d147d514668f3fc33cee6307d189453ff209f2a60af5",
-    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_session_time.py": "27b243aba7bf4ad53983fa046a924cdc7c4fefea1d720e54b8ffeb78317c3ac8",
-    "TradingSystemLab/tests/test_stage5_session_time.py": "5687bfc8b1966318eb63b1a0507922af008bb511070d3883f23db10ed8d7bf6f"
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/run_stage5_session_time.py": "28d0490f00098fb1ef04463e1ce2ca13390437fc2293a686375dbacf111a2752",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_session_time.py": "24fda43ebf20667ef3ffda9e7c46502a403e223ca976b5a68e39be4097e8332a",
+    "TradingSystemLab/tests/test_stage5_session_time.py": "8ac3674bb4febd9bbf5de89dca170834abf5a85d6c693a19dae0e90e910c2621"
   },
   "matched_time_rows": 9694,
   "no_counterfactual_execution": true,
@@ -97,7 +97,7 @@
     "T2": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
     "T3": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
   },
-  "task_base_sha": "405a0318989fcbd9f1cfa330c1596ebafe804b0c",
+  "task_base_sha": "82c86e8d9d4e1c1cd95d0ae2966c3b9e1db89f0a",
   "time_basis": "SOURCE_LOCAL_OFFSET_AWARE_ENTRY_TIME",
   "timezone_contract_violations": 0,
   "timezone_conversion": "NONE",
