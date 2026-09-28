@@ -3,48 +3,95 @@
   "canonical_arithmetic_mismatches": 0,
   "canonical_path_mismatches": 0,
   "canonical_rows": 9694,
+  "capped_admitted_positions": 7643,
   "capped_arithmetic_mismatches": 0,
-  "capped_rows": 7625,
+  "capped_closed_positions": 7636,
   "compact_artifact_determinism": {
     "risk_cap_admission_report.csv": {
       "identical": true,
-      "run_1_sha256": "90225069b2bdffc28661e35e21c2e3fb25cdd4da68e1fc913c00083abbdda8e7",
-      "run_2_sha256": "90225069b2bdffc28661e35e21c2e3fb25cdd4da68e1fc913c00083abbdda8e7"
+      "run_1_sha256": "2eaf24a501a4860890d4b3a8ff4075d0530755a0d18175c183bf4500c28bdc82",
+      "run_2_sha256": "2eaf24a501a4860890d4b3a8ff4075d0530755a0d18175c183bf4500c28bdc82"
     },
     "risk_cap_canonical_path_reconciliation.csv": {
       "identical": true,
       "run_1_sha256": "9cf819ae5adb95fdeae65a6cf4c678a16d4a7c53f690e6365cd10abdc289a81b",
       "run_2_sha256": "9cf819ae5adb95fdeae65a6cf4c678a16d4a7c53f690e6365cd10abdc289a81b"
     },
+    "risk_cap_concentration_report.csv": {
+      "identical": true,
+      "run_1_sha256": "22d44e8769ae11f712ce43ac913574760f0f836907b69549db701324305b854f",
+      "run_2_sha256": "22d44e8769ae11f712ce43ac913574760f0f836907b69549db701324305b854f"
+    },
+    "risk_cap_fold_report.csv": {
+      "identical": true,
+      "run_1_sha256": "b7afbc1bfa07ec07a27c668d62a03da6136771333fa60e1d884006dbef594f62",
+      "run_2_sha256": "b7afbc1bfa07ec07a27c668d62a03da6136771333fa60e1d884006dbef594f62"
+    },
+    "risk_cap_instrument_report.csv": {
+      "identical": true,
+      "run_1_sha256": "97af0d5730b6420b2248eec36b17e02964e2e150251e869c9a7fd0929b68506b",
+      "run_2_sha256": "97af0d5730b6420b2248eec36b17e02964e2e150251e869c9a7fd0929b68506b"
+    },
     "risk_cap_lifecycle_report.csv": {
       "identical": true,
-      "run_1_sha256": "ced8d7e88a40d3b131fabd66d7ea78dd04b48008e723d5ad4eb5907f195b8db7",
-      "run_2_sha256": "ced8d7e88a40d3b131fabd66d7ea78dd04b48008e723d5ad4eb5907f195b8db7"
+      "run_1_sha256": "c7bb2f592580a00b6ed716b3cf61a28c82cee757340a87632223887cba6caeae",
+      "run_2_sha256": "c7bb2f592580a00b6ed716b3cf61a28c82cee757340a87632223887cba6caeae"
+    },
+    "risk_cap_monthly_report.csv": {
+      "identical": true,
+      "run_1_sha256": "e0a82a6ee6537c6f29764245b319043ba2666df4df5aa7bc1787594ce258d66e",
+      "run_2_sha256": "e0a82a6ee6537c6f29764245b319043ba2666df4df5aa7bc1787594ce258d66e"
     },
     "risk_cap_open_risk_report.csv": {
       "identical": true,
-      "run_1_sha256": "a226979aad92dc570bf8478d41d5fe570e37bdcd4749796dc3aa927b880330c2",
-      "run_2_sha256": "a226979aad92dc570bf8478d41d5fe570e37bdcd4749796dc3aa927b880330c2"
+      "run_1_sha256": "93691dfa87b765ea91cc960d9ab0dce1d33ee952fdb0e3a41b197125e0d9578a",
+      "run_2_sha256": "93691dfa87b765ea91cc960d9ab0dce1d33ee952fdb0e3a41b197125e0d9578a"
     },
     "risk_cap_portfolio_summary.csv": {
       "identical": true,
-      "run_1_sha256": "ced8d7e88a40d3b131fabd66d7ea78dd04b48008e723d5ad4eb5907f195b8db7",
-      "run_2_sha256": "ced8d7e88a40d3b131fabd66d7ea78dd04b48008e723d5ad4eb5907f195b8db7"
+      "run_1_sha256": "c7bb2f592580a00b6ed716b3cf61a28c82cee757340a87632223887cba6caeae",
+      "run_2_sha256": "c7bb2f592580a00b6ed716b3cf61a28c82cee757340a87632223887cba6caeae"
+    },
+    "risk_cap_quarterly_report.csv": {
+      "identical": true,
+      "run_1_sha256": "0ed40681d95465989ce595d63576237d40585a17783500e33f356a9e364f926f",
+      "run_2_sha256": "0ed40681d95465989ce595d63576237d40585a17783500e33f356a9e364f926f"
+    },
+    "risk_cap_simultaneous_loss_report.csv": {
+      "identical": true,
+      "run_1_sha256": "3bf8caf1d99db22b637c84a637cc62da84b20c737a57a20517dd4a6db2d49c68",
+      "run_2_sha256": "3bf8caf1d99db22b637c84a637cc62da84b20c737a57a20517dd4a6db2d49c68"
+    },
+    "risk_cap_strategy_timeframe_report.csv": {
+      "identical": true,
+      "run_1_sha256": "0c339d69fc677217e2f776741b4a6e30adab0e5a996415833fea973d081efa7a",
+      "run_2_sha256": "0c339d69fc677217e2f776741b4a6e30adab0e5a996415833fea973d081efa7a"
+    },
+    "risk_cap_terminal_positions.csv": {
+      "identical": true,
+      "run_1_sha256": "876a205b9be2c4204322c00bb302ea3afcb184ee5907c4ec2611193837e55926",
+      "run_2_sha256": "876a205b9be2c4204322c00bb302ea3afcb184ee5907c4ec2611193837e55926"
     },
     "risk_cap_trade_digest.csv": {
       "identical": true,
-      "run_1_sha256": "07e8f3684bcae771d51b3052e2957e2af82c0d2962a93456e0cdd23e2135721f",
-      "run_2_sha256": "07e8f3684bcae771d51b3052e2957e2af82c0d2962a93456e0cdd23e2135721f"
+      "run_1_sha256": "aca623132f467e4289d0f274b2f7b311b7d062b23376607ac3ac0fceed92af17",
+      "run_2_sha256": "aca623132f467e4289d0f274b2f7b311b7d062b23376607ac3ac0fceed92af17"
     }
   },
+  "final_economic_certification": "INCOMPLETE_TERMINAL_OPEN_POSITIONS",
   "maximum_arithmetic_delta": 0.0,
   "negative_risk_events": 0,
   "raw_execution_determinism": "PASS",
-  "risk_accounting_events": 11754,
+  "risk_accounting_events_checked": 11754,
+  "risk_accounting_mismatches": 0,
   "risk_cap_violations": 0,
-  "run_1_admission_sha256": "6f6c58cd27c8005a2bf9f319a2b6eebd4c8a07fc9c449b0662452c3136d1e403",
-  "run_1_ledger_sha256": "bcc71ef9c0649ddeb6e1c4794e0f05c7f5c38b4a99144bc4f118bc2c7f0464af",
-  "run_2_admission_sha256": "6f6c58cd27c8005a2bf9f319a2b6eebd4c8a07fc9c449b0662452c3136d1e403",
-  "run_2_ledger_sha256": "bcc71ef9c0649ddeb6e1c4794e0f05c7f5c38b4a99144bc4f118bc2c7f0464af",
-  "status": "PASS"
+  "run_1_admission_sha256": "67396aecd8a06f1708d6d38a81ef9ea5a1d99e6f1d6f0e50d8019e4e4dc7781a",
+  "run_1_ledger_sha256": "6ed19aaac025c586421a3c563623369e42685eb4f6c091fba17a429d1ab15afa",
+  "run_2_admission_sha256": "67396aecd8a06f1708d6d38a81ef9ea5a1d99e6f1d6f0e50d8019e4e4dc7781a",
+  "run_2_ledger_sha256": "6ed19aaac025c586421a3c563623369e42685eb4f6c091fba17a429d1ab15afa",
+  "silent_dropped_positions": 0,
+  "status": "FINAL_ECONOMIC_CERTIFICATION_INCOMPLETE_TERMINAL_OPEN_POSITIONS",
+  "terminal_open_assigned_R": 6.912766365112272,
+  "terminal_open_positions": 7,
+  "terminal_open_remaining_R": 0.8574190498245575
 }

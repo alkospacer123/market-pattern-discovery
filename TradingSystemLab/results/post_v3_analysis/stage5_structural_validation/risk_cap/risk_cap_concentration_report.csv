@@ -1,7 +1,7 @@
 generation,lifecycle,top_1_positive_allocated_R_share,top_5_positive_allocated_R_share,net_R_ex_top5,PF_ex_top5,benefit_concentration_note
 v2_quarterly,baseline,0.0157770619252,0.0562708648336,381.019034714,1.41913794956,descriptive_only; inspect instrument and monthly reports
-v2_quarterly,walk_forward,0.0552060976477,0.187997741407,21.5985205055,1.12124286814,descriptive_only; inspect instrument and monthly reports
+v2_quarterly,walk_forward,0.0532706550318,0.181406823811,29.5748581254,1.16512720175,descriptive_only; inspect instrument and monthly reports
 v2_quarterly,historical_true_oos,0.147957056784,0.235317822727,73.4699516194,1.1858237343,descriptive_only; inspect instrument and monthly reports
 v3_perpetual,baseline,0.0294028377934,0.0849175205921,184.574809879,1.76189774797,descriptive_only; inspect instrument and monthly reports
-v3_perpetual,walk_forward,0.0659414914096,0.186247801828,55.8880081473,1.48347795855,descriptive_only; inspect instrument and monthly reports
+v3_perpetual,walk_forward,0.065124110851,0.183939159287,57.8876462271,1.49799654649,descriptive_only; inspect instrument and monthly reports
 v3_perpetual,historical_true_oos,0.0325669296544,0.122406164094,105.539856859,1.38942803021,descriptive_only; inspect instrument and monthly reports

@@ -42,7 +42,11 @@ def allocation(open_risk_R: float, enabled: bool = True) -> tuple[float, float, 
         raise ValueError("NEGATIVE_OPEN_RISK")
     residual = max(0.0, CAP_R - open_risk_R) if enabled else CAP_R
     assigned = min(CAP_R, residual) if enabled else CAP_R
-    status = "SKIPPED_ZERO_CAPACITY" if assigned <= EPSILON else ("FULL" if abs(assigned-CAP_R) <= EPSILON else "PARTIAL")
+    # Floating-point summation can leave sub-tolerance capacity.  It is not an
+    # admission: record an exact zero so status and position accounting agree.
+    if assigned <= EPSILON:
+        assigned = 0.0
+    status = "SKIPPED_ZERO_CAPACITY" if assigned == 0.0 else ("FULL" if abs(assigned-CAP_R) <= EPSILON else "PARTIAL")
     return residual, assigned, status
 
 
