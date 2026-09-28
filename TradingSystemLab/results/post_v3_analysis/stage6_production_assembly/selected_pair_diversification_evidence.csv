@@ -1,4 +1,4 @@
-instrument_a,instrument_b,pearson_monthly_R,both_negative_months,opposite_sign_months,sample_flag,overlap_jaccard,overlapping_trade_pairs,both_final_negative_pairs
-CNYRUBF,GLDRUBF,0.663314146409,4,5,ADEQUATE,0.123235800344,18,3
-CNYRUBF,IMOEXF,-0.0433979696475,4,9,ADEQUATE,0.0734162226169,18,4
-GLDRUBF,IMOEXF,-0.104726378338,4,5,ADEQUATE,0.123978201635,20,3
+instrument_a,instrument_b,historical_pearson_monthly_R,corrected_pearson_monthly_R,corrected_same_sign_months,corrected_opposite_sign_months,corrected_both_negative_months,corrected_both_positive_months,sample_flag,overlap_jaccard,overlapping_trade_pairs,both_final_negative_pairs,economic_contract,economic_authority,correlation_authority
+CNYRUBF,GLDRUBF,0.663314146409,0.664316245754,10,5,4,6,ADEQUATE,0.123235800344,18,3,CORRECTED_SINGLE_C1,STAGE5_CORRECTED_CURRENT_AUTHORITY,STAGE5_5_6_CORRECTED_PAIRWISE_MONTHLY_CORRELATION
+CNYRUBF,IMOEXF,-0.0433979696475,-0.0364197885132,9,9,4,5,ADEQUATE,0.0734162226169,18,4,CORRECTED_SINGLE_C1,STAGE5_CORRECTED_CURRENT_AUTHORITY,STAGE5_5_6_CORRECTED_PAIRWISE_MONTHLY_CORRELATION
+GLDRUBF,IMOEXF,-0.104726378338,-0.104682282157,10,5,4,6,ADEQUATE,0.123978201635,20,3,CORRECTED_SINGLE_C1,STAGE5_CORRECTED_CURRENT_AUTHORITY,STAGE5_5_6_CORRECTED_PAIRWISE_MONTHLY_CORRELATION

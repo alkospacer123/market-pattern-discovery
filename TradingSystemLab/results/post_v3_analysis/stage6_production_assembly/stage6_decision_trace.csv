@@ -1,11 +1,11 @@
 decision_step,evidence_domain,evidence_artifact,fact,effect_on_decision
 1,lifecycle durability,Stage 1 master_study_comparison.csv,v3/T3/H1 is the sole parent with WF PASS and TRUE OOS PASS,selected parent
-2,profitability,Stage 1 and Stage 2 evidence,Selected parent and all four parent instruments satisfy independently recomputed gates,eligible
-3,drawdown/recovery,Stage 1 master_study_comparison.csv,Selected parent WF and OOS drawdown/recovery are retained,residual risk disclosed
-4,monthly stability,Stage 1 monthly_stability_summary.csv,Selected-parent OOS calendar distribution retained,calendar evidence
+2,profitability,Stage 5 corrected canonical authority,Selected parent and all four parent instruments satisfy corrected independently recomputed gates,eligible
+3,drawdown/recovery,Stage 5 corrected canonical trades,Selected parent corrected WF and OOS drawdown/recovery are reconciled,residual risk disclosed
+4,monthly stability,Stage 5.6 corrected_monthly_instrument_matrix.csv,Selected-parent corrected OOS calendar distribution reconstructed,calendar evidence
 5,diversification,Stage 2 and Stage 5.6 pair evidence,Selected pairs reconcile; CNYRUBF/USDRUBF redundancy is documented,supports documented instrument decision
-6,direction stability,Stage 1 direction_statistics.csv,Both LONG and SHORT are retained,no direction filter
-7,concentration,Stage 1 master_study_comparison.csv,Selected-parent OOS net R without top five is positive,hard guard passes
+6,direction stability,Stage 5 corrected canonical trades,Both corrected LONG and SHORT economics are retained,no direction filter
+7,concentration,Stage 5 corrected canonical trades,Selected-parent corrected OOS net R without top five is positive,hard guard passes
 8,trade anatomy,Stage 3 closeout,Winner giveback and stop-loss evidence remains counter-evidence,no slice filter
 9,Stage5 structural overlay,Stage 5 TRAIL1 authority,TRAIL1 is supported retrospectively with DD/recovery counter-evidence,selected with recorded risk tradeoff
 10,execution practicality,Stage 1 source evidence,Perpetual research symbols require executable-contract mapping,mapping deferred to Stage 7
