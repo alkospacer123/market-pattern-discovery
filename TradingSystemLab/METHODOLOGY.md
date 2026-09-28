@@ -1,161 +1,225 @@
-# Canonical research methodology
+# Canonical research and evidence methodology
 
-This is a reconstruction of the lifecycle encoded by the runners and committed
-phase artifacts.  It does not redesign that lifecycle.  Every phase is causal,
-development/OOS separated, cost-aware, deterministic, and provenance-bound.
+This file defines the methodological rules that must survive across chats and
+future implementation work. It does not redefine accepted historical results.
 
-## Canonical methodology authority
+## 1. Canonical research lifecycle
 
-> **All future TradingSystemLab timeframe research uses only the original H1
-> cycle and frozen H1 strategy identities as its methodological template.**
+The sole research template remains the original H1 cycle:
 
-The mandatory sequence is **Baseline → Optimization → Robustness → Walk Forward
-→ TRUE OOS**.  Each new timeframe must reproduce each corresponding original
-H1 stage as closely as applicable and pass it independently.  No extra
-qualification stage may be inserted, and another timeframe cannot supply or
-waive a stage.  Later timeframe and MTF implementations are historical
-provenance only: they may be audited, but may not redesign the cycle.  New
-optimization, ranking, candidate-generation logic, or methodological gates
-require explicit authorization as a separate future research project.
+**Baseline → Optimization → Robustness → Walk Forward → TRUE OOS**.
 
-The current cycle also freezes `FROZEN_TICK_SIZE = 0.001` for all instruments
-through all five stages.  Per-instrument tick-size investigation is deferred to
-a separately authorized post-cycle audit/recalculation branch and cannot
-silently revise this cycle or historical artifacts.
+Every new research identity must pass the applicable stages independently.
+Candidate freeze is procedural identity fixation between Optimization and
+Robustness; it is not a sixth research phase.
 
-Methodological reproduction does not mean restoring the historical H1 research
-universe. The current Baseline applies that methodology to T2/T3 ×
-Si/CNY/GD/BR/MIX/NG × M30/H1 (24 runs), declared development-only from
-2020-01-01 through 2024-12-31; 2025-01-01 onward remains locked TRUE OOS. Actual
-per-instrument coverage must be recorded when it starts later than the declared
-interval.
+Do not add, skip, borrow, or silently substitute lifecycle stages. Later
+timeframe/MTF implementations are historical evidence, not alternative
+methodological authorities.
 
-## Lifecycle: Baseline → Optimization → Robustness → Walk Forward → TRUE OOS
+## 2. Research identity and immutability
 
-### 1. Baseline
+A research identity binds at minimum:
 
-**Purpose.** Reproduce a declared strategy/configuration on declared instruments,
-timeframes, development dates, and costs, and establish an auditable reference.
+- strategy source/hash;
+- full parameters/hash;
+- instrument universe;
+- timeframe/context alignment;
+- development/OOS bounds;
+- execution/cost assumptions;
+- classification rules.
 
-**Inputs.** Frozen strategy source and parameters, external read-only candle
-files, instrument/timeframe/date declarations, and a cost model.  **Permitted:**
-causal indicator/signal execution and descriptive metrics.  **Prohibited:**
-parameter search, ranking, selection, walk-forward inference, MTF substitution,
-and all TRUE OOS reads.  **Outputs:** manifest, data-quality/provenance record,
-trade ledger, metrics, and report.  Stable ordering, candle-close semantics,
-repeatable identifiers, strategy/parameter hashes, source identity, and costs
-are required.
+After candidate freeze, the identity is immutable through Robustness, Walk
+Forward, and TRUE OOS. A later parameter or logic change creates a new identity
+and cannot inherit untouched-OOS status from the old one.
 
-The historical v2 Phase 1 implementation is a 24-run C1-only matrix.  Its generated
-manifests say complete, but the subsequent audit verdict is **NOT COMPLETE**
-because per-instrument execution specs and required manifest provenance are
-missing.  Generated status is therefore not the same as audit acceptance.
-Its T2 2.5 / T3 75 overrides are not the original baseline defaults (3.0 / 100)
-and do not define the corrected Baseline identity.
+v1, v2 and v3 are separate historical generations and must not be conflated.
 
-For corrected-matrix T3, H1 execution derives higher context only from complete
-consecutive 4×H1 blocks and M30 execution only from complete consecutive 4×M30
-blocks. Incomplete blocks are not emitted; aggregation does not cross a trading-
-day boundary; no future fill or look-ahead is allowed. This is the approved
-timeframe adaptation of the original causal context rule, not an added phase or
-optimization.
+## 3. Baseline
 
-### 2. Optimization
+Purpose: establish an auditable causal reference for a frozen strategy/config.
 
-**Purpose.** Test a predeclared, bounded parameter space on development data and
-describe stable regions.  **Inputs:** an accepted baseline, frozen search space,
-constraints, deterministic experiment definition, and development-only data.
-**Permitted:** only the encoded bounded grid/experiments and development metrics.
-**Prohibited:** TRUE OOS access, unrecorded expansion, favorable-subset selection,
-and ad-hoc PF chasing.  **Outputs:** experiment/manifest, complete parameter
-table, best-region/plateau reports, and validation report.
+Permitted:
+- causal strategy execution on declared Development data;
+- descriptive metrics and grouped reports;
+- deterministic provenance/hashing.
 
-The original H1 Phase 3.2 classifies the recorded surfaces as
-`ROBUST_PLATEAU`, `LOCAL_SPIKE`, or `NO_EDGE`; classification is not permission
-to hide other trials.  Later timeframe modules have their own manifests and
-spaces.  Their provenance must remain separate rather than being harmonized
-after the fact.
+Prohibited:
+- parameter search;
+- ranking/selection;
+- Walk Forward inference;
+- TRUE OOS access;
+- silent strategy mutation.
 
-### 3. Robustness
+The corrected historical v2 Baseline and the independent v3 Baseline are both
+accepted historical evidence. Earlier failed/superseded v2 attempts remain
+provenance only and must not be described as the current state.
 
-**Purpose.** Challenge a frozen baseline/candidate against the predeclared
-parameter neighborhood, costs, instruments, directions, years, concentration,
-and relevant execution assumptions.  **Inputs:** immutable upstream artifacts
-and ledgers plus declared gates.  **Permitted:** diagnostic grouping, prescribed
-sensitivity tests, and classification.  **Prohibited:** tuning from robustness
-results or discarding unfavorable slices.  **Outputs:** cost and sensitivity
-tables, grouped reports, ledgers where reruns occur, manifest, and a verdict.
+## 4. Optimization
 
-Implemented labels differ by phase: original validation records include
-`ROBUST_READY`; timeframe work uses classifications such as `ROBUST`,
-`BORDERLINE`, and failure flags.  The exact rules in that phase's code and
-manifest govern; labels must not be translated silently between generations.
+Purpose: test only a predeclared bounded parameter space on Development data and
+describe stable regions.
 
-### 4. Walk Forward
+Optimization is not PF chasing. Complete trial populations must be preserved.
+The original H1 classification concepts such as `ROBUST_PLATEAU`, `LOCAL_SPIKE`
+and `NO_EDGE` remain the methodological reference where applicable.
 
-**Purpose.** Measure chronological forward behavior without random splitting.
-**Inputs:** a robustness-eligible frozen candidate, predeclared folds, costs,
-and development-era data only.  **Permitted:** train diagnostics and evaluation
-on each subsequent forward fold.  **Prohibited:** changing parameters from a
-forward fold, selecting favorable folds, or accessing TRUE OOS.  **Outputs:**
-fold definition, fold ledgers/metrics, stitched forward ledger, grouped results,
-concentration/decay diagnostics, manifest, and verdict.
+TRUE OOS remains prohibited during Optimization.
 
-The original Phase 4 summary is `PHASE_4_BORDERLINE`; T3's dedicated artifact is
-`WALK_FORWARD_BORDERLINE`, and subsequent diagnostics classify its evidence as
-`MIXED_EVIDENCE`.  Later timeframe workflows use their own predeclared gates and
-can emit pass, borderline, or fail independently.  A diagnostic does not alter
-the frozen strategy or retroactively select it.
+## 5. Candidate freeze
 
-### Candidate freeze point
+After Development evaluation and before validation/OOS, select/fix the exact
+candidate identity using the predeclared contract. The registry is a provenance
+record, not a ranking table.
 
-The candidate identity—strategy code/hash, parameters/hash, instruments,
-timeframe/alignment, data bounds, execution assumptions, cost model, and
-classification rules—must be frozen **after development evaluation and before
-any TRUE OOS access**.  Candidate manifests/registries are provenance records,
-not rankings.  A TRUE OOS outcome cannot trigger retuning under the same identity.
+Once frozen, a weak later result does not permit return to the inventory for a
+replacement candidate under the same research identity.
 
-### 5. TRUE OOS
+## 6. Robustness
 
-**Purpose.** Perform the single preauthorized pass/fail (or predeclared
-classification) evaluation on locked calendar year 2025.  **Inputs:** a frozen,
-eligible candidate and its complete provenance.  **Permitted:** execution and
-the predeclared reports/classification.  **Prohibited:** discovery, optimization,
-ranking, selection, parameter/logic changes, repeated probing, and feedback into
-the candidate.  **Outputs:** run manifest, immutable ledger, metrics, grouped
-reports, and classification.
+Purpose: challenge the frozen candidate against the predeclared neighborhood,
+costs, instruments, directions, years, concentration, and execution assumptions.
 
-Original Phase 5 artifacts record T2 and T3 `PASS`; timeframe-specific later
-branches record their own mixed outcomes (for example M30 T2 `BORDERLINE` and T3
-`PASS`, and M15 T2 `FAIL` and T3 `PASS`).  These are different provenance lines,
-not contradictory votes on one harmonized candidate.
+Robustness may diagnose weakness but may not retune or replace the candidate.
 
-## Independent later branches
+## 7. Walk Forward
 
-### Multi-timeframe research
+Purpose: measure chronological forward behavior using predeclared folds and a
+frozen candidate.
 
-Phase 7.1 executes declared timeframe combinations; Phase 7.2 analyzes its
-immutable artifacts without market-data access, trade recalculation,
-optimization, ranking, or selection and labels every combination either
-`ROBUST_TIMEFRAME_CANDIDATE` or `RESEARCH_ONLY` using fixed gates.  Phase 7.3 is
-the separate true-MTF H1→M15, H1→M30, and H4→H1 research bundle.  These phases do
-not silently replace the original H1 lifecycle or the newer v2 baseline.
+Forward-fold outcomes may not be used to alter parameters, choose favorable
+folds, or access TRUE OOS early.
 
-### Additional timeframe generations
+## 8. TRUE OOS
 
-M1, M5, M15, M30, H4, and D1 runners encode later baseline/optimization/
-robustness/walk-forward/TRUE-OOS variants.  Their own manifests, candidate IDs,
-coverage, gates, and verdicts are authoritative.  Code existing for a later
-stage is not evidence that its run completed; only committed artifacts and
-verdicts establish completion.
+Purpose: one preauthorized evaluation of the frozen identity on the locked OOS
+period.
 
-Historical differences are preserved, not retroactively harmonized.  In
-particular, their existence never promotes their phase logic into a second
-methodological template.
+TRUE OOS cannot be used for discovery, optimization, ranking, replacement or
+post-hoc retuning. Once revealed, it is consumed for that identity.
 
-## Universal evidence requirements
+For v3 Perpetual the lifecycle is complete. Final TRUE OOS classifications are
+T2/M30 `BORDERLINE`, T2/H1 `BORDERLINE`, T3/M30 `PASS`, T3/H1 `PASS`.
 
-Each phase must preserve the exact upstream identity, code/config hashes, data
-scope and source provenance, costs/slippage, deterministic ordering, full trial
-or trade population, and the phase's classification rules.  Reports summarize
-artifacts; they do not replace them.  Audit claims use `AUDIT_PROTOCOL.md`.
+## 9. Causality and deterministic execution
+
+- Candle information is unavailable before close.
+- Higher-timeframe/context data must use fully closed source bars only.
+- No future-fill or look-ahead is allowed.
+- T3 context construction must respect the declared completed-bar/day-boundary
+  semantics of its generation.
+- Ordering, trade IDs, serialization and reruns must be deterministic.
+- Market data remains external/read-only unless an explicit task says otherwise.
+
+## 10. Research costs and economic authority
+
+`FROZEN_TICK_SIZE = 0.001` is the normalized research tick used by the accepted
+v2/v3 research contracts where specified. It is not automatically the final
+live production cost model.
+
+Post-v3 Stage 5 and Stage 6 use the corrected economic authority
+`CORRECTED_SINGLE_C1` for R-derived production-decision evidence. Historical
+lifecycle classifications are preserved; corrected accounting does not
+retroactively reclassify v1/v2/v3.
+
+The final production cost model remains **NOT YET FROZEN** and belongs to
+Stage 7 Production Specification Freeze.
+
+## 11. Post-v3 program is not a new research lifecycle
+
+After the v3 five-stage lifecycle closed, the project entered a separate
+evidence-to-production program:
+
+1. Master v1/v2/v3 evidence consolidation;
+2. Portfolio/diversification comparison;
+3. Trade Anatomy / Failure Analysis;
+4. Structural hypothesis freeze;
+5. Separate structural validation;
+6. Production Assembly Decision;
+7. Production Specification Freeze;
+8. Trading robot / FINAM API integration.
+
+These stages do not retroactively add phases to v1/v2/v3 and cannot rewrite
+their research identities or OOS verdicts.
+
+## 12. Structural hypothesis discipline
+
+Structural execution/risk overlays are separate from signal-alpha changes.
+Hypotheses must be small, explicit and predeclared before causal validation.
+No broad grid, optimizer, ranking search, mass hypothesis generation, or
+favorable-bucket filtering is allowed.
+
+Stage 4 admitted exactly three causal structural hypotheses:
+
+- BE1 profit protection;
+- TRAIL1 delayed/conditional trailing structure;
+- Total Open Risk Cap.
+
+Minimum Hold, Session restriction and Correlation/Simultaneous-Risk grouping
+were not admitted as causal hypotheses; later diagnostics did not convert them
+into production rules.
+
+## 13. Stage 5 evidence semantics
+
+Final Stage 5 authority:
+
+- BE1 — `MIXED_RETROSPECTIVE_EVIDENCE`;
+- TRAIL1 — `SUPPORTED_RETROSPECTIVELY`;
+- Total Open Risk Cap — `FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED` because terminal
+  right-censoring prevents complete economic certification;
+- Minimum Hold — `NOT_ADMITTED / DIAGNOSTIC ONLY`;
+- Session/Time of Day — `NOT_ADMITTED / DIAGNOSTIC ONLY`;
+- Correlation/Simultaneous Risk — `NOT_ADMITTED / DIAGNOSTIC ONLY`.
+
+Retrospective support is not fresh untouched OOS. Diagnostic slicing is not
+permission to delete losses, cherry-pick hours, or manufacture a causal rule.
+
+## 14. Stage 6 production-decision semantics
+
+Stage 6 is an artifact-only decision over accepted evidence. It must not run a
+new backtest, optimizer, parameter search, subset search or new hypothesis.
+
+The accepted assembly is `PROD_STAGE6_83C7B31BB42C`: v3 perpetual / T3 / H1 /
+`CNYRUBF`, `GLDRUBF`, `IMOEXF` / TRAIL1.
+
+Selection must be understood under the full evidence set, including
+profitability, drawdown, recovery, calendar-month stability, diversification,
+direction stability, concentration, WF/OOS durability and execution practicality.
+PF alone is never sufficient.
+
+TRAIL1 does not dominate the canonical exit on every risk metric; explicit
+historical OOS counter-evidence must remain visible.
+
+## 15. Stage 7 boundary
+
+Stage 6 selected an assembly, not a complete production specification.
+
+Stage 7 must freeze:
+
+- exact implementation/source identity;
+- live-contract mapping and roll;
+- risk allocation and sizing;
+- portfolio safeguards;
+- production costs;
+- operating session/schedule;
+- broker/order semantics;
+- data-feed conventions;
+- operational/recovery safeguards.
+
+Do not implement the robot or FINAM integration before this freeze.
+
+## 16. Domain separation
+
+TradingSystemLab is separate from BBW, Level Touch, Round Level / Touch
+Optimization, and other research domains. Do not copy their artifacts,
+hypotheses or methodology into this project.
+
+## 17. Evidence and audit standard
+
+Reports summarize evidence; they do not replace it. Accepted claims must be
+grounded in actual code/config/manifests/ledgers/metrics or other applicable
+artifacts according to `AUDIT_PROTOCOL.md`.
+
+After every accepted task or major audit, update `CURRENT_STATE.md` and
+`ROADMAP.md`; update this methodology file only when the governing process or a
+stale methodological statement itself needs correction.
