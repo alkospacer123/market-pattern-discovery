@@ -4,7 +4,10 @@ import pandas as pd
 import pytest
 
 from TradingSystemLab.results.post_v3_analysis.stage5_structural_validation.stage5_risk_cap_execution import OpenRisk, allocation, economics, signal_priority
-from TradingSystemLab.results.post_v3_analysis.stage5_structural_validation.stage5_risk_cap_lifecycle import EXPECTED, metrics
+from TradingSystemLab.results.post_v3_analysis.stage5_structural_validation.stage5_risk_cap_lifecycle import (
+    EXPECTED, StreamState, audit_admission_risk, entries_open, metrics,
+    position_accounting,
+)
 
 
 def test_cap_disabled_reproduces_full_risk(): assert allocation(99,False)==(1.,1.,'FULL')
@@ -52,3 +55,35 @@ def test_certified_canonical_mode_exact_9694_when_evidence_exists():
  p=Path('TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/risk_cap/manifest_risk_cap.json')
  if not p.exists():pytest.skip('raw certification evidence not generated yet')
  x=json.loads(p.read_text());assert sum(EXPECTED.values())==9694==x['canonical_mode_result']['trades'];assert x['canonical_mode_result']['mismatches']==0
+
+def _flat_t3(end="2024-04-01T00:00:00Z", signal="LONG"):
+ class Strategy:
+  def regime(self, _): return "LONG"
+  def generate_signal(self, *_): return signal
+  def calculate_stop_loss(self, *_): return 90.0
+  def exit_signal(self, direction, bar, stop): return (bar.Low <= stop if direction == "LONG" else bar.High >= stop)
+  def manage_position(self, direction, extreme, atr): return 95.0
+ state=StreamState.__new__(StreamState);state.s="T3";state.p=object();state.entry_end=pd.Timestamp(end);state.meta={"generation":"v2_quarterly","lifecycle":"walk_forward","fold_id":"WF01","strategy":"T3","timeframe":"H1","instrument":"X","candidate_config_identity":"test"}
+ state.data=pd.DataFrame({"Open":[100.0],"High":[101.0],"Low":[99.0],"Close":[100.0],"ATR":[1.0]},index=pd.to_datetime(["2024-04-01T00:00:00Z"]));state.high=state.data.copy();state.lookup={state.data.index[0]:0};state.strategy=Strategy();state.pos=None;state.setup=None;state.seq=0;state.cursor=-1;state.blocked=False
+ return state
+
+def test_entry_before_end_can_exit_after_end():
+ s=_flat_t3();s.pos={"direction":"LONG","entry":100.,"entry_time":pd.Timestamp("2024-03-31",tz="UTC"),"initial":99.,"risk":1.,"stop":100.5,"assigned":1.,"bars":0,"lo":100.,"hi":100.,"extreme":100.,"seq":1};s.data.iloc[0,s.data.columns.get_loc("Low")]=99.
+ exitrow,signal=s.process(s.data.index[0]);assert exitrow is not None and signal is None
+
+def test_no_entry_at_entry_end(): assert not entries_open("2024-04-01","2024-04-01")
+def test_entry_before_entry_end_is_open(): assert entries_open("2024-03-31T23:59:59Z","2024-04-01T00:00:00Z")
+def test_continuation_does_not_create_post_boundary_signal(): assert _flat_t3().process(pd.Timestamp("2024-04-01",tz="UTC"))[1] is None
+def test_continuation_discards_preboundary_setup():
+ s=_flat_t3();s.setup=object();s.process(s.data.index[0]);assert s.setup is None
+def test_fold_states_are_independently_copyable_and_flat():
+ a,b=_flat_t3(),_flat_t3();a.pos={"prior":"fold"};assert b.pos is None
+def test_prior_fold_position_does_not_contaminate_next_fold():
+ prior,next_fold=_flat_t3(),_flat_t3();prior.pos={"prior":"fold"};assert next_fold.pos is None
+def test_terminal_position_is_explicitly_accounted(): assert position_accounting(3,2,1)["status"]=="PASS"
+def test_silent_drop_fails_accounting(): assert position_accounting(3,2,0)["silent_dropped_positions"]==1
+def test_terminal_position_is_not_force_closed(): assert position_accounting(1,0,1)["closed_positions"]==0
+def test_baseline_boundary_never_opens_true_oos_entry(): assert not entries_open("2025-01-01T00:00:00+03:00","2025-01-01T00:00:00+03:00")
+def test_independent_admission_audit_catches_mutated_assigned_risk():
+ frame=pd.DataFrame([{"_open_risk_snapshot_R":(.6,),"open_risk_before_R":.6,"residual_capacity_R":.4,"assigned_risk_R":.5,"open_risk_after_R":1.,"status":"PARTIAL"}])
+ assert audit_admission_risk(frame)["risk_accounting_mismatches"]==1
