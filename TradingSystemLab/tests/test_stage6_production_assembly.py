@@ -146,7 +146,7 @@ def test_each_protected_tree_mutation_fails(relative, built):
         target.write_bytes(original)
 
 
-@pytest.mark.parametrize("field", ["pearson_monthly_R", "both_negative_months", "opposite_sign_months", "overlap_jaccard", "overlapping_trade_pairs", "both_final_negative_pairs", "sample_flag"])
+@pytest.mark.parametrize("field", ["historical_pearson_monthly_R", "corrected_pearson_monthly_R", "corrected_both_negative_months", "corrected_opposite_sign_months", "overlap_jaccard", "overlapping_trade_pairs", "both_final_negative_pairs", "sample_flag"])
 def test_every_pair_evidence_field_is_reconciled(field, built):
     mutate_csv(built / "selected_pair_diversification_evidence.csv", lambda rows, _: rows[0].__setitem__(field, "MUTATED"))
     assert counter(built, "pair_diversification_mismatches") > 0
@@ -213,3 +213,39 @@ def test_determinism_is_a_hard_gate(built):
     audit = stage6.independent_audit(built, verify_provenance=True, determinism_verified=False)
     assert audit["counters"]["determinism_mismatches"] > 0
     assert audit["status"] == "STAGE6_IMPLEMENTATION_PROVENANCE_FAILED" or audit["status"] == "STAGE6_DETERMINISM_FAILED"
+
+
+@pytest.mark.parametrize("field", ["wf_net_R", "wf_PF", "wf_expectancy_R", "wf_max_DD_R", "wf_recovery", "oos_net_R_without_top5"])
+def test_corrected_parent_authority_mutations_fail(built, field):
+    mutate_csv(built / "production_parent_evidence.csv", lambda rows, _: next(r for r in rows if (r["generation"], r["strategy"], r["timeframe"]) == ("v3", "T3", "H1")).__setitem__(field, "999"))
+    audit = stage6.independent_audit(built)
+    assert audit["counters"]["corrected_parent_economic_mismatches"] > 0
+    assert audit["status"] == "STAGE6_CORRECTED_ECONOMIC_AUTHORITY_RECONCILIATION_FAILED"
+
+
+@pytest.mark.parametrize("field", ["wf_net_R", "wf_PF", "wf_expectancy_R", "oos_net_R", "oos_PF", "oos_expectancy_R", "oos_positive_month_share", "oos_monthly_R_std", "oos_worst_month_R"])
+def test_corrected_instrument_authority_mutations_fail(built, field):
+    mutate_csv(built / "production_instrument_evidence.csv", lambda rows, _: rows[0].__setitem__(field, "999"))
+    assert counter(built, "corrected_instrument_economic_mismatches") > 0
+
+
+def test_historical_monthly_authority_substitution_fails(built):
+    historical = stage6.read_csv(stage6.S2 / "monthly_instrument_matrix.csv")
+    values = {(r["lifecycle_stage"], r["YYYY-MM"], r["instrument"]): r["net_R"] for r in historical if (r["generation"], r["strategy"], r["timeframe"]) == stage6.SELECTED_PARENT}
+    def change(rows, _):
+        for row in rows:
+            for instrument in stage6.SELECTED_INSTRUMENTS:
+                row[f"{instrument}_R"] = values[(row["lifecycle_stage"], row["YYYY-MM"], instrument)]
+            row["portfolio_R"] = str(sum(float(row[f"{i}_R"]) for i in stage6.SELECTED_INSTRUMENTS))
+    mutate_csv(built / "selected_assembly_monthly_series.csv", change)
+    assert counter(built, "corrected_monthly_authority_mismatches") > 0
+
+
+def test_historical_pairwise_primary_substitution_fails(built):
+    mutate_csv(built / "selected_pair_diversification_evidence.csv", lambda rows, _: rows[0].__setitem__("corrected_pearson_monthly_R", rows[0]["historical_pearson_monthly_R"]))
+    assert counter(built, "corrected_pairwise_authority_mismatches") > 0
+
+
+def test_cross_artifact_reconciliation_mutation_fails(built):
+    mutate_csv(built / "stage6_corrected_authority_reconciliation.csv", lambda rows, _: rows[0].__setitem__("stage6_parent_net_R", "999"))
+    assert counter(built, "cross_artifact_economic_mismatches") > 0

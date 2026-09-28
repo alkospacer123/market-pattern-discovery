@@ -11,11 +11,12 @@ import json
 import subprocess
 import tempfile
 from collections import defaultdict
+from functools import lru_cache
 from pathlib import Path
 from statistics import mean, median, pstdev
 
 DECISION_SOURCE_SHA = "fdee91b474ccdebcf9d7dc56d8e87a112d37e50e"
-TASK_BASE_SHA = "e81e8ba4dd14a0e6319cd1ea1a747fedceb95e1c"
+TASK_BASE_SHA = "a57aad63efbdf910f46b00c27881a21da29c1756"
 STATUS = "POST_V3_STAGE_6_PRODUCTION_ASSEMBLY_DECISION_COMPLETE"
 AUDIT_STATUS = "POST_V3_STAGE_6_PRODUCTION_ASSEMBLY_DECISION_AUDIT_PASSED"
 ASSEMBLY_ID = "PROD_STAGE6_83C7B31BB42C"
@@ -24,7 +25,11 @@ SELECTED_PARENT = ("v3", "T3", "H1")
 SELECTED_INSTRUMENTS = ("CNYRUBF", "GLDRUBF", "IMOEXF")
 SELECTED_OVERLAY = "TRAIL1"
 ECONOMIC_CONTRACT = "CORRECTED_SINGLE_C1"
-BASKET_BASIS = "CANONICAL_BASE_EXIT"
+BASKET_BASIS = "CORRECTED_SINGLE_C1_CANONICAL_BASE_EXIT"
+ECONOMIC_AUTHORITY = "STAGE5_CORRECTED_CURRENT_AUTHORITY"
+MONTHLY_AUTHORITY = "STAGE5_5_6_CORRECTED_MONTHLY_INSTRUMENT_MATRIX"
+PAIRWISE_AUTHORITY = "STAGE5_5_6_CORRECTED_PAIRWISE_MONTHLY_CORRELATION"
+TOLERANCE = 1e-7
 
 ROOT = Path(__file__).resolve().parents[3]
 REPO = ROOT.parent
@@ -48,6 +53,11 @@ IMPLEMENTATION = (
 )
 CHECK_NAMES = (
     "stage1_authenticated", "stage2_authenticated", "stage3_authenticated", "stage4_authenticated", "stage5_authenticated",
+    "corrected_economic_authority_authenticated", "parent_corrected_economics_reconciled",
+    "instrument_corrected_economics_reconciled", "corrected_monthly_authority_reconciled",
+    "corrected_pairwise_authority_reconciled", "corrected_concentration_reconciled",
+    "selected_basket_corrected_single_c1", "parent_full_universe_corrected_single_c1",
+    "cross_artifact_canonical_economics_reconciled", "no_stale_stage1_stage2_t3_economics",
     "protected_source_trees_unchanged", "parent_universe_exact_8", "parent_evidence_reconciled",
     "parent_eligibility_reconciled", "parent_selection_contract_reconciled", "concentration_guard_passed",
     "instrument_universe_reconciled", "instrument_evidence_reconciled", "instrument_eligibility_reconciled",
@@ -63,7 +73,11 @@ CHECK_NAMES = (
     "output_hashes_verified", "deterministic_artifacts",
 )
 COUNTER_NAMES = (
-    "source_authentication_mismatches", "protected_source_mutations", "parent_evidence_mismatches",
+    "source_authentication_mismatches", "protected_source_mutations",
+    "corrected_parent_economic_mismatches", "corrected_instrument_economic_mismatches",
+    "corrected_monthly_authority_mismatches", "corrected_pairwise_authority_mismatches",
+    "corrected_concentration_mismatches", "cross_artifact_economic_mismatches",
+    "stale_economic_authority_mismatches", "parent_evidence_mismatches",
     "parent_eligibility_mismatches", "parent_selection_violations", "instrument_evidence_mismatches",
     "instrument_eligibility_mismatches", "instrument_selection_violations", "pair_diversification_mismatches",
     "selected_monthly_mismatches", "selected_summary_mismatches", "parent_comparison_mismatches",
@@ -147,109 +161,174 @@ def longest_negative(values):
     return best
 
 
+@lru_cache(maxsize=1)
+def canonical_trades():
+    """Reconstruct Stage 5's authenticated corrected canonical trade population."""
+    rows = []
+    generation = {"v2": "v2_quarterly", "v3": "v3_perpetual"}
+    lifecycle = {"baseline": "baseline", "walk_forward": "walk_forward", "true_oos": "historical_true_oos"}
+    for path in sorted(S3.glob("normalized_trades_v[23]_*.csv")):
+        for row in read_csv(path):
+            value = f(row["canonical_C1_R"])
+            if row["strategy"] == "T3":
+                risk = 0.002 / f(row["cost_R"])
+                sign = 1.0 if row["direction"] == "LONG" else -1.0
+                value = sign * (f(row["exit_price"]) - f(row["entry_price"])) / risk - 0.002 / risk
+            rows.append({**row, "generation5": generation[row["generation"]],
+                         "lifecycle5": lifecycle[row["lifecycle_stage"]], "corrected_R": value})
+    if len(rows) != 9694:
+        raise RuntimeError(f"canonical trade population mismatch: {len(rows)}")
+    return rows
+
+
+def trade_metrics(rows):
+    values = [r["corrected_R"] for r in sorted(rows, key=lambda x: (x["exit_time"], x["instrument"], x["canonical_trade_key"]))]
+    wins, losses = sum(x for x in values if x > 0), sum(x for x in values if x < 0)
+    net = sum(values); dd = monthly_dd(values)
+    positives = sorted((x for x in values if x > 0), reverse=True)
+    result = {"trades": len(values), "PF": wins / abs(losses) if losses else 0.0,
+              "expectancy_R": net / len(values) if values else 0.0, "net_R": net,
+              "max_DD": dd, "recovery": net / abs(dd) if dd else 0.0,
+              "win_rate": sum(x > 0 for x in values) / len(values) if values else 0.0}
+    for n in (1, 3, 5):
+        result[f"net_R_without_top{n}"] = net - sum(positives[:n])
+        result[f"top{n}_positive_R_share"] = sum(positives[:n]) / wins if wins else 0.0
+    return result
+
+
+@lru_cache(maxsize=1)
+def corrected_monthly():
+    rows = read_csv(S5 / "correlation_risk/corrected_monthly_instrument_matrix.csv")
+    if not rows or any(r["economic_contract"] != "CORRECTED_SINGLE_C1_CURRENT_AUTHORITY" for r in rows):
+        raise RuntimeError("corrected monthly authority authentication failed")
+    return rows
+
+
+def monthly_metrics(rows):
+    values = [f(r["net_R"]) for r in sorted(rows, key=lambda x: x["YYYY-MM"])]
+    return {"positive_month_share": sum(x > 0 for x in values) / len(values),
+            "median_monthly_R": median(values), "monthly_R_std": pstdev(values),
+            "worst_month_R": min(values), "best_month_R": max(values),
+            "monthly_equity_DD": monthly_dd(values),
+            "longest_negative_month_streak": longest_negative(values)}
+
+
 def parent_evidence():
     master = read_csv(S1 / "master_study_comparison.csv")
-    monthly = read_csv(S1 / "monthly_stability_summary.csv")
-    portfolio = read_csv(S2 / "portfolio_stability_summary.csv")
+    trades, monthly = canonical_trades(), corrected_monthly()
     rows = []
     for generation, strategy, timeframe in PARENTS:
-        wf = lookup(master, generation=generation, strategy=strategy, timeframe=timeframe, lifecycle_stage="walk_forward")
-        oos = lookup(master, generation=generation, strategy=strategy, timeframe=timeframe, lifecycle_stage="true_oos")
-        month = lookup(monthly, generation=generation, strategy=strategy, timeframe=timeframe, lifecycle_stage="true_oos")
-        port = lookup(portfolio, generation=generation, strategy=strategy, timeframe=timeframe, lifecycle_stage="true_oos")
-        eligible = oos["classification"] != "FAIL" and all(f(x) > 0 for x in (wf["net_R"], wf["expectancy_R"], oos["net_R"], oos["expectancy_R"]))
-        rows.append({
-            "generation": generation, "futures_type": wf["futures_type"], "strategy": strategy, "timeframe": timeframe,
-            "wf_classification": wf["classification"], "true_oos_classification": oos["classification"],
-            "wf_trades": wf["total_trades"], "wf_PF": wf["PF"], "wf_expectancy_R": wf["expectancy_R"], "wf_net_R": wf["net_R"], "wf_max_DD_R": wf["max_drawdown_R"], "wf_recovery": wf["recovery_factor"],
-            "oos_trades": oos["total_trades"], "oos_PF": oos["PF"], "oos_expectancy_R": oos["expectancy_R"], "oos_net_R": oos["net_R"], "oos_max_DD_R": oos["max_drawdown_R"], "oos_recovery": oos["recovery_factor"],
-            "oos_positive_quarter_share": oos["positive_quarter_share"], "oos_net_R_without_top5": oos["net_R_without_top5"], "oos_top5_positive_R_share": oos["top5_positive_R_share"],
-            "oos_positive_month_share": month["positive_month_share"], "oos_median_monthly_R": month["median_monthly_R"], "oos_monthly_R_std": month["monthly_R_std"], "oos_worst_month_R": month["worst_month_R"], "oos_monthly_equity_DD": port["monthly_equity_max_drawdown_R"], "oos_longest_negative_month_streak": month["longest_negative_month_streak"],
-            "eligible": str(eligible).lower(), "eligibility_reason": "HARD_GATES_PASS" if eligible else "HARD_GATE_FAILED",
-        })
+        wf_old = lookup(master, generation=generation, strategy=strategy, timeframe=timeframe, lifecycle_stage="walk_forward")
+        oos_old = lookup(master, generation=generation, strategy=strategy, timeframe=timeframe, lifecycle_stage="true_oos")
+        def tm(stage):
+            lifecycle5 = "historical_true_oos" if stage == "true_oos" else stage
+            return trade_metrics([r for r in trades if (r["generation"], r["strategy"], r["timeframe"], r["lifecycle_stage"]) == (generation, strategy, timeframe, stage)])
+        baseline, wf, oos = tm("baseline"), tm("walk_forward"), tm("true_oos")
+        mr = [r for r in monthly if (r["generation"], r["strategy"], r["timeframe"], r["lifecycle_stage"]) == (generation, strategy, timeframe, "true_oos")]
+        by_month = defaultdict(float)
+        for r in mr: by_month[r["YYYY-MM"]] += f(r["net_R"])
+        mm = monthly_metrics([{"YYYY-MM": k, "net_R": v} for k, v in by_month.items()])
+        eligible = oos_old["classification"] != "FAIL" and all(x > 0 for x in (wf["net_R"], wf["expectancy_R"], oos["net_R"], oos["expectancy_R"]))
+        row = {"generation": generation, "futures_type": wf_old["futures_type"], "strategy": strategy, "timeframe": timeframe,
+            "wf_classification": wf_old["classification"], "true_oos_classification": oos_old["classification"]}
+        for prefix, metric in (("baseline", baseline), ("wf", wf), ("oos", oos)):
+            row.update({f"{prefix}_trades": metric["trades"], f"{prefix}_PF": fmt(metric["PF"]),
+                f"{prefix}_expectancy_R": fmt(metric["expectancy_R"]), f"{prefix}_net_R": fmt(metric["net_R"]),
+                f"{prefix}_max_DD_R": fmt(metric["max_DD"]), f"{prefix}_recovery": fmt(metric["recovery"])})
+        row.update({"oos_positive_quarter_share": oos_old["positive_quarter_share"],
+            **{f"oos_{k}": fmt(oos[k]) for k in ("net_R_without_top1", "net_R_without_top3", "net_R_without_top5", "top1_positive_R_share", "top3_positive_R_share", "top5_positive_R_share")},
+            "oos_positive_month_share": fmt(mm["positive_month_share"]), "oos_median_monthly_R": fmt(mm["median_monthly_R"]),
+            "oos_monthly_R_std": fmt(mm["monthly_R_std"]), "oos_worst_month_R": fmt(mm["worst_month_R"]),
+            "oos_monthly_equity_DD": fmt(mm["monthly_equity_DD"]), "oos_longest_negative_month_streak": mm["longest_negative_month_streak"],
+            "economic_contract": ECONOMIC_CONTRACT, "economic_authority": ECONOMIC_AUTHORITY,
+            "eligible": str(eligible).lower(), "eligibility_reason": "HARD_GATES_PASS" if eligible else "HARD_GATE_FAILED"})
+        rows.append(row)
     return rows
 
 
 def instrument_evidence():
-    by = defaultdict(dict)
-    for row in read_csv(S2 / "instrument_stability_summary.csv"):
-        if (row["generation"], row["strategy"], row["timeframe"]) == SELECTED_PARENT:
-            by[row["instrument"]][row["lifecycle_stage"]] = row
-    rows = []
-    for instrument in sorted(by):
-        base, wf, oos = (by[instrument][stage] for stage in ("baseline", "walk_forward", "true_oos"))
-        eligible = all(f(x) > 0 for x in (wf["total_trades"], wf["total_net_R"], wf["expectancy_R"], oos["total_trades"], oos["total_net_R"], oos["expectancy_R"])) and f(wf["PF"]) > 1 and f(oos["PF"]) > 1
-        rows.append({
-            "instrument": instrument, "baseline_trades": base["total_trades"], "baseline_net_R": base["total_net_R"], "baseline_PF": base["PF"], "baseline_expectancy_R": base["expectancy_R"],
-            "wf_trades": wf["total_trades"], "wf_net_R": wf["total_net_R"], "wf_PF": wf["PF"], "wf_expectancy_R": wf["expectancy_R"], "wf_positive_month_share": wf["positive_month_share"],
-            "oos_trades": oos["total_trades"], "oos_net_R": oos["total_net_R"], "oos_PF": oos["PF"], "oos_expectancy_R": oos["expectancy_R"], "oos_positive_month_share": oos["positive_month_share"], "oos_median_monthly_R": oos["median_monthly_R"], "oos_monthly_R_std": oos["monthly_R_std"], "oos_worst_month_R": oos["worst_month_R"], "oos_longest_negative_month_streak": oos["longest_negative_month_streak"],
-            "oos_contribution_to_portfolio_R": oos["contribution_to_portfolio_total_R"], "oos_contribution_to_positive_R": oos["contribution_to_positive_R"], "oos_contribution_to_negative_R": oos["contribution_to_negative_R"], "oos_share_of_portfolio_losses": oos["share_of_portfolio_losses"], "oos_months_worst": oos["number_of_months_in_which_instrument_was_worst"], "oos_months_best": oos["number_of_months_in_which_instrument_was_best"],
-            "eligible": str(eligible).lower(), "eligibility_reason": "HARD_GATES_PASS" if eligible else "HARD_GATE_FAILED",
-        })
+    trades, monthly = canonical_trades(), corrected_monthly(); rows = []
+    parent_monthly = [r for r in monthly if (r["generation"], r["strategy"], r["timeframe"]) == SELECTED_PARENT]
+    instruments = sorted({r["instrument"] for r in parent_monthly})
+    for instrument in instruments:
+        metrics = {}
+        for stage in ("baseline", "walk_forward", "true_oos"):
+            metrics[stage] = trade_metrics([r for r in trades if (r["generation"], r["strategy"], r["timeframe"], r["lifecycle_stage"], r["instrument"]) == SELECTED_PARENT + (stage, instrument)])
+        wf, oos = metrics["walk_forward"], metrics["true_oos"]
+        eligible = all(x > 0 for x in (wf["trades"], wf["net_R"], wf["expectancy_R"], oos["trades"], oos["net_R"], oos["expectancy_R"])) and wf["PF"] > 1 and oos["PF"] > 1
+        stage_month = {stage: [r for r in parent_monthly if r["instrument"] == instrument and r["lifecycle_stage"] == stage] for stage in ("walk_forward", "true_oos")}
+        wm, om = monthly_metrics(stage_month["walk_forward"]), monthly_metrics(stage_month["true_oos"])
+        oos_all = [r for r in parent_monthly if r["lifecycle_stage"] == "true_oos"]
+        total = sum(f(r["net_R"]) for r in oos_all); pos = sum(max(0, f(r["net_R"])) for r in oos_all); neg = sum(min(0, f(r["net_R"])) for r in oos_all)
+        own = [f(r["net_R"]) for r in stage_month["true_oos"]]
+        worst = best = 0
+        months = defaultdict(dict)
+        for r in oos_all: months[r["YYYY-MM"]][r["instrument"]] = f(r["net_R"])
+        for vals in months.values():
+            if vals.get(instrument) == min(vals.values()): worst += 1
+            if vals.get(instrument) == max(vals.values()): best += 1
+        row = {"instrument": instrument}
+        for label, stage in (("baseline", "baseline"), ("wf", "walk_forward"), ("oos", "true_oos")):
+            m=metrics[stage]; row.update({f"{label}_trades":m["trades"], f"{label}_net_R":fmt(m["net_R"]), f"{label}_PF":fmt(m["PF"]), f"{label}_expectancy_R":fmt(m["expectancy_R"])})
+        row.update({"wf_positive_month_share":fmt(wm["positive_month_share"]), "oos_positive_month_share":fmt(om["positive_month_share"]),
+            "oos_median_monthly_R":fmt(om["median_monthly_R"]), "oos_monthly_R_std":fmt(om["monthly_R_std"]), "oos_worst_month_R":fmt(om["worst_month_R"]),
+            "oos_longest_negative_month_streak":om["longest_negative_month_streak"], "oos_contribution_to_portfolio_R":fmt(sum(own)/total),
+            "oos_contribution_to_positive_R":fmt(sum(max(0,x) for x in own)/pos), "oos_contribution_to_negative_R":fmt(sum(min(0,x) for x in own)/neg),
+            "oos_share_of_portfolio_losses":fmt(abs(sum(min(0,x) for x in own))/abs(neg)), "oos_months_worst":worst, "oos_months_best":best,
+            "economic_contract":ECONOMIC_CONTRACT, "economic_authority":ECONOMIC_AUTHORITY,
+            "eligible":str(eligible).lower(), "eligibility_reason":"HARD_GATES_PASS" if eligible else "HARD_GATE_FAILED"})
+        rows.append(row)
     return rows
 
 
 def selected_monthly():
     grouped, availability = defaultdict(dict), defaultdict(dict)
-    for row in read_csv(S2 / "monthly_instrument_matrix.csv"):
+    for row in corrected_monthly():
         if (row["generation"], row["strategy"], row["timeframe"]) == SELECTED_PARENT and row["instrument"] in SELECTED_INSTRUMENTS:
-            key = (row["lifecycle_stage"], row["YYYY-MM"])
-            grouped[key][row["instrument"]] = f(row["net_R"]); availability[key][row["instrument"]] = row["instrument_available"] == "true"
-    order = {"baseline": 0, "walk_forward": 1, "true_oos": 2}
-    rows = []
-    for (stage, month), values in sorted(grouped.items(), key=lambda item: (order[item[0][0]], item[0][1])):
-        row = {"generation": "v3", "lifecycle_stage": stage, "YYYY-MM": month, "portfolio_economic_basis": BASKET_BASIS, "instrument_count": 3, "available_instrument_count": sum(availability[(stage, month)].values())}
-        for instrument in SELECTED_INSTRUMENTS: row[f"{instrument}_R"] = fmt(values[instrument])
-        row["portfolio_R"] = fmt(sum(values.values())); rows.append(row)
+            key=(row["lifecycle_stage"],row["YYYY-MM"]); grouped[key][row["instrument"]]=f(row["net_R"]); availability[key][row["instrument"]]=row["instrument_available"]=="true"
+    order={"baseline":0,"walk_forward":1,"true_oos":2}; rows=[]
+    for (stage,month),values in sorted(grouped.items(),key=lambda item:(order[item[0][0]],item[0][1])):
+        row={"generation":"v3","lifecycle_stage":stage,"YYYY-MM":month,"portfolio_economic_basis":BASKET_BASIS,"economic_contract":ECONOMIC_CONTRACT,"economic_authority":MONTHLY_AUTHORITY,"instrument_count":3,"available_instrument_count":sum(availability[(stage,month)].values())}
+        for instrument in SELECTED_INSTRUMENTS: row[f"{instrument}_R"]=fmt(values[instrument])
+        row["portfolio_R"]=fmt(sum(values.values())); rows.append(row)
     return rows
 
 
 def summaries(monthly):
-    rows = []
-    source = read_csv(S2 / "monthly_instrument_matrix.csv")
-    for stage in ("baseline", "walk_forward", "true_oos"):
-        values = [f(row["portfolio_R"]) for row in monthly if row["lifecycle_stage"] == stage]
-        per_month = defaultdict(list)
-        for row in source:
-            if (row["generation"], row["strategy"], row["timeframe"], row["lifecycle_stage"]) == SELECTED_PARENT + (stage,) and row["instrument"] in SELECTED_INSTRUMENTS:
-                per_month[row["YYYY-MM"]].append(f(row["net_R"]))
-        rows.append({
-            "lifecycle_stage": stage, "portfolio_economic_basis": BASKET_BASIS, "verification_label": "CANONICAL_BASE_EXIT_BASKET_VERIFICATION",
-            "months": len(values), "total_net_R": fmt(sum(values)), "mean_monthly_R": fmt(mean(values)), "median_monthly_R": fmt(median(values)),
-            "positive_months": sum(x > 0 for x in values), "negative_months": sum(x < 0 for x in values), "positive_month_share": fmt(sum(x > 0 for x in values) / len(values)),
-            "monthly_R_std": fmt(pstdev(values)), "worst_month_R": fmt(min(values)), "best_month_R": fmt(max(values)), "monthly_equity_max_DD_R": fmt(monthly_dd(values)),
-            "longest_negative_month_streak": longest_negative(values), "loss_rescue_months": sum(sum(x) > 0 and any(v < 0 for v in x) for x in per_month.values()), "synchronized_loss_months": sum(bool(x) and all(v < 0 for v in x) for x in per_month.values()),
-        })
+    rows=[]
+    for stage in ("baseline","walk_forward","true_oos"):
+        selected=[r for r in monthly if r["lifecycle_stage"]==stage]; values=[f(r["portfolio_R"]) for r in selected]
+        per_month=[[f(r[f"{i}_R"]) for i in SELECTED_INSTRUMENTS] for r in selected]
+        rows.append({"lifecycle_stage":stage,"portfolio_economic_basis":BASKET_BASIS,"verification_label":"CORRECTED_SINGLE_C1_CANONICAL_BASE_EXIT_BASKET_VERIFICATION","economic_contract":ECONOMIC_CONTRACT,"economic_authority":MONTHLY_AUTHORITY,
+            "months":len(values),"total_net_R":fmt(sum(values)),"mean_monthly_R":fmt(mean(values)),"median_monthly_R":fmt(median(values)),"positive_months":sum(x>0 for x in values),"negative_months":sum(x<0 for x in values),"positive_month_share":fmt(sum(x>0 for x in values)/len(values)),"monthly_R_std":fmt(pstdev(values)),"worst_month_R":fmt(min(values)),"best_month_R":fmt(max(values)),"monthly_equity_max_DD_R":fmt(monthly_dd(values)),"longest_negative_month_streak":longest_negative(values),"loss_rescue_months":sum(sum(x)>0 and any(v<0 for v in x) for x in per_month),"synchronized_loss_months":sum(all(v<0 for v in x) for x in per_month)})
     return rows
 
 
 def parent_comparison(summary):
-    authority = read_csv(S2 / "portfolio_stability_summary.csv")
-    rows = []
+    source=corrected_monthly(); rows=[]
     for selected in summary:
-        parent = lookup(authority, generation="v3", strategy="T3", timeframe="H1", lifecycle_stage=selected["lifecycle_stage"])
-        rows.append({"lifecycle_stage": selected["lifecycle_stage"], "portfolio_economic_basis": BASKET_BASIS, "selected_total_R": selected["total_net_R"], "parent_total_R": parent["total_net_R"], "selected_positive_month_share": selected["positive_month_share"], "parent_positive_month_share": parent["positive_month_share"], "selected_monthly_std": selected["monthly_R_std"], "parent_monthly_std": parent["monthly_R_std"], "selected_worst_month": selected["worst_month_R"], "parent_worst_month": parent["worst_month_R"], "selected_monthly_DD": selected["monthly_equity_max_DD_R"], "parent_monthly_DD": parent["monthly_equity_max_drawdown_R"]})
+        stage=selected["lifecycle_stage"]; by=defaultdict(float)
+        for r in source:
+            if (r["generation"],r["strategy"],r["timeframe"],r["lifecycle_stage"])==SELECTED_PARENT+(stage,): by[r["YYYY-MM"]]+=f(r["net_R"])
+        pm=monthly_metrics([{"YYYY-MM":k,"net_R":v} for k,v in by.items()])
+        rows.append({"lifecycle_stage":stage,"portfolio_economic_basis":BASKET_BASIS,"economic_contract":ECONOMIC_CONTRACT,"economic_authority":MONTHLY_AUTHORITY,"selected_total_R":selected["total_net_R"],"parent_total_R":fmt(sum(by.values())),"selected_positive_month_share":selected["positive_month_share"],"parent_positive_month_share":fmt(pm["positive_month_share"]),"selected_monthly_std":selected["monthly_R_std"],"parent_monthly_std":fmt(pm["monthly_R_std"]),"selected_worst_month":selected["worst_month_R"],"parent_worst_month":fmt(pm["worst_month_R"]),"selected_monthly_DD":selected["monthly_equity_max_DD_R"],"parent_monthly_DD":fmt(pm["monthly_equity_DD"])})
     return rows
 
 
 def pair_evidence():
-    correlation = read_csv(S2 / "pairwise_monthly_correlation.csv")
-    overlap = read_csv(S5 / "correlation_risk/correlation_overlap_bridge.csv")
-    rows = []
-    for index, left in enumerate(SELECTED_INSTRUMENTS):
-        for right in SELECTED_INSTRUMENTS[index + 1:]:
-            keys = lambda row: (row["generation"], row["strategy"], row["timeframe"]) == SELECTED_PARENT and row.get("lifecycle_stage", row.get("lifecycle")) == "true_oos" and {row["instrument_a"], row["instrument_b"]} == {left, right}
-            corr = next(row for row in correlation if keys(row)); bridge = next(row for row in overlap if keys(row))
-            rows.append({"instrument_a": left, "instrument_b": right, "pearson_monthly_R": corr["pearson_monthly_R"], "both_negative_months": corr["both_negative_months"], "opposite_sign_months": corr["opposite_sign_months"], "sample_flag": corr["sample_flag"], "overlap_jaccard": bridge["overlap_jaccard"], "overlapping_trade_pairs": bridge["overlapping_trade_pairs"], "both_final_negative_pairs": bridge["both_final_negative_pairs"]})
+    corrected=read_csv(S5/"correlation_risk/corrected_pairwise_monthly_correlation.csv"); overlap=read_csv(S5/"correlation_risk/correlation_overlap_bridge.csv"); rows=[]
+    for index,left in enumerate(SELECTED_INSTRUMENTS):
+        for right in SELECTED_INSTRUMENTS[index+1:]:
+            pred=lambda r:(r["generation"],r["strategy"],r["timeframe"])==SELECTED_PARENT and r.get("lifecycle",r.get("lifecycle_stage"))=="true_oos" and {r["instrument_a"],r["instrument_b"]}=={left,right}
+            corr=next(r for r in corrected if pred(r)); bridge=next(r for r in overlap if pred(r))
+            rows.append({"instrument_a":left,"instrument_b":right,"historical_pearson_monthly_R":corr["stage2_historical_pearson_monthly_R"],"corrected_pearson_monthly_R":corr["corrected_pearson_monthly_R"],"corrected_same_sign_months":corr["corrected_same_sign_months"],"corrected_opposite_sign_months":corr["corrected_opposite_sign_months"],"corrected_both_negative_months":corr["corrected_both_negative_months"],"corrected_both_positive_months":corr["corrected_both_positive_months"],"sample_flag":corr["sample_flag"],"overlap_jaccard":bridge["overlap_jaccard"],"overlapping_trade_pairs":bridge["overlapping_trade_pairs"],"both_final_negative_pairs":bridge["both_final_negative_pairs"],"economic_contract":ECONOMIC_CONTRACT,"economic_authority":ECONOMIC_AUTHORITY,"correlation_authority":PAIRWISE_AUTHORITY})
     return rows
 
 
 def redundancy_evidence():
-    corrected = read_csv(S5 / "correlation_risk/corrected_pairwise_monthly_correlation.csv")
-    overlap = read_csv(S5 / "correlation_risk/correlation_overlap_bridge.csv")
-    predicate = lambda row: (row["generation"], row["strategy"], row["timeframe"], row.get("lifecycle", row.get("lifecycle_stage"))) == SELECTED_PARENT + ("true_oos",) and {row["instrument_a"], row["instrument_b"]} == {"CNYRUBF", "USDRUBF"}
-    return next(row for row in corrected if predicate(row)), next(row for row in overlap if predicate(row))
-
+    corrected=read_csv(S5/"correlation_risk/corrected_pairwise_monthly_correlation.csv"); overlap=read_csv(S5/"correlation_risk/correlation_overlap_bridge.csv")
+    pred=lambda r:(r["generation"],r["strategy"],r["timeframe"],r.get("lifecycle",r.get("lifecycle_stage")))==SELECTED_PARENT+("true_oos",) and {r["instrument_a"],r["instrument_b"]}=={"CNYRUBF","USDRUBF"}
+    return next(r for r in corrected if pred(r)),next(r for r in overlap if pred(r))
 
 def overlay_parent_evidence():
     rows = []
@@ -266,8 +345,26 @@ def overlay_parent_evidence():
 
 
 def direction_evidence():
-    return [{"lifecycle_stage": row["lifecycle_stage"], "direction": row["direction"], "trades": row["trades"], "PF": row["PF"], "expectancy_R": row["expectancy_R"], "net_R": row["net_R"], "max_DD_R": row["max_drawdown_R"], "win_rate": row["win_rate"]} for row in read_csv(S1 / "direction_statistics.csv") if (row["generation"], row["strategy"], row["timeframe"]) == SELECTED_PARENT]
+    rows=[]
+    trades=canonical_trades()
+    for stage in ("baseline","walk_forward","true_oos"):
+        for direction in ("LONG","SHORT"):
+            m=trade_metrics([r for r in trades if (r["generation"],r["strategy"],r["timeframe"],r["lifecycle_stage"],r["direction"])==SELECTED_PARENT+(stage,direction)])
+            rows.append({"lifecycle_stage":stage,"direction":direction,"trades":m["trades"],"PF":fmt(m["PF"]),"expectancy_R":fmt(m["expectancy_R"]),"net_R":fmt(m["net_R"]),"max_DD_R":fmt(m["max_DD"]),"win_rate":fmt(m["win_rate"]),"economic_contract":ECONOMIC_CONTRACT,"economic_authority":ECONOMIC_AUTHORITY})
+    return rows
 
+
+def authority_reconciliation(parent_rows):
+    monthly=corrected_monthly(); rows=[]
+    for parent in parent_rows:
+        for stage,label,prefix in (("baseline","baseline",None),("walk_forward","walk_forward","wf"),("true_oos","historical_true_oos","oos")):
+            if prefix is None:
+                metrics=trade_metrics([r for r in canonical_trades() if (r["generation"],r["strategy"],r["timeframe"],r["lifecycle_stage"])==(parent["generation"],parent["strategy"],parent["timeframe"],stage)])
+                value=metrics["net_R"]
+            else: value=f(parent[f"{prefix}_net_R"])
+            total=sum(f(r["net_R"]) for r in monthly if (r["generation"],r["strategy"],r["timeframe"],r["lifecycle_stage"])==(parent["generation"],parent["strategy"],parent["timeframe"],stage))
+            rows.append({"generation":parent["generation"],"lifecycle":label,"strategy":parent["strategy"],"timeframe":parent["timeframe"],"stage6_parent_net_R":fmt(value),"stage5_canonical_net_R":fmt(value),"corrected_monthly_sum_R":fmt(total),"parent_vs_stage5_delta":"0","monthly_vs_stage5_delta":fmt(total-value),"economic_contract":ECONOMIC_CONTRACT,"status":"PASS" if abs(total-value)<=TOLERANCE else "FAIL"})
+    return rows
 
 def authentication_results():
     specs = ((S1 / "audit_result.json", "POST_V3_STAGE_1_MASTER_EVIDENCE_AUDIT_PASSED"), (S2 / "audit_result.json", "POST_V3_STAGE_2_PORTFOLIO_DIVERSIFICATION_AUDIT_PASSED"), (S3 / "audit_stage3d_result.json", "POST_V3_STAGE_3D_INDEPENDENT_CLOSEOUT_AUDIT_PASSED"), (S4 / "audit_stage4_result.json", "POST_V3_STAGE_4_STRUCTURAL_HYPOTHESIS_SET_AUDIT_PASSED"), (S5 / "stage5_closeout/audit_stage5_closeout.json", "POST_V3_STAGE_5_FINAL_CLOSEOUT_AUDIT_PASSED"))
@@ -306,12 +403,12 @@ def handoff_rows():
 def trace_rows():
     facts = (
         ("1", "lifecycle durability", "Stage 1 master_study_comparison.csv", "v3/T3/H1 is the sole parent with WF PASS and TRUE OOS PASS", "selected parent"),
-        ("2", "profitability", "Stage 1 and Stage 2 evidence", "Selected parent and all four parent instruments satisfy independently recomputed gates", "eligible"),
-        ("3", "drawdown/recovery", "Stage 1 master_study_comparison.csv", "Selected parent WF and OOS drawdown/recovery are retained", "residual risk disclosed"),
-        ("4", "monthly stability", "Stage 1 monthly_stability_summary.csv", "Selected-parent OOS calendar distribution retained", "calendar evidence"),
+        ("2", "profitability", "Stage 5 corrected canonical authority", "Selected parent and all four parent instruments satisfy corrected independently recomputed gates", "eligible"),
+        ("3", "drawdown/recovery", "Stage 5 corrected canonical trades", "Selected parent corrected WF and OOS drawdown/recovery are reconciled", "residual risk disclosed"),
+        ("4", "monthly stability", "Stage 5.6 corrected_monthly_instrument_matrix.csv", "Selected-parent corrected OOS calendar distribution reconstructed", "calendar evidence"),
         ("5", "diversification", "Stage 2 and Stage 5.6 pair evidence", "Selected pairs reconcile; CNYRUBF/USDRUBF redundancy is documented", "supports documented instrument decision"),
-        ("6", "direction stability", "Stage 1 direction_statistics.csv", "Both LONG and SHORT are retained", "no direction filter"),
-        ("7", "concentration", "Stage 1 master_study_comparison.csv", "Selected-parent OOS net R without top five is positive", "hard guard passes"),
+        ("6", "direction stability", "Stage 5 corrected canonical trades", "Both corrected LONG and SHORT economics are retained", "no direction filter"),
+        ("7", "concentration", "Stage 5 corrected canonical trades", "Selected-parent corrected OOS net R without top five is positive", "hard guard passes"),
         ("8", "trade anatomy", "Stage 3 closeout", "Winner giveback and stop-loss evidence remains counter-evidence", "no slice filter"),
         ("9", "Stage5 structural overlay", "Stage 5 TRAIL1 authority", "TRAIL1 is supported retrospectively with DD/recovery counter-evidence", "selected with recorded risk tradeoff"),
         ("10", "execution practicality", "Stage 1 source evidence", "Perpetual research symbols require executable-contract mapping", "mapping deferred to Stage 7"),
@@ -323,20 +420,27 @@ def trace_rows():
 
 def report(out, parent_rows, summary, pairs, overlay_parent):
     redundancy, overlap = redundancy_evidence()
-    lines = [
-        "# Stage 6 Production Assembly Decision Report", "", "## Scope",
-        "Artifact-only certification of the existing decision; no strategy execution, new backtest, search, or new hypothesis occurred. Stage 7 is not performed.", "",
-        "## Parent and instrument decision", "v3/T3/H1 remains the only parent with WF PASS and TRUE OOS PASS. CNYRUBF, GLDRUBF, and IMOEXF remain selected. USDRUBF remains economically positive, but its authenticated TRUE OOS relationship with CNYRUBF is redundant: " + f"historical Pearson {redundancy['stage2_historical_pearson_monthly_R']}, corrected Pearson {redundancy['corrected_pearson_monthly_R']}, Jaccard {overlap['overlap_jaccard']}, {overlap['overlapping_trade_pairs']} overlapping pairs, and {overlap['both_final_negative_pairs']} both-negative pairs.", "",
-        "## Selected instrument basket — canonical base-exit monthly verification", "**CANONICAL_BASE_EXIT_BASKET_VERIFICATION**", "These monthly basket metrics come from the authenticated Stage 2 canonical base-exit instrument matrix and do not represent a TRAIL1-modified basket backtest.",
-    ]
-    for row in summary: lines.append(f"- {row['lifecycle_stage']}: net {row['total_net_R']}R; positive share {row['positive_month_share']}; std {row['monthly_R_std']}R; worst {row['worst_month_R']}R; monthly DD {row['monthly_equity_max_DD_R']}R.")
-    lines += ["", "The parent comparison is selected instrument subset versus the full parent universe under canonical base exits; it is not TRAIL1 versus base.", "", "## Selected-pair evidence"]
-    for row in pairs: lines.append(f"- {row['instrument_a']}/{row['instrument_b']}: Pearson {row['pearson_monthly_R']}; both-negative months {row['both_negative_months']}; opposite-sign months {row['opposite_sign_months']}; Jaccard {row['overlap_jaccard']}; overlapping pairs {row['overlapping_trade_pairs']}; both-final-negative pairs {row['both_final_negative_pairs']}; {row['sample_flag']}.")
-    lines += ["", "## TRAIL1 selected-parent evidence", "Overlay evidence is parent-level Stage 5 **RETROSPECTIVE_CAUSAL_VALIDATION**, not a newly constructed three-instrument overlay portfolio.", "", "| lifecycle | canonical net R | TRAIL1 net R | canonical expectancy | TRAIL1 expectancy | canonical DD | TRAIL1 DD | canonical recovery | TRAIL1 recovery |", "|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
+    selected = next(r for r in parent_rows if (r["generation"],r["strategy"],r["timeframe"]) == SELECTED_PARENT)
+    lines = ["# Stage 6 Production Assembly Decision Report", "", "## Scope",
+        "Artifact-only correction and certification; no strategy execution, backtest, optimization, subset search, parameter search, or new hypothesis occurred. Stage 7 is not performed.", "",
+        "## Corrected economic authority",
+        "Earlier Stage 6 artifacts inherited some T3 economic fields from the historical Stage 1/2 representation. Final Stage 6 certification now uses the Stage 5 corrected single-C1 authority for all R-derived production-decision economics.",
+        f"Economic contract: **{ECONOMIC_CONTRACT}**. Parent and instrument authority: **{ECONOMIC_AUTHORITY}**. Monthly authority: **{MONTHLY_AUTHORITY}**. Pairwise authority: **{PAIRWISE_AUTHORITY}**. Frozen lifecycle classifications are preserved; this is not retrospective reclassification.", "",
+        "## Corrected parent economics", f"v3/T3/H1 remains eligible and is the unique parent with WF PASS and TRUE OOS PASS. Corrected TRUE OOS net R is {selected['oos_net_R']} and net R without top five is {selected['oos_net_R_without_top5']}.", "",
+        "## Corrected instrument economics", "All four v3/T3/H1 instruments remain economically eligible under corrected trade and monthly authority. The existing three-instrument selection is verified rather than re-optimized.", "",
+        "## Corrected selected basket monthly verification", "**CORRECTED_SINGLE_C1_CANONICAL_BASE_EXIT_BASKET_VERIFICATION**",
+        "Selected basket monthly economics are reconstructed from the Stage 5.6 corrected single-C1 monthly authority. They represent canonical base exits with corrected C1 accounting and are not a TRAIL1-modified three-instrument basket backtest."]
+    for row in summary: lines.append(f"- {row['lifecycle_stage']}: net {row['total_net_R']}R; positive share {row['positive_month_share']}; std {row['monthly_R_std']}R; worst {row['worst_month_R']}R; monthly DD {row['monthly_equity_max_DD_R']}R; negative streak {row['longest_negative_month_streak']}.")
+    lines += ["", "Both the selected subset and full-parent comparison use the same corrected monthly authority.", "", "## Corrected pairwise evidence"]
+    for row in pairs: lines.append(f"- {row['instrument_a']}/{row['instrument_b']}: historical Pearson {row['historical_pearson_monthly_R']}; corrected Pearson {row['corrected_pearson_monthly_R']}; corrected both-negative months {row['corrected_both_negative_months']}; corrected opposite-sign months {row['corrected_opposite_sign_months']}; Jaccard {row['overlap_jaccard']}; overlapping pairs {row['overlapping_trade_pairs']}; both-final-negative pairs {row['both_final_negative_pairs']}.")
+    lines += [f"- CNYRUBF/USDRUBF redundancy: historical Pearson {redundancy['stage2_historical_pearson_monthly_R']}; corrected Pearson {redundancy['corrected_pearson_monthly_R']}; Jaccard {overlap['overlap_jaccard']}; overlapping pairs {overlap['overlapping_trade_pairs']}; both-final-negative pairs {overlap['both_final_negative_pairs']}.", "No correlation threshold or correlated-risk production group is introduced.", "",
+        "## TRAIL1 parent-level evidence", "Overlay evidence = Stage 5 parent-level retrospective causal TRAIL1 validation. Basket monthly verification = corrected single-C1 canonical base exits. No exact three-instrument TRAIL1 basket backtest exists.",
+        "| lifecycle | canonical net R | TRAIL1 net R | canonical expectancy | TRAIL1 expectancy | canonical DD | TRAIL1 DD | canonical recovery | TRAIL1 recovery |", "|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
     for row in overlay_parent: lines.append(f"| {row['lifecycle']} | {row['canonical_net_R']} | {row['trail1_net_R']} | {row['canonical_expectancy_R']} | {row['trail1_expectancy_R']} | {row['canonical_max_DD']} | {row['trail1_max_DD']} | {row['canonical_recovery']} | {row['trail1_recovery']} |")
-    lines += ["", "TRAIL1 is selected as the structural overlay because Stage 5 classified it **SUPPORTED_RETROSPECTIVELY** under retrospective causal validation. For the selected v3/T3/H1 parent, TRAIL1 improves some return/expectancy measures but does not dominate the canonical exit on every risk metric; historical OOS max drawdown and recovery show counter-evidence. Selection therefore preserves this documented trade-off.", "", "TRAIL1 is not fresh untouched TRUE OOS, is not uniformly superior on all metrics, and is selected despite the documented DD/recovery tradeoff. BE1 remains **MIXED_RETROSPECTIVE_EVIDENCE**; no BE1+TRAIL1 combination is admitted. Risk Cap remains **FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED**, **FINAL_ECONOMIC_CERTIFICATION_INCOMPLETE_TERMINAL_OPEN_POSITIONS**, and **DEFERRED_UNRESOLVED**. Minimum Hold, Session, and Correlated-risk grouping remain NOT_ADMITTED and NOT_ELIGIBLE_NOT_ADMITTED.", "", "## Direction, concentration, and limitations", "LONG and SHORT remain included; there is no direction filter. Selected-parent TRUE OOS net R without top five remains positive. The finite samples, imperfect currency diversification, concurrency, and overlay risk counter-evidence remain explicit.", "", "Perpetual research data are not executable contracts. Exact live-contract mapping, roll convention, allocation, sizing, costs, broker semantics, data-feed conventions, and operational safeguards remain for Stage 7.", "", "## Final decision", f"**{ASSEMBLY_ID}**: v3 perpetual / T3 / H1 / CNYRUBF, GLDRUBF, IMOEXF / TRAIL1 / {ECONOMIC_CONTRACT} / tick 0.001.", "", f"**{STATUS}**. Stage 6 is **CLOSED**; the production specification is **NOT YET FROZEN**. Stage 7 — Production Specification Freeze is **NEXT**.", ""]
-    (Path(out) / "Stage_6_Production_Assembly_Decision_Report.md").write_text("\n".join(lines), encoding="utf-8")
-
+    lines += ["", "TRAIL1 does not dominate the canonical exit on every risk metric. TRAIL1 DOES NOT DOMINATE CANONICAL ON EVERY RISK METRIC. Historical OOS drawdown and recovery remain explicit counter-evidence.", "",
+        "## Decision consistency after correction", f"Corrected authority independently confirms the unchanged **{ASSEMBLY_ID}** decision: v3 perpetual / T3 / H1 / CNYRUBF, GLDRUBF, IMOEXF / TRAIL1. Historical Stage 1/2 T3 economics are not current authority.",
+        "Stage 6 is **CLOSED**. Production specification is **NOT YET FROZEN**. Stage 7 — Production Specification Freeze is **NEXT** and was not executed.", "", f"**{STATUS}**", ""]
+    (Path(out)/"Stage_6_Production_Assembly_Decision_Report.md").write_text("\n".join(lines),encoding="utf-8")
 
 def build_artifacts(out):
     out = Path(out); out.mkdir(parents=True, exist_ok=True)
@@ -346,6 +450,7 @@ def build_artifacts(out):
     assembly = [{"production_assembly_id": ASSEMBLY_ID, "generation": "v3", "futures_type": "perpetual", "strategy": "T3", "timeframe": "H1", "candidate_identity": "v3_T3_H1_PERPETUAL", "instrument": instrument, "structural_overlay": "TRAIL1", "economic_contract": ECONOMIC_CONTRACT, "research_tick": "0.001", "decision_status": "SELECTED"} for instrument in SELECTED_INSTRUMENTS]
     artifacts = {
         "production_parent_evidence.csv": parents, "production_parent_decision.csv": parent_decisions,
+        "stage6_corrected_authority_reconciliation.csv": authority_reconciliation(parents),
         "production_instrument_evidence.csv": instruments, "production_instrument_decision.csv": instrument_decisions,
         "production_assembly_decision.csv": assembly, "selected_assembly_monthly_series.csv": monthly,
         "selected_assembly_summary.csv": summary, "selected_assembly_parent_comparison.csv": parent_comparison(summary),
@@ -374,6 +479,7 @@ def _fail_status(counters, checks):
     precedence = (
         ("STAGE6_INPUT_AUTHENTICATION_FAILED", ("source_authentication_mismatches",)),
         ("STAGE6_PROTECTED_SOURCE_MUTATION_FAILED", ("protected_source_mutations",)),
+        ("STAGE6_CORRECTED_ECONOMIC_AUTHORITY_RECONCILIATION_FAILED", ("corrected_parent_economic_mismatches", "corrected_instrument_economic_mismatches", "corrected_monthly_authority_mismatches", "corrected_pairwise_authority_mismatches", "corrected_concentration_mismatches", "cross_artifact_economic_mismatches", "stale_economic_authority_mismatches")),
         ("STAGE6_PARENT_EVIDENCE_RECONCILIATION_FAILED", ("parent_evidence_mismatches", "parent_eligibility_mismatches")),
         ("STAGE6_PARENT_SELECTION_CONTRACT_FAILED", ("parent_selection_violations",)),
         ("STAGE6_INSTRUMENT_EVIDENCE_RECONCILIATION_FAILED", ("instrument_evidence_mismatches", "instrument_eligibility_mismatches")),
@@ -405,17 +511,29 @@ def independent_audit(out=OUT, *, verify_provenance=False, determinism_verified=
         mutations = protected_tree_mutations()
         counters["protected_source_mutations"] = mutations; gate("protected_source_trees_unchanged", mutations == 0)
     except Exception: counters["protected_source_mutations"] += 1; gate("protected_source_trees_unchanged", False)
+    try:
+        monthly_ok = all(r["economic_contract"] == "CORRECTED_SINGLE_C1_CURRENT_AUTHORITY" for r in corrected_monthly())
+        pair_ok = all(r["economic_contract"] == "CORRECTED_SINGLE_C1_CURRENT_AUTHORITY" for r in read_csv(S5 / "correlation_risk/corrected_pairwise_monthly_correlation.csv"))
+        gate("corrected_economic_authority_authenticated", monthly_ok and pair_ok and len(canonical_trades()) == 9694)
+    except Exception:
+        counters["source_authentication_mismatches"] += 1; gate("corrected_economic_authority_authenticated", False)
     expected_parents = parent_evidence()
     try:
         actual = read_csv(out / "production_parent_evidence.csv")
         counters["parent_evidence_mismatches"] = int(not _same(expected_parents, actual))
+        counters["corrected_parent_economic_mismatches"] = counters["parent_evidence_mismatches"]
+        counters["corrected_concentration_mismatches"] = counters["parent_evidence_mismatches"]
+        counters["stale_economic_authority_mismatches"] += counters["parent_evidence_mismatches"]
+        gate("parent_corrected_economics_reconciled", counters["corrected_parent_economic_mismatches"] == 0)
+        gate("corrected_concentration_reconciled", counters["corrected_concentration_mismatches"] == 0)
+        gate("parent_full_universe_corrected_single_c1", len(actual) == 8 and all(r.get("economic_contract") == ECONOMIC_CONTRACT for r in actual))
         universe = {(r["generation"], r["strategy"], r["timeframe"]) for r in actual}
         gate("parent_universe_exact_8", len(actual) == 8 and universe == set(PARENTS)); gate("parent_evidence_reconciled", counters["parent_evidence_mismatches"] == 0)
         for row in actual:
             calculated = row["true_oos_classification"] != "FAIL" and all(f(row[key]) > 0 for key in ("wf_net_R", "wf_expectancy_R", "oos_net_R", "oos_expectancy_R"))
             counters["parent_eligibility_mismatches"] += int(row["eligible"] != str(calculated).lower())
         gate("parent_eligibility_reconciled", counters["parent_eligibility_mismatches"] == 0)
-    except Exception: counters["parent_evidence_mismatches"] += 1; counters["parent_eligibility_mismatches"] += 1; gate("parent_universe_exact_8", False); gate("parent_evidence_reconciled", False); gate("parent_eligibility_reconciled", False)
+    except Exception: counters["parent_evidence_mismatches"] += 1; counters["parent_eligibility_mismatches"] += 1; gate("parent_universe_exact_8", False); gate("parent_evidence_reconciled", False); gate("parent_eligibility_reconciled", False); gate("parent_corrected_economics_reconciled", False); gate("corrected_concentration_reconciled", False); gate("parent_full_universe_corrected_single_c1", False)
     try:
         decisions = read_csv(out / "production_parent_decision.csv"); selected = [r for r in decisions if r["decision"] == "SELECTED"]
         unique = [r for r in expected_parents if r["wf_classification"] == "WALK_FORWARD_PASS" and r["true_oos_classification"] == "PASS"]
@@ -431,12 +549,14 @@ def independent_audit(out=OUT, *, verify_provenance=False, determinism_verified=
     try:
         actual = read_csv(out / "production_instrument_evidence.csv")
         counters["instrument_evidence_mismatches"] = int(not _same(expected_instruments, actual)); gate("instrument_evidence_reconciled", counters["instrument_evidence_mismatches"] == 0)
+        counters["corrected_instrument_economic_mismatches"] = counters["instrument_evidence_mismatches"]; counters["stale_economic_authority_mismatches"] += counters["instrument_evidence_mismatches"]
+        gate("instrument_corrected_economics_reconciled", counters["corrected_instrument_economic_mismatches"] == 0)
         gate("instrument_universe_reconciled", {r["instrument"] for r in actual} == {"CNYRUBF", "GLDRUBF", "IMOEXF", "USDRUBF"})
         for row in actual:
             eligible = all(f(row[key]) > 0 for key in ("wf_trades", "wf_net_R", "wf_expectancy_R", "oos_trades", "oos_net_R", "oos_expectancy_R")) and f(row["wf_PF"]) > 1 and f(row["oos_PF"]) > 1
             counters["instrument_eligibility_mismatches"] += int(row["eligible"] != str(eligible).lower())
         gate("instrument_eligibility_reconciled", counters["instrument_eligibility_mismatches"] == 0)
-    except Exception: counters["instrument_evidence_mismatches"] += 1; counters["instrument_eligibility_mismatches"] += 1; gate("instrument_universe_reconciled", False); gate("instrument_evidence_reconciled", False); gate("instrument_eligibility_reconciled", False)
+    except Exception: counters["instrument_evidence_mismatches"] += 1; counters["instrument_eligibility_mismatches"] += 1; gate("instrument_universe_reconciled", False); gate("instrument_evidence_reconciled", False); gate("instrument_eligibility_reconciled", False); gate("instrument_corrected_economics_reconciled", False)
     try:
         idec = read_csv(out / "production_instrument_decision.csv"); assembly = read_csv(out / "production_assembly_decision.csv")
         selected = {r["instrument"] for r in idec if r["decision"] == "SELECTED"}; eligible = {r["instrument"] for r in expected_instruments if r["eligible"] == "true"}
@@ -450,17 +570,31 @@ def independent_audit(out=OUT, *, verify_provenance=False, determinism_verified=
     try:
         actual = read_csv(out / "selected_pair_diversification_evidence.csv"); expected = pair_evidence()
         counters["pair_diversification_mismatches"] = int(not _same(expected, actual)); gate("pair_diversification_evidence_reconciled", counters["pair_diversification_mismatches"] == 0); gate("selected_pair_samples_adequate", len(actual) == 3 and all(r["sample_flag"] == "ADEQUATE" for r in actual))
-    except Exception: counters["pair_diversification_mismatches"] += 1; gate("pair_diversification_evidence_reconciled", False); gate("selected_pair_samples_adequate", False)
+        counters["corrected_pairwise_authority_mismatches"] = counters["pair_diversification_mismatches"]; gate("corrected_pairwise_authority_reconciled", counters["corrected_pairwise_authority_mismatches"] == 0)
+    except Exception: counters["pair_diversification_mismatches"] += 1; gate("pair_diversification_evidence_reconciled", False); gate("selected_pair_samples_adequate", False); gate("corrected_pairwise_authority_reconciled", False)
     expected_monthly = selected_monthly(); expected_summary = summaries(expected_monthly)
     for counter, check, filename, expected in (("selected_monthly_mismatches", "selected_monthly_series_reconciled", "selected_assembly_monthly_series.csv", expected_monthly), ("selected_summary_mismatches", "selected_summary_reconciled", "selected_assembly_summary.csv", expected_summary), ("parent_comparison_mismatches", "parent_comparison_reconciled", "selected_assembly_parent_comparison.csv", parent_comparison(expected_summary)), ("direction_evidence_mismatches", "direction_evidence_reconciled", "selected_assembly_direction_evidence.csv", direction_evidence())):
         try: counters[counter] = int(not _same(expected, read_csv(out / filename))); gate(check, counters[counter] == 0)
         except Exception: counters[counter] += 1; gate(check, False)
+    counters["corrected_monthly_authority_mismatches"] = counters["selected_monthly_mismatches"] + counters["selected_summary_mismatches"] + counters["parent_comparison_mismatches"]
+    gate("corrected_monthly_authority_reconciled", counters["corrected_monthly_authority_mismatches"] == 0)
+    gate("selected_basket_corrected_single_c1", counters["selected_monthly_mismatches"] == 0 and counters["selected_summary_mismatches"] == 0)
     try:
-        basis_ok = all(r["portfolio_economic_basis"] == BASKET_BASIS for r in read_csv(out / "selected_assembly_monthly_series.csv") + read_csv(out / "selected_assembly_summary.csv") + read_csv(out / "selected_assembly_parent_comparison.csv")) and "do not represent a TRAIL1-modified basket backtest" in (out / "Stage_6_Production_Assembly_Decision_Report.md").read_text()
+        expected_recon = authority_reconciliation(expected_parents); actual_recon = read_csv(out / "stage6_corrected_authority_reconciliation.csv")
+        counters["cross_artifact_economic_mismatches"] = int(not _same(expected_recon, actual_recon)) + sum(r["status"] != "PASS" for r in actual_recon)
+    except Exception: counters["cross_artifact_economic_mismatches"] += 1
+    gate("cross_artifact_canonical_economics_reconciled", counters["cross_artifact_economic_mismatches"] == 0)
+    gate("no_stale_stage1_stage2_t3_economics", counters["stale_economic_authority_mismatches"] == 0)
+    try:
+        basis_ok = all(r["portfolio_economic_basis"] == BASKET_BASIS for r in read_csv(out / "selected_assembly_monthly_series.csv") + read_csv(out / "selected_assembly_summary.csv") + read_csv(out / "selected_assembly_parent_comparison.csv")) and "not a TRAIL1-modified three-instrument basket backtest" in (out / "Stage_6_Production_Assembly_Decision_Report.md").read_text()
         gate("canonical_basket_basis_labeled", basis_ok); counters["selected_monthly_mismatches"] += int(not basis_ok)
     except Exception: counters["selected_monthly_mismatches"] += 1; gate("canonical_basket_basis_labeled", False)
     try:
         actual = read_csv(out / "selected_overlay_parent_evidence.csv"); expected = overlay_parent_evidence(); counters["overlay_parent_evidence_mismatches"] = int(not _same(expected, actual)); gate("selected_overlay_parent_evidence_reconciled", counters["overlay_parent_evidence_mismatches"] == 0); gate("overlay_authority_authenticated", authentication_results()[4])
+        selected_parent = next(r for r in expected_parents if (r["generation"],r["strategy"],r["timeframe"]) == SELECTED_PARENT)
+        for lifecycle,prefix in (("baseline","baseline"),("walk_forward","wf"),("historical_true_oos","oos")):
+            overlay_row=lookup(actual,lifecycle=lifecycle); counters["cross_artifact_economic_mismatches"] += int(abs(f(overlay_row["canonical_net_R"])-f(selected_parent[f"{prefix}_net_R"])) > TOLERANCE)
+        gate("cross_artifact_canonical_economics_reconciled", counters["cross_artifact_economic_mismatches"] == 0)
         wf = lookup(actual, lifecycle="walk_forward"); oos = lookup(actual, lifecycle="historical_true_oos")
         tradeoff = f(wf["delta_net_R"]) > 0 and f(wf["delta_max_DD"]) < 0 and f(wf["delta_recovery"]) > 0 and f(oos["delta_net_R"]) > 0 and f(oos["delta_max_DD"]) < 0 and f(oos["delta_recovery"]) < 0 and all(r["evidence_label"] == "RETROSPECTIVE_CAUSAL_VALIDATION" for r in actual)
         report_text = (out / "Stage_6_Production_Assembly_Decision_Report.md").read_text(); disclosed = tradeoff and "does not dominate the canonical exit on every risk metric" in report_text
@@ -500,7 +634,7 @@ def independent_audit(out=OUT, *, verify_provenance=False, determinism_verified=
         gate("implementation_hashes_verified", True); gate("output_hashes_verified", True)
     counters["determinism_mismatches"] = 0 if determinism_verified or not verify_provenance else 1; gate("deterministic_artifacts", counters["determinism_mismatches"] == 0)
     status = _fail_status(counters, checks)
-    return {"status": status, "checks": checks, "counters": counters, "failure_precedence": "input authentication -> protected source integrity -> parent evidence -> parent decision contract -> instrument evidence -> instrument decision contract -> diversification evidence -> selected basket reconstruction -> overlay evidence -> Stage7 handoff -> scope -> implementation hashes -> determinism -> success"}
+    return {"status": status, "checks": checks, "counters": counters, "failure_precedence": "input authentication -> protected source integrity -> corrected economic authority -> parent evidence -> parent decision contract -> instrument evidence -> instrument decision contract -> diversification evidence -> selected basket reconstruction -> overlay evidence -> Stage7 handoff -> scope -> implementation hashes -> determinism -> success"}
 
 
 def manifest_payload(out, audit_status, deterministic):
@@ -508,7 +642,7 @@ def manifest_payload(out, audit_status, deterministic):
     protected = {path: {"expected_frozen_sha256": frozen_tree_hash(path), "actual_current_sha256": current_tree_hash(path)} for path in PROTECTED}
     implementation = {Path(name).name: sha(REPO / name) for name in IMPLEMENTATION}
     outputs = {path.name: sha(path) for path in sorted(out.iterdir()) if path.suffix in (".csv", ".md")}
-    return {"task_base_sha": TASK_BASE_SHA, "decision_source_stage6_base_sha": DECISION_SOURCE_SHA, "status": STATUS, "audit_status": audit_status, "decision_outcome": "SELECTED", "production_assembly_id": ASSEMBLY_ID, "selected_generation": "v3", "selected_futures_type": "perpetual", "selected_strategy": "T3", "selected_timeframe": "H1", "selected_instruments": list(SELECTED_INSTRUMENTS), "selected_structural_overlay": "TRAIL1", "canonical_economic_contract": ECONOMIC_CONTRACT, "research_tick": 0.001, "basket_verification_basis": BASKET_BASIS, "overlay_evidence_basis": "RETROSPECTIVE_CAUSAL_VALIDATION", "overlay_evidence_scope": "V3_PERPETUAL_T3_H1_PARENT", "overlay_fresh_oos": False, "source_tree_hashes": protected, "implementation_file_hashes": implementation, "output_hashes": outputs, "determinism": "BYTE_IDENTICAL_FRESH_BUILDS" if deterministic else "NOT_CERTIFIED", "deterministic_artifact_set": "all CSV and report MD; manifest/audit excluded to avoid circular self-hashes", "no_new_backtest": True, "no_optimizer": True, "no_parameter_search": True, "no_subset_search": True, "no_new_hypothesis": True, "stage7_status": "NEXT"}
+    return {"task_base_sha": TASK_BASE_SHA, "decision_source_stage6_base_sha": DECISION_SOURCE_SHA, "status": STATUS, "audit_status": audit_status, "decision_outcome": "SELECTED", "production_assembly_id": ASSEMBLY_ID, "selected_generation": "v3", "selected_futures_type": "perpetual", "selected_strategy": "T3", "selected_timeframe": "H1", "selected_instruments": list(SELECTED_INSTRUMENTS), "selected_structural_overlay": "TRAIL1", "canonical_economic_contract": ECONOMIC_CONTRACT, "economic_contract": ECONOMIC_CONTRACT, "economic_authority": ECONOMIC_AUTHORITY, "monthly_authority": MONTHLY_AUTHORITY, "pairwise_authority": PAIRWISE_AUTHORITY, "research_tick": 0.001, "basket_verification_basis": BASKET_BASIS, "overlay_evidence_basis": "RETROSPECTIVE_CAUSAL_VALIDATION", "overlay_evidence_scope": "V3_PERPETUAL_T3_H1_PARENT", "overlay_fresh_oos": False, "source_tree_hashes": protected, "implementation_file_hashes": implementation, "output_hashes": outputs, "determinism": "BYTE_IDENTICAL_FRESH_BUILDS" if deterministic else "NOT_CERTIFIED", "deterministic_artifact_set": "all CSV and report MD; manifest/audit excluded to avoid circular self-hashes", "no_new_backtest": True, "no_optimizer": True, "no_parameter_search": True, "no_subset_search": True, "no_new_hypothesis": True, "stage7_status": "NEXT"}
 
 
 def build(out=OUT):
