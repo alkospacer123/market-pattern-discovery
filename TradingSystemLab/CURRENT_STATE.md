@@ -168,3 +168,22 @@ in fixed lifecycle order are T2/M30 `BORDERLINE`, T2/H1 `BORDERLINE`, T3/M30
 Development rows, and used frozen candidates, parameters, strategy code, and C1.
 No optimization, ranking, replacement, recommendation, or portfolio phase was
 performed. Status: `V3_PERPETUAL_PHASE_5_TRUE_OOS_COMPLETE`.
+
+## Current post-v3 handoff — Stage 5.7
+
+- Stage 1 CLOSED
+- Stage 2 CLOSED
+- Stage 3 CLOSED
+- Stage 4 CLOSED
+- Stage 5 CLOSED
+- BE1 = MIXED_RETROSPECTIVE_EVIDENCE
+- TRAIL1 = SUPPORTED_RETROSPECTIVELY
+- Risk Cap = FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED / terminal censoring
+- Minimum Hold = NOT_ADMITTED
+- Session = NOT_ADMITTED
+- Correlated-risk grouping = NOT_ADMITTED
+- Next = Stage 6 Production Assembly Decision
+
+The Stage 5 authority is retrospective and uses `CORRECTED_SINGLE_C1`. No
+production assembly, basket, structural overlay, session rule, minimum-hold
+rule, correlation threshold, or correlated-risk group has been chosen.

@@ -1,0 +1,7 @@
+component_id,evidence_available,stage6_may_consider_evidence,automatic_production_inclusion,automatic_production_exclusion,requires_new_hypothesis_before_rule_use,limitation
+H4_01_PROFIT_PROTECTION_BE1,true,true,false,false,false,Retrospective mixed evidence; Stage 6 may consider without automatic inclusion or exclusion.
+H4_02_PROFIT_PROTECTION_TRAIL1,true,true,false,false,false,Retrospective support; Stage 6 may consider without automatic inclusion or exclusion.
+H4_03_TOTAL_OPEN_RISK_CAP,true,true,false,false,false,Formal verdict unresolved; must not be represented as fully validated.
+MINIMUM_HOLD,true,true,false,false,true,No minimum-hold rule exists; Stage 4 NOT_ADMITTED.
+SESSION_TIME_OF_DAY,true,true,false,false,true,No session rule exists; Stage 4 NOT_ADMITTED.
+CORRELATION_SIMULTANEOUS_RISK,true,true,false,false,true,No static correlated-risk group or threshold exists; Stage 4 NOT_ADMITTED.

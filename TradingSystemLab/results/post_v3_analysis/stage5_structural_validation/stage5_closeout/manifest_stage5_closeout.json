@@ -1,0 +1,90 @@
+{
+  "audit_status": "POST_V3_STAGE_5_FINAL_CLOSEOUT_AUDIT_PASSED",
+  "canonical_rows": 9694,
+  "component_statuses": {
+    "CORRELATION_SIMULTANEOUS_RISK": "DIAGNOSTIC_ONLY_NO_HYPOTHESIS_ADMISSION",
+    "H4_01_PROFIT_PROTECTION_BE1": "MIXED_RETROSPECTIVE_EVIDENCE",
+    "H4_02_PROFIT_PROTECTION_TRAIL1": "SUPPORTED_RETROSPECTIVELY",
+    "H4_03_TOTAL_OPEN_RISK_CAP": "FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED",
+    "MINIMUM_HOLD": "DIAGNOSTIC_ONLY_NO_HYPOTHESIS_ADMISSION",
+    "SESSION_TIME_OF_DAY": "DIAGNOSTIC_ONLY_NO_HYPOTHESIS_ADMISSION"
+  },
+  "data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+  "determinism": {
+    "byte_identical": true,
+    "run1_hashes": {
+      "Stage_5_Final_Closeout_Report.md": "843aa45f7e700ff044f4d826c8811416d7134991a7cf2f4769e89c2d126ae1c6",
+      "stage5_closeout_evidence_registry.csv": "4d34379439eba0beb7cfff02c0e593d22c1d2b86dd54f0f966c0800b6cd5369c",
+      "stage5_closeout_status_matrix.csv": "d9499a5bdc79daaaf0750dfc8918591d6f2caf46c1a5e882feeb9b5664c1d603",
+      "stage5_downstream_constraints.csv": "3fd1d41400a6f72ead6d3eadefda55b20de469377c10a3c72adbbcd9e9e6fc71",
+      "stage5_unresolved_items.csv": "69c1dc946baa51218b52d8f28e0f94a7e05d1aeaeb5107b3e63876882985da96"
+    },
+    "run2_hashes": {
+      "Stage_5_Final_Closeout_Report.md": "843aa45f7e700ff044f4d826c8811416d7134991a7cf2f4769e89c2d126ae1c6",
+      "stage5_closeout_evidence_registry.csv": "4d34379439eba0beb7cfff02c0e593d22c1d2b86dd54f0f966c0800b6cd5369c",
+      "stage5_closeout_status_matrix.csv": "d9499a5bdc79daaaf0750dfc8918591d6f2caf46c1a5e882feeb9b5664c1d603",
+      "stage5_downstream_constraints.csv": "3fd1d41400a6f72ead6d3eadefda55b20de469377c10a3c72adbbcd9e9e6fc71",
+      "stage5_unresolved_items.csv": "69c1dc946baa51218b52d8f28e0f94a7e05d1aeaeb5107b3e63876882985da96"
+    }
+  },
+  "economic_contract": "CORRECTED_SINGLE_C1",
+  "evidence_tree_hash": "e36edf1a61863209da8e599dfeffeb423d4f82b52727042e353394b5f8fca2dc",
+  "implementation_file_hashes": {
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/run_stage5_closeout.py": "b7c236da4ca10c47b6dc8bd9af25d4c2d9528e12a8d0f12d8723c1f30ce1ecd8",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_closeout.py": "2e10c6f359d7291fae5b82ca88ccd29b9b1ae4133a112cf6ecd8b2e7f581f561",
+    "TradingSystemLab/tests/test_stage5_closeout.py": "b719ce19d773650fc3c46667eba99fdce5b8340d0924632344924bd1f5851bbf"
+  },
+  "input_artifact_hashes": {
+    "TradingSystemLab/results/post_v3_analysis/stage4_structural_hypotheses/Stage_4_Structural_Hypothesis_Set.md": "83cbbe5b21a0009b5981e996007943e81577dd4b0a4a736bb3e5a71cdc77ea1c",
+    "TradingSystemLab/results/post_v3_analysis/stage4_structural_hypotheses/audit_stage4_result.json": "7a764cd15975835d7469d0cae58634fd7751a54db79e1bf62aec59f5d8593863",
+    "TradingSystemLab/results/post_v3_analysis/stage4_structural_hypotheses/manifest_stage4.json": "00dcb2141602dd6813f194a57b8539aca79ce807de98a6c2f85093c664741abf",
+    "TradingSystemLab/results/post_v3_analysis/stage4_structural_hypotheses/structural_hypothesis_evidence.csv": "c25f9d7f8fe551a8ebdf6e7d044f3468c0f6cae7a2b067af64dc9f22f90ce30f",
+    "TradingSystemLab/results/post_v3_analysis/stage4_structural_hypotheses/structural_hypothesis_registry.csv": "584a7c89dcb9e8985b4a0a9c5e432264b2c549675e2d45df9402cc12fb699fc8",
+    "TradingSystemLab/results/post_v3_analysis/stage4_structural_hypotheses/structural_hypothesis_validation_contract.csv": "5d5da406fdbd34aaaee005f4a9736ef7b8b4c56873919dfe2e7ac21f03bc00ac",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/be1/BE1_Final_Closeout_Report.md": "009f924eb9a5401c77b2b7384ca6a7a60f5813012473159203330fa1c97c734b",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/be1/audit_be1_result.json": "0798953da9d57c76883f83ac8e9c82dd0dc9a127e6cafec8cffb7fbaf5688e6e",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/be1/be1_c1_correction_audit.json": "e45d4f176f9ec43696ecc01d95839eacda15901cee0eb9a482a929083f5715fb",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/be1/manifest_be1.json": "01ec2fb29b8bf5524645ba85f8697830d02c01841997825e5ddb332c9578c4de",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/canonical_comparator_audit_result.json": "7649678085a3e11dc3dbcd008e9e5ad0bec2e53fcd60537216e279917b7909b4",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/canonical_comparator_manifest.json": "bed5ea874d3e7b00d1aeca89a5cab14f67662c59a09804479488897ec4288178",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/canonical_comparator_reconciliation.csv": "6642583855bdf2a494b8dc3c87d54de2a7842889395323ac3f1a4b074c915689",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/canonical_comparator_trade_reconciliation.csv": "c4dec322e4052c2e74f6f43d8a1db49294d6b8f1695cdbdc946db4926bc19f1a",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/canonical_lifecycle_registry.csv": "f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/correlation_risk/correlation_risk_audit.json": "6c11d0be566f707ebfc02f0b42c844f406f052882568e6964f988637a968f5e3",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/correlation_risk/manifest_correlation_risk.json": "4589d8164d8446b074bb39bd7cabcd3b441c46aab92788cb863e7680eb6beb90",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/minimum_hold/manifest_minimum_hold.json": "3c5aa761ae7808575372e1a2e03b8f6d5d9fc0067584b2c81cb6b2da1d343c62",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/minimum_hold/minimum_hold_audit.json": "33dc0d0b47fda7e6138fc2f20257b8c5a6be18e66a687776872ff603a95f9e25",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/risk_cap/manifest_risk_cap.json": "6eed74d4879c009515e0cec6d0428fb08f9b9220ef7e42b729e792822f71a211",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/risk_cap/risk_cap_audit.json": "a3c1cc659747ba22656597d5453983a0fec2fde3b85a776b3d07f38bf9e585a3",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/risk_cap/risk_cap_terminal_positions.csv": "876a205b9be2c4204322c00bb302ea3afcb184ee5907c4ec2611193837e55926",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/session_time/manifest_session_time.json": "478dfb7f25bd0b4a24e22a3270cbe4e21757347df75a8c0f5e74629d9fd14223",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/session_time/session_time_audit.json": "32aea1f3a1e8098bf9e06c4707e25d14059936b3dc2a6ad01c661f00e0b80941",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/trail1/manifest_trail1.json": "ae29ceba3c52509336ea3c097863aa92ca3e404c15415e3192b49646d29862dd",
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/trail1/trail1_audit.json": "83357fa00db8e144dc92c420968875f30309a07c6d19d691eaa816bc457bfd56"
+  },
+  "next_roadmap_step": "STAGE_6_PRODUCTION_ASSEMBLY_DECISION",
+  "no_new_execution": true,
+  "no_new_hypothesis": true,
+  "no_production_assembly": true,
+  "no_ranking": true,
+  "no_selection": true,
+  "output_hashes": {
+    "Stage_5_Final_Closeout_Report.md": "843aa45f7e700ff044f4d826c8811416d7134991a7cf2f4769e89c2d126ae1c6",
+    "stage5_closeout_evidence_registry.csv": "4d34379439eba0beb7cfff02c0e593d22c1d2b86dd54f0f966c0800b6cd5369c",
+    "stage5_closeout_status_matrix.csv": "d9499a5bdc79daaaf0750dfc8918591d6f2caf46c1a5e882feeb9b5664c1d603",
+    "stage5_downstream_constraints.csv": "3fd1d41400a6f72ead6d3eadefda55b20de469377c10a3c72adbbcd9e9e6fc71",
+    "stage5_unresolved_items.csv": "69c1dc946baa51218b52d8f28e0f94a7e05d1aeaeb5107b3e63876882985da96"
+  },
+  "stage4_hypothesis_count": 3,
+  "stage4_status": "CLOSED",
+  "stage5_status": "POST_V3_STAGE_5_STRUCTURAL_VALIDATION_CLOSED",
+  "strategy_hashes": {
+    "T2": "376df085cfda85eefccb31343aad40ed4fbb1078f1314496472a3a4ac9507774",
+    "T3": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
+  },
+  "task_base_sha": "ca6063f604538dcbecd845d95dd85853238686fa",
+  "unresolved_component_count": 1,
+  "unresolved_components": [
+    "H4_03_TOTAL_OPEN_RISK_CAP"
+  ]
+}

@@ -237,3 +237,11 @@ Walk Forward, and Phase 5 TRUE OOS are COMPLETE. Fixed-order Phase 5 results are
 T2/M30 `BORDERLINE`, T2/H1 `BORDERLINE`, T3/M30 `PASS`, and T3/H1 `PASS`.
 No ranking or winner selection was performed, no portfolio phase is created,
 and no additional lifecycle phase is authorized by this closeout.
+
+### Current roadmap status
+
+- Stage 5 Separate Validation of Structural Changes: CLOSED
+- Stage 6 Production Assembly Decision: NEXT
+
+This status update changes neither the stage order nor any methodological or
+lifecycle authority.

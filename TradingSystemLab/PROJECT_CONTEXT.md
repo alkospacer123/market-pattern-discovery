@@ -202,3 +202,15 @@ COMPLETE. Fixed-order TRUE OOS classifications are T2/M30 `BORDERLINE`, T2/H1
 there is no ranking, candidate recommendation, replacement, optimization, or
 automatic portfolio phase. TRUE OOS used cold/FLAT starts and zero Development
 rows.
+
+## Completed post-v3 program state
+
+Stage 1, Stage 2, Stage 3, Stage 4, and Stage 5 are CLOSED. Stage 6 Production
+Assembly Decision is NEXT. The v1/v2/v3 identities and the revealed-OOS
+limitation remain historical authority; Stage 5 evidence is retrospective and
+its economic authority is `CORRECTED_SINGLE_C1`.
+
+BE1 = MIXED_RETROSPECTIVE_EVIDENCE; TRAIL1 = SUPPORTED_RETROSPECTIVELY; Risk
+Cap = FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED because of terminal censoring;
+Minimum Hold = NOT_ADMITTED; Session = NOT_ADMITTED; Correlated-risk grouping
+= NOT_ADMITTED. No production assembly has yet been selected.
