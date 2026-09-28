@@ -5,6 +5,7 @@ import argparse
 import csv
 import hashlib
 import json
+import math
 import shutil
 import subprocess
 import tempfile
@@ -134,6 +135,29 @@ def _audit_comparator_metrics(canonical: list[dict]) -> dict[tuple[str, str], di
     return result
 
 
+def _audit_groups(rows: list[dict], keys: tuple[str, ...]) -> dict[tuple[str, ...], list[dict]]:
+    """Group rows without depending on the evidence producer's aggregation code."""
+    grouped: dict[tuple[str, ...], list[dict]] = defaultdict(list)
+    for row in rows:
+        grouped[tuple(row[key] for key in keys)].append(row)
+    return grouped
+
+
+def _audit_trade_metrics(rows: list[dict]) -> dict[str, float]:
+    """Reconstruct the five comparator metrics in audit-owned code."""
+    values = [float(row["net_R"]) for row in rows]
+    gains = math.fsum(value for value in values if value > 0)
+    losses = -math.fsum(value for value in values if value < 0)
+    total = math.fsum(values)
+    return {
+        "trades": len(values),
+        "net_R": total,
+        "expectancy_R": total / len(values) if values else 0.0,
+        "PF": gains / losses if losses else (math.inf if gains else 0.0),
+        "win_rate": sum(value > 0 for value in values) / len(values) if values else 0.0,
+    }
+
+
 def _audit_chronological_portfolio_metrics(rows: list[dict]) -> tuple[float, float]:
     equity = peak = 0.0; drawdowns = []
     for row in sorted(rows, key=lambda x: (x["exit_time"], x["entry_time"], x["canonical_trade_key"])):
@@ -179,8 +203,8 @@ def _audit_build(output: Path, facts: dict, deterministic: bool) -> dict:
         published = {(r["generation"], r["lifecycle"]): r for r in reconciliation}
         authority = _audit_comparator_metrics(canonical); economic_ok = dd_ok = True
         dd_mismatches = recovery_mismatches = 0
-        for key, part in diagnostic._groups(canonical, ["generation", "lifecycle"]).items():
-            m, (dd, recovery), row = diagnostic._metrics(part), _audit_chronological_portfolio_metrics(part), published.get(key, {})
+        for key, part in _audit_groups(canonical, ("generation", "lifecycle")).items():
+            m, (dd, recovery), row = _audit_trade_metrics(part), _audit_chronological_portfolio_metrics(part), published.get(key, {})
             for field in ("trades", "net_R", "expectancy_R", "PF", "win_rate"):
                 delta_field = {"trades":"trades_delta", "net_R":"net_R_delta", "expectancy_R":"expectancy_delta", "PF":"PF_delta", "win_rate":"win_rate_delta"}[field]
                 try:
@@ -192,7 +216,9 @@ def _audit_build(output: Path, facts: dict, deterministic: bool) -> dict:
                 dd_ok &= row["equity_ordering"] == "EXIT_TIME_ASC_ENTRY_TIME_ASC_CANONICAL_ID_ASC"
                 dd_delta=float(row["max_DD"])-dd; recovery_delta=float(row["recovery"])-recovery
                 dd_mismatches += abs(dd_delta) > diagnostic.TOL; recovery_mismatches += abs(recovery_delta) > diagnostic.TOL
-                row["chronological_DD_audit_delta"] = str(dd_delta); row["recovery_audit_delta"] = str(recovery_delta)
+                dd_ok &= abs(float(row["chronological_DD_audit_delta"]) - dd_delta) <= diagnostic.TOL
+                dd_ok &= abs(float(row["recovery_audit_delta"]) - recovery_delta) <= diagnostic.TOL
+                dd_ok &= row["DD_reconstruction_status"] == "CHRONOLOGICAL_PORTFOLIO_RECONSTRUCTION"
                 dd_ok &= not dd_mismatches and not recovery_mismatches
                 economic_ok &= row["economic_status"] == "PASS"
             except (KeyError, ValueError): dd_ok = False
@@ -203,7 +229,14 @@ def _audit_build(output: Path, facts: dict, deterministic: bool) -> dict:
         checks["chronological_recovery_independently_reconstructed"] = "PASS" if recovery_mismatches == 0 else "FAIL"
         source = Path(diagnostic.__file__).read_text(encoding="utf-8")
         checks["no_hardcoded_comparator_delta"] = "PASS" if '"comparator_delta":0.0' not in source.replace(" ", "") else "FAIL"
-        checks["implementation_file_hashes_recorded"] = "PASS"
+        implementation_paths = (
+            Path(diagnostic.__file__), Path(__file__), ROOT / "TradingSystemLab/tests/test_stage5_minimum_hold.py")
+        implementation_hashes = {str(path.relative_to(ROOT)): _sha(path) for path in implementation_paths}
+        checks["implementation_file_hashes_recorded"] = "PASS" if (
+            len(implementation_hashes) == 3
+            and all(len(value) == 64 for value in implementation_hashes.values())
+        ) else "FAIL"
+        details["implementation_file_hashes"] = implementation_hashes
         details.update(chronological_DD_mismatches=dd_mismatches, chronological_recovery_mismatches=recovery_mismatches)
 
         buckets = _rows(output / "minimum_hold_bucket_report.csv")
