@@ -205,12 +205,17 @@ rows.
 
 ## Completed post-v3 program state
 
-Stage 1, Stage 2, Stage 3, Stage 4, and Stage 5 are CLOSED. Stage 6 Production
-Assembly Decision is NEXT. The v1/v2/v3 identities and the revealed-OOS
+Stages 1–6 are CLOSED. Stage 6 selected `PROD_STAGE6_83C7B31BB42C`: v3
+perpetual / T3 / H1 / CNYRUBF, GLDRUBF, IMOEXF / TRAIL1. Stage 7 Production
+Specification Freeze is NEXT. The v1/v2/v3 identities and the revealed-OOS
 limitation remain historical authority; Stage 5 evidence is retrospective and
 its economic authority is `CORRECTED_SINGLE_C1`.
 
 BE1 = MIXED_RETROSPECTIVE_EVIDENCE; TRAIL1 = SUPPORTED_RETROSPECTIVELY; Risk
 Cap = FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED because of terminal censoring;
 Minimum Hold = NOT_ADMITTED; Session = NOT_ADMITTED; Correlated-risk grouping
-= NOT_ADMITTED. No production assembly has yet been selected.
+= NOT_ADMITTED. TRAIL1 support remains retrospective, not fresh untouched OOS;
+Risk Cap remains unresolved. The assembly is **NOT YET A FROZEN PRODUCTION
+SPECIFICATION**: Stage 7 must freeze implementation identity, live-contract
+mapping and roll, risk allocation, costs, data conventions, and operational
+safeguards.

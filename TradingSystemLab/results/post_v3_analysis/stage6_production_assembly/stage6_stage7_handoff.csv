@@ -1,0 +1,18 @@
+freeze_state,item,value_or_owner
+FROZEN_BY_STAGE6,production assembly ID,PROD_STAGE6_83C7B31BB42C
+FROZEN_BY_STAGE6,generation,v3
+FROZEN_BY_STAGE6,strategy,T3
+FROZEN_BY_STAGE6,timeframe,H1
+FROZEN_BY_STAGE6,instrument set,CNYRUBF;GLDRUBF;IMOEXF
+FROZEN_BY_STAGE6,structural overlay choice,TRAIL1
+NOT_YET_FROZEN,strategy source implementation freeze,Stage 7
+NOT_YET_FROZEN,exact live contract mapping,Stage 7
+NOT_YET_FROZEN,roll convention,Stage 7
+NOT_YET_FROZEN,risk allocation,Stage 7
+NOT_YET_FROZEN,position sizing,Stage 7
+NOT_YET_FROZEN,portfolio safeguards,Stage 7
+NOT_YET_FROZEN,production cost model,Stage 7
+NOT_YET_FROZEN,session operating schedule,Stage 7
+NOT_YET_FROZEN,broker/order semantics,Stage 7
+NOT_YET_FROZEN,data-feed conventions,Stage 7
+NOT_YET_FROZEN,operational safeguards,Stage 7

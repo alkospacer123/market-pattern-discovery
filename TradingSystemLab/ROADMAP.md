@@ -241,7 +241,8 @@ and no additional lifecycle phase is authorized by this closeout.
 ### Current roadmap status
 
 - Stage 5 Separate Validation of Structural Changes: CLOSED
-- Stage 6 Production Assembly Decision: NEXT
+- Stage 6 Production Assembly Decision: CLOSED
+- Stage 7 Production Specification Freeze: NEXT
 
 This status update changes neither the stage order nor any methodological or
 lifecycle authority.

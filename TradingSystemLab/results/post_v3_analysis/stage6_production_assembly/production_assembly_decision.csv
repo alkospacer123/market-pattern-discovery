@@ -1,0 +1,4 @@
+production_assembly_id,generation,futures_type,strategy,timeframe,candidate_identity,instrument,structural_overlay,economic_contract,research_tick,decision_status
+PROD_STAGE6_83C7B31BB42C,v3,perpetual,T3,H1,v3_T3_H1_PERPETUAL,CNYRUBF,TRAIL1,CORRECTED_SINGLE_C1,0.001,SELECTED
+PROD_STAGE6_83C7B31BB42C,v3,perpetual,T3,H1,v3_T3_H1_PERPETUAL,GLDRUBF,TRAIL1,CORRECTED_SINGLE_C1,0.001,SELECTED
+PROD_STAGE6_83C7B31BB42C,v3,perpetual,T3,H1,v3_T3_H1_PERPETUAL,IMOEXF,TRAIL1,CORRECTED_SINGLE_C1,0.001,SELECTED

@@ -169,7 +169,7 @@ Development rows, and used frozen candidates, parameters, strategy code, and C1.
 No optimization, ranking, replacement, recommendation, or portfolio phase was
 performed. Status: `V3_PERPETUAL_PHASE_5_TRUE_OOS_COMPLETE`.
 
-## Current post-v3 handoff — Stage 5.7
+## Current post-v3 handoff — Stage 6
 
 - Stage 1 CLOSED
 - Stage 2 CLOSED
@@ -182,8 +182,12 @@ performed. Status: `V3_PERPETUAL_PHASE_5_TRUE_OOS_COMPLETE`.
 - Minimum Hold = NOT_ADMITTED
 - Session = NOT_ADMITTED
 - Correlated-risk grouping = NOT_ADMITTED
-- Next = Stage 6 Production Assembly Decision
+- Stage 6 CLOSED: `PROD_STAGE6_83C7B31BB42C`
+- Selected assembly = v3 perpetual / T3 / H1 / CNYRUBF, GLDRUBF, IMOEXF
+- Selected structural overlay = TRAIL1 (`SUPPORTED_RETROSPECTIVELY`)
+- Stage 7 = NEXT
 
-The Stage 5 authority is retrospective and uses `CORRECTED_SINGLE_C1`. No
-production assembly, basket, structural overlay, session rule, minimum-hold
-rule, correlation threshold, or correlated-risk group has been chosen.
+Stages 1–6 are CLOSED. The Stage 5 authority is retrospective and uses
+`CORRECTED_SINGLE_C1`. The Stage 6 assembly is selected but is **NOT YET A
+FROZEN PRODUCTION SPECIFICATION**. No session rule, minimum-hold rule,
+correlation threshold, or correlated-risk group was introduced.
