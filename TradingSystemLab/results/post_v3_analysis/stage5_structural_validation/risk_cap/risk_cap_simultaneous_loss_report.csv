@@ -1,0 +1,13 @@
+generation,lifecycle,mode,multi_loss_exit_timestamps,sum_losses_at_clusters,worst_same_timestamp_loss_cluster,months_multiple_losing_instruments
+v2_quarterly,baseline,canonical,249,-390.398681343,-7.66494477965,60
+v2_quarterly,baseline,capped,141,-72.8188932374,-3.34502284629,60
+v2_quarterly,walk_forward,canonical,38,-70.9983866758,-7.66494477965,12
+v2_quarterly,walk_forward,capped,26,-18.4197524711,-3.34502284629,12
+v2_quarterly,historical_true_oos,canonical,135,-221.824106444,-5.74219262164,21
+v2_quarterly,historical_true_oos,capped,75,-45.1932240199,-1.90736947766,21
+v3_perpetual,baseline,canonical,68,-97.8798989421,-3.48604168123,24
+v3_perpetual,baseline,capped,32,-16.9122795663,-1.0594494791,24
+v3_perpetual,walk_forward,canonical,20,-28.5489188775,-3.48604168123,12
+v3_perpetual,walk_forward,capped,9,-6.10679380206,-1.05944947919,12
+v3_perpetual,historical_true_oos,canonical,80,-133.25169664,-3.57473618945,21
+v3_perpetual,historical_true_oos,capped,26,-15.7737881666,-1.04044113874,21

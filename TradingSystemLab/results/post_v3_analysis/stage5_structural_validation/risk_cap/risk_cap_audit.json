@@ -1,0 +1,50 @@
+{
+  "allocation_above_one": 0,
+  "canonical_arithmetic_mismatches": 0,
+  "canonical_path_mismatches": 0,
+  "canonical_rows": 9694,
+  "capped_arithmetic_mismatches": 0,
+  "capped_rows": 7625,
+  "compact_artifact_determinism": {
+    "risk_cap_admission_report.csv": {
+      "identical": true,
+      "run_1_sha256": "90225069b2bdffc28661e35e21c2e3fb25cdd4da68e1fc913c00083abbdda8e7",
+      "run_2_sha256": "90225069b2bdffc28661e35e21c2e3fb25cdd4da68e1fc913c00083abbdda8e7"
+    },
+    "risk_cap_canonical_path_reconciliation.csv": {
+      "identical": true,
+      "run_1_sha256": "9cf819ae5adb95fdeae65a6cf4c678a16d4a7c53f690e6365cd10abdc289a81b",
+      "run_2_sha256": "9cf819ae5adb95fdeae65a6cf4c678a16d4a7c53f690e6365cd10abdc289a81b"
+    },
+    "risk_cap_lifecycle_report.csv": {
+      "identical": true,
+      "run_1_sha256": "ced8d7e88a40d3b131fabd66d7ea78dd04b48008e723d5ad4eb5907f195b8db7",
+      "run_2_sha256": "ced8d7e88a40d3b131fabd66d7ea78dd04b48008e723d5ad4eb5907f195b8db7"
+    },
+    "risk_cap_open_risk_report.csv": {
+      "identical": true,
+      "run_1_sha256": "a226979aad92dc570bf8478d41d5fe570e37bdcd4749796dc3aa927b880330c2",
+      "run_2_sha256": "a226979aad92dc570bf8478d41d5fe570e37bdcd4749796dc3aa927b880330c2"
+    },
+    "risk_cap_portfolio_summary.csv": {
+      "identical": true,
+      "run_1_sha256": "ced8d7e88a40d3b131fabd66d7ea78dd04b48008e723d5ad4eb5907f195b8db7",
+      "run_2_sha256": "ced8d7e88a40d3b131fabd66d7ea78dd04b48008e723d5ad4eb5907f195b8db7"
+    },
+    "risk_cap_trade_digest.csv": {
+      "identical": true,
+      "run_1_sha256": "07e8f3684bcae771d51b3052e2957e2af82c0d2962a93456e0cdd23e2135721f",
+      "run_2_sha256": "07e8f3684bcae771d51b3052e2957e2af82c0d2962a93456e0cdd23e2135721f"
+    }
+  },
+  "maximum_arithmetic_delta": 0.0,
+  "negative_risk_events": 0,
+  "raw_execution_determinism": "PASS",
+  "risk_accounting_events": 11754,
+  "risk_cap_violations": 0,
+  "run_1_admission_sha256": "6f6c58cd27c8005a2bf9f319a2b6eebd4c8a07fc9c449b0662452c3136d1e403",
+  "run_1_ledger_sha256": "bcc71ef9c0649ddeb6e1c4794e0f05c7f5c38b4a99144bc4f118bc2c7f0464af",
+  "run_2_admission_sha256": "6f6c58cd27c8005a2bf9f319a2b6eebd4c8a07fc9c449b0662452c3136d1e403",
+  "run_2_ledger_sha256": "bcc71ef9c0649ddeb6e1c4794e0f05c7f5c38b4a99144bc4f118bc2c7f0464af",
+  "status": "PASS"
+}
