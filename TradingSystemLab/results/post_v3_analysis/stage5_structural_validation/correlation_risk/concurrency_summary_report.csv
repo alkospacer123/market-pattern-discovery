@@ -1,0 +1,7 @@
+generation,lifecycle,trades,portfolio_active_duration_hours,sum_individual_trade_duration_hours,time_weighted_mean_open_positions,max_open_positions,entries_with_any_open_before,share_entries_with_any_open_before,entries_with_same_instrument_open_before,share_entries_with_same_instrument_open_before,entries_with_same_instrument_same_direction_open_before,entries_with_same_instrument_opposite_direction_open_before,max_nominal_initial_R_units
+v2,baseline,4449,37985,122289.5,3.21941555877,15,3938,0.885142728703,1754,0.394245897955,1750,4,15
+v2,true_oos,1759,12407.5,39526,3.1856538384,12,1552,0.882319499716,624,0.35474701535,623,1,12
+v2,walk_forward,746,6373.5,19611,3.07695928454,10,642,0.860589812332,246,0.329758713137,246,0,10
+v3,baseline,1124,10928.5,27938,2.55643500938,12,850,0.756227758007,433,0.385231316726,433,0,12
+v3,true_oos,1101,9709.5,25946,2.67222823008,11,859,0.780199818347,435,0.395095367847,435,0,11
+v3,walk_forward,515,5309.5,13142.5,2.47528015821,12,382,0.741747572816,172,0.333980582524,172,0,12

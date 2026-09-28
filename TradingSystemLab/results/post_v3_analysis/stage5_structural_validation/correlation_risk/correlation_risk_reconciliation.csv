@@ -1,0 +1,7 @@
+generation,lifecycle,trades,unique_trade_ids,entry_parse_failures,exit_parse_failures,timezone_violations,invalid_intervals,corrected_C1_mismatches,individual_duration_seconds,integrated_open_position_seconds,duration_identity_delta,entry_events,exit_events,final_open_positions,status
+v2,baseline,4449,4449,0,0,0,0,0,440242200,440242200,0,4449,4449,0,PASS
+v2,true_oos,1759,1759,0,0,0,0,0,142293600,142293600,0,1759,1759,0,PASS
+v2,walk_forward,746,746,0,0,0,0,0,70599600,70599600,0,746,746,0,PASS
+v3,baseline,1124,1124,0,0,0,0,0,100576800,100576800,0,1124,1124,0,PASS
+v3,true_oos,1101,1101,0,0,0,0,0,93405600,93405600,0,1101,1101,0,PASS
+v3,walk_forward,515,515,0,0,0,0,0,47313000,47313000,0,515,515,0,PASS
