@@ -1,0 +1,18 @@
+{
+  "checks": {
+    "committed_ledger_exact": true,
+    "monthly_trade_count_net_pf_cumulative_contribution": true,
+    "protected_evidence_unchanged": true,
+    "replay_twice": true,
+    "source_authentication": true,
+    "stage7_not_executed": true,
+    "yearly_trade_count_net_pf_expectancy_dd_recovery_win_median_contribution": true
+  },
+  "event_hash": "0f9034edf228a687da67e9f3e35fad01f2339be162c558e6d802c3cd77eea8ad",
+  "replay_hashes": [
+    "0f9034edf228a687da67e9f3e35fad01f2339be162c558e6d802c3cd77eea8ad",
+    "0f9034edf228a687da67e9f3e35fad01f2339be162c558e6d802c3cd77eea8ad"
+  ],
+  "row_count": 418,
+  "status": "AUTHORITATIVE_TRAIL1_LEDGER_INDEPENDENT_AUDIT_PASSED"
+}
