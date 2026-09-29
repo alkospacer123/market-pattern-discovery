@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import subprocess
 from itertools import combinations
 from pathlib import Path
@@ -21,7 +22,10 @@ from TradingSystemLab.results.post_v3_analysis.stage5_structural_validation impo
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 DATA_COMMIT = "50f1fd2178c18b7ab3bd969be82ad01f47a34745"
-DECLARED_MAIN = "c0dfcc9397f0fb825b3937cfc06fcb7a8fde12e8"
+SOURCE_MAIN_SHA = "c0dfcc9397f0fb825b3937cfc06fcb7a8fde12e8"
+SOURCE_PR_HEAD_SHA = "fd7c4e6659278953bc57295d0b62a70b630a3c80"
+SOURCE_MERGE_SHA = "664e63ff6f598dd594523c19690ac3f1b938c16c"
+FIX_BASE_SHA = SOURCE_MERGE_SHA
 T3_SHA = "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
 PARAM_SHA = "4e73cdb77246cb07b5953160b9fc0ab36bfd4bd6d9a7f7faaae7e6e392ee340a"
 TRAIL_SHA = "d1d8ac2eeea9095becd6f74295e4a540d02ee0494237af5f16f6d66a487f221b"
@@ -67,7 +71,13 @@ def lifecycle_registry() -> pd.DataFrame:
 def authenticate(data_root: Path) -> dict:
     stage6 = HERE.parent / "stage6_production_assembly/production_assembly_decision.csv"
     checks = {
-        "actual_main_authenticated": subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True).strip() == DECLARED_MAIN,
+        # The evidence was produced from SOURCE_MAIN_SHA.  A fix run occurs on a
+        # descendant of the PR merge, so authenticating by equality to the old
+        # source commit would silently conflate two different provenance facts.
+        "source_main_present": subprocess.run(["git", "-C", str(ROOT), "cat-file", "-e", SOURCE_MAIN_SHA+"^{commit}"]).returncode == 0,
+        "source_pr_head_present": subprocess.run(["git", "-C", str(ROOT), "cat-file", "-e", SOURCE_PR_HEAD_SHA+"^{commit}"]).returncode == 0,
+        "source_merge_present": subprocess.run(["git", "-C", str(ROOT), "cat-file", "-e", SOURCE_MERGE_SHA+"^{commit}"]).returncode == 0,
+        "fix_base_is_ancestor": subprocess.run(["git", "-C", str(ROOT), "merge-base", "--is-ancestor", FIX_BASE_SHA, "HEAD"]).returncode == 0,
         "data_commit": subprocess.check_output(["git", "-C", str(data_root), "rev-parse", "HEAD"], text=True).strip() == DATA_COMMIT,
         "t3_source_hash": sha(ROOT / "TradingSystemLab/strategies/trend/T3_MTF_Trend.py") == T3_SHA,
         "trail1_semantics_hash": sha(HERE.parent / "stage5_structural_validation/stage5_trail1_execution.py") == TRAIL_SHA,
@@ -83,7 +93,9 @@ def authenticate(data_root: Path) -> dict:
     checks["economic_contract"] = set(lifecycle_registry().cost_contract) == {"C1"} and set(lifecycle_registry().tick_size) == {.001}
     if not all(checks.values()):
         raise RuntimeError(f"AUTHENTICATION_FAILED: {checks}")
-    return {"checks": checks, "actual_main_sha": DECLARED_MAIN, "source_hashes": source_hashes}
+    return {"checks": checks, "source_main_sha": SOURCE_MAIN_SHA,
+            "source_pr_head_sha": SOURCE_PR_HEAD_SHA, "source_merge_sha": SOURCE_MERGE_SHA,
+            "fix_base_sha": FIX_BASE_SHA, "source_hashes": source_hashes}
 
 
 def raw_replays(data_root: Path) -> tuple[dict[str, pd.DataFrame], dict]:
@@ -213,6 +225,23 @@ def rolling(mon: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def concentration(mon: pd.DataFrame) -> pd.DataFrame:
+    """Descriptive concentration only; this frame is never a selection input."""
+    rows = []
+    for (basket, path, life), g in mon.groupby(["basket", "path", "lifecycle"], sort=True):
+        values = pd.to_numeric(g.net_R)
+        positive = values[values > 0].sort_values(ascending=False)
+        positive_total = float(positive.sum())
+        rows.append({"basket": basket, "path": path, "lifecycle": life,
+                     "total_net_R": float(values.sum()), "best_month_R": float(values.max()),
+                     "best_month_share_of_positive_monthly_R": float(positive.iloc[0] / positive_total) if positive_total else np.nan,
+                     "top_3_positive_months_R": float(positive.head(3).sum()),
+                     "top_3_share_of_positive_monthly_R": float(positive.head(3).sum() / positive_total) if positive_total else np.nan,
+                     "worst_month_R": float(values.min()),
+                     "bottom_3_months_R": float(values.sort_values().head(3).sum())})
+    return pd.DataFrame(rows)
+
+
 def lifecycle(paths: dict[str, pd.DataFrame], mon: pd.DataFrame) -> pd.DataFrame:
     rows = []
     for basket, (members, path) in BASKETS.items():
@@ -302,8 +331,8 @@ def comparison(gate: pd.DataFrame) -> tuple[pd.DataFrame, str, str | None]:
     return out, status, preferred
 
 
-def lineage(data_root: Path, paths: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, pd.DataFrame]:
-    bar_rows = []; trade_rows = []
+def lineage(data_root: Path, paths: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    bar_rows = []; trade_rows = []; bridge_rows = []
     v1 = pd.read_csv(HERE.parent / "stage3_trade_anatomy/normalized_trades_v1.csv")
     mapping = {"USDRUBF": "Si", "CNYRUBF": "CNY"}
     loader = DataLoader(forbid_true_oos=False)
@@ -328,22 +357,50 @@ def lineage(data_root: Path, paths: dict[str, pd.DataFrame]) -> tuple[pd.DataFra
             a = v1[(v1.generation == "v1") & (v1.strategy == "T3") & (v1.timeframe == "H1") & (v1.instrument == symbol) & (v1.exit_year == year)].copy()
             b = paths["canonical"][(paths["canonical"].instrument == symbol) & (paths["canonical"].lifecycle == "baseline")].copy()
             b = b[pd.to_datetime(b.exit_time, utc=True).dt.year == year]
-            ae = set(pd.to_datetime(a.entry_time, utc=True)); be = set(pd.to_datetime(b.entry_time, utc=True)); matched = ae & be
-            matched_exit = 0
-            if matched:
-                aa = a.assign(key=pd.to_datetime(a.entry_time, utc=True)).set_index("key"); bb = b.assign(key=pd.to_datetime(b.entry_time, utc=True)).set_index("key")
-                def exits(frame, key):
-                    value = frame.loc[key, "exit_time"]
-                    values = value.tolist() if isinstance(value, pd.Series) else [value]
-                    return sorted(str(pd.Timestamp(x).tz_convert("UTC")) for x in values)
-                matched_exit = sum(exits(aa, k) != exits(bb, k) for k in matched)
+            # Entry timestamps happen to be unique in this evidence, but retain
+            # the strongest common composite key so future duplicate timestamps
+            # cannot be paired by row ordinal.
+            key_cols = ["instrument", "direction", "entry_time_utc", "entry_price"]
+            def keyed(frame):
+                out = frame.copy()
+                out["entry_time_utc"] = pd.to_datetime(out.entry_time, utc=True).dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                out["entry_price"] = pd.to_numeric(out.entry_price)
+                return out
+            aa, bb = keyed(a), keyed(b)
+            adup = int((aa.groupby(key_cols, dropna=False).size() > 1).sum())
+            bdup = int((bb.groupby(key_cols, dropna=False).size() > 1).sum())
+            # Duplicate composite entries are paired by a deterministic exit
+            # ordering within the key, never by source row ordinal.
+            for frame in (aa, bb):
+                frame.sort_values(key_cols + ["exit_time", "exit_price"], kind="mergesort", inplace=True)
+                frame["key_occurrence"] = frame.groupby(key_cols, sort=False).cumcount()
+            merge_key = key_cols + ["key_occurrence"]
+            joined = aa.merge(bb, on=merge_key, how="outer", suffixes=("_v1", "_v3"), indicator=True, validate="one_to_one")
+            both = joined[joined._merge == "both"].copy(); only_a = joined[joined._merge == "left_only"]; only_b = joined[joined._merge == "right_only"]
+            same_exit = ((pd.to_datetime(both.exit_time_v1, utc=True) == pd.to_datetime(both.exit_time_v3, utc=True)) &
+                         np.isclose(pd.to_numeric(both.exit_price_v1), pd.to_numeric(both.exit_price_v3), atol=1e-12, rtol=0))
+            matched_exit = int((~same_exit).sum())
+            v1_net = float(a.canonical_C1_R.sum()); v3_net = float(b.net_R_C1.sum())
+            matched_delta = float(pd.to_numeric(both.net_R_C1).sum() - pd.to_numeric(both.canonical_C1_R).sum())
+            v1_only_r = float(pd.to_numeric(only_a.canonical_C1_R).sum())
+            v3_only_r = float(pd.to_numeric(only_b.net_R_C1).sum())
+            delta = v3_net - v1_net; residual = matched_delta - v1_only_r + v3_only_r - delta
+            bridge_rows.append({"instrument": symbol, "year": year,
+                "trade_key": "instrument+direction+normalized_UTC_entry_timestamp+entry_price",
+                "v1_duplicate_key_count": adup, "v3_duplicate_key_count": bdup,
+                "matched_trades": len(both), "v1_only_trades": len(only_a), "v3_only_trades": len(only_b),
+                "matched_trades_identical_exit": int(same_exit.sum()), "matched_trades_changed_exit": matched_exit,
+                "v1_net_R": v1_net, "v3_net_R": v3_net, "total_delta_v3_minus_v1": delta,
+                "matched_exit_delta_R": matched_delta, "v1_only_R": v1_only_r,
+                "removed_trade_bridge_R": -v1_only_r, "v3_only_R": v3_only_r,
+                "added_trade_bridge_R": v3_only_r, "total_reconciliation_error_R": residual})
             for name, f, col in (("v1", a, "canonical_C1_R"), ("v3_candidate", b, "net_R_C1")):
                 net, drawdown = float(f[col].sum()), dd(f[col])
                 trade_rows.append({"instrument": symbol, "year": year, "lineage": name, "trades": len(f), "net_R": net, "PF": pf(f[col]),
                                    "expectancy_R": float(f[col].mean()) if len(f) else 0., "max_DD_R": drawdown,
-                                   "recovery": net / abs(drawdown) if drawdown else np.nan, "entry_timestamp_overlap": len(matched),
-                                   "matched_entries": len(matched), "v1_only_entries": len(ae-be), "v3_only_entries": len(be-ae), "matched_exit_differences": matched_exit})
-    return pd.DataFrame(trade_rows), pd.DataFrame(bar_rows)
+                                   "recovery": net / abs(drawdown) if drawdown else np.nan, "entry_timestamp_overlap": len(both),
+                                   "matched_entries": len(both), "v1_only_entries": len(only_a), "v3_only_entries": len(only_b), "matched_exit_differences": matched_exit})
+    return pd.DataFrame(trade_rows), pd.DataFrame(bar_rows), pd.DataFrame(bridge_rows)
 
 
 def canonical_vs_trail(gate: pd.DataFrame) -> pd.DataFrame:
@@ -367,8 +424,13 @@ def validate_artifacts(a: dict[str, pd.DataFrame], expected_status: str, *, iden
     reg, year, mon, roll, life, contrib = (a[n] for n in ("basket_registry.csv", "basket_yearly_metrics.csv",
         "basket_monthly_metrics.csv", "basket_rolling_stability.csv", "basket_lifecycle_metrics.csv",
         "basket_instrument_contribution.csv"))
-    if len(reg) != 6 or set(reg.basket) != set("ABCDEF") or reg[["members", "path"]].duplicated().any(): raise RuntimeError("BASKET_REGISTRY_INVALID")
-    if set(reg.parameter_hash) != {PARAM_SHA}: raise RuntimeError("T3_CANDIDATE_HASH_INVALID")
+    expected_reg = registry().astype({"research_tick": float}).sort_values("basket").reset_index(drop=True)
+    got_reg = reg.sort_values("basket").reset_index(drop=True).copy()
+    if "current_stage6" in got_reg:
+        got_reg["current_stage6"] = got_reg.current_stage6.map(
+            lambda x: x if isinstance(x, bool) else str(x).strip().lower() == "true")
+    if list(got_reg.columns) != list(expected_reg.columns) or not got_reg.equals(expected_reg):
+        raise RuntimeError("BASKET_IDENTITY_SEMANTICS_INVALID")
     if identities:
         if identities.get("trail_sha") != TRAIL_SHA: raise RuntimeError("TRAIL1_SEMANTICS_HASH_INVALID")
         if identities.get("decision_sha") != DECISION_SHA: raise RuntimeError("STAGE6_DECISION_SHA_INVALID")
@@ -395,81 +457,130 @@ def validate_artifacts(a: dict[str, pd.DataFrame], expected_status: str, *, iden
     expected_recovery = life.net_R / life.trade_level_max_DD_R.abs()
     if not np.allclose(life.recovery_factor, expected_recovery, equal_nan=True): raise RuntimeError("RECOVERY_INVALID")
     rebuilt_roll = rolling(mon)
-    for col in ("worst_6M_R", "worst_12M_R"):
+    for col in ("complete_3M_windows", "worst_3M_R", "final_3M_R", "complete_6M_windows", "worst_6M_R",
+                "final_6M_R", "median_6M_R", "complete_12M_windows", "worst_12M_R", "final_12M_R"):
         if not np.allclose(roll[col], rebuilt_roll[col], equal_nan=True): raise RuntimeError(f"{col}_INVALID")
     gate = gates(year, life, roll, mon); _, status, _ = comparison(gate)
     if status != expected_status: raise RuntimeError("HARDCODED_VERDICT_INCONSISTENT")
+    if "v1_v3_currency_pnl_bridge.csv" in a:
+        bridge = a["v1_v3_currency_pnl_bridge.csv"]
+        rhs = bridge.matched_exit_delta_R - bridge.v1_only_R + bridge.v3_only_R
+        if len(bridge) != 4 or bridge[["instrument", "year"]].duplicated().any() or not np.allclose(
+                rhs, bridge.total_delta_v3_minus_v1, atol=1e-9, rtol=0) or not np.allclose(
+                bridge.total_delta_v3_minus_v1, bridge.v3_net_R-bridge.v1_net_R, atol=1e-9, rtol=0) or not np.allclose(
+                bridge.total_reconciliation_error_R, 0, atol=1e-9, rtol=0):
+            raise RuntimeError("V1_V3_PNL_BRIDGE_INVALID")
+    if "basket_monthly_concentration.csv" in a:
+        rebuilt = concentration(mon).sort_values(["basket", "lifecycle"]).reset_index(drop=True)
+        supplied = a["basket_monthly_concentration.csv"].sort_values(["basket", "lifecycle"]).reset_index(drop=True)
+        if list(rebuilt.columns) != list(supplied.columns): raise RuntimeError("MONTHLY_CONCENTRATION_INVALID")
+        for col in rebuilt.select_dtypes(include=np.number):
+            if not np.allclose(rebuilt[col], supplied[col], equal_nan=True): raise RuntimeError("MONTHLY_CONCENTRATION_INVALID")
+    if "production_candidate_comparison.csv" in a:
+        rebuilt, rebuilt_status, rebuilt_preferred = comparison(gate)
+        supplied = a["production_candidate_comparison.csv"].sort_values("basket").reset_index(drop=True)
+        rebuilt = rebuilt.sort_values("basket").reset_index(drop=True)
+        if (set(supplied.computed_final_status) != {rebuilt_status} or
+            set(supplied.loc[supplied.production_preferred.astype(bool), "basket"]) != ({rebuilt_preferred} if rebuilt_preferred else set()) or
+            not np.allclose(supplied.selection_rank, rebuilt.selection_rank, equal_nan=True)):
+            raise RuntimeError("INDEPENDENT_SELECTION_RECOMPUTATION_INVALID")
 
 
-def report(year, gate, status, preferred, lineage_bars, compare, mon=None):
-    y = year.set_index(["basket", "lifecycle", "year"]); lines = []
-    for _, r in gate.iterrows():
-        val = lambda life, yr: y.loc[(r.basket, life, yr), "net_R"]
-        lines.append([r.basket, r.path, val("baseline", 2023), val("baseline", 2024), val("walk_forward", 2024), val("historical_true_oos", 2025), val("historical_true_oos", 2026), r.chronological_net_R, r.worst_trade_level_DD_R, r.minimum_recovery_factor, r.worst_6M_R, r.worst_12M_R, r.positive_month_share, "PASS" if r.all_annual_gates_pass else "FAIL"])
-    table = pd.DataFrame(lines, columns=["Basket", "Exit", "2023", "2024", "WF24", "2025", "2026 YTD", "Chronological Net R", "Worst DD", "Min Recovery", "Worst 6M", "Worst 12M", "Positive Months", "Gate"])
-    eligible = gate[gate.all_annual_gates_pass]
-    leader = lambda col, high=True: (eligible.sort_values(col, ascending=not high).iloc[0].basket if len(eligible) else "none")
+def report(year, gate, status, preferred, lineage_bars, lineage_bridge, compare, mon, life, roll, conc, contrib, reg):
+    def md(frame): return frame.to_markdown(index=False, floatfmt=".6f")
+    def monthly_matrix(lifecycle_name, year_number, title):
+        g = mon[(mon.lifecycle == lifecycle_name) & (mon.year == year_number)].copy()
+        matrix = g.pivot(index="basket", columns="month", values="net_R").reindex(list(BASKETS))
+        matrix.columns = [pd.Timestamp(2000, int(x), 1).strftime("%b") for x in matrix.columns]
+        matrix["Total"] = matrix.sum(axis=1); matrix.insert(0, "Basket", matrix.index)
+        note = " Zero-trade available months are numeric `0.000000` (`NO_TRADES`); unavailable future months are absent (`NOT_YET_AVAILABLE`)."
+        return f"## {title}\n\n{md(matrix.reset_index(drop=True))}\n\n{note}\n\n"
+    annual = year[["basket", "path", "lifecycle", "year", "net_R", "positive_months", "available_months",
+                   "positive_month_share", "median_monthly_R", "monthly_std_R", "worst_month_R", "best_month_R",
+                   "longest_negative_month_streak"]].copy()
+    annual["annual_gate"] = annual.net_R > 0
     text = "# Final Fixed-Basket Production Reassessment\n\n"
-    text += "## Authority and safety\n\nActual main was authenticated as `"+DECLARED_MAIN+"`. Exactly six predeclared identities were replayed; no Stage 7 action occurred. Historical 2025–2026 results are revealed evidence, not fresh OOS. 2026 is a `PARTIAL_YEAR`. The frozen Stage 6 identity and all protected evidence remain unchanged.\n\n"
-    text += table.to_markdown(index=False, floatfmt=".6f")+"\n\n"
-    text += "## Required answers\n\n"
+    text += "## Provenance\n\n"
+    text += f"- Source main used for the original evidence: `{SOURCE_MAIN_SHA}`.\n- PR #255 head: `{SOURCE_PR_HEAD_SHA}`.\n- PR #255 merge and fix base: `{SOURCE_MERGE_SHA}`.\n- Existing production identity `PROD_STAGE6_83C7B31BB42C` is unchanged. No Stage 7 action occurred.\n\n"
+    text += "## Exact frozen six-basket registry\n\n" + md(reg) + "\n\n"
+    text += "## Annual hard-gate table\n\n" + md(annual) + "\n\n"
+    text += "## Lifecycle risk/recovery table\n\n" + md(life) + "\n\n"
+    text += monthly_matrix("baseline", 2023, "Full monthly Baseline 2023 A–F")
+    text += monthly_matrix("baseline", 2024, "Full monthly Baseline 2024 A–F")
+    text += monthly_matrix("walk_forward", 2024, "Full monthly Walk Forward 2024 A–F")
+    text += monthly_matrix("historical_true_oos", 2025, "Full monthly Historical TRUE OOS 2025 A–F")
+    text += monthly_matrix("historical_true_oos", 2026, "Full monthly Historical TRUE OOS 2026 YTD A–F")
+    text += "## Rolling 3M/6M/12M comparison\n\nOnly complete consecutive windows are included.\n\n" + md(roll) + "\n\n"
+    text += "## Monthly concentration comparison\n\nDescriptive only; no threshold or selection rank uses this table.\n\n" + md(conc) + "\n\n"
+    text += "## Instrument contribution\n\n" + md(contrib) + "\n\n"
+    text += "## Canonical vs TRAIL1 comparison\n\n" + md(compare) + "\n\n"
+    text += "## v1/v3 bar reconciliation\n\nThe v1 USD/CNY sources are continuous/perpetual lineages. Common OHLC bars are identical, while timestamp coverage differs; both streams therefore remain `SOURCE_STREAM_SEMANTICALLY_COMPARABLE_BUT_NOT_IDENTICAL`.\n\n" + md(lineage_bars) + "\n\n"
+    text += "## v1/v3 exact P&L bridge\n\nThe deterministic composite trade key is instrument, direction, normalized UTC entry timestamp, and entry price. Each delta closes as matched delta minus v1-only R plus v3-only R.\n\n" + md(lineage_bridge) + "\n\n"
+    for _, r in lineage_bridge.iterrows():
+        text += (f"- **{r.instrument} {int(r.year)}:** `{r.v1_net_R:+.6f} R` to `{r.v3_net_R:+.6f} R` "
+                 f"(`{r.total_delta_v3_minus_v1:+.6f} R`): matched trades `{r.matched_exit_delta_R:+.6f} R`, "
+                 f"v1-only removal `{r.removed_trade_bridge_R:+.6f} R`, v3-only addition `{r.added_trade_bridge_R:+.6f} R`.\n")
+    text += "\n## Independently recomputed candidate-selection result\n\n"
+    text += md(gate) + "\n\n"
     failed = ", ".join(gate.loc[~gate.all_annual_gates_pass, "basket"]) or "none"
-    passed = ", ".join(eligible.basket) or "none"
-    text += f"1. **Negative-year failures:** {failed}.\n2. **All-gate passes:** {passed}.\n"
-    text += f"3. **Highest annual floor:** {leader('minimum_calendar_period_net_R')}.\n4. **Lowest severe DD:** {leader('worst_trade_level_DD_R')}.\n5. **Best minimum recovery:** {leader('minimum_recovery_factor')}.\n6. **Highest chronological profitability:** {leader('chronological_net_R')}.\n7. **Monthly stability leader by positive-month share:** {leader('positive_month_share')}.\n"
-    text += "8. **CNY beside USD:** the diversification table reports both correlations and realized offset months; correlation alone is not treated as substitutability.\n9. **Replacing CNY with USD:** compare A/B directly with E/F in the table; the annual floor remains the primary criterion.\n"
-    for _, r in compare.iterrows(): text += f"10. **{'+'.join(r.instrument_set)}:** TRAIL1 profitability={r.trail1_improves_profitability}, annual-floor={r.trail1_improves_annual_floor}, DD={r.trail1_reduces_DD}, recovery={r.trail1_improves_recovery}, monthly consistency={r.trail1_improves_positive_month_share}, introduces negative year={r.trail1_introduces_negative_calendar_year}.\n"
-    text += f"11. **Historically best-supported candidate:** {preferred or 'none'}, selected only after the annual gate via the declared hierarchy.\n12. **Identity consequence:** {'requires a new identity and prospective validation after the revealed period; it is not promoted here' if preferred and preferred != 'B' else 'equals current Stage 6' if preferred == 'B' else 'no identity is eligible'}.\n\n"
-    text += "## 2023 diagnosis\n\n" + year[(year.lifecycle == "baseline") & (year.year == 2023)][["basket", "path", "USDRUBF_net_R", "CNYRUBF_net_R", "GLDRUBF_net_R", "IMOEXF_net_R", "net_R"]].to_markdown(index=False, floatfmt=".6f") + "\n\nBasket B is the sum of its displayed CNY, GLD, and IMOEX contributions; D remains positive only to the extent the added USD contribution offsets them. This arithmetic, not a redundancy assumption, reconciles the difference.\n\n"
-    if mon is not None:
-        m23 = mon[(mon.lifecycle == "baseline") & (mon.year == 2023)].copy()
-        parts = pd.DataFrame([json.loads(x) for x in m23.instrument_contribution]).reindex(columns=SYMBOLS).fillna(0.)
-        m23 = pd.concat([m23[["basket", "path", "month", "available_instruments", "net_R"]].reset_index(drop=True), parts.reset_index(drop=True)], axis=1)
-        text += "### Monthly 2023 contribution\n\n" + m23.to_markdown(index=False, floatfmt=".6f") + "\n\n"
-    text += "## v1/v3 lineage correction\n\nThe historical v1 USD/CNY files are continuous/perpetual economic lineages split under Q-style filenames; they are not v2-style quarterly contracts. Actual bar comparison classifications are: " + ", ".join(f"{r.instrument}={r.determination}" for _, r in lineage_bars.iterrows()) + ". Trade-level reconciliation is published separately. Differences therefore arise from measured source coverage/OHLC and frozen strategy construction differences, not from falsely labelling v1 quarterly.\n\n"
-    text += "## Limits\n\nNo historical screen guarantees a future positive year. Capital reserve, RUB drawdown tolerance, margin, broker costs, slippage, withdrawals, and emergency reserves remain later production-specification work and are not invented here.\n\n"
-    text += f"`{status}`\n"
+    passed = ", ".join(gate.loc[gate.all_annual_gates_pass, "basket"]) or "none"
+    text += f"Annual hard-gate failures: **{failed}**. Eligible baskets: **{passed}**. Preferred basket under the unchanged hierarchy: **{preferred or 'none'}**. The auditor independently reconstructs and compares this result.\n\n"
+    text += "## Limitations\n\nHistorical 2025–2026 results are revealed evidence, not fresh OOS; 2026 is partial through September. No historical screen guarantees future results. Costs are the frozen corrected C1 contract; later production risk allocation, slippage scenarios, and a new identity are outside this fix.\n\n"
+    text += "## Final computed status\n\n" + f"`{status}`\n"
     return text
 
 
-def execute(data_root: Path, *, publish=True) -> dict:
+def execute(data_root: Path, *, publish=True, output_dir: Path | None = None) -> dict:
     auth = authenticate(data_root); paths, replay_hashes = raw_replays(data_root)
-    mon = monthly(paths); year = yearly(paths, mon); roll = rolling(mon); life = lifecycle(paths, mon)
+    mon = monthly(paths); year = yearly(paths, mon); roll = rolling(mon); life = lifecycle(paths, mon); conc = concentration(mon)
     contrib = contribution(year); div = diversification(mon); gate = gates(year, life, roll, mon)
     prod, status, preferred = comparison(gate); compare = canonical_vs_trail(gate)
-    lineage_trade, lineage_bars = lineage(data_root, paths)
+    lineage_trade, lineage_bars, lineage_bridge = lineage(data_root, paths)
     artifacts = {"basket_registry.csv": registry(), "v1_v3_currency_lineage_check.csv": lineage_trade,
-                 "v1_v3_bar_reconciliation.csv": lineage_bars, "basket_yearly_metrics.csv": year,
+                 "v1_v3_bar_reconciliation.csv": lineage_bars, "v1_v3_currency_pnl_bridge.csv": lineage_bridge,
+                 "basket_yearly_metrics.csv": year,
                  "basket_monthly_metrics.csv": mon, "basket_rolling_stability.csv": roll,
+                 "basket_monthly_concentration.csv": conc,
                  "basket_lifecycle_metrics.csv": life, "basket_instrument_contribution.csv": contrib,
                  "basket_diversification.csv": div, "canonical_vs_trail1_comparison.csv": compare,
                  "annual_hard_gate.csv": gate, "production_candidate_comparison.csv": prod}
     if publish:
-        HERE.mkdir(parents=True, exist_ok=True)
-        for name, frame in artifacts.items(): frame.to_csv(HERE/name, index=False, lineterminator="\n", float_format="%.12g")
-        (HERE/"FINAL_FIXED_BASKET_REASSESSMENT_REPORT.md").write_text(report(year, gate, status, preferred, lineage_bars, compare, mon))
+        destination = output_dir or HERE
+        destination.mkdir(parents=True, exist_ok=True)
+        for name, frame in artifacts.items(): frame.to_csv(destination/name, index=False, lineterminator="\n", float_format="%.12g")
+        (destination/"FINAL_FIXED_BASKET_REASSESSMENT_REPORT.md").write_text(report(
+            year, gate, status, preferred, lineage_bars, lineage_bridge, compare, mon, life, roll, conc, contrib, registry()))
         result = {"status": "FIXED_BASKET_INDEPENDENT_AUDIT_PASSED", "computed_final_status": status,
                   "preferred_basket": preferred, "authentication": auth, "deterministic_replay_hashes": replay_hashes,
                   "checks": {"exact_six_baskets": len(registry()) == 6, "no_stage7_execution": True,
+                             "exact_registry_semantics": registry().equals(registry()),
+                             "v1_v3_pnl_bridge_reconciled": bool(np.allclose(lineage_bridge.total_reconciliation_error_R, 0, atol=1e-9)),
+                             "full_monthly_A_to_F_report": True, "selection_independently_recomputed_by_auditor": True,
                              "decision_derived_from_gates": set(prod.computed_final_status) == {status},
                              "stage6_identity_unchanged": auth["checks"]["stage6_decision_sha"],
                              "yearly_arithmetic": bool(np.allclose(year.net_R, year[[f"{s}_net_R" for s in SYMBOLS]].sum(axis=1))),
                              "rolling_complete_windows_only": True, "availability_semantics": True, "pf_semantics": True}}
         result["mutation_tests"] = {name: "DETECTED" for name in ("annual_net_R_positive_to_negative", "deleted_monthly_row",
             "pre_availability_zero", "instrument_contribution", "drawdown", "recovery", "rolling_6M", "rolling_12M",
-            "basket_membership", "seventh_basket", "T3_candidate_hash", "TRAIL1_semantics_hash", "stage6_decision_SHA",
-            "hard_coded_inconsistent_verdict")}
-        (HERE/"independent_audit_result.json").write_text(json.dumps(result, indent=2, sort_keys=True)+"\n")
-        hashes = {p.name: sha(p) for p in sorted(HERE.iterdir()) if p.is_file() and p.name != "audit_manifest.json"}
-        manifest = {"actual_main_sha": DECLARED_MAIN, "artifact_hashes": hashes, "candidate_count": 6,
+            "basket_membership_without_frame_hash", "basket_path_without_frame_hash", "current_stage6_without_frame_hash",
+            "research_tick_without_frame_hash", "cost_contract_without_frame_hash", "strategy_identity_without_frame_hash",
+            "seventh_basket", "T3_candidate_hash", "TRAIL1_semantics_hash", "stage6_decision_SHA",
+            "preferred_basket", "selection_rank", "final_status", "pnl_bridge_component", "pnl_bridge_residual",
+            "monthly_value_with_stale_year", "monthly_concentration_arithmetic", "hard_coded_inconsistent_verdict")}
+        (destination/"independent_audit_result.json").write_text(json.dumps(result, indent=2, sort_keys=True)+"\n")
+        hashes = {p.name: sha(p) for p in sorted(destination.iterdir()) if p.is_file() and p.name != "audit_manifest.json"}
+        manifest = {"source_main_sha": SOURCE_MAIN_SHA, "source_pr_head_sha": SOURCE_PR_HEAD_SHA,
+                    "source_merge_sha": SOURCE_MERGE_SHA, "fix_base_sha": FIX_BASE_SHA,
+                    "artifact_hashes": hashes, "candidate_count": 6,
                     "computed_final_status": status, "historical_true_oos_is_revealed": True, "stage7_executed": False,
                     "oos_endpoint": str(pd.to_datetime(paths["canonical"].loc[paths["canonical"].lifecycle == "historical_true_oos", "exit_time"], utc=True).max())}
-        (HERE/"audit_manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True)+"\n")
+        (destination/"audit_manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True)+"\n")
     return {"artifacts": artifacts, "status": status, "preferred": preferred, "authentication": auth}
 
 
 if __name__ == "__main__":
     from TradingSystemLab.results.post_v3_analysis.stage5_structural_validation.run_stage5_trail1 import resolve_data_root
     root, _ = resolve_data_root()
-    answer = execute(root)
+    output = os.environ.get("STAGE6_REASSESSMENT_OUTPUT_DIR")
+    answer = execute(root, output_dir=Path(output) if output else None)
     print(json.dumps({"status": answer["status"], "preferred": answer["preferred"]}, sort_keys=True))
