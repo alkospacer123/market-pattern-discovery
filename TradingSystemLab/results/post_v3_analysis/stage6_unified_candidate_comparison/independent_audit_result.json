@@ -1,10 +1,29 @@
 {
-  "exact_five_variants": true,
-  "ranking_performed": false,
-  "reason": "Ranking is forbidden until every authoritative trade ledger is present.",
-  "source_incomplete": [
-    "TRAIL1"
-  ],
-  "status": "FAIL",
+  "basket_count": 11,
+  "checks": {
+    "all_months_present": true,
+    "deterministic_manifest_hashes": true,
+    "exact_11_baskets": true,
+    "exact_55_configurations": true,
+    "exact_authenticated_five_sources": true,
+    "hard_gates_recomputed": true,
+    "hierarchy_and_leaders_recomputed": true,
+    "instrument_monthly_reconstructed": true,
+    "instrument_yearly_reconstructed": true,
+    "legacy_source_unchanged": true,
+    "membership_cardinality": true,
+    "monthly_reconstructed": true,
+    "no_denormalized_ledger": true,
+    "normalized_rows_authentic": true,
+    "normalized_trade_registry": true,
+    "source_ledgers_unchanged": true,
+    "trail1_authoritative_418": true,
+    "yearly_reconstructed": true
+  },
+  "configuration_count": 55,
+  "eligible_count": 47,
+  "failed_checks": [],
+  "stage7_executed": false,
+  "status": "PASS",
   "strategy_replay_executed": false
 }
