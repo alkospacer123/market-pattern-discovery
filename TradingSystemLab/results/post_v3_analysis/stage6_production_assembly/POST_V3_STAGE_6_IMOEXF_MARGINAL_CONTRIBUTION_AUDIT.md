@@ -142,24 +142,32 @@ composition/accounting scope. Do not change the `+1R` TRAIL1 trigger or ATR trai
 
 ### Test 2 — cost sensitivity
 
-Run a deterministic friction sensitivity from the corrected single-C1 authority for both:
+Run the **primary** deterministic friction sensitivity on the same frozen `TRAIL1` trade
+paths used in Test 1 for both:
 
 1. `CNYRUBF + GLDRUBF`
 2. `CNYRUBF + GLDRUBF + IMOEXF`
 
-Use cost multipliers `1.0x`, `1.5x`, and `2.0x` applied to the same frozen trade paths.
-No signal or exit path may change because of this sensitivity calculation.
+This is mandatory because Stage 6 selected `TRAIL1`; the production decision must not be
+made from canonical/base-exit cost sensitivity while assuming it represents the selected
+overlay. The canonical/base-exit basket may be reported only as a secondary diagnostic.
 
-For T3 corrected economics, interpret this as a cost-only overlay on immutable trades:
+Use cost multipliers `1.0x`, `1.5x`, and `2.0x` applied to the same frozen trade paths.
+No signal, TRAIL1 activation, stop path, or exit path may change because of this
+sensitivity calculation.
+
+For corrected T3 economics, apply a cost-only overlay:
 `net_R(m) = corrected_single_C1_net_R - (m - 1) * C1_round_trip_cost_R`.
 
 This is a **research friction-sensitivity test**, not yet the literal Stage 7 broker/exchange
 production tariff. The actual production cost model remains a Stage 7 item and must be
 frozen separately from current broker/exchange data.
 
-Report the break-even/effect-disappearance point for the marginal value of `IMOEXF`, if it
-occurs within or can be linearly bracketed from the predeclared multipliers without adding
-a parameter search.
+Report the marginal `IMOEXF` contribution at each predeclared cost multiplier and the
+break-even/effect-disappearance point, if it occurs within or can be linearly bracketed
+from those multipliers without adding a parameter search. The already observed
+`+3.32 R` figure remains a canonical/base-exit OOS diagnostic; it must not be treated as
+the frozen TRAIL1 marginal contribution.
 
 ## Explicit non-actions
 
