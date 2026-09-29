@@ -1,0 +1,4 @@
+instrument_set,canonical_basket,trail1_basket,trail1_improves_profitability,trail1_improves_annual_floor,trail1_reduces_DD,trail1_improves_recovery,trail1_improves_positive_month_share,trail1_introduces_negative_calendar_year,chronological_delta_R,annual_floor_delta_R
+"('CNYRUBF', 'GLDRUBF', 'IMOEXF')",A,B,True,False,False,False,True,True,6.90148348451,-4.00038630575
+"('USDRUBF', 'CNYRUBF', 'GLDRUBF', 'IMOEXF')",C,D,True,False,False,False,True,False,10.3818758745,-1.77093608299
+"('USDRUBF', 'GLDRUBF', 'IMOEXF')",E,F,True,True,False,False,True,False,13.683755614,0.0512928128867
