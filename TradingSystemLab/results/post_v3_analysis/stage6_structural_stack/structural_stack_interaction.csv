@@ -1,0 +1,13 @@
+instrument,lifecycle,canonical_signals,session_allowed_entries,session_rejected_entries,STACK_entries,STACK_only_entries,net_R,reaching_2R,lock_binding,LOCK1_STOP,later_STACK_only_after_session_rejection,later_STACK_only_after_early_LOCK1_exit_identifiable
+CNYRUBF,baseline,51,51,0,51,0,22.7824690593,13,9,0,0,0
+GLDRUBF,baseline,47,39,8,39,4,6.77199060758,10,3,1,4,0
+IMOEXF,baseline,27,27,0,26,0,18.074891552,9,7,0,0,0
+USDRUBF,baseline,63,61,2,61,1,25.1281022948,19,13,3,1,0
+CNYRUBF,historical_true_oos,54,51,3,51,2,21.664160901,14,9,2,2,0
+GLDRUBF,historical_true_oos,53,42,11,41,8,30.5084000986,16,10,1,8,0
+IMOEXF,historical_true_oos,74,48,26,48,8,4.79861690549,12,7,0,8,0
+USDRUBF,historical_true_oos,49,48,1,48,0,24.4486721575,13,7,0,0,0
+CNYRUBF,walk_forward,16,16,0,16,0,18.0667149389,4,2,0,0,0
+GLDRUBF,walk_forward,24,20,4,20,2,-1.64274353411,5,3,2,2,0
+IMOEXF,walk_forward,15,15,0,14,0,8.3519669499,6,5,0,0,0
+USDRUBF,walk_forward,14,14,0,14,1,12.7504103373,5,5,1,1,0

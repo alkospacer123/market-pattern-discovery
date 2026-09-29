@@ -1,0 +1,3 @@
+path,rule,session_timezone,start_inclusive,end_exclusive,entry_only,trigger_R,lock_R,next_event_activation,C1_tick
+FULL_CANONICAL,FULL_CANONICAL,Europe/Moscow,10:00,21:00,True,2,1,True,0.001
+STRUCTURAL_STACK_V1,SESSION_10_21 + LOCK1_AFTER_2R,Europe/Moscow,10:00,21:00,True,2,1,True,0.001

@@ -1,0 +1,21 @@
+{
+  "checks": {
+    "artifact_hashes": true,
+    "benchmark_unchanged": true,
+    "decision_recomputed": true,
+    "full_core_match": true,
+    "interaction_arithmetic": true,
+    "lock_exact": true,
+    "monthly_arithmetic": true,
+    "next_event": true,
+    "parameter_sha": true,
+    "prior_stages_unchanged": true,
+    "raw_determinism_recorded": true,
+    "session_exact": true,
+    "stage7_not_executed": true,
+    "strategy_sha": true,
+    "yearly_arithmetic": true
+  },
+  "recomputed_decision": "STRUCTURAL_STACK_V1_ADMITTED",
+  "status": "PASS"
+}
