@@ -1,0 +1,10 @@
+{
+  "exact_five_variants": true,
+  "ranking_performed": false,
+  "reason": "Ranking is forbidden until every authoritative trade ledger is present.",
+  "source_incomplete": [
+    "TRAIL1"
+  ],
+  "status": "FAIL",
+  "strategy_replay_executed": false
+}

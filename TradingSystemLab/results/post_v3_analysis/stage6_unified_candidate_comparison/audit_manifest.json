@@ -1,0 +1,10 @@
+{
+  "actual_starting_main_sha": "27b31703054574682c38384ddf1e33a2a7097652",
+  "artifact_only": true,
+  "incomplete_variants": [
+    "TRAIL1"
+  ],
+  "source_registry_sha256": "524b1ae1d7a99f699941f3d222273ce1ce624709ff3e45b45bb8ad8fd1c0a0af",
+  "status": "SOURCE_INCOMPLETE",
+  "strategy_replay_executed": false
+}
