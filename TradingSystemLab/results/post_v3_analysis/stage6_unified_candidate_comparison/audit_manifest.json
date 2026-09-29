@@ -1,10 +1,35 @@
 {
-  "actual_starting_main_sha": "27b31703054574682c38384ddf1e33a2a7097652",
-  "artifact_only": true,
-  "incomplete_variants": [
-    "TRAIL1"
-  ],
-  "source_registry_sha256": "524b1ae1d7a99f699941f3d222273ce1ce624709ff3e45b45bb8ad8fd1c0a0af",
-  "status": "SOURCE_INCOMPLETE",
-  "strategy_replay_executed": false
+  "actual_starting_main_sha": "1bf22b599db7ad047d921a0a512cf780406f99ab",
+  "audit_status": "PASS",
+  "basket_count": 11,
+  "configuration_count": 55,
+  "core_artifact_sha256": {
+    "annual_hard_gates.csv": "e0cbec981afcaa64c26bd77a7fbf2e08e32b187fc8bb417ccf5cc12c877e1c19",
+    "basket_registry.csv": "6b6c4d2284387dc223365a93291e3030eca7ed1f8ce6c5542a712611a0b318de",
+    "configuration_registry.csv": "e00c97a8ffdf5866d73e6e5f962eb030e53d56c077307aec72754ccf8cf80197",
+    "configuration_trade_membership.csv": "c9f63de297e22837d69f51de0430644b79528d4e0f4a96b8b82a3707b3636f96",
+    "diversification_diagnostics.csv": "dd7df0f224c54af2810cd8f6cf720b2e31177ea826cc938f6352af34a82c1e4c",
+    "drawdown_recovery.csv": "aaabcf2e1e363f69762cfbb7599be6dcf6bceac232d42b38cbda14c58014fa5e",
+    "instrument_monthly_metrics.csv": "1d3ba247c826b8a8ff0891aa64a17ce142166829bf3e92a53b2e7b8b8be68659",
+    "instrument_yearly_metrics.csv": "c53f96f26e9f1da3dc39ab47d9154b6d7ce50ac15d85ad008444bffaa3056f77",
+    "legacy_A_F_unified_bridge.csv": "cd49a5cdc66d748bddce40f8e05d6f4673362d31281a043ec7cfaf4b5de0c3e0",
+    "master_55_configuration_comparison.csv": "a24ddb078ae2c1acd8ede7d47db0d6162cc3cf521a5b345ddcc5d0383a3c6257",
+    "monthly_concentration.csv": "1605d64603ea48ac2069409af65bf1f537fb9044ccb0e5435391801ec7359c9a",
+    "monthly_metrics.csv": "dac795d35fc4a0ecc9b7c8431a31729a7bcbd23a7ba1ab48c659365c36496eb4",
+    "monthly_stability.csv": "f34ee7576ae3c5791cd3477012713901a76dfbe4bc6c4be4a0c6ecb9aab9939f",
+    "portfolio_trade_scaling_registry.csv": "8f0493f5dd4edf087881622005efde0531c6146903a38c362e72dbc508071b1e",
+    "rolling_stability.csv": "4fdecadf45f07f9d06a117bc7b8c95f10db259d85117f60f4d94fb751fe65406",
+    "same_basket_variant_comparison.csv": "f00afca50864ff04110fdaf184b1fe44d20199585e44badbc26b26ca639dbf67",
+    "structural_variant_comparison.csv": "9d525f90acf41a227b48e78e0648f9339feeff0046bf5fb387efe04fe72b5b21",
+    "trail1_vs_canonical_comparison.csv": "290bad4f43c7cf91022997228f6742d810f0d9f56d440e43828f571470b818eb",
+    "unified_leaders.csv": "a1c89189c0955c85f3647ad94a2050ee2cda99277e41df32a7c183894e0d946e",
+    "variant_source_registry.csv": "23846c112161ab2742c73e81d70918177e8dfa7ca55a636a1a353cf1b4dfebc3",
+    "variant_vs_canonical_delta.csv": "6de8cdea66d9b2df393688156648c6524ad4cdd28ab6b2c85c4ffcc1309740eb",
+    "yearly_metrics.csv": "f436543ce88c749c51de201c92236d0bd6804ac3796f1fca1edaf3ba3a300f86"
+  },
+  "frozen_legacy_monthly_source_sha256": "e724851fc17ce3f6f71778129ea5cfa4e810d47a0992f00c1974761dde982cb4",
+  "stage7_executed": false,
+  "status": "ALL_VARIANT_SOURCES_AUTHENTICATED",
+  "strategy_replay_executed": false,
+  "variant_count": 5
 }
