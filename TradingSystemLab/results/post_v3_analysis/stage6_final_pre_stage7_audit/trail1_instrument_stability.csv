@@ -1,0 +1,5 @@
+instrument,classification,positive_views,negative_views,zero_views,PF_improving_lifecycles,DD_improving_lifecycles,recovery_improving_lifecycles,rule
+CNYRUBF,DEVELOPMENT_WF_BENEFIT_OOS_DEGRADATION,2,3,0,1,2,1,"five descriptive views: Baseline, WF, revealed OOS, 2025, 2026 partial; no score"
+GLDRUBF,DEVELOPMENT_WF_BENEFIT_OOS_DEGRADATION,2,3,0,1,0,1,"five descriptive views: Baseline, WF, revealed OOS, 2025, 2026 partial; no score"
+IMOEXF,OOS_SPECIFIC_BENEFIT,3,2,0,1,1,1,"five descriptive views: Baseline, WF, revealed OOS, 2025, 2026 partial; no score"
+USDRUBF,DEVELOPMENT_WF_BENEFIT_OOS_DEGRADATION,3,2,0,2,0,1,"five descriptive views: Baseline, WF, revealed OOS, 2025, 2026 partial; no score"
