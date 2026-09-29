@@ -1,0 +1,18 @@
+{
+  "checks": {
+    "annual_gates": true,
+    "artifacts_unchanged": true,
+    "c1_tick": true,
+    "decision_recomputed": true,
+    "exact_original_r_levels": true,
+    "exit_attribution": true,
+    "monotonic_floor": true,
+    "next_event_activation": true,
+    "parameter_hash": true,
+    "protected_scope": true,
+    "replays_deterministic": true,
+    "strategy_hash": true
+  },
+  "independently_recomputed_decision": "LOCK1_AFTER_2R_ADMIT_TO_STRUCTURAL_STACK",
+  "status": "PASS"
+}
