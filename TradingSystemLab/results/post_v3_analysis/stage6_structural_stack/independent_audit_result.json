@@ -11,6 +11,7 @@
     "parameter_sha": true,
     "prior_stages_unchanged": true,
     "raw_determinism_recorded": true,
+    "raw_source_hashes": true,
     "session_exact": true,
     "stage7_not_executed": true,
     "strategy_sha": true,

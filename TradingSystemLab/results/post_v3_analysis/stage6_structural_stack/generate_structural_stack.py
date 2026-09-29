@@ -121,8 +121,16 @@ def authenticate(root):
     auth={'source_hashes':sources,'benchmark_hashes':{p.name:sha(p) for p in base.BENCH.iterdir() if p.is_file()}}
     checks={'strategy':sha(ROOT/'TradingSystemLab/strategies/trend/T3_MTF_Trend.py')==base.T3_SHA,'parameters':set(frozen.lifecycle_registry().query("lifecycle!='baseline'").strategy_parameter_hash)=={base.PARAM_SHA},'sources':len(sources)==4 and all(sha(Path(root)/p)==h for p,h in sources.items()),'old_stage6':sha(base.OLD_STAGE6)==base.OLD_STAGE6_SHA}
     if not all(checks.values()): raise RuntimeError(f'AUTHENTICATION_FAILED:{checks}')
-    auth['starting_main_sha']=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
-    if auth['starting_main_sha']!=STARTING_MAIN_SHA: raise RuntimeError('STARTING_MAIN_MISMATCH')
+    # The evidence records the authenticated Stage 6.4 merge, not whichever
+    # descendant happens to run this reproducibility command.  Requiring HEAD
+    # itself to remain at that commit made the checked-in generator impossible
+    # to rerun after Stage 6.5 was committed.
+    auth['starting_main_sha']=STARTING_MAIN_SHA
+    descendant=subprocess.run(
+        ['git','merge-base','--is-ancestor',STARTING_MAIN_SHA,'HEAD'],
+        check=False,
+    ).returncode == 0
+    if not descendant: raise RuntimeError('STARTING_MAIN_NOT_IN_HISTORY')
     auth['prior_stage_hashes']=prior; return auth
 
 def report(a,m):
