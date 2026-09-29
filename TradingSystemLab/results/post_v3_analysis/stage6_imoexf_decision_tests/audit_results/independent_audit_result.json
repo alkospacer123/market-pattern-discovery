@@ -1,0 +1,43 @@
+{
+  "artifact_determinism": {
+    "STAGE6_IMOEXF_DECISION_TESTS_REPORT.md": true,
+    "cost_sensitivity_monthly.csv": true,
+    "cost_sensitivity_summary.csv": true,
+    "imoexf_canonical_vs_trail1_trade_reconciliation.csv": true,
+    "trail1_basket_summary.csv": true,
+    "trail1_lifecycle_summary.csv": true,
+    "trail1_monthly_detail.csv": true
+  },
+  "assembly_id": "PROD_STAGE6_83C7B31BB42C",
+  "checks": {
+    "assembly_id_exact": true,
+    "authority_declares_audit_only": true,
+    "authority_present": true,
+    "cost_contract_exact": true,
+    "data_commit_exact": true,
+    "frozen_t3_sha_exact": true,
+    "immutable_cost_paths": true,
+    "isolated_rerun_byte_identical": true,
+    "multipliers_exact": true,
+    "no_basket_search": true,
+    "no_new_instruments": true,
+    "no_parameter_grid": true,
+    "no_ranking": true,
+    "no_stage7_execution": true,
+    "production_assembly_unchanged": true,
+    "production_decision_sha_exact": true,
+    "protected_trees_unchanged": true,
+    "reconciliation_complete": true,
+    "stage5_certified": true,
+    "trade_summary_reconciles": true,
+    "trail1_semantics_sha_exact": true,
+    "trail1_trigger_exact": true,
+    "upstream_source_hashes_exact": true
+  },
+  "event_rows": 306,
+  "event_sha256_runs": [
+    "75a419609e102028d7aadab5ba430714dab3bd05128ae68eeaef78f1c19473ba",
+    "75a419609e102028d7aadab5ba430714dab3bd05128ae68eeaef78f1c19473ba"
+  ],
+  "status": "PASS"
+}

@@ -1,0 +1,41 @@
+{
+  "artifact_hashes": {
+    "STAGE6_IMOEXF_DECISION_TESTS_REPORT.md": "0058bd15f7f65e1d3c7778c38856e88b97d2a063738e87bfa7a6267748bccb84",
+    "cost_sensitivity_monthly.csv": "eef4cada437851a7e49e832ccf7e58a73ed7c1d28e46d46731773e2f793d7d35",
+    "cost_sensitivity_summary.csv": "61e3cf1aa583928fdbfdc060d73e4d06640f53700b0c8801b212d13256470ae7",
+    "imoexf_canonical_vs_trail1_trade_reconciliation.csv": "859e93e7798e165c9725460497851c95995e7a09e0749a24a997eac7bf3cc045",
+    "independent_audit_result.json": "c5e4de6a6fa1794e0c97132607d8c5315e93ecc2fb281a4b835cced4c47aafa5",
+    "trail1_basket_summary.csv": "d48f91e8aeb089ffe89784608f7b6108cc99c77d2047194482539dadd1b2f0f3",
+    "trail1_lifecycle_summary.csv": "2b78c77f651becb39ad1b62ab8f6a29fc9a24fba8bca0cb8095acb775500e3a2",
+    "trail1_monthly_detail.csv": "4017922d1436846c8c31b6b742e0afb89a0692b4bd9f6452ed2c8554c8e989ed"
+  },
+  "assembly_id": "PROD_STAGE6_83C7B31BB42C",
+  "authority_sha256": "27cba35428f46dd2dd0aa4939e64951f332e8897c560d9d7fa3cf34b80e0c272",
+  "economic_contract": "CORRECTED_SINGLE_C1",
+  "generation": "v3",
+  "historical_true_oos_is_revealed": true,
+  "instruments": [
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "overlay": "TRAIL1",
+  "predeclared_cost_multipliers": [
+    1.0,
+    1.5,
+    2.0
+  ],
+  "production_decision_sha256": "1efdaac2b689e2537b17371407a4d219dec5334c490a56c2378b065b9055431b",
+  "registry_sha256": "f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6",
+  "research_tick": 0.001,
+  "stage6_decision_changed": false,
+  "stage7_executed": false,
+  "status": "PASS",
+  "strategy": "T3",
+  "timeframe": "H1",
+  "upstream_source_hashes": {
+    "forever/CNYRUBF/CNYRUBF_H1.csv": "a3815b88a11aa5878b8bd104140f002859349c2c8d7f6ff0476a0d4c4d9a612e",
+    "forever/GLDRUBF/GLDRUBF_H1.csv": "12a626ba6cc47fce2f392d4a6ce3bdb8a3c1aad074306a73ab480fcfbb83b87e",
+    "forever/IMOEXF/IMOEXF_H1.csv": "119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110"
+  }
+}
