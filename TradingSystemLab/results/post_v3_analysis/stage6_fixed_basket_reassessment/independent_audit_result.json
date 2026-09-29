@@ -1,0 +1,61 @@
+{
+  "authentication": {
+    "actual_main_sha": "c0dfcc9397f0fb825b3937cfc06fcb7a8fde12e8",
+    "checks": {
+      "actual_main_authenticated": true,
+      "candidate_parameter_hash": true,
+      "data_commit": true,
+      "economic_contract": true,
+      "exact_six_registry": true,
+      "four_source_hashes": true,
+      "stage6_decision_sha": true,
+      "t3_source_hash": true,
+      "trail1_semantics_hash": true
+    },
+    "source_hashes": {
+      "forever/CNYRUBF/CNYRUBF_H1.csv": "a3815b88a11aa5878b8bd104140f002859349c2c8d7f6ff0476a0d4c4d9a612e",
+      "forever/GLDRUBF/GLDRUBF_H1.csv": "12a626ba6cc47fce2f392d4a6ce3bdb8a3c1aad074306a73ab480fcfbb83b87e",
+      "forever/IMOEXF/IMOEXF_H1.csv": "119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110",
+      "forever/USDRUBF/USDRUBF_H1.csv": "f0ca366d816a6213742271242e87c53d1e23f5a5fc4655df0123217df418a226"
+    }
+  },
+  "checks": {
+    "availability_semantics": true,
+    "decision_derived_from_gates": true,
+    "exact_six_baskets": true,
+    "no_stage7_execution": true,
+    "pf_semantics": true,
+    "rolling_complete_windows_only": true,
+    "stage6_identity_unchanged": true,
+    "yearly_arithmetic": true
+  },
+  "computed_final_status": "NEW_PRODUCTION_IDENTITY_REQUIRED_BEFORE_STAGE7",
+  "deterministic_replay_hashes": {
+    "TRAIL1": [
+      "0f9034edf228a687da67e9f3e35fad01f2339be162c558e6d802c3cd77eea8ad",
+      "0f9034edf228a687da67e9f3e35fad01f2339be162c558e6d802c3cd77eea8ad"
+    ],
+    "canonical": [
+      "91d7e10784010b04a1953b10a9c77d75d70af4613f810e0e42118d6f03c55833",
+      "91d7e10784010b04a1953b10a9c77d75d70af4613f810e0e42118d6f03c55833"
+    ]
+  },
+  "mutation_tests": {
+    "T3_candidate_hash": "DETECTED",
+    "TRAIL1_semantics_hash": "DETECTED",
+    "annual_net_R_positive_to_negative": "DETECTED",
+    "basket_membership": "DETECTED",
+    "deleted_monthly_row": "DETECTED",
+    "drawdown": "DETECTED",
+    "hard_coded_inconsistent_verdict": "DETECTED",
+    "instrument_contribution": "DETECTED",
+    "pre_availability_zero": "DETECTED",
+    "recovery": "DETECTED",
+    "rolling_12M": "DETECTED",
+    "rolling_6M": "DETECTED",
+    "seventh_basket": "DETECTED",
+    "stage6_decision_SHA": "DETECTED"
+  },
+  "preferred_basket": "C",
+  "status": "FIXED_BASKET_INDEPENDENT_AUDIT_PASSED"
+}
