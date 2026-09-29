@@ -1,0 +1,25 @@
+{
+  "checks": {
+    "DD_recovery": "PASS",
+    "availability_and_rolling": "PASS",
+    "bridge_identities": "PASS",
+    "byte_identical_isolated_rerun": "PASS",
+    "instrument_totals": "PASS",
+    "monthly_stability": "PASS",
+    "no_optimization_or_stage7": "PASS",
+    "redundancy_evidence": "PASS",
+    "stage6_decision_sha": "PASS",
+    "yearly_totals": "PASS"
+  },
+  "mutation_tests": {
+    "CNY_USD_redundancy": "DETECTED",
+    "DD": "DETECTED",
+    "instrument_net_R": "DETECTED",
+    "matched_exit_delta": "DETECTED",
+    "monthly_stability": "DETECTED",
+    "removed_canonical_only_trade": "DETECTED",
+    "stage6_decision_SHA": "DETECTED",
+    "yearly_result": "DETECTED"
+  },
+  "status": "FINAL_PRE_STAGE7_INDEPENDENT_AUDIT_PASSED"
+}
