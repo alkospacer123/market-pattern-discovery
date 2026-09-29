@@ -1,0 +1,20 @@
+{
+  "af_unchanged": true,
+  "annual_gates_and_hierarchy": "PASS",
+  "arithmetic_reconciliation_decomposition": "PASS",
+  "canonical_entry_stop_trail": "PASS",
+  "completed_h4_causality": "PASS",
+  "decision": "OPPOSITE_REGIME_EXIT_NO_MATERIAL_DIFFERENCE",
+  "deterministic_raw_replay": "PASS",
+  "exact_frozen_identity": "PASS",
+  "no_same_event_reversal": "PASS",
+  "no_session_or_confirmation": "PASS",
+  "old_stage6_unchanged": true,
+  "opposite_only_none_holds": "PASS",
+  "rolling_dd_recovery_concentration": "PASS",
+  "stage6_1_unchanged": true,
+  "stage6_2_unchanged": true,
+  "stage7_executed": false,
+  "status": "STAGE6_3_OPPOSITE_REGIME_INDEPENDENT_AUDIT_PASSED",
+  "stop_priority": "PASS"
+}
