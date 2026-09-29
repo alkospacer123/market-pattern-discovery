@@ -1,193 +1,146 @@
 # Current state — read first
 
-## v3 Perpetual current handoff
+## Authoritative handoff
 
-The independent `v3_perpetual` generation has completed Phase 1 Baseline
-(`V3_PERPETUAL_PHASE_1_BASELINE_COMPLETE`) and Phase 2 Optimization
-(`V3_PERPETUAL_PHASE_2_OPTIMIZATION_COMPLETE`). Phase 2 classified T2/M30 as
-`ROBUST_PLATEAU` (3 configurations), T2/H1 as `ROBUST_PLATEAU` (4), T3/M30 as
-`ROBUST_PLATEAU` (9), and T3/H1 as `ROBUST_PLATEAU` (9): 25 robust-plateau
-configurations across 82 total bounded OAT configurations. Consolidation did
-not rerun Optimization, rank the configurations, declare a winner, or select a
-candidate.
+The active TradingSystemLab work is now the **post-v3 production program**. The
+v3 Perpetual five-stage research lifecycle is complete and immutable as historical
+evidence. Post-v3 Stages 1–6 are also CLOSED. The next permitted action is
+**Stage 7 — Production Specification Freeze**.
 
-The canonical Phase 1 merge is `f8ee11841eedb11cb6ec98debc74ad8bc8c0c8a9`,
-and its independently hardened audit closeout is
-`a9c9815a9865a2c20fa555292de2c9924aadca96`. That audit passes all 16 ledgers
-(1,124 trades), eight source data files, report reconciliations, and
-causal-context checks. The Phase 2A T2 and Phase 2B T3 provenance anchors are
-`7559953fd3dda8582af17f747ee38d94a93c42ad` and
-`3b3cb3046f3f68c602d6d65f715d23090ab4a17c`; the canonical Phase 2
-consolidation merge is `272eabd5a4261a18a763356964b82b4b5b5673ea`.
+Latest accepted repository state used for this handoff:
 
-The artifact-only v3 Candidate Freeze is **COMPLETE**. Frozen identities are
-T2/M30 `T2_M30_candidate_v3` / `T2-M30-608dc87d09f1`, T2/H1
-`T2_H1_candidate_v3` / `T2-H1-608dc87d09f1`, T3/M30
-`T3_M30_candidate_v3` / `T3-M30-d6feb972db57`, and T3/H1
-`T3_H1_candidate_v3` / `T3-H1-4e73cdb77246`. Phase 3 Robustness is **COMPLETE**
-(`V3_PERPETUAL_PHASE_3_ROBUSTNESS_COMPLETE`): all four frozen studies classify
-`ROBUST_READY`. Phase 4 Walk Forward is **COMPLETE** as a procedure
-(`V3_PERPETUAL_PHASE_4_WALK_FORWARD_COMPLETE`): T2/M30, T2/H1, and T3/M30
-classify `WALK_FORWARD_BORDERLINE`; T3/H1 classifies `WALK_FORWARD_PASS`. Each
-study has four valid expanding-window quarterly folds. TRUE OOS >= 2025-01-01
-remains `BLOCKED_NOT_READ_NOT_EXECUTED`; Phase 5 had not yet been executed at that checkpoint. The next
-permitted action is Phase 5 TRUE OOS only after a separate explicit task.
+- current `main`: `3687b65d591659f91ae9ecf8c93f775c3b10a44c`;
+- v3 Phase 5 reproducible lifecycle closeout: `aab2659cfc91846631bbe22ff3b45e3e4e4af85f`;
+- Stage 1 final independent closeout: `05e2cdb30ba8ec341403583d37e02712d179a6a7`;
+- Stage 2 final availability-semantics correction: `c90e519f2fd4ee6720d9b0da0b1a11ac28cc0c05`;
+- Stage 3 final independent closeout: `244a5adac2baee3bb28d697efa25299b0a1973ef`;
+- Stage 4 structural hypothesis freeze: `1378cc2868095823655bab9eebbb8a2d01db9376`;
+- Stage 5 final independently certified closeout: `fdee91b474ccdebcf9d7dc56d8e87a112d37e50e`;
+- Stage 6 final corrected economic-authority merge: `3687b65d591659f91ae9ecf8c93f775c3b10a44c`.
 
-> Persistent handoff snapshot after the independently audited TradingSystemLab
-> v2 Phase 5 TRUE OOS execution. Canonical provenance anchors are Phase 1 merge
-> `2aae07a3d12907d1869eb603e6ac1a6fb8d851dd`, T2 Phase 2A merge
-> `a252f076a09495d3093854c8509b1551701ba2b4`, and T3 Phase 2B merge
-> `f8f28834db4bc016a995b55aed1ff7fd53a4a0e8`. The canonical Phase 5 merge is
-> `2d7cd61b8d4d399901ebce397d1c2b7111ae427c`.
+## v3 Perpetual lifecycle — CLOSED
 
-## Governing rule
+Universe: `USDRUBF`, `CNYRUBF`, `GLDRUBF`, `IMOEXF`; strategies T2/T3;
+timeframes M30/H1. The original H1 lifecycle remained the governing template:
 
-The original H1 cycle and frozen H1 strategy identities remain the sole
-methodological authority: **Baseline → Optimization → Robustness → Walk Forward
-→ TRUE OOS**. No stage may be skipped, borrowed from another timeframe, or
-replaced by later timeframe/MTF work. Calendar year 2025+ was opened only at
-its preauthorized Phase 5 stage.
+**Baseline → Optimization → Robustness → Walk Forward → TRUE OOS**.
 
-## Accepted current cycle
+Final v3 TRUE OOS classifications, in fixed study order:
 
-- **Phase 1 Baseline: COMPLETE.** The accepted Development matrix is T2/T3 ×
-  Si/CNY/GD/BR/MIX/NG × M30/H1, with 24 runs over the declared 2020-01-01
-  through 2024-12-31 interval, C1 only, and normalized research tick `0.001`.
-- **Phase 2 Optimization: COMPLETE.** The artifact-only consolidation audit
-  independently verified the complete 82-configuration bounded Baseline + OAT
-  design, exact parameter spaces and hashes, Phase 1 Baseline reconciliation,
-  C1-only calculations, six-instrument diagnostics, causal T3 context, TRUE OOS
-  exclusion, immediate neighbors, and all plateau classifications.
-- Scoped Phase 2 results are T2/M30 `ROBUST_PLATEAU` (3 configurations), T2/H1
-  `ROBUST_PLATEAU` (4), T3/M30 `ROBUST_PLATEAU` (9), and T3/H1
-  `ROBUST_PLATEAU` (9). These counts are a descriptive stable-region inventory,
-  not a ranking.
-- **Phase 3 Candidate Selection / Freeze: COMPLETE.** Exactly one predeclared
-  candidate is immutable for each study: T2/M30 → `T2_M30_candidate_v2`, T2/H1
-  → `T2_H1_candidate_v2`, T3/M30 → `T3_M30_candidate_v2`, and T3/H1 →
-  `T3_H1_candidate_v2`. Historical H1 candidates were provenance only.
-- **Phase 3 Robustness: COMPLETE.** The original H1 Phase 3.3 methodology,
-  adapted only to the frozen v2 C1-only contract, classified T2/M30
-  `ROBUST_READY`, T2/H1 `BORDERLINE`, T3/M30 `ROBUST_READY`, and T3/H1
-  `ROBUST_READY`. T2/H1 retained its frozen identity and records
-  `INSTRUMENT_DEPENDENT`; it was not replaced.
-- The canonical candidate-freeze merge anchor is
-  `ff0db54b35544086f4265c303b1018d57d3849e7`.
-- The canonical Phase 3 Robustness merge anchor is
-  `d89d0f1f7ba3259e0f08e43a0832bd16f4d15f6b`.
-- **Phase 4 Walk Forward: COMPLETE as a procedure.** All four immutable
-  candidates were executed independently on four expanding-window quarterly
-  tests in 2024, C1 only. T2/M30, T2/H1, T3/M30, and T3/H1 each received
-  `WALK_FORWARD_BORDERLINE`; no candidate was pruned or replaced.
-- The canonical Phase 4 merge anchor is
-  `0b0027665fdcc0f847b6b9a10cb5928fcfd2d553`.
-- **Phase 5 TRUE OOS: COMPLETE as a procedure.** All four frozen identities
-  started cold and FLAT on admitted 2025+ observations. T2/M30, T2/H1,
-  T3/M30, and T3/H1 each classified `BORDERLINE`. No candidate was replaced,
-  optimized, or ranked after TRUE OOS was opened.
-- The canonical Phase 5 procedural status is
-  `PHASE_5_TRUE_OOS_VALIDATION_COMPLETE`.
-- The consolidation did not rerun Optimization and makes no claim of a second
-  byte-identical Phase 2A/2B execution.
+- T2/M30 — `BORDERLINE`;
+- T2/H1 — `BORDERLINE`;
+- T3/M30 — `PASS`;
+- T3/H1 — `PASS`.
 
-## Identity and scope safeguards
+TRUE OOS was consumed by the authorized v3 Phase 5 evaluation and is no longer
+untouched evidence for those identities. No post-hoc parameter change may rewrite
+the v3 lifecycle.
 
-The canonical Baseline retains T2 `max_initial_stop_atr = 3.0` and T3
-`ema_period = 100`; historical post-Optimization H1 candidate values 2.5 and 75
-must not be confused with Baseline defaults. T3 M30/H1 uses separate causal
-context made from complete, non-overlapping four-execution-bar blocks reset at
-local trading-day boundaries. T2 remains standalone. The current five-stage
-cycle retains `FROZEN_TICK_SIZE = 0.001` for every instrument.
+The frozen upstream T3/H1 candidate used by the selected post-v3 parent is
+`T3_H1_candidate_v3` / `T3-H1-4e73cdb77246` with parameter hash
+`4e73cdb77246cb07b5953160b9fc0ab36bfd4bd6d9a7f7faaae7e6e392ee340a`.
 
-## Completed current cycle
+## Post-v3 program status
 
-- Phase 1 Baseline — **COMPLETE**
-- Phase 2 Optimization — **COMPLETE**
-- Phase 3 Candidate Selection / Freeze — **COMPLETE**
-- Phase 3 Robustness — **COMPLETE**
-- Phase 4 Walk Forward — **COMPLETE as a procedure** / root `PHASE_4_BORDERLINE`
-- Phase 5 TRUE OOS — **COMPLETE as a procedure**
+- **Stage 1 — Master v1/v2/v3 evidence consolidation: CLOSED.** Independent
+  audit passed; deterministic cross-generation evidence tables are frozen.
+- **Stage 2 — Portfolio/diversification comparison: CLOSED.** Portfolio and
+  instrument/month evidence are frozen with corrected availability semantics.
+- **Stage 3 — Trade Anatomy / Failure Analysis: CLOSED.** v1/v2/v3 normalized
+  trade evidence, anatomy tables, failure mechanics, and independent closeout
+  are frozen.
+- **Stage 4 — Structural hypothesis set: CLOSED.** Exactly three hypotheses
+  were admitted for causal validation: BE1, TRAIL1, and total-open-risk cap.
+- **Stage 5 — Structural validation: CLOSED.** Final economic authority is
+  `CORRECTED_SINGLE_C1`; 9,694 canonical comparator trades authenticate.
+- **Stage 6 — Production Assembly Decision: CLOSED.** Final status
+  `POST_V3_STAGE_6_PRODUCTION_ASSEMBLY_DECISION_COMPLETE`; independent audit
+  `POST_V3_STAGE_6_PRODUCTION_ASSEMBLY_DECISION_AUDIT_PASSED`.
+- **Stage 7 — Production Specification Freeze: NEXT.** Not executed yet.
+- **Stage 8 — Trading robot / FINAM API integration: FUTURE.**
 
-The Phase 5 classifications are T2/M30 → `BORDERLINE`, T2/H1 → `BORDERLINE`,
-T3/M30 → `BORDERLINE`, and T3/H1 → `BORDERLINE`.
+## Stage 5 final authority
 
-TRUE OOS 2025+ was opened once in the authorized Phase 5 cold-start evaluation
-and must not be reused to retune or reselect these same frozen identities. The
-five-stage single-system cycle is complete. No next phase is automatically
-authorized.
+The six-row Stage 5 closeout matrix is authoritative:
 
-## Forbidden next actions
+- BE1 / H4_01: `MIXED_RETROSPECTIVE_EVIDENCE`;
+- TRAIL1 / H4_02: `SUPPORTED_RETROSPECTIVELY`;
+- Total Open Risk Cap / H4_03: `FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED` because
+  final economic certification is right-censored by terminal open positions;
+- Minimum Hold: `NOT_ADMITTED / DIAGNOSTIC ONLY`;
+- Session / Time of Day: `NOT_ADMITTED / DIAGNOSTIC ONLY`;
+- Correlation / Simultaneous Risk grouping: `NOT_ADMITTED / DIAGNOSTIC ONLY`.
 
-- Do not modify or replace a frozen candidate after observing Robustness. The
-  parameters are immutable for Phase 3; any change requires returning to an
-  earlier research stage under a new identity.
-- Do not reuse consumed TRUE OOS, select a portfolio, or begin MTF research
-  without a new user decision.
-- Do not access 2025+ data during candidate selection, optimize or rank by PF,
-  change the frozen strategies, replace the normalized research tick, or rewrite
-  the accepted Phase 1/2 artifact trees.
+No session rule, minimum-hold rule, correlation threshold, correlated-risk group,
+or risk-cap production rule was admitted. TRAIL1 support is retrospective causal
+evidence, not fresh untouched OOS.
 
-## Historical evidence
+## Stage 6 selected assembly
 
-Older failed, borderline, TRUE OOS, MTF, and alternative-timeframe artifacts
-remain immutable evidence of their own generations. They do not control or
-substitute for this accepted v2 lifecycle.
+Production assembly ID: **`PROD_STAGE6_83C7B31BB42C`**.
+
+Stage 6 selected:
+
+- generation: `v3`;
+- futures construction: perpetual;
+- strategy: `T3`;
+- timeframe: `H1`;
+- instruments: `CNYRUBF`, `GLDRUBF`, `IMOEXF`;
+- structural overlay: `TRAIL1`;
+- economic contract: `CORRECTED_SINGLE_C1`;
+- research tick: `0.001`.
+
+Stage 6 was artifact-only: no new backtest, optimizer, parameter search, subset
+search, or hypothesis generation. The selected basket was verified against the
+Stage 5 corrected single-C1 authority. TRAIL1 was selected from its Stage 5
+parent-level retrospective evidence; there is no separate three-instrument
+TRAIL1 basket backtest.
+
+## What Stage 6 did not freeze
+
+The assembly decision is **not yet a frozen production specification**. Stage 7
+must freeze at least:
+
+- exact strategy implementation/source identity;
+- live-contract mapping and roll convention;
+- risk allocation and position sizing;
+- portfolio safeguards;
+- production cost model;
+- session operating schedule;
+- broker/order semantics;
+- data-feed conventions;
+- operational safeguards.
+
+## Historical generations
+
+v1 and v2 remain immutable historical evidence. v2 completed its own five-stage
+cycle and finished with all four TRUE OOS study classifications `BORDERLINE`.
+Historical v1/v2/v3 evidence must not be rewritten by post-v3 findings.
+
+## Governing constraints
+
+- Do not mix TradingSystemLab with BBW, Round Level / Touch, or other projects.
+- Do not alter frozen v1/v2/v3 identities or historical verdicts.
+- Do not treat revealed TRUE OOS as fresh OOS for a modified identity.
+- Do not promote diagnostic-only Minimum Hold, Session, or correlation findings
+  into production rules.
+- Do not assign a formal H4_03 risk-cap verdict while terminal censoring remains.
+- Do not reinterpret TRAIL1 as universally superior: its historical OOS
+  drawdown/recovery include explicit counter-evidence.
+- Do not begin robot/FINAM implementation before Stage 7 freezes the production
+  specification.
+
+## Next permitted action
+
+**Stage 7 — Production Specification Freeze** for `PROD_STAGE6_83C7B31BB42C`.
+
+Stage 7 must consume the exact accepted Stage 6 assembly and Stage 1–6 evidence.
+It may freeze implementation and operational details, but it must not silently
+re-open selection, optimization, structural hypothesis discovery, or historical
+research verdicts.
 
 ## Update rule
 
-Update this file after every accepted research phase or major audit. Record the
-canonical commits, current and last-completed stages, candidate identity or the
-explicit absence of one, scope, costs, TRUE OOS consumption state, next
-permitted action, and forbidden actions.
-
-## v3 Perpetual independent generation
-
-v1 and v2 remain immutable historical evidence. For `v3_perpetual`, Phase 1,
-Phase 2A T2, Phase 2B T3, Phase 2 Optimization overall, and the procedural
-Candidate Freeze are **COMPLETE**.
-The artifact-only independent consolidation status is
-`V3_PERPETUAL_PHASE_2_OPTIMIZATION_COMPLETE`: T2/M30 is `ROBUST_PLATEAU`
-(3 configurations), T2/H1 is `ROBUST_PLATEAU` (4), T3/M30 is
-`ROBUST_PLATEAU` (9), and T3/H1 is `ROBUST_PLATEAU` (9), for 25 total.
-No Optimization was rerun and this inventory is not a ranking.
-
-Frozen candidates are T2/M30 `T2_M30_candidate_v3`, T2/H1
-`T2_H1_candidate_v3`, T3/M30 `T3_M30_candidate_v3`, and T3/H1
-`T3_H1_candidate_v3`. At that historical checkpoint, TRUE OOS >= 2025-01-01 was
-`BLOCKED_NOT_READ_NOT_EXECUTED`. Robustness is **NOT EXECUTED**; the next
-permitted action is v3 Phase 3 Robustness. Candidate replacement or a second
-selection is forbidden.
-
-## v3 perpetual lifecycle closeout — Phase 5 TRUE OOS
-
-The v3 perpetual five-stage lifecycle is **complete as a procedure**: Phase 1
-Baseline, Phase 2 Optimization, Candidate Freeze, Phase 3 Robustness, Phase 4
-Walk Forward, and Phase 5 TRUE OOS are COMPLETE. The audited one-shot outcomes
-in fixed lifecycle order are T2/M30 `BORDERLINE`, T2/H1 `BORDERLINE`, T3/M30
-`PASS`, and T3/H1 `PASS`. Every evaluation began cold and `FLAT`, admitted zero
-Development rows, and used frozen candidates, parameters, strategy code, and C1.
-No optimization, ranking, replacement, recommendation, or portfolio phase was
-performed. Status: `V3_PERPETUAL_PHASE_5_TRUE_OOS_COMPLETE`.
-
-## Current post-v3 handoff — Stage 6
-
-- Stage 1 CLOSED
-- Stage 2 CLOSED
-- Stage 3 CLOSED
-- Stage 4 CLOSED
-- Stage 5 CLOSED
-- BE1 = MIXED_RETROSPECTIVE_EVIDENCE
-- TRAIL1 = SUPPORTED_RETROSPECTIVELY
-- Risk Cap = FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED / terminal censoring
-- Minimum Hold = NOT_ADMITTED
-- Session = NOT_ADMITTED
-- Correlated-risk grouping = NOT_ADMITTED
-- Stage 6 CLOSED: `PROD_STAGE6_83C7B31BB42C`
-- Selected assembly = v3 perpetual / T3 / H1 / CNYRUBF, GLDRUBF, IMOEXF
-- Selected structural overlay = TRAIL1 (`SUPPORTED_RETROSPECTIVELY`)
-- Stage 7 = NEXT
-
-Stages 1–6 are CLOSED. The Stage 5 authority is retrospective and uses
-`CORRECTED_SINGLE_C1`. The Stage 6 assembly is selected but is **NOT YET A
-FROZEN PRODUCTION SPECIFICATION**. No session rule, minimum-hold rule,
-correlation threshold, or correlated-risk group was introduced.
+Update this file after every accepted stage or major audit. The first sections
+must always describe the active handoff; older generation checkpoints belong in
+clearly labelled historical sections rather than being presented as current.
