@@ -1,0 +1,13 @@
+instrument,lifecycle,full_trades,opposite_trades,matched_entry_trades,full_only_entries,opposite_only_entries,matched_entries_same_exit,matched_entries_changed_exit,full_net_R,opposite_net_R,net_R_delta
+USDRUBF,baseline,63,63,63,0,0,63,0,22.4096371758,22.4096371758,0
+CNYRUBF,baseline,51,51,51,0,0,51,0,22.7824690593,22.7824690593,0
+GLDRUBF,baseline,41,41,41,0,0,41,0,10.4426215566,10.4426215566,0
+IMOEXF,baseline,26,26,26,0,0,26,0,18.074891552,18.074891552,0
+USDRUBF,walk_forward,14,14,14,0,0,14,0,12.0864702403,12.0864702403,0
+CNYRUBF,walk_forward,16,16,16,0,0,16,0,18.0667149389,18.0667149389,0
+GLDRUBF,walk_forward,22,22,22,0,0,22,0,0.224714147426,0.224714147426,0
+IMOEXF,walk_forward,14,14,14,0,0,14,0,8.3519669499,8.3519669499,0
+USDRUBF,historical_true_oos,49,49,49,0,0,49,0,23.4472837439,23.4472837439,0
+CNYRUBF,historical_true_oos,51,51,51,0,0,51,0,22.7655823462,22.7655823462,0
+GLDRUBF,historical_true_oos,41,41,41,0,0,41,0,36.2004498946,36.2004498946,0
+IMOEXF,historical_true_oos,58,58,58,0,0,58,0,3.32310526089,3.32310526089,0

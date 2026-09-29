@@ -1,0 +1,6 @@
+scope,lifecycle,instrument,classification,trades,canonical_R,opposite_exit_R,delta_R
+ALL,ALL,ALL,AVOIDED_LOSS,0,0,0,0
+ALL,ALL,ALL,IMPROVED_WIN,0,0,0,0
+ALL,ALL,ALL,CUT_WINNER,0,0,0,0
+ALL,ALL,ALL,WORSENED_LOSS,0,0,0,0
+ALL,ALL,ALL,OTHER,0,0,0,0

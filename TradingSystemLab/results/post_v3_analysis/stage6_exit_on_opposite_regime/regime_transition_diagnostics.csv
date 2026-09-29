@@ -1,0 +1,13 @@
+instrument,lifecycle,LONG_to_LONG,LONG_to_SHORT,LONG_to_None,SHORT_to_LONG,SHORT_to_SHORT,SHORT_to_None,None_to_LONG,None_to_SHORT,None_to_None,genuine_opposite_reversals_while_open,actual_opposite_exits,none_observations_while_open
+CNYRUBF,baseline,383,0,9,0,214,6,3,1,191,0,0,206
+CNYRUBF,historical_true_oos,421,0,10,0,275,10,4,4,146,0,0,166
+CNYRUBF,walk_forward,134,0,4,0,107,2,1,1,34,0,0,40
+GLDRUBF,baseline,392,0,17,0,137,4,7,1,217,0,0,238
+GLDRUBF,historical_true_oos,601,0,17,0,163,5,7,1,172,0,0,194
+GLDRUBF,walk_forward,185,0,8,0,77,2,3,1,91,0,0,101
+IMOEXF,baseline,147,0,6,0,279,3,1,0,208,0,0,217
+IMOEXF,historical_true_oos,230,0,6,0,636,11,3,1,185,0,0,202
+IMOEXF,walk_forward,27,0,2,0,194,2,1,0,88,0,0,92
+USDRUBF,baseline,547,0,13,0,290,4,4,1,153,0,0,170
+USDRUBF,historical_true_oos,363,0,9,0,299,17,3,6,283,0,0,309
+USDRUBF,walk_forward,120,0,4,0,106,1,0,0,69,0,0,74
