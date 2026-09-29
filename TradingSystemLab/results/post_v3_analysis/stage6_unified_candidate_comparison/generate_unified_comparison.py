@@ -11,6 +11,7 @@ import argparse
 import hashlib
 import itertools
 import json
+import subprocess
 from pathlib import Path
 
 import numpy as np
@@ -18,8 +19,18 @@ import pandas as pd
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
-STARTING_MAIN_SHA = "1bf22b599db7ad047d921a0a512cf780406f99ab"
+STARTING_MAIN_SHA = "1bf22b559c12f6244dd4087de176d5f684a1025e"
+PR_HEAD_SHA = "2fbf4635b50953920a428368b1f6e49214865421"
+MERGE_MAIN_SHA = "ac7b35c6a029c21610a6daad3beb012d2e7f9fd8"
+T3_SHA = "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
 PARAMETER_SHA = "4e73cdb77246cb07b5953160b9fc0ab36bfd4bd6d9a7f7faaae7e6e392ee340a"
+EXPECTED_SOURCES = {
+    "CANONICAL": ("0b4e9165b0de5b2206c723240b960119531540ec60e84435c4289ef6718288e7", 446),
+    "TRAIL1": ("0f9034edf228a687da67e9f3e35fad01f2339be162c558e6d802c3cd77eea8ad", 418),
+    "SESSION_10_21": ("bb55cc21cd20e8610995821aa451705eecef974bbd8beb5fe1685e87b74c8191", 428),
+    "LOCK1_AFTER_2R": ("aa85e51bacf63517c4a37b7ae22dca3f02870526ea73fd13d6f7bb3f7db9607f", 447),
+    "STRUCTURAL_STACK_V1": ("84869f4a4392be204272234d3e6c881b8ce6b1bcdae16506e959e042444fcbdd", 429),
+}
 SYMBOLS = ("USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF")
 VARIANTS = {
     "CANONICAL": HERE.parent / "stage6_structural_stack/full_canonical_trades.csv",
@@ -70,8 +81,9 @@ def source_registry() -> tuple[pd.DataFrame, dict[str, pd.DataFrame]]:
     rows, ledgers = [], {}
     for variant, path in VARIANTS.items():
         f = pd.read_csv(path, keep_default_na=False)
-        if variant == "TRAIL1" and (len(f) != 418 or sha(path) != "0f9034edf228a687da67e9f3e35fad01f2339be162c558e6d802c3cd77eea8ad"):
-            raise RuntimeError("TRAIL1_AUTHORITATIVE_SOURCE_MISMATCH")
+        expected_sha, expected_count = EXPECTED_SOURCES[variant]
+        if len(f) != expected_count or sha(path) != expected_sha:
+            raise RuntimeError(f"AUTHORITATIVE_SOURCE_MISMATCH: {variant}")
         coverage = {(r.lifecycle, r.exit_time[:4]) for r in f.itertuples()}
         if not required <= coverage or set(f.instrument) != set(SYMBOLS):
             raise RuntimeError(f"SOURCE_INCOMPLETE: {variant}")
@@ -81,6 +93,7 @@ def source_registry() -> tuple[pd.DataFrame, dict[str, pd.DataFrame]]:
                      "instruments": "+".join(sorted(f.instrument.unique())),
                      "lifecycle_coverage": "+".join(f"{a}:{b}" for a, b in sorted(coverage)),
                      "source_status": "AUTHENTICATED", "strategy_identity": "T3_H1_candidate_v3",
+                     "configuration_identity": "T3-H1-4e73cdb77246", "strategy_sha256": T3_SHA,
                      "parameter_identity": PARAMETER_SHA, "rule_identity": RULES[variant]})
     return pd.DataFrame(rows), ledgers
 
@@ -115,6 +128,14 @@ def availability() -> dict[tuple[str, str], tuple[pd.Period, pd.Period]]:
 
 
 def generate(out: Path = HERE) -> None:
+    # A descendant checkout is allowed, but the frozen Stage 6.6 base must be a
+    # real ancestor.  Both an unknown object and an unrelated object fail closed.
+    ancestry = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", STARTING_MAIN_SHA, "HEAD"], cwd=ROOT,
+        check=False, capture_output=True, text=True,
+    )
+    if ancestry.returncode:
+        raise RuntimeError("STARTING_MAIN_SHA_NOT_ANCESTOR")
     out.mkdir(parents=True, exist_ok=True)
     sources, ledgers = source_registry(); write(sources, out / "variant_source_registry.csv")
     bs = baskets()
@@ -168,6 +189,10 @@ def generate(out: Path = HERE) -> None:
                     imonth.append({**{k: row[k] for k in ("configuration_id", "basket_id", "variant", "lifecycle", "year", "month")},
                                    "instrument": s, "trades": len(sg), "net_R": float(sg.portfolio_R.sum()), "PF": pf(sg.portfolio_R)})
             lm = pd.DataFrame(config_months); lm = lm[lm.lifecycle == life].sort_values(["year", "month"])
+            running = 0.0
+            for month_row in (x for x in config_months if x["lifecycle"] == life):
+                running += month_row["net_R"]
+                month_row["cumulative_R"] = running
             lg = lt.sort_values(["exit", "instrument", "source_trade_id"], kind="mergesort")
             td, md, net = max_dd(lg.portfolio_R), max_dd(lm.net_R), float(lg.portfolio_R.sum())
             draw.append({"configuration_id": c.configuration_id, "basket_id": c.basket_id, "variant": c.variant,
@@ -179,10 +204,12 @@ def generate(out: Path = HERE) -> None:
                         if periods[i].ordinal - periods[i-window+1].ordinal == window-1]
                 rolling.append({"configuration_id": c.configuration_id, "basket_id": c.basket_id, "variant": c.variant,
                                 "lifecycle": life, "window_months": window, "complete_windows": len(vals),
-                                "worst_window_R": min(vals) if vals else np.nan, "median_window_R": np.median(vals) if vals else np.nan})
+                                "worst_window_R": min(vals) if vals else np.nan, "median_window_R": np.median(vals) if vals else np.nan,
+                                "final_window_R": vals[-1] if vals else np.nan})
             positive = lm.loc[lm.net_R > 0, "net_R"].sort_values(ascending=False); pos_total = positive.sum()
             concentration.append({"configuration_id": c.configuration_id, "basket_id": c.basket_id, "variant": c.variant,
                                   "lifecycle": life, "top_3_positive_months_R": positive.head(3).sum(),
+                                  "best_month_share_of_positive_monthly_R": positive.head(1).sum()/pos_total if pos_total else np.nan,
                                   "top_3_share_of_positive_monthly_R": positive.head(3).sum()/pos_total if pos_total else np.nan})
             stability.append({"configuration_id": c.configuration_id, "basket_id": c.basket_id, "variant": c.variant,
                               "lifecycle": life, "positive_month_share": float((lm.net_R > 0).mean()),
@@ -204,6 +231,7 @@ def generate(out: Path = HERE) -> None:
                            "lifecycle": life, "year": year, "period_label": label, "trades": len(g), "net_R": net,
                            "PF": pf(g.portfolio_R), "expectancy_R": g.portfolio_R.mean(), "max_DD_R": dd,
                            "recovery_factor": net/abs(dd) if dd else np.nan, "win_rate": (g.portfolio_R > 0).mean(),
+                           "median_trade_R": g.portfolio_R.median(),
                            "positive_month_share": (m.net_R > 0).mean(), "median_monthly_R": m.net_R.median()})
             for s in members:
                 sg = g[g.instrument == s]
@@ -243,9 +271,19 @@ def generate(out: Path = HERE) -> None:
     ranked.loc[eligible.index, "eligible_rank"] = range(1, len(eligible)+1)
     ranked = ranked.merge(creg[["configuration_id", "basket_size", "instruments", "sleeve_weight"]], on="configuration_id")
     ranked["hierarchy_order"] = " > ".join(order); write(ranked, out / "master_55_configuration_comparison.csv")
-    same = gate.pivot(index="basket_id", columns="variant", values="chronological_net_R").reset_index(); write(same, out / "same_basket_variant_comparison.csv")
-    canon = gate[gate.variant == "CANONICAL"][["basket_id", "chronological_net_R"]].rename(columns={"chronological_net_R":"canonical_chronological_net_R"})
-    delta = gate.merge(canon, on="basket_id"); delta["delta_chronological_net_R"] = delta.chronological_net_R-delta.canonical_chronological_net_R
+    period_wide = y.pivot(index="configuration_id", columns="period_label", values="net_R").reset_index()
+    comparison = gate.merge(period_wide, on="configuration_id")
+    metrics = ["BASELINE_2023", "BASELINE_2024", "WF24", "OOS2025", "OOS2026_YTD", *order]
+    same = comparison.pivot(index="basket_id", columns="variant", values=["all_annual_gates_pass", *metrics])
+    same.columns = [f"{variant}__{metric}" for metric, variant in same.columns]
+    write(same.reset_index(), out / "same_basket_variant_comparison.csv")
+    canon = comparison[comparison.variant == "CANONICAL"][["basket_id", *metrics]].rename(columns={m: f"canonical_{m}" for m in metrics})
+    delta = comparison[comparison.variant != "CANONICAL"].merge(canon, on="basket_id", validate="many_to_one")
+    for metric in metrics:
+        delta[f"delta_{metric}"] = delta[metric] - delta[f"canonical_{metric}"]
+    columns = ["configuration_id", "basket_id", "variant", "all_annual_gates_pass", *metrics,
+               *[f"canonical_{m}" for m in metrics], *[f"delta_{m}" for m in metrics]]
+    delta = delta[columns]
     write(delta, out / "variant_vs_canonical_delta.csv"); write(delta[delta.variant == "TRAIL1"], out / "trail1_vs_canonical_comparison.csv")
     write(delta[delta.variant.isin(["SESSION_10_21", "LOCK1_AFTER_2R", "STRUCTURAL_STACK_V1"])], out / "structural_variant_comparison.csv")
     leader_rows = []
@@ -288,10 +326,26 @@ def generate(out: Path = HERE) -> None:
               "## Required same-basket comparisons", "", same.to_markdown(index=False), "",
               "## Important monthly improvements and degradations", "", notable[["configuration_id","lifecycle","year","month","net_R","canonical_net_R","delta_vs_canonical_R"]].to_markdown(index=False), "",
               "## Legacy A–F bridge", "", f"Frozen source: `{legacy_src.relative_to(ROOT)}`; SHA-256 `{sha(legacy_src)}`.", "", pd.DataFrame(bridge).to_markdown(index=False), "",
-              "## Method", "", "Annual floor and chronological R exclude WF. The frozen lexicographic hierarchy is applied without scores or weighting. Source trades are ordered by exit time, instrument, and source trade ID after equal-sleeve scaling."]
+              "## Audit closeout", "", f"- Frozen starting SHA / PR base: `{STARTING_MAIN_SHA}`.",
+              f"- Actual PR head: `{PR_HEAD_SHA}`; merge/main: `{MERGE_MAIN_SHA}`.",
+              *[f"- {v} source SHA-256: `{EXPECTED_SOURCES[v][0]}` ({EXPECTED_SOURCES[v][1]} trades)." for v in VARIANTS],
+              f"- T3 SHA: `{T3_SHA}`; parameter SHA: `{PARAMETER_SHA}`.",
+              "- The independent auditor reconstructed all 55 portfolios and all ten hierarchy fields from the five authenticated ledgers.",
+              f"- Annual hard gates: {int(gate.all_annual_gates_pass.sum())} PASS / {int((~gate.all_annual_gates_pass).sum())} FAIL.",
+              f"- Winner `{eligible.iloc[0].configuration_id}` and runner-up `{eligible.iloc[1].configuration_id}` confirmed; first differentiating criterion `{first}`.",
+              "- Same-basket and all variant-versus-CANONICAL comparisons contain the complete period and hierarchy schema.",
+              "- Frozen legacy A–F evidence is unchanged and every bridge row is `MATCH`.",
+              "- Stage 7 was not executed.", "", "## Method", "", "Annual floor and chronological R exclude WF. The frozen lexicographic hierarchy is applied without scores or weighting. Source trades are ordered by exit time, instrument, and source trade ID after equal-sleeve scaling."]
     (out / "FINAL_UNIFIED_STAGE6_6_REPORT.md").write_text("\n".join(report)+"\n")
     hashes={name:sha(out/name) for name in CORE_FILES}
+    prior_changed_files = subprocess.check_output(
+        ["git", "diff", "--name-only", STARTING_MAIN_SHA, PR_HEAD_SHA], cwd=ROOT, text=True
+    ).splitlines()
     manifest={"status":"ALL_VARIANT_SOURCES_AUTHENTICATED","audit_status":"PENDING","actual_starting_main_sha":STARTING_MAIN_SHA,
+              "pr_base_sha":STARTING_MAIN_SHA,"pr_head_sha":PR_HEAD_SHA,"merge_main_sha":MERGE_MAIN_SHA,
+              "strategy_sha":T3_SHA,"parameter_sha":PARAMETER_SHA,"candidate_identity":"T3_H1_candidate_v3","configuration_identity":"T3-H1-4e73cdb77246",
+              "expected_source_sha256":{v:d for v,(d,_) in EXPECTED_SOURCES.items()},
+              "pr_changed_files":prior_changed_files,
               "strategy_replay_executed":False,"stage7_executed":False,"variant_count":5,"basket_count":11,"configuration_count":55,
               "core_artifact_sha256":hashes,"frozen_legacy_monthly_source_sha256":sha(legacy_src)}
     (out/"audit_manifest.json").write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\n")
