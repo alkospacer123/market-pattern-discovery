@@ -9,7 +9,9 @@ HERE = Path(__file__).resolve().parents[1] / "results/post_v3_analysis/stage6_fi
 SPEC = importlib.util.spec_from_file_location("fixed_baskets", HERE / "generate_reassessment.py")
 mod = importlib.util.module_from_spec(SPEC); SPEC.loader.exec_module(mod)
 NAMES = ("basket_registry.csv", "basket_yearly_metrics.csv", "basket_monthly_metrics.csv",
-         "basket_rolling_stability.csv", "basket_lifecycle_metrics.csv", "basket_instrument_contribution.csv")
+         "basket_rolling_stability.csv", "basket_lifecycle_metrics.csv", "basket_instrument_contribution.csv",
+         "basket_monthly_concentration.csv", "v1_v3_currency_pnl_bridge.csv",
+         "production_candidate_comparison.csv")
 
 
 @pytest.fixture
@@ -55,3 +57,34 @@ def test_gate_is_strictly_positive_and_final_status_is_computed():
     gate = pd.read_csv(HERE/"annual_hard_gate.csv")
     assert gate.loc[gate.basket == "B", "baseline_2023_positive"].item() is False or not gate.loc[gate.basket == "B", "baseline_2023_positive"].item()
     assert set(pd.read_csv(HERE/"production_candidate_comparison.csv").computed_final_status) == {"NEW_PRODUCTION_IDENTITY_REQUIRED_BEFORE_STAGE7"}
+
+
+@pytest.mark.parametrize(("column", "value"), [
+    ("members", "USDRUBF"), ("path", "TRAIL1"), ("current_stage6", True),
+    ("strategy_identity", "other"), ("cost_contract", "other"), ("research_tick", .01),
+])
+def test_registry_semantics_fail_without_frame_hashes(evidence, column, value):
+    original, _, status = evidence
+    frames = {k: v.copy(deep=True) for k, v in original.items()}
+    row = 0 if column != "current_stage6" else 2
+    frames["basket_registry.csv"].loc[row, column] = value
+    with pytest.raises(RuntimeError, match="BASKET_IDENTITY_SEMANTICS_INVALID"):
+        mod.validate_artifacts(frames, status, identities={"trail_sha": mod.TRAIL_SHA, "decision_sha": mod.DECISION_SHA})
+
+
+@pytest.mark.parametrize("mutation", ["preferred", "rank", "status", "bridge_component", "bridge_residual",
+                                      "monthly_stale_year", "concentration"])
+def test_new_semantic_mutations_are_detected(evidence, mutation):
+    original, _, status = evidence
+    frames = {k: v.copy(deep=True) for k, v in original.items()}; verdict = status
+    if mutation == "preferred":
+        frames["production_candidate_comparison.csv"]["production_preferred"] = False
+        frames["production_candidate_comparison.csv"].loc[0, "production_preferred"] = True
+    elif mutation == "rank": frames["production_candidate_comparison.csv"].loc[0, "selection_rank"] = 99
+    elif mutation == "status": frames["production_candidate_comparison.csv"]["computed_final_status"] = "BAD"
+    elif mutation == "bridge_component": frames["v1_v3_currency_pnl_bridge.csv"].loc[0, "matched_exit_delta_R"] += 1
+    elif mutation == "bridge_residual": frames["v1_v3_currency_pnl_bridge.csv"].loc[0, "total_reconciliation_error_R"] = 1
+    elif mutation == "monthly_stale_year": frames["basket_monthly_metrics.csv"].loc[0, "net_R"] += 1
+    elif mutation == "concentration": frames["basket_monthly_concentration.csv"].loc[0, "best_month_R"] += 1
+    with pytest.raises(RuntimeError):
+        mod.validate_artifacts(frames, verdict, identities={"trail_sha": mod.TRAIL_SHA, "decision_sha": mod.DECISION_SHA})

@@ -1,26 +1,31 @@
 {
-  "actual_main_sha": "c0dfcc9397f0fb825b3937cfc06fcb7a8fde12e8",
   "artifact_hashes": {
-    "FINAL_FIXED_BASKET_REASSESSMENT_REPORT.md": "6f2ad0907ed9ae7cfba9af91a18ecef20b9804bf3e0c55b2db9ce8fe0e6e24ac",
+    "FINAL_FIXED_BASKET_REASSESSMENT_REPORT.md": "52f173571d868ca4a49de1d49f15962778c88db82e83b323b6ddfc2f4b7f51d7",
     "annual_hard_gate.csv": "613339dc90cb9a8468afa8ab52f5bf2a55558555a2ebfcf77351ccd3bbc443f7",
-    "audit_reassessment.py": "9987496ee2b0f3deb05072c6b4d21f7da477481feb518b7066e66b590103d6d5",
+    "audit_reassessment.py": "79ae140801416391c00dbbfbf5dd4f230fee81f0d19077d2b3ee299cf163ebb9",
     "basket_diversification.csv": "414fdbcab4a9b017a9ba1938eda166c42277b02a1a0d6a67b051965682b42b4d",
     "basket_instrument_contribution.csv": "97c3c862dfe832cc1e7d25f638b67f58046d24a201a005438f85219cfcf7ddd7",
     "basket_lifecycle_metrics.csv": "f81a0fda746a8c04139283a8b7bcb33b26de7f2356a7a85b4d8dd627a21697a0",
+    "basket_monthly_concentration.csv": "cf2ee5cb34fedebbdd72a3d856ca85ff08327c804bb1fef4df54f317fc7523a7",
     "basket_monthly_metrics.csv": "e724851fc17ce3f6f71778129ea5cfa4e810d47a0992f00c1974761dde982cb4",
     "basket_registry.csv": "110d9b43f8f3cf141241be107e03fc3a74e1fe1fbe9c1d7f9921e93cdfa725a8",
     "basket_rolling_stability.csv": "b383dc8cb707186f206b9f814a052380330b77f493c1a50437b5978c9a3d0225",
     "basket_yearly_metrics.csv": "bebc4ec6d3dd49173f409c47a4835c937cf95a70a6372c912f249ee80e402fe8",
     "canonical_vs_trail1_comparison.csv": "27e50373e4dbdd32660a98481913de0e8f7d6b520742346cc065117220762ca5",
-    "generate_reassessment.py": "70e4a0d479252527c26d24ec6abcaa2c18dd16dbabb14ddc118f0d433825a548",
-    "independent_audit_result.json": "3985efa285a5e7a17f11bd64cf3e53ab478c369667266f4fd4b14005acbf0d34",
+    "generate_reassessment.py": "3a3d3fffb44f29eb50c05c7df3f655a78dacf9eadff139b9cfd3c00f670d569c",
+    "independent_audit_result.json": "fb3f955d479a413f137e9ac52d18d7772106832a39bdc98536e8645d4e4eb494",
     "production_candidate_comparison.csv": "f9143a1ff1981b9a341447ed43650eff10f931db21a9fb69aeee72cfcc7c1e3c",
     "v1_v3_bar_reconciliation.csv": "4f8d8a13f7af3ac2fe7fb8822fbef5ac8cc4f6e401b969cb44c46269c71ed683",
-    "v1_v3_currency_lineage_check.csv": "7ec3ee4abab9c36df3ed605c1127a30447d1e8fdb72fbe8638b8754ab38f13f3"
+    "v1_v3_currency_lineage_check.csv": "cdf4e07a4123bf3959a4c6f6f50eb49296b0a91b098f1635fc48f3784a8cd816",
+    "v1_v3_currency_pnl_bridge.csv": "b8c253860909c4d361f72ff834ed59c65c7ffabaacc82ed76cd392cd093d58ac"
   },
   "candidate_count": 6,
   "computed_final_status": "NEW_PRODUCTION_IDENTITY_REQUIRED_BEFORE_STAGE7",
+  "fix_base_sha": "664e63ff6f598dd594523c19690ac3f1b938c16c",
   "historical_true_oos_is_revealed": true,
   "oos_endpoint": "2026-09-15 21:00:00+00:00",
+  "source_main_sha": "c0dfcc9397f0fb825b3937cfc06fcb7a8fde12e8",
+  "source_merge_sha": "664e63ff6f598dd594523c19690ac3f1b938c16c",
+  "source_pr_head_sha": "fd7c4e6659278953bc57295d0b62a70b630a3c80",
   "stage7_executed": false
 }
