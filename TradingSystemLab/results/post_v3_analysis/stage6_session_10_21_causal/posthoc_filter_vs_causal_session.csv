@@ -1,0 +1,4 @@
+lifecycle,posthoc_trades,causal_trades,trade_delta,posthoc_net_R,causal_net_R,net_R_delta,entry_timestamp_symmetric_difference,exit_timestamp_symmetric_difference
+baseline,173,177,4,74.2698412885,71.675347901,-2.59449338744,4,4
+walk_forward,62,64,2,38.3631141838,36.5345098228,-1.82860436101,2,2
+historical_true_oos,170,187,17,84.5708613414,85.2971610402,0.726299698829,16,14
