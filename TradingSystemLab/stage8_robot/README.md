@@ -1,6 +1,6 @@
 # Stage 8 robot foundation
 
-**Status:** `STAGE_8_IMPLEMENTATION_IN_PROGRESS` — never production-live.
+**Status:** `STAGE_8_RESEARCH_ROBOT_CONFORMANCE_FAIL` — never production-live.
 
 This package implements the sole frozen identity `TRAIL1__N4_01__FULL__R15` under production specification `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`. It does not expose strategy parameters as runtime configuration and does not use the canonical reference as a fallback.
 
@@ -10,9 +10,15 @@ This package implements the sole frozen identity `TRAIL1__N4_01__FULL__R15` unde
 
 The state store uses SQLite transactions, WAL, a unique idempotency-key primary key, explicit partial-fill-compatible order states, fills, realized equity and reconciliation markers. An intent is committed before submission. Sizing uses realized equity only; exits and actual fees are booked before later same-timestamp entries. Live commissions/exchange fees/slippage are separate from historical C1.
 
-## FINAM documentation authentication record (2026-09-30 UTC)
+## FINAM schema record (2026-09-30 UTC)
 
-Candidate official publication locations were `https://tradeapi.finam.ru/` and FINAM's published Trade API documentation at `https://finamweb.github.io/trade-api-docs/`. Both were inaccessible from the controlled environment (HTTP CONNECT 403), so a current API version, authentication header/schema, endpoint paths, rate limits, fee schedule and live futures identifiers could **not** be authenticated. Old examples were not substituted. Consequently `FinamBroker` is an inert fail-closed foundation and all four registry rows are `BLOCKED_UNAUTHENTICATED`; no endpoint or instrument value is invented. This is an explicit operational blocker, not a fallback.
+The corrective schema authority fixes session creation (`POST /v1/sessions`),
+session enumeration (`POST /v1/sessions/details`), H1 bars
+(`GET /v1/instruments/{symbol}/bars`, `timeframe=TIME_FRAME_H1`), account-bound
+asset parameters, and the object quantity/order enums/client ID fields.  Schema
+authentication is deliberately distinct from credential-backed account and
+instrument binding.  No credentials were available, so all registry rows stay
+`BLOCKED_UNAUTHENTICATED` and no FINAM symbol is fabricated.
 
 Before live authorization, an operator must authenticate and record the current official API version, token method and credentials reference; candle/security, account/portfolio, order/cancel/status and execution endpoints; documented limits; account tariff and MOEX fees; and current FINAM/MOEX contract security ID, code, expiry, step, tick value, multiplier, lot granularity, currency and trading status for every registry row. Tests must then be extended against the authenticated schema.
 
@@ -28,8 +34,21 @@ Audit records are JSON Lines and support the full schema (instrument/contract, b
 
 ## FINAM v1 demo/perpetual integration (in progress)
 
-The low-level dependency-free client implements session creation (`POST /v1/sessions`), bearer JWT recreation after 401, accounts/orders, asset discovery/parameters/schedules and H1 candle retrieval. A centralized limiter uses 180 requests/minute (below the documented 200/minute maximum); GET retries are bounded, 429 is explicit, and an uncertain order POST is never retried. `FINAM_MODE` is either `DRY_RUN` (default) or `DEMO`; `LIVE` always raises `LIVE_TRADING_NOT_AUTHORIZED`.
+The low-level dependency-free client implements bearer JWT recreation after 401,
+explicit account enumeration, asset discovery/parameters/schedules, and causal
+H1 bar normalization. A centralized limiter uses 180 requests/minute (below the
+documented 200/minute maximum); GET retries are bounded, 429 is explicit, and an
+uncertain order POST is reconciled by compact client ID rather than retransmitted.
+`FINAM_MODE` is either `DRY_RUN` (default) or `DEMO`; `LIVE` always raises
+`LIVE_TRADING_NOT_AUTHORIZED`.
 
 The N4 registry now models all four names directly as non-expiring `PERPETUAL_FUTURE` instruments with daily automatic prolongation and operator-only quarterly exercise. Exchange reference economics are recorded, but every binding remains `BLOCKED_UNAUTHENTICATED` until an operator runs the read-only smoke against official FINAM responses and independently retrieves the official MOEX pages. This environment received HTTP CONNECT 403 for both authorities; it therefore did not assert an authenticated binding.
 
-Run `python -m TradingSystemLab.stage8_robot.demo_smoke` with external credentials for a sanitized read-only diagnostic. The separate `demo_order_smoke` command additionally demands DEMO mode, explicit transmission consent, four authenticated registry records, Stage 7 authentication, a full conformance PASS and reconciliation. Current `conformance_report.json` deliberately fails closed with `AUTHENTICATED_HISTORICAL_FIXTURE_SOURCE_REQUIRED`: frozen-v3 H1 source bars are absent from this checkout. No replacement history was downloaded, no demo order was transmitted, and Stage 8 remains in progress.
+Run `python -m TradingSystemLab.stage8_robot.demo_smoke` with external credentials
+for a sanitized read-only diagnostic, then use `update_demo_registry` for an
+all-four atomic registry update. The separate order smoke demands DEMO mode,
+explicit consent, four authenticated records, Stage 7 authentication, a full
+conformance PASS, and reconciliation. Frozen data authentication passed, but the
+real replay currently reports 418 expected versus 424 reproduced trades and 177
+unexplained mismatches. It therefore fails closed as
+`STAGE_8_RESEARCH_ROBOT_CONFORMANCE_FAIL`; no demo order was transmitted.

@@ -68,7 +68,7 @@ def test_dry_run_never_transmits_and_duplicate_blocked(tmp_path):
     cfg=RuntimeConfig(tmp_path/"s.db",tmp_path/"a.jsonl","100000","none")
     runner=RobotRunner(cfg); assert runner.startup() is Reconciliation.RECONCILED
     req=OrderRequest("key","contract","LONG",1); first=runner.persist_then_submit({"signal_id":"s"},req)
-    assert first["transmitted"] is False and runner.persist_then_submit({"signal_id":"s"},req)["status"]=="INTENT_PERSISTED"
+    assert first["transmitted"] is False and runner.persist_then_submit({"signal_id":"s"},req)["status"]=="ACK"
 def test_live_default_off(monkeypatch):
     monkeypatch.setenv("STARTING_REALIZED_EQUITY","1"); monkeypatch.delenv("LIVE_TRADING_ENABLED",raising=False)
     assert RuntimeConfig.from_environment().live_trading_enabled is False
@@ -113,9 +113,10 @@ def test_live_mode_is_impossible(monkeypatch):
     monkeypatch.setenv("STARTING_REALIZED_EQUITY","1"); monkeypatch.setenv("FINAM_MODE","LIVE")
     with pytest.raises(RuntimeError,match="LIVE_TRADING_NOT_AUTHORIZED"): RuntimeConfig.from_environment()
 
-def test_conformance_fails_closed_without_authenticated_h1():
+def test_conformance_reports_real_replay_and_fails_closed_on_mismatch():
     report=json.loads(Path("TradingSystemLab/stage8_robot/conformance_report.json").read_text())
-    assert report["status"]=="AUTHENTICATED_HISTORICAL_FIXTURE_SOURCE_REQUIRED" and report["production_conformance_pass"] is False
+    assert report["status"]=="STAGE_8_RESEARCH_ROBOT_CONFORMANCE_FAIL" and report["production_conformance_pass"] is False
+    assert report["expected_trades"]==418 and report["reproduced_trades"]==424 and report["unexplained_mismatches"]==177
 
 def test_finam_session_schema_and_secret_redaction():
     from io import BytesIO
@@ -123,6 +124,25 @@ def test_finam_session_schema_and_secret_redaction():
     seen=[]
     class R(BytesIO):
         status=200; headers={}
-    def transport(req,timeout): seen.append(req); return R(b'{"token":"jwt-value","accounts":[]}')
-    api=FinamAPI("top-secret",transport=transport,limiter=RateLimiter(199)); assert api.create_session()=={"accounts":[]}
+    def transport(req,timeout): seen.append(req); return R(b'{"token":"jwt-value"}')
+    api=FinamAPI("top-secret",transport=transport,limiter=RateLimiter(199)); assert api.create_session()=={}
     assert json.loads(seen[0].data)=={"secret":"top-secret"} and "top-secret" not in repr(api) and "jwt-value" not in repr(api)
+
+def test_finam_endpoint_and_order_schema():
+    from TradingSystemLab.stage8_robot.finam_api import SESSION_DETAILS_PATH,H1_TIMEFRAME,BARS_PATH_TEMPLATE
+    from TradingSystemLab.stage8_robot.broker import broker_side,compact_client_order_id
+    assert SESSION_DETAILS_PATH=="/v1/sessions/details" and H1_TIMEFRAME=="TIME_FRAME_H1"
+    assert BARS_PATH_TEMPLATE=="/v1/instruments/{symbol}/bars"
+    assert broker_side("LONG")=="SIDE_BUY" and broker_side("SHORT",exit_order=True)=="SIDE_BUY"
+    assert compact_client_order_id("x")==compact_client_order_id("x") and len(compact_client_order_id("x"))==20
+
+def test_realized_equity_restored_and_mismatch_blocked(tmp_path):
+    cfg=RuntimeConfig(tmp_path/"s.db",tmp_path/"a","100000","none")
+    first=RobotRunner(cfg); first.book_exit(Decimal("100"),Decimal("2"),Decimal("1"))
+    assert RobotRunner(cfg).realized_equity==Decimal("100097")
+    with pytest.raises(RuntimeError,match="STARTING_EQUITY_STATE_MISMATCH"):
+        RobotRunner(RuntimeConfig(tmp_path/"s.db",tmp_path/"a","99999","none"))
+
+def test_fill_durability_and_unique_id(tmp_path):
+    store=StateStore(tmp_path/"s.db"); fill={"fill_id":"f","broker_order_id":"o","trade_id":"t","quantity":"1","price":"2","fee":".1","timestamp":"2026-01-01T00:00:00Z"}
+    assert store.persist_fill(fill) and not store.persist_fill(fill)

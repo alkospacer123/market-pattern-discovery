@@ -1,11 +1,22 @@
 """Broker boundary: dry-run and explicitly account-bound FINAM demo only."""
 from abc import ABC,abstractmethod
 from dataclasses import dataclass
+import hashlib
+from .finam_api import (CLIENT_ORDER_ID_MAX_LENGTH, MARKET_ORDER_TYPE,
+                        ORDER_SIDE_BUY, ORDER_SIDE_SELL, FinamUncertainSubmission)
 from enum import Enum
 class OrderStatus(str,Enum):
  SIGNAL_CREATED="SIGNAL_CREATED"; INTENT_PERSISTED="INTENT_PERSISTED"; ORDER_SUBMITTED="ORDER_SUBMITTED"; ACKNOWLEDGED="ACKNOWLEDGED"; PARTIALLY_FILLED="PARTIALLY_FILLED"; FILLED="FILLED"; POSITION_OPEN="POSITION_OPEN"; EXIT_ORDER="EXIT_ORDER"; CLOSED="CLOSED"; REJECTED="REJECTED"; CANCELLED="CANCELLED"; EXPIRED="EXPIRED"; UNKNOWN="UNKNOWN"; RECONCILIATION_REQUIRED="RECONCILIATION_REQUIRED"
+def broker_side(direction:str, *, exit_order:bool=False)->str:
+ side={"LONG":ORDER_SIDE_BUY,"SHORT":ORDER_SIDE_SELL}[direction]
+ if exit_order: side=ORDER_SIDE_SELL if side==ORDER_SIDE_BUY else ORDER_SIDE_BUY
+ return side
+def compact_client_order_id(internal_id:str)->str:
+ """Stable 96-bit ASCII id; the full internal identity stays in SQLite."""
+ return "s8"+hashlib.sha256(internal_id.encode()).hexdigest()[:18]
 @dataclass(frozen=True)
-class OrderRequest: idempotency_key:str; contract_id:str; direction:str; quantity:int; order_type:str="MARKET"
+class OrderRequest:
+ idempotency_key:str; contract_id:str; direction:str; quantity:int; exit_order:bool=False
 class Broker(ABC):
  @abstractmethod
  def connect(self): ...
@@ -20,8 +31,8 @@ class FinamDemoBroker(Broker):
   if not account_id or account_id!=demo_account_id: raise RuntimeError("DEMO_ACCOUNT_EXPLICIT_BINDING_REQUIRED")
   self.api=api; self.account_id=account_id; self.enabled=transmission_enabled; self.connected=False
  def connect(self):
-  details=self.api.create_session(); accounts=details.get("accounts",[])
-  ids={str(x.get("id",x.get("accountId",x))) for x in accounts}
+  self.api.create_session(); details=self.api.session_details(); accounts=details.get("accounts",[])
+  ids={str(x["account_id"]) for x in accounts}
   if self.account_id not in ids: raise RuntimeError("CONFIGURED_DEMO_ACCOUNT_NOT_ENUMERATED")
   self.api.account(self.account_id); self.connected=True
  def disconnect(self): self.connected=False
@@ -33,7 +44,18 @@ class FinamDemoBroker(Broker):
  def submit_order(self,r):
   if not self.enabled: raise RuntimeError("DEMO_ORDER_TRANSMISSION_DISABLED")
   # No retry: uncertain POST must be reconciled by idempotency key/order listing.
-  return self.api.place_order(self.account_id,{"symbol":r.contract_id,"side":r.direction,"quantity":r.quantity,"type":r.order_type,"clientOrderId":r.idempotency_key})
+  client_id=compact_client_order_id(r.idempotency_key)
+  assert len(client_id)<=CLIENT_ORDER_ID_MAX_LENGTH
+  payload={"symbol":r.contract_id,"quantity":{"value":str(r.quantity)},
+           "side":broker_side(r.direction,exit_order=r.exit_order),
+           "type":MARKET_ORDER_TYPE,"client_order_id":client_id}
+  try: return self.api.place_order(self.account_id,payload)
+  except FinamUncertainSubmission:
+   # Never retransmit: the durable intent must be resolved against broker state.
+   orders=self.active_orders()
+   found=next((x for x in orders if x.get("client_order_id")==client_id),None)
+   if found:return found
+   raise
  def cancel_order(self,oid): return self.api.cancel_order(self.account_id,oid)
  def query_order(self,oid): return self.api.order(self.account_id,oid)
  def fills(self,order_id=None): return self.account().get("trades",[])

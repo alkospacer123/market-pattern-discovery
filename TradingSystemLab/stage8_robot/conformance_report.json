@@ -1,17 +1,78 @@
 {
-  "status": "AUTHENTICATED_HISTORICAL_FIXTURE_SOURCE_REQUIRED",
-  "production_conformance_pass": false,
-  "instruments": ["USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF"],
-  "bars": 0,
-  "periods": [],
-  "expected_trades": 0,
-  "reproduced_trades": 0,
-  "exact_matches": 0,
+  "bars_per_instrument": {
+    "CNYRUBF": 17116,
+    "GLDRUBF": 13685,
+    "IMOEXF": 12251,
+    "USDRUBF": 17116
+  },
+  "direction_mismatches": 20,
+  "entry_mismatches": 93,
+  "exact_matches": 247,
+  "exit_mismatches": 111,
+  "expected_trades": 418,
+  "extra": 6,
+  "frozen_data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+  "frozen_data_repo": "alkospacer123/market-pattern-data",
+  "h1_sha256": {
+    "CNYRUBF": "a3815b88a11aa5878b8bd104140f002859349c2c8d7f6ff0476a0d4c4d9a612e",
+    "GLDRUBF": "12a626ba6cc47fce2f392d4a6ce3bdb8a3c1aad074306a73ab480fcfbb83b87e",
+    "IMOEXF": "119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110",
+    "USDRUBF": "f0ca366d816a6213742271242e87c53d1e23f5a5fc4655df0123217df418a226"
+  },
   "missing": 0,
-  "extra": 0,
-  "entry_mismatches": 0,
-  "exit_mismatches": 0,
-  "direction_mismatches": 0,
-  "stop_state_mismatches": 0,
-  "reason": "Authenticated frozen-v3 H1 source files are not present in this checkout; replacement or synthetic history is forbidden."
+  "production_conformance_pass": false,
+  "reproduced_trades": 424,
+  "status": "STAGE_8_RESEARCH_ROBOT_CONFORMANCE_FAIL",
+  "strategy_R_mismatches": 171,
+  "tested_periods": [
+    {
+      "end_timestamp": "2024-12-31T00:00:00+03:00",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "start_timestamp": "2023-01-03T10:00:00+03:00"
+    },
+    {
+      "end_timestamp": "2024-12-31T00:00:00+03:00",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "start_timestamp": "2023-07-11T11:00:00+03:00"
+    },
+    {
+      "end_timestamp": "2024-12-31T00:00:00+03:00",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "start_timestamp": "2023-11-14T11:00:00+03:00"
+    },
+    {
+      "end_timestamp": "2026-09-16T00:00:00+03:00",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "start_timestamp": "2025-01-03T10:00:00+03:00"
+    },
+    {
+      "end_timestamp": "2024-03-31 23:59:59",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "start_timestamp": "2024-01-01"
+    },
+    {
+      "end_timestamp": "2024-06-30 23:59:59",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "start_timestamp": "2024-04-01"
+    },
+    {
+      "end_timestamp": "2024-09-30 23:59:59",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "start_timestamp": "2024-07-01"
+    },
+    {
+      "end_timestamp": "2024-12-31 23:59:59",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "start_timestamp": "2024-10-01"
+    }
+  ],
+  "unexplained_mismatches": 177
 }
