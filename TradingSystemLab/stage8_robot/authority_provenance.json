@@ -17,7 +17,14 @@
     "h1_history_depth": "approximately 30 days",
     "pagination": "no request token documented; none sent",
     "rate_limit": "200 requests/minute",
-    "schema_status": "AUTHENTICATED_TASK_AUTHORITY",
+    "schema_status": "OFFICIAL_DOCUMENTATION_REVIEWED_2026-09-30",
+    "schema_authority": {
+      "asset": "ticker, symbol=ticker@mic, mic, id, type, is_archived, decimals, min_step, lot_size, currency, future_details.contract_size",
+      "decimal_json": "{num: integer/string integer, scale: non-negative integer}; value=num*10^-scale",
+      "params": "account-specific is_tradable BoolValue and trade_lot_size Decimal",
+      "price_step": "min_step / (10 ** decimals)",
+      "quantity": "Order quantity.value is asset units; one MOEX futures asset unit is one contract and must respect trade_lot_size"
+    },
     "session_create_body": "secret",
     "session_details_accounts_field": "account_ids",
     "session_details_body": "token"
@@ -29,7 +36,7 @@
       "https://www.moex.com/ru/contract.aspx?code=GLDRUBF",
       "https://www.moex.com/ru/contract.aspx?code=IMOEXF"
     ],
-    "reference_values_status": "UNAUTHENTICATED_DO_NOT_ENABLE",
+    "reference_values_status": "FROZEN_TASK_REFERENCE_UNAUTHENTICATED_DO_NOT_ENABLE",
     "retrieval": "BLOCKED_HTTP_CONNECT_403"
   }
 }

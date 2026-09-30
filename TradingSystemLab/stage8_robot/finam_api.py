@@ -93,7 +93,9 @@ class FinamAPI:
     def place_order(self,account_id,payload): return self._request("POST",f"/v1/accounts/{account_id}/orders",payload,retries=0).body
     def cancel_order(self,account_id,order_id): return self._request("DELETE",f"/v1/accounts/{account_id}/orders/{order_id}").body
     def assets(self): return self._request("GET","/v1/assets").body
-    def asset(self,symbol): return self._request("GET",f"/v1/assets/{symbol}").body
+    def asset(self,symbol,account_id):
+        if not account_id: raise ValueError("ACCOUNT_ID_REQUIRED")
+        return self._request("GET",f"/v1/assets/{symbol}?{urlencode({'account_id':account_id})}").body
     def asset_params(self,symbol,account_id):
         if not account_id: raise ValueError("ACCOUNT_ID_REQUIRED")
         return self._request("GET",f"/v1/assets/{symbol}/params?{urlencode({'account_id':account_id})}").body
