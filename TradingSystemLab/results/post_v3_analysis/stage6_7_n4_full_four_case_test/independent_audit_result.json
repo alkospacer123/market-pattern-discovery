@@ -1,4 +1,5 @@
 {
+  "clean_room": true,
   "errors": [],
   "hash_only_check": false,
   "semantic_source_reconstruction": true,
