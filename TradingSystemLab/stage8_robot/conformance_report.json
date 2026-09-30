@@ -1,16 +1,244 @@
 {
-  "bars_per_instrument": {
-    "CNYRUBF": 17116,
-    "GLDRUBF": 13685,
-    "IMOEXF": 12251,
-    "USDRUBF": 17116
+  "authentication": {
+    "committed_sha": true,
+    "data_commit": true,
+    "event_hash": true,
+    "h1_CNYRUBF": true,
+    "h1_GLDRUBF": true,
+    "h1_IMOEXF": true,
+    "h1_USDRUBF": true,
+    "instruments": true,
+    "lifecycle_registry": true,
+    "lifecycles": true,
+    "parameter": true,
+    "repeated": true,
+    "row_count": true,
+    "t3": true,
+    "trail": true
   },
-  "direction_mismatches": 20,
-  "entry_mismatches": 93,
-  "exact_matches": 247,
-  "exit_mismatches": 111,
-  "expected_trades": 418,
-  "extra": 6,
+  "authority_replay": {
+    "R_mismatches": 0,
+    "direction_mismatches": 0,
+    "exact_matches": 418,
+    "expected_trade_count": 418,
+    "extra": 0,
+    "missing": 0,
+    "price_mismatches": 0,
+    "reproduced_trade_count": 418,
+    "state_mismatches": 0,
+    "status": "PASS",
+    "timestamp_mismatches": 0
+  },
+  "candidate_identity": "T3-H1-4e73cdb77246",
+  "candidate_parameters": {
+    "adx_period": 14,
+    "adx_threshold": 20.0,
+    "atr_average_period": 20,
+    "atr_period": 14,
+    "breakout_period": 20,
+    "ema_period": 100,
+    "slope_lookback": 5,
+    "stop_atr": 2.5,
+    "trail_atr": 3.0
+  },
+  "counts": {
+    "authority": [
+      {
+        "instrument": "CNYRUBF",
+        "lifecycle": "baseline",
+        "trades": 48
+      },
+      {
+        "instrument": "GLDRUBF",
+        "lifecycle": "baseline",
+        "trades": 40
+      },
+      {
+        "instrument": "IMOEXF",
+        "lifecycle": "baseline",
+        "trades": 25
+      },
+      {
+        "instrument": "USDRUBF",
+        "lifecycle": "baseline",
+        "trades": 58
+      },
+      {
+        "instrument": "CNYRUBF",
+        "lifecycle": "historical_true_oos",
+        "trades": 50
+      },
+      {
+        "instrument": "GLDRUBF",
+        "lifecycle": "historical_true_oos",
+        "trades": 40
+      },
+      {
+        "instrument": "IMOEXF",
+        "lifecycle": "historical_true_oos",
+        "trades": 50
+      },
+      {
+        "instrument": "USDRUBF",
+        "lifecycle": "historical_true_oos",
+        "trades": 44
+      },
+      {
+        "instrument": "CNYRUBF",
+        "lifecycle": "walk_forward",
+        "trades": 14
+      },
+      {
+        "instrument": "GLDRUBF",
+        "lifecycle": "walk_forward",
+        "trades": 21
+      },
+      {
+        "instrument": "IMOEXF",
+        "lifecycle": "walk_forward",
+        "trades": 14
+      },
+      {
+        "instrument": "USDRUBF",
+        "lifecycle": "walk_forward",
+        "trades": 14
+      }
+    ],
+    "expected": [
+      {
+        "instrument": "CNYRUBF",
+        "lifecycle": "baseline",
+        "trades": 48
+      },
+      {
+        "instrument": "GLDRUBF",
+        "lifecycle": "baseline",
+        "trades": 40
+      },
+      {
+        "instrument": "IMOEXF",
+        "lifecycle": "baseline",
+        "trades": 25
+      },
+      {
+        "instrument": "USDRUBF",
+        "lifecycle": "baseline",
+        "trades": 58
+      },
+      {
+        "instrument": "CNYRUBF",
+        "lifecycle": "historical_true_oos",
+        "trades": 50
+      },
+      {
+        "instrument": "GLDRUBF",
+        "lifecycle": "historical_true_oos",
+        "trades": 40
+      },
+      {
+        "instrument": "IMOEXF",
+        "lifecycle": "historical_true_oos",
+        "trades": 50
+      },
+      {
+        "instrument": "USDRUBF",
+        "lifecycle": "historical_true_oos",
+        "trades": 44
+      },
+      {
+        "instrument": "CNYRUBF",
+        "lifecycle": "walk_forward",
+        "trades": 14
+      },
+      {
+        "instrument": "GLDRUBF",
+        "lifecycle": "walk_forward",
+        "trades": 21
+      },
+      {
+        "instrument": "IMOEXF",
+        "lifecycle": "walk_forward",
+        "trades": 14
+      },
+      {
+        "instrument": "USDRUBF",
+        "lifecycle": "walk_forward",
+        "trades": 14
+      }
+    ],
+    "production": [
+      {
+        "instrument": "CNYRUBF",
+        "lifecycle": "baseline",
+        "trades": 48
+      },
+      {
+        "instrument": "GLDRUBF",
+        "lifecycle": "baseline",
+        "trades": 40
+      },
+      {
+        "instrument": "IMOEXF",
+        "lifecycle": "baseline",
+        "trades": 25
+      },
+      {
+        "instrument": "USDRUBF",
+        "lifecycle": "baseline",
+        "trades": 58
+      },
+      {
+        "instrument": "CNYRUBF",
+        "lifecycle": "historical_true_oos",
+        "trades": 50
+      },
+      {
+        "instrument": "GLDRUBF",
+        "lifecycle": "historical_true_oos",
+        "trades": 40
+      },
+      {
+        "instrument": "IMOEXF",
+        "lifecycle": "historical_true_oos",
+        "trades": 50
+      },
+      {
+        "instrument": "USDRUBF",
+        "lifecycle": "historical_true_oos",
+        "trades": 44
+      },
+      {
+        "instrument": "CNYRUBF",
+        "lifecycle": "walk_forward",
+        "trades": 14
+      },
+      {
+        "instrument": "GLDRUBF",
+        "lifecycle": "walk_forward",
+        "trades": 21
+      },
+      {
+        "instrument": "IMOEXF",
+        "lifecycle": "walk_forward",
+        "trades": 14
+      },
+      {
+        "instrument": "USDRUBF",
+        "lifecycle": "walk_forward",
+        "trades": 14
+      }
+    ]
+  },
+  "determinism": {
+    "authority_replay": [
+      "7f343ba0c5b3f60900437939225b1bf5e837a5717e1a8f95da0ae01228fcbe71",
+      "7f343ba0c5b3f60900437939225b1bf5e837a5717e1a8f95da0ae01228fcbe71"
+    ],
+    "production_robot_replay": [
+      "33e88111541e06e8d58b745039d8671c69acf17dfbb3e00ab7e41e681322d0a5",
+      "33e88111541e06e8d58b745039d8671c69acf17dfbb3e00ab7e41e681322d0a5"
+    ]
+  },
   "frozen_data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
   "frozen_data_repo": "alkospacer123/market-pattern-data",
   "h1_sha256": {
@@ -19,60 +247,38 @@
     "IMOEXF": "119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110",
     "USDRUBF": "f0ca366d816a6213742271242e87c53d1e23f5a5fc4655df0123217df418a226"
   },
-  "missing": 0,
-  "production_conformance_pass": false,
-  "reproduced_trades": 424,
-  "status": "STAGE_8_RESEARCH_ROBOT_CONFORMANCE_FAIL",
-  "strategy_R_mismatches": 171,
-  "tested_periods": [
-    {
-      "end_timestamp": "2024-12-31T00:00:00+03:00",
-      "fold_id": "",
-      "lifecycle": "baseline",
-      "start_timestamp": "2023-01-03T10:00:00+03:00"
-    },
-    {
-      "end_timestamp": "2024-12-31T00:00:00+03:00",
-      "fold_id": "",
-      "lifecycle": "baseline",
-      "start_timestamp": "2023-07-11T11:00:00+03:00"
-    },
-    {
-      "end_timestamp": "2024-12-31T00:00:00+03:00",
-      "fold_id": "",
-      "lifecycle": "baseline",
-      "start_timestamp": "2023-11-14T11:00:00+03:00"
-    },
-    {
-      "end_timestamp": "2026-09-16T00:00:00+03:00",
-      "fold_id": "",
-      "lifecycle": "historical_true_oos",
-      "start_timestamp": "2025-01-03T10:00:00+03:00"
-    },
-    {
-      "end_timestamp": "2024-03-31 23:59:59",
-      "fold_id": "WF01",
-      "lifecycle": "walk_forward",
-      "start_timestamp": "2024-01-01"
-    },
-    {
-      "end_timestamp": "2024-06-30 23:59:59",
-      "fold_id": "WF02",
-      "lifecycle": "walk_forward",
-      "start_timestamp": "2024-04-01"
-    },
-    {
-      "end_timestamp": "2024-09-30 23:59:59",
-      "fold_id": "WF03",
-      "lifecycle": "walk_forward",
-      "start_timestamp": "2024-07-01"
-    },
-    {
-      "end_timestamp": "2024-12-31 23:59:59",
-      "fold_id": "WF04",
-      "lifecycle": "walk_forward",
-      "start_timestamp": "2024-10-01"
-    }
-  ],
-  "unexplained_mismatches": 177
+  "numeric_serialization": "Stage-6 canonical %.12g",
+  "pr276_diagnosis": {
+    "baseline_failures": 177,
+    "exact": 247,
+    "expected": 418,
+    "historical_true_oos_exact": "184/184",
+    "reproduced": 424,
+    "walk_forward_exact": "63/63"
+  },
+  "production_robot_replay": {
+    "R_mismatches": 0,
+    "direction_mismatches": 0,
+    "exact_matches": 418,
+    "expected_trade_count": 418,
+    "extra": 0,
+    "missing": 0,
+    "price_mismatches": 0,
+    "reproduced_trade_count": 418,
+    "state_mismatches": 0,
+    "status": "PASS",
+    "timestamp_mismatches": 0
+  },
+  "reconciliation_hashes": {
+    "authority_replay_reconciliation.csv": "fb0277cf35040d117ed7f417aa1124a0e089158a079d061373ee29ffdc9debc7",
+    "production_robot_reconciliation.csv": "fb0277cf35040d117ed7f417aa1124a0e089158a079d061373ee29ffdc9debc7"
+  },
+  "source_hashes": {
+    "authoritative_ledger": "0f9034edf228a687da67e9f3e35fad01f2339be162c558e6d802c3cd77eea8ad",
+    "parameters": "4e73cdb77246cb07b5953160b9fc0ab36bfd4bd6d9a7f7faaae7e6e392ee340a",
+    "t3": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c",
+    "trail1": "d1d8ac2eeea9095becd6f74295e4a540d02ee0494237af5f16f6d66a487f221b"
+  },
+  "status": "STAGE_8_FINAM_DEMO_BINDING_READY_AWAITING_OPERATOR_CREDENTIALS",
+  "tolerance": 1e-10
 }

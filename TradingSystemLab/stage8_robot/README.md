@@ -1,6 +1,6 @@
 # Stage 8 robot foundation
 
-**Status:** `STAGE_8_RESEARCH_ROBOT_CONFORMANCE_FAIL` — never production-live.
+**Status:** `STAGE_8_FINAM_DEMO_BINDING_READY_AWAITING_OPERATOR_CREDENTIALS` — `LIVE_TRADING_NOT_AUTHORIZED`.
 
 This package implements the sole frozen identity `TRAIL1__N4_01__FULL__R15` under production specification `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`. It does not expose strategy parameters as runtime configuration and does not use the canonical reference as a fallback.
 
@@ -13,8 +13,9 @@ The state store uses SQLite transactions, WAL, a unique idempotency-key primary 
 ## FINAM schema record (2026-09-30 UTC)
 
 The corrective schema authority fixes session creation (`POST /v1/sessions`),
-session enumeration (`POST /v1/sessions/details`), H1 bars
-(`GET /v1/instruments/{symbol}/bars`, `timeframe=TIME_FRAME_H1`), account-bound
+session enumeration (`POST /v1/sessions/details` with JWT `token`, returning
+`account_ids`), H1 bars (`GET /v1/instruments/{symbol}/bars`,
+`timeframe=TIME_FRAME_H1`, `interval.start_time`/`interval.end_time`), account-bound
 asset parameters, and the object quantity/order enums/client ID fields.  Schema
 authentication is deliberately distinct from credential-backed account and
 instrument binding.  No credentials were available, so all registry rows stay
@@ -28,7 +29,10 @@ Before live authorization, an operator must authenticate and record the current 
 2. Run `python -m pytest TradingSystemLab/stage8_robot/tests -q` and `python TradingSystemLab/stage8_robot/audit_stage8.py`.
 3. Instantiate `RobotRunner(RuntimeConfig.from_environment())`; without an explicitly injected live broker it always uses `DryRunBroker`, which records `transmitted: false`.
 4. Reconcile realized equity to broker cash flows (completed exits minus actual commission/exchange fees). Any unexplained mismatch outside an operator-defined monetary tolerance blocks entries; no tolerance is silently defaulted.
-5. Live trading requires separate authorization, authenticated registry rows, an explicitly supplied FINAM broker, and the exact literal `LIVE_TRADING_ENABLED=true`. Missing/malformed values remain off. The kill switch only blocks new entries and does not invent emergency liquidation.
+5. LIVE is not implemented and always fails with `LIVE_TRADING_NOT_AUTHORIZED`.
+   A later separately authorized change would be required; this Stage 8 package
+   offers no environment-variable override. The kill switch only blocks new
+   DEMO entries and does not invent emergency liquidation.
 
 Audit records are JSON Lines and support the full schema (instrument/contract, bar/signal/direction, equity/risk/quantity, entry/stops/TRAIL1, orders/fills/responses, reconciliation, exit/PnL/fees and failure reason). Callers must provide the applicable fields for each lifecycle event.
 
@@ -48,7 +52,7 @@ Run `python -m TradingSystemLab.stage8_robot.demo_smoke` with external credentia
 for a sanitized read-only diagnostic, then use `update_demo_registry` for an
 all-four atomic registry update. The separate order smoke demands DEMO mode,
 explicit consent, four authenticated records, Stage 7 authentication, a full
-conformance PASS, and reconciliation. Frozen data authentication passed, but the
-real replay currently reports 418 expected versus 424 reproduced trades and 177
-unexplained mismatches. It therefore fails closed as
-`STAGE_8_RESEARCH_ROBOT_CONFORMANCE_FAIL`; no demo order was transmitted.
+conformance PASS, and reconciliation. Both the isolated research-authority replay
+and the independent Stage 8 production replay reproduce all 418 authoritative
+trades exactly and deterministically. No FINAM connection was attempted and no
+demo order was transmitted.

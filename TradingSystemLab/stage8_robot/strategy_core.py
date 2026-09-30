@@ -38,7 +38,8 @@ def validate_bar(bar: CompletedBar, now: datetime, previous: datetime|None=None)
 class DecisionCore:
     PARAMETERS={"ema_period":100,"slope_lookback":5,"adx_period":14,"adx_threshold":20.0,"atr_period":14,"atr_average_period":20,"breakout_period":20,"stop_atr":2.5,"trail_atr":3.0}
     def signal(self, instrument: str, bar: CompletedBar, context: T3Context, sequence: int) -> SignalIntent|None:
-        fields=(context.close,context.ema100,context.ema100_slope,context.adx14,context.atr14,context.atr_mean20,context.ema50,context.ema200,bar.atr)
+        # EMA50/EMA200 are authenticated context observables, not T3 gates.
+        fields=(context.close,context.ema100,context.ema100_slope,context.adx14,context.atr14,context.atr_mean20,bar.atr)
         if any(v is None or not math.isfinite(v) for v in fields): return None
         if context.adx14<=20 or context.atr14<=context.atr_mean20: return None
         direction = "LONG" if context.close>context.ema100 and context.ema100_slope>0 else "SHORT" if context.close<context.ema100 and context.ema100_slope<0 else None

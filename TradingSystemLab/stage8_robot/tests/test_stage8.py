@@ -28,7 +28,7 @@ def test_t3_long_short_signal(long):
     result=DecisionCore().signal("USDRUBF",b,context(long),1)
     assert result.direction == ("LONG" if long else "SHORT") and result.initial_r==5
 def test_warmup_and_no_signal():
-    assert DecisionCore().signal("USDRUBF",bar(),T3Context(110,100,1,25,3,2,None,95),1) is None
+    assert DecisionCore().signal("USDRUBF",bar(),T3Context(110,float("nan"),1,25,3,2,None,95),1) is None
     assert DecisionCore().signal("USDRUBF",bar(close=103),context(),1) is None
 
 def authoritative_trail_class():
@@ -113,10 +113,11 @@ def test_live_mode_is_impossible(monkeypatch):
     monkeypatch.setenv("STARTING_REALIZED_EQUITY","1"); monkeypatch.setenv("FINAM_MODE","LIVE")
     with pytest.raises(RuntimeError,match="LIVE_TRADING_NOT_AUTHORIZED"): RuntimeConfig.from_environment()
 
-def test_conformance_reports_real_replay_and_fails_closed_on_mismatch():
+def test_conformance_reports_two_exact_independent_replays():
     report=json.loads(Path("TradingSystemLab/stage8_robot/conformance_report.json").read_text())
-    assert report["status"]=="STAGE_8_RESEARCH_ROBOT_CONFORMANCE_FAIL" and report["production_conformance_pass"] is False
-    assert report["expected_trades"]==418 and report["reproduced_trades"]==424 and report["unexplained_mismatches"]==177
+    assert report["status"]=="STAGE_8_FINAM_DEMO_BINDING_READY_AWAITING_OPERATOR_CREDENTIALS"
+    for name in ("authority_replay","production_robot_replay"):
+        assert report[name]["status"]=="PASS" and report[name]["expected_trade_count"]==report[name]["reproduced_trade_count"]==report[name]["exact_matches"]==418
 
 def test_finam_session_schema_and_secret_redaction():
     from io import BytesIO
@@ -135,6 +136,31 @@ def test_finam_endpoint_and_order_schema():
     assert BARS_PATH_TEMPLATE=="/v1/instruments/{symbol}/bars"
     assert broker_side("LONG")=="SIDE_BUY" and broker_side("SHORT",exit_order=True)=="SIDE_BUY"
     assert compact_client_order_id("x")==compact_client_order_id("x") and len(compact_client_order_id("x"))==20
+
+def test_finam_transport_schema_uses_token_account_ids_and_interval_query():
+    from io import BytesIO
+    from urllib.parse import urlparse,parse_qs
+    from TradingSystemLab.stage8_robot.finam_api import FinamAPI,RateLimiter
+    seen=[]
+    class R(BytesIO): status=200; headers={}
+    replies=[b'{"token":"jwt"}',b'{"account_ids":["demo"]}',b'{"bars":[]}']
+    def transport(req,timeout): seen.append(req); return R(replies.pop(0))
+    api=FinamAPI("secret",transport=transport,limiter=RateLimiter(199)); api.create_session(); details=api.session_details(); api.bars("X","a","b")
+    assert json.loads(seen[1].data)=={"token":"jwt"} and details["account_ids"]==["demo"]
+    query=parse_qs(urlparse(seen[2].full_url).query)
+    assert query=={"timeframe":["TIME_FRAME_H1"],"interval.start_time":["a"],"interval.end_time":["b"]}
+
+def test_production_replay_has_no_research_shortcut():
+    import ast
+    source=Path("TradingSystemLab/stage8_robot/production_replay.py").read_text(); tree=ast.parse(source)
+    prohibited={"run_t3","_dispatch","raw_replays"}
+    assert not any(isinstance(n,(ast.Import,ast.ImportFrom)) and "stage5" in ast.unparse(n) for n in ast.walk(tree))
+    assert not any(isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and n.func.id in prohibited for n in ast.walk(tree))
+
+def test_client_order_ids_have_no_collisions():
+    from TradingSystemLab.stage8_robot.broker import compact_client_order_id
+    ids=[compact_client_order_id(f"TRAIL1:{i}:USDRUBF:2026-01-{i%28+1:02d}") for i in range(10000)]
+    assert len(ids)==len(set(ids)) and all(len(x)<=20 for x in ids)
 
 def test_realized_equity_restored_and_mismatch_blocked(tmp_path):
     cfg=RuntimeConfig(tmp_path/"s.db",tmp_path/"a","100000","none")
