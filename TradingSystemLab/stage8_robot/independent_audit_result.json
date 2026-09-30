@@ -1,0 +1,8 @@
+{
+  "checks": 23,
+  "errors": [],
+  "live_trading_activated": false,
+  "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+  "stage8_status": "STAGE_8_IMPLEMENTATION_IN_PROGRESS",
+  "status": "PASS"
+}

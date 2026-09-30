@@ -1,0 +1,14 @@
+[
+ {"id":"long_normal","covers":"LONG normal trade","provenance":"deterministic synthetic semantic edge case"},
+ {"id":"short_normal","covers":"SHORT normal trade","provenance":"deterministic synthetic semantic edge case"},
+ {"id":"never_triggers","covers":"TRAIL1 never triggers","provenance":"deterministic synthetic semantic edge case"},
+ {"id":"triggers","covers":"TRAIL1 triggers","provenance":"authenticated Stage 5 direct comparison"},
+ {"id":"delayed_activation","covers":"activation on later event","provenance":"authenticated Stage 5 direct comparison"},
+ {"id":"candidate_looser","covers":"candidate already looser","provenance":"authenticated Stage 5 direct comparison"},
+ {"id":"stop_hit","covers":"stop hit before bar extreme update","provenance":"Stage 7 execution contract"},
+ {"id":"gap_stop","covers":"gap-through research fill","provenance":"Stage 7 execution contract"},
+ {"id":"exit_entry_order","covers":"same timestamp EXIT before ENTRY","provenance":"Stage 7 event-order contract"},
+ {"id":"multi_instrument","covers":"deterministic instrument identity order","provenance":"Stage 7 event-order contract"},
+ {"id":"missing_data","covers":"missing/stale data rejection","provenance":"Stage 7 data contract"},
+ {"id":"restart_open","covers":"restart idempotency and reconciliation","provenance":"Stage 7 state contract"}
+]

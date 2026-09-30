@@ -1,0 +1,5 @@
+research_symbol,security_id,contract_code,expiry,price_step,tick_value,contract_multiplier,quantity_granularity,currency,trading_status,binding_status,authority
+USDRUBF,,,,,,,,,,BLOCKED_UNAUTHENTICATED,FINAM/MOEX current official binding required
+CNYRUBF,,,,,,,,,,BLOCKED_UNAUTHENTICATED,FINAM/MOEX current official binding required
+GLDRUBF,,,,,,,,,,BLOCKED_UNAUTHENTICATED,FINAM/MOEX current official binding required
+IMOEXF,,,,,,,,,,BLOCKED_UNAUTHENTICATED,FINAM/MOEX current official binding required
