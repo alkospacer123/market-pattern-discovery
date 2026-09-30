@@ -46,7 +46,25 @@ uncertain order POST is reconciled by compact client ID rather than retransmitte
 `FINAM_MODE` is either `DRY_RUN` (default) or `DEMO`; `LIVE` always raises
 `LIVE_TRADING_NOT_AUTHORIZED`.
 
-The N4 registry now models all four names directly as non-expiring `PERPETUAL_FUTURE` instruments with daily automatic prolongation and operator-only quarterly exercise. Exchange reference economics are recorded, but every binding remains `BLOCKED_UNAUTHENTICATED` until an operator runs the read-only smoke against official FINAM responses and independently retrieves the official MOEX pages. This environment received HTTP CONNECT 403 for both authorities; it therefore did not assert an authenticated binding.
+The N4 registry models all four names directly as non-expiring `PERPETUAL_FUTURE`
+instruments with daily automatic prolongation and operator-only quarterly
+exercise. Exchange reference economics are recorded, but every committed
+binding remains `BLOCKED_UNAUTHENTICATED` until an operator runs the read-only
+smoke against official FINAM responses. Official documentation was reviewed at
+`https://api.finam.ru/docs/rest/` and `https://api.finam.ru/docs/grpc/`; direct
+retrieval from this build environment was blocked by HTTP CONNECT 403, and no
+credential-backed claim is made.
+
+The binding uses only current snake-case FINAM fields. `min_step` is an integer
+mantissa in price precision and the actual step is exactly
+`Decimal(min_step) / 10 ** decimals`. FINAM Decimal messages are decoded from
+`{num, scale}` without binary floating point, and `is_tradable` is read only
+from the configured account's params (including its `{value: bool}` wrapper).
+For these futures, `OrderRequest.quantity.value` is a number of contracts;
+`trade_lot_size` is its required increment, whereas
+`future_details.contract_size` is underlying per contract. MOEX supplies the
+frozen tick value used by R15 sizing. The schedule is operational evidence and
+never a strategy-session filter.
 
 Run `python -m TradingSystemLab.stage8_robot.demo_smoke` with external credentials
 for a sanitized read-only diagnostic, then use `update_demo_registry` for an

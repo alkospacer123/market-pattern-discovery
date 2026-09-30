@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Sanitized FINAM demo binding evidence",
+  "type": "object",
+  "required": ["schema_version", "account_identity_sha256", "account_verified", "bindings", "evidence_sha256"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "account_identity_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "account_verified": {"const": true},
+    "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "bindings": {
+      "type": "object",
+      "required": ["USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF"],
+      "additionalProperties": false,
+      "properties": {
+        "USDRUBF": {"$ref": "#/$defs/binding"}, "CNYRUBF": {"$ref": "#/$defs/binding"},
+        "GLDRUBF": {"$ref": "#/$defs/binding"}, "IMOEXF": {"$ref": "#/$defs/binding"}
+      }
+    }
+  },
+  "$defs": {"binding": {"type":"object", "required":["research_symbol","finam_symbol","mic","security_id","asset_type","quote_currency","derived_price_step","futures_contract_size","is_tradable","trade_lot_size","schedule","status","validation_errors"]}}
+}

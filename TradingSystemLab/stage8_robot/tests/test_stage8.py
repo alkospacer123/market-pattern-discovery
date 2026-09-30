@@ -86,7 +86,8 @@ def test_perpetual_registry_has_no_expiry():
 
 def test_binding_mismatch_blocks():
     from TradingSystemLab.stage8_robot.instrument_resolver import validate_finam_binding
-    assert validate_finam_binding("USDRUBF",{"tradable":True},{"priceIncrement":"1","lotSize":1000,"quantityStep":1},{})=="BLOCKED_PARAM_MISMATCH"
+    result=validate_finam_binding("USDRUBF",{}, {}, {})
+    assert result.status!="AUTHENTICATED_DEMO_TRADABLE"
 
 def test_context_blocks_reset_at_local_day_and_incomplete_rejected():
     import pandas as pd
@@ -172,3 +173,100 @@ def test_realized_equity_restored_and_mismatch_blocked(tmp_path):
 def test_fill_durability_and_unique_id(tmp_path):
     store=StateStore(tmp_path/"s.db"); fill={"fill_id":"f","broker_order_id":"o","trade_id":"t","quantity":"1","price":"2","fee":".1","timestamp":"2026-01-01T00:00:00Z"}
     assert store.persist_fill(fill) and not store.persist_fill(fill)
+
+# Current FINAM REST binding contract: exact names, protobuf Decimal/Bool wrappers.
+def binding_fixture():
+    import copy
+    data=json.loads(Path("TradingSystemLab/stage8_robot/tests/finam_binding_fixtures.json").read_text())
+    return copy.deepcopy(data)
+
+def validate_fixture(code, data=None):
+    from TradingSystemLab.stage8_robot.instrument_resolver import validate_finam_binding
+    data=data or binding_fixture(); asset=data["assets"][("USDRUBF","CNYRUBF","GLDRUBF","IMOEXF").index(code)]
+    return validate_finam_binding(code,asset,data["params"],data["schedule"],data["account_assets"][code])
+
+@pytest.mark.parametrize("value,expected",[(1,"1"),("1.25","1.25"),({"num":"125","scale":2},"1.25"),(0,"0")])
+def test_finam_decimal_parser(value,expected):
+    from TradingSystemLab.stage8_robot.instrument_resolver import finam_decimal
+    assert str(finam_decimal(value))==expected
+@pytest.mark.parametrize("value",[-1,{"num":"x","scale":2},{"num":"1"},None,1.2])
+def test_finam_decimal_parser_rejects_invalid_positive(value):
+    from TradingSystemLab.stage8_robot.instrument_resolver import finam_decimal
+    with pytest.raises(ValueError): finam_decimal(value,positive=True)
+@pytest.mark.parametrize("value,expected",[(True,True),(False,False),({"value":True},True),({"value":False},False),({},None),(None,None)])
+def test_finam_bool_wrapper(value,expected):
+    from TradingSystemLab.stage8_robot.instrument_resolver import finam_bool
+    assert finam_bool(value) is expected
+@pytest.mark.parametrize("code",["USDRUBF","CNYRUBF","GLDRUBF","IMOEXF"])
+def test_all_four_sanitized_finam_bindings(code):
+    x=validate_fixture(code); assert x.status=="AUTHENTICATED_DEMO_TRADABLE" and not x.validation_errors
+    assert x.tick_value_source=="MOEX" and x.quantity_semantics.startswith("quantity.value is a number of futures contracts")
+
+def test_exact_discovery_and_ambiguity():
+    from TradingSystemLab.stage8_robot.instrument_resolver import discover_finam_asset
+    d=binding_fixture(); assert discover_finam_asset("USDRUBF",d["assets"])[0]["id"]=="sec-usd"
+    wrong=[{**d["assets"][0],"ticker":"USD"}]; assert discover_finam_asset("USDRUBF",wrong)[1]=="BLOCKED_NOT_FOUND"
+    assert discover_finam_asset("USDRUBF",[d["assets"][0],{**d["assets"][0],"id":"other"}])[1]=="BLOCKED_AMBIGUOUS_FINAM_ASSET"
+
+@pytest.mark.parametrize("mutation,expected",[
+ ("wrong_ticker","BLOCKED_IDENTITY_MISMATCH"),("wrong_mic","BLOCKED_IDENTITY_MISMATCH"),("wrong_type","BLOCKED_INSTRUMENT_TYPE_MISMATCH"),
+ ("archived","BLOCKED_INSTRUMENT_DISABLED"),("wrong_decimals","BLOCKED_PRICE_STEP_MISMATCH"),("wrong_min_step","BLOCKED_PRICE_STEP_MISMATCH"),
+ ("wrong_lot","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),("wrong_contract","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),("missing_future","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),
+ ("currency","BLOCKED_CURRENCY_MISMATCH"),("not_tradable","BLOCKED_NOT_TRADABLE"),("missing_tradable","BLOCKED_NOT_TRADABLE"),
+ ("zero_trade_lot","BLOCKED_PARAMS_INVALID"),("missing_trade_lot","BLOCKED_PARAMS_INVALID"),("schedule","BLOCKED_SCHEDULE_INVALID"),
+ ("missing_symbol","BLOCKED_IDENTITY_MISMATCH"),("missing_id","BLOCKED_IDENTITY_MISMATCH")])
+def test_binding_negative_mutations(mutation,expected):
+    d=binding_fixture(); a=d["assets"][0]; aa=d["account_assets"]["USDRUBF"]
+    if mutation=="wrong_ticker": a["ticker"]="USD"
+    elif mutation=="wrong_mic": a["mic"]="XXXX"
+    elif mutation=="wrong_type": a["type"]="ASSET_TYPE_SHARE"
+    elif mutation=="archived": a["is_archived"]=True
+    elif mutation=="wrong_decimals": aa["decimals"]=3
+    elif mutation=="wrong_min_step": aa["min_step"]={"num":"2","scale":0}
+    elif mutation=="wrong_lot": aa["lot_size"]={"num":"2","scale":0}
+    elif mutation=="wrong_contract": aa["future_details"]["contract_size"]={"num":"999","scale":0}
+    elif mutation=="missing_future": aa.pop("future_details")
+    elif mutation=="currency": aa["currency"]="USD"
+    elif mutation=="not_tradable": d["params"]["is_tradable"]={"value":False}
+    elif mutation=="missing_tradable": d["params"].pop("is_tradable")
+    elif mutation=="zero_trade_lot": d["params"]["trade_lot_size"]={"num":"0","scale":0}
+    elif mutation=="missing_trade_lot": d["params"].pop("trade_lot_size")
+    elif mutation=="schedule": d["schedule"]={"sessions":[]}
+    elif mutation=="missing_symbol": a.pop("symbol")
+    elif mutation=="missing_id": a.pop("id")
+    assert validate_fixture("USDRUBF",d).status==expected
+
+def test_binding_price_derivation_exact_decimal():
+    x=validate_fixture("CNYRUBF"); assert x.min_step=="1" and x.decimals==3 and x.derived_price_step=="0.001"
+
+def test_sizing_to_finam_contract_quantity_all_four():
+    from TradingSystemLab.stage8_robot.instrument_resolver import MOEX_REFERENCE
+    for code in MOEX_REFERENCE:
+        x=validate_fixture(code); step,tick,_=MOEX_REFERENCE[code]
+        entry=Decimal("100"); stop=entry-step*10
+        sized=size_position(Decimal("100000"),entry,stop,ContractEconomics(step,tick,int(Decimal(x.trade_lot_size)),True))
+        expected_loss=Decimal("10")*tick
+        assert sized.risk_cash==Decimal("1500.000") and sized.loss_per_contract==expected_loss
+        raw=sized.risk_cash/expected_loss
+        assert sized.quantity==int(raw.to_integral_value(rounding="ROUND_FLOOR")) and Decimal(sized.quantity)<=raw
+        assert sized.quantity%int(Decimal(x.trade_lot_size))==0
+
+def test_atomic_activation_rejects_three_of_four_without_change(tmp_path):
+    from TradingSystemLab.stage8_robot.instrument_resolver import evidence_sha256
+    from TradingSystemLab.stage8_robot.update_demo_registry import update
+    records={c:validate_fixture(c).to_dict() for c in ("USDRUBF","CNYRUBF","GLDRUBF","IMOEXF")}
+    records["IMOEXF"]["status"]="BLOCKED_NOT_TRADABLE"
+    report={"account_verified":True,"bindings":records,"evidence_sha256":evidence_sha256(records)}
+    rp=tmp_path/"e.json"; rp.write_text(json.dumps(report)); reg=tmp_path/"r.csv"
+    original=Path("TradingSystemLab/stage8_robot/production_instrument_registry.csv").read_text(); reg.write_text(original)
+    with pytest.raises(RuntimeError,match="ALL_FOUR"): update(rp,reg)
+    assert reg.read_text()==original
+
+def test_atomic_activation_four_of_four(tmp_path):
+    from TradingSystemLab.stage8_robot.instrument_resolver import evidence_sha256
+    from TradingSystemLab.stage8_robot.update_demo_registry import update
+    records={c:validate_fixture(c).to_dict() for c in ("USDRUBF","CNYRUBF","GLDRUBF","IMOEXF")}
+    report={"account_verified":True,"bindings":records,"evidence_sha256":evidence_sha256(records)}
+    rp=tmp_path/"e.json"; rp.write_text(json.dumps(report)); reg=tmp_path/"r.csv"
+    reg.write_text(Path("TradingSystemLab/stage8_robot/production_instrument_registry.csv").read_text()); update(rp,reg)
+    assert reg.read_text().count("AUTHENTICATED_DEMO_TRADABLE")==4
