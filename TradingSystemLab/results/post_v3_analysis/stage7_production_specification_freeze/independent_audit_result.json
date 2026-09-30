@@ -1,0 +1,8 @@
+{
+  "checks": 22,
+  "errors": [],
+  "mutation_test_count": 19,
+  "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+  "stage6_economics_rewritten": false,
+  "status": "PASS"
+}

@@ -1,0 +1,113 @@
+{
+  "accepted_evidence": {
+    "CANONICAL_R15_REFERENCE": {
+      "cagr_2024_plus_pct": 109.127844528,
+      "max_drawdown_pct": -16.3447661141,
+      "positive_complete_quarters": "9/10",
+      "positive_months": "21/33"
+    },
+    "TRAIL1_R15": {
+      "cagr_2024_plus_pct": 122.444495514,
+      "max_drawdown_pct": -19.9598387654,
+      "positive_complete_quarters": "10/10",
+      "positive_months": "23/33",
+      "return_2024_pct": 165.280419816,
+      "return_2025_pct": 74.3831505316,
+      "return_2026_ytd_pct": 88.3106185615,
+      "time_weighted_average_open_risk_pct": 1.02405093074
+    },
+    "window": "2024-01-01 through 2026-09-15 authenticated endpoint"
+  },
+  "basket": {
+    "dynamic_selection": false,
+    "id": "N4_01",
+    "instruments": [
+      "USDRUBF",
+      "CNYRUBF",
+      "GLDRUBF",
+      "IMOEXF"
+    ],
+    "maximum_simultaneous_instruments": 4
+  },
+  "canonical_active_payload_sha256": "46db784378797c7fb04636892350aff21006d71a31f2ced9d4b974eda2dc36b8",
+  "contract_mapping": "BROKER_ADAPTER_BINDING_REQUIRED_STAGE8",
+  "cost_evidence_contract": {
+    "live_fees": "BROKER_ADAPTER_BINDING_REQUIRED_STAGE8",
+    "name": "C1",
+    "normalized_research_tick": 0.001,
+    "round_trip_ticks": 2,
+    "ticks_per_side": 1
+  },
+  "decision_authority": "explicit human selection after accepted Stage 6 final four-case comparison",
+  "equity": {
+    "basis": "realized equity only; open/unrealized PnL excluded",
+    "realized_pnl": "applied on EXIT before later same-timestamp ENTRY sizing",
+    "starting_equity": "required runtime input"
+  },
+  "event_order": [
+    "timestamp_ascending",
+    "EXIT_before_ENTRY",
+    "deterministic_trade_instrument_order_identity_ascending"
+  ],
+  "identity": "TRAIL1__N4_01__FULL__R15",
+  "position_model": {
+    "one_active_position_per_instrument": true,
+    "pyramiding": false,
+    "repeated_entry_while_open": false,
+    "reversal": "no atomic reversal; exit only by active stop, then independently evaluate a new signal"
+  },
+  "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+  "research_generation": "v3_perpetual",
+  "risk": {
+    "equal_split": false,
+    "load": "FULL",
+    "maximum_nominal_simultaneous_initial_risk": 0.06,
+    "mode": "R15",
+    "risk_cash": "current_equity * 0.015",
+    "risk_cash_frozen_at_entry": true,
+    "risk_fraction_per_new_instrument_position": 0.015
+  },
+  "schedule": {
+    "entry_time_filter": null,
+    "session_10_21": false
+  },
+  "schema_version": 1,
+  "stage8_started": false,
+  "status": "ACTIVE_PRODUCTION_SPECIFICATION",
+  "strategy": {
+    "candidate": "T3_H1_candidate_v3",
+    "configuration_id": "T3-H1-4e73cdb77246",
+    "name": "T3",
+    "parameter_sha256": "4e73cdb77246cb07b5953160b9fc0ab36bfd4bd6d9a7f7faaae7e6e392ee340a",
+    "parameters": {
+      "adx_period": 14,
+      "adx_threshold": 20.0,
+      "atr_average_period": 20,
+      "atr_period": 14,
+      "breakout_period": 20,
+      "ema_period": 100,
+      "slope_lookback": 5,
+      "stop_atr": 2.5,
+      "trail_atr": 3.0
+    },
+    "source_sha256": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c",
+    "timeframe": "H1"
+  },
+  "variant": {
+    "activation": "first later event; never trigger event/bar",
+    "authoritative_ledger_sha256": "b773811cb39df3c2585bf3aa278195ccb6e1777dcc664b714b2c74a2bc3badde",
+    "forbidden_overlays": [
+      "BE1",
+      "LOCK1_AFTER_2R",
+      "SESSION_10_21",
+      "ONE_BAR",
+      "EXIT_ON_OPPOSITE_REGIME",
+      "STRUCTURAL_STACK"
+    ],
+    "initial_risk_frozen": true,
+    "name": "TRAIL1",
+    "source_sha256": "d1d8ac2eeea9095becd6f74295e4a540d02ee0494237af5f16f6d66a487f221b",
+    "tighten_only": true,
+    "trigger_r": 1.0
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "four_case_audit": {
+    "path": "TradingSystemLab/results/post_v3_analysis/stage6_7_n4_full_four_case_test/independent_audit_result.json",
+    "sha256": "706e7198ef39788bc3a3d33474583411d76d4d14480fad67357557feea33a684"
+  },
+  "four_case_registry": {
+    "path": "TradingSystemLab/results/post_v3_analysis/stage6_7_n4_full_four_case_test/four_case_registry.csv",
+    "sha256": "e1f5edbff005ce17fcaa73c71837db1b3906bdd3d92d1f249788e80c725c34a2"
+  },
+  "repository_authority": {
+    "branch": "main merged state at task start",
+    "sha": "afeb33421483d6b47cde78c85ca4266eea616600"
+  },
+  "stage5_lifecycle": {
+    "path": "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/canonical_lifecycle_registry.csv",
+    "sha256": "f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6"
+  },
+  "stage6_registry": {
+    "path": "TradingSystemLab/results/post_v3_analysis/stage6_unified_candidate_comparison/portfolio_trade_scaling_registry.csv",
+    "sha256": "8f0493f5dd4edf087881622005efde0531c6146903a38c362e72dbc508071b1e"
+  },
+  "t3_manifest": {
+    "path": "TradingSystemLab/results/perpetual_v3/robustness/T3/H1/manifest.json",
+    "sha256": "a4c88308571470b91eeec987038c314ffedf76355c99a09fda76a18e12be93ea"
+  },
+  "t3_source": {
+    "path": "TradingSystemLab/strategies/trend/T3_MTF_Trend.py",
+    "sha256": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
+  },
+  "trail1_manifest": {
+    "path": "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/trail1/manifest_trail1.json",
+    "sha256": "ae29ceba3c52509336ea3c097863aa92ca3e404c15415e3192b49646d29862dd"
+  },
+  "trail1_source": {
+    "path": "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_trail1_execution.py",
+    "sha256": "d1d8ac2eeea9095becd6f74295e4a540d02ee0494237af5f16f6d66a487f221b"
+  }
+}

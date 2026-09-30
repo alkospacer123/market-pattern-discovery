@@ -1,0 +1,17 @@
+{
+  "core_artifacts": {
+    "PRODUCTION_SPECIFICATION.md": "ef252da9ad717924a4d2020975b65e009cd59a60b73e6b8daa813dc134fa2238",
+    "data_contract.md": "2356d02a2f15feafabc0e9631a8b8cbae4cfcac4cace6c0734715e9ed85877a0",
+    "execution_semantics.md": "468e259ca8fd7c4e78546f0eec8d13e275d0bce74ea3a0f00547fb47fbeb25bf",
+    "instrument_registry.csv": "661764994f406e186227c48e67b108f35fbd98dea0560949f11bea63e2d16e0e",
+    "production_identity_registry.csv": "5418fb19d4aaa32b4292fce0425a644c4bf70a5451e78fd2a801b5dc8dd003aa",
+    "production_specification.json": "c719bb3e7b9a7e707077fc499867613010068d623d6879c247f480f7658aff7c",
+    "research_to_robot_conformance.md": "022640c102bbef7544af6c3b871a84f307a82a921ea129a086fb74a9941dca86",
+    "risk_and_sizing_contract.md": "fb5079e22e7aaa11f28c2cce9c0ea0a905bf8256db9fa66d4698d531deed38ee",
+    "source_provenance.json": "4d6e3d7d221e019ea00faa3d523affd39d0b45df3f6898c41e2e8c7ed4c3d494",
+    "state_persistence_contract.md": "285266aa5876e44908492a45d1c94b920ce2cab39923599bdacca200c645430e",
+    "strategy_identity.json": "6df254c587e558a68f22ad9fe05af4d3920bccb0b39c6ae47583ac49fbb9579c"
+  },
+  "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+  "status": "PASS"
+}

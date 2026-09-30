@@ -1,0 +1,5 @@
+instrument,research_symbol,production_symbol,exchange_code,price_step,tick_value,contract_multiplier,currency,quantity_granularity,binding_status
+USDRUBF,USDRUBF,,,,,,,,BROKER_ADAPTER_BINDING_REQUIRED_STAGE8
+CNYRUBF,CNYRUBF,,,,,,,,BROKER_ADAPTER_BINDING_REQUIRED_STAGE8
+GLDRUBF,GLDRUBF,,,,,,,,BROKER_ADAPTER_BINDING_REQUIRED_STAGE8
+IMOEXF,IMOEXF,,,,,,,,BROKER_ADAPTER_BINDING_REQUIRED_STAGE8

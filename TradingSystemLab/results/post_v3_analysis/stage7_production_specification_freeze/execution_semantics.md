@@ -1,0 +1,9 @@
+# Execution semantics
+
+H1 close-labelled completed bars drive T3. Four completed, non-overlapping H1 bars within one Europe/Moscow local day form context; incomplete blocks are unpublished. T3 uses the latest published context close at or before the execution timestamp. It applies EMA100 and five-bar slope, ADX14 > 20, ATR14 > its 20-context-bar mean, and a 20-H1-bar prior Donchian breakout (shifted one bar). Entry is signal-bar close. Initial stop is 2.5 × H1 ATR.
+
+One position per instrument; no pyramiding or repeated entry while open. Before incorporating a bar's extreme, test the stop entering that bar. Gap fill is `min(open, stop)` LONG / `max(open, stop)` SHORT. A non-exit bar updates the favorable extreme and canonical 3 × ATR trailing candidate; stops only tighten, symmetrically. TRAIL1 triggers when a completed bar first reaches frozen +1R, stores that bar's canonical candidate, and may activate only before a later event; it cannot retroactively stop on the trigger bar. After activation canonical candidates continue tighten-only. Initial R never changes.
+
+Global ordering is timestamp ascending, EXIT before ENTRY, then deterministic trade/instrument/order identity ascending. No time-of-day filter or unauthorized overlay exists. Perpetual-to-live contract selection, roll/expiry detection, prohibition on entries to invalid contracts, near-expiry open-position handling, and persistent contract identity are `BROKER_ADAPTER_BINDING_REQUIRED_STAGE8`; unresolved mapping blocks entries.
+
+Signal identity is SHA-256 of canonical UTF-8 JSON containing production specification ID, strategy/configuration, variant, instrument, H1 signal close timestamp, direction, and deterministic signal sequence. The resulting trade ID plus broker idempotency key is persisted before submission; reuse is mandatory after restart.
