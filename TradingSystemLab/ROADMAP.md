@@ -2,206 +2,187 @@
 
 ## Governing rule
 
-The original H1 research lifecycle remains the sole methodology for research
-identities:
+The original H1 research lifecycle remains the sole research methodology:
 
 **Baseline → Optimization → Robustness → Walk Forward → TRUE OOS**.
 
-That lifecycle is complete for v3 Perpetual. The current roadmap is therefore
-the separate post-v3 evidence-to-production program below. It must not be used
-to rewrite v1/v2/v3 identities or add retroactive research phases.
+v1, v2 and v3 are historical evidence. v3 is complete through TRUE OOS. The
+current roadmap is the separate post-v3 evidence-to-production program.
 
 ## Historical research generations
 
 ### v1 — historical
 
-Broad strategy/timeframe discovery, including T1–T3, R1–R3, multiple
-timeframes and later MTF research. v1 remains immutable historical evidence.
+Broad multi-strategy/timeframe discovery and later MTF work.
 
 ### v2 — historical and complete
 
-Quarterly-futures diversification generation using T2/T3 on M30/H1 across
-`Si`, `CNY`, `GD`, `BR`, `MIX`, `NG`. Its five-stage cycle is complete and all
-four final TRUE OOS study classifications are `BORDERLINE`. Its OOS is consumed.
+T2/T3 quarterly-futures diversification on M30/H1 across Si/CNY/GD/BR/MIX/NG.
+All four final TRUE OOS study classifications are `BORDERLINE`.
 
 ### v3 Perpetual — historical and complete
 
-Universe: `USDRUBF`, `CNYRUBF`, `GLDRUBF`, `IMOEXF`; strategies T2/T3;
-timeframes M30/H1.
+Universe: USDRUBF/CNYRUBF/GLDRUBF/IMOEXF; T2/T3; M30/H1.
 
-v3 completed Baseline, Optimization, Candidate Freeze, Robustness, Walk Forward
-and TRUE OOS. Final TRUE OOS outcomes:
+Final TRUE OOS:
 
 - T2/M30 `BORDERLINE`;
 - T2/H1 `BORDERLINE`;
 - T3/M30 `PASS`;
 - T3/H1 `PASS`.
 
-Canonical reproducible v3 lifecycle closeout:
-`aab2659cfc91846631bbe22ff3b45e3e4e4af85f`.
+## Post-v3 Stages 1–5
 
-## Post-v3 objective
+- Stage 1 Master evidence consolidation — **CLOSED**.
+- Stage 2 Portfolio/diversification comparison — **CLOSED**.
+- Stage 3 Trade Anatomy / Failure Analysis — **CLOSED**.
+- Stage 4 Structural hypothesis set — **CLOSED**.
+- Stage 5 Structural validation — **CLOSED** under `CORRECTED_SINGLE_C1`.
 
-Turn the completed evidence into a defensible production assembly and then a
-frozen implementation specification. The process must emphasize not only
-profitability but also drawdown, recovery, calendar-month stability,
-cross-instrument diversification, direction stability, concentration,
-WF/OOS durability, execution practicality and portfolio risk.
+Stage 5 final states:
 
-Do not select from PF alone.
+- BE1 `MIXED_RETROSPECTIVE_EVIDENCE`;
+- TRAIL1 `SUPPORTED_RETROSPECTIVELY`;
+- Risk Cap `FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED`;
+- Minimum Hold / Session / Correlation remain diagnostic-only and not admitted
+  at Stage 5.
 
-## Stage 1 — Master v1/v2/v3 evidence consolidation
+## Stage 6 original Production Assembly Decision
 
-**Status: CLOSED.**
+**Historical checkpoint: CLOSED.**
 
-Deterministic comparison evidence across research generations was built and
-independently audited. Generation identity/comparability boundaries are
-preserved; unlike samples are not pooled as one population.
+Original decision:
 
-Final independent closeout merge:
-`05e2cdb30ba8ec341403583d37e02712d179a6a7`.
+`PROD_STAGE6_83C7B31BB42C` = v3 perpetual / T3 / H1 /
+`CNYRUBF + GLDRUBF + IMOEXF` / TRAIL1.
 
-## Stage 2 — Portfolio/diversification comparison
+This assembly was later subjected to additional pre-Stage-7 reassessment. It is
+not a frozen production specification and is not the current direct Stage 7
+handoff.
 
-**Status: CLOSED.**
+## Pre-Stage-7 reassessment sequence
 
-Calendar/month and instrument contribution evidence, correlations, co-loss
-statistics and leave-one-instrument-out diagnostics were built. Historical
-availability semantics were subsequently corrected and frozen.
+### Stage 6 audit extension
 
-Final correction merge:
-`c90e519f2fd4ee6720d9b0da0b1a11ac28cc0c05`.
+**CLOSED.**
 
-## Stage 3 — Trade Anatomy / Failure Analysis
+PR #251–#254 audited IMOEXF marginal contribution, cost/stability semantics and
+the original TRAIL1 assembly.
 
-**Status: CLOSED.**
+PR #255–#256 performed a fixed six-basket A–F reassessment. Basket C
+(`USDRUBF+CNYRUBF+GLDRUBF+IMOEXF`, canonical) was preferred under that frozen
+hierarchy and the closeout required a new production identity before Stage 7.
 
-v1/v2/v3 trade populations were normalized with provenance, then analyzed by
-strategy/timeframe, instrument, direction, entry time, holding profile, exit
-reason, MAE/MFE, loss mechanics, giveback and other available dimensions.
+### Stage 6.1 — SESSION_10_21
 
-Final independent closeout merge:
-`244a5adac2baee3bb28d697efa25299b0a1973ef`.
+**CLOSED / ADMITTED TO STRUCTURAL STACK.**
 
-## Stage 4 — Structural hypothesis set
+Decision: `SESSION_10_21_ADMIT_TO_STRUCTURAL_STACK`.
 
-**Status: CLOSED.**
+### Stage 6.2 — ONE_BAR_BREAKOUT_CONFIRMATION
 
-Exactly three hypotheses were admitted for causal structural validation:
+**CLOSED / REJECTED.**
 
-- H4_01 / BE1;
-- H4_02 / TRAIL1;
-- H4_03 / Total Open Risk Cap.
+Decision: `ONE_BAR_CONFIRMATION_REJECTED_FULL_REMAINS_BENCHMARK`.
 
-Minimum Hold, Session restriction and Correlated-risk grouping were not
-admitted as causal hypotheses.
+### Stage 6.3 — EXIT_ON_OPPOSITE_REGIME
 
-Freeze merge:
-`1378cc2868095823655bab9eebbb8a2d01db9376`.
+**CLOSED / NOT ADMITTED.**
 
-## Stage 5 — Separate structural validation
+Decision: `OPPOSITE_REGIME_EXIT_NO_MATERIAL_DIFFERENCE`.
 
-**Status: CLOSED.**
+### Stage 6.4 — LOCK1_AFTER_2R
 
-Final Stage 5 economic authority: `CORRECTED_SINGLE_C1`.
+**CLOSED / ADMITTED TO STRUCTURAL STACK.**
 
-Final component statuses:
+Decision: `LOCK1_AFTER_2R_ADMIT_TO_STRUCTURAL_STACK`.
 
-- BE1 — `MIXED_RETROSPECTIVE_EVIDENCE`;
-- TRAIL1 — `SUPPORTED_RETROSPECTIVELY`;
-- Total Open Risk Cap — `FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED` because of
-  terminal right-censoring;
-- Minimum Hold — `NOT_ADMITTED / DIAGNOSTIC ONLY`;
-- Session / Time of Day — `NOT_ADMITTED / DIAGNOSTIC ONLY`;
-- Correlation / Simultaneous Risk — `NOT_ADMITTED / DIAGNOSTIC ONLY`.
+### Stage 6.5 — STRUCTURAL_STACK_V1
 
-The Stage 5 comparator authenticates 9,694 trades. Stage 5 closes the research
-work without assigning a fabricated H4_03 verdict and without promoting
-diagnostic-only rules.
+**CLOSED / ADMITTED.**
 
-Final independent closeout merge:
-`fdee91b474ccdebcf9d7dc56d8e87a112d37e50e`.
+`STRUCTURAL_STACK_V1 = SESSION_10_21 + LOCK1_AFTER_2R`.
 
-## Stage 6 — Production Assembly Decision
+Decision: `STRUCTURAL_STACK_V1_ADMITTED`.
 
-**Status: CLOSED.**
+### Stage 6.6 — Unified Existing-Candidate Basket Comparison
 
-Final decision:
+**CLOSED / AUDITED.**
 
-**`PROD_STAGE6_83C7B31BB42C`**
+Compared five authenticated variants across eleven fixed baskets = **55
+configurations**.
 
-- generation: v3;
-- futures type: perpetual;
-- strategy: T3;
-- timeframe: H1;
-- instruments: `CNYRUBF`, `GLDRUBF`, `IMOEXF`;
-- structural overlay: TRAIL1;
-- economic contract: `CORRECTED_SINGLE_C1`;
-- research tick: `0.001`.
+Frozen equal-sleeve hierarchy:
 
-Stage 6 was artifact-only. No new backtest, optimizer, parameter search,
-exhaustive subset search or new hypothesis was run.
+1. `STRUCTURAL_STACK_V1__N2_01`;
+2. `SESSION_10_21__N2_01`.
 
-The selected basket's monthly verification uses corrected single-C1 canonical
-base exits. TRAIL1 support is parent-level retrospective causal evidence; an
-exact three-instrument TRAIL1 basket backtest does not exist. TRAIL1 also does
-not dominate the canonical exit on every risk metric.
+`N2_01 = USDRUBF + CNYRUBF`.
 
-Final corrected economic-authority merge:
-`3687b65d591659f91ae9ecf8c93f775c3b10a44c`.
+Stage 7 was not executed.
 
-## Stage 7 — Production Specification Freeze
+### Stage 6.7 — FULL vs NORMALIZED stability/risk audit
 
-**Status: NEXT. Not executed.**
+**CLOSED / INDEPENDENT AUDIT PASS.**
 
-Stage 7 must consume the accepted Stage 6 assembly exactly and freeze the
-operational identity before implementation.
+Final close merge:
+`8c57fc740aacd784b3cf82b02e2614d463330199`.
 
-Required freeze items include:
+Authenticated population:
 
-- exact strategy source/implementation identity;
-- exact live-contract mapping;
-- roll convention;
-- risk allocation;
-- position sizing;
-- portfolio safeguards;
-- production cost model;
-- session operating schedule;
-- broker/order semantics;
-- data-feed conventions;
-- operational/reconnect/recovery safeguards.
+- 55 configurations;
+- 110 R cases;
+- 220 equity cases;
+- 16 production-eligible equity cases;
+- 4 unique eligible configurations;
+- eligible N2/N3/N4 = **16 / 0 / 0**.
 
-Stage 7 may specify implementation details, but it must not silently re-open
-strategy selection, instrument subset selection, optimization, Stage 4
-hypothesis discovery, or historical research verdicts.
+All production-eligible cases are based on
+`N2_01 = USDRUBF + CNYRUBF`.
 
-## Stage 8 — Trading robot and FINAM API integration
+Reference stability/risk leader:
+`CANONICAL__N2_01__NORMALIZED__R15`.
 
-**Status: FUTURE. Do not start before Stage 7 is accepted.**
+Highest eligible historical CAGR:
+**60.19%**, `STRUCTURAL_STACK_V1__N2_01__FULL__R20`.
 
-Implementation must use only the frozen production specification. Required
-operational topics include deterministic order/state handling, position/risk
-reconciliation, reconnect/recovery behavior, logging/auditability and staged
-non-live verification before live deployment.
+Final Stage 6.7 conclusion:
 
-## Post-v3 constraints
+`NO_CURRENT_CONFIGURATION_MEETS_FULL_PRODUCTION_OBJECTIVE`.
 
-- Follow the ordered stages unless the user explicitly changes the roadmap.
+No production-eligible case reaches the desired 70–80% historical CAGR. The
+strict gate was not relaxed. There is `NO_PRODUCTION_ELIGIBLE_N4`.
+
+## Current roadmap boundary
+
+- Stage 6.7 — **CLOSED**.
+- Stage 6.8 — **NOT STARTED**.
+- Stage 7 Production Specification Freeze — **NOT EXECUTED / NOT CURRENTLY
+  AUTHORIZED BY THE Stage 6.7 EVIDENCE**.
+- Stage 8 Robot / FINAM API — **FUTURE / BLOCKED**.
+
+The old roadmap statement “Stage 7 next for `PROD_STAGE6_83C7B31BB42C`” is
+superseded.
+
+Because no current eligible configuration meets the full 70–80% production
+objective, the project must stop at Stage 6.7 until the user explicitly
+authorizes a next task. Do not infer the purpose of Stage 6.8 or relax the
+production objective/gates automatically.
+
+## Persistent constraints
+
 - Do not mix TradingSystemLab with BBW, Level Touch, Round Level / Touch, or
   other projects.
-- Do not treat diagnostics as permission to cherry-pick profitable buckets or
-  remove losing trades.
-- Do not treat post-OOS evidence as fresh OOS.
-- Do not alter v1/v2/v3 historical identities or classifications.
-- Do not promote Minimum Hold, Session, or correlation diagnostics into rules.
-- Do not assign a formal H4_03 Risk Cap verdict while terminal censoring remains.
-- Keep `CORRECTED_SINGLE_C1` as the current Stage 5/6 economic authority.
-- Production cost and live execution conventions are Stage 7 decisions, not
-  implied by the research tick.
+- Do not rewrite historical v1/v2/v3 verdicts.
+- Treat Stage 6.1–6.7 as retrospective/revealed evidence, not fresh OOS.
+- Do not use PF or CAGR alone as a production selector.
+- Do not launch a new unrestricted subset/parameter search.
+- Do not promote rejected or diagnostic-only rules.
+- Do not relax eligibility gates or the 70–80% target without explicit user
+  authorization.
+- Do not start Stage 7, Stage 8, FINAM integration, or a new production
+  identity automatically.
 
 ## Current handoff
 
-Stages 1–6 are CLOSED.
-
-**Next permitted action: Stage 7 — Production Specification Freeze for
-`PROD_STAGE6_83C7B31BB42C`.**
+**STOP after Stage 6.7. Await explicit user authorization for the next task.**

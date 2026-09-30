@@ -1,225 +1,195 @@
 # Canonical research and evidence methodology
 
-This file defines the methodological rules that must survive across chats and
-future implementation work. It does not redefine accepted historical results.
+This file defines durable rules for TradingSystemLab. It records accepted
+methodological boundaries and must not be used to rewrite historical evidence.
 
 ## 1. Canonical research lifecycle
 
-The sole research template remains the original H1 cycle:
+The sole research-methodology authority remains:
 
 **Baseline → Optimization → Robustness → Walk Forward → TRUE OOS**.
 
-Every new research identity must pass the applicable stages independently.
-Candidate freeze is procedural identity fixation between Optimization and
-Robustness; it is not a sixth research phase.
+Candidate freeze is identity fixation between Optimization and Robustness, not a
+sixth phase. v1, v2 and v3 are separate historical research generations.
 
-Do not add, skip, borrow, or silently substitute lifecycle stages. Later
-timeframe/MTF implementations are historical evidence, not alternative
-methodological authorities.
+## 2. Research identity and OOS discipline
 
-## 2. Research identity and immutability
+A research identity binds strategy source/hash, parameters/hash, universe,
+timeframe/context alignment, date bounds, execution/cost assumptions and
+classification rules.
 
-A research identity binds at minimum:
+After candidate freeze, identity is immutable through Robustness, Walk Forward
+and TRUE OOS. Once TRUE OOS is revealed, it is consumed for that identity.
+Post-OOS rule discovery is retrospective and cannot be relabeled as fresh OOS.
 
-- strategy source/hash;
-- full parameters/hash;
-- instrument universe;
-- timeframe/context alignment;
-- development/OOS bounds;
-- execution/cost assumptions;
-- classification rules.
-
-After candidate freeze, the identity is immutable through Robustness, Walk
-Forward, and TRUE OOS. A later parameter or logic change creates a new identity
-and cannot inherit untouched-OOS status from the old one.
-
-v1, v2 and v3 are separate historical generations and must not be conflated.
-
-## 3. Baseline
-
-Purpose: establish an auditable causal reference for a frozen strategy/config.
-
-Permitted:
-- causal strategy execution on declared Development data;
-- descriptive metrics and grouped reports;
-- deterministic provenance/hashing.
-
-Prohibited:
-- parameter search;
-- ranking/selection;
-- Walk Forward inference;
-- TRUE OOS access;
-- silent strategy mutation.
-
-The corrected historical v2 Baseline and the independent v3 Baseline are both
-accepted historical evidence. Earlier failed/superseded v2 attempts remain
-provenance only and must not be described as the current state.
-
-## 4. Optimization
-
-Purpose: test only a predeclared bounded parameter space on Development data and
-describe stable regions.
-
-Optimization is not PF chasing. Complete trial populations must be preserved.
-The original H1 classification concepts such as `ROBUST_PLATEAU`, `LOCAL_SPIKE`
-and `NO_EDGE` remain the methodological reference where applicable.
-
-TRUE OOS remains prohibited during Optimization.
-
-## 5. Candidate freeze
-
-After Development evaluation and before validation/OOS, select/fix the exact
-candidate identity using the predeclared contract. The registry is a provenance
-record, not a ranking table.
-
-Once frozen, a weak later result does not permit return to the inventory for a
-replacement candidate under the same research identity.
-
-## 6. Robustness
-
-Purpose: challenge the frozen candidate against the predeclared neighborhood,
-costs, instruments, directions, years, concentration, and execution assumptions.
-
-Robustness may diagnose weakness but may not retune or replace the candidate.
-
-## 7. Walk Forward
-
-Purpose: measure chronological forward behavior using predeclared folds and a
-frozen candidate.
-
-Forward-fold outcomes may not be used to alter parameters, choose favorable
-folds, or access TRUE OOS early.
-
-## 8. TRUE OOS
-
-Purpose: one preauthorized evaluation of the frozen identity on the locked OOS
-period.
-
-TRUE OOS cannot be used for discovery, optimization, ranking, replacement or
-post-hoc retuning. Once revealed, it is consumed for that identity.
-
-For v3 Perpetual the lifecycle is complete. Final TRUE OOS classifications are
-T2/M30 `BORDERLINE`, T2/H1 `BORDERLINE`, T3/M30 `PASS`, T3/H1 `PASS`.
-
-## 9. Causality and deterministic execution
+## 3. Causality and determinism
 
 - Candle information is unavailable before close.
-- Higher-timeframe/context data must use fully closed source bars only.
-- No future-fill or look-ahead is allowed.
-- T3 context construction must respect the declared completed-bar/day-boundary
-  semantics of its generation.
+- Context/higher-timeframe data must use fully completed source bars.
+- No future fill or look-ahead.
 - Ordering, trade IDs, serialization and reruns must be deterministic.
-- Market data remains external/read-only unless an explicit task says otherwise.
+- Market data remains external/read-only unless explicitly authorized otherwise.
 
-## 10. Research costs and economic authority
+## 4. Historical v3 completion
 
-`FROZEN_TICK_SIZE = 0.001` is the normalized research tick used by the accepted
-v2/v3 research contracts where specified. It is not automatically the final
-live production cost model.
+v3 Perpetual completed the full five-stage lifecycle. Final TRUE OOS:
 
-Post-v3 Stage 5 and Stage 6 use the corrected economic authority
-`CORRECTED_SINGLE_C1` for R-derived production-decision evidence. Historical
-lifecycle classifications are preserved; corrected accounting does not
-retroactively reclassify v1/v2/v3.
+- T2/M30 `BORDERLINE`;
+- T2/H1 `BORDERLINE`;
+- T3/M30 `PASS`;
+- T3/H1 `PASS`.
 
-The final production cost model remains **NOT YET FROZEN** and belongs to
-Stage 7 Production Specification Freeze.
+These classifications remain immutable.
 
-## 11. Post-v3 program is not a new research lifecycle
+## 5. Post-v3 evidence-to-production program
 
-After the v3 five-stage lifecycle closed, the project entered a separate
-evidence-to-production program:
+Post-v3 work is separate from the five-stage research lifecycle. It may analyze
+revealed evidence and build production-design candidates, but it may not
+retroactively rewrite v1/v2/v3.
 
-1. Master v1/v2/v3 evidence consolidation;
-2. Portfolio/diversification comparison;
-3. Trade Anatomy / Failure Analysis;
-4. Structural hypothesis freeze;
-5. Separate structural validation;
-6. Production Assembly Decision;
-7. Production Specification Freeze;
-8. Trading robot / FINAM API integration.
+Stages 1–5 established consolidated evidence, diversification diagnostics, trade
+anatomy, a frozen structural-hypothesis set, and separate structural validation.
 
-These stages do not retroactively add phases to v1/v2/v3 and cannot rewrite
-their research identities or OOS verdicts.
+Stage 5 final economic authority is `CORRECTED_SINGLE_C1`.
 
-## 12. Structural hypothesis discipline
+## 6. Stage 5 structural-validation semantics
 
-Structural execution/risk overlays are separate from signal-alpha changes.
-Hypotheses must be small, explicit and predeclared before causal validation.
-No broad grid, optimizer, ranking search, mass hypothesis generation, or
-favorable-bucket filtering is allowed.
-
-Stage 4 admitted exactly three causal structural hypotheses:
-
-- BE1 profit protection;
-- TRAIL1 delayed/conditional trailing structure;
-- Total Open Risk Cap.
-
-Minimum Hold, Session restriction and Correlation/Simultaneous-Risk grouping
-were not admitted as causal hypotheses; later diagnostics did not convert them
-into production rules.
-
-## 13. Stage 5 evidence semantics
-
-Final Stage 5 authority:
+Final Stage 5 labels:
 
 - BE1 — `MIXED_RETROSPECTIVE_EVIDENCE`;
 - TRAIL1 — `SUPPORTED_RETROSPECTIVELY`;
 - Total Open Risk Cap — `FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED` because terminal
-  right-censoring prevents complete economic certification;
+  right-censoring prevents complete final economic certification;
 - Minimum Hold — `NOT_ADMITTED / DIAGNOSTIC ONLY`;
-- Session/Time of Day — `NOT_ADMITTED / DIAGNOSTIC ONLY`;
+- Session/Time of Day — `NOT_ADMITTED / DIAGNOSTIC ONLY` at Stage 5;
 - Correlation/Simultaneous Risk — `NOT_ADMITTED / DIAGNOSTIC ONLY`.
 
-Retrospective support is not fresh untouched OOS. Diagnostic slicing is not
-permission to delete losses, cherry-pick hours, or manufacture a causal rule.
+Stage 5 diagnostics are not permission to cherry-pick historical buckets.
 
-## 14. Stage 6 production-decision semantics
+## 7. Original Stage 6 decision semantics
 
-Stage 6 is an artifact-only decision over accepted evidence. It must not run a
-new backtest, optimizer, parameter search, subset search or new hypothesis.
+Stage 6 initially selected `PROD_STAGE6_83C7B31BB42C`: v3 perpetual / T3 / H1
+/ CNYRUBF + GLDRUBF + IMOEXF / TRAIL1.
 
-The accepted assembly is `PROD_STAGE6_83C7B31BB42C`: v3 perpetual / T3 / H1 /
-`CNYRUBF`, `GLDRUBF`, `IMOEXF` / TRAIL1.
+This is an accepted historical production-decision checkpoint, not a final
+production specification. Subsequent Stage 6.x reassessments supersede its
+direct Stage 7 handoff.
 
-Selection must be understood under the full evidence set, including
-profitability, drawdown, recovery, calendar-month stability, diversification,
-direction stability, concentration, WF/OOS durability and execution practicality.
-PF alone is never sufficient.
+## 8. Pre-Stage-7 reassessment methodology
 
-TRAIL1 does not dominate the canonical exit on every risk metric; explicit
-historical OOS counter-evidence must remain visible.
+After Stage 6, additional work was explicitly run as **retrospective
+pre-Stage-7 reassessment**, not as a new OOS lifecycle.
 
-## 15. Stage 7 boundary
+Rules:
 
-Stage 6 selected an assembly, not a complete production specification.
+- revealed 2025–2026 evidence remains retrospective;
+- no result may be described as fresh OOS;
+- no broad optimizer or unrestricted parameter search;
+- each tested rule must have an explicit causal state machine;
+- rejected rules remain rejected; admitted rules do not automatically become
+  production-approved;
+- basket comparisons must use a frozen basket registry;
+- later equity/risk loading analysis must not alter underlying R-space trade
+  evidence.
 
-Stage 7 must freeze:
+## 9. Stage 6.1–6.5 structural rule results
 
-- exact implementation/source identity;
-- live-contract mapping and roll;
-- risk allocation and sizing;
-- portfolio safeguards;
-- production costs;
-- operating session/schedule;
-- broker/order semantics;
-- data-feed conventions;
-- operational/recovery safeguards.
+Accepted retrospective decisions:
 
-Do not implement the robot or FINAM integration before this freeze.
+- `SESSION_10_21_ADMIT_TO_STRUCTURAL_STACK`;
+- `ONE_BAR_CONFIRMATION_REJECTED_FULL_REMAINS_BENCHMARK`;
+- `OPPOSITE_REGIME_EXIT_NO_MATERIAL_DIFFERENCE`;
+- `LOCK1_AFTER_2R_ADMIT_TO_STRUCTURAL_STACK`;
+- `STRUCTURAL_STACK_V1_ADMITTED`.
 
-## 16. Domain separation
+`STRUCTURAL_STACK_V1 = SESSION_10_21 + LOCK1_AFTER_2R`.
 
-TradingSystemLab is separate from BBW, Level Touch, Round Level / Touch
-Optimization, and other research domains. Do not copy their artifacts,
-hypotheses or methodology into this project.
+SESSION_10_21 restricts new entries only to 10:00 inclusive–21:00 exclusive
+Europe/Moscow. LOCK1_AFTER_2R is the frozen causal +2R trigger / +1R lock rule.
 
-## 17. Evidence and audit standard
+ONE_BAR confirmation and opposite-regime exit are not part of the structural
+stack. TRAIL1 and BE1 are separate historical overlays and are not components
+of `STRUCTURAL_STACK_V1`.
 
-Reports summarize evidence; they do not replace it. Accepted claims must be
-grounded in actual code/config/manifests/ledgers/metrics or other applicable
-artifacts according to `AUDIT_PROTOCOL.md`.
+## 10. Stage 6.6 comparison discipline
 
-After every accepted task or major audit, update `CURRENT_STATE.md` and
-`ROADMAP.md`; update this methodology file only when the governing process or a
-stale methodological statement itself needs correction.
+Stage 6.6 compared only five authenticated variants across eleven fixed baskets
+(55 configurations): CANONICAL, TRAIL1, SESSION_10_21, LOCK1_AFTER_2R and
+STRUCTURAL_STACK_V1.
+
+The frozen equal-sleeve hierarchy placed:
+
+- `STRUCTURAL_STACK_V1__N2_01` first;
+- `SESSION_10_21__N2_01` second;
+- `N2_01 = USDRUBF + CNYRUBF`.
+
+This ranking is evidence within the frozen candidate set. It is not permission
+to launch a new subset search or optimizer.
+
+## 11. Stage 6.7 loading, equity and eligibility discipline
+
+Stage 6.7 evaluated the frozen 55 configurations under FULL/NORMALIZED loading
+and frozen risk scenarios, producing 110 R cases and 220 equity cases.
+
+Production eligibility requires the frozen portfolio/instrument-year gates. It
+must fail closed; eligibility may not be relaxed merely to reach a return target.
+
+Final Stage 6.7 facts:
+
+- 16 production-eligible equity cases;
+- 4 unique eligible configurations;
+- eligible N2/N3/N4 = 16/0/0;
+- all eligible configurations use `N2_01 = USDRUBF + CNYRUBF`;
+- no eligible case reaches 70% historical CAGR;
+- highest eligible historical CAGR = 60.19%;
+- final classification:
+  `NO_CURRENT_CONFIGURATION_MEETS_FULL_PRODUCTION_OBJECTIVE`.
+
+Reference stability/risk ordering and maximum CAGR are different concepts:
+
+- frozen reference leader: `CANONICAL__N2_01__NORMALIZED__R15`;
+- highest eligible CAGR case:
+  `STRUCTURAL_STACK_V1__N2_01__FULL__R20`.
+
+Do not collapse these into a single invented 'winner'.
+
+## 12. Current production boundary
+
+Stage 7 is not executed and no production specification is frozen.
+
+Stage 6.8 is not started. Because the strict 70–80% objective is unmet, no
+automatic next-stage transition is permitted.
+
+Do not:
+
+- relax eligibility gates or return targets automatically;
+- promote N3/N4 configurations when Stage 6.7 found none production-eligible;
+- treat Stage 6.6 hierarchy output as a final live specification;
+- start robot/FINAM integration;
+- create a new production identity without explicit authorization.
+
+Any continuation after Stage 6.7 requires a new explicit user-authorized task.
+
+## 13. Cost and risk semantics
+
+`FROZEN_TICK_SIZE = 0.001` remains historical research normalization where
+applicable. `CORRECTED_SINGLE_C1` remains the authoritative retrospective
+economic contract for Stage 5–6.x evidence.
+
+Stage 6.7 risk/load scenarios are production-design diagnostics, not the final
+broker cost model or live sizing specification.
+
+## 14. Domain separation
+
+TradingSystemLab is separate from BBW, Level Touch, Round Level / Touch and
+other research domains.
+
+## 15. Evidence standard
+
+Reports summarize evidence; they do not replace manifests, ledgers, metrics,
+source provenance, deterministic reruns or independent audits. Follow
+`AUDIT_PROTOCOL.md`.
+
+Update this file only when the governing process changes or stale methodological
+language needs correction. Routine progress belongs primarily in
+`CURRENT_STATE.md` and `ROADMAP.md`.
