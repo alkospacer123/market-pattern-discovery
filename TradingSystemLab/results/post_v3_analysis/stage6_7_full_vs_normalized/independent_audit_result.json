@@ -1,22 +1,35 @@
 {
   "checks": {
-    "R_case_count": true,
-    "all_execution_hashes_match": true,
-    "annual_and_stability_fields_present": true,
-    "configuration_count": true,
-    "equity_case_count": true,
-    "execution_hash_count": true,
-    "full_scaling_reconciliation": true,
-    "instrument_gate_recomputed": true,
-    "risk_cases_unique": true,
-    "stage6_6_normalized_reconciliation": true
+    "CAGR": true,
+    "WF_independent_reconstruction": true,
+    "annual_returns": true,
+    "continuous_equity": true,
+    "deterministic_rerun": true,
+    "eligible_pareto": true,
+    "eligible_ranks": true,
+    "execution_hashes": true,
+    "final_equity": true,
+    "full_R_scaling": true,
+    "instrument_year_gates": true,
+    "leaders": true,
+    "monthly_DD": true,
+    "production_event_reconstruction": true,
+    "production_months": true,
+    "production_quarters": true,
+    "quarter_completeness": true,
+    "realized_DD": true,
+    "source_authentication": true,
+    "stage6_6_normalized_reconciliation": true,
+    "stage6_8_not_started": true,
+    "stage7_not_executed": true,
+    "target_classifications": true
   },
   "counts": {
     "R_cases": 110,
     "configurations": 55,
     "equity_cases": 220
   },
-  "execution_hash_mismatches": [],
   "independent_reconstruction": true,
+  "metric_or_hash_mismatches": [],
   "status": "PASS"
 }
