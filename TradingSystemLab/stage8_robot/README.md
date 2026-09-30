@@ -25,3 +25,11 @@ Before live authorization, an operator must authenticate and record the current 
 5. Live trading requires separate authorization, authenticated registry rows, an explicitly supplied FINAM broker, and the exact literal `LIVE_TRADING_ENABLED=true`. Missing/malformed values remain off. The kill switch only blocks new entries and does not invent emergency liquidation.
 
 Audit records are JSON Lines and support the full schema (instrument/contract, bar/signal/direction, equity/risk/quantity, entry/stops/TRAIL1, orders/fills/responses, reconciliation, exit/PnL/fees and failure reason). Callers must provide the applicable fields for each lifecycle event.
+
+## FINAM v1 demo/perpetual integration (in progress)
+
+The low-level dependency-free client implements session creation (`POST /v1/sessions`), bearer JWT recreation after 401, accounts/orders, asset discovery/parameters/schedules and H1 candle retrieval. A centralized limiter uses 180 requests/minute (below the documented 200/minute maximum); GET retries are bounded, 429 is explicit, and an uncertain order POST is never retried. `FINAM_MODE` is either `DRY_RUN` (default) or `DEMO`; `LIVE` always raises `LIVE_TRADING_NOT_AUTHORIZED`.
+
+The N4 registry now models all four names directly as non-expiring `PERPETUAL_FUTURE` instruments with daily automatic prolongation and operator-only quarterly exercise. Exchange reference economics are recorded, but every binding remains `BLOCKED_UNAUTHENTICATED` until an operator runs the read-only smoke against official FINAM responses and independently retrieves the official MOEX pages. This environment received HTTP CONNECT 403 for both authorities; it therefore did not assert an authenticated binding.
+
+Run `python -m TradingSystemLab.stage8_robot.demo_smoke` with external credentials for a sanitized read-only diagnostic. The separate `demo_order_smoke` command additionally demands DEMO mode, explicit transmission consent, four authenticated registry records, Stage 7 authentication, a full conformance PASS and reconciliation. Current `conformance_report.json` deliberately fails closed with `AUTHENTICATED_HISTORICAL_FIXTURE_SOURCE_REQUIRED`: frozen-v3 H1 source bars are absent from this checkout. No replacement history was downloaded, no demo order was transmitted, and Stage 8 remains in progress.

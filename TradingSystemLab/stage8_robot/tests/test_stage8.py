@@ -78,3 +78,51 @@ def test_registry_is_explicitly_blocked():
 def test_golden_fixture_manifest_has_twelve_cases():
     data=json.loads(Path("TradingSystemLab/stage8_robot/tests/golden_fixtures.json").read_text())
     assert len(data)==12 and all(x["provenance"] for x in data)
+
+def test_perpetual_registry_has_no_expiry():
+    from TradingSystemLab.stage8_robot.instrument_resolver import load_registry,PERPETUAL_FUTURE
+    rows=load_registry(Path("TradingSystemLab/stage8_robot/production_instrument_registry.csv"))
+    assert len(rows)==4 and all(x.instrument_type==PERPETUAL_FUTURE and x.expiry is None and x.automatic_prolongation for x in rows)
+
+def test_binding_mismatch_blocks():
+    from TradingSystemLab.stage8_robot.instrument_resolver import validate_finam_binding
+    assert validate_finam_binding("USDRUBF",{"tradable":True},{"priceIncrement":"1","lotSize":1000,"quantityStep":1},{})=="BLOCKED_PARAM_MISMATCH"
+
+def test_context_blocks_reset_at_local_day_and_incomplete_rejected():
+    import pandas as pd
+    from TradingSystemLab.stage8_robot.context_builder import T3ContextBuilder
+    idx=pd.DatetimeIndex([datetime(2026,1,2,h,tzinfo=MSK) for h in (10,11,12,13,14)]+[datetime(2026,1,3,h,tzinfo=MSK) for h in (10,11,12,13)])
+    f=pd.DataFrame({"Open":range(9),"High":range(1,10),"Low":range(9),"Close":range(1,10)},index=idx)
+    execution,ctx=T3ContextBuilder().build(f,datetime(2026,1,4,tzinfo=MSK))
+    assert list(ctx.index)==[idx[3],idx[8]] and ctx.iloc[0].Open==0 and ctx.iloc[1].Open==5
+    assert execution.PriorHigh.isna().all()
+
+def test_donchian_is_shifted_one():
+    import pandas as pd
+    from TradingSystemLab.stage8_robot.context_builder import T3ContextBuilder
+    idx=pd.date_range("2026-01-01 01:00",periods=21,freq="h",tz=MSK)
+    f=pd.DataFrame({"Open":range(1,22),"High":range(2,23),"Low":range(1,22),"Close":range(1,22)},index=idx)
+    execution,_=T3ContextBuilder().build(f,datetime(2026,1,2,tzinfo=MSK))
+    assert execution.PriorHigh.iloc[19]!=execution.PriorHigh.iloc[19] and execution.PriorHigh.iloc[20]==21
+
+def test_state_is_bound_to_environment_and_account(tmp_path):
+    p=tmp_path/"bound.db"; StateStore(p,{"environment":"DEMO","account":"hash-a"})
+    with pytest.raises(RuntimeError,match="STATE_ENVIRONMENT_ACCOUNT_MISMATCH"): StateStore(p,{"environment":"LIVE","account":"hash-a"})
+
+def test_live_mode_is_impossible(monkeypatch):
+    monkeypatch.setenv("STARTING_REALIZED_EQUITY","1"); monkeypatch.setenv("FINAM_MODE","LIVE")
+    with pytest.raises(RuntimeError,match="LIVE_TRADING_NOT_AUTHORIZED"): RuntimeConfig.from_environment()
+
+def test_conformance_fails_closed_without_authenticated_h1():
+    report=json.loads(Path("TradingSystemLab/stage8_robot/conformance_report.json").read_text())
+    assert report["status"]=="AUTHENTICATED_HISTORICAL_FIXTURE_SOURCE_REQUIRED" and report["production_conformance_pass"] is False
+
+def test_finam_session_schema_and_secret_redaction():
+    from io import BytesIO
+    from TradingSystemLab.stage8_robot.finam_api import FinamAPI,RateLimiter
+    seen=[]
+    class R(BytesIO):
+        status=200; headers={}
+    def transport(req,timeout): seen.append(req); return R(b'{"token":"jwt-value","accounts":[]}')
+    api=FinamAPI("top-secret",transport=transport,limiter=RateLimiter(199)); assert api.create_session()=={"accounts":[]}
+    assert json.loads(seen[0].data)=={"secret":"top-secret"} and "top-secret" not in repr(api) and "jwt-value" not in repr(api)

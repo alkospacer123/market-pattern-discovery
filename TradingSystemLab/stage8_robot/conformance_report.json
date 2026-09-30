@@ -1,0 +1,17 @@
+{
+  "status": "AUTHENTICATED_HISTORICAL_FIXTURE_SOURCE_REQUIRED",
+  "production_conformance_pass": false,
+  "instruments": ["USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF"],
+  "bars": 0,
+  "periods": [],
+  "expected_trades": 0,
+  "reproduced_trades": 0,
+  "exact_matches": 0,
+  "missing": 0,
+  "extra": 0,
+  "entry_mismatches": 0,
+  "exit_mismatches": 0,
+  "direction_mismatches": 0,
+  "stop_state_mismatches": 0,
+  "reason": "Authenticated frozen-v3 H1 source files are not present in this checkout; replacement or synthetic history is forbidden."
+}

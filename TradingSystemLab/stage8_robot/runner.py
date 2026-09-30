@@ -7,8 +7,9 @@ from .specification import load_frozen_specification
 from .state import StateStore
 class RobotRunner:
     def __init__(self,config:RuntimeConfig,broker=None):
-        self.spec=load_frozen_specification(); self.config=config; self.store=StateStore(config.persistence_path)
-        if broker is None and config.live_trading_enabled: raise RuntimeError("EXPLICIT_FINAM_BROKER_REQUIRED_FOR_LIVE")
+        self.spec=load_frozen_specification(); self.config=config; self.store=StateStore(config.persistence_path,{"production_specification_id":self.spec.production_id,"broker":"FINAM" if not config.dry_run else "DRY_RUN","account_id":config.account_id or "DRY_RUN","environment":config.mode.value})
+        if config.mode.value == "LIVE": raise RuntimeError("LIVE_TRADING_NOT_AUTHORIZED")
+        if broker is None and not config.dry_run: raise RuntimeError("EXPLICIT_FINAM_DEMO_BROKER_REQUIRED")
         self.broker=broker or DryRunBroker(); self.entries_enabled=False
         self.realized_equity=Decimal(config.starting_equity)
     def startup(self):
