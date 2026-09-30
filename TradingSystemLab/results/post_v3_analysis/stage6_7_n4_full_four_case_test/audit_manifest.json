@@ -1,0 +1,81 @@
+{
+  "artifacts": {
+    "availability_registry.csv": {
+      "rows": 24,
+      "sha256": "8133e1b76c761c4ac54dc9f78d40be08e5221a3238351b9161fede3c0a29fd7a"
+    },
+    "direction_summary.csv": {
+      "rows": 4,
+      "sha256": "d861fc4e1f2688a237c55617494afffa978a80caa605067c983ae1f5291852d4"
+    },
+    "four_case_registry.csv": {
+      "rows": 4,
+      "sha256": "e1f5edbff005ce17fcaa73c71837db1b3906bdd3d92d1f249788e80c725c34a2"
+    },
+    "headline_comparison.csv": {
+      "rows": 4,
+      "sha256": "7e303666465459a2a05cd8e763fa0ca9fec7364c31a83e5fdb3339c3b245d03b"
+    },
+    "instrument_summary.csv": {
+      "rows": 8,
+      "sha256": "f1c4deb0a646921b890bdc26254132b5ac1f73192d5064d528e70753ff8d37af"
+    },
+    "instrument_year_metrics.csv": {
+      "rows": 32,
+      "sha256": "0223f6cd51c72d90d342ff9a69b28702d4e31b4fda63186419cb16219f91aad9"
+    },
+    "open_risk_summary.csv": {
+      "rows": 4,
+      "sha256": "137ebbe636b32ea93248a32cad20f8e7c971869afef3eb50a3cc3aebff1ea972"
+    },
+    "pairwise_comparison.csv": {
+      "rows": 52,
+      "sha256": "6ccc712438d2b51a7acb51728a5332839193b4a58094a8734d50d64ec678e391"
+    },
+    "production_monthly_metrics.csv": {
+      "rows": 132,
+      "sha256": "c3306f606175bfad2e5c976d064e93cb372caab97a2593ee785d5d8d16e91ad4"
+    },
+    "production_quarterly_metrics.csv": {
+      "rows": 44,
+      "sha256": "1ad2e21b2fafe0a18bb443ce5fd927840162b5dfdf195f94b56abdd50f458bfa"
+    },
+    "production_yearly_metrics.csv": {
+      "rows": 16,
+      "sha256": "ca049280808010c5b448d37cb65809a573bcbfb1341f5379f519e04eba539a74"
+    },
+    "reconciliation_with_stage6_7.csv": {
+      "rows": 28,
+      "sha256": "fb1dcb5ab7d4ab64031321fdc19415fb41a93f4879d22d61a5e20633b3c02682"
+    },
+    "risk_efficiency_comparison.csv": {
+      "rows": 4,
+      "sha256": "874ffe8b96c284b615cada643ba0f1e374d532aceee528ab8b6802bd55f7aba8"
+    },
+    "trade_metrics.csv": {
+      "rows": 2,
+      "sha256": "7a96f7c162a84b1f7352a03f9b0dee08966280830c7dafd8f32e008cfe80727f"
+    },
+    "wf24_open_risk_summary.csv": {
+      "rows": 4,
+      "sha256": "112f5b657e70b11493e7c2fd74db570a9ea60040f5ddcbd1fcf645efe8daff9e"
+    },
+    "wf24_summary.csv": {
+      "rows": 4,
+      "sha256": "a6c808fa0d65483fb1a2361a56227324be6ce8851059efdb01be667b1c84b9dc"
+    }
+  },
+  "availability_source": "/workspace/market-pattern-discovery/TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/canonical_lifecycle_registry.csv",
+  "case_count": 4,
+  "comparison_tolerance": 1e-09,
+  "determinism": {
+    "isolated_temporary_directories": true,
+    "row_values_ordering_sha256_equal": true,
+    "runs": 2,
+    "status": "PASS"
+  },
+  "event_order": "timestamp; EXIT before ENTRY; source_trade_id",
+  "latest_authenticated_endpoint": "2026-09-15T21:00:00+00:00",
+  "source": "/workspace/market-pattern-discovery/TradingSystemLab/results/post_v3_analysis/stage6_unified_candidate_comparison/portfolio_trade_scaling_registry.csv",
+  "status": "PASS"
+}
