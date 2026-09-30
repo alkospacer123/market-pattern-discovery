@@ -1,0 +1,6 @@
+{
+  "as_of_utc": "2026-09-30",
+  "finam": {"base_url":"https://api.finam.ru","documentation":"https://tradeapi.finam.ru/","api_version":"v1","authentication":"POST /v1/sessions with secret; bearer JWT","rate_limit":"200 requests/minute","retrieval":"BLOCKED_HTTP_CONNECT_403"},
+  "moex": {"contract_pages":["https://www.moex.com/ru/contract.aspx?code=USDRUBF","https://www.moex.com/ru/contract.aspx?code=CNYRUBF","https://www.moex.com/ru/contract.aspx?code=GLDRUBF","https://www.moex.com/ru/contract.aspx?code=IMOEXF"],"retrieval":"BLOCKED_HTTP_CONNECT_403","reference_values_status":"UNAUTHENTICATED_DO_NOT_ENABLE"},
+  "binding_status":"BLOCKED_UNAUTHENTICATED"
+}

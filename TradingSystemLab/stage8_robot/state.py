@@ -3,9 +3,13 @@ import json,sqlite3
 from pathlib import Path
 from typing import Any
 class StateStore:
-    def __init__(self,path:Path):
+    def __init__(self,path:Path, identity:dict|None=None):
         self.db=sqlite3.connect(path); self.db.execute("PRAGMA journal_mode=WAL")
         self.db.executescript("CREATE TABLE IF NOT EXISTS state(key TEXT PRIMARY KEY,value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS intents(idempotency_key TEXT PRIMARY KEY,payload TEXT NOT NULL,status TEXT NOT NULL); CREATE TABLE IF NOT EXISTS fills(fill_id TEXT PRIMARY KEY,payload TEXT NOT NULL);")
+        if identity is not None:
+            current=self.get("database_identity")
+            if current is not None and current != identity: raise RuntimeError("STATE_ENVIRONMENT_ACCOUNT_MISMATCH")
+            self.put("database_identity",identity)
     def put(self,key:str,value:Any):
         with self.db: self.db.execute("INSERT INTO state VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",(key,json.dumps(value,sort_keys=True)))
     def get(self,key:str,default=None):

@@ -1,0 +1,1 @@
+source_trade_id,instrument,expected_entry,actual_entry,expected_exit,actual_exit,expected_direction,actual_direction,expected_strategy_R,actual_strategy_R,status
