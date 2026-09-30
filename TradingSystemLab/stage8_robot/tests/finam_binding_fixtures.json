@@ -6,11 +6,11 @@
     {"ticker":"IMOEXF","symbol":"IMOEXF@MISX","mic":"MISX","id":"sec-moex","type":"ASSET_TYPE_FUTURE","is_archived":false}
   ],
   "account_assets": {
-    "USDRUBF":{"currency":"RUB","decimals":2,"min_step":{"num":"1","scale":0},"lot_size":{"num":"1","scale":0},"future_details":{"contract_size":{"num":"1000","scale":0}}},
-    "CNYRUBF":{"currency":"RUB","decimals":3,"min_step":{"num":"1","scale":0},"lot_size":{"num":"1","scale":0},"future_details":{"contract_size":{"num":"1000","scale":0}}},
-    "GLDRUBF":{"currency":"RUB","decimals":1,"min_step":{"num":"1","scale":0},"lot_size":{"num":"1","scale":0},"future_details":{"contract_size":{"num":"1","scale":0}}},
-    "IMOEXF":{"currency":"RUB","decimals":1,"min_step":{"num":"5","scale":0},"lot_size":{"num":"1","scale":0},"future_details":{"contract_size":{"num":"10","scale":0}}}
+    "USDRUBF":{"ticker":"USDRUBF","symbol":"USDRUBF@MISX","mic":"MISX","id":"sec-usd","type":"ASSET_TYPE_FUTURE","is_archived":false,"quote_currency":"RUB","decimals":2,"min_step":"1","lot_size":{"value":"1"},"future_details":{"contract_size":{"value":"1000"}}},
+    "CNYRUBF":{"ticker":"CNYRUBF","symbol":"CNYRUBF@MISX","mic":"MISX","id":"sec-cny","type":"ASSET_TYPE_FUTURE","is_archived":false,"quote_currency":"RUB","decimals":3,"min_step":"1","lot_size":{"value":"1"},"future_details":{"contract_size":{"value":"1000"}}},
+    "GLDRUBF":{"ticker":"GLDRUBF","symbol":"GLDRUBF@MISX","mic":"MISX","id":"sec-gld","type":"ASSET_TYPE_FUTURE","is_archived":false,"quote_currency":"RUB","decimals":1,"min_step":"1","lot_size":{"value":"1"},"future_details":{"contract_size":{"value":"1"}}},
+    "IMOEXF":{"ticker":"IMOEXF","symbol":"IMOEXF@MISX","mic":"MISX","id":"sec-moex","type":"ASSET_TYPE_FUTURE","is_archived":false,"quote_currency":"RUB","decimals":1,"min_step":"5","lot_size":{"value":"1"},"future_details":{"contract_size":{"value":"10"}}}
   },
-  "params":{"is_tradable":{"value":true},"trade_lot_size":{"num":"1","scale":0},"is_long_available":{"value":true},"is_short_available":{"value":true}},
+  "params":{"is_tradable":true,"trade_lot_size":"1","is_long_available":true,"is_short_available":true},
   "schedule":{"sessions":[{"type":"SESSION_TYPE_MAIN","interval":{"start_time":"2026-01-01T07:00:00Z","end_time":"2026-01-01T20:50:00Z"}}]}
 }
