@@ -7,7 +7,9 @@ from .specification import load_frozen_specification
 
 def main():
  gates={"mode":os.getenv("FINAM_MODE")=="DEMO","enabled":os.getenv("DEMO_ORDER_TRANSMISSION_ENABLED")=="true","reconciled":os.getenv("ROBOT_RECONCILIATION")=="RECONCILED"}
- report=json.loads((Path(__file__).parent/"conformance_report.json").read_text()); gates["conformance"]=report.get("production_conformance_pass") is True
+ report=json.loads((Path(__file__).parent/"conformance_report.json").read_text())
+ gates["conformance"]=(report.get("authority_replay",{}).get("status")=="PASS" and
+                       report.get("production_robot_replay",{}).get("status")=="PASS")
  registry=(Path(__file__).parent/"production_instrument_registry.csv").read_text(); gates["registry"]=registry.count("AUTHENTICATED_DEMO_TRADABLE")==4
  load_frozen_specification()
  if not all(gates.values()): raise RuntimeError("DEMO_ORDER_GATE_BLOCKED:"+",".join(k for k,v in gates.items() if not v))

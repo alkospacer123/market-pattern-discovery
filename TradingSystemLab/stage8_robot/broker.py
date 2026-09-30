@@ -31,8 +31,8 @@ class FinamDemoBroker(Broker):
   if not account_id or account_id!=demo_account_id: raise RuntimeError("DEMO_ACCOUNT_EXPLICIT_BINDING_REQUIRED")
   self.api=api; self.account_id=account_id; self.enabled=transmission_enabled; self.connected=False
  def connect(self):
-  self.api.create_session(); details=self.api.session_details(); accounts=details.get("accounts",[])
-  ids={str(x["account_id"]) for x in accounts}
+  self.api.create_session(); details=self.api.session_details()
+  ids={str(x) for x in details.get("account_ids",[])}
   if self.account_id not in ids: raise RuntimeError("CONFIGURED_DEMO_ACCOUNT_NOT_ENUMERATED")
   self.api.account(self.account_id); self.connected=True
  def disconnect(self): self.connected=False

@@ -9,7 +9,7 @@ def main():
  secret=os.environ["FINAM_API_SECRET"]; account=os.environ["FINAM_DEMO_ACCOUNT_ID"]
  if os.getenv("FINAM_ACCOUNT_ID",account)!=account: raise RuntimeError("DEMO_ACCOUNT_EXPLICIT_BINDING_REQUIRED")
  api=FinamAPI(secret); api.create_session(); details=api.session_details()
- ids={str(x["account_id"]) for x in details.get("accounts",[])}
+ ids={str(x) for x in details.get("account_ids",[])}
  if account not in ids: raise RuntimeError("CONFIGURED_DEMO_ACCOUNT_NOT_ENUMERATED")
  report={"timestamp":datetime.now(timezone.utc).isoformat(),"account_identity":"configured-demo-account","account_verified":bool(api.account(account)),"assets":{}}
  available=api.assets(); rows=available.get("assets",available if isinstance(available,list) else [])

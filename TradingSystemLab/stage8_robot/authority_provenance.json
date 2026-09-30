@@ -1,6 +1,35 @@
 {
   "as_of_utc": "2026-09-30",
-  "finam": {"base_url":"https://api.finam.ru","documentation":"https://tradeapi.finam.ru/","api_version":"v1","authentication":"POST /v1/sessions with secret; bearer JWT; POST /v1/sessions/details for accounts","rate_limit":"200 requests/minute","schema_status":"AUTHENTICATED_TASK_AUTHORITY","credential_binding":"BLOCKED_UNAUTHENTICATED"},
-  "moex": {"contract_pages":["https://www.moex.com/ru/contract.aspx?code=USDRUBF","https://www.moex.com/ru/contract.aspx?code=CNYRUBF","https://www.moex.com/ru/contract.aspx?code=GLDRUBF","https://www.moex.com/ru/contract.aspx?code=IMOEXF"],"retrieval":"BLOCKED_HTTP_CONNECT_403","reference_values_status":"UNAUTHENTICATED_DO_NOT_ENABLE"},
-  "binding_status":"BLOCKED_UNAUTHENTICATED"
+  "binding_status": "BLOCKED_UNAUTHENTICATED",
+  "finam": {
+    "api_version": "v1",
+    "authentication": "POST /v1/sessions with secret; bearer JWT; POST /v1/sessions/details for accounts",
+    "bar_timestamp_semantics": "interval start; availability is start plus one hour",
+    "bars_interval_fields": [
+      "interval.start_time",
+      "interval.end_time"
+    ],
+    "bars_path": "/v1/instruments/{symbol}/bars",
+    "bars_timeframe": "TIME_FRAME_H1",
+    "base_url": "https://api.finam.ru",
+    "credential_binding": "BLOCKED_UNAUTHENTICATED",
+    "documentation": "https://api.finam.ru/docs/rest/",
+    "h1_history_depth": "approximately 30 days",
+    "pagination": "no request token documented; none sent",
+    "rate_limit": "200 requests/minute",
+    "schema_status": "AUTHENTICATED_TASK_AUTHORITY",
+    "session_create_body": "secret",
+    "session_details_accounts_field": "account_ids",
+    "session_details_body": "token"
+  },
+  "moex": {
+    "contract_pages": [
+      "https://www.moex.com/ru/contract.aspx?code=USDRUBF",
+      "https://www.moex.com/ru/contract.aspx?code=CNYRUBF",
+      "https://www.moex.com/ru/contract.aspx?code=GLDRUBF",
+      "https://www.moex.com/ru/contract.aspx?code=IMOEXF"
+    ],
+    "reference_values_status": "UNAUTHENTICATED_DO_NOT_ENABLE",
+    "retrieval": "BLOCKED_HTTP_CONNECT_403"
+  }
 }
