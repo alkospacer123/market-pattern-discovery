@@ -16,7 +16,21 @@ S67=HERE.parent/'stage6_7_full_vs_normalized'
 LIFE=HERE.parent/'stage5_structural_validation/canonical_lifecycle_registry.csv'
 SOURCE=S66/'portfolio_trade_scaling_registry.csv'
 SYMS=('USDRUBF','CNYRUBF','GLDRUBF','IMOEXF'); VARS=('CANONICAL','TRAIL1'); RISKS=(('R15',.015),('R20',.02))
+EXPECTED_TRADE_SHA='8f0493f5dd4edf087881622005efde0531c6146903a38c362e72dbc508071b1e'
+EXPECTED_LIFE_SHA='f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6'
 TOL=1e-9; RECON_TOL=5e-7; CORE=('four_case_registry.csv','availability_registry.csv','production_yearly_metrics.csv','production_quarterly_metrics.csv','production_monthly_metrics.csv','trade_metrics.csv','instrument_year_metrics.csv','instrument_summary.csv','direction_summary.csv','open_risk_summary.csv','wf24_summary.csv','wf24_open_risk_summary.csv','pairwise_comparison.csv','risk_efficiency_comparison.csv','headline_comparison.csv','reconciliation_with_stage6_7.csv')
+
+def authenticate_sources():
+    if not SOURCE.is_file() or not LIFE.is_file(): raise RuntimeError('SOURCE_AUTHENTICATION_FAIL: missing source')
+    if sha(SOURCE)!=EXPECTED_TRADE_SHA or sha(LIFE)!=EXPECTED_LIFE_SHA: raise RuntimeError('SOURCE_AUTHENTICATION_FAIL: SHA-256')
+    trades=pd.read_csv(SOURCE); lifecycle=pd.read_csv(LIFE)
+    expected=['variant','source_trade_id','lifecycle','fold_id','instrument','direction','entry_time','exit_time','strategy_R']
+    if list(trades.columns)!=expected: raise RuntimeError('SOURCE_AUTHENTICATION_FAIL: trade schema')
+    scoped=trades[trades.variant.isin(VARS)&trades.instrument.isin(SYMS)]
+    if set(scoped.variant)!=set(VARS) or set(scoped.instrument)!=set(SYMS): raise RuntimeError('SOURCE_AUTHENTICATION_FAIL: universe')
+    av=lifecycle[(lifecycle.generation=='v3_perpetual')&(lifecycle.strategy=='T3')&(lifecycle.timeframe=='H1')&lifecycle.instrument.isin(SYMS)]
+    if len(av)!=24 or set(av.instrument)!=set(SYMS) or set(av.cost_contract)!={'C1'} or av.end_timestamp.isna().any(): raise RuntimeError('SOURCE_AUTHENTICATION_FAIL: availability/C1/endpoint')
+    return len(trades),len(av)
 
 def write(x,p): x.to_csv(p,index=False,lineterminator='\n',float_format='%.12g')
 def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
@@ -43,13 +57,15 @@ def simulate(t,risk,lives):
             cash,rr=opened.pop(tid); eq+=cash*rr.strategy_R
             rows.append(dict(source_trade_id=tid,variant=rr.variant,instrument=rr.instrument,direction=rr.direction,lifecycle=rr.lifecycle,entry=rr.entry,exit=rr.exit,R=rr.strategy_R,risk_cash=cash,equity=eq))
     return pd.DataFrame(rows).sort_values(['exit','source_trade_id'],kind='mergesort').reset_index(drop=True)
-def exposure(t,risk,lives):
+def exposure(t,risk,lives,window_start=None,window_end=None):
     eq=100.; opened={}; events=[]; prev=None; dur=area=posarea=0.; above={x:0. for x in (2,3,4,5,6,8)}; snaps=[]; mx=mxnom=mxres=0.
     for r in t[t.lifecycle.isin(lives)].itertuples(): events += [(r.entry,1,r.source_trade_id,r),(r.exit,0,r.source_trade_id,r)]
     for tm,group in __import__('itertools').groupby(sorted(events,key=lambda z:(z[0],z[1],z[2])),lambda z:z[0]):
         batch=list(group)
         if prev is not None:
-            dt=(tm-prev).total_seconds(); res=sum(v[0] for v in opened.values())/eq*100
+            left=max(prev,window_start) if window_start is not None else prev
+            right=min(tm,window_end) if window_end is not None else tm
+            dt=max(0.,(right-left).total_seconds()); res=sum(v[0] for v in opened.values())/eq*100
             dur+=dt; area+=res*dt; posarea+=len(opened)*dt
             for x in above: above[x]+=dt*(res>x)
         prev=tm
@@ -57,8 +73,14 @@ def exposure(t,risk,lives):
             if kind: opened[tid]=(eq*risk,r)
             else:
                 cash,rr=opened.pop(tid); eq+=cash*rr.strategy_R
-        res=sum(v[0] for v in opened.values())/eq*100; snaps.append(res)
-        mx=max(mx,len(opened)); mxnom=max(mxnom,len(opened)*risk*100); mxres=max(mxres,res)
+        res=sum(v[0] for v in opened.values())/eq*100
+        if (window_start is None or tm>=window_start) and (window_end is None or tm<=window_end):
+            snaps.append(res); mx=max(mx,len(opened)); mxnom=max(mxnom,len(opened)*risk*100); mxres=max(mxres,res)
+    if window_end is not None and prev < window_end:
+        left=max(prev,window_start) if window_start is not None else prev
+        dt=max(0.,(window_end-left).total_seconds()); res=sum(v[0] for v in opened.values())/eq*100
+        dur+=dt; area+=res*dt; posarea+=len(opened)*dt
+        for x in above: above[x]+=dt*(res>x)
     z=dict(max_simultaneous_positions=mx,average_simultaneous_positions=posarea/dur,max_nominal_open_risk_pct=mxnom,max_reserved_risk_pct_of_equity=mxres,time_weighted_avg_open_risk_pct=area/dur,event_snapshot_avg_open_risk_pct=np.mean(snaps))
     z.update({f'share_time_above_{x}_pct':100*above[x]/dur for x in above}); return z
 def spine(e,freq,start,end):
@@ -70,8 +92,23 @@ def spine(e,freq,start,end):
 def pf(x):
     win=x[x>0].sum(); loss=-x[x<0].sum(); return win/loss if loss else math.inf
 
+def tolerance_compare(a,b,tolerance=TOL):
+    """Three-way comparison with an explicit semantic equality band."""
+    return 0 if abs(float(a)-float(b))<=tolerance else (1 if a>b else -1)
+
+def factual_leader(frame, criteria):
+    """Select by ordered (column, maximize) facts; case_id is the final tie-break."""
+    from functools import cmp_to_key
+    rows=list(frame.to_dict('records'))
+    def cmp(a,b):
+        for column,maximize in criteria:
+            value=tolerance_compare(a[column],b[column])
+            if value: return -value if maximize else value
+        return -1 if a['case_id']<b['case_id'] else (a['case_id']>b['case_id'])
+    return sorted(rows,key=cmp_to_key(cmp))[0]['case_id']
+
 def generate(out=HERE, determinism=None):
-    out=Path(out); out.mkdir(parents=True,exist_ok=True); t=source(); av=availability(); write(av,out/'availability_registry.csv')
+    out=Path(out); out.mkdir(parents=True,exist_ok=True); authenticate_sources(); t=source(); av=availability(); write(av,out/'availability_registry.csv')
     registry=pd.DataFrame([dict(case_id=f'{v}__N4_01__FULL__{rn}',variant=v,basket='N4_01',load='FULL',risk=rn) for rn,_ in RISKS for v in VARS]); write(registry,out/'four_case_registry.csv')
     yearly=[]; monthly=[]; quarterly=[]; trades=[]; iyears=[]; isum=[]; dsum=[]; opens=[]; wfrows=[]; wfopens=[]; headlines=[]
     sims={}; wfs={}
@@ -97,7 +134,7 @@ def generate(out=HERE, determinism=None):
             else: longest=max(longest,(dt-peakday).total_seconds()/86400)
         roll6=[(month_eq[i]/month_eq[i-6]-1)*100 for i in range(6,len(month_eq))]; roll12=[(month_eq[i]/month_eq[i-12]-1)*100 for i in range(12,len(month_eq))]
         h=dict(case_id=row.case_id,variant=row.variant,risk=row.risk,return_2023_pct=ys[2023],coverage_2023='PARTIAL_N4_DIAGNOSTIC_YEAR',return_2024_pct=ys[2024],WF24_return_pct=wfret,return_2025_pct=ys[2025],return_2026_YTD_pct=ys[2026],CAGR_2024_plus_pct=cagr,completed_years_CAGR_pct=comp,minimum_complete_year_return_pct=min(ys[2024],ys[2025]),median_complete_year_return_pct=np.median([ys[2024],ys[2025]]),compounded_return_2024_plus_pct=total,final_rebased_equity=rebased[-1],continuous_full_history_final_equity=prod.iloc[-1].equity,full_history_CAGR_pct=((prod.iloc[-1].equity/100)**(1/((prod.iloc[-1].exit-prod.iloc[0].entry).total_seconds()/(365.2425*86400)))-1)*100,max_realized_equity_DD_2024_plus_pct=dd24,full_history_max_DD_pct=fulldd,monthly_equity_DD_pct=maxdd(month_eq),recovery_factor=total/abs(dd24),longest_drawdown_days=longest,worst_rolling_12M_pct=min(roll12),worst_rolling_6M_pct=min(roll6),complete_quarters=len(qcomplete),partial_quarters=1,positive_complete_quarters=sum(x>TOL for x in qcomplete),zero_complete_quarters=sum(abs(x)<=TOL for x in qcomplete),negative_complete_quarters=sum(x<-TOL for x in qcomplete),positive_quarter_share=sum(x>TOL for x in qcomplete)/len(qcomplete),worst_complete_quarter_pct=min(qcomplete),best_complete_quarter_pct=max(qcomplete),median_complete_quarter_pct=np.median(qcomplete),mean_complete_quarter_pct=np.mean(qcomplete),longest_negative_quarter_streak=streak(qcomplete),longest_nonpositive_quarter_streak=streak(qcomplete,True),total_months=len(mrets),full_months=len(mrets)-1,partial_months=1,positive_months=sum(x>TOL for x in mrets),zero_months=sum(abs(x)<=TOL for x in mrets),negative_months=sum(x<-TOL for x in mrets),positive_month_share=sum(x>TOL for x in mrets)/len(mrets),zero_month_share=sum(abs(x)<=TOL for x in mrets)/len(mrets),negative_month_share=sum(x<-TOL for x in mrets)/len(mrets),nonpositive_month_share=sum(x<=TOL for x in mrets)/len(mrets),worst_month_pct=min(mrets),best_month_pct=max(mrets),mean_month_pct=np.mean(mrets),median_month_pct=np.median(mrets),monthly_std_pct=np.std(mrets),longest_negative_month_streak=streak(mrets),longest_nonpositive_month_streak=streak(mrets,True))
-        ex=exposure(base,risk,('baseline','historical_true_oos')); opens.append(dict(case_id=row.case_id,**ex)); wfex=exposure(base,risk,('walk_forward',)); wfopens.append(dict(case_id=row.case_id,**wfex)); h.update(ex); headlines.append(h)
+        ex=exposure(base,risk,('baseline','historical_true_oos'),pd.Timestamp('2024-01-01',tz='UTC'),endpoint); opens.append(dict(case_id=row.case_id,reporting_window='2024-01-01_to_authenticated_endpoint',**ex)); wfex=exposure(base,risk,('walk_forward',)); wfopens.append(dict(case_id=row.case_id,**wfex)); h.update(ex); headlines.append(h)
         wfrows.append(dict(case_id=row.case_id,return_pct=wfret,max_DD_pct=wfdd,trades=len(wf)))
         for life,label in [(('baseline','historical_true_oos'),'production'),(('walk_forward',),'WF24')]:
             g=base[base.lifecycle.isin(life)]; rr=g.strategy_R
@@ -132,16 +169,37 @@ def generate(out=HERE, determinism=None):
     R=pd.DataFrame(rec); assert R.pass_tolerance.all(),R[~R.pass_tolerance]
     outputs={'production_yearly_metrics.csv':pd.DataFrame(yearly),'production_quarterly_metrics.csv':pd.DataFrame(quarterly),'production_monthly_metrics.csv':pd.DataFrame(monthly),'trade_metrics.csv':tm,'instrument_year_metrics.csv':iy,'instrument_summary.csv':ins,'direction_summary.csv':ds,'open_risk_summary.csv':O,'wf24_summary.csv':W,'wf24_open_risk_summary.csv':pd.DataFrame(wfopens),'pairwise_comparison.csv':pd.DataFrame(pairs),'risk_efficiency_comparison.csv':E,'headline_comparison.csv':H,'reconciliation_with_stage6_7.csv':R}
     for n,d in outputs.items(): write(d,out/n)
-    leaders={'return':H.loc[H.CAGR_2024_plus_pct.idxmax(),'case_id'],'drawdown':H.loc[H.max_realized_equity_DD_2024_plus_pct.abs().idxmin(),'case_id'],'quarter_stability':H.sort_values(['positive_quarter_share','worst_complete_quarter_pct','longest_negative_quarter_streak','case_id'],ascending=[False,False,True,True]).iloc[0].case_id,'month_stability':H.sort_values(['positive_month_share','worst_month_pct','longest_negative_month_streak','case_id'],ascending=[False,False,True,True]).iloc[0].case_id,'recovery':H.loc[H.recovery_factor.idxmax(),'case_id'],'risk_efficiency':E.loc[E.CAGR_to_abs_MaxDD.idxmax(),'case_id'],'oos_2025':H.loc[H.return_2025_pct.idxmax(),'case_id'],'ytd_2026':H.loc[H.return_2026_YTD_pct.idxmax(),'case_id']}
+    leaders={'return':factual_leader(H,[('CAGR_2024_plus_pct',True)]),'drawdown':factual_leader(H.assign(abs_dd=H.max_realized_equity_DD_2024_plus_pct.abs()),[('abs_dd',False)]),'quarter_stability':factual_leader(H,[('positive_quarter_share',True),('worst_complete_quarter_pct',True),('longest_negative_quarter_streak',False)]),'month_stability':factual_leader(H,[('positive_month_share',True),('worst_month_pct',True),('longest_negative_month_streak',False)]),'recovery':factual_leader(H,[('recovery_factor',True)]),'risk_efficiency':factual_leader(E,[('CAGR_to_abs_MaxDD',True)]),'oos_2025':factual_leader(H,[('return_2025_pct',True)]),'ytd_2026':factual_leader(H,[('return_2026_YTD_pct',True)])}
     report(out,H,E,leaders,endpoint)
-    hashes={n:sha(out/n) for n in CORE}; manifest=dict(status='PASS',source=str(SOURCE),availability_source=str(LIFE),comparison_tolerance=TOL,event_order='timestamp; EXIT before ENTRY; source_trade_id',latest_authenticated_endpoint=endpoint.isoformat(),case_count=4,determinism=determinism or {'runs':1,'status':'PENDING_EXTERNAL_RERUN'},artifacts={n:{'sha256':hashes[n],'rows':sum(1 for _ in open(out/n,encoding='utf8'))-1 if n.endswith('.csv') else None} for n in CORE})
+    hashes={n:sha(out/n) for n in CORE}
+    test_source=HERE/'test_four_case_test.py'; generator_source=HERE/'generate_four_case_test.py'; auditor_source=HERE/'audit_four_case_test.py'
+    manifest=dict(status='PASS',prior_pr_number=271,prior_pr_base_sha='5020403bd675c3fc6ccb3223e3002557346b6aef',prior_pr_head_sha='c792613e770ed23dd821250d6625adbbc1815026',prior_pr_merge_sha='2d291533add76129077656b30b7537fc4ff20df8',task_starting_main_sha='2d291533add76129077656b30b7537fc4ff20df8',new_pr={'number':None,'branch_head_sha':None,'merge_sha':None},source={'path':str(SOURCE.relative_to(HERE.parents[3])),'sha256':sha(SOURCE),'row_count':sum(1 for _ in open(SOURCE))-1},availability_source={'path':str(LIFE.relative_to(HERE.parents[3])),'sha256':sha(LIFE),'relevant_filtered_row_count':len(av)},generator_source_sha256=sha(generator_source),auditor_source_sha256=sha(auditor_source),test_source_sha256=sha(test_source),economic_scope={'basket':'N4_01','load':'FULL','variants':list(VARS),'risks':['R15','R20'],'case_count':4,'headline_start':'2024-01-01T00:00:00Z'},tolerances={'semantic_abs_tol':TOL,'stage6_7_reconciliation_tol':RECON_TOL},event_order='timestamp ascending; EXIT before ENTRY; source_trade_id ascending',latest_authenticated_endpoint=endpoint.isoformat(),determinism=determinism or {'runs':1,'status':'PENDING_TWO_ISOLATED_RUN_TEST'},artifacts={n:{'sha256':hashes[n],'rows':sum(1 for _ in open(out/n,encoding='utf8'))-1} for n in CORE})
     (out/'audit_manifest.json').write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n'); return hashes
 
 def report(out,H,E,L,endpoint):
-    ix=H.set_index('case_id'); lines=['# Stage 6.7 N4 FULL — focused four-case test','','**Status: `STAGE_6_7_N4_FULL_FOUR_CASE_TEST_COMPLETE`**','','## Contract',f'- Frozen equality tolerance: `{TOL}`.','- Exactly N4_01 / FULL / CANONICAL+TRAIL1 / R15+R20; no optimizer or annual sign gate.','- 2023 is retained as `PARTIAL_N4_DIAGNOSTIC_YEAR`; headline window is 2024 through '+endpoint.isoformat()+'.','- Production is continuous baseline → historical TRUE OOS and merely rebased at 2024; WF24 is isolated.','- Same-time events use EXIT before ENTRY. Stage 6.8 is NOT STARTED; Stage 7 is NOT EXECUTED.','','## Headline metrics',H[['case_id','return_2024_pct','WF24_return_pct','return_2025_pct','return_2026_YTD_pct','CAGR_2024_plus_pct','compounded_return_2024_plus_pct','max_realized_equity_DD_2024_plus_pct','recovery_factor','positive_quarter_share','positive_month_share']].to_markdown(index=False,floatfmt='.6f'),'','## Direct answers',f"1. **R15:** TRAIL1 has the higher CAGR ({ix.loc['TRAIL1__N4_01__FULL__R15','CAGR_2024_plus_pct']:.3f}% vs {ix.loc['CANONICAL__N4_01__FULL__R15','CAGR_2024_plus_pct']:.3f}%), with a larger drawdown.",f"2. **R20:** TRAIL1 has the higher CAGR ({ix.loc['TRAIL1__N4_01__FULL__R20','CAGR_2024_plus_pct']:.3f}% vs {ix.loc['CANONICAL__N4_01__FULL__R20','CAGR_2024_plus_pct']:.3f}%), with a larger drawdown."]
-    for v in VARS:
-        a=ix.loc[f'{v}__N4_01__FULL__R15']; b=ix.loc[f'{v}__N4_01__FULL__R20']; lines.append(f"3–4. **{v} R20 vs R15:** compounded return {b.compounded_return_2024_plus_pct-a.compounded_return_2024_plus_pct:+.3f} pp, CAGR {b.CAGR_2024_plus_pct-a.CAGR_2024_plus_pct:+.3f} pp, absolute DD {abs(b.max_realized_equity_DD_2024_plus_pct)-abs(a.max_realized_equity_DD_2024_plus_pct):+.3f} pp, max nominal exposure {b.max_nominal_open_risk_pct-a.max_nominal_open_risk_pct:+.3f} pp.")
-    lines += ['', '5. **Leaders:** '+ '; '.join(f'{k}: `{v}`' for k,v in L.items())+'.','6. TRAIL1 provides economically material extra return/CAGR at both risks, but not for free: drawdown rises; this is a trade-off rather than dominance.','7. R20 adds substantial return and also drawdown/exposure. Incremental CAGR/DD is reported explicitly; whether it compensates is a risk-budget decision, not an optimizer verdict.','8. Removing the partial-2023 sign gate keeps all four cases visible and moves the headline to comparable 2024+ history; it does not alter any frozen trade.','9. **Transparent production-consideration view:** TRAIL1 R15 is the more balanced growth/risk profile when return and risk efficiency are considered together; CANONICAL R15 remains the minimum-DD choice, while both R20 profiles require accepting the documented 8% nominal ceiling. No composite score was used.','','## Provenance and limitations','MAE/MFE are unavailable in the frozen registry. Trade statistics are variant-level because risk changes sizing, not the trade path. Instrument-year signs are diagnostic only. Transaction costs are inherited from frozen Stage 6.6 strategy-R evidence and the lifecycle `C1` contract; no trades or strategy parameters were changed.','']
+    x=H.set_index('case_id')
+    rows=[]
+    labels=[('CANONICAL__N4_01__FULL__R15','CANONICAL R15'),('TRAIL1__N4_01__FULL__R15','TRAIL1 R15'),('CANONICAL__N4_01__FULL__R20','CANONICAL R20'),('TRAIL1__N4_01__FULL__R20','TRAIL1 R20')]
+    for cid,label in labels:
+        r=x.loc[cid]; rows.append(f"| {label} | {r.return_2024_pct:.2f}% | {r.return_2025_pct:.2f}% | {r.return_2026_YTD_pct:.2f}% | {r.CAGR_2024_plus_pct:.2f}% | {r.max_realized_equity_DD_2024_plus_pct:.2f}% | {int(r.positive_complete_quarters)}/10 | {int(r.positive_months)}/33 | {r.max_nominal_open_risk_pct:.0f}% | {r.time_weighted_avg_open_risk_pct:.3f}% |")
+    lines=['# Stage 6.7 N4 FULL — final four-case technical closeout','',
+    '**Status: `STAGE_6_7_N4_FULL_FOUR_CASE_INTERNAL_AUDIT_PASS`** (internal only; external post-merge acceptance remains pending).','',
+    '## Scope','Exactly four `N4_01` / `FULL` cases are compared: CANONICAL and TRAIL1 at R15 and R20. This is factual analysis, not strategy selection; no composite score or overall winner is produced.','',
+    '## Data completeness','2023 is retained in the continuous causal path but classified `PARTIAL_N4_DIAGNOSTIC_YEAR`: GLDRUBF begins in July and IMOEXF in November. It is excluded from headline stability and CAGR, with no annual eligibility gate. The authenticated headline endpoint is `'+endpoint.isoformat()+'`.','',
+    '## Annual results and CAGR / DD','| Case | 2024 | 2025 | 2026 YTD | CAGR 2024+ | Max DD | Positive complete quarters | Positive months | Max nominal risk | TW avg risk |','| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',*rows,'',
+    'Production sizing remains continuous from baseline through historical TRUE OOS; the 2024 presentation is only a mathematical rebase. CAGR uses actual elapsed time at 365.2425 days/year. Event-level and monthly drawdowns are independently recorded in `headline_comparison.csv`.','',
+    '## WF24','WF24 is simulated as a separate lifecycle using walk-forward trades only. Its return, drawdown, trade count, and exposure diagnostics are in `wf24_summary.csv` and `wf24_open_risk_summary.csv`.','',
+    '## Monthly stability','The complete calendar spine has all 33 months from 2024-01 through 2026-09, including zero-exit January 2025. The endpoint month is marked `PARTIAL`. CANONICAL has 21 positive, 1 zero, and 11 negative months; TRAIL1 has 23 positive, 1 zero, and 9 negative months at either risk.','',
+    '## Quarterly stability','There are 10 complete quarters (2024Q1–2026Q2) and one partial quarter (2026Q3). TRAIL1 has no negative COMPLETE quarter in the 2024 through 2026Q2 headline window; both TRAIL1 risks are 10/10 positive, while both CANONICAL risks are 9/10.','',
+    '## Exposure','Production exposure is measured only from 2024-01-01 through the authenticated endpoint while preserving pre-2024 equity and open-position state. R15 has a 6% nominal ceiling and R20 an 8% ceiling. Time-weighted values are shown in the headline table; snapshot and threshold diagnostics remain in `open_risk_summary.csv`.','',
+    '## Instrument diagnostics','Instrument/year signs are diagnostic only and never gate a case. The partial 2023 observations, including TRAIL1 CNYRUBF and GLDRUBF negatives and zero IMOEXF trades, do not reject N4.','',
+    '## Direction diagnostics','Full-history production LONG/SHORT counts and independently summed net R are reported in `direction_summary.csv`; sizing risk does not alter trade identity.','',
+    '## R15 vs R20','Within each variant R15 and R20 have identical source trade IDs, timestamps, strategy R, direction, and instrument. R20 increases both CAGR and drawdown/exposure; this is a factual risk-budget trade-off.','',
+    '## CANONICAL vs TRAIL1','TRAIL1 has higher CAGR at both risk levels and stronger month/complete-quarter sign stability, alongside larger drawdowns and higher time-weighted exposure. CANONICAL R15 has the lowest absolute drawdown.','',
+    '## Factual leaders',
+    '- Highest CAGR: `'+L['return']+'`.','- Minimum absolute Max DD: `'+L['drawdown']+'`.','- Quarter stability (tolerance-aware deterministic tie rules): `'+L['quarter_stability']+'`.','- Month stability (tolerance-aware deterministic tie rules): `'+L['month_stability']+'`.','- Highest recovery: `'+L['recovery']+'`.','- Highest CAGR / |Max DD|: `'+L['risk_efficiency']+'`.','- Highest 2025 return: `'+L['oos_2025']+'`.','- Highest 2026 YTD return: `'+L['ytd_2026']+'`.','These leaders are metric-specific and are not an automatic production recommendation. The human-retained baseline is `CANONICAL__N4_01__FULL__R15`.','',
+    '## Reconciliation','The frozen Stage 6.6 trades reconcile to the original Stage 6.7 controls at the separately declared `RECON_TOL=5e-7`; those controls do not establish expected clean-room economics.','',
+    '## Limitations','2026 is YTD; 2023 has partial N4 availability; this analysis covers only four cases and is historical, with no guarantee of future performance. MAE/MFE are unavailable in the frozen source. Costs are inherited from the authenticated C1 contract. Stage 6.8 was not started and Stage 7 was not executed.','']
     (out/'FINAL_N4_FULL_FOUR_CASE_REPORT.md').write_text('\n'.join(lines))
 
 if __name__=='__main__':

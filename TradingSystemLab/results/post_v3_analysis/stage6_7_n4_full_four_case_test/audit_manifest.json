@@ -14,7 +14,7 @@
     },
     "headline_comparison.csv": {
       "rows": 4,
-      "sha256": "7e303666465459a2a05cd8e763fa0ca9fec7364c31a83e5fdb3339c3b245d03b"
+      "sha256": "25a3399e7a0c7915119abb0afda6142516ac65f3743c0df00df07ea7d3e89903"
     },
     "instrument_summary.csv": {
       "rows": 8,
@@ -26,11 +26,11 @@
     },
     "open_risk_summary.csv": {
       "rows": 4,
-      "sha256": "137ebbe636b32ea93248a32cad20f8e7c971869afef3eb50a3cc3aebff1ea972"
+      "sha256": "5c57c5535c768569cdff8de6f38ce3152512253d1808d85f9cc4bcac30f504dc"
     },
     "pairwise_comparison.csv": {
       "rows": 52,
-      "sha256": "6ccc712438d2b51a7acb51728a5332839193b4a58094a8734d50d64ec678e391"
+      "sha256": "460b5f96931f93e36616d85bbebc7bae56a959e037720f27990471d0b73632f4"
     },
     "production_monthly_metrics.csv": {
       "rows": 132,
@@ -50,7 +50,7 @@
     },
     "risk_efficiency_comparison.csv": {
       "rows": 4,
-      "sha256": "874ffe8b96c284b615cada643ba0f1e374d532aceee528ab8b6802bd55f7aba8"
+      "sha256": "b8cbd1bf2784757eb661ce71ac2978ef61f4e54d0b5072dfb3773a93f9fa41bc"
     },
     "trade_metrics.csv": {
       "rows": 2,
@@ -65,17 +65,59 @@
       "sha256": "a6c808fa0d65483fb1a2361a56227324be6ce8851059efdb01be667b1c84b9dc"
     }
   },
-  "availability_source": "/workspace/market-pattern-discovery/TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/canonical_lifecycle_registry.csv",
-  "case_count": 4,
-  "comparison_tolerance": 1e-09,
+  "auditor_source_sha256": "b2fb6b788e535e6411861e02bbcab95a02f842399c0004d0c315c0fee3a67eb1",
+  "availability_source": {
+    "path": "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/canonical_lifecycle_registry.csv",
+    "relevant_filtered_row_count": 24,
+    "sha256": "f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6"
+  },
   "determinism": {
-    "isolated_temporary_directories": true,
-    "row_values_ordering_sha256_equal": true,
+    "aggregate_core_sha256": "a8cee2864fca9d427fb6e465070647ee825de3a7ccb5891d55e4be05d8bdd552",
+    "auditor_pass_both": true,
+    "core_bytes_equal": true,
+    "isolated_run_locations": [
+      "/tmp/stage6_7_n4_run_a",
+      "/tmp/stage6_7_n4_run_b"
+    ],
     "runs": 2,
     "status": "PASS"
   },
-  "event_order": "timestamp; EXIT before ENTRY; source_trade_id",
+  "economic_scope": {
+    "basket": "N4_01",
+    "case_count": 4,
+    "headline_start": "2024-01-01T00:00:00Z",
+    "load": "FULL",
+    "risks": [
+      "R15",
+      "R20"
+    ],
+    "variants": [
+      "CANONICAL",
+      "TRAIL1"
+    ]
+  },
+  "event_order": "timestamp ascending; EXIT before ENTRY; source_trade_id ascending",
+  "generator_source_sha256": "300c25aff07233c057fc92d845539733d1daeb518ccbf8e7a0e10df8afb9dd7f",
   "latest_authenticated_endpoint": "2026-09-15T21:00:00+00:00",
-  "source": "/workspace/market-pattern-discovery/TradingSystemLab/results/post_v3_analysis/stage6_unified_candidate_comparison/portfolio_trade_scaling_registry.csv",
-  "status": "PASS"
+  "new_pr": {
+    "branch_head_sha": null,
+    "merge_sha": null,
+    "number": null
+  },
+  "prior_pr_base_sha": "5020403bd675c3fc6ccb3223e3002557346b6aef",
+  "prior_pr_head_sha": "c792613e770ed23dd821250d6625adbbc1815026",
+  "prior_pr_merge_sha": "2d291533add76129077656b30b7537fc4ff20df8",
+  "prior_pr_number": 271,
+  "source": {
+    "path": "TradingSystemLab/results/post_v3_analysis/stage6_unified_candidate_comparison/portfolio_trade_scaling_registry.csv",
+    "row_count": 2168,
+    "sha256": "8f0493f5dd4edf087881622005efde0531c6146903a38c362e72dbc508071b1e"
+  },
+  "status": "PASS",
+  "task_starting_main_sha": "2d291533add76129077656b30b7537fc4ff20df8",
+  "test_source_sha256": "379f7cf0a60abb02071dfce8ca645793674f0df48c3793cc516e23361a438c5a",
+  "tolerances": {
+    "semantic_abs_tol": 1e-09,
+    "stage6_7_reconciliation_tol": 5e-07
+  }
 }
