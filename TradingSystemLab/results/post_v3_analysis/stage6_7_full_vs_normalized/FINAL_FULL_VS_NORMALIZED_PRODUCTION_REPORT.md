@@ -1,94 +1,45 @@
-# Stage 6.7 — FULL versus NORMALIZED production analysis
+# Stage 6.7 — Production equity correction and audit close
 
 
 
-## Status: independently auditable compact evidence
+## Correction
+
+PR #267 production CAGR, final equity, drawdown, quarter, and month conclusions were invalid because lifecycle-reset equity was stitched together. These corrected figures supersede them. The authenticated R-space economics, 55 configurations, 110 load cases, and Stage 6.6 reconciliation are unchanged.
 
 
 
-### 1. Methodology
+## Method
 
-All 55 frozen configurations are evaluated under NORMALIZED and FULL loads and R15/R20. Equity is sized from current equity, frozen at entry, and compounded event by event; no linear R approximation is authoritative. Costs are already embedded in frozen net R.
-
-
-
-### 2. Provenance
-
-Only the authenticated Stage 6.6 source-trade registry is consumed. No strategy replay, raw market-data copy, optimization, or 2025 selection occurs.
+Production equity is one causal curve from baseline 2023–2024 into historical OOS 2025–2026 YTD. WF24 is independently simulated from 100 and never enters production return, drawdown, quarter, or month statistics. Same-time exits precede entries, and all same-time entries use identical post-exit equity. Recovery is total compounded return divided by absolute realized-equity maximum drawdown.
 
 
 
-### 3. Availability caveats
+## Eligibility
 
-- GLDRUBF baseline 2023 coverage begins `2023-07-11T08:00:00+00:00` and ends `2024-12-30T21:00:00+00:00`; its 2023 result is explicitly partial.
+- Eligible equity cases: **44**; ineligible: **176**; unique eligible configurations: **11**.
 
-- IMOEXF baseline 2023 coverage begins `2023-11-14T08:00:00+00:00` and ends `2024-12-30T21:00:00+00:00`; its 2023 result is explicitly partial.
+- Best eligible N2: `TRAIL1__N2_03__NORMALIZED__R15`
 
+- Best eligible N3: `STRUCTURAL_STACK_V1__N3_02__FULL__R20`
 
-
-### 4. Target 70–80%
-
-- NORMALIZED: CAGR ≥70 0; CAGR ≥80 0; every full year ≥70 0; ≥80 0.
-
-- FULL: CAGR ≥70 0; CAGR ≥80 0; every full year ≥70 0; ≥80 0.
+- Best eligible N4: `NO_PRODUCTION_ELIGIBLE_N4`
 
 
 
-### 5. Headline FULL vs NORMALIZED comparison
+## Target counts
 
-FULL raises both compounded return and nominal open risk; exact paired deltas are in `full_vs_normalized_comparison.csv`.
+- NORMALIZED: all cases CAGR≥70/80 = 0/0, all-years≥70/80 = 0/0; eligible-only CAGR≥70/80 = 0/0, all-years≥70/80 = 0/0.
 
-
-
-### 6. Strongest N2
-`CANONICAL__N2_06__NORMALIZED__R15`
-
-### 7. Strongest N3
-`CANONICAL__N3_03__NORMALIZED__R15`
-
-### 8. Strongest N4
-`TRAIL1__N4_01__NORMALIZED__R15`
-
-### 9. Pareto candidates
-
-CANONICAL__N2_01__NORMALIZED__R15, CANONICAL__N2_01__NORMALIZED__R20, CANONICAL__N2_01__FULL__R15, CANONICAL__N2_01__FULL__R20, CANONICAL__N2_02__NORMALIZED__R15, CANONICAL__N2_02__NORMALIZED__R20, CANONICAL__N2_02__FULL__R15, CANONICAL__N2_02__FULL__R20, CANONICAL__N2_04__NORMALIZED__R15, CANONICAL__N2_04__NORMALIZED__R20, CANONICAL__N2_04__FULL__R15, CANONICAL__N2_04__FULL__R20, CANONICAL__N2_06__NORMALIZED__R15, CANONICAL__N2_06__NORMALIZED__R20, CANONICAL__N2_06__FULL__R15, CANONICAL__N2_06__FULL__R20, CANONICAL__N3_01__NORMALIZED__R15, CANONICAL__N3_01__NORMALIZED__R20, CANONICAL__N3_01__FULL__R15, CANONICAL__N3_01__FULL__R20, CANONICAL__N3_02__FULL__R20, CANONICAL__N3_03__NORMALIZED__R15, CANONICAL__N3_03__NORMALIZED__R20, CANONICAL__N3_03__FULL__R15, CANONICAL__N3_03__FULL__R20, CANONICAL__N4_01__NORMALIZED__R15, CANONICAL__N4_01__NORMALIZED__R20, CANONICAL__N4_01__FULL__R15, CANONICAL__N4_01__FULL__R20, TRAIL1__N2_01__NORMALIZED__R15, TRAIL1__N2_01__NORMALIZED__R20, TRAIL1__N2_02__NORMALIZED__R15, TRAIL1__N2_02__NORMALIZED__R20, TRAIL1__N2_02__FULL__R15, TRAIL1__N2_02__FULL__R20, TRAIL1__N2_03__NORMALIZED__R15, TRAIL1__N2_03__NORMALIZED__R20, TRAIL1__N2_03__FULL__R15, TRAIL1__N2_03__FULL__R20, TRAIL1__N2_04__NORMALIZED__R15, TRAIL1__N2_04__NORMALIZED__R20, TRAIL1__N2_04__FULL__R15, TRAIL1__N2_04__FULL__R20, TRAIL1__N2_05__FULL__R15, TRAIL1__N2_05__FULL__R20, TRAIL1__N2_06__NORMALIZED__R15, TRAIL1__N2_06__NORMALIZED__R20, TRAIL1__N2_06__FULL__R15, TRAIL1__N2_06__FULL__R20, TRAIL1__N3_01__NORMALIZED__R15, TRAIL1__N3_01__NORMALIZED__R20, TRAIL1__N3_01__FULL__R15, TRAIL1__N3_01__FULL__R20, TRAIL1__N3_02__NORMALIZED__R15, TRAIL1__N3_02__NORMALIZED__R20, TRAIL1__N3_02__FULL__R15, TRAIL1__N3_02__FULL__R20, TRAIL1__N3_03__NORMALIZED__R15, TRAIL1__N3_03__NORMALIZED__R20, TRAIL1__N3_03__FULL__R15, TRAIL1__N3_03__FULL__R20, TRAIL1__N3_04__NORMALIZED__R15, TRAIL1__N3_04__NORMALIZED__R20, TRAIL1__N3_04__FULL__R15, TRAIL1__N3_04__FULL__R20, TRAIL1__N4_01__NORMALIZED__R15, TRAIL1__N4_01__NORMALIZED__R20, TRAIL1__N4_01__FULL__R15, TRAIL1__N4_01__FULL__R20, SESSION_10_21__N2_01__NORMALIZED__R15, SESSION_10_21__N2_01__NORMALIZED__R20, SESSION_10_21__N2_01__FULL__R15, SESSION_10_21__N2_01__FULL__R20, SESSION_10_21__N2_02__NORMALIZED__R15, SESSION_10_21__N2_02__NORMALIZED__R20, SESSION_10_21__N2_02__FULL__R15, SESSION_10_21__N2_02__FULL__R20, SESSION_10_21__N2_03__NORMALIZED__R15, SESSION_10_21__N2_03__NORMALIZED__R20, SESSION_10_21__N2_03__FULL__R15, SESSION_10_21__N2_03__FULL__R20, SESSION_10_21__N2_04__NORMALIZED__R15, SESSION_10_21__N2_04__NORMALIZED__R20, SESSION_10_21__N2_04__FULL__R15, SESSION_10_21__N2_04__FULL__R20, SESSION_10_21__N2_06__NORMALIZED__R15, SESSION_10_21__N2_06__NORMALIZED__R20, SESSION_10_21__N2_06__FULL__R15, SESSION_10_21__N2_06__FULL__R20, SESSION_10_21__N3_01__FULL__R15, SESSION_10_21__N3_01__FULL__R20, SESSION_10_21__N3_02__FULL__R15, SESSION_10_21__N3_02__FULL__R20, SESSION_10_21__N3_03__NORMALIZED__R15, SESSION_10_21__N3_03__NORMALIZED__R20, SESSION_10_21__N3_03__FULL__R15, SESSION_10_21__N3_03__FULL__R20, SESSION_10_21__N3_04__NORMALIZED__R15, SESSION_10_21__N3_04__NORMALIZED__R20, SESSION_10_21__N3_04__FULL__R15, SESSION_10_21__N3_04__FULL__R20, SESSION_10_21__N4_01__NORMALIZED__R15, SESSION_10_21__N4_01__NORMALIZED__R20, SESSION_10_21__N4_01__FULL__R15, SESSION_10_21__N4_01__FULL__R20, LOCK1_AFTER_2R__N2_01__NORMALIZED__R15, LOCK1_AFTER_2R__N2_01__NORMALIZED__R20, LOCK1_AFTER_2R__N2_01__FULL__R15, LOCK1_AFTER_2R__N2_01__FULL__R20, LOCK1_AFTER_2R__N2_02__NORMALIZED__R15, LOCK1_AFTER_2R__N2_02__NORMALIZED__R20, LOCK1_AFTER_2R__N2_02__FULL__R15, LOCK1_AFTER_2R__N2_02__FULL__R20, LOCK1_AFTER_2R__N2_05__NORMALIZED__R15, LOCK1_AFTER_2R__N2_05__NORMALIZED__R20, LOCK1_AFTER_2R__N2_05__FULL__R15, LOCK1_AFTER_2R__N2_05__FULL__R20, LOCK1_AFTER_2R__N3_01__NORMALIZED__R15, LOCK1_AFTER_2R__N3_01__NORMALIZED__R20, LOCK1_AFTER_2R__N3_01__FULL__R15, LOCK1_AFTER_2R__N3_01__FULL__R20, LOCK1_AFTER_2R__N3_02__FULL__R20, LOCK1_AFTER_2R__N3_03__NORMALIZED__R15, LOCK1_AFTER_2R__N3_03__NORMALIZED__R20, LOCK1_AFTER_2R__N3_03__FULL__R15, LOCK1_AFTER_2R__N3_03__FULL__R20, LOCK1_AFTER_2R__N4_01__NORMALIZED__R15, LOCK1_AFTER_2R__N4_01__NORMALIZED__R20, LOCK1_AFTER_2R__N4_01__FULL__R15, LOCK1_AFTER_2R__N4_01__FULL__R20, STRUCTURAL_STACK_V1__N2_01__NORMALIZED__R15, STRUCTURAL_STACK_V1__N2_01__NORMALIZED__R20, STRUCTURAL_STACK_V1__N2_01__FULL__R15, STRUCTURAL_STACK_V1__N2_01__FULL__R20, STRUCTURAL_STACK_V1__N2_02__NORMALIZED__R15, STRUCTURAL_STACK_V1__N2_02__NORMALIZED__R20, STRUCTURAL_STACK_V1__N2_02__FULL__R15, STRUCTURAL_STACK_V1__N2_02__FULL__R20, STRUCTURAL_STACK_V1__N2_03__NORMALIZED__R15, STRUCTURAL_STACK_V1__N2_03__FULL__R15, STRUCTURAL_STACK_V1__N2_04__NORMALIZED__R15, STRUCTURAL_STACK_V1__N2_04__NORMALIZED__R20, STRUCTURAL_STACK_V1__N2_05__NORMALIZED__R15, STRUCTURAL_STACK_V1__N2_05__NORMALIZED__R20, STRUCTURAL_STACK_V1__N2_05__FULL__R15, STRUCTURAL_STACK_V1__N2_05__FULL__R20, STRUCTURAL_STACK_V1__N3_01__FULL__R20, STRUCTURAL_STACK_V1__N3_02__FULL__R15, STRUCTURAL_STACK_V1__N3_02__FULL__R20, STRUCTURAL_STACK_V1__N3_03__NORMALIZED__R15, STRUCTURAL_STACK_V1__N3_03__NORMALIZED__R20, STRUCTURAL_STACK_V1__N3_03__FULL__R15, STRUCTURAL_STACK_V1__N3_03__FULL__R20, STRUCTURAL_STACK_V1__N3_04__FULL__R15, STRUCTURAL_STACK_V1__N3_04__FULL__R20, STRUCTURAL_STACK_V1__N4_01__NORMALIZED__R15, STRUCTURAL_STACK_V1__N4_01__NORMALIZED__R20, STRUCTURAL_STACK_V1__N4_01__FULL__R15, STRUCTURAL_STACK_V1__N4_01__FULL__R20
+- FULL: all cases CAGR≥70/80 = 30/20, all-years≥70/80 = 0/0; eligible-only CAGR≥70/80 = 2/1, all-years≥70/80 = 0/0.
 
 
 
-### 10. FULL target attainment
+## Evidence
 
-See target counts above and `annual_return_target_analysis.csv`.
-
-### 11. NORMALIZED target attainment
-
-See target counts above; FULL is not assumed necessary and is judged from computed results.
-
-### 12. Stability comparison
-
-Quarter/month summaries remain equity-compounded in the master; normalized full R evidence is in period CSVs.
-
-### 13. DD comparison
-
-Exact realized and monthly drawdowns are in the master and paired comparison.
-
-### 14. Open-risk comparison
-
-Exposure is independently reconstructible; threshold dwell shares are in `open_risk_summary.csv`.
-
-### 15. Instrument-year failures
-
-176 equity cases fail; causal instruments and statuses are in `instrument_year_R_metrics.csv`.
-
-### 16. Candidates for later Stage 6.8
-
-This report supplies recommendation candidates only; it freezes none. Stability-first R15/R20 are the rank-leading rows for each risk scenario in `reference_leaders.csv`.
-
-### 17. Retrospective limitation
-
-2025 TRUE OOS is used only for locked retrospective evaluation, never discovery or selection. Evidence supports review for Stage 6.8 but does not start it. Stage 7 was not executed.
+Corrected master metrics, separate production/all-case Pareto sets, failure evidence, drawdown bands, execution hashes, and independent audit results are provided beside this report. Partial inception quarters and 2026 Q3/YTD are excluded from complete-quarter ranking.
 
 
 
-## Answers to required questions
+## Scope stop
 
-Questions 1–6 and 21 are answered by target counts; 7–16 and 28–29 by `reference_leaders.csv`; 17–20 by instrument/availability evidence; 22–23 by paired/open-risk files; 24–27 by stability, frontier, and comparison files. The highest-return domination status is explicit in the master. Question 30: evidence is sufficient for a later review, but no advancement decision is made here.
+Stage 6.8 was **NOT started**. Stage 7 was **NOT executed**.
