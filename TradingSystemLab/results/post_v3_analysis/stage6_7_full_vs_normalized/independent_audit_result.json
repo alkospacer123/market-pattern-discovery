@@ -1,0 +1,22 @@
+{
+  "checks": {
+    "R_case_count": true,
+    "all_execution_hashes_match": true,
+    "annual_and_stability_fields_present": true,
+    "configuration_count": true,
+    "equity_case_count": true,
+    "execution_hash_count": true,
+    "full_scaling_reconciliation": true,
+    "instrument_gate_recomputed": true,
+    "risk_cases_unique": true,
+    "stage6_6_normalized_reconciliation": true
+  },
+  "counts": {
+    "R_cases": 110,
+    "configurations": 55,
+    "equity_cases": 220
+  },
+  "execution_hash_mismatches": [],
+  "independent_reconstruction": true,
+  "status": "PASS"
+}

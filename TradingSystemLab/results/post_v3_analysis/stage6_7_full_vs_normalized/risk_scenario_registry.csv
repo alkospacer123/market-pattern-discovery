@@ -1,0 +1,3 @@
+risk_scenario,base_risk_pct,sizing
+R15,1.5,current equity; frozen at entry; same-time pre-entry equity
+R20,2,current equity; frozen at entry; same-time pre-entry equity

@@ -1,0 +1,3 @@
+load_mode,rule,cap,redistribution
+NORMALIZED,1 / basket_size per source trade,none,False
+FULL,1.0 per source trade,none,False
