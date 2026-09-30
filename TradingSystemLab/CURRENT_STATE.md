@@ -1,5 +1,18 @@
 # Current state — read first
 
+## Active handoff — Stage 7 complete
+
+- Stage 6 is **CLOSED**.
+- Stage 7 Production Specification Freeze is **COMPLETE**:
+  `TRAIL1__N4_01__FULL__R15` is the sole `ACTIVE_PRODUCTION_SPECIFICATION`.
+- Immutable ID: `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`.
+- `CANONICAL__N4_01__FULL__R15` is
+  `STABLE_REFERENCE_NOT_ACTIVE_PRODUCTION`, never an automatic fallback.
+- Stage 8 Robot / FINAM API is next but **NOT STARTED**; no implementation has begun.
+
+Older statements below that Stage 7 is unexecuted are retained as historical
+evidence and superseded by this explicit user-authorized freeze.
+
 ## Authoritative handoff
 
 The active TradingSystemLab work remains the **post-v3 production program**.

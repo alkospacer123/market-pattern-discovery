@@ -1,5 +1,14 @@
 # TradingSystemLab project context
 
+## Current authoritative handoff (Stage 7)
+
+Stage 6 is CLOSED and Stage 7 Production Specification Freeze is COMPLETE.
+The sole active identity is `TRAIL1__N4_01__FULL__R15`, frozen as
+`PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`.
+`CANONICAL__N4_01__FULL__R15` remains a stable, non-active reference and is not
+a runtime fallback. Stage 8 Robot / FINAM API is next and NOT STARTED. Older
+pre-freeze status statements below are historical and superseded.
+
 ## Purpose and authority
 
 TradingSystemLab is the repository's deterministic, fixed-risk systematic

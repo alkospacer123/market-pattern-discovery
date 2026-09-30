@@ -1,5 +1,18 @@
 # Evidence-based roadmap
 
+## Current gate
+
+- Stage 6 — **CLOSED**.
+- Stage 7 Production Specification Freeze — **COMPLETE** for sole active
+  `TRAIL1__N4_01__FULL__R15` (immutable specification
+  `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`).
+- `CANONICAL__N4_01__FULL__R15` —
+  `STABLE_REFERENCE_NOT_ACTIVE_PRODUCTION` only.
+- Stage 8 Robot / FINAM API — **NEXT / NOT STARTED**.
+
+The older Stage 6.7 stop statements retained below describe their historical
+checkpoint and are superseded by the user's explicit Stage 7 authorization.
+
 ## Governing rule
 
 The original H1 research lifecycle remains the sole research methodology:
