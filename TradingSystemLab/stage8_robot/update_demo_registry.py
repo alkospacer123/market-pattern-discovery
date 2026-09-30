@@ -29,6 +29,15 @@ def update(report_path:Path,registry_path:Path)->None:
             temp=Path(f.name); writer=csv.DictWriter(f,fieldnames=fields,lineterminator="\n"); writer.writeheader(); writer.writerows(rows); f.flush(); os.fsync(f.fileno())
         validated=load_registry(temp)
         if len(validated)!=4 or any(x.binding_status!=AUTHENTICATED for x in validated): raise RuntimeError("TEMP_REGISTRY_VALIDATION_FAILED")
+        validated_by_code={x.research_symbol:x for x in validated}
+        for code in N4:
+            row=validated_by_code[code]; evidence=bindings[code]
+            expected=(evidence["finam_symbol"],evidence["mic"],evidence["security_id"],
+              evidence["derived_price_step"],evidence["futures_contract_size"],evidence["trade_lot_size"],
+              evidence["quote_currency"],evidence["status"])
+            actual=(row.finam_symbol,row.mic,row.security_id,str(row.price_step),str(row.contract_size),
+              str(row.quantity_granularity),row.currency,row.binding_status)
+            if actual!=expected: raise RuntimeError(f"TEMP_REGISTRY_EVIDENCE_MISMATCH:{code}")
         os.replace(temp,registry_path); temp=None
     finally:
         if temp is not None: temp.unlink(missing_ok=True)

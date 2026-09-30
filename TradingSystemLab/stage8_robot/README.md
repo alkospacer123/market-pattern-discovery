@@ -1,6 +1,6 @@
 # Stage 8 robot foundation
 
-**Status:** `STAGE_8_FINAM_DEMO_BINDING_READY_AWAITING_OPERATOR_CREDENTIALS` — `LIVE_TRADING_NOT_AUTHORIZED`.
+**Status:** `STAGE_8_FINAM_REST_BINDING_CODE_READY_FOR_OPERATOR_SMOKE` — `LIVE_TRADING_NOT_AUTHORIZED`.
 
 This package implements the sole frozen identity `TRAIL1__N4_01__FULL__R15` under production specification `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`. It does not expose strategy parameters as runtime configuration and does not use the canonical reference as a fallback.
 
@@ -55,16 +55,25 @@ smoke against official FINAM responses. Official documentation was reviewed at
 retrieval from this build environment was blocked by HTTP CONNECT 403, and no
 credential-backed claim is made.
 
-The binding uses only current snake-case FINAM fields. `min_step` is an integer
-mantissa in price precision and the actual step is exactly
-`Decimal(min_step) / 10 ** decimals`. FINAM Decimal messages are decoded from
-`{num, scale}` without binary floating point, and `is_tradable` is read only
-from the configured account's params (including its `{value: bool}` wrapper).
+The production client uses **REST representation** only. `quote_currency` is a
+string; `min_step` and `trade_lot_size` are decimal strings;
+`lot_size` and `future_details.contract_size` are exact
+`{"value": "decimal"}` objects; and account `is_tradable` is a primitive JSON
+boolean. `min_step` is a mantissa in price precision and the actual step is
+exactly `Decimal(min_step) / 10 ** decimals`, without binary floating point.
+Unexpected types, aliases, extra object keys, and floats fail closed.
+
+The **gRPC/protobuf semantic representation** may describe the same economic
+concepts with `{num, scale}` Decimal or wrapped boolean messages. Those are not
+REST wire evidence and the runtime REST binding deliberately rejects them.
 For these futures, `OrderRequest.quantity.value` is a number of contracts;
 `trade_lot_size` is its required increment, whereas
 `future_details.contract_size` is underlying per contract. MOEX supplies the
 frozen tick value used by R15 sizing. The schedule is operational evidence and
 never a strategy-session filter.
+
+Internal futures quantity is mapped to FINAM `quantity: {"value": "..."}` only
+after all instrument-binding semantics have been authenticated.
 
 Run `python -m TradingSystemLab.stage8_robot.demo_smoke` with external credentials
 for a sanitized read-only diagnostic, then use `update_demo_registry` for an
