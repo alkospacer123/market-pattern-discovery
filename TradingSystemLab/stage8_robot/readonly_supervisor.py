@@ -14,7 +14,7 @@ import sqlite3
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
 from .finam_api import FinamAPI, completed_h1_bars
 from .operations import InstanceLock, configure_operational_log, write_heartbeat
@@ -33,6 +33,7 @@ EXPECTED_BINDINGS = {
     "GLDRUBF": ("GLDRUBF@RTSX", "4454911"),
     "IMOEXF": ("IMOEXF@RTSX", "4631091"),
 }
+STALE_DATA_CODE = "STALE_COMPLETED_H1_DATA"
 
 
 class SafetyFault(RuntimeError):
@@ -103,6 +104,48 @@ def _session_is_safe(details: dict, account: str) -> None:
         raise SafetyFault("REAL_TOKEN_NOT_READONLY")
     if account not in {str(value) for value in details.get("account_ids", [])}:
         raise SafetyFault("CONFIGURED_REAL_ACCOUNT_NOT_ENUMERATED")
+
+
+def _utc_timestamp(value: Any) -> datetime:
+    """Parse a FINAM schedule timestamp without guessing a timezone."""
+    if not isinstance(value, str):
+        raise SafetyFault("H1_FRESHNESS_SCHEDULE_INVALID")
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        raise SafetyFault("H1_FRESHNESS_SCHEDULE_INVALID") from None
+    if parsed.tzinfo is None:
+        raise SafetyFault("H1_FRESHNESS_SCHEDULE_INVALID")
+    return parsed.astimezone(timezone.utc)
+
+
+def newest_expected_h1_close(schedule: Any, observed_at: datetime) -> datetime | None:
+    """Return the latest H1 close that the supplied FINAM sessions require.
+
+    H1 bars are anchored at each session's start.  Only a complete one-hour
+    interval wholly inside a session and observable at ``observed_at`` is due.
+    Thus breaks, future sessions, short sessions, weekends, and exchange
+    closures do not manufacture an expected candle.
+    """
+    if not isinstance(schedule, dict) or not isinstance(schedule.get("sessions"), list):
+        raise SafetyFault("H1_FRESHNESS_SCHEDULE_INVALID")
+    now = observed_at.astimezone(timezone.utc)
+    expected: datetime | None = None
+    for session in schedule["sessions"]:
+        if not isinstance(session, dict) or not isinstance(session.get("interval"), dict):
+            raise SafetyFault("H1_FRESHNESS_SCHEDULE_INVALID")
+        interval = session["interval"]
+        start = _utc_timestamp(interval.get("start_time"))
+        end = _utc_timestamp(interval.get("end_time"))
+        if end <= start:
+            raise SafetyFault("H1_FRESHNESS_SCHEDULE_INVALID")
+        available_until = min(end, now)
+        completed = int((available_until - start) // timedelta(hours=1))
+        if completed > 0:
+            candidate = start + timedelta(hours=completed)
+            if expected is None or candidate > expected:
+                expected = candidate
+    return expected
 
 
 class ReadonlySupervisor:
@@ -190,17 +233,21 @@ class ReadonlySupervisor:
             raise SafetyFault("UNEXPECTED_ACTIVE_ORDER", unresolved_order_count=len(orders))
 
         updates: dict[str, str] = {}
-        # A broad observation window avoids treating exchange holidays/weekends as
-        # stale. Schedule-aware freshness policy belongs to later Stage 8.8 work.
+        # Retain the broad observation window for continuity across closures; the
+        # schedule below determines whether a newer completed candle is due.
         start = (now - timedelta(days=30)).isoformat()
         for name in INSTRUMENTS:
             symbol = self.symbols.get(name)
             if symbol is None:
                 raise SafetyFault("N4_MARKET_DATA_REQUIRED")
+            schedule = self.api.schedule(symbol)
             bars = completed_h1_bars(self.api.bars(symbol, start, now.isoformat()), now)
             if not bars:
                 raise SafetyFault("NO_COMPLETED_H1_BAR")
             newest = max(bar["timestamp"] for bar in bars)
+            expected = newest_expected_h1_close(schedule, now)
+            if expected is not None and _utc_timestamp(newest) < expected:
+                raise SafetyFault(STALE_DATA_CODE)
             prior = self.state.get(f"h1:{name}")
             updates[f"h1:{name}"] = max(newest, prior) if prior else newest
         contact = now.isoformat()
@@ -248,6 +295,7 @@ def run_from_environment(
     poll_seconds: int = DEFAULT_POLL_SECONDS,
     api_factory=FinamAPI,
     environment: dict[str, str] | None = None,
+    clock: Callable[[], datetime] | None = None,
 ) -> int:
     environment = dict(os.environ if environment is None else environment)
     lock = InstanceLock(Path(runtime_root) / "state" / "stage8-readonly.lock")
@@ -259,7 +307,8 @@ def run_from_environment(
         if spec.identity != ACTIVE_IDENTITY or spec.production_id != PRODUCTION_SPECIFICATION_ID:
             raise SafetyFault("STAGE7_PRODUCTION_IDENTITY_NOT_AUTHENTIC")
         symbols = _authenticated_registry()
-        supervisor = ReadonlySupervisor(runtime_root, api_factory(secret), account, symbols, poll_seconds=poll_seconds)
+        supervisor = ReadonlySupervisor(runtime_root, api_factory(secret), account, symbols,
+                                        poll_seconds=poll_seconds, clock=clock)
         supervisor.authenticate()
         return supervisor.run(once=once)
     finally:
