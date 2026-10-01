@@ -1,8 +1,10 @@
 """Order-incapable collector for FINAM schedule/H1 time-model evidence.
 
-The output is an intentionally narrow, public-market-time projection.  It can
-be committed after review: authentication material, account identifiers,
-prices, quantities and every other response field are discarded.
+The output is an intentionally narrow, public-market-time projection.  Real
+timing evidence is external operational evidence and must never be committed
+or otherwise copied into this repository checkout.  Authentication material,
+account identifiers, prices, quantities and every other response field are
+discarded.
 """
 from __future__ import annotations
 
@@ -18,10 +20,21 @@ from .readonly_supervisor import MODE, _authenticated_registry
 
 EVIDENCE_SCHEMA = "finam-h1-market-time-evidence-v1"
 ALLOWED_SESSION_KEYS = frozenset({"type", "start_time", "end_time"})
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+REPOSITORY_OUTPUT_FORBIDDEN = "H1_TIMING_EVIDENCE_REPOSITORY_OUTPUT_FORBIDDEN"
 
 
 class DiagnosticSafetyFault(RuntimeError):
     pass
+
+
+def validated_external_output(output: Path) -> Path:
+    """Return a canonical output path, failing closed for this checkout."""
+    repository = REPOSITORY_ROOT.resolve()
+    destination = output.expanduser().resolve()
+    if destination == repository or repository in destination.parents:
+        raise DiagnosticSafetyFault(REPOSITORY_OUTPUT_FORBIDDEN)
+    return destination
 
 
 def _observed(clock: Callable[[], datetime]) -> str:
@@ -91,6 +104,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--lookback-days", type=int, default=10)
     args=parser.parse_args(argv)
+    try:
+        output=validated_external_output(args.output)
+    except (OSError, RuntimeError):
+        raise SystemExit(REPOSITORY_OUTPUT_FORBIDDEN) from None
     if os.environ.get("FINAM_MODE") != MODE:
         raise SystemExit("FINAM_REAL_READONLY_MODE_REQUIRED")
     if os.environ.get("NEW_ENTRIES_DISABLED", "").lower() != "true":
@@ -99,8 +116,8 @@ def main(argv: list[str] | None = None) -> int:
     if not secret:
         raise SystemExit("FINAM_API_SECRET_MISSING")
     evidence=collect(FinamAPI(secret), lookback_days=args.lookback_days)
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(evidence, indent=2, sort_keys=True)+"\n", encoding="utf-8")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(evidence, indent=2, sort_keys=True)+"\n", encoding="utf-8")
     return 0
 
 

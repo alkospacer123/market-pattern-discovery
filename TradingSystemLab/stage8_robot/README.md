@@ -73,14 +73,18 @@ schedule and H1 timestamp evidence has been collected and independently checked.
 The order-incapable collector is run with `FINAM_MODE=REAL_READONLY` and
 `NEW_ENTRIES_DISABLED=true`:
 
-`python -m TradingSystemLab.stage8_robot.h1_timing_diagnostic --output <PATH>`
+`python -m TradingSystemLab.stage8_robot.h1_timing_diagnostic --output C:\TradingSystemLab\runtime\diagnostics\finam-h1-market-time-evidence.json`
 
 It calls only session creation, `/v1/assets/{symbol}/schedule`, and H1 `/bars`
 for all N4 names. Its output projection contains only symbol, session
 type/start/end, H1 timestamps, local observation timestamps, and the HTTP server
 date when FINAM supplies one. It discards tokens, account identifiers, prices,
-and all other fields. The artifact must be reviewed before it is admitted as a
-fixture and used to define completion/freshness semantics.
+and all other fields. This real capture is external operational evidence: it
+must remain outside the repository checkout and must not be committed to Git.
+It may be used for independent analysis, but neither its raw nor sanitized
+captured market timestamps may be copied into the repository. After evidence
+review, deterministic tests may encode only the proven semantic rules using
+synthetic fixtures; they must not reproduce the real FINAM market-data capture.
 
 Stage 8.8.5 remains
 `STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_VALIDATION` and requires

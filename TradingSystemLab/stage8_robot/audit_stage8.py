@@ -124,6 +124,13 @@ def audit(write_result=True):
     check('"h1_timestamps"' in timing and '"contains_account_data": False' in timing
           and '"contains_credentials": False' in timing,
           "H1_DIAGNOSTIC_SANITIZED_PROJECTION")
+    check("H1_TIMING_EVIDENCE_REPOSITORY_OUTPUT_FORBIDDEN" in timing
+          and "REPOSITORY_ROOT" in timing and ".resolve()" in timing,
+          "H1_DIAGNOSTIC_REPOSITORY_OUTPUT_FAIL_CLOSED")
+    readme=(HERE/"README.md").read_text()
+    check("external operational evidence" in readme and "must not be committed to Git" in readme
+          and "synthetic fixtures" in readme,
+          "H1_REAL_CAPTURE_EXTERNAL_SYNTHETIC_TESTS_ONLY")
     check("TradingSystemLab.stage8_robot.readonly_supervisor" in launcher,"WINDOWS_LAUNCHES_READONLY_SUPERVISOR")
     check("TradingSystemLab.stage8_robot.real_account_smoke" not in launcher,"REAL_SMOKE_NOT_SERVICE_TARGET")
     windows_deployment="\n".join((credential_store,credential_init,credential_verify,launcher,task_installer))
