@@ -19,5 +19,4 @@ def size_position(realized_equity:Decimal,entry:Decimal,stop:Decimal,contract:Co
     risk=realized_equity*Decimal("0.015")
     lots=(risk/loss/contract.quantity_granularity).to_integral_value(rounding=ROUND_FLOOR)
     qty=int(lots)*contract.quantity_granularity
-    if qty<=0: raise ValueError("QUANTITY_ZERO")
     return SizeResult(risk,ticks,loss,qty)

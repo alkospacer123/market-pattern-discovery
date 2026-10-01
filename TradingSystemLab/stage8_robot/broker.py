@@ -64,6 +64,28 @@ class FinamBroker(FinamDemoBroker):
  def __init__(self,*a,**kw):
   if kw.pop("live_enabled",False): raise RuntimeError("LIVE_TRADING_NOT_AUTHORIZED")
   super().__init__(*a,**kw)
+class FinamRealReadOnlyBroker(Broker):
+ """Real-account query adapter with an unconditional transmission air-gap."""
+ def __init__(self,api,account_id):
+  if not account_id: raise RuntimeError("REAL_ACCOUNT_EXPLICIT_BINDING_REQUIRED")
+  self.api=api; self.account_id=account_id; self.connected=False; self.details=None
+ def connect(self):
+  self.api.create_session(); self.details=self.api.session_details()
+  if self.account_id not in {str(x) for x in self.details.get("account_ids",[])}:
+   raise RuntimeError("CONFIGURED_REAL_ACCOUNT_NOT_ENUMERATED")
+  if self.details.get("readonly") is not True: raise RuntimeError("REAL_TOKEN_NOT_READONLY")
+  self.api.account(self.account_id); self.connected=True
+ def disconnect(self): self.connected=False
+ def health(self): return {"connected":self.connected,"mode":"FINAM_REAL_READONLY"}
+ def account(self): return self.api.account(self.account_id)
+ def positions(self): return self.account().get("positions",[])
+ def active_orders(self):
+  x=self.api.orders(self.account_id); return x.get("orders",x if isinstance(x,list) else [])
+ def fills(self,order_id=None): return self.account().get("trades",[])
+ def resolve_security(self,s): return self.api.asset(s,self.account_id)
+ def asset_params(self,s): return self.api.asset_params(s,self.account_id)
+ def schedule(self,s): return self.api.schedule(s)
+ def submit_order(self,request): raise RuntimeError("REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED")
 class DryRunBroker(Broker):
  def __init__(self): self.connected=False; self.orders={}
  def connect(self): self.connected=True
