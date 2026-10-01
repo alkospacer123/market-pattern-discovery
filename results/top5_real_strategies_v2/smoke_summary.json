@@ -1,0 +1,329 @@
+{
+  "STRUCTURAL REJECTION": {
+    "first_10_day_count": 3157,
+    "full_dev_count": null,
+    "status": "PASS",
+    "example": [
+      {
+        "family": "STRUCTURAL",
+        "submodel": "REJECTION",
+        "instrument": "CNYRUBF",
+        "signal_time": "2026-01-12 16:55:00+03:00",
+        "direction": -1,
+        "side": "SHORT",
+        "reference_level": 11.2895,
+        "stop_price": 11.289,
+        "target_r": 3.0,
+        "level_id": "CNYRUBF-L0-V1",
+        "level_type": "EH",
+        "round_confluence": false,
+        "level_family_id": "CNYRUBF-L0",
+        "snapshot_version": 1,
+        "historical": true,
+        "mirror": false,
+        "breakout_level_snapshot_id": NaN
+      }
+    ]
+  },
+  "STRUCTURAL SIMPLE_SWEEP": {
+    "first_10_day_count": 3047,
+    "full_dev_count": null,
+    "status": "PASS",
+    "example": [
+      {
+        "family": "STRUCTURAL",
+        "submodel": "SIMPLE_SWEEP",
+        "instrument": "CNYRUBF",
+        "signal_time": "2026-01-12 16:50:00+03:00",
+        "direction": -1,
+        "side": "SHORT",
+        "reference_level": 11.2895,
+        "stop_price": 11.301,
+        "target_r": 3.0,
+        "level_id": "CNYRUBF-L0-V1",
+        "level_type": "EH",
+        "round_confluence": false,
+        "level_family_id": "CNYRUBF-L0",
+        "snapshot_version": 1,
+        "historical": true,
+        "mirror": false,
+        "breakout_level_snapshot_id": NaN
+      }
+    ]
+  },
+  "STRUCTURAL COMPLEX_FALSE_BREAK": {
+    "first_10_day_count": 1570,
+    "full_dev_count": null,
+    "status": "PASS",
+    "example": [
+      {
+        "family": "STRUCTURAL",
+        "submodel": "COMPLEX_FALSE_BREAK",
+        "instrument": "CNYRUBF",
+        "signal_time": "2026-01-13 09:40:00+03:00",
+        "direction": -1,
+        "side": "SHORT",
+        "reference_level": 11.289,
+        "stop_price": 11.304,
+        "target_r": 3.0,
+        "level_id": "CNYRUBF-L0-V4",
+        "level_type": "MIRROR",
+        "round_confluence": false,
+        "level_family_id": "CNYRUBF-L0",
+        "snapshot_version": 4,
+        "historical": true,
+        "mirror": true,
+        "breakout_level_snapshot_id": NaN
+      }
+    ]
+  },
+  "STRUCTURAL BREAKOUT_RETEST": {
+    "first_10_day_count": 3475,
+    "full_dev_count": null,
+    "status": "PASS",
+    "example": [
+      {
+        "family": "STRUCTURAL",
+        "submodel": "BREAKOUT_RETEST",
+        "instrument": "CNYRUBF",
+        "signal_time": "2026-01-12 20:45:00+03:00",
+        "direction": 1,
+        "side": "LONG",
+        "reference_level": 11.28875,
+        "stop_price": 11.289,
+        "target_r": 3.0,
+        "level_id": "CNYRUBF-L0-V3",
+        "level_type": "EH",
+        "round_confluence": false,
+        "level_family_id": "CNYRUBF-L0",
+        "snapshot_version": 3,
+        "historical": true,
+        "mirror": false,
+        "breakout_level_snapshot_id": "CNYRUBF-L0-V3"
+      }
+    ]
+  },
+  "GERCHIK_A_M1_PROXY": {
+    "first_10_day_count": 11,
+    "full_dev_count": null,
+    "status": "PASS",
+    "example": [
+      {
+        "family": "STRUCTURAL",
+        "submodel": "GERCHIK_A_M1_PROXY",
+        "instrument": "CNYRUBF",
+        "signal_time": "2026-01-05 18:45:00+03:00",
+        "direction": 1,
+        "side": "LONG",
+        "reference_level": 11.398,
+        "stop_price": 11.397,
+        "target_r": 3.0,
+        "level_id": "CNYRUBF-L6-V3",
+        "BSU_time": "2026-01-05 11:50:00+03:00",
+        "BPU1_time": "2026-01-05 18:40:00+03:00",
+        "BPU2_time": "2026-01-05 18:45:00+03:00",
+        "level_tick": 11.398,
+        "luft_price": 0.001,
+        "local_trend": "LONG",
+        "source_fidelity": "PROXY"
+      }
+    ]
+  },
+  "ORB DIRECT": {
+    "first_10_day_count": 20,
+    "full_dev_count": null,
+    "status": "PASS",
+    "example": [
+      {
+        "family": "ORB",
+        "submodel": "DIRECT",
+        "instrument": "CNYRUBF",
+        "signal_time": "2026-01-05 10:16:00+03:00",
+        "direction": 1,
+        "side": "LONG",
+        "reference_level": 11.309,
+        "stop_price": 11.265,
+        "target_r": 2.0,
+        "level_id": null,
+        "or_high": 11.309,
+        "or_low": 11.265,
+        "or_mid": 11.286999999999999,
+        "or_length": 15,
+        "stop_mode": "STOP_OPPOSITE_OR"
+      }
+    ]
+  },
+  "ORB BREAKOUT_RETEST": {
+    "first_10_day_count": 11,
+    "full_dev_count": null,
+    "status": "PASS",
+    "example": [
+      {
+        "family": "ORB",
+        "submodel": "BREAKOUT_RETEST",
+        "instrument": "CNYRUBF",
+        "signal_time": "2026-01-05 10:17:00+03:00",
+        "direction": 1,
+        "side": "LONG",
+        "reference_level": 11.309,
+        "stop_price": 11.308,
+        "target_r": 2.0,
+        "level_id": null,
+        "or_high": 11.309,
+        "or_low": 11.265,
+        "or_length": 15
+      }
+    ]
+  },
+  "ORB FAILED_BREAKOUT": {
+    "first_10_day_count": 5,
+    "full_dev_count": null,
+    "status": "PASS",
+    "example": [
+      {
+        "family": "ORB",
+        "submodel": "FAILED_BREAKOUT",
+        "instrument": "CNYRUBF",
+        "signal_time": "2026-01-06 10:20:00+03:00",
+        "direction": 1,
+        "side": "LONG",
+        "reference_level": 11.385,
+        "stop_price": 11.376000000000001,
+        "target_r": 2.0,
+        "level_id": null,
+        "or_high": 11.464,
+        "or_low": 11.385,
+        "failed_excursion_low": 11.377,
+        "failed_excursion_high": 11.391,
+        "or_length": 15
+      }
+    ]
+  },
+  "TREND_PULLBACK": {
+    "first_10_day_count": 327,
+    "full_dev_count": null,
+    "status": "PASS",
+    "example": [
+      {
+        "family": "TREND_PULLBACK",
+        "submodel": "EMA20_50",
+        "instrument": "CNYRUBF",
+        "signal_time": "2026-01-05 13:55:00+03:00",
+        "direction": 1,
+        "side": "LONG",
+        "reference_level": 11.4034297602217,
+        "stop_price": 11.397,
+        "target_r": 3.0,
+        "level_id": null,
+        "pullback_start": "2026-01-05 13:40:00+03:00",
+        "pullback_bars": 4,
+        "ema_fast": 11.4034297602217,
+        "ema_slow": 11.381329589300883
+      }
+    ]
+  },
+  "BOLLINGER_RSI REENTRY_2R": {
+    "first_10_day_count": 50,
+    "full_dev_count": null,
+    "status": "PASS",
+    "example": [
+      {
+        "family": "BOLLINGER_RSI",
+        "submodel": "REENTRY_2R",
+        "instrument": "CNYRUBF",
+        "signal_time": "2026-01-05 11:05:00+03:00",
+        "direction": -1,
+        "side": "SHORT",
+        "reference_level": 11.32545,
+        "stop_price": 11.427999999999999,
+        "target_r": 2.0,
+        "level_id": null,
+        "extreme_time": "2026-01-05 10:50:00+03:00",
+        "reentry_time": "2026-01-05 11:05:00+03:00",
+        "band": 11.382007771629546,
+        "rsi": 84.80693811513794,
+        "bb_k": 2.0,
+        "rsi_threshold": 30,
+        "target_price": null
+      }
+    ]
+  },
+  "BOLLINGER_RSI REENTRY_FIXED_MID": {
+    "first_10_day_count": 50,
+    "full_dev_count": null,
+    "status": "PASS",
+    "example": [
+      {
+        "family": "BOLLINGER_RSI",
+        "submodel": "REENTRY_FIXED_MID",
+        "instrument": "CNYRUBF",
+        "signal_time": "2026-01-05 11:05:00+03:00",
+        "direction": -1,
+        "side": "SHORT",
+        "reference_level": 11.32545,
+        "stop_price": 11.427999999999999,
+        "target_r": null,
+        "level_id": null,
+        "extreme_time": "2026-01-05 10:50:00+03:00",
+        "reentry_time": "2026-01-05 11:05:00+03:00",
+        "band": 11.382007771629546,
+        "rsi": 84.80693811513794,
+        "bb_k": 2.0,
+        "rsi_threshold": 30,
+        "target_price": 11.32545
+      }
+    ]
+  },
+  "PAIRS DISTANCE": {
+    "first_10_day_count": 47,
+    "full_dev_count": null,
+    "status": "PASS",
+    "example": [
+      {
+        "family": "PAIRS",
+        "submodel": "DISTANCE",
+        "instrument": "CNYRUBF+USDRUBF",
+        "signal_time": "2026-01-05 19:12:00+03:00",
+        "direction_cny": 1,
+        "direction_si": -1,
+        "z": -2.27021254348028,
+        "entry_z": -2.27021254348028,
+        "exit_z": 0.12248194652680863,
+        "beta": 1.0,
+        "beta_at_entry": 1.0,
+        "window": 480,
+        "z_entry": 2.0,
+        "feature_index": 581,
+        "exit_feature_index": 589,
+        "planned_exit_time": "2026-01-05 19:20:00+03:00",
+        "planned_exit_reason": "CONVERGENCE"
+      }
+    ]
+  },
+  "PAIRS OLS": {
+    "first_10_day_count": 66,
+    "full_dev_count": null,
+    "status": "PASS",
+    "example": [
+      {
+        "family": "PAIRS",
+        "submodel": "OLS",
+        "instrument": "CNYRUBF+USDRUBF",
+        "signal_time": "2026-01-05 19:12:00+03:00",
+        "direction_cny": 1,
+        "direction_si": -1,
+        "z": -2.106624580780616,
+        "entry_z": -2.106624580780616,
+        "exit_z": 0.5531519804829766,
+        "beta": 0.9626599489321555,
+        "beta_at_entry": 0.9626599489321555,
+        "window": 480,
+        "z_entry": 2.0,
+        "feature_index": 581,
+        "exit_feature_index": 589,
+        "planned_exit_time": "2026-01-05 19:20:00+03:00",
+        "planned_exit_reason": "CONVERGENCE"
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "checks": {
+    "commission_not_included": true,
+    "contract_schema": true,
+    "dev_boundary": true,
+    "explicit_execution": true,
+    "gerchik_fidelity": true,
+    "true_oos_locked": true,
+    "validation_end_boundary": true
+  },
+  "market_data_opened": false,
+  "status": "PASS"
+}

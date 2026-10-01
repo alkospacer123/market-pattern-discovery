@@ -1,0 +1,273 @@
+{
+  "BOLLINGER_RSI|REENTRY_2R|CNYRUBF": {
+    "executed_trade_count": 27,
+    "other_skip_count": 0,
+    "signal_count": 28,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 1,
+    "skipped_open_position": 0,
+    "skipped_trade_count": 1,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "BOLLINGER_RSI|REENTRY_2R|USDRUBF": {
+    "executed_trade_count": 21,
+    "other_skip_count": 0,
+    "signal_count": 22,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 1,
+    "skipped_open_position": 0,
+    "skipped_trade_count": 1,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "BOLLINGER_RSI|REENTRY_FIXED_MID|CNYRUBF": {
+    "executed_trade_count": 26,
+    "other_skip_count": 0,
+    "signal_count": 28,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 1,
+    "skipped_open_position": 0,
+    "skipped_trade_count": 1,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "BOLLINGER_RSI|REENTRY_FIXED_MID|USDRUBF": {
+    "executed_trade_count": 20,
+    "other_skip_count": 0,
+    "signal_count": 22,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 1,
+    "skipped_open_position": 0,
+    "skipped_trade_count": 1,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "ORB|BREAKOUT_RETEST|CNYRUBF": {
+    "executed_trade_count": 5,
+    "other_skip_count": 0,
+    "signal_count": 5,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 0,
+    "skipped_open_position": 0,
+    "skipped_trade_count": 0,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "ORB|BREAKOUT_RETEST|USDRUBF": {
+    "executed_trade_count": 6,
+    "other_skip_count": 0,
+    "signal_count": 6,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 0,
+    "skipped_open_position": 0,
+    "skipped_trade_count": 0,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "ORB|DIRECT|CNYRUBF": {
+    "executed_trade_count": 10,
+    "other_skip_count": 0,
+    "signal_count": 10,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 0,
+    "skipped_open_position": 0,
+    "skipped_trade_count": 0,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "ORB|DIRECT|USDRUBF": {
+    "executed_trade_count": 10,
+    "other_skip_count": 0,
+    "signal_count": 10,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 0,
+    "skipped_open_position": 0,
+    "skipped_trade_count": 0,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "ORB|FAILED_BREAKOUT_DIAGNOSTIC|CNYRUBF": {
+    "executed_trade_count": 3,
+    "other_skip_count": 0,
+    "signal_count": 3,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 0,
+    "skipped_open_position": 0,
+    "skipped_trade_count": 0,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "ORB|FAILED_BREAKOUT_DIAGNOSTIC|USDRUBF": {
+    "executed_trade_count": 2,
+    "other_skip_count": 0,
+    "signal_count": 2,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 0,
+    "skipped_open_position": 0,
+    "skipped_trade_count": 0,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "PAIRS|DISTANCE|CNYRUBF+USDRUBF": {
+    "executed_trade_count": 189,
+    "other_skip_count": 0,
+    "signal_count": 211,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 22,
+    "skipped_open_position": 0,
+    "skipped_trade_count": 22,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "PAIRS|OLS|CNYRUBF+USDRUBF": {
+    "executed_trade_count": 245,
+    "other_skip_count": 0,
+    "signal_count": 272,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 27,
+    "skipped_open_position": 0,
+    "skipped_trade_count": 27,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "STRUCTURAL|BREAKOUT_RETEST|CNYRUBF": {
+    "executed_trade_count": 29,
+    "other_skip_count": 0,
+    "signal_count": 37,
+    "skipped_ambiguous": 2,
+    "skipped_missing_open": 3,
+    "skipped_open_position": 3,
+    "skipped_trade_count": 8,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "STRUCTURAL|BREAKOUT_RETEST|USDRUBF": {
+    "executed_trade_count": 22,
+    "other_skip_count": 0,
+    "signal_count": 26,
+    "skipped_ambiguous": 2,
+    "skipped_missing_open": 0,
+    "skipped_open_position": 2,
+    "skipped_trade_count": 4,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "STRUCTURAL|COMPLEX_FALSE_BREAK|CNYRUBF": {
+    "executed_trade_count": 26,
+    "other_skip_count": 0,
+    "signal_count": 41,
+    "skipped_ambiguous": 7,
+    "skipped_missing_open": 0,
+    "skipped_open_position": 8,
+    "skipped_trade_count": 15,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "STRUCTURAL|COMPLEX_FALSE_BREAK|USDRUBF": {
+    "executed_trade_count": 9,
+    "other_skip_count": 0,
+    "signal_count": 16,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 4,
+    "skipped_open_position": 3,
+    "skipped_trade_count": 7,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "STRUCTURAL|GERCHIK_A_M5_PROXY|CNYRUBF": {
+    "executed_trade_count": 3,
+    "other_skip_count": 0,
+    "signal_count": 3,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 0,
+    "skipped_open_position": 0,
+    "skipped_trade_count": 0,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "STRUCTURAL|GERCHIK_A_M5_PROXY|USDRUBF": {
+    "executed_trade_count": 2,
+    "other_skip_count": 0,
+    "signal_count": 2,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 0,
+    "skipped_open_position": 0,
+    "skipped_trade_count": 0,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "STRUCTURAL|REJECTION|CNYRUBF": {
+    "executed_trade_count": 173,
+    "other_skip_count": 0,
+    "signal_count": 629,
+    "skipped_ambiguous": 202,
+    "skipped_missing_open": 7,
+    "skipped_open_position": 247,
+    "skipped_trade_count": 456,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "STRUCTURAL|REJECTION|USDRUBF": {
+    "executed_trade_count": 169,
+    "other_skip_count": 0,
+    "signal_count": 553,
+    "skipped_ambiguous": 179,
+    "skipped_missing_open": 10,
+    "skipped_open_position": 195,
+    "skipped_trade_count": 384,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "STRUCTURAL|SIMPLE_SWEEP|CNYRUBF": {
+    "executed_trade_count": 95,
+    "other_skip_count": 0,
+    "signal_count": 422,
+    "skipped_ambiguous": 239,
+    "skipped_missing_open": 6,
+    "skipped_open_position": 82,
+    "skipped_trade_count": 327,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "STRUCTURAL|SIMPLE_SWEEP|USDRUBF": {
+    "executed_trade_count": 68,
+    "other_skip_count": 0,
+    "signal_count": 186,
+    "skipped_ambiguous": 77,
+    "skipped_missing_open": 3,
+    "skipped_open_position": 38,
+    "skipped_trade_count": 118,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "TREND_PULLBACK|EMA20_50|CNYRUBF": {
+    "executed_trade_count": 64,
+    "other_skip_count": 0,
+    "signal_count": 131,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 6,
+    "skipped_open_position": 61,
+    "skipped_trade_count": 67,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "TREND_PULLBACK|EMA20_50|USDRUBF": {
+    "executed_trade_count": 61,
+    "other_skip_count": 0,
+    "signal_count": 111,
+    "skipped_ambiguous": 0,
+    "skipped_missing_open": 2,
+    "skipped_open_position": 48,
+    "skipped_trade_count": 50,
+    "status": "PRESENT_IN_10_DAYS"
+  },
+  "maximum_market_timestamp_parsed": "2026-02-27 23:50:00+03:00",
+  "structural_diagnostics": {
+    "level_families": 144,
+    "signals_per_trading_day": {
+      "2026-01-05": 74,
+      "2026-01-06": 116,
+      "2026-01-08": 222,
+      "2026-01-09": 103,
+      "2026-01-12": 197,
+      "2026-01-13": 299,
+      "2026-01-14": 249,
+      "2026-01-15": 260,
+      "2026-01-16": 153,
+      "2026-01-19": 242
+    },
+    "snapshots": 580,
+    "top_10_families_by_signal_count": {
+      "CNYRUBF-L1": 36,
+      "CNYRUBF-L43": 29,
+      "CNYRUBF-L44": 29,
+      "CNYRUBF-L51": 26,
+      "CNYRUBF-L52": 26,
+      "CNYRUBF-L61": 36,
+      "CNYRUBF-L62": 29,
+      "CNYRUBF-L66": 31,
+      "CNYRUBF-L80": 30,
+      "USDRUBF-L35": 27
+    }
+  },
+  "validation_ohlcv_parsed": false,
+  "year_2025_accessed": false
+}

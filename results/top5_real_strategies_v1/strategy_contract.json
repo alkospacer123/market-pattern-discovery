@@ -1,0 +1,29 @@
+{
+  "title": "TOP-5 REAL STRATEGY BENCHMARK V1",
+  "families": {
+    "STRUCTURAL": [
+      "REJECTION",
+      "SIMPLE_SWEEP",
+      "COMPLEX_FALSE_BREAK",
+      "BREAKOUT_RETEST"
+    ],
+    "ORB": [
+      "DIRECT",
+      "BREAKOUT_RETEST",
+      "FAILED_BREAKOUT_DIAGNOSTIC"
+    ],
+    "TREND_PULLBACK": [
+      "EMA20_50",
+      "EMA20_100"
+    ],
+    "PAIRS": [
+      "DISTANCE",
+      "OLS"
+    ],
+    "BOLLINGER_RSI": [
+      "REENTRY_2R"
+    ]
+  },
+  "forbidden_substitutes_used": false,
+  "eh_el_required": true
+}
