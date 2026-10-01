@@ -1,64 +1,84 @@
-# Intel Windows host deployment (no order authorization)
+# Intel Windows host: DPAPI-protected read-only startup
 
-The installed task is **REAL_READONLY** and cannot transmit orders. Keep the Git
-checkout read-only for the service identity. Put mutable data outside it, under a
-runtime root with separate `state`, `audit`, `logs`, `diagnostics`, and `backups`
-directories. Grant that identity access only to the runtime root.
+This deployment is **REAL_READONLY** and cannot transmit orders. It implements
+the code path needed for Stage 8.8.4.3; it does not claim reboot or 24/7
+validation. Keep the local Git checkout read-only for the task identity.
 
-## Secret injection
+## Credential and identity model
 
-Use a dedicated Windows service account. Store `FINAM_API_SECRET` and
-`FINAM_REAL_ACCOUNT_ID` in that account's protected environment (for example,
-retrieve them at logon from Windows Credential Manager into the process
-environment). Never put either value in Git, a `.ps1` file, Task Scheduler
-arguments, or diagnostic output. A read-only FINAM token is mandatory.
+`initialize-readonly-credentials.ps1` prompts locally (SecureString input) for
+the read-only FINAM token and real account ID. It serializes schema version 1,
+mode `REAL_READONLY`, the production ID obtained from the checked frozen Stage 7
+authority, token, and account ID in memory, then protects it with Windows DPAPI
+`CurrentUser`. Stable, non-secret entropy is
+`TradingSystemLab.Stage8.RealReadonly.v1`.
 
-## Persistent read-only architecture
+Ciphertext is `<runtime>\secrets\finam-real-readonly.dpapi`. The adjacent JSON
+metadata contains only schema, `CurrentUser` scope, creation time, production
+ID, and SHA-256 of the Windows SID. It contains no token, account ID, or token
+hash. Inheritance is disabled on the directory and files; only the exact
+bootstrap SID is granted access. Bootstrap fails if this ACL cannot be applied
+and verified. The checkout contains no generated credential.
 
-The post-install process is `Windows startup` → `run-readonly.ps1` → connected
-`server_preflight.py` → `readonly_supervisor` → continuous REAL_READONLY
-observation. The launcher fixes `FINAM_MODE=REAL_READONLY` and
-`NEW_ENTRIES_DISABLED=true`; it passes neither the secret nor account identifier
-on the command line. `real_account_smoke` remains a manual funding/binding
-diagnostic and is not the persistent service target.
+The bootstrap identity, Scheduled Task identity, and supervisor identity must
+be the same. Installation decrypt-verifies the store under the current SID,
+shows only that Windows name and SID, and asks for that same user's Windows
+password with `Get-Credential`. Task Scheduler/LSA stores its protected logon
+credential. `LogonType Password` allows the AtStartup task to run before an
+interactive desktop login; the task never runs as SYSTEM.
 
-The external runtime root contains:
+`run-readonly.ps1` treats DPAPI as authoritative. It does not fall back to or
+mix existing environment credentials. After validating SID metadata, DPAPI
+scope, schema, mode, and production ID, it places both values only in its own
+process environment for the child Python preflight and supervisor. It never
+uses `setx`, User/Machine environment persistence, registry storage, command
+arguments, or credential output.
 
-* `state\stage8-readonly.lock` — lifetime process lock;
-* `state\readonly-supervisor.sqlite3` — cycle, connectivity, reconciliation,
-  clean-account, and per-instrument completed-H1 continuity state;
-* `logs\stage8-readonly.log` — bounded rotating operational log;
-* `diagnostics\stage8-heartbeat.json` — atomically replaced sanitized heartbeat;
-* `audit\` — reserved external audit output; and
-* `backups\` — operator-managed verified SQLite backups.
+## Operator sequence
 
-The supervisor verifies the read-only session, enumerated active account, empty
-positions and active orders, and completed H1 observations for all N4 instruments.
-It never sizes positions and has no broker/order lifecycle. Transient operational
-failures use bounded exponential backoff and persistent faults terminate non-zero
-for the Scheduled Task restart policy. Safety faults terminate immediately without
-trying to alter broker state.
+From a PowerShell session running as the exact future task user:
 
-## Install and recovery
+1. Checkout the intended commit, make it read-only to this identity, and run
+   the Stage 7/8 audits plus offline preflight.
+2. Choose an explicit external runtime root (normally
+   `C:\TradingSystemLab\runtime`). The bootstrap creates `secrets`.
+3. Run `initialize-readonly-credentials.ps1 -RuntimeRoot <runtime>`. Enter the
+   token/account only into the local secure prompts.
+4. Run `verify-readonly-credentials.ps1 -RuntimeRoot <runtime>` and require
+   `DPAPI_CREDENTIAL_STORE_PASS` plus all four sanitized booleans.
+5. Run `install-task.ps1 -Checkout <checkout> -RuntimeRoot <runtime>`. Confirm
+   the displayed name/SID is exactly the bootstrap identity and answer the
+   secure Windows credential prompt.
+6. Inspect the registered principal and action. Credential values must not be
+   arguments. The policy is `RemoteSigned`, because this repository has no
+   trusted Authenticode signing infrastructure; `AllSigned` would knowingly
+   make these unsigned local scripts non-executable. Do not use `Bypass`.
+7. Start the task manually once.
+8. Inspect sanitized heartbeat and SQLite cycle continuity; require healthy
+   reconciliation, zero positions/orders, disabled entries, and zero real
+   orders transmitted.
+9. Only then conduct the physical Intel host reboot acceptance.
 
-1. Run `server_preflight.py --offline --state-directory <runtime>\state`, then the
-   connected preflight under the service identity.
-2. Install with `install-task.ps1`; inspect the task before enabling it.
-3. On boot the supervisor acquires its lifetime lock, opens its dedicated operational
-   SQLite state, reconnects, and reconciles the expected clean account. Entries are
-   unconditionally disabled. Unexpected broker state is reported but never changed.
-4. Schedule `backup_state.py <state-db> <backup-dir> --keep 14`. It uses SQLite's
-   online backup API and verifies `PRAGMA integrity_check`.
+The trigger is AtStartup, failures restart up to 10 times at two-minute
+intervals, the execution limit is long, and Task Scheduler uses `IgnoreNew` as
+defense in depth. The supervisor's `InstanceLock` remains final authority.
 
-To restore, stop the task, retain the damaged database, integrity-check the chosen
-backup, restore it into `state`, and run offline then connected preflight. Start the
-task only after reconciliation. Never filesystem-copy a live WAL database.
+**Never paste FINAM token/account ID into Git, ChatGPT, Codex task text, Task
+Scheduler arguments, or ordinary environment persistence.** Never print or
+record the decrypted payload. Direct manual Python supervisor calls may still
+use temporary caller-process environment variables; the Windows launcher does
+not.
 
-Operational logs use bounded rotating files; audit logs are JSONL. Heartbeats are
-atomically replaced and contain only production ID, account hash, timestamps,
-reconciliation state, entry gate, and unresolved-order count. Do not log secrets or
-raw account identifiers.
+## Rotation and recovery
 
-`LIVE_TRADING_NOT_AUTHORIZED` remains in force after deployment. The supervisor
-code is ready for Intel operational acceptance; this documentation does **not**
-claim that real 24/7 Intel validation is complete.
+To rotate the read-only token: stop the task; rerun the interactive bootstrap
+under the exact same task user; run sanitized verification; start the task; and
+inspect heartbeat/SQLite. A changed task identity requires a fresh bootstrap
+under that identity and exact principal verification—never weaken DPAPI to
+LocalMachine.
+
+Mutable state remains outside Git: `state\stage8-readonly.lock`,
+`state\readonly-supervisor.sqlite3`, rotating logs, atomic sanitized heartbeat,
+audit output, and operator-managed verified backups. Never filesystem-copy a
+live WAL database. `LIVE_TRADING_NOT_AUTHORIZED` and
+`REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remain in force.
