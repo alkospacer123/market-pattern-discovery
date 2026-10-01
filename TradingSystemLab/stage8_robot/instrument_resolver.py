@@ -126,7 +126,7 @@ def validate_finam_binding(symbol: str, asset: dict, params: dict, schedule: dic
     try:
         lot_size=parse_rest_value_object(authority.get("lot_size"),positive=True)
         contract_size=parse_rest_value_object(future.get("contract_size") if isinstance(future,dict) else None,positive=True)
-        if lot_size!=1 or contract_size!=size: block("BLOCKED_CONTRACT_ECONOMICS_MISMATCH","lot_size or futures contract_size mismatch")
+        if lot_size!=size or contract_size!=size: block("BLOCKED_CONTRACT_ECONOMICS_MISMATCH","lot_size or futures contract_size mismatch")
         # Perpetual identities must not acquire an expiry/automatic-roll meaning.
         if isinstance(future,dict) and future.get("expiration_date") not in (None,""):
             block("BLOCKED_CONTRACT_ECONOMICS_MISMATCH","perpetual future unexpectedly has expiration_date")

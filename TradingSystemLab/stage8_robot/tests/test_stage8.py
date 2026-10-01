@@ -318,7 +318,12 @@ def test_rest_bool_rejects_wrappers_and_coercions(value):
     with pytest.raises(ValueError): parse_rest_bool(value)
 @pytest.mark.parametrize("code",["USDRUBF","CNYRUBF","GLDRUBF","IMOEXF"])
 def test_all_four_sanitized_finam_bindings(code):
+    from TradingSystemLab.stage8_robot.instrument_resolver import MOEX_REFERENCE
     x=validate_fixture(code); assert x.status=="AUTHENTICATED_DEMO_TRADABLE" and not x.validation_errors
+    frozen_size=str(MOEX_REFERENCE[code][2])
+    assert Decimal(x.lot_size)==Decimal(frozen_size)
+    assert Decimal(x.futures_contract_size)==Decimal(frozen_size)
+    assert x.trade_lot_size=="1"
     assert x.tick_value_source=="MOEX" and x.quantity_semantics.startswith("quantity.value is a number of futures contracts")
 
 def test_exact_discovery_and_ambiguity():
@@ -333,7 +338,7 @@ def test_exact_discovery_and_ambiguity():
  ("wrong_lot","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),("wrong_contract","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),("missing_future","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),
  ("currency","BLOCKED_CURRENCY_MISMATCH"),("currency_alias","BLOCKED_CURRENCY_MISMATCH"),("missing_currency","BLOCKED_CURRENCY_MISMATCH"),
  ("not_tradable","BLOCKED_NOT_TRADABLE"),("missing_tradable","BLOCKED_NOT_TRADABLE"),("wrapped_tradable","BLOCKED_NOT_TRADABLE"),("string_tradable","BLOCKED_NOT_TRADABLE"),
- ("zero_trade_lot","BLOCKED_PARAMS_INVALID"),("missing_trade_lot","BLOCKED_PARAMS_INVALID"),("schedule","BLOCKED_SCHEDULE_INVALID"),("malformed_schedule","BLOCKED_SCHEDULE_INVALID"),
+ ("wrong_trade_lot","BLOCKED_PARAMS_INVALID"),("zero_trade_lot","BLOCKED_PARAMS_INVALID"),("missing_trade_lot","BLOCKED_PARAMS_INVALID"),("schedule","BLOCKED_SCHEDULE_INVALID"),("malformed_schedule","BLOCKED_SCHEDULE_INVALID"),
  ("protobuf_lot","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),("number_lot","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),("malformed_lot","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),
  ("protobuf_contract","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),("malformed_contract","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),
  ("protobuf_trade_lot","BLOCKED_PARAMS_INVALID"),("malformed_trade_lot","BLOCKED_PARAMS_INVALID"),("float_min_step","BLOCKED_PRICE_STEP_MISMATCH"),
@@ -348,7 +353,7 @@ def test_binding_negative_mutations(mutation,expected):
     elif mutation=="archived": a["is_archived"]=True
     elif mutation=="wrong_decimals": aa["decimals"]=3
     elif mutation=="wrong_min_step": aa["min_step"]="2"
-    elif mutation=="wrong_lot": aa["lot_size"]={"value":"2"}
+    elif mutation=="wrong_lot": aa["lot_size"]={"value":"999"}
     elif mutation=="wrong_contract": aa["future_details"]["contract_size"]={"value":"999"}
     elif mutation=="missing_future": aa.pop("future_details")
     elif mutation=="currency": aa["quote_currency"]="USD"
@@ -358,6 +363,7 @@ def test_binding_negative_mutations(mutation,expected):
     elif mutation=="missing_tradable": d["params"]["USDRUBF"].pop("is_tradable")
     elif mutation=="wrapped_tradable": d["params"]["USDRUBF"]["is_tradable"]={"value":True}
     elif mutation=="string_tradable": d["params"]["USDRUBF"]["is_tradable"]="true"
+    elif mutation=="wrong_trade_lot": d["params"]["USDRUBF"]["trade_lot_size"]="2"
     elif mutation=="zero_trade_lot": d["params"]["USDRUBF"]["trade_lot_size"]="0"
     elif mutation=="missing_trade_lot": d["params"]["USDRUBF"].pop("trade_lot_size")
     elif mutation=="protobuf_lot": aa["lot_size"]={"num":"1","scale":0}
