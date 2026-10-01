@@ -115,7 +115,8 @@ class FinamAPI:
                     raise FinamError("ACTIVE_ASSETS_PAYLOAD_MALFORMED")
                 next_cursor=page.get("next_cursor")
                 terminal=(next_cursor is None or next_cursor==""
-                          or type(next_cursor) is int and next_cursor==0)
+                          or type(next_cursor) is int and next_cursor==0
+                          or type(next_cursor) is str and next_cursor=="0")
                 if terminal: break
                 if (isinstance(next_cursor,str) and next_cursor.strip()==next_cursor and next_cursor
                         or type(next_cursor) is int and next_cursor>0):
