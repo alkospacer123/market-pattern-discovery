@@ -168,7 +168,7 @@ def test_active_catalog_paginates_and_carries_encoded_cursor():
     assert parse_qs(urlparse(seen[2]).query)=={"only_active":["true"],"cursor":["next page"]}
     assert all(discover_finam_asset(code,result)[1] is None for code in ("USDRUBF","CNYRUBF","GLDRUBF","IMOEXF"))
 
-@pytest.mark.parametrize("terminal",[None,"",0])
+@pytest.mark.parametrize("terminal",[None,"",0,"0"])
 def test_active_catalog_terminal_cursor_forms(terminal):
     from io import BytesIO
     from TradingSystemLab.stage8_robot.finam_api import FinamAPI,RateLimiter
@@ -176,8 +176,28 @@ def test_active_catalog_terminal_cursor_forms(terminal):
     page={"assets":[]}
     if terminal is not None: page["next_cursor"]=terminal
     replies=[b'{"token":"jwt"}',json.dumps(page).encode()]
-    api=FinamAPI("secret",transport=lambda req,timeout:R(replies.pop(0)),limiter=RateLimiter(199))
+    requests=[]
+    def transport(req,timeout): requests.append(req); return R(replies.pop(0))
+    api=FinamAPI("secret",transport=transport,limiter=RateLimiter(199))
     assert api.assets_all_active()==[]
+    assert len(requests)==2
+
+def test_active_catalog_string_zero_stops_without_cursor_zero_follow_up():
+    from io import BytesIO
+    from urllib.parse import parse_qs,urlparse
+    from TradingSystemLab.stage8_robot.finam_api import FinamAPI,RateLimiter
+    class R(BytesIO): status=200; headers={}
+    pages=[
+        {"assets":[{"ticker":"first"}],"next_cursor":"389459"},
+        {"assets":[{"ticker":"terminal"}],"next_cursor":"0"},
+    ]
+    seen=[]; replies=[b'{"token":"jwt"}',*[json.dumps(page).encode() for page in pages]]
+    def transport(req,timeout): seen.append(req.full_url); return R(replies.pop(0))
+    result=FinamAPI("secret",transport=transport,limiter=RateLimiter(199)).assets_all_active()
+    catalog_requests=seen[1:]
+    assert [row["ticker"] for row in result]==["first","terminal"]
+    assert len(catalog_requests)==2
+    assert [parse_qs(urlparse(url).query).get("cursor") for url in catalog_requests]==[None,["389459"]]
 
 @pytest.mark.parametrize("pages,error",[
  ([[]],"PAGE_NOT_OBJECT"),([{"assets":{}}],"PAYLOAD_MALFORMED"),
