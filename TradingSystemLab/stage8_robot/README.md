@@ -32,8 +32,13 @@ protobuf `{num,scale}` objects, cross-shape substitutions, and extra keys fail
 closed.
 
 The credential-backed real smoke performs atomic 4/4 binding and emits sanitized,
-hypothetical sizing only. With no operator credentials, the registry remains
-`BLOCKED_UNAUTHENTICATED`. Intel host artifacts are under `deploy/windows/` and
+hypothetical sizing only. On 2026-10-01 an operator-executed `REAL_READONLY`
+diagnostic authenticated all four N4 perpetual futures against FINAM. The
+committed production registry is now 4/4 `AUTHENTICATED_REAL_READONLY`; the
+validation token was read-only and no real order was transmitted. Funding
+readiness remains separate and fail-closed because the clean UNION account did
+not expose the required `portfolio_forts` financial structure. LIVE trading
+remains unauthorized. Intel host artifacts are under `deploy/windows/` and
 cover external state paths, instance locking, online SQLite backup, bounded logs,
 heartbeat, secrets, and reboot reconciliation.
 
@@ -53,8 +58,8 @@ session enumeration (`POST /v1/sessions/details` with JWT `token`, returning
 `timeframe=TIME_FRAME_H1`, `interval.start_time`/`interval.end_time`), account-bound
 asset parameters, and the object quantity/order enums/client ID fields.  Schema
 authentication is deliberately distinct from credential-backed account and
-instrument binding.  No credentials were available, so all registry rows stay
-`BLOCKED_UNAUTHENTICATED` and no FINAM symbol is fabricated.
+instrument binding. The authenticated public instrument identities are recorded
+in the production registry without account identity or credential material.
 
 Before live authorization, an operator must authenticate and record the current official API version, token method and credentials reference; candle/security, account/portfolio, order/cancel/status and execution endpoints; documented limits; account tariff and MOEX fees; and current FINAM/MOEX contract security ID, code, expiry, step, tick value, multiplier, lot granularity, currency and trading status for every registry row. Tests must then be extended against the authenticated schema.
 
@@ -78,17 +83,16 @@ explicit account enumeration, asset discovery/parameters/schedules, and causal
 H1 bar normalization. A centralized limiter uses 180 requests/minute (below the
 documented 200/minute maximum); GET retries are bounded, 429 is explicit, and an
 uncertain order POST is reconciled by compact client ID rather than retransmitted.
-`FINAM_MODE` is either `DRY_RUN` (default) or `DEMO`; `LIVE` always raises
+`FINAM_MODE` supports `DRY_RUN` (default), `DEMO`, and `REAL_READONLY`; `LIVE` always raises
 `LIVE_TRADING_NOT_AUTHORIZED`.
 
 The N4 registry models all four names directly as non-expiring `PERPETUAL_FUTURE`
 instruments with daily automatic prolongation and operator-only quarterly
-exercise. Exchange reference economics are recorded, but every committed
-binding remains `BLOCKED_UNAUTHENTICATED` until an operator runs the read-only
-smoke against official FINAM responses. Official documentation was reviewed at
+exercise. Exchange reference economics are recorded and every committed binding is
+`AUTHENTICATED_REAL_READONLY` based on the operator-executed read-only diagnostic.
+Official documentation was reviewed at
 `https://api.finam.ru/docs/rest/` and `https://api.finam.ru/docs/grpc/`; direct
-retrieval from this build environment was blocked by HTTP CONNECT 403, and no
-credential-backed claim is made.
+retrieval from this build environment was blocked by HTTP CONNECT 403.
 
 The production client uses **REST representation** only. `quote_currency` is a
 string; `min_step` and `trade_lot_size` are decimal strings;
@@ -110,9 +114,11 @@ never a strategy-session filter.
 Internal futures quantity is mapped to FINAM `quantity: {"value": "..."}` only
 after all instrument-binding semantics have been authenticated.
 
-Run `python -m TradingSystemLab.stage8_robot.demo_smoke` with external credentials
-for a sanitized read-only diagnostic, then use `update_demo_registry` for an
-all-four atomic registry update. The separate order smoke demands DEMO mode,
+For REAL_READONLY operations, run
+`python -m TradingSystemLab.stage8_robot.real_account_smoke` with external
+credentials to produce the sanitized diagnostic, then run
+`python -m TradingSystemLab.stage8_robot.update_real_registry` for an all-four
+atomic registry update. The separate order smoke demands DEMO mode,
 explicit consent, four authenticated records, Stage 7 authentication, a full
 conformance PASS, and reconciliation. Both the isolated research-authority replay
 and the independent Stage 8 production replay reproduce all 418 authoritative

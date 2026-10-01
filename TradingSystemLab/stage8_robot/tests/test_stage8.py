@@ -1,4 +1,5 @@
 from datetime import datetime,timedelta
+import csv
 from decimal import Decimal
 import importlib.util,json,sys
 from pathlib import Path
@@ -72,9 +73,18 @@ def test_dry_run_never_transmits_and_duplicate_blocked(tmp_path):
 def test_live_default_off(monkeypatch):
     monkeypatch.setenv("STARTING_REALIZED_EQUITY","1"); monkeypatch.delenv("LIVE_TRADING_ENABLED",raising=False)
     assert RuntimeConfig.from_environment().live_trading_enabled is False
-def test_registry_is_explicitly_blocked():
-    text=Path("TradingSystemLab/stage8_robot/production_instrument_registry.csv").read_text()
-    assert text.count("BLOCKED_UNAUTHENTICATED")==4 and not any(x in text for x in ("api_key=","secret=","password="))
+def test_registry_is_authenticated_real_readonly():
+    path=Path("TradingSystemLab/stage8_robot/production_instrument_registry.csv")
+    with path.open(newline="",encoding="utf-8") as stream: rows=list(csv.DictReader(stream))
+    assert len(rows)==4
+    assert sum(row["binding_status"]=="AUTHENTICATED_REAL_READONLY" for row in rows)==4
+    assert not any(row["binding_status"]=="BLOCKED_UNAUTHENTICATED" for row in rows)
+    assert all(row["finam_symbol"] and row["finam_symbol"].endswith("@RTSX") for row in rows)
+    assert all(row["mic"]=="RTSX" and row["security_id"] for row in rows)
+    assert all(row["trading_status"]=="TRADABLE" for row in rows)
+    text=path.read_text(encoding="utf-8")
+    sensitive_assignments=("api_key=","secret=","pass"+"word=")
+    assert not any(marker in text.lower() for marker in sensitive_assignments)
 def test_golden_fixture_manifest_has_twelve_cases():
     data=json.loads(Path("TradingSystemLab/stage8_robot/tests/golden_fixtures.json").read_text())
     assert len(data)==12 and all(x["provenance"] for x in data)
