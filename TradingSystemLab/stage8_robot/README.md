@@ -64,16 +64,26 @@ authorized. No CI result is a claim of completed 24/7 production validation.
 
 ### Stage 8.8.5 stale-market-data rule
 
-On every cycle and for every N4 instrument, the supervisor reads the existing
-FINAM asset schedule and derives the newest one-hour interval that is wholly
-inside a reported session and has completed by the observation time. The newest
-completed H1 candle must reach that close. Empty schedules (for example a closed
-weekend), future sessions, sub-hour intervals, and gaps create no synthetic bar
-expectation. Malformed schedule evidence fails closed. A missing expected candle
-raises the stable `STALE_COMPLETED_H1_DATA` fault, leaves entries disabled and the
-successful cycle count unchanged, and records an unhealthy/FAULT heartbeat.
+Independent review found that the schema does **not** prove the prior assumption
+that H1 timestamps are candle opens or that the H1 grid restarts at every session
+start.  That oracle is therefore not production-valid and must not be treated as
+FINAM authority.  No replacement model may be activated until sanitized real
+schedule and H1 timestamp evidence has been collected and independently checked.
 
-This is code and deterministic audit readiness only. Stage 8.8.5 still requires
+The order-incapable collector is run with `FINAM_MODE=REAL_READONLY` and
+`NEW_ENTRIES_DISABLED=true`:
+
+`python -m TradingSystemLab.stage8_robot.h1_timing_diagnostic --output <PATH>`
+
+It calls only session creation, `/v1/assets/{symbol}/schedule`, and H1 `/bars`
+for all N4 names. Its output projection contains only symbol, session
+type/start/end, H1 timestamps, local observation timestamps, and the HTTP server
+date when FINAM supplies one. It discards tokens, account identifiers, prices,
+and all other fields. The artifact must be reviewed before it is admitted as a
+fixture and used to define completion/freshness semantics.
+
+Stage 8.8.5 remains
+`STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_VALIDATION` and requires
 independent audit followed by real Intel operational fault-injection validation;
 unit tests and the repository audit do not complete that operational gate.
 
