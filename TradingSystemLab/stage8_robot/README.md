@@ -20,6 +20,17 @@ FORTS `portfolio_forts.available_cash.value` is the free-cash authority;
 batch-local budget reserves margin before the next entry is sized, and zero is
 never rounded to one.
 
+### Real FINAM account data types
+
+FINAM REST account values use two deliberately separate representations.
+`equity`, `unrealized_profit`, `portfolio_forts.available_cash`, and
+`portfolio_forts.money_reserved` are strict Decimal value objects such as
+`{"value":"250000.50"}`. Directional `long_initial_margin` and
+`short_initial_margin` remain Money objects containing exactly
+`currency_code`, string `units`, and integer `nanos`. Numeric JSON values,
+protobuf `{num,scale}` objects, cross-shape substitutions, and extra keys fail
+closed.
+
 The credential-backed real smoke performs atomic 4/4 binding and emits sanitized,
 hypothetical sizing only. With no operator credentials, the registry remains
 `BLOCKED_UNAUTHENTICATED`. Intel host artifacts are under `deploy/windows/` and

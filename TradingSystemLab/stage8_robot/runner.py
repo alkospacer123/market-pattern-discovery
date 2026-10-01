@@ -3,7 +3,7 @@ from decimal import Decimal
 import hashlib
 from .broker import DryRunBroker,OrderRequest
 from .config import RuntimeConfig,RuntimeMode
-from .margin import parse_money
+from .margin import parse_rest_decimal_value_object
 from .reconciliation import Reconciliation,reconcile
 from .specification import load_frozen_specification
 from .state import StateStore
@@ -30,17 +30,18 @@ class RobotRunner:
             if broker_positions or broker_orders or self.store.unresolved_intent_count():
                 raise RuntimeError("REAL_ACCOUNT_NOT_CLEAN_FOR_INITIALIZATION")
             account=self.broker.account(); equity=account.get("equity")
-            if not isinstance(equity,dict) or set(equity)!={"value"}: raise RuntimeError("REAL_ACCOUNT_EQUITY_INVALID")
-            starting=parse_money(equity["value"],positive=True)
+            try: starting=parse_rest_decimal_value_object(equity,positive=True)
+            except ValueError: raise RuntimeError("REAL_ACCOUNT_EQUITY_INVALID") from None
             self.realized_equity=starting
             self.store.put("starting_realized_equity",str(starting)); self.store.put("realized_equity",str(starting))
             self.store.put("positions",[]); self.store.put("orders",[])
         elif self.config.mode is RuntimeMode.FINAM_REAL_READONLY:
             account=self.broker.account(); equity=account.get("equity"); unrealized=account.get("unrealized_profit")
-            if not all(isinstance(x,dict) and set(x)=={"value"} for x in (equity,unrealized)):
-                raise RuntimeError("REAL_ACCOUNT_EQUITY_INVALID")
             externally_explained=Decimal(self.store.get("explained_external_cash_flows","0"))
-            broker_realized_basis=parse_money(equity["value"])-parse_money(unrealized["value"])-externally_explained
+            try:
+                broker_realized_basis=(parse_rest_decimal_value_object(equity)
+                    -parse_rest_decimal_value_object(unrealized)-externally_explained)
+            except ValueError: raise RuntimeError("REAL_ACCOUNT_EQUITY_INVALID") from None
             if broker_realized_basis!=self.realized_equity: raise RuntimeError("UNEXPLAINED_REALIZED_EQUITY_DISCREPANCY")
         status=reconcile(self.store.get("positions",[]),broker_positions,self.store.get("orders",[]),broker_orders)
         self.store.put("reconciliation",status.value)

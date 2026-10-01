@@ -14,22 +14,39 @@
     "base_url": "https://api.finam.ru",
     "credential_binding": "BLOCKED_UNAUTHENTICATED",
     "documentation": "https://api.finam.ru/docs/rest/",
+    "documentation_retrieval": "https://api.finam.ru/docs/rest/ and OpenAPI endpoints attempted 2026-10-01; HTTP CONNECT 403 in build environment; exact account/margin schema supplied as task authority and pending credential-backed confirmation",
     "h1_history_depth": "approximately 30 days",
     "pagination": "no request token documented; none sent",
     "rate_limit": "200 requests/minute",
-    "schema_status": "FINAM_REST_SCHEMA_CORRECTION_SUPPLIED_BY_EXTERNAL_AUDIT; OPERATOR_RESPONSE_STILL_REQUIRED",
-    "documentation_retrieval": "https://api.finam.ru/docs/rest/ and OpenAPI endpoints attempted 2026-10-01; HTTP CONNECT 403 in build environment; exact account/margin schema supplied as task authority and pending credential-backed confirmation",
     "schema_authority": {
-      "generic_assets": "GET /v1/assets discovery fields: ticker, symbol=ticker@mic, mic, id, type, is_archived",
+      "account": "GET /v1/accounts/{account_id}: equity and unrealized_profit are REST Decimal value objects; portfolio_forts.available_cash and money_reserved are REST Decimal value objects",
       "account_asset": "GET /v1/assets/{symbol}?account_id: quote_currency string, decimals integer, min_step decimal string mantissa, lot_size {value: decimal string}, future_details.contract_size {value: decimal string}",
+      "account_rest_decimal": {
+        "currency": "not embedded in these Decimal wrappers",
+        "fields": [
+          "equity",
+          "unrealized_profit",
+          "portfolio_forts.available_cash",
+          "portfolio_forts.money_reserved"
+        ],
+        "shape": "{\"value\":\"decimal string\"}"
+      },
+      "available_cash_semantics": "available FORTS cash is the free-cash authority; money_reserved is evidence and is not subtracted twice; unknown shapes fail closed",
+      "generic_assets": "GET /v1/assets discovery fields: ticker, symbol=ticker@mic, mic, id, type, is_archived",
+      "initial_margin": "GET /v1/assets/{symbol}/params?account_id: long_initial_margin and short_initial_margin Money {currency_code,units,nanos}",
+      "money": {
+        "fields": [
+          "long_initial_margin",
+          "short_initial_margin"
+        ],
+        "shape": "{\"currency_code\":\"RUB\",\"units\":\"integer string\",\"nanos\":integer}"
+      },
       "params": "GET /v1/assets/{symbol}/params?account_id: primitive boolean is_tradable and decimal string trade_lot_size",
-      "rest_transport_rule": "REST shapes are authoritative; protobuf/gRPC {num,scale} Decimal and wrapped BoolValue are rejected by production binding",
       "price_step": "min_step / (10 ** decimals)",
       "quantity": "Order quantity.value is asset units; one MOEX futures asset unit is one contract and must respect trade_lot_size",
-      "account": "GET /v1/accounts/{account_id}: equity.value, positions, cash, portfolio_forts.available_cash.value, portfolio_forts.money_reserved.value",
-      "initial_margin": "GET /v1/assets/{symbol}/params?account_id: long_initial_margin and short_initial_margin Money {currency_code,units,nanos}",
-      "available_cash_semantics": "available FORTS cash is the free-cash authority; money_reserved is evidence and is not subtracted twice; unknown shapes fail closed"
+      "rest_transport_rule": "REST shapes are authoritative; protobuf/gRPC {num,scale} Decimal and wrapped BoolValue are rejected by production binding"
     },
+    "schema_status": "FINAM_REST_SCHEMA_CORRECTION_SUPPLIED_BY_EXTERNAL_AUDIT; OPERATOR_RESPONSE_STILL_REQUIRED",
     "session_create_body": "secret",
     "session_details_accounts_field": "account_ids",
     "session_details_body": "token"
