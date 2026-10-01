@@ -1,7 +1,8 @@
 """Dependency-free transport for the authenticated FINAM Trade API v1 schema.
 
-Bars carry their documented *opening* timestamp.  ``completed_h1_bars`` turns
-that into the close timestamp used by Stage 7 and rejects the still-open bar.
+The schema calls the bar field ``timestamp`` but does not establish its boundary
+meaning or the H1 grid.  Production freshness must not infer either from this
+transport module.
 """
 from __future__ import annotations
 import json, logging, threading, time
@@ -54,6 +55,9 @@ class FinamAPI:
         if not secret: raise FinamAuthenticationError("FINAM_API_SECRET_MISSING")
         self.__secret=secret; self.__jwt=None; self.timeout=timeout
         self.transport=transport or urlopen; self.limiter=limiter or RateLimiter()
+        # Public transport timing metadata only.  This is deliberately not a
+        # response-body cache (response bodies may contain account data).
+        self.last_server_timestamp=None
     def __repr__(self): return "FinamAPI(secret=<redacted>, jwt=<redacted>)"
     def create_session(self):
         response=self._request("POST",SESSION_PATH,{"secret":self.__secret},auth=False,retries=1)
@@ -70,6 +74,7 @@ class FinamAPI:
             self.limiter.wait(); req=Request(self.BASE_URL+path,data=body,headers=headers,method=method)
             try:
                 raw=self.transport(req,timeout=self.timeout); data=raw.read()
+                self.last_server_timestamp=raw.headers.get("Date")
                 return Response(getattr(raw,"status",200),json.loads(data) if data else {},raw.headers.get("x-request-id"))
             except HTTPError as exc:
                 request_id=exc.headers.get("x-request-id") if exc.headers else None
@@ -143,7 +148,12 @@ class FinamAPI:
         return self._request("GET",BARS_PATH_TEMPLATE.format(symbol=symbol)+"?"+urlencode(query)).body
 
 def completed_h1_bars(response:dict,observed_at:datetime)->list[dict]:
-    """Normalize documented bar-open ``timestamp`` to a completed close time."""
+    """Legacy normalization, usable only behind a validated time-model gate.
+
+    Real FINAM evidence has not yet established that ``timestamp + 1h`` is the
+    availability boundary.  The REAL_READONLY supervisor therefore fails
+    closed unless that gate is explicitly enabled in reviewed code.
+    """
     now=observed_at.astimezone(timezone.utc); result=[]
     for bar in response.get("bars",[]):
         opened=datetime.fromisoformat(bar["timestamp"].replace("Z","+00:00"))

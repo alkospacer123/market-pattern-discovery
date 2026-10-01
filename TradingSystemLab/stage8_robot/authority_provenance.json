@@ -4,7 +4,7 @@
   "finam": {
     "api_version": "v1",
     "authentication": "POST /v1/sessions with secret; bearer JWT; POST /v1/sessions/details for accounts",
-    "bar_timestamp_semantics": "interval start; availability is start plus one hour",
+    "bar_timestamp_semantics": "UNVALIDATED: REST/gRPC schema describes a timestamp but does not establish boundary meaning, H1 phase, or availability",
     "bars_interval_fields": [
       "interval.start_time",
       "interval.end_time"

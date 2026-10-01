@@ -21,6 +21,7 @@ def audit(write_result=True):
     core=(HERE/"strategy_core.py").read_text(); config=(HERE/"config.py").read_text(); broker=(HERE/"broker.py").read_text(); state=(HERE/"state.py").read_text(); runner=(HERE/"runner.py").read_text(); api=(HERE/"finam_api.py").read_text(); historical=(HERE/"historical_conformance.py").read_text(); production=(HERE/"production_replay.py").read_text(); resolver=(HERE/"instrument_resolver.py").read_text(); smoke=(HERE/"demo_smoke.py").read_text(); updater=(HERE/"update_demo_registry.py").read_text()
     margin=(HERE/"margin.py").read_text(); real_smoke=(HERE/"real_account_smoke.py").read_text(); real_updater=(HERE/"update_real_registry.py").read_text(); operations=(HERE/"operations.py").read_text(); preflight=(HERE/"server_preflight.py").read_text()
     supervisor_path=HERE/"readonly_supervisor.py"; supervisor=supervisor_path.read_text() if supervisor_path.is_file() else ""
+    timing_path=HERE/"h1_timing_diagnostic.py"; timing=timing_path.read_text() if timing_path.is_file() else ""
     launcher=(HERE/"deploy/windows/run-readonly.ps1").read_text()
     credential_store=(HERE/"deploy/windows/credential-store.ps1").read_text(); credential_init=(HERE/"deploy/windows/initialize-readonly-credentials.ps1").read_text(); credential_verify=(HERE/"deploy/windows/verify-readonly-credentials.ps1").read_text(); task_installer=(HERE/"deploy/windows/install-task.ps1").read_text()
     conformance=json.loads((HERE/"conformance_report.json").read_text()); provenance=json.loads((HERE/"authority_provenance.json").read_text()); registry=(HERE/"production_instrument_registry.csv").read_text(); registry_rows=csv_rows(HERE/"production_instrument_registry.csv")
@@ -106,9 +107,23 @@ def audit(write_result=True):
     check(newest_expected_h1_close(active,audit_now).isoformat()=="2026-01-05T12:00:00+00:00"
           and newest_expected_h1_close(gap,audit_now).isoformat()=="2026-01-05T11:00:00+00:00"
           and newest_expected_h1_close({"sessions":[]},audit_now) is None,
-          "SUPERVISOR_FRESHNESS_ACTIVE_GAP_CLOSED_SEMANTICS")
+          "LEGACY_SYNTHETIC_MODEL_REGRESSION_NOT_FINAM_AUTHORITY")
+    check("time_model_validated: bool = False" in supervisor
+          and "H1_FINAM_TIME_MODEL_NOT_VALIDATED" in supervisor
+          and "time_model_validated=True" not in supervisor,
+          "PRODUCTION_FAILS_CLOSED_WITHOUT_REVIEWED_REAL_TIME_EVIDENCE")
     supervisor_tree=ast.parse(supervisor); calls={node.func.attr for node in ast.walk(supervisor_tree) if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)}
     check(not calls.intersection({"place_order","submit_order","cancel_order","modify_order"}),"SUPERVISOR_NO_ORDER_CALLS")
+    check(timing_path.is_file() and 'api.schedule(symbol)' in timing and 'api.bars(symbol' in timing,
+          "H1_REAL_TIMING_EVIDENCE_COLLECTOR")
+    timing_calls={node.func.attr for node in ast.walk(ast.parse(timing))
+                  if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)}
+    check(not timing_calls.intersection({"account","orders","order","asset","asset_params",
+                                         "place_order","submit_order","cancel_order","modify_order"}),
+          "H1_DIAGNOSTIC_PUBLIC_TIME_ONLY_NO_ORDER_OR_ACCOUNT_CALLS")
+    check('"h1_timestamps"' in timing and '"contains_account_data": False' in timing
+          and '"contains_credentials": False' in timing,
+          "H1_DIAGNOSTIC_SANITIZED_PROJECTION")
     check("TradingSystemLab.stage8_robot.readonly_supervisor" in launcher,"WINDOWS_LAUNCHES_READONLY_SUPERVISOR")
     check("TradingSystemLab.stage8_robot.real_account_smoke" not in launcher,"REAL_SMOKE_NOT_SERVICE_TARGET")
     windows_deployment="\n".join((credential_store,credential_init,credential_verify,launcher,task_installer))

@@ -77,7 +77,8 @@ class ReadonlyFake:
 
 def supervisor(tmp_path, api=None, **kwargs):
     return ReadonlySupervisor(tmp_path, api or ReadonlyFake(), ACCOUNT, _authenticated_registry(),
-                              poll_seconds=30, clock=lambda: NOW, sleeper=lambda _seconds: None, **kwargs)
+                              poll_seconds=30, clock=lambda: NOW, sleeper=lambda _seconds: None,
+                              time_model_validated=True, **kwargs)
 
 
 def test_startup_environment_gates():
@@ -95,13 +96,16 @@ def test_startup_environment_gates():
 
 def test_once_clean_account_persists_only_completed_n4_and_sanitized_heartbeat(tmp_path):
     ReadonlyFake.order_call_count = 0
+    # Production startup remains fail-closed until real timing evidence is
+    # independently validated; synthetic fixtures cannot activate that gate.
     assert run_from_environment(tmp_path, once=True, poll_seconds=30,
-                                api_factory=ReadonlyFake, environment=ENV, clock=lambda: NOW) == 0
+                                api_factory=ReadonlyFake, environment=ENV, clock=lambda: NOW) == 1
     heartbeat_text = (tmp_path / "diagnostics/stage8-heartbeat.json").read_text()
     heartbeat = json.loads(heartbeat_text)
     assert heartbeat["entries_enabled"] is False
-    assert heartbeat["reconciliation_status"] == "PASS"
-    assert heartbeat["last_completed_h1_timestamp"] == "2026-01-05T12:00:00+00:00"
+    assert heartbeat["reconciliation_status"] == "FAULT"
+    assert heartbeat["failure_code"] == "H1_FINAM_TIME_MODEL_NOT_VALIDATED"
+    assert heartbeat["last_completed_h1_timestamp"] is None
     assert len(heartbeat["account_hash"]) == 64
     assert ACCOUNT not in heartbeat_text and SECRET not in heartbeat_text
     log_text = (tmp_path / "logs/stage8-readonly.log").read_text()
@@ -109,8 +113,7 @@ def test_once_clean_account_persists_only_completed_n4_and_sanitized_heartbeat(t
     assert ReadonlyFake.order_call_count == 0
     with sqlite3.connect(tmp_path / "state/readonly-supervisor.sqlite3") as db:
         values = dict(db.execute("SELECT key,value FROM operational_state"))
-        assert {key for key in values if key.startswith("h1:")} == {f"h1:{name}" for name in INSTRUMENTS}
-        assert set(values[key] for key in values if key.startswith("h1:")) == {"2026-01-05T12:00:00+00:00"}
+        assert not {key for key in values if key.startswith("h1:")}
         assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
 
 
@@ -144,7 +147,7 @@ def test_all_four_n4_are_required(tmp_path):
     symbols = _authenticated_registry()
     symbols.pop("IMOEXF")
     service = ReadonlySupervisor(tmp_path, ReadonlyFake(), ACCOUNT, symbols,
-                                 poll_seconds=30, clock=lambda: NOW)
+                                 poll_seconds=30, clock=lambda: NOW, time_model_validated=True)
     try:
         with pytest.raises(SafetyFault, match="N4_MARKET_DATA_REQUIRED"):
             service.cycle()
@@ -237,7 +240,8 @@ def test_closed_schedule_does_not_false_fail_stale_data(tmp_path, observed_at, b
     api = ReadonlyFake(bar_opens={symbol: bar_open for symbol in symbols.values()},
                        schedules={symbol: schedule for symbol in _authenticated_registry().values()})
     service = ReadonlySupervisor(tmp_path, api, ACCOUNT, symbols, poll_seconds=30,
-                                 clock=lambda: observed_at, sleeper=lambda _seconds: None)
+                                 clock=lambda: observed_at, sleeper=lambda _seconds: None,
+                                 time_model_validated=True)
     try:
         service.cycle()
         assert service.cycle_count == 1

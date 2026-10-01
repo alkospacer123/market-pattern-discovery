@@ -34,6 +34,7 @@ EXPECTED_BINDINGS = {
     "IMOEXF": ("IMOEXF@RTSX", "4631091"),
 }
 STALE_DATA_CODE = "STALE_COMPLETED_H1_DATA"
+UNVALIDATED_TIME_MODEL_CODE = "H1_FINAM_TIME_MODEL_NOT_VALIDATED"
 
 
 class SafetyFault(RuntimeError):
@@ -161,6 +162,7 @@ class ReadonlySupervisor:
         backoff_seconds: float = DEFAULT_BACKOFF_SECONDS,
         clock: Callable[[], datetime] | None = None,
         sleeper: Callable[[float], None] = time.sleep,
+        time_model_validated: bool = False,
     ):
         if not POLL_MIN_SECONDS <= poll_seconds <= POLL_MAX_SECONDS:
             raise ValueError("POLL_SECONDS_OUT_OF_RANGE")
@@ -178,6 +180,9 @@ class ReadonlySupervisor:
         self.backoff_seconds = backoff_seconds
         self.clock = clock or (lambda: datetime.now(timezone.utc))
         self.sleeper = sleeper
+        # There is deliberately no environment override.  This can become true
+        # only in code after reviewed real FINAM evidence defines the model.
+        self.time_model_validated = time_model_validated
         self.logger = configure_operational_log(self.root / "logs" / "stage8-readonly.log")
         self.heartbeat_path = self.root / "diagnostics" / "stage8-heartbeat.json"
         self.state = OperationalState(self.root / "state" / "readonly-supervisor.sqlite3")
@@ -216,6 +221,8 @@ class ReadonlySupervisor:
 
     def cycle(self) -> None:
         now = self.clock().astimezone(timezone.utc)
+        if not self.time_model_validated:
+            raise SafetyFault(UNVALIDATED_TIME_MODEL_CODE)
         _session_is_safe(self.api.session_details(), self.account)
         account_data = self.api.account(self.account)
         if account_data.get("status") not in {"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"}:
