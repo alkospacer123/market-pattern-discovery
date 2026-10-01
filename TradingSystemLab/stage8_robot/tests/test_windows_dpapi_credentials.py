@@ -110,6 +110,43 @@ switch ('{operation}') {{
     assert completed.stdout.strip() == expected_marker
 
 
+def _run_actual_acl_test(path: Path, expected_marker: str) -> None:
+    powershell = _windows_powershell()
+    script = rf"""
+$ErrorActionPreference = "Stop"
+. '{str(WINDOWS / "credential-store.ps1").replace("'", "''")}'
+$path = '{str(path).replace("'", "''")}'
+$sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+Set-PrivateCredentialAcl -Path $path -Sid $sid
+$actual = Get-Acl -LiteralPath $path
+$allowedSids = @($actual.Access | Where-Object {{
+    $_.AccessControlType -eq 'Allow'
+}} | ForEach-Object {{
+    try {{
+        $_.IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value
+    }} catch {{
+        $_.IdentityReference.Value
+    }}
+}})
+if (-not $actual.AreAccessRulesProtected -or -not ($allowedSids -contains $sid) -or
+    ($allowedSids -contains 'S-1-1-0') -or ($allowedSids -contains 'S-1-5-32-545')) {{
+    throw 'TEST_ACL_RESTRICTIONS_FAILED'
+}}
+Write-Output '{expected_marker}'
+"""
+    completed = subprocess.run(
+        [powershell, "-NoProfile", "-NonInteractive", "-Command", script],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 0, (
+        f"PowerShell ACL execution failed with exit code {completed.returncode}; "
+        "identity-bearing output withheld"
+    )
+    assert completed.stdout.strip() == expected_marker
+
+
 def test_dpapi_is_current_user_only_and_has_stable_entropy():
     assert "Add-Type -AssemblyName System.Security -ErrorAction Stop" in HELPER
     assert "DPAPI_SYSTEM_SECURITY_UNAVAILABLE" in HELPER
@@ -172,6 +209,8 @@ def test_runtime_store_is_binary_atomic_acl_hardened_and_outside_checkout():
     assert "finam-real-readonly.dpapi" in HELPER
     assert "WriteAllBytes" in INIT and "Move-Item -Force" in INIT
     assert "SetAccessRuleProtection($true, $false)" in HELPER
+    assert "Security.Principal.SecurityIdentifier($Sid)" in HELPER
+    assert "IdentityReference.Translate([Security.Principal.SecurityIdentifier])" in HELPER
     assert '"S-1-1-0"' in HELPER and '"S-1-5-32-545"' in HELPER
     assert "WriteAllText($metadataTemp" in INIT
 
@@ -186,3 +225,15 @@ def test_actual_dpapi_tamper_is_rejected_on_windows(tmp_path):
 
 def test_actual_dpapi_wrong_production_id_is_rejected_on_windows(tmp_path):
     _run_actual_dpapi_test(tmp_path, "wrong-production-id", "PRODUCTION_ID_REJECTED")
+
+
+def test_actual_directory_acl_hardening_on_windows(tmp_path):
+    directory = tmp_path / "acl-directory"
+    directory.mkdir()
+    _run_actual_acl_test(directory, "ACL_HARDENING_PASS")
+
+
+def test_actual_file_acl_hardening_on_windows(tmp_path):
+    file = tmp_path / "acl-file"
+    file.write_bytes(b"test-only")
+    _run_actual_acl_test(file, "FILE_ACL_HARDENING_PASS")

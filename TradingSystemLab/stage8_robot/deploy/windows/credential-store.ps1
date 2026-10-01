@@ -88,16 +88,29 @@ function Get-ReadonlyCredential([Parameter(Mandatory=$true)][string]$RuntimeRoot
 function Set-PrivateCredentialAcl([Parameter(Mandatory=$true)][string]$Path,
                                   [Parameter(Mandatory=$true)][string]$Sid) {
     try {
+        $sidObject = New-Object Security.Principal.SecurityIdentifier($Sid)
+    } catch {
+        throw "DPAPI_PRINCIPAL_INVALID"
+    }
+    try {
         $acl = New-Object Security.AccessControl.DirectorySecurity
         if (Test-Path -LiteralPath $Path -PathType Leaf) { $acl = New-Object Security.AccessControl.FileSecurity }
         $acl.SetAccessRuleProtection($true, $false)
-        $rule = New-Object Security.AccessControl.FileSystemAccessRule($Sid, "FullControl", "Allow")
+        $rule = New-Object Security.AccessControl.FileSystemAccessRule($sidObject, "FullControl", "Allow")
         $acl.AddAccessRule($rule)
         Set-Acl -LiteralPath $Path -AclObject $acl
         $actual = Get-Acl -LiteralPath $Path
-        $allowed = @($actual.Access | Where-Object { $_.AccessControlType -eq "Allow" })
-        if (-not $actual.AreAccessRulesProtected -or -not ($allowed.IdentityReference.Value -contains $Sid) -or
-            ($allowed.IdentityReference.Value -contains "S-1-1-0") -or ($allowed.IdentityReference.Value -contains "S-1-5-32-545")) {
+        $allowedSids = @($actual.Access | Where-Object {
+            $_.AccessControlType -eq "Allow"
+        } | ForEach-Object {
+            try {
+                $_.IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value
+            } catch {
+                $_.IdentityReference.Value
+            }
+        })
+        if (-not $actual.AreAccessRulesProtected -or -not ($allowedSids -contains $Sid) -or
+            ($allowedSids -contains "S-1-1-0") -or ($allowedSids -contains "S-1-5-32-545")) {
             throw "ACL"
         }
     } catch { throw "DPAPI_ACL_HARDENING_FAILED" }
