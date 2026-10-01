@@ -1,46 +1,38 @@
 # TradingSystemLab project context
 
-## Current authoritative handoff (Stage 7)
-
-Stage 6 is CLOSED and Stage 7 Production Specification Freeze is COMPLETE.
-The sole active identity is `TRAIL1__N4_01__FULL__R15`, frozen as
-`PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`.
-`CANONICAL__N4_01__FULL__R15` remains a stable, non-active reference and is not
-a runtime fallback. Stage 8 Robot / FINAM API is next and NOT STARTED. Older
-pre-freeze status statements below are historical and superseded.
-
 ## Purpose and authority
 
-TradingSystemLab is the repository's deterministic, fixed-risk systematic
-trading research and production-design domain. The repository, not chat history,
-is the authoritative project memory. Read `CURRENT_STATE.md` first.
+TradingSystemLab is the repository's deterministic systematic-trading research,
+production-design, and robot-integration domain. The Git repository is the
+authoritative persistent memory; conversation history is not.
+
+Read `CURRENT_STATE.md` first.
 
 ## Canonical research lifecycle
 
-The sole research-methodology authority remains the original H1 lifecycle:
+The sole research-methodology authority remains:
 
 **Baseline → Optimization → Robustness → Walk Forward → TRUE OOS**.
 
-Candidate freeze is procedural identity fixation, not an additional research
-phase. Historical v1/v2/v3 identities and verdicts are immutable.
+Candidate freeze is procedural identity fixation, not a sixth research phase.
+Historical v1/v2/v3 identities and verdicts are immutable.
 
 ## Research generations
 
 ### v1
 
-Broad historical strategy/timeframe discovery, including T1–T3, R1–R3,
-multiple timeframes and later MTF work.
+Historical broad strategy/timeframe discovery including multiple strategies,
+timeframes and later MTF work.
 
 ### v2
 
-Quarterly-futures T2/T3 diversification generation on M30/H1 across
-`Si`, `CNY`, `GD`, `BR`, `MIX`, `NG`. Its five-stage lifecycle is complete;
-all four final TRUE OOS study classifications are `BORDERLINE`. OOS is consumed.
+Historical quarterly-futures T2/T3 diversification on M30/H1 across
+`Si`, `CNY`, `GD`, `BR`, `MIX`, `NG`. Its full lifecycle is complete; all four
+final TRUE OOS study classifications are `BORDERLINE`.
 
 ### v3 Perpetual
 
-Universe: `USDRUBF`, `CNYRUBF`, `GLDRUBF`, `IMOEXF`; strategies T2/T3;
-timeframes M30/H1. v3 completed the full five-stage lifecycle.
+Universe: `USDRUBF`, `CNYRUBF`, `GLDRUBF`, `IMOEXF`; T2/T3; M30/H1.
 
 Final TRUE OOS:
 
@@ -51,165 +43,244 @@ Final TRUE OOS:
 
 v3 TRUE OOS is consumed.
 
-## Frozen v3 upstream identity
+## Frozen upstream strategy identity
 
-The production-design work originates from the accepted v3 T3/H1 identity:
+Production work originates from the accepted v3 T3/H1 candidate:
 
-- candidate: `T3_H1_candidate_v3`;
-- configuration: `T3-H1-4e73cdb77246`;
-- parameter hash:
+- candidate `T3_H1_candidate_v3`;
+- configuration `T3-H1-4e73cdb77246`;
+- parameter hash
   `4e73cdb77246cb07b5953160b9fc0ab36bfd4bd6d9a7f7faaae7e6e392ee340a`;
-- T3 source hash:
+- T3 source hash
   `840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c`.
 
-Historical identities must not be modified by later production diagnostics.
+## Post-v3 evidence program
 
-## Post-v3 program
+Stages 1–5 are complete historical evidence:
 
-The post-v3 evidence-to-production program is separate from the five-stage
-research lifecycle. Stages 1–5 are CLOSED:
+1. master v1/v2/v3 consolidation;
+2. portfolio/diversification analysis;
+3. trade anatomy/failure analysis;
+4. structural hypothesis freeze;
+5. separate structural validation.
 
-1. Master v1/v2/v3 evidence consolidation;
-2. Portfolio/diversification comparison;
-3. Trade Anatomy / Failure Analysis;
-4. Structural hypothesis freeze;
-5. Separate structural validation.
-
-Stage 5 final economic authority is `CORRECTED_SINGLE_C1` over the authenticated
-9,694-trade comparator.
+Stage 5 authoritative economic contract is `CORRECTED_SINGLE_C1`.
 
 Final Stage 5 labels:
 
-- BE1 — `MIXED_RETROSPECTIVE_EVIDENCE`;
-- TRAIL1 — `SUPPORTED_RETROSPECTIVELY`;
-- Total Open Risk Cap — `FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED` because of
-  terminal right-censoring;
-- Minimum Hold — `NOT_ADMITTED / DIAGNOSTIC ONLY`;
-- Session/Time of Day — `NOT_ADMITTED / DIAGNOSTIC ONLY` at Stage 5;
-- Correlation/Simultaneous Risk — `NOT_ADMITTED / DIAGNOSTIC ONLY`.
+- BE1 `MIXED_RETROSPECTIVE_EVIDENCE`;
+- TRAIL1 `SUPPORTED_RETROSPECTIVELY`;
+- Total Open Risk Cap `FORMAL_RESEARCH_VERDICT_NOT_ASSIGNED`;
+- Minimum Hold `NOT_ADMITTED / DIAGNOSTIC ONLY`;
+- Session `NOT_ADMITTED / DIAGNOSTIC ONLY` at Stage 5;
+- Correlation/Simultaneous Risk `NOT_ADMITTED / DIAGNOSTIC ONLY`.
 
-## Original Stage 6 checkpoint
+## Stage 6 historical checkpoints
 
-Stage 6 initially selected:
+Original Stage 6 selected
+`PROD_STAGE6_83C7B31BB42C` = v3/T3/H1/CNYRUBF+GLDRUBF+IMOEXF/TRAIL1.
 
-`PROD_STAGE6_83C7B31BB42C` = v3 perpetual / T3 / H1 /
-`CNYRUBF + GLDRUBF + IMOEXF` / TRAIL1.
+Later Stage 6.1–6.7 work performed retrospective pre-Stage-7 reassessment.
+Important results include:
 
-This remains historical evidence, but subsequent pre-Stage-7 work means it is
-no longer sufficient by itself as the current handoff to Stage 7.
+- SESSION_10_21 admitted to Structural Stack;
+- ONE_BAR confirmation rejected;
+- opposite-regime exit not admitted;
+- LOCK1_AFTER_2R admitted;
+- `STRUCTURAL_STACK_V1 = SESSION_10_21 + LOCK1_AFTER_2R` admitted;
+- Stage 6.6 compared 55 fixed configurations;
+- Stage 6.7 broad eligibility audit found no broadly eligible case meeting the
+  70–80% target under its strict gates.
 
-## Pre-Stage-7 Stage 6 extension
+These are historical production-design diagnostics, not fresh OOS.
 
-After the original Stage 6 decision, the project explicitly continued with a
-retrospective reassessment branch. This did not create fresh OOS and did not
-execute Stage 7.
+## Final N4 production-decision evidence
 
-### Audit and fixed-basket reassessment
+A user-authorized focused Stage 6.7 N4 FULL four-case comparison then evaluated
+only:
 
-- IMOEXF contribution/stability/cost semantics were audited in PR #251–#254.
-- A fixed A–F basket reassessment in PR #255–#256 preferred basket C
-  (`USDRUBF+CNYRUBF+GLDRUBF+IMOEXF`, canonical) under that frozen hierarchy
-  and concluded `NEW_PRODUCTION_IDENTITY_REQUIRED_BEFORE_STAGE7`.
+- CANONICAL R15;
+- TRAIL1 R15;
+- CANONICAL R20;
+- TRAIL1 R20.
 
-### Structural reassessments
+The independent audit passed. It intentionally produced metric-specific leaders
+rather than an automatic overall winner.
 
-- Stage 6.1: `SESSION_10_21_ADMIT_TO_STRUCTURAL_STACK`.
-- Stage 6.2: `ONE_BAR_CONFIRMATION_REJECTED_FULL_REMAINS_BENCHMARK`.
-- Stage 6.3: `OPPOSITE_REGIME_EXIT_NO_MATERIAL_DIFFERENCE`.
-- Stage 6.4: `LOCK1_AFTER_2R_ADMIT_TO_STRUCTURAL_STACK`.
-- Stage 6.5: `STRUCTURAL_STACK_V1_ADMITTED`.
+Historical 2024+ headline evidence:
 
-`STRUCTURAL_STACK_V1 = SESSION_10_21 + LOCK1_AFTER_2R`.
+- CANONICAL R15: CAGR 109.13%, Max DD -16.34%;
+- TRAIL1 R15: CAGR 122.44%, Max DD -19.96%;
+- CANONICAL R20: CAGR 160.44%, Max DD -21.27%;
+- TRAIL1 R20: CAGR 182.14%, Max DD -25.88%.
 
-SESSION_10_21 is entry-only, 10:00 inclusive to 21:00 exclusive
-Europe/Moscow. LOCK1_AFTER_2R locks +1R only after a surviving +2R completed
-event under its frozen causal rule. ONE_BAR and opposite-regime exit were not
-admitted to the stack. TRAIL1 and BE1 are not part of `STRUCTURAL_STACK_V1`.
+The user explicitly selected **TRAIL1 N4 FULL R15**. That human decision, not an
+automatic ranking rule, is the authority for Stage 7.
 
-All Stage 6.1–6.5 evidence is retrospective because 2025–2026 had already been
-revealed.
+## Stage 7 Production Specification Freeze
 
-### Stage 6.6 unified comparison
+Stage 7 is COMPLETE.
 
-Five authenticated variants were compared across eleven fixed baskets:
+Production specification ID:
 
-- CANONICAL;
-- TRAIL1;
-- SESSION_10_21;
+`PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`
+
+Sole active production identity:
+
+`TRAIL1__N4_01__FULL__R15`
+
+Frozen content:
+
+- T3/H1;
+- `USDRUBF + CNYRUBF + GLDRUBF + IMOEXF`;
+- TRAIL1 only;
+- FULL loading;
+- R15 = 1.5% of current realized equity per new instrument position;
+- maximum nominal simultaneous initial risk 6%;
+- no session filter;
+- one active position per instrument;
+- no pyramiding;
+- realized equity only for sizing.
+
+`CANONICAL__N4_01__FULL__R15` is a stable historical reference only, never a
+runtime fallback.
+
+Forbidden runtime overlays:
+
+- BE1;
 - LOCK1_AFTER_2R;
-- STRUCTURAL_STACK_V1.
+- SESSION_10_21;
+- ONE_BAR;
+- EXIT_ON_OPPOSITE_REGIME;
+- STRUCTURAL_STACK.
 
-Total: **55 configurations**.
+Stage 7 independent audit passed.
 
-Frozen equal-sleeve hierarchy result:
+## Stage 8 robot / FINAM integration
 
-- winner: `STRUCTURAL_STACK_V1__N2_01`;
-- runner-up: `SESSION_10_21__N2_01`;
-- `N2_01 = USDRUBF + CNYRUBF`.
+Stage 8 is ACTIVE. It is implementation and operational validation of the exact
+Stage 7 specification, not a new strategy-selection stage.
 
-This was a comparison of existing candidates, not authorization for new basket
-search or parameter optimization.
+Current package: `TradingSystemLab/stage8_robot/`.
 
-### Stage 6.7 FULL vs NORMALIZED stability/risk closeout
+Accepted properties:
 
-Stage 6.7 converted the frozen Stage 6.6 comparison into explicit R-load/equity
-risk cases and independently audited availability, continuous equity, exposure
-ordering, month/quarter completeness, eligibility and determinism.
+- fail-closed architecture;
+- DRY_RUN, DEMO and REAL_READONLY modes;
+- LIVE always rejected;
+- frozen Stage 7 strategy parameters are not runtime-tunable;
+- canonical reference cannot become a fallback;
+- transactional SQLite/WAL state with idempotency;
+- deterministic exit-before-entry same-timestamp ordering;
+- separate broker, risk, market-data, reconciliation, state, logging and
+  strategy components.
 
-Final authenticated universe:
+## Research-to-robot conformance
 
-- 55 configurations;
-- 110 R cases;
-- 220 equity cases;
-- 16 production-eligible equity cases;
-- 4 unique eligible configurations;
-- eligible N2/N3/N4: **16 / 0 / 0**.
+Historical replay is exact and deterministic:
 
-All production-eligible configurations are based on
-`N2_01 = USDRUBF + CNYRUBF`.
+- research-authority replay: 418/418 exact;
+- independent production robot replay: 418/418 exact;
+- zero timestamp, direction, price, state or R mismatches;
+- repeated replay hashes match.
 
-Stage 6.7 reference leader under its frozen stability/risk ordering:
-`CANONICAL__N2_01__NORMALIZED__R15`.
+This proves historical conformance to the frozen Stage 7 identity; it does not
+authorize live trading.
 
-Highest eligible historical CAGR:
-**60.19%** for `STRUCTURAL_STACK_V1__N2_01__FULL__R20`.
+## FINAM REAL_READONLY binding
 
-However, **no production-eligible case reaches the desired 70–80% historical
-CAGR**. Final conclusion:
+All four Stage 7 instruments are currently
+`AUTHENTICATED_REAL_READONLY` in the committed production registry:
 
-`NO_CURRENT_CONFIGURATION_MEETS_FULL_PRODUCTION_OBJECTIVE`.
+- USDRUBF → `USDRUBF@RTSX`, security ID 3447194;
+- CNYRUBF → `CNYRUBF@RTSX`, security ID 3447192;
+- GLDRUBF → `GLDRUBF@RTSX`, security ID 4454911;
+- IMOEXF → `IMOEXF@RTSX`, security ID 4631091.
 
-The strict gate was not relaxed. `NO_PRODUCTION_ELIGIBLE_N4`.
-Stage 6.7 independent audit passed.
+Bindings are account-specific read-only evidence. No real order was transmitted.
 
-## Current project boundary
+Perpetual-futures semantics:
 
-The prior Stage 7-ready statement is superseded.
+- automatic prolongation;
+- quarterly exercise operator-only;
+- quantity granularity one contract;
+- FINAM REST representation is authoritative for runtime binding.
 
-Current state:
+## Funding and margin boundary
 
-- no production specification is frozen;
-- Stage 7 is not executed;
-- Stage 6.8 is not started;
-- no current configuration satisfies the full 70–80% production objective
-  while retaining strict Stage 6.7 eligibility;
-- no gate/target is to be relaxed automatically.
+FULL/R15 sizing code is margin-aware and uses FORTS available cash plus
+directional initial margin. It fails closed on unknown/missing funding shapes.
 
-Any continuation requires a new explicit user-authorized task.
+The clean UNION account used during read-only validation did not expose
+`portfolio_forts`; funding readiness is therefore currently
+`BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`.
 
-## Economic and risk semantics
+Do not invent cash, margin, equity or position capacity.
 
-`FROZEN_TICK_SIZE = 0.001` remains historical research normalization where
-applicable. `CORRECTED_SINGLE_C1` remains the authoritative retrospective
-economic contract for the post-v3 evidence used in Stage 5–6.x.
+## Windows Intel deployment
 
-Stage 6.7 load/risk scenarios are production-design diagnostics, not a final
-live production cost model or broker specification.
+Deployment support is prepared for Windows/Intel:
+
+- instance lock;
+- external state paths;
+- bounded logs and heartbeat;
+- online SQLite backup;
+- restart reconciliation;
+- CurrentUser DPAPI secret store;
+- matched non-SYSTEM scheduled-task principal;
+- ACL hardening;
+- real Windows DPAPI execution tests.
+
+Secrets remain outside Git.
+
+## Stage 8.8 operational supervision
+
+Stage 8.8.1 REAL_READONLY supervisor code is ready. It forces read-only mode,
+entries disabled, account/data observation, instance locking and sanitized
+heartbeat persistence.
+
+Stage 8.8.4 added the Windows DPAPI credential bootstrap and real Windows
+CurrentUser execution tests; later fixes hardened System.Security loading and
+SID/ACL handling.
+
+Stage 8.8.5 added schedule-aware stale H1 protection:
+
+- expected H1 close comes from the actual FINAM asset schedule;
+- only completed one-hour intervals wholly inside sessions count;
+- closed schedules/weekends/gaps do not create fake expectations;
+- malformed schedule fails closed;
+- stale newest H1 candle raises `STALE_COMPLETED_H1_DATA`;
+- heartbeat becomes `FAULT` / `UNHEALTHY`;
+- cycle/watermark do not advance;
+- no order-capable call is introduced.
+
+Current Stage 8 status:
+
+`STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_VALIDATION`.
+
+Repository audit passes, but real Intel operational fault-injection/restart/
+network/recovery acceptance is still pending.
+
+## Live-trading boundary
+
+LIVE trading is not authorized and is not implemented as an enabled path.
+
+`FinamRealReadOnlyBroker.submit_order` rejects transmission with
+`REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`.
+
+Current operational blockers / pending gates:
+
+- real Intel Stage 8.8.x acceptance;
+- Stage 8.9 funding readiness blocked by unavailable account financials;
+- Stage 8.10 trading-token integration pending;
+- Stage 8.11/8.12 execution unauthorized.
+
+Any live-order capability requires explicit separate authorization and audit.
 
 ## Domain boundaries
 
-Do not mix TradingSystemLab with BBW, Level Touch, Round Level / Touch
-Optimization, or other projects.
+Do not mix TradingSystemLab with BBW, Level Touch, Round Level / Touch or other
+research domains.
 
 ## Persistent-memory read order
 
@@ -219,4 +290,5 @@ Optimization, or other projects.
 4. `ROADMAP.md`
 5. `AUDIT_PROTOCOL.md`
 
-Update these files only after accepted repository work and actual artifact audit.
+Update persistent memory only after accepted repository work and actual artifact
+audit.
