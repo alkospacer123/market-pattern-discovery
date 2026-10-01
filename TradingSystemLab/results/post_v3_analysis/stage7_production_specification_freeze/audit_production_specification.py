@@ -1,9 +1,12 @@
 """Independent fail-closed Stage 7 semantic auditor."""
 from __future__ import annotations
-import argparse, csv, hashlib, json
+import argparse, csv, hashlib, json, sys
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[4]
+AUTHORITY_MODULE_ROOT=ROOT/"TradingSystemLab"
+if str(AUTHORITY_MODULE_ROOT) not in sys.path: sys.path.insert(0,str(AUTHORITY_MODULE_ROOT))
+from authority_hashing import canonical_authority_sha256
 HERE=Path(__file__).resolve().parent
 ACTIVE="TRAIL1__N4_01__FULL__R15"; REFERENCE="CANONICAL__N4_01__FULL__R15"
 INSTRUMENTS=["USDRUBF","CNYRUBF","GLDRUBF","IMOEXF"]
@@ -16,11 +19,11 @@ def audit(target: Path, write_result: bool=True) -> dict:
     try: spec=json.loads((target/"production_specification.json").read_text())
     except Exception as e: return {"status":"FAIL","errors":[f"SPEC_UNREADABLE:{e}"],"checks":0}
     upstream=ROOT/"TradingSystemLab/results/post_v3_analysis/stage6_7_n4_full_four_case_test/four_case_registry.csv"
-    check(hashlib.sha256(upstream.read_bytes()).hexdigest()=="e1f5edbff005ce17fcaa73c71837db1b3906bdd3d92d1f249788e80c725c34a2","UPSTREAM_CASE_HASH",errors)
+    check(canonical_authority_sha256(upstream)=="e1f5edbff005ce17fcaa73c71837db1b3906bdd3d92d1f249788e80c725c34a2","UPSTREAM_CASE_HASH",errors)
     with upstream.open(newline="") as f: cases={r["case_id"] for r in csv.DictReader(f)}
     check({ACTIVE,REFERENCE}<=cases,"UPSTREAM_CASES",errors)
     t3=ROOT/"TradingSystemLab/strategies/trend/T3_MTF_Trend.py"; trail=ROOT/"TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_trail1_execution.py"
-    tsha=hashlib.sha256(t3.read_bytes()).hexdigest(); trsha=hashlib.sha256(trail.read_bytes()).hexdigest()
+    tsha=canonical_authority_sha256(t3); trsha=canonical_authority_sha256(trail)
     trail_manifest=json.loads((ROOT/"TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/trail1/manifest_trail1.json").read_text())
     checks=[
       (spec.get("identity")==ACTIVE,"ACTIVE_IDENTITY"),(spec.get("status")=="ACTIVE_PRODUCTION_SPECIFICATION","ACTIVE_STATUS"),
@@ -53,5 +56,5 @@ def audit(target: Path, write_result: bool=True) -> dict:
     return result
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument("--target",type=Path,default=HERE);a=p.parse_args();r=audit(a.target);print(json.dumps(r,sort_keys=True));raise SystemExit(r["status"]!="PASS")
+    p=argparse.ArgumentParser();p.add_argument("--target",type=Path,default=HERE);p.add_argument("--check-only",action="store_true");a=p.parse_args();r=audit(a.target,write_result=not a.check_only);print(json.dumps(r,sort_keys=True));raise SystemExit(r["status"]!="PASS")
 if __name__=="__main__":main()

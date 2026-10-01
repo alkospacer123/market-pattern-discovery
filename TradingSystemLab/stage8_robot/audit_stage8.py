@@ -1,11 +1,13 @@
 """Independent static/semantic auditor for the Stage 8 foundation."""
-import ast,csv,hashlib,json,re
+import argparse,ast,csv,json,re,sys
 from pathlib import Path
-from specification import PRODUCTION_SPECIFICATION_ID,load_frozen_specification
 ROOT=Path(__file__).resolve().parents[2]; HERE=Path(__file__).resolve().parent
+if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
+from specification import PRODUCTION_SPECIFICATION_ID,load_frozen_specification
+from TradingSystemLab.authority_hashing import canonical_authority_sha256
 def csv_rows(path):
     with path.open(newline="") as stream:return list(csv.DictReader(stream))
-def audit():
+def audit(write_result=True):
     errors=[]; checks=0
     def check(ok,name):
         nonlocal checks; checks+=1
@@ -25,7 +27,7 @@ def audit():
     check(not any(prohibited.search(p.read_text(errors="ignore")) for p in HERE.rglob("*.py")),"NO_EMBEDDED_SECRETS")
     stage7=ROOT/"TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/source_provenance.json"
     for item in json.loads(stage7.read_text()).values():
-        if "path" in item: check(hashlib.sha256((ROOT/item["path"]).read_bytes()).hexdigest()==item["sha256"],"RESEARCH_HASH:"+item["path"])
+        if "path" in item: check(canonical_authority_sha256(ROOT/item["path"])==item["sha256"],"RESEARCH_HASH:"+item["path"])
     check((HERE/"tests/golden_fixtures.json").is_file(),"CONFORMANCE_FIXTURES")
     check(registry.count("PERPETUAL_FUTURE")==4 and ",expiry," not in registry.splitlines()[0],"DIRECT_PERPETUAL_NO_EXPIRY")
     check(all(x in registry for x in ("USDRUBF","CNYRUBF","GLDRUBF","IMOEXF")),"FOUR_EXACT_INSTRUMENTS")
@@ -51,7 +53,7 @@ def audit():
     check("CLIENT_ORDER_ID_MAX_LENGTH=20" in api and '"s8"+hashlib.sha256' in broker,"SHORT_CLIENT_ID")
     expected_hashes={"USDRUBF":"f0ca366d816a6213742271242e87c53d1e23f5a5fc4655df0123217df418a226","CNYRUBF":"a3815b88a11aa5878b8bd104140f002859349c2c8d7f6ff0476a0d4c4d9a612e","GLDRUBF":"12a626ba6cc47fce2f392d4a6ce3bdb8a3c1aad074306a73ab480fcfbb83b87e","IMOEXF":"119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110"}
     check(conformance.get("frozen_data_commit")=="50f1fd2178c18b7ab3bd969be82ad01f47a34745" and conformance.get("h1_sha256")==expected_hashes,"FROZEN_H1_AUTHORITY")
-    check(hashlib.sha256((ROOT/"TradingSystemLab/results/post_v3_analysis/stage6_fixed_basket_reassessment/trail1_authoritative_trades.csv").read_bytes()).hexdigest()=="0f9034edf228a687da67e9f3e35fad01f2339be162c558e6d802c3cd77eea8ad","AUTHORITY_LEDGER_SHA")
+    check(canonical_authority_sha256(ROOT/"TradingSystemLab/results/post_v3_analysis/stage6_fixed_basket_reassessment/trail1_authoritative_trades.csv")=="0f9034edf228a687da67e9f3e35fad01f2339be162c558e6d802c3cd77eea8ad","AUTHORITY_LEDGER_SHA")
     tree=ast.parse(production); rendered=ast.unparse(tree)
     check(not any(x in rendered for x in ("run_t3", "_dispatch", "raw_replays", "trail1_authoritative_trades.csv")),"PRODUCTION_RESEARCH_DECOUPLING")
     check("frozen_parameters()" in historical and '"lifecycle": "historical_true_oos"' not in historical,"CANDIDATE_PARAMETERS_ALL_LIFECYCLES")
@@ -79,6 +81,8 @@ def audit():
     check(not re.search(r"(?:MICRO_LIVE_MAX_QTY|MAX_CONTRACTS_PER_ORDER)\s*=",production_source),"NO_FIXED_CONTRACT_CAP")
     check("api.place_order" not in real_smoke and "submit_order" not in real_smoke,"REAL_SMOKE_ZERO_ORDERS")
     result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":"STAGE_8_REAL_ACCOUNT_READONLY_CODE_READY","margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED"}
-    (HERE/"independent_audit_result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n"); return result
+    if write_result: (HERE/"independent_audit_result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
+    return result
 if __name__=="__main__":
-    result=audit(); print(json.dumps(result,sort_keys=True)); raise SystemExit(result["status"]!="PASS")
+    parser=argparse.ArgumentParser(); parser.add_argument("--check-only",action="store_true"); args=parser.parse_args()
+    result=audit(write_result=not args.check_only); print(json.dumps(result,sort_keys=True)); raise SystemExit(result["status"]!="PASS")

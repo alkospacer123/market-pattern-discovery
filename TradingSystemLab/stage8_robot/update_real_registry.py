@@ -10,7 +10,7 @@ HERE=Path(__file__).resolve().parent
 FROZEN_FIELDS=("research_symbol","moex_short_code","instrument_type","perpetual",
                "automatic_prolongation","tick_value","quarterly_exercise")
 COPIED_FIELDS=("finam_symbol","mic","security_id","price_step","contract_size",
-               "quantity_granularity","currency","binding_status")
+               "quantity_granularity","currency","trading_status","binding_status","authority")
 
 def _decimal(value,name):
     if not isinstance(value,str) or not value: raise RuntimeError(f"REAL_BINDING_{name}_INVALID")
@@ -51,6 +51,13 @@ def _validate_gates(report,bindings):
         or any(not isinstance(x,dict) or x.get("status")!=AUTHENTICATED_REAL_READONLY for x in bindings.values())):
         raise RuntimeError("REAL_READONLY_ACTIVATION_REQUIRES_VALIDATED_ALL_FOUR")
 
+def _fsync_directory(path:Path,platform:str|None=None):
+    """Durably record replacement where directory fsync exists (not Windows)."""
+    if (os.name if platform is None else platform)=="nt": return
+    directory_fd=os.open(path,os.O_RDONLY)
+    try: os.fsync(directory_fd)
+    finally: os.close(directory_fd)
+
 def update(evidence_path:Path,registry_path:Path):
     report=json.loads(evidence_path.read_text()); bindings=report.get("bindings",{})
     if not isinstance(bindings,dict): raise RuntimeError("REAL_READONLY_ACTIVATION_REQUIRES_VALIDATED_ALL_FOUR")
@@ -83,7 +90,5 @@ def update(evidence_path:Path,registry_path:Path):
             if any(row.get(k)!=v for k,v in frozen[code].items()): raise RuntimeError("TEMP_REGISTRY_FROZEN_FIELD_CHANGED")
             if any(row.get(k)!=expected[code][k] for k in COPIED_FIELDS): raise RuntimeError("TEMP_REGISTRY_VALIDATION_FAILED")
         os.replace(temp,registry_path)
-        directory_fd=os.open(registry_path.parent,os.O_RDONLY)
-        try: os.fsync(directory_fd)
-        finally: os.close(directory_fd)
+        _fsync_directory(registry_path.parent)
     finally: temp.unlink(missing_ok=True)
