@@ -63,11 +63,15 @@ def configure_operational_log(path:Path,max_bytes:int=5_000_000,backup_count:int
 
 def write_heartbeat(path:Path,*,mode:str,production_id:str,account_hash:str,last_completed_h1:str|None,
                     last_api_contact:str|None,reconciliation_status:str,entries_enabled:bool,
-                    unresolved_order_count:int):
+                    unresolved_order_count:int,health_status:str|None=None,
+                    failure_code:str|None=None,consecutive_failures:int|None=None,
+                    cycle_count:int|None=None):
     payload={"timestamp":datetime.now(timezone.utc).isoformat(),"mode":mode,"production_id":production_id,
              "account_hash":account_hash,"last_completed_h1_timestamp":last_completed_h1,
              "last_successful_finam_api_contact":last_api_contact,"reconciliation_status":reconciliation_status,
              "entries_enabled":entries_enabled,"unresolved_order_count":unresolved_order_count}
+    optional={"health_status":health_status,"failure_code":failure_code,
+              "consecutive_failures":consecutive_failures,"cycle_count":cycle_count}
+    payload.update({key:value for key,value in optional.items() if value is not None})
     target=Path(path); target.parent.mkdir(parents=True,exist_ok=True); temp=target.with_suffix(target.suffix+".tmp")
     temp.write_text(json.dumps(payload,sort_keys=True)+"\n",encoding="utf-8"); os.replace(temp,target)
-
