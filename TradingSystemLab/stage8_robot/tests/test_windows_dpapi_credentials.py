@@ -111,6 +111,8 @@ switch ('{operation}') {{
 
 
 def test_dpapi_is_current_user_only_and_has_stable_entropy():
+    assert "Add-Type -AssemblyName System.Security -ErrorAction Stop" in HELPER
+    assert "DPAPI_SYSTEM_SECURITY_UNAVAILABLE" in HELPER
     assert "DataProtectionScope]::CurrentUser" in HELPER
     assert "LocalMachine" not in ALL
     assert "TradingSystemLab.Stage8.RealReadonly.v1" in HELPER
