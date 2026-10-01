@@ -4,9 +4,13 @@ $env:FINAM_MODE = "REAL_READONLY"
 $env:NEW_ENTRIES_DISABLED = "true"
 $env:ROBOT_STATE_PATH = Join-Path $RuntimeRoot "state\stage8.sqlite3"
 $env:ROBOT_AUDIT_LOG = Join-Path $RuntimeRoot "audit\stage8.jsonl"
-if (-not $env:FINAM_API_SECRET) { throw "FINAM_API_SECRET must be injected into this service account environment" }
-if (-not $env:FINAM_REAL_ACCOUNT_ID) { throw "FINAM_REAL_ACCOUNT_ID must be injected into this service account environment" }
 Set-Location $Checkout
+$productionId = (& $Python -c "from TradingSystemLab.stage8_robot.specification import PRODUCTION_SPECIFICATION_ID,load_frozen_specification; s=load_frozen_specification(); assert s.production_id == PRODUCTION_SPECIFICATION_ID; print(PRODUCTION_SPECIFICATION_ID)")
+if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($productionId)) { throw "DPAPI_PRODUCTION_AUTHORITY_UNAVAILABLE" }
+. (Join-Path $PSScriptRoot "credential-store.ps1")
+$credential = Get-ReadonlyCredential $RuntimeRoot $productionId.Trim()
+Set-ProcessReadonlyCredentials $credential
+$credential = $null
 & $Python "TradingSystemLab\stage8_robot\server_preflight.py" --state-directory (Join-Path $RuntimeRoot "state")
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 # This persistent target is structurally read-only. real_account_smoke remains a

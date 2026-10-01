@@ -20,6 +20,7 @@ def audit(write_result=True):
     margin=(HERE/"margin.py").read_text(); real_smoke=(HERE/"real_account_smoke.py").read_text(); real_updater=(HERE/"update_real_registry.py").read_text(); operations=(HERE/"operations.py").read_text(); preflight=(HERE/"server_preflight.py").read_text()
     supervisor_path=HERE/"readonly_supervisor.py"; supervisor=supervisor_path.read_text() if supervisor_path.is_file() else ""
     launcher=(HERE/"deploy/windows/run-readonly.ps1").read_text()
+    credential_store=(HERE/"deploy/windows/credential-store.ps1").read_text(); credential_init=(HERE/"deploy/windows/initialize-readonly-credentials.ps1").read_text(); credential_verify=(HERE/"deploy/windows/verify-readonly-credentials.ps1").read_text(); task_installer=(HERE/"deploy/windows/install-task.ps1").read_text()
     conformance=json.loads((HERE/"conformance_report.json").read_text()); provenance=json.loads((HERE/"authority_provenance.json").read_text()); registry=(HERE/"production_instrument_registry.csv").read_text(); registry_rows=csv_rows(HERE/"production_instrument_registry.csv")
     check("import .broker" not in core and "from .broker" not in core,"BROKER_CORE_ISOLATION"); check('FINAM_MODE","DRY_RUN' in config and 'LIVE_TRADING_NOT_AUTHORIZED' in config,"LIVE_DEFAULT_OFF_AND_IMPOSSIBLE")
     check(not any(x in config for x in ("ema_period","adx_period","risk_fraction","basket")),"NO_MUTABLE_PARAMETERS")
@@ -98,7 +99,20 @@ def audit(write_result=True):
     check(not calls.intersection({"place_order","submit_order","cancel_order"}),"SUPERVISOR_NO_ORDER_CALLS")
     check("TradingSystemLab.stage8_robot.readonly_supervisor" in launcher,"WINDOWS_LAUNCHES_READONLY_SUPERVISOR")
     check("TradingSystemLab.stage8_robot.real_account_smoke" not in launcher,"REAL_SMOKE_NOT_SERVICE_TARGET")
-    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":"STAGE_8_8_1_REAL_READONLY_SUPERVISOR_CODE_READY","margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED"}
+    windows_deployment="\n".join((credential_store,credential_init,credential_verify,launcher,task_installer))
+    check("ProtectedData]::Protect" in credential_store and "ProtectedData]::Unprotect" in credential_store and "DataProtectionScope]::CurrentUser" in credential_store,"WINDOWS_DPAPI_CURRENT_USER_STORE")
+    check("LocalMachine" not in windows_deployment,"WINDOWS_DPAPI_NEVER_LOCAL_MACHINE")
+    check(not re.search(r"\bsetx(?:\.exe)?\b",windows_deployment,re.I),"WINDOWS_NO_SETX")
+    check(not re.search(r"SetEnvironmentVariable\s*\([^\n]+(?:User|Machine)",windows_deployment,re.I),"WINDOWS_NO_PERSISTENT_ENV_WRITE")
+    task_action=task_installer.split("New-ScheduledTaskAction",1)[1].splitlines()[0]
+    check("FINAM_API_SECRET" not in task_action and "FINAM_REAL_ACCOUNT_ID" not in task_action,"WINDOWS_TASK_ARGUMENTS_SECRET_FREE")
+    check("New-ScheduledTaskPrincipal" in task_installer and "-UserId $principal.Name" in task_installer and "Get-ReadonlyCredential" in task_installer,"WINDOWS_EXPLICIT_MATCHED_PRINCIPAL")
+    check(not re.search(r"-UserId\s+(?:['\"])?(?:NT AUTHORITY\\)?SYSTEM\b",task_installer,re.I) and "-LogonType Password" in task_installer,"WINDOWS_UNATTENDED_NON_SYSTEM_LOGON")
+    check('$env:FINAM_MODE = "REAL_READONLY"' in launcher,"WINDOWS_REAL_READONLY_FORCED")
+    check('$env:NEW_ENTRIES_DISABLED = "true"' in launcher,"WINDOWS_ENTRIES_DISABLED_FORCED")
+    check("TradingSystemLab.stage8_robot.readonly_supervisor" in launcher and not any(x in windows_deployment for x in ("place_order","submit_order","cancel_order")),"WINDOWS_SERVICE_READONLY_NO_ORDER_PATH")
+    check("-ExecutionPolicy RemoteSigned" in task_installer and "-MultipleInstances IgnoreNew" in task_installer,"WINDOWS_TASK_POLICY_CONSERVATIVE")
+    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":"STAGE_8_8_4_WINDOWS_DPAPI_REBOOT_BOOTSTRAP_CODE_READY","margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED"}
     if write_result: (HERE/"independent_audit_result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
     return result
 if __name__=="__main__":
