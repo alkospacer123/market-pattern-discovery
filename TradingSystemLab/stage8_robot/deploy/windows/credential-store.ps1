@@ -1,5 +1,11 @@
 # Reusable CurrentUser DPAPI credential-store functions.  This file must never
 # contain credentials or write decrypted material to disk.
+try {
+    $null = Add-Type -AssemblyName System.Security -ErrorAction Stop
+} catch {
+    throw "DPAPI_SYSTEM_SECURITY_UNAVAILABLE"
+}
+
 $script:ReadonlyCredentialSchema = 1
 $script:ReadonlyCredentialMode = "REAL_READONLY"
 $script:ReadonlyCredentialFile = "finam-real-readonly.dpapi"
