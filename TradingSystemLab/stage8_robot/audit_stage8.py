@@ -18,7 +18,7 @@ def audit(write_result=True):
     check(spec.instruments==("USDRUBF","CNYRUBF","GLDRUBF","IMOEXF"),"N4"); check(spec.risk_fraction==.015 and spec.maximum_nominal_risk==.06,"R15_MAX")
     core=(HERE/"strategy_core.py").read_text(); config=(HERE/"config.py").read_text(); broker=(HERE/"broker.py").read_text(); state=(HERE/"state.py").read_text(); runner=(HERE/"runner.py").read_text(); api=(HERE/"finam_api.py").read_text(); historical=(HERE/"historical_conformance.py").read_text(); production=(HERE/"production_replay.py").read_text(); resolver=(HERE/"instrument_resolver.py").read_text(); smoke=(HERE/"demo_smoke.py").read_text(); updater=(HERE/"update_demo_registry.py").read_text()
     margin=(HERE/"margin.py").read_text(); real_smoke=(HERE/"real_account_smoke.py").read_text(); real_updater=(HERE/"update_real_registry.py").read_text(); operations=(HERE/"operations.py").read_text(); preflight=(HERE/"server_preflight.py").read_text()
-    conformance=json.loads((HERE/"conformance_report.json").read_text()); provenance=json.loads((HERE/"authority_provenance.json").read_text()); registry=(HERE/"production_instrument_registry.csv").read_text()
+    conformance=json.loads((HERE/"conformance_report.json").read_text()); provenance=json.loads((HERE/"authority_provenance.json").read_text()); registry=(HERE/"production_instrument_registry.csv").read_text(); registry_rows=csv_rows(HERE/"production_instrument_registry.csv")
     check("import .broker" not in core and "from .broker" not in core,"BROKER_CORE_ISOLATION"); check('FINAM_MODE","DRY_RUN' in config and 'LIVE_TRADING_NOT_AUTHORIZED' in config,"LIVE_DEFAULT_OFF_AND_IMPOSSIBLE")
     check(not any(x in config for x in ("ema_period","adx_period","risk_fraction","basket")),"NO_MUTABLE_PARAMETERS")
     check("PRIMARY KEY" in state and "persist_intent" in state,"PERSISTENCE_IDEMPOTENCY"); check("reconcile" in runner and "entries_enabled" in runner,"RECONCILIATION_GATE")
@@ -31,6 +31,13 @@ def audit(write_result=True):
     check((HERE/"tests/golden_fixtures.json").is_file(),"CONFORMANCE_FIXTURES")
     check(registry.count("PERPETUAL_FUTURE")==4 and ",expiry," not in registry.splitlines()[0],"DIRECT_PERPETUAL_NO_EXPIRY")
     check(all(x in registry for x in ("USDRUBF","CNYRUBF","GLDRUBF","IMOEXF")),"FOUR_EXACT_INSTRUMENTS")
+    expected_real_identities={"USDRUBF":("USDRUBF@RTSX","3447194"),"CNYRUBF":("CNYRUBF@RTSX","3447192"),"GLDRUBF":("GLDRUBF@RTSX","4454911"),"IMOEXF":("IMOEXF@RTSX","4631091")}
+    check(len(registry_rows)==4
+          and sum(row.get("binding_status")=="AUTHENTICATED_REAL_READONLY" for row in registry_rows)==4
+          and not any(row.get("binding_status")=="BLOCKED_UNAUTHENTICATED" for row in registry_rows)
+          and {row.get("research_symbol"):(row.get("finam_symbol"),row.get("security_id")) for row in registry_rows}==expected_real_identities
+          and all(row.get("mic")=="RTSX" and row.get("trading_status")=="TRADABLE" for row in registry_rows),
+          "REAL_REGISTRY_4_OF_4_ACTIVATED")
     check(provenance["finam"]["base_url"]=="https://api.finam.ru" and provenance["finam"]["api_version"]=="v1","FINAM_AUTHORITY_PROVENANCE")
     check((HERE/"context_builder.py").is_file(),"CONTEXT_BUILDER")
     check('SESSION_DETAILS_PATH="/v1/sessions/details"' in api and '{"token":self.__jwt}' in api and 'get("accounts"' not in broker,"SESSION_DETAILS_TOKEN_ACCOUNT_IDS")
