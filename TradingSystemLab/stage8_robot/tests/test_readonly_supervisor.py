@@ -25,11 +25,15 @@ NOW = datetime(2026, 1, 5, 12, 30, tzinfo=timezone.utc)
 class ReadonlyFake:
     order_call_count = 0
 
-    def __init__(self, _secret=SECRET, *, positions=None, orders=None, failures=0):
+    def __init__(self, _secret=SECRET, *, positions=None, orders=None, failures=0,
+                 bar_opens=None, schedules=None):
         self.positions = [] if positions is None else positions
         self.active_orders = [] if orders is None else orders
         self.failures = failures
         self.created = 0
+        self.bar_opens = bar_opens or {}
+        self.schedules = schedules or {}
+        self.called = []
 
     def create_session(self):
         self.created += 1
@@ -50,11 +54,17 @@ class ReadonlyFake:
         return {"orders": self.active_orders}
 
     def bars(self, symbol, start, end):
+        self.called.append("bars")
         assert symbol.endswith("@RTSX") and start and end
         return {"bars": [
-            {"timestamp": "2026-01-05T10:00:00Z", "close": "1"},
+            {"timestamp": self.bar_opens.get(symbol, "2026-01-05T11:00:00Z"), "close": "1"},
             {"timestamp": "2999-01-05T12:00:00Z", "close": "2"},
         ]}
+
+    def schedule(self, symbol):
+        self.called.append("schedule")
+        return self.schedules.get(symbol, {"sessions": [{"type": "SESSION_TYPE_MAIN", "interval": {
+            "start_time": "2026-01-05T07:00:00Z", "end_time": "2026-01-05T20:50:00Z"}}]})
 
     def place_order(self, *_args, **_kwargs):
         type(self).order_call_count += 1
@@ -62,6 +72,7 @@ class ReadonlyFake:
 
     submit_order = place_order
     cancel_order = place_order
+    modify_order = place_order
 
 
 def supervisor(tmp_path, api=None, **kwargs):
@@ -85,12 +96,12 @@ def test_startup_environment_gates():
 def test_once_clean_account_persists_only_completed_n4_and_sanitized_heartbeat(tmp_path):
     ReadonlyFake.order_call_count = 0
     assert run_from_environment(tmp_path, once=True, poll_seconds=30,
-                                api_factory=ReadonlyFake, environment=ENV) == 0
+                                api_factory=ReadonlyFake, environment=ENV, clock=lambda: NOW) == 0
     heartbeat_text = (tmp_path / "diagnostics/stage8-heartbeat.json").read_text()
     heartbeat = json.loads(heartbeat_text)
     assert heartbeat["entries_enabled"] is False
     assert heartbeat["reconciliation_status"] == "PASS"
-    assert heartbeat["last_completed_h1_timestamp"] == "2026-01-05T11:00:00+00:00"
+    assert heartbeat["last_completed_h1_timestamp"] == "2026-01-05T12:00:00+00:00"
     assert len(heartbeat["account_hash"]) == 64
     assert ACCOUNT not in heartbeat_text and SECRET not in heartbeat_text
     log_text = (tmp_path / "logs/stage8-readonly.log").read_text()
@@ -99,7 +110,7 @@ def test_once_clean_account_persists_only_completed_n4_and_sanitized_heartbeat(t
     with sqlite3.connect(tmp_path / "state/readonly-supervisor.sqlite3") as db:
         values = dict(db.execute("SELECT key,value FROM operational_state"))
         assert {key for key in values if key.startswith("h1:")} == {f"h1:{name}" for name in INSTRUMENTS}
-        assert set(values[key] for key in values if key.startswith("h1:")) == {"2026-01-05T11:00:00+00:00"}
+        assert set(values[key] for key in values if key.startswith("h1:")) == {"2026-01-05T12:00:00+00:00"}
         assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
 
 
@@ -190,6 +201,69 @@ def test_restart_loads_prior_operational_state_and_database_remains_valid(tmp_pa
         second.close()
     with sqlite3.connect(tmp_path / "state/readonly-supervisor.sqlite3") as db:
         assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+
+
+def test_missing_expected_h1_on_active_schedule_fails_closed_without_increment(tmp_path):
+    ReadonlyFake.order_call_count = 0
+    api = ReadonlyFake(bar_opens={"GLDRUBF@RTSX": "2026-01-05T10:00:00Z"})
+    service = supervisor(tmp_path, api)
+    try:
+        assert service.run(once=True) == 1
+        heartbeat = json.loads((tmp_path / "diagnostics/stage8-heartbeat.json").read_text())
+        assert heartbeat["health_status"] == "UNHEALTHY"
+        assert heartbeat["reconciliation_status"] == "FAULT"
+        assert heartbeat["entries_enabled"] is False
+        assert heartbeat["failure_code"] == "STALE_COMPLETED_H1_DATA"
+        assert heartbeat["cycle_count"] == 0
+        assert service.cycle_count == 0
+        assert service.state.get("cycle_count", "0") == "0"
+        assert all(service.state.get(f"h1:{name}") is None for name in INSTRUMENTS)
+        assert ReadonlyFake.order_call_count == 0
+    finally:
+        service.close()
+
+
+@pytest.mark.parametrize(("observed_at", "bar_open", "schedule"), [
+    # Weekend: the endpoint supplies no trading sessions.
+    (datetime(2026, 1, 10, 12, 30, tzinfo=timezone.utc), "2026-01-09T19:00:00Z", {"sessions": []}),
+    # Exchange gap: the last session has no full H1 due after 11:00.
+    (NOW, "2026-01-05T10:00:00Z", {"sessions": [
+        {"interval": {"start_time": "2026-01-05T07:00:00Z", "end_time": "2026-01-05T11:30:00Z"}},
+        {"interval": {"start_time": "2026-01-05T14:00:00Z", "end_time": "2026-01-05T20:50:00Z"}},
+    ]}),
+])
+def test_closed_schedule_does_not_false_fail_stale_data(tmp_path, observed_at, bar_open, schedule):
+    symbols = _authenticated_registry()
+    api = ReadonlyFake(bar_opens={symbol: bar_open for symbol in symbols.values()},
+                       schedules={symbol: schedule for symbol in _authenticated_registry().values()})
+    service = ReadonlySupervisor(tmp_path, api, ACCOUNT, symbols, poll_seconds=30,
+                                 clock=lambda: observed_at, sleeper=lambda _seconds: None)
+    try:
+        service.cycle()
+        assert service.cycle_count == 1
+    finally:
+        service.close()
+
+
+def test_fresh_cycle_after_stale_fault_clears_failure(tmp_path):
+    api = ReadonlyFake(bar_opens={"USDRUBF@RTSX": "2026-01-05T10:00:00Z"})
+    first = supervisor(tmp_path, api)
+    try:
+        assert first.run(once=True) == 1
+    finally:
+        first.close()
+    api.bar_opens["USDRUBF@RTSX"] = "2026-01-05T11:00:00Z"
+    second = supervisor(tmp_path, api)
+    try:
+        second.cycle()
+        heartbeat = json.loads((tmp_path / "diagnostics/stage8-heartbeat.json").read_text())
+        assert heartbeat["health_status"] == "HEALTHY"
+        assert heartbeat["reconciliation_status"] == "PASS"
+        assert heartbeat["consecutive_failures"] == 0
+        assert heartbeat.get("failure_code") is None
+        assert second.cycle_count == 1
+    finally:
+        second.close()
 
 
 @pytest.mark.parametrize("seconds", [29, 3601])

@@ -1,10 +1,12 @@
 """Independent static/semantic auditor for the Stage 8 foundation."""
 import argparse,ast,csv,json,re,sys
+from datetime import datetime,timezone
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]; HERE=Path(__file__).resolve().parent
 if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
 from specification import PRODUCTION_SPECIFICATION_ID,load_frozen_specification
 from TradingSystemLab.authority_hashing import canonical_authority_sha256
+from TradingSystemLab.stage8_robot.readonly_supervisor import newest_expected_h1_close
 def csv_rows(path):
     with path.open(newline="") as stream:return list(csv.DictReader(stream))
 def audit(write_result=True):
@@ -95,8 +97,18 @@ def audit(write_result=True):
     check("NEW_ENTRIES_DISABLED_REQUIRED" in supervisor and 'entries_enabled=False' in supervisor,"SUPERVISOR_ENTRIES_DISABLED_MANDATORY")
     check("InstanceLock" in supervisor and "stage8-readonly.lock" in supervisor,"SUPERVISOR_LIFETIME_LOCK")
     check("write_heartbeat" in supervisor and "configure_operational_log" in supervisor,"SUPERVISOR_HEARTBEAT_ROTATING_LOG")
+    check("self.api.schedule(symbol)" in supervisor and "STALE_COMPLETED_H1_DATA" in supervisor,
+          "SUPERVISOR_SCHEDULE_AWARE_H1_FRESHNESS")
+    audit_now=datetime(2026,1,5,12,30,tzinfo=timezone.utc)
+    active={"sessions":[{"interval":{"start_time":"2026-01-05T07:00:00Z","end_time":"2026-01-05T20:50:00Z"}}]}
+    gap={"sessions":[{"interval":{"start_time":"2026-01-05T07:00:00Z","end_time":"2026-01-05T11:30:00Z"}},
+                     {"interval":{"start_time":"2026-01-05T14:00:00Z","end_time":"2026-01-05T20:50:00Z"}}]}
+    check(newest_expected_h1_close(active,audit_now).isoformat()=="2026-01-05T12:00:00+00:00"
+          and newest_expected_h1_close(gap,audit_now).isoformat()=="2026-01-05T11:00:00+00:00"
+          and newest_expected_h1_close({"sessions":[]},audit_now) is None,
+          "SUPERVISOR_FRESHNESS_ACTIVE_GAP_CLOSED_SEMANTICS")
     supervisor_tree=ast.parse(supervisor); calls={node.func.attr for node in ast.walk(supervisor_tree) if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)}
-    check(not calls.intersection({"place_order","submit_order","cancel_order"}),"SUPERVISOR_NO_ORDER_CALLS")
+    check(not calls.intersection({"place_order","submit_order","cancel_order","modify_order"}),"SUPERVISOR_NO_ORDER_CALLS")
     check("TradingSystemLab.stage8_robot.readonly_supervisor" in launcher,"WINDOWS_LAUNCHES_READONLY_SUPERVISOR")
     check("TradingSystemLab.stage8_robot.real_account_smoke" not in launcher,"REAL_SMOKE_NOT_SERVICE_TARGET")
     windows_deployment="\n".join((credential_store,credential_init,credential_verify,launcher,task_installer))
@@ -112,7 +124,7 @@ def audit(write_result=True):
     check('$env:NEW_ENTRIES_DISABLED = "true"' in launcher,"WINDOWS_ENTRIES_DISABLED_FORCED")
     check("TradingSystemLab.stage8_robot.readonly_supervisor" in launcher and not any(x in windows_deployment for x in ("place_order","submit_order","cancel_order")),"WINDOWS_SERVICE_READONLY_NO_ORDER_PATH")
     check("-ExecutionPolicy RemoteSigned" in task_installer and "-MultipleInstances IgnoreNew" in task_installer,"WINDOWS_TASK_POLICY_CONSERVATIVE")
-    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":"STAGE_8_8_4_WINDOWS_DPAPI_REBOOT_BOOTSTRAP_CODE_READY","margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED"}
+    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":"STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_VALIDATION","margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED"}
     if write_result: (HERE/"independent_audit_result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
     return result
 if __name__=="__main__":

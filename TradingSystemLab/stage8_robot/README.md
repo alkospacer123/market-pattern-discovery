@@ -62,6 +62,21 @@ funding readiness remains separately blocked by unavailable account financials;
 8.10 trading-token integration is pending, and 8.11/8.12 execution remains not
 authorized. No CI result is a claim of completed 24/7 production validation.
 
+### Stage 8.8.5 stale-market-data rule
+
+On every cycle and for every N4 instrument, the supervisor reads the existing
+FINAM asset schedule and derives the newest one-hour interval that is wholly
+inside a reported session and has completed by the observation time. The newest
+completed H1 candle must reach that close. Empty schedules (for example a closed
+weekend), future sessions, sub-hour intervals, and gaps create no synthetic bar
+expectation. Malformed schedule evidence fails closed. A missing expected candle
+raises the stable `STALE_COMPLETED_H1_DATA` fault, leaves entries disabled and the
+successful cycle count unchanged, and records an unhealthy/FAULT heartbeat.
+
+This is code and deterministic audit readiness only. Stage 8.8.5 still requires
+independent audit followed by real Intel operational fault-injection validation;
+unit tests and the repository audit do not complete that operational gate.
+
 ## Boundaries and startup
 
 `strategy_core` and `trail1_state` contain no broker imports. `broker` owns all FINAM-specific concerns; `risk`, `instrument_resolver`, `state`, `reconciliation`, `market_data`, `audit_logging`, and `runner` are separate. Startup authenticates Stage 7, opens the transactional SQLite store, connects the selected broker, and reconciles positions/orders. Anything except `RECONCILED`, stale/invalid data, an unresolved contract, or `NEW_ENTRIES_DISABLED=true` blocks entries. Open-position roll is operator-action-required because Stage 7 freezes no roll policy.
