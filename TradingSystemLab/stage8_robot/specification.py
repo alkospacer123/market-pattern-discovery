@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Mapping
+from TradingSystemLab.authority_hashing import canonical_authority_sha256
 
 PRODUCTION_SPECIFICATION_ID = "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8"
 ACTIVE_IDENTITY = "TRAIL1__N4_01__FULL__R15"
@@ -24,9 +25,6 @@ class FrozenSpecification:
     instruments: tuple[str, ...]
     risk_fraction: float
     maximum_nominal_risk: float
-
-def _sha(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 def load_frozen_specification(stage7: Path = STAGE7) -> FrozenSpecification:
     """Validate the ID, canonical payload, audit, and every provenance hash."""
@@ -49,7 +47,7 @@ def load_frozen_specification(stage7: Path = STAGE7) -> FrozenSpecification:
     for item in provenance.values():
         if "path" not in item: continue
         source = root / item["path"]
-        if not source.is_file() or _sha(source) != item["sha256"]: raise SpecificationError(f"STAGE7_SOURCE_HASH_MISMATCH:{item['path']}")
+        if not source.is_file() or canonical_authority_sha256(source) != item["sha256"]: raise SpecificationError(f"STAGE7_SOURCE_HASH_MISMATCH:{item['path']}")
     expected = {"name":"T3", "candidate":"T3_H1_candidate_v3", "timeframe":"H1"}
     if any(spec["strategy"].get(k) != v for k,v in expected.items()) or spec["variant"].get("name") != "TRAIL1":
         raise SpecificationError("FROZEN_STRATEGY_MISMATCH")

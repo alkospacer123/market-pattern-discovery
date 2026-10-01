@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse,hashlib,json,subprocess
 from pathlib import Path
 import pandas as pd
+from TradingSystemLab.authority_hashing import canonical_authority_sha256
 from TradingSystemLab.core.data_loader import DataLoader
 from .authority_replay import frozen_parameters,replay_authority
 from .production_replay import CONFIGURATION,replay_production
@@ -15,7 +16,7 @@ ROOT=Path(__file__).resolve().parents[2]; HERE=Path(__file__).resolve().parent; 
 EXACT=("lifecycle","fold_id","instrument","direction","entry_time","exit_time","exit_reason","trail1_triggered","trigger_bar_time","trail1_activation_time","trail1_activated","candidate_already_looser","gap_through_activated_trail","bars_held")
 NUMERIC=("entry_price","initial_stop_price","initial_risk_price","trigger_price","stored_trail_candidate","exit_price","gross_R","cost_R","net_R_C1")
 
-def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
+def sha(path): return canonical_authority_sha256(path)
 def authenticate(data_root):
     manifest=json.loads((S6/"trail1_authoritative_ledger_manifest.json").read_text()); ledger=S6/"trail1_authoritative_trades.csv"
     checks={"row_count":manifest.get("row_count")==418,"committed_sha":manifest.get("committed_file_sha256")==LEDGER_SHA==sha(ledger),
