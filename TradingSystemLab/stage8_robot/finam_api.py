@@ -86,7 +86,7 @@ class FinamAPI:
     def session_details(self):
         if not self.__jwt: self.create_session()
         # This endpoint is exceptional: FINAM requires the JWT in the JSON body.
-        return self._request("POST",SESSION_DETAILS_PATH,{"token":self.__jwt}).body
+        return self._request("POST",SESSION_DETAILS_PATH,{"token":self.__jwt},auth=False).body
     def account(self,account_id): return self._request("GET",f"/v1/accounts/{account_id}").body
     def orders(self,account_id): return self._request("GET",f"/v1/accounts/{account_id}/orders").body
     def order(self,account_id,order_id): return self._request("GET",f"/v1/accounts/{account_id}/orders/{order_id}").body
