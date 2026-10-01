@@ -148,6 +148,8 @@ def test_finam_transport_schema_uses_token_account_ids_and_interval_query():
     def transport(req,timeout): seen.append(req); return R(replies.pop(0))
     api=FinamAPI("secret",transport=transport,limiter=RateLimiter(199)); api.create_session(); details=api.session_details(); api.bars("X","a","b")
     assert json.loads(seen[1].data)=={"token":"jwt"} and details["account_ids"]==["demo"]
+    assert seen[1].get_header("Authorization") is None
+    assert seen[2].get_header("Authorization")=="Bearer jwt"
     query=parse_qs(urlparse(seen[2].full_url).query)
     assert query=={"timeframe":["TIME_FRAME_H1"],"interval.start_time":["a"],"interval.end_time":["b"]}
 
