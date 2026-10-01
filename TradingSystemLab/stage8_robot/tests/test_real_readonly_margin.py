@@ -5,7 +5,8 @@ import pytest
 from TradingSystemLab.stage8_robot.broker import FinamRealReadOnlyBroker,OrderRequest
 from TradingSystemLab.stage8_robot.config import RuntimeConfig,RuntimeMode
 from TradingSystemLab.stage8_robot.margin import (MarginBatchBudget,cap_r15_by_margin,
-    directional_initial_margin,floor_to_trade_lot,forts_funds,margin_capacity,parse_money)
+    directional_initial_margin,floor_to_trade_lot,forts_funds,margin_capacity,parse_money,
+    parse_rest_decimal_value_object)
 from TradingSystemLab.stage8_robot.operations import InstanceLock,sqlite_backup,write_heartbeat
 from TradingSystemLab.stage8_robot.runner import RobotRunner
 
@@ -26,6 +27,21 @@ def test_exact_money_parser(money,expected): assert parse_money(money)==expected
  ({"currency_code":"RUB","units":"-1","nanos":500000000},"MALFORMED_MONEY_SIGN")])
 def test_money_parser_fails_closed(money,error):
     with pytest.raises(ValueError,match=error): parse_money(money)
+@pytest.mark.parametrize("wrapped,expected",[
+ ({"value":"12"},Decimal("12")),({"value":"12.50"},Decimal("12.50")),
+ ({"value":"0"},Decimal("0")),({"value":"-7.25"},Decimal("-7.25"))])
+def test_account_rest_decimal_value_parser(wrapped,expected):
+    assert parse_rest_decimal_value_object(wrapped)==expected
+@pytest.mark.parametrize("wrapped",[
+ {"value":1},{"value":1.5},{"value":{"currency_code":"RUB","units":"1","nanos":0}},
+ {"num":"1","scale":0},{},{"value":"1","extra":True},{"value":"NaN"},
+ {"value":"Infinity"},{"value":"not-a-decimal"}])
+def test_account_rest_decimal_value_parser_fails_closed(wrapped):
+    with pytest.raises(ValueError): parse_rest_decimal_value_object(wrapped)
+def test_account_decimal_and_directional_margin_money_are_distinct():
+    data=fixture()
+    with pytest.raises(ValueError): parse_money(data["account"]["equity"])
+    with pytest.raises(ValueError): parse_rest_decimal_value_object(data["asset_params"]["long_initial_margin"])
 def test_forts_and_directional_margin_exact_shapes():
     data=fixture(); assert forts_funds(data["account"])==(Decimal("200000.25"),Decimal("1000"))
     assert directional_initial_margin(data["asset_params"],"LONG")==Decimal("12000.5")
@@ -64,8 +80,8 @@ def real_config(path): return RuntimeConfig(path,path.with_suffix(".jsonl"),None
 def test_clean_real_account_bootstraps_once_and_ignores_later_broker_equity(tmp_path):
     broker=FinamRealReadOnlyBroker(FakeAPI(),"real"); first=RobotRunner(real_config(tmp_path/"s.db"),broker); first.startup()
     assert first.realized_equity==Decimal("250000.5") and first.entries_enabled is False
-    data=fixture(); data["account"]["equity"]["value"].update(units="999999",nanos=0)
-    data["account"]["unrealized_profit"]["value"].update(units="749998",nanos=500000000)
+    data=fixture(); data["account"]["equity"]["value"]="999999"
+    data["account"]["unrealized_profit"]["value"]="749998.5"
     api=FakeAPI(); api.account=lambda _:data["account"]
     second=RobotRunner(real_config(tmp_path/"s.db"),FinamRealReadOnlyBroker(api,"real")); second.startup()
     assert second.realized_equity==Decimal("250000.5")
@@ -83,7 +99,7 @@ def test_existing_account_contamination_fails_closed(tmp_path,contamination):
     with pytest.raises(RuntimeError,match="REAL_ACCOUNT_NOT_CLEAN_FOR_INITIALIZATION"): RobotRunner(real_config(tmp_path/f"{contamination}.db"),FinamRealReadOnlyBroker(api,"real")).startup()
 def test_unexplained_equity_discrepancy_blocks_restart(tmp_path):
     config=real_config(tmp_path/"s.db"); RobotRunner(config,FinamRealReadOnlyBroker(FakeAPI(),"real")).startup()
-    data=fixture(); data["account"]["equity"]["value"]["units"]="250001"; api=FakeAPI(); api.account=lambda _:data["account"]
+    data=fixture(); data["account"]["equity"]["value"]="250001"; api=FakeAPI(); api.account=lambda _:data["account"]
     with pytest.raises(RuntimeError,match="UNEXPLAINED_REALIZED_EQUITY_DISCREPANCY"): RobotRunner(config,FinamRealReadOnlyBroker(api,"real")).startup()
 
 def test_instance_lock_backup_and_sanitized_heartbeat(tmp_path):
@@ -94,3 +110,63 @@ def test_instance_lock_backup_and_sanitized_heartbeat(tmp_path):
     dest=sqlite_backup(source,tmp_path/"backups/b.sqlite3"); assert sqlite3.connect(dest).execute("select * from x").fetchone()==(1,)
     heartbeat=tmp_path/"heartbeat.json"; write_heartbeat(heartbeat,mode="REAL_READONLY",production_id="p",account_hash="hash",last_completed_h1=None,last_api_contact=None,reconciliation_status="RECONCILED",entries_enabled=False,unresolved_order_count=0)
     assert "secret" not in heartbeat.read_text().lower()
+
+def real_registry_report():
+    from TradingSystemLab.stage8_robot.instrument_resolver import evidence_sha256
+    from TradingSystemLab.stage8_robot.specification import PRODUCTION_SPECIFICATION_ID
+    import copy
+    source=json.loads(Path("TradingSystemLab/stage8_robot/tests/finam_binding_fixtures.json").read_text())
+    from TradingSystemLab.stage8_robot.instrument_resolver import validate_finam_binding
+    records={}
+    for code,asset in zip(("USDRUBF","CNYRUBF","GLDRUBF","IMOEXF"),source["assets"]):
+        item=validate_finam_binding(code,asset,source["params"],source["schedule"],source["account_assets"][code]).to_dict()
+        item.update(status="AUTHENTICATED_REAL_READONLY",trading_status="TRADABLE")
+        records[code]=item
+    return {"production_specification_id":PRODUCTION_SPECIFICATION_ID,
+      "binding_status":"AUTHENTICATED_REAL_READONLY","token_readonly":True,
+      "account_clean":True,"bindings":records,"evidence_sha256":evidence_sha256(records)}
+
+def test_real_registry_populates_all_binding_fields_atomically(tmp_path):
+    from TradingSystemLab.stage8_robot.update_real_registry import update
+    report=real_registry_report(); evidence=tmp_path/"e.json"; evidence.write_text(json.dumps(report))
+    registry=tmp_path/"registry.csv"; registry.write_text(Path("TradingSystemLab/stage8_robot/production_instrument_registry.csv").read_text())
+    update(evidence,registry)
+    import csv
+    rows=list(csv.DictReader(registry.open()))
+    assert len(rows)==4 and all(row["binding_status"]=="AUTHENTICATED_REAL_READONLY" for row in rows)
+    assert all(row["finam_symbol"] and row["mic"] and row["security_id"] and row["currency"]=="RUB" for row in rows)
+
+@pytest.mark.parametrize("mutation",[
+ "three","bad_status","bad_hash","writable_token","dirty_account","wrong_stage7",
+ "blank_symbol","blank_security","price_step","contract_size","quantity_granularity"])
+def test_real_registry_mutations_leave_original_unchanged(tmp_path,mutation):
+    from TradingSystemLab.stage8_robot.instrument_resolver import evidence_sha256
+    from TradingSystemLab.stage8_robot.update_real_registry import update
+    report=real_registry_report(); bindings=report["bindings"]
+    if mutation=="three": bindings.pop("IMOEXF")
+    elif mutation=="bad_status": bindings["IMOEXF"]["status"]="BLOCKED"
+    elif mutation=="bad_hash": pass
+    elif mutation=="writable_token": report["token_readonly"]=False
+    elif mutation=="dirty_account": report["account_clean"]=False
+    elif mutation=="wrong_stage7": report["production_specification_id"]="PROD_STAGE7_BAD"
+    elif mutation=="blank_symbol": bindings["USDRUBF"]["finam_symbol"]=""
+    elif mutation=="blank_security": bindings["USDRUBF"]["security_id"]=""
+    elif mutation=="price_step": bindings["USDRUBF"]["derived_price_step"]="0.02"
+    elif mutation=="contract_size": bindings["USDRUBF"]["futures_contract_size"]="999"
+    elif mutation=="quantity_granularity": bindings["USDRUBF"]["trade_lot_size"]="2"
+    if mutation!="bad_hash": report["evidence_sha256"]=evidence_sha256(bindings)
+    else: report["evidence_sha256"]="0"*64
+    evidence=tmp_path/"e.json"; evidence.write_text(json.dumps(report)); registry=tmp_path/"registry.csv"
+    original=Path("TradingSystemLab/stage8_robot/production_instrument_registry.csv").read_text(); registry.write_text(original)
+    with pytest.raises(RuntimeError): update(evidence,registry)
+    assert registry.read_text()==original
+
+def test_real_registry_requires_committed_418_pass(tmp_path,monkeypatch):
+    import TradingSystemLab.stage8_robot.update_real_registry as updater
+    report=real_registry_report(); evidence=tmp_path/"e.json"; evidence.write_text(json.dumps(report))
+    registry=tmp_path/"registry.csv"; original=Path("TradingSystemLab/stage8_robot/production_instrument_registry.csv").read_text(); registry.write_text(original)
+    conformance=json.loads(Path("TradingSystemLab/stage8_robot/conformance_report.json").read_text())
+    conformance["authority_replay"]["status"]="FAIL"; (tmp_path/"conformance_report.json").write_text(json.dumps(conformance))
+    monkeypatch.setattr(updater,"HERE",tmp_path)
+    with pytest.raises(RuntimeError): updater.update(evidence,registry)
+    assert registry.read_text()==original

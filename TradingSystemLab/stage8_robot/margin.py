@@ -26,16 +26,24 @@ def parse_money(value:dict, *, currency:str="RUB", positive:bool=False)->Decimal
     if positive and result<=0: raise ValueError("NON_POSITIVE_MARGIN")
     return result
 
-def _money_value(container:dict,name:str,*,positive:bool=False)->Decimal:
-    field=container.get(name)
-    if not isinstance(field,dict) or set(field)!={"value"}: raise ValueError("MISSING_MONEY_VALUE")
-    return parse_money(field["value"],positive=positive)
+def parse_rest_decimal_value_object(value:dict, *, positive:bool=False)->Decimal:
+    """Parse FINAM REST Decimal ``{"value": "..."}`` without coercion."""
+    if not isinstance(value,dict) or set(value)!={"value"}:
+        raise ValueError("REST_DECIMAL_VALUE_OBJECT_INVALID")
+    scalar=value["value"]
+    if not isinstance(scalar,str) or not scalar:
+        raise ValueError("REST_DECIMAL_VALUE_INVALID")
+    try: result=Decimal(scalar)
+    except InvalidOperation: raise ValueError("REST_DECIMAL_VALUE_INVALID") from None
+    if not result.is_finite() or (positive and result<=0):
+        raise ValueError("REST_DECIMAL_VALUE_RANGE_INVALID")
+    return result
 
 def forts_funds(account:dict)->tuple[Decimal,Decimal]:
     forts=account.get("portfolio_forts")
     if not isinstance(forts,dict): raise ValueError("FORTS_PORTFOLIO_MISSING")
-    free=_money_value(forts,"available_cash")
-    reserved=_money_value(forts,"money_reserved")
+    free=parse_rest_decimal_value_object(forts.get("available_cash"))
+    reserved=parse_rest_decimal_value_object(forts.get("money_reserved"))
     if free<0 or reserved<0: raise ValueError("NEGATIVE_FORTS_FUNDS")
     return free,reserved
 
