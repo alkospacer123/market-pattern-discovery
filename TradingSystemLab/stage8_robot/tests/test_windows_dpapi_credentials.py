@@ -1,6 +1,11 @@
-"""Cross-platform structural tests for the Windows-only DPAPI deployment."""
+"""Structural and real Windows execution tests for the DPAPI deployment."""
+import os
 from pathlib import Path
 import re
+import shutil
+import subprocess
+
+import pytest
 
 WINDOWS = Path(__file__).parents[1] / "deploy" / "windows"
 HELPER = (WINDOWS / "credential-store.ps1").read_text()
@@ -9,6 +14,100 @@ VERIFY = (WINDOWS / "verify-readonly-credentials.ps1").read_text()
 RUN = (WINDOWS / "run-readonly.ps1").read_text()
 INSTALL = (WINDOWS / "install-task.ps1").read_text()
 ALL = "\n".join((HELPER, INIT, VERIFY, RUN, INSTALL))
+WINDOWS_DPAPI_UNAVAILABLE = "Windows CurrentUser DPAPI unavailable on this platform"
+
+
+def _windows_powershell() -> str:
+    if os.name != "nt":
+        pytest.skip(WINDOWS_DPAPI_UNAVAILABLE)
+    # Windows PowerShell is the production deployment environment. PowerShell 7
+    # is a supported fallback, but absence of both on Windows is infrastructure
+    # failure rather than a reason to turn an execution test into a static test.
+    executable = shutil.which("powershell.exe") or shutil.which("pwsh.exe")
+    if executable is None:
+        pytest.fail("Windows DPAPI test infrastructure requires powershell.exe or pwsh.exe")
+    return executable
+
+
+def _run_actual_dpapi_test(tmp_path: Path, operation: str, expected_marker: str) -> None:
+    _windows_powershell()  # Skip before importing the Windows runtime authority.
+    from TradingSystemLab.stage8_robot.specification import (
+        PRODUCTION_SPECIFICATION_ID,
+        load_frozen_specification,
+    )
+
+    production_id = load_frozen_specification().production_id
+    assert production_id == PRODUCTION_SPECIFICATION_ID
+    secrets = tmp_path / "secrets"
+    secrets.mkdir()
+    blob = secrets / "test-only-credential.dpapi"
+
+    # Equality and failure-code checks deliberately happen in PowerShell so the
+    # only successful output is a sanitized marker. Credentials are generated
+    # locally, are unmistakably synthetic, and never come from operator env vars.
+    script = rf"""
+$ErrorActionPreference = "Stop"
+. '{str(WINDOWS / "credential-store.ps1").replace("'", "''")}'
+$productionId = '{production_id.replace("'", "''")}'
+$secret = "FINAM_TEST_TOKEN_$([Guid]::NewGuid().ToString('N'))"
+$account = "REAL_TEST_ACCOUNT_$([Guid]::NewGuid().ToString('N'))"
+$payload = [ordered]@{{
+    schema_version = 1
+    mode = "REAL_READONLY"
+    production_id = $productionId
+    finam_api_secret = $secret
+    finam_real_account_id = $account
+}}
+$ciphertext = Protect-ReadonlyCredentialPayload $payload
+[IO.File]::WriteAllBytes('{str(blob).replace("'", "''")}', $ciphertext)
+$ciphertext = [IO.File]::ReadAllBytes('{str(blob).replace("'", "''")}')
+
+switch ('{operation}') {{
+    'roundtrip' {{
+        $decoded = Unprotect-ReadonlyCredentialBytes $ciphertext $productionId
+        if ($decoded.schema_version -ne 1 -or $decoded.mode -ne 'REAL_READONLY' -or
+            $decoded.production_id -ne $productionId -or
+            $decoded.finam_api_secret -cne $secret -or
+            $decoded.finam_real_account_id -cne $account) {{ throw 'TEST_ROUNDTRIP_MISMATCH' }}
+        Write-Output 'ROUNDTRIP_PASS'
+    }}
+    'tamper' {{
+        $ciphertext[[Math]::Floor($ciphertext.Length / 2)] =
+            $ciphertext[[Math]::Floor($ciphertext.Length / 2)] -bxor 1
+        try {{ $null = Unprotect-ReadonlyCredentialBytes $ciphertext $productionId }}
+        catch {{
+            if ($_.Exception.Message -ceq 'DPAPI_DECRYPT_FAILED') {{
+                Write-Output 'TAMPER_REJECTED'
+                break
+            }}
+            throw
+        }}
+        throw 'TEST_TAMPER_ACCEPTED'
+    }}
+    'wrong-production-id' {{
+        try {{ $null = Unprotect-ReadonlyCredentialBytes $ciphertext ($productionId + '_WRONG') }}
+        catch {{
+            if ($_.Exception.Message -ceq 'DPAPI_PRODUCTION_ID_MISMATCH') {{
+                Write-Output 'PRODUCTION_ID_REJECTED'
+                break
+            }}
+            throw
+        }}
+        throw 'TEST_WRONG_PRODUCTION_ID_ACCEPTED'
+    }}
+}}
+"""
+    completed = subprocess.run(
+        [_windows_powershell(), "-NoProfile", "-NonInteractive", "-Command", script],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 0, (
+        f"PowerShell DPAPI execution failed with exit code {completed.returncode}; "
+        "credential-bearing output withheld"
+    )
+    assert completed.stdout.strip() == expected_marker
 
 
 def test_dpapi_is_current_user_only_and_has_stable_entropy():
@@ -75,12 +174,13 @@ def test_runtime_store_is_binary_atomic_acl_hardened_and_outside_checkout():
     assert "WriteAllText($metadataTemp" in INIT
 
 
-def test_actual_dpapi_round_trip_and_tamper_rejection_on_windows():
-    """Cryptographic execution belongs to Windows; structural tests run everywhere."""
-    import os
-    import pytest
-    if os.name != "nt":
-        pytest.skip("Windows CurrentUser DPAPI is unavailable on this platform")
-    # Intel acceptance executes initialize + verify; no test credential is persisted by CI.
-    assert "DPAPI_CREDENTIAL_BOOTSTRAP_PASS" in INIT
-    assert "DPAPI_CREDENTIAL_STORE_PASS" in VERIFY
+def test_actual_dpapi_current_user_round_trip_on_windows(tmp_path):
+    _run_actual_dpapi_test(tmp_path, "roundtrip", "ROUNDTRIP_PASS")
+
+
+def test_actual_dpapi_tamper_is_rejected_on_windows(tmp_path):
+    _run_actual_dpapi_test(tmp_path, "tamper", "TAMPER_REJECTED")
+
+
+def test_actual_dpapi_wrong_production_id_is_rejected_on_windows(tmp_path):
+    _run_actual_dpapi_test(tmp_path, "wrong-production-id", "PRODUCTION_ID_REJECTED")
