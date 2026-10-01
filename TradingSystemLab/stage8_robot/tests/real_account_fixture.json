@@ -1,0 +1,22 @@
+{
+  "account": {
+    "account_id": "SANITIZED",
+    "type": "ACCOUNT_TYPE_FORTS",
+    "status": "ACCOUNT_STATUS_ACTIVE",
+    "equity": {"value": {"currency_code": "RUB", "units": "250000", "nanos": 500000000}},
+    "unrealized_profit": {"value": {"currency_code": "RUB", "units": "0", "nanos": 0}},
+    "positions": [],
+    "cash": [],
+    "portfolio_mc": null,
+    "portfolio_forts": {
+      "available_cash": {"value": {"currency_code": "RUB", "units": "200000", "nanos": 250000000}},
+      "money_reserved": {"value": {"currency_code": "RUB", "units": "1000", "nanos": 0}}
+    }
+  },
+  "asset_params": {
+    "is_tradable": true,
+    "trade_lot_size": "1",
+    "long_initial_margin": {"currency_code": "RUB", "units": "12000", "nanos": 500000000},
+    "short_initial_margin": {"currency_code": "RUB", "units": "13000", "nanos": 750000000}
+  }
+}

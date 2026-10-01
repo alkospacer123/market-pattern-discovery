@@ -1,6 +1,30 @@
 # Stage 8 robot foundation
 
-**Status:** `STAGE_8_FINAM_REST_BINDING_CODE_READY_FOR_OPERATOR_SMOKE` — `LIVE_TRADING_NOT_AUTHORIZED`.
+**Status:** `STAGE_8_REAL_ACCOUNT_READONLY_CODE_READY` / `STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY` / `STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED` — `LIVE_TRADING_NOT_AUTHORIZED`.
+
+## Real account read-only and margin feasibility
+
+`FINAM_MODE=REAL_READONLY` is separate from demo operation, requires the exact
+`FINAM_REAL_ACCOUNT_ID` enumerated by a read-only token, and uses an adapter whose
+`submit_order` unconditionally raises `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`.
+The SQLite identity contains the frozen production ID, FINAM, REAL environment,
+and only a SHA-256 account identity. First activation requires no positions,
+active orders, or unresolved intents and persists authenticated starting equity
+exactly once. Later raw broker equity and unrealized PnL never replace it.
+
+Frozen FULL/R15 sizing is capped by
+`floor_to_trade_lot(min(r15_quantity, floor(available_cash / directional_initial_margin)))`.
+FORTS `portfolio_forts.available_cash.value` is the free-cash authority;
+`money_reserved.value` is evidence and is not double-subtracted. Directional
+`long_initial_margin` and `short_initial_margin` are exact RUB Money values. A
+batch-local budget reserves margin before the next entry is sized, and zero is
+never rounded to one.
+
+The credential-backed real smoke performs atomic 4/4 binding and emits sanitized,
+hypothetical sizing only. With no operator credentials, the registry remains
+`BLOCKED_UNAUTHENTICATED`. Intel host artifacts are under `deploy/windows/` and
+cover external state paths, instance locking, online SQLite backup, bounded logs,
+heartbeat, secrets, and reboot reconciliation.
 
 This package implements the sole frozen identity `TRAIL1__N4_01__FULL__R15` under production specification `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`. It does not expose strategy parameters as runtime configuration and does not use the canonical reference as a fallback.
 

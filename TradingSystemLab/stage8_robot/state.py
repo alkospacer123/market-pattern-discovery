@@ -35,3 +35,8 @@ class StateStore:
         values=(fill["fill_id"],fill["broker_order_id"],fill["trade_id"],str(fill["quantity"]),str(fill["price"]),str(fill.get("fee","")),fill["timestamp"],json.dumps(fill,sort_keys=True))
         with self.db: cur=self.db.execute("INSERT OR IGNORE INTO fills VALUES(?,?,?,?,?,?,?,?)",values)
         return cur.rowcount==1
+    def unresolved_intent_count(self)->int:
+        terminal=("CANCELLED","REJECTED","CLOSED","RECONCILED")
+        marks=",".join("?" for _ in terminal)
+        return self.db.execute(f"SELECT COUNT(*) FROM intents WHERE status NOT IN ({marks})",terminal).fetchone()[0]
+    def close(self): self.db.close()

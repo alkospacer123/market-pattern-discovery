@@ -15,6 +15,7 @@ def audit():
     check(spec.strategy["name"]=="T3" and spec.strategy["timeframe"]=="H1","T3_H1"); check(spec.variant["name"]=="TRAIL1","TRAIL1")
     check(spec.instruments==("USDRUBF","CNYRUBF","GLDRUBF","IMOEXF"),"N4"); check(spec.risk_fraction==.015 and spec.maximum_nominal_risk==.06,"R15_MAX")
     core=(HERE/"strategy_core.py").read_text(); config=(HERE/"config.py").read_text(); broker=(HERE/"broker.py").read_text(); state=(HERE/"state.py").read_text(); runner=(HERE/"runner.py").read_text(); api=(HERE/"finam_api.py").read_text(); historical=(HERE/"historical_conformance.py").read_text(); production=(HERE/"production_replay.py").read_text(); resolver=(HERE/"instrument_resolver.py").read_text(); smoke=(HERE/"demo_smoke.py").read_text(); updater=(HERE/"update_demo_registry.py").read_text()
+    margin=(HERE/"margin.py").read_text(); real_smoke=(HERE/"real_account_smoke.py").read_text(); operations=(HERE/"operations.py").read_text(); preflight=(HERE/"server_preflight.py").read_text()
     conformance=json.loads((HERE/"conformance_report.json").read_text()); provenance=json.loads((HERE/"authority_provenance.json").read_text()); registry=(HERE/"production_instrument_registry.csv").read_text()
     check("import .broker" not in core and "from .broker" not in core,"BROKER_CORE_ISOLATION"); check('FINAM_MODE","DRY_RUN' in config and 'LIVE_TRADING_NOT_AUTHORIZED' in config,"LIVE_DEFAULT_OFF_AND_IMPOSSIBLE")
     check(not any(x in config for x in ("ema_period","adx_period","risk_fraction","basket")),"NO_MUTABLE_PARAMETERS")
@@ -58,7 +59,21 @@ def audit():
         x=conformance.get(layer,{}); check(x.get("status")=="PASS" and x.get("expected_trade_count")==x.get("reproduced_trade_count")==x.get("exact_matches")==418 and not sum(x.get(k,0) for k in ("missing","extra","timestamp_mismatches","direction_mismatches","price_mismatches","state_mismatches","R_mismatches")),layer.upper())
     check("DEMO_ORDER_TRANSMISSION_ENABLED" in (HERE/"demo_order_smoke.py").read_text() and "LIVE_TRADING_NOT_AUTHORIZED" in config,"DEMO_ONLY_LIVE_IMPOSSIBLE")
     check("database_identity" in state and "STATE_ENVIRONMENT_ACCOUNT_MISMATCH" in state,"STATE_ACCOUNT_ENVIRONMENT_BINDING")
-    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":conformance.get("status")}
+    check("FINAM_REAL_READONLY" in config and 'os.getenv("FINAM_REAL_ACCOUNT_ID")' in config and 'os.getenv("FINAM_DEMO_ACCOUNT_ID")' in config,"REAL_MODE_SEPARATE_IDENTITY")
+    check("class FinamRealReadOnlyBroker" in broker and 'raise RuntimeError("REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED")' in broker,"REAL_READONLY_NO_SUBMIT")
+    check("details.get(\"readonly\") is not True" in broker and "REAL_TOKEN_NOT_READONLY" in real_smoke,"TOKEN_READONLY_ENFORCED")
+    check("min(r15_quantity,margin_qty)" in margin and "floor_to_trade_lot" in margin and "MARGIN_CAP_INCREASED_R15" in margin,"MARGIN_ONLY_REDUCES_R15")
+    check("portfolio_forts" in margin and "available_cash" in margin and "money_reserved" in margin,"FORTS_AVAILABLE_RESERVED_PARSED")
+    check("long_initial_margin" in margin and "short_initial_margin" in margin and "MARGIN_CURRENCY_MISMATCH" in margin,"DIRECTIONAL_MARGIN_PARSED")
+    check("class MarginBatchBudget" in margin and "self.remaining-=reservation" in margin,"SAME_BATCH_MARGIN_RESERVATION")
+    check("starting_realized_equity" in runner and "REAL_ACCOUNT_NOT_CLEAN_FOR_INITIALIZATION" in runner,"CLEAN_REAL_EQUITY_BOOTSTRAP")
+    check("account_identity_sha256" in runner and 'environment="REAL"' in runner,"REAL_STATE_ACCOUNT_HASH_BOUND")
+    check("class InstanceLock" in operations and "SECOND_ROBOT_INSTANCE_BLOCKED" in operations and "src.backup(dst)" in operations,"SERVER_LOCK_AND_SQLITE_BACKUP")
+    check("--offline" in preflight and "live_trading_authorized\":False" in preflight,"ORDER_FREE_SERVER_PREFLIGHT")
+    production_source="\n".join(p.read_text(errors="ignore") for p in HERE.glob("*.py") if p.name not in {"audit_stage8.py"})
+    check(not re.search(r"(?:MICRO_LIVE_MAX_QTY|MAX_CONTRACTS_PER_ORDER)\s*=",production_source),"NO_FIXED_CONTRACT_CAP")
+    check("api.place_order" not in real_smoke and "submit_order" not in real_smoke,"REAL_SMOKE_ZERO_ORDERS")
+    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":"STAGE_8_REAL_ACCOUNT_READONLY_CODE_READY","margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED"}
     (HERE/"independent_audit_result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n"); return result
 if __name__=="__main__":
     result=audit(); print(json.dumps(result,sort_keys=True)); raise SystemExit(result["status"]!="PASS")
