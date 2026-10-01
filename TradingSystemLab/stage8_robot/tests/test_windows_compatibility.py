@@ -15,6 +15,13 @@ STAGE7 = ROOT / "TradingSystemLab/results/post_v3_analysis/stage7_production_spe
 STAGE8 = ROOT / "TradingSystemLab/stage8_robot"
 
 
+def _simulate_windows_checkout(raw):
+    canonical_lf = raw.replace(b"\r\n", b"\n")
+    if b"\r" in canonical_lf:
+        raise AssertionError("TEST_SOURCE_CONTAINS_LONE_CR")
+    return canonical_lf.replace(b"\n", b"\r\n")
+
+
 @pytest.mark.parametrize("suffix,payload", [
     (".py", b"value = 1\nprint(value)\n"),
     (".json", b'{\n  "value": 1\n}\n'),
@@ -34,6 +41,25 @@ def test_authority_hash_accepts_only_lf_crlf_equivalence(tmp_path, suffix, paylo
         canonical_authority_sha256(crlf)
 
 
+@pytest.mark.parametrize("source_newline", [b"\n", b"\r\n"])
+def test_simulated_windows_checkout_is_independent_of_source_newlines(tmp_path, source_newline):
+    canonical_lf = b"value = 1\nprint(value)\n"
+    expected = hashlib.sha256(canonical_lf).hexdigest()
+    source = tmp_path / "source.py"
+    source.write_bytes(canonical_lf.replace(b"\n", source_newline))
+
+    assert canonical_authority_sha256(source) == expected
+    windows_checkout = tmp_path / "windows.py"
+    windows_checkout.write_bytes(_simulate_windows_checkout(source.read_bytes()))
+    assert b"\r\r\n" not in windows_checkout.read_bytes()
+    assert canonical_authority_sha256(windows_checkout) == expected
+
+
+def test_simulated_windows_checkout_rejects_lone_cr():
+    with pytest.raises(AssertionError, match="TEST_SOURCE_CONTAINS_LONE_CR"):
+        _simulate_windows_checkout(b"value = 1\rprint(value)\n")
+
+
 @pytest.mark.parametrize("relative,expected", [
     ("TradingSystemLab/strategies/trend/T3_MTF_Trend.py", "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"),
     ("TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_trail1_execution.py", "d1d8ac2eeea9095becd6f74295e4a540d02ee0494237af5f16f6d66a487f221b"),
@@ -45,7 +71,7 @@ def test_current_frozen_authorities_keep_literal_lf_hashes(relative, expected, t
     assert canonical_authority_sha256(source) == expected
     windows_checkout = tmp_path / source.name
     raw = source.read_bytes()
-    windows_checkout.write_bytes(raw.replace(b"\n", b"\r\n"))
+    windows_checkout.write_bytes(_simulate_windows_checkout(raw))
     assert canonical_authority_sha256(windows_checkout) == expected
 
 
