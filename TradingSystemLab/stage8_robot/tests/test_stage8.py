@@ -180,7 +180,6 @@ def test_active_catalog_terminal_cursor_forms(terminal):
     assert api.assets_all_active()==[]
 
 @pytest.mark.parametrize("pages,error",[
- ([{"assets":[],"next_cursor":"same"},{"assets":[],"next_cursor":"same"}],"CURSOR_REPEATED"),
  ([[]],"PAGE_NOT_OBJECT"),([{"assets":{}}],"PAYLOAD_MALFORMED"),
  ([{"assets":[],"next_cursor":{}}],"CURSOR_MALFORMED")])
 def test_active_catalog_fails_closed(pages,error):
@@ -190,6 +189,49 @@ def test_active_catalog_fails_closed(pages,error):
     replies=[b'{"token":"jwt"}',*[json.dumps(x).encode() for x in pages]]
     api=FinamAPI("secret",transport=lambda req,timeout:R(replies.pop(0)),limiter=RateLimiter(199))
     with pytest.raises(RuntimeError,match=error): api.assets_all_active()
+
+def test_active_catalog_transient_repeated_cursor_retries_without_committing(monkeypatch):
+    from io import BytesIO
+    from urllib.parse import parse_qs,urlparse
+    from TradingSystemLab.stage8_robot.finam_api import FinamAPI,RateLimiter
+    class R(BytesIO): status=200; headers={}
+    pages=[
+        {"assets":[{"ticker":"page_1"}],"next_cursor":100},
+        {"assets":[{"ticker":"stale_page"}],"next_cursor":100},
+        {"assets":[{"ticker":"page_2"}],"next_cursor":200},
+        {"assets":[{"ticker":"terminal_page"}],"next_cursor":0},
+    ]
+    seen=[]; replies=[b'{"token":"jwt"}',*[json.dumps(x).encode() for x in pages]]
+    def transport(req,timeout): seen.append(req.full_url); return R(replies.pop(0))
+    monkeypatch.setattr("TradingSystemLab.stage8_robot.finam_api.time.sleep",lambda _:None)
+    result=FinamAPI("secret",transport=transport,limiter=RateLimiter(199)).assets_all_active()
+    cursors=[parse_qs(urlparse(url).query).get("cursor") for url in seen[1:]]
+    assert cursors==[None,["100"],["100"],["200"]]
+    assert [row["ticker"] for row in result]==["page_1","page_2","terminal_page"]
+
+def test_active_catalog_persistent_repeated_cursor_fails_closed(monkeypatch):
+    from io import BytesIO
+    from TradingSystemLab.stage8_robot.finam_api import ACTIVE_ASSETS_SEMANTIC_RETRIES,FinamAPI,RateLimiter
+    class R(BytesIO): status=200; headers={}
+    first={"assets":[{"ticker":"page_1"}],"next_cursor":100}
+    stale={"assets":[{"ticker":"stale_page"}],"next_cursor":100}
+    replies=[b'{"token":"jwt"}',json.dumps(first).encode(),
+             *[json.dumps(stale).encode()]*(ACTIVE_ASSETS_SEMANTIC_RETRIES+1)]
+    monkeypatch.setattr("TradingSystemLab.stage8_robot.finam_api.time.sleep",lambda _:None)
+    api=FinamAPI("secret",transport=lambda req,timeout:R(replies.pop(0)),limiter=RateLimiter(199))
+    with pytest.raises(RuntimeError,match="ACTIVE_ASSETS_CURSOR_REPEATED_PERSISTENT"):
+        api.assets_all_active()
+
+def test_active_catalog_pagination_safety_ceiling_fails_closed(monkeypatch):
+    from io import BytesIO
+    from TradingSystemLab.stage8_robot.finam_api import FinamAPI,RateLimiter
+    class R(BytesIO): status=200; headers={}
+    pages=[{"assets":[],"next_cursor":100},{"assets":[],"next_cursor":200}]
+    replies=[b'{"token":"jwt"}',*[json.dumps(x).encode() for x in pages]]
+    monkeypatch.setattr("TradingSystemLab.stage8_robot.finam_api.ACTIVE_ASSETS_PAGE_SAFETY_CEILING",2)
+    api=FinamAPI("secret",transport=lambda req,timeout:R(replies.pop(0)),limiter=RateLimiter(199))
+    with pytest.raises(RuntimeError,match="ACTIVE_ASSETS_PAGINATION_SAFETY_CEILING"):
+        api.assets_all_active()
 
 def test_complete_catalog_duplicate_n4_fails_closed():
     from TradingSystemLab.stage8_robot.instrument_resolver import discover_finam_asset
