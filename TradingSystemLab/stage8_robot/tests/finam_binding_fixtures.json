@@ -1,16 +1,191 @@
 {
   "assets": [
-    {"ticker":"USDRUBF","symbol":"USDRUBF@MISX","mic":"MISX","id":"sec-usd","type":"ASSET_TYPE_FUTURE","is_archived":false},
-    {"ticker":"CNYRUBF","symbol":"CNYRUBF@MISX","mic":"MISX","id":"sec-cny","type":"ASSET_TYPE_FUTURE","is_archived":false},
-    {"ticker":"GLDRUBF","symbol":"GLDRUBF@MISX","mic":"MISX","id":"sec-gld","type":"ASSET_TYPE_FUTURE","is_archived":false},
-    {"ticker":"IMOEXF","symbol":"IMOEXF@MISX","mic":"MISX","id":"sec-moex","type":"ASSET_TYPE_FUTURE","is_archived":false}
+    {
+      "ticker": "USDRUBF",
+      "symbol": "USDRUBF@RTSX",
+      "mic": "RTSX",
+      "id": "sec-usd",
+      "type": "FUTURES",
+      "is_archived": false
+    },
+    {
+      "ticker": "CNYRUBF",
+      "symbol": "CNYRUBF@RTSX",
+      "mic": "RTSX",
+      "id": "sec-cny",
+      "type": "FUTURES",
+      "is_archived": false
+    },
+    {
+      "ticker": "GLDRUBF",
+      "symbol": "GLDRUBF@RTSX",
+      "mic": "RTSX",
+      "id": "sec-gld",
+      "type": "FUTURES",
+      "is_archived": false
+    },
+    {
+      "ticker": "IMOEXF",
+      "symbol": "IMOEXF@RTSX",
+      "mic": "RTSX",
+      "id": "sec-moex",
+      "type": "FUTURES",
+      "is_archived": false
+    }
   ],
   "account_assets": {
-    "USDRUBF":{"ticker":"USDRUBF","symbol":"USDRUBF@MISX","mic":"MISX","id":"sec-usd","type":"ASSET_TYPE_FUTURE","is_archived":false,"quote_currency":"RUB","decimals":2,"min_step":"1","lot_size":{"value":"1"},"future_details":{"contract_size":{"value":"1000"}}},
-    "CNYRUBF":{"ticker":"CNYRUBF","symbol":"CNYRUBF@MISX","mic":"MISX","id":"sec-cny","type":"ASSET_TYPE_FUTURE","is_archived":false,"quote_currency":"RUB","decimals":3,"min_step":"1","lot_size":{"value":"1"},"future_details":{"contract_size":{"value":"1000"}}},
-    "GLDRUBF":{"ticker":"GLDRUBF","symbol":"GLDRUBF@MISX","mic":"MISX","id":"sec-gld","type":"ASSET_TYPE_FUTURE","is_archived":false,"quote_currency":"RUB","decimals":1,"min_step":"1","lot_size":{"value":"1"},"future_details":{"contract_size":{"value":"1"}}},
-    "IMOEXF":{"ticker":"IMOEXF","symbol":"IMOEXF@MISX","mic":"MISX","id":"sec-moex","type":"ASSET_TYPE_FUTURE","is_archived":false,"quote_currency":"RUB","decimals":1,"min_step":"5","lot_size":{"value":"1"},"future_details":{"contract_size":{"value":"10"}}}
+    "USDRUBF": {
+      "ticker": "USDRUBF",
+      "mic": "RTSX",
+      "id": "sec-usd",
+      "type": "FUTURES",
+      "quote_currency": "RUB",
+      "decimals": 2,
+      "min_step": "1",
+      "lot_size": {
+        "value": "1"
+      },
+      "future_details": {
+        "contract_size": {
+          "value": "1000"
+        }
+      }
+    },
+    "CNYRUBF": {
+      "ticker": "CNYRUBF",
+      "mic": "RTSX",
+      "id": "sec-cny",
+      "type": "FUTURES",
+      "quote_currency": "RUB",
+      "decimals": 3,
+      "min_step": "1",
+      "lot_size": {
+        "value": "1"
+      },
+      "future_details": {
+        "contract_size": {
+          "value": "1000"
+        }
+      }
+    },
+    "GLDRUBF": {
+      "ticker": "GLDRUBF",
+      "mic": "RTSX",
+      "id": "sec-gld",
+      "type": "FUTURES",
+      "quote_currency": "RUB",
+      "decimals": 1,
+      "min_step": "1",
+      "lot_size": {
+        "value": "1"
+      },
+      "future_details": {
+        "contract_size": {
+          "value": "1"
+        }
+      }
+    },
+    "IMOEXF": {
+      "ticker": "IMOEXF",
+      "mic": "RTSX",
+      "id": "sec-moex",
+      "type": "FUTURES",
+      "quote_currency": "RUB",
+      "decimals": 1,
+      "min_step": "5",
+      "lot_size": {
+        "value": "1"
+      },
+      "future_details": {
+        "contract_size": {
+          "value": "10"
+        }
+      }
+    }
   },
-  "params":{"is_tradable":true,"trade_lot_size":"1","is_long_available":true,"is_short_available":true},
-  "schedule":{"sessions":[{"type":"SESSION_TYPE_MAIN","interval":{"start_time":"2026-01-01T07:00:00Z","end_time":"2026-01-01T20:50:00Z"}}]}
+  "params": {
+    "USDRUBF": {
+      "is_tradable": true,
+      "trade_lot_size": "1",
+      "is_long_available": true,
+      "is_short_available": true,
+      "symbol": "USDRUBF@RTSX",
+      "tradeable": true,
+      "long_initial_margin": {
+        "currency_code": "RUB",
+        "units": "12000",
+        "nanos": 500000000
+      },
+      "short_initial_margin": {
+        "currency_code": "RUB",
+        "units": "13000",
+        "nanos": 750000000
+      }
+    },
+    "CNYRUBF": {
+      "is_tradable": true,
+      "trade_lot_size": "1",
+      "is_long_available": true,
+      "is_short_available": true,
+      "symbol": "CNYRUBF@RTSX",
+      "tradeable": true,
+      "long_initial_margin": {
+        "currency_code": "RUB",
+        "units": "12000",
+        "nanos": 500000000
+      },
+      "short_initial_margin": {
+        "currency_code": "RUB",
+        "units": "13000",
+        "nanos": 750000000
+      }
+    },
+    "GLDRUBF": {
+      "is_tradable": true,
+      "trade_lot_size": "1",
+      "is_long_available": true,
+      "is_short_available": true,
+      "symbol": "GLDRUBF@RTSX",
+      "tradeable": true,
+      "long_initial_margin": {
+        "currency_code": "RUB",
+        "units": "12000",
+        "nanos": 500000000
+      },
+      "short_initial_margin": {
+        "currency_code": "RUB",
+        "units": "13000",
+        "nanos": 750000000
+      }
+    },
+    "IMOEXF": {
+      "is_tradable": true,
+      "trade_lot_size": "1",
+      "is_long_available": true,
+      "is_short_available": true,
+      "symbol": "IMOEXF@RTSX",
+      "tradeable": true,
+      "long_initial_margin": {
+        "currency_code": "RUB",
+        "units": "12000",
+        "nanos": 500000000
+      },
+      "short_initial_margin": {
+        "currency_code": "RUB",
+        "units": "13000",
+        "nanos": 750000000
+      }
+    }
+  },
+  "schedule": {
+    "sessions": [
+      {
+        "type": "SESSION_TYPE_MAIN",
+        "interval": {
+          "start_time": "2026-01-01T07:00:00Z",
+          "end_time": "2026-01-01T20:50:00Z"
+        }
+      }
+    ]
+  }
 }

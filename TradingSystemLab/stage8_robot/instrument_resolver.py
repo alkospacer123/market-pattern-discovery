@@ -92,7 +92,7 @@ def discover_finam_asset(research_symbol: str, assets: list[dict]) -> tuple[dict
     matches=[x for x in assets if x.get("ticker")==research_symbol and x.get("is_archived") is False]
     if not matches: return None,"BLOCKED_NOT_FOUND"
     # Futures identity and exact ticker@MIC can resolve irrelevant same-ticker rows.
-    viable=[x for x in matches if x.get("type")=="ASSET_TYPE_FUTURE" and x.get("symbol")==f"{research_symbol}@{x.get('mic')}" and x.get("id")]
+    viable=[x for x in matches if x.get("type")=="FUTURES" and x.get("symbol")==f"{research_symbol}@{x.get('mic')}" and x.get("mic") and x.get("id")]
     if len(viable)!=1: return None,"BLOCKED_AMBIGUOUS_FINAM_ASSET" if len(matches)>1 else "BLOCKED_INSTRUMENT_TYPE_MISMATCH"
     return viable[0],None
 
@@ -109,8 +109,12 @@ def validate_finam_binding(symbol: str, asset: dict, params: dict, schedule: dic
         errors.append(msg)
     if ticker!=symbol or not finam_symbol or finam_symbol!=f"{ticker}@{mic}" or not mic or not security_id:
         block("BLOCKED_IDENTITY_MISMATCH","exact ticker, ticker@MIC symbol, MIC, and security ID are required")
-    if asset_type!="ASSET_TYPE_FUTURE": block("BLOCKED_INSTRUMENT_TYPE_MISMATCH","type must be ASSET_TYPE_FUTURE")
+    if asset_type!="FUTURES": block("BLOCKED_INSTRUMENT_TYPE_MISMATCH","REST type must be FUTURES")
     if asset.get("is_archived") is not False: block("BLOCKED_INSTRUMENT_DISABLED","asset must explicitly be non-archived")
+    if account_asset is not None and (not isinstance(account_asset,dict)
+        or account_asset.get("ticker")!=ticker or account_asset.get("mic")!=mic
+        or account_asset.get("id")!=security_id or account_asset.get("type")!=asset_type):
+        block("BLOCKED_IDENTITY_MISMATCH","GetAsset identity must match active catalog identity")
     if currency!="RUB": block("BLOCKED_CURRENCY_MISMATCH","quote_currency must be RUB")
     min_step=lot_size=contract_size=derived=trade_lot=None
     try:
