@@ -16,6 +16,8 @@ LOG=logging.getLogger(__name__)
 SESSION_PATH="/v1/sessions"
 SESSION_DETAILS_PATH="/v1/sessions/details"
 BARS_PATH_TEMPLATE="/v1/instruments/{symbol}/bars"
+ACTIVE_ASSETS_PATH="/v1/assets/all"
+ACTIVE_ASSETS_PAGE_SAFETY_CEILING=10000
 H1_TIMEFRAME="TIME_FRAME_H1"
 ORDER_SIDE_BUY="SIDE_BUY"; ORDER_SIDE_SELL="SIDE_SELL"
 MARKET_ORDER_TYPE="ORDER_TYPE_MARKET"
@@ -93,6 +95,32 @@ class FinamAPI:
     def place_order(self,account_id,payload): return self._request("POST",f"/v1/accounts/{account_id}/orders",payload,retries=0).body
     def cancel_order(self,account_id,order_id): return self._request("DELETE",f"/v1/accounts/{account_id}/orders/{order_id}").body
     def assets(self): return self._request("GET","/v1/assets").body
+    def assets_all_active(self):
+        """Return the complete active REST catalog, failing closed on pagination faults.
+
+        The ceiling is only an abnormal-loop guard.  It must never turn a partial
+        catalog into apparently successful discovery.
+        """
+        assets=[]; cursor=None; seen=set()
+        for _ in range(ACTIVE_ASSETS_PAGE_SAFETY_CEILING):
+            query={"only_active":"true"}
+            if cursor is not None: query["cursor"]=cursor
+            page=self._request("GET",ACTIVE_ASSETS_PATH+"?"+urlencode(query)).body
+            if not isinstance(page,dict): raise FinamError("ACTIVE_ASSETS_PAGE_NOT_OBJECT")
+            rows=page.get("assets")
+            if not isinstance(rows,list) or any(not isinstance(row,dict) for row in rows):
+                raise FinamError("ACTIVE_ASSETS_PAYLOAD_MALFORMED")
+            assets.extend(rows)
+            next_cursor=page.get("next_cursor")
+            if next_cursor is None or next_cursor=="" or (type(next_cursor) is int and next_cursor==0):
+                return assets
+            if (isinstance(next_cursor,str) and next_cursor.strip()==next_cursor and next_cursor
+                    or type(next_cursor) is int and next_cursor>0):
+                marker=(type(next_cursor).__name__,next_cursor)
+            else: raise FinamError("ACTIVE_ASSETS_CURSOR_MALFORMED")
+            if marker in seen: raise FinamError("ACTIVE_ASSETS_CURSOR_REPEATED")
+            seen.add(marker); cursor=next_cursor
+        raise FinamError("ACTIVE_ASSETS_PAGINATION_SAFETY_CEILING")
     def asset(self,symbol,account_id):
         if not account_id: raise ValueError("ACCOUNT_ID_REQUIRED")
         return self._request("GET",f"/v1/assets/{symbol}?{urlencode({'account_id':account_id})}").body

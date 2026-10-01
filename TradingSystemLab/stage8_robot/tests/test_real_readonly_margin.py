@@ -76,6 +76,32 @@ def test_real_mode_requires_separate_account(monkeypatch):
     monkeypatch.setenv("FINAM_MODE","REAL_READONLY"); monkeypatch.setenv("FINAM_REAL_ACCOUNT_ID","real"); monkeypatch.delenv("FINAM_DEMO_ACCOUNT_ID",raising=False); monkeypatch.delenv("STARTING_REALIZED_EQUITY",raising=False)
     assert RuntimeConfig.from_environment().mode is RuntimeMode.FINAM_REAL_READONLY
 
+def test_empty_union_writes_binding_report_before_funding_block(tmp_path):
+    from TradingSystemLab.stage8_robot.real_account_smoke import run_diagnostic
+    bindings=json.loads(Path("TradingSystemLab/stage8_robot/tests/finam_binding_fixtures.json").read_text())
+    empty={"account_id":"SANITIZED","type":"UNION","status":"ACCOUNT_ACTIVE","positions":[],"cash":[]}
+    class EmptyUnionAPI:
+        def create_session(self): return {}
+        def session_details(self): return {"readonly":True,"account_ids":["synthetic-account"]}
+        def account(self,_): return empty
+        def orders(self,_): return {"orders":[]}
+        def assets_all_active(self): return bindings["assets"]
+        def asset(self,symbol,_): return bindings["account_assets"][symbol.split("@")[0]]
+        def asset_params(self,symbol,_): return bindings["params"][symbol.split("@")[0]]
+        def schedule(self,_): return bindings["schedule"]
+        def bars(self,*_): raise AssertionError("sizing data must not be requested without funding")
+    report_path=tmp_path/"diagnostic.json"
+    with pytest.raises(RuntimeError,match="BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE:FORTS_PORTFOLIO_MISSING"):
+        run_diagnostic(EmptyUnionAPI(),"synthetic-account",report_path)
+    report=json.loads(report_path.read_text())
+    assert report["binding_status"]=="AUTHENTICATED_REAL_READONLY"
+    assert report["funding_status"]=="BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE"
+    assert set(report["bindings"])=={"USDRUBF","CNYRUBF","GLDRUBF","IMOEXF"}
+    assert all(x["status"]=="AUTHENTICATED_REAL_READONLY" for x in report["bindings"].values())
+    assert "forts_available_cash" not in report and "forts_money_reserved" not in report
+    assert "synthetic-account" not in report_path.read_text()
+    assert all("hypothetical_sizing" not in x for x in report["bindings"].values())
+
 def real_config(path): return RuntimeConfig(path,path.with_suffix(".jsonl"),None,"none",RuntimeMode.FINAM_REAL_READONLY,False,"real")
 def test_clean_real_account_bootstraps_once_and_ignores_later_broker_equity(tmp_path):
     broker=FinamRealReadOnlyBroker(FakeAPI(),"real"); first=RobotRunner(real_config(tmp_path/"s.db"),broker); first.startup()
@@ -119,7 +145,7 @@ def real_registry_report():
     from TradingSystemLab.stage8_robot.instrument_resolver import validate_finam_binding
     records={}
     for code,asset in zip(("USDRUBF","CNYRUBF","GLDRUBF","IMOEXF"),source["assets"]):
-        item=validate_finam_binding(code,asset,source["params"],source["schedule"],source["account_assets"][code]).to_dict()
+        item=validate_finam_binding(code,asset,source["params"][code],source["schedule"],source["account_assets"][code]).to_dict()
         item.update(status="AUTHENTICATED_REAL_READONLY",trading_status="TRADABLE")
         records[code]=item
     return {"production_specification_id":PRODUCTION_SPECIFICATION_ID,

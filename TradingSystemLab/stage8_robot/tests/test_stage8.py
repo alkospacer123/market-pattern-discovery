@@ -153,6 +153,49 @@ def test_finam_transport_schema_uses_token_account_ids_and_interval_query():
     query=parse_qs(urlparse(seen[2].full_url).query)
     assert query=={"timeframe":["TIME_FRAME_H1"],"interval.start_time":["a"],"interval.end_time":["b"]}
 
+def test_active_catalog_paginates_and_carries_encoded_cursor():
+    from io import BytesIO
+    from urllib.parse import parse_qs,urlparse
+    from TradingSystemLab.stage8_robot.finam_api import FinamAPI,RateLimiter
+    from TradingSystemLab.stage8_robot.instrument_resolver import discover_finam_asset
+    seen=[]
+    class R(BytesIO): status=200; headers={}
+    replies=[b'{"token":"jwt"}',b'{"assets":[{"ticker":"OTHER"}],"next_cursor":"next page"}',
+             json.dumps({"assets":binding_fixture()["assets"],"next_cursor":0}).encode()]
+    def transport(req,timeout): seen.append(req.full_url); return R(replies.pop(0))
+    api=FinamAPI("secret",transport=transport,limiter=RateLimiter(199)); result=api.assets_all_active()
+    assert len(result)==5 and parse_qs(urlparse(seen[1]).query)=={"only_active":["true"]}
+    assert parse_qs(urlparse(seen[2]).query)=={"only_active":["true"],"cursor":["next page"]}
+    assert all(discover_finam_asset(code,result)[1] is None for code in ("USDRUBF","CNYRUBF","GLDRUBF","IMOEXF"))
+
+@pytest.mark.parametrize("terminal",[None,"",0])
+def test_active_catalog_terminal_cursor_forms(terminal):
+    from io import BytesIO
+    from TradingSystemLab.stage8_robot.finam_api import FinamAPI,RateLimiter
+    class R(BytesIO): status=200; headers={}
+    page={"assets":[]}
+    if terminal is not None: page["next_cursor"]=terminal
+    replies=[b'{"token":"jwt"}',json.dumps(page).encode()]
+    api=FinamAPI("secret",transport=lambda req,timeout:R(replies.pop(0)),limiter=RateLimiter(199))
+    assert api.assets_all_active()==[]
+
+@pytest.mark.parametrize("pages,error",[
+ ([{"assets":[],"next_cursor":"same"},{"assets":[],"next_cursor":"same"}],"CURSOR_REPEATED"),
+ ([[]],"PAGE_NOT_OBJECT"),([{"assets":{}}],"PAYLOAD_MALFORMED"),
+ ([{"assets":[],"next_cursor":{}}],"CURSOR_MALFORMED")])
+def test_active_catalog_fails_closed(pages,error):
+    from io import BytesIO
+    from TradingSystemLab.stage8_robot.finam_api import FinamAPI,RateLimiter
+    class R(BytesIO): status=200; headers={}
+    replies=[b'{"token":"jwt"}',*[json.dumps(x).encode() for x in pages]]
+    api=FinamAPI("secret",transport=lambda req,timeout:R(replies.pop(0)),limiter=RateLimiter(199))
+    with pytest.raises(RuntimeError,match=error): api.assets_all_active()
+
+def test_complete_catalog_duplicate_n4_fails_closed():
+    from TradingSystemLab.stage8_robot.instrument_resolver import discover_finam_asset
+    rows=binding_fixture()["assets"]
+    assert discover_finam_asset("USDRUBF",rows+[dict(rows[0],id="synthetic-duplicate")])[1]=="BLOCKED_AMBIGUOUS_FINAM_ASSET"
+
 def test_production_replay_has_no_research_shortcut():
     import ast
     source=Path("TradingSystemLab/stage8_robot/production_replay.py").read_text(); tree=ast.parse(source)
@@ -185,7 +228,7 @@ def binding_fixture():
 def validate_fixture(code, data=None):
     from TradingSystemLab.stage8_robot.instrument_resolver import validate_finam_binding
     data=data or binding_fixture(); asset=data["assets"][("USDRUBF","CNYRUBF","GLDRUBF","IMOEXF").index(code)]
-    return validate_finam_binding(code,asset,data["params"],data["schedule"],data["account_assets"][code])
+    return validate_finam_binding(code,asset,data["params"][code],data["schedule"],data["account_assets"][code])
 
 @pytest.mark.parametrize("value,expected",[("1","1"),("1.25","1.25"),("0","0")])
 def test_rest_decimal_scalar(value,expected):
@@ -223,12 +266,12 @@ def test_exact_discovery_and_ambiguity():
     assert discover_finam_asset("USDRUBF",[d["assets"][0],{**d["assets"][0],"id":"other"}])[1]=="BLOCKED_AMBIGUOUS_FINAM_ASSET"
 
 @pytest.mark.parametrize("mutation,expected",[
- ("wrong_ticker","BLOCKED_IDENTITY_MISMATCH"),("wrong_mic","BLOCKED_IDENTITY_MISMATCH"),("wrong_type","BLOCKED_INSTRUMENT_TYPE_MISMATCH"),
+ ("wrong_ticker","BLOCKED_IDENTITY_MISMATCH"),("wrong_symbol","BLOCKED_IDENTITY_MISMATCH"),("wrong_mic","BLOCKED_IDENTITY_MISMATCH"),("account_mic","BLOCKED_IDENTITY_MISMATCH"),("wrong_type","BLOCKED_INSTRUMENT_TYPE_MISMATCH"),
  ("archived","BLOCKED_INSTRUMENT_DISABLED"),("wrong_decimals","BLOCKED_PRICE_STEP_MISMATCH"),("wrong_min_step","BLOCKED_PRICE_STEP_MISMATCH"),
  ("wrong_lot","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),("wrong_contract","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),("missing_future","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),
  ("currency","BLOCKED_CURRENCY_MISMATCH"),("currency_alias","BLOCKED_CURRENCY_MISMATCH"),("missing_currency","BLOCKED_CURRENCY_MISMATCH"),
  ("not_tradable","BLOCKED_NOT_TRADABLE"),("missing_tradable","BLOCKED_NOT_TRADABLE"),("wrapped_tradable","BLOCKED_NOT_TRADABLE"),("string_tradable","BLOCKED_NOT_TRADABLE"),
- ("zero_trade_lot","BLOCKED_PARAMS_INVALID"),("missing_trade_lot","BLOCKED_PARAMS_INVALID"),("schedule","BLOCKED_SCHEDULE_INVALID"),
+ ("zero_trade_lot","BLOCKED_PARAMS_INVALID"),("missing_trade_lot","BLOCKED_PARAMS_INVALID"),("schedule","BLOCKED_SCHEDULE_INVALID"),("malformed_schedule","BLOCKED_SCHEDULE_INVALID"),
  ("protobuf_lot","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),("number_lot","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),("malformed_lot","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),
  ("protobuf_contract","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),("malformed_contract","BLOCKED_CONTRACT_ECONOMICS_MISMATCH"),
  ("protobuf_trade_lot","BLOCKED_PARAMS_INVALID"),("malformed_trade_lot","BLOCKED_PARAMS_INVALID"),("float_min_step","BLOCKED_PRICE_STEP_MISMATCH"),
@@ -236,8 +279,10 @@ def test_exact_discovery_and_ambiguity():
 def test_binding_negative_mutations(mutation,expected):
     d=binding_fixture(); a=d["assets"][0]; aa=d["account_assets"]["USDRUBF"]
     if mutation=="wrong_ticker": a["ticker"]="USD"
+    elif mutation=="wrong_symbol": a["symbol"]="USDRUBF@XXXX"
     elif mutation=="wrong_mic": a["mic"]="XXXX"
-    elif mutation=="wrong_type": a["type"]="ASSET_TYPE_SHARE"
+    elif mutation=="account_mic": aa["mic"]="XXXX"
+    elif mutation=="wrong_type": a["type"]="STOCKS"
     elif mutation=="archived": a["is_archived"]=True
     elif mutation=="wrong_decimals": aa["decimals"]=3
     elif mutation=="wrong_min_step": aa["min_step"]="2"
@@ -247,21 +292,22 @@ def test_binding_negative_mutations(mutation,expected):
     elif mutation=="currency": aa["quote_currency"]="USD"
     elif mutation=="currency_alias": aa["currency"]=aa.pop("quote_currency")
     elif mutation=="missing_currency": aa.pop("quote_currency")
-    elif mutation=="not_tradable": d["params"]["is_tradable"]=False
-    elif mutation=="missing_tradable": d["params"].pop("is_tradable")
-    elif mutation=="wrapped_tradable": d["params"]["is_tradable"]={"value":True}
-    elif mutation=="string_tradable": d["params"]["is_tradable"]="true"
-    elif mutation=="zero_trade_lot": d["params"]["trade_lot_size"]="0"
-    elif mutation=="missing_trade_lot": d["params"].pop("trade_lot_size")
+    elif mutation=="not_tradable": d["params"]["USDRUBF"]["is_tradable"]=False
+    elif mutation=="missing_tradable": d["params"]["USDRUBF"].pop("is_tradable")
+    elif mutation=="wrapped_tradable": d["params"]["USDRUBF"]["is_tradable"]={"value":True}
+    elif mutation=="string_tradable": d["params"]["USDRUBF"]["is_tradable"]="true"
+    elif mutation=="zero_trade_lot": d["params"]["USDRUBF"]["trade_lot_size"]="0"
+    elif mutation=="missing_trade_lot": d["params"]["USDRUBF"].pop("trade_lot_size")
     elif mutation=="protobuf_lot": aa["lot_size"]={"num":"1","scale":0}
     elif mutation=="number_lot": aa["lot_size"]=1
     elif mutation=="malformed_lot": aa["lot_size"]={"value":1}
     elif mutation=="protobuf_contract": aa["future_details"]["contract_size"]={"num":"1000","scale":0}
     elif mutation=="malformed_contract": aa["future_details"]["contract_size"]={"value":1000}
-    elif mutation=="protobuf_trade_lot": d["params"]["trade_lot_size"]={"num":"1","scale":0}
-    elif mutation=="malformed_trade_lot": d["params"]["trade_lot_size"]={"value":"1"}
+    elif mutation=="protobuf_trade_lot": d["params"]["USDRUBF"]["trade_lot_size"]={"num":"1","scale":0}
+    elif mutation=="malformed_trade_lot": d["params"]["USDRUBF"]["trade_lot_size"]={"value":"1"}
     elif mutation=="float_min_step": aa["min_step"]=1.0
     elif mutation=="schedule": d["schedule"]={"sessions":[]}
+    elif mutation=="malformed_schedule": d["schedule"]={"sessions":{}}
     elif mutation=="missing_symbol": a.pop("symbol")
     elif mutation=="missing_id": a.pop("id")
     assert validate_fixture("USDRUBF",d).status==expected
