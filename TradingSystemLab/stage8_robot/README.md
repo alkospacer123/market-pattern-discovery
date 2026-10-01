@@ -31,9 +31,12 @@ FINAM REST account values use two deliberately separate representations.
 protobuf `{num,scale}` objects, cross-shape substitutions, and extra keys fail
 closed.
 
-The credential-backed real smoke performs atomic 4/4 binding and emits sanitized,
-hypothetical sizing only. On 2026-10-01 an operator-executed `REAL_READONLY`
-diagnostic authenticated all four N4 perpetual futures against FINAM. The
+The credential-backed real smoke records sanitized binding, schedule,
+contract-economics, account-cleanliness, and directional-margin evidence. If
+account funding structures required for sizing are unavailable, the smoke stops
+fail-closed and does not fabricate equity, cash, margin capacity, or hypothetical
+position sizing. On 2026-10-01 an operator-executed `REAL_READONLY` diagnostic
+authenticated all four N4 perpetual futures against FINAM. The
 committed production registry is now 4/4 `AUTHENTICATED_REAL_READONLY`; the
 validation token was read-only and no real order was transmitted. Funding
 readiness remains separate and fail-closed because the clean UNION account did
@@ -114,11 +117,29 @@ never a strategy-session filter.
 Internal futures quantity is mapped to FINAM `quantity: {"value": "..."}` only
 after all instrument-binding semantics have been authenticated.
 
-For REAL_READONLY operations, run
-`python -m TradingSystemLab.stage8_robot.real_account_smoke` with external
-credentials to produce the sanitized diagnostic, then run
-`python -m TradingSystemLab.stage8_robot.update_real_registry` for an all-four
-atomic registry update. The separate order smoke demands DEMO mode,
+For `REAL_READONLY` operations on the documented Windows Intel deployment:
+
+1. Set `FINAM_MODE=REAL_READONLY` while keeping credentials outside Git.
+2. Set `NEW_ENTRIES_DISABLED=true`.
+3. Run `python -m TradingSystemLab.stage8_robot.real_account_smoke` to produce the
+   sanitized diagnostic.
+4. Inspect the sanitized diagnostic.
+5. Independently verify the binding evidence for all four instruments.
+6. From the repository root, explicitly call the function-based registry updater
+   with the diagnostic and registry paths:
+
+   ```powershell
+   & $py -c "from pathlib import Path;from TradingSystemLab.stage8_robot.update_real_registry import update;update(Path(r'c:\tradingsystemlab\runtime\diagnostics\finam-real-readonly-diagnostic.json'),Path(r'TradingSystemLab\stage8_robot\production_instrument_registry.csv'));print('REGISTRY_UPDATE_PASS')"
+   ```
+
+   This command reads the sanitized `REAL_READONLY` diagnostic, validates all
+   activation gates, atomically updates the four-row production registry, and
+   prints `REGISTRY_UPDATE_PASS` only after successful completion. Registry
+   activation is not automatic and does not authorize trading.
+7. Verify the production registry.
+8. Run the Stage 7 and Stage 8 audits and the server preflight.
+
+The separate order smoke demands DEMO mode,
 explicit consent, four authenticated records, Stage 7 authentication, a full
 conformance PASS, and reconciliation. Both the isolated research-authority replay
 and the independent Stage 8 production replay reproduce all 418 authoritative
