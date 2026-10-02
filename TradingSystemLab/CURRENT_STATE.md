@@ -4,14 +4,14 @@
 
 TradingSystemLab has completed Stage 7 Production Specification Freeze and is
 actively in **Stage 8 Robot / FINAM integration**, currently through
-**Stage 8.8.5 stale-data protection code readiness**.
+**Stage 8.8.5 stale-data protection complete**.
 
 Resolve the current Git `main` SHA directly from GitHub during every independent
 audit; this versioned file is not authoritative for a moving branch SHA.
 
 Current Stage 8 repository audit state:
 
-- `stage8_status`: `STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_FAULT_INJECTION`;
+- `stage8_status`: `STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE`;
 - Stage 8 independent repository audit: PASS, 111 checks, zero recorded errors;
 - LIVE trading: **NOT AUTHORIZED**;
 - real order transmission: **NOT AUTHORIZED**.
@@ -190,19 +190,29 @@ Rules:
 
 Repository synthetic tests/audit cover the validated grid, partial final bar,
 stale/fresh recovery, persistence, per-instrument schedules, heartbeat and
-no-order semantics. The code is ready for Intel fault-injection validation.
+no-order semantics.
 
-**Operational gate remains open:** real Intel fault-injection validation of the
-supervisor/stale-data behavior is still pending. Repository tests do not count
-as completed 24/7 operational acceptance.
+Stage 8.8.5 status is
+`STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE`. The real Intel stale-data
+acceptance passed against audited source Git head
+`1c1c2bb5458827f200bc753e7e64db0272b33a8f`. The external acceptance artifact,
+which remains outside Git, has SHA-256
+`C57554AE3AE54018EC1E558108520088C1883718F0406E7B6C6669B4696A9CBC`.
+
+Sanitized acceptance facts: the clean cycle was `HEALTHY` / `PASS`; the
+controlled missing-completed-H1 fault produced `STALE_COMPLETED_H1_DATA` and
+`UNHEALTHY` / `FAULT`; successful cycle count, H1 state, and expected-H1 state
+did not advance during the fault. Recovery returned `HEALTHY` / `PASS` and
+reset consecutive failures to 0. Order-capable calls were 0, entries remained
+disabled, and the production Scheduled Task remained Disabled throughout the
+acceptance. No runtime JSON or raw FINAM response is stored in this repository.
 
 ## Current next action
 
 Do **not** start LIVE trading.
 
-The next permitted work is operational validation on the Intel host under
-REAL_READONLY with entries disabled, including restart/network/stale-data fault
-injection and recovery verification.
+**NEXT: Stage 8.8.6 SQLite backup / recovery / reconciliation validation.**
+Stage 8.8.6 is not started. It must remain REAL_READONLY with entries disabled.
 
 Separately:
 

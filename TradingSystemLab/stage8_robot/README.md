@@ -92,10 +92,20 @@ The validated expected raw-open watermark is stored per instrument as
 state. A closed-period cold start without that trusted watermark fails with
 `H1_EXPECTED_COMPLETED_WATERMARK_UNAVAILABLE`.
 
-Stage 8.8.5 remains
-`STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_FAULT_INJECTION` and requires
-independent audit followed by real Intel operational fault-injection validation;
-unit tests and the repository audit do not complete that operational gate.
+Stage 8.8.5 is
+`STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE`. Real Intel acceptance passed
+against audited Git head `1c1c2bb5458827f200bc753e7e64db0272b33a8f`; the
+external artifact SHA-256 is
+`C57554AE3AE54018EC1E558108520088C1883718F0406E7B6C6669B4696A9CBC`.
+The clean cycle was `HEALTHY` / `PASS`; the controlled
+`STALE_COMPLETED_H1_DATA` fault was `UNHEALTHY` / `FAULT` without advancement
+of successful cycle, H1, or expected-H1 state. Recovery returned `HEALTHY` /
+`PASS` and reset consecutive failures to 0. Order-capable calls were 0, entries
+remained disabled, and the Scheduled Task remained Disabled. The runtime JSON
+and real FINAM market responses remain outside Git.
+
+**NEXT: Stage 8.8.6 SQLite backup / recovery / reconciliation validation.** It
+is not started and does not authorize LIVE trading or real order transmission.
 
 ## Boundaries and startup
 
