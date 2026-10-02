@@ -64,6 +64,12 @@ def _run_json(command: list[str], root: Path) -> dict:
         return {"status": "FAIL", "checks": 0, "errors": ["SUBAUDIT_RESULT_UNREADABLE"]}
 
 
+def _protected_sha256(raw: bytes) -> str:
+    """Hash protected text using the canonical Git/GitHub LF representation."""
+    canonical = raw.replace(b"\r\n", b"\n")
+    return hashlib.sha256(canonical).hexdigest()
+
+
 def audit(
     root: Path = ROOT,
     *,
@@ -142,7 +148,7 @@ def audit(
     check(all(STAGE_8_8_6_CODE in doc and STAGE_8_8_6_EVIDENCE in doc for doc in docs), "STAGE_8_8_6_PROVENANCE_SYNCHRONIZED")
     check(all(value in joined_docs for value in (BACKUP_SHA, MANIFEST_SHA, BASELINE_SHA)), "STAGE_8_8_6_RECOVERY_HASHES_RECORDED")
 
-    bad_hashes = [path for path, expected in PROTECTED_SHA256.items() if hashlib.sha256(content(path)).hexdigest() != expected]
+    bad_hashes = [path for path, expected in PROTECTED_SHA256.items() if _protected_sha256(content(path)) != expected]
     check(not bad_hashes, "PROTECTED_IMPLEMENTATION_HASHES:" + ",".join(bad_hashes))
 
     supervisor = text("TradingSystemLab/stage8_robot/readonly_supervisor.py")

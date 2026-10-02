@@ -54,6 +54,21 @@ def test_changed_protected_implementation_hash_fails():
     assert any(error.startswith("PROTECTED_IMPLEMENTATION_HASHES:") for error in result["errors"])
 
 
+def test_crlf_protected_implementation_hashes_pass():
+    paths = (
+        "TradingSystemLab/stage8_robot/readonly_supervisor.py",
+        "TradingSystemLab/stage8_robot/deploy/windows/run-readonly.ps1",
+        "TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/production_specification.json",
+        "TradingSystemLab/stage8_robot/production_instrument_registry.csv",
+    )
+    overrides = {path: source(path).replace("\n", "\r\n") for path in paths}
+
+    result = run_audit(overrides)
+
+    assert result["protected_implementation_status"] == "PASS"
+    assert not any(error.startswith("PROTECTED_IMPLEMENTATION_HASHES:") for error in result["errors"])
+
+
 def test_missing_stage_8_8_5_evidence_sha_fails():
     path = "TradingSystemLab/CURRENT_STATE.md"
     result = run_audit({path: source(path).replace(final.STAGE_8_8_5_EVIDENCE, "MISSING")})
