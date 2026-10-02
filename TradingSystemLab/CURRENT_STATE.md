@@ -337,3 +337,30 @@ state in `main`.
 ## Stage 8.9 physical validation closeout
 
 Repository diagnostic readiness is retained. Physical REAL_READONLY validation was performed on accepted Intel code commit `5deedb49f16d9f2525c430383a029017cd9a53ce`. `stage8_9_physical_validation_performed = true`. The result is `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`, reason `FORTS_PORTFOLIO_MISSING`. Diagnostic report SHA-256: `2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`. Physical validation summary SHA-256: `59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B`. The external JSON evidence remains outside Git. The authenticated account was a clean, active `UNION` account using a read-only token, and its exact frozen N4 binding was valid. `portfolio_forts` was absent, so funding/margin feasibility remained `BLOCKED`; absence is not zero and no other field is a fallback. The no-order-call assertion was true. The Scheduled Task stayed Disabled; supervisor process and recovery internal file counts stayed zero; FINAM secret and account ID were removed from the process environment. The accepted physical run recorded Stage 8 repository audit PASS / 141 checks, Final Operational Audit PASS / 45 checks, Stage 7 production audit PASS / 22 checks / 19 mutation tests, and server preflight PASS. No physical order-capable operation occurred. Stage 8.9 is **CURRENT / BLOCKED / NOT COMPLETE**. Stage 8.10 is **NOT STARTED / NOT AUTHORIZED**. LIVE trading and real-order transmission remain unauthorized.
+
+
+## Stage 8.9.8 UNION/MC authority resolution
+
+Status: `STAGE_8_9_UNION_MC_AUTHORITY_CODE_READY_PENDING_PHYSICAL_REVALIDATION`.
+Stage 8.9.8 account-authority resolution is complete: the production account is
+`UNION`, and funded physical evidence confirmed exactly one `portfolio_mc`. The
+FORTS-only implementation was incorrect for this account. The post-funding MC
+portfolio-variant evidence SHA-256 is
+`60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5`; the
+post-funding account financial-shape evidence SHA-256 is
+`EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371`.
+Only these sanitized hashes are committed; the external JSON, account identity,
+and financial values remain outside Git. Corrective code is ready only after
+this PR passes. **Stage 8.9.9 physical revalidation is still required.** Stage
+8.9 remains **NOT COMPLETE**. Stage 8.10 remains **NOT STARTED / NOT
+AUTHORIZED**. `LIVE_TRADING_NOT_AUTHORIZED`,
+`REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and `NEW_ENTRIES_DISABLED` remain
+unchanged. No live order was transmitted and no live trading was authorized.
+
+The earlier physical result `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` /
+`FORTS_PORTFOLIO_MISSING`, accepted Intel commit
+`5deedb49f16d9f2525c430383a029017cd9a53ce`, diagnostic SHA-256
+`2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`, and
+physical-summary SHA-256
+`59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B` remain
+historical evidence of the old implementation and are not reinterpreted.

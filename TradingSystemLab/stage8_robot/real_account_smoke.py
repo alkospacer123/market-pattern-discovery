@@ -6,7 +6,7 @@ from pathlib import Path
 from .finam_api import FinamAPI,completed_h1_bars
 from .readonly_supervisor import trading_h1_windows
 from .instrument_resolver import MOEX_REFERENCE,N4,discover_finam_asset,evidence_sha256,validate_finam_binding
-from .margin import cap_r15_by_margin,directional_initial_margin,forts_funds,parse_rest_decimal_value_object
+from .margin import cap_r15_by_margin,directional_initial_margin,portfolio_authority,parse_rest_decimal_value_object
 from .risk import ContractEconomics,size_position
 
 def run_diagnostic(api,account,report_path):
@@ -19,7 +19,7 @@ def run_diagnostic(api,account,report_path):
     clean=not positions and not orders
     if not clean: raise RuntimeError("REAL_ACCOUNT_NOT_CLEAN_FOR_INITIALIZATION")
     # Binding deliberately precedes account-financial parsing.  An empty UNION
-    # account can authenticate instruments without manufacturing FORTS funds.
+    # account can authenticate instruments without manufacturing portfolio funds.
     available=api.assets_all_active()
     records={}; now=datetime.now(timezone.utc)
     for code in N4:
@@ -37,9 +37,11 @@ def run_diagnostic(api,account,report_path):
     if set(records)!=set(N4): raise RuntimeError("REAL_BINDING_REQUIRES_ALL_FOUR")
     funding_status="READY"; funding_error=None; financials={}
     try:
-        free,reserved=forts_funds(account_data)
+        authority=portfolio_authority(account_data)
+        free=authority.available_cash
         realized=parse_rest_decimal_value_object(account_data.get("equity"),positive=True)
-        financials={"forts_available_cash":str(free),"forts_money_reserved":str(reserved)}
+        financials={"portfolio_variant":authority.variant,"available_cash":str(free),
+                    "money_reserved":str(authority.money_reserved) if authority.money_reserved is not None else None}
         for code,binding in records.items():
             symbol=binding["finam_symbol"]
             schedule=api.schedule(symbol)

@@ -17,14 +17,14 @@ from .finam_api import FinamAPI, completed_h1_bars
 from .instrument_resolver import (MOEX_REFERENCE, N4, discover_finam_asset,
                                   parse_rest_value_object, validate_finam_binding)
 from .margin import (AVAILABLE_CASH_SEMANTICS, MarginBatchBudget,
-                     cap_r15_by_margin, directional_initial_margin, forts_funds,
+                     cap_r15_by_margin, directional_initial_margin, portfolio_authority,
                      parse_rest_decimal_value_object)
 from .readonly_supervisor import SafetyFault, trading_h1_windows
 from .risk import ContractEconomics, size_position
 from .specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID
 
 SCHEMA = "stage8-8-9-funding-margin-validation/v1"
-REPOSITORY_STATUS = "STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION"
+REPOSITORY_STATUS = "STAGE_8_9_UNION_MC_AUTHORITY_CODE_READY_PENDING_PHYSICAL_REVALIDATION"
 READY = "STAGE_8_9_FUNDING_MARGIN_VALIDATED"
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 PRODUCTION_REGISTRY_PATH = Path(__file__).with_name("production_instrument_registry.csv")
@@ -100,7 +100,10 @@ def evaluate(*, account: dict, orders: object, details: dict, account_id: str,
             "account_type": account.get("type") if isinstance(account, dict) else None,
             "account_status": account.get("status") if isinstance(account, dict) else None,
             "readonly_token": details.get("readonly") is True,
-            "account_clean": False, "portfolio_forts_present": False,
+            "account_clean": False, "portfolio_variant": None,
+            "portfolio_mc_present": False, "portfolio_forts_present": False,
+            "financial_schema_valid": False,
+            "mc_initial_margin_valid": False, "mc_maintenance_margin_valid": False,
             "n4_binding_valid": False, "no_order_call_assertion": True,
             "available_cash_semantics": AVAILABLE_CASH_SEMANTICS}
     if production_id != PRODUCTION_SPECIFICATION_ID:
@@ -121,13 +124,17 @@ def evaluate(*, account: dict, orders: object, details: dict, account_id: str,
     if not _registry_matches_frozen_authority(production_registry, registry):
         return _blocked("BLOCKED_N4_AUTHORITY_INVALID", "PRODUCTION_REGISTRY_BINDING_MISMATCH", base)
     base["n4_binding_valid"] = True
+    base["portfolio_mc_present"] = isinstance(account.get("portfolio_mc"), dict)
     base["portfolio_forts_present"] = isinstance(account.get("portfolio_forts"), dict)
-    if not base["portfolio_forts_present"]:
-        return _blocked("BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE", "FORTS_PORTFOLIO_MISSING", base)
     try:
-        available, reserved = forts_funds(account)
+        authority = portfolio_authority(account)
     except ValueError as exc:
         return _blocked("BLOCKED_ACCOUNT_FINANCIALS_INVALID", str(exc), base)
+    available = authority.available_cash
+    base["portfolio_variant"] = authority.variant
+    base["financial_schema_valid"] = True
+    base["mc_initial_margin_valid"] = authority.initial_margin is not None
+    base["mc_maintenance_margin_valid"] = authority.maintenance_margin is not None
     try:
         equity = parse_rest_decimal_value_object(account.get("equity"), positive=True)
     except ValueError as exc:
@@ -169,8 +176,10 @@ def evaluate(*, account: dict, orders: object, details: dict, account_id: str,
         return _blocked("BLOCKED_FUNDING_FEASIBILITY_INVALID", reason, base)
     return {**base, "funding_classification": READY, "reason_code": "ALL_AUTHORITIES_VALID",
             "financial_schema_valid": True, "equity_valid": True,
-            "directional_margins_valid": True, "forts_available_cash": str(available),
-            "forts_money_reserved": str(reserved), "realized_equity": str(equity),
+            "directional_margins_valid": True, "available_cash": str(available),
+            "money_reserved": (str(authority.money_reserved)
+                               if authority.money_reserved is not None else None),
+            "realized_equity": str(equity),
             "per_instrument": cases,
             "batch_budget": {"status": "PASS", "sequence": list(N4),
                              "reservations": reservations, "remaining_cash": str(budget.remaining)},

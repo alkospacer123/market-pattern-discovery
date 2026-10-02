@@ -1,5 +1,5 @@
 {
-  "checks": 47,
+  "checks": 48,
   "errors": [],
   "intel_final_acceptance_performed": true,
   "live_trading_authorized": false,
@@ -17,6 +17,10 @@
   "stage8_8_7_accepted_code_commit": "bda46f57f0f977e05593c46b55851c40c4ad34fe",
   "stage8_8_7_external_evidence_sha256": "181225F29A966179AB513121C3CBACD31401752956EFC9A22253A8EFBF94766E",
   "stage8_8_7_status": "STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_INTEL_ACCEPTANCE_COMPLETE",
+  "stage8_9_8_financial_shape_evidence_sha256": "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371",
+  "stage8_9_8_portfolio_variant_evidence_sha256": "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5",
+  "stage8_9_8_status": "STAGE_8_9_UNION_MC_AUTHORITY_CODE_READY_PENDING_PHYSICAL_REVALIDATION",
+  "stage8_9_9_status": "PENDING",
   "stage8_9_accepted_code_commit": "5deedb49f16d9f2525c430383a029017cd9a53ce",
   "stage8_9_complete": false,
   "stage8_9_diagnostic_report_sha256": "2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46",
@@ -25,7 +29,7 @@
   "stage8_9_reason": "FORTS_PORTFOLIO_MISSING",
   "stage8_9_started": true,
   "stage8_9_status": "BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE",
-  "stage8_audit_checks": 143,
+  "stage8_audit_checks": 145,
   "stage8_audit_status": "PASS",
   "status": "PASS"
 }

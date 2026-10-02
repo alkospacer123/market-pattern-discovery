@@ -1,16 +1,16 @@
 {
   "account": {
     "account_id": "SANITIZED",
-    "type": "ACCOUNT_TYPE_FORTS",
+    "type": "UNION",
     "status": "ACCOUNT_STATUS_ACTIVE",
     "equity": {"value": "250000.50"},
     "unrealized_profit": {"value": "0"},
     "positions": [],
     "cash": [],
-    "portfolio_mc": null,
-    "portfolio_forts": {
+    "portfolio_mc": {
       "available_cash": {"value": "200000.25"},
-      "money_reserved": {"value": "1000"}
+      "initial_margin": {"value": "1000"},
+      "maintenance_margin": {"value": "900"}
     }
   },
   "asset_params": {

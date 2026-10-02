@@ -53,10 +53,17 @@ def audit(write_result=True):
     stage8_9_code="5deedb49f16d9f2525c430383a029017cd9a53ce"
     stage8_9_report="2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46"
     stage8_9_summary="59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B"
+    stage8_9_8_status="STAGE_8_9_UNION_MC_AUTHORITY_CODE_READY_PENDING_PHYSICAL_REVALIDATION"
+    stage8_9_8_variant="60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
+    stage8_9_8_shape="EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
     check(all(all(value in document for value in (stage8_9_status,stage8_9_reason,stage8_9_code,
                                                    stage8_9_report,stage8_9_summary))
               for document in (current_state,readme,roadmap)),
           "STAGE_8_9_PHYSICAL_BLOCKED_PROVENANCE_SYNCHRONIZED")
+    check(all(all(value in document for value in (stage8_9_8_status,stage8_9_8_variant,
+                                                   stage8_9_8_shape,"Stage 8.9.9"))
+              for document in (current_state,readme,roadmap)),
+          "STAGE_8_9_8_UNION_MC_RESOLUTION_PROVENANCE_SYNCHRONIZED")
     check("STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION" not in closeout_docs
           and "STAGE_8_9_FUNDING_MARGIN_VALIDATED" not in closeout_docs,
           "STAGE_8_9_BLOCKED_NOT_COMPLETE")
@@ -124,6 +131,8 @@ def audit(write_result=True):
     check("details.get(\"readonly\") is not True" in broker and "REAL_TOKEN_NOT_READONLY" in real_smoke,"TOKEN_READONLY_ENFORCED")
     check("min(r15_quantity,margin_qty)" in margin and "floor_to_trade_lot" in margin and "MARGIN_CAP_INCREASED_R15" in margin,"MARGIN_ONLY_REDUCES_R15")
     check("portfolio_forts" in margin and "available_cash" in margin and "money_reserved" in margin,"FORTS_AVAILABLE_RESERVED_PARSED")
+    check("portfolio_mc" in margin and "initial_margin" in margin and "maintenance_margin" in margin
+          and 'account_type=="UNION"' in margin,"UNION_MC_ACCOUNT_AUTHORITY_PARSED")
     check("long_initial_margin" in margin and "short_initial_margin" in margin and "MARGIN_CURRENCY_MISMATCH" in margin,"DIRECTIONAL_MARGIN_PARSED")
     decimal_parser=margin.split("def parse_rest_decimal_value_object",1)[1].split("def forts_funds",1)[0]
     check('set(value)!={"value"}' in decimal_parser and "Decimal(scalar)" in decimal_parser and "parse_money" not in decimal_parser,"ACCOUNT_REST_DECIMAL_DISTINCT")
@@ -139,7 +148,7 @@ def audit(write_result=True):
     check('os.getenv("FINAM_MODE") != "REAL_READONLY"' in funding_diagnostic
           and 'os.getenv("NEW_ENTRIES_DISABLED", "").lower() != "true"' in funding_diagnostic,
           "STAGE_8_9_REAL_READONLY_ENTRIES_DISABLED")
-    check('forts_funds(account)' in funding_diagnostic
+    check('portfolio_authority(account)' in funding_diagnostic
           and 'parse_rest_decimal_value_object(account.get("equity"), positive=True)' in funding_diagnostic
           and "AVAILABLE_CASH_SEMANTICS" in funding_diagnostic,
           "STAGE_8_9_EXACT_FINANCIAL_AUTHORITIES_NO_FALLBACK")
