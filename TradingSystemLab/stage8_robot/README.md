@@ -1,11 +1,11 @@
 # Stage 8 robot foundation
 
-**Status:** `STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION` — `LIVE_TRADING_NOT_AUTHORIZED`.
+**Status:** `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` — `LIVE_TRADING_NOT_AUTHORIZED`.
 
 Stage 8.8 operational hardening is COMPLETE. Stages 8.8.1, 8.8.2, 8.8.3,
 8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE. Stage 8.9 is CURRENT, with
-repository diagnostics ready and physical Intel validation pending. Stage 8.10
-is PENDING / NOT AUTHORIZED; 8.11/8.12 remain not authorized.
+repository diagnostics ready and physical validation performed with a fail-closed blocked result. Stage 8.10
+is NOT STARTED / NOT AUTHORIZED; 8.11/8.12 remain not authorized.
 
 ## Real account read-only and margin feasibility
 
@@ -44,8 +44,8 @@ position sizing. On 2026-10-01 an operator-executed `REAL_READONLY` diagnostic
 authenticated all four N4 perpetual futures against FINAM. The
 committed production registry is now 4/4 `AUTHENTICATED_REAL_READONLY`; the
 validation token was read-only and no real order was transmitted. Funding
-readiness remains separate and fail-closed because the clean UNION account did
-not expose the required `portfolio_forts` financial structure. LIVE trading
+readiness was physically validated and remains fail-closed because the clean
+UNION account did not expose the required `portfolio_forts` financial structure. LIVE trading
 remains unauthorized. Intel host artifacts are under `deploy/windows/` and
 cover external state paths, instance locking, online SQLite backup, bounded logs,
 heartbeat, secrets, and reboot reconciliation.
@@ -220,12 +220,12 @@ absent. No live order was transmitted and no authorization changed. Repository
 tooling validates the provenance and hash; it did not generate the evidence.
 
 **CURRENT: Stage 8.9 — Real Account Funding & Margin Validation.** Repository
-status is `STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION`.
+status is `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`.
 The previous real-account result was `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`
 because the clean UNION account did not expose `portfolio_forts`; that blocker
 is not claimed resolved. The external report uses schema
 `stage8-8-9-funding-margin-validation/v1`, stays outside Git, and contains only
-sanitized evidence. Stage 8.10 is PENDING / NOT AUTHORIZED. LIVE trading and
+sanitized evidence. Stage 8.10 is NOT STARTED / NOT AUTHORIZED. LIVE trading and
 real-order transmission remain not authorized.
 
 ## Boundaries and startup
@@ -326,3 +326,7 @@ conformance PASS, and reconciliation. Both the isolated research-authority repla
 and the independent Stage 8 production replay reproduce all 418 authoritative
 trades exactly and deterministically. No FINAM connection was attempted and no
 demo order was transmitted.
+
+## Stage 8.9 physical validation closeout
+
+Repository diagnostic readiness is retained. Physical REAL_READONLY validation was performed on accepted Intel code commit `5deedb49f16d9f2525c430383a029017cd9a53ce`. `stage8_9_physical_validation_performed = true`. The result is `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`, reason `FORTS_PORTFOLIO_MISSING`. Diagnostic report SHA-256: `2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`. Physical validation summary SHA-256: `59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B`. The external JSON evidence remains outside Git. The authenticated account was a clean, active `UNION` account using a read-only token, and its exact frozen N4 binding was valid. `portfolio_forts` was absent, so funding/margin feasibility remained `BLOCKED`; absence is not zero and no other field is a fallback. The no-order-call assertion was true. The Scheduled Task stayed Disabled; supervisor process and recovery internal file counts stayed zero; FINAM secret and account ID were removed from the process environment. The accepted physical run recorded Stage 8 repository audit PASS / 141 checks, Final Operational Audit PASS / 45 checks, Stage 7 production audit PASS / 22 checks / 19 mutation tests, and server preflight PASS. No physical order-capable operation occurred. Stage 8.9 is **CURRENT / BLOCKED / NOT COMPLETE**. Stage 8.10 is **NOT STARTED / NOT AUTHORIZED**. LIVE trading and real-order transmission remain unauthorized.

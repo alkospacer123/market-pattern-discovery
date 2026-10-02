@@ -113,7 +113,7 @@ def test_individual_stage_lifecycle_regression_fails():
         "8.8.5, 8.8.6, and 8.8.7 are COMPLETE." in " ".join(doc.split())
         for doc in overrides.values()
     )
-    assert all("STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION" in doc
+    assert all(final.STAGE_8_9_STATUS in doc
                for doc in overrides.values())
 
     result = run_audit(overrides)
@@ -144,11 +144,19 @@ def test_real_order_authorization_mutation_fails():
     assert "REAL_ORDER_TRANSMISSION_BLOCKED" in result["errors"]
 
 
-def test_stage_8_9_pending_status_removed_fails():
+def test_stage_8_9_blocked_status_removed_fails():
     path = "TradingSystemLab/CURRENT_STATE.md"
     result = run_audit({path: source(path).replace(
-        "STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION", "MISSING")})
-    assert "STAGE_8_9_DIAGNOSTIC_PENDING_SYNCHRONIZED" in result["errors"]
+        final.STAGE_8_9_STATUS, "MISSING")})
+    assert "STAGE_8_9_PHYSICAL_BLOCKED_PROVENANCE_SYNCHRONIZED" in result["errors"]
+
+
+def test_stage_8_9_physical_provenance_mutations_fail():
+    path = "TradingSystemLab/CURRENT_STATE.md"
+    for value in (final.STAGE_8_9_CODE, final.STAGE_8_9_REPORT,
+                  final.STAGE_8_9_SUMMARY, final.STAGE_8_9_REASON):
+        result = run_audit({path: source(path).replace(value, "WRONG")})
+        assert "STAGE_8_9_PHYSICAL_BLOCKED_PROVENANCE_SYNCHRONIZED" in result["errors"]
 
 
 def test_stage_8_8_7_missing_external_provenance_fails():

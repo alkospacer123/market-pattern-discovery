@@ -40,6 +40,8 @@ def audit(write_result=True):
     check(all(accepted_code_sha in document for document in (current_state,readme,roadmap)),"STAGE_8_8_6_ACCEPTED_CODE_SHA_RECORDED")
     check(all(evidence_sha in document for document in (current_state,readme,roadmap)),"STAGE_8_8_6_EXTERNAL_EVIDENCE_SHA_RECORDED")
     check(not any("stage8_8_6_sqlite_recovery_acceptance.json" in path.lower()
+                  or (("stage8_9" in path.lower() or "funding_margin_validation" in path.lower())
+                      and path.lower().endswith(".json"))
                   or path.lower().endswith((".sqlite3","-wal","-shm",".dpapi")) for path in tracked),
           "STAGE_8_8_6_RAW_EXTERNAL_AND_RUNTIME_MATERIAL_NOT_TRACKED")
     final_status="STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_INTEL_ACCEPTANCE_COMPLETE"
@@ -47,8 +49,17 @@ def audit(write_result=True):
     final_evidence_sha="181225F29A966179AB513121C3CBACD31401752956EFC9A22253A8EFBF94766E"
     check(all(final_status in document and final_code_sha in document and final_evidence_sha in document
               for document in (current_state,readme,roadmap)),"STAGE_8_8_7_COMPLETED_PROVENANCE_SYNCHRONIZED")
-    check("STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION" in closeout_docs,
-          "STAGE_8_9_DIAGNOSTIC_READY_PENDING_INTEL")
+    stage8_9_status="BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE"; stage8_9_reason="FORTS_PORTFOLIO_MISSING"
+    stage8_9_code="5deedb49f16d9f2525c430383a029017cd9a53ce"
+    stage8_9_report="2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46"
+    stage8_9_summary="59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B"
+    check(all(all(value in document for value in (stage8_9_status,stage8_9_reason,stage8_9_code,
+                                                   stage8_9_report,stage8_9_summary))
+              for document in (current_state,readme,roadmap)),
+          "STAGE_8_9_PHYSICAL_BLOCKED_PROVENANCE_SYNCHRONIZED")
+    check("STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION" not in closeout_docs
+          and "STAGE_8_9_FUNDING_MARGIN_VALIDATED" not in closeout_docs,
+          "STAGE_8_9_BLOCKED_NOT_COMPLETE")
     check("LIVE_TRADING_NOT_AUTHORIZED" in readme and "no live trading was authorized" in closeout_docs.lower(),"CLOSEOUT_LIVE_TRADING_UNAUTHORIZED")
     check("REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in readme
           and re.search(r"no live order\s+was transmitted",closeout_docs,re.I),
@@ -146,7 +157,7 @@ def audit(write_result=True):
         cwd=ROOT,capture_output=True,text=True)
     check(run_path_tests.returncode==0,
           "STAGE_8_9_SYNTHETIC_RUN_PATH_FAIL_CLOSED_INTEGRATION")
-    check("Stage 8.10" in closeout_docs and "PENDING / NOT AUTHORIZED" in closeout_docs
+    check("Stage 8.10" in closeout_docs and "NOT STARTED / NOT AUTHORIZED" in closeout_docs
           and "LIVE_TRADING_NOT_AUTHORIZED" in readme,
           "STAGE_8_10_AND_LIVE_UNAUTHORIZED")
     check("starting_realized_equity" in runner and "REAL_ACCOUNT_NOT_CLEAN_FOR_INITIALIZATION" in runner,"CLEAN_REAL_EQUITY_BOOTSTRAP")
@@ -326,7 +337,7 @@ def audit(write_result=True):
           "WINDOWS_NO_OBSOLETE_SUPERVISOR_STATE_AUTHORITY")
     check("TradingSystemLab.stage8_robot.readonly_supervisor" in launcher and not any(x in windows_deployment for x in ("place_order","submit_order","cancel_order")),"WINDOWS_SERVICE_READONLY_NO_ORDER_PATH")
     check("-ExecutionPolicy RemoteSigned" in task_installer and "-MultipleInstances IgnoreNew" in task_installer,"WINDOWS_TASK_POLICY_CONSERVATIVE")
-    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":completed_status,"margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED","stage8_9_status":"STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION","stage8_9_physical_validation_performed":False}
+    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":completed_status,"margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED","stage8_9_status":stage8_9_status,"stage8_9_reason":stage8_9_reason,"stage8_9_accepted_code_commit":stage8_9_code,"stage8_9_diagnostic_report_sha256":stage8_9_report,"stage8_9_physical_summary_sha256":stage8_9_summary,"stage8_9_complete":False,"stage8_9_physical_validation_performed":True}
     if write_result: (HERE/"independent_audit_result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
     return result
 if __name__=="__main__":

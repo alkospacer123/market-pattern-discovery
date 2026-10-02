@@ -32,6 +32,11 @@ STAGE_8_8_6_CODE = "dc2b79e74817e71435eee20103ae617e13067d8e"
 STAGE_8_8_6_EVIDENCE = "1A9B62D4BFC0E7384898C9DF9659E54E50E0E202BD44CE19413864AC2ECA14D6"
 STAGE_8_8_7_CODE = "bda46f57f0f977e05593c46b55851c40c4ad34fe"
 STAGE_8_8_7_EVIDENCE = "181225F29A966179AB513121C3CBACD31401752956EFC9A22253A8EFBF94766E"
+STAGE_8_9_STATUS = "BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE"
+STAGE_8_9_REASON = "FORTS_PORTFOLIO_MISSING"
+STAGE_8_9_CODE = "5deedb49f16d9f2525c430383a029017cd9a53ce"
+STAGE_8_9_REPORT = "2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46"
+STAGE_8_9_SUMMARY = "59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B"
 BACKUP_SHA = "00b5e4ca2b389d55389b6b57ac73b5e557c11b72daab8d6e118311613e0aa3b0"
 MANIFEST_SHA = "3d0ef1d7cb11ee592be32550625e8badefc596108f4d0c34eff6c5e12ceba822"
 BASELINE_SHA = "13f01f1009768ddce65dce079f70486f2cbc2508cd1ea8ec4787414a78e0d3be"
@@ -210,20 +215,27 @@ def audit(
         name = Path(lower).name
         runtime_suffix = lower.endswith((".sqlite3", "-wal", "-shm", ".dpapi"))
         external_acceptance = "acceptance" in name and name.endswith(".json") and "tests/" not in lower
+        external_stage8_9 = ("stage8_9" in name or "funding_margin_validation" in name) and name.endswith(".json")
         raw_capture = any(term in name for term in ("raw_finam", "account_response", "real_market_capture", "stale_h1_evidence"))
         credential = any(term in name for term in ("credential", "secret")) and not lower.endswith((".py", ".ps1", ".md", ".example"))
-        return runtime_suffix or external_acceptance or raw_capture or credential
+        return runtime_suffix or external_acceptance or external_stage8_9 or raw_capture or credential
 
     runtime_artifacts = sorted(path for path in tracked_files if forbidden_artifact(path))
     check(not runtime_artifacts, "RUNTIME_OR_SECRET_ARTIFACT_TRACKED")
 
     check(all(COMPLETE_STATUS in doc for doc in docs), "STAGE_8_8_7_COMPLETE_STATUS_SYNCHRONIZED")
     check(all(STAGE_8_8_7_CODE in doc and STAGE_8_8_7_EVIDENCE in doc for doc in docs), "STAGE_8_8_7_EXTERNAL_PROVENANCE_SYNCHRONIZED")
-    stage8_9_status = "STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION"
-    check(all(stage8_9_status in doc for doc in docs), "STAGE_8_9_DIAGNOSTIC_PENDING_SYNCHRONIZED")
+    stage8_9_status = STAGE_8_9_STATUS
+    check(all(all(value in doc for value in (
+        STAGE_8_9_STATUS, STAGE_8_9_REASON, STAGE_8_9_CODE,
+        STAGE_8_9_REPORT, STAGE_8_9_SUMMARY,
+    )) for doc in docs), "STAGE_8_9_PHYSICAL_BLOCKED_PROVENANCE_SYNCHRONIZED")
+    check("STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION" not in joined_docs,
+          "STAGE_8_9_PENDING_PHYSICAL_STATE_RETIRED")
     check("STAGE_8_9_FUNDING_MARGIN_VALIDATED" not in joined_docs,
-          "STAGE_8_9_PHYSICAL_VALIDATION_NOT_PREDECLARED")
-    check("Stage 8.10" in joined_docs and "Stage 8.11/8.12" in joined_docs and "NOT AUTHORIZED" in joined_docs, "LATER_STAGES_PENDING_NOT_AUTHORIZED")
+          "STAGE_8_9_NOT_VALIDATED")
+    check("Stage 8.10" in joined_docs and "NOT STARTED / NOT AUTHORIZED" in joined_docs
+          and "Stage 8.11/8.12" in joined_docs, "LATER_STAGES_PENDING_NOT_AUTHORIZED")
 
     result = {
         "status": "PASS" if not errors else "FAIL", "checks": checks, "errors": errors,
@@ -238,7 +250,11 @@ def audit(
         "runtime_artifacts_tracked": runtime_artifacts, "live_trading_authorized": False,
         "real_order_transmission_authorized": False, "stage8_8_7_status": COMPLETE_STATUS,
         "intel_final_acceptance_performed": True, "stage8_9_started": True,
-        "stage8_9_status": stage8_9_status, "stage8_9_physical_validation_performed": False,
+        "stage8_9_status": stage8_9_status, "stage8_9_reason": STAGE_8_9_REASON,
+        "stage8_9_accepted_code_commit": STAGE_8_9_CODE,
+        "stage8_9_diagnostic_report_sha256": STAGE_8_9_REPORT,
+        "stage8_9_physical_summary_sha256": STAGE_8_9_SUMMARY,
+        "stage8_9_complete": False, "stage8_9_physical_validation_performed": True,
     }
     if write_result:
         (root / "TradingSystemLab/stage8_robot/final_operational_audit_result.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
