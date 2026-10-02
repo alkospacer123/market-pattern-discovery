@@ -1,10 +1,12 @@
 {
-  "checks": 132,
+  "checks": 139,
   "deployment_status": "STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED",
   "errors": [],
   "live_trading_activated": false,
   "margin_status": "STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY",
   "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+  "stage8_9_physical_validation_performed": false,
+  "stage8_9_status": "STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION",
   "stage8_status": "STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE",
   "status": "PASS"
 }

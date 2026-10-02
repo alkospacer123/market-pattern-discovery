@@ -1,5 +1,5 @@
 {
-  "checks": 44,
+  "checks": 45,
   "errors": [],
   "intel_final_acceptance_performed": true,
   "live_trading_authorized": false,
@@ -17,8 +17,10 @@
   "stage8_8_7_accepted_code_commit": "bda46f57f0f977e05593c46b55851c40c4ad34fe",
   "stage8_8_7_external_evidence_sha256": "181225F29A966179AB513121C3CBACD31401752956EFC9A22253A8EFBF94766E",
   "stage8_8_7_status": "STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_INTEL_ACCEPTANCE_COMPLETE",
-  "stage8_9_started": false,
-  "stage8_audit_checks": 132,
+  "stage8_9_physical_validation_performed": false,
+  "stage8_9_started": true,
+  "stage8_9_status": "STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION",
+  "stage8_audit_checks": 139,
   "stage8_audit_status": "PASS",
   "status": "PASS"
 }

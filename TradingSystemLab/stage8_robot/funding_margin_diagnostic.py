@@ -5,6 +5,7 @@ identifiers are never included; the operator keeps the report outside Git.
 """
 from __future__ import annotations
 
+import csv
 import hashlib
 import json
 import os
@@ -25,6 +26,52 @@ SCHEMA = "stage8-8-9-funding-margin-validation/v1"
 REPOSITORY_STATUS = "STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION"
 READY = "STAGE_8_9_FUNDING_MARGIN_VALIDATED"
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+PRODUCTION_REGISTRY_PATH = Path(__file__).with_name("production_instrument_registry.csv")
+ACTIVE_ACCOUNT_STATUSES = frozenset({"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"})
+FROZEN_N4_IDENTITIES = {
+    "USDRUBF": ("USDRUBF@RTSX", "RTSX", "3447194"),
+    "CNYRUBF": ("CNYRUBF@RTSX", "RTSX", "3447192"),
+    "GLDRUBF": ("GLDRUBF@RTSX", "RTSX", "4454911"),
+    "IMOEXF": ("IMOEXF@RTSX", "RTSX", "4631091"),
+}
+
+
+def load_production_registry(path: Path = PRODUCTION_REGISTRY_PATH) -> dict[str, dict[str, str]]:
+    """Load the frozen registry without repairing, replacing, or defaulting rows."""
+    try:
+        with path.open(newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+    except (OSError, csv.Error):
+        return {}
+    if len(rows) != len(N4) or any(not row.get("research_symbol") for row in rows):
+        return {}
+    return {row["research_symbol"]: row for row in rows}
+
+
+def _registry_matches_frozen_authority(production_registry: dict, live_registry: dict) -> bool:
+    if set(production_registry) != set(N4) or set(live_registry) != set(N4):
+        return False
+    for code in N4:
+        frozen = production_registry.get(code)
+        live = live_registry.get(code)
+        if not isinstance(frozen, dict) or not isinstance(live, dict):
+            return False
+        finam_symbol, mic, security_id = FROZEN_N4_IDENTITIES[code]
+        if (frozen.get("research_symbol") != code
+                or frozen.get("finam_symbol") != finam_symbol
+                or frozen.get("mic") != mic
+                or frozen.get("security_id") != security_id
+                or frozen.get("binding_status") != "AUTHENTICATED_REAL_READONLY"
+                or frozen.get("trading_status") != "TRADABLE"):
+            return False
+        if (live.get("research_symbol") != frozen["research_symbol"]
+                or live.get("finam_symbol") != frozen["finam_symbol"]
+                or live.get("mic") != frozen["mic"]
+                or str(live.get("security_id")) != frozen["security_id"]
+                or live.get("status") != frozen["binding_status"]
+                or live.get("is_tradable") is not True):
+            return False
+    return True
 
 
 def _blocked(status: str, reason: str, base: dict) -> dict:
@@ -33,7 +80,7 @@ def _blocked(status: str, reason: str, base: dict) -> dict:
 
 
 def evaluate(*, account: dict, orders: object, details: dict, account_id: str,
-             production_id: str, registry: dict, params: dict,
+             production_id: str, registry: dict, production_registry: dict, params: dict,
              sizing: dict, timestamp: str) -> dict:
     """Evaluate synthetic/read-only inputs and return sanitized evidence only."""
     base = {"schema": SCHEMA, "timestamp": timestamp,
@@ -51,7 +98,7 @@ def evaluate(*, account: dict, orders: object, details: dict, account_id: str,
         return _blocked("BLOCKED_SAFETY_PREREQUISITE", "TOKEN_NOT_READONLY", base)
     if account_id not in {str(value) for value in details.get("account_ids", [])}:
         return _blocked("BLOCKED_SAFETY_PREREQUISITE", "ACCOUNT_NOT_ENUMERATED", base)
-    if account.get("status") != "ACTIVE":
+    if account.get("status") not in ACTIVE_ACCOUNT_STATUSES:
         return _blocked("BLOCKED_ACCOUNT_INACTIVE", "ACCOUNT_NOT_ACTIVE", base)
     positions = account.get("positions") if isinstance(account, dict) else None
     active_orders = orders.get("orders") if isinstance(orders, dict) else orders
@@ -60,10 +107,8 @@ def evaluate(*, account: dict, orders: object, details: dict, account_id: str,
     if positions or active_orders:
         return _blocked("BLOCKED_ACCOUNT_NOT_CLEAN", "POSITIONS_PRESENT" if positions else "ACTIVE_ORDERS_PRESENT", base)
     base["account_clean"] = True
-    expected = set(N4)
-    if (set(registry) != expected or any(not isinstance(registry[x], dict) or
-            registry[x].get("status") != "AUTHENTICATED_REAL_READONLY" for x in N4)):
-        return _blocked("BLOCKED_N4_AUTHORITY_INVALID", "N4_REGISTRY_NOT_EXACT_AUTHENTICATED_4_OF_4", base)
+    if not _registry_matches_frozen_authority(production_registry, registry):
+        return _blocked("BLOCKED_N4_AUTHORITY_INVALID", "PRODUCTION_REGISTRY_BINDING_MISMATCH", base)
     base["n4_binding_valid"] = True
     base["portfolio_forts_present"] = isinstance(account.get("portfolio_forts"), dict)
     if not base["portfolio_forts_present"]:
@@ -126,6 +171,7 @@ def run(api, account_id: str, report_path: Path) -> dict:
     destination = report_path.expanduser().resolve()
     if destination == REPOSITORY_ROOT or REPOSITORY_ROOT in destination.parents:
         raise RuntimeError("STAGE8_9_REPORT_REPOSITORY_OUTPUT_FORBIDDEN")
+    production_registry = load_production_registry()
     api.create_session(); details = api.session_details()
     account = api.account(account_id); orders = api.orders(account_id)
     positions = account.get("positions") if isinstance(account, dict) else None
@@ -133,7 +179,8 @@ def run(api, account_id: str, report_path: Path) -> dict:
     if (not isinstance(positions, list) or not isinstance(active_orders, list)
             or positions or active_orders or details.get("readonly") is not True):
         report = evaluate(account=account, orders=orders, details=details, account_id=account_id,
-                          production_id=PRODUCTION_SPECIFICATION_ID, registry={}, params={}, sizing={},
+                          production_id=PRODUCTION_SPECIFICATION_ID, registry={},
+                          production_registry=production_registry, params={}, sizing={},
                           timestamp=datetime.now(timezone.utc).isoformat())
         destination.write_text(json.dumps(report, indent=2, sort_keys=True)+"\n", encoding="utf-8")
         return report
@@ -162,7 +209,8 @@ def run(api, account_id: str, report_path: Path) -> dict:
                 # ``evaluate`` owns the sanitized equity classification.
                 pass
     report = evaluate(account=account, orders=orders, details=details, account_id=account_id,
-                      production_id=PRODUCTION_SPECIFICATION_ID, registry=registry, params=params,
+                      production_id=PRODUCTION_SPECIFICATION_ID, registry=registry,
+                      production_registry=production_registry, params=params,
                       sizing=sizing, timestamp=now.isoformat())
     destination.write_text(json.dumps(report, indent=2, sort_keys=True)+"\n", encoding="utf-8")
     return report

@@ -9,7 +9,7 @@ PASS_STAGE7 = {
     "production_specification_id": final.SPEC_ID,
 }
 PASS_STAGE8 = {
-    "status": "PASS", "errors": [], "checks": 132,
+    "status": "PASS", "errors": [], "checks": 139,
     "production_specification_id": final.SPEC_ID, "live_trading_activated": False,
 }
 

@@ -4,7 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from TradingSystemLab.stage8_robot.funding_margin_diagnostic import READY, evaluate
+from TradingSystemLab.stage8_robot.funding_margin_diagnostic import (
+    READY, evaluate, load_production_registry)
 from TradingSystemLab.stage8_robot.instrument_resolver import N4
 from TradingSystemLab.stage8_robot.specification import PRODUCTION_SPECIFICATION_ID
 
@@ -15,13 +16,19 @@ def money(value="100"):
 
 
 def inputs(cash="1000", equity="10000", r15=8, lot=1):
-    return dict(account={"type":"UNION", "status":"ACTIVE", "positions":[],
+    production_registry=load_production_registry()
+    live_registry={code:{"research_symbol":code,
+                         "finam_symbol":row["finam_symbol"], "mic":row["mic"],
+                         "security_id":row["security_id"],
+                         "status":"AUTHENTICATED_REAL_READONLY", "is_tradable":True}
+                   for code,row in production_registry.items()}
+    return dict(account={"type":"UNION", "status":"ACCOUNT_ACTIVE", "positions":[],
                          "portfolio_forts":{"available_cash":{"value":cash},
                                              "money_reserved":{"value":"0"}},
                          "equity":{"value":equity}},
                 orders={"orders":[]}, details={"readonly":True,"account_ids":["synthetic"]},
                 account_id="synthetic", production_id=PRODUCTION_SPECIFICATION_ID,
-                registry={x:{"status":"AUTHENTICATED_REAL_READONLY"} for x in N4},
+                registry=live_registry, production_registry=production_registry,
                 params={x:{"long_initial_margin":money(),"short_initial_margin":money()} for x in N4},
                 sizing={x:{"entry":Decimal("100"),"stop":Decimal("99"),
                            "price_step":Decimal("1"),"tick_value":Decimal("1"),
@@ -41,6 +48,18 @@ def test_clean_valid_forts_account_ready_and_sanitized():
     assert report["funding_margin_feasibility"]=="PASS"
     assert report["no_order_call_assertion"] is True
     assert report["account_identity_sha256"] != "synthetic"
+
+
+def test_committed_registry_is_exact_canonical_authenticated_n4():
+    registry=load_production_registry()
+    assert {code:(row["finam_symbol"],row["mic"],row["security_id"],
+                         row["binding_status"],row["trading_status"])
+            for code,row in registry.items()}=={
+        "USDRUBF":("USDRUBF@RTSX","RTSX","3447194","AUTHENTICATED_REAL_READONLY","TRADABLE"),
+        "CNYRUBF":("CNYRUBF@RTSX","RTSX","3447192","AUTHENTICATED_REAL_READONLY","TRADABLE"),
+        "GLDRUBF":("GLDRUBF@RTSX","RTSX","4454911","AUTHENTICATED_REAL_READONLY","TRADABLE"),
+        "IMOEXF":("IMOEXF@RTSX","RTSX","4631091","AUTHENTICATED_REAL_READONLY","TRADABLE"),
+    }
 
 
 @pytest.mark.parametrize("value",[pytest.param("missing",id="missing"),pytest.param(None,id="null")])
@@ -121,12 +140,48 @@ def test_non_readonly_wrong_production_and_registry_fail_closed():
     data=inputs(); data["production_id"]="wrong"
     assert evaluate(**data)["reason_code"]=="PRODUCTION_ID_MISMATCH"
     data=inputs(); data["registry"].pop(N4[-1])
-    assert evaluate(**data)["reason_code"]=="N4_REGISTRY_NOT_EXACT_AUTHENTICATED_4_OF_4"
+    assert evaluate(**data)["reason_code"]=="PRODUCTION_REGISTRY_BINDING_MISMATCH"
 
 
-def test_inactive_account_fails_closed():
-    data=inputs(); data["account"]["status"]="CLOSED"
+@pytest.mark.parametrize("status", ["ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"])
+def test_production_active_account_statuses_are_accepted(status):
+    data=inputs(); data["account"]["status"]=status
+    assert evaluate(**data)["funding_classification"]==READY
+
+
+@pytest.mark.parametrize("status", ["ACTIVE", "ACCOUNT_INACTIVE", "UNKNOWN"])
+def test_unknown_or_inactive_account_status_fails_closed(status):
+    data=inputs(); data["account"]["status"]=status
     assert evaluate(**data)["reason_code"]=="ACCOUNT_NOT_ACTIVE"
+
+
+@pytest.mark.parametrize("field,value", [
+    ("finam_symbol", "WRONG@RTSX"),
+    ("mic", "WRONG"),
+    ("security_id", "999"),
+    ("binding_status", "BLOCKED_UNAUTHENTICATED"),
+    ("trading_status", "NOT_TRADABLE"),
+])
+def test_mutated_production_registry_fails_closed(field, value):
+    data=inputs(); data["production_registry"][N4[0]][field]=value
+    report=evaluate(**data)
+    assert report["funding_classification"]=="BLOCKED_N4_AUTHORITY_INVALID"
+    assert report["reason_code"]=="PRODUCTION_REGISTRY_BINDING_MISMATCH"
+
+
+def test_production_registry_requires_exact_four_rows():
+    data=inputs(); data["production_registry"].pop(N4[-1])
+    assert evaluate(**data)["reason_code"]=="PRODUCTION_REGISTRY_BINDING_MISMATCH"
+
+
+@pytest.mark.parametrize("field,value", [
+    ("finam_symbol", "REPLACEMENT@RTSX"), ("mic", "MISX"),
+    ("security_id", "9999999"), ("status", "BLOCKED_UNAUTHENTICATED"),
+    ("is_tradable", False),
+])
+def test_live_binding_must_equal_frozen_registry(field, value):
+    data=inputs(); data["registry"][N4[0]][field]=value
+    assert evaluate(**data)["reason_code"]=="PRODUCTION_REGISTRY_BINDING_MISMATCH"
 
 
 def test_diagnostic_source_has_no_order_capable_api_attribute_calls():
