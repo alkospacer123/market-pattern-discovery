@@ -1,6 +1,10 @@
 import ast
 import json
+import os
 import sqlite3
+import subprocess
+import sys
+from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -254,26 +258,61 @@ def test_atomic_restore_preserves_exact_continuity_and_removes_stale_sidecars(tm
 
 
 def wal_backed_canonical_and_backup(root: Path):
-    """Return a selected backup plus newer canonical state committed in its WAL."""
+    """Leave newer committed canonical state in a real crash-left WAL."""
     state, expected, backup, _ = recovery_point(root)
-    state.put_many({"cycle_count": "999", "invented": "wal-committed"})
+    state.close()
     target = root / "state/readonly-supervisor.sqlite3"
-    paths = [target, Path(f"{target}-wal"), Path(f"{target}-shm")]
-    assert all(path.exists() for path in paths)
+
+    # A separate interpreter is essential here.  os._exit deliberately skips
+    # sqlite3 connection teardown, leaving committed WAL state without leaving
+    # a live file handle in the parent (which would make the fixture POSIX-only).
+    crash_writer = """
+import os
+import sqlite3
+import sys
+from pathlib import Path
+
+target = Path(sys.argv[1])
+database = sqlite3.connect(target)
+assert database.execute("PRAGMA journal_mode=WAL").fetchone()[0].lower() == "wal"
+database.execute("PRAGMA wal_autocheckpoint=0")
+database.executemany(
+    "INSERT INTO operational_state VALUES(?,?) "
+    "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+    (("cycle_count", "999"), ("invented", "wal-committed")),
+)
+database.commit()
+assert Path(f"{target}-wal").is_file()
+values = dict(database.execute("SELECT key,value FROM operational_state"))
+assert values["cycle_count"] == "999"
+assert values["invented"] == "wal-committed"
+os._exit(0)
+"""
+    child = subprocess.run(
+        [sys.executable, "-c", crash_writer, str(target)],
+        check=False,
+        timeout=30,
+    )
+    assert child.returncode == 0
+    wal = Path(f"{target}-wal")
+    shm = Path(f"{target}-shm")
+    assert target.is_file()
+    assert wal.is_file() and wal.stat().st_size > 0
+    paths = [target, wal] + ([shm] if shm.exists() else [])
     before = {path: path.read_bytes() for path in paths}
-    return state, expected, backup, target, paths, before
+    return expected, backup, target, paths, before
 
 
 def assert_original_wal_state(paths, before, target):
     assert {path: path.read_bytes() for path in paths} == before
-    with sqlite3.connect(target) as database:
+    with closing(sqlite3.connect(target)) as database:
         values = dict(database.execute("SELECT key,value FROM operational_state"))
     assert values["cycle_count"] == "999"
     assert values["invented"] == "wal-committed"
 
 
 def test_failed_target_install_restores_real_wal_canonical_state(tmp_path, monkeypatch):
-    state, _, backup, target, paths, before = wal_backed_canonical_and_backup(tmp_path)
+    _, backup, target, paths, before = wal_backed_canonical_and_backup(tmp_path)
     real_replace = restore_module.os.replace
 
     def fail_candidate_install(source, destination):
@@ -285,11 +324,10 @@ def test_failed_target_install_restores_real_wal_canonical_state(tmp_path, monke
     with pytest.raises(OSError, match="forced target replacement failure"):
         restore_production_state(tmp_path, backup.name)
     assert_original_wal_state(paths, before, target)
-    state.close()
 
 
 def test_partial_quarantine_failure_rolls_back_real_wal_state(tmp_path, monkeypatch):
-    state, _, backup, target, paths, before = wal_backed_canonical_and_backup(tmp_path)
+    _, backup, target, paths, before = wal_backed_canonical_and_backup(tmp_path)
     real_replace = restore_module.os.replace
 
     def fail_while_staging_wal(source, destination):
@@ -301,11 +339,10 @@ def test_partial_quarantine_failure_rolls_back_real_wal_state(tmp_path, monkeypa
     with pytest.raises(OSError, match="forced partial quarantine failure"):
         restore_production_state(tmp_path, backup.name)
     assert_original_wal_state(paths, before, target)
-    state.close()
 
 
 def test_final_validation_failure_rolls_back_real_wal_state(tmp_path, monkeypatch):
-    state, _, backup, target, paths, before = wal_backed_canonical_and_backup(tmp_path)
+    _, backup, target, paths, before = wal_backed_canonical_and_backup(tmp_path)
     real_validate = restore_module.validate_operational_schema
 
     def fail_installed_candidate(path):
@@ -317,23 +354,21 @@ def test_final_validation_failure_rolls_back_real_wal_state(tmp_path, monkeypatc
     with pytest.raises(RuntimeError, match="forced final validation failure"):
         restore_production_state(tmp_path, backup.name)
     assert_original_wal_state(paths, before, target)
-    state.close()
 
 
 def test_successful_restore_discards_real_old_wal_and_selects_backup(tmp_path):
-    state, expected, backup, target, _, _ = wal_backed_canonical_and_backup(tmp_path)
-    state.close()
+    expected, backup, target, _, _ = wal_backed_canonical_and_backup(tmp_path)
     assert restore_production_state(tmp_path, backup.name).target == target
     assert not Path(f"{target}-wal").exists()
     assert not Path(f"{target}-shm").exists()
-    with sqlite3.connect(target) as database:
+    with closing(sqlite3.connect(target)) as database:
         assert dict(database.execute("SELECT key,value FROM operational_state")) == expected
     assert not list((tmp_path / "state").glob(".readonly-supervisor.restore-rollback.sqlite3*"))
 
 
 @pytest.mark.parametrize("suffix", ["", "-wal", "-shm"])
 def test_post_commit_cleanup_failure_has_distinct_committed_outcome(tmp_path, monkeypatch, suffix):
-    state, expected, backup, target, _, _ = wal_backed_canonical_and_backup(tmp_path)
+    expected, backup, target, _, _ = wal_backed_canonical_and_backup(tmp_path)
     real_unlink = Path.unlink
     failed_path = tmp_path / "state" / f"{CLEANUP_PENDING_BASENAME}{suffix}"
 
@@ -346,9 +381,8 @@ def test_post_commit_cleanup_failure_has_distinct_committed_outcome(tmp_path, mo
     result = restore_production_state(tmp_path, backup.name)
     assert result.target == target
     assert result.cleanup_pending is True
-    state.close()
 
-    with sqlite3.connect(target) as database:
+    with closing(sqlite3.connect(target)) as database:
         assert dict(database.execute("SELECT key,value FROM operational_state")) == expected
     assert not Path(f"{target}-wal").exists()
     assert not Path(f"{target}-shm").exists()
@@ -364,7 +398,7 @@ def test_post_commit_cleanup_failure_has_distinct_committed_outcome(tmp_path, mo
 
 
 def test_cli_reports_committed_cleanup_pending_without_generic_failure(tmp_path, monkeypatch, capsys):
-    state, _, backup, _, _, _ = wal_backed_canonical_and_backup(tmp_path)
+    _, backup, _, _, _ = wal_backed_canonical_and_backup(tmp_path)
     real_unlink = Path.unlink
     failed_path = tmp_path / "state" / CLEANUP_PENDING_BASENAME
 
@@ -380,7 +414,23 @@ def test_cli_reports_committed_cleanup_pending_without_generic_failure(tmp_path,
     assert capsys.readouterr().out.strip() == (
         "READONLY_STATE_RECOVERY_COMMITTED_CLEANUP_PENDING_RECONCILIATION_REQUIRED"
     )
-    state.close()
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows enforces active SQLite file handles")
+def test_windows_external_open_database_fails_restore_closed(tmp_path):
+    state, _, backup, _ = recovery_point(tmp_path)
+    target = tmp_path / "state/readonly-supervisor.sqlite3"
+    state.put_many({"cycle_count": "999", "invented": "actively-open"})
+    try:
+        with pytest.raises(PermissionError):
+            restore_production_state(tmp_path, backup.name)
+        assert state.get("cycle_count") == "999"
+        assert state.get("invented") == "actively-open"
+        assert target.is_file()
+        assert not list((tmp_path / "state").glob(f"{ROLLBACK_BASENAME}*"))
+        assert not list((tmp_path / "state").glob(f"{CLEANUP_PENDING_BASENAME}*"))
+    finally:
+        state.close()
 
 
 class ReconciliationAPI:

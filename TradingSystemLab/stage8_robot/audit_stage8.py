@@ -175,6 +175,12 @@ def audit(write_result=True):
           and "READONLY_STATE_RECOVERY_COMMITTED_CLEANUP_PENDING_RECONCILIATION_REQUIRED" in restore
           and "READONLY_STATE_RECOVERY_PREVIOUS_COMMIT_CLEANUP_PENDING" in restore,
           "RECOVERY_POST_COMMIT_CLEANUP_OUTCOME_UNAMBIGUOUS")
+    recovery_tests=(HERE/"tests/test_sqlite_recovery.py").read_text()
+    check("subprocess.run(" in recovery_tests and "os._exit(0)" in recovery_tests
+          and 'state.close()\n    target = root / "state/readonly-supervisor.sqlite3"' in recovery_tests
+          and 'skipif(os.name != "nt"' in recovery_tests
+          and "test_windows_external_open_database_fails_restore_closed" in recovery_tests,
+          "RECOVERY_REAL_CRASH_WAL_NO_LIVE_HANDLE_AND_WINDOWS_REFUSAL_TESTED")
     recovery_calls=set()
     for recovery_source in (operations,backup,restore):
         recovery_calls.update(node.func.attr for node in ast.walk(ast.parse(recovery_source))

@@ -149,8 +149,13 @@ The first Windows preflight exposed that SQLite's transaction context manager
 does not close its file handle before publication. Backup and recovery
 validation now explicitly close every short-lived SQLite connection before any
 temporary database is replaced, quarantined, or cleaned up. This correction is
-covered by platform-independent handle-lifecycle tests; physical Intel
-backup/restore acceptance has not yet been performed.
+covered by platform-independent handle-lifecycle tests. A second Windows
+preflight then exposed a Linux-only regression fixture that kept its canonical
+WAL database open across restore. The fixture now creates real committed WAL
+state in an abruptly terminated subprocess, so restore starts with crash-left
+WAL state and no live SQLite handle. A separate Windows regression preserves
+the fail-closed contract when an external process really does hold the database
+open. Physical Intel backup/restore acceptance has not yet been performed.
 
 Status is
 `STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE`. Repository
