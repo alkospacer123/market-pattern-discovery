@@ -139,7 +139,11 @@ database/WAL/SHM set in internal-only rollback paths. A failed replacement or
 final validation restores that set; only a validated commit discards it, so an
 old WAL cannot replay over the selected recovery point. It preserves the
 selected recovery point exactly and does not invent newer H1 or reconciliation
-state.
+state. After validation, rollback files move to an explicit committed-cleanup
+namespace before best-effort deletion. A deletion failure reports
+`READONLY_STATE_RECOVERY_COMMITTED_CLEANUP_PENDING_RECONCILIATION_REQUIRED`
+rather than an uncommitted recovery failure; a later invocation recognizes and
+safely cleans or distinctly reports that obsolete material.
 
 Status is
 `STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE`. Repository

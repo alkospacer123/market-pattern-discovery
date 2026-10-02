@@ -19,7 +19,11 @@ from TradingSystemLab.stage8_robot.readonly_supervisor import (
     _authenticated_registry,
 )
 from TradingSystemLab.stage8_robot.restore_state import (
+    CLEANUP_PENDING_BASENAME,
+    RECOVERY_CLEANUP_PENDING,
     RECOVERY_LOCKED,
+    ROLLBACK_BASENAME,
+    main as restore_main,
     restore_production_state,
     validate_recovery_point,
 )
@@ -155,7 +159,7 @@ def test_atomic_restore_preserves_exact_continuity_and_removes_stale_sidecars(tm
     target = tmp_path / "state/readonly-supervisor.sqlite3"
     Path(str(target) + "-wal").write_bytes(b"stale-wal")
     Path(str(target) + "-shm").write_bytes(b"stale-shm")
-    assert restore_production_state(tmp_path, backup.name) == target
+    assert restore_production_state(tmp_path, backup.name).target == target
     assert not Path(str(target) + "-wal").exists()
     assert not Path(str(target) + "-shm").exists()
     with sqlite3.connect(target) as database:
@@ -242,12 +246,64 @@ def test_final_validation_failure_rolls_back_real_wal_state(tmp_path, monkeypatc
 def test_successful_restore_discards_real_old_wal_and_selects_backup(tmp_path):
     state, expected, backup, target, _, _ = wal_backed_canonical_and_backup(tmp_path)
     state.close()
-    assert restore_production_state(tmp_path, backup.name) == target
+    assert restore_production_state(tmp_path, backup.name).target == target
     assert not Path(f"{target}-wal").exists()
     assert not Path(f"{target}-shm").exists()
     with sqlite3.connect(target) as database:
         assert dict(database.execute("SELECT key,value FROM operational_state")) == expected
     assert not list((tmp_path / "state").glob(".readonly-supervisor.restore-rollback.sqlite3*"))
+
+
+@pytest.mark.parametrize("suffix", ["", "-wal", "-shm"])
+def test_post_commit_cleanup_failure_has_distinct_committed_outcome(tmp_path, monkeypatch, suffix):
+    state, expected, backup, target, _, _ = wal_backed_canonical_and_backup(tmp_path)
+    real_unlink = Path.unlink
+    failed_path = tmp_path / "state" / f"{CLEANUP_PENDING_BASENAME}{suffix}"
+
+    def fail_selected_committed_cleanup(path, *args, **kwargs):
+        if path == failed_path:
+            raise OSError("forced post-commit cleanup failure")
+        return real_unlink(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", fail_selected_committed_cleanup)
+    result = restore_production_state(tmp_path, backup.name)
+    assert result.target == target
+    assert result.cleanup_pending is True
+    state.close()
+
+    with sqlite3.connect(target) as database:
+        assert dict(database.execute("SELECT key,value FROM operational_state")) == expected
+    assert not Path(f"{target}-wal").exists()
+    assert not Path(f"{target}-shm").exists()
+    assert failed_path.exists()
+    assert not list((tmp_path / "state").glob(f"{ROLLBACK_BASENAME}*"))
+
+    with pytest.raises(RuntimeError, match=RECOVERY_CLEANUP_PENDING):
+        restore_production_state(tmp_path, backup.name)
+    monkeypatch.setattr(Path, "unlink", real_unlink)
+    repeated = restore_production_state(tmp_path, backup.name)
+    assert repeated.target == target
+    assert repeated.cleanup_pending is False
+
+
+def test_cli_reports_committed_cleanup_pending_without_generic_failure(tmp_path, monkeypatch, capsys):
+    state, _, backup, _, _, _ = wal_backed_canonical_and_backup(tmp_path)
+    real_unlink = Path.unlink
+    failed_path = tmp_path / "state" / CLEANUP_PENDING_BASENAME
+
+    def fail_committed_database_cleanup(path, *args, **kwargs):
+        if path == failed_path:
+            raise OSError("forced committed cleanup failure")
+        return real_unlink(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", fail_committed_database_cleanup)
+    assert restore_main([
+        "--runtime-root", str(tmp_path), "--backup-filename", backup.name,
+    ]) == 0
+    assert capsys.readouterr().out.strip() == (
+        "READONLY_STATE_RECOVERY_COMMITTED_CLEANUP_PENDING_RECONCILIATION_REQUIRED"
+    )
+    state.close()
 
 
 class ReconciliationAPI:
