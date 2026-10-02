@@ -21,6 +21,7 @@ def audit(write_result=True):
     check(spec.instruments==("USDRUBF","CNYRUBF","GLDRUBF","IMOEXF"),"N4"); check(spec.risk_fraction==.015 and spec.maximum_nominal_risk==.06,"R15_MAX")
     core=(HERE/"strategy_core.py").read_text(); config=(HERE/"config.py").read_text(); broker=(HERE/"broker.py").read_text(); state=(HERE/"state.py").read_text(); runner=(HERE/"runner.py").read_text(); api=(HERE/"finam_api.py").read_text(); historical=(HERE/"historical_conformance.py").read_text(); production=(HERE/"production_replay.py").read_text(); resolver=(HERE/"instrument_resolver.py").read_text(); smoke=(HERE/"demo_smoke.py").read_text(); updater=(HERE/"update_demo_registry.py").read_text()
     margin=(HERE/"margin.py").read_text(); real_smoke=(HERE/"real_account_smoke.py").read_text(); real_updater=(HERE/"update_real_registry.py").read_text(); operations=(HERE/"operations.py").read_text(); preflight=(HERE/"server_preflight.py").read_text()
+    backup=(HERE/"backup_state.py").read_text(); restore=(HERE/"restore_state.py").read_text()
     supervisor_path=HERE/"readonly_supervisor.py"; supervisor=supervisor_path.read_text() if supervisor_path.is_file() else ""
     timing_path=HERE/"h1_timing_diagnostic.py"; timing=timing_path.read_text() if timing_path.is_file() else ""
     launcher=(HERE/"deploy/windows/run-readonly.ps1").read_text()
@@ -90,6 +91,37 @@ def audit(write_result=True):
     check("starting_realized_equity" in runner and "REAL_ACCOUNT_NOT_CLEAN_FOR_INITIALIZATION" in runner,"CLEAN_REAL_EQUITY_BOOTSTRAP")
     check("account_identity_sha256" in runner and 'environment="REAL"' in runner,"REAL_STATE_ACCOUNT_HASH_BOUND")
     check("class InstanceLock" in operations and "SECOND_ROBOT_INSTANCE_BLOCKED" in operations and "src.backup(dst)" in operations,"SERVER_LOCK_AND_SQLITE_BACKUP")
+    check('mode=ro' in operations and "source.is_file()" in operations and "source.is_symlink()" in operations,
+          "SQLITE_BACKUP_MISSING_SOURCE_FAIL_CLOSED")
+    check(operations.count('PRAGMA integrity_check')>=2 and "src.backup(dst)" in operations,
+          "SQLITE_ONLINE_BACKUP_SOURCE_AND_DESTINATION_INTEGRITY")
+    check('state_directory = root / "state"' in backup and 'source = state_directory / SUPERVISOR_DATABASE' in backup
+          and 'backup_directory = root / "backups"' in backup
+          and 'SUPERVISOR_DATABASE = "readonly-supervisor.sqlite3"' in backup,
+          "BACKUP_EXACT_SUPERVISOR_DATABASE_AUTHORITY")
+    check("BACKUP_MANIFEST_SCHEMA" in backup and "PRODUCTION_SPECIFICATION_ID" in backup
+          and '"sha256": sha256_file(backup)' in backup and "os.replace(manifest_temp, manifest)" in backup,
+          "BACKUP_ATOMIC_PRODUCTION_CHECKSUM_MANIFEST")
+    check("frozenset(payload) != MANIFEST_KEYS" in restore
+          and "payload[\"production_specification_id\"] != PRODUCTION_SPECIFICATION_ID" in restore
+          and "sha256_file(backup) != payload[\"sha256\"]" in restore,
+          "RECOVERY_STRICT_MANIFEST_PRODUCTION_CHECKSUM")
+    check("validate_operational_database(path)" in restore
+          and "PRAGMA table_info(operational_state)" in operations
+          and "PRAGMA integrity_check" in operations,
+          "RECOVERY_INTEGRITY_AND_EXACT_OPERATIONAL_SCHEMA")
+    check("InstanceLock" in restore and "stage8-readonly.lock" in restore
+          and "SQLITE_RECOVERY_SUPERVISOR_RUNNING" in restore,
+          "RECOVERY_LIFETIME_LOCK_EXCLUSION")
+    check("sqlite_backup(backup, temporary)" in restore and "os.replace(temporary, target)" in restore
+          and all(suffix in restore for suffix in ('"-wal"', '"-shm"')),
+          "RECOVERY_VALIDATED_TEMP_ATOMIC_REPLACE_WITH_SIDECAR_REMOVAL")
+    recovery_calls=set()
+    for recovery_source in (operations,backup,restore):
+        recovery_calls.update(node.func.attr for node in ast.walk(ast.parse(recovery_source))
+                              if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute))
+    check(not recovery_calls.intersection({"place_order","submit_order","cancel_order","modify_order"}),
+          "BACKUP_RECOVERY_NO_ORDER_CALLS")
     check("--offline" in preflight and "live_trading_authorized\":False" in preflight,"ORDER_FREE_SERVER_PREFLIGHT")
     production_source="\n".join(p.read_text(errors="ignore") for p in HERE.glob("*.py") if p.name not in {"audit_stage8.py"})
     check(not re.search(r"(?:MICRO_LIVE_MAX_QTY|MAX_CONTRACTS_PER_ORDER)\s*=",production_source),"NO_FIXED_CONTRACT_CAP")
@@ -165,9 +197,11 @@ def audit(write_result=True):
     check(not re.search(r"-UserId\s+(?:['\"])?(?:NT AUTHORITY\\)?SYSTEM\b",task_installer,re.I) and "-LogonType Password" in task_installer,"WINDOWS_UNATTENDED_NON_SYSTEM_LOGON")
     check('$env:FINAM_MODE = "REAL_READONLY"' in launcher,"WINDOWS_REAL_READONLY_FORCED")
     check('$env:NEW_ENTRIES_DISABLED = "true"' in launcher,"WINDOWS_ENTRIES_DISABLED_FORCED")
+    check("ROBOT_STATE_PATH" not in launcher and "stage8.sqlite3" not in launcher,
+          "WINDOWS_NO_OBSOLETE_SUPERVISOR_STATE_AUTHORITY")
     check("TradingSystemLab.stage8_robot.readonly_supervisor" in launcher and not any(x in windows_deployment for x in ("place_order","submit_order","cancel_order")),"WINDOWS_SERVICE_READONLY_NO_ORDER_PATH")
     check("-ExecutionPolicy RemoteSigned" in task_installer and "-MultipleInstances IgnoreNew" in task_installer,"WINDOWS_TASK_POLICY_CONSERVATIVE")
-    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":"STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE","margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED"}
+    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":"STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE","margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED"}
     if write_result: (HERE/"independent_audit_result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
     return result
 if __name__=="__main__":
