@@ -4,13 +4,13 @@
 
 TradingSystemLab has completed Stage 7 Production Specification Freeze and is
 actively in **Stage 8 Robot / FINAM integration**, currently through
-**Stage 8.8.7 Final Operational Audit — repository gate ready, Intel acceptance pending**.
+**Stage 8.8.7 Final Operational Audit — Intel acceptance complete**.
 
 Repository status is
-`STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_CODE_READY_PENDING_INTEL_ACCEPTANCE`.
-Stage 8.8.1 through Stage 8.8.6 are complete. Physical final Intel acceptance
-has not been performed. Stage 8.9 has not started; Stage 8.10/8.11/8.12 remain
-pending and not authorized.
+`STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_INTEL_ACCEPTANCE_COMPLETE`.
+Stage 8.8 operational hardening is COMPLETE. Stages 8.8.1, 8.8.2, 8.8.3,
+8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE. Stage 8.9 has not started;
+Stage 8.10/8.11/8.12 remain pending and not authorized.
 
 Resolve the current Git `main` SHA directly from GitHub during every independent
 audit; this versioned file is not authoritative for a moving branch SHA.
@@ -18,7 +18,7 @@ audit; this versioned file is not authoritative for a moving branch SHA.
 Current Stage 8 repository audit state:
 
 - `stage8_status`: `STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE`;
-- `stage8_8_7_status`: `STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_CODE_READY_PENDING_INTEL_ACCEPTANCE`;
+- `stage8_8_7_status`: `STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_INTEL_ACCEPTANCE_COMPLETE`;
 - Stage 8 independent repository audit: PASS, 132 checks, zero recorded errors;
 - LIVE trading: **NOT AUTHORIZED**;
 - real order transmission: **NOT AUTHORIZED**.
@@ -285,13 +285,32 @@ and recovery internal file count were 0, and `FINAM_API_SECRET` and
 `FINAM_REAL_ACCOUNT_ID` were absent from the process environment. No live order
 was transmitted and no live trading was authorized.
 
+## Stage 8.8.7 final operational acceptance
+
+Status: `STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_INTEL_ACCEPTANCE_COMPLETE`.
+
+Stage 8.8 operational hardening is COMPLETE. Stages 8.8.1, 8.8.2, 8.8.3,
+8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE.
+
+Physical Intel acceptance executed against exact GitHub merge
+`bda46f57f0f977e05593c46b55851c40c4ad34fe`. The external acceptance artifact
+remains outside Git and is referenced only by SHA-256
+`181225F29A966179AB513121C3CBACD31401752956EFC9A22253A8EFBF94766E`.
+The accepted Windows gate passed 267 Stage 8 tests, 43 final operational checks,
+132 Stage 8 checks, and 22 Stage 7 checks plus 19 mutation tests. One
+`REAL_READONLY --once` cycle advanced cycle count 20 to 21 and all N4 H1
+watermarks monotonically from 12:00 to 13:00 UTC with expected-H1 equality.
+Final state was `HEALTHY` / `PASS`, entries disabled, zero unresolved orders,
+and zero failures. The Scheduled Task remained Disabled, process and recovery
+internal file counts were zero, and secret/account environment variables were
+absent. No live order was transmitted and no authorization changed. Repository
+tooling validates the provenance and hash; it did not generate the evidence.
+
 ## Current next action
 
-**CURRENT: Stage 8.8.7 — Final Operational Audit.** The repository audit is
-ready under
-`STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_CODE_READY_PENDING_INTEL_ACCEPTANCE`.
-Physical final Intel acceptance remains pending, so Stage 8.8.7 is not
-complete. Stage 8.9 has not started.
+**NEXT: Stage 8.9 — Real Account Funding & Margin Validation.** Stage 8.9 has
+not started. Its known blocker remains `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`
+because the validated clean UNION account did not expose `portfolio_forts`.
 
 Separately:
 

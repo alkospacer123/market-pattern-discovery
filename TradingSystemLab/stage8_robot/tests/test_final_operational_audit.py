@@ -39,7 +39,9 @@ def test_clean_repository_authority_passes():
     result = run_audit()
     assert result["status"] == "PASS"
     assert result["checks"] > 0
-    assert result["intel_final_acceptance_performed"] is False
+    assert result["intel_final_acceptance_performed"] is True
+    assert result["stage8_8_7_accepted_code_commit"] == final.STAGE_8_8_7_CODE
+    assert result["stage8_8_7_external_evidence_sha256"] == final.STAGE_8_8_7_EVIDENCE
 
 
 def test_wrong_production_id_fails():
@@ -81,13 +83,9 @@ def test_missing_stage_8_8_6_evidence_sha_fails():
     assert "STAGE_8_8_6_PROVENANCE_SYNCHRONIZED" in result["errors"]
 
 
-def test_prior_lifecycle_completion_regression_fails():
-    replacement = (
-        "Stage 8.8.1 and Stage 8.8.3 through Stage 8.8.6 are complete; "
-        "Stage 8.8.2 is not complete."
-    )
+def test_operational_hardening_completion_regression_fails():
     overrides = {
-        path: source(path).replace(final.PRIOR_LIFECYCLE_COMPLETE, replacement)
+        path: source(path).replace(final.HARDENING_COMPLETE, "Stage 8.8 operational hardening is INCOMPLETE.")
         for path in (
             "TradingSystemLab/CURRENT_STATE.md",
             "TradingSystemLab/ROADMAP.md",
@@ -96,7 +94,7 @@ def test_prior_lifecycle_completion_regression_fails():
     }
     result = run_audit(overrides)
     assert result["status"] == "FAIL"
-    assert "STAGE_8_8_1_THROUGH_8_8_6_COMPLETE" in result["errors"]
+    assert "STAGE_8_8_OPERATIONAL_HARDENING_COMPLETE" in result["errors"]
 
 
 def test_tracked_runtime_and_raw_acceptance_artifacts_fail():
@@ -127,10 +125,13 @@ def test_stage_8_9_marked_started_fails():
     assert "STAGE_8_9_NOT_STARTED" in result["errors"]
 
 
-def test_stage_8_8_7_false_completion_without_intel_evidence_fails():
-    overrides = {
-        path: source(path) + "\nSTAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_COMPLETE\n"
-        for path in ("TradingSystemLab/CURRENT_STATE.md", "TradingSystemLab/ROADMAP.md", "TradingSystemLab/stage8_robot/README.md")
-    }
-    result = run_audit(overrides)
-    assert "STAGE_8_8_7_NOT_FALSELY_COMPLETE" in result["errors"]
+def test_stage_8_8_7_missing_external_provenance_fails():
+    path = "TradingSystemLab/CURRENT_STATE.md"
+    result = run_audit({path: source(path).replace(final.STAGE_8_8_7_EVIDENCE, "MISSING")})
+    assert "STAGE_8_8_7_EXTERNAL_PROVENANCE_SYNCHRONIZED" in result["errors"]
+
+
+def test_stage_8_8_7_wrong_accepted_commit_fails():
+    path = "TradingSystemLab/ROADMAP.md"
+    result = run_audit({path: source(path).replace(final.STAGE_8_8_7_CODE, "WRONG")})
+    assert "STAGE_8_8_7_EXTERNAL_PROVENANCE_SYNCHRONIZED" in result["errors"]

@@ -204,10 +204,26 @@ baseline logical-state SHA-256 is
 
 ### Stage 8.8.7 — Final Operational Audit
 
-Current repository status:
-`STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_CODE_READY_PENDING_INTEL_ACCEPTANCE`.
-The repository audit is ready, but physical final Intel acceptance remains
-pending; Stage 8.8.7 is not complete. Stage 8.9 has not started.
+Status: `STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_INTEL_ACCEPTANCE_COMPLETE`.
+
+Stage 8.8 operational hardening is COMPLETE. Stages 8.8.1, 8.8.2, 8.8.3,
+8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE.
+
+Physical Intel acceptance executed against exact GitHub merge
+`bda46f57f0f977e05593c46b55851c40c4ad34fe`. The external acceptance artifact
+remains outside Git and is referenced only by SHA-256
+`181225F29A966179AB513121C3CBACD31401752956EFC9A22253A8EFBF94766E`.
+The accepted Windows gate passed 267 Stage 8 tests, 43 final operational checks,
+132 Stage 8 checks, and 22 Stage 7 checks plus 19 mutation tests. One
+`REAL_READONLY --once` cycle advanced cycle count 20 to 21 and all N4 H1
+watermarks monotonically from 12:00 to 13:00 UTC with expected-H1 equality.
+Final state was `HEALTHY` / `PASS`, entries disabled, zero unresolved orders,
+and zero failures. The Scheduled Task remained Disabled, process and recovery
+internal file counts were zero, and secret/account environment variables were
+absent. No live order was transmitted and no authorization changed. Repository
+tooling validates the provenance and hash; it did not generate the evidence.
+
+Stage 8.9 has not started.
 
 ## Later Stage 8 gates
 
@@ -230,10 +246,11 @@ Do not bypass these gates.
 
 ## Current handoff
 
-Stage 7 is frozen. Stage 8.8.1 through Stage 8.8.6 are complete. Stage 8.8.7
-is current under
-`STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_CODE_READY_PENDING_INTEL_ACCEPTANCE`;
-physical final Intel acceptance remains pending. Stage 8.9 has not started.
+Stage 7 is frozen. Stage 8.8 operational hardening is COMPLETE. Stages 8.8.1, 8.8.2, 8.8.3,
+8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE.
+Status: `STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_INTEL_ACCEPTANCE_COMPLETE`.
 
-**Proceed only with Stage 8.8.7 — Final Operational Audit. LIVE remains
-blocked.**
+**NEXT: Stage 8.9 — Real Account Funding & Margin Validation.** Stage 8.9 has
+not started. `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` remains in force because
+`portfolio_forts` was unavailable. LIVE and real-order transmission remain not
+authorized.

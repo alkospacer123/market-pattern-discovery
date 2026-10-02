@@ -42,7 +42,11 @@ def audit(write_result=True):
     check(not any("stage8_8_6_sqlite_recovery_acceptance.json" in path.lower()
                   or path.lower().endswith((".sqlite3","-wal","-shm",".dpapi")) for path in tracked),
           "STAGE_8_8_6_RAW_EXTERNAL_AND_RUNTIME_MATERIAL_NOT_TRACKED")
-    check("Stage 8.8.7" in current_state and "pending" in current_state.split("Stage 8.8.7",1)[1][:100].lower(),"STAGE_8_8_7_PENDING")
+    final_status="STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_INTEL_ACCEPTANCE_COMPLETE"
+    final_code_sha="bda46f57f0f977e05593c46b55851c40c4ad34fe"
+    final_evidence_sha="181225F29A966179AB513121C3CBACD31401752956EFC9A22253A8EFBF94766E"
+    check(all(final_status in document and final_code_sha in document and final_evidence_sha in document
+              for document in (current_state,readme,roadmap)),"STAGE_8_8_7_COMPLETED_PROVENANCE_SYNCHRONIZED")
     check("Stage 8.9 has not started" in closeout_docs,"STAGE_8_9_NOT_STARTED")
     check("LIVE_TRADING_NOT_AUTHORIZED" in readme and "no live trading was authorized" in closeout_docs.lower(),"CLOSEOUT_LIVE_TRADING_UNAUTHORIZED")
     check("REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in readme
