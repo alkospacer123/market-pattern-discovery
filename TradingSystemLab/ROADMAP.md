@@ -195,6 +195,20 @@ outside Git and is identified by SHA-256
 `1A9B62D4BFC0E7384898C9DF9659E54E50E0E202BD44CE19413864AC2ECA14D6`.
 This completion does not enable real order transmission.
 
+The accepted backup SHA-256 is
+`00b5e4ca2b389d55389b6b57ac73b5e557c11b72daab8d6e118311613e0aa3b0`, its
+manifest SHA-256 is
+`3d0ef1d7cb11ee592be32550625e8badefc596108f4d0c34eff6c5e12ceba822`, and the
+baseline logical-state SHA-256 is
+`13f01f1009768ddce65dce079f70486f2cbc2508cd1ea8ec4787414a78e0d3be`.
+
+### Stage 8.8.7 — Final Operational Audit
+
+Current repository status:
+`STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_CODE_READY_PENDING_INTEL_ACCEPTANCE`.
+The repository audit is ready, but physical final Intel acceptance remains
+pending; Stage 8.8.7 is not complete. Stage 8.9 has not started.
+
 ## Later Stage 8 gates
 
 - Stage 8.9 funding readiness — **BLOCKED** by unavailable authenticated account
@@ -216,8 +230,10 @@ Do not bypass these gates.
 
 ## Current handoff
 
-Stage 7 is frozen. Stage 8.8.5 and Stage 8.8.6 are complete. Stage 8.8.7 is
-pending; Stage 8.9 has not started.
+Stage 7 is frozen. Stage 8.8.1 through Stage 8.8.6 are complete. Stage 8.8.7
+is current under
+`STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_CODE_READY_PENDING_INTEL_ACCEPTANCE`;
+physical final Intel acceptance remains pending. Stage 8.9 has not started.
 
 **Proceed only with Stage 8.8.7 — Final Operational Audit. LIVE remains
 blocked.**
