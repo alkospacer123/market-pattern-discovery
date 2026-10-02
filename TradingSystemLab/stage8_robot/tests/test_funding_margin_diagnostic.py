@@ -26,8 +26,9 @@ def inputs(cash="1000", equity="10000", r15=8, lot=1):
                          "status":"AUTHENTICATED_REAL_READONLY", "is_tradable":True}
                    for code,row in production_registry.items()}
     return dict(account={"type":"UNION", "status":"ACCOUNT_ACTIVE", "positions":[],
-                         "portfolio_forts":{"available_cash":{"value":cash},
-                                             "money_reserved":{"value":"0"}},
+                         "portfolio_mc":{"available_cash":{"value":cash},
+                                          "initial_margin":{"value":"700"},
+                                          "maintenance_margin":{"value":"600"}},
                          "equity":{"value":equity}},
                 orders={"orders":[]}, details={"readonly":True,"account_ids":["synthetic"]},
                 account_id="synthetic", production_id=PRODUCTION_SPECIFICATION_ID,
@@ -45,7 +46,7 @@ def result(**changes):
     return evaluate(**data)
 
 
-def test_clean_valid_forts_account_ready_and_sanitized():
+def test_clean_valid_union_mc_account_ready_and_sanitized():
     report=result()
     assert report["funding_classification"]==READY
     assert report["funding_margin_feasibility"]=="PASS"
@@ -66,25 +67,65 @@ def test_committed_registry_is_exact_canonical_authenticated_n4():
 
 
 @pytest.mark.parametrize("value",[pytest.param("missing",id="missing"),pytest.param(None,id="null")])
-def test_missing_or_null_forts_is_unavailable(value):
+def test_missing_or_null_mc_fails_closed(value):
     data=inputs()
-    if value=="missing": data["account"].pop("portfolio_forts")
-    else: data["account"]["portfolio_forts"]=None
+    if value=="missing": data["account"].pop("portfolio_mc")
+    else: data["account"]["portfolio_mc"]=None
     report=evaluate(**data)
-    assert report["funding_classification"]=="BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE"
-    assert report["reason_code"]=="FORTS_PORTFOLIO_MISSING"
+    assert report["funding_classification"]=="BLOCKED_ACCOUNT_FINANCIALS_INVALID"
+    assert report["reason_code"] in {"PORTFOLIO_ONEOF_MISSING","PORTFOLIO_ONEOF_NULL_OR_INVALID"}
 
 
 @pytest.mark.parametrize("mutation,reason",[
     (lambda f:f.pop("available_cash"),"REST_DECIMAL_VALUE_OBJECT_INVALID"),
-    (lambda f:f.pop("money_reserved"),"REST_DECIMAL_VALUE_OBJECT_INVALID"),
+    (lambda f:f.pop("initial_margin"),"REST_DECIMAL_VALUE_OBJECT_INVALID"),
+    (lambda f:f.pop("maintenance_margin"),"REST_DECIMAL_VALUE_OBJECT_INVALID"),
     (lambda f:f.update(available_cash={"value":12}),"REST_DECIMAL_VALUE_INVALID"),
-    (lambda f:f.update(available_cash={"value":"-1"}),"NEGATIVE_FORTS_FUNDS"),
-    (lambda f:f.update(money_reserved={"value":"-1"}),"NEGATIVE_FORTS_FUNDS")])
-def test_invalid_forts_fails_closed(mutation,reason):
-    data=inputs(); mutation(data["account"]["portfolio_forts"]); report=evaluate(**data)
+    (lambda f:f.update(available_cash={"value":"-1"}),"NEGATIVE_MC_FINANCIAL"),
+    (lambda f:f.update(initial_margin={"value":"-1"}),"NEGATIVE_MC_FINANCIAL"),
+    (lambda f:f.update(maintenance_margin={"value":"-1"}),"NEGATIVE_MC_FINANCIAL")])
+def test_invalid_mc_fails_closed(mutation,reason):
+    data=inputs(); mutation(data["account"]["portfolio_mc"]); report=evaluate(**data)
     assert report["funding_classification"]=="BLOCKED_ACCOUNT_FINANCIALS_INVALID"
     assert report["reason_code"]==reason
+
+
+@pytest.mark.parametrize("bad", [12,"12",{"num":12,"scale":0},{"value":"12","extra":0},
+                                  {"value":"NaN"},{"value":"Infinity"}])
+def test_noncanonical_mc_decimal_fails_closed(bad):
+    data=inputs(); data["account"]["portfolio_mc"]["available_cash"]=bad
+    assert evaluate(**data)["funding_classification"]=="BLOCKED_ACCOUNT_FINANCIALS_INVALID"
+
+
+@pytest.mark.parametrize("portfolios,reason", [
+    ({"portfolio_mc":{},"portfolio_forts":{}},"PORTFOLIO_ONEOF_MULTIPLE"),
+    ({"portfolio_mc":{},"portfolio_mct":{}},"PORTFOLIO_ONEOF_MULTIPLE"),
+    ({"portfolio_mc":{},"portfolio_forts":{},"portfolio_mct":{}},"PORTFOLIO_ONEOF_MULTIPLE"),
+    ({"portfolio_mct":{}},"PORTFOLIO_MCT_UNSUPPORTED"),
+])
+def test_portfolio_oneof_rejected(portfolios,reason):
+    data=inputs(); data["account"]={k:v for k,v in data["account"].items() if not k.startswith("portfolio_")}
+    data["account"].update(portfolios)
+    assert evaluate(**data)["reason_code"]==reason
+
+
+def test_account_portfolio_mismatches_and_unknown_type_rejected():
+    data=inputs(); mc=data["account"].pop("portfolio_mc")
+    data["account"]["portfolio_forts"]={"available_cash":{"value":"1"},"money_reserved":{"value":"0"}}
+    assert evaluate(**data)["reason_code"]=="ACCOUNT_PORTFOLIO_MISMATCH"
+    data=inputs(); data["account"]["type"]="ACCOUNT_TYPE_FORTS"
+    assert evaluate(**data)["reason_code"]=="ACCOUNT_PORTFOLIO_MISMATCH"
+    data=inputs(); data["account"]["type"]="UNKNOWN"
+    assert evaluate(**data)["reason_code"]=="ACCOUNT_TYPE_UNSUPPORTED"
+
+
+def test_mc_account_margins_are_evidence_not_capacity_deductions():
+    data=inputs(cash="500",r15=8)
+    data["account"]["portfolio_mc"]["initial_margin"]={"value":"499999"}
+    data["account"]["portfolio_mc"]["maintenance_margin"]={"value":"499998"}
+    report=evaluate(**data)
+    assert report["per_instrument"]["USDRUBF:LONG"]["margin_quantity"]==5
+    assert report["available_cash"]=="500"
 
 
 @pytest.mark.parametrize("equity",[None,{"value":12},{"value":"0"}])
@@ -205,8 +246,9 @@ class FakeReadonlyAPI:
         self.details = {"readonly": True, "account_ids": ["synthetic-account"]}
         self.account_payload = {
             "type": "UNION", "status": "ACCOUNT_ACTIVE", "positions": [],
-            "portfolio_forts": {"available_cash": {"value": "100000"},
-                                "money_reserved": {"value": "250"}},
+            "portfolio_mc": {"available_cash": {"value": "100000"},
+                             "initial_margin": {"value": "250"},
+                             "maintenance_margin": {"value": "200"}},
             "equity": {"value": "100000"},
         }
         self.orders_payload = {"orders": []}
@@ -400,11 +442,11 @@ def test_run_frozen_identity_mismatch_writes_sanitized_n4_blocker(
     assert api.calls.count("bars") == len(N4)-1
 
 
-def test_run_missing_forts_writes_financials_unavailable_report(tmp_path):
-    api = FakeReadonlyAPI(); api.account_payload.pop("portfolio_forts")
+def test_run_missing_mc_writes_financials_invalid_report(tmp_path):
+    api = FakeReadonlyAPI(); api.account_payload.pop("portfolio_mc")
     report = run_report(tmp_path, api)
-    assert report["funding_classification"] == "BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE"
-    assert report["reason_code"] == "FORTS_PORTFOLIO_MISSING"
+    assert report["funding_classification"] == "BLOCKED_ACCOUNT_FINANCIALS_INVALID"
+    assert report["reason_code"] == "PORTFOLIO_ONEOF_MISSING"
 
 
 def test_run_malformed_directional_margin_writes_blocked_report(tmp_path):

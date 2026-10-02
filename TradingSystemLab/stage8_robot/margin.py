@@ -1,14 +1,11 @@
-"""Fail-closed FINAM FORTS margin parsing and execution-feasibility sizing.
-
-FINAM names ``portfolio_forts.available_cash`` as the available (free) cash.
-It is therefore the capacity authority and ``money_reserved`` is recorded as
-evidence, not subtracted a second time.  Unknown response shapes are rejected.
-"""
+"""Fail-closed FINAM portfolio parsing and execution-feasibility sizing."""
 from dataclasses import asdict, dataclass
 from decimal import Decimal, InvalidOperation, ROUND_FLOOR
 
 NANO=Decimal(1_000_000_000)
-AVAILABLE_CASH_SEMANTICS="FINAM_FORTS_AVAILABLE_CASH_ALREADY_AVAILABLE_DO_NOT_SUBTRACT_RESERVED"
+AVAILABLE_CASH_SEMANTICS="FINAM_PORTFOLIO_AVAILABLE_CASH_IS_CAPACITY_NO_ACCOUNT_MARGIN_SUBTRACTION"
+PORTFOLIO_FIELDS=("portfolio_mc","portfolio_forts","portfolio_mct")
+FORTS_ACCOUNT_TYPES=frozenset({"FORTS","ACCOUNT_TYPE_FORTS"})
 
 def parse_money(value:dict, *, currency:str="RUB", positive:bool=False)->Decimal:
     if not isinstance(value,dict) or set(value)!={"currency_code","units","nanos"}:
@@ -46,6 +43,37 @@ def forts_funds(account:dict)->tuple[Decimal,Decimal]:
     reserved=parse_rest_decimal_value_object(forts.get("money_reserved"))
     if free<0 or reserved<0: raise ValueError("NEGATIVE_FORTS_FUNDS")
     return free,reserved
+
+@dataclass(frozen=True)
+class PortfolioAuthority:
+    variant:str
+    available_cash:Decimal
+    initial_margin:Decimal|None=None
+    maintenance_margin:Decimal|None=None
+    money_reserved:Decimal|None=None
+
+def portfolio_authority(account:dict)->PortfolioAuthority:
+    """Resolve the account/portfolio oneof without guesses or fallbacks."""
+    if not isinstance(account,dict): raise ValueError("ACCOUNT_SCHEMA_INVALID")
+    present=[field for field in PORTFOLIO_FIELDS if field in account]
+    if not present: raise ValueError("PORTFOLIO_ONEOF_MISSING")
+    if len(present)!=1: raise ValueError("PORTFOLIO_ONEOF_MULTIPLE")
+    field=present[0]; portfolio=account[field]
+    if not isinstance(portfolio,dict): raise ValueError("PORTFOLIO_ONEOF_NULL_OR_INVALID")
+    account_type=account.get("type")
+    if field=="portfolio_mct": raise ValueError("PORTFOLIO_MCT_UNSUPPORTED")
+    if account_type=="UNION" and field=="portfolio_mc":
+        available=parse_rest_decimal_value_object(portfolio.get("available_cash"))
+        initial=parse_rest_decimal_value_object(portfolio.get("initial_margin"))
+        maintenance=parse_rest_decimal_value_object(portfolio.get("maintenance_margin"))
+        if min(available,initial,maintenance)<0: raise ValueError("NEGATIVE_MC_FINANCIAL")
+        return PortfolioAuthority("MC",available,initial,maintenance)
+    if account_type in FORTS_ACCOUNT_TYPES and field=="portfolio_forts":
+        available,reserved=forts_funds(account)
+        return PortfolioAuthority("FORTS",available,money_reserved=reserved)
+    if account_type not in FORTS_ACCOUNT_TYPES|{"UNION"}:
+        raise ValueError("ACCOUNT_TYPE_UNSUPPORTED")
+    raise ValueError("ACCOUNT_PORTFOLIO_MISMATCH")
 
 def directional_initial_margin(params:dict,direction:str)->Decimal:
     key={"LONG":"long_initial_margin","SHORT":"short_initial_margin"}.get(direction)

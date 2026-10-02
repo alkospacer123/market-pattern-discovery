@@ -1,6 +1,7 @@
 # Stage 8 robot foundation
 
-**Status:** `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` — `LIVE_TRADING_NOT_AUTHORIZED`.
+**Status:** `STAGE_8_9_UNION_MC_AUTHORITY_CODE_READY_PENDING_PHYSICAL_REVALIDATION`
+— `LIVE_TRADING_NOT_AUTHORIZED`.
 
 Stage 8.8 operational hardening is COMPLETE. Stages 8.8.1, 8.8.2, 8.8.3,
 8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE. Stage 8.9 is CURRENT, with
@@ -19,7 +20,10 @@ exactly once. Later raw broker equity and unrealized PnL never replace it.
 
 Frozen FULL/R15 sizing is capped by
 `floor_to_trade_lot(min(r15_quantity, floor(available_cash / directional_initial_margin)))`.
-FORTS `portfolio_forts.available_cash.value` is the free-cash authority;
+The account-type-consistent portfolio `available_cash.value` is the capacity
+authority. UNION requires exactly one `portfolio_mc`, whose `initial_margin`
+and `maintenance_margin` are account-level evidence and are not subtracted.
+Supported FORTS accounts require exactly one `portfolio_forts`, whose
 `money_reserved.value` is evidence and is not double-subtracted. Directional
 `long_initial_margin` and `short_initial_margin` are exact RUB Money values. A
 batch-local budget reserves margin before the next entry is sized, and zero is
@@ -28,8 +32,8 @@ never rounded to one.
 ### Real FINAM account data types
 
 FINAM REST account values use two deliberately separate representations.
-`equity`, `unrealized_profit`, `portfolio_forts.available_cash`, and
-`portfolio_forts.money_reserved` are strict Decimal value objects such as
+`equity`, UNION `portfolio_mc` financial fields, and FORTS `portfolio_forts`
+financial fields are strict Decimal value objects such as
 `{"value":"250000.50"}`. Directional `long_initial_margin` and
 `short_initial_margin` remain Money objects containing exactly
 `currency_code`, string `units`, and integer `nanos`. Numeric JSON values,
@@ -43,10 +47,10 @@ fail-closed and does not fabricate equity, cash, margin capacity, or hypothetica
 position sizing. On 2026-10-01 an operator-executed `REAL_READONLY` diagnostic
 authenticated all four N4 perpetual futures against FINAM. The
 committed production registry is now 4/4 `AUTHENTICATED_REAL_READONLY`; the
-validation token was read-only and no real order was transmitted. Funding
-readiness was physically validated and remains fail-closed because the clean
-UNION account did not expose the required `portfolio_forts` financial structure. LIVE trading
-remains unauthorized. Intel host artifacts are under `deploy/windows/` and
+validation token was read-only and no real order was transmitted. The original physical run remains historically blocked because the old model
+incorrectly required `portfolio_forts`; later funded-account evidence confirmed
+the clean UNION account uses `portfolio_mc`. Stage 8.9.9 physical revalidation
+of the corrected model remains pending. LIVE trading remains unauthorized. Intel host artifacts are under `deploy/windows/` and
 cover external state paths, instance locking, online SQLite backup, bounded logs,
 heartbeat, secrets, and reboot reconciliation.
 
@@ -330,3 +334,30 @@ demo order was transmitted.
 ## Stage 8.9 physical validation closeout
 
 Repository diagnostic readiness is retained. Physical REAL_READONLY validation was performed on accepted Intel code commit `5deedb49f16d9f2525c430383a029017cd9a53ce`. `stage8_9_physical_validation_performed = true`. The result is `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`, reason `FORTS_PORTFOLIO_MISSING`. Diagnostic report SHA-256: `2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`. Physical validation summary SHA-256: `59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B`. The external JSON evidence remains outside Git. The authenticated account was a clean, active `UNION` account using a read-only token, and its exact frozen N4 binding was valid. `portfolio_forts` was absent, so funding/margin feasibility remained `BLOCKED`; absence is not zero and no other field is a fallback. The no-order-call assertion was true. The Scheduled Task stayed Disabled; supervisor process and recovery internal file counts stayed zero; FINAM secret and account ID were removed from the process environment. The accepted physical run recorded Stage 8 repository audit PASS / 141 checks, Final Operational Audit PASS / 45 checks, Stage 7 production audit PASS / 22 checks / 19 mutation tests, and server preflight PASS. No physical order-capable operation occurred. Stage 8.9 is **CURRENT / BLOCKED / NOT COMPLETE**. Stage 8.10 is **NOT STARTED / NOT AUTHORIZED**. LIVE trading and real-order transmission remain unauthorized.
+
+
+## Stage 8.9.8 UNION/MC authority resolution
+
+Status: `STAGE_8_9_UNION_MC_AUTHORITY_CODE_READY_PENDING_PHYSICAL_REVALIDATION`.
+Stage 8.9.8 account-authority resolution is complete: the production account is
+`UNION`, and funded physical evidence confirmed exactly one `portfolio_mc`. The
+FORTS-only implementation was incorrect for this account. The post-funding MC
+portfolio-variant evidence SHA-256 is
+`60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5`; the
+post-funding account financial-shape evidence SHA-256 is
+`EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371`.
+Only these sanitized hashes are committed; the external JSON, account identity,
+and financial values remain outside Git. Corrective code is ready only after
+this PR passes. **Stage 8.9.9 physical revalidation is still required.** Stage
+8.9 remains **NOT COMPLETE**. Stage 8.10 remains **NOT STARTED / NOT
+AUTHORIZED**. `LIVE_TRADING_NOT_AUTHORIZED`,
+`REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and `NEW_ENTRIES_DISABLED` remain
+unchanged. No live order was transmitted and no live trading was authorized.
+
+The earlier physical result `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` /
+`FORTS_PORTFOLIO_MISSING`, accepted Intel commit
+`5deedb49f16d9f2525c430383a029017cd9a53ce`, diagnostic SHA-256
+`2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`, and
+physical-summary SHA-256
+`59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B` remain
+historical evidence of the old implementation and are not reinterpreted.

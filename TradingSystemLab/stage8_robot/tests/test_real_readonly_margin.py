@@ -5,7 +5,7 @@ import pytest
 from TradingSystemLab.stage8_robot.broker import FinamRealReadOnlyBroker,OrderRequest
 from TradingSystemLab.stage8_robot.config import RuntimeConfig,RuntimeMode
 from TradingSystemLab.stage8_robot.margin import (MarginBatchBudget,cap_r15_by_margin,
-    directional_initial_margin,floor_to_trade_lot,forts_funds,margin_capacity,parse_money,
+    directional_initial_margin,floor_to_trade_lot,forts_funds,margin_capacity,parse_money,portfolio_authority,
     parse_rest_decimal_value_object)
 from TradingSystemLab.stage8_robot.operations import InstanceLock,sqlite_backup,write_heartbeat
 from TradingSystemLab.stage8_robot.runner import RobotRunner
@@ -42,8 +42,14 @@ def test_account_decimal_and_directional_margin_money_are_distinct():
     data=fixture()
     with pytest.raises(ValueError): parse_money(data["account"]["equity"])
     with pytest.raises(ValueError): parse_rest_decimal_value_object(data["asset_params"]["long_initial_margin"])
-def test_forts_and_directional_margin_exact_shapes():
-    data=fixture(); assert forts_funds(data["account"])==(Decimal("200000.25"),Decimal("1000"))
+def test_portfolio_and_directional_margin_exact_shapes():
+    data=fixture(); authority=portfolio_authority(data["account"])
+    assert (authority.variant,authority.available_cash,authority.initial_margin,authority.maintenance_margin)==(
+        "MC",Decimal("200000.25"),Decimal("1000"),Decimal("900"))
+    forts={"type":"ACCOUNT_TYPE_FORTS","portfolio_forts":{
+        "available_cash":{"value":"200000.25"},"money_reserved":{"value":"1000"}}}
+    assert forts_funds(forts)==(Decimal("200000.25"),Decimal("1000"))
+    assert portfolio_authority(forts).variant=="FORTS"
     assert directional_initial_margin(data["asset_params"],"LONG")==Decimal("12000.5")
     assert directional_initial_margin(data["asset_params"],"SHORT")==Decimal("13000.75")
     with pytest.raises(ValueError,match="FORTS_PORTFOLIO_MISSING"): forts_funds({})
@@ -91,14 +97,14 @@ def test_empty_union_writes_binding_report_before_funding_block(tmp_path):
         def schedule(self,_): return bindings["schedule"]
         def bars(self,*_): raise AssertionError("sizing data must not be requested without funding")
     report_path=tmp_path/"diagnostic.json"
-    with pytest.raises(RuntimeError,match="BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE:FORTS_PORTFOLIO_MISSING"):
+    with pytest.raises(RuntimeError,match="BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE:PORTFOLIO_ONEOF_MISSING"):
         run_diagnostic(EmptyUnionAPI(),"synthetic-account",report_path)
     report=json.loads(report_path.read_text())
     assert report["binding_status"]=="AUTHENTICATED_REAL_READONLY"
     assert report["funding_status"]=="BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE"
     assert set(report["bindings"])=={"USDRUBF","CNYRUBF","GLDRUBF","IMOEXF"}
     assert all(x["status"]=="AUTHENTICATED_REAL_READONLY" for x in report["bindings"].values())
-    assert "forts_available_cash" not in report and "forts_money_reserved" not in report
+    assert "available_cash" not in report and "money_reserved" not in report
     assert "synthetic-account" not in report_path.read_text()
     assert all("hypothetical_sizing" not in x for x in report["bindings"].values())
 

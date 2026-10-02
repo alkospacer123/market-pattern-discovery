@@ -38,6 +38,9 @@ STAGE_8_9_REASON = "FORTS_PORTFOLIO_MISSING"
 STAGE_8_9_CODE = "5deedb49f16d9f2525c430383a029017cd9a53ce"
 STAGE_8_9_REPORT = "2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46"
 STAGE_8_9_SUMMARY = "59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B"
+STAGE_8_9_8_STATUS = "STAGE_8_9_UNION_MC_AUTHORITY_CODE_READY_PENDING_PHYSICAL_REVALIDATION"
+STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
+STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
 BACKUP_SHA = "00b5e4ca2b389d55389b6b57ac73b5e557c11b72daab8d6e118311613e0aa3b0"
 MANIFEST_SHA = "3d0ef1d7cb11ee592be32550625e8badefc596108f4d0c34eff6c5e12ceba822"
 BASELINE_SHA = "13f01f1009768ddce65dce079f70486f2cbc2508cd1ea8ec4787414a78e0d3be"
@@ -53,7 +56,7 @@ PROTECTED_SHA256 = {
     "TradingSystemLab/stage8_robot/backup_state.py": "ce055584fba17a3ce7160e7ccf312bc6ac8d69589ca14e8841078999c3757ba4",
     "TradingSystemLab/stage8_robot/restore_state.py": "ff6adb1503e0edd53c6c3c749e4bcc3afa56b8f56042703c3000a246cd94b2cd",
     "TradingSystemLab/stage8_robot/production_instrument_registry.csv": "90d64e16dfeb292b4b339ac3eb196074e133bf52a962cc6715c488a32d16e013",
-    "TradingSystemLab/stage8_robot/margin.py": "2081aa6154a5ebb44d75a00fdeac2bc12e6baa8f593ae9354ff8b1c0e07aeddc",
+    "TradingSystemLab/stage8_robot/margin.py": "05c1c44eb199dccb126d533bdd1f4389ff78ce53d920f2b6bec967155964339e",
     "TradingSystemLab/stage8_robot/deploy/windows/run-readonly.ps1": "c91937716e84d8e746475ad27b89d32b0424cc928aeedc239c7628477d5055e3",
     "TradingSystemLab/stage8_robot/deploy/windows/credential-store.ps1": "ba7e4e14d0638d989674bb9907c070f43c03672a3b767d5eb522ecb2f5ccfa8a",
     "TradingSystemLab/stage8_robot/deploy/windows/initialize-readonly-credentials.ps1": "e8dde65ca96ffbfb6ca6171a5eb71298040fc4d500a31f0b3e65722ac35fd118",
@@ -231,6 +234,9 @@ def audit(
         STAGE_8_9_STATUS, STAGE_8_9_REASON, STAGE_8_9_CODE,
         STAGE_8_9_REPORT, STAGE_8_9_SUMMARY,
     )) for doc in docs), "STAGE_8_9_PHYSICAL_BLOCKED_PROVENANCE_SYNCHRONIZED")
+    check(all(all(value in doc for value in (
+        STAGE_8_9_8_STATUS, STAGE_8_9_8_VARIANT, STAGE_8_9_8_SHAPE, "Stage 8.9.9",
+    )) for doc in docs), "STAGE_8_9_8_UNION_MC_RESOLUTION_PROVENANCE_SYNCHRONIZED")
     check("STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION" not in joined_docs,
           "STAGE_8_9_PENDING_PHYSICAL_STATE_RETIRED")
     check("STAGE_8_9_FUNDING_MARGIN_VALIDATED" not in joined_docs,
@@ -262,6 +268,10 @@ def audit(
         "stage8_9_accepted_code_commit": STAGE_8_9_CODE,
         "stage8_9_diagnostic_report_sha256": STAGE_8_9_REPORT,
         "stage8_9_physical_summary_sha256": STAGE_8_9_SUMMARY,
+        "stage8_9_8_status": STAGE_8_9_8_STATUS,
+        "stage8_9_8_portfolio_variant_evidence_sha256": STAGE_8_9_8_VARIANT,
+        "stage8_9_8_financial_shape_evidence_sha256": STAGE_8_9_8_SHAPE,
+        "stage8_9_9_status": "PENDING",
         "stage8_9_complete": False, "stage8_9_physical_validation_performed": True,
     }
     if write_result:

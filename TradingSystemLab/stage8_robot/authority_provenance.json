@@ -19,19 +19,21 @@
     "pagination": "no request token documented; none sent",
     "rate_limit": "200 requests/minute",
     "schema_authority": {
-      "account": "GET /v1/accounts/{account_id}: equity and unrealized_profit are REST Decimal value objects; portfolio_forts.available_cash and money_reserved are REST Decimal value objects",
+      "account": "GET /v1/accounts/{account_id}: equity is a REST Decimal value object; portfolio is a oneof; UNION requires portfolio_mc while supported FORTS accounts require portfolio_forts",
       "account_asset": "GET /v1/assets/{symbol}?account_id: quote_currency string, decimals integer, min_step decimal string mantissa, lot_size {value: decimal string}, future_details.contract_size {value: decimal string}",
       "account_rest_decimal": {
         "currency": "not embedded in these Decimal wrappers",
         "fields": [
           "equity",
-          "unrealized_profit",
+          "portfolio_mc.available_cash",
+          "portfolio_mc.initial_margin",
+          "portfolio_mc.maintenance_margin",
           "portfolio_forts.available_cash",
           "portfolio_forts.money_reserved"
         ],
         "shape": "{\"value\":\"decimal string\"}"
       },
-      "available_cash_semantics": "available FORTS cash is the free-cash authority; money_reserved is evidence and is not subtracted twice; unknown shapes fail closed",
+      "available_cash_semantics": "the account-type-consistent portfolio available_cash is capacity authority; MC account margins and FORTS money_reserved are evidence and are not subtracted; unknown or mismatched shapes fail closed",
       "generic_assets": "GET /v1/assets discovery fields: ticker, symbol=ticker@mic, mic, id, type, is_archived",
       "initial_margin": "GET /v1/assets/{symbol}/params?account_id: long_initial_margin and short_initial_margin Money {currency_code,units,nanos}",
       "money": {
@@ -60,5 +62,12 @@
     ],
     "reference_values_status": "FROZEN_TASK_REFERENCE_UNAUTHENTICATED_DO_NOT_ENABLE",
     "retrieval": "BLOCKED_HTTP_CONNECT_403"
+  },
+  "stage8_9_8": {
+    "financial_shape_evidence_sha256": "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371",
+    "portfolio_variant_evidence_sha256": "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5",
+    "stage8_9_9": "PENDING",
+    "stage8_9_complete": false,
+    "status": "STAGE_8_9_UNION_MC_AUTHORITY_CODE_READY_PENDING_PHYSICAL_REVALIDATION"
   }
 }
