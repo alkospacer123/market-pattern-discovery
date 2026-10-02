@@ -11,6 +11,7 @@ import argparse
 import ast
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -234,6 +235,13 @@ def audit(
           "STAGE_8_9_PENDING_PHYSICAL_STATE_RETIRED")
     check("STAGE_8_9_FUNDING_MARGIN_VALIDATED" not in joined_docs,
           "STAGE_8_9_NOT_VALIDATED")
+    physical_readiness_unknown = re.compile(
+        r"physical\s+(?:funding\s+)?(?:readiness|validation).{0,80}"
+        r"(?:not\s+yet\s+determined|unknown|awaiting\s+(?:its\s+)?(?:first\s+)?physical\s+validation)",
+        re.IGNORECASE | re.DOTALL,
+    )
+    check(not physical_readiness_unknown.search(joined_docs),
+          "STAGE_8_9_PERFORMED_BLOCKED_STATE_NOT_DESCRIBED_AS_UNKNOWN")
     check("Stage 8.10" in joined_docs and "NOT STARTED / NOT AUTHORIZED" in joined_docs
           and "Stage 8.11/8.12" in joined_docs, "LATER_STAGES_PENDING_NOT_AUTHORIZED")
 
