@@ -293,3 +293,34 @@ The earlier physical result `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` /
 physical-summary SHA-256
 `59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B` remain
 historical evidence of the old implementation and are not reinterpreted.
+
+## Stage 8.9.9 physical revalidation and Stage 8.9.10 capacity gate
+
+Stage 8.9.9 is **PHYSICAL REVALIDATION COMPLETE**. The accepted physical
+REAL_READONLY run used code commit
+`c461911fdceddf54a2a6fe6768574dd93f4844d1`. Its external diagnostic report
+SHA-256 is
+`F307D3F5ADC4525FF304B9582F683B89A097FC9BCFB502E8150FC98D2625860F`, and its
+external physical summary SHA-256 is
+`F36B16565F9E08C38B3264831DCA94A65390275F7A2B78A3C6C90302E4A7C09B`. The
+external JSON remains outside Git. The run confirmed the UNION/MC financial
+schema, equity, directional margins, exact frozen N4 binding, arithmetic, and
+batch budget, but observed `positive_capacity_case_count = 0` across eight
+sizing cases and zero positive batch reservations.
+
+Stage 8.9.10 is **CURRENT / BLOCKED** with
+`BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY` / `ZERO_CONTRACT_CAPACITY`. Zero
+capacity is a distinct capacity blocker and does not invalidate the financial,
+binding, equity, directional-margin, or arithmetic authorities that passed. It must never receive the funding-validated readiness classification. Stage 8.9.8
+is **COMPLETE**; Stage 8.9 is **NOT COMPLETE**; Stage 8.10 is **NOT STARTED /
+NOT AUTHORIZED**. `LIVE_TRADING_NOT_AUTHORIZED`,
+`REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and `NEW_ENTRIES_DISABLED` remain
+unchanged. No live order was transmitted and no live trading was authorized.
+
+The earlier `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` /
+`FORTS_PORTFOLIO_MISSING` physical result, accepted commit
+`5deedb49f16d9f2525c430383a029017cd9a53ce`, diagnostic SHA-256
+`2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`, and
+summary SHA-256
+`59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B` remain
+historical evidence and are not reinterpreted.

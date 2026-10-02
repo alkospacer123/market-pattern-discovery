@@ -159,6 +159,26 @@ def test_stage_8_9_physical_provenance_mutations_fail():
         assert "STAGE_8_9_PHYSICAL_BLOCKED_PROVENANCE_SYNCHRONIZED" in result["errors"]
 
 
+def test_stage_8_9_zero_capacity_finding_removed_fails():
+    path = "TradingSystemLab/CURRENT_STATE.md"
+    result = run_audit({path: source(path).replace(
+        "positive_capacity_case_count = 0", "positive capacity unrecorded")})
+    assert "STAGE_8_9_PHYSICAL_BLOCKED_PROVENANCE_SYNCHRONIZED" in result["errors"]
+
+
+def test_stage_8_9_false_completion_fails():
+    path = "TradingSystemLab/CURRENT_STATE.md"
+    result = run_audit({path: source(path).replace(
+        "Stage 8.9 is **NOT COMPLETE**", "Stage 8.9 is **COMPLETE**")})
+    assert "STAGE_8_9_INCOMPLETE_SYNCHRONIZED" in result["errors"]
+
+
+def test_zero_capacity_described_as_funding_validated_fails():
+    path = "TradingSystemLab/CURRENT_STATE.md"
+    result = run_audit({path: source(path) + "\nSTAGE_8_9_FUNDING_MARGIN_VALIDATED\n"})
+    assert "STAGE_8_9_NOT_VALIDATED" in result["errors"]
+
+
 def test_stage_8_9_performed_blocked_state_cannot_be_described_as_unknown():
     path = "TradingSystemLab/CURRENT_STATE.md"
     mutation = source(path).replace(

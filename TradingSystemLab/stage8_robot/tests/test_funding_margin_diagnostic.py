@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from TradingSystemLab.stage8_robot.funding_margin_diagnostic import (
-    READY, evaluate, load_production_registry, run)
+    READY, ZERO_CAPACITY, evaluate, load_production_registry, run)
 from TradingSystemLab.stage8_robot.instrument_resolver import (
     MOEX_REFERENCE, N4, parse_rest_value_object)
 from TradingSystemLab.stage8_robot.specification import PRODUCTION_SPECIFICATION_ID
@@ -52,6 +52,10 @@ def test_clean_valid_union_mc_account_ready_and_sanitized():
     assert report["funding_margin_feasibility"]=="PASS"
     assert report["no_order_call_assertion"] is True
     assert report["account_identity_sha256"] != "synthetic"
+    assert report["sizing_case_count"] == 8
+    assert report["positive_capacity_case_count"] == 8
+    assert report["zero_capacity_case_count"] == 0
+    assert report["positive_batch_reservation_count"] > 0
 
 
 def test_committed_registry_is_exact_canonical_authenticated_n4():
@@ -156,11 +160,43 @@ def test_r15_below_cap_and_margin_below_r15():
 
 def test_zero_capacity_lot_floor_and_cap_never_increases():
     zero=evaluate(**inputs(cash="0",r15=8))
+    assert zero["funding_classification"]==ZERO_CAPACITY
+    assert zero["reason_code"]=="ZERO_CONTRACT_CAPACITY"
+    assert zero["funding_margin_feasibility"]=="BLOCKED"
+    assert zero["sizing_case_count"]==8
+    assert zero["positive_capacity_case_count"]==0
+    assert zero["zero_capacity_case_count"]==8
+    assert zero["positive_batch_reservation_count"]==0
+    assert all(case["final_quantity"]==0 for case in zero["per_instrument"].values())
+    assert all(item["quantity"]==0 for item in zero["batch_budget"]["reservations"])
+    assert Decimal(zero["batch_budget"]["remaining_cash"])>=0
     assert zero["per_instrument"]["USDRUBF:LONG"]["final_quantity"]==0
     floored=evaluate(**inputs(cash="550",r15=9,lot=3))
     case=floored["per_instrument"]["USDRUBF:LONG"]
     assert case["final_quantity"]==3 and case["final_quantity"]%3==0
     assert case["final_quantity"]<=case["r15_quantity"]
+
+
+def test_mixed_capacity_can_reach_ready_without_changing_authorities():
+    data=inputs(cash="150",r15=8)
+    data["params"][N4[0]]["long_initial_margin"]=money("100")
+    for code in N4:
+        data["params"][code]["short_initial_margin"]=money("200")
+    for code in N4[1:]:
+        data["params"][code]["long_initial_margin"]=money("200")
+    report=evaluate(**data)
+    assert report["funding_classification"]==READY
+    assert report["positive_capacity_case_count"]==1
+    assert report["zero_capacity_case_count"]==7
+    assert report["financial_schema_valid"] is True
+    assert report["n4_binding_valid"] is True
+    assert report["directional_margins_valid"] is True
+
+
+def test_regression_zero_capacity_must_never_be_ready():
+    report=evaluate(**inputs(cash="99",r15=8))
+    assert report["positive_capacity_case_count"]==0
+    assert report["funding_classification"]!=READY
 
 
 def test_batch_budget_never_reuses_stale_cash():
