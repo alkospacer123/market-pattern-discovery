@@ -113,7 +113,8 @@ def test_individual_stage_lifecycle_regression_fails():
         "8.8.5, 8.8.6, and 8.8.7 are COMPLETE." in " ".join(doc.split())
         for doc in overrides.values()
     )
-    assert all("Stage 8.9 has not started" in doc for doc in overrides.values())
+    assert all("STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION" in doc
+               for doc in overrides.values())
 
     result = run_audit(overrides)
     assert result["status"] == "FAIL"
@@ -143,10 +144,11 @@ def test_real_order_authorization_mutation_fails():
     assert "REAL_ORDER_TRANSMISSION_BLOCKED" in result["errors"]
 
 
-def test_stage_8_9_marked_started_fails():
+def test_stage_8_9_pending_status_removed_fails():
     path = "TradingSystemLab/CURRENT_STATE.md"
-    result = run_audit({path: source(path).replace("Stage 8.9 has not started", "Stage 8.9 has started")})
-    assert "STAGE_8_9_NOT_STARTED" in result["errors"]
+    result = run_audit({path: source(path).replace(
+        "STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION", "MISSING")})
+    assert "STAGE_8_9_DIAGNOSTIC_PENDING_SYNCHRONIZED" in result["errors"]
 
 
 def test_stage_8_8_7_missing_external_provenance_fails():

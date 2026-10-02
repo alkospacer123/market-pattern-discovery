@@ -219,7 +219,10 @@ def audit(
 
     check(all(COMPLETE_STATUS in doc for doc in docs), "STAGE_8_8_7_COMPLETE_STATUS_SYNCHRONIZED")
     check(all(STAGE_8_8_7_CODE in doc and STAGE_8_8_7_EVIDENCE in doc for doc in docs), "STAGE_8_8_7_EXTERNAL_PROVENANCE_SYNCHRONIZED")
-    check(all("Stage 8.9 has not started" in doc for doc in docs), "STAGE_8_9_NOT_STARTED")
+    stage8_9_status = "STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION"
+    check(all(stage8_9_status in doc for doc in docs), "STAGE_8_9_DIAGNOSTIC_PENDING_SYNCHRONIZED")
+    check("STAGE_8_9_FUNDING_MARGIN_VALIDATED" not in joined_docs,
+          "STAGE_8_9_PHYSICAL_VALIDATION_NOT_PREDECLARED")
     check("Stage 8.10" in joined_docs and "Stage 8.11/8.12" in joined_docs and "NOT AUTHORIZED" in joined_docs, "LATER_STAGES_PENDING_NOT_AUTHORIZED")
 
     result = {
@@ -234,7 +237,8 @@ def audit(
         "protected_implementation_status": "PASS" if not bad_hashes else "FAIL",
         "runtime_artifacts_tracked": runtime_artifacts, "live_trading_authorized": False,
         "real_order_transmission_authorized": False, "stage8_8_7_status": COMPLETE_STATUS,
-        "intel_final_acceptance_performed": True, "stage8_9_started": False,
+        "intel_final_acceptance_performed": True, "stage8_9_started": True,
+        "stage8_9_status": stage8_9_status, "stage8_9_physical_validation_performed": False,
     }
     if write_result:
         (root / "TradingSystemLab/stage8_robot/final_operational_audit_result.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")

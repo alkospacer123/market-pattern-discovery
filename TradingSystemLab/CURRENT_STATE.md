@@ -7,9 +7,9 @@ actively in **Stage 8 Robot / FINAM integration**, currently through
 **Stage 8.8.7 Final Operational Audit — Intel acceptance complete**.
 
 Repository status is
-`STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_INTEL_ACCEPTANCE_COMPLETE`.
+`STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION`.
 Stage 8.8 operational hardening is COMPLETE. Stages 8.8.1, 8.8.2, 8.8.3,
-8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE. Stage 8.9 has not started;
+8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE. Stage 8.9 is CURRENT; repository diagnostic code is ready and physical Intel validation is pending;
 Stage 8.10/8.11/8.12 remain pending and not authorized.
 
 Resolve the current Git `main` SHA directly from GitHub during every independent
@@ -314,8 +314,8 @@ because the validated clean UNION account did not expose `portfolio_forts`.
 
 Separately:
 
-- Stage 8.9 funding readiness remains blocked by unavailable account financials;
-- Stage 8.10 trading-token integration is pending;
+- Stage 8.9 physical funding readiness is not yet determined; the previous real-account result was `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` because `portfolio_forts` was absent;
+- Stage 8.10 trading-token integration is **PENDING / NOT AUTHORIZED**;
 - Stage 8.11/8.12 execution remains unauthorized.
 
 Any change that enables live orders requires a separate explicit authorization
