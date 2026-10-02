@@ -1,5 +1,5 @@
 """Independent static/semantic auditor for the Stage 8 foundation."""
-import argparse,ast,csv,json,re,sys
+import argparse,ast,csv,json,re,subprocess,sys
 from datetime import datetime,timezone
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]; HERE=Path(__file__).resolve().parent
@@ -27,6 +27,27 @@ def audit(write_result=True):
     launcher=(HERE/"deploy/windows/run-readonly.ps1").read_text()
     credential_store=(HERE/"deploy/windows/credential-store.ps1").read_text(); credential_init=(HERE/"deploy/windows/initialize-readonly-credentials.ps1").read_text(); credential_verify=(HERE/"deploy/windows/verify-readonly-credentials.ps1").read_text(); task_installer=(HERE/"deploy/windows/install-task.ps1").read_text()
     conformance=json.loads((HERE/"conformance_report.json").read_text()); provenance=json.loads((HERE/"authority_provenance.json").read_text()); registry=(HERE/"production_instrument_registry.csv").read_text(); registry_rows=csv_rows(HERE/"production_instrument_registry.csv")
+    current_state=(ROOT/"TradingSystemLab/CURRENT_STATE.md").read_text()
+    readme=(HERE/"README.md").read_text()
+    roadmap=(ROOT/"TradingSystemLab/ROADMAP.md").read_text()
+    closeout_docs="\n".join((current_state,readme,roadmap))
+    completed_status="STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE"
+    accepted_code_sha="dc2b79e74817e71435eee20103ae617e13067d8e"
+    evidence_sha="1A9B62D4BFC0E7384898C9DF9659E54E50E0E202BD44CE19413864AC2ECA14D6"
+    tracked=subprocess.run(["git","ls-files","-z"],cwd=ROOT,check=True,capture_output=True).stdout.decode().split("\0")
+    check(all(completed_status in document and "STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE" not in document
+              for document in (current_state,readme,roadmap)),"STAGE_8_8_6_COMPLETED_STATUS_SYNCHRONIZED")
+    check(all(accepted_code_sha in document for document in (current_state,readme,roadmap)),"STAGE_8_8_6_ACCEPTED_CODE_SHA_RECORDED")
+    check(all(evidence_sha in document for document in (current_state,readme,roadmap)),"STAGE_8_8_6_EXTERNAL_EVIDENCE_SHA_RECORDED")
+    check(not any("stage8_8_6_sqlite_recovery_acceptance.json" in path.lower()
+                  or path.lower().endswith((".sqlite3","-wal","-shm",".dpapi")) for path in tracked),
+          "STAGE_8_8_6_RAW_EXTERNAL_AND_RUNTIME_MATERIAL_NOT_TRACKED")
+    check("Stage 8.8.7" in current_state and "pending" in current_state.split("Stage 8.8.7",1)[1][:100].lower(),"STAGE_8_8_7_PENDING")
+    check("Stage 8.9 has not started" in closeout_docs,"STAGE_8_9_NOT_STARTED")
+    check("LIVE_TRADING_NOT_AUTHORIZED" in readme and "no live trading was authorized" in closeout_docs.lower(),"CLOSEOUT_LIVE_TRADING_UNAUTHORIZED")
+    check("REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in readme
+          and re.search(r"no live order\s+was transmitted",closeout_docs,re.I),
+          "CLOSEOUT_REAL_ORDER_TRANSMISSION_UNAUTHORIZED")
     check("import .broker" not in core and "from .broker" not in core,"BROKER_CORE_ISOLATION"); check('FINAM_MODE","DRY_RUN' in config and 'LIVE_TRADING_NOT_AUTHORIZED' in config,"LIVE_DEFAULT_OFF_AND_IMPOSSIBLE")
     check(not any(x in config for x in ("ema_period","adx_period","risk_fraction","basket")),"NO_MUTABLE_PARAMETERS")
     check("PRIMARY KEY" in state and "persist_intent" in state,"PERSISTENCE_IDEMPOTENCY"); check("reconcile" in runner and "entries_enabled" in runner,"RECONCILIATION_GATE")
@@ -245,7 +266,6 @@ def audit(write_result=True):
     check("H1_TIMING_EVIDENCE_REPOSITORY_OUTPUT_FORBIDDEN" in timing
           and "REPOSITORY_ROOT" in timing and ".resolve()" in timing,
           "H1_DIAGNOSTIC_REPOSITORY_OUTPUT_FAIL_CLOSED")
-    readme=(HERE/"README.md").read_text()
     check("external operational evidence" in readme and "must not be committed to Git" in readme
           and "synthetic fixtures" in readme,
           "H1_REAL_CAPTURE_EXTERNAL_SYNTHETIC_TESTS_ONLY")
@@ -266,7 +286,7 @@ def audit(write_result=True):
           "WINDOWS_NO_OBSOLETE_SUPERVISOR_STATE_AUTHORITY")
     check("TradingSystemLab.stage8_robot.readonly_supervisor" in launcher and not any(x in windows_deployment for x in ("place_order","submit_order","cancel_order")),"WINDOWS_SERVICE_READONLY_NO_ORDER_PATH")
     check("-ExecutionPolicy RemoteSigned" in task_installer and "-MultipleInstances IgnoreNew" in task_installer,"WINDOWS_TASK_POLICY_CONSERVATIVE")
-    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":"STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE","margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED"}
+    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":completed_status,"margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED"}
     if write_result: (HERE/"independent_audit_result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
     return result
 if __name__=="__main__":

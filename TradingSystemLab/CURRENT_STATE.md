@@ -4,15 +4,15 @@
 
 TradingSystemLab has completed Stage 7 Production Specification Freeze and is
 actively in **Stage 8 Robot / FINAM integration**, currently through
-**Stage 8.8.6 SQLite recovery code ready; Intel acceptance pending**.
+**Stage 8.8.6 SQLite recovery Intel acceptance complete**.
 
 Resolve the current Git `main` SHA directly from GitHub during every independent
 audit; this versioned file is not authoritative for a moving branch SHA.
 
 Current Stage 8 repository audit state:
 
-- `stage8_status`: `STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE`;
-- Stage 8 independent repository audit: PASS, 121 checks, zero recorded errors;
+- `stage8_status`: `STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE`;
+- Stage 8 independent repository audit: PASS, 132 checks, zero recorded errors;
 - LIVE trading: **NOT AUTHORIZED**;
 - real order transmission: **NOT AUTHORIZED**.
 
@@ -217,11 +217,11 @@ reset consecutive failures to 0. Order-capable calls were 0, entries remained
 disabled, and the production Scheduled Task remained Disabled throughout the
 acceptance. No runtime JSON or raw FINAM response is stored in this repository.
 
-## Current next action
+## Stage 8.8.6 SQLite recovery acceptance
 
 Do **not** start LIVE trading.
 
-Stage 8.8.6 repository tooling now backs up only
+Stage 8.8.6 repository tooling backs up only
 `state/readonly-supervisor.sqlite3` with SQLite's online API, binds each backup
 to a strict checksum/production-ID manifest, retains database/manifest pairs,
 and restores only a validated operational schema under the existing lifetime
@@ -229,12 +229,59 @@ lock via an atomic state-directory replacement. Stale WAL/SHM sidecars are
 removed at commit. Offline recovery preserves the selected continuity values;
 it does not fabricate a watermark or bypass the next normal supervisor cycle.
 
-Status:
-`STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE`.
+Status: `STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE`.
 
-**NEXT: after merge and independent audit, perform real Intel backup, restore,
-and normal REAL_READONLY reconciliation acceptance.** Repository tests use
-synthetic SQLite fixtures and do not constitute physical Intel acceptance.
+The physical Intel acceptance audited code commit
+`dc2b79e74817e71435eee20103ae617e13067d8e`. Its external acceptance evidence
+remains outside Git; its SHA-256 is
+`1A9B62D4BFC0E7384898C9DF9659E54E50E0E202BD44CE19413864AC2ECA14D6`.
+Repository tests did not generate or substitute for that external evidence.
+
+The Windows gate passed 27 SQLite recovery tests and the complete 255-test
+Stage 8 suite. The Stage 8 independent audit passed 124 checks, while the Stage
+7 production specification audit passed 22 checks and 19 mutation tests. The
+Scheduled Task remained Disabled, supervisor process count was 0, and recovery
+internal material count was 0.
+
+The accepted real backup was
+`readonly-supervisor-20261002T125325.986665Z.sqlite3`, with SHA-256
+`00b5e4ca2b389d55389b6b57ac73b5e557c11b72daab8d6e118311613e0aa3b0` and
+manifest SHA-256
+`3d0ef1d7cb11ee592be32550625e8badefc596108f4d0c34eff6c5e12ceba822`.
+The manifest used schema `stage8-readonly-sqlite-backup/v1`, contained the exact
+production specification ID, matched the backup checksum, and passed
+recovery-point validation.
+
+Before controlled mutation, the operational logical SHA-256 was
+`13f01f1009768ddce65dce079f70486f2cbc2508cd1ea8ec4787414a78e0d3be` with 9
+rows. The observable `CONTROLLED_MUTATION` marker changed the row count to 10
+and changed the logical SHA. Restore exited 0 with
+`READONLY_STATE_RECOVERY_COMMITTED_RECONCILIATION_REQUIRED`; afterward the
+logical SHA and row count returned exactly to their pre-mutation values, the
+marker was absent, `cycle_count = 19`, `consecutive_failures = 5`, and
+`last_reconciliation = FAULT`. Recovery internal material count was 0. This
+established exact operational-state continuity through backup and restore.
+
+One real FINAM `REAL_READONLY --once` reconciliation then used the existing
+CurrentUser DPAPI credential path. Preflight passed with
+`live_trading_authorized = false`; credential loading printed neither secret nor
+account ID. The supervisor exited 0. Cycle count advanced 19 to 20,
+consecutive failures reset 5 to 0, and reconciliation became `PASS`. For all
+four production instruments, `h1 == expected_h1 ==
+2026-10-02T12:00:00+00:00`. The resulting heartbeat was `REAL_READONLY`, exact
+production specification ID, `HEALTHY` / `PASS`, entries disabled, zero
+unresolved orders, cycle count 20, and zero consecutive failures. Supervisor
+order-capable calls were `[]`.
+
+After completion the Scheduled Task remained Disabled, supervisor process count
+and recovery internal file count were 0, and `FINAM_API_SECRET` and
+`FINAM_REAL_ACCOUNT_ID` were absent from the process environment. No live order
+was transmitted and no live trading was authorized.
+
+## Current next action
+
+**NEXT: Stage 8.8.7 — Final Operational Audit.** It is pending and not yet
+complete. Stage 8.9 has not started.
 
 Separately:
 

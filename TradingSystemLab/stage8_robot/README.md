@@ -1,6 +1,6 @@
 # Stage 8 robot foundation
 
-**Status:** `STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE` / `STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY` — `LIVE_TRADING_NOT_AUTHORIZED`.
+**Status:** `STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE` / `STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY` — `LIVE_TRADING_NOT_AUTHORIZED`.
 
 ## Real account read-only and margin feasibility
 
@@ -155,14 +155,47 @@ WAL database open across restore. The fixture now creates real committed WAL
 state in an abruptly terminated subprocess, so restore starts with crash-left
 WAL state and no live SQLite handle. A separate Windows regression preserves
 the fail-closed contract when an external process really does hold the database
-open. Physical Intel backup/restore acceptance has not yet been performed.
+open.
 
-Status is
-`STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE`. Repository
-tests use synthetic SQLite data only. **NEXT: after merge and independent audit,
-perform physical Intel backup/restore and start the unchanged REAL_READONLY
-supervisor for normal safety reconciliation.** Restore alone is not acceptance
-and does not authorize LIVE trading or real order transmission.
+Status is `STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE`. Physical
+Intel acceptance used audited code commit
+`dc2b79e74817e71435eee20103ae617e13067d8e`; the external evidence remains
+outside Git and is recorded only by SHA-256
+`1A9B62D4BFC0E7384898C9DF9659E54E50E0E202BD44CE19413864AC2ECA14D6`.
+Repository tests remain synthetic and did not generate the external acceptance.
+
+On Windows, 27 recovery tests and all 255 Stage 8 tests passed; the independent
+Stage 8 audit passed 124 checks, and the Stage 7 audit passed 22 checks plus 19
+mutation tests. The accepted backup
+`readonly-supervisor-20261002T125325.986665Z.sqlite3` had SHA-256
+`00b5e4ca2b389d55389b6b57ac73b5e557c11b72daab8d6e118311613e0aa3b0`; its
+manifest had SHA-256
+`3d0ef1d7cb11ee592be32550625e8badefc596108f4d0c34eff6c5e12ceba822`, the exact
+production ID, schema `stage8-readonly-sqlite-backup/v1`, a matching checksum,
+and a valid recovery point.
+
+A controlled marker changed the canonical state from 9 to 10 rows and changed
+its logical SHA. Restore exited 0 with
+`READONLY_STATE_RECOVERY_COMMITTED_RECONCILIATION_REQUIRED`, removed the marker,
+and returned to 9 rows and the exact pre-mutation logical SHA-256
+`13f01f1009768ddce65dce079f70486f2cbc2508cd1ea8ec4787414a78e0d3be`, with
+cycle 19, five consecutive failures, and `FAULT`. No recovery internal material
+remained.
+
+The following real FINAM `REAL_READONLY --once` cycle passed preflight with
+`live_trading_authorized = false`, loaded CurrentUser DPAPI credentials without
+printing the secret or account ID, and exited 0. It advanced cycle 19 to 20,
+reset failures 5 to 0, and produced `HEALTHY` / `PASS`; every production
+instrument had `h1 == expected_h1 == 2026-10-02T12:00:00+00:00`. The heartbeat
+recorded the exact production ID, entries disabled, zero unresolved orders,
+cycle 20, and zero failures. Order-capable calls were `[]`. The Scheduled Task
+remained Disabled; no supervisor process or recovery-internal file remained;
+credential and account-ID environment variables were absent. No live order was
+transmitted and no live trading was authorized.
+
+**NEXT: Stage 8.8.7 — Final Operational Audit.** It remains pending. Stage 8.9
+has not started; this completion does not authorize LIVE trading or real order
+transmission.
 
 ## Boundaries and startup
 
