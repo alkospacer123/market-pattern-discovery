@@ -1,6 +1,11 @@
 # Stage 8 robot foundation
 
-**Status:** `STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE` / `STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY` — `LIVE_TRADING_NOT_AUTHORIZED`.
+**Status:** `STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_CODE_READY_PENDING_INTEL_ACCEPTANCE` / `STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY` — `LIVE_TRADING_NOT_AUTHORIZED`.
+
+Stage 8.8.1 through Stage 8.8.6 are complete. Stage 8.8.7 is the current
+repository-only Final Operational Audit gate; physical final Intel acceptance
+remains pending. Stage 8.9 has not started, and Stage 8.10/8.11/8.12 remain
+pending and not authorized.
 
 ## Real account read-only and margin feasibility
 
@@ -193,8 +198,10 @@ remained Disabled; no supervisor process or recovery-internal file remained;
 credential and account-ID environment variables were absent. No live order was
 transmitted and no live trading was authorized.
 
-**NEXT: Stage 8.8.7 — Final Operational Audit.** It remains pending. Stage 8.9
-has not started; this completion does not authorize LIVE trading or real order
+**CURRENT: Stage 8.8.7 — Final Operational Audit.** Repository status is
+`STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_CODE_READY_PENDING_INTEL_ACCEPTANCE`.
+Physical final Intel acceptance remains pending; Stage 8.8.7 is not complete.
+Stage 8.9 has not started; this does not authorize LIVE trading or real order
 transmission.
 
 ## Boundaries and startup
