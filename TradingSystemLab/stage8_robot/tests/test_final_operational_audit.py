@@ -159,6 +159,21 @@ def test_stage_8_9_physical_provenance_mutations_fail():
         assert "STAGE_8_9_PHYSICAL_BLOCKED_PROVENANCE_SYNCHRONIZED" in result["errors"]
 
 
+def test_stage_8_9_performed_blocked_state_cannot_be_described_as_unknown():
+    path = "TradingSystemLab/CURRENT_STATE.md"
+    mutation = source(path).replace(
+        "physical funding readiness was determined",
+        "physical funding readiness is not yet determined",
+    )
+
+    result = run_audit({path: mutation})
+
+    assert result["stage8_9_physical_validation_performed"] is True
+    assert result["stage8_9_status"] == final.STAGE_8_9_STATUS
+    assert result["stage8_9_reason"] == final.STAGE_8_9_REASON
+    assert "STAGE_8_9_PERFORMED_BLOCKED_STATE_NOT_DESCRIBED_AS_UNKNOWN" in result["errors"]
+
+
 def test_stage_8_8_7_missing_external_provenance_fails():
     path = "TradingSystemLab/CURRENT_STATE.md"
     result = run_audit({path: source(path).replace(final.STAGE_8_8_7_EVIDENCE, "MISSING")})

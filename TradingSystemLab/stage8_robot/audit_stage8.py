@@ -60,6 +60,12 @@ def audit(write_result=True):
     check("STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION" not in closeout_docs
           and "STAGE_8_9_FUNDING_MARGIN_VALIDATED" not in closeout_docs,
           "STAGE_8_9_BLOCKED_NOT_COMPLETE")
+    physical_readiness_unknown=re.compile(
+        r"physical\s+(?:funding\s+)?(?:readiness|validation).{0,80}"
+        r"(?:not\s+yet\s+determined|unknown|awaiting\s+(?:its\s+)?(?:first\s+)?physical\s+validation)",
+        re.I|re.S)
+    check(not physical_readiness_unknown.search(closeout_docs),
+          "STAGE_8_9_PERFORMED_BLOCKED_STATE_NOT_DESCRIBED_AS_UNKNOWN")
     check("LIVE_TRADING_NOT_AUTHORIZED" in readme and "no live trading was authorized" in closeout_docs.lower(),"CLOSEOUT_LIVE_TRADING_UNAUTHORIZED")
     check("REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in readme
           and re.search(r"no live order\s+was transmitted",closeout_docs,re.I),

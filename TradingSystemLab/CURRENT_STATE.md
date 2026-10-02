@@ -314,7 +314,7 @@ because the validated clean UNION account did not expose `portfolio_forts`.
 
 Separately:
 
-- Stage 8.9 physical funding readiness is not yet determined; the previous real-account result was `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` because `portfolio_forts` was absent;
+- Stage 8.9 physical funding readiness was determined by the accepted physical validation as `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`, reason `FORTS_PORTFOLIO_MISSING`; Stage 8.9 remains **CURRENT / BLOCKED / NOT COMPLETE**;
 - Stage 8.10 trading-token integration is **NOT STARTED / NOT AUTHORIZED**;
 - Stage 8.11/8.12 execution remains unauthorized.
 
