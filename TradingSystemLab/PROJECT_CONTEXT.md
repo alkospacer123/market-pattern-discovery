@@ -245,9 +245,11 @@ SID/ACL handling.
 
 Stage 8.8.5 added schedule-aware stale H1 protection:
 
-- expected H1 close comes from the actual FINAM asset schedule;
-- only completed one-hour intervals wholly inside sessions count;
-- closed schedules/weekends/gaps do not create fake expectations;
+- external real timing evidence (kept outside Git) established whole-hour UTC opens;
+- touching trading sessions form one instrument-specific contiguous grid;
+- completion is `min(open + 1 hour, trading-window end)`;
+- auction/clearing/closed preserve the transactional expected-H1 watermark;
+- exact expected raw-open membership is required and cold start fails closed;
 - malformed schedule fails closed;
 - stale newest H1 candle raises `STALE_COMPLETED_H1_DATA`;
 - heartbeat becomes `FAULT` / `UNHEALTHY`;
@@ -256,7 +258,7 @@ Stage 8.8.5 added schedule-aware stale H1 protection:
 
 Current Stage 8 status:
 
-`STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_VALIDATION`.
+`STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_FAULT_INJECTION`.
 
 Repository audit passes, but real Intel operational fault-injection/restart/
 network/recovery acceptance is still pending.

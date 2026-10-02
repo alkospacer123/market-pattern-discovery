@@ -34,7 +34,9 @@ EXPECTED_BINDINGS = {
     "IMOEXF": ("IMOEXF@RTSX", "4631091"),
 }
 STALE_DATA_CODE = "STALE_COMPLETED_H1_DATA"
-UNVALIDATED_TIME_MODEL_CODE = "H1_FINAM_TIME_MODEL_NOT_VALIDATED"
+WATERMARK_UNAVAILABLE_CODE = "H1_EXPECTED_COMPLETED_WATERMARK_UNAVAILABLE"
+TRADING_SESSION_TYPES = frozenset({"EARLY_TRADING", "CORE_TRADING", "LATE_TRADING"})
+NON_TRADING_SESSION_TYPES = frozenset({"OPENING_AUCTION", "CLEARING", "CLOSED"})
 
 
 class SafetyFault(RuntimeError):
@@ -120,32 +122,46 @@ def _utc_timestamp(value: Any) -> datetime:
     return parsed.astimezone(timezone.utc)
 
 
-def newest_expected_h1_close(schedule: Any, observed_at: datetime) -> datetime | None:
-    """Return the latest H1 close that the supplied FINAM sessions require.
-
-    H1 bars are anchored at each session's start.  Only a complete one-hour
-    interval wholly inside a session and observable at ``observed_at`` is due.
-    Thus breaks, future sessions, short sessions, weekends, and exchange
-    closures do not manufacture an expected candle.
-    """
+def trading_h1_windows(schedule: Any) -> list[tuple[datetime, datetime]]:
+    """Validate a schedule and merge touching FINAM trading intervals."""
     if not isinstance(schedule, dict) or not isinstance(schedule.get("sessions"), list):
         raise SafetyFault("H1_FRESHNESS_SCHEDULE_INVALID")
-    now = observed_at.astimezone(timezone.utc)
-    expected: datetime | None = None
+    intervals = []
     for session in schedule["sessions"]:
         if not isinstance(session, dict) or not isinstance(session.get("interval"), dict):
+            raise SafetyFault("H1_FRESHNESS_SCHEDULE_INVALID")
+        session_type = session.get("type")
+        if session_type not in TRADING_SESSION_TYPES | NON_TRADING_SESSION_TYPES:
             raise SafetyFault("H1_FRESHNESS_SCHEDULE_INVALID")
         interval = session["interval"]
         start = _utc_timestamp(interval.get("start_time"))
         end = _utc_timestamp(interval.get("end_time"))
         if end <= start:
             raise SafetyFault("H1_FRESHNESS_SCHEDULE_INVALID")
-        available_until = min(end, now)
-        completed = int((available_until - start) // timedelta(hours=1))
-        if completed > 0:
-            candidate = start + timedelta(hours=completed)
-            if expected is None or candidate > expected:
-                expected = candidate
+        if session_type in TRADING_SESSION_TYPES:
+            if start.minute or start.second or start.microsecond or end.second or end.microsecond:
+                raise SafetyFault("H1_FRESHNESS_SCHEDULE_INVALID")
+            intervals.append((start, end))
+    windows: list[tuple[datetime, datetime]] = []
+    for start, end in sorted(intervals):
+        if windows and start < windows[-1][1]:
+            raise SafetyFault("H1_FRESHNESS_SCHEDULE_INVALID")
+        if windows and start == windows[-1][1]:
+            windows[-1] = (windows[-1][0], end)
+        else:
+            windows.append((start, end))
+    return windows
+
+
+def newest_expected_h1_close(schedule: Any, observed_at: datetime) -> datetime | None:
+    """Return the raw open of the newest schedule-proven completed H1 bar."""
+    now = observed_at.astimezone(timezone.utc)
+    expected: datetime | None = None
+    for start, end in trading_h1_windows(schedule):
+        candidate = start
+        while candidate < end and min(candidate + timedelta(hours=1), end) <= now:
+            expected = candidate if expected is None or candidate > expected else expected
+            candidate += timedelta(hours=1)
     return expected
 
 
@@ -162,7 +178,6 @@ class ReadonlySupervisor:
         backoff_seconds: float = DEFAULT_BACKOFF_SECONDS,
         clock: Callable[[], datetime] | None = None,
         sleeper: Callable[[float], None] = time.sleep,
-        time_model_validated: bool = False,
     ):
         if not POLL_MIN_SECONDS <= poll_seconds <= POLL_MAX_SECONDS:
             raise ValueError("POLL_SECONDS_OUT_OF_RANGE")
@@ -180,9 +195,6 @@ class ReadonlySupervisor:
         self.backoff_seconds = backoff_seconds
         self.clock = clock or (lambda: datetime.now(timezone.utc))
         self.sleeper = sleeper
-        # There is deliberately no environment override.  This can become true
-        # only in code after reviewed real FINAM evidence defines the model.
-        self.time_model_validated = time_model_validated
         self.logger = configure_operational_log(self.root / "logs" / "stage8-readonly.log")
         self.heartbeat_path = self.root / "diagnostics" / "stage8-heartbeat.json"
         self.state = OperationalState(self.root / "state" / "readonly-supervisor.sqlite3")
@@ -221,8 +233,6 @@ class ReadonlySupervisor:
 
     def cycle(self) -> None:
         now = self.clock().astimezone(timezone.utc)
-        if not self.time_model_validated:
-            raise SafetyFault(UNVALIDATED_TIME_MODEL_CODE)
         _session_is_safe(self.api.session_details(), self.account)
         account_data = self.api.account(self.account)
         if account_data.get("status") not in {"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"}:
@@ -248,15 +258,26 @@ class ReadonlySupervisor:
             if symbol is None:
                 raise SafetyFault("N4_MARKET_DATA_REQUIRED")
             schedule = self.api.schedule(symbol)
-            bars = completed_h1_bars(self.api.bars(symbol, start, now.isoformat()), now)
-            if not bars:
-                raise SafetyFault("NO_COMPLETED_H1_BAR")
-            newest = max(bar["timestamp"] for bar in bars)
-            expected = newest_expected_h1_close(schedule, now)
-            if expected is not None and _utc_timestamp(newest) < expected:
+            windows = trading_h1_windows(schedule)
+            response = self.api.bars(symbol, start, now.isoformat())
+            try:
+                bars = completed_h1_bars(response, now, windows)
+                raw_opens = {_utc_timestamp(bar["timestamp"]) for bar in response.get("bars", [])}
+            except (ValueError, TypeError):
+                raise SafetyFault("H1_BARS_SCHEMA_INVALID") from None
+            derived = newest_expected_h1_close(schedule, now)
+            prior_expected_text = self.state.get(f"expected_h1:{name}")
+            prior_expected = _utc_timestamp(prior_expected_text) if prior_expected_text else None
+            expected = max(derived, prior_expected) if derived is not None and prior_expected is not None else derived or prior_expected
+            if expected is None:
+                raise SafetyFault(WATERMARK_UNAVAILABLE_CODE)
+            if expected not in raw_opens:
                 raise SafetyFault(STALE_DATA_CODE)
-            prior = self.state.get(f"h1:{name}")
-            updates[f"h1:{name}"] = max(newest, prior) if prior else newest
+            completed_opens = {_utc_timestamp(bar["timestamp"]) for bar in bars}
+            if derived is not None and derived not in completed_opens:
+                raise SafetyFault(STALE_DATA_CODE)
+            updates[f"h1:{name}"] = expected.isoformat()
+            updates[f"expected_h1:{name}"] = expected.isoformat()
         contact = now.isoformat()
         self.cycle_count += 1
         self.consecutive_failures = 0

@@ -149,15 +149,12 @@ Secrets remain outside Git and output.
 
 ### Stage 8.8.5 — schedule-aware stale H1 protection
 
-PR #296 merged.
-
-Latest merge:
-`4d8807d5b97f660bd4558e7a35660567829a51f6`.
-
 Status:
-`STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_VALIDATION`.
+`STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_FAULT_INJECTION`.
 
-Freshness uses actual FINAM schedules. Stale completed H1 data raises
+Freshness uses instrument-specific FINAM schedules, whole-hour UTC raw opens,
+merged touching trading windows, a partial final-bar completion boundary, and
+the persisted exact expected watermark. Stale completed H1 data raises
 `STALE_COMPLETED_H1_DATA`, records `FAULT` / `UNHEALTHY`, does not advance
 successful cycle state, and leaves entries disabled. Closed schedules/weekends/
 gaps do not create synthetic expectations.

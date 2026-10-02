@@ -3,6 +3,7 @@ import hashlib,json,os
 from datetime import datetime,timezone,timedelta
 from pathlib import Path
 from .finam_api import FinamAPI,completed_h1_bars
+from .readonly_supervisor import trading_h1_windows
 from .instrument_resolver import N4,discover_finam_asset,evidence_sha256,validate_finam_binding
 
 def main():
@@ -21,7 +22,7 @@ def main():
         symbol=asset["symbol"]; account_asset=api.asset(symbol,account); params=api.asset_params(symbol,account); schedule=api.schedule(symbol)
         evidence=validate_finam_binding(code,asset,params,schedule,account_asset).to_dict()
         now=datetime.now(timezone.utc); raw=api.bars(symbol,(now-timedelta(days=2)).isoformat(),now.isoformat())
-        evidence["recent_h1"]={"completed_count":len(completed_h1_bars(raw,now))}
+        evidence["recent_h1"]={"completed_count":len(completed_h1_bars(raw,now,trading_h1_windows(schedule)))}
         records[code]=evidence
     report={"schema_version":1,"timestamp":datetime.now(timezone.utc).isoformat(),
       "account_identity_sha256":hashlib.sha256(account.encode()).hexdigest(),"account_verified":account_verified,"bindings":records}

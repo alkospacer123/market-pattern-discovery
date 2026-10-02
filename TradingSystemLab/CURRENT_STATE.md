@@ -10,7 +10,7 @@ Current `main`: `4d8807d5b97f660bd4558e7a35660567829a51f6`.
 
 Current Stage 8 repository audit state:
 
-- `stage8_status`: `STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_VALIDATION`;
+- `stage8_status`: `STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_FAULT_INJECTION`;
 - Stage 8 independent repository audit: PASS, 91 checks, zero recorded errors;
 - LIVE trading: **NOT AUTHORIZED**;
 - real order transmission: **NOT AUTHORIZED**.
@@ -168,16 +168,17 @@ Real Intel 24/7 restart/network-failure/recovery acceptance is still pending.
 
 ## Stage 8.8.5 stale H1 data protection
 
-Latest merge: `4d8807d5b97f660bd4558e7a35660567829a51f6`.
-
-Every supervisor cycle derives the latest expected completed H1 close from the
-actual FINAM instrument schedule. Only complete one-hour intervals wholly inside
-a reported session create an expectation.
+Externally validated real timing evidence established whole-hour UTC raw opens.
+The implementation merges touching trading sessions into instrument-specific
+windows and uses `min(open + 1 hour, window end)`, including a partial final bar.
+The evidence itself remains outside Git.
 
 Rules:
 
-- closed weekends / empty schedules create no synthetic bar expectation;
-- future sessions, sub-hour intervals and schedule gaps create no synthetic bar;
+- only EARLY_TRADING, CORE_TRADING and LATE_TRADING generate expectations;
+- auction, clearing and closed periods preserve `expected_h1:<instrument>`;
+- cold start without schedule evidence or a persisted watermark fails closed;
+- exact expected raw-open membership is required;
 - malformed schedule evidence fails closed;
 - if the newest completed H1 candle is stale, raise
   `STALE_COMPLETED_H1_DATA`;
@@ -186,8 +187,9 @@ Rules:
 - entries remain disabled;
 - no order-capable call is introduced.
 
-Repository tests/audit cover stale, fresh recovery, weekend/schedule-gap,
-heartbeat and no-order semantics.
+Repository synthetic tests/audit cover the validated grid, partial final bar,
+stale/fresh recovery, persistence, per-instrument schedules, heartbeat and
+no-order semantics. The code is ready for Intel fault-injection validation.
 
 **Operational gate remains open:** real Intel fault-injection validation of the
 supervisor/stale-data behavior is still pending. Repository tests do not count

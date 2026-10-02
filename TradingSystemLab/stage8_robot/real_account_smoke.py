@@ -4,6 +4,7 @@ from datetime import datetime,timedelta,timezone
 from decimal import Decimal
 from pathlib import Path
 from .finam_api import FinamAPI,completed_h1_bars
+from .readonly_supervisor import trading_h1_windows
 from .instrument_resolver import MOEX_REFERENCE,N4,discover_finam_asset,evidence_sha256,validate_finam_binding
 from .margin import cap_r15_by_margin,directional_initial_margin,forts_funds,parse_rest_decimal_value_object
 from .risk import ContractEconomics,size_position
@@ -41,7 +42,8 @@ def run_diagnostic(api,account,report_path):
         financials={"forts_available_cash":str(free),"forts_money_reserved":str(reserved)}
         for code,binding in records.items():
             symbol=binding["finam_symbol"]
-            raw=api.bars(symbol,(now-timedelta(days=2)).isoformat(),now.isoformat()); bars=completed_h1_bars(raw,now)
+            schedule=api.schedule(symbol)
+            raw=api.bars(symbol,(now-timedelta(days=2)).isoformat(),now.isoformat()); bars=completed_h1_bars(raw,now,trading_h1_windows(schedule))
             if not bars: raise RuntimeError(f"NO_COMPLETED_H1:{code}")
             step,tick,_=MOEX_REFERENCE[code]; entry=Decimal(str(bars[-1]["close"])); stop=entry-step*10
             lot=int(Decimal(binding["trade_lot_size"])); r15=size_position(realized,entry,stop,ContractEconomics(step,tick,lot,True))
