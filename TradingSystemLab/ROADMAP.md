@@ -130,7 +130,11 @@ Status:
 Supervisor is read-only, entries disabled, single-instance, heartbeat/reconcile
 aware, and cannot transmit real orders.
 
-Physical Intel 24/7 restart/network/recovery acceptance remains pending.
+Physical Intel operational acceptance is complete. It covered supervisor
+startup and `--once`, continuous operation, restart, second-instance exclusion,
+reboot, and network/API failure through `UNHEALTHY` / `FAULT` and recovery to
+`HEALTHY` / `PASS`. Recovery reset the consecutive-failure counter, and no
+order-capable call was made.
 
 ### Stage 8.8.4 — Windows DPAPI credential bootstrap
 
@@ -160,8 +164,10 @@ successful cycle state, and leaves entries disabled. Closed schedules/weekends/
 gaps do not create synthetic expectations.
 
 Repository audit: PASS. Real Intel stale-data fault injection and deterministic
-recovery: PASS. The audited source was
-`1c1c2bb5458827f200bc753e7e64db0272b33a8f`; the external artifact SHA-256 is
+recovery: PASS. The accepted PR #302 head was
+`635bea24710cc41f0cb65eef9c6ed576494f5396`, incorporated in merged `main`
+`b19a3625698f4701b7c531cade5a27a497269b73` before this documentation
+correction; the external artifact SHA-256 is
 `C57554AE3AE54018EC1E558108520088C1883718F0406E7B6C6669B4696A9CBC`.
 The clean and recovered states were `HEALTHY` / `PASS`; the controlled
 `STALE_COMPLETED_H1_DATA` state was `UNHEALTHY` / `FAULT` and did not advance

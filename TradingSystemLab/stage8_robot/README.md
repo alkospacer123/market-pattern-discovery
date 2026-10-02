@@ -56,11 +56,15 @@ disabled, holds an external lifetime instance lock, observes account cleanliness
 and completed N4 H1 data, and persists only sanitized operational continuity.
 `--once` executes exactly the same single operational cycle without sleeping.
 
-Completion state is `STAGE_8_8_1_REAL_READONLY_SUPERVISOR_CODE_READY`: real Intel
-24/7 restart, network-failure, and recovery acceptance remains pending. Stage 8.9
-funding readiness remains separately blocked by unavailable account financials;
-8.10 trading-token integration is pending, and 8.11/8.12 execution remains not
-authorized. No CI result is a claim of completed 24/7 production validation.
+Completion state is `STAGE_8_8_1_REAL_READONLY_SUPERVISOR_CODE_READY`. Real Intel
+operational acceptance is complete: supervisor startup and `--once`, continuous
+operation, restart, second-instance exclusion, reboot, and network/API failure
+through `UNHEALTHY` / `FAULT` and recovery to `HEALTHY` / `PASS` were validated.
+Recovery reset the consecutive-failure counter, and no order-capable call was
+made. Stage 8.9 funding readiness remains separately blocked by unavailable
+account financials; 8.10 trading-token integration is pending, and 8.11/8.12
+execution remains not authorized. This acceptance does not authorize LIVE
+production operation.
 
 ### Stage 8.8.5 stale-market-data rule
 
@@ -93,9 +97,10 @@ state. A closed-period cold start without that trusted watermark fails with
 `H1_EXPECTED_COMPLETED_WATERMARK_UNAVAILABLE`.
 
 Stage 8.8.5 is
-`STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE`. Real Intel acceptance passed
-against audited Git head `1c1c2bb5458827f200bc753e7e64db0272b33a8f`; the
-external artifact SHA-256 is
+`STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE`. Real Intel acceptance passed for
+PR #302 at Git head `635bea24710cc41f0cb65eef9c6ed576494f5396`, incorporated
+in merged `main` `b19a3625698f4701b7c531cade5a27a497269b73` before this
+documentation correction. The external artifact SHA-256 is
 `C57554AE3AE54018EC1E558108520088C1883718F0406E7B6C6669B4696A9CBC`.
 The clean cycle was `HEALTHY` / `PASS`; the controlled
 `STALE_COMPLETED_H1_DATA` fault was `UNHEALTHY` / `FAULT` without advancement
