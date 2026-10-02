@@ -130,11 +130,10 @@ FULL/R15 production sizing code is margin-aware and fail-closed:
 
 `floor_to_trade_lot(min(r15_quantity, floor(available_cash / directional_initial_margin)))`.
 
-However, the clean UNION account used for REAL_READONLY validation did not
-expose the required `portfolio_forts` funding structure. Therefore funding
-readiness is currently:
-
-**`BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`**.
+Stage 8.9.9 revalidated the clean UNION account and its `portfolio_mc` authority.
+All eight N4 × direction sizing cases had zero executable capacity. Therefore the
+only current blocker is **`BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY`**, reason
+**`ZERO_CONTRACT_CAPACITY`**.
 
 Do not fabricate equity, free cash, margin capacity, or hypothetical live sizing.
 
@@ -308,13 +307,13 @@ tooling validates the provenance and hash; it did not generate the evidence.
 
 ## Current next action
 
-**CURRENT: Stage 8.9 — Real Account Funding & Margin Validation.** Physical
-validation was performed and is blocked by `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`
-because the validated clean UNION account did not expose `portfolio_forts`.
+**CURRENT: Stage 8.9.10 — CURRENT / BLOCKED.** The only active Stage 8.9 blocker
+is `BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY`, reason `ZERO_CONTRACT_CAPACITY`.
+Stage 8.9.9 physical revalidation is complete.
 
 Separately:
 
-- Stage 8.9 physical funding readiness was determined by the accepted physical validation as `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`, reason `FORTS_PORTFOLIO_MISSING`; Stage 8.9 remains **CURRENT / BLOCKED / NOT COMPLETE**;
+- Stage 8.9.8 is **COMPLETE**; Stage 8.9.9 is **PHYSICAL REVALIDATION COMPLETE**; Stage 8.9 remains **NOT COMPLETE**;
 - Stage 8.10 trading-token integration is **NOT STARTED / NOT AUTHORIZED**;
 - Stage 8.11/8.12 execution remains unauthorized.
 
@@ -336,12 +335,12 @@ state in `main`.
 
 ## Stage 8.9 physical validation closeout
 
-Repository diagnostic readiness is retained. Physical REAL_READONLY validation was performed on accepted Intel code commit `5deedb49f16d9f2525c430383a029017cd9a53ce`. `stage8_9_physical_validation_performed = true`. The result is `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`, reason `FORTS_PORTFOLIO_MISSING`. Diagnostic report SHA-256: `2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`. Physical validation summary SHA-256: `59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B`. The external JSON evidence remains outside Git. The authenticated account was a clean, active `UNION` account using a read-only token, and its exact frozen N4 binding was valid. `portfolio_forts` was absent, so funding/margin feasibility remained `BLOCKED`; absence is not zero and no other field is a fallback. The no-order-call assertion was true. The Scheduled Task stayed Disabled; supervisor process and recovery internal file counts stayed zero; FINAM secret and account ID were removed from the process environment. The accepted physical run recorded Stage 8 repository audit PASS / 141 checks, Final Operational Audit PASS / 45 checks, Stage 7 production audit PASS / 22 checks / 19 mutation tests, and server preflight PASS. No physical order-capable operation occurred. Stage 8.9 is **CURRENT / BLOCKED / NOT COMPLETE**. Stage 8.10 is **NOT STARTED / NOT AUTHORIZED**. LIVE trading and real-order transmission remain unauthorized.
+Historical earlier evidence from the old implementation is retained. Its physical REAL_READONLY validation ran on accepted Intel code commit `5deedb49f16d9f2525c430383a029017cd9a53ce` and returned `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`, reason `FORTS_PORTFOLIO_MISSING`. Historical diagnostic report SHA-256: `2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`. Historical physical summary SHA-256: `59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B`. The external JSON evidence remains outside Git. This old result is provenance only and is not the current blocker.
 
 
 ## Stage 8.9.8 UNION/MC authority resolution
 
-Status: `STAGE_8_9_UNION_MC_AUTHORITY_CODE_READY_PENDING_PHYSICAL_REVALIDATION`.
+Status: `STAGE_8_9_8_COMPLETE`.
 Stage 8.9.8 account-authority resolution is complete: the production account is
 `UNION`, and funded physical evidence confirmed exactly one `portfolio_mc`. The
 FORTS-only implementation was incorrect for this account. The post-funding MC
@@ -350,8 +349,8 @@ portfolio-variant evidence SHA-256 is
 post-funding account financial-shape evidence SHA-256 is
 `EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371`.
 Only these sanitized hashes are committed; the external JSON, account identity,
-and financial values remain outside Git. Corrective code is ready only after
-this PR passes. **Stage 8.9.9 physical revalidation is still required.** Stage
+and financial values remain outside Git. The corrective code was accepted, and
+**Stage 8.9.9 physical revalidation is complete.** Stage
 8.9 remains **NOT COMPLETE**. Stage 8.10 remains **NOT STARTED / NOT
 AUTHORIZED**. `LIVE_TRADING_NOT_AUTHORIZED`,
 `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and `NEW_ENTRIES_DISABLED` remain

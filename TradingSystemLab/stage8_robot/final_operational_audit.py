@@ -38,7 +38,7 @@ STAGE_8_9_REASON = "ZERO_CONTRACT_CAPACITY"
 STAGE_8_9_CODE = "c461911fdceddf54a2a6fe6768574dd93f4844d1"
 STAGE_8_9_REPORT = "F307D3F5ADC4525FF304B9582F683B89A097FC9BCFB502E8150FC98D2625860F"
 STAGE_8_9_SUMMARY = "F36B16565F9E08C38B3264831DCA94A65390275F7A2B78A3C6C90302E4A7C09B"
-STAGE_8_9_8_STATUS = "STAGE_8_9_UNION_MC_AUTHORITY_CODE_READY_PENDING_PHYSICAL_REVALIDATION"
+STAGE_8_9_8_STATUS = "STAGE_8_9_8_COMPLETE"
 STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
 STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
 BACKUP_SHA = "00b5e4ca2b389d55389b6b57ac73b5e557c11b72daab8d6e118311613e0aa3b0"
@@ -135,6 +135,7 @@ def audit(
     joined_docs = "\n".join(docs)
     spec = json.loads(text("TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/production_specification.json"))
     conformance = json.loads(text("TradingSystemLab/stage8_robot/conformance_report.json"))
+    provenance = json.loads(text("TradingSystemLab/stage8_robot/authority_provenance.json"))
 
     check(spec.get("production_specification_id") == SPEC_ID, "PRODUCTION_SPECIFICATION_ID_EXACT")
     check(spec.get("identity") == IDENTITY, "PRODUCTION_IDENTITY_EXACT")
@@ -237,6 +238,21 @@ def audit(
     check(all(all(value in doc for value in (
         STAGE_8_9_8_STATUS, STAGE_8_9_8_VARIANT, STAGE_8_9_8_SHAPE, "Stage 8.9.9",
     )) for doc in docs), "STAGE_8_9_8_UNION_MC_RESOLUTION_PROVENANCE_SYNCHRONIZED")
+    lifecycle = provenance.get("stage8_9_8", {})
+    check(lifecycle.get("status") == STAGE_8_9_8_STATUS
+          and lifecycle.get("stage8_9_9") == "PHYSICAL_REVALIDATION_COMPLETE"
+          and "PENDING_PHYSICAL_REVALIDATION" not in lifecycle.get("status", ""),
+          "STAGE_8_9_8_COMPLETE_AFTER_PHYSICAL_REVALIDATION")
+    stale_tokens = ("BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE", "FORTS_PORTFOLIO_MISSING")
+    historical_labels = ("earlier", "previous", "historical", "old implementation")
+    stale_unlabelled = []
+    for path, doc in zip(docs_paths, docs):
+        for paragraph in re.split(r"\n\s*\n", doc):
+            if any(token in paragraph for token in stale_tokens) and not any(
+                label in paragraph.lower() for label in historical_labels
+            ):
+                stale_unlabelled.append(path)
+    check(not stale_unlabelled, "STAGE_8_9_HISTORICAL_FORTS_RESULT_NOT_CURRENT")
     check("STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION" not in joined_docs,
           "STAGE_8_9_PENDING_PHYSICAL_STATE_RETIRED")
     check("STAGE_8_9_FUNDING_MARGIN_VALIDATED" not in joined_docs,

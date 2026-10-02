@@ -181,10 +181,7 @@ def test_zero_capacity_described_as_funding_validated_fails():
 
 def test_stage_8_9_performed_blocked_state_cannot_be_described_as_unknown():
     path = "TradingSystemLab/CURRENT_STATE.md"
-    mutation = source(path).replace(
-        "physical funding readiness was determined",
-        "physical funding readiness is not yet determined",
-    )
+    mutation = source(path) + "\n\nPhysical funding readiness is not yet determined.\n"
 
     result = run_audit({path: mutation})
 
@@ -192,6 +189,26 @@ def test_stage_8_9_performed_blocked_state_cannot_be_described_as_unknown():
     assert result["stage8_9_status"] == final.STAGE_8_9_STATUS
     assert result["stage8_9_reason"] == final.STAGE_8_9_REASON
     assert "STAGE_8_9_PERFORMED_BLOCKED_STATE_NOT_DESCRIBED_AS_UNKNOWN" in result["errors"]
+
+
+def test_historical_forts_blocker_described_as_current_fails():
+    path = "TradingSystemLab/CURRENT_STATE.md"
+    mutation = source(path) + (
+        "\n\nThe current blocker is BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE, "
+        "reason FORTS_PORTFOLIO_MISSING.\n"
+    )
+    result = run_audit({path: mutation})
+    assert "STAGE_8_9_HISTORICAL_FORTS_RESULT_NOT_CURRENT" in result["errors"]
+
+
+def test_stage_8_9_8_pending_after_revalidation_complete_fails():
+    path = "TradingSystemLab/stage8_robot/authority_provenance.json"
+    mutation = source(path).replace(
+        '"status": "STAGE_8_9_8_COMPLETE"',
+        '"status": "STAGE_8_9_UNION_MC_AUTHORITY_CODE_READY_PENDING_PHYSICAL_REVALIDATION"',
+    )
+    result = run_audit({path: mutation})
+    assert "STAGE_8_9_8_COMPLETE_AFTER_PHYSICAL_REVALIDATION" in result["errors"]
 
 
 def test_stage_8_8_7_missing_external_provenance_fails():

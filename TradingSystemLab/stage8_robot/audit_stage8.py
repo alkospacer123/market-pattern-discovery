@@ -53,7 +53,7 @@ def audit(write_result=True):
     stage8_9_code="c461911fdceddf54a2a6fe6768574dd93f4844d1"
     stage8_9_report="F307D3F5ADC4525FF304B9582F683B89A097FC9BCFB502E8150FC98D2625860F"
     stage8_9_summary="F36B16565F9E08C38B3264831DCA94A65390275F7A2B78A3C6C90302E4A7C09B"
-    stage8_9_8_status="STAGE_8_9_UNION_MC_AUTHORITY_CODE_READY_PENDING_PHYSICAL_REVALIDATION"
+    stage8_9_8_status="STAGE_8_9_8_COMPLETE"
     stage8_9_8_variant="60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
     stage8_9_8_shape="EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
     check(all(all(value in document for value in (stage8_9_status,stage8_9_reason,stage8_9_code,
@@ -65,6 +65,20 @@ def audit(write_result=True):
                                                    stage8_9_8_shape,"Stage 8.9.9"))
               for document in (current_state,readme,roadmap)),
           "STAGE_8_9_8_UNION_MC_RESOLUTION_PROVENANCE_SYNCHRONIZED")
+    lifecycle=provenance.get("stage8_9_8",{})
+    check(lifecycle.get("status")==stage8_9_8_status
+          and lifecycle.get("stage8_9_9")=="PHYSICAL_REVALIDATION_COMPLETE"
+          and "PENDING_PHYSICAL_REVALIDATION" not in lifecycle.get("status",""),
+          "STAGE_8_9_8_COMPLETE_AFTER_PHYSICAL_REVALIDATION")
+    stale_tokens=("BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE","FORTS_PORTFOLIO_MISSING")
+    historical_labels=("earlier","previous","historical","old implementation")
+    stale_unlabelled=[]
+    for name,document in (("CURRENT_STATE.md",current_state),("README.md",readme),("ROADMAP.md",roadmap)):
+        for paragraph in re.split(r"\n\s*\n",document):
+            if any(token in paragraph for token in stale_tokens) and not any(
+                    label in paragraph.lower() for label in historical_labels):
+                stale_unlabelled.append(name)
+    check(not stale_unlabelled,"STAGE_8_9_HISTORICAL_FORTS_RESULT_NOT_CURRENT")
     check("STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION" not in closeout_docs
           and "STAGE_8_9_FUNDING_MARGIN_VALIDATED" not in closeout_docs,
           "STAGE_8_9_BLOCKED_NOT_COMPLETE")
@@ -358,7 +372,7 @@ def audit(write_result=True):
           "WINDOWS_NO_OBSOLETE_SUPERVISOR_STATE_AUTHORITY")
     check("TradingSystemLab.stage8_robot.readonly_supervisor" in launcher and not any(x in windows_deployment for x in ("place_order","submit_order","cancel_order")),"WINDOWS_SERVICE_READONLY_NO_ORDER_PATH")
     check("-ExecutionPolicy RemoteSigned" in task_installer and "-MultipleInstances IgnoreNew" in task_installer,"WINDOWS_TASK_POLICY_CONSERVATIVE")
-    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":completed_status,"margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED","stage8_9_status":stage8_9_status,"stage8_9_reason":stage8_9_reason,"stage8_9_accepted_code_commit":stage8_9_code,"stage8_9_diagnostic_report_sha256":stage8_9_report,"stage8_9_physical_summary_sha256":stage8_9_summary,"stage8_9_complete":False,"stage8_9_physical_validation_performed":True}
+    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":completed_status,"margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED","stage8_9_status":stage8_9_status,"stage8_9_reason":stage8_9_reason,"stage8_9_accepted_code_commit":stage8_9_code,"stage8_9_diagnostic_report_sha256":stage8_9_report,"stage8_9_physical_summary_sha256":stage8_9_summary,"stage8_9_8_status":stage8_9_8_status,"stage8_9_9_status":"PHYSICAL_REVALIDATION_COMPLETE","stage8_9_10_status":"CURRENT_BLOCKED_ZERO_CONTRACT_CAPACITY","stage8_9_complete":False,"stage8_9_physical_validation_performed":True}
     if write_result: (HERE/"independent_audit_result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
     return result
 if __name__=="__main__":
