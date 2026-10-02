@@ -49,15 +49,16 @@ def audit(write_result=True):
     final_evidence_sha="181225F29A966179AB513121C3CBACD31401752956EFC9A22253A8EFBF94766E"
     check(all(final_status in document and final_code_sha in document and final_evidence_sha in document
               for document in (current_state,readme,roadmap)),"STAGE_8_8_7_COMPLETED_PROVENANCE_SYNCHRONIZED")
-    stage8_9_status="BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE"; stage8_9_reason="FORTS_PORTFOLIO_MISSING"
-    stage8_9_code="5deedb49f16d9f2525c430383a029017cd9a53ce"
-    stage8_9_report="2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46"
-    stage8_9_summary="59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B"
+    stage8_9_status="BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY"; stage8_9_reason="ZERO_CONTRACT_CAPACITY"
+    stage8_9_code="c461911fdceddf54a2a6fe6768574dd93f4844d1"
+    stage8_9_report="F307D3F5ADC4525FF304B9582F683B89A097FC9BCFB502E8150FC98D2625860F"
+    stage8_9_summary="F36B16565F9E08C38B3264831DCA94A65390275F7A2B78A3C6C90302E4A7C09B"
     stage8_9_8_status="STAGE_8_9_UNION_MC_AUTHORITY_CODE_READY_PENDING_PHYSICAL_REVALIDATION"
     stage8_9_8_variant="60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
     stage8_9_8_shape="EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
     check(all(all(value in document for value in (stage8_9_status,stage8_9_reason,stage8_9_code,
-                                                   stage8_9_report,stage8_9_summary))
+                                                   stage8_9_report,stage8_9_summary,
+                                                   "positive_capacity_case_count = 0"))
               for document in (current_state,readme,roadmap)),
           "STAGE_8_9_PHYSICAL_BLOCKED_PROVENANCE_SYNCHRONIZED")
     check(all(all(value in document for value in (stage8_9_8_status,stage8_9_8_variant,
@@ -67,6 +68,9 @@ def audit(write_result=True):
     check("STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION" not in closeout_docs
           and "STAGE_8_9_FUNDING_MARGIN_VALIDATED" not in closeout_docs,
           "STAGE_8_9_BLOCKED_NOT_COMPLETE")
+    check(all("Stage 8.9 is **NOT COMPLETE**" in document
+              for document in (current_state,readme,roadmap)),
+          "STAGE_8_9_INCOMPLETE_SYNCHRONIZED")
     physical_readiness_unknown=re.compile(
         r"physical\s+(?:funding\s+)?(?:readiness|validation).{0,80}"
         r"(?:not\s+yet\s+determined|unknown|awaiting\s+(?:its\s+)?(?:first\s+)?physical\s+validation)",
@@ -154,7 +158,9 @@ def audit(write_result=True):
           "STAGE_8_9_EXACT_FINANCIAL_AUTHORITIES_NO_FALLBACK")
     check('for direction in ("LONG", "SHORT")' in funding_diagnostic
           and "final_quantity <= result.r15_quantity" in funding_diagnostic
-          and "MarginBatchBudget(available)" in funding_diagnostic,
+          and "MarginBatchBudget(available)" in funding_diagnostic
+          and "positive_capacity_case_count < 1" in funding_diagnostic
+          and "ZERO_CONTRACT_CAPACITY" in funding_diagnostic,
           "STAGE_8_9_DIRECTIONAL_CAP_AND_BATCH")
     check('account_identity_sha256' in funding_diagnostic and 'no_order_call_assertion' in funding_diagnostic
           and 'stage8-8-9-funding-margin-validation/v1' in funding_diagnostic,

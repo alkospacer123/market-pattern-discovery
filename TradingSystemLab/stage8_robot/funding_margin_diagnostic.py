@@ -24,8 +24,9 @@ from .risk import ContractEconomics, size_position
 from .specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID
 
 SCHEMA = "stage8-8-9-funding-margin-validation/v1"
-REPOSITORY_STATUS = "STAGE_8_9_UNION_MC_AUTHORITY_CODE_READY_PENDING_PHYSICAL_REVALIDATION"
+REPOSITORY_STATUS = "STAGE_8_9_10_CURRENT_BLOCKED_ZERO_CONTRACT_CAPACITY"
 READY = "STAGE_8_9_FUNDING_MARGIN_VALIDATED"
+ZERO_CAPACITY = "BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY"
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 PRODUCTION_REGISTRY_PATH = Path(__file__).with_name("production_instrument_registry.csv")
 ACTIVE_ACCOUNT_STATUSES = frozenset({"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"})
@@ -174,7 +175,20 @@ def evaluate(*, account: dict, orders: object, details: dict, account_id: str,
     except (KeyError, TypeError, ValueError) as exc:
         reason = str(exc) if isinstance(exc, ValueError) else "SIZING_EVIDENCE_INVALID"
         return _blocked("BLOCKED_FUNDING_FEASIBILITY_INVALID", reason, base)
-    return {**base, "funding_classification": READY, "reason_code": "ALL_AUTHORITIES_VALID",
+    sizing_case_count = len(cases)
+    positive_capacity_case_count = sum(
+        case["final_quantity"] > 0 for case in cases.values())
+    zero_capacity_case_count = sum(
+        case["final_quantity"] == 0 for case in cases.values())
+    positive_batch_reservation_count = sum(
+        reservation["quantity"] > 0 for reservation in reservations)
+    capacity_evidence = {
+        "sizing_case_count": sizing_case_count,
+        "positive_capacity_case_count": positive_capacity_case_count,
+        "zero_capacity_case_count": zero_capacity_case_count,
+        "positive_batch_reservation_count": positive_batch_reservation_count,
+    }
+    common = {**base,
             "financial_schema_valid": True, "equity_valid": True,
             "directional_margins_valid": True, "available_cash": str(available),
             "money_reserved": (str(authority.money_reserved)
@@ -183,6 +197,13 @@ def evaluate(*, account: dict, orders: object, details: dict, account_id: str,
             "per_instrument": cases,
             "batch_budget": {"status": "PASS", "sequence": list(N4),
                              "reservations": reservations, "remaining_cash": str(budget.remaining)},
+            **capacity_evidence}
+    if positive_capacity_case_count < 1:
+        return {**common, "funding_classification": ZERO_CAPACITY,
+                "reason_code": "ZERO_CONTRACT_CAPACITY",
+                "funding_margin_feasibility": "BLOCKED"}
+    return {**common, "funding_classification": READY,
+            "reason_code": "ALL_AUTHORITIES_VALID",
             "funding_margin_feasibility": "PASS"}
 
 

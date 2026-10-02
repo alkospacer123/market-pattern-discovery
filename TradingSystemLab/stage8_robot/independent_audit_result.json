@@ -1,17 +1,17 @@
 {
-  "checks": 145,
+  "checks": 146,
   "deployment_status": "STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED",
   "errors": [],
   "live_trading_activated": false,
   "margin_status": "STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY",
   "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
-  "stage8_9_accepted_code_commit": "5deedb49f16d9f2525c430383a029017cd9a53ce",
+  "stage8_9_accepted_code_commit": "c461911fdceddf54a2a6fe6768574dd93f4844d1",
   "stage8_9_complete": false,
-  "stage8_9_diagnostic_report_sha256": "2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46",
-  "stage8_9_physical_summary_sha256": "59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B",
+  "stage8_9_diagnostic_report_sha256": "F307D3F5ADC4525FF304B9582F683B89A097FC9BCFB502E8150FC98D2625860F",
+  "stage8_9_physical_summary_sha256": "F36B16565F9E08C38B3264831DCA94A65390275F7A2B78A3C6C90302E4A7C09B",
   "stage8_9_physical_validation_performed": true,
-  "stage8_9_reason": "FORTS_PORTFOLIO_MISSING",
-  "stage8_9_status": "BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE",
+  "stage8_9_reason": "ZERO_CONTRACT_CAPACITY",
+  "stage8_9_status": "BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY",
   "stage8_status": "STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE",
   "status": "PASS"
 }
