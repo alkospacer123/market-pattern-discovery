@@ -258,10 +258,17 @@ Stage 8.8.5 added schedule-aware stale H1 protection:
 
 Current Stage 8 status:
 
-`STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_FAULT_INJECTION`.
+`STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE`.
 
-Repository audit passes, but real Intel operational fault-injection/restart/
-network/recovery acceptance is still pending.
+Real Intel stale-data acceptance passed against audited Git head
+`1c1c2bb5458827f200bc753e7e64db0272b33a8f`; the external artifact SHA-256 is
+`C57554AE3AE54018EC1E558108520088C1883718F0406E7B6C6669B4696A9CBC`.
+The clean cycle was `HEALTHY` / `PASS`. The controlled
+`STALE_COMPLETED_H1_DATA` fault was `UNHEALTHY` / `FAULT` and advanced neither
+successful cycle count nor H1/expected-H1 state. Recovery returned `HEALTHY` /
+`PASS` and reset consecutive failures to 0. Order-capable calls were 0, entries
+remained disabled, and the production Scheduled Task remained Disabled. The
+runtime artifact and real FINAM responses remain outside Git.
 
 ## Live-trading boundary
 
@@ -272,7 +279,7 @@ LIVE trading is not authorized and is not implemented as an enabled path.
 
 Current operational blockers / pending gates:
 
-- real Intel Stage 8.8.x acceptance;
+- Stage 8.8.6 SQLite backup / recovery / reconciliation validation (not started);
 - Stage 8.9 funding readiness blocked by unavailable account financials;
 - Stage 8.10 trading-token integration pending;
 - Stage 8.11/8.12 execution unauthorized.

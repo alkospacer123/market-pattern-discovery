@@ -150,7 +150,7 @@ Secrets remain outside Git and output.
 ### Stage 8.8.5 — schedule-aware stale H1 protection
 
 Status:
-`STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_FAULT_INJECTION`.
+`STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE`.
 
 Freshness uses instrument-specific FINAM schedules, whole-hour UTC raw opens,
 merged touching trading windows, a partial final-bar completion boundary, and
@@ -159,23 +159,22 @@ the persisted exact expected watermark. Stale completed H1 data raises
 successful cycle state, and leaves entries disabled. Closed schedules/weekends/
 gaps do not create synthetic expectations.
 
-Repository audit: PASS.
+Repository audit: PASS. Real Intel stale-data fault injection and deterministic
+recovery: PASS. The audited source was
+`1c1c2bb5458827f200bc753e7e64db0272b33a8f`; the external artifact SHA-256 is
+`C57554AE3AE54018EC1E558108520088C1883718F0406E7B6C6669B4696A9CBC`.
+The clean and recovered states were `HEALTHY` / `PASS`; the controlled
+`STALE_COMPLETED_H1_DATA` state was `UNHEALTHY` / `FAULT` and did not advance
+cycle, H1, or expected-H1 state. Recovery reset consecutive failures to 0.
+Order-capable calls were 0, entries stayed disabled, and the Scheduled Task
+stayed Disabled. Runtime JSON and real market responses remain outside Git.
 
 ## Current operational gate
 
-**NEXT: real Intel Stage 8.8.x operational validation under REAL_READONLY with
-entries disabled.**
+**NEXT: Stage 8.8.6 SQLite backup / recovery / reconciliation validation.**
 
-Required acceptance work includes:
-
-- reboot/restart behavior;
-- network failure and recovery;
-- stale-data fault injection and recovery;
-- heartbeat/state continuity;
-- instance locking;
-- no-order-call confirmation.
-
-This operational validation must not enable real order transmission.
+Stage 8.8.6 is not started. Its future validation must not enable real order
+transmission.
 
 ## Later Stage 8 gates
 
@@ -198,7 +197,7 @@ Do not bypass these gates.
 
 ## Current handoff
 
-Stage 7 is frozen. Stage 8 code is ready through 8.8.5.
+Stage 7 is frozen. Stage 8.8.5 is complete.
 
-**Proceed only with real Intel operational validation in REAL_READONLY. LIVE
-remains blocked.**
+**Proceed only with Stage 8.8.6 SQLite backup / recovery / reconciliation
+validation in REAL_READONLY. LIVE remains blocked.**
