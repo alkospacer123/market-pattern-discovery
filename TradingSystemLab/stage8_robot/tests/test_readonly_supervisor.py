@@ -319,6 +319,23 @@ def test_newer_pending_bar_cannot_hide_exact_missing_expected(tmp_path):
         service.close()
 
 
+def test_off_grid_h1_open_surfaces_distinct_sanitized_safety_fault(tmp_path):
+    symbols = _authenticated_registry()
+    opens = ["2026-01-05T11:00:00Z", "2026-01-05T11:30:00Z"]
+    api = ReadonlyFake(bar_opens={symbol: opens for symbol in symbols.values()})
+    service = supervisor(tmp_path, api)
+    try:
+        assert service.run(once=True) == 1
+        heartbeat = json.loads((tmp_path / "diagnostics/stage8-heartbeat.json").read_text())
+        assert heartbeat["health_status"] == "UNHEALTHY"
+        assert heartbeat["entries_enabled"] is False
+        assert heartbeat["failure_code"] == "H1_BAR_OPEN_NOT_WHOLE_HOUR_UTC"
+        assert heartbeat["cycle_count"] == 0
+        assert all(service.state.get(f"h1:{name}") is None for name in INSTRUMENTS)
+    finally:
+        service.close()
+
+
 def test_each_n4_instrument_uses_its_own_schedule(tmp_path):
     symbols = _authenticated_registry()
     schedules = {symbol: regular_schedule() for symbol in symbols.values()}

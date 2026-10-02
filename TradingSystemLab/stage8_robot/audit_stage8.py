@@ -119,7 +119,10 @@ def audit(write_result=True):
     check('TRADING_SESSION_TYPES = frozenset({"EARLY_TRADING", "CORE_TRADING", "LATE_TRADING"})' in supervisor,"H1_ALLOWED_SESSION_TYPES_EXPLICIT")
     check("candidate = start +" not in supervisor and "available_until - start" not in supervisor,"H1_NO_LEGACY_SESSION_START_FLOOR")
     check("min(opened+timedelta(hours=1),end)" in api,"H1_WINDOW_END_COMPLETION_BOUNDARY")
-    check("expected not in raw_opens" in supervisor,"H1_EXACT_EXPECTED_RAW_OPEN_MEMBERSHIP")
+    check("expected not in raw_opens" in supervisor
+          and "if str(exc) == OFF_GRID_H1_OPEN_CODE" in supervisor
+          and "test_off_grid_h1_open_surfaces_distinct_sanitized_safety_fault" in (HERE/"tests/test_readonly_supervisor.py").read_text(),
+          "H1_EXACT_EXPECTED_RAW_OPEN_MEMBERSHIP")
     check('f"expected_h1:{name}"' in supervisor and "self.state.put_many(updates)" in supervisor,"H1_EXPECTED_WATERMARK_TRANSACTIONAL_SQLITE")
     check("derived or prior_expected" in supervisor,"H1_CLOSED_PERSISTED_CONTINUITY")
     check("H1_EXPECTED_COMPLETED_WATERMARK_UNAVAILABLE" in supervisor,"H1_COLD_START_CLOSED_FAILS_CLOSED")

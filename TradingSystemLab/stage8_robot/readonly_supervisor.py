@@ -35,6 +35,7 @@ EXPECTED_BINDINGS = {
 }
 STALE_DATA_CODE = "STALE_COMPLETED_H1_DATA"
 WATERMARK_UNAVAILABLE_CODE = "H1_EXPECTED_COMPLETED_WATERMARK_UNAVAILABLE"
+OFF_GRID_H1_OPEN_CODE = "H1_BAR_OPEN_NOT_WHOLE_HOUR_UTC"
 TRADING_SESSION_TYPES = frozenset({"EARLY_TRADING", "CORE_TRADING", "LATE_TRADING"})
 NON_TRADING_SESSION_TYPES = frozenset({"OPENING_AUCTION", "CLEARING", "CLOSED"})
 
@@ -263,7 +264,11 @@ class ReadonlySupervisor:
             try:
                 bars = completed_h1_bars(response, now, windows)
                 raw_opens = {_utc_timestamp(bar["timestamp"]) for bar in response.get("bars", [])}
-            except (ValueError, TypeError):
+            except ValueError as exc:
+                if str(exc) == OFF_GRID_H1_OPEN_CODE:
+                    raise SafetyFault(OFF_GRID_H1_OPEN_CODE) from None
+                raise SafetyFault("H1_BARS_SCHEMA_INVALID") from None
+            except TypeError:
                 raise SafetyFault("H1_BARS_SCHEMA_INVALID") from None
             derived = newest_expected_h1_close(schedule, now)
             prior_expected_text = self.state.get(f"expected_h1:{name}")
