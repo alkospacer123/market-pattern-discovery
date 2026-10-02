@@ -95,6 +95,34 @@ def audit(write_result=True):
           "SQLITE_BACKUP_MISSING_SOURCE_FAIL_CLOSED")
     check(operations.count('PRAGMA integrity_check')>=2 and "src.backup(dst)" in operations,
           "SQLITE_ONLINE_BACKUP_SOURCE_AND_DESTINATION_INTEGRITY")
+    operations_tree=ast.parse(operations)
+    operations_parents={child:parent for parent in ast.walk(operations_tree)
+                        for child in ast.iter_child_nodes(parent)}
+    def deterministically_closed_connects(function_name):
+        function=next(node for node in operations_tree.body
+                      if isinstance(node,ast.FunctionDef) and node.name==function_name)
+        connects=[node for node in ast.walk(function) if isinstance(node,ast.Call)
+                  and isinstance(node.func,ast.Attribute)
+                  and ast.unparse(node.func)=="sqlite3.connect"]
+        closing_withs=[]
+        for connect in connects:
+            parent=operations_parents.get(connect)
+            closed=parent if (isinstance(parent,ast.Call) and isinstance(parent.func,ast.Name)
+                              and parent.func.id=="closing" and parent.args==[connect]) else None
+            context=operations_parents.get(closed) if closed is not None else None
+            if not isinstance(context,ast.withitem): return function,connects,[]
+            statement=operations_parents.get(context)
+            if not isinstance(statement,ast.With): return function,connects,[]
+            closing_withs.append(statement)
+        return function,connects,closing_withs
+    backup_function,backup_connects,backup_closing_withs=deterministically_closed_connects("sqlite_backup")
+    validation_function,validation_connects,validation_closing_withs=deterministically_closed_connects("validate_operational_database")
+    publish=next((node for node in ast.walk(backup_function) if isinstance(node,ast.Call)
+                  and ast.unparse(node)=="os.replace(temporary, destination)"),None)
+    check(len(backup_connects)==4 and len(backup_closing_withs)==4 and publish is not None
+          and all(context.end_lineno < publish.lineno for context in backup_closing_withs)
+          and len(validation_connects)==len(validation_closing_withs)==1,
+          "SQLITE_WINDOWS_HANDLES_DETERMINISTICALLY_CLOSED_BEFORE_PUBLICATION")
     check('state_directory = root / "state"' in backup and 'source = state_directory / SUPERVISOR_DATABASE' in backup
           and 'backup_directory = root / "backups"' in backup
           and 'SUPERVISOR_DATABASE = "readonly-supervisor.sqlite3"' in backup,

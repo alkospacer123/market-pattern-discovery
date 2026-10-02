@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
+import TradingSystemLab.stage8_robot.operations as operations_module
 import TradingSystemLab.stage8_robot.restore_state as restore_module
 
 from TradingSystemLab.stage8_robot.backup_state import (
@@ -12,7 +13,12 @@ from TradingSystemLab.stage8_robot.backup_state import (
     create_production_backup,
     sha256_file,
 )
-from TradingSystemLab.stage8_robot.operations import InstanceLock, prune_backups, sqlite_backup
+from TradingSystemLab.stage8_robot.operations import (
+    InstanceLock,
+    prune_backups,
+    sqlite_backup,
+    validate_operational_database,
+)
 from TradingSystemLab.stage8_robot.readonly_supervisor import (
     OperationalState,
     ReadonlySupervisor,
@@ -68,6 +74,77 @@ def test_online_backup_captures_committed_wal_state_as_standalone_database(tmp_p
     assert restored == values
     assert not Path(str(destination) + "-wal").exists()
     assert not Path(str(destination) + "-shm").exists()
+
+
+def test_online_backup_closes_every_temporary_handle_before_publication(tmp_path, monkeypatch):
+    source = tmp_path / "source.sqlite3"
+    destination = tmp_path / "published.sqlite3"
+    temporary = destination.with_name(destination.name + ".incomplete")
+    with sqlite3.connect(source) as database:
+        database.execute("CREATE TABLE sample(value TEXT)")
+        database.execute("INSERT INTO sample VALUES ('committed')")
+
+    connections = []
+    real_connect = sqlite3.connect
+    real_replace = operations_module.os.replace
+
+    class TrackingConnection(sqlite3.Connection):
+        closed = False
+
+        def close(self):
+            self.closed = True
+            return super().close()
+
+    def tracking_connect(*args, **kwargs):
+        kwargs["factory"] = TrackingConnection
+        connection = real_connect(*args, **kwargs)
+        connection.opened_path = str(args[0])
+        connections.append(connection)
+        return connection
+
+    def assert_unlocked_then_replace(old, new):
+        if Path(old) == temporary and Path(new) == destination:
+            temporary_handles = [
+                connection for connection in connections
+                if temporary.resolve().as_uri() in connection.opened_path
+                or connection.opened_path == str(temporary)
+            ]
+            assert len(temporary_handles) == 3
+            assert all(connection.closed for connection in temporary_handles)
+            assert all(connection.closed for connection in connections)
+        return real_replace(old, new)
+
+    monkeypatch.setattr(operations_module.sqlite3, "connect", tracking_connect)
+    monkeypatch.setattr(operations_module.os, "replace", assert_unlocked_then_replace)
+
+    assert sqlite_backup(source, destination) == destination
+    assert destination.is_file()
+
+
+def test_operational_validation_closes_readonly_connection(tmp_path, monkeypatch):
+    state = OperationalState(tmp_path / "state.sqlite3")
+    state.close()
+    connections = []
+    real_connect = sqlite3.connect
+
+    class TrackingConnection(sqlite3.Connection):
+        closed = False
+
+        def close(self):
+            self.closed = True
+            return super().close()
+
+    def tracking_connect(*args, **kwargs):
+        kwargs["factory"] = TrackingConnection
+        connection = real_connect(*args, **kwargs)
+        connections.append(connection)
+        return connection
+
+    monkeypatch.setattr(operations_module.sqlite3, "connect", tracking_connect)
+    validate_operational_database(tmp_path / "state.sqlite3")
+
+    assert len(connections) == 1
+    assert connections[0].closed
 
 
 def test_backup_missing_nonfile_and_corrupt_sources_fail_without_creation(tmp_path):

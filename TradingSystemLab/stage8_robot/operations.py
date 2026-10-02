@@ -1,6 +1,7 @@
 """Host operations with no broker order capabilities."""
 from __future__ import annotations
 import json,logging,logging.handlers,os,sqlite3,threading
+from contextlib import closing
 from datetime import datetime,timezone
 from pathlib import Path
 
@@ -56,17 +57,17 @@ def sqlite_backup(source:Path,destination:Path)->Path:
     temporary.unlink(missing_ok=True)
     try:
         uri=f"{source.resolve().as_uri()}?mode=ro"
-        with sqlite3.connect(uri,uri=True) as src:
+        with closing(sqlite3.connect(uri,uri=True)) as src:
             if src.execute("PRAGMA integrity_check").fetchone()!=("ok",):
                 raise RuntimeError("SQLITE_BACKUP_SOURCE_INTEGRITY_FAILED")
-            with sqlite3.connect(temporary) as dst:
+            with closing(sqlite3.connect(temporary)) as dst:
                 src.backup(dst)
         # The backup is standalone: normalize the copied WAL preference before
         # publication so no sidecar is required to open the recovery point.
-        with sqlite3.connect(temporary) as standalone:
+        with closing(sqlite3.connect(temporary)) as standalone:
             if standalone.execute("PRAGMA journal_mode=DELETE").fetchone()!=("delete",):
                 raise RuntimeError("SQLITE_BACKUP_DESTINATION_INTEGRITY_FAILED")
-        with sqlite3.connect(f"{temporary.resolve().as_uri()}?mode=ro",uri=True) as check:
+        with closing(sqlite3.connect(f"{temporary.resolve().as_uri()}?mode=ro",uri=True)) as check:
             if check.execute("PRAGMA integrity_check").fetchone()!=("ok",):
                 raise RuntimeError("SQLITE_BACKUP_DESTINATION_INTEGRITY_FAILED")
         os.replace(temporary,destination)
@@ -83,7 +84,7 @@ def validate_operational_database(path:Path)->None:
     path=Path(path)
     if not path.is_file() or path.is_symlink(): raise RuntimeError("SQLITE_RECOVERY_DATABASE_INVALID")
     try:
-        with sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro",uri=True) as database:
+        with closing(sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro",uri=True)) as database:
             if database.execute("PRAGMA integrity_check").fetchone() != ("ok",):
                 raise RuntimeError("SQLITE_RECOVERY_INTEGRITY_INVALID")
             tables=database.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
