@@ -14,7 +14,8 @@ from decimal import Decimal
 from pathlib import Path
 
 from .finam_api import FinamAPI, completed_h1_bars
-from .instrument_resolver import MOEX_REFERENCE, N4, discover_finam_asset, validate_finam_binding
+from .instrument_resolver import (MOEX_REFERENCE, N4, discover_finam_asset,
+                                  parse_rest_value_object, validate_finam_binding)
 from .margin import (AVAILABLE_CASH_SEMANTICS, MarginBatchBudget,
                      cap_r15_by_margin, directional_initial_margin, forts_funds,
                      parse_rest_decimal_value_object)
@@ -253,7 +254,12 @@ def run(api, account_id: str, report_path: Path) -> dict:
         if bars:
             try:
                 step, tick, _ = MOEX_REFERENCE[code]
-                entry = Decimal(str(bars[-1]["close"])); stop = entry-step*10
+                # FINAM GET /v1/instruments/{symbol}/bars represents open,
+                # high, low, close, and volume as REST {"value": "decimal"}
+                # objects.  This is deliberately not the protobuf num/scale
+                # representation and numeric JSON values must fail closed.
+                entry = parse_rest_value_object(bars[-1]["close"])
+                stop = entry-step*10
                 lot = int(Decimal(binding["trade_lot_size"]))
                 equity = parse_rest_decimal_value_object(account.get("equity"), positive=True)
                 r15 = size_position(equity, entry, stop, ContractEconomics(step, tick, lot, True))
