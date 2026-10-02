@@ -145,6 +145,13 @@ namespace before best-effort deletion. A deletion failure reports
 rather than an uncommitted recovery failure; a later invocation recognizes and
 safely cleans or distinctly reports that obsolete material.
 
+The first Windows preflight exposed that SQLite's transaction context manager
+does not close its file handle before publication. Backup and recovery
+validation now explicitly close every short-lived SQLite connection before any
+temporary database is replaced, quarantined, or cleaned up. This correction is
+covered by platform-independent handle-lifecycle tests; physical Intel
+backup/restore acceptance has not yet been performed.
+
 Status is
 `STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE`. Repository
 tests use synthetic SQLite data only. **NEXT: after merge and independent audit,
