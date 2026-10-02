@@ -224,13 +224,21 @@ absent. No live order was transmitted and no authorization changed. Repository
 tooling validates the provenance and hash; it did not generate the evidence.
 
 Stage 8.9 is CURRENT. Repository status is
-`STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION`.
-Physical Intel validation has not been performed.
+`BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`.
+Physical REAL_READONLY validation was performed on accepted Intel code commit
+`5deedb49f16d9f2525c430383a029017cd9a53ce`. Its classification is
+`BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`, reason `FORTS_PORTFOLIO_MISSING`.
+The external diagnostic report SHA-256 is
+`2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`; the
+external physical summary SHA-256 is
+`59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B`.
+Both external JSON files remain outside Git. `stage8_9_physical_validation_performed = true`;
+Stage 8.9 is CURRENT / BLOCKED / NOT COMPLETE.
 
 ## Later Stage 8 gates
 
-- Stage 8.9 — **CURRENT / DIAGNOSTIC READY, PHYSICAL INTEL VALIDATION PENDING**. The previous real-account result was `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` because `portfolio_forts` was absent; this is not reinterpreted as zero and is not claimed resolved.
-- Stage 8.10 trading-token integration — **PENDING / NOT AUTHORIZED**.
+- Stage 8.9 — **CURRENT / BLOCKED / NOT COMPLETE**. Physical validation was performed and returned `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` because `portfolio_forts` was absent; this is not reinterpreted as zero and is not claimed resolved.
+- Stage 8.10 trading-token integration — **NOT STARTED / NOT AUTHORIZED**.
 - Stage 8.11/8.12 execution — **NOT AUTHORIZED**.
 
 Do not bypass these gates.
@@ -251,7 +259,10 @@ Stage 7 is frozen. Stage 8.8 operational hardening is COMPLETE. Stages 8.8.1, 8.
 8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE.
 Status: `STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_INTEL_ACCEPTANCE_COMPLETE`.
 
-**NEXT: Stage 8.9 — Real Account Funding & Margin Validation.** Stage 8.9 has
-not started. `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` remains in force because
+**CURRENT: Stage 8.9 — Real Account Funding & Margin Validation.** Physical
+validation was performed. `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` remains in force because
 `portfolio_forts` was unavailable. LIVE and real-order transmission remain not
 authorized.
+## Stage 8.9 physical validation closeout
+
+Repository diagnostic readiness is retained. Physical REAL_READONLY validation was performed on accepted Intel code commit `5deedb49f16d9f2525c430383a029017cd9a53ce`. `stage8_9_physical_validation_performed = true`. The result is `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`, reason `FORTS_PORTFOLIO_MISSING`. Diagnostic report SHA-256: `2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`. Physical validation summary SHA-256: `59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B`. The external JSON evidence remains outside Git. The authenticated account was a clean, active `UNION` account using a read-only token, and its exact frozen N4 binding was valid. `portfolio_forts` was absent, so funding/margin feasibility remained `BLOCKED`; absence is not zero and no other field is a fallback. The no-order-call assertion was true. The Scheduled Task stayed Disabled; supervisor process and recovery internal file counts stayed zero; FINAM secret and account ID were removed from the process environment. The accepted physical run recorded Stage 8 repository audit PASS / 141 checks, Final Operational Audit PASS / 45 checks, Stage 7 production audit PASS / 22 checks / 19 mutation tests, and server preflight PASS. No physical order-capable operation occurred. Stage 8.9 is **CURRENT / BLOCKED / NOT COMPLETE**. Stage 8.10 is **NOT STARTED / NOT AUTHORIZED**. LIVE trading and real-order transmission remain unauthorized.
