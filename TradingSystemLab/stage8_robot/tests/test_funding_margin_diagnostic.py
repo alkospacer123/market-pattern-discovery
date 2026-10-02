@@ -1,6 +1,6 @@
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 import json
 from pathlib import Path
 
@@ -8,7 +8,8 @@ import pytest
 
 from TradingSystemLab.stage8_robot.funding_margin_diagnostic import (
     READY, evaluate, load_production_registry, run)
-from TradingSystemLab.stage8_robot.instrument_resolver import MOEX_REFERENCE, N4
+from TradingSystemLab.stage8_robot.instrument_resolver import (
+    MOEX_REFERENCE, N4, parse_rest_value_object)
 from TradingSystemLab.stage8_robot.specification import PRODUCTION_SPECIFICATION_ID
 
 
@@ -253,7 +254,10 @@ class FakeReadonlyAPI:
     def bars(self, symbol, start, end):
         self._record("bars")
         opened = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)-timedelta(hours=1)
-        return {"bars": [{"timestamp": opened.isoformat(), "close": "100"}]}
+        # FINAM REST bars use value objects for open/high/low/close/volume;
+        # only timestamp and close are consumed by this diagnostic fixture.
+        return {"bars": [{"timestamp": opened.isoformat(),
+                           "close": {"value": "100"}}]}
 
 
 def run_report(tmp_path, api):
@@ -280,6 +284,63 @@ def test_run_clean_account_validates_and_writes_sanitized_external_report(tmp_pa
     assert api.calls[:5] == ["create_session", "session_details", "account", "orders",
                              "assets_all_active"]
     assert api.calls.count("bars") == len(N4)
+
+
+@pytest.mark.parametrize("value,expected", [
+    ({"value": "100"}, Decimal("100")),
+    ({"value": "123.456"}, Decimal("123.456")),
+])
+def test_rest_h1_close_value_object_parses_exactly(value, expected):
+    assert parse_rest_value_object(value) == expected
+
+
+@pytest.mark.parametrize("close", [
+    100,
+    "100",
+    {"num": 100, "scale": 0},
+    {},
+    {"value": 100},
+    {"value": "100", "extra": "field"},
+    {"value": "NaN"},
+    {"value": "Infinity"},
+    {"value": "-Infinity"},
+])
+def test_rest_h1_close_noncanonical_values_fail_closed(close):
+    with pytest.raises(ValueError):
+        parse_rest_value_object(close)
+
+
+@pytest.mark.parametrize("close", [
+    pytest.param(100, id="numeric-json"),
+    pytest.param("100", id="bare-string"),
+    pytest.param({"num": 100, "scale": 0}, id="protobuf"),
+    pytest.param({}, id="malformed-object"),
+    pytest.param({"value": "NaN"}, id="nan"),
+    pytest.param({"value": "Infinity"}, id="infinity"),
+    pytest.param(None, id="missing"),
+])
+def test_run_invalid_h1_close_writes_sanitized_sizing_blocker(
+        tmp_path, close):
+    api = FakeReadonlyAPI()
+    original_bars = api.bars
+
+    def malformed_bars(symbol, start, end):
+        payload = original_bars(symbol, start, end)
+        if close is None:
+            payload["bars"][0].pop("close")
+        else:
+            payload["bars"][0]["close"] = close
+        return payload
+
+    api.bars = malformed_bars
+    try:
+        report = run_report(tmp_path, api)
+    except InvalidOperation as exc:  # Regression guard for Decimal(str(close)).
+        pytest.fail(f"REST close schema error escaped as InvalidOperation: {exc}")
+    assert report["funding_classification"] == "BLOCKED_FUNDING_FEASIBILITY_INVALID"
+    assert report["reason_code"] == "SIZING_EVIDENCE_INVALID"
+    assert report["funding_classification"] != "BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE"
+    assert set(api.calls).isdisjoint(FakeReadonlyAPI.ORDER_CAPABLE)
 
 
 def test_run_non_readonly_stops_before_account_or_market_collection(tmp_path):

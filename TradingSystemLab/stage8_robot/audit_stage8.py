@@ -133,6 +133,10 @@ def audit(write_result=True):
     check('account_identity_sha256' in funding_diagnostic and 'no_order_call_assertion' in funding_diagnostic
           and 'stage8-8-9-funding-margin-validation/v1' in funding_diagnostic,
           "STAGE_8_9_SANITIZED_EXTERNAL_REPORT")
+    check('parse_rest_value_object(bars[-1]["close"])' in funding_diagnostic
+          and not re.search(r'Decimal\s*\(\s*str\s*\([^\n]*\[\s*[\'\"]close[\'\"]\s*\]',
+                            funding_diagnostic),
+          "STAGE_8_9_REST_H1_CLOSE_VALUE_OBJECT_ONLY")
     check("STAGE8_9_REPORT_REPOSITORY_OUTPUT_FORBIDDEN" in funding_diagnostic
           and "REPOSITORY_ROOT in destination.parents" in funding_diagnostic,
           "STAGE_8_9_EXTERNAL_REPORT_CANNOT_ENTER_REPOSITORY")
