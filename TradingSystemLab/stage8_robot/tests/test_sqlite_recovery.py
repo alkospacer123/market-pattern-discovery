@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
+import TradingSystemLab.stage8_robot.restore_state as restore_module
 
 from TradingSystemLab.stage8_robot.backup_state import (
     BACKUP_MANIFEST_SCHEMA,
@@ -169,6 +170,84 @@ def test_atomic_restore_preserves_exact_continuity_and_removes_stale_sidecars(tm
         assert normal.get("cycle_count") == "18"
     finally:
         normal.close()
+
+
+def wal_backed_canonical_and_backup(root: Path):
+    """Return a selected backup plus newer canonical state committed in its WAL."""
+    state, expected, backup, _ = recovery_point(root)
+    state.put_many({"cycle_count": "999", "invented": "wal-committed"})
+    target = root / "state/readonly-supervisor.sqlite3"
+    paths = [target, Path(f"{target}-wal"), Path(f"{target}-shm")]
+    assert all(path.exists() for path in paths)
+    before = {path: path.read_bytes() for path in paths}
+    return state, expected, backup, target, paths, before
+
+
+def assert_original_wal_state(paths, before, target):
+    assert {path: path.read_bytes() for path in paths} == before
+    with sqlite3.connect(target) as database:
+        values = dict(database.execute("SELECT key,value FROM operational_state"))
+    assert values["cycle_count"] == "999"
+    assert values["invented"] == "wal-committed"
+
+
+def test_failed_target_install_restores_real_wal_canonical_state(tmp_path, monkeypatch):
+    state, _, backup, target, paths, before = wal_backed_canonical_and_backup(tmp_path)
+    real_replace = restore_module.os.replace
+
+    def fail_candidate_install(source, destination):
+        if Path(source).name == ".readonly-supervisor.recovery.sqlite3" and Path(destination) == target:
+            raise OSError("forced target replacement failure")
+        return real_replace(source, destination)
+
+    monkeypatch.setattr(restore_module.os, "replace", fail_candidate_install)
+    with pytest.raises(OSError, match="forced target replacement failure"):
+        restore_production_state(tmp_path, backup.name)
+    assert_original_wal_state(paths, before, target)
+    state.close()
+
+
+def test_partial_quarantine_failure_rolls_back_real_wal_state(tmp_path, monkeypatch):
+    state, _, backup, target, paths, before = wal_backed_canonical_and_backup(tmp_path)
+    real_replace = restore_module.os.replace
+
+    def fail_while_staging_wal(source, destination):
+        if Path(source) == Path(f"{target}-wal"):
+            raise OSError("forced partial quarantine failure")
+        return real_replace(source, destination)
+
+    monkeypatch.setattr(restore_module.os, "replace", fail_while_staging_wal)
+    with pytest.raises(OSError, match="forced partial quarantine failure"):
+        restore_production_state(tmp_path, backup.name)
+    assert_original_wal_state(paths, before, target)
+    state.close()
+
+
+def test_final_validation_failure_rolls_back_real_wal_state(tmp_path, monkeypatch):
+    state, _, backup, target, paths, before = wal_backed_canonical_and_backup(tmp_path)
+    real_validate = restore_module.validate_operational_schema
+
+    def fail_installed_candidate(path):
+        real_validate(path)
+        if Path(path) == target:
+            raise RuntimeError("forced final validation failure")
+
+    monkeypatch.setattr(restore_module, "validate_operational_schema", fail_installed_candidate)
+    with pytest.raises(RuntimeError, match="forced final validation failure"):
+        restore_production_state(tmp_path, backup.name)
+    assert_original_wal_state(paths, before, target)
+    state.close()
+
+
+def test_successful_restore_discards_real_old_wal_and_selects_backup(tmp_path):
+    state, expected, backup, target, _, _ = wal_backed_canonical_and_backup(tmp_path)
+    state.close()
+    assert restore_production_state(tmp_path, backup.name) == target
+    assert not Path(f"{target}-wal").exists()
+    assert not Path(f"{target}-shm").exists()
+    with sqlite3.connect(target) as database:
+        assert dict(database.execute("SELECT key,value FROM operational_state")) == expected
+    assert not list((tmp_path / "state").glob(".readonly-supervisor.restore-rollback.sqlite3*"))
 
 
 class ReconciliationAPI:

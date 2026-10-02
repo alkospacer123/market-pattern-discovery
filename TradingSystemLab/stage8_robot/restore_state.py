@@ -17,6 +17,7 @@ from .specification import PRODUCTION_SPECIFICATION_ID
 
 MANIFEST_KEYS = frozenset({"schema", "production_specification_id", "backup_filename", "created_at_utc", "sha256"})
 RECOVERY_LOCKED = "SQLITE_RECOVERY_SUPERVISOR_RUNNING"
+ROLLBACK_BASENAME = ".readonly-supervisor.restore-rollback.sqlite3"
 
 
 def validate_operational_schema(path: Path) -> None:
@@ -62,7 +63,7 @@ def validate_recovery_point(runtime_root: Path, backup_filename: str) -> tuple[P
 
 
 def restore_production_state(runtime_root: Path, backup_filename: str) -> Path:
-    """Atomically install a validated recovery point while holding the lifetime lock."""
+    """Install a validated recovery point with rollback under the lifetime lock."""
     root = Path(runtime_root)
     backup, _ = validate_recovery_point(root, backup_filename)
     lock = InstanceLock(root / "state" / "stage8-readonly.lock")
@@ -80,17 +81,50 @@ def restore_production_state(runtime_root: Path, backup_filename: str) -> Path:
         state_directory.mkdir(parents=True, exist_ok=True)
         target = state_directory / SUPERVISOR_DATABASE
         temporary = state_directory / ".readonly-supervisor.recovery.sqlite3"
+        rollback = state_directory / ROLLBACK_BASENAME
+        originals = [target, Path(f"{target}-wal"), Path(f"{target}-shm")]
+        quarantines = [rollback, Path(f"{rollback}-wal"), Path(f"{rollback}-shm")]
+        if any(path.exists() for path in quarantines):
+            # These internal-only files are never recovery points.  Refuse to
+            # guess whether leftovers from an interrupted invocation are old
+            # canonical state; an operator can preserve and inspect them.
+            raise RuntimeError("SQLITE_RECOVERY_ROLLBACK_MATERIAL_PRESENT")
         # Revalidate under exclusion to close the selection-to-commit race.
         backup, _ = validate_recovery_point(root, backup_filename)
         temporary.unlink(missing_ok=True)
         sqlite_backup(backup, temporary)
         validate_operational_schema(temporary)
-        for suffix in ("-wal", "-shm"):
-            Path(str(target) + suffix).unlink(missing_ok=True)
-        os.replace(temporary, target)
-        for suffix in ("-wal", "-shm"):
-            Path(str(target) + suffix).unlink(missing_ok=True)
-        validate_operational_schema(target)
+        moved: list[tuple[Path, Path]] = []
+        installed = False
+        try:
+            # Quarantine the complete SQLite file set before changing it.  In
+            # particular, never unlink a WAL which may contain committed state.
+            for original, quarantine in zip(originals, quarantines):
+                if original.exists():
+                    os.replace(original, quarantine)
+                    moved.append((original, quarantine))
+            os.replace(temporary, target)
+            installed = True
+            validate_operational_schema(target)
+        except BaseException:
+            # Validation may have created sidecars for the candidate.  Remove
+            # only candidate files, then put every quarantined original back.
+            if installed:
+                for candidate in (Path(f"{target}-shm"), Path(f"{target}-wal"), target):
+                    candidate.unlink(missing_ok=True)
+            rollback_error = None
+            for original, quarantine in reversed(moved):
+                try:
+                    os.replace(quarantine, original)
+                except OSError as exc:
+                    rollback_error = rollback_error or exc
+            if rollback_error is not None:
+                raise RuntimeError("SQLITE_RECOVERY_ROLLBACK_FAILED") from rollback_error
+            raise
+        # The candidate is accepted.  Old sidecars can now be discarded and
+        # can never replay over the validated restored database.
+        for quarantine in quarantines:
+            quarantine.unlink(missing_ok=True)
     finally:
         if temporary is not None:
             temporary.unlink(missing_ok=True)
