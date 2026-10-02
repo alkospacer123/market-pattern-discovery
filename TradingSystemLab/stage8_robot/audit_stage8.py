@@ -138,6 +138,15 @@ def audit(write_result=True):
           and quarantine_line and not early_target_unlink
           and "ROLLBACK_BASENAME" in restore and "ROLLBACK_MATERIAL_PRESENT" in restore,
           "RECOVERY_QUARANTINE_COMMIT_VALIDATION_ROLLBACK_INVARIANT")
+    check("CLEANUP_PENDING_BASENAME" in restore
+          and "RestoreResult(target=target, cleanup_pending=cleanup_incomplete)" in restore
+          and "except OSError:\n                cleanup_incomplete = True" in restore
+          and restore.index("validate_operational_schema(target)")
+              < restore.index("os.replace(quarantine, pending)")
+              < restore.index("pending.unlink(missing_ok=True)", restore.index("os.replace(quarantine, pending)"))
+          and "READONLY_STATE_RECOVERY_COMMITTED_CLEANUP_PENDING_RECONCILIATION_REQUIRED" in restore
+          and "READONLY_STATE_RECOVERY_PREVIOUS_COMMIT_CLEANUP_PENDING" in restore,
+          "RECOVERY_POST_COMMIT_CLEANUP_OUTCOME_UNAMBIGUOUS")
     recovery_calls=set()
     for recovery_source in (operations,backup,restore):
         recovery_calls.update(node.func.attr for node in ast.walk(ast.parse(recovery_source))

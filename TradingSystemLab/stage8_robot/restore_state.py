@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
@@ -18,6 +19,16 @@ from .specification import PRODUCTION_SPECIFICATION_ID
 MANIFEST_KEYS = frozenset({"schema", "production_specification_id", "backup_filename", "created_at_utc", "sha256"})
 RECOVERY_LOCKED = "SQLITE_RECOVERY_SUPERVISOR_RUNNING"
 ROLLBACK_BASENAME = ".readonly-supervisor.restore-rollback.sqlite3"
+CLEANUP_PENDING_BASENAME = ".readonly-supervisor.restore-committed-cleanup-pending.sqlite3"
+RECOVERY_CLEANUP_PENDING = "SQLITE_RECOVERY_COMMITTED_CLEANUP_PENDING"
+
+
+@dataclass(frozen=True)
+class RestoreResult:
+    """Unambiguous outcome of an accepted canonical restore commit."""
+
+    target: Path
+    cleanup_pending: bool = False
 
 
 def validate_operational_schema(path: Path) -> None:
@@ -62,7 +73,7 @@ def validate_recovery_point(runtime_root: Path, backup_filename: str) -> tuple[P
     return backup, manifest
 
 
-def restore_production_state(runtime_root: Path, backup_filename: str) -> Path:
+def restore_production_state(runtime_root: Path, backup_filename: str) -> RestoreResult:
     """Install a validated recovery point with rollback under the lifetime lock."""
     root = Path(runtime_root)
     backup, _ = validate_recovery_point(root, backup_filename)
@@ -74,6 +85,8 @@ def restore_production_state(runtime_root: Path, backup_filename: str) -> Path:
             raise RuntimeError(RECOVERY_LOCKED) from None
         raise
     temporary = None
+    commit_accepted = False
+    cleanup_incomplete = False
     try:
         state_directory = root / "state"
         if state_directory.is_symlink():
@@ -82,13 +95,21 @@ def restore_production_state(runtime_root: Path, backup_filename: str) -> Path:
         target = state_directory / SUPERVISOR_DATABASE
         temporary = state_directory / ".readonly-supervisor.recovery.sqlite3"
         rollback = state_directory / ROLLBACK_BASENAME
+        cleanup_pending = state_directory / CLEANUP_PENDING_BASENAME
         originals = [target, Path(f"{target}-wal"), Path(f"{target}-shm")]
         quarantines = [rollback, Path(f"{rollback}-wal"), Path(f"{rollback}-shm")]
+        committed_material = [cleanup_pending, Path(f"{cleanup_pending}-wal"), Path(f"{cleanup_pending}-shm")]
         if any(path.exists() for path in quarantines):
             # These internal-only files are never recovery points.  Refuse to
             # guess whether leftovers from an interrupted invocation are old
             # canonical state; an operator can preserve and inspect them.
             raise RuntimeError("SQLITE_RECOVERY_ROLLBACK_MATERIAL_PRESENT")
+        if any(path.exists() for path in committed_material):
+            try:
+                for path in committed_material:
+                    path.unlink(missing_ok=True)
+            except OSError as exc:
+                raise RuntimeError(RECOVERY_CLEANUP_PENDING) from exc
         # Revalidate under exclusion to close the selection-to-commit race.
         backup, _ = validate_recovery_point(root, backup_filename)
         temporary.unlink(missing_ok=True)
@@ -106,6 +127,14 @@ def restore_production_state(runtime_root: Path, backup_filename: str) -> Path:
             os.replace(temporary, target)
             installed = True
             validate_operational_schema(target)
+            # This complete namespace transition is the accepted commit point.
+            # A partial transition leaves a pre-commit quarantine name and is
+            # rollback protected (or fail-closed after process interruption).
+            for index, (original, quarantine) in enumerate(moved):
+                pending = committed_material[originals.index(original)]
+                os.replace(quarantine, pending)
+                moved[index] = (original, pending)
+            commit_accepted = True
         except BaseException:
             # Validation may have created sidecars for the candidate.  Remove
             # only candidate files, then put every quarantined original back.
@@ -121,15 +150,23 @@ def restore_production_state(runtime_root: Path, backup_filename: str) -> Path:
             if rollback_error is not None:
                 raise RuntimeError("SQLITE_RECOVERY_ROLLBACK_FAILED") from rollback_error
             raise
-        # The candidate is accepted.  Old sidecars can now be discarded and
-        # can never replay over the validated restored database.
-        for quarantine in quarantines:
-            quarantine.unlink(missing_ok=True)
+        # Cleanup after the commit point is best-effort and cannot turn an
+        # accepted recovery into an ordinary uncommitted failure.
+        for pending in committed_material:
+            try:
+                pending.unlink(missing_ok=True)
+            except OSError:
+                cleanup_incomplete = True
     finally:
         if temporary is not None:
-            temporary.unlink(missing_ok=True)
+            try:
+                temporary.unlink(missing_ok=True)
+            except OSError:
+                if not commit_accepted:
+                    raise
+                cleanup_incomplete = True
         lock.release()
-    return target
+    return RestoreResult(target=target, cleanup_pending=cleanup_incomplete)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -138,14 +175,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--backup-filename", required=True, help="Filename listed by the verified backup command")
     args = parser.parse_args(argv)
     try:
-        restore_production_state(args.runtime_root, args.backup_filename)
+        result = restore_production_state(args.runtime_root, args.backup_filename)
     except RuntimeError as exc:
-        print(RECOVERY_LOCKED if str(exc) == RECOVERY_LOCKED else "READONLY_STATE_RECOVERY_FAILED")
+        if str(exc) == RECOVERY_LOCKED:
+            print(RECOVERY_LOCKED)
+        elif str(exc) == RECOVERY_CLEANUP_PENDING:
+            print("READONLY_STATE_RECOVERY_PREVIOUS_COMMIT_CLEANUP_PENDING")
+        else:
+            print("READONLY_STATE_RECOVERY_FAILED")
         return 1
     except (ValueError, OSError):
         print("READONLY_STATE_RECOVERY_FAILED")
         return 1
-    print("READONLY_STATE_RECOVERY_COMMITTED_RECONCILIATION_REQUIRED")
+    if result.cleanup_pending:
+        print("READONLY_STATE_RECOVERY_COMMITTED_CLEANUP_PENDING_RECONCILIATION_REQUIRED")
+    else:
+        print("READONLY_STATE_RECOVERY_COMMITTED_RECONCILIATION_REQUIRED")
     return 0
 
 
