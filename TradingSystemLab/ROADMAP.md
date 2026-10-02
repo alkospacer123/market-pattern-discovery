@@ -223,12 +223,13 @@ internal file counts were zero, and secret/account environment variables were
 absent. No live order was transmitted and no authorization changed. Repository
 tooling validates the provenance and hash; it did not generate the evidence.
 
-Stage 8.9 has not started.
+Stage 8.9 is CURRENT. Repository status is
+`STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION`.
+Physical Intel validation has not been performed.
 
 ## Later Stage 8 gates
 
-- Stage 8.9 funding readiness — **BLOCKED** by unavailable authenticated account
-  financials (`portfolio_forts`).
+- Stage 8.9 — **CURRENT / DIAGNOSTIC READY, PHYSICAL INTEL VALIDATION PENDING**. The previous real-account result was `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` because `portfolio_forts` was absent; this is not reinterpreted as zero and is not claimed resolved.
 - Stage 8.10 trading-token integration — **PENDING / NOT AUTHORIZED**.
 - Stage 8.11/8.12 execution — **NOT AUTHORIZED**.
 

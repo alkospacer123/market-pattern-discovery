@@ -1,10 +1,11 @@
 # Stage 8 robot foundation
 
-**Status:** `STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_INTEL_ACCEPTANCE_COMPLETE` / `STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY` — `LIVE_TRADING_NOT_AUTHORIZED`.
+**Status:** `STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION` — `LIVE_TRADING_NOT_AUTHORIZED`.
 
 Stage 8.8 operational hardening is COMPLETE. Stages 8.8.1, 8.8.2, 8.8.3,
-8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE. Stage 8.9 has not started, and Stage 8.10/8.11/8.12 remain
-pending and not authorized.
+8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE. Stage 8.9 is CURRENT, with
+repository diagnostics ready and physical Intel validation pending. Stage 8.10
+is PENDING / NOT AUTHORIZED; 8.11/8.12 remain not authorized.
 
 ## Real account read-only and margin feasibility
 
@@ -218,9 +219,13 @@ internal file counts were zero, and secret/account environment variables were
 absent. No live order was transmitted and no authorization changed. Repository
 tooling validates the provenance and hash; it did not generate the evidence.
 
-**NEXT: Stage 8.9 — Real Account Funding & Margin Validation.** Stage 8.9 has
-not started. `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` remains unchanged because
-the clean UNION account did not expose `portfolio_forts`. LIVE trading and
+**CURRENT: Stage 8.9 — Real Account Funding & Margin Validation.** Repository
+status is `STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION`.
+The previous real-account result was `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`
+because the clean UNION account did not expose `portfolio_forts`; that blocker
+is not claimed resolved. The external report uses schema
+`stage8-8-9-funding-margin-validation/v1`, stays outside Git, and contains only
+sanitized evidence. Stage 8.10 is PENDING / NOT AUTHORIZED. LIVE trading and
 real-order transmission remain not authorized.
 
 ## Boundaries and startup

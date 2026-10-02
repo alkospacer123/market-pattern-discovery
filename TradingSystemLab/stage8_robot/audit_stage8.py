@@ -20,7 +20,7 @@ def audit(write_result=True):
     check(spec.strategy["name"]=="T3" and spec.strategy["timeframe"]=="H1","T3_H1"); check(spec.variant["name"]=="TRAIL1","TRAIL1")
     check(spec.instruments==("USDRUBF","CNYRUBF","GLDRUBF","IMOEXF"),"N4"); check(spec.risk_fraction==.015 and spec.maximum_nominal_risk==.06,"R15_MAX")
     core=(HERE/"strategy_core.py").read_text(); config=(HERE/"config.py").read_text(); broker=(HERE/"broker.py").read_text(); state=(HERE/"state.py").read_text(); runner=(HERE/"runner.py").read_text(); api=(HERE/"finam_api.py").read_text(); historical=(HERE/"historical_conformance.py").read_text(); production=(HERE/"production_replay.py").read_text(); resolver=(HERE/"instrument_resolver.py").read_text(); smoke=(HERE/"demo_smoke.py").read_text(); updater=(HERE/"update_demo_registry.py").read_text()
-    margin=(HERE/"margin.py").read_text(); real_smoke=(HERE/"real_account_smoke.py").read_text(); real_updater=(HERE/"update_real_registry.py").read_text(); operations=(HERE/"operations.py").read_text(); preflight=(HERE/"server_preflight.py").read_text()
+    margin=(HERE/"margin.py").read_text(); funding_diagnostic=(HERE/"funding_margin_diagnostic.py").read_text(); real_smoke=(HERE/"real_account_smoke.py").read_text(); real_updater=(HERE/"update_real_registry.py").read_text(); operations=(HERE/"operations.py").read_text(); preflight=(HERE/"server_preflight.py").read_text()
     backup=(HERE/"backup_state.py").read_text(); restore=(HERE/"restore_state.py").read_text()
     supervisor_path=HERE/"readonly_supervisor.py"; supervisor=supervisor_path.read_text() if supervisor_path.is_file() else ""
     timing_path=HERE/"h1_timing_diagnostic.py"; timing=timing_path.read_text() if timing_path.is_file() else ""
@@ -47,7 +47,8 @@ def audit(write_result=True):
     final_evidence_sha="181225F29A966179AB513121C3CBACD31401752956EFC9A22253A8EFBF94766E"
     check(all(final_status in document and final_code_sha in document and final_evidence_sha in document
               for document in (current_state,readme,roadmap)),"STAGE_8_8_7_COMPLETED_PROVENANCE_SYNCHRONIZED")
-    check("Stage 8.9 has not started" in closeout_docs,"STAGE_8_9_NOT_STARTED")
+    check("STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION" in closeout_docs,
+          "STAGE_8_9_DIAGNOSTIC_READY_PENDING_INTEL")
     check("LIVE_TRADING_NOT_AUTHORIZED" in readme and "no live trading was authorized" in closeout_docs.lower(),"CLOSEOUT_LIVE_TRADING_UNAUTHORIZED")
     check("REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in readme
           and re.search(r"no live order\s+was transmitted",closeout_docs,re.I),
@@ -113,6 +114,31 @@ def audit(write_result=True):
     check('return parse_money(params.get(key),positive=True)' in margin,"DIRECTIONAL_MARGIN_REMAINS_MONEY")
     check('row.update(values)' in real_updater and all(x in real_updater for x in ('"finam_symbol"','"security_id"','PRODUCTION_SPECIFICATION_ID','exact_matches','os.replace(temp,registry_path)','list(csv.DictReader(check_file))')),"REAL_REGISTRY_FULL_ATOMIC_ACTIVATION")
     check("class MarginBatchBudget" in margin and "self.remaining-=reservation" in margin,"SAME_BATCH_MARGIN_RESERVATION")
+    diagnostic_tree=ast.parse(funding_diagnostic)
+    diagnostic_calls={node.func.attr for node in ast.walk(diagnostic_tree)
+                      if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)}
+    check(not diagnostic_calls.intersection({"place_order","submit_order","cancel_order","modify_order"}),
+          "STAGE_8_9_NO_ORDER_CAPABLE_CALL")
+    check('os.getenv("FINAM_MODE") != "REAL_READONLY"' in funding_diagnostic
+          and 'os.getenv("NEW_ENTRIES_DISABLED", "").lower() != "true"' in funding_diagnostic,
+          "STAGE_8_9_REAL_READONLY_ENTRIES_DISABLED")
+    check('forts_funds(account)' in funding_diagnostic
+          and 'parse_rest_decimal_value_object(account.get("equity"), positive=True)' in funding_diagnostic
+          and "AVAILABLE_CASH_SEMANTICS" in funding_diagnostic,
+          "STAGE_8_9_EXACT_FINANCIAL_AUTHORITIES_NO_FALLBACK")
+    check('for direction in ("LONG", "SHORT")' in funding_diagnostic
+          and "final_quantity <= result.r15_quantity" in funding_diagnostic
+          and "MarginBatchBudget(available)" in funding_diagnostic,
+          "STAGE_8_9_DIRECTIONAL_CAP_AND_BATCH")
+    check('account_identity_sha256' in funding_diagnostic and 'no_order_call_assertion' in funding_diagnostic
+          and 'stage8-8-9-funding-margin-validation/v1' in funding_diagnostic,
+          "STAGE_8_9_SANITIZED_EXTERNAL_REPORT")
+    check("STAGE8_9_REPORT_REPOSITORY_OUTPUT_FORBIDDEN" in funding_diagnostic
+          and "REPOSITORY_ROOT in destination.parents" in funding_diagnostic,
+          "STAGE_8_9_EXTERNAL_REPORT_CANNOT_ENTER_REPOSITORY")
+    check("Stage 8.10" in closeout_docs and "PENDING / NOT AUTHORIZED" in closeout_docs
+          and "LIVE_TRADING_NOT_AUTHORIZED" in readme,
+          "STAGE_8_10_AND_LIVE_UNAUTHORIZED")
     check("starting_realized_equity" in runner and "REAL_ACCOUNT_NOT_CLEAN_FOR_INITIALIZATION" in runner,"CLEAN_REAL_EQUITY_BOOTSTRAP")
     check("account_identity_sha256" in runner and 'environment="REAL"' in runner,"REAL_STATE_ACCOUNT_HASH_BOUND")
     check("class InstanceLock" in operations and "SECOND_ROBOT_INSTANCE_BLOCKED" in operations and "src.backup(dst)" in operations,"SERVER_LOCK_AND_SQLITE_BACKUP")
