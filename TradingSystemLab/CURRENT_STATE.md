@@ -198,10 +198,14 @@ no-order semantics.
 
 Stage 8.8.5 status is
 `STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE`. The real Intel stale-data
-acceptance passed for PR #302 at Git head
-`635bea24710cc41f0cb65eef9c6ed576494f5396`, incorporated in merged `main`
-`b19a3625698f4701b7c531cade5a27a497269b73` before this documentation
-correction. The external acceptance artifact,
+acceptance was executed against audited source Git head
+`1c1c2bb5458827f200bc753e7e64db0272b33a8f`. PR #302 subsequently performed
+the Stage 8.8.5 repository closeout; its GitHub-visible head was
+`635bea24710cc41f0cb65eef9c6ed576494f5396`, and its merge commit was
+`b19a3625698f4701b7c531cade5a27a497269b73`. PR #302 did not modify
+`stage8_robot/readonly_supervisor.py`, `stage8_robot/finam_api.py`, or
+`stage8_robot/tests/test_readonly_supervisor.py`, so the accepted H1
+implementation remained byte-identical. The external acceptance artifact,
 which remains outside Git, has SHA-256
 `C57554AE3AE54018EC1E558108520088C1883718F0406E7B6C6669B4696A9CBC`.
 

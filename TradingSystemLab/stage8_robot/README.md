@@ -97,10 +97,15 @@ state. A closed-period cold start without that trusted watermark fails with
 `H1_EXPECTED_COMPLETED_WATERMARK_UNAVAILABLE`.
 
 Stage 8.8.5 is
-`STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE`. Real Intel acceptance passed for
-PR #302 at Git head `635bea24710cc41f0cb65eef9c6ed576494f5396`, incorporated
-in merged `main` `b19a3625698f4701b7c531cade5a27a497269b73` before this
-documentation correction. The external artifact SHA-256 is
+`STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE`. The real Intel stale-data
+acceptance was executed against audited source Git head
+`1c1c2bb5458827f200bc753e7e64db0272b33a8f`. PR #302 subsequently performed
+the Stage 8.8.5 repository closeout; its GitHub-visible head was
+`635bea24710cc41f0cb65eef9c6ed576494f5396`, and its merge commit was
+`b19a3625698f4701b7c531cade5a27a497269b73`. PR #302 did not modify
+`readonly_supervisor.py`, `finam_api.py`, or `tests/test_readonly_supervisor.py`,
+so the accepted H1 implementation remained byte-identical. The external
+artifact SHA-256 is
 `C57554AE3AE54018EC1E558108520088C1883718F0406E7B6C6669B4696A9CBC`.
 The clean cycle was `HEALTHY` / `PASS`; the controlled
 `STALE_COMPLETED_H1_DATA` fault was `UNHEALTHY` / `FAULT` without advancement
