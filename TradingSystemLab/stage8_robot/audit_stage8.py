@@ -6,7 +6,8 @@ ROOT=Path(__file__).resolve().parents[2]; HERE=Path(__file__).resolve().parent
 if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
 from specification import PRODUCTION_SPECIFICATION_ID,load_frozen_specification
 from TradingSystemLab.authority_hashing import canonical_authority_sha256
-from TradingSystemLab.stage8_robot.readonly_supervisor import newest_expected_h1_close
+from TradingSystemLab.stage8_robot.readonly_supervisor import (SafetyFault,newest_expected_h1_close,
+                                                               trading_h1_windows)
 def csv_rows(path):
     with path.open(newline="") as stream:return list(csv.DictReader(stream))
 def audit(write_result=True):
@@ -101,17 +102,34 @@ def audit(write_result=True):
     check("self.api.schedule(symbol)" in supervisor and "STALE_COMPLETED_H1_DATA" in supervisor,
           "SUPERVISOR_SCHEDULE_AWARE_H1_FRESHNESS")
     audit_now=datetime(2026,1,5,12,30,tzinfo=timezone.utc)
-    active={"sessions":[{"interval":{"start_time":"2026-01-05T07:00:00Z","end_time":"2026-01-05T20:50:00Z"}}]}
-    gap={"sessions":[{"interval":{"start_time":"2026-01-05T07:00:00Z","end_time":"2026-01-05T11:30:00Z"}},
-                     {"interval":{"start_time":"2026-01-05T14:00:00Z","end_time":"2026-01-05T20:50:00Z"}}]}
-    check(newest_expected_h1_close(active,audit_now).isoformat()=="2026-01-05T12:00:00+00:00"
-          and newest_expected_h1_close(gap,audit_now).isoformat()=="2026-01-05T11:00:00+00:00"
-          and newest_expected_h1_close({"sessions":[]},audit_now) is None,
-          "LEGACY_SYNTHETIC_MODEL_REGRESSION_NOT_FINAM_AUTHORITY")
-    check("time_model_validated: bool = False" in supervisor
-          and "H1_FINAM_TIME_MODEL_NOT_VALIDATED" in supervisor
-          and "time_model_validated=True" not in supervisor,
-          "PRODUCTION_FAILS_CLOSED_WITHOUT_REVIEWED_REAL_TIME_EVIDENCE")
+    active={"sessions":[
+      {"type":"EARLY_TRADING","interval":{"start_time":"2026-01-05T04:00:00Z","end_time":"2026-01-05T06:00:00Z"}},
+      {"type":"CORE_TRADING","interval":{"start_time":"2026-01-05T06:00:00Z","end_time":"2026-01-05T16:00:00Z"}},
+      {"type":"LATE_TRADING","interval":{"start_time":"2026-01-05T16:00:00Z","end_time":"2026-01-05T20:50:00Z"}}]}
+    windows=trading_h1_windows(active)
+    check(windows==[(datetime(2026,1,5,4,tzinfo=timezone.utc),datetime(2026,1,5,20,50,tzinfo=timezone.utc))],"H1_CONTIGUOUS_TRADING_WINDOWS")
+    check(newest_expected_h1_close(active,datetime(2026,1,5,19,30,tzinfo=timezone.utc)).hour==18,"H1_WHOLE_UTC_HOUR_OPEN_GRID")
+    check(newest_expected_h1_close(active,datetime(2026,1,5,20,49,tzinfo=timezone.utc)).hour==19
+          and newest_expected_h1_close(active,datetime(2026,1,5,20,50,tzinfo=timezone.utc)).hour==20,"H1_FINAL_PARTIAL_BAR_COMPLETION")
+    nontrading={"sessions":[
+      {"type":"OPENING_AUCTION","interval":{"start_time":"2026-01-05T03:30:00Z","end_time":"2026-01-05T04:00:00Z"}},
+      {"type":"CLEARING","interval":{"start_time":"2026-01-05T14:00:00Z","end_time":"2026-01-05T14:05:00Z"}},
+      {"type":"CLOSED","interval":{"start_time":"2026-01-05T21:00:00Z","end_time":"2026-01-06T04:00:00Z"}}]}
+    check(newest_expected_h1_close(nontrading,audit_now) is None,"H1_NONTRADING_SESSIONS_NO_EXPECTATION")
+    check('TRADING_SESSION_TYPES = frozenset({"EARLY_TRADING", "CORE_TRADING", "LATE_TRADING"})' in supervisor,"H1_ALLOWED_SESSION_TYPES_EXPLICIT")
+    check("candidate = start +" not in supervisor and "available_until - start" not in supervisor,"H1_NO_LEGACY_SESSION_START_FLOOR")
+    check("min(opened+timedelta(hours=1),end)" in api,"H1_WINDOW_END_COMPLETION_BOUNDARY")
+    check("expected not in raw_opens" in supervisor,"H1_EXACT_EXPECTED_RAW_OPEN_MEMBERSHIP")
+    check('f"expected_h1:{name}"' in supervisor and "self.state.put_many(updates)" in supervisor,"H1_EXPECTED_WATERMARK_TRANSACTIONAL_SQLITE")
+    check("derived or prior_expected" in supervisor,"H1_CLOSED_PERSISTED_CONTINUITY")
+    check("H1_EXPECTED_COMPLETED_WATERMARK_UNAVAILABLE" in supervisor,"H1_COLD_START_CLOSED_FAILS_CLOSED")
+    check("time_model_validated" not in supervisor and "H1_FINAM_TIME_MODEL_NOT_VALIDATED" not in supervisor,"H1_NO_TIME_MODEL_OR_ENVIRONMENT_BYPASS")
+    tests=(HERE/"tests/test_readonly_supervisor.py").read_text()
+    check("newer_pending_bar_cannot_hide_exact_missing_expected" in tests,"H1_PENDING_BAR_MISSING_COMPLETED_REGRESSION")
+    check("cycle_count\"] == 0" in tests and "expected_h1:{name}" in tests,"H1_STALE_STATE_IMMUTABILITY_TESTED")
+    check("fresh_cycle_after_stale_fault_clears_failure" in tests,"H1_STALE_RECOVERY_TESTED")
+    check(not any(p.suffix.lower() in {".csv",".json",".png",".jpg"} and "evidence" in p.name.lower()
+                  for p in (HERE/"tests").iterdir() if p.name not in {"finam_binding_fixtures.json"}),"H1_NO_REAL_TIMING_EVIDENCE_FIXTURE")
     supervisor_tree=ast.parse(supervisor); calls={node.func.attr for node in ast.walk(supervisor_tree) if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)}
     check(not calls.intersection({"place_order","submit_order","cancel_order","modify_order"}),"SUPERVISOR_NO_ORDER_CALLS")
     check(timing_path.is_file() and 'api.schedule(symbol)' in timing and 'api.bars(symbol' in timing,
@@ -146,7 +164,7 @@ def audit(write_result=True):
     check('$env:NEW_ENTRIES_DISABLED = "true"' in launcher,"WINDOWS_ENTRIES_DISABLED_FORCED")
     check("TradingSystemLab.stage8_robot.readonly_supervisor" in launcher and not any(x in windows_deployment for x in ("place_order","submit_order","cancel_order")),"WINDOWS_SERVICE_READONLY_NO_ORDER_PATH")
     check("-ExecutionPolicy RemoteSigned" in task_installer and "-MultipleInstances IgnoreNew" in task_installer,"WINDOWS_TASK_POLICY_CONSERVATIVE")
-    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":"STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_VALIDATION","margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED"}
+    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"stage8_status":"STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_FAULT_INJECTION","margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED"}
     if write_result: (HERE/"independent_audit_result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
     return result
 if __name__=="__main__":

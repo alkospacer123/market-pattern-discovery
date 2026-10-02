@@ -147,16 +147,29 @@ class FinamAPI:
         query={"timeframe":H1_TIMEFRAME,"interval.start_time":start,"interval.end_time":end}
         return self._request("GET",BARS_PATH_TEMPLATE.format(symbol=symbol)+"?"+urlencode(query)).body
 
-def completed_h1_bars(response:dict,observed_at:datetime)->list[dict]:
-    """Legacy normalization, usable only behind a validated time-model gate.
+def completed_h1_bars(response:dict,observed_at:datetime,
+                      trading_windows:list[tuple[datetime,datetime]])->list[dict]:
+    """Return schedule-proven completed FINAM H1 bars, retaining raw opens.
 
-    Real FINAM evidence has not yet established that ``timestamp + 1h`` is the
-    availability boundary.  The REAL_READONLY supervisor therefore fails
-    closed unless that gate is explicitly enabled in reviewed code.
+    FINAM timestamps are whole-hour UTC opens.  Completion is the earlier of
+    the next hour and the end of the contiguous trading window, so a final bar
+    may be shorter than one hour.  Callers must supply validated windows.
     """
     now=observed_at.astimezone(timezone.utc); result=[]
-    for bar in response.get("bars",[]):
-        opened=datetime.fromisoformat(bar["timestamp"].replace("Z","+00:00"))
-        closed=opened+timedelta(hours=1)
-        if closed<=now: result.append({**bar,"open_timestamp":opened.isoformat(),"timestamp":closed.isoformat()})
+    if not isinstance(response,dict) or not isinstance(response.get("bars"),list):
+        raise ValueError("H1_BARS_SCHEMA_INVALID")
+    for bar in response["bars"]:
+        if not isinstance(bar,dict) or not isinstance(bar.get("timestamp"),str):
+            raise ValueError("H1_BARS_SCHEMA_INVALID")
+        try: opened=datetime.fromisoformat(bar["timestamp"].replace("Z","+00:00"))
+        except ValueError: raise ValueError("H1_BARS_SCHEMA_INVALID") from None
+        if opened.tzinfo is None: raise ValueError("H1_BARS_SCHEMA_INVALID")
+        opened=opened.astimezone(timezone.utc)
+        if opened.minute or opened.second or opened.microsecond:
+            raise ValueError("H1_BAR_OPEN_NOT_WHOLE_HOUR_UTC")
+        for start,end in trading_windows:
+            if start<=opened<end:
+                if min(opened+timedelta(hours=1),end)<=now:
+                    result.append({**bar,"open_timestamp":opened.isoformat(),"timestamp":opened.isoformat()})
+                break
     return result

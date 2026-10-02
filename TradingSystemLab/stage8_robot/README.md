@@ -64,11 +64,12 @@ authorized. No CI result is a claim of completed 24/7 production validation.
 
 ### Stage 8.8.5 stale-market-data rule
 
-Independent review found that the schema does **not** prove the prior assumption
-that H1 timestamps are candle opens or that the H1 grid restarts at every session
-start.  That oracle is therefore not production-valid and must not be treated as
-FINAM authority.  No replacement model may be activated until sanitized real
-schedule and H1 timestamp evidence has been collected and independently checked.
+Real READ_ONLY timing evidence was validated externally. The production model
+now treats FINAM H1 timestamps as whole-hour UTC bar opens, merges touching
+EARLY_TRADING, CORE_TRADING and LATE_TRADING intervals, and completes each bar
+at `min(open + 1 hour, contiguous trading-window end)`. Auction, clearing and
+closed intervals never create an expectation. Freshness requires exact presence
+of the expected completed raw open, not merely a newer timestamp.
 
 The order-incapable collector is run with `FINAM_MODE=REAL_READONLY` and
 `NEW_ENTRIES_DISABLED=true`:
@@ -86,8 +87,13 @@ captured market timestamps may be copied into the repository. After evidence
 review, deterministic tests may encode only the proven semantic rules using
 synthetic fixtures; they must not reproduce the real FINAM market-data capture.
 
+The validated expected raw-open watermark is stored per instrument as
+`expected_h1:<instrument>` in the existing transactional operational SQLite
+state. A closed-period cold start without that trusted watermark fails with
+`H1_EXPECTED_COMPLETED_WATERMARK_UNAVAILABLE`.
+
 Stage 8.8.5 remains
-`STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_VALIDATION` and requires
+`STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_FAULT_INJECTION` and requires
 independent audit followed by real Intel operational fault-injection validation;
 unit tests and the repository audit do not complete that operational gate.
 
