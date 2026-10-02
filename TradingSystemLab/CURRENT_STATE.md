@@ -4,15 +4,15 @@
 
 TradingSystemLab has completed Stage 7 Production Specification Freeze and is
 actively in **Stage 8 Robot / FINAM integration**, currently through
-**Stage 8.8.5 stale-data protection complete**.
+**Stage 8.8.6 SQLite recovery code ready; Intel acceptance pending**.
 
 Resolve the current Git `main` SHA directly from GitHub during every independent
 audit; this versioned file is not authoritative for a moving branch SHA.
 
 Current Stage 8 repository audit state:
 
-- `stage8_status`: `STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE`;
-- Stage 8 independent repository audit: PASS, 111 checks, zero recorded errors;
+- `stage8_status`: `STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE`;
+- Stage 8 independent repository audit: PASS, 121 checks, zero recorded errors;
 - LIVE trading: **NOT AUTHORIZED**;
 - real order transmission: **NOT AUTHORIZED**.
 
@@ -221,8 +221,20 @@ acceptance. No runtime JSON or raw FINAM response is stored in this repository.
 
 Do **not** start LIVE trading.
 
-**NEXT: Stage 8.8.6 SQLite backup / recovery / reconciliation validation.**
-Stage 8.8.6 is not started. It must remain REAL_READONLY with entries disabled.
+Stage 8.8.6 repository tooling now backs up only
+`state/readonly-supervisor.sqlite3` with SQLite's online API, binds each backup
+to a strict checksum/production-ID manifest, retains database/manifest pairs,
+and restores only a validated operational schema under the existing lifetime
+lock via an atomic state-directory replacement. Stale WAL/SHM sidecars are
+removed at commit. Offline recovery preserves the selected continuity values;
+it does not fabricate a watermark or bypass the next normal supervisor cycle.
+
+Status:
+`STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE`.
+
+**NEXT: after merge and independent audit, perform real Intel backup, restore,
+and normal REAL_READONLY reconciliation acceptance.** Repository tests use
+synthetic SQLite fixtures and do not constitute physical Intel acceptance.
 
 Separately:
 

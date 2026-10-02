@@ -258,7 +258,7 @@ Stage 8.8.5 added schedule-aware stale H1 protection:
 
 Current Stage 8 status:
 
-`STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE`.
+`STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE`.
 
 Real Intel stale-data acceptance passed against audited Git head
 `1c1c2bb5458827f200bc753e7e64db0272b33a8f`; the external artifact SHA-256 is
@@ -279,7 +279,8 @@ LIVE trading is not authorized and is not implemented as an enabled path.
 
 Current operational blockers / pending gates:
 
-- Stage 8.8.6 SQLite backup / recovery / reconciliation validation (not started);
+- Stage 8.8.6 physical Intel backup / recovery / reconciliation acceptance
+  (repository code ready; acceptance pending);
 - Stage 8.9 funding readiness blocked by unavailable account financials;
 - Stage 8.10 trading-token integration pending;
 - Stage 8.11/8.12 execution unauthorized.

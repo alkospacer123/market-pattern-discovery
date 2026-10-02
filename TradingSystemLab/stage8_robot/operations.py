@@ -41,18 +41,74 @@ class InstanceLock:
     def __exit__(self,*_): self.release()
 
 def sqlite_backup(source:Path,destination:Path)->Path:
-    """Consistent online backup, followed by an integrity check."""
-    source=Path(source); destination=Path(destination); destination.parent.mkdir(parents=True,exist_ok=True)
-    with sqlite3.connect(source) as src, sqlite3.connect(destination) as dst: src.backup(dst)
-    with sqlite3.connect(destination) as check:
-        if check.execute("PRAGMA integrity_check").fetchone()[0]!="ok":
-            destination.unlink(missing_ok=True); raise RuntimeError("SQLITE_BACKUP_INTEGRITY_FAILED")
+    """Create a standalone, checked backup using SQLite's online backup API.
+
+    The source is opened read-only so a typo can never create an empty source.
+    A destination is published only after both databases pass integrity checks.
+    """
+    source=Path(source); destination=Path(destination)
+    if not source.is_file() or source.is_symlink():
+        raise RuntimeError("SQLITE_BACKUP_SOURCE_INVALID")
+    if destination.exists() or destination.resolve()==source.resolve():
+        raise RuntimeError("SQLITE_BACKUP_DESTINATION_INVALID")
+    destination.parent.mkdir(parents=True,exist_ok=True)
+    temporary=destination.with_name(destination.name+".incomplete")
+    temporary.unlink(missing_ok=True)
+    try:
+        uri=f"{source.resolve().as_uri()}?mode=ro"
+        with sqlite3.connect(uri,uri=True) as src:
+            if src.execute("PRAGMA integrity_check").fetchone()!=("ok",):
+                raise RuntimeError("SQLITE_BACKUP_SOURCE_INTEGRITY_FAILED")
+            with sqlite3.connect(temporary) as dst:
+                src.backup(dst)
+        # The backup is standalone: normalize the copied WAL preference before
+        # publication so no sidecar is required to open the recovery point.
+        with sqlite3.connect(temporary) as standalone:
+            if standalone.execute("PRAGMA journal_mode=DELETE").fetchone()!=("delete",):
+                raise RuntimeError("SQLITE_BACKUP_DESTINATION_INTEGRITY_FAILED")
+        with sqlite3.connect(f"{temporary.resolve().as_uri()}?mode=ro",uri=True) as check:
+            if check.execute("PRAGMA integrity_check").fetchone()!=("ok",):
+                raise RuntimeError("SQLITE_BACKUP_DESTINATION_INTEGRITY_FAILED")
+        os.replace(temporary,destination)
+    except (sqlite3.Error,OSError) as exc:
+        raise RuntimeError("SQLITE_BACKUP_FAILED") from exc
+    finally:
+        temporary.unlink(missing_ok=True)
+        Path(str(temporary)+"-wal").unlink(missing_ok=True)
+        Path(str(temporary)+"-shm").unlink(missing_ok=True)
     return destination
 
+def validate_operational_database(path:Path)->None:
+    """Validate the exact schema used by readonly_supervisor.OperationalState."""
+    path=Path(path)
+    if not path.is_file() or path.is_symlink(): raise RuntimeError("SQLITE_RECOVERY_DATABASE_INVALID")
+    try:
+        with sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro",uri=True) as database:
+            if database.execute("PRAGMA integrity_check").fetchone() != ("ok",):
+                raise RuntimeError("SQLITE_RECOVERY_INTEGRITY_INVALID")
+            tables=database.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
+            columns=database.execute("PRAGMA table_info(operational_state)").fetchall()
+    except sqlite3.Error as exc:
+        raise RuntimeError("SQLITE_RECOVERY_DATABASE_INVALID") from exc
+    expected=[(0,"key","TEXT",0,None,1),(1,"value","TEXT",1,None,0)]
+    if tables != [("operational_state",)] or columns != expected:
+        raise RuntimeError("SQLITE_RECOVERY_SCHEMA_INVALID")
+
 def prune_backups(directory:Path,keep:int)->list[Path]:
+    """Retain complete ``.sqlite3``/``.manifest.json`` recovery units only."""
     if keep<1: raise ValueError("BACKUP_RETENTION_INVALID")
-    files=sorted(Path(directory).glob("*.sqlite3"),key=lambda p:p.stat().st_mtime,reverse=True)
-    for old in files[keep:]: old.unlink()
+    directory=Path(directory)
+    files=sorted((p for p in directory.glob("*.sqlite3")
+                  if p.with_name(p.name+".manifest.json").is_file()),
+                 key=lambda p:p.name,reverse=True)
+    for old in files[keep:]:
+        old.with_name(old.name+".manifest.json").unlink(missing_ok=True); old.unlink(missing_ok=True)
+    # Orphans are incomplete operations, never recovery points.
+    for database in directory.glob("*.sqlite3"):
+        if not database.with_name(database.name+".manifest.json").is_file(): database.unlink(missing_ok=True)
+    for manifest in directory.glob("*.sqlite3.manifest.json"):
+        database=manifest.with_name(manifest.name.removesuffix(".manifest.json"))
+        if not database.is_file(): manifest.unlink(missing_ok=True)
     return files[:keep]
 
 def configure_operational_log(path:Path,max_bytes:int=5_000_000,backup_count:int=5)->logging.Logger:

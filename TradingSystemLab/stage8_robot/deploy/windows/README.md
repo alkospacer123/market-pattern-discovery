@@ -82,3 +82,14 @@ Mutable state remains outside Git: `state\stage8-readonly.lock`,
 audit output, and operator-managed verified backups. Never filesystem-copy a
 live WAL database. `LIVE_TRADING_NOT_AUTHORIZED` and
 `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remain in force.
+
+The only Stage 8.8.6 supervisor state authority is
+`<runtime>\state\readonly-supervisor.sqlite3`; `stage8.sqlite3` is unrelated and
+must never be selected. With the supervisor stopped, run
+`python -m TradingSystemLab.stage8_robot.backup_state --runtime-root <runtime>`.
+Select the emitted filename for
+`python -m TradingSystemLab.stage8_robot.restore_state --runtime-root <runtime> --backup-filename <filename>`.
+Restore success means only that validated continuity state was committed. Start
+the existing REAL_READONLY supervisor afterward and require its normal account,
+orders, schedule, H1 freshness, expected-H1, entries-disabled and read-only-token
+reconciliation before accepting recovery.

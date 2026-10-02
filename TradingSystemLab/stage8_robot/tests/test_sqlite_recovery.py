@@ -1,0 +1,249 @@
+import ast
+import json
+import sqlite3
+from datetime import datetime, timezone
+from pathlib import Path
+
+import pytest
+
+from TradingSystemLab.stage8_robot.backup_state import (
+    BACKUP_MANIFEST_SCHEMA,
+    create_production_backup,
+    sha256_file,
+)
+from TradingSystemLab.stage8_robot.operations import InstanceLock, prune_backups, sqlite_backup
+from TradingSystemLab.stage8_robot.readonly_supervisor import (
+    OperationalState,
+    ReadonlySupervisor,
+    _authenticated_registry,
+)
+from TradingSystemLab.stage8_robot.restore_state import (
+    RECOVERY_LOCKED,
+    restore_production_state,
+    validate_recovery_point,
+)
+from TradingSystemLab.stage8_robot.specification import INSTRUMENTS, PRODUCTION_SPECIFICATION_ID
+
+
+def populated_state(root: Path, *, cycle: str = "17") -> tuple[OperationalState, dict[str, str]]:
+    state = OperationalState(root / "state" / "readonly-supervisor.sqlite3")
+    values = {
+        "cycle_count": cycle,
+        "consecutive_failures": "2",
+        "last_api_contact": "2026-01-05T11:30:00+00:00",
+        "last_reconciliation": "FAULT",
+    }
+    for index, symbol in enumerate(INSTRUMENTS):
+        value = f"2026-01-05T{8 + index:02d}:00:00+00:00"
+        values[f"h1:{symbol}"] = value
+        values[f"expected_h1:{symbol}"] = value
+    state.put_many(values)
+    return state, values
+
+
+def recovery_point(root: Path):
+    state, values = populated_state(root)
+    backup, manifest = create_production_backup(
+        root, created_at=datetime(2026, 1, 5, 12, tzinfo=timezone.utc)
+    )
+    return state, values, backup, manifest
+
+
+def test_online_backup_captures_committed_wal_state_as_standalone_database(tmp_path):
+    state, values = populated_state(tmp_path)
+    source = tmp_path / "state/readonly-supervisor.sqlite3"
+    assert Path(str(source) + "-wal").exists()
+    destination = tmp_path / "manual.sqlite3"
+    sqlite_backup(source, destination)
+    state.put_many({"cycle_count": "18"})
+    state.close()
+    with sqlite3.connect(destination) as database:
+        assert database.execute("PRAGMA integrity_check").fetchone() == ("ok",)
+        restored = dict(database.execute("SELECT key,value FROM operational_state"))
+    assert restored == values
+    assert not Path(str(destination) + "-wal").exists()
+    assert not Path(str(destination) + "-shm").exists()
+
+
+def test_backup_missing_nonfile_and_corrupt_sources_fail_without_creation(tmp_path):
+    missing = tmp_path / "missing.sqlite3"
+    with pytest.raises(RuntimeError, match="SOURCE_INVALID"):
+        sqlite_backup(missing, tmp_path / "missing-backup.sqlite3")
+    assert not missing.exists()
+    with pytest.raises(RuntimeError, match="SOURCE_INVALID"):
+        sqlite_backup(tmp_path, tmp_path / "directory-backup.sqlite3")
+    corrupt = tmp_path / "corrupt.sqlite3"
+    corrupt.write_bytes(b"not sqlite")
+    with pytest.raises(RuntimeError, match="SQLITE_BACKUP_FAILED"):
+        sqlite_backup(corrupt, tmp_path / "corrupt-backup.sqlite3")
+
+
+def test_production_manifest_is_minimal_correct_and_bound_to_checksum(tmp_path):
+    state, _, backup, manifest = recovery_point(tmp_path)
+    state.close()
+    payload = json.loads(manifest.read_text())
+    assert payload == {
+        "backup_filename": backup.name,
+        "created_at_utc": "2026-01-05T12:00:00Z",
+        "production_specification_id": PRODUCTION_SPECIFICATION_ID,
+        "schema": BACKUP_MANIFEST_SCHEMA,
+        "sha256": sha256_file(backup),
+    }
+    assert "account" not in manifest.read_text().lower()
+    assert validate_recovery_point(tmp_path, backup.name) == (backup, manifest)
+
+
+@pytest.mark.parametrize("mutation", ["missing", "malformed", "extra", "production", "filename"])
+def test_missing_or_malformed_manifest_fails_closed(tmp_path, mutation):
+    state, _, backup, manifest = recovery_point(tmp_path)
+    state.close()
+    if mutation == "missing":
+        manifest.unlink()
+    elif mutation == "malformed":
+        manifest.write_text("{")
+    else:
+        payload = json.loads(manifest.read_text())
+        if mutation == "extra": payload["unexpected"] = True
+        if mutation == "production": payload["production_specification_id"] = "WRONG"
+        if mutation == "filename": payload["backup_filename"] = "other.sqlite3"
+        manifest.write_text(json.dumps(payload))
+    with pytest.raises(RuntimeError, match="RECOVERY_(POINT_MISSING|MANIFEST_INVALID)"):
+        validate_recovery_point(tmp_path, backup.name)
+
+
+def test_tampered_backup_and_valid_unrelated_database_fail_closed(tmp_path):
+    state, _, backup, manifest = recovery_point(tmp_path)
+    state.close()
+    backup.write_bytes(backup.read_bytes() + b"tamper")
+    with pytest.raises(RuntimeError, match="CHECKSUM_MISMATCH"):
+        validate_recovery_point(tmp_path, backup.name)
+    backup.unlink(); manifest.unlink()
+    unrelated = tmp_path / "backups/readonly-supervisor-unrelated.sqlite3"
+    with sqlite3.connect(unrelated) as database:
+        database.execute("CREATE TABLE unrelated(value TEXT)")
+    payload = {
+        "backup_filename": unrelated.name, "created_at_utc": "2026-01-05T12:00:00Z",
+        "production_specification_id": PRODUCTION_SPECIFICATION_ID,
+        "schema": BACKUP_MANIFEST_SCHEMA, "sha256": sha256_file(unrelated),
+    }
+    unrelated.with_name(unrelated.name + ".manifest.json").write_text(json.dumps(payload))
+    with pytest.raises(RuntimeError, match="SCHEMA_INVALID"):
+        validate_recovery_point(tmp_path, unrelated.name)
+
+
+def test_restore_is_lock_excluded_and_does_not_modify_state(tmp_path):
+    state, _, backup, _ = recovery_point(tmp_path)
+    state.close()
+    target = tmp_path / "state/readonly-supervisor.sqlite3"
+    before = target.read_bytes()
+    lock = InstanceLock(tmp_path / "state/stage8-readonly.lock").acquire()
+    try:
+        with pytest.raises(RuntimeError, match=RECOVERY_LOCKED):
+            restore_production_state(tmp_path, backup.name)
+    finally:
+        lock.release()
+    assert target.read_bytes() == before
+
+
+def test_atomic_restore_preserves_exact_continuity_and_removes_stale_sidecars(tmp_path):
+    state, expected, backup, _ = recovery_point(tmp_path)
+    state.close()
+    replacement = OperationalState(tmp_path / "state/readonly-supervisor.sqlite3")
+    replacement.put_many({"cycle_count": "999", "invented": "newer"})
+    replacement.close()
+    target = tmp_path / "state/readonly-supervisor.sqlite3"
+    Path(str(target) + "-wal").write_bytes(b"stale-wal")
+    Path(str(target) + "-shm").write_bytes(b"stale-shm")
+    assert restore_production_state(tmp_path, backup.name) == target
+    assert not Path(str(target) + "-wal").exists()
+    assert not Path(str(target) + "-shm").exists()
+    with sqlite3.connect(target) as database:
+        assert database.execute("PRAGMA integrity_check").fetchone() == ("ok",)
+        assert dict(database.execute("SELECT key,value FROM operational_state")) == expected
+    normal = OperationalState(target)
+    try:
+        assert normal.get("cycle_count") == "17"
+        assert normal.get("last_reconciliation") == "FAULT"
+        assert normal.get("invented") is None
+        normal.put_many({"cycle_count": "18", "last_reconciliation": "PASS"})
+        assert normal.get("cycle_count") == "18"
+    finally:
+        normal.close()
+
+
+class ReconciliationAPI:
+    def __init__(self, stale_symbol=None): self.stale_symbol = stale_symbol
+    def session_details(self): return {"readonly": True, "account_ids": ["synthetic"]}
+    def account(self, _account): return {"status": "ACCOUNT_ACTIVE", "positions": []}
+    def orders(self, _account): return {"orders": []}
+    def schedule(self, _symbol):
+        return {"sessions": [{"type": "CORE_TRADING", "interval": {
+            "start_time": "2026-01-05T07:00:00Z", "end_time": "2026-01-05T20:50:00Z"
+        }}]}
+    def bars(self, symbol, _start, _end):
+        opened = "2026-01-05T10:00:00Z" if symbol == self.stale_symbol else "2026-01-05T11:00:00Z"
+        return {"bars": [{"timestamp": opened, "close": "1"}]}
+
+
+def restored_supervisor(root, api):
+    return ReadonlySupervisor(
+        root, api, "synthetic", _authenticated_registry(), poll_seconds=30,
+        clock=lambda: datetime(2026, 1, 5, 12, 30, tzinfo=timezone.utc),
+        sleeper=lambda _seconds: None,
+    )
+
+
+def test_normal_reconciliation_advances_from_restored_state(tmp_path):
+    state, _, backup, _ = recovery_point(tmp_path); state.close()
+    restore_production_state(tmp_path, backup.name)
+    service = restored_supervisor(tmp_path, ReconciliationAPI())
+    try:
+        assert service.run(once=True) == 0
+        assert service.cycle_count == 18
+        assert service.state.get("last_reconciliation") == "PASS"
+        assert service.state.get("consecutive_failures") == "0"
+    finally:
+        service.close()
+
+
+def test_post_restore_stale_mismatch_remains_fail_closed(tmp_path):
+    state, expected, backup, _ = recovery_point(tmp_path); state.close()
+    restore_production_state(tmp_path, backup.name)
+    service = restored_supervisor(tmp_path, ReconciliationAPI("GLDRUBF@RTSX"))
+    try:
+        assert service.run(once=True) == 1
+        assert service.cycle_count == 17
+        assert service.state.get("h1:GLDRUBF") == expected["h1:GLDRUBF"]
+        assert service.state.get("last_reconciliation") == "FAULT"
+        assert service.state.get("consecutive_failures") == "3"
+    finally:
+        service.close()
+
+
+def test_retention_prunes_database_manifest_units_and_incomplete_orphans(tmp_path):
+    directory = tmp_path / "backups"; directory.mkdir()
+    for name in ("a.sqlite3", "b.sqlite3", "c.sqlite3"):
+        (directory / name).write_bytes(b"x")
+        (directory / f"{name}.manifest.json").write_text("{}")
+    (directory / "orphan.sqlite3").write_bytes(b"x")
+    (directory / "lost.sqlite3.manifest.json").write_text("{}")
+    kept = prune_backups(directory, 2)
+    assert [path.name for path in kept] == ["c.sqlite3", "b.sqlite3"]
+    assert sorted(path.name for path in directory.iterdir()) == [
+        "b.sqlite3", "b.sqlite3.manifest.json", "c.sqlite3", "c.sqlite3.manifest.json"
+    ]
+
+
+def test_backup_and_recovery_modules_have_no_order_capable_calls():
+    prohibited = {"place_order", "submit_order", "cancel_order", "modify_order"}
+    for name in ("backup_state.py", "restore_state.py", "operations.py"):
+        tree = ast.parse((Path(__file__).parents[1] / name).read_text())
+        calls = {node.func.attr for node in ast.walk(tree)
+                 if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)}
+        assert not calls & prohibited
+
+
+def test_windows_launcher_has_no_obsolete_state_authority():
+    launcher = (Path(__file__).parents[1] / "deploy/windows/run-readonly.ps1").read_text()
+    assert "ROBOT_STATE_PATH" not in launcher
+    assert "stage8.sqlite3" not in launcher

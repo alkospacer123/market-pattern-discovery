@@ -2,7 +2,6 @@ param([string]$Checkout, [string]$RuntimeRoot, [string]$Python = "py.exe")
 $ErrorActionPreference = "Stop"
 $env:FINAM_MODE = "REAL_READONLY"
 $env:NEW_ENTRIES_DISABLED = "true"
-$env:ROBOT_STATE_PATH = Join-Path $RuntimeRoot "state\stage8.sqlite3"
 $env:ROBOT_AUDIT_LOG = Join-Path $RuntimeRoot "audit\stage8.jsonl"
 Set-Location $Checkout
 $productionId = (& $Python -c "from TradingSystemLab.stage8_robot.specification import PRODUCTION_SPECIFICATION_ID,load_frozen_specification; s=load_frozen_specification(); assert s.production_id == PRODUCTION_SPECIFICATION_ID; print(PRODUCTION_SPECIFICATION_ID)")

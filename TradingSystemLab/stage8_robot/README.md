@@ -1,6 +1,6 @@
 # Stage 8 robot foundation
 
-**Status:** `STAGE_8_REAL_ACCOUNT_READONLY_CODE_READY` / `STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY` / `STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED` — `LIVE_TRADING_NOT_AUTHORIZED`.
+**Status:** `STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE` / `STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY` — `LIVE_TRADING_NOT_AUTHORIZED`.
 
 ## Real account read-only and margin feasibility
 
@@ -114,8 +114,35 @@ of successful cycle, H1, or expected-H1 state. Recovery returned `HEALTHY` /
 remained disabled, and the Scheduled Task remained Disabled. The runtime JSON
 and real FINAM market responses remain outside Git.
 
-**NEXT: Stage 8.8.6 SQLite backup / recovery / reconciliation validation.** It
-is not started and does not authorize LIVE trading or real order transmission.
+### Stage 8.8.6 SQLite recovery boundary
+
+The canonical supervisor database is only
+`<runtime>/state/readonly-supervisor.sqlite3`. Create a recovery unit without
+choosing a database path:
+
+`python -m TradingSystemLab.stage8_robot.backup_state --runtime-root <runtime>`
+
+The command uses SQLite online backup (never a live filesystem copy), verifies
+source and destination integrity, and atomically publishes a sanitized manifest
+containing the schema ID, frozen production specification ID, UTC timestamp,
+backup filename and SHA-256. Retention prunes database/manifest pairs together.
+
+With the supervisor stopped, restore a listed recovery point using:
+
+`python -m TradingSystemLab.stage8_robot.restore_state --runtime-root <runtime> --backup-filename <filename>`
+
+Recovery rejects absent, tampered, malformed, wrong-production and wrong-schema
+inputs; acquires `state/stage8-readonly.lock`; builds a validated temporary
+database in `state`; removes stale WAL/SHM sidecars; and atomically replaces the
+canonical database. It preserves the selected recovery point exactly and does
+not invent newer H1 or reconciliation state.
+
+Status is
+`STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE`. Repository
+tests use synthetic SQLite data only. **NEXT: after merge and independent audit,
+perform physical Intel backup/restore and start the unchanged REAL_READONLY
+supervisor for normal safety reconciliation.** Restore alone is not acceptance
+and does not authorize LIVE trading or real order transmission.
 
 ## Boundaries and startup
 

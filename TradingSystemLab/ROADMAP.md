@@ -181,10 +181,16 @@ stayed Disabled. Runtime JSON and real market responses remain outside Git.
 
 ## Current operational gate
 
-**NEXT: Stage 8.8.6 SQLite backup / recovery / reconciliation validation.**
+Stage 8.8.6 repository status:
+`STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE`.
 
-Stage 8.8.6 is not started. Its future validation must not enable real order
-transmission.
+The canonical REAL_READONLY database now has fail-closed online backup,
+production-ID/checksum manifests, paired retention, strict schema validation,
+lifetime-lock exclusion, and atomic recovery with stale WAL/SHM removal.
+
+**NEXT: real Intel backup / restore / normal supervisor reconciliation
+acceptance after merge and independent audit.** Synthetic repository validation
+does not complete this gate and must not enable real order transmission.
 
 ## Later Stage 8 gates
 
@@ -207,7 +213,8 @@ Do not bypass these gates.
 
 ## Current handoff
 
-Stage 7 is frozen. Stage 8.8.5 is complete.
+Stage 7 is frozen. Stage 8.8.5 is complete. Stage 8.8.6 code is ready but its
+physical Intel acceptance is pending.
 
-**Proceed only with Stage 8.8.6 SQLite backup / recovery / reconciliation
-validation in REAL_READONLY. LIVE remains blocked.**
+**Proceed only with Stage 8.8.6 physical Intel backup / recovery / normal
+reconciliation acceptance in REAL_READONLY. LIVE remains blocked.**
