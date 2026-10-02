@@ -136,6 +136,12 @@ def audit(write_result=True):
     check("STAGE8_9_REPORT_REPOSITORY_OUTPUT_FORBIDDEN" in funding_diagnostic
           and "REPOSITORY_ROOT in destination.parents" in funding_diagnostic,
           "STAGE_8_9_EXTERNAL_REPORT_CANNOT_ENTER_REPOSITORY")
+    run_path_tests=subprocess.run(
+        [sys.executable,"-m","pytest","-q",
+         "TradingSystemLab/stage8_robot/tests/test_funding_margin_diagnostic.py","-k","run_"],
+        cwd=ROOT,capture_output=True,text=True)
+    check(run_path_tests.returncode==0,
+          "STAGE_8_9_SYNTHETIC_RUN_PATH_FAIL_CLOSED_INTEGRATION")
     check("Stage 8.10" in closeout_docs and "PENDING / NOT AUTHORIZED" in closeout_docs
           and "LIVE_TRADING_NOT_AUTHORIZED" in readme,
           "STAGE_8_10_AND_LIVE_UNAUTHORIZED")
