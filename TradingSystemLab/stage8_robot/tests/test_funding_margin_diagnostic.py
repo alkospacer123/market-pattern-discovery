@@ -1,12 +1,14 @@
 from copy import deepcopy
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+import json
 from pathlib import Path
 
 import pytest
 
 from TradingSystemLab.stage8_robot.funding_margin_diagnostic import (
-    READY, evaluate, load_production_registry)
-from TradingSystemLab.stage8_robot.instrument_resolver import N4
+    READY, evaluate, load_production_registry, run)
+from TradingSystemLab.stage8_robot.instrument_resolver import MOEX_REFERENCE, N4
 from TradingSystemLab.stage8_robot.specification import PRODUCTION_SPECIFICATION_ID
 
 
@@ -190,3 +192,163 @@ def test_diagnostic_source_has_no_order_capable_api_attribute_calls():
     called={node.func.attr for node in ast.walk(ast.parse(source))
             if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)}
     assert called.isdisjoint({"place_order","submit_order","cancel_order","modify_order"})
+
+
+class FakeReadonlyAPI:
+    """Deterministic FINAM-shaped read-only API used only by run-path tests."""
+
+    ORDER_CAPABLE = {"place_order", "submit_order", "cancel_order", "modify_order"}
+
+    def __init__(self):
+        self.calls = []
+        self.details = {"readonly": True, "account_ids": ["synthetic-account"]}
+        self.account_payload = {
+            "type": "UNION", "status": "ACCOUNT_ACTIVE", "positions": [],
+            "portfolio_forts": {"available_cash": {"value": "100000"},
+                                "money_reserved": {"value": "250"}},
+            "equity": {"value": "100000"},
+        }
+        self.orders_payload = {"orders": []}
+        registry = load_production_registry()
+        self.catalog = [{"ticker": code, "symbol": row["finam_symbol"],
+                         "mic": row["mic"], "id": row["security_id"],
+                         "type": "FUTURES", "is_archived": False}
+                        for code, row in registry.items()]
+        self.params = {
+            row["finam_symbol"]: {
+                "is_tradable": True, "trade_lot_size": "1",
+                "long_initial_margin": money("100"),
+                "short_initial_margin": money("110"),
+            } for row in registry.values()
+        }
+        self.account_assets = {}
+        for code, row in registry.items():
+            step, _, contract_size = MOEX_REFERENCE[code]
+            self.account_assets[row["finam_symbol"]] = {
+                "ticker": code, "symbol": row["finam_symbol"], "mic": row["mic"],
+                "id": row["security_id"], "type": "FUTURES", "quote_currency": "RUB",
+                "decimals": 0, "min_step": str(step),
+                "lot_size": {"value": str(contract_size)},
+                "future_details": {"contract_size": {"value": str(contract_size)}},
+            }
+
+    def _record(self, name):
+        self.calls.append(name)
+
+    def create_session(self): self._record("create_session"); return {}
+    def session_details(self): self._record("session_details"); return deepcopy(self.details)
+    def account(self, account_id): self._record("account"); return deepcopy(self.account_payload)
+    def orders(self, account_id): self._record("orders"); return deepcopy(self.orders_payload)
+    def assets_all_active(self): self._record("assets_all_active"); return deepcopy(self.catalog)
+    def asset_params(self, symbol, account_id):
+        self._record("asset_params"); return deepcopy(self.params[symbol])
+    def asset(self, symbol, account_id):
+        self._record("asset"); return deepcopy(self.account_assets[symbol])
+    def schedule(self, symbol):
+        self._record("schedule")
+        now = datetime.now(timezone.utc)
+        start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        return {"sessions": [{"type": "CORE_TRADING", "interval": {
+            "start_time": start.isoformat(), "end_time": (start+timedelta(days=1)).isoformat()}}]}
+    def bars(self, symbol, start, end):
+        self._record("bars")
+        opened = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)-timedelta(hours=1)
+        return {"bars": [{"timestamp": opened.isoformat(), "close": "100"}]}
+
+
+def run_report(tmp_path, api):
+    path = tmp_path / "stage8-9-synthetic-report.json"
+    report = run(api, "synthetic-account", path)
+    assert path.is_file()
+    assert json.loads(path.read_text()) == report
+    serialized = path.read_text()
+    assert "synthetic-account" not in serialized
+    assert "secret" not in serialized.lower()
+    assert "jwt" not in serialized.lower()
+    assert set(api.calls).isdisjoint(FakeReadonlyAPI.ORDER_CAPABLE)
+    return report
+
+
+def assert_no_market_collection(api):
+    assert set(api.calls).isdisjoint({"assets_all_active", "asset_params", "schedule", "asset", "bars"})
+
+
+def test_run_clean_account_validates_and_writes_sanitized_external_report(tmp_path):
+    api = FakeReadonlyAPI()
+    report = run_report(tmp_path, api)
+    assert report["funding_classification"] == READY
+    assert api.calls[:5] == ["create_session", "session_details", "account", "orders",
+                             "assets_all_active"]
+    assert api.calls.count("bars") == len(N4)
+
+
+def test_run_non_readonly_stops_before_account_or_market_collection(tmp_path):
+    api = FakeReadonlyAPI(); api.details["readonly"] = False
+    report = run_report(tmp_path, api)
+    assert report["funding_classification"] == "BLOCKED_SAFETY_PREREQUISITE"
+    assert report["reason_code"] == "TOKEN_NOT_READONLY"
+    assert api.calls == ["create_session", "session_details"]
+
+
+def test_run_unenumerated_account_stops_before_account_collection(tmp_path):
+    api = FakeReadonlyAPI(); api.details["account_ids"] = ["different-account"]
+    report = run_report(tmp_path, api)
+    assert report["reason_code"] == "ACCOUNT_NOT_ENUMERATED"
+    assert api.calls == ["create_session", "session_details"]
+
+
+def test_run_inactive_account_stops_before_orders_or_market_collection(tmp_path):
+    api = FakeReadonlyAPI(); api.account_payload["status"] = "ACCOUNT_INACTIVE"
+    report = run_report(tmp_path, api)
+    assert report["funding_classification"] == "BLOCKED_ACCOUNT_INACTIVE"
+    assert api.calls == ["create_session", "session_details", "account"]
+    assert_no_market_collection(api)
+
+
+@pytest.mark.parametrize("dirty", ["positions", "orders"])
+def test_run_dirty_account_stops_before_market_and_sizing_collection(tmp_path, dirty):
+    api = FakeReadonlyAPI()
+    if dirty == "positions": api.account_payload["positions"] = [{"position": "redacted"}]
+    else: api.orders_payload["orders"] = [{"order": "redacted"}]
+    report = run_report(tmp_path, api)
+    assert report["funding_classification"] == "BLOCKED_ACCOUNT_NOT_CLEAN"
+    assert api.calls == ["create_session", "session_details", "account", "orders"]
+    assert_no_market_collection(api)
+
+
+@pytest.mark.parametrize("trade_lot_size", [None, "invalid"])
+def test_run_invalid_trade_lot_blocks_binding_without_h1_or_decimal_exception(
+        tmp_path, trade_lot_size):
+    api = FakeReadonlyAPI(); first = api.catalog[0]["symbol"]
+    api.params[first]["trade_lot_size"] = trade_lot_size
+    report = run_report(tmp_path, api)
+    assert report["funding_classification"] == "BLOCKED_N4_AUTHORITY_INVALID"
+    assert report["reason_code"] == "PRODUCTION_REGISTRY_BINDING_MISMATCH"
+    assert api.calls.count("bars") == len(N4)-1
+
+
+@pytest.mark.parametrize("field,value", [
+    ("id", "999999"), ("mic", "MISX"), ("ticker", "WRONG")])
+def test_run_frozen_identity_mismatch_writes_sanitized_n4_blocker(
+        tmp_path, field, value):
+    api = FakeReadonlyAPI(); first = api.catalog[0]["symbol"]
+    api.account_assets[first][field] = value
+    report = run_report(tmp_path, api)
+    assert report["funding_classification"] == "BLOCKED_N4_AUTHORITY_INVALID"
+    assert report["reason_code"] == "PRODUCTION_REGISTRY_BINDING_MISMATCH"
+    assert api.calls.count("bars") == len(N4)-1
+
+
+def test_run_missing_forts_writes_financials_unavailable_report(tmp_path):
+    api = FakeReadonlyAPI(); api.account_payload.pop("portfolio_forts")
+    report = run_report(tmp_path, api)
+    assert report["funding_classification"] == "BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE"
+    assert report["reason_code"] == "FORTS_PORTFOLIO_MISSING"
+
+
+def test_run_malformed_directional_margin_writes_blocked_report(tmp_path):
+    api = FakeReadonlyAPI(); first = api.catalog[0]["symbol"]
+    api.params[first]["long_initial_margin"] = {"bad": "shape"}
+    report = run_report(tmp_path, api)
+    assert report["funding_classification"] == "BLOCKED_DIRECTIONAL_MARGIN_INVALID"
+    assert report["reason_code"] == "MALFORMED_MONEY"

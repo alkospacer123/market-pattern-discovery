@@ -18,7 +18,7 @@ from .instrument_resolver import MOEX_REFERENCE, N4, discover_finam_asset, valid
 from .margin import (AVAILABLE_CASH_SEMANTICS, MarginBatchBudget,
                      cap_r15_by_margin, directional_initial_margin, forts_funds,
                      parse_rest_decimal_value_object)
-from .readonly_supervisor import trading_h1_windows
+from .readonly_supervisor import SafetyFault, trading_h1_windows
 from .risk import ContractEconomics, size_position
 from .specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID
 
@@ -48,13 +48,12 @@ def load_production_registry(path: Path = PRODUCTION_REGISTRY_PATH) -> dict[str,
     return {row["research_symbol"]: row for row in rows}
 
 
-def _registry_matches_frozen_authority(production_registry: dict, live_registry: dict) -> bool:
-    if set(production_registry) != set(N4) or set(live_registry) != set(N4):
+def _frozen_registry_valid(production_registry: dict) -> bool:
+    if set(production_registry) != set(N4):
         return False
     for code in N4:
         frozen = production_registry.get(code)
-        live = live_registry.get(code)
-        if not isinstance(frozen, dict) or not isinstance(live, dict):
+        if not isinstance(frozen, dict):
             return False
         finam_symbol, mic, security_id = FROZEN_N4_IDENTITIES[code]
         if (frozen.get("research_symbol") != code
@@ -63,6 +62,17 @@ def _registry_matches_frozen_authority(production_registry: dict, live_registry:
                 or frozen.get("security_id") != security_id
                 or frozen.get("binding_status") != "AUTHENTICATED_REAL_READONLY"
                 or frozen.get("trading_status") != "TRADABLE"):
+            return False
+    return True
+
+
+def _registry_matches_frozen_authority(production_registry: dict, live_registry: dict) -> bool:
+    if not _frozen_registry_valid(production_registry) or set(live_registry) != set(N4):
+        return False
+    for code in N4:
+        frozen = production_registry[code]
+        live = live_registry.get(code)
+        if not isinstance(live, dict):
             return False
         if (live.get("research_symbol") != frozen["research_symbol"]
                 or live.get("finam_symbol") != frozen["finam_symbol"]
@@ -167,53 +177,93 @@ def evaluate(*, account: dict, orders: object, details: dict, account_id: str,
 
 
 def run(api, account_id: str, report_path: Path) -> dict:
-    """Fetch only GET/session authorities, evaluate them, and write external JSON."""
+    """Fetch only GET/session authorities, evaluate them, and write external JSON.
+
+    Collection is deliberately staged.  Each session/account safety gate is
+    evaluated before the next (more privileged) read is made, and a binding
+    that fails validation is never used as sizing evidence.
+    """
     destination = report_path.expanduser().resolve()
     if destination == REPOSITORY_ROOT or REPOSITORY_ROOT in destination.parents:
         raise RuntimeError("STAGE8_9_REPORT_REPOSITORY_OUTPUT_FORBIDDEN")
     production_registry = load_production_registry()
-    api.create_session(); details = api.session_details()
-    account = api.account(account_id); orders = api.orders(account_id)
+
+    def finish(*, account: dict, orders: object, details: dict,
+               registry: dict | None = None, params: dict | None = None,
+               sizing: dict | None = None, timestamp: str | None = None) -> dict:
+        report = evaluate(account=account, orders=orders, details=details,
+                          account_id=account_id,
+                          production_id=PRODUCTION_SPECIFICATION_ID,
+                          registry=registry or {},
+                          production_registry=production_registry,
+                          params=params or {}, sizing=sizing or {},
+                          timestamp=timestamp or datetime.now(timezone.utc).isoformat())
+        destination.write_text(json.dumps(report, indent=2, sort_keys=True)+"\n",
+                               encoding="utf-8")
+        return report
+
+    api.create_session()
+    details = api.session_details()
+    if not isinstance(details, dict):
+        details = {}
+    # Session authority precedes every account-bound request.
+    if (details.get("readonly") is not True
+            or account_id not in {str(value) for value in details.get("account_ids", [])}):
+        return finish(account={}, orders=[], details=details)
+
+    account = api.account(account_id)
+    # Do not even enumerate orders for an account whose status is not accepted.
+    if (not isinstance(account, dict)
+            or account.get("status") not in ACTIVE_ACCOUNT_STATUSES):
+        return finish(account=account if isinstance(account, dict) else {},
+                      orders=[], details=details)
+
+    orders = api.orders(account_id)
     positions = account.get("positions") if isinstance(account, dict) else None
     active_orders = orders.get("orders") if isinstance(orders, dict) else orders
     if (not isinstance(positions, list) or not isinstance(active_orders, list)
-            or positions or active_orders or details.get("readonly") is not True):
-        report = evaluate(account=account, orders=orders, details=details, account_id=account_id,
-                          production_id=PRODUCTION_SPECIFICATION_ID, registry={},
-                          production_registry=production_registry, params={}, sizing={},
-                          timestamp=datetime.now(timezone.utc).isoformat())
-        destination.write_text(json.dumps(report, indent=2, sort_keys=True)+"\n", encoding="utf-8")
-        return report
+            or positions or active_orders):
+        return finish(account=account, orders=orders, details=details)
+    if not _frozen_registry_valid(production_registry):
+        return finish(account=account, orders=orders, details=details)
+
     assets = api.assets_all_active(); registry = {}; params = {}; sizing = {}
     now = datetime.now(timezone.utc)
     for code in N4:
         asset, reason = discover_finam_asset(code, assets)
         if reason: registry[code] = {"status": reason}; continue
-        symbol = asset["symbol"]; item = api.asset_params(symbol, account_id)
-        binding = validate_finam_binding(code, asset, item, api.schedule(symbol),
+        symbol = asset["symbol"]
+        item = api.asset_params(symbol, account_id)
+        schedule = api.schedule(symbol)
+        binding = validate_finam_binding(code, asset, item, schedule,
                                          api.asset(symbol, account_id)).to_dict()
         if binding["status"].startswith("AUTHENTICATED_"):
             binding["status"] = "AUTHENTICATED_REAL_READONLY"
         registry[code] = binding; params[code] = item
+        # Invalid identity/params/schedule evidence is retained for the exact
+        # frozen-authority comparison, but must never flow into H1 or sizing.
+        if binding["status"] != "AUTHENTICATED_REAL_READONLY":
+            continue
         raw = api.bars(symbol, (now - timedelta(days=2)).isoformat(), now.isoformat())
-        bars = completed_h1_bars(raw, now, trading_h1_windows(api.schedule(symbol)))
+        try:
+            bars = completed_h1_bars(raw, now, trading_h1_windows(schedule))
+        except (SafetyFault, TypeError, ValueError):
+            # ``evaluate`` owns the sanitized missing/invalid sizing result.
+            continue
         if bars:
-            step, tick, _ = MOEX_REFERENCE[code]; entry = Decimal(str(bars[-1]["close"])); stop = entry-step*10
-            lot = int(Decimal(binding["trade_lot_size"]))
             try:
+                step, tick, _ = MOEX_REFERENCE[code]
+                entry = Decimal(str(bars[-1]["close"])); stop = entry-step*10
+                lot = int(Decimal(binding["trade_lot_size"]))
                 equity = parse_rest_decimal_value_object(account.get("equity"), positive=True)
                 r15 = size_position(equity, entry, stop, ContractEconomics(step, tick, lot, True))
                 sizing[code] = {"entry": entry, "stop": stop, "price_step": step,
                                 "tick_value": tick, "trade_lot_size": lot, "r15_quantity": r15.quantity}
-            except ValueError:
+            except (KeyError, TypeError, ValueError):
                 # ``evaluate`` owns the sanitized equity classification.
                 pass
-    report = evaluate(account=account, orders=orders, details=details, account_id=account_id,
-                      production_id=PRODUCTION_SPECIFICATION_ID, registry=registry,
-                      production_registry=production_registry, params=params,
-                      sizing=sizing, timestamp=now.isoformat())
-    destination.write_text(json.dumps(report, indent=2, sort_keys=True)+"\n", encoding="utf-8")
-    return report
+    return finish(account=account, orders=orders, details=details, registry=registry,
+                  params=params, sizing=sizing, timestamp=now.isoformat())
 
 
 def main() -> None:
