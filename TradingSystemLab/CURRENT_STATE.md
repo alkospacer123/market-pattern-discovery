@@ -6,12 +6,13 @@ TradingSystemLab has completed Stage 7 Production Specification Freeze and is
 actively in **Stage 8 Robot / FINAM integration**, currently through
 **Stage 8.8.5 stale-data protection code readiness**.
 
-Current `main`: `4d8807d5b97f660bd4558e7a35660567829a51f6`.
+Resolve the current Git `main` SHA directly from GitHub during every independent
+audit; this versioned file is not authoritative for a moving branch SHA.
 
 Current Stage 8 repository audit state:
 
 - `stage8_status`: `STAGE_8_8_5_STALE_DATA_PROTECTION_CODE_READY_PENDING_INTEL_FAULT_INJECTION`;
-- Stage 8 independent repository audit: PASS, 91 checks, zero recorded errors;
+- Stage 8 independent repository audit: PASS, 111 checks, zero recorded errors;
 - LIVE trading: **NOT AUTHORIZED**;
 - real order transmission: **NOT AUTHORIZED**.
 
