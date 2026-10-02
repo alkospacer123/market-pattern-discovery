@@ -97,6 +97,30 @@ def test_operational_hardening_completion_regression_fails():
     assert "STAGE_8_8_OPERATIONAL_HARDENING_COMPLETE" in result["errors"]
 
 
+def test_individual_stage_lifecycle_regression_fails():
+    paths = (
+        "TradingSystemLab/CURRENT_STATE.md",
+        "TradingSystemLab/ROADMAP.md",
+        "TradingSystemLab/stage8_robot/README.md",
+    )
+    overrides = {
+        path: source(path).replace("8.8.2,", "8.8.2 (INCOMPLETE),")
+        for path in paths
+    }
+
+    assert all(final.HARDENING_COMPLETE in doc for doc in overrides.values())
+    assert all(
+        "8.8.5, 8.8.6, and 8.8.7 are COMPLETE." in " ".join(doc.split())
+        for doc in overrides.values()
+    )
+    assert all("Stage 8.9 has not started" in doc for doc in overrides.values())
+
+    result = run_audit(overrides)
+    assert result["status"] == "FAIL"
+    assert "STAGE_8_8_1_THROUGH_8_8_7_COMPLETE" in result["errors"]
+    assert "STAGE_8_8_OPERATIONAL_HARDENING_COMPLETE" not in result["errors"]
+
+
 def test_tracked_runtime_and_raw_acceptance_artifacts_fail():
     forbidden = [
         "state/live.sqlite3", "state/live.sqlite3-wal", "state/live.sqlite3-shm",

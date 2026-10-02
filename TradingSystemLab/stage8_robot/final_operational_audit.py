@@ -21,6 +21,9 @@ SPEC_ID = "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA
 IDENTITY = "TRAIL1__N4_01__FULL__R15"
 COMPLETE_STATUS = "STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_INTEL_ACCEPTANCE_COMPLETE"
 HARDENING_COMPLETE = "Stage 8.8 operational hardening is COMPLETE."
+INDIVIDUAL_STAGES_COMPLETE = (
+    "Stages 8.8.1, 8.8.2, 8.8.3, 8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE."
+)
 STAGE_8_8_5_STATUS = "STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE"
 STAGE_8_8_6_STATUS = "STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE"
 STAGE_8_8_5_SOURCE = "1c1c2bb5458827f200bc753e7e64db0272b33a8f"
@@ -119,6 +122,7 @@ def audit(
 
     docs_paths = ["TradingSystemLab/CURRENT_STATE.md", "TradingSystemLab/ROADMAP.md", "TradingSystemLab/stage8_robot/README.md"]
     docs = [text(path) for path in docs_paths]
+    normalized_docs = [" ".join(doc.split()) for doc in docs]
     joined_docs = "\n".join(docs)
     spec = json.loads(text("TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/production_specification.json"))
     conformance = json.loads(text("TradingSystemLab/stage8_robot/conformance_report.json"))
@@ -145,6 +149,10 @@ def audit(
     check(stage8_result.get("live_trading_activated") is False, "STAGE8_LIVE_FALSE")
 
     check(all(HARDENING_COMPLETE in doc for doc in docs), "STAGE_8_8_OPERATIONAL_HARDENING_COMPLETE")
+    check(
+        all(INDIVIDUAL_STAGES_COMPLETE in doc for doc in normalized_docs),
+        "STAGE_8_8_1_THROUGH_8_8_7_COMPLETE",
+    )
     check(all(STAGE_8_8_5_STATUS in doc for doc in docs), "STAGE_8_8_5_COMPLETE_SYNCHRONIZED")
     check(all(STAGE_8_8_5_SOURCE in doc and STAGE_8_8_5_EVIDENCE in doc for doc in docs), "STAGE_8_8_5_PROVENANCE_SYNCHRONIZED")
     check(all(STAGE_8_8_6_STATUS in doc for doc in docs), "STAGE_8_8_6_COMPLETE_SYNCHRONIZED")
