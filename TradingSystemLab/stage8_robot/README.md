@@ -134,8 +134,12 @@ With the supervisor stopped, restore a listed recovery point using:
 Recovery rejects absent, tampered, malformed, wrong-production and wrong-schema
 inputs; acquires `state/stage8-readonly.lock`; builds a validated temporary
 database in `state`; removes stale WAL/SHM sidecars; and atomically replaces the
-canonical database. It preserves the selected recovery point exactly and does
-not invent newer H1 or reconciliation state.
+canonical database. Before that commit it quarantines the complete old
+database/WAL/SHM set in internal-only rollback paths. A failed replacement or
+final validation restores that set; only a validated commit discards it, so an
+old WAL cannot replay over the selected recovery point. It preserves the
+selected recovery point exactly and does not invent newer H1 or reconciliation
+state.
 
 Status is
 `STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE`. Repository

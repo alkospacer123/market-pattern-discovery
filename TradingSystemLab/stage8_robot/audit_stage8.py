@@ -113,9 +113,31 @@ def audit(write_result=True):
     check("InstanceLock" in restore and "stage8-readonly.lock" in restore
           and "SQLITE_RECOVERY_SUPERVISOR_RUNNING" in restore,
           "RECOVERY_LIFETIME_LOCK_EXCLUSION")
-    check("sqlite_backup(backup, temporary)" in restore and "os.replace(temporary, target)" in restore
-          and all(suffix in restore for suffix in ('"-wal"', '"-shm"')),
-          "RECOVERY_VALIDATED_TEMP_ATOMIC_REPLACE_WITH_SIDECAR_REMOVAL")
+    restore_tree=ast.parse(restore)
+    restore_function=next(node for node in restore_tree.body
+                          if isinstance(node,ast.FunctionDef) and node.name=="restore_production_state")
+    rollback_try=next((node for node in ast.walk(restore_function)
+                       if isinstance(node,ast.Try)
+                       and any(isinstance(call,ast.Call) and isinstance(call.func,ast.Attribute)
+                               and call.func.attr=="replace" for call in ast.walk(node))),None)
+    rollback_source=ast.unparse(rollback_try) if rollback_try is not None else ""
+    quarantine_line=next((call.lineno for call in ast.walk(restore_function)
+                          if isinstance(call,ast.Call) and ast.unparse(call)=="os.replace(original, quarantine)"),0)
+    early_target_unlink=any(call.lineno<quarantine_line and isinstance(call.func,ast.Attribute)
+                            and call.func.attr=="unlink" and "target" in ast.unparse(call.func.value)
+                            for call in ast.walk(restore_function) if isinstance(call,ast.Call))
+    check(rollback_try is not None
+          and "for original, quarantine in zip(originals, quarantines)" in rollback_source
+          and "os.replace(original, quarantine)" in rollback_source
+          and "os.replace(temporary, target)" in rollback_source
+          and "validate_operational_schema(target)" in rollback_source
+          and "for original, quarantine in reversed(moved)" in rollback_source
+          and rollback_source.index("os.replace(original, quarantine)")
+              < rollback_source.index("os.replace(temporary, target)")
+              < rollback_source.index("validate_operational_schema(target)")
+          and quarantine_line and not early_target_unlink
+          and "ROLLBACK_BASENAME" in restore and "ROLLBACK_MATERIAL_PRESENT" in restore,
+          "RECOVERY_QUARANTINE_COMMIT_VALIDATION_ROLLBACK_INVARIANT")
     recovery_calls=set()
     for recovery_source in (operations,backup,restore):
         recovery_calls.update(node.func.attr for node in ast.walk(ast.parse(recovery_source))
