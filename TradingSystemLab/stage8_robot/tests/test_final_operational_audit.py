@@ -66,6 +66,24 @@ def test_missing_stage_8_8_6_evidence_sha_fails():
     assert "STAGE_8_8_6_PROVENANCE_SYNCHRONIZED" in result["errors"]
 
 
+def test_prior_lifecycle_completion_regression_fails():
+    replacement = (
+        "Stage 8.8.1 and Stage 8.8.3 through Stage 8.8.6 are complete; "
+        "Stage 8.8.2 is not complete."
+    )
+    overrides = {
+        path: source(path).replace(final.PRIOR_LIFECYCLE_COMPLETE, replacement)
+        for path in (
+            "TradingSystemLab/CURRENT_STATE.md",
+            "TradingSystemLab/ROADMAP.md",
+            "TradingSystemLab/stage8_robot/README.md",
+        )
+    }
+    result = run_audit(overrides)
+    assert result["status"] == "FAIL"
+    assert "STAGE_8_8_1_THROUGH_8_8_6_COMPLETE" in result["errors"]
+
+
 def test_tracked_runtime_and_raw_acceptance_artifacts_fail():
     forbidden = [
         "state/live.sqlite3", "state/live.sqlite3-wal", "state/live.sqlite3-shm",
