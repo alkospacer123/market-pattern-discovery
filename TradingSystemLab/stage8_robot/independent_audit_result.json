@@ -1,5 +1,5 @@
 {
-  "checks": 166,
+  "checks": 172,
   "deployment_status": "STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED",
   "enumerated_account_count": 1,
   "errors": [],
@@ -11,9 +11,11 @@
   "margin_status": "STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY",
   "order_count": 0,
   "order_endpoint_called": false,
+  "order_path_validation_performed": false,
   "physical_provisioning_performed": true,
   "physical_validation_performed": true,
   "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+  "readonly_token_readonly_observed": false,
   "real_order_transmission_authorized": false,
   "stage8_10_1_status": "STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE",
   "stage8_10_2_accepted_code_commit": "f0c271e428c05ee0ff67b7941e342c06b48a42a0",
@@ -24,7 +26,8 @@
   "stage8_10_3_external_evidence_sha256": "0DA102E61AB06FFA6A508CC64203FEA3F56BBA3016891A887688A4E300E11BB6",
   "stage8_10_3_physical_result": "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_PASS",
   "stage8_10_3_status": "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE",
-  "stage8_10_4_status": "NOT_STARTED",
+  "stage8_10_4_physical_validation_performed": false,
+  "stage8_10_4_status": "STAGE_8_10_4_PERMISSION_BOUNDARY_CODE_READY_PENDING_PHYSICAL_VALIDATION",
   "stage8_10_5_through_8_status": "NOT_STARTED",
   "stage8_10_status": "IN_PROGRESS",
   "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
@@ -45,7 +48,9 @@
   "stage8_9_zero_capacity_case_count": 4,
   "stage8_status": "STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE",
   "status": "PASS",
+  "token_permission_boundary_validated": false,
   "trading_session_created": true,
   "trading_token_provisioned": true,
+  "trading_token_readonly_false_observed": false,
   "trading_token_used": true
 }
