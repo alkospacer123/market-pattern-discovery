@@ -181,15 +181,23 @@ def test_stage_8_10_5_machine_authority_mutations_fail_independent_audit():
     path = ROOT / "TradingSystemLab/stage8_robot/authority_provenance.json"
     authority = json.loads(path.read_text())
     mutations = [
-        ("status", "COMPLETE"), ("status", "NOT_STARTED"),
-        ("physical_validation_performed", True),
-        ("offline_dry_validation_performed", True),
-        ("order_path_dry_validation_validated", True),
-        ("real_order_endpoint_called", True), ("real_order_count", 1),
-        ("external_network_calls", 1),
-        ("trading_token_used_for_stage8_10_5", True),
+        ("status", "STAGE_8_10_5_ORDER_PATH_DRY_VALIDATION_CODE_READY_PENDING_PHYSICAL_VALIDATION"),
+        ("status", "NOT_STARTED"), ("accepted_code_commit", "changed"),
+        ("external_evidence_sha256", "changed"), ("physical_result", "changed"),
+        ("physical_validation_performed", False), ("offline_dry_validation_performed", False),
+        ("order_path_dry_validation_validated", False), ("mode", "changed"),
+        ("frozen_n4_symbol_count", 3), ("broker_payload_case_count", 15),
+        ("broker_payload_validation", "FAIL"), ("client_order_id_validation", "FAIL"),
+        ("market_order_type", "LIMIT"), ("transport_serialization_validation", "FAIL"),
+        ("synthetic_order_post_constructed", False), ("synthetic_order_post_count", 2),
+        ("uncertain_submission_validation", "FAIL"),
+        ("uncertain_submission_order_post_count", 2), ("automatic_order_post_retry_count", 1),
+        ("external_network_calls", 1), ("real_account_id_used", True),
         ("readonly_token_used_for_stage8_10_5", True),
+        ("trading_token_used_for_stage8_10_5", True),
         ("finam_authentication_performed_for_stage8_10_5", True),
+        ("real_order_endpoint_called", True), ("real_order_count", 1),
+        ("live_trading_authorized", True), ("real_order_transmission_authorized", True),
         ("stage8_10_status", "COMPLETE"), ("stage8_10_6_status", "STARTED"),
         ("stage8_10_7_through_8_status", "STARTED"),
         ("stage8_11_status", "AUTHORIZED"), ("stage8_12_status", "AUTHORIZED"),
@@ -409,8 +417,8 @@ def test_false_permission_and_real_order_claims_fail():
     path = "TradingSystemLab/CURRENT_STATE.md"
     accepted = run_audit({path: source(path) + "\n\nToken permission boundary validation occurred.\n"})
     assert "STAGE_8_10_FALSE_AUTHORIZATION_OR_TOKEN_CLAIM" not in accepted["errors"]
-    for claim in ("Order-path validation occurred.",
-                  "Order permission was validated.",
+    for claim in ("Broker acceptance was validated.",
+                  "FINAM server accepted an order.",
                   "Real-order transmission is authorized."):
         result = run_audit({path: source(path) + "\n\n" + claim + "\n"})
         assert "STAGE_8_10_FALSE_AUTHORIZATION_OR_TOKEN_CLAIM" in result["errors"]

@@ -45,7 +45,7 @@ STAGE_8_10_2_EVIDENCE = "E5FEA93CE28006BC5ADA19F1AA1C1C365FF7CF4BE48A5A1B8BC8C55
 STAGE_8_10_2_RESULT = "STAGE_8_10_2_PHYSICAL_SECURE_PROVISIONING_LOCAL_PASS"
 STAGE_8_10_3_STATUS = "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE"
 STAGE_8_10_4_STATUS = "STAGE_8_10_4_PERMISSION_BOUNDARY_COMPLETE"
-STAGE_8_10_5_STATUS = "STAGE_8_10_5_ORDER_PATH_DRY_VALIDATION_CODE_READY_PENDING_PHYSICAL_VALIDATION"
+STAGE_8_10_5_STATUS = "STAGE_8_10_5_ORDER_PATH_DRY_VALIDATION_COMPLETE"
 STAGE_8_9_8_STATUS = "STAGE_8_9_8_COMPLETE"
 STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
 STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
@@ -427,8 +427,27 @@ def audit(
     forbidden_permission_calls = {"orders","order","place_order","cancel_order","submit_order","account","assets","assets_all_active","asset","asset_params","schedule","bars"}
     check(not permission_calls.intersection(forbidden_permission_calls) and {"create_session","session_details"}.issubset(permission_calls), "STAGE_8_10_4_SESSION_ONLY_NO_ORDER_CAPABILITY")
     check("trading_permission_boundary" not in launcher + installer and all(term not in permission_wrapper.lower() for term in ("run-readonly","install-task","scheduledtask","runner","broker","/orders","place_order","cancel_order","submit_order")), "STAGE_8_10_4_NOT_RUNTIME_OR_TASK_WIRED")
-    check(all(STAGE_8_10_5_STATUS in doc and "Stage 8.10.5 is **CODE READY / PENDING PHYSICAL VALIDATION**" in doc for doc in stage8_9_docs), "STAGE_8_10_5_CODE_READY_SYNCHRONIZED")
-    check(dry_gate == {"status":STAGE_8_10_5_STATUS,"physical_validation_performed":False,"offline_dry_validation_performed":False,"order_path_dry_validation_validated":False,"real_order_endpoint_called":False,"real_order_count":0,"external_network_calls":0,"trading_token_used_for_stage8_10_5":False,"readonly_token_used_for_stage8_10_5":False,"finam_authentication_performed_for_stage8_10_5":False,"stage8_10_status":"IN_PROGRESS","stage8_10_6_status":"NOT_STARTED","stage8_10_7_through_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"}, "STAGE_8_10_5_MACHINE_AUTHORITY_EXACT")
+    check(all(STAGE_8_10_5_STATUS in doc and "Stage 8.10.5 is **COMPLETE**" in doc for doc in stage8_9_docs), "STAGE_8_10_5_CODE_READY_SYNCHRONIZED")
+    expected_dry_gate = {
+        "status": STAGE_8_10_5_STATUS,
+        "accepted_code_commit":"ba284e95954c8473c0e77a95172117bc5cefaf65",
+        "external_evidence_sha256":"D878309E22FA49BFFA9EE9B37200C3FE207BF77DB5C29D6DE97010F1FFCE904A",
+        "physical_result":"STAGE_8_10_5_OFFLINE_ORDER_PATH_DRY_VALIDATION_PASS",
+        "physical_validation_performed":True,"offline_dry_validation_performed":True,
+        "order_path_dry_validation_validated":True,"mode":"OFFLINE_SYNTHETIC_NO_TRANSMISSION",
+        "frozen_n4_symbol_count":4,"broker_payload_case_count":16,"broker_payload_validation":"PASS",
+        "client_order_id_validation":"PASS","market_order_type":"ORDER_TYPE_MARKET",
+        "transport_serialization_validation":"PASS","synthetic_order_post_constructed":True,
+        "synthetic_order_post_count":1,"uncertain_submission_validation":"PASS",
+        "uncertain_submission_order_post_count":1,"automatic_order_post_retry_count":0,
+        "external_network_calls":0,"real_account_id_used":False,
+        "readonly_token_used_for_stage8_10_5":False,"trading_token_used_for_stage8_10_5":False,
+        "finam_authentication_performed_for_stage8_10_5":False,"real_order_endpoint_called":False,
+        "real_order_count":0,"live_trading_authorized":False,"real_order_transmission_authorized":False,
+        "stage8_10_status":"IN_PROGRESS","stage8_10_6_status":"NOT_STARTED",
+        "stage8_10_7_through_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED",
+        "stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"}
+    check(dry_gate == expected_dry_gate, "STAGE_8_10_5_MACHINE_AUTHORITY_EXACT")
     dry_source=text("TradingSystemLab/stage8_robot/order_path_dry_validation.py").lower(); dry_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/validate-order-path-dry.ps1").lower()
     forbidden_dry = ("urlopen(","requests.","httpx.","socket.","invoke-webrequest",
                      "invoke-restmethod","curl ","wget ","credential-store",
@@ -445,7 +464,7 @@ def audit(
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")
     forbidden_claims = (
-        r"(?<!no )(?<!or )order(?:-path)? (?:permission |path )?(?:validation )?(?:occurred|was validated)",
+        r"(?:broker acceptance (?:is |was )?validated|order (?:was )?accepted|FINAM server accepted an order)",
         r"(?<!not )real-order (?:transmission|capability) is authorized",
     )
     check(not any(re.search(pattern, stage8_9_joined_docs, re.I) for pattern in forbidden_claims),
@@ -510,9 +529,12 @@ def audit(
         "token_permission_boundary_validated": True,
         "order_path_validation_performed": False,
         "stage8_10_5_status": STAGE_8_10_5_STATUS,
-        "stage8_10_5_physical_validation_performed": False,
-        "offline_dry_validation_performed": False,
-        "order_path_dry_validation_validated": False,
+        "stage8_10_5_accepted_code_commit": "ba284e95954c8473c0e77a95172117bc5cefaf65",
+        "stage8_10_5_external_evidence_sha256": "D878309E22FA49BFFA9EE9B37200C3FE207BF77DB5C29D6DE97010F1FFCE904A",
+        "stage8_10_5_physical_result": "STAGE_8_10_5_OFFLINE_ORDER_PATH_DRY_VALIDATION_PASS",
+        "stage8_10_5_physical_validation_performed": True,
+        "offline_dry_validation_performed": True,
+        "order_path_dry_validation_validated": True,
         "stage8_10_5_external_network_calls": 0,
         "real_order_endpoint_called": False, "real_order_count": 0,
         "stage8_10_6_status": "NOT_STARTED",

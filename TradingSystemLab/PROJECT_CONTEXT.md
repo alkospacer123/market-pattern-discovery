@@ -196,14 +196,14 @@ funding sufficiency. It does not authorize trading or real execution.
 - `LIVE_TRADING_NOT_AUTHORIZED` remains in force.
 - `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remains in force.
 - `NEW_ENTRIES_DISABLED` remains in force.
-- Stage 8.10 is **IN PROGRESS**; Stages 8.10.1, 8.10.2, 8.10.3, and 8.10.4 are complete; Stage 8.10.5 is code ready pending physical validation; Stages 8.10.6 through 8.10.8 are not started.
+- Stage 8.10 is **IN PROGRESS**; Stages 8.10.1 through 8.10.5 are complete; Stages 8.10.6 through 8.10.8 are not started.
 - Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**.
 - Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
 
 ## Current handoff
 
 Stage 8.9 is complete. Stage 8.10 is **IN PROGRESS** because Stage 8.10.1 and
-Stage 8.10.2 are complete. Stage 8.10.3 is **COMPLETE**. Stage 8.10.4 is **COMPLETE**. Stage 8.10.5 is CODE READY / PENDING PHYSICAL VALIDATION; physical acceptance has not occurred.
+Stage 8.10.2 are complete. Stage 8.10.3 is **COMPLETE**. Stage 8.10.4 is **COMPLETE**. Stage 8.10.5 is **COMPLETE** after accepted physical offline validation.
 
 ## Domain boundaries
 
@@ -236,7 +236,7 @@ Canonical Stage 8.10 sequence and status:
 2. Stage 8.10.2 is **COMPLETE** — Secure Provisioning.
 3. Stage 8.10.3 is **COMPLETE** — Identity / Account Binding.
 4. Stage 8.10.4 is **COMPLETE** — Permission Boundary Validation.
-5. Stage 8.10.5 is **CODE READY / PENDING PHYSICAL VALIDATION** — Order Path Dry Validation.
+5. Stage 8.10.5 is **COMPLETE** — Order Path Dry Validation.
 6. Stage 8.10.6 is **NOT STARTED** — Kill Switch / Safety Gates.
 7. Stage 8.10.7 is **NOT STARTED** — Intel Trading-Token Acceptance.
 8. Stage 8.10.8 is **NOT STARTED** — Stage 8.10 Closeout.
@@ -316,11 +316,10 @@ validation or order-path validation occurred. No order endpoint was called and
 `order_count` remains exactly 0. LIVE trading and real-order transmission remain
 unauthorized. The Scheduled Task remains Disabled.
 
-Stage 8.10.4 is **COMPLETE**. Stage 8.10.5 is
-**NOT STARTED**, Stage 8.10.6 is **NOT STARTED**, Stage 8.10.7 is **NOT
+In this historical Stage 8.10.3 snapshot, Stage 8.10.5 was
+**NOT STARTED**. In the current lifecycle, Stage 8.10.4 and Stage 8.10.5 are **COMPLETE**. Stage 8.10.6 is **NOT STARTED**, Stage 8.10.7 is **NOT
 STARTED**, and Stage 8.10.8 is **NOT STARTED**. Stage 8.11 is **NOT STARTED /
-NOT AUTHORIZED**. Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**. Stage 8.10.5 is CODE READY / PENDING PHYSICAL VALIDATION
-and requires separate explicit authorization.
+NOT AUTHORIZED**. Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**. That code-ready statement is historical; Stage 8.10.5 is now **COMPLETE**.
 
 
 ## Stage 8.10.4 permission boundary complete
@@ -342,24 +341,47 @@ Token 1; the token-level permission boundary therefore passed.
 This proves only the FINAM session-details token-level boundary. No order-path
 validation occurred, no order endpoint was called, and `order_count=0`. LIVE
 trading remains unauthorized, real-order transmission remains unauthorized, and
-the Scheduled Task remains Disabled. Stage 8.10.5 is **CODE READY / PENDING PHYSICAL VALIDATION** and needs
-separate explicit authorization. Stage 8.10.6 is **NOT STARTED**. Stage 8.10.7
+the Scheduled Task remains Disabled. Stage 8.10.5 is **COMPLETE** after accepted physical offline validation. Stage 8.10.6 is **NOT STARTED**. Stage 8.10.7
 is **NOT STARTED**. Stage 8.10.8 is **NOT STARTED**. Stage 8.10 remains **IN
 PROGRESS**. Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**. Stage 8.12 is **NOT
 STARTED / NOT AUTHORIZED**.
 
 
-## Stage 8.10.5 order-path dry-validation code-ready gate
+## Stage 8.10.5 physical offline order-path dry-validation complete
 
-Canonical status: `STAGE_8_10_5_ORDER_PATH_DRY_VALIDATION_CODE_READY_PENDING_PHYSICAL_VALIDATION`.
+Canonical status: `STAGE_8_10_5_ORDER_PATH_DRY_VALIDATION_COMPLETE`.
+Stage 8.10.5 is **COMPLETE**.
+
+Accepted code commit: `ba284e95954c8473c0e77a95172117bc5cefaf65`.
+External evidence SHA-256: `D878309E22FA49BFFA9EE9B37200C3FE207BF77DB5C29D6DE97010F1FFCE904A`.
+Physical result: `STAGE_8_10_5_OFFLINE_ORDER_PATH_DRY_VALIDATION_PASS`.
+The external `stage8_10_5_order_path_dry_validation.json` remains outside Git;
+only its digest and sanitized facts are repository authority.
+
+The physical validation used `OFFLINE_SYNTHETIC_NO_TRANSMISSION` and was fully
+offline. No FINAM credential was used, no FINAM authentication occurred, no
+external network call occurred, and no real account ID was used. All 16 frozen
+N4 broker payload cases passed, including client-order-ID and market-order
+serialization validation. One synthetic order POST was intercepted in the
+success path and one synthetic order POST was intercepted in the uncertainty
+path. The automatic order retry count was zero. The real order endpoint remained
+uncalled (`real_order_endpoint_called = false`) and `real_order_count = 0`.
+This validates only deterministic local construction and serialization through
+an in-process synthetic transport; it does not establish broker acceptance,
+execution permission, exchange acceptance, fills, cancellation, margin
+sufficiency, LIVE readiness, or production trading authorization.
 
 - Stage 8.10.1 is **COMPLETE**.
 - Stage 8.10.2 is **COMPLETE**.
 - Stage 8.10.3 is **COMPLETE**.
-- Stage 8.10.4 is **COMPLETE**. Its accepted physical authority and evidence remain unchanged.
-- Stage 8.10.5 is **CODE READY / PENDING PHYSICAL VALIDATION**; `physical_validation_performed = false`, `offline_dry_validation_performed = false`, and `order_path_dry_validation_validated = false`.
+- Stage 8.10.4 is **COMPLETE**; its historical authority is unchanged.
+- Stage 8.10.5 is **COMPLETE**.
 - Stage 8.10.6 is **NOT STARTED**. Stage 8.10.7 is **NOT STARTED**. Stage 8.10.8 is **NOT STARTED**.
 - Stage 8.10 is **IN PROGRESS**.
 - Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**. Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
 
-FINAM's `POST /v1/accounts/{account_id}/orders` is an actual placement endpoint; this gate does not send it. FINAM tutorial dry-run semantics are client-side no-send. The diagnostic uses credential-free synthetic objects and in-process request interception: no FINAM authentication, real account, external network call, or broker order occurs. `quantity=1` is only a serialization fixture; it establishes neither affordability nor sizing authority, does not replace Stage 8.9, and does not authorize Stage 8.11. The repository facts remain `real_order_endpoint_called = false`, `real_order_count = 0`, and `external_network_calls = 0`. Stage 8.11 remains the first possible real-order gate.
+Stage 8.10.6 — Kill Switch / Safety Gates is the next lifecycle gate, but it
+requires a separate explicit task and was not started here. LIVE trading and
+real-order transmission remain unauthorized, and the Scheduled Task remains
+Disabled. `LIVE_TRADING_NOT_AUTHORIZED` and
+`REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remain in force.
