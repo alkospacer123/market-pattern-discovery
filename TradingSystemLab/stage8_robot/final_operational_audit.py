@@ -116,6 +116,44 @@ def _protected_sha256(raw: bytes) -> str:
     return hashlib.sha256(canonical).hexdigest()
 
 
+def _stage8_10_document_consistency(document: str) -> tuple[bool, bool, bool]:
+    """Independently validate active handoff and chronological prose semantics."""
+    historical_labels = ("historical", "at the time", "in this historical snapshot",
+                         "subsequently", "later", "current authority is recorded below")
+    stale_next = False
+    inconsistent = False
+    for paragraph in re.split(r"\n\s*\n", document):
+        normalized = " ".join(paragraph.split())
+        lower = normalized.lower()
+        historical = any(label in lower for label in historical_labels)
+        if (re.search(r"stage 8\.10\.[1-8]\s+(?:(?:is\s+)?(?:\*\*)?complete(?:\*\*)?\s+(?:and\s+is\s+)?|is\s+(?:the\s+)?)next (?:separate )?(?:lifecycle )?gate",
+                      normalized, re.I)
+                or (re.search(r"Stage 8\.10\.8 is (?:\*\*)?COMPLETE", normalized, re.I)
+                    and "next separate lifecycle gate" in lower)
+                or (re.search(r"Stage 8\.10\.8 is (?:\*\*)?COMPLETE", normalized, re.I)
+                    and "not implemented or executed here" in lower)):
+            stale_next = True
+        earlier_not_started = re.search(
+            r"Stage 8\.10\.[1-7].{0,40}(?:\*\*)?NOT STARTED", normalized, re.I)
+        later_complete = re.search(r"Stage 8\.10\.8 is (?:\*\*)?COMPLETE", normalized, re.I)
+        active_8107 = re.search(r"Stage 8\.10\.7.{0,40}(?:\*\*)?NOT STARTED", normalized, re.I)
+        stage11_active = re.search(r"Stage 8\.11.{0,40}(?:is|=) (?:\*\*)?(?:STARTED|AUTHORIZED)", normalized, re.I)
+        if not historical and (active_8107 or stage11_active or (earlier_not_started and later_complete)):
+            inconsistent = True
+    match = re.search(r"^## Current handoff\s*$\n(.*?)(?=^## |\Z)", document, re.M | re.S)
+    handoff = match.group(1) if match else ""
+    exact = bool(match and all(token in handoff for token in (
+        "Stage 8.9 is **COMPLETE**", STAGE_8_10_COMPLETE_STATUS,
+        "Stage 8.10.1 through Stage 8.10.8 are **COMPLETE**", "`HALTED`",
+        "`execution_authorized = false`", "`real_order_endpoint_called = false`",
+        "`real_order_count = 0`", "Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**",
+        "Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**",
+        "next possible lifecycle gate is Stage 8.11", "separate explicit authorization")))
+    if match and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]", handoff, re.I):
+        stale_next = True
+    return exact, not inconsistent, not stale_next
+
+
 def _stage8_10_6_python_safe(source: str) -> bool:
     try:
         tree = ast.parse(source)
@@ -320,6 +358,10 @@ def audit(
     stage8_9_docs_paths = [*docs_paths, "TradingSystemLab/PROJECT_CONTEXT.md"]
     stage8_9_docs = [text(path) for path in stage8_9_docs_paths]
     stage8_9_joined_docs = "\n".join(stage8_9_docs)
+    document_verdicts = [_stage8_10_document_consistency(doc) for doc in stage8_9_docs]
+    check(all(verdict[0] for verdict in document_verdicts), "STAGE_8_10_CURRENT_HANDOFF_EXACT")
+    check(all(verdict[1] for verdict in document_verdicts), "STAGE_8_10_HISTORICAL_SCOPE_CONSISTENT")
+    check(all(verdict[2] for verdict in document_verdicts), "STAGE_8_10_NO_STALE_NEXT_GATE")
     spec = json.loads(text("TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/production_specification.json"))
     conformance = json.loads(text("TradingSystemLab/stage8_robot/conformance_report.json"))
     provenance = json.loads(text("TradingSystemLab/stage8_robot/authority_provenance.json"))

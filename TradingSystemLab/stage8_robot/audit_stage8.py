@@ -15,6 +15,39 @@ def csv_rows(path):
 def current_readme_status(document):
     match=re.search(r"^\*\*Status:\*\*\s+`([^`]+)`",document,re.M)
     return match.group(1) if match else None
+def _stage8_10_document_consistency(document):
+    """Return independent semantic verdicts for current and historical prose."""
+    historical_labels=("historical","at the time","in this historical snapshot",
+                       "subsequently","later","current authority is recorded below")
+    paragraphs=re.split(r"\n\s*\n",document)
+    stale_next=False; inconsistent=False
+    for paragraph in paragraphs:
+        normalized=" ".join(paragraph.split()); lower=normalized.lower()
+        historical=any(label in lower for label in historical_labels)
+        if (re.search(r"stage 8\.10\.[1-8]\s+(?:(?:is\s+)?(?:\*\*)?complete(?:\*\*)?\s+(?:and\s+is\s+)?|is\s+(?:the\s+)?)next (?:separate )?(?:lifecycle )?gate",normalized,re.I)
+                or (re.search(r"Stage 8\.10\.8 is (?:\*\*)?COMPLETE", normalized, re.I)
+                    and "next separate lifecycle gate" in lower)
+                or (re.search(r"Stage 8\.10\.8 is (?:\*\*)?COMPLETE", normalized, re.I)
+                    and "not implemented or executed here" in lower)):
+            stale_next=True
+        earlier_not_started=re.search(r"Stage 8\.10\.[1-7].{0,40}(?:\*\*)?NOT STARTED",normalized,re.I)
+        later_complete=bool(re.search(r"Stage 8\.10\.8 is (?:\*\*)?COMPLETE",normalized,re.I))
+        active_8107=bool(re.search(r"Stage 8\.10\.7.{0,40}(?:\*\*)?NOT STARTED",normalized,re.I))
+        stage11_active=bool(re.search(r"Stage 8\.11.{0,40}(?:is|=) (?:\*\*)?(?:STARTED|AUTHORIZED)",normalized,re.I))
+        if not historical and (active_8107 or stage11_active or (earlier_not_started and later_complete)):
+            inconsistent=True
+    handoff_match=re.search(r"^## Current handoff\s*$\n(.*?)(?=^## |\Z)",document,re.M|re.S)
+    handoff=handoff_match.group(1) if handoff_match else ""
+    exact=bool(handoff_match and all(token in handoff for token in (
+        "Stage 8.9 is **COMPLETE**","STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE",
+        "Stage 8.10.1 through Stage 8.10.8 are **COMPLETE**","`HALTED`",
+        "`execution_authorized = false`","`real_order_endpoint_called = false`",
+        "`real_order_count = 0`","Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**",
+        "Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**",
+        "next possible lifecycle gate is Stage 8.11","separate explicit authorization")))
+    if handoff_match and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]",handoff,re.I):
+        stale_next=True
+    return exact,not inconsistent,not stale_next
 def _stage8_10_6_python_safe(source):
     try: tree=ast.parse(source)
     except SyntaxError: return False
@@ -169,12 +202,18 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     trading_store=(HERE/"deploy/windows/trading-credential-store.ps1").read_text(); trading_init=(HERE/"deploy/windows/initialize-trading-credentials.ps1").read_text(); trading_verify=(HERE/"deploy/windows/verify-trading-credentials.ps1").read_text()
     credential_store=(HERE/"deploy/windows/credential-store.ps1").read_text(); credential_init=(HERE/"deploy/windows/initialize-readonly-credentials.ps1").read_text(); credential_verify=(HERE/"deploy/windows/verify-readonly-credentials.ps1").read_text(); task_installer=(HERE/"deploy/windows/install-task.ps1").read_text()
     conformance=json.loads((HERE/"conformance_report.json").read_text()); provenance=json.loads(authority_text if authority_text is not None else (HERE/"authority_provenance.json").read_text()); registry=(HERE/"production_instrument_registry.csv").read_text(); registry_rows=csv_rows(HERE/"production_instrument_registry.csv")
-    current_state=(ROOT/"TradingSystemLab/CURRENT_STATE.md").read_text()
-    project_context=(ROOT/"TradingSystemLab/PROJECT_CONTEXT.md").read_text()
-    readme=readme_text if readme_text is not None else (HERE/"README.md").read_text()
-    roadmap=(ROOT/"TradingSystemLab/ROADMAP.md").read_text()
+    source_overrides=source_overrides or {}
+    def document(relative,path): return source_overrides.get(relative,source_overrides.get(str(path.relative_to(ROOT)),path.read_text()))
+    current_state=document("CURRENT_STATE.md",ROOT/"TradingSystemLab/CURRENT_STATE.md")
+    project_context=document("PROJECT_CONTEXT.md",ROOT/"TradingSystemLab/PROJECT_CONTEXT.md")
+    readme=readme_text if readme_text is not None else document("README.md",HERE/"README.md")
+    roadmap=document("ROADMAP.md",ROOT/"TradingSystemLab/ROADMAP.md")
     authoritative_docs=(current_state,project_context,readme,roadmap)
     closeout_docs="\n".join(authoritative_docs)
+    document_verdicts=[_stage8_10_document_consistency(doc) for doc in authoritative_docs]
+    check(all(verdict[0] for verdict in document_verdicts),"STAGE_8_10_CURRENT_HANDOFF_EXACT")
+    check(all(verdict[1] for verdict in document_verdicts),"STAGE_8_10_HISTORICAL_SCOPE_CONSISTENT")
+    check(all(verdict[2] for verdict in document_verdicts),"STAGE_8_10_NO_STALE_NEXT_GATE")
     completed_status="STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE"
     accepted_code_sha="dc2b79e74817e71435eee20103ae617e13067d8e"
     evidence_sha="1A9B62D4BFC0E7384898C9DF9659E54E50E0E202BD44CE19413864AC2ECA14D6"
@@ -401,7 +440,6 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     expected_safety={"status":safety_status,"accepted_code_commit":"35ec9007e6302d66e35e1a42a34fc2e77be8a467","external_evidence_sha256":"CF34E54212B3385F154804F440361FE5E213B0AFA63D8DD8AE56E1EBB49D6B30","physical_result":"STAGE_8_10_6_PHYSICAL_SAFETY_GATE_VALIDATION_PASS","physical_validation_performed":True,"production_kill_switch_initialized":True,"production_kill_switch_halted_observed":True,"production_kill_switch_final_state":"HALTED","production_kill_switch_valid":True,"synthetic_safety_matrix_validated":True,"synthetic_case_count":25,"synthetic_open_case_count":1,"synthetic_blocked_case_count":24,"synthetic_matrix_validation":"PASS","emergency_halt_validated":True,"missing_switch_fail_closed":True,"malformed_switch_fail_closed":True,"execution_authorization_required":True,"heartbeat_health_gate_validated":True,"reconciliation_gate_validated":True,"unresolved_order_gate_validated":True,"heartbeat_freshness_gate_validated":True,"api_contact_freshness_gate_validated":True,"account_hash_shape_gate_validated":True,"execution_authorized":False,"real_account_id_used":False,"readonly_token_used_for_stage8_10_6":False,"trading_token_used_for_stage8_10_6":False,"finam_authentication_performed_for_stage8_10_6":False,"external_network_calls":0,"real_order_endpoint_called":False,"real_order_count":0,"live_trading_authorized":False,"real_order_transmission_authorized":False,"stage8_10_status":"IN_PROGRESS","stage8_10_7_status":"NOT_STARTED","stage8_10_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"}
     check(safety_gate==expected_safety,"STAGE_8_10_6_MACHINE_AUTHORITY_EXACT")
     safety_path=HERE/"trading_safety_gate.py"; validation_path=HERE/"safety_gate_validation.py"; safety_wrapper=HERE/"deploy/windows/validate-trading-safety-gates.ps1"
-    source_overrides=source_overrides or {}
     safety_source=source_overrides.get("trading_safety_gate.py",safety_path.read_text()); validation_source=source_overrides.get("safety_gate_validation.py",validation_path.read_text()); wrapper_source=source_overrides.get("deploy/windows/validate-trading-safety-gates.ps1",safety_wrapper.read_text())
     check(all(p.is_file() for p in (safety_path,validation_path,safety_wrapper)),"STAGE_8_10_6_IMPLEMENTATION_PRESENT")
     check(canonical_text_sha256(safety_path.read_bytes())=="64c781579e630836cfde7a0b772df1e2707caf35decafb9acdc75d7d2e3df6e4" and canonical_text_sha256(validation_path.read_bytes())=="baf9f85f8fa3c6c789db7ce40d9d23fb13d7854c11820986f33c1c5436716b9f" and canonical_text_sha256(safety_wrapper.read_bytes())=="7da9ff0a252008f41c771866d528cbaf4ce2fc97221b87a1b933d50acb75c4d5","STAGE_8_10_6_IMPLEMENTATION_HASHES")
