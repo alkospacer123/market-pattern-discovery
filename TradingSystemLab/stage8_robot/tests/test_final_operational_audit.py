@@ -396,7 +396,7 @@ def test_top_level_readme_current_status_regressions_fail_both_audits():
         "NOT_STARTED",
     )
     for status in rejected:
-        mutation = original.replace(final.STAGE_8_10_6_STATUS, status, 1)
+        mutation = original.replace(final.STAGE_8_10_7_STATUS, status, 1)
         result = run_audit({path: mutation})
         assert "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT" in result["errors"]
         stage8_result = stage8.audit(write_result=False, readme_text=mutation)
@@ -438,6 +438,100 @@ def test_stage_8_10_6_external_files_are_rejected():
     for name in ("stage8-trading-kill-switch.json", "stage8_10_6_safety_gate_validation.json"):
         result = stage8.audit(write_result=False, tracked_files=git_files() + ["external/" + name])
         assert "STAGE_8_10_6_EXTERNAL_ARTIFACTS_NOT_TRACKED" in result["errors"]
+
+
+def test_stage_8_10_7_machine_authority_mutations_fail_independent_audit():
+    authority = json.loads((ROOT / "TradingSystemLab/stage8_robot/authority_provenance.json").read_text())
+    mutations = [
+        ("status", "COMPLETE"), ("status", "NOT_STARTED"),
+        ("physical_validation_performed", True), ("trading_dpapi_current_user_validated", True),
+        ("local_readonly_trading_account_binding_validated", True),
+        ("production_kill_switch_pre_halted_observed", True), ("trading_session_created", True),
+        ("expected_account_enumerated", True), ("expected_account_occurrence_count", 1),
+        ("trading_token_readonly_false_observed", True), ("trading_token_write_boundary_confirmed", True),
+        ("production_kill_switch_post_halted_observed", True), ("trading_token_used", True),
+        ("readonly_token_used_for_remote_auth", True), ("finam_authentication_performed", True),
+        ("order_endpoint_called", True), ("order_count", 1), ("execution_authorized", True),
+        ("live_trading_authorized", True), ("real_order_transmission_authorized", True),
+        ("stage8_10_status", "COMPLETE"), ("stage8_10_8_status", "STARTED"),
+        ("stage8_11_status", "AUTHORIZED"), ("stage8_12_status", "AUTHORIZED"),
+    ]
+    for key, value in mutations:
+        changed = json.loads(json.dumps(authority)); changed["stage8_10_7"][key] = value
+        result = stage8.audit(write_result=False, authority_text=json.dumps(changed))
+        assert "STAGE_8_10_7_MACHINE_AUTHORITY_EXACT" in result["errors"], key
+
+
+def _assert_stage_8_10_7_semantic_failure(relative, mutation, error):
+    full = "TradingSystemLab/stage8_robot/" + relative
+    assert error in run_audit({full: mutation})["errors"]
+    assert error in stage8.audit(write_result=False, source_overrides={relative: mutation})["errors"]
+
+
+def _stage_8_10_7_source(relative):
+    return source("TradingSystemLab/stage8_robot/" + relative)
+
+
+@pytest.mark.parametrize("payload", [
+    "api.orders()", "api.order()", "api.place_order()", "api.cancel_order()",
+    "from . import broker", "from . import runner", "import requests", "import httpx",
+    "import socket", "import http.client", "import urllib.request\nurllib.request.urlopen('https://invalid')",
+])
+def test_stage_8_10_7_forbidden_session_capability_mutations_fail(payload):
+    relative = "trading_token_intel_acceptance.py"
+    mutation = _stage_8_10_7_source(relative) + "\n" + payload + "\n"
+    _assert_stage_8_10_7_semantic_failure(relative, mutation, "STAGE_8_10_7_SESSION_ONLY_NO_ORDER_CAPABILITY")
+
+
+@pytest.mark.parametrize(("before", "after"), [
+    ("api.create_session()", "pass"), ("api.session_details()", "{}"),
+    ('switch.get("state") != "HALTED"', "False"),
+    ("local_account_binding_confirmed is not True", "False"),
+    ('type(details["readonly"]) is not bool', "False"),
+    ('details["readonly"] is not False', "False"), ("occurrences != 1", "False"),
+    ("REPOSITORY_OUTPUT_FORBIDDEN", "REPOSITORY_OUTPUT_ALLOWED"),
+])
+def test_stage_8_10_7_fail_closed_diagnostic_mutations_fail(before, after):
+    relative = "trading_token_intel_acceptance.py"
+    original = _stage_8_10_7_source(relative)
+    assert before in original
+    _assert_stage_8_10_7_semantic_failure(relative, original.replace(before, after), "STAGE_8_10_7_SESSION_ONLY_NO_ORDER_CAPABILITY")
+
+
+@pytest.mark.parametrize("payload", [
+    "$env:FINAM_API_SECRET = 'x'", "$env:FINAM_REAL_ACCOUNT_ID = 'x'",
+    "$env:FINAM_TRADING_API_SECRET = 'x'", "$env:FINAM_TRADING_ACCOUNT_ID = 'x'",
+    "$env:FINAM_PERMISSION_READONLY_API_SECRET = 'x'", "Enable-ScheduledTask x",
+    "Start-ScheduledTask x", "Register-ScheduledTask x", "write_kill_switch", "emergency_halt",
+    "$allow_arm=$true", "$execution_authorized=true", "place_order()",
+])
+def test_stage_8_10_7_wrapper_capability_mutations_fail(payload):
+    relative = "deploy/windows/validate-trading-token-intel-acceptance.ps1"
+    mutation = _stage_8_10_7_source(relative) + "\n" + payload + "\n"
+    _assert_stage_8_10_7_semantic_failure(relative, mutation, "STAGE_8_10_7_WRAPPER_CREDENTIAL_BOUNDARY")
+
+
+def test_stage_8_10_7_wrapper_binding_and_ordering_mutations_fail():
+    relative = "deploy/windows/validate-trading-token-intel-acceptance.ps1"
+    original = _stage_8_10_7_source(relative)
+    for term in ("finam_real_account_id -cne", "$env:FINAM_8107_TRADING_API_SECRET"):
+        _assert_stage_8_10_7_semantic_failure(relative, original.replace(term, "removed", 1),
+                                              "STAGE_8_10_7_WRAPPER_CREDENTIAL_BOUNDARY")
+
+
+def test_stage_8_10_7_report_contract_mutation_fails():
+    relative = "trading_token_intel_acceptance.py"
+    original = _stage_8_10_7_source(relative)
+    for term in ("SESSION_CREATE_AND_DETAILS_ONLY", "readonly_token_used_for_remote_auth",
+                 "real_order_transmission_authorized"):
+        _assert_stage_8_10_7_semantic_failure(relative, original.replace(term, "removed", 1),
+                                              "STAGE_8_10_7_REPORT_CONTRACT")
+
+
+def test_stage_8_10_7_external_report_is_rejected():
+    tracked = git_files() + ["external/stage8_10_7_intel_trading_token_acceptance.json"]
+    assert "STAGE_8_10_7_EXTERNAL_ARTIFACT_NOT_TRACKED" in stage8.audit(write_result=False, tracked_files=tracked)["errors"]
+    assert "RUNTIME_OR_SECRET_ARTIFACT_TRACKED" in run_audit(tracked=tracked)["errors"]
 
 
 def _assert_stage_8_10_6_semantic_failure(relative, mutation, error):

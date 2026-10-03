@@ -240,5 +240,30 @@
     "stage8_10_8_status": "NOT_STARTED",
     "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
     "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
+  },
+  "stage8_10_7": {
+    "status": "STAGE_8_10_7_INTEL_TRADING_TOKEN_ACCEPTANCE_CODE_READY_PENDING_PHYSICAL_VALIDATION",
+    "physical_validation_performed": false,
+    "trading_dpapi_current_user_validated": false,
+    "local_readonly_trading_account_binding_validated": false,
+    "production_kill_switch_pre_halted_observed": false,
+    "trading_session_created": false,
+    "expected_account_enumerated": false,
+    "expected_account_occurrence_count": 0,
+    "trading_token_readonly_false_observed": false,
+    "trading_token_write_boundary_confirmed": false,
+    "production_kill_switch_post_halted_observed": false,
+    "trading_token_used": false,
+    "readonly_token_used_for_remote_auth": false,
+    "finam_authentication_performed": false,
+    "order_endpoint_called": false,
+    "order_count": 0,
+    "execution_authorized": false,
+    "live_trading_authorized": false,
+    "real_order_transmission_authorized": false,
+    "stage8_10_status": "IN_PROGRESS",
+    "stage8_10_8_status": "NOT_STARTED",
+    "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
+    "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
   }
 }

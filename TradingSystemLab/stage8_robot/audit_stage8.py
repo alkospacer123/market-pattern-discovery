@@ -54,6 +54,44 @@ def _stage8_10_6_semantics(safety,validation,wrapper):
     report_contract=all(x in validation for x in report_required) and "--production-runtime-root $runtime" in wrapper
     return offline,halt_only,report_contract
 
+def _stage8_10_7_semantics(diagnostic,wrapper):
+    try: tree=ast.parse(diagnostic)
+    except SyntaxError: return False,False,False
+    calls={node.func.attr.lower() if isinstance(node.func,ast.Attribute) else node.func.id.lower()
+           for node in ast.walk(tree) if isinstance(node,ast.Call) and isinstance(node.func,(ast.Attribute,ast.Name))}
+    imports=[]
+    for node in ast.walk(tree):
+        if isinstance(node,ast.Import): imports.extend(alias.name.lower() for alias in node.names)
+        elif isinstance(node,ast.ImportFrom): imports.append((node.module or "").lower()); imports.extend(alias.name.lower() for alias in node.names)
+    forbidden_calls={"orders","order","place_order","cancel_order","submit_order","modify_order","account","assets","assets_all_active","asset","params","schedule","bars","urlopen"}
+    forbidden_imports=("broker","runner","operations","reconciliation","requests","httpx","socket","http.client","urllib.request")
+    required=('api.create_session()','api.session_details()','load_kill_switch(runtime_root)',
+              'switch.get("state") != "HALTED"','local_account_binding_confirmed is not True',
+              'type(details["readonly"]) is not bool','details["readonly"] is not False',
+              'occurrences != 1','REPOSITORY_OUTPUT_FORBIDDEN','"order_endpoint_called": False',
+              '"execution_authorized": False','"stage8_10_8_status": "NOT_STARTED"')
+    session_only=(not calls.intersection(forbidden_calls)
+                  and not any(module == term or module.startswith(term + ".") for module in imports for term in forbidden_imports)
+                  and {"create_session","session_details","load_kill_switch"}.issubset(calls)
+                  and all(term in diagnostic for term in required))
+    lower=wrapper.lower()
+    wrapper_required=('assert-hostsafe','assert-killswitchhalted','credential-store.ps1','trading-credential-store.ps1',
+        'get-readonlycredential','get-tradingcredential','finam_real_account_id -cne',
+        '$env:finam_8107_trading_api_secret','$env:finam_8107_account_id',
+        'tradingsystemlab.stage8_robot.trading_token_intel_acceptance','remove-item "env:$name"',
+        '$readonlycredential = $null','$tradingcredential = $null','push-location $repo','pop-location')
+    wrapper_forbidden=('set-processreadonlycredentials','enable-scheduledtask','start-scheduledtask','register-scheduledtask',
+        'write_kill_switch','emergency_halt','allow_arm','place_order','submit_order','cancel_order',
+        '$env:finam_api_secret =','$env:finam_real_account_id =','$env:finam_trading_api_secret =',
+        '$env:finam_trading_account_id =','$env:finam_permission_','execution_authorized=true')
+    wrapper_safe=all(term in lower for term in wrapper_required) and not any(term in lower for term in wrapper_forbidden)
+    halted_before_credentials=(lower.index('assert-killswitchhalted',lower.index('try {')) < lower.index('credential-store.ps1')
+                               < lower.index('finam_real_account_id -cne')
+                               < lower.index('$env:finam_8107_trading_api_secret')
+                               < lower.index('tradingsystemlab.stage8_robot.trading_token_intel_acceptance')
+                               < lower.rindex('assert-killswitchhalted')) if wrapper_safe else False
+    return session_only,wrapper_safe and halted_before_credentials,all(term in diagnostic for term in ('SESSION_CREATE_AND_DETAILS_ONLY','readonly_token_used_for_remote_auth','real_order_transmission_authorized'))
+
 def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=None,source_overrides=None):
     errors=[]; checks=0
     def check(ok,name):
@@ -114,7 +152,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     check(all(all(value in document for value in required)
               for document in authoritative_docs),
           "STAGE_8_9_10_COMPLETED_PROVENANCE_SYNCHRONIZED")
-    lifecycle=provenance.get("stage8_9_8",{}); closeout=provenance.get("stage8_9_10",{}); preconditions=provenance.get("stage8_10_1",{}); provisioning=provenance.get("stage8_10_2",{}); identity_binding=provenance.get("stage8_10_3",{}); permission_boundary=provenance.get("stage8_10_4",{}); dry_gate=provenance.get("stage8_10_5",{}); safety_gate=provenance.get("stage8_10_6",{})
+    lifecycle=provenance.get("stage8_9_8",{}); closeout=provenance.get("stage8_9_10",{}); preconditions=provenance.get("stage8_10_1",{}); provisioning=provenance.get("stage8_10_2",{}); identity_binding=provenance.get("stage8_10_3",{}); permission_boundary=provenance.get("stage8_10_4",{}); dry_gate=provenance.get("stage8_10_5",{}); safety_gate=provenance.get("stage8_10_6",{}); token_acceptance=provenance.get("stage8_10_7",{})
     check(lifecycle.get("status")==stage8_9_8_status
           and lifecycle.get("stage8_9_9")=="PHYSICAL_REVALIDATION_COMPLETE"
           and lifecycle.get("stage8_9_complete") is True,
@@ -177,7 +215,8 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     stage8_10_3_status="STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE"
     stage8_10_4_status="STAGE_8_10_4_PERMISSION_BOUNDARY_COMPLETE"
     stage8_10_5_status="STAGE_8_10_5_ORDER_PATH_DRY_VALIDATION_COMPLETE"
-    check(current_readme_status(readme)=="STAGE_8_10_6_KILL_SWITCH_SAFETY_GATES_COMPLETE",
+    token_status="STAGE_8_10_7_INTEL_TRADING_TOKEN_ACCEPTANCE_CODE_READY_PENDING_PHYSICAL_VALIDATION"
+    check(current_readme_status(readme)==token_status,
           "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT")
     check(all("Stage 8.10.2 is **COMPLETE**" in document
               and stage8_10_2_status in document
@@ -314,7 +353,20 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     check(wrapper_halt_only,"STAGE_8_10_6_WRAPPER_HALT_ONLY")
     check(physical_report_contract,"STAGE_8_10_6_PHYSICAL_REPORT_CONTRACT")
     check(not any(Path(path).name.lower() in {"stage8-trading-kill-switch.json","stage8_10_6_safety_gate_validation.json"} for path in tracked),"STAGE_8_10_6_EXTERNAL_ARTIFACTS_NOT_TRACKED")
-    check(all(safety_status in document and "Stage 8.10.6 is **COMPLETE**" in document and "Stage 8.10.7 is **NOT STARTED**" in document for document in authoritative_docs),"STAGE_8_10_6_COMPLETE_SYNCHRONIZED")
+    check(all(safety_status in document and "Stage 8.10.6 is **COMPLETE**" in document for document in authoritative_docs),"STAGE_8_10_6_COMPLETE_SYNCHRONIZED")
+    expected_token={"status":token_status,"physical_validation_performed":False,"trading_dpapi_current_user_validated":False,"local_readonly_trading_account_binding_validated":False,"production_kill_switch_pre_halted_observed":False,"trading_session_created":False,"expected_account_enumerated":False,"expected_account_occurrence_count":0,"trading_token_readonly_false_observed":False,"trading_token_write_boundary_confirmed":False,"production_kill_switch_post_halted_observed":False,"trading_token_used":False,"readonly_token_used_for_remote_auth":False,"finam_authentication_performed":False,"order_endpoint_called":False,"order_count":0,"execution_authorized":False,"live_trading_authorized":False,"real_order_transmission_authorized":False,"stage8_10_status":"IN_PROGRESS","stage8_10_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"}
+    check(token_acceptance==expected_token,"STAGE_8_10_7_MACHINE_AUTHORITY_EXACT")
+    token_path=HERE/"trading_token_intel_acceptance.py"; token_wrapper_path=HERE/"deploy/windows/validate-trading-token-intel-acceptance.ps1"
+    token_source=source_overrides.get("trading_token_intel_acceptance.py",token_path.read_text() if token_path.is_file() else "")
+    token_wrapper_source=source_overrides.get("deploy/windows/validate-trading-token-intel-acceptance.ps1",token_wrapper_path.read_text() if token_wrapper_path.is_file() else "")
+    check(token_path.is_file() and token_wrapper_path.is_file(),"STAGE_8_10_7_IMPLEMENTATION_PRESENT")
+    check(canonical_text_sha256(token_path.read_bytes())=="84d1acd85af02adfef7781d1fa01cbe5f418a53e5f3ef582224a34490a07b27b" and canonical_text_sha256(token_wrapper_path.read_bytes())=="26e7dbe2ff4d262a76d13b97cca181b80a06fb662a029ba3436af1fea2930386","STAGE_8_10_7_IMPLEMENTATION_HASHES")
+    session_only,wrapper_boundary,report_contract=_stage8_10_7_semantics(token_source,token_wrapper_source)
+    check(session_only,"STAGE_8_10_7_SESSION_ONLY_NO_ORDER_CAPABILITY")
+    check(wrapper_boundary,"STAGE_8_10_7_WRAPPER_CREDENTIAL_BOUNDARY")
+    check(report_contract,"STAGE_8_10_7_REPORT_CONTRACT")
+    check(not any(Path(path).name.lower()=="stage8_10_7_intel_trading_token_acceptance.json" for path in tracked),"STAGE_8_10_7_EXTERNAL_ARTIFACT_NOT_TRACKED")
+    check(all(token_status in document and "Stage 8.10.7 is **CODE READY / PENDING PHYSICAL VALIDATION**" in document and "Stage 8.10.8 is **NOT STARTED**" in document for document in authoritative_docs),"STAGE_8_10_7_CODE_READY_SYNCHRONIZED")
     check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in document
               for document in authoritative_docs),"STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED")
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in document
@@ -606,7 +658,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           "WINDOWS_NO_OBSOLETE_SUPERVISOR_STATE_AUTHORITY")
     check("TradingSystemLab.stage8_robot.readonly_supervisor" in launcher and not any(x in windows_deployment for x in ("place_order","submit_order","cancel_order")),"WINDOWS_SERVICE_READONLY_NO_ORDER_PATH")
     check("-ExecutionPolicy RemoteSigned" in task_installer and "-MultipleInstances IgnoreNew" in task_installer,"WINDOWS_TASK_POLICY_CONSERVATIVE")
-    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"real_order_transmission_authorized":False,"stage8_status":completed_status,"margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED","stage8_9_status":stage8_9_status,"stage8_9_reason":stage8_9_reason,"stage8_9_accepted_code_commit":stage8_9_code,"stage8_9_diagnostic_report_sha256":stage8_9_report,"stage8_9_physical_summary_sha256":stage8_9_summary,"stage8_9_8_status":stage8_9_8_status,"stage8_9_9_status":"PHYSICAL_REVALIDATION_COMPLETE","stage8_9_10_status":"COMPLETE","stage8_9_sizing_case_count":8,"stage8_9_positive_capacity_case_count":4,"stage8_9_zero_capacity_case_count":4,"stage8_9_positive_batch_reservation_count":1,"stage8_10_status":"IN_PROGRESS","stage8_10_1_status":stage8_10_1_status,"stage8_10_2_status":stage8_10_2_status,"stage8_10_2_accepted_code_commit":stage8_10_2_code,"stage8_10_2_external_evidence_sha256":stage8_10_2_evidence,"stage8_10_2_physical_result":stage8_10_2_result,"physical_provisioning_performed":True,"trading_token_provisioned":True,"trading_token_used":True,"finam_authentication_performed":True,"order_count":0,"order_endpoint_called":False,"stage8_10_3_status":stage8_10_3_status,"stage8_10_3_accepted_code_commit":"428d285336380726a3ce00487e2c85eb755e2dd9","stage8_10_3_external_evidence_sha256":"0DA102E61AB06FFA6A508CC64203FEA3F56BBA3016891A887688A4E300E11BB6","stage8_10_3_physical_result":"STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_PASS","physical_validation_performed":True,"local_readonly_trading_account_binding_validated":True,"trading_session_created":True,"expected_account_enumerated":True,"expected_account_occurrence_count":1,"enumerated_account_count":1,"stage8_10_4_status":stage8_10_4_status,"stage8_10_4_accepted_code_commit":"44858bacc2902591e11adc85cfa5f79e2b62dd5b","stage8_10_4_external_evidence_sha256":"E4AEDC153F89E000EC034E5F33A6EF7BECB5DA29BA253BC0B28B2AC3D0C26C5D","stage8_10_4_physical_result":"STAGE_8_10_4_TOKEN_PERMISSION_BOUNDARY_PASS","stage8_10_4_physical_validation_performed":True,"readonly_token_readonly_observed":True,"trading_token_readonly_false_observed":True,"token_permission_boundary_validated":True,"order_path_validation_performed":False,"stage8_10_5_status":stage8_10_5_status,"stage8_10_5_accepted_code_commit":"ba284e95954c8473c0e77a95172117bc5cefaf65","stage8_10_5_external_evidence_sha256":"D878309E22FA49BFFA9EE9B37200C3FE207BF77DB5C29D6DE97010F1FFCE904A","stage8_10_5_physical_result":"STAGE_8_10_5_OFFLINE_ORDER_PATH_DRY_VALIDATION_PASS","stage8_10_5_physical_validation_performed":True,"offline_dry_validation_performed":True,"order_path_dry_validation_validated":True,"stage8_10_5_external_network_calls":0,"real_order_endpoint_called":False,"real_order_count":0,"stage8_10_6_status":safety_status,"stage8_10_6_accepted_code_commit":safety_gate["accepted_code_commit"],"stage8_10_6_external_evidence_sha256":safety_gate["external_evidence_sha256"],"stage8_10_6_physical_result":safety_gate["physical_result"],"stage8_10_6_physical_validation_performed":True,"production_kill_switch_initialized":True,"production_kill_switch_halted_observed":True,"production_kill_switch_final_state":"HALTED","production_kill_switch_valid":True,"synthetic_safety_matrix_validated":True,"synthetic_case_count":25,"synthetic_open_case_count":1,"synthetic_blocked_case_count":24,"emergency_halt_validated":True,"execution_authorized":False,"stage8_10_6_external_network_calls":0,"stage8_10_7_status":"NOT_STARTED","stage8_10_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_9_complete":True,"stage8_9_physical_validation_performed":True}
+    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"real_order_transmission_authorized":False,"stage8_status":completed_status,"margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED","stage8_9_status":stage8_9_status,"stage8_9_reason":stage8_9_reason,"stage8_9_accepted_code_commit":stage8_9_code,"stage8_9_diagnostic_report_sha256":stage8_9_report,"stage8_9_physical_summary_sha256":stage8_9_summary,"stage8_9_8_status":stage8_9_8_status,"stage8_9_9_status":"PHYSICAL_REVALIDATION_COMPLETE","stage8_9_10_status":"COMPLETE","stage8_9_sizing_case_count":8,"stage8_9_positive_capacity_case_count":4,"stage8_9_zero_capacity_case_count":4,"stage8_9_positive_batch_reservation_count":1,"stage8_10_status":"IN_PROGRESS","stage8_10_1_status":stage8_10_1_status,"stage8_10_2_status":stage8_10_2_status,"stage8_10_2_accepted_code_commit":stage8_10_2_code,"stage8_10_2_external_evidence_sha256":stage8_10_2_evidence,"stage8_10_2_physical_result":stage8_10_2_result,"physical_provisioning_performed":True,"trading_token_provisioned":True,"trading_token_used":True,"finam_authentication_performed":True,"order_count":0,"order_endpoint_called":False,"stage8_10_3_status":stage8_10_3_status,"stage8_10_3_accepted_code_commit":"428d285336380726a3ce00487e2c85eb755e2dd9","stage8_10_3_external_evidence_sha256":"0DA102E61AB06FFA6A508CC64203FEA3F56BBA3016891A887688A4E300E11BB6","stage8_10_3_physical_result":"STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_PASS","physical_validation_performed":True,"local_readonly_trading_account_binding_validated":True,"trading_session_created":True,"expected_account_enumerated":True,"expected_account_occurrence_count":1,"enumerated_account_count":1,"stage8_10_4_status":stage8_10_4_status,"stage8_10_4_accepted_code_commit":"44858bacc2902591e11adc85cfa5f79e2b62dd5b","stage8_10_4_external_evidence_sha256":"E4AEDC153F89E000EC034E5F33A6EF7BECB5DA29BA253BC0B28B2AC3D0C26C5D","stage8_10_4_physical_result":"STAGE_8_10_4_TOKEN_PERMISSION_BOUNDARY_PASS","stage8_10_4_physical_validation_performed":True,"readonly_token_readonly_observed":True,"trading_token_readonly_false_observed":True,"token_permission_boundary_validated":True,"order_path_validation_performed":False,"stage8_10_5_status":stage8_10_5_status,"stage8_10_5_accepted_code_commit":"ba284e95954c8473c0e77a95172117bc5cefaf65","stage8_10_5_external_evidence_sha256":"D878309E22FA49BFFA9EE9B37200C3FE207BF77DB5C29D6DE97010F1FFCE904A","stage8_10_5_physical_result":"STAGE_8_10_5_OFFLINE_ORDER_PATH_DRY_VALIDATION_PASS","stage8_10_5_physical_validation_performed":True,"offline_dry_validation_performed":True,"order_path_dry_validation_validated":True,"stage8_10_5_external_network_calls":0,"real_order_endpoint_called":False,"real_order_count":0,"stage8_10_6_status":safety_status,"stage8_10_6_accepted_code_commit":safety_gate["accepted_code_commit"],"stage8_10_6_external_evidence_sha256":safety_gate["external_evidence_sha256"],"stage8_10_6_physical_result":safety_gate["physical_result"],"stage8_10_6_physical_validation_performed":True,"production_kill_switch_initialized":True,"production_kill_switch_halted_observed":True,"production_kill_switch_final_state":"HALTED","production_kill_switch_valid":True,"synthetic_safety_matrix_validated":True,"synthetic_case_count":25,"synthetic_open_case_count":1,"synthetic_blocked_case_count":24,"emergency_halt_validated":True,"execution_authorized":False,"stage8_10_6_external_network_calls":0,"stage8_10_7_status":token_status,"stage8_10_7_physical_validation_performed":False,"stage8_10_7_trading_token_used":False,"stage8_10_7_finam_authentication_performed":False,"stage8_10_7_order_endpoint_called":False,"stage8_10_7_order_count":0,"stage8_10_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_9_complete":True,"stage8_9_physical_validation_performed":True}
     if write_result: (HERE/"independent_audit_result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
     return result
 if __name__=="__main__":
