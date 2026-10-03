@@ -87,6 +87,11 @@ STAGE_8_10_4_IMPLEMENTATION_PATHS = (
     Path("deploy/windows/validate-trading-permission-boundary.ps1"),
 )
 
+STAGE_8_10_5_IMPLEMENTATION_PATHS = (
+    Path("order_path_dry_validation.py"),
+    Path("deploy/windows/validate-order-path-dry.ps1"),
+)
+
 
 @pytest.mark.parametrize("newline", [b"\n", b"\r\n"])
 def test_stage8_independent_audit_accepts_canonical_and_crlf_implementation_files(
@@ -152,6 +157,24 @@ def test_stage8_8104_hashes_reject_semantic_mutation(monkeypatch):
     monkeypatch.setattr(Path, "read_bytes", read_bytes_with_mutation)
     result = stage8.audit(write_result=False)
     assert "STAGE_8_10_4_IMPLEMENTATION_HASHES" in result["errors"]
+
+
+@pytest.mark.parametrize("newline", [b"\n", b"\r\n"])
+def test_stage8_8105_hashes_accept_lf_and_crlf(monkeypatch, newline):
+    original = Path.read_bytes
+    protected = {stage8.HERE / relative for relative in STAGE_8_10_5_IMPLEMENTATION_PATHS}
+    monkeypatch.setattr(Path, "read_bytes", lambda path: (
+        original(path).replace(b"\r\n", b"\n").replace(b"\n", newline)
+        if path in protected else original(path)))
+    assert "STAGE_8_10_5_IMPLEMENTATION_HASHES" not in stage8.audit(write_result=False)["errors"]
+
+
+def test_stage8_8105_hashes_reject_semantic_mutation(monkeypatch):
+    original = Path.read_bytes
+    protected = {stage8.HERE / relative for relative in STAGE_8_10_5_IMPLEMENTATION_PATHS}
+    monkeypatch.setattr(Path, "read_bytes", lambda path: (
+        original(path) + b"# semantic mutation\n" if path in protected else original(path)))
+    assert "STAGE_8_10_5_IMPLEMENTATION_HASHES" in stage8.audit(write_result=False)["errors"]
 
 
 def test_missing_stage_8_8_5_evidence_sha_fails():
@@ -297,7 +320,7 @@ def test_top_level_readme_current_status_regressions_fail_both_audits():
         "NOT_STARTED",
     )
     for status in rejected:
-        mutation = original.replace(final.STAGE_8_10_4_STATUS, status, 1)
+        mutation = original.replace(final.STAGE_8_10_5_STATUS, status, 1)
         result = run_audit({path: mutation})
         assert "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT" in result["errors"]
         stage8_result = stage8.audit(write_result=False, readme_text=mutation)
