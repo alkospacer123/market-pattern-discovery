@@ -1,6 +1,6 @@
 # Stage 8 robot foundation
 
-**Status:** `STAGE_8_10_2_SECURE_PROVISIONING_CODE_READY_PENDING_PHYSICAL_PROVISIONING`
+**Status:** `STAGE_8_10_2_SECURE_PROVISIONING_COMPLETE`
 — `LIVE_TRADING_NOT_AUTHORIZED`.
 
 Stage 8.8 operational hardening is COMPLETE. Stages 8.8.1, 8.8.2, 8.8.3,
@@ -220,7 +220,7 @@ internal file counts were zero, and secret/account environment variables were
 absent. No live order was transmitted and no authorization changed. Repository
 tooling validates the provenance and hash; it did not generate the evidence.
 
-**Stage 8.9 is COMPLETE.** Stage 8.10 is **IN PROGRESS**; Stage 8.10.1 is complete and Stage 8.10.2 is code-ready pending physical provisioning.
+**Stage 8.9 is COMPLETE.** Stage 8.10 is **IN PROGRESS**; Stage 8.10.1 is complete and Stage 8.10.2 is complete and Stage 8.10.3 is the next not-started gate.
 LIVE trading and real-order transmission remain unauthorized.
 
 ## Boundaries and startup
@@ -375,8 +375,9 @@ summary SHA-256
 `59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B`. It is
 not a current blocker.
 
-Stage 8.10 is **IN PROGRESS** solely because Stage 8.10.1 is complete. Stage
-8.10.2, Stage 8.11, and Stage 8.12 are **NOT STARTED / NOT AUTHORIZED**.
+Stage 8.10 is **IN PROGRESS** because Stage 8.10.1 and Stage 8.10.2 are complete.
+Stage 8.10.3 is the next **NOT STARTED** gate and requires separate explicit
+authorization. Stage 8.11 and Stage 8.12 are **NOT STARTED / NOT AUTHORIZED**.
 `LIVE_TRADING_NOT_AUTHORIZED`, `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and
 `NEW_ENTRIES_DISABLED` remain unchanged. No live order was transmitted and no
 live trading was authorized.
@@ -389,14 +390,14 @@ diagnostic SHA-256, physical-summary SHA-256, capacity counts, classification,
 and reason recorded above remain unchanged.
 
 Stage 8.10 is **IN PROGRESS**. This lifecycle state records completion of the
-repository-only preconditions gate; it does not complete Stage 8.10 and does not
-authorize provisioning or execution.
+preconditions and secure-provisioning gates; it does not complete Stage 8.10 and
+does not authorize Token 1 use, FINAM authentication, or execution.
 
 Canonical Stage 8.10 sequence and status:
 
 1. Stage 8.10.1 is **COMPLETE** — Trading Token Preconditions Gate.
    Canonical status: `STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE`.
-2. Stage 8.10.2 is **CODE READY / PENDING PHYSICAL PROVISIONING** — Secure Provisioning.
+2. Stage 8.10.2 is **COMPLETE** — Secure Provisioning.
 3. Stage 8.10.3 is **NOT STARTED** — Identity / Account Binding.
 4. Stage 8.10.4 is **NOT STARTED** — Permission Boundary Validation.
 5. Stage 8.10.5 is **NOT STARTED** — Order Path Dry Validation.
@@ -412,10 +413,9 @@ possible real-order gate and requires separate explicit authorization.
 
 The READ_ONLY credential remains the only operational credential. Existing
 REAL_READONLY credential handling remains bound to Windows CurrentUser DPAPI,
-and the REAL_READONLY broker cannot submit real orders. Any future
-trading-capable Token 1 must remain outside Git and Stage 8.10.2 must use that
-DPAPI model or a directly compatible Stage 8.10 extension. This task does not
-implement that store.
+and the REAL_READONLY broker cannot submit real orders. Trading Token 1 is now provisioned locally in the separate Windows CurrentUser
+DPAPI store. Its plaintext, account ID, DPAPI bytes, and runtime metadata remain
+outside Git. Possession or storage of Token 1 does not authorize trading.
 
 Plaintext tokens must never be written to Git, logs, command-line arguments,
 committed JSON, runtime audit output, or repository metadata. Trading and
@@ -424,11 +424,12 @@ silently substitute for each other, and token/account/production-ID binding
 must fail closed. Acquiring or storing a token cannot authorize order
 transmission.
 
-No trading-capable token has been provisioned, stored, authenticated, inspected,
-or used. No trading-token physical acceptance has occurred. Stage 8.10 order
-count remains exactly zero. No order-capable behavior, real order, Scheduled
-Task enablement, or Intel physical token run was introduced or performed.
-Real-order capability is not authorized.
+Physical provisioning was performed and Trading Token 1 is provisioned locally
+in Windows CurrentUser DPAPI. Token 1 has not been used and FINAM trading
+authentication has not been performed. Stage 8.10 order_count remains exactly 0;
+no order-capable operation occurred, no live order was transmitted, and the
+Scheduled Task remains Disabled. Possession or storage does not authorize
+trading, and real-order capability is not authorized.
 
 `LIVE_TRADING_NOT_AUTHORIZED`, `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and
 `NEW_ENTRIES_DISABLED` remain enforced. The frozen production contract remains
@@ -439,13 +440,18 @@ new instrument position, 6% maximum nominal simultaneous initial risk, no
 pyramiding, no session filter, and no runtime canonical fallback.
 
 
-### Stage 8.10.2 secure provisioning code-ready gate
+### Stage 8.10.2 secure provisioning completed gate
 
-Canonical status: `STAGE_8_10_2_SECURE_PROVISIONING_CODE_READY_PENDING_PHYSICAL_PROVISIONING`. The separate trading-token store uses
-Windows CurrentUser DPAPI and mode `TRADING_CAPABLE_NOT_AUTHORIZED`; it is not
-wired into the READ_ONLY launcher or Scheduled Task. Physical provisioning was
-not performed; `trading_token_provisioned=false`; `trading_token_used=false`;
-`finam_authentication_performed=false`, and the order count remains 0. Stage 8.10.3 is
-**NOT STARTED**. `LIVE_TRADING_NOT_AUTHORIZED`,
-`REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and `NEW_ENTRIES_DISABLED` remain
-authoritative.
+Canonical status: `STAGE_8_10_2_SECURE_PROVISIONING_COMPLETE`. Accepted physical code commit:
+`f0c271e428c05ee0ff67b7941e342c06b48a42a0`. External physical evidence SHA-256:
+`E5FEA93CE28006BC5ADA19F1AA1C1C365FF7CF4BE48A5A1B8BC8C5589DFD754D`. Physical
+result: `STAGE_8_10_2_PHYSICAL_SECURE_PROVISIONING_LOCAL_PASS`. Physical
+provisioning was performed and Trading Token 1 is provisioned locally in Windows
+CurrentUser DPAPI. Possession/storage of Token 1 does not authorize trading.
+`trading_token_used=false`; `finam_authentication_performed=false`; no
+order-capable operation occurred; `order_count=0`; and the Scheduled Task remains
+Disabled. Stage 8.10 is **IN PROGRESS**; Stage 8.10.3 through Stage 8.10.8 are
+**NOT STARTED**. Stage 8.11 is **NOT STARTED / NOT AUTHORIZED** and Stage 8.12 is
+**NOT STARTED / NOT AUTHORIZED**. `LIVE_TRADING_NOT_AUTHORIZED`,
+`REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and `NEW_ENTRIES_DISABLED` remain in
+force.
