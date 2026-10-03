@@ -47,6 +47,12 @@ BACKUP_SHA = "00b5e4ca2b389d55389b6b57ac73b5e557c11b72daab8d6e118311613e0aa3b0"
 MANIFEST_SHA = "3d0ef1d7cb11ee592be32550625e8badefc596108f4d0c34eff6c5e12ceba822"
 BASELINE_SHA = "13f01f1009768ddce65dce079f70486f2cbc2508cd1ea8ec4787414a78e0d3be"
 
+
+def current_readme_status(document: str) -> str | None:
+    """Return the single top-level backtick-delimited repository status."""
+    match = re.search(r"^\*\*Status:\*\*\s+`([^`]+)`", document, re.M)
+    return match.group(1) if match else None
+
 # Byte hashes captured from the independently audited Stage 8.8.6 closeout at
 # f9eec7e986d93471bcd3a43abf3c0144866b7556.  Moving result JSON and project
 # status documents are intentionally excluded: they are outputs/metadata for
@@ -254,6 +260,8 @@ def audit(
     closeout = provenance.get("stage8_9_10", {})
     preconditions = provenance.get("stage8_10_1", {})
     provisioning = provenance.get("stage8_10_2", {})
+    check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_2_STATUS,
+          "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT")
     check(lifecycle.get("status") == STAGE_8_9_8_STATUS
           and lifecycle.get("stage8_9_9") == "PHYSICAL_REVALIDATION_COMPLETE"
           and lifecycle.get("stage8_9_complete") is True,

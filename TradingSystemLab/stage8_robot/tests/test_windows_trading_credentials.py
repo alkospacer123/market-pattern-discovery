@@ -15,6 +15,15 @@ LAUNCHER = (WINDOWS / "run-readonly.ps1").read_text()
 INSTALLER = (WINDOWS / "install-task.ps1").read_text()
 
 
+def run_windows_powershell(script):
+    shell = shutil.which("pwsh") or shutil.which("powershell")
+    assert shell
+    return subprocess.run(
+        [shell, "-NoProfile", "-NonInteractive", "-Command", script],
+        capture_output=True, text=True,
+    )
+
+
 def test_store_has_distinct_current_user_authority():
     assert "DataProtectionScope]::CurrentUser" in STORE
     assert "DataProtectionScope]::LocalMachine" not in STORE
@@ -80,8 +89,6 @@ def test_fail_closed_validation_and_cross_store_separation_are_explicit():
 
 @pytest.mark.skipif(os.name != "nt", reason="actual CurrentUser DPAPI execution requires Windows")
 def test_synthetic_roundtrip_tamper_and_cross_store_rejection_on_windows(tmp_path):
-    shell = shutil.which("pwsh") or shutil.which("powershell")
-    assert shell
     store = str(WINDOWS / "trading-credential-store.ps1").replace("'", "''")
     readonly = str(WINDOWS / "credential-store.ps1").replace("'", "''")
     script = f"""
@@ -101,5 +108,65 @@ $rp=[ordered]@{{schema_version=1;mode='REAL_READONLY';production_id=$id;finam_ap
 $rc=Protect-ReadonlyCredentialPayload $rp
 try {{ Unprotect-TradingBytes $rc $id; exit 14 }} catch {{}}
 """
-    completed = subprocess.run([shell, "-NoProfile", "-NonInteractive", "-Command", script], capture_output=True, text=True)
+    completed = run_windows_powershell(script)
+    assert completed.returncode == 0, completed.stderr
+
+
+@pytest.mark.skipif(os.name != "nt", reason="actual CurrentUser DPAPI execution requires Windows")
+def test_wrong_trading_mode_is_rejected_independently_on_windows():
+    store = str(WINDOWS / "trading-credential-store.ps1").replace("'", "''")
+    script = f"""
+. '{store}'
+$id='PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8'
+$payload=[ordered]@{{schema_version=1;mode='REAL_READONLY';production_id=$id;finam_trading_api_secret='SYNTHETIC_FAKE_TEST_ONLY';finam_real_account_id='SYNTHETIC_ACCOUNT'}}
+$ciphertext=Protect-TradingPayload $payload
+try {{ Unprotect-TradingBytes $ciphertext $id; exit 20 }}
+catch {{ if ($_.Exception.Message -cne 'TRADING_DPAPI_MODE_INVALID') {{ exit 21 }} }}
+"""
+    completed = run_windows_powershell(script)
+    assert completed.returncode == 0, completed.stderr
+
+
+@pytest.mark.skipif(os.name != "nt", reason="actual CurrentUser DPAPI and Windows ACL execution requires Windows")
+def test_wrong_principal_metadata_is_rejected_on_windows(tmp_path):
+    store = str(WINDOWS / "trading-credential-store.ps1").replace("'", "''")
+    root = str(tmp_path).replace("'", "''")
+    script = f"""
+. '{store}'
+$id='PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8'
+$root='{root}'
+$secrets=New-Item -ItemType Directory -Force -Path (Join-Path $root 'secrets')
+$principal=Get-TradingPrincipal
+$payload=[ordered]@{{schema_version=1;mode='TRADING_CAPABLE_NOT_AUTHORIZED';production_id=$id;finam_trading_api_secret='SYNTHETIC_FAKE_TEST_ONLY';finam_real_account_id='SYNTHETIC_ACCOUNT'}}
+[IO.File]::WriteAllBytes((Join-Path $secrets $script:TradingCredentialFile),(Protect-TradingPayload $payload))
+$metadata=[ordered]@{{schema_version=1;mode='TRADING_CAPABLE_NOT_AUTHORIZED';scope='CurrentUser';creation_utc='2000-01-01T00:00:00Z';production_id=$id;principal_sid_sha256=('0' * 64)}}
+$metadata | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $secrets $script:TradingCredentialMetadataFile) -Encoding UTF8
+Set-TradingPrivateAcl $secrets.FullName $principal.Sid
+Set-TradingPrivateAcl (Join-Path $secrets $script:TradingCredentialFile) $principal.Sid
+Set-TradingPrivateAcl (Join-Path $secrets $script:TradingCredentialMetadataFile) $principal.Sid
+try {{ Get-TradingCredential $root $id; exit 30 }}
+catch {{ if ($_.Exception.Message -cne 'TRADING_DPAPI_PRINCIPAL_MISMATCH') {{ exit 31 }} }}
+"""
+    completed = run_windows_powershell(script)
+    assert completed.returncode == 0, completed.stderr
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows ACL execution requires Windows")
+def test_private_acl_accepts_hardened_path_and_rejects_everyone_on_windows(tmp_path):
+    store = str(WINDOWS / "trading-credential-store.ps1").replace("'", "''")
+    target = str(tmp_path / "private").replace("'", "''")
+    script = f"""
+. '{store}'
+$path=New-Item -ItemType Directory -Force -Path '{target}'
+$principal=Get-TradingPrincipal
+Set-TradingPrivateAcl $path.FullName $principal.Sid
+Assert-TradingPrivateAcl $path.FullName $principal.Sid
+$acl=Get-Acl -LiteralPath $path.FullName
+$everyone=New-Object Security.Principal.SecurityIdentifier('S-1-1-0')
+$acl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule($everyone,'Read','Allow')))
+Set-Acl -LiteralPath $path.FullName -AclObject $acl
+try {{ Assert-TradingPrivateAcl $path.FullName $principal.Sid; exit 40 }}
+catch {{ if ($_.Exception.Message -cne 'TRADING_DPAPI_ACL_INVALID') {{ exit 41 }} }}
+"""
+    completed = run_windows_powershell(script)
     assert completed.returncode == 0, completed.stderr
