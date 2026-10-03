@@ -3,8 +3,8 @@ import hashlib
 
 EXPECTED = {
     "trading_safety_gate.py": "64c781579e630836cfde7a0b772df1e2707caf35decafb9acdc75d7d2e3df6e4",
-    "safety_gate_validation.py": "c8b13bc0938a0b8362c5c75db46d75bff17dd04bede769bb323f99b443bd26ff",
-    "deploy/windows/validate-trading-safety-gates.ps1": "2c10fbfcfdf5e79bf8d224dc05f50d9e536b89b8623cef7526329a7e252ab9eb",
+    "safety_gate_validation.py": "baf9f85f8fa3c6c789db7ce40d9d23fb13d7854c11820986f33c1c5436716b9f",
+    "deploy/windows/validate-trading-safety-gates.ps1": "7da9ff0a252008f41c771866d528cbaf4ce2fc97221b87a1b933d50acb75c4d5",
 }
 
 def canonical(raw):
@@ -20,6 +20,14 @@ def test_lf_crlf_canonical_hashes_and_content_mutation():
 def test_wrapper_is_offline_halt_only():
     text=(Path(__file__).parents[1]/"deploy/windows/validate-trading-safety-gates.ps1").read_text()
     assert "Get-ScheduledTask" in text and "Push-Location" in text and "Pop-Location" in text
+    halt = text.index("emergency_halt")
+    validation = text.index("TradingSystemLab.stage8_robot.safety_gate_validation")
+    final_halt = text.rindex("load_kill_switch")
+    assert halt < validation < final_halt
+    assert "--production-runtime-root $runtime" in text
     assert "emergency_halt" in text and "allow_arm" not in text.lower()
-    for forbidden in ("Enable-ScheduledTask","Start-ScheduledTask","Invoke-WebRequest","Invoke-RestMethod"):
+    assert "Get-ScheduledTask" in text
+    for forbidden in ("Enable-ScheduledTask","Start-ScheduledTask","Register-ScheduledTask","Invoke-WebRequest","Invoke-RestMethod",
+                      "credential-store.ps1","trading-credential-store.ps1","Get-ReadonlyCredential","Get-TradingCredential",
+                      "execution_authorized=true"):
         assert forbidden not in text

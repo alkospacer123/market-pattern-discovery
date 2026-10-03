@@ -32,7 +32,7 @@ try {
     # Actual runtime action is HALT only.  Synthetic ARMED fixtures remain isolated.
     & $Python -c "from pathlib import Path; from TradingSystemLab.stage8_robot.trading_safety_gate import emergency_halt,load_kill_switch; p=Path(r'''$runtime'''); emergency_halt(p); s,e=load_kill_switch(p); assert not e and s['state']=='HALTED'"
     if ($LASTEXITCODE -ne 0) { throw "STAGE8_10_6_PRODUCTION_HALT_FAILED" }
-    & $Python -m TradingSystemLab.stage8_robot.safety_gate_validation --runtime-root $temporary --report $ReportPath
+    & $Python -m TradingSystemLab.stage8_robot.safety_gate_validation --runtime-root $temporary --production-runtime-root $runtime --report $ReportPath
     if ($LASTEXITCODE -ne 0) { throw "STAGE8_10_6_VALIDATION_FAILED" }
     & $Python -c "from pathlib import Path; from TradingSystemLab.stage8_robot.trading_safety_gate import load_kill_switch; s,e=load_kill_switch(Path(r'''$runtime''')); assert not e and s['state']=='HALTED'"
     if ($LASTEXITCODE -ne 0) { throw "STAGE8_10_6_FINAL_HALT_INVALID" }

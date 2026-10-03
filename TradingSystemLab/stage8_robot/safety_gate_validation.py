@@ -7,6 +7,7 @@ from .specification import PRODUCTION_SPECIFICATION_ID
 from .trading_safety_gate import emergency_halt, evaluate_new_entry_gate, write_kill_switch, load_kill_switch, REPOSITORY_ROOT
 
 REPORT_NAME = "stage8_10_6_safety_gate_validation.json"
+PRODUCTION_HALT_INVALID = "STAGE8_10_6_PRODUCTION_KILL_SWITCH_NOT_HALTED"
 
 def _heartbeat(now):
     return {"production_id":PRODUCTION_SPECIFICATION_ID,"mode":"REAL_READONLY","health_status":"HEALTHY",
@@ -61,9 +62,28 @@ def validate(*, workspace: Path | None = None) -> dict:
       "real_order_endpoint_called":False,"real_order_count":0,"live_trading_authorized":False,"real_order_transmission_authorized":False,"execution_authorized":False,
       "stage8_10_7_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"}
 
+def add_production_halt_observation(result: dict, *, production_runtime_root: Path) -> dict:
+    """Read an external switch without mutating it and add only sanitized facts."""
+    root = production_runtime_root.resolve()
+    if root == REPOSITORY_ROOT or REPOSITORY_ROOT in root.parents:
+        raise ValueError("STAGE8_10_6_PRODUCTION_RUNTIME_IN_REPOSITORY_FORBIDDEN")
+    state, error = load_kill_switch(root)
+    if error or state is None or state["state"] != "HALTED":
+        raise ValueError(PRODUCTION_HALT_INVALID)
+    return {
+        **result,
+        "production_kill_switch_initialized": True,
+        "production_kill_switch_final_state": "HALTED",
+        "production_kill_switch_valid": True,
+    }
+
 def main():
-    parser=argparse.ArgumentParser(); parser.add_argument("--runtime-root",type=Path,required=True); parser.add_argument("--report",type=Path,required=True); args=parser.parse_args()
+    parser=argparse.ArgumentParser(); parser.add_argument("--runtime-root",type=Path,required=True); parser.add_argument("--production-runtime-root",type=Path,required=True); parser.add_argument("--report",type=Path,required=True); args=parser.parse_args()
     report=args.report.resolve()
     if report==REPOSITORY_ROOT or REPOSITORY_ROOT in report.parents: parser.error("STAGE8_10_6_REPOSITORY_OUTPUT_FORBIDDEN")
-    result=validate(workspace=args.runtime_root); report.parent.mkdir(parents=True,exist_ok=True); report.write_text(json.dumps(result,indent=2,sort_keys=True)+"\n"); print(json.dumps(result,sort_keys=True))
+    try:
+        result=add_production_halt_observation(validate(workspace=args.runtime_root),production_runtime_root=args.production_runtime_root)
+    except ValueError as error:
+        parser.error(str(error))
+    report.parent.mkdir(parents=True,exist_ok=True); report.write_text(json.dumps(result,indent=2,sort_keys=True)+"\n"); print(json.dumps(result,sort_keys=True))
 if __name__=="__main__": main()

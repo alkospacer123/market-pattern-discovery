@@ -428,6 +428,82 @@ def test_stage_8_10_6_external_files_are_rejected():
         assert "STAGE_8_10_6_EXTERNAL_ARTIFACTS_NOT_TRACKED" in result["errors"]
 
 
+def _assert_stage_8_10_6_semantic_failure(relative, mutation, error):
+    full = "TradingSystemLab/stage8_robot/" + relative
+    final_result = run_audit({full: mutation})
+    assert error in final_result["errors"]
+    stage8_result = stage8.audit(write_result=False, source_overrides={relative: mutation})
+    assert error in stage8_result["errors"]
+
+
+def _stage_8_10_6_source(relative):
+    return source("TradingSystemLab/stage8_robot/" + relative)
+
+
+@pytest.mark.parametrize("payload", [
+    "from . import finam_api", "from . import broker", "from . import runner",
+    "import urllib.request\nurllib.request.urlopen('https://invalid')", "import requests\nrequests.get('https://invalid')",
+    "import socket\nsocket.socket()",
+])
+def test_stage_8_10_6_safety_capability_mutations_fail_semantic_audits(payload):
+    relative = "trading_safety_gate.py"
+    _assert_stage_8_10_6_semantic_failure(relative, _stage_8_10_6_source(relative) + "\n" + payload + "\n", "STAGE_8_10_6_OFFLINE_FAIL_CLOSED")
+
+
+@pytest.mark.parametrize("payload", ["from . import finam_api", "import requests", "from . import broker\nbroker.place_order()"])
+def test_stage_8_10_6_validation_capability_mutations_fail_semantic_audits(payload):
+    relative = "safety_gate_validation.py"
+    _assert_stage_8_10_6_semantic_failure(relative, _stage_8_10_6_source(relative) + "\n" + payload + "\n", "STAGE_8_10_6_OFFLINE_FAIL_CLOSED")
+
+
+@pytest.mark.parametrize("payload", [
+    ". $PSScriptRoot\\credential-store.ps1", ". $PSScriptRoot\\trading-credential-store.ps1",
+    "Get-ReadonlyCredential", "Get-TradingCredential", "Invoke-WebRequest https://invalid",
+    "Invoke-RestMethod https://invalid", "curl https://invalid", "Enable-ScheduledTask x",
+    "Start-ScheduledTask x", "Register-ScheduledTask x", "$allow_arm = $true", "$execution_authorized=true",
+])
+def test_stage_8_10_6_wrapper_capability_mutations_fail_semantic_audits(payload):
+    relative = "deploy/windows/validate-trading-safety-gates.ps1"
+    _assert_stage_8_10_6_semantic_failure(relative, _stage_8_10_6_source(relative) + "\n" + payload + "\n", "STAGE_8_10_6_WRAPPER_HALT_ONLY")
+
+
+@pytest.mark.parametrize(("before", "after"), [
+    ('return None, "KILL_SWITCH_MISSING"', 'return {"state":"ARMED"}, None'),
+    ('return None, "KILL_SWITCH_INVALID"', 'return {"state":"ARMED"}, None'),
+    ('if switch["state"] == "HALTED": reasons.append("KILL_SWITCH_HALTED")', 'if False: reasons.append("KILL_SWITCH_HALTED")'),
+    ('if execution_authorized is not True: reasons.append("EXECUTION_NOT_AUTHORIZED")', 'if False: reasons.append("EXECUTION_NOT_AUTHORIZED")'),
+    ('heartbeat.get("health_status") == "HEALTHY"', 'True'),
+    ('heartbeat.get("reconciliation_status") == "PASS"', 'True'),
+    ('heartbeat.get("entries_enabled") is False', 'True'),
+    ('heartbeat.get("unresolved_order_count") == 0', 'heartbeat.get("unresolved_order_count") >= 0'),
+    ('heartbeat.get("failure_code") is None', 'True'),
+    ('heartbeat.get("consecutive_failures") == 0', 'heartbeat.get("consecutive_failures") >= 0'),
+    ('heartbeat.get("cycle_count") >= 1', 'heartbeat.get("cycle_count") >= 0'),
+    ('elif age > MAX_HEARTBEAT_AGE_SECONDS: reasons.append("HEARTBEAT_STALE")',
+     'elif age > MAX_HEARTBEAT_AGE_SECONDS * 2: reasons.append("HEARTBEAT_STALE")'),
+    ('elif age > MAX_HEARTBEAT_AGE_SECONDS: reasons.append("FINAM_CONTACT_STALE")',
+     'elif age > MAX_HEARTBEAT_AGE_SECONDS * 2: reasons.append("FINAM_CONTACT_STALE")'),
+    ('_HASH.fullmatch', 're.fullmatch'),
+    ('REPOSITORY_OUTPUT_FORBIDDEN', 'OUTPUT_ALLOWED_IN_REPOSITORY'),
+])
+def test_stage_8_10_6_fail_closed_gate_mutations_fail_semantic_audits(before, after):
+    relative = "trading_safety_gate.py"
+    original = _stage_8_10_6_source(relative)
+    assert before in original
+    _assert_stage_8_10_6_semantic_failure(relative, original.replace(before, after), "STAGE_8_10_6_OFFLINE_FAIL_CLOSED")
+
+
+@pytest.mark.parametrize("field", [
+    '"production_kill_switch_initialized": True', '"production_kill_switch_final_state": "HALTED"',
+    '"production_kill_switch_valid": True',
+])
+def test_stage_8_10_6_physical_report_contract_mutations_fail_semantic_audits(field):
+    relative = "safety_gate_validation.py"
+    original = _stage_8_10_6_source(relative)
+    assert field in original
+    _assert_stage_8_10_6_semantic_failure(relative, original.replace(field, '"removed": False'), "STAGE_8_10_6_PHYSICAL_REPORT_CONTRACT")
+
+
 def test_later_execution_stages_started_or_authorized_fail():
     path = "TradingSystemLab/CURRENT_STATE.md"
     for stage, error in (("8.11", "STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED"),

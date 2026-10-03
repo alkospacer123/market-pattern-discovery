@@ -15,7 +15,46 @@ def csv_rows(path):
 def current_readme_status(document):
     match=re.search(r"^\*\*Status:\*\*\s+`([^`]+)`",document,re.M)
     return match.group(1) if match else None
-def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=None):
+def _stage8_10_6_python_safe(source):
+    try: tree=ast.parse(source)
+    except SyntaxError: return False
+    forbidden_modules=("finam_api","broker","runner","urllib.request","requests","httpx","socket","http.client","subprocess")
+    imports=[]
+    for node in ast.walk(tree):
+        if isinstance(node,ast.Import): imports.extend(alias.name.lower() for alias in node.names)
+        elif isinstance(node,ast.ImportFrom):
+            imports.append((node.module or "").lower())
+            imports.extend(alias.name.lower() for alias in node.names)
+    forbidden_calls={"urlopen","request","post","put","patch","delete","place_order","submit_order","cancel_order","modify_order"}
+    calls={node.func.attr.lower() if isinstance(node.func,ast.Attribute) else node.func.id.lower()
+           for node in ast.walk(tree) if isinstance(node,ast.Call) and isinstance(node.func,(ast.Attribute,ast.Name))}
+    return not any(module == term or module.startswith(term + ".") for module in imports for term in forbidden_modules) and not calls.intersection(forbidden_calls)
+
+def _stage8_10_6_semantics(safety,validation,wrapper):
+    safety_required=(
+        'return None, "KILL_SWITCH_MISSING"', 'return None, "KILL_SWITCH_INVALID"',
+        'if switch["state"] == "HALTED": reasons.append("KILL_SWITCH_HALTED")',
+        'if execution_authorized is not True: reasons.append("EXECUTION_NOT_AUTHORIZED")',
+        'heartbeat.get("health_status") == "HEALTHY"', 'heartbeat.get("reconciliation_status") == "PASS"',
+        'heartbeat.get("entries_enabled") is False', 'heartbeat.get("unresolved_order_count") == 0',
+        'heartbeat.get("failure_code") is None', 'heartbeat.get("consecutive_failures") == 0',
+        'heartbeat.get("cycle_count") >= 1', 'elif age > MAX_HEARTBEAT_AGE_SECONDS: reasons.append("HEARTBEAT_STALE")',
+        'elif age > MAX_HEARTBEAT_AGE_SECONDS: reasons.append("FINAM_CONTACT_STALE")',
+        'last_successful_finam_api_contact', '_HASH.fullmatch', 'REPOSITORY_OUTPUT_FORBIDDEN')
+    report_required=('"production_kill_switch_initialized": True','"production_kill_switch_final_state": "HALTED"',
+                     '"production_kill_switch_valid": True','--production-runtime-root','load_kill_switch(root)')
+    wrapper_forbidden=("credential-store.ps1","trading-credential-store.ps1","get-readonlycredential","get-tradingcredential",
+        "initialize-readonly-credentials","initialize-trading-credentials","invoke-webrequest","invoke-restmethod","curl","wget",
+        "run-readonly","install-task","runner","broker","enable-scheduledtask","start-scheduledtask","register-scheduledtask","allow_arm",
+        "execution_authorized=true")
+    lower=wrapper.lower()
+    offline=_stage8_10_6_python_safe(safety) and _stage8_10_6_python_safe(validation) and all(x in safety for x in safety_required)
+    halt_only=(not any(x in lower for x in wrapper_forbidden)
+               and not re.search(r"execution[_-]?authorized\s*=\s*\$?true",lower))
+    report_contract=all(x in validation for x in report_required) and "--production-runtime-root $runtime" in wrapper
+    return offline,halt_only,report_contract
+
+def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=None,source_overrides=None):
     errors=[]; checks=0
     def check(ok,name):
         nonlocal checks; checks+=1
@@ -266,11 +305,14 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     expected_safety={"status":safety_status,"physical_validation_performed":False,"production_kill_switch_initialized":False,"production_kill_switch_halted_observed":False,"synthetic_safety_matrix_validated":False,"emergency_halt_validated":False,"execution_authorized":False,"external_network_calls":0,"real_order_endpoint_called":False,"real_order_count":0,"live_trading_authorized":False,"real_order_transmission_authorized":False,"stage8_10_status":"IN_PROGRESS","stage8_10_7_status":"NOT_STARTED","stage8_10_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"}
     check(safety_gate==expected_safety,"STAGE_8_10_6_MACHINE_AUTHORITY_EXACT")
     safety_path=HERE/"trading_safety_gate.py"; validation_path=HERE/"safety_gate_validation.py"; safety_wrapper=HERE/"deploy/windows/validate-trading-safety-gates.ps1"
-    safety_source=safety_path.read_text(); wrapper_source=safety_wrapper.read_text()
+    source_overrides=source_overrides or {}
+    safety_source=source_overrides.get("trading_safety_gate.py",safety_path.read_text()); validation_source=source_overrides.get("safety_gate_validation.py",validation_path.read_text()); wrapper_source=source_overrides.get("deploy/windows/validate-trading-safety-gates.ps1",safety_wrapper.read_text())
     check(all(p.is_file() for p in (safety_path,validation_path,safety_wrapper)),"STAGE_8_10_6_IMPLEMENTATION_PRESENT")
-    check(canonical_text_sha256(safety_path.read_bytes())=="64c781579e630836cfde7a0b772df1e2707caf35decafb9acdc75d7d2e3df6e4" and canonical_text_sha256(validation_path.read_bytes())=="c8b13bc0938a0b8362c5c75db46d75bff17dd04bede769bb323f99b443bd26ff" and canonical_text_sha256(safety_wrapper.read_bytes())=="2c10fbfcfdf5e79bf8d224dc05f50d9e536b89b8623cef7526329a7e252ab9eb","STAGE_8_10_6_IMPLEMENTATION_HASHES")
-    check(not any(term in safety_source.lower() for term in ("import broker","import runner","import finam_api","urllib","requests","socket","http.client")) and "REPOSITORY_OUTPUT_FORBIDDEN" in safety_source and "execution_authorized: bool = False" in safety_source,"STAGE_8_10_6_OFFLINE_FAIL_CLOSED")
-    check("allow_arm" not in wrapper_source.lower() and not any(term in wrapper_source for term in ("Enable-ScheduledTask","Start-ScheduledTask","Invoke-WebRequest","Invoke-RestMethod")),"STAGE_8_10_6_WRAPPER_HALT_ONLY")
+    check(canonical_text_sha256(safety_path.read_bytes())=="64c781579e630836cfde7a0b772df1e2707caf35decafb9acdc75d7d2e3df6e4" and canonical_text_sha256(validation_path.read_bytes())=="baf9f85f8fa3c6c789db7ce40d9d23fb13d7854c11820986f33c1c5436716b9f" and canonical_text_sha256(safety_wrapper.read_bytes())=="7da9ff0a252008f41c771866d528cbaf4ce2fc97221b87a1b933d50acb75c4d5","STAGE_8_10_6_IMPLEMENTATION_HASHES")
+    offline_safe,wrapper_halt_only,physical_report_contract=_stage8_10_6_semantics(safety_source,validation_source,wrapper_source)
+    check(offline_safe,"STAGE_8_10_6_OFFLINE_FAIL_CLOSED")
+    check(wrapper_halt_only,"STAGE_8_10_6_WRAPPER_HALT_ONLY")
+    check(physical_report_contract,"STAGE_8_10_6_PHYSICAL_REPORT_CONTRACT")
     check(not any(Path(path).name.lower() in {"stage8-trading-kill-switch.json","stage8_10_6_safety_gate_validation.json"} for path in tracked),"STAGE_8_10_6_EXTERNAL_ARTIFACTS_NOT_TRACKED")
     check(all(safety_status in document and "Stage 8.10.6 is **CODE READY / PENDING PHYSICAL VALIDATION**" in document and "Stage 8.10.7 is **NOT STARTED**" in document for document in authoritative_docs),"STAGE_8_10_6_CODE_READY_SYNCHRONIZED")
     check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in document

@@ -1,5 +1,5 @@
 {
-  "checks": 77,
+  "checks": 78,
   "emergency_halt_validated": false,
   "enumerated_account_count": 1,
   "errors": [],
@@ -81,7 +81,7 @@
   "stage8_9_started": true,
   "stage8_9_status": "STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE",
   "stage8_9_zero_capacity_case_count": 4,
-  "stage8_audit_checks": 183,
+  "stage8_audit_checks": 184,
   "stage8_audit_status": "PASS",
   "status": "PASS",
   "synthetic_safety_matrix_validated": false,
