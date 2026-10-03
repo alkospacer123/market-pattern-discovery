@@ -473,8 +473,9 @@ def _stage_8_10_7_source(relative):
 
 
 @pytest.mark.parametrize("payload", [
-    "api.orders()", "api.order()", "api.place_order()", "api.cancel_order()",
-    "from . import broker", "from . import runner", "import requests", "import httpx",
+    "api.orders()", "api.order()", "api.place_order()", "api.cancel_order()", "api.submit_order()",
+    "api.modify_order()", "from . import broker", "from . import runner", "from . import operations",
+    "from . import reconciliation", "import requests", "import httpx",
     "import socket", "import http.client", "import urllib.request\nurllib.request.urlopen('https://invalid')",
 ])
 def test_stage_8_10_7_forbidden_session_capability_mutations_fail(payload):
@@ -485,10 +486,10 @@ def test_stage_8_10_7_forbidden_session_capability_mutations_fail(payload):
 
 @pytest.mark.parametrize(("before", "after"), [
     ("api.create_session()", "pass"), ("api.session_details()", "{}"),
-    ('switch.get("state") != "HALTED"', "False"),
     ("local_account_binding_confirmed is not True", "False"),
     ('type(details["readonly"]) is not bool', "False"),
     ('details["readonly"] is not False', "False"), ("occurrences != 1", "False"),
+    ("occurrences = [str(value) for value in account_ids].count(str(expected_account))", "occurrences = 1"),
     ("REPOSITORY_OUTPUT_FORBIDDEN", "REPOSITORY_OUTPUT_ALLOWED"),
 ])
 def test_stage_8_10_7_fail_closed_diagnostic_mutations_fail(before, after):
@@ -501,14 +502,29 @@ def test_stage_8_10_7_fail_closed_diagnostic_mutations_fail(before, after):
 @pytest.mark.parametrize("payload", [
     "$env:FINAM_API_SECRET = 'x'", "$env:FINAM_REAL_ACCOUNT_ID = 'x'",
     "$env:FINAM_TRADING_API_SECRET = 'x'", "$env:FINAM_TRADING_ACCOUNT_ID = 'x'",
-    "$env:FINAM_PERMISSION_READONLY_API_SECRET = 'x'", "Enable-ScheduledTask x",
-    "Start-ScheduledTask x", "Register-ScheduledTask x", "write_kill_switch", "emergency_halt",
-    "$allow_arm=$true", "$execution_authorized=true", "place_order()",
+    "$env:FINAM_PERMISSION_READONLY_API_SECRET = 'x'",
+    "$env:FINAM_API_SECRET = $readonlyCredential.finam_api_secret",
+    "$env:FINAM_8107_READONLY_API_SECRET = $readonlyCredential.finam_api_secret",
+    "$env:FINAM_8107_TRADING_API_SECRET = $readonlyCredential.finam_api_secret",
 ])
 def test_stage_8_10_7_wrapper_capability_mutations_fail(payload):
     relative = "deploy/windows/validate-trading-token-intel-acceptance.ps1"
     mutation = _stage_8_10_7_source(relative) + "\n" + payload + "\n"
     _assert_stage_8_10_7_semantic_failure(relative, mutation, "STAGE_8_10_7_WRAPPER_CREDENTIAL_BOUNDARY")
+
+
+@pytest.mark.parametrize("payload", [
+    "Enable-ScheduledTask x", "Start-ScheduledTask x", "Register-ScheduledTask x", "Set-ScheduledTask x",
+    "write_kill_switch", "emergency_halt", "$allow_arm=$true", "$execution_authorized=true",
+    "place_order()", "submit_order()", "cancel_order()", "modify_order()", "orders()",
+    "run-readonly", "install-task", "readonly_supervisor", "runner", "broker",
+    "order_path_dry_validation", "validate-order-path-dry", "Invoke-WebRequest https://invalid",
+    "Invoke-RestMethod https://invalid", "curl https://invalid", "wget https://invalid",
+])
+def test_stage_8_10_7_wrapper_runtime_mutations_fail(payload):
+    relative = "deploy/windows/validate-trading-token-intel-acceptance.ps1"
+    mutation = _stage_8_10_7_source(relative) + "\n" + payload + "\n"
+    _assert_stage_8_10_7_semantic_failure(relative, mutation, "STAGE_8_10_7_WRAPPER_NOT_RUNTIME_WIRED")
 
 
 def test_stage_8_10_7_wrapper_binding_and_ordering_mutations_fail():
@@ -517,13 +533,66 @@ def test_stage_8_10_7_wrapper_binding_and_ordering_mutations_fail():
     for term in ("finam_real_account_id -cne", "$env:FINAM_8107_TRADING_API_SECRET"):
         _assert_stage_8_10_7_semantic_failure(relative, original.replace(term, "removed", 1),
                                               "STAGE_8_10_7_WRAPPER_CREDENTIAL_BOUNDARY")
+    source = "$env:FINAM_8107_TRADING_API_SECRET = [string]$tradingCredential.finam_trading_api_secret"
+    mutation = original.replace(source, "$env:FINAM_8107_TRADING_API_SECRET = [string]$readonlyCredential.finam_api_secret")
+    _assert_stage_8_10_7_semantic_failure(relative, mutation, "STAGE_8_10_7_WRAPPER_CREDENTIAL_BOUNDARY")
+
+
+def test_stage_8_10_7_kill_switch_mutations_fail():
+    relative = "trading_token_intel_acceptance.py"
+    original = _stage_8_10_7_source(relative)
+    for term in ('_halted_switch(runtime_root)\n', '_halted_switch(runtime_root, post=True)\n'):
+        assert term in original
+        _assert_stage_8_10_7_semantic_failure(relative, original.replace(term, "", 1),
+                                              "STAGE_8_10_7_KILL_SWITCH_HALTED_REQUIRED")
+
+
+def test_stage_8_10_7_wrapper_ordering_mutations_fail():
+    relative = "deploy/windows/validate-trading-token-intel-acceptance.ps1"
+    original = _stage_8_10_7_source(relative)
+    halt = "    Assert-KillSwitchHalted\n"
+    store = '    . (Join-Path $PSScriptRoot "credential-store.ps1")\n'
+    moved_credentials = original.replace(halt, "", 1).replace(store, store + halt, 1)
+    _assert_stage_8_10_7_semantic_failure(relative, moved_credentials, "STAGE_8_10_7_WRAPPER_NOT_RUNTIME_WIRED")
+    child = "    & $Python -m TradingSystemLab.stage8_robot.trading_token_intel_acceptance --runtime-root $runtime --report $ReportPath\n"
+    comparison = "    if ([string]$readonlyCredential.finam_real_account_id -cne [string]$tradingCredential.finam_real_account_id) {\n        throw \"STAGE8_10_7_LOCAL_ACCOUNT_MISMATCH\"\n    }\n"
+    moved_child = original.replace(child, "", 1).replace(comparison, child + comparison, 1)
+    _assert_stage_8_10_7_semantic_failure(relative, moved_child, "STAGE_8_10_7_WRAPPER_NOT_RUNTIME_WIRED")
+    post = original.rfind(halt)
+    _assert_stage_8_10_7_semantic_failure(relative, original[:post] + original[post + len(halt):],
+                                          "STAGE_8_10_7_WRAPPER_NOT_RUNTIME_WIRED")
+    post_host = original.rfind("    Assert-HostSafe\n")
+    _assert_stage_8_10_7_semantic_failure(relative, original[:post_host] + original[post_host + 20:],
+                                          "STAGE_8_10_7_WRAPPER_NOT_RUNTIME_WIRED")
+
+
+@pytest.mark.parametrize("term", ['foreach ($name in $stageEnvironment) { Remove-Item "Env:$name" -ErrorAction SilentlyContinue }',
+                                  '$readonlyCredential = $null\n    $tradingCredential = $null', '    Pop-Location\n'])
+def test_stage_8_10_7_wrapper_cleanup_mutations_fail(term):
+    relative = "deploy/windows/validate-trading-token-intel-acceptance.ps1"
+    original = _stage_8_10_7_source(relative)
+    assert term in original
+    _assert_stage_8_10_7_semantic_failure(relative, original.replace(term, "", 1),
+                                          "STAGE_8_10_7_CLEANUP_CONTRACT")
 
 
 def test_stage_8_10_7_report_contract_mutation_fails():
     relative = "trading_token_intel_acceptance.py"
     original = _stage_8_10_7_source(relative)
-    for term in ("SESSION_CREATE_AND_DETAILS_ONLY", "readonly_token_used_for_remote_auth",
-                 "real_order_transmission_authorized"):
+    for term in ("stage8_10_7_intel_trading_token_acceptance.v1", "INTEL_TRADING_TOKEN_SESSION_ACCEPTANCE_NO_ORDER",
+                 '"local_readonly_trading_account_match": True', '"trading_dpapi_current_user_validated": True',
+                 '"trading_credential_production_id_validated": True', '"production_kill_switch_pre_valid": True',
+                 '"production_kill_switch_pre_state": "HALTED"', '"trading_session_created": True',
+                 '"expected_account_enumerated": True', '"expected_account_occurrence_count": 1',
+                 '"trading_token_readonly": False', '"trading_token_write_boundary_confirmed": True',
+                 "SESSION_CREATE_AND_DETAILS_ONLY", '"production_kill_switch_post_valid": True',
+                 '"production_kill_switch_post_state": "HALTED"', '"trading_token_used": True',
+                 '"readonly_token_used_for_remote_auth": False', '"finam_authentication_performed": True',
+                 '"order_endpoint_called": False', '"order_count": 0', '"execution_authorized": False',
+                 '"live_trading_authorized": False', '"real_order_transmission_authorized": False',
+                 '"scheduled_task_required": False', '"stage8_10_8_status": "NOT_STARTED"',
+                 '"stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED"',
+                 '"stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"'):
         _assert_stage_8_10_7_semantic_failure(relative, original.replace(term, "removed", 1),
                                               "STAGE_8_10_7_REPORT_CONTRACT")
 
