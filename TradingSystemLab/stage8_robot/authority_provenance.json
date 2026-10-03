@@ -78,6 +78,7 @@
     "physical_result": "STAGE_8_9_10_POST_FUNDING_REVALIDATION_PASS=1",
     "funding_classification": "STAGE_8_9_FUNDING_MARGIN_VALIDATED",
     "reason": "ALL_AUTHORITIES_VALID",
+    "sizing_case_count": 8,
     "positive_capacity_case_count": 4,
     "zero_capacity_case_count": 4,
     "positive_batch_reservation_count": 1,

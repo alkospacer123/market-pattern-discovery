@@ -160,7 +160,7 @@ def test_stage_8_9_10_physical_provenance_mutations_fail():
 
 def test_stage_8_9_capacity_counts_mutations_fail():
     path = "TradingSystemLab/CURRENT_STATE.md"
-    for value in ("positive_capacity_case_count = 4", "zero_capacity_case_count = 4",
+    for value in ("sizing_case_count = 8", "positive_capacity_case_count = 4", "zero_capacity_case_count = 4",
                   "positive_batch_reservation_count = 1"):
         result = run_audit({path: source(path).replace(value, "capacity count missing")})
         assert "STAGE_8_9_10_COMPLETED_PROVENANCE_SYNCHRONIZED" in result["errors"]
@@ -201,6 +201,7 @@ def test_stage_8_9_provenance_mutations_fail():
         (final.STAGE_8_9_CODE, "WRONG"),
         (final.STAGE_8_9_REPORT, "WRONG"),
         (final.STAGE_8_9_SUMMARY, "WRONG"),
+        ('"sizing_case_count": 8', '"sizing_case_count": 7'),
         ('"positive_capacity_case_count": 4', '"positive_capacity_case_count": 3'),
         ('"stage8_9_complete": true', '"stage8_9_complete": false'),
         ('"stage8_10_status": "NOT_STARTED_NOT_AUTHORIZED"', '"stage8_10_status": "STARTED_AUTHORIZED"'),

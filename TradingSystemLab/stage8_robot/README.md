@@ -344,7 +344,8 @@ token, exactly one `portfolio_mc` and no `portfolio_forts`, valid financial
 schema, MC initial and maintenance margins, equity, directional margins, exact
 frozen N4 binding, funding/margin feasibility, and batch budget. No
 order-capable operation occurred. Across eight N4-direction sizing cases,
-`positive_capacity_case_count = 4`, `zero_capacity_case_count = 4`, and
+`sizing_case_count = 8`, `positive_capacity_case_count = 4`,
+`zero_capacity_case_count = 4`, and
 `positive_batch_reservation_count = 1`. The positive cases were
 `CNYRUBF:LONG:QTY=2`, `CNYRUBF:SHORT:QTY=2`, `GLDRUBF:LONG:QTY=1`, and
 `GLDRUBF:SHORT:QTY=1`.

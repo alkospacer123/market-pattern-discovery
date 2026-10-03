@@ -31,6 +31,7 @@
   "stage8_9_positive_batch_reservation_count": 1,
   "stage8_9_positive_capacity_case_count": 4,
   "stage8_9_reason": "ALL_AUTHORITIES_VALID",
+  "stage8_9_sizing_case_count": 8,
   "stage8_9_started": true,
   "stage8_9_status": "STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE",
   "stage8_9_zero_capacity_case_count": 4,

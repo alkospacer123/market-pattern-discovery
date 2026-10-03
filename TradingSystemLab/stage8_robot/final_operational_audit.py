@@ -234,6 +234,7 @@ def audit(
     required = (STAGE_8_9_STATUS, STAGE_8_9_REASON, STAGE_8_9_CODE,
                 STAGE_8_9_REPORT, STAGE_8_9_SUMMARY,
                 "STAGE_8_9_10_POST_FUNDING_REVALIDATION_PASS=1",
+                "sizing_case_count = 8",
                 "positive_capacity_case_count = 4", "zero_capacity_case_count = 4",
                 "positive_batch_reservation_count = 1")
     check(all(all(value in doc for value in required) for doc in docs),
@@ -248,6 +249,7 @@ def audit(
           and closeout.get("accepted_code_commit") == STAGE_8_9_CODE
           and closeout.get("diagnostic_report_sha256") == STAGE_8_9_REPORT
           and closeout.get("physical_summary_sha256") == STAGE_8_9_SUMMARY
+          and closeout.get("sizing_case_count") == 8
           and closeout.get("positive_capacity_case_count") == 4
           and closeout.get("zero_capacity_case_count") == 4
           and closeout.get("positive_batch_reservation_count") == 1
@@ -303,6 +305,7 @@ def audit(
         "stage8_9_8_financial_shape_evidence_sha256": STAGE_8_9_8_SHAPE,
         "stage8_9_9_status": "PHYSICAL_REVALIDATION_COMPLETE",
         "stage8_9_10_status": "COMPLETE",
+        "stage8_9_sizing_case_count": 8,
         "stage8_9_positive_capacity_case_count": 4,
         "stage8_9_zero_capacity_case_count": 4,
         "stage8_9_positive_batch_reservation_count": 1,
