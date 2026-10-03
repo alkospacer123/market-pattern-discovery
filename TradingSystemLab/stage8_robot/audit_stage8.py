@@ -1,5 +1,5 @@
 """Independent static/semantic auditor for the Stage 8 foundation."""
-import argparse,ast,csv,json,re,subprocess,sys
+import argparse,ast,csv,hashlib,json,re,subprocess,sys
 from datetime import datetime,timezone
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]; HERE=Path(__file__).resolve().parent
@@ -8,6 +8,8 @@ from specification import PRODUCTION_SPECIFICATION_ID,load_frozen_specification
 from TradingSystemLab.authority_hashing import canonical_authority_sha256
 from TradingSystemLab.stage8_robot.readonly_supervisor import (SafetyFault,newest_expected_h1_close,
                                                                trading_h1_windows)
+def canonical_text_sha256(raw: bytes) -> str:
+    return hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
 def csv_rows(path):
     with path.open(newline="") as stream:return list(csv.DictReader(stream))
 def current_readme_status(document):
@@ -180,8 +182,7 @@ def audit(write_result=True,readme_text=None):
     identity_path=HERE/"trading_identity_binding.py"; identity_wrapper_path=HERE/"deploy/windows/validate-trading-identity-binding.ps1"
     identity_source=identity_path.read_text() if identity_path.is_file() else ""; identity_wrapper=identity_wrapper_path.read_text() if identity_wrapper_path.is_file() else ""
     check(identity_path.is_file() and identity_wrapper_path.is_file(), "STAGE_8_10_3_DIAGNOSTIC_FILES_EXIST")
-    import hashlib
-    check(hashlib.sha256(identity_path.read_bytes()).hexdigest()=="1303459b636c99ae7fea4e2e62863888f56ad0e12ca8311a47782a354069167e" and hashlib.sha256(identity_wrapper_path.read_bytes()).hexdigest()=="0ccaa1c6b7e37bba226c25647a068739dfcc1db2ad7c99a695752235b4a7b399", "STAGE_8_10_3_IMPLEMENTATION_HASHES")
+    check(canonical_text_sha256(identity_path.read_bytes())=="1303459b636c99ae7fea4e2e62863888f56ad0e12ca8311a47782a354069167e" and canonical_text_sha256(identity_wrapper_path.read_bytes())=="0ccaa1c6b7e37bba226c25647a068739dfcc1db2ad7c99a695752235b4a7b399", "STAGE_8_10_3_IMPLEMENTATION_HASHES")
     identity_calls={node.func.attr for node in ast.walk(ast.parse(identity_source)) if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)}
     check(not identity_calls.intersection({"place_order","cancel_order","submit_order","orders","order","account","assets","asset","asset_params","schedule","bars"}) and {"create_session","session_details"}.issubset(identity_calls), "STAGE_8_10_3_SESSION_ONLY_NO_ORDER_CAPABILITY")
     check("trading_identity_binding" not in launcher+task_installer+runner+broker and all(term not in identity_wrapper.lower() for term in ("run-readonly","install-task","scheduledtask","runner","broker","/orders")), "STAGE_8_10_3_NOT_RUNTIME_OR_TASK_WIRED")

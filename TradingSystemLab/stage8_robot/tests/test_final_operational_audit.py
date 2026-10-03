@@ -2,6 +2,8 @@ from pathlib import Path
 import json
 import sys
 
+import pytest
+
 from TradingSystemLab.stage8_robot import final_operational_audit as final
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from TradingSystemLab.stage8_robot import audit_stage8 as stage8
@@ -73,6 +75,49 @@ def test_crlf_protected_implementation_hashes_pass():
 
     assert result["protected_implementation_status"] == "PASS"
     assert not any(error.startswith("PROTECTED_IMPLEMENTATION_HASHES:") for error in result["errors"])
+
+
+STAGE_8_10_3_IMPLEMENTATION_PATHS = (
+    Path("trading_identity_binding.py"),
+    Path("deploy/windows/validate-trading-identity-binding.ps1"),
+)
+
+
+@pytest.mark.parametrize("newline", [b"\n", b"\r\n"])
+def test_stage8_independent_audit_accepts_canonical_and_crlf_implementation_files(
+        monkeypatch, newline):
+    original_read_bytes = Path.read_bytes
+    protected = {stage8.HERE / relative for relative in STAGE_8_10_3_IMPLEMENTATION_PATHS}
+
+    def read_bytes_with_newlines(path):
+        raw = original_read_bytes(path)
+        if path in protected:
+            canonical = raw.replace(b"\r\n", b"\n")
+            return canonical.replace(b"\n", newline)
+        return raw
+
+    monkeypatch.setattr(Path, "read_bytes", read_bytes_with_newlines)
+    result = stage8.audit(write_result=False)
+
+    assert result["status"] == "PASS"
+    assert "STAGE_8_10_3_IMPLEMENTATION_HASHES" not in result["errors"]
+
+
+def test_stage8_independent_audit_rejects_content_mutation_despite_canonical_hashing(
+        monkeypatch):
+    original_read_bytes = Path.read_bytes
+    protected = {stage8.HERE / relative for relative in STAGE_8_10_3_IMPLEMENTATION_PATHS}
+
+    def read_bytes_with_mutation(path):
+        raw = original_read_bytes(path)
+        if path in protected:
+            return raw + b"# semantic mutation\n"
+        return raw
+
+    monkeypatch.setattr(Path, "read_bytes", read_bytes_with_mutation)
+    result = stage8.audit(write_result=False)
+
+    assert "STAGE_8_10_3_IMPLEMENTATION_HASHES" in result["errors"]
 
 
 def test_missing_stage_8_8_5_evidence_sha_fails():
