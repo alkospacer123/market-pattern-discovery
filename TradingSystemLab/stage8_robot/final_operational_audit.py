@@ -47,6 +47,7 @@ STAGE_8_10_3_STATUS = "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE"
 STAGE_8_10_4_STATUS = "STAGE_8_10_4_PERMISSION_BOUNDARY_COMPLETE"
 STAGE_8_10_5_STATUS = "STAGE_8_10_5_ORDER_PATH_DRY_VALIDATION_COMPLETE"
 STAGE_8_10_6_STATUS = "STAGE_8_10_6_KILL_SWITCH_SAFETY_GATES_COMPLETE"
+STAGE_8_10_7_STATUS = "STAGE_8_10_7_INTEL_TRADING_TOKEN_ACCEPTANCE_CODE_READY_PENDING_PHYSICAL_VALIDATION"
 STAGE_8_9_8_STATUS = "STAGE_8_9_8_COMPLETE"
 STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
 STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
@@ -65,6 +66,8 @@ def current_readme_status(document: str) -> str | None:
 # status documents are intentionally excluded: they are outputs/metadata for
 # this gate, not executable or frozen Stage 7 authorities.
 PROTECTED_SHA256 = {
+    "TradingSystemLab/stage8_robot/trading_token_intel_acceptance.py": "84d1acd85af02adfef7781d1fa01cbe5f418a53e5f3ef582224a34490a07b27b",
+    "TradingSystemLab/stage8_robot/deploy/windows/validate-trading-token-intel-acceptance.ps1": "26e7dbe2ff4d262a76d13b97cca181b80a06fb662a029ba3436af1fea2930386",
     "TradingSystemLab/stage8_robot/trading_safety_gate.py": "64c781579e630836cfde7a0b772df1e2707caf35decafb9acdc75d7d2e3df6e4",
     "TradingSystemLab/stage8_robot/safety_gate_validation.py": "baf9f85f8fa3c6c789db7ce40d9d23fb13d7854c11820986f33c1c5436716b9f",
     "TradingSystemLab/stage8_robot/deploy/windows/validate-trading-safety-gates.ps1": "7da9ff0a252008f41c771866d528cbaf4ce2fc97221b87a1b933d50acb75c4d5",
@@ -164,6 +167,56 @@ def _stage8_10_6_semantics(safety: str, validation: str, wrapper: str) -> tuple[
                  and not re.search(r"execution[_-]?authorized\s*=\s*\$?true", lower))
     report_contract = all(item in validation for item in report_required) and "--production-runtime-root $runtime" in wrapper
     return offline, halt_only, report_contract
+
+
+def _stage8_10_7_semantics(diagnostic: str, wrapper: str) -> tuple[bool, bool, bool]:
+    try:
+        tree = ast.parse(diagnostic)
+    except SyntaxError:
+        return False, False, False
+    calls = {node.func.attr.lower() if isinstance(node.func, ast.Attribute) else node.func.id.lower()
+             for node in ast.walk(tree) if isinstance(node, ast.Call) and isinstance(node.func, (ast.Attribute, ast.Name))}
+    imports = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imports.extend(alias.name.lower() for alias in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            imports.append((node.module or "").lower())
+            imports.extend(alias.name.lower() for alias in node.names)
+    forbidden_calls = {"orders", "order", "place_order", "cancel_order", "submit_order", "modify_order",
+                       "account", "assets", "assets_all_active", "asset", "params", "schedule", "bars", "urlopen"}
+    forbidden_imports = ("broker", "runner", "operations", "reconciliation", "requests", "httpx", "socket",
+                         "http.client", "urllib.request")
+    required = ('api.create_session()', 'api.session_details()', 'load_kill_switch(runtime_root)',
+                'switch.get("state") != "HALTED"', 'local_account_binding_confirmed is not True',
+                'type(details["readonly"]) is not bool', 'details["readonly"] is not False',
+                'occurrences != 1', 'REPOSITORY_OUTPUT_FORBIDDEN', '"order_endpoint_called": False',
+                '"execution_authorized": False', '"stage8_10_8_status": "NOT_STARTED"')
+    session_only = (not calls.intersection(forbidden_calls)
+                    and not any(module == term or module.startswith(term + ".")
+                                for module in imports for term in forbidden_imports)
+                    and {"create_session", "session_details", "load_kill_switch"}.issubset(calls)
+                    and all(term in diagnostic for term in required))
+    lower = wrapper.lower()
+    wrapper_required = ('assert-hostsafe', 'assert-killswitchhalted', 'credential-store.ps1',
+        'trading-credential-store.ps1', 'get-readonlycredential', 'get-tradingcredential',
+        'finam_real_account_id -cne', '$env:finam_8107_trading_api_secret', '$env:finam_8107_account_id',
+        'tradingsystemlab.stage8_robot.trading_token_intel_acceptance', 'remove-item "env:$name"',
+        '$readonlycredential = $null', '$tradingcredential = $null', 'push-location $repo', 'pop-location')
+    wrapper_forbidden = ('set-processreadonlycredentials', 'enable-scheduledtask', 'start-scheduledtask',
+        'register-scheduledtask', 'write_kill_switch', 'emergency_halt', 'allow_arm', 'place_order',
+        'submit_order', 'cancel_order', '$env:finam_api_secret =', '$env:finam_real_account_id =',
+        '$env:finam_trading_api_secret =', '$env:finam_trading_account_id =', '$env:finam_permission_',
+        'execution_authorized=true')
+    wrapper_safe = all(term in lower for term in wrapper_required) and not any(term in lower for term in wrapper_forbidden)
+    halted_order = (lower.index('assert-killswitchhalted', lower.index('try {')) < lower.index('credential-store.ps1')
+                    < lower.index('finam_real_account_id -cne') < lower.index('$env:finam_8107_trading_api_secret')
+                    < lower.index('tradingsystemlab.stage8_robot.trading_token_intel_acceptance')
+                    < lower.rindex('assert-killswitchhalted')) if wrapper_safe else False
+    report_contract = all(term in diagnostic for term in
+                          ('SESSION_CREATE_AND_DETAILS_ONLY', 'readonly_token_used_for_remote_auth',
+                           'real_order_transmission_authorized'))
+    return session_only, wrapper_safe and halted_order, report_contract
 
 
 def audit(
@@ -335,7 +388,8 @@ def audit(
     permission_boundary = provenance.get("stage8_10_4", {})
     dry_gate = provenance.get("stage8_10_5", {})
     safety_gate = provenance.get("stage8_10_6", {})
-    check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_6_STATUS,
+    token_acceptance = provenance.get("stage8_10_7", {})
+    check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_7_STATUS,
           "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT")
     check(lifecycle.get("status") == STAGE_8_9_8_STATUS
           and lifecycle.get("stage8_9_9") == "PHYSICAL_REVALIDATION_COMPLETE"
@@ -524,7 +578,16 @@ def audit(
     check(offline_safe, "STAGE_8_10_6_OFFLINE_FAIL_CLOSED")
     check(wrapper_halt_only, "STAGE_8_10_6_WRAPPER_HALT_ONLY")
     check(physical_report_contract, "STAGE_8_10_6_PHYSICAL_REPORT_CONTRACT")
-    check(all(STAGE_8_10_6_STATUS in doc and "Stage 8.10.6 is **COMPLETE**" in doc and "Stage 8.10.7 is **NOT STARTED**" in doc for doc in stage8_9_docs), "STAGE_8_10_6_COMPLETE_SYNCHRONIZED")
+    check(all(STAGE_8_10_6_STATUS in doc and "Stage 8.10.6 is **COMPLETE**" in doc for doc in stage8_9_docs), "STAGE_8_10_6_COMPLETE_SYNCHRONIZED")
+    expected_token={"status":STAGE_8_10_7_STATUS,"physical_validation_performed":False,"trading_dpapi_current_user_validated":False,"local_readonly_trading_account_binding_validated":False,"production_kill_switch_pre_halted_observed":False,"trading_session_created":False,"expected_account_enumerated":False,"expected_account_occurrence_count":0,"trading_token_readonly_false_observed":False,"trading_token_write_boundary_confirmed":False,"production_kill_switch_post_halted_observed":False,"trading_token_used":False,"readonly_token_used_for_remote_auth":False,"finam_authentication_performed":False,"order_endpoint_called":False,"order_count":0,"execution_authorized":False,"live_trading_authorized":False,"real_order_transmission_authorized":False,"stage8_10_status":"IN_PROGRESS","stage8_10_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"}
+    check(token_acceptance == expected_token, "STAGE_8_10_7_MACHINE_AUTHORITY_EXACT")
+    diagnostic=text("TradingSystemLab/stage8_robot/trading_token_intel_acceptance.py")
+    token_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/validate-trading-token-intel-acceptance.ps1")
+    session_only,wrapper_boundary,report_contract=_stage8_10_7_semantics(diagnostic,token_wrapper)
+    check(session_only,"STAGE_8_10_7_SESSION_ONLY_NO_ORDER_CAPABILITY")
+    check(wrapper_boundary,"STAGE_8_10_7_WRAPPER_CREDENTIAL_BOUNDARY")
+    check(report_contract,"STAGE_8_10_7_REPORT_CONTRACT")
+    check(all(STAGE_8_10_7_STATUS in doc and "Stage 8.10.7 is **CODE READY / PENDING PHYSICAL VALIDATION**" in doc and "Stage 8.10.8 is **NOT STARTED**" in doc for doc in stage8_9_docs),"STAGE_8_10_7_CODE_READY_SYNCHRONIZED")
     check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED")
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
@@ -619,7 +682,13 @@ def audit(
         "emergency_halt_validated": True,
         "execution_authorized": False,
         "stage8_10_6_external_network_calls": 0,
-        "stage8_10_7_status": "NOT_STARTED", "stage8_10_8_status": "NOT_STARTED",
+        "stage8_10_7_status": STAGE_8_10_7_STATUS,
+        "stage8_10_7_physical_validation_performed": False,
+        "stage8_10_7_trading_token_used": False,
+        "stage8_10_7_finam_authentication_performed": False,
+        "stage8_10_7_order_endpoint_called": False,
+        "stage8_10_7_order_count": 0,
+        "stage8_10_8_status": "NOT_STARTED",
         "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_9_complete": True, "stage8_9_physical_validation_performed": True,
