@@ -20,6 +20,8 @@ from .finam_api import FinamAPI, FinamUncertainSubmission
 ACCOUNT = "SYNTHETIC-STAGE8-10-5"
 EXPECTED_SYMBOLS = ("USDRUBF@RTSX", "CNYRUBF@RTSX", "GLDRUBF@RTSX", "IMOEXF@RTSX")
 SPECIFICATION = "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8"
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+REPOSITORY_OUTPUT_FORBIDDEN = "STAGE8_10_5_REPORT_REPOSITORY_OUTPUT_FORBIDDEN"
 
 
 class _Response:
@@ -148,13 +150,24 @@ def validate() -> dict:
     }
 
 
+def write_report(destination: Path, report: dict) -> None:
+    """Write external evidence, refusing every destination in the checkout."""
+    destination = destination.resolve()
+    if destination == REPOSITORY_ROOT or REPOSITORY_ROOT in destination.parents:
+        raise ValueError(REPOSITORY_OUTPUT_FORBIDDEN)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    destination = args.output.resolve()
+    if destination == REPOSITORY_ROOT or REPOSITORY_ROOT in destination.parents:
+        parser.error(REPOSITORY_OUTPUT_FORBIDDEN)
     report = validate()
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    write_report(destination, report)
     print(json.dumps(report, sort_keys=True))
 
 

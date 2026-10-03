@@ -15,7 +15,7 @@ def csv_rows(path):
 def current_readme_status(document):
     match=re.search(r"^\*\*Status:\*\*\s+`([^`]+)`",document,re.M)
     return match.group(1) if match else None
-def audit(write_result=True,readme_text=None):
+def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=None):
     errors=[]; checks=0
     def check(ok,name):
         nonlocal checks; checks+=1
@@ -32,7 +32,7 @@ def audit(write_result=True,readme_text=None):
     launcher=(HERE/"deploy/windows/run-readonly.ps1").read_text()
     trading_store=(HERE/"deploy/windows/trading-credential-store.ps1").read_text(); trading_init=(HERE/"deploy/windows/initialize-trading-credentials.ps1").read_text(); trading_verify=(HERE/"deploy/windows/verify-trading-credentials.ps1").read_text()
     credential_store=(HERE/"deploy/windows/credential-store.ps1").read_text(); credential_init=(HERE/"deploy/windows/initialize-readonly-credentials.ps1").read_text(); credential_verify=(HERE/"deploy/windows/verify-readonly-credentials.ps1").read_text(); task_installer=(HERE/"deploy/windows/install-task.ps1").read_text()
-    conformance=json.loads((HERE/"conformance_report.json").read_text()); provenance=json.loads((HERE/"authority_provenance.json").read_text()); registry=(HERE/"production_instrument_registry.csv").read_text(); registry_rows=csv_rows(HERE/"production_instrument_registry.csv")
+    conformance=json.loads((HERE/"conformance_report.json").read_text()); provenance=json.loads(authority_text if authority_text is not None else (HERE/"authority_provenance.json").read_text()); registry=(HERE/"production_instrument_registry.csv").read_text(); registry_rows=csv_rows(HERE/"production_instrument_registry.csv")
     current_state=(ROOT/"TradingSystemLab/CURRENT_STATE.md").read_text()
     project_context=(ROOT/"TradingSystemLab/PROJECT_CONTEXT.md").read_text()
     readme=readme_text if readme_text is not None else (HERE/"README.md").read_text()
@@ -42,7 +42,7 @@ def audit(write_result=True,readme_text=None):
     completed_status="STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE"
     accepted_code_sha="dc2b79e74817e71435eee20103ae617e13067d8e"
     evidence_sha="1A9B62D4BFC0E7384898C9DF9659E54E50E0E202BD44CE19413864AC2ECA14D6"
-    tracked=subprocess.run(["git","ls-files","-z"],cwd=ROOT,check=True,capture_output=True).stdout.decode().split("\0")
+    tracked=(tracked_files if tracked_files is not None else subprocess.run(["git","ls-files","-z"],cwd=ROOT,check=True,capture_output=True).stdout.decode().split("\0"))
     check(all(completed_status in document and "STAGE_8_8_6_SQLITE_RECOVERY_CODE_READY_PENDING_INTEL_ACCEPTANCE" not in document
               for document in (current_state,readme,roadmap)),"STAGE_8_8_6_COMPLETED_STATUS_SYNCHRONIZED")
     check(all(accepted_code_sha in document for document in (current_state,readme,roadmap)),"STAGE_8_8_6_ACCEPTED_CODE_SHA_RECORDED")
@@ -239,9 +239,9 @@ def audit(write_result=True,readme_text=None):
     dry_source=dry_path.read_text() if dry_path.is_file() else ""; dry_wrapper=dry_wrapper_path.read_text() if dry_wrapper_path.is_file() else ""
     check(all(stage8_10_5_status in document and "Stage 8.10.5 is **CODE READY / PENDING PHYSICAL VALIDATION**" in document for document in authoritative_docs),"STAGE_8_10_5_CODE_READY_SYNCHRONIZED")
     check(dry_gate=={"status":stage8_10_5_status,"physical_validation_performed":False,"offline_dry_validation_performed":False,"order_path_dry_validation_validated":False,"real_order_endpoint_called":False,"real_order_count":0,"external_network_calls":0,"trading_token_used_for_stage8_10_5":False,"readonly_token_used_for_stage8_10_5":False,"finam_authentication_performed_for_stage8_10_5":False,"stage8_10_status":"IN_PROGRESS","stage8_10_6_status":"NOT_STARTED","stage8_10_7_through_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"},"STAGE_8_10_5_MACHINE_AUTHORITY_EXACT")
-    check(dry_path.is_file() and dry_wrapper_path.is_file() and canonical_text_sha256(dry_path.read_bytes())=="2e4a514d2e7acaa2aa871eb62216f7bfb6321246509730a19ce6f1cb9b64064a" and canonical_text_sha256(dry_wrapper_path.read_bytes())=="941eaef1e386dd1bb3fc8379a6ba787eef9d5f61ff7163e39baed75f43b20686","STAGE_8_10_5_IMPLEMENTATION_HASHES")
-    forbidden_dry=("urlopen(","requests.","httpx.","socket.","credential-store","get-readonlycredential","get-tradingcredential","run-readonly","install-task","readonly_supervisor","robotsystemlab\\runtime","robotrunner")
-    check("transport=transport" in dry_source and not any(term in (dry_source+dry_wrapper).lower() for term in forbidden_dry) and "order_path_dry_validation" not in launcher+task_installer+runner,"STAGE_8_10_5_OFFLINE_NOT_RUNTIME_WIRED")
+    check(dry_path.is_file() and dry_wrapper_path.is_file() and canonical_text_sha256(dry_path.read_bytes())=="4bf00af63304001a5f127435d764876c02e545af7cfed1672288d6e4b8bdd460" and canonical_text_sha256(dry_wrapper_path.read_bytes())=="a1058ee61f3a9586649bb57a46e72d9d1ef49d89d3954c66df8752df05a98288","STAGE_8_10_5_IMPLEMENTATION_HASHES")
+    forbidden_dry=("urlopen(","requests.","httpx.","socket.","invoke-webrequest","invoke-restmethod","curl ","wget ","credential-store","get-readonlycredential","get-tradingcredential","run-readonly","install-task","readonly_supervisor","tradingsystemlab\\runtime","tradingsystemlab/runtime","robotrunner",".sqlite",".sqlite3","-wal","-shm")
+    check("transport=transport" in dry_source and "REPOSITORY_OUTPUT_FORBIDDEN" in dry_source and not any(term in (dry_source+dry_wrapper).lower() for term in forbidden_dry) and "order_path_dry_validation" not in launcher+task_installer+runner,"STAGE_8_10_5_OFFLINE_NOT_RUNTIME_WIRED")
     check(not any(Path(path).name.lower()=="stage8_10_5_order_path_dry_validation.json" for path in tracked),"STAGE_8_10_5_PHYSICAL_EVIDENCE_NOT_TRACKED")
     check(all(all(f"Stage 8.10.{number} is **NOT STARTED**" in document for number in range(6,9)) for document in authoritative_docs),"STAGE_8_10_6_THROUGH_8_NOT_STARTED")
     check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in document

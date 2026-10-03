@@ -64,8 +64,8 @@ def current_readme_status(document: str) -> str | None:
 # status documents are intentionally excluded: they are outputs/metadata for
 # this gate, not executable or frozen Stage 7 authorities.
 PROTECTED_SHA256 = {
-    "TradingSystemLab/stage8_robot/order_path_dry_validation.py": "2e4a514d2e7acaa2aa871eb62216f7bfb6321246509730a19ce6f1cb9b64064a",
-    "TradingSystemLab/stage8_robot/deploy/windows/validate-order-path-dry.ps1": "941eaef1e386dd1bb3fc8379a6ba787eef9d5f61ff7163e39baed75f43b20686",
+    "TradingSystemLab/stage8_robot/order_path_dry_validation.py": "4bf00af63304001a5f127435d764876c02e545af7cfed1672288d6e4b8bdd460",
+    "TradingSystemLab/stage8_robot/deploy/windows/validate-order-path-dry.ps1": "a1058ee61f3a9586649bb57a46e72d9d1ef49d89d3954c66df8752df05a98288",
     "TradingSystemLab/stage8_robot/trading_permission_boundary.py": "609baa9dda8859486cfdef204c99748088425c70c65895074bbb993df17b6624",
     "TradingSystemLab/stage8_robot/deploy/windows/validate-trading-permission-boundary.ps1": "c4a086e1a8ae955056bb12053d5df9f3b2de9e4106ea6ba640c6e3f2e78a4e33",
     "TradingSystemLab/stage8_robot/trading_identity_binding.py": "1303459b636c99ae7fea4e2e62863888f56ad0e12ca8311a47782a354069167e",
@@ -430,7 +430,15 @@ def audit(
     check(all(STAGE_8_10_5_STATUS in doc and "Stage 8.10.5 is **CODE READY / PENDING PHYSICAL VALIDATION**" in doc for doc in stage8_9_docs), "STAGE_8_10_5_CODE_READY_SYNCHRONIZED")
     check(dry_gate == {"status":STAGE_8_10_5_STATUS,"physical_validation_performed":False,"offline_dry_validation_performed":False,"order_path_dry_validation_validated":False,"real_order_endpoint_called":False,"real_order_count":0,"external_network_calls":0,"trading_token_used_for_stage8_10_5":False,"readonly_token_used_for_stage8_10_5":False,"finam_authentication_performed_for_stage8_10_5":False,"stage8_10_status":"IN_PROGRESS","stage8_10_6_status":"NOT_STARTED","stage8_10_7_through_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"}, "STAGE_8_10_5_MACHINE_AUTHORITY_EXACT")
     dry_source=text("TradingSystemLab/stage8_robot/order_path_dry_validation.py").lower(); dry_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/validate-order-path-dry.ps1").lower()
-    check("transport=transport" in dry_source and not any(term in dry_source+dry_wrapper for term in ("urlopen(","requests.","httpx.","socket.","credential-store","get-readonlycredential","get-tradingcredential","run-readonly","install-task","readonly_supervisor","robotrunner")) and "order_path_dry_validation" not in launcher+installer, "STAGE_8_10_5_OFFLINE_NOT_RUNTIME_WIRED")
+    forbidden_dry = ("urlopen(","requests.","httpx.","socket.","invoke-webrequest",
+                     "invoke-restmethod","curl ","wget ","credential-store",
+                     "get-readonlycredential","get-tradingcredential","run-readonly",
+                     "install-task","readonly_supervisor","tradingsystemlab\\runtime",
+                     "tradingsystemlab/runtime","robotrunner",".sqlite",".sqlite3","-wal","-shm")
+    check("transport=transport" in dry_source and "repository_output_forbidden" in dry_source
+          and not any(term in dry_source+dry_wrapper for term in forbidden_dry)
+          and "order_path_dry_validation" not in launcher+installer,
+          "STAGE_8_10_5_OFFLINE_NOT_RUNTIME_WIRED")
     check(all(all(f"Stage 8.10.{number} is **NOT STARTED**" in doc for number in range(6, 9)) for doc in stage8_9_docs), "STAGE_8_10_6_THROUGH_8_NOT_STARTED")
     check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED")
