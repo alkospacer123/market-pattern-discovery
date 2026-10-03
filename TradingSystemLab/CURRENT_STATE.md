@@ -2,395 +2,213 @@
 
 ## Active handoff
 
-TradingSystemLab has completed Stage 7 Production Specification Freeze and is
-actively in **Stage 8 Robot / FINAM integration**, currently through
-**Stage 8.8.7 Final Operational Audit — Intel acceptance complete**.
+TradingSystemLab is in **Stage 8 Robot / FINAM integration**.
 
-Repository status is
-`BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY` / `ZERO_CONTRACT_CAPACITY`.
-Stage 8.8 operational hardening is COMPLETE. Stages 8.8.1, 8.8.2, 8.8.3,
-8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE. Stage 8.9 is CURRENT; repository diagnostic readiness is retained and physical validation was performed with a fail-closed blocked result;
-Stage 8.10/8.11/8.12 remain pending and not authorized.
+Stage 7 Production Specification Freeze is complete and immutable. Stage 8.8
+operational hardening is complete. Stage 8.9 funding/margin validation has been
+physically revalidated against the corrected UNION account authority, but Stage
+8.9 is **NOT COMPLETE** because the current production account has zero contract
+capacity under the frozen Stage 7 risk/sizing contract.
 
-Resolve the current Git `main` SHA directly from GitHub during every independent
-audit; this versioned file is not authoritative for a moving branch SHA.
-
-Current Stage 8 repository audit state:
-
-- `stage8_status`: `STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE`;
-- `stage8_8_7_status`: `STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_INTEL_ACCEPTANCE_COMPLETE`;
-- Stage 8 independent repository audit: PASS, 142 checks, zero recorded errors;
-- LIVE trading: **NOT AUTHORIZED**;
-- real order transmission: **NOT AUTHORIZED**.
+Current repository anchor before this memory sync:
+`1013a5a2324e015ab3bc047a7b9af9064552cd10`.
 
 ## Frozen Stage 7 production specification
 
-Stage 7 is COMPLETE.
+Production specification:
+`PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`.
 
-Sole active production specification:
+Sole active identity:
+`TRAIL1__N4_01__FULL__R15`.
 
-**`PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`**
+Frozen semantics:
 
-Identity:
+- v3 perpetual / T3 / H1;
+- N4 basket: `USDRUBF + CNYRUBF + GLDRUBF + IMOEXF`;
+- TRAIL1 only;
+- FULL load;
+- R15 = 1.5% current realized equity risk per new instrument position;
+- maximum nominal simultaneous initial risk = 6%;
+- one active position per instrument;
+- no pyramiding;
+- no session filter;
+- no automatic canonical fallback;
+- unrealized PnL excluded from sizing.
 
-- `TRAIL1__N4_01__FULL__R15`;
-- generation: v3 perpetual;
-- strategy: T3;
-- timeframe: H1;
-- basket `N4_01`: `USDRUBF + CNYRUBF + GLDRUBF + IMOEXF`;
-- overlay: TRAIL1;
-- load: FULL;
-- risk mode: R15;
-- risk per new instrument position: **1.5% of current realized equity**;
-- maximum nominal simultaneous initial risk: **6%**;
-- realized equity only; unrealized PnL excluded from sizing;
-- one active position per instrument; no pyramiding;
-- no session entry filter;
-- forbidden overlays: BE1, LOCK1_AFTER_2R, SESSION_10_21, ONE_BAR,
-  EXIT_ON_OPPOSITE_REGIME, STRUCTURAL_STACK.
+`CANONICAL__N4_01__FULL__R15` remains
+`STABLE_REFERENCE_NOT_ACTIVE_PRODUCTION` only.
 
-`CANONICAL__N4_01__FULL__R15` is
-`STABLE_REFERENCE_NOT_ACTIVE_PRODUCTION` only and is never a runtime fallback.
+## Historical research / decision provenance
 
-Stage 7 independent audit: PASS, 22 checks and 19 mutation tests.
+- v1, v2 and v3 research identities and TRUE OOS verdicts are immutable.
+- v3 final TRUE OOS: T2/M30 `BORDERLINE`, T2/H1 `BORDERLINE`,
+  T3/M30 `PASS`, T3/H1 `PASS`.
+- Stage 5 retrospective authority remains `CORRECTED_SINGLE_C1`.
+- Stage 6.x structural/basket work remains revealed retrospective evidence.
+- The focused N4 FULL four-case analysis did not auto-select production; the user
+  explicitly selected `TRAIL1__N4_01__FULL__R15`, which Stage 7 froze.
 
-## Final pre-Stage-7 evidence
+## Stage 8 research-to-robot conformance
 
-Stage 6.7 broad FULL/NORMALIZED evidence remains historical:
+Historical conformance remains exact and deterministic:
 
-- 55 configurations / 110 R cases / 220 equity cases;
-- broad frozen production-eligibility gate produced only N2 eligible cases;
-- no broadly eligible case met the 70–80% target.
+- research-authority replay: 418 / 418 exact trades;
+- production-robot replay: 418 / 418 exact trades;
+- zero timestamp, direction, price, state or R mismatches;
+- repeated replay hashes match.
 
-After that checkpoint, a separately authorized focused N4 FULL four-case analysis
-was completed and independently audited:
+This validates implementation conformance only. It does not authorize live
+trading.
 
-- CANONICAL R15;
-- TRAIL1 R15;
-- CANONICAL R20;
-- TRAIL1 R20.
+## FINAM read-only binding
 
-Headline 2024+ historical evidence:
+All four production instruments are committed as `AUTHENTICATED_REAL_READONLY`:
 
-- CANONICAL R15: CAGR 109.13%, Max DD -16.34%;
-- TRAIL1 R15: CAGR 122.44%, Max DD -19.96%;
-- CANONICAL R20: CAGR 160.44%, Max DD -21.27%;
-- TRAIL1 R20: CAGR 182.14%, Max DD -25.88%.
+- USDRUBF → `USDRUBF@RTSX`, security ID 3447194;
+- CNYRUBF → `CNYRUBF@RTSX`, security ID 3447192;
+- GLDRUBF → `GLDRUBF@RTSX`, security ID 4454911;
+- IMOEXF → `IMOEXF@RTSX`, security ID 4631091.
 
-The four-case analysis did **not** automatically select production. The user
-explicitly selected `TRAIL1__N4_01__FULL__R15`, and Stage 7 froze that exact
-identity. R20 remains historical comparative evidence only.
+No real order has been transmitted. REAL_READONLY remains order-incapable.
 
-## Stage 8 foundation and conformance
+## Stage 8.8 operational hardening
 
-Stage 8 began after Stage 7 and now contains a fail-closed production robot
-foundation under `TradingSystemLab/stage8_robot/`.
+Stage 8.8 operational hardening is COMPLETE.
+Stages 8.8.1, 8.8.2, 8.8.3, 8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE.
 
-Key accepted properties:
+### Stage 8.8.5 — H1 freshness / stale-data acceptance
 
-- runtime parameters cannot alter the frozen Stage 7 strategy identity;
-- no canonical-reference runtime fallback;
-- LIVE mode always raises `LIVE_TRADING_NOT_AUTHORIZED`;
-- REAL_READONLY broker `submit_order` raises
-  `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`;
-- intent/state persistence is transactional SQLite with WAL and idempotency;
-- exits and actual fees are applied before later same-timestamp entry sizing;
-- C1 remains historical research evidence; live commissions/fees/slippage are
-  separate operational inputs.
+Status: `STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE`.
 
-Historical research-to-robot conformance is exact:
+Accepted audited source commit:
+`1c1c2bb5458827f200bc753e7e64db0272b33a8f`.
 
-- authority replay: **418 / 418 exact trades**, zero mismatches;
-- independent production replay: **418 / 418 exact trades**, zero mismatches;
-- repeated replay hashes are deterministic.
-
-## FINAM production binding
-
-The production registry contains all four N4 perpetual futures as
-`AUTHENTICATED_REAL_READONLY`:
-
-- USDRUBF → `USDRUBF@RTSX`, security ID `3447194`, step `0.01`, tick value 10 RUB,
-  contract size 1000, quantity granularity 1;
-- CNYRUBF → `CNYRUBF@RTSX`, security ID `3447192`, step `0.001`, tick value 1 RUB,
-  contract size 1000, quantity granularity 1;
-- GLDRUBF → `GLDRUBF@RTSX`, security ID `4454911`, step `0.1`, tick value 0.1 RUB,
-  contract size 1, quantity granularity 1;
-- IMOEXF → `IMOEXF@RTSX`, security ID `4631091`, step `0.5`, tick value 5 RUB,
-  contract size 10, quantity granularity 1.
-
-All four are modeled as `PERPETUAL_FUTURE`, automatic prolongation enabled,
-quarterly exercise operator-only.
-
-The 2026-10-01 operator REAL_READONLY diagnostic authenticated 4/4 instruments.
-No real order was transmitted.
-
-## Funding / margin gate
-
-FULL/R15 production sizing code is margin-aware and fail-closed:
-
-`floor_to_trade_lot(min(r15_quantity, floor(available_cash / directional_initial_margin)))`.
-
-Stage 8.9.9 revalidated the clean UNION account and its `portfolio_mc` authority.
-All eight N4 × direction sizing cases had zero executable capacity. Therefore the
-only current blocker is **`BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY`**, reason
-**`ZERO_CONTRACT_CAPACITY`**.
-
-Do not fabricate equity, free cash, margin capacity, or hypothetical live sizing.
-
-## Windows / Intel deployment state
-
-Intel Windows deployment preparation is present under
-`TradingSystemLab/stage8_robot/deploy/windows/`.
-
-Implemented safeguards include:
-
-- external runtime paths and single-instance lock;
-- bounded logging and heartbeat;
-- online SQLite backup;
-- startup/reboot reconciliation;
-- CurrentUser-only Windows DPAPI credential store;
-- credential payload bound to the frozen production specification;
-- explicit non-SYSTEM scheduled-task principal;
-- ACL hardening;
-- real Windows DPAPI round-trip / tamper / wrong-production-ID execution tests;
-- fixes for explicit `System.Security` loading and Windows SID ACL handling.
-
-Credentials are never committed to Git and must not be placed in command-line
-arguments or logs.
-
-## Stage 8.8.1 operational supervisor
-
-REAL_READONLY operational supervisor code is ready.
-
-It:
-
-- forces REAL_READONLY;
-- keeps new entries disabled;
-- holds a lifetime instance lock;
-- monitors account cleanliness, reconciliation, H1 data and heartbeat;
-- persists only sanitized operational continuity;
-- cannot transmit real orders.
-
-Real Intel operational acceptance is complete. It covered supervisor startup and
-`--once`, continuous-operation validation, restart, second-instance exclusion,
-and reboot. It also covered network/API failure producing the expected
-`UNHEALTHY` / `FAULT` state, recovery to `HEALTHY` / `PASS`, and reset of the
-consecutive-failure counter. No order-capable call was made.
-
-## Stage 8.8.5 stale H1 data protection
-
-Externally validated real timing evidence established whole-hour UTC raw opens.
-The implementation merges touching trading sessions into instrument-specific
-windows and uses `min(open + 1 hour, window end)`, including a partial final bar.
-The evidence itself remains outside Git.
-
-Rules:
-
-- only EARLY_TRADING, CORE_TRADING and LATE_TRADING generate expectations;
-- auction, clearing and closed periods preserve `expected_h1:<instrument>`;
-- cold start without schedule evidence or a persisted watermark fails closed;
-- exact expected raw-open membership is required;
-- malformed schedule evidence fails closed;
-- if the newest completed H1 candle is stale, raise
-  `STALE_COMPLETED_H1_DATA`;
-- the failed cycle remains `FAULT` / `UNHEALTHY`;
-- successful cycle count/watermark is not advanced;
-- entries remain disabled;
-- no order-capable call is introduced.
-
-Repository synthetic tests/audit cover the validated grid, partial final bar,
-stale/fresh recovery, persistence, per-instrument schedules, heartbeat and
-no-order semantics.
-
-Stage 8.8.5 status is
-`STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE`. The real Intel stale-data
-acceptance was executed against audited source Git head
-`1c1c2bb5458827f200bc753e7e64db0272b33a8f`. PR #302 subsequently performed
-the Stage 8.8.5 repository closeout; its GitHub-visible head was
-`635bea24710cc41f0cb65eef9c6ed576494f5396`, and its merge commit was
-`b19a3625698f4701b7c531cade5a27a497269b73`. PR #302 did not modify
-`stage8_robot/readonly_supervisor.py`, `stage8_robot/finam_api.py`, or
-`stage8_robot/tests/test_readonly_supervisor.py`, so the accepted H1
-implementation remained byte-identical. The external acceptance artifact,
-which remains outside Git, has SHA-256
+External Intel acceptance evidence SHA-256:
 `C57554AE3AE54018EC1E558108520088C1883718F0406E7B6C6669B4696A9CBC`.
 
-Sanitized acceptance facts: the clean cycle was `HEALTHY` / `PASS`; the
-controlled missing-completed-H1 fault produced `STALE_COMPLETED_H1_DATA` and
-`UNHEALTHY` / `FAULT`; successful cycle count, H1 state, and expected-H1 state
-did not advance during the fault. Recovery returned `HEALTHY` / `PASS` and
-reset consecutive failures to 0. Order-capable calls were 0, entries remained
-disabled, and the production Scheduled Task remained Disabled throughout the
-acceptance. No runtime JSON or raw FINAM response is stored in this repository.
+Schedule-aware freshness is fail-closed. A missing completed expected H1 candle
+raises `STALE_COMPLETED_H1_DATA`, produces `UNHEALTHY` / `FAULT`, leaves entries
+disabled, and does not advance successful cycle/H1 state. Physical Intel
+fault-injection and deterministic recovery passed.
 
-## Stage 8.8.6 SQLite recovery acceptance
-
-Do **not** start LIVE trading.
-
-Stage 8.8.6 repository tooling backs up only
-`state/readonly-supervisor.sqlite3` with SQLite's online API, binds each backup
-to a strict checksum/production-ID manifest, retains database/manifest pairs,
-and restores only a validated operational schema under the existing lifetime
-lock via an atomic state-directory replacement. Stale WAL/SHM sidecars are
-removed at commit. Offline recovery preserves the selected continuity values;
-it does not fabricate a watermark or bypass the next normal supervisor cycle.
+### Stage 8.8.6 — SQLite backup/recovery
 
 Status: `STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE`.
 
-The physical Intel acceptance audited code commit
-`dc2b79e74817e71435eee20103ae617e13067d8e`. Its external acceptance evidence
-remains outside Git; its SHA-256 is
+Accepted code commit:
+`dc2b79e74817e71435eee20103ae617e13067d8e`.
+
+External Intel evidence SHA-256:
 `1A9B62D4BFC0E7384898C9DF9659E54E50E0E202BD44CE19413864AC2ECA14D6`.
-Repository tests did not generate or substitute for that external evidence.
 
-The Windows gate passed 27 SQLite recovery tests and the complete 255-test
-Stage 8 suite. The Stage 8 independent audit passed 124 checks, while the Stage
-7 production specification audit passed 22 checks and 19 mutation tests. The
-Scheduled Task remained Disabled, supervisor process count was 0, and recovery
-internal material count was 0.
+Accepted recovery hashes:
 
-The accepted real backup was
-`readonly-supervisor-20261002T125325.986665Z.sqlite3`, with SHA-256
-`00b5e4ca2b389d55389b6b57ac73b5e557c11b72daab8d6e118311613e0aa3b0` and
-manifest SHA-256
-`3d0ef1d7cb11ee592be32550625e8badefc596108f4d0c34eff6c5e12ceba822`.
-The manifest used schema `stage8-readonly-sqlite-backup/v1`, contained the exact
-production specification ID, matched the backup checksum, and passed
-recovery-point validation.
+- backup: `00b5e4ca2b389d55389b6b57ac73b5e557c11b72daab8d6e118311613e0aa3b0`;
+- manifest: `3d0ef1d7cb11ee592be32550625e8badefc596108f4d0c34eff6c5e12ceba822`;
+- baseline logical state:
+  `13f01f1009768ddce65dce079f70486f2cbc2508cd1ea8ec4787414a78e0d3be`.
 
-Before controlled mutation, the operational logical SHA-256 was
-`13f01f1009768ddce65dce079f70486f2cbc2508cd1ea8ec4787414a78e0d3be` with 9
-rows. The observable `CONTROLLED_MUTATION` marker changed the row count to 10
-and changed the logical SHA. Restore exited 0 with
-`READONLY_STATE_RECOVERY_COMMITTED_RECONCILIATION_REQUIRED`; afterward the
-logical SHA and row count returned exactly to their pre-mutation values, the
-marker was absent, `cycle_count = 19`, `consecutive_failures = 5`, and
-`last_reconciliation = FAULT`. Recovery internal material count was 0. This
-established exact operational-state continuity through backup and restore.
+Backup/recovery is fail-closed, Windows-safe, non-destructive on restore failure,
+and preserves exact production identity/state authority.
 
-One real FINAM `REAL_READONLY --once` reconciliation then used the existing
-CurrentUser DPAPI credential path. Preflight passed with
-`live_trading_authorized = false`; credential loading printed neither secret nor
-account ID. The supervisor exited 0. Cycle count advanced 19 to 20,
-consecutive failures reset 5 to 0, and reconciliation became `PASS`. For all
-four production instruments, `h1 == expected_h1 ==
-2026-10-02T12:00:00+00:00`. The resulting heartbeat was `REAL_READONLY`, exact
-production specification ID, `HEALTHY` / `PASS`, entries disabled, zero
-unresolved orders, cycle count 20, and zero consecutive failures. Supervisor
-order-capable calls were `[]`.
-
-After completion the Scheduled Task remained Disabled, supervisor process count
-and recovery internal file count were 0, and `FINAM_API_SECRET` and
-`FINAM_REAL_ACCOUNT_ID` were absent from the process environment. No live order
-was transmitted and no live trading was authorized.
-
-## Stage 8.8.7 final operational acceptance
+### Stage 8.8.7 — Final Operational Audit
 
 Status: `STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_INTEL_ACCEPTANCE_COMPLETE`.
 
-Stage 8.8 operational hardening is COMPLETE. Stages 8.8.1, 8.8.2, 8.8.3,
-8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE.
+Accepted code commit:
+`bda46f57f0f977e05593c46b55851c40c4ad34fe`.
 
-Physical Intel acceptance executed against exact GitHub merge
-`bda46f57f0f977e05593c46b55851c40c4ad34fe`. The external acceptance artifact
-remains outside Git and is referenced only by SHA-256
+External Intel acceptance evidence SHA-256:
 `181225F29A966179AB513121C3CBACD31401752956EFC9A22253A8EFBF94766E`.
-The accepted Windows gate passed 267 Stage 8 tests, 43 final operational checks,
-132 Stage 8 checks, and 22 Stage 7 checks plus 19 mutation tests. One
-`REAL_READONLY --once` cycle advanced cycle count 20 to 21 and all N4 H1
-watermarks monotonically from 12:00 to 13:00 UTC with expected-H1 equality.
-Final state was `HEALTHY` / `PASS`, entries disabled, zero unresolved orders,
-and zero failures. The Scheduled Task remained Disabled, process and recovery
-internal file counts were zero, and secret/account environment variables were
-absent. No live order was transmitted and no authorization changed. Repository
-tooling validates the provenance and hash; it did not generate the evidence.
+
+Physical Intel acceptance completed with entries disabled and zero order-capable
+activity. Final state was `HEALTHY` / `PASS`; instance locking, restart/recovery,
+DPAPI credentials, heartbeat, H1 watermark continuity and recovery state passed.
+
+## Stage 8.9 funding / margin authority
+
+Stage 8.9 is **CURRENT** and **NOT COMPLETE**.
+
+### Historical old implementation
+
+Earlier Stage 8.9 physical evidence used an incorrect FORTS-only assumption for
+a UNION production account. That earlier blocked result is historical provenance
+only and is not the current blocker.
+
+### Stage 8.9.8 — UNION / portfolio_mc authority resolution
+
+Status: `STAGE_8_9_8_COMPLETE`.
+
+Physical evidence established that the production account is `UNION` and
+contains exactly one `portfolio_mc`. The previous FORTS-only funding authority
+was corrected.
+
+Post-funding portfolio-variant evidence SHA-256:
+`60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5`.
+
+Post-funding account financial-shape evidence SHA-256:
+`EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371`.
+
+### Stage 8.9.9 — physical revalidation
+
+Stage 8.9.9 is **PHYSICAL REVALIDATION COMPLETE**.
+
+Accepted physical REAL_READONLY code commit:
+`c461911fdceddf54a2a6fe6768574dd93f4844d1`.
+
+External diagnostic report SHA-256:
+`F307D3F5ADC4525FF304B9582F683B89A097FC9BCFB502E8150FC98D2625860F`.
+
+External physical summary SHA-256:
+`F36B16565F9E08C38B3264831DCA94A65390275F7A2B78A3C6C90302E4A7C09B`.
+
+The run confirmed the corrected UNION/`portfolio_mc` financial schema, equity,
+directional margins, exact N4 binding, arithmetic and batch-budget mechanics.
+
+However, `positive_capacity_case_count = 0` across the eight tested sizing cases,
+with zero positive batch reservations.
+
+### Stage 8.9.10 — current capacity gate
+
+**CURRENT / BLOCKED**.
+
+Current status:
+`BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY`.
+
+Current reason:
+`ZERO_CONTRACT_CAPACITY`.
+
+This is the **only active Stage 8.9 blocker**. It is distinct from financial
+schema/binding/arithmetic validation, which passed. Zero capacity must never be
+misclassified as funding-ready.
+
+Stage 8.9 is NOT COMPLETE.
+
+## Authorization boundary
+
+- `LIVE_TRADING_NOT_AUTHORIZED` remains in force.
+- `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remains in force.
+- `NEW_ENTRIES_DISABLED` remains in force for the accepted REAL_READONLY path.
+- Stage 8.10 trading-token integration is NOT STARTED / NOT AUTHORIZED.
+- Stage 8.11/8.12 execution is NOT AUTHORIZED.
+
+Do not bypass Stage 8.9.10, fabricate capacity, weaken frozen Stage 7 risk, or
+reinterpret read-only acceptance as live authorization.
 
 ## Current next action
 
-**CURRENT: Stage 8.9.10 — CURRENT / BLOCKED.** The only active Stage 8.9 blocker
-is `BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY`, reason `ZERO_CONTRACT_CAPACITY`.
-Stage 8.9.9 physical revalidation is complete.
+Stop at Stage 8.9.10 while contract capacity is zero.
 
-Separately:
+Any work to resolve `ZERO_CONTRACT_CAPACITY` requires a new explicit
+user-authorized task and must preserve the frozen Stage 7 production identity
+and fail-closed sizing semantics. Do not start Stage 8.10 automatically.
 
-- Stage 8.9.8 is **COMPLETE**; Stage 8.9.9 is **PHYSICAL REVALIDATION COMPLETE**; Stage 8.9 remains **NOT COMPLETE**;
-- Stage 8.10 trading-token integration is **NOT STARTED / NOT AUTHORIZED**;
-- Stage 8.11/8.12 execution remains unauthorized.
+## Domain boundary
 
-Any change that enables live orders requires a separate explicit authorization
-and its own audit.
-
-## Historical research constraints
-
-- v1/v2/v3 research identities and OOS verdicts remain immutable.
-- 2025–2026 evidence used in Stage 6.x is retrospective/revealed, not fresh OOS.
-- Do not mix TradingSystemLab with BBW, Level Touch, Round Level / Touch, or
-  other projects.
+Do not mix TradingSystemLab with BBW, Level Touch, Round Level / Touch or other
+projects.
 
 ## Update rule
 
-Update this file after every accepted Stage 8 operational milestone or audit.
-Keep the first sections synchronized with the actual production/authorization
-state in `main`.
-
-## Stage 8.9 physical validation closeout
-
-Historical earlier evidence from the old implementation is retained. Its physical REAL_READONLY validation ran on accepted Intel code commit `5deedb49f16d9f2525c430383a029017cd9a53ce` and returned `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`, reason `FORTS_PORTFOLIO_MISSING`. Historical diagnostic report SHA-256: `2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`. Historical physical summary SHA-256: `59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B`. The external JSON evidence remains outside Git. This old result is provenance only and is not the current blocker.
-
-
-## Stage 8.9.8 UNION/MC authority resolution
-
-Status: `STAGE_8_9_8_COMPLETE`.
-Stage 8.9.8 account-authority resolution is complete: the production account is
-`UNION`, and funded physical evidence confirmed exactly one `portfolio_mc`. The
-FORTS-only implementation was incorrect for this account. The post-funding MC
-portfolio-variant evidence SHA-256 is
-`60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5`; the
-post-funding account financial-shape evidence SHA-256 is
-`EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371`.
-Only these sanitized hashes are committed; the external JSON, account identity,
-and financial values remain outside Git. The corrective code was accepted, and
-**Stage 8.9.9 physical revalidation is complete.** Stage
-8.9 remains **NOT COMPLETE**. Stage 8.10 remains **NOT STARTED / NOT
-AUTHORIZED**. `LIVE_TRADING_NOT_AUTHORIZED`,
-`REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and `NEW_ENTRIES_DISABLED` remain
-unchanged. No live order was transmitted and no live trading was authorized.
-
-The earlier physical result `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` /
-`FORTS_PORTFOLIO_MISSING`, accepted Intel commit
-`5deedb49f16d9f2525c430383a029017cd9a53ce`, diagnostic SHA-256
-`2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`, and
-physical-summary SHA-256
-`59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B` remain
-historical evidence of the old implementation and are not reinterpreted.
-
-## Stage 8.9.9 physical revalidation and Stage 8.9.10 capacity gate
-
-Stage 8.9.9 is **PHYSICAL REVALIDATION COMPLETE**. The accepted physical
-REAL_READONLY run used code commit
-`c461911fdceddf54a2a6fe6768574dd93f4844d1`. Its external diagnostic report
-SHA-256 is
-`F307D3F5ADC4525FF304B9582F683B89A097FC9BCFB502E8150FC98D2625860F`, and its
-external physical summary SHA-256 is
-`F36B16565F9E08C38B3264831DCA94A65390275F7A2B78A3C6C90302E4A7C09B`. The
-external JSON remains outside Git. The run confirmed the UNION/MC financial
-schema, equity, directional margins, exact frozen N4 binding, arithmetic, and
-batch budget, but observed `positive_capacity_case_count = 0` across eight
-sizing cases and zero positive batch reservations.
-
-Stage 8.9.10 is **CURRENT / BLOCKED** with
-`BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY` / `ZERO_CONTRACT_CAPACITY`. Zero
-capacity is a distinct capacity blocker and does not invalidate the financial,
-binding, equity, directional-margin, or arithmetic authorities that passed. It must never receive the funding-validated readiness classification. Stage 8.9.8
-is **COMPLETE**; Stage 8.9 is **NOT COMPLETE**; Stage 8.10 is **NOT STARTED /
-NOT AUTHORIZED**. `LIVE_TRADING_NOT_AUTHORIZED`,
-`REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and `NEW_ENTRIES_DISABLED` remain
-unchanged. No live order was transmitted and no live trading was authorized.
-
-The earlier `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` /
-`FORTS_PORTFOLIO_MISSING` physical result, accepted commit
-`5deedb49f16d9f2525c430383a029017cd9a53ce`, diagnostic SHA-256
-`2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`, and
-summary SHA-256
-`59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B` remain
-historical evidence and are not reinterpreted.
+Update this file after every accepted operational milestone/audit. The first
+section must always reflect the latest actual blocker and authorization state.
