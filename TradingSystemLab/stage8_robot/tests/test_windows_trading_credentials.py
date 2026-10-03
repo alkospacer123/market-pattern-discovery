@@ -107,9 +107,12 @@ try {{ Unprotect-ReadonlyCredentialBytes $c $id; exit 13 }} catch {{}}
 $rp=[ordered]@{{schema_version=1;mode='REAL_READONLY';production_id=$id;finam_api_secret='SYNTHETIC_FAKE_TEST_ONLY';finam_real_account_id='SYNTHETIC_ACCOUNT'}}
 $rc=Protect-ReadonlyCredentialPayload $rp
 try {{ Unprotect-TradingBytes $rc $id; exit 14 }} catch {{}}
+Write-Output 'TRADING_SYNTHETIC_ROUNDTRIP_PASS'
+exit 0
 """
     completed = run_windows_powershell(script)
     assert completed.returncode == 0, completed.stderr
+    assert completed.stdout.strip() == "TRADING_SYNTHETIC_ROUNDTRIP_PASS"
 
 
 @pytest.mark.skipif(os.name != "nt", reason="actual CurrentUser DPAPI execution requires Windows")
@@ -122,9 +125,12 @@ $payload=[ordered]@{{schema_version=1;mode='REAL_READONLY';production_id=$id;fin
 $ciphertext=Protect-TradingPayload $payload
 try {{ Unprotect-TradingBytes $ciphertext $id; exit 20 }}
 catch {{ if ($_.Exception.Message -cne 'TRADING_DPAPI_MODE_INVALID') {{ exit 21 }} }}
+Write-Output 'TRADING_WRONG_MODE_REJECTION_PASS'
+exit 0
 """
     completed = run_windows_powershell(script)
     assert completed.returncode == 0, completed.stderr
+    assert completed.stdout.strip() == "TRADING_WRONG_MODE_REJECTION_PASS"
 
 
 @pytest.mark.skipif(os.name != "nt", reason="actual CurrentUser DPAPI and Windows ACL execution requires Windows")
@@ -146,9 +152,12 @@ Set-TradingPrivateAcl (Join-Path $secrets $script:TradingCredentialFile) $princi
 Set-TradingPrivateAcl (Join-Path $secrets $script:TradingCredentialMetadataFile) $principal.Sid
 try {{ Get-TradingCredential $root $id; exit 30 }}
 catch {{ if ($_.Exception.Message -cne 'TRADING_DPAPI_PRINCIPAL_MISMATCH') {{ exit 31 }} }}
+Write-Output 'TRADING_PRINCIPAL_MISMATCH_REJECTION_PASS'
+exit 0
 """
     completed = run_windows_powershell(script)
     assert completed.returncode == 0, completed.stderr
+    assert completed.stdout.strip() == "TRADING_PRINCIPAL_MISMATCH_REJECTION_PASS"
 
 
 @pytest.mark.skipif(os.name != "nt", reason="Windows ACL execution requires Windows")
@@ -167,6 +176,9 @@ $acl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule($ever
 Set-Acl -LiteralPath $path.FullName -AclObject $acl
 try {{ Assert-TradingPrivateAcl $path.FullName $principal.Sid; exit 40 }}
 catch {{ if ($_.Exception.Message -cne 'TRADING_DPAPI_ACL_INVALID') {{ exit 41 }} }}
+Write-Output 'TRADING_ACL_ACCEPTANCE_PASS'
+exit 0
 """
     completed = run_windows_powershell(script)
     assert completed.returncode == 0, completed.stderr
+    assert completed.stdout.strip() == "TRADING_ACL_ACCEPTANCE_PASS"
