@@ -43,7 +43,7 @@ STAGE_8_10_2_STATUS = "STAGE_8_10_2_SECURE_PROVISIONING_COMPLETE"
 STAGE_8_10_2_CODE = "f0c271e428c05ee0ff67b7941e342c06b48a42a0"
 STAGE_8_10_2_EVIDENCE = "E5FEA93CE28006BC5ADA19F1AA1C1C365FF7CF4BE48A5A1B8BC8C5589DFD754D"
 STAGE_8_10_2_RESULT = "STAGE_8_10_2_PHYSICAL_SECURE_PROVISIONING_LOCAL_PASS"
-STAGE_8_10_3_STATUS = "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_CODE_READY_PENDING_PHYSICAL_VALIDATION"
+STAGE_8_10_3_STATUS = "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE"
 STAGE_8_9_8_STATUS = "STAGE_8_9_8_COMPLETE"
 STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
 STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
@@ -357,14 +357,24 @@ def audit(
     check("trading-credential" not in launcher.lower() and "trading-credential" not in installer.lower()
           and "finam-trading-token" not in launcher.lower() and "finam-trading-token" not in installer.lower(),
           "TRADING_STORE_NOT_RUNTIME_WIRED")
-    check(all(STAGE_8_10_3_STATUS in doc and "Stage 8.10.3 is **CODE READY / PENDING PHYSICAL VALIDATION**" in doc for doc in stage8_9_docs), "STAGE_8_10_3_CODE_READY_SYNCHRONIZED")
+    check(all(STAGE_8_10_3_STATUS in doc and "Stage 8.10.3 is **COMPLETE**" in doc for doc in stage8_9_docs), "STAGE_8_10_3_CODE_READY_SYNCHRONIZED")
     check(identity_binding.get("status") == STAGE_8_10_3_STATUS
-          and identity_binding.get("physical_validation_performed") is False
-          and identity_binding.get("local_readonly_trading_account_binding_validated") is False
-          and identity_binding.get("trading_token_used") is False
-          and identity_binding.get("finam_authentication_performed") is False
-          and identity_binding.get("expected_account_enumerated") is False
+          and identity_binding.get("accepted_code_commit") == "428d285336380726a3ce00487e2c85eb755e2dd9"
+          and identity_binding.get("external_evidence_sha256") == "0DA102E61AB06FFA6A508CC64203FEA3F56BBA3016891A887688A4E300E11BB6"
+          and identity_binding.get("physical_result") == "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_PASS"
+          and identity_binding.get("physical_validation_performed") is True
+          and identity_binding.get("local_readonly_trading_account_binding_validated") is True
+          and identity_binding.get("trading_session_created") is True
+          and identity_binding.get("trading_token_used") is True
+          and identity_binding.get("finam_authentication_performed") is True
+          and identity_binding.get("expected_account_enumerated") is True
+          and identity_binding.get("expected_account_occurrence_count") == 1
+          and identity_binding.get("enumerated_account_count") == 1
           and identity_binding.get("order_count") == 0
+          and identity_binding.get("order_endpoint_called") is False
+          and identity_binding.get("live_trading_authorized") is False
+          and identity_binding.get("real_order_transmission_authorized") is False
+          and identity_binding.get("stage8_10_status") == "IN_PROGRESS"
           and identity_binding.get("stage8_10_4_status") == "NOT_STARTED"
           and identity_binding.get("stage8_10_5_through_8_status") == "NOT_STARTED"
           and identity_binding.get("stage8_11_status") == "NOT_STARTED_NOT_AUTHORIZED"
@@ -380,7 +390,7 @@ def audit(
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")
     forbidden_claims = (
-        r"(?<!no )trading(?:-capable)? token (?:has been|was|is) (?:authenticated|used)",
+        r"(?<!no )(?:trading )?permission (?:validation )?(?:occurred|was validated)",
         r"(?<!not )real-order (?:transmission|capability) is authorized",
     )
     check(not any(re.search(pattern, stage8_9_joined_docs, re.I) for pattern in forbidden_claims),
@@ -423,11 +433,18 @@ def audit(
         "stage8_10_2_external_evidence_sha256": STAGE_8_10_2_EVIDENCE,
         "stage8_10_2_physical_result": STAGE_8_10_2_RESULT,
         "physical_provisioning_performed": True, "trading_token_provisioned": True,
-        "trading_token_used": False, "finam_authentication_performed": False, "order_count": 0,
+        "trading_token_used": True, "finam_authentication_performed": True, "order_count": 0,
+        "order_endpoint_called": False,
         "stage8_10_3_status": STAGE_8_10_3_STATUS,
-        "physical_validation_performed": False,
-        "local_readonly_trading_account_binding_validated": False,
-        "expected_account_enumerated": False,
+        "stage8_10_3_accepted_code_commit": "428d285336380726a3ce00487e2c85eb755e2dd9",
+        "stage8_10_3_external_evidence_sha256": "0DA102E61AB06FFA6A508CC64203FEA3F56BBA3016891A887688A4E300E11BB6",
+        "stage8_10_3_physical_result": "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_PASS",
+        "physical_validation_performed": True,
+        "local_readonly_trading_account_binding_validated": True,
+        "trading_session_created": True,
+        "expected_account_enumerated": True,
+        "expected_account_occurrence_count": 1,
+        "enumerated_account_count": 1,
         "stage8_10_4_status": "NOT_STARTED",
         "stage8_10_5_through_8_status": "NOT_STARTED",
         "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",

@@ -259,7 +259,7 @@ def test_top_level_readme_current_status_regressions_fail_both_audits():
         "STAGE_8_10_2_SECURE_PROVISIONING_CODE_READY_PENDING_PHYSICAL_PROVISIONING",
         "STAGE_8_10_COMPLETE",
         "STAGE_8_10_3_TRADING_AUTHENTICATION_COMPLETE",
-        "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE",
+        "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_CODE_READY_PENDING_PHYSICAL_VALIDATION",
         "NOT_STARTED",
     )
     for status in rejected:
@@ -280,10 +280,10 @@ def test_later_execution_stages_started_or_authorized_fail():
         assert error in result["errors"]
 
 
-def test_false_trading_token_and_real_order_claims_fail():
+def test_false_permission_and_real_order_claims_fail():
     path = "TradingSystemLab/CURRENT_STATE.md"
-    for claim in ("A trading token has been authenticated.",
-                  "A trading token has been used.",
+    for claim in ("Trading permission validation occurred.",
+                  "Order permission was validated.",
                   "Real-order transmission is authorized."):
         result = run_audit({path: source(path) + "\n\n" + claim + "\n"})
         assert "STAGE_8_10_FALSE_AUTHORIZATION_OR_TOKEN_CLAIM" in result["errors"]
@@ -304,14 +304,24 @@ def test_stage_8_10_3_machine_authority_mutations_fail():
     path = "TradingSystemLab/stage8_robot/authority_provenance.json"
     authority = json.loads(source(path))
     mutations = [
-        ("status", "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE"),
+        ("status", "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_CODE_READY_PENDING_PHYSICAL_VALIDATION"),
         ("status", "NOT_STARTED"),
-        ("physical_validation_performed", True),
-        ("local_readonly_trading_account_binding_validated", True),
-        ("trading_token_used", True),
-        ("finam_authentication_performed", True),
-        ("expected_account_enumerated", True),
+        ("accepted_code_commit", "0" * 40),
+        ("external_evidence_sha256", "0" * 64),
+        ("physical_result", "FAIL"),
+        ("physical_validation_performed", False),
+        ("local_readonly_trading_account_binding_validated", False),
+        ("trading_session_created", False),
+        ("trading_token_used", False),
+        ("finam_authentication_performed", False),
+        ("expected_account_enumerated", False),
+        ("expected_account_occurrence_count", 2),
+        ("enumerated_account_count", 2),
         ("order_count", 1),
+        ("order_endpoint_called", True),
+        ("live_trading_authorized", True),
+        ("real_order_transmission_authorized", True),
+        ("stage8_10_status", "COMPLETE"),
         ("stage8_10_4_status", "STARTED"),
         ("stage8_10_5_through_8_status", "STARTED"),
         ("stage8_11_status", "AUTHORIZED"),
