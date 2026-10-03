@@ -43,6 +43,7 @@ STAGE_8_10_2_STATUS = "STAGE_8_10_2_SECURE_PROVISIONING_COMPLETE"
 STAGE_8_10_2_CODE = "f0c271e428c05ee0ff67b7941e342c06b48a42a0"
 STAGE_8_10_2_EVIDENCE = "E5FEA93CE28006BC5ADA19F1AA1C1C365FF7CF4BE48A5A1B8BC8C5589DFD754D"
 STAGE_8_10_2_RESULT = "STAGE_8_10_2_PHYSICAL_SECURE_PROVISIONING_LOCAL_PASS"
+STAGE_8_10_3_STATUS = "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_CODE_READY_PENDING_PHYSICAL_VALIDATION"
 STAGE_8_9_8_STATUS = "STAGE_8_9_8_COMPLETE"
 STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
 STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
@@ -61,6 +62,8 @@ def current_readme_status(document: str) -> str | None:
 # status documents are intentionally excluded: they are outputs/metadata for
 # this gate, not executable or frozen Stage 7 authorities.
 PROTECTED_SHA256 = {
+    "TradingSystemLab/stage8_robot/trading_identity_binding.py": "1303459b636c99ae7fea4e2e62863888f56ad0e12ca8311a47782a354069167e",
+    "TradingSystemLab/stage8_robot/deploy/windows/validate-trading-identity-binding.ps1": "0ccaa1c6b7e37bba226c25647a068739dfcc1db2ad7c99a695752235b4a7b399",
     "TradingSystemLab/stage8_robot/readonly_supervisor.py": "1455fee5fe207c617676a0463ce3034247c5534578555cac293807da22bcaab8",
     "TradingSystemLab/stage8_robot/finam_api.py": "3972bdd7d9c016bec79b1cfcf6ff1120d77bab745cd2e102d827dcb830878588",
     "TradingSystemLab/stage8_robot/operations.py": "1a9c24b9eae666112cc215946cd41166e8f1d425c471393832a9d45b9bb0f783",
@@ -236,14 +239,15 @@ def audit(
     def forbidden_artifact(path: str) -> bool:
         lower = path.lower()
         name = Path(lower).name
-        runtime_suffix = lower.endswith((".sqlite3", "-wal", "-shm", ".dpapi"))
+        runtime_suffix = lower.endswith((".sqlite3", "-wal", "-shm", ".dpapi", ".jwt"))
         external_acceptance = "acceptance" in name and name.endswith(".json") and "tests/" not in lower
         external_stage8_9 = ("stage8_9" in name or "funding_margin_validation" in name) and name.endswith(".json")
+        external_stage8_10_3 = name == "stage8_10_3_identity_account_binding.json"
         raw_capture = any(term in name for term in ("raw_finam", "account_response", "real_market_capture", "stale_h1_evidence"))
         credential = any(term in name for term in ("credential", "secret")) and not lower.endswith((".py", ".ps1", ".md", ".example"))
         trading_token = any(term in name for term in ("trading_token", "trading-token", "token_1", "token1")) and lower.endswith((".json", ".txt", ".bin", ".blob", ".dpapi", ".env"))
         account_material = any(term in name for term in ("account_id", "account-identifier")) and lower.endswith((".json", ".txt", ".bin", ".blob", ".env"))
-        return runtime_suffix or external_acceptance or external_stage8_9 or raw_capture or credential or trading_token or account_material
+        return runtime_suffix or external_acceptance or external_stage8_9 or external_stage8_10_3 or raw_capture or credential or trading_token or account_material
 
     runtime_artifacts = sorted(path for path in tracked_files if forbidden_artifact(path))
     check(not runtime_artifacts, "RUNTIME_OR_SECRET_ARTIFACT_TRACKED")
@@ -263,7 +267,8 @@ def audit(
     closeout = provenance.get("stage8_9_10", {})
     preconditions = provenance.get("stage8_10_1", {})
     provisioning = provenance.get("stage8_10_2", {})
-    check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_2_STATUS,
+    identity_binding = provenance.get("stage8_10_3", {})
+    check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_3_STATUS,
           "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT")
     check(lifecycle.get("status") == STAGE_8_9_8_STATUS
           and lifecycle.get("stage8_9_9") == "PHYSICAL_REVALIDATION_COMPLETE"
@@ -352,8 +357,24 @@ def audit(
     check("trading-credential" not in launcher.lower() and "trading-credential" not in installer.lower()
           and "finam-trading-token" not in launcher.lower() and "finam-trading-token" not in installer.lower(),
           "TRADING_STORE_NOT_RUNTIME_WIRED")
-    check(all(all(f"Stage 8.10.{number} is **NOT STARTED**" in doc for number in range(3, 9))
-              for doc in stage8_9_docs), "STAGE_8_10_3_THROUGH_8_NOT_STARTED")
+    check(all(STAGE_8_10_3_STATUS in doc and "Stage 8.10.3 is **CODE READY / PENDING PHYSICAL VALIDATION**" in doc for doc in stage8_9_docs), "STAGE_8_10_3_CODE_READY_SYNCHRONIZED")
+    check(identity_binding.get("status") == STAGE_8_10_3_STATUS
+          and identity_binding.get("physical_validation_performed") is False
+          and identity_binding.get("local_readonly_trading_account_binding_validated") is False
+          and identity_binding.get("trading_token_used") is False
+          and identity_binding.get("finam_authentication_performed") is False
+          and identity_binding.get("expected_account_enumerated") is False
+          and identity_binding.get("order_count") == 0
+          and identity_binding.get("stage8_10_4_status") == "NOT_STARTED"
+          and identity_binding.get("stage8_10_5_through_8_status") == "NOT_STARTED"
+          and identity_binding.get("stage8_11_status") == "NOT_STARTED_NOT_AUTHORIZED"
+          and identity_binding.get("stage8_12_status") == "NOT_STARTED_NOT_AUTHORIZED", "STAGE_8_10_3_MACHINE_AUTHORITY_EXACT")
+    identity_source = text("TradingSystemLab/stage8_robot/trading_identity_binding.py")
+    identity_wrapper = text("TradingSystemLab/stage8_robot/deploy/windows/validate-trading-identity-binding.ps1")
+    identity_calls = {node.func.attr for node in ast.walk(ast.parse(identity_source)) if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)}
+    check(not identity_calls.intersection({"place_order","cancel_order","submit_order","orders","order","account","assets","asset","asset_params","schedule","bars"}) and {"create_session","session_details"}.issubset(identity_calls), "STAGE_8_10_3_SESSION_ONLY_NO_ORDER_CAPABILITY")
+    check("trading_identity_binding" not in launcher + installer and all(term not in identity_wrapper.lower() for term in ("run-readonly","install-task","scheduledtask","runner","broker","/orders")), "STAGE_8_10_3_NOT_RUNTIME_OR_TASK_WIRED")
+    check(all(all(f"Stage 8.10.{number} is **NOT STARTED**" in doc for number in range(4, 9)) for doc in stage8_9_docs), "STAGE_8_10_4_THROUGH_8_NOT_STARTED")
     check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED")
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
@@ -403,7 +424,12 @@ def audit(
         "stage8_10_2_physical_result": STAGE_8_10_2_RESULT,
         "physical_provisioning_performed": True, "trading_token_provisioned": True,
         "trading_token_used": False, "finam_authentication_performed": False, "order_count": 0,
-        "stage8_10_3_through_8_status": "NOT_STARTED",
+        "stage8_10_3_status": STAGE_8_10_3_STATUS,
+        "physical_validation_performed": False,
+        "local_readonly_trading_account_binding_validated": False,
+        "expected_account_enumerated": False,
+        "stage8_10_4_status": "NOT_STARTED",
+        "stage8_10_5_through_8_status": "NOT_STARTED",
         "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_9_complete": True, "stage8_9_physical_validation_performed": True,

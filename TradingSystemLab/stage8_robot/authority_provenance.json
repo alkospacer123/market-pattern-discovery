@@ -111,5 +111,18 @@
     "stage8_10_3_through_8_status": "NOT_STARTED",
     "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
     "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
+  },
+  "stage8_10_3": {
+    "status": "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_CODE_READY_PENDING_PHYSICAL_VALIDATION",
+    "physical_validation_performed": false,
+    "local_readonly_trading_account_binding_validated": false,
+    "trading_token_used": false,
+    "finam_authentication_performed": false,
+    "expected_account_enumerated": false,
+    "order_count": 0,
+    "stage8_10_4_status": "NOT_STARTED",
+    "stage8_10_5_through_8_status": "NOT_STARTED",
+    "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
+    "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
   }
 }

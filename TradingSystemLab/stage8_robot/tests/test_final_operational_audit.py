@@ -214,9 +214,11 @@ def test_top_level_readme_current_status_regressions_fail_both_audits():
         "STAGE_8_10_2_SECURE_PROVISIONING_CODE_READY_PENDING_PHYSICAL_PROVISIONING",
         "STAGE_8_10_COMPLETE",
         "STAGE_8_10_3_TRADING_AUTHENTICATION_COMPLETE",
+        "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE",
+        "NOT_STARTED",
     )
     for status in rejected:
-        mutation = original.replace(final.STAGE_8_10_2_STATUS, status, 1)
+        mutation = original.replace(final.STAGE_8_10_3_STATUS, status, 1)
         result = run_audit({path: mutation})
         assert "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT" in result["errors"]
         stage8_result = stage8.audit(write_result=False, readme_text=mutation)
@@ -245,10 +247,45 @@ def test_false_trading_token_and_real_order_claims_fail():
 def test_tracked_trading_token_and_account_artifacts_fail():
     forbidden = ["secrets/trading-token.json", "runtime/account_id.txt",
                  "runtime/finam-trading-token.dpapi",
-                 "stage8_10_2_physical_provisioning_acceptance.json"]
+                 "stage8_10_2_physical_provisioning_acceptance.json",
+                 "stage8_10_3_identity_account_binding.json", "runtime/token1.txt",
+                 "runtime/session.jwt"]
     result = run_audit(tracked=git_files() + forbidden)
     assert all(path in result["runtime_artifacts_tracked"] for path in forbidden)
     assert "RUNTIME_OR_SECRET_ARTIFACT_TRACKED" in result["errors"]
+
+
+def test_stage_8_10_3_machine_authority_mutations_fail():
+    path = "TradingSystemLab/stage8_robot/authority_provenance.json"
+    authority = json.loads(source(path))
+    mutations = [
+        ("status", "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE"),
+        ("status", "NOT_STARTED"),
+        ("physical_validation_performed", True),
+        ("local_readonly_trading_account_binding_validated", True),
+        ("trading_token_used", True),
+        ("finam_authentication_performed", True),
+        ("expected_account_enumerated", True),
+        ("order_count", 1),
+        ("stage8_10_4_status", "STARTED"),
+        ("stage8_10_5_through_8_status", "STARTED"),
+        ("stage8_11_status", "AUTHORIZED"),
+        ("stage8_12_status", "AUTHORIZED"),
+    ]
+    for key, value in mutations:
+        changed = json.loads(json.dumps(authority))
+        changed["stage8_10_3"][key] = value
+        result = run_audit({path: json.dumps(changed)})
+        assert "STAGE_8_10_3_MACHINE_AUTHORITY_EXACT" in result["errors"]
+
+
+def test_identity_module_order_capability_and_wrapper_runtime_wiring_fail():
+    module = "TradingSystemLab/stage8_robot/trading_identity_binding.py"
+    result = run_audit({module: source(module) + "\ndef unsafe(api):\n    api.place_order('x', {})\n"})
+    assert "STAGE_8_10_3_SESSION_ONLY_NO_ORDER_CAPABILITY" in result["errors"]
+    wrapper = "TradingSystemLab/stage8_robot/deploy/windows/validate-trading-identity-binding.ps1"
+    result = run_audit({wrapper: source(wrapper) + "\n# install-task ScheduledTask runner\n"})
+    assert "STAGE_8_10_3_NOT_RUNTIME_OR_TASK_WIRED" in result["errors"]
 
 
 def test_historical_blockers_described_as_current_fail():
