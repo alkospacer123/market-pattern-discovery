@@ -48,7 +48,7 @@ def audit(write_result=True,readme_text=None):
     check(all(accepted_code_sha in document for document in (current_state,readme,roadmap)),"STAGE_8_8_6_ACCEPTED_CODE_SHA_RECORDED")
     check(all(evidence_sha in document for document in (current_state,readme,roadmap)),"STAGE_8_8_6_EXTERNAL_EVIDENCE_SHA_RECORDED")
     check(not any("stage8_8_6_sqlite_recovery_acceptance.json" in path.lower()
-                  or (Path(path).name.lower()=="stage8_10_3_identity_account_binding.json")
+                  or (Path(path).name.lower() in {"stage8_10_3_identity_account_binding.json","stage8_10_4_permission_boundary.json"})
                   or (("stage8_9" in path.lower() or "funding_margin_validation" in path.lower())
                       and path.lower().endswith(".json"))
                   or path.lower().endswith((".sqlite3","-wal","-shm",".dpapi",".jwt"))
@@ -75,7 +75,7 @@ def audit(write_result=True,readme_text=None):
     check(all(all(value in document for value in required)
               for document in authoritative_docs),
           "STAGE_8_9_10_COMPLETED_PROVENANCE_SYNCHRONIZED")
-    lifecycle=provenance.get("stage8_9_8",{}); closeout=provenance.get("stage8_9_10",{}); preconditions=provenance.get("stage8_10_1",{}); provisioning=provenance.get("stage8_10_2",{}); identity_binding=provenance.get("stage8_10_3",{})
+    lifecycle=provenance.get("stage8_9_8",{}); closeout=provenance.get("stage8_9_10",{}); preconditions=provenance.get("stage8_10_1",{}); provisioning=provenance.get("stage8_10_2",{}); identity_binding=provenance.get("stage8_10_3",{}); permission_boundary=provenance.get("stage8_10_4",{})
     check(lifecycle.get("status")==stage8_9_8_status
           and lifecycle.get("stage8_9_9")=="PHYSICAL_REVALIDATION_COMPLETE"
           and lifecycle.get("stage8_9_complete") is True,
@@ -136,7 +136,8 @@ def audit(write_result=True,readme_text=None):
     stage8_10_2_evidence="E5FEA93CE28006BC5ADA19F1AA1C1C365FF7CF4BE48A5A1B8BC8C5589DFD754D"
     stage8_10_2_result="STAGE_8_10_2_PHYSICAL_SECURE_PROVISIONING_LOCAL_PASS"
     stage8_10_3_status="STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE"
-    check(current_readme_status(readme)==stage8_10_3_status,
+    stage8_10_4_status="STAGE_8_10_4_PERMISSION_BOUNDARY_CODE_READY_PENDING_PHYSICAL_VALIDATION"
+    check(current_readme_status(readme)==stage8_10_4_status,
           "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT")
     check(all("Stage 8.10.2 is **COMPLETE**" in document
               and stage8_10_2_status in document
@@ -196,7 +197,29 @@ def audit(write_result=True,readme_text=None):
     identity_calls={node.func.attr for node in ast.walk(ast.parse(identity_source)) if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)}
     check(not identity_calls.intersection({"place_order","cancel_order","submit_order","orders","order","account","assets","asset","asset_params","schedule","bars"}) and {"create_session","session_details"}.issubset(identity_calls), "STAGE_8_10_3_SESSION_ONLY_NO_ORDER_CAPABILITY")
     check("trading_identity_binding" not in launcher+task_installer+runner+broker and all(term not in identity_wrapper.lower() for term in ("run-readonly","install-task","scheduledtask","runner","broker","/orders")), "STAGE_8_10_3_NOT_RUNTIME_OR_TASK_WIRED")
-    check(all(all(f"Stage 8.10.{number} is **NOT STARTED**" in document for number in range(4,9)) for document in authoritative_docs),"STAGE_8_10_4_THROUGH_8_NOT_STARTED")
+    permission_path=HERE/"trading_permission_boundary.py"; permission_wrapper_path=HERE/"deploy/windows/validate-trading-permission-boundary.ps1"
+    permission_source=permission_path.read_text() if permission_path.is_file() else ""; permission_wrapper=permission_wrapper_path.read_text() if permission_wrapper_path.is_file() else ""
+    check(all(stage8_10_4_status in document and "Stage 8.10.4 is **CODE READY / PENDING PHYSICAL VALIDATION**" in document for document in authoritative_docs), "STAGE_8_10_4_CODE_READY_SYNCHRONIZED")
+    check(permission_boundary.get("status")==stage8_10_4_status
+          and permission_boundary.get("physical_validation_performed") is False
+          and permission_boundary.get("readonly_token_readonly_observed") is False
+          and permission_boundary.get("trading_token_readonly_false_observed") is False
+          and permission_boundary.get("token_permission_boundary_validated") is False
+          and permission_boundary.get("order_count")==0
+          and permission_boundary.get("order_endpoint_called") is False
+          and permission_boundary.get("order_path_validation_performed") is False
+          and permission_boundary.get("stage8_10_status")=="IN_PROGRESS"
+          and permission_boundary.get("stage8_10_5_status")=="NOT_STARTED"
+          and permission_boundary.get("stage8_10_6_through_8_status")=="NOT_STARTED"
+          and permission_boundary.get("stage8_11_status")=="NOT_STARTED_NOT_AUTHORIZED"
+          and permission_boundary.get("stage8_12_status")=="NOT_STARTED_NOT_AUTHORIZED", "STAGE_8_10_4_MACHINE_AUTHORITY_EXACT")
+    check(permission_path.is_file() and permission_wrapper_path.is_file(), "STAGE_8_10_4_DIAGNOSTIC_FILES_EXIST")
+    check(canonical_text_sha256(permission_path.read_bytes())=="609baa9dda8859486cfdef204c99748088425c70c65895074bbb993df17b6624" and canonical_text_sha256(permission_wrapper_path.read_bytes())=="c4a086e1a8ae955056bb12053d5df9f3b2de9e4106ea6ba640c6e3f2e78a4e33", "STAGE_8_10_4_IMPLEMENTATION_HASHES")
+    permission_calls={node.func.attr for node in ast.walk(ast.parse(permission_source)) if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)}
+    forbidden_permission_calls={"orders","order","place_order","cancel_order","submit_order","account","assets","assets_all_active","asset","asset_params","schedule","bars"}
+    check(not permission_calls.intersection(forbidden_permission_calls) and {"create_session","session_details"}.issubset(permission_calls), "STAGE_8_10_4_SESSION_ONLY_NO_ORDER_CAPABILITY")
+    check("trading_permission_boundary" not in launcher+task_installer+runner+broker and all(term not in permission_wrapper.lower() for term in ("run-readonly","install-task","scheduledtask","runner","broker","/orders","place_order","cancel_order","submit_order")), "STAGE_8_10_4_NOT_RUNTIME_OR_TASK_WIRED")
+    check(all(all(f"Stage 8.10.{number} is **NOT STARTED**" in document for number in range(5,9)) for document in authoritative_docs),"STAGE_8_10_5_THROUGH_8_NOT_STARTED")
     check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in document
               for document in authoritative_docs),"STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED")
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in document
@@ -488,7 +511,7 @@ def audit(write_result=True,readme_text=None):
           "WINDOWS_NO_OBSOLETE_SUPERVISOR_STATE_AUTHORITY")
     check("TradingSystemLab.stage8_robot.readonly_supervisor" in launcher and not any(x in windows_deployment for x in ("place_order","submit_order","cancel_order")),"WINDOWS_SERVICE_READONLY_NO_ORDER_PATH")
     check("-ExecutionPolicy RemoteSigned" in task_installer and "-MultipleInstances IgnoreNew" in task_installer,"WINDOWS_TASK_POLICY_CONSERVATIVE")
-    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"real_order_transmission_authorized":False,"stage8_status":completed_status,"margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED","stage8_9_status":stage8_9_status,"stage8_9_reason":stage8_9_reason,"stage8_9_accepted_code_commit":stage8_9_code,"stage8_9_diagnostic_report_sha256":stage8_9_report,"stage8_9_physical_summary_sha256":stage8_9_summary,"stage8_9_8_status":stage8_9_8_status,"stage8_9_9_status":"PHYSICAL_REVALIDATION_COMPLETE","stage8_9_10_status":"COMPLETE","stage8_9_sizing_case_count":8,"stage8_9_positive_capacity_case_count":4,"stage8_9_zero_capacity_case_count":4,"stage8_9_positive_batch_reservation_count":1,"stage8_10_status":"IN_PROGRESS","stage8_10_1_status":stage8_10_1_status,"stage8_10_2_status":stage8_10_2_status,"stage8_10_2_accepted_code_commit":stage8_10_2_code,"stage8_10_2_external_evidence_sha256":stage8_10_2_evidence,"stage8_10_2_physical_result":stage8_10_2_result,"physical_provisioning_performed":True,"trading_token_provisioned":True,"trading_token_used":True,"finam_authentication_performed":True,"order_count":0,"order_endpoint_called":False,"stage8_10_3_status":stage8_10_3_status,"stage8_10_3_accepted_code_commit":"428d285336380726a3ce00487e2c85eb755e2dd9","stage8_10_3_external_evidence_sha256":"0DA102E61AB06FFA6A508CC64203FEA3F56BBA3016891A887688A4E300E11BB6","stage8_10_3_physical_result":"STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_PASS","physical_validation_performed":True,"local_readonly_trading_account_binding_validated":True,"trading_session_created":True,"expected_account_enumerated":True,"expected_account_occurrence_count":1,"enumerated_account_count":1,"stage8_10_4_status":"NOT_STARTED","stage8_10_5_through_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_9_complete":True,"stage8_9_physical_validation_performed":True}
+    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"real_order_transmission_authorized":False,"stage8_status":completed_status,"margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED","stage8_9_status":stage8_9_status,"stage8_9_reason":stage8_9_reason,"stage8_9_accepted_code_commit":stage8_9_code,"stage8_9_diagnostic_report_sha256":stage8_9_report,"stage8_9_physical_summary_sha256":stage8_9_summary,"stage8_9_8_status":stage8_9_8_status,"stage8_9_9_status":"PHYSICAL_REVALIDATION_COMPLETE","stage8_9_10_status":"COMPLETE","stage8_9_sizing_case_count":8,"stage8_9_positive_capacity_case_count":4,"stage8_9_zero_capacity_case_count":4,"stage8_9_positive_batch_reservation_count":1,"stage8_10_status":"IN_PROGRESS","stage8_10_1_status":stage8_10_1_status,"stage8_10_2_status":stage8_10_2_status,"stage8_10_2_accepted_code_commit":stage8_10_2_code,"stage8_10_2_external_evidence_sha256":stage8_10_2_evidence,"stage8_10_2_physical_result":stage8_10_2_result,"physical_provisioning_performed":True,"trading_token_provisioned":True,"trading_token_used":True,"finam_authentication_performed":True,"order_count":0,"order_endpoint_called":False,"stage8_10_3_status":stage8_10_3_status,"stage8_10_3_accepted_code_commit":"428d285336380726a3ce00487e2c85eb755e2dd9","stage8_10_3_external_evidence_sha256":"0DA102E61AB06FFA6A508CC64203FEA3F56BBA3016891A887688A4E300E11BB6","stage8_10_3_physical_result":"STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_PASS","physical_validation_performed":True,"local_readonly_trading_account_binding_validated":True,"trading_session_created":True,"expected_account_enumerated":True,"expected_account_occurrence_count":1,"enumerated_account_count":1,"stage8_10_4_status":stage8_10_4_status,"stage8_10_4_physical_validation_performed":False,"readonly_token_readonly_observed":False,"trading_token_readonly_false_observed":False,"token_permission_boundary_validated":False,"order_path_validation_performed":False,"stage8_10_5_through_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_9_complete":True,"stage8_9_physical_validation_performed":True}
     if write_result: (HERE/"independent_audit_result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
     return result
 if __name__=="__main__":

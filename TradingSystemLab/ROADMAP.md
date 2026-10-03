@@ -190,8 +190,9 @@ sufficiency. It does not authorize trading, a trading token, or real execution.
 ## Current handoff
 
 Stage 8.9 is complete. Stage 8.10 is **IN PROGRESS** because Stage 8.10.1 and
-Stage 8.10.2 are complete. Stage 8.10.3 is **COMPLETE**. Stage 8.10.4 is the **NOT STARTED** gate and
-must not begin without separate explicit authorization.
+Stage 8.10.2 are complete. Stage 8.10.3 is **COMPLETE**. Stage 8.10.4 is **CODE
+READY / PENDING PHYSICAL VALIDATION** and requires separately authorized operator
+physical validation.
 
 ## Persistent constraints
 
@@ -220,7 +221,7 @@ Canonical Stage 8.10 sequence and status:
    Canonical status: `STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE`.
 2. Stage 8.10.2 is **COMPLETE** — Secure Provisioning.
 3. Stage 8.10.3 is **COMPLETE** — Identity / Account Binding.
-4. Stage 8.10.4 is **NOT STARTED** — Permission Boundary Validation.
+4. Stage 8.10.4 is **CODE READY / PENDING PHYSICAL VALIDATION** — Permission Boundary Validation.
 5. Stage 8.10.5 is **NOT STARTED** — Order Path Dry Validation.
 6. Stage 8.10.6 is **NOT STARTED** — Kill Switch / Safety Gates.
 7. Stage 8.10.7 is **NOT STARTED** — Intel Trading-Token Acceptance.
@@ -301,8 +302,36 @@ validation or order-path validation occurred. No order endpoint was called and
 `order_count` remains exactly 0. LIVE trading and real-order transmission remain
 unauthorized. The Scheduled Task remains Disabled.
 
-Stage 8.10.4 is **NOT STARTED**, Stage 8.10.5 is **NOT STARTED**, Stage 8.10.6 is
-**NOT STARTED**, Stage 8.10.7 is **NOT STARTED**, and Stage 8.10.8 is **NOT
-STARTED**. Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**. Stage 8.12 is **NOT
-STARTED / NOT AUTHORIZED**. Stage 8.10.4 Permission Boundary Validation is the
-sole next gate and requires a separate task and explicit authorization.
+Stage 8.10.4 is **CODE READY / PENDING PHYSICAL VALIDATION**. Stage 8.10.5 is
+**NOT STARTED**, Stage 8.10.6 is **NOT STARTED**, Stage 8.10.7 is **NOT
+STARTED**, and Stage 8.10.8 is **NOT STARTED**. Stage 8.11 is **NOT STARTED /
+NOT AUTHORIZED**. Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**. A separately
+authorized operator physical validation of Stage 8.10.4 is the sole next gate.
+
+
+## Stage 8.10.4 permission boundary code-ready gate
+
+Canonical status: `STAGE_8_10_4_PERMISSION_BOUNDARY_CODE_READY_PENDING_PHYSICAL_VALIDATION`.
+Stage 8.10.4 is **CODE READY / PENDING PHYSICAL VALIDATION**; physical
+validation has not been performed. The separate operator diagnostic compares
+the two accepted local credentials for the exact frozen production ID and the
+same local production account before any later operator authentication. During
+that separately authorized future validation, each credential creates its own
+FINAM session and the diagnostic inspects only session details. It requires the
+expected account exactly once in both responses, exact READ_ONLY
+`readonly=true`, and exact trading Token 1 `readonly=false`.
+
+This establishes only the FINAM session-details token-level read/write
+permission boundary. It does not validate an order path, broker acceptance,
+instrument eligibility, margin, market/session availability, LIVE readiness,
+or production authorization. `stage8_10_4_physical_validation_performed=false`;
+`readonly_token_readonly_observed=false`;
+`trading_token_readonly_false_observed=false`;
+`token_permission_boundary_validated=false`; `order_count=0`;
+`order_endpoint_called=false`; and `order_path_validation_performed=false`. No
+real credential is used by repository tests.
+
+Stage 8.10.5 is **NOT STARTED**, Stage 8.10.6 is **NOT STARTED**, Stage 8.10.7
+is **NOT STARTED**, and Stage 8.10.8 is **NOT STARTED**. Stage 8.10 remains
+**IN PROGRESS**. Stage 8.11 and Stage 8.12 remain **NOT STARTED / NOT
+AUTHORIZED**.

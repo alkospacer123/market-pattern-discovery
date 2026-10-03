@@ -82,6 +82,11 @@ STAGE_8_10_3_IMPLEMENTATION_PATHS = (
     Path("deploy/windows/validate-trading-identity-binding.ps1"),
 )
 
+STAGE_8_10_4_IMPLEMENTATION_PATHS = (
+    Path("trading_permission_boundary.py"),
+    Path("deploy/windows/validate-trading-permission-boundary.ps1"),
+)
+
 
 @pytest.mark.parametrize("newline", [b"\n", b"\r\n"])
 def test_stage8_independent_audit_accepts_canonical_and_crlf_implementation_files(
@@ -118,6 +123,35 @@ def test_stage8_independent_audit_rejects_content_mutation_despite_canonical_has
     result = stage8.audit(write_result=False)
 
     assert "STAGE_8_10_3_IMPLEMENTATION_HASHES" in result["errors"]
+
+
+@pytest.mark.parametrize("newline", [b"\n", b"\r\n"])
+def test_stage8_8104_hashes_accept_lf_and_crlf(monkeypatch, newline):
+    original_read_bytes = Path.read_bytes
+    protected = {stage8.HERE / relative for relative in STAGE_8_10_4_IMPLEMENTATION_PATHS}
+
+    def read_bytes_with_newlines(path):
+        raw = original_read_bytes(path)
+        if path in protected:
+            return raw.replace(b"\r\n", b"\n").replace(b"\n", newline)
+        return raw
+
+    monkeypatch.setattr(Path, "read_bytes", read_bytes_with_newlines)
+    result = stage8.audit(write_result=False)
+    assert "STAGE_8_10_4_IMPLEMENTATION_HASHES" not in result["errors"]
+
+
+def test_stage8_8104_hashes_reject_semantic_mutation(monkeypatch):
+    original_read_bytes = Path.read_bytes
+    protected = {stage8.HERE / relative for relative in STAGE_8_10_4_IMPLEMENTATION_PATHS}
+
+    def read_bytes_with_mutation(path):
+        raw = original_read_bytes(path)
+        return raw + b"# semantic mutation\n" if path in protected else raw
+
+    monkeypatch.setattr(Path, "read_bytes", read_bytes_with_mutation)
+    result = stage8.audit(write_result=False)
+    assert "STAGE_8_10_4_IMPLEMENTATION_HASHES" in result["errors"]
 
 
 def test_missing_stage_8_8_5_evidence_sha_fails():
@@ -263,7 +297,7 @@ def test_top_level_readme_current_status_regressions_fail_both_audits():
         "NOT_STARTED",
     )
     for status in rejected:
-        mutation = original.replace(final.STAGE_8_10_3_STATUS, status, 1)
+        mutation = original.replace(final.STAGE_8_10_4_STATUS, status, 1)
         result = run_audit({path: mutation})
         assert "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT" in result["errors"]
         stage8_result = stage8.audit(write_result=False, readme_text=mutation)
@@ -293,7 +327,8 @@ def test_tracked_trading_token_and_account_artifacts_fail():
     forbidden = ["secrets/trading-token.json", "runtime/account_id.txt",
                  "runtime/finam-trading-token.dpapi",
                  "stage8_10_2_physical_provisioning_acceptance.json",
-                 "stage8_10_3_identity_account_binding.json", "runtime/token1.txt",
+                 "stage8_10_3_identity_account_binding.json",
+                 "stage8_10_4_permission_boundary.json", "runtime/token1.txt",
                  "runtime/session.jwt"]
     result = run_audit(tracked=git_files() + forbidden)
     assert all(path in result["runtime_artifacts_tracked"] for path in forbidden)
@@ -341,6 +376,39 @@ def test_identity_module_order_capability_and_wrapper_runtime_wiring_fail():
     wrapper = "TradingSystemLab/stage8_robot/deploy/windows/validate-trading-identity-binding.ps1"
     result = run_audit({wrapper: source(wrapper) + "\n# install-task ScheduledTask runner\n"})
     assert "STAGE_8_10_3_NOT_RUNTIME_OR_TASK_WIRED" in result["errors"]
+
+
+def test_stage_8_10_4_machine_authority_mutations_fail():
+    path = "TradingSystemLab/stage8_robot/authority_provenance.json"
+    authority = json.loads(source(path))
+    mutations = [
+        ("status", "COMPLETE"), ("status", "NOT_STARTED"),
+        ("physical_validation_performed", True),
+        ("readonly_token_readonly_observed", True),
+        ("trading_token_readonly_false_observed", True),
+        ("token_permission_boundary_validated", True),
+        ("order_count", 1), ("order_endpoint_called", True),
+        ("order_path_validation_performed", True),
+        ("stage8_10_status", "COMPLETE"),
+        ("stage8_10_5_status", "STARTED"),
+        ("stage8_10_6_through_8_status", "STARTED"),
+        ("stage8_11_status", "AUTHORIZED"),
+        ("stage8_12_status", "AUTHORIZED"),
+    ]
+    for key, value in mutations:
+        changed = json.loads(json.dumps(authority))
+        changed["stage8_10_4"][key] = value
+        result = run_audit({path: json.dumps(changed)})
+        assert "STAGE_8_10_4_MACHINE_AUTHORITY_EXACT" in result["errors"]
+
+
+def test_permission_module_order_capability_and_wrapper_wiring_fail():
+    module = "TradingSystemLab/stage8_robot/trading_permission_boundary.py"
+    result = run_audit({module: source(module) + "\ndef unsafe(api):\n    api.place_order('x', {})\n"})
+    assert "STAGE_8_10_4_SESSION_ONLY_NO_ORDER_CAPABILITY" in result["errors"]
+    wrapper = "TradingSystemLab/stage8_robot/deploy/windows/validate-trading-permission-boundary.ps1"
+    result = run_audit({wrapper: source(wrapper) + "\n# install-task ScheduledTask runner\n"})
+    assert "STAGE_8_10_4_NOT_RUNTIME_OR_TASK_WIRED" in result["errors"]
 
 
 def test_historical_blockers_described_as_current_fail():

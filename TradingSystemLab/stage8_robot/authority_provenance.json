@@ -134,5 +134,20 @@
     "stage8_10_5_through_8_status": "NOT_STARTED",
     "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
     "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
+  },
+  "stage8_10_4": {
+    "status": "STAGE_8_10_4_PERMISSION_BOUNDARY_CODE_READY_PENDING_PHYSICAL_VALIDATION",
+    "physical_validation_performed": false,
+    "readonly_token_readonly_observed": false,
+    "trading_token_readonly_false_observed": false,
+    "token_permission_boundary_validated": false,
+    "order_count": 0,
+    "order_endpoint_called": false,
+    "order_path_validation_performed": false,
+    "stage8_10_status": "IN_PROGRESS",
+    "stage8_10_5_status": "NOT_STARTED",
+    "stage8_10_6_through_8_status": "NOT_STARTED",
+    "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
+    "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
   }
 }

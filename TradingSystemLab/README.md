@@ -1,5 +1,7 @@
 # Trading System Lab research domain
 
+**Status:** `STAGE_8_10_4_PERMISSION_BOUNDARY_CODE_READY_PENDING_PHYSICAL_VALIDATION`
+
 ## Persistent project memory (read first)
 
 This repository, not conversation history, is the project record.  A new human

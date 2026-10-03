@@ -44,6 +44,7 @@ STAGE_8_10_2_CODE = "f0c271e428c05ee0ff67b7941e342c06b48a42a0"
 STAGE_8_10_2_EVIDENCE = "E5FEA93CE28006BC5ADA19F1AA1C1C365FF7CF4BE48A5A1B8BC8C5589DFD754D"
 STAGE_8_10_2_RESULT = "STAGE_8_10_2_PHYSICAL_SECURE_PROVISIONING_LOCAL_PASS"
 STAGE_8_10_3_STATUS = "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE"
+STAGE_8_10_4_STATUS = "STAGE_8_10_4_PERMISSION_BOUNDARY_CODE_READY_PENDING_PHYSICAL_VALIDATION"
 STAGE_8_9_8_STATUS = "STAGE_8_9_8_COMPLETE"
 STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
 STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
@@ -62,6 +63,8 @@ def current_readme_status(document: str) -> str | None:
 # status documents are intentionally excluded: they are outputs/metadata for
 # this gate, not executable or frozen Stage 7 authorities.
 PROTECTED_SHA256 = {
+    "TradingSystemLab/stage8_robot/trading_permission_boundary.py": "609baa9dda8859486cfdef204c99748088425c70c65895074bbb993df17b6624",
+    "TradingSystemLab/stage8_robot/deploy/windows/validate-trading-permission-boundary.ps1": "c4a086e1a8ae955056bb12053d5df9f3b2de9e4106ea6ba640c6e3f2e78a4e33",
     "TradingSystemLab/stage8_robot/trading_identity_binding.py": "1303459b636c99ae7fea4e2e62863888f56ad0e12ca8311a47782a354069167e",
     "TradingSystemLab/stage8_robot/deploy/windows/validate-trading-identity-binding.ps1": "0ccaa1c6b7e37bba226c25647a068739dfcc1db2ad7c99a695752235b4a7b399",
     "TradingSystemLab/stage8_robot/readonly_supervisor.py": "1455fee5fe207c617676a0463ce3034247c5534578555cac293807da22bcaab8",
@@ -242,7 +245,7 @@ def audit(
         runtime_suffix = lower.endswith((".sqlite3", "-wal", "-shm", ".dpapi", ".jwt"))
         external_acceptance = "acceptance" in name and name.endswith(".json") and "tests/" not in lower
         external_stage8_9 = ("stage8_9" in name or "funding_margin_validation" in name) and name.endswith(".json")
-        external_stage8_10_3 = name == "stage8_10_3_identity_account_binding.json"
+        external_stage8_10_3 = name in {"stage8_10_3_identity_account_binding.json", "stage8_10_4_permission_boundary.json"}
         raw_capture = any(term in name for term in ("raw_finam", "account_response", "real_market_capture", "stale_h1_evidence"))
         credential = any(term in name for term in ("credential", "secret")) and not lower.endswith((".py", ".ps1", ".md", ".example"))
         trading_token = any(term in name for term in ("trading_token", "trading-token", "token_1", "token1")) and lower.endswith((".json", ".txt", ".bin", ".blob", ".dpapi", ".env"))
@@ -268,7 +271,8 @@ def audit(
     preconditions = provenance.get("stage8_10_1", {})
     provisioning = provenance.get("stage8_10_2", {})
     identity_binding = provenance.get("stage8_10_3", {})
-    check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_3_STATUS,
+    permission_boundary = provenance.get("stage8_10_4", {})
+    check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_4_STATUS,
           "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT")
     check(lifecycle.get("status") == STAGE_8_9_8_STATUS
           and lifecycle.get("stage8_9_9") == "PHYSICAL_REVALIDATION_COMPLETE"
@@ -384,7 +388,27 @@ def audit(
     identity_calls = {node.func.attr for node in ast.walk(ast.parse(identity_source)) if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)}
     check(not identity_calls.intersection({"place_order","cancel_order","submit_order","orders","order","account","assets","asset","asset_params","schedule","bars"}) and {"create_session","session_details"}.issubset(identity_calls), "STAGE_8_10_3_SESSION_ONLY_NO_ORDER_CAPABILITY")
     check("trading_identity_binding" not in launcher + installer and all(term not in identity_wrapper.lower() for term in ("run-readonly","install-task","scheduledtask","runner","broker","/orders")), "STAGE_8_10_3_NOT_RUNTIME_OR_TASK_WIRED")
-    check(all(all(f"Stage 8.10.{number} is **NOT STARTED**" in doc for number in range(4, 9)) for doc in stage8_9_docs), "STAGE_8_10_4_THROUGH_8_NOT_STARTED")
+    permission_source = text("TradingSystemLab/stage8_robot/trading_permission_boundary.py")
+    permission_wrapper = text("TradingSystemLab/stage8_robot/deploy/windows/validate-trading-permission-boundary.ps1")
+    check(all(STAGE_8_10_4_STATUS in doc and "Stage 8.10.4 is **CODE READY / PENDING PHYSICAL VALIDATION**" in doc for doc in stage8_9_docs), "STAGE_8_10_4_CODE_READY_SYNCHRONIZED")
+    check(permission_boundary.get("status") == STAGE_8_10_4_STATUS
+          and permission_boundary.get("physical_validation_performed") is False
+          and permission_boundary.get("readonly_token_readonly_observed") is False
+          and permission_boundary.get("trading_token_readonly_false_observed") is False
+          and permission_boundary.get("token_permission_boundary_validated") is False
+          and permission_boundary.get("order_count") == 0
+          and permission_boundary.get("order_endpoint_called") is False
+          and permission_boundary.get("order_path_validation_performed") is False
+          and permission_boundary.get("stage8_10_status") == "IN_PROGRESS"
+          and permission_boundary.get("stage8_10_5_status") == "NOT_STARTED"
+          and permission_boundary.get("stage8_10_6_through_8_status") == "NOT_STARTED"
+          and permission_boundary.get("stage8_11_status") == "NOT_STARTED_NOT_AUTHORIZED"
+          and permission_boundary.get("stage8_12_status") == "NOT_STARTED_NOT_AUTHORIZED", "STAGE_8_10_4_MACHINE_AUTHORITY_EXACT")
+    permission_calls = {node.func.attr for node in ast.walk(ast.parse(permission_source)) if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)}
+    forbidden_permission_calls = {"orders","order","place_order","cancel_order","submit_order","account","assets","assets_all_active","asset","asset_params","schedule","bars"}
+    check(not permission_calls.intersection(forbidden_permission_calls) and {"create_session","session_details"}.issubset(permission_calls), "STAGE_8_10_4_SESSION_ONLY_NO_ORDER_CAPABILITY")
+    check("trading_permission_boundary" not in launcher + installer and all(term not in permission_wrapper.lower() for term in ("run-readonly","install-task","scheduledtask","runner","broker","/orders","place_order","cancel_order","submit_order")), "STAGE_8_10_4_NOT_RUNTIME_OR_TASK_WIRED")
+    check(all(all(f"Stage 8.10.{number} is **NOT STARTED**" in doc for number in range(5, 9)) for doc in stage8_9_docs), "STAGE_8_10_5_THROUGH_8_NOT_STARTED")
     check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED")
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
@@ -445,7 +469,12 @@ def audit(
         "expected_account_enumerated": True,
         "expected_account_occurrence_count": 1,
         "enumerated_account_count": 1,
-        "stage8_10_4_status": "NOT_STARTED",
+        "stage8_10_4_status": STAGE_8_10_4_STATUS,
+        "stage8_10_4_physical_validation_performed": False,
+        "readonly_token_readonly_observed": False,
+        "trading_token_readonly_false_observed": False,
+        "token_permission_boundary_validated": False,
+        "order_path_validation_performed": False,
         "stage8_10_5_through_8_status": "NOT_STARTED",
         "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
