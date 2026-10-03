@@ -18,6 +18,17 @@ def test_wrapper_is_credential_free_offline_and_fail_closed():
     for forbidden in (
         "credential-store", "trading-credential-store", "invoke-webrequest",
         "invoke-restmethod", "curl", "run-readonly", "install-task", "scheduledtask",
-        "runner.py", "readonly_supervisor", ".sqlite",
+        "runner.py", "readonly_supervisor", ".sqlite", ".sqlite3", "-wal", "-shm",
     ):
         assert forbidden not in lower
+
+
+def test_wrapper_establishes_and_restores_repository_working_directory():
+    text = WRAPPER.read_text()
+    resolve = text.index('$repo = (Resolve-Path (Join-Path $PSScriptRoot "..\\..\\..\\.."))')
+    push = text.index("Push-Location $repo")
+    invoke = text.index("-m TradingSystemLab.stage8_robot.order_path_dry_validation")
+    pop = text.index("Pop-Location")
+    cleanup = text.index("Remove-Item Env:STAGE8_10_5_ORDER_PATH_DRY")
+    assert resolve < push < invoke < pop < cleanup
+    assert "finally" in text[push:pop]

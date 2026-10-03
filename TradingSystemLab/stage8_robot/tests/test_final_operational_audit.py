@@ -177,6 +177,74 @@ def test_stage8_8105_hashes_reject_semantic_mutation(monkeypatch):
     assert "STAGE_8_10_5_IMPLEMENTATION_HASHES" in stage8.audit(write_result=False)["errors"]
 
 
+def test_stage_8_10_5_machine_authority_mutations_fail_independent_audit():
+    path = ROOT / "TradingSystemLab/stage8_robot/authority_provenance.json"
+    authority = json.loads(path.read_text())
+    mutations = [
+        ("status", "COMPLETE"), ("status", "NOT_STARTED"),
+        ("physical_validation_performed", True),
+        ("offline_dry_validation_performed", True),
+        ("order_path_dry_validation_validated", True),
+        ("real_order_endpoint_called", True), ("real_order_count", 1),
+        ("external_network_calls", 1),
+        ("trading_token_used_for_stage8_10_5", True),
+        ("readonly_token_used_for_stage8_10_5", True),
+        ("finam_authentication_performed_for_stage8_10_5", True),
+        ("stage8_10_status", "COMPLETE"), ("stage8_10_6_status", "STARTED"),
+        ("stage8_10_7_through_8_status", "STARTED"),
+        ("stage8_11_status", "AUTHORIZED"), ("stage8_12_status", "AUTHORIZED"),
+    ]
+    for key, value in mutations:
+        changed = json.loads(json.dumps(authority))
+        changed["stage8_10_5"][key] = value
+        result = stage8.audit(write_result=False, authority_text=json.dumps(changed))
+        assert "STAGE_8_10_5_MACHINE_AUTHORITY_EXACT" in result["errors"], key
+
+
+def test_stage_8_10_5_physical_report_tracking_fails_independent_audit():
+    tracked = git_files() + ["external/stage8_10_5_order_path_dry_validation.json"]
+    result = stage8.audit(write_result=False, tracked_files=tracked)
+    assert "STAGE_8_10_5_PHYSICAL_EVIDENCE_NOT_TRACKED" in result["errors"]
+
+
+@pytest.mark.parametrize("relative,mutation", [
+    ("deploy/windows/validate-order-path-dry.ps1", "\n. .\\credential-store.ps1\n"),
+    ("deploy/windows/validate-order-path-dry.ps1", "\nInvoke-WebRequest https://example.invalid\n"),
+    ("order_path_dry_validation.py", "\n# transport=transport removed\n"),
+    ("deploy/windows/validate-order-path-dry.ps1",
+     "\n& $Python -m TradingSystemLab.stage8_robot.readonly_supervisor "
+     "--runtime-root C:\\TradingSystemLab\\runtime\\robot.sqlite3-wal-shm\n"),
+])
+def test_stage_8_10_5_semantic_offline_guard_mutations_fail(
+        monkeypatch, relative, mutation):
+    target = stage8.HERE / relative
+    original_read_text = Path.read_text
+
+    def mutated_read_text(path, *args, **kwargs):
+        text = original_read_text(path, *args, **kwargs)
+        if path == target:
+            if relative == "order_path_dry_validation.py":
+                return text.replace("transport=transport", "transport = synthetic")
+            return text + mutation
+        return text
+
+    monkeypatch.setattr(Path, "read_text", mutated_read_text)
+    result = stage8.audit(write_result=False)
+    assert "STAGE_8_10_5_OFFLINE_NOT_RUNTIME_WIRED" in result["errors"]
+
+
+def test_stage_8_10_5_repository_output_guard_is_required(monkeypatch):
+    target = stage8.HERE / "order_path_dry_validation.py"
+    original_read_text = Path.read_text
+
+    def mutated_read_text(path, *args, **kwargs):
+        text = original_read_text(path, *args, **kwargs)
+        return text.replace("REPOSITORY_OUTPUT_FORBIDDEN", "OUTPUT_GUARD_REMOVED") if path == target else text
+
+    monkeypatch.setattr(Path, "read_text", mutated_read_text)
+    assert "STAGE_8_10_5_OFFLINE_NOT_RUNTIME_WIRED" in stage8.audit(write_result=False)["errors"]
+
+
 def test_missing_stage_8_8_5_evidence_sha_fails():
     path = "TradingSystemLab/CURRENT_STATE.md"
     result = run_audit({path: source(path).replace(final.STAGE_8_8_5_EVIDENCE, "MISSING")})

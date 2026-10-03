@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 import urllib.request
 
 import pytest
@@ -62,3 +63,19 @@ def test_live_runtime_remains_forbidden(monkeypatch):
     monkeypatch.setenv("FINAM_MODE", "LIVE")
     with pytest.raises(RuntimeError, match="LIVE_TRADING_NOT_AUTHORIZED"):
         RuntimeConfig.from_environment()
+
+
+def test_external_report_output_succeeds(tmp_path):
+    output = tmp_path / "runtime" / "stage8_10_5_order_path_dry_validation.json"
+    report = {"order_path_dry_validation": "PASS"}
+    dry.write_report(output, report)
+    assert json.loads(output.read_text(encoding="utf-8")) == report
+
+
+@pytest.mark.parametrize("relative", [Path(), Path("runtime/rejected-report.json")])
+def test_repository_report_output_is_rejected_before_write(relative):
+    output = dry.REPOSITORY_ROOT / relative
+    existed = output.exists()
+    with pytest.raises(ValueError, match=dry.REPOSITORY_OUTPUT_FORBIDDEN):
+        dry.write_report(output, {"must_not": "be written"})
+    assert output.exists() is existed

@@ -17,8 +17,13 @@ foreach ($name in $forbidden) {
 $env:STAGE8_10_5_ORDER_PATH_DRY = "true"
 try {
     $repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..\..")).Path
-    & $Python -m TradingSystemLab.stage8_robot.order_path_dry_validation --output $OutputPath
-    if ($LASTEXITCODE -ne 0) { throw "STAGE_8_10_5_DIAGNOSTIC_FAILED" }
+    Push-Location $repo
+    try {
+        & $Python -m TradingSystemLab.stage8_robot.order_path_dry_validation --output $OutputPath
+        if ($LASTEXITCODE -ne 0) { throw "STAGE_8_10_5_DIAGNOSTIC_FAILED" }
+    } finally {
+        Pop-Location
+    }
 } finally {
     Remove-Item Env:STAGE8_10_5_ORDER_PATH_DRY -ErrorAction SilentlyContinue
 }
