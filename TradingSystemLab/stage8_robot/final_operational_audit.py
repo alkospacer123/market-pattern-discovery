@@ -65,6 +65,9 @@ def current_readme_status(document: str) -> str | None:
 # status documents are intentionally excluded: they are outputs/metadata for
 # this gate, not executable or frozen Stage 7 authorities.
 PROTECTED_SHA256 = {
+    "TradingSystemLab/stage8_robot/trading_safety_gate.py": "64c781579e630836cfde7a0b772df1e2707caf35decafb9acdc75d7d2e3df6e4",
+    "TradingSystemLab/stage8_robot/safety_gate_validation.py": "baf9f85f8fa3c6c789db7ce40d9d23fb13d7854c11820986f33c1c5436716b9f",
+    "TradingSystemLab/stage8_robot/deploy/windows/validate-trading-safety-gates.ps1": "7da9ff0a252008f41c771866d528cbaf4ce2fc97221b87a1b933d50acb75c4d5",
     "TradingSystemLab/stage8_robot/order_path_dry_validation.py": "4bf00af63304001a5f127435d764876c02e545af7cfed1672288d6e4b8bdd460",
     "TradingSystemLab/stage8_robot/deploy/windows/validate-order-path-dry.ps1": "a1058ee61f3a9586649bb57a46e72d9d1ef49d89d3954c66df8752df05a98288",
     "TradingSystemLab/stage8_robot/trading_permission_boundary.py": "609baa9dda8859486cfdef204c99748088425c70c65895074bbb993df17b6624",
@@ -107,6 +110,60 @@ def _protected_sha256(raw: bytes) -> str:
     """Hash protected text using the canonical Git/GitHub LF representation."""
     canonical = raw.replace(b"\r\n", b"\n")
     return hashlib.sha256(canonical).hexdigest()
+
+
+def _stage8_10_6_python_safe(source: str) -> bool:
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return False
+    forbidden_modules = ("finam_api", "broker", "runner", "urllib.request", "requests", "httpx",
+                         "socket", "http.client", "subprocess")
+    imports = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imports.extend(alias.name.lower() for alias in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            imports.append((node.module or "").lower())
+            imports.extend(alias.name.lower() for alias in node.names)
+    forbidden_calls = {"urlopen", "request", "post", "put", "patch", "delete", "place_order",
+                       "submit_order", "cancel_order", "modify_order"}
+    calls = {node.func.attr.lower() if isinstance(node.func, ast.Attribute) else node.func.id.lower()
+             for node in ast.walk(tree) if isinstance(node, ast.Call) and isinstance(node.func, (ast.Attribute, ast.Name))}
+    return (not any(module == term or module.startswith(term + ".")
+                    for module in imports for term in forbidden_modules)
+            and not calls.intersection(forbidden_calls))
+
+
+def _stage8_10_6_semantics(safety: str, validation: str, wrapper: str) -> tuple[bool, bool, bool]:
+    safety_required = (
+        'return None, "KILL_SWITCH_MISSING"', 'return None, "KILL_SWITCH_INVALID"',
+        'if switch["state"] == "HALTED": reasons.append("KILL_SWITCH_HALTED")',
+        'if execution_authorized is not True: reasons.append("EXECUTION_NOT_AUTHORIZED")',
+        'heartbeat.get("health_status") == "HEALTHY"', 'heartbeat.get("reconciliation_status") == "PASS"',
+        'heartbeat.get("entries_enabled") is False', 'heartbeat.get("unresolved_order_count") == 0',
+        'heartbeat.get("failure_code") is None', 'heartbeat.get("consecutive_failures") == 0',
+        'heartbeat.get("cycle_count") >= 1',
+        'elif age > MAX_HEARTBEAT_AGE_SECONDS: reasons.append("HEARTBEAT_STALE")',
+        'elif age > MAX_HEARTBEAT_AGE_SECONDS: reasons.append("FINAM_CONTACT_STALE")',
+        'last_successful_finam_api_contact', '_HASH.fullmatch', 'REPOSITORY_OUTPUT_FORBIDDEN',
+    )
+    report_required = ('"production_kill_switch_initialized": True',
+                       '"production_kill_switch_final_state": "HALTED"',
+                       '"production_kill_switch_valid": True', '--production-runtime-root',
+                       'load_kill_switch(root)')
+    wrapper_forbidden = ("credential-store.ps1", "trading-credential-store.ps1", "get-readonlycredential",
+        "get-tradingcredential", "initialize-readonly-credentials", "initialize-trading-credentials",
+        "invoke-webrequest", "invoke-restmethod", "curl", "wget", "run-readonly", "install-task", "runner", "broker",
+        "enable-scheduledtask", "start-scheduledtask", "register-scheduledtask", "allow_arm",
+        "execution_authorized=true")
+    lower = wrapper.lower()
+    offline = (_stage8_10_6_python_safe(safety) and _stage8_10_6_python_safe(validation)
+               and all(item in safety for item in safety_required))
+    halt_only = (not any(item in lower for item in wrapper_forbidden)
+                 and not re.search(r"execution[_-]?authorized\s*=\s*\$?true", lower))
+    report_contract = all(item in validation for item in report_required) and "--production-runtime-root $runtime" in wrapper
+    return offline, halt_only, report_contract
 
 
 def audit(
@@ -462,9 +519,11 @@ def audit(
           "STAGE_8_10_5_OFFLINE_NOT_RUNTIME_WIRED")
     expected_safety={"status":STAGE_8_10_6_STATUS,"physical_validation_performed":False,"production_kill_switch_initialized":False,"production_kill_switch_halted_observed":False,"synthetic_safety_matrix_validated":False,"emergency_halt_validated":False,"execution_authorized":False,"external_network_calls":0,"real_order_endpoint_called":False,"real_order_count":0,"live_trading_authorized":False,"real_order_transmission_authorized":False,"stage8_10_status":"IN_PROGRESS","stage8_10_7_status":"NOT_STARTED","stage8_10_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"}
     check(safety_gate == expected_safety, "STAGE_8_10_6_MACHINE_AUTHORITY_EXACT")
-    safety=text("TradingSystemLab/stage8_robot/trading_safety_gate.py").lower(); safety_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/validate-trading-safety-gates.ps1").lower()
-    check("repository_output_forbidden" in safety and "execution_authorized: bool = false" in safety and not any(x in safety for x in ("import broker","import runner","import finam_api","urllib","requests","socket")), "STAGE_8_10_6_OFFLINE_FAIL_CLOSED")
-    check("allow_arm" not in safety_wrapper and not any(x in safety_wrapper for x in ("enable-scheduledtask","start-scheduledtask","invoke-webrequest","invoke-restmethod")), "STAGE_8_10_6_WRAPPER_HALT_ONLY")
+    safety=text("TradingSystemLab/stage8_robot/trading_safety_gate.py"); validation=text("TradingSystemLab/stage8_robot/safety_gate_validation.py"); safety_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/validate-trading-safety-gates.ps1")
+    offline_safe,wrapper_halt_only,physical_report_contract=_stage8_10_6_semantics(safety,validation,safety_wrapper)
+    check(offline_safe, "STAGE_8_10_6_OFFLINE_FAIL_CLOSED")
+    check(wrapper_halt_only, "STAGE_8_10_6_WRAPPER_HALT_ONLY")
+    check(physical_report_contract, "STAGE_8_10_6_PHYSICAL_REPORT_CONTRACT")
     check(all(STAGE_8_10_6_STATUS in doc and "Stage 8.10.6 is **CODE READY / PENDING PHYSICAL VALIDATION**" in doc and "Stage 8.10.7 is **NOT STARTED**" in doc for doc in stage8_9_docs), "STAGE_8_10_6_CODE_READY_SYNCHRONIZED")
     check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED")
