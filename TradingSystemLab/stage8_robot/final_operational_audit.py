@@ -46,7 +46,7 @@ STAGE_8_10_2_RESULT = "STAGE_8_10_2_PHYSICAL_SECURE_PROVISIONING_LOCAL_PASS"
 STAGE_8_10_3_STATUS = "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE"
 STAGE_8_10_4_STATUS = "STAGE_8_10_4_PERMISSION_BOUNDARY_COMPLETE"
 STAGE_8_10_5_STATUS = "STAGE_8_10_5_ORDER_PATH_DRY_VALIDATION_COMPLETE"
-STAGE_8_10_6_STATUS = "STAGE_8_10_6_KILL_SWITCH_SAFETY_GATES_CODE_READY_PENDING_PHYSICAL_VALIDATION"
+STAGE_8_10_6_STATUS = "STAGE_8_10_6_KILL_SWITCH_SAFETY_GATES_COMPLETE"
 STAGE_8_9_8_STATUS = "STAGE_8_9_8_COMPLETE"
 STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
 STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
@@ -517,14 +517,14 @@ def audit(
           and not any(term in dry_source+dry_wrapper for term in forbidden_dry)
           and "order_path_dry_validation" not in launcher+installer,
           "STAGE_8_10_5_OFFLINE_NOT_RUNTIME_WIRED")
-    expected_safety={"status":STAGE_8_10_6_STATUS,"physical_validation_performed":False,"production_kill_switch_initialized":False,"production_kill_switch_halted_observed":False,"synthetic_safety_matrix_validated":False,"emergency_halt_validated":False,"execution_authorized":False,"external_network_calls":0,"real_order_endpoint_called":False,"real_order_count":0,"live_trading_authorized":False,"real_order_transmission_authorized":False,"stage8_10_status":"IN_PROGRESS","stage8_10_7_status":"NOT_STARTED","stage8_10_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"}
+    expected_safety={"status":STAGE_8_10_6_STATUS,"accepted_code_commit":"35ec9007e6302d66e35e1a42a34fc2e77be8a467","external_evidence_sha256":"CF34E54212B3385F154804F440361FE5E213B0AFA63D8DD8AE56E1EBB49D6B30","physical_result":"STAGE_8_10_6_PHYSICAL_SAFETY_GATE_VALIDATION_PASS","physical_validation_performed":True,"production_kill_switch_initialized":True,"production_kill_switch_halted_observed":True,"production_kill_switch_final_state":"HALTED","production_kill_switch_valid":True,"synthetic_safety_matrix_validated":True,"synthetic_case_count":25,"synthetic_open_case_count":1,"synthetic_blocked_case_count":24,"synthetic_matrix_validation":"PASS","emergency_halt_validated":True,"missing_switch_fail_closed":True,"malformed_switch_fail_closed":True,"execution_authorization_required":True,"heartbeat_health_gate_validated":True,"reconciliation_gate_validated":True,"unresolved_order_gate_validated":True,"heartbeat_freshness_gate_validated":True,"api_contact_freshness_gate_validated":True,"account_hash_shape_gate_validated":True,"execution_authorized":False,"real_account_id_used":False,"readonly_token_used_for_stage8_10_6":False,"trading_token_used_for_stage8_10_6":False,"finam_authentication_performed_for_stage8_10_6":False,"external_network_calls":0,"real_order_endpoint_called":False,"real_order_count":0,"live_trading_authorized":False,"real_order_transmission_authorized":False,"stage8_10_status":"IN_PROGRESS","stage8_10_7_status":"NOT_STARTED","stage8_10_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"}
     check(safety_gate == expected_safety, "STAGE_8_10_6_MACHINE_AUTHORITY_EXACT")
     safety=text("TradingSystemLab/stage8_robot/trading_safety_gate.py"); validation=text("TradingSystemLab/stage8_robot/safety_gate_validation.py"); safety_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/validate-trading-safety-gates.ps1")
     offline_safe,wrapper_halt_only,physical_report_contract=_stage8_10_6_semantics(safety,validation,safety_wrapper)
     check(offline_safe, "STAGE_8_10_6_OFFLINE_FAIL_CLOSED")
     check(wrapper_halt_only, "STAGE_8_10_6_WRAPPER_HALT_ONLY")
     check(physical_report_contract, "STAGE_8_10_6_PHYSICAL_REPORT_CONTRACT")
-    check(all(STAGE_8_10_6_STATUS in doc and "Stage 8.10.6 is **CODE READY / PENDING PHYSICAL VALIDATION**" in doc and "Stage 8.10.7 is **NOT STARTED**" in doc for doc in stage8_9_docs), "STAGE_8_10_6_CODE_READY_SYNCHRONIZED")
+    check(all(STAGE_8_10_6_STATUS in doc and "Stage 8.10.6 is **COMPLETE**" in doc and "Stage 8.10.7 is **NOT STARTED**" in doc for doc in stage8_9_docs), "STAGE_8_10_6_COMPLETE_SYNCHRONIZED")
     check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED")
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
@@ -604,11 +604,19 @@ def audit(
         "stage8_10_5_external_network_calls": 0,
         "real_order_endpoint_called": False, "real_order_count": 0,
         "stage8_10_6_status": STAGE_8_10_6_STATUS,
-        "stage8_10_6_physical_validation_performed": False,
-        "production_kill_switch_initialized": False,
-        "production_kill_switch_halted_observed": False,
-        "synthetic_safety_matrix_validated": False,
-        "emergency_halt_validated": False,
+        "stage8_10_6_accepted_code_commit": safety_gate["accepted_code_commit"],
+        "stage8_10_6_external_evidence_sha256": safety_gate["external_evidence_sha256"],
+        "stage8_10_6_physical_result": safety_gate["physical_result"],
+        "stage8_10_6_physical_validation_performed": True,
+        "production_kill_switch_initialized": True,
+        "production_kill_switch_halted_observed": True,
+        "production_kill_switch_final_state": "HALTED",
+        "production_kill_switch_valid": True,
+        "synthetic_safety_matrix_validated": True,
+        "synthetic_case_count": 25,
+        "synthetic_open_case_count": 1,
+        "synthetic_blocked_case_count": 24,
+        "emergency_halt_validated": True,
         "execution_authorized": False,
         "stage8_10_6_external_network_calls": 0,
         "stage8_10_7_status": "NOT_STARTED", "stage8_10_8_status": "NOT_STARTED",
