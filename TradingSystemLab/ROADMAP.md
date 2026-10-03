@@ -115,7 +115,9 @@ reconciliation/watermarks, zero unresolved orders and no live order transmission
 
 ## Stage 8.9 — Funding / margin readiness
 
-**CURRENT. NOT COMPLETE.**
+**COMPLETE.** Stage 8.9 is **COMPLETE**.
+
+Canonical status: `STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE`.
 
 ### Stage 8.9.8 — account-authority correction
 
@@ -130,41 +132,56 @@ Portfolio-variant evidence SHA-256:
 Account financial-shape evidence SHA-256:
 `EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371`.
 
+The earlier FORTS-only result is historical provenance only:
+`BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` / `FORTS_PORTFOLIO_MISSING`, accepted
+code `5deedb49f16d9f2525c430383a029017cd9a53ce`, diagnostic SHA-256
+`2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`, and
+summary SHA-256
+`59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B`.
+It is not a current blocker.
+
 ### Stage 8.9.9 — physical revalidation
 
 Stage 8.9.9 is **PHYSICAL REVALIDATION COMPLETE**.
 
-Accepted code commit:
-`c461911fdceddf54a2a6fe6768574dd93f4844d1`.
+The pre-funding zero-capacity result is historical provenance only:
+`BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY` / `ZERO_CONTRACT_CAPACITY`, accepted
+code `c461911fdceddf54a2a6fe6768574dd93f4844d1`, diagnostic SHA-256
+`F307D3F5ADC4525FF304B9582F683B89A097FC9BCFB502E8150FC98D2625860F`, summary
+SHA-256 `F36B16565F9E08C38B3264831DCA94A65390275F7A2B78A3C6C90302E4A7C09B`, and
+`positive_capacity_case_count = 0`. It is not a current blocker.
+
+### Stage 8.9.10 — post-funding closeout
+
+Stage 8.9.10 is **COMPLETE**.
+
+Accepted physical code commit:
+`1013a5a2324e015ab3bc047a7b9af9064552cd10`.
+
+Physical result: `STAGE_8_9_10_POST_FUNDING_REVALIDATION_PASS=1`.
+Classification: `STAGE_8_9_FUNDING_MARGIN_VALIDATED`.
+Reason: `ALL_AUTHORITIES_VALID`.
 
 External diagnostic report SHA-256:
-`F307D3F5ADC4525FF304B9582F683B89A097FC9BCFB502E8150FC98D2625860F`.
+`C87400F845B73A666B95C83DA2E3B6B710F36F3210AD4AD175BFDABB453864D5`.
 
 External physical summary SHA-256:
-`F36B16565F9E08C38B3264831DCA94A65390275F7A2B78A3C6C90302E4A7C09B`.
+`099F85A0DCCF94D404411CFFAC2F5D8C80D606C5C1B5AA2F5B650E8BF5FEB636`.
 
-Financial schema, equity, directional margins, exact N4 binding, arithmetic and
-batch-budget mechanics passed, but `positive_capacity_case_count = 0`.
+Accepted counts are `sizing_case_count = 8`,
+`positive_capacity_case_count = 4`, `zero_capacity_case_count = 4`, and
+`positive_batch_reservation_count = 1`. This establishes account funding and
+FINAM margin authority plus at least one executable contract-capacity case.
 
-### Stage 8.9.10 — current capacity gate
-
-**CURRENT / BLOCKED.**
-
-Status:
-`BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY`.
-
-Reason:
-`ZERO_CONTRACT_CAPACITY`.
-
-This is the only active Stage 8.9 blocker. Stage 8.9 is NOT COMPLETE.
-
-Do not label this funding-ready, fabricate capacity, or loosen Stage 7 R15 risk
-automatically.
+It does **not** establish positive capacity for every N4 instrument,
+simultaneous FULL N4 portfolio capacity, or FULL/R15 production funding
+sufficiency. It does not authorize trading, a trading token, or real execution.
 
 ## Later gates
 
-- Stage 8.10 trading-token integration — **NOT STARTED / NOT AUTHORIZED**.
-- Stage 8.11/8.12 execution — **NOT AUTHORIZED**.
+- Stage 8.10 — **NOT STARTED / NOT AUTHORIZED**.
+- Stage 8.11 — **NOT STARTED / NOT AUTHORIZED**.
+- Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**.
 
 `LIVE_TRADING_NOT_AUTHORIZED` remains in force.
 `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remains in force.
@@ -172,11 +189,9 @@ automatically.
 
 ## Current handoff
 
-**STOP at Stage 8.9.10 while `ZERO_CONTRACT_CAPACITY` remains.**
-
-Any capacity-resolution work requires a separate explicit user-authorized task,
-must preserve the frozen Stage 7 identity/risk contract, and must be independently
-audited before Stage 8.10 can begin.
+Stage 8.9 is complete. The next lifecycle stage is Stage 8.10, but it is
+**NOT STARTED / NOT AUTHORIZED** and must not begin without separate explicit
+authorization.
 
 ## Persistent constraints
 

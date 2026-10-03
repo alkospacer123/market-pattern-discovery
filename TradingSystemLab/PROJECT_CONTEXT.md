@@ -136,15 +136,14 @@ Stage 8.8 completion did not authorize live trading.
 
 ## Stage 8.9 funding / margin validation
 
-Stage 8.9 is CURRENT and NOT COMPLETE.
+Stage 8.9 is **COMPLETE** under canonical status
+`STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE`.
 
 ### Corrected account authority
 
-Stage 8.9.8 is `STAGE_8_9_8_COMPLETE`.
-
+Stage 8.9.8 is **COMPLETE** with status `STAGE_8_9_8_COMPLETE`.
 Physical evidence confirmed the active production account is `UNION` with
-exactly one `portfolio_mc`. The earlier FORTS-only implementation is historical
-and no longer the current authority.
+exactly one `portfolio_mc`.
 
 Portfolio variant evidence SHA-256:
 `60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5`.
@@ -152,50 +151,59 @@ Portfolio variant evidence SHA-256:
 Financial shape evidence SHA-256:
 `EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371`.
 
+The earlier FORTS-only result is strictly historical provenance:
+`BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` / `FORTS_PORTFOLIO_MISSING`, accepted
+code `5deedb49f16d9f2525c430383a029017cd9a53ce`, diagnostic SHA-256
+`2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`, and
+summary SHA-256
+`59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B`.
+It is not a current blocker.
+
 ### Physical revalidation
 
-Stage 8.9.9 is PHYSICAL REVALIDATION COMPLETE.
+Stage 8.9.9 is **PHYSICAL REVALIDATION COMPLETE**.
+Its pre-funding zero-capacity result remains strictly historical provenance:
+`BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY` / `ZERO_CONTRACT_CAPACITY`, accepted
+code `c461911fdceddf54a2a6fe6768574dd93f4844d1`, diagnostic SHA-256
+`F307D3F5ADC4525FF304B9582F683B89A097FC9BCFB502E8150FC98D2625860F`, summary
+SHA-256 `F36B16565F9E08C38B3264831DCA94A65390275F7A2B78A3C6C90302E4A7C09B`, and
+`positive_capacity_case_count = 0`. It is not a current blocker.
 
-Accepted code commit:
-`c461911fdceddf54a2a6fe6768574dd93f4844d1`.
+### Stage 8.9.10 post-funding closeout
+
+Stage 8.9.10 is **COMPLETE**. The accepted physical REAL_READONLY run used code
+`1013a5a2324e015ab3bc047a7b9af9064552cd10` and returned
+`STAGE_8_9_10_POST_FUNDING_REVALIDATION_PASS=1`, classification
+`STAGE_8_9_FUNDING_MARGIN_VALIDATED`, reason `ALL_AUTHORITIES_VALID`.
 
 Diagnostic SHA-256:
-`F307D3F5ADC4525FF304B9582F683B89A097FC9BCFB502E8150FC98D2625860F`.
+`C87400F845B73A666B95C83DA2E3B6B710F36F3210AD4AD175BFDABB453864D5`.
 
 Physical summary SHA-256:
-`F36B16565F9E08C38B3264831DCA94A65390275F7A2B78A3C6C90302E4A7C09B`.
+`099F85A0DCCF94D404411CFFAC2F5D8C80D606C5C1B5AA2F5B650E8BF5FEB636`.
 
-The corrected run authenticated financial schema, equity, directional margins,
-instrument binding, arithmetic and batch-budget behavior, but
-`positive_capacity_case_count = 0`.
+The accepted counts are `sizing_case_count = 8`,
+`positive_capacity_case_count = 4`, `zero_capacity_case_count = 4`, and
+`positive_batch_reservation_count = 1`. This validates funding and margin
+authority and at least one executable contract-capacity case.
 
-### Current Stage 8.9.10 blocker
-
-Current status:
-`BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY`.
-
-Reason:
-`ZERO_CONTRACT_CAPACITY`.
-
-This is the only active Stage 8.9 blocker. Stage 8.9 must not be described as
-funding-ready or complete.
+Completion does **not** establish positive capacity for every N4 instrument,
+all-N4 or simultaneous FULL N4 portfolio capacity, or FULL/R15 production
+funding sufficiency. It does not authorize trading or real execution.
 
 ## Authorization boundary
 
-- LIVE trading is not authorized.
-- REAL order transmission is not authorized.
-- Stage 8.10 trading-token integration is not started / not authorized.
-- Stage 8.11/8.12 execution is not authorized.
-
-Do not weaken Stage 7 risk to manufacture positive capacity, fabricate financial
-values, or reinterpret REAL_READONLY acceptance as live authorization.
+- `LIVE_TRADING_NOT_AUTHORIZED` remains in force.
+- `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remains in force.
+- `NEW_ENTRIES_DISABLED` remains in force.
+- Stage 8.10 is **NOT STARTED / NOT AUTHORIZED**.
+- Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**.
+- Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
 
 ## Current handoff
 
-Stop at Stage 8.9.10 while `ZERO_CONTRACT_CAPACITY` remains.
-
-Any resolution path requires an explicit user-authorized task and an independent
-audit before advancing.
+Stage 8.9 is complete. Stage 8.10 is next, but remains **NOT STARTED / NOT
+AUTHORIZED** and requires separate explicit authorization.
 
 ## Domain boundaries
 

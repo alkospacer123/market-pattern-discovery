@@ -1,6 +1,6 @@
 {
-  "as_of_utc": "2026-09-30",
-  "binding_status": "BLOCKED_UNAUTHENTICATED",
+  "as_of_utc": "2026-10-03",
+  "binding_status": "AUTHENTICATED_REAL_READONLY",
   "finam": {
     "api_version": "v1",
     "authentication": "POST /v1/sessions with secret; bearer JWT; POST /v1/sessions/details for accounts",
@@ -12,9 +12,9 @@
     "bars_path": "/v1/instruments/{symbol}/bars",
     "bars_timeframe": "TIME_FRAME_H1",
     "base_url": "https://api.finam.ru",
-    "credential_binding": "BLOCKED_UNAUTHENTICATED",
+    "credential_binding": "READ_ONLY_PHYSICALLY_VALIDATED",
     "documentation": "https://api.finam.ru/docs/rest/",
-    "documentation_retrieval": "https://api.finam.ru/docs/rest/ and OpenAPI endpoints attempted 2026-10-01; HTTP CONNECT 403 in build environment; exact account/margin schema supplied as task authority and pending credential-backed confirmation",
+    "documentation_retrieval": "https://api.finam.ru/docs/rest/ and OpenAPI endpoints attempted 2026-10-01; HTTP CONNECT 403 in build environment; exact account/margin schema supplied as task authority; public documentation retrieval remained blocked, while credential-backed physical confirmation completed during Stage 8.9.10",
     "h1_history_depth": "approximately 30 days",
     "pagination": "no request token documented; none sent",
     "rate_limit": "200 requests/minute",
@@ -48,7 +48,7 @@
       "quantity": "Order quantity.value is asset units; one MOEX futures asset unit is one contract and must respect trade_lot_size",
       "rest_transport_rule": "REST shapes are authoritative; protobuf/gRPC {num,scale} Decimal and wrapped BoolValue are rejected by production binding"
     },
-    "schema_status": "FINAM_REST_SCHEMA_CORRECTION_SUPPLIED_BY_EXTERNAL_AUDIT; OPERATOR_RESPONSE_STILL_REQUIRED",
+    "schema_status": "FINAM_REST_SCHEMA_PHYSICALLY_VALIDATED",
     "session_create_body": "secret",
     "session_details_accounts_field": "account_ids",
     "session_details_body": "token"
@@ -68,7 +68,22 @@
     "portfolio_variant_evidence_sha256": "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5",
     "prior_code_ready_status": "STAGE_8_9_UNION_MC_AUTHORITY_CODE_READY_PENDING_PHYSICAL_REVALIDATION",
     "stage8_9_9": "PHYSICAL_REVALIDATION_COMPLETE",
-    "stage8_9_complete": false,
+    "stage8_9_complete": true,
     "status": "STAGE_8_9_8_COMPLETE"
+  },
+  "stage8_9_10": {
+    "accepted_code_commit": "1013a5a2324e015ab3bc047a7b9af9064552cd10",
+    "diagnostic_report_sha256": "C87400F845B73A666B95C83DA2E3B6B710F36F3210AD4AD175BFDABB453864D5",
+    "physical_summary_sha256": "099F85A0DCCF94D404411CFFAC2F5D8C80D606C5C1B5AA2F5B650E8BF5FEB636",
+    "physical_result": "STAGE_8_9_10_POST_FUNDING_REVALIDATION_PASS=1",
+    "funding_classification": "STAGE_8_9_FUNDING_MARGIN_VALIDATED",
+    "reason": "ALL_AUTHORITIES_VALID",
+    "sizing_case_count": 8,
+    "positive_capacity_case_count": 4,
+    "zero_capacity_case_count": 4,
+    "positive_batch_reservation_count": 1,
+    "stage8_9_complete": true,
+    "stage8_10_status": "NOT_STARTED_NOT_AUTHORIZED",
+    "status": "STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE"
   }
 }
