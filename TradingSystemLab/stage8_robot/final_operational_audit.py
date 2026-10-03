@@ -46,6 +46,7 @@ STAGE_8_10_2_RESULT = "STAGE_8_10_2_PHYSICAL_SECURE_PROVISIONING_LOCAL_PASS"
 STAGE_8_10_3_STATUS = "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE"
 STAGE_8_10_4_STATUS = "STAGE_8_10_4_PERMISSION_BOUNDARY_COMPLETE"
 STAGE_8_10_5_STATUS = "STAGE_8_10_5_ORDER_PATH_DRY_VALIDATION_COMPLETE"
+STAGE_8_10_6_STATUS = "STAGE_8_10_6_KILL_SWITCH_SAFETY_GATES_CODE_READY_PENDING_PHYSICAL_VALIDATION"
 STAGE_8_9_8_STATUS = "STAGE_8_9_8_COMPLETE"
 STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
 STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
@@ -276,7 +277,8 @@ def audit(
     identity_binding = provenance.get("stage8_10_3", {})
     permission_boundary = provenance.get("stage8_10_4", {})
     dry_gate = provenance.get("stage8_10_5", {})
-    check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_5_STATUS,
+    safety_gate = provenance.get("stage8_10_6", {})
+    check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_6_STATUS,
           "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT")
     check(lifecycle.get("status") == STAGE_8_9_8_STATUS
           and lifecycle.get("stage8_9_9") == "PHYSICAL_REVALIDATION_COMPLETE"
@@ -458,7 +460,12 @@ def audit(
           and not any(term in dry_source+dry_wrapper for term in forbidden_dry)
           and "order_path_dry_validation" not in launcher+installer,
           "STAGE_8_10_5_OFFLINE_NOT_RUNTIME_WIRED")
-    check(all(all(f"Stage 8.10.{number} is **NOT STARTED**" in doc for number in range(6, 9)) for doc in stage8_9_docs), "STAGE_8_10_6_THROUGH_8_NOT_STARTED")
+    expected_safety={"status":STAGE_8_10_6_STATUS,"physical_validation_performed":False,"production_kill_switch_initialized":False,"production_kill_switch_halted_observed":False,"synthetic_safety_matrix_validated":False,"emergency_halt_validated":False,"execution_authorized":False,"external_network_calls":0,"real_order_endpoint_called":False,"real_order_count":0,"live_trading_authorized":False,"real_order_transmission_authorized":False,"stage8_10_status":"IN_PROGRESS","stage8_10_7_status":"NOT_STARTED","stage8_10_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"}
+    check(safety_gate == expected_safety, "STAGE_8_10_6_MACHINE_AUTHORITY_EXACT")
+    safety=text("TradingSystemLab/stage8_robot/trading_safety_gate.py").lower(); safety_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/validate-trading-safety-gates.ps1").lower()
+    check("repository_output_forbidden" in safety and "execution_authorized: bool = false" in safety and not any(x in safety for x in ("import broker","import runner","import finam_api","urllib","requests","socket")), "STAGE_8_10_6_OFFLINE_FAIL_CLOSED")
+    check("allow_arm" not in safety_wrapper and not any(x in safety_wrapper for x in ("enable-scheduledtask","start-scheduledtask","invoke-webrequest","invoke-restmethod")), "STAGE_8_10_6_WRAPPER_HALT_ONLY")
+    check(all(STAGE_8_10_6_STATUS in doc and "Stage 8.10.6 is **CODE READY / PENDING PHYSICAL VALIDATION**" in doc and "Stage 8.10.7 is **NOT STARTED**" in doc for doc in stage8_9_docs), "STAGE_8_10_6_CODE_READY_SYNCHRONIZED")
     check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED")
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
@@ -537,9 +544,15 @@ def audit(
         "order_path_dry_validation_validated": True,
         "stage8_10_5_external_network_calls": 0,
         "real_order_endpoint_called": False, "real_order_count": 0,
-        "stage8_10_6_status": "NOT_STARTED",
-        "stage8_10_7_through_8_status": "NOT_STARTED",
-        "stage8_10_6_through_8_status": "NOT_STARTED",
+        "stage8_10_6_status": STAGE_8_10_6_STATUS,
+        "stage8_10_6_physical_validation_performed": False,
+        "production_kill_switch_initialized": False,
+        "production_kill_switch_halted_observed": False,
+        "synthetic_safety_matrix_validated": False,
+        "emergency_halt_validated": False,
+        "execution_authorized": False,
+        "stage8_10_6_external_network_calls": 0,
+        "stage8_10_7_status": "NOT_STARTED", "stage8_10_8_status": "NOT_STARTED",
         "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_9_complete": True, "stage8_9_physical_validation_performed": True,

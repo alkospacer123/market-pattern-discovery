@@ -396,11 +396,36 @@ def test_top_level_readme_current_status_regressions_fail_both_audits():
         "NOT_STARTED",
     )
     for status in rejected:
-        mutation = original.replace(final.STAGE_8_10_5_STATUS, status, 1)
+        mutation = original.replace(final.STAGE_8_10_6_STATUS, status, 1)
         result = run_audit({path: mutation})
         assert "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT" in result["errors"]
         stage8_result = stage8.audit(write_result=False, readme_text=mutation)
         assert "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT" in stage8_result["errors"]
+
+
+def test_stage_8_10_6_machine_authority_mutations_fail_independent_audit():
+    authority = json.loads((ROOT / "TradingSystemLab/stage8_robot/authority_provenance.json").read_text())
+    mutations = [
+        ("status", "COMPLETE"), ("status", "NOT_STARTED"),
+        ("physical_validation_performed", True), ("production_kill_switch_initialized", True),
+        ("production_kill_switch_halted_observed", True), ("synthetic_safety_matrix_validated", True),
+        ("emergency_halt_validated", True), ("execution_authorized", True),
+        ("external_network_calls", 1), ("real_order_endpoint_called", True), ("real_order_count", 1),
+        ("live_trading_authorized", True), ("real_order_transmission_authorized", True),
+        ("stage8_10_status", "COMPLETE"), ("stage8_10_7_status", "STARTED"),
+        ("stage8_10_8_status", "STARTED"), ("stage8_11_status", "AUTHORIZED"),
+        ("stage8_12_status", "AUTHORIZED"),
+    ]
+    for key, value in mutations:
+        changed = json.loads(json.dumps(authority)); changed["stage8_10_6"][key] = value
+        result = stage8.audit(write_result=False, authority_text=json.dumps(changed))
+        assert "STAGE_8_10_6_MACHINE_AUTHORITY_EXACT" in result["errors"], key
+
+
+def test_stage_8_10_6_external_files_are_rejected():
+    for name in ("stage8-trading-kill-switch.json", "stage8_10_6_safety_gate_validation.json"):
+        result = stage8.audit(write_result=False, tracked_files=git_files() + ["external/" + name])
+        assert "STAGE_8_10_6_EXTERNAL_ARTIFACTS_NOT_TRACKED" in result["errors"]
 
 
 def test_later_execution_stages_started_or_authorized_fail():
