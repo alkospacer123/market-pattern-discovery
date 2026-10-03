@@ -204,7 +204,7 @@ No order-capable operation occurred.
 - `LIVE_TRADING_NOT_AUTHORIZED` remains in force.
 - `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remains in force.
 - `NEW_ENTRIES_DISABLED` remains in force for the accepted REAL_READONLY path.
-- Stage 8.10 is **IN PROGRESS**; Stage 8.10.1 is complete and Stage 8.10.2 is complete and Stage 8.10.3 is the next not-started gate.
+- Stage 8.10 is **IN PROGRESS**; Stage 8.10.1 is complete and Stage 8.10.2 is complete and Stage 8.10.3 is code ready and pending physical validation.
 - Stage 8.11 and Stage 8.12 are **NOT STARTED / NOT AUTHORIZED**.
 
 ## Current next action
@@ -239,7 +239,7 @@ Canonical Stage 8.10 sequence and status:
 1. Stage 8.10.1 is **COMPLETE** — Trading Token Preconditions Gate.
    Canonical status: `STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE`.
 2. Stage 8.10.2 is **COMPLETE** — Secure Provisioning.
-3. Stage 8.10.3 is **NOT STARTED** — Identity / Account Binding.
+3. Stage 8.10.3 is **CODE READY / PENDING PHYSICAL VALIDATION** — Identity / Account Binding.
 4. Stage 8.10.4 is **NOT STARTED** — Permission Boundary Validation.
 5. Stage 8.10.5 is **NOT STARTED** — Order Path Dry Validation.
 6. Stage 8.10.6 is **NOT STARTED** — Kill Switch / Safety Gates.
@@ -291,8 +291,27 @@ provisioning was performed and Trading Token 1 is provisioned locally in Windows
 CurrentUser DPAPI. Possession/storage of Token 1 does not authorize trading.
 `trading_token_used=false`; `finam_authentication_performed=false`; no
 order-capable operation occurred; `order_count=0`; and the Scheduled Task remains
-Disabled. Stage 8.10 is **IN PROGRESS**; Stage 8.10.3 through Stage 8.10.8 are
+Disabled. Stage 8.10 is **IN PROGRESS**; Stage 8.10.4 through Stage 8.10.8 are
 **NOT STARTED**. Stage 8.11 is **NOT STARTED / NOT AUTHORIZED** and Stage 8.12 is
 **NOT STARTED / NOT AUTHORIZED**. `LIVE_TRADING_NOT_AUTHORIZED`,
 `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and `NEW_ENTRIES_DISABLED` remain in
 force.
+
+
+## Stage 8.10.3 identity/account binding code-ready gate
+
+Stage 8.10 is **IN PROGRESS**. Stage 8.10.1 is **COMPLETE** under
+`STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE`. Stage 8.10.2 is **COMPLETE**
+under `STAGE_8_10_2_SECURE_PROVISIONING_COMPLETE`. Stage 8.10.3 is **CODE READY / PENDING PHYSICAL VALIDATION**
+under `STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_CODE_READY_PENDING_PHYSICAL_VALIDATION`. Stage 8.10.4 is **NOT STARTED**, Stage 8.10.5 is **NOT STARTED**,
+Stage 8.10.6 is **NOT STARTED**, Stage 8.10.7 is **NOT STARTED**, and Stage 8.10.8 is **NOT STARTED**.
+Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**. Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
+
+Token 1 is provisioned from Stage 8.10.2 but has still not been used. FINAM
+trading authentication has still not been performed, and physical Stage 8.10.3
+validation has not occurred. No order endpoint has been called; `order_count=0`.
+The Scheduled Task remains Disabled. Possession/provisioning does not authorize
+trading. `LIVE_TRADING_NOT_AUTHORIZED` and
+`REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remain binding. The next action after
+merge and audit is a separate operator-executed Intel physical Stage 8.10.3
+identity-binding acceptance; this repository task does not execute it.
