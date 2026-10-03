@@ -39,6 +39,7 @@ STAGE_8_9_CODE = "1013a5a2324e015ab3bc047a7b9af9064552cd10"
 STAGE_8_9_REPORT = "C87400F845B73A666B95C83DA2E3B6B710F36F3210AD4AD175BFDABB453864D5"
 STAGE_8_9_SUMMARY = "099F85A0DCCF94D404411CFFAC2F5D8C80D606C5C1B5AA2F5B650E8BF5FEB636"
 STAGE_8_10_1_STATUS = "STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE"
+STAGE_8_10_2_STATUS = "STAGE_8_10_2_SECURE_PROVISIONING_CODE_READY_PENDING_PHYSICAL_PROVISIONING"
 STAGE_8_9_8_STATUS = "STAGE_8_9_8_COMPLETE"
 STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
 STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
@@ -63,6 +64,9 @@ PROTECTED_SHA256 = {
     "TradingSystemLab/stage8_robot/deploy/windows/initialize-readonly-credentials.ps1": "e8dde65ca96ffbfb6ca6171a5eb71298040fc4d500a31f0b3e65722ac35fd118",
     "TradingSystemLab/stage8_robot/deploy/windows/verify-readonly-credentials.ps1": "ff84620a5bf5c705730428420a053e682715cfc22e9fa1cdc1d476bc2859e0ae",
     "TradingSystemLab/stage8_robot/deploy/windows/install-task.ps1": "18f3b65b401f9ced6c55b49e8a7b6f7b7711c53671c7b445835101bd77cba478",
+    "TradingSystemLab/stage8_robot/deploy/windows/trading-credential-store.ps1": "c9fd0d7abb38776bc854e5975bce909af98cc683fdf4a34325a0e34100ef8014",
+    "TradingSystemLab/stage8_robot/deploy/windows/initialize-trading-credentials.ps1": "d3265a7dd468607560e2e720638dbd41f7519a798b04eb7ad846e6511ce721a9",
+    "TradingSystemLab/stage8_robot/deploy/windows/verify-trading-credentials.ps1": "eee8d08d9abbecefb94fe2cb4397761e0292194f557c9124e5d01ed4ab2a40d1",
     "TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/production_specification.json": "c719bb3e7b9a7e707077fc499867613010068d623d6879c247f480f7658aff7c",
     "TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/production_identity_registry.csv": "5418fb19d4aaa32b4292fce0425a644c4bf70a5451e78fd2a801b5dc8dd003aa",
     "TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/source_provenance.json": "4d6e3d7d221e019ea00faa3d523affd39d0b45df3f6898c41e2e8c7ed4c3d494",
@@ -249,6 +253,7 @@ def audit(
     lifecycle = provenance.get("stage8_9_8", {})
     closeout = provenance.get("stage8_9_10", {})
     preconditions = provenance.get("stage8_10_1", {})
+    provisioning = provenance.get("stage8_10_2", {})
     check(lifecycle.get("status") == STAGE_8_9_8_STATUS
           and lifecycle.get("stage8_9_9") == "PHYSICAL_REVALIDATION_COMPLETE"
           and lifecycle.get("stage8_9_complete") is True,
@@ -304,8 +309,30 @@ def audit(
           and closeout.get("stage8_10_status") == "IN_PROGRESS"
           and not re.search(r"Stage 8\.10 is \*\*COMPLETE\*\*", stage8_9_joined_docs, re.I),
           "STAGE_8_10_IN_PROGRESS_NOT_COMPLETE")
-    check(all("Stage 8.10.2 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
-          "STAGE_8_10_2_NOT_STARTED_NOT_AUTHORIZED")
+    check(all("Stage 8.10.2 is **CODE READY / PENDING PHYSICAL PROVISIONING**" in doc
+              and STAGE_8_10_2_STATUS in doc for doc in stage8_9_docs),
+          "STAGE_8_10_2_CODE_READY_SYNCHRONIZED")
+    check(provisioning.get("status") == STAGE_8_10_2_STATUS
+          and provisioning.get("physical_provisioning_performed") is False
+          and provisioning.get("trading_token_provisioned") is False
+          and provisioning.get("trading_token_used") is False
+          and provisioning.get("finam_authentication_performed") is False
+          and provisioning.get("order_count") == 0
+          and provisioning.get("stage8_10_3_status") == "NOT_STARTED"
+          and provisioning.get("stage8_11_status") == "NOT_STARTED_NOT_AUTHORIZED"
+          and provisioning.get("stage8_12_status") == "NOT_STARTED_NOT_AUTHORIZED",
+          "STAGE_8_10_2_MACHINE_AUTHORITY_EXACT")
+    trading_store = text("TradingSystemLab/stage8_robot/deploy/windows/trading-credential-store.ps1")
+    launcher = text("TradingSystemLab/stage8_robot/deploy/windows/run-readonly.ps1")
+    installer = text("TradingSystemLab/stage8_robot/deploy/windows/install-task.ps1")
+    check("DataProtectionScope]::CurrentUser" in trading_store
+          and "TradingSystemLab.Stage8.TradingToken.v1" in trading_store
+          and "TRADING_CAPABLE_NOT_AUTHORIZED" in trading_store
+          and "REAL_READONLY" not in trading_store,
+          "TRADING_DPAPI_STORE_SEPARATE_FAIL_CLOSED")
+    check("trading-credential" not in launcher.lower() and "trading-credential" not in installer.lower()
+          and "finam-trading-token" not in launcher.lower() and "finam-trading-token" not in installer.lower(),
+          "TRADING_STORE_NOT_RUNTIME_WIRED")
     check(all(all(f"Stage 8.10.{number} is **NOT STARTED**" in doc for number in range(3, 9))
               for doc in stage8_9_docs), "STAGE_8_10_3_THROUGH_8_NOT_STARTED")
     check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
@@ -352,7 +379,9 @@ def audit(
         "stage8_9_zero_capacity_case_count": 4,
         "stage8_9_positive_batch_reservation_count": 1,
         "stage8_10_status": "IN_PROGRESS", "stage8_10_1_status": STAGE_8_10_1_STATUS,
-        "stage8_10_2_status": "NOT_STARTED_NOT_AUTHORIZED",
+        "stage8_10_2_status": STAGE_8_10_2_STATUS,
+        "physical_provisioning_performed": False, "trading_token_provisioned": False,
+        "trading_token_used": False, "finam_authentication_performed": False, "order_count": 0,
         "stage8_10_3_through_8_status": "NOT_STARTED",
         "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",

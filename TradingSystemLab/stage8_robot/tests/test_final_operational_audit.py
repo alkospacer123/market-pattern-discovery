@@ -193,12 +193,12 @@ def test_stage_8_10_falsely_complete_fails():
     assert "STAGE_8_10_IN_PROGRESS_NOT_COMPLETE" in result["errors"]
 
 
-def test_stage_8_10_2_started_or_authorized_fails():
+def test_stage_8_10_2_code_ready_status_mutation_fails():
     path = "TradingSystemLab/CURRENT_STATE.md"
     result = run_audit({path: source(path).replace(
-        "Stage 8.10.2 is **NOT STARTED / NOT AUTHORIZED**",
-        "Stage 8.10.2 is **STARTED / AUTHORIZED**")})
-    assert "STAGE_8_10_2_NOT_STARTED_NOT_AUTHORIZED" in result["errors"]
+        "Stage 8.10.2 is **CODE READY / PENDING PHYSICAL PROVISIONING**",
+        "Stage 8.10.2 is **PHYSICALLY COMPLETE**")})
+    assert "STAGE_8_10_2_CODE_READY_SYNCHRONIZED" in result["errors"]
 
 
 def test_later_execution_stages_started_or_authorized_fail():
@@ -276,3 +276,27 @@ def test_stage_8_8_7_wrong_accepted_commit_fails():
     path = "TradingSystemLab/ROADMAP.md"
     result = run_audit({path: source(path).replace(final.STAGE_8_8_7_CODE, "WRONG")})
     assert "STAGE_8_8_7_EXTERNAL_PROVENANCE_SYNCHRONIZED" in result["errors"]
+
+
+def test_stage_8_10_2_provenance_mutations_fail_closed():
+    path = "TradingSystemLab/stage8_robot/authority_provenance.json"
+    mutations = (
+        ('"physical_provisioning_performed": false', '"physical_provisioning_performed": true'),
+        ('"trading_token_provisioned": false', '"trading_token_provisioned": true'),
+        ('"trading_token_used": false', '"trading_token_used": true'),
+        ('"finam_authentication_performed": false', '"finam_authentication_performed": true'),
+        ('"order_count": 0', '"order_count": 1'),
+        ('"stage8_10_3_status": "NOT_STARTED"', '"stage8_10_3_status": "STARTED"'),
+    )
+    for before, after in mutations:
+        result = run_audit({path: source(path).rsplit(before, 1)[0] + after + source(path).rsplit(before, 1)[1]})
+        assert "STAGE_8_10_2_MACHINE_AUTHORITY_EXACT" in result["errors"]
+
+
+def test_trading_store_integrity_mutations_fail():
+    path = "TradingSystemLab/stage8_robot/deploy/windows/trading-credential-store.ps1"
+    for before, after in (("CurrentUser", "LocalMachine"),
+                          ("TRADING_CAPABLE_NOT_AUTHORIZED", "REAL_READONLY"),
+                          ("TradingSystemLab.Stage8.TradingToken.v1", "TradingSystemLab.Stage8.RealReadonly.v1")):
+        result = run_audit({path: source(path).replace(before, after)})
+        assert any(error.startswith("PROTECTED_IMPLEMENTATION_HASHES") for error in result["errors"])

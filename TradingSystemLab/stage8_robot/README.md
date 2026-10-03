@@ -220,7 +220,7 @@ internal file counts were zero, and secret/account environment variables were
 absent. No live order was transmitted and no authorization changed. Repository
 tooling validates the provenance and hash; it did not generate the evidence.
 
-**Stage 8.9 is COMPLETE.** Stage 8.10 is **IN PROGRESS**; only Stage 8.10.1 is complete.
+**Stage 8.9 is COMPLETE.** Stage 8.10 is **IN PROGRESS**; Stage 8.10.1 is complete and Stage 8.10.2 is code-ready pending physical provisioning.
 LIVE trading and real-order transmission remain unauthorized.
 
 ## Boundaries and startup
@@ -396,7 +396,7 @@ Canonical Stage 8.10 sequence and status:
 
 1. Stage 8.10.1 is **COMPLETE** — Trading Token Preconditions Gate.
    Canonical status: `STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE`.
-2. Stage 8.10.2 is **NOT STARTED / NOT AUTHORIZED** — Secure Provisioning.
+2. Stage 8.10.2 is **CODE READY / PENDING PHYSICAL PROVISIONING** — Secure Provisioning.
 3. Stage 8.10.3 is **NOT STARTED** — Identity / Account Binding.
 4. Stage 8.10.4 is **NOT STARTED** — Permission Boundary Validation.
 5. Stage 8.10.5 is **NOT STARTED** — Order Path Dry Validation.
@@ -437,3 +437,15 @@ Real-order capability is not authorized.
 `GLDRUBF`, `IMOEXF`), TRAIL1, FULL, R15, 1.5% of current realized equity per
 new instrument position, 6% maximum nominal simultaneous initial risk, no
 pyramiding, no session filter, and no runtime canonical fallback.
+
+
+### Stage 8.10.2 secure provisioning code-ready gate
+
+Canonical status: `STAGE_8_10_2_SECURE_PROVISIONING_CODE_READY_PENDING_PHYSICAL_PROVISIONING`. The separate trading-token store uses
+Windows CurrentUser DPAPI and mode `TRADING_CAPABLE_NOT_AUTHORIZED`; it is not
+wired into the READ_ONLY launcher or Scheduled Task. Physical provisioning was
+not performed; `trading_token_provisioned=false`; `trading_token_used=false`;
+`finam_authentication_performed=false`, and the order count remains 0. Stage 8.10.3 is
+**NOT STARTED**. `LIVE_TRADING_NOT_AUTHORIZED`,
+`REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and `NEW_ENTRIES_DISABLED` remain
+authoritative.

@@ -88,12 +88,23 @@
   },
   "stage8_10_1": {
     "order_count": 0,
-    "stage8_10_2_status": "NOT_STARTED_NOT_AUTHORIZED",
+    "stage8_10_2_status": "CODE_READY_PENDING_PHYSICAL_PROVISIONING",
     "stage8_10_3_through_8_status": "NOT_STARTED",
     "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
     "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
     "status": "STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE",
     "trading_token_provisioned": false,
     "trading_token_used": false
+  },
+  "stage8_10_2": {
+    "status": "STAGE_8_10_2_SECURE_PROVISIONING_CODE_READY_PENDING_PHYSICAL_PROVISIONING",
+    "physical_provisioning_performed": false,
+    "trading_token_provisioned": false,
+    "trading_token_used": false,
+    "finam_authentication_performed": false,
+    "order_count": 0,
+    "stage8_10_3_status": "NOT_STARTED",
+    "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
+    "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
   }
 }

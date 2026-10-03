@@ -25,6 +25,7 @@ def audit(write_result=True):
     supervisor_path=HERE/"readonly_supervisor.py"; supervisor=supervisor_path.read_text() if supervisor_path.is_file() else ""
     timing_path=HERE/"h1_timing_diagnostic.py"; timing=timing_path.read_text() if timing_path.is_file() else ""
     launcher=(HERE/"deploy/windows/run-readonly.ps1").read_text()
+    trading_store=(HERE/"deploy/windows/trading-credential-store.ps1").read_text(); trading_init=(HERE/"deploy/windows/initialize-trading-credentials.ps1").read_text(); trading_verify=(HERE/"deploy/windows/verify-trading-credentials.ps1").read_text()
     credential_store=(HERE/"deploy/windows/credential-store.ps1").read_text(); credential_init=(HERE/"deploy/windows/initialize-readonly-credentials.ps1").read_text(); credential_verify=(HERE/"deploy/windows/verify-readonly-credentials.ps1").read_text(); task_installer=(HERE/"deploy/windows/install-task.ps1").read_text()
     conformance=json.loads((HERE/"conformance_report.json").read_text()); provenance=json.loads((HERE/"authority_provenance.json").read_text()); registry=(HERE/"production_instrument_registry.csv").read_text(); registry_rows=csv_rows(HERE/"production_instrument_registry.csv")
     current_state=(ROOT/"TradingSystemLab/CURRENT_STATE.md").read_text()
@@ -68,7 +69,7 @@ def audit(write_result=True):
     check(all(all(value in document for value in required)
               for document in authoritative_docs),
           "STAGE_8_9_10_COMPLETED_PROVENANCE_SYNCHRONIZED")
-    lifecycle=provenance.get("stage8_9_8",{}); closeout=provenance.get("stage8_9_10",{}); preconditions=provenance.get("stage8_10_1",{})
+    lifecycle=provenance.get("stage8_9_8",{}); closeout=provenance.get("stage8_9_10",{}); preconditions=provenance.get("stage8_10_1",{}); provisioning=provenance.get("stage8_10_2",{})
     check(lifecycle.get("status")==stage8_9_8_status
           and lifecycle.get("stage8_9_9")=="PHYSICAL_REVALIDATION_COMPLETE"
           and lifecycle.get("stage8_9_complete") is True,
@@ -124,8 +125,28 @@ def audit(write_result=True):
           and closeout.get("stage8_10_status")=="IN_PROGRESS"
           and not re.search(r"Stage 8\.10 is \*\*COMPLETE\*\*",closeout_docs,re.I),
           "STAGE_8_10_IN_PROGRESS_NOT_COMPLETE")
-    check(all("Stage 8.10.2 is **NOT STARTED / NOT AUTHORIZED**" in document
-              for document in authoritative_docs),"STAGE_8_10_2_NOT_STARTED_NOT_AUTHORIZED")
+    stage8_10_2_status="STAGE_8_10_2_SECURE_PROVISIONING_CODE_READY_PENDING_PHYSICAL_PROVISIONING"
+    check(all("Stage 8.10.2 is **CODE READY / PENDING PHYSICAL PROVISIONING**" in document
+              and stage8_10_2_status in document for document in authoritative_docs),
+          "STAGE_8_10_2_CODE_READY_SYNCHRONIZED")
+    check(provisioning.get("status")==stage8_10_2_status
+          and provisioning.get("physical_provisioning_performed") is False
+          and provisioning.get("trading_token_provisioned") is False
+          and provisioning.get("trading_token_used") is False
+          and provisioning.get("finam_authentication_performed") is False
+          and provisioning.get("order_count")==0
+          and provisioning.get("stage8_10_3_status")=="NOT_STARTED"
+          and provisioning.get("stage8_11_status")=="NOT_STARTED_NOT_AUTHORIZED"
+          and provisioning.get("stage8_12_status")=="NOT_STARTED_NOT_AUTHORIZED",
+          "STAGE_8_10_2_MACHINE_AUTHORITY_EXACT")
+    check("DataProtectionScope]::CurrentUser" in trading_store
+          and "TradingSystemLab.Stage8.TradingToken.v1" in trading_store
+          and "TRADING_CAPABLE_NOT_AUTHORIZED" in trading_store
+          and "finam_trading_api_secret" in trading_store
+          and "REAL_READONLY" not in trading_store,
+          "TRADING_DPAPI_STORE_SEPARATE_FAIL_CLOSED")
+    check(not any("trading-credential" in item.lower() or "finam-trading-token" in item.lower()
+                  for item in (launcher,task_installer)), "TRADING_STORE_NOT_RUNTIME_WIRED")
     check(all(all(f"Stage 8.10.{number} is **NOT STARTED**" in document for number in range(3,9))
               for document in authoritative_docs),"STAGE_8_10_3_THROUGH_8_NOT_STARTED")
     check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in document
@@ -420,7 +441,7 @@ def audit(write_result=True):
           "WINDOWS_NO_OBSOLETE_SUPERVISOR_STATE_AUTHORITY")
     check("TradingSystemLab.stage8_robot.readonly_supervisor" in launcher and not any(x in windows_deployment for x in ("place_order","submit_order","cancel_order")),"WINDOWS_SERVICE_READONLY_NO_ORDER_PATH")
     check("-ExecutionPolicy RemoteSigned" in task_installer and "-MultipleInstances IgnoreNew" in task_installer,"WINDOWS_TASK_POLICY_CONSERVATIVE")
-    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"real_order_transmission_authorized":False,"stage8_status":completed_status,"margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED","stage8_9_status":stage8_9_status,"stage8_9_reason":stage8_9_reason,"stage8_9_accepted_code_commit":stage8_9_code,"stage8_9_diagnostic_report_sha256":stage8_9_report,"stage8_9_physical_summary_sha256":stage8_9_summary,"stage8_9_8_status":stage8_9_8_status,"stage8_9_9_status":"PHYSICAL_REVALIDATION_COMPLETE","stage8_9_10_status":"COMPLETE","stage8_9_sizing_case_count":8,"stage8_9_positive_capacity_case_count":4,"stage8_9_zero_capacity_case_count":4,"stage8_9_positive_batch_reservation_count":1,"stage8_10_status":"IN_PROGRESS","stage8_10_1_status":stage8_10_1_status,"stage8_10_2_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_10_3_through_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_9_complete":True,"stage8_9_physical_validation_performed":True}
+    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"real_order_transmission_authorized":False,"stage8_status":completed_status,"margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED","stage8_9_status":stage8_9_status,"stage8_9_reason":stage8_9_reason,"stage8_9_accepted_code_commit":stage8_9_code,"stage8_9_diagnostic_report_sha256":stage8_9_report,"stage8_9_physical_summary_sha256":stage8_9_summary,"stage8_9_8_status":stage8_9_8_status,"stage8_9_9_status":"PHYSICAL_REVALIDATION_COMPLETE","stage8_9_10_status":"COMPLETE","stage8_9_sizing_case_count":8,"stage8_9_positive_capacity_case_count":4,"stage8_9_zero_capacity_case_count":4,"stage8_9_positive_batch_reservation_count":1,"stage8_10_status":"IN_PROGRESS","stage8_10_1_status":stage8_10_1_status,"stage8_10_2_status":stage8_10_2_status,"physical_provisioning_performed":False,"trading_token_provisioned":False,"trading_token_used":False,"finam_authentication_performed":False,"order_count":0,"stage8_10_3_through_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_9_complete":True,"stage8_9_physical_validation_performed":True}
     if write_result: (HERE/"independent_audit_result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
     return result
 if __name__=="__main__":
