@@ -196,14 +196,15 @@ funding sufficiency. It does not authorize trading or real execution.
 - `LIVE_TRADING_NOT_AUTHORIZED` remains in force.
 - `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remains in force.
 - `NEW_ENTRIES_DISABLED` remains in force.
-- Stage 8.10 is **NOT STARTED / NOT AUTHORIZED**.
+- Stage 8.10 is **IN PROGRESS**; only Stage 8.10.1 is complete.
 - Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**.
 - Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
 
 ## Current handoff
 
-Stage 8.9 is complete. Stage 8.10 is next, but remains **NOT STARTED / NOT
-AUTHORIZED** and requires separate explicit authorization.
+Stage 8.9 is complete. Stage 8.10 is **IN PROGRESS** solely because Stage
+8.10.1 is complete; Stage 8.10.2 remains **NOT STARTED / NOT AUTHORIZED** and
+requires separate explicit authorization.
 
 ## Domain boundaries
 
@@ -217,3 +218,60 @@ projects.
 3. `METHODOLOGY.md`
 4. `ROADMAP.md`
 5. `AUDIT_PROTOCOL.md`
+
+## Stage 8.10 — trading-token lifecycle
+
+Stage 8.9 is **COMPLETE** under
+`STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE`. Its accepted code,
+diagnostic SHA-256, physical-summary SHA-256, capacity counts, classification,
+and reason recorded above remain unchanged.
+
+Stage 8.10 is **IN PROGRESS**. This lifecycle state records completion of the
+repository-only preconditions gate; it does not complete Stage 8.10 and does not
+authorize provisioning or execution.
+
+Canonical Stage 8.10 sequence and status:
+
+1. Stage 8.10.1 is **COMPLETE** — Trading Token Preconditions Gate.
+   Canonical status: `STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE`.
+2. Stage 8.10.2 is **NOT STARTED / NOT AUTHORIZED** — Secure Provisioning.
+3. Stage 8.10.3 is **NOT STARTED** — Identity / Account Binding.
+4. Stage 8.10.4 is **NOT STARTED** — Permission Boundary Validation.
+5. Stage 8.10.5 is **NOT STARTED** — Order Path Dry Validation.
+6. Stage 8.10.6 is **NOT STARTED** — Kill Switch / Safety Gates.
+7. Stage 8.10.7 is **NOT STARTED** — Intel Trading-Token Acceptance.
+8. Stage 8.10.8 is **NOT STARTED** — Stage 8.10 Closeout.
+
+Stage 8.11 is **NOT STARTED / NOT AUTHORIZED** — Controlled Real Execution
+Acceptance, exactly one-contract test. Stage 8.12 is **NOT STARTED / NOT AUTHORIZED** — FULL/R15 Production Authorization. Stage 8.11 remains the first
+possible real-order gate and requires separate explicit authorization.
+
+### Stage 8.10.1 security boundary
+
+The READ_ONLY credential remains the only operational credential. Existing
+REAL_READONLY credential handling remains bound to Windows CurrentUser DPAPI,
+and the REAL_READONLY broker cannot submit real orders. Any future
+trading-capable Token 1 must remain outside Git and Stage 8.10.2 must use that
+DPAPI model or a directly compatible Stage 8.10 extension. This task does not
+implement that store.
+
+Plaintext tokens must never be written to Git, logs, command-line arguments,
+committed JSON, runtime audit output, or repository metadata. Trading and
+read-only credentials must be distinguishable by schema/mode, must never
+silently substitute for each other, and token/account/production-ID binding
+must fail closed. Acquiring or storing a token cannot authorize order
+transmission.
+
+No trading-capable token has been provisioned, stored, authenticated, inspected,
+or used. No trading-token physical acceptance has occurred. Stage 8.10 order
+count remains exactly zero. No order-capable behavior, real order, Scheduled
+Task enablement, or Intel physical token run was introduced or performed.
+Real-order capability is not authorized.
+
+`LIVE_TRADING_NOT_AUTHORIZED`, `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and
+`NEW_ENTRIES_DISABLED` remain enforced. The frozen production contract remains
+`PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`
+/ `TRAIL1__N4_01__FULL__R15`: T3, H1, exact N4 (`USDRUBF`, `CNYRUBF`,
+`GLDRUBF`, `IMOEXF`), TRAIL1, FULL, R15, 1.5% of current realized equity per
+new instrument position, 6% maximum nominal simultaneous initial risk, no
+pyramiding, no session filter, and no runtime canonical fallback.

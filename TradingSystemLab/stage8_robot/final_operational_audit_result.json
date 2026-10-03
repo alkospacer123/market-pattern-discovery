@@ -1,5 +1,5 @@
 {
-  "checks": 52,
+  "checks": 59,
   "errors": [],
   "intel_final_acceptance_performed": true,
   "live_trading_authorized": false,
@@ -10,7 +10,12 @@
   "runtime_artifacts_tracked": [],
   "stage7_audit_checks": 22,
   "stage7_audit_status": "PASS",
-  "stage8_10_status": "NOT_STARTED_NOT_AUTHORIZED",
+  "stage8_10_1_status": "STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE",
+  "stage8_10_2_status": "NOT_STARTED_NOT_AUTHORIZED",
+  "stage8_10_3_through_8_status": "NOT_STARTED",
+  "stage8_10_status": "IN_PROGRESS",
+  "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
+  "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
   "stage8_8_5_external_evidence_sha256": "C57554AE3AE54018EC1E558108520088C1883718F0406E7B6C6669B4696A9CBC",
   "stage8_8_5_status": "STAGE_8_8_5_STALE_DATA_PROTECTION_COMPLETE",
   "stage8_8_6_external_evidence_sha256": "1A9B62D4BFC0E7384898C9DF9659E54E50E0E202BD44CE19413864AC2ECA14D6",
@@ -35,7 +40,7 @@
   "stage8_9_started": true,
   "stage8_9_status": "STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE",
   "stage8_9_zero_capacity_case_count": 4,
-  "stage8_audit_checks": 149,
+  "stage8_audit_checks": 156,
   "stage8_audit_status": "PASS",
   "status": "PASS"
 }

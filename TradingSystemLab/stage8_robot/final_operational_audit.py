@@ -38,6 +38,7 @@ STAGE_8_9_REASON = "ALL_AUTHORITIES_VALID"
 STAGE_8_9_CODE = "1013a5a2324e015ab3bc047a7b9af9064552cd10"
 STAGE_8_9_REPORT = "C87400F845B73A666B95C83DA2E3B6B710F36F3210AD4AD175BFDABB453864D5"
 STAGE_8_9_SUMMARY = "099F85A0DCCF94D404411CFFAC2F5D8C80D606C5C1B5AA2F5B650E8BF5FEB636"
+STAGE_8_10_1_STATUS = "STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE"
 STAGE_8_9_8_STATUS = "STAGE_8_9_8_COMPLETE"
 STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
 STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
@@ -227,7 +228,9 @@ def audit(
         external_stage8_9 = ("stage8_9" in name or "funding_margin_validation" in name) and name.endswith(".json")
         raw_capture = any(term in name for term in ("raw_finam", "account_response", "real_market_capture", "stale_h1_evidence"))
         credential = any(term in name for term in ("credential", "secret")) and not lower.endswith((".py", ".ps1", ".md", ".example"))
-        return runtime_suffix or external_acceptance or external_stage8_9 or raw_capture or credential
+        trading_token = any(term in name for term in ("trading_token", "trading-token", "token_1", "token1")) and lower.endswith((".json", ".txt", ".bin", ".blob", ".dpapi", ".env"))
+        account_material = any(term in name for term in ("account_id", "account-identifier")) and lower.endswith((".json", ".txt", ".bin", ".blob", ".env"))
+        return runtime_suffix or external_acceptance or external_stage8_9 or raw_capture or credential or trading_token or account_material
 
     runtime_artifacts = sorted(path for path in tracked_files if forbidden_artifact(path))
     check(not runtime_artifacts, "RUNTIME_OR_SECRET_ARTIFACT_TRACKED")
@@ -245,6 +248,7 @@ def audit(
           "STAGE_8_9_10_COMPLETED_PROVENANCE_SYNCHRONIZED")
     lifecycle = provenance.get("stage8_9_8", {})
     closeout = provenance.get("stage8_9_10", {})
+    preconditions = provenance.get("stage8_10_1", {})
     check(lifecycle.get("status") == STAGE_8_9_8_STATUS
           and lifecycle.get("stage8_9_9") == "PHYSICAL_REVALIDATION_COMPLETE"
           and lifecycle.get("stage8_9_complete") is True,
@@ -288,11 +292,33 @@ def audit(
     check(not active_contradictions, "STAGE_8_9_NO_ACTIVE_LIFECYCLE_CONTRADICTION")
     check(all("Stage 8.9 is **COMPLETE**" in doc for doc in stage8_9_docs),
           "STAGE_8_9_COMPLETE_SYNCHRONIZED")
-    check(all("Stage 8.10" in doc and "NOT STARTED / NOT AUTHORIZED" in doc for doc in stage8_9_docs)
-          and closeout.get("stage8_10_status") == "NOT_STARTED_NOT_AUTHORIZED"
-          and not re.search(r"Stage 8\.10.{0,40}(?:STARTED / AUTHORIZED|is authorized|has started)",
-                            stage8_9_joined_docs, re.I),
-          "STAGE_8_10_NOT_STARTED_NOT_AUTHORIZED")
+    check(all(STAGE_8_10_1_STATUS in doc for doc in stage8_9_docs),
+          "STAGE_8_10_1_COMPLETE_SYNCHRONIZED")
+    check(preconditions.get("status") == STAGE_8_10_1_STATUS
+          and preconditions.get("order_count") == 0
+          and preconditions.get("stage8_10_3_through_8_status") == "NOT_STARTED"
+          and preconditions.get("trading_token_provisioned") is False
+          and preconditions.get("trading_token_used") is False,
+          "STAGE_8_10_1_MACHINE_AUTHORITY_EXACT")
+    check(all("Stage 8.10 is **IN PROGRESS**" in doc for doc in stage8_9_docs)
+          and closeout.get("stage8_10_status") == "IN_PROGRESS"
+          and not re.search(r"Stage 8\.10 is \*\*COMPLETE\*\*", stage8_9_joined_docs, re.I),
+          "STAGE_8_10_IN_PROGRESS_NOT_COMPLETE")
+    check(all("Stage 8.10.2 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
+          "STAGE_8_10_2_NOT_STARTED_NOT_AUTHORIZED")
+    check(all(all(f"Stage 8.10.{number} is **NOT STARTED**" in doc for number in range(3, 9))
+              for doc in stage8_9_docs), "STAGE_8_10_3_THROUGH_8_NOT_STARTED")
+    check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
+          "STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED")
+    check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
+          "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")
+    forbidden_claims = (
+        r"(?<!no )trading(?:-capable)? token (?:has been|was|is) (?:provisioned|stored|authenticated|inspected|used)",
+        r"(?<!no )trading-token physical acceptance (?:has occurred|is complete|passed)",
+        r"(?<!not )real-order (?:transmission|capability) is authorized",
+    )
+    check(not any(re.search(pattern, stage8_9_joined_docs, re.I) for pattern in forbidden_claims),
+          "STAGE_8_10_FALSE_AUTHORIZATION_OR_TOKEN_CLAIM")
     check("LIVE_TRADING_NOT_AUTHORIZED" in stage8_9_joined_docs
           and "REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in stage8_9_joined_docs,
           "LIVE_AND_REAL_ORDER_TRANSMISSION_UNAUTHORIZED")
@@ -325,7 +351,11 @@ def audit(
         "stage8_9_positive_capacity_case_count": 4,
         "stage8_9_zero_capacity_case_count": 4,
         "stage8_9_positive_batch_reservation_count": 1,
-        "stage8_10_status": "NOT_STARTED_NOT_AUTHORIZED",
+        "stage8_10_status": "IN_PROGRESS", "stage8_10_1_status": STAGE_8_10_1_STATUS,
+        "stage8_10_2_status": "NOT_STARTED_NOT_AUTHORIZED",
+        "stage8_10_3_through_8_status": "NOT_STARTED",
+        "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
+        "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_9_complete": True, "stage8_9_physical_validation_performed": True,
     }
     if write_result:

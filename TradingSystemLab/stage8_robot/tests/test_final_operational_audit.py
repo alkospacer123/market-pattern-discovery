@@ -180,10 +180,50 @@ def test_stage_8_9_appended_active_incomplete_contradiction_fails():
     assert "STAGE_8_9_NO_ACTIVE_LIFECYCLE_CONTRADICTION" in result["errors"]
 
 
-def test_stage_8_10_started_or_authorized_fails():
+def test_stage_8_10_1_status_removed_or_changed_fails():
     path = "TradingSystemLab/CURRENT_STATE.md"
-    result = run_audit({path: source(path) + "\n\nStage 8.10 is STARTED / AUTHORIZED.\n"})
-    assert "STAGE_8_10_NOT_STARTED_NOT_AUTHORIZED" in result["errors"]
+    result = run_audit({path: source(path).replace(final.STAGE_8_10_1_STATUS, "MISSING")})
+    assert "STAGE_8_10_1_COMPLETE_SYNCHRONIZED" in result["errors"]
+
+
+def test_stage_8_10_falsely_complete_fails():
+    path = "TradingSystemLab/CURRENT_STATE.md"
+    result = run_audit({path: source(path).replace(
+        "Stage 8.10 is **IN PROGRESS**", "Stage 8.10 is **COMPLETE**")})
+    assert "STAGE_8_10_IN_PROGRESS_NOT_COMPLETE" in result["errors"]
+
+
+def test_stage_8_10_2_started_or_authorized_fails():
+    path = "TradingSystemLab/CURRENT_STATE.md"
+    result = run_audit({path: source(path).replace(
+        "Stage 8.10.2 is **NOT STARTED / NOT AUTHORIZED**",
+        "Stage 8.10.2 is **STARTED / AUTHORIZED**")})
+    assert "STAGE_8_10_2_NOT_STARTED_NOT_AUTHORIZED" in result["errors"]
+
+
+def test_later_execution_stages_started_or_authorized_fail():
+    path = "TradingSystemLab/CURRENT_STATE.md"
+    for stage, error in (("8.11", "STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED"),
+                         ("8.12", "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")):
+        result = run_audit({path: source(path).replace(
+            f"Stage {stage} is **NOT STARTED / NOT AUTHORIZED**",
+            f"Stage {stage} is **STARTED / AUTHORIZED**")})
+        assert error in result["errors"]
+
+
+def test_false_trading_token_and_real_order_claims_fail():
+    path = "TradingSystemLab/CURRENT_STATE.md"
+    for claim in ("A trading token has been provisioned.",
+                  "Real-order transmission is authorized."):
+        result = run_audit({path: source(path) + "\n\n" + claim + "\n"})
+        assert "STAGE_8_10_FALSE_AUTHORIZATION_OR_TOKEN_CLAIM" in result["errors"]
+
+
+def test_tracked_trading_token_and_account_artifacts_fail():
+    forbidden = ["secrets/trading-token.json", "runtime/account_id.txt"]
+    result = run_audit(tracked=git_files() + forbidden)
+    assert all(path in result["runtime_artifacts_tracked"] for path in forbidden)
+    assert "RUNTIME_OR_SECRET_ARTIFACT_TRACKED" in result["errors"]
 
 
 def test_historical_blockers_described_as_current_fail():
@@ -216,14 +256,14 @@ def test_stage_8_9_provenance_mutations_fail():
         ('"sizing_case_count": 8', '"sizing_case_count": 7'),
         ('"positive_capacity_case_count": 4', '"positive_capacity_case_count": 3'),
         ('"stage8_9_complete": true', '"stage8_9_complete": false'),
-        ('"stage8_10_status": "NOT_STARTED_NOT_AUTHORIZED"', '"stage8_10_status": "STARTED_AUTHORIZED"'),
+        ('"stage8_10_status": "IN_PROGRESS"', '"stage8_10_status": "COMPLETE"'),
     )
     for before, after in mutations:
         result = run_audit({path: source(path).replace(before, after)})
         assert any(name in result["errors"] for name in (
             "STAGE_8_9_LIFECYCLE_COMPLETE", "STAGE_8_9_10_PROVENANCE_EXACT",
             "STAGE_8_9_10_PHYSICAL_PASS_RECORDED",
-            "STAGE_8_10_NOT_STARTED_NOT_AUTHORIZED"))
+            "STAGE_8_10_IN_PROGRESS_NOT_COMPLETE"))
 
 
 def test_stage_8_8_7_missing_external_provenance_fails():

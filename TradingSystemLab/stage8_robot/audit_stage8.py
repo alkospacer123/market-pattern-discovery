@@ -44,7 +44,11 @@ def audit(write_result=True):
     check(not any("stage8_8_6_sqlite_recovery_acceptance.json" in path.lower()
                   or (("stage8_9" in path.lower() or "funding_margin_validation" in path.lower())
                       and path.lower().endswith(".json"))
-                  or path.lower().endswith((".sqlite3","-wal","-shm",".dpapi")) for path in tracked),
+                  or path.lower().endswith((".sqlite3","-wal","-shm",".dpapi"))
+                  or (any(term in Path(path.lower()).name for term in
+                          ("trading_token","trading-token","token_1","token1","account_id","account-identifier"))
+                      and path.lower().endswith((".json",".txt",".bin",".blob",".env")))
+                  for path in tracked),
           "STAGE_8_8_6_RAW_EXTERNAL_AND_RUNTIME_MATERIAL_NOT_TRACKED")
     final_status="STAGE_8_8_7_FINAL_OPERATIONAL_AUDIT_INTEL_ACCEPTANCE_COMPLETE"
     final_code_sha="bda46f57f0f977e05593c46b55851c40c4ad34fe"
@@ -64,7 +68,7 @@ def audit(write_result=True):
     check(all(all(value in document for value in required)
               for document in authoritative_docs),
           "STAGE_8_9_10_COMPLETED_PROVENANCE_SYNCHRONIZED")
-    lifecycle=provenance.get("stage8_9_8",{}); closeout=provenance.get("stage8_9_10",{})
+    lifecycle=provenance.get("stage8_9_8",{}); closeout=provenance.get("stage8_9_10",{}); preconditions=provenance.get("stage8_10_1",{})
     check(lifecycle.get("status")==stage8_9_8_status
           and lifecycle.get("stage8_9_9")=="PHYSICAL_REVALIDATION_COMPLETE"
           and lifecycle.get("stage8_9_complete") is True,
@@ -107,12 +111,32 @@ def audit(write_result=True):
     check(all("Stage 8.9 is **COMPLETE**" in document
               for document in authoritative_docs),
           "STAGE_8_9_COMPLETE_SYNCHRONIZED")
-    check(all("Stage 8.10" in document and "NOT STARTED / NOT AUTHORIZED" in document
-              for document in authoritative_docs)
-          and closeout.get("stage8_10_status")=="NOT_STARTED_NOT_AUTHORIZED"
-          and not re.search(r"Stage 8\.10.{0,40}(?:STARTED / AUTHORIZED|is authorized|has started)",
-                            closeout_docs,re.I),
-          "STAGE_8_10_NOT_STARTED_NOT_AUTHORIZED")
+    stage8_10_1_status="STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE"
+    check(all(stage8_10_1_status in document for document in authoritative_docs),
+          "STAGE_8_10_1_COMPLETE_SYNCHRONIZED")
+    check(preconditions.get("status")==stage8_10_1_status
+          and preconditions.get("order_count")==0
+          and preconditions.get("stage8_10_3_through_8_status")=="NOT_STARTED"
+          and preconditions.get("trading_token_provisioned") is False
+          and preconditions.get("trading_token_used") is False,
+          "STAGE_8_10_1_MACHINE_AUTHORITY_EXACT")
+    check(all("Stage 8.10 is **IN PROGRESS**" in document for document in authoritative_docs)
+          and closeout.get("stage8_10_status")=="IN_PROGRESS"
+          and not re.search(r"Stage 8\.10 is \*\*COMPLETE\*\*",closeout_docs,re.I),
+          "STAGE_8_10_IN_PROGRESS_NOT_COMPLETE")
+    check(all("Stage 8.10.2 is **NOT STARTED / NOT AUTHORIZED**" in document
+              for document in authoritative_docs),"STAGE_8_10_2_NOT_STARTED_NOT_AUTHORIZED")
+    check(all(all(f"Stage 8.10.{number} is **NOT STARTED**" in document for number in range(3,9))
+              for document in authoritative_docs),"STAGE_8_10_3_THROUGH_8_NOT_STARTED")
+    check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in document
+              for document in authoritative_docs),"STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED")
+    check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in document
+              for document in authoritative_docs),"STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")
+    forbidden_claims=(r"(?<!no )trading(?:-capable)? token (?:has been|was|is) (?:provisioned|stored|authenticated|inspected|used)",
+                      r"(?<!no )trading-token physical acceptance (?:has occurred|is complete|passed)",
+                      r"(?<!not )real-order (?:transmission|capability) is authorized")
+    check(not any(re.search(pattern,closeout_docs,re.I) for pattern in forbidden_claims),
+          "STAGE_8_10_FALSE_AUTHORIZATION_OR_TOKEN_CLAIM")
     false_full_claim=re.compile(r"(?:FULL/N4|FULL N4|FULL/R15).{0,40}(?:ready|sufficient|validated)",re.I)
     check(not false_full_claim.search(closeout_docs),"FULL_N4_FUNDING_READINESS_NOT_CLAIMED")
     check("LIVE_TRADING_NOT_AUTHORIZED" in readme and "no live trading was authorized" in closeout_docs.lower(),"CLOSEOUT_LIVE_TRADING_UNAUTHORIZED")
@@ -216,7 +240,7 @@ def audit(write_result=True):
         cwd=ROOT,capture_output=True,text=True)
     check(run_path_tests.returncode==0,
           "STAGE_8_9_SYNTHETIC_RUN_PATH_FAIL_CLOSED_INTEGRATION")
-    check("Stage 8.10" in closeout_docs and "NOT STARTED / NOT AUTHORIZED" in closeout_docs
+    check("Stage 8.10 is **IN PROGRESS**" in closeout_docs and stage8_10_1_status in closeout_docs
           and "LIVE_TRADING_NOT_AUTHORIZED" in readme,
           "STAGE_8_10_AND_LIVE_UNAUTHORIZED")
     check("starting_realized_equity" in runner and "REAL_ACCOUNT_NOT_CLEAN_FOR_INITIALIZATION" in runner,"CLEAN_REAL_EQUITY_BOOTSTRAP")
@@ -396,7 +420,7 @@ def audit(write_result=True):
           "WINDOWS_NO_OBSOLETE_SUPERVISOR_STATE_AUTHORITY")
     check("TradingSystemLab.stage8_robot.readonly_supervisor" in launcher and not any(x in windows_deployment for x in ("place_order","submit_order","cancel_order")),"WINDOWS_SERVICE_READONLY_NO_ORDER_PATH")
     check("-ExecutionPolicy RemoteSigned" in task_installer and "-MultipleInstances IgnoreNew" in task_installer,"WINDOWS_TASK_POLICY_CONSERVATIVE")
-    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"real_order_transmission_authorized":False,"stage8_status":completed_status,"margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED","stage8_9_status":stage8_9_status,"stage8_9_reason":stage8_9_reason,"stage8_9_accepted_code_commit":stage8_9_code,"stage8_9_diagnostic_report_sha256":stage8_9_report,"stage8_9_physical_summary_sha256":stage8_9_summary,"stage8_9_8_status":stage8_9_8_status,"stage8_9_9_status":"PHYSICAL_REVALIDATION_COMPLETE","stage8_9_10_status":"COMPLETE","stage8_9_sizing_case_count":8,"stage8_9_positive_capacity_case_count":4,"stage8_9_zero_capacity_case_count":4,"stage8_9_positive_batch_reservation_count":1,"stage8_10_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_9_complete":True,"stage8_9_physical_validation_performed":True}
+    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"real_order_transmission_authorized":False,"stage8_status":completed_status,"margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED","stage8_9_status":stage8_9_status,"stage8_9_reason":stage8_9_reason,"stage8_9_accepted_code_commit":stage8_9_code,"stage8_9_diagnostic_report_sha256":stage8_9_report,"stage8_9_physical_summary_sha256":stage8_9_summary,"stage8_9_8_status":stage8_9_8_status,"stage8_9_9_status":"PHYSICAL_REVALIDATION_COMPLETE","stage8_9_10_status":"COMPLETE","stage8_9_sizing_case_count":8,"stage8_9_positive_capacity_case_count":4,"stage8_9_zero_capacity_case_count":4,"stage8_9_positive_batch_reservation_count":1,"stage8_10_status":"IN_PROGRESS","stage8_10_1_status":stage8_10_1_status,"stage8_10_2_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_10_3_through_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_9_complete":True,"stage8_9_physical_validation_performed":True}
     if write_result: (HERE/"independent_audit_result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
     return result
 if __name__=="__main__":
