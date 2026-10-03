@@ -144,71 +144,72 @@ def test_real_order_authorization_mutation_fails():
     assert "REAL_ORDER_TRANSMISSION_BLOCKED" in result["errors"]
 
 
-def test_stage_8_9_blocked_status_removed_fails():
+def test_stage_8_9_completed_status_removed_fails():
     path = "TradingSystemLab/CURRENT_STATE.md"
-    result = run_audit({path: source(path).replace(
-        final.STAGE_8_9_STATUS, "MISSING")})
-    assert "STAGE_8_9_PHYSICAL_BLOCKED_PROVENANCE_SYNCHRONIZED" in result["errors"]
+    result = run_audit({path: source(path).replace(final.STAGE_8_9_STATUS, "MISSING")})
+    assert "STAGE_8_9_10_COMPLETED_PROVENANCE_SYNCHRONIZED" in result["errors"]
 
 
-def test_stage_8_9_physical_provenance_mutations_fail():
+def test_stage_8_9_10_physical_provenance_mutations_fail():
     path = "TradingSystemLab/CURRENT_STATE.md"
     for value in (final.STAGE_8_9_CODE, final.STAGE_8_9_REPORT,
                   final.STAGE_8_9_SUMMARY, final.STAGE_8_9_REASON):
         result = run_audit({path: source(path).replace(value, "WRONG")})
-        assert "STAGE_8_9_PHYSICAL_BLOCKED_PROVENANCE_SYNCHRONIZED" in result["errors"]
+        assert "STAGE_8_9_10_COMPLETED_PROVENANCE_SYNCHRONIZED" in result["errors"]
 
 
-def test_stage_8_9_zero_capacity_finding_removed_fails():
+def test_stage_8_9_capacity_counts_mutations_fail():
+    path = "TradingSystemLab/CURRENT_STATE.md"
+    for value in ("positive_capacity_case_count = 4", "zero_capacity_case_count = 4",
+                  "positive_batch_reservation_count = 1"):
+        result = run_audit({path: source(path).replace(value, "capacity count missing")})
+        assert "STAGE_8_9_10_COMPLETED_PROVENANCE_SYNCHRONIZED" in result["errors"]
+
+
+def test_stage_8_9_marked_incomplete_fails():
     path = "TradingSystemLab/CURRENT_STATE.md"
     result = run_audit({path: source(path).replace(
-        "positive_capacity_case_count = 0", "positive capacity unrecorded")})
-    assert "STAGE_8_9_PHYSICAL_BLOCKED_PROVENANCE_SYNCHRONIZED" in result["errors"]
+        "Stage 8.9 is **COMPLETE**", "Stage 8.9 is **NOT COMPLETE**")})
+    assert "STAGE_8_9_COMPLETE_SYNCHRONIZED" in result["errors"]
 
 
-def test_stage_8_9_false_completion_fails():
+def test_stage_8_10_started_or_authorized_fails():
     path = "TradingSystemLab/CURRENT_STATE.md"
-    result = run_audit({path: source(path).replace(
-        "Stage 8.9 is **NOT COMPLETE**", "Stage 8.9 is **COMPLETE**")})
-    assert "STAGE_8_9_INCOMPLETE_SYNCHRONIZED" in result["errors"]
+    result = run_audit({path: source(path) + "\n\nStage 8.10 is STARTED / AUTHORIZED.\n"})
+    assert "STAGE_8_10_NOT_STARTED_NOT_AUTHORIZED" in result["errors"]
 
 
-def test_zero_capacity_described_as_funding_validated_fails():
+def test_historical_blockers_described_as_current_fail():
     path = "TradingSystemLab/CURRENT_STATE.md"
-    result = run_audit({path: source(path) + "\nSTAGE_8_9_FUNDING_MARGIN_VALIDATED\n"})
-    assert "STAGE_8_9_NOT_VALIDATED" in result["errors"]
+    for status, reason in (("BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE", "FORTS_PORTFOLIO_MISSING"),
+                           ("BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY", "ZERO_CONTRACT_CAPACITY")):
+        mutation = source(path) + f"\n\nThe current blocker is {status}, reason {reason}.\n"
+        result = run_audit({path: mutation})
+        assert "STAGE_8_9_HISTORICAL_BLOCKERS_NOT_CURRENT" in result["errors"]
 
 
-def test_stage_8_9_performed_blocked_state_cannot_be_described_as_unknown():
+def test_false_full_n4_funding_readiness_claim_fails():
     path = "TradingSystemLab/CURRENT_STATE.md"
-    mutation = source(path) + "\n\nPhysical funding readiness is not yet determined.\n"
-
+    mutation = source(path) + "\n\nFULL/N4 funding is validated and ready.\n"
     result = run_audit({path: mutation})
-
-    assert result["stage8_9_physical_validation_performed"] is True
-    assert result["stage8_9_status"] == final.STAGE_8_9_STATUS
-    assert result["stage8_9_reason"] == final.STAGE_8_9_REASON
-    assert "STAGE_8_9_PERFORMED_BLOCKED_STATE_NOT_DESCRIBED_AS_UNKNOWN" in result["errors"]
+    assert "FULL_N4_FUNDING_READINESS_NOT_CLAIMED" in result["errors"]
 
 
-def test_historical_forts_blocker_described_as_current_fails():
-    path = "TradingSystemLab/CURRENT_STATE.md"
-    mutation = source(path) + (
-        "\n\nThe current blocker is BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE, "
-        "reason FORTS_PORTFOLIO_MISSING.\n"
-    )
-    result = run_audit({path: mutation})
-    assert "STAGE_8_9_HISTORICAL_FORTS_RESULT_NOT_CURRENT" in result["errors"]
-
-
-def test_stage_8_9_8_pending_after_revalidation_complete_fails():
+def test_stage_8_9_provenance_mutations_fail():
     path = "TradingSystemLab/stage8_robot/authority_provenance.json"
-    mutation = source(path).replace(
-        '"status": "STAGE_8_9_8_COMPLETE"',
-        '"status": "STAGE_8_9_UNION_MC_AUTHORITY_CODE_READY_PENDING_PHYSICAL_REVALIDATION"',
+    mutations = (
+        (final.STAGE_8_9_CODE, "WRONG"),
+        (final.STAGE_8_9_REPORT, "WRONG"),
+        (final.STAGE_8_9_SUMMARY, "WRONG"),
+        ('"positive_capacity_case_count": 4', '"positive_capacity_case_count": 3'),
+        ('"stage8_9_complete": true', '"stage8_9_complete": false'),
+        ('"stage8_10_status": "NOT_STARTED_NOT_AUTHORIZED"', '"stage8_10_status": "STARTED_AUTHORIZED"'),
     )
-    result = run_audit({path: mutation})
-    assert "STAGE_8_9_8_COMPLETE_AFTER_PHYSICAL_REVALIDATION" in result["errors"]
+    for before, after in mutations:
+        result = run_audit({path: source(path).replace(before, after)})
+        assert any(name in result["errors"] for name in (
+            "STAGE_8_9_LIFECYCLE_COMPLETE", "STAGE_8_9_10_PROVENANCE_EXACT",
+            "STAGE_8_10_NOT_STARTED_NOT_AUTHORIZED"))
 
 
 def test_stage_8_8_7_missing_external_provenance_fails():

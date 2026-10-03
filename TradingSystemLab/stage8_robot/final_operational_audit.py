@@ -33,11 +33,11 @@ STAGE_8_8_6_CODE = "dc2b79e74817e71435eee20103ae617e13067d8e"
 STAGE_8_8_6_EVIDENCE = "1A9B62D4BFC0E7384898C9DF9659E54E50E0E202BD44CE19413864AC2ECA14D6"
 STAGE_8_8_7_CODE = "bda46f57f0f977e05593c46b55851c40c4ad34fe"
 STAGE_8_8_7_EVIDENCE = "181225F29A966179AB513121C3CBACD31401752956EFC9A22253A8EFBF94766E"
-STAGE_8_9_STATUS = "BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY"
-STAGE_8_9_REASON = "ZERO_CONTRACT_CAPACITY"
-STAGE_8_9_CODE = "c461911fdceddf54a2a6fe6768574dd93f4844d1"
-STAGE_8_9_REPORT = "F307D3F5ADC4525FF304B9582F683B89A097FC9BCFB502E8150FC98D2625860F"
-STAGE_8_9_SUMMARY = "F36B16565F9E08C38B3264831DCA94A65390275F7A2B78A3C6C90302E4A7C09B"
+STAGE_8_9_STATUS = "STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE"
+STAGE_8_9_REASON = "ALL_AUTHORITIES_VALID"
+STAGE_8_9_CODE = "1013a5a2324e015ab3bc047a7b9af9064552cd10"
+STAGE_8_9_REPORT = "C87400F845B73A666B95C83DA2E3B6B710F36F3210AD4AD175BFDABB453864D5"
+STAGE_8_9_SUMMARY = "099F85A0DCCF94D404411CFFAC2F5D8C80D606C5C1B5AA2F5B650E8BF5FEB636"
 STAGE_8_9_8_STATUS = "STAGE_8_9_8_COMPLETE"
 STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
 STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
@@ -231,43 +231,55 @@ def audit(
     check(all(COMPLETE_STATUS in doc for doc in docs), "STAGE_8_8_7_COMPLETE_STATUS_SYNCHRONIZED")
     check(all(STAGE_8_8_7_CODE in doc and STAGE_8_8_7_EVIDENCE in doc for doc in docs), "STAGE_8_8_7_EXTERNAL_PROVENANCE_SYNCHRONIZED")
     stage8_9_status = STAGE_8_9_STATUS
-    check(all(all(value in doc for value in (
-        STAGE_8_9_STATUS, STAGE_8_9_REASON, STAGE_8_9_CODE,
-        STAGE_8_9_REPORT, STAGE_8_9_SUMMARY, "positive_capacity_case_count = 0",
-    )) for doc in docs), "STAGE_8_9_PHYSICAL_BLOCKED_PROVENANCE_SYNCHRONIZED")
-    check(all(all(value in doc for value in (
-        STAGE_8_9_8_STATUS, STAGE_8_9_8_VARIANT, STAGE_8_9_8_SHAPE, "Stage 8.9.9",
-    )) for doc in docs), "STAGE_8_9_8_UNION_MC_RESOLUTION_PROVENANCE_SYNCHRONIZED")
+    required = (STAGE_8_9_STATUS, STAGE_8_9_REASON, STAGE_8_9_CODE,
+                STAGE_8_9_REPORT, STAGE_8_9_SUMMARY,
+                "STAGE_8_9_10_POST_FUNDING_REVALIDATION_PASS=1",
+                "positive_capacity_case_count = 4", "zero_capacity_case_count = 4",
+                "positive_batch_reservation_count = 1")
+    check(all(all(value in doc for value in required) for doc in docs),
+          "STAGE_8_9_10_COMPLETED_PROVENANCE_SYNCHRONIZED")
     lifecycle = provenance.get("stage8_9_8", {})
+    closeout = provenance.get("stage8_9_10", {})
     check(lifecycle.get("status") == STAGE_8_9_8_STATUS
           and lifecycle.get("stage8_9_9") == "PHYSICAL_REVALIDATION_COMPLETE"
-          and "PENDING_PHYSICAL_REVALIDATION" not in lifecycle.get("status", ""),
-          "STAGE_8_9_8_COMPLETE_AFTER_PHYSICAL_REVALIDATION")
-    stale_tokens = ("BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE", "FORTS_PORTFOLIO_MISSING")
-    historical_labels = ("earlier", "previous", "historical", "old implementation")
+          and lifecycle.get("stage8_9_complete") is True,
+          "STAGE_8_9_LIFECYCLE_COMPLETE")
+    check(closeout.get("status") == STAGE_8_9_STATUS
+          and closeout.get("accepted_code_commit") == STAGE_8_9_CODE
+          and closeout.get("diagnostic_report_sha256") == STAGE_8_9_REPORT
+          and closeout.get("physical_summary_sha256") == STAGE_8_9_SUMMARY
+          and closeout.get("positive_capacity_case_count") == 4
+          and closeout.get("zero_capacity_case_count") == 4
+          and closeout.get("positive_batch_reservation_count") == 1
+          and closeout.get("stage8_9_complete") is True,
+          "STAGE_8_9_10_PROVENANCE_EXACT")
+    check(closeout.get("physical_result") == "STAGE_8_9_10_POST_FUNDING_REVALIDATION_PASS=1"
+          and closeout.get("funding_classification") == "STAGE_8_9_FUNDING_MARGIN_VALIDATED"
+          and closeout.get("reason") == "ALL_AUTHORITIES_VALID",
+          "STAGE_8_9_10_PHYSICAL_PASS_RECORDED")
+    historical_tokens = ("BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE", "FORTS_PORTFOLIO_MISSING",
+                         "BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY", "ZERO_CONTRACT_CAPACITY")
+    historical_labels = ("earlier", "previous", "historical", "old implementation", "pre-funding")
     stale_unlabelled = []
     for path, doc in zip(docs_paths, docs):
         for paragraph in re.split(r"\n\s*\n", doc):
-            if any(token in paragraph for token in stale_tokens) and not any(
+            if any(token in paragraph for token in historical_tokens) and not any(
                 label in paragraph.lower() for label in historical_labels
             ):
                 stale_unlabelled.append(path)
-    check(not stale_unlabelled, "STAGE_8_9_HISTORICAL_FORTS_RESULT_NOT_CURRENT")
-    check("STAGE_8_9_FUNDING_MARGIN_DIAGNOSTIC_READY_PENDING_INTEL_VALIDATION" not in joined_docs,
-          "STAGE_8_9_PENDING_PHYSICAL_STATE_RETIRED")
-    check("STAGE_8_9_FUNDING_MARGIN_VALIDATED" not in joined_docs,
-          "STAGE_8_9_NOT_VALIDATED")
-    check(all("Stage 8.9 is **NOT COMPLETE**" in doc for doc in docs),
-          "STAGE_8_9_INCOMPLETE_SYNCHRONIZED")
-    physical_readiness_unknown = re.compile(
-        r"physical\s+(?:funding\s+)?(?:readiness|validation).{0,80}"
-        r"(?:not\s+yet\s+determined|unknown|awaiting\s+(?:its\s+)?(?:first\s+)?physical\s+validation)",
-        re.IGNORECASE | re.DOTALL,
-    )
-    check(not physical_readiness_unknown.search(joined_docs),
-          "STAGE_8_9_PERFORMED_BLOCKED_STATE_NOT_DESCRIBED_AS_UNKNOWN")
-    check("Stage 8.10" in joined_docs and "NOT STARTED / NOT AUTHORIZED" in joined_docs
-          and "Stage 8.11/8.12" in joined_docs, "LATER_STAGES_PENDING_NOT_AUTHORIZED")
+    check(not stale_unlabelled, "STAGE_8_9_HISTORICAL_BLOCKERS_NOT_CURRENT")
+    check(all("Stage 8.9 is **COMPLETE**" in doc for doc in docs),
+          "STAGE_8_9_COMPLETE_SYNCHRONIZED")
+    check(all("Stage 8.10" in doc and "NOT STARTED / NOT AUTHORIZED" in doc for doc in docs)
+          and closeout.get("stage8_10_status") == "NOT_STARTED_NOT_AUTHORIZED"
+          and not re.search(r"Stage 8\.10.{0,40}(?:STARTED / AUTHORIZED|is authorized|has started)",
+                            joined_docs, re.I),
+          "STAGE_8_10_NOT_STARTED_NOT_AUTHORIZED")
+    check("LIVE_TRADING_NOT_AUTHORIZED" in joined_docs
+          and "REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in joined_docs,
+          "LIVE_AND_REAL_ORDER_TRANSMISSION_UNAUTHORIZED")
+    false_full_claim = re.compile(r"(?:FULL/N4|FULL N4|FULL/R15).{0,40}(?:ready|sufficient|validated)", re.I)
+    check(not false_full_claim.search(joined_docs), "FULL_N4_FUNDING_READINESS_NOT_CLAIMED")
 
     result = {
         "status": "PASS" if not errors else "FAIL", "checks": checks, "errors": errors,
@@ -290,9 +302,12 @@ def audit(
         "stage8_9_8_portfolio_variant_evidence_sha256": STAGE_8_9_8_VARIANT,
         "stage8_9_8_financial_shape_evidence_sha256": STAGE_8_9_8_SHAPE,
         "stage8_9_9_status": "PHYSICAL_REVALIDATION_COMPLETE",
-        "stage8_9_10_status": "CURRENT_BLOCKED_ZERO_CONTRACT_CAPACITY",
-        "stage8_9_positive_capacity_case_count": 0,
-        "stage8_9_complete": False, "stage8_9_physical_validation_performed": True,
+        "stage8_9_10_status": "COMPLETE",
+        "stage8_9_positive_capacity_case_count": 4,
+        "stage8_9_zero_capacity_case_count": 4,
+        "stage8_9_positive_batch_reservation_count": 1,
+        "stage8_10_status": "NOT_STARTED_NOT_AUTHORIZED",
+        "stage8_9_complete": True, "stage8_9_physical_validation_performed": True,
     }
     if write_result:
         (root / "TradingSystemLab/stage8_robot/final_operational_audit_result.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")

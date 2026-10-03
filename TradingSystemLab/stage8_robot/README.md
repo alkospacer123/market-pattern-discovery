@@ -1,12 +1,10 @@
 # Stage 8 robot foundation
 
-**Status:** `BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY` / `ZERO_CONTRACT_CAPACITY`
+**Status:** `STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE`
 — `LIVE_TRADING_NOT_AUTHORIZED`.
 
 Stage 8.8 operational hardening is COMPLETE. Stages 8.8.1, 8.8.2, 8.8.3,
-8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE. Stage 8.9 is CURRENT, with
-repository diagnostics ready and physical validation performed with a fail-closed blocked result. Stage 8.10
-is NOT STARTED / NOT AUTHORIZED; 8.11/8.12 remain not authorized.
+8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE. Stage 8.9 is COMPLETE. Stage 8.10, Stage 8.11, and Stage 8.12 are NOT STARTED / NOT AUTHORIZED.
 
 ## Real account read-only and margin feasibility
 
@@ -222,10 +220,7 @@ internal file counts were zero, and secret/account environment variables were
 absent. No live order was transmitted and no authorization changed. Repository
 tooling validates the provenance and hash; it did not generate the evidence.
 
-**CURRENT: Stage 8.9.10 — CURRENT / BLOCKED.** The only active blocker is
-`BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY`, reason `ZERO_CONTRACT_CAPACITY`. Stage
-8.9.8 is **COMPLETE** and Stage 8.9.9 is **PHYSICAL REVALIDATION COMPLETE**.
-Stage 8.9 is **NOT COMPLETE**. Stage 8.10 is **NOT STARTED / NOT AUTHORIZED**.
+**Stage 8.9 is COMPLETE.** Stage 8.10 is **NOT STARTED / NOT AUTHORIZED**.
 LIVE trading and real-order transmission remain unauthorized.
 
 ## Boundaries and startup
@@ -327,64 +322,60 @@ and the independent Stage 8 production replay reproduce all 418 authoritative
 trades exactly and deterministically. No FINAM connection was attempted and no
 demo order was transmitted.
 
-## Stage 8.9 physical validation closeout
+## Stage 8.9 funding and margin validation closeout
 
-Historical earlier evidence from the old implementation is retained. Its physical REAL_READONLY validation ran on accepted Intel code commit `5deedb49f16d9f2525c430383a029017cd9a53ce` and returned `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE`, reason `FORTS_PORTFOLIO_MISSING`. Historical diagnostic report SHA-256: `2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`. Historical physical summary SHA-256: `59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B`. The external JSON evidence remains outside Git. This old result is provenance only and is not the current blocker.
+Canonical repository status: `STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE`.
+Stage 8.9.8 is **COMPLETE**, Stage 8.9.9 is **PHYSICAL REVALIDATION COMPLETE**,
+Stage 8.9.10 is **COMPLETE**, and Stage 8.9 is **COMPLETE**.
 
-
-## Stage 8.9.8 UNION/MC authority resolution
-
-Status: `STAGE_8_9_8_COMPLETE`.
-Stage 8.9.8 account-authority resolution is complete: the production account is
-`UNION`, and funded physical evidence confirmed exactly one `portfolio_mc`. The
-FORTS-only implementation was incorrect for this account. The post-funding MC
-portfolio-variant evidence SHA-256 is
-`60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5`; the
-post-funding account financial-shape evidence SHA-256 is
-`EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371`.
-Only these sanitized hashes are committed; the external JSON, account identity,
-and financial values remain outside Git. The corrective code was accepted, and
-**Stage 8.9.9 physical revalidation is complete.** Stage
-8.9 remains **NOT COMPLETE**. Stage 8.10 remains **NOT STARTED / NOT
-AUTHORIZED**. `LIVE_TRADING_NOT_AUTHORIZED`,
-`REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and `NEW_ENTRIES_DISABLED` remain
-unchanged. No live order was transmitted and no live trading was authorized.
-
-The earlier physical result `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` /
-`FORTS_PORTFOLIO_MISSING`, accepted Intel commit
-`5deedb49f16d9f2525c430383a029017cd9a53ce`, diagnostic SHA-256
-`2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`, and
-physical-summary SHA-256
-`59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B` remain
-historical evidence of the old implementation and are not reinterpreted.
-
-## Stage 8.9.9 physical revalidation and Stage 8.9.10 capacity gate
-
-Stage 8.9.9 is **PHYSICAL REVALIDATION COMPLETE**. The accepted physical
-REAL_READONLY run used code commit
-`c461911fdceddf54a2a6fe6768574dd93f4844d1`. Its external diagnostic report
-SHA-256 is
-`F307D3F5ADC4525FF304B9582F683B89A097FC9BCFB502E8150FC98D2625860F`, and its
+The accepted post-funding physical REAL_READONLY run used exact code commit
+`1013a5a2324e015ab3bc047a7b9af9064552cd10` and returned
+`STAGE_8_9_10_POST_FUNDING_REVALIDATION_PASS=1`, classification
+`STAGE_8_9_FUNDING_MARGIN_VALIDATED`, reason `ALL_AUTHORITIES_VALID`.
+Its external diagnostic report SHA-256 is
+`C87400F845B73A666B95C83DA2E3B6B710F36F3210AD4AD175BFDABB453864D5`, and its
 external physical summary SHA-256 is
-`F36B16565F9E08C38B3264831DCA94A65390275F7A2B78A3C6C90302E4A7C09B`. The
-external JSON remains outside Git. The run confirmed the UNION/MC financial
-schema, equity, directional margins, exact frozen N4 binding, arithmetic, and
-batch budget, but observed `positive_capacity_case_count = 0` across eight
-sizing cases and zero positive batch reservations.
+`099F85A0DCCF94D404411CFFAC2F5D8C80D606C5C1B5AA2F5B650E8BF5FEB636`.
+The raw external JSON, account identity, financial values, broker responses,
+DPAPI material, runtime database, and runtime audit JSON remain outside Git.
 
-Stage 8.9.10 is **CURRENT / BLOCKED** with
-`BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY` / `ZERO_CONTRACT_CAPACITY`. Zero
-capacity is a distinct capacity blocker and does not invalidate the financial,
-binding, equity, directional-margin, or arithmetic authorities that passed. It must never receive the funding-validated readiness classification. Stage 8.9.8
-is **COMPLETE**; Stage 8.9 is **NOT COMPLETE**; Stage 8.10 is **NOT STARTED /
-NOT AUTHORIZED**. `LIVE_TRADING_NOT_AUTHORIZED`,
-`REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and `NEW_ENTRIES_DISABLED` remain
-unchanged. No live order was transmitted and no live trading was authorized.
+The accepted authorities were a clean, active UNION account with a READ_ONLY
+token, exactly one `portfolio_mc` and no `portfolio_forts`, valid financial
+schema, MC initial and maintenance margins, equity, directional margins, exact
+frozen N4 binding, funding/margin feasibility, and batch budget. No
+order-capable operation occurred. Across eight N4-direction sizing cases,
+`positive_capacity_case_count = 4`, `zero_capacity_case_count = 4`, and
+`positive_batch_reservation_count = 1`. The positive cases were
+`CNYRUBF:LONG:QTY=2`, `CNYRUBF:SHORT:QTY=2`, `GLDRUBF:LONG:QTY=1`, and
+`GLDRUBF:SHORT:QTY=1`.
 
-The earlier `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` /
-`FORTS_PORTFOLIO_MISSING` physical result, accepted commit
+This proves account funding authority, FINAM margin authority, at least one
+executable contract-capacity case, and 4/8 positive N4-direction cases in the
+accepted run. It does **not** prove that every N4 instrument has positive
+capacity, simultaneous FULL N4 portfolio capacity, FULL/R15 production funding
+sufficiency, permission to trade, trading-token readiness, or one-contract real
+execution acceptance. USDRUBF and IMOEXF may remain zero-capacity at the current
+account balance; those limitations remain later gates.
+
+The immediately previous pre-funding result is retained as **historical Stage
+8.9.9 evidence only**: `BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY` /
+`ZERO_CONTRACT_CAPACITY`, accepted code
+`c461911fdceddf54a2a6fe6768574dd93f4844d1`, diagnostic SHA-256
+`F307D3F5ADC4525FF304B9582F683B89A097FC9BCFB502E8150FC98D2625860F`, summary
+SHA-256 `F36B16565F9E08C38B3264831DCA94A65390275F7A2B78A3C6C90302E4A7C09B`, and
+`positive_capacity_case_count = 0`. It is not a current blocker.
+
+The earlier FORTS-only implementation result is also retained as **historical
+evidence only**: `BLOCKED_ACCOUNT_FINANCIALS_UNAVAILABLE` /
+`FORTS_PORTFOLIO_MISSING`, accepted code
 `5deedb49f16d9f2525c430383a029017cd9a53ce`, diagnostic SHA-256
 `2911D7857B9404E5178FF1A754A9168845E457A9349CEF7B1AFD0E088E06BF46`, and
 summary SHA-256
-`59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B` remain
-historical evidence and are not reinterpreted.
+`59A9ADD4BD229C7A7BF3E20337E494F90CF90082208469AD5A694A4B075D852B`. It is
+not a current blocker.
+
+The next lifecycle stage is Stage 8.10, but Stage 8.10 is **NOT STARTED / NOT
+AUTHORIZED**. Stage 8.11 and Stage 8.12 are **NOT STARTED / NOT AUTHORIZED**.
+`LIVE_TRADING_NOT_AUTHORIZED`, `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and
+`NEW_ENTRIES_DISABLED` remain unchanged. No live order was transmitted and no
+live trading was authorized.
