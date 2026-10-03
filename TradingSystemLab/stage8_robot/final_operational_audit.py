@@ -47,7 +47,7 @@ STAGE_8_10_3_STATUS = "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE"
 STAGE_8_10_4_STATUS = "STAGE_8_10_4_PERMISSION_BOUNDARY_COMPLETE"
 STAGE_8_10_5_STATUS = "STAGE_8_10_5_ORDER_PATH_DRY_VALIDATION_COMPLETE"
 STAGE_8_10_6_STATUS = "STAGE_8_10_6_KILL_SWITCH_SAFETY_GATES_COMPLETE"
-STAGE_8_10_7_STATUS = "STAGE_8_10_7_INTEL_TRADING_TOKEN_ACCEPTANCE_CODE_READY_PENDING_PHYSICAL_VALIDATION"
+STAGE_8_10_7_STATUS = "STAGE_8_10_7_INTEL_TRADING_TOKEN_ACCEPTANCE_COMPLETE"
 STAGE_8_9_8_STATUS = "STAGE_8_9_8_COMPLETE"
 STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
 STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
@@ -627,7 +627,7 @@ def audit(
     check(wrapper_halt_only, "STAGE_8_10_6_WRAPPER_HALT_ONLY")
     check(physical_report_contract, "STAGE_8_10_6_PHYSICAL_REPORT_CONTRACT")
     check(all(STAGE_8_10_6_STATUS in doc and "Stage 8.10.6 is **COMPLETE**" in doc for doc in stage8_9_docs), "STAGE_8_10_6_COMPLETE_SYNCHRONIZED")
-    expected_token={"status":STAGE_8_10_7_STATUS,"physical_validation_performed":False,"trading_dpapi_current_user_validated":False,"local_readonly_trading_account_binding_validated":False,"production_kill_switch_pre_halted_observed":False,"trading_session_created":False,"expected_account_enumerated":False,"expected_account_occurrence_count":0,"trading_token_readonly_false_observed":False,"trading_token_write_boundary_confirmed":False,"production_kill_switch_post_halted_observed":False,"trading_token_used":False,"readonly_token_used_for_remote_auth":False,"finam_authentication_performed":False,"order_endpoint_called":False,"order_count":0,"execution_authorized":False,"live_trading_authorized":False,"real_order_transmission_authorized":False,"stage8_10_status":"IN_PROGRESS","stage8_10_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"}
+    expected_token={"status":STAGE_8_10_7_STATUS,"accepted_code_commit":"df4bba6be4f98ba4659e13a01c90bec8e4162ff3","external_evidence_sha256":"A2A6B330A5DC1F15D67A84860223D80786022B634BB8B6CD73E01C815EE7D1B6","physical_result":"STAGE_8_10_7_PHYSICAL_INTEL_TRADING_TOKEN_ACCEPTANCE_PASS","physical_validation_performed":True,"trading_dpapi_current_user_validated":True,"local_readonly_trading_account_binding_validated":True,"production_kill_switch_pre_halted_observed":True,"trading_session_created":True,"expected_account_enumerated":True,"expected_account_occurrence_count":1,"trading_token_readonly_false_observed":True,"trading_token_write_boundary_confirmed":True,"remote_call_scope":"SESSION_CREATE_AND_DETAILS_ONLY","production_kill_switch_post_halted_observed":True,"trading_token_used":True,"readonly_token_used_for_remote_auth":False,"finam_authentication_performed":True,"order_endpoint_called":False,"order_count":0,"execution_authorized":False,"live_trading_authorized":False,"real_order_transmission_authorized":False,"stage8_10_status":"IN_PROGRESS","stage8_10_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"}
     check(token_acceptance == expected_token, "STAGE_8_10_7_MACHINE_AUTHORITY_EXACT")
     diagnostic=text("TradingSystemLab/stage8_robot/trading_token_intel_acceptance.py")
     token_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/validate-trading-token-intel-acceptance.ps1")
@@ -638,7 +638,7 @@ def audit(
     check(runtime_wiring,"STAGE_8_10_7_WRAPPER_NOT_RUNTIME_WIRED")
     check(report_contract,"STAGE_8_10_7_REPORT_CONTRACT")
     check(cleanup,"STAGE_8_10_7_CLEANUP_CONTRACT")
-    check(all(STAGE_8_10_7_STATUS in doc and "Stage 8.10.7 is **CODE READY / PENDING PHYSICAL VALIDATION**" in doc and "Stage 8.10.8 is **NOT STARTED**" in doc for doc in stage8_9_docs),"STAGE_8_10_7_CODE_READY_SYNCHRONIZED")
+    check(all(STAGE_8_10_7_STATUS in doc and "Stage 8.10.7 is **COMPLETE**" in doc and "Stage 8.10.8 is **NOT STARTED**" in doc for doc in stage8_9_docs),"STAGE_8_10_7_COMPLETE_SYNCHRONIZED")
     check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED")
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
@@ -734,9 +734,23 @@ def audit(
         "execution_authorized": False,
         "stage8_10_6_external_network_calls": 0,
         "stage8_10_7_status": STAGE_8_10_7_STATUS,
-        "stage8_10_7_physical_validation_performed": False,
-        "stage8_10_7_trading_token_used": False,
-        "stage8_10_7_finam_authentication_performed": False,
+        "stage8_10_7_accepted_code_commit": token_acceptance["accepted_code_commit"],
+        "stage8_10_7_external_evidence_sha256": token_acceptance["external_evidence_sha256"],
+        "stage8_10_7_physical_result": token_acceptance["physical_result"],
+        "stage8_10_7_physical_validation_performed": True,
+        "stage8_10_7_trading_dpapi_current_user_validated": True,
+        "stage8_10_7_local_readonly_trading_account_binding_validated": True,
+        "stage8_10_7_production_kill_switch_pre_halted_observed": True,
+        "stage8_10_7_trading_session_created": True,
+        "stage8_10_7_expected_account_enumerated": True,
+        "stage8_10_7_expected_account_occurrence_count": 1,
+        "stage8_10_7_trading_token_readonly_false_observed": True,
+        "stage8_10_7_trading_token_write_boundary_confirmed": True,
+        "stage8_10_7_remote_call_scope": "SESSION_CREATE_AND_DETAILS_ONLY",
+        "stage8_10_7_production_kill_switch_post_halted_observed": True,
+        "stage8_10_7_trading_token_used": True,
+        "stage8_10_7_readonly_token_used_for_remote_auth": False,
+        "stage8_10_7_finam_authentication_performed": True,
         "stage8_10_7_order_endpoint_called": False,
         "stage8_10_7_order_count": 0,
         "stage8_10_8_status": "NOT_STARTED",
