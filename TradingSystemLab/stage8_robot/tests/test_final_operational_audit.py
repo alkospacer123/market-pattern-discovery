@@ -368,11 +368,11 @@ def test_stage_8_10_1_status_removed_or_changed_fails():
     assert "STAGE_8_10_1_COMPLETE_SYNCHRONIZED" in result["errors"]
 
 
-def test_stage_8_10_falsely_complete_fails():
+def test_stage_8_10_completion_regression_fails():
     path = "TradingSystemLab/CURRENT_STATE.md"
     result = run_audit({path: source(path).replace(
-        "Stage 8.10 is **IN PROGRESS**", "Stage 8.10 is **COMPLETE**")})
-    assert "STAGE_8_10_IN_PROGRESS_NOT_COMPLETE" in result["errors"]
+        "Stage 8.10 is **COMPLETE**", "Stage 8.10 is **IN PROGRESS**")})
+    assert "STAGE_8_10_COMPLETE_SYNCHRONIZED" in result["errors"]
 
 
 def test_stage_8_10_2_complete_status_mutation_fails():
@@ -396,7 +396,7 @@ def test_top_level_readme_current_status_regressions_fail_both_audits():
         "NOT_STARTED",
     )
     for status in rejected:
-        mutation = original.replace(final.STAGE_8_10_7_STATUS, status, 1)
+        mutation = original.replace(final.STAGE_8_10_COMPLETE_STATUS, status, 1)
         result = run_audit({path: mutation})
         assert "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT" in result["errors"]
         stage8_result = stage8.audit(write_result=False, readme_text=mutation)
@@ -891,3 +891,43 @@ def test_trading_store_integrity_mutations_fail():
                           ("TradingSystemLab.Stage8.TradingToken.v1", "TradingSystemLab.Stage8.RealReadonly.v1")):
         result = run_audit({path: source(path).replace(before, after)})
         assert any(error.startswith("PROTECTED_IMPLEMENTATION_HASHES") for error in result["errors"])
+
+
+def test_stage_8_10_8_closeout_authority_mutations_fail_both_audits():
+    path = "TradingSystemLab/stage8_robot/authority_provenance.json"
+    authority = json.loads(source(path))
+    closeout_mutations = [
+        ("status", "WRONG"), ("stage8_10_complete", False), ("completed_gate_count", 6),
+        ("stage8_10_1_status", "WRONG"), ("stage8_10_2_status", "WRONG"),
+        ("stage8_10_3_status", "WRONG"), ("stage8_10_4_status", "WRONG"),
+        ("stage8_10_5_status", "WRONG"), ("stage8_10_6_status", "WRONG"),
+        ("stage8_10_7_status", "WRONG"), ("production_kill_switch_final_state", "ARMED"),
+        ("execution_authorized", True), ("order_endpoint_called", True), ("order_count", 1),
+        ("live_trading_authorized", True), ("real_order_transmission_authorized", True),
+        ("stage8_11_status", "STARTED"), ("stage8_12_status", "AUTHORIZED"),
+    ]
+    variants = []
+    missing = json.loads(json.dumps(authority)); del missing["stage8_10_8"]; variants.append(missing)
+    for key, value in closeout_mutations:
+        changed = json.loads(json.dumps(authority)); changed["stage8_10_8"][key] = value; variants.append(changed)
+    for changed in variants:
+        payload = json.dumps(changed)
+        assert "STAGE_8_10_8_MACHINE_AUTHORITY_EXACT" in stage8.audit(write_result=False, authority_text=payload)["errors"]
+        assert "STAGE_8_10_8_MACHINE_AUTHORITY_EXACT" in run_audit({path: payload})["errors"]
+
+
+def test_stage_8_10_closeout_document_regressions_fail():
+    paths = ("TradingSystemLab/CURRENT_STATE.md", "TradingSystemLab/PROJECT_CONTEXT.md",
+             "TradingSystemLab/ROADMAP.md", "TradingSystemLab/stage8_robot/README.md")
+    for path in paths:
+        original = source(path)
+        mutations = (
+            original.replace("Stage 8.10 is **COMPLETE**", "Stage 8.10 is **IN PROGRESS**"),
+            original.replace("Stage 8.10.8 is **COMPLETE**", "Stage 8.10.8 is **NOT STARTED**"),
+            original.replace("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**", "Stage 8.11 is **AUTHORIZED**"),
+            original.replace("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**", "Stage 8.12 is **STARTED**"),
+            original.replace(final.STAGE_8_10_COMPLETE_STATUS, "WRONG_CLOSEOUT_STATUS"),
+        )
+        for mutation in mutations:
+            result = run_audit({path: mutation})
+            assert result["status"] == "FAIL", (path, result)
