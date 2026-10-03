@@ -129,10 +129,14 @@ def audit(
         if not condition:
             errors.append(name)
 
-    docs_paths = ["TradingSystemLab/CURRENT_STATE.md", "TradingSystemLab/ROADMAP.md", "TradingSystemLab/stage8_robot/README.md"]
+    docs_paths = ["TradingSystemLab/CURRENT_STATE.md", "TradingSystemLab/ROADMAP.md",
+                  "TradingSystemLab/stage8_robot/README.md"]
     docs = [text(path) for path in docs_paths]
     normalized_docs = [" ".join(doc.split()) for doc in docs]
     joined_docs = "\n".join(docs)
+    stage8_9_docs_paths = [*docs_paths, "TradingSystemLab/PROJECT_CONTEXT.md"]
+    stage8_9_docs = [text(path) for path in stage8_9_docs_paths]
+    stage8_9_joined_docs = "\n".join(stage8_9_docs)
     spec = json.loads(text("TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/production_specification.json"))
     conformance = json.loads(text("TradingSystemLab/stage8_robot/conformance_report.json"))
     provenance = json.loads(text("TradingSystemLab/stage8_robot/authority_provenance.json"))
@@ -237,7 +241,7 @@ def audit(
                 "sizing_case_count = 8",
                 "positive_capacity_case_count = 4", "zero_capacity_case_count = 4",
                 "positive_batch_reservation_count = 1")
-    check(all(all(value in doc for value in required) for doc in docs),
+    check(all(all(value in doc for value in required) for doc in stage8_9_docs),
           "STAGE_8_9_10_COMPLETED_PROVENANCE_SYNCHRONIZED")
     lifecycle = provenance.get("stage8_9_8", {})
     closeout = provenance.get("stage8_9_10", {})
@@ -263,25 +267,37 @@ def audit(
                          "BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY", "ZERO_CONTRACT_CAPACITY")
     historical_labels = ("earlier", "previous", "historical", "old implementation", "pre-funding")
     stale_unlabelled = []
-    for path, doc in zip(docs_paths, docs):
+    for path, doc in zip(stage8_9_docs_paths, stage8_9_docs):
         for paragraph in re.split(r"\n\s*\n", doc):
             if any(token in paragraph for token in historical_tokens) and not any(
                 label in paragraph.lower() for label in historical_labels
             ):
                 stale_unlabelled.append(path)
     check(not stale_unlabelled, "STAGE_8_9_HISTORICAL_BLOCKERS_NOT_CURRENT")
-    check(all("Stage 8.9 is **COMPLETE**" in doc for doc in docs),
+    lifecycle_contradiction = re.compile(
+        r"Stage 8\.9.{0,120}(?:NOT\s+COMPLETE|CURRENT.{0,40}BLOCKED|must not be described.{0,40}complete)",
+        re.I | re.S,
+    )
+    active_contradictions = []
+    for path, doc in zip(stage8_9_docs_paths, stage8_9_docs):
+        for paragraph in re.split(r"\n\s*\n", doc):
+            if lifecycle_contradiction.search(paragraph) and not any(
+                label in paragraph.lower() for label in historical_labels
+            ):
+                active_contradictions.append(path)
+    check(not active_contradictions, "STAGE_8_9_NO_ACTIVE_LIFECYCLE_CONTRADICTION")
+    check(all("Stage 8.9 is **COMPLETE**" in doc for doc in stage8_9_docs),
           "STAGE_8_9_COMPLETE_SYNCHRONIZED")
-    check(all("Stage 8.10" in doc and "NOT STARTED / NOT AUTHORIZED" in doc for doc in docs)
+    check(all("Stage 8.10" in doc and "NOT STARTED / NOT AUTHORIZED" in doc for doc in stage8_9_docs)
           and closeout.get("stage8_10_status") == "NOT_STARTED_NOT_AUTHORIZED"
           and not re.search(r"Stage 8\.10.{0,40}(?:STARTED / AUTHORIZED|is authorized|has started)",
-                            joined_docs, re.I),
+                            stage8_9_joined_docs, re.I),
           "STAGE_8_10_NOT_STARTED_NOT_AUTHORIZED")
-    check("LIVE_TRADING_NOT_AUTHORIZED" in joined_docs
-          and "REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in joined_docs,
+    check("LIVE_TRADING_NOT_AUTHORIZED" in stage8_9_joined_docs
+          and "REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in stage8_9_joined_docs,
           "LIVE_AND_REAL_ORDER_TRANSMISSION_UNAUTHORIZED")
     false_full_claim = re.compile(r"(?:FULL/N4|FULL N4|FULL/R15).{0,40}(?:ready|sufficient|validated)", re.I)
-    check(not false_full_claim.search(joined_docs), "FULL_N4_FUNDING_READINESS_NOT_CLAIMED")
+    check(not false_full_claim.search(stage8_9_joined_docs), "FULL_N4_FUNDING_READINESS_NOT_CLAIMED")
 
     result = {
         "status": "PASS" if not errors else "FAIL", "checks": checks, "errors": errors,

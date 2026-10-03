@@ -28,9 +28,11 @@ def audit(write_result=True):
     credential_store=(HERE/"deploy/windows/credential-store.ps1").read_text(); credential_init=(HERE/"deploy/windows/initialize-readonly-credentials.ps1").read_text(); credential_verify=(HERE/"deploy/windows/verify-readonly-credentials.ps1").read_text(); task_installer=(HERE/"deploy/windows/install-task.ps1").read_text()
     conformance=json.loads((HERE/"conformance_report.json").read_text()); provenance=json.loads((HERE/"authority_provenance.json").read_text()); registry=(HERE/"production_instrument_registry.csv").read_text(); registry_rows=csv_rows(HERE/"production_instrument_registry.csv")
     current_state=(ROOT/"TradingSystemLab/CURRENT_STATE.md").read_text()
+    project_context=(ROOT/"TradingSystemLab/PROJECT_CONTEXT.md").read_text()
     readme=(HERE/"README.md").read_text()
     roadmap=(ROOT/"TradingSystemLab/ROADMAP.md").read_text()
-    closeout_docs="\n".join((current_state,readme,roadmap))
+    authoritative_docs=(current_state,project_context,readme,roadmap)
+    closeout_docs="\n".join(authoritative_docs)
     completed_status="STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE"
     accepted_code_sha="dc2b79e74817e71435eee20103ae617e13067d8e"
     evidence_sha="1A9B62D4BFC0E7384898C9DF9659E54E50E0E202BD44CE19413864AC2ECA14D6"
@@ -60,7 +62,7 @@ def audit(write_result=True):
               "positive_capacity_case_count = 4","zero_capacity_case_count = 4",
               "positive_batch_reservation_count = 1")
     check(all(all(value in document for value in required)
-              for document in (current_state,readme,roadmap)),
+              for document in authoritative_docs),
           "STAGE_8_9_10_COMPLETED_PROVENANCE_SYNCHRONIZED")
     lifecycle=provenance.get("stage8_9_8",{}); closeout=provenance.get("stage8_9_10",{})
     check(lifecycle.get("status")==stage8_9_8_status
@@ -71,6 +73,9 @@ def audit(write_result=True):
           and closeout.get("accepted_code_commit")==stage8_9_code
           and closeout.get("diagnostic_report_sha256")==stage8_9_report
           and closeout.get("physical_summary_sha256")==stage8_9_summary
+          and closeout.get("physical_result")=="STAGE_8_9_10_POST_FUNDING_REVALIDATION_PASS=1"
+          and closeout.get("funding_classification")=="STAGE_8_9_FUNDING_MARGIN_VALIDATED"
+          and closeout.get("reason")==stage8_9_reason
           and closeout.get("sizing_case_count")==8
           and closeout.get("positive_capacity_case_count")==4
           and closeout.get("zero_capacity_case_count")==4
@@ -81,17 +86,29 @@ def audit(write_result=True):
                        "BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY","ZERO_CONTRACT_CAPACITY")
     historical_labels=("earlier","previous","historical","old implementation","pre-funding")
     stale_unlabelled=[]
-    for name,document in (("CURRENT_STATE.md",current_state),("README.md",readme),("ROADMAP.md",roadmap)):
+    for name,document in (("CURRENT_STATE.md",current_state),("PROJECT_CONTEXT.md",project_context),
+                          ("README.md",readme),("ROADMAP.md",roadmap)):
         for paragraph in re.split(r"\n\s*\n",document):
             if any(token in paragraph for token in historical_tokens) and not any(
                     label in paragraph.lower() for label in historical_labels):
                 stale_unlabelled.append(name)
     check(not stale_unlabelled,"STAGE_8_9_HISTORICAL_BLOCKERS_NOT_CURRENT")
+    lifecycle_contradiction=re.compile(
+        r"Stage 8\.9.{0,120}(?:NOT\s+COMPLETE|CURRENT.{0,40}BLOCKED|must not be described.{0,40}complete)",
+        re.I|re.S)
+    active_contradictions=[]
+    for name,document in (("CURRENT_STATE.md",current_state),("PROJECT_CONTEXT.md",project_context),
+                          ("README.md",readme),("ROADMAP.md",roadmap)):
+        for paragraph in re.split(r"\n\s*\n",document):
+            if lifecycle_contradiction.search(paragraph) and not any(
+                    label in paragraph.lower() for label in historical_labels):
+                active_contradictions.append(name)
+    check(not active_contradictions,"STAGE_8_9_NO_ACTIVE_LIFECYCLE_CONTRADICTION")
     check(all("Stage 8.9 is **COMPLETE**" in document
-              for document in (current_state,readme,roadmap)),
+              for document in authoritative_docs),
           "STAGE_8_9_COMPLETE_SYNCHRONIZED")
     check(all("Stage 8.10" in document and "NOT STARTED / NOT AUTHORIZED" in document
-              for document in (current_state,readme,roadmap))
+              for document in authoritative_docs)
           and closeout.get("stage8_10_status")=="NOT_STARTED_NOT_AUTHORIZED"
           and not re.search(r"Stage 8\.10.{0,40}(?:STARTED / AUTHORIZED|is authorized|has started)",
                             closeout_docs,re.I),

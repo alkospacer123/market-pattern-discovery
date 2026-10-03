@@ -173,6 +173,13 @@ def test_stage_8_9_marked_incomplete_fails():
     assert "STAGE_8_9_COMPLETE_SYNCHRONIZED" in result["errors"]
 
 
+def test_stage_8_9_appended_active_incomplete_contradiction_fails():
+    path = "TradingSystemLab/CURRENT_STATE.md"
+    mutation = source(path) + "\n\nStage 8.9 is **NOT COMPLETE**.\n"
+    result = run_audit({path: mutation})
+    assert "STAGE_8_9_NO_ACTIVE_LIFECYCLE_CONTRADICTION" in result["errors"]
+
+
 def test_stage_8_10_started_or_authorized_fails():
     path = "TradingSystemLab/CURRENT_STATE.md"
     result = run_audit({path: source(path) + "\n\nStage 8.10 is STARTED / AUTHORIZED.\n"})
@@ -201,6 +208,11 @@ def test_stage_8_9_provenance_mutations_fail():
         (final.STAGE_8_9_CODE, "WRONG"),
         (final.STAGE_8_9_REPORT, "WRONG"),
         (final.STAGE_8_9_SUMMARY, "WRONG"),
+        ('"physical_result": "STAGE_8_9_10_POST_FUNDING_REVALIDATION_PASS=1"',
+         '"physical_result": "FAIL"'),
+        ('"funding_classification": "STAGE_8_9_FUNDING_MARGIN_VALIDATED"',
+         '"funding_classification": "WRONG"'),
+        ('"reason": "ALL_AUTHORITIES_VALID"', '"reason": "WRONG"'),
         ('"sizing_case_count": 8', '"sizing_case_count": 7'),
         ('"positive_capacity_case_count": 4', '"positive_capacity_case_count": 3'),
         ('"stage8_9_complete": true', '"stage8_9_complete": false'),
@@ -210,6 +222,7 @@ def test_stage_8_9_provenance_mutations_fail():
         result = run_audit({path: source(path).replace(before, after)})
         assert any(name in result["errors"] for name in (
             "STAGE_8_9_LIFECYCLE_COMPLETE", "STAGE_8_9_10_PROVENANCE_EXACT",
+            "STAGE_8_9_10_PHYSICAL_PASS_RECORDED",
             "STAGE_8_10_NOT_STARTED_NOT_AUTHORIZED"))
 
 

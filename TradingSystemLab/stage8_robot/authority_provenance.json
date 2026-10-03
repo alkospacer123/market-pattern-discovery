@@ -14,7 +14,7 @@
     "base_url": "https://api.finam.ru",
     "credential_binding": "READ_ONLY_PHYSICALLY_VALIDATED",
     "documentation": "https://api.finam.ru/docs/rest/",
-    "documentation_retrieval": "https://api.finam.ru/docs/rest/ and OpenAPI endpoints attempted 2026-10-01; HTTP CONNECT 403 in build environment; exact account/margin schema supplied as task authority and pending credential-backed confirmation",
+    "documentation_retrieval": "https://api.finam.ru/docs/rest/ and OpenAPI endpoints attempted 2026-10-01; HTTP CONNECT 403 in build environment; exact account/margin schema supplied as task authority; public documentation retrieval remained blocked, while credential-backed physical confirmation completed during Stage 8.9.10",
     "h1_history_depth": "approximately 30 days",
     "pagination": "no request token documented; none sent",
     "rate_limit": "200 requests/minute",
