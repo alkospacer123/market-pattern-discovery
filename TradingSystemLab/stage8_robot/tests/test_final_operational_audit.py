@@ -931,3 +931,60 @@ def test_stage_8_10_closeout_document_regressions_fail():
         for mutation in mutations:
             result = run_audit({path: mutation})
             assert result["status"] == "FAIL", (path, result)
+
+
+CANONICAL_STAGE_8_10_DOCS = (
+    "TradingSystemLab/CURRENT_STATE.md", "TradingSystemLab/PROJECT_CONTEXT.md",
+    "TradingSystemLab/ROADMAP.md", "TradingSystemLab/stage8_robot/README.md",
+)
+
+
+def _assert_document_mutation_fails_both(path, mutation, expected_error):
+    relative = path.removeprefix("TradingSystemLab/stage8_robot/")
+    if path.startswith("TradingSystemLab/") and not path.startswith("TradingSystemLab/stage8_robot/"):
+        relative = path.removeprefix("TradingSystemLab/")
+    independent = stage8.audit(write_result=False, source_overrides={relative: mutation, path: mutation})
+    operational = run_audit({path: mutation})
+    assert expected_error in independent["errors"], (path, independent)
+    assert expected_error in operational["errors"], (path, operational)
+
+
+@pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
+@pytest.mark.parametrize("bad_paragraph,expected_error", (
+    ("Stage 8.10.5 is the next gate.", "STAGE_8_10_NO_STALE_NEXT_GATE"),
+    ("Stage 8.10.8 is COMPLETE and is the next separate lifecycle gate.",
+     "STAGE_8_10_NO_STALE_NEXT_GATE"),
+    ("Stage 8.10.8 is COMPLETE; it was not implemented or executed here.",
+     "STAGE_8_10_NO_STALE_NEXT_GATE"),
+    ("Stage 8.10.7 is NOT STARTED.", "STAGE_8_10_HISTORICAL_SCOPE_CONSISTENT"),
+    ("Stage 8.10.7 is NOT STARTED while Stage 8.10.8 is COMPLETE.",
+     "STAGE_8_10_HISTORICAL_SCOPE_CONSISTENT"),
+    ("Stage 8.11 is STARTED.", "STAGE_8_10_HISTORICAL_SCOPE_CONSISTENT"),
+    ("Stage 8.11 is AUTHORIZED.", "STAGE_8_10_HISTORICAL_SCOPE_CONSISTENT"),
+))
+def test_stage_8_10_semantic_document_regressions_fail_both_audits(
+        path, bad_paragraph, expected_error):
+    _assert_document_mutation_fails_both(
+        path, source(path) + "\n\n" + bad_paragraph + "\n", expected_error)
+
+
+@pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
+def test_stage_8_10_current_handoff_stale_gate_and_omission_fail_both_audits(path):
+    original = source(path)
+    stale = original.replace(
+        "The next possible lifecycle gate is Stage 8.11",
+        "Stage 8.10 is COMPLETE, but the next possible lifecycle gate is Stage 8.10.5")
+    _assert_document_mutation_fails_both(path, stale, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
+    omitted = original.replace("- Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**.\n", "")
+    _assert_document_mutation_fails_both(path, omitted, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
+
+
+@pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
+def test_stage_8_10_clearly_scoped_historical_text_passes_both_audits(path):
+    historical = source(path) + ("\n\nIn this historical snapshot, Stage 8.10.7 was "
+                                 "NOT STARTED. Subsequently, Stage 8.10.8 completed; "
+                                 "current authority is recorded below.\n")
+    independent = stage8.audit(write_result=False, source_overrides={path: historical})
+    operational = run_audit({path: historical})
+    assert independent["status"] == "PASS", (path, independent)
+    assert operational["status"] == "PASS", (path, operational)
