@@ -48,6 +48,7 @@ STAGE_8_10_4_STATUS = "STAGE_8_10_4_PERMISSION_BOUNDARY_COMPLETE"
 STAGE_8_10_5_STATUS = "STAGE_8_10_5_ORDER_PATH_DRY_VALIDATION_COMPLETE"
 STAGE_8_10_6_STATUS = "STAGE_8_10_6_KILL_SWITCH_SAFETY_GATES_COMPLETE"
 STAGE_8_10_7_STATUS = "STAGE_8_10_7_INTEL_TRADING_TOKEN_ACCEPTANCE_COMPLETE"
+STAGE_8_10_COMPLETE_STATUS = "STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE"
 STAGE_8_9_8_STATUS = "STAGE_8_9_8_COMPLETE"
 STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
 STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
@@ -437,7 +438,8 @@ def audit(
     dry_gate = provenance.get("stage8_10_5", {})
     safety_gate = provenance.get("stage8_10_6", {})
     token_acceptance = provenance.get("stage8_10_7", {})
-    check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_7_STATUS,
+    lifecycle_closeout = provenance.get("stage8_10_8", {})
+    check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_COMPLETE_STATUS,
           "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT")
     check(lifecycle.get("status") == STAGE_8_9_8_STATUS
           and lifecycle.get("stage8_9_9") == "PHYSICAL_REVALIDATION_COMPLETE"
@@ -451,7 +453,8 @@ def audit(
           and closeout.get("positive_capacity_case_count") == 4
           and closeout.get("zero_capacity_case_count") == 4
           and closeout.get("positive_batch_reservation_count") == 1
-          and closeout.get("stage8_9_complete") is True,
+          and closeout.get("stage8_9_complete") is True
+          and closeout.get("stage8_10_status") == "IN_PROGRESS",
           "STAGE_8_9_10_PROVENANCE_EXACT")
     check(closeout.get("physical_result") == "STAGE_8_9_10_POST_FUNDING_REVALIDATION_PASS=1"
           and closeout.get("funding_classification") == "STAGE_8_9_FUNDING_MARGIN_VALIDATED"
@@ -490,10 +493,8 @@ def audit(
           and preconditions.get("trading_token_provisioned") is False
           and preconditions.get("trading_token_used") is False,
           "STAGE_8_10_1_MACHINE_AUTHORITY_EXACT")
-    check(all("Stage 8.10 is **IN PROGRESS**" in doc for doc in stage8_9_docs)
-          and closeout.get("stage8_10_status") == "IN_PROGRESS"
-          and not re.search(r"Stage 8\.10 is \*\*COMPLETE\*\*", stage8_9_joined_docs, re.I),
-          "STAGE_8_10_IN_PROGRESS_NOT_COMPLETE")
+    check(all("Stage 8.10 is **COMPLETE**" in doc for doc in stage8_9_docs),
+          "STAGE_8_10_COMPLETE_SYNCHRONIZED")
     check(all("Stage 8.10.2 is **COMPLETE**" in doc
               and STAGE_8_10_2_STATUS in doc
               and STAGE_8_10_2_CODE in doc
@@ -638,7 +639,18 @@ def audit(
     check(runtime_wiring,"STAGE_8_10_7_WRAPPER_NOT_RUNTIME_WIRED")
     check(report_contract,"STAGE_8_10_7_REPORT_CONTRACT")
     check(cleanup,"STAGE_8_10_7_CLEANUP_CONTRACT")
-    check(all(STAGE_8_10_7_STATUS in doc and "Stage 8.10.7 is **COMPLETE**" in doc and "Stage 8.10.8 is **NOT STARTED**" in doc for doc in stage8_9_docs),"STAGE_8_10_7_COMPLETE_SYNCHRONIZED")
+    check(all(STAGE_8_10_7_STATUS in doc and "Stage 8.10.7 is **COMPLETE**" in doc and "Stage 8.10.8 is **COMPLETE**" in doc for doc in stage8_9_docs),"STAGE_8_10_7_COMPLETE_SYNCHRONIZED")
+    expected_closeout={"status":STAGE_8_10_COMPLETE_STATUS,"stage8_10_complete":True,"completed_gate_count":7,
+        "stage8_10_1_status":STAGE_8_10_1_STATUS,"stage8_10_2_status":STAGE_8_10_2_STATUS,
+        "stage8_10_3_status":STAGE_8_10_3_STATUS,"stage8_10_4_status":STAGE_8_10_4_STATUS,
+        "stage8_10_5_status":STAGE_8_10_5_STATUS,"stage8_10_6_status":STAGE_8_10_6_STATUS,
+        "stage8_10_7_status":STAGE_8_10_7_STATUS,"production_kill_switch_final_state":"HALTED",
+        "execution_authorized":False,"order_endpoint_called":False,"order_count":0,
+        "live_trading_authorized":False,"real_order_transmission_authorized":False,
+        "stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"}
+    check(lifecycle_closeout == expected_closeout, "STAGE_8_10_8_MACHINE_AUTHORITY_EXACT")
+    check(all(STAGE_8_10_COMPLETE_STATUS in doc for doc in stage8_9_docs),
+          "STAGE_8_10_CLOSEOUT_STATUS_SYNCHRONIZED")
     check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED")
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
@@ -681,7 +693,7 @@ def audit(
         "stage8_9_positive_capacity_case_count": 4,
         "stage8_9_zero_capacity_case_count": 4,
         "stage8_9_positive_batch_reservation_count": 1,
-        "stage8_10_status": "IN_PROGRESS", "stage8_10_1_status": STAGE_8_10_1_STATUS,
+        "stage8_10_status": STAGE_8_10_COMPLETE_STATUS, "stage8_10_1_status": STAGE_8_10_1_STATUS,
         "stage8_10_2_status": STAGE_8_10_2_STATUS,
         "stage8_10_2_accepted_code_commit": STAGE_8_10_2_CODE,
         "stage8_10_2_external_evidence_sha256": STAGE_8_10_2_EVIDENCE,
@@ -753,7 +765,15 @@ def audit(
         "stage8_10_7_finam_authentication_performed": True,
         "stage8_10_7_order_endpoint_called": False,
         "stage8_10_7_order_count": 0,
-        "stage8_10_8_status": "NOT_STARTED",
+        "stage8_10_8_status": lifecycle_closeout.get("status"),
+        "stage8_10_complete": True,
+        "stage8_10_completed_gate_count": 7,
+        "stage8_10_production_kill_switch_final_state": "HALTED",
+        "stage8_10_execution_authorized": False,
+        "stage8_10_order_endpoint_called": False,
+        "stage8_10_order_count": 0,
+        "stage8_10_live_trading_authorized": False,
+        "stage8_10_real_order_transmission_authorized": False,
         "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_9_complete": True, "stage8_9_physical_validation_performed": True,
