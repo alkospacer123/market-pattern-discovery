@@ -1,7 +1,7 @@
 # Canonical research, production, and operational methodology
 
 This file defines durable TradingSystemLab rules. Historical research identities
-and verdicts are immutable; production/operational work must fail closed.
+and verdicts are immutable; production and execution progression must fail closed.
 
 ## 1. Canonical research lifecycle
 
@@ -11,41 +11,31 @@ Candidate freeze is identity fixation, not an extra research phase.
 
 ## 2. Research identity and OOS discipline
 
-A research identity binds strategy source/hash, parameters/hash, universe,
-timeframe/context alignment, date bounds, execution/cost assumptions and
-classification rules.
+A research identity binds source/hash, parameters/hash, universe, timeframe/context,
+date bounds, execution/cost assumptions and classification rules.
 
-After candidate freeze it remains immutable through Robustness, Walk Forward and
-TRUE OOS. Revealed TRUE OOS is consumed and cannot become fresh OOS for a later
-modified identity.
+After freeze, identity remains immutable through Robustness, Walk Forward and TRUE OOS.
+Revealed TRUE OOS is consumed and cannot become fresh OOS for a modified identity.
 
 v1/v2/v3 historical verdicts remain immutable.
 
 ## 3. Causality and determinism
 
-- no look-ahead or future-fill;
-- only completed context bars are visible;
-- signal/entry/stop/trailing semantics are deterministic;
-- event ordering, trade IDs and serialization are deterministic;
-- source data remain external/read-only unless explicitly authorized otherwise.
+- no look-ahead or future fill;
+- completed bars/context only;
+- deterministic signal/entry/stop/trailing semantics;
+- deterministic event ordering, trade IDs, serialization and reruns;
+- source data external/read-only unless explicitly authorized otherwise.
 
-## 4. Post-v3 retrospective evidence
+## 4. Stage 7 production authority
 
-Stages 1–6.x are evidence-to-production analysis, not a second OOS lifecycle.
-Stage 5 retrospective economic authority remains `CORRECTED_SINGLE_C1`.
-
-Structural and basket reassessments that used 2025–2026 are retrospective.
-Admitted structural rules are not automatically production-approved.
-
-## 5. Stage 7 production authority
-
-Production specification:
+Frozen production specification:
 `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`.
 
 Active identity:
 `TRAIL1__N4_01__FULL__R15`.
 
-Frozen production semantics:
+Frozen semantics:
 
 - v3 perpetual / T3 / H1;
 - USDRUBF + CNYRUBF + GLDRUBF + IMOEXF;
@@ -53,174 +43,199 @@ Frozen production semantics:
 - FULL load;
 - R15 = 1.5% current realized-equity risk per new position;
 - maximum nominal simultaneous initial risk 6%;
+- realized equity only;
 - one active position per instrument;
 - no pyramiding;
 - no session filter;
-- no canonical fallback;
-- unrealized PnL excluded from sizing.
+- no canonical fallback.
 
-`CANONICAL__N4_01__FULL__R15` is reference evidence only.
+Runtime overlays not in Stage 7 may not be silently activated.
 
-Runtime overlays not included in the frozen production specification may not be
-silently activated.
+## 5. Stage 8 implementation principle
+
+Stage 8 implements and operationally validates the exact Stage 7 identity.
+It is not a strategy-selection or optimization stage.
+
+All Stage 8 progression is gated. A later stage may only rely on prior accepted
+authority and must not weaken fail-closed controls.
 
 ## 6. Research-to-robot conformance
 
-Stage 8 must reproduce Stage 7 before broker activation.
+Before broker readiness, the robot must reproduce frozen Stage 7 research authority.
 
-Required evidence includes exact trade count, timestamps, direction, prices,
-state, R, deterministic reruns, immutable strategy parameters and no fallback
-identity.
+Accepted conformance is 418/418 exact trades in both authority and production replay,
+with deterministic hashes and zero mismatch classes.
 
-Accepted conformance reproduces 418/418 trades exactly in both authority replay
-and production replay.
+This establishes implementation fidelity, not permission to trade.
 
-## 7. Fail-closed Stage 8 architecture
+## 7. Fail-closed architecture
 
-- LIVE cannot be enabled by routine runtime configuration.
+- LIVE cannot be enabled by routine configuration.
 - REAL_READONLY cannot transmit orders.
-- unresolved binding blocks progression.
-- reconciliation failure blocks entries.
-- stale/invalid market data blocks entries.
-- missing/invalid financial authority blocks sizing.
-- zero contract capacity blocks readiness.
+- unresolved binding/reconciliation/data/financial authority blocks progression.
+- zero or invalid capacity blocks sizing/readiness.
 - duplicate intents/orders are prevented by persisted idempotency.
-
-Intent is persisted before submission. Exit/fee realization precedes later
-same-timestamp entry sizing.
+- order intent is persisted before submission.
+- exits/fees precede later same-timestamp entry sizing.
 
 ## 8. Stage 8.8 operational hardening
 
 Stage 8.8 operational hardening is COMPLETE.
 Stages 8.8.1, 8.8.2, 8.8.3, 8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE.
 
-Accepted controls include:
+Operational authority includes:
 
-- REAL_READONLY operational supervisor;
-- CurrentUser DPAPI credentials;
-- matched non-SYSTEM task principal and ACL hardening;
+- REAL_READONLY supervisor;
+- CurrentUser DPAPI credential storage;
+- task-principal/ACL hardening;
 - schedule-aware H1 freshness;
 - stale-data fault/recovery;
-- fail-closed SQLite backup/recovery;
-- Windows WAL/handle correctness;
-- final physical Intel operational acceptance.
+- SQLite backup/recovery and Windows WAL correctness;
+- physical Intel final operational acceptance.
 
-Repository-side tests are evidence of code behavior; physical Intel acceptance is
-separate evidence and is required for operational closure.
+Completion of Stage 8.8 does not authorize execution.
 
-## 9. H1 freshness rule
+## 9. FINAM financial authority
 
-Expected H1 completion is derived from authenticated FINAM schedules rather than
-wall-clock assumptions.
-
-Only a completed one-hour interval wholly contained in a valid session creates an
-expected bar. Closed weekends, empty schedules, future sessions and schedule gaps
-do not create synthetic expectations. Malformed schedule evidence fails closed.
-
-`STALE_COMPLETED_H1_DATA` must:
-
-- produce `UNHEALTHY` / `FAULT`;
-- keep entries disabled;
-- not advance successful cycle/H1 state;
-- never call order-capable paths;
-- clear only after authenticated fresh data recovery.
-
-## 10. State backup and recovery
-
-SQLite backup/recovery must be identity-bound, checksummed, schema-validated,
-single-instance protected and non-destructive on restore failure.
-
-Recovery must correctly handle WAL/SHM state and Windows file-handle semantics.
-
-## 11. FINAM account authority is account-type aware
-
-Funding authority is not hardcoded to one portfolio family.
+Account financial authority is account-type aware.
 
 For the active production account:
 
 - account type is `UNION`;
-- exactly one `portfolio_mc` is the authenticated financial authority;
+- exactly one `portfolio_mc` is authoritative;
 - supported FORTS accounts may use `portfolio_forts` where applicable;
-- mismatched/unknown oneof shapes fail closed.
+- unknown or mismatched portfolio shapes fail closed.
 
-Earlier FORTS-only assumptions are historical implementation evidence, not
-current authority.
+Earlier FORTS-only assumptions are historical evidence only.
 
-## 12. Stage 8.9 funding and margin validation
+## 10. Stage 8.9 funding / margin validation
 
-Stage 8.9 separates four concepts that must never be conflated:
+Stage 8.9 is **COMPLETE** under
+`STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE`.
 
-1. authenticated account financial schema;
-2. authenticated equity/margin values;
-3. correct sizing arithmetic/batch-budget behavior;
-4. actual positive contract capacity under frozen Stage 7 risk.
+Accepted physical result:
+`STAGE_8_9_10_POST_FUNDING_REVALIDATION_PASS=1`.
+Reason: `ALL_AUTHORITIES_VALID`.
 
-Passing 1–3 does **not** imply 4.
+Accepted counts:
 
-Stage 8.9.8 established the corrected UNION/`portfolio_mc` authority.
-Stage 8.9.9 physically revalidated the corrected model.
+- `sizing_case_count = 8`;
+- `positive_capacity_case_count = 4`;
+- `zero_capacity_case_count = 4`;
+- `positive_batch_reservation_count = 1`.
 
-The current physical result has `positive_capacity_case_count = 0`.
+Stage 8.9 proves authenticated funding/margin authority and at least one positive
+contract-capacity case. It does not prove positive capacity for every N4 instrument,
+simultaneous all-N4 capacity, or execution permission.
 
-Therefore current status is
-`BLOCKED_INSUFFICIENT_CONTRACT_CAPACITY` with reason
-`ZERO_CONTRACT_CAPACITY`.
+Stage 7 R15 risk may not be increased automatically to manufacture capacity.
 
-Zero capacity is a distinct readiness blocker. It must not be relabeled
-funding-ready, nor used to justify loosening Stage 7 risk automatically.
+## 11. Trading credential separation
 
-## 13. Risk and sizing discipline
+READ_ONLY and Trading Token credentials are separate security authorities.
 
-`FROZEN_TICK_SIZE = 0.001` and C1 remain historical research-normalization/
-evidence concepts where applicable; they are not the live fee model.
+Rules:
 
-Stage 7 R15 risk cannot be increased merely to manufacture positive capacity.
-Stage 8 may only cap quantity downward using authenticated cash/margin/lot
-constraints.
+- both remain outside Git/logs/command-line arguments;
+- both are bound to production/account identity;
+- they may not silently substitute for one another;
+- possession/provisioning/authentication does not authorize execution;
+- Trading Token write permission is not equivalent to order acceptance.
 
-Unknown or zero capacity must fail closed.
+## 12. Stage 8.10 lifecycle semantics
 
-## 14. Credential and secret discipline
+Stage 8.10 is **COMPLETE** under
+`STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE`.
 
-Secrets never enter Git, logs or command-line arguments.
+Stage 8.10.1 through Stage 8.10.8 are **COMPLETE**.
 
-Windows readonly credentials use DPAPI `CurrentUser`, are production-ID-bound,
-principal/SID-bound and ACL-hardened. Tampering, wrong identity or invalid
-security state fails closed.
+Accepted progression:
 
-## 15. Live authorization boundary
+- 8.10.1 Preconditions;
+- 8.10.2 secure Trading Token provisioning;
+- 8.10.3 identity/account binding;
+- 8.10.4 READ_ONLY vs Trading Token permission-boundary validation;
+- 8.10.5 offline synthetic order-path construction/serialization;
+- 8.10.6 fail-closed kill switch and safety gates;
+- 8.10.7 Intel Trading Token session acceptance;
+- 8.10.8 repository-only lifecycle closeout.
+
+## 13. Order-path evidence boundary
+
+Stage 8.10.5 validates local deterministic order construction/serialization only.
+
+A synthetic intercepted POST is not:
+
+- a real FINAM order request;
+- broker acceptance;
+- exchange acceptance;
+- fill/cancel validation;
+- permission to transmit a real order.
+
+Real order endpoint count remains zero through Stage 8.10.
+
+## 14. Kill-switch and execution authority
+
+The production kill switch is an independent durable fail-closed control.
+
+Canonical safe state is `HALTED`.
+
+`ARMED` alone never authorizes trading. Exact separate execution authorization is also required.
+
+Final Stage 8.10 accepted values:
+
+- kill switch = `HALTED`;
+- `execution_authorized = false`;
+- `real_order_endpoint_called = false`;
+- `real_order_count = 0`.
+
+Missing/malformed/mismatched kill-switch state must block new entries.
+
+## 15. Trading Token Intel acceptance boundary
+
+Stage 8.10.7 validated Trading Token 1 on Intel with remote scope restricted to
+`SESSION_CREATE_AND_DETAILS_ONLY`.
+
+`readonly=false` validates only the token/session write-permission boundary.
+It does not prove order permission or execution authorization.
+
+The kill switch remained `HALTED` before and after authentication.
+
+## 16. Stage 8.10 closeout boundary
+
+Stage 8.10.8 is repository-only closeout and creates no new physical execution authority.
+
+Stage 8.10 completion does not authorize Stage 8.11.
+
+Stage 8.11 — Controlled Real Execution Acceptance — is **NOT STARTED / NOT AUTHORIZED**.
+Stage 8.12 — FULL/R15 Production Authorization — is **NOT STARTED / NOT AUTHORIZED**.
+
+Stage 8.11 is the first possible real-order gate, but it requires separate explicit authorization.
+
+## 17. Live authorization boundary
 
 `LIVE_TRADING_NOT_AUTHORIZED` remains authoritative.
 `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remains authoritative.
 
-Stage 8.10 trading-token integration is not started/authorized. Stage 8.11/8.12
-execution is not authorized.
-
-Do not infer live authorization from:
+Do not infer real-order or LIVE authorization from:
 
 - Stage 7 freeze;
 - exact historical replay;
-- authenticated instrument binding;
-- Stage 8.8 physical operational acceptance;
-- Stage 8.9 financial-schema validation.
+- REAL_READONLY binding;
+- Stage 8.8 operational acceptance;
+- Stage 8.9 funding validation;
+- Trading Token provisioning/authentication;
+- `readonly=false` permission evidence;
+- offline order-path validation;
+- Stage 8.10 completion.
 
-## 16. Current progression rule
+## 18. Domain separation
 
-Stage 8.9 is not complete while `ZERO_CONTRACT_CAPACITY` remains.
+TradingSystemLab remains separate from BBW, Level Touch, Round Level / Touch, and other projects.
 
-Do not advance automatically to Stage 8.10. Any capacity-resolution work requires
-explicit user authorization and independent audit, while preserving frozen Stage
-7 identity and fail-closed semantics.
+## 19. Evidence standard
 
-## 17. Domain separation
+Use actual source/config/manifests/replay/audit and external-evidence hashes according
+to `AUDIT_PROTOCOL.md`. Summary prose alone is not evidence.
 
-TradingSystemLab remains separate from BBW, Level Touch, Round Level / Touch and
-other research domains.
-
-## 18. Evidence standard
-
-Use actual source/config/manifests/ledgers/replay/audit and external-evidence
-hashes according to `AUDIT_PROTOCOL.md`. Summary prose alone is not evidence.
-
-Routine current-state updates belong primarily in `CURRENT_STATE.md` and
-`ROADMAP.md`.
+Routine lifecycle status belongs primarily in `CURRENT_STATE.md` and `ROADMAP.md`.
