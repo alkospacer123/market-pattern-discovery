@@ -83,7 +83,17 @@
     "zero_capacity_case_count": 4,
     "positive_batch_reservation_count": 1,
     "stage8_9_complete": true,
-    "stage8_10_status": "NOT_STARTED_NOT_AUTHORIZED",
+    "stage8_10_status": "IN_PROGRESS",
     "status": "STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE"
+  },
+  "stage8_10_1": {
+    "order_count": 0,
+    "stage8_10_2_status": "NOT_STARTED_NOT_AUTHORIZED",
+    "stage8_10_3_through_8_status": "NOT_STARTED",
+    "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
+    "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
+    "status": "STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE",
+    "trading_token_provisioned": false,
+    "trading_token_used": false
   }
 }
