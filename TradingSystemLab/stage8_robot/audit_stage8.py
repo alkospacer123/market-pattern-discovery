@@ -10,7 +10,10 @@ from TradingSystemLab.stage8_robot.readonly_supervisor import (SafetyFault,newes
                                                                trading_h1_windows)
 def csv_rows(path):
     with path.open(newline="") as stream:return list(csv.DictReader(stream))
-def audit(write_result=True):
+def current_readme_status(document):
+    match=re.search(r"^\*\*Status:\*\*\s+`([^`]+)`",document,re.M)
+    return match.group(1) if match else None
+def audit(write_result=True,readme_text=None):
     errors=[]; checks=0
     def check(ok,name):
         nonlocal checks; checks+=1
@@ -30,7 +33,7 @@ def audit(write_result=True):
     conformance=json.loads((HERE/"conformance_report.json").read_text()); provenance=json.loads((HERE/"authority_provenance.json").read_text()); registry=(HERE/"production_instrument_registry.csv").read_text(); registry_rows=csv_rows(HERE/"production_instrument_registry.csv")
     current_state=(ROOT/"TradingSystemLab/CURRENT_STATE.md").read_text()
     project_context=(ROOT/"TradingSystemLab/PROJECT_CONTEXT.md").read_text()
-    readme=(HERE/"README.md").read_text()
+    readme=readme_text if readme_text is not None else (HERE/"README.md").read_text()
     roadmap=(ROOT/"TradingSystemLab/ROADMAP.md").read_text()
     authoritative_docs=(current_state,project_context,readme,roadmap)
     closeout_docs="\n".join(authoritative_docs)
@@ -126,6 +129,8 @@ def audit(write_result=True):
           and not re.search(r"Stage 8\.10 is \*\*COMPLETE\*\*",closeout_docs,re.I),
           "STAGE_8_10_IN_PROGRESS_NOT_COMPLETE")
     stage8_10_2_status="STAGE_8_10_2_SECURE_PROVISIONING_CODE_READY_PENDING_PHYSICAL_PROVISIONING"
+    check(current_readme_status(readme)==stage8_10_2_status,
+          "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT")
     check(all("Stage 8.10.2 is **CODE READY / PENDING PHYSICAL PROVISIONING**" in document
               and stage8_10_2_status in document for document in authoritative_docs),
           "STAGE_8_10_2_CODE_READY_SYNCHRONIZED")

@@ -1,6 +1,9 @@
 from pathlib import Path
+import sys
 
 from TradingSystemLab.stage8_robot import final_operational_audit as final
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from TradingSystemLab.stage8_robot import audit_stage8 as stage8
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -199,6 +202,24 @@ def test_stage_8_10_2_code_ready_status_mutation_fails():
         "Stage 8.10.2 is **CODE READY / PENDING PHYSICAL PROVISIONING**",
         "Stage 8.10.2 is **PHYSICALLY COMPLETE**")})
     assert "STAGE_8_10_2_CODE_READY_SYNCHRONIZED" in result["errors"]
+
+
+def test_top_level_readme_current_status_regressions_fail_both_audits():
+    path = "TradingSystemLab/stage8_robot/README.md"
+    original = source(path)
+    rejected = (
+        final.STAGE_8_9_STATUS,
+        final.STAGE_8_10_1_STATUS,
+        "STAGE_8_10_2_SECURE_PROVISIONING_COMPLETE",
+        "STAGE_8_10_COMPLETE",
+        "STAGE_8_10_3_TRADING_AUTHENTICATION_COMPLETE",
+    )
+    for status in rejected:
+        mutation = original.replace(final.STAGE_8_10_2_STATUS, status, 1)
+        result = run_audit({path: mutation})
+        assert "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT" in result["errors"]
+        stage8_result = stage8.audit(write_result=False, readme_text=mutation)
+        assert "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT" in stage8_result["errors"]
 
 
 def test_later_execution_stages_started_or_authorized_fail():
