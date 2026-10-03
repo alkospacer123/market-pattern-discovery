@@ -1,5 +1,5 @@
 {
-  "checks": 62,
+  "checks": 63,
   "errors": [],
   "finam_authentication_performed": false,
   "intel_final_acceptance_performed": true,
@@ -43,7 +43,7 @@
   "stage8_9_started": true,
   "stage8_9_status": "STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE",
   "stage8_9_zero_capacity_case_count": 4,
-  "stage8_audit_checks": 159,
+  "stage8_audit_checks": 160,
   "stage8_audit_status": "PASS",
   "status": "PASS",
   "trading_token_provisioned": false,
