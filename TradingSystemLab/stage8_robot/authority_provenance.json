@@ -164,5 +164,22 @@
     "stage8_10_6_through_8_status": "NOT_STARTED",
     "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
     "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
+  },
+  "stage8_10_5": {
+    "status": "STAGE_8_10_5_ORDER_PATH_DRY_VALIDATION_CODE_READY_PENDING_PHYSICAL_VALIDATION",
+    "physical_validation_performed": false,
+    "offline_dry_validation_performed": false,
+    "order_path_dry_validation_validated": false,
+    "real_order_endpoint_called": false,
+    "real_order_count": 0,
+    "external_network_calls": 0,
+    "trading_token_used_for_stage8_10_5": false,
+    "readonly_token_used_for_stage8_10_5": false,
+    "finam_authentication_performed_for_stage8_10_5": false,
+    "stage8_10_status": "IN_PROGRESS",
+    "stage8_10_6_status": "NOT_STARTED",
+    "stage8_10_7_through_8_status": "NOT_STARTED",
+    "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
+    "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
   }
 }

@@ -45,6 +45,7 @@ STAGE_8_10_2_EVIDENCE = "E5FEA93CE28006BC5ADA19F1AA1C1C365FF7CF4BE48A5A1B8BC8C55
 STAGE_8_10_2_RESULT = "STAGE_8_10_2_PHYSICAL_SECURE_PROVISIONING_LOCAL_PASS"
 STAGE_8_10_3_STATUS = "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE"
 STAGE_8_10_4_STATUS = "STAGE_8_10_4_PERMISSION_BOUNDARY_COMPLETE"
+STAGE_8_10_5_STATUS = "STAGE_8_10_5_ORDER_PATH_DRY_VALIDATION_CODE_READY_PENDING_PHYSICAL_VALIDATION"
 STAGE_8_9_8_STATUS = "STAGE_8_9_8_COMPLETE"
 STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
 STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
@@ -63,6 +64,8 @@ def current_readme_status(document: str) -> str | None:
 # status documents are intentionally excluded: they are outputs/metadata for
 # this gate, not executable or frozen Stage 7 authorities.
 PROTECTED_SHA256 = {
+    "TradingSystemLab/stage8_robot/order_path_dry_validation.py": "2e4a514d2e7acaa2aa871eb62216f7bfb6321246509730a19ce6f1cb9b64064a",
+    "TradingSystemLab/stage8_robot/deploy/windows/validate-order-path-dry.ps1": "941eaef1e386dd1bb3fc8379a6ba787eef9d5f61ff7163e39baed75f43b20686",
     "TradingSystemLab/stage8_robot/trading_permission_boundary.py": "609baa9dda8859486cfdef204c99748088425c70c65895074bbb993df17b6624",
     "TradingSystemLab/stage8_robot/deploy/windows/validate-trading-permission-boundary.ps1": "c4a086e1a8ae955056bb12053d5df9f3b2de9e4106ea6ba640c6e3f2e78a4e33",
     "TradingSystemLab/stage8_robot/trading_identity_binding.py": "1303459b636c99ae7fea4e2e62863888f56ad0e12ca8311a47782a354069167e",
@@ -245,7 +248,7 @@ def audit(
         runtime_suffix = lower.endswith((".sqlite3", "-wal", "-shm", ".dpapi", ".jwt"))
         external_acceptance = "acceptance" in name and name.endswith(".json") and "tests/" not in lower
         external_stage8_9 = ("stage8_9" in name or "funding_margin_validation" in name) and name.endswith(".json")
-        external_stage8_10_3 = name in {"stage8_10_3_identity_account_binding.json", "stage8_10_4_permission_boundary.json"}
+        external_stage8_10_3 = name in {"stage8_10_3_identity_account_binding.json", "stage8_10_4_permission_boundary.json", "stage8_10_5_order_path_dry_validation.json"}
         raw_capture = any(term in name for term in ("raw_finam", "account_response", "real_market_capture", "stale_h1_evidence"))
         credential = any(term in name for term in ("credential", "secret")) and not lower.endswith((".py", ".ps1", ".md", ".example"))
         trading_token = any(term in name for term in ("trading_token", "trading-token", "token_1", "token1")) and lower.endswith((".json", ".txt", ".bin", ".blob", ".dpapi", ".env"))
@@ -272,7 +275,8 @@ def audit(
     provisioning = provenance.get("stage8_10_2", {})
     identity_binding = provenance.get("stage8_10_3", {})
     permission_boundary = provenance.get("stage8_10_4", {})
-    check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_4_STATUS,
+    dry_gate = provenance.get("stage8_10_5", {})
+    check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_5_STATUS,
           "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT")
     check(lifecycle.get("status") == STAGE_8_9_8_STATUS
           and lifecycle.get("stage8_9_9") == "PHYSICAL_REVALIDATION_COMPLETE"
@@ -423,7 +427,11 @@ def audit(
     forbidden_permission_calls = {"orders","order","place_order","cancel_order","submit_order","account","assets","assets_all_active","asset","asset_params","schedule","bars"}
     check(not permission_calls.intersection(forbidden_permission_calls) and {"create_session","session_details"}.issubset(permission_calls), "STAGE_8_10_4_SESSION_ONLY_NO_ORDER_CAPABILITY")
     check("trading_permission_boundary" not in launcher + installer and all(term not in permission_wrapper.lower() for term in ("run-readonly","install-task","scheduledtask","runner","broker","/orders","place_order","cancel_order","submit_order")), "STAGE_8_10_4_NOT_RUNTIME_OR_TASK_WIRED")
-    check(all(all(f"Stage 8.10.{number} is **NOT STARTED**" in doc for number in range(5, 9)) for doc in stage8_9_docs), "STAGE_8_10_5_THROUGH_8_NOT_STARTED")
+    check(all(STAGE_8_10_5_STATUS in doc and "Stage 8.10.5 is **CODE READY / PENDING PHYSICAL VALIDATION**" in doc for doc in stage8_9_docs), "STAGE_8_10_5_CODE_READY_SYNCHRONIZED")
+    check(dry_gate == {"status":STAGE_8_10_5_STATUS,"physical_validation_performed":False,"offline_dry_validation_performed":False,"order_path_dry_validation_validated":False,"real_order_endpoint_called":False,"real_order_count":0,"external_network_calls":0,"trading_token_used_for_stage8_10_5":False,"readonly_token_used_for_stage8_10_5":False,"finam_authentication_performed_for_stage8_10_5":False,"stage8_10_status":"IN_PROGRESS","stage8_10_6_status":"NOT_STARTED","stage8_10_7_through_8_status":"NOT_STARTED","stage8_11_status":"NOT_STARTED_NOT_AUTHORIZED","stage8_12_status":"NOT_STARTED_NOT_AUTHORIZED"}, "STAGE_8_10_5_MACHINE_AUTHORITY_EXACT")
+    dry_source=text("TradingSystemLab/stage8_robot/order_path_dry_validation.py").lower(); dry_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/validate-order-path-dry.ps1").lower()
+    check("transport=transport" in dry_source and not any(term in dry_source+dry_wrapper for term in ("urlopen(","requests.","httpx.","socket.","credential-store","get-readonlycredential","get-tradingcredential","run-readonly","install-task","readonly_supervisor","robotrunner")) and "order_path_dry_validation" not in launcher+installer, "STAGE_8_10_5_OFFLINE_NOT_RUNTIME_WIRED")
+    check(all(all(f"Stage 8.10.{number} is **NOT STARTED**" in doc for number in range(6, 9)) for doc in stage8_9_docs), "STAGE_8_10_6_THROUGH_8_NOT_STARTED")
     check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED")
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
@@ -493,9 +501,15 @@ def audit(
         "trading_token_readonly_false_observed": True,
         "token_permission_boundary_validated": True,
         "order_path_validation_performed": False,
-        "stage8_10_5_status": "NOT_STARTED",
+        "stage8_10_5_status": STAGE_8_10_5_STATUS,
+        "stage8_10_5_physical_validation_performed": False,
+        "offline_dry_validation_performed": False,
+        "order_path_dry_validation_validated": False,
+        "stage8_10_5_external_network_calls": 0,
+        "real_order_endpoint_called": False, "real_order_count": 0,
+        "stage8_10_6_status": "NOT_STARTED",
+        "stage8_10_7_through_8_status": "NOT_STARTED",
         "stage8_10_6_through_8_status": "NOT_STARTED",
-        "stage8_10_5_through_8_status": "NOT_STARTED",
         "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_9_complete": True, "stage8_9_physical_validation_performed": True,
