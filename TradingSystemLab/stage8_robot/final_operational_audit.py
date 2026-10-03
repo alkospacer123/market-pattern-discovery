@@ -39,7 +39,10 @@ STAGE_8_9_CODE = "1013a5a2324e015ab3bc047a7b9af9064552cd10"
 STAGE_8_9_REPORT = "C87400F845B73A666B95C83DA2E3B6B710F36F3210AD4AD175BFDABB453864D5"
 STAGE_8_9_SUMMARY = "099F85A0DCCF94D404411CFFAC2F5D8C80D606C5C1B5AA2F5B650E8BF5FEB636"
 STAGE_8_10_1_STATUS = "STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE"
-STAGE_8_10_2_STATUS = "STAGE_8_10_2_SECURE_PROVISIONING_CODE_READY_PENDING_PHYSICAL_PROVISIONING"
+STAGE_8_10_2_STATUS = "STAGE_8_10_2_SECURE_PROVISIONING_COMPLETE"
+STAGE_8_10_2_CODE = "f0c271e428c05ee0ff67b7941e342c06b48a42a0"
+STAGE_8_10_2_EVIDENCE = "E5FEA93CE28006BC5ADA19F1AA1C1C365FF7CF4BE48A5A1B8BC8C5589DFD754D"
+STAGE_8_10_2_RESULT = "STAGE_8_10_2_PHYSICAL_SECURE_PROVISIONING_LOCAL_PASS"
 STAGE_8_9_8_STATUS = "STAGE_8_9_8_COMPLETE"
 STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
 STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
@@ -317,16 +320,24 @@ def audit(
           and closeout.get("stage8_10_status") == "IN_PROGRESS"
           and not re.search(r"Stage 8\.10 is \*\*COMPLETE\*\*", stage8_9_joined_docs, re.I),
           "STAGE_8_10_IN_PROGRESS_NOT_COMPLETE")
-    check(all("Stage 8.10.2 is **CODE READY / PENDING PHYSICAL PROVISIONING**" in doc
-              and STAGE_8_10_2_STATUS in doc for doc in stage8_9_docs),
-          "STAGE_8_10_2_CODE_READY_SYNCHRONIZED")
+    check(all("Stage 8.10.2 is **COMPLETE**" in doc
+              and STAGE_8_10_2_STATUS in doc
+              and STAGE_8_10_2_CODE in doc
+              and STAGE_8_10_2_EVIDENCE in doc
+              and STAGE_8_10_2_RESULT in doc for doc in stage8_9_docs),
+          "STAGE_8_10_2_COMPLETE_SYNCHRONIZED")
     check(provisioning.get("status") == STAGE_8_10_2_STATUS
-          and provisioning.get("physical_provisioning_performed") is False
-          and provisioning.get("trading_token_provisioned") is False
+          and provisioning.get("accepted_code_commit") == STAGE_8_10_2_CODE
+          and provisioning.get("external_evidence_sha256") == STAGE_8_10_2_EVIDENCE
+          and provisioning.get("physical_result") == STAGE_8_10_2_RESULT
+          and provisioning.get("physical_provisioning_performed") is True
+          and provisioning.get("trading_token_provisioned") is True
           and provisioning.get("trading_token_used") is False
           and provisioning.get("finam_authentication_performed") is False
           and provisioning.get("order_count") == 0
+          and provisioning.get("stage8_10_status") == "IN_PROGRESS"
           and provisioning.get("stage8_10_3_status") == "NOT_STARTED"
+          and provisioning.get("stage8_10_3_through_8_status") == "NOT_STARTED"
           and provisioning.get("stage8_11_status") == "NOT_STARTED_NOT_AUTHORIZED"
           and provisioning.get("stage8_12_status") == "NOT_STARTED_NOT_AUTHORIZED",
           "STAGE_8_10_2_MACHINE_AUTHORITY_EXACT")
@@ -348,8 +359,7 @@ def audit(
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")
     forbidden_claims = (
-        r"(?<!no )trading(?:-capable)? token (?:has been|was|is) (?:provisioned|stored|authenticated|inspected|used)",
-        r"(?<!no )trading-token physical acceptance (?:has occurred|is complete|passed)",
+        r"(?<!no )trading(?:-capable)? token (?:has been|was|is) (?:authenticated|used)",
         r"(?<!not )real-order (?:transmission|capability) is authorized",
     )
     check(not any(re.search(pattern, stage8_9_joined_docs, re.I) for pattern in forbidden_claims),
@@ -388,7 +398,10 @@ def audit(
         "stage8_9_positive_batch_reservation_count": 1,
         "stage8_10_status": "IN_PROGRESS", "stage8_10_1_status": STAGE_8_10_1_STATUS,
         "stage8_10_2_status": STAGE_8_10_2_STATUS,
-        "physical_provisioning_performed": False, "trading_token_provisioned": False,
+        "stage8_10_2_accepted_code_commit": STAGE_8_10_2_CODE,
+        "stage8_10_2_external_evidence_sha256": STAGE_8_10_2_EVIDENCE,
+        "stage8_10_2_physical_result": STAGE_8_10_2_RESULT,
+        "physical_provisioning_performed": True, "trading_token_provisioned": True,
         "trading_token_used": False, "finam_authentication_performed": False, "order_count": 0,
         "stage8_10_3_through_8_status": "NOT_STARTED",
         "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",

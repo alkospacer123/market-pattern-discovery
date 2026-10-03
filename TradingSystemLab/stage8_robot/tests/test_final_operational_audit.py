@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 import sys
 
 from TradingSystemLab.stage8_robot import final_operational_audit as final
@@ -196,12 +197,12 @@ def test_stage_8_10_falsely_complete_fails():
     assert "STAGE_8_10_IN_PROGRESS_NOT_COMPLETE" in result["errors"]
 
 
-def test_stage_8_10_2_code_ready_status_mutation_fails():
+def test_stage_8_10_2_complete_status_mutation_fails():
     path = "TradingSystemLab/CURRENT_STATE.md"
     result = run_audit({path: source(path).replace(
-        "Stage 8.10.2 is **CODE READY / PENDING PHYSICAL PROVISIONING**",
-        "Stage 8.10.2 is **PHYSICALLY COMPLETE**")})
-    assert "STAGE_8_10_2_CODE_READY_SYNCHRONIZED" in result["errors"]
+        "Stage 8.10.2 is **COMPLETE**",
+        "Stage 8.10.2 is **CODE READY / PENDING PHYSICAL PROVISIONING**")})
+    assert "STAGE_8_10_2_COMPLETE_SYNCHRONIZED" in result["errors"]
 
 
 def test_top_level_readme_current_status_regressions_fail_both_audits():
@@ -210,7 +211,7 @@ def test_top_level_readme_current_status_regressions_fail_both_audits():
     rejected = (
         final.STAGE_8_9_STATUS,
         final.STAGE_8_10_1_STATUS,
-        "STAGE_8_10_2_SECURE_PROVISIONING_COMPLETE",
+        "STAGE_8_10_2_SECURE_PROVISIONING_CODE_READY_PENDING_PHYSICAL_PROVISIONING",
         "STAGE_8_10_COMPLETE",
         "STAGE_8_10_3_TRADING_AUTHENTICATION_COMPLETE",
     )
@@ -234,14 +235,17 @@ def test_later_execution_stages_started_or_authorized_fail():
 
 def test_false_trading_token_and_real_order_claims_fail():
     path = "TradingSystemLab/CURRENT_STATE.md"
-    for claim in ("A trading token has been provisioned.",
+    for claim in ("A trading token has been authenticated.",
+                  "A trading token has been used.",
                   "Real-order transmission is authorized."):
         result = run_audit({path: source(path) + "\n\n" + claim + "\n"})
         assert "STAGE_8_10_FALSE_AUTHORIZATION_OR_TOKEN_CLAIM" in result["errors"]
 
 
 def test_tracked_trading_token_and_account_artifacts_fail():
-    forbidden = ["secrets/trading-token.json", "runtime/account_id.txt"]
+    forbidden = ["secrets/trading-token.json", "runtime/account_id.txt",
+                 "runtime/finam-trading-token.dpapi",
+                 "stage8_10_2_physical_provisioning_acceptance.json"]
     result = run_audit(tracked=git_files() + forbidden)
     assert all(path in result["runtime_artifacts_tracked"] for path in forbidden)
     assert "RUNTIME_OR_SECRET_ARTIFACT_TRACKED" in result["errors"]
@@ -302,15 +306,25 @@ def test_stage_8_8_7_wrong_accepted_commit_fails():
 def test_stage_8_10_2_provenance_mutations_fail_closed():
     path = "TradingSystemLab/stage8_robot/authority_provenance.json"
     mutations = (
-        ('"physical_provisioning_performed": false', '"physical_provisioning_performed": true'),
-        ('"trading_token_provisioned": false', '"trading_token_provisioned": true'),
-        ('"trading_token_used": false', '"trading_token_used": true'),
-        ('"finam_authentication_performed": false', '"finam_authentication_performed": true'),
-        ('"order_count": 0', '"order_count": 1'),
-        ('"stage8_10_3_status": "NOT_STARTED"', '"stage8_10_3_status": "STARTED"'),
+        ("status", "STAGE_8_10_2_SECURE_PROVISIONING_CODE_READY_PENDING_PHYSICAL_PROVISIONING"),
+        ("accepted_code_commit", "WRONG"),
+        ("external_evidence_sha256", "WRONG"),
+        ("physical_result", "WRONG"),
+        ("physical_provisioning_performed", False),
+        ("trading_token_provisioned", False),
+        ("trading_token_used", True),
+        ("finam_authentication_performed", True),
+        ("order_count", 1),
+        ("stage8_10_status", "COMPLETE"),
+        ("stage8_10_3_status", "STARTED"),
+        ("stage8_10_3_through_8_status", "STARTED"),
+        ("stage8_11_status", "STARTED_AUTHORIZED"),
+        ("stage8_12_status", "STARTED_AUTHORIZED"),
     )
-    for before, after in mutations:
-        result = run_audit({path: source(path).rsplit(before, 1)[0] + after + source(path).rsplit(before, 1)[1]})
+    for key, value in mutations:
+        authority = json.loads(source(path))
+        authority["stage8_10_2"][key] = value
+        result = run_audit({path: json.dumps(authority)})
         assert "STAGE_8_10_2_MACHINE_AUTHORITY_EXACT" in result["errors"]
 
 
