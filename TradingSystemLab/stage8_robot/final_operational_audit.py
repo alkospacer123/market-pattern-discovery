@@ -44,7 +44,7 @@ STAGE_8_10_2_CODE = "f0c271e428c05ee0ff67b7941e342c06b48a42a0"
 STAGE_8_10_2_EVIDENCE = "E5FEA93CE28006BC5ADA19F1AA1C1C365FF7CF4BE48A5A1B8BC8C5589DFD754D"
 STAGE_8_10_2_RESULT = "STAGE_8_10_2_PHYSICAL_SECURE_PROVISIONING_LOCAL_PASS"
 STAGE_8_10_3_STATUS = "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE"
-STAGE_8_10_4_STATUS = "STAGE_8_10_4_PERMISSION_BOUNDARY_CODE_READY_PENDING_PHYSICAL_VALIDATION"
+STAGE_8_10_4_STATUS = "STAGE_8_10_4_PERMISSION_BOUNDARY_COMPLETE"
 STAGE_8_9_8_STATUS = "STAGE_8_9_8_COMPLETE"
 STAGE_8_9_8_VARIANT = "60A529DB021B39E1C6117D01CCF3AB5B8B331073D407782E90383E4D124BADC5"
 STAGE_8_9_8_SHAPE = "EED27193E35F46FFCF13CFB4A2F2EAA4AB87A35F967D78139E97BFA885009371"
@@ -390,15 +390,30 @@ def audit(
     check("trading_identity_binding" not in launcher + installer and all(term not in identity_wrapper.lower() for term in ("run-readonly","install-task","scheduledtask","runner","broker","/orders")), "STAGE_8_10_3_NOT_RUNTIME_OR_TASK_WIRED")
     permission_source = text("TradingSystemLab/stage8_robot/trading_permission_boundary.py")
     permission_wrapper = text("TradingSystemLab/stage8_robot/deploy/windows/validate-trading-permission-boundary.ps1")
-    check(all(STAGE_8_10_4_STATUS in doc and "Stage 8.10.4 is **CODE READY / PENDING PHYSICAL VALIDATION**" in doc for doc in stage8_9_docs), "STAGE_8_10_4_CODE_READY_SYNCHRONIZED")
+    check(all(STAGE_8_10_4_STATUS in doc and "Stage 8.10.4 is **COMPLETE**" in doc for doc in stage8_9_docs), "STAGE_8_10_4_COMPLETE_SYNCHRONIZED")
     check(permission_boundary.get("status") == STAGE_8_10_4_STATUS
-          and permission_boundary.get("physical_validation_performed") is False
-          and permission_boundary.get("readonly_token_readonly_observed") is False
-          and permission_boundary.get("trading_token_readonly_false_observed") is False
-          and permission_boundary.get("token_permission_boundary_validated") is False
+          and permission_boundary.get("accepted_code_commit") == "44858bacc2902591e11adc85cfa5f79e2b62dd5b"
+          and permission_boundary.get("external_evidence_sha256") == "E4AEDC153F89E000EC034E5F33A6EF7BECB5DA29BA253BC0B28B2AC3D0C26C5D"
+          and permission_boundary.get("physical_result") == "STAGE_8_10_4_TOKEN_PERMISSION_BOUNDARY_PASS"
+          and permission_boundary.get("physical_validation_performed") is True
+          and permission_boundary.get("local_readonly_trading_account_binding_validated") is True
+          and permission_boundary.get("readonly_session_created") is True
+          and permission_boundary.get("trading_session_created") is True
+          and permission_boundary.get("readonly_expected_account_enumerated") is True
+          and permission_boundary.get("trading_expected_account_enumerated") is True
+          and permission_boundary.get("readonly_expected_account_occurrence_count") == 1
+          and permission_boundary.get("trading_expected_account_occurrence_count") == 1
+          and permission_boundary.get("readonly_token_readonly_observed") is True
+          and permission_boundary.get("trading_token_readonly_false_observed") is True
+          and permission_boundary.get("token_permission_boundary_validated") is True
+          and permission_boundary.get("readonly_token_used") is True
+          and permission_boundary.get("trading_token_used") is True
+          and permission_boundary.get("finam_authentication_performed") is True
           and permission_boundary.get("order_count") == 0
           and permission_boundary.get("order_endpoint_called") is False
           and permission_boundary.get("order_path_validation_performed") is False
+          and permission_boundary.get("live_trading_authorized") is False
+          and permission_boundary.get("real_order_transmission_authorized") is False
           and permission_boundary.get("stage8_10_status") == "IN_PROGRESS"
           and permission_boundary.get("stage8_10_5_status") == "NOT_STARTED"
           and permission_boundary.get("stage8_10_6_through_8_status") == "NOT_STARTED"
@@ -414,7 +429,7 @@ def audit(
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")
     forbidden_claims = (
-        r"(?<!no )(?:trading )?permission (?:validation )?(?:occurred|was validated)",
+        r"(?<!no )(?<!or )order(?:-path)? (?:permission |path )?(?:validation )?(?:occurred|was validated)",
         r"(?<!not )real-order (?:transmission|capability) is authorized",
     )
     check(not any(re.search(pattern, stage8_9_joined_docs, re.I) for pattern in forbidden_claims),
@@ -470,11 +485,16 @@ def audit(
         "expected_account_occurrence_count": 1,
         "enumerated_account_count": 1,
         "stage8_10_4_status": STAGE_8_10_4_STATUS,
-        "stage8_10_4_physical_validation_performed": False,
-        "readonly_token_readonly_observed": False,
-        "trading_token_readonly_false_observed": False,
-        "token_permission_boundary_validated": False,
+        "stage8_10_4_accepted_code_commit": "44858bacc2902591e11adc85cfa5f79e2b62dd5b",
+        "stage8_10_4_external_evidence_sha256": "E4AEDC153F89E000EC034E5F33A6EF7BECB5DA29BA253BC0B28B2AC3D0C26C5D",
+        "stage8_10_4_physical_result": "STAGE_8_10_4_TOKEN_PERMISSION_BOUNDARY_PASS",
+        "stage8_10_4_physical_validation_performed": True,
+        "readonly_token_readonly_observed": True,
+        "trading_token_readonly_false_observed": True,
+        "token_permission_boundary_validated": True,
         "order_path_validation_performed": False,
+        "stage8_10_5_status": "NOT_STARTED",
+        "stage8_10_6_through_8_status": "NOT_STARTED",
         "stage8_10_5_through_8_status": "NOT_STARTED",
         "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",

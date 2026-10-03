@@ -204,14 +204,13 @@ No order-capable operation occurred.
 - `LIVE_TRADING_NOT_AUTHORIZED` remains in force.
 - `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remains in force.
 - `NEW_ENTRIES_DISABLED` remains in force for the accepted REAL_READONLY path.
-- Stage 8.10 is **IN PROGRESS**; Stages 8.10.1, 8.10.2, and 8.10.3 are complete, and Stage 8.10.4 is code ready pending physical validation.
+- Stage 8.10 is **IN PROGRESS**; Stages 8.10.1, 8.10.2, 8.10.3, and 8.10.4 are complete; Stages 8.10.5 through 8.10.8 are not started.
 - Stage 8.11 and Stage 8.12 are **NOT STARTED / NOT AUTHORIZED**.
 
 ## Current next action
 
 Stage 8.10 is **IN PROGRESS** because Stage 8.10.1 and Stage 8.10.2 are complete.
-Stage 8.10.3 Identity / Account Binding is **COMPLETE**. Stage 8.10.4 Permission Boundary Validation is **CODE READY / PENDING PHYSICAL
-VALIDATION** and requires separately authorized operator physical validation.
+Stage 8.10.3 Identity / Account Binding is **COMPLETE**. Stage 8.10.4 Permission Boundary Validation is **COMPLETE**. Stage 8.10.5 is the next gate and requires separate explicit authorization.
 
 ## Domain boundary
 
@@ -240,7 +239,7 @@ Canonical Stage 8.10 sequence and status:
    Canonical status: `STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE`.
 2. Stage 8.10.2 is **COMPLETE** — Secure Provisioning.
 3. Stage 8.10.3 is **COMPLETE** — Identity / Account Binding.
-4. Stage 8.10.4 is **CODE READY / PENDING PHYSICAL VALIDATION** — Permission Boundary Validation.
+4. Stage 8.10.4 is **COMPLETE** — Permission Boundary Validation.
 5. Stage 8.10.5 is **NOT STARTED** — Order Path Dry Validation.
 6. Stage 8.10.6 is **NOT STARTED** — Kill Switch / Safety Gates.
 7. Stage 8.10.7 is **NOT STARTED** — Intel Trading-Token Acceptance.
@@ -292,7 +291,7 @@ provisioning was performed and Trading Token 1 is provisioned locally in Windows
 CurrentUser DPAPI. Possession/storage of Token 1 does not authorize trading.
 `trading_token_used=false`; `finam_authentication_performed=false`; no
 order-capable operation occurred; `order_count=0`; and the Scheduled Task remains
-Disabled. Stage 8.10 is **IN PROGRESS**; Stage 8.10.4 through Stage 8.10.8 are
+Disabled. Stage 8.10 is **IN PROGRESS**; Stage 8.10.4 is **COMPLETE**; Stage 8.10.5 through Stage 8.10.8 are
 **NOT STARTED**. Stage 8.11 is **NOT STARTED / NOT AUTHORIZED** and Stage 8.12 is
 **NOT STARTED / NOT AUTHORIZED**. `LIVE_TRADING_NOT_AUTHORIZED`,
 `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and `NEW_ENTRIES_DISABLED` remain in
@@ -321,36 +320,34 @@ validation or order-path validation occurred. No order endpoint was called and
 `order_count` remains exactly 0. LIVE trading and real-order transmission remain
 unauthorized. The Scheduled Task remains Disabled.
 
-Stage 8.10.4 is **CODE READY / PENDING PHYSICAL VALIDATION**. Stage 8.10.5 is
+Stage 8.10.4 is **COMPLETE**. Stage 8.10.5 is
 **NOT STARTED**, Stage 8.10.6 is **NOT STARTED**, Stage 8.10.7 is **NOT
 STARTED**, and Stage 8.10.8 is **NOT STARTED**. Stage 8.11 is **NOT STARTED /
-NOT AUTHORIZED**. Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**. A separately
-authorized operator physical validation of Stage 8.10.4 is the sole next gate.
+NOT AUTHORIZED**. Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**. Stage 8.10.5 is the next gate
+and requires separate explicit authorization.
 
 
-## Stage 8.10.4 permission boundary code-ready gate
+## Stage 8.10.4 permission boundary complete
 
-Canonical status: `STAGE_8_10_4_PERMISSION_BOUNDARY_CODE_READY_PENDING_PHYSICAL_VALIDATION`.
-Stage 8.10.4 is **CODE READY / PENDING PHYSICAL VALIDATION**; physical
-validation has not been performed. The separate operator diagnostic compares
-the two accepted local credentials for the exact frozen production ID and the
-same local production account before any later operator authentication. During
-that separately authorized future validation, each credential creates its own
-FINAM session and the diagnostic inspects only session details. It requires the
-expected account exactly once in both responses, exact READ_ONLY
-`readonly=true`, and exact trading Token 1 `readonly=false`.
+Canonical status: `STAGE_8_10_4_PERMISSION_BOUNDARY_COMPLETE`.
+Stage 8.10.4 is **COMPLETE**. Accepted physical code:
+`44858bacc2902591e11adc85cfa5f79e2b62dd5b`. External evidence SHA-256:
+`E4AEDC153F89E000EC034E5F33A6EF7BECB5DA29BA253BC0B28B2AC3D0C26C5D`. Physical
+result: `STAGE_8_10_4_TOKEN_PERMISSION_BOUNDARY_PASS`. The external
+`stage8_10_4_permission_boundary.json` remains outside Git.
 
-This establishes only the FINAM session-details token-level read/write
-permission boundary. It does not validate an order path, broker acceptance,
-instrument eligibility, margin, market/session availability, LIVE readiness,
-or production authorization. `stage8_10_4_physical_validation_performed=false`;
-`readonly_token_readonly_observed=false`;
-`trading_token_readonly_false_observed=false`;
-`token_permission_boundary_validated=false`; `order_count=0`;
-`order_endpoint_called=false`; and `order_path_validation_performed=false`. No
-real credential is used by repository tests.
+Before authentication, the READ_ONLY and trading credentials still resolved
+locally to the same frozen production account. The READ_ONLY session and trading
+Token 1 session were created successfully. The expected production account
+appeared exactly once in each session. Session-details returned exact boolean
+`readonly=true` for READ_ONLY and exact boolean `readonly=false` for trading
+Token 1; the token-level permission boundary therefore passed.
 
-Stage 8.10.5 is **NOT STARTED**, Stage 8.10.6 is **NOT STARTED**, Stage 8.10.7
-is **NOT STARTED**, and Stage 8.10.8 is **NOT STARTED**. Stage 8.10 remains
-**IN PROGRESS**. Stage 8.11 and Stage 8.12 remain **NOT STARTED / NOT
-AUTHORIZED**.
+This proves only the FINAM session-details token-level boundary. No order-path
+validation occurred, no order endpoint was called, and `order_count=0`. LIVE
+trading remains unauthorized, real-order transmission remains unauthorized, and
+the Scheduled Task remains Disabled. Stage 8.10.5 is **NOT STARTED** and needs
+separate explicit authorization. Stage 8.10.6 is **NOT STARTED**. Stage 8.10.7
+is **NOT STARTED**. Stage 8.10.8 is **NOT STARTED**. Stage 8.10 remains **IN
+PROGRESS**. Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**. Stage 8.12 is **NOT
+STARTED / NOT AUTHORIZED**.
