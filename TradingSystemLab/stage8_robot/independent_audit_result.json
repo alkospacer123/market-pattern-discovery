@@ -1,13 +1,16 @@
 {
-  "checks": 156,
+  "checks": 159,
   "deployment_status": "STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED",
   "errors": [],
+  "finam_authentication_performed": false,
   "live_trading_activated": false,
   "margin_status": "STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY",
+  "order_count": 0,
+  "physical_provisioning_performed": false,
   "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
   "real_order_transmission_authorized": false,
   "stage8_10_1_status": "STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE",
-  "stage8_10_2_status": "NOT_STARTED_NOT_AUTHORIZED",
+  "stage8_10_2_status": "STAGE_8_10_2_SECURE_PROVISIONING_CODE_READY_PENDING_PHYSICAL_PROVISIONING",
   "stage8_10_3_through_8_status": "NOT_STARTED",
   "stage8_10_status": "IN_PROGRESS",
   "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
@@ -27,5 +30,7 @@
   "stage8_9_status": "STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE",
   "stage8_9_zero_capacity_case_count": 4,
   "stage8_status": "STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE",
-  "status": "PASS"
+  "status": "PASS",
+  "trading_token_provisioned": false,
+  "trading_token_used": false
 }
