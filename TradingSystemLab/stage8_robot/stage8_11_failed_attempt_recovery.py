@@ -18,6 +18,7 @@ from typing import Any, Callable
 
 from .backup_state import create_stage8_11_acceptance_backup, sha256_file
 from .controlled_real_acceptance import ACTIVE, _decimal_contracts, _rows, _status
+from .operations import stage8_11_exclusive_lock
 from .specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID, load_frozen_specification
 from .state import StateStore, initialize_stage8_11_acceptance_ledger, stage8_11_acceptance_path
 from .trading_safety_gate import load_kill_switch
@@ -78,6 +79,20 @@ def recover_historical_intent(*, runtime_root: Path, account_id: str, readonly_a
     is an incomplete protocol state that a later identical invocation can only
     finalize; it can never be reported as successful prematurely.
     """
+    root = Path(runtime_root)
+    with stage8_11_exclusive_lock(root):
+        return _recover_historical_intent_locked(runtime_root=root, account_id=account_id,
+            readonly_api=readonly_api, recovery_code_commit=recovery_code_commit,
+            physical_evidence=physical_evidence, physical_evidence_sha256=physical_evidence_sha256,
+            intent_key=intent_key, now=now, fault_injector=fault_injector)
+
+
+def _recover_historical_intent_locked(*, runtime_root: Path, account_id: str, readonly_api: object,
+                              recovery_code_commit: str, physical_evidence: Path,
+                              physical_evidence_sha256: str, intent_key: str,
+                              now: datetime | None = None,
+                              fault_injector: Callable[[str], None] | None = None) -> dict[str, Any]:
+    """Implementation invoked only while the shared Stage 8.11 lock is held."""
     inject = fault_injector or (lambda point: None)
     root = Path(runtime_root)
     if (len(recovery_code_commit) != 40 or recovery_code_commit.lower() != recovery_code_commit

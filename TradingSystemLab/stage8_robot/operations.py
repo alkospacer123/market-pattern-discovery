@@ -6,6 +6,12 @@ from datetime import datetime,timezone
 from pathlib import Path
 
 _PROCESS_LOCKS:set[str]=set(); _LOCK_GUARD=threading.Lock()
+STAGE8_11_EXCLUSIVE_LOCK = Path("locks") / "stage8-11-exclusive.lock"
+
+def stage8_11_exclusive_lock(runtime_root:Path):
+    """Return the one OS-backed authority shared by all Stage 8.11 writers."""
+    return InstanceLock(Path(runtime_root) / STAGE8_11_EXCLUSIVE_LOCK)
+
 class InstanceLock:
     def __init__(self,path:Path): self.path=Path(path); self.stream=None
     def acquire(self):

@@ -276,6 +276,13 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and "$timeSourceExitCode = $LASTEXITCODE" in physical_wrapper,
           "STAGE_8_11_WINDOWS_TIME_EXIT_CODES")
     check("emergency_halt(Path" in physical_wrapper, "STAGE_8_11_PARENT_WRAPPER_HALT_DEFENSE")
+    physical_tree=ast.parse(physical_entry)
+    lifecycle_calls=[node for node in ast.walk(physical_tree) if isinstance(node,ast.Call)
+                     and getattr(node.func,"id",None)=="run_controlled_lifecycle"]
+    check(len(lifecycle_calls)==1
+          and any(keyword.arg=="clock" for keyword in lifecycle_calls[0].keywords)
+          and not any(keyword.arg=="now" for keyword in lifecycle_calls[0].keywords),
+          "STAGE8_11_PHYSICAL_ENTRYPOINT_FRESH_CLOCK_PROPAGATION")
     check(props.get("order_endpoint_call_count",{}).get("maximum") == 2
           and acceptance.count("submit_entry(") == 2 and acceptance.count("submit_flatten(") == 3,
           "STAGE_8_11_MAXIMUM_TWO_POST_CAPABILITY")
@@ -974,6 +981,11 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
                              (HERE/"stage8_11_failed_attempt_recovery.py").read_text()))
     recovery_wrapper=source_overrides.get("deploy/windows/run-stage8-11-failed-intent-recovery.ps1",
         (HERE/"deploy/windows/run-stage8-11-failed-intent-recovery.ps1").read_text())
+    check("stage8_11_exclusive_lock(runtime_root)" in physical_entry
+          and "stage8_11_exclusive_lock(root)" in recovery,
+          "STAGE8_11_SHARED_EXCLUSIVE_LOCK_AUTHORITY")
+    check("stage8_11_failed_attempt_recovery" in physical_wrapper,
+          "STAGE8_11_PHYSICAL_WRAPPER_RECOVERY_CONFLICT")
     check("class FinamOrderRejected" in finam and "FinamUncertainSubmission" in finam
           and "order_post and exc.code==400" in finam and "exc.code>=500 and order_post" in finam,
           "STAGE8_11_DETERMINISTIC_REJECT_UNCERTAIN_TAXONOMY")
