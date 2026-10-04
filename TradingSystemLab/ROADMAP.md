@@ -14,10 +14,10 @@ The production kill switch final accepted state is `HALTED`.
 `execution_authorized = false`; `real_order_endpoint_called = false`;
 `real_order_count = 0`.
 
-Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**.
+Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**.
 Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
 
-The next possible lifecycle gate is Stage 8.11, but it requires separate explicit authorization.
+The current lifecycle gate is Stage 8.11 physical acceptance, but it requires separate explicit authorization.
 Do not start Stage 8.11 automatically.
 
 ## Governing research rule
@@ -235,10 +235,10 @@ Repository-only closeout established aggregate Stage 8.10 state:
 
 ## Stage 8.11 — Controlled Real Execution Acceptance
 
-Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**.
+Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**.
 
-This is the next possible lifecycle gate, but it requires separate explicit authorization.
-It would be the first possible real-order gate. Do not infer authorization from Stage 8.10.
+Its code path is ready, but physical execution has not occurred and still requires exact operator authorization.
+It is the first possible controlled real-order gate. Do not infer authorization from Stage 8.10.
 
 ## Stage 8.12 — FULL/R15 Production Authorization
 
@@ -263,4 +263,4 @@ Do not:
 
 ## Current roadmap boundary
 
-**STOP after Stage 8.10 closeout. Await separate explicit authorization before Stage 8.11.**
+**STOP at Stage 8.11 code readiness. Await the separate Intel physical acceptance and independent evidence audit.**

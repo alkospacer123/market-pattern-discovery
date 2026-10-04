@@ -684,11 +684,13 @@ def test_stage_8_10_6_physical_report_contract_mutations_fail_semantic_audits(fi
 
 def test_later_execution_stages_started_or_authorized_fail():
     path = "TradingSystemLab/CURRENT_STATE.md"
-    for stage, error in (("8.11", "STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED"),
-                         ("8.12", "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")):
+    for old, replacement, error in (
+            ("Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**",
+             "Stage 8.11 is **STARTED / AUTHORIZED**", "STAGE_8_11_CODE_READY_PENDING_PHYSICAL_ACCEPTANCE"),
+            ("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**",
+             "Stage 8.12 is **STARTED / AUTHORIZED**", "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")):
         result = run_audit({path: source(path).replace(
-            f"Stage {stage} is **NOT STARTED / NOT AUTHORIZED**",
-            f"Stage {stage} is **STARTED / AUTHORIZED**")})
+            old, replacement)})
         assert error in result["errors"]
 
 
@@ -924,7 +926,7 @@ def test_stage_8_10_closeout_document_regressions_fail():
         mutations = (
             original.replace("Stage 8.10 is **COMPLETE**", "Stage 8.10 is **IN PROGRESS**"),
             original.replace("Stage 8.10.8 is **COMPLETE**", "Stage 8.10.8 is **NOT STARTED**"),
-            original.replace("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**", "Stage 8.11 is **AUTHORIZED**"),
+            original.replace("Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**", "Stage 8.11 is **AUTHORIZED**"),
             original.replace("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**", "Stage 8.12 is **STARTED**"),
             original.replace(final.STAGE_8_10_COMPLETE_STATUS, "WRONG_CLOSEOUT_STATUS"),
         )
@@ -972,10 +974,10 @@ def test_stage_8_10_semantic_document_regressions_fail_both_audits(
 def test_stage_8_10_current_handoff_stale_gate_and_omission_fail_both_audits(path):
     original = source(path)
     stale = original.replace(
-        "The next possible lifecycle gate is Stage 8.11",
+        "The current lifecycle gate is Stage 8.11 physical acceptance",
         "Stage 8.10 is COMPLETE, but the next possible lifecycle gate is Stage 8.10.5")
     _assert_document_mutation_fails_both(path, stale, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
-    omitted = original.replace("- Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**.\n", "")
+    omitted = original.replace("Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**", "")
     _assert_document_mutation_fails_both(path, omitted, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
 
 
