@@ -2,23 +2,24 @@
 
 ## Current handoff
 
-Stage 8.9 is **COMPLETE** under
-`STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE`.
+Stage 8.9 is **COMPLETE**. Stage 8.10 is **COMPLETE**. Stage 8.10 is recorded under
+`STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE`; Stage 8.10.1 through Stage 8.10.8 are **COMPLETE**.
 
-Stage 8.10 is **COMPLETE** under
-`STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE`.
+Stage 8.11.0 — Code / Readiness Corrections is **COMPLETE**.
+Stage 8.11.1 — Intel Zero-Order PRECHECK is **COMPLETE / PASS** with physical result
+`STAGE8_11_PRECHECK_ONLY_PASS` and `real_order_count = 0`.
+Stage 8.11.2 — Independent PRECHECK Evidence Audit is **COMPLETE / PASS** under
+`STAGE_8_11_2_INDEPENDENT_PRECHECK_EVIDENCE_AUDIT_PASS`.
 
-Stage 8.10.1 through Stage 8.10.8 are **COMPLETE**.
+The current lifecycle gate is **Stage 8.11.3 — Explicit One-Contract Authorization**.
+Stage 8.11.3 is **NOT AUTHORIZED**. Passing Stage 8.11.1 and Stage 8.11.2 does not
+authorize a FINAM order; a separate explicit operator authorization is required only
+after this repository closeout is merged and independently audited.
 
 The production kill switch final accepted state is `HALTED`.
 `execution_authorized = false`; `real_order_endpoint_called = false`;
-`real_order_count = 0`.
-
-Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**.
+`real_order_count = 0`; Scheduled Task is `Disabled`.
 Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
-
-The current lifecycle gate is Stage 8.11 physical acceptance, but it requires separate explicit authorization.
-Do not start Stage 8.11 automatically.
 
 ## Governing research rule
 
@@ -235,16 +236,56 @@ Repository-only closeout established aggregate Stage 8.10 state:
 
 ## Stage 8.11 — Controlled Real Execution Acceptance
 
-Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**.
+### Stage 8.11.0 — Code / Readiness Corrections
 
-Its code path is ready, but physical execution has not occurred and still requires exact operator authorization.
-It is the first possible controlled real-order gate. Do not infer authorization from Stage 8.10.
+`COMPLETE`
 
-## Stage 8.12 — FULL/R15 Production Authorization
+### Stage 8.11.1 — Intel Zero-Order PRECHECK
 
-Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
+`COMPLETE / PASS`
 
-Stage 8.12 cannot begin merely because Stage 8.10 completed.
+Physical result: `STAGE8_11_PRECHECK_ONLY_PASS`. Real orders: `0`.
+
+### Stage 8.11.2 — Independent PRECHECK Evidence Audit
+
+`COMPLETE / PASS`
+
+Canonical result: `STAGE_8_11_2_INDEPENDENT_PRECHECK_EVIDENCE_AUDIT_PASS`.
+
+### Stage 8.11.3 — Explicit One-Contract Authorization
+
+`NOT AUTHORIZED`
+
+This is the **current lifecycle gate**. No real-order action may occur merely because
+8.11.1 and 8.11.2 passed. A separate explicit operator authorization may be considered
+only after this repository closeout is merged and independently audited.
+
+### Stage 8.11.4 — One-Contract Entry
+
+`NOT STARTED`
+
+### Stage 8.11.5 — Position Proof
+
+`NOT STARTED`
+
+### Stage 8.11.6 — Controlled Flatten
+
+`NOT STARTED`
+
+### Stage 8.11.7 — Final Flat / Reconciliation
+
+`NOT STARTED`
+
+### Stage 8.11.8 — Stage 8.11 Closeout
+
+`NOT STARTED`
+
+### Stage 8.12
+
+`NOT STARTED / NOT AUTHORIZED`
+
+Stage 8.12 remains FULL/R15 Production Authorization. Neither Stage 8.11.1 nor
+Stage 8.11.2 authorizes it.
 
 ## Persistent constraints
 
@@ -263,4 +304,4 @@ Do not:
 
 ## Current roadmap boundary
 
-**STOP at Stage 8.11 code readiness. Await the separate Intel physical acceptance and independent evidence audit.**
+**STOP at Stage 8.11.3 authorization boundary. Await separate explicit operator authorization only after this repository closeout is merged and independently audited.**

@@ -2,33 +2,24 @@
 
 ## Current handoff
 
-Stage 8.9 is **COMPLETE** under
-`STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE`.
+Stage 8.9 is **COMPLETE**. Stage 8.10 is **COMPLETE**. Stage 8.10 is recorded under
+`STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE`; Stage 8.10.1 through Stage 8.10.8 are **COMPLETE**.
 
-Stage 8.10 is **COMPLETE** under
-`STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE`.
+Stage 8.11.0 — Code / Readiness Corrections is **COMPLETE**.
+Stage 8.11.1 — Intel Zero-Order PRECHECK is **COMPLETE / PASS** with physical result
+`STAGE8_11_PRECHECK_ONLY_PASS` and `real_order_count = 0`.
+Stage 8.11.2 — Independent PRECHECK Evidence Audit is **COMPLETE / PASS** under
+`STAGE_8_11_2_INDEPENDENT_PRECHECK_EVIDENCE_AUDIT_PASS`.
 
-Stage 8.10.1 through Stage 8.10.8 are **COMPLETE**.
+The current lifecycle gate is **Stage 8.11.3 — Explicit One-Contract Authorization**.
+Stage 8.11.3 is **NOT AUTHORIZED**. Passing Stage 8.11.1 and Stage 8.11.2 does not
+authorize a FINAM order; a separate explicit operator authorization is required only
+after this repository closeout is merged and independently audited.
 
 The production kill switch final accepted state is `HALTED`.
 `execution_authorized = false`; `real_order_endpoint_called = false`;
-`real_order_count = 0`.
-
-Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**.
+`real_order_count = 0`; Scheduled Task is `Disabled`.
 Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
-
-The current lifecycle gate is Stage 8.11 physical acceptance, but it requires separate explicit authorization.
-Stage 8.10 completion does not authorize real execution or LIVE trading.
-
-Initial Stage 8.11 code-ready GitHub authority: PR #350, base
-`e24638089d9a8ab8ca8dcd2744c8da151b1d8c58`, head
-`3af85e0369ecc62babf066113b5d0d0da52fb59f`, merge
-`318bb45041fb13d1c2a750206384093745397c55`.
-
-Stage 8.11 hardening corrective GitHub authority: PR #351, base
-`318bb45041fb13d1c2a750206384093745397c55`, head
-`95c05cae227e005fa70c0eecc36c45c9e113af6d`, merge
-`d86058e905e97b5ee260702d7dc67fabb6f86d77`.
 
 ## Frozen Stage 7 production specification
 
@@ -271,7 +262,7 @@ Aggregate Stage 8.10 safety facts:
 `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remains in force.
 `NEW_ENTRIES_DISABLED` remains in force for existing REAL_READONLY paths.
 
-Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE** — Controlled Real Execution Acceptance.
+Stage 8.11.0 is **COMPLETE**, Stage 8.11.1 and 8.11.2 are **COMPLETE / PASS**, and Stage 8.11.3 is **NOT AUTHORIZED** — Controlled Real Execution Acceptance.
 Stage 8.12 is **NOT STARTED / NOT AUTHORIZED** — FULL/R15 Production Authorization.
 
 Stage 8.11 is the first possible real-order gate, but it requires separate explicit authorization.
@@ -285,3 +276,83 @@ Do not mix TradingSystemLab with BBW, Level Touch, Round Level / Touch, or other
 
 Update this file after every accepted lifecycle gate/audit. The top handoff must always state
 the current execution authorization, kill-switch state, real-order count, and next authorized boundary.
+
+## Stage 8.11.0–8.11.2 canonical lifecycle closeout (2026-10-04)
+
+The accepted physical PRECHECK authority is commit
+`9be31f1723877a9c542f89027052570425f7e976`, production specification
+`PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`,
+`schema_id = stage8_11_intel_precheck.v1`, and
+`mode = STAGE8_11_PRECHECK_ONLY`. The external report remains outside Git at
+`runtime/diagnostics/stage8_11_intel_precheck.json`; its SHA-256 is
+`7171B7CD0098FF51159DC05C46C0326BF7F412A2D9EA0CBB3F9BDAFBE7745455`.
+The external canonical acceptance ledger remains outside Git at
+`runtime/state/stage8-11-acceptance.sqlite3`; its physically observed SHA-256 is
+`A83C93733321C696225F606A5DBE584413915DA3C46C2B4A261091EC85B7C354`.
+
+The sanitized PRECHECK facts are: Stage 8.10 authority `PASS`; DPAPI authority
+`PASS`; trading-session write-capable boundary `PASS`; account binding `PASS`;
+reconciliation `PASS`; active orders `0`; canonical unresolved acceptance intents
+`0`; unresolved broker intents/orders `0`; instrument binding `PASS`; tradable
+`PASS`; recovery readiness `PASS`; R15 permits at least one contract `true`; margin
+permits at least one contract `true`; acceptance quantity `1`; execution authorization
+observed `false`; order endpoint call count `0`; real order count `0`; and kill switch
+observed `HALTED`. The exact and only safety-gate reasons were
+`KILL_SWITCH_HALTED` and `EXECUTION_NOT_AUTHORIZED`. Stage 8.12 was
+`NOT_STARTED_NOT_AUTHORIZED`.
+
+Immediately before PRECHECK, one structurally order-incapable REAL_READONLY supervisor
+cycle completed with: `cycle_count = 23`, `health_status = HEALTHY`,
+`reconciliation_status = PASS`, `consecutive_failures = 0`, `entries_enabled = false`,
+`unresolved_order_count = 0`, last completed H1
+`2026-10-04T10:00:00+00:00`, last successful FINAM contact
+`2026-10-04T11:58:57.828648+00:00`, and heartbeat
+`2026-10-04T11:59:01.549910+00:00`. Only the sanitized account SHA is retained:
+`a113cd66fb2aff5583ddebb480bacf71876cf4f7c10e7209ac6330ccec456826`.
+
+The operational physical-acceptance candidate was research symbol `CNYRUBF`, FINAM
+symbol `CNYRUBF@RTSX`, prospective direction `LONG`, quantity `1`. This was **not a
+trading signal and not performance selection**. The PRECHECK applies frozen N4
+feasibility order `USDRUBF → CNYRUBF → GLDRUBF → IMOEXF` and selects the first member
+for which frozen R15 capacity and current directional FINAM margin permit one contract.
+It is not a T3 entry signal, PF ranking, optimizer result, portfolio preference, or
+production allocation change.
+
+The independent audit result is
+`STAGE_8_11_2_INDEPENDENT_PRECHECK_EVIDENCE_AUDIT_PASS`. It confirmed accepted-code
+HEAD, fresh healthy heartbeat, account and reconciliation authority, separate
+acceptance-ledger and supervisor authorities, zero unresolved acceptance intents,
+zero active broker orders, exact frozen registry binding, feasibility-order selection,
+`execution_authorized = false`, `HALTED`, zero endpoint calls, zero real orders, and
+Scheduled Task `Disabled`. It independently reconstructed the report SHA from the
+displayed canonical JSON serialization. The ledger SHA was physically observed; the
+external SQLite binary was **not** claimed to have been independently byte-for-byte
+rehashed outside the Intel host.
+
+Historical provenance is retained. The first result, `STAGE8_11_SAFETY_GATE_BLOCKED`,
+was caused by stale heartbeat/contact after the supervisor was intentionally stopped;
+a fresh order-incapable REAL_READONLY cycle removed those transient blockers. The
+second, `STAGE8_11_CANONICAL_INTENTS_INVALID`, is classified
+`BLOCKED_CANONICAL_INTENT_LEDGER_AUTHORITY_MISMATCH`: PR #356 incorrectly treated
+`readonly-supervisor.sqlite3` (production `OperationalState`) as a `StateStore` intent
+ledger. The dedicated `stage8-11-acceptance.sqlite3` authority corrected that defect.
+The successful PRECHECK supersedes both as the current result without erasing them.
+
+Persistence correction PR #357 has base
+`ea090d99266d5dae808c03024f327c41fb8b9170`, head
+`60e3f72dae3a08eeb3ba8c756861efbb4c4f28e7`, and merge
+`f29053e2c4b5f687115f0a5b12f582e822b60ea1`. Later exact-ledger-schema hardening PR
+#358 has base `f29053e2c4b5f687115f0a5b12f582e822b60ea1`, head
+`40fcf6f5c165e8bd64b128949358aa7475521f1b`, and merge
+`9be31f1723877a9c542f89027052570425f7e976`. PR #358 does not replace PR #357's
+historical persistence authority.
+
+Stage 8.11.3 remains `NOT AUTHORIZED`. Until separate explicit operator authorization
+after merge and independent audit: kill switch stays `HALTED`;
+`execution_authorized = false`; normal LIVE and real-order transmission remain
+unauthorized; existing REAL_READONLY paths remain order-incapable; Scheduled Task
+stays `Disabled`; and no physical acceptance broker is invoked. There is no automatic
+transition from 8.11.2 to 8.11.3. Stage 8.12 remains FULL/R15 Production Authorization,
+`NOT STARTED / NOT AUTHORIZED`. Frozen identity `TRAIL1__N4_01__FULL__R15` and all
+T3/H1/TRAIL1, N4, R15, 6% cap, realized-equity sizing, margin cap, no-pyramiding,
+no-session-filter, and no-canonical-fallback semantics remain unchanged.
