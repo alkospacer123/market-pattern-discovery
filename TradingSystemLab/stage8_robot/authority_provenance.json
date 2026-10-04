@@ -328,7 +328,10 @@
       "order_endpoint_call_count": 0,
       "real_order_count": 0,
       "kill_switch": "HALTED",
-      "safety_gate_reasons": ["KILL_SWITCH_HALTED", "EXECUTION_NOT_AUTHORIZED"],
+      "safety_gate_reasons": [
+        "KILL_SWITCH_HALTED",
+        "EXECUTION_NOT_AUTHORIZED"
+      ],
       "additional_safety_gate_blockers": [],
       "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
     },
@@ -350,7 +353,12 @@
       "finam_symbol": "CNYRUBF@RTSX",
       "prospective_direction": "LONG",
       "acceptance_quantity": 1,
-      "frozen_feasibility_order": ["USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF"],
+      "frozen_feasibility_order": [
+        "USDRUBF",
+        "CNYRUBF",
+        "GLDRUBF",
+        "IMOEXF"
+      ],
       "classification": "OPERATIONAL_PHYSICAL_ACCEPTANCE_CANDIDATE_ONLY_NOT_A_TRADING_SIGNAL_OR_PERFORMANCE_SELECTION"
     },
     "independent_evidence_audit": {
@@ -361,8 +369,17 @@
       "scheduled_task": "Disabled"
     },
     "historical_failed_prechecks": [
-      {"result": "STAGE8_11_SAFETY_GATE_BLOCKED", "reason": "stale heartbeat / stale FINAM contact after intentional supervisor stop", "resolution": "fresh order-incapable REAL_READONLY cycle removed transient freshness blockers"},
-      {"result": "STAGE8_11_CANONICAL_INTENTS_INVALID", "classification": "BLOCKED_CANONICAL_INTENT_LEDGER_AUTHORITY_MISMATCH", "reason": "PR #356 incorrectly treated readonly-supervisor.sqlite3 OperationalState as a StateStore intent ledger", "resolution": "dedicated stage8-11-acceptance.sqlite3 authority"}
+      {
+        "result": "STAGE8_11_SAFETY_GATE_BLOCKED",
+        "reason": "stale heartbeat / stale FINAM contact after intentional supervisor stop",
+        "resolution": "fresh order-incapable REAL_READONLY cycle removed transient freshness blockers"
+      },
+      {
+        "result": "STAGE8_11_CANONICAL_INTENTS_INVALID",
+        "classification": "BLOCKED_CANONICAL_INTENT_LEDGER_AUTHORITY_MISMATCH",
+        "reason": "PR #356 incorrectly treated readonly-supervisor.sqlite3 OperationalState as a StateStore intent ledger",
+        "resolution": "dedicated stage8-11-acceptance.sqlite3 authority"
+      }
     ],
     "persistence_authority_correction": {
       "reason": "PR #356 precheck treated the OperationalState supervisor database as a StateStore intent ledger",
@@ -409,6 +426,17 @@
     "stage8_11_6_status": "NOT_STARTED",
     "stage8_11_7_status": "NOT_STARTED",
     "stage8_11_8_status": "NOT_STARTED",
-    "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
+    "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
+    "operator_boundary_predecessor_authority": {
+      "pull_request": 360,
+      "base": "cc1508e87c0cfc1994352761aa800da58751c132",
+      "head": "a233ebd9c1d56d85e6878389b3e4fb86a0054683",
+      "merge": "a54465d84b4eddabff38519011e8a26eafbfdd6d"
+    },
+    "production_readiness_findings": [
+      "STAGE8_11_PHYSICAL_EVIDENCE_UNPROVEN_STATE_DEFAULTED_SAFE",
+      "STAGE8_11_NO_FILL_FLAT_STATE_NOT_PROVEN"
+    ],
+    "physical_wrapper_run": false
   }
 }

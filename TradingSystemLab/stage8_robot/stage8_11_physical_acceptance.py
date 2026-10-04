@@ -39,6 +39,8 @@ FINAM_SYMBOL = "CNYRUBF@RTSX"
 DIRECTION = "LONG"
 QUANTITY = 1
 REPORT_NAME = "stage8_11_physical_acceptance.json"
+PRECHECK_REPORT_NAME = "stage8_11_intel_precheck.json"
+PRECHECK_EVIDENCE_SHA256 = "7171B7CD0098FF51159DC05C46C0326BF7F412A2D9EA0CBB3F9BDAFBE7745455"
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -84,7 +86,9 @@ def _write_atomic(payload: dict[str, Any], destination: Path) -> str:
 
 def _physical_evidence(*, accepted_commit: str, account_hash: str, result: dict[str, Any],
                        authority: AcceptanceAuthority, external_sha256: str) -> dict[str, Any]:
-    final = result.get("final_state", {})
+    final = result.get("final_state")
+    if not isinstance(final, dict):
+        final = {}
     classification = result.get("classification", "BLOCKED")
     if classification == "SYNTHETIC_PASS":
         classification = "PASS"
@@ -116,9 +120,9 @@ def _physical_evidence(*, accepted_commit: str, account_hash: str, result: dict[
         entry_fill_proven=result.get("entry_fill_proven") is True,
         one_contract_position_observed=result.get("one_contract_position_observed") is True,
         controlled_flatten_proven=result.get("flatten_fill_proven") is True,
-        final_position_quantity=int(final.get("position_quantity", 0)),
-        final_active_order_count=max(0, int(final.get("active_order_count", 0))),
-        unresolved_intent_count=max(0, int(final.get("unresolved_intent_count", authority.unresolved_intent_count))),
+        final_position_quantity=final.get("position_quantity"),
+        final_active_order_count=final.get("active_order_count"),
+        unresolved_intent_count=final.get("unresolved_intent_count"),
         reconciliation_result="PASS" if "FINAL_RECONCILIATION_PASS" in result.get("phases", []) else "UNRESOLVED",
         physical_result_classification=classification,
         external_raw_evidence_sha256=external_sha256,
@@ -138,8 +142,12 @@ def execute_boundary(*, accepted_commit: str, authorization: str, account_id: st
         raise PhysicalAcceptanceBlocked("STAGE8_11_INITIAL_HALT_REQUIRED")
     if not stage8_10_authority_complete():
         raise PhysicalAcceptanceBlocked("STAGE8_11_STAGE8_10_AUTHORITY_INVALID")
-    if len(external_evidence_sha256) != 64 or any(c not in "0123456789abcdefABCDEF" for c in external_evidence_sha256):
+    precheck_report = runtime_root / "diagnostics" / PRECHECK_REPORT_NAME
+    if external_evidence_sha256.upper() != PRECHECK_EVIDENCE_SHA256:
         raise PhysicalAcceptanceBlocked("STAGE8_11_EXTERNAL_EVIDENCE_SHA256_INVALID")
+    if (not precheck_report.is_file()
+            or hashlib.sha256(precheck_report.read_bytes()).hexdigest().upper() != PRECHECK_EVIDENCE_SHA256):
+        raise PhysicalAcceptanceBlocked("STAGE8_11_PRECHECK_EVIDENCE_MISSING_OR_MISMATCH")
 
     ledger = initialize_stage8_11_acceptance_ledger(runtime_root, account_id)
     store = StateStore(ledger)

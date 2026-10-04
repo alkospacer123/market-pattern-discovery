@@ -995,6 +995,8 @@ STAGE811_PATH = "TradingSystemLab/stage8_robot/controlled_real_acceptance.py"
 STAGE811_SCHEMA = "TradingSystemLab/stage8_robot/stage8_11_physical_evidence.schema.json"
 STAGE811_PRECHECK = "TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py"
 STAGE811_STATE = "TradingSystemLab/stage8_robot/state.py"
+STAGE811_PHYSICAL = "TradingSystemLab/stage8_robot/stage8_11_physical_acceptance.py"
+STAGE811_WRAPPER = "TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-physical-acceptance.ps1"
 
 @pytest.mark.parametrize("needle,replacement,error", [
     ("request.quantity != MAX_ACCEPTANCE_QUANTITY", "False", "STAGE_8_11_EXACTLY_ONE_HARD_CAP"),
@@ -1019,6 +1021,60 @@ def test_stage811_evidence_schema_mutation_fails_both_audits():
     operational=run_audit({STAGE811_SCHEMA:mutated})
     assert "STAGE_8_11_EVIDENCE_PRIVACY_SCHEMA" in independent["errors"]
     assert "STAGE_8_11_EVIDENCE_PRIVACY_SCHEMA" in operational["errors"]
+
+
+def test_stage811_maximum_post_capability_expansion_fails_both_audits():
+    mutated=source(STAGE811_SCHEMA).replace('"maximum": 2','"maximum": 3',1)
+    independent=stage8.audit(write_result=False,source_overrides={"stage8_11_physical_evidence.schema.json":mutated})
+    operational=run_audit({STAGE811_SCHEMA:mutated})
+    assert "STAGE_8_11_MAXIMUM_TWO_POST_CAPABILITY" in independent["errors"]
+    assert "STAGE_8_11_MAXIMUM_TWO_POST_CAPABILITY" in operational["errors"]
+
+
+@pytest.mark.parametrize("needle,replacement,error", [
+    ('int(entry.get("executed_quantity", -1)) != 0 or not _account_is_clean(final)',
+     'False', "STAGE_8_11_NO_FILL_REQUIRES_CLEAN_ACCOUNT_PROOF"),
+    ('final["unexpected_position_count"] == 0', 'True',
+     "STAGE_8_11_FINAL_RECONCILIATION_ALL_POSITIONS"),
+    ('if _status(row.get("status")) in ACTIVE', 'if False',
+     "STAGE_8_11_FINAL_RECONCILIATION_ALL_ACTIVE_ORDERS"),
+])
+def test_stage811_final_reconciliation_mutations_fail_both_audits(needle,replacement,error):
+    mutated=source(STAGE811_PATH).replace(needle,replacement,1)
+    independent=stage8.audit(write_result=False,source_overrides={"controlled_real_acceptance.py":mutated})
+    operational=run_audit({STAGE811_PATH:mutated})
+    assert error in independent["errors"]
+    assert error in operational["errors"]
+
+
+@pytest.mark.parametrize("needle,error", [
+    ("precheck_report.is_file()", "STAGE_8_11_FROZEN_PRECHECK_PROVENANCE"),
+    ('final_active_order_count=final.get("active_order_count")',
+     "STAGE_8_11_UNKNOWN_FINAL_STATE_NOT_SAFE_ZERO"),
+])
+def test_stage811_physical_boundary_mutations_fail_both_audits(needle,error):
+    original=source(STAGE811_PHYSICAL)
+    replacement=("True" if "precheck" in needle else
+                 'final_active_order_count=final.get("active_order_count", 0)')
+    mutated=original.replace(needle,replacement,1)
+    independent=stage8.audit(write_result=False,source_overrides={"stage8_11_physical_acceptance.py":mutated})
+    operational=run_audit({STAGE811_PHYSICAL:mutated})
+    assert error in independent["errors"]
+    assert error in operational["errors"]
+
+
+@pytest.mark.parametrize("needle,error", [
+    ("$timeStatusExitCode = $LASTEXITCODE", "STAGE_8_11_WINDOWS_TIME_EXIT_CODES"),
+    ("$timeSourceExitCode = $LASTEXITCODE", "STAGE_8_11_WINDOWS_TIME_EXIT_CODES"),
+    ("emergency_halt(Path", "STAGE_8_11_PARENT_WRAPPER_HALT_DEFENSE"),
+])
+def test_stage811_wrapper_defense_mutations_fail_both_audits(needle,error):
+    mutated=source(STAGE811_WRAPPER).replace(needle,"removed",1)
+    relative="deploy/windows/run-stage8-11-physical-acceptance.ps1"
+    independent=stage8.audit(write_result=False,source_overrides={relative:mutated})
+    operational=run_audit({STAGE811_WRAPPER:mutated})
+    assert error in independent["errors"]
+    assert error in operational["errors"]
 
 @pytest.mark.parametrize("needle,error",[
     ("evaluate_new_entry_gate", "STAGE_8_11_INTEL_EXISTING_SAFETY_GATE_EXACT_BLOCKERS"),
