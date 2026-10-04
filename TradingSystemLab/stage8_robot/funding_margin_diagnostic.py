@@ -93,7 +93,7 @@ def _blocked(status: str, reason: str, base: dict) -> dict:
 
 def evaluate(*, account: dict, orders: object, details: dict, account_id: str,
              production_id: str, registry: dict, production_registry: dict, params: dict,
-             sizing: dict, timestamp: str) -> dict:
+             sizing: dict, timestamp: str, required_readonly: bool = True) -> dict:
     """Evaluate synthetic/read-only inputs and return sanitized evidence only."""
     base = {"schema": SCHEMA, "timestamp": timestamp,
             "production_specification_id": production_id,
@@ -109,9 +109,12 @@ def evaluate(*, account: dict, orders: object, details: dict, account_id: str,
             "available_cash_semantics": AVAILABLE_CASH_SEMANTICS}
     if production_id != PRODUCTION_SPECIFICATION_ID:
         return _blocked("BLOCKED_PRODUCTION_AUTHORITY_INVALID", "PRODUCTION_ID_MISMATCH", base)
-    if details.get("readonly") is not True:
-        return _blocked("BLOCKED_SAFETY_PREREQUISITE", "TOKEN_NOT_READONLY", base)
-    if account_id not in {str(value) for value in details.get("account_ids", [])}:
+    if details.get("readonly") is not required_readonly:
+        reason = "TOKEN_NOT_READONLY" if required_readonly else "TOKEN_NOT_WRITE_CAPABLE"
+        return _blocked("BLOCKED_SAFETY_PREREQUISITE", reason, base)
+    account_ids = details.get("account_ids", [])
+    if (not isinstance(account_ids, list)
+            or [str(value) for value in account_ids].count(str(account_id)) != 1):
         return _blocked("BLOCKED_SAFETY_PREREQUISITE", "ACCOUNT_NOT_ENUMERATED", base)
     if account.get("status") not in ACTIVE_ACCOUNT_STATUSES:
         return _blocked("BLOCKED_ACCOUNT_INACTIVE", "ACCOUNT_NOT_ACTIVE", base)
@@ -207,15 +210,15 @@ def evaluate(*, account: dict, orders: object, details: dict, account_id: str,
             "funding_margin_feasibility": "PASS"}
 
 
-def run(api, account_id: str, report_path: Path) -> dict:
+def run(api, account_id: str, report_path: Path | None, *, required_readonly: bool = True) -> dict:
     """Fetch only GET/session authorities, evaluate them, and write external JSON.
 
     Collection is deliberately staged.  Each session/account safety gate is
     evaluated before the next (more privileged) read is made, and a binding
     that fails validation is never used as sizing evidence.
     """
-    destination = report_path.expanduser().resolve()
-    if destination == REPOSITORY_ROOT or REPOSITORY_ROOT in destination.parents:
+    destination = report_path.expanduser().resolve() if report_path is not None else None
+    if destination is not None and (destination == REPOSITORY_ROOT or REPOSITORY_ROOT in destination.parents):
         raise RuntimeError("STAGE8_9_REPORT_REPOSITORY_OUTPUT_FORBIDDEN")
     production_registry = load_production_registry()
 
@@ -228,9 +231,11 @@ def run(api, account_id: str, report_path: Path) -> dict:
                           registry=registry or {},
                           production_registry=production_registry,
                           params=params or {}, sizing=sizing or {},
-                          timestamp=timestamp or datetime.now(timezone.utc).isoformat())
-        destination.write_text(json.dumps(report, indent=2, sort_keys=True)+"\n",
-                               encoding="utf-8")
+                          timestamp=timestamp or datetime.now(timezone.utc).isoformat(),
+                          required_readonly=required_readonly)
+        if destination is not None:
+            destination.write_text(json.dumps(report, indent=2, sort_keys=True)+"\n",
+                                   encoding="utf-8")
         return report
 
     api.create_session()
@@ -238,8 +243,10 @@ def run(api, account_id: str, report_path: Path) -> dict:
     if not isinstance(details, dict):
         details = {}
     # Session authority precedes every account-bound request.
-    if (details.get("readonly") is not True
-            or account_id not in {str(value) for value in details.get("account_ids", [])}):
+    account_ids = details.get("account_ids", [])
+    if (details.get("readonly") is not required_readonly
+            or not isinstance(account_ids, list)
+            or [str(value) for value in account_ids].count(str(account_id)) != 1):
         return finish(account={}, orders=[], details=details)
 
     account = api.account(account_id)

@@ -761,6 +761,20 @@ def audit(
           "STAGE_8_10_CLOSEOUT_STATUS_SYNCHRONIZED")
     check(all("Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**" in doc for doc in stage8_9_docs),
           "STAGE_8_11_CODE_READY_PENDING_PHYSICAL_ACCEPTANCE")
+    intel_precheck=text("TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py")
+    intel_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-intel-precheck.ps1")
+    intel_ast=ast.parse(intel_precheck)
+    intel_order_calls={node.func.attr for node in ast.walk(intel_ast)
+                       if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)}
+    check('MODE = "STAGE8_11_PRECHECK_ONLY"' in intel_precheck
+          and not intel_order_calls.intersection({"place_order","cancel_order","modify_order","submit_order"})
+          and '"execution_authorization_observed":False' in intel_precheck
+          and '"real_order_count":0' in intel_precheck,
+          "STAGE_8_11_INTEL_PRECHECK_ONLY_ZERO_ORDER")
+    check("Get-TradingCredential" in intel_wrapper and "$AcceptedCommit" in intel_wrapper
+          and "Get-ScheduledTask" in intel_wrapper and "backup_state" in intel_wrapper
+          and "--execute" not in intel_wrapper,
+          "STAGE_8_11_INTEL_OPERATOR_WRAPPER_ISOLATED")
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")
     forbidden_claims = (

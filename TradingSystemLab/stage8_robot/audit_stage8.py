@@ -242,6 +242,29 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     check("controlled_real_acceptance" not in runner and "controlled_real_acceptance" not in supervisor
           and "controlled_real_acceptance" not in launcher and "controlled_real_acceptance" not in task_installer,
           "STAGE_8_11_NO_ROUTINE_OR_SCHEDULED_INTEGRATION")
+    intel_precheck=document("stage8_11_intel_acceptance.py",HERE/"stage8_11_intel_acceptance.py")
+    intel_wrapper=document("deploy/windows/run-stage8-11-intel-precheck.ps1",
+                           HERE/"deploy/windows/run-stage8-11-intel-precheck.ps1")
+    intel_calls={node.func.attr for node in ast.walk(ast.parse(intel_precheck))
+                 if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)}
+    check(not intel_calls.intersection({"place_order","cancel_order","modify_order","submit_order"})
+          and 'MODE = "STAGE8_11_PRECHECK_ONLY"' in intel_precheck
+          and '"execution_authorization_observed":False' in intel_precheck
+          and '"order_endpoint_call_count":0' in intel_precheck,
+          "STAGE_8_11_INTEL_PRECHECK_ORDER_INCAPABLE")
+    check("stage8_11_intel_acceptance" not in runner and "stage8_11_intel_acceptance" not in supervisor
+          and "stage8_11_intel_acceptance" not in launcher and "stage8_11_intel_acceptance" not in task_installer,
+          "STAGE_8_11_INTEL_PRECHECK_MANUAL_ONLY")
+    check("Get-TradingCredential" in intel_wrapper and "Get-ReadonlyCredential" in intel_wrapper
+          and "$AcceptedCommit" in intel_wrapper and "Get-ScheduledTask" in intel_wrapper
+          and "readonly_supervisor|stage8_robot\\.runner" in intel_wrapper
+          and "backup_state" in intel_wrapper and "--direction" in intel_wrapper
+          and "--execute" not in intel_wrapper,
+          "STAGE_8_11_INTEL_WINDOWS_OPERATOR_SAFEGUARDS")
+    check("select_candidate" in intel_precheck and "for instrument in N4" in intel_precheck
+          and "required_readonly=False" in intel_precheck
+          and "collect_funding_authority" in intel_precheck,
+          "STAGE_8_11_INTEL_REUSES_FROZEN_SIZING_AUTHORITY")
     check("LIVE_TRADING_NOT_AUTHORIZED" in config and "REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in broker,
           "STAGE_8_11_EXISTING_AIRGAPS_INTACT")
     api_methods={node.name for node in ast.parse(finam_api).body
