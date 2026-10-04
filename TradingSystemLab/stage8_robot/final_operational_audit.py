@@ -931,6 +931,19 @@ def audit(
     check("Get-ReadonlyCredential" in recovery_wrapper and "Get-TradingCredential" not in recovery_wrapper
           and "stage8_11_failed_attempt_recovery" in recovery_wrapper,
           "STAGE8_11_RUNNABLE_READONLY_RECOVERY_OPERATOR_BOUNDARY")
+    recovery_keys=[node.value for node in ast.walk(ast.parse(recovery))
+                   if isinstance(node,ast.Constant) and isinstance(node.value,str)]
+    check(recovery_keys.count("recovery_code_commit") >= 3
+          and "load_kill_switch" in recovery and 'switch.get("state") != "HALTED"' in recovery,
+          "STAGE8_11_RECOVERY_CODE_AND_HALTED_EVIDENCE_BINDING")
+    check(all(token in recovery_wrapper for token in (
+              "ValidatePattern('^[0-9a-f]{40}$')", "rev-parse HEAD", "status --porcelain",
+              "Get-FileHash", "STAGE8_11_KILL_SWITCH_NOT_HALTED",
+              "stage8_11_physical_acceptance|stage8_11_failed_attempt_recovery",
+              "Global\\TradingSystemLab-Stage8-11-Failed-Intent-Recovery", "ReleaseMutex"))
+          and recovery_wrapper.index("rev-parse HEAD") < recovery_wrapper.index("Get-ReadonlyCredential")
+          and recovery_wrapper.index("Get-FileHash") < recovery_wrapper.index("Get-ReadonlyCredential"),
+          "STAGE8_11_RECOVERY_PREAUTHORITY_EXCLUSIVITY_BOUNDARY")
     check("if not _account_is_clean(final):" in controlled and "finally:\n        emergency_halt(runtime_root" in controlled,
           "STAGE8_11_CLEAN_PROOF_AND_HALT")
     record = provenance.get("stage8_11_failed_physical_attempt_correction", {})

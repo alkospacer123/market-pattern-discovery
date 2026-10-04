@@ -12,6 +12,7 @@ from TradingSystemLab.stage8_robot.finam_api import (
     FinamAPI, FinamOrderRejected, FinamUncertainSubmission, TIME_IN_FORCE_DAY,
 )
 from TradingSystemLab.stage8_robot.state import StateStore, initialize_stage8_11_acceptance_ledger
+from TradingSystemLab.stage8_robot.trading_safety_gate import write_kill_switch
 from TradingSystemLab.stage8_robot.tests.test_controlled_real_acceptance import (
     ACCOUNT, HASH, NOW, API, armed_runtime, authority,
 )
@@ -135,6 +136,7 @@ class ReadonlyClean:
 
 def recovery_fixture(tmp_path, monkeypatch):
     root=tmp_path/"runtime"; evidence=tmp_path/"original.json"; evidence.write_text("failed physical evidence\n")
+    write_kill_switch(root,"HALTED",now=NOW)
     digest=hashlib.sha256(evidence.read_bytes()).hexdigest().upper()
     monkeypatch.setattr(recovery,"FAILED_PHYSICAL_EVIDENCE_SHA256",digest)
     ledger=initialize_stage8_11_acceptance_ledger(root,ACCOUNT); store=StateStore(ledger)
@@ -148,11 +150,13 @@ def test_historical_recovery_is_order_incapable_and_creates_backup_evidence(tmp_
     root,evidence,digest=recovery_fixture(tmp_path,monkeypatch)
     before=evidence.read_bytes()
     got=recovery.recover_historical_intent(runtime_root=root,account_id=ACCOUNT,readonly_api=ReadonlyClean(),
-        accepted_commit=recovery.ACCEPTED_PHYSICAL_COMMIT,physical_evidence=evidence,
+        recovery_code_commit="a"*40,physical_evidence=evidence,
         physical_evidence_sha256=digest,intent_key=recovery.HISTORICAL_INTENT_KEY,now=NOW)
     store=StateStore(root/"state"/"stage8-11-acceptance.sqlite3")
     assert store.intent(recovery.HISTORICAL_INTENT_KEY)["status"] == "REJECTED"
     assert evidence.read_bytes()==before and got["fresh_account_wide_reconciliation"]=="PASS"
+    assert got["accepted_physical_code_commit"]==recovery.ACCEPTED_PHYSICAL_COMMIT
+    assert got["recovery_code_commit"]=="a"*40
     assert list((root/"backups"/"stage8-11-acceptance").glob("*.sqlite3"))
     assert (root/"diagnostics"/recovery.RECOVERY_EVIDENCE_NAME).is_file()
     source=Path(recovery.__file__).read_text()
@@ -168,7 +172,7 @@ def test_recovery_faults_are_restartable_and_never_claim_success_early(
         tmp_path, monkeypatch, point, committed):
     root,evidence,digest=recovery_fixture(tmp_path,monkeypatch)
     kwargs=dict(runtime_root=root,account_id=ACCOUNT,readonly_api=ReadonlyClean(),
-        accepted_commit=recovery.ACCEPTED_PHYSICAL_COMMIT,physical_evidence=evidence,
+        recovery_code_commit="a"*40,physical_evidence=evidence,
         physical_evidence_sha256=digest,intent_key=recovery.HISTORICAL_INTENT_KEY,now=NOW)
     def fail(at):
         if at == point: raise OSError("injected")
@@ -184,12 +188,46 @@ def test_recovery_faults_are_restartable_and_never_claim_success_early(
     assert not target.with_name(target.name+recovery.RECOVERY_PREPARED_SUFFIX).exists()
 
 
+def test_prepared_and_resume_are_bound_to_recovery_code_commit(tmp_path,monkeypatch):
+    root,evidence,digest=recovery_fixture(tmp_path,monkeypatch)
+    kwargs=dict(runtime_root=root,account_id=ACCOUNT,readonly_api=ReadonlyClean(),
+        recovery_code_commit="a"*40,physical_evidence=evidence,
+        physical_evidence_sha256=digest,intent_key=recovery.HISTORICAL_INTENT_KEY,now=NOW)
+    with pytest.raises(OSError):
+        recovery.recover_historical_intent(**kwargs,
+            fault_injector=lambda point: (_ for _ in ()).throw(OSError()) if point=="after_backup" else None)
+    prepared=root/"diagnostics"/(recovery.RECOVERY_EVIDENCE_NAME+recovery.RECOVERY_PREPARED_SUFFIX)
+    assert json.loads(prepared.read_text())["recovery_code_commit"]=="a"*40
+    kwargs["recovery_code_commit"]="b"*40
+    with pytest.raises(recovery.RecoveryBlocked,match="AUTHORITY_MISMATCH"):
+        recovery.recover_historical_intent(**kwargs)
+
+
+def test_non_halted_blocks_before_remote_authentication(tmp_path,monkeypatch):
+    root,evidence,digest=recovery_fixture(tmp_path,monkeypatch)
+    write_kill_switch(root,"ARMED",allow_arm=True,now=NOW)
+    api=ReadonlyClean()
+    api.session_details=lambda: pytest.fail("remote authentication must not occur")
+    with pytest.raises(recovery.RecoveryBlocked,match="NOT_HALTED"):
+        recovery.recover_historical_intent(runtime_root=root,account_id=ACCOUNT,readonly_api=api,
+            recovery_code_commit="a"*40,physical_evidence=evidence,
+            physical_evidence_sha256=digest,intent_key=recovery.HISTORICAL_INTENT_KEY,now=NOW)
+
+
 def test_windows_recovery_boundary_uses_readonly_credential_only():
     wrapper=Path(recovery.__file__).parent/"deploy"/"windows"/"run-stage8-11-failed-intent-recovery.ps1"
     source=wrapper.read_text(encoding="utf-8")
     assert "Get-ReadonlyCredential" in source and "REAL_READONLY" in source
     assert "Get-TradingCredential" not in source and "TRADING_SECRET" not in source
     assert all(term not in source for term in ("place_order", "cancel_order", "modify_order", "allow_arm"))
+    credential=source.index("Get-ReadonlyCredential")
+    assert source.index("rev-parse HEAD") < credential
+    assert source.index("status --porcelain") < credential
+    assert source.index("Get-FileHash") < credential
+    assert source.index('state -cne "HALTED"') < credential
+    assert "stage8_11_physical_acceptance|stage8_11_failed_attempt_recovery" in source
+    assert "Global\\TradingSystemLab-Stage8-11-Failed-Intent-Recovery" in source
+    assert source.index("ReleaseMutex") > source.index("finally")
 
 
 def test_recovery_cli_runs_end_to_end_with_synthetic_readonly_transport(
@@ -198,7 +236,7 @@ def test_recovery_cli_runs_end_to_end_with_synthetic_readonly_transport(
     monkeypatch.setenv("STAGE8_11_READONLY_SECRET", "synthetic-readonly")
     monkeypatch.setenv("STAGE8_11_READONLY_ACCOUNT_ID", ACCOUNT)
     argv=["--runtime-root",str(root),"--account-id",ACCOUNT,
-        "--accepted-commit",recovery.ACCEPTED_PHYSICAL_COMMIT,
+        "--accepted-recovery-commit","a"*40,
         "--physical-evidence",str(evidence),"--physical-evidence-sha256",digest,
         "--intent-key",recovery.HISTORICAL_INTENT_KEY]
     assert recovery.main(argv,api_factory=lambda secret:ReadonlyClean()) == 0
@@ -211,9 +249,9 @@ def test_recovery_cli_runs_end_to_end_with_synthetic_readonly_transport(
 def test_wrong_recovery_authority_or_dirty_broker_blocks(tmp_path,monkeypatch,mutation):
     root,evidence,digest=recovery_fixture(tmp_path,monkeypatch)
     kwargs=dict(runtime_root=root,account_id=ACCOUNT,readonly_api=ReadonlyClean(),
-        accepted_commit=recovery.ACCEPTED_PHYSICAL_COMMIT,physical_evidence=evidence,
+        recovery_code_commit="a"*40,physical_evidence=evidence,
         physical_evidence_sha256=digest,intent_key=recovery.HISTORICAL_INTENT_KEY,now=NOW)
-    if mutation=="commit": kwargs["accepted_commit"]="0"*40
+    if mutation=="commit": kwargs["recovery_code_commit"]="INVALID"
     elif mutation=="sha": kwargs["physical_evidence_sha256"]="0"*64
     elif mutation=="intent": kwargs["intent_key"]="wrong"
     elif mutation=="account": kwargs["readonly_api"]=ReadonlyClean("wrong")
