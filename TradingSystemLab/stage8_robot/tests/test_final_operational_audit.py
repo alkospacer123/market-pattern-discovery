@@ -993,6 +993,7 @@ def test_stage_8_10_clearly_scoped_historical_text_passes_both_audits(path):
 
 STAGE811_PATH = "TradingSystemLab/stage8_robot/controlled_real_acceptance.py"
 STAGE811_SCHEMA = "TradingSystemLab/stage8_robot/stage8_11_physical_evidence.schema.json"
+STAGE811_PRECHECK = "TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py"
 
 @pytest.mark.parametrize("needle,replacement,error", [
     ("request.quantity != MAX_ACCEPTANCE_QUANTITY", "False", "STAGE_8_11_EXACTLY_ONE_HARD_CAP"),
@@ -1017,6 +1018,17 @@ def test_stage811_evidence_schema_mutation_fails_both_audits():
     operational=run_audit({STAGE811_SCHEMA:mutated})
     assert "STAGE_8_11_EVIDENCE_PRIVACY_SCHEMA" in independent["errors"]
     assert "STAGE_8_11_EVIDENCE_PRIVACY_SCHEMA" in operational["errors"]
+
+@pytest.mark.parametrize("needle,error",[
+    ("evaluate_new_entry_gate", "STAGE_8_11_INTEL_EXISTING_SAFETY_GATE_EXACT_BLOCKERS"),
+    ("readonly_unresolved_intent_count", "STAGE_8_11_INTEL_CANONICAL_SQLITE_INTENTS"),
+])
+def test_stage811_precheck_authority_removal_fails_both_audits(needle,error):
+    mutated=source(STAGE811_PRECHECK).replace(needle,"removed_authority")
+    independent=stage8.audit(write_result=False,source_overrides={"stage8_11_intel_acceptance.py":mutated})
+    operational=run_audit({STAGE811_PRECHECK:mutated})
+    assert error in independent["errors"]
+    assert error in operational["errors"]
 
 
 def test_stage811_mock_only_api_dependency_fails_both_audits():

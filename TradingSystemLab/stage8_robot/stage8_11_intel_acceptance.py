@@ -18,10 +18,11 @@ from typing import Any, Callable
 
 from .finam_api import FinamAPI
 from .funding_margin_diagnostic import READY, run as collect_funding_authority
-from .instrument_resolver import N4
+from .instrument_resolver import N4, load_registry
 from .operations import InstanceLock
 from .specification import PRODUCTION_SPECIFICATION_ID
-from .trading_safety_gate import heartbeat_path, load_kill_switch
+from .state import readonly_unresolved_intent_count
+from .trading_safety_gate import evaluate_new_entry_gate, heartbeat_path
 
 MODE = "STAGE8_11_PRECHECK_ONLY"
 STATUS = "CODE_READY_PHYSICAL_PRECHECK_NOT_YET_EXECUTED"
@@ -30,6 +31,9 @@ SOURCE_BASE_COMMIT = "14b4cdb13a1bc62031a1b859926bc65ce1071105"
 REPORT_NAME = "stage8_11_intel_precheck.json"
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 ALLOWED_DIRECTIONS = frozenset({"LONG", "SHORT"})
+REGISTRY = Path(__file__).with_name("production_instrument_registry.csv")
+CANONICAL_STATE = Path("state") / "readonly-supervisor.sqlite3"
+EXPECTED_GATE_REASONS = ["KILL_SWITCH_HALTED", "EXECUTION_NOT_AUTHORIZED"]
 
 
 class PrecheckBlocked(RuntimeError):
@@ -80,22 +84,34 @@ def recovery_implementation_available() -> bool:
 
 def precheck_only(*, api: Any, account_id: str, runtime_root: Path, direction: str,
                   external_evidence_sha256: str, accepted_commit: str,
-                  funding_collector: Callable[..., dict] = collect_funding_authority) -> dict[str, Any]:
+                  funding_collector: Callable[..., dict] = collect_funding_authority,
+                  now: datetime | None = None, registry_path: Path = REGISTRY) -> dict[str, Any]:
     """Perform read/session preflight; the object passed here need not expose POST methods."""
-    switch, error = load_kill_switch(runtime_root)
-    if error or switch.get("state") != "HALTED": _fail("STAGE8_11_KILL_SWITCH_NOT_HALTED")
+    observed_now = now or datetime.now(timezone.utc)
+    gate = evaluate_new_entry_gate(runtime_root=runtime_root, now=observed_now,
+                                   execution_authorized=False)
+    if gate.get("reason_codes") != EXPECTED_GATE_REASONS:
+        _fail("STAGE8_11_SAFETY_GATE_BLOCKED")
     heartbeat = json.loads(heartbeat_path(runtime_root).read_text(encoding="utf-8"))
     account_hash = hashlib.sha256(account_id.encode()).hexdigest()
     if heartbeat.get("account_hash") != account_hash: _fail("STAGE8_11_ACCOUNT_MISMATCH")
-    if heartbeat.get("reconciliation_status") != "PASS": _fail("STAGE8_11_RECONCILIATION_FAILED")
-    if heartbeat.get("unresolved_order_count") != 0: _fail("STAGE8_11_UNRESOLVED_INTENTS_PRESENT")
+    try: canonical_unresolved = readonly_unresolved_intent_count(runtime_root / CANONICAL_STATE)
+    except Exception: _fail("STAGE8_11_CANONICAL_INTENTS_INVALID")
+    if canonical_unresolved != 0: _fail("STAGE8_11_CANONICAL_UNRESOLVED_INTENTS")
     report = funding_collector(api, account_id, None, required_readonly=False)
     if report.get("reason_code") == "TOKEN_NOT_WRITE_CAPABLE": _fail("STAGE8_11_TRADING_TOKEN_READONLY")
     if report.get("reason_code") == "ACTIVE_ORDERS_PRESENT": _fail("STAGE8_11_ACTIVE_ORDERS_PRESENT")
     if report.get("funding_classification") != READY: _fail("STAGE8_11_FUNDING_AUTHORITY_BLOCKED")
     instrument, case = select_candidate(report, direction)
     if not recovery_implementation_available(): _fail("STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE")
-    symbol = f"{instrument}@RTSX"
+    try:
+        matches=[row for row in load_registry(registry_path) if row.research_symbol == instrument]
+    except Exception: _fail("STAGE8_11_FROZEN_REGISTRY_INVALID")
+    if (len(matches) != 1 or not matches[0].finam_symbol
+            or matches[0].binding_status != "AUTHENTICATED_REAL_READONLY"
+            or matches[0].trading_status != "TRADABLE"):
+        _fail("STAGE8_11_FROZEN_REGISTRY_BINDING_INVALID")
+    symbol = matches[0].finam_symbol
     if not isinstance(external_evidence_sha256, str) or len(external_evidence_sha256) != 64:
         _fail("STAGE8_11_EXTERNAL_EVIDENCE_SHA256_INVALID")
     return {"schema_id":"stage8_11_intel_precheck.v1", "mode":MODE,
@@ -104,7 +120,8 @@ def precheck_only(*, api: Any, account_id: str, runtime_root: Path, direction: s
         "prospective_direction":direction, "resolved_finam_symbol":symbol,
         "stage8_10_authority":"PASS", "dpapi_authority":"PASS",
         "session_write_capable":"PASS", "account_binding":"PASS", "reconciliation":"PASS",
-        "active_orders":0, "unresolved_intents":0, "instrument_binding":"PASS", "tradable":"PASS",
+        "active_orders":0, "unresolved_intents":0, "canonical_unresolved_intents":canonical_unresolved,
+        "safety_gate_reason_codes":gate["reason_codes"], "instrument_binding":"PASS", "tradable":"PASS",
         "r15_permits_at_least_one_contract":case["r15_quantity"] >= 1,
         "margin_permits_at_least_one_contract":case["margin_quantity"] >= 1,
         "stage8_11_acceptance_quantity":1, "kill_switch_observed":"HALTED",

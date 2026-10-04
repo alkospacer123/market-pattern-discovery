@@ -775,6 +775,18 @@ def audit(
           and "Get-ScheduledTask" in intel_wrapper and "backup_state" in intel_wrapper
           and "--execute" not in intel_wrapper,
           "STAGE_8_11_INTEL_OPERATOR_WRAPPER_ISOLATED")
+    check("evaluate_new_entry_gate" in intel_precheck and "execution_authorized=False" in intel_precheck
+          and 'EXPECTED_GATE_REASONS = ["KILL_SWITCH_HALTED", "EXECUTION_NOT_AUTHORIZED"]' in intel_precheck,
+          "STAGE_8_11_INTEL_EXISTING_SAFETY_GATE_EXACT_BLOCKERS")
+    check("readonly_unresolved_intent_count" in intel_precheck and "canonical_unresolved_intents" in intel_precheck
+          and "readonly-supervisor.sqlite3" in intel_precheck,
+          "STAGE_8_11_INTEL_CANONICAL_SQLITE_INTENTS")
+    check('f"{instrument}@RTSX"' not in intel_precheck and "load_registry(registry_path)" in intel_precheck
+          and "AUTHENTICATED_REAL_READONLY" in intel_precheck and 'trading_status != "TRADABLE"' in intel_precheck,
+          "STAGE_8_11_INTEL_FROZEN_REGISTRY_SYMBOL")
+    check("w32tm /query /status" in intel_wrapper and "w32tm /query /source" in intel_wrapper
+          and "Get-Service -Name W32Time" in intel_wrapper and "$clock = (Get-Date)" not in intel_wrapper,
+          "STAGE_8_11_INTEL_WINDOWS_TIME_SANITY")
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")
     forbidden_claims = (

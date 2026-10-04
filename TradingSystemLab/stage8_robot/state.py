@@ -2,6 +2,22 @@
 import json,sqlite3
 from pathlib import Path
 from typing import Any
+TERMINAL_INTENT_STATUSES=("CANCELLED","REJECTED","CLOSED","RECONCILED")
+
+def readonly_unresolved_intent_count(path:Path)->int:
+    """Read the canonical ledger without creating or modifying it."""
+    path=path.resolve()
+    if not path.is_file(): raise FileNotFoundError(path)
+    connection=sqlite3.connect(path.as_uri()+"?mode=ro",uri=True)
+    try:
+        columns={row[1] for row in connection.execute("PRAGMA table_info(intents)")}
+        required={"idempotency_key","payload","status","broker_order_id","updated_at"}
+        if not required.issubset(columns): raise sqlite3.DatabaseError("INTENTS_SCHEMA_INVALID")
+        marks=",".join("?" for _ in TERMINAL_INTENT_STATUSES)
+        row=connection.execute(f"SELECT COUNT(*) FROM intents WHERE status NOT IN ({marks})",TERMINAL_INTENT_STATUSES).fetchone()
+        if row is None or type(row[0]) is not int: raise sqlite3.DatabaseError("INTENTS_COUNT_INVALID")
+        return row[0]
+    finally: connection.close()
 class StateStore:
     def __init__(self,path:Path, identity:dict|None=None):
         self.db=sqlite3.connect(path); self.db.execute("PRAGMA journal_mode=WAL")
@@ -36,7 +52,6 @@ class StateStore:
         with self.db: cur=self.db.execute("INSERT OR IGNORE INTO fills VALUES(?,?,?,?,?,?,?,?)",values)
         return cur.rowcount==1
     def unresolved_intent_count(self)->int:
-        terminal=("CANCELLED","REJECTED","CLOSED","RECONCILED")
-        marks=",".join("?" for _ in terminal)
-        return self.db.execute(f"SELECT COUNT(*) FROM intents WHERE status NOT IN ({marks})",terminal).fetchone()[0]
+        marks=",".join("?" for _ in TERMINAL_INTENT_STATUSES)
+        return self.db.execute(f"SELECT COUNT(*) FROM intents WHERE status NOT IN ({marks})",TERMINAL_INTENT_STATUSES).fetchone()[0]
     def close(self): self.db.close()
