@@ -12,7 +12,7 @@ Stage 8.11.2 — Independent PRECHECK Evidence Audit is **COMPLETE / PASS** unde
 `STAGE_8_11_2_INDEPENDENT_PRECHECK_EVIDENCE_AUDIT_PASS`.
 
 The current lifecycle gate is **Stage 8.11.3 — Explicit One-Contract Authorization**.
-Stage 8.11.3 is **NOT AUTHORIZED**. Passing Stage 8.11.1 and Stage 8.11.2 does not
+Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**. Passing Stage 8.11.1 and Stage 8.11.2 does not
 authorize a FINAM order; a separate explicit operator authorization is required only
 after this repository closeout is merged and independently audited.
 

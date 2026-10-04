@@ -1,0 +1,224 @@
+"""Manual-only Stage 8.11 one-contract physical acceptance entrypoint.
+
+Merely installing this module grants no authority.  The Windows wrapper supplies
+an ephemeral, exact authorization phrase and CurrentUser-DPAPI credentials after
+an independent REAL_READONLY refresh.  This module is deliberately not imported
+by any normal runtime owner.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import subprocess
+import tempfile
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Callable
+
+from .controlled_real_acceptance import (
+    AcceptanceAuthority, AcceptanceBlocked, ControlledAcceptanceBroker,
+    STAGE8_10_AUTHORITY, resolve_frozen_symbol, run_controlled_lifecycle,
+    sanitized_evidence,
+)
+from .finam_api import FinamAPI
+from .funding_margin_diagnostic import READY, run as collect_funding_authority
+from .operations import InstanceLock
+from .specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID
+from .stage8_11_intel_acceptance import stage8_10_authority_complete
+from .state import StateStore, initialize_stage8_11_acceptance_ledger
+from .trading_safety_gate import (
+    emergency_halt, heartbeat_path, load_kill_switch, write_kill_switch,
+)
+from .backup_state import create_stage8_11_acceptance_backup
+
+AUTHORIZATION_VALUE = "STAGE_8_11_ONE_CONTRACT_ACCEPTANCE_AUTHORIZED"
+INSTRUMENT = "CNYRUBF"
+FINAM_SYMBOL = "CNYRUBF@RTSX"
+DIRECTION = "LONG"
+QUANTITY = 1
+REPORT_NAME = "stage8_11_physical_acceptance.json"
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+
+
+class PhysicalAcceptanceBlocked(RuntimeError):
+    """A pre-submission, sanitized physical-boundary refusal."""
+
+
+def verify_repository_authority(accepted_commit: str, *, repository: Path = REPOSITORY_ROOT,
+                                run: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> None:
+    if len(accepted_commit) != 40 or any(c not in "0123456789abcdef" for c in accepted_commit):
+        raise PhysicalAcceptanceBlocked("STAGE8_11_ACCEPTED_COMMIT_INVALID")
+    head = run(["git", "rev-parse", "HEAD"], cwd=repository, text=True,
+               capture_output=True, check=False)
+    unstaged = run(["git", "diff", "--quiet"], cwd=repository, check=False)
+    staged = run(["git", "diff", "--cached", "--quiet"], cwd=repository, check=False)
+    if head.returncode or head.stdout.strip() != accepted_commit:
+        raise PhysicalAcceptanceBlocked("STAGE8_11_ACCEPTED_COMMIT_MISMATCH")
+    if unstaged.returncode or staged.returncode:
+        raise PhysicalAcceptanceBlocked("STAGE8_11_WORKTREE_NOT_CLEAN")
+
+
+def verify_authorization(value: str) -> None:
+    if value != AUTHORIZATION_VALUE:
+        raise PhysicalAcceptanceBlocked("STAGE8_11_EXPLICIT_AUTHORIZATION_REQUIRED")
+
+
+def _hash(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def _write_atomic(payload: dict[str, Any], destination: Path) -> str:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, name = tempfile.mkstemp(dir=destination.parent, prefix=destination.name + ".", suffix=".tmp")
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as stream:
+            json.dump(payload, stream, indent=2, sort_keys=True)
+            stream.write("\n"); stream.flush(); os.fsync(stream.fileno())
+        os.replace(name, destination)
+    finally:
+        Path(name).unlink(missing_ok=True)
+    return hashlib.sha256(destination.read_bytes()).hexdigest().upper()
+
+
+def _physical_evidence(*, accepted_commit: str, account_hash: str, result: dict[str, Any],
+                       authority: AcceptanceAuthority, external_sha256: str) -> dict[str, Any]:
+    final = result.get("final_state", {})
+    classification = result.get("classification", "BLOCKED")
+    if classification == "SYNTHETIC_PASS":
+        classification = "PASS"
+    if classification == "BLOCKED":
+        classification = "BLOCKED_PRE_SUBMISSION"
+    # The schema historically called this BLOCKED.  sanitized_evidence is the
+    # canonical allowlist; physical classifications are intentionally clearer.
+    facts = dict(
+        accepted_code_commit=accepted_commit,
+        sanitized_account_identity_hash=account_hash,
+        instrument=INSTRUMENT, direction=DIRECTION, quantity=QUANTITY,
+        preflight_gate_outcomes={
+            "account_binding": len({authority.configured_account_hash, authority.observed_account_hash,
+                                    authority.heartbeat_account_hash}) == 1,
+            "credential_scope": authority.trading_token_loaded_from_current_user_dpapi,
+            "session_write_capable": authority.trading_session_readonly is False,
+            "initial_reconciliation": authority.account_reconciled,
+            "instrument_binding": authority.instrument_binding_valid,
+            "instrument_tradable": authority.instrument_tradable,
+            "r15_capacity": authority.r15_capacity >= 1,
+            "margin_capacity": authority.margin_capacity >= 1,
+            "h1_data_safety": authority.h1_data_safety_valid,
+        },
+        kill_switch_pre_state="ARMED", kill_switch_final_state="HALTED",
+        execution_authorization_observed=True,
+        order_endpoint_call_count=int(result.get("order_endpoint_call_count", 0)),
+        broker_order_present=int(result.get("order_endpoint_call_count", 0)) > 0,
+        broker_fill_count=int(bool(result.get("entry_fill_proven"))) + int(bool(result.get("flatten_fill_proven"))),
+        entry_fill_proven=result.get("entry_fill_proven") is True,
+        one_contract_position_observed=result.get("one_contract_position_observed") is True,
+        controlled_flatten_proven=result.get("flatten_fill_proven") is True,
+        final_position_quantity=int(final.get("position_quantity", 0)),
+        final_active_order_count=max(0, int(final.get("active_order_count", 0))),
+        unresolved_intent_count=max(0, int(final.get("unresolved_intent_count", authority.unresolved_intent_count))),
+        reconciliation_result="PASS" if "FINAL_RECONCILIATION_PASS" in result.get("phases", []) else "UNRESOLVED",
+        physical_result_classification=classification,
+        external_raw_evidence_sha256=external_sha256,
+    )
+    return sanitized_evidence(**facts)
+
+
+def execute_boundary(*, accepted_commit: str, authorization: str, account_id: str,
+                     api: Any, runtime_root: Path, external_evidence_sha256: str,
+                     funding_collector: Callable[..., dict[str, Any]] = collect_funding_authority,
+                     now: datetime | None = None) -> dict[str, Any]:
+    """Re-prove authority, briefly arm, invoke the canonical lifecycle, halt."""
+    observed = now or datetime.now(timezone.utc)
+    verify_authorization(authorization)
+    switch, error = load_kill_switch(runtime_root)
+    if error or switch is None or switch.get("state") != "HALTED":
+        raise PhysicalAcceptanceBlocked("STAGE8_11_INITIAL_HALT_REQUIRED")
+    if not stage8_10_authority_complete():
+        raise PhysicalAcceptanceBlocked("STAGE8_11_STAGE8_10_AUTHORITY_INVALID")
+    if len(external_evidence_sha256) != 64 or any(c not in "0123456789abcdefABCDEF" for c in external_evidence_sha256):
+        raise PhysicalAcceptanceBlocked("STAGE8_11_EXTERNAL_EVIDENCE_SHA256_INVALID")
+
+    ledger = initialize_stage8_11_acceptance_ledger(runtime_root, account_id)
+    store = StateStore(ledger)
+    broker: ControlledAcceptanceBroker | None = None
+    try:
+        if store.unresolved_intent_count() != 0:
+            raise PhysicalAcceptanceBlocked("STAGE8_11_UNRESOLVED_INTENTS_PRESENT")
+        create_stage8_11_acceptance_backup(runtime_root, account_id)
+        report = funding_collector(api, account_id, None, required_readonly=False)
+        case = report.get("per_instrument", {}).get(f"{INSTRUMENT}:{DIRECTION}", {})
+        if report.get("funding_classification") != READY:
+            raise PhysicalAcceptanceBlocked("STAGE8_11_CURRENT_AUTHORITY_BLOCKED")
+        symbol = resolve_frozen_symbol(INSTRUMENT)
+        if symbol != FINAM_SYMBOL:
+            raise PhysicalAcceptanceBlocked("STAGE8_11_FIXED_SYMBOL_MISMATCH")
+        account_hash = _hash(account_id)
+        heartbeat = json.loads(heartbeat_path(runtime_root).read_text(encoding="utf-8"))
+        authority = AcceptanceAuthority(
+            PRODUCTION_SPECIFICATION_ID, ACTIVE_IDENTITY, STAGE8_10_AUTHORITY,
+            account_hash, str(report.get("account_identity_sha256", "")), str(heartbeat.get("account_hash", "")),
+            True, False, report.get("account_clean") is True, 0,
+            0 if report.get("account_clean") is True else -1, store.unresolved_intent_count(),
+            heartbeat.get("reconciliation_status") == "PASS", report.get("n4_binding_valid") is True,
+            True, int(case.get("r15_quantity", 0)), int(case.get("margin_quantity", 0)),
+        )
+        broker = ControlledAcceptanceBroker(api, account_id, account_hash, store)
+        # No other path in this module writes ARMED or passes execution_authorized=True.
+        write_kill_switch(runtime_root, "ARMED", allow_arm=True, now=observed)
+        result = run_controlled_lifecycle(authority=authority, runtime_root=runtime_root,
+            execution_authorized=True, instrument=INSTRUMENT, finam_symbol=FINAM_SYMBOL,
+            direction=DIRECTION, broker=broker, now=observed)
+        result["evidence"] = _physical_evidence(accepted_commit=accepted_commit, account_hash=account_hash,
+            result=result, authority=authority, external_sha256=external_evidence_sha256)
+        return result
+    finally:
+        emergency_halt(runtime_root, now=observed)
+        store.close()
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Manual Stage 8.11 fixed one-contract acceptance")
+    parser.add_argument("--runtime-root", type=Path, required=True)
+    parser.add_argument("--accepted-commit", required=True)
+    parser.add_argument("--evidence", type=Path, required=True)
+    parser.add_argument("--external-evidence-sha256", required=True)
+    args = parser.parse_args(argv)
+    root = args.runtime_root.resolve()
+    result: dict[str, Any] | None = None
+    try:
+        expected_evidence = root / "diagnostics" / REPORT_NAME
+        if args.evidence.resolve() != expected_evidence:
+            raise PhysicalAcceptanceBlocked("STAGE8_11_EVIDENCE_PATH_INVALID")
+        verify_repository_authority(args.accepted_commit)
+        authorization = os.environ.pop("STAGE8_11_PHYSICAL_AUTHORIZATION", "")
+        verify_authorization(authorization)
+        if os.environ.get("STAGE8_11_DPAPI_VALIDATED") != "true":
+            raise PhysicalAcceptanceBlocked("STAGE8_11_DPAPI_AUTHORITY_INVALID")
+        secret = os.environ.pop("STAGE8_11_TRADING_SECRET", "")
+        account = os.environ.pop("STAGE8_11_ACCOUNT_ID", "")
+        if not secret or not account:
+            raise PhysicalAcceptanceBlocked("STAGE8_11_DPAPI_AUTHORITY_INVALID")
+        with InstanceLock(root / "locks" / "stage8-11-physical-acceptance.lock"):
+            result = execute_boundary(accepted_commit=args.accepted_commit, authorization=authorization,
+                account_id=account, api=FinamAPI(secret), runtime_root=root,
+                external_evidence_sha256=args.external_evidence_sha256)
+        digest = _write_atomic(result["evidence"], expected_evidence)
+        print(f"STAGE8_11_PHYSICAL_RESULT={result['evidence']['physical_result_classification']}")
+        print(f"STAGE8_11_PHYSICAL_EVIDENCE_SHA256={digest}")
+        return 0 if result["evidence"]["physical_result_classification"] in {"PASS", "NOT_ACCEPTED_NO_EXECUTION"} else 2
+    except (PhysicalAcceptanceBlocked, AcceptanceBlocked, RuntimeError, OSError, ValueError, json.JSONDecodeError) as exc:
+        print(str(exc) if isinstance(exc, (PhysicalAcceptanceBlocked, AcceptanceBlocked)) else "STAGE8_11_PHYSICAL_BOUNDARY_FAILED")
+        return 1
+    finally:
+        for key in ("STAGE8_11_PHYSICAL_AUTHORIZATION", "STAGE8_11_DPAPI_VALIDATED",
+                    "STAGE8_11_TRADING_SECRET", "STAGE8_11_ACCOUNT_ID"):
+            os.environ.pop(key, None)
+        try: emergency_halt(root)
+        except Exception: pass
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

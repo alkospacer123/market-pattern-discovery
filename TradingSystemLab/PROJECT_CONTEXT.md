@@ -12,7 +12,7 @@ Stage 8.11.2 — Independent PRECHECK Evidence Audit is **COMPLETE / PASS** unde
 `STAGE_8_11_2_INDEPENDENT_PRECHECK_EVIDENCE_AUDIT_PASS`.
 
 The current lifecycle gate is **Stage 8.11.3 — Explicit One-Contract Authorization**.
-Stage 8.11.3 is **NOT AUTHORIZED**. Passing Stage 8.11.1 and Stage 8.11.2 does not
+Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**. Passing Stage 8.11.1 and Stage 8.11.2 does not
 authorize a FINAM order; a separate explicit operator authorization is required only
 after this repository closeout is merged and independently audited.
 
@@ -184,7 +184,7 @@ The fail-closed kill switch final accepted state is `HALTED`.
 `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remains authoritative.
 `NEW_ENTRIES_DISABLED` remains in force for existing REAL_READONLY paths.
 
-Stage 8.11.0 is **COMPLETE**, Stage 8.11.1 and 8.11.2 are **COMPLETE / PASS**, and Stage 8.11.3 is **NOT AUTHORIZED**.
+Stage 8.11.0 is **COMPLETE**, Stage 8.11.1 and 8.11.2 are **COMPLETE / PASS**, and Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**.
 Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
 
 Stage 8.11 is the first possible real-order gate and requires separate explicit authorization.
