@@ -20,6 +20,7 @@ from .backup_state import create_stage8_11_acceptance_backup, sha256_file
 from .controlled_real_acceptance import ACTIVE, _decimal_contracts, _rows, _status
 from .specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID, load_frozen_specification
 from .state import StateStore, initialize_stage8_11_acceptance_ledger, stage8_11_acceptance_path
+from .trading_safety_gate import load_kill_switch
 
 ACCEPTED_PHYSICAL_COMMIT = "069806355fc6931470d7f68d5ca6db20b06358fa"
 FAILED_PHYSICAL_EVIDENCE_SHA256 = "9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324"
@@ -65,7 +66,7 @@ def _load_prepared(path: Path) -> dict[str, Any]:
 
 
 def recover_historical_intent(*, runtime_root: Path, account_id: str, readonly_api: object,
-                              accepted_commit: str, physical_evidence: Path,
+                              recovery_code_commit: str, physical_evidence: Path,
                               physical_evidence_sha256: str, intent_key: str,
                               now: datetime | None = None,
                               fault_injector: Callable[[str], None] | None = None) -> dict[str, Any]:
@@ -79,8 +80,9 @@ def recover_historical_intent(*, runtime_root: Path, account_id: str, readonly_a
     """
     inject = fault_injector or (lambda point: None)
     root = Path(runtime_root)
-    if accepted_commit != ACCEPTED_PHYSICAL_COMMIT:
-        raise RecoveryBlocked("RECOVERY_ACCEPTED_COMMIT_MISMATCH")
+    if (len(recovery_code_commit) != 40 or recovery_code_commit.lower() != recovery_code_commit
+            or any(character not in "0123456789abcdef" for character in recovery_code_commit)):
+        raise RecoveryBlocked("RECOVERY_CODE_COMMIT_INVALID")
     if intent_key != HISTORICAL_INTENT_KEY:
         raise RecoveryBlocked("RECOVERY_INTENT_KEY_MISMATCH")
     if physical_evidence_sha256.upper() != FAILED_PHYSICAL_EVIDENCE_SHA256:
@@ -90,6 +92,11 @@ def recover_historical_intent(*, runtime_root: Path, account_id: str, readonly_a
     frozen = load_frozen_specification()
     if frozen.production_id != PRODUCTION_SPECIFICATION_ID or frozen.identity != ACTIVE_IDENTITY:
         raise RecoveryBlocked("RECOVERY_FROZEN_IDENTITY_MISMATCH")
+    switch, switch_error = load_kill_switch(root)
+    if (switch_error is not None or switch is None
+            or switch.get("production_specification_id") != PRODUCTION_SPECIFICATION_ID
+            or switch.get("state") != "HALTED"):
+        raise RecoveryBlocked("RECOVERY_KILL_SWITCH_NOT_HALTED")
     details = readonly_api.session_details()
     accounts = [str(value) for value in details.get("account_ids", [])] if isinstance(details, dict) else []
     if not isinstance(details, dict) or details.get("readonly") is not True or accounts.count(account_id) != 1:
@@ -132,6 +139,7 @@ def recover_historical_intent(*, runtime_root: Path, account_id: str, readonly_a
                 "schema_id": RECOVERY_SCHEMA,
                 "recovery_status": "PREPARED",
                 "accepted_physical_code_commit": ACCEPTED_PHYSICAL_COMMIT,
+                "recovery_code_commit": recovery_code_commit,
                 "physical_evidence_sha256": FAILED_PHYSICAL_EVIDENCE_SHA256,
                 "intent_key": HISTORICAL_INTENT_KEY,
                 "account_identity_sha256": _account_hash(account_id),
@@ -159,6 +167,7 @@ def recover_historical_intent(*, runtime_root: Path, account_id: str, readonly_a
                 "schema_id": RECOVERY_SCHEMA,
                 "recovery_status": "PREPARED",
                 "accepted_physical_code_commit": ACCEPTED_PHYSICAL_COMMIT,
+                "recovery_code_commit": recovery_code_commit,
                 "physical_evidence_sha256": FAILED_PHYSICAL_EVIDENCE_SHA256,
                 "intent_key": HISTORICAL_INTENT_KEY,
                 "account_identity_sha256": _account_hash(account_id),
@@ -199,6 +208,7 @@ def recover_historical_intent(*, runtime_root: Path, account_id: str, readonly_a
             "schema_id": RECOVERY_SCHEMA,
             "recovery_status": "COMMITTED",
             "accepted_physical_code_commit": ACCEPTED_PHYSICAL_COMMIT,
+            "recovery_code_commit": recovery_code_commit,
             "physical_evidence_sha256": FAILED_PHYSICAL_EVIDENCE_SHA256,
             "intent_key": HISTORICAL_INTENT_KEY,
             "account_identity_sha256": _account_hash(account_id),
@@ -227,7 +237,7 @@ def main(argv: list[str] | None = None, *,
     parser = argparse.ArgumentParser(description="Order-incapable Stage 8.11 failed-attempt recovery")
     parser.add_argument("--runtime-root", type=Path, required=True)
     parser.add_argument("--account-id", required=True)
-    parser.add_argument("--accepted-commit", required=True)
+    parser.add_argument("--accepted-recovery-commit", required=True)
     parser.add_argument("--physical-evidence", type=Path, required=True)
     parser.add_argument("--physical-evidence-sha256", required=True)
     parser.add_argument("--intent-key", required=True)
@@ -248,7 +258,7 @@ def main(argv: list[str] | None = None, *,
         orders = transport.orders
     try:
         recover_historical_intent(runtime_root=args.runtime_root, account_id=args.account_id,
-            readonly_api=ReadonlyRecoveryClient(), accepted_commit=args.accepted_commit,
+            readonly_api=ReadonlyRecoveryClient(), recovery_code_commit=args.accepted_recovery_commit,
             physical_evidence=args.physical_evidence,
             physical_evidence_sha256=args.physical_evidence_sha256, intent_key=args.intent_key)
     except (RecoveryBlocked, OSError, ValueError):

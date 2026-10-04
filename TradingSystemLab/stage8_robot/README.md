@@ -25,13 +25,18 @@ This corrective work is code plus offline/READONLY recovery preparation only. It
 
 After that independent audit and separate recovery authorization, the canonical
 Intel operator boundary is
-`deploy/windows/run-stage8-11-failed-intent-recovery.ps1 -RuntimeRoot <path>`.
+`deploy/windows/run-stage8-11-failed-intent-recovery.ps1 -RuntimeRoot <path> -AcceptedRecoveryCommit <independently-audited-40-lowercase-hex-commit>`.
 It loads only the CurrentUser `REAL_READONLY` DPAPI credential, requires the
-Scheduled Task to remain Disabled and no runtime owner conflict, and invokes the
-fixed-commit/fixed-evidence historical recovery without exposing any execution,
+exact accepted recovery HEAD, a clean worktree, the production kill switch in
+`HALTED`, the fixed evidence prehash, the Scheduled Task to remain Disabled, and
+exclusive ownership against supervisors, runners, physical acceptance, and any
+other recovery. It invokes the fixed-physical-commit/fixed-evidence historical recovery without exposing any execution,
 order, cancellation, modification, or ARMED capability. The original
 `runtime/diagnostics/stage8_11_physical_acceptance.json` is read and hash-bound,
 never overwritten; recovery writes its dedicated evidence artifact instead.
+The recovery implementation is code-ready pending independent accepted-commit
+binding; historical recovery has **not** been executed on Intel and the local
+historical intent remains `INTENT_PERSISTED`.
 
 
 **Status:** `STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE`
