@@ -66,6 +66,9 @@ class API:
         self.unrelated_active = unrelated_active
         self.calls=[]; self.posts=0
         self.current=None
+    def schedule(self, symbol):
+        return {"sessions":[{"type":"CORE_TRADING","interval":{
+            "start_time":"2026-10-04T00:00:00Z","end_time":"2026-10-04T23:59:00Z"}}]}
     def place_order(self, account, payload):
         assert self.store.unresolved_intent_count() >= 1
         self.posts += 1; self.calls.append(("post", account, payload))
