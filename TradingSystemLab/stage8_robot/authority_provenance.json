@@ -294,12 +294,12 @@
     "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
   },
   "stage8_11": {
-    "status": "STAGE_8_11_4_FAILED_HTTP_400_LOCAL_RECOVERY_REQUIRED",
+    "status": "STAGE_8_11_CONTROLLED_REAL_EXECUTION_ACCEPTANCE_NOT_YET_PASSED",
     "stage8_11_0_status": "COMPLETE",
     "stage8_11_1_status": "COMPLETE_PASS",
     "stage8_11_2_status": "COMPLETE_PASS",
     "stage8_11_3_status": "PRIOR_AUTHORIZATION_CONSUMED",
-    "current_gate": "FAILED_INTENT_RECOVERY_AND_INDEPENDENT_AUDIT",
+    "current_gate": "STAGE_8_11_CLOSEOUT_COMPLETE_NEW_EXPLICIT_AUTHORIZATION_REQUIRED_FOR_RETRY",
     "latest_physical_precheck_result": "STAGE8_11_PRECHECK_ONLY_PASS",
     "physical_precheck": {
       "schema_id": "stage8_11_intel_precheck.v1",
@@ -424,8 +424,8 @@
     "stage8_11_4_status": "ATTEMPTED_FAILED_HTTP_400_NO_ACCEPTED_ENTRY_PROVEN",
     "stage8_11_5_status": "NO_POSITION_READONLY_CLEAN_PROOF_OBTAINED",
     "stage8_11_6_status": "FLATTEN_NOT_SUBMITTED",
-    "stage8_11_7_status": "BROKER_CLEAN_LOCAL_FAILED_INTENT_RECOVERY_REQUIRED",
-    "stage8_11_8_status": "NOT_STARTED",
+    "stage8_11_7_status": "COMPLETE_PASS_HISTORICAL_INTENT_RECOVERED",
+    "stage8_11_8_status": "COMPLETE_STAGE_8_11_CLOSEOUT",
     "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
     "operator_boundary_predecessor_authority": {
       "pull_request": 360,
@@ -446,8 +446,8 @@
     "canonical_local_defect": {
       "broker_order_id": null,
       "intent_key": "stage8.11:CNYRUBF:entry",
-      "recovery_required": true,
-      "status": "INTENT_PERSISTED"
+      "recovery_required": false,
+      "status": "REJECTED"
     },
     "controlled_flatten_submitted": false,
     "direction": "LONG",
@@ -461,10 +461,10 @@
       "8.11.2": "COMPLETE / PASS",
       "8.11.3": "PRIOR AUTHORIZATION CONSUMED",
       "8.11.4": "ATTEMPTED / FAILED HTTP 400 / NO ACCEPTED ENTRY PROVEN",
-      "8.11.5": "NO POSITION; READONLY CLEAN PROOF OBTAINED",
+      "8.11.5": "NO POSITION / BROKER CLEAN PROVED",
       "8.11.6": "FLATTEN NOT SUBMITTED",
-      "8.11.7": "BROKER CLEAN; LOCAL RECOVERY REQUIRED",
-      "8.11.8": "NOT STARTED",
+      "8.11.7": "COMPLETE / PASS / HISTORICAL INTENT RECOVERED",
+      "8.11.8": "COMPLETE / STAGE 8.11 CLOSEOUT",
       "8.12": "NOT STARTED / NOT AUTHORIZED"
     },
     "next_attempt_requires_new_explicit_authorization_after_merge_and_independent_audit": true,
@@ -489,8 +489,34 @@
       "entry_minimum_remaining_session_seconds": 300,
       "entry_margin_authority": "LIVE_FINAM_SCHEDULE_ONLY",
       "post_entry_session_closure": "OPERATOR_INTERVENTION_REQUIRED",
-      "historical_recovery": "ORDER_INCAPABLE_REAL_READONLY_PENDING_INDEPENDENT_AUDIT",
+      "historical_recovery": "ORDER_INCAPABLE_REAL_READONLY_COMPLETE_PASS",
       "recovery_commit_protocol": "DURABLE_PREPARED_EVIDENCE_THEN_SQLITE_COMMIT_THEN_SUCCESS_FINALIZATION"
     }
+  },
+  "stage8_11_historical_failed_intent_recovery": {
+      "schema": "stage8_11_failed_attempt_recovery.v1",
+      "recovery_status": "COMMITTED",
+      "failed_physical_attempt_authority": "069806355fc6931470d7f68d5ca6db20b06358fa",
+      "accepted_physical_code_commit": "069806355fc6931470d7f68d5ca6db20b06358fa",
+      "recovery_implementation_authority": "da3bf756fefc4ed8dbe8c33847c6bb183fcaff30",
+      "recovery_code_commit": "da3bf756fefc4ed8dbe8c33847c6bb183fcaff30",
+      "physical_evidence_sha256": "9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324",
+      "recovery_evidence_sha256": "4B787AD9A4986D2E3AB88CAAB1B5F2FCD88CAB299A303FA431D38A74D1CD292D",
+      "intent_key": "stage8.11:CNYRUBF:entry",
+      "terminal_status": "REJECTED",
+      "broker_order_id": null,
+      "fresh_account_wide_reconciliation": "PASS",
+      "all_positions_zero": true,
+      "active_broker_order_count": 0,
+      "canonical_unresolved_intent_count": 0,
+      "readonly_session": true,
+      "real_order_submitted_by_recovery": false,
+      "order_cancellation_performed": false,
+      "physical_acceptance_retried": false,
+      "production_identity": "TRAIL1__N4_01__FULL__R15",
+      "production_specification": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+      "final_kill_switch": "HALTED",
+      "final_scheduled_task": "Disabled",
+      "stage8_12_activity": false
   }
 }

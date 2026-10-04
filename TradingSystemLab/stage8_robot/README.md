@@ -4,7 +4,7 @@
 
 `STAGE8_11_FIRST_PHYSICAL_ATTEMPT_FAILED_HTTP_400` is the canonical historical result. The accepted code commit was `069806355fc6931470d7f68d5ca6db20b06358fa`; the fixed request was `CNYRUBF` / `CNYRUBF@RTSX`, `LONG`, quantity `1`. Exactly one order-endpoint call returned HTTP 400. Physical evidence with SHA-256 `9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324` proves zero broker fills, `OPERATOR_INTERVENTION_REQUIRED`, and final kill switch `HALTED`. No retry and no controlled flatten occurred. The original physical evidence remains immutable and **did not PASS**.
 
-`STAGE8_11_PRIOR_ONE_CONTRACT_AUTHORIZATION_CONSUMED`: a subsequent structurally order-incapable `REAL_READONLY` cycle completed with `health_status = HEALTHY`, `reconciliation_status = PASS`, `entries_enabled = false`, `unresolved_order_count = 0`, no broker position, and no active broker order. This proves the broker account was clean after the failed POST; it does not retroactively change the failed physical result. The canonical ledger nevertheless retained `stage8.11:CNYRUBF:entry` as `INTENT_PERSISTED` with a null broker order id. It may be terminalized only by the audited, evidence-bound, backup-first recovery utility; it must not be deleted, replaced, or edited ad hoc.
+`STAGE8_11_PRIOR_ONE_CONTRACT_AUTHORIZATION_CONSUMED`: the independently observed, structurally order-incapable `REAL_READONLY` recovery completed with schema `stage8_11_failed_attempt_recovery.v1` and `recovery_status = COMMITTED`. It terminalized only the historical `stage8.11:CNYRUBF:entry` ledger row as `REJECTED`, with `broker_order_id = NULL` and canonical unresolved intent count `0`. Fresh account-wide reconciliation passed, all positions were zero, and active broker order count was zero. This repository closeout does not retroactively change the failed physical result, constitute successful physical acceptance, or make the consumed authorization reusable.
 
 Canonical lifecycle status:
 
@@ -13,37 +13,32 @@ Canonical lifecycle status:
 - Stage 8.11.2 — **COMPLETE / PASS**.
 - Stage 8.11.3 — prior explicit authorization **CONSUMED** by the first physical attempt; any broker-side retry requires a new explicit authorization after merge and independent audit.
 - Stage 8.11.4 — **ATTEMPTED / FAILED HTTP 400 / NO ACCEPTED ENTRY PROVEN**.
-- Stage 8.11.5 — no one-contract position opened; post-failure READONLY clean-account proof obtained.
-- Stage 8.11.6 — flatten not submitted because entry fill/position was not proved.
-- Stage 8.11.7 — broker-side clean state proved; local failed-intent recovery required.
-- Stage 8.11.8 — **NOT STARTED**.
+- Stage 8.11.5 — **NO POSITION / BROKER CLEAN PROVED**.
+- Stage 8.11.6 — **FLATTEN NOT SUBMITTED** because entry fill/position was not proved.
+- Stage 8.11.7 — **COMPLETE / PASS / HISTORICAL INTENT RECOVERED**.
+- Stage 8.11.8 — **COMPLETE / STAGE 8.11 CLOSEOUT**.
 - Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**.
 
 Corrective code distinguishes acknowledged, definitive rejection, and uncertain submission outcomes; a definite HTTP 400 terminalizes its durable intent as `REJECTED` and can be `NOT_ACCEPTED_NO_EXECUTION` only after a fresh account-wide clean proof. POST-side 5xx and transport ambiguity remain `UNCERTAIN`, require reconciliation, and are never blindly retried. The current official PlaceOrder schema exposes `time_in_force`; the bounded market entry and flatten payloads now explicitly use the official `TIME_IN_FORCE_DAY` enum. A fresh exact-symbol FINAM schedule must prove that the timestamp is within `EARLY_TRADING`, `CORE_TRADING`, or `LATE_TRADING` immediately before every possible POST. Missing, malformed, stale/non-current, auction, clearing, closed, or outside-session evidence blocks before a new intent and with zero POSTs.
 
-This corrective work is code plus offline/READONLY recovery preparation only. It does not run the physical wrapper, authorize another order, start Stage 8.12, or mark Stage 8.11 complete. Scheduled Task remains Disabled. STOP for independent audit before any new physical authorization.
+The recovery was repository-external `REAL_READONLY` evidence work only: it submitted no order, performed no cancellation, and did not retry physical acceptance. Stage 8.11 is closed while its aggregate result remains `STAGE_8_11_CONTROLLED_REAL_EXECUTION_ACCEPTANCE_NOT_YET_PASSED`. The kill switch remains `HALTED`, the Scheduled Task remains `Disabled`, and Stage 8.12 was neither started nor authorized. Any future physical retry requires a new explicit operator authorization.
 
-After that independent audit and separate recovery authorization, the canonical
-Intel operator boundary is
-`deploy/windows/run-stage8-11-failed-intent-recovery.ps1 -RuntimeRoot <path> -AcceptedRecoveryCommit <independently-audited-40-lowercase-hex-commit>`.
-It loads only the CurrentUser `REAL_READONLY` DPAPI credential, requires the
-exact accepted recovery HEAD, a clean worktree, the production kill switch in
-`HALTED`, the fixed evidence prehash, the Scheduled Task to remain Disabled, and
-exclusive ownership against supervisors, runners, physical acceptance, and any
-other recovery. It invokes the fixed-physical-commit/fixed-evidence historical recovery without exposing any execution,
-order, cancellation, modification, or ARMED capability. The original
-`runtime/diagnostics/stage8_11_physical_acceptance.json` is read and hash-bound,
-never overwritten; recovery writes its dedicated evidence artifact instead.
-The recovery implementation is code-ready pending independent accepted-commit
-binding; historical recovery has **not** been executed on Intel and the local
-historical intent remains `INTENT_PERSISTED`.
+The canonical Intel recovery used
+`deploy/windows/run-stage8-11-failed-intent-recovery.ps1` at recovery-code commit
+`da3bf756fefc4ed8dbe8c33847c6bb183fcaff30`. The external recovery evidence SHA-256 is
+`4B787AD9A4986D2E3AB88CAAB1B5F2FCD88CAB299A303FA431D38A74D1CD292D`.
+The wrapper loaded only the CurrentUser `REAL_READONLY` credential and exposed no
+execution, cancellation, modification, or ARMED capability. The immutable original
+physical evidence remained hash-bound to
+`9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324`.
+Neither external recovery JSON nor the runtime SQLite database is stored in Git.
 
 
 **Status:** `STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE`
 — `LIVE_TRADING_NOT_AUTHORIZED`.
 
 Stage 8.8 operational hardening is COMPLETE. Stages 8.8.1, 8.8.2, 8.8.3,
-8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE. Stage 8.9 is COMPLETE. Stage 8.10 is COMPLETE; Stage 8.11.0 is COMPLETE, Stage 8.11.1 and 8.11.2 are COMPLETE / PASS, and Stage 8.11.3 prior authorization is CONSUMED; Stage 8.11.7 recovery is pending; Stage 8.12 is NOT STARTED / NOT AUTHORIZED.
+8.8.4, 8.8.5, 8.8.6, and 8.8.7 are COMPLETE. Stage 8.9 is COMPLETE. Stage 8.10 is COMPLETE; Stage 8.11.0 is COMPLETE, Stage 8.11.1 and 8.11.2 are COMPLETE / PASS, and Stage 8.11.3 prior authorization is CONSUMED; Stage 8.11.7 historical intent recovery is COMPLETE / PASS; Stage 8.12 is NOT STARTED / NOT AUTHORIZED.
 
 ## Real account read-only and margin feasibility
 
@@ -271,13 +266,13 @@ Stage 8.9 is **COMPLETE**. Stage 8.10 is **COMPLETE**. The canonical Stage 8.11 
 - Stage 8.11.2 — **COMPLETE / PASS**.
 - Stage 8.11.3 — prior explicit authorization **CONSUMED**.
 - Stage 8.11.4 — **ATTEMPTED / FAILED HTTP 400 / NO ACCEPTED ENTRY**.
-- Stage 8.11.5 — no position opened; broker-clean **REAL_READONLY** proof obtained.
-- Stage 8.11.6 — flatten not submitted.
-- Stage 8.11.7 — broker clean; historical local-intent recovery pending.
-- Stage 8.11.8 — **NOT STARTED**.
+- Stage 8.11.5 — **NO POSITION / BROKER CLEAN PROVED**.
+- Stage 8.11.6 — **FLATTEN NOT SUBMITTED**.
+- Stage 8.11.7 — **COMPLETE / PASS / HISTORICAL INTENT RECOVERED**.
+- Stage 8.11.8 — **COMPLETE / STAGE 8.11 CLOSEOUT**.
 - Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**.
 
-The production kill switch is `HALTED` and the Scheduled Task is `Disabled`. The next permitted step is independent audit followed by the separately authorized, order-incapable REAL_READONLY historical recovery; no new physical authorization is implied.
+The production kill switch is `HALTED` and the Scheduled Task is `Disabled`. Stage 8.11 repository closeout is complete, but controlled real one-contract acceptance remains not passed. No new physical authorization is implied; any future retry requires a new explicit operator authorization. Stage 8.12 remains not started and not authorized.
 
 ## Boundaries and startup
 
@@ -432,7 +427,7 @@ summary SHA-256
 not a current blocker.
 
 Stage 8.10 is **COMPLETE** because Stage 8.10.1 and Stage 8.10.2 are complete.
-Stage 8.10.3 is **COMPLETE**. Stage 8.10.4 is **COMPLETE**. Stage 8.10.5 is **COMPLETE** after accepted physical offline validation. Stage 8.11.0 is **COMPLETE**, Stage 8.11.1 and 8.11.2 are **COMPLETE / PASS**, and Stage 8.11.3 prior authorization is **CONSUMED**; Stage 8.11.4 failed HTTP 400 and Stage 8.11.7 local recovery is pending; Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
+Stage 8.10.3 is **COMPLETE**. Stage 8.10.4 is **COMPLETE**. Stage 8.10.5 is **COMPLETE** after accepted physical offline validation. Stage 8.11.0 is **COMPLETE**, Stage 8.11.1 and 8.11.2 are **COMPLETE / PASS**, and Stage 8.11.3 prior authorization is **CONSUMED**; Stage 8.11.4 failed HTTP 400 and Stage 8.11.7 historical intent recovery is COMPLETE / PASS; Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
 `LIVE_TRADING_NOT_AUTHORIZED`, `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and
 `NEW_ENTRIES_DISABLED` remain unchanged. No live order was transmitted and no
 live trading was authorized.
@@ -461,7 +456,7 @@ Canonical Stage 8.10 sequence and status:
 7. Stage 8.10.7 is **COMPLETE** — Intel Trading-Token Acceptance.
 8. Stage 8.10.8 is **COMPLETE** — Stage 8.10 Closeout.
 
-Stage 8.11.0 is **COMPLETE**, Stage 8.11.1 and 8.11.2 are **COMPLETE / PASS**, and Stage 8.11.3 prior authorization is **CONSUMED**; Stage 8.11.4 failed HTTP 400 and Stage 8.11.7 local recovery is pending — Controlled Real Execution
+Stage 8.11.0 is **COMPLETE**, Stage 8.11.1 and 8.11.2 are **COMPLETE / PASS**, and Stage 8.11.3 prior authorization is **CONSUMED**; Stage 8.11.4 failed HTTP 400 and Stage 8.11.7 historical intent recovery is COMPLETE / PASS — Controlled Real Execution
 Acceptance, exactly one-contract test. Stage 8.12 is **NOT STARTED / NOT AUTHORIZED** — FULL/R15 Production Authorization. Stage 8.11 remains the first
 possible real-order gate and requires separate explicit authorization.
 
@@ -539,7 +534,7 @@ validation or order-path validation occurred. No order endpoint was called and
 unauthorized. The Scheduled Task remains Disabled.
 
 In this historical Stage 8.10.3 snapshot, Stage 8.10.5 was
-**NOT STARTED**. In the current lifecycle, Stage 8.10.4 and Stage 8.10.5 are **COMPLETE**. Stage 8.10.6 is **COMPLETE**, Stage 8.10.7 is **COMPLETE**, and Stage 8.10.8 is **COMPLETE**. Stage 8.11.0 is **COMPLETE**, Stage 8.11.1 and 8.11.2 are **COMPLETE / PASS**, and Stage 8.11.3 prior authorization is **CONSUMED**; Stage 8.11.4 failed HTTP 400 and Stage 8.11.7 local recovery is pending. Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**. That Stage 8.10.5 code-ready statement is historical; Stage 8.10.5 is now **COMPLETE**.
+**NOT STARTED**. In the current lifecycle, Stage 8.10.4 and Stage 8.10.5 are **COMPLETE**. Stage 8.10.6 is **COMPLETE**, Stage 8.10.7 is **COMPLETE**, and Stage 8.10.8 is **COMPLETE**. Stage 8.11.0 is **COMPLETE**, Stage 8.11.1 and 8.11.2 are **COMPLETE / PASS**, and Stage 8.11.3 prior authorization is **CONSUMED**; Stage 8.11.4 failed HTTP 400 and Stage 8.11.7 historical intent recovery is COMPLETE / PASS. Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**. That Stage 8.10.5 code-ready statement is historical; Stage 8.10.5 is now **COMPLETE**.
 
 
 ## Stage 8.10.4 permission boundary complete
@@ -598,7 +593,7 @@ sufficiency, LIVE readiness, or production trading authorization.
 - Stage 8.10.5 is **COMPLETE**.
 - Stage 8.10.6 is **COMPLETE**. Stage 8.10.7 is **COMPLETE**. Stage 8.10.8 is **COMPLETE**.
 - Stage 8.10 is **COMPLETE**.
-- Stage 8.11.0 is **COMPLETE**, Stage 8.11.1 and 8.11.2 are **COMPLETE / PASS**, and Stage 8.11.3 prior authorization is **CONSUMED**; Stage 8.11.4 failed HTTP 400 and Stage 8.11.7 local recovery is pending. Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
+- Stage 8.11.0 is **COMPLETE**, Stage 8.11.1 and 8.11.2 are **COMPLETE / PASS**, and Stage 8.11.3 prior authorization is **CONSUMED**; Stage 8.11.4 failed HTTP 400 and Stage 8.11.7 historical intent recovery is COMPLETE / PASS. Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
 
 Stage 8.10.6 — Kill Switch / Safety Gates is **COMPLETE** after accepted physical Intel validation. LIVE trading and
 real-order transmission remain unauthorized, and the Scheduled Task remains
@@ -613,7 +608,7 @@ On Intel, pandas 3.0.6 was present and the full Stage 8 suite passed 518 tests w
 
 The durable external kill switch defaults fail closed. Its canonical safe production state is `HALTED`; a missing, malformed, mismatched, or unknown state blocks new entries. `ARMED` alone never authorizes trading: a separate exact `execution_authorized=true` input is required, and the current/operator value is `false`. The Stage 8.10.6 wrapper exposes HALT only and cannot arm production. This is only a new-entry inhibit; it neither implements nor authorizes exits, cancels, broker calls, LIVE trading, or order transmission. Existing LIVE and real-order-transmission blocks remain unchanged.
 
-Stage 8.10.7 is **COMPLETE** and Stage 8.10.8 is **COMPLETE**. Stage 8.10 is **COMPLETE**. Stage 8.11.0 is **COMPLETE**, Stage 8.11.1 and 8.11.2 are **COMPLETE / PASS**, and Stage 8.11.3 prior authorization is **CONSUMED**; Stage 8.11.4 failed HTTP 400 and Stage 8.11.7 local recovery is pending; Stage 8.12 remains **NOT STARTED / NOT AUTHORIZED**.
+Stage 8.10.7 is **COMPLETE** and Stage 8.10.8 is **COMPLETE**. Stage 8.10 is **COMPLETE**. Stage 8.11.0 is **COMPLETE**, Stage 8.11.1 and 8.11.2 are **COMPLETE / PASS**, and Stage 8.11.3 prior authorization is **CONSUMED**; Stage 8.11.4 failed HTTP 400 and Stage 8.11.7 historical intent recovery is COMPLETE / PASS; Stage 8.12 remains **NOT STARTED / NOT AUTHORIZED**.
 
 
 ## Stage 8.10.7 Intel Trading-Token acceptance complete
@@ -642,7 +637,7 @@ The accepted lifecycle establishes these aggregate safety facts: Trading Token 1
 
 The production kill switch final accepted state is `HALTED`; `execution_authorized` remains `false`; no real order endpoint was called during Stage 8.10; and the aggregate real order count is exactly 0. The Scheduled Task remains Disabled. `LIVE_TRADING_NOT_AUTHORIZED`, `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED`, and `NEW_ENTRIES_DISABLED` for existing `REAL_READONLY` paths remain in force.
 
-Stage 8.11.1 and Stage 8.11.2 are **COMPLETE / PASS**. Stage 8.11.3 prior authorization is **CONSUMED**; historical recovery and independent audit remain the current operator gate. Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
+Stage 8.11.1 and Stage 8.11.2 are **COMPLETE / PASS**. Stage 8.11.3 prior authorization is **CONSUMED**; Stage 8.11 closeout is complete and a new explicit authorization remains the gate for any physical retry. Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
 
 ## Stage 8.11.0–8.11.2 canonical lifecycle closeout (2026-10-04)
 
@@ -714,7 +709,7 @@ Persistence correction PR #357 has base
 `9be31f1723877a9c542f89027052570425f7e976`. PR #358 does not replace PR #357's
 historical persistence authority.
 
-Stage 8.11.3 prior authorization is `CONSUMED`. Until historical recovery, independent audit, and a new separate explicit operator authorization
+Stage 8.11.3 prior authorization is `CONSUMED`. After historical recovery and closeout, and until a new separate explicit operator authorization
 after merge and independent audit: kill switch stays `HALTED`;
 `execution_authorized = false`; normal LIVE and real-order transmission remain
 unauthorized; existing REAL_READONLY paths remain order-incapable; Scheduled Task

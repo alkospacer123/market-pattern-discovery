@@ -1008,7 +1008,7 @@ def test_stage_8_10_semantic_document_regressions_fail_both_audits(
 def test_stage_8_10_current_handoff_stale_gate_and_omission_fail_both_audits(path):
     original = source(path)
     stale = original.replace(
-        "The next permitted step is independent audit followed by the separately authorized, order-incapable REAL_READONLY historical recovery; no new physical authorization is implied.",
+        "The production kill switch is `HALTED` and the Scheduled Task is `Disabled`. Stage 8.11 repository closeout is complete, but controlled real one-contract acceptance remains not passed. No new physical authorization is implied; any future retry requires a new explicit operator authorization. Stage 8.12 remains not started and not authorized.",
         "Stage 8.10 is COMPLETE, but the next possible lifecycle gate is Stage 8.10.5")
     _assert_document_mutation_fails_both(path, stale, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
     omitted = original.replace("prior explicit authorization **CONSUMED**", "")

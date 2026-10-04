@@ -147,9 +147,9 @@ def _stage8_10_document_consistency(document: str) -> tuple[bool, bool, bool]:
         "Stage 8.11.0 — **COMPLETE**", "Stage 8.11.1 — **COMPLETE / PASS**",
         "Stage 8.11.2 — **COMPLETE / PASS**", "prior explicit authorization **CONSUMED**",
         "Stage 8.11.4 — **ATTEMPTED / FAILED HTTP 400 / NO ACCEPTED ENTRY**",
-        "Stage 8.11.7 — broker clean; historical local-intent recovery pending",
-        "Stage 8.11.8 — **NOT STARTED**", "Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**",
-        "Scheduled Task is `Disabled`", "independent audit")))
+        "Stage 8.11.7 — **COMPLETE / PASS / HISTORICAL INTENT RECOVERED**",
+        "Stage 8.11.8 — **COMPLETE / STAGE 8.11 CLOSEOUT**", "Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**",
+        "Scheduled Task is `Disabled`", "new explicit operator authorization")))
     if match and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]", handoff, re.I):
         stale_next = True
     return exact, not inconsistent, not stale_next
@@ -858,7 +858,7 @@ def audit(
           stage811_provenance.get("stage8_11_1_status") == "COMPLETE_PASS",
           stage811_provenance.get("stage8_11_2_status") == "COMPLETE_PASS",
           stage811_provenance.get("stage8_11_3_status") == "PRIOR_AUTHORIZATION_CONSUMED",
-          stage811_provenance.get("current_gate") == "FAILED_INTENT_RECOVERY_AND_INDEPENDENT_AUDIT",
+          stage811_provenance.get("current_gate") == "STAGE_8_11_CLOSEOUT_COMPLETE_NEW_EXPLICIT_AUTHORIZATION_REQUIRED_FOR_RETRY",
           stage811_provenance.get("latest_physical_precheck_result") == "STAGE8_11_PRECHECK_ONLY_PASS",
           physical.get("accepted_code_commit") == "9be31f1723877a9c542f89027052570425f7e976",
           physical.get("report_sha256") == "7171B7CD0098FF51159DC05C46C0326BF7F412A2D9EA0CBB3F9BDAFBE7745455",
@@ -959,7 +959,31 @@ def audit(
     check("if not _account_is_clean(final):" in controlled and "finally:\n        emergency_halt(runtime_root" in controlled,
           "STAGE8_11_CLEAN_PROOF_AND_HALT")
     record = provenance.get("stage8_11_failed_physical_attempt_correction", {})
-    check(record.get("physical_evidence_sha256") == "9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324"
+    recovered=provenance.get("stage8_11_historical_failed_intent_recovery",{})
+    check(recovered == {
+        "schema":"stage8_11_failed_attempt_recovery.v1",
+        "recovery_status":"COMMITTED",
+        "failed_physical_attempt_authority":"069806355fc6931470d7f68d5ca6db20b06358fa",
+        "accepted_physical_code_commit":"069806355fc6931470d7f68d5ca6db20b06358fa",
+        "recovery_implementation_authority":"da3bf756fefc4ed8dbe8c33847c6bb183fcaff30",
+        "recovery_code_commit":"da3bf756fefc4ed8dbe8c33847c6bb183fcaff30",
+        "physical_evidence_sha256":"9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324",
+        "recovery_evidence_sha256":"4B787AD9A4986D2E3AB88CAAB1B5F2FCD88CAB299A303FA431D38A74D1CD292D",
+        "intent_key":"stage8.11:CNYRUBF:entry","terminal_status":"REJECTED","broker_order_id":None,
+        "fresh_account_wide_reconciliation":"PASS","all_positions_zero":True,
+        "active_broker_order_count":0,"canonical_unresolved_intent_count":0,"readonly_session":True,
+        "real_order_submitted_by_recovery":False,"order_cancellation_performed":False,
+        "physical_acceptance_retried":False,"production_identity":"TRAIL1__N4_01__FULL__R15",
+        "production_specification":"PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+        "final_kill_switch":"HALTED","final_scheduled_task":"Disabled","stage8_12_activity":False},
+        "STAGE8_11_HISTORICAL_RECOVERY_CLOSEOUT_IMMUTABLE")
+
+    check(record.get("lifecycle",{}).get("8.11.7") == "COMPLETE / PASS / HISTORICAL INTENT RECOVERED"
+          and record.get("lifecycle",{}).get("8.11.8") == "COMPLETE / STAGE 8.11 CLOSEOUT"
+          and record.get("lifecycle",{}).get("8.12") == "NOT STARTED / NOT AUTHORIZED"
+          and record.get("authorization") == "STAGE8_11_PRIOR_ONE_CONTRACT_AUTHORIZATION_CONSUMED"
+          and record.get("finam_http_status") == 400
+          and record.get("physical_evidence_sha256") == "9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324"
           and record.get("retry_occurred") is False, "STAGE8_11_HISTORICAL_EVIDENCE_BINDING")
     result = {
         "status": "PASS" if not errors else "FAIL", "checks": checks, "errors": errors,
@@ -975,7 +999,7 @@ def audit(
         "stage8_11_1_status": "COMPLETE_PASS",
         "stage8_11_2_status": "COMPLETE_PASS",
         "stage8_11_3_status": "PRIOR_AUTHORIZATION_CONSUMED",
-        "stage8_11_current_gate": "FAILED_INTENT_RECOVERY_AND_INDEPENDENT_AUDIT",
+        "stage8_11_current_gate": "STAGE_8_11_CLOSEOUT_COMPLETE_NEW_EXPLICIT_AUTHORIZATION_REQUIRED_FOR_RETRY",
         "stage8_11_latest_physical_precheck_result": "STAGE8_11_PRECHECK_ONLY_PASS",
         "stage8_11_physical_precheck_real_order_count": 0,
         "runtime_artifacts_tracked": runtime_artifacts, "live_trading_authorized": False,
@@ -1075,7 +1099,7 @@ def audit(
         "stage8_10_order_count": 0,
         "stage8_10_live_trading_authorized": False,
         "stage8_10_real_order_transmission_authorized": False,
-        "stage8_11_status": "STAGE_8_11_4_FAILED_HTTP_400_LOCAL_RECOVERY_REQUIRED",
+        "stage8_11_status": "STAGE_8_11_CONTROLLED_REAL_EXECUTION_ACCEPTANCE_NOT_YET_PASSED",
         "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_9_complete": True, "stage8_9_physical_validation_performed": True,
     }
