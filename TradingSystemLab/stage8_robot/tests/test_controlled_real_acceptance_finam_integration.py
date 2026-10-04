@@ -8,7 +8,7 @@ import pytest
 
 from TradingSystemLab.stage8_robot.controlled_real_acceptance import (
     AcceptanceAuthority, ControlledAcceptanceBroker, STAGE8_10_AUTHORITY,
-    run_controlled_lifecycle,
+    OperatorInterventionRequired, _decimal_contracts, _position, run_controlled_lifecycle,
 )
 from TradingSystemLab.stage8_robot.finam_api import FinamAPI
 from TradingSystemLab.stage8_robot.specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID
@@ -29,65 +29,80 @@ class Raw:
 
 
 class SyntheticFinamTransport:
-    """Imitates only the real v1 endpoints consumed by FinamAPI."""
+    """Exact documented REST shapes for the six Stage 8.11 FINAM endpoints."""
     def __init__(self, scenario="pass"):
-        self.scenario = scenario
-        self.orders = []
-        self.trades = []
-        self.position = 0
-        self.posts = 0
-        self.deletes = 0
+        self.scenario, self.orders, self.trade_rows = scenario, [], []
+        self.position = self.posts = self.deletes = 0
+        self.paths = []
+
+    @staticmethod
+    def decimal(value): return {"value": str(value)}
+
+    def state(self, oid, payload, status, executed):
+        return {"order_id":oid,"exec_id":"exec-"+oid,"status":status,
+            "order":{"account_id":ACCOUNT,"symbol":payload["symbol"],
+                "quantity":self.decimal(1),"side":payload["side"],"type":payload["type"],
+                "time_in_force":"TIME_IN_FORCE_DAY","client_order_id":payload["client_order_id"],
+                "comment":"stage8.11"},
+            "transact_at":{"seconds":1,"nanos":0},"accept_at":{"seconds":2,"nanos":0},
+            "withdraw_at":{"seconds":0,"nanos":0},"initial_quantity":self.decimal(1),
+            "executed_quantity":self.decimal(executed),
+            "remaining_quantity":self.decimal(1-executed)}
 
     def __call__(self, request, timeout):
-        path = urlparse(request.full_url).path
-        method = request.get_method()
+        path, method = urlparse(request.full_url).path, request.get_method()
+        self.paths.append((method,path))
         if path == "/v1/sessions" and method == "POST": return Raw({"token":"jwt"})
-        if path == "/v1/sessions/details":
-            return Raw({"readonly":False,"account_ids":[ACCOUNT]})
+        if path == "/v1/sessions/details": return Raw({"readonly":False,"account_ids":[ACCOUNT]})
         prefix = f"/v1/accounts/{ACCOUNT}"
         if path == prefix and method == "GET":
-            position = self.position
-            if self.scenario == "final_nonflat" and self.posts >= 2: position = 1
-            positions = [] if position == 0 else [{"symbol":SYMBOL,"quantity":position}]
-            trades = list(self.trades)
+            position = 1 if self.scenario == "final_nonflat" and self.posts >= 2 else self.position
+            if self.scenario == "position_overfill" and self.posts == 1: position = 2
+            positions=[] if position == 0 else [{"symbol":SYMBOL,"quantity":self.decimal(position),
+                "average_price":self.decimal(1),"current_price":self.decimal(1),
+                "maintenance_margin":self.decimal(0),"daily_pnl":self.decimal(0),
+                "unrealized_pnl":self.decimal(0)}]
+            return Raw({"account_id":ACCOUNT,"type":"FORTS","status":"ACCOUNT_ACTIVE",
+                "equity":self.decimal(1000),"unrealized_profit":self.decimal(0),"positions":positions,
+                "cash":[],"portfolio_forts":{"available_cash":self.decimal(1000),
+                "money_reserved":self.decimal(0)}})
+        if path == prefix + "/trades" and method == "GET":
+            rows=list(self.trade_rows)
             if self.scenario == "unrelated_fill" and self.posts == 1:
-                trades = [{"trade_id":"alien","order_id":"alien-order","client_order_id":"alien-client",
-                    "symbol":SYMBOL,"side":"SIDE_BUY","quantity":"1","price":"1","timestamp":NOW.isoformat()}]
-            return Raw({"positions":positions,"trades":trades})
+                rows=[{"trade_id":"alien","order_id":"alien-order","account_id":ACCOUNT,
+                    "symbol":SYMBOL,"side":"SIDE_BUY","size":self.decimal(1),
+                    "price":self.decimal(1),"timestamp":{"seconds":3,"nanos":0},
+                    "comment":"","accrued_interest":self.decimal(0),"currency":"RUB"}]
+            return Raw({"trades":rows})
         if path == prefix + "/orders" and method == "POST":
-            payload=json.loads(request.data)
-            self.posts += 1
-            oid=f"o{self.posts}"
-            side=payload["side"]
+            payload=json.loads(request.data); self.posts += 1; oid=f"o{self.posts}"
             status="ACTIVE" if self.scenario == "active_cancel" and self.posts == 1 else "FILLED"
             if self.scenario == "no_fill" and self.posts == 1: status="REJECTED"
-            symbol="CNYRUBF@RTSX" if self.scenario == "mismatched_symbol" and self.posts == 1 else payload["symbol"]
-            filled=1 if status == "FILLED" else 0
-            order={"order_id":oid,"client_order_id":payload["client_order_id"],"symbol":symbol,
-                   "side":side,"status":status,"filled_quantity":filled}
-            self.orders.append(order)
-            if filled:
-                self.position += 1 if side == "SIDE_BUY" else -1
-                self.trades.append({"trade_id":"t"+oid,"order_id":oid,"client_order_id":payload["client_order_id"],
-                    "symbol":symbol,"side":side,"quantity":"1","price":"1","timestamp":NOW.isoformat()})
-            uncertain=(self.scenario == "uncertain_entry" and self.posts == 1
-                       or self.scenario == "uncertain_flatten" and self.posts == 2)
+            if self.scenario == "mismatched_symbol" and self.posts == 1: payload["symbol"]="CNYRUBF@RTSX"
+            executed=1 if status == "FILLED" else 0
+            if self.scenario == "executed_overfill" and self.posts == 1: executed=2
+            order=self.state(oid,payload,status,executed); self.orders.append(order)
+            if executed:
+                self.position += 1 if payload["side"] == "SIDE_BUY" else -1
+                self.trade_rows.append({"trade_id":"t"+oid,"order_id":oid,"account_id":ACCOUNT,
+                    "symbol":payload["symbol"],"side":payload["side"],"size":self.decimal(1),
+                    "price":self.decimal(1),"timestamp":{"seconds":3,"nanos":0},
+                    "comment":"","accrued_interest":self.decimal(0),"currency":"RUB"})
+            uncertain=(self.scenario == "uncertain_entry" and self.posts == 1 or
+                       self.scenario == "uncertain_flatten" and self.posts == 2)
             if uncertain: raise TimeoutError("synthetic uncertain POST")
-            return Raw({"order_id":oid})
+            return Raw(order)
         if path == prefix + "/orders" and method == "GET":
             if self.scenario == "malformed": return Raw({"unexpected":[]})
-            rows=[{"order_id":o["order_id"],"client_order_id":o["client_order_id"],"status":o["status"]}
-                  for o in self.orders]
-            if self.scenario == "duplicate" and rows: rows.append(dict(rows[0],order_id="duplicate"))
+            rows=list(self.orders)
+            if self.scenario == "duplicate" and rows:
+                duplicate=dict(rows[0],order_id="duplicate"); rows.append(duplicate)
             return Raw({"orders":rows})
         if path.startswith(prefix + "/orders/") and method == "GET":
-            oid=path.rsplit("/",1)[1]
-            return Raw(next(o for o in self.orders if o["order_id"] == oid))
+            oid=path.rsplit("/",1)[1]; return Raw(next(o for o in self.orders if o["order_id"] == oid))
         if path.startswith(prefix + "/orders/") and method == "DELETE":
-            oid=path.rsplit("/",1)[1]
-            next(o for o in self.orders if o["order_id"] == oid)["status"]="CANCELLED"
-            self.deletes += 1
-            return Raw({})
+            oid=path.rsplit("/",1)[1]; order=next(o for o in self.orders if o["order_id"] == oid)
+            order["status"]="CANCELLED"; self.deletes += 1; return Raw(order)
         raise AssertionError((method,path))
 
 
@@ -123,6 +138,27 @@ def test_real_finam_api_contract_runs_full_controlled_lifecycle(tmp_path):
     result,transport,store=execute(tmp_path,"pass")
     assert result["classification"] == "SYNTHETIC_PASS"
     assert transport.posts == 2 and store.unresolved_intent_count() == 0
+    assert ("GET",f"/v1/accounts/{ACCOUNT}/trades") in transport.paths
+
+
+@pytest.mark.parametrize("shape,expected", [({"value":"0"},0),({"value":"1"},1)])
+def test_rest_decimal_contract_parser_accepts_documented_whole_values(shape,expected):
+    assert _decimal_contracts(shape) == expected
+
+
+@pytest.mark.parametrize("shape", [
+    {"value":"not-decimal"}, {"value":"0.5"}, {}, None,
+    {"value":"1","scale":0}, {"num":1,"scale":0}, {"value":1},
+])
+def test_rest_decimal_contract_parser_rejects_malformed_or_unsupported_shapes(shape):
+    with pytest.raises(OperatorInterventionRequired):
+        _decimal_contracts(shape)
+
+
+def test_position_decimal_parser_rejects_more_than_acceptance_contract():
+    assert _position([{"symbol":SYMBOL,"quantity":{"value":"1"}}],SYMBOL) == 1
+    # Parsing is canonical; the lifecycle's exact-position invariant rejects 2.
+    assert _position([{"symbol":SYMBOL,"quantity":{"value":"2"}}],SYMBOL) == 2
 
 
 @pytest.mark.parametrize("scenario,classification",[
@@ -130,7 +166,8 @@ def test_real_finam_api_contract_runs_full_controlled_lifecycle(tmp_path):
     ("active_cancel","NOT_ACCEPTED_NO_EXECUTION"),("no_fill","NOT_ACCEPTED_NO_EXECUTION"),
     ("malformed","OPERATOR_INTERVENTION_REQUIRED"),("duplicate","OPERATOR_INTERVENTION_REQUIRED"),
     ("unrelated_fill","OPERATOR_INTERVENTION_REQUIRED"),("mismatched_symbol","OPERATOR_INTERVENTION_REQUIRED"),
-    ("final_nonflat","OPERATOR_INTERVENTION_REQUIRED"),
+    ("final_nonflat","OPERATOR_INTERVENTION_REQUIRED"),("executed_overfill","OPERATOR_INTERVENTION_REQUIRED"),
+    ("position_overfill","OPERATOR_INTERVENTION_REQUIRED"),
 ])
 def test_real_finam_api_contract_fails_closed(tmp_path,scenario,classification):
     result,transport,_=execute(tmp_path,scenario)

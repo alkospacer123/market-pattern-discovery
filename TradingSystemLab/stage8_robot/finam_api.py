@@ -97,6 +97,7 @@ class FinamAPI:
         # This endpoint is exceptional: FINAM requires the JWT in the JSON body.
         return self._request("POST",SESSION_DETAILS_PATH,{"token":self.__jwt},auth=False).body
     def account(self,account_id): return self._request("GET",f"/v1/accounts/{account_id}").body
+    def trades(self,account_id): return self._request("GET",f"/v1/accounts/{account_id}/trades").body
     def orders(self,account_id): return self._request("GET",f"/v1/accounts/{account_id}/orders").body
     def order(self,account_id,order_id): return self._request("GET",f"/v1/accounts/{account_id}/orders/{order_id}").body
     def place_order(self,account_id,payload): return self._request("POST",f"/v1/accounts/{account_id}/orders",payload,retries=0).body

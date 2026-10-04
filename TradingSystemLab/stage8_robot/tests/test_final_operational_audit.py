@@ -1027,3 +1027,22 @@ def test_stage811_mock_only_api_dependency_fails_both_audits():
     operational=run_audit({STAGE811_PATH:mutated})
     assert "STAGE_8_11_PRODUCTION_FINAM_API_CONTRACT" in independent["errors"]
     assert "STAGE_8_11_PRODUCTION_FINAM_API_CONTRACT" in operational["errors"]
+
+
+@pytest.mark.parametrize("path,relative,needle,replacement,error", [
+    (STAGE811_PATH,"controlled_real_acceptance.py",'return _rows(account, "positions")',
+     'return _rows(account, "positions"), _rows(account, "trades")',"STAGE_8_11_TRADES_NOT_FROM_ACCOUNT"),
+    ("TradingSystemLab/stage8_robot/finam_api.py","finam_api.py","def trades(self,account_id)",
+     "def account_trades_removed(self,account_id)","STAGE_8_11_FINAM_TRADES_PRIMITIVE"),
+    (STAGE811_PATH,"controlled_real_acceptance.py",'order.get("executed_quantity")','order.get("invented_quantity")',
+     "STAGE_8_11_DOCUMENTED_EXECUTED_QUANTITY"),
+    ("TradingSystemLab/stage8_robot/tests/test_controlled_real_acceptance_finam_integration.py",
+     "tests/test_controlled_real_acceptance_finam_integration.py",'prefix + "/trades"',
+     'prefix + "/fake-trades"',"STAGE_8_11_EXACT_REST_SYNTHETIC_TRANSPORT"),
+])
+def test_stage811_rest_schema_mutations_fail_both_audits(path,relative,needle,replacement,error):
+    mutated=source(path).replace(needle,replacement,1)
+    independent=stage8.audit(write_result=False,source_overrides={relative:mutated})
+    operational=run_audit({path:mutated})
+    assert error in independent["errors"]
+    assert error in operational["errors"]

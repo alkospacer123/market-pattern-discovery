@@ -78,29 +78,39 @@ class API:
             "SELECT payload FROM intents ORDER BY rowid DESC LIMIT 1"))
         payload=json.loads(intent[0])
         return {"orders":[{"order_id":self.current.get("order_id", ""),
-            "client_order_id":payload["client_order_id"],"status":self.current["order_status"]}]}
+            "order":{"client_order_id":payload["client_order_id"]},
+            "status":self.current["order_status"]}]}
     def order(self, account, order_id):
         intent=json.loads(next(row for row in self.store.db.execute(
             "SELECT payload FROM intents ORDER BY rowid DESC LIMIT 1"))[0])
-        return {"order_id":order_id,"client_order_id":intent["client_order_id"],
-            "symbol":intent["symbol"],"side":intent["side"],"status":self.current["order_status"],
-            "filled_quantity":self.current["filled_quantity"]}
+        executed=self.current["executed_quantity"]
+        return {"order_id":order_id,"status":self.current["order_status"],
+            "order":{"account_id":account,"client_order_id":intent["client_order_id"],
+                "symbol":intent["symbol"],"side":intent["side"],"quantity":{"value":"1"}},
+            "accept_at":{"seconds":2,"nanos":0},"initial_quantity":{"value":"1"},
+            "executed_quantity":{"value":str(executed)},
+            "remaining_quantity":{"value":str(1-executed)}}
     def account(self, account):
+        intent=json.loads(next(row for row in self.store.db.execute(
+            "SELECT payload FROM intents ORDER BY rowid DESC LIMIT 1"))[0])
+        quantity=self.current.get("position_quantity",0)
+        positions=[] if quantity == 0 else [{"symbol":intent["symbol"],"quantity":{"value":str(quantity)}}]
+        return {"account_id":account,"positions":positions}
+    def trades(self, account):
         intent=json.loads(next(row for row in self.store.db.execute(
             "SELECT payload FROM intents ORDER BY rowid DESC LIMIT 1"))[0])
         trades=[]
         for fill in self.current.get("fills",[]):
             trades.append({"trade_id":fill["trade_id"],"order_id":self.current["order_id"],
-                "client_order_id":intent["client_order_id"],"symbol":intent["symbol"],
-                "side":intent["side"],"quantity":"1","price":fill["price"],"timestamp":fill["timestamp"]})
-        quantity=self.current.get("position_quantity",0)
-        positions=[] if quantity == 0 else [{"symbol":intent["symbol"],"quantity":quantity}]
-        return {"positions":positions,"trades":trades}
+                "account_id":account,"symbol":intent["symbol"],"side":intent["side"],
+                "size":{"value":"1"},"price":{"value":fill["price"]},
+                "timestamp":{"seconds":3,"nanos":0}})
+        return {"trades":trades}
     def cancel_order(self, account, oid): self.calls.append(("cancel", account, oid)); return {}
 
 
 def fill(order, position):
-    return {"order_status":"FILLED", "order_id":order, "filled_quantity":1,
+    return {"order_status":"FILLED", "order_id":order, "executed_quantity":1,
             "position_quantity":position, "fills":[{"fill_id":"f"+order,"broker_order_id":order,
             "trade_id":"t"+order,"quantity":"1","price":"1","timestamp":NOW.isoformat()}]}
 
@@ -130,15 +140,15 @@ def test_every_uncertain_post_is_reconciled_without_retry(tmp_path, uncertain):
 
 
 def test_uncertain_active_order_is_cancelled_then_no_execution(tmp_path):
-    active={"order_status":"ACTIVE","order_id":"o1","filled_quantity":0,"position_quantity":0,"fills":[]}
-    cancelled={"order_status":"CANCELLED","order_id":"o1","filled_quantity":0,"position_quantity":0,"fills":[]}
+    active={"order_status":"ACTIVE","order_id":"o1","executed_quantity":0,"position_quantity":0,"fills":[]}
+    cancelled={"order_status":"CANCELLED","order_id":"o1","executed_quantity":0,"position_quantity":0,"fills":[]}
     result,api,store,_=run(tmp_path,[active,cancelled],(True,))
     assert result["classification"] == "NOT_ACCEPTED_NO_EXECUTION"
     assert api.posts == 1 and any(x[0]=="cancel" for x in api.calls) and store.unresolved_intent_count()==0
 
 
 def test_cancel_race_fill_is_flattened_not_misclassified(tmp_path):
-    active={"order_status":"ACTIVE","order_id":"o1","filled_quantity":0,"position_quantity":0,"fills":[]}
+    active={"order_status":"ACTIVE","order_id":"o1","executed_quantity":0,"position_quantity":0,"fills":[]}
     raced=fill("o1",1); raced["order_status"]="CANCELLED"
     result,api,store,_=run(tmp_path,[active,raced,fill("o2",0)],(True,False))
     assert result["classification"] == "SYNTHETIC_PASS"
@@ -147,13 +157,13 @@ def test_cancel_race_fill_is_flattened_not_misclassified(tmp_path):
 
 @pytest.mark.parametrize("status", ["REJECTED","EXPIRED","CANCELLED"])
 def test_terminal_entry_without_fill_is_never_pass(tmp_path,status):
-    terminal={"order_status":status,"order_id":"o1","filled_quantity":0,"position_quantity":0,"fills":[]}
+    terminal={"order_status":status,"order_id":"o1","executed_quantity":0,"position_quantity":0,"fills":[]}
     result,api,_,_=run(tmp_path,[terminal])
     assert result["classification"] == "NOT_ACCEPTED_NO_EXECUTION" and api.posts == 1
 
 
 def test_unprovable_state_requires_operator_and_halts(tmp_path):
-    unknown={"order_status":"UNKNOWN","filled_quantity":0,"position_quantity":0,"fills":[]}
+    unknown={"order_status":"UNKNOWN","executed_quantity":0,"position_quantity":0,"fills":[]}
     result,api,store,root=run(tmp_path,[unknown],(True,))
     assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
     assert api.posts == 1 and store.unresolved_intent_count()==1

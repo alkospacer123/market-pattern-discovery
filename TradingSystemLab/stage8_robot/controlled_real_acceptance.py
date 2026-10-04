@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from decimal import Decimal, InvalidOperation
 import hashlib
 import json
 from pathlib import Path
@@ -224,16 +225,33 @@ def _rows(response: Any, key: str) -> list[dict[str, Any]]:
     return rows
 
 
-def _integer(value: Any) -> int:
-    if isinstance(value, bool):
+def _rest_decimal(value: Any) -> Decimal:
+    """Parse the exact FINAM REST Decimal ``{"value": "..."}`` representation."""
+    if not isinstance(value, dict) or set(value) != {"value"} or not isinstance(value["value"], str):
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
     try:
-        parsed = int(value)
-    except (TypeError, ValueError):
+        parsed = Decimal(value["value"])
+    except InvalidOperation:
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED") from None
-    if str(parsed) != str(value):
+    if not parsed.is_finite():
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
     return parsed
+
+
+def _decimal_contracts(value: Any) -> int:
+    """Parse a FINAM REST Decimal which must represent whole contracts."""
+    parsed = _rest_decimal(value)
+    if parsed != parsed.to_integral_value():
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    return int(parsed)
+
+
+def _timestamp(value: Any) -> tuple[int, int]:
+    if (not isinstance(value, dict) or set(value) != {"seconds", "nanos"}
+            or type(value.get("seconds")) is not int or type(value.get("nanos")) is not int
+            or not 0 <= value["nanos"] < 1_000_000_000):
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    return value["seconds"], value["nanos"]
 
 
 def _status(value: Any) -> str:
@@ -247,18 +265,18 @@ def _status(value: Any) -> str:
     return status
 
 
-def _production_account(api: object, account_id: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+def _production_account(api: object, account_id: str) -> list[dict[str, Any]]:
     account = api.account(account_id)
     if not isinstance(account, dict):
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-    return _rows(account, "positions"), _rows(account, "trades")
+    return _rows(account, "positions")
 
 
 def _position(positions: list[dict[str, Any]], symbol: str) -> int:
     matches = [row for row in positions if row.get("symbol") == symbol]
     if len(matches) > 1:
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-    return 0 if not matches else _integer(matches[0].get("quantity"))
+    return 0 if not matches else _decimal_contracts(matches[0].get("quantity"))
 
 
 def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -> dict[str, Any]:
@@ -270,7 +288,8 @@ def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -
     if not all(isinstance(value, str) and value for value in (client_id, symbol, side)):
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
     candidates = [row for row in _rows(api.orders(account_id), "orders")
-                  if row.get("client_order_id") == client_id]
+                  if isinstance(row.get("order"), dict)
+                  and row["order"].get("client_order_id") == client_id]
     if len(candidates) != 1:
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
     listed_id = candidates[0].get("order_id")
@@ -280,36 +299,43 @@ def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -
     if persisted_id and persisted_id != listed_id:
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
     order = api.order(account_id, listed_id)
+    request = order.get("order") if isinstance(order, dict) else None
     if (not isinstance(order, dict) or order.get("order_id") != listed_id
-            or order.get("client_order_id") != client_id or order.get("symbol") != symbol
-            or order.get("side") != side):
+            or not isinstance(request, dict) or request.get("account_id") != account_id
+            or request.get("client_order_id") != client_id or request.get("symbol") != symbol
+            or request.get("side") != side or _decimal_contracts(request.get("quantity")) != 1):
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-    filled = _integer(order.get("filled_quantity"))
-    if filled not in (0, 1):
+    initial = _decimal_contracts(order.get("initial_quantity"))
+    executed = _decimal_contracts(order.get("executed_quantity"))
+    remaining = _decimal_contracts(order.get("remaining_quantity"))
+    if initial != 1 or executed not in (0, 1) or remaining not in (0, 1) or executed + remaining != initial:
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-    positions, trades = _production_account(api, account_id)
+    accepted_at = _timestamp(order.get("accept_at"))
+    positions = _production_account(api, account_id)
+    trades = _rows(api.trades(account_id), "trades")
     matching = []
     for trade in trades:
-        identity = (trade.get("order_id") == listed_id and trade.get("client_order_id") == client_id)
-        if not identity:
+        if trade.get("order_id") != listed_id:
             continue
-        if trade.get("symbol") != symbol or trade.get("side") != side or _integer(trade.get("quantity")) != 1:
+        if (trade.get("account_id") != account_id or trade.get("symbol") != symbol
+                or trade.get("side") != side or _decimal_contracts(trade.get("size")) != 1
+                or _timestamp(trade.get("timestamp")) < accepted_at):
             raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-        for field in ("trade_id", "price", "timestamp"):
-            if not isinstance(trade.get(field), str) or not trade[field]:
-                raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+        if not isinstance(trade.get("trade_id"), str) or not trade["trade_id"]:
+            raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+        _rest_decimal(trade.get("price"))
         matching.append({"fill_id": trade["trade_id"], "trade_id": trade["trade_id"],
-                         "broker_order_id": listed_id, "quantity": "1", "price": trade["price"],
-                         "timestamp": trade["timestamp"]})
-    if len(matching) != filled:
+                         "broker_order_id": listed_id, "quantity": "1", "price": trade["price"]["value"],
+                         "timestamp": json.dumps(trade["timestamp"], sort_keys=True, separators=(",", ":"))})
+    if len(matching) != executed:
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
     return {"order_status": _status(order.get("status")), "order_id": listed_id,
-            "client_order_id": client_id, "filled_quantity": filled, "fills": matching,
+            "client_order_id": client_id, "executed_quantity": executed, "fills": matching,
             "acceptance_instrument": symbol, "position_quantity": _position(positions, symbol)}
 
 
 def _production_account_snapshot(api: object, account_id: str, symbol: str, store: StateStore) -> dict[str, Any]:
-    positions, _ = _production_account(api, account_id)
+    positions = _production_account(api, account_id)
     acceptance_ids = {item[0] for item in store.db.execute(
         "SELECT broker_order_id FROM intents WHERE broker_order_id IS NOT NULL").fetchall()}
     active = 0
@@ -332,7 +358,7 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
         order_id = str(snap.get("order_id", order_id))
     for fill in snap.get("fills", []):
         broker.store.persist_fill(fill)
-    filled = int(snap.get("filled_quantity", 0))
+    filled = int(snap.get("executed_quantity", 0))
     # A cancel race may report CANCELLED after the single contract filled.  The
     # fill ledger, not the terminal label, is authoritative in that branch.
     if status in ({"FILLED"} | TERMINAL_NO_FILL) and filled == 1 and snap.get("fills"):
@@ -374,7 +400,7 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
             phases.append("ENTRY_UNCERTAIN_RECONCILE")
         entry = _reconcile(broker, entry_key, allow_cancel=True)
         phases.append("ENTRY_RECONCILED")
-        if int(entry.get("filled_quantity", 0)) != 1:
+        if int(entry.get("executed_quantity", 0)) != 1:
             result["classification"] = "NOT_ACCEPTED_NO_EXECUTION"
             result["failure_code"] = "ENTRY_NOT_FILLED"
             return result
@@ -389,7 +415,7 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
         flatten = _reconcile(broker, flatten_key, allow_cancel=True)
         phases.append("FLATTEN_RECONCILED")
         final = broker.account_snapshot(finam_symbol)
-        flat = (int(flatten.get("filled_quantity", 0)) == 1
+        flat = (int(flatten.get("executed_quantity", 0)) == 1
                 and int(final.get("position_quantity", -999)) == 0
                 and int(final.get("active_order_count", -1)) == 0
                 and broker.store.unresolved_intent_count() == 0
@@ -419,7 +445,7 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
                 else:
                     recovered_entry = broker.snapshot(entry_key) if entry_intent else None
                 flatten_intent = broker.store.intent(flatten_key)
-                if (recovered_entry and int(recovered_entry.get("filled_quantity", 0)) == 1
+                if (recovered_entry and int(recovered_entry.get("executed_quantity", 0)) == 1
                         and int(recovered_entry.get("position_quantity", 0)) == (1 if direction == "LONG" else -1)
                         and flatten_intent is None):
                     broker.submit_flatten(key=flatten_key, finam_symbol=finam_symbol, direction=direction)

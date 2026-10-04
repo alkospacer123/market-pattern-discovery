@@ -46,7 +46,10 @@
       "params": "GET /v1/assets/{symbol}/params?account_id: primitive boolean is_tradable and decimal string trade_lot_size",
       "price_step": "min_step / (10 ** decimals)",
       "quantity": "Order quantity.value is asset units; one MOEX futures asset unit is one contract and must respect trade_lot_size",
-      "rest_transport_rule": "REST shapes are authoritative; protobuf/gRPC {num,scale} Decimal and wrapped BoolValue are rejected by production binding"
+      "rest_transport_rule": "REST shapes are authoritative; protobuf/gRPC {num,scale} Decimal and wrapped BoolValue are rejected by production binding",
+      "stage8_11_order_state": "OrderState has top-level order_id, status, initial_quantity, executed_quantity, remaining_quantity Decimal wrappers and nested order containing account_id, client_order_id, symbol, side, and quantity",
+      "stage8_11_account_trades": "GET /v1/accounts/{account_id}/trades returns AccountTrade rows with trade_id, order_id, account_id, symbol, side, size Decimal, price Decimal, and timestamp; GetAccount is not trade authority",
+      "stage8_11_position": "Position.quantity is REST Decimal {\"value\":\"decimal string\"}; Stage 8.11 accepts only integral 0 or the direction-specific signed one-contract state"
     },
     "schema_status": "FINAM_REST_SCHEMA_PHYSICALLY_VALIDATED",
     "session_create_body": "secret",
@@ -288,6 +291,19 @@
     "live_trading_authorized": false,
     "real_order_transmission_authorized": false,
     "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
+    "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
+  },
+  "stage8_11": {
+    "status": "IN_PROGRESS_CODE_READY_PENDING_PHYSICAL_ACCEPTANCE",
+    "production_contract_correction_authority": {
+      "pull_request": 352,
+      "base": "d86058e905e97b5ee260702d7dc67fabb6f86d77",
+      "head": "3e290211d9741f836612ceafc47471b1b94df05e",
+      "merge": "2c1447680b8edf35eb2f3cc67e60e0c32e44f5d5"
+    },
+    "execution_authorized": false,
+    "real_order_count": 0,
+    "production_kill_switch_final_state": "HALTED",
     "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
   }
 }
