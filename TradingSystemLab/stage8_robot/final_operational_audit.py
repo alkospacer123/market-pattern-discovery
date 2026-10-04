@@ -80,7 +80,7 @@ PROTECTED_SHA256 = {
     "TradingSystemLab/stage8_robot/deploy/windows/validate-trading-identity-binding.ps1": "0ccaa1c6b7e37bba226c25647a068739dfcc1db2ad7c99a695752235b4a7b399",
     "TradingSystemLab/stage8_robot/readonly_supervisor.py": "1455fee5fe207c617676a0463ce3034247c5534578555cac293807da22bcaab8",
     "TradingSystemLab/stage8_robot/finam_api.py": "15c97d5557021ec50702bd9e2abf1bde4e76faf90063b973fd61f9cf9d096cb0",
-    "TradingSystemLab/stage8_robot/operations.py": "1a9c24b9eae666112cc215946cd41166e8f1d425c471393832a9d45b9bb0f783",
+    "TradingSystemLab/stage8_robot/operations.py": "1ae2e848aa3301cbd924f7165bd61a8888a586e86a792fac807b7fd6ff5cd734",
     "TradingSystemLab/stage8_robot/backup_state.py": "a841ca6d8090a893157bb87bf0ee47101c79c398b7b36e06259a7d33cf0977cd",
     "TradingSystemLab/stage8_robot/restore_state.py": "ff6adb1503e0edd53c6c3c749e4bcc3afa56b8f56042703c3000a246cd94b2cd",
     "TradingSystemLab/stage8_robot/production_instrument_registry.csv": "90d64e16dfeb292b4b339ac3eb196074e133bf52a962cc6715c488a32d16e013",
@@ -795,6 +795,13 @@ def audit(
           and "$timeSourceExitCode = $LASTEXITCODE" in physical_wrapper,
           "STAGE_8_11_WINDOWS_TIME_EXIT_CODES")
     check("emergency_halt(Path" in physical_wrapper, "STAGE_8_11_PARENT_WRAPPER_HALT_DEFENSE")
+    physical_tree=ast.parse(physical_entry)
+    lifecycle_calls=[node for node in ast.walk(physical_tree) if isinstance(node,ast.Call)
+                     and getattr(node.func,"id",None)=="run_controlled_lifecycle"]
+    check(len(lifecycle_calls)==1
+          and any(keyword.arg=="clock" for keyword in lifecycle_calls[0].keywords)
+          and not any(keyword.arg=="now" for keyword in lifecycle_calls[0].keywords),
+          "STAGE8_11_PHYSICAL_ENTRYPOINT_FRESH_CLOCK_PROPAGATION")
     check(props.get("order_endpoint_call_count",{}).get("maximum") == 2
           and acceptance.count("submit_entry(") == 2 and acceptance.count("submit_flatten(") == 3,
           "STAGE_8_11_MAXIMUM_TWO_POST_CAPABILITY")
@@ -910,6 +917,11 @@ def audit(
     finam = text("TradingSystemLab/stage8_robot/finam_api.py")
     recovery = text("TradingSystemLab/stage8_robot/stage8_11_failed_attempt_recovery.py")
     recovery_wrapper = text("TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-failed-intent-recovery.ps1")
+    check("stage8_11_exclusive_lock(runtime_root)" in physical_entry
+          and "stage8_11_exclusive_lock(root)" in recovery,
+          "STAGE8_11_SHARED_EXCLUSIVE_LOCK_AUTHORITY")
+    check("stage8_11_failed_attempt_recovery" in physical_wrapper,
+          "STAGE8_11_PHYSICAL_WRAPPER_RECOVERY_CONFLICT")
     provenance = json.loads(text("TradingSystemLab/stage8_robot/authority_provenance.json"))
     check("class FinamOrderRejected" in finam and "order_post and exc.code==400" in finam
           and "exc.code>=500 and order_post" in finam, "STAGE8_11_REJECTION_TAXONOMY")

@@ -24,7 +24,7 @@ from .controlled_real_acceptance import (
 )
 from .finam_api import FinamAPI
 from .funding_margin_diagnostic import READY, run as collect_funding_authority
-from .operations import InstanceLock
+from .operations import stage8_11_exclusive_lock
 from .specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID
 from .stage8_11_intel_acceptance import stage8_10_authority_complete
 from .state import StateStore, initialize_stage8_11_acceptance_ledger
@@ -134,58 +134,61 @@ def _physical_evidence(*, accepted_commit: str, account_hash: str, result: dict[
 def execute_boundary(*, accepted_commit: str, authorization: str, account_id: str,
                      api: Any, runtime_root: Path, external_evidence_sha256: str,
                      funding_collector: Callable[..., dict[str, Any]] = collect_funding_authority,
-                     now: datetime | None = None) -> dict[str, Any]:
+                     now: datetime | None = None,
+                     clock: Callable[[], datetime] | None = None) -> dict[str, Any]:
     """Re-prove authority, briefly arm, invoke the canonical lifecycle, halt."""
-    observed = now or datetime.now(timezone.utc)
-    verify_authorization(authorization)
-    switch, error = load_kill_switch(runtime_root)
-    if error or switch is None or switch.get("state") != "HALTED":
-        raise PhysicalAcceptanceBlocked("STAGE8_11_INITIAL_HALT_REQUIRED")
-    if not stage8_10_authority_complete():
-        raise PhysicalAcceptanceBlocked("STAGE8_11_STAGE8_10_AUTHORITY_INVALID")
-    precheck_report = runtime_root / "diagnostics" / PRECHECK_REPORT_NAME
-    if external_evidence_sha256.upper() != PRECHECK_EVIDENCE_SHA256:
-        raise PhysicalAcceptanceBlocked("STAGE8_11_EXTERNAL_EVIDENCE_SHA256_INVALID")
-    if (not precheck_report.is_file()
-            or hashlib.sha256(precheck_report.read_bytes()).hexdigest().upper() != PRECHECK_EVIDENCE_SHA256):
-        raise PhysicalAcceptanceBlocked("STAGE8_11_PRECHECK_EVIDENCE_MISSING_OR_MISMATCH")
+    time_source = clock or (lambda: datetime.now(timezone.utc))
+    observed = now or time_source()  # boundary/preflight timestamp, never a POST timestamp
+    with stage8_11_exclusive_lock(runtime_root):
+        verify_authorization(authorization)
+        switch, error = load_kill_switch(runtime_root)
+        if error or switch is None or switch.get("state") != "HALTED":
+            raise PhysicalAcceptanceBlocked("STAGE8_11_INITIAL_HALT_REQUIRED")
+        if not stage8_10_authority_complete():
+            raise PhysicalAcceptanceBlocked("STAGE8_11_STAGE8_10_AUTHORITY_INVALID")
+        precheck_report = runtime_root / "diagnostics" / PRECHECK_REPORT_NAME
+        if external_evidence_sha256.upper() != PRECHECK_EVIDENCE_SHA256:
+            raise PhysicalAcceptanceBlocked("STAGE8_11_EXTERNAL_EVIDENCE_SHA256_INVALID")
+        if (not precheck_report.is_file()
+                or hashlib.sha256(precheck_report.read_bytes()).hexdigest().upper() != PRECHECK_EVIDENCE_SHA256):
+            raise PhysicalAcceptanceBlocked("STAGE8_11_PRECHECK_EVIDENCE_MISSING_OR_MISMATCH")
 
-    ledger = initialize_stage8_11_acceptance_ledger(runtime_root, account_id)
-    store = StateStore(ledger)
-    broker: ControlledAcceptanceBroker | None = None
-    try:
-        if store.unresolved_intent_count() != 0:
-            raise PhysicalAcceptanceBlocked("STAGE8_11_UNRESOLVED_INTENTS_PRESENT")
-        create_stage8_11_acceptance_backup(runtime_root, account_id)
-        report = funding_collector(api, account_id, None, required_readonly=False)
-        case = report.get("per_instrument", {}).get(f"{INSTRUMENT}:{DIRECTION}", {})
-        if report.get("funding_classification") != READY:
-            raise PhysicalAcceptanceBlocked("STAGE8_11_CURRENT_AUTHORITY_BLOCKED")
-        symbol = resolve_frozen_symbol(INSTRUMENT)
-        if symbol != FINAM_SYMBOL:
-            raise PhysicalAcceptanceBlocked("STAGE8_11_FIXED_SYMBOL_MISMATCH")
-        account_hash = _hash(account_id)
-        heartbeat = json.loads(heartbeat_path(runtime_root).read_text(encoding="utf-8"))
-        authority = AcceptanceAuthority(
-            PRODUCTION_SPECIFICATION_ID, ACTIVE_IDENTITY, STAGE8_10_AUTHORITY,
-            account_hash, str(report.get("account_identity_sha256", "")), str(heartbeat.get("account_hash", "")),
-            True, False, report.get("account_clean") is True, 0,
-            0 if report.get("account_clean") is True else -1, store.unresolved_intent_count(),
-            heartbeat.get("reconciliation_status") == "PASS", report.get("n4_binding_valid") is True,
-            True, int(case.get("r15_quantity", 0)), int(case.get("margin_quantity", 0)),
-        )
-        broker = ControlledAcceptanceBroker(api, account_id, account_hash, store)
-        # No other path in this module writes ARMED or passes execution_authorized=True.
-        write_kill_switch(runtime_root, "ARMED", allow_arm=True, now=observed)
-        result = run_controlled_lifecycle(authority=authority, runtime_root=runtime_root,
-            execution_authorized=True, instrument=INSTRUMENT, finam_symbol=FINAM_SYMBOL,
-            direction=DIRECTION, broker=broker, now=observed)
-        result["evidence"] = _physical_evidence(accepted_commit=accepted_commit, account_hash=account_hash,
-            result=result, authority=authority, external_sha256=external_evidence_sha256)
-        return result
-    finally:
-        emergency_halt(runtime_root, now=observed)
-        store.close()
+        ledger = initialize_stage8_11_acceptance_ledger(runtime_root, account_id)
+        store = StateStore(ledger)
+        broker: ControlledAcceptanceBroker | None = None
+        try:
+            if store.unresolved_intent_count() != 0:
+                raise PhysicalAcceptanceBlocked("STAGE8_11_UNRESOLVED_INTENTS_PRESENT")
+            create_stage8_11_acceptance_backup(runtime_root, account_id)
+            report = funding_collector(api, account_id, None, required_readonly=False)
+            case = report.get("per_instrument", {}).get(f"{INSTRUMENT}:{DIRECTION}", {})
+            if report.get("funding_classification") != READY:
+                raise PhysicalAcceptanceBlocked("STAGE8_11_CURRENT_AUTHORITY_BLOCKED")
+            symbol = resolve_frozen_symbol(INSTRUMENT)
+            if symbol != FINAM_SYMBOL:
+                raise PhysicalAcceptanceBlocked("STAGE8_11_FIXED_SYMBOL_MISMATCH")
+            account_hash = _hash(account_id)
+            heartbeat = json.loads(heartbeat_path(runtime_root).read_text(encoding="utf-8"))
+            authority = AcceptanceAuthority(
+                PRODUCTION_SPECIFICATION_ID, ACTIVE_IDENTITY, STAGE8_10_AUTHORITY,
+                account_hash, str(report.get("account_identity_sha256", "")), str(heartbeat.get("account_hash", "")),
+                True, False, report.get("account_clean") is True, 0,
+                0 if report.get("account_clean") is True else -1, store.unresolved_intent_count(),
+                heartbeat.get("reconciliation_status") == "PASS", report.get("n4_binding_valid") is True,
+                True, int(case.get("r15_quantity", 0)), int(case.get("margin_quantity", 0)),
+            )
+            broker = ControlledAcceptanceBroker(api, account_id, account_hash, store)
+            # No other path in this module writes ARMED or passes execution_authorized=True.
+            write_kill_switch(runtime_root, "ARMED", allow_arm=True, now=observed)
+            result = run_controlled_lifecycle(authority=authority, runtime_root=runtime_root,
+                execution_authorized=True, instrument=INSTRUMENT, finam_symbol=FINAM_SYMBOL,
+                direction=DIRECTION, broker=broker, clock=time_source)
+            result["evidence"] = _physical_evidence(accepted_commit=accepted_commit, account_hash=account_hash,
+                result=result, authority=authority, external_sha256=external_evidence_sha256)
+            return result
+        finally:
+            emergency_halt(runtime_root, now=observed)
+            store.close()
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -210,10 +213,9 @@ def main(argv: list[str] | None = None) -> int:
         account = os.environ.pop("STAGE8_11_ACCOUNT_ID", "")
         if not secret or not account:
             raise PhysicalAcceptanceBlocked("STAGE8_11_DPAPI_AUTHORITY_INVALID")
-        with InstanceLock(root / "locks" / "stage8-11-physical-acceptance.lock"):
-            result = execute_boundary(accepted_commit=args.accepted_commit, authorization=authorization,
-                account_id=account, api=FinamAPI(secret), runtime_root=root,
-                external_evidence_sha256=args.external_evidence_sha256)
+        result = execute_boundary(accepted_commit=args.accepted_commit, authorization=authorization,
+            account_id=account, api=FinamAPI(secret), runtime_root=root,
+            external_evidence_sha256=args.external_evidence_sha256)
         digest = _write_atomic(result["evidence"], expected_evidence)
         print(f"STAGE8_11_PHYSICAL_RESULT={result['evidence']['physical_result_classification']}")
         print(f"STAGE8_11_PHYSICAL_EVIDENCE_SHA256={digest}")

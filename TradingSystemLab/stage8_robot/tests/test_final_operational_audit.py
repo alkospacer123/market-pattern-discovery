@@ -1099,6 +1099,15 @@ def test_stage811_physical_boundary_mutations_fail_both_audits(needle,error):
     assert error in operational["errors"]
 
 
+def test_stage811_physical_entrypoint_frozen_clock_mutation_fails_both_audits():
+    original=source(STAGE811_PHYSICAL)
+    mutated=original.replace("broker=broker, clock=time_source", "broker=broker, now=observed", 1)
+    independent=stage8.audit(write_result=False,source_overrides={"stage8_11_physical_acceptance.py":mutated})
+    operational=run_audit({STAGE811_PHYSICAL:mutated})
+    error="STAGE8_11_PHYSICAL_ENTRYPOINT_FRESH_CLOCK_PROPAGATION"
+    assert error in independent["errors"] and error in operational["errors"]
+
+
 @pytest.mark.parametrize("needle,error", [
     ("$timeStatusExitCode = $LASTEXITCODE", "STAGE_8_11_WINDOWS_TIME_EXIT_CODES"),
     ("$timeSourceExitCode = $LASTEXITCODE", "STAGE_8_11_WINDOWS_TIME_EXIT_CODES"),

@@ -39,7 +39,7 @@ try {
     if (-not $task -or $task.State -ne "Disabled") { throw "STAGE8_11_SCHEDULED_TASK_MUST_BE_DISABLED" }
     $conflicts = @(Get-CimInstance Win32_Process | Where-Object {
         $_.ProcessId -ne $PID -and $_.CommandLine -and
-        ($_.CommandLine -match "readonly_supervisor|stage8_robot\.runner|stage8_11_physical_acceptance")
+        ($_.CommandLine -match "readonly_supervisor|stage8_robot\.runner|stage8_11_physical_acceptance|stage8_11_failed_attempt_recovery")
     })
     if ($conflicts.Count -ne 0) { throw "STAGE8_11_RUNTIME_OWNER_CONFLICT" }
 
