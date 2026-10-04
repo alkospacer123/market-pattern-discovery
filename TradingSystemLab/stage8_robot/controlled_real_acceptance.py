@@ -26,6 +26,7 @@ from .trading_safety_gate import emergency_halt, evaluate_new_entry_gate, heartb
 STAGE8_10_AUTHORITY = "STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE"
 STAGE8_11_STATUS = "CODE_READY_PENDING_PHYSICAL_ACCEPTANCE"
 EVIDENCE_SCHEMA = "stage8_11_physical_acceptance.v1"
+STAGE8_11_ATTEMPT2_ID = "stage8.11.attempt2"
 MAX_ACCEPTANCE_QUANTITY = 1
 REGISTRY = Path(__file__).with_name("production_instrument_registry.csv")
 TERMINAL_NO_FILL = frozenset({"REJECTED", "EXPIRED", "CANCELLED"})
@@ -461,7 +462,8 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
                              execution_authorized: bool, instrument: str, finam_symbol: str,
                              direction: str, broker: ControlledAcceptanceBroker,
                              now: datetime | None = None,
-                             clock: Callable[[], datetime] | None = None) -> dict[str, Any]:
+                             clock: Callable[[], datetime] | None = None,
+                             attempt_id: str | None = None) -> dict[str, Any]:
     """Execute/reconcile the bounded lifecycle; PASS requires two proven fills."""
     # ``now`` remains a deterministic legacy test input. New boundary tests use
     # an injected clock whose every invocation is an independently observed UTC
@@ -470,8 +472,11 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
     observed = time_source()
     phases = ["PRECHECK"]
     result: dict[str, Any] = {"classification": "BLOCKED", "phases": phases, "order_endpoint_call_count": 0}
-    entry_key = f"stage8.11:{instrument}:entry"
-    flatten_key = f"stage8.11:{instrument}:flatten"
+    if attempt_id is not None and attempt_id != STAGE8_11_ATTEMPT2_ID:
+        raise AcceptanceBlocked("STAGE8_11_ATTEMPT_ID_INVALID")
+    intent_prefix = attempt_id or "stage8.11"
+    entry_key = f"{intent_prefix}:{instrument}:entry"
+    flatten_key = f"{intent_prefix}:{instrument}:flatten"
     try:
         if broker.accepted_account_hash.lower() != authority.configured_account_hash.lower():
             raise AcceptanceBlocked("ACCOUNT_BINDING_INVALID")
@@ -612,7 +617,7 @@ _PREFLIGHT_KEYS = frozenset({"account_binding", "credential_scope", "session_wri
 
 def sanitized_evidence(**facts: Any) -> dict[str, Any]:
     """Build and validate the strictly allowlisted repository-safe evidence shape."""
-    allowed = {"accepted_code_commit", "sanitized_account_identity_hash", "instrument", "direction",
+    allowed = {"attempt_id", "accepted_code_commit", "sanitized_account_identity_hash", "instrument", "direction",
                "quantity", "preflight_gate_outcomes", "kill_switch_pre_state", "kill_switch_final_state",
                "execution_authorization_observed", "order_endpoint_call_count", "broker_order_present",
                "broker_fill_count", "entry_fill_proven", "one_contract_position_observed",
@@ -626,6 +631,8 @@ def sanitized_evidence(**facts: Any) -> dict[str, Any]:
         raise ValueError("PREFLIGHT_EVIDENCE_SCHEMA_INVALID")
     if facts.get("quantity") != 1:
         raise ValueError("EVIDENCE_QUANTITY_MUST_EQUAL_ONE")
+    if "attempt_id" in facts and facts["attempt_id"] != STAGE8_11_ATTEMPT2_ID:
+        raise ValueError("EVIDENCE_ATTEMPT_ID_INVALID")
     for key in ("sanitized_account_identity_hash", "external_raw_evidence_sha256"):
         if key in facts and not _sha256(facts[key]):
             raise ValueError("EVIDENCE_SHA256_INVALID")

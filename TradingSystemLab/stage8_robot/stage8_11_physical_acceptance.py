@@ -19,7 +19,7 @@ from typing import Any, Callable
 
 from .controlled_real_acceptance import (
     AcceptanceAuthority, AcceptanceBlocked, ControlledAcceptanceBroker,
-    STAGE8_10_AUTHORITY, resolve_frozen_symbol, run_controlled_lifecycle,
+    STAGE8_10_AUTHORITY, STAGE8_11_ATTEMPT2_ID, resolve_frozen_symbol, run_controlled_lifecycle,
     sanitized_evidence,
 )
 from .finam_api import FinamAPI
@@ -38,7 +38,9 @@ INSTRUMENT = "CNYRUBF"
 FINAM_SYMBOL = "CNYRUBF@RTSX"
 DIRECTION = "LONG"
 QUANTITY = 1
-REPORT_NAME = "stage8_11_physical_acceptance.json"
+ATTEMPT_ID = STAGE8_11_ATTEMPT2_ID
+REPORT_NAME = "stage8_11_physical_acceptance_attempt2.json"
+HISTORICAL_REPORT_NAME = "stage8_11_physical_acceptance.json"
 PRECHECK_REPORT_NAME = "stage8_11_intel_precheck.json"
 PRECHECK_EVIDENCE_SHA256 = "7171B7CD0098FF51159DC05C46C0326BF7F412A2D9EA0CBB3F9BDAFBE7745455"
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -71,16 +73,20 @@ def _hash(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
-def _write_atomic(payload: dict[str, Any], destination: Path) -> str:
+def _write_new(payload: dict[str, Any], destination: Path) -> str:
+    """Publish attempt-2 evidence atomically without replacing any artifact."""
     destination.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, name = tempfile.mkstemp(dir=destination.parent, prefix=destination.name + ".", suffix=".tmp")
+    if destination.exists():
+        raise PhysicalAcceptanceBlocked("STAGE8_11_ATTEMPT2_EVIDENCE_ALREADY_EXISTS")
+    descriptor, name = tempfile.mkstemp(dir=destination.parent, prefix=destination.name + ".", suffix=".incomplete")
+    temporary = Path(name)
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as stream:
             json.dump(payload, stream, indent=2, sort_keys=True)
             stream.write("\n"); stream.flush(); os.fsync(stream.fileno())
-        os.replace(name, destination)
+        os.link(temporary, destination)
     finally:
-        Path(name).unlink(missing_ok=True)
+        temporary.unlink(missing_ok=True)
     return hashlib.sha256(destination.read_bytes()).hexdigest().upper()
 
 
@@ -97,6 +103,7 @@ def _physical_evidence(*, accepted_commit: str, account_hash: str, result: dict[
     # The schema historically called this BLOCKED.  sanitized_evidence is the
     # canonical allowlist; physical classifications are intentionally clearer.
     facts = dict(
+        attempt_id=ATTEMPT_ID,
         accepted_code_commit=accepted_commit,
         sanitized_account_identity_hash=account_hash,
         instrument=INSTRUMENT, direction=DIRECTION, quantity=QUANTITY,
@@ -182,7 +189,7 @@ def execute_boundary(*, accepted_commit: str, authorization: str, account_id: st
             write_kill_switch(runtime_root, "ARMED", allow_arm=True, now=observed)
             result = run_controlled_lifecycle(authority=authority, runtime_root=runtime_root,
                 execution_authorized=True, instrument=INSTRUMENT, finam_symbol=FINAM_SYMBOL,
-                direction=DIRECTION, broker=broker, clock=time_source)
+                direction=DIRECTION, broker=broker, clock=time_source, attempt_id=ATTEMPT_ID)
             result["evidence"] = _physical_evidence(accepted_commit=accepted_commit, account_hash=account_hash,
                 result=result, authority=authority, external_sha256=external_evidence_sha256)
             return result
@@ -204,6 +211,8 @@ def main(argv: list[str] | None = None) -> int:
         expected_evidence = root / "diagnostics" / REPORT_NAME
         if args.evidence.resolve() != expected_evidence:
             raise PhysicalAcceptanceBlocked("STAGE8_11_EVIDENCE_PATH_INVALID")
+        if expected_evidence.exists():
+            raise PhysicalAcceptanceBlocked("STAGE8_11_ATTEMPT2_EVIDENCE_ALREADY_EXISTS")
         verify_repository_authority(args.accepted_commit)
         authorization = os.environ.pop("STAGE8_11_PHYSICAL_AUTHORIZATION", "")
         verify_authorization(authorization)
@@ -216,7 +225,7 @@ def main(argv: list[str] | None = None) -> int:
         result = execute_boundary(accepted_commit=args.accepted_commit, authorization=authorization,
             account_id=account, api=FinamAPI(secret), runtime_root=root,
             external_evidence_sha256=args.external_evidence_sha256)
-        digest = _write_atomic(result["evidence"], expected_evidence)
+        digest = _write_new(result["evidence"], expected_evidence)
         print(f"STAGE8_11_PHYSICAL_RESULT={result['evidence']['physical_result_classification']}")
         print(f"STAGE8_11_PHYSICAL_EVIDENCE_SHA256={digest}")
         return 0 if result["evidence"]["physical_result_classification"] in {"PASS", "NOT_ACCEPTED_NO_EXECUTION"} else 2
