@@ -204,6 +204,8 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     conformance=json.loads((HERE/"conformance_report.json").read_text()); provenance=json.loads(authority_text if authority_text is not None else (HERE/"authority_provenance.json").read_text()); registry=(HERE/"production_instrument_registry.csv").read_text(); registry_rows=csv_rows(HERE/"production_instrument_registry.csv")
     source_overrides=source_overrides or {}
     def document(relative,path): return source_overrides.get(relative,source_overrides.get(str(path.relative_to(ROOT)),path.read_text()))
+    acceptance=document("controlled_real_acceptance.py",HERE/"controlled_real_acceptance.py")
+    evidence_schema=json.loads(document("stage8_11_physical_evidence.schema.json",HERE/"stage8_11_physical_evidence.schema.json"))
     current_state=document("CURRENT_STATE.md",ROOT/"TradingSystemLab/CURRENT_STATE.md")
     project_context=document("PROJECT_CONTEXT.md",ROOT/"TradingSystemLab/PROJECT_CONTEXT.md")
     readme=readme_text if readme_text is not None else document("README.md",HERE/"README.md")
@@ -214,6 +216,31 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     check(all(verdict[0] for verdict in document_verdicts),"STAGE_8_10_CURRENT_HANDOFF_EXACT")
     check(all(verdict[1] for verdict in document_verdicts),"STAGE_8_10_HISTORICAL_SCOPE_CONSISTENT")
     check(all(verdict[2] for verdict in document_verdicts),"STAGE_8_10_NO_STALE_NEXT_GATE")
+    # Stage 8.11 is audited as an isolated boundary, not merely a document status.
+    check("request.quantity != MAX_ACCEPTANCE_QUANTITY" in acceptance and "MAX_ACCEPTANCE_QUANTITY = 1" in acceptance,
+          "STAGE_8_11_EXACTLY_ONE_HARD_CAP")
+    check("self.store.persist_intent" in acceptance and acceptance.find("self.store.persist_intent") < acceptance.find("self.api.place_order"),
+          "STAGE_8_11_INTENT_BEFORE_POST")
+    check("no retry: exactly one call" in acceptance and acceptance.count("self.api.place_order") == 1,
+          "STAGE_8_11_NO_POST_RETRY")
+    check("ENTRY_UNCERTAIN_RECONCILE" in acceptance and "FLATTEN_UNCERTAIN_RECONCILE" in acceptance
+          and "OPERATOR_INTERVENTION_REQUIRED" in acceptance, "STAGE_8_11_UNCERTAIN_RECONCILIATION")
+    check("_digest(account_id) != accepted_account_hash.lower()" in acceptance
+          and "heartbeat_account_hash" in acceptance, "STAGE_8_11_EXACT_ACCOUNT_BINDING")
+    check("resolve_frozen_symbol(instrument)" in acceptance and "FINAM_SYMBOL_BINDING_INVALID" in acceptance,
+          "STAGE_8_11_EXACT_N4_SYMBOL_BINDING")
+    check(all(token in acceptance for token in ("entry_fill_proven=True", "one_contract_position_observed=True",
+          "flatten_fill_proven=True", "broker.store.unresolved_intent_count() == 0", '"HALTED"')),
+          "STAGE_8_11_FILL_FLAT_HALTED_PASS")
+    props=evidence_schema.get("properties",{}); gates=props.get("preflight_gate_outcomes",{})
+    check(evidence_schema.get("additionalProperties") is False and gates.get("additionalProperties") is False
+          and props.get("quantity",{}).get("const") == 1 and "entry_fill_proven" in evidence_schema.get("required",[]),
+          "STAGE_8_11_EVIDENCE_PRIVACY_SCHEMA")
+    check("controlled_real_acceptance" not in runner and "controlled_real_acceptance" not in supervisor
+          and "controlled_real_acceptance" not in launcher and "controlled_real_acceptance" not in task_installer,
+          "STAGE_8_11_NO_ROUTINE_OR_SCHEDULED_INTEGRATION")
+    check("LIVE_TRADING_NOT_AUTHORIZED" in config and "REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in broker,
+          "STAGE_8_11_EXISTING_AIRGAPS_INTACT")
     completed_status="STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE"
     accepted_code_sha="dc2b79e74817e71435eee20103ae617e13067d8e"
     evidence_sha="1A9B62D4BFC0E7384898C9DF9659E54E50E0E202BD44CE19413864AC2ECA14D6"
