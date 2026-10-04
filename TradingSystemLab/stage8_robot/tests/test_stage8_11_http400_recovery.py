@@ -159,6 +159,54 @@ def test_historical_recovery_is_order_incapable_and_creates_backup_evidence(tmp_
     assert ".place_order(" not in source and ".cancel_order(" not in source and "write_kill_switch" not in source
 
 
+@pytest.mark.parametrize("point,committed", [
+    ("before_backup", False), ("after_backup", False),
+    ("before_sqlite_mutation", False), ("after_sqlite_mutation", True),
+    ("during_evidence_finalization", True),
+])
+def test_recovery_faults_are_restartable_and_never_claim_success_early(
+        tmp_path, monkeypatch, point, committed):
+    root,evidence,digest=recovery_fixture(tmp_path,monkeypatch)
+    kwargs=dict(runtime_root=root,account_id=ACCOUNT,readonly_api=ReadonlyClean(),
+        accepted_commit=recovery.ACCEPTED_PHYSICAL_COMMIT,physical_evidence=evidence,
+        physical_evidence_sha256=digest,intent_key=recovery.HISTORICAL_INTENT_KEY,now=NOW)
+    def fail(at):
+        if at == point: raise OSError("injected")
+    with pytest.raises(OSError):
+        recovery.recover_historical_intent(**kwargs,fault_injector=fail)
+    target=root/"diagnostics"/recovery.RECOVERY_EVIDENCE_NAME
+    assert not target.exists()
+    store=StateStore(root/"state"/"stage8-11-acceptance.sqlite3")
+    assert (store.intent(recovery.HISTORICAL_INTENT_KEY)["status"] == "REJECTED") is committed
+    store.close()
+    got=recovery.recover_historical_intent(**kwargs)
+    assert got["recovery_status"] == "COMMITTED" and target.is_file()
+    assert not target.with_name(target.name+recovery.RECOVERY_PREPARED_SUFFIX).exists()
+
+
+def test_windows_recovery_boundary_uses_readonly_credential_only():
+    wrapper=Path(recovery.__file__).parent/"deploy"/"windows"/"run-stage8-11-failed-intent-recovery.ps1"
+    source=wrapper.read_text(encoding="utf-8")
+    assert "Get-ReadonlyCredential" in source and "REAL_READONLY" in source
+    assert "Get-TradingCredential" not in source and "TRADING_SECRET" not in source
+    assert all(term not in source for term in ("place_order", "cancel_order", "modify_order", "allow_arm"))
+
+
+def test_recovery_cli_runs_end_to_end_with_synthetic_readonly_transport(
+        tmp_path, monkeypatch):
+    root,evidence,digest=recovery_fixture(tmp_path,monkeypatch)
+    monkeypatch.setenv("STAGE8_11_READONLY_SECRET", "synthetic-readonly")
+    monkeypatch.setenv("STAGE8_11_READONLY_ACCOUNT_ID", ACCOUNT)
+    argv=["--runtime-root",str(root),"--account-id",ACCOUNT,
+        "--accepted-commit",recovery.ACCEPTED_PHYSICAL_COMMIT,
+        "--physical-evidence",str(evidence),"--physical-evidence-sha256",digest,
+        "--intent-key",recovery.HISTORICAL_INTENT_KEY]
+    assert recovery.main(argv,api_factory=lambda secret:ReadonlyClean()) == 0
+    store=StateStore(root/"state"/"stage8-11-acceptance.sqlite3")
+    assert store.intent(recovery.HISTORICAL_INTENT_KEY)["status"] == "REJECTED"
+    assert (root/"diagnostics"/recovery.RECOVERY_EVIDENCE_NAME).is_file()
+
+
 @pytest.mark.parametrize("mutation", ["commit","sha","intent","account","dirty"])
 def test_wrong_recovery_authority_or_dirty_broker_blocks(tmp_path,monkeypatch,mutation):
     root,evidence,digest=recovery_fixture(tmp_path,monkeypatch)

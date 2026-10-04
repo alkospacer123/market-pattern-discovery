@@ -143,6 +143,37 @@ def test_success_requires_entry_position_flatten_and_canonical_store(tmp_path):
     assert load_kill_switch(root)[0]["state"] == "HALTED"
 
 
+def test_each_post_uses_fresh_clock_and_closed_flatten_requires_operator(tmp_path):
+    root=armed_runtime(tmp_path); store=StateStore(tmp_path/"state.db")
+    api=API(store,[fill("o1",1)])
+    api.schedule=lambda symbol:{"sessions":[{"type":"CORE_TRADING","interval":{
+        "start_time":"2026-10-04T11:00:00Z","end_time":"2026-10-04T12:10:00Z"}}]}
+    broker=ControlledAcceptanceBroker(api,ACCOUNT,HASH,store)
+    observations=iter([NOW, NOW, datetime(2026,10,4,12,10,tzinfo=timezone.utc)])
+    result=run_controlled_lifecycle(authority=authority(),runtime_root=root,
+        execution_authorized=True,instrument="USDRUBF",finam_symbol="USDRUBF@RTSX",
+        direction="LONG",broker=broker,clock=lambda:next(observations))
+    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
+    assert result["failure_code"] == "FLATTEN_TRADING_SESSION_NOT_OPEN"
+    assert result["entry_fill_proven"] and result["one_contract_position_observed"]
+    assert result["flatten_fill_proven"] is False
+    assert result["final_state"]["position_quantity"] == 1
+    assert api.posts == 1 and load_kill_switch(root)[0]["state"] == "HALTED"
+
+
+def test_entry_session_safety_margin_blocks_before_intent(tmp_path):
+    root=armed_runtime(tmp_path); store=StateStore(tmp_path/"state.db"); api=API(store,[])
+    api.schedule=lambda symbol:{"sessions":[{"type":"CORE_TRADING","interval":{
+        "start_time":"2026-10-04T11:00:00Z","end_time":"2026-10-04T12:04:00Z"}}]}
+    broker=ControlledAcceptanceBroker(api,ACCOUNT,HASH,store)
+    result=run_controlled_lifecycle(authority=authority(),runtime_root=root,
+        execution_authorized=True,instrument="USDRUBF",finam_symbol="USDRUBF@RTSX",
+        direction="LONG",broker=broker,clock=lambda:NOW)
+    assert result["classification"] == "BLOCKED"
+    assert result["failure_code"] == "STAGE8_11_ENTRY_SESSION_SAFETY_MARGIN_NOT_MET"
+    assert api.posts == 0 and store.intent("stage8.11:USDRUBF:entry") is None
+
+
 @pytest.mark.parametrize("uncertain", [(True,False),(False,True),(True,True)])
 def test_every_uncertain_post_is_reconciled_without_retry(tmp_path, uncertain):
     result,api,store,_=run(tmp_path,[fill("o1",1),fill("o2",0)],uncertain)

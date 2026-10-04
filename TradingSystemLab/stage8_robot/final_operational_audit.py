@@ -143,15 +143,13 @@ def _stage8_10_document_consistency(document: str) -> tuple[bool, bool, bool]:
     match = re.search(r"^## Current handoff\s*$\n(.*?)(?=^## |\Z)", document, re.M | re.S)
     handoff = match.group(1) if match else ""
     exact = bool(match and all(token in handoff for token in (
-        "Stage 8.9 is **COMPLETE**", STAGE_8_10_COMPLETE_STATUS,
-        "Stage 8.10.1 through Stage 8.10.8 are **COMPLETE**", "`HALTED`",
-        "`execution_authorized = false`", "`real_order_endpoint_called = false`",
-        "`real_order_count = 0`", "Stage 8.11.0 — Code / Readiness Corrections is **COMPLETE**",
-        "Stage 8.11.1 — Intel Zero-Order PRECHECK is **COMPLETE / PASS**",
-        "Stage 8.11.2 — Independent PRECHECK Evidence Audit is **COMPLETE / PASS**",
-        "Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**", "Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**",
-        "current lifecycle gate is **Stage 8.11.3 — Explicit One-Contract Authorization**",
-        "separate explicit operator authorization")))
+        "Stage 8.9 is **COMPLETE**", "Stage 8.10 is **COMPLETE**", "`HALTED`",
+        "Stage 8.11.0 — **COMPLETE**", "Stage 8.11.1 — **COMPLETE / PASS**",
+        "Stage 8.11.2 — **COMPLETE / PASS**", "prior explicit authorization **CONSUMED**",
+        "Stage 8.11.4 — **ATTEMPTED / FAILED HTTP 400 / NO ACCEPTED ENTRY**",
+        "Stage 8.11.7 — broker clean; historical local-intent recovery pending",
+        "Stage 8.11.8 — **NOT STARTED**", "Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**",
+        "Scheduled Task is `Disabled`", "independent audit")))
     if match and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]", handoff, re.I):
         stale_next = True
     return exact, not inconsistent, not stale_next
@@ -506,7 +504,7 @@ def audit(
           "STAGE_8_11_EXACT_ACCOUNT_BINDING")
     check("resolve_frozen_symbol(instrument)" in acceptance and "FINAM_SYMBOL_BINDING_INVALID" in acceptance,
           "STAGE_8_11_EXACT_N4_SYMBOL_BINDING")
-    check(all(token in acceptance for token in ("entry_fill_proven=True", "one_contract_position_observed=True",
+    check(all(token in acceptance for token in ('result.update(classification="SYNTHETIC_PASS", entry_fill_proven=True', "one_contract_position_observed=True",
           "flatten_fill_proven=True", "_account_is_clean(final)", '"HALTED"')),
           "STAGE_8_11_FILL_FLAT_HALTED_PASS")
     check('int(entry.get("executed_quantity", -1)) != 0 or not _account_is_clean(final)' in acceptance,
@@ -769,9 +767,9 @@ def audit(
     check(lifecycle_closeout == expected_closeout, "STAGE_8_10_8_MACHINE_AUTHORITY_EXACT")
     check(all(STAGE_8_10_COMPLETE_STATUS in doc for doc in stage8_9_docs),
           "STAGE_8_10_CLOSEOUT_STATUS_SYNCHRONIZED")
-    check(all("Stage 8.11.1 — Intel Zero-Order PRECHECK is **COMPLETE / PASS**" in doc
-              and "Stage 8.11.2 — Independent PRECHECK Evidence Audit is **COMPLETE / PASS**" in doc
-              and "Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**" in doc for doc in stage8_9_docs),
+    check(all("Stage 8.11.1 — **COMPLETE / PASS**" in doc
+              and "Stage 8.11.2 — **COMPLETE / PASS**" in doc
+              and "prior explicit authorization **CONSUMED**" in doc for doc in stage8_9_docs),
           "STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED")
     physical_entry=text("TradingSystemLab/stage8_robot/stage8_11_physical_acceptance.py")
     physical_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-physical-acceptance.ps1")
@@ -894,7 +892,7 @@ def audit(
     check("w32tm /query /status" in intel_wrapper and "w32tm /query /source" in intel_wrapper
           and "Get-Service -Name W32Time" in intel_wrapper and "$clock = (Get-Date)" not in intel_wrapper,
           "STAGE_8_11_INTEL_WINDOWS_TIME_SANITY")
-    check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
+    check(all("Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")
     forbidden_claims = (
         r"(?:broker acceptance (?:is |was )?validated|order (?:was )?accepted|FINAM server accepted an order)",
@@ -911,6 +909,7 @@ def audit(
     controlled = text("TradingSystemLab/stage8_robot/controlled_real_acceptance.py")
     finam = text("TradingSystemLab/stage8_robot/finam_api.py")
     recovery = text("TradingSystemLab/stage8_robot/stage8_11_failed_attempt_recovery.py")
+    recovery_wrapper = text("TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-failed-intent-recovery.ps1")
     provenance = json.loads(text("TradingSystemLab/stage8_robot/authority_provenance.json"))
     check("class FinamOrderRejected" in finam and "order_post and exc.code==400" in finam
           and "exc.code>=500 and order_post" in finam, "STAGE8_11_REJECTION_TAXONOMY")
@@ -918,10 +917,20 @@ def audit(
           and "FinamUncertainSubmission" in controlled, "STAGE8_11_REJECTED_VS_UNCERTAIN")
     check("self.api.schedule(finam_symbol)" in controlled and "STAGE8_11_TRADING_SESSION_NOT_OPEN" in controlled,
           "STAGE8_11_LIVE_EXACT_SYMBOL_SESSION_GATE")
+    check("entry_observed = time_source()" in controlled and "flatten_observed = time_source()" in controlled
+          and "FLATTEN_TRADING_SESSION_NOT_OPEN" in controlled
+          and "minimum_remaining=ENTRY_MINIMUM_REMAINING_SESSION" in controlled,
+          "STAGE8_11_FRESH_PER_POST_CLOCK_AND_ENTRY_MARGIN")
     recovery_calls = {node.func.attr for node in ast.walk(ast.parse(recovery))
                       if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)}
     check(not recovery_calls.intersection({"place_order","cancel_order","submit_order","modify_order"})
           and "backup, manifest = create_stage8_11_acceptance_backup" in recovery, "STAGE8_11_RECOVERY_NO_ORDER_CAPABILITY")
+    check("recovery_status\": \"PREPARED" in recovery and "BEGIN IMMEDIATE" in recovery
+          and "during_evidence_finalization" in recovery,
+          "STAGE8_11_RECOVERY_DURABLE_COMMIT_PROTOCOL")
+    check("Get-ReadonlyCredential" in recovery_wrapper and "Get-TradingCredential" not in recovery_wrapper
+          and "stage8_11_failed_attempt_recovery" in recovery_wrapper,
+          "STAGE8_11_RUNNABLE_READONLY_RECOVERY_OPERATOR_BOUNDARY")
     check("if not _account_is_clean(final):" in controlled and "finally:\n        emergency_halt(runtime_root" in controlled,
           "STAGE8_11_CLEAN_PROOF_AND_HALT")
     record = provenance.get("stage8_11_failed_physical_attempt_correction", {})
