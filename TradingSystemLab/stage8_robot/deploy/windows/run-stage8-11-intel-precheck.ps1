@@ -29,7 +29,13 @@ try {
     if (-not (Test-Path $runtime -PathType Container)) { throw "STAGE8_11_RUNTIME_MISSING" }
     $probe = Join-Path $runtime ".stage8-11-write-probe"; Set-Content $probe "probe"; Remove-Item $probe
     if ((Get-PSDrive -Name ([IO.Path]::GetPathRoot($runtime).Substring(0,1))).Free -lt 100MB) { throw "STAGE8_11_DISK_CAPACITY_LOW" }
-    $clock = (Get-Date).ToUniversalTime(); if ([Math]::Abs(((Get-Date).ToUniversalTime()-$clock).TotalSeconds) -gt 2) { throw "STAGE8_11_CLOCK_INVALID" }
+    $timeService = Get-Service -Name W32Time -ErrorAction Stop
+    if ($timeService.Status -ne "Running") { throw "STAGE8_11_TIME_SERVICE_INVALID" }
+    $timeStatus = (& w32tm /query /status 2>&1 | Out-String)
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($timeStatus)) { throw "STAGE8_11_TIME_STATUS_INVALID" }
+    $timeSource = (& w32tm /query /source 2>&1 | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($timeSource)) { throw "STAGE8_11_TIME_SOURCE_INVALID" }
+    if ($timeSource -match '^(Local CMOS Clock|Free-running System Clock)$') { throw "STAGE8_11_TIME_SOURCE_UNSYNCHRONIZED" }
     & $Python -c "import sys; assert sys.prefix != sys.base_prefix, 'VENV_REQUIRED'"
     if ($LASTEXITCODE -ne 0) { throw "STAGE8_11_VENV_REQUIRED" }
     # Backup is mandatory preparation for the later physical run, and harmless now.

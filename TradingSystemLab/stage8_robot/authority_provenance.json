@@ -295,6 +295,13 @@
   },
   "stage8_11": {
     "status": "IN_PROGRESS_CODE_READY_PENDING_PHYSICAL_ACCEPTANCE",
+    "intel_precheck_code_authority": {
+      "pull_request": 355,
+      "base": "14b4cdb13a1bc62031a1b859926bc65ce1071105",
+      "head": "402d2e584269f18451d4b797b7b7a099376458da",
+      "merge": "4fb3c5406462609ceb5a19850d0dc6c4a5a19566",
+      "status": "CODE_READY_PHYSICAL_PRECHECK_NOT_YET_EXECUTED"
+    },
     "production_contract_correction_authority": {
       "pull_request": 353,
       "base": "2c1447680b8edf35eb2f3cc67e60e0c32e44f5d5",

@@ -265,6 +265,18 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and "required_readonly=False" in intel_precheck
           and "collect_funding_authority" in intel_precheck,
           "STAGE_8_11_INTEL_REUSES_FROZEN_SIZING_AUTHORITY")
+    check("evaluate_new_entry_gate" in intel_precheck and "execution_authorized=False" in intel_precheck
+          and 'EXPECTED_GATE_REASONS = ["KILL_SWITCH_HALTED", "EXECUTION_NOT_AUTHORIZED"]' in intel_precheck,
+          "STAGE_8_11_INTEL_EXISTING_SAFETY_GATE_EXACT_BLOCKERS")
+    check("readonly_unresolved_intent_count" in intel_precheck and "canonical_unresolved_intents" in intel_precheck
+          and "readonly-supervisor.sqlite3" in intel_precheck,
+          "STAGE_8_11_INTEL_CANONICAL_SQLITE_INTENTS")
+    check('f"{instrument}@RTSX"' not in intel_precheck and "load_registry(registry_path)" in intel_precheck
+          and "AUTHENTICATED_REAL_READONLY" in intel_precheck and 'trading_status != "TRADABLE"' in intel_precheck,
+          "STAGE_8_11_INTEL_FROZEN_REGISTRY_SYMBOL")
+    check("w32tm /query /status" in intel_wrapper and "w32tm /query /source" in intel_wrapper
+          and "Get-Service -Name W32Time" in intel_wrapper and "$clock = (Get-Date)" not in intel_wrapper,
+          "STAGE_8_11_INTEL_WINDOWS_TIME_SANITY")
     check("LIVE_TRADING_NOT_AUTHORIZED" in config and "REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in broker,
           "STAGE_8_11_EXISTING_AIRGAPS_INTACT")
     api_methods={node.name for node in ast.parse(finam_api).body
