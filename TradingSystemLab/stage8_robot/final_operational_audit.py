@@ -79,7 +79,7 @@ PROTECTED_SHA256 = {
     "TradingSystemLab/stage8_robot/trading_identity_binding.py": "1303459b636c99ae7fea4e2e62863888f56ad0e12ca8311a47782a354069167e",
     "TradingSystemLab/stage8_robot/deploy/windows/validate-trading-identity-binding.ps1": "0ccaa1c6b7e37bba226c25647a068739dfcc1db2ad7c99a695752235b4a7b399",
     "TradingSystemLab/stage8_robot/readonly_supervisor.py": "1455fee5fe207c617676a0463ce3034247c5534578555cac293807da22bcaab8",
-    "TradingSystemLab/stage8_robot/finam_api.py": "3972bdd7d9c016bec79b1cfcf6ff1120d77bab745cd2e102d827dcb830878588",
+    "TradingSystemLab/stage8_robot/finam_api.py": "9869bef3583cab033181aa0f268bf960409aeaf3000c1728a62f2bc501d84311",
     "TradingSystemLab/stage8_robot/operations.py": "1a9c24b9eae666112cc215946cd41166e8f1d425c471393832a9d45b9bb0f783",
     "TradingSystemLab/stage8_robot/backup_state.py": "ce055584fba17a3ce7160e7ccf312bc6ac8d69589ca14e8841078999c3757ba4",
     "TradingSystemLab/stage8_robot/restore_state.py": "ff6adb1503e0edd53c6c3c749e4bcc3afa56b8f56042703c3000a246cd94b2cd",
@@ -483,6 +483,7 @@ def audit(
     lifecycle_closeout = provenance.get("stage8_10_8", {})
     acceptance = text("TradingSystemLab/stage8_robot/controlled_real_acceptance.py")
     finam_api_source = text("TradingSystemLab/stage8_robot/finam_api.py")
+    acceptance_integration = text("TradingSystemLab/stage8_robot/tests/test_controlled_real_acceptance_finam_integration.py")
     evidence_schema = json.loads(text("TradingSystemLab/stage8_robot/stage8_11_physical_evidence.schema.json"))
     normal_config = text("TradingSystemLab/stage8_robot/config.py")
     normal_broker = text("TradingSystemLab/stage8_robot/broker.py")
@@ -526,6 +527,17 @@ def audit(
     check(acceptance_api_calls <= api_methods
           and "acceptance_snapshot" not in acceptance and "acceptance_account_snapshot" not in acceptance,
           "STAGE_8_11_PRODUCTION_FINAM_API_CONTRACT")
+    check('return _rows(account, "positions")' in acceptance and '_rows(account, "trades")' not in acceptance,
+          "STAGE_8_11_TRADES_NOT_FROM_ACCOUNT")
+    check("def trades(self,account_id)" in finam_api_source
+          and 'f"/v1/accounts/{account_id}/trades"' in finam_api_source,
+          "STAGE_8_11_FINAM_TRADES_PRIMITIVE")
+    check("filled_quantity" not in acceptance and 'order.get("executed_quantity")' in acceptance,
+          "STAGE_8_11_DOCUMENTED_EXECUTED_QUANTITY")
+    check('prefix + "/trades"' in acceptance_integration
+          and '"order":{"account_id":ACCOUNT' in acceptance_integration
+          and '"executed_quantity":self.decimal(executed)' in acceptance_integration,
+          "STAGE_8_11_EXACT_REST_SYNTHETIC_TRANSPORT")
     check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_COMPLETE_STATUS,
           "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT")
     check(lifecycle.get("status") == STAGE_8_9_8_STATUS
