@@ -8,7 +8,8 @@ import pytest
 
 from TradingSystemLab.stage8_robot.controlled_real_acceptance import (
     AcceptanceAuthority, ControlledAcceptanceBroker, STAGE8_10_AUTHORITY,
-    OperatorInterventionRequired, _decimal_contracts, _position, run_controlled_lifecycle,
+    OperatorInterventionRequired, _decimal_contracts, _position, _timestamp,
+    run_controlled_lifecycle,
 )
 from TradingSystemLab.stage8_robot.finam_api import FinamAPI
 from TradingSystemLab.stage8_robot.specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID
@@ -44,8 +45,8 @@ class SyntheticFinamTransport:
                 "quantity":self.decimal(1),"side":payload["side"],"type":payload["type"],
                 "time_in_force":"TIME_IN_FORCE_DAY","client_order_id":payload["client_order_id"],
                 "comment":"stage8.11"},
-            "transact_at":{"seconds":1,"nanos":0},"accept_at":{"seconds":2,"nanos":0},
-            "withdraw_at":{"seconds":0,"nanos":0},"initial_quantity":self.decimal(1),
+            "transact_at":"2026-10-04T09:00:01Z","accept_at":"2026-10-04T09:00:02Z",
+            "withdraw_at":"2026-10-04T09:00:04Z","initial_quantity":self.decimal(1),
             "executed_quantity":self.decimal(executed),
             "remaining_quantity":self.decimal(1-executed)}
 
@@ -71,7 +72,7 @@ class SyntheticFinamTransport:
             if self.scenario == "unrelated_fill" and self.posts == 1:
                 rows=[{"trade_id":"alien","order_id":"alien-order","account_id":ACCOUNT,
                     "symbol":SYMBOL,"side":"SIDE_BUY","size":self.decimal(1),
-                    "price":self.decimal(1),"timestamp":{"seconds":3,"nanos":0},
+                    "price":self.decimal(1),"timestamp":"2026-10-04T09:00:03Z",
                     "comment":"","accrued_interest":self.decimal(0),"currency":"RUB"}]
             return Raw({"trades":rows})
         if path == prefix + "/orders" and method == "POST":
@@ -86,7 +87,7 @@ class SyntheticFinamTransport:
                 self.position += 1 if payload["side"] == "SIDE_BUY" else -1
                 self.trade_rows.append({"trade_id":"t"+oid,"order_id":oid,"account_id":ACCOUNT,
                     "symbol":payload["symbol"],"side":payload["side"],"size":self.decimal(1),
-                    "price":self.decimal(1),"timestamp":{"seconds":3,"nanos":0},
+                    "price":self.decimal(1),"timestamp":"2026-10-04T09:00:03Z",
                     "comment":"","accrued_interest":self.decimal(0),"currency":"RUB"})
             uncertain=(self.scenario == "uncertain_entry" and self.posts == 1 or
                        self.scenario == "uncertain_flatten" and self.posts == 2)
@@ -159,6 +160,35 @@ def test_position_decimal_parser_rejects_more_than_acceptance_contract():
     assert _position([{"symbol":SYMBOL,"quantity":{"value":"1"}}],SYMBOL) == 1
     # Parsing is canonical; the lifecycle's exact-position invariant rejects 2.
     assert _position([{"symbol":SYMBOL,"quantity":{"value":"2"}}],SYMBOL) == 2
+
+
+@pytest.mark.parametrize("value", [
+    "2026-10-04T09:00:02Z",
+    "2026-10-04T09:00:02.123456789Z",
+    "2026-10-04T12:30:02.5+03:30",
+    "2026-10-04T04:00:02-05:00",
+])
+def test_rest_timestamp_parser_accepts_timezone_aware_rfc3339(value):
+    assert _timestamp(value)
+
+
+@pytest.mark.parametrize("value", [
+    {"seconds":1,"nanos":0}, 1, None, "", "not-a-timestamp",
+    "2026-10-04T09:00:02", "2026-02-30T09:00:02Z", "2026-10-04T25:00:02Z",
+])
+def test_rest_timestamp_parser_rejects_unsupported_or_invalid_values(value):
+    with pytest.raises(OperatorInterventionRequired):
+        _timestamp(value)
+
+
+@pytest.mark.parametrize(("trade","accepted","valid"), [
+    ("2026-10-04T09:00:03Z", "2026-10-04T09:00:02Z", True),
+    ("2026-10-04T09:00:02Z", "2026-10-04T09:00:02Z", True),
+    ("2026-10-04T09:00:01.999999999Z", "2026-10-04T09:00:02Z", False),
+    ("2026-10-04T12:00:02+03:00", "2026-10-04T04:00:02-05:00", True),
+])
+def test_rest_timestamp_chronology_is_instant_based(trade,accepted,valid):
+    assert (_timestamp(trade) >= _timestamp(accepted)) is valid
 
 
 @pytest.mark.parametrize("scenario,classification",[
