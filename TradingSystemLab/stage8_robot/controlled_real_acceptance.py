@@ -202,13 +202,122 @@ class ControlledAcceptanceBroker:
 
     def snapshot(self, key: str) -> dict[str, Any]:
         intent = self.store.intent(key)
-        client_id = intent["payload"]["client_order_id"] if intent else ""
-        return self.api.acceptance_snapshot(self.account_id, client_id)
+        if not intent:
+            raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+        return _production_snapshot(self.api, self.account_id, intent)
+
+    def account_snapshot(self, finam_symbol: str) -> dict[str, Any]:
+        """Return only the sanitized acceptance facts from the production API."""
+        return _production_account_snapshot(self.api, self.account_id, finam_symbol, self.store)
 
     def cancel(self, order_id: str) -> Any:
         if not order_id:
             raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
         return self.api.cancel_order(self.account_id, order_id)
+
+
+def _rows(response: Any, key: str) -> list[dict[str, Any]]:
+    """Read one documented REST collection shape and reject every other shape."""
+    rows = response.get(key) if isinstance(response, dict) else None
+    if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    return rows
+
+
+def _integer(value: Any) -> int:
+    if isinstance(value, bool):
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED") from None
+    if str(parsed) != str(value):
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    return parsed
+
+
+def _status(value: Any) -> str:
+    if not isinstance(value, str) or not value:
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    status = value.upper().removeprefix("ORDER_STATUS_")
+    aliases = {"PARTIALLY_FILLED": "PARTIAL_FILL", "CANCELED": "CANCELLED"}
+    status = aliases.get(status, status)
+    if status not in ACTIVE | TERMINAL_NO_FILL | {"FILLED"}:
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    return status
+
+
+def _production_account(api: object, account_id: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    account = api.account(account_id)
+    if not isinstance(account, dict):
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    return _rows(account, "positions"), _rows(account, "trades")
+
+
+def _position(positions: list[dict[str, Any]], symbol: str) -> int:
+    matches = [row for row in positions if row.get("symbol") == symbol]
+    if len(matches) > 1:
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    return 0 if not matches else _integer(matches[0].get("quantity"))
+
+
+def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -> dict[str, Any]:
+    """Reconcile one persisted intent through FinamAPI's actual read primitives."""
+    payload = intent.get("payload")
+    if not isinstance(payload, dict):
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    client_id, symbol, side = (payload.get("client_order_id"), payload.get("symbol"), payload.get("side"))
+    if not all(isinstance(value, str) and value for value in (client_id, symbol, side)):
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    candidates = [row for row in _rows(api.orders(account_id), "orders")
+                  if row.get("client_order_id") == client_id]
+    if len(candidates) != 1:
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    listed_id = candidates[0].get("order_id")
+    if not isinstance(listed_id, str) or not listed_id:
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    persisted_id = intent.get("broker_order_id")
+    if persisted_id and persisted_id != listed_id:
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    order = api.order(account_id, listed_id)
+    if (not isinstance(order, dict) or order.get("order_id") != listed_id
+            or order.get("client_order_id") != client_id or order.get("symbol") != symbol
+            or order.get("side") != side):
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    filled = _integer(order.get("filled_quantity"))
+    if filled not in (0, 1):
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    positions, trades = _production_account(api, account_id)
+    matching = []
+    for trade in trades:
+        identity = (trade.get("order_id") == listed_id and trade.get("client_order_id") == client_id)
+        if not identity:
+            continue
+        if trade.get("symbol") != symbol or trade.get("side") != side or _integer(trade.get("quantity")) != 1:
+            raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+        for field in ("trade_id", "price", "timestamp"):
+            if not isinstance(trade.get(field), str) or not trade[field]:
+                raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+        matching.append({"fill_id": trade["trade_id"], "trade_id": trade["trade_id"],
+                         "broker_order_id": listed_id, "quantity": "1", "price": trade["price"],
+                         "timestamp": trade["timestamp"]})
+    if len(matching) != filled:
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    return {"order_status": _status(order.get("status")), "order_id": listed_id,
+            "client_order_id": client_id, "filled_quantity": filled, "fills": matching,
+            "acceptance_instrument": symbol, "position_quantity": _position(positions, symbol)}
+
+
+def _production_account_snapshot(api: object, account_id: str, symbol: str, store: StateStore) -> dict[str, Any]:
+    positions, _ = _production_account(api, account_id)
+    acceptance_ids = {item[0] for item in store.db.execute(
+        "SELECT broker_order_id FROM intents WHERE broker_order_id IS NOT NULL").fetchall()}
+    active = 0
+    for row in _rows(api.orders(account_id), "orders"):
+        if row.get("order_id") in acceptance_ids and _status(row.get("status")) in ACTIVE:
+            active += 1
+    return {"acceptance_instrument": symbol, "position_quantity": _position(positions, symbol),
+            "active_order_count": active, "reconciled": True}
 
 
 def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bool) -> dict[str, Any]:
@@ -269,7 +378,8 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
             result["classification"] = "NOT_ACCEPTED_NO_EXECUTION"
             result["failure_code"] = "ENTRY_NOT_FILLED"
             return result
-        if abs(int(entry.get("position_quantity", 0))) != 1:
+        expected_position = 1 if direction == "LONG" else -1
+        if int(entry.get("position_quantity", 0)) != expected_position:
             raise OperatorInterventionRequired("ONE_CONTRACT_POSITION_NOT_PROVEN")
         phases.append("ONE_CONTRACT_POSITION_OBSERVED")
         try:
@@ -278,7 +388,7 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
             phases.append("FLATTEN_UNCERTAIN_RECONCILE")
         flatten = _reconcile(broker, flatten_key, allow_cancel=True)
         phases.append("FLATTEN_RECONCILED")
-        final = broker.api.acceptance_account_snapshot(broker.account_id)
+        final = broker.account_snapshot(finam_symbol)
         flat = (int(flatten.get("filled_quantity", 0)) == 1
                 and int(final.get("position_quantity", -999)) == 0
                 and int(final.get("active_order_count", -1)) == 0
@@ -296,6 +406,35 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
     except AcceptanceBlocked as exc:
         phases.append("HALTED")
         result["failure_code"] = str(exc)
+    except Exception as exc:
+        # Once a POST was attempted, runtime failures are safety events rather
+        # than escaping exceptions.  Reconcile/cancel first and, only when the
+        # exact entry fill and position are proved, use the one allowed flatten.
+        phases.append("POST_SUBMISSION_EXCEPTION_RECONCILE")
+        if broker.order_endpoint_call_count:
+            try:
+                entry_intent = broker.store.intent(entry_key)
+                if entry_intent and entry_intent["status"] not in ("RECONCILED", "CANCELLED", "REJECTED"):
+                    recovered_entry = _reconcile(broker, entry_key, allow_cancel=True)
+                else:
+                    recovered_entry = broker.snapshot(entry_key) if entry_intent else None
+                flatten_intent = broker.store.intent(flatten_key)
+                if (recovered_entry and int(recovered_entry.get("filled_quantity", 0)) == 1
+                        and int(recovered_entry.get("position_quantity", 0)) == (1 if direction == "LONG" else -1)
+                        and flatten_intent is None):
+                    broker.submit_flatten(key=flatten_key, finam_symbol=finam_symbol, direction=direction)
+                    flatten_intent = broker.store.intent(flatten_key)
+                if flatten_intent and flatten_intent["status"] not in ("RECONCILED", "CANCELLED", "REJECTED"):
+                    _reconcile(broker, flatten_key, allow_cancel=True)
+                broker.account_snapshot(finam_symbol)
+            except Exception:
+                phases.append("RECOVERY_RECONCILIATION_INCOMPLETE")
+            phases.extend(["OPERATOR_INTERVENTION_REQUIRED", "HALTED"])
+            result.update(classification="OPERATOR_INTERVENTION_REQUIRED",
+                          failure_code=f"POST_SUBMISSION_EXCEPTION:{type(exc).__name__}")
+        else:
+            phases.append("HALTED")
+            result["failure_code"] = f"PRE_SUBMISSION_EXCEPTION:{type(exc).__name__}"
     finally:
         emergency_halt(runtime_root, now=observed)
         result["order_endpoint_call_count"] = broker.order_endpoint_call_count

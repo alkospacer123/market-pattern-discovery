@@ -61,17 +61,41 @@ def test_authority_failures_block(tmp_path, change, code):
 
 class API:
     def __init__(self, store, snapshots, uncertain=()):
-        self.store, self.snapshots, self.uncertain = store, iter(snapshots), list(uncertain)
+        self.store, self.snapshots, self.uncertain = store, list(snapshots), list(uncertain)
         self.calls=[]; self.posts=0
+        self.current=None
     def place_order(self, account, payload):
         assert self.store.unresolved_intent_count() >= 1
         self.posts += 1; self.calls.append(("post", account, payload))
         if self.uncertain and self.uncertain.pop(0):
             raise FinamUncertainSubmission("uncertain")
         return {"order_id": f"o{self.posts}"}
-    def acceptance_snapshot(self, account, client_id): return next(self.snapshots)
-    def acceptance_account_snapshot(self, account):
-        return {"position_quantity":0, "active_order_count":0, "reconciled":True}
+    def orders(self, account):
+        if self.snapshots:
+            self.current=self.snapshots.pop(0)
+        if self.current is None: return {"orders":[]}
+        intent = next(row for row in self.store.db.execute(
+            "SELECT payload FROM intents ORDER BY rowid DESC LIMIT 1"))
+        payload=json.loads(intent[0])
+        return {"orders":[{"order_id":self.current.get("order_id", ""),
+            "client_order_id":payload["client_order_id"],"status":self.current["order_status"]}]}
+    def order(self, account, order_id):
+        intent=json.loads(next(row for row in self.store.db.execute(
+            "SELECT payload FROM intents ORDER BY rowid DESC LIMIT 1"))[0])
+        return {"order_id":order_id,"client_order_id":intent["client_order_id"],
+            "symbol":intent["symbol"],"side":intent["side"],"status":self.current["order_status"],
+            "filled_quantity":self.current["filled_quantity"]}
+    def account(self, account):
+        intent=json.loads(next(row for row in self.store.db.execute(
+            "SELECT payload FROM intents ORDER BY rowid DESC LIMIT 1"))[0])
+        trades=[]
+        for fill in self.current.get("fills",[]):
+            trades.append({"trade_id":fill["trade_id"],"order_id":self.current["order_id"],
+                "client_order_id":intent["client_order_id"],"symbol":intent["symbol"],
+                "side":intent["side"],"quantity":"1","price":fill["price"],"timestamp":fill["timestamp"]})
+        quantity=self.current.get("position_quantity",0)
+        positions=[] if quantity == 0 else [{"symbol":intent["symbol"],"quantity":quantity}]
+        return {"positions":positions,"trades":trades}
     def cancel_order(self, account, oid): self.calls.append(("cancel", account, oid)); return {}
 
 

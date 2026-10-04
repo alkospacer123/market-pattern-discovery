@@ -20,10 +20,15 @@ Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
 The current lifecycle gate is Stage 8.11 physical acceptance, but it requires separate explicit authorization.
 Stage 8.10 completion does not authorize real execution or LIVE trading.
 
-Historical Stage 8.11 corrective-task GitHub authority: PR #350 base
-`e24638089d9a8ab8ca8dcd2744c8da151b1d8c58`, PR head
-`3af85e0369ecc62babf066113b5d0d0da52fb59f`, and task base / pre-task
-`main` `318bb45041fb13d1c2a750206384093745397c55`.
+Initial Stage 8.11 code-ready GitHub authority: PR #350, base
+`e24638089d9a8ab8ca8dcd2744c8da151b1d8c58`, head
+`3af85e0369ecc62babf066113b5d0d0da52fb59f`, merge
+`318bb45041fb13d1c2a750206384093745397c55`.
+
+Stage 8.11 hardening corrective GitHub authority: PR #351, base
+`318bb45041fb13d1c2a750206384093745397c55`, head
+`95c05cae227e005fa70c0eecc36c45c9e113af6d`, merge
+`d86058e905e97b5ee260702d7dc67fabb6f86d77`.
 
 ## Frozen Stage 7 production specification
 

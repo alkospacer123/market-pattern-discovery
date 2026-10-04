@@ -1017,3 +1017,13 @@ def test_stage811_evidence_schema_mutation_fails_both_audits():
     operational=run_audit({STAGE811_SCHEMA:mutated})
     assert "STAGE_8_11_EVIDENCE_PRIVACY_SCHEMA" in independent["errors"]
     assert "STAGE_8_11_EVIDENCE_PRIVACY_SCHEMA" in operational["errors"]
+
+
+def test_stage811_mock_only_api_dependency_fails_both_audits():
+    mutated=source(STAGE811_PATH).replace(
+        "account = api.account(account_id)",
+        "api.mock_only_snapshot(account_id)\n    account = api.account(account_id)")
+    independent=stage8.audit(write_result=False,source_overrides={"controlled_real_acceptance.py":mutated})
+    operational=run_audit({STAGE811_PATH:mutated})
+    assert "STAGE_8_11_PRODUCTION_FINAM_API_CONTRACT" in independent["errors"]
+    assert "STAGE_8_11_PRODUCTION_FINAM_API_CONTRACT" in operational["errors"]
