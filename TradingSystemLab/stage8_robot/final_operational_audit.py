@@ -781,6 +781,17 @@ def audit(
     state_source=text("TradingSystemLab/stage8_robot/state.py")
     acceptance_source=text("TradingSystemLab/stage8_robot/controlled_real_acceptance.py")
     precheck_tests=text("TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py")
+    schema_tokens=('"idempotency_key","TEXT",0,None,1', '"status","TEXT",1,None,0',
+                   '"updated_at","TEXT",1,"CURRENT_TIMESTAMP",0', '"fill_id","TEXT",0,None,1',
+                   'tuple(connection.execute(f"PRAGMA table_info({table})")) != expected')
+    check(all(token in state_source for token in schema_tokens)
+          and "_validate_acceptance_schema(connection)" in state_source
+          and "COALESCE(status,'') NOT IN" in state_source,
+          "STAGE_8_11_EXACT_ACCEPTANCE_SCHEMA_AND_NULL_SAFE_UNRESOLVED")
+    check(all(token in precheck_tests for token in (
+          "test_same_column_family_mutated_constraints_fail_closed",
+          "test_nullable_null_status_cannot_disappear_from_readonly_count",
+          "ACCEPTANCE_SCHEMA_INVALID")), "STAGE_8_11_SCHEMA_MUTATION_COVERAGE")
     check("stage8_11_acceptance_path" in intel_precheck and "readonly_unresolved_intent_count(acceptance_path)" in intel_precheck
           and 'STAGE8_11_ACCEPTANCE_DATABASE = "stage8-11-acceptance.sqlite3"' in state_source
           and 'SUPERVISOR_DATABASE = "readonly-supervisor.sqlite3"' in state_source,
@@ -788,6 +799,15 @@ def audit(
     check("canonical_controlled_acceptance_broker" in acceptance_source
           and "stage8_11_acceptance_path(runtime_root)" in acceptance_source,
           "STAGE_8_11_PRECHECK_AND_ACCEPTANCE_SHARED_LEDGER")
+    stage811_provenance=provenance.get("stage8_11",{})
+    check(stage811_provenance.get("current_precheck_code_authority") == {
+          "pull_request":357,"base":"ea090d99266d5dae808c03024f327c41fb8b9170",
+          "head":"60e3f72dae3a08eeb3ba8c756861efbb4c4f28e7",
+          "merge":"f29053e2c4b5f687115f0a5b12f582e822b60ea1"}
+          and stage811_provenance.get("historical_predecessor_precheck_code_authority",{}).get("pull_request") == 356
+          and stage811_provenance.get("production_finding") == "STAGE8_11_CANONICAL_INTENTS_INVALID"
+          and stage811_provenance.get("last_physical_precheck_result") == "BLOCKED_CANONICAL_INTENT_LEDGER_AUTHORITY_MISMATCH",
+          "STAGE_8_11_PR357_CURRENT_AUTHORITY_AND_BLOCKED_HISTORY")
     check("OperationalState(root/\"state/readonly-supervisor.sqlite3\")" in precheck_tests
           and "StateStore(root/\"state/readonly-supervisor.sqlite3\")" not in precheck_tests
           and '== {"operational_state"}' in precheck_tests,
@@ -822,6 +842,9 @@ def audit(
         "stage8_8_7_accepted_code_commit": STAGE_8_8_7_CODE,
         "stage8_8_7_external_evidence_sha256": STAGE_8_8_7_EVIDENCE,
         "protected_implementation_status": "PASS" if not bad_hashes else "FAIL",
+        "stage8_11_0_status": "CODE_READINESS_CORRECTION_COMPLETE",
+        "stage8_11_1_status": "NOT_YET_RE_RUN",
+        "last_physical_precheck_result": "BLOCKED_CANONICAL_INTENT_LEDGER_AUTHORITY_MISMATCH",
         "runtime_artifacts_tracked": runtime_artifacts, "live_trading_authorized": False,
         "real_order_transmission_authorized": False, "stage8_8_7_status": COMPLETE_STATUS,
         "intel_final_acceptance_performed": True, "stage8_9_started": True,

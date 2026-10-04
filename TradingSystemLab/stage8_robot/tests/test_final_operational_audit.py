@@ -994,6 +994,7 @@ def test_stage_8_10_clearly_scoped_historical_text_passes_both_audits(path):
 STAGE811_PATH = "TradingSystemLab/stage8_robot/controlled_real_acceptance.py"
 STAGE811_SCHEMA = "TradingSystemLab/stage8_robot/stage8_11_physical_evidence.schema.json"
 STAGE811_PRECHECK = "TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py"
+STAGE811_STATE = "TradingSystemLab/stage8_robot/state.py"
 
 @pytest.mark.parametrize("needle,replacement,error", [
     ("request.quantity != MAX_ACCEPTANCE_QUANTITY", "False", "STAGE_8_11_EXACTLY_ONE_HARD_CAP"),
@@ -1027,6 +1028,29 @@ def test_stage811_precheck_authority_removal_fails_both_audits(needle,error):
     mutated=source(STAGE811_PRECHECK).replace(needle,"removed_authority")
     independent=stage8.audit(write_result=False,source_overrides={"stage8_11_intel_acceptance.py":mutated})
     operational=run_audit({STAGE811_PRECHECK:mutated})
+    assert error in independent["errors"]
+    assert error in operational["errors"]
+
+@pytest.mark.parametrize("needle,replacement",[
+    ('tuple(connection.execute(f"PRAGMA table_info({table})")) != expected',
+     'tuple(row[1] for row in connection.execute(f"PRAGMA table_info({table})")) != expected'),
+    ('"status","TEXT",1,None,0','"status","TEXT",0,None,0'),
+    ("COALESCE(status,'') NOT IN","status NOT IN"),
+])
+def test_stage811_schema_validation_weakening_fails_both_audits(needle,replacement):
+    mutated=source(STAGE811_STATE).replace(needle,replacement,1)
+    independent=stage8.audit(write_result=False,source_overrides={"state.py":mutated})
+    operational=run_audit({STAGE811_STATE:mutated})
+    error="STAGE_8_11_EXACT_ACCEPTANCE_SCHEMA_AND_NULL_SAFE_UNRESOLVED"
+    assert error in independent["errors"]
+    assert error in operational["errors"]
+
+def test_stage811_pr357_provenance_mutation_fails_both_audits():
+    path="TradingSystemLab/stage8_robot/authority_provenance.json"
+    mutated=source(path).replace('"pull_request": 357','"pull_request": 356',1)
+    independent=stage8.audit(write_result=False,authority_text=mutated)
+    operational=run_audit({path:mutated})
+    error="STAGE_8_11_PR357_CURRENT_AUTHORITY_AND_BLOCKED_HISTORY"
     assert error in independent["errors"]
     assert error in operational["errors"]
 

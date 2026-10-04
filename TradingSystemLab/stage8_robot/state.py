@@ -14,6 +14,27 @@ _SCHEMA = """CREATE TABLE state(key TEXT PRIMARY KEY,value TEXT NOT NULL);
 CREATE TABLE intents(idempotency_key TEXT PRIMARY KEY,payload TEXT NOT NULL,status TEXT NOT NULL,broker_order_id TEXT,updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE fills(fill_id TEXT PRIMARY KEY,broker_order_id TEXT NOT NULL,trade_id TEXT NOT NULL,quantity TEXT NOT NULL,price TEXT NOT NULL,fee TEXT,timestamp TEXT NOT NULL,payload TEXT NOT NULL);"""
 
+# Exact PRAGMA table_info rows: cid, name, declared type, not-null, default, pk.
+# SQLite reports a single-column ``TEXT PRIMARY KEY`` with not-null=0 unless the
+# declaration also says NOT NULL, so these tuples intentionally mirror _SCHEMA.
+_ACCEPTANCE_TABLE_INFO = {
+    "state": ((0,"key","TEXT",0,None,1),(1,"value","TEXT",1,None,0)),
+    "intents": ((0,"idempotency_key","TEXT",0,None,1),(1,"payload","TEXT",1,None,0),
+                (2,"status","TEXT",1,None,0),(3,"broker_order_id","TEXT",0,None,0),
+                (4,"updated_at","TEXT",1,"CURRENT_TIMESTAMP",0)),
+    "fills": ((0,"fill_id","TEXT",0,None,1),(1,"broker_order_id","TEXT",1,None,0),
+              (2,"trade_id","TEXT",1,None,0),(3,"quantity","TEXT",1,None,0),
+              (4,"price","TEXT",1,None,0),(5,"fee","TEXT",0,None,0),
+              (6,"timestamp","TEXT",1,None,0),(7,"payload","TEXT",1,None,0)),
+}
+
+def _validate_acceptance_schema(connection:sqlite3.Connection)->None:
+    tables={r[0] for r in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    if tables != set(_ACCEPTANCE_TABLE_INFO): raise sqlite3.DatabaseError("ACCEPTANCE_SCHEMA_INVALID")
+    for table,expected in _ACCEPTANCE_TABLE_INFO.items():
+        if tuple(connection.execute(f"PRAGMA table_info({table})")) != expected:
+            raise sqlite3.DatabaseError("ACCEPTANCE_SCHEMA_INVALID")
+
 def stage8_11_acceptance_path(runtime_root:Path)->Path:
     return Path(runtime_root)/"state"/STAGE8_11_ACCEPTANCE_DATABASE
 
@@ -27,14 +48,7 @@ def stage8_11_identity(account_id:str)->dict[str,str]:
 def _validate_acceptance_database(path:Path,identity:dict[str,str])->None:
     connection=sqlite3.connect(path.resolve().as_uri()+"?mode=ro",uri=True)
     try:
-        tables={r[0] for r in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-        if tables != {"state","intents","fills"}: raise sqlite3.DatabaseError("ACCEPTANCE_SCHEMA_INVALID")
-        expected={
-          "state":("key","value"),
-          "intents":("idempotency_key","payload","status","broker_order_id","updated_at"),
-          "fills":("fill_id","broker_order_id","trade_id","quantity","price","fee","timestamp","payload")}
-        if any(tuple(r[1] for r in connection.execute(f"PRAGMA table_info({table})")) != columns for table,columns in expected.items()):
-            raise sqlite3.DatabaseError("ACCEPTANCE_SCHEMA_INVALID")
+        _validate_acceptance_schema(connection)
         row=connection.execute("SELECT value FROM state WHERE key='database_identity'").fetchone()
         if row is None or json.loads(row[0]) != identity: raise RuntimeError("STATE_ENVIRONMENT_ACCOUNT_MISMATCH")
         if connection.execute("PRAGMA integrity_check").fetchone() != ("ok",): raise sqlite3.DatabaseError("ACCEPTANCE_INTEGRITY_INVALID")
@@ -71,11 +85,9 @@ def readonly_unresolved_intent_count(path:Path)->int:
     if not path.is_file(): raise FileNotFoundError(path)
     connection=sqlite3.connect(path.as_uri()+"?mode=ro",uri=True)
     try:
-        columns={row[1] for row in connection.execute("PRAGMA table_info(intents)")}
-        required={"idempotency_key","payload","status","broker_order_id","updated_at"}
-        if not required.issubset(columns): raise sqlite3.DatabaseError("INTENTS_SCHEMA_INVALID")
+        _validate_acceptance_schema(connection)
         marks=",".join("?" for _ in TERMINAL_INTENT_STATUSES)
-        row=connection.execute(f"SELECT COUNT(*) FROM intents WHERE status NOT IN ({marks})",TERMINAL_INTENT_STATUSES).fetchone()
+        row=connection.execute(f"SELECT COUNT(*) FROM intents WHERE COALESCE(status,'') NOT IN ({marks})",TERMINAL_INTENT_STATUSES).fetchone()
         if row is None or type(row[0]) is not int: raise sqlite3.DatabaseError("INTENTS_COUNT_INVALID")
         return row[0]
     finally: connection.close()
