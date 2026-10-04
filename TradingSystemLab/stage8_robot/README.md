@@ -690,3 +690,14 @@ transition from 8.11.2 to 8.11.3. Stage 8.12 remains FULL/R15 Production Authori
 `NOT STARTED / NOT AUTHORIZED`. Frozen identity `TRAIL1__N4_01__FULL__R15` and all
 T3/H1/TRAIL1, N4, R15, 6% cap, realized-equity sizing, margin cap, no-pyramiding,
 no-session-filter, and no-canonical-fallback semantics remain unchanged.
+
+### Stage 8.11.3 corrective production-readiness record
+
+PR #360 is the operator-boundary predecessor authority: base
+`cc1508e87c0cfc1994352761aa800da58751c132`, head
+`a233ebd9c1d56d85e6878389b3e4fb86a0054683`, and merge
+`a54465d84b4eddabff38519011e8a26eafbfdd6d`. The corrective findings are
+`STAGE8_11_PHYSICAL_EVIDENCE_UNPROVEN_STATE_DEFAULTED_SAFE` and
+`STAGE8_11_NO_FILL_FLAT_STATE_NOT_PROVEN`. This is a code-readiness finding:
+the physical wrapper has never been run, execution remains unauthorized, the
+real-order count remains zero, and the kill switch remains `HALTED`.

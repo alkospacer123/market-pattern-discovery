@@ -28,7 +28,11 @@ try {
     if ((Get-PSDrive -Name $drive).Free -lt 100MB) { throw "STAGE8_11_DISK_CAPACITY_LOW" }
     if ((Get-Service W32Time -ErrorAction Stop).Status -ne "Running") { throw "STAGE8_11_TIME_SERVICE_INVALID" }
     $timeStatus = (& w32tm /query /status 2>&1 | Out-String)
+    $timeStatusExitCode = $LASTEXITCODE
+    if ($timeStatusExitCode -ne 0) { throw "STAGE8_11_TIME_STATUS_QUERY_FAILED" }
     $timeSource = (& w32tm /query /source 2>&1 | Out-String).Trim()
+    $timeSourceExitCode = $LASTEXITCODE
+    if ($timeSourceExitCode -ne 0) { throw "STAGE8_11_TIME_SOURCE_QUERY_FAILED" }
     if ([string]::IsNullOrWhiteSpace($timeStatus) -or [string]::IsNullOrWhiteSpace($timeSource) -or
         $timeSource -match '^(Local CMOS Clock|Free-running System Clock)$') { throw "STAGE8_11_EXTERNAL_TIME_SOURCE_REQUIRED" }
     $task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
@@ -72,6 +76,13 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "STAGE8_11_PHYSICAL_CHILD_FAILED" }
     Pop-Location
 } finally {
+    # Defense in depth only: the child remains primary HALT authority.  This is
+    # an offline/local write and never authenticates to FINAM or submits an order.
+    try {
+        & $Python -c "from pathlib import Path; from TradingSystemLab.stage8_robot.trading_safety_gate import emergency_halt; emergency_halt(Path(r'''$runtime'''))"
+    } catch {
+        Write-Warning "STAGE8_11_PARENT_HALT_FAILED: $($_.Exception.Message)"
+    }
     foreach ($name in @("FINAM_MODE","NEW_ENTRIES_DISABLED","FINAM_API_SECRET","FINAM_REAL_ACCOUNT_ID",
         "STAGE8_11_PHYSICAL_AUTHORIZATION","STAGE8_11_DPAPI_VALIDATED","STAGE8_11_TRADING_SECRET","STAGE8_11_ACCOUNT_ID")) {
         Remove-Item "Env:$name" -ErrorAction SilentlyContinue

@@ -120,14 +120,14 @@
       "minimum": 0
     },
     "final_position_quantity": {
-      "type": "integer"
+      "type": ["integer", "null"]
     },
     "final_active_order_count": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0
     },
     "unresolved_intent_count": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0
     },
     "reconciliation_result": {

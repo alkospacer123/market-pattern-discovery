@@ -367,14 +367,42 @@ def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -
 
 def _production_account_snapshot(api: object, account_id: str, symbol: str, store: StateStore) -> dict[str, Any]:
     positions = _production_account(api, account_id)
-    acceptance_ids = {item[0] for item in store.db.execute(
-        "SELECT broker_order_id FROM intents WHERE broker_order_id IS NOT NULL").fetchall()}
+    selected_position = _position(positions, symbol)
+    unexpected_positions = 0
+    for row in positions:
+        row_symbol = row.get("symbol")
+        if not isinstance(row_symbol, str) or not row_symbol:
+            raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+        quantity = _decimal_contracts(row.get("quantity"))
+        if row_symbol != symbol and quantity != 0:
+            unexpected_positions += 1
     active = 0
     for row in _rows(api.orders(account_id), "orders"):
-        if row.get("order_id") in acceptance_ids and _status(row.get("status")) in ACTIVE:
+        # Account cleanliness is global.  An unrelated active order is not ours
+        # to cancel, but it is proof that physical acceptance must stop.
+        if _status(row.get("status")) in ACTIVE:
             active += 1
-    return {"acceptance_instrument": symbol, "position_quantity": _position(positions, symbol),
+    return {"acceptance_instrument": symbol, "position_quantity": selected_position,
+            "unexpected_position_count": unexpected_positions,
             "active_order_count": active, "reconciled": True}
+
+
+def _final_state(broker: ControlledAcceptanceBroker, finam_symbol: str) -> dict[str, Any]:
+    """Capture only actually observed account and canonical-ledger facts."""
+    final = broker.account_snapshot(finam_symbol)
+    return {**final, "unresolved_intent_count": broker.store.unresolved_intent_count()}
+
+
+def _account_is_clean(final: dict[str, Any]) -> bool:
+    return (type(final.get("position_quantity")) is int
+            and final["position_quantity"] == 0
+            and type(final.get("unexpected_position_count")) is int
+            and final["unexpected_position_count"] == 0
+            and type(final.get("active_order_count")) is int
+            and final["active_order_count"] == 0
+            and type(final.get("unresolved_intent_count")) is int
+            and final["unresolved_intent_count"] == 0
+            and final.get("reconciled") is True)
 
 
 def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bool) -> dict[str, Any]:
@@ -432,6 +460,11 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
         entry = _reconcile(broker, entry_key, allow_cancel=True)
         phases.append("ENTRY_RECONCILED")
         if int(entry.get("executed_quantity", 0)) != 1:
+            final = _final_state(broker, finam_symbol)
+            result["final_state"] = final
+            if int(entry.get("executed_quantity", -1)) != 0 or not _account_is_clean(final):
+                raise OperatorInterventionRequired("NO_FILL_FLAT_STATE_NOT_PROVEN")
+            phases.append("FINAL_RECONCILIATION_PASS")
             result["classification"] = "NOT_ACCEPTED_NO_EXECUTION"
             result["failure_code"] = "ENTRY_NOT_FILLED"
             return result
@@ -445,19 +478,21 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
             phases.append("FLATTEN_UNCERTAIN_RECONCILE")
         flatten = _reconcile(broker, flatten_key, allow_cancel=True)
         phases.append("FLATTEN_RECONCILED")
-        final = broker.account_snapshot(finam_symbol)
+        final = _final_state(broker, finam_symbol)
         flat = (int(flatten.get("executed_quantity", 0)) == 1
-                and int(final.get("position_quantity", -999)) == 0
-                and int(final.get("active_order_count", -1)) == 0
-                and broker.store.unresolved_intent_count() == 0
-                and final.get("reconciled") is True)
+                and _account_is_clean(final))
         if not flat:
             raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
         phases.extend(["FINAL_RECONCILIATION_PASS", "HALTED"])
         result.update(classification="SYNTHETIC_PASS", entry_fill_proven=True,
                       one_contract_position_observed=True, flatten_fill_proven=True,
-                      final_state={**final, "unresolved_intent_count": 0})
+                      final_state=final)
     except OperatorInterventionRequired as exc:
+        if "final_state" not in result:
+            try:
+                result["final_state"] = _final_state(broker, finam_symbol)
+            except Exception:
+                pass
         phases.extend(["OPERATOR_INTERVENTION_REQUIRED", "HALTED"])
         result.update(classification="OPERATOR_INTERVENTION_REQUIRED", failure_code=str(exc))
     except AcceptanceBlocked as exc:
@@ -483,7 +518,7 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
                     flatten_intent = broker.store.intent(flatten_key)
                 if flatten_intent and flatten_intent["status"] not in ("RECONCILED", "CANCELLED", "REJECTED"):
                     _reconcile(broker, flatten_key, allow_cancel=True)
-                broker.account_snapshot(finam_symbol)
+                result["final_state"] = _final_state(broker, finam_symbol)
             except Exception:
                 phases.append("RECOVERY_RECONCILIATION_INCOMPLETE")
             phases.extend(["OPERATOR_INTERVENTION_REQUIRED", "HALTED"])
@@ -533,6 +568,17 @@ def sanitized_evidence(**facts: Any) -> dict[str, Any]:
             facts.get("reconciliation_result") == "PASS", facts.get("kill_switch_final_state") == "HALTED")
         if not all(required):
             raise ValueError("PASS_EVIDENCE_INVARIANTS_INVALID")
+    if classification == "NOT_ACCEPTED_NO_EXECUTION":
+        required = (facts.get("entry_fill_proven") is False,
+            facts.get("one_contract_position_observed") is False,
+            facts.get("controlled_flatten_proven") is False,
+            facts.get("final_position_quantity") == 0,
+            facts.get("final_active_order_count") == 0,
+            facts.get("unresolved_intent_count") == 0,
+            facts.get("reconciliation_result") == "PASS",
+            facts.get("kill_switch_final_state") == "HALTED")
+        if not all(required):
+            raise ValueError("NOT_ACCEPTED_EVIDENCE_INVARIANTS_INVALID")
     evidence = {"schema_id": EVIDENCE_SCHEMA, "production_specification_id": PRODUCTION_SPECIFICATION_ID,
                 "stage8_11_status": "PHYSICAL_RESULT_REQUIRES_INDEPENDENT_AUDIT", **facts}
     schema = json.loads(Path(__file__).with_name("stage8_11_physical_evidence.schema.json").read_text())

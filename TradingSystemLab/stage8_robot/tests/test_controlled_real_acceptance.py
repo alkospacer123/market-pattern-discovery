@@ -60,8 +60,10 @@ def test_authority_failures_block(tmp_path, change, code):
 
 
 class API:
-    def __init__(self, store, snapshots, uncertain=()):
+    def __init__(self, store, snapshots, uncertain=(), unrelated_positions=(), unrelated_active=False):
         self.store, self.snapshots, self.uncertain = store, list(snapshots), list(uncertain)
+        self.unrelated_positions = list(unrelated_positions)
+        self.unrelated_active = unrelated_active
         self.calls=[]; self.posts=0
         self.current=None
     def place_order(self, account, payload):
@@ -77,9 +79,13 @@ class API:
         intent = next(row for row in self.store.db.execute(
             "SELECT payload FROM intents ORDER BY rowid DESC LIMIT 1"))
         payload=json.loads(intent[0])
-        return {"orders":[{"order_id":self.current.get("order_id", ""),
+        rows = [{"order_id":self.current.get("order_id", ""),
             "order":{"client_order_id":payload["client_order_id"]},
-            "status":self.current["order_status"]}]}
+            "status":self.current["order_status"]}]
+        if self.unrelated_active:
+            rows.append({"order_id":"unrelated", "order":{"client_order_id":"unrelated"},
+                         "status":"ACTIVE"})
+        return {"orders":rows}
     def order(self, account, order_id):
         intent=json.loads(next(row for row in self.store.db.execute(
             "SELECT payload FROM intents ORDER BY rowid DESC LIMIT 1"))[0])
@@ -95,6 +101,8 @@ class API:
             "SELECT payload FROM intents ORDER BY rowid DESC LIMIT 1"))[0])
         quantity=self.current.get("position_quantity",0)
         positions=[] if quantity == 0 else [{"symbol":intent["symbol"],"quantity":{"value":str(quantity)}}]
+        positions.extend({"symbol":symbol,"quantity":{"value":str(quantity)}}
+                         for symbol,quantity in self.unrelated_positions)
         return {"account_id":account,"positions":positions}
     def trades(self, account):
         intent=json.loads(next(row for row in self.store.db.execute(
@@ -115,9 +123,9 @@ def fill(order, position):
             "trade_id":"t"+order,"quantity":"1","price":"1","timestamp":NOW.isoformat()}]}
 
 
-def run(tmp_path, snapshots, uncertain=(), symbol="USDRUBF@RTSX", auth=None):
+def run(tmp_path, snapshots, uncertain=(), symbol="USDRUBF@RTSX", auth=None, **api_options):
     root=armed_runtime(tmp_path); store=StateStore(tmp_path/"state.db")
-    api=API(store,snapshots,uncertain); broker=ControlledAcceptanceBroker(api,ACCOUNT,HASH,store)
+    api=API(store,snapshots,uncertain,**api_options); broker=ControlledAcceptanceBroker(api,ACCOUNT,HASH,store)
     result=run_controlled_lifecycle(authority=auth or authority(),runtime_root=root,
         execution_authorized=True,instrument="USDRUBF",finam_symbol=symbol,direction="LONG",
         broker=broker,now=NOW)
@@ -160,6 +168,41 @@ def test_terminal_entry_without_fill_is_never_pass(tmp_path,status):
     terminal={"order_status":status,"order_id":"o1","executed_quantity":0,"position_quantity":0,"fills":[]}
     result,api,_,_=run(tmp_path,[terminal])
     assert result["classification"] == "NOT_ACCEPTED_NO_EXECUTION" and api.posts == 1
+
+
+def test_zero_fill_requires_selected_position_proved_zero(tmp_path):
+    terminal={"order_status":"REJECTED","order_id":"o1","executed_quantity":0,
+              "position_quantity":1,"fills":[]}
+    result,api,_,_=run(tmp_path,[terminal])
+    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED" and api.posts == 1
+    assert result["final_state"]["position_quantity"] == 1
+
+
+def test_zero_fill_rejects_unrelated_position(tmp_path):
+    terminal={"order_status":"REJECTED","order_id":"o1","executed_quantity":0,
+              "position_quantity":0,"fills":[]}
+    result,_,_,_=run(tmp_path,[terminal],unrelated_positions=(("GLDRUBF@RTSX",1),))
+    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
+    assert result["final_state"]["unexpected_position_count"] == 1
+
+
+def test_zero_fill_rejects_any_active_account_order(tmp_path):
+    terminal={"order_status":"REJECTED","order_id":"o1","executed_quantity":0,
+              "position_quantity":0,"fills":[]}
+    result,_,_,_=run(tmp_path,[terminal],unrelated_active=True)
+    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
+    assert result["final_state"]["active_order_count"] == 1
+
+
+def test_final_selected_flat_rejects_other_account_position(tmp_path):
+    result,api,_,_=run(tmp_path,[fill("o1",1),fill("o2",0)],
+        unrelated_positions=(("GLDRUBF@RTSX",1),))
+    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED" and api.posts == 2
+
+
+def test_final_acceptance_orders_terminal_rejects_unrelated_active_order(tmp_path):
+    result,api,_,_=run(tmp_path,[fill("o1",1),fill("o2",0)],unrelated_active=True)
+    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED" and api.posts == 2
 
 
 def test_unprovable_state_requires_operator_and_halts(tmp_path):
@@ -218,6 +261,26 @@ def test_evidence_schema_privacy_and_pass_invariants():
     with pytest.raises(ValueError,match="ALLOWLISTED"): sanitized_evidence(**evidence(account_id="private"))
     with pytest.raises(ValueError,match="PREFLIGHT"): sanitized_evidence(**evidence(preflight_gate_outcomes={"token":"secret"}))
     with pytest.raises(ValueError,match="PASS_EVIDENCE"): sanitized_evidence(**evidence(entry_fill_proven=False))
+
+
+def test_operator_evidence_permits_unknowns_but_never_synthesizes_zero():
+    facts=evidence(physical_result_classification="OPERATOR_INTERVENTION_REQUIRED",
+        final_position_quantity=None,final_active_order_count=None,unresolved_intent_count=None,
+        reconciliation_result="UNRESOLVED",entry_fill_proven=False,
+        one_contract_position_observed=False,controlled_flatten_proven=False)
+    got=sanitized_evidence(**facts)
+    assert got["final_position_quantity"] is None
+    assert got["final_active_order_count"] is None
+    assert got["unresolved_intent_count"] is None
+
+
+def test_not_accepted_evidence_requires_explicit_clean_zero_state():
+    facts=evidence(physical_result_classification="NOT_ACCEPTED_NO_EXECUTION",
+        order_endpoint_call_count=1,broker_fill_count=0,entry_fill_proven=False,
+        one_contract_position_observed=False,controlled_flatten_proven=False)
+    assert sanitized_evidence(**facts)["final_position_quantity"] == 0
+    with pytest.raises(ValueError,match="NOT_ACCEPTED_EVIDENCE"):
+        sanitized_evidence(**{**facts,"final_active_order_count":None})
 
 
 def test_existing_live_and_readonly_airgaps(monkeypatch):

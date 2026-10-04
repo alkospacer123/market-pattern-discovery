@@ -507,8 +507,15 @@ def audit(
     check("resolve_frozen_symbol(instrument)" in acceptance and "FINAM_SYMBOL_BINDING_INVALID" in acceptance,
           "STAGE_8_11_EXACT_N4_SYMBOL_BINDING")
     check(all(token in acceptance for token in ("entry_fill_proven=True", "one_contract_position_observed=True",
-          "flatten_fill_proven=True", "broker.store.unresolved_intent_count() == 0", '"HALTED"')),
+          "flatten_fill_proven=True", "_account_is_clean(final)", '"HALTED"')),
           "STAGE_8_11_FILL_FLAT_HALTED_PASS")
+    check('int(entry.get("executed_quantity", -1)) != 0 or not _account_is_clean(final)' in acceptance,
+          "STAGE_8_11_NO_FILL_REQUIRES_CLEAN_ACCOUNT_PROOF")
+    check('final["unexpected_position_count"] == 0' in acceptance
+          and 'if row_symbol != symbol and quantity != 0' in acceptance,
+          "STAGE_8_11_FINAL_RECONCILIATION_ALL_POSITIONS")
+    check('if _status(row.get("status")) in ACTIVE' in acceptance and "acceptance_ids" not in acceptance,
+          "STAGE_8_11_FINAL_RECONCILIATION_ALL_ACTIVE_ORDERS")
     props=evidence_schema.get("properties",{}); gates=props.get("preflight_gate_outcomes",{})
     check(evidence_schema.get("additionalProperties") is False and gates.get("additionalProperties") is False
           and props.get("quantity",{}).get("const") == 1 and "entry_fill_proven" in evidence_schema.get("required",[]),
@@ -778,6 +785,21 @@ def audit(
           and "readonly_supervisor --runtime-root $runtime --once" in physical_wrapper
           and "Get-ScheduledTask" in physical_wrapper and "W32Time" in physical_wrapper,
           "STAGE_8_11_PHYSICAL_MANUAL_OPERATOR_PREFLIGHT")
+    check('PRECHECK_EVIDENCE_SHA256 = "7171B7CD0098FF51159DC05C46C0326BF7F412A2D9EA0CBB3F9BDAFBE7745455"' in physical_entry
+          and "precheck_report.is_file()" in physical_entry
+          and "hashlib.sha256(precheck_report.read_bytes())" in physical_entry,
+          "STAGE_8_11_FROZEN_PRECHECK_PROVENANCE")
+    check('final.get("position_quantity", 0)' not in physical_entry
+          and 'final.get("active_order_count", 0)' not in physical_entry
+          and 'authority.unresolved_intent_count' not in physical_entry.split("def _physical_evidence",1)[1].split("def execute_boundary",1)[0],
+          "STAGE_8_11_UNKNOWN_FINAL_STATE_NOT_SAFE_ZERO")
+    check("$timeStatusExitCode = $LASTEXITCODE" in physical_wrapper
+          and "$timeSourceExitCode = $LASTEXITCODE" in physical_wrapper,
+          "STAGE_8_11_WINDOWS_TIME_EXIT_CODES")
+    check("emergency_halt(Path" in physical_wrapper, "STAGE_8_11_PARENT_WRAPPER_HALT_DEFENSE")
+    check(props.get("order_endpoint_call_count",{}).get("maximum") == 2
+          and acceptance.count("submit_entry(") == 2 and acceptance.count("submit_flatten(") == 3,
+          "STAGE_8_11_MAXIMUM_TWO_POST_CAPABILITY")
     normal_owners="\n".join(text(path) for path in (
           "TradingSystemLab/stage8_robot/runner.py",
           "TradingSystemLab/stage8_robot/readonly_supervisor.py",
@@ -852,6 +874,14 @@ def audit(
               "head":"60e3f72dae3a08eeb3ba8c756861efbb4c4f28e7",
               "merge":"f29053e2c4b5f687115f0a5b12f582e822b60ea1"},
           stage811_provenance.get("exact_ledger_schema_hardening_authority",{}).get("pull_request") == 358,
+          stage811_provenance.get("operator_boundary_predecessor_authority") == {
+              "pull_request":360,"base":"cc1508e87c0cfc1994352761aa800da58751c132",
+              "head":"a233ebd9c1d56d85e6878389b3e4fb86a0054683",
+              "merge":"a54465d84b4eddabff38519011e8a26eafbfdd6d"},
+          stage811_provenance.get("production_readiness_findings") == [
+              "STAGE8_11_PHYSICAL_EVIDENCE_UNPROVEN_STATE_DEFAULTED_SAFE",
+              "STAGE8_11_NO_FILL_FLAT_STATE_NOT_PROVEN"],
+          stage811_provenance.get("physical_wrapper_run") is False,
           len(stage811_provenance.get("historical_failed_prechecks",[])) == 2,
     )), "STAGE_8_11_LIFECYCLE_EVIDENCE_CLOSEOUT")
     check("OperationalState(root/\"state/readonly-supervisor.sqlite3\")" in precheck_tests

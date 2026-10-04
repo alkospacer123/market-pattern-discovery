@@ -5,8 +5,11 @@ import pytest
 
 from TradingSystemLab.stage8_robot.stage8_11_physical_acceptance import (
     AUTHORIZATION_VALUE, DIRECTION, FINAM_SYMBOL, INSTRUMENT, QUANTITY,
-    PhysicalAcceptanceBlocked, verify_authorization, verify_repository_authority,
+    PRECHECK_EVIDENCE_SHA256, PhysicalAcceptanceBlocked, _physical_evidence,
+    execute_boundary, verify_authorization, verify_repository_authority,
 )
+from TradingSystemLab.stage8_robot.trading_safety_gate import write_kill_switch
+from TradingSystemLab.stage8_robot.tests.test_controlled_real_acceptance import HASH, NOW, authority
 
 
 @pytest.mark.parametrize("value", ["", "LIVE_TRADING_ENABLED", AUTHORIZATION_VALUE.lower(), "wrong"])
@@ -63,3 +66,48 @@ def test_module_uses_canonical_lifecycle_ledger_backup_and_bounded_arm():
     assert source.count('write_kill_switch(runtime_root, "ARMED"') == 1
     assert "finally:\n        emergency_halt(runtime_root" in source
     assert "place_order(" not in source
+
+
+def test_operator_intervention_physical_evidence_keeps_unknown_facts_null():
+    result={"classification":"OPERATOR_INTERVENTION_REQUIRED","phases":["HALTED"],
+            "order_endpoint_call_count":1}
+    got=_physical_evidence(accepted_commit="a"*40,account_hash=HASH,result=result,
+        authority=authority(),external_sha256=PRECHECK_EVIDENCE_SHA256)
+    assert got["final_position_quantity"] is None
+    assert got["final_active_order_count"] is None
+    assert got["unresolved_intent_count"] is None
+
+
+class NoPostAPI:
+    def __init__(self): self.posts=0
+    def place_order(self,*args,**kwargs): self.posts += 1
+
+
+def test_wrong_precheck_sha_blocks_with_zero_posts(tmp_path):
+    runtime=tmp_path/"runtime"; write_kill_switch(runtime,"HALTED",now=NOW)
+    api=NoPostAPI()
+    with pytest.raises(PhysicalAcceptanceBlocked,match="EXTERNAL_EVIDENCE"):
+        execute_boundary(accepted_commit="a"*40,authorization=AUTHORIZATION_VALUE,
+            account_id="synthetic-account",api=api,runtime_root=runtime,
+            external_evidence_sha256="0"*64,now=NOW)
+    assert api.posts == 0
+
+
+def test_missing_precheck_report_blocks_with_zero_posts(tmp_path):
+    runtime=tmp_path/"runtime"; write_kill_switch(runtime,"HALTED",now=NOW)
+    api=NoPostAPI()
+    with pytest.raises(PhysicalAcceptanceBlocked,match="PRECHECK_EVIDENCE_MISSING"):
+        execute_boundary(accepted_commit="a"*40,authorization=AUTHORIZATION_VALUE,
+            account_id="synthetic-account",api=api,runtime_root=runtime,
+            external_evidence_sha256=PRECHECK_EVIDENCE_SHA256,now=NOW)
+    assert api.posts == 0
+
+
+def test_wrapper_checks_each_w32tm_exit_code_and_has_parent_halt_defense():
+    wrapper=Path(__file__).resolve().parents[1].joinpath(
+        "deploy/windows/run-stage8-11-physical-acceptance.ps1").read_text()
+    status=wrapper.index("w32tm /query /status")
+    source=wrapper.index("w32tm /query /source")
+    assert status < wrapper.index("$timeStatusExitCode = $LASTEXITCODE") < source
+    assert source < wrapper.index("$timeSourceExitCode = $LASTEXITCODE")
+    assert "emergency_halt(Path" in wrapper
