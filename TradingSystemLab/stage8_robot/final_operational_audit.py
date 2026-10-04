@@ -79,7 +79,7 @@ PROTECTED_SHA256 = {
     "TradingSystemLab/stage8_robot/trading_identity_binding.py": "1303459b636c99ae7fea4e2e62863888f56ad0e12ca8311a47782a354069167e",
     "TradingSystemLab/stage8_robot/deploy/windows/validate-trading-identity-binding.ps1": "0ccaa1c6b7e37bba226c25647a068739dfcc1db2ad7c99a695752235b4a7b399",
     "TradingSystemLab/stage8_robot/readonly_supervisor.py": "1455fee5fe207c617676a0463ce3034247c5534578555cac293807da22bcaab8",
-    "TradingSystemLab/stage8_robot/finam_api.py": "9869bef3583cab033181aa0f268bf960409aeaf3000c1728a62f2bc501d84311",
+    "TradingSystemLab/stage8_robot/finam_api.py": "15c97d5557021ec50702bd9e2abf1bde4e76faf90063b973fd61f9cf9d096cb0",
     "TradingSystemLab/stage8_robot/operations.py": "1a9c24b9eae666112cc215946cd41166e8f1d425c471393832a9d45b9bb0f783",
     "TradingSystemLab/stage8_robot/backup_state.py": "a841ca6d8090a893157bb87bf0ee47101c79c398b7b36e06259a7d33cf0977cd",
     "TradingSystemLab/stage8_robot/restore_state.py": "ff6adb1503e0edd53c6c3c749e4bcc3afa56b8f56042703c3000a246cd94b2cd",
@@ -852,8 +852,8 @@ def audit(
           stage811_provenance.get("stage8_11_0_status") == "COMPLETE",
           stage811_provenance.get("stage8_11_1_status") == "COMPLETE_PASS",
           stage811_provenance.get("stage8_11_2_status") == "COMPLETE_PASS",
-          stage811_provenance.get("stage8_11_3_status") == "NOT_AUTHORIZED",
-          stage811_provenance.get("current_gate") == "EXPLICIT_ONE_CONTRACT_AUTHORIZATION",
+          stage811_provenance.get("stage8_11_3_status") == "PRIOR_AUTHORIZATION_CONSUMED",
+          stage811_provenance.get("current_gate") == "FAILED_INTENT_RECOVERY_AND_INDEPENDENT_AUDIT",
           stage811_provenance.get("latest_physical_precheck_result") == "STAGE8_11_PRECHECK_ONLY_PASS",
           physical.get("accepted_code_commit") == "9be31f1723877a9c542f89027052570425f7e976",
           physical.get("report_sha256") == "7171B7CD0098FF51159DC05C46C0326BF7F412A2D9EA0CBB3F9BDAFBE7745455",
@@ -881,7 +881,7 @@ def audit(
           stage811_provenance.get("production_readiness_findings") == [
               "STAGE8_11_PHYSICAL_EVIDENCE_UNPROVEN_STATE_DEFAULTED_SAFE",
               "STAGE8_11_NO_FILL_FLAT_STATE_NOT_PROVEN"],
-          stage811_provenance.get("physical_wrapper_run") is False,
+          stage811_provenance.get("physical_wrapper_run") is True,
           len(stage811_provenance.get("historical_failed_prechecks",[])) == 2,
     )), "STAGE_8_11_LIFECYCLE_EVIDENCE_CLOSEOUT")
     check("OperationalState(root/\"state/readonly-supervisor.sqlite3\")" in precheck_tests
@@ -908,6 +908,25 @@ def audit(
     false_full_claim = re.compile(r"(?:FULL/N4|FULL N4|FULL/R15).{0,40}(?:ready|sufficient|validated)", re.I)
     check(not false_full_claim.search(stage8_9_joined_docs), "FULL_N4_FUNDING_READINESS_NOT_CLAIMED")
 
+    controlled = text("TradingSystemLab/stage8_robot/controlled_real_acceptance.py")
+    finam = text("TradingSystemLab/stage8_robot/finam_api.py")
+    recovery = text("TradingSystemLab/stage8_robot/stage8_11_failed_attempt_recovery.py")
+    provenance = json.loads(text("TradingSystemLab/stage8_robot/authority_provenance.json"))
+    check("class FinamOrderRejected" in finam and "order_post and exc.code==400" in finam
+          and "exc.code>=500 and order_post" in finam, "STAGE8_11_REJECTION_TAXONOMY")
+    check('transition_intent(request.idempotency_key, "REJECTED")' in controlled
+          and "FinamUncertainSubmission" in controlled, "STAGE8_11_REJECTED_VS_UNCERTAIN")
+    check("self.api.schedule(finam_symbol)" in controlled and "STAGE8_11_TRADING_SESSION_NOT_OPEN" in controlled,
+          "STAGE8_11_LIVE_EXACT_SYMBOL_SESSION_GATE")
+    recovery_calls = {node.func.attr for node in ast.walk(ast.parse(recovery))
+                      if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)}
+    check(not recovery_calls.intersection({"place_order","cancel_order","submit_order","modify_order"})
+          and "backup, manifest = create_stage8_11_acceptance_backup" in recovery, "STAGE8_11_RECOVERY_NO_ORDER_CAPABILITY")
+    check("if not _account_is_clean(final):" in controlled and "finally:\n        emergency_halt(runtime_root" in controlled,
+          "STAGE8_11_CLEAN_PROOF_AND_HALT")
+    record = provenance.get("stage8_11_failed_physical_attempt_correction", {})
+    check(record.get("physical_evidence_sha256") == "9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324"
+          and record.get("retry_occurred") is False, "STAGE8_11_HISTORICAL_EVIDENCE_BINDING")
     result = {
         "status": "PASS" if not errors else "FAIL", "checks": checks, "errors": errors,
         "production_specification_id": spec.get("production_specification_id"), "production_identity": spec.get("identity"),
@@ -921,8 +940,8 @@ def audit(
         "stage8_11_0_status": "COMPLETE",
         "stage8_11_1_status": "COMPLETE_PASS",
         "stage8_11_2_status": "COMPLETE_PASS",
-        "stage8_11_3_status": "NOT_AUTHORIZED",
-        "stage8_11_current_gate": "EXPLICIT_ONE_CONTRACT_AUTHORIZATION",
+        "stage8_11_3_status": "PRIOR_AUTHORIZATION_CONSUMED",
+        "stage8_11_current_gate": "FAILED_INTENT_RECOVERY_AND_INDEPENDENT_AUDIT",
         "stage8_11_latest_physical_precheck_result": "STAGE8_11_PRECHECK_ONLY_PASS",
         "stage8_11_physical_precheck_real_order_count": 0,
         "runtime_artifacts_tracked": runtime_artifacts, "live_trading_authorized": False,
@@ -1022,7 +1041,7 @@ def audit(
         "stage8_10_order_count": 0,
         "stage8_10_live_trading_authorized": False,
         "stage8_10_real_order_transmission_authorized": False,
-        "stage8_11_status": "STAGE_8_11_2_COMPLETE_PASS_STAGE_8_11_3_NOT_AUTHORIZED",
+        "stage8_11_status": "STAGE_8_11_4_FAILED_HTTP_400_LOCAL_RECOVERY_REQUIRED",
         "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_9_complete": True, "stage8_9_physical_validation_performed": True,
     }

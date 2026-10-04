@@ -24,6 +24,7 @@ ACTIVE_ASSETS_SEMANTIC_BACKOFF_SECONDS=0.1
 H1_TIMEFRAME="TIME_FRAME_H1"
 ORDER_SIDE_BUY="SIDE_BUY"; ORDER_SIDE_SELL="SIDE_SELL"
 MARKET_ORDER_TYPE="ORDER_TYPE_MARKET"
+TIME_IN_FORCE_DAY="TIME_IN_FORCE_DAY"
 CLIENT_ORDER_ID_MAX_LENGTH=20
 CLIENT_ORDER_ID_CHARACTERS="ASCII alphanumeric"
 
@@ -34,6 +35,16 @@ class FinamRateLimit(FinamError): pass
 class FinamServerError(FinamError): pass
 class FinamTimeout(FinamError): pass
 class FinamUncertainSubmission(FinamError): pass
+class FinamOrderRejected(FinamError):
+    """A terminal order POST rejection containing audit-safe metadata only."""
+    def __init__(self,status:int,category:str="TRADING_PARAMETERS_REJECTED",request_id:str|None=None):
+        self.status=int(status)
+        self.category=category
+        self.request_id=request_id if isinstance(request_id,str) and len(request_id)<=128 else None
+        self.broker_acknowledgement_present=False
+        super().__init__(f"FINAM_ORDER_REJECTED status={self.status} category={self.category}"
+                         +(f" request_id={self.request_id}" if self.request_id else "")
+                         +" broker_acknowledgement_present=false")
 @dataclass(frozen=True)
 class Response: status:int; body:Any; request_id:str|None
 
@@ -81,10 +92,15 @@ class FinamAPI:
                 LOG.warning("FINAM HTTP status=%s request_id=%s path=%s",exc.code,request_id,path)
                 if exc.code==401 and auth and attempt==0:
                     self.__jwt=None; self.create_session(); headers["Authorization"]="Bearer "+self.__jwt; continue
-                if exc.code==404: raise FinamNotFound(path) from None
+                order_post=method=="POST" and path.endswith("/orders")
+                if order_post and exc.code==400:
+                    raise FinamOrderRejected(400,request_id=request_id) from None
+                if exc.code==404 and not order_post: raise FinamNotFound(path) from None
                 if exc.code==429 and attempt<retries: time.sleep(min(2**attempt,2)); continue
                 if exc.code==429: raise FinamRateLimit(path) from None
                 if exc.code>=500 and method=="GET" and attempt<retries: continue
+                if exc.code>=500 and order_post:
+                    raise FinamUncertainSubmission(f"RECONCILIATION_REQUIRED:HTTP_{exc.code}") from None
                 if exc.code>=500: raise FinamServerError(f"HTTP_{exc.code}:{path}") from None
                 raise FinamError(f"HTTP_{exc.code}:{path}") from None
             except (TimeoutError,URLError):

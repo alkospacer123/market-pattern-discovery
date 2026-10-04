@@ -55,6 +55,9 @@ class SyntheticFinamTransport:
         self.paths.append((method,path))
         if path == "/v1/sessions" and method == "POST": return Raw({"token":"jwt"})
         if path == "/v1/sessions/details": return Raw({"readonly":False,"account_ids":[ACCOUNT]})
+        if path == f"/v1/assets/{SYMBOL}/schedule" and method == "GET":
+            return Raw({"sessions":[{"type":"CORE_TRADING","interval":{
+                "start_time":"2026-10-04T00:00:00Z","end_time":"2026-10-04T23:59:00Z"}}]})
         prefix = f"/v1/accounts/{ACCOUNT}"
         if path == prefix and method == "GET":
             position = 1 if self.scenario == "final_nonflat" and self.posts >= 2 else self.position

@@ -62,6 +62,34 @@ def test_changed_protected_implementation_hash_fails():
     assert any(error.startswith("PROTECTED_IMPLEMENTATION_HASHES:") for error in result["errors"])
 
 
+@pytest.mark.parametrize("relative,before,after,final_error,stage8_error", [
+    ("finam_api.py", "class FinamOrderRejected", "class RemovedOrderRejected",
+     "STAGE8_11_REJECTION_TAXONOMY", "STAGE8_11_DETERMINISTIC_REJECT_UNCERTAIN_TAXONOMY"),
+    ("controlled_real_acceptance.py", 'transition_intent(request.idempotency_key, "REJECTED")',
+     'transition_intent(request.idempotency_key, "UNCERTAIN")',
+     "STAGE8_11_REJECTED_VS_UNCERTAIN", "STAGE8_11_HTTP400_TERMINAL_REJECTED"),
+    ("controlled_real_acceptance.py", "self.api.schedule(finam_symbol)", "{}",
+     "STAGE8_11_LIVE_EXACT_SYMBOL_SESSION_GATE", "STAGE8_11_EXACT_SCHEDULE_SESSION_GATE"),
+    ("stage8_11_failed_attempt_recovery.py", "backup, manifest = create_stage8_11_acceptance_backup", "backup, manifest = removed_backup",
+     "STAGE8_11_RECOVERY_NO_ORDER_CAPABILITY", "STAGE8_11_BOUND_ORDER_INCAPABLE_RECOVERY"),
+    ("stage8_11_failed_attempt_recovery.py", "readonly_api.orders(account_id)",
+     "readonly_api.place_order(account_id, {})",
+     "STAGE8_11_RECOVERY_NO_ORDER_CAPABILITY", "STAGE8_11_BOUND_ORDER_INCAPABLE_RECOVERY"),
+    ("controlled_real_acceptance.py", "if not _account_is_clean(final):", "if False:",
+     "STAGE8_11_CLEAN_PROOF_AND_HALT", "STAGE8_11_ACCOUNT_WIDE_CLEAN_PROOF"),
+    ("controlled_real_acceptance.py", "finally:\n        emergency_halt(runtime_root", "finally:\n        pass #",
+     "STAGE8_11_CLEAN_PROOF_AND_HALT", "STAGE8_11_PARENT_CHILD_HALT_MAX_TWO_POST_CAPABILITY"),
+])
+def test_stage8_11_corrective_guard_mutations_fail_both_auditors(
+        relative, before, after, final_error, stage8_error):
+    full = "TradingSystemLab/stage8_robot/" + relative
+    mutation = source(full).replace(before, after, 1)
+    assert mutation != source(full)
+    assert final_error in run_audit({full: mutation})["errors"]
+    assert stage8_error in stage8.audit(
+        write_result=False, source_overrides={relative: mutation})["errors"]
+
+
 def test_crlf_protected_implementation_hashes_pass():
     paths = (
         "TradingSystemLab/stage8_robot/readonly_supervisor.py",

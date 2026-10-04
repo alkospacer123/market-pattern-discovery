@@ -294,12 +294,12 @@
     "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
   },
   "stage8_11": {
-    "status": "STAGE_8_11_2_INDEPENDENT_PRECHECK_EVIDENCE_AUDIT_PASS",
+    "status": "STAGE_8_11_4_FAILED_HTTP_400_LOCAL_RECOVERY_REQUIRED",
     "stage8_11_0_status": "COMPLETE",
     "stage8_11_1_status": "COMPLETE_PASS",
     "stage8_11_2_status": "COMPLETE_PASS",
-    "stage8_11_3_status": "NOT_AUTHORIZED",
-    "current_gate": "EXPLICIT_ONE_CONTRACT_AUTHORIZATION",
+    "stage8_11_3_status": "PRIOR_AUTHORIZATION_CONSUMED",
+    "current_gate": "FAILED_INTENT_RECOVERY_AND_INDEPENDENT_AUDIT",
     "latest_physical_precheck_result": "STAGE8_11_PRECHECK_ONLY_PASS",
     "physical_precheck": {
       "schema_id": "stage8_11_intel_precheck.v1",
@@ -417,14 +417,14 @@
       "merge": "3017624559441e1513c70324e62bd8a895383900"
     },
     "execution_authorized": false,
-    "order_endpoint_call_count": 0,
+    "order_endpoint_call_count": 1,
     "real_order_count": 0,
     "production_kill_switch_final_state": "HALTED",
     "scheduled_task": "Disabled",
-    "stage8_11_4_status": "NOT_STARTED",
-    "stage8_11_5_status": "NOT_STARTED",
-    "stage8_11_6_status": "NOT_STARTED",
-    "stage8_11_7_status": "NOT_STARTED",
+    "stage8_11_4_status": "ATTEMPTED_FAILED_HTTP_400_NO_ACCEPTED_ENTRY_PROVEN",
+    "stage8_11_5_status": "NO_POSITION_READONLY_CLEAN_PROOF_OBTAINED",
+    "stage8_11_6_status": "FLATTEN_NOT_SUBMITTED",
+    "stage8_11_7_status": "BROKER_CLEAN_LOCAL_FAILED_INTENT_RECOVERY_REQUIRED",
     "stage8_11_8_status": "NOT_STARTED",
     "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
     "operator_boundary_predecessor_authority": {
@@ -437,6 +437,52 @@
       "STAGE8_11_PHYSICAL_EVIDENCE_UNPROVEN_STATE_DEFAULTED_SAFE",
       "STAGE8_11_NO_FILL_FLAT_STATE_NOT_PROVEN"
     ],
-    "physical_wrapper_run": false
+    "physical_wrapper_run": true
+  },
+  "stage8_11_failed_physical_attempt_correction": {
+    "accepted_code_commit": "069806355fc6931470d7f68d5ca6db20b06358fa",
+    "authorization": "STAGE8_11_PRIOR_ONE_CONTRACT_AUTHORIZATION_CONSUMED",
+    "broker_fill_count_proved_by_physical_evidence": 0,
+    "canonical_local_defect": {
+      "broker_order_id": null,
+      "intent_key": "stage8.11:CNYRUBF:entry",
+      "recovery_required": true,
+      "status": "INTENT_PERSISTED"
+    },
+    "controlled_flatten_submitted": false,
+    "direction": "LONG",
+    "finam_http_status": 400,
+    "finam_symbol": "CNYRUBF@RTSX",
+    "instrument": "CNYRUBF",
+    "kill_switch_after_attempt": "HALTED",
+    "lifecycle": {
+      "8.11.0": "COMPLETE",
+      "8.11.1": "COMPLETE / PASS",
+      "8.11.2": "COMPLETE / PASS",
+      "8.11.3": "PRIOR AUTHORIZATION CONSUMED",
+      "8.11.4": "ATTEMPTED / FAILED HTTP 400 / NO ACCEPTED ENTRY PROVEN",
+      "8.11.5": "NO POSITION; READONLY CLEAN PROOF OBTAINED",
+      "8.11.6": "FLATTEN NOT SUBMITTED",
+      "8.11.7": "BROKER CLEAN; LOCAL RECOVERY REQUIRED",
+      "8.11.8": "NOT STARTED",
+      "8.12": "NOT STARTED / NOT AUTHORIZED"
+    },
+    "next_attempt_requires_new_explicit_authorization_after_merge_and_independent_audit": true,
+    "order_endpoint_call_count": 1,
+    "physical_evidence_sha256": "9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324",
+    "physical_result": "OPERATOR_INTERVENTION_REQUIRED",
+    "post_failure_real_readonly_clean_proof": {
+      "active_broker_order_present": false,
+      "broker_position_present": false,
+      "cycle_completed": true,
+      "entries_enabled": false,
+      "health_status": "HEALTHY",
+      "reconciliation_status": "PASS",
+      "unresolved_order_count": 0
+    },
+    "record": "STAGE8_11_FIRST_PHYSICAL_ATTEMPT_FAILED_HTTP_400",
+    "requested_quantity": 1,
+    "retry_occurred": false,
+    "scheduled_task": "Disabled"
   }
 }

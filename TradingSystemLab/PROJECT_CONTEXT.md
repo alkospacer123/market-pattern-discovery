@@ -1,5 +1,29 @@
 # TradingSystemLab project context
 
+## Stage 8.11 first physical attempt corrective record (2026-10-04)
+
+`STAGE8_11_FIRST_PHYSICAL_ATTEMPT_FAILED_HTTP_400` is the canonical historical result. The accepted code commit was `069806355fc6931470d7f68d5ca6db20b06358fa`; the fixed request was `CNYRUBF` / `CNYRUBF@RTSX`, `LONG`, quantity `1`. Exactly one order-endpoint call returned HTTP 400. Physical evidence with SHA-256 `9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324` proves zero broker fills, `OPERATOR_INTERVENTION_REQUIRED`, and final kill switch `HALTED`. No retry and no controlled flatten occurred. The original physical evidence remains immutable and **did not PASS**.
+
+`STAGE8_11_PRIOR_ONE_CONTRACT_AUTHORIZATION_CONSUMED`: a subsequent structurally order-incapable `REAL_READONLY` cycle completed with `health_status = HEALTHY`, `reconciliation_status = PASS`, `entries_enabled = false`, `unresolved_order_count = 0`, no broker position, and no active broker order. This proves the broker account was clean after the failed POST; it does not retroactively change the failed physical result. The canonical ledger nevertheless retained `stage8.11:CNYRUBF:entry` as `INTENT_PERSISTED` with a null broker order id. It may be terminalized only by the audited, evidence-bound, backup-first recovery utility; it must not be deleted, replaced, or edited ad hoc.
+
+Canonical lifecycle status:
+
+- Stage 8.11.0 — **COMPLETE**.
+- Stage 8.11.1 — **COMPLETE / PASS**.
+- Stage 8.11.2 — **COMPLETE / PASS**.
+- Stage 8.11.3 — prior explicit authorization **CONSUMED** by the first physical attempt; any broker-side retry requires a new explicit authorization after merge and independent audit.
+- Stage 8.11.4 — **ATTEMPTED / FAILED HTTP 400 / NO ACCEPTED ENTRY PROVEN**.
+- Stage 8.11.5 — no one-contract position opened; post-failure READONLY clean-account proof obtained.
+- Stage 8.11.6 — flatten not submitted because entry fill/position was not proved.
+- Stage 8.11.7 — broker-side clean state proved; local failed-intent recovery required.
+- Stage 8.11.8 — **NOT STARTED**.
+- Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**.
+
+Corrective code distinguishes acknowledged, definitive rejection, and uncertain submission outcomes; a definite HTTP 400 terminalizes its durable intent as `REJECTED` and can be `NOT_ACCEPTED_NO_EXECUTION` only after a fresh account-wide clean proof. POST-side 5xx and transport ambiguity remain `UNCERTAIN`, require reconciliation, and are never blindly retried. The current official PlaceOrder schema exposes `time_in_force`; the bounded market entry and flatten payloads now explicitly use the official `TIME_IN_FORCE_DAY` enum. A fresh exact-symbol FINAM schedule must prove that the timestamp is within `EARLY_TRADING`, `CORE_TRADING`, or `LATE_TRADING` immediately before every possible POST. Missing, malformed, stale/non-current, auction, clearing, closed, or outside-session evidence blocks before a new intent and with zero POSTs.
+
+This corrective work is code plus offline/READONLY recovery preparation only. It does not run the physical wrapper, authorize another order, start Stage 8.12, or mark Stage 8.11 complete. Scheduled Task remains Disabled. STOP for independent audit before any new physical authorization.
+
+
 ## Current handoff
 
 Stage 8.9 is **COMPLETE**. Stage 8.10 is **COMPLETE**. Stage 8.10 is recorded under

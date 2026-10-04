@@ -115,7 +115,8 @@ def _physical_evidence(*, accepted_commit: str, account_hash: str, result: dict[
         kill_switch_pre_state="ARMED", kill_switch_final_state="HALTED",
         execution_authorization_observed=True,
         order_endpoint_call_count=int(result.get("order_endpoint_call_count", 0)),
-        broker_order_present=int(result.get("order_endpoint_call_count", 0)) > 0,
+        broker_order_present=(int(result.get("order_endpoint_call_count", 0)) > 0
+                              and not isinstance(result.get("rejection"), dict)),
         broker_fill_count=int(bool(result.get("entry_fill_proven"))) + int(bool(result.get("flatten_fill_proven"))),
         entry_fill_proven=result.get("entry_fill_proven") is True,
         one_contract_position_observed=result.get("one_contract_position_observed") is True,

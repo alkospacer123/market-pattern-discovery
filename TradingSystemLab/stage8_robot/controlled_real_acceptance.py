@@ -16,7 +16,8 @@ import re
 from typing import Any, Callable
 
 from .broker import OrderRequest, broker_side, compact_client_order_id
-from .finam_api import CLIENT_ORDER_ID_MAX_LENGTH, MARKET_ORDER_TYPE, FinamUncertainSubmission
+from .finam_api import (CLIENT_ORDER_ID_MAX_LENGTH, MARKET_ORDER_TYPE, TIME_IN_FORCE_DAY,
+                        FinamOrderRejected, FinamUncertainSubmission)
 from .instrument_resolver import load_registry
 from .specification import ACTIVE_IDENTITY, INSTRUMENTS, PRODUCTION_SPECIFICATION_ID, load_frozen_specification
 from .state import StateStore, initialize_stage8_11_acceptance_ledger, stage8_11_acceptance_path
@@ -172,7 +173,8 @@ class ControlledAcceptanceBroker:
             raise AssertionError("CLIENT_ORDER_ID_TOO_LONG")
         return {"symbol": request.contract_id, "quantity": {"value": "1"},
                 "side": broker_side(request.direction, exit_order=request.exit_order),
-                "type": MARKET_ORDER_TYPE, "client_order_id": client_id}
+                "type": MARKET_ORDER_TYPE, "time_in_force": TIME_IN_FORCE_DAY,
+                "client_order_id": client_id}
 
     def _post_once(self, request: OrderRequest) -> dict[str, Any]:
         payload = self._payload(request)
@@ -183,6 +185,11 @@ class ControlledAcceptanceBroker:
             result = self.api.place_order(self.account_id, payload)
         except FinamUncertainSubmission:
             self.store.transition_intent(request.idempotency_key, "UNCERTAIN")
+            raise
+        except FinamOrderRejected:
+            # The server conclusively rejected this one POST.  Close the durable
+            # pre-POST intent; never attempt reconciliation as an accepted order.
+            self.store.transition_intent(request.idempotency_key, "REJECTED")
             raise
         order_id = str(result.get("order_id", "")) if isinstance(result, dict) else ""
         if not order_id:
@@ -211,6 +218,17 @@ class ControlledAcceptanceBroker:
     def account_snapshot(self, finam_symbol: str) -> dict[str, Any]:
         """Return only the sanitized acceptance facts from the production API."""
         return _production_account_snapshot(self.api, self.account_id, finam_symbol, self.store)
+
+    def require_active_trading_session(self, finam_symbol: str, now: datetime) -> None:
+        """Use a fresh exact-symbol FINAM schedule as the sole session authority."""
+        from .readonly_supervisor import SafetyFault, trading_h1_windows
+        try:
+            windows = trading_h1_windows(self.api.schedule(finam_symbol))
+        except (SafetyFault, AttributeError, TypeError, ValueError):
+            raise AcceptanceBlocked("STAGE8_11_TRADING_SCHEDULE_INVALID") from None
+        observed = now.astimezone(timezone.utc)
+        if not any(start <= observed < end for start, end in windows):
+            raise AcceptanceBlocked("STAGE8_11_TRADING_SESSION_NOT_OPEN")
 
     def cancel(self, order_id: str) -> Any:
         if not order_id:
@@ -453,8 +471,27 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
         if direction not in ("LONG", "SHORT"):
             raise AcceptanceBlocked("DIRECTION_INVALID")
         phases.append("AUTHORIZED")
+        # This fresh schedule read is immediately before the only possible entry
+        # POST.  A refusal occurs before persist_intent and therefore creates no
+        # execution intent.
+        broker.require_active_trading_session(finam_symbol, observed)
+        phases.append("ACTIVE_TRADING_SESSION_PROVEN")
         try:
             broker.submit_entry(key=entry_key, finam_symbol=finam_symbol, direction=direction)
+        except FinamOrderRejected as exc:
+            phases.append("ENTRY_DEFINITIVE_REJECTION")
+            final = _final_state(broker, finam_symbol)
+            result["final_state"] = final
+            result["rejection"] = {"http_status": exc.status, "category": exc.category,
+                                   "request_id": exc.request_id,
+                                   "broker_acknowledgement_present": False}
+            if not _account_is_clean(final):
+                raise OperatorInterventionRequired("DEFINITIVE_REJECTION_ACCOUNT_NOT_CLEAN")
+            phases.append("FINAL_RECONCILIATION_PASS")
+            result.update(classification="NOT_ACCEPTED_NO_EXECUTION",
+                          failure_code="DEFINITIVE_REJECTION", entry_fill_proven=False,
+                          one_contract_position_observed=False, flatten_fill_proven=False)
+            return result
         except FinamUncertainSubmission:
             phases.append("ENTRY_UNCERTAIN_RECONCILE")
         entry = _reconcile(broker, entry_key, allow_cancel=True)
@@ -473,6 +510,7 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
             raise OperatorInterventionRequired("ONE_CONTRACT_POSITION_NOT_PROVEN")
         phases.append("ONE_CONTRACT_POSITION_OBSERVED")
         try:
+            broker.require_active_trading_session(finam_symbol, observed)
             broker.submit_flatten(key=flatten_key, finam_symbol=finam_symbol, direction=direction)
         except FinamUncertainSubmission:
             phases.append("FLATTEN_UNCERTAIN_RECONCILE")
@@ -514,6 +552,7 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
                 if (recovered_entry and int(recovered_entry.get("executed_quantity", 0)) == 1
                         and int(recovered_entry.get("position_quantity", 0)) == (1 if direction == "LONG" else -1)
                         and flatten_intent is None):
+                    broker.require_active_trading_session(finam_symbol, observed)
                     broker.submit_flatten(key=flatten_key, finam_symbol=finam_symbol, direction=direction)
                     flatten_intent = broker.store.intent(flatten_key)
                 if flatten_intent and flatten_intent["status"] not in ("RECONCILED", "CANCELLED", "REJECTED"):
