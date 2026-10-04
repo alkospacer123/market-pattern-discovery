@@ -299,13 +299,19 @@
     "production_finding": "STAGE8_11_CANONICAL_INTENTS_INVALID",
     "persistence_authority_correction": {
       "reason": "PR #356 precheck treated the OperationalState supervisor database as a StateStore intent ledger",
-      "status": "CODE_READY_PENDING_PHYSICAL_ACCEPTANCE"
+      "status": "CODE_READINESS_CORRECTION_COMPLETE_PHYSICAL_PRECHECK_NOT_YET_RERUN"
     },
-    "current_precheck_code_authority": {
+    "historical_predecessor_precheck_code_authority": {
       "pull_request": 356,
       "base": "4fb3c5406462609ceb5a19850d0dc6c4a5a19566",
       "head": "6158bb9a26cca786d1561163e563a2c768054f82",
       "merge": "ea090d99266d5dae808c03024f327c41fb8b9170"
+    },
+    "current_precheck_code_authority": {
+      "pull_request": 357,
+      "base": "ea090d99266d5dae808c03024f327c41fb8b9170",
+      "head": "60e3f72dae3a08eeb3ba8c756861efbb4c4f28e7",
+      "merge": "f29053e2c4b5f687115f0a5b12f582e822b60ea1"
     },
     "intel_precheck_code_authority": {
       "pull_request": 355,

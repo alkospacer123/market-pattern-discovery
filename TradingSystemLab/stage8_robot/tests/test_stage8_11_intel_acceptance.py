@@ -8,6 +8,7 @@ from TradingSystemLab.stage8_robot.stage8_11_intel_acceptance import MODE, Prech
 from TradingSystemLab.stage8_robot.specification import PRODUCTION_SPECIFICATION_ID
 from TradingSystemLab.stage8_robot.readonly_supervisor import OperationalState
 from TradingSystemLab.stage8_robot.state import (StateStore, initialize_stage8_11_acceptance_ledger,
+                                                  readonly_unresolved_intent_count,
                                                   stage8_11_acceptance_path)
 from TradingSystemLab.stage8_robot.trading_safety_gate import heartbeat_path, load_kill_switch, write_kill_switch
 
@@ -141,6 +142,46 @@ def test_unknown_intent_status_fails_closed(tmp_path):
     with pytest.raises(PrecheckBlocked,match="CANONICAL_UNRESOLVED"):
         precheck_only(api=ReadOnlyAPI(),account_id=ACCOUNT,runtime_root=root,direction="LONG",
           external_evidence_sha256="a"*64,accepted_commit="c"*40,funding_collector=lambda *_a,**_k:funding(),now=NOW)
+
+@pytest.mark.parametrize("mutation",[
+    "idempotency_key TEXT",                         # PK removed
+    "status TEXT,broker_order_id",                  # NOT NULL removed
+    "status INTEGER NOT NULL",                      # declared type changed
+    "updated_at TEXT NOT NULL)",                    # default removed
+    "fill_id TEXT,broker_order_id",                 # fill PK removed
+    "status TEXT NOT NULL,payload TEXT NOT NULL",   # canonical columns reordered
+    "status TEXT NOT NULL,extra TEXT,broker_order_id", # extra/reordered column
+])
+def test_same_column_family_mutated_constraints_fail_closed(tmp_path,mutation):
+    import sqlite3
+    root=runtime(tmp_path); db=stage8_11_acceptance_path(root); db.unlink()
+    schema="""CREATE TABLE state(key TEXT PRIMARY KEY,value TEXT NOT NULL);
+CREATE TABLE intents(idempotency_key TEXT PRIMARY KEY,payload TEXT NOT NULL,status TEXT NOT NULL,broker_order_id TEXT,updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE fills(fill_id TEXT PRIMARY KEY,broker_order_id TEXT NOT NULL,trade_id TEXT NOT NULL,quantity TEXT NOT NULL,price TEXT NOT NULL,fee TEXT,timestamp TEXT NOT NULL,payload TEXT NOT NULL);"""
+    replacements={
+      "idempotency_key TEXT":"idempotency_key TEXT PRIMARY KEY",
+      "status TEXT,broker_order_id":"status TEXT NOT NULL,broker_order_id",
+      "status INTEGER NOT NULL":"status TEXT NOT NULL",
+      "updated_at TEXT NOT NULL)":"updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+      "fill_id TEXT,broker_order_id":"fill_id TEXT PRIMARY KEY,broker_order_id",
+      "status TEXT NOT NULL,payload TEXT NOT NULL":"payload TEXT NOT NULL,status TEXT NOT NULL",
+      "status TEXT NOT NULL,extra TEXT,broker_order_id":"status TEXT NOT NULL,broker_order_id",
+    }
+    schema=schema.replace(replacements[mutation],mutation,1)
+    with sqlite3.connect(db) as connection: connection.executescript(schema)
+    with pytest.raises(sqlite3.DatabaseError,match="ACCEPTANCE_SCHEMA_INVALID"):
+        initialize_stage8_11_acceptance_ledger(root,ACCOUNT)
+
+def test_nullable_null_status_cannot_disappear_from_readonly_count(tmp_path):
+    import sqlite3
+    root=runtime(tmp_path); db=stage8_11_acceptance_path(root); db.unlink()
+    with sqlite3.connect(db) as connection:
+        connection.executescript("""CREATE TABLE state(key TEXT PRIMARY KEY,value TEXT NOT NULL);
+CREATE TABLE intents(idempotency_key TEXT PRIMARY KEY,payload TEXT NOT NULL,status TEXT,broker_order_id TEXT,updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE fills(fill_id TEXT PRIMARY KEY,broker_order_id TEXT NOT NULL,trade_id TEXT NOT NULL,quantity TEXT NOT NULL,price TEXT NOT NULL,fee TEXT,timestamp TEXT NOT NULL,payload TEXT NOT NULL);
+INSERT INTO intents(idempotency_key,payload,status) VALUES('null-status','{}',NULL);""")
+    with pytest.raises(sqlite3.DatabaseError,match="ACCEPTANCE_SCHEMA_INVALID"):
+        readonly_unresolved_intent_count(db)
 
 @pytest.mark.parametrize("mutation",["missing","mismatch","nontradable"])
 def test_frozen_registry_binding_failure_blocks(tmp_path,mutation):
