@@ -481,6 +481,38 @@ def audit(
     safety_gate = provenance.get("stage8_10_6", {})
     token_acceptance = provenance.get("stage8_10_7", {})
     lifecycle_closeout = provenance.get("stage8_10_8", {})
+    acceptance = text("TradingSystemLab/stage8_robot/controlled_real_acceptance.py")
+    evidence_schema = json.loads(text("TradingSystemLab/stage8_robot/stage8_11_physical_evidence.schema.json"))
+    normal_config = text("TradingSystemLab/stage8_robot/config.py")
+    normal_broker = text("TradingSystemLab/stage8_robot/broker.py")
+    normal_runner = text("TradingSystemLab/stage8_robot/runner.py")
+    normal_supervisor = text("TradingSystemLab/stage8_robot/readonly_supervisor.py")
+    task_installer = text("TradingSystemLab/stage8_robot/deploy/windows/install-task.ps1")
+    launcher = text("TradingSystemLab/stage8_robot/deploy/windows/run-readonly.ps1")
+    check("request.quantity != MAX_ACCEPTANCE_QUANTITY" in acceptance and "MAX_ACCEPTANCE_QUANTITY = 1" in acceptance,
+          "STAGE_8_11_EXACTLY_ONE_HARD_CAP")
+    check("self.store.persist_intent" in acceptance and acceptance.find("self.store.persist_intent") < acceptance.find("self.api.place_order"),
+          "STAGE_8_11_INTENT_BEFORE_POST")
+    check("no retry: exactly one call" in acceptance and acceptance.count("self.api.place_order") == 1,
+          "STAGE_8_11_NO_POST_RETRY")
+    check(all(token in acceptance for token in ("ENTRY_UNCERTAIN_RECONCILE", "FLATTEN_UNCERTAIN_RECONCILE",
+          "OPERATOR_INTERVENTION_REQUIRED")), "STAGE_8_11_UNCERTAIN_RECONCILIATION")
+    check("_digest(account_id) != accepted_account_hash.lower()" in acceptance and "heartbeat_account_hash" in acceptance,
+          "STAGE_8_11_EXACT_ACCOUNT_BINDING")
+    check("resolve_frozen_symbol(instrument)" in acceptance and "FINAM_SYMBOL_BINDING_INVALID" in acceptance,
+          "STAGE_8_11_EXACT_N4_SYMBOL_BINDING")
+    check(all(token in acceptance for token in ("entry_fill_proven=True", "one_contract_position_observed=True",
+          "flatten_fill_proven=True", "broker.store.unresolved_intent_count() == 0", '"HALTED"')),
+          "STAGE_8_11_FILL_FLAT_HALTED_PASS")
+    props=evidence_schema.get("properties",{}); gates=props.get("preflight_gate_outcomes",{})
+    check(evidence_schema.get("additionalProperties") is False and gates.get("additionalProperties") is False
+          and props.get("quantity",{}).get("const") == 1 and "entry_fill_proven" in evidence_schema.get("required",[]),
+          "STAGE_8_11_EVIDENCE_PRIVACY_SCHEMA")
+    check(all("controlled_real_acceptance" not in source for source in
+              (normal_runner,normal_supervisor,task_installer,launcher)),
+          "STAGE_8_11_NO_ROUTINE_OR_SCHEDULED_INTEGRATION")
+    check("LIVE_TRADING_NOT_AUTHORIZED" in normal_config and "REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in normal_broker,
+          "STAGE_8_11_EXISTING_AIRGAPS_INTACT")
     check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_COMPLETE_STATUS,
           "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT")
     check(lifecycle.get("status") == STAGE_8_9_8_STATUS

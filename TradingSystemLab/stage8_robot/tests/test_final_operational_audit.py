@@ -990,3 +990,30 @@ def test_stage_8_10_clearly_scoped_historical_text_passes_both_audits(path):
     operational = run_audit({path: historical})
     assert independent["status"] == "PASS", (path, independent)
     assert operational["status"] == "PASS", (path, operational)
+
+STAGE811_PATH = "TradingSystemLab/stage8_robot/controlled_real_acceptance.py"
+STAGE811_SCHEMA = "TradingSystemLab/stage8_robot/stage8_11_physical_evidence.schema.json"
+
+@pytest.mark.parametrize("needle,replacement,error", [
+    ("request.quantity != MAX_ACCEPTANCE_QUANTITY", "False", "STAGE_8_11_EXACTLY_ONE_HARD_CAP"),
+    ("self.store.persist_intent", "self.store.removed_intent", "STAGE_8_11_INTENT_BEFORE_POST"),
+    ("no retry: exactly one call", "retry enabled", "STAGE_8_11_NO_POST_RETRY"),
+    ("ENTRY_UNCERTAIN_RECONCILE", "ENTRY_UNCERTAIN_HALT", "STAGE_8_11_UNCERTAIN_RECONCILIATION"),
+    ("_digest(account_id) != accepted_account_hash.lower()", "False", "STAGE_8_11_EXACT_ACCOUNT_BINDING"),
+    ("FINAM_SYMBOL_BINDING_INVALID", "SYMBOL_CHECK_REMOVED", "STAGE_8_11_EXACT_N4_SYMBOL_BINDING"),
+    ("entry_fill_proven=True", "entry_fill_proven=False", "STAGE_8_11_FILL_FLAT_HALTED_PASS"),
+])
+def test_stage811_safety_mutations_fail_both_independent_audits(needle,replacement,error):
+    mutated=source(STAGE811_PATH).replace(needle,replacement,1)
+    independent=stage8.audit(write_result=False,source_overrides={"controlled_real_acceptance.py":mutated})
+    operational=run_audit({STAGE811_PATH:mutated})
+    assert error in independent["errors"]
+    assert error in operational["errors"]
+
+
+def test_stage811_evidence_schema_mutation_fails_both_audits():
+    mutated=source(STAGE811_SCHEMA).replace('"additionalProperties": false','"additionalProperties": true',1)
+    independent=stage8.audit(write_result=False,source_overrides={"stage8_11_physical_evidence.schema.json":mutated})
+    operational=run_audit({STAGE811_SCHEMA:mutated})
+    assert "STAGE_8_11_EVIDENCE_PRIVACY_SCHEMA" in independent["errors"]
+    assert "STAGE_8_11_EVIDENCE_PRIVACY_SCHEMA" in operational["errors"]
