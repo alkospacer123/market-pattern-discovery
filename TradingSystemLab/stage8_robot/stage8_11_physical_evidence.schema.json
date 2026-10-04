@@ -5,6 +5,7 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "attempt_id",
     "schema_id",
     "production_specification_id",
     "stage8_11_status",
