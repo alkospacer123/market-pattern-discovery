@@ -8,7 +8,8 @@ from TradingSystemLab.stage8_robot.broker import FinamRealReadOnlyBroker, OrderR
 from TradingSystemLab.stage8_robot.config import RuntimeConfig
 from TradingSystemLab.stage8_robot.controlled_real_acceptance import (
     AcceptanceAuthority, AcceptanceBlocked, ControlledAcceptanceBroker,
-    OperatorInterventionRequired, STAGE8_10_AUTHORITY, build_physical_context,
+    OperatorInterventionRequired, STAGE8_10_AUTHORITY, STAGE8_11_ATTEMPT2_ID,
+    build_physical_context,
     precheck, resolve_frozen_symbol, run_controlled_lifecycle, sanitized_evidence,
 )
 from TradingSystemLab.stage8_robot.finam_api import FinamUncertainSubmission
@@ -278,7 +279,8 @@ def test_context_builder_derives_authority_from_components(tmp_path):
 
 
 def evidence(**changes):
-    values=dict(accepted_code_commit="a"*40,sanitized_account_identity_hash=HASH,
+    values=dict(attempt_id=STAGE8_11_ATTEMPT2_ID,
+        accepted_code_commit="a"*40,sanitized_account_identity_hash=HASH,
         instrument="USDRUBF",direction="LONG",quantity=1,
         preflight_gate_outcomes={"account_binding":True},kill_switch_pre_state="ARMED",
         kill_switch_final_state="HALTED",execution_authorization_observed=True,
@@ -295,6 +297,28 @@ def test_evidence_schema_privacy_and_pass_invariants():
     with pytest.raises(ValueError,match="ALLOWLISTED"): sanitized_evidence(**evidence(account_id="private"))
     with pytest.raises(ValueError,match="PREFLIGHT"): sanitized_evidence(**evidence(preflight_gate_outcomes={"token":"secret"}))
     with pytest.raises(ValueError,match="PASS_EVIDENCE"): sanitized_evidence(**evidence(entry_fill_proven=False))
+
+
+@pytest.mark.parametrize("classification", [
+    "PASS", "NOT_ACCEPTED_NO_EXECUTION", "OPERATOR_INTERVENTION_REQUIRED",
+])
+def test_evidence_requires_attempt2_identity_for_every_physical_result(classification):
+    facts = evidence(physical_result_classification=classification)
+    if classification != "PASS":
+        facts.update(entry_fill_proven=False, one_contract_position_observed=False,
+            controlled_flatten_proven=False, broker_fill_count=0)
+    if classification == "OPERATOR_INTERVENTION_REQUIRED":
+        facts.update(final_position_quantity=None, final_active_order_count=None,
+            unresolved_intent_count=None, reconciliation_result="UNRESOLVED")
+    facts.pop("attempt_id")
+    with pytest.raises(ValueError, match="EVIDENCE_ATTEMPT_ID_INVALID"):
+        sanitized_evidence(**facts)
+
+
+def test_evidence_rejects_wrong_attempt_identity_and_accepts_exact_attempt2():
+    with pytest.raises(ValueError, match="EVIDENCE_ATTEMPT_ID_INVALID"):
+        sanitized_evidence(**evidence(attempt_id="operator-choice"))
+    assert sanitized_evidence(**evidence())["attempt_id"] == "stage8.11.attempt2"
 
 
 def test_operator_evidence_permits_unknowns_but_never_synthesizes_zero():

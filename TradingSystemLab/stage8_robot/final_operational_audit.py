@@ -516,7 +516,8 @@ def audit(
           "STAGE_8_11_FINAL_RECONCILIATION_ALL_ACTIVE_ORDERS")
     props=evidence_schema.get("properties",{}); gates=props.get("preflight_gate_outcomes",{})
     check(evidence_schema.get("additionalProperties") is False and gates.get("additionalProperties") is False
-          and props.get("quantity",{}).get("const") == 1 and "entry_fill_proven" in evidence_schema.get("required",[]),
+          and props.get("quantity",{}).get("const") == 1
+          and {"attempt_id", "entry_fill_proven"}.issubset(evidence_schema.get("required",[])),
           "STAGE_8_11_EVIDENCE_PRIVACY_SCHEMA")
     check(all("controlled_real_acceptance" not in source for source in
               (normal_runner,normal_supervisor,task_installer,launcher)),

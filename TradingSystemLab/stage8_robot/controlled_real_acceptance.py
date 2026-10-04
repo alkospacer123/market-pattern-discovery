@@ -626,13 +626,13 @@ def sanitized_evidence(**facts: Any) -> dict[str, Any]:
                "external_raw_evidence_sha256"}
     if set(facts) - allowed:
         raise ValueError("EVIDENCE_FIELD_NOT_ALLOWLISTED")
+    if facts.get("attempt_id") != STAGE8_11_ATTEMPT2_ID:
+        raise ValueError("EVIDENCE_ATTEMPT_ID_INVALID")
     gates = facts.get("preflight_gate_outcomes", {})
     if not isinstance(gates, dict) or set(gates) - _PREFLIGHT_KEYS or any(type(v) is not bool for v in gates.values()):
         raise ValueError("PREFLIGHT_EVIDENCE_SCHEMA_INVALID")
     if facts.get("quantity") != 1:
         raise ValueError("EVIDENCE_QUANTITY_MUST_EQUAL_ONE")
-    if "attempt_id" in facts and facts["attempt_id"] != STAGE8_11_ATTEMPT2_ID:
-        raise ValueError("EVIDENCE_ATTEMPT_ID_INVALID")
     for key in ("sanitized_account_identity_hash", "external_raw_evidence_sha256"):
         if key in facts and not _sha256(facts[key]):
             raise ValueError("EVIDENCE_SHA256_INVALID")
