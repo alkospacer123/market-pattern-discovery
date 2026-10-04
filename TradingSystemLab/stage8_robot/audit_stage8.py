@@ -205,6 +205,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     source_overrides=source_overrides or {}
     def document(relative,path): return source_overrides.get(relative,source_overrides.get(str(path.relative_to(ROOT)),path.read_text()))
     acceptance=document("controlled_real_acceptance.py",HERE/"controlled_real_acceptance.py")
+    finam_api=document("finam_api.py",HERE/"finam_api.py")
     evidence_schema=json.loads(document("stage8_11_physical_evidence.schema.json",HERE/"stage8_11_physical_evidence.schema.json"))
     current_state=document("CURRENT_STATE.md",ROOT/"TradingSystemLab/CURRENT_STATE.md")
     project_context=document("PROJECT_CONTEXT.md",ROOT/"TradingSystemLab/PROJECT_CONTEXT.md")
@@ -241,6 +242,18 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           "STAGE_8_11_NO_ROUTINE_OR_SCHEDULED_INTEGRATION")
     check("LIVE_TRADING_NOT_AUTHORIZED" in config and "REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in broker,
           "STAGE_8_11_EXISTING_AIRGAPS_INTACT")
+    api_methods={node.name for node in ast.parse(finam_api).body
+                 if isinstance(node,ast.ClassDef) and node.name=="FinamAPI"
+                 for node in node.body if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef))}
+    acceptance_api_calls={node.func.attr for node in ast.walk(ast.parse(acceptance))
+                          if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)
+                          and (isinstance(node.func.value,ast.Name) and node.func.value.id=="api"
+                               or isinstance(node.func.value,ast.Attribute)
+                               and isinstance(node.func.value.value,ast.Name)
+                               and node.func.value.value.id=="self" and node.func.value.attr=="api")}
+    check(acceptance_api_calls <= api_methods
+          and "acceptance_snapshot" not in acceptance and "acceptance_account_snapshot" not in acceptance,
+          "STAGE_8_11_PRODUCTION_FINAM_API_CONTRACT")
     completed_status="STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE"
     accepted_code_sha="dc2b79e74817e71435eee20103ae617e13067d8e"
     evidence_sha="1A9B62D4BFC0E7384898C9DF9659E54E50E0E202BD44CE19413864AC2ECA14D6"

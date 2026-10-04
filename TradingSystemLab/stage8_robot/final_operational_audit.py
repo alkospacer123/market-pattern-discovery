@@ -482,6 +482,7 @@ def audit(
     token_acceptance = provenance.get("stage8_10_7", {})
     lifecycle_closeout = provenance.get("stage8_10_8", {})
     acceptance = text("TradingSystemLab/stage8_robot/controlled_real_acceptance.py")
+    finam_api_source = text("TradingSystemLab/stage8_robot/finam_api.py")
     evidence_schema = json.loads(text("TradingSystemLab/stage8_robot/stage8_11_physical_evidence.schema.json"))
     normal_config = text("TradingSystemLab/stage8_robot/config.py")
     normal_broker = text("TradingSystemLab/stage8_robot/broker.py")
@@ -513,6 +514,18 @@ def audit(
           "STAGE_8_11_NO_ROUTINE_OR_SCHEDULED_INTEGRATION")
     check("LIVE_TRADING_NOT_AUTHORIZED" in normal_config and "REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in normal_broker,
           "STAGE_8_11_EXISTING_AIRGAPS_INTACT")
+    api_methods = {node.name for node in ast.parse(finam_api_source).body
+                   if isinstance(node, ast.ClassDef) and node.name == "FinamAPI"
+                   for node in node.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))}
+    acceptance_api_calls = {node.func.attr for node in ast.walk(ast.parse(acceptance))
+                            if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                            and (isinstance(node.func.value, ast.Name) and node.func.value.id == "api"
+                                 or isinstance(node.func.value, ast.Attribute)
+                                 and isinstance(node.func.value.value, ast.Name)
+                                 and node.func.value.value.id == "self" and node.func.value.attr == "api")}
+    check(acceptance_api_calls <= api_methods
+          and "acceptance_snapshot" not in acceptance and "acceptance_account_snapshot" not in acceptance,
+          "STAGE_8_11_PRODUCTION_FINAM_API_CONTRACT")
     check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_COMPLETE_STATUS,
           "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT")
     check(lifecycle.get("status") == STAGE_8_9_8_STATUS
