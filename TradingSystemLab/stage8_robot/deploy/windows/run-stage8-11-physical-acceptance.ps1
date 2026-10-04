@@ -11,7 +11,7 @@ $productionId = "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B
 $expectedAuthorization = "STAGE_8_11_ONE_CONTRACT_ACCEPTANCE_AUTHORIZED"
 $repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..\..")).Path
 $runtime = [IO.Path]::GetFullPath($RuntimeRoot)
-$evidence = Join-Path $runtime "diagnostics\stage8_11_physical_acceptance.json"
+$evidence = Join-Path $runtime "diagnostics\stage8_11_physical_acceptance_attempt2.json"
 
 # Manual-only, fixed CNYRUBF/LONG/1 operator boundary.  This script is never a
 # Scheduled Task target and has no arbitrary symbol, direction, or quantity.

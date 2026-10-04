@@ -31,6 +31,9 @@
     "external_raw_evidence_sha256"
   ],
   "properties": {
+    "attempt_id": {
+      "const": "stage8.11.attempt2"
+    },
     "schema_id": {
       "const": "stage8_11_physical_acceptance.v1"
     },

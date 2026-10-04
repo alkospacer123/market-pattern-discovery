@@ -254,6 +254,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           "STAGE_8_11_NO_ROUTINE_OR_SCHEDULED_INTEGRATION")
     physical_entry=document("stage8_11_physical_acceptance.py",HERE/"stage8_11_physical_acceptance.py")
     physical_wrapper=document("deploy/windows/run-stage8-11-physical-acceptance.ps1",HERE/"deploy/windows/run-stage8-11-physical-acceptance.ps1")
+    recovery=document("stage8_11_failed_attempt_recovery.py",HERE/"stage8_11_failed_attempt_recovery.py")
     check(all(token in physical_entry for token in (
           'AUTHORIZATION_VALUE = "STAGE_8_11_ONE_CONTRACT_ACCEPTANCE_AUTHORIZED"',
           'INSTRUMENT = "CNYRUBF"', 'FINAM_SYMBOL = "CNYRUBF@RTSX"',
@@ -276,6 +277,24 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and "$timeSourceExitCode = $LASTEXITCODE" in physical_wrapper,
           "STAGE_8_11_WINDOWS_TIME_EXIT_CODES")
     check("emergency_halt(Path" in physical_wrapper, "STAGE_8_11_PARENT_WRAPPER_HALT_DEFENSE")
+    check('ATTEMPT_ID = STAGE8_11_ATTEMPT2_ID' in physical_entry
+          and 'REPORT_NAME = "stage8_11_physical_acceptance_attempt2.json"' in physical_entry
+          and 'HISTORICAL_REPORT_NAME = "stage8_11_physical_acceptance.json"' in physical_entry
+          and 'attempt_id=ATTEMPT_ID' in physical_entry
+          and '--attempt-id' not in physical_entry and 'os.replace(' not in physical_entry
+          and 'os.link(temporary, destination)' in physical_entry,
+          "STAGE8_11_ATTEMPT2_FIXED_CREATE_ONLY_EVIDENCE")
+    check('attempt_id=ATTEMPT_ID' in physical_entry
+          and 'stage8.11.attempt2' in acceptance
+          and 'intent_prefix = attempt_id or "stage8.11"' in acceptance
+          and 'stage8_11_physical_acceptance_attempt2.json' in physical_wrapper
+          and 'stage8_11_physical_acceptance.json"' not in physical_wrapper,
+          "STAGE8_11_ATTEMPT2_DISTINCT_FIXED_INTENT_AND_WRAPPER_BINDING")
+    check('FAILED_PHYSICAL_EVIDENCE_SHA256 = "9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324"' in recovery
+          and 'HISTORICAL_INTENT_KEY = "stage8.11:CNYRUBF:entry"' in recovery
+          and all("stage8.11.attempt2" in doc and "did not execute the retry" in doc
+                  for doc in authoritative_docs),
+          "STAGE8_11_ATTEMPT1_IMMUTABLE_ATTEMPT2_PREPARED_ONLY")
     physical_tree=ast.parse(physical_entry)
     lifecycle_calls=[node for node in ast.walk(physical_tree) if isinstance(node,ast.Call)
                      and getattr(node.func,"id",None)=="run_controlled_lifecycle"]

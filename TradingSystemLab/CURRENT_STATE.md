@@ -23,6 +23,8 @@ Corrective code distinguishes acknowledged, definitive rejection, and uncertain 
 
 The recovery was repository-external `REAL_READONLY` evidence work only: it submitted no order, performed no cancellation, and did not retry physical acceptance. Stage 8.11 is closed while its aggregate result remains `STAGE_8_11_CONTROLLED_REAL_EXECUTION_ACCEPTANCE_NOT_YET_PASSED`. The kill switch remains `HALTED`, the Scheduled Task remains `Disabled`, and Stage 8.12 was neither started nor authorized. Any future physical retry requires a new explicit operator authorization.
 
+The fixed `stage8.11.attempt2` code path is now prepared for the already-authorized second bounded Stage 8.11 retry. It uses distinct attempt-scoped ledger keys and create-only `stage8_11_physical_acceptance_attempt2.json` evidence. This preparation did not execute the retry, authenticate trading credentials, submit or alter any broker order, change the historical result, or start Stage 8.12.
+
 
 ## Current handoff
 
