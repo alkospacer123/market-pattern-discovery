@@ -81,7 +81,7 @@ PROTECTED_SHA256 = {
     "TradingSystemLab/stage8_robot/readonly_supervisor.py": "1455fee5fe207c617676a0463ce3034247c5534578555cac293807da22bcaab8",
     "TradingSystemLab/stage8_robot/finam_api.py": "9869bef3583cab033181aa0f268bf960409aeaf3000c1728a62f2bc501d84311",
     "TradingSystemLab/stage8_robot/operations.py": "1a9c24b9eae666112cc215946cd41166e8f1d425c471393832a9d45b9bb0f783",
-    "TradingSystemLab/stage8_robot/backup_state.py": "ce055584fba17a3ce7160e7ccf312bc6ac8d69589ca14e8841078999c3757ba4",
+    "TradingSystemLab/stage8_robot/backup_state.py": "a841ca6d8090a893157bb87bf0ee47101c79c398b7b36e06259a7d33cf0977cd",
     "TradingSystemLab/stage8_robot/restore_state.py": "ff6adb1503e0edd53c6c3c749e4bcc3afa56b8f56042703c3000a246cd94b2cd",
     "TradingSystemLab/stage8_robot/production_instrument_registry.csv": "90d64e16dfeb292b4b339ac3eb196074e133bf52a962cc6715c488a32d16e013",
     "TradingSystemLab/stage8_robot/margin.py": "05c1c44eb199dccb126d533bdd1f4389ff78ce53d920f2b6bec967155964339e",
@@ -778,9 +778,20 @@ def audit(
     check("evaluate_new_entry_gate" in intel_precheck and "execution_authorized=False" in intel_precheck
           and 'EXPECTED_GATE_REASONS = ["KILL_SWITCH_HALTED", "EXECUTION_NOT_AUTHORIZED"]' in intel_precheck,
           "STAGE_8_11_INTEL_EXISTING_SAFETY_GATE_EXACT_BLOCKERS")
-    check("readonly_unresolved_intent_count" in intel_precheck and "canonical_unresolved_intents" in intel_precheck
-          and "readonly-supervisor.sqlite3" in intel_precheck,
-          "STAGE_8_11_INTEL_CANONICAL_SQLITE_INTENTS")
+    state_source=text("TradingSystemLab/stage8_robot/state.py")
+    acceptance_source=text("TradingSystemLab/stage8_robot/controlled_real_acceptance.py")
+    precheck_tests=text("TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py")
+    check("stage8_11_acceptance_path" in intel_precheck and "readonly_unresolved_intent_count(acceptance_path)" in intel_precheck
+          and 'STAGE8_11_ACCEPTANCE_DATABASE = "stage8-11-acceptance.sqlite3"' in state_source
+          and 'SUPERVISOR_DATABASE = "readonly-supervisor.sqlite3"' in state_source,
+          "STAGE_8_11_SEPARATE_PERSISTENCE_AUTHORITIES")
+    check("canonical_controlled_acceptance_broker" in acceptance_source
+          and "stage8_11_acceptance_path(runtime_root)" in acceptance_source,
+          "STAGE_8_11_PRECHECK_AND_ACCEPTANCE_SHARED_LEDGER")
+    check("OperationalState(root/\"state/readonly-supervisor.sqlite3\")" in precheck_tests
+          and "StateStore(root/\"state/readonly-supervisor.sqlite3\")" not in precheck_tests
+          and '== {"operational_state"}' in precheck_tests,
+          "STAGE_8_11_PRODUCTION_REALISTIC_SUPERVISOR_FIXTURE")
     check('f"{instrument}@RTSX"' not in intel_precheck and "load_registry(registry_path)" in intel_precheck
           and "AUTHENTICATED_REAL_READONLY" in intel_precheck and 'trading_status != "TRADABLE"' in intel_precheck,
           "STAGE_8_11_INTEL_FROZEN_REGISTRY_SYMBOL")

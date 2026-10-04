@@ -6,7 +6,9 @@ import pytest
 
 from TradingSystemLab.stage8_robot.stage8_11_intel_acceptance import MODE, PrecheckBlocked, precheck_only, select_candidate
 from TradingSystemLab.stage8_robot.specification import PRODUCTION_SPECIFICATION_ID
-from TradingSystemLab.stage8_robot.state import StateStore
+from TradingSystemLab.stage8_robot.readonly_supervisor import OperationalState
+from TradingSystemLab.stage8_robot.state import (StateStore, initialize_stage8_11_acceptance_ledger,
+                                                  stage8_11_acceptance_path)
 from TradingSystemLab.stage8_robot.trading_safety_gate import heartbeat_path, load_kill_switch, write_kill_switch
 
 ACCOUNT="private-account"; HASH=hashlib.sha256(ACCOUNT.encode()).hexdigest(); NOW=datetime(2026,1,2,tzinfo=timezone.utc)
@@ -23,7 +25,8 @@ def runtime(tmp_path, **changes):
       "last_successful_finam_api_contact":NOW.isoformat()}
     payload.update(changes); path=heartbeat_path(root); path.parent.mkdir(parents=True,exist_ok=True); path.write_text(json.dumps(payload))
     (root/"state").mkdir(parents=True,exist_ok=True)
-    store=StateStore(root/"state/readonly-supervisor.sqlite3"); store.close()
+    operational=OperationalState(root/"state/readonly-supervisor.sqlite3"); operational.close()
+    initialize_stage8_11_acceptance_ledger(root,ACCOUNT)
     return root
 
 def funding(**changes):
@@ -93,10 +96,11 @@ def test_routine_entrypoints_remain_unaffected():
 def test_complete_existing_safety_gate_blocks(tmp_path,change):
     with pytest.raises(PrecheckBlocked,match="SAFETY_GATE_BLOCKED"): run(tmp_path,**change)
 
-@pytest.mark.parametrize("status,passes",[("INTENT_PERSISTED",False),("UNCERTAIN",False),("ACK",False),
-                                            ("FILL",False),("RECONCILED",True)])
+@pytest.mark.parametrize("status,passes",[("INTENT_PERSISTED",False),("SUBMITTED",False),("UNCERTAIN",False),
+    ("ACK",False),("PARTIAL_FILL",False),("FILL",False),("CANCELLED",True),("REJECTED",True),
+    ("CLOSED",True),("RECONCILED",True)])
 def test_canonical_intent_terminal_semantics(tmp_path,status,passes):
-    root=runtime(tmp_path); store=StateStore(root/"state/readonly-supervisor.sqlite3")
+    root=runtime(tmp_path); store=StateStore(stage8_11_acceptance_path(root))
     store.persist_intent("intent",{}); store.transition_intent("intent",status); store.close()
     kwargs=dict(api=ReadOnlyAPI(),account_id=ACCOUNT,runtime_root=root,direction="LONG",
                 external_evidence_sha256="a"*64,accepted_commit="c"*40,funding_collector=lambda *_a,**_k:funding(),now=NOW)
@@ -104,14 +108,37 @@ def test_canonical_intent_terminal_semantics(tmp_path,status,passes):
     else:
         with pytest.raises(PrecheckBlocked,match="CANONICAL_UNRESOLVED"): precheck_only(**kwargs)
 
-@pytest.mark.parametrize("kind",["missing","malformed","schema"])
+@pytest.mark.parametrize("kind",["malformed","schema"])
 def test_canonical_database_failure_blocks(tmp_path,kind):
-    root=runtime(tmp_path); db=root/"state/readonly-supervisor.sqlite3"; db.unlink()
+    root=runtime(tmp_path); db=stage8_11_acceptance_path(root); db.unlink()
     if kind=="malformed": db.write_text("not sqlite")
     elif kind=="schema":
         import sqlite3
         connection=sqlite3.connect(db); connection.execute("CREATE TABLE other(value TEXT)"); connection.close()
     with pytest.raises(PrecheckBlocked,match="CANONICAL_INTENTS_INVALID"):
+        precheck_only(api=ReadOnlyAPI(),account_id=ACCOUNT,runtime_root=root,direction="LONG",
+          external_evidence_sha256="a"*64,accepted_commit="c"*40,funding_collector=lambda *_a,**_k:funding(),now=NOW)
+
+def test_intel_production_schema_regression_uses_separate_authorities(tmp_path):
+    root=runtime(tmp_path)
+    import sqlite3
+    supervisor=root/"state/readonly-supervisor.sqlite3"
+    with sqlite3.connect(supervisor) as connection:
+        assert {r[0] for r in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")} == {"operational_state"}
+    result,_=run(tmp_path)
+    assert result["canonical_unresolved_intents"] == 0
+    assert result["acceptance_ledger_authority"] == "stage8-11-acceptance.sqlite3"
+
+def test_missing_acceptance_ledger_is_initialized_locally(tmp_path):
+    root=runtime(tmp_path); stage8_11_acceptance_path(root).unlink()
+    result=precheck_only(api=ReadOnlyAPI(),account_id=ACCOUNT,runtime_root=root,direction="LONG",
+      external_evidence_sha256="a"*64,accepted_commit="c"*40,funding_collector=lambda *_a,**_k:funding(),now=NOW)
+    assert result["canonical_unresolved_intents"] == 0
+
+def test_unknown_intent_status_fails_closed(tmp_path):
+    root=runtime(tmp_path); store=StateStore(stage8_11_acceptance_path(root)); store.persist_intent("x",{})
+    store.db.execute("UPDATE intents SET status='UNKNOWN'"); store.db.commit(); store.close()
+    with pytest.raises(PrecheckBlocked,match="CANONICAL_UNRESOLVED"):
         precheck_only(api=ReadOnlyAPI(),account_id=ACCOUNT,runtime_root=root,direction="LONG",
           external_evidence_sha256="a"*64,accepted_commit="c"*40,funding_collector=lambda *_a,**_k:funding(),now=NOW)
 

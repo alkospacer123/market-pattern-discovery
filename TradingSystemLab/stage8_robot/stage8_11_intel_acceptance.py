@@ -21,7 +21,8 @@ from .funding_margin_diagnostic import READY, run as collect_funding_authority
 from .instrument_resolver import N4, load_registry
 from .operations import InstanceLock
 from .specification import PRODUCTION_SPECIFICATION_ID
-from .state import readonly_unresolved_intent_count
+from .state import (SUPERVISOR_DATABASE, initialize_stage8_11_acceptance_ledger,
+                    readonly_unresolved_intent_count, stage8_11_acceptance_path)
 from .trading_safety_gate import evaluate_new_entry_gate, heartbeat_path
 
 MODE = "STAGE8_11_PRECHECK_ONLY"
@@ -32,8 +33,8 @@ REPORT_NAME = "stage8_11_intel_precheck.json"
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 ALLOWED_DIRECTIONS = frozenset({"LONG", "SHORT"})
 REGISTRY = Path(__file__).with_name("production_instrument_registry.csv")
-CANONICAL_STATE = Path("state") / "readonly-supervisor.sqlite3"
 EXPECTED_GATE_REASONS = ["KILL_SWITCH_HALTED", "EXECUTION_NOT_AUTHORIZED"]
+AUTHORITY_PROVENANCE = Path(__file__).with_name("authority_provenance.json")
 
 
 class PrecheckBlocked(RuntimeError):
@@ -82,12 +83,22 @@ def recovery_implementation_available() -> bool:
     return all(token in source for token in required)
 
 
+def stage8_10_authority_complete(path:Path=AUTHORITY_PROVENANCE)->bool:
+    """Read the immutable machine authority rather than asserting completion."""
+    try:
+        authority=json.loads(path.read_text(encoding="utf-8"))
+        gate=authority["stage8_10_8"]
+        return gate.get("status")==STAGE8_10 and gate.get("stage8_10_complete") is True
+    except (OSError,ValueError,KeyError,TypeError): return False
+
+
 def precheck_only(*, api: Any, account_id: str, runtime_root: Path, direction: str,
                   external_evidence_sha256: str, accepted_commit: str,
                   funding_collector: Callable[..., dict] = collect_funding_authority,
                   now: datetime | None = None, registry_path: Path = REGISTRY) -> dict[str, Any]:
     """Perform read/session preflight; the object passed here need not expose POST methods."""
     observed_now = now or datetime.now(timezone.utc)
+    if not stage8_10_authority_complete(): _fail("STAGE8_11_STAGE8_10_AUTHORITY_INVALID")
     gate = evaluate_new_entry_gate(runtime_root=runtime_root, now=observed_now,
                                    execution_authorized=False)
     if gate.get("reason_codes") != EXPECTED_GATE_REASONS:
@@ -95,7 +106,11 @@ def precheck_only(*, api: Any, account_id: str, runtime_root: Path, direction: s
     heartbeat = json.loads(heartbeat_path(runtime_root).read_text(encoding="utf-8"))
     account_hash = hashlib.sha256(account_id.encode()).hexdigest()
     if heartbeat.get("account_hash") != account_hash: _fail("STAGE8_11_ACCOUNT_MISMATCH")
-    try: canonical_unresolved = readonly_unresolved_intent_count(runtime_root / CANONICAL_STATE)
+    try:
+        acceptance_path=initialize_stage8_11_acceptance_ledger(runtime_root,account_id)
+        if acceptance_path.resolve() == (runtime_root/"state"/SUPERVISOR_DATABASE).resolve():
+            _fail("STAGE8_11_PERSISTENCE_AUTHORITIES_COLLIDE")
+        canonical_unresolved = readonly_unresolved_intent_count(acceptance_path)
     except Exception: _fail("STAGE8_11_CANONICAL_INTENTS_INVALID")
     if canonical_unresolved != 0: _fail("STAGE8_11_CANONICAL_UNRESOLVED_INTENTS")
     report = funding_collector(api, account_id, None, required_readonly=False)
@@ -118,7 +133,8 @@ def precheck_only(*, api: Any, account_id: str, runtime_root: Path, direction: s
         "accepted_code_commit":accepted_commit, "production_specification_id":PRODUCTION_SPECIFICATION_ID,
         "sanitized_account_hash":account_hash, "selected_n4_instrument":instrument,
         "prospective_direction":direction, "resolved_finam_symbol":symbol,
-        "stage8_10_authority":"PASS", "dpapi_authority":"PASS",
+        "stage8_10_authority":"PASS", "acceptance_ledger_authority":stage8_11_acceptance_path(runtime_root).name,
+        "dpapi_authority":"PASS",
         "session_write_capable":"PASS", "account_binding":"PASS", "reconciliation":"PASS",
         "active_orders":0, "unresolved_intents":0, "canonical_unresolved_intents":canonical_unresolved,
         "safety_gate_reason_codes":gate["reason_codes"], "instrument_binding":"PASS", "tradable":"PASS",

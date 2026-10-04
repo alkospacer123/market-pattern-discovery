@@ -11,12 +11,15 @@ from pathlib import Path
 try:
     from .operations import prune_backups, sqlite_backup, validate_operational_database
     from .specification import PRODUCTION_SPECIFICATION_ID
+    from .state import initialize_stage8_11_acceptance_ledger
 except ImportError:  # pragma: no cover - permits direct operator invocation
     from operations import prune_backups, sqlite_backup, validate_operational_database
     from specification import PRODUCTION_SPECIFICATION_ID
+    from state import initialize_stage8_11_acceptance_ledger
 
 BACKUP_MANIFEST_SCHEMA = "stage8-readonly-sqlite-backup/v1"
 SUPERVISOR_DATABASE = "readonly-supervisor.sqlite3"
+ACCEPTANCE_BACKUP_MANIFEST_SCHEMA = "stage8-11-acceptance-sqlite-backup/v1"
 
 
 def sha256_file(path: Path) -> str:
@@ -64,6 +67,30 @@ def create_production_backup(
         backup.unlink(missing_ok=True)
         raise
     return backup, manifest
+
+
+def create_stage8_11_acceptance_backup(runtime_root:Path,account_id:str,*,
+                                       created_at:datetime|None=None)->tuple[Path,Path]:
+    """Independently back up the validated ledger before a later physical run."""
+    root=Path(runtime_root); source=initialize_stage8_11_acceptance_ledger(root,account_id)
+    directory=root/"backups"/"stage8-11-acceptance"
+    if directory.is_symlink(): raise RuntimeError("ACCEPTANCE_BACKUP_PATH_INVALID")
+    directory.mkdir(parents=True,exist_ok=True)
+    now=(created_at or datetime.now(timezone.utc)).astimezone(timezone.utc)
+    backup=directory/f"stage8-11-acceptance-{now.strftime('%Y%m%dT%H%M%S.%fZ')}.sqlite3"
+    manifest=backup.with_name(backup.name+".manifest.json")
+    if backup.exists() or manifest.exists(): raise RuntimeError("ACCEPTANCE_BACKUP_DESTINATION_INVALID")
+    sqlite_backup(source,backup)
+    payload={"backup_filename":backup.name,"created_at_utc":now.isoformat().replace("+00:00","Z"),
+             "production_specification_id":PRODUCTION_SPECIFICATION_ID,
+             "schema":ACCEPTANCE_BACKUP_MANIFEST_SCHEMA,"sha256":sha256_file(backup)}
+    temporary=manifest.with_suffix(manifest.suffix+".incomplete")
+    try:
+        temporary.write_text(json.dumps(payload,sort_keys=True,separators=(",",":"))+"\n",encoding="utf-8")
+        os.replace(temporary,manifest)
+    except Exception:
+        temporary.unlink(missing_ok=True); manifest.unlink(missing_ok=True); backup.unlink(missing_ok=True); raise
+    return backup,manifest
 
 
 def main(argv: list[str] | None = None) -> int:

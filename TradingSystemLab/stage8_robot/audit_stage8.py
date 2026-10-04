@@ -268,9 +268,18 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     check("evaluate_new_entry_gate" in intel_precheck and "execution_authorized=False" in intel_precheck
           and 'EXPECTED_GATE_REASONS = ["KILL_SWITCH_HALTED", "EXECUTION_NOT_AUTHORIZED"]' in intel_precheck,
           "STAGE_8_11_INTEL_EXISTING_SAFETY_GATE_EXACT_BLOCKERS")
-    check("readonly_unresolved_intent_count" in intel_precheck and "canonical_unresolved_intents" in intel_precheck
-          and "readonly-supervisor.sqlite3" in intel_precheck,
-          "STAGE_8_11_INTEL_CANONICAL_SQLITE_INTENTS")
+    state_source=document("state.py",HERE/"state.py")
+    precheck_tests=document("tests/test_stage8_11_intel_acceptance.py",HERE/"tests/test_stage8_11_intel_acceptance.py")
+    check("stage8_11_acceptance_path" in intel_precheck and "readonly_unresolved_intent_count(acceptance_path)" in intel_precheck
+          and 'STAGE8_11_ACCEPTANCE_DATABASE = "stage8-11-acceptance.sqlite3"' in state_source
+          and 'SUPERVISOR_DATABASE = "readonly-supervisor.sqlite3"' in state_source,
+          "STAGE_8_11_SEPARATE_PERSISTENCE_AUTHORITIES")
+    check("canonical_controlled_acceptance_broker" in acceptance and "stage8_11_acceptance_path(runtime_root)" in acceptance,
+          "STAGE_8_11_PRECHECK_AND_ACCEPTANCE_SHARED_LEDGER")
+    check("OperationalState(root/\"state/readonly-supervisor.sqlite3\")" in precheck_tests
+          and "StateStore(root/\"state/readonly-supervisor.sqlite3\")" not in precheck_tests
+          and '== {"operational_state"}' in precheck_tests,
+          "STAGE_8_11_PRODUCTION_REALISTIC_SUPERVISOR_FIXTURE")
     check('f"{instrument}@RTSX"' not in intel_precheck and "load_registry(registry_path)" in intel_precheck
           and "AUTHENTICATED_REAL_READONLY" in intel_precheck and 'trading_status != "TRADABLE"' in intel_precheck,
           "STAGE_8_11_INTEL_FROZEN_REGISTRY_SYMBOL")

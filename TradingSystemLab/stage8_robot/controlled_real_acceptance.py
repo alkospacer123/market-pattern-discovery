@@ -19,7 +19,7 @@ from .broker import OrderRequest, broker_side, compact_client_order_id
 from .finam_api import CLIENT_ORDER_ID_MAX_LENGTH, MARKET_ORDER_TYPE, FinamUncertainSubmission
 from .instrument_resolver import load_registry
 from .specification import ACTIVE_IDENTITY, INSTRUMENTS, PRODUCTION_SPECIFICATION_ID, load_frozen_specification
-from .state import StateStore
+from .state import StateStore, initialize_stage8_11_acceptance_ledger, stage8_11_acceptance_path
 from .trading_safety_gate import emergency_halt, evaluate_new_entry_gate, heartbeat_path
 
 STAGE8_10_AUTHORITY = "STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE"
@@ -216,6 +216,18 @@ class ControlledAcceptanceBroker:
         if not order_id:
             raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
         return self.api.cancel_order(self.account_id, order_id)
+
+
+def canonical_controlled_acceptance_broker(*, api:object, account_id:str,
+                                           runtime_root:Path)->ControlledAcceptanceBroker:
+    """Back up and construct the adapter only with the canonical ledger."""
+    path=initialize_stage8_11_acceptance_ledger(runtime_root,account_id)
+    if path.resolve()!=stage8_11_acceptance_path(runtime_root).resolve():
+        raise AcceptanceBlocked("ACCEPTANCE_LEDGER_AUTHORITY_INVALID")
+    # Local import avoids coupling the order-incapable PRECHECK to backup/execution code.
+    from .backup_state import create_stage8_11_acceptance_backup
+    create_stage8_11_acceptance_backup(runtime_root,account_id)
+    return ControlledAcceptanceBroker(api,account_id,_digest(account_id),StateStore(path))
 
 
 def _rows(response: Any, key: str) -> list[dict[str, Any]]:
