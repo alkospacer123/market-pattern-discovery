@@ -1,5 +1,5 @@
 {
-  "as_of_utc": "2026-10-03",
+  "as_of_utc": "2026-10-04",
   "binding_status": "AUTHENTICATED_REAL_READONLY",
   "finam": {
     "api_version": "v1",
@@ -294,12 +294,79 @@
     "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
   },
   "stage8_11": {
-    "status": "IN_PROGRESS_CODE_READY_PENDING_PHYSICAL_ACCEPTANCE",
-    "last_physical_precheck_result": "BLOCKED_CANONICAL_INTENT_LEDGER_AUTHORITY_MISMATCH",
-    "production_finding": "STAGE8_11_CANONICAL_INTENTS_INVALID",
+    "status": "STAGE_8_11_2_INDEPENDENT_PRECHECK_EVIDENCE_AUDIT_PASS",
+    "stage8_11_0_status": "COMPLETE",
+    "stage8_11_1_status": "COMPLETE_PASS",
+    "stage8_11_2_status": "COMPLETE_PASS",
+    "stage8_11_3_status": "NOT_AUTHORIZED",
+    "current_gate": "EXPLICIT_ONE_CONTRACT_AUTHORIZATION",
+    "latest_physical_precheck_result": "STAGE8_11_PRECHECK_ONLY_PASS",
+    "physical_precheck": {
+      "schema_id": "stage8_11_intel_precheck.v1",
+      "mode": "STAGE8_11_PRECHECK_ONLY",
+      "accepted_code_commit": "9be31f1723877a9c542f89027052570425f7e976",
+      "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+      "report_path_external": "runtime/diagnostics/stage8_11_intel_precheck.json",
+      "report_sha256": "7171B7CD0098FF51159DC05C46C0326BF7F412A2D9EA0CBB3F9BDAFBE7745455",
+      "acceptance_ledger_path_external": "runtime/state/stage8-11-acceptance.sqlite3",
+      "acceptance_ledger_sha256_observed": "A83C93733321C696225F606A5DBE584413915DA3C46C2B4A261091EC85B7C354",
+      "stage8_10_authority": "PASS",
+      "dpapi_authority": "PASS",
+      "trading_session_write_capable_boundary": "PASS",
+      "account_binding": "PASS",
+      "reconciliation": "PASS",
+      "active_orders": 0,
+      "canonical_unresolved_acceptance_intents": 0,
+      "unresolved_broker_intents_orders": 0,
+      "instrument_binding": "PASS",
+      "tradable": "PASS",
+      "recovery_readiness": "PASS",
+      "r15_permits_at_least_one_contract": true,
+      "margin_permits_at_least_one_contract": true,
+      "acceptance_quantity": 1,
+      "execution_authorized": false,
+      "order_endpoint_call_count": 0,
+      "real_order_count": 0,
+      "kill_switch": "HALTED",
+      "safety_gate_reasons": ["KILL_SWITCH_HALTED", "EXECUTION_NOT_AUTHORIZED"],
+      "additional_safety_gate_blockers": [],
+      "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
+    },
+    "heartbeat_authority": {
+      "cycle_count": 23,
+      "health_status": "HEALTHY",
+      "reconciliation_status": "PASS",
+      "consecutive_failures": 0,
+      "entries_enabled": false,
+      "unresolved_order_count": 0,
+      "last_completed_h1_timestamp": "2026-10-04T10:00:00+00:00",
+      "last_successful_finam_api_contact": "2026-10-04T11:58:57.828648+00:00",
+      "heartbeat_timestamp": "2026-10-04T11:59:01.549910+00:00",
+      "account_sha256": "a113cd66fb2aff5583ddebb480bacf71876cf4f7c10e7209ac6330ccec456826",
+      "supervisor_cycle_mode": "REAL_READONLY_ORDER_INCAPABLE"
+    },
+    "operational_candidate": {
+      "research_symbol": "CNYRUBF",
+      "finam_symbol": "CNYRUBF@RTSX",
+      "prospective_direction": "LONG",
+      "acceptance_quantity": 1,
+      "frozen_feasibility_order": ["USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF"],
+      "classification": "OPERATIONAL_PHYSICAL_ACCEPTANCE_CANDIDATE_ONLY_NOT_A_TRADING_SIGNAL_OR_PERFORMANCE_SELECTION"
+    },
+    "independent_evidence_audit": {
+      "result": "STAGE_8_11_2_INDEPENDENT_PRECHECK_EVIDENCE_AUDIT_PASS",
+      "report_sha256_reconstructed_from_displayed_canonical_json": true,
+      "acceptance_ledger_sha256_physically_observed": true,
+      "acceptance_ledger_binary_independently_rehashed_off_intel_host": false,
+      "scheduled_task": "Disabled"
+    },
+    "historical_failed_prechecks": [
+      {"result": "STAGE8_11_SAFETY_GATE_BLOCKED", "reason": "stale heartbeat / stale FINAM contact after intentional supervisor stop", "resolution": "fresh order-incapable REAL_READONLY cycle removed transient freshness blockers"},
+      {"result": "STAGE8_11_CANONICAL_INTENTS_INVALID", "classification": "BLOCKED_CANONICAL_INTENT_LEDGER_AUTHORITY_MISMATCH", "reason": "PR #356 incorrectly treated readonly-supervisor.sqlite3 OperationalState as a StateStore intent ledger", "resolution": "dedicated stage8-11-acceptance.sqlite3 authority"}
+    ],
     "persistence_authority_correction": {
       "reason": "PR #356 precheck treated the OperationalState supervisor database as a StateStore intent ledger",
-      "status": "CODE_READINESS_CORRECTION_COMPLETE_PHYSICAL_PRECHECK_NOT_YET_RERUN"
+      "status": "COMPLETE"
     },
     "historical_predecessor_precheck_code_authority": {
       "pull_request": 356,
@@ -312,6 +379,12 @@
       "base": "ea090d99266d5dae808c03024f327c41fb8b9170",
       "head": "60e3f72dae3a08eeb3ba8c756861efbb4c4f28e7",
       "merge": "f29053e2c4b5f687115f0a5b12f582e822b60ea1"
+    },
+    "exact_ledger_schema_hardening_authority": {
+      "pull_request": 358,
+      "base": "f29053e2c4b5f687115f0a5b12f582e822b60ea1",
+      "head": "40fcf6f5c165e8bd64b128949358aa7475521f1b",
+      "merge": "9be31f1723877a9c542f89027052570425f7e976"
     },
     "intel_precheck_code_authority": {
       "pull_request": 355,
@@ -327,8 +400,15 @@
       "merge": "3017624559441e1513c70324e62bd8a895383900"
     },
     "execution_authorized": false,
+    "order_endpoint_call_count": 0,
     "real_order_count": 0,
     "production_kill_switch_final_state": "HALTED",
+    "scheduled_task": "Disabled",
+    "stage8_11_4_status": "NOT_STARTED",
+    "stage8_11_5_status": "NOT_STARTED",
+    "stage8_11_6_status": "NOT_STARTED",
+    "stage8_11_7_status": "NOT_STARTED",
+    "stage8_11_8_status": "NOT_STARTED",
     "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
   }
 }

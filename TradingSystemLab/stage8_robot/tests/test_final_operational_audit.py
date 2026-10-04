@@ -685,8 +685,8 @@ def test_stage_8_10_6_physical_report_contract_mutations_fail_semantic_audits(fi
 def test_later_execution_stages_started_or_authorized_fail():
     path = "TradingSystemLab/CURRENT_STATE.md"
     for old, replacement, error in (
-            ("Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**",
-             "Stage 8.11 is **STARTED / AUTHORIZED**", "STAGE_8_11_CODE_READY_PENDING_PHYSICAL_ACCEPTANCE"),
+            ("Stage 8.11.3 is **NOT AUTHORIZED**",
+             "Stage 8.11.3 is **AUTHORIZED**", "STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED"),
             ("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**",
              "Stage 8.12 is **STARTED / AUTHORIZED**", "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")):
         result = run_audit({path: source(path).replace(
@@ -926,7 +926,7 @@ def test_stage_8_10_closeout_document_regressions_fail():
         mutations = (
             original.replace("Stage 8.10 is **COMPLETE**", "Stage 8.10 is **IN PROGRESS**"),
             original.replace("Stage 8.10.8 is **COMPLETE**", "Stage 8.10.8 is **NOT STARTED**"),
-            original.replace("Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**", "Stage 8.11 is **AUTHORIZED**"),
+            original.replace("Stage 8.11.3 is **NOT AUTHORIZED**", "Stage 8.11.3 is **AUTHORIZED**"),
             original.replace("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**", "Stage 8.12 is **STARTED**"),
             original.replace(final.STAGE_8_10_COMPLETE_STATUS, "WRONG_CLOSEOUT_STATUS"),
         )
@@ -974,10 +974,10 @@ def test_stage_8_10_semantic_document_regressions_fail_both_audits(
 def test_stage_8_10_current_handoff_stale_gate_and_omission_fail_both_audits(path):
     original = source(path)
     stale = original.replace(
-        "The current lifecycle gate is Stage 8.11 physical acceptance",
+        "The current lifecycle gate is **Stage 8.11.3 — Explicit One-Contract Authorization**",
         "Stage 8.10 is COMPLETE, but the next possible lifecycle gate is Stage 8.10.5")
     _assert_document_mutation_fails_both(path, stale, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
-    omitted = original.replace("Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**", "")
+    omitted = original.replace("Stage 8.11.3 is **NOT AUTHORIZED**", "")
     _assert_document_mutation_fails_both(path, omitted, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
 
 
@@ -1050,7 +1050,28 @@ def test_stage811_pr357_provenance_mutation_fails_both_audits():
     mutated=source(path).replace('"pull_request": 357','"pull_request": 356',1)
     independent=stage8.audit(write_result=False,authority_text=mutated)
     operational=run_audit({path:mutated})
-    error="STAGE_8_11_PR357_CURRENT_AUTHORITY_AND_BLOCKED_HISTORY"
+    error="STAGE_8_11_LIFECYCLE_EVIDENCE_CLOSEOUT"
+    assert error in independent["errors"]
+    assert error in operational["errors"]
+
+
+@pytest.mark.parametrize("field,value", [
+    ("stage8_11_1_status", "NOT_RUN"),
+    ("stage8_11_2_status", "NOT_COMPLETE"),
+    ("stage8_11_3_status", "AUTHORIZED"),
+    ("latest_physical_precheck_result", "STAGE8_11_SAFETY_GATE_BLOCKED"),
+    ("real_order_count", 1),
+    ("production_kill_switch_final_state", "ARMED"),
+    ("stage8_12_status", "STARTED_AUTHORIZED"),
+])
+def test_stage811_lifecycle_closeout_mutations_fail_both_audits(field,value):
+    path="TradingSystemLab/stage8_robot/authority_provenance.json"
+    authority=json.loads(source(path))
+    authority["stage8_11"][field]=value
+    mutated=json.dumps(authority)
+    independent=stage8.audit(write_result=False,authority_text=mutated)
+    operational=run_audit({path:mutated})
+    error="STAGE_8_11_LIFECYCLE_EVIDENCE_CLOSEOUT"
     assert error in independent["errors"]
     assert error in operational["errors"]
 
