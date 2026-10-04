@@ -483,6 +483,14 @@
     "record": "STAGE8_11_FIRST_PHYSICAL_ATTEMPT_FAILED_HTTP_400",
     "requested_quantity": 1,
     "retry_occurred": false,
-    "scheduled_task": "Disabled"
+    "scheduled_task": "Disabled",
+    "corrective_safety_controls": {
+      "per_post_clock_authority": "FRESH_UTC_OBSERVATION_IMMEDIATELY_BEFORE_EACH_POST",
+      "entry_minimum_remaining_session_seconds": 300,
+      "entry_margin_authority": "LIVE_FINAM_SCHEDULE_ONLY",
+      "post_entry_session_closure": "OPERATOR_INTERVENTION_REQUIRED",
+      "historical_recovery": "ORDER_INCAPABLE_REAL_READONLY_PENDING_INDEPENDENT_AUDIT",
+      "recovery_commit_protocol": "DURABLE_PREPARED_EVIDENCE_THEN_SQLITE_COMMIT_THEN_SUCCESS_FINALIZATION"
+    }
   }
 }

@@ -14,7 +14,7 @@ import json
 import os
 from pathlib import Path
 import tempfile
-from typing import Any
+from typing import Any, Callable
 
 from .backup_state import create_stage8_11_acceptance_backup, sha256_file
 from .controlled_real_acceptance import ACTIVE, _decimal_contracts, _rows, _status
@@ -27,6 +27,7 @@ HISTORICAL_INTENT_KEY = "stage8.11:CNYRUBF:entry"
 FINAM_SYMBOL = "CNYRUBF@RTSX"
 RECOVERY_EVIDENCE_NAME = "stage8_11_failed_attempt_recovery.json"
 RECOVERY_SCHEMA = "stage8_11_failed_attempt_recovery.v1"
+RECOVERY_PREPARED_SUFFIX = ".prepared"
 
 
 class RecoveryBlocked(RuntimeError):
@@ -53,11 +54,30 @@ def _write_new_json(path: Path, payload: dict[str, Any]) -> None:
         temporary.unlink(missing_ok=True)
 
 
+def _load_prepared(path: Path) -> dict[str, Any]:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        raise RecoveryBlocked("RECOVERY_PREPARED_EVIDENCE_INVALID") from None
+    if not isinstance(value, dict) or value.get("recovery_status") != "PREPARED":
+        raise RecoveryBlocked("RECOVERY_PREPARED_EVIDENCE_INVALID")
+    return value
+
+
 def recover_historical_intent(*, runtime_root: Path, account_id: str, readonly_api: object,
                               accepted_commit: str, physical_evidence: Path,
                               physical_evidence_sha256: str, intent_key: str,
-                              now: datetime | None = None) -> dict[str, Any]:
-    """Close only the bound historical intent after a fresh clean-account proof."""
+                              now: datetime | None = None,
+                              fault_injector: Callable[[str], None] | None = None) -> dict[str, Any]:
+    """Close only the bound historical intent using a restartable commit protocol.
+
+    A durable PREPARED artifact (which explicitly does *not* claim recovery)
+    precedes the SQLite commit.  The success artifact is created only after that
+    commit.  If interrupted in between, the rejected row plus PREPARED artifact
+    is an incomplete protocol state that a later identical invocation can only
+    finalize; it can never be reported as successful prematurely.
+    """
+    inject = fault_injector or (lambda point: None)
     root = Path(runtime_root)
     if accepted_commit != ACCEPTED_PHYSICAL_COMMIT:
         raise RecoveryBlocked("RECOVERY_ACCEPTED_COMMIT_MISMATCH")
@@ -80,9 +100,14 @@ def recover_historical_intent(*, runtime_root: Path, account_id: str, readonly_a
         raise RecoveryBlocked("RECOVERY_CANONICAL_LEDGER_MISMATCH")
     store = StateStore(ledger)
     evidence_path = root / "diagnostics" / RECOVERY_EVIDENCE_NAME
+    prepared_path = evidence_path.with_name(evidence_path.name + RECOVERY_PREPARED_SUFFIX)
     try:
+        # The success target is immutable and must be absent before any backup
+        # or database mutation. A PREPARED file is only a resumable journal.
+        if evidence_path.exists():
+            raise RecoveryBlocked("RECOVERY_EVIDENCE_ALREADY_EXISTS")
         intent = store.intent(intent_key)
-        if (intent is None or intent.get("status") != "INTENT_PERSISTED"
+        if (intent is None or intent.get("status") not in {"INTENT_PERSISTED", "REJECTED"}
                 or intent.get("broker_order_id") is not None):
             raise RecoveryBlocked("RECOVERY_HISTORICAL_INTENT_STATE_MISMATCH")
         payload = intent.get("payload")
@@ -100,13 +125,79 @@ def recover_historical_intent(*, runtime_root: Path, account_id: str, readonly_a
         if any(_status(order.get("status")) in ACTIVE for order in orders):
             raise RecoveryBlocked("RECOVERY_BROKER_ACCOUNT_NOT_CLEAN")
 
-        backup, manifest = create_stage8_11_acceptance_backup(root, account_id, created_at=now)
-        store.transition_intent(intent_key, "REJECTED")
-        if store.unresolved_intent_count() != 0:
-            raise RecoveryBlocked("RECOVERY_UNRESOLVED_INTENTS_REMAIN")
         observed = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
+        if prepared_path.exists():
+            prepared = _load_prepared(prepared_path)
+            expected_prepared = {
+                "schema_id": RECOVERY_SCHEMA,
+                "recovery_status": "PREPARED",
+                "accepted_physical_code_commit": ACCEPTED_PHYSICAL_COMMIT,
+                "physical_evidence_sha256": FAILED_PHYSICAL_EVIDENCE_SHA256,
+                "intent_key": HISTORICAL_INTENT_KEY,
+                "account_identity_sha256": _account_hash(account_id),
+                "production_specification_id": PRODUCTION_SPECIFICATION_ID,
+                "active_identity": ACTIVE_IDENTITY,
+            }
+            if any(prepared.get(key) != value for key, value in expected_prepared.items()):
+                raise RecoveryBlocked("RECOVERY_PREPARED_EVIDENCE_AUTHORITY_MISMATCH")
+            backup = root / "backups" / "stage8-11-acceptance" / str(prepared.get("backup_filename", ""))
+            manifest = backup.with_name(str(prepared.get("backup_manifest_filename", "")))
+            if not backup.is_file() or not manifest.is_file():
+                raise RecoveryBlocked("RECOVERY_PREPARED_BACKUP_MISSING")
+            try:
+                manifest_payload = json.loads(manifest.read_text(encoding="utf-8"))
+            except (OSError, ValueError, TypeError):
+                raise RecoveryBlocked("RECOVERY_PREPARED_BACKUP_INVALID") from None
+            if (not isinstance(manifest_payload, dict)
+                    or manifest_payload.get("backup_filename") != backup.name
+                    or manifest_payload.get("sha256") != sha256_file(backup)):
+                raise RecoveryBlocked("RECOVERY_PREPARED_BACKUP_INVALID")
+        else:
+            inject("before_backup")
+            backup, manifest = create_stage8_11_acceptance_backup(root, account_id, created_at=now)
+            prepared = {
+                "schema_id": RECOVERY_SCHEMA,
+                "recovery_status": "PREPARED",
+                "accepted_physical_code_commit": ACCEPTED_PHYSICAL_COMMIT,
+                "physical_evidence_sha256": FAILED_PHYSICAL_EVIDENCE_SHA256,
+                "intent_key": HISTORICAL_INTENT_KEY,
+                "account_identity_sha256": _account_hash(account_id),
+                "production_specification_id": PRODUCTION_SPECIFICATION_ID,
+                "active_identity": ACTIVE_IDENTITY,
+                "backup_filename": backup.name,
+                "backup_manifest_filename": manifest.name,
+                "prepared_at_utc": observed.isoformat().replace("+00:00", "Z"),
+            }
+            _write_new_json(prepared_path, prepared)
+            inject("after_backup")
+
+        if intent["status"] == "INTENT_PERSISTED":
+            inject("before_sqlite_mutation")
+            try:
+                store.db.execute("BEGIN IMMEDIATE")
+                cursor = store.db.execute(
+                    "UPDATE intents SET status='REJECTED',updated_at=CURRENT_TIMESTAMP "
+                    "WHERE idempotency_key=? AND status='INTENT_PERSISTED' AND broker_order_id IS NULL",
+                    (intent_key,))
+                if cursor.rowcount != 1:
+                    raise RecoveryBlocked("RECOVERY_SQLITE_COMPARE_AND_SET_FAILED")
+                marks = ",".join("?" for _ in ("CANCELLED", "REJECTED", "CLOSED", "RECONCILED"))
+                unresolved = store.db.execute(
+                    f"SELECT COUNT(*) FROM intents WHERE status NOT IN ({marks})",
+                    ("CANCELLED", "REJECTED", "CLOSED", "RECONCILED")).fetchone()[0]
+                if unresolved != 0:
+                    raise RecoveryBlocked("RECOVERY_UNRESOLVED_INTENTS_REMAIN")
+                store.db.commit()
+            except Exception:
+                store.db.rollback()
+                raise
+            inject("after_sqlite_mutation")
+        elif not prepared_path.exists():  # defensive; REJECTED is resumable only with its journal
+            raise RecoveryBlocked("RECOVERY_REJECTED_WITHOUT_PREPARED_EVIDENCE")
+
         evidence = {
             "schema_id": RECOVERY_SCHEMA,
+            "recovery_status": "COMMITTED",
             "accepted_physical_code_commit": ACCEPTED_PHYSICAL_COMMIT,
             "physical_evidence_sha256": FAILED_PHYSICAL_EVIDENCE_SHA256,
             "intent_key": HISTORICAL_INTENT_KEY,
@@ -123,13 +214,16 @@ def recover_historical_intent(*, runtime_root: Path, account_id: str, readonly_a
             "backup_manifest_filename": manifest.name,
             "recovered_at_utc": observed.isoformat().replace("+00:00", "Z"),
         }
+        inject("during_evidence_finalization")
         _write_new_json(evidence_path, evidence)
+        prepared_path.unlink()
         return evidence
     finally:
         store.close()
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: list[str] | None = None, *,
+         api_factory: Callable[[str], object] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Order-incapable Stage 8.11 failed-attempt recovery")
     parser.add_argument("--runtime-root", type=Path, required=True)
     parser.add_argument("--account-id", required=True)
@@ -138,10 +232,30 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--physical-evidence-sha256", required=True)
     parser.add_argument("--intent-key", required=True)
     args = parser.parse_args(argv)
-    # Deliberately no credential loading here: the operator entrypoint must inject
-    # an already authenticated REAL_READONLY client via recover_historical_intent.
-    print("STAGE8_11_RECOVERY_REQUIRES_INJECTED_REAL_READONLY_CLIENT")
-    return 2
+    secret = os.environ.pop("STAGE8_11_READONLY_SECRET", "")
+    environment_account = os.environ.pop("STAGE8_11_READONLY_ACCOUNT_ID", "")
+    if not secret or environment_account != args.account_id:
+        print("STAGE8_11_RECOVERY_REAL_READONLY_CREDENTIAL_REQUIRED")
+        return 2
+    # FinamAPI exposes read methods and also implements trading methods, so the
+    # recovery receives a deliberately narrowed facade with no order mutation
+    # attributes at all.
+    from .finam_api import FinamAPI
+    transport = (api_factory or FinamAPI)(secret)
+    class ReadonlyRecoveryClient:
+        session_details = transport.session_details
+        account = transport.account
+        orders = transport.orders
+    try:
+        recover_historical_intent(runtime_root=args.runtime_root, account_id=args.account_id,
+            readonly_api=ReadonlyRecoveryClient(), accepted_commit=args.accepted_commit,
+            physical_evidence=args.physical_evidence,
+            physical_evidence_sha256=args.physical_evidence_sha256, intent_key=args.intent_key)
+    except (RecoveryBlocked, OSError, ValueError):
+        print("STAGE8_11_RECOVERY_BLOCKED")
+        return 1
+    print("STAGE8_11_HISTORICAL_INTENT_RECOVERY_COMPLETE")
+    return 0
 
 
 if __name__ == "__main__":

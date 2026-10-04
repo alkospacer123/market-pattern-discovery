@@ -7,7 +7,7 @@ credential, contact FINAM, arm the switch, or transmit an order.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 import hashlib
 import json
@@ -30,6 +30,11 @@ MAX_ACCEPTANCE_QUANTITY = 1
 REGISTRY = Path(__file__).with_name("production_instrument_registry.csv")
 TERMINAL_NO_FILL = frozenset({"REJECTED", "EXPIRED", "CANCELLED"})
 ACTIVE = frozenset({"NEW", "PENDING", "ACTIVE", "PARTIAL_FILL"})
+# Five minutes is a deliberately conservative operational budget for the one
+# contract acknowledgement, read-side reconciliation, and controlled flatten.
+# It is measured against FINAM's live interval end; no exchange timetable is
+# inferred locally.
+ENTRY_MINIMUM_REMAINING_SESSION = timedelta(minutes=5)
 
 
 class AcceptanceBlocked(RuntimeError):
@@ -219,7 +224,8 @@ class ControlledAcceptanceBroker:
         """Return only the sanitized acceptance facts from the production API."""
         return _production_account_snapshot(self.api, self.account_id, finam_symbol, self.store)
 
-    def require_active_trading_session(self, finam_symbol: str, now: datetime) -> None:
+    def require_active_trading_session(self, finam_symbol: str, now: datetime, *,
+                                       minimum_remaining: timedelta | None = None) -> None:
         """Use a fresh exact-symbol FINAM schedule as the sole session authority."""
         from .readonly_supervisor import SafetyFault, trading_h1_windows
         try:
@@ -227,8 +233,11 @@ class ControlledAcceptanceBroker:
         except (SafetyFault, AttributeError, TypeError, ValueError):
             raise AcceptanceBlocked("STAGE8_11_TRADING_SCHEDULE_INVALID") from None
         observed = now.astimezone(timezone.utc)
-        if not any(start <= observed < end for start, end in windows):
+        active = [(start, end) for start, end in windows if start <= observed < end]
+        if not active:
             raise AcceptanceBlocked("STAGE8_11_TRADING_SESSION_NOT_OPEN")
+        if minimum_remaining is not None and max(end for _, end in active) - observed < minimum_remaining:
+            raise AcceptanceBlocked("STAGE8_11_ENTRY_SESSION_SAFETY_MARGIN_NOT_MET")
 
     def cancel(self, order_id: str) -> Any:
         if not order_id:
@@ -451,9 +460,14 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
 def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Path,
                              execution_authorized: bool, instrument: str, finam_symbol: str,
                              direction: str, broker: ControlledAcceptanceBroker,
-                             now: datetime | None = None) -> dict[str, Any]:
+                             now: datetime | None = None,
+                             clock: Callable[[], datetime] | None = None) -> dict[str, Any]:
     """Execute/reconcile the bounded lifecycle; PASS requires two proven fills."""
-    observed = now or datetime.now(timezone.utc)
+    # ``now`` remains a deterministic legacy test input. New boundary tests use
+    # an injected clock whose every invocation is an independently observed UTC
+    # instant. Production always calls the system clock afresh.
+    time_source = clock or ((lambda: now) if now is not None else lambda: datetime.now(timezone.utc))
+    observed = time_source()
     phases = ["PRECHECK"]
     result: dict[str, Any] = {"classification": "BLOCKED", "phases": phases, "order_endpoint_call_count": 0}
     entry_key = f"stage8.11:{instrument}:entry"
@@ -474,7 +488,9 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
         # This fresh schedule read is immediately before the only possible entry
         # POST.  A refusal occurs before persist_intent and therefore creates no
         # execution intent.
-        broker.require_active_trading_session(finam_symbol, observed)
+        entry_observed = time_source()
+        broker.require_active_trading_session(
+            finam_symbol, entry_observed, minimum_remaining=ENTRY_MINIMUM_REMAINING_SESSION)
         phases.append("ACTIVE_TRADING_SESSION_PROVEN")
         try:
             broker.submit_entry(key=entry_key, finam_symbol=finam_symbol, direction=direction)
@@ -510,8 +526,23 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
             raise OperatorInterventionRequired("ONE_CONTRACT_POSITION_NOT_PROVEN")
         phases.append("ONE_CONTRACT_POSITION_OBSERVED")
         try:
-            broker.require_active_trading_session(finam_symbol, observed)
+            flatten_observed = time_source()
+            broker.require_active_trading_session(finam_symbol, flatten_observed)
             broker.submit_flatten(key=flatten_key, finam_symbol=finam_symbol, direction=direction)
+        except AcceptanceBlocked as exc:
+            # Entry and the exact signed one-contract position are already
+            # proved. A closed/malformed session is therefore an operator safety
+            # event, never an ordinary pre-submission BLOCKED result.
+            try:
+                result["final_state"] = _final_state(broker, finam_symbol)
+            except Exception:
+                pass
+            result.update(entry_fill_proven=True, one_contract_position_observed=True,
+                          flatten_fill_proven=False)
+            if str(exc) in {"STAGE8_11_TRADING_SESSION_NOT_OPEN",
+                            "STAGE8_11_TRADING_SCHEDULE_INVALID"}:
+                raise OperatorInterventionRequired("FLATTEN_TRADING_SESSION_NOT_OPEN") from exc
+            raise OperatorInterventionRequired(f"FLATTEN_BLOCKED:{exc}") from exc
         except FinamUncertainSubmission:
             phases.append("FLATTEN_UNCERTAIN_RECONCILE")
         flatten = _reconcile(broker, flatten_key, allow_cancel=True)
@@ -552,7 +583,8 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
                 if (recovered_entry and int(recovered_entry.get("executed_quantity", 0)) == 1
                         and int(recovered_entry.get("position_quantity", 0)) == (1 if direction == "LONG" else -1)
                         and flatten_intent is None):
-                    broker.require_active_trading_session(finam_symbol, observed)
+                    recovery_observed = time_source()
+                    broker.require_active_trading_session(finam_symbol, recovery_observed)
                     broker.submit_flatten(key=flatten_key, finam_symbol=finam_symbol, direction=direction)
                     flatten_intent = broker.store.intent(flatten_key)
                 if flatten_intent and flatten_intent["status"] not in ("RECONCILED", "CANCELLED", "REJECTED"):

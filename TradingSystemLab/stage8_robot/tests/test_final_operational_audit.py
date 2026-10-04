@@ -70,11 +70,17 @@ def test_changed_protected_implementation_hash_fails():
      "STAGE8_11_REJECTED_VS_UNCERTAIN", "STAGE8_11_HTTP400_TERMINAL_REJECTED"),
     ("controlled_real_acceptance.py", "self.api.schedule(finam_symbol)", "{}",
      "STAGE8_11_LIVE_EXACT_SYMBOL_SESSION_GATE", "STAGE8_11_EXACT_SCHEDULE_SESSION_GATE"),
+    ("controlled_real_acceptance.py", "flatten_observed = time_source()", "flatten_observed = observed",
+     "STAGE8_11_FRESH_PER_POST_CLOCK_AND_ENTRY_MARGIN", "STAGE8_11_FRESH_PER_POST_CLOCK_AND_ENTRY_MARGIN"),
+    ("controlled_real_acceptance.py", "minimum_remaining=ENTRY_MINIMUM_REMAINING_SESSION", "minimum_remaining=None",
+     "STAGE8_11_FRESH_PER_POST_CLOCK_AND_ENTRY_MARGIN", "STAGE8_11_FRESH_PER_POST_CLOCK_AND_ENTRY_MARGIN"),
     ("stage8_11_failed_attempt_recovery.py", "backup, manifest = create_stage8_11_acceptance_backup", "backup, manifest = removed_backup",
      "STAGE8_11_RECOVERY_NO_ORDER_CAPABILITY", "STAGE8_11_BOUND_ORDER_INCAPABLE_RECOVERY"),
     ("stage8_11_failed_attempt_recovery.py", "readonly_api.orders(account_id)",
      "readonly_api.place_order(account_id, {})",
      "STAGE8_11_RECOVERY_NO_ORDER_CAPABILITY", "STAGE8_11_BOUND_ORDER_INCAPABLE_RECOVERY"),
+    ("stage8_11_failed_attempt_recovery.py", "BEGIN IMMEDIATE", "BEGIN",
+     "STAGE8_11_RECOVERY_DURABLE_COMMIT_PROTOCOL", "STAGE8_11_RECOVERY_DURABLE_COMMIT_PROTOCOL"),
     ("controlled_real_acceptance.py", "if not _account_is_clean(final):", "if False:",
      "STAGE8_11_CLEAN_PROOF_AND_HALT", "STAGE8_11_ACCOUNT_WIDE_CLEAN_PROOF"),
     ("controlled_real_acceptance.py", "finally:\n        emergency_halt(runtime_root", "finally:\n        pass #",
@@ -713,10 +719,10 @@ def test_stage_8_10_6_physical_report_contract_mutations_fail_semantic_audits(fi
 def test_later_execution_stages_started_or_authorized_fail():
     path = "TradingSystemLab/CURRENT_STATE.md"
     for old, replacement, error in (
-            ("Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**",
-             "Stage 8.11.3 is **AUTHORIZED**", "STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED"),
-            ("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**",
-             "Stage 8.12 is **STARTED / AUTHORIZED**", "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")):
+            ("prior explicit authorization **CONSUMED**",
+             "explicit authorization **ACTIVE**", "STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED"),
+            ("Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**",
+             "Stage 8.12 — **STARTED / AUTHORIZED**", "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")):
         result = run_audit({path: source(path).replace(
             old, replacement)})
         assert error in result["errors"]
@@ -954,8 +960,8 @@ def test_stage_8_10_closeout_document_regressions_fail():
         mutations = (
             original.replace("Stage 8.10 is **COMPLETE**", "Stage 8.10 is **IN PROGRESS**"),
             original.replace("Stage 8.10.8 is **COMPLETE**", "Stage 8.10.8 is **NOT STARTED**"),
-            original.replace("Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**", "Stage 8.11.3 is **AUTHORIZED**"),
-            original.replace("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**", "Stage 8.12 is **STARTED**"),
+            original.replace("prior explicit authorization **CONSUMED**", "explicit authorization **ACTIVE**"),
+            original.replace("Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**", "Stage 8.12 — **STARTED**"),
             original.replace(final.STAGE_8_10_COMPLETE_STATUS, "WRONG_CLOSEOUT_STATUS"),
         )
         for mutation in mutations:
@@ -1002,10 +1008,10 @@ def test_stage_8_10_semantic_document_regressions_fail_both_audits(
 def test_stage_8_10_current_handoff_stale_gate_and_omission_fail_both_audits(path):
     original = source(path)
     stale = original.replace(
-        "The current lifecycle gate is **Stage 8.11.3 — Explicit One-Contract Authorization**",
+        "The next permitted step is independent audit followed by the separately authorized, order-incapable REAL_READONLY historical recovery; no new physical authorization is implied.",
         "Stage 8.10 is COMPLETE, but the next possible lifecycle gate is Stage 8.10.5")
     _assert_document_mutation_fails_both(path, stale, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
-    omitted = original.replace("Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**", "")
+    omitted = original.replace("prior explicit authorization **CONSUMED**", "")
     _assert_document_mutation_fails_both(path, omitted, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
 
 
@@ -1033,7 +1039,9 @@ STAGE811_WRAPPER = "TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-p
     ("ENTRY_UNCERTAIN_RECONCILE", "ENTRY_UNCERTAIN_HALT", "STAGE_8_11_UNCERTAIN_RECONCILIATION"),
     ("_digest(account_id) != accepted_account_hash.lower()", "False", "STAGE_8_11_EXACT_ACCOUNT_BINDING"),
     ("FINAM_SYMBOL_BINDING_INVALID", "SYMBOL_CHECK_REMOVED", "STAGE_8_11_EXACT_N4_SYMBOL_BINDING"),
-    ("entry_fill_proven=True", "entry_fill_proven=False", "STAGE_8_11_FILL_FLAT_HALTED_PASS"),
+    ('result.update(classification="SYNTHETIC_PASS", entry_fill_proven=True',
+     'result.update(classification="SYNTHETIC_PASS", entry_fill_proven=False',
+     "STAGE_8_11_FILL_FLAT_HALTED_PASS"),
 ])
 def test_stage811_safety_mutations_fail_both_independent_audits(needle,replacement,error):
     mutated=source(STAGE811_PATH).replace(needle,replacement,1)

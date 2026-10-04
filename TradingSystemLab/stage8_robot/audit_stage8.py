@@ -39,15 +39,13 @@ def _stage8_10_document_consistency(document):
     handoff_match=re.search(r"^## Current handoff\s*$\n(.*?)(?=^## |\Z)",document,re.M|re.S)
     handoff=handoff_match.group(1) if handoff_match else ""
     exact=bool(handoff_match and all(token in handoff for token in (
-        "Stage 8.9 is **COMPLETE**","STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE",
-        "Stage 8.10.1 through Stage 8.10.8 are **COMPLETE**","`HALTED`",
-        "`execution_authorized = false`","`real_order_endpoint_called = false`",
-        "`real_order_count = 0`", "Stage 8.11.0 — Code / Readiness Corrections is **COMPLETE**",
-        "Stage 8.11.1 — Intel Zero-Order PRECHECK is **COMPLETE / PASS**",
-        "Stage 8.11.2 — Independent PRECHECK Evidence Audit is **COMPLETE / PASS**",
-        "Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**", "Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**",
-        "current lifecycle gate is **Stage 8.11.3 — Explicit One-Contract Authorization**",
-        "separate explicit operator authorization")))
+        "Stage 8.9 is **COMPLETE**", "Stage 8.10 is **COMPLETE**", "`HALTED`",
+        "Stage 8.11.0 — **COMPLETE**", "Stage 8.11.1 — **COMPLETE / PASS**",
+        "Stage 8.11.2 — **COMPLETE / PASS**", "prior explicit authorization **CONSUMED**",
+        "Stage 8.11.4 — **ATTEMPTED / FAILED HTTP 400 / NO ACCEPTED ENTRY**",
+        "Stage 8.11.7 — broker clean; historical local-intent recovery pending",
+        "Stage 8.11.8 — **NOT STARTED**", "Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**",
+        "Scheduled Task is `Disabled`", "independent audit")))
     if handoff_match and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]",handoff,re.I):
         stale_next=True
     return exact,not inconsistent,not stale_next
@@ -235,7 +233,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and "heartbeat_account_hash" in acceptance, "STAGE_8_11_EXACT_ACCOUNT_BINDING")
     check("resolve_frozen_symbol(instrument)" in acceptance and "FINAM_SYMBOL_BINDING_INVALID" in acceptance,
           "STAGE_8_11_EXACT_N4_SYMBOL_BINDING")
-    check(all(token in acceptance for token in ("entry_fill_proven=True", "one_contract_position_observed=True",
+    check(all(token in acceptance for token in ('result.update(classification="SYNTHETIC_PASS", entry_fill_proven=True', "one_contract_position_observed=True",
           "flatten_fill_proven=True", "_account_is_clean(final)", '"HALTED"')),
           "STAGE_8_11_FILL_FLAT_HALTED_PASS")
     check('int(entry.get("executed_quantity", -1)) != 0 or not _account_is_clean(final)' in acceptance
@@ -676,11 +674,11 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           "STAGE_8_10_CLOSEOUT_STATUS_SYNCHRONIZED")
     check(not any(re.search(r"Stage 8\.10(?: is| —) \*\*IN PROGRESS\*\*|Stage 8\.10\.8 is \*\*NOT STARTED\*\*", document)
                   for document in authoritative_docs),"STAGE_8_10_NO_STALE_CURRENT_STATUS")
-    check(all("Stage 8.11.1 — Intel Zero-Order PRECHECK is **COMPLETE / PASS**" in document
-              and "Stage 8.11.2 — Independent PRECHECK Evidence Audit is **COMPLETE / PASS**" in document
-              and "Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**" in document
+    check(all("Stage 8.11.1 — **COMPLETE / PASS**" in document
+              and "Stage 8.11.2 — **COMPLETE / PASS**" in document
+              and "prior explicit authorization **CONSUMED**" in document
               for document in authoritative_docs),"STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED")
-    check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in document
+    check(all("Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**" in document
               for document in authoritative_docs),"STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")
     forbidden_claims=(r"(?:broker acceptance (?:is |was )?validated|order (?:was )?accepted|FINAM server accepted an order)",
                       r"(?<!not )real-order (?:transmission|capability) is authorized",)
@@ -974,6 +972,8 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     recovery=source_overrides.get("stage8_11_failed_attempt_recovery.py",
         source_overrides.get("TradingSystemLab/stage8_robot/stage8_11_failed_attempt_recovery.py",
                              (HERE/"stage8_11_failed_attempt_recovery.py").read_text()))
+    recovery_wrapper=source_overrides.get("deploy/windows/run-stage8-11-failed-intent-recovery.ps1",
+        (HERE/"deploy/windows/run-stage8-11-failed-intent-recovery.ps1").read_text())
     check("class FinamOrderRejected" in finam and "FinamUncertainSubmission" in finam
           and "order_post and exc.code==400" in finam and "exc.code>=500 and order_post" in finam,
           "STAGE8_11_DETERMINISTIC_REJECT_UNCERTAIN_TAXONOMY")
@@ -981,6 +981,10 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and "ENTRY_DEFINITIVE_REJECTION" in controlled, "STAGE8_11_HTTP400_TERMINAL_REJECTED")
     check("require_active_trading_session" in controlled and "self.api.schedule(finam_symbol)" in controlled
           and "STAGE8_11_TRADING_SESSION_NOT_OPEN" in controlled, "STAGE8_11_EXACT_SCHEDULE_SESSION_GATE")
+    check("entry_observed = time_source()" in controlled and "flatten_observed = time_source()" in controlled
+          and "FLATTEN_TRADING_SESSION_NOT_OPEN" in controlled
+          and "minimum_remaining=ENTRY_MINIMUM_REMAINING_SESSION" in controlled,
+          "STAGE8_11_FRESH_PER_POST_CLOCK_AND_ENTRY_MARGIN")
     check("if not _account_is_clean(final):" in controlled and '"unresolved_intent_count"' in controlled,
           "STAGE8_11_ACCOUNT_WIDE_CLEAN_PROOF")
     recovery_calls={node.func.attr for node in ast.walk(ast.parse(recovery))
@@ -988,6 +992,12 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     check(not recovery_calls.intersection({"place_order","cancel_order","submit_order","modify_order"})
           and "FAILED_PHYSICAL_EVIDENCE_SHA256" in recovery and "ACCEPTED_PHYSICAL_COMMIT" in recovery
           and "backup, manifest = create_stage8_11_acceptance_backup" in recovery, "STAGE8_11_BOUND_ORDER_INCAPABLE_RECOVERY")
+    check("recovery_status\": \"PREPARED" in recovery and "BEGIN IMMEDIATE" in recovery
+          and "during_evidence_finalization" in recovery,
+          "STAGE8_11_RECOVERY_DURABLE_COMMIT_PROTOCOL")
+    check("Get-ReadonlyCredential" in recovery_wrapper and "Get-TradingCredential" not in recovery_wrapper
+          and "stage8_11_failed_attempt_recovery" in recovery_wrapper,
+          "STAGE8_11_RUNNABLE_READONLY_RECOVERY_OPERATOR_BOUNDARY")
     check("finally:\n        emergency_halt(runtime_root" in controlled
           and controlled.count("submit_entry(") <= 2 and controlled.count("submit_flatten(") <= 3,
           "STAGE8_11_PARENT_CHILD_HALT_MAX_TWO_POST_CAPABILITY")
