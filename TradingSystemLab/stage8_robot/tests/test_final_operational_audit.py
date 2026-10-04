@@ -685,7 +685,7 @@ def test_stage_8_10_6_physical_report_contract_mutations_fail_semantic_audits(fi
 def test_later_execution_stages_started_or_authorized_fail():
     path = "TradingSystemLab/CURRENT_STATE.md"
     for old, replacement, error in (
-            ("Stage 8.11.3 is **NOT AUTHORIZED**",
+            ("Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**",
              "Stage 8.11.3 is **AUTHORIZED**", "STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED"),
             ("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**",
              "Stage 8.12 is **STARTED / AUTHORIZED**", "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")):
@@ -926,7 +926,7 @@ def test_stage_8_10_closeout_document_regressions_fail():
         mutations = (
             original.replace("Stage 8.10 is **COMPLETE**", "Stage 8.10 is **IN PROGRESS**"),
             original.replace("Stage 8.10.8 is **COMPLETE**", "Stage 8.10.8 is **NOT STARTED**"),
-            original.replace("Stage 8.11.3 is **NOT AUTHORIZED**", "Stage 8.11.3 is **AUTHORIZED**"),
+            original.replace("Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**", "Stage 8.11.3 is **AUTHORIZED**"),
             original.replace("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**", "Stage 8.12 is **STARTED**"),
             original.replace(final.STAGE_8_10_COMPLETE_STATUS, "WRONG_CLOSEOUT_STATUS"),
         )
@@ -977,7 +977,7 @@ def test_stage_8_10_current_handoff_stale_gate_and_omission_fail_both_audits(pat
         "The current lifecycle gate is **Stage 8.11.3 — Explicit One-Contract Authorization**",
         "Stage 8.10 is COMPLETE, but the next possible lifecycle gate is Stage 8.10.5")
     _assert_document_mutation_fails_both(path, stale, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
-    omitted = original.replace("Stage 8.11.3 is **NOT AUTHORIZED**", "")
+    omitted = original.replace("Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**", "")
     _assert_document_mutation_fails_both(path, omitted, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
 
 

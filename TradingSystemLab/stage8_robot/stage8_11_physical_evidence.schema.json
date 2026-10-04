@@ -140,7 +140,7 @@
     "physical_result_classification": {
       "enum": [
         "PASS",
-        "BLOCKED",
+        "BLOCKED_PRE_SUBMISSION",
         "NOT_ACCEPTED_NO_EXECUTION",
         "OPERATOR_INTERVENTION_REQUIRED",
         "PENDING_PHYSICAL_ACCEPTANCE"

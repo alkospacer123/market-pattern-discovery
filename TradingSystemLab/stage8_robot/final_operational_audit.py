@@ -149,7 +149,7 @@ def _stage8_10_document_consistency(document: str) -> tuple[bool, bool, bool]:
         "`real_order_count = 0`", "Stage 8.11.0 — Code / Readiness Corrections is **COMPLETE**",
         "Stage 8.11.1 — Intel Zero-Order PRECHECK is **COMPLETE / PASS**",
         "Stage 8.11.2 — Independent PRECHECK Evidence Audit is **COMPLETE / PASS**",
-        "Stage 8.11.3 is **NOT AUTHORIZED**", "Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**",
+        "Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**", "Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**",
         "current lifecycle gate is **Stage 8.11.3 — Explicit One-Contract Authorization**",
         "separate explicit operator authorization")))
     if match and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]", handoff, re.I):
@@ -764,8 +764,27 @@ def audit(
           "STAGE_8_10_CLOSEOUT_STATUS_SYNCHRONIZED")
     check(all("Stage 8.11.1 — Intel Zero-Order PRECHECK is **COMPLETE / PASS**" in doc
               and "Stage 8.11.2 — Independent PRECHECK Evidence Audit is **COMPLETE / PASS**" in doc
-              and "Stage 8.11.3 is **NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
+              and "Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**" in doc for doc in stage8_9_docs),
           "STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED")
+    physical_entry=text("TradingSystemLab/stage8_robot/stage8_11_physical_acceptance.py")
+    physical_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-physical-acceptance.ps1")
+    check(all(token in physical_entry for token in (
+          'AUTHORIZATION_VALUE = "STAGE_8_11_ONE_CONTRACT_ACCEPTANCE_AUTHORIZED"',
+          'INSTRUMENT = "CNYRUBF"', 'FINAM_SYMBOL = "CNYRUBF@RTSX"',
+          'DIRECTION = "LONG"', 'QUANTITY = 1', 'run_controlled_lifecycle(',
+          'initialize_stage8_11_acceptance_ledger(', 'create_stage8_11_acceptance_backup('))
+          and "place_order(" not in physical_entry, "STAGE_8_11_PHYSICAL_CANONICAL_BOUNDARY")
+    check("--accepted-commit" in physical_entry and "AcceptedCommit" in physical_wrapper
+          and "readonly_supervisor --runtime-root $runtime --once" in physical_wrapper
+          and "Get-ScheduledTask" in physical_wrapper and "W32Time" in physical_wrapper,
+          "STAGE_8_11_PHYSICAL_MANUAL_OPERATOR_PREFLIGHT")
+    normal_owners="\n".join(text(path) for path in (
+          "TradingSystemLab/stage8_robot/runner.py",
+          "TradingSystemLab/stage8_robot/readonly_supervisor.py",
+          "TradingSystemLab/stage8_robot/deploy/windows/install-task.ps1",
+          "TradingSystemLab/stage8_robot/deploy/windows/run-readonly.ps1"))
+    check("run-stage8-11-physical-acceptance.ps1" not in normal_owners,
+          "STAGE_8_11_PHYSICAL_MANUAL_ONLY_AIRGAP")
     intel_precheck=text("TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py")
     intel_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-intel-precheck.ps1")
     intel_ast=ast.parse(intel_precheck)

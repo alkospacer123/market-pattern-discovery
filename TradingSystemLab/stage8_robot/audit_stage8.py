@@ -45,7 +45,7 @@ def _stage8_10_document_consistency(document):
         "`real_order_count = 0`", "Stage 8.11.0 — Code / Readiness Corrections is **COMPLETE**",
         "Stage 8.11.1 — Intel Zero-Order PRECHECK is **COMPLETE / PASS**",
         "Stage 8.11.2 — Independent PRECHECK Evidence Audit is **COMPLETE / PASS**",
-        "Stage 8.11.3 is **NOT AUTHORIZED**", "Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**",
+        "Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**", "Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**",
         "current lifecycle gate is **Stage 8.11.3 — Explicit One-Contract Authorization**",
         "separate explicit operator authorization")))
     if handoff_match and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]",handoff,re.I):
@@ -245,6 +245,21 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     check("controlled_real_acceptance" not in runner and "controlled_real_acceptance" not in supervisor
           and "controlled_real_acceptance" not in launcher and "controlled_real_acceptance" not in task_installer,
           "STAGE_8_11_NO_ROUTINE_OR_SCHEDULED_INTEGRATION")
+    physical_entry=document("stage8_11_physical_acceptance.py",HERE/"stage8_11_physical_acceptance.py")
+    physical_wrapper=document("deploy/windows/run-stage8-11-physical-acceptance.ps1",HERE/"deploy/windows/run-stage8-11-physical-acceptance.ps1")
+    check(all(token in physical_entry for token in (
+          'AUTHORIZATION_VALUE = "STAGE_8_11_ONE_CONTRACT_ACCEPTANCE_AUTHORIZED"',
+          'INSTRUMENT = "CNYRUBF"', 'FINAM_SYMBOL = "CNYRUBF@RTSX"',
+          'DIRECTION = "LONG"', 'QUANTITY = 1', 'run_controlled_lifecycle(',
+          'initialize_stage8_11_acceptance_ledger(', 'create_stage8_11_acceptance_backup('))
+          and "place_order(" not in physical_entry, "STAGE_8_11_PHYSICAL_CANONICAL_BOUNDARY")
+    check("--accepted-commit" in physical_entry and "AcceptedCommit" in physical_wrapper
+          and "readonly_supervisor --runtime-root $runtime --once" in physical_wrapper
+          and "Get-ScheduledTask" in physical_wrapper and "W32Time" in physical_wrapper,
+          "STAGE_8_11_PHYSICAL_MANUAL_OPERATOR_PREFLIGHT")
+    normal_owners="\n".join((runner,supervisor,task_installer,launcher))
+    check("run-stage8-11-physical-acceptance.ps1" not in normal_owners,
+          "STAGE_8_11_PHYSICAL_MANUAL_ONLY_AIRGAP")
     intel_precheck=document("stage8_11_intel_acceptance.py",HERE/"stage8_11_intel_acceptance.py")
     intel_wrapper=document("deploy/windows/run-stage8-11-intel-precheck.ps1",
                            HERE/"deploy/windows/run-stage8-11-intel-precheck.ps1")
@@ -631,7 +646,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
                   for document in authoritative_docs),"STAGE_8_10_NO_STALE_CURRENT_STATUS")
     check(all("Stage 8.11.1 — Intel Zero-Order PRECHECK is **COMPLETE / PASS**" in document
               and "Stage 8.11.2 — Independent PRECHECK Evidence Audit is **COMPLETE / PASS**" in document
-              and "Stage 8.11.3 is **NOT AUTHORIZED**" in document
+              and "Stage 8.11.3 is **NOT AUTHORIZED / OPERATOR BOUNDARY CODE READY**" in document
               for document in authoritative_docs),"STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED")
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in document
               for document in authoritative_docs),"STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")
