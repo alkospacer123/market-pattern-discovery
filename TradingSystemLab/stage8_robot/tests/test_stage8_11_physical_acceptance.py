@@ -70,7 +70,7 @@ def test_module_uses_canonical_lifecycle_ledger_backup_and_bounded_arm():
     # One executable occurrence plus the explanatory safety comment.
     assert source.count('execution_authorized=True') == 2
     assert source.count('write_kill_switch(runtime_root, "ARMED"') == 1
-    assert "finally:\n        emergency_halt(runtime_root" in source
+    assert "try: emergency_halt(root)" in source
     assert "place_order(" not in source
 
 
