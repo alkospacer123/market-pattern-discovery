@@ -14,10 +14,10 @@ The production kill switch final accepted state is `HALTED`.
 `execution_authorized = false`; `real_order_endpoint_called = false`;
 `real_order_count = 0`.
 
-Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**.
+Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**.
 Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
 
-The next possible lifecycle gate is Stage 8.11, but it requires separate explicit authorization.
+The current lifecycle gate is Stage 8.11 physical acceptance, but it requires separate explicit authorization.
 Stage 8.10 completion does not authorize real execution or LIVE trading.
 
 ## Purpose and authority
@@ -183,7 +183,7 @@ The fail-closed kill switch final accepted state is `HALTED`.
 `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remains authoritative.
 `NEW_ENTRIES_DISABLED` remains in force for existing REAL_READONLY paths.
 
-Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**.
+Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**.
 Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
 
 Stage 8.11 is the first possible real-order gate and requires separate explicit authorization.

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stage8_11_physical_acceptance.v1",
+  "title": "Sanitized Stage 8.11 physical acceptance evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id", "production_specification_id", "stage8_11_status",
+    "accepted_code_commit", "sanitized_account_identity_hash", "instrument",
+    "direction", "quantity", "preflight_gate_outcomes", "kill_switch_pre_state",
+    "kill_switch_final_state", "execution_authorization_observed",
+    "order_endpoint_call_count", "broker_order_present", "broker_fill_count",
+    "final_position_quantity", "final_active_order_count", "unresolved_intent_count",
+    "reconciliation_result", "physical_result_classification",
+    "external_raw_evidence_sha256"
+  ],
+  "properties": {
+    "schema_id": {"const": "stage8_11_physical_acceptance.v1"},
+    "production_specification_id": {"const": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8"},
+    "stage8_11_status": {"const": "PHYSICAL_RESULT_REQUIRES_INDEPENDENT_AUDIT"},
+    "accepted_code_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "sanitized_account_identity_hash": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"},
+    "instrument": {"enum": ["USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF"]},
+    "direction": {"enum": ["LONG", "SHORT"]},
+    "quantity": {"const": 1},
+    "preflight_gate_outcomes": {"type": "object"},
+    "kill_switch_pre_state": {"const": "ARMED"},
+    "kill_switch_final_state": {"const": "HALTED"},
+    "execution_authorization_observed": {"type": "boolean"},
+    "order_endpoint_call_count": {"type": "integer", "minimum": 0, "maximum": 2},
+    "broker_order_present": {"type": "boolean"},
+    "broker_fill_count": {"type": "integer", "minimum": 0},
+    "final_position_quantity": {"type": "integer"},
+    "final_active_order_count": {"type": "integer", "minimum": 0},
+    "unresolved_intent_count": {"type": "integer", "minimum": 0},
+    "reconciliation_result": {"type": "string"},
+    "physical_result_classification": {"type": "string"},
+    "external_raw_evidence_sha256": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"}
+  }
+}

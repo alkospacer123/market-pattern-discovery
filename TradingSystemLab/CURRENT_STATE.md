@@ -14,14 +14,14 @@ The production kill switch final accepted state is `HALTED`.
 `execution_authorized = false`; `real_order_endpoint_called = false`;
 `real_order_count = 0`.
 
-Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**.
+Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**.
 Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**.
 
-The next possible lifecycle gate is Stage 8.11, but it requires separate explicit authorization.
+The current lifecycle gate is Stage 8.11 physical acceptance, but it requires separate explicit authorization.
 Stage 8.10 completion does not authorize real execution or LIVE trading.
 
 Current accepted GitHub `main`:
-`ac00e23148fb4c3a4553937d89e90d02402fae78`.
+`e24638089d9a8ab8ca8dcd2744c8da151b1d8c58`.
 
 ## Frozen Stage 7 production specification
 
@@ -264,7 +264,7 @@ Aggregate Stage 8.10 safety facts:
 `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remains in force.
 `NEW_ENTRIES_DISABLED` remains in force for existing REAL_READONLY paths.
 
-Stage 8.11 is **NOT STARTED / NOT AUTHORIZED** — Controlled Real Execution Acceptance.
+Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE** — Controlled Real Execution Acceptance.
 Stage 8.12 is **NOT STARTED / NOT AUTHORIZED** — FULL/R15 Production Authorization.
 
 Stage 8.11 is the first possible real-order gate, but it requires separate explicit authorization.

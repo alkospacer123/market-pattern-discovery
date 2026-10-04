@@ -137,8 +137,8 @@ def _stage8_10_document_consistency(document: str) -> tuple[bool, bool, bool]:
             r"Stage 8\.10\.[1-7].{0,40}(?:\*\*)?NOT STARTED", normalized, re.I)
         later_complete = re.search(r"Stage 8\.10\.8 is (?:\*\*)?COMPLETE", normalized, re.I)
         active_8107 = re.search(r"Stage 8\.10\.7.{0,40}(?:\*\*)?NOT STARTED", normalized, re.I)
-        stage11_active = re.search(r"Stage 8\.11.{0,40}(?:is|=) (?:\*\*)?(?:STARTED|AUTHORIZED)", normalized, re.I)
-        if not historical and (active_8107 or stage11_active or (earlier_not_started and later_complete)):
+        stage11_invalid = re.search(r"Stage 8\.11.{0,40}(?:is|=) (?:\*\*)?(?:STARTED|AUTHORIZED)", normalized, re.I)
+        if not historical and (active_8107 or stage11_invalid or (earlier_not_started and later_complete)):
             inconsistent = True
     match = re.search(r"^## Current handoff\s*$\n(.*?)(?=^## |\Z)", document, re.M | re.S)
     handoff = match.group(1) if match else ""
@@ -146,9 +146,9 @@ def _stage8_10_document_consistency(document: str) -> tuple[bool, bool, bool]:
         "Stage 8.9 is **COMPLETE**", STAGE_8_10_COMPLETE_STATUS,
         "Stage 8.10.1 through Stage 8.10.8 are **COMPLETE**", "`HALTED`",
         "`execution_authorized = false`", "`real_order_endpoint_called = false`",
-        "`real_order_count = 0`", "Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**",
+        "`real_order_count = 0`", "Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**",
         "Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**",
-        "next possible lifecycle gate is Stage 8.11", "separate explicit authorization")))
+        "current lifecycle gate is Stage 8.11 physical acceptance", "separate explicit authorization")))
     if match and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]", handoff, re.I):
         stale_next = True
     return exact, not inconsistent, not stale_next
@@ -693,8 +693,8 @@ def audit(
     check(lifecycle_closeout == expected_closeout, "STAGE_8_10_8_MACHINE_AUTHORITY_EXACT")
     check(all(STAGE_8_10_COMPLETE_STATUS in doc for doc in stage8_9_docs),
           "STAGE_8_10_CLOSEOUT_STATUS_SYNCHRONIZED")
-    check(all("Stage 8.11 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
-          "STAGE_8_11_NOT_STARTED_NOT_AUTHORIZED")
+    check(all("Stage 8.11 is **IN PROGRESS / CODE READY PENDING PHYSICAL ACCEPTANCE**" in doc for doc in stage8_9_docs),
+          "STAGE_8_11_CODE_READY_PENDING_PHYSICAL_ACCEPTANCE")
     check(all("Stage 8.12 is **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
           "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")
     forbidden_claims = (
@@ -816,7 +816,7 @@ def audit(
         "stage8_10_order_count": 0,
         "stage8_10_live_trading_authorized": False,
         "stage8_10_real_order_transmission_authorized": False,
-        "stage8_11_status": "NOT_STARTED_NOT_AUTHORIZED",
+        "stage8_11_status": "CODE_READY_PENDING_PHYSICAL_ACCEPTANCE",
         "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
         "stage8_9_complete": True, "stage8_9_physical_validation_performed": True,
     }
