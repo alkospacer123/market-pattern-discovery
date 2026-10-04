@@ -1029,6 +1029,21 @@ def test_stage811_mock_only_api_dependency_fails_both_audits():
     assert "STAGE_8_11_PRODUCTION_FINAM_API_CONTRACT" in operational["errors"]
 
 
+def test_stage811_protobuf_timestamp_parser_mutation_fails_both_audits():
+    original=source(STAGE811_PATH)
+    start=original.index("def _timestamp(value: Any)")
+    end=original.index("\n\ndef _status",start)
+    protobuf_parser='''def _timestamp(value: Any) -> tuple[int, int]:
+    if not isinstance(value, dict) or set(value) != {"seconds", "nanos"}:
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    return value["seconds"], value["nanos"]'''
+    mutated=original[:start]+protobuf_parser+original[end:]
+    independent=stage8.audit(write_result=False,source_overrides={"controlled_real_acceptance.py":mutated})
+    operational=run_audit({STAGE811_PATH:mutated})
+    assert "STAGE_8_11_REST_TIMESTAMP_STRING_AUTHORITY" in independent["errors"]
+    assert "STAGE_8_11_REST_TIMESTAMP_STRING_AUTHORITY" in operational["errors"]
+
+
 @pytest.mark.parametrize("path,relative,needle,replacement,error", [
     (STAGE811_PATH,"controlled_real_acceptance.py",'return _rows(account, "positions")',
      'return _rows(account, "positions"), _rows(account, "trades")',"STAGE_8_11_TRADES_NOT_FROM_ACCOUNT"),

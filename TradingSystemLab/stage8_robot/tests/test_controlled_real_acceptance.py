@@ -87,7 +87,7 @@ class API:
         return {"order_id":order_id,"status":self.current["order_status"],
             "order":{"account_id":account,"client_order_id":intent["client_order_id"],
                 "symbol":intent["symbol"],"side":intent["side"],"quantity":{"value":"1"}},
-            "accept_at":{"seconds":2,"nanos":0},"initial_quantity":{"value":"1"},
+            "accept_at":"2026-10-04T09:00:02Z","initial_quantity":{"value":"1"},
             "executed_quantity":{"value":str(executed)},
             "remaining_quantity":{"value":str(1-executed)}}
     def account(self, account):
@@ -104,7 +104,7 @@ class API:
             trades.append({"trade_id":fill["trade_id"],"order_id":self.current["order_id"],
                 "account_id":account,"symbol":intent["symbol"],"side":intent["side"],
                 "size":{"value":"1"},"price":{"value":fill["price"]},
-                "timestamp":{"seconds":3,"nanos":0}})
+                "timestamp":"2026-10-04T09:00:03Z"})
         return {"trades":trades}
     def cancel_order(self, account, oid): self.calls.append(("cancel", account, oid)); return {}
 

@@ -12,6 +12,7 @@ from decimal import Decimal, InvalidOperation
 import hashlib
 import json
 from pathlib import Path
+import re
 from typing import Any, Callable
 
 from .broker import OrderRequest, broker_side, compact_client_order_id
@@ -246,12 +247,30 @@ def _decimal_contracts(value: Any) -> int:
     return int(parsed)
 
 
+_REST_TIMESTAMP = re.compile(
+    r"^(?P<date>\d{4}-\d{2}-\d{2})T(?P<time>\d{2}:\d{2}:\d{2})"
+    r"(?:\.(?P<fraction>\d{1,9}))?(?P<zone>Z|[+-]\d{2}:\d{2})$"
+)
+_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+
 def _timestamp(value: Any) -> tuple[int, int]:
-    if (not isinstance(value, dict) or set(value) != {"seconds", "nanos"}
-            or type(value.get("seconds")) is not int or type(value.get("nanos")) is not int
-            or not 0 <= value["nanos"] < 1_000_000_000):
+    """Parse a FINAM REST RFC3339 Timestamp into exact UTC seconds/nanoseconds."""
+    if not isinstance(value, str) or not value:
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-    return value["seconds"], value["nanos"]
+    match = _REST_TIMESTAMP.fullmatch(value)
+    if match is None:
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    fraction = match.group("fraction") or ""
+    zone = "+00:00" if match.group("zone") == "Z" else match.group("zone")
+    try:
+        parsed = datetime.fromisoformat(
+            f'{match.group("date")}T{match.group("time")}{zone}'
+        ).astimezone(timezone.utc)
+    except ValueError:
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED") from None
+    delta = parsed - _EPOCH
+    return delta.days * 86_400 + delta.seconds, int(fraction.ljust(9, "0") or "0")
 
 
 def _status(value: Any) -> str:

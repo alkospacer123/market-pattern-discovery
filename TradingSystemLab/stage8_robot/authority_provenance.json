@@ -296,10 +296,10 @@
   "stage8_11": {
     "status": "IN_PROGRESS_CODE_READY_PENDING_PHYSICAL_ACCEPTANCE",
     "production_contract_correction_authority": {
-      "pull_request": 352,
-      "base": "d86058e905e97b5ee260702d7dc67fabb6f86d77",
-      "head": "3e290211d9741f836612ceafc47471b1b94df05e",
-      "merge": "2c1447680b8edf35eb2f3cc67e60e0c32e44f5d5"
+      "pull_request": 353,
+      "base": "2c1447680b8edf35eb2f3cc67e60e0c32e44f5d5",
+      "head": "0e6f9247661d321e9403b11ff1848dbc5b82fd0b",
+      "merge": "3017624559441e1513c70324e62bd8a895383900"
     },
     "execution_authorized": false,
     "real_order_count": 0,

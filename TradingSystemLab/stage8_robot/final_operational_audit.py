@@ -534,9 +534,18 @@ def audit(
           "STAGE_8_11_FINAM_TRADES_PRIMITIVE")
     check("filled_quantity" not in acceptance and 'order.get("executed_quantity")' in acceptance,
           "STAGE_8_11_DOCUMENTED_EXECUTED_QUANTITY")
+    check(all(token in acceptance for token in (
+              "_REST_TIMESTAMP.fullmatch(value)", "not isinstance(value, str)",
+              "datetime.fromisoformat", ".astimezone(timezone.utc)",
+              '_timestamp(order.get("accept_at"))', '_timestamp(trade.get("timestamp"))')),
+          "STAGE_8_11_REST_TIMESTAMP_STRING_AUTHORITY")
     check('prefix + "/trades"' in acceptance_integration
           and '"order":{"account_id":ACCOUNT' in acceptance_integration
-          and '"executed_quantity":self.decimal(executed)' in acceptance_integration,
+          and '"executed_quantity":self.decimal(executed)' in acceptance_integration
+          and '"accept_at":"2026-10-04T09:00:02Z"' in acceptance_integration
+          and '"timestamp":"2026-10-04T09:00:03Z"' in acceptance_integration
+          and "test_rest_timestamp_parser_rejects_unsupported_or_invalid_values" in acceptance_integration
+          and '{"seconds":1,"nanos":0}' in acceptance_integration,
           "STAGE_8_11_EXACT_REST_SYNTHETIC_TRANSPORT")
     check(current_readme_status(text("TradingSystemLab/stage8_robot/README.md")) == STAGE_8_10_COMPLETE_STATUS,
           "STAGE_8_ROBOT_README_CURRENT_STATUS_EXACT")
