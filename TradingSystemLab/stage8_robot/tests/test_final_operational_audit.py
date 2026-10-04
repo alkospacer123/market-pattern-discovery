@@ -1021,7 +1021,7 @@ def test_stage811_evidence_schema_mutation_fails_both_audits():
 
 @pytest.mark.parametrize("needle,error",[
     ("evaluate_new_entry_gate", "STAGE_8_11_INTEL_EXISTING_SAFETY_GATE_EXACT_BLOCKERS"),
-    ("readonly_unresolved_intent_count", "STAGE_8_11_INTEL_CANONICAL_SQLITE_INTENTS"),
+    ("readonly_unresolved_intent_count", "STAGE_8_11_SEPARATE_PERSISTENCE_AUTHORITIES"),
 ])
 def test_stage811_precheck_authority_removal_fails_both_audits(needle,error):
     mutated=source(STAGE811_PRECHECK).replace(needle,"removed_authority")

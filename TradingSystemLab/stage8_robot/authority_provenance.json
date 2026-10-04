@@ -295,6 +295,18 @@
   },
   "stage8_11": {
     "status": "IN_PROGRESS_CODE_READY_PENDING_PHYSICAL_ACCEPTANCE",
+    "last_physical_precheck_result": "BLOCKED_CANONICAL_INTENT_LEDGER_AUTHORITY_MISMATCH",
+    "production_finding": "STAGE8_11_CANONICAL_INTENTS_INVALID",
+    "persistence_authority_correction": {
+      "reason": "PR #356 precheck treated the OperationalState supervisor database as a StateStore intent ledger",
+      "status": "CODE_READY_PENDING_PHYSICAL_ACCEPTANCE"
+    },
+    "current_precheck_code_authority": {
+      "pull_request": 356,
+      "base": "4fb3c5406462609ceb5a19850d0dc6c4a5a19566",
+      "head": "6158bb9a26cca786d1561163e563a2c768054f82",
+      "merge": "ea090d99266d5dae808c03024f327c41fb8b9170"
+    },
     "intel_precheck_code_authority": {
       "pull_request": 355,
       "base": "14b4cdb13a1bc62031a1b859926bc65ce1071105",
