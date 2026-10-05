@@ -99,6 +99,16 @@ PROTECTED_SHA256 = {
     "TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/audit_production_specification.py": "5731466205611bb3b1b0e89370afef639594c776883d31fa59f7362f82d174df",
 }
 
+# Stage 8.8.6 historical hashes above remain immutable.  Stage 8.11 later
+# observed FINAM retaining a zero-quantity futures position row after the
+# account was flat.  This separately frozen correction keeps the historical
+# authority intact while permitting only the exact reviewed read-side fix.
+POST_STAGE8_11_CORRECTED_SHA256 = {
+    "TradingSystemLab/stage8_robot/account_cleanliness.py": "84c37d34cd76e8493c9a0814358c4095018316657c98285743ae6812402b8977",
+    "TradingSystemLab/stage8_robot/readonly_supervisor.py": "c4dee8d488dc6379b80a31aca39256b89c3d8e9ae76269267381cd357fe073e5",
+    "TradingSystemLab/stage8_robot/funding_margin_diagnostic.py": "7a4aa3e71d45b42d96a0aad9b632dc87cfdf0cc8bcfa282b77acd73cde359257",
+}
+
 
 def _run_json(command: list[str], root: Path) -> dict:
     completed = subprocess.run(command, cwd=root, check=False, text=True, capture_output=True)
@@ -412,8 +422,19 @@ def audit(
     check(all(STAGE_8_8_6_CODE in doc and STAGE_8_8_6_EVIDENCE in doc for doc in docs), "STAGE_8_8_6_PROVENANCE_SYNCHRONIZED")
     check(all(value in joined_docs for value in (BACKUP_SHA, MANIFEST_SHA, BASELINE_SHA)), "STAGE_8_8_6_RECOVERY_HASHES_RECORDED")
 
-    bad_hashes = [path for path, expected in PROTECTED_SHA256.items() if _protected_sha256(content(path)) != expected]
-    check(not bad_hashes, "PROTECTED_IMPLEMENTATION_HASHES:" + ",".join(bad_hashes))
+    bad_hashes = []
+    for path, historical in PROTECTED_SHA256.items():
+        observed = _protected_sha256(content(path))
+        allowed = {historical}
+        corrected = POST_STAGE8_11_CORRECTED_SHA256.get(path)
+        if corrected is not None:
+            allowed.add(corrected)
+        if observed not in allowed:
+            bad_hashes.append(path)
+    for path, corrected in POST_STAGE8_11_CORRECTED_SHA256.items():
+        if path not in PROTECTED_SHA256 and _protected_sha256(content(path)) != corrected:
+            bad_hashes.append(path)
+    check(not bad_hashes, "PROTECTED_IMPLEMENTATION_HASHES:" + ",".join(sorted(set(bad_hashes))))
 
     supervisor = text("TradingSystemLab/stage8_robot/readonly_supervisor.py")
     api = text("TradingSystemLab/stage8_robot/finam_api.py")
