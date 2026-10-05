@@ -228,7 +228,12 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     check("no retry: exactly one call" in acceptance and acceptance.count("self.api.place_order") == 1,
           "STAGE_8_11_NO_POST_RETRY")
     check("ENTRY_UNCERTAIN_RECONCILE" in acceptance and "FLATTEN_UNCERTAIN_RECONCILE" in acceptance
-          and "OPERATOR_INTERVENTION_REQUIRED" in acceptance, "STAGE_8_11_UNCERTAIN_RECONCILIATION")
+          and "OPERATOR_INTERVENTION_REQUIRED" in acceptance
+          and "class ReconciliationPending" in acceptance
+          and "RECONCILIATION_MAX_OBSERVATIONS = 12" in acceptance
+          and "ORDER_COLLECTION_PROPAGATION_PENDING" in acceptance
+          and "TRADE_PROPAGATION_PENDING" in acceptance,
+          "STAGE_8_11_UNCERTAIN_RECONCILIATION")
     check("_digest(account_id) != accepted_account_hash.lower()" in acceptance
           and "heartbeat_account_hash" in acceptance, "STAGE_8_11_EXACT_ACCOUNT_BINDING")
     check("resolve_frozen_symbol(instrument)" in acceptance and "FINAM_SYMBOL_BINDING_INVALID" in acceptance,
@@ -255,6 +260,8 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           "STAGE_8_11_NO_ROUTINE_OR_SCHEDULED_INTEGRATION")
     physical_entry=document("stage8_11_physical_acceptance.py",HERE/"stage8_11_physical_acceptance.py")
     physical_wrapper=document("deploy/windows/run-stage8-11-physical-acceptance.ps1",HERE/"deploy/windows/run-stage8-11-physical-acceptance.ps1")
+    attempt3_entry=document("stage8_11_physical_acceptance_attempt3.py",HERE/"stage8_11_physical_acceptance_attempt3.py")
+    attempt3_wrapper=document("deploy/windows/run-stage8-11-physical-acceptance-attempt3.ps1",HERE/"deploy/windows/run-stage8-11-physical-acceptance-attempt3.ps1")
     recovery=document("stage8_11_failed_attempt_recovery.py",HERE/"stage8_11_failed_attempt_recovery.py")
     check(all(token in physical_entry for token in (
           'AUTHORIZATION_VALUE = "STAGE_8_11_ONE_CONTRACT_ACCEPTANCE_AUTHORIZED"',
@@ -286,15 +293,25 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and 'os.link(temporary, destination)' in physical_entry,
           "STAGE8_11_ATTEMPT2_FIXED_CREATE_ONLY_EVIDENCE")
     check('attempt_id=ATTEMPT_ID' in physical_entry
-          and 'stage8.11.attempt2' in acceptance
+          and 'stage8.11.attempt2' in acceptance and 'stage8.11.attempt3' in acceptance
           and 'intent_prefix = attempt_id or "stage8.11"' in acceptance
           and 'stage8_11_physical_acceptance_attempt2.json' in physical_wrapper
-          and 'stage8_11_physical_acceptance.json"' not in physical_wrapper,
+          and 'stage8_11_physical_acceptance.json"' not in physical_wrapper
+          and 'ATTEMPT_ID = STAGE8_11_ATTEMPT3_ID' in attempt3_entry
+          and 'REPORT_NAME = "stage8_11_physical_acceptance_attempt3.json"' in attempt3_entry
+          and 'PREVIOUS_EVIDENCE_SHA256 = "0954B5C3D62444BA9AE59519386B0FC454D85C987BE1BAC04B82CA6C671B15A0"' in attempt3_entry
+          and 'PREVIOUS_ENTRY_KEY = "stage8.11.attempt2:CNYRUBF:entry"' in attempt3_entry
+          and '_reconcile_previous_attempt' in attempt3_entry
+          and 'stage8_11_physical_acceptance_attempt3.json' in attempt3_wrapper
+          and 'stage8_11_physical_acceptance_attempt3' in attempt3_wrapper
+          and 'os.replace(' not in attempt3_entry and 'os.link(temporary, destination)' in attempt3_entry,
           "STAGE8_11_ATTEMPT2_DISTINCT_FIXED_INTENT_AND_WRAPPER_BINDING")
     check('FAILED_PHYSICAL_EVIDENCE_SHA256 = "9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324"' in recovery
           and 'HISTORICAL_INTENT_KEY = "stage8.11:CNYRUBF:entry"' in recovery
-          and all("stage8.11.attempt2" in doc and "did not execute the retry" in doc
-                  for doc in authoritative_docs),
+          and all("0954B5C3D62444BA9AE59519386B0FC454D85C987BE1BAC04B82CA6C671B15A0" in doc
+                  and "OPERATOR_INTERVENTION_REQUIRED" in doc
+                  and "stage8.11.attempt3" in doc
+                  and "has not been physically executed" in doc for doc in authoritative_docs),
           "STAGE8_11_ATTEMPT1_IMMUTABLE_ATTEMPT2_PREPARED_ONLY")
     physical_tree=ast.parse(physical_entry)
     lifecycle_calls=[node for node in ast.walk(physical_tree) if isinstance(node,ast.Call)
