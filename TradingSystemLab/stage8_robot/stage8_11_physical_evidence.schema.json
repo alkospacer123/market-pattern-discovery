@@ -35,7 +35,8 @@
     "attempt_id": {
       "enum": [
         "stage8.11.attempt2",
-        "stage8.11.attempt3"
+        "stage8.11.attempt3",
+        "stage8.11.attempt4"
       ]
     },
     "schema_id": {
