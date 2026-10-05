@@ -279,6 +279,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     attempt3_entry=document("stage8_11_physical_acceptance_attempt3.py",HERE/"stage8_11_physical_acceptance_attempt3.py")
     attempt3_wrapper=document("deploy/windows/run-stage8-11-physical-acceptance-attempt3.ps1",HERE/"deploy/windows/run-stage8-11-physical-acceptance-attempt3.ps1")
     recovery=document("stage8_11_failed_attempt_recovery.py",HERE/"stage8_11_failed_attempt_recovery.py")
+    attempt2_manual_recovery=document("stage8_11_attempt2_manual_recovery.py",HERE/"stage8_11_attempt2_manual_recovery.py")
     check(all(token in physical_entry for token in (
           'AUTHORIZATION_VALUE = "STAGE_8_11_ONE_CONTRACT_ACCEPTANCE_AUTHORIZED"',
           'INSTRUMENT = "CNYRUBF"', 'FINAM_SYMBOL = "CNYRUBF@RTSX"',
@@ -327,6 +328,37 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and 'raise ReconciliationPending("TRADE_PROPAGATION_PENDING")' in acceptance
           and 'observation + 1 >= RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS' in acceptance,
           "STAGE8_11_ATTEMPT2_DISTINCT_FIXED_INTENT_AND_WRAPPER_BINDING")
+    check(
+          'ATTEMPT2_EVIDENCE_SHA256 = "0954B5C3D62444BA9AE59519386B0FC454D85C987BE1BAC04B82CA6C671B15A0"' in attempt2_manual_recovery
+          and 'ATTEMPT2_INTENT_KEY = "stage8.11.attempt2:CNYRUBF:entry"' in attempt2_manual_recovery
+          and 'ATTEMPT2_ACCEPTED_CODE_COMMIT = "8857f3a01a060360a33f5909a9020201d3ade502"' in attempt2_manual_recovery
+          and 'ATTEMPT2_EXECUTED_STATUSES = frozenset({"FILLED", "EXECUTED"})' in attempt2_manual_recovery
+          and "_validate_attempt2_physical_evidence(_load_json(previous), account_id=account_id)" in attempt2_manual_recovery
+          and '"order_endpoint_call_count": 1' in attempt2_manual_recovery
+          and '"broker_order_present": True' in attempt2_manual_recovery
+          and '"one_contract_position_observed": False' in attempt2_manual_recovery
+          and '"final_position_quantity": 1' in attempt2_manual_recovery
+          and '"final_active_order_count": 0' in attempt2_manual_recovery
+          and '"unresolved_intent_count": 1' in attempt2_manual_recovery
+          and '"physical_result_classification": "OPERATOR_INTERVENTION_REQUIRED"' in attempt2_manual_recovery
+          and "count_nonzero_positions(positions)" in attempt2_manual_recovery
+          and "count_active_orders(orders)" in attempt2_manual_recovery
+          and 'request.get("client_order_id") != payload.get("client_order_id")' in attempt2_manual_recovery
+          and 'broker_status not in ATTEMPT2_EXECUTED_STATUSES' in attempt2_manual_recovery
+          and "UPDATE intents SET status='CLOSED'" in attempt2_manual_recovery
+          and '"attempt2_reclassified_as_pass": False' in attempt2_manual_recovery
+          and '"manual_close_history_preserved": True' in attempt2_manual_recovery
+          and ".place_order(" not in attempt2_manual_recovery
+          and ".cancel_order(" not in attempt2_manual_recovery
+          and ".trades(" not in attempt2_manual_recovery
+          and "stage8_11_attempt2_manual_recovery" in attempt3_wrapper
+          and attempt3_wrapper.index("stage8_11_attempt2_manual_recovery") < attempt3_wrapper.index("$env:STAGE8_11_TRADING_SECRET")
+          and "STAGE8_11_RECOVERY_READONLY_SECRET" in attempt3_wrapper
+          and "STAGE8_11_RECOVERY_ACCOUNT_ID" in attempt3_wrapper
+          and "ATTEMPT2_RECOVERY_EVIDENCE_NAME" in attempt3_entry
+          and 'recovery.get("recovery_code_commit") != accepted_commit' in attempt3_entry
+          and "_reconcile(broker, PREVIOUS_ENTRY_KEY" not in attempt3_entry,
+          "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY")
     attempt2_physical=provenance.get("stage8_11_attempt2_physical",{})
     check(attempt2_physical.get("attempt_id") == "stage8.11.attempt2"
           and attempt2_physical.get("accepted_code_commit") == "8857f3a01a060360a33f5909a9020201d3ade502"

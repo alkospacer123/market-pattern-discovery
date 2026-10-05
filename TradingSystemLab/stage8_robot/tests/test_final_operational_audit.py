@@ -76,6 +76,15 @@ def test_stage8_11_cleanliness_correction_preserves_historical_hash_authority():
     assert final.POST_STAGE8_11_CORRECTED_SHA256[
         "TradingSystemLab/stage8_robot/account_cleanliness.py"
     ] == "7ab8b91483f7e37605f3a4962281fcdc338bf649cee96f141f06ac20294a2184"
+    assert final.POST_STAGE8_11_CORRECTED_SHA256[
+        "TradingSystemLab/stage8_robot/stage8_11_attempt2_manual_recovery.py"
+    ] == "f3b90e020cd4604d6c6f07c1118315e193910fb6d1618de1cac8b55f78abc4dd"
+    assert final.POST_STAGE8_11_CORRECTED_SHA256[
+        "TradingSystemLab/stage8_robot/stage8_11_physical_acceptance_attempt3.py"
+    ] == "b3dfcbbd11cf11f047e81357bf9afd562dc91cbaca4bc311404d0e74e34dff0e"
+    assert final.POST_STAGE8_11_CORRECTED_SHA256[
+        "TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-physical-acceptance-attempt3.ps1"
+    ] == "ab77c15a0ad85e7dd7e6c03833de9466a3c586440ad02f8d4924a023db63862b"
     result = run_audit()
     assert result["protected_implementation_status"] == "PASS"
     assert not any(error.startswith("PROTECTED_IMPLEMENTATION_HASHES:") for error in result["errors"])
@@ -100,6 +109,14 @@ def test_stage8_11_cleanliness_correction_preserves_historical_hash_authority():
      "STAGE8_11_RECOVERY_NO_ORDER_CAPABILITY", "STAGE8_11_BOUND_ORDER_INCAPABLE_RECOVERY"),
     ("stage8_11_failed_attempt_recovery.py", "BEGIN IMMEDIATE", "BEGIN",
      "STAGE8_11_RECOVERY_DURABLE_COMMIT_PROTOCOL", "STAGE8_11_RECOVERY_DURABLE_COMMIT_PROTOCOL"),
+    ("stage8_11_attempt2_manual_recovery.py", "count_active_orders(orders)", "0",
+     "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY", "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY"),
+    ("stage8_11_attempt2_manual_recovery.py", "UPDATE intents SET status='CLOSED'", "UPDATE intents SET status='RECONCILED'",
+     "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY", "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY"),
+    ("stage8_11_attempt2_manual_recovery.py", "broker_status not in ATTEMPT2_EXECUTED_STATUSES", "False",
+     "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY", "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY"),
+    ("stage8_11_attempt2_manual_recovery.py", '"final_position_quantity": 1', '"final_position_quantity": 0',
+     "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY", "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY"),
     ("controlled_real_acceptance.py", "if not _account_is_clean(final):", "if False:",
      "STAGE8_11_CLEAN_PROOF_AND_HALT", "STAGE8_11_ACCOUNT_WIDE_CLEAN_PROOF"),
     ("controlled_real_acceptance.py", "finally:\n        emergency_halt(runtime_root", "finally:\n        pass #",

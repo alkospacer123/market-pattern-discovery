@@ -19,13 +19,17 @@ from typing import Any, Callable
 
 from .controlled_real_acceptance import (
     AcceptanceAuthority, AcceptanceBlocked, ControlledAcceptanceBroker,
-    STAGE8_10_AUTHORITY, STAGE8_11_ATTEMPT3_ID, _reconcile, resolve_frozen_symbol,
+    STAGE8_10_AUTHORITY, STAGE8_11_ATTEMPT3_ID, resolve_frozen_symbol,
     run_controlled_lifecycle, sanitized_evidence,
 )
 from .finam_api import FinamAPI
 from .funding_margin_diagnostic import READY, run as collect_funding_authority
 from .operations import stage8_11_exclusive_lock
 from .specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID
+from .stage8_11_attempt2_manual_recovery import (
+    RECOVERY_EVIDENCE_NAME as ATTEMPT2_RECOVERY_EVIDENCE_NAME,
+    RECOVERY_SCHEMA as ATTEMPT2_RECOVERY_SCHEMA,
+)
 from .stage8_11_intel_acceptance import stage8_10_authority_complete
 from .state import StateStore, initialize_stage8_11_acceptance_ledger
 from .trading_safety_gate import (
@@ -142,22 +146,40 @@ def _physical_evidence(*, accepted_commit: str, account_hash: str, result: dict[
 
 
 def _reconcile_previous_attempt(*, runtime_root: Path, broker: ControlledAcceptanceBroker,
-                                store: StateStore) -> None:
-    """Close the durable attempt-2 entry tail without any new entry POST."""
+                                store: StateStore, accepted_commit: str) -> None:
+    """Require committed manual recovery of attempt2; never replay its /trades history."""
     previous = runtime_root / "diagnostics" / PREVIOUS_REPORT_NAME
     if (not previous.is_file()
             or hashlib.sha256(previous.read_bytes()).hexdigest().upper() != PREVIOUS_EVIDENCE_SHA256):
         raise PhysicalAcceptanceBlocked("STAGE8_11_ATTEMPT2_EVIDENCE_MISSING_OR_MISMATCH")
+
+    recovery_path = runtime_root / "diagnostics" / ATTEMPT2_RECOVERY_EVIDENCE_NAME
+    try:
+        recovery = json.loads(recovery_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        raise PhysicalAcceptanceBlocked("STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_REQUIRED") from None
+    if (not isinstance(recovery, dict)
+            or recovery.get("schema_id") != ATTEMPT2_RECOVERY_SCHEMA
+            or recovery.get("recovery_status") != "COMMITTED"
+            or recovery.get("attempt2_evidence_sha256") != PREVIOUS_EVIDENCE_SHA256
+            or recovery.get("intent_key") != PREVIOUS_ENTRY_KEY
+            or recovery.get("account_identity_sha256") != broker.accepted_account_hash
+            or recovery.get("production_specification_id") != PRODUCTION_SPECIFICATION_ID
+            or recovery.get("active_identity") != ACTIVE_IDENTITY
+            or recovery.get("final_local_intent_status") != "CLOSED"
+            or recovery.get("attempt2_reclassified_as_pass") is not False
+            or recovery.get("manual_close_history_preserved") is not True
+            or recovery.get("recovery_code_commit") != accepted_commit):
+        raise PhysicalAcceptanceBlocked("STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_INVALID")
+
     intent = store.intent(PREVIOUS_ENTRY_KEY)
-    if not intent or not intent.get("broker_order_id"):
-        raise PhysicalAcceptanceBlocked("STAGE8_11_ATTEMPT2_ENTRY_PROVENANCE_INVALID")
-    status = str(intent.get("status", ""))
-    if status != "RECONCILED":
-        if status not in {"ACK", "UNCERTAIN", "FILL"}:
-            raise PhysicalAcceptanceBlocked("STAGE8_11_ATTEMPT2_ENTRY_STATE_INVALID")
-        _reconcile(broker, PREVIOUS_ENTRY_KEY, allow_cancel=False, expected_position=None)
+    if (not intent or intent.get("status") != "CLOSED"
+            or not isinstance(intent.get("broker_order_id"), str)
+            or not intent.get("broker_order_id")):
+        raise PhysicalAcceptanceBlocked("STAGE8_11_ATTEMPT2_ENTRY_STATE_INVALID")
     if store.unresolved_intent_count() != 0:
         raise PhysicalAcceptanceBlocked("STAGE8_11_ATTEMPT2_RECONCILIATION_INCOMPLETE")
+
     final = broker.account_snapshot(FINAM_SYMBOL)
     if (final.get("position_quantity") != 0
             or final.get("unexpected_position_count") != 0
@@ -194,7 +216,9 @@ def execute_boundary(*, accepted_commit: str, authorization: str, account_id: st
             create_stage8_11_acceptance_backup(runtime_root, account_id)
             account_hash = _hash(account_id)
             broker = ControlledAcceptanceBroker(api, account_id, account_hash, store)
-            _reconcile_previous_attempt(runtime_root=runtime_root, broker=broker, store=store)
+            _reconcile_previous_attempt(
+                runtime_root=runtime_root, broker=broker, store=store,
+                accepted_commit=accepted_commit)
             if store.unresolved_intent_count() != 0:
                 raise PhysicalAcceptanceBlocked("STAGE8_11_UNRESOLVED_INTENTS_PRESENT")
             report = funding_collector(api, account_id, None, required_readonly=False)

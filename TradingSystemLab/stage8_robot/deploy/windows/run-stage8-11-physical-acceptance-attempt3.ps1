@@ -39,7 +39,7 @@ try {
     if (-not $task -or $task.State -ne "Disabled") { throw "STAGE8_11_SCHEDULED_TASK_MUST_BE_DISABLED" }
     $conflicts = @(Get-CimInstance Win32_Process | Where-Object {
         $_.ProcessId -ne $PID -and $_.CommandLine -and
-        ($_.CommandLine -match "readonly_supervisor|stage8_robot\.runner|stage8_11_physical_acceptance|stage8_11_physical_acceptance_attempt3|stage8_11_failed_attempt_recovery")
+        ($_.CommandLine -match "readonly_supervisor|stage8_robot\.runner|stage8_11_physical_acceptance|stage8_11_physical_acceptance_attempt3|stage8_11_failed_attempt_recovery|stage8_11_attempt2_manual_recovery")
     })
     if ($conflicts.Count -ne 0) { throw "STAGE8_11_RUNTIME_OWNER_CONFLICT" }
 
@@ -64,6 +64,17 @@ try {
     foreach ($name in @("FINAM_MODE","NEW_ENTRIES_DISABLED","FINAM_API_SECRET","FINAM_REAL_ACCOUNT_ID")) {
         Remove-Item "Env:$name" -ErrorAction SilentlyContinue
     }
+    # Attempt2 was manually flattened after its immutable OIR evidence. Close
+    # only that stale local intent through a strictly read-only broker facade.
+    # This recovery never calls /trades and has no order mutation attributes.
+    $env:STAGE8_11_RECOVERY_READONLY_SECRET = [string]$readonly.finam_api_secret
+    $env:STAGE8_11_RECOVERY_ACCOUNT_ID = [string]$readonly.finam_real_account_id
+    & $Python -m TradingSystemLab.stage8_robot.stage8_11_attempt2_manual_recovery `
+        --runtime-root $runtime --accepted-recovery-commit $AcceptedCommit
+    if ($LASTEXITCODE -ne 0) { throw "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_FAILED" }
+    foreach ($name in @("STAGE8_11_RECOVERY_READONLY_SECRET","STAGE8_11_RECOVERY_ACCOUNT_ID")) {
+        Remove-Item "Env:$name" -ErrorAction SilentlyContinue
+    }
     $readonly = $null
 
     $env:STAGE8_11_PHYSICAL_AUTHORIZATION = $Authorization
@@ -84,6 +95,7 @@ try {
         Write-Warning "STAGE8_11_PARENT_HALT_FAILED: $($_.Exception.Message)"
     }
     foreach ($name in @("FINAM_MODE","NEW_ENTRIES_DISABLED","FINAM_API_SECRET","FINAM_REAL_ACCOUNT_ID",
+        "STAGE8_11_RECOVERY_READONLY_SECRET","STAGE8_11_RECOVERY_ACCOUNT_ID",
         "STAGE8_11_PHYSICAL_AUTHORIZATION","STAGE8_11_DPAPI_VALIDATED","STAGE8_11_TRADING_SECRET","STAGE8_11_ACCOUNT_ID")) {
         Remove-Item "Env:$name" -ErrorAction SilentlyContinue
     }
