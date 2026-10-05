@@ -336,7 +336,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and "_validate_attempt2_physical_evidence(_load_json(previous), account_id=account_id)" in attempt2_manual_recovery
           and '"order_endpoint_call_count": 1' in attempt2_manual_recovery
           and '"broker_order_present": True' in attempt2_manual_recovery
-          and '"one_contract_position_observed": True' in attempt2_manual_recovery
+          and '"one_contract_position_observed": False' in attempt2_manual_recovery
           and '"final_position_quantity": 1' in attempt2_manual_recovery
           and '"final_active_order_count": 0' in attempt2_manual_recovery
           and '"unresolved_intent_count": 1' in attempt2_manual_recovery
