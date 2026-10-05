@@ -218,4 +218,6 @@ def test_attempt3_windows_wrapper_recovers_before_trading_secret_environment():
     assert recovery_call < trading_secret
     assert "STAGE8_11_RECOVERY_READONLY_SECRET" in source
     assert "STAGE8_11_RECOVERY_ACCOUNT_ID" in source
+    assert '$attempt2RecoveryCommit = "8f614a73ec885f45cd159d350cab910e2a3b585c"' in source
+    assert "--accepted-recovery-commit $attempt2RecoveryCommit" in source
     assert "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_FAILED" in source
