@@ -163,6 +163,9 @@ def _reconcile_previous_attempt(*, runtime_root: Path, broker: ControlledAccepta
             or recovery.get("recovery_status") != "COMMITTED"
             or recovery.get("attempt2_evidence_sha256") != PREVIOUS_EVIDENCE_SHA256
             or recovery.get("intent_key") != PREVIOUS_ENTRY_KEY
+            or recovery.get("account_identity_sha256") != broker.accepted_account_hash
+            or recovery.get("production_specification_id") != PRODUCTION_SPECIFICATION_ID
+            or recovery.get("active_identity") != ACTIVE_IDENTITY
             or recovery.get("final_local_intent_status") != "CLOSED"
             or recovery.get("attempt2_reclassified_as_pass") is not False
             or recovery.get("manual_close_history_preserved") is not True):
