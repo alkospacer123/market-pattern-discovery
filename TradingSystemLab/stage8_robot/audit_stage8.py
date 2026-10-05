@@ -356,7 +356,10 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and "STAGE8_11_RECOVERY_READONLY_SECRET" in attempt3_wrapper
           and "STAGE8_11_RECOVERY_ACCOUNT_ID" in attempt3_wrapper
           and "ATTEMPT2_RECOVERY_EVIDENCE_NAME" in attempt3_entry
-          and 'recovery.get("recovery_code_commit") != accepted_commit' in attempt3_entry
+          and 'ATTEMPT2_RECOVERY_CODE_COMMIT = "8f614a73ec885f45cd159d350cab910e2a3b585c"' in attempt3_entry
+          and 'recovery.get("recovery_code_commit") != ATTEMPT2_RECOVERY_CODE_COMMIT' in attempt3_entry
+          and '$attempt2RecoveryCommit = "8f614a73ec885f45cd159d350cab910e2a3b585c"' in attempt3_wrapper
+          and "--accepted-recovery-commit $attempt2RecoveryCommit" in attempt3_wrapper
           and "_reconcile(broker, PREVIOUS_ENTRY_KEY" not in attempt3_entry,
           "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY")
     attempt2_physical=provenance.get("stage8_11_attempt2_physical",{})

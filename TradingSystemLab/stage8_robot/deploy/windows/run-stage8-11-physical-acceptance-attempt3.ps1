@@ -9,6 +9,7 @@ $ErrorActionPreference = "Stop"
 $taskName = "TradingSystemLab-Stage8-Readonly"
 $productionId = "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8"
 $expectedAuthorization = "STAGE_8_11_ONE_CONTRACT_ACCEPTANCE_AUTHORIZED"
+$attempt2RecoveryCommit = "8f614a73ec885f45cd159d350cab910e2a3b585c"
 $repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..\..")).Path
 $runtime = [IO.Path]::GetFullPath($RuntimeRoot)
 $evidence = Join-Path $runtime "diagnostics\stage8_11_physical_acceptance_attempt3.json"
@@ -70,7 +71,7 @@ try {
     $env:STAGE8_11_RECOVERY_READONLY_SECRET = [string]$readonly.finam_api_secret
     $env:STAGE8_11_RECOVERY_ACCOUNT_ID = [string]$readonly.finam_real_account_id
     & $Python -m TradingSystemLab.stage8_robot.stage8_11_attempt2_manual_recovery `
-        --runtime-root $runtime --accepted-recovery-commit $AcceptedCommit
+        --runtime-root $runtime --accepted-recovery-commit $attempt2RecoveryCommit
     if ($LASTEXITCODE -ne 0) { throw "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_FAILED" }
     foreach ($name in @("STAGE8_11_RECOVERY_READONLY_SECRET","STAGE8_11_RECOVERY_ACCOUNT_ID")) {
         Remove-Item "Env:$name" -ErrorAction SilentlyContinue
