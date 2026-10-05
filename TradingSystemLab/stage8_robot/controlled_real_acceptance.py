@@ -497,7 +497,7 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
             continue
 
         fills = snap.get("fills", [])
-        if status in (TERMINAL_FILL | TERMINAL_NO_FILL) and filled == 1 and fills:
+        if status in TERMINAL_FILL and filled == 1 and fills:
             position = snap.get("position_quantity")
             if expected_position is not None:
                 if type(position) is not int:
