@@ -104,7 +104,7 @@ PROTECTED_SHA256 = {
 # account was flat.  This separately frozen correction keeps the historical
 # authority intact while permitting only the exact reviewed read-side fix.
 POST_STAGE8_11_CORRECTED_SHA256 = {
-    "TradingSystemLab/stage8_robot/account_cleanliness.py": "61849980f74be41bce4f9e4dc8346bac4b50a2a96b691ee68c4674e993550e4e",
+    "TradingSystemLab/stage8_robot/account_cleanliness.py": "7ab8b91483f7e37605f3a4962281fcdc338bf649cee96f141f06ac20294a2184",
     "TradingSystemLab/stage8_robot/readonly_supervisor.py": "c4dee8d488dc6379b80a31aca39256b89c3d8e9ae76269267381cd357fe073e5",
     "TradingSystemLab/stage8_robot/funding_margin_diagnostic.py": "7a4aa3e71d45b42d96a0aad9b632dc87cfdf0cc8bcfa282b77acd73cde359257",
 }
