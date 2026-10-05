@@ -8,15 +8,15 @@ from TradingSystemLab.stage8_robot.controlled_real_acceptance import (
 )
 from TradingSystemLab.stage8_robot.specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID
 from TradingSystemLab.stage8_robot.stage8_11_physical_acceptance_attempt3 import (
-    ATTEMPT_ID, PREVIOUS_ENTRY_KEY, REPORT_NAME, PhysicalAcceptanceBlocked,
-    _reconcile_previous_attempt,
+    ATTEMPT2_RECOVERY_CODE_COMMIT, ATTEMPT_ID, PREVIOUS_ENTRY_KEY, REPORT_NAME,
+    PhysicalAcceptanceBlocked, _reconcile_previous_attempt,
 )
 from TradingSystemLab.stage8_robot.state import StateStore
 from TradingSystemLab.stage8_robot.tests.test_controlled_real_acceptance import (
     ACCOUNT, API, HASH, NOW, armed_runtime, authority, fill,
 )
 
-RECOVERY_COMMIT = "a" * 40
+RECOVERY_COMMIT = ATTEMPT2_RECOVERY_CODE_COMMIT
 
 
 class CleanRecoveredAccountAPI:
@@ -80,10 +80,28 @@ def test_attempt3_requires_manual_recovery_and_never_replays_attempt2_trades(tmp
     assert store.unresolved_intent_count() == 0
 
 
-def test_attempt3_rejects_recovery_evidence_from_different_commit(tmp_path, monkeypatch):
+def test_attempt3_accepts_newer_code_commit_with_frozen_recovery_provenance(tmp_path, monkeypatch):
     root = tmp_path / "runtime"
     store = StateStore(tmp_path / "state.db")
     prepare_recovered_attempt2(root, store, monkeypatch)
+
+    api = CleanRecoveredAccountAPI()
+    broker = ControlledAcceptanceBroker(api, ACCOUNT, HASH, store)
+    _reconcile_previous_attempt(
+        runtime_root=root, broker=broker, store=store,
+        accepted_commit="b" * 40)
+
+
+def test_attempt3_rejects_mutated_recovery_provenance(tmp_path, monkeypatch):
+    root = tmp_path / "runtime"
+    store = StateStore(tmp_path / "state.db")
+    prepare_recovered_attempt2(root, store, monkeypatch)
+
+    from TradingSystemLab.stage8_robot import stage8_11_physical_acceptance_attempt3 as physical
+    recovery_path = root / "diagnostics" / physical.ATTEMPT2_RECOVERY_EVIDENCE_NAME
+    recovery = json.loads(recovery_path.read_text())
+    recovery["recovery_code_commit"] = "c" * 40
+    recovery_path.write_text(json.dumps(recovery))
 
     api = CleanRecoveredAccountAPI()
     broker = ControlledAcceptanceBroker(api, ACCOUNT, HASH, store)
