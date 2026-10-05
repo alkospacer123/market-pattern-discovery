@@ -16,6 +16,7 @@ import re
 import time
 from typing import Any, Callable
 
+from .account_cleanliness import count_active_orders, normalize_order_status
 from .broker import OrderRequest, broker_side, compact_client_order_id
 from .finam_api import (CLIENT_ORDER_ID_MAX_LENGTH, MARKET_ORDER_TYPE, TIME_IN_FORCE_DAY,
                         FinamNotFound, FinamOrderRejected, FinamUncertainSubmission)
@@ -35,8 +36,15 @@ RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS = 3
 RECONCILIATION_SLEEP_SECONDS = 0.1
 MAX_ACCEPTANCE_QUANTITY = 1
 REGISTRY = Path(__file__).with_name("production_instrument_registry.csv")
-TERMINAL_NO_FILL = frozenset({"REJECTED", "EXPIRED", "CANCELLED"})
-ACTIVE = frozenset({"NEW", "PENDING", "ACTIVE", "PARTIAL_FILL", "PENDING_CANCEL"})
+TERMINAL_FILL = frozenset({"FILLED", "EXECUTED"})
+TERMINAL_NO_FILL = frozenset({
+    "REJECTED", "EXPIRED", "CANCELLED", "FAILED",
+    "DENIED_BY_BROKER", "REJECTED_BY_EXCHANGE",
+})
+ACTIVE = frozenset({
+    "NEW", "PARTIAL_FILL", "DONE_FOR_DAY", "PENDING_CANCEL", "SUSPENDED",
+    "PENDING_NEW", "FORWARDING", "WAIT", "WATCHING", "LINK_WAIT",
+})
 # Five minutes is a deliberately conservative operational budget for the one
 # contract acknowledgement, read-side reconciliation, and controlled flatten.
 # It is measured against FINAM's live interval end; no exchange timetable is
@@ -324,14 +332,10 @@ def _timestamp(value: Any) -> tuple[int, int]:
 
 
 def _status(value: Any) -> str:
-    if not isinstance(value, str) or not value:
-        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-    status = value.upper().removeprefix("ORDER_STATUS_")
-    aliases = {"PARTIALLY_FILLED": "PARTIAL_FILL", "CANCELED": "CANCELLED"}
-    status = aliases.get(status, status)
-    if status not in ACTIVE | TERMINAL_NO_FILL | {"FILLED"}:
-        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-    return status
+    try:
+        return normalize_order_status(value)
+    except ValueError:
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED") from None
 
 
 def _production_account(api: object, account_id: str) -> list[dict[str, Any]]:
@@ -426,12 +430,11 @@ def _production_account_snapshot(api: object, account_id: str, symbol: str, stor
         quantity = _decimal_contracts(row.get("quantity"))
         if row_symbol != symbol and quantity != 0:
             unexpected_positions += 1
-    active = 0
-    for row in _rows(api.orders(account_id), "orders"):
-        # Account cleanliness is global.  An unrelated active order is not ours
-        # to cancel, but it is proof that physical acceptance must stop.
-        if _status(row.get("status")) in ACTIVE:
-            active += 1
+    order_rows = _rows(api.orders(account_id), "orders")
+    try:
+        active = count_active_orders(order_rows)
+    except ValueError:
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED") from None
     return {"acceptance_instrument": symbol, "position_quantity": selected_position,
             "unexpected_position_count": unexpected_positions,
             "active_order_count": active, "reconciled": True}
@@ -494,7 +497,7 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
             continue
 
         fills = snap.get("fills", [])
-        if status in ({"FILLED"} | TERMINAL_NO_FILL) and filled == 1 and fills:
+        if status in TERMINAL_FILL and filled == 1 and fills:
             position = snap.get("position_quantity")
             if expected_position is not None:
                 if type(position) is not int:
@@ -512,6 +515,12 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
             broker.store.transition_intent(key, "RECONCILED", order_id)
             return snap
 
+        if status in TERMINAL_FILL and (filled != 1 or not fills):
+            raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+
+        if status in TERMINAL_NO_FILL and filled != 0:
+            raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+
         if status in TERMINAL_NO_FILL and filled == 0:
             position = snap.get("position_quantity")
             if type(position) is not int:
@@ -524,11 +533,13 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
                     continue
                 raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
             broker.store.transition_intent(
-                key, status if status != "EXPIRED" else "REJECTED", order_id or None)
+                key, "CANCELLED" if status == "CANCELLED" else "REJECTED", order_id or None)
             return snap
 
-        if observation + 1 >= RECONCILIATION_MAX_OBSERVATIONS:
-            raise OperatorInterventionRequired("RECONCILIATION_TIMEOUT")
+        # A documented FINAM state outside the exchange-market-order lifecycle
+        # (for example REPLACED/DISABLED/SL/TP states) is structurally real but
+        # not safe to reinterpret for Stage 8.11.
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
         sleeper(RECONCILIATION_SLEEP_SECONDS)
 
     raise OperatorInterventionRequired("RECONCILIATION_TIMEOUT")
