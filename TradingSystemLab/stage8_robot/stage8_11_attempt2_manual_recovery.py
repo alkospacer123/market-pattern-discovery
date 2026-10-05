@@ -18,8 +18,8 @@ import tempfile
 from typing import Any, Callable
 
 from .account_cleanliness import (
-    TERMINAL_ORDER_STATUSES, count_active_orders, count_nonzero_positions,
-    normalize_order_status,
+    TERMINAL_ORDER_STATUSES, _rest_contract_quantity, count_active_orders,
+    count_nonzero_positions, normalize_order_status,
 )
 from .backup_state import create_stage8_11_acceptance_backup, sha256_file
 from .operations import stage8_11_exclusive_lock
@@ -165,8 +165,21 @@ def recover_attempt2_manual_close(*, runtime_root: Path, account_id: str, readon
             matches = [row for row in orders if isinstance(row, dict) and row.get("order_id") == broker_id]
             if len(matches) != 1:
                 raise Attempt2RecoveryBlocked("ATTEMPT2_RECOVERY_BROKER_ORDER_NOT_UNIQUE")
+            broker_row = matches[0]
+            request = broker_row.get("order")
+            if not isinstance(request, dict):
+                raise Attempt2RecoveryBlocked("ATTEMPT2_RECOVERY_BROKER_ORDER_SHAPE_INVALID")
             try:
-                broker_status = normalize_order_status(matches[0].get("status"))
+                broker_quantity = _rest_contract_quantity(request.get("quantity"))
+            except ValueError:
+                raise Attempt2RecoveryBlocked("ATTEMPT2_RECOVERY_BROKER_ORDER_SHAPE_INVALID") from None
+            if (request.get("client_order_id") != payload.get("client_order_id")
+                    or request.get("symbol") != FINAM_SYMBOL
+                    or request.get("side") != "SIDE_BUY"
+                    or broker_quantity != 1):
+                raise Attempt2RecoveryBlocked("ATTEMPT2_RECOVERY_BROKER_ORDER_IDENTITY_MISMATCH")
+            try:
+                broker_status = normalize_order_status(broker_row.get("status"))
             except ValueError:
                 raise Attempt2RecoveryBlocked("ATTEMPT2_RECOVERY_BROKER_ORDER_STATUS_INVALID") from None
             if broker_status not in TERMINAL_ORDER_STATUSES:
