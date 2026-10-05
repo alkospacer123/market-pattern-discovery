@@ -304,7 +304,12 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and '_reconcile_previous_attempt' in attempt3_entry
           and 'stage8_11_physical_acceptance_attempt3.json' in attempt3_wrapper
           and 'stage8_11_physical_acceptance_attempt3' in attempt3_wrapper
-          and 'os.replace(' not in attempt3_entry and 'os.link(temporary, destination)' in attempt3_entry,
+          and 'os.replace(' not in attempt3_entry and 'os.link(temporary, destination)' in attempt3_entry
+          and 'RECONCILIATION_MAX_OBSERVATIONS = 12' in acceptance
+          and 'RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS = 3' in acceptance
+          and 'class ReconciliationPending' in acceptance
+          and 'raise ReconciliationPending("TRADE_PROPAGATION_PENDING")' in acceptance
+          and 'observation + 1 >= RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS' in acceptance,
           "STAGE8_11_ATTEMPT2_DISTINCT_FIXED_INTENT_AND_WRAPPER_BINDING")
     check('FAILED_PHYSICAL_EVIDENCE_SHA256 = "9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324"' in recovery
           and 'HISTORICAL_INTENT_KEY = "stage8.11:CNYRUBF:entry"' in recovery
