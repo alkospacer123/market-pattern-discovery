@@ -38,7 +38,7 @@ def git_files():
 
 
 def source(relative):
-    return (ROOT / relative).read_bytes().decode("utf-8")
+    return (ROOT / relative).read_bytes().replace(b"\r\n", b"\n").decode("utf-8")
 
 
 def test_clean_repository_authority_passes():
@@ -1023,7 +1023,7 @@ def test_stage_8_10_current_handoff_stale_gate_and_omission_fail_both_audits(pat
         "Stage 8.10 is **COMPLETE**, but the next possible lifecycle gate is Stage 8.10.5.",
         1)
     stale = original[:start] + stale_handoff + original[next_section:]
-    _assert_document_mutation_fails_both(path, stale, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
+    _assert_document_mutation_fails_both(path, stale, "STAGE_8_10_NO_STALE_NEXT_GATE")
     omitted_handoff = handoff.replace("prior explicit authorization **CONSUMED**", "", 1)
     omitted = original[:start] + omitted_handoff + original[next_section:]
     _assert_document_mutation_fails_both(path, omitted, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
