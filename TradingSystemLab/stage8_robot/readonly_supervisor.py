@@ -16,6 +16,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable
 
+from .account_cleanliness import count_active_orders, count_nonzero_positions
 from .finam_api import FinamAPI, completed_h1_bars
 from .operations import InstanceLock, configure_operational_log, write_heartbeat
 from .specification import ACTIVE_IDENTITY, INSTRUMENTS, PRODUCTION_SPECIFICATION_ID, load_frozen_specification
@@ -239,16 +240,20 @@ class ReadonlySupervisor:
         if account_data.get("status") not in {"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"}:
             raise SafetyFault("REAL_ACCOUNT_NOT_ACTIVE")
         positions = account_data.get("positions")
-        if not isinstance(positions, list):
-            raise SafetyFault("REAL_POSITIONS_SCHEMA_INVALID")
-        if positions:
+        try:
+            nonzero_positions = count_nonzero_positions(positions)
+        except ValueError:
+            raise SafetyFault("REAL_POSITIONS_SCHEMA_INVALID") from None
+        if nonzero_positions:
             raise SafetyFault("UNEXPECTED_BROKER_POSITION")
         orders_data = self.api.orders(self.account)
         orders = orders_data.get("orders", orders_data if isinstance(orders_data, list) else None)
-        if not isinstance(orders, list):
-            raise SafetyFault("REAL_ORDERS_SCHEMA_INVALID")
-        if orders:
-            raise SafetyFault("UNEXPECTED_ACTIVE_ORDER", unresolved_order_count=len(orders))
+        try:
+            active_orders = count_active_orders(orders)
+        except ValueError:
+            raise SafetyFault("REAL_ORDERS_SCHEMA_INVALID") from None
+        if active_orders:
+            raise SafetyFault("UNEXPECTED_ACTIVE_ORDER", unresolved_order_count=active_orders)
 
         updates: dict[str, str] = {}
         # Retain the broad observation window for continuity across closures; the
