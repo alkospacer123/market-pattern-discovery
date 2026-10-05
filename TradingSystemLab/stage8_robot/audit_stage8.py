@@ -248,7 +248,9 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and "class ReconciliationPending" in acceptance
           and "RECONCILIATION_MAX_OBSERVATIONS = 12" in acceptance
           and "ORDER_COLLECTION_PROPAGATION_PENDING" in acceptance
-          and "TRADE_PROPAGATION_PENDING" in acceptance,
+          and '"trade_propagation_pending": len(matching) < executed' in acceptance
+          and "if expected_position is None or type(position) is not int:" in acceptance
+          and 'snap.get("trade_propagation_pending") is not True' in acceptance,
           "STAGE_8_11_UNCERTAIN_RECONCILIATION")
     check("_digest(account_id) != accepted_account_hash.lower()" in acceptance
           and "heartbeat_account_hash" in acceptance, "STAGE_8_11_EXACT_ACCOUNT_BINDING")
