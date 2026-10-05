@@ -30,7 +30,7 @@ EVIDENCE_SCHEMA = "stage8_11_physical_acceptance.v1"
 STAGE8_11_ATTEMPT2_ID = "stage8.11.attempt2"
 STAGE8_11_ATTEMPT3_ID = "stage8.11.attempt3"
 ALLOWED_ATTEMPT_IDS = frozenset({STAGE8_11_ATTEMPT2_ID, STAGE8_11_ATTEMPT3_ID})
-RECONCILIATION_MAX_OBSERVATIONS = 8
+RECONCILIATION_MAX_OBSERVATIONS = 12
 RECONCILIATION_SLEEP_SECONDS = 0.5
 MAX_ACCEPTANCE_QUANTITY = 1
 REGISTRY = Path(__file__).with_name("production_instrument_registry.csv")
@@ -355,19 +355,24 @@ def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -
     client_id, symbol, side = (payload.get("client_order_id"), payload.get("symbol"), payload.get("side"))
     if not all(isinstance(value, str) and value for value in (client_id, symbol, side)):
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    persisted_id = intent.get("broker_order_id")
+    if persisted_id is not None and (not isinstance(persisted_id, str) or not persisted_id):
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
     candidates = [row for row in _rows(api.orders(account_id), "orders")
                   if isinstance(row.get("order"), dict)
                   and row["order"].get("client_order_id") == client_id]
-    if not candidates:
+    if len(candidates) > 1:
+        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    if candidates:
+        listed_id = candidates[0].get("order_id")
+        if not isinstance(listed_id, str) or not listed_id:
+            raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+        if persisted_id and persisted_id != listed_id:
+            raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    elif persisted_id:
+        listed_id = persisted_id
+    else:
         raise ReconciliationPending("ORDER_COLLECTION_PROPAGATION_PENDING")
-    if len(candidates) != 1:
-        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-    listed_id = candidates[0].get("order_id")
-    if not isinstance(listed_id, str) or not listed_id:
-        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-    persisted_id = intent.get("broker_order_id")
-    if persisted_id and persisted_id != listed_id:
-        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
     try:
         order = api.order(account_id, listed_id)
     except FinamNotFound:
@@ -400,10 +405,10 @@ def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -
         matching.append({"fill_id": trade["trade_id"], "trade_id": trade["trade_id"],
                          "broker_order_id": listed_id, "quantity": "1", "price": trade["price"]["value"],
                          "timestamp": json.dumps(trade["timestamp"], sort_keys=True, separators=(",", ":"))})
-    if len(matching) < executed:
-        raise ReconciliationPending("TRADE_PROPAGATION_PENDING")
-    if len(matching) > executed:
+    if len(matching) > 1:
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+    if len(matching) != executed:
+        raise ReconciliationPending("TRADE_PROPAGATION_PENDING")
     return {"order_status": _status(order.get("status")), "order_id": listed_id,
             "client_order_id": client_id, "executed_quantity": executed, "fills": matching,
             "acceptance_instrument": symbol, "position_quantity": _position(positions, symbol)}
