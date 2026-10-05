@@ -15,6 +15,8 @@ from TradingSystemLab.stage8_robot.tests.test_controlled_real_acceptance import 
     ACCOUNT, API, HASH, NOW, armed_runtime, authority, fill,
 )
 
+RECOVERY_COMMIT = "a" * 40
+
 
 class CleanRecoveredAccountAPI:
     """Account-wide clean proof with deliberately no trades() method."""
@@ -52,6 +54,7 @@ def prepare_recovered_attempt2(root, store, monkeypatch):
         "final_local_intent_status": "CLOSED",
         "attempt2_reclassified_as_pass": False,
         "manual_close_history_preserved": True,
+        "recovery_code_commit": RECOVERY_COMMIT,
     }))
     return digest
 
@@ -68,10 +71,26 @@ def test_attempt3_requires_manual_recovery_and_never_replays_attempt2_trades(tmp
 
     api = CleanRecoveredAccountAPI()
     broker = ControlledAcceptanceBroker(api, ACCOUNT, HASH, store)
-    _reconcile_previous_attempt(runtime_root=root, broker=broker, store=store)
+    _reconcile_previous_attempt(
+        runtime_root=root, broker=broker, store=store,
+        accepted_commit=RECOVERY_COMMIT)
 
     assert store.intent(PREVIOUS_ENTRY_KEY)["status"] == "CLOSED"
     assert store.unresolved_intent_count() == 0
+
+
+def test_attempt3_rejects_recovery_evidence_from_different_commit(tmp_path, monkeypatch):
+    root = tmp_path / "runtime"
+    store = StateStore(tmp_path / "state.db")
+    prepare_recovered_attempt2(root, store, monkeypatch)
+
+    api = CleanRecoveredAccountAPI()
+    broker = ControlledAcceptanceBroker(api, ACCOUNT, HASH, store)
+    import pytest
+    with pytest.raises(Exception):
+        _reconcile_previous_attempt(
+            runtime_root=root, broker=broker, store=store,
+            accepted_commit="b" * 40)
 
 
 def test_attempt3_full_repeat_after_committed_manual_recovery(tmp_path, monkeypatch):
@@ -80,7 +99,9 @@ def test_attempt3_full_repeat_after_committed_manual_recovery(tmp_path, monkeypa
     prepare_recovered_attempt2(root, store, monkeypatch)
 
     clean_broker = ControlledAcceptanceBroker(CleanRecoveredAccountAPI(), ACCOUNT, HASH, store)
-    _reconcile_previous_attempt(runtime_root=root, broker=clean_broker, store=store)
+    _reconcile_previous_attempt(
+        runtime_root=root, broker=clean_broker, store=store,
+        accepted_commit=RECOVERY_COMMIT)
     assert store.intent(PREVIOUS_ENTRY_KEY)["status"] == "CLOSED"
 
     api = API(store, [fill("o1", 1), fill("o2", 0)])
