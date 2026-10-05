@@ -109,6 +109,6 @@ def test_attempt4_wrapper_recovers_attempt3_before_trading_secret():
     source = wrapper.read_text(encoding="utf-8")
     recovery = source.index("stage8_11_attempt3_manual_close_recovery")
     trading_secret = source.index("$env:STAGE8_11_TRADING_SECRET")
-    child = source.index("stage8_11_physical_acceptance_attempt4")
+    child = source.index("TradingSystemLab.stage8_robot.stage8_11_physical_acceptance_attempt4")
     assert recovery < trading_secret < child
     assert "--accepted-recovery-commit $AcceptedCommit" in source
