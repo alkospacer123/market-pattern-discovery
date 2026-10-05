@@ -73,6 +73,9 @@ def test_stage8_11_cleanliness_correction_preserves_historical_hash_authority():
     path = "TradingSystemLab/stage8_robot/readonly_supervisor.py"
     assert final.PROTECTED_SHA256[path] == "1455fee5fe207c617676a0463ce3034247c5534578555cac293807da22bcaab8"
     assert final.POST_STAGE8_11_CORRECTED_SHA256[path] == "c4dee8d488dc6379b80a31aca39256b89c3d8e9ae76269267381cd357fe073e5"
+    assert final.POST_STAGE8_11_CORRECTED_SHA256[
+        "TradingSystemLab/stage8_robot/account_cleanliness.py"
+    ] == "7ab8b91483f7e37605f3a4962281fcdc338bf649cee96f141f06ac20294a2184"
     result = run_audit()
     assert result["protected_implementation_status"] == "PASS"
     assert not any(error.startswith("PROTECTED_IMPLEMENTATION_HASHES:") for error in result["errors"])
