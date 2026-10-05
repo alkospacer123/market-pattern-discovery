@@ -47,6 +47,7 @@ REPORT_NAME = "stage8_11_physical_acceptance_attempt3.json"
 HISTORICAL_REPORT_NAME = "stage8_11_physical_acceptance.json"
 PREVIOUS_REPORT_NAME = "stage8_11_physical_acceptance_attempt2.json"
 PREVIOUS_EVIDENCE_SHA256 = "0954B5C3D62444BA9AE59519386B0FC454D85C987BE1BAC04B82CA6C671B15A0"
+ATTEMPT2_RECOVERY_CODE_COMMIT = "8f614a73ec885f45cd159d350cab910e2a3b585c"
 PREVIOUS_ENTRY_KEY = "stage8.11.attempt2:CNYRUBF:entry"
 PRECHECK_REPORT_NAME = "stage8_11_intel_precheck.json"
 PRECHECK_EVIDENCE_SHA256 = "7171B7CD0098FF51159DC05C46C0326BF7F412A2D9EA0CBB3F9BDAFBE7745455"
@@ -169,7 +170,7 @@ def _reconcile_previous_attempt(*, runtime_root: Path, broker: ControlledAccepta
             or recovery.get("final_local_intent_status") != "CLOSED"
             or recovery.get("attempt2_reclassified_as_pass") is not False
             or recovery.get("manual_close_history_preserved") is not True
-            or recovery.get("recovery_code_commit") != accepted_commit):
+            or recovery.get("recovery_code_commit") != ATTEMPT2_RECOVERY_CODE_COMMIT):
         raise PhysicalAcceptanceBlocked("STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_INVALID")
 
     intent = store.intent(PREVIOUS_ENTRY_KEY)
