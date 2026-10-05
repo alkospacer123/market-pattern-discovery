@@ -36,6 +36,7 @@ class SyntheticFinamTransport:
         self.scenario, self.orders, self.trade_rows = scenario, [], []
         self.position = self.posts = self.deletes = 0
         self.trade_reads = 0
+        self.account_reads = 0
         self.paths = []
 
     @staticmethod
@@ -62,8 +63,11 @@ class SyntheticFinamTransport:
                 "start_time":"2026-10-04T00:00:00Z","end_time":"2026-10-04T23:59:00Z"}}]})
         prefix = f"/v1/accounts/{ACCOUNT}"
         if path == prefix and method == "GET":
+            self.account_reads += 1
             position = 1 if self.scenario == "final_nonflat" and self.posts >= 2 else self.position
             if self.scenario == "position_overfill" and self.posts == 1: position = 2
+            if self.scenario == "delayed_position" and self.posts == 1 and self.account_reads < 3:
+                position = 0
             positions=[] if position == 0 else [{"symbol":SYMBOL,"quantity":self.decimal(position),
                 "average_price":self.decimal(1),"current_price":self.decimal(1),
                 "maintenance_margin":self.decimal(0),"daily_pnl":self.decimal(0),
@@ -76,6 +80,8 @@ class SyntheticFinamTransport:
             self.trade_reads += 1
             rows=list(self.trade_rows)
             if self.scenario == "delayed_trade" and self.posts == 1 and self.trade_reads < 3:
+                rows=[]
+            if self.scenario == "missing_trade" and self.posts == 1:
                 rows=[]
             if self.scenario == "unrelated_fill" and self.posts == 1:
                 rows=[{"trade_id":"alien","order_id":"alien-order","account_id":ACCOUNT,
@@ -153,6 +159,24 @@ def test_real_finam_eventual_consistency_delayed_trade_converges_without_duplica
     intents=store.db.execute("SELECT idempotency_key,status FROM intents ORDER BY rowid").fetchall()
     assert intents == [("stage8.11:USDRUBF:entry","RECONCILED"),
                        ("stage8.11:USDRUBF:flatten","RECONCILED")]
+
+def test_real_finam_eventual_consistency_delayed_position_converges_without_duplicate_entry(tmp_path):
+    result,transport,store=execute(tmp_path,"delayed_position")
+    assert result["classification"] == "SYNTHETIC_PASS"
+    assert transport.posts == 2
+    assert transport.account_reads >= 3
+    assert store.unresolved_intent_count() == 0
+
+
+def test_real_finam_missing_trade_times_out_without_duplicate_entry_or_flatten(tmp_path):
+    result,transport,store=execute(tmp_path,"missing_trade")
+    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
+    assert result["failure_code"] == "RECONCILIATION_TIMEOUT"
+    assert transport.posts == 1
+    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "ACK"
+    assert store.intent("stage8.11:USDRUBF:flatten") is None
+    assert store.unresolved_intent_count() == 1
+
 
 def test_real_finam_api_contract_runs_full_controlled_lifecycle(tmp_path):
     result,transport,store=execute(tmp_path,"pass")
