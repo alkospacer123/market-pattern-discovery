@@ -51,8 +51,8 @@ def test_clean_repository_authority_passes():
 
 
 def test_stage8_repository_text_decode_is_explicit_utf8():
-    assert 'path.read_bytes().decode("utf-8")' in source(
-        "TradingSystemLab/stage8_robot/audit_stage8.py")
+    audit_source = source("TradingSystemLab/stage8_robot/audit_stage8.py")
+    assert 'path.read_bytes().replace(b"\\r\\n", b"\\n").decode("utf-8")' in audit_source
 
 
 def test_wrong_production_id_fails():
