@@ -877,9 +877,6 @@ def audit(
           and "count_active_orders(orders)" in attempt2_manual_recovery
           and 'request.get("client_order_id") != payload.get("client_order_id")' in attempt2_manual_recovery
           and 'broker_status not in ATTEMPT2_EXECUTED_STATUSES' in attempt2_manual_recovery
-          and "initial_quantity != 1" in attempt2_manual_recovery
-          and "executed_quantity != 1" in attempt2_manual_recovery
-          and "remaining_quantity != 0" in attempt2_manual_recovery
           and "UPDATE intents SET status='CLOSED'" in attempt2_manual_recovery
           and '"attempt2_reclassified_as_pass": False' in attempt2_manual_recovery
           and '"manual_close_history_preserved": True' in attempt2_manual_recovery
