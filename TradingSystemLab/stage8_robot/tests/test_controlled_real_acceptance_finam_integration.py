@@ -86,6 +86,8 @@ class SyntheticFinamTransport:
                 rows=[]
             if self.scenario == "missing_trade" and self.posts == 1:
                 rows=[]
+            if self.scenario == "missing_all_trades":
+                rows=[]
             if self.scenario == "unrelated_fill" and self.posts == 1:
                 rows=[{"trade_id":"alien","order_id":"alien-order","account_id":ACCOUNT,
                     "symbol":SYMBOL,"side":"SIDE_BUY","size":self.decimal(1),
@@ -172,14 +174,22 @@ def test_real_finam_eventual_consistency_delayed_position_converges_without_dupl
     assert store.unresolved_intent_count() == 0
 
 
-def test_real_finam_missing_trade_times_out_without_duplicate_entry_or_flatten(tmp_path):
+def test_real_finam_missing_entry_trade_uses_exact_order_and_position_proof(tmp_path):
     result,transport,store=execute(tmp_path,"missing_trade")
-    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
-    assert result["failure_code"] == "RECONCILIATION_TIMEOUT"
-    assert transport.posts == 1
-    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "ACK"
-    assert store.intent("stage8.11:USDRUBF:flatten") is None
-    assert store.unresolved_intent_count() == 1
+    assert result["classification"] == "SYNTHETIC_PASS"
+    assert transport.posts == 2
+    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
+    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
+    assert store.unresolved_intent_count() == 0
+
+
+def test_real_finam_missing_all_trades_uses_exact_order_and_position_proof(tmp_path):
+    result,transport,store=execute(tmp_path,"missing_all_trades")
+    assert result["classification"] == "SYNTHETIC_PASS"
+    assert transport.posts == 2
+    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
+    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
+    assert store.unresolved_intent_count() == 0
 
 
 def test_real_finam_api_contract_runs_full_controlled_lifecycle(tmp_path):
@@ -310,7 +320,7 @@ def test_rest_timestamp_chronology_is_instant_based(trade,accepted,valid):
     ("uncertain_entry","SYNTHETIC_PASS"),("uncertain_flatten","SYNTHETIC_PASS"),
     ("active_cancel","NOT_ACCEPTED_NO_EXECUTION"),("no_fill","NOT_ACCEPTED_NO_EXECUTION"),
     ("malformed","OPERATOR_INTERVENTION_REQUIRED"),("duplicate","OPERATOR_INTERVENTION_REQUIRED"),
-    ("unrelated_fill","OPERATOR_INTERVENTION_REQUIRED"),("mismatched_symbol","OPERATOR_INTERVENTION_REQUIRED"),
+    ("unrelated_fill","SYNTHETIC_PASS"),("mismatched_symbol","OPERATOR_INTERVENTION_REQUIRED"),
     ("final_nonflat","OPERATOR_INTERVENTION_REQUIRED"),("executed_overfill","OPERATOR_INTERVENTION_REQUIRED"),
     ("position_overfill","OPERATOR_INTERVENTION_REQUIRED"),
 ])
