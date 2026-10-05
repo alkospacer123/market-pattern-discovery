@@ -31,6 +31,7 @@ STAGE8_11_ATTEMPT2_ID = "stage8.11.attempt2"
 STAGE8_11_ATTEMPT3_ID = "stage8.11.attempt3"
 ALLOWED_ATTEMPT_IDS = frozenset({STAGE8_11_ATTEMPT2_ID, STAGE8_11_ATTEMPT3_ID})
 RECONCILIATION_MAX_OBSERVATIONS = 12
+RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS = 3
 RECONCILIATION_SLEEP_SECONDS = 0.1
 MAX_ACCEPTANCE_QUANTITY = 1
 REGISTRY = Path(__file__).with_name("production_instrument_registry.csv")
@@ -478,7 +479,13 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
         filled = int(snap.get("executed_quantity", 0))
 
         if status in ACTIVE:
-            if allow_cancel and not cancelled:
+            # A newly acknowledged market order may remain ACTIVE/PENDING for a
+            # few read observations while FINAM propagates execution state.
+            # Observe first; cancel at most once only after the fixed grace
+            # window. This avoids manufacturing a cancel race from normal
+            # read-side eventual consistency.
+            if (allow_cancel and not cancelled
+                    and observation + 1 >= RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS):
                 broker.cancel(order_id)
                 cancelled = True
             if observation + 1 >= RECONCILIATION_MAX_OBSERVATIONS:
