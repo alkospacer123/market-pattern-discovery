@@ -212,14 +212,20 @@ def test_dirty_account_fails_closed(field):
     if field=="positions":
         data["account"]["positions"]=[{"symbol":"CNYRUBF@RTSX","quantity":{"value":"1"}}]
     else:
-        data["orders"]={"orders":[{"status":"ACTIVE"}]}
+        data["orders"]={"orders":[{"status":"ORDER_STATUS_PENDING_NEW"}]}
     assert evaluate(**data)["funding_classification"]=="BLOCKED_ACCOUNT_NOT_CLEAN"
 
 
 def test_zero_quantity_position_and_terminal_order_history_are_clean():
     data=inputs()
     data["account"]["positions"]=[{"symbol":"CNYRUBF@RTSX","quantity":{"value":"0.0"}}]
-    data["orders"]={"orders":[{"status":"FILLED"},{"status":"ORDER_STATUS_CANCELLED"}]}
+    data["orders"]={"orders":[
+        {"status":"ORDER_STATUS_FILLED"},
+        {"status":"ORDER_STATUS_CANCELED"},
+        {"status":"ORDER_STATUS_EXECUTED"},
+        {"status":"ORDER_STATUS_REPLACED"},
+        {"status":"ORDER_STATUS_FAILED"},
+    ]}
     report=evaluate(**data)
     assert report["funding_classification"]==READY
     assert report["account_clean"] is True

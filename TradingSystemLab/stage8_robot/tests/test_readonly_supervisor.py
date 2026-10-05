@@ -131,7 +131,7 @@ def test_second_instance_is_blocked(tmp_path):
 @pytest.mark.parametrize(("api", "code"), [
     (ReadonlyFake(positions=[{"symbol": "CNYRUBF@RTSX", "quantity": {"value": "1"}}]),
      "UNEXPECTED_BROKER_POSITION"),
-    (ReadonlyFake(orders=[{"status": "ACTIVE"}]), "UNEXPECTED_ACTIVE_ORDER"),
+    (ReadonlyFake(orders=[{"status": "ORDER_STATUS_PENDING_NEW"}]), "UNEXPECTED_ACTIVE_ORDER"),
 ])
 def test_unexpected_broker_state_fails_closed(tmp_path, api, code):
     service = supervisor(tmp_path, api)
@@ -148,7 +148,13 @@ def test_unexpected_broker_state_fails_closed(tmp_path, api, code):
 def test_zero_quantity_position_and_terminal_order_history_are_clean(tmp_path):
     api = ReadonlyFake(
         positions=[{"symbol": "CNYRUBF@RTSX", "quantity": {"value": "0.0"}}],
-        orders=[{"status": "FILLED"}, {"status": "ORDER_STATUS_CANCELLED"}],
+        orders=[
+            {"status": "ORDER_STATUS_FILLED"},
+            {"status": "ORDER_STATUS_CANCELED"},
+            {"status": "ORDER_STATUS_EXECUTED"},
+            {"status": "ORDER_STATUS_REPLACED"},
+            {"status": "ORDER_STATUS_FAILED"},
+        ],
     )
     service = supervisor(tmp_path, api)
     try:

@@ -6,6 +6,9 @@ from urllib.parse import urlparse
 
 import pytest
 
+from TradingSystemLab.stage8_robot.account_cleanliness import (
+    ACTIVE_ORDER_STATUSES, DOCUMENTED_ORDER_STATUSES, TERMINAL_ORDER_STATUSES,
+)
 from TradingSystemLab.stage8_robot.controlled_real_acceptance import (
     AcceptanceAuthority, ControlledAcceptanceBroker, STAGE8_10_AUTHORITY,
     RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS,
@@ -92,9 +95,10 @@ class SyntheticFinamTransport:
         if path == prefix + "/orders" and method == "POST":
             payload=json.loads(request.data); self.posts += 1; oid=f"o{self.posts}"
             status="ACTIVE" if self.scenario == "active_cancel" and self.posts == 1 else "FILLED"
+            if self.scenario == "executed_status": status="ORDER_STATUS_EXECUTED"
             if self.scenario == "no_fill" and self.posts == 1: status="REJECTED"
             if self.scenario == "mismatched_symbol" and self.posts == 1: payload["symbol"]="CNYRUBF@RTSX"
-            executed=1 if status == "FILLED" else 0
+            executed=1 if status in {"FILLED", "ORDER_STATUS_EXECUTED"} else 0
             if self.scenario == "executed_overfill" and self.posts == 1: executed=2
             order=self.state(oid,payload,status,executed); self.orders.append(order)
             if executed:
@@ -185,6 +189,13 @@ def test_real_finam_api_contract_runs_full_controlled_lifecycle(tmp_path):
     assert ("GET",f"/v1/accounts/{ACCOUNT}/trades") in transport.paths
 
 
+def test_real_finam_executed_status_reconciles_as_filled(tmp_path):
+    result,transport,store=execute(tmp_path,"executed_status")
+    assert result["classification"] == "SYNTHETIC_PASS"
+    assert transport.posts == 2
+    assert store.unresolved_intent_count() == 0
+
+
 def test_active_market_order_gets_grace_observations_before_single_cancel(tmp_path):
     result,transport,store=execute(tmp_path,"active_cancel")
     assert result["classification"] == "NOT_ACCEPTED_NO_EXECUTION"
@@ -199,6 +210,51 @@ def test_active_market_order_gets_grace_observations_before_single_cancel(tmp_pa
 
 def test_pending_cancel_is_an_active_reconciliation_status():
     assert _status("ORDER_STATUS_PENDING_CANCEL") == "PENDING_CANCEL"
+
+
+@pytest.mark.parametrize("raw,normalized", [
+    ("ORDER_STATUS_NEW","NEW"),
+    ("ORDER_STATUS_PARTIALLY_FILLED","PARTIAL_FILL"),
+    ("ORDER_STATUS_FILLED","FILLED"),
+    ("ORDER_STATUS_DONE_FOR_DAY","DONE_FOR_DAY"),
+    ("ORDER_STATUS_CANCELED","CANCELLED"),
+    ("ORDER_STATUS_REPLACED","REPLACED"),
+    ("ORDER_STATUS_PENDING_CANCEL","PENDING_CANCEL"),
+    ("ORDER_STATUS_REJECTED","REJECTED"),
+    ("ORDER_STATUS_SUSPENDED","SUSPENDED"),
+    ("ORDER_STATUS_PENDING_NEW","PENDING_NEW"),
+    ("ORDER_STATUS_EXPIRED","EXPIRED"),
+    ("ORDER_STATUS_FAILED","FAILED"),
+    ("ORDER_STATUS_FORWARDING","FORWARDING"),
+    ("ORDER_STATUS_WAIT","WAIT"),
+    ("ORDER_STATUS_DENIED_BY_BROKER","DENIED_BY_BROKER"),
+    ("ORDER_STATUS_REJECTED_BY_EXCHANGE","REJECTED_BY_EXCHANGE"),
+    ("ORDER_STATUS_WATCHING","WATCHING"),
+    ("ORDER_STATUS_EXECUTED","EXECUTED"),
+    ("ORDER_STATUS_DISABLED","DISABLED"),
+    ("ORDER_STATUS_LINK_WAIT","LINK_WAIT"),
+    ("ORDER_STATUS_SL_GUARD_TIME","SL_GUARD_TIME"),
+    ("ORDER_STATUS_SL_EXECUTED","SL_EXECUTED"),
+    ("ORDER_STATUS_SL_FORWARDING","SL_FORWARDING"),
+    ("ORDER_STATUS_TP_GUARD_TIME","TP_GUARD_TIME"),
+    ("ORDER_STATUS_TP_EXECUTED","TP_EXECUTED"),
+    ("ORDER_STATUS_TP_CORRECTION","TP_CORRECTION"),
+    ("ORDER_STATUS_TP_FORWARDING","TP_FORWARDING"),
+    ("ORDER_STATUS_TP_CORR_GUARD_TIME","TP_CORR_GUARD_TIME"),
+])
+def test_full_documented_finam_order_status_enum_is_parsed(raw, normalized):
+    assert _status(raw) == normalized
+
+
+def test_unspecified_order_status_fails_closed():
+    with pytest.raises(OperatorInterventionRequired):
+        _status("ORDER_STATUS_UNSPECIFIED")
+
+
+def test_documented_finam_status_partition_is_complete_and_disjoint():
+    assert len(DOCUMENTED_ORDER_STATUSES) == 29
+    assert ACTIVE_ORDER_STATUSES.isdisjoint(TERMINAL_ORDER_STATUSES)
+    assert ACTIVE_ORDER_STATUSES | TERMINAL_ORDER_STATUSES | {"UNSPECIFIED"} == DOCUMENTED_ORDER_STATUSES
 
 
 @pytest.mark.parametrize("shape,expected", [({"value":"0"},0),({"value":"1"},1)])

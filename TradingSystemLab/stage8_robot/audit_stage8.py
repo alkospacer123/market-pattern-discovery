@@ -263,7 +263,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     check('final["unexpected_position_count"] == 0' in acceptance
           and 'if row_symbol != symbol and quantity != 0' in acceptance,
           "STAGE_8_11_FINAL_RECONCILIATION_ALL_POSITIONS")
-    check('if _status(row.get("status")) in ACTIVE' in acceptance
+    check('active = count_active_orders(order_rows)' in acceptance
           and "acceptance_ids" not in acceptance,
           "STAGE_8_11_FINAL_RECONCILIATION_ALL_ACTIVE_ORDERS")
     props=evidence_schema.get("properties",{}); gates=props.get("preflight_gate_outcomes",{})

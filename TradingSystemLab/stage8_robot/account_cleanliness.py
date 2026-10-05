@@ -1,16 +1,75 @@
 """Strict FINAM read-side account-cleanliness semantics.
 
 This module is order-incapable. It interprets persisted zero-quantity position
-rows as flat and distinguishes active orders from terminal order history.
-Malformed or unknown broker state fails closed through ValueError.
+rows as flat and validates FINAM order statuses against the broker's documented
+OrderStatus enum. Unknown/unspecified broker state fails closed.
 """
 from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
-ACTIVE_ORDER_STATUSES = frozenset({"NEW", "PENDING", "ACTIVE", "PARTIAL_FILL", "PENDING_CANCEL"})
-TERMINAL_ORDER_STATUSES = frozenset({"FILLED", "REJECTED", "EXPIRED", "CANCELLED"})
+# Canonical names after removing ORDER_STATUS_ and normalizing the two spelling
+# variants used elsewhere in Stage 8 (PARTIALLY_FILLED -> PARTIAL_FILL,
+# CANCELED -> CANCELLED).  The source authority is FINAM's orders_service.proto.
+DOCUMENTED_ORDER_STATUSES = frozenset({
+    "UNSPECIFIED",
+    "NEW",
+    "PARTIAL_FILL",
+    "FILLED",
+    "DONE_FOR_DAY",
+    "CANCELLED",
+    "REPLACED",
+    "PENDING_CANCEL",
+    "REJECTED",
+    "SUSPENDED",
+    "PENDING_NEW",
+    "EXPIRED",
+    "FAILED",
+    "FORWARDING",
+    "WAIT",
+    "DENIED_BY_BROKER",
+    "REJECTED_BY_EXCHANGE",
+    "WATCHING",
+    "EXECUTED",
+    "DISABLED",
+    "LINK_WAIT",
+    "SL_GUARD_TIME",
+    "SL_EXECUTED",
+    "SL_FORWARDING",
+    "TP_GUARD_TIME",
+    "TP_EXECUTED",
+    "TP_CORRECTION",
+    "TP_FORWARDING",
+    "TP_CORR_GUARD_TIME",
+})
+
+# These states no longer represent a live order in the account collection.
+# REPLACED is the historical predecessor; any live replacement must appear as
+# its own order row and is evaluated independently.
+TERMINAL_ORDER_STATUSES = frozenset({
+    "FILLED",
+    "CANCELLED",
+    "REPLACED",
+    "REJECTED",
+    "EXPIRED",
+    "FAILED",
+    "DENIED_BY_BROKER",
+    "REJECTED_BY_EXCHANGE",
+    "EXECUTED",
+    "DISABLED",
+    "SL_EXECUTED",
+    "TP_EXECUTED",
+})
+ACTIVE_ORDER_STATUSES = DOCUMENTED_ORDER_STATUSES - TERMINAL_ORDER_STATUSES - {"UNSPECIFIED"}
+
+_STATUS_ALIASES = {
+    "PARTIALLY_FILLED": "PARTIAL_FILL",
+    "CANCELED": "CANCELLED",
+    # Legacy synthetic Stage 8 fixtures only; FINAM does not emit these names.
+    "ACTIVE": "NEW",
+    "PENDING": "PENDING_NEW",
+}
 
 
 def _rest_contract_quantity(value: Any) -> int:
@@ -41,12 +100,12 @@ def count_nonzero_positions(positions: Any) -> int:
     return count
 
 
-def _normalized_order_status(value: Any) -> str:
+def normalize_order_status(value: Any) -> str:
     if not isinstance(value, str) or not value:
         raise ValueError("FINAM_ORDER_STATUS_INVALID")
     status = value.upper().removeprefix("ORDER_STATUS_")
-    status = {"PARTIALLY_FILLED": "PARTIAL_FILL", "CANCELED": "CANCELLED"}.get(status, status)
-    if status not in ACTIVE_ORDER_STATUSES | TERMINAL_ORDER_STATUSES:
+    status = _STATUS_ALIASES.get(status, status)
+    if status not in DOCUMENTED_ORDER_STATUSES or status == "UNSPECIFIED":
         raise ValueError("FINAM_ORDER_STATUS_INVALID")
     return status
 
@@ -58,6 +117,6 @@ def count_active_orders(orders: Any) -> int:
     for row in orders:
         if not isinstance(row, dict):
             raise ValueError("FINAM_ORDERS_SCHEMA_INVALID")
-        if _normalized_order_status(row.get("status")) in ACTIVE_ORDER_STATUSES:
+        if normalize_order_status(row.get("status")) in ACTIVE_ORDER_STATUSES:
             active += 1
     return active
