@@ -1,0 +1,29 @@
+name: Stage8 attempt2 recovery validation
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  stage8-recovery:
+    if: github.head_ref == 'fix/stage8-11-attempt2-manual-recovery'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip pytest
+      - name: Targeted recovery and attempt3 tests
+        run: |
+          python -m pytest -q --maxfail=1 \
+            TradingSystemLab/stage8_robot/tests/test_stage8_11_attempt2_manual_recovery.py \
+            TradingSystemLab/stage8_robot/tests/test_stage8_11_attempt3.py \
+            TradingSystemLab/stage8_robot/tests/test_controlled_real_acceptance_finam_integration.py
+      - name: Stage8 audit
+        run: python TradingSystemLab/stage8_robot/audit_stage8.py --check-only
+      - name: Final operational audit
+        run: python TradingSystemLab/stage8_robot/final_operational_audit.py --check-only
+      - name: Full Stage8 suite
+        run: python -m pytest -q --maxfail=1 TradingSystemLab/stage8_robot/tests
