@@ -691,7 +691,7 @@ def sanitized_evidence(**facts: Any) -> dict[str, Any]:
                "external_raw_evidence_sha256"}
     if set(facts) - allowed:
         raise ValueError("EVIDENCE_FIELD_NOT_ALLOWLISTED")
-    if facts.get("attempt_id") != STAGE8_11_ATTEMPT2_ID:
+    if facts.get("attempt_id") not in ALLOWED_ATTEMPT_IDS:
         raise ValueError("EVIDENCE_ATTEMPT_ID_INVALID")
     gates = facts.get("preflight_gate_outcomes", {})
     if not isinstance(gates, dict) or set(gates) - _PREFLIGHT_KEYS or any(type(v) is not bool for v in gates.values()):
