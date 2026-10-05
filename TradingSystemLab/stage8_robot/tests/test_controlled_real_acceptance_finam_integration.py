@@ -8,6 +8,7 @@ import pytest
 
 from TradingSystemLab.stage8_robot.controlled_real_acceptance import (
     AcceptanceAuthority, ControlledAcceptanceBroker, STAGE8_10_AUTHORITY,
+    RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS,
     OperatorInterventionRequired, _decimal_contracts, _position, _timestamp,
     run_controlled_lifecycle,
 )
@@ -158,6 +159,18 @@ def test_real_finam_api_contract_runs_full_controlled_lifecycle(tmp_path):
     assert result["classification"] == "SYNTHETIC_PASS"
     assert transport.posts == 2 and store.unresolved_intent_count() == 0
     assert ("GET",f"/v1/accounts/{ACCOUNT}/trades") in transport.paths
+
+
+def test_active_market_order_gets_grace_observations_before_single_cancel(tmp_path):
+    result,transport,store=execute(tmp_path,"active_cancel")
+    assert result["classification"] == "NOT_ACCEPTED_NO_EXECUTION"
+    assert transport.posts == 1 and transport.deletes == 1
+    delete_index=next(i for i,item in enumerate(transport.paths) if item[0]=="DELETE")
+    order_collection_reads=sum(
+        1 for method,path in transport.paths[:delete_index]
+        if method=="GET" and path==f"/v1/accounts/{ACCOUNT}/orders")
+    assert order_collection_reads >= RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS
+    assert store.unresolved_intent_count() == 0
 
 
 @pytest.mark.parametrize("shape,expected", [({"value":"0"},0),({"value":"1"},1)])
