@@ -9,7 +9,7 @@ from __future__ import annotations
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
-ACTIVE_ORDER_STATUSES = frozenset({"NEW", "PENDING", "ACTIVE", "PARTIAL_FILL"})
+ACTIVE_ORDER_STATUSES = frozenset({"NEW", "PENDING", "ACTIVE", "PARTIAL_FILL", "PENDING_CANCEL"})
 TERMINAL_ORDER_STATUSES = frozenset({"FILLED", "REJECTED", "EXPIRED", "CANCELLED"})
 
 
