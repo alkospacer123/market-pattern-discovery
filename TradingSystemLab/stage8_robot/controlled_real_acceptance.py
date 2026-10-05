@@ -36,7 +36,7 @@ RECONCILIATION_SLEEP_SECONDS = 0.1
 MAX_ACCEPTANCE_QUANTITY = 1
 REGISTRY = Path(__file__).with_name("production_instrument_registry.csv")
 TERMINAL_NO_FILL = frozenset({"REJECTED", "EXPIRED", "CANCELLED"})
-ACTIVE = frozenset({"NEW", "PENDING", "ACTIVE", "PARTIAL_FILL"})
+ACTIVE = frozenset({"NEW", "PENDING", "ACTIVE", "PARTIAL_FILL", "PENDING_CANCEL"})
 # Five minutes is a deliberately conservative operational budget for the one
 # contract acknowledgement, read-side reconciliation, and controlled flatten.
 # It is measured against FINAM's live interval end; no exchange timetable is

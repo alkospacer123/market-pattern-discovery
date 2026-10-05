@@ -129,8 +129,9 @@ def test_second_instance_is_blocked(tmp_path):
 
 
 @pytest.mark.parametrize(("api", "code"), [
-    (ReadonlyFake(positions=[{"symbol": "unexpected"}]), "UNEXPECTED_BROKER_POSITION"),
-    (ReadonlyFake(orders=[{"order_id": "unexpected"}]), "UNEXPECTED_ACTIVE_ORDER"),
+    (ReadonlyFake(positions=[{"symbol": "CNYRUBF@RTSX", "quantity": {"value": "1"}}]),
+     "UNEXPECTED_BROKER_POSITION"),
+    (ReadonlyFake(orders=[{"status": "ACTIVE"}]), "UNEXPECTED_ACTIVE_ORDER"),
 ])
 def test_unexpected_broker_state_fails_closed(tmp_path, api, code):
     service = supervisor(tmp_path, api)
@@ -140,6 +141,39 @@ def test_unexpected_broker_state_fails_closed(tmp_path, api, code):
         assert heartbeat["failure_code"] == code
         assert heartbeat["entries_enabled"] is False
         assert heartbeat["unresolved_order_count"] == (1 if code == "UNEXPECTED_ACTIVE_ORDER" else 0)
+    finally:
+        service.close()
+
+
+def test_zero_quantity_position_and_terminal_order_history_are_clean(tmp_path):
+    api = ReadonlyFake(
+        positions=[{"symbol": "CNYRUBF@RTSX", "quantity": {"value": "0.0"}}],
+        orders=[{"status": "FILLED"}, {"status": "ORDER_STATUS_CANCELLED"}],
+    )
+    service = supervisor(tmp_path, api)
+    try:
+        assert service.run(once=True) == 0
+        heartbeat = json.loads((tmp_path / "diagnostics/stage8-heartbeat.json").read_text())
+        assert heartbeat["health_status"] == "HEALTHY"
+        assert heartbeat["reconciliation_status"] == "PASS"
+        assert heartbeat.get("failure_code") is None
+        assert heartbeat["unresolved_order_count"] == 0
+    finally:
+        service.close()
+
+
+@pytest.mark.parametrize(("api", "code"), [
+    (ReadonlyFake(positions=[{"symbol": "CNYRUBF@RTSX", "quantity": {"value": "NaN"}}]),
+     "REAL_POSITIONS_SCHEMA_INVALID"),
+    (ReadonlyFake(orders=[{"status": "UNKNOWN"}]), "REAL_ORDERS_SCHEMA_INVALID"),
+])
+def test_malformed_account_cleanliness_state_fails_closed(tmp_path, api, code):
+    service = supervisor(tmp_path, api)
+    try:
+        assert service.run(once=True) == 1
+        heartbeat = json.loads((tmp_path / "diagnostics/stage8-heartbeat.json").read_text())
+        assert heartbeat["failure_code"] == code
+        assert heartbeat["entries_enabled"] is False
     finally:
         service.close()
 

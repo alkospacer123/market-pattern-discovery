@@ -13,6 +13,7 @@ from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
 
+from .account_cleanliness import count_active_orders, count_nonzero_positions
 from .finam_api import FinamAPI, completed_h1_bars
 from .instrument_resolver import (MOEX_REFERENCE, N4, discover_finam_asset,
                                   parse_rest_value_object, validate_finam_binding)
@@ -119,11 +120,15 @@ def evaluate(*, account: dict, orders: object, details: dict, account_id: str,
     if account.get("status") not in ACTIVE_ACCOUNT_STATUSES:
         return _blocked("BLOCKED_ACCOUNT_INACTIVE", "ACCOUNT_NOT_ACTIVE", base)
     positions = account.get("positions") if isinstance(account, dict) else None
-    active_orders = orders.get("orders") if isinstance(orders, dict) else orders
-    if not isinstance(positions, list) or not isinstance(active_orders, list):
+    order_rows = orders.get("orders") if isinstance(orders, dict) else orders
+    try:
+        nonzero_positions = count_nonzero_positions(positions)
+        active_orders = count_active_orders(order_rows)
+    except ValueError:
         return _blocked("BLOCKED_ACCOUNT_SCHEMA_INVALID", "CLEANLINESS_SCHEMA_INVALID", base)
-    if positions or active_orders:
-        return _blocked("BLOCKED_ACCOUNT_NOT_CLEAN", "POSITIONS_PRESENT" if positions else "ACTIVE_ORDERS_PRESENT", base)
+    if nonzero_positions or active_orders:
+        return _blocked("BLOCKED_ACCOUNT_NOT_CLEAN",
+                        "POSITIONS_PRESENT" if nonzero_positions else "ACTIVE_ORDERS_PRESENT", base)
     base["account_clean"] = True
     if not _registry_matches_frozen_authority(production_registry, registry):
         return _blocked("BLOCKED_N4_AUTHORITY_INVALID", "PRODUCTION_REGISTRY_BINDING_MISMATCH", base)

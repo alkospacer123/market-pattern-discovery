@@ -69,6 +69,15 @@ def test_changed_protected_implementation_hash_fails():
     assert any(error.startswith("PROTECTED_IMPLEMENTATION_HASHES:") for error in result["errors"])
 
 
+def test_stage8_11_cleanliness_correction_preserves_historical_hash_authority():
+    path = "TradingSystemLab/stage8_robot/readonly_supervisor.py"
+    assert final.PROTECTED_SHA256[path] == "1455fee5fe207c617676a0463ce3034247c5534578555cac293807da22bcaab8"
+    assert final.POST_STAGE8_11_CORRECTED_SHA256[path] == "c4dee8d488dc6379b80a31aca39256b89c3d8e9ae76269267381cd357fe073e5"
+    result = run_audit()
+    assert result["protected_implementation_status"] == "PASS"
+    assert not any(error.startswith("PROTECTED_IMPLEMENTATION_HASHES:") for error in result["errors"])
+
+
 @pytest.mark.parametrize("relative,before,after,final_error,stage8_error", [
     ("finam_api.py", "class FinamOrderRejected", "class RemovedOrderRejected",
      "STAGE8_11_REJECTION_TAXONOMY", "STAGE8_11_DETERMINISTIC_REJECT_UNCERTAIN_TAXONOMY"),

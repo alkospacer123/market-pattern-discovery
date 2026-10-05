@@ -209,9 +209,32 @@ def test_batch_budget_never_reuses_stale_cash():
 @pytest.mark.parametrize("field",["positions","orders"])
 def test_dirty_account_fails_closed(field):
     data=inputs()
-    if field=="positions": data["account"]["positions"]=[{"synthetic":True}]
-    else: data["orders"]={"orders":[{"synthetic":True}]}
+    if field=="positions":
+        data["account"]["positions"]=[{"symbol":"CNYRUBF@RTSX","quantity":{"value":"1"}}]
+    else:
+        data["orders"]={"orders":[{"status":"ACTIVE"}]}
     assert evaluate(**data)["funding_classification"]=="BLOCKED_ACCOUNT_NOT_CLEAN"
+
+
+def test_zero_quantity_position_and_terminal_order_history_are_clean():
+    data=inputs()
+    data["account"]["positions"]=[{"symbol":"CNYRUBF@RTSX","quantity":{"value":"0.0"}}]
+    data["orders"]={"orders":[{"status":"FILLED"},{"status":"ORDER_STATUS_CANCELLED"}]}
+    report=evaluate(**data)
+    assert report["funding_classification"]==READY
+    assert report["account_clean"] is True
+
+
+@pytest.mark.parametrize("field",["positions","orders"])
+def test_malformed_cleanliness_state_is_schema_failure(field):
+    data=inputs()
+    if field=="positions":
+        data["account"]["positions"]=[{"symbol":"CNYRUBF@RTSX","quantity":{"value":"NaN"}}]
+    else:
+        data["orders"]={"orders":[{"status":"UNKNOWN"}]}
+    report=evaluate(**data)
+    assert report["funding_classification"]=="BLOCKED_ACCOUNT_SCHEMA_INVALID"
+    assert report["reason_code"]=="CLEANLINESS_SCHEMA_INVALID"
 
 
 def test_non_readonly_wrong_production_and_registry_fail_closed():
@@ -447,8 +470,10 @@ def test_run_inactive_account_stops_before_orders_or_market_collection(tmp_path)
 @pytest.mark.parametrize("dirty", ["positions", "orders"])
 def test_run_dirty_account_stops_before_market_and_sizing_collection(tmp_path, dirty):
     api = FakeReadonlyAPI()
-    if dirty == "positions": api.account_payload["positions"] = [{"position": "redacted"}]
-    else: api.orders_payload["orders"] = [{"order": "redacted"}]
+    if dirty == "positions":
+        api.account_payload["positions"] = [{"symbol": "CNYRUBF@RTSX", "quantity": {"value": "1"}}]
+    else:
+        api.orders_payload["orders"] = [{"status": "ACTIVE"}]
     report = run_report(tmp_path, api)
     assert report["funding_classification"] == "BLOCKED_ACCOUNT_NOT_CLEAN"
     assert api.calls == ["create_session", "session_details", "account", "orders"]
