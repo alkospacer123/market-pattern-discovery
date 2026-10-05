@@ -540,7 +540,6 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
         # (for example REPLACED/DISABLED/SL/TP states) is structurally real but
         # not safe to reinterpret for Stage 8.11.
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-        sleeper(RECONCILIATION_SLEEP_SECONDS)
 
     raise OperatorInterventionRequired("RECONCILIATION_TIMEOUT")
 
