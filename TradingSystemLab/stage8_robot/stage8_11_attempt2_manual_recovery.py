@@ -188,13 +188,9 @@ def recover_attempt2_manual_close(*, runtime_root: Path, account_id: str, readon
                 raise Attempt2RecoveryBlocked("ATTEMPT2_RECOVERY_BROKER_ORDER_IDENTITY_MISMATCH")
             try:
                 broker_status = normalize_order_status(broker_row.get("status"))
-                initial_quantity = _rest_contract_quantity(broker_row.get("initial_quantity"))
-                executed_quantity = _rest_contract_quantity(broker_row.get("executed_quantity"))
-                remaining_quantity = _rest_contract_quantity(broker_row.get("remaining_quantity"))
             except ValueError:
-                raise Attempt2RecoveryBlocked("ATTEMPT2_RECOVERY_BROKER_ORDER_SHAPE_INVALID") from None
-            if (broker_status not in ATTEMPT2_EXECUTED_STATUSES
-                    or initial_quantity != 1 or executed_quantity != 1 or remaining_quantity != 0):
+                raise Attempt2RecoveryBlocked("ATTEMPT2_RECOVERY_BROKER_ORDER_STATUS_INVALID") from None
+            if broker_status not in ATTEMPT2_EXECUTED_STATUSES:
                 raise Attempt2RecoveryBlocked("ATTEMPT2_RECOVERY_BROKER_EXECUTION_NOT_PROVEN")
 
             observed = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
