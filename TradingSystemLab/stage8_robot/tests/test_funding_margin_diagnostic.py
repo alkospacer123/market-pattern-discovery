@@ -393,6 +393,30 @@ def test_run_clean_account_validates_and_writes_sanitized_external_report(tmp_pa
     assert api.calls.count("bars") == len(N4)
 
 
+def test_run_terminal_history_and_zero_position_rows_still_collect_current_authority(tmp_path):
+    api = FakeReadonlyAPI()
+    api.details["readonly"] = False
+    api.account_payload["positions"] = [
+        {"symbol": "CNYRUBF@RTSX", "quantity": {"value": "0.0"}},
+    ]
+    api.orders_payload["orders"] = [
+        {"status": "ORDER_STATUS_FILLED"},
+        {"status": "ORDER_STATUS_CANCELED"},
+        {"status": "ORDER_STATUS_EXECUTED"},
+        {"status": "ORDER_STATUS_REPLACED"},
+        {"status": "ORDER_STATUS_FAILED"},
+    ]
+    path = tmp_path / "stage8-11-trading-authority.json"
+    report = run(api, "synthetic-account", path, required_readonly=False)
+    assert report["funding_classification"] == READY
+    assert report["account_clean"] is True
+    assert report["reason_code"] == "ALL_AUTHORITIES_VALID"
+    assert api.calls[:5] == ["create_session", "session_details", "account", "orders",
+                             "assets_all_active"]
+    assert api.calls.count("bars") == len(N4)
+    assert set(api.calls).isdisjoint(FakeReadonlyAPI.ORDER_CAPABLE)
+
+
 @pytest.mark.parametrize("value,expected", [
     ({"value": "100"}, Decimal("100")),
     ({"value": "123.456"}, Decimal("123.456")),

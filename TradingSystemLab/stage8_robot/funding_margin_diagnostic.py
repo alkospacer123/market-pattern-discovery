@@ -263,9 +263,19 @@ def run(api, account_id: str, report_path: Path | None, *, required_readonly: bo
 
     orders = api.orders(account_id)
     positions = account.get("positions") if isinstance(account, dict) else None
-    active_orders = orders.get("orders") if isinstance(orders, dict) else orders
-    if (not isinstance(positions, list) or not isinstance(active_orders, list)
-            or positions or active_orders):
+    order_rows = orders.get("orders") if isinstance(orders, dict) else orders
+    if not isinstance(positions, list) or not isinstance(order_rows, list):
+        return finish(account=account, orders=orders, details=details)
+    try:
+        nonzero_positions = count_nonzero_positions(positions)
+        active_order_count = count_active_orders(order_rows)
+    except ValueError:
+        return finish(account=account, orders=orders, details=details)
+    # Historical terminal order rows and zero-quantity position rows are clean
+    # broker history, not current exposure.  Stage 8.11 attempt2 recovery
+    # intentionally preserves that history, so only live exposure may stop
+    # authority collection before N4 binding/margin/sizing validation.
+    if nonzero_positions or active_order_count:
         return finish(account=account, orders=orders, details=details)
     if not _frozen_registry_valid(production_registry):
         return finish(account=account, orders=orders, details=details)
