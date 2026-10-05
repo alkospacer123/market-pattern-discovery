@@ -26,9 +26,6 @@ class ReadonlyAttempt2API:
         ]
         self.orders_rows = orders if orders is not None else [
             {"order_id": "old-order", "status": "ORDER_STATUS_EXECUTED",
-             "initial_quantity": {"value": "1"},
-             "executed_quantity": {"value": "1"},
-             "remaining_quantity": {"value": "0"},
              "order": {"client_order_id": client_id, "symbol": FINAM_SYMBOL,
                        "side": "SIDE_BUY", "quantity": {"value": "1"}}}
         ]
@@ -132,12 +129,18 @@ def test_attempt2_manual_recovery_fails_closed_on_unclean_or_unproven_broker_sta
             orders=[{"order_id": "old-order", "status": "ORDER_STATUS_EXECUTED",
                      "order": {"client_order_id": "wrong", "symbol": FINAM_SYMBOL,
                                "side": "SIDE_BUY", "quantity": {"value": "1"}}}])
-    else:
+    elif case == "quantity":
         api = ReadonlyAttempt2API(
             client_id=client_id,
             orders=[{"order_id": "old-order", "status": "ORDER_STATUS_EXECUTED",
                      "order": {"client_order_id": client_id, "symbol": FINAM_SYMBOL,
                                "side": "SIDE_BUY", "quantity": {"value": "2"}}}])
+    else:
+        api = ReadonlyAttempt2API(
+            client_id=client_id,
+            orders=[{"order_id": "old-order", "status": "ORDER_STATUS_REJECTED",
+                     "order": {"client_order_id": client_id, "symbol": FINAM_SYMBOL,
+                               "side": "SIDE_BUY", "quantity": {"value": "1"}}}])
 
     with pytest.raises(Attempt2RecoveryBlocked):
         recover_attempt2_manual_close(
