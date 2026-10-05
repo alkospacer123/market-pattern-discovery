@@ -8,7 +8,8 @@ from TradingSystemLab.stage8_robot.controlled_real_acceptance import (
 )
 from TradingSystemLab.stage8_robot.specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID
 from TradingSystemLab.stage8_robot.stage8_11_physical_acceptance_attempt3 import (
-    ATTEMPT_ID, PREVIOUS_ENTRY_KEY, REPORT_NAME, _reconcile_previous_attempt,
+    ATTEMPT_ID, PREVIOUS_ENTRY_KEY, REPORT_NAME, PhysicalAcceptanceBlocked,
+    _reconcile_previous_attempt,
 )
 from TradingSystemLab.stage8_robot.state import StateStore
 from TradingSystemLab.stage8_robot.tests.test_controlled_real_acceptance import (
@@ -87,7 +88,7 @@ def test_attempt3_rejects_recovery_evidence_from_different_commit(tmp_path, monk
     api = CleanRecoveredAccountAPI()
     broker = ControlledAcceptanceBroker(api, ACCOUNT, HASH, store)
     import pytest
-    with pytest.raises(Exception):
+    with pytest.raises(PhysicalAcceptanceBlocked, match="MANUAL_RECOVERY_INVALID"):
         _reconcile_previous_attempt(
             runtime_root=root, broker=broker, store=store,
             accepted_commit="b" * 40)
