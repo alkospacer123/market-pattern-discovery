@@ -31,7 +31,6 @@ STAGE8_11_ATTEMPT2_ID = "stage8.11.attempt2"
 STAGE8_11_ATTEMPT3_ID = "stage8.11.attempt3"
 ALLOWED_ATTEMPT_IDS = frozenset({STAGE8_11_ATTEMPT2_ID, STAGE8_11_ATTEMPT3_ID})
 RECONCILIATION_MAX_OBSERVATIONS = 8
-RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS = 2
 RECONCILIATION_SLEEP_SECONDS = 0.5
 MAX_ACCEPTANCE_QUANTITY = 1
 REGISTRY = Path(__file__).with_name("production_instrument_registry.csv")
@@ -474,7 +473,7 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
         filled = int(snap.get("executed_quantity", 0))
 
         if status in ACTIVE:
-            if allow_cancel and not cancelled and observation + 1 >= RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS:
+            if allow_cancel and not cancelled:
                 broker.cancel(order_id)
                 cancelled = True
             if observation + 1 >= RECONCILIATION_MAX_OBSERVATIONS:
@@ -503,8 +502,10 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
 
         if status in TERMINAL_NO_FILL and filled == 0:
             position = snap.get("position_quantity")
-            if expected_position is not None and position != expected_position:
-                if type(position) is int and position in (-1, 0, 1) and expected_position in (-1, 0, 1):
+            if type(position) is not int:
+                raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+            if position != 0:
+                if position in (-1, 1):
                     if observation + 1 >= RECONCILIATION_MAX_OBSERVATIONS:
                         raise OperatorInterventionRequired("RECONCILIATION_TIMEOUT")
                     sleeper(RECONCILIATION_SLEEP_SECONDS)
