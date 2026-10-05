@@ -106,10 +106,10 @@ PROTECTED_SHA256 = {
 POST_STAGE8_11_CORRECTED_SHA256 = {
     "TradingSystemLab/stage8_robot/account_cleanliness.py": "7ab8b91483f7e37605f3a4962281fcdc338bf649cee96f141f06ac20294a2184",
     "TradingSystemLab/stage8_robot/readonly_supervisor.py": "c4dee8d488dc6379b80a31aca39256b89c3d8e9ae76269267381cd357fe073e5",
-    "TradingSystemLab/stage8_robot/funding_margin_diagnostic.py": "7a4aa3e71d45b42d96a0aad9b632dc87cfdf0cc8bcfa282b77acd73cde359257",
+    "TradingSystemLab/stage8_robot/funding_margin_diagnostic.py": "2443f8cab7fafe5b4ab1cb9cb5673e71a9f7bf74b51608425e55f41b1b3645c9",
     "TradingSystemLab/stage8_robot/stage8_11_attempt2_manual_recovery.py": "f3b90e020cd4604d6c6f07c1118315e193910fb6d1618de1cac8b55f78abc4dd",
-    "TradingSystemLab/stage8_robot/stage8_11_physical_acceptance_attempt3.py": "b3dfcbbd11cf11f047e81357bf9afd562dc91cbaca4bc311404d0e74e34dff0e",
-    "TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-physical-acceptance-attempt3.ps1": "ab77c15a0ad85e7dd7e6c03833de9466a3c586440ad02f8d4924a023db63862b",
+    "TradingSystemLab/stage8_robot/stage8_11_physical_acceptance_attempt3.py": "65e832d7c61d27ce8feefe1d41621749a7f376b53d58c478241dcfdbaefc4be9",
+    "TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-physical-acceptance-attempt3.ps1": "ccdef47390c4c755f65c601db083876b37eb5db633aff79dbfd83e99c2444b41",
 }
 
 
@@ -897,7 +897,10 @@ def audit(
           and "STAGE8_11_RECOVERY_READONLY_SECRET" in attempt3_wrapper
           and "STAGE8_11_RECOVERY_ACCOUNT_ID" in attempt3_wrapper
           and "ATTEMPT2_RECOVERY_EVIDENCE_NAME" in attempt3_entry
-          and 'recovery.get("recovery_code_commit") != accepted_commit' in attempt3_entry
+          and 'ATTEMPT2_RECOVERY_CODE_COMMIT = "8f614a73ec885f45cd159d350cab910e2a3b585c"' in attempt3_entry
+          and 'recovery.get("recovery_code_commit") != ATTEMPT2_RECOVERY_CODE_COMMIT' in attempt3_entry
+          and '$attempt2RecoveryCommit = "8f614a73ec885f45cd159d350cab910e2a3b585c"' in attempt3_wrapper
+          and "--accepted-recovery-commit $attempt2RecoveryCommit" in attempt3_wrapper
           and "_reconcile(broker, PREVIOUS_ENTRY_KEY" not in attempt3_entry,
           "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY")
     attempt2_physical=provenance.get("stage8_11_attempt2_physical",{})
