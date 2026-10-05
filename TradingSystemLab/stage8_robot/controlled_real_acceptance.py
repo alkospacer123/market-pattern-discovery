@@ -13,11 +13,12 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import time
 from typing import Any, Callable
 
 from .broker import OrderRequest, broker_side, compact_client_order_id
 from .finam_api import (CLIENT_ORDER_ID_MAX_LENGTH, MARKET_ORDER_TYPE, TIME_IN_FORCE_DAY,
-                        FinamOrderRejected, FinamUncertainSubmission)
+                        FinamNotFound, FinamOrderRejected, FinamUncertainSubmission)
 from .instrument_resolver import load_registry
 from .specification import ACTIVE_IDENTITY, INSTRUMENTS, PRODUCTION_SPECIFICATION_ID, load_frozen_specification
 from .state import StateStore, initialize_stage8_11_acceptance_ledger, stage8_11_acceptance_path
@@ -27,6 +28,11 @@ STAGE8_10_AUTHORITY = "STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE"
 STAGE8_11_STATUS = "CODE_READY_PENDING_PHYSICAL_ACCEPTANCE"
 EVIDENCE_SCHEMA = "stage8_11_physical_acceptance.v1"
 STAGE8_11_ATTEMPT2_ID = "stage8.11.attempt2"
+STAGE8_11_ATTEMPT3_ID = "stage8.11.attempt3"
+ALLOWED_ATTEMPT_IDS = frozenset({STAGE8_11_ATTEMPT2_ID, STAGE8_11_ATTEMPT3_ID})
+RECONCILIATION_MAX_OBSERVATIONS = 8
+RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS = 2
+RECONCILIATION_SLEEP_SECONDS = 0.5
 MAX_ACCEPTANCE_QUANTITY = 1
 REGISTRY = Path(__file__).with_name("production_instrument_registry.csv")
 TERMINAL_NO_FILL = frozenset({"REJECTED", "EXPIRED", "CANCELLED"})
@@ -44,6 +50,10 @@ class AcceptanceBlocked(RuntimeError):
 
 class OperatorInterventionRequired(AcceptanceBlocked):
     """Safe flat state cannot be proved; an operator must inspect the account."""
+
+
+class ReconciliationPending(RuntimeError):
+    """A structurally valid broker read is temporarily not yet converged."""
 
 
 @dataclass(frozen=True)
@@ -349,6 +359,8 @@ def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -
     candidates = [row for row in _rows(api.orders(account_id), "orders")
                   if isinstance(row.get("order"), dict)
                   and row["order"].get("client_order_id") == client_id]
+    if not candidates:
+        raise ReconciliationPending("ORDER_COLLECTION_PROPAGATION_PENDING")
     if len(candidates) != 1:
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
     listed_id = candidates[0].get("order_id")
@@ -357,7 +369,10 @@ def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -
     persisted_id = intent.get("broker_order_id")
     if persisted_id and persisted_id != listed_id:
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-    order = api.order(account_id, listed_id)
+    try:
+        order = api.order(account_id, listed_id)
+    except FinamNotFound:
+        raise ReconciliationPending("ORDER_DETAIL_PROPAGATION_PENDING") from None
     request = order.get("order") if isinstance(order, dict) else None
     if (not isinstance(order, dict) or order.get("order_id") != listed_id
             or not isinstance(request, dict) or request.get("account_id") != account_id
@@ -386,7 +401,9 @@ def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -
         matching.append({"fill_id": trade["trade_id"], "trade_id": trade["trade_id"],
                          "broker_order_id": listed_id, "quantity": "1", "price": trade["price"]["value"],
                          "timestamp": json.dumps(trade["timestamp"], sort_keys=True, separators=(",", ":"))})
-    if len(matching) != executed:
+    if len(matching) < executed:
+        raise ReconciliationPending("TRADE_PROPAGATION_PENDING")
+    if len(matching) > executed:
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
     return {"order_status": _status(order.get("status")), "order_id": listed_id,
             "client_order_id": client_id, "executed_quantity": executed, "fills": matching,
@@ -433,29 +450,75 @@ def _account_is_clean(final: dict[str, Any]) -> bool:
             and final.get("reconciled") is True)
 
 
-def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bool) -> dict[str, Any]:
-    """Canonical broker-to-StateStore reconciliation for one persisted intent."""
-    snap = broker.snapshot(key)
-    status = str(snap.get("order_status", "UNKNOWN")).upper()
-    order_id = str(snap.get("order_id", ""))
-    if status in ACTIVE and allow_cancel:
-        broker.cancel(order_id)
-        snap = broker.snapshot(key)  # mandatory post-cancel reconciliation
+def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bool,
+               expected_position: int | None = None,
+               sleeper: Callable[[float], None] = time.sleep) -> dict[str, Any]:
+    """Bounded broker-to-StateStore reconciliation for one persisted intent.
+
+    FINAM read endpoints may become mutually consistent a few observations
+    after an acknowledged POST.  Only structurally valid propagation gaps are
+    retried.  Identity/schema violations remain fail-closed immediately.
+    """
+    cancelled = False
+    for observation in range(RECONCILIATION_MAX_OBSERVATIONS):
+        try:
+            snap = broker.snapshot(key)
+        except ReconciliationPending as exc:
+            if observation + 1 >= RECONCILIATION_MAX_OBSERVATIONS:
+                raise OperatorInterventionRequired("RECONCILIATION_TIMEOUT") from exc
+            sleeper(RECONCILIATION_SLEEP_SECONDS)
+            continue
+
         status = str(snap.get("order_status", "UNKNOWN")).upper()
-        order_id = str(snap.get("order_id", order_id))
-    for fill in snap.get("fills", []):
-        broker.store.persist_fill(fill)
-    filled = int(snap.get("executed_quantity", 0))
-    # A cancel race may report CANCELLED after the single contract filled.  The
-    # fill ledger, not the terminal label, is authoritative in that branch.
-    if status in ({"FILLED"} | TERMINAL_NO_FILL) and filled == 1 and snap.get("fills"):
-        broker.store.transition_intent(key, "FILL", order_id)
-        broker.store.transition_intent(key, "RECONCILED", order_id)
-    elif status in TERMINAL_NO_FILL and filled == 0:
-        broker.store.transition_intent(key, status if status != "EXPIRED" else "REJECTED", order_id or None)
-    else:
-        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-    return snap
+        order_id = str(snap.get("order_id", ""))
+        filled = int(snap.get("executed_quantity", 0))
+
+        if status in ACTIVE:
+            if allow_cancel and not cancelled and observation + 1 >= RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS:
+                broker.cancel(order_id)
+                cancelled = True
+            if observation + 1 >= RECONCILIATION_MAX_OBSERVATIONS:
+                raise OperatorInterventionRequired("RECONCILIATION_TIMEOUT")
+            sleeper(RECONCILIATION_SLEEP_SECONDS)
+            continue
+
+        fills = snap.get("fills", [])
+        if status in ({"FILLED"} | TERMINAL_NO_FILL) and filled == 1 and fills:
+            position = snap.get("position_quantity")
+            if expected_position is not None:
+                if type(position) is not int:
+                    raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+                if position != expected_position:
+                    if position in (-1, 0, 1) and expected_position in (-1, 0, 1):
+                        if observation + 1 >= RECONCILIATION_MAX_OBSERVATIONS:
+                            raise OperatorInterventionRequired("RECONCILIATION_TIMEOUT")
+                        sleeper(RECONCILIATION_SLEEP_SECONDS)
+                        continue
+                    raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+            for fill in fills:
+                broker.store.persist_fill(fill)
+            broker.store.transition_intent(key, "FILL", order_id)
+            broker.store.transition_intent(key, "RECONCILED", order_id)
+            return snap
+
+        if status in TERMINAL_NO_FILL and filled == 0:
+            position = snap.get("position_quantity")
+            if expected_position is not None and position != expected_position:
+                if type(position) is int and position in (-1, 0, 1) and expected_position in (-1, 0, 1):
+                    if observation + 1 >= RECONCILIATION_MAX_OBSERVATIONS:
+                        raise OperatorInterventionRequired("RECONCILIATION_TIMEOUT")
+                    sleeper(RECONCILIATION_SLEEP_SECONDS)
+                    continue
+                raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+            broker.store.transition_intent(
+                key, status if status != "EXPIRED" else "REJECTED", order_id or None)
+            return snap
+
+        if observation + 1 >= RECONCILIATION_MAX_OBSERVATIONS:
+            raise OperatorInterventionRequired("RECONCILIATION_TIMEOUT")
+        sleeper(RECONCILIATION_SLEEP_SECONDS)
+
+    raise OperatorInterventionRequired("RECONCILIATION_TIMEOUT")
 
 
 def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Path,
@@ -472,7 +535,7 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
     observed = time_source()
     phases = ["PRECHECK"]
     result: dict[str, Any] = {"classification": "BLOCKED", "phases": phases, "order_endpoint_call_count": 0}
-    if attempt_id is not None and attempt_id != STAGE8_11_ATTEMPT2_ID:
+    if attempt_id is not None and attempt_id not in ALLOWED_ATTEMPT_IDS:
         raise AcceptanceBlocked("STAGE8_11_ATTEMPT_ID_INVALID")
     intent_prefix = attempt_id or "stage8.11"
     entry_key = f"{intent_prefix}:{instrument}:entry"
@@ -515,7 +578,8 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
             return result
         except FinamUncertainSubmission:
             phases.append("ENTRY_UNCERTAIN_RECONCILE")
-        entry = _reconcile(broker, entry_key, allow_cancel=True)
+        entry = _reconcile(broker, entry_key, allow_cancel=True,
+                           expected_position=(1 if direction == "LONG" else -1))
         phases.append("ENTRY_RECONCILED")
         if int(entry.get("executed_quantity", 0)) != 1:
             final = _final_state(broker, finam_symbol)
@@ -550,7 +614,7 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
             raise OperatorInterventionRequired(f"FLATTEN_BLOCKED:{exc}") from exc
         except FinamUncertainSubmission:
             phases.append("FLATTEN_UNCERTAIN_RECONCILE")
-        flatten = _reconcile(broker, flatten_key, allow_cancel=True)
+        flatten = _reconcile(broker, flatten_key, allow_cancel=True, expected_position=0)
         phases.append("FLATTEN_RECONCILED")
         final = _final_state(broker, finam_symbol)
         flat = (int(flatten.get("executed_quantity", 0)) == 1
@@ -581,7 +645,8 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
             try:
                 entry_intent = broker.store.intent(entry_key)
                 if entry_intent and entry_intent["status"] not in ("RECONCILED", "CANCELLED", "REJECTED"):
-                    recovered_entry = _reconcile(broker, entry_key, allow_cancel=True)
+                    recovered_entry = _reconcile(broker, entry_key, allow_cancel=True,
+                                                 expected_position=(1 if direction == "LONG" else -1))
                 else:
                     recovered_entry = broker.snapshot(entry_key) if entry_intent else None
                 flatten_intent = broker.store.intent(flatten_key)
@@ -593,7 +658,7 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
                     broker.submit_flatten(key=flatten_key, finam_symbol=finam_symbol, direction=direction)
                     flatten_intent = broker.store.intent(flatten_key)
                 if flatten_intent and flatten_intent["status"] not in ("RECONCILED", "CANCELLED", "REJECTED"):
-                    _reconcile(broker, flatten_key, allow_cancel=True)
+                    _reconcile(broker, flatten_key, allow_cancel=True, expected_position=0)
                 result["final_state"] = _final_state(broker, finam_symbol)
             except Exception:
                 phases.append("RECOVERY_RECONCILIATION_INCOMPLETE")
