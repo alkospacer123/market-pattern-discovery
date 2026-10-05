@@ -146,7 +146,7 @@ def _physical_evidence(*, accepted_commit: str, account_hash: str, result: dict[
 
 
 def _reconcile_previous_attempt(*, runtime_root: Path, broker: ControlledAcceptanceBroker,
-                                store: StateStore) -> None:
+                                store: StateStore, accepted_commit: str) -> None:
     """Require committed manual recovery of attempt2; never replay its /trades history."""
     previous = runtime_root / "diagnostics" / PREVIOUS_REPORT_NAME
     if (not previous.is_file()
@@ -168,7 +168,8 @@ def _reconcile_previous_attempt(*, runtime_root: Path, broker: ControlledAccepta
             or recovery.get("active_identity") != ACTIVE_IDENTITY
             or recovery.get("final_local_intent_status") != "CLOSED"
             or recovery.get("attempt2_reclassified_as_pass") is not False
-            or recovery.get("manual_close_history_preserved") is not True):
+            or recovery.get("manual_close_history_preserved") is not True
+            or recovery.get("recovery_code_commit") != accepted_commit):
         raise PhysicalAcceptanceBlocked("STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_INVALID")
 
     intent = store.intent(PREVIOUS_ENTRY_KEY)
@@ -215,7 +216,9 @@ def execute_boundary(*, accepted_commit: str, authorization: str, account_id: st
             create_stage8_11_acceptance_backup(runtime_root, account_id)
             account_hash = _hash(account_id)
             broker = ControlledAcceptanceBroker(api, account_id, account_hash, store)
-            _reconcile_previous_attempt(runtime_root=runtime_root, broker=broker, store=store)
+            _reconcile_previous_attempt(
+                runtime_root=runtime_root, broker=broker, store=store,
+                accepted_commit=accepted_commit)
             if store.unresolved_intent_count() != 0:
                 raise PhysicalAcceptanceBlocked("STAGE8_11_UNRESOLVED_INTENTS_PRESENT")
             report = funding_collector(api, account_id, None, required_readonly=False)
