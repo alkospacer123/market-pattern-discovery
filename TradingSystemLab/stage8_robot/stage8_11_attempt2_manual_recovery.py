@@ -90,7 +90,7 @@ def _validate_attempt2_physical_evidence(payload: dict[str, Any], *, account_id:
         "broker_order_present": True,
         "broker_fill_count": 0,
         "entry_fill_proven": False,
-        "one_contract_position_observed": True,
+        "one_contract_position_observed": False,
         "controlled_flatten_proven": False,
         "final_position_quantity": 1,
         "final_active_order_count": 0,
