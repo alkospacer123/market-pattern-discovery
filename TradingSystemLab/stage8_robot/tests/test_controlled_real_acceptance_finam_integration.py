@@ -9,7 +9,7 @@ import pytest
 from TradingSystemLab.stage8_robot.controlled_real_acceptance import (
     AcceptanceAuthority, ControlledAcceptanceBroker, STAGE8_10_AUTHORITY,
     RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS,
-    OperatorInterventionRequired, _decimal_contracts, _position, _timestamp,
+    OperatorInterventionRequired, _decimal_contracts, _position, _status, _timestamp,
     run_controlled_lifecycle,
 )
 from TradingSystemLab.stage8_robot.finam_api import FinamAPI
@@ -195,6 +195,10 @@ def test_active_market_order_gets_grace_observations_before_single_cancel(tmp_pa
         if method=="GET" and path==f"/v1/accounts/{ACCOUNT}/orders")
     assert order_collection_reads >= RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS
     assert store.unresolved_intent_count() == 0
+
+
+def test_pending_cancel_is_an_active_reconciliation_status():
+    assert _status("ORDER_STATUS_PENDING_CANCEL") == "PENDING_CANCEL"
 
 
 @pytest.mark.parametrize("shape,expected", [({"value":"0"},0),({"value":"1"},1)])
