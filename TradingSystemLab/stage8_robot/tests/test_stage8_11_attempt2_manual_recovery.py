@@ -133,3 +133,16 @@ def test_attempt2_manual_recovery_source_is_order_incapable():
     assert ".cancel_order(" not in source
     assert ".trades(" not in source
     assert "write_kill_switch" not in source
+
+
+def test_attempt3_windows_wrapper_recovers_before_trading_secret_environment():
+    import pathlib
+    import TradingSystemLab.stage8_robot.stage8_11_attempt2_manual_recovery as recovery
+
+    wrapper = pathlib.Path(recovery.__file__).parent / "deploy" / "windows" / "run-stage8-11-physical-acceptance-attempt3.ps1"
+    source = wrapper.read_text(encoding="utf-8")
+    recovery_call = source.index("stage8_11_attempt2_manual_recovery")
+    trading_secret = source.index("$env:STAGE8_11_TRADING_SECRET")
+    assert recovery_call < trading_secret
+    assert "STAGE8_11_RECOVERY_READONLY_SECRET" in source
+    assert "STAGE8_11_RECOVERY_ACCOUNT_ID" in source
