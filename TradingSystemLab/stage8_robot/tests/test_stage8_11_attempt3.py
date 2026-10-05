@@ -65,6 +65,12 @@ def test_attempt3_full_repeat_after_manual_flat_and_attempt2_reconciliation(tmp_
     store.transition_intent(PREVIOUS_ENTRY_KEY, "ACK", "old-order")
 
     api = API(store, [
+        # _reconcile_previous_attempt() observes the old order once through
+        # broker.snapshot() and then performs an account-wide clean proof,
+        # whose synthetic API.orders() call consumes one more observation.
+        # Production FINAM GETs are non-destructive; duplicating the terminal
+        # old-order observation models that stable broker state correctly.
+        fill("old-order", 0),
         fill("old-order", 0),
         fill("o1", 1),
         fill("o2", 0),
