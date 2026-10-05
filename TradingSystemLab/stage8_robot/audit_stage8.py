@@ -216,9 +216,10 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
     conformance=json.loads((HERE/"conformance_report.json").read_text()); provenance=json.loads(authority_text if authority_text is not None else (HERE/"authority_provenance.json").read_text()); registry=(HERE/"production_instrument_registry.csv").read_text(); registry_rows=csv_rows(HERE/"production_instrument_registry.csv")
     source_overrides=source_overrides or {}
     def document(relative,path):
+        canonical = path.read_bytes().replace(b"\r\n", b"\n").decode("utf-8")
         return source_overrides.get(
             relative,
-            source_overrides.get(str(path.relative_to(ROOT)), path.read_bytes().decode("utf-8")),
+            source_overrides.get(str(path.relative_to(ROOT)), canonical),
         )
     acceptance=document("controlled_real_acceptance.py",HERE/"controlled_real_acceptance.py")
     finam_api=document("finam_api.py",HERE/"finam_api.py")
