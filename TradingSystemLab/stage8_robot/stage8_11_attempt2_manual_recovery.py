@@ -29,6 +29,7 @@ from .trading_safety_gate import load_kill_switch
 
 ATTEMPT2_EVIDENCE_NAME = "stage8_11_physical_acceptance_attempt2.json"
 ATTEMPT2_EVIDENCE_SHA256 = "0954B5C3D62444BA9AE59519386B0FC454D85C987BE1BAC04B82CA6C671B15A0"
+ATTEMPT2_ACCEPTED_CODE_COMMIT = "8857f3a01a060360a33f5909a9020201d3ade502"
 ATTEMPT2_INTENT_KEY = "stage8.11.attempt2:CNYRUBF:entry"
 FINAM_SYMBOL = "CNYRUBF@RTSX"
 RECOVERY_EVIDENCE_NAME = "stage8_11_attempt2_manual_recovery.json"
@@ -72,6 +73,35 @@ def _load_json(path: Path) -> dict[str, Any]:
     return value
 
 
+def _validate_attempt2_physical_evidence(payload: dict[str, Any], *, account_id: str) -> None:
+    expected = {
+        "schema_id": "stage8_11_physical_acceptance.v1",
+        "production_specification_id": PRODUCTION_SPECIFICATION_ID,
+        "stage8_11_status": "PHYSICAL_RESULT_REQUIRES_INDEPENDENT_AUDIT",
+        "attempt_id": "stage8.11.attempt2",
+        "accepted_code_commit": ATTEMPT2_ACCEPTED_CODE_COMMIT,
+        "sanitized_account_identity_hash": _account_hash(account_id),
+        "instrument": "CNYRUBF",
+        "direction": "LONG",
+        "quantity": 1,
+        "kill_switch_final_state": "HALTED",
+        "execution_authorization_observed": True,
+        "order_endpoint_call_count": 1,
+        "broker_order_present": True,
+        "broker_fill_count": 0,
+        "entry_fill_proven": False,
+        "one_contract_position_observed": True,
+        "controlled_flatten_proven": False,
+        "final_position_quantity": 1,
+        "final_active_order_count": 0,
+        "unresolved_intent_count": 1,
+        "reconciliation_result": "UNRESOLVED",
+        "physical_result_classification": "OPERATOR_INTERVENTION_REQUIRED",
+    }
+    if any(payload.get(k) != v for k, v in expected.items()):
+        raise Attempt2RecoveryBlocked("ATTEMPT2_PHYSICAL_EVIDENCE_CONTENT_MISMATCH")
+
+
 def _validate_completed_evidence(payload: dict[str, Any], *, account_id: str,
                                  recovery_code_commit: str) -> None:
     expected = {
@@ -107,6 +137,7 @@ def recover_attempt2_manual_close(*, runtime_root: Path, account_id: str, readon
         if (not previous.is_file()
                 or sha256_file(previous).upper() != ATTEMPT2_EVIDENCE_SHA256):
             raise Attempt2RecoveryBlocked("ATTEMPT2_EVIDENCE_MISSING_OR_MISMATCH")
+        _validate_attempt2_physical_evidence(_load_json(previous), account_id=account_id)
 
         frozen = load_frozen_specification()
         if frozen.production_id != PRODUCTION_SPECIFICATION_ID or frozen.identity != ACTIVE_IDENTITY:
