@@ -116,6 +116,17 @@ def _protected_sha256(raw: bytes) -> str:
     return hashlib.sha256(canonical).hexdigest()
 
 
+def _current_handoff(document: str) -> str:
+    marker = "## Current handoff"
+    start = document.find(marker)
+    if start < 0:
+        return ""
+    body_start = document.find("\n", start)
+    if body_start < 0:
+        return ""
+    next_section = document.find("\n## ", body_start + 1)
+    return document[body_start + 1:] if next_section < 0 else document[body_start + 1:next_section]
+
 def _stage8_10_document_consistency(document: str) -> tuple[bool, bool, bool]:
     """Independently validate active handoff and chronological prose semantics."""
     historical_labels = ("historical", "at the time", "in this historical snapshot",
@@ -140,17 +151,19 @@ def _stage8_10_document_consistency(document: str) -> tuple[bool, bool, bool]:
         stage11_invalid = re.search(r"Stage 8\.11.{0,40}(?:is|=) (?:\*\*)?(?:STARTED|AUTHORIZED)", normalized, re.I)
         if not historical and (active_8107 or stage11_invalid or (earlier_not_started and later_complete)):
             inconsistent = True
-    match = re.search(r"^## Current handoff\s*$\n(.*?)(?=^## |\Z)", document, re.M | re.S)
-    handoff = match.group(1) if match else ""
-    exact = bool(match and all(token in handoff for token in (
+    handoff = _current_handoff(document)
+    normalized_handoff = " ".join(handoff.split())
+    required = (
         "Stage 8.9 is **COMPLETE**", "Stage 8.10 is **COMPLETE**", "`HALTED`",
         "Stage 8.11.0 — **COMPLETE**", "Stage 8.11.1 — **COMPLETE / PASS**",
         "Stage 8.11.2 — **COMPLETE / PASS**", "prior explicit authorization **CONSUMED**",
         "Stage 8.11.4 — **ATTEMPTED / FAILED HTTP 400 / NO ACCEPTED ENTRY**",
         "Stage 8.11.7 — **COMPLETE / PASS / HISTORICAL INTENT RECOVERED**",
         "Stage 8.11.8 — **COMPLETE / STAGE 8.11 CLOSEOUT**", "Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**",
-        "Scheduled Task is `Disabled`", "new explicit operator authorization")))
-    if match and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]", handoff, re.I):
+        "Scheduled Task is `Disabled`", "stage8.11.attempt2", "0954B5C3D62444BA9AE59519386B0FC454D85C987BE1BAC04B82CA6C671B15A0",
+        "stage8.11.attempt3", "Attempt3 has not been physically executed", "new explicit operator authorization")
+    exact = bool(handoff and all(" ".join(token.split()) in normalized_handoff for token in required))
+    if handoff and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]", handoff, re.I):
         stale_next = True
     return exact, not inconsistent, not stale_next
 
@@ -770,9 +783,12 @@ def audit(
     check(lifecycle_closeout == expected_closeout, "STAGE_8_10_8_MACHINE_AUTHORITY_EXACT")
     check(all(STAGE_8_10_COMPLETE_STATUS in doc for doc in stage8_9_docs),
           "STAGE_8_10_CLOSEOUT_STATUS_SYNCHRONIZED")
-    check(all("Stage 8.11.1 — **COMPLETE / PASS**" in doc
-              and "Stage 8.11.2 — **COMPLETE / PASS**" in doc
-              and "prior explicit authorization **CONSUMED**" in doc for doc in stage8_9_docs),
+    current_handoffs = [_current_handoff(doc) for doc in stage8_9_docs]
+    check(all("Stage 8.11.1 — **COMPLETE / PASS**" in handoff
+              and "Stage 8.11.2 — **COMPLETE / PASS**" in handoff
+              and "prior explicit authorization **CONSUMED**" in handoff
+              and "stage8.11.attempt2" in handoff and "stage8.11.attempt3" in handoff
+              for handoff in current_handoffs),
           "STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED")
     physical_entry=text("TradingSystemLab/stage8_robot/stage8_11_physical_acceptance.py")
     physical_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-physical-acceptance.ps1")
@@ -951,7 +967,9 @@ def audit(
     check("w32tm /query /status" in intel_wrapper and "w32tm /query /source" in intel_wrapper
           and "Get-Service -Name W32Time" in intel_wrapper and "$clock = (Get-Date)" not in intel_wrapper,
           "STAGE_8_11_INTEL_WINDOWS_TIME_SANITY")
-    check(all("Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
+    check(all("Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**" in handoff
+              and "Stage 8.12 remains not started and not authorized" in handoff
+              for handoff in current_handoffs),
           "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")
     forbidden_claims = (
         r"(?:broker acceptance (?:is |was )?validated|order (?:was )?accepted|FINAM server accepted an order)",
