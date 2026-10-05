@@ -51,9 +51,8 @@ def test_attempt3_reconciles_attempt2_ack_without_resubmitting_entry(tmp_path, m
 def test_attempt3_full_repeat_after_manual_flat_and_attempt2_reconciliation(tmp_path, monkeypatch):
     from TradingSystemLab.stage8_robot import stage8_11_physical_acceptance_attempt3 as physical
 
-    root = tmp_path / "runtime"
+    root = armed_runtime(tmp_path)
     evidence = root / "diagnostics" / physical.PREVIOUS_REPORT_NAME
-    evidence.parent.mkdir(parents=True)
     evidence.write_bytes(b"synthetic immutable attempt2 evidence\n")
     monkeypatch.setattr(
         physical, "PREVIOUS_EVIDENCE_SHA256",
@@ -77,7 +76,7 @@ def test_attempt3_full_repeat_after_manual_flat_and_attempt2_reconciliation(tmp_
     assert store.intent(PREVIOUS_ENTRY_KEY)["status"] == "RECONCILED"
 
     result = run_controlled_lifecycle(
-        authority=authority(), runtime_root=armed_runtime(tmp_path),
+        authority=authority(), runtime_root=root,
         execution_authorized=True, instrument="CNYRUBF", finam_symbol="CNYRUBF@RTSX",
         direction="LONG", broker=broker, now=NOW, attempt_id=STAGE8_11_ATTEMPT3_ID)
 
