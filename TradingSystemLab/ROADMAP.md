@@ -41,7 +41,7 @@ Stage 8.9 is **COMPLETE**. Stage 8.10 is **COMPLETE**. The canonical Stage 8.11 
 - Stage 8.11.8 — **COMPLETE / STAGE 8.11 CLOSEOUT**.
 - Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**.
 
-The production kill switch is `HALTED` and the Scheduled Task is `Disabled`. Stage 8.11 repository closeout is complete, but controlled real one-contract acceptance remains not passed. No new physical authorization is implied; any future retry requires a new explicit operator authorization. Stage 8.12 remains not started and not authorized.
+The production kill switch is `HALTED` and the Scheduled Task is `Disabled`. The historical closeout above remains immutable, but a later `stage8.11.attempt2` physically sent one CNYRUBF LONG quantity-1 entry POST, received broker acknowledgement, observed account position `+1`, and then stopped `OPERATOR_INTERVENTION_REQUIRED` because FINAM order/account/trade reads had not converged. Its immutable evidence SHA-256 is `0954B5C3D62444BA9AE59519386B0FC454D85C987BE1BAC04B82CA6C671B15A0`. The operator subsequently reported manually closing the one-contract broker position; that manual close is not Stage 8.11 PASS. Corrective code prepares fixed `stage8.11.attempt3`: it bounded-polls FINAM read-side convergence, GET-only reconciles the attempt2 ACK without resubmitting it, requires the broker account flat, and only then permits a new fixed CNYRUBF/LONG/1 acceptance cycle with separate create-only evidence. Attempt3 has not been physically executed by this repository change. No new physical authorization is implied by the code change; Stage 8.12 remains not started and not authorized.
 
 ## Governing research rule
 
