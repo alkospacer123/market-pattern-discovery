@@ -410,12 +410,11 @@ def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -
         matching.append({"fill_id": trade["trade_id"], "trade_id": trade["trade_id"],
                          "broker_order_id": listed_id, "quantity": "1", "price": trade["price"]["value"],
                          "timestamp": json.dumps(trade["timestamp"], sort_keys=True, separators=(",", ":"))})
-    if len(matching) > 1:
+    if len(matching) > 1 or len(matching) > executed:
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-    if len(matching) != executed:
-        raise ReconciliationPending("TRADE_PROPAGATION_PENDING")
     return {"order_status": _status(order.get("status")), "order_id": listed_id,
             "client_order_id": client_id, "executed_quantity": executed, "fills": matching,
+            "trade_propagation_pending": len(matching) < executed,
             "acceptance_instrument": symbol, "position_quantity": _position(positions, symbol)}
 
 
@@ -497,25 +496,26 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
             continue
 
         fills = snap.get("fills", [])
-        if status in TERMINAL_FILL and filled == 1 and fills:
+        if status in TERMINAL_FILL and filled == 1:
             position = snap.get("position_quantity")
-            if expected_position is not None:
-                if type(position) is not int:
-                    raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-                if position != expected_position:
-                    if position in (-1, 0, 1) and expected_position in (-1, 0, 1):
-                        if observation + 1 >= RECONCILIATION_MAX_OBSERVATIONS:
-                            raise OperatorInterventionRequired("RECONCILIATION_TIMEOUT")
-                        sleeper(RECONCILIATION_SLEEP_SECONDS)
-                        continue
-                    raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+            if expected_position is None or type(position) is not int:
+                raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+            if position != expected_position:
+                if position in (-1, 0, 1) and expected_position in (-1, 0, 1):
+                    if observation + 1 >= RECONCILIATION_MAX_OBSERVATIONS:
+                        raise OperatorInterventionRequired("RECONCILIATION_TIMEOUT")
+                    sleeper(RECONCILIATION_SLEEP_SECONDS)
+                    continue
+                raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+            if not fills and snap.get("trade_propagation_pending") is not True:
+                raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
             for fill in fills:
                 broker.store.persist_fill(fill)
             broker.store.transition_intent(key, "FILL", order_id)
             broker.store.transition_intent(key, "RECONCILED", order_id)
             return snap
 
-        if status in TERMINAL_FILL and (filled != 1 or not fills):
+        if status in TERMINAL_FILL and filled != 1:
             raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
 
         if status in TERMINAL_NO_FILL and filled != 0:

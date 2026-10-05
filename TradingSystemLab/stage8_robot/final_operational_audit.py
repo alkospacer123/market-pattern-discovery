@@ -538,7 +538,10 @@ def audit(
     check(all(token in acceptance for token in ("ENTRY_UNCERTAIN_RECONCILE", "FLATTEN_UNCERTAIN_RECONCILE",
           "OPERATOR_INTERVENTION_REQUIRED", "class ReconciliationPending",
           "RECONCILIATION_MAX_OBSERVATIONS = 12", "ORDER_COLLECTION_PROPAGATION_PENDING",
-          "TRADE_PROPAGATION_PENDING")), "STAGE_8_11_UNCERTAIN_RECONCILIATION")
+          '"trade_propagation_pending": len(matching) < executed',
+          "if expected_position is None or type(position) is not int:",
+          'snap.get("trade_propagation_pending") is not True')),
+          "STAGE_8_11_UNCERTAIN_RECONCILIATION")
     check("_digest(account_id) != accepted_account_hash.lower()" in acceptance and "heartbeat_account_hash" in acceptance,
           "STAGE_8_11_EXACT_ACCOUNT_BINDING")
     check("resolve_frozen_symbol(instrument)" in acceptance and "FINAM_SYMBOL_BINDING_INVALID" in acceptance,
