@@ -827,7 +827,20 @@ def audit(
           and 'raise ReconciliationPending("TRADE_PROPAGATION_PENDING")' in acceptance
           and 'observation + 1 >= RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS' in acceptance,
           "STAGE8_11_ATTEMPT2_DISTINCT_FIXED_INTENT_AND_WRAPPER_BINDING")
-    check('FAILED_PHYSICAL_EVIDENCE_SHA256 = "9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324"' in recovery
+    attempt2_physical=provenance.get("stage8_11_attempt2_physical",{})
+    check(attempt2_physical.get("attempt_id") == "stage8.11.attempt2"
+          and attempt2_physical.get("accepted_code_commit") == "8857f3a01a060360a33f5909a9020201d3ade502"
+          and attempt2_physical.get("physical_evidence_sha256") == "0954B5C3D62444BA9AE59519386B0FC454D85C987BE1BAC04B82CA6C671B15A0"
+          and attempt2_physical.get("entry_intent_status_at_evidence") == "ACK"
+          and attempt2_physical.get("order_endpoint_call_count") == 1
+          and attempt2_physical.get("final_position_quantity_observed") == 1
+          and attempt2_physical.get("canonical_unresolved_intent_count") == 1
+          and attempt2_physical.get("physical_result") == "OPERATOR_INTERVENTION_REQUIRED"
+          and attempt2_physical.get("defect_classification") == "FINAM_READ_SIDE_EVENTUAL_CONSISTENCY"
+          and attempt2_physical.get("operator_reported_manual_close_after_evidence") is True
+          and attempt2_physical.get("corrective_retry_identity") == "stage8.11.attempt3"
+          and attempt2_physical.get("stage8_12_activity") is False
+          and 'FAILED_PHYSICAL_EVIDENCE_SHA256 = "9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324"' in recovery
           and 'HISTORICAL_INTENT_KEY = "stage8.11:CNYRUBF:entry"' in recovery
           and all("0954B5C3D62444BA9AE59519386B0FC454D85C987BE1BAC04B82CA6C671B15A0" in doc
                   and "OPERATOR_INTERVENTION_REQUIRED" in doc
