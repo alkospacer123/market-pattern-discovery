@@ -18,8 +18,8 @@ import tempfile
 from typing import Any, Callable
 
 from .account_cleanliness import (
-    TERMINAL_ORDER_STATUSES, _rest_contract_quantity, count_active_orders,
-    count_nonzero_positions, normalize_order_status,
+    _rest_contract_quantity, count_active_orders, count_nonzero_positions,
+    normalize_order_status,
 )
 from .backup_state import create_stage8_11_acceptance_backup, sha256_file
 from .operations import stage8_11_exclusive_lock
@@ -34,6 +34,7 @@ FINAM_SYMBOL = "CNYRUBF@RTSX"
 RECOVERY_EVIDENCE_NAME = "stage8_11_attempt2_manual_recovery.json"
 RECOVERY_SCHEMA = "stage8_11_attempt2_manual_recovery.v1"
 PREPARED_SUFFIX = ".prepared"
+ATTEMPT2_EXECUTED_STATUSES = frozenset({"FILLED", "EXECUTED"})
 
 
 class Attempt2RecoveryBlocked(RuntimeError):
@@ -71,7 +72,8 @@ def _load_json(path: Path) -> dict[str, Any]:
     return value
 
 
-def _validate_completed_evidence(payload: dict[str, Any], *, account_id: str) -> None:
+def _validate_completed_evidence(payload: dict[str, Any], *, account_id: str,
+                                 recovery_code_commit: str) -> None:
     expected = {
         "schema_id": RECOVERY_SCHEMA,
         "recovery_status": "COMMITTED",
@@ -83,8 +85,12 @@ def _validate_completed_evidence(payload: dict[str, Any], *, account_id: str) ->
         "final_local_intent_status": "CLOSED",
         "all_positions_zero": True,
         "active_broker_order_count": 0,
+        "attempt2_reclassified_as_pass": False,
+        "manual_close_history_preserved": True,
+        "recovery_code_commit": recovery_code_commit,
     }
-    if any(payload.get(k) != v for k, v in expected.items()):
+    if (any(payload.get(k) != v for k, v in expected.items())
+            or payload.get("broker_order_terminal_status") not in ATTEMPT2_EXECUTED_STATUSES):
         raise Attempt2RecoveryBlocked("ATTEMPT2_RECOVERY_EVIDENCE_AUTHORITY_MISMATCH")
 
 
@@ -126,7 +132,9 @@ def recover_attempt2_manual_close(*, runtime_root: Path, account_id: str, readon
         try:
             if target.exists():
                 completed = _load_json(target)
-                _validate_completed_evidence(completed, account_id=account_id)
+                _validate_completed_evidence(
+                    completed, account_id=account_id,
+                    recovery_code_commit=recovery_code_commit)
                 intent = store.intent(ATTEMPT2_INTENT_KEY)
                 if not intent or intent.get("status") != "CLOSED":
                     raise Attempt2RecoveryBlocked("ATTEMPT2_RECOVERY_LOCAL_STATE_MISMATCH")
@@ -180,10 +188,14 @@ def recover_attempt2_manual_close(*, runtime_root: Path, account_id: str, readon
                 raise Attempt2RecoveryBlocked("ATTEMPT2_RECOVERY_BROKER_ORDER_IDENTITY_MISMATCH")
             try:
                 broker_status = normalize_order_status(broker_row.get("status"))
+                initial_quantity = _rest_contract_quantity(broker_row.get("initial_quantity"))
+                executed_quantity = _rest_contract_quantity(broker_row.get("executed_quantity"))
+                remaining_quantity = _rest_contract_quantity(broker_row.get("remaining_quantity"))
             except ValueError:
-                raise Attempt2RecoveryBlocked("ATTEMPT2_RECOVERY_BROKER_ORDER_STATUS_INVALID") from None
-            if broker_status not in TERMINAL_ORDER_STATUSES:
-                raise Attempt2RecoveryBlocked("ATTEMPT2_RECOVERY_BROKER_ORDER_NOT_TERMINAL")
+                raise Attempt2RecoveryBlocked("ATTEMPT2_RECOVERY_BROKER_ORDER_SHAPE_INVALID") from None
+            if (broker_status not in ATTEMPT2_EXECUTED_STATUSES
+                    or initial_quantity != 1 or executed_quantity != 1 or remaining_quantity != 0):
+                raise Attempt2RecoveryBlocked("ATTEMPT2_RECOVERY_BROKER_EXECUTION_NOT_PROVEN")
 
             observed = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
             if prepared_path.exists():
