@@ -69,7 +69,7 @@ try {
     # This recovery never calls /trades and has no order mutation attributes.
     $env:STAGE8_11_RECOVERY_READONLY_SECRET = [string]$readonly.finam_api_secret
     $env:STAGE8_11_RECOVERY_ACCOUNT_ID = [string]$readonly.finam_real_account_id
-    & $Python -m TradingSystemLab.stage8_robot.stage8_11_attempt2_manual_recovery `
+    & $Python -m TradingSystemLab.stage8_robot.stage8_11_attempt3_manual_close_recovery `
         --runtime-root $runtime --accepted-recovery-commit $AcceptedCommit
     if ($LASTEXITCODE -ne 0) { throw "STAGE8_11_ATTEMPT3_MANUAL_RECOVERY_FAILED" }
     foreach ($name in @("STAGE8_11_RECOVERY_READONLY_SECRET","STAGE8_11_RECOVERY_ACCOUNT_ID")) {
@@ -81,7 +81,7 @@ try {
     $env:STAGE8_11_DPAPI_VALIDATED = "true"
     $env:STAGE8_11_TRADING_SECRET = [string]$trading.finam_trading_api_secret
     $env:STAGE8_11_ACCOUNT_ID = [string]$trading.finam_real_account_id
-    & $Python -m TradingSystemLab.stage8_robot.stage8_11_physical_acceptance_attempt3 `
+    & $Python -m TradingSystemLab.stage8_robot.stage8_11_physical_acceptance_attempt4 `
         --runtime-root $runtime --accepted-commit $AcceptedCommit --evidence $evidence `
         --external-evidence-sha256 $ExternalEvidenceSha256
     if ($LASTEXITCODE -ne 0) { throw "STAGE8_11_PHYSICAL_CHILD_FAILED" }
