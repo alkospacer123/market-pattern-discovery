@@ -339,7 +339,7 @@ def audit(
         return (root / relative).read_bytes()
 
     def text(relative: str) -> str:
-        return content(relative).decode()
+        return content(relative).replace(b"\r\n", b"\n").decode("utf-8")
 
     if tracked_files is None:
         raw = subprocess.run(["git", "ls-files", "-z"], cwd=root, check=True, capture_output=True).stdout
