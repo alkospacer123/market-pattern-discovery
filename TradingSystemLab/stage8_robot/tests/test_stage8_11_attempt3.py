@@ -91,4 +91,3 @@ def test_attempt3_full_repeat_after_manual_flat_and_attempt2_reconciliation(tmp_
     assert store.intent("stage8.11.attempt3:CNYRUBF:entry")["status"] == "RECONCILED"
     assert store.intent("stage8.11.attempt3:CNYRUBF:flatten")["status"] == "RECONCILED"
     assert store.unresolved_intent_count() == 0
-
