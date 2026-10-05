@@ -38,7 +38,7 @@ def git_files():
 
 
 def source(relative):
-    return (ROOT / relative).read_text()
+    return (ROOT / relative).read_bytes().decode("utf-8")
 
 
 def test_clean_repository_authority_passes():
@@ -48,6 +48,11 @@ def test_clean_repository_authority_passes():
     assert result["intel_final_acceptance_performed"] is True
     assert result["stage8_8_7_accepted_code_commit"] == final.STAGE_8_8_7_CODE
     assert result["stage8_8_7_external_evidence_sha256"] == final.STAGE_8_8_7_EVIDENCE
+
+
+def test_stage8_repository_text_decode_is_explicit_utf8():
+    assert 'path.read_bytes().decode("utf-8")' in source(
+        "TradingSystemLab/stage8_robot/audit_stage8.py")
 
 
 def test_wrong_production_id_fails():
