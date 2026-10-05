@@ -34,6 +34,7 @@ class SyntheticFinamTransport:
     def __init__(self, scenario="pass"):
         self.scenario, self.orders, self.trade_rows = scenario, [], []
         self.position = self.posts = self.deletes = 0
+        self.trade_reads = 0
         self.paths = []
 
     @staticmethod
@@ -71,7 +72,10 @@ class SyntheticFinamTransport:
                 "cash":[],"portfolio_forts":{"available_cash":self.decimal(1000),
                 "money_reserved":self.decimal(0)}})
         if path == prefix + "/trades" and method == "GET":
+            self.trade_reads += 1
             rows=list(self.trade_rows)
+            if self.scenario == "delayed_trade" and self.posts == 1 and self.trade_reads < 3:
+                rows=[]
             if self.scenario == "unrelated_fill" and self.posts == 1:
                 rows=[{"trade_id":"alien","order_id":"alien-order","account_id":ACCOUNT,
                     "symbol":SYMBOL,"side":"SIDE_BUY","size":self.decimal(1),
@@ -137,6 +141,17 @@ def execute(tmp_path, scenario):
         instrument="USDRUBF",finam_symbol=SYMBOL,direction="LONG",broker=broker,now=NOW)
     return result,transport,store
 
+
+
+def test_real_finam_eventual_consistency_delayed_trade_converges_without_duplicate_entry(tmp_path):
+    result,transport,store=execute(tmp_path,"delayed_trade")
+    assert result["classification"] == "SYNTHETIC_PASS"
+    assert transport.posts == 2
+    assert transport.trade_reads >= 3
+    assert store.unresolved_intent_count() == 0
+    intents=store.db.execute("SELECT idempotency_key,status FROM intents ORDER BY rowid").fetchall()
+    assert intents == [("stage8.11:USDRUBF:entry","RECONCILED"),
+                       ("stage8.11:USDRUBF:flatten","RECONCILED")]
 
 def test_real_finam_api_contract_runs_full_controlled_lifecycle(tmp_path):
     result,transport,store=execute(tmp_path,"pass")
