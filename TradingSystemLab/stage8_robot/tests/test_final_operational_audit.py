@@ -113,6 +113,8 @@ def test_stage8_11_cleanliness_correction_preserves_historical_hash_authority():
      "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY", "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY"),
     ("stage8_11_attempt2_manual_recovery.py", "UPDATE intents SET status='CLOSED'", "UPDATE intents SET status='RECONCILED'",
      "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY", "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY"),
+    ("stage8_11_attempt2_manual_recovery.py", "executed_quantity != 1", "executed_quantity != 999",
+     "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY", "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY"),
     ("controlled_real_acceptance.py", "if not _account_is_clean(final):", "if False:",
      "STAGE8_11_CLEAN_PROOF_AND_HALT", "STAGE8_11_ACCOUNT_WIDE_CLEAN_PROOF"),
     ("controlled_real_acceptance.py", "finally:\n        emergency_halt(runtime_root", "finally:\n        pass #",
