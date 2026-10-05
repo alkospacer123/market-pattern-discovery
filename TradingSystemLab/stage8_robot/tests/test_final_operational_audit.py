@@ -76,6 +76,15 @@ def test_stage8_11_cleanliness_correction_preserves_historical_hash_authority():
     assert final.POST_STAGE8_11_CORRECTED_SHA256[
         "TradingSystemLab/stage8_robot/account_cleanliness.py"
     ] == "7ab8b91483f7e37605f3a4962281fcdc338bf649cee96f141f06ac20294a2184"
+    assert final.POST_STAGE8_11_CORRECTED_SHA256[
+        "TradingSystemLab/stage8_robot/stage8_11_attempt2_manual_recovery.py"
+    ] == "c83582163adc57b3c303ce6c36f5152ea8afb5305601c59d1c3d919ea9a985b5"
+    assert final.POST_STAGE8_11_CORRECTED_SHA256[
+        "TradingSystemLab/stage8_robot/stage8_11_physical_acceptance_attempt3.py"
+    ] == "b3dfcbbd11cf11f047e81357bf9afd562dc91cbaca4bc311404d0e74e34dff0e"
+    assert final.POST_STAGE8_11_CORRECTED_SHA256[
+        "TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-physical-acceptance-attempt3.ps1"
+    ] == "ab77c15a0ad85e7dd7e6c03833de9466a3c586440ad02f8d4924a023db63862b"
     result = run_audit()
     assert result["protected_implementation_status"] == "PASS"
     assert not any(error.startswith("PROTECTED_IMPLEMENTATION_HASHES:") for error in result["errors"])
