@@ -6,6 +6,9 @@ from urllib.parse import urlparse
 
 import pytest
 
+from TradingSystemLab.stage8_robot.account_cleanliness import (
+    ACTIVE_ORDER_STATUSES, DOCUMENTED_ORDER_STATUSES, TERMINAL_ORDER_STATUSES,
+)
 from TradingSystemLab.stage8_robot.controlled_real_acceptance import (
     AcceptanceAuthority, ControlledAcceptanceBroker, STAGE8_10_AUTHORITY,
     RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS,
@@ -246,6 +249,12 @@ def test_full_documented_finam_order_status_enum_is_parsed(raw, normalized):
 def test_unspecified_order_status_fails_closed():
     with pytest.raises(OperatorInterventionRequired):
         _status("ORDER_STATUS_UNSPECIFIED")
+
+
+def test_documented_finam_status_partition_is_complete_and_disjoint():
+    assert len(DOCUMENTED_ORDER_STATUSES) == 29
+    assert ACTIVE_ORDER_STATUSES.isdisjoint(TERMINAL_ORDER_STATUSES)
+    assert ACTIVE_ORDER_STATUSES | TERMINAL_ORDER_STATUSES | {"UNSPECIFIED"} == DOCUMENTED_ORDER_STATUSES
 
 
 @pytest.mark.parametrize("shape,expected", [({"value":"0"},0),({"value":"1"},1)])
