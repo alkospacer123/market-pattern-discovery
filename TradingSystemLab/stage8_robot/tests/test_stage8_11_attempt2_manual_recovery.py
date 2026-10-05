@@ -26,6 +26,9 @@ class ReadonlyAttempt2API:
         ]
         self.orders_rows = orders if orders is not None else [
             {"order_id": "old-order", "status": "ORDER_STATUS_EXECUTED",
+             "initial_quantity": {"value": "1"},
+             "executed_quantity": {"value": "1"},
+             "remaining_quantity": {"value": "0"},
              "order": {"client_order_id": client_id, "symbol": FINAM_SYMBOL,
                        "side": "SIDE_BUY", "quantity": {"value": "1"}}}
         ]
@@ -107,7 +110,7 @@ def test_attempt2_manual_recovery_is_idempotent_after_commit(tmp_path, monkeypat
     assert second == first
 
 
-@pytest.mark.parametrize("case", ["nonflat", "active", "missing", "identity", "quantity"])
+@pytest.mark.parametrize("case", ["nonflat", "active", "missing", "identity", "quantity", "nofill"])
 def test_attempt2_manual_recovery_fails_closed_on_unclean_or_unproven_broker_state(
         tmp_path, monkeypatch, case):
     root, _, client_id = setup_attempt2(tmp_path, monkeypatch)
