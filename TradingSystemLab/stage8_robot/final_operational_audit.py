@@ -872,7 +872,16 @@ def audit(
     check(
           'ATTEMPT2_EVIDENCE_SHA256 = "0954B5C3D62444BA9AE59519386B0FC454D85C987BE1BAC04B82CA6C671B15A0"' in attempt2_manual_recovery
           and 'ATTEMPT2_INTENT_KEY = "stage8.11.attempt2:CNYRUBF:entry"' in attempt2_manual_recovery
+          and 'ATTEMPT2_ACCEPTED_CODE_COMMIT = "8857f3a01a060360a33f5909a9020201d3ade502"' in attempt2_manual_recovery
           and 'ATTEMPT2_EXECUTED_STATUSES = frozenset({"FILLED", "EXECUTED"})' in attempt2_manual_recovery
+          and "_validate_attempt2_physical_evidence(_load_json(previous), account_id=account_id)" in attempt2_manual_recovery
+          and '"order_endpoint_call_count": 1' in attempt2_manual_recovery
+          and '"broker_order_present": True' in attempt2_manual_recovery
+          and '"one_contract_position_observed": True' in attempt2_manual_recovery
+          and '"final_position_quantity": 1' in attempt2_manual_recovery
+          and '"final_active_order_count": 0' in attempt2_manual_recovery
+          and '"unresolved_intent_count": 1' in attempt2_manual_recovery
+          and '"physical_result_classification": "OPERATOR_INTERVENTION_REQUIRED"' in attempt2_manual_recovery
           and "count_nonzero_positions(positions)" in attempt2_manual_recovery
           and "count_active_orders(orders)" in attempt2_manual_recovery
           and 'request.get("client_order_id") != payload.get("client_order_id")' in attempt2_manual_recovery
