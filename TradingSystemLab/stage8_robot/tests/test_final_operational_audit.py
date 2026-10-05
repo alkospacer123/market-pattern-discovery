@@ -80,11 +80,14 @@ def test_stage8_11_cleanliness_correction_preserves_historical_hash_authority():
         "TradingSystemLab/stage8_robot/stage8_11_attempt2_manual_recovery.py"
     ] == "f3b90e020cd4604d6c6f07c1118315e193910fb6d1618de1cac8b55f78abc4dd"
     assert final.POST_STAGE8_11_CORRECTED_SHA256[
+        "TradingSystemLab/stage8_robot/funding_margin_diagnostic.py"
+    ] == "2443f8cab7fafe5b4ab1cb9cb5673e71a9f7bf74b51608425e55f41b1b3645c9"
+    assert final.POST_STAGE8_11_CORRECTED_SHA256[
         "TradingSystemLab/stage8_robot/stage8_11_physical_acceptance_attempt3.py"
-    ] == "b3dfcbbd11cf11f047e81357bf9afd562dc91cbaca4bc311404d0e74e34dff0e"
+    ] == "65e832d7c61d27ce8feefe1d41621749a7f376b53d58c478241dcfdbaefc4be9"
     assert final.POST_STAGE8_11_CORRECTED_SHA256[
         "TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-physical-acceptance-attempt3.ps1"
-    ] == "ab77c15a0ad85e7dd7e6c03833de9466a3c586440ad02f8d4924a023db63862b"
+    ] == "ccdef47390c4c755f65c601db083876b37eb5db633aff79dbfd83e99c2444b41"
     result = run_audit()
     assert result["protected_implementation_status"] == "PASS"
     assert not any(error.startswith("PROTECTED_IMPLEMENTATION_HASHES:") for error in result["errors"])
