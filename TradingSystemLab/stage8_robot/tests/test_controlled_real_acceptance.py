@@ -185,9 +185,13 @@ def test_every_uncertain_post_is_reconciled_without_retry(tmp_path, uncertain):
 def test_uncertain_active_order_is_cancelled_then_no_execution(tmp_path):
     active={"order_status":"ACTIVE","order_id":"o1","executed_quantity":0,"position_quantity":0,"fills":[]}
     cancelled={"order_status":"CANCELLED","order_id":"o1","executed_quantity":0,"position_quantity":0,"fills":[]}
-    result,api,store,_=run(tmp_path,[active,cancelled],(True,))
+    # The bounded reconciler intentionally observes ACTIVE for the fixed grace
+    # window before issuing its single allowed cancel. The synthetic API
+    # consumes one snapshot per GET, so repeat the stable ACTIVE observation.
+    result,api,store,_=run(tmp_path,[active,active,active,cancelled],(True,))
     assert result["classification"] == "NOT_ACCEPTED_NO_EXECUTION"
-    assert api.posts == 1 and any(x[0]=="cancel" for x in api.calls) and store.unresolved_intent_count()==0
+    assert api.posts == 1 and sum(x[0]=="cancel" for x in api.calls) == 1
+    assert store.unresolved_intent_count()==0
 
 
 def test_cancel_race_fill_is_flattened_not_misclassified(tmp_path):

@@ -33,7 +33,10 @@
   ],
   "properties": {
     "attempt_id": {
-      "const": "stage8.11.attempt2"
+      "enum": [
+        "stage8.11.attempt2",
+        "stage8.11.attempt3"
+      ]
     },
     "schema_id": {
       "const": "stage8_11_physical_acceptance.v1"

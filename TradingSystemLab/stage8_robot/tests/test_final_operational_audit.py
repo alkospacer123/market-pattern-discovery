@@ -38,7 +38,7 @@ def git_files():
 
 
 def source(relative):
-    return (ROOT / relative).read_text()
+    return (ROOT / relative).read_bytes().replace(b"\r\n", b"\n").decode("utf-8")
 
 
 def test_clean_repository_authority_passes():
@@ -48,6 +48,13 @@ def test_clean_repository_authority_passes():
     assert result["intel_final_acceptance_performed"] is True
     assert result["stage8_8_7_accepted_code_commit"] == final.STAGE_8_8_7_CODE
     assert result["stage8_8_7_external_evidence_sha256"] == final.STAGE_8_8_7_EVIDENCE
+
+
+def test_stage8_repository_text_decode_is_explicit_utf8():
+    audit_source = source("TradingSystemLab/stage8_robot/audit_stage8.py")
+    final_source = source("TradingSystemLab/stage8_robot/final_operational_audit.py")
+    assert 'path.read_bytes().replace(b"\\r\\n", b"\\n").decode("utf-8")' in audit_source
+    assert 'content(relative).replace(b"\\r\\n", b"\\n").decode("utf-8")' in final_source
 
 
 def test_wrong_production_id_fails():
@@ -1007,11 +1014,18 @@ def test_stage_8_10_semantic_document_regressions_fail_both_audits(
 @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
 def test_stage_8_10_current_handoff_stale_gate_and_omission_fail_both_audits(path):
     original = source(path)
-    stale = original.replace(
-        "The production kill switch is `HALTED` and the Scheduled Task is `Disabled`. Stage 8.11 repository closeout is complete, but controlled real one-contract acceptance remains not passed. No new physical authorization is implied; any future retry requires a new explicit operator authorization. Stage 8.12 remains not started and not authorized.",
-        "Stage 8.10 is COMPLETE, but the next possible lifecycle gate is Stage 8.10.5")
-    _assert_document_mutation_fails_both(path, stale, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
-    omitted = original.replace("prior explicit authorization **CONSUMED**", "")
+    marker = "## Current handoff"
+    start = original.index(marker)
+    next_section = original.index("\n## ", start + len(marker))
+    handoff = original[start:next_section]
+    stale_handoff = handoff.replace(
+        "Stage 8.10 is **COMPLETE**.",
+        "Stage 8.10 is **COMPLETE**, but the next possible lifecycle gate is Stage 8.10.5.",
+        1)
+    stale = original[:start] + stale_handoff + original[next_section:]
+    _assert_document_mutation_fails_both(path, stale, "STAGE_8_10_NO_STALE_NEXT_GATE")
+    omitted_handoff = handoff.replace("prior explicit authorization **CONSUMED**", "", 1)
+    omitted = original[:start] + omitted_handoff + original[next_section:]
     _assert_document_mutation_fails_both(path, omitted, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
 
 

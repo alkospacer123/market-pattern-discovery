@@ -116,6 +116,17 @@ def _protected_sha256(raw: bytes) -> str:
     return hashlib.sha256(canonical).hexdigest()
 
 
+def _current_handoff(document: str) -> str:
+    marker = "## Current handoff"
+    start = document.find(marker)
+    if start < 0:
+        return ""
+    body_start = document.find("\n", start)
+    if body_start < 0:
+        return ""
+    next_section = document.find("\n## ", body_start + 1)
+    return document[body_start + 1:] if next_section < 0 else document[body_start + 1:next_section]
+
 def _stage8_10_document_consistency(document: str) -> tuple[bool, bool, bool]:
     """Independently validate active handoff and chronological prose semantics."""
     historical_labels = ("historical", "at the time", "in this historical snapshot",
@@ -140,17 +151,19 @@ def _stage8_10_document_consistency(document: str) -> tuple[bool, bool, bool]:
         stage11_invalid = re.search(r"Stage 8\.11.{0,40}(?:is|=) (?:\*\*)?(?:STARTED|AUTHORIZED)", normalized, re.I)
         if not historical and (active_8107 or stage11_invalid or (earlier_not_started and later_complete)):
             inconsistent = True
-    match = re.search(r"^## Current handoff\s*$\n(.*?)(?=^## |\Z)", document, re.M | re.S)
-    handoff = match.group(1) if match else ""
-    exact = bool(match and all(token in handoff for token in (
+    handoff = _current_handoff(document)
+    normalized_handoff = " ".join(handoff.split())
+    required = (
         "Stage 8.9 is **COMPLETE**", "Stage 8.10 is **COMPLETE**", "`HALTED`",
         "Stage 8.11.0 — **COMPLETE**", "Stage 8.11.1 — **COMPLETE / PASS**",
         "Stage 8.11.2 — **COMPLETE / PASS**", "prior explicit authorization **CONSUMED**",
         "Stage 8.11.4 — **ATTEMPTED / FAILED HTTP 400 / NO ACCEPTED ENTRY**",
         "Stage 8.11.7 — **COMPLETE / PASS / HISTORICAL INTENT RECOVERED**",
         "Stage 8.11.8 — **COMPLETE / STAGE 8.11 CLOSEOUT**", "Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**",
-        "Scheduled Task is `Disabled`", "new explicit operator authorization")))
-    if match and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]", handoff, re.I):
+        "Scheduled Task is `Disabled`", "stage8.11.attempt2", "0954B5C3D62444BA9AE59519386B0FC454D85C987BE1BAC04B82CA6C671B15A0",
+        "stage8.11.attempt3", "Attempt3 has not been physically executed", "new explicit operator authorization")
+    exact = bool(handoff and all(" ".join(token.split()) in normalized_handoff for token in required))
+    if handoff and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]", handoff, re.I):
         stale_next = True
     return exact, not inconsistent, not stale_next
 
@@ -326,7 +339,7 @@ def audit(
         return (root / relative).read_bytes()
 
     def text(relative: str) -> str:
-        return content(relative).decode()
+        return content(relative).replace(b"\r\n", b"\n").decode("utf-8")
 
     if tracked_files is None:
         raw = subprocess.run(["git", "ls-files", "-z"], cwd=root, check=True, capture_output=True).stdout
@@ -499,7 +512,9 @@ def audit(
     check("no retry: exactly one call" in acceptance and acceptance.count("self.api.place_order") == 1,
           "STAGE_8_11_NO_POST_RETRY")
     check(all(token in acceptance for token in ("ENTRY_UNCERTAIN_RECONCILE", "FLATTEN_UNCERTAIN_RECONCILE",
-          "OPERATOR_INTERVENTION_REQUIRED")), "STAGE_8_11_UNCERTAIN_RECONCILIATION")
+          "OPERATOR_INTERVENTION_REQUIRED", "class ReconciliationPending",
+          "RECONCILIATION_MAX_OBSERVATIONS = 12", "ORDER_COLLECTION_PROPAGATION_PENDING",
+          "TRADE_PROPAGATION_PENDING")), "STAGE_8_11_UNCERTAIN_RECONCILIATION")
     check("_digest(account_id) != accepted_account_hash.lower()" in acceptance and "heartbeat_account_hash" in acceptance,
           "STAGE_8_11_EXACT_ACCOUNT_BINDING")
     check("resolve_frozen_symbol(instrument)" in acceptance and "FINAM_SYMBOL_BINDING_INVALID" in acceptance,
@@ -768,12 +783,17 @@ def audit(
     check(lifecycle_closeout == expected_closeout, "STAGE_8_10_8_MACHINE_AUTHORITY_EXACT")
     check(all(STAGE_8_10_COMPLETE_STATUS in doc for doc in stage8_9_docs),
           "STAGE_8_10_CLOSEOUT_STATUS_SYNCHRONIZED")
-    check(all("Stage 8.11.1 — **COMPLETE / PASS**" in doc
-              and "Stage 8.11.2 — **COMPLETE / PASS**" in doc
-              and "prior explicit authorization **CONSUMED**" in doc for doc in stage8_9_docs),
+    current_handoffs = [_current_handoff(doc) for doc in stage8_9_docs]
+    check(all("Stage 8.11.1 — **COMPLETE / PASS**" in handoff
+              and "Stage 8.11.2 — **COMPLETE / PASS**" in handoff
+              and "prior explicit authorization **CONSUMED**" in handoff
+              and "stage8.11.attempt2" in handoff and "stage8.11.attempt3" in handoff
+              for handoff in current_handoffs),
           "STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED")
     physical_entry=text("TradingSystemLab/stage8_robot/stage8_11_physical_acceptance.py")
     physical_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-physical-acceptance.ps1")
+    attempt3_entry=text("TradingSystemLab/stage8_robot/stage8_11_physical_acceptance_attempt3.py")
+    attempt3_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-physical-acceptance-attempt3.ps1")
     recovery=text("TradingSystemLab/stage8_robot/stage8_11_failed_attempt_recovery.py")
     check(all(token in physical_entry for token in (
           'AUTHORIZATION_VALUE = "STAGE_8_11_ONE_CONTRACT_ACCEPTANCE_AUTHORIZED"',
@@ -805,15 +825,43 @@ def audit(
           and 'os.link(temporary, destination)' in physical_entry,
           "STAGE8_11_ATTEMPT2_FIXED_CREATE_ONLY_EVIDENCE")
     check('attempt_id=ATTEMPT_ID' in physical_entry
-          and 'stage8.11.attempt2' in acceptance
+          and 'stage8.11.attempt2' in acceptance and 'stage8.11.attempt3' in acceptance
           and 'intent_prefix = attempt_id or "stage8.11"' in acceptance
           and 'stage8_11_physical_acceptance_attempt2.json' in physical_wrapper
-          and 'stage8_11_physical_acceptance.json"' not in physical_wrapper,
+          and 'stage8_11_physical_acceptance.json"' not in physical_wrapper
+          and 'ATTEMPT_ID = STAGE8_11_ATTEMPT3_ID' in attempt3_entry
+          and 'REPORT_NAME = "stage8_11_physical_acceptance_attempt3.json"' in attempt3_entry
+          and 'PREVIOUS_EVIDENCE_SHA256 = "0954B5C3D62444BA9AE59519386B0FC454D85C987BE1BAC04B82CA6C671B15A0"' in attempt3_entry
+          and 'PREVIOUS_ENTRY_KEY = "stage8.11.attempt2:CNYRUBF:entry"' in attempt3_entry
+          and '_reconcile_previous_attempt' in attempt3_entry
+          and 'stage8_11_physical_acceptance_attempt3.json' in attempt3_wrapper
+          and 'stage8_11_physical_acceptance_attempt3' in attempt3_wrapper
+          and 'os.replace(' not in attempt3_entry and 'os.link(temporary, destination)' in attempt3_entry
+          and 'RECONCILIATION_MAX_OBSERVATIONS = 12' in acceptance
+          and 'RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS = 3' in acceptance
+          and 'class ReconciliationPending' in acceptance
+          and 'raise ReconciliationPending("TRADE_PROPAGATION_PENDING")' in acceptance
+          and 'observation + 1 >= RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS' in acceptance,
           "STAGE8_11_ATTEMPT2_DISTINCT_FIXED_INTENT_AND_WRAPPER_BINDING")
-    check('FAILED_PHYSICAL_EVIDENCE_SHA256 = "9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324"' in recovery
+    attempt2_physical=provenance.get("stage8_11_attempt2_physical",{})
+    check(attempt2_physical.get("attempt_id") == "stage8.11.attempt2"
+          and attempt2_physical.get("accepted_code_commit") == "8857f3a01a060360a33f5909a9020201d3ade502"
+          and attempt2_physical.get("physical_evidence_sha256") == "0954B5C3D62444BA9AE59519386B0FC454D85C987BE1BAC04B82CA6C671B15A0"
+          and attempt2_physical.get("entry_intent_status_at_evidence") == "ACK"
+          and attempt2_physical.get("order_endpoint_call_count") == 1
+          and attempt2_physical.get("final_position_quantity_observed") == 1
+          and attempt2_physical.get("canonical_unresolved_intent_count") == 1
+          and attempt2_physical.get("physical_result") == "OPERATOR_INTERVENTION_REQUIRED"
+          and attempt2_physical.get("defect_classification") == "FINAM_READ_SIDE_EVENTUAL_CONSISTENCY"
+          and attempt2_physical.get("operator_reported_manual_close_after_evidence") is True
+          and attempt2_physical.get("corrective_retry_identity") == "stage8.11.attempt3"
+          and attempt2_physical.get("stage8_12_activity") is False
+          and 'FAILED_PHYSICAL_EVIDENCE_SHA256 = "9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324"' in recovery
           and 'HISTORICAL_INTENT_KEY = "stage8.11:CNYRUBF:entry"' in recovery
-          and all("stage8.11.attempt2" in doc and "did not execute the retry" in doc
-                  for doc in stage8_9_docs),
+          and all("0954B5C3D62444BA9AE59519386B0FC454D85C987BE1BAC04B82CA6C671B15A0" in doc
+                  and "OPERATOR_INTERVENTION_REQUIRED" in doc
+                  and "stage8.11.attempt3" in doc
+                  and "has not been physically executed" in doc for doc in stage8_9_docs),
           "STAGE8_11_ATTEMPT1_IMMUTABLE_ATTEMPT2_PREPARED_ONLY")
     physical_tree=ast.parse(physical_entry)
     lifecycle_calls=[node for node in ast.walk(physical_tree) if isinstance(node,ast.Call)
@@ -919,7 +967,9 @@ def audit(
     check("w32tm /query /status" in intel_wrapper and "w32tm /query /source" in intel_wrapper
           and "Get-Service -Name W32Time" in intel_wrapper and "$clock = (Get-Date)" not in intel_wrapper,
           "STAGE_8_11_INTEL_WINDOWS_TIME_SANITY")
-    check(all("Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**" in doc for doc in stage8_9_docs),
+    check(all("Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**" in handoff
+              and "Stage 8.12 remains not started and not authorized" in handoff
+              for handoff in current_handoffs),
           "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")
     forbidden_claims = (
         r"(?:broker acceptance (?:is |was )?validated|order (?:was )?accepted|FINAM server accepted an order)",
