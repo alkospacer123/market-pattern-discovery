@@ -1098,7 +1098,7 @@ def test_stage811_maximum_post_capability_expansion_fails_both_audits():
      'False', "STAGE_8_11_NO_FILL_REQUIRES_CLEAN_ACCOUNT_PROOF"),
     ('final["unexpected_position_count"] == 0', 'True',
      "STAGE_8_11_FINAL_RECONCILIATION_ALL_POSITIONS"),
-    ('if _status(row.get("status")) in ACTIVE', 'if False',
+    ('active = count_active_orders(order_rows)', 'active = 0',
      "STAGE_8_11_FINAL_RECONCILIATION_ALL_ACTIVE_ORDERS"),
 ])
 def test_stage811_final_reconciliation_mutations_fail_both_audits(needle,replacement,error):
