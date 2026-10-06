@@ -50,7 +50,12 @@ from .specification import (
     PRODUCTION_SPECIFICATION_ID,
     load_frozen_specification,
 )
-from .state import TERMINAL_INTENT_STATUSES, readonly_unresolved_intent_count, stage8_11_acceptance_path
+from .state import (
+    TERMINAL_INTENT_STATUSES,
+    readonly_unresolved_intent_count,
+    stage8_11_acceptance_path,
+    stage8_11_identity,
+)
 from .trading_safety_gate import evaluate_new_entry_gate, heartbeat_path
 
 SCHEMA_ID = "stage8_12_3_intel_preflight.v1"
@@ -348,9 +353,25 @@ def _capacity_report(
     for reserve in RESERVE_SCENARIOS:
         plan = plans[str(reserve)]
         evidence = plan.evidence()
-        evidence["additional_cash_to_scenario"] = str(
-            max(Decimal("0"), plan.required_capital_with_reserve - available_cash)
+        multiplier = Decimal("1") + reserve
+        required_equity = base.r15_equity_floor * multiplier
+        required_margin_cash = base.worst_direction_margin_floor * multiplier
+        scenario_equity_shortfall = max(
+            Decimal("0"), required_equity - realized_equity
         )
+        scenario_margin_shortfall = max(
+            Decimal("0"), required_margin_cash - available_cash
+        )
+        scenario_additional = max(
+            scenario_equity_shortfall, scenario_margin_shortfall
+        )
+        evidence.update({
+            "required_equity_with_reserve": str(required_equity),
+            "required_margin_cash_with_reserve": str(required_margin_cash),
+            "r15_equity_shortfall": str(scenario_equity_shortfall),
+            "margin_cash_shortfall": str(scenario_margin_shortfall),
+            "additional_funding_required": str(scenario_additional),
+        })
         scenarios[f"{int(reserve * 100)}pct"] = evidence
     return {
         "r15_equity_floor": str(base.r15_equity_floor),
@@ -412,7 +433,26 @@ def preflight_only(
     if not acceptance_path.is_file():
         _fail("STAGE8_12_3_STAGE8_11_LEDGER_MISSING")
     try:
+        connection = sqlite3.connect(
+            acceptance_path.resolve().as_uri() + "?mode=ro", uri=True
+        )
+        try:
+            identity_row = connection.execute(
+                "SELECT value FROM state WHERE key='database_identity'"
+            ).fetchone()
+        finally:
+            connection.close()
+        if identity_row is None:
+            _fail("STAGE8_12_3_STAGE8_11_LEDGER_IDENTITY_INVALID")
+        try:
+            historical_identity = json.loads(identity_row[0])
+        except (TypeError, json.JSONDecodeError):
+            _fail("STAGE8_12_3_STAGE8_11_LEDGER_IDENTITY_INVALID")
+        if historical_identity != stage8_11_identity(account_id):
+            _fail("STAGE8_12_3_STAGE8_11_LEDGER_ACCOUNT_MISMATCH")
         historical_unresolved = readonly_unresolved_intent_count(acceptance_path)
+    except PreflightBlocked:
+        raise
     except Exception:
         _fail("STAGE8_12_3_STAGE8_11_LEDGER_INVALID")
     if historical_unresolved != 0:
@@ -485,6 +525,9 @@ def preflight_only(
             _fail("STAGE8_12_3_N4_BINDING_INVALID")
         params = api.asset_params(symbol, account_id)
         schedule = api.schedule(symbol)
+        expected_now = newest_expected_h1_close(schedule, observed_now)
+        if expected_now is not None and watermarks[instrument] != expected_now:
+            _fail("STAGE8_12_3_H1_WATERMARK_STALE")
         binding = validate_finam_binding(
             instrument,
             asset,
