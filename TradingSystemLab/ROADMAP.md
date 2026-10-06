@@ -56,7 +56,7 @@ The accepted normal reconciliation model is position-authoritative: after each p
 
 Attempts 1–6, their failures/OIR classifications, manual closes, and recovery evidence remain immutable historical provenance and are not reclassified by the attempt7 PASS.
 
-Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**.
+Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**. Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**.
 
 Canonical Stage 8.12.1 authority:
 
@@ -73,7 +73,7 @@ Canonical Stage 8.12.1 authority:
 - production kill switch: `HALTED`;
 - production Scheduled Task: `Disabled`.
 
-Stage 8.12.1 assembled the production runtime without adding FINAM order transport: the runtime remains structurally order-incapable at this gate. Stage 8.12.2 — Production path conformance and failure audit — is the **NEXT GATE** and remains test/audit-only with zero real orders. Continuous FULL/R15 production execution, Scheduled Task activation, and any new real-order transmission remain unauthorized until the separate explicit Stage 8.12.4 authorization gate.
+Stage 8.12.1 assembled the production runtime without adding FINAM order transport. Stage 8.12.2 completed the required TEST/AUDIT-only conformance with zero real orders. Stage 8.12.3 — Intel production preflight — is the **NEXT GATE** and remains **NOT STARTED**. Continuous FULL/R15 production execution, Scheduled Task activation, and any new real-order transmission remain unauthorized until the separate explicit Stage 8.12.4 authorization gate.
 
 ## Governing research rule
 
