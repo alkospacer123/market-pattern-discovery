@@ -19,6 +19,7 @@ from TradingSystemLab.stage8_robot.strategy_core import CompletedBar, SignalInte
 from TradingSystemLab.stage8_robot.state import StateStore
 
 MSK = ZoneInfo("Europe/Moscow")
+ENTRY_OBSERVED_AT = datetime(2026, 1, 2, 10, 5, tzinfo=MSK)
 
 
 FROZEN_ECONOMICS = {
@@ -149,8 +150,8 @@ def test_entry_r15_margin_position_authority_and_initial_stop(tmp_path):
     assert action.expected_position_quantity == 10
     assert runtime.store.unresolved_intent_count() == 1
 
-    assert runtime.confirm_entry_position(action.idempotency_key, 0) is None
-    stop = runtime.confirm_entry_position(action.idempotency_key, 10)
+    assert runtime.confirm_entry_position(action.idempotency_key, 0, observed_at=ENTRY_OBSERVED_AT) is None
+    stop = runtime.confirm_entry_position(action.idempotency_key, 10, observed_at=ENTRY_OBSERVED_AT)
     assert stop.kind == "PROTECTIVE_STOP_INSTALL"
     assert stop.stop_price == Decimal("99.95")
     assert runtime.store.unresolved_intent_count() == 1
@@ -189,14 +190,14 @@ def test_entry_and_stop_confirmation_are_restart_idempotent(tmp_path):
     entry = runtime.plan_entry(
         signal(), authority(), realized_equity=Decimal("100000"), budget=budget)
 
-    first_stop = runtime.confirm_entry_position(entry.idempotency_key, entry.quantity)
-    repeated_stop = runtime.confirm_entry_position(entry.idempotency_key, entry.quantity)
+    first_stop = runtime.confirm_entry_position(entry.idempotency_key, entry.quantity, observed_at=ENTRY_OBSERVED_AT)
+    repeated_stop = runtime.confirm_entry_position(entry.idempotency_key, entry.quantity, observed_at=ENTRY_OBSERVED_AT)
     assert repeated_stop == first_stop
     assert runtime.store.unresolved_intent_count() == 1
 
     runtime.confirm_protective_stop(first_stop.idempotency_key, "stop-0")
     runtime.confirm_protective_stop(first_stop.idempotency_key, "stop-0")
-    assert runtime.confirm_entry_position(entry.idempotency_key, entry.quantity) is None
+    assert runtime.confirm_entry_position(entry.idempotency_key, entry.quantity, observed_at=ENTRY_OBSERVED_AT) is None
     assert runtime.store.unresolved_intent_count() == 0
 
     with pytest.raises(ProductionRuntimeError, match="PROTECTIVE_STOP_BROKER_ID_MISMATCH"):
@@ -213,7 +214,7 @@ def test_reconciled_entry_without_local_position_is_rebuilt_from_exact_broker_po
     runtime.store.transition_intent(entry.idempotency_key, "FILL")
     runtime.store.transition_intent(entry.idempotency_key, "RECONCILED")
 
-    stop = runtime.confirm_entry_position(entry.idempotency_key, entry.quantity)
+    stop = runtime.confirm_entry_position(entry.idempotency_key, entry.quantity, observed_at=ENTRY_OBSERVED_AT)
     assert stop.kind == "PROTECTIVE_STOP_INSTALL"
     assert runtime.open_positions()["USDRUBF"]["trade_id"] == "trade-USDRUBF-LONG"
     assert runtime.store.intent(entry.idempotency_key)["status"] == "RECONCILED"
@@ -226,9 +227,9 @@ def test_reconciled_entry_cannot_silently_be_flat_at_broker(tmp_path):
         realized_equity=Decimal("100000"), available_cash=Decimal("1000"))
     entry = runtime.plan_entry(
         signal(), authority(), realized_equity=Decimal("100000"), budget=budget)
-    runtime.confirm_entry_position(entry.idempotency_key, entry.quantity)
+    runtime.confirm_entry_position(entry.idempotency_key, entry.quantity, observed_at=ENTRY_OBSERVED_AT)
     with pytest.raises(ProductionRuntimeError, match="ENTRY_POSITION_STATE_BROKER_MISMATCH"):
-        runtime.confirm_entry_position(entry.idempotency_key, 0)
+        runtime.confirm_entry_position(entry.idempotency_key, 0, observed_at=ENTRY_OBSERVED_AT)
     runtime.close()
 
 
@@ -240,7 +241,7 @@ def test_terminal_rejected_entry_cannot_be_revived_by_broker_position(tmp_path):
         signal(), authority(), realized_equity=Decimal("100000"), budget=budget)
     runtime.store.transition_intent(entry.idempotency_key, "REJECTED")
     with pytest.raises(ProductionRuntimeError, match="TERMINAL_ENTRY_INTENT_HAS_BROKER_POSITION"):
-        runtime.confirm_entry_position(entry.idempotency_key, entry.quantity)
+        runtime.confirm_entry_position(entry.idempotency_key, entry.quantity, observed_at=ENTRY_OBSERVED_AT)
     runtime.close()
 
 
@@ -274,7 +275,7 @@ def test_wrong_position_authority_fails_closed(tmp_path):
     action = runtime.plan_entry(
         signal(), authority(), realized_equity=Decimal("100000"), budget=budget)
     with pytest.raises(ProductionRuntimeError, match="UNEXPECTED_QUANTITY"):
-        runtime.confirm_entry_position(action.idempotency_key, -action.quantity)
+        runtime.confirm_entry_position(action.idempotency_key, -action.quantity, observed_at=ENTRY_OBSERVED_AT)
     runtime.close()
 
 
@@ -295,7 +296,7 @@ def _open_and_protect(runtime):
         realized_equity=Decimal("100000"), available_cash=Decimal("1000"))
     entry = runtime.plan_entry(
         signal(), authority(), realized_equity=Decimal("100000"), budget=budget)
-    stop = runtime.confirm_entry_position(entry.idempotency_key, entry.quantity)
+    stop = runtime.confirm_entry_position(entry.idempotency_key, entry.quantity, observed_at=ENTRY_OBSERVED_AT)
     runtime.confirm_protective_stop(stop.idempotency_key, "stop-0")
     return entry
 
@@ -326,7 +327,7 @@ def test_unresolved_stop_intent_blocks_bar_progression(tmp_path):
         realized_equity=Decimal("100000"), available_cash=Decimal("1000"))
     entry = runtime.plan_entry(
         signal(), authority(), realized_equity=Decimal("100000"), budget=budget)
-    runtime.confirm_entry_position(entry.idempotency_key, entry.quantity)
+    runtime.confirm_entry_position(entry.idempotency_key, entry.quantity, observed_at=ENTRY_OBSERVED_AT)
     bar = CompletedBar(
         datetime(2026,1,2,11,tzinfo=MSK),100,106,100,105,2,completed=True)
     with pytest.raises(ProductionRuntimeError, match="UNRESOLVED_INTENT_BLOCKS_BAR_PROCESSING"):
