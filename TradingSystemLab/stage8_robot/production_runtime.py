@@ -415,6 +415,16 @@ class ProductionRuntime:
             Decimal(str(signal.entry)), Decimal(str(signal.initial_stop)), expected,
         )
 
+    def _protective_stop_action_from_payload(self, payload: dict[str, Any]) -> RuntimeAction:
+        return RuntimeAction(
+            payload["kind"], payload["idempotency_key"], payload["instrument"],
+            payload["finam_symbol"], payload["direction"], int(payload["quantity"]),
+            payload.get("trade_id"), payload.get("signal_id"),
+            Decimal(payload["reference_price"]) if payload.get("reference_price") is not None else None,
+            Decimal(payload["stop_price"]) if payload.get("stop_price") is not None else None,
+            payload.get("expected_position_quantity"), payload.get("reason"),
+        )
+
     def confirm_entry_position(self, entry_key: str, observed_quantity: int) -> RuntimeAction | None:
         intent = self.store.intent(entry_key)
         if not intent or intent["payload"].get("kind") != "ENTRY":
@@ -427,6 +437,33 @@ class ProductionRuntime:
             return None
         if observed_quantity != expected:
             raise ProductionRuntimeError("POSITION_AUTHORITY_UNEXPECTED_QUANTITY")
+
+        positions = self.open_positions()
+        current = positions.get(payload["instrument"])
+        stop_key = f"stage8.12:{payload['trade_id']}:stop:0000"
+
+        if intent["status"] == "RECONCILED":
+            if current is None or current.get("trade_id") != payload.get("trade_id"):
+                raise ProductionRuntimeError("RECONCILED_ENTRY_POSITION_STATE_MISMATCH")
+            stop_intent = self.store.intent(stop_key)
+            if current.get("protective_stop_state") == "ACTIVE":
+                if not stop_intent or stop_intent["status"] != "RECONCILED":
+                    raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
+                return None
+            if current.get("protective_stop_state") != "PENDING":
+                raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
+            if stop_intent is None:
+                stop_action = RuntimeAction(
+                    "PROTECTIVE_STOP_INSTALL", stop_key, payload["instrument"], payload["finam_symbol"],
+                    payload["direction"], payload["quantity"], payload["trade_id"], payload["signal_id"],
+                    Decimal(payload["reference_price"]), Decimal(payload["stop_price"]), expected,
+                )
+                if not self.store.persist_intent(stop_key, stop_action.payload()):
+                    raise ProductionRuntimeError("DUPLICATE_PROTECTIVE_STOP_INTENT")
+                return stop_action
+            if stop_intent["payload"].get("kind") != "PROTECTIVE_STOP_INSTALL":
+                raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
+            return self._protective_stop_action_from_payload(stop_intent["payload"])
 
         broker_id = intent.get("broker_order_id")
         self.store.transition_intent(entry_key, "FILL", broker_id)
@@ -448,18 +485,21 @@ class ProductionRuntime:
             "protective_stop_state": "PENDING",
             "protective_stop_revision": 0,
         }
-        positions = self.open_positions()
+        if current is not None:
+            raise ProductionRuntimeError("ENTRY_POSITION_ALREADY_EXISTS")
         positions[payload["instrument"]] = _position_to_dict(position, meta)
         self._save_positions(positions)
 
-        stop_key = f"stage8.12:{payload['trade_id']}:stop:0000"
         stop_action = RuntimeAction(
             "PROTECTIVE_STOP_INSTALL", stop_key, payload["instrument"], payload["finam_symbol"],
             direction, payload["quantity"], payload["trade_id"], payload["signal_id"],
             Decimal(payload["reference_price"]), Decimal(payload["stop_price"]), expected,
         )
         if not self.store.persist_intent(stop_key, stop_action.payload()):
-            raise ProductionRuntimeError("DUPLICATE_PROTECTIVE_STOP_INTENT")
+            existing = self.store.intent(stop_key)
+            if existing is None or existing["payload"] != stop_action.payload():
+                raise ProductionRuntimeError("PROTECTIVE_STOP_IDEMPOTENCY_MISMATCH")
+            return self._protective_stop_action_from_payload(existing["payload"])
         return stop_action
 
     def confirm_protective_stop(self, stop_key: str, broker_order_id: str) -> None:
@@ -471,17 +511,31 @@ class ProductionRuntime:
         }:
             raise ProductionRuntimeError("PROTECTIVE_STOP_INTENT_NOT_FOUND")
         payload = intent["payload"]
-        self.store.transition_intent(stop_key, "ACK", broker_order_id)
-        self.store.transition_intent(stop_key, "RECONCILED", broker_order_id)
         positions = self.open_positions()
         current = positions.get(payload["instrument"])
         if current is None or current.get("trade_id") != payload.get("trade_id"):
             raise ProductionRuntimeError("PROTECTIVE_STOP_POSITION_MISMATCH")
+
+        recorded_broker_id = intent.get("broker_order_id")
+        if intent["status"] == "RECONCILED":
+            if recorded_broker_id != broker_order_id:
+                raise ProductionRuntimeError("PROTECTIVE_STOP_BROKER_ID_MISMATCH")
+            if (
+                current.get("protective_stop_state") == "ACTIVE"
+                and current.get("protective_stop_broker_order_id") == broker_order_id
+                and str(current.get("protective_stop_price")) == str(payload["stop_price"])
+            ):
+                return
+        else:
+            self.store.transition_intent(stop_key, "ACK", broker_order_id)
+            self.store.transition_intent(stop_key, "RECONCILED", broker_order_id)
+
         current["protective_stop_state"] = "ACTIVE"
         current["protective_stop_broker_order_id"] = broker_order_id
         current["protective_stop_price"] = payload["stop_price"]
         positions[payload["instrument"]] = current
         self._save_positions(positions)
+
 
     def broker_exit_observed(self, instrument: str, *, realized_equity_after_exit: Decimal) -> RuntimeAction:
         positions = self.open_positions()
