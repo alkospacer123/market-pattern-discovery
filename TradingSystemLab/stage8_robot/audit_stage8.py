@@ -60,11 +60,12 @@ def _stage8_10_document_consistency(document):
         "real-order transmission remains unauthorized",
         "Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**",
         "Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**",
-        "3f2d68ca0c327271fb543a0b63c0e8f842c855bd",
-        "F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C",
-        "25/25 PASS", "166/166 PASS", "113/113 PASS",
+        "Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**",
+        "2a15f4331afc1433dfbfd0464108e39e59d236f8",
+        "4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F",
+        "19/19 PASS", "25/25 PASS", "144/144 PASS", "48/48 PASS", "113/113 PASS", "111/111 PASS",
         "test-only real-order count: `0`",
-        "Stage 8.12.2 — Production path conformance and failure audit — is the **NEXT GATE**")
+        "Stage 8.12.3 — Intel production preflight — is the **NEXT GATE**")
     exact=bool(handoff and all(" ".join(token.split()) in normalized_handoff for token in required))
     if handoff and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]",handoff,re.I):
         stale_next=True
