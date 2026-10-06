@@ -319,6 +319,20 @@ def _frozen_registry_row_valid(row: dict[str, str], instrument: str) -> bool:
         return False
 
 
+def _strategy_loss_per_contract(
+    instrument: str, atr_value: Decimal
+) -> tuple[Decimal, Decimal]:
+    step, tick, _ = MOEX_REFERENCE[instrument]
+    stop_distance = atr_value * STOP_ATR_MULTIPLE
+    ticks = stop_distance / step
+    if ticks != ticks.to_integral_value():
+        _fail("STAGE8_12_3_BENCHMARK_STOP_NOT_ON_TICK_GRID")
+    loss_per_contract = ticks * tick
+    if not loss_per_contract.is_finite() or loss_per_contract <= 0:
+        _fail("STAGE8_12_3_LOSS_PER_CONTRACT_INVALID")
+    return stop_distance, loss_per_contract
+
+
 def _collect_strategy_loss(
     *,
     api: Any,
@@ -392,13 +406,10 @@ def _collect_strategy_loss(
     if pd.isna(atr_value) or not float(atr_value) > 0:
         _fail("STAGE8_12_3_ATR_INVALID")
     step, tick, _ = MOEX_REFERENCE[instrument]
-    stop_distance = Decimal(str(float(atr_value))) * STOP_ATR_MULTIPLE
-    ticks = stop_distance / step
-    if ticks != ticks.to_integral_value():
-        _fail("STAGE8_12_3_BENCHMARK_STOP_NOT_ON_TICK_GRID")
-    loss_per_contract = ticks * tick
-    if not loss_per_contract.is_finite() or loss_per_contract <= 0:
-        _fail("STAGE8_12_3_LOSS_PER_CONTRACT_INVALID")
+    benchmark_atr = Decimal(str(float(atr_value)))
+    stop_distance, loss_per_contract = _strategy_loss_per_contract(
+        instrument, benchmark_atr
+    )
     try:
         trade_lot_size = int(Decimal(str(binding["trade_lot_size"])))
         long_margin = directional_initial_margin(params, "LONG")
@@ -415,7 +426,7 @@ def _collect_strategy_loss(
         "finam_symbol": symbol,
         "latest_completed_h1_open_utc": watermark.isoformat(),
         "benchmark_entry_close": str(Decimal(str(usable[-1][4]))),
-        "atr14": str(Decimal(str(float(atr_value)))),
+        "atr14": str(benchmark_atr),
         "initial_stop_atr_multiple": str(STOP_ATR_MULTIPLE),
         "strategy_stop_distance": str(stop_distance),
         "price_step": str(step),
