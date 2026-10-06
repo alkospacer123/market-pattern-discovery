@@ -553,7 +553,12 @@ class ProductionRuntime:
         if (
             action.instrument != instrument
             or action.trade_id != current.get("trade_id")
+            or action.signal_id != current.get("signal_id")
+            or action.finam_symbol != current.get("finam_symbol")
+            or action.direction != current.get("direction")
+            or action.quantity != int(current.get("quantity", -1))
             or action.expected_position_quantity != expected_position
+            or action.stop_price != Decimal(str(current.get("current_stop")))
         ):
             raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
 
