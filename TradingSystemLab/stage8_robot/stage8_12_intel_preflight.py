@@ -27,7 +27,7 @@ import pandas as pd
 from TradingSystemLab.core.indicators import atr
 
 from .account_cleanliness import count_active_orders, count_nonzero_positions
-from .finam_api import FinamAPI
+from .finam_api import FinamAPI, completed_h1_bars
 from .funding_margin_diagnostic import ACTIVE_ACCOUNT_STATUSES, load_production_registry
 from .instrument_resolver import (
     MOEX_REFERENCE,
@@ -44,7 +44,7 @@ from .margin import (
 from .n4_capacity import N4CapacityInput, simultaneous_positive_capacity
 from .operations import InstanceLock
 from .production_runtime import MODE as PRODUCTION_RUNTIME_MODE, RUNTIME_SCHEMA
-from .readonly_supervisor import newest_expected_h1_close
+from .readonly_supervisor import newest_expected_h1_close, trading_h1_windows
 from .specification import (
     ACTIVE_IDENTITY,
     PRODUCTION_SPECIFICATION_ID,
@@ -66,7 +66,6 @@ EXPECTED_GATE_REASONS = ["KILL_SWITCH_HALTED", "EXECUTION_NOT_AUTHORIZED"]
 RESERVE_SCENARIOS = (Decimal("0"), Decimal("0.10"), Decimal("0.20"), Decimal("0.30"))
 PRODUCTION_STATE_FILENAME = "stage8-12-production.sqlite3"
 SUPERVISOR_STATE_FILENAME = "readonly-supervisor.sqlite3"
-H1_LOOKBACK_DAYS = 60
 STOP_ATR_MULTIPLE = Decimal("2.5")
 
 
@@ -201,6 +200,35 @@ def _require_current_h1_watermark(
         _fail("STAGE8_12_3_H1_WATERMARK_STALE")
 
 
+def _require_safety_state(
+    runtime_root: Path, observed_now: datetime, account_hash: str
+) -> dict[str, Any]:
+    gate = evaluate_new_entry_gate(
+        runtime_root=runtime_root,
+        now=observed_now,
+        execution_authorized=False,
+    )
+    if gate.get("reason_codes") != EXPECTED_GATE_REASONS:
+        _fail("STAGE8_12_3_SAFETY_OR_HEALTH_GATE_INVALID")
+    try:
+        heartbeat = json.loads(
+            heartbeat_path(runtime_root).read_text(encoding="utf-8")
+        )
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        _fail("STAGE8_12_3_SAFETY_OR_HEALTH_GATE_INVALID")
+    if heartbeat.get("account_hash") != account_hash:
+        _fail("STAGE8_12_3_ACCOUNT_MISMATCH")
+    if (
+        gate.get("kill_switch_state") != "HALTED"
+        or gate.get("execution_authorized") is not False
+        or gate.get("reconciliation_status") != "PASS"
+        or gate.get("heartbeat_fresh") is not True
+        or gate.get("api_contact_fresh") is not True
+    ):
+        _fail("STAGE8_12_3_SAFETY_OR_HEALTH_GATE_INVALID")
+    return gate
+
+
 def _read_production_state(runtime_root: Path, broker_equity: Decimal) -> dict[str, Any]:
     path = (runtime_root / "state" / PRODUCTION_STATE_FILENAME).resolve()
     if not path.exists():
@@ -299,36 +327,60 @@ def _collect_strategy_loss(
     watermark: datetime,
     params: dict,
     binding: dict,
+    schedule: Any,
     now: datetime,
 ) -> tuple[N4CapacityInput, dict[str, Any]]:
-    start = (watermark - timedelta(days=H1_LOOKBACK_DAYS)).isoformat()
+    try:
+        windows = trading_h1_windows(schedule)
+    except RuntimeError:
+        raise
+    if not windows:
+        _fail("STAGE8_12_3_H1_TRADING_WINDOW_UNAVAILABLE")
+    start = windows[0][0].isoformat()
     response = api.bars(symbol, start, now.isoformat())
     rows = response.get("bars") if isinstance(response, dict) else None
     if not isinstance(rows, list):
         _fail("STAGE8_12_3_H1_BARS_SCHEMA_INVALID")
-    usable = []
-    exact_watermark_present = False
+    try:
+        completed = completed_h1_bars(response, now, windows)
+    except (TypeError, ValueError):
+        _fail("STAGE8_12_3_H1_BARS_SCHEMA_INVALID")
+
+    raw_eligible: list[datetime] = []
     for row in rows:
         if not isinstance(row, dict):
             _fail("STAGE8_12_3_H1_BARS_SCHEMA_INVALID")
         timestamp = _utc_timestamp(row.get("timestamp"))
-        if timestamp == watermark:
-            exact_watermark_present = True
-        if timestamp > watermark:
-            continue
+        if timestamp <= watermark:
+            raw_eligible.append(timestamp)
+    if len(raw_eligible) != len(set(raw_eligible)):
+        _fail("STAGE8_12_3_H1_DUPLICATE_BAR")
+
+    completed_by_timestamp: dict[datetime, dict[str, Any]] = {}
+    for row in completed:
+        timestamp = _utc_timestamp(row.get("timestamp"))
+        if timestamp <= watermark:
+            if timestamp in completed_by_timestamp:
+                _fail("STAGE8_12_3_H1_DUPLICATE_BAR")
+            completed_by_timestamp[timestamp] = row
+    if set(raw_eligible) != set(completed_by_timestamp):
+        _fail("STAGE8_12_3_H1_BAR_OUTSIDE_VALIDATED_SCHEDULE")
+    if watermark not in completed_by_timestamp:
+        _fail("STAGE8_12_3_H1_WATERMARK_BAR_MISSING")
+
+    usable = []
+    for timestamp in sorted(completed_by_timestamp):
+        row = completed_by_timestamp[timestamp]
         try:
-            usable.append((
-                timestamp,
-                float(parse_rest_value_object(row.get("open"), positive=True)),
-                float(parse_rest_value_object(row.get("high"), positive=True)),
-                float(parse_rest_value_object(row.get("low"), positive=True)),
-                float(parse_rest_value_object(row.get("close"), positive=True)),
-            ))
+            open_price = float(parse_rest_value_object(row.get("open"), positive=True))
+            high = float(parse_rest_value_object(row.get("high"), positive=True))
+            low = float(parse_rest_value_object(row.get("low"), positive=True))
+            close = float(parse_rest_value_object(row.get("close"), positive=True))
         except (TypeError, ValueError):
             _fail("STAGE8_12_3_H1_BARS_SCHEMA_INVALID")
-    if not exact_watermark_present:
-        _fail("STAGE8_12_3_H1_WATERMARK_BAR_MISSING")
-    usable.sort(key=lambda item: item[0])
+        if low > high or low > min(open_price, close) or high < max(open_price, close):
+            _fail("STAGE8_12_3_H1_OHLC_INVALID")
+        usable.append((timestamp, open_price, high, low, close))
     if len(usable) < 14 or usable[-1][0] != watermark:
         _fail("STAGE8_12_3_H1_HISTORY_INSUFFICIENT")
     frame = pd.DataFrame(
@@ -341,7 +393,10 @@ def _collect_strategy_loss(
         _fail("STAGE8_12_3_ATR_INVALID")
     step, tick, _ = MOEX_REFERENCE[instrument]
     stop_distance = Decimal(str(float(atr_value))) * STOP_ATR_MULTIPLE
-    loss_per_contract = stop_distance / step * tick
+    ticks = stop_distance / step
+    if ticks != ticks.to_integral_value():
+        _fail("STAGE8_12_3_BENCHMARK_STOP_NOT_ON_TICK_GRID")
+    loss_per_contract = ticks * tick
     if not loss_per_contract.is_finite() or loss_per_contract <= 0:
         _fail("STAGE8_12_3_LOSS_PER_CONTRACT_INVALID")
     try:
@@ -447,27 +502,8 @@ def preflight_only(
     ):
         _fail("STAGE8_12_3_FROZEN_AUTHORITY_INVALID")
 
-    gate = evaluate_new_entry_gate(
-        runtime_root=runtime_root,
-        now=observed_now,
-        execution_authorized=False,
-    )
-    if gate.get("reason_codes") != EXPECTED_GATE_REASONS:
-        _fail("STAGE8_12_3_SAFETY_OR_HEALTH_GATE_INVALID")
-    heartbeat = json.loads(
-        heartbeat_path(runtime_root).read_text(encoding="utf-8")
-    )
     account_hash = hashlib.sha256(account_id.encode("utf-8")).hexdigest()
-    if heartbeat.get("account_hash") != account_hash:
-        _fail("STAGE8_12_3_ACCOUNT_MISMATCH")
-    if (
-        gate.get("kill_switch_state") != "HALTED"
-        or gate.get("execution_authorized") is not False
-        or gate.get("reconciliation_status") != "PASS"
-        or gate.get("heartbeat_fresh") is not True
-        or gate.get("api_contact_fresh") is not True
-    ):
-        _fail("STAGE8_12_3_SAFETY_OR_HEALTH_GATE_INVALID")
+    gate = _require_safety_state(runtime_root, observed_now, account_hash)
 
     historical_unresolved = _stage8_11_unresolved_for_account(
         runtime_root, account_id
@@ -567,6 +603,7 @@ def preflight_only(
             watermark=watermarks[instrument],
             params=params,
             binding=binding,
+            schedule=schedule,
             now=observed_now,
         )
         capacity_inputs[instrument] = capacity
@@ -577,6 +614,9 @@ def preflight_only(
         realized_equity=realized_equity,
         available_cash=financial.available_cash,
     )
+
+    final_now = observed_now if now is not None else datetime.now(timezone.utc)
+    _require_safety_state(runtime_root, final_now, account_hash)
 
     return {
         "schema_id": SCHEMA_ID,
