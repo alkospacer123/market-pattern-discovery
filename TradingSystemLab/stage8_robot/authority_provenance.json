@@ -606,10 +606,45 @@
     "production_kill_switch_final_state": "HALTED",
     "production_scheduled_task": "Disabled",
     "mode": "CODE_ONLY_TEST_ONLY",
-    "stage8_12_2_status": "NOT_STARTED_TEST_AUDIT_ONLY",
+    "stage8_12_2_status": "STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT_COMPLETE_PASS",
     "stage8_12_3_status": "NOT_STARTED",
     "stage8_12_4_status": "NOT_STARTED_NOT_AUTHORIZED",
-    "next_gate": "STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT",
-    "n4_simultaneous_positive_capacity_calculation": "REQUIRED_STAGE8_12_3"
+    "next_gate": "STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT",
+    "n4_simultaneous_positive_capacity_calculation": "REQUIRED_STAGE8_12_3",
+    "stage8_12_2_accepted_code_commit": "2a15f4331afc1433dfbfd0464108e39e59d236f8",
+    "stage8_12_2_external_test_only_evidence_sha256": "4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F",
+    "stage8_12_2_external_test_only_evidence_tracked_in_git": false,
+    "stage8_12_2_conformance_pytest": {
+      "passed": 19,
+      "failed": 0
+    },
+    "stage8_12_2_runtime_regression": {
+      "passed": 25,
+      "failed": 0
+    },
+    "stage8_12_2_margin_regression": {
+      "passed": 144,
+      "failed": 0
+    },
+    "stage8_12_2_safety_regression": {
+      "passed": 48,
+      "failed": 0
+    },
+    "stage8_12_2_position_reconciliation_regression": {
+      "passed": 113,
+      "failed": 0
+    },
+    "stage8_12_2_frozen_core_conformance": {
+      "passed": 111,
+      "failed": 0
+    },
+    "stage8_12_2_independent_stage8_audit": {
+      "status": "PASS",
+      "checks": 262
+    },
+    "stage8_12_2_final_operational_audit": {
+      "status": "PASS",
+      "checks": 149
+    }
   }
 }
