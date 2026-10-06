@@ -498,7 +498,7 @@ class ProductionRuntime:
 
 
     def recover_pending_protective_stop(self, instrument: str) -> RuntimeAction | None:
-        """Rebuild one durable unsent/unconfirmed stop action after restart."""
+        """Resume one pending stop after restart without duplicate submission."""
         positions = self.open_positions()
         current = positions.get(instrument)
         if current is None:
@@ -521,8 +521,6 @@ class ProductionRuntime:
         expected_kind = "PROTECTIVE_STOP_INSTALL" if revision == 0 else "PROTECTIVE_STOP_REPLACE"
         if intent["payload"].get("kind") != expected_kind:
             raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
-        if intent["status"] != "INTENT_PERSISTED":
-            raise ProductionRuntimeError("PROTECTIVE_STOP_RECOVERY_STATUS_UNSAFE")
         action = self._protective_stop_action_from_payload(intent["payload"])
         expected_position = (
             int(current["quantity"])
@@ -535,7 +533,23 @@ class ProductionRuntime:
             or action.expected_position_quantity != expected_position
         ):
             raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
-        return action
+
+        if intent["status"] == "INTENT_PERSISTED":
+            # Broker acceptance is not yet durably recorded locally. Return the
+            # exact durable action so an external adapter can resolve the same
+            # idempotency key against durable broker state without duplication.
+            return action
+
+        if intent["status"] in {"ACK", "RECONCILED"}:
+            # Crash window: broker identity was already durably recorded, but
+            # local position protection may not have been finalized yet.
+            broker_order_id = intent.get("broker_order_id")
+            if not isinstance(broker_order_id, str) or not broker_order_id:
+                raise ProductionRuntimeError("PROTECTIVE_STOP_BROKER_ID_REQUIRED")
+            self.confirm_protective_stop(key, broker_order_id)
+            return None
+
+        raise ProductionRuntimeError("PROTECTIVE_STOP_RECOVERY_STATUS_UNSAFE")
 
 
     def confirm_protective_stop(self, stop_key: str, broker_order_id: str) -> None:
