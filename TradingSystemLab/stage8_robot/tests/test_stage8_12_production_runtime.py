@@ -345,8 +345,13 @@ def test_broker_flat_is_position_authority_for_exit_and_equity_sync(tmp_path):
     observed = runtime.manage_completed_bar(
         "USDRUBF", bar, observed_position_quantity=0)
     assert observed.kind == "BROKER_EXIT_OBSERVED"
+    with pytest.raises(ProductionRuntimeError, match="PROTECTIVE_STOP_TERMINAL_PROOF_REQUIRED"):
+        runtime.broker_exit_observed(
+            "USDRUBF", realized_equity_after_exit=Decimal("100500"),
+            protective_stop_terminal=False)
     closed = runtime.broker_exit_observed(
-        "USDRUBF", realized_equity_after_exit=Decimal("100500"))
+        "USDRUBF", realized_equity_after_exit=Decimal("100500"),
+        protective_stop_terminal=True)
     assert closed.kind == "BROKER_EXIT_OBSERVED"
     assert runtime.open_positions() == {}
     assert runtime.current_realized_equity() == Decimal("100500")
