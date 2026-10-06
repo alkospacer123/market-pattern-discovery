@@ -177,8 +177,13 @@ def _stage8_10_document_consistency(document: str) -> tuple[bool, bool, bool]:
         "The physical authorization used for attempt7 is consumed",
         "Current `execution_authorized = false`",
         "real-order transmission remains unauthorized",
-        "Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**",
-        "Stage 8.12 remains not started and not authorized")
+        "Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**",
+        "Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**",
+        "3f2d68ca0c327271fb543a0b63c0e8f842c855bd",
+        "F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C",
+        "25/25 PASS", "166/166 PASS", "113/113 PASS",
+        "test-only real-order count: `0`",
+        "Stage 8.12.2 — Production path conformance and failure audit — is the **NEXT GATE**")
     exact = bool(handoff and all(" ".join(token.split()) in normalized_handoff for token in required))
     if handoff and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]", handoff, re.I):
         stale_next = True
@@ -1019,12 +1024,13 @@ def audit(
     physical=stage811_provenance.get("physical_precheck",{})
     independent=stage811_provenance.get("independent_evidence_audit",{})
     physical_acceptance=stage811_provenance.get("physical_acceptance",{})
+    stage812_provenance=provenance.get("stage8_12",{})
     check(all((
           stage811_provenance.get("stage8_11_0_status") == "COMPLETE",
           stage811_provenance.get("stage8_11_1_status") == "COMPLETE_PASS",
           stage811_provenance.get("stage8_11_2_status") == "COMPLETE_PASS",
           stage811_provenance.get("stage8_11_3_status") == "PRIOR_AUTHORIZATION_CONSUMED",
-          stage811_provenance.get("current_gate") == "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED",
+          stage811_provenance.get("current_gate") == "STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT",
           stage811_provenance.get("latest_physical_precheck_result") == "STAGE8_11_PRECHECK_ONLY_PASS",
           physical.get("accepted_code_commit") == "9be31f1723877a9c542f89027052570425f7e976",
           physical.get("report_sha256") == "7171B7CD0098FF51159DC05C46C0326BF7F412A2D9EA0CBB3F9BDAFBE7745455",
@@ -1066,7 +1072,7 @@ def audit(
           stage811_provenance.get("order_endpoint_call_count") == 2,
           stage811_provenance.get("real_order_count") == 2,
           stage811_provenance.get("production_kill_switch_final_state") == "HALTED",
-          stage811_provenance.get("stage8_12_status") == "NOT_STARTED_NOT_AUTHORIZED",
+          stage811_provenance.get("stage8_12_status") == "STARTED_CODE_ONLY_NOT_AUTHORIZED",
           stage811_provenance.get("current_precheck_code_authority") == {
               "pull_request":357,"base":"ea090d99266d5dae808c03024f327c41fb8b9170",
               "head":"60e3f72dae3a08eeb3ba8c756861efbb4c4f28e7",
@@ -1082,6 +1088,32 @@ def audit(
           stage811_provenance.get("physical_wrapper_run") is True,
           len(stage811_provenance.get("historical_failed_prechecks",[])) == 2,
     )), "STAGE_8_11_LIFECYCLE_EVIDENCE_CLOSEOUT")
+    check(stage812_provenance == {
+        "status":"STAGE_8_12_STARTED_CODE_ONLY_NOT_AUTHORIZED",
+        "stage8_12_1_status":"STAGE_8_12_1_PRODUCTION_RUNTIME_ASSEMBLY_COMPLETE_PASS",
+        "accepted_code_commit":"3f2d68ca0c327271fb543a0b63c0e8f842c855bd",
+        "external_test_only_evidence_sha256":"F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C",
+        "external_test_only_evidence_tracked_in_git":False,
+        "structural_zero_order_boundary":"PASS",
+        "runtime_n4_capacity_pytest":{"passed":25,"failed":0},
+        "frozen_stage7_risk_margin_regression":{"passed":166,"failed":0},
+        "stage8_11_position_authority_regression":{"passed":113,"failed":0},
+        "independent_stage8_audit":"PASS",
+        "final_operational_audit":"PASS",
+        "test_only_real_order_count":0,
+        "real_order_endpoint_called":False,
+        "execution_authorized":False,
+        "live_trading_authorized":False,
+        "real_order_transmission_authorized":False,
+        "production_kill_switch_final_state":"HALTED",
+        "production_scheduled_task":"Disabled",
+        "mode":"CODE_ONLY_TEST_ONLY",
+        "stage8_12_2_status":"NOT_STARTED_TEST_AUDIT_ONLY",
+        "stage8_12_3_status":"NOT_STARTED",
+        "stage8_12_4_status":"NOT_STARTED_NOT_AUTHORIZED",
+        "next_gate":"STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT",
+        "n4_simultaneous_positive_capacity_calculation":"REQUIRED_STAGE8_12_3"
+    }, "STAGE_8_12_1_MACHINE_AUTHORITY_EXACT")
     check("OperationalState(root/\"state/readonly-supervisor.sqlite3\")" in precheck_tests
           and "StateStore(root/\"state/readonly-supervisor.sqlite3\")" not in precheck_tests
           and '== {"operational_state"}' in precheck_tests,
@@ -1092,10 +1124,15 @@ def audit(
     check("w32tm /query /status" in intel_wrapper and "w32tm /query /source" in intel_wrapper
           and "Get-Service -Name W32Time" in intel_wrapper and "$clock = (Get-Date)" not in intel_wrapper,
           "STAGE_8_11_INTEL_WINDOWS_TIME_SANITY")
-    check(all("Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**" in handoff
-              and "Stage 8.12 remains not started and not authorized" in handoff
+    check(all("Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**" in handoff
+              and "Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**" in handoff
+              and "3f2d68ca0c327271fb543a0b63c0e8f842c855bd" in handoff
+              and "F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C" in handoff
+              and "Stage 8.12.2 — Production path conformance and failure audit — is the **NEXT GATE**" in handoff
+              and "test-only real-order count: `0`" in handoff
+              and "current `execution_authorized = false`" in handoff
               for handoff in current_handoffs),
-          "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")
+          "STAGE_8_12_1_CURRENT_HANDOFF")
     forbidden_claims = (
         r"(?:broker acceptance (?:is |was )?validated|order (?:was )?accepted|FINAM server accepted an order)",
         r"(?<!not )real-order (?:transmission|capability) is authorized",
@@ -1194,7 +1231,7 @@ def audit(
         "stage8_11_1_status": "COMPLETE_PASS",
         "stage8_11_2_status": "COMPLETE_PASS",
         "stage8_11_3_status": "PRIOR_AUTHORIZATION_CONSUMED",
-        "stage8_11_current_gate": "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED",
+        "stage8_11_current_gate": "STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT",
         "stage8_11_latest_physical_precheck_result": "STAGE8_11_PRECHECK_ONLY_PASS",
         "stage8_11_physical_precheck_real_order_count": 0,
         "stage8_11_latest_physical_acceptance_result": "PASS",
@@ -1298,7 +1335,11 @@ def audit(
         "stage8_10_live_trading_authorized": False,
         "stage8_10_real_order_transmission_authorized": False,
         "stage8_11_status": "STAGE_8_11_CONTROLLED_REAL_EXECUTION_ACCEPTANCE_COMPLETE_PASS",
-        "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
+        "stage8_12_status": "STARTED_CODE_ONLY_NOT_AUTHORIZED",
+        "stage8_12_1_status": "STAGE_8_12_1_PRODUCTION_RUNTIME_ASSEMBLY_COMPLETE_PASS",
+        "stage8_12_1_accepted_code_commit": "3f2d68ca0c327271fb543a0b63c0e8f842c855bd",
+        "stage8_12_1_external_evidence_sha256": "F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C",
+        "stage8_12_next_gate": "STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT",
         "stage8_9_complete": True, "stage8_9_physical_validation_performed": True,
     }
     if write_result:
