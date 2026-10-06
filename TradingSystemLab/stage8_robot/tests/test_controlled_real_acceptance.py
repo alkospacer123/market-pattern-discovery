@@ -61,64 +61,65 @@ def test_authority_failures_block(tmp_path, change, code):
 
 
 class API:
+    """Position-authoritative synthetic broker.
+
+    Normal reconciliation can read only account positions after a POST.
+    The optional snapshot list supplies successive position observations; order
+    status/fill fields are retained only for backward-compatible fixtures.
+    """
     def __init__(self, store, snapshots, uncertain=(), unrelated_positions=(), unrelated_active=False):
-        self.store, self.snapshots, self.uncertain = store, list(snapshots), list(uncertain)
+        self.store = store
+        self.snapshots = list(snapshots)
+        self.uncertain = list(uncertain)
         self.unrelated_positions = list(unrelated_positions)
         self.unrelated_active = unrelated_active
-        self.calls=[]; self.posts=0
-        self.current=None
+        self.calls = []
+        self.posts = 0
+        self.current_position = 0
+        self.symbol = "USDRUBF@RTSX"
+
     def schedule(self, symbol):
         return {"sessions":[{"type":"CORE_TRADING","interval":{
             "start_time":"2026-10-04T00:00:00Z","end_time":"2026-10-04T23:59:00Z"}}]}
+
     def place_order(self, account, payload):
         assert self.store.unresolved_intent_count() >= 1
-        self.posts += 1; self.calls.append(("post", account, payload))
+        self.posts += 1
+        self.symbol = payload["symbol"]
+        self.calls.append(("post", account, payload))
         if self.uncertain and self.uncertain.pop(0):
             raise FinamUncertainSubmission("uncertain")
         return {"order_id": f"o{self.posts}"}
-    def orders(self, account):
-        if self.snapshots:
-            self.current=self.snapshots.pop(0)
-        if self.current is None: return {"orders":[]}
-        intent = next(row for row in self.store.db.execute(
-            "SELECT payload FROM intents ORDER BY rowid DESC LIMIT 1"))
-        payload=json.loads(intent[0])
-        rows = [{"order_id":self.current.get("order_id", ""),
-            "order":{"client_order_id":payload["client_order_id"]},
-            "status":self.current["order_status"]}]
-        if self.unrelated_active:
-            rows.append({"order_id":"unrelated", "order":{"client_order_id":"unrelated"},
-                         "status":"ACTIVE"})
-        return {"orders":rows}
-    def order(self, account, order_id):
-        intent=json.loads(next(row for row in self.store.db.execute(
-            "SELECT payload FROM intents ORDER BY rowid DESC LIMIT 1"))[0])
-        executed=self.current["executed_quantity"]
-        return {"order_id":order_id,"status":self.current["order_status"],
-            "order":{"account_id":account,"client_order_id":intent["client_order_id"],
-                "symbol":intent["symbol"],"side":intent["side"],"quantity":{"value":"1"}},
-            "accept_at":"2026-10-04T09:00:02Z","initial_quantity":{"value":"1"},
-            "executed_quantity":{"value":str(executed)},
-            "remaining_quantity":{"value":str(1-executed)}}
+
     def account(self, account):
-        intent=json.loads(next(row for row in self.store.db.execute(
-            "SELECT payload FROM intents ORDER BY rowid DESC LIMIT 1"))[0])
-        quantity=self.current.get("position_quantity",0)
-        positions=[] if quantity == 0 else [{"symbol":intent["symbol"],"quantity":{"value":str(quantity)}}]
-        positions.extend({"symbol":symbol,"quantity":{"value":str(quantity)}}
-                         for symbol,quantity in self.unrelated_positions)
-        return {"account_id":account,"positions":positions}
+        self.calls.append(("account", account))
+        if self.posts > 0 and self.snapshots:
+            self.current_position = int(self.snapshots.pop(0).get("position_quantity", 0))
+        positions = [] if self.current_position == 0 else [
+            {"symbol": self.symbol, "quantity": {"value": str(self.current_position)}}
+        ]
+        positions.extend(
+            {"symbol": symbol, "quantity": {"value": str(quantity)}}
+            for symbol, quantity in self.unrelated_positions
+        )
+        return {"account_id": account, "positions": positions}
+
+    def orders(self, account):
+        self.calls.append(("orders", account))
+        rows = []
+        if self.unrelated_active:
+            rows.append({"order_id":"unrelated","order":{"client_order_id":"unrelated"},
+                         "status":"ORDER_STATUS_NEW"})
+        return {"orders": rows}
+
+    def order(self, account, order_id):
+        raise AssertionError("NORMAL_RECONCILIATION_MUST_NOT_CALL_ORDER_DETAIL")
+
     def trades(self, account):
-        intent=json.loads(next(row for row in self.store.db.execute(
-            "SELECT payload FROM intents ORDER BY rowid DESC LIMIT 1"))[0])
-        trades=[]
-        for fill in self.current.get("fills",[]):
-            trades.append({"trade_id":fill["trade_id"],"order_id":self.current["order_id"],
-                "account_id":account,"symbol":intent["symbol"],"side":intent["side"],
-                "size":{"value":"1"},"price":{"value":fill["price"]},
-                "timestamp":"2026-10-04T09:00:03Z"})
-        return {"trades":trades}
-    def cancel_order(self, account, oid): self.calls.append(("cancel", account, oid)); return {}
+        raise AssertionError("NORMAL_RECONCILIATION_MUST_NOT_CALL_TRADES")
+
+    def cancel_order(self, account, oid):
+        raise AssertionError("NORMAL_RECONCILIATION_MUST_NOT_CANCEL")
 
 
 def fill(order, position):
@@ -132,7 +133,7 @@ def run(tmp_path, snapshots, uncertain=(), symbol="USDRUBF@RTSX", auth=None, **a
     api=API(store,snapshots,uncertain,**api_options); broker=ControlledAcceptanceBroker(api,ACCOUNT,HASH,store)
     result=run_controlled_lifecycle(authority=auth or authority(),runtime_root=root,
         execution_authorized=True,instrument="USDRUBF",finam_symbol=symbol,direction="LONG",
-        broker=broker,now=NOW)
+        broker=broker,now=NOW,sleeper=lambda _:None)
     return result,api,store,root
 
 
@@ -182,74 +183,108 @@ def test_every_uncertain_post_is_reconciled_without_retry(tmp_path, uncertain):
     assert api.posts == 2 and store.unresolved_intent_count() == 0
 
 
-def test_uncertain_active_order_is_cancelled_then_no_execution(tmp_path):
-    active={"order_status":"ACTIVE","order_id":"o1","executed_quantity":0,"position_quantity":0,"fills":[]}
-    cancelled={"order_status":"CANCELLED","order_id":"o1","executed_quantity":0,"position_quantity":0,"fills":[]}
-    # The bounded reconciler intentionally observes ACTIVE for the fixed grace
-    # window before issuing its single allowed cancel. The synthetic API
-    # consumes one snapshot per GET, so repeat the stable ACTIVE observation.
-    result,api,store,_=run(tmp_path,[active,active,active,cancelled],(True,))
-    assert result["classification"] == "NOT_ACCEPTED_NO_EXECUTION"
-    assert api.posts == 1 and sum(x[0]=="cancel" for x in api.calls) == 1
-    assert store.unresolved_intent_count()==0
-
-
-def test_cancel_race_fill_is_flattened_not_misclassified(tmp_path):
-    active={"order_status":"ACTIVE","order_id":"o1","executed_quantity":0,"position_quantity":0,"fills":[]}
-    raced=fill("o1",1); raced["order_status"]="CANCELLED"
-    result,api,store,_=run(tmp_path,[active,raced,fill("o2",0)],(True,False))
-    assert result["classification"] == "SYNTHETIC_PASS"
-    assert api.posts == 2 and store.unresolved_intent_count() == 0
-
-
-@pytest.mark.parametrize("status", ["REJECTED","EXPIRED","CANCELLED"])
-def test_terminal_entry_without_fill_is_never_pass(tmp_path,status):
-    terminal={"order_status":status,"order_id":"o1","executed_quantity":0,"position_quantity":0,"fills":[]}
-    result,api,_,_=run(tmp_path,[terminal])
-    assert result["classification"] == "NOT_ACCEPTED_NO_EXECUTION" and api.posts == 1
-
-
-def test_zero_fill_requires_selected_position_proved_zero(tmp_path):
-    terminal={"order_status":"REJECTED","order_id":"o1","executed_quantity":0,
-              "position_quantity":1,"fills":[]}
-    result,api,_,_=run(tmp_path,[terminal])
-    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED" and api.posts == 1
-    assert result["final_state"]["position_quantity"] == 1
-
-
-def test_zero_fill_rejects_unrelated_position(tmp_path):
-    terminal={"order_status":"REJECTED","order_id":"o1","executed_quantity":0,
-              "position_quantity":0,"fills":[]}
-    result,_,_,_=run(tmp_path,[terminal],unrelated_positions=(("GLDRUBF@RTSX",1),))
+def test_entry_position_timeout_requires_operator_and_never_cancels(tmp_path):
+    waiting={"position_quantity":0}
+    result,api,store,root=run(
+        tmp_path,[waiting] * 30, uncertain=(True,))
     assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
-    assert result["final_state"]["unexpected_position_count"] == 1
-
-
-def test_zero_fill_rejects_any_active_account_order(tmp_path):
-    terminal={"order_status":"REJECTED","order_id":"o1","executed_quantity":0,
-              "position_quantity":0,"fills":[]}
-    result,_,_,_=run(tmp_path,[terminal],unrelated_active=True)
-    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
-    assert result["final_state"]["active_order_count"] == 1
-
-
-def test_final_selected_flat_rejects_other_account_position(tmp_path):
-    result,api,_,_=run(tmp_path,[fill("o1",1),fill("o2",0)],
-        unrelated_positions=(("GLDRUBF@RTSX",1),))
-    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED" and api.posts == 2
-
-
-def test_final_acceptance_orders_terminal_rejects_unrelated_active_order(tmp_path):
-    result,api,_,_=run(tmp_path,[fill("o1",1),fill("o2",0)],unrelated_active=True)
-    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED" and api.posts == 2
-
-
-def test_unprovable_state_requires_operator_and_halts(tmp_path):
-    unknown={"order_status":"UNKNOWN","executed_quantity":0,"position_quantity":0,"fills":[]}
-    result,api,store,root=run(tmp_path,[unknown],(True,))
-    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
-    assert api.posts == 1 and store.unresolved_intent_count()==1
+    assert result["failure_code"] == "POSITION_RECONCILIATION_TIMEOUT"
+    assert api.posts == 1
+    assert store.unresolved_intent_count() == 1
     assert load_kill_switch(root)[0]["state"] == "HALTED"
+
+
+def test_delayed_entry_position_then_flatten_passes(tmp_path):
+    result,api,store,_=run(
+        tmp_path,
+        [{"position_quantity":0},{"position_quantity":0},{"position_quantity":1},
+         {"position_quantity":1},{"position_quantity":0}],
+    )
+    assert result["classification"] == "SYNTHETIC_PASS"
+    assert api.posts == 2
+    assert store.unresolved_intent_count() == 0
+
+
+@pytest.mark.parametrize("bad_position", [-1, 2, -2])
+def test_entry_unexpected_position_fails_closed_immediately(tmp_path,bad_position):
+    result,api,store,_=run(tmp_path,[{"position_quantity":bad_position}])
+    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
+    assert result["failure_code"] == "POSITION_RECONCILIATION_UNEXPECTED_QUANTITY"
+    assert api.posts == 1
+    assert store.unresolved_intent_count() == 1
+
+
+def test_entry_rejects_unrelated_account_position(tmp_path):
+    result,api,_,_=run(
+        tmp_path,[{"position_quantity":1}],
+        unrelated_positions=(("GLDRUBF@RTSX",1),))
+    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
+    assert result["failure_code"] == "POSITION_RECONCILIATION_UNEXPECTED_OTHER_POSITION"
+    assert api.posts == 1
+
+
+def test_pre_submit_active_order_blocks_before_entry_post(tmp_path):
+    result,api,store,_=run(tmp_path,[],unrelated_active=True)
+    assert result["classification"] == "BLOCKED"
+    assert result["failure_code"] == "STAGE8_11_PRE_SUBMIT_ACCOUNT_NOT_CLEAN"
+    assert api.posts == 0
+    assert store.unresolved_intent_count() == 0
+
+
+def test_flatten_delayed_position_converges_to_zero(tmp_path):
+    result,api,store,_=run(
+        tmp_path,
+        [{"position_quantity":1},
+         {"position_quantity":1},{"position_quantity":1},{"position_quantity":0}],
+    )
+    assert result["classification"] == "SYNTHETIC_PASS"
+    assert api.posts == 2
+    assert store.unresolved_intent_count() == 0
+
+
+def test_flatten_position_timeout_requires_operator(tmp_path):
+    result,api,store,root=run(
+        tmp_path,
+        [{"position_quantity":1}] + [{"position_quantity":1}] * 30,
+    )
+    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
+    assert result["failure_code"] == "POSITION_RECONCILIATION_TIMEOUT"
+    assert api.posts == 2
+    assert store.unresolved_intent_count() == 1
+    assert result["final_state"]["position_quantity"] == 1
+    assert load_kill_switch(root)[0]["state"] == "HALTED"
+
+
+def test_final_cleanliness_rejects_active_order_after_flatten(tmp_path):
+    root=armed_runtime(tmp_path)
+    store=StateStore(tmp_path/"state.db")
+    api=API(store,[{"position_quantity":1},{"position_quantity":0}])
+    broker=ControlledAcceptanceBroker(api,ACCOUNT,HASH,store)
+    original_orders=api.orders
+    calls={"n":0}
+    def orders(account):
+        calls["n"] += 1
+        # First call is pre-submit and must be clean. Final call is dirty.
+        if calls["n"] == 1:
+            return {"orders":[]}
+        return {"orders":[{"order_id":"late","order":{"client_order_id":"late"},
+                           "status":"ORDER_STATUS_NEW"}]}
+    api.orders=orders
+    result=run_controlled_lifecycle(
+        authority=authority(),runtime_root=root,execution_authorized=True,
+        instrument="USDRUBF",finam_symbol="USDRUBF@RTSX",direction="LONG",
+        broker=broker,now=NOW,sleeper=lambda _:None)
+    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
+    assert result["failure_code"] == "FINAL_ACCOUNT_NOT_CLEAN"
+    assert api.posts == 2
+
+
+def test_normal_path_never_calls_order_detail_trades_or_cancel(tmp_path):
+    result,api,store,_=run(
+        tmp_path,[{"position_quantity":1},{"position_quantity":0}])
+    assert result["classification"] == "SYNTHETIC_PASS"
+    assert api.posts == 2
+    assert store.unresolved_intent_count() == 0
 
 
 def test_account_a_authority_cannot_use_account_b_and_no_post(tmp_path):
