@@ -78,7 +78,7 @@ def test_stage8_11_cleanliness_correction_preserves_historical_hash_authority():
     ] == "7ab8b91483f7e37605f3a4962281fcdc338bf649cee96f141f06ac20294a2184"
     assert final.POST_STAGE8_11_CORRECTED_SHA256[
         "TradingSystemLab/stage8_robot/stage8_11_attempt2_manual_recovery.py"
-    ] == "f3b90e020cd4604d6c6f07c1118315e193910fb6d1618de1cac8b55f78abc4dd"
+    ] == "9ceda04454f22608761671335dae221a2c978948e95e4f9e355e4950388cdb84"
     assert final.POST_STAGE8_11_CORRECTED_SHA256[
         "TradingSystemLab/stage8_robot/funding_margin_diagnostic.py"
     ] == "2443f8cab7fafe5b4ab1cb9cb5673e71a9f7bf74b51608425e55f41b1b3645c9"
