@@ -141,11 +141,11 @@ class SyntheticPercentPositionStopAdapter:
     def trigger(self, instrument: str, trade_id: str, *,
                 observed_position_quantity: int, price: Decimal) -> int:
         """Model documented percentage-of-current-position execution semantics."""
+        if observed_position_quantity == 0:
+            return 0
         active = self.active_stops(instrument, trade_id)
         if not active:
             raise ProtectiveStopContractError("NO_ACTIVE_PROTECTIVE_STOP")
-        if observed_position_quantity == 0:
-            return 0
 
         direction = active[-1].direction
         triggered = [
