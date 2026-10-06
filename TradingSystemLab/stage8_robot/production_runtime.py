@@ -504,20 +504,41 @@ class ProductionRuntime:
         if current is None:
             return None
         state = current.get("protective_stop_state")
-        if state == "ACTIVE":
-            return None
-        if state not in {"PENDING", "PENDING_REPLACE"}:
-            raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
         try:
             revision = int(current["protective_stop_revision"])
         except Exception as exc:
             raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH") from exc
         if revision < 0:
             raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
-        key = f"stage8.12:{current['trade_id']}:stop:{revision:04d}"
-        intent = self.store.intent(key)
-        if intent is None:
-            raise ProductionRuntimeError("PROTECTIVE_STOP_INTENT_NOT_FOUND")
+
+        if state == "ACTIVE":
+            # Crash window: manage_completed_bar may have durably persisted the
+            # next replacement intent after saving the tightened TRAIL1 state,
+            # but before flipping the position snapshot to PENDING_REPLACE.
+            pending_revision = revision + 1
+            pending_key = (
+                f"stage8.12:{current['trade_id']}:stop:{pending_revision:04d}"
+            )
+            pending_intent = self.store.intent(pending_key)
+            if pending_intent is None:
+                return None
+            if pending_intent["payload"].get("kind") != "PROTECTIVE_STOP_REPLACE":
+                raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
+            current["protective_stop_state"] = "PENDING_REPLACE"
+            current["protective_stop_revision"] = pending_revision
+            positions[instrument] = current
+            self._save_positions(positions)
+            revision = pending_revision
+            key = pending_key
+            intent = pending_intent
+        elif state in {"PENDING", "PENDING_REPLACE"}:
+            key = f"stage8.12:{current['trade_id']}:stop:{revision:04d}"
+            intent = self.store.intent(key)
+            if intent is None:
+                raise ProductionRuntimeError("PROTECTIVE_STOP_INTENT_NOT_FOUND")
+        else:
+            raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
+
         expected_kind = "PROTECTIVE_STOP_INSTALL" if revision == 0 else "PROTECTIVE_STOP_REPLACE"
         if intent["payload"].get("kind") != expected_kind:
             raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
