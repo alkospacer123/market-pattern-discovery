@@ -532,11 +532,14 @@ class ProductionRuntime:
         self._save_positions(positions)
 
 
-    def broker_exit_observed(self, instrument: str, *, realized_equity_after_exit: Decimal) -> RuntimeAction:
+    def broker_exit_observed(self, instrument: str, *, realized_equity_after_exit: Decimal,
+                             protective_stop_terminal: bool) -> RuntimeAction:
         positions = self.open_positions()
         current = positions.get(instrument)
         if current is None:
             raise ProductionRuntimeError("BROKER_EXIT_WITHOUT_LOCAL_POSITION")
+        if protective_stop_terminal is not True:
+            raise ProductionRuntimeError("PROTECTIVE_STOP_TERMINAL_PROOF_REQUIRED")
         if realized_equity_after_exit <= 0:
             raise ProductionRuntimeError("REALIZED_EQUITY_INVALID")
         action = RuntimeAction(
