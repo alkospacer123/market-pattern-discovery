@@ -763,8 +763,8 @@ def test_later_execution_stages_started_or_authorized_fail():
     for old, replacement, error in (
             ("prior explicit authorization **CONSUMED**",
              "explicit authorization **ACTIVE**", "STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED"),
-            ("Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**",
-             "Stage 8.12 — **STARTED / AUTHORIZED**", "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED")):
+            ("Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**",
+             "Stage 8.12 — **STARTED / AUTHORIZED**", "STAGE_8_12_1_CURRENT_HANDOFF")):
         result = run_audit({path: source(path).replace(
             old, replacement)})
         assert error in result["errors"]
@@ -1004,12 +1004,69 @@ def test_stage_8_10_closeout_document_regressions_fail():
             original.replace("Stage 8.10.8 is **COMPLETE**", "Stage 8.10.8 is **NOT STARTED**"),
             original.replace("The physical authorization used for attempt7 is consumed",
                              "The physical authorization used for attempt7 is active"),
-            original.replace("Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**", "Stage 8.12 — **STARTED**"),
+            original.replace("Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**",
+                             "Stage 8.12 — **STARTED / AUTHORIZED**"),
             original.replace(final.STAGE_8_10_COMPLETE_STATUS, "WRONG_CLOSEOUT_STATUS"),
         )
         for mutation in mutations:
             result = run_audit({path: mutation})
             assert result["status"] == "FAIL", (path, result)
+
+
+def test_stage_8_12_1_machine_authority_mutations_fail_both_audits():
+    path = "TradingSystemLab/stage8_robot/authority_provenance.json"
+    authority = json.loads(source(path))
+    mutations = (
+        ("status", "NOT_STARTED_NOT_AUTHORIZED"),
+        ("stage8_12_1_status", "FAIL"),
+        ("accepted_code_commit", "0" * 40),
+        ("external_test_only_evidence_sha256", "0" * 64),
+        ("structural_zero_order_boundary", "FAIL"),
+        ("runtime_n4_capacity_pytest", {"passed":24,"failed":1}),
+        ("frozen_stage7_risk_margin_regression", {"passed":165,"failed":1}),
+        ("stage8_11_position_authority_regression", {"passed":112,"failed":1}),
+        ("test_only_real_order_count", 1),
+        ("real_order_endpoint_called", True),
+        ("execution_authorized", True),
+        ("live_trading_authorized", True),
+        ("real_order_transmission_authorized", True),
+        ("production_kill_switch_final_state", "ARMED"),
+        ("production_scheduled_task", "Enabled"),
+        ("stage8_12_2_status", "COMPLETE"),
+        ("stage8_12_4_status", "AUTHORIZED"),
+        ("next_gate", "STAGE_8_12_4"),
+    )
+    for key, value in mutations:
+        changed = json.loads(json.dumps(authority))
+        changed["stage8_12"][key] = value
+        payload = json.dumps(changed)
+        independent = stage8.audit(write_result=False, authority_text=payload)
+        operational = run_audit({path: payload})
+        assert "STAGE_8_12_1_MACHINE_AUTHORITY_EXACT" in independent["errors"], key
+        assert "STAGE_8_12_1_MACHINE_AUTHORITY_EXACT" in operational["errors"], key
+
+
+@pytest.mark.parametrize("path", (
+    "TradingSystemLab/CURRENT_STATE.md",
+    "TradingSystemLab/PROJECT_CONTEXT.md",
+    "TradingSystemLab/ROADMAP.md",
+    "TradingSystemLab/stage8_robot/README.md",
+))
+def test_stage_8_12_1_current_handoff_mutations_fail_both_audits(path):
+    original = source(path)
+    mutations = (
+        original.replace("Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**",
+                         "Stage 8.12 — **STARTED / AUTHORIZED**", 1),
+        original.replace("3f2d68ca0c327271fb543a0b63c0e8f842c855bd", "0" * 40, 1),
+        original.replace("F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C",
+                         "0" * 64, 1),
+        original.replace("Stage 8.12.2 — Production path conformance and failure audit — is the **NEXT GATE**",
+                         "Stage 8.12.4 is the NEXT GATE", 1),
+        original.replace("test-only real-order count: `0`", "test-only real-order count: `1`", 1),
+    )
+    for mutation in mutations:
+        _assert_document_mutation_fails_both(
+            path, mutation, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
 
 
 CANONICAL_STAGE_8_10_DOCS = (
