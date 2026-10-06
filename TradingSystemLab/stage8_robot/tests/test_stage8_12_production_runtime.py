@@ -291,7 +291,7 @@ def test_trail1_tightening_emits_stop_replace_not_market_exit(tmp_path):
         "USDRUBF", second, observed_position_quantity=entry.quantity)
     assert replace.kind == "PROTECTIVE_STOP_REPLACE"
     assert replace.stop_price == Decimal("101.0")
-    assert replace.reason == "ATOMIC_REPLACEMENT_ADAPTER_REQUIRED"
+    assert replace.reason == "TIGHTER_PERCENT_POSITION_STOP_REQUIRED"
     assert runtime.open_positions()["USDRUBF"]["protective_stop_state"] == "PENDING_REPLACE"
     runtime.close()
 

@@ -617,7 +617,7 @@ class ProductionRuntime:
                 "PROTECTIVE_STOP_REPLACE", key, instrument, value["finam_symbol"],
                 value["direction"], value["quantity"], value["trade_id"], value["signal_id"],
                 Decimal(str(position.entry)), Decimal(str(position.current_stop)), expected,
-                "ATOMIC_REPLACEMENT_ADAPTER_REQUIRED",
+                "TIGHTER_PERCENT_POSITION_STOP_REQUIRED",
             )
             if not self.store.persist_intent(key, action.payload()):
                 raise ProductionRuntimeError("DUPLICATE_PROTECTIVE_STOP_INTENT")
