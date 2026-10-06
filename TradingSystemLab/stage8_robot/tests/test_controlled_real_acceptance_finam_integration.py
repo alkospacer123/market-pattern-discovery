@@ -2,6 +2,7 @@
 import hashlib
 import json
 from datetime import datetime, timezone
+from urllib.error import HTTPError
 from urllib.parse import urlparse
 
 import pytest
@@ -122,7 +123,17 @@ class SyntheticFinamTransport:
                 rows.append(dict(rows[0]))
             return Raw({"orders":rows})
         if path.startswith(prefix + "/orders/") and method == "GET":
-            oid=path.rsplit("/",1)[1]; return Raw(next(o for o in self.orders if o["order_id"] == oid))
+            oid=path.rsplit("/",1)[1]
+            if self.scenario == "order_detail_missing":
+                raise HTTPError(request.full_url,404,"not found",{},None)
+            order=next(o for o in self.orders if o["order_id"] == oid)
+            if self.scenario == "stale_active_detail":
+                stale=json.loads(json.dumps(order))
+                stale["status"]="ACTIVE"
+                stale["executed_quantity"]=self.decimal(0)
+                stale["remaining_quantity"]=self.decimal(1)
+                return Raw(stale)
+            return Raw(order)
         if path.startswith(prefix + "/orders/") and method == "DELETE":
             oid=path.rsplit("/",1)[1]; order=next(o for o in self.orders if o["order_id"] == oid)
             order["status"]="CANCELLED"; self.deletes += 1; return Raw(order)
@@ -189,6 +200,25 @@ def test_real_finam_missing_all_trades_uses_exact_order_and_position_proof(tmp_p
     result,transport,store=execute(tmp_path,"missing_all_trades")
     assert result["classification"] == "SYNTHETIC_PASS"
     assert transport.posts == 2
+    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
+    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
+    assert store.unresolved_intent_count() == 0
+
+
+def test_real_finam_missing_order_detail_uses_ack_and_exact_position_for_entry_and_flatten(tmp_path):
+    result,transport,store=execute(tmp_path,"order_detail_missing")
+    assert result["classification"] == "SYNTHETIC_PASS"
+    assert transport.posts == 2
+    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
+    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
+    assert store.unresolved_intent_count() == 0
+
+
+def test_real_finam_stale_active_order_detail_does_not_cancel_proven_position(tmp_path):
+    result,transport,store=execute(tmp_path,"stale_active_detail")
+    assert result["classification"] == "SYNTHETIC_PASS"
+    assert transport.posts == 2
+    assert transport.deletes == 0
     assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
     assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
     assert store.unresolved_intent_count() == 0

@@ -386,10 +386,25 @@ def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -
             listed_id = candidate_ids[0]
         else:
             raise ReconciliationPending("ORDER_COLLECTION_PROPAGATION_PENDING")
+    positions = _production_account(api, account_id)
+    position_quantity = _position(positions, symbol)
     try:
         order = api.order(account_id, listed_id)
     except FinamNotFound:
-        raise ReconciliationPending("ORDER_DETAIL_PROPAGATION_PENDING") from None
+        if not persisted_id:
+            raise ReconciliationPending("ORDER_DETAIL_PROPAGATION_PENDING") from None
+        return {
+            "order_status": "ORDER_DETAIL_PENDING",
+            "order_id": listed_id,
+            "client_order_id": client_id,
+            "executed_quantity": 0,
+            "fills": [],
+            "trade_propagation_pending": True,
+            "broker_acknowledged": True,
+            "order_detail_pending": True,
+            "acceptance_instrument": symbol,
+            "position_quantity": position_quantity,
+        }
     request = order.get("order") if isinstance(order, dict) else None
     if (not isinstance(order, dict) or order.get("order_id") != listed_id
             or not isinstance(request, dict) or request.get("account_id") != account_id
@@ -402,7 +417,6 @@ def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -
     if initial != 1 or executed not in (0, 1) or remaining not in (0, 1) or executed + remaining != initial:
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
     accepted_at = _timestamp(order.get("accept_at"))
-    positions = _production_account(api, account_id)
     trades = _rows(api.trades(account_id), "trades")
     matching = []
     for trade in trades:
@@ -423,7 +437,9 @@ def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -
     return {"order_status": _status(order.get("status")), "order_id": listed_id,
             "client_order_id": client_id, "executed_quantity": executed, "fills": matching,
             "trade_propagation_pending": len(matching) < executed,
-            "acceptance_instrument": symbol, "position_quantity": _position(positions, symbol)}
+            "broker_acknowledged": persisted_id is not None,
+            "order_detail_pending": False,
+            "acceptance_instrument": symbol, "position_quantity": position_quantity}
 
 
 def _production_account_snapshot(api: object, account_id: str, symbol: str, store: StateStore) -> dict[str, Any]:
@@ -487,6 +503,24 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
         status = str(snap.get("order_status", "UNKNOWN")).upper()
         order_id = str(snap.get("order_id", ""))
         filled = int(snap.get("executed_quantity", 0))
+        position = snap.get("position_quantity")
+
+        # A persisted broker ACK plus the exact expected account position is
+        # sufficient proof of a one-contract state transition while FINAM's
+        # order-detail read model is still propagating. This applies only to
+        # pending/active read-side states; terminal contradictory states remain
+        # fail-closed below.
+        ack_position_proven = (
+            snap.get("broker_acknowledged") is True
+            and expected_position is not None
+            and type(position) is int
+            and position == expected_position
+            and (snap.get("order_detail_pending") is True or status in ACTIVE)
+        )
+        if ack_position_proven:
+            broker.store.transition_intent(key, "FILL", order_id)
+            broker.store.transition_intent(key, "RECONCILED", order_id)
+            return snap
 
         if status in ACTIVE:
             # A newly acknowledged market order may remain ACTIVE/PENDING for a
@@ -505,7 +539,6 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
 
         fills = snap.get("fills", [])
         if status in TERMINAL_FILL and filled == 1:
-            position = snap.get("position_quantity")
             if expected_position is None or type(position) is not int:
                 raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
             if position != expected_position:

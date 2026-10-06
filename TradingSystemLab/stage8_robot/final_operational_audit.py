@@ -539,6 +539,9 @@ def audit(
           "OPERATOR_INTERVENTION_REQUIRED", "class ReconciliationPending",
           "RECONCILIATION_MAX_OBSERVATIONS = 12", "ORDER_COLLECTION_PROPAGATION_PENDING",
           '"trade_propagation_pending": len(matching) < executed',
+          '"broker_acknowledged": True',
+          "ack_position_proven = (",
+          'snap.get("order_detail_pending") is True or status in ACTIVE',
           "if expected_position is None or type(position) is not int:",
           'snap.get("trade_propagation_pending") is not True')),
           "STAGE_8_11_UNCERTAIN_RECONCILIATION")
