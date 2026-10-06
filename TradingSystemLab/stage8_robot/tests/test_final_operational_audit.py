@@ -1217,6 +1217,7 @@ def test_stage811_pr357_provenance_mutation_fails_both_audits():
     ("latest_physical_precheck_result", "STAGE8_11_SAFETY_GATE_BLOCKED"),
     ("latest_physical_acceptance_result", "OPERATOR_INTERVENTION_REQUIRED"),
     ("latest_authorization_status", "REUSABLE"),
+    ("order_endpoint_call_count", 1),
     ("real_order_count", 1),
     ("production_kill_switch_final_state", "ARMED"),
     ("stage8_12_status", "STARTED_AUTHORIZED"),
