@@ -356,7 +356,7 @@ Exit criterion: production code path exists but remains structurally incapable o
 
 ### Stage 8.12.2 — Production path conformance and failure audit
 
-**TEST/AUDIT ONLY / ZERO REAL ORDERS.**
+**COMPLETE / PASS / TEST-AUDIT ONLY / ZERO REAL ORDERS.**
 
 Validate the assembled production path end-to-end without contacting the real order endpoint.
 
@@ -378,7 +378,25 @@ Minimum evidence:
 - real FINAM protective-stop acceptance is not inferred from the offline contract and is not authorized by Stage 8.12.2;
 - both independent Stage 8 audits PASS.
 
-Exit criterion: exact production commit is independently auditable and still has zero real-order transmission authorization.
+Canonical closeout evidence:
+
+- accepted tested main commit: `2a15f4331afc1433dfbfd0464108e39e59d236f8`;
+- external TEST/AUDIT verifier evidence SHA-256: `4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F`;
+- end-to-end + protective-stop conformance: `19/19 PASS`;
+- Stage 8.12.1 runtime regression: `25/25 PASS`;
+- R15 / margin / same-batch regressions: `144/144 PASS`;
+- readonly account / H1 freshness / kill-switch regressions: `48/48 PASS`;
+- Stage 8.11 bounded position-authority / timeout regressions: `113/113 PASS`;
+- frozen research-to-robot / Stage 7 core conformance: `111/111 PASS`;
+- independent Stage 8 audit: `PASS` with `262` checks;
+- final operational audit: `PASS` with `149` checks;
+- real order endpoint calls: `0`;
+- real order count: `0`;
+- `execution_authorized = false`;
+- production kill switch: `HALTED`;
+- production Scheduled Task: `Disabled`.
+
+Exit criterion: **PASS**. Exact tested production commit remained independently auditable with zero real-order transmission authorization. Stage 8.12.3 is the next gate and remains NOT STARTED.
 
 ### Stage 8.12.3 — Intel production preflight
 
