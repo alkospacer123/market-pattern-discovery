@@ -1030,7 +1030,7 @@ def audit(
           stage811_provenance.get("stage8_11_1_status") == "COMPLETE_PASS",
           stage811_provenance.get("stage8_11_2_status") == "COMPLETE_PASS",
           stage811_provenance.get("stage8_11_3_status") == "PRIOR_AUTHORIZATION_CONSUMED",
-          stage811_provenance.get("current_gate") == "STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT",
+          stage811_provenance.get("current_gate") == "STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT",
           stage811_provenance.get("latest_physical_precheck_result") == "STAGE8_11_PRECHECK_ONLY_PASS",
           physical.get("accepted_code_commit") == "9be31f1723877a9c542f89027052570425f7e976",
           physical.get("report_sha256") == "7171B7CD0098FF51159DC05C46C0326BF7F412A2D9EA0CBB3F9BDAFBE7745455",
@@ -1108,12 +1108,23 @@ def audit(
         "production_kill_switch_final_state":"HALTED",
         "production_scheduled_task":"Disabled",
         "mode":"CODE_ONLY_TEST_ONLY",
-        "stage8_12_2_status":"NOT_STARTED_TEST_AUDIT_ONLY",
+        "stage8_12_2_status":"STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT_COMPLETE_PASS",
         "stage8_12_3_status":"NOT_STARTED",
         "stage8_12_4_status":"NOT_STARTED_NOT_AUTHORIZED",
-        "next_gate":"STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT",
-        "n4_simultaneous_positive_capacity_calculation":"REQUIRED_STAGE8_12_3"
-    }, "STAGE_8_12_1_MACHINE_AUTHORITY_EXACT")
+        "next_gate":"STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT",
+        "n4_simultaneous_positive_capacity_calculation":"REQUIRED_STAGE8_12_3",
+        "stage8_12_2_accepted_code_commit":"2a15f4331afc1433dfbfd0464108e39e59d236f8",
+        "stage8_12_2_external_test_only_evidence_sha256":"4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F",
+        "stage8_12_2_external_test_only_evidence_tracked_in_git":False,
+        "stage8_12_2_conformance_pytest":{"passed":19,"failed":0},
+        "stage8_12_2_runtime_regression":{"passed":25,"failed":0},
+        "stage8_12_2_margin_regression":{"passed":144,"failed":0},
+        "stage8_12_2_safety_regression":{"passed":48,"failed":0},
+        "stage8_12_2_position_reconciliation_regression":{"passed":113,"failed":0},
+        "stage8_12_2_frozen_core_conformance":{"passed":111,"failed":0},
+        "stage8_12_2_independent_stage8_audit":{"status":"PASS","checks":262},
+        "stage8_12_2_final_operational_audit":{"status":"PASS","checks":149}
+    }, "STAGE_8_12_2_MACHINE_AUTHORITY_EXACT")
     check("OperationalState(root/\"state/readonly-supervisor.sqlite3\")" in precheck_tests
           and "StateStore(root/\"state/readonly-supervisor.sqlite3\")" not in precheck_tests
           and '== {"operational_state"}' in precheck_tests,
@@ -1126,13 +1137,14 @@ def audit(
           "STAGE_8_11_INTEL_WINDOWS_TIME_SANITY")
     check(all("Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**" in handoff
               and "Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**" in handoff
-              and "3f2d68ca0c327271fb543a0b63c0e8f842c855bd" in handoff
-              and "F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C" in handoff
-              and "Stage 8.12.2 — Production path conformance and failure audit — is the **NEXT GATE**" in handoff
+              and "Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**" in handoff
+              and "2a15f4331afc1433dfbfd0464108e39e59d236f8" in handoff
+              and "4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F" in handoff
+              and "Stage 8.12.3 — Intel production preflight — is the **NEXT GATE**" in handoff
               and "test-only real-order count: `0`" in handoff
               and "current `execution_authorized = false`" in handoff
               for handoff in current_handoffs),
-          "STAGE_8_12_1_CURRENT_HANDOFF")
+          "STAGE_8_12_2_CURRENT_HANDOFF")
     forbidden_claims = (
         r"(?:broker acceptance (?:is |was )?validated|order (?:was )?accepted|FINAM server accepted an order)",
         r"(?<!not )real-order (?:transmission|capability) is authorized",
@@ -1339,7 +1351,10 @@ def audit(
         "stage8_12_1_status": "STAGE_8_12_1_PRODUCTION_RUNTIME_ASSEMBLY_COMPLETE_PASS",
         "stage8_12_1_accepted_code_commit": "3f2d68ca0c327271fb543a0b63c0e8f842c855bd",
         "stage8_12_1_external_evidence_sha256": "F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C",
-        "stage8_12_next_gate": "STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT",
+        "stage8_12_2_status": "STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT_COMPLETE_PASS",
+        "stage8_12_2_accepted_code_commit": "2a15f4331afc1433dfbfd0464108e39e59d236f8",
+        "stage8_12_2_external_evidence_sha256": "4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F",
+        "stage8_12_next_gate": "STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT",
         "stage8_9_complete": True, "stage8_9_physical_validation_performed": True,
     }
     if write_result:
