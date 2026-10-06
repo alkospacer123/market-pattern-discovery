@@ -73,19 +73,20 @@ def test_stage8_12_runtime_is_structurally_broker_neutral():
     assert "submit_order(" not in source
 
 
-def test_runtime_schema_bump_rejects_pre_entry_watermark_durable_state(tmp_path):
-    path = tmp_path / "legacy-v2.db"
+def test_runtime_schema_bump_rejects_pre_management_watermark_durable_state(tmp_path):
+    path = tmp_path / "legacy-v3.db"
     runtime = ProductionRuntime(path)
     legacy_identity = runtime.store.get("database_identity")
     runtime.close()
 
-    legacy_identity["schema_id"] = "stage8_12_production_runtime.v2"
+    legacy_identity["schema_id"] = "stage8_12_production_runtime.v3"
     legacy = StateStore(path)
     legacy.put("database_identity", legacy_identity)
     legacy.put("production_positions", {
         "USDRUBF": {
-            "trade_id": "legacy-open-position-without-entry-observation-watermark",
+            "trade_id": "legacy-open-position-without-durable-management-watermark",
             "signal_timestamp": datetime(2026, 1, 2, 10, tzinfo=MSK).isoformat(),
+            "entry_observed_at": ENTRY_OBSERVED_AT.isoformat(),
         },
     })
     legacy.close()
