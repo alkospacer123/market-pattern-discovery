@@ -71,22 +71,27 @@ def signal(instrument: str, direction: str) -> SignalIntent:
     )
 
 
-def bars(direction: str, entry: float = 100.0) -> tuple[CompletedBar, CompletedBar]:
+def bars(
+        direction: str, entry: float = 100.0,
+        signal_time: datetime | None = None) -> tuple[CompletedBar, CompletedBar]:
+    signal_time = signal_time or datetime(2026,1,2,10,tzinfo=MSK)
+    first_time = signal_time + timedelta(hours=1)
+    second_time = signal_time + timedelta(hours=2)
     if direction == "LONG":
         return (
             CompletedBar(
-                datetime(2026,1,2,11,tzinfo=MSK),
+                first_time,
                 entry, entry + 6, entry, entry + 5, 2, completed=True),
             CompletedBar(
-                datetime(2026,1,2,12,tzinfo=MSK),
+                second_time,
                 entry + 5, entry + 7, entry + 1, entry + 6, 2, completed=True),
         )
     return (
         CompletedBar(
-            datetime(2026,1,2,11,tzinfo=MSK),
+            first_time,
             entry, entry, entry - 6, entry - 5, 2, completed=True),
         CompletedBar(
-            datetime(2026,1,2,12,tzinfo=MSK),
+            second_time,
             entry - 5, entry - 1, entry - 7, entry - 6, 2, completed=True),
     )
 
@@ -163,7 +168,13 @@ def run_end_to_end(root: Path, instrument: str, direction: str) -> dict:
 
         # An accepted position is not considered safe before broker-confirmed
         # protection. No next-bar progression is allowed through this gap.
-        first_bar, second_bar = bars(direction, entry=float(genuine_signal.entry))
+        first_bar, second_bar = bars(
+            direction,
+            entry=float(genuine_signal.entry),
+            signal_time=genuine_signal.timestamp,
+        )
+        assert first_bar.timestamp > genuine_signal.timestamp
+        assert second_bar.timestamp > first_bar.timestamp
         with pytest.raises(
             ProductionRuntimeError,
             match="UNRESOLVED_INTENT_BLOCKS_BAR_PROCESSING",
@@ -253,7 +264,7 @@ def run_end_to_end(root: Path, instrument: str, direction: str) -> dict:
         observed = runtime.manage_completed_bar(
             instrument,
             CompletedBar(
-                datetime(2026,1,2,13,tzinfo=MSK),
+                genuine_signal.timestamp + timedelta(hours=3),
                 float(new_effective.stop_price),
                 float(new_effective.stop_price),
                 float(new_effective.stop_price),
@@ -512,6 +523,109 @@ def test_stop_confirmation_crash_window_recovers_without_resubmission(
         assert runtime.store.intent(stop.idempotency_key)["status"] == "RECONCILED"
         assert runtime.store.unresolved_intent_count() == 0
         assert len(adapter.active_stops("USDRUBF", entry.trade_id)) == 1
+    finally:
+        adapter.close()
+        runtime.close()
+
+
+def test_replacement_intent_crash_before_pending_state_is_recovered(tmp_path):
+    runtime_path = tmp_path / "runtime.db"
+    broker_path = tmp_path / "broker.db"
+    runtime = ProductionRuntime(runtime_path)
+    adapter = SyntheticPercentPositionStopAdapter(broker_path)
+    budget = runtime.begin_batch(
+        realized_equity=Decimal("100000"),
+        available_cash=Decimal("1000000"))
+    entry_signal = signal("USDRUBF", "LONG")
+    entry = runtime.plan_entry(
+        entry_signal, authority("USDRUBF"),
+        realized_equity=Decimal("100000"), budget=budget)
+    initial = runtime.confirm_entry_position(
+        entry.idempotency_key, entry.expected_position_quantity)
+    initial_id = adapter.submit(
+        initial, observed_position_quantity=entry.expected_position_quantity)
+    runtime.confirm_protective_stop(initial.idempotency_key, initial_id)
+
+    first_bar, second_bar = bars(
+        "LONG", signal_time=entry_signal.timestamp)
+    assert runtime.manage_completed_bar(
+        "USDRUBF", first_bar,
+        observed_position_quantity=entry.expected_position_quantity) is None
+    replacement = runtime.manage_completed_bar(
+        "USDRUBF", second_bar,
+        observed_position_quantity=entry.expected_position_quantity)
+    assert replacement.kind == "PROTECTIVE_STOP_REPLACE"
+
+    # Recreate the exact crash boundary after durable replacement intent
+    # persistence but before PENDING_REPLACE/revision were durably saved.
+    positions = runtime.open_positions()
+    positions["USDRUBF"]["protective_stop_state"] = "ACTIVE"
+    positions["USDRUBF"]["protective_stop_revision"] = 0
+    runtime._save_positions(positions)
+    assert runtime.store.unresolved_intent_count() == 1
+    adapter.close()
+    runtime.close()
+
+    runtime = ProductionRuntime(runtime_path)
+    adapter = SyntheticPercentPositionStopAdapter(broker_path)
+    try:
+        recovered = runtime.recover_pending_protective_stop("USDRUBF")
+        assert recovered == replacement
+        state = runtime.open_positions()["USDRUBF"]
+        assert state["protective_stop_state"] == "PENDING_REPLACE"
+        assert state["protective_stop_revision"] == 1
+        replacement_id = adapter.submit(
+            recovered, observed_position_quantity=entry.expected_position_quantity)
+        runtime.confirm_protective_stop(
+            recovered.idempotency_key, replacement_id)
+        state = runtime.open_positions()["USDRUBF"]
+        assert state["protective_stop_state"] == "ACTIVE"
+        assert state["protective_stop_revision"] == 1
+        assert state["protective_stop_broker_order_id"] == replacement_id
+        assert runtime.store.unresolved_intent_count() == 0
+        assert len(adapter.active_stops("USDRUBF", entry.trade_id)) == 2
+    finally:
+        adapter.close()
+        runtime.close()
+
+
+def test_management_bar_at_or_before_signal_fails_closed(tmp_path):
+    runtime = ProductionRuntime(tmp_path / "runtime.db")
+    adapter = SyntheticPercentPositionStopAdapter(tmp_path / "broker.db")
+    try:
+        budget = runtime.begin_batch(
+            realized_equity=Decimal("100000"),
+            available_cash=Decimal("1000000"))
+        entry_signal = signal("USDRUBF", "LONG")
+        entry = runtime.plan_entry(
+            entry_signal, authority("USDRUBF"),
+            realized_equity=Decimal("100000"), budget=budget)
+        stop = runtime.confirm_entry_position(
+            entry.idempotency_key, entry.expected_position_quantity)
+        stop_id = adapter.submit(
+            stop, observed_position_quantity=entry.expected_position_quantity)
+        runtime.confirm_protective_stop(stop.idempotency_key, stop_id)
+
+        same_time = CompletedBar(
+            entry_signal.timestamp, 100, 101, 99, 100, 1, completed=True)
+        with pytest.raises(
+            ProductionRuntimeError,
+            match="BAR_NOT_AFTER_ENTRY_SIGNAL",
+        ):
+            runtime.manage_completed_bar(
+                "USDRUBF", same_time,
+                observed_position_quantity=entry.expected_position_quantity)
+
+        earlier = CompletedBar(
+            entry_signal.timestamp - timedelta(hours=1),
+            100, 101, 99, 100, 1, completed=True)
+        with pytest.raises(
+            ProductionRuntimeError,
+            match="BAR_NOT_AFTER_ENTRY_SIGNAL",
+        ):
+            runtime.manage_completed_bar(
+                "USDRUBF", earlier,
+                observed_position_quantity=entry.expected_position_quantity)
     finally:
         adapter.close()
         runtime.close()
