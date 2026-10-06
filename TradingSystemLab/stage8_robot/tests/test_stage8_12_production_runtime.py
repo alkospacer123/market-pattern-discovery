@@ -20,12 +20,21 @@ from TradingSystemLab.stage8_robot.strategy_core import CompletedBar, SignalInte
 MSK = ZoneInfo("Europe/Moscow")
 
 
+FROZEN_ECONOMICS = {
+    "USDRUBF": (Decimal("0.01"), Decimal("10")),
+    "CNYRUBF": (Decimal("0.001"), Decimal("1")),
+    "GLDRUBF": (Decimal("0.1"), Decimal("0.1")),
+    "IMOEXF": (Decimal("0.5"), Decimal("5")),
+}
+
+
 def authority(instrument="USDRUBF"):
+    step, tick = FROZEN_ECONOMICS[instrument]
     return InstrumentAuthority(
         instrument=instrument,
         finam_symbol=f"{instrument}@RTSX",
-        price_step=Decimal("0.01"),
-        tick_value=Decimal("10"),
+        price_step=step,
+        tick_value=tick,
         trade_lot_size=1,
         long_initial_margin=Decimal("100"),
         short_initial_margin=Decimal("120"),
@@ -120,6 +129,25 @@ def test_entry_r15_margin_position_authority_and_initial_stop(tmp_path):
     assert position["quantity"] == 10
     assert position["protective_stop_state"] == "ACTIVE"
     assert runtime.store.unresolved_intent_count() == 0
+    runtime.close()
+
+
+@pytest.mark.parametrize("instrument", ["USDRUBF","CNYRUBF","GLDRUBF","IMOEXF"])
+def test_all_four_n4_frozen_economics_are_accepted(tmp_path, instrument):
+    runtime = ProductionRuntime(tmp_path / f"{instrument}.db")
+    runtime._validate_instrument_authority(authority(instrument))
+    runtime.close()
+
+
+def test_short_entry_uses_negative_position_authority(tmp_path):
+    runtime = ProductionRuntime(tmp_path / "short.db")
+    budget = runtime.begin_batch(
+        realized_equity=Decimal("100000"), available_cash=Decimal("1200"))
+    action = runtime.plan_entry(
+        signal(direction="SHORT"), authority(), realized_equity=Decimal("100000"), budget=budget)
+    assert action.kind == "ENTRY"
+    assert action.quantity > 0
+    assert action.expected_position_quantity == -action.quantity
     runtime.close()
 
 
