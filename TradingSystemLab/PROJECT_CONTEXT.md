@@ -54,7 +54,7 @@ The accepted normal reconciliation model is position-authoritative: after each p
 
 Attempts 1–6, their failures/OIR classifications, manual closes, and recovery evidence remain immutable historical provenance and are not reclassified by the attempt7 PASS.
 
-Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**.
+Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**. Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**.
 
 Canonical Stage 8.12.1 authority:
 
@@ -71,7 +71,25 @@ Canonical Stage 8.12.1 authority:
 - production kill switch: `HALTED`;
 - production Scheduled Task: `Disabled`.
 
-Stage 8.12.1 assembled the production runtime without adding FINAM order transport: the runtime remains structurally order-incapable at this gate. Stage 8.12.2 — Production path conformance and failure audit — is the **NEXT GATE** and remains test/audit-only with zero real orders. Continuous FULL/R15 production execution, Scheduled Task activation, and any new real-order transmission remain unauthorized until the separate explicit Stage 8.12.4 authorization gate.
+Canonical Stage 8.12.2 authority:
+
+- accepted tested main commit: `2a15f4331afc1433dfbfd0464108e39e59d236f8`;
+- external test-only verifier evidence SHA-256: `4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F`;
+- Stage 8.12.2 end-to-end + protective-stop conformance: `19/19 PASS`;
+- Stage 8.12.1 runtime regression: `25/25 PASS`;
+- R15 / margin / same-batch financial regressions: `144/144 PASS`;
+- readonly account / H1 freshness / kill-switch regressions: `48/48 PASS`;
+- Stage 8.11 bounded position-authority / timeout regressions: `113/113 PASS`;
+- frozen research-to-robot / Stage 7 core conformance: `111/111 PASS`;
+- independent Stage 8 audit: `PASS` (`262` checks);
+- final operational audit: `PASS` (`149` checks);
+- test-only real-order count: `0`;
+- real order endpoint called: `false`;
+- current `execution_authorized = false`;
+- production kill switch: `HALTED`;
+- production Scheduled Task: `Disabled`.
+
+Stage 8.12.2 is closed as TEST/AUDIT ONLY with zero real orders. Stage 8.12.3 — Intel production preflight — is the **NEXT GATE** and remains **NOT STARTED**. Continuous FULL/R15 production execution, Scheduled Task activation, and any new real-order transmission remain unauthorized until the separate explicit Stage 8.12.4 authorization gate.
 
 ## Purpose and authority
 
