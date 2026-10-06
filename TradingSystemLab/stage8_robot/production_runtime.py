@@ -542,16 +542,49 @@ class ProductionRuntime:
             raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
 
         if state == "ACTIVE":
-            # Crash window: manage_completed_bar may have durably persisted the
-            # next replacement intent after saving the tightened TRAIL1 state,
-            # but before flipping the position snapshot to PENDING_REPLACE.
+            # Crash windows around a TRAIL1 tightening:
+            # 1) tightened position state saved, replacement intent not yet saved;
+            # 2) replacement intent saved, PENDING_REPLACE snapshot not yet saved.
             pending_revision = revision + 1
             pending_key = (
                 f"stage8.12:{current['trade_id']}:stop:{pending_revision:04d}"
             )
             pending_intent = self.store.intent(pending_key)
             if pending_intent is None:
-                return None
+                try:
+                    current_stop = Decimal(str(current["current_stop"]))
+                    broker_stop = Decimal(str(current["protective_stop_price"]))
+                    quantity = int(current["quantity"])
+                except Exception as exc:
+                    raise ProductionRuntimeError(
+                        "PROTECTIVE_STOP_PRICE_DIVERGENCE") from exc
+                direction = current.get("direction")
+                if current_stop == broker_stop:
+                    return None
+                tighter = (
+                    direction == "LONG" and current_stop > broker_stop
+                ) or (
+                    direction == "SHORT" and current_stop < broker_stop
+                )
+                if not tighter or quantity <= 0:
+                    raise ProductionRuntimeError(
+                        "PROTECTIVE_STOP_PRICE_DIVERGENCE")
+                expected = quantity if direction == "LONG" else -quantity
+                recovered_action = RuntimeAction(
+                    "PROTECTIVE_STOP_REPLACE", pending_key, instrument,
+                    current["finam_symbol"], direction, quantity,
+                    current["trade_id"], current["signal_id"],
+                    Decimal(str(current["entry"])), current_stop, expected,
+                    "TIGHTER_PERCENT_POSITION_STOP_REQUIRED",
+                )
+                if not self.store.persist_intent(
+                        pending_key, recovered_action.payload()):
+                    raise ProductionRuntimeError(
+                        "DUPLICATE_PROTECTIVE_STOP_INTENT")
+                pending_intent = self.store.intent(pending_key)
+                if pending_intent is None:
+                    raise ProductionRuntimeError(
+                        "PROTECTIVE_STOP_INTENT_NOT_FOUND")
             if pending_intent["payload"].get("kind") != "PROTECTIVE_STOP_REPLACE":
                 raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
             current["protective_stop_state"] = "PENDING_REPLACE"
@@ -705,6 +738,14 @@ class ProductionRuntime:
             raise ProductionRuntimeError("POSITION_AUTHORITY_UNEXPECTED_QUANTITY")
         if value.get("protective_stop_state") != "ACTIVE":
             raise ProductionRuntimeError("PROTECTIVE_STOP_NOT_ACTIVE")
+        try:
+            local_stop = Decimal(str(value["current_stop"]))
+            broker_stop = Decimal(str(value["protective_stop_price"]))
+        except Exception as exc:
+            raise ProductionRuntimeError(
+                "PROTECTIVE_STOP_PRICE_DIVERGENCE") from exc
+        if local_stop != broker_stop:
+            raise ProductionRuntimeError("PROTECTIVE_STOP_PRICE_DIVERGENCE")
 
         position = _position_from_dict(value)
         previous_stop = position.current_stop
