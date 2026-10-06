@@ -356,6 +356,7 @@ Minimum evidence:
 - duplicate signal/restart cannot create a duplicate order;
 - stale/malformed H1, account mismatch, unexpected position, active order, unresolved intent, reconciliation timeout, or invalid kill-switch state fail closed;
 - restart/recovery preserves durable state and cannot silently reopen authorization;
+- protective-stop adapter semantics are proven offline: initial server-side stop, TRAIL1 tighten-only updates, no stale/looser replacement, and no interval in which an accepted open position is considered safely protected without a broker-confirmed protective stop;
 - both independent Stage 8 audits PASS.
 
 Exit criterion: exact production commit is independently auditable and still has zero real-order transmission authorization.
@@ -376,6 +377,9 @@ Require:
 - healthy reconciliation and fresh FINAM/H1 contact;
 - frozen N4 registry valid and tradable;
 - current realized-equity state and margin authority valid;
+- sanitized N4 simultaneous positive-capacity report for one trade lot of each USDRUBF, CNYRUBF, GLDRUBF, and IMOEXF, using current directional initial margins plus strategy-consistent loss-per-contract;
+- report fields: R15 equity floor, all-LONG margin floor, all-SHORT margin floor, worst-direction margin floor, base required capital, current available cash, and additional funding required;
+- reserve scenarios reported separately at 0%, 10%, 20%, and 30%; the reserve is an operational funding buffer and does not alter the frozen 1.5% R15 risk model;
 - kill switch `HALTED`;
 - production Scheduled Task disabled/not running;
 - `execution_authorized = false`;
