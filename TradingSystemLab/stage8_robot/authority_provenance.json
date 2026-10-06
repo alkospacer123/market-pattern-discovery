@@ -294,12 +294,12 @@
     "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
   },
   "stage8_11": {
-    "status": "STAGE_8_11_CONTROLLED_REAL_EXECUTION_ACCEPTANCE_NOT_YET_PASSED",
+    "status": "STAGE_8_11_CONTROLLED_REAL_EXECUTION_ACCEPTANCE_COMPLETE_PASS",
     "stage8_11_0_status": "COMPLETE",
     "stage8_11_1_status": "COMPLETE_PASS",
     "stage8_11_2_status": "COMPLETE_PASS",
     "stage8_11_3_status": "PRIOR_AUTHORIZATION_CONSUMED",
-    "current_gate": "STAGE_8_11_CLOSEOUT_COMPLETE_NEW_EXPLICIT_AUTHORIZATION_REQUIRED_FOR_RETRY",
+    "current_gate": "STAGE_8_12_NOT_STARTED_NOT_AUTHORIZED",
     "latest_physical_precheck_result": "STAGE8_11_PRECHECK_ONLY_PASS",
     "physical_precheck": {
       "schema_id": "stage8_11_intel_precheck.v1",
@@ -417,15 +417,15 @@
       "merge": "3017624559441e1513c70324e62bd8a895383900"
     },
     "execution_authorized": false,
-    "order_endpoint_call_count": 1,
-    "real_order_count": 0,
+    "order_endpoint_call_count": 2,
+    "real_order_count": 2,
     "production_kill_switch_final_state": "HALTED",
     "scheduled_task": "Disabled",
     "stage8_11_4_status": "ATTEMPTED_FAILED_HTTP_400_NO_ACCEPTED_ENTRY_PROVEN",
     "stage8_11_5_status": "NO_POSITION_READONLY_CLEAN_PROOF_OBTAINED",
     "stage8_11_6_status": "FLATTEN_NOT_SUBMITTED",
     "stage8_11_7_status": "COMPLETE_PASS_HISTORICAL_INTENT_RECOVERED",
-    "stage8_11_8_status": "COMPLETE_STAGE_8_11_CLOSEOUT",
+    "stage8_11_8_status": "COMPLETE_STAGE_8_11_CLOSEOUT_PASS",
     "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED",
     "operator_boundary_predecessor_authority": {
       "pull_request": 360,
@@ -437,7 +437,36 @@
       "STAGE8_11_PHYSICAL_EVIDENCE_UNPROVEN_STATE_DEFAULTED_SAFE",
       "STAGE8_11_NO_FILL_FLAT_STATE_NOT_PROVEN"
     ],
-    "physical_wrapper_run": true
+    "physical_wrapper_run": true,
+    "latest_physical_acceptance_result": "PASS",
+    "latest_authorization_status": "CONSUMED_AFTER_ATTEMPT7_PASS",
+    "physical_acceptance": {
+      "schema_id": "stage8_11_physical_acceptance.v1",
+      "attempt_id": "stage8.11.attempt7",
+      "accepted_code_commit": "72a910e49b876cda99484a810e6f8a1b16ac0209",
+      "evidence_path_external": "runtime/diagnostics/stage8_11_physical_acceptance_attempt7.json",
+      "evidence_sha256": "704BFCC19B1A63F490192C0D8D0E4715BFECF77664296AFEF47E5B80FBF64B5F",
+      "instrument": "CNYRUBF",
+      "finam_symbol": "CNYRUBF@RTSX",
+      "direction": "LONG",
+      "quantity": 1,
+      "broker_fill_count": 2,
+      "broker_order_present": true,
+      "controlled_flatten_proven": true,
+      "entry_fill_proven": true,
+      "execution_authorization_observed": true,
+      "one_contract_position_observed": true,
+      "order_endpoint_call_count": 2,
+      "physical_result_classification": "PASS",
+      "final_position_quantity": 0,
+      "final_active_order_count": 0,
+      "unresolved_intent_count": 0,
+      "reconciliation_result": "PASS",
+      "kill_switch_pre_state": "ARMED",
+      "kill_switch_final_state": "HALTED",
+      "scheduled_task_final_state": "Disabled",
+      "stage8_12_status": "NOT_STARTED_NOT_AUTHORIZED"
+    }
   },
   "stage8_11_failed_physical_attempt_correction": {
     "accepted_code_commit": "069806355fc6931470d7f68d5ca6db20b06358fa",
