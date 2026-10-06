@@ -25,7 +25,7 @@ from .state import StateStore
 from .strategy_core import CompletedBar, DecisionCore, PositionState, SignalIntent, T3Context
 from .trail1_state import Trail1State
 
-RUNTIME_SCHEMA = "stage8_12_production_runtime.v2"
+RUNTIME_SCHEMA = "stage8_12_production_runtime.v3"
 MODE = "STAGE8_12_CODE_ONLY"
 PRODUCTION_REGISTRY = Path(__file__).with_name("production_instrument_registry.csv")
 ActionKind = Literal[
