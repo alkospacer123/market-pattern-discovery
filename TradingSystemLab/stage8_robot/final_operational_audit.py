@@ -520,6 +520,8 @@ def audit(
     token_acceptance = provenance.get("stage8_10_7", {})
     lifecycle_closeout = provenance.get("stage8_10_8", {})
     acceptance = text("TradingSystemLab/stage8_robot/controlled_real_acceptance.py")
+    position_reconcile = acceptance.split("def _reconcile_position",1)[1].split("def _reconcile(",1)[0]
+    normal_lifecycle = acceptance.split("def run_controlled_lifecycle",1)[1].split("_PREFLIGHT_KEYS",1)[0]
     finam_api_source = text("TradingSystemLab/stage8_robot/finam_api.py")
     acceptance_integration = text("TradingSystemLab/stage8_robot/tests/test_controlled_real_acceptance_finam_integration.py")
     evidence_schema = json.loads(text("TradingSystemLab/stage8_robot/stage8_11_physical_evidence.schema.json"))
@@ -535,27 +537,26 @@ def audit(
           "STAGE_8_11_INTENT_BEFORE_POST")
     check("no retry: exactly one call" in acceptance and acceptance.count("self.api.place_order") == 1,
           "STAGE_8_11_NO_POST_RETRY")
-    check(all(token in acceptance for token in ("ENTRY_UNCERTAIN_RECONCILE", "FLATTEN_UNCERTAIN_RECONCILE",
-          "OPERATOR_INTERVENTION_REQUIRED", "class ReconciliationPending",
-          "RECONCILIATION_MAX_OBSERVATIONS = 12", "ORDER_COLLECTION_PROPAGATION_PENDING",
-          '"trade_propagation_pending": len(matching) < executed',
-          "except FinamError:",
-          "trades = []",
-          '"broker_acknowledged": True',
-          "ack_position_proven = (",
-          'snap.get("order_detail_pending") is True',
-          "or status in ACTIVE",
-          "or status in TERMINAL_FILL",
-          "if len(matching) > 1:",
-          'for fill in snap.get("fills", []):',
-          "and filled == 0",
-          "position in (-1, 0, 1)",
-          'if status == "CANCELLED" and filled == 1:',
-          "position != expected_position",
-          'return {**snap, "executed_quantity": 1}',
-          "if expected_position is None or type(position) is not int:",
-          'snap.get("trade_propagation_pending") is not True')),
-          "STAGE_8_11_UNCERTAIN_RECONCILIATION")
+    check(
+          "POSITION_RECONCILIATION_MAX_OBSERVATIONS = 30" in acceptance
+          and "POSITION_RECONCILIATION_SLEEP_SECONDS = 2.0" in acceptance
+          and "def _reconcile_position" in acceptance
+          and "broker.position_snapshot(finam_symbol)" in position_reconcile
+          and "POSITION_RECONCILIATION_TIMEOUT" in position_reconcile
+          and "POSITION_RECONCILIATION_UNEXPECTED_QUANTITY" in position_reconcile
+          and "POSITION_RECONCILIATION_UNEXPECTED_OTHER_POSITION" in position_reconcile
+          and "STAGE8_11_PRE_SUBMIT_ACCOUNT_NOT_CLEAN" in normal_lifecycle
+          and "ENTRY_SUBMISSION_UNCERTAIN_POSITION_RECONCILE" in normal_lifecycle
+          and "FLATTEN_SUBMISSION_UNCERTAIN_POSITION_RECONCILE" in normal_lifecycle
+          and "expected_position=expected_position, pending_position=0" in normal_lifecycle
+          and "expected_position=0, pending_position=expected_position" in normal_lifecycle
+          and ".trades(" not in position_reconcile
+          and ".order(" not in position_reconcile
+          and ".orders(" not in position_reconcile
+          and "cancel_order" not in position_reconcile
+          and "broker.snapshot(" not in normal_lifecycle
+          and "broker.cancel(" not in normal_lifecycle,
+          "STAGE_8_11_POSITION_AUTHORITATIVE_RECONCILIATION")
     check("_digest(account_id) != accepted_account_hash.lower()" in acceptance and "heartbeat_account_hash" in acceptance,
           "STAGE_8_11_EXACT_ACCOUNT_BINDING")
     check("resolve_frozen_symbol(instrument)" in acceptance and "FINAM_SYMBOL_BINDING_INVALID" in acceptance,
