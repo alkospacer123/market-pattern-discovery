@@ -31,6 +31,7 @@ from TradingSystemLab.stage8_robot.trading_safety_gate import (
 )
 
 MSK = ZoneInfo("Europe/Moscow")
+ENTRY_OBSERVED_AT = datetime(2026, 1, 2, 10, 5, tzinfo=MSK)
 FROZEN_ECONOMICS = {
     "USDRUBF": (Decimal("0.01"), Decimal("10")),
     "CNYRUBF": (Decimal("0.001"), Decimal("1")),
@@ -162,8 +163,10 @@ def run_end_to_end(root: Path, instrument: str, direction: str) -> dict:
         assert entry.quantity > 0
         broker_position = entry.expected_position_quantity
 
+        entry_observed_at = genuine_signal.timestamp + timedelta(minutes=5)
         initial_stop = runtime.confirm_entry_position(
-            entry.idempotency_key, broker_position)
+            entry.idempotency_key, broker_position,
+            observed_at=entry_observed_at)
         assert initial_stop.kind == "PROTECTIVE_STOP_INSTALL"
 
         # An accepted position is not considered safe before broker-confirmed
@@ -354,7 +357,8 @@ def test_percent_stop_payload_is_close_only_shape(
             signal("USDRUBF", direction), authority("USDRUBF"),
             realized_equity=Decimal("100000"), budget=budget)
         stop = runtime.confirm_entry_position(
-            entry.idempotency_key, entry.expected_position_quantity)
+            entry.idempotency_key, entry.expected_position_quantity,
+            observed_at=ENTRY_OBSERVED_AT)
         payload = adapter.payload(stop)
         assert payload["side"] == expected_side
         assert payload["quantity_sl"] == {"value": "100"}
@@ -378,7 +382,8 @@ def test_looser_trailing_stop_rejected_and_duplicate_is_idempotent(tmp_path):
             signal("USDRUBF", "LONG"), authority("USDRUBF"),
             realized_equity=Decimal("100000"), budget=budget)
         initial = runtime.confirm_entry_position(
-            entry.idempotency_key, entry.expected_position_quantity)
+            entry.idempotency_key, entry.expected_position_quantity,
+            observed_at=ENTRY_OBSERVED_AT)
         first_id = adapter.submit(
             initial, observed_position_quantity=entry.expected_position_quantity)
 
@@ -417,7 +422,8 @@ def test_protective_stop_restart_reuses_same_broker_stop(tmp_path):
         signal("USDRUBF", "LONG"), authority("USDRUBF"),
         realized_equity=Decimal("100000"), budget=budget)
     stop = runtime.confirm_entry_position(
-        entry.idempotency_key, entry.expected_position_quantity)
+        entry.idempotency_key, entry.expected_position_quantity,
+        observed_at=ENTRY_OBSERVED_AT)
     broker_id = adapter.submit(
         stop, observed_position_quantity=entry.expected_position_quantity)
 
@@ -453,7 +459,8 @@ def test_trailing_stop_restart_reuses_same_broker_stop(tmp_path):
         signal("USDRUBF", "LONG"), authority("USDRUBF"),
         realized_equity=Decimal("100000"), budget=budget)
     initial = runtime.confirm_entry_position(
-        entry.idempotency_key, entry.expected_position_quantity)
+        entry.idempotency_key, entry.expected_position_quantity,
+        observed_at=ENTRY_OBSERVED_AT)
     initial_id = adapter.submit(
         initial, observed_position_quantity=entry.expected_position_quantity)
     runtime.confirm_protective_stop(initial.idempotency_key, initial_id)
@@ -499,7 +506,8 @@ def test_stop_confirmation_crash_window_recovers_without_resubmission(
         signal("USDRUBF", "LONG"), authority("USDRUBF"),
         realized_equity=Decimal("100000"), budget=budget)
     stop = runtime.confirm_entry_position(
-        entry.idempotency_key, entry.expected_position_quantity)
+        entry.idempotency_key, entry.expected_position_quantity,
+        observed_at=ENTRY_OBSERVED_AT)
     broker_id = adapter.submit(
         stop, observed_position_quantity=entry.expected_position_quantity)
 
@@ -541,7 +549,8 @@ def test_replacement_intent_crash_before_pending_state_is_recovered(tmp_path):
         entry_signal, authority("USDRUBF"),
         realized_equity=Decimal("100000"), budget=budget)
     initial = runtime.confirm_entry_position(
-        entry.idempotency_key, entry.expected_position_quantity)
+        entry.idempotency_key, entry.expected_position_quantity,
+        observed_at=ENTRY_OBSERVED_AT)
     initial_id = adapter.submit(
         initial, observed_position_quantity=entry.expected_position_quantity)
     runtime.confirm_protective_stop(initial.idempotency_key, initial_id)
@@ -601,7 +610,8 @@ def test_management_bar_at_or_before_signal_fails_closed(tmp_path):
             entry_signal, authority("USDRUBF"),
             realized_equity=Decimal("100000"), budget=budget)
         stop = runtime.confirm_entry_position(
-            entry.idempotency_key, entry.expected_position_quantity)
+            entry.idempotency_key, entry.expected_position_quantity,
+            observed_at=ENTRY_OBSERVED_AT)
         stop_id = adapter.submit(
             stop, observed_position_quantity=entry.expected_position_quantity)
         runtime.confirm_protective_stop(stop.idempotency_key, stop_id)
@@ -685,7 +695,8 @@ def test_same_batch_margin_reservation_blocks_overallocation(tmp_path):
         assert budget.remaining == Decimal("50")
 
         stop = runtime.confirm_entry_position(
-            first.idempotency_key, first.expected_position_quantity)
+            first.idempotency_key, first.expected_position_quantity,
+            observed_at=ENTRY_OBSERVED_AT)
         runtime.confirm_protective_stop(stop.idempotency_key, "synthetic-stop")
 
         second = runtime.plan_entry(
@@ -709,7 +720,8 @@ def test_wrong_position_blocks_protective_stop(tmp_path):
             signal("USDRUBF", "SHORT"), authority("USDRUBF"),
             realized_equity=Decimal("100000"), budget=budget)
         stop = runtime.confirm_entry_position(
-            entry.idempotency_key, entry.expected_position_quantity)
+            entry.idempotency_key, entry.expected_position_quantity,
+            observed_at=ENTRY_OBSERVED_AT)
         with pytest.raises(
             ProtectiveStopContractError,
             match="PROTECTIVE_STOP_POSITION_NOT_EXACT",
