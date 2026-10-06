@@ -1014,7 +1014,7 @@ def test_stage_8_10_closeout_document_regressions_fail():
             assert result["status"] == "FAIL", (path, result)
 
 
-def test_stage_8_12_1_machine_authority_mutations_fail_both_audits():
+def test_stage_8_12_2_machine_authority_mutations_fail_both_audits():
     path = "TradingSystemLab/stage8_robot/authority_provenance.json"
     authority = json.loads(source(path))
     mutations = (
@@ -1033,9 +1033,22 @@ def test_stage_8_12_1_machine_authority_mutations_fail_both_audits():
         ("real_order_transmission_authorized", True),
         ("production_kill_switch_final_state", "ARMED"),
         ("production_scheduled_task", "Enabled"),
-        ("stage8_12_2_status", "COMPLETE"),
+        ("stage8_12_2_status", "FAIL"),
+        ("stage8_12_3_status", "STARTED"),
         ("stage8_12_4_status", "AUTHORIZED"),
         ("next_gate", "STAGE_8_12_4"),
+        ("n4_simultaneous_positive_capacity_calculation", "COMPLETE"),
+        ("stage8_12_2_accepted_code_commit", "0" * 40),
+        ("stage8_12_2_external_test_only_evidence_sha256", "0" * 64),
+        ("stage8_12_2_external_test_only_evidence_tracked_in_git", True),
+        ("stage8_12_2_conformance_pytest", {"passed":18,"failed":1}),
+        ("stage8_12_2_runtime_regression", {"passed":24,"failed":1}),
+        ("stage8_12_2_margin_regression", {"passed":143,"failed":1}),
+        ("stage8_12_2_safety_regression", {"passed":47,"failed":1}),
+        ("stage8_12_2_position_reconciliation_regression", {"passed":112,"failed":1}),
+        ("stage8_12_2_frozen_core_conformance", {"passed":110,"failed":1}),
+        ("stage8_12_2_independent_stage8_audit", {"status":"FAIL","checks":262}),
+        ("stage8_12_2_final_operational_audit", {"status":"FAIL","checks":149}),
     )
     for key, value in mutations:
         changed = json.loads(json.dumps(authority))
@@ -1043,8 +1056,8 @@ def test_stage_8_12_1_machine_authority_mutations_fail_both_audits():
         payload = json.dumps(changed)
         independent = stage8.audit(write_result=False, authority_text=payload)
         operational = run_audit({path: payload})
-        assert "STAGE_8_12_1_MACHINE_AUTHORITY_EXACT" in independent["errors"], key
-        assert "STAGE_8_12_1_MACHINE_AUTHORITY_EXACT" in operational["errors"], key
+        assert "STAGE_8_12_2_MACHINE_AUTHORITY_EXACT" in independent["errors"], key
+        assert "STAGE_8_12_2_MACHINE_AUTHORITY_EXACT" in operational["errors"], key
 
 
 @pytest.mark.parametrize("path", (
@@ -1053,21 +1066,21 @@ def test_stage_8_12_1_machine_authority_mutations_fail_both_audits():
     "TradingSystemLab/ROADMAP.md",
     "TradingSystemLab/stage8_robot/README.md",
 ))
-def test_stage_8_12_1_current_handoff_mutations_fail_both_audits(path):
+def test_stage_8_12_2_current_handoff_mutations_fail_both_audits(path):
     original = source(path)
     mutations = (
         original.replace("Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**",
                          "Stage 8.12 — **STARTED / AUTHORIZED**", 1),
-        original.replace("3f2d68ca0c327271fb543a0b63c0e8f842c855bd", "0" * 40, 1),
-        original.replace("F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C",
+        original.replace("2a15f4331afc1433dfbfd0464108e39e59d236f8", "0" * 40, 1),
+        original.replace("4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F",
                          "0" * 64, 1),
-        original.replace("Stage 8.12.2 — Production path conformance and failure audit — is the **NEXT GATE**",
+        original.replace("Stage 8.12.3 — Intel production preflight — is the **NEXT GATE**",
                          "Stage 8.12.4 is the NEXT GATE", 1),
         original.replace("test-only real-order count: `0`", "test-only real-order count: `1`", 1),
     )
     for mutation in mutations:
         _assert_document_mutation_fails_both(
-            path, mutation, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
+            path, mutation, "STAGE_8_12_2_CURRENT_HANDOFF")
 
 
 CANONICAL_STAGE_8_10_DOCS = (
