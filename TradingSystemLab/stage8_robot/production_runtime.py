@@ -271,13 +271,14 @@ class ProductionRuntime:
             authority.price_step, authority.tick_value, authority.trade_lot_size, True)
         base = size_position(
             realized_equity, Decimal(str(signal.entry)), Decimal(str(signal.initial_stop)), contract)
-        sized = budget.size_and_reserve(
+        sized = cap_r15_by_margin(
             realized_equity=realized_equity,
             entry=Decimal(str(signal.entry)),
             stop=Decimal(str(signal.initial_stop)),
             price_step=authority.price_step,
             tick_value=authority.tick_value,
             r15_quantity=base.quantity,
+            available_cash=budget.remaining,
             direction=signal.direction,
             initial_margin=authority.initial_margin(signal.direction),
             trade_lot_size=authority.trade_lot_size,
@@ -294,6 +295,10 @@ class ProductionRuntime:
         limit = realized_equity * Decimal(str(self.spec.maximum_nominal_risk))
         if self._aggregate_open_initial_risk() + actual_risk > limit:
             raise ProductionRuntimeError("MAXIMUM_NOMINAL_INITIAL_RISK_EXCEEDED")
+        reservation = sized.initial_margin * sized.final_quantity
+        if reservation > budget.remaining:
+            raise ProductionRuntimeError("LOCAL_MARGIN_OVERALLOCATION")
+        budget.remaining -= reservation
 
         key = f"stage8.12:{signal.trade_id}:entry"
         expected = sized.final_quantity if signal.direction == "LONG" else -sized.final_quantity
