@@ -28,20 +28,33 @@ The recovery was repository-external `REAL_READONLY` evidence work only: it subm
 
 ## Current handoff
 
-Stage 8.9 is **COMPLETE**. Stage 8.10 is **COMPLETE**. The canonical Stage 8.11 lifecycle is:
+Stage 8.9 is **COMPLETE**. Stage 8.10 is **COMPLETE**. Stage 8.11 — Controlled Real Execution Acceptance — is now **COMPLETE / PASS**.
 
-- Stage 8.11.0 — **COMPLETE**.
-- Stage 8.11.1 — **COMPLETE / PASS**.
-- Stage 8.11.2 — **COMPLETE / PASS**.
-- Stage 8.11.3 — prior explicit authorization **CONSUMED**.
-- Stage 8.11.4 — **ATTEMPTED / FAILED HTTP 400 / NO ACCEPTED ENTRY**.
-- Stage 8.11.5 — **NO POSITION / BROKER CLEAN PROVED**.
-- Stage 8.11.6 — **FLATTEN NOT SUBMITTED**.
-- Stage 8.11.7 — **COMPLETE / PASS / HISTORICAL INTENT RECOVERED**.
-- Stage 8.11.8 — **COMPLETE / STAGE 8.11 CLOSEOUT**.
-- Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**.
+Canonical Stage 8.11 physical acceptance authority:
 
-The production kill switch is `HALTED` and the Scheduled Task is `Disabled`. The historical closeout above remains immutable, but a later `stage8.11.attempt2` physically sent one CNYRUBF LONG quantity-1 entry POST, received broker acknowledgement, observed account position `+1`, and then stopped `OPERATOR_INTERVENTION_REQUIRED` because FINAM order/account/trade reads had not converged. Its immutable evidence SHA-256 is `0954B5C3D62444BA9AE59519386B0FC454D85C987BE1BAC04B82CA6C671B15A0`. The operator subsequently reported manually closing the one-contract broker position; that manual close is not Stage 8.11 PASS. Corrective code prepares fixed `stage8.11.attempt3`: it bounded-polls FINAM read-side convergence, GET-only reconciles the attempt2 ACK without resubmitting it, requires the broker account flat, and only then permits a new fixed CNYRUBF/LONG/1 acceptance cycle with separate create-only evidence. Attempt3 has not been physically executed by this repository change. No new physical authorization is implied by the code change; any future retry requires a new explicit operator authorization. Stage 8.12 remains not started and not authorized.
+- accepted code commit: `72a910e49b876cda99484a810e6f8a1b16ac0209`;
+- immutable attempt: `stage8.11.attempt7`;
+- external evidence: `runtime/diagnostics/stage8_11_physical_acceptance_attempt7.json`;
+- evidence SHA-256: `704BFCC19B1A63F490192C0D8D0E4715BFECF77664296AFEF47E5B80FBF64B5F`;
+- fixed physical case: `CNYRUBF@RTSX`, LONG, quantity `1`;
+- exactly two real order-endpoint calls: one entry POST and one controlled flatten POST;
+- broker fills proven: `2`;
+- entry fill proven: `true`;
+- one-contract position observed: `true`;
+- controlled flatten proven: `true`;
+- final position quantity: `0`;
+- final active broker orders: `0`;
+- unresolved Stage 8.11 intents: `0`;
+- reconciliation result: `PASS`;
+- physical result classification: `PASS`;
+- final production kill switch: `HALTED`;
+- Scheduled Task: `Disabled`.
+
+The accepted normal reconciliation model is position-authoritative: after each physical POST, synchronous fill/risk authority is the exact `/account` position. Normal fill detection does not depend on `/trades`, exact `/orders/{id}`, `executed_quantity`, `remaining_quantity`, or the former order-status state machine. The physical authorization used for attempt7 is consumed. Current `execution_authorized = false`; no additional real-order transmission is authorized by the Stage 8.11 PASS.
+
+Attempts 1–6, their failures/OIR classifications, manual closes, and recovery evidence remain immutable historical provenance and are not reclassified by the attempt7 PASS.
+
+**Stage 8.12 is NOT STARTED / NOT AUTHORIZED.** Stage 8.11 completion does not automatically authorize FULL/R15 production execution, continuous LIVE trading, Scheduled Task activation, or any new order transmission. The production kill switch remains `HALTED` until a separate Stage 8.12 decision and explicit authorization.
 
 ## Governing research rule
 
