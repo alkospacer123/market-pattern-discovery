@@ -107,7 +107,7 @@ POST_STAGE8_11_CORRECTED_SHA256 = {
     "TradingSystemLab/stage8_robot/account_cleanliness.py": "7ab8b91483f7e37605f3a4962281fcdc338bf649cee96f141f06ac20294a2184",
     "TradingSystemLab/stage8_robot/readonly_supervisor.py": "c4dee8d488dc6379b80a31aca39256b89c3d8e9ae76269267381cd357fe073e5",
     "TradingSystemLab/stage8_robot/funding_margin_diagnostic.py": "2443f8cab7fafe5b4ab1cb9cb5673e71a9f7bf74b51608425e55f41b1b3645c9",
-    "TradingSystemLab/stage8_robot/stage8_11_attempt2_manual_recovery.py": "f3b90e020cd4604d6c6f07c1118315e193910fb6d1618de1cac8b55f78abc4dd",
+    "TradingSystemLab/stage8_robot/stage8_11_attempt2_manual_recovery.py": "9ceda04454f22608761671335dae221a2c978948e95e4f9e355e4950388cdb84",
     "TradingSystemLab/stage8_robot/stage8_11_physical_acceptance_attempt3.py": "65e832d7c61d27ce8feefe1d41621749a7f376b53d58c478241dcfdbaefc4be9",
     "TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-physical-acceptance-attempt3.ps1": "ccdef47390c4c755f65c601db083876b37eb5db633aff79dbfd83e99c2444b41",
 }
