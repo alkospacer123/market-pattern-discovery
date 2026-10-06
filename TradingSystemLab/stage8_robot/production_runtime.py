@@ -263,6 +263,10 @@ class ProductionRuntime:
     def build_latest_signal(self, instrument: str, h1: pd.DataFrame, now) -> SignalIntent | None:
         if instrument not in INSTRUMENTS:
             raise ProductionRuntimeError("INSTRUMENT_NOT_N4")
+        if self.store.unresolved_intent_count() != 0:
+            raise ProductionRuntimeError("UNRESOLVED_INTENT_BLOCKS_SIGNAL_EVALUATION")
+        if self.open_positions().get(instrument) is not None:
+            return None
         pending_key = f"pending_signal:{instrument}"
         pending = self.store.get(pending_key)
         if pending is not None:
