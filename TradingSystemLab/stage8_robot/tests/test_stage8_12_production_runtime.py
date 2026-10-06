@@ -222,9 +222,11 @@ def test_maximum_nominal_initial_risk_is_enforced(tmp_path):
     })
     budget = runtime.begin_batch(
         realized_equity=Decimal("100000"), available_cash=Decimal("1000"))
+    before = budget.remaining
     with pytest.raises(ProductionRuntimeError, match="MAXIMUM_NOMINAL_INITIAL_RISK_EXCEEDED"):
         runtime.plan_entry(
             signal(), authority(), realized_equity=Decimal("100000"), budget=budget)
+    assert budget.remaining == before
     runtime.close()
 
 
