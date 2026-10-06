@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 
@@ -14,8 +15,13 @@ from TradingSystemLab.stage8_robot.stage8_12_intel_preflight import (
     PreflightBlocked,
     _capacity_report,
     _read_production_state,
+    _require_current_h1_watermark,
+    _stage8_11_unresolved_for_account,
 )
-from TradingSystemLab.stage8_robot.state import StateStore
+from TradingSystemLab.stage8_robot.state import (
+    StateStore,
+    initialize_stage8_11_acceptance_ledger,
+)
 
 
 def capacity_inputs():
@@ -45,6 +51,60 @@ def test_stage8_12_3_capacity_report_uses_existing_frozen_calculator():
     assert report["additional_funding_required"] == report["r15_equity_shortfall"]
     assert set(report["reserve_scenarios"]) == {"0pct", "10pct", "20pct", "30pct"}
     assert report["reserve_scenarios"]["20pct"]["reserve_fraction"] == "0.20"
+
+
+def test_stage8_12_3_reserve_shortfall_keeps_equity_and_margin_separate():
+    margin_bound = _capacity_report(
+        capacity_inputs(),
+        realized_equity=Decimal("50000"),
+        available_cash=Decimal("10000"),
+    )
+    scenario = margin_bound["reserve_scenarios"]["20pct"]
+    assert scenario["required_equity_with_reserve"] == "32000.00000000000000000000000"
+    assert scenario["required_margin_cash_with_reserve"] == "13800.00"
+    assert scenario["r15_equity_shortfall"] == "0"
+    assert scenario["margin_cash_shortfall"] == "3800.00"
+    assert scenario["additional_funding_required"] == "3800.00"
+
+    equity_bound = _capacity_report(
+        capacity_inputs(),
+        realized_equity=Decimal("20000"),
+        available_cash=Decimal("50000"),
+    )
+    scenario = equity_bound["reserve_scenarios"]["10pct"]
+    assert Decimal(scenario["r15_equity_shortfall"]) > 0
+    assert scenario["margin_cash_shortfall"] == "0"
+    assert (
+        scenario["additional_funding_required"]
+        == scenario["r15_equity_shortfall"]
+    )
+
+
+def test_stage8_11_ledger_identity_must_match_current_account(tmp_path):
+    initialize_stage8_11_acceptance_ledger(tmp_path, "account-A")
+    assert _stage8_11_unresolved_for_account(tmp_path, "account-A") == 0
+    with pytest.raises(
+        PreflightBlocked, match="STAGE8_12_3_STAGE8_11_LEDGER_ACCOUNT_MISMATCH"
+    ):
+        _stage8_11_unresolved_for_account(tmp_path, "account-B")
+
+
+def test_h1_watermark_must_match_current_schedule_expectation():
+    schedule = {
+        "sessions": [{
+            "type": "CORE_TRADING",
+            "interval": {
+                "start_time": "2026-01-05T04:00:00Z",
+                "end_time": "2026-01-05T12:00:00Z",
+            },
+        }]
+    }
+    observed = datetime(2026, 1, 5, 11, 30, tzinfo=timezone.utc)
+    current = datetime(2026, 1, 5, 10, 0, tzinfo=timezone.utc)
+    stale = datetime(2026, 1, 5, 9, 0, tzinfo=timezone.utc)
+    _require_current_h1_watermark(current, schedule, observed)
+    with pytest.raises(PreflightBlocked, match="STAGE8_12_3_H1_WATERMARK_STALE"):
+        _require_current_h1_watermark(stale, schedule, observed)
 
 
 def test_absent_production_state_is_clean_and_not_initialized(tmp_path):
