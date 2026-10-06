@@ -460,6 +460,73 @@ def test_trailing_stop_restart_reuses_same_broker_stop(tmp_path):
         runtime.close()
 
 
+def test_pending_signal_and_entry_restart_cannot_duplicate(tmp_path):
+    runtime_path = tmp_path / "runtime.db"
+    runtime = ProductionRuntime(runtime_path)
+    first = genuine_t3_signal(runtime, "USDRUBF", "LONG")
+    runtime.close()
+
+    runtime = ProductionRuntime(runtime_path)
+    try:
+        repeated = runtime.build_latest_signal(
+            "USDRUBF", None, first.timestamp)
+        assert repeated == first
+        budget = runtime.begin_batch(
+            realized_equity=Decimal("100000"),
+            available_cash=Decimal("1000000"))
+        entry = runtime.plan_entry(
+            repeated, authority("USDRUBF"),
+            realized_equity=Decimal("100000"), budget=budget)
+        assert runtime.store.unresolved_intent_count() == 1
+    finally:
+        runtime.close()
+
+    runtime = ProductionRuntime(runtime_path)
+    try:
+        assert runtime.store.unresolved_intent_count() == 1
+        budget = runtime.begin_batch(
+            realized_equity=Decimal("100000"),
+            available_cash=Decimal("1000000"))
+        with pytest.raises(
+            ProductionRuntimeError,
+            match="UNRESOLVED_INTENT_BLOCKS_NEW_ENTRY",
+        ):
+            runtime.plan_entry(
+                repeated, authority("USDRUBF"),
+                realized_equity=Decimal("100000"), budget=budget)
+        assert runtime.store.unresolved_intent_count() == 1
+        assert runtime.store.intent(entry.idempotency_key) is not None
+    finally:
+        runtime.close()
+
+
+def test_same_batch_margin_reservation_blocks_overallocation(tmp_path):
+    runtime = ProductionRuntime(tmp_path / "runtime.db")
+    try:
+        budget = runtime.begin_batch(
+            realized_equity=Decimal("100000"),
+            available_cash=Decimal("150"))
+        first = runtime.plan_entry(
+            signal("USDRUBF", "LONG"), authority("USDRUBF"),
+            realized_equity=Decimal("100000"), budget=budget)
+        assert first.kind == "ENTRY"
+        assert first.quantity == 1
+        assert budget.remaining == Decimal("50")
+
+        stop = runtime.confirm_entry_position(
+            first.idempotency_key, first.expected_position_quantity)
+        runtime.confirm_protective_stop(stop.idempotency_key, "synthetic-stop")
+
+        second = runtime.plan_entry(
+            signal("CNYRUBF", "LONG"), authority("CNYRUBF"),
+            realized_equity=Decimal("100000"), budget=budget)
+        assert second.kind == "SKIP_ZERO_CAPACITY"
+        assert second.quantity == 0
+        assert budget.remaining == Decimal("50")
+    finally:
+        runtime.close()
+
+
 def test_wrong_position_blocks_protective_stop(tmp_path):
     runtime = ProductionRuntime(tmp_path / "state.db")
     adapter = SyntheticPercentPositionStopAdapter(tmp_path / "wrong-position-broker.db")
