@@ -374,6 +374,8 @@ Minimum evidence:
 - stale/malformed H1, account mismatch, unexpected position, active order, unresolved intent, reconciliation timeout, or invalid kill-switch state fail closed;
 - restart/recovery preserves durable state and cannot silently reopen authorization;
 - protective-stop adapter semantics are proven offline: initial server-side stop, TRAIL1 tighten-only updates, no stale/looser replacement, and no interval in which an accepted open position is considered safely protected without a broker-confirmed protective stop;
+- the Stage 8.12.2 stop contract uses FINAM's documented 100%-of-current-position SL quantity semantics: a tighter protective stop is confirmed before it becomes the effective stop, older looser stops remain backstops during the open position, cancel-first replacement is forbidden, and local exit closeout requires aggregate terminal/inactive proof for all protective stops;
+- real FINAM protective-stop acceptance is not inferred from the offline contract and is not authorized by Stage 8.12.2;
 - both independent Stage 8 audits PASS.
 
 Exit criterion: exact production commit is independently auditable and still has zero real-order transmission authorization.
