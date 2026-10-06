@@ -1209,10 +1209,14 @@ def test_stage811_pr357_provenance_mutation_fails_both_audits():
 
 
 @pytest.mark.parametrize("field,value", [
+    ("status", "STAGE_8_11_CONTROLLED_REAL_EXECUTION_ACCEPTANCE_NOT_YET_PASSED"),
     ("stage8_11_1_status", "NOT_RUN"),
     ("stage8_11_2_status", "NOT_COMPLETE"),
     ("stage8_11_3_status", "AUTHORIZED"),
+    ("current_gate", "STAGE_8_11_CLOSEOUT_COMPLETE_NEW_EXPLICIT_AUTHORIZATION_REQUIRED_FOR_RETRY"),
     ("latest_physical_precheck_result", "STAGE8_11_SAFETY_GATE_BLOCKED"),
+    ("latest_physical_acceptance_result", "OPERATOR_INTERVENTION_REQUIRED"),
+    ("latest_authorization_status", "REUSABLE"),
     ("real_order_count", 1),
     ("production_kill_switch_final_state", "ARMED"),
     ("stage8_12_status", "STARTED_AUTHORIZED"),
@@ -1221,6 +1225,37 @@ def test_stage811_lifecycle_closeout_mutations_fail_both_audits(field,value):
     path="TradingSystemLab/stage8_robot/authority_provenance.json"
     authority=json.loads(source(path))
     authority["stage8_11"][field]=value
+    mutated=json.dumps(authority)
+    independent=stage8.audit(write_result=False,authority_text=mutated)
+    operational=run_audit({path:mutated})
+    error="STAGE_8_11_LIFECYCLE_EVIDENCE_CLOSEOUT"
+    assert error in independent["errors"]
+    assert error in operational["errors"]
+
+
+@pytest.mark.parametrize("field,value", [
+    ("attempt_id", "stage8.11.attempt6"),
+    ("accepted_code_commit", "WRONG"),
+    ("evidence_sha256", "0" * 64),
+    ("quantity", 2),
+    ("broker_fill_count", 1),
+    ("entry_fill_proven", False),
+    ("one_contract_position_observed", False),
+    ("controlled_flatten_proven", False),
+    ("order_endpoint_call_count", 1),
+    ("final_position_quantity", 1),
+    ("final_active_order_count", 1),
+    ("unresolved_intent_count", 1),
+    ("reconciliation_result", "UNRESOLVED"),
+    ("physical_result_classification", "OPERATOR_INTERVENTION_REQUIRED"),
+    ("kill_switch_final_state", "ARMED"),
+    ("scheduled_task_final_state", "Ready"),
+    ("stage8_12_status", "STARTED_AUTHORIZED"),
+])
+def test_stage811_attempt7_physical_acceptance_authority_mutations_fail_both_audits(field,value):
+    path="TradingSystemLab/stage8_robot/authority_provenance.json"
+    authority=json.loads(source(path))
+    authority["stage8_11"]["physical_acceptance"][field]=value
     mutated=json.dumps(authority)
     independent=stage8.audit(write_result=False,authority_text=mutated)
     operational=run_audit({path:mutated})
