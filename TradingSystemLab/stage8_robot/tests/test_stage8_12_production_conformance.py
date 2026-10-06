@@ -698,6 +698,47 @@ def test_delayed_entry_observation_blocks_pre_fill_management_bars(tmp_path):
         runtime.close()
 
 
+def test_management_bar_after_signal_but_before_entry_observation_fails_closed(tmp_path):
+    runtime = ProductionRuntime(tmp_path / "runtime.db")
+    adapter = SyntheticPercentPositionStopAdapter(tmp_path / "broker.db")
+    try:
+        budget = runtime.begin_batch(
+            realized_equity=Decimal("100000"),
+            available_cash=Decimal("1000000"))
+        entry_signal = signal("USDRUBF", "LONG")
+        entry = runtime.plan_entry(
+            entry_signal, authority("USDRUBF"),
+            realized_equity=Decimal("100000"), budget=budget)
+        delayed_observation = entry_signal.timestamp + timedelta(hours=2)
+        stop = runtime.confirm_entry_position(
+            entry.idempotency_key, entry.expected_position_quantity,
+            observed_at=delayed_observation)
+        stop_id = adapter.submit(
+            stop, observed_position_quantity=entry.expected_position_quantity)
+        runtime.confirm_protective_stop(stop.idempotency_key, stop_id)
+
+        pre_entry_bar = CompletedBar(
+            entry_signal.timestamp + timedelta(hours=1),
+            100, 106, 100, 105, 2, completed=True)
+        with pytest.raises(
+            ProductionRuntimeError,
+            match="BAR_NOT_AFTER_ENTRY_OBSERVATION",
+        ):
+            runtime.manage_completed_bar(
+                "USDRUBF", pre_entry_bar,
+                observed_position_quantity=entry.expected_position_quantity)
+
+        post_entry_bar = CompletedBar(
+            delayed_observation + timedelta(hours=1),
+            100, 106, 100, 105, 2, completed=True)
+        assert runtime.manage_completed_bar(
+            "USDRUBF", post_entry_bar,
+            observed_position_quantity=entry.expected_position_quantity) is None
+    finally:
+        adapter.close()
+        runtime.close()
+
+
 def test_pending_signal_and_entry_restart_cannot_duplicate(tmp_path):
     runtime_path = tmp_path / "runtime.db"
     runtime = ProductionRuntime(runtime_path)
