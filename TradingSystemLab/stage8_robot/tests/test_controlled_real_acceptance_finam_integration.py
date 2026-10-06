@@ -12,7 +12,6 @@ from TradingSystemLab.stage8_robot.account_cleanliness import (
 )
 from TradingSystemLab.stage8_robot.controlled_real_acceptance import (
     AcceptanceAuthority, ControlledAcceptanceBroker, STAGE8_10_AUTHORITY,
-    RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS,
     OperatorInterventionRequired, _decimal_contracts, _position, _status, _timestamp,
     run_controlled_lifecycle,
 )
@@ -184,144 +183,101 @@ def execute(tmp_path, scenario):
     store=StateStore(tmp_path/"state.db")
     broker=ControlledAcceptanceBroker(api,ACCOUNT,HASH,store)
     result=run_controlled_lifecycle(authority=authority(),runtime_root=root,execution_authorized=True,
-        instrument="USDRUBF",finam_symbol=SYMBOL,direction="LONG",broker=broker,now=NOW)
+        instrument="USDRUBF",finam_symbol=SYMBOL,direction="LONG",broker=broker,now=NOW,
+        sleeper=lambda _:None)
     return result,transport,store
 
 
 
-def test_real_finam_trades_http_400_does_not_block_exact_order_position_proof_or_flatten(tmp_path):
-    result,transport,store=execute(tmp_path,"trades_http_400")
+def _exact_order_detail_gets(transport):
+    prefix=f"/v1/accounts/{ACCOUNT}/orders/"
+    return [(method,path) for method,path in transport.paths
+            if method=="GET" and path.startswith(prefix)]
+
+
+def test_normal_lifecycle_uses_positions_not_trades_or_order_detail(tmp_path):
+    result,transport,store=execute(tmp_path,"pass")
     assert result["classification"] == "SYNTHETIC_PASS"
     assert transport.posts == 2
     assert transport.deletes == 0
-    assert transport.trade_reads >= 2
+    assert transport.trade_reads == 0
+    assert _exact_order_detail_gets(transport) == []
     assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
     assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
     assert store.unresolved_intent_count() == 0
 
 
-def test_real_finam_eventual_consistency_delayed_trade_does_not_gate_exact_position_proof(tmp_path):
-    result,transport,store=execute(tmp_path,"delayed_trade")
+def test_real_finam_trades_http_400_is_irrelevant_because_endpoint_is_not_called(tmp_path):
+    result,transport,store=execute(tmp_path,"trades_http_400")
     assert result["classification"] == "SYNTHETIC_PASS"
     assert transport.posts == 2
-    # /trades is supplementary: ACK + exact account position may reconcile
-    # before the delayed entry trade row becomes visible.
-    assert transport.trade_reads == 2
+    assert transport.trade_reads == 0
+    assert _exact_order_detail_gets(transport) == []
     assert store.unresolved_intent_count() == 0
-    intents=store.db.execute("SELECT idempotency_key,status FROM intents ORDER BY rowid").fetchall()
-    assert intents == [("stage8.11:USDRUBF:entry","RECONCILED"),
-                       ("stage8.11:USDRUBF:flatten","RECONCILED")]
 
-def test_real_finam_eventual_consistency_delayed_position_converges_without_duplicate_entry(tmp_path):
+
+def test_order_detail_404_is_irrelevant_because_endpoint_is_not_called(tmp_path):
+    result,transport,store=execute(tmp_path,"order_detail_missing")
+    assert result["classification"] == "SYNTHETIC_PASS"
+    assert transport.posts == 2
+    assert _exact_order_detail_gets(transport) == []
+    assert transport.trade_reads == 0
+    assert store.unresolved_intent_count() == 0
+
+
+def test_delayed_account_position_converges_without_duplicate_entry(tmp_path):
     result,transport,store=execute(tmp_path,"delayed_position")
     assert result["classification"] == "SYNTHETIC_PASS"
     assert transport.posts == 2
     assert transport.account_reads >= 3
+    assert transport.trade_reads == 0
     assert store.unresolved_intent_count() == 0
 
 
-def test_real_finam_missing_entry_trade_uses_exact_order_and_position_proof(tmp_path):
-    result,transport,store=execute(tmp_path,"missing_trade")
-    assert result["classification"] == "SYNTHETIC_PASS"
-    assert transport.posts == 2
-    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
-    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
-    assert store.unresolved_intent_count() == 0
-
-
-def test_real_finam_missing_all_trades_uses_exact_order_and_position_proof(tmp_path):
-    result,transport,store=execute(tmp_path,"missing_all_trades")
-    assert result["classification"] == "SYNTHETIC_PASS"
-    assert transport.posts == 2
-    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
-    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
-    assert store.unresolved_intent_count() == 0
-
-
-def test_real_finam_missing_order_detail_uses_ack_and_exact_position_for_entry_and_flatten(tmp_path):
-    result,transport,store=execute(tmp_path,"order_detail_missing")
-    assert result["classification"] == "SYNTHETIC_PASS"
-    assert transport.posts == 2
-    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
-    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
-    assert store.unresolved_intent_count() == 0
-
-
-def test_real_finam_stale_active_order_detail_does_not_cancel_proven_position(tmp_path):
-    result,transport,store=execute(tmp_path,"stale_active_detail")
+@pytest.mark.parametrize("scenario", ["uncertain_entry","uncertain_flatten"])
+def test_uncertain_post_uses_position_as_risk_authority(tmp_path,scenario):
+    result,transport,store=execute(tmp_path,scenario)
     assert result["classification"] == "SYNTHETIC_PASS"
     assert transport.posts == 2
     assert transport.deletes == 0
-    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
-    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
+    assert transport.trade_reads == 0
+    assert _exact_order_detail_gets(transport) == []
     assert store.unresolved_intent_count() == 0
 
 
-def test_real_finam_terminal_fill_status_with_stale_zero_executed_uses_ack_and_position(tmp_path):
-    result,transport,store=execute(tmp_path,"terminal_fill_zero_executed")
-    assert result["classification"] == "SYNTHETIC_PASS"
-    assert transport.posts == 2
-    assert transport.deletes == 0
-    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
-    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
-    assert store.unresolved_intent_count() == 0
-    assert store.db.execute("SELECT COUNT(*) FROM fills").fetchone()[0] == 2
-
-
-def test_real_finam_terminal_fill_zero_executed_waits_for_position_convergence(tmp_path):
-    result,transport,store=execute(tmp_path,"terminal_fill_zero_executed_delayed_position")
-    assert result["classification"] == "SYNTHETIC_PASS"
-    assert transport.posts == 2
-    assert transport.deletes == 0
-    assert transport.account_reads >= 3
-    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
-    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
-    assert store.unresolved_intent_count() == 0
-    assert store.db.execute("SELECT COUNT(*) FROM fills").fetchone()[0] == 2
-
-
-def test_real_finam_duplicate_same_order_history_row_does_not_block_reconciliation(tmp_path):
-    result,transport,store=execute(tmp_path,"duplicate_same_order")
-    assert result["classification"] == "SYNTHETIC_PASS"
-    assert transport.posts == 2
-    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
-    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
-    assert store.unresolved_intent_count() == 0
-
-
-def test_real_finam_api_contract_runs_full_controlled_lifecycle(tmp_path):
-    result,transport,store=execute(tmp_path,"pass")
-    assert result["classification"] == "SYNTHETIC_PASS"
-    assert transport.posts == 2 and store.unresolved_intent_count() == 0
-    assert ("GET",f"/v1/accounts/{ACCOUNT}/trades") in transport.paths
-
-
-def test_real_finam_executed_status_reconciles_as_filled(tmp_path):
-    result,transport,store=execute(tmp_path,"executed_status")
-    assert result["classification"] == "SYNTHETIC_PASS"
-    assert transport.posts == 2
-    assert store.unresolved_intent_count() == 0
-
-
-def test_active_market_order_gets_grace_observations_before_single_cancel(tmp_path):
+def test_active_unfilled_market_order_times_out_without_cancel_state_machine(tmp_path):
     result,transport,store=execute(tmp_path,"active_cancel")
-    assert result["classification"] == "NOT_ACCEPTED_NO_EXECUTION"
-    assert transport.posts == 1 and transport.deletes == 1
-    delete_index=next(i for i,item in enumerate(transport.paths) if item[0]=="DELETE")
-    order_collection_reads=sum(
-        1 for method,path in transport.paths[:delete_index]
-        if method=="GET" and path==f"/v1/accounts/{ACCOUNT}/orders")
-    assert order_collection_reads >= RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS
-    assert store.unresolved_intent_count() == 0
+    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
+    assert result["failure_code"] == "POSITION_RECONCILIATION_TIMEOUT"
+    assert transport.posts == 1
+    assert transport.deletes == 0
+    assert transport.trade_reads == 0
+    assert _exact_order_detail_gets(transport) == []
+    assert store.unresolved_intent_count() == 1
 
 
-def test_real_finam_cancel_race_full_fill_is_reconciled_and_flattened(tmp_path):
-    result,transport,store=execute(tmp_path,"cancel_race_fill")
-    assert result["classification"] == "SYNTHETIC_PASS"
+def test_final_nonflat_position_fails_closed(tmp_path):
+    result,transport,store=execute(tmp_path,"final_nonflat")
+    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
+    assert result["failure_code"] == "POSITION_RECONCILIATION_TIMEOUT"
     assert transport.posts == 2
-    assert transport.deletes == 1
-    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
-    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
+    assert transport.deletes == 0
+    assert store.unresolved_intent_count() == 1
+
+
+def test_position_overfill_fails_closed_before_flatten(tmp_path):
+    result,transport,store=execute(tmp_path,"position_overfill")
+    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
+    assert result["failure_code"] == "POSITION_RECONCILIATION_UNEXPECTED_QUANTITY"
+    assert transport.posts == 1
+    assert transport.deletes == 0
+    assert store.unresolved_intent_count() == 1
+
+
+def test_malformed_pre_submit_orders_fail_closed_before_post(tmp_path):
+    result,transport,store=execute(tmp_path,"malformed")
+    assert result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
+    assert transport.posts == 0
     assert store.unresolved_intent_count() == 0
 
 
@@ -424,15 +380,22 @@ def test_rest_timestamp_chronology_is_instant_based(trade,accepted,valid):
 
 
 @pytest.mark.parametrize("scenario,classification",[
-    ("uncertain_entry","SYNTHETIC_PASS"),("uncertain_flatten","SYNTHETIC_PASS"),
-    ("active_cancel","NOT_ACCEPTED_NO_EXECUTION"),("no_fill","NOT_ACCEPTED_NO_EXECUTION"),
-    ("malformed","OPERATOR_INTERVENTION_REQUIRED"),("duplicate","OPERATOR_INTERVENTION_REQUIRED"),
-    ("unrelated_fill","SYNTHETIC_PASS"),("mismatched_symbol","OPERATOR_INTERVENTION_REQUIRED"),
-    ("final_nonflat","OPERATOR_INTERVENTION_REQUIRED"),("executed_overfill","OPERATOR_INTERVENTION_REQUIRED"),
+    ("uncertain_entry","SYNTHETIC_PASS"),
+    ("uncertain_flatten","SYNTHETIC_PASS"),
+    ("active_cancel","OPERATOR_INTERVENTION_REQUIRED"),
+    ("no_fill","OPERATOR_INTERVENTION_REQUIRED"),
+    ("malformed","OPERATOR_INTERVENTION_REQUIRED"),
+    ("duplicate","SYNTHETIC_PASS"),
+    ("unrelated_fill","SYNTHETIC_PASS"),
+    ("mismatched_symbol","SYNTHETIC_PASS"),
+    ("final_nonflat","OPERATOR_INTERVENTION_REQUIRED"),
+    ("executed_overfill","SYNTHETIC_PASS"),
     ("position_overfill","OPERATOR_INTERVENTION_REQUIRED"),
 ])
 def test_real_finam_api_contract_fails_closed(tmp_path,scenario,classification):
     result,transport,_=execute(tmp_path,scenario)
     assert result["classification"] == classification
     assert transport.posts <= 2
-    if scenario == "active_cancel": assert transport.deletes == 1
+    assert transport.deletes == 0
+    assert transport.trade_reads == 0
+    assert _exact_order_detail_gets(transport) == []
