@@ -25,7 +25,7 @@ from .state import StateStore
 from .strategy_core import CompletedBar, DecisionCore, PositionState, SignalIntent, T3Context
 from .trail1_state import Trail1State
 
-RUNTIME_SCHEMA = "stage8_12_production_runtime.v3"
+RUNTIME_SCHEMA = "stage8_12_production_runtime.v4"
 MODE = "STAGE8_12_CODE_ONLY"
 PRODUCTION_REGISTRY = Path(__file__).with_name("production_instrument_registry.csv")
 ActionKind = Literal[
@@ -481,6 +481,7 @@ class ProductionRuntime:
                 "signal_id": payload["signal_id"],
                 "signal_timestamp": payload["signal_timestamp"],
                 "entry_observed_at": observation_time.isoformat(),
+                "last_managed_h1": None,
                 "protective_stop_state": "PENDING",
                 "protective_stop_revision": 0,
             }
@@ -711,6 +712,12 @@ class ProductionRuntime:
             if observed_position_quantity != 0:
                 raise ProductionRuntimeError("UNEXPECTED_BROKER_POSITION")
             return None
+        position_watermark = value.get("last_managed_h1")
+        if (
+            position_watermark is not None
+            and bar.timestamp.isoformat() <= str(position_watermark)
+        ):
+            raise ProductionRuntimeError("DUPLICATE_OR_NON_MONOTONIC_BAR")
         expected = int(value["quantity"]) if value["direction"] == "LONG" else -int(value["quantity"])
         signal_timestamp = value.get("signal_timestamp")
         entry_observed_at = value.get("entry_observed_at")
@@ -754,13 +761,15 @@ class ProductionRuntime:
             k: value[k] for k in (
                 "finam_symbol", "quantity", "risk_cash", "actual_initial_loss_cash",
                 "loss_per_contract", "trade_id", "signal_id", "signal_timestamp",
-                "entry_observed_at", "protective_stop_state", "protective_stop_revision"
+                "entry_observed_at", "last_managed_h1",
+                "protective_stop_state", "protective_stop_revision"
             )
         }))
         if "protective_stop_broker_order_id" in positions[instrument]:
             value["protective_stop_broker_order_id"] = positions[instrument]["protective_stop_broker_order_id"]
         if "protective_stop_price" in positions[instrument]:
             value["protective_stop_price"] = positions[instrument]["protective_stop_price"]
+        value["last_managed_h1"] = bar.timestamp.isoformat()
         positions[instrument] = value
         self._save_positions(positions)
         self.store.put(watermark_key, bar.timestamp.isoformat())
