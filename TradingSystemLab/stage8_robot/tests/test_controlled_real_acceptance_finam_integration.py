@@ -72,6 +72,8 @@ class SyntheticFinamTransport:
             if self.scenario == "position_overfill" and self.posts == 1: position = 2
             if self.scenario == "delayed_position" and self.posts == 1 and self.account_reads < 3:
                 position = 0
+            if self.scenario == "terminal_fill_zero_executed_delayed_position" and self.posts == 1 and self.account_reads < 3:
+                position = 0
             positions=[] if position == 0 else [{"symbol":SYMBOL,"quantity":self.decimal(position),
                 "average_price":self.decimal(1),"current_price":self.decimal(1),
                 "maintenance_margin":self.decimal(0),"daily_pnl":self.decimal(0),
@@ -133,7 +135,8 @@ class SyntheticFinamTransport:
                 stale["executed_quantity"]=self.decimal(0)
                 stale["remaining_quantity"]=self.decimal(1)
                 return Raw(stale)
-            if self.scenario == "terminal_fill_zero_executed":
+            if self.scenario in {"terminal_fill_zero_executed",
+                                  "terminal_fill_zero_executed_delayed_position"}:
                 stale=json.loads(json.dumps(order))
                 stale["status"]="FILLED"
                 stale["executed_quantity"]=self.decimal(0)
@@ -235,6 +238,17 @@ def test_real_finam_terminal_fill_status_with_stale_zero_executed_uses_ack_and_p
     assert result["classification"] == "SYNTHETIC_PASS"
     assert transport.posts == 2
     assert transport.deletes == 0
+    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
+    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
+    assert store.unresolved_intent_count() == 0
+
+
+def test_real_finam_terminal_fill_zero_executed_waits_for_position_convergence(tmp_path):
+    result,transport,store=execute(tmp_path,"terminal_fill_zero_executed_delayed_position")
+    assert result["classification"] == "SYNTHETIC_PASS"
+    assert transport.posts == 2
+    assert transport.deletes == 0
+    assert transport.account_reads >= 3
     assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
     assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
     assert store.unresolved_intent_count() == 0
