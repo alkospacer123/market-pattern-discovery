@@ -6,6 +6,7 @@ from decimal import Decimal
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import pandas as pd
 import pytest
 
 from TradingSystemLab.stage8_robot.account_cleanliness import count_active_orders
@@ -82,6 +83,47 @@ def bars(direction: str) -> tuple[CompletedBar, CompletedBar]:
     )
 
 
+def genuine_t3_signal(runtime: ProductionRuntime, instrument: str, direction: str) -> SignalIntent:
+    timestamp = pd.Timestamp("2026-01-02T10:00:00", tz="Europe/Moscow")
+    execution = pd.DataFrame([{
+        "Open": 99.99,
+        "High": 100.02,
+        "Low": 99.98,
+        "Close": 100.0,
+        "ATR": 0.02,
+        "PriorHigh": 99.99 if direction == "LONG" else 101.0,
+        "PriorLow": 99.0 if direction == "LONG" else 100.01,
+    }], index=pd.DatetimeIndex([timestamp]))
+    context = pd.DataFrame([{
+        "Open": 99.0,
+        "High": 111.0,
+        "Low": 89.0,
+        "Close": 110.0 if direction == "LONG" else 90.0,
+        "EMA100": 100.0,
+        "EMA100Slope": 1.0 if direction == "LONG" else -1.0,
+        "ADX": 25.0,
+        "ATR": 3.0,
+        "ATRMean20": 2.0,
+        "EMA50": 105.0,
+        "EMA200": 95.0,
+    }], index=pd.DatetimeIndex([timestamp]))
+
+    class Builder:
+        def build(self, h1, now):
+            return execution, context
+
+    runtime.context_builder = Builder()
+    frame = pd.DataFrame(index=pd.DatetimeIndex([timestamp]))
+    signal_intent = runtime.build_latest_signal(
+        instrument, frame, timestamp.to_pydatetime())
+    assert signal_intent is not None
+    assert signal_intent.instrument == instrument
+    assert signal_intent.direction == direction
+    assert signal_intent.entry == 100.0
+    assert signal_intent.initial_stop == (99.95 if direction == "LONG" else 100.05)
+    return signal_intent
+
+
 def run_end_to_end(root: Path, instrument: str, direction: str) -> dict:
     runtime = ProductionRuntime(root / "production.sqlite3")
     adapter = SyntheticPercentPositionStopAdapter()
@@ -90,8 +132,9 @@ def run_end_to_end(root: Path, instrument: str, direction: str) -> dict:
             realized_equity=Decimal("100000"),
             available_cash=Decimal("1000000"),
         )
+        genuine_signal = genuine_t3_signal(runtime, instrument, direction)
         entry = runtime.plan_entry(
-            signal(instrument, direction),
+            genuine_signal,
             authority(instrument),
             realized_equity=Decimal("100000"),
             budget=budget,
