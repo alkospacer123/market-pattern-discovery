@@ -19,7 +19,7 @@ from typing import Any, Callable
 from .account_cleanliness import count_active_orders, normalize_order_status
 from .broker import OrderRequest, broker_side, compact_client_order_id
 from .finam_api import (CLIENT_ORDER_ID_MAX_LENGTH, MARKET_ORDER_TYPE, TIME_IN_FORCE_DAY,
-                        FinamNotFound, FinamOrderRejected, FinamUncertainSubmission)
+                        FinamError, FinamNotFound, FinamOrderRejected, FinamUncertainSubmission)
 from .instrument_resolver import load_registry
 from .specification import ACTIVE_IDENTITY, INSTRUMENTS, PRODUCTION_SPECIFICATION_ID, load_frozen_specification
 from .state import StateStore, initialize_stage8_11_acceptance_ledger, stage8_11_acceptance_path
@@ -419,7 +419,14 @@ def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -
     if initial != 1 or executed not in (0, 1) or remaining not in (0, 1) or executed + remaining != initial:
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
     accepted_at = _timestamp(order.get("accept_at"))
-    trades = _rows(api.trades(account_id), "trades")
+    # /trades is supplementary evidence only. Real FINAM can return HTTP 400
+    # for this account endpoint even while the exact order and account position
+    # are readable. A read-side /trades failure must never block recognition of
+    # an already acknowledged one-contract position or its controlled flatten.
+    try:
+        trades = _rows(api.trades(account_id), "trades")
+    except FinamError:
+        trades = []
     matching = []
     for trade in trades:
         if trade.get("order_id") != listed_id:

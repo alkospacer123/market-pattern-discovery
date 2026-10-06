@@ -84,6 +84,8 @@ class SyntheticFinamTransport:
                 "money_reserved":self.decimal(0)}})
         if path == prefix + "/trades" and method == "GET":
             self.trade_reads += 1
+            if self.scenario == "trades_http_400":
+                raise HTTPError(request.full_url,400,"bad request",{},None)
             rows=list(self.trade_rows)
             if self.scenario == "delayed_trade" and self.posts == 1 and self.trade_reads < 3:
                 rows=[]
@@ -185,6 +187,17 @@ def execute(tmp_path, scenario):
         instrument="USDRUBF",finam_symbol=SYMBOL,direction="LONG",broker=broker,now=NOW)
     return result,transport,store
 
+
+
+def test_real_finam_trades_http_400_does_not_block_exact_order_position_proof_or_flatten(tmp_path):
+    result,transport,store=execute(tmp_path,"trades_http_400")
+    assert result["classification"] == "SYNTHETIC_PASS"
+    assert transport.posts == 2
+    assert transport.deletes == 0
+    assert transport.trade_reads >= 2
+    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
+    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
+    assert store.unresolved_intent_count() == 0
 
 
 def test_real_finam_eventual_consistency_delayed_trade_does_not_gate_exact_position_proof(tmp_path):
