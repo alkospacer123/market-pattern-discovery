@@ -642,13 +642,31 @@ def test_tightened_state_crash_before_replacement_intent_is_recovered(tmp_path):
         )
     assert runtime.store.unresolved_intent_count() == 0
 
+    # The durable position watermark prevents replay of the same H1 bar even
+    # though the separate convenience watermark could have been lost.
+    runtime.store.put("last_managed_h1:USDRUBF", first_bar.timestamp.isoformat())
+    with pytest.raises(
+        ProductionRuntimeError,
+        match="DUPLICATE_OR_NON_MONOTONIC_BAR",
+    ):
+        runtime.manage_completed_bar(
+            "USDRUBF",
+            second_bar,
+            observed_position_quantity=entry.expected_position_quantity,
+        )
+
+    # A later bar is also blocked until the missing replacement is recovered.
+    third_bar = CompletedBar(
+        second_bar.timestamp + timedelta(hours=1),
+        second_bar.close, second_bar.high + 1, second_bar.low,
+        second_bar.close, second_bar.atr, completed=True)
     with pytest.raises(
         ProductionRuntimeError,
         match="PROTECTIVE_STOP_PRICE_DIVERGENCE",
     ):
         runtime.manage_completed_bar(
             "USDRUBF",
-            second_bar,
+            third_bar,
             observed_position_quantity=entry.expected_position_quantity,
         )
 
