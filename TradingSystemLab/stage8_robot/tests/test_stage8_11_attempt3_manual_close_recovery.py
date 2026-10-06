@@ -25,10 +25,10 @@ class ReadonlyAttempt3API:
         self.positions = positions if positions is not None else [
             {"symbol": FINAM_SYMBOL, "quantity": {"value": "0.0"}}
         ]
+        self.client_id = client_id
         self.orders_rows = orders if orders is not None else [
             {"order_id": "attempt3-order", "status": "ORDER_STATUS_EXECUTED",
-             "order": {"client_order_id": client_id, "symbol": FINAM_SYMBOL,
-                       "side": "SIDE_BUY", "quantity": {"value": "1"}}}
+             "order": {"client_order_id": client_id}}
         ]
         self.calls = []
 
@@ -43,6 +43,23 @@ class ReadonlyAttempt3API:
     def orders(self, account_id):
         self.calls.append("orders")
         return {"orders": self.orders_rows}
+
+    def order(self, account_id, order_id):
+        self.calls.append("order")
+        return {
+            "order_id": order_id,
+            "status": "ORDER_STATUS_EXECUTED",
+            "order": {
+                "account_id": account_id,
+                "client_order_id": self.client_id,
+                "symbol": FINAM_SYMBOL,
+                "side": "SIDE_BUY",
+                "quantity": {"value": "1"},
+            },
+            "initial_quantity": {"value": "1"},
+            "executed_quantity": {"value": "1"},
+            "remaining_quantity": {"value": "0"},
+        }
 
 
 def setup_attempt3(tmp_path, monkeypatch):
@@ -124,7 +141,7 @@ def test_attempt3_manual_close_recovery_closes_only_stale_entry(tmp_path, monkey
     assert result["broker_order_terminal_status"] == "EXECUTED"
     assert (root / "diagnostics" / RECOVERY_EVIDENCE_NAME).is_file()
     assert list((root / "backups" / "stage8-11-acceptance").glob("*.sqlite3"))
-    assert api.calls == ["session_details", "account", "orders"]
+    assert api.calls == ["session_details", "account", "orders", "order"]
 
 
 def test_attempt3_manual_close_recovery_is_idempotent(tmp_path, monkeypatch):
@@ -153,13 +170,34 @@ def test_attempt3_manual_close_recovery_blocks_while_position_still_open(tmp_pat
 
 def test_attempt3_manual_close_recovery_blocks_wrong_broker_identity(tmp_path, monkeypatch):
     root, _, client_id = setup_attempt3(tmp_path, monkeypatch)
-    api = ReadonlyAttempt3API(
-        client_id=client_id,
-        orders=[{"order_id": "attempt3-order", "status": "ORDER_STATUS_EXECUTED",
-                 "order": {"client_order_id": "wrong", "symbol": FINAM_SYMBOL,
-                           "side": "SIDE_BUY", "quantity": {"value": "1"}}}],
-    )
+    api = ReadonlyAttempt3API(client_id=client_id)
+    original = api.order
+
+    def wrong_order(account_id, order_id):
+        detail = original(account_id, order_id)
+        detail["order"]["client_order_id"] = "wrong"
+        return detail
+
+    api.order = wrong_order
     with pytest.raises(Attempt3ManualCloseRecoveryBlocked, match="IDENTITY_MISMATCH"):
+        recover_attempt3_manual_close(
+            runtime_root=root, account_id=ACCOUNT, readonly_api=api,
+            recovery_code_commit="a" * 40, now=NOW)
+
+
+def test_attempt3_manual_close_recovery_requires_exact_executed_quantity(tmp_path, monkeypatch):
+    root, _, client_id = setup_attempt3(tmp_path, monkeypatch)
+    api = ReadonlyAttempt3API(client_id=client_id)
+    original = api.order
+
+    def not_executed(account_id, order_id):
+        detail = original(account_id, order_id)
+        detail["executed_quantity"] = {"value": "0"}
+        detail["remaining_quantity"] = {"value": "1"}
+        return detail
+
+    api.order = not_executed
+    with pytest.raises(Attempt3ManualCloseRecoveryBlocked, match="EXECUTION_NOT_PROVEN"):
         recover_attempt3_manual_close(
             runtime_root=root, account_id=ACCOUNT, readonly_api=api,
             recovery_code_commit="a" * 40, now=NOW)
