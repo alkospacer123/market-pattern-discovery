@@ -103,6 +103,13 @@ def test_latest_signal_wires_context_builder_and_decision_core(tmp_path):
     assert out.entry == 105.0 and out.initial_stop == 100.0
     assert repeated.signal_id == out.signal_id and repeated.trade_id == out.trade_id
     assert runtime.store.get("signal_sequence:USDRUBF") == 1
+    budget = runtime.begin_batch(
+        realized_equity=Decimal("100000"), available_cash=Decimal("1000"))
+    skipped = runtime.plan_entry(
+        out, authority(), realized_equity=Decimal("100000"), budget=budget)
+    assert skipped.kind == "SKIP_ZERO_CAPACITY"
+    assert runtime.build_latest_signal(
+        "USDRUBF", frame, timestamp.to_pydatetime()) is None
     runtime.close()
 
 
@@ -227,7 +234,7 @@ def test_trail1_tightening_emits_stop_replace_not_market_exit(tmp_path):
     runtime.close()
 
 
-def test_unprotected_position_blocks_bar_progression(tmp_path):
+def test_unresolved_stop_intent_blocks_bar_progression(tmp_path):
     runtime = ProductionRuntime(tmp_path / "state.db")
     budget = runtime.begin_batch(
         realized_equity=Decimal("100000"), available_cash=Decimal("1000"))
@@ -236,7 +243,20 @@ def test_unprotected_position_blocks_bar_progression(tmp_path):
     runtime.confirm_entry_position(entry.idempotency_key, entry.quantity)
     bar = CompletedBar(
         datetime(2026,1,2,11,tzinfo=MSK),100,106,100,105,2,completed=True)
-    with pytest.raises(ProductionRuntimeError, match="PROTECTIVE_STOP_NOT_ACTIVE"):
+    with pytest.raises(ProductionRuntimeError, match="UNRESOLVED_INTENT_BLOCKS_BAR_PROCESSING"):
+        runtime.manage_completed_bar(
+            "USDRUBF", bar, observed_position_quantity=entry.quantity)
+    runtime.close()
+
+
+def test_duplicate_completed_bar_cannot_advance_position_twice(tmp_path):
+    runtime = ProductionRuntime(tmp_path / "state.db")
+    entry = _open_and_protect(runtime)
+    bar = CompletedBar(
+        datetime(2026,1,2,11,tzinfo=MSK),100,106,100,105,2,completed=True)
+    assert runtime.manage_completed_bar(
+        "USDRUBF", bar, observed_position_quantity=entry.quantity) is None
+    with pytest.raises(ProductionRuntimeError, match="DUPLICATE_OR_NON_MONOTONIC_BAR"):
         runtime.manage_completed_bar(
             "USDRUBF", bar, observed_position_quantity=entry.quantity)
     runtime.close()
