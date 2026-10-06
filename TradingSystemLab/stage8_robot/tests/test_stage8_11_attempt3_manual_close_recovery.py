@@ -144,6 +144,19 @@ def test_attempt3_manual_close_recovery_closes_only_stale_entry(tmp_path, monkey
     assert api.calls == ["session_details", "account", "orders", "order"]
 
 
+def test_attempt3_manual_close_recovery_uses_persisted_order_id_when_history_collection_omits_it(tmp_path, monkeypatch):
+    root, _, client_id = setup_attempt3(tmp_path, monkeypatch)
+    api = ReadonlyAttempt3API(client_id=client_id, orders=[])
+
+    result = recover_attempt3_manual_close(
+        runtime_root=root, account_id=ACCOUNT, readonly_api=api,
+        recovery_code_commit="a" * 40, now=NOW)
+
+    assert result["recovery_status"] == "COMMITTED"
+    assert result["broker_order_terminal_status"] == "EXECUTED"
+    assert api.calls == ["session_details", "account", "orders", "order"]
+
+
 def test_attempt3_manual_close_recovery_tolerates_duplicate_same_order_rows(tmp_path, monkeypatch):
     root, _, client_id = setup_attempt3(tmp_path, monkeypatch)
     row = {"order_id": "attempt3-order", "status": "ORDER_STATUS_EXECUTED",
