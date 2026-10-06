@@ -273,6 +273,9 @@ class ProductionRuntime:
         if execution.empty:
             return None
         timestamp = execution.index[-1]
+        evaluated_key = f"last_evaluated_h1:{instrument}"
+        if self.store.get(evaluated_key) == timestamp.isoformat():
+            return None
         eligible = context.loc[context.index <= timestamp]
         if eligible.empty:
             return None
@@ -298,6 +301,8 @@ class ProductionRuntime:
         if signal is not None:
             self.store.put(sequence_key, sequence)
             self.store.put(pending_key, _signal_to_dict(signal))
+        else:
+            self.store.put(evaluated_key, timestamp.isoformat())
         return signal
 
     def begin_batch(self, *, realized_equity: Decimal, available_cash: Decimal) -> MarginBatchBudget:
@@ -326,6 +331,7 @@ class ProductionRuntime:
             return
         if not isinstance(pending, dict) or pending.get("signal_id") != signal.signal_id:
             raise ProductionRuntimeError("PENDING_SIGNAL_IDENTITY_MISMATCH")
+        self.store.put(f"last_evaluated_h1:{signal.instrument}", signal.timestamp.isoformat())
         self.store.put(key, None)
 
     def plan_entry(self, signal: SignalIntent, authority: InstrumentAuthority,
@@ -493,6 +499,12 @@ class ProductionRuntime:
 
     def manage_completed_bar(self, instrument: str, bar: CompletedBar,
                              *, observed_position_quantity: int) -> RuntimeAction | None:
+        if self.store.unresolved_intent_count() != 0:
+            raise ProductionRuntimeError("UNRESOLVED_INTENT_BLOCKS_BAR_PROCESSING")
+        watermark_key = f"last_managed_h1:{instrument}"
+        prior_watermark = self.store.get(watermark_key)
+        if prior_watermark is not None and bar.timestamp.isoformat() <= prior_watermark:
+            raise ProductionRuntimeError("DUPLICATE_OR_NON_MONOTONIC_BAR")
         positions = self.open_positions()
         value = positions.get(instrument)
         if value is None:
@@ -528,6 +540,7 @@ class ProductionRuntime:
             value["protective_stop_price"] = positions[instrument]["protective_stop_price"]
         positions[instrument] = value
         self._save_positions(positions)
+        self.store.put(watermark_key, bar.timestamp.isoformat())
 
         if outcome["event"] == "EXIT":
             key = f"stage8.12:{value['trade_id']}:emergency-exit:{bar.timestamp.isoformat()}"
