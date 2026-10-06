@@ -433,7 +433,10 @@ def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -
         matching.append({"fill_id": trade["trade_id"], "trade_id": trade["trade_id"],
                          "broker_order_id": listed_id, "quantity": "1", "price": trade["price"]["value"],
                          "timestamp": json.dumps(trade["timestamp"], sort_keys=True, separators=(",", ":"))})
-    if len(matching) > 1 or len(matching) > executed:
+    # One matching trade may become visible before the order-detail
+    # executed_quantity field converges. Multiple matching trades still violate
+    # the fixed one-contract acceptance boundary and fail closed.
+    if len(matching) > 1:
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
     return {"order_status": _status(order.get("status")), "order_id": listed_id,
             "client_order_id": client_id, "executed_quantity": executed, "fills": matching,
@@ -521,6 +524,8 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
                  or status in TERMINAL_FILL)
         )
         if ack_position_proven:
+            for fill in snap.get("fills", []):
+                broker.store.persist_fill(fill)
             broker.store.transition_intent(key, "FILL", order_id)
             broker.store.transition_intent(key, "RECONCILED", order_id)
             return {**snap, "executed_quantity": 1}
