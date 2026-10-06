@@ -402,6 +402,7 @@ class ProductionRuntime:
             "initial_margin": str(sized.initial_margin),
             "r15_quantity": sized.r15_quantity,
             "margin_quantity": sized.margin_quantity,
+            "signal_timestamp": signal.timestamp.isoformat(),
         })
         if not self.store.persist_intent(key, payload):
             existing = self.store.intent(key)
@@ -460,6 +461,7 @@ class ProductionRuntime:
                 "loss_per_contract": payload["loss_per_contract"],
                 "trade_id": payload["trade_id"],
                 "signal_id": payload["signal_id"],
+                "signal_timestamp": payload["signal_timestamp"],
                 "protective_stop_state": "PENDING",
                 "protective_stop_revision": 0,
             }
@@ -644,6 +646,15 @@ class ProductionRuntime:
                 raise ProductionRuntimeError("UNEXPECTED_BROKER_POSITION")
             return None
         expected = int(value["quantity"]) if value["direction"] == "LONG" else -int(value["quantity"])
+        signal_timestamp = value.get("signal_timestamp")
+        try:
+            signal_time = pd.Timestamp(signal_timestamp)
+        except Exception as exc:
+            raise ProductionRuntimeError("POSITION_SIGNAL_TIMESTAMP_INVALID") from exc
+        if signal_time.tzinfo is None:
+            raise ProductionRuntimeError("POSITION_SIGNAL_TIMESTAMP_INVALID")
+        if bar.timestamp <= signal_time.to_pydatetime():
+            raise ProductionRuntimeError("BAR_NOT_AFTER_ENTRY_SIGNAL")
         if observed_position_quantity == 0:
             return RuntimeAction(
                 "BROKER_EXIT_OBSERVED", None, instrument, value["finam_symbol"],
@@ -662,7 +673,7 @@ class ProductionRuntime:
         value.update(_position_to_dict(position, {
             k: value[k] for k in (
                 "finam_symbol", "quantity", "risk_cash", "actual_initial_loss_cash",
-                "loss_per_contract", "trade_id", "signal_id",
+                "loss_per_contract", "trade_id", "signal_id", "signal_timestamp",
                 "protective_stop_state", "protective_stop_revision"
             )
         }))
