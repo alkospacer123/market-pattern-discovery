@@ -85,12 +85,15 @@ def bars(direction: str) -> tuple[CompletedBar, CompletedBar]:
 
 def genuine_t3_signal(runtime: ProductionRuntime, instrument: str, direction: str) -> SignalIntent:
     timestamp = pd.Timestamp("2026-01-02T10:00:00", tz="Europe/Moscow")
+    price_step, _ = FROZEN_ECONOMICS[instrument]
+    stop_distance = price_step * 5
+    execution_atr = stop_distance / Decimal("2.5")
     execution = pd.DataFrame([{
         "Open": 99.99,
         "High": 100.02,
         "Low": 99.98,
         "Close": 100.0,
-        "ATR": 0.02,
+        "ATR": float(execution_atr),
         "PriorHigh": 99.99 if direction == "LONG" else 101.0,
         "PriorLow": 99.0 if direction == "LONG" else 100.01,
     }], index=pd.DatetimeIndex([timestamp]))
@@ -120,7 +123,12 @@ def genuine_t3_signal(runtime: ProductionRuntime, instrument: str, direction: st
     assert signal_intent.instrument == instrument
     assert signal_intent.direction == direction
     assert signal_intent.entry == 100.0
-    assert signal_intent.initial_stop == (99.95 if direction == "LONG" else 100.05)
+    expected_stop = (
+        Decimal("100") - stop_distance
+        if direction == "LONG"
+        else Decimal("100") + stop_distance
+    )
+    assert Decimal(str(signal_intent.initial_stop)) == expected_stop
     return signal_intent
 
 
