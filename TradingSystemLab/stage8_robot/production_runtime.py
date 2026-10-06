@@ -210,6 +210,7 @@ class ProductionRuntime:
             raise ProductionRuntimeError("FROZEN_PRODUCTION_AUTHORITY_INVALID")
         self.spec = spec
         self.registry = _load_registry(registry_path)
+        state_path.parent.mkdir(parents=True, exist_ok=True)
         identity = {
             "schema_id": RUNTIME_SCHEMA,
             "production_specification_id": PRODUCTION_SPECIFICATION_ID,
@@ -222,6 +223,24 @@ class ProductionRuntime:
 
     def close(self) -> None:
         self.store.close()
+
+    def _validate_instrument_authority(self, authority: InstrumentAuthority) -> None:
+        row = self.registry.get(authority.instrument)
+        if row is None:
+            raise ProductionRuntimeError("ENTRY_AUTHORITY_INSTRUMENT_MISMATCH")
+        try:
+            valid = (
+                authority.finam_symbol == row["finam_symbol"]
+                and authority.price_step == Decimal(row["price_step"])
+                and authority.tick_value == Decimal(row["tick_value"])
+                and authority.trade_lot_size == int(row["quantity_granularity"])
+                and authority.long_initial_margin > 0
+                and authority.short_initial_margin > 0
+            )
+        except (KeyError, ValueError):
+            valid = False
+        if not valid:
+            raise ProductionRuntimeError("INSTRUMENT_AUTHORITY_NOT_FROZEN")
 
     def open_positions(self) -> dict[str, dict[str, Any]]:
         value = self.store.get("production_positions", {})
@@ -284,7 +303,11 @@ class ProductionRuntime:
     def begin_batch(self, *, realized_equity: Decimal, available_cash: Decimal) -> MarginBatchBudget:
         if realized_equity <= 0 or available_cash < 0:
             raise ProductionRuntimeError("BATCH_FINANCIAL_AUTHORITY_INVALID")
-        self.set_realized_equity(realized_equity)
+        persisted = self.current_realized_equity()
+        if persisted is None:
+            self.set_realized_equity(realized_equity)
+        elif persisted != realized_equity:
+            raise ProductionRuntimeError("UNEXPLAINED_REALIZED_EQUITY_DISCREPANCY")
         return MarginBatchBudget(available_cash)
 
     def _aggregate_open_initial_risk(self) -> Decimal:
@@ -309,6 +332,7 @@ class ProductionRuntime:
                    *, realized_equity: Decimal, budget: MarginBatchBudget) -> RuntimeAction:
         if signal.instrument != authority.instrument or signal.instrument not in INSTRUMENTS:
             raise ProductionRuntimeError("ENTRY_AUTHORITY_INSTRUMENT_MISMATCH")
+        self._validate_instrument_authority(authority)
         if self.open_positions().get(signal.instrument) is not None:
             raise ProductionRuntimeError("PYRAMIDING_NOT_AUTHORIZED")
         if self.store.unresolved_intent_count() != 0:
@@ -339,8 +363,9 @@ class ProductionRuntime:
             )
 
         actual_risk = sized.loss_per_contract * sized.final_quantity
+        frozen_risk_cash = sized.risk_cash
         limit = realized_equity * Decimal(str(self.spec.maximum_nominal_risk))
-        if self._aggregate_open_initial_risk() + actual_risk > limit:
+        if self._aggregate_open_initial_risk() + frozen_risk_cash > limit:
             self._consume_pending_signal(signal)
             return RuntimeAction(
                 "SKIP_RISK_LIMIT", None, signal.instrument, authority.finam_symbol,
@@ -361,8 +386,8 @@ class ProductionRuntime:
             Decimal(str(signal.entry)), Decimal(str(signal.initial_stop)), expected,
         ).payload()
         payload.update({
-            "risk_cash": str(actual_risk),
-            "frozen_risk_budget": str(sized.risk_cash),
+            "risk_cash": str(frozen_risk_cash),
+            "actual_initial_loss_cash": str(actual_risk),
             "loss_per_contract": str(sized.loss_per_contract),
             "initial_margin": str(sized.initial_margin),
             "r15_quantity": sized.r15_quantity,
@@ -406,6 +431,7 @@ class ProductionRuntime:
             "finam_symbol": payload["finam_symbol"],
             "quantity": payload["quantity"],
             "risk_cash": payload["risk_cash"],
+            "actual_initial_loss_cash": payload["actual_initial_loss_cash"],
             "loss_per_contract": payload["loss_per_contract"],
             "trade_id": payload["trade_id"],
             "signal_id": payload["signal_id"],
@@ -491,8 +517,9 @@ class ProductionRuntime:
         outcome = self.core.manage(position, bar)
         value.update(_position_to_dict(position, {
             k: value[k] for k in (
-                "finam_symbol", "quantity", "risk_cash", "loss_per_contract",
-                "trade_id", "signal_id", "protective_stop_state", "protective_stop_revision"
+                "finam_symbol", "quantity", "risk_cash", "actual_initial_loss_cash",
+                "loss_per_contract", "trade_id", "signal_id",
+                "protective_stop_state", "protective_stop_revision"
             )
         }))
         if "protective_stop_broker_order_id" in positions[instrument]:
