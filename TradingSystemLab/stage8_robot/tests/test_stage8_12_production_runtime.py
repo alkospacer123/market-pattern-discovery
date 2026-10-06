@@ -24,7 +24,7 @@ def authority(instrument="USDRUBF"):
     return InstrumentAuthority(
         instrument=instrument,
         finam_symbol=f"{instrument}@RTSX",
-        price_step=Decimal("1"),
+        price_step=Decimal("0.01"),
         tick_value=Decimal("10"),
         trade_lot_size=1,
         long_initial_margin=Decimal("100"),
@@ -34,7 +34,7 @@ def authority(instrument="USDRUBF"):
 
 def signal(instrument="USDRUBF", direction="LONG"):
     entry = 100.0
-    stop = 95.0 if direction == "LONG" else 105.0
+    stop = 99.95 if direction == "LONG" else 100.05
     return SignalIntent(
         signal_id=f"signal-{instrument}-{direction}",
         trade_id=f"trade-{instrument}-{direction}",
@@ -43,7 +43,7 @@ def signal(instrument="USDRUBF", direction="LONG"):
         timestamp=datetime(2026, 1, 2, 10, tzinfo=MSK),
         entry=entry,
         initial_stop=stop,
-        initial_r=5.0,
+        initial_r=0.05,
         canonical_stop=stop,
     )
 
@@ -112,7 +112,7 @@ def test_entry_r15_margin_position_authority_and_initial_stop(tmp_path):
     assert runtime.confirm_entry_position(action.idempotency_key, 0) is None
     stop = runtime.confirm_entry_position(action.idempotency_key, 10)
     assert stop.kind == "PROTECTIVE_STOP_INSTALL"
-    assert stop.stop_price == Decimal("95.0")
+    assert stop.stop_price == Decimal("99.95")
     assert runtime.store.unresolved_intent_count() == 1
 
     runtime.confirm_protective_stop(stop.idempotency_key, "synthetic-stop")
@@ -120,6 +120,29 @@ def test_entry_r15_margin_position_authority_and_initial_stop(tmp_path):
     assert position["quantity"] == 10
     assert position["protective_stop_state"] == "ACTIVE"
     assert runtime.store.unresolved_intent_count() == 0
+    runtime.close()
+
+
+def test_instrument_economics_must_match_frozen_registry(tmp_path):
+    runtime = ProductionRuntime(tmp_path / "state.db")
+    budget = runtime.begin_batch(
+        realized_equity=Decimal("100000"), available_cash=Decimal("1000"))
+    bad = InstrumentAuthority(
+        "USDRUBF", "USDRUBF@RTSX", Decimal("0.02"), Decimal("10"), 1,
+        Decimal("100"), Decimal("120"))
+    with pytest.raises(ProductionRuntimeError, match="INSTRUMENT_AUTHORITY_NOT_FROZEN"):
+        runtime.plan_entry(
+            signal(), bad, realized_equity=Decimal("100000"), budget=budget)
+    runtime.close()
+
+
+def test_realized_equity_cannot_silently_change_between_batches(tmp_path):
+    runtime = ProductionRuntime(tmp_path / "state.db")
+    runtime.begin_batch(
+        realized_equity=Decimal("100000"), available_cash=Decimal("1000"))
+    with pytest.raises(ProductionRuntimeError, match="UNEXPLAINED_REALIZED_EQUITY_DISCREPANCY"):
+        runtime.begin_batch(
+            realized_equity=Decimal("99999"), available_cash=Decimal("1000"))
     runtime.close()
 
 
@@ -161,7 +184,7 @@ def test_trail1_tightening_emits_stop_replace_not_market_exit(tmp_path):
     entry = _open_and_protect(runtime)
 
     first = CompletedBar(
-        datetime(2026,1,2,11,tzinfo=MSK),100,106,99,105,2,completed=True)
+        datetime(2026,1,2,11,tzinfo=MSK),100,106,100,105,2,completed=True)
     assert runtime.manage_completed_bar(
         "USDRUBF", first, observed_position_quantity=entry.quantity) is None
 
@@ -184,7 +207,7 @@ def test_unprotected_position_blocks_bar_progression(tmp_path):
         signal(), authority(), realized_equity=Decimal("100000"), budget=budget)
     runtime.confirm_entry_position(entry.idempotency_key, entry.quantity)
     bar = CompletedBar(
-        datetime(2026,1,2,11,tzinfo=MSK),100,106,99,105,2,completed=True)
+        datetime(2026,1,2,11,tzinfo=MSK),100,106,100,105,2,completed=True)
     with pytest.raises(ProductionRuntimeError, match="PROTECTIVE_STOP_NOT_ACTIVE"):
         runtime.manage_completed_bar(
             "USDRUBF", bar, observed_position_quantity=entry.quantity)
@@ -195,7 +218,7 @@ def test_stop_divergence_requires_emergency_exit_action(tmp_path):
     runtime = ProductionRuntime(tmp_path / "state.db")
     entry = _open_and_protect(runtime)
     hit = CompletedBar(
-        datetime(2026,1,2,11,tzinfo=MSK),94,100,90,95,2,completed=True)
+        datetime(2026,1,2,11,tzinfo=MSK),99.9,100,99.8,99.9,2,completed=True)
     action = runtime.manage_completed_bar(
         "USDRUBF", hit, observed_position_quantity=entry.quantity)
     assert action.kind == "EMERGENCY_EXIT_REQUIRED"
@@ -208,7 +231,7 @@ def test_broker_flat_is_position_authority_for_exit_and_equity_sync(tmp_path):
     runtime = ProductionRuntime(tmp_path / "state.db")
     entry = _open_and_protect(runtime)
     bar = CompletedBar(
-        datetime(2026,1,2,11,tzinfo=MSK),100,106,99,105,2,completed=True)
+        datetime(2026,1,2,11,tzinfo=MSK),100,106,100,105,2,completed=True)
     observed = runtime.manage_completed_bar(
         "USDRUBF", bar, observed_position_quantity=0)
     assert observed.kind == "BROKER_EXIT_OBSERVED"
