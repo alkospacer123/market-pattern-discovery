@@ -212,25 +212,41 @@ def recover_attempt3_manual_close(*, runtime_root: Path, account_id: str, readon
             matches = [row for row in orders if isinstance(row, dict) and row.get("order_id") == broker_id]
             if len(matches) != 1:
                 raise Attempt3ManualCloseRecoveryBlocked("ATTEMPT3_RECOVERY_BROKER_ORDER_NOT_UNIQUE")
-            broker_row = matches[0]
-            request = broker_row.get("order")
-            if not isinstance(request, dict):
-                raise Attempt3ManualCloseRecoveryBlocked("ATTEMPT3_RECOVERY_BROKER_ORDER_SHAPE_INVALID")
+
+            # The collection endpoint is used only to prove that this broker
+            # order is still uniquely visible. Exact execution/identity proof
+            # comes from GET /orders/{order_id}, the same authoritative detail
+            # primitive used by live reconciliation.
+            try:
+                detail = readonly_api.order(account_id, broker_id)
+            except Exception:
+                raise Attempt3ManualCloseRecoveryBlocked(
+                    "ATTEMPT3_RECOVERY_BROKER_ORDER_DETAIL_UNAVAILABLE") from None
+            request = detail.get("order") if isinstance(detail, dict) else None
+            if (not isinstance(detail, dict) or detail.get("order_id") != broker_id
+                    or not isinstance(request, dict)
+                    or request.get("account_id") != account_id):
+                raise Attempt3ManualCloseRecoveryBlocked(
+                    "ATTEMPT3_RECOVERY_BROKER_ORDER_DETAIL_SHAPE_INVALID")
             try:
                 broker_quantity = _rest_contract_quantity(request.get("quantity"))
+                initial_quantity = _rest_contract_quantity(detail.get("initial_quantity"))
+                executed_quantity = _rest_contract_quantity(detail.get("executed_quantity"))
+                remaining_quantity = _rest_contract_quantity(detail.get("remaining_quantity"))
+                broker_status = normalize_order_status(detail.get("status"))
             except ValueError:
-                raise Attempt3ManualCloseRecoveryBlocked("ATTEMPT3_RECOVERY_BROKER_ORDER_SHAPE_INVALID") from None
+                raise Attempt3ManualCloseRecoveryBlocked(
+                    "ATTEMPT3_RECOVERY_BROKER_ORDER_DETAIL_SHAPE_INVALID") from None
             if (request.get("client_order_id") != payload.get("client_order_id")
                     or request.get("symbol") != FINAM_SYMBOL
                     or request.get("side") != "SIDE_BUY"
                     or broker_quantity != 1):
-                raise Attempt3ManualCloseRecoveryBlocked("ATTEMPT3_RECOVERY_BROKER_ORDER_IDENTITY_MISMATCH")
-            try:
-                broker_status = normalize_order_status(broker_row.get("status"))
-            except ValueError:
-                raise Attempt3ManualCloseRecoveryBlocked("ATTEMPT3_RECOVERY_BROKER_ORDER_STATUS_INVALID") from None
-            if broker_status not in EXECUTED_STATUSES:
-                raise Attempt3ManualCloseRecoveryBlocked("ATTEMPT3_RECOVERY_BROKER_EXECUTION_NOT_PROVEN")
+                raise Attempt3ManualCloseRecoveryBlocked(
+                    "ATTEMPT3_RECOVERY_BROKER_ORDER_IDENTITY_MISMATCH")
+            if (initial_quantity != 1 or executed_quantity != 1 or remaining_quantity != 0
+                    or broker_status not in EXECUTED_STATUSES):
+                raise Attempt3ManualCloseRecoveryBlocked(
+                    "ATTEMPT3_RECOVERY_BROKER_EXECUTION_NOT_PROVEN")
 
             observed = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
             if prepared_path.exists():
@@ -322,6 +338,7 @@ def main(argv: list[str] | None = None,
         session_details = transport.session_details
         account = transport.account
         orders = transport.orders
+        order = transport.order
 
     try:
         recover_attempt3_manual_close(
@@ -330,7 +347,10 @@ def main(argv: list[str] | None = None,
             readonly_api=ReadonlyRecoveryClient(),
             recovery_code_commit=args.accepted_recovery_commit,
         )
-    except (Attempt3ManualCloseRecoveryBlocked, OSError, ValueError):
+    except Attempt3ManualCloseRecoveryBlocked as exc:
+        print(str(exc))
+        return 1
+    except (OSError, ValueError):
         print("STAGE8_11_ATTEMPT3_MANUAL_CLOSE_RECOVERY_BLOCKED")
         return 1
     print("STAGE8_11_ATTEMPT3_MANUAL_CLOSE_RECOVERY_COMPLETE")
