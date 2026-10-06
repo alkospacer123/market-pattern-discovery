@@ -60,6 +60,7 @@ def test_absent_production_state_is_clean_and_not_initialized(tmp_path):
 
 def test_present_production_state_must_be_clean_and_equity_consistent(tmp_path):
     path = tmp_path / "state" / PRODUCTION_STATE_FILENAME
+    path.parent.mkdir(parents=True)
     identity = {
         "schema_id": RUNTIME_SCHEMA,
         "production_specification_id": PRODUCTION_SPECIFICATION_ID,
@@ -85,6 +86,7 @@ def test_present_production_state_must_be_clean_and_equity_consistent(tmp_path):
 
 def test_present_production_state_equity_mismatch_fails_closed(tmp_path):
     path = tmp_path / "state" / PRODUCTION_STATE_FILENAME
+    path.parent.mkdir(parents=True)
     identity = {
         "schema_id": RUNTIME_SCHEMA,
         "production_specification_id": PRODUCTION_SPECIFICATION_ID,
