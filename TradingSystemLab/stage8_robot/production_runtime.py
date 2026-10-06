@@ -25,7 +25,7 @@ from .state import StateStore
 from .strategy_core import CompletedBar, DecisionCore, PositionState, SignalIntent, T3Context
 from .trail1_state import Trail1State
 
-RUNTIME_SCHEMA = "stage8_12_production_runtime.v1"
+RUNTIME_SCHEMA = "stage8_12_production_runtime.v2"
 MODE = "STAGE8_12_CODE_ONLY"
 PRODUCTION_REGISTRY = Path(__file__).with_name("production_instrument_registry.csv")
 ActionKind = Literal[
@@ -217,7 +217,14 @@ class ProductionRuntime:
             "active_identity": ACTIVE_IDENTITY,
             "mode": MODE,
         }
-        self.store = StateStore(state_path, identity)
+        try:
+            self.store = StateStore(state_path, identity)
+        except RuntimeError as exc:
+            if str(exc) == "STATE_ENVIRONMENT_ACCOUNT_MISMATCH":
+                raise ProductionRuntimeError(
+                    "PRODUCTION_RUNTIME_SCHEMA_OR_IDENTITY_MISMATCH"
+                ) from exc
+            raise
         self.core = DecisionCore()
         self.context_builder = T3ContextBuilder()
 
