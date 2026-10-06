@@ -222,6 +222,8 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
             source_overrides.get(str(path.relative_to(ROOT)), canonical),
         )
     acceptance=document("controlled_real_acceptance.py",HERE/"controlled_real_acceptance.py")
+    position_reconcile = acceptance.split("def _reconcile_position",1)[1].split("def _reconcile(",1)[0]
+    normal_lifecycle = acceptance.split("def run_controlled_lifecycle",1)[1].split("_PREFLIGHT_KEYS",1)[0]
     finam_api=document("finam_api.py",HERE/"finam_api.py")
     acceptance_integration=document("tests/test_controlled_real_acceptance_finam_integration.py",
                                     HERE/"tests/test_controlled_real_acceptance_finam_integration.py")
@@ -243,29 +245,26 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           "STAGE_8_11_INTENT_BEFORE_POST")
     check("no retry: exactly one call" in acceptance and acceptance.count("self.api.place_order") == 1,
           "STAGE_8_11_NO_POST_RETRY")
-    check("ENTRY_UNCERTAIN_RECONCILE" in acceptance and "FLATTEN_UNCERTAIN_RECONCILE" in acceptance
-          and "OPERATOR_INTERVENTION_REQUIRED" in acceptance
-          and "class ReconciliationPending" in acceptance
-          and "RECONCILIATION_MAX_OBSERVATIONS = 12" in acceptance
-          and "ORDER_COLLECTION_PROPAGATION_PENDING" in acceptance
-          and '"trade_propagation_pending": len(matching) < executed' in acceptance
-          and "except FinamError:" in acceptance
-          and "trades = []" in acceptance
-          and '"broker_acknowledged": True' in acceptance
-          and "ack_position_proven = (" in acceptance
-          and "snap.get(\"order_detail_pending\") is True" in acceptance
-          and "or status in ACTIVE" in acceptance
-          and "or status in TERMINAL_FILL" in acceptance
-          and "if len(matching) > 1:" in acceptance
-          and 'for fill in snap.get("fills", []):' in acceptance
-          and "and filled == 0" in acceptance
-          and "position in (-1, 0, 1)" in acceptance
-          and 'if status == "CANCELLED" and filled == 1:' in acceptance
-          and "position != expected_position" in acceptance
-          and 'return {**snap, "executed_quantity": 1}' in acceptance
-          and "if expected_position is None or type(position) is not int:" in acceptance
-          and 'snap.get("trade_propagation_pending") is not True' in acceptance,
-          "STAGE_8_11_UNCERTAIN_RECONCILIATION")
+    check(
+          "POSITION_RECONCILIATION_MAX_OBSERVATIONS = 30" in acceptance
+          and "POSITION_RECONCILIATION_SLEEP_SECONDS = 2.0" in acceptance
+          and "def _reconcile_position" in acceptance
+          and "broker.position_snapshot(finam_symbol)" in position_reconcile
+          and "POSITION_RECONCILIATION_TIMEOUT" in position_reconcile
+          and "POSITION_RECONCILIATION_UNEXPECTED_QUANTITY" in position_reconcile
+          and "POSITION_RECONCILIATION_UNEXPECTED_OTHER_POSITION" in position_reconcile
+          and "STAGE8_11_PRE_SUBMIT_ACCOUNT_NOT_CLEAN" in normal_lifecycle
+          and "ENTRY_SUBMISSION_UNCERTAIN_POSITION_RECONCILE" in normal_lifecycle
+          and "FLATTEN_SUBMISSION_UNCERTAIN_POSITION_RECONCILE" in normal_lifecycle
+          and "expected_position=expected_position, pending_position=0" in normal_lifecycle
+          and "expected_position=0, pending_position=expected_position" in normal_lifecycle
+          and ".trades(" not in position_reconcile
+          and ".order(" not in position_reconcile
+          and ".orders(" not in position_reconcile
+          and "cancel_order" not in position_reconcile
+          and "broker.snapshot(" not in normal_lifecycle
+          and "broker.cancel(" not in normal_lifecycle,
+          "STAGE_8_11_POSITION_AUTHORITATIVE_RECONCILIATION")
     check("_digest(account_id) != accepted_account_hash.lower()" in acceptance
           and "heartbeat_account_hash" in acceptance, "STAGE_8_11_EXACT_ACCOUNT_BINDING")
     check("resolve_frozen_symbol(instrument)" in acceptance and "FINAM_SYMBOL_BINDING_INVALID" in acceptance,
