@@ -881,7 +881,8 @@ def audit(
           and 'RECONCILIATION_MAX_OBSERVATIONS = 12' in acceptance
           and 'RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS = 3' in acceptance
           and 'class ReconciliationPending' in acceptance
-          and 'raise ReconciliationPending("TRADE_PROPAGATION_PENDING")' in acceptance
+          and '"trade_propagation_pending": len(matching) < executed' in acceptance
+          and 'ack_position_proven = (' in acceptance
           and 'observation + 1 >= RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS' in acceptance,
           "STAGE8_11_ATTEMPT2_DISTINCT_FIXED_INTENT_AND_WRAPPER_BINDING")
     check(
