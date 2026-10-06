@@ -249,6 +249,8 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and "RECONCILIATION_MAX_OBSERVATIONS = 12" in acceptance
           and "ORDER_COLLECTION_PROPAGATION_PENDING" in acceptance
           and '"trade_propagation_pending": len(matching) < executed' in acceptance
+          and "except FinamError:" in acceptance
+          and "trades = []" in acceptance
           and '"broker_acknowledged": True' in acceptance
           and "ack_position_proven = (" in acceptance
           and "snap.get(\"order_detail_pending\") is True" in acceptance
