@@ -497,6 +497,47 @@ class ProductionRuntime:
         return self._protective_stop_action_from_payload(stop_intent["payload"])
 
 
+    def recover_pending_protective_stop(self, instrument: str) -> RuntimeAction | None:
+        """Rebuild one durable unsent/unconfirmed stop action after restart."""
+        positions = self.open_positions()
+        current = positions.get(instrument)
+        if current is None:
+            return None
+        state = current.get("protective_stop_state")
+        if state == "ACTIVE":
+            return None
+        if state not in {"PENDING", "PENDING_REPLACE"}:
+            raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
+        try:
+            revision = int(current["protective_stop_revision"])
+        except Exception as exc:
+            raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH") from exc
+        if revision < 0:
+            raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
+        key = f"stage8.12:{current['trade_id']}:stop:{revision:04d}"
+        intent = self.store.intent(key)
+        if intent is None:
+            raise ProductionRuntimeError("PROTECTIVE_STOP_INTENT_NOT_FOUND")
+        expected_kind = "PROTECTIVE_STOP_INSTALL" if revision == 0 else "PROTECTIVE_STOP_REPLACE"
+        if intent["payload"].get("kind") != expected_kind:
+            raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
+        if intent["status"] != "INTENT_PERSISTED":
+            raise ProductionRuntimeError("PROTECTIVE_STOP_RECOVERY_STATUS_UNSAFE")
+        action = self._protective_stop_action_from_payload(intent["payload"])
+        expected_position = (
+            int(current["quantity"])
+            if current["direction"] == "LONG"
+            else -int(current["quantity"])
+        )
+        if (
+            action.instrument != instrument
+            or action.trade_id != current.get("trade_id")
+            or action.expected_position_quantity != expected_position
+        ):
+            raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
+        return action
+
+
     def confirm_protective_stop(self, stop_key: str, broker_order_id: str) -> None:
         if not broker_order_id:
             raise ProductionRuntimeError("PROTECTIVE_STOP_BROKER_ID_REQUIRED")
