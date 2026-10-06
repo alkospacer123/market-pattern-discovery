@@ -561,10 +561,19 @@ def audit(
           "STAGE_8_11_EXACT_ACCOUNT_BINDING")
     check("resolve_frozen_symbol(instrument)" in acceptance and "FINAM_SYMBOL_BINDING_INVALID" in acceptance,
           "STAGE_8_11_EXACT_N4_SYMBOL_BINDING")
-    check(all(token in acceptance for token in ('result.update(classification="SYNTHETIC_PASS", entry_fill_proven=True', "one_contract_position_observed=True",
-          "flatten_fill_proven=True", "_account_is_clean(final)", '"HALTED"')),
+    check(all(token in normal_lifecycle for token in (
+          'classification="SYNTHETIC_PASS"',
+          "entry_fill_proven=True",
+          "one_contract_position_observed=True",
+          "flatten_fill_proven=True",
+          "_account_is_clean(final)",
+          '"FINAL_RECONCILIATION_PASS"',
+          '"HALTED"')),
           "STAGE_8_11_FILL_FLAT_HALTED_PASS")
-    check('int(entry.get("executed_quantity", -1)) != 0 or not _account_is_clean(final)' in acceptance,
+    check("except FinamOrderRejected as exc:" in normal_lifecycle
+          and "if not _account_is_clean(final):" in normal_lifecycle
+          and 'classification="NOT_ACCEPTED_NO_EXECUTION"' in normal_lifecycle
+          and 'failure_code="DEFINITIVE_REJECTION"' in normal_lifecycle,
           "STAGE_8_11_NO_FILL_REQUIRES_CLEAN_ACCOUNT_PROOF")
     check('final["unexpected_position_count"] == 0' in acceptance
           and 'if row_symbol != symbol and quantity != 0' in acceptance,
