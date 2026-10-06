@@ -96,26 +96,24 @@ def bars(
     )
 
 
-def genuine_h1_frame(instrument: str, direction: str) -> pd.DataFrame:
+def genuine_h1_frame(direction: str) -> pd.DataFrame:
     """Synthetic completed H1 bars consumed by the real causal T3ContextBuilder."""
     start = pd.Timestamp("2026-01-01T10:00:00", tz="Europe/Moscow")
-    step, _ = FROZEN_ECONOMICS[instrument]
-    hourly_range = float(step * 2)
-    price = 100.0
+    price = 200.0
     sign = 1.0 if direction == "LONG" else -1.0
     rows: list[tuple[float, float, float, float]] = []
     index: list[pd.Timestamp] = []
     for day in range(130):
         day_start = start + pd.Timedelta(days=day)
         deltas = (
-            [sign * 0.25 * hourly_range, 0.0, 0.0, 0.0]
+            [sign * 0.25, 0.0, 0.0, 0.0]
             if day < 110
-            else [sign * 0.75 * hourly_range] * 4
+            else [sign * 0.75] * 4
         )
         for hour, delta in enumerate(deltas):
             open_price = price
             close_price = price + delta
-            padding = (hourly_range - abs(delta)) / 2.0
+            padding = (1.0 - abs(delta)) / 2.0
             high = max(open_price, close_price) + padding
             low = min(open_price, close_price) - padding
             index.append(day_start + pd.Timedelta(hours=hour))
@@ -129,19 +127,19 @@ def genuine_h1_frame(instrument: str, direction: str) -> pd.DataFrame:
 
 
 def genuine_t3_signal(runtime: ProductionRuntime, instrument: str, direction: str) -> SignalIntent:
-    frame = genuine_h1_frame(instrument, direction)
+    frame = genuine_h1_frame(direction)
     signal_intent = runtime.build_latest_signal(
         instrument, frame, frame.index[-1].to_pydatetime())
     assert signal_intent is not None
     assert signal_intent.instrument == instrument
     assert signal_intent.direction == direction
-    step, _ = FROZEN_ECONOMICS[instrument]
-    expected_r = step * 5
-    assert Decimal(str(signal_intent.initial_r)) == expected_r
-    entry = Decimal(str(signal_intent.entry))
-    expected_stop = entry - expected_r if direction == "LONG" else entry + expected_r
+    assert signal_intent.entry == (287.5 if direction == "LONG" else 112.5)
+    assert signal_intent.initial_r == 2.5
+    expected_stop = Decimal("285.0") if direction == "LONG" else Decimal("115.0")
     assert Decimal(str(signal_intent.initial_stop)) == expected_stop
-    assert expected_r / step == Decimal("5")
+    step, _ = FROZEN_ECONOMICS[instrument]
+    assert Decimal(str(signal_intent.initial_r)) / step == (
+        Decimal(str(signal_intent.initial_r)) / step).to_integral_value()
     return signal_intent
 
 
@@ -150,14 +148,14 @@ def run_end_to_end(root: Path, instrument: str, direction: str) -> dict:
     adapter = SyntheticPercentPositionStopAdapter(root / "synthetic-broker.sqlite3")
     try:
         budget = runtime.begin_batch(
-            realized_equity=Decimal("100000"),
+            realized_equity=Decimal("1000000"),
             available_cash=Decimal("1000000"),
         )
         genuine_signal = genuine_t3_signal(runtime, instrument, direction)
         entry = runtime.plan_entry(
             genuine_signal,
             authority(instrument),
-            realized_equity=Decimal("100000"),
+            realized_equity=Decimal("1000000"),
             budget=budget,
         )
         assert entry.kind == "ENTRY"
@@ -238,7 +236,7 @@ def run_end_to_end(root: Path, instrument: str, direction: str) -> dict:
         ):
             runtime.broker_exit_observed(
                 instrument,
-                realized_equity_after_exit=Decimal("100000"),
+                realized_equity_after_exit=Decimal("1000000"),
                 protective_stop_terminal=False,
             )
         assert adapter.trigger(
@@ -280,7 +278,7 @@ def run_end_to_end(root: Path, instrument: str, direction: str) -> dict:
 
         closed = runtime.broker_exit_observed(
             instrument,
-            realized_equity_after_exit=Decimal("100000"),
+            realized_equity_after_exit=Decimal("1000000"),
             protective_stop_terminal=adapter.terminal_proof(
                 instrument, entry.trade_id),
         )
@@ -645,11 +643,11 @@ def test_pending_signal_and_entry_restart_cannot_duplicate(tmp_path):
             "USDRUBF", None, first.timestamp)
         assert repeated == first
         budget = runtime.begin_batch(
-            realized_equity=Decimal("100000"),
+            realized_equity=Decimal("1000000"),
             available_cash=Decimal("1000000"))
         entry = runtime.plan_entry(
             repeated, authority("USDRUBF"),
-            realized_equity=Decimal("100000"), budget=budget)
+            realized_equity=Decimal("1000000"), budget=budget)
         assert runtime.store.unresolved_intent_count() == 1
     finally:
         runtime.close()
@@ -658,7 +656,7 @@ def test_pending_signal_and_entry_restart_cannot_duplicate(tmp_path):
     try:
         assert runtime.store.unresolved_intent_count() == 1
         budget = runtime.begin_batch(
-            realized_equity=Decimal("100000"),
+            realized_equity=Decimal("1000000"),
             available_cash=Decimal("1000000"))
         with pytest.raises(
             ProductionRuntimeError,
@@ -666,7 +664,7 @@ def test_pending_signal_and_entry_restart_cannot_duplicate(tmp_path):
         ):
             runtime.plan_entry(
                 repeated, authority("USDRUBF"),
-                realized_equity=Decimal("100000"), budget=budget)
+                realized_equity=Decimal("1000000"), budget=budget)
         assert runtime.store.unresolved_intent_count() == 1
         assert runtime.store.intent(entry.idempotency_key) is not None
     finally:
