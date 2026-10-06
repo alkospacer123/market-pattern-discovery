@@ -23,6 +23,7 @@ from .account_cleanliness import (
     normalize_order_status,
 )
 from .backup_state import create_stage8_11_acceptance_backup, sha256_file
+from .finam_api import FinamNotFound
 from .operations import stage8_11_exclusive_lock
 from .specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID, load_frozen_specification
 from .state import StateStore, initialize_stage8_11_acceptance_ledger, stage8_11_acceptance_path
@@ -37,6 +38,9 @@ RECOVERY_EVIDENCE_NAME = "stage8_11_attempt3_manual_close_recovery.json"
 RECOVERY_SCHEMA = "stage8_11_attempt3_manual_close_recovery.v1"
 PREPARED_SUFFIX = ".prepared"
 EXECUTED_STATUSES = frozenset({"FILLED", "EXECUTED"})
+HISTORICAL_DETAIL_UNAVAILABLE = "NOT_AVAILABLE_404"
+RECOVERY_BASIS_ORDER_DETAIL = "BROKER_ORDER_DETAIL_EXECUTED"
+RECOVERY_BASIS_IMMUTABLE_OIR = "IMMUTABLE_ATTEMPT3_OIR_PLUS_CURRENT_FLAT"
 
 
 class Attempt3ManualCloseRecoveryBlocked(RuntimeError):
@@ -124,8 +128,15 @@ def _validate_completed(payload: dict[str, Any], *, account_id: str,
         "physical_result_preserved": "OPERATOR_INTERVENTION_REQUIRED",
         "recovery_code_commit": recovery_code_commit,
     }
-    if (any(payload.get(k) != v for k, v in expected.items())
-            or payload.get("broker_order_terminal_status") not in EXECUTED_STATUSES):
+    if any(payload.get(k) != v for k, v in expected.items()):
+        raise Attempt3ManualCloseRecoveryBlocked("ATTEMPT3_RECOVERY_EVIDENCE_AUTHORITY_MISMATCH")
+    status = payload.get("broker_order_terminal_status")
+    basis = payload.get("recovery_basis")
+    if not (
+        status in EXECUTED_STATUSES and basis == RECOVERY_BASIS_ORDER_DETAIL
+        or status == HISTORICAL_DETAIL_UNAVAILABLE
+        and basis == RECOVERY_BASIS_IMMUTABLE_OIR
+    ):
         raise Attempt3ManualCloseRecoveryBlocked("ATTEMPT3_RECOVERY_EVIDENCE_AUTHORITY_MISMATCH")
 
 
@@ -210,40 +221,47 @@ def recover_attempt3_manual_close(*, runtime_root: Path, account_id: str, readon
 
             broker_id = intent["broker_order_id"]
 
-            # Historical orders may disappear from the collection endpoint.
-            # The persisted ACK broker_order_id is already the exact authority,
-            # so recovery proves execution directly through GET /orders/{id}.
-            # The collection endpoint above is used only for active-order safety.
+            # Historical order detail may expire at FINAM. If it is still
+            # available, prove the exact execution. If FINAM returns 404, the
+            # immutable attempt3 evidence already proves one accepted POST,
+            # broker acknowledgement and a final +1 CNYRUBF position. Together
+            # with the current flat account and zero active orders above, that
+            # is sufficient to close only the stale local intent as CLOSED.
             try:
                 detail = readonly_api.order(account_id, broker_id)
+            except FinamNotFound:
+                broker_status = HISTORICAL_DETAIL_UNAVAILABLE
+                recovery_basis = RECOVERY_BASIS_IMMUTABLE_OIR
             except Exception:
                 raise Attempt3ManualCloseRecoveryBlocked(
                     "ATTEMPT3_RECOVERY_BROKER_ORDER_DETAIL_UNAVAILABLE") from None
-            request = detail.get("order") if isinstance(detail, dict) else None
-            if (not isinstance(detail, dict) or detail.get("order_id") != broker_id
-                    or not isinstance(request, dict)
-                    or request.get("account_id") != account_id):
-                raise Attempt3ManualCloseRecoveryBlocked(
-                    "ATTEMPT3_RECOVERY_BROKER_ORDER_DETAIL_SHAPE_INVALID")
-            try:
-                broker_quantity = _rest_contract_quantity(request.get("quantity"))
-                initial_quantity = _rest_contract_quantity(detail.get("initial_quantity"))
-                executed_quantity = _rest_contract_quantity(detail.get("executed_quantity"))
-                remaining_quantity = _rest_contract_quantity(detail.get("remaining_quantity"))
-                broker_status = normalize_order_status(detail.get("status"))
-            except ValueError:
-                raise Attempt3ManualCloseRecoveryBlocked(
-                    "ATTEMPT3_RECOVERY_BROKER_ORDER_DETAIL_SHAPE_INVALID") from None
-            if (request.get("client_order_id") != payload.get("client_order_id")
-                    or request.get("symbol") != FINAM_SYMBOL
-                    or request.get("side") != "SIDE_BUY"
-                    or broker_quantity != 1):
-                raise Attempt3ManualCloseRecoveryBlocked(
-                    "ATTEMPT3_RECOVERY_BROKER_ORDER_IDENTITY_MISMATCH")
-            if (initial_quantity != 1 or executed_quantity != 1 or remaining_quantity != 0
-                    or broker_status not in EXECUTED_STATUSES):
-                raise Attempt3ManualCloseRecoveryBlocked(
-                    "ATTEMPT3_RECOVERY_BROKER_EXECUTION_NOT_PROVEN")
+            else:
+                request = detail.get("order") if isinstance(detail, dict) else None
+                if (not isinstance(detail, dict) or detail.get("order_id") != broker_id
+                        or not isinstance(request, dict)
+                        or request.get("account_id") != account_id):
+                    raise Attempt3ManualCloseRecoveryBlocked(
+                        "ATTEMPT3_RECOVERY_BROKER_ORDER_DETAIL_SHAPE_INVALID")
+                try:
+                    broker_quantity = _rest_contract_quantity(request.get("quantity"))
+                    initial_quantity = _rest_contract_quantity(detail.get("initial_quantity"))
+                    executed_quantity = _rest_contract_quantity(detail.get("executed_quantity"))
+                    remaining_quantity = _rest_contract_quantity(detail.get("remaining_quantity"))
+                    broker_status = normalize_order_status(detail.get("status"))
+                except ValueError:
+                    raise Attempt3ManualCloseRecoveryBlocked(
+                        "ATTEMPT3_RECOVERY_BROKER_ORDER_DETAIL_SHAPE_INVALID") from None
+                if (request.get("client_order_id") != payload.get("client_order_id")
+                        or request.get("symbol") != FINAM_SYMBOL
+                        or request.get("side") != "SIDE_BUY"
+                        or broker_quantity != 1):
+                    raise Attempt3ManualCloseRecoveryBlocked(
+                        "ATTEMPT3_RECOVERY_BROKER_ORDER_IDENTITY_MISMATCH")
+                if (initial_quantity != 1 or executed_quantity != 1 or remaining_quantity != 0
+                        or broker_status not in EXECUTED_STATUSES):
+                    raise Attempt3ManualCloseRecoveryBlocked(
+                        "ATTEMPT3_RECOVERY_BROKER_EXECUTION_NOT_PROVEN")
+                recovery_basis = RECOVERY_BASIS_ORDER_DETAIL
 
             observed = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
             if prepared_path.exists():
@@ -254,7 +272,8 @@ def recover_attempt3_manual_close(*, runtime_root: Path, account_id: str, readon
                         or prepared.get("intent_key") != ATTEMPT3_INTENT_KEY
                         or prepared.get("account_identity_sha256") != _account_hash(account_id)
                         or prepared.get("recovery_code_commit") != recovery_code_commit
-                        or prepared.get("broker_order_terminal_status") != broker_status):
+                        or prepared.get("broker_order_terminal_status") != broker_status
+                        or prepared.get("recovery_basis") != recovery_basis):
                     raise Attempt3ManualCloseRecoveryBlocked("ATTEMPT3_RECOVERY_PREPARED_AUTHORITY_MISMATCH")
                 backup = root / "backups" / "stage8-11-acceptance" / str(prepared.get("backup_filename", ""))
                 manifest = backup.with_name(str(prepared.get("backup_manifest_filename", "")))
@@ -272,6 +291,7 @@ def recover_attempt3_manual_close(*, runtime_root: Path, account_id: str, readon
                     "active_identity": ACTIVE_IDENTITY,
                     "recovery_code_commit": recovery_code_commit,
                     "broker_order_terminal_status": broker_status,
+                    "recovery_basis": recovery_basis,
                     "backup_filename": backup.name,
                     "backup_manifest_filename": manifest.name,
                     "prepared_at_utc": observed.isoformat().replace("+00:00", "Z"),
