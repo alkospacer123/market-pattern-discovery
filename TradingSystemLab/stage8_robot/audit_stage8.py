@@ -252,6 +252,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and '"broker_acknowledged": True' in acceptance
           and "ack_position_proven = (" in acceptance
           and "snap.get(\"order_detail_pending\") is True or status in ACTIVE" in acceptance
+          and 'return {**snap, "executed_quantity": 1}' in acceptance
           and "if expected_position is None or type(position) is not int:" in acceptance
           and 'snap.get("trade_propagation_pending") is not True' in acceptance,
           "STAGE_8_11_UNCERTAIN_RECONCILIATION")
