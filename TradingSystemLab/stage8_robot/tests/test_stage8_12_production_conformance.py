@@ -598,6 +598,85 @@ def test_replacement_intent_crash_before_pending_state_is_recovered(tmp_path):
         runtime.close()
 
 
+def test_tightened_state_crash_before_replacement_intent_is_recovered(tmp_path):
+    runtime_path = tmp_path / "runtime.db"
+    broker_path = tmp_path / "broker.db"
+    runtime = ProductionRuntime(runtime_path)
+    adapter = SyntheticPercentPositionStopAdapter(broker_path)
+    budget = runtime.begin_batch(
+        realized_equity=Decimal("100000"),
+        available_cash=Decimal("1000000"))
+    entry_signal = signal("USDRUBF", "LONG")
+    entry = runtime.plan_entry(
+        entry_signal, authority("USDRUBF"),
+        realized_equity=Decimal("100000"), budget=budget)
+    initial = runtime.confirm_entry_position(
+        entry.idempotency_key, entry.expected_position_quantity,
+        observed_at=ENTRY_OBSERVED_AT)
+    initial_id = adapter.submit(
+        initial, observed_position_quantity=entry.expected_position_quantity)
+    runtime.confirm_protective_stop(initial.idempotency_key, initial_id)
+
+    first_bar, second_bar = bars(
+        "LONG", signal_time=entry_signal.timestamp)
+    assert runtime.manage_completed_bar(
+        "USDRUBF", first_bar,
+        observed_position_quantity=entry.expected_position_quantity) is None
+    replacement = runtime.manage_completed_bar(
+        "USDRUBF", second_bar,
+        observed_position_quantity=entry.expected_position_quantity)
+    assert replacement.kind == "PROTECTIVE_STOP_REPLACE"
+
+    # Simulate the earlier crash boundary: tightened local state was durable,
+    # but replacement intent and PENDING_REPLACE snapshot were not.
+    positions = runtime.open_positions()
+    assert Decimal(str(positions["USDRUBF"]["current_stop"])) > Decimal(
+        str(positions["USDRUBF"]["protective_stop_price"]))
+    positions["USDRUBF"]["protective_stop_state"] = "ACTIVE"
+    positions["USDRUBF"]["protective_stop_revision"] = 0
+    runtime._save_positions(positions)
+    with runtime.store.db:
+        runtime.store.db.execute(
+            "DELETE FROM intents WHERE idempotency_key=?",
+            (replacement.idempotency_key,),
+        )
+    assert runtime.store.unresolved_intent_count() == 0
+
+    with pytest.raises(
+        ProductionRuntimeError,
+        match="PROTECTIVE_STOP_PRICE_DIVERGENCE",
+    ):
+        runtime.manage_completed_bar(
+            "USDRUBF",
+            second_bar,
+            observed_position_quantity=entry.expected_position_quantity,
+        )
+
+    adapter.close()
+    runtime.close()
+    runtime = ProductionRuntime(runtime_path)
+    adapter = SyntheticPercentPositionStopAdapter(broker_path)
+    try:
+        recovered = runtime.recover_pending_protective_stop("USDRUBF")
+        assert recovered == replacement
+        state = runtime.open_positions()["USDRUBF"]
+        assert state["protective_stop_state"] == "PENDING_REPLACE"
+        assert state["protective_stop_revision"] == 1
+        replacement_id = adapter.submit(
+            recovered, observed_position_quantity=entry.expected_position_quantity)
+        runtime.confirm_protective_stop(
+            recovered.idempotency_key, replacement_id)
+        state = runtime.open_positions()["USDRUBF"]
+        assert state["protective_stop_state"] == "ACTIVE"
+        assert Decimal(str(state["protective_stop_price"])) == Decimal(
+            str(state["current_stop"]))
+        assert runtime.store.unresolved_intent_count() == 0
+        assert len(adapter.active_stops("USDRUBF", entry.trade_id)) == 2
+    finally:
+        adapter.close()
+        runtime.close()
+
+
 def test_management_bar_at_or_before_signal_fails_closed(tmp_path):
     runtime = ProductionRuntime(tmp_path / "runtime.db")
     adapter = SyntheticPercentPositionStopAdapter(tmp_path / "broker.db")
