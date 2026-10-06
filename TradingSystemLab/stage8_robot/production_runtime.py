@@ -433,7 +433,9 @@ class ProductionRuntime:
             payload.get("expected_position_quantity"), payload.get("reason"),
         )
 
-    def confirm_entry_position(self, entry_key: str, observed_quantity: int) -> RuntimeAction | None:
+    def confirm_entry_position(
+            self, entry_key: str, observed_quantity: int, *,
+            observed_at) -> RuntimeAction | None:
         intent = self.store.intent(entry_key)
         if not intent or intent["payload"].get("kind") != "ENTRY":
             raise ProductionRuntimeError("ENTRY_INTENT_NOT_FOUND")
@@ -441,6 +443,15 @@ class ProductionRuntime:
         expected = payload.get("expected_position_quantity")
         if type(expected) is not int or type(observed_quantity) is not int:
             raise ProductionRuntimeError("POSITION_AUTHORITY_SCHEMA_INVALID")
+        try:
+            observation_time = pd.Timestamp(observed_at)
+            signal_time = pd.Timestamp(payload["signal_timestamp"])
+        except Exception as exc:
+            raise ProductionRuntimeError("ENTRY_OBSERVATION_TIME_INVALID") from exc
+        if observation_time.tzinfo is None or signal_time.tzinfo is None:
+            raise ProductionRuntimeError("ENTRY_OBSERVATION_TIME_INVALID")
+        if observation_time < signal_time:
+            raise ProductionRuntimeError("ENTRY_OBSERVATION_BEFORE_SIGNAL")
 
         positions = self.open_positions()
         current = positions.get(payload["instrument"])
@@ -469,6 +480,7 @@ class ProductionRuntime:
                 "trade_id": payload["trade_id"],
                 "signal_id": payload["signal_id"],
                 "signal_timestamp": payload["signal_timestamp"],
+                "entry_observed_at": observation_time.isoformat(),
                 "protective_stop_state": "PENDING",
                 "protective_stop_revision": 0,
             }
@@ -477,6 +489,15 @@ class ProductionRuntime:
             current = positions[payload["instrument"]]
         elif current.get("trade_id") != payload.get("trade_id"):
             raise ProductionRuntimeError("ENTRY_POSITION_ALREADY_EXISTS")
+        else:
+            try:
+                persisted_observation = pd.Timestamp(current["entry_observed_at"])
+            except Exception as exc:
+                raise ProductionRuntimeError("ENTRY_OBSERVATION_TIME_INVALID") from exc
+            if persisted_observation.tzinfo is None:
+                raise ProductionRuntimeError("ENTRY_OBSERVATION_TIME_INVALID")
+            if observation_time < persisted_observation:
+                raise ProductionRuntimeError("ENTRY_OBSERVATION_TIME_REGRESSION")
 
         if intent["status"] != "RECONCILED":
             broker_id = intent.get("broker_order_id")
@@ -659,14 +680,20 @@ class ProductionRuntime:
             return None
         expected = int(value["quantity"]) if value["direction"] == "LONG" else -int(value["quantity"])
         signal_timestamp = value.get("signal_timestamp")
+        entry_observed_at = value.get("entry_observed_at")
         try:
             signal_time = pd.Timestamp(signal_timestamp)
+            entry_time = pd.Timestamp(entry_observed_at)
         except Exception as exc:
-            raise ProductionRuntimeError("POSITION_SIGNAL_TIMESTAMP_INVALID") from exc
-        if signal_time.tzinfo is None:
-            raise ProductionRuntimeError("POSITION_SIGNAL_TIMESTAMP_INVALID")
+            raise ProductionRuntimeError("POSITION_ENTRY_TIME_INVALID") from exc
+        if signal_time.tzinfo is None or entry_time.tzinfo is None:
+            raise ProductionRuntimeError("POSITION_ENTRY_TIME_INVALID")
+        if entry_time < signal_time:
+            raise ProductionRuntimeError("POSITION_ENTRY_TIME_INVALID")
         if bar.timestamp <= signal_time.to_pydatetime():
             raise ProductionRuntimeError("BAR_NOT_AFTER_ENTRY_SIGNAL")
+        if bar.timestamp <= entry_time.to_pydatetime():
+            raise ProductionRuntimeError("BAR_NOT_AFTER_ENTRY_OBSERVATION")
         if observed_position_quantity == 0:
             return RuntimeAction(
                 "BROKER_EXIT_OBSERVED", None, instrument, value["finam_symbol"],
@@ -686,7 +713,7 @@ class ProductionRuntime:
             k: value[k] for k in (
                 "finam_symbol", "quantity", "risk_cash", "actual_initial_loss_cash",
                 "loss_per_contract", "trade_id", "signal_id", "signal_timestamp",
-                "protective_stop_state", "protective_stop_revision"
+                "entry_observed_at", "protective_stop_state", "protective_stop_revision"
             )
         }))
         if "protective_stop_broker_order_id" in positions[instrument]:
