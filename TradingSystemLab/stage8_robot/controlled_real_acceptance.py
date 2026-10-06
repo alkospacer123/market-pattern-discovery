@@ -565,6 +565,20 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
             return snap
 
         if status in TERMINAL_FILL and filled != 1:
+            # FINAM can advance terminal status before both executed_quantity
+            # and the account position read model converge. With a persisted
+            # broker ACK, a structurally valid one-contract state is retried
+            # within the same bounded reconciliation window; it is never
+            # reinterpreted as a fill until the exact expected position appears.
+            if (snap.get("broker_acknowledged") is True
+                    and filled == 0
+                    and expected_position is not None
+                    and type(position) is int
+                    and position in (-1, 0, 1)):
+                if observation + 1 >= RECONCILIATION_MAX_OBSERVATIONS:
+                    raise OperatorInterventionRequired("RECONCILIATION_TIMEOUT")
+                sleeper(RECONCILIATION_SLEEP_SECONDS)
+                continue
             raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
 
         if status in TERMINAL_NO_FILL and filled != 0:
