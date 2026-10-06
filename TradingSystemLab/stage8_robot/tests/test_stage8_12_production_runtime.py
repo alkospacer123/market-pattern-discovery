@@ -16,6 +16,7 @@ from TradingSystemLab.stage8_robot.production_runtime import (
     InstrumentAuthority, ProductionRuntime, ProductionRuntimeError,
 )
 from TradingSystemLab.stage8_robot.strategy_core import CompletedBar, SignalIntent
+from TradingSystemLab.stage8_robot.state import StateStore
 
 MSK = ZoneInfo("Europe/Moscow")
 
@@ -69,6 +70,29 @@ def test_stage8_12_runtime_is_structurally_broker_neutral():
     assert not any(name.endswith(".broker") or name.endswith(".finam_api") for name in imports)
     assert "place_order(" not in source
     assert "submit_order(" not in source
+
+
+def test_runtime_schema_bump_rejects_pre_timestamp_durable_state(tmp_path):
+    path = tmp_path / "legacy-v1.db"
+    runtime = ProductionRuntime(path)
+    legacy_identity = runtime.store.get("database_identity")
+    runtime.close()
+
+    legacy_identity["schema_id"] = "stage8_12_production_runtime.v1"
+    legacy = StateStore(path)
+    legacy.put("database_identity", legacy_identity)
+    legacy.put("production_positions", {
+        "USDRUBF": {
+            "trade_id": "legacy-open-position-without-signal-timestamp",
+        },
+    })
+    legacy.close()
+
+    with pytest.raises(
+        ProductionRuntimeError,
+        match="PRODUCTION_RUNTIME_SCHEMA_OR_IDENTITY_MISMATCH",
+    ):
+        ProductionRuntime(path)
 
 
 def test_runtime_rejects_execution_authorization_in_assembly_stage(tmp_path):
