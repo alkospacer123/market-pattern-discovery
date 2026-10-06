@@ -761,8 +761,9 @@ def test_stage_8_10_6_physical_report_contract_mutations_fail_semantic_audits(fi
 def test_later_execution_stages_started_or_authorized_fail():
     path = "TradingSystemLab/CURRENT_STATE.md"
     for old, replacement, error in (
-            ("prior explicit authorization **CONSUMED**",
-             "explicit authorization **ACTIVE**", "STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED"),
+            ("The physical authorization used for attempt7 is consumed",
+             "The physical authorization used for attempt7 is active",
+             "STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED"),
             ("Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**",
              "Stage 8.12 — **STARTED / AUTHORIZED**", "STAGE_8_12_1_CURRENT_HANDOFF")):
         result = run_audit({path: source(path).replace(
