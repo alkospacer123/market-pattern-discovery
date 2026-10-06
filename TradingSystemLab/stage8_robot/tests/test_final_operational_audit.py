@@ -1066,7 +1066,6 @@ def test_stage_8_10_current_handoff_stale_gate_and_omission_fail_both_audits(pat
 
 
 @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
-@pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
 def test_stage_8_11_current_handoff_false_authorization_wording_fails_both_audits(path):
     original = source(path)
     mutated = original.replace(
@@ -1077,6 +1076,7 @@ def test_stage_8_11_current_handoff_false_authorization_wording_fails_both_audit
         path, mutated, "STAGE_8_10_FALSE_AUTHORIZATION_OR_TOKEN_CLAIM")
 
 
+@pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
 def test_stage_8_10_clearly_scoped_historical_text_passes_both_audits(path):
     historical = source(path) + ("\n\nIn this historical snapshot, Stage 8.10.7 was "
                                  "NOT STARTED. Subsequently, Stage 8.10.8 completed; "
