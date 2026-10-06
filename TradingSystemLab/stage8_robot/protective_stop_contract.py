@@ -274,20 +274,25 @@ class SyntheticPercentPositionStopAdapter:
         self._persist()
         return 0
 
-    def observe_inactive(self, broker_order_id: str, *,
-                         observed_position_quantity: int) -> None:
-        """Record GET/reconciliation proof that a remaining stop is inactive."""
+    def observe_terminal_or_inactive(
+            self, broker_order_id: str, *, observed_status: str,
+            observed_position_quantity: int) -> None:
+        """Record explicit GET/reconciliation proof for one remaining stop."""
         if observed_position_quantity != 0:
-            raise ProtectiveStopContractError("INACTIVE_PROOF_REQUIRES_FLAT_POSITION")
+            raise ProtectiveStopContractError("STOP_CLOSEOUT_PROOF_REQUIRES_FLAT_POSITION")
+        if observed_status not in {"TERMINAL", "INACTIVE"}:
+            raise ProtectiveStopContractError("PROTECTIVE_STOP_NOT_TERMINAL_OR_INACTIVE")
         stop = self._stops.get(broker_order_id)
         if stop is None:
             raise ProtectiveStopContractError("PROTECTIVE_STOP_NOT_FOUND")
         if stop.status in {"TERMINAL", "INACTIVE"}:
+            if stop.status != observed_status:
+                raise ProtectiveStopContractError("PROTECTIVE_STOP_STATUS_MISMATCH")
             return
         if stop.status != "ACTIVE":
             raise ProtectiveStopContractError("PROTECTIVE_STOP_STATUS_INVALID")
         self._stops[broker_order_id] = SyntheticProtectiveStop(
-            **{**stop.__dict__, "status": "INACTIVE"}
+            **{**stop.__dict__, "status": observed_status}
         )
         self._persist()
 
