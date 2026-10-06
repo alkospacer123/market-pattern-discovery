@@ -254,6 +254,10 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and "snap.get(\"order_detail_pending\") is True" in acceptance
           and "or status in ACTIVE" in acceptance
           and "or status in TERMINAL_FILL" in acceptance
+          and "if len(matching) > 1:" in acceptance
+          and 'for fill in snap.get("fills", []):' in acceptance
+          and "and filled == 0" in acceptance
+          and "position in (-1, 0, 1)" in acceptance
           and 'return {**snap, "executed_quantity": 1}' in acceptance
           and "if expected_position is None or type(position) is not int:" in acceptance
           and 'snap.get("trade_propagation_pending") is not True' in acceptance,
