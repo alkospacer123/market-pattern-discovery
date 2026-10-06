@@ -433,74 +433,69 @@ class ProductionRuntime:
         expected = payload.get("expected_position_quantity")
         if type(expected) is not int or type(observed_quantity) is not int:
             raise ProductionRuntimeError("POSITION_AUTHORITY_SCHEMA_INVALID")
-        if observed_quantity == 0:
-            return None
-        if observed_quantity != expected:
-            raise ProductionRuntimeError("POSITION_AUTHORITY_UNEXPECTED_QUANTITY")
 
         positions = self.open_positions()
         current = positions.get(payload["instrument"])
-        stop_key = f"stage8.12:{payload['trade_id']}:stop:0000"
+        if observed_quantity == 0:
+            if intent["status"] == "RECONCILED" or current is not None:
+                raise ProductionRuntimeError("ENTRY_POSITION_STATE_BROKER_MISMATCH")
+            return None
+        if observed_quantity != expected:
+            raise ProductionRuntimeError("POSITION_AUTHORITY_UNEXPECTED_QUANTITY")
+        if intent["status"] in {"CANCELLED", "REJECTED", "CLOSED"}:
+            raise ProductionRuntimeError("TERMINAL_ENTRY_INTENT_HAS_BROKER_POSITION")
 
-        if intent["status"] == "RECONCILED":
-            if current is None or current.get("trade_id") != payload.get("trade_id"):
-                raise ProductionRuntimeError("RECONCILED_ENTRY_POSITION_STATE_MISMATCH")
-            stop_intent = self.store.intent(stop_key)
-            if current.get("protective_stop_state") == "ACTIVE":
-                if not stop_intent or stop_intent["status"] != "RECONCILED":
-                    raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
-                return None
-            if current.get("protective_stop_state") != "PENDING":
-                raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
-            if stop_intent is None:
-                stop_action = RuntimeAction(
-                    "PROTECTIVE_STOP_INSTALL", stop_key, payload["instrument"], payload["finam_symbol"],
-                    payload["direction"], payload["quantity"], payload["trade_id"], payload["signal_id"],
-                    Decimal(payload["reference_price"]), Decimal(payload["stop_price"]), expected,
-                )
-                if not self.store.persist_intent(stop_key, stop_action.payload()):
-                    raise ProductionRuntimeError("DUPLICATE_PROTECTIVE_STOP_INTENT")
-                return stop_action
-            if stop_intent["payload"].get("kind") != "PROTECTIVE_STOP_INSTALL":
-                raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
-            return self._protective_stop_action_from_payload(stop_intent["payload"])
-
-        broker_id = intent.get("broker_order_id")
-        self.store.transition_intent(entry_key, "FILL", broker_id)
-        self.store.transition_intent(entry_key, "RECONCILED", broker_id)
-
-        direction = payload["direction"]
-        entry = float(payload["reference_price"])
-        stop = float(payload["stop_price"])
-        trail = Trail1State(direction, entry, stop)
-        position = PositionState(payload["instrument"], direction, entry, stop, stop, entry, trail)
-        meta = {
-            "finam_symbol": payload["finam_symbol"],
-            "quantity": payload["quantity"],
-            "risk_cash": payload["risk_cash"],
-            "actual_initial_loss_cash": payload["actual_initial_loss_cash"],
-            "loss_per_contract": payload["loss_per_contract"],
-            "trade_id": payload["trade_id"],
-            "signal_id": payload["signal_id"],
-            "protective_stop_state": "PENDING",
-            "protective_stop_revision": 0,
-        }
-        if current is not None:
+        if current is None:
+            direction = payload["direction"]
+            entry = float(payload["reference_price"])
+            stop = float(payload["stop_price"])
+            trail = Trail1State(direction, entry, stop)
+            position = PositionState(
+                payload["instrument"], direction, entry, stop, stop, entry, trail)
+            meta = {
+                "finam_symbol": payload["finam_symbol"],
+                "quantity": payload["quantity"],
+                "risk_cash": payload["risk_cash"],
+                "actual_initial_loss_cash": payload["actual_initial_loss_cash"],
+                "loss_per_contract": payload["loss_per_contract"],
+                "trade_id": payload["trade_id"],
+                "signal_id": payload["signal_id"],
+                "protective_stop_state": "PENDING",
+                "protective_stop_revision": 0,
+            }
+            positions[payload["instrument"]] = _position_to_dict(position, meta)
+            self._save_positions(positions)
+            current = positions[payload["instrument"]]
+        elif current.get("trade_id") != payload.get("trade_id"):
             raise ProductionRuntimeError("ENTRY_POSITION_ALREADY_EXISTS")
-        positions[payload["instrument"]] = _position_to_dict(position, meta)
-        self._save_positions(positions)
 
-        stop_action = RuntimeAction(
-            "PROTECTIVE_STOP_INSTALL", stop_key, payload["instrument"], payload["finam_symbol"],
-            direction, payload["quantity"], payload["trade_id"], payload["signal_id"],
-            Decimal(payload["reference_price"]), Decimal(payload["stop_price"]), expected,
-        )
-        if not self.store.persist_intent(stop_key, stop_action.payload()):
-            existing = self.store.intent(stop_key)
-            if existing is None or existing["payload"] != stop_action.payload():
-                raise ProductionRuntimeError("PROTECTIVE_STOP_IDEMPOTENCY_MISMATCH")
-            return self._protective_stop_action_from_payload(existing["payload"])
-        return stop_action
+        if intent["status"] != "RECONCILED":
+            broker_id = intent.get("broker_order_id")
+            self.store.transition_intent(entry_key, "FILL", broker_id)
+            self.store.transition_intent(entry_key, "RECONCILED", broker_id)
+
+        stop_key = f"stage8.12:{payload['trade_id']}:stop:0000"
+        stop_intent = self.store.intent(stop_key)
+        if current.get("protective_stop_state") == "ACTIVE":
+            if not stop_intent or stop_intent["status"] != "RECONCILED":
+                raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
+            return None
+        if current.get("protective_stop_state") != "PENDING":
+            raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
+
+        if stop_intent is None:
+            stop_action = RuntimeAction(
+                "PROTECTIVE_STOP_INSTALL", stop_key, payload["instrument"], payload["finam_symbol"],
+                payload["direction"], payload["quantity"], payload["trade_id"], payload["signal_id"],
+                Decimal(payload["reference_price"]), Decimal(payload["stop_price"]), expected,
+            )
+            if not self.store.persist_intent(stop_key, stop_action.payload()):
+                raise ProductionRuntimeError("DUPLICATE_PROTECTIVE_STOP_INTENT")
+            return stop_action
+        if stop_intent["payload"].get("kind") != "PROTECTIVE_STOP_INSTALL":
+            raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
+        return self._protective_stop_action_from_payload(stop_intent["payload"])
+
 
     def confirm_protective_stop(self, stop_key: str, broker_order_id: str) -> None:
         if not broker_order_id:
