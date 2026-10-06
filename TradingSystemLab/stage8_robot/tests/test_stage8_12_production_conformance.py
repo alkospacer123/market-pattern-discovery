@@ -126,7 +126,7 @@ def genuine_t3_signal(runtime: ProductionRuntime, instrument: str, direction: st
 
 def run_end_to_end(root: Path, instrument: str, direction: str) -> dict:
     runtime = ProductionRuntime(root / "production.sqlite3")
-    adapter = SyntheticPercentPositionStopAdapter()
+    adapter = SyntheticPercentPositionStopAdapter(root / "synthetic-broker.sqlite3")
     try:
         budget = runtime.begin_batch(
             realized_equity=Decimal("100000"),
@@ -200,12 +200,29 @@ def run_end_to_end(root: Path, instrument: str, direction: str) -> dict:
             price=new_effective.stop_price,
         )
         assert broker_position == 0
-        assert adapter.terminal_proof(instrument, entry.trade_id)
+        # Only the actually executed stop is terminal. The older backstop must
+        # remain unproven until a separate broker observation says inactive.
+        assert adapter.terminal_proof(instrument, entry.trade_id) is False
+        remaining = adapter.active_stops(instrument, entry.trade_id)
+        assert len(remaining) == 1
+        with pytest.raises(
+            ProductionRuntimeError,
+            match="PROTECTIVE_STOP_TERMINAL_PROOF_REQUIRED",
+        ):
+            runtime.broker_exit_observed(
+                instrument,
+                realized_equity_after_exit=Decimal("100000"),
+                protective_stop_terminal=False,
+            )
         assert adapter.trigger(
             instrument, entry.trade_id,
             observed_position_quantity=0,
             price=new_effective.stop_price,
         ) == 0
+        for stop in remaining:
+            adapter.observe_inactive(
+                stop.broker_order_id, observed_position_quantity=0)
+        assert adapter.terminal_proof(instrument, entry.trade_id) is True
 
         observed = runtime.manage_completed_bar(
             instrument,
@@ -247,6 +264,7 @@ def run_end_to_end(root: Path, instrument: str, direction: str) -> dict:
             "real_order_endpoint_call_count": adapter.real_order_endpoint_call_count,
         }
     finally:
+        adapter.close()
         runtime.close()
 
 
@@ -264,7 +282,7 @@ def test_protective_stop_contract_is_structurally_offline():
     assert not any(any(term in name for term in forbidden) for name in imports)
     assert "place_order(" not in source
     assert "submit_order(" not in source
-    assert CONTRACT_SCHEMA.endswith(".v1")
+    assert CONTRACT_SCHEMA.endswith(".v2")
     assert QTY_MEASURE == "SLTP_QTY_MEASURE_PERCENT"
     assert QTY_PERCENT == Decimal("100")
 
@@ -290,7 +308,7 @@ def test_full_production_path_is_deterministic_all_n4_long_short(
 def test_percent_stop_payload_is_close_only_shape(
         tmp_path, direction, expected_side):
     runtime = ProductionRuntime(tmp_path / f"{direction}.db")
-    adapter = SyntheticPercentPositionStopAdapter()
+    adapter = SyntheticPercentPositionStopAdapter(tmp_path / f"{direction}-broker.db")
     try:
         budget = runtime.begin_batch(
             realized_equity=Decimal("100000"),
@@ -308,12 +326,13 @@ def test_percent_stop_payload_is_close_only_shape(
         assert "quantity_tp" not in payload
         assert "tp_price" not in payload
     finally:
+        adapter.close()
         runtime.close()
 
 
 def test_looser_or_duplicate_trailing_stop_is_rejected(tmp_path):
     runtime = ProductionRuntime(tmp_path / "state.db")
-    adapter = SyntheticPercentPositionStopAdapter()
+    adapter = SyntheticPercentPositionStopAdapter(tmp_path / "looser-broker.db")
     try:
         budget = runtime.begin_batch(
             realized_equity=Decimal("100000"),
@@ -323,7 +342,8 @@ def test_looser_or_duplicate_trailing_stop_is_rejected(tmp_path):
             realized_equity=Decimal("100000"), budget=budget)
         initial = runtime.confirm_entry_position(
             entry.idempotency_key, entry.expected_position_quantity)
-        adapter.submit(initial, observed_position_quantity=entry.expected_position_quantity)
+        first_id = adapter.submit(
+            initial, observed_position_quantity=entry.expected_position_quantity)
 
         from dataclasses import replace
         looser = replace(
@@ -339,19 +359,98 @@ def test_looser_or_duplicate_trailing_stop_is_rejected(tmp_path):
             adapter.submit(
                 looser, observed_position_quantity=entry.expected_position_quantity)
 
-        with pytest.raises(
-            ProtectiveStopContractError,
-            match="DUPLICATE_PROTECTIVE_STOP_SUBMISSION",
-        ):
-            adapter.submit(
-                initial, observed_position_quantity=entry.expected_position_quantity)
+        replay_id = adapter.submit(
+            initial, observed_position_quantity=entry.expected_position_quantity)
+        assert replay_id == first_id
+        assert len(adapter.active_stops("USDRUBF", entry.trade_id)) == 1
     finally:
+        adapter.close()
+        runtime.close()
+
+
+def test_protective_stop_restart_reuses_same_broker_stop(tmp_path):
+    runtime_path = tmp_path / "runtime.db"
+    broker_path = tmp_path / "synthetic-broker.db"
+    runtime = ProductionRuntime(runtime_path)
+    adapter = SyntheticPercentPositionStopAdapter(broker_path)
+    budget = runtime.begin_batch(
+        realized_equity=Decimal("100000"),
+        available_cash=Decimal("1000000"))
+    entry = runtime.plan_entry(
+        signal("USDRUBF", "LONG"), authority("USDRUBF"),
+        realized_equity=Decimal("100000"), budget=budget)
+    stop = runtime.confirm_entry_position(
+        entry.idempotency_key, entry.expected_position_quantity)
+    broker_id = adapter.submit(
+        stop, observed_position_quantity=entry.expected_position_quantity)
+
+    # Crash boundary: broker accepted the stop, but local confirmation did not
+    # happen yet. Both sides are reopened from durable state.
+    adapter.close()
+    runtime.close()
+    runtime = ProductionRuntime(runtime_path)
+    adapter = SyntheticPercentPositionStopAdapter(broker_path)
+    try:
+        recovered = runtime.recover_pending_protective_stop("USDRUBF")
+        assert recovered == stop
+        replay_id = adapter.submit(
+            recovered, observed_position_quantity=entry.expected_position_quantity)
+        assert replay_id == broker_id
+        assert len(adapter.active_stops("USDRUBF", entry.trade_id)) == 1
+        runtime.confirm_protective_stop(recovered.idempotency_key, replay_id)
+        assert runtime.store.unresolved_intent_count() == 0
+    finally:
+        adapter.close()
+        runtime.close()
+
+
+def test_trailing_stop_restart_reuses_same_broker_stop(tmp_path):
+    runtime_path = tmp_path / "runtime.db"
+    broker_path = tmp_path / "synthetic-broker.db"
+    runtime = ProductionRuntime(runtime_path)
+    adapter = SyntheticPercentPositionStopAdapter(broker_path)
+    budget = runtime.begin_batch(
+        realized_equity=Decimal("100000"),
+        available_cash=Decimal("1000000"))
+    entry = runtime.plan_entry(
+        signal("USDRUBF", "LONG"), authority("USDRUBF"),
+        realized_equity=Decimal("100000"), budget=budget)
+    initial = runtime.confirm_entry_position(
+        entry.idempotency_key, entry.expected_position_quantity)
+    initial_id = adapter.submit(
+        initial, observed_position_quantity=entry.expected_position_quantity)
+    runtime.confirm_protective_stop(initial.idempotency_key, initial_id)
+    first_bar, second_bar = bars("LONG")
+    assert runtime.manage_completed_bar(
+        "USDRUBF", first_bar,
+        observed_position_quantity=entry.expected_position_quantity) is None
+    tighten = runtime.manage_completed_bar(
+        "USDRUBF", second_bar,
+        observed_position_quantity=entry.expected_position_quantity)
+    replacement_id = adapter.submit(
+        tighten, observed_position_quantity=entry.expected_position_quantity)
+
+    adapter.close()
+    runtime.close()
+    runtime = ProductionRuntime(runtime_path)
+    adapter = SyntheticPercentPositionStopAdapter(broker_path)
+    try:
+        recovered = runtime.recover_pending_protective_stop("USDRUBF")
+        assert recovered == tighten
+        replay_id = adapter.submit(
+            recovered, observed_position_quantity=entry.expected_position_quantity)
+        assert replay_id == replacement_id
+        assert len(adapter.active_stops("USDRUBF", entry.trade_id)) == 2
+        runtime.confirm_protective_stop(recovered.idempotency_key, replay_id)
+        assert runtime.store.unresolved_intent_count() == 0
+    finally:
+        adapter.close()
         runtime.close()
 
 
 def test_wrong_position_blocks_protective_stop(tmp_path):
     runtime = ProductionRuntime(tmp_path / "state.db")
-    adapter = SyntheticPercentPositionStopAdapter()
+    adapter = SyntheticPercentPositionStopAdapter(tmp_path / "wrong-position-broker.db")
     try:
         budget = runtime.begin_batch(
             realized_equity=Decimal("100000"),
@@ -367,6 +466,7 @@ def test_wrong_position_blocks_protective_stop(tmp_path):
         ):
             adapter.submit(stop, observed_position_quantity=0)
     finally:
+        adapter.close()
         runtime.close()
 
 
