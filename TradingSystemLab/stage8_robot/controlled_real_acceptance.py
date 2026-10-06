@@ -520,7 +520,7 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
         if ack_position_proven:
             broker.store.transition_intent(key, "FILL", order_id)
             broker.store.transition_intent(key, "RECONCILED", order_id)
-            return snap
+            return {**snap, "executed_quantity": 1}
 
         if status in ACTIVE:
             # A newly acknowledged market order may remain ACTIVE/PENDING for a
