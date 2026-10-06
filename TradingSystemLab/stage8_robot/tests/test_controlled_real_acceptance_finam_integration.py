@@ -133,6 +133,12 @@ class SyntheticFinamTransport:
                 stale["executed_quantity"]=self.decimal(0)
                 stale["remaining_quantity"]=self.decimal(1)
                 return Raw(stale)
+            if self.scenario == "terminal_fill_zero_executed":
+                stale=json.loads(json.dumps(order))
+                stale["status"]="FILLED"
+                stale["executed_quantity"]=self.decimal(0)
+                stale["remaining_quantity"]=self.decimal(1)
+                return Raw(stale)
             return Raw(order)
         if path.startswith(prefix + "/orders/") and method == "DELETE":
             oid=path.rsplit("/",1)[1]; order=next(o for o in self.orders if o["order_id"] == oid)
@@ -216,6 +222,16 @@ def test_real_finam_missing_order_detail_uses_ack_and_exact_position_for_entry_a
 
 def test_real_finam_stale_active_order_detail_does_not_cancel_proven_position(tmp_path):
     result,transport,store=execute(tmp_path,"stale_active_detail")
+    assert result["classification"] == "SYNTHETIC_PASS"
+    assert transport.posts == 2
+    assert transport.deletes == 0
+    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
+    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
+    assert store.unresolved_intent_count() == 0
+
+
+def test_real_finam_terminal_fill_status_with_stale_zero_executed_uses_ack_and_position(tmp_path):
+    result,transport,store=execute(tmp_path,"terminal_fill_zero_executed")
     assert result["classification"] == "SYNTHETIC_PASS"
     assert transport.posts == 2
     assert transport.deletes == 0
