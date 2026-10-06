@@ -1054,7 +1054,8 @@ def audit(
           physical_acceptance.get("scheduled_task_final_state") == "Disabled",
           physical_acceptance.get("stage8_12_status") == "NOT_STARTED_NOT_AUTHORIZED",
           stage811_provenance.get("execution_authorized") is False,
-          stage811_provenance.get("real_order_count") == 0,
+          stage811_provenance.get("order_endpoint_call_count") == 2,
+          stage811_provenance.get("real_order_count") == 2,
           stage811_provenance.get("production_kill_switch_final_state") == "HALTED",
           stage811_provenance.get("stage8_12_status") == "NOT_STARTED_NOT_AUTHORIZED",
           stage811_provenance.get("current_precheck_code_authority") == {
@@ -1189,6 +1190,7 @@ def audit(
         "stage8_11_physical_precheck_real_order_count": 0,
         "stage8_11_latest_physical_acceptance_result": "PASS",
         "stage8_11_physical_acceptance_order_endpoint_call_count": 2,
+        "stage8_11_real_order_count": 2,
         "runtime_artifacts_tracked": runtime_artifacts, "live_trading_authorized": False,
         "real_order_transmission_authorized": False, "stage8_8_7_status": COMPLETE_STATUS,
         "intel_final_acceptance_performed": True, "stage8_9_started": True,
