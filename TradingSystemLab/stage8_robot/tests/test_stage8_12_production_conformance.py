@@ -71,64 +71,70 @@ def signal(instrument: str, direction: str) -> SignalIntent:
     )
 
 
-def bars(direction: str) -> tuple[CompletedBar, CompletedBar]:
+def bars(direction: str, entry: float = 100.0) -> tuple[CompletedBar, CompletedBar]:
     if direction == "LONG":
         return (
-            CompletedBar(datetime(2026,1,2,11,tzinfo=MSK),100,106,100,105,2,completed=True),
-            CompletedBar(datetime(2026,1,2,12,tzinfo=MSK),105,107,101,106,2,completed=True),
+            CompletedBar(
+                datetime(2026,1,2,11,tzinfo=MSK),
+                entry, entry + 6, entry, entry + 5, 2, completed=True),
+            CompletedBar(
+                datetime(2026,1,2,12,tzinfo=MSK),
+                entry + 5, entry + 7, entry + 1, entry + 6, 2, completed=True),
         )
     return (
-        CompletedBar(datetime(2026,1,2,11,tzinfo=MSK),100,100,94,95,2,completed=True),
-        CompletedBar(datetime(2026,1,2,12,tzinfo=MSK),95,99,93,94,2,completed=True),
+        CompletedBar(
+            datetime(2026,1,2,11,tzinfo=MSK),
+            entry, entry, entry - 6, entry - 5, 2, completed=True),
+        CompletedBar(
+            datetime(2026,1,2,12,tzinfo=MSK),
+            entry - 5, entry - 1, entry - 7, entry - 6, 2, completed=True),
+    )
+
+
+def genuine_h1_frame(direction: str) -> pd.DataFrame:
+    """Synthetic completed H1 bars consumed by the real causal T3ContextBuilder."""
+    start = pd.Timestamp("2026-01-01T10:00:00", tz="Europe/Moscow")
+    price = 200.0
+    sign = 1.0 if direction == "LONG" else -1.0
+    rows: list[tuple[float, float, float, float]] = []
+    index: list[pd.Timestamp] = []
+    for day in range(130):
+        day_start = start + pd.Timedelta(days=day)
+        deltas = (
+            [sign * 0.25, 0.0, 0.0, 0.0]
+            if day < 110
+            else [sign * 0.75] * 4
+        )
+        for hour, delta in enumerate(deltas):
+            open_price = price
+            close_price = price + delta
+            padding = (1.0 - abs(delta)) / 2.0
+            high = max(open_price, close_price) + padding
+            low = min(open_price, close_price) - padding
+            index.append(day_start + pd.Timedelta(hours=hour))
+            rows.append((open_price, high, low, close_price))
+            price = close_price
+    return pd.DataFrame(
+        rows,
+        index=pd.DatetimeIndex(index),
+        columns=["Open", "High", "Low", "Close"],
     )
 
 
 def genuine_t3_signal(runtime: ProductionRuntime, instrument: str, direction: str) -> SignalIntent:
-    timestamp = pd.Timestamp("2026-01-02T10:00:00", tz="Europe/Moscow")
-    price_step, _ = FROZEN_ECONOMICS[instrument]
-    stop_distance = price_step * 5
-    execution_atr = stop_distance / Decimal("2.5")
-    execution = pd.DataFrame([{
-        "Open": 99.99,
-        "High": 100.02,
-        "Low": 99.98,
-        "Close": 100.0,
-        "ATR": float(execution_atr),
-        "PriorHigh": 99.99 if direction == "LONG" else 101.0,
-        "PriorLow": 99.0 if direction == "LONG" else 100.01,
-    }], index=pd.DatetimeIndex([timestamp]))
-    context = pd.DataFrame([{
-        "Open": 99.0,
-        "High": 111.0,
-        "Low": 89.0,
-        "Close": 110.0 if direction == "LONG" else 90.0,
-        "EMA100": 100.0,
-        "EMA100Slope": 1.0 if direction == "LONG" else -1.0,
-        "ADX": 25.0,
-        "ATR": 3.0,
-        "ATRMean20": 2.0,
-        "EMA50": 105.0,
-        "EMA200": 95.0,
-    }], index=pd.DatetimeIndex([timestamp]))
-
-    class Builder:
-        def build(self, h1, now):
-            return execution, context
-
-    runtime.context_builder = Builder()
-    frame = pd.DataFrame(index=pd.DatetimeIndex([timestamp]))
+    frame = genuine_h1_frame(direction)
     signal_intent = runtime.build_latest_signal(
-        instrument, frame, timestamp.to_pydatetime())
+        instrument, frame, frame.index[-1].to_pydatetime())
     assert signal_intent is not None
     assert signal_intent.instrument == instrument
     assert signal_intent.direction == direction
-    assert signal_intent.entry == 100.0
-    expected_stop = (
-        Decimal("100") - stop_distance
-        if direction == "LONG"
-        else Decimal("100") + stop_distance
-    )
+    assert signal_intent.entry == (287.5 if direction == "LONG" else 112.5)
+    assert signal_intent.initial_r == 2.5
+    expected_stop = Decimal("285.0") if direction == "LONG" else Decimal("115.0")
     assert Decimal(str(signal_intent.initial_stop)) == expected_stop
+    step, _ = FROZEN_ECONOMICS[instrument]
+    assert Decimal(str(signal_intent.initial_r)) / step == (
+        Decimal(str(signal_intent.initial_r)) / step).to_integral_value()
     return signal_intent
 
 
@@ -157,7 +163,7 @@ def run_end_to_end(root: Path, instrument: str, direction: str) -> dict:
 
         # An accepted position is not considered safe before broker-confirmed
         # protection. No next-bar progression is allowed through this gap.
-        first_bar, second_bar = bars(direction)
+        first_bar, second_bar = bars(direction, entry=float(genuine_signal.entry))
         with pytest.raises(
             ProductionRuntimeError,
             match="UNRESOLVED_INTENT_BLOCKS_BAR_PROCESSING",
