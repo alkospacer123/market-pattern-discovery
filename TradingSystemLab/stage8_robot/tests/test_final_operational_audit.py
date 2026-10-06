@@ -1065,21 +1065,8 @@ def test_stage_8_12_1_current_handoff_mutations_fail_both_audits(path):
         original.replace("test-only real-order count: `0`", "test-only real-order count: `1`", 1),
     )
     for mutation in mutations:
-        independent = stage8.audit(
-            write_result=False,
-            source_overrides={
-                path.removeprefix("TradingSystemLab/stage8_robot/"): mutation,
-                path: mutation,
-            })
-        operational = run_audit({path: mutation})
-        assert (
-            "STAGE_8_12_1_CURRENT_HANDOFF" in independent["errors"]
-            or "STAGE_8_10_CURRENT_HANDOFF_EXACT" in independent["errors"]
-        ), (path, independent)
-        assert (
-            "STAGE_8_12_1_CURRENT_HANDOFF" in operational["errors"]
-            or "STAGE_8_10_CURRENT_HANDOFF_EXACT" in operational["errors"]
-        ), (path, operational)
+        _assert_document_mutation_fails_both(
+            path, mutation, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
 
 
 CANONICAL_STAGE_8_10_DOCS = (
