@@ -50,11 +50,11 @@ Canonical Stage 8.11 physical acceptance authority:
 - final production kill switch: `HALTED`;
 - Scheduled Task: `Disabled`.
 
-The accepted normal reconciliation model is position-authoritative: after each physical POST, synchronous fill/risk authority is the exact `/account` position. Normal fill detection does not depend on `/trades`, exact `/orders/{id}`, `executed_quantity`, `remaining_quantity`, or the former order-status state machine. The physical authorization used for attempt7 is consumed. Current `execution_authorized = false`; no additional real-order transmission is authorized by the Stage 8.11 PASS.
+The accepted normal reconciliation model is position-authoritative: after each physical POST, synchronous fill/risk authority is the exact `/account` position. Normal fill detection does not depend on `/trades`, exact `/orders/{id}`, `executed_quantity`, `remaining_quantity`, or the former order-status state machine. The physical authorization used for attempt7 is consumed. Current `execution_authorized = false`; real-order transmission remains unauthorized after the Stage 8.11 PASS.
 
 Attempts 1–6, their failures/OIR classifications, manual closes, and recovery evidence remain immutable historical provenance and are not reclassified by the attempt7 PASS.
 
-**Stage 8.12 is NOT STARTED / NOT AUTHORIZED.** Stage 8.11 completion does not automatically authorize FULL/R15 production execution, continuous LIVE trading, Scheduled Task activation, or any new order transmission. The production kill switch remains `HALTED` until a separate Stage 8.12 decision and explicit authorization.
+Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**. Stage 8.12 remains not started and not authorized. Stage 8.11 completion does not automatically authorize FULL/R15 production execution, continuous LIVE trading, Scheduled Task activation, or any new order transmission. The production kill switch remains `HALTED` until a separate Stage 8.12 decision and explicit authorization.
 
 ## Purpose and authority
 
