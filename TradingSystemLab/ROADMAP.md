@@ -56,7 +56,24 @@ The accepted normal reconciliation model is position-authoritative: after each p
 
 Attempts 1–6, their failures/OIR classifications, manual closes, and recovery evidence remain immutable historical provenance and are not reclassified by the attempt7 PASS.
 
-Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**. Stage 8.12 remains not started and not authorized. Stage 8.11 completion does not automatically authorize FULL/R15 production execution, continuous LIVE trading, Scheduled Task activation, or any new order transmission. The production kill switch remains `HALTED` until a separate Stage 8.12 decision and explicit authorization.
+Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**.
+
+Canonical Stage 8.12.1 authority:
+
+- accepted merged code commit: `3f2d68ca0c327271fb543a0b63c0e8f842c855bd`;
+- external test-only verifier evidence SHA-256: `F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C`;
+- structural zero-order boundary: `PASS`;
+- Stage 8.12.1 runtime + N4 capacity tests: `25/25 PASS`;
+- frozen Stage 7 / risk / margin regression: `166/166 PASS`;
+- Stage 8.11 position-authority regression: `113/113 PASS`;
+- independent Stage 8 audit: `PASS`;
+- final operational audit: `PASS`;
+- test-only real-order count: `0`;
+- current `execution_authorized = false`;
+- production kill switch: `HALTED`;
+- production Scheduled Task: `Disabled`.
+
+Stage 8.12.1 assembled the production runtime without adding FINAM order transport: the runtime remains structurally order-incapable at this gate. Stage 8.12.2 — Production path conformance and failure audit — is the **NEXT GATE** and remains test/audit-only with zero real orders. Continuous FULL/R15 production execution, Scheduled Task activation, and any new real-order transmission remain unauthorized until the separate explicit Stage 8.12.4 authorization gate.
 
 ## Governing research rule
 
@@ -313,7 +330,7 @@ Frozen authority carried into Stage 8.12:
 
 ### Stage 8.12.1 — Production runtime assembly
 
-**CODE-ONLY / NO REAL-ORDER AUTHORIZATION.**
+**COMPLETE / PASS / CODE-ONLY / NO REAL-ORDER AUTHORIZATION.**
 
 Build the smallest production runtime by wiring together existing authenticated components rather than creating a parallel strategy implementation:
 
@@ -444,6 +461,6 @@ Do not:
 
 ## Current roadmap boundary
 
-**NEXT GATE: Stage 8.12.1 — Production runtime assembly.**
+**NEXT GATE: Stage 8.12.2 — Production path conformance and failure audit.**
 
-Stage 8.12 has a defined roadmap but is still **NOT STARTED / NOT AUTHORIZED**. Defining this roadmap does not authorize any real-order transmission. Stage 8.12.1 must begin as code-only work with the production kill switch `HALTED`, production Scheduled Task disabled, and `execution_authorized = false`.
+Stage 8.12 is now **STARTED / CODE-ONLY / NOT AUTHORIZED**. Stage 8.12.1 is COMPLETE / PASS. Stage 8.12.2 remains test/audit-only with zero real orders. The production kill switch remains `HALTED`, the production Scheduled Task remains disabled, and `execution_authorized = false`. Only Stage 8.12.4 may authorize continuous real production trading.
