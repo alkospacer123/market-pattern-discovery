@@ -120,8 +120,11 @@ def test_stage8_11_cleanliness_correction_preserves_historical_hash_authority():
      "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY", "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY"),
     ("stage8_11_attempt2_manual_recovery.py", '"final_position_quantity": 1', '"final_position_quantity": 0',
      "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY", "STAGE8_11_ATTEMPT2_MANUAL_RECOVERY_BOUNDARY"),
-    ("controlled_real_acceptance.py", "if not _account_is_clean(final):", "if False:",
-     "STAGE8_11_CLEAN_PROOF_AND_HALT", "STAGE8_11_ACCOUNT_WIDE_CLEAN_PROOF"),
+    ("controlled_real_acceptance.py",
+     "expected_position=0, pending_position=expected_position",
+     "expected_position=expected_position, pending_position=0",
+     "STAGE_8_11_POSITION_AUTHORITATIVE_RECONCILIATION",
+     "STAGE_8_11_POSITION_AUTHORITATIVE_RECONCILIATION"),
     ("controlled_real_acceptance.py", "finally:\n        emergency_halt(runtime_root", "finally:\n        pass #",
      "STAGE8_11_CLEAN_PROOF_AND_HALT", "STAGE8_11_PARENT_CHILD_HALT_MAX_TWO_POST_CAPABILITY"),
 ])
@@ -1082,11 +1085,13 @@ STAGE811_WRAPPER = "TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-p
     ("request.quantity != MAX_ACCEPTANCE_QUANTITY", "False", "STAGE_8_11_EXACTLY_ONE_HARD_CAP"),
     ("self.store.persist_intent", "self.store.removed_intent", "STAGE_8_11_INTENT_BEFORE_POST"),
     ("no retry: exactly one call", "retry enabled", "STAGE_8_11_NO_POST_RETRY"),
-    ("ENTRY_UNCERTAIN_RECONCILE", "ENTRY_UNCERTAIN_HALT", "STAGE_8_11_UNCERTAIN_RECONCILIATION"),
+    ("ENTRY_SUBMISSION_UNCERTAIN_POSITION_RECONCILE",
+     "ENTRY_SUBMISSION_UNCERTAIN_HALT",
+     "STAGE_8_11_POSITION_AUTHORITATIVE_RECONCILIATION"),
     ("_digest(account_id) != accepted_account_hash.lower()", "False", "STAGE_8_11_EXACT_ACCOUNT_BINDING"),
     ("FINAM_SYMBOL_BINDING_INVALID", "SYMBOL_CHECK_REMOVED", "STAGE_8_11_EXACT_N4_SYMBOL_BINDING"),
-    ('result.update(classification="SYNTHETIC_PASS", entry_fill_proven=True',
-     'result.update(classification="SYNTHETIC_PASS", entry_fill_proven=False',
+    ('classification="SYNTHETIC_PASS"',
+     'classification="BROKEN_PASS"',
      "STAGE_8_11_FILL_FLAT_HALTED_PASS"),
 ])
 def test_stage811_safety_mutations_fail_both_independent_audits(needle,replacement,error):
@@ -1114,8 +1119,9 @@ def test_stage811_maximum_post_capability_expansion_fails_both_audits():
 
 
 @pytest.mark.parametrize("needle,replacement,error", [
-    ('int(entry.get("executed_quantity", -1)) != 0 or not _account_is_clean(final)',
-     'False', "STAGE_8_11_NO_FILL_REQUIRES_CLEAN_ACCOUNT_PROOF"),
+    ('failure_code="DEFINITIVE_REJECTION"',
+     'failure_code="BROKEN_REJECTION"',
+     "STAGE_8_11_NO_FILL_REQUIRES_CLEAN_ACCOUNT_PROOF"),
     ('final["unexpected_position_count"] == 0', 'True',
      "STAGE_8_11_FINAL_RECONCILIATION_ALL_POSITIONS"),
     ('active = count_active_orders(order_rows)', 'active = 0',
