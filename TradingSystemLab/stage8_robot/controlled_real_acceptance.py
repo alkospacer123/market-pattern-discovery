@@ -37,6 +37,8 @@ ALLOWED_ATTEMPT_IDS = frozenset({STAGE8_11_ATTEMPT2_ID, STAGE8_11_ATTEMPT3_ID, S
 RECONCILIATION_MAX_OBSERVATIONS = 12
 RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS = 3
 RECONCILIATION_SLEEP_SECONDS = 0.1
+POSITION_RECONCILIATION_MAX_OBSERVATIONS = 30
+POSITION_RECONCILIATION_SLEEP_SECONDS = 2.0
 MAX_ACCEPTANCE_QUANTITY = 1
 REGISTRY = Path(__file__).with_name("production_instrument_registry.csv")
 TERMINAL_FILL = frozenset({"FILLED", "EXECUTED"})
@@ -242,8 +244,12 @@ class ControlledAcceptanceBroker:
             raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
         return _production_snapshot(self.api, self.account_id, intent)
 
+    def position_snapshot(self, finam_symbol: str) -> dict[str, Any]:
+        """Return only account-position facts; never query orders, order detail or trades."""
+        return _production_position_snapshot(self.api, self.account_id, finam_symbol)
+
     def account_snapshot(self, finam_symbol: str) -> dict[str, Any]:
-        """Return only the sanitized acceptance facts from the production API."""
+        """Return sanitized account + active-order facts for pre/final cleanliness checks."""
         return _production_account_snapshot(self.api, self.account_id, finam_symbol, self.store)
 
     def require_active_trading_session(self, finam_symbol: str, now: datetime, *,
@@ -353,6 +359,25 @@ def _position(positions: list[dict[str, Any]], symbol: str) -> int:
     if len(matches) > 1:
         raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
     return 0 if not matches else _decimal_contracts(matches[0].get("quantity"))
+
+
+def _production_position_snapshot(api: object, account_id: str, symbol: str) -> dict[str, Any]:
+    """Read only /account positions for synchronous post-submit reconciliation."""
+    positions = _production_account(api, account_id)
+    selected_position = _position(positions, symbol)
+    unexpected_positions = 0
+    for row in positions:
+        row_symbol = row.get("symbol")
+        if not isinstance(row_symbol, str) or not row_symbol:
+            raise OperatorInterventionRequired("POSITION_RECONCILIATION_ACCOUNT_SCHEMA_INVALID")
+        quantity = _decimal_contracts(row.get("quantity"))
+        if row_symbol != symbol and quantity != 0:
+            unexpected_positions += 1
+    return {
+        "acceptance_instrument": symbol,
+        "position_quantity": selected_position,
+        "unexpected_position_count": unexpected_positions,
+    }
 
 
 def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -> dict[str, Any]:
@@ -491,6 +516,49 @@ def _account_is_clean(final: dict[str, Any]) -> bool:
             and type(final.get("unresolved_intent_count")) is int
             and final["unresolved_intent_count"] == 0
             and final.get("reconciled") is True)
+
+
+def _reconcile_position(*, broker: ControlledAcceptanceBroker, key: str,
+                        finam_symbol: str, expected_position: int,
+                        pending_position: int,
+                        sleeper: Callable[[float], None] = time.sleep) -> dict[str, Any]:
+    """Reconcile one submitted intent using only the exact account position.
+
+    Normal Stage 8.11 fill detection intentionally does not query /trades,
+    /orders/{id}, order status, executed_quantity or remaining_quantity.
+    The account position is the synchronous risk authority.
+    """
+    if expected_position not in (-1, 0, 1) or pending_position not in (-1, 0, 1):
+        raise OperatorInterventionRequired("POSITION_RECONCILIATION_CONFIGURATION_INVALID")
+    if expected_position == pending_position:
+        raise OperatorInterventionRequired("POSITION_RECONCILIATION_CONFIGURATION_INVALID")
+
+    for observation in range(POSITION_RECONCILIATION_MAX_OBSERVATIONS):
+        snap = broker.position_snapshot(finam_symbol)
+        position = snap.get("position_quantity")
+        unexpected = snap.get("unexpected_position_count")
+        if type(position) is not int or type(unexpected) is not int:
+            raise OperatorInterventionRequired("POSITION_RECONCILIATION_ACCOUNT_SCHEMA_INVALID")
+        if unexpected != 0:
+            raise OperatorInterventionRequired("POSITION_RECONCILIATION_UNEXPECTED_OTHER_POSITION")
+
+        if position == expected_position:
+            intent = broker.store.intent(key)
+            if not intent:
+                raise OperatorInterventionRequired("POSITION_RECONCILIATION_INTENT_MISSING")
+            broker_id = intent.get("broker_order_id")
+            broker.store.transition_intent(key, "FILL", broker_id if isinstance(broker_id, str) and broker_id else None)
+            broker.store.transition_intent(key, "RECONCILED", broker_id if isinstance(broker_id, str) and broker_id else None)
+            return {**snap, "executed_quantity": 1, "position_authoritative": True}
+
+        if position != pending_position:
+            raise OperatorInterventionRequired("POSITION_RECONCILIATION_UNEXPECTED_QUANTITY")
+
+        if observation + 1 >= POSITION_RECONCILIATION_MAX_OBSERVATIONS:
+            raise OperatorInterventionRequired("POSITION_RECONCILIATION_TIMEOUT")
+        sleeper(POSITION_RECONCILIATION_SLEEP_SECONDS)
+
+    raise OperatorInterventionRequired("POSITION_RECONCILIATION_TIMEOUT")
 
 
 def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bool,
@@ -643,11 +711,9 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
                              direction: str, broker: ControlledAcceptanceBroker,
                              now: datetime | None = None,
                              clock: Callable[[], datetime] | None = None,
+                             sleeper: Callable[[float], None] = time.sleep,
                              attempt_id: str | None = None) -> dict[str, Any]:
-    """Execute/reconcile the bounded lifecycle; PASS requires two proven fills."""
-    # ``now`` remains a deterministic legacy test input. New boundary tests use
-    # an injected clock whose every invocation is an independently observed UTC
-    # instant. Production always calls the system clock afresh.
+    """Execute the bounded lifecycle with account position as fill authority."""
     time_source = clock or ((lambda: now) if now is not None else lambda: datetime.now(timezone.utc))
     observed = time_source()
     phases = ["PRECHECK"]
@@ -657,91 +723,107 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
     intent_prefix = attempt_id or "stage8.11"
     entry_key = f"{intent_prefix}:{instrument}:entry"
     flatten_key = f"{intent_prefix}:{instrument}:flatten"
+    expected_position = 1 if direction == "LONG" else -1
+
     try:
         if broker.accepted_account_hash.lower() != authority.configured_account_hash.lower():
             raise AcceptanceBlocked("ACCOUNT_BINDING_INVALID")
         if finam_symbol != resolve_frozen_symbol(instrument):
             raise AcceptanceBlocked("FINAM_SYMBOL_BINDING_INVALID")
-        checked = precheck(authority=authority, runtime_root=runtime_root, now=observed,
-                           execution_authorized=execution_authorized, instrument=instrument)
+
+        checked = precheck(
+            authority=authority, runtime_root=runtime_root, now=observed,
+            execution_authorized=execution_authorized, instrument=instrument)
         result["precheck"] = checked
         if checked["decision"] != "AUTHORIZED":
             raise AcceptanceBlocked("|".join(checked["reason_codes"]))
         if direction not in ("LONG", "SHORT"):
             raise AcceptanceBlocked("DIRECTION_INVALID")
         phases.append("AUTHORIZED")
-        # This fresh schedule read is immediately before the only possible entry
-        # POST.  A refusal occurs before persist_intent and therefore creates no
-        # execution intent.
+
         entry_observed = time_source()
         broker.require_active_trading_session(
             finam_symbol, entry_observed, minimum_remaining=ENTRY_MINIMUM_REMAINING_SESSION)
-        phases.append("ACTIVE_TRADING_SESSION_PROVEN")
+
+        # Fresh immediate pre-submit authority. /orders is used here only to
+        # prove that the account begins flat with zero active broker orders.
+        pre_submit = _final_state(broker, finam_symbol)
+        if not _account_is_clean(pre_submit):
+            raise AcceptanceBlocked("STAGE8_11_PRE_SUBMIT_ACCOUNT_NOT_CLEAN")
+        phases.extend(["ACTIVE_TRADING_SESSION_PROVEN", "PRE_SUBMIT_ACCOUNT_CLEAN_PROVEN"])
+
         try:
             broker.submit_entry(key=entry_key, finam_symbol=finam_symbol, direction=direction)
+            phases.append("ENTRY_ACKNOWLEDGED")
         except FinamOrderRejected as exc:
             phases.append("ENTRY_DEFINITIVE_REJECTION")
             final = _final_state(broker, finam_symbol)
             result["final_state"] = final
-            result["rejection"] = {"http_status": exc.status, "category": exc.category,
-                                   "request_id": exc.request_id,
-                                   "broker_acknowledgement_present": False}
+            result["rejection"] = {
+                "http_status": exc.status,
+                "category": exc.category,
+                "request_id": exc.request_id,
+                "broker_acknowledgement_present": False,
+            }
             if not _account_is_clean(final):
                 raise OperatorInterventionRequired("DEFINITIVE_REJECTION_ACCOUNT_NOT_CLEAN")
             phases.append("FINAL_RECONCILIATION_PASS")
-            result.update(classification="NOT_ACCEPTED_NO_EXECUTION",
-                          failure_code="DEFINITIVE_REJECTION", entry_fill_proven=False,
-                          one_contract_position_observed=False, flatten_fill_proven=False)
+            result.update(
+                classification="NOT_ACCEPTED_NO_EXECUTION",
+                failure_code="DEFINITIVE_REJECTION",
+                entry_fill_proven=False,
+                one_contract_position_observed=False,
+                flatten_fill_proven=False,
+            )
             return result
         except FinamUncertainSubmission:
-            phases.append("ENTRY_UNCERTAIN_RECONCILE")
-        entry = _reconcile(broker, entry_key, allow_cancel=True,
-                           expected_position=(1 if direction == "LONG" else -1))
-        phases.append("ENTRY_RECONCILED")
-        if int(entry.get("executed_quantity", 0)) != 1:
-            final = _final_state(broker, finam_symbol)
-            result["final_state"] = final
-            if int(entry.get("executed_quantity", -1)) != 0 or not _account_is_clean(final):
-                raise OperatorInterventionRequired("NO_FILL_FLAT_STATE_NOT_PROVEN")
-            phases.append("FINAL_RECONCILIATION_PASS")
-            result["classification"] = "NOT_ACCEPTED_NO_EXECUTION"
-            result["failure_code"] = "ENTRY_NOT_FILLED"
-            return result
-        expected_position = 1 if direction == "LONG" else -1
-        if int(entry.get("position_quantity", 0)) != expected_position:
-            raise OperatorInterventionRequired("ONE_CONTRACT_POSITION_NOT_PROVEN")
-        phases.append("ONE_CONTRACT_POSITION_OBSERVED")
+            # The POST may have reached FINAM. Position remains the risk
+            # authority: if the contract appears, controlled flatten proceeds.
+            phases.append("ENTRY_SUBMISSION_UNCERTAIN_POSITION_RECONCILE")
+
+        entry = _reconcile_position(
+            broker=broker, key=entry_key, finam_symbol=finam_symbol,
+            expected_position=expected_position, pending_position=0, sleeper=sleeper)
+        phases.extend(["ENTRY_POSITION_RECONCILED", "ONE_CONTRACT_POSITION_OBSERVED"])
+        result.update(entry_fill_proven=True, one_contract_position_observed=True)
+
         try:
             flatten_observed = time_source()
             broker.require_active_trading_session(finam_symbol, flatten_observed)
             broker.submit_flatten(key=flatten_key, finam_symbol=finam_symbol, direction=direction)
+            phases.append("FLATTEN_ACKNOWLEDGED")
         except AcceptanceBlocked as exc:
-            # Entry and the exact signed one-contract position are already
-            # proved. A closed/malformed session is therefore an operator safety
-            # event, never an ordinary pre-submission BLOCKED result.
             try:
                 result["final_state"] = _final_state(broker, finam_symbol)
             except Exception:
                 pass
-            result.update(entry_fill_proven=True, one_contract_position_observed=True,
-                          flatten_fill_proven=False)
-            if str(exc) in {"STAGE8_11_TRADING_SESSION_NOT_OPEN",
-                            "STAGE8_11_TRADING_SCHEDULE_INVALID"}:
+            result["flatten_fill_proven"] = False
+            if str(exc) in {
+                "STAGE8_11_TRADING_SESSION_NOT_OPEN",
+                "STAGE8_11_TRADING_SCHEDULE_INVALID",
+            }:
                 raise OperatorInterventionRequired("FLATTEN_TRADING_SESSION_NOT_OPEN") from exc
             raise OperatorInterventionRequired(f"FLATTEN_BLOCKED:{exc}") from exc
         except FinamUncertainSubmission:
-            phases.append("FLATTEN_UNCERTAIN_RECONCILE")
-        flatten = _reconcile(broker, flatten_key, allow_cancel=True, expected_position=0)
-        phases.append("FLATTEN_RECONCILED")
+            phases.append("FLATTEN_SUBMISSION_UNCERTAIN_POSITION_RECONCILE")
+
+        _reconcile_position(
+            broker=broker, key=flatten_key, finam_symbol=finam_symbol,
+            expected_position=0, pending_position=expected_position, sleeper=sleeper)
+        phases.append("FLATTEN_POSITION_RECONCILED")
+
         final = _final_state(broker, finam_symbol)
-        flat = (int(flatten.get("executed_quantity", 0)) == 1
-                and _account_is_clean(final))
-        if not flat:
-            raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+        if not _account_is_clean(final):
+            raise OperatorInterventionRequired("FINAL_ACCOUNT_NOT_CLEAN")
         phases.extend(["FINAL_RECONCILIATION_PASS", "HALTED"])
-        result.update(classification="SYNTHETIC_PASS", entry_fill_proven=True,
-                      one_contract_position_observed=True, flatten_fill_proven=True,
-                      final_state=final)
+        result.update(
+            classification="SYNTHETIC_PASS",
+            entry_fill_proven=True,
+            one_contract_position_observed=True,
+            flatten_fill_proven=True,
+            final_state=final,
+        )
+
     except OperatorInterventionRequired as exc:
         if "final_state" not in result:
             try:
@@ -750,45 +832,59 @@ def run_controlled_lifecycle(*, authority: AcceptanceAuthority, runtime_root: Pa
                 pass
         phases.extend(["OPERATOR_INTERVENTION_REQUIRED", "HALTED"])
         result.update(classification="OPERATOR_INTERVENTION_REQUIRED", failure_code=str(exc))
+
     except AcceptanceBlocked as exc:
         phases.append("HALTED")
         result["failure_code"] = str(exc)
+
     except Exception as exc:
-        # Once a POST was attempted, runtime failures are safety events rather
-        # than escaping exceptions.  Reconcile/cancel first and, only when the
-        # exact entry fill and position are proved, use the one allowed flatten.
-        phases.append("POST_SUBMISSION_EXCEPTION_RECONCILE")
+        # After any attempted POST, make one risk-reduction inspection using
+        # /account positions only. If the exact one-contract risk exists and no
+        # flatten intent was created yet, use the one allowed flatten POST.
+        phases.append("POST_SUBMISSION_EXCEPTION_POSITION_RECOVERY")
         if broker.order_endpoint_call_count:
             try:
+                position = broker.position_snapshot(finam_symbol)
+                current = position.get("position_quantity")
+                unexpected = position.get("unexpected_position_count")
+                if type(current) is not int or type(unexpected) is not int or unexpected != 0:
+                    raise OperatorInterventionRequired("POSITION_RECOVERY_ACCOUNT_INVALID")
+
                 entry_intent = broker.store.intent(entry_key)
-                if entry_intent and entry_intent["status"] not in ("RECONCILED", "CANCELLED", "REJECTED"):
-                    recovered_entry = _reconcile(broker, entry_key, allow_cancel=True,
-                                                 expected_position=(1 if direction == "LONG" else -1))
-                else:
-                    recovered_entry = broker.snapshot(entry_key) if entry_intent else None
                 flatten_intent = broker.store.intent(flatten_key)
-                if (recovered_entry and int(recovered_entry.get("executed_quantity", 0)) == 1
-                        and int(recovered_entry.get("position_quantity", 0)) == (1 if direction == "LONG" else -1)
-                        and flatten_intent is None):
+                if current == expected_position and flatten_intent is None:
+                    if entry_intent and entry_intent.get("status") not in ("RECONCILED", "CLOSED"):
+                        broker_id = entry_intent.get("broker_order_id")
+                        broker.store.transition_intent(
+                            entry_key, "FILL",
+                            broker_id if isinstance(broker_id, str) and broker_id else None)
+                        broker.store.transition_intent(
+                            entry_key, "RECONCILED",
+                            broker_id if isinstance(broker_id, str) and broker_id else None)
                     recovery_observed = time_source()
                     broker.require_active_trading_session(finam_symbol, recovery_observed)
-                    broker.submit_flatten(key=flatten_key, finam_symbol=finam_symbol, direction=direction)
-                    flatten_intent = broker.store.intent(flatten_key)
-                if flatten_intent and flatten_intent["status"] not in ("RECONCILED", "CANCELLED", "REJECTED"):
-                    _reconcile(broker, flatten_key, allow_cancel=True, expected_position=0)
+                    broker.submit_flatten(
+                        key=flatten_key, finam_symbol=finam_symbol, direction=direction)
+                    _reconcile_position(
+                        broker=broker, key=flatten_key, finam_symbol=finam_symbol,
+                        expected_position=0, pending_position=expected_position, sleeper=sleeper)
                 result["final_state"] = _final_state(broker, finam_symbol)
             except Exception:
-                phases.append("RECOVERY_RECONCILIATION_INCOMPLETE")
+                phases.append("RECOVERY_POSITION_RECONCILIATION_INCOMPLETE")
+
             phases.extend(["OPERATOR_INTERVENTION_REQUIRED", "HALTED"])
-            result.update(classification="OPERATOR_INTERVENTION_REQUIRED",
-                          failure_code=f"POST_SUBMISSION_EXCEPTION:{type(exc).__name__}")
+            result.update(
+                classification="OPERATOR_INTERVENTION_REQUIRED",
+                failure_code=f"POST_SUBMISSION_EXCEPTION:{type(exc).__name__}")
         else:
             phases.append("HALTED")
             result["failure_code"] = f"PRE_SUBMISSION_EXCEPTION:{type(exc).__name__}"
+
     finally:
         emergency_halt(runtime_root, now=observed)
         result["order_endpoint_call_count"] = broker.order_endpoint_call_count
         result["kill_switch_final_state"] = "HALTED"
+
     return result
 
 
