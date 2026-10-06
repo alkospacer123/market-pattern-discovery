@@ -161,6 +161,46 @@ def _read_supervisor_watermarks(runtime_root: Path) -> dict[str, datetime]:
     return result
 
 
+def _stage8_11_unresolved_for_account(runtime_root: Path, account_id: str) -> int:
+    acceptance_path = stage8_11_acceptance_path(runtime_root)
+    if not acceptance_path.is_file():
+        _fail("STAGE8_12_3_STAGE8_11_LEDGER_MISSING")
+    try:
+        connection = sqlite3.connect(
+            acceptance_path.resolve().as_uri() + "?mode=ro", uri=True
+        )
+        try:
+            identity_row = connection.execute(
+                "SELECT value FROM state WHERE key='database_identity'"
+            ).fetchone()
+        finally:
+            connection.close()
+        if identity_row is None:
+            _fail("STAGE8_12_3_STAGE8_11_LEDGER_IDENTITY_INVALID")
+        try:
+            historical_identity = json.loads(identity_row[0])
+        except (TypeError, json.JSONDecodeError):
+            _fail("STAGE8_12_3_STAGE8_11_LEDGER_IDENTITY_INVALID")
+        if historical_identity != stage8_11_identity(account_id):
+            _fail("STAGE8_12_3_STAGE8_11_LEDGER_ACCOUNT_MISMATCH")
+        unresolved = readonly_unresolved_intent_count(acceptance_path)
+    except PreflightBlocked:
+        raise
+    except Exception:
+        _fail("STAGE8_12_3_STAGE8_11_LEDGER_INVALID")
+    if unresolved != 0:
+        _fail("STAGE8_12_3_STAGE8_11_UNRESOLVED_INTENTS")
+    return unresolved
+
+
+def _require_current_h1_watermark(
+    stored: datetime, schedule: Any, observed_now: datetime
+) -> None:
+    expected_now = newest_expected_h1_close(schedule, observed_now)
+    if expected_now is not None and stored != expected_now:
+        _fail("STAGE8_12_3_H1_WATERMARK_STALE")
+
+
 def _read_production_state(runtime_root: Path, broker_equity: Decimal) -> dict[str, Any]:
     path = (runtime_root / "state" / PRODUCTION_STATE_FILENAME).resolve()
     if not path.exists():
@@ -429,34 +469,9 @@ def preflight_only(
     ):
         _fail("STAGE8_12_3_SAFETY_OR_HEALTH_GATE_INVALID")
 
-    acceptance_path = stage8_11_acceptance_path(runtime_root)
-    if not acceptance_path.is_file():
-        _fail("STAGE8_12_3_STAGE8_11_LEDGER_MISSING")
-    try:
-        connection = sqlite3.connect(
-            acceptance_path.resolve().as_uri() + "?mode=ro", uri=True
-        )
-        try:
-            identity_row = connection.execute(
-                "SELECT value FROM state WHERE key='database_identity'"
-            ).fetchone()
-        finally:
-            connection.close()
-        if identity_row is None:
-            _fail("STAGE8_12_3_STAGE8_11_LEDGER_IDENTITY_INVALID")
-        try:
-            historical_identity = json.loads(identity_row[0])
-        except (TypeError, json.JSONDecodeError):
-            _fail("STAGE8_12_3_STAGE8_11_LEDGER_IDENTITY_INVALID")
-        if historical_identity != stage8_11_identity(account_id):
-            _fail("STAGE8_12_3_STAGE8_11_LEDGER_ACCOUNT_MISMATCH")
-        historical_unresolved = readonly_unresolved_intent_count(acceptance_path)
-    except PreflightBlocked:
-        raise
-    except Exception:
-        _fail("STAGE8_12_3_STAGE8_11_LEDGER_INVALID")
-    if historical_unresolved != 0:
-        _fail("STAGE8_12_3_STAGE8_11_UNRESOLVED_INTENTS")
+    historical_unresolved = _stage8_11_unresolved_for_account(
+        runtime_root, account_id
+    )
 
     watermarks = _read_supervisor_watermarks(runtime_root)
 
@@ -525,9 +540,9 @@ def preflight_only(
             _fail("STAGE8_12_3_N4_BINDING_INVALID")
         params = api.asset_params(symbol, account_id)
         schedule = api.schedule(symbol)
-        expected_now = newest_expected_h1_close(schedule, observed_now)
-        if expected_now is not None and watermarks[instrument] != expected_now:
-            _fail("STAGE8_12_3_H1_WATERMARK_STALE")
+        _require_current_h1_watermark(
+            watermarks[instrument], schedule, observed_now
+        )
         binding = validate_finam_binding(
             instrument,
             asset,
