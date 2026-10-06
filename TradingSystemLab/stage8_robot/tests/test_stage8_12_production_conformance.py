@@ -158,6 +158,11 @@ def run_end_to_end(root: Path, instrument: str, direction: str) -> dict:
         )
         assert broker_position == 0
         assert adapter.terminal_proof(instrument, entry.trade_id)
+        assert adapter.trigger(
+            instrument, entry.trade_id,
+            observed_position_quantity=0,
+            price=new_effective.stop_price,
+        ) == 0
 
         observed = runtime.manage_completed_bar(
             instrument,
