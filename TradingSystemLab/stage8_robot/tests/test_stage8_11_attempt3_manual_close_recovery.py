@@ -4,6 +4,7 @@ import json
 import pytest
 
 from TradingSystemLab.stage8_robot.broker import OrderRequest
+from TradingSystemLab.stage8_robot.finam_api import FinamNotFound
 from TradingSystemLab.stage8_robot.controlled_real_acceptance import ControlledAcceptanceBroker
 from TradingSystemLab.stage8_robot.specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID
 from TradingSystemLab.stage8_robot.stage8_11_attempt3_manual_close_recovery import (
@@ -154,6 +155,29 @@ def test_attempt3_manual_close_recovery_uses_persisted_order_id_when_history_col
 
     assert result["recovery_status"] == "COMMITTED"
     assert result["broker_order_terminal_status"] == "EXECUTED"
+    assert api.calls == ["session_details", "account", "orders", "order"]
+
+
+def test_attempt3_manual_close_recovery_uses_immutable_oir_when_order_detail_expired(tmp_path, monkeypatch):
+    root, _, client_id = setup_attempt3(tmp_path, monkeypatch)
+    api = ReadonlyAttempt3API(client_id=client_id, orders=[])
+
+    def expired_order(account_id, order_id):
+        api.calls.append("order")
+        raise FinamNotFound(order_id)
+
+    api.order = expired_order
+    result = recover_attempt3_manual_close(
+        runtime_root=root, account_id=ACCOUNT, readonly_api=api,
+        recovery_code_commit="a" * 40, now=NOW)
+
+    assert result["recovery_status"] == "COMMITTED"
+    assert result["broker_order_terminal_status"] == "NOT_AVAILABLE_404"
+    assert result["recovery_basis"] == "IMMUTABLE_ATTEMPT3_OIR_PLUS_CURRENT_FLAT"
+    assert result["attempt3_reclassified_as_pass"] is False
+    assert result["physical_result_preserved"] == "OPERATOR_INTERVENTION_REQUIRED"
+    assert result["all_positions_zero"] is True
+    assert result["active_broker_order_count"] == 0
     assert api.calls == ["session_details", "account", "orders", "order"]
 
 
