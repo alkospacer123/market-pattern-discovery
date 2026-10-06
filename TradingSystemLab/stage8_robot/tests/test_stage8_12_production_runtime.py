@@ -158,6 +158,68 @@ def test_short_entry_uses_negative_position_authority(tmp_path):
     runtime.close()
 
 
+def test_entry_and_stop_confirmation_are_restart_idempotent(tmp_path):
+    runtime = ProductionRuntime(tmp_path / "state.db")
+    budget = runtime.begin_batch(
+        realized_equity=Decimal("100000"), available_cash=Decimal("1000"))
+    entry = runtime.plan_entry(
+        signal(), authority(), realized_equity=Decimal("100000"), budget=budget)
+
+    first_stop = runtime.confirm_entry_position(entry.idempotency_key, entry.quantity)
+    repeated_stop = runtime.confirm_entry_position(entry.idempotency_key, entry.quantity)
+    assert repeated_stop == first_stop
+    assert runtime.store.unresolved_intent_count() == 1
+
+    runtime.confirm_protective_stop(first_stop.idempotency_key, "stop-0")
+    runtime.confirm_protective_stop(first_stop.idempotency_key, "stop-0")
+    assert runtime.confirm_entry_position(entry.idempotency_key, entry.quantity) is None
+    assert runtime.store.unresolved_intent_count() == 0
+
+    with pytest.raises(ProductionRuntimeError, match="PROTECTIVE_STOP_BROKER_ID_MISMATCH"):
+        runtime.confirm_protective_stop(first_stop.idempotency_key, "different-stop")
+    runtime.close()
+
+
+def test_reconciled_entry_without_local_position_is_rebuilt_from_exact_broker_position(tmp_path):
+    runtime = ProductionRuntime(tmp_path / "state.db")
+    budget = runtime.begin_batch(
+        realized_equity=Decimal("100000"), available_cash=Decimal("1000"))
+    entry = runtime.plan_entry(
+        signal(), authority(), realized_equity=Decimal("100000"), budget=budget)
+    runtime.store.transition_intent(entry.idempotency_key, "FILL")
+    runtime.store.transition_intent(entry.idempotency_key, "RECONCILED")
+
+    stop = runtime.confirm_entry_position(entry.idempotency_key, entry.quantity)
+    assert stop.kind == "PROTECTIVE_STOP_INSTALL"
+    assert runtime.open_positions()["USDRUBF"]["trade_id"] == "trade-USDRUBF-LONG"
+    assert runtime.store.intent(entry.idempotency_key)["status"] == "RECONCILED"
+    runtime.close()
+
+
+def test_reconciled_entry_cannot_silently_be_flat_at_broker(tmp_path):
+    runtime = ProductionRuntime(tmp_path / "state.db")
+    budget = runtime.begin_batch(
+        realized_equity=Decimal("100000"), available_cash=Decimal("1000"))
+    entry = runtime.plan_entry(
+        signal(), authority(), realized_equity=Decimal("100000"), budget=budget)
+    runtime.confirm_entry_position(entry.idempotency_key, entry.quantity)
+    with pytest.raises(ProductionRuntimeError, match="ENTRY_POSITION_STATE_BROKER_MISMATCH"):
+        runtime.confirm_entry_position(entry.idempotency_key, 0)
+    runtime.close()
+
+
+def test_terminal_rejected_entry_cannot_be_revived_by_broker_position(tmp_path):
+    runtime = ProductionRuntime(tmp_path / "state.db")
+    budget = runtime.begin_batch(
+        realized_equity=Decimal("100000"), available_cash=Decimal("1000"))
+    entry = runtime.plan_entry(
+        signal(), authority(), realized_equity=Decimal("100000"), budget=budget)
+    runtime.store.transition_intent(entry.idempotency_key, "REJECTED")
+    with pytest.raises(ProductionRuntimeError, match="TERMINAL_ENTRY_INTENT_HAS_BROKER_POSITION"):
+        runtime.confirm_entry_position(entry.idempotency_key, entry.quantity)
+    runtime.close()
+
+
 def test_instrument_economics_must_match_frozen_registry(tmp_path):
     runtime = ProductionRuntime(tmp_path / "state.db")
     budget = runtime.begin_batch(
