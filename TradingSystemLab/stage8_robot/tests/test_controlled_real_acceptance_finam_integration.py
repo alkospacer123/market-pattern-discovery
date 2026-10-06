@@ -99,7 +99,7 @@ class SyntheticFinamTransport:
             return Raw({"trades":rows})
         if path == prefix + "/orders" and method == "POST":
             payload=json.loads(request.data); self.posts += 1; oid=f"o{self.posts}"
-            status="ACTIVE" if self.scenario == "active_cancel" and self.posts == 1 else "FILLED"
+            status="ACTIVE" if self.scenario in {"active_cancel","cancel_race_fill"} and self.posts == 1 else "FILLED"
             if self.scenario == "executed_status": status="ORDER_STATUS_EXECUTED"
             if self.scenario == "no_fill" and self.posts == 1: status="REJECTED"
             if self.scenario == "mismatched_symbol" and self.posts == 1: payload["symbol"]="CNYRUBF@RTSX"
@@ -145,7 +145,16 @@ class SyntheticFinamTransport:
             return Raw(order)
         if path.startswith(prefix + "/orders/") and method == "DELETE":
             oid=path.rsplit("/",1)[1]; order=next(o for o in self.orders if o["order_id"] == oid)
-            order["status"]="CANCELLED"; self.deletes += 1; return Raw(order)
+            order["status"]="CANCELLED"; self.deletes += 1
+            if self.scenario == "cancel_race_fill" and self.posts == 1:
+                order["executed_quantity"]=self.decimal(1)
+                order["remaining_quantity"]=self.decimal(0)
+                self.position=1
+                self.trade_rows.append({"trade_id":"t"+oid,"order_id":oid,"account_id":ACCOUNT,
+                    "symbol":order["order"]["symbol"],"side":order["order"]["side"],"size":self.decimal(1),
+                    "price":self.decimal(1),"timestamp":"2026-10-04T09:00:03Z",
+                    "comment":"","accrued_interest":self.decimal(0),"currency":"RUB"})
+            return Raw(order)
         raise AssertionError((method,path))
 
 
@@ -178,11 +187,13 @@ def execute(tmp_path, scenario):
 
 
 
-def test_real_finam_eventual_consistency_delayed_trade_converges_without_duplicate_entry(tmp_path):
+def test_real_finam_eventual_consistency_delayed_trade_does_not_gate_exact_position_proof(tmp_path):
     result,transport,store=execute(tmp_path,"delayed_trade")
     assert result["classification"] == "SYNTHETIC_PASS"
     assert transport.posts == 2
-    assert transport.trade_reads >= 3
+    # /trades is supplementary: ACK + exact account position may reconcile
+    # before the delayed entry trade row becomes visible.
+    assert transport.trade_reads == 2
     assert store.unresolved_intent_count() == 0
     intents=store.db.execute("SELECT idempotency_key,status FROM intents ORDER BY rowid").fetchall()
     assert intents == [("stage8.11:USDRUBF:entry","RECONCILED"),
@@ -288,6 +299,16 @@ def test_active_market_order_gets_grace_observations_before_single_cancel(tmp_pa
         1 for method,path in transport.paths[:delete_index]
         if method=="GET" and path==f"/v1/accounts/{ACCOUNT}/orders")
     assert order_collection_reads >= RECONCILIATION_ACTIVE_GRACE_OBSERVATIONS
+    assert store.unresolved_intent_count() == 0
+
+
+def test_real_finam_cancel_race_full_fill_is_reconciled_and_flattened(tmp_path):
+    result,transport,store=execute(tmp_path,"cancel_race_fill")
+    assert result["classification"] == "SYNTHETIC_PASS"
+    assert transport.posts == 2
+    assert transport.deletes == 1
+    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
+    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
     assert store.unresolved_intent_count() == 0
 
 

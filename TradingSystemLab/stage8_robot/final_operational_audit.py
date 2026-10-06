@@ -548,6 +548,8 @@ def audit(
           'for fill in snap.get("fills", []):',
           "and filled == 0",
           "position in (-1, 0, 1)",
+          'if status == "CANCELLED" and filled == 1:',
+          "position != expected_position",
           'return {**snap, "executed_quantity": 1}',
           "if expected_position is None or type(position) is not int:",
           'snap.get("trade_propagation_pending") is not True')),

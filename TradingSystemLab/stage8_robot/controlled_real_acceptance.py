@@ -581,6 +581,29 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
                 continue
             raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
 
+        # A cancel can race with a complete one-contract market fill.
+        # FINAM may therefore report terminal CANCELLED together with
+        # executed_quantity=1.  This is an execution, not a no-fill outcome,
+        # but it is accepted only when the exact expected account position is
+        # independently observed.
+        if status == "CANCELLED" and filled == 1:
+            if expected_position is None or type(position) is not int:
+                raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+            if position != expected_position:
+                if position in (-1, 0, 1) and expected_position in (-1, 0, 1):
+                    if observation + 1 >= RECONCILIATION_MAX_OBSERVATIONS:
+                        raise OperatorInterventionRequired("RECONCILIATION_TIMEOUT")
+                    sleeper(RECONCILIATION_SLEEP_SECONDS)
+                    continue
+                raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+            if not fills and snap.get("trade_propagation_pending") is not True:
+                raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+            for fill in fills:
+                broker.store.persist_fill(fill)
+            broker.store.transition_intent(key, "FILL", order_id)
+            broker.store.transition_intent(key, "RECONCILED", order_id)
+            return snap
+
         if status in TERMINAL_NO_FILL and filled != 0:
             raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
 
