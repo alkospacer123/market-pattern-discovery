@@ -275,7 +275,7 @@ Repository-only closeout established aggregate Stage 8.10 state:
 
 The detailed Stage 8.11 sub-gate text that previously occupied this location described the pre-attempt7 state and is no longer current roadmap authority. The immutable history of attempts 1–6 remains preserved in Git and in `TradingSystemLab/stage8_robot/authority_provenance.json`.
 
-Current Stage 8.11 authority is only the `## Current handoff` above plus the machine-readable provenance:
+Current Stage 8.11 authority is only the Current handoff section above plus the machine-readable provenance:
 
 - Stage 8.11 = `STAGE_8_11_CONTROLLED_REAL_EXECUTION_ACCEPTANCE_COMPLETE_PASS`;
 - physical authority = `stage8.11.attempt7`;
