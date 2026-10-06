@@ -240,20 +240,25 @@ def test_full_production_path_is_deterministic_all_n4_long_short(
     assert first["real_order_endpoint_call_count"] == 0
 
 
-def test_percent_stop_payload_is_close_only_shape(tmp_path):
-    runtime = ProductionRuntime(tmp_path / "state.db")
+@pytest.mark.parametrize(
+    "direction,expected_side",
+    (("LONG", "SIDE_SELL"), ("SHORT", "SIDE_BUY")),
+)
+def test_percent_stop_payload_is_close_only_shape(
+        tmp_path, direction, expected_side):
+    runtime = ProductionRuntime(tmp_path / f"{direction}.db")
     adapter = SyntheticPercentPositionStopAdapter()
     try:
         budget = runtime.begin_batch(
             realized_equity=Decimal("100000"),
             available_cash=Decimal("1000000"))
         entry = runtime.plan_entry(
-            signal("USDRUBF", "LONG"), authority("USDRUBF"),
+            signal("USDRUBF", direction), authority("USDRUBF"),
             realized_equity=Decimal("100000"), budget=budget)
         stop = runtime.confirm_entry_position(
             entry.idempotency_key, entry.expected_position_quantity)
         payload = adapter.payload(stop)
-        assert payload["side"] == "SIDE_SELL"
+        assert payload["side"] == expected_side
         assert payload["quantity_sl"] == {"value": "100"}
         assert payload["sl_qty_measure"] == "SLTP_QTY_MEASURE_PERCENT"
         assert payload["valid_before"] == "VALID_BEFORE_GOOD_TILL_CANCEL"
