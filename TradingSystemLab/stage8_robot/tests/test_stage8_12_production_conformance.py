@@ -468,6 +468,49 @@ def test_trailing_stop_restart_reuses_same_broker_stop(tmp_path):
         runtime.close()
 
 
+@pytest.mark.parametrize("persisted_status", ("ACK", "RECONCILED"))
+def test_stop_confirmation_crash_window_recovers_without_resubmission(
+        tmp_path, persisted_status):
+    runtime_path = tmp_path / f"runtime-{persisted_status}.db"
+    broker_path = tmp_path / f"broker-{persisted_status}.db"
+    runtime = ProductionRuntime(runtime_path)
+    adapter = SyntheticPercentPositionStopAdapter(broker_path)
+    budget = runtime.begin_batch(
+        realized_equity=Decimal("100000"),
+        available_cash=Decimal("1000000"))
+    entry = runtime.plan_entry(
+        signal("USDRUBF", "LONG"), authority("USDRUBF"),
+        realized_equity=Decimal("100000"), budget=budget)
+    stop = runtime.confirm_entry_position(
+        entry.idempotency_key, entry.expected_position_quantity)
+    broker_id = adapter.submit(
+        stop, observed_position_quantity=entry.expected_position_quantity)
+
+    # Simulate a crash after broker identity became durable but before the
+    # protected-position state was saved.
+    runtime.store.transition_intent(stop.idempotency_key, "ACK", broker_id)
+    if persisted_status == "RECONCILED":
+        runtime.store.transition_intent(
+            stop.idempotency_key, "RECONCILED", broker_id)
+    adapter.close()
+    runtime.close()
+
+    runtime = ProductionRuntime(runtime_path)
+    adapter = SyntheticPercentPositionStopAdapter(broker_path)
+    try:
+        assert runtime.open_positions()["USDRUBF"]["protective_stop_state"] == "PENDING"
+        assert runtime.recover_pending_protective_stop("USDRUBF") is None
+        position = runtime.open_positions()["USDRUBF"]
+        assert position["protective_stop_state"] == "ACTIVE"
+        assert position["protective_stop_broker_order_id"] == broker_id
+        assert runtime.store.intent(stop.idempotency_key)["status"] == "RECONCILED"
+        assert runtime.store.unresolved_intent_count() == 0
+        assert len(adapter.active_stops("USDRUBF", entry.trade_id)) == 1
+    finally:
+        adapter.close()
+        runtime.close()
+
+
 def test_pending_signal_and_entry_restart_cannot_duplicate(tmp_path):
     runtime_path = tmp_path / "runtime.db"
     runtime = ProductionRuntime(runtime_path)
