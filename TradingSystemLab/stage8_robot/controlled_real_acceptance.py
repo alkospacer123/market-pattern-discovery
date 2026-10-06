@@ -367,18 +367,25 @@ def _production_snapshot(api: object, account_id: str, intent: dict[str, Any]) -
     candidates = [row for row in _rows(api.orders(account_id), "orders")
                   if isinstance(row.get("order"), dict)
                   and row["order"].get("client_order_id") == client_id]
-    if len(candidates) > 1:
-        raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-    if candidates:
-        listed_id = candidates[0].get("order_id")
-        if not isinstance(listed_id, str) or not listed_id:
+    candidate_ids = []
+    for row in candidates:
+        order_id = row.get("order_id")
+        if not isinstance(order_id, str) or not order_id:
             raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-        if persisted_id and persisted_id != listed_id:
+        if order_id not in candidate_ids:
+            candidate_ids.append(order_id)
+
+    if persisted_id:
+        if candidate_ids and any(order_id != persisted_id for order_id in candidate_ids):
             raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
-    elif persisted_id:
         listed_id = persisted_id
     else:
-        raise ReconciliationPending("ORDER_COLLECTION_PROPAGATION_PENDING")
+        if len(candidate_ids) > 1:
+            raise OperatorInterventionRequired("OPERATOR_INTERVENTION_REQUIRED")
+        if len(candidate_ids) == 1:
+            listed_id = candidate_ids[0]
+        else:
+            raise ReconciliationPending("ORDER_COLLECTION_PROPAGATION_PENDING")
     try:
         order = api.order(account_id, listed_id)
     except FinamNotFound:

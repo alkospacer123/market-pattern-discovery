@@ -144,6 +144,25 @@ def test_attempt3_manual_close_recovery_closes_only_stale_entry(tmp_path, monkey
     assert api.calls == ["session_details", "account", "orders", "order"]
 
 
+def test_attempt3_manual_close_recovery_tolerates_duplicate_same_order_rows(tmp_path, monkeypatch):
+    root, _, client_id = setup_attempt3(tmp_path, monkeypatch)
+    row = {"order_id": "attempt3-order", "status": "ORDER_STATUS_EXECUTED",
+           "order": {"client_order_id": client_id}}
+    api = ReadonlyAttempt3API(client_id=client_id, orders=[row, dict(row)])
+
+    result = recover_attempt3_manual_close(
+        runtime_root=root, account_id=ACCOUNT, readonly_api=api,
+        recovery_code_commit="a" * 40, now=NOW)
+
+    assert result["recovery_status"] == "COMMITTED"
+    store = StateStore(root / "state" / "stage8-11-acceptance.sqlite3")
+    try:
+        assert store.intent(ATTEMPT3_INTENT_KEY)["status"] == "CLOSED"
+        assert store.unresolved_intent_count() == 0
+    finally:
+        store.close()
+
+
 def test_attempt3_manual_close_recovery_is_idempotent(tmp_path, monkeypatch):
     root, _, client_id = setup_attempt3(tmp_path, monkeypatch)
     api = ReadonlyAttempt3API(client_id=client_id)

@@ -118,6 +118,8 @@ class SyntheticFinamTransport:
             rows=list(self.orders)
             if self.scenario == "duplicate" and rows:
                 duplicate=dict(rows[0],order_id="duplicate"); rows.append(duplicate)
+            if self.scenario == "duplicate_same_order" and rows:
+                rows.append(dict(rows[0]))
             return Raw({"orders":rows})
         if path.startswith(prefix + "/orders/") and method == "GET":
             oid=path.rsplit("/",1)[1]; return Raw(next(o for o in self.orders if o["order_id"] == oid))
@@ -185,6 +187,15 @@ def test_real_finam_missing_entry_trade_uses_exact_order_and_position_proof(tmp_
 
 def test_real_finam_missing_all_trades_uses_exact_order_and_position_proof(tmp_path):
     result,transport,store=execute(tmp_path,"missing_all_trades")
+    assert result["classification"] == "SYNTHETIC_PASS"
+    assert transport.posts == 2
+    assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
+    assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
+    assert store.unresolved_intent_count() == 0
+
+
+def test_real_finam_duplicate_same_order_history_row_does_not_block_reconciliation(tmp_path):
+    result,transport,store=execute(tmp_path,"duplicate_same_order")
     assert result["classification"] == "SYNTHETIC_PASS"
     assert transport.posts == 2
     assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"

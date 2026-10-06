@@ -209,14 +209,18 @@ def recover_attempt3_manual_close(*, runtime_root: Path, account_id: str, readon
                 raise Attempt3ManualCloseRecoveryBlocked("ATTEMPT3_RECOVERY_ACTIVE_ORDERS_PRESENT")
 
             broker_id = intent["broker_order_id"]
-            matches = [row for row in orders if isinstance(row, dict) and row.get("order_id") == broker_id]
-            if len(matches) != 1:
-                raise Attempt3ManualCloseRecoveryBlocked("ATTEMPT3_RECOVERY_BROKER_ORDER_NOT_UNIQUE")
+            matching_rows = [
+                row for row in orders
+                if isinstance(row, dict) and row.get("order_id") == broker_id
+            ]
+            if not matching_rows:
+                raise Attempt3ManualCloseRecoveryBlocked(
+                    "ATTEMPT3_RECOVERY_BROKER_ORDER_NOT_VISIBLE")
 
-            # The collection endpoint is used only to prove that this broker
-            # order is still uniquely visible. Exact execution/identity proof
-            # comes from GET /orders/{order_id}, the same authoritative detail
-            # primitive used by live reconciliation.
+            # FINAM may repeat the same historical order row in the collection.
+            # Collection visibility is therefore presence-only here. Exact
+            # execution/identity proof comes from GET /orders/{order_id}, the
+            # same authoritative detail primitive used by live reconciliation.
             try:
                 detail = readonly_api.order(account_id, broker_id)
             except Exception:
