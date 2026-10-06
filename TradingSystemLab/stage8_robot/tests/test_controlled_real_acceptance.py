@@ -98,10 +98,11 @@ class API:
         positions = [] if self.current_position == 0 else [
             {"symbol": self.symbol, "quantity": {"value": str(self.current_position)}}
         ]
-        positions.extend(
-            {"symbol": symbol, "quantity": {"value": str(quantity)}}
-            for symbol, quantity in self.unrelated_positions
-        )
+        if self.posts > 0:
+            positions.extend(
+                {"symbol": symbol, "quantity": {"value": str(quantity)}}
+                for symbol, quantity in self.unrelated_positions
+            )
         return {"account_id": account, "positions": positions}
 
     def orders(self, account):
