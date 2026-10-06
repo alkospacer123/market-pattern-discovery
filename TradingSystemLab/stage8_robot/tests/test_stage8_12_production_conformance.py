@@ -220,8 +220,20 @@ def run_end_to_end(root: Path, instrument: str, direction: str) -> dict:
             price=new_effective.stop_price,
         ) == 0
         for stop in remaining:
-            adapter.observe_inactive(
-                stop.broker_order_id, observed_position_quantity=0)
+            with pytest.raises(
+                ProtectiveStopContractError,
+                match="PROTECTIVE_STOP_NOT_TERMINAL_OR_INACTIVE",
+            ):
+                adapter.observe_terminal_or_inactive(
+                    stop.broker_order_id,
+                    observed_status="ACTIVE",
+                    observed_position_quantity=0,
+                )
+            adapter.observe_terminal_or_inactive(
+                stop.broker_order_id,
+                observed_status="INACTIVE",
+                observed_position_quantity=0,
+            )
         assert adapter.terminal_proof(instrument, entry.trade_id) is True
 
         observed = runtime.manage_completed_bar(
@@ -330,7 +342,7 @@ def test_percent_stop_payload_is_close_only_shape(
         runtime.close()
 
 
-def test_looser_or_duplicate_trailing_stop_is_rejected(tmp_path):
+def test_looser_trailing_stop_rejected_and_duplicate_is_idempotent(tmp_path):
     runtime = ProductionRuntime(tmp_path / "state.db")
     adapter = SyntheticPercentPositionStopAdapter(tmp_path / "looser-broker.db")
     try:
