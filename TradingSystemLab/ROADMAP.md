@@ -1,6 +1,8 @@
 # Evidence-based roadmap
 
-## Stage 8.11 first physical attempt corrective record (2026-10-04)
+## Historical archive — Stage 8.11 early physical attempts (superseded for current status)
+
+> **Historical only.** This archive preserves evidence from the failed/partial Stage 8.11 attempts. It does not define current project status. Current authority is the later Current handoff section, `authority_provenance.json`, and the active Stage 8.12 roadmap below.
 
 `STAGE8_11_FIRST_PHYSICAL_ATTEMPT_FAILED_HTTP_400` is the canonical historical result. The accepted code commit was `069806355fc6931470d7f68d5ca6db20b06358fa`; the fixed request was `CNYRUBF` / `CNYRUBF@RTSX`, `LONG`, quantity `1`. Exactly one order-endpoint call returned HTTP 400. Physical evidence with SHA-256 `9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324` proves zero broker fills, `OPERATOR_INTERVENTION_REQUIRED`, and final kill switch `HALTED`. No retry and no controlled flatten occurred. The original physical evidence remains immutable and **did not PASS**.
 
@@ -269,77 +271,175 @@ Repository-only closeout established aggregate Stage 8.10 state:
 - Scheduled Task Disabled;
 - no LIVE authorization.
 
-## Stage 8.11 — Controlled Real Execution Acceptance
+## Historical Stage 8.11 lifecycle snapshot — superseded
 
-### Stage 8.11.0 — Code / Readiness Corrections
+The detailed Stage 8.11 sub-gate text that previously occupied this location described the pre-attempt7 state and is no longer current roadmap authority. The immutable history of attempts 1–6 remains preserved in Git and in `TradingSystemLab/stage8_robot/authority_provenance.json`.
 
-`COMPLETE`
+Current Stage 8.11 authority is only the Current handoff section above plus the machine-readable provenance:
 
-### Stage 8.11.1 — Intel Zero-Order PRECHECK
+- Stage 8.11 = `STAGE_8_11_CONTROLLED_REAL_EXECUTION_ACCEPTANCE_COMPLETE_PASS`;
+- physical authority = `stage8.11.attempt7`;
+- accepted code commit = `72a910e49b876cda99484a810e6f8a1b16ac0209`;
+- evidence SHA-256 = `704BFCC19B1A63F490192C0D8D0E4715BFECF77664296AFEF47E5B80FBF64B5F`;
+- entry and controlled flatten were physically proven;
+- final broker position = `0`;
+- final active orders = `0`;
+- final unresolved intents = `0`;
+- production kill switch = `HALTED`;
+- current `execution_authorized = false`.
 
-`COMPLETE / PASS`
+Do not derive current status from older Stage 8.11 attempt narratives.
 
-Physical result: `STAGE8_11_PRECHECK_ONLY_PASS`. Real orders: `0`.
+## Stage 8.12 — FULL/R15 Production Authorization
 
-### Stage 8.11.2 — Independent PRECHECK Evidence Audit
+**ROADMAP DEFINED / NOT STARTED / NOT AUTHORIZED.**
 
-`COMPLETE / PASS`
+Purpose: move the already frozen and physically accepted Stage 7 production system from controlled acceptance into unattended FULL/R15 production operation on the real FINAM account.
 
-Canonical result: `STAGE_8_11_2_INDEPENDENT_PRECHECK_EVIDENCE_AUDIT_PASS`.
+Stage 8.12 is an operational authorization/deployment stage. It is **not** a new research phase and must not change the strategy, portfolio, parameters, risk model, or research methodology.
 
-### Stage 8.11.3 — Explicit One-Contract Authorization
+Frozen authority carried into Stage 8.12:
 
-`PRIOR AUTHORIZATION CONSUMED`
+- production specification: `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`;
+- active identity: `TRAIL1__N4_01__FULL__R15`;
+- strategy: T3 / H1 / TRAIL1;
+- instruments: USDRUBF, CNYRUBF, GLDRUBF, IMOEXF;
+- risk: 1.5% of current realized equity per new instrument position;
+- maximum nominal simultaneous initial risk: 6%;
+- quantity: automatic `min(R15 quantity, margin quantity)`, rounded down to trade lot;
+- `final_quantity = 0` is a valid skip, not an error and not a reason to alter the frozen risk model;
+- normal real fill/risk reconciliation remains position-authoritative using the exact broker account position;
+- the Stage 8.11 one-contract quantity was acceptance-only and is not a production quantity cap.
 
-The first physical attempt consumed the prior one-contract authorization. It is not reusable; any future physical retry requires a new explicit operator authorization.
+### Stage 8.12.1 — Production runtime assembly
 
-### Stage 8.11.4 — One-Contract Entry
+**CODE-ONLY / NO REAL-ORDER AUTHORIZATION.**
 
-`ATTEMPTED / FAILED HTTP 400 / NO ACCEPTED ENTRY`
+Build the smallest production runtime by wiring together existing authenticated components rather than creating a parallel strategy implementation:
 
-FINAM returned HTTP 400. No position was opened, so physical acceptance did not PASS.
+- `strategy_core.py` + `context_builder.py` + `trail1_state.py`;
+- frozen Stage 7 specification and N4 registry;
+- existing completed-H1 / freshness authority;
+- existing R15 sizing and margin cap with same-batch local margin reservation;
+- durable intent/state persistence and restart reconciliation;
+- Stage 8.10 safety gate / kill switch;
+- Stage 8.11 position-authoritative entry/exit reconciliation;
+- trading-capable FINAM credential boundary already physically accepted in Stages 8.10–8.11.
 
-### Stage 8.11.5 — Position Proof
+Requirements:
 
-`NO POSITION / BROKER CLEAN PROVED`
+- dedicated production runtime; do not weaken or convert the existing `REAL_READONLY` observer into an order-capable process;
+- no strategy parameter changes, no new filters, no new session rule, no pyramiding, no fallback strategy;
+- no implicit LIVE mode and no environment-only bypass;
+- no order retry after an uncertain POST;
+- normal fill proof must not reintroduce `/trades`, exact `/orders/{id}`, or the removed order-status state machine as synchronous authority;
+- exits follow the frozen Stage 7 execution semantics; do not introduce new broker-native stop logic unless it is already part of the frozen authority.
 
-### Stage 8.11.6 — Controlled Flatten
+Exit criterion: production code path exists but remains structurally incapable of real transmission without a separate Stage 8.12 authorization authority.
 
-`FLATTEN NOT SUBMITTED`
+### Stage 8.12.2 — Production path conformance and failure audit
 
-### Stage 8.11.7 — Final Flat / Reconciliation
+**TEST/AUDIT ONLY / ZERO REAL ORDERS.**
 
-`COMPLETE / PASS / HISTORICAL INTENT RECOVERED`
+Validate the assembled production path end-to-end without contacting the real order endpoint.
 
-The order-incapable REAL_READONLY recovery committed the historical intent as `REJECTED`; fresh account-wide reconciliation passed with all positions zero, zero active broker orders, and zero canonical unresolved intents.
+Minimum evidence:
 
-### Stage 8.11.8 — Stage 8.11 Closeout
+- frozen research-to-robot conformance remains unchanged;
+- genuine T3 signal -> FULL/R15 size -> durable intent -> synthetic order -> position-authoritative reconciliation -> TRAIL1 management/exit is deterministic;
+- LONG and SHORT behavior;
+- all four N4 bindings;
+- zero-capacity signal cleanly skips with quantity `0`;
+- R15 quantity can never be increased by margin logic;
+- same-batch local margin reservation cannot over-allocate cash;
+- aggregate nominal initial risk cannot exceed the frozen 6% authority;
+- duplicate signal/restart cannot create a duplicate order;
+- stale/malformed H1, account mismatch, unexpected position, active order, unresolved intent, reconciliation timeout, or invalid kill-switch state fail closed;
+- restart/recovery preserves durable state and cannot silently reopen authorization;
+- both independent Stage 8 audits PASS.
 
-`COMPLETE / STAGE 8.11 CLOSEOUT`
+Exit criterion: exact production commit is independently auditable and still has zero real-order transmission authorization.
 
-Aggregate result: `STAGE_8_11_CONTROLLED_REAL_EXECUTION_ACCEPTANCE_NOT_YET_PASSED`. Recovery completion is not successful physical order acceptance.
+### Stage 8.12.3 — Intel production preflight
 
-### Stage 8.12
+**REAL ACCOUNT / ZERO ORDERS / STILL NOT AUTHORIZED.**
 
-`NOT STARTED / NOT AUTHORIZED`
+Run one external Intel-host preflight on the exact accepted production commit.
 
-Stage 8.12 remains FULL/R15 Production Authorization. Stage 8.11 closeout does not authorize it.
+Require:
 
-## Persistent constraints
+- exact Stage 7 production ID and active identity;
+- exact real account binding and trading-capable DPAPI credential;
+- current broker account schema valid;
+- no unexplained broker position or active order at the authorization boundary;
+- no unresolved production intents;
+- healthy reconciliation and fresh FINAM/H1 contact;
+- frozen N4 registry valid and tradable;
+- current realized-equity state and margin authority valid;
+- kill switch `HALTED`;
+- production Scheduled Task disabled/not running;
+- `execution_authorized = false`;
+- zero calls to the real order endpoint.
 
-`LIVE_TRADING_NOT_AUTHORIZED` remains in force.
-`REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remains in force.
-`NEW_ENTRIES_DISABLED` remains in force for existing REAL_READONLY paths.
+This preflight does **not** require every N4 instrument to have positive quantity. Each real signal is sized independently under R15 + available margin; quantity `0` means skip that entry.
+
+Exit criterion: external sanitized evidence proves the exact production build is ready to be authorized, while the account remains non-trading.
+
+### Stage 8.12.4 — Explicit FULL/R15 production authorization and activation
+
+**ONLY THIS GATE MAY AUTHORIZE CONTINUOUS REAL PRODUCTION TRADING.**
+
+Requires a new explicit operator authorization bound to:
+
+- exact accepted production commit;
+- exact Stage 7 production specification ID;
+- exact account identity hash;
+- exact active identity `TRAIL1__N4_01__FULL__R15`;
+- passing Stage 8.12.2 audit evidence;
+- passing Stage 8.12.3 Intel preflight evidence.
+
+Activation semantics:
+
+1. persist the production authorization outside the repository;
+2. arm the production kill switch only after all gates pass;
+3. enable/start the dedicated production Scheduled Task;
+4. production runtime may submit orders only for genuine frozen-strategy signals;
+5. **do not force a trade merely to complete Stage 8.12** — Stage 8.11 already proved the physical broker entry/flatten path;
+6. the first production cycle must prove healthy account binding, data freshness, reconciliation, state continuity, and safety-gate state;
+7. any startup/reconciliation/safety fault fails closed and returns the system to `HALTED`;
+8. after authorization, normal restart may resume production only when the same durable authorization, production commit, specification ID, account identity, and ARMED kill-switch authority all still match exactly.
+
+Stage 8.12 completion criterion:
+
+- canonical status = `STAGE_8_12_FULL_R15_PRODUCTION_AUTHORIZATION_COMPLETE`;
+- dedicated production task installed/enabled for the frozen identity;
+- first authorized production cycle healthy;
+- no safety blocker or unresolved intent;
+- no forced acceptance trade required;
+- continuous production trading authorized only for the frozen Stage 7 identity and only while all runtime gates remain valid.
+
+## Persistent constraints for Stage 8.12
+
+Until Stage 8.12.4 is explicitly authorized:
+
+- `LIVE_TRADING_NOT_AUTHORIZED` remains in force;
+- `REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED` remains in force outside the already consumed Stage 8.11 physical acceptance;
+- production kill switch remains `HALTED`;
+- production Scheduled Task remains disabled;
+- `execution_authorized = false`.
 
 Do not:
 
-- enable execution without explicit Stage 8.11 authorization;
-- change Stage 7 identity at runtime;
-- treat `readonly=false` as order acceptance;
-- treat synthetic order validation as a real broker order;
-- infer all-N4 funding sufficiency from Stage 8.9;
+- change Stage 7 strategy, T3/H1 parameters, TRAIL1 semantics, N4 basket, FULL load, or R15 risk;
+- add optimization, candidate selection, filters, ML, or a new research phase;
+- require positive capacity for every N4 instrument;
+- add a MICRO_LIVE cap;
+- reuse Stage 8.11 one-contract acceptance as a production sizing rule;
+- reintroduce complex order/trade reconciliation where exact account position is sufficient;
 - mix TradingSystemLab with BBW / Level Touch / Round Level projects.
 
 ## Current roadmap boundary
 
-**STOP after Stage 8.11 closeout. Stage 8.12 is not started or authorized. Any future physical retry requires a new explicit operator authorization.**
+**NEXT GATE: Stage 8.12.1 — Production runtime assembly.**
+
+Stage 8.12 has a defined roadmap but is still **NOT STARTED / NOT AUTHORIZED**. Defining this roadmap does not authorize any real-order transmission. Stage 8.12.1 must begin as code-only work with the production kill switch `HALTED`, production Scheduled Task disabled, and `execution_authorized = false`.
