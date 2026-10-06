@@ -2,7 +2,7 @@
 
 ## Historical archive — Stage 8.11 early physical attempts (superseded for current status)
 
-> **Historical only.** This archive preserves evidence from the failed/partial Stage 8.11 attempts. It does not define current project status. Current authority is the later `## Current handoff`, `authority_provenance.json`, and the active Stage 8.12 roadmap below.
+> **Historical only.** This archive preserves evidence from the failed/partial Stage 8.11 attempts. It does not define current project status. Current authority is the later Current handoff section, `authority_provenance.json`, and the active Stage 8.12 roadmap below.
 
 `STAGE8_11_FIRST_PHYSICAL_ATTEMPT_FAILED_HTTP_400` is the canonical historical result. The accepted code commit was `069806355fc6931470d7f68d5ca6db20b06358fa`; the fixed request was `CNYRUBF` / `CNYRUBF@RTSX`, `LONG`, quantity `1`. Exactly one order-endpoint call returned HTTP 400. Physical evidence with SHA-256 `9FEFC5469F2C97F1EB36A5B5C99D323FA37BB948CF53C8A8745A27A06AB3B324` proves zero broker fills, `OPERATOR_INTERVENTION_REQUIRED`, and final kill switch `HALTED`. No retry and no controlled flatten occurred. The original physical evidence remains immutable and **did not PASS**.
 
