@@ -417,8 +417,8 @@
       "merge": "3017624559441e1513c70324e62bd8a895383900"
     },
     "execution_authorized": false,
-    "order_endpoint_call_count": 1,
-    "real_order_count": 0,
+    "order_endpoint_call_count": 2,
+    "real_order_count": 2,
     "production_kill_switch_final_state": "HALTED",
     "scheduled_task": "Disabled",
     "stage8_11_4_status": "ATTEMPTED_FAILED_HTTP_400_NO_ACCEPTED_ENTRY_PROVEN",
