@@ -241,6 +241,7 @@ def test_real_finam_terminal_fill_status_with_stale_zero_executed_uses_ack_and_p
     assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
     assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
     assert store.unresolved_intent_count() == 0
+    assert store.db.execute("SELECT COUNT(*) FROM fills").fetchone()[0] == 2
 
 
 def test_real_finam_terminal_fill_zero_executed_waits_for_position_convergence(tmp_path):
@@ -252,6 +253,7 @@ def test_real_finam_terminal_fill_zero_executed_waits_for_position_convergence(t
     assert store.intent("stage8.11:USDRUBF:entry")["status"] == "RECONCILED"
     assert store.intent("stage8.11:USDRUBF:flatten")["status"] == "RECONCILED"
     assert store.unresolved_intent_count() == 0
+    assert store.db.execute("SELECT COUNT(*) FROM fills").fetchone()[0] == 2
 
 
 def test_real_finam_duplicate_same_order_history_row_does_not_block_reconciliation(tmp_path):
