@@ -516,7 +516,9 @@ def _reconcile(broker: ControlledAcceptanceBroker, key: str, *, allow_cancel: bo
             and expected_position is not None
             and type(position) is int
             and position == expected_position
-            and (snap.get("order_detail_pending") is True or status in ACTIVE)
+            and (snap.get("order_detail_pending") is True
+                 or status in ACTIVE
+                 or status in TERMINAL_FILL)
         )
         if ack_position_proven:
             broker.store.transition_intent(key, "FILL", order_id)
