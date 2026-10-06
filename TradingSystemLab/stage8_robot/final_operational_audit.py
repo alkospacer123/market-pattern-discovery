@@ -167,14 +167,18 @@ def _stage8_10_document_consistency(document: str) -> tuple[bool, bool, bool]:
     handoff = _current_handoff(document)
     normalized_handoff = " ".join(handoff.split())
     required = (
-        "Stage 8.9 is **COMPLETE**", "Stage 8.10 is **COMPLETE**", "`HALTED`",
-        "Stage 8.11.0 — **COMPLETE**", "Stage 8.11.1 — **COMPLETE / PASS**",
-        "Stage 8.11.2 — **COMPLETE / PASS**", "prior explicit authorization **CONSUMED**",
-        "Stage 8.11.4 — **ATTEMPTED / FAILED HTTP 400 / NO ACCEPTED ENTRY**",
-        "Stage 8.11.7 — **COMPLETE / PASS / HISTORICAL INTENT RECOVERED**",
-        "Stage 8.11.8 — **COMPLETE / STAGE 8.11 CLOSEOUT**", "Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**",
-        "Scheduled Task is `Disabled`", "stage8.11.attempt2", "0954B5C3D62444BA9AE59519386B0FC454D85C987BE1BAC04B82CA6C671B15A0",
-        "stage8.11.attempt3", "Attempt3 has not been physically executed", "new explicit operator authorization")
+        "Stage 8.9 is **COMPLETE**", "Stage 8.10 is **COMPLETE**",
+        "Stage 8.11 — Controlled Real Execution Acceptance — is now **COMPLETE / PASS**",
+        "72a910e49b876cda99484a810e6f8a1b16ac0209", "stage8.11.attempt7",
+        "704BFCC19B1A63F490192C0D8D0E4715BFECF77664296AFEF47E5B80FBF64B5F",
+        "exactly two real order-endpoint calls", "final position quantity: `0`",
+        "final active broker orders: `0`", "unresolved Stage 8.11 intents: `0`",
+        "final production kill switch: `HALTED`", "Scheduled Task: `Disabled`",
+        "The physical authorization used for attempt7 is consumed",
+        "Current `execution_authorized = false`",
+        "real-order transmission remains unauthorized",
+        "Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**",
+        "Stage 8.12 remains not started and not authorized")
     exact = bool(handoff and all(" ".join(token.split()) in normalized_handoff for token in required))
     if handoff and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]", handoff, re.I):
         stale_next = True
@@ -836,10 +840,15 @@ def audit(
     check(all(STAGE_8_10_COMPLETE_STATUS in doc for doc in stage8_9_docs),
           "STAGE_8_10_CLOSEOUT_STATUS_SYNCHRONIZED")
     current_handoffs = [_current_handoff(doc) for doc in stage8_9_docs]
-    check(all("Stage 8.11.1 — **COMPLETE / PASS**" in handoff
-              and "Stage 8.11.2 — **COMPLETE / PASS**" in handoff
-              and "prior explicit authorization **CONSUMED**" in handoff
-              and "stage8.11.attempt2" in handoff and "stage8.11.attempt3" in handoff
+    check(all("Stage 8.11 — Controlled Real Execution Acceptance — is now **COMPLETE / PASS**" in handoff
+              and "stage8.11.attempt7" in handoff
+              and "704BFCC19B1A63F490192C0D8D0E4715BFECF77664296AFEF47E5B80FBF64B5F" in handoff
+              and "exactly two real order-endpoint calls" in handoff
+              and "final position quantity: `0`" in handoff
+              and "final active broker orders: `0`" in handoff
+              and "unresolved Stage 8.11 intents: `0`" in handoff
+              and "The physical authorization used for attempt7 is consumed" in handoff
+              and "Current `execution_authorized = false`" in handoff
               for handoff in current_handoffs),
           "STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED")
     physical_entry=text("TradingSystemLab/stage8_robot/stage8_11_physical_acceptance.py")
