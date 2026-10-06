@@ -542,6 +542,7 @@ def audit(
           '"broker_acknowledged": True',
           "ack_position_proven = (",
           'snap.get("order_detail_pending") is True or status in ACTIVE',
+          'return {**snap, "executed_quantity": 1}',
           "if expected_position is None or type(position) is not int:",
           'snap.get("trade_propagation_pending") is not True')),
           "STAGE_8_11_UNCERTAIN_RECONCILIATION")
