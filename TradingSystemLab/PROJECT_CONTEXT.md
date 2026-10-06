@@ -54,7 +54,24 @@ The accepted normal reconciliation model is position-authoritative: after each p
 
 Attempts 1–6, their failures/OIR classifications, manual closes, and recovery evidence remain immutable historical provenance and are not reclassified by the attempt7 PASS.
 
-Stage 8.12 — **NOT STARTED / NOT AUTHORIZED**. Stage 8.12 remains not started and not authorized. Stage 8.11 completion does not automatically authorize FULL/R15 production execution, continuous LIVE trading, Scheduled Task activation, or any new order transmission. The production kill switch remains `HALTED` until a separate Stage 8.12 decision and explicit authorization.
+Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**.
+
+Canonical Stage 8.12.1 authority:
+
+- accepted merged code commit: `3f2d68ca0c327271fb543a0b63c0e8f842c855bd`;
+- external test-only verifier evidence SHA-256: `F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C`;
+- structural zero-order boundary: `PASS`;
+- Stage 8.12.1 runtime + N4 capacity tests: `25/25 PASS`;
+- frozen Stage 7 / risk / margin regression: `166/166 PASS`;
+- Stage 8.11 position-authority regression: `113/113 PASS`;
+- independent Stage 8 audit: `PASS`;
+- final operational audit: `PASS`;
+- test-only real-order count: `0`;
+- current `execution_authorized = false`;
+- production kill switch: `HALTED`;
+- production Scheduled Task: `Disabled`.
+
+Stage 8.12.1 assembled the production runtime without adding FINAM order transport: the runtime remains structurally order-incapable at this gate. Stage 8.12.2 — Production path conformance and failure audit — is the **NEXT GATE** and remains test/audit-only with zero real orders. Continuous FULL/R15 production execution, Scheduled Task activation, and any new real-order transmission remain unauthorized until the separate explicit Stage 8.12.4 authorization gate.
 
 ## Purpose and authority
 
