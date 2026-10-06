@@ -117,6 +117,14 @@ try {
         Pop-Location
     }
 
+    try {
+        Require-DisabledOrAbsentTask $readonlyTaskName
+        Require-DisabledOrAbsentTask $productionTaskName
+    } catch {
+        Remove-Item $ReportPath -Force -ErrorAction SilentlyContinue
+        throw
+    }
+
     if (-not (Test-Path $ReportPath -PathType Leaf)) {
         throw "STAGE8_12_3_REPORT_MISSING"
     }
