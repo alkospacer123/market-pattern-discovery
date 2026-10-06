@@ -14,9 +14,11 @@ from TradingSystemLab.stage8_robot.stage8_12_intel_preflight import (
     PRODUCTION_STATE_FILENAME,
     PreflightBlocked,
     _capacity_report,
+    _collect_strategy_loss,
     _read_production_state,
     _require_current_h1_watermark,
     _stage8_11_unresolved_for_account,
+    _strategy_loss_per_contract,
 )
 from TradingSystemLab.stage8_robot.state import (
     StateStore,
@@ -107,6 +109,78 @@ def test_h1_watermark_must_match_current_schedule_expectation():
         _require_current_h1_watermark(stale, schedule, observed)
 
 
+def test_benchmark_loss_obeys_exact_production_tick_grid():
+    distance, loss = _strategy_loss_per_contract(
+        "USDRUBF", Decimal("0.04")
+    )
+    assert distance == Decimal("0.100")
+    assert loss == Decimal("100")
+    with pytest.raises(
+        PreflightBlocked, match="STAGE8_12_3_BENCHMARK_STOP_NOT_ON_TICK_GRID"
+    ):
+        _strategy_loss_per_contract("USDRUBF", Decimal("0.041"))
+
+
+def _h1_bar(timestamp):
+    return {
+        "timestamp": timestamp,
+        "open": {"value": "100"},
+        "high": {"value": "100.02"},
+        "low": {"value": "99.98"},
+        "close": {"value": "100"},
+    }
+
+
+class _BarsOnlyAPI:
+    def __init__(self, rows):
+        self.rows = rows
+
+    def bars(self, symbol, start, end):
+        return {"bars": list(self.rows)}
+
+
+def _benchmark_schedule():
+    return {
+        "sessions": [{
+            "type": "CORE_TRADING",
+            "interval": {
+                "start_time": "2026-01-05T04:00:00Z",
+                "end_time": "2026-01-05T20:00:00Z",
+            },
+        }]
+    }
+
+
+def test_benchmark_h1_response_rejects_duplicate_and_off_session_rows():
+    rows = [
+        _h1_bar(f"2026-01-05T{hour:02d}:00:00Z")
+        for hour in range(4, 18)
+    ]
+    watermark = datetime(2026, 1, 5, 17, 0, tzinfo=timezone.utc)
+    observed = datetime(2026, 1, 5, 18, 30, tzinfo=timezone.utc)
+    common = dict(
+        instrument="USDRUBF",
+        symbol="USDRUBF@RTSX",
+        watermark=watermark,
+        params={},
+        binding={},
+        schedule=_benchmark_schedule(),
+        now=observed,
+    )
+    with pytest.raises(PreflightBlocked, match="STAGE8_12_3_H1_DUPLICATE_BAR"):
+        _collect_strategy_loss(
+            api=_BarsOnlyAPI(rows + [rows[-1]]),
+            **common,
+        )
+    with pytest.raises(
+        PreflightBlocked, match="STAGE8_12_3_H1_BAR_OUTSIDE_VALIDATED_SCHEDULE"
+    ):
+        _collect_strategy_loss(
+            api=_BarsOnlyAPI([_h1_bar("2026-01-05T03:00:00Z")] + rows),
+            **common,
+        )
+
+
 def test_absent_production_state_is_clean_and_not_initialized(tmp_path):
     result = _read_production_state(tmp_path, Decimal("100000"))
     assert result == {
@@ -176,6 +250,7 @@ def test_stage8_12_3_preflight_has_no_order_transmission_calls():
     assert '"order_endpoint_call_count": 0' in source
     assert '"real_order_count": 0' in source
     assert '"stage8_12_4_status": "NOT_STARTED_NOT_AUTHORIZED"' in source
+    assert source.count("_require_safety_state(") >= 3
 
 
 def test_windows_wrapper_enforces_zero_order_preflight_boundaries():
@@ -190,6 +265,9 @@ def test_windows_wrapper_enforces_zero_order_preflight_boundaries():
     assert "Require-DisabledOrAbsentTask $readonlyTaskName" in source
     assert "Require-DisabledOrAbsentTask $productionTaskName" in source
     assert "STAGE8_12_3_PRODUCTION_TASK_SAFE" in source
+    assert source.count("Require-DisabledOrAbsentTask $readonlyTaskName") >= 2
+    assert source.count("Require-DisabledOrAbsentTask $productionTaskName") >= 2
+    assert "Remove-Item $ReportPath -Force -ErrorAction SilentlyContinue" in source
     assert "w32tm /query /status" in source
     assert "w32tm /query /source" in source
     assert "Get-FileHash $ReportPath -Algorithm SHA256" in source
