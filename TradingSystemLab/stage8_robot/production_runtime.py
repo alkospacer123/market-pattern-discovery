@@ -35,6 +35,7 @@ ActionKind = Literal[
     "EMERGENCY_EXIT_REQUIRED",
     "BROKER_EXIT_OBSERVED",
     "SKIP_ZERO_CAPACITY",
+    "SKIP_RISK_LIMIT",
 ]
 
 
@@ -168,6 +169,35 @@ def _position_from_dict(value: dict[str, Any]) -> PositionState:
     )
 
 
+def _signal_to_dict(signal: SignalIntent) -> dict[str, Any]:
+    return {
+        "signal_id": signal.signal_id,
+        "trade_id": signal.trade_id,
+        "instrument": signal.instrument,
+        "direction": signal.direction,
+        "timestamp": signal.timestamp.isoformat(),
+        "entry": signal.entry,
+        "initial_stop": signal.initial_stop,
+        "initial_r": signal.initial_r,
+        "canonical_stop": signal.canonical_stop,
+    }
+
+
+def _signal_from_dict(value: dict[str, Any]) -> SignalIntent:
+    from datetime import datetime
+    return SignalIntent(
+        signal_id=value["signal_id"],
+        trade_id=value["trade_id"],
+        instrument=value["instrument"],
+        direction=value["direction"],
+        timestamp=datetime.fromisoformat(value["timestamp"]),
+        entry=float(value["entry"]),
+        initial_stop=float(value["initial_stop"]),
+        initial_r=float(value["initial_r"]),
+        canonical_stop=float(value["canonical_stop"]),
+    )
+
+
 class ProductionRuntime:
     """Durable production planner with no order-transmission capability."""
 
@@ -214,6 +244,12 @@ class ProductionRuntime:
     def build_latest_signal(self, instrument: str, h1: pd.DataFrame, now) -> SignalIntent | None:
         if instrument not in INSTRUMENTS:
             raise ProductionRuntimeError("INSTRUMENT_NOT_N4")
+        pending_key = f"pending_signal:{instrument}"
+        pending = self.store.get(pending_key)
+        if pending is not None:
+            if not isinstance(pending, dict):
+                raise ProductionRuntimeError("PENDING_SIGNAL_STATE_INVALID")
+            return _signal_from_dict(pending)
         execution, context = self.context_builder.build(h1, now)
         if execution.empty:
             return None
@@ -242,6 +278,7 @@ class ProductionRuntime:
         signal = self.core.signal(instrument, bar, ctx, sequence)
         if signal is not None:
             self.store.put(sequence_key, sequence)
+            self.store.put(pending_key, _signal_to_dict(signal))
         return signal
 
     def begin_batch(self, *, realized_equity: Decimal, available_cash: Decimal) -> MarginBatchBudget:
@@ -258,6 +295,15 @@ class ProductionRuntime:
             except Exception as exc:
                 raise ProductionRuntimeError("PRODUCTION_POSITION_STATE_INVALID") from exc
         return total
+
+    def _consume_pending_signal(self, signal: SignalIntent) -> None:
+        key = f"pending_signal:{signal.instrument}"
+        pending = self.store.get(key)
+        if pending is None:
+            return
+        if not isinstance(pending, dict) or pending.get("signal_id") != signal.signal_id:
+            raise ProductionRuntimeError("PENDING_SIGNAL_IDENTITY_MISMATCH")
+        self.store.put(key, None)
 
     def plan_entry(self, signal: SignalIntent, authority: InstrumentAuthority,
                    *, realized_equity: Decimal, budget: MarginBatchBudget) -> RuntimeAction:
@@ -284,6 +330,7 @@ class ProductionRuntime:
             trade_lot_size=authority.trade_lot_size,
         )
         if sized.final_quantity == 0:
+            self._consume_pending_signal(signal)
             return RuntimeAction(
                 "SKIP_ZERO_CAPACITY", None, signal.instrument, authority.finam_symbol,
                 signal.direction, 0, signal.trade_id, signal.signal_id,
@@ -294,7 +341,13 @@ class ProductionRuntime:
         actual_risk = sized.loss_per_contract * sized.final_quantity
         limit = realized_equity * Decimal(str(self.spec.maximum_nominal_risk))
         if self._aggregate_open_initial_risk() + actual_risk > limit:
-            raise ProductionRuntimeError("MAXIMUM_NOMINAL_INITIAL_RISK_EXCEEDED")
+            self._consume_pending_signal(signal)
+            return RuntimeAction(
+                "SKIP_RISK_LIMIT", None, signal.instrument, authority.finam_symbol,
+                signal.direction, 0, signal.trade_id, signal.signal_id,
+                Decimal(str(signal.entry)), Decimal(str(signal.initial_stop)), 0,
+                "MAXIMUM_NOMINAL_INITIAL_RISK_EXCEEDED",
+            )
         reservation = sized.initial_margin * sized.final_quantity
         if reservation > budget.remaining:
             raise ProductionRuntimeError("LOCAL_MARGIN_OVERALLOCATION")
@@ -320,6 +373,7 @@ class ProductionRuntime:
             if existing is None or existing["payload"] != payload:
                 raise ProductionRuntimeError("IDEMPOTENCY_PAYLOAD_MISMATCH")
             raise ProductionRuntimeError("DUPLICATE_ENTRY_INTENT")
+        self._consume_pending_signal(signal)
         return RuntimeAction(
             "ENTRY", key, signal.instrument, authority.finam_symbol, signal.direction,
             sized.final_quantity, signal.trade_id, signal.signal_id,
