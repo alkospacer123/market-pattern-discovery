@@ -299,7 +299,7 @@
     "stage8_11_1_status": "COMPLETE_PASS",
     "stage8_11_2_status": "COMPLETE_PASS",
     "stage8_11_3_status": "PRIOR_AUTHORIZATION_CONSUMED",
-    "current_gate": "STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT",
+    "current_gate": "STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT",
     "latest_physical_precheck_result": "STAGE8_11_PRECHECK_ONLY_PASS",
     "physical_precheck": {
       "schema_id": "stage8_11_intel_precheck.v1",
