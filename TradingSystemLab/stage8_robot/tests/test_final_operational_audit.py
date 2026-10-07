@@ -1119,6 +1119,17 @@ def test_stage_8_10_semantic_document_regressions_fail_both_audits(
 
 
 @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
+def test_stage_8_10_current_handoff_canonical_package4_state_passes_both_audits(path):
+    original = source(path)
+    independent = stage8.audit(
+        write_result=False, source_overrides={path: original}
+    )
+    operational = run_audit({path: original})
+    assert "STAGE_8_10_CURRENT_HANDOFF_EXACT" not in independent["errors"]
+    assert "STAGE_8_10_CURRENT_HANDOFF_EXACT" not in operational["errors"]
+
+
+@pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
 def test_stage_8_10_current_handoff_stale_gate_and_omission_fail_both_audits(path):
     original = source(path)
     marker = "## Current handoff"

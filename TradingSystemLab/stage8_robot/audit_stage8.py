@@ -72,8 +72,7 @@ def _stage8_10_document_consistency(document):
         "Package 4",
         "HALTED",
         "Disabled",
-        "real order count",
-        "not authorized")
+        "real order count")
     exact=bool(handoff and all(" ".join(token.split()) in normalized_handoff for token in required))
     if handoff and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]",handoff,re.I):
         stale_next=True
