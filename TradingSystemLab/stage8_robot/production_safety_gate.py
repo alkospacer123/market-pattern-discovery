@@ -120,6 +120,8 @@ def write_production_heartbeat(
     cycle_count: int,
     last_api_contact: datetime,
     position_protection: list[dict[str, Any]],
+    broker_open_position_count: int | None = None,
+    failure_code: str | None = None,
     now: datetime | None = None,
 ) -> dict[str, Any]:
     observed = now or datetime.now(timezone.utc)
@@ -138,7 +140,15 @@ def write_production_heartbeat(
         if type(scalar) is not int or scalar < 0:
             raise ProductionSafetyError(code)
     protection = _validated_position_protection(position_protection)
-    open_position_count = len(protection)
+    protected_position_count = len(protection)
+    if broker_open_position_count is None:
+        broker_open_position_count = protected_position_count
+    if type(broker_open_position_count) is not int or broker_open_position_count < 0:
+        raise ProductionSafetyError("STAGE8_12_4_BROKER_POSITION_COUNT_INVALID")
+    if failure_code is not None and (
+        not isinstance(failure_code, str) or not failure_code
+    ):
+        raise ProductionSafetyError("STAGE8_12_4_FAILURE_CODE_INVALID")
     active_protective_stop_count = sum(
         len(row["active_stop_order_ids"]) for row in protection
     )
@@ -154,9 +164,11 @@ def write_production_heartbeat(
         "unresolved_intent_count": unresolved_intent_count,
         "health_status": health_status,
         "cycle_count": cycle_count,
-        "open_position_count": open_position_count,
+        "open_position_count": broker_open_position_count,
+        "protected_position_count": protected_position_count,
         "active_protective_stop_count": active_protective_stop_count,
         "position_protection": protection,
+        "failure_code": failure_code,
     }
     destination = production_heartbeat_path(runtime_root)
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -232,6 +244,7 @@ def evaluate_production_entry_gate(
             (type(value.get("unresolved_intent_count")) is int and value.get("unresolved_intent_count") == 0, "UNRESOLVED_PRODUCTION_INTENTS_PRESENT"),
             (type(value.get("cycle_count")) is int and value.get("cycle_count") >= 1, "PRODUCTION_CYCLE_COUNT_INVALID"),
             (type(value.get("open_position_count")) is int and value.get("open_position_count") >= 0, "PRODUCTION_POSITION_COUNT_INVALID"),
+            (type(value.get("protected_position_count")) is int and value.get("protected_position_count") >= 0, "PRODUCTION_PROTECTED_POSITION_COUNT_INVALID"),
             (type(value.get("active_protective_stop_count")) is int and value.get("active_protective_stop_count") >= 0, "PRODUCTION_STOP_COUNT_INVALID"),
         )
         for valid, code in checks:
@@ -250,8 +263,10 @@ def evaluate_production_entry_gate(
             derived_stops = sum(
                 len(row["active_stop_order_ids"]) for row in protection
             )
+            if value.get("protected_position_count") != derived_positions:
+                reasons.append("PRODUCTION_PROTECTED_POSITION_COUNT_MISMATCH")
             if value.get("open_position_count") != derived_positions:
-                reasons.append("PRODUCTION_POSITION_COUNT_MISMATCH")
+                reasons.append("PRODUCTION_POSITION_PROTECTION_INCOMPLETE")
             if value.get("active_protective_stop_count") != derived_stops:
                 reasons.append("PRODUCTION_STOP_COUNT_MISMATCH")
 
