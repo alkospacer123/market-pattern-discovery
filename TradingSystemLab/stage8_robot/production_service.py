@@ -651,7 +651,10 @@ class ProductionService:
             self._known_active_order_ids(orders)
             progress = self._reconcile_unresolved(positions, orders)
             if self.runtime.store.unresolved_intent_count() == 0:
-                self._position_protection(positions, orders)
+                protection = self._position_protection(positions, orders)
+                self._write_heartbeat(
+                    healthy=True, unresolved=0, protection=protection
+                )
                 return True
             if not progress:
                 self.sleeper(SETTLEMENT_POLL_SECONDS)
