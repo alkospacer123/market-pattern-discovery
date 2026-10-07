@@ -80,7 +80,8 @@ def test_package2_uses_exact_production_state_and_30_day_h1_authority():
     assert STATE_DATABASE == "stage8-12-production.sqlite3"
     assert 'H1_LOOKBACK_DAYS = 30' in source
     assert "load_stage5_seed_open_h1" in source
-    assert "splice_seed_and_finam_open_h1" in source
+    assert "extend_rolling_open_h1" in source
+    assert 'continuation_key = f"production_h1_continuation:{instrument}"' in source
     assert "newest_expected_h1_close" in source
     assert "T3ContextBuilder" not in source  # ProductionRuntime owns the frozen builder.
     assert "self.runtime.context_builder.build" in source
