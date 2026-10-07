@@ -622,7 +622,6 @@ class ProductionService:
                 if observed != action.expected_position_quantity:
                     raise ProductionServiceFault(
                         "FILLED_ENTRY_POSITION_NOT_EXACT",
-                        halt=False,
                         pending=True,
                     )
                 self._transition_ack(key, order.order_id)
