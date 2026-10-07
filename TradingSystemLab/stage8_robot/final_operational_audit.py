@@ -1169,8 +1169,9 @@ def audit(
               'PRODUCTION_HEARTBEAT_SCHEMA = "stage8_12_4_production_heartbeat.v1"',
               '"KILL_SWITCH_NOT_ARMED"', '"EXECUTION_NOT_AUTHORIZED"',
               '"UNRESOLVED_PRODUCTION_INTENTS_PRESENT"',
-              '"PRODUCTION_PROTECTIVE_STOP_COVERAGE_INVALID"',
-              "active_protective_stop_count") ),
+              '"PRODUCTION_POSITION_PROTECTION_INVALID"',
+              "position_protection", "expected_position_quantity", "covered_quantity",
+              "active_stop_order_ids") ),
           "STAGE_8_12_4_PRODUCTION_AWARE_ENTRY_GATE")
     wrapper_lower=stage8124_wrapper.lower()
     check(all(token in stage8124_wrapper for token in (
