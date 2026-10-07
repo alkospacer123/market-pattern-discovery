@@ -125,4 +125,22 @@ class StateStore:
     def unresolved_intent_count(self)->int:
         marks=",".join("?" for _ in TERMINAL_INTENT_STATUSES)
         return self.db.execute(f"SELECT COUNT(*) FROM intents WHERE status NOT IN ({marks})",TERMINAL_INTENT_STATUSES).fetchone()[0]
+    def intents(self, *, unresolved_only:bool=False)->list[dict]:
+        params=()
+        where=""
+        if unresolved_only:
+            marks=",".join("?" for _ in TERMINAL_INTENT_STATUSES)
+            where=f" WHERE status NOT IN ({marks})"
+            params=TERMINAL_INTENT_STATUSES
+        rows=self.db.execute(
+            "SELECT idempotency_key,payload,status,broker_order_id,updated_at "
+            "FROM intents"+where+" ORDER BY idempotency_key",params
+        ).fetchall()
+        return [{
+            "idempotency_key":row[0],
+            "payload":json.loads(row[1]),
+            "status":row[2],
+            "broker_order_id":row[3],
+            "updated_at":row[4],
+        } for row in rows]
     def close(self): self.db.close()
