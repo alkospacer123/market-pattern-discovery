@@ -11,7 +11,7 @@ from TradingSystemLab.stage8_robot.production_authorization import (
     OPERATOR_AUTHORIZATION_PHRASE,
     write_authorization,
 )
-from TradingSystemLab.stage8_robot.production_runtime import InstrumentAuthority
+from TradingSystemLab.stage8_robot.production_runtime import InstrumentAuthority, RuntimeAction
 from TradingSystemLab.stage8_robot.production_safety_gate import (
     write_production_heartbeat,
 )
@@ -37,6 +37,8 @@ class FakeAPI:
         self.reject_sltp = False
         self.position_quantity = 0
         self.orders_rows = []
+        self.equity = "100000"
+        self.unrealized = "0"
 
     def create_session(self):
         self.calls.append(("create_session",))
@@ -56,8 +58,8 @@ class FakeAPI:
             "account_id": account_id,
             "type": "UNION",
             "status": "ACCOUNT_ACTIVE",
-            "equity": {"value": "100000"},
-            "unrealized_profit": {"value": "0"},
+            "equity": {"value": self.equity},
+            "unrealized_profit": {"value": self.unrealized},
             "positions": positions,
             "portfolio_mc": {
                 "available_cash": {"value": "1000000"},
@@ -232,7 +234,11 @@ def test_external_deposit_blocks_realized_equity_update(tmp_path):
             ProductionServiceFault,
             match="UNEXPLAINED_EXTERNAL_CASH_FLOW",
         ):
-            svc._financial_authority(api.account(ACCOUNT), NOW)
+            svc._financial_authority(
+                api.account(ACCOUNT),
+                NOW,
+                {name: 0 for name in svc.runtime.spec.instruments},
+            )
         assert svc.runtime.current_realized_equity() is None
     finally:
         svc.close()
@@ -304,3 +310,99 @@ def test_orphaned_persisted_entry_is_never_auto_submitted_after_restart(tmp_path
         assert not [call for call in api.calls if call[0] == "place_order"]
     finally:
         svc.close()
+
+
+def test_broker_realized_basis_cannot_silently_replace_persisted_equity(tmp_path):
+    api = FakeAPI()
+    svc, _ = service(tmp_path, api)
+    zeros = {name: 0 for name in svc.runtime.spec.instruments}
+    try:
+        basis, _ = svc._financial_authority(api.account(ACCOUNT), NOW, zeros)
+        assert basis == Decimal("100000")
+        assert svc.runtime.current_realized_equity() == Decimal("100000")
+
+        api.equity = "100100"
+        changed, _ = svc._financial_authority(api.account(ACCOUNT), NOW, zeros)
+        assert changed == Decimal("100100")
+        assert svc.runtime.current_realized_equity() == Decimal("100000")
+        with pytest.raises(
+            ProductionServiceFault,
+            match="UNEXPLAINED_REALIZED_EQUITY_DISCREPANCY",
+        ):
+            svc._require_realized_equity_reconciled(changed)
+        assert svc.runtime.current_realized_equity() == Decimal("100000")
+    finally:
+        svc.close()
+
+
+def test_terminal_replacement_rejection_submits_emergency_exit_immediately(tmp_path):
+    api = FakeAPI()
+    api.reject_sltp = True
+    svc, _ = service(tmp_path, api)
+    try:
+        budget = svc.runtime.begin_batch(
+            realized_equity=Decimal("100000"),
+            available_cash=Decimal("1000000"),
+        )
+        entry = svc.runtime.plan_entry(
+            signal(), authority(),
+            realized_equity=Decimal("100000"), budget=budget,
+        )
+        svc.runtime.store.transition_intent(entry.idempotency_key, "ACK", "ENTRY1")
+        initial = svc.runtime.confirm_entry_position(
+            entry.idempotency_key, entry.expected_position_quantity
+        )
+        svc.runtime.confirm_protective_stop(initial.idempotency_key, "OLDSTOP")
+
+        replacement = RuntimeAction(
+            "PROTECTIVE_STOP_REPLACE",
+            "stage8.12:trade-1:stop:0001",
+            "USDRUBF",
+            "USDRUBF@RTSX",
+            "LONG",
+            entry.quantity,
+            "trade-1",
+            "signal-1",
+            Decimal("100"),
+            Decimal("99.96"),
+            entry.expected_position_quantity,
+            "TIGHTER_PERCENT_POSITION_STOP_REQUIRED",
+        )
+        assert svc.runtime.store.persist_intent(
+            replacement.idempotency_key, replacement.payload()
+        )
+        positions = svc.runtime.open_positions()
+        positions["USDRUBF"]["protective_stop_state"] = "PENDING_REPLACE"
+        positions["USDRUBF"]["protective_stop_revision"] = 1
+        svc.runtime._save_positions(positions)
+
+        api.position_quantity = entry.expected_position_quantity
+        broker_positions_map = {
+            name: (entry.expected_position_quantity if name == "USDRUBF" else 0)
+            for name in svc.runtime.spec.instruments
+        }
+        intent = svc.runtime.store.intent(replacement.idempotency_key)
+        with pytest.raises(
+            ProductionServiceFault,
+            match="PROTECTIVE_STOP_REPLACE_REJECTED_EMERGENCY_EXIT_SUBMITTED",
+        ):
+            svc._submit_intent(
+                {"idempotency_key": replacement.idempotency_key, **intent},
+                now=NOW,
+                broker_positions_map=broker_positions_map,
+                allow_entry=False,
+            )
+        assert len([x for x in api.calls if x[0] == "place_sltp_order"]) == 1
+        assert len([x for x in api.calls if x[0] == "place_order"]) == 1
+        unresolved = svc.runtime.store.unresolved_intents()
+        assert len(unresolved) == 1
+        assert unresolved[0]["payload"]["kind"] == "EMERGENCY_EXIT_REQUIRED"
+        assert unresolved[0]["status"] == "ACK"
+    finally:
+        svc.close()
+
+
+def test_reconciliation_pending_faults_default_to_halt():
+    fault = ProductionServiceFault("ENTRY_ORDER_PENDING", pending=True)
+    assert fault.halt is True
+    assert fault.pending is True
