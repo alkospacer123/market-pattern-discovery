@@ -157,3 +157,89 @@ def test_close_index_matches_frozen_research_loader_semantics():
         pd.Timestamp("2026-09-16 00:00:00", tz=MOSCOW),
     ]
     assert all(dtype.kind == "f" for dtype in closed.dtypes)
+
+
+def test_finam_history_retains_prior_days_and_excludes_current_incomplete_bar():
+    observed = datetime(2026, 10, 7, 8, 30, tzinfo=timezone.utc)
+    windows = [
+        (
+            datetime(2026, 10, 7, 6, 0, tzinfo=timezone.utc),
+            datetime(2026, 10, 7, 10, 0, tzinfo=timezone.utc),
+        )
+    ]
+    response = {
+        "bars": [
+            {
+                "timestamp": "2026-09-15T18:00:00Z",
+                "open": {"value": "100"},
+                "high": {"value": "102"},
+                "low": {"value": "99"},
+                "close": {"value": "101"},
+            },
+            {
+                "timestamp": "2026-10-07T06:00:00Z",
+                "open": {"value": "101"},
+                "high": {"value": "103"},
+                "low": {"value": "100"},
+                "close": {"value": "102"},
+            },
+            {
+                "timestamp": "2026-10-07T07:00:00Z",
+                "open": {"value": "102"},
+                "high": {"value": "104"},
+                "low": {"value": "101"},
+                "close": {"value": "103"},
+            },
+            {
+                "timestamp": "2026-10-07T08:00:00Z",
+                "open": {"value": "103"},
+                "high": {"value": "105"},
+                "low": {"value": "102"},
+                "close": {"value": "104"},
+            },
+        ]
+    }
+    loaded = finam_completed_open_h1(response, observed, windows)
+    assert list(loaded.index) == [
+        pd.Timestamp("2026-09-15 21:00:00", tz=MOSCOW),
+        pd.Timestamp("2026-10-07 09:00:00", tz=MOSCOW),
+        pd.Timestamp("2026-10-07 10:00:00", tz=MOSCOW),
+    ]
+    assert pd.Timestamp("2026-10-07 11:00:00", tz=MOSCOW) not in loaded.index
+
+
+def test_finam_history_closed_day_keeps_prior_history_and_rejects_current_day_bar():
+    observed = datetime(2026, 10, 11, 12, 0, tzinfo=timezone.utc)
+    prior_only = {
+        "bars": [
+            {
+                "timestamp": "2026-10-09T18:00:00Z",
+                "open": {"value": "100"},
+                "high": {"value": "101"},
+                "low": {"value": "99"},
+                "close": {"value": "100"},
+            }
+        ]
+    }
+    loaded = finam_completed_open_h1(prior_only, observed, [])
+    assert list(loaded.index) == [
+        pd.Timestamp("2026-10-09 21:00:00", tz=MOSCOW)
+    ]
+
+    current_bar = {
+        "bars": [
+            *prior_only["bars"],
+            {
+                "timestamp": "2026-10-11T08:00:00Z",
+                "open": {"value": "100"},
+                "high": {"value": "101"},
+                "low": {"value": "99"},
+                "close": {"value": "100"},
+            },
+        ]
+    }
+    with pytest.raises(
+        ProductionHistoryError,
+        match="FINAM_H1_OUTSIDE_CURRENT_SCHEDULE",
+    ):
+        finam_completed_open_h1(current_bar, observed, [])
