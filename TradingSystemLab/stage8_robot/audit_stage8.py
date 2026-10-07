@@ -715,7 +715,12 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
               "newest_expected_h1_close", "self.runtime.context_builder.build",
               "directional_initial_margin", "evaluate_production_entry_gate",
               "write_production_heartbeat", "InstanceLock",
-              "equity - unrealized - explained")),
+              "equity - unrealized - explained",
+              "STAGE8_12_4_REALIZED_EQUITY_BOOTSTRAP_REQUIRES_CLEAN_ACCOUNT",
+              "ENTRY_MINIMUM_REMAINING_SESSION = timedelta(minutes=5)",
+              "def _entry_session_ready", "def _fault_heartbeat",
+              "Exact /account position is the fill authority",
+              "def _validate_sltp")),
           "STAGE_8_12_4_PACKAGE2_CONTINUOUS_SERVICE_WIRING")
     service_tree=ast.parse(stage8124_service)
     service_calls={node.func.attr for node in ast.walk(service_tree)
@@ -743,7 +748,10 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
               "trading-credential-store.ps1",
               '$env:FINAM_MODE = "STAGE8_12_PRODUCTION"',
               "--accepted-commit", "--stage5-data-root", "--once",
+              "ExpectedCommit", "STAGE8_12_4_PRODUCTION_COMMIT_MISMATCH",
               "50f1fd2178c18b7ab3bd969be82ad01f47a34745"))
+          and "-ExpectedCommit $commit" in stage8124_production_installer
+          and "STAGE8_12_4_PRODUCTION_TASK_PRINCIPAL_MISMATCH" in stage8124_production_installer
           and "run-readonly.ps1" not in launcher_lower
           and "write_authorization" not in launcher_lower
           and "write_kill_switch" not in launcher_lower,
