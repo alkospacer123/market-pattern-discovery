@@ -605,7 +605,7 @@
     "real_order_transmission_authorized": false,
     "production_kill_switch_final_state": "HALTED",
     "production_scheduled_task": "Disabled",
-    "mode": "CODE_ONLY_TEST_ONLY",
+    "mode": "STAGE8_12_3_COMPLETE_REAL_ACCOUNT_ZERO_ORDERS_NOT_AUTHORIZED",
     "stage8_12_2_status": "STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT_COMPLETE_PASS",
     "stage8_12_3_status": "STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT_COMPLETE_PASS",
     "stage8_12_4_status": "NOT_STARTED_NOT_AUTHORIZED",
