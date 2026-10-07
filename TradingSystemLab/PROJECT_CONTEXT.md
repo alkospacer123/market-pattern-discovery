@@ -176,7 +176,29 @@ Canonical Package 4 authority:
 - production Scheduled Task: `Disabled`;
 - Stage 8.12.4 real order count: `0`.
 
-Package 5 — explicit production authorization and activation — is now the **CURRENT BOUNDARY / NOT STARTED / NOT AUTHORIZED**. No durable authorization has been created, the kill switch remains `HALTED`, and the production Scheduled Task remains `Disabled`. Stage 8.12.4 activation requires a separate explicit operator authorization action bound to the accepted production authority.
+Package 5 readiness is now **COMPLETE / PASS / LIVE ACTIVATION NOT PERFORMED**.
+
+Canonical Package 5 readiness authority:
+
+- accepted code commit: `883ea1ea6a8268276a8e39ebdc8786c643a21935`;
+- external readiness evidence: `runtime/diagnostics/package5-readiness/stage8_12_3_intel_preflight.json`;
+- readiness evidence SHA-256: `FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD`;
+- exact production Scheduled Task commit/principal binding: `PASS`;
+- Stage 5 data commit: `50f1fd2178c18b7ab3bd969be82ad01f47a34745`;
+- H1 seed source: `forever` only;
+- fresh GET-only FINAM financial authority: `PASS`;
+- additional funding required: `0` in external evidence;
+- independent Stage 8 audit: `PASS` (`282` checks);
+- final operational audit: `PASS` (`169` checks);
+- durable production authorization: absent;
+- `execution_authorized = false`;
+- production kill switch: `HALTED`;
+- production Scheduled Task: `Disabled`;
+- readonly Scheduled Task: `Disabled`;
+- Stage 8.12.4 real order count: `0`;
+- live activation performed: `false`.
+
+Package 5 live activation remains the **CURRENT BOUNDARY / NOT PERFORMED**. The readiness proof does not create authorization, arm the kill switch, start the production task, or transmit a real order.
 
 ## Purpose and authority
 
