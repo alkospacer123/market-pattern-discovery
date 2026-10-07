@@ -23,7 +23,7 @@ import pandas as pd
 from .account_cleanliness import TERMINAL_ORDER_STATUSES
 from .broker import compact_client_order_id
 from .finam_api import FinamAPI, FinamOrderRejected, FinamUncertainSubmission
-from .live_execution import AuthorizedFinamProductionTransport
+from .live_execution import AuthorizedFinamProductionTransport, LiveExecutionError
 from .margin import directional_initial_margin, parse_rest_decimal_value_object, portfolio_authority
 from .operations import InstanceLock, configure_operational_log
 from .production_authorization import authorization_path, load_authorization
@@ -54,6 +54,7 @@ LOG_FILE = "stage8-12-production.log"
 H1_LOOKBACK_DAYS = 30
 DEFAULT_POLL_SECONDS = 30
 FAST_RECONCILIATION_SECONDS = 3
+ENTRY_MINIMUM_REMAINING_SESSION = timedelta(minutes=5)
 ACTIVE_ACCOUNT_STATUSES = frozenset({"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"})
 
 
