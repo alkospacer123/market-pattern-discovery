@@ -117,7 +117,7 @@ def test_finam_completed_h1_keeps_open_timestamp_and_rest_decimal_schema():
         finam_completed_open_h1(malformed, observed, windows)
 
 
-def test_splice_requires_exact_overlap_and_appends_only_new_bars():
+def test_splice_requires_exact_finam_rows_and_appends_only_new_bars():
     seed = frame([
         ("2026-09-15 20:00:00", 100, 101, 99, 100),
         ("2026-09-15 21:00:00", 100, 102, 100, 101),
@@ -136,6 +136,10 @@ def test_splice_requires_exact_overlap_and_appends_only_new_bars():
         pd.Timestamp("2026-09-15 23:00:00", tz=MOSCOW),
     ]
 
+    sparse_live = live.drop(pd.Timestamp("2026-09-15 21:00:00", tz=MOSCOW))
+    sparse_merged = splice_seed_and_finam_open_h1(seed, sparse_live)
+    assert list(sparse_merged.index) == list(merged.index)
+
     conflicting = live.copy()
     conflicting.loc[pd.Timestamp("2026-09-15 22:00:00", tz=MOSCOW), "Close"] = Decimal("999")
     with pytest.raises(ProductionHistoryError, match="H1_SPLICE_OHLC_MISMATCH"):
@@ -144,6 +148,20 @@ def test_splice_requires_exact_overlap_and_appends_only_new_bars():
     missing = live.drop(pd.Timestamp("2026-09-15 22:00:00", tz=MOSCOW))
     with pytest.raises(ProductionHistoryError, match="H1_SPLICE_TIMESTAMP_MISMATCH"):
         splice_seed_and_finam_open_h1(seed, missing)
+
+    authority_with_gap = frame([
+        ("2026-09-15 20:00:00", 100, 101, 99, 100),
+        ("2026-09-15 22:00:00", 101, 103, 100, 102),
+    ])
+    finam_with_unknown_overlap = frame([
+        ("2026-09-15 21:00:00", 100, 102, 100, 101),
+        ("2026-09-15 22:00:00", 101, 103, 100, 102),
+        ("2026-09-15 23:00:00", 102, 104, 101, 103),
+    ])
+    with pytest.raises(ProductionHistoryError, match="H1_SPLICE_TIMESTAMP_MISMATCH"):
+        splice_seed_and_finam_open_h1(
+            authority_with_gap, finam_with_unknown_overlap
+        )
 
 
 def test_close_index_matches_frozen_research_loader_semantics():
