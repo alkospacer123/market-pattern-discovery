@@ -19,6 +19,7 @@ from TradingSystemLab.stage8_robot.production_service import (
     ProductionServiceFault,
 )
 from TradingSystemLab.stage8_robot.strategy_core import SignalIntent
+from TradingSystemLab.stage8_robot.trading_safety_gate import write_kill_switch
 
 UTC = ZoneInfo("UTC")
 MSK = ZoneInfo("Europe/Moscow")
@@ -228,6 +229,7 @@ def make_service(tmp_path, monkeypatch):
         instrument: authority(instrument)
         for instrument in svc.symbols
     }
+    write_kill_switch(tmp_path, "HALTED", now=NOW)
     return svc, api
 
 
@@ -248,6 +250,7 @@ def test_clean_cycle_initializes_realized_equity_and_sends_zero_orders(
 
 def test_entry_is_filled_and_protected_before_cycle_completes(tmp_path, monkeypatch):
     svc, api = make_service(tmp_path, monkeypatch)
+    write_kill_switch(tmp_path, "ARMED", allow_arm=True, now=NOW)
     emitted = {"done": False}
 
     def latest(instrument, frame, now):
