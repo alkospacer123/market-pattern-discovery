@@ -310,6 +310,26 @@ class ProductionRuntime:
             self.store.put(evaluated_key, timestamp.isoformat())
         return signal
 
+    def consume_entry_bar(self, instrument: str, timestamp: Any) -> None:
+        """Mark a completed H1 bar ineligible for any later retroactive entry."""
+        if instrument not in INSTRUMENTS:
+            raise ProductionRuntimeError("INSTRUMENT_NOT_N4")
+        if self.open_positions().get(instrument) is not None:
+            return
+        if self.store.get(f"pending_signal:{instrument}") is not None:
+            raise ProductionRuntimeError("PENDING_SIGNAL_BLOCKS_BAR_CONSUMPTION")
+        try:
+            stamp = pd.Timestamp(timestamp)
+        except Exception:
+            raise ProductionRuntimeError("ENTRY_BAR_TIMESTAMP_INVALID") from None
+        if stamp.tzinfo is None:
+            raise ProductionRuntimeError("ENTRY_BAR_TIMESTAMP_INVALID")
+        key = f"last_evaluated_h1:{instrument}"
+        prior = self.store.get(key)
+        if prior is not None and stamp.isoformat() < prior:
+            raise ProductionRuntimeError("ENTRY_BAR_WATERMARK_REGRESSION")
+        self.store.put(key, stamp.isoformat())
+
     def initialize_activation_watermarks(
         self, watermarks: dict[str, Any], *, accepted_commit: str
     ) -> bool:
@@ -567,6 +587,12 @@ class ProductionRuntime:
             }
             positions[payload["instrument"]] = _position_to_dict(position, meta)
             self._save_positions(positions)
+            # Entry occurs at this completed signal bar close. The entry candle
+            # must never manage its own stop/trailing state.
+            evaluated = self.store.get(f"last_evaluated_h1:{payload['instrument']}")
+            if not isinstance(evaluated, str):
+                raise ProductionRuntimeError("ENTRY_SIGNAL_WATERMARK_MISSING")
+            self.store.put(f"last_managed_h1:{payload['instrument']}", evaluated)
             current = positions[payload["instrument"]]
         elif current.get("trade_id") != payload.get("trade_id"):
             raise ProductionRuntimeError("ENTRY_POSITION_ALREADY_EXISTS")
