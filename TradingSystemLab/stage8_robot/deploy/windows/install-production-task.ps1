@@ -41,7 +41,7 @@ foreach ($dir in $dirs) { New-Item -ItemType Directory -Force -Path (Join-Path $
 
 $runner = Join-Path $Checkout "TradingSystemLab\stage8_robot\deploy\windows\run-production.ps1"
 if (-not (Test-Path $runner -PathType Leaf)) { throw "PRODUCTION_RUNNER_MISSING" }
-$args = "-NoProfile -ExecutionPolicy RemoteSigned -File ```"$runner```" -Checkout ```"$Checkout```" -RuntimeRoot ```"$RuntimeRoot```" -DataRoot ```"$DataRoot```" -AcceptedCommit $AcceptedCommit -Python ```"$Python```""
+$args = "-NoProfile -ExecutionPolicy RemoteSigned -File `"$runner`" -Checkout `"$Checkout`" -RuntimeRoot `"$RuntimeRoot`" -DataRoot `"$DataRoot`" -AcceptedCommit $AcceptedCommit -Python `"$Python`""
 $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument $args
 $trigger = New-ScheduledTaskTrigger -AtStartup
 $settings = New-ScheduledTaskSettingsSet -RestartCount 10 -RestartInterval (New-TimeSpan -Minutes 2) -ExecutionTimeLimit (New-TimeSpan -Days 3650) -MultipleInstances IgnoreNew
