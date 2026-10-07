@@ -1203,6 +1203,14 @@ def main(argv: list[str] | None = None) -> int:
         RuntimeError,
         ValueError,
     ) as exc:
+        try:
+            write_kill_switch(
+                args.runtime_root,
+                "HALTED",
+                now=datetime.now(timezone.utc),
+            )
+        except Exception:
+            pass
         print(str(exc))
         return 1
 
