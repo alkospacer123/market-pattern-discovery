@@ -603,42 +603,60 @@ class ProductionService:
         seed = load_stage5_seed_open_h1(self.stage5_data_root, instrument)
         return close_index_for_frozen_t3(splice_seed_and_finam_open_h1(seed, live))
 
-    def _manage_positions(self, histories: dict[str, pd.DataFrame], snap: Snapshot) -> None:
+    def _manage_positions(
+        self, histories: dict[str, pd.DataFrame], snap: Snapshot
+    ) -> bool:
         if self.runtime.store.unresolved_intent_count():
-            return
+            return False
         for instrument in tuple(self.runtime.open_positions()):
-            execution, _ = self.runtime.context_builder.build(histories[instrument], snap.observed_at)
+            execution, _ = self.runtime.context_builder.build(
+                histories[instrument], snap.observed_at
+            )
             watermark = self.runtime.store.get(f"last_managed_h1:{instrument}")
-            pending = execution if watermark is None else execution.loc[execution.index > pd.Timestamp(watermark)]
+            pending = (
+                execution
+                if watermark is None
+                else execution.loc[execution.index > pd.Timestamp(watermark)]
+            )
             for stamp, row in pending.iterrows():
                 if pd.isna(row.ATR):
-                    raise ProductionServiceError("STAGE8_12_4_COMPLETED_H1_INDICATOR_INVALID")
+                    raise ProductionServiceError(
+                        "STAGE8_12_4_COMPLETED_H1_INDICATOR_INVALID"
+                    )
                 bar = CompletedBar(
-                    stamp.to_pydatetime(), float(row.Open), float(row.High), float(row.Low),
-                    float(row.Close), float(row.ATR),
+                    stamp.to_pydatetime(),
+                    float(row.Open),
+                    float(row.High),
+                    float(row.Low),
+                    float(row.Close),
+                    float(row.ATR),
                     None if pd.isna(row.PriorHigh) else float(row.PriorHigh),
                     None if pd.isna(row.PriorLow) else float(row.PriorLow),
                 )
                 action = self.runtime.manage_completed_bar(
-                    instrument, bar,
+                    instrument,
+                    bar,
                     observed_position_quantity=snap.positions.get(
                         self.runtime.registry[instrument]["finam_symbol"], 0
                     ),
                 )
                 if action is not None:
                     self._submit(action, snap)
-                    return
+                    return True
+        return False
 
-    def _plan_entry(self, histories: dict[str, pd.DataFrame], snap: Snapshot) -> None:
+    def _plan_entry(
+        self, histories: dict[str, pd.DataFrame], snap: Snapshot
+    ) -> bool:
         if self.transport is None or self.runtime.store.unresolved_intent_count():
-            return
+            return False
         gate = evaluate_production_entry_gate(
             runtime_root=self.root, now=snap.observed_at,
             expected_commit=self.accepted_commit, expected_account_hash=self.account_hash,
             execution_authorized=True,
         )
         if gate.get("entry_gate_open") is not True:
-            return
+            return False
         budget = self.runtime.begin_batch(
             realized_equity=snap.realized_equity, available_cash=snap.available_cash
         )
@@ -661,7 +679,8 @@ class ProductionService:
             )
             if action.kind == "ENTRY":
                 self._submit(action, snap)
-                return
+                return True
+        return False
 
     def _heartbeat(self, snap: Snapshot, protection: list[dict[str, Any]], healthy: bool) -> None:
         write_production_heartbeat(
@@ -674,6 +693,22 @@ class ProductionService:
             position_protection=protection, now=snap.observed_at,
         )
 
+    def _fault_heartbeat(self, now: datetime | None = None) -> None:
+        observed = (now or self.clock()).astimezone(timezone.utc)
+        write_production_heartbeat(
+            self.root,
+            accepted_commit=self.accepted_commit,
+            account_hash=self.account_hash,
+            reconciliation_status="FAULT",
+            unresolved_intent_count=self.runtime.store.unresolved_intent_count(),
+            health_status="UNHEALTHY",
+            cycle_count=self.cycle_count,
+            last_api_contact=self.last_api_contact
+            or datetime(1970, 1, 1, tzinfo=timezone.utc),
+            position_protection=[],
+            now=observed,
+        )
+
     def cycle(self) -> None:
         now = self.clock().astimezone(timezone.utc)
         snap = self.snapshot(now)
@@ -684,13 +719,21 @@ class ProductionService:
         snap = self.snapshot(now)
         self._assert_exact_broker_ownership(snap)
         protection = self._protection(snap)
-        histories = {instrument: self._history(instrument, now) for instrument in INSTRUMENTS}
+        histories = {
+            instrument: self._history(instrument, now) for instrument in INSTRUMENTS
+        }
+        action_started = self._manage_positions(histories, snap)
+        if action_started or self.runtime.store.unresolved_intent_count():
+            self._fault_heartbeat(now)
+            return
+
         self.cycle_count += 1
         self.runtime.store.put("production_service_cycle_count", self.cycle_count)
         self._heartbeat(snap, protection, True)
-        self._manage_positions(histories, snap)
-        if not self.runtime.store.unresolved_intent_count():
-            self._plan_entry(histories, snap)
+
+        entry_started = self._plan_entry(histories, snap)
+        if entry_started or self.runtime.store.unresolved_intent_count():
+            self._fault_heartbeat(now)
         self.logger.info(
             "PRODUCTION_CYCLE_PASS cycle=%d authorized=%s positions=%d unresolved=%d",
             self.cycle_count, self.transport is not None,
@@ -705,6 +748,10 @@ class ProductionService:
                 code = str(exc)
                 if not code.startswith("STAGE8_12_4_") and not code.startswith("FINAM_"):
                     code = "STAGE8_12_4_PRODUCTION_CYCLE_FAILED"
+                try:
+                    self._fault_heartbeat()
+                except Exception:
+                    pass
                 self.logger.error("PRODUCTION_CYCLE_FAULT code=%s", code)
                 if once:
                     return 1
@@ -740,7 +787,14 @@ def run_from_environment(
             runtime_root, stage5_data_root, api_factory(secret), account, accepted_commit,
             poll_seconds=poll_seconds, clock=clock,
         )
-        service.authenticate()
+        try:
+            service.authenticate()
+        except Exception:
+            try:
+                service._fault_heartbeat()
+            except Exception:
+                pass
+            raise
         return service.run(once=once)
     finally:
         if service is not None:
