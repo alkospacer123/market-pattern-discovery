@@ -310,6 +310,95 @@ class ProductionRuntime:
             self.store.put(evaluated_key, timestamp.isoformat())
         return signal
 
+    def initialize_activation_watermarks(
+        self, watermarks: dict[str, Any], *, accepted_commit: str
+    ) -> bool:
+        """Prime signal watermarks once so production never backfills old entries."""
+        if set(watermarks) != set(INSTRUMENTS):
+            raise ProductionRuntimeError("ACTIVATION_WATERMARKS_NOT_N4")
+        if not isinstance(accepted_commit, str) or len(accepted_commit) != 40:
+            raise ProductionRuntimeError("ACTIVATION_COMMIT_INVALID")
+        existing = self.store.get("production_activation_watermarks")
+        normalized = {}
+        for instrument in INSTRUMENTS:
+            value = watermarks[instrument]
+            try:
+                stamp = pd.Timestamp(value)
+            except Exception:
+                raise ProductionRuntimeError("ACTIVATION_WATERMARK_INVALID") from None
+            if stamp.tzinfo is None:
+                raise ProductionRuntimeError("ACTIVATION_WATERMARK_INVALID")
+            normalized[instrument] = stamp.isoformat()
+        record = {
+            "accepted_commit": accepted_commit,
+            "watermarks": normalized,
+        }
+        if existing is not None:
+            if existing != record:
+                raise ProductionRuntimeError("ACTIVATION_WATERMARK_AUTHORITY_MISMATCH")
+            return False
+        if self.open_positions() or self.store.unresolved_intent_count() != 0:
+            raise ProductionRuntimeError("ACTIVATION_WATERMARK_REQUIRES_CLEAN_STATE")
+        for instrument, stamp in normalized.items():
+            self.store.put(f"last_evaluated_h1:{instrument}", stamp)
+        self.store.put("production_activation_watermarks", record)
+        return True
+
+    def reject_protective_stop(self, stop_key: str) -> None:
+        """Terminalize a rejected stop; replacement falls back to prior backstop."""
+        intent = self.store.intent(stop_key)
+        if not intent or intent["payload"].get("kind") not in {
+            "PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"
+        }:
+            raise ProductionRuntimeError("PROTECTIVE_STOP_INTENT_NOT_FOUND")
+        payload = intent["payload"]
+        self.store.transition_intent(stop_key, "REJECTED", intent.get("broker_order_id"))
+        positions = self.open_positions()
+        current = positions.get(payload["instrument"])
+        if current is None or current.get("trade_id") != payload.get("trade_id"):
+            return
+        if payload["kind"] == "PROTECTIVE_STOP_REPLACE":
+            if not current.get("protective_stop_broker_order_id"):
+                raise ProductionRuntimeError("PROTECTIVE_STOP_BACKSTOP_MISSING")
+            current["protective_stop_state"] = "ACTIVE"
+            positions[payload["instrument"]] = current
+            self._save_positions(positions)
+
+    def require_emergency_exit(
+        self, instrument: str, *, reason: str
+    ) -> RuntimeAction:
+        positions = self.open_positions()
+        current = positions.get(instrument)
+        if current is None:
+            raise ProductionRuntimeError("EMERGENCY_EXIT_WITHOUT_LOCAL_POSITION")
+        expected = (
+            int(current["quantity"])
+            if current["direction"] == "LONG"
+            else -int(current["quantity"])
+        )
+        key = f"stage8.12:{current['trade_id']}:emergency-exit:{reason}"
+        action = RuntimeAction(
+            "EMERGENCY_EXIT_REQUIRED",
+            key,
+            instrument,
+            current["finam_symbol"],
+            current["direction"],
+            int(current["quantity"]),
+            current["trade_id"],
+            current["signal_id"],
+            Decimal(str(current["entry"])),
+            Decimal(str(current["current_stop"])),
+            0,
+            reason,
+        )
+        existing = self.store.intent(key)
+        if existing is None:
+            if not self.store.persist_intent(key, action.payload()):
+                raise ProductionRuntimeError("DUPLICATE_EMERGENCY_EXIT_INTENT")
+        elif existing["payload"] != action.payload():
+            raise ProductionRuntimeError("IDEMPOTENCY_PAYLOAD_MISMATCH")
+        return action
+
     def begin_batch(self, *, realized_equity: Decimal, available_cash: Decimal) -> MarginBatchBudget:
         if realized_equity <= 0 or available_cash < 0:
             raise ProductionRuntimeError("BATCH_FINANCIAL_AUTHORITY_INVALID")
