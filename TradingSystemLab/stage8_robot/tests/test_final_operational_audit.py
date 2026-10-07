@@ -1134,6 +1134,17 @@ def test_stage_8_10_current_handoff_stale_gate_and_omission_fail_both_audits(pat
     omitted_handoff = handoff.replace("stage8.11.attempt7", "", 1)
     omitted = original[:start] + omitted_handoff + original[next_section:]
     _assert_document_mutation_fails_both(path, omitted, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
+    package3_omitted_handoff = handoff.replace(
+        "AB1D22A2BE4A748B5F25C21C56FEAC922CAE03499F6F41DF04A47F192A3E7D30",
+        "",
+        1,
+    )
+    package3_omitted = (
+        original[:start] + package3_omitted_handoff + original[next_section:]
+    )
+    _assert_document_mutation_fails_both(
+        path, package3_omitted, "STAGE_8_10_CURRENT_HANDOFF_EXACT"
+    )
 
 
 @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
