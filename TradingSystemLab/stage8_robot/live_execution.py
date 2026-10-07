@@ -15,6 +15,7 @@ from typing import Any
 from .broker import broker_side, compact_client_order_id
 from .finam_api import MARKET_ORDER_TYPE, TIME_IN_FORCE_DAY
 from .production_authorization import load_authorization
+from .production_broker_state import ProductionBrokerStateError, position_quantities
 from .production_runtime import RuntimeAction
 from .protective_stop_contract import (
     ProtectiveStopContractError,
@@ -88,6 +89,14 @@ class AuthorizedFinamProductionTransport:
             reasons = ",".join(gate.get("reason_codes") or [])
             raise LiveExecutionError(f"STAGE8_12_4_ENTRY_GATE_BLOCKED:{reasons}")
 
+    def _fresh_symbol_quantity(self, symbol: str) -> int:
+        self._require_connected()
+        try:
+            positions = position_quantities(self.api.account(self.account_id))
+        except ProductionBrokerStateError as exc:
+            raise LiveExecutionError(str(exc)) from None
+        return positions.get(symbol, 0)
+
     @staticmethod
     def _validate_action(action: RuntimeAction, kind: str) -> None:
         if (
@@ -115,6 +124,8 @@ class AuthorizedFinamProductionTransport:
     def submit_entry(self, action: RuntimeAction, *, now) -> dict[str, Any]:
         self._validate_action(action, "ENTRY")
         self._require_entry_gate(now)
+        if self._fresh_symbol_quantity(action.finam_symbol) != 0:
+            raise LiveExecutionError("STAGE8_12_4_ENTRY_TARGET_NOT_FLAT")
         return self.api.place_order(
             self.account_id, self._market_payload(action, exit_order=False)
         )
@@ -131,6 +142,8 @@ class AuthorizedFinamProductionTransport:
         expected = action.quantity if action.direction == "LONG" else -action.quantity
         if type(observed_position_quantity) is not int or observed_position_quantity != expected:
             raise LiveExecutionError("STAGE8_12_4_PROTECTIVE_STOP_POSITION_NOT_EXACT")
+        if self._fresh_symbol_quantity(action.finam_symbol) != expected:
+            raise LiveExecutionError("STAGE8_12_4_PROTECTIVE_STOP_FRESH_POSITION_NOT_EXACT")
         try:
             payload = percent_position_stop_payload(action)
         except ProtectiveStopContractError as exc:
@@ -153,6 +166,8 @@ class AuthorizedFinamProductionTransport:
         expected = action.quantity if action.direction == "LONG" else -action.quantity
         if type(observed_position_quantity) is not int or observed_position_quantity != expected:
             raise LiveExecutionError("STAGE8_12_4_EMERGENCY_EXIT_POSITION_NOT_EXACT")
+        if self._fresh_symbol_quantity(action.finam_symbol) != expected:
+            raise LiveExecutionError("STAGE8_12_4_EMERGENCY_EXIT_FRESH_POSITION_NOT_EXACT")
         return self.api.place_order(
             self.account_id, self._market_payload(action, exit_order=True)
         )
@@ -162,10 +177,16 @@ class AuthorizedFinamProductionTransport:
         broker_order_id: str,
         *,
         observed_position_quantity: int,
+        finam_symbol: str | None = None,
     ) -> dict[str, Any]:
         self._require_connected()
         if type(observed_position_quantity) is not int or observed_position_quantity != 0:
             raise LiveExecutionError("STAGE8_12_4_PROTECTIVE_STOP_CANCEL_REQUIRES_FLAT")
         if not isinstance(broker_order_id, str) or not broker_order_id:
             raise LiveExecutionError("STAGE8_12_4_BROKER_ORDER_ID_REQUIRED")
+        if finam_symbol is not None:
+            if not isinstance(finam_symbol, str) or not finam_symbol:
+                raise LiveExecutionError("STAGE8_12_4_FINAM_SYMBOL_REQUIRED")
+            if self._fresh_symbol_quantity(finam_symbol) != 0:
+                raise LiveExecutionError("STAGE8_12_4_PROTECTIVE_STOP_CANCEL_FRESH_POSITION_NOT_FLAT")
         return self.api.cancel_order(self.account_id, broker_order_id)
