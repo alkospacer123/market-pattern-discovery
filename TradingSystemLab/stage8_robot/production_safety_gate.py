@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID
+from .specification import ACTIVE_IDENTITY, INSTRUMENTS, PRODUCTION_SPECIFICATION_ID
 from .trading_safety_gate import (
     MAX_CLOCK_SKEW_SECONDS,
     MAX_HEARTBEAT_AGE_SECONDS,
@@ -54,6 +54,60 @@ def _timestamp(value: Any) -> datetime | None:
         return None
     return parsed if parsed.tzinfo is not None and parsed.utcoffset() is not None else None
 
+def _validated_position_protection(value: Any) -> list[dict[str, Any]]:
+    """Validate one protection record per open frozen N4 position."""
+    if not isinstance(value, list):
+        raise ProductionSafetyError("STAGE8_12_4_POSITION_PROTECTION_INVALID")
+    normalized: list[dict[str, Any]] = []
+    instruments: set[str] = set()
+    trade_ids: set[str] = set()
+    stop_ids: set[str] = set()
+    required = {
+        "instrument",
+        "trade_id",
+        "expected_position_quantity",
+        "covered_quantity",
+        "active_stop_order_ids",
+    }
+    for row in value:
+        if not isinstance(row, dict) or set(row) != required:
+            raise ProductionSafetyError("STAGE8_12_4_POSITION_PROTECTION_INVALID")
+        instrument = row["instrument"]
+        trade_id = row["trade_id"]
+        expected = row["expected_position_quantity"]
+        covered = row["covered_quantity"]
+        active_stop_order_ids = row["active_stop_order_ids"]
+        if (
+            instrument not in INSTRUMENTS
+            or instrument in instruments
+            or not isinstance(trade_id, str)
+            or not trade_id
+            or trade_id in trade_ids
+            or type(expected) is not int
+            or expected == 0
+            or type(covered) is not int
+            or covered <= 0
+            or covered != abs(expected)
+            or not isinstance(active_stop_order_ids, list)
+            or not active_stop_order_ids
+            or any(not isinstance(item, str) or not item for item in active_stop_order_ids)
+            or len(set(active_stop_order_ids)) != len(active_stop_order_ids)
+            or any(item in stop_ids for item in active_stop_order_ids)
+        ):
+            raise ProductionSafetyError("STAGE8_12_4_POSITION_PROTECTION_INVALID")
+        instruments.add(instrument)
+        trade_ids.add(trade_id)
+        stop_ids.update(active_stop_order_ids)
+        normalized.append({
+            "instrument": instrument,
+            "trade_id": trade_id,
+            "expected_position_quantity": expected,
+            "covered_quantity": covered,
+            "active_stop_order_ids": list(active_stop_order_ids),
+        })
+    return normalized
+
+
 
 def write_production_heartbeat(
     runtime_root: Path | str,
@@ -65,8 +119,7 @@ def write_production_heartbeat(
     health_status: str,
     cycle_count: int,
     last_api_contact: datetime,
-    open_position_count: int,
-    active_protective_stop_count: int,
+    position_protection: list[dict[str, Any]],
     now: datetime | None = None,
 ) -> dict[str, Any]:
     observed = now or datetime.now(timezone.utc)
@@ -78,14 +131,17 @@ def write_production_heartbeat(
         raise ProductionSafetyError("STAGE8_12_4_RECONCILIATION_STATUS_INVALID")
     if health_status not in {"HEALTHY", "UNHEALTHY"}:
         raise ProductionSafetyError("STAGE8_12_4_HEALTH_STATUS_INVALID")
-    for value, code in (
+    for scalar, code in (
         (unresolved_intent_count, "STAGE8_12_4_UNRESOLVED_COUNT_INVALID"),
         (cycle_count, "STAGE8_12_4_CYCLE_COUNT_INVALID"),
-        (open_position_count, "STAGE8_12_4_OPEN_POSITION_COUNT_INVALID"),
-        (active_protective_stop_count, "STAGE8_12_4_PROTECTIVE_STOP_COUNT_INVALID"),
     ):
-        if type(value) is not int or value < 0:
+        if type(scalar) is not int or scalar < 0:
             raise ProductionSafetyError(code)
+    protection = _validated_position_protection(position_protection)
+    open_position_count = len(protection)
+    active_protective_stop_count = sum(
+        len(row["active_stop_order_ids"]) for row in protection
+    )
     value = {
         "schema_id": PRODUCTION_HEARTBEAT_SCHEMA,
         "production_specification_id": PRODUCTION_SPECIFICATION_ID,
@@ -100,6 +156,7 @@ def write_production_heartbeat(
         "cycle_count": cycle_count,
         "open_position_count": open_position_count,
         "active_protective_stop_count": active_protective_stop_count,
+        "position_protection": protection,
     }
     destination = production_heartbeat_path(runtime_root)
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -176,14 +233,27 @@ def evaluate_production_entry_gate(
             (type(value.get("cycle_count")) is int and value.get("cycle_count") >= 1, "PRODUCTION_CYCLE_COUNT_INVALID"),
             (type(value.get("open_position_count")) is int and value.get("open_position_count") >= 0, "PRODUCTION_POSITION_COUNT_INVALID"),
             (type(value.get("active_protective_stop_count")) is int and value.get("active_protective_stop_count") >= 0, "PRODUCTION_STOP_COUNT_INVALID"),
-            (type(value.get("open_position_count")) is int
-             and type(value.get("active_protective_stop_count")) is int
-             and value.get("active_protective_stop_count") >= value.get("open_position_count"),
-             "PRODUCTION_PROTECTIVE_STOP_COVERAGE_INVALID"),
         )
         for valid, code in checks:
             if not valid:
                 reasons.append(code)
+
+        try:
+            protection = _validated_position_protection(
+                value.get("position_protection")
+            )
+        except ProductionSafetyError:
+            protection = None
+            reasons.append("PRODUCTION_POSITION_PROTECTION_INVALID")
+        if protection is not None:
+            derived_positions = len(protection)
+            derived_stops = sum(
+                len(row["active_stop_order_ids"]) for row in protection
+            )
+            if value.get("open_position_count") != derived_positions:
+                reasons.append("PRODUCTION_POSITION_COUNT_MISMATCH")
+            if value.get("active_protective_stop_count") != derived_stops:
+                reasons.append("PRODUCTION_STOP_COUNT_MISMATCH")
 
         stamp = _timestamp(value.get("timestamp"))
         contact = _timestamp(value.get("last_successful_finam_api_contact"))
