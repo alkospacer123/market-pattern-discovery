@@ -349,8 +349,20 @@ class ProductionRuntime:
             raise ProductionRuntimeError("UNRESOLVED_INTENT_BLOCKS_NEW_ENTRY")
         contract = ContractEconomics(
             authority.price_step, authority.tick_value, authority.trade_lot_size, True)
-        base = size_position(
-            realized_equity, Decimal(str(signal.entry)), Decimal(str(signal.initial_stop)), contract)
+        try:
+            base = size_position(
+                realized_equity, Decimal(str(signal.entry)),
+                Decimal(str(signal.initial_stop)), contract)
+        except ValueError as exc:
+            if str(exc) != "STOP_NOT_ON_TICK_GRID":
+                raise
+            self._consume_pending_signal(signal)
+            return RuntimeAction(
+                "SKIP_STOP_NOT_ON_TICK_GRID", None, signal.instrument, authority.finam_symbol,
+                signal.direction, 0, signal.trade_id, signal.signal_id,
+                Decimal(str(signal.entry)), Decimal(str(signal.initial_stop)), 0,
+                "STOP_NOT_ON_TICK_GRID",
+            )
         sized = cap_r15_by_margin(
             realized_equity=realized_equity,
             entry=Decimal(str(signal.entry)),
