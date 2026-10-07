@@ -81,8 +81,10 @@ def test_merge_fails_on_overlap_mismatch_or_lost_continuity():
     with pytest.raises(ProductionHistoryError, match="H1_HISTORY_OVERLAP_MISMATCH"):
         merge_h1_history(base, tail)
 
-    stale = frame("2026-01-01 10:00", MIN_OVERLAP_BARS)
-    disconnected = frame("2026-02-15 10:00", MIN_OVERLAP_BARS)
+    stale = frame("2026-01-01 10:00", 60)
+    disconnected = stale.iloc[-41:-1].copy()
+    assert len(disconnected) >= MIN_OVERLAP_BARS
+    assert stale.index[-1] not in disconnected.index
     with pytest.raises(ProductionHistoryError, match="H1_HISTORY_CONTINUITY_LOST"):
         merge_h1_history(stale, disconnected)
 
