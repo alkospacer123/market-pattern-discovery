@@ -38,6 +38,16 @@ def test_package3_validator_requires_inactive_safety_and_disabled_tasks():
     assert "-ExpectedCommit $AcceptedCommit" in text
 
 
+def test_package3_validator_compares_production_principal_by_windows_sid():
+    text = source()
+    assert "[Security.Principal.WindowsIdentity]::GetCurrent()" in text
+    assert ".User.Value" in text
+    assert "System.Security.Principal.NTAccount" in text
+    assert "System.Security.Principal.SecurityIdentifier" in text
+    assert ".Translate(" in text
+    assert "[string]$task.Principal.UserId -cne $currentName" not in text
+
+
 def test_package3_validator_runs_existing_audits_and_focused_corrective_tests():
     text = source()
     assert "run-stage8-12-4-foundation-validation.ps1" in text

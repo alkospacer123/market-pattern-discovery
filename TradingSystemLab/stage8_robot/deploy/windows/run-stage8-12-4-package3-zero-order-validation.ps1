@@ -41,8 +41,17 @@ function Require-ProductionTaskDisabledExact {
     ) {
         throw "STAGE8_12_4_PACKAGE3_PRODUCTION_TASK_BINDING_MISMATCH"
     }
-    $currentName = [Security.Principal.WindowsIdentity]::GetCurrent().Name
-    if ([string]$task.Principal.UserId -cne $currentName) { throw "STAGE8_12_4_PACKAGE3_PRODUCTION_TASK_PRINCIPAL_MISMATCH" }
+    $currentIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $currentSid = $currentIdentity.User.Value
+    try {
+        $taskAccount = New-Object System.Security.Principal.NTAccount([string]$task.Principal.UserId)
+        $taskSid = $taskAccount.Translate([System.Security.Principal.SecurityIdentifier]).Value
+    } catch {
+        throw "STAGE8_12_4_PACKAGE3_PRODUCTION_TASK_PRINCIPAL_MISMATCH"
+    }
+    if ([string]::IsNullOrWhiteSpace($currentSid) -or $taskSid -cne $currentSid) {
+        throw "STAGE8_12_4_PACKAGE3_PRODUCTION_TASK_PRINCIPAL_MISMATCH"
+    }
     return $task
 }
 
