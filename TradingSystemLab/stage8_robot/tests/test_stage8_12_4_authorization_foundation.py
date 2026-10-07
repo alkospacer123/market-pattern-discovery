@@ -22,6 +22,7 @@ from TradingSystemLab.stage8_robot.production_authorization import (
 )
 from TradingSystemLab.stage8_robot.production_runtime import RuntimeAction
 from TradingSystemLab.stage8_robot.production_safety_gate import (
+    ProductionSafetyError,
     production_heartbeat_path,
     write_production_heartbeat,
 )
@@ -398,6 +399,31 @@ def test_finam_sltp_transport_uses_dedicated_endpoint_and_never_retries_uncertai
         )
     assert len(uncertain_calls) == 2
 
+    timeout_calls = []
+
+    def timeout_transport(request, timeout):
+        timeout_calls.append(request)
+        if len(timeout_calls) == 1:
+            return Response(b'{"token":"jwt"}')
+        raise TimeoutError("timed out")
+
+    timeout_api = FinamAPI(
+        "secret", transport=timeout_transport, limiter=RateLimiter(199)
+    )
+    timeout_api.create_session()
+    with pytest.raises(FinamUncertainSubmission):
+        timeout_api.place_sltp_order(
+            ACCOUNT,
+            {
+                "symbol": "USDRUBF@RTSX",
+                "side": "SIDE_SELL",
+                "quantity_sl": {"value": "100"},
+                "sl_qty_measure": "SLTP_QTY_MEASURE_PERCENT",
+                "sl_price": {"value": "99.95"},
+            },
+        )
+    assert len(timeout_calls) == 2
+
 
 def test_production_gate_allows_reconciled_expected_open_positions(tmp_path):
     authorize(tmp_path)
@@ -468,7 +494,7 @@ def test_production_gate_rejects_duplicate_stop_coverage_across_positions(tmp_pa
 
 def test_production_heartbeat_writer_rejects_partial_position_coverage(tmp_path):
     with pytest.raises(
-        Exception,
+        ProductionSafetyError,
         match="STAGE8_12_4_POSITION_PROTECTION_INVALID",
     ):
         write_production_heartbeat(
