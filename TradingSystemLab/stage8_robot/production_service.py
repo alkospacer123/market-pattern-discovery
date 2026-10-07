@@ -65,7 +65,7 @@ from .production_safety_gate import (
     evaluate_production_entry_gate,
     write_production_heartbeat,
 )
-from .readonly_supervisor import trading_h1_windows, newest_expected_h1_close
+from .readonly_supervisor import SUPERVISOR_DATABASE, trading_h1_windows, newest_expected_h1_close
 from .specification import (
     ACTIVE_IDENTITY,
     INSTRUMENTS,
@@ -138,6 +138,40 @@ def _expected_quantity(position: dict[str, Any]) -> int:
     if quantity <= 0 or direction not in {"LONG", "SHORT"}:
         raise ProductionServiceFault("LOCAL_POSITION_STATE_INVALID")
     return quantity if direction == "LONG" else -quantity
+
+
+def _readonly_expected_watermark(
+    runtime_root: Path,
+    instrument: str,
+) -> datetime | None:
+    """Read the last schedule-proven watermark left by Stage 8 readonly."""
+    path = runtime_root / "state" / SUPERVISOR_DATABASE
+    if not path.is_file():
+        return None
+    try:
+        connection = sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True)
+        try:
+            row = connection.execute(
+                "SELECT value FROM operational_state WHERE key=?",
+                (f"expected_h1:{instrument}",),
+            ).fetchone()
+        finally:
+            connection.close()
+    except sqlite3.Error:
+        raise ProductionServiceFault(
+            "READONLY_WATERMARK_AUTHORITY_INVALID"
+        ) from None
+    if row is None:
+        return None
+    try:
+        value = datetime.fromisoformat(str(row[0]).replace("Z", "+00:00"))
+    except ValueError:
+        raise ProductionServiceFault(
+            "READONLY_WATERMARK_AUTHORITY_INVALID"
+        ) from None
+    if value.tzinfo is None or value.utcoffset() is None:
+        raise ProductionServiceFault("READONLY_WATERMARK_AUTHORITY_INVALID")
+    return value.astimezone(timezone.utc)
 
 
 class ProductionService:
@@ -244,34 +278,60 @@ class ProductionService:
             require_no_external_cash_flows(response)
         except ProductionBrokerStateError as exc:
             raise ProductionServiceFault(str(exc)) from None
-        self.runtime.store.put("last_transaction_scan_utc", now.isoformat())
 
-    def _financial_authority(self, account: dict[str, Any], now: datetime):
+    def _financial_authority(
+        self,
+        account: dict[str, Any],
+        now: datetime,
+        broker_positions_map: dict[str, int],
+    ):
         self._scan_external_cash_flows(now)
         try:
-            realized = broker_realized_basis(account)
+            broker_basis = broker_realized_basis(account)
             portfolio = portfolio_authority(account)
         except (ProductionBrokerStateError, ValueError) as exc:
             raise ProductionServiceFault(str(exc)) from None
+
         starting = self.runtime.store.get("starting_realized_equity")
-        if starting is None:
-            if self.runtime.open_positions() or self.runtime.store.unresolved_intent_count():
+        persisted = self.runtime.current_realized_equity()
+        if persisted is None:
+            if (
+                starting is not None
+                or self.runtime.open_positions()
+                or self.runtime.store.unresolved_intent_count()
+                or any(quantity != 0 for quantity in broker_positions_map.values())
+            ):
                 raise ProductionServiceFault(
-                    "REALIZED_EQUITY_INITIALIZATION_REQUIRES_CLEAN_LOCAL_STATE"
+                    "REALIZED_EQUITY_INITIALIZATION_REQUIRES_CLEAN_STATE"
                 )
-            self.runtime.store.put("starting_realized_equity", str(realized))
+            self.runtime.store.put("starting_realized_equity", str(broker_basis))
+            self.runtime.set_realized_equity(broker_basis)
         else:
+            if starting is None:
+                raise ProductionServiceFault(
+                    "STARTING_REALIZED_EQUITY_STATE_MISSING"
+                )
             try:
-                if Decimal(str(starting)) <= 0:
-                    raise ValueError
+                starting_value = Decimal(str(starting))
             except Exception:
                 raise ProductionServiceFault(
                     "STARTING_REALIZED_EQUITY_STATE_INVALID"
                 ) from None
-        # Broker equity less broker unrealized PnL is the current realized basis.
-        # External funding changes after authorization were rejected above.
-        self.runtime.set_realized_equity(realized)
-        return realized, portfolio
+            if not starting_value.is_finite() or starting_value <= 0:
+                raise ProductionServiceFault(
+                    "STARTING_REALIZED_EQUITY_STATE_INVALID"
+                )
+        return broker_basis, portfolio
+
+    def _require_realized_equity_reconciled(
+        self, broker_basis: Decimal
+    ) -> Decimal:
+        persisted = self.runtime.current_realized_equity()
+        if persisted is None or persisted != broker_basis:
+            raise ProductionServiceFault(
+                "UNEXPLAINED_REALIZED_EQUITY_DISCREPANCY"
+            )
+        return persisted
 
     def _snapshot(self) -> tuple[dict[str, Any], list[BrokerOrderView], dict[str, int]]:
         details = self.api.session_details()
@@ -355,6 +415,28 @@ class ProductionService:
                     short_initial_margin=directional_initial_margin(params, "SHORT"),
                 )
                 windows = trading_h1_windows(schedule)
+                derived = newest_expected_h1_close(schedule, now)
+                prior_text = self.runtime.store.get(f"expected_h1:{instrument}")
+                if prior_text is not None:
+                    try:
+                        prior = datetime.fromisoformat(
+                            str(prior_text).replace("Z", "+00:00")
+                        ).astimezone(timezone.utc)
+                    except ValueError:
+                        raise ProductionServiceFault(
+                            "PRODUCTION_H1_WATERMARK_STATE_INVALID"
+                        ) from None
+                else:
+                    prior = _readonly_expected_watermark(self.root, instrument)
+                expected_open = (
+                    max(derived, prior)
+                    if derived is not None and prior is not None
+                    else derived or prior
+                )
+                if expected_open is None:
+                    raise ProductionServiceFault(
+                        "H1_EXPECTED_COMPLETED_WATERMARK_UNAVAILABLE"
+                    )
                 response = self.api.bars(symbol, start, now.isoformat())
                 history = update_production_h1(
                     runtime_root=self.root,
@@ -363,21 +445,14 @@ class ProductionService:
                     finam_response=response,
                     observed_at=now,
                     trading_windows=windows,
+                    expected_open_utc=expected_open,
                 )
-                expected_open = newest_expected_h1_close(schedule, now)
             except (KeyError, ValueError, ProductionHistoryError) as exc:
                 raise ProductionServiceFault(str(exc)) from None
-            if expected_open is not None:
-                expected_close = (
-                    pd.Timestamp(expected_open).tz_convert("Europe/Moscow")
-                    + pd.Timedelta("1h")
-                )
-                if expected_close not in history.index:
-                    raise ProductionServiceFault("STALE_COMPLETED_H1_DATA")
-                self.runtime.store.put(
-                    f"expected_h1:{instrument}",
-                    expected_open.astimezone(timezone.utc).isoformat(),
-                )
+            self.runtime.store.put(
+                f"expected_h1:{instrument}",
+                expected_open.astimezone(timezone.utc).isoformat(),
+            )
             authorities[instrument] = authority
             histories[instrument] = history
         return authorities, histories
@@ -427,7 +502,7 @@ class ProductionService:
                 and code.startswith("STAGE8_12_4_ENTRY_GATE_BLOCKED:")
             ):
                 self.runtime.store.transition_intent(key, "CANCELLED")
-                raise ProductionServiceFault(code, halt=False) from None
+                raise ProductionServiceFault(code, halt=True) from None
             raise ProductionServiceFault(code) from None
         except FinamOrderRejected:
             self.runtime.store.transition_intent(key, "REJECTED")
@@ -533,7 +608,7 @@ class ProductionService:
             if order.active:
                 self._transition_ack(key, order.order_id)
                 raise ProductionServiceFault(
-                    "ENTRY_ORDER_PENDING", halt=False, pending=True
+                    "ENTRY_ORDER_PENDING", pending=True
                 )
             raise ProductionServiceFault("ENTRY_ORDER_TERMINAL_WITHOUT_FILL")
 
@@ -565,7 +640,7 @@ class ProductionService:
                     )
                 raise ProductionServiceFault("PROTECTIVE_STOP_REPLACEMENT_TERMINAL")
             raise ProductionServiceFault(
-                "PROTECTIVE_STOP_NOT_ACTIVE", halt=False, pending=True
+                "PROTECTIVE_STOP_NOT_ACTIVE", pending=True
             )
 
         if action.kind == "EMERGENCY_EXIT_REQUIRED":
@@ -578,7 +653,7 @@ class ProductionService:
             if order.active:
                 self._transition_ack(key, order.order_id)
                 raise ProductionServiceFault(
-                    "EMERGENCY_EXIT_PENDING", halt=False, pending=True
+                    "EMERGENCY_EXIT_PENDING", pending=True
                 )
             if order.status in FILLED_ORDER_STATUSES:
                 raise ProductionServiceFault(
@@ -866,8 +941,11 @@ class ProductionService:
             for instrument, quantity in broker_map.items()
         ):
             raise ProductionServiceFault("UNEXPECTED_BROKER_POSITION")
-        realized, portfolio = self._financial_authority(account, now)
-        self._finalize_flat_local_positions(broker_map, realized)
+        broker_basis, portfolio = self._financial_authority(
+            account, now, broker_map
+        )
+        self._finalize_flat_local_positions(broker_map, broker_basis)
+        realized = self._require_realized_equity_reconciled(broker_basis)
 
         # Flat finalization can change local position state and broker stop state.
         account, orders, broker_map = self._snapshot()
@@ -884,11 +962,15 @@ class ProductionService:
 
         # Management may replace protection or exit a position.
         account, orders, broker_map = self._snapshot()
-        realized, portfolio = self._financial_authority(account, now)
-        self._finalize_flat_local_positions(broker_map, realized)
+        broker_basis, portfolio = self._financial_authority(
+            account, now, broker_map
+        )
+        self._finalize_flat_local_positions(broker_map, broker_basis)
+        realized = self._require_realized_equity_reconciled(broker_basis)
         account, orders, broker_map = self._snapshot()
         protection = self._protection_rows(orders, broker_map)
 
+        self.runtime.store.put("last_transaction_scan_utc", now.isoformat())
         self.cycle_count += 1
         self.runtime.store.put("production_cycle_count", self.cycle_count)
         self._heartbeat(
