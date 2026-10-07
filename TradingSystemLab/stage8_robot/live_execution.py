@@ -9,7 +9,6 @@ entries.
 from __future__ import annotations
 
 import hashlib
-import json
 from pathlib import Path
 from typing import Any
 
@@ -21,7 +20,7 @@ from .protective_stop_contract import (
     ProtectiveStopContractError,
     SyntheticPercentPositionStopAdapter,
 )
-from .trading_safety_gate import evaluate_new_entry_gate, heartbeat_path
+from .production_safety_gate import evaluate_production_entry_gate
 
 
 class LiveExecutionError(RuntimeError):
@@ -76,21 +75,13 @@ class AuthorizedFinamProductionTransport:
             raise LiveExecutionError("STAGE8_12_4_TRANSPORT_NOT_CONNECTED")
         self._require_authorization()
 
-    def _require_exact_heartbeat_account(self) -> None:
-        path = heartbeat_path(self.runtime_root)
-        try:
-            value = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, UnicodeError, json.JSONDecodeError):
-            raise LiveExecutionError("STAGE8_12_4_HEARTBEAT_INVALID") from None
-        if not isinstance(value, dict) or value.get("account_hash") != self.account_hash:
-            raise LiveExecutionError("STAGE8_12_4_HEARTBEAT_ACCOUNT_MISMATCH")
-
     def _require_entry_gate(self, now) -> None:
         self._require_connected()
-        self._require_exact_heartbeat_account()
-        gate = evaluate_new_entry_gate(
+        gate = evaluate_production_entry_gate(
             runtime_root=self.runtime_root,
             now=now,
+            expected_commit=self.accepted_commit,
+            expected_account_hash=self.account_hash,
             execution_authorized=True,
         )
         if gate.get("entry_gate_open") is not True:
