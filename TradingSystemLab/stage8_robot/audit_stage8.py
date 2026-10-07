@@ -66,7 +66,14 @@ def _stage8_10_document_consistency(document):
         "19/19 PASS", "25/25 PASS", "144/144 PASS", "48/48 PASS", "113/113 PASS", "111/111 PASS",
         "test-only real-order count: `0`",
         "Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**",
-        "Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is now **STARTED / IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**")
+        "242c0a4bee0200da171d1a7451472b256241e170",
+        "AB1D22A2BE4A748B5F25C21C56FEAC922CAE03499F6F41DF04A47F192A3E7D30",
+        "33/33 PASS",
+        "Package 4",
+        "HALTED",
+        "Disabled",
+        "real order count",
+        "not authorized")
     exact=bool(handoff and all(" ".join(token.split()) in normalized_handoff for token in required))
     if handoff and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]",handoff,re.I):
         stale_next=True
