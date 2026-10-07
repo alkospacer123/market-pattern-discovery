@@ -26,6 +26,7 @@ from TradingSystemLab.stage8_robot.production_safety_gate import (
     production_heartbeat_path,
     write_production_heartbeat,
 )
+from TradingSystemLab.stage8_robot.state import StateStore
 from TradingSystemLab.stage8_robot.specification import (
     ACTIVE_IDENTITY,
     PRODUCTION_SPECIFICATION_ID,
@@ -156,6 +157,12 @@ def emergency_action(direction="LONG"):
     )
 
 
+def persist_action(store: StateStore, action: RuntimeAction) -> RuntimeAction:
+    assert action.idempotency_key
+    assert store.persist_intent(action.idempotency_key, action.payload())
+    return action
+
+
 def test_authorization_requires_exact_operator_phrase_and_external_path(tmp_path):
     with pytest.raises(
         ProductionAuthorizationError,
@@ -247,7 +254,10 @@ def test_entry_requires_armed_fresh_exact_gate_and_uses_day_market_payload(tmp_p
         accepted_commit=COMMIT,
     )
     transport.connect()
-    response = transport.submit_entry(entry_action(), now=NOW)
+    store = StateStore(tmp_path / "intents.db")
+    action = persist_action(store, entry_action())
+    response = transport.submit_entry(action, now=NOW, state_store=store)
+    assert store.intent(action.idempotency_key)["status"] == "ACK"
     assert response["order_id"] == "ENTRY-1"
     payload = [call[2] for call in api.calls if call[0] == "place_order"][-1]
     assert payload["symbol"] == "USDRUBF@RTSX"
@@ -276,12 +286,19 @@ def test_halted_blocks_entry_but_not_protection_or_emergency_exit(tmp_path):
         LiveExecutionError,
         match="STAGE8_12_4_ENTRY_GATE_BLOCKED",
     ):
-        transport.submit_entry(entry_action(), now=NOW)
+        transport.submit_entry(
+            entry_action(),
+            now=NOW,
+            state_store=StateStore(tmp_path / "blocked-entry.db"),
+        )
     assert not [call for call in api.calls if call[0] == "place_order"]
 
+    store = StateStore(tmp_path / "risk-reducing.db")
+    stop_action_value = persist_action(store, stop_action())
     stop = transport.submit_protective_stop(
-        stop_action(), observed_position_quantity=2
+        stop_action_value, observed_position_quantity=2, state_store=store
     )
+    assert store.intent(stop_action_value.idempotency_key)["status"] == "ACK"
     assert stop["order_id"] == "STOP-1"
     payload = [call[2] for call in api.calls if call[0] == "place_sltp_order"][-1]
     assert payload["side"] == "SIDE_SELL"
@@ -294,9 +311,13 @@ def test_halted_blocks_entry_but_not_protection_or_emergency_exit(tmp_path):
     assert "schema_id" not in payload
     assert payload["client_order_id"].isalnum()
 
+    emergency_action_value = persist_action(store, emergency_action())
     result = transport.submit_emergency_exit(
-        emergency_action(), observed_position_quantity=2
+        emergency_action_value,
+        observed_position_quantity=2,
+        state_store=store,
     )
+    assert store.intent(emergency_action_value.idempotency_key)["status"] == "ACK"
     assert result["order_id"] == "ENTRY-1"
     exit_payload = [call[2] for call in api.calls if call[0] == "place_order"][-1]
     assert exit_payload["side"] == "SIDE_SELL"
@@ -318,7 +339,9 @@ def test_protective_stop_requires_exact_position_and_cancel_requires_flat(tmp_pa
         match="STAGE8_12_4_PROTECTIVE_STOP_POSITION_NOT_EXACT",
     ):
         transport.submit_protective_stop(
-            stop_action(), observed_position_quantity=0
+            stop_action(),
+            observed_position_quantity=0,
+            state_store=StateStore(tmp_path / "invalid-stop.db"),
         )
     with pytest.raises(
         LiveExecutionError,
@@ -437,8 +460,11 @@ def test_production_gate_allows_reconciled_expected_open_positions(tmp_path):
         accepted_commit=COMMIT,
     )
     transport.connect()
-    result = transport.submit_entry(entry_action(), now=NOW)
+    store = StateStore(tmp_path / "open-positions-entry.db")
+    action = persist_action(store, entry_action())
+    result = transport.submit_entry(action, now=NOW, state_store=store)
     assert result["order_id"] == "ENTRY-1"
+    assert store.intent(action.idempotency_key)["status"] == "ACK"
 
 
 def test_foundation_windows_validator_cannot_activate_or_use_credentials():
