@@ -1155,6 +1155,25 @@ def audit(
           },
           "STAGE_8_12_CURRENT_MACHINE_AUTHORITY_EXACT")
 
+    package2=stage812_provenance.get("stage8_12_4_package2",{})
+    check(package2.get("status") == "IMPLEMENTED_NOT_AUTHORIZED_PENDING_PACKAGE3_ZERO_ORDER_VALIDATION"
+          and package2.get("production_service") == "TradingSystemLab/stage8_robot/production_service.py"
+          and package2.get("state_database") == "stage8-12-production.sqlite3"
+          and package2.get("h1_live_depth_days") == 30
+          and package2.get("realized_equity_authority") == "equity - unrealized_profit - explained_external_cash_flows"
+          and package2.get("production_task_name") == "TradingSystemLab-Stage8-Production"
+          and package2.get("readonly_task_name") == "TradingSystemLab-Stage8-Readonly"
+          and package2.get("production_task_installer_default_state") == "Disabled"
+          and package2.get("automatic_authorization_creation") is False
+          and package2.get("automatic_kill_switch_arm") is False
+          and package2.get("production_task_enabled") is False
+          and package2.get("production_task_started") is False
+          and package2.get("execution_authorized") is False
+          and package2.get("real_order_count") == 0
+          and package2.get("next_package") == "PACKAGE_3_INTEL_EXACT_COMMIT_ZERO_ORDER_VALIDATION",
+          "STAGE_8_12_4_PACKAGE2_PROVENANCE_EXACT")
+
+
     stage8124_authorization=(HERE/"production_authorization.py").read_text()
     stage8124_live=(HERE/"live_execution.py").read_text()
     stage8124_gate=(HERE/"production_safety_gate.py").read_text()
