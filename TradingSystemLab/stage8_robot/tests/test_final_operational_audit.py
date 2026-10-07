@@ -1033,34 +1033,26 @@ def test_stage_8_12_machine_authority_mutations_fail_both_audits():
         ("stage8_12_1_status", "FAIL"),
         ("accepted_code_commit", "0" * 40),
         ("external_test_only_evidence_sha256", "0" * 64),
-        ("structural_zero_order_boundary", "FAIL"),
-        ("runtime_n4_capacity_pytest", {"passed":24,"failed":1}),
-        ("frozen_stage7_risk_margin_regression", {"passed":165,"failed":1}),
-        ("stage8_11_position_authority_regression", {"passed":112,"failed":1}),
-        ("test_only_real_order_count", 1),
-        ("real_order_endpoint_called", True),
+        ("stage8_12_2_status", "FAIL"),
+        ("stage8_12_2_accepted_code_commit", "0" * 40),
+        ("stage8_12_2_external_test_only_evidence_sha256", "0" * 64),
+        ("stage8_12_3_status", "STARTED"),
+        ("stage8_12_3_accepted_code_commit", "0" * 40),
+        ("stage8_12_3_external_evidence_sha256", "0" * 64),
+        ("stage8_12_3_physical_result", "FAIL"),
+        ("stage8_12_3_focused_zero_order_regression", {"passed":204,"failed":1}),
+        ("stage8_12_3_order_endpoint_call_count", 1),
+        ("stage8_12_3_real_order_count", 1),
+        ("stage8_12_3_execution_authorized", True),
+        ("stage8_12_3_production_kill_switch_final_state", "ARMED"),
+        ("stage8_12_4_status", "STARTED_IMPLEMENTATION_NOT_AUTHORIZED"),
+        ("next_gate", "STAGE_8_12_4_EXPLICIT_FULL_R15_PRODUCTION_AUTHORIZATION"),
         ("execution_authorized", False),
         ("live_trading_authorized", False),
         ("real_order_transmission_authorized", False),
         ("production_kill_switch_final_state", "HALTED"),
         ("production_scheduled_task", "Disabled"),
-        ("stage8_12_2_status", "FAIL"),
-        ("stage8_12_3_status", "STARTED"),
-        ("stage8_12_4_status", "STARTED_IMPLEMENTATION_NOT_AUTHORIZED"),
-        ("next_gate", "STAGE_8_12_4_EXPLICIT_FULL_R15_PRODUCTION_AUTHORIZATION"),
         ("mode", "STAGE8_12_4_IMPLEMENTATION_CODE_ONLY_NOT_AUTHORIZED"),
-        ("n4_simultaneous_positive_capacity_calculation", "COMPLETE"),
-        ("stage8_12_2_accepted_code_commit", "0" * 40),
-        ("stage8_12_2_external_test_only_evidence_sha256", "0" * 64),
-        ("stage8_12_2_external_test_only_evidence_tracked_in_git", True),
-        ("stage8_12_2_conformance_pytest", {"passed":18,"failed":1}),
-        ("stage8_12_2_runtime_regression", {"passed":24,"failed":1}),
-        ("stage8_12_2_margin_regression", {"passed":143,"failed":1}),
-        ("stage8_12_2_safety_regression", {"passed":47,"failed":1}),
-        ("stage8_12_2_position_reconciliation_regression", {"passed":112,"failed":1}),
-        ("stage8_12_2_frozen_core_conformance", {"passed":110,"failed":1}),
-        ("stage8_12_2_independent_stage8_audit", {"status":"FAIL","checks":262}),
-        ("stage8_12_2_final_operational_audit", {"status":"FAIL","checks":149}),
     )
     for key, value in mutations:
         changed = json.loads(json.dumps(authority))
@@ -1068,8 +1060,9 @@ def test_stage_8_12_machine_authority_mutations_fail_both_audits():
         payload = json.dumps(changed)
         independent = stage8.audit(write_result=False, authority_text=payload)
         operational = run_audit({path: payload})
-        assert "STAGE_8_12_2_MACHINE_AUTHORITY_EXACT" in independent["errors"], key
-        assert "STAGE_8_12_2_MACHINE_AUTHORITY_EXACT" in operational["errors"], key
+        assert "STAGE_8_12_CURRENT_MACHINE_AUTHORITY_EXACT" in independent["errors"], key
+        assert "STAGE_8_12_CURRENT_MACHINE_AUTHORITY_EXACT" in operational["errors"], key
+
 def test_stage_8_12_4_live_activation_provenance_mutations_fail_both_audits():
     path = "TradingSystemLab/stage8_robot/authority_provenance.json"
     authority = json.loads(source(path))
