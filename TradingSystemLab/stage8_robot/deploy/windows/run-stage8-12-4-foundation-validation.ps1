@@ -53,6 +53,9 @@ Require-FoundationInactive
 Write-Output "=== Stage 8.12.4 foundation zero-order tests ==="
 $tests = @(
     "TradingSystemLab\stage8_robot\tests\test_stage8_12_4_authorization_foundation.py",
+    "TradingSystemLab\stage8_robot\tests\test_stage8_12_4_production_history.py",
+    "TradingSystemLab\stage8_robot\tests\test_stage8_12_4_production_broker_state.py",
+    "TradingSystemLab\stage8_robot\tests\test_stage8_12_4_production_service.py",
     "TradingSystemLab\stage8_robot\tests\test_stage8_12_production_runtime.py",
     "TradingSystemLab\stage8_robot\tests\test_stage8_12_production_conformance.py",
     "TradingSystemLab\stage8_robot\tests\test_stage8_12_3_intel_preflight.py",
