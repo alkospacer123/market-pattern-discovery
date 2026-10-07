@@ -415,6 +415,9 @@ class ProductionRuntime:
             "initial_margin": str(sized.initial_margin),
             "r15_quantity": sized.r15_quantity,
             "margin_quantity": sized.margin_quantity,
+            # Persist the exact completed H1 signal close. Production position
+            # management must never process the entry candle as a later bar.
+            "signal_timestamp": signal.timestamp.isoformat(),
         })
         if not self.store.persist_intent(key, payload):
             existing = self.store.intent(key)
@@ -473,11 +476,19 @@ class ProductionRuntime:
                 "loss_per_contract": payload["loss_per_contract"],
                 "trade_id": payload["trade_id"],
                 "signal_id": payload["signal_id"],
+                "signal_timestamp": payload["signal_timestamp"],
                 "protective_stop_state": "PENDING",
                 "protective_stop_revision": 0,
             }
             positions[payload["instrument"]] = _position_to_dict(position, meta)
             self._save_positions(positions)
+            # Entry candle exclusion is part of the frozen causal lifecycle.
+            watermark_key = f"last_managed_h1:{payload['instrument']}"
+            existing_watermark = self.store.get(watermark_key)
+            if existing_watermark is None:
+                self.store.put(watermark_key, payload["signal_timestamp"])
+            elif existing_watermark != payload["signal_timestamp"]:
+                raise ProductionRuntimeError("ENTRY_SIGNAL_WATERMARK_MISMATCH")
             current = positions[payload["instrument"]]
         elif current.get("trade_id") != payload.get("trade_id"):
             raise ProductionRuntimeError("ENTRY_POSITION_ALREADY_EXISTS")
@@ -599,7 +610,7 @@ class ProductionRuntime:
         value.update(_position_to_dict(position, {
             k: value[k] for k in (
                 "finam_symbol", "quantity", "risk_cash", "actual_initial_loss_cash",
-                "loss_per_contract", "trade_id", "signal_id",
+                "loss_per_contract", "trade_id", "signal_id", "signal_timestamp",
                 "protective_stop_state", "protective_stop_revision"
             )
         }))
