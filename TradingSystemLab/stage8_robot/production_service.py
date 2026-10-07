@@ -341,6 +341,13 @@ class ProductionService:
                 )
             else:
                 raise ProductionServiceError("STAGE8_12_4_ORDER_ACTION_INVALID")
+        except LiveExecutionError:
+            # The transport raises LiveExecutionError only before an order
+            # endpoint is invoked (authorization/gate/action/position checks).
+            # Return the intent to its persisted pre-submit state instead of
+            # manufacturing an uncertain submission.
+            self.runtime.store.transition_intent(key, "INTENT_PERSISTED")
+            raise
         except FinamUncertainSubmission:
             self.runtime.store.transition_intent(key, "UNCERTAIN")
             raise
