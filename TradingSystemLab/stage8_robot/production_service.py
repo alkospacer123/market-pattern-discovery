@@ -638,15 +638,21 @@ class ProductionService:
             if order.active:
                 try:
                     self.transport.cancel_protective_stop_after_flat(
-                        broker_id, observed_position_quantity=0
+                        broker_id,
+                        observed_position_quantity=0,
+                        finam_symbol=position["finam_symbol"],
                     )
-                except Exception as exc:
-                    raise ProductionServiceFault(
-                        "PROTECTIVE_STOP_CANCEL_AFTER_FLAT_FAILED",
-                        halt=False,
-                        pending=True,
-                    ) from exc
-                order = order_views([self.api.order(self.account_id, broker_id)])[0]
+                except Exception:
+                    # Never retry a cancel blindly after an ambiguous response.
+                    order = order_views([self.api.order(self.account_id, broker_id)])[0]
+                    if order.active:
+                        raise ProductionServiceFault(
+                            "PROTECTIVE_STOP_CANCEL_AFTER_FLAT_PENDING",
+                            halt=False,
+                            pending=True,
+                        ) from None
+                else:
+                    order = order_views([self.api.order(self.account_id, broker_id)])[0]
             if order.status not in TERMINAL_ORDER_STATUSES:
                 raise ProductionServiceFault(
                     "PROTECTIVE_STOP_TERMINAL_PENDING",
