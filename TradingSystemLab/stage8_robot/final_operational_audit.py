@@ -1230,6 +1230,51 @@ def audit(
     check("def all_intents(self)" in state_source and "def unresolved_intents(self)" in state_source
           and "COALESCE(status,'') NOT IN" in state_source,
           "STAGE_8_12_4_RESTART_INTENT_READ_AUTHORITY")
+
+    stage8124_service=(HERE/"production_service.py").read_text()
+    stage8124_production_launcher=(HERE/"deploy/windows/run-production.ps1").read_text()
+    stage8124_production_installer=(HERE/"deploy/windows/install-production-task.ps1").read_text()
+    ast.parse(stage8124_service)
+    check(all(token in stage8124_service for token in (
+              'STATE_DATABASE = "stage8-12-production.sqlite3"',
+              "H1_LOOKBACK_DAYS = 30",
+              "load_stage5_seed_open_h1", "splice_seed_and_finam_open_h1",
+              "newest_expected_h1_close", "self.runtime.context_builder.build",
+              "directional_initial_margin", "evaluate_production_entry_gate",
+              "write_production_heartbeat", "InstanceLock",
+              "equity - unrealized - explained")),
+          "STAGE_8_12_4_PACKAGE2_CONTINUOUS_SERVICE_WIRING")
+    service_tree=ast.parse(stage8124_service)
+    service_calls={node.func.attr for node in ast.walk(service_tree)
+                   if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)}
+    check(not service_calls.intersection({"place_order","place_sltp_order","cancel_order","write_authorization","write_kill_switch"})
+          and "if authorization_path(self.root).exists()" in stage8124_service
+          and "self.transport = None" in stage8124_service,
+          "STAGE_8_12_4_PACKAGE2_UNAUTHORIZED_ZERO_ORDER_CONSTRUCTION")
+    check('"signal_timestamp": signal.timestamp.isoformat()' in production_runtime
+          and 'watermark_key = f"last_managed_h1:{payload[\'instrument\']}"' in production_runtime
+          and "ENTRY_SIGNAL_WATERMARK_MISMATCH" in production_runtime,
+          "STAGE_8_12_4_PACKAGE2_ENTRY_CANDLE_CAUSALITY")
+    installer_lower=stage8124_production_installer.lower()
+    check(all(token in stage8124_production_installer for token in (
+              "TradingSystemLab-Stage8-Production",
+              "TradingSystemLab-Stage8-Readonly",
+              "STAGE8_12_4_READONLY_TASK_MUST_REMAIN_DISABLED",
+              "Disable-ScheduledTask",
+              "STAGE8_12_4_PRODUCTION_TASK_INSTALLED_DISABLED"))
+          and "enable-scheduledtask" not in installer_lower
+          and "start-scheduledtask" not in installer_lower,
+          "STAGE_8_12_4_PACKAGE2_PRODUCTION_TASK_INSTALLED_DISABLED")
+    launcher_lower=stage8124_production_launcher.lower()
+    check(all(token in stage8124_production_launcher for token in (
+              "trading-credential-store.ps1",
+              '$env:FINAM_MODE = "STAGE8_12_PRODUCTION"',
+              "--accepted-commit", "--stage5-data-root", "--once",
+              "50f1fd2178c18b7ab3bd969be82ad01f47a34745"))
+          and "run-readonly.ps1" not in launcher_lower
+          and "write_authorization" not in launcher_lower
+          and "write_kill_switch" not in launcher_lower,
+          "STAGE_8_12_4_PACKAGE2_EXACT_COMMIT_TRADING_DPAPI_LAUNCHER")
     check("OperationalState(root/\"state/readonly-supervisor.sqlite3\")" in precheck_tests
           and "StateStore(root/\"state/readonly-supervisor.sqlite3\")" not in precheck_tests
           and '== {"operational_state"}' in precheck_tests,
