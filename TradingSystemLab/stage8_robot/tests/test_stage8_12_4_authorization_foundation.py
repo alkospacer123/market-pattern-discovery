@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
@@ -20,7 +21,10 @@ from TradingSystemLab.stage8_robot.production_authorization import (
     write_authorization,
 )
 from TradingSystemLab.stage8_robot.production_runtime import RuntimeAction
-from TradingSystemLab.stage8_robot.production_safety_gate import write_production_heartbeat
+from TradingSystemLab.stage8_robot.production_safety_gate import (
+    production_heartbeat_path,
+    write_production_heartbeat,
+)
 from TradingSystemLab.stage8_robot.specification import (
     ACTIVE_IDENTITY,
     PRODUCTION_SPECIFICATION_ID,
@@ -44,6 +48,20 @@ def authorize(root: Path):
     )
 
 
+def protection_rows(count: int) -> list[dict]:
+    instruments = ("USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF")
+    return [
+        {
+            "instrument": instrument,
+            "trade_id": f"trade-{index}",
+            "expected_position_quantity": index + 1,
+            "covered_quantity": index + 1,
+            "active_stop_order_ids": [f"STOP-{index}"],
+        }
+        for index, instrument in enumerate(instruments[:count])
+    ]
+
+
 def healthy_heartbeat(root: Path, *, open_positions: int = 0):
     write_production_heartbeat(
         root,
@@ -54,8 +72,7 @@ def healthy_heartbeat(root: Path, *, open_positions: int = 0):
         health_status="HEALTHY",
         cycle_count=1,
         last_api_contact=NOW,
-        open_position_count=open_positions,
-        active_protective_stop_count=open_positions,
+        position_protection=protection_rows(open_positions),
         now=NOW,
     )
 
@@ -419,20 +436,18 @@ def test_foundation_windows_validator_cannot_activate_or_use_credentials():
     assert "STAGE8_12_4_REAL_ORDER_COUNT=0" in source
 
 
-def test_production_gate_blocks_unprotected_open_position(tmp_path):
+def test_production_gate_rejects_duplicate_stop_coverage_across_positions(tmp_path):
     authorize(tmp_path)
-    write_production_heartbeat(
-        tmp_path,
-        accepted_commit=COMMIT,
-        account_hash=ACCOUNT_HASH,
-        reconciliation_status="PASS",
-        unresolved_intent_count=0,
-        health_status="HEALTHY",
-        cycle_count=1,
-        last_api_contact=NOW,
-        open_position_count=1,
-        active_protective_stop_count=0,
-        now=NOW,
+    healthy_heartbeat(tmp_path, open_positions=2)
+    path = production_heartbeat_path(tmp_path)
+    heartbeat = json.loads(path.read_text(encoding="utf-8"))
+    # Preserve aggregate counts at 2/2, but make both records claim the same
+    # instrument/trade/stop. An aggregate-only gate would falsely accept this.
+    heartbeat["position_protection"][1] = dict(
+        heartbeat["position_protection"][0]
+    )
+    path.write_text(
+        json.dumps(heartbeat, sort_keys=True) + "\n", encoding="utf-8"
     )
     write_kill_switch(tmp_path, "ARMED", allow_arm=True, now=NOW)
     api = FakeAPI()
@@ -445,7 +460,34 @@ def test_production_gate_blocks_unprotected_open_position(tmp_path):
     transport.connect()
     with pytest.raises(
         LiveExecutionError,
-        match="PRODUCTION_PROTECTIVE_STOP_COVERAGE_INVALID",
+        match="PRODUCTION_POSITION_PROTECTION_INVALID",
     ):
         transport.submit_entry(entry_action(), now=NOW)
     assert not [call for call in api.calls if call[0] == "place_order"]
+
+
+def test_production_heartbeat_writer_rejects_partial_position_coverage(tmp_path):
+    with pytest.raises(
+        Exception,
+        match="STAGE8_12_4_POSITION_PROTECTION_INVALID",
+    ):
+        write_production_heartbeat(
+            tmp_path,
+            accepted_commit=COMMIT,
+            account_hash=ACCOUNT_HASH,
+            reconciliation_status="PASS",
+            unresolved_intent_count=0,
+            health_status="HEALTHY",
+            cycle_count=1,
+            last_api_contact=NOW,
+            position_protection=[
+                {
+                    "instrument": "USDRUBF",
+                    "trade_id": "trade-0",
+                    "expected_position_quantity": 2,
+                    "covered_quantity": 1,
+                    "active_stop_order_ids": ["STOP-0"],
+                }
+            ],
+            now=NOW,
+        )
