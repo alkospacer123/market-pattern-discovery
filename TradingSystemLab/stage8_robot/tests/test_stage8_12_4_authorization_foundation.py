@@ -417,3 +417,35 @@ def test_foundation_windows_validator_cannot_activate_or_use_credentials():
     assert "place_sltp_order" not in source
     assert "cancel_order" not in source
     assert "STAGE8_12_4_REAL_ORDER_COUNT=0" in source
+
+
+def test_production_gate_blocks_unprotected_open_position(tmp_path):
+    authorize(tmp_path)
+    write_production_heartbeat(
+        tmp_path,
+        accepted_commit=COMMIT,
+        account_hash=ACCOUNT_HASH,
+        reconciliation_status="PASS",
+        unresolved_intent_count=0,
+        health_status="HEALTHY",
+        cycle_count=1,
+        last_api_contact=NOW,
+        open_position_count=1,
+        active_protective_stop_count=0,
+        now=NOW,
+    )
+    write_kill_switch(tmp_path, "ARMED", allow_arm=True, now=NOW)
+    api = FakeAPI()
+    transport = AuthorizedFinamProductionTransport(
+        api=api,
+        account_id=ACCOUNT,
+        runtime_root=tmp_path,
+        accepted_commit=COMMIT,
+    )
+    transport.connect()
+    with pytest.raises(
+        LiveExecutionError,
+        match="PRODUCTION_PROTECTIVE_STOP_COVERAGE_INVALID",
+    ):
+        transport.submit_entry(entry_action(), now=NOW)
+    assert not [call for call in api.calls if call[0] == "place_order"]
