@@ -76,6 +76,7 @@ from .strategy_core import CompletedBar
 from .trading_safety_gate import write_kill_switch
 
 MODE = "STAGE8_12_4_FULL_R15_PRODUCTION"
+SERVICE_BINDING_SCHEMA = "stage8_12_4_production_service_binding.v1"
 PRODUCTION_STATE_FILENAME = "stage8-12-production.sqlite3"
 DEFAULT_POLL_SECONDS = 300
 POLL_MIN_SECONDS = 30
@@ -213,6 +214,7 @@ class ProductionService:
             expected_commit=self.accepted_commit,
             expected_account_hash=self.account_hash,
         )
+        self._bind_service_state()
         self.transport = AuthorizedFinamProductionTransport(
             api=self.api,
             account_id=self.account_id,
@@ -223,6 +225,37 @@ class ProductionService:
         self.last_protection: list[dict[str, Any]] = []
         self.last_broker_open_count = 0
         self.last_api_contact: datetime = self.clock().astimezone(timezone.utc)
+
+    def _bind_service_state(self) -> None:
+        authorized_utc = self.authorization.get("authorized_utc")
+        if not isinstance(authorized_utc, str) or not authorized_utc:
+            raise ProductionServiceFault(
+                "PRODUCTION_AUTHORIZATION_TIMESTAMP_INVALID"
+            )
+        expected = {
+            "schema_id": SERVICE_BINDING_SCHEMA,
+            "accepted_code_commit": self.accepted_commit,
+            "sanitized_account_hash": self.account_hash,
+            "authorized_utc": authorized_utc,
+            "production_specification_id": PRODUCTION_SPECIFICATION_ID,
+            "active_identity": ACTIVE_IDENTITY,
+        }
+        key = "stage8_12_4_service_binding"
+        current = self.runtime.store.get(key)
+        if current is None:
+            if (
+                self.runtime.open_positions()
+                or self.runtime.store.unresolved_intent_count()
+            ):
+                raise ProductionServiceFault(
+                    "PRODUCTION_SERVICE_BINDING_REQUIRES_CLEAN_STATE"
+                )
+            self.runtime.store.put(key, expected)
+            return
+        if current != expected:
+            raise ProductionServiceFault(
+                "PRODUCTION_SERVICE_BINDING_MISMATCH"
+            )
 
     def close(self) -> None:
         self.runtime.close()
