@@ -36,6 +36,7 @@ ActionKind = Literal[
     "BROKER_EXIT_OBSERVED",
     "SKIP_ZERO_CAPACITY",
     "SKIP_RISK_LIMIT",
+    "SKIP_STOP_NOT_ON_TICK_GRID",
 ]
 
 
