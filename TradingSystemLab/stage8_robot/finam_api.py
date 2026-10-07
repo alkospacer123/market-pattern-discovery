@@ -104,7 +104,8 @@ class FinamAPI:
                 if exc.code>=500: raise FinamServerError(f"HTTP_{exc.code}:{path}") from None
                 raise FinamError(f"HTTP_{exc.code}:{path}") from None
             except (TimeoutError,URLError):
-                if method=="POST" and path.endswith("/orders"): raise FinamUncertainSubmission("RECONCILIATION_REQUIRED") from None
+                order_post=method=="POST" and (path.endswith("/orders") or path.endswith("/sltp-orders"))
+                if order_post: raise FinamUncertainSubmission("RECONCILIATION_REQUIRED") from None
                 if method=="GET" and attempt<retries: continue
                 raise FinamTimeout(path) from None
         raise AssertionError("unreachable")
