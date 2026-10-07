@@ -30,7 +30,7 @@ The recovery was repository-external `REAL_READONLY` evidence work only: it subm
 
 Stage 8.9 is **COMPLETE**. Stage 8.10 is **COMPLETE**. Stage 8.11 — Controlled Real Execution Acceptance — remains **COMPLETE / PASS**. Stage 8.12 — FULL/R15 Production Authorization — is **COMPLETE / PASS**. Stage 8.12.4 live activation is **COMPLETE / LIVE PRODUCTION ACTIVATED**.
 
-Stage 8.11 remains the historical physical broker-acceptance authority: accepted commit `72a910e49b876cda99484a810e6f8a1b16ac0209`, immutable attempt `stage8.11.attempt7`, evidence SHA-256 `704BFCC19B1A63F490192C0D8D0E4715BFECF77664296AFEF47E5B80FBF64B5F`, exactly two real order-endpoint calls, final position quantity `0`, final active broker orders `0`, and unresolved Stage 8.11 intents `0`. At the Stage 8.11 closeout, `execution_authorized = false`, the production kill switch was `HALTED`, and the Scheduled Task was `Disabled`. That historical state is superseded by the Stage 8.12.4 activation below.
+Stage 8.11 remains the historical physical broker-acceptance authority: accepted commit `72a910e49b876cda99484a810e6f8a1b16ac0209`, immutable attempt `stage8.11.attempt7`, evidence SHA-256 `704BFCC19B1A63F490192C0D8D0E4715BFECF77664296AFEF47E5B80FBF64B5F`. At the Stage 8.11 closeout, `execution_authorized = false`, the production kill switch was `HALTED`, and the Scheduled Task was `Disabled`. That historical state is superseded by the Stage 8.12.4 activation below.
 
 Canonical Stage 8.12.4 production activation authority:
 
@@ -43,7 +43,6 @@ Canonical Stage 8.12.4 production activation authority:
 - `execution_authorized = true`;
 - pre-arm heartbeat / reconciliation: `HEALTHY / PASS`;
 - pre-arm unresolved intents / open positions / active protective stops: `0 / 0 / 0`;
-- production task was already `Running` while the kill switch remained `HALTED`;
 - final production kill switch: `ARMED`;
 - production Scheduled Task: `Running`;
 - readonly Scheduled Task: `Disabled`;
@@ -59,6 +58,181 @@ Canonical Stage 8.12.4 production activation authority:
 Canonical completion status: `STAGE_8_12_FULL_R15_PRODUCTION_AUTHORIZATION_COMPLETE`.
 
 The frozen production identity remains `TRAIL1__N4_01__FULL__R15` with T3 / H1 / TRAIL1, N4, FULL/R15, 1.5% realized-equity risk per new instrument position and the existing 6% nominal initial-risk cap. No strategy, portfolio, parameter, research-methodology, sizing, or broker-runtime change is introduced by this repository closeout. The production service may submit real orders only for genuine frozen-strategy signals while the durable authorization, exact bindings, `ARMED` kill switch, fresh `HEALTHY / PASS` production gate, and all other runtime safety checks remain valid.
+
+### Pre-activation package history — historical
+
+Stage 8.9 is **COMPLETE**. Stage 8.10 is **COMPLETE**. Stage 8.11 — Controlled Real Execution Acceptance — is now **COMPLETE / PASS**.
+
+Canonical Stage 8.11 physical acceptance authority:
+
+- accepted code commit: `72a910e49b876cda99484a810e6f8a1b16ac0209`;
+- immutable attempt: `stage8.11.attempt7`;
+- external evidence: `runtime/diagnostics/stage8_11_physical_acceptance_attempt7.json`;
+- evidence SHA-256: `704BFCC19B1A63F490192C0D8D0E4715BFECF77664296AFEF47E5B80FBF64B5F`;
+- fixed physical case: `CNYRUBF@RTSX`, LONG, quantity `1`;
+- exactly two real order-endpoint calls: one entry POST and one controlled flatten POST;
+- broker fills proven: `2`;
+- entry fill proven: `true`;
+- one-contract position observed: `true`;
+- controlled flatten proven: `true`;
+- final position quantity: `0`;
+- final active broker orders: `0`;
+- unresolved Stage 8.11 intents: `0`;
+- reconciliation result: `PASS`;
+- physical result classification: `PASS`;
+- final production kill switch: `HALTED`;
+- Scheduled Task: `Disabled`.
+
+The accepted normal reconciliation model is position-authoritative: after each physical POST, synchronous fill/risk authority is the exact `/account` position. Normal fill detection does not depend on `/trades`, exact `/orders/{id}`, `executed_quantity`, `remaining_quantity`, or the former order-status state machine. The physical authorization used for attempt7 is consumed. Current `execution_authorized = false`; real-order transmission remains unauthorized after the Stage 8.11 PASS.
+
+Attempts 1–6, their failures/OIR classifications, manual closes, and recovery evidence remain immutable historical provenance and are not reclassified by the attempt7 PASS.
+
+Stage 8.12 — **STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**. Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**. Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**.
+
+Canonical Stage 8.12.1 authority:
+
+- accepted merged code commit: `3f2d68ca0c327271fb543a0b63c0e8f842c855bd`;
+- external test-only verifier evidence SHA-256: `F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C`;
+- structural zero-order boundary: `PASS`;
+- Stage 8.12.1 runtime + N4 capacity tests: `25/25 PASS`;
+- frozen Stage 7 / risk / margin regression: `166/166 PASS`;
+- Stage 8.11 position-authority regression: `113/113 PASS`;
+- independent Stage 8 audit: `PASS`;
+- final operational audit: `PASS`;
+- test-only real-order count: `0`;
+- current `execution_authorized = false`;
+- production kill switch: `HALTED`;
+- production Scheduled Task: `Disabled`.
+
+Canonical Stage 8.12.2 authority:
+
+- accepted tested main commit: `2a15f4331afc1433dfbfd0464108e39e59d236f8`;
+- external test-only verifier evidence SHA-256: `4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F`;
+- Stage 8.12.2 end-to-end + protective-stop conformance: `19/19 PASS`;
+- Stage 8.12.1 runtime regression: `25/25 PASS`;
+- R15 / margin / same-batch financial regressions: `144/144 PASS`;
+- readonly account / H1 freshness / kill-switch regressions: `48/48 PASS`;
+- Stage 8.11 bounded position-authority / timeout regressions: `113/113 PASS`;
+- frozen research-to-robot / Stage 7 core conformance: `111/111 PASS`;
+- independent Stage 8 audit: `PASS` (`262` checks);
+- final operational audit: `PASS` (`149` checks);
+- test-only real-order count: `0`;
+- real order endpoint called: `false`;
+- current `execution_authorized = false`;
+- production kill switch: `HALTED`;
+- production Scheduled Task: `Disabled`.
+
+Stage 8.12.2 is closed as TEST/AUDIT ONLY with zero real orders.
+Canonical Stage 8.12.3 authority:
+
+- accepted Intel preflight commit: `0a40e3bf7a97f0c011d3a6f5216d9f61dd52ef30`;
+- external sanitized evidence: `runtime/diagnostics/stage8_12_3_intel_preflight.json`;
+- evidence SHA-256: `9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1`;
+- focused Stage 8.12 zero-order regression: `205/205 PASS`;
+- independent Stage 8 audit: `PASS` (`262` checks);
+- final operational audit: `PASS` (`149` checks);
+- physical result: `STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT_PASS`;
+- exact Stage 7 production ID / active identity / real-account binding / trading-capable DPAPI credential: `PASS`;
+- frozen N4 registry, tradability, current H1/reconciliation, clean broker account, and production-state continuity: `PASS`;
+- external evidence contains the required N4 simultaneous-capacity report, strategy-consistent loss-per-contract, and 0/10/20/30% reserve scenarios; account financial values remain external and are not reproduced in the public repository;
+- real order endpoint calls: `0`;
+- real order count: `0`;
+- `execution_authorized = false`;
+- production kill switch: `HALTED`;
+- production Scheduled Task: `DisabledOrAbsent`;
+- Stage 8.12.4: `NOT_STARTED_NOT_AUTHORIZED`.
+
+Stage 8.12.3 is **COMPLETE / PASS / REAL ACCOUNT / ZERO ORDERS / STILL NOT AUTHORIZED**. Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is the **CURRENT GATE** and remains the only gate that may authorize continuous real production trading.
+
+Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is **COMPLETE / PASS / LIVE PRODUCTION ACTIVATED**.
+
+Completed Stage 8.12.4 activation boundary:
+
+- durable production authorization is repository-external, create-only, and bound to the exact production commit, sanitized real-account hash, frozen production ID/identity, Stage 8.12.2 evidence SHA, and Stage 8.12.3 evidence SHA;
+- creating authorization requires a separate exact operator authorization phrase; importing code or possessing the trading credential never authorizes execution;
+- a production-aware heartbeat/reconciliation gate is separate from the historical REAL_READONLY flat-account gate, so reconciled frozen N4 positions do not silently disable FULL portfolio semantics;
+- the FINAM transport now has a dedicated SL/TP POST primitive and preserves no-retry / uncertain-submission behavior;
+- market entry requires durable authorization + `ARMED` + a fresh healthy production gate;
+- protective-stop installation/replacement and emergency exit remain risk-reducing operations after authorization and are not disabled merely because the kill switch subsequently HALTs new entries;
+- durable authorization is present and exact-bound to accepted production commit `883ea1ea6a8268276a8e39ebdc8786c643a21935`; post-arm verification is `HEALTHY / PASS`, the kill switch is `ARMED`, the production Scheduled Task is `Running`, and the readonly task is `Disabled`.
+
+Stage 8.12.4 production-service prerequisites are **CODE READY / NOT AUTHORIZED**. Official FINAM H1 history is limited to 30 days, which is insufficient for the frozen T3 four-H1 context validity warm-up. Production history therefore seeds only from the exact Stage 5 TRAIL1 data authority (`market-pattern-data` commit `50f1fd2178c18b7ab3bd969be82ad01f47a34745`, exact frozen N4 H1 source SHA-256 values) and then appends completed FINAM H1 bars. Within the overlap, FINAM may omit historical timestamps that already exist in the frozen `forever` authority; every FINAM overlap timestamp must exist in Stage-5/persisted authority with exact OHLC, and the exact overlap seam must be present. FINAM-only timestamps, OHLC conflicts, a missing seam, or no overlap fail closed. Research CSV timestamps remain Moscow H1 open-times and are converted to the frozen `+1h` close-time index only after the exact splice. This prerequisite layer adds no order transmission and does not create production authorization.
+
+Stage 8.12.4 Package 2 — production service + dedicated production Scheduled Task — is **IMPLEMENTED / NOT AUTHORIZED**. The continuous service uses the existing `ProductionRuntime`, exact frozen Stage 5 bootstrap + durable validated FINAM completed-H1 continuation, frozen T3/H1 context, TRAIL1, FULL/R15+margin sizing, durable intents, exact account-position/order reconciliation, percentage-of-current-position protective stops, TRAIL1 tighter-stop backstops, emergency exit, the adjusted realized-equity authority `equity - unrealized_profit - explained_external_cash_flows`, `InstanceLock`, and the production heartbeat. The separate `TradingSystemLab-Stage8-Production` installer registers the production task and immediately leaves it `Disabled`; the historical readonly task remains separate and must already be disabled. Package 2 creates no durable authorization, never changes the kill switch, never enables/starts the production task, and transmits no real order by itself. New-entry signal evaluation is not consumed while authorization is absent or the production entry gate is closed. Package 3 exact-commit Intel zero-order validation is now **COMPLETE / PASS**. The next fixed boundary is Package 4 fresh funding/margin recalculation; production remains not authorized.
+
+Post-Package-2 rolling-H1 corrective is **VALIDATED / PACKAGE 3 PASS / NOT AUTHORIZED**. The exact Stage-5 `forever` H1 seed remains immutable. After the first validated seed↔FINAM overlap, only newly validated FINAM completed H1 bars are persisted under the existing `stage8-12-production.sqlite3` production state as a per-instrument append-only continuation with an integrity digest. FINAM historical H1 may omit timestamps already present in the frozen authority, but every FINAM overlap timestamp must exist in the combined Stage-5 + persisted continuation authority with exact OHLC and the overlap seam must be present. FINAM-only timestamps, missing seam, OHLC disagreement, continuation corruption, duplicate/order invalidity, or downtime longer than the available overlap fail closed. No strategy/risk parameter, authorization, kill-switch state, task state, or order boundary changes in this corrective.
+
+Package 3 — Intel exact-commit zero-order validation — is **COMPLETE / PASS / ZERO ORDERS / STILL NOT AUTHORIZED**.
+
+Canonical Package 3 physical authority:
+
+- accepted code commit: `242c0a4bee0200da171d1a7451472b256241e170`;
+- external evidence: `runtime/diagnostics/stage8_12_4_package3_zero_order_validation.json`;
+- evidence SHA-256: `AB1D22A2BE4A748B5F25C21C56FEAC922CAE03499F6F41DF04A47F192A3E7D30`;
+- foundation zero-order tests: `216/216 PASS`;
+- independent Stage 8 audit: `PASS` (`281` checks);
+- final operational audit: `PASS` (`168` checks);
+- focused rolling/service tests: `33/33 PASS`;
+- unauthorized production-service cycle: `PASS`;
+- production heartbeat/reconciliation: `HEALTHY / PASS`;
+- all four rolling-H1 continuations: present and non-empty;
+- unresolved production intents: `0`;
+- local/broker open positions: `0 / 0`;
+- durable production authorization: absent;
+- `execution_authorized = false`;
+- production kill switch: `HALTED`;
+- production Scheduled Task: `Disabled`;
+- Stage 8.12.4 real order count: `0`.
+
+Package 4 — fresh funding/margin recalculation and post-funding revalidation — is **COMPLETE / PASS / CAPITAL SUFFICIENT / STILL NOT AUTHORIZED**.
+
+Canonical Package 4 authority:
+
+- initial funding recalculation accepted code commit: `a31080781e6c51de405d840d5cf30abd91c70ead`;
+- initial external evidence SHA-256: `60D9C3EFEC7D54C50BF188B003DCE06D31647A9D6B6F0ED33BB46FF08475621B`;
+- post-funding revalidation accepted code commit: `636b6a9abcec459173247f2c52b0d19470dfe738`;
+- post-funding external evidence: `runtime/diagnostics/package4-postfunding-synced/stage8_12_3_intel_preflight.json`;
+- post-funding evidence SHA-256: `54205165758FF6FC200290E61070D7082DFC13494048AABE7A5A61CDDE3C7F11`;
+- production heartbeat/reconciliation after funding: `HEALTHY / PASS`;
+- unresolved production intents: `0`;
+- local open positions: `0`;
+- active protective stops: `0`;
+- fresh GET-only FINAM financial authority: `PASS`;
+- post-funding capital sufficiency: `PASS`;
+- additional funding required: `0` in external evidence;
+- independent Stage 8 audit: `PASS` (`282` checks);
+- final operational audit: `PASS` (`169` checks);
+- public repository financial values: `NOT_REPRODUCED_IN_PUBLIC_REPOSITORY`;
+- durable production authorization: absent;
+- `execution_authorized = false`;
+- production kill switch: `HALTED`;
+- production Scheduled Task: `Disabled`;
+- Stage 8.12.4 real order count: `0`.
+
+Package 5 readiness is now **COMPLETE / PASS / LIVE ACTIVATION NOT PERFORMED**.
+
+Canonical Package 5 readiness authority:
+
+- accepted code commit: `883ea1ea6a8268276a8e39ebdc8786c643a21935`;
+- external readiness evidence: `runtime/diagnostics/package5-readiness/stage8_12_3_intel_preflight.json`;
+- readiness evidence SHA-256: `FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD`;
+- exact production Scheduled Task commit/principal binding: `PASS`;
+- Stage 5 data commit: `50f1fd2178c18b7ab3bd969be82ad01f47a34745`;
+- H1 seed source: `forever` only;
+- fresh GET-only FINAM financial authority: `PASS`;
+- additional funding required: `0` in external evidence;
+- independent Stage 8 audit: `PASS` (`282` checks);
+- final operational audit: `PASS` (`169` checks);
+- durable production authorization: absent;
+- `execution_authorized = false`;
+- production kill switch: `HALTED`;
+- production Scheduled Task: `Disabled`;
+- readonly Scheduled Task: `Disabled`;
+- Stage 8.12.4 real order count: `0`;
+- live activation performed: `false`.
+
+Package 5 live activation is **COMPLETE / PASS / LIVE PRODUCTION ACTIVATED**. Activation evidence SHA-256 is `EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9`; post-arm heartbeat/reconciliation is `HEALTHY / PASS`, unresolved intents are `0`, the kill switch is `ARMED`, the production task is `Running`, and the readonly task is `Disabled`.
+
 ## Purpose and authority
 
 TradingSystemLab is the repository's deterministic systematic-trading research,
