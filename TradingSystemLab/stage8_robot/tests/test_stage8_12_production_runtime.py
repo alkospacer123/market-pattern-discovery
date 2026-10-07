@@ -386,6 +386,50 @@ def test_broker_flat_is_position_authority_for_exit_and_equity_sync(tmp_path):
     runtime.close()
 
 
+def test_partial_entry_fill_emits_idempotent_emergency_flatten(tmp_path):
+    runtime = ProductionRuntime(tmp_path / "state.db")
+    try:
+        budget = runtime.begin_batch(
+            realized_equity=Decimal("100000"),
+            available_cash=Decimal("1000000"),
+        )
+        entry = runtime.plan_entry(
+            signal(), authority(),
+            realized_equity=Decimal("100000"), budget=budget)
+        emergency = runtime.emergency_exit_for_entry_mismatch(
+            entry.idempotency_key, 1,
+            reason="PARTIAL_OR_UNEXPECTED_ENTRY_FILL",
+        )
+        repeated = runtime.emergency_exit_for_entry_mismatch(
+            entry.idempotency_key, 1,
+            reason="PARTIAL_OR_UNEXPECTED_ENTRY_FILL",
+        )
+        assert emergency == repeated
+        assert emergency.kind == "EMERGENCY_EXIT_REQUIRED"
+        assert emergency.quantity == 1
+        assert emergency.expected_position_quantity == 0
+        assert runtime.store.intent(emergency.idempotency_key)["status"] == "INTENT_PERSISTED"
+    finally:
+        runtime.close()
+
+
+def test_unprotected_local_position_emits_idempotent_emergency_exit(tmp_path):
+    runtime = ProductionRuntime(tmp_path / "state.db")
+    try:
+        entry = _open_and_protect(runtime)
+        emergency = runtime.emergency_exit_for_unprotected_position(
+            "USDRUBF", reason="PROTECTIVE_STOP_SUBMISSION_UNCERTAIN")
+        repeated = runtime.emergency_exit_for_unprotected_position(
+            "USDRUBF", reason="PROTECTIVE_STOP_SUBMISSION_UNCERTAIN")
+        assert emergency == repeated
+        assert emergency.quantity == entry.quantity
+        assert emergency.direction == "LONG"
+        assert emergency.expected_position_quantity == 0
+        assert runtime.store.intent(emergency.idempotency_key)["status"] == "INTENT_PERSISTED"
+    finally:
+        runtime.close()
+
+
 def test_maximum_nominal_initial_risk_is_enforced(tmp_path):
     runtime = ProductionRuntime(tmp_path / "state.db")
     runtime.store.put("production_positions", {
