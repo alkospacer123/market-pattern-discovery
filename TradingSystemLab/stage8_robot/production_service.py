@@ -32,6 +32,7 @@ from .instrument_resolver import (
     MOEX_REFERENCE,
     N4,
     discover_finam_asset,
+    parse_rest_value_object,
     validate_finam_binding,
 )
 from .live_execution import AuthorizedFinamProductionTransport
@@ -45,6 +46,7 @@ from .production_broker_state import (
     ProductionBrokerStateError,
     by_broker_id,
     by_client_id,
+    client_order_id,
     is_active,
     is_filled,
     is_rejected,
@@ -266,18 +268,39 @@ class ProductionService:
         return rows_by_client.get(compact_client_order_id(key))
 
     def _known_active_order_ids(self, rows: list[dict[str, Any]]) -> set[str]:
-        known = {
+        intents = self.runtime.store.intents()
+        known_broker_ids = {
             str(intent["broker_order_id"])
-            for intent in self.runtime.store.intents()
+            for intent in intents
             if isinstance(intent.get("broker_order_id"), str)
             and intent["broker_order_id"]
         }
-        unexpected = {
-            order_id(row) for row in rows if is_active(row) and order_id(row) not in known
+        known_client_ids = {
+            compact_client_order_id(intent["idempotency_key"])
+            for intent in intents
+            if isinstance(intent.get("idempotency_key"), str)
+            and intent["idempotency_key"]
         }
+        known_comments = {
+            intent["idempotency_key"]
+            for intent in intents
+            if isinstance(intent.get("idempotency_key"), str)
+            and intent["idempotency_key"]
+        }
+        unexpected = set()
+        for row in rows:
+            if not is_active(row):
+                continue
+            if (
+                order_id(row) in known_broker_ids
+                or client_order_id(row) in known_client_ids
+                or order_comment(row) in known_comments
+            ):
+                continue
+            unexpected.add(order_id(row))
         if unexpected:
             _fail("STAGE8_12_4_UNEXPECTED_ACTIVE_BROKER_ORDER")
-        return known
+        return known_broker_ids
 
     def _verify_stop_row(self, row: dict[str, Any], intent: dict[str, Any]) -> None:
         payload = row.get("sltp_order")
@@ -285,15 +308,19 @@ class ProductionService:
         if not isinstance(payload, dict) or not isinstance(local, dict):
             _fail("STAGE8_12_4_PROTECTIVE_STOP_BROKER_SCHEMA_INVALID")
         expected_side = "SIDE_SELL" if local.get("direction") == "LONG" else "SIDE_BUY"
-        quantity = payload.get("quantity_sl")
         measure = payload.get("sl_qty_measure")
-        price = payload.get("sl_price")
+        try:
+            quantity = parse_rest_value_object(payload.get("quantity_sl"), positive=True)
+            price = parse_rest_value_object(payload.get("sl_price"), positive=True)
+            expected_price = Decimal(str(local.get("stop_price")))
+        except (TypeError, ValueError):
+            _fail("STAGE8_12_4_PROTECTIVE_STOP_BROKER_SCHEMA_INVALID")
         if (
             payload.get("symbol") != local.get("finam_symbol")
             or payload.get("side") != expected_side
-            or quantity != {"value": "100"}
+            or quantity != Decimal("100")
             or measure != "SLTP_QTY_MEASURE_PERCENT"
-            or price != {"value": str(local.get("stop_price"))}
+            or price != expected_price
             or order_comment(row) != intent["idempotency_key"]
         ):
             _fail("STAGE8_12_4_PROTECTIVE_STOP_BROKER_MISMATCH")
