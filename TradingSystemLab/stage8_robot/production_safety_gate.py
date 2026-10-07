@@ -120,6 +120,8 @@ def write_production_heartbeat(
     cycle_count: int,
     last_api_contact: datetime,
     position_protection: list[dict[str, Any]],
+    failure_code: str | None = None,
+    consecutive_failures: int = 0,
     now: datetime | None = None,
 ) -> dict[str, Any]:
     observed = now or datetime.now(timezone.utc)
@@ -131,6 +133,14 @@ def write_production_heartbeat(
         raise ProductionSafetyError("STAGE8_12_4_RECONCILIATION_STATUS_INVALID")
     if health_status not in {"HEALTHY", "UNHEALTHY"}:
         raise ProductionSafetyError("STAGE8_12_4_HEALTH_STATUS_INVALID")
+    if failure_code is not None and (
+        not isinstance(failure_code, str)
+        or not failure_code
+        or len(failure_code) > 128
+    ):
+        raise ProductionSafetyError("STAGE8_12_4_FAILURE_CODE_INVALID")
+    if type(consecutive_failures) is not int or consecutive_failures < 0:
+        raise ProductionSafetyError("STAGE8_12_4_FAILURE_COUNT_INVALID")
     for scalar, code in (
         (unresolved_intent_count, "STAGE8_12_4_UNRESOLVED_COUNT_INVALID"),
         (cycle_count, "STAGE8_12_4_CYCLE_COUNT_INVALID"),
@@ -157,6 +167,8 @@ def write_production_heartbeat(
         "open_position_count": open_position_count,
         "active_protective_stop_count": active_protective_stop_count,
         "position_protection": protection,
+        "failure_code": failure_code,
+        "consecutive_failures": consecutive_failures,
     }
     destination = production_heartbeat_path(runtime_root)
     destination.parent.mkdir(parents=True, exist_ok=True)
