@@ -645,6 +645,31 @@ class ProductionService:
                     return True
         return False
 
+    def _entry_session_ready(
+        self, instrument: str, history: pd.DataFrame, now: datetime
+    ) -> bool:
+        symbol = self.runtime.registry[instrument]["finam_symbol"]
+        schedule = self.api.schedule(symbol)
+        windows = trading_h1_windows(schedule)
+        observed = now.astimezone(timezone.utc)
+        active = [(start, end) for start, end in windows if start <= observed < end]
+        if not active:
+            return False
+        if max(end for _, end in active) - observed < ENTRY_MINIMUM_REMAINING_SESSION:
+            return False
+
+        derived = newest_expected_h1_close(schedule, now)
+        if derived is None:
+            return False
+        expected_close = (
+            pd.Timestamp(derived).tz_convert("Europe/Moscow") + pd.Timedelta("1h")
+        )
+        if history.empty or history.index[-1] != expected_close:
+            raise ProductionServiceError(
+                "STAGE8_12_4_ENTRY_H1_NOT_LATEST_CURRENT_SESSION_BAR"
+            )
+        return True
+
     def _plan_entry(
         self, histories: dict[str, pd.DataFrame], snap: Snapshot
     ) -> bool:
@@ -663,7 +688,13 @@ class ProductionService:
         for instrument in INSTRUMENTS:
             if instrument in self.runtime.open_positions():
                 continue
-            signal = self.runtime.build_latest_signal(instrument, histories[instrument], snap.observed_at)
+            if not self._entry_session_ready(
+                instrument, histories[instrument], snap.observed_at
+            ):
+                continue
+            signal = self.runtime.build_latest_signal(
+                instrument, histories[instrument], snap.observed_at
+            )
             if signal is None:
                 continue
             row = self.runtime.registry[instrument]
