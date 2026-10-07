@@ -635,11 +635,15 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           "STAGE_8_12_4_PACKAGE2_PROVENANCE_EXACT")
 
     package3=stage812_provenance.get("stage8_12_4_package3",{})
-    check(package3.get("status") == "CODE_READY_PENDING_INTEL_EXECUTION"
+    check(package3.get("status") == "COMPLETE_PASS"
           and package3.get("validator") == "TradingSystemLab/stage8_robot/deploy/windows/run-stage8-12-4-package3-zero-order-validation.ps1"
-          and package3.get("physical_validation_performed") is False
-          and package3.get("accepted_code_commit") is None
-          and package3.get("external_evidence_sha256") is None
+          and package3.get("physical_validation_performed") is True
+          and package3.get("accepted_code_commit") == "242c0a4bee0200da171d1a7451472b256241e170"
+          and package3.get("external_evidence") == "runtime/diagnostics/stage8_12_4_package3_zero_order_validation.json"
+          and package3.get("external_evidence_sha256") == "AB1D22A2BE4A748B5F25C21C56FEAC922CAE03499F6F41DF04A47F192A3E7D30"
+          and package3.get("foundation_validation") == "PASS"
+          and package3.get("focused_rolling_service_tests") == "33/33 PASS"
+          and package3.get("unauthorized_production_cycle") == "PASS"
           and package3.get("production_task_required_state") == "Disabled"
           and package3.get("durable_authorization_required_state") == "Absent"
           and package3.get("kill_switch_required_state") == "HALTED"
@@ -659,7 +663,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and package3.get("real_order_transmission_authorized") is False
           and package3.get("real_order_count") == 0
           and package3.get("next_package_on_pass") == "PACKAGE_4_FRESH_FUNDING_RECALCULATION",
-          "STAGE_8_12_4_PACKAGE3_PROVENANCE_CODE_READY_EXACT")
+          "STAGE_8_12_4_PACKAGE3_PROVENANCE_COMPLETE_PASS_EXACT")
 
     package3_validator=(HERE/"deploy/windows/run-stage8-12-4-package3-zero-order-validation.ps1").read_text()
     package3_lower=package3_validator.lower()
