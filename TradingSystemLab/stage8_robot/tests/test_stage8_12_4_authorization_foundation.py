@@ -81,6 +81,7 @@ def healthy_heartbeat(root: Path, *, open_positions: int = 0):
 class FakeAPI:
     def __init__(self):
         self.calls = []
+        self.position_quantity = 0
 
     def create_session(self):
         self.calls.append(("create_session",))
@@ -92,7 +93,13 @@ class FakeAPI:
 
     def account(self, account_id):
         self.calls.append(("account", account_id))
-        return {"status": "ACCOUNT_ACTIVE", "positions": []}
+        positions = []
+        if self.position_quantity:
+            positions.append({
+                "symbol": "USDRUBF@RTSX",
+                "quantity": {"value": str(self.position_quantity)},
+            })
+        return {"status": "ACCOUNT_ACTIVE", "positions": positions}
 
     def place_order(self, account_id, payload):
         self.calls.append(("place_order", account_id, payload))
@@ -279,6 +286,7 @@ def test_halted_blocks_entry_but_not_protection_or_emergency_exit(tmp_path):
         transport.submit_entry(entry_action(), now=NOW)
     assert not [call for call in api.calls if call[0] == "place_order"]
 
+    api.position_quantity = 2
     stop = transport.submit_protective_stop(
         stop_action(), observed_position_quantity=2
     )
@@ -313,6 +321,7 @@ def test_protective_stop_requires_exact_position_and_cancel_requires_flat(tmp_pa
         accepted_commit=COMMIT,
     )
     transport.connect()
+    api.position_quantity = 2
     with pytest.raises(
         LiveExecutionError,
         match="STAGE8_12_4_PROTECTIVE_STOP_POSITION_NOT_EXACT",
@@ -327,8 +336,9 @@ def test_protective_stop_requires_exact_position_and_cancel_requires_flat(tmp_pa
         transport.cancel_protective_stop_after_flat(
             "STOP-1", observed_position_quantity=2
         )
+    api.position_quantity = 0
     cancelled = transport.cancel_protective_stop_after_flat(
-        "STOP-1", observed_position_quantity=0
+        "STOP-1", observed_position_quantity=0, finam_symbol="USDRUBF@RTSX"
     )
     assert cancelled["order_id"] == "STOP-1"
 
