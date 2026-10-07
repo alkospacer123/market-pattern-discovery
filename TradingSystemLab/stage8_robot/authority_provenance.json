@@ -738,6 +738,35 @@
       "rolling_h1_continuity_status": "CODE_READY_PENDING_PACKAGE3_ZERO_ORDER_VALIDATION",
       "rolling_h1_overlap_rule": "CURRENT_FINAM_WINDOW_MUST_EXACTLY_OVERLAP_STAGE5_OR_PERSISTED_CONTINUATION_BY_TIMESTAMP_AND_OHLC",
       "long_downtime_without_overlap": "FAIL_CLOSED"
+    },
+    "stage8_12_4_package3": {
+      "status": "CODE_READY_PENDING_INTEL_EXECUTION",
+      "validator": "TradingSystemLab/stage8_robot/deploy/windows/run-stage8-12-4-package3-zero-order-validation.ps1",
+      "physical_validation_performed": false,
+      "accepted_code_commit": null,
+      "external_evidence_sha256": null,
+      "production_task_required_state": "Disabled",
+      "readonly_task_allowed_state": "DisabledOrAbsent",
+      "durable_authorization_required_state": "Absent",
+      "kill_switch_required_state": "HALTED",
+      "exact_commit_binding_required": true,
+      "exact_principal_binding_required": true,
+      "stage5_data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+      "rolling_h1_continuation_required": true,
+      "foundation_validation_required": true,
+      "focused_rolling_service_tests_required": true,
+      "unauthorized_production_once_required": true,
+      "production_heartbeat_required_state": "HEALTHY",
+      "reconciliation_required_state": "PASS",
+      "unresolved_production_intents_required": 0,
+      "broker_open_positions_required": 0,
+      "local_open_positions_required": 0,
+      "order_endpoint_call_count": 0,
+      "execution_authorized": false,
+      "live_trading_authorized": false,
+      "real_order_transmission_authorized": false,
+      "real_order_count": 0,
+      "next_package_on_pass": "PACKAGE_4_FRESH_FUNDING_RECALCULATION"
     }
   }
 }
