@@ -442,14 +442,40 @@ class ProductionService:
                 last = self._snapshot()
         return last
 
+    def _proven_active_stop(
+        self, snapshot: BrokerSnapshot, action: RuntimeAction
+    ) -> BrokerOrderView | None:
+        if not action.trade_id or not action.idempotency_key:
+            raise ProductionServiceFault("PROTECTIVE_STOP_IDENTITY_INVALID")
+        owned = active_sltp_for_trade(
+            snapshot.orders,
+            trade_id=action.trade_id,
+            symbol=action.finam_symbol,
+        )
+        client_id = compact_client_order_id(action.idempotency_key)
+        matches = [
+            order
+            for order in owned
+            if order.client_order_id == client_id
+            and order.comment == action.idempotency_key
+        ]
+        if len(matches) > 1:
+            raise ProductionServiceFault(
+                "PRODUCTION_DUPLICATE_ACTIVE_PROTECTIVE_STOP_IDENTITY"
+            )
+        return matches[0] if matches else None
+
     def _wait_for_stop(
         self, action: RuntimeAction
     ) -> tuple[BrokerSnapshot, BrokerOrderView | None]:
         last = self._snapshot()
         for index in range(ORDER_RECONCILIATION_OBSERVATIONS):
-            view = self._action_order(last, action)
-            if view is not None and view.kind == "SLTP":
+            view = self._proven_active_stop(last, action)
+            if view is not None:
                 return last, view
+            terminal = self._action_order(last, action)
+            if terminal is not None and not terminal.active:
+                return last, terminal
             if index + 1 < ORDER_RECONCILIATION_OBSERVATIONS:
                 self.sleeper(RECONCILIATION_SLEEP_SECONDS)
                 last = self._snapshot()
@@ -685,12 +711,13 @@ class ProductionService:
                 "PRODUCTION_POSITION_AUTHORITY_UNEXPECTED_QUANTITY"
             )
 
-        view = self._action_order(snapshot, action)
-        if view is not None and view.active:
+        active_view = self._proven_active_stop(snapshot, action)
+        if active_view is not None:
             self.runtime.confirm_protective_stop(
-                action.idempotency_key, view.order_id
+                action.idempotency_key, active_view.order_id
             )
             return snapshot
+        view = self._action_order(snapshot, action)
         if view is not None and self._terminalize_failed_order(intent, view):
             self.runtime.reject_protective_stop(action.idempotency_key)
             if action.kind == "PROTECTIVE_STOP_INSTALL":
