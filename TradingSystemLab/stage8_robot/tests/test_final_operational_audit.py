@@ -1119,7 +1119,7 @@ def test_stage_8_10_semantic_document_regressions_fail_both_audits(
 
 
 @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
-def test_stage_8_10_current_handoff_package4_pass_state_passes_both_audits(path):
+def test_stage_8_10_current_handoff_package5_readiness_passes_both_audits(path):
     original = source(path)
     independent = stage8.audit(
         write_result=False, source_overrides={path: original}
@@ -1169,8 +1169,8 @@ def test_stage_8_10_current_handoff_stale_gate_and_omission_fail_both_audits(pat
         source_overrides={path: package4_omitted},
     )
     operational = run_audit({path: package4_omitted})
-    assert "STAGE_8_12_4_POSTFUNDING_PASS_PACKAGE5_NOT_AUTHORIZED_HANDOFF" in independent["errors"]
-    assert "STAGE_8_12_4_POSTFUNDING_PASS_PACKAGE5_NOT_AUTHORIZED_HANDOFF" in operational["errors"]
+    assert "STAGE_8_12_4_PACKAGE5_READINESS_PASS_LIVE_NOT_PERFORMED_HANDOFF" in independent["errors"]
+    assert "STAGE_8_12_4_PACKAGE5_READINESS_PASS_LIVE_NOT_PERFORMED_HANDOFF" in operational["errors"]
 
     postfunding_omitted_handoff = handoff.replace(
         "54205165758FF6FC200290E61070D7082DFC13494048AABE7A5A61CDDE3C7F11",
@@ -1185,8 +1185,24 @@ def test_stage_8_10_current_handoff_stale_gate_and_omission_fail_both_audits(pat
         source_overrides={path: postfunding_omitted},
     )
     operational = run_audit({path: postfunding_omitted})
-    assert "STAGE_8_12_4_POSTFUNDING_PASS_PACKAGE5_NOT_AUTHORIZED_HANDOFF" in independent["errors"]
-    assert "STAGE_8_12_4_POSTFUNDING_PASS_PACKAGE5_NOT_AUTHORIZED_HANDOFF" in operational["errors"]
+    assert "STAGE_8_12_4_PACKAGE5_READINESS_PASS_LIVE_NOT_PERFORMED_HANDOFF" in independent["errors"]
+    assert "STAGE_8_12_4_PACKAGE5_READINESS_PASS_LIVE_NOT_PERFORMED_HANDOFF" in operational["errors"]
+
+    readiness_omitted_handoff = handoff.replace(
+        "FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD",
+        "",
+        1,
+    )
+    readiness_omitted = (
+        original[:start] + readiness_omitted_handoff + original[next_section:]
+    )
+    independent = stage8.audit(
+        write_result=False,
+        source_overrides={path: readiness_omitted},
+    )
+    operational = run_audit({path: readiness_omitted})
+    assert "STAGE_8_12_4_PACKAGE5_READINESS_PASS_LIVE_NOT_PERFORMED_HANDOFF" in independent["errors"]
+    assert "STAGE_8_12_4_PACKAGE5_READINESS_PASS_LIVE_NOT_PERFORMED_HANDOFF" in operational["errors"]
 
 
 @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)

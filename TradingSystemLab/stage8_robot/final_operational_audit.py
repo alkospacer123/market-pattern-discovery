@@ -1278,6 +1278,32 @@ def audit(
           and postfunding.get("production_task") == "Disabled",
           "STAGE_8_12_4_POSTFUNDING_PROVENANCE_COMPLETE_PASS_EXACT")
 
+    package5_readiness=stage812_provenance.get("stage8_12_4_package5_readiness",{})
+    check(package5_readiness.get("status") == "COMPLETE_PASS_LIVE_ACTIVATION_NOT_PERFORMED"
+          and package5_readiness.get("physical_validation_performed") is True
+          and package5_readiness.get("accepted_code_commit") == "883ea1ea6a8268276a8e39ebdc8786c643a21935"
+          and package5_readiness.get("external_evidence") == "runtime/diagnostics/package5-readiness/stage8_12_3_intel_preflight.json"
+          and package5_readiness.get("external_evidence_sha256") == "FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD"
+          and package5_readiness.get("external_evidence_tracked_in_git") is False
+          and package5_readiness.get("exact_production_task_binding") == "PASS"
+          and package5_readiness.get("stage5_data_commit") == "50f1fd2178c18b7ab3bd969be82ad01f47a34745"
+          and package5_readiness.get("h1_seed_source") == "FOREVER_ONLY"
+          and package5_readiness.get("fresh_get_only_financial_authority") == "PASS"
+          and package5_readiness.get("additional_funding_required_zero") is True
+          and package5_readiness.get("independent_stage8_audit") == {"status":"PASS","checks":282}
+          and package5_readiness.get("final_operational_audit") == {"status":"PASS","checks":169}
+          and package5_readiness.get("durable_authorization_present") is False
+          and package5_readiness.get("execution_authorized") is False
+          and package5_readiness.get("live_trading_authorized") is False
+          and package5_readiness.get("real_order_transmission_authorized") is False
+          and package5_readiness.get("kill_switch") == "HALTED"
+          and package5_readiness.get("production_task") == "Disabled"
+          and package5_readiness.get("readonly_task") == "Disabled"
+          and package5_readiness.get("real_order_count") == 0
+          and package5_readiness.get("live_activation_performed") is False
+          and package5_readiness.get("next_step") == "PACKAGE_5_MANUAL_LIVE_ACTIVATION_BOUNDARY",
+          "STAGE_8_12_4_PACKAGE5_READINESS_PROVENANCE_COMPLETE_PASS_EXACT")
+
     package3_validator=(HERE/"deploy/windows/run-stage8-12-4-package3-zero-order-validation.ps1").read_text()
     package3_lower=package3_validator.lower()
     check(all(token in package3_validator for token in (
@@ -1451,19 +1477,19 @@ def audit(
     check("w32tm /query /status" in intel_wrapper and "w32tm /query /source" in intel_wrapper
           and "Get-Service -Name W32Time" in intel_wrapper and "$clock = (Get-Date)" not in intel_wrapper,
           "STAGE_8_11_INTEL_WINDOWS_TIME_SANITY")
-    check(all("a31080781e6c51de405d840d5cf30abd91c70ead" in handoff
-              and "60D9C3EFEC7D54C50BF188B003DCE06D31647A9D6B6F0ED33BB46FF08475621B" in handoff
-              and "636b6a9abcec459173247f2c52b0d19470dfe738" in handoff
-              and "54205165758FF6FC200290E61070D7082DFC13494048AABE7A5A61CDDE3C7F11" in handoff
-              and "CAPITAL SUFFICIENT" in handoff
+    check(all("883ea1ea6a8268276a8e39ebdc8786c643a21935" in handoff
+              and "FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD" in handoff
+              and "Package 5 readiness" in handoff
+              and "COMPLETE / PASS / LIVE ACTIVATION NOT PERFORMED" in handoff
               and "additional funding required: `0`" in handoff
-              and "Package 5" in handoff
-              and "NOT STARTED / NOT AUTHORIZED" in handoff
+              and "durable production authorization" in handoff
+              and "execution_authorized = false" in handoff
               and "HALTED" in handoff
               and "Disabled" in handoff
               and "real order count" in handoff.lower()
+              and "live activation performed" in handoff.lower()
               for handoff in current_handoffs),
-          "STAGE_8_12_4_POSTFUNDING_PASS_PACKAGE5_NOT_AUTHORIZED_HANDOFF")
+          "STAGE_8_12_4_PACKAGE5_READINESS_PASS_LIVE_NOT_PERFORMED_HANDOFF")
     forbidden_claims = (
         r"(?:broker acceptance (?:is |was )?validated|order (?:was )?accepted|FINAM server accepted an order)",
         r"(?<!not )real-order (?:transmission|capability) is authorized",
