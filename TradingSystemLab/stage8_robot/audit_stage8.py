@@ -58,14 +58,15 @@ def _stage8_10_document_consistency(document):
         "The physical authorization used for attempt7 is consumed",
         "Current `execution_authorized = false`",
         "real-order transmission remains unauthorized",
-        "Stage 8.12 — **STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 NOT STARTED / NOT AUTHORIZED**",
+        "Stage 8.12 — **STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**",
         "Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**",
         "Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**",
         "2a15f4331afc1433dfbfd0464108e39e59d236f8",
         "4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F",
         "19/19 PASS", "25/25 PASS", "144/144 PASS", "48/48 PASS", "113/113 PASS", "111/111 PASS",
         "test-only real-order count: `0`",
-        "Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**",\n        "Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is now **STARTED / IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**")
+        "Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**",
+        "Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is now **STARTED / IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**")
     exact=bool(handoff and all(" ".join(token.split()) in normalized_handoff for token in required))
     if handoff and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]",handoff,re.I):
         stale_next=True
