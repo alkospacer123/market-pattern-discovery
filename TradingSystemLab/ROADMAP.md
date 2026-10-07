@@ -30,6 +30,39 @@ The recovery was repository-external `REAL_READONLY` evidence work only: it subm
 
 ## Current handoff
 
+Stage 8.9 is **COMPLETE**. Stage 8.10 is **COMPLETE**. Stage 8.11 — Controlled Real Execution Acceptance — remains **COMPLETE / PASS**. Stage 8.12 — FULL/R15 Production Authorization — is **COMPLETE / PASS**. Stage 8.12.4 live activation is **COMPLETE / LIVE PRODUCTION ACTIVATED**.
+
+Stage 8.11 remains the historical physical broker-acceptance authority: accepted commit `72a910e49b876cda99484a810e6f8a1b16ac0209`, immutable attempt `stage8.11.attempt7`, evidence SHA-256 `704BFCC19B1A63F490192C0D8D0E4715BFECF77664296AFEF47E5B80FBF64B5F`. At the Stage 8.11 closeout, `execution_authorized = false`, the production kill switch was `HALTED`, and the Scheduled Task was `Disabled`. That historical state is superseded by the Stage 8.12.4 activation below.
+
+Canonical Stage 8.12.4 production activation authority:
+
+- accepted production commit: `883ea1ea6a8268276a8e39ebdc8786c643a21935`;
+- Stage 5 data commit: `50f1fd2178c18b7ab3bd969be82ad01f47a34745`;
+- Package 5 readiness evidence SHA-256: `FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD`;
+- external activation evidence: `runtime/diagnostics/package5-live-activation/stage8_12_4_live_activation.json`;
+- activation evidence SHA-256: `EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9`;
+- durable production authorization: `AUTHORIZED`;
+- `execution_authorized = true`;
+- pre-arm heartbeat / reconciliation: `HEALTHY / PASS`;
+- pre-arm unresolved intents / open positions / active protective stops: `0 / 0 / 0`;
+- final production kill switch: `ARMED`;
+- production Scheduled Task: `Running`;
+- readonly Scheduled Task: `Disabled`;
+- post-arm heartbeat occurred after the ARMED transition: `true`;
+- post-arm heartbeat: `HEALTHY`;
+- post-arm reconciliation: `PASS`;
+- post-arm unresolved intents: `0`;
+- post-arm open positions: `0`;
+- post-arm active protective stops: `0`;
+- post-arm production cycle count: `15`;
+- no forced trade was required or submitted to complete Stage 8.12.
+
+Canonical completion status: `STAGE_8_12_FULL_R15_PRODUCTION_AUTHORIZATION_COMPLETE`.
+
+The frozen production identity remains `TRAIL1__N4_01__FULL__R15` with T3 / H1 / TRAIL1, N4, FULL/R15, 1.5% realized-equity risk per new instrument position and the existing 6% nominal initial-risk cap. No strategy, portfolio, parameter, research-methodology, sizing, or broker-runtime change is introduced by this repository closeout. The production service may submit real orders only for genuine frozen-strategy signals while the durable authorization, exact bindings, `ARMED` kill switch, fresh `HEALTHY / PASS` production gate, and all other runtime safety checks remain valid.
+
+### Pre-activation package history — historical
+
 Stage 8.9 is **COMPLETE**. Stage 8.10 is **COMPLETE**. Stage 8.11 — Controlled Real Execution Acceptance — is now **COMPLETE / PASS**.
 
 Canonical Stage 8.11 physical acceptance authority:
@@ -327,7 +360,7 @@ Do not derive current status from older Stage 8.11 attempt narratives.
 
 ## Stage 8.12 — FULL/R15 Production Authorization
 
-**STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 NOT STARTED / NOT AUTHORIZED.**
+**COMPLETE / PASS / FULL/R15 LIVE PRODUCTION ACTIVATED.**
 
 Purpose: move the already frozen and physically accepted Stage 7 production system from controlled acceptance into unattended FULL/R15 production operation on the real FINAM account.
 
@@ -464,9 +497,9 @@ Canonical Stage 8.12.3 closeout evidence:
 
 ### Stage 8.12.4 — Explicit FULL/R15 production authorization and activation
 
-**STARTED / IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED.**
+**COMPLETE / PASS / LIVE PRODUCTION ACTIVATED.**
 
-**ONLY THIS GATE MAY AUTHORIZE CONTINUOUS REAL PRODUCTION TRADING.**
+**THIS GATE IS THE AUTHORITY FOR CONTINUOUS REAL PRODUCTION TRADING.**
 
 Implementation started without activating execution. Current code boundary:
 
@@ -476,7 +509,7 @@ Implementation started without activating execution. Current code boundary:
 - FINAM order transport includes market entry, dedicated SL/TP submission through `POST /v1/accounts/{account_id}/sltp-orders`, and emergency market exit;
 - entry requires durable authorization plus `ARMED` and a fresh healthy production gate;
 - protective-stop and emergency-exit transmission remain risk-reducing operations after authorization even if the kill switch later HALTs new entries;
-- no authorization record has been created, the kill switch remains `HALTED`, the production task remains disabled, and Stage 8.12.4 real-order count remains `0`.
+- durable production authorization is present; `execution_authorized = true`; post-arm heartbeat/reconciliation is `HEALTHY / PASS`; the kill switch is `ARMED`; the production task is `Running`; the readonly task is `Disabled`; no forced trade is required for completion.
 
 Stage 8.12.4 production-service prerequisites are **CODE READY / NOT AUTHORIZED**. Official FINAM H1 history is limited to 30 days, which is insufficient for the frozen T3 four-H1 context validity warm-up. Production history therefore seeds only from the exact Stage 5 TRAIL1 data authority (`market-pattern-data` commit `50f1fd2178c18b7ab3bd969be82ad01f47a34745`, exact frozen N4 H1 source SHA-256 values) and then appends completed FINAM H1 bars. The overlapping seed/FINAM interval must have an identical timestamp set and exact OHLC; any gap or conflict fails closed. Research CSV timestamps remain Moscow H1 open-times and are converted to the frozen `+1h` close-time index only after the exact splice. This prerequisite layer adds no order transmission and does not create production authorization.
 
@@ -509,7 +542,7 @@ Activation semantics:
 7. any startup/reconciliation/safety fault fails closed and returns the system to `HALTED`;
 8. after authorization, normal restart may resume production only when the same durable authorization, production commit, specification ID, account identity, and ARMED kill-switch authority all still match exactly.
 
-Stage 8.12 completion criterion:
+Stage 8.12 completion criterion — **MET**:
 
 - canonical status = `STAGE_8_12_FULL_R15_PRODUCTION_AUTHORIZATION_COMPLETE`;
 - dedicated production task installed/enabled for the frozen identity;
