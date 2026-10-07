@@ -26,6 +26,7 @@ from TradingSystemLab.stage8_robot.production_safety_gate import (
     production_heartbeat_path,
     write_production_heartbeat,
 )
+from TradingSystemLab.stage8_robot.state import StateStore
 from TradingSystemLab.stage8_robot.specification import (
     ACTIVE_IDENTITY,
     PRODUCTION_SPECIFICATION_ID,
@@ -156,6 +157,12 @@ def emergency_action(direction="LONG"):
     )
 
 
+def persist_action(store: StateStore, action: RuntimeAction) -> RuntimeAction:
+    assert action.idempotency_key
+    assert store.persist_intent(action.idempotency_key, action.payload())
+    return action
+
+
 def test_authorization_requires_exact_operator_phrase_and_external_path(tmp_path):
     with pytest.raises(
         ProductionAuthorizationError,
@@ -247,7 +254,9 @@ def test_entry_requires_armed_fresh_exact_gate_and_uses_day_market_payload(tmp_p
         accepted_commit=COMMIT,
     )
     transport.connect()
-    response = transport.submit_entry(entry_action(), now=NOW)
+    store = StateStore(tmp_path / "entry-intents.db")
+    action = persist_action(store, entry_action())
+    response = transport.submit_entry(action, now=NOW, state_store=store)
     assert response["order_id"] == "ENTRY-1"
     payload = [call[2] for call in api.calls if call[0] == "place_order"][-1]
     assert payload["symbol"] == "USDRUBF@RTSX"
@@ -276,11 +285,16 @@ def test_halted_blocks_entry_but_not_protection_or_emergency_exit(tmp_path):
         LiveExecutionError,
         match="STAGE8_12_4_ENTRY_GATE_BLOCKED",
     ):
-        transport.submit_entry(entry_action(), now=NOW)
+        transport.submit_entry(
+            entry_action(), now=NOW,
+            state_store=StateStore(tmp_path / "blocked-entry.db"),
+        )
     assert not [call for call in api.calls if call[0] == "place_order"]
 
+    store = StateStore(tmp_path / "risk-reducing-intents.db")
+    stop_value = persist_action(store, stop_action())
     stop = transport.submit_protective_stop(
-        stop_action(), observed_position_quantity=2
+        stop_value, observed_position_quantity=2, state_store=store
     )
     assert stop["order_id"] == "STOP-1"
     payload = [call[2] for call in api.calls if call[0] == "place_sltp_order"][-1]
@@ -294,8 +308,9 @@ def test_halted_blocks_entry_but_not_protection_or_emergency_exit(tmp_path):
     assert "schema_id" not in payload
     assert payload["client_order_id"].isalnum()
 
+    emergency_value = persist_action(store, emergency_action())
     result = transport.submit_emergency_exit(
-        emergency_action(), observed_position_quantity=2
+        emergency_value, observed_position_quantity=2, state_store=store
     )
     assert result["order_id"] == "ENTRY-1"
     exit_payload = [call[2] for call in api.calls if call[0] == "place_order"][-1]
@@ -318,7 +333,8 @@ def test_protective_stop_requires_exact_position_and_cancel_requires_flat(tmp_pa
         match="STAGE8_12_4_PROTECTIVE_STOP_POSITION_NOT_EXACT",
     ):
         transport.submit_protective_stop(
-            stop_action(), observed_position_quantity=0
+            stop_action(), observed_position_quantity=0,
+            state_store=StateStore(tmp_path / "invalid-stop.db"),
         )
     with pytest.raises(
         LiveExecutionError,
@@ -488,7 +504,10 @@ def test_production_gate_rejects_duplicate_stop_coverage_across_positions(tmp_pa
         LiveExecutionError,
         match="PRODUCTION_POSITION_PROTECTION_INVALID",
     ):
-        transport.submit_entry(entry_action(), now=NOW)
+        transport.submit_entry(
+            entry_action(), now=NOW,
+            state_store=StateStore(tmp_path / "blocked-entry.db"),
+        )
     assert not [call for call in api.calls if call[0] == "place_order"]
 
 
