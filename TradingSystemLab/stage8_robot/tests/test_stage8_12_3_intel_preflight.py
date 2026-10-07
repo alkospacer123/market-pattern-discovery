@@ -3,7 +3,7 @@ from __future__ import annotations
 import ast
 import json
 import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
 
@@ -14,6 +14,7 @@ from TradingSystemLab.stage8_robot.production_runtime import MODE as RUNTIME_MOD
 from TradingSystemLab.stage8_robot.specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID
 from TradingSystemLab.stage8_robot.stage8_12_intel_preflight import (
     FROZEN_T3_H1_ATR_CROSSES_TRADING_DAYS,
+    H1_HISTORY_LOOKBACK_DAYS,
     PRODUCTION_STATE_FILENAME,
     PreflightBlocked,
     _capacity_report,
@@ -144,8 +145,10 @@ def _h1_bar(timestamp):
 class _BarsOnlyAPI:
     def __init__(self, rows):
         self.rows = rows
+        self.calls = []
 
     def bars(self, symbol, start, end):
+        self.calls.append((symbol, start, end))
         return {"bars": list(self.rows)}
 
 
@@ -159,6 +162,44 @@ def _benchmark_schedule():
             },
         }]
     }
+
+
+def test_benchmark_preopen_uses_historical_lookback_before_future_session_start():
+    rows = [
+        _h1_bar(f"2026-01-05T{hour:02d}:00:00Z")
+        for hour in range(4, 18)
+    ]
+    api = _BarsOnlyAPI(rows)
+    observed = datetime(2026, 1, 6, 3, 43, tzinfo=timezone.utc)
+    watermark = datetime(2026, 1, 5, 17, 0, tzinfo=timezone.utc)
+    schedule = {
+        "sessions": [{
+            "type": "CORE_TRADING",
+            "interval": {
+                "start_time": "2026-01-06T04:00:00Z",
+                "end_time": "2026-01-06T20:00:00Z",
+            },
+        }]
+    }
+    money = {"currency_code": "RUB", "units": "1000", "nanos": 0}
+    capacity, details = _collect_strategy_loss(
+        api=api,
+        instrument="USDRUBF",
+        symbol="USDRUBF@RTSX",
+        watermark=watermark,
+        params={"long_initial_margin": money, "short_initial_margin": money},
+        binding={"trade_lot_size": "1"},
+        schedule=schedule,
+        now=observed,
+    )
+    assert H1_HISTORY_LOOKBACK_DAYS == 30
+    assert len(api.calls) == 1
+    _, start, end = api.calls[0]
+    assert start == (observed - timedelta(days=30)).isoformat()
+    assert datetime.fromisoformat(start) < datetime.fromisoformat(end)
+    assert details["latest_completed_h1_open_utc"] == watermark.isoformat()
+    assert details["h1_history_lookback_days"] == 30
+    assert capacity.loss_per_contract == Decimal("100")
 
 
 def test_benchmark_h1_response_rejects_duplicate_and_off_session_rows():
