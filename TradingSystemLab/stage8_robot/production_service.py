@@ -451,11 +451,20 @@ class ProductionService:
         except FinamOrderRejected:
             self.runtime.store.transition_intent(key, "REJECTED")
             if action.kind == "PROTECTIVE_STOP_INSTALL":
-                self.runtime.require_emergency_exit(
+                emergency = self.runtime.require_emergency_exit(
                     action.instrument, reason="PROTECTIVE_STOP_INSTALL_REJECTED"
                 )
+                emergency_intent = self.runtime.store.intent(emergency.idempotency_key)
+                if emergency_intent is None:
+                    raise ProductionServiceFault("EMERGENCY_EXIT_INTENT_NOT_FOUND")
+                self._submit_intent(
+                    {"idempotency_key": emergency.idempotency_key, **emergency_intent},
+                    now=now,
+                    broker_positions_map=broker_positions_map,
+                    allow_entry=False,
+                )
                 raise ProductionServiceFault(
-                    "PROTECTIVE_STOP_INSTALL_REJECTED_EMERGENCY_EXIT_REQUIRED"
+                    "PROTECTIVE_STOP_INSTALL_REJECTED_EMERGENCY_EXIT_SUBMITTED"
                 )
             if action.kind == "PROTECTIVE_STOP_REPLACE":
                 raise ProductionServiceFault("PROTECTIVE_STOP_REPLACEMENT_REJECTED")
@@ -507,11 +516,20 @@ class ProductionService:
         if order.status in REJECTED_ORDER_STATUSES:
             self.runtime.store.transition_intent(key, "REJECTED", order.order_id)
             if action.kind == "PROTECTIVE_STOP_INSTALL":
-                self.runtime.require_emergency_exit(
+                emergency = self.runtime.require_emergency_exit(
                     action.instrument, reason="PROTECTIVE_STOP_INSTALL_REJECTED"
                 )
+                emergency_intent = self.runtime.store.intent(emergency.idempotency_key)
+                if emergency_intent is None:
+                    raise ProductionServiceFault("EMERGENCY_EXIT_INTENT_NOT_FOUND")
+                self._submit_intent(
+                    {"idempotency_key": emergency.idempotency_key, **emergency_intent},
+                    now=now,
+                    broker_positions_map=broker_positions_map,
+                    allow_entry=False,
+                )
                 raise ProductionServiceFault(
-                    "PROTECTIVE_STOP_INSTALL_REJECTED_EMERGENCY_EXIT_REQUIRED"
+                    "PROTECTIVE_STOP_INSTALL_REJECTED_EMERGENCY_EXIT_SUBMITTED"
                 )
             if action.kind == "PROTECTIVE_STOP_REPLACE":
                 raise ProductionServiceFault("PROTECTIVE_STOP_REPLACEMENT_REJECTED")
