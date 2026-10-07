@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import json
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
@@ -34,6 +35,7 @@ SEED_SHA256 = {
     "IMOEXF": "119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110",
 }
 OHLC = ("Open", "High", "Low", "Close")
+CONTINUATION_SCHEMA = "stage8_12_4_h1_continuation.v1"
 
 
 class ProductionHistoryError(RuntimeError):
@@ -217,38 +219,225 @@ def finam_completed_open_h1(
     return _validated_frame(rows, source_code="STAGE8_12_4_FINAM_H1")
 
 
+def _splice_authority_and_finam_open_h1(
+    authority: pd.DataFrame,
+    live: pd.DataFrame,
+) -> pd.DataFrame:
+    """Extend an already-trusted H1 authority with exact FINAM completed bars."""
+    if authority.empty or live.empty:
+        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_EMPTY")
+    if authority.index.tz is None or live.index.tz is None:
+        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_TIMEZONE_INVALID")
+    authority = authority.sort_index(kind="mergesort")
+    live = live.sort_index(kind="mergesort")
+    if authority.index.has_duplicates or live.index.has_duplicates:
+        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_DUPLICATE")
+    if live.index.min() > authority.index.max():
+        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_NO_OVERLAP")
+
+    overlap_start = live.index.min()
+    overlap_end = min(authority.index.max(), live.index.max())
+    authority_overlap = authority.loc[
+        (authority.index >= overlap_start) & (authority.index <= overlap_end)
+    ]
+    live_overlap = live.loc[
+        (live.index >= overlap_start) & (live.index <= overlap_end)
+    ]
+    if authority_overlap.empty or live_overlap.empty:
+        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_NO_OVERLAP")
+    if not authority_overlap.index.equals(live_overlap.index):
+        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_TIMESTAMP_MISMATCH")
+    for column in OHLC:
+        if any(a != b for a, b in zip(authority_overlap[column], live_overlap[column])):
+            raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_OHLC_MISMATCH")
+
+    appended = live.loc[live.index > authority.index.max()]
+    merged = pd.concat([authority, appended])
+    if merged.index.has_duplicates or not merged.index.is_monotonic_increasing:
+        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_ORDER_INVALID")
+    return merged
+
+
 def splice_seed_and_finam_open_h1(
     seed: pd.DataFrame,
     live: pd.DataFrame,
 ) -> pd.DataFrame:
-    if seed.empty or live.empty:
-        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_EMPTY")
-    if seed.index.tz is None or live.index.tz is None:
-        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_TIMEZONE_INVALID")
-    seed = seed.sort_index(kind="mergesort")
-    live = live.sort_index(kind="mergesort")
-    if seed.index.has_duplicates or live.index.has_duplicates:
-        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_DUPLICATE")
-    if live.index.min() > seed.index.max():
-        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_NO_OVERLAP")
+    """Compatibility wrapper for the original pinned-seed bootstrap contract."""
+    return _splice_authority_and_finam_open_h1(seed, live)
 
-    overlap_start = live.index.min()
-    overlap_end = seed.index.max()
-    seed_overlap = seed.loc[(seed.index >= overlap_start) & (seed.index <= overlap_end)]
-    live_overlap = live.loc[(live.index >= overlap_start) & (live.index <= overlap_end)]
-    if seed_overlap.empty or live_overlap.empty:
-        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_NO_OVERLAP")
-    if not seed_overlap.index.equals(live_overlap.index):
-        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_TIMESTAMP_MISMATCH")
-    for column in OHLC:
-        if any(a != b for a, b in zip(seed_overlap[column], live_overlap[column])):
-            raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_OHLC_MISMATCH")
 
-    appended = live.loc[live.index > seed.index.max()]
-    merged = pd.concat([seed, appended])
-    if merged.index.has_duplicates or not merged.index.is_monotonic_increasing:
-        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_ORDER_INVALID")
-    return merged
+def _bars_sha256(bars: list[dict[str, str]]) -> str:
+    canonical = json.dumps(
+        bars, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
+
+
+def _continuation_bars(frame: pd.DataFrame) -> list[dict[str, str]]:
+    if frame.empty:
+        return []
+    if frame.index.tz is None or str(frame.index.tz) != MOSCOW:
+        raise ProductionHistoryError(
+            "STAGE8_12_4_H1_CONTINUATION_TIMEZONE_INVALID"
+        )
+    if frame.index.has_duplicates or not frame.index.is_monotonic_increasing:
+        raise ProductionHistoryError(
+            "STAGE8_12_4_H1_CONTINUATION_TIMESTAMP_ORDER_INVALID"
+        )
+    bars: list[dict[str, str]] = []
+    for stamp, row in frame.iterrows():
+        values = {
+            name: _decimal(
+                row[name], "STAGE8_12_4_H1_CONTINUATION_OHLC_INVALID"
+            )
+            for name in OHLC
+        }
+        if (
+            values["High"] < max(values["Open"], values["Close"], values["Low"])
+            or values["Low"] > min(
+                values["Open"], values["Close"], values["High"]
+            )
+        ):
+            raise ProductionHistoryError(
+                "STAGE8_12_4_H1_CONTINUATION_OHLC_INVALID"
+            )
+        bars.append({
+            "timestamp": stamp.isoformat(),
+            "open": str(values["Open"]),
+            "high": str(values["High"]),
+            "low": str(values["Low"]),
+            "close": str(values["Close"]),
+        })
+    return bars
+
+
+def continuation_payload_from_frame(
+    frame: pd.DataFrame,
+    instrument: str,
+) -> dict[str, Any]:
+    if instrument not in N4:
+        raise ProductionHistoryError(
+            "STAGE8_12_4_H1_CONTINUATION_INSTRUMENT_NOT_N4"
+        )
+    bars = _continuation_bars(frame)
+    return {
+        "schema": CONTINUATION_SCHEMA,
+        "instrument": instrument,
+        "stage5_data_commit": STAGE5_DATA_COMMIT,
+        "seed_sha256": SEED_SHA256[instrument],
+        "bars_sha256": _bars_sha256(bars),
+        "bars": bars,
+    }
+
+
+def load_continuation_open_h1(
+    payload: Any,
+    instrument: str,
+    seed: pd.DataFrame,
+) -> pd.DataFrame:
+    empty = pd.DataFrame(
+        index=pd.DatetimeIndex([], tz=MOSCOW, name="OpenTime"),
+        columns=OHLC,
+        dtype=object,
+    )
+    if payload is None:
+        return empty
+    expected_keys = {
+        "schema",
+        "instrument",
+        "stage5_data_commit",
+        "seed_sha256",
+        "bars_sha256",
+        "bars",
+    }
+    if (
+        not isinstance(payload, dict)
+        or set(payload) != expected_keys
+        or payload.get("schema") != CONTINUATION_SCHEMA
+        or payload.get("instrument") != instrument
+        or payload.get("stage5_data_commit") != STAGE5_DATA_COMMIT
+        or payload.get("seed_sha256") != SEED_SHA256.get(instrument)
+        or not isinstance(payload.get("bars"), list)
+        or payload.get("bars_sha256") != _bars_sha256(payload.get("bars", []))
+    ):
+        raise ProductionHistoryError(
+            "STAGE8_12_4_H1_CONTINUATION_INTEGRITY_INVALID"
+        )
+
+    bars = payload["bars"]
+    if not bars:
+        return empty
+
+    rows: list[tuple[pd.Timestamp, Decimal, Decimal, Decimal, Decimal]] = []
+    for bar in bars:
+        if not isinstance(bar, dict) or set(bar) != {
+            "timestamp", "open", "high", "low", "close"
+        }:
+            raise ProductionHistoryError(
+                "STAGE8_12_4_H1_CONTINUATION_INTEGRITY_INVALID"
+            )
+        try:
+            stamp = pd.Timestamp(bar["timestamp"])
+            if stamp.tzinfo is None:
+                raise ValueError
+            stamp = stamp.tz_convert(MOSCOW)
+        except Exception:
+            raise ProductionHistoryError(
+                "STAGE8_12_4_H1_CONTINUATION_INTEGRITY_INVALID"
+            ) from None
+        rows.append((
+            stamp,
+            _decimal(bar["open"], "STAGE8_12_4_H1_CONTINUATION_OHLC_INVALID"),
+            _decimal(bar["high"], "STAGE8_12_4_H1_CONTINUATION_OHLC_INVALID"),
+            _decimal(bar["low"], "STAGE8_12_4_H1_CONTINUATION_OHLC_INVALID"),
+            _decimal(bar["close"], "STAGE8_12_4_H1_CONTINUATION_OHLC_INVALID"),
+        ))
+    frame = _validated_frame(
+        rows, source_code="STAGE8_12_4_H1_CONTINUATION"
+    )
+    if seed.empty or frame.index.min() <= seed.index.max():
+        raise ProductionHistoryError(
+            "STAGE8_12_4_H1_CONTINUATION_OVERLAPS_SEED"
+        )
+    return frame
+
+
+def extend_rolling_open_h1(
+    seed: pd.DataFrame,
+    persisted_payload: Any,
+    live: pd.DataFrame,
+    instrument: str,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Extend Stage-5 + persisted FINAM H1 without ever rewriting prior bars."""
+    continuation = load_continuation_open_h1(
+        persisted_payload, instrument, seed
+    )
+    authority = (
+        seed.copy()
+        if continuation.empty
+        else pd.concat([seed, continuation])
+    )
+    if authority.index.has_duplicates or not authority.index.is_monotonic_increasing:
+        raise ProductionHistoryError(
+            "STAGE8_12_4_H1_CONTINUATION_ORDER_INVALID"
+        )
+
+    merged = _splice_authority_and_finam_open_h1(authority, live)
+    new_continuation = merged.loc[merged.index > seed.index.max()]
+    new_payload = continuation_payload_from_frame(
+        new_continuation, instrument
+    )
+
+    if persisted_payload is not None:
+        old_bars = persisted_payload.get("bars")
+        if (
+            not isinstance(old_bars, list)
+            or new_payload["bars"][: len(old_bars)] != old_bars
+        ):
+            raise ProductionHistoryError(
+                "STAGE8_12_4_H1_CONTINUATION_APPEND_ONLY_VIOLATION"
+            )
+    return merged, new_payload
 
 
 def close_index_for_frozen_t3(open_h1: pd.DataFrame) -> pd.DataFrame:
