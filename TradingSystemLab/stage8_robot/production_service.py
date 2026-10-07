@@ -64,7 +64,10 @@ from .production_runtime import (
     ProductionRuntimeError,
     RuntimeAction,
 )
-from .production_safety_gate import write_production_heartbeat
+from .production_safety_gate import (
+    evaluate_production_entry_gate,
+    write_production_heartbeat,
+)
 from .specification import ACTIVE_IDENTITY, INSTRUMENTS, PRODUCTION_SPECIFICATION_ID
 
 MODE = "STAGE8_12_4_REAL_PRODUCTION"
@@ -763,9 +766,22 @@ class ProductionService:
         self.cycle_count += 1
         self.consecutive_failures = 0
         self._write_heartbeat(healthy=True, unresolved=0, protection=protection)
-        self._plan_new_entries(
-            frames, realized_basis, available_cash, now
+        gate = evaluate_production_entry_gate(
+            runtime_root=self.root,
+            now=now,
+            expected_commit=self.accepted_commit,
+            expected_account_hash=self.account_hash,
+            execution_authorized=True,
         )
+        if gate.get("entry_gate_open") is True:
+            self._plan_new_entries(
+                frames, realized_basis, available_cash, now
+            )
+        else:
+            reasons = set(gate.get("reason_codes") or [])
+            if reasons != {"KILL_SWITCH_NOT_ARMED"}:
+                _fail("STAGE8_12_4_PRODUCTION_ENTRY_GATE_INVALID")
+            self.logger.info("PRODUCTION_NEW_ENTRIES_HALTED")
         self.logger.info(
             "PRODUCTION_CYCLE_PASS cycle=%d open_positions=%d",
             self.cycle_count, len(self.runtime.open_positions())
