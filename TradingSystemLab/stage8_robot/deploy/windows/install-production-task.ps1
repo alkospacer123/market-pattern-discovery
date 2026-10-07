@@ -20,14 +20,16 @@ $commit = (& git -C $Checkout rev-parse HEAD).Trim()
 if ($LASTEXITCODE -ne 0 -or $commit -notmatch '^[0-9a-f]{40}$') {
     throw "STAGE8_12_4_PRODUCTION_COMMIT_UNAVAILABLE"
 }
-if (& git -C $Checkout status --porcelain) {
+$dirty = & git -C $Checkout status --porcelain
+if ($LASTEXITCODE -ne 0 -or $dirty) {
     throw "STAGE8_12_4_PRODUCTION_CHECKOUT_NOT_CLEAN"
 }
 $dataCommit = (& git -C $Stage5DataRoot rev-parse HEAD).Trim()
 if ($LASTEXITCODE -ne 0 -or $dataCommit -cne $expectedStage5Commit) {
     throw "STAGE8_12_4_STAGE5_DATA_COMMIT_MISMATCH"
 }
-if (& git -C $Stage5DataRoot status --porcelain) {
+$dataDirty = & git -C $Stage5DataRoot status --porcelain
+if ($LASTEXITCODE -ne 0 -or $dataDirty) {
     throw "STAGE8_12_4_STAGE5_DATA_CHECKOUT_NOT_CLEAN"
 }
 
@@ -44,14 +46,18 @@ foreach ($dir in @("state","audit","logs","diagnostics","backups","safety")) {
     New-Item -ItemType Directory -Force -Path (Join-Path $RuntimeRoot $dir) | Out-Null
 }
 $script = Join-Path $Checkout "TradingSystemLab\stage8_robot\deploy\windows\run-production.ps1"
-$arguments = "-NoProfile -ExecutionPolicy RemoteSigned -File `"$script`" -Checkout `"$Checkout`" -RuntimeRoot `"$RuntimeRoot`" -Stage5DataRoot `"$Stage5DataRoot`" -Python `"$Python`""
+$arguments = "-NoProfile -ExecutionPolicy RemoteSigned -File `"$script`" -Checkout `"$Checkout`" -RuntimeRoot `"$RuntimeRoot`" -Stage5DataRoot `"$Stage5DataRoot`" -ExpectedCommit $commit -Python `"$Python`""
 $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument $arguments
 $trigger = New-ScheduledTaskTrigger -AtStartup
 $settings = New-ScheduledTaskSettingsSet -RestartCount 10 -RestartInterval (New-TimeSpan -Minutes 2) -ExecutionTimeLimit (New-TimeSpan -Days 3650) -MultipleInstances IgnoreNew
-$taskPrincipal = New-ScheduledTaskPrincipal -UserId ([Security.Principal.WindowsIdentity]::GetCurrent().Name) -LogonType Password -RunLevel Limited
+$currentName = [Security.Principal.WindowsIdentity]::GetCurrent().Name
+$taskPrincipal = New-ScheduledTaskPrincipal -UserId $currentName -LogonType Password -RunLevel Limited
 $task = New-ScheduledTask -Action $action -Trigger $trigger -Settings $settings -Principal $taskPrincipal -Description "Stage 8.12.4 production service; installation is disabled and activation is a later explicit package"
 
-$taskCredential = Get-Credential -UserName ([Security.Principal.WindowsIdentity]::GetCurrent().Name) -Message "Enter the password for the exact DPAPI trading-credential owner."
+$taskCredential = Get-Credential -UserName $currentName -Message "Enter the password for the exact DPAPI trading-credential owner."
+if ($taskCredential.UserName -cne $currentName) {
+    throw "STAGE8_12_4_PRODUCTION_TASK_PRINCIPAL_MISMATCH"
+}
 $passwordPtr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($taskCredential.Password)
 try {
     $password = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($passwordPtr)
