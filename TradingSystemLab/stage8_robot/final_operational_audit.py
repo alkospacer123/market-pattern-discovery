@@ -1137,6 +1137,51 @@ def audit(
               "real_order_count":0,
           },
           "STAGE_8_12_CURRENT_MACHINE_AUTHORITY_EXACT")
+
+    stage8124_authorization=(HERE/"production_authorization.py").read_text()
+    stage8124_live=(HERE/"live_execution.py").read_text()
+    stage8124_gate=(HERE/"production_safety_gate.py").read_text()
+    stage8124_wrapper=(HERE/"deploy/windows/run-stage8-12-4-foundation-validation.ps1").read_text()
+    check(all(token in stage8124_authorization for token in (
+              'AUTHORIZATION_SCHEMA = "stage8_12_4_production_authorization.v1"',
+              'OPERATOR_AUTHORIZATION_PHRASE = "AUTHORIZE_STAGE8_12_4_FULL_R15_PRODUCTION"',
+              'STAGE8_12_4_REPOSITORY_AUTHORIZATION_FORBIDDEN',
+              'STAGE8_12_4_EXPLICIT_OPERATOR_AUTHORIZATION_REQUIRED',
+              'os.link(temporary, destination)',
+              'STAGE8_12_4_AUTHORIZATION_BINDING_MISMATCH',
+              '4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F',
+              '9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1')),
+          "STAGE_8_12_4_DURABLE_AUTHORIZATION_EXACT")
+    authorization_calls={node.func.attr for node in ast.walk(ast.parse(stage8124_authorization))
+                         if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)}
+    check(not authorization_calls.intersection({"place_order","place_sltp_order","cancel_order","create_session"}),
+          "STAGE_8_12_4_AUTHORIZATION_NO_BROKER_CAPABILITY")
+    check(all(token in stage8124_live for token in (
+              "load_authorization(", "evaluate_production_entry_gate(",
+              "self.api.place_order(", "self.api.place_sltp_order(",
+              "STAGE8_12_4_PROTECTIVE_STOP_CANCEL_REQUIRES_FLAT",
+              "TIME_IN_FORCE_DAY")),
+          "STAGE_8_12_4_AUTHORIZED_TRANSPORT_GATES")
+    check("write_kill_switch" not in stage8124_live and "allow_arm" not in stage8124_live
+          and "Enable-ScheduledTask" not in stage8124_live and "Start-ScheduledTask" not in stage8124_live,
+          "STAGE_8_12_4_TRANSPORT_CANNOT_SELF_AUTHORIZE_OR_ACTIVATE")
+    check(all(token in stage8124_gate for token in (
+              'PRODUCTION_HEARTBEAT_SCHEMA = "stage8_12_4_production_heartbeat.v1"',
+              '"KILL_SWITCH_NOT_ARMED"', '"EXECUTION_NOT_AUTHORIZED"',
+              '"UNRESOLVED_PRODUCTION_INTENTS_PRESENT"',
+              '"PRODUCTION_PROTECTIVE_STOP_COVERAGE_INVALID"',
+              "active_protective_stop_count") ),
+          "STAGE_8_12_4_PRODUCTION_AWARE_ENTRY_GATE")
+    wrapper_lower=stage8124_wrapper.lower()
+    check(all(token in stage8124_wrapper for token in (
+              "STAGE8_12_4_AUTHORIZATION_MUST_BE_ABSENT",
+              'if ($kill.state -cne "HALTED")',
+              "STAGE8_12_4_FOUNDATION_VALIDATION_PASS=true",
+              "STAGE8_12_4_REAL_ORDER_COUNT=0"))
+          and not any(token in wrapper_lower for token in (
+              "get-tradingcredential","trading-credential-store","enable-scheduledtask",
+              "start-scheduledtask","allow_arm","finam_api_secret")),
+          "STAGE_8_12_4_FOUNDATION_VALIDATOR_ZERO_ORDER_BOUNDARY")
     check("OperationalState(root/\"state/readonly-supervisor.sqlite3\")" in precheck_tests
           and "StateStore(root/\"state/readonly-supervisor.sqlite3\")" not in precheck_tests
           and '== {"operational_state"}' in precheck_tests,
