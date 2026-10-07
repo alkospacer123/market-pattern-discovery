@@ -66,9 +66,9 @@ try {
 
     Push-Location $repo
     try {
-        & $Python -m TradingSystemLab.stage8_robot.audit_stage8 --check-only
+        & $Python "$repo\TradingSystemLab\stage8_robot\audit_stage8.py" --check-only
         if ($LASTEXITCODE -ne 0) { throw "STAGE8_12_3_STAGE8_AUDIT_FAILED" }
-        & $Python -m TradingSystemLab.stage8_robot.final_operational_audit --check-only
+        & $Python "$repo\TradingSystemLab\stage8_robot\final_operational_audit.py" --check-only
         if ($LASTEXITCODE -ne 0) { throw "STAGE8_12_3_FINAL_OPERATIONAL_AUDIT_FAILED" }
     } finally {
         Pop-Location

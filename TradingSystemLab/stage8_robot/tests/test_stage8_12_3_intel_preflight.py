@@ -374,6 +374,10 @@ def test_windows_wrapper_enforces_zero_order_preflight_boundaries():
     assert "w32tm /query /status" in source
     assert "w32tm /query /source" in source
     assert "Get-FileHash $ReportPath -Algorithm SHA256" in source
+    assert "$repo\\TradingSystemLab\\stage8_robot\\audit_stage8.py" in source
+    assert "$repo\\TradingSystemLab\\stage8_robot\\final_operational_audit.py" in source
+    assert "-m TradingSystemLab.stage8_robot.audit_stage8" not in source
+    assert "-m TradingSystemLab.stage8_robot.final_operational_audit" not in source
     assert "STAGE8_12_3_REAL_ORDER_COUNT=0" in source
     assert "STAGE8_12_3_EXECUTION_AUTHORIZED=false" in source
     assert not any(token in source for token in (
