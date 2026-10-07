@@ -92,7 +92,7 @@ class FinamAPI:
                 LOG.warning("FINAM HTTP status=%s request_id=%s path=%s",exc.code,request_id,path)
                 if exc.code==401 and auth and attempt==0:
                     self.__jwt=None; self.create_session(); headers["Authorization"]="Bearer "+self.__jwt; continue
-                order_post=method=="POST" and path.endswith("/orders")
+                order_post=method=="POST" and (path.endswith("/orders") or path.endswith("/sltp-orders"))
                 if order_post and exc.code==400:
                     raise FinamOrderRejected(400,request_id=request_id) from None
                 if exc.code==404 and not order_post: raise FinamNotFound(path) from None
@@ -104,7 +104,8 @@ class FinamAPI:
                 if exc.code>=500: raise FinamServerError(f"HTTP_{exc.code}:{path}") from None
                 raise FinamError(f"HTTP_{exc.code}:{path}") from None
             except (TimeoutError,URLError):
-                if method=="POST" and path.endswith("/orders"): raise FinamUncertainSubmission("RECONCILIATION_REQUIRED") from None
+                order_post=method=="POST" and (path.endswith("/orders") or path.endswith("/sltp-orders"))
+                if order_post: raise FinamUncertainSubmission("RECONCILIATION_REQUIRED") from None
                 if method=="GET" and attempt<retries: continue
                 raise FinamTimeout(path) from None
         raise AssertionError("unreachable")
@@ -117,6 +118,7 @@ class FinamAPI:
     def orders(self,account_id): return self._request("GET",f"/v1/accounts/{account_id}/orders").body
     def order(self,account_id,order_id): return self._request("GET",f"/v1/accounts/{account_id}/orders/{order_id}").body
     def place_order(self,account_id,payload): return self._request("POST",f"/v1/accounts/{account_id}/orders",payload,retries=0).body
+    def place_sltp_order(self,account_id,payload): return self._request("POST",f"/v1/accounts/{account_id}/sltp-orders",payload,retries=0).body
     def cancel_order(self,account_id,order_id): return self._request("DELETE",f"/v1/accounts/{account_id}/orders/{order_id}").body
     def assets(self): return self._request("GET","/v1/assets").body
     def assets_all_active(self):

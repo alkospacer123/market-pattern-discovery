@@ -54,7 +54,7 @@ The accepted normal reconciliation model is position-authoritative: after each p
 
 Attempts 1–6, their failures/OIR classifications, manual closes, and recovery evidence remain immutable historical provenance and are not reclassified by the attempt7 PASS.
 
-Stage 8.12 — **STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 NOT STARTED / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**. Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**. Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**.
+Stage 8.12 — **STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**. Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**. Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**.
 
 Canonical Stage 8.12.1 authority:
 
@@ -109,7 +109,21 @@ Canonical Stage 8.12.3 authority:
 - production Scheduled Task: `DisabledOrAbsent`;
 - Stage 8.12.4: `NOT_STARTED_NOT_AUTHORIZED`.
 
-Stage 8.12.3 is **COMPLETE / PASS / REAL ACCOUNT / ZERO ORDERS / STILL NOT AUTHORIZED**. The **NEXT GATE** is Stage 8.12.4 — Explicit FULL/R15 production authorization and activation. Stage 8.12.4 has **NOT STARTED** and remains **NOT AUTHORIZED**; only that gate may authorize continuous real production trading.
+Stage 8.12.3 is **COMPLETE / PASS / REAL ACCOUNT / ZERO ORDERS / STILL NOT AUTHORIZED**. Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is the **CURRENT GATE** and remains the only gate that may authorize continuous real production trading.
+
+Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is now **STARTED / IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**.
+
+Current Stage 8.12.4 implementation boundary:
+
+- durable production authorization is repository-external, create-only, and bound to the exact production commit, sanitized real-account hash, frozen production ID/identity, Stage 8.12.2 evidence SHA, and Stage 8.12.3 evidence SHA;
+- creating authorization requires a separate exact operator authorization phrase; importing code or possessing the trading credential never authorizes execution;
+- a production-aware heartbeat/reconciliation gate is separate from the historical REAL_READONLY flat-account gate, so reconciled frozen N4 positions do not silently disable FULL portfolio semantics;
+- the FINAM transport now has a dedicated SL/TP POST primitive and preserves no-retry / uncertain-submission behavior;
+- market entry requires durable authorization + `ARMED` + a fresh healthy production gate;
+- protective-stop installation/replacement and emergency exit remain risk-reducing operations after authorization and are not disabled merely because the kill switch subsequently HALTs new entries;
+- no authorization record has been created, the kill switch remains `HALTED`, the production Scheduled Task remains disabled, and no Stage 8.12.4 real order has been transmitted.
+
+Stage 8.12.4 activation remains pending exact-commit zero-order validation and a new explicit operator authorization bound to that exact accepted commit.
 
 ## Frozen Stage 7 production specification
 

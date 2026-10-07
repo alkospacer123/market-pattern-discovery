@@ -58,14 +58,15 @@ def _stage8_10_document_consistency(document):
         "The physical authorization used for attempt7 is consumed",
         "Current `execution_authorized = false`",
         "real-order transmission remains unauthorized",
-        "Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**",
+        "Stage 8.12 — **STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**",
         "Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**",
         "Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**",
         "2a15f4331afc1433dfbfd0464108e39e59d236f8",
         "4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F",
         "19/19 PASS", "25/25 PASS", "144/144 PASS", "48/48 PASS", "113/113 PASS", "111/111 PASS",
         "test-only real-order count: `0`",
-        "Stage 8.12.3 — Intel production preflight — is the **NEXT GATE**")
+        "Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**",
+        "Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is now **STARTED / IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**")
     exact=bool(handoff and all(" ".join(token.split()) in normalized_handoff for token in required))
     if handoff and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]",handoff,re.I):
         stale_next=True
@@ -484,7 +485,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           stage811_provenance.get("stage8_11_1_status") == "COMPLETE_PASS",
           stage811_provenance.get("stage8_11_2_status") == "COMPLETE_PASS",
           stage811_provenance.get("stage8_11_3_status") == "PRIOR_AUTHORIZATION_CONSUMED",
-          stage811_provenance.get("current_gate") == "STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT",
+          stage811_provenance.get("current_gate") == "STAGE_8_12_4_EXPLICIT_FULL_R15_PRODUCTION_AUTHORIZATION",
           stage811_provenance.get("latest_physical_precheck_result") == "STAGE8_11_PRECHECK_ONLY_PASS",
           physical.get("accepted_code_commit") == "9be31f1723877a9c542f89027052570425f7e976",
           physical.get("report_sha256") == "7171B7CD0098FF51159DC05C46C0326BF7F412A2D9EA0CBB3F9BDAFBE7745455",
@@ -526,7 +527,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           stage811_provenance.get("order_endpoint_call_count") == 2,
           stage811_provenance.get("real_order_count") == 2,
           stage811_provenance.get("production_kill_switch_final_state") == "HALTED",
-          stage811_provenance.get("stage8_12_status") == "STARTED_CODE_ONLY_NOT_AUTHORIZED",
+          stage811_provenance.get("stage8_12_status") == "STAGE_8_12_4_STARTED_IMPLEMENTATION_NOT_AUTHORIZED",
           stage811_provenance.get("current_precheck_code_authority") == {
               "pull_request":357,"base":"ea090d99266d5dae808c03024f327c41fb8b9170",
               "head":"60e3f72dae3a08eeb3ba8c756861efbb4c4f28e7",
@@ -542,43 +543,99 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           stage811_provenance.get("physical_wrapper_run") is True,
           len(stage811_provenance.get("historical_failed_prechecks",[])) == 2,
     )), "STAGE_8_11_LIFECYCLE_EVIDENCE_CLOSEOUT")
-    check(stage812_provenance == {
-        "status":"STAGE_8_12_STARTED_CODE_ONLY_NOT_AUTHORIZED",
+    stage812_expected = {
+        "status":"STAGE_8_12_STARTED_STAGE8_12_4_IMPLEMENTATION_NOT_AUTHORIZED",
         "stage8_12_1_status":"STAGE_8_12_1_PRODUCTION_RUNTIME_ASSEMBLY_COMPLETE_PASS",
         "accepted_code_commit":"3f2d68ca0c327271fb543a0b63c0e8f842c855bd",
         "external_test_only_evidence_sha256":"F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C",
-        "external_test_only_evidence_tracked_in_git":False,
-        "structural_zero_order_boundary":"PASS",
-        "runtime_n4_capacity_pytest":{"passed":25,"failed":0},
-        "frozen_stage7_risk_margin_regression":{"passed":166,"failed":0},
-        "stage8_11_position_authority_regression":{"passed":113,"failed":0},
-        "independent_stage8_audit":"PASS",
-        "final_operational_audit":"PASS",
-        "test_only_real_order_count":0,
-        "real_order_endpoint_called":False,
+        "stage8_12_2_status":"STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT_COMPLETE_PASS",
+        "stage8_12_2_accepted_code_commit":"2a15f4331afc1433dfbfd0464108e39e59d236f8",
+        "stage8_12_2_external_test_only_evidence_sha256":"4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F",
+        "stage8_12_3_status":"STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT_COMPLETE_PASS",
+        "stage8_12_3_accepted_code_commit":"0a40e3bf7a97f0c011d3a6f5216d9f61dd52ef30",
+        "stage8_12_3_external_evidence_sha256":"9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1",
+        "stage8_12_3_physical_result":"STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT_PASS",
+        "stage8_12_3_focused_zero_order_regression":{"passed":205,"failed":0},
+        "stage8_12_3_order_endpoint_call_count":0,
+        "stage8_12_3_real_order_count":0,
+        "stage8_12_3_execution_authorized":False,
+        "stage8_12_3_production_kill_switch_final_state":"HALTED",
+        "stage8_12_4_status":"STARTED_IMPLEMENTATION_NOT_AUTHORIZED",
+        "next_gate":"STAGE_8_12_4_EXPLICIT_FULL_R15_PRODUCTION_AUTHORIZATION",
         "execution_authorized":False,
         "live_trading_authorized":False,
         "real_order_transmission_authorized":False,
         "production_kill_switch_final_state":"HALTED",
         "production_scheduled_task":"Disabled",
-        "mode":"CODE_ONLY_TEST_ONLY",
-        "stage8_12_2_status":"STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT_COMPLETE_PASS",
-        "stage8_12_3_status":"NOT_STARTED",
-        "stage8_12_4_status":"NOT_STARTED_NOT_AUTHORIZED",
-        "next_gate":"STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT",
-        "n4_simultaneous_positive_capacity_calculation":"REQUIRED_STAGE8_12_3",
-        "stage8_12_2_accepted_code_commit":"2a15f4331afc1433dfbfd0464108e39e59d236f8",
-        "stage8_12_2_external_test_only_evidence_sha256":"4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F",
-        "stage8_12_2_external_test_only_evidence_tracked_in_git":False,
-        "stage8_12_2_conformance_pytest":{"passed":19,"failed":0},
-        "stage8_12_2_runtime_regression":{"passed":25,"failed":0},
-        "stage8_12_2_margin_regression":{"passed":144,"failed":0},
-        "stage8_12_2_safety_regression":{"passed":48,"failed":0},
-        "stage8_12_2_position_reconciliation_regression":{"passed":113,"failed":0},
-        "stage8_12_2_frozen_core_conformance":{"passed":111,"failed":0},
-        "stage8_12_2_independent_stage8_audit":{"status":"PASS","checks":262},
-        "stage8_12_2_final_operational_audit":{"status":"PASS","checks":149}
-    }, "STAGE_8_12_2_MACHINE_AUTHORITY_EXACT")
+        "mode":"STAGE8_12_4_IMPLEMENTATION_CODE_ONLY_NOT_AUTHORIZED",
+    }
+    check(all(stage812_provenance.get(key) == value for key,value in stage812_expected.items())
+          and stage812_provenance.get("stage8_12_4_authorization_foundation") == {
+              "status":"CODE_READY_PENDING_ZERO_ORDER_VALIDATION",
+              "durable_authorization_schema":"stage8_12_4_production_authorization.v1",
+              "durable_authorization_repository_external":True,
+              "explicit_operator_phrase_required":True,
+              "exact_commit_binding_required":True,
+              "exact_account_hash_binding_required":True,
+              "stage8_12_2_evidence_binding":"4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F",
+              "stage8_12_3_evidence_binding":"9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1",
+              "production_heartbeat_schema":"stage8_12_4_production_heartbeat.v1",
+              "finam_sltp_endpoint":"POST /v1/accounts/{account_id}/sltp-orders",
+              "entry_requires_armed_production_gate":True,
+              "protection_and_emergency_exit_remain_available_after_halt":True,
+              "automatic_authorization_creation":False,
+              "automatic_kill_switch_arm":False,
+              "production_task_enabled":False,
+              "production_task_started":False,
+              "real_order_count":0,
+          },
+          "STAGE_8_12_CURRENT_MACHINE_AUTHORITY_EXACT")
+
+    stage8124_authorization=(HERE/"production_authorization.py").read_text()
+    stage8124_live=(HERE/"live_execution.py").read_text()
+    stage8124_gate=(HERE/"production_safety_gate.py").read_text()
+    stage8124_wrapper=(HERE/"deploy/windows/run-stage8-12-4-foundation-validation.ps1").read_text()
+    check(all(token in stage8124_authorization for token in (
+              'AUTHORIZATION_SCHEMA = "stage8_12_4_production_authorization.v1"',
+              'OPERATOR_AUTHORIZATION_PHRASE = "AUTHORIZE_STAGE8_12_4_FULL_R15_PRODUCTION"',
+              'STAGE8_12_4_REPOSITORY_AUTHORIZATION_FORBIDDEN',
+              'STAGE8_12_4_EXPLICIT_OPERATOR_AUTHORIZATION_REQUIRED',
+              'os.link(temporary, destination)',
+              'STAGE8_12_4_AUTHORIZATION_BINDING_MISMATCH',
+              '4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F',
+              '9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1')),
+          "STAGE_8_12_4_DURABLE_AUTHORIZATION_EXACT")
+    authorization_calls={node.func.attr for node in ast.walk(ast.parse(stage8124_authorization))
+                         if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)}
+    check(not authorization_calls.intersection({"place_order","place_sltp_order","cancel_order","create_session"}),
+          "STAGE_8_12_4_AUTHORIZATION_NO_BROKER_CAPABILITY")
+    check(all(token in stage8124_live for token in (
+              "load_authorization(", "evaluate_production_entry_gate(",
+              "self.api.place_order(", "self.api.place_sltp_order(",
+              "STAGE8_12_4_PROTECTIVE_STOP_CANCEL_REQUIRES_FLAT",
+              "TIME_IN_FORCE_DAY")),
+          "STAGE_8_12_4_AUTHORIZED_TRANSPORT_GATES")
+    check("write_kill_switch" not in stage8124_live and "allow_arm" not in stage8124_live
+          and "Enable-ScheduledTask" not in stage8124_live and "Start-ScheduledTask" not in stage8124_live,
+          "STAGE_8_12_4_TRANSPORT_CANNOT_SELF_AUTHORIZE_OR_ACTIVATE")
+    check(all(token in stage8124_gate for token in (
+              'PRODUCTION_HEARTBEAT_SCHEMA = "stage8_12_4_production_heartbeat.v1"',
+              '"KILL_SWITCH_NOT_ARMED"', '"EXECUTION_NOT_AUTHORIZED"',
+              '"UNRESOLVED_PRODUCTION_INTENTS_PRESENT"',
+              '"PRODUCTION_POSITION_PROTECTION_INVALID"',
+              "position_protection", "expected_position_quantity", "covered_quantity",
+              "active_stop_order_ids") ),
+          "STAGE_8_12_4_PRODUCTION_AWARE_ENTRY_GATE")
+    wrapper_lower=stage8124_wrapper.lower()
+    check(all(token in stage8124_wrapper for token in (
+              "STAGE8_12_4_AUTHORIZATION_MUST_BE_ABSENT",
+              'if ($kill.state -cne "HALTED")',
+              "STAGE8_12_4_FOUNDATION_VALIDATION_PASS=true",
+              "STAGE8_12_4_REAL_ORDER_COUNT=0"))
+          and not any(token in wrapper_lower for token in (
+              "get-tradingcredential","trading-credential-store","enable-scheduledtask",
+              "start-scheduledtask","allow_arm","finam_api_secret")),
+          "STAGE_8_12_4_FOUNDATION_VALIDATOR_ZERO_ORDER_BOUNDARY")
     check("OperationalState(root/\"state/readonly-supervisor.sqlite3\")" in precheck_tests
           and "StateStore(root/\"state/readonly-supervisor.sqlite3\")" not in precheck_tests
           and '== {"operational_state"}' in precheck_tests,
@@ -898,15 +955,16 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
               and "The physical authorization used for attempt7 is consumed" in handoff
               and "Current `execution_authorized = false`" in handoff
               for handoff in current_handoffs),"STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED")
-    check(all("Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**" in handoff
-              and "Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**" in handoff
-              and "Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**" in handoff
-              and "2a15f4331afc1433dfbfd0464108e39e59d236f8" in handoff
-              and "4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F" in handoff
-              and "Stage 8.12.3 — Intel production preflight — is the **NEXT GATE**" in handoff
-              and "test-only real-order count: `0`" in handoff
-              and "current `execution_authorized = false`" in handoff
-              for handoff in current_handoffs),"STAGE_8_12_2_CURRENT_HANDOFF")
+    check(all("Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**" in handoff
+              and "0a40e3bf7a97f0c011d3a6f5216d9f61dd52ef30" in handoff
+              and "9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1" in handoff
+              and "205/205 PASS" in handoff
+              and "Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is now **STARTED / IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**" in handoff
+              and "no authorization record has been created" in handoff.lower()
+              and "kill switch remains `HALTED`" in handoff
+              and "production Scheduled Task remains disabled" in handoff
+              for handoff in current_handoffs),
+          "STAGE_8_12_4_CURRENT_HANDOFF")
     forbidden_claims=(r"(?:broker acceptance (?:is |was )?validated|order (?:was )?accepted|FINAM server accepted an order)",
                       r"(?<!not )real-order (?:transmission|capability) is authorized",)
     check(not any(re.search(pattern,closeout_docs,re.I) for pattern in forbidden_claims),
@@ -1275,7 +1333,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and record.get("physical_result")=="OPERATOR_INTERVENTION_REQUIRED"
           and record.get("order_endpoint_call_count")==1 and record.get("retry_occurred") is False,
           "STAGE8_11_FAILED_ATTEMPT_PROVENANCE")
-    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"real_order_transmission_authorized":False,"stage8_status":completed_status,"margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED","stage8_11_0_status":"COMPLETE","stage8_11_1_status":"COMPLETE_PASS","stage8_11_2_status":"COMPLETE_PASS","stage8_11_3_status":"PRIOR_AUTHORIZATION_CONSUMED","stage8_11_current_gate":"STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT","stage8_11_latest_physical_precheck_result":"STAGE8_11_PRECHECK_ONLY_PASS","stage8_11_physical_precheck_real_order_count":0,"stage8_11_latest_physical_acceptance_result":"PASS","stage8_11_physical_acceptance_order_endpoint_call_count":2,"stage8_11_real_order_count":2,"stage8_9_status":stage8_9_status,"stage8_9_reason":stage8_9_reason,"stage8_9_accepted_code_commit":stage8_9_code,"stage8_9_diagnostic_report_sha256":stage8_9_report,"stage8_9_physical_summary_sha256":stage8_9_summary,"stage8_9_8_status":stage8_9_8_status,"stage8_9_9_status":"PHYSICAL_REVALIDATION_COMPLETE","stage8_9_10_status":"COMPLETE","stage8_9_sizing_case_count":8,"stage8_9_positive_capacity_case_count":4,"stage8_9_zero_capacity_case_count":4,"stage8_9_positive_batch_reservation_count":1,"stage8_10_status":"STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE","stage8_10_1_status":stage8_10_1_status,"stage8_10_2_status":stage8_10_2_status,"stage8_10_2_accepted_code_commit":stage8_10_2_code,"stage8_10_2_external_evidence_sha256":stage8_10_2_evidence,"stage8_10_2_physical_result":stage8_10_2_result,"physical_provisioning_performed":True,"trading_token_provisioned":True,"trading_token_used":True,"finam_authentication_performed":True,"order_count":0,"order_endpoint_called":False,"stage8_10_3_status":stage8_10_3_status,"stage8_10_3_accepted_code_commit":"428d285336380726a3ce00487e2c85eb755e2dd9","stage8_10_3_external_evidence_sha256":"0DA102E61AB06FFA6A508CC64203FEA3F56BBA3016891A887688A4E300E11BB6","stage8_10_3_physical_result":"STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_PASS","physical_validation_performed":True,"local_readonly_trading_account_binding_validated":True,"trading_session_created":True,"expected_account_enumerated":True,"expected_account_occurrence_count":1,"enumerated_account_count":1,"stage8_10_4_status":stage8_10_4_status,"stage8_10_4_accepted_code_commit":"44858bacc2902591e11adc85cfa5f79e2b62dd5b","stage8_10_4_external_evidence_sha256":"E4AEDC153F89E000EC034E5F33A6EF7BECB5DA29BA253BC0B28B2AC3D0C26C5D","stage8_10_4_physical_result":"STAGE_8_10_4_TOKEN_PERMISSION_BOUNDARY_PASS","stage8_10_4_physical_validation_performed":True,"readonly_token_readonly_observed":True,"trading_token_readonly_false_observed":True,"token_permission_boundary_validated":True,"order_path_validation_performed":False,"stage8_10_5_status":stage8_10_5_status,"stage8_10_5_accepted_code_commit":"ba284e95954c8473c0e77a95172117bc5cefaf65","stage8_10_5_external_evidence_sha256":"D878309E22FA49BFFA9EE9B37200C3FE207BF77DB5C29D6DE97010F1FFCE904A","stage8_10_5_physical_result":"STAGE_8_10_5_OFFLINE_ORDER_PATH_DRY_VALIDATION_PASS","stage8_10_5_physical_validation_performed":True,"offline_dry_validation_performed":True,"order_path_dry_validation_validated":True,"stage8_10_5_external_network_calls":0,"real_order_endpoint_called":False,"real_order_count":0,"stage8_10_6_status":safety_status,"stage8_10_6_accepted_code_commit":safety_gate["accepted_code_commit"],"stage8_10_6_external_evidence_sha256":safety_gate["external_evidence_sha256"],"stage8_10_6_physical_result":safety_gate["physical_result"],"stage8_10_6_physical_validation_performed":True,"production_kill_switch_initialized":True,"production_kill_switch_halted_observed":True,"production_kill_switch_final_state":"HALTED","production_kill_switch_valid":True,"synthetic_safety_matrix_validated":True,"synthetic_case_count":25,"synthetic_open_case_count":1,"synthetic_blocked_case_count":24,"emergency_halt_validated":True,"execution_authorized":False,"stage8_10_6_external_network_calls":0,"stage8_10_7_status":token_status,"stage8_10_7_accepted_code_commit":token_acceptance["accepted_code_commit"],"stage8_10_7_external_evidence_sha256":token_acceptance["external_evidence_sha256"],"stage8_10_7_physical_result":token_acceptance["physical_result"],"stage8_10_7_physical_validation_performed":True,"stage8_10_7_trading_dpapi_current_user_validated":True,"stage8_10_7_local_readonly_trading_account_binding_validated":True,"stage8_10_7_production_kill_switch_pre_halted_observed":True,"stage8_10_7_trading_session_created":True,"stage8_10_7_expected_account_enumerated":True,"stage8_10_7_expected_account_occurrence_count":1,"stage8_10_7_trading_token_readonly_false_observed":True,"stage8_10_7_trading_token_write_boundary_confirmed":True,"stage8_10_7_remote_call_scope":"SESSION_CREATE_AND_DETAILS_ONLY","stage8_10_7_production_kill_switch_post_halted_observed":True,"stage8_10_7_trading_token_used":True,"stage8_10_7_readonly_token_used_for_remote_auth":False,"stage8_10_7_finam_authentication_performed":True,"stage8_10_7_order_endpoint_called":False,"stage8_10_7_order_count":0,"stage8_10_8_status":lifecycle_closeout.get("status"),"stage8_10_complete":True,"stage8_10_completed_gate_count":7,"stage8_10_production_kill_switch_final_state":"HALTED","stage8_10_execution_authorized":False,"stage8_10_order_endpoint_called":False,"stage8_10_order_count":0,"stage8_10_live_trading_authorized":False,"stage8_10_real_order_transmission_authorized":False,"stage8_11_status":"STAGE_8_11_CONTROLLED_REAL_EXECUTION_ACCEPTANCE_COMPLETE_PASS","stage8_12_status":"STARTED_CODE_ONLY_NOT_AUTHORIZED","stage8_12_1_status":"STAGE_8_12_1_PRODUCTION_RUNTIME_ASSEMBLY_COMPLETE_PASS","stage8_12_1_accepted_code_commit":"3f2d68ca0c327271fb543a0b63c0e8f842c855bd","stage8_12_1_external_evidence_sha256":"F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C","stage8_12_2_status":"STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT_COMPLETE_PASS","stage8_12_2_accepted_code_commit":"2a15f4331afc1433dfbfd0464108e39e59d236f8","stage8_12_2_external_evidence_sha256":"4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F","stage8_12_next_gate":"STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT","stage8_9_complete":True,"stage8_9_physical_validation_performed":True}
+    result={"status":"PASS" if not errors else "FAIL","checks":checks,"errors":errors,"production_specification_id":spec.production_id,"live_trading_activated":False,"real_order_transmission_authorized":False,"stage8_status":completed_status,"margin_status":"STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY","deployment_status":"STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED","stage8_11_0_status":"COMPLETE","stage8_11_1_status":"COMPLETE_PASS","stage8_11_2_status":"COMPLETE_PASS","stage8_11_3_status":"PRIOR_AUTHORIZATION_CONSUMED","stage8_11_current_gate":"STAGE_8_12_4_EXPLICIT_FULL_R15_PRODUCTION_AUTHORIZATION","stage8_11_latest_physical_precheck_result":"STAGE8_11_PRECHECK_ONLY_PASS","stage8_11_physical_precheck_real_order_count":0,"stage8_11_latest_physical_acceptance_result":"PASS","stage8_11_physical_acceptance_order_endpoint_call_count":2,"stage8_11_real_order_count":2,"stage8_9_status":stage8_9_status,"stage8_9_reason":stage8_9_reason,"stage8_9_accepted_code_commit":stage8_9_code,"stage8_9_diagnostic_report_sha256":stage8_9_report,"stage8_9_physical_summary_sha256":stage8_9_summary,"stage8_9_8_status":stage8_9_8_status,"stage8_9_9_status":"PHYSICAL_REVALIDATION_COMPLETE","stage8_9_10_status":"COMPLETE","stage8_9_sizing_case_count":8,"stage8_9_positive_capacity_case_count":4,"stage8_9_zero_capacity_case_count":4,"stage8_9_positive_batch_reservation_count":1,"stage8_10_status":"STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE","stage8_10_1_status":stage8_10_1_status,"stage8_10_2_status":stage8_10_2_status,"stage8_10_2_accepted_code_commit":stage8_10_2_code,"stage8_10_2_external_evidence_sha256":stage8_10_2_evidence,"stage8_10_2_physical_result":stage8_10_2_result,"physical_provisioning_performed":True,"trading_token_provisioned":True,"trading_token_used":True,"finam_authentication_performed":True,"order_count":0,"order_endpoint_called":False,"stage8_10_3_status":stage8_10_3_status,"stage8_10_3_accepted_code_commit":"428d285336380726a3ce00487e2c85eb755e2dd9","stage8_10_3_external_evidence_sha256":"0DA102E61AB06FFA6A508CC64203FEA3F56BBA3016891A887688A4E300E11BB6","stage8_10_3_physical_result":"STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_PASS","physical_validation_performed":True,"local_readonly_trading_account_binding_validated":True,"trading_session_created":True,"expected_account_enumerated":True,"expected_account_occurrence_count":1,"enumerated_account_count":1,"stage8_10_4_status":stage8_10_4_status,"stage8_10_4_accepted_code_commit":"44858bacc2902591e11adc85cfa5f79e2b62dd5b","stage8_10_4_external_evidence_sha256":"E4AEDC153F89E000EC034E5F33A6EF7BECB5DA29BA253BC0B28B2AC3D0C26C5D","stage8_10_4_physical_result":"STAGE_8_10_4_TOKEN_PERMISSION_BOUNDARY_PASS","stage8_10_4_physical_validation_performed":True,"readonly_token_readonly_observed":True,"trading_token_readonly_false_observed":True,"token_permission_boundary_validated":True,"order_path_validation_performed":False,"stage8_10_5_status":stage8_10_5_status,"stage8_10_5_accepted_code_commit":"ba284e95954c8473c0e77a95172117bc5cefaf65","stage8_10_5_external_evidence_sha256":"D878309E22FA49BFFA9EE9B37200C3FE207BF77DB5C29D6DE97010F1FFCE904A","stage8_10_5_physical_result":"STAGE_8_10_5_OFFLINE_ORDER_PATH_DRY_VALIDATION_PASS","stage8_10_5_physical_validation_performed":True,"offline_dry_validation_performed":True,"order_path_dry_validation_validated":True,"stage8_10_5_external_network_calls":0,"real_order_endpoint_called":False,"real_order_count":0,"stage8_10_6_status":safety_status,"stage8_10_6_accepted_code_commit":safety_gate["accepted_code_commit"],"stage8_10_6_external_evidence_sha256":safety_gate["external_evidence_sha256"],"stage8_10_6_physical_result":safety_gate["physical_result"],"stage8_10_6_physical_validation_performed":True,"production_kill_switch_initialized":True,"production_kill_switch_halted_observed":True,"production_kill_switch_final_state":"HALTED","production_kill_switch_valid":True,"synthetic_safety_matrix_validated":True,"synthetic_case_count":25,"synthetic_open_case_count":1,"synthetic_blocked_case_count":24,"emergency_halt_validated":True,"execution_authorized":False,"stage8_10_6_external_network_calls":0,"stage8_10_7_status":token_status,"stage8_10_7_accepted_code_commit":token_acceptance["accepted_code_commit"],"stage8_10_7_external_evidence_sha256":token_acceptance["external_evidence_sha256"],"stage8_10_7_physical_result":token_acceptance["physical_result"],"stage8_10_7_physical_validation_performed":True,"stage8_10_7_trading_dpapi_current_user_validated":True,"stage8_10_7_local_readonly_trading_account_binding_validated":True,"stage8_10_7_production_kill_switch_pre_halted_observed":True,"stage8_10_7_trading_session_created":True,"stage8_10_7_expected_account_enumerated":True,"stage8_10_7_expected_account_occurrence_count":1,"stage8_10_7_trading_token_readonly_false_observed":True,"stage8_10_7_trading_token_write_boundary_confirmed":True,"stage8_10_7_remote_call_scope":"SESSION_CREATE_AND_DETAILS_ONLY","stage8_10_7_production_kill_switch_post_halted_observed":True,"stage8_10_7_trading_token_used":True,"stage8_10_7_readonly_token_used_for_remote_auth":False,"stage8_10_7_finam_authentication_performed":True,"stage8_10_7_order_endpoint_called":False,"stage8_10_7_order_count":0,"stage8_10_8_status":lifecycle_closeout.get("status"),"stage8_10_complete":True,"stage8_10_completed_gate_count":7,"stage8_10_production_kill_switch_final_state":"HALTED","stage8_10_execution_authorized":False,"stage8_10_order_endpoint_called":False,"stage8_10_order_count":0,"stage8_10_live_trading_authorized":False,"stage8_10_real_order_transmission_authorized":False,"stage8_11_status":"STAGE_8_11_CONTROLLED_REAL_EXECUTION_ACCEPTANCE_COMPLETE_PASS","stage8_12_status":"STAGE_8_12_STARTED_STAGE8_12_4_IMPLEMENTATION_NOT_AUTHORIZED","stage8_12_1_status":"STAGE_8_12_1_PRODUCTION_RUNTIME_ASSEMBLY_COMPLETE_PASS","stage8_12_1_accepted_code_commit":"3f2d68ca0c327271fb543a0b63c0e8f842c855bd","stage8_12_1_external_evidence_sha256":"F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C","stage8_12_2_status":"STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT_COMPLETE_PASS","stage8_12_2_accepted_code_commit":"2a15f4331afc1433dfbfd0464108e39e59d236f8","stage8_12_2_external_evidence_sha256":"4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F","stage8_12_next_gate":"STAGE_8_12_4_EXPLICIT_FULL_R15_PRODUCTION_AUTHORIZATION","stage8_9_complete":True,"stage8_9_physical_validation_performed":True}
     if write_result: (HERE/"independent_audit_result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
     return result
 if __name__=="__main__":

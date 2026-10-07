@@ -56,7 +56,7 @@ The accepted normal reconciliation model is position-authoritative: after each p
 
 Attempts 1–6, their failures/OIR classifications, manual closes, and recovery evidence remain immutable historical provenance and are not reclassified by the attempt7 PASS.
 
-Stage 8.12 — **STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 NOT STARTED / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**. Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**. Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**.
+Stage 8.12 — **STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**. Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**. Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**.
 
 Canonical Stage 8.12.1 authority:
 
@@ -91,7 +91,7 @@ Canonical Stage 8.12.2 authority:
 - production kill switch: `HALTED`;
 - production Scheduled Task: `Disabled`.
 
-Stage 8.12.1 assembled the production runtime without adding FINAM order transport. Stage 8.12.2 completed the required TEST/AUDIT-only conformance with zero real orders. Stage 8.12.3 Intel production preflight is now **COMPLETE / PASS** on accepted commit `0a40e3bf7a97f0c011d3a6f5216d9f61dd52ef30` with external evidence SHA-256 `9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1`, zero real order-endpoint calls, zero real orders, `execution_authorized=false`, and kill switch `HALTED`. Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is the **NEXT GATE** and remains **NOT STARTED / NOT AUTHORIZED**.
+Stage 8.12.1 assembled the production runtime without adding FINAM order transport. Stage 8.12.2 completed the required TEST/AUDIT-only conformance with zero real orders. Stage 8.12.3 Intel production preflight is now **COMPLETE / PASS** on accepted commit `0a40e3bf7a97f0c011d3a6f5216d9f61dd52ef30` with external evidence SHA-256 `9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1`, zero real order-endpoint calls, zero real orders, `execution_authorized=false`, and kill switch `HALTED`. Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is now **STARTED / IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED** and is the **CURRENT GATE**.
 
 ## Governing research rule
 
@@ -464,7 +464,21 @@ Canonical Stage 8.12.3 closeout evidence:
 
 ### Stage 8.12.4 — Explicit FULL/R15 production authorization and activation
 
+**STARTED / IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED.**
+
 **ONLY THIS GATE MAY AUTHORIZE CONTINUOUS REAL PRODUCTION TRADING.**
+
+Implementation started without activating execution. Current code boundary:
+
+- durable authorization is repository-external, create-only, and exact-bound to production commit, sanitized account hash, frozen Stage 7 production ID/identity, and the accepted Stage 8.12.2 / Stage 8.12.3 evidence hashes;
+- creating authorization requires a separate exact operator authorization phrase;
+- production entry uses a production-aware heartbeat/reconciliation gate so legitimate frozen N4 positions do not become false safety faults;
+- FINAM order transport includes market entry, dedicated SL/TP submission through `POST /v1/accounts/{account_id}/sltp-orders`, and emergency market exit;
+- entry requires durable authorization plus `ARMED` and a fresh healthy production gate;
+- protective-stop and emergency-exit transmission remain risk-reducing operations after authorization even if the kill switch later HALTs new entries;
+- no authorization record has been created, the kill switch remains `HALTED`, the production task remains disabled, and Stage 8.12.4 real-order count remains `0`.
+
+The implementation must pass exact-commit zero-order validation before the separate final operator authorization and activation action.
 
 Requires a new explicit operator authorization bound to:
 
@@ -517,6 +531,6 @@ Do not:
 
 ## Current roadmap boundary
 
-**NEXT GATE: Stage 8.12.4 — Explicit FULL/R15 production authorization and activation.**
+**CURRENT GATE: Stage 8.12.4 — Explicit FULL/R15 production authorization and activation.**
 
-Stage 8.12 is **STARTED / NOT YET AUTHORIZED**. Stage 8.12.1 is COMPLETE / PASS. Stage 8.12.2 is COMPLETE / PASS / TEST-AUDIT ONLY / ZERO REAL ORDERS. Stage 8.12.3 is COMPLETE / PASS / REAL ACCOUNT / ZERO ORDERS / STILL NOT AUTHORIZED. Stage 8.12.4 remains **NOT STARTED / NOT AUTHORIZED**. The production kill switch remains `HALTED`, the production Scheduled Task remains disabled, and `execution_authorized = false`. Only Stage 8.12.4 may authorize continuous real production trading.
+Stage 8.12 is **STARTED / NOT YET AUTHORIZED**. Stage 8.12.1 is COMPLETE / PASS. Stage 8.12.2 is COMPLETE / PASS / TEST-AUDIT ONLY / ZERO REAL ORDERS. Stage 8.12.3 is COMPLETE / PASS / REAL ACCOUNT / ZERO ORDERS / STILL NOT AUTHORIZED. Stage 8.12.4 is **STARTED / IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**. The durable production authorization has not been created, the production kill switch remains `HALTED`, the production Scheduled Task remains disabled, and `execution_authorized = false`. Only a later explicit Stage 8.12.4 operator authorization bound to the exact accepted implementation commit may authorize continuous real production trading.
