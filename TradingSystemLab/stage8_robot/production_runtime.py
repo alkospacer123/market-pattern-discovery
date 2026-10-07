@@ -310,6 +310,10 @@ class ProductionRuntime:
             self.store.put(evaluated_key, timestamp.isoformat())
         return signal
 
+    def discard_pending_signal(self, signal: SignalIntent) -> None:
+        """Consume a genuine but operationally ineligible signal without an order."""
+        self._consume_pending_signal(signal)
+
     def consume_entry_bar(self, instrument: str, timestamp: Any) -> None:
         """Mark a completed H1 bar ineligible for any later retroactive entry."""
         if instrument not in INSTRUMENTS:
