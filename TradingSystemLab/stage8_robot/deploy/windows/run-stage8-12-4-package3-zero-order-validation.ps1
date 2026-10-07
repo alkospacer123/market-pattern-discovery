@@ -72,14 +72,17 @@ if ($report.StartsWith($repo, [StringComparison]::OrdinalIgnoreCase)) { throw "S
 
 $head = (& git -C $repo rev-parse HEAD).Trim()
 if ($LASTEXITCODE -ne 0 -or $head -cne $AcceptedCommit) { throw "STAGE8_12_4_PACKAGE3_ACCEPTED_COMMIT_MISMATCH" }
-if (& git -C $repo status --porcelain) { throw "STAGE8_12_4_PACKAGE3_REPOSITORY_NOT_CLEAN" }
+$repoStatus = & git -C $repo status --porcelain
+if ($LASTEXITCODE -ne 0 -or $repoStatus) { throw "STAGE8_12_4_PACKAGE3_REPOSITORY_NOT_CLEAN" }
 $dataHead = (& git -C $stage5 rev-parse HEAD).Trim()
 if ($LASTEXITCODE -ne 0 -or $dataHead -cne $stage5Commit) { throw "STAGE8_12_4_PACKAGE3_STAGE5_COMMIT_MISMATCH" }
-if (& git -C $stage5 status --porcelain) { throw "STAGE8_12_4_PACKAGE3_STAGE5_NOT_CLEAN" }
+$stage5Status = & git -C $stage5 status --porcelain
+if ($LASTEXITCODE -ne 0 -or $stage5Status) { throw "STAGE8_12_4_PACKAGE3_STAGE5_NOT_CLEAN" }
 
 $readonlyState = Require-ReadonlyDisabledOrAbsent
 $productionTask = Require-ProductionTaskDisabledExact
 $kill = Require-InactiveSafety
+Remove-Item $report -Force -ErrorAction SilentlyContinue
 
 $timeService = Get-Service -Name W32Time -ErrorAction Stop
 if ($timeService.Status -ne "Running") { throw "STAGE8_12_4_PACKAGE3_TIME_SERVICE_INVALID" }
@@ -140,7 +143,7 @@ if ([string]$heartbeat.account_hash -notmatch '^[0-9a-f]{64}$') { throw "STAGE8_
 
 $stateDb = Join-Path $runtime "state\stage8-12-production.sqlite3"
 if (-not (Test-Path $stateDb -PathType Leaf)) { throw "STAGE8_12_4_PACKAGE3_STATE_DATABASE_MISSING" }
-$stateProbe = & $Python -c @'
+$stateProbeCode = @'
 import json, sqlite3, sys
 path=sys.argv[1]
 db=sqlite3.connect(path)
@@ -167,7 +170,8 @@ try:
     print(json.dumps(result,sort_keys=True,separators=(",",":")))
 finally:
     db.close()
-'@ $stateDb
+'@
+$stateProbe = & $Python -c $stateProbeCode $stateDb
 if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($stateProbe)) { throw "STAGE8_12_4_PACKAGE3_STATE_PROBE_FAILED" }
 $state = $stateProbe | ConvertFrom-Json
 $expectedContinuationKeys = @(
