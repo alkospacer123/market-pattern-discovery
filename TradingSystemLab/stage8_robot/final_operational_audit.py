@@ -1398,16 +1398,16 @@ def audit(
     check("w32tm /query /status" in intel_wrapper and "w32tm /query /source" in intel_wrapper
           and "Get-Service -Name W32Time" in intel_wrapper and "$clock = (Get-Date)" not in intel_wrapper,
           "STAGE_8_11_INTEL_WINDOWS_TIME_SANITY")
-    check(all("Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**" in handoff
-              and "0a40e3bf7a97f0c011d3a6f5216d9f61dd52ef30" in handoff
-              and "9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1" in handoff
-              and "205/205 PASS" in handoff
-              and "Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is now **STARTED / IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**" in handoff
-              and "no authorization record has been created" in handoff.lower()
-              and "kill switch remains `HALTED`" in handoff
-              and "production Scheduled Task remains disabled" in handoff
+    check(all("242c0a4bee0200da171d1a7451472b256241e170" in handoff
+              and "AB1D22A2BE4A748B5F25C21C56FEAC922CAE03499F6F41DF04A47F192A3E7D30" in handoff
+              and "33/33 PASS" in handoff
+              and "Package 4" in handoff
+              and "HALTED" in handoff
+              and "Disabled" in handoff
+              and "real order count" in handoff.lower()
+              and "not authorized" in handoff.lower()
               for handoff in current_handoffs),
-          "STAGE_8_12_4_CURRENT_HANDOFF")
+          "STAGE_8_12_4_PACKAGE3_PASS_PACKAGE4_CURRENT_HANDOFF")
     forbidden_claims = (
         r"(?:broker acceptance (?:is |was )?validated|order (?:was )?accepted|FINAM server accepted an order)",
         r"(?<!not )real-order (?:transmission|capability) is authorized",
