@@ -82,6 +82,25 @@ def test_initial_seed_overlap_creates_durable_continuation_payload():
     assert len(payload["bars_sha256"]) == 64
 
 
+def test_initial_overlap_preserves_authority_only_historical_bar():
+    sparse_live = frame(
+        ("2026-09-15 12:00:00", "102"),
+        ("2026-09-15 13:00:00", "103"),
+        ("2026-09-15 14:00:00", "104"),
+    )
+    merged, payload = extend_rolling_open_h1(
+        seed(), None, sparse_live, "USDRUBF"
+    )
+
+    assert pd.Timestamp(
+        "2026-09-15 11:00:00", tz=MOSCOW
+    ) in merged.index
+    assert [bar["timestamp"] for bar in payload["bars"]] == [
+        "2026-09-15T13:00:00+03:00",
+        "2026-09-15T14:00:00+03:00",
+    ]
+
+
 def test_restart_after_seed_window_rollover_uses_persisted_finam_tail():
     _, first_payload = extend_rolling_open_h1(
         seed(), None, first_live(), "USDRUBF"
