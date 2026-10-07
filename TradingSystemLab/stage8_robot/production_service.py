@@ -589,7 +589,6 @@ class ProductionService:
             if status in {"SUBMITTED", "ACK"}:
                 raise ProductionServiceFault(
                     "SUBMITTED_ORDER_NOT_FOUND",
-                    halt=False,
                     pending=True,
                 )
             raise ProductionServiceFault("LOCAL_INTENT_BROKER_ORDER_MISSING")
@@ -646,23 +645,20 @@ class ProductionService:
                 self.runtime.store.transition_intent(key, "RECONCILED", order.order_id)
                 return True
             if order.status in TERMINAL_ORDER_STATUSES:
-                if action.kind == "PROTECTIVE_STOP_INSTALL":
-                    emergency = self.runtime.require_emergency_exit(
-                        action.instrument, reason="PROTECTIVE_STOP_TERMINAL_WITH_POSITION"
-                    )
-                    emergency_intent = self.runtime.store.intent(emergency.idempotency_key)
-                    if emergency_intent is None:
-                        raise ProductionServiceFault("EMERGENCY_EXIT_INTENT_NOT_FOUND")
-                    self._submit_intent(
-                        {"idempotency_key": emergency.idempotency_key, **emergency_intent},
-                        now=now,
-                        broker_positions_map=broker_positions_map,
-                        allow_entry=False,
-                    )
-                    raise ProductionServiceFault(
-                        "PROTECTIVE_STOP_TERMINAL_EMERGENCY_EXIT_SUBMITTED"
-                    )
-                raise ProductionServiceFault("PROTECTIVE_STOP_REPLACEMENT_TERMINAL")
+                reason = (
+                    "PROTECTIVE_STOP_TERMINAL_WITH_POSITION"
+                    if action.kind == "PROTECTIVE_STOP_INSTALL"
+                    else "PROTECTIVE_STOP_REPLACE_TERMINAL_WITH_POSITION"
+                )
+                self._submit_stop_failure_emergency_exit(
+                    action,
+                    now=now,
+                    broker_positions_map=broker_positions_map,
+                    reason=reason,
+                )
+                raise ProductionServiceFault(
+                    reason + "_EMERGENCY_EXIT_SUBMITTED"
+                )
             raise ProductionServiceFault(
                 "PROTECTIVE_STOP_NOT_ACTIVE", pending=True
             )
@@ -705,7 +701,6 @@ class ProductionService:
         if self.runtime.store.unresolved_intent_count():
             raise ProductionServiceFault(
                 "PRODUCTION_INTENT_RECONCILIATION_PENDING",
-                halt=False,
                 pending=True,
             )
 
@@ -747,7 +742,6 @@ class ProductionService:
                     if order.active:
                         raise ProductionServiceFault(
                             "PROTECTIVE_STOP_CANCEL_AFTER_FLAT_PENDING",
-                            halt=False,
                             pending=True,
                         ) from None
                 else:
@@ -755,7 +749,6 @@ class ProductionService:
             if order.status not in TERMINAL_ORDER_STATUSES:
                 raise ProductionServiceFault(
                     "PROTECTIVE_STOP_TERMINAL_PENDING",
-                    halt=False,
                     pending=True,
                 )
 
