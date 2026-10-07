@@ -114,16 +114,20 @@ def test_h1_watermark_must_match_current_schedule_expectation():
         _require_current_h1_watermark(stale, schedule, observed)
 
 
-def test_benchmark_loss_obeys_exact_production_tick_grid():
-    distance, loss = _strategy_loss_per_contract(
+def test_benchmark_loss_reports_live_tick_grid_eligibility_without_rounding():
+    distance, loss, eligible = _strategy_loss_per_contract(
         "USDRUBF", Decimal("0.04")
     )
     assert distance == Decimal("0.100")
     assert loss == Decimal("100")
-    with pytest.raises(
-        PreflightBlocked, match="STAGE8_12_3_BENCHMARK_STOP_NOT_ON_TICK_GRID"
-    ):
-        _strategy_loss_per_contract("USDRUBF", Decimal("0.041"))
+    assert eligible is True
+
+    distance, loss, eligible = _strategy_loss_per_contract(
+        "USDRUBF", Decimal("0.041")
+    )
+    assert distance == Decimal("0.1025")
+    assert loss == Decimal("102.50")
+    assert eligible is False
 
 
 def test_benchmark_atr_explicitly_mirrors_frozen_cross_day_t3_source():
