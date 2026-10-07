@@ -320,6 +320,19 @@ class ProductionService:
         if price != action.stop_price:
             raise ProductionServiceError("STAGE8_12_4_SLTP_RECONCILIATION_MISMATCH")
 
+    def _require_entry_submission_session(
+        self, finam_symbol: str, now: datetime
+    ) -> None:
+        windows = trading_h1_windows(self.api.schedule(finam_symbol))
+        observed = now.astimezone(timezone.utc)
+        active = [(start, end) for start, end in windows if start <= observed < end]
+        if not active:
+            raise LiveExecutionError("STAGE8_12_4_TRADING_SESSION_NOT_OPEN")
+        if max(end for _, end in active) - observed < ENTRY_MINIMUM_REMAINING_SESSION:
+            raise LiveExecutionError(
+                "STAGE8_12_4_ENTRY_SESSION_SAFETY_MARGIN_NOT_MET"
+            )
+
     def _submit(self, action: RuntimeAction, snap: Snapshot) -> None:
         if self.transport is None:
             return
@@ -327,10 +340,13 @@ class ProductionService:
         intent = self.runtime.store.intent(key) if key else None
         if not key or intent is None or intent["status"] != "INTENT_PERSISTED":
             return
+        submit_now = self.clock().astimezone(timezone.utc)
+        if action.kind == "ENTRY":
+            self._require_entry_submission_session(action.finam_symbol, submit_now)
         self.runtime.store.transition_intent(key, "SUBMITTED")
         try:
             if action.kind == "ENTRY":
-                response = self.transport.submit_entry(action, now=snap.observed_at)
+                response = self.transport.submit_entry(action, now=submit_now)
             elif action.kind in {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}:
                 response = self.transport.submit_protective_stop(
                     action, observed_position_quantity=snap.positions.get(action.finam_symbol, 0)
