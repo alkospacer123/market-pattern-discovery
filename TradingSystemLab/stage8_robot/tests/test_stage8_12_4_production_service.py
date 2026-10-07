@@ -126,9 +126,26 @@ def test_realized_equity_authority_excludes_unrealized_and_explained_cash(tmp_pa
         realized = svc._realized_basis({
             "equity": {"value": "11000"},
             "unrealized_profit": {"value": "500"},
-        })
+        }, {}, [])
         assert realized == Decimal("9500")
         assert svc.runtime.current_realized_equity() == Decimal("9500")
+    finally:
+        svc.close()
+
+
+def test_realized_equity_bootstrap_requires_clean_broker_account(tmp_path):
+    svc = service(tmp_path)
+    try:
+        with pytest.raises(
+            RuntimeError,
+            match="STAGE8_12_4_REALIZED_EQUITY_BOOTSTRAP_REQUIRES_CLEAN_ACCOUNT",
+        ):
+            svc._realized_basis({
+                "equity": {"value": "10000"},
+                "unrealized_profit": {"value": "500"},
+            }, {"USDRUBF@RTSX": 1}, [])
+        assert svc.runtime.current_realized_equity() is None
+        assert svc.runtime.store.get("starting_realized_equity") is None
     finally:
         svc.close()
 
@@ -157,6 +174,10 @@ def test_windows_production_task_is_separate_and_installed_disabled():
     assert '$env:FINAM_MODE = "STAGE8_12_PRODUCTION"' in launcher
     assert "--accepted-commit" in launcher
     assert "--stage5-data-root" in launcher
+    assert "ExpectedCommit" in launcher
+    assert "STAGE8_12_4_PRODUCTION_COMMIT_MISMATCH" in launcher
+    assert "-ExpectedCommit $commit" in installer
+    assert "STAGE8_12_4_PRODUCTION_TASK_PRINCIPAL_MISMATCH" in installer
     assert "--once" in launcher
     assert "50f1fd2178c18b7ab3bd969be82ad01f47a34745" in launcher
 
