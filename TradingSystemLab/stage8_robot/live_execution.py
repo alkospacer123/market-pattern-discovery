@@ -154,7 +154,13 @@ class AuthorizedFinamProductionTransport:
         except FinamOrderRejected:
             state_store.transition_intent(key, "REJECTED")
             raise
-        broker_id = self._ack_order_id(result)
+        try:
+            broker_id = self._ack_order_id(result)
+        except LiveExecutionError:
+            state_store.transition_intent(key, "UNCERTAIN")
+            raise FinamUncertainSubmission(
+                "RECONCILIATION_REQUIRED:BROKER_ACK_ORDER_ID_MISSING"
+            ) from None
         state_store.transition_intent(key, "ACK", broker_id)
         return result
 
