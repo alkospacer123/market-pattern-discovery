@@ -1119,7 +1119,7 @@ def test_stage_8_10_semantic_document_regressions_fail_both_audits(
 
 
 @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
-def test_stage_8_10_current_handoff_canonical_package4_state_passes_both_audits(path):
+def test_stage_8_10_current_handoff_package4_pass_state_passes_both_audits(path):
     original = source(path)
     independent = stage8.audit(
         write_result=False, source_overrides={path: original}
@@ -1156,6 +1156,21 @@ def test_stage_8_10_current_handoff_stale_gate_and_omission_fail_both_audits(pat
     _assert_document_mutation_fails_both(
         path, package3_omitted, "STAGE_8_10_CURRENT_HANDOFF_EXACT"
     )
+    package4_omitted_handoff = handoff.replace(
+        "60D9C3EFEC7D54C50BF188B003DCE06D31647A9D6B6F0ED33BB46FF08475621B",
+        "",
+        1,
+    )
+    package4_omitted = (
+        original[:start] + package4_omitted_handoff + original[next_section:]
+    )
+    independent = stage8.audit(
+        write_result=False,
+        source_overrides={path: package4_omitted},
+    )
+    operational = run_audit({path: package4_omitted})
+    assert "STAGE_8_12_4_PACKAGE4_PASS_PACKAGE5_NOT_AUTHORIZED_HANDOFF" in independent["errors"]
+    assert "STAGE_8_12_4_PACKAGE4_PASS_PACKAGE5_NOT_AUTHORIZED_HANDOFF" in operational["errors"]
 
 
 @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
