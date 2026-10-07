@@ -428,6 +428,55 @@ class ProductionRuntime:
             Decimal(str(signal.entry)), Decimal(str(signal.initial_stop)), expected,
         )
 
+    def emergency_exit_for_entry_mismatch(
+        self, entry_key: str, observed_quantity: int, *, reason: str
+    ) -> RuntimeAction:
+        intent = self.store.intent(entry_key)
+        if not intent or intent["payload"].get("kind") != "ENTRY":
+            raise ProductionRuntimeError("ENTRY_INTENT_NOT_FOUND")
+        payload = intent["payload"]
+        expected = payload.get("expected_position_quantity")
+        if (
+            type(expected) is not int
+            or type(observed_quantity) is not int
+            or observed_quantity == 0
+            or (observed_quantity > 0) != (expected > 0)
+        ):
+            raise ProductionRuntimeError("ENTRY_POSITION_AUTHORITY_INVALID")
+        key = f"stage8.12:{payload['trade_id']}:emergency-entry-reconcile"
+        action = RuntimeAction(
+            "EMERGENCY_EXIT_REQUIRED", key, payload["instrument"],
+            payload["finam_symbol"], payload["direction"], abs(observed_quantity),
+            payload["trade_id"], payload.get("signal_id"),
+            Decimal(str(payload["reference_price"])),
+            Decimal(str(payload["stop_price"])), 0, reason,
+        )
+        if not self.store.persist_intent(key, action.payload()):
+            existing = self.store.intent(key)
+            if existing is None or existing["payload"] != action.payload():
+                raise ProductionRuntimeError("EMERGENCY_EXIT_IDEMPOTENCY_MISMATCH")
+        return action
+
+    def emergency_exit_for_unprotected_position(
+        self, instrument: str, *, reason: str
+    ) -> RuntimeAction:
+        positions = self.open_positions()
+        value = positions.get(instrument)
+        if value is None:
+            raise ProductionRuntimeError("EMERGENCY_EXIT_WITHOUT_LOCAL_POSITION")
+        key = f"stage8.12:{value['trade_id']}:emergency-protection"
+        action = RuntimeAction(
+            "EMERGENCY_EXIT_REQUIRED", key, instrument, value["finam_symbol"],
+            value["direction"], int(value["quantity"]), value["trade_id"],
+            value.get("signal_id"), Decimal(str(value["entry"])),
+            Decimal(str(value["current_stop"])), 0, reason,
+        )
+        if not self.store.persist_intent(key, action.payload()):
+            existing = self.store.intent(key)
+            if existing is None or existing["payload"] != action.payload():
+                raise ProductionRuntimeError("EMERGENCY_EXIT_IDEMPOTENCY_MISMATCH")
+        return action
+
     def _protective_stop_action_from_payload(self, payload: dict[str, Any]) -> RuntimeAction:
         return RuntimeAction(
             payload["kind"], payload["idempotency_key"], payload["instrument"],
