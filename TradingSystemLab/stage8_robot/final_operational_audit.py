@@ -113,6 +113,15 @@ POST_STAGE8_11_CORRECTED_SHA256 = {
 }
 
 
+# Stage 8.12.4 Package 1 legitimately extended the FINAM transport with the
+# reviewed SL/TP endpoint and the same fail-closed uncertain-submission
+# semantics already used for regular order POSTs.  Preserve the historical
+# Stage 8.8.6 hash above and permit only this exact reviewed Stage 8.12.4 file.
+POST_STAGE8_12_4_CORRECTED_SHA256 = {
+    "TradingSystemLab/stage8_robot/finam_api.py": "d1bce44e9b66b4a2936e89f70891f2f4d203cbdd340d0412d08e3aba2cd0b369",
+}
+
+
 def _run_json(command: list[str], root: Path) -> dict:
     completed = subprocess.run(command, cwd=root, check=False, text=True, capture_output=True)
     if completed.returncode:
@@ -443,11 +452,15 @@ def audit(
         corrected = POST_STAGE8_11_CORRECTED_SHA256.get(path)
         if corrected is not None:
             allowed.add(corrected)
+        stage8124_corrected = POST_STAGE8_12_4_CORRECTED_SHA256.get(path)
+        if stage8124_corrected is not None:
+            allowed.add(stage8124_corrected)
         if observed not in allowed:
             bad_hashes.append(path)
-    for path, corrected in POST_STAGE8_11_CORRECTED_SHA256.items():
-        if path not in PROTECTED_SHA256 and _protected_sha256(content(path)) != corrected:
-            bad_hashes.append(path)
+    for correction_map in (POST_STAGE8_11_CORRECTED_SHA256, POST_STAGE8_12_4_CORRECTED_SHA256):
+        for path, corrected in correction_map.items():
+            if path not in PROTECTED_SHA256 and _protected_sha256(content(path)) != corrected:
+                bad_hashes.append(path)
     check(not bad_hashes, "PROTECTED_IMPLEMENTATION_HASHES:" + ",".join(sorted(set(bad_hashes))))
 
     supervisor = text("TradingSystemLab/stage8_robot/readonly_supervisor.py")
