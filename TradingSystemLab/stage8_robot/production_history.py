@@ -415,11 +415,27 @@ def update_production_h1(
     finam_response: dict[str, Any],
     observed_at,
     trading_windows,
+    expected_open_utc,
 ) -> pd.DataFrame:
-    """Return frozen-T3 close-index H1 with durable exact continuity."""
+    """Return frozen-T3 close-index H1 with durable exact continuity.
+
+    The schedule-derived expected open must be present in the current FINAM
+    response itself. A previously cached bar can never satisfy freshness.
+    """
     live = finam_completed_open_h1(
         finam_response, observed_at, trading_windows
     )
+    try:
+        expected = pd.Timestamp(expected_open_utc)
+        if expected.tzinfo is None:
+            raise ValueError
+        expected = expected.tz_convert(MOSCOW)
+    except Exception:
+        raise ProductionHistoryError(
+            "STAGE8_12_4_EXPECTED_H1_WATERMARK_INVALID"
+        ) from None
+    if expected not in live.index:
+        raise ProductionHistoryError("STAGE8_12_4_STALE_COMPLETED_H1_DATA")
     cached = _load_cache(runtime_root, instrument)
     if cached is None:
         seed = load_stage5_seed_open_h1(data_root, instrument)
