@@ -294,6 +294,7 @@ def test_rolling_cache_preserves_authenticated_continuity_after_seed_window(tmp_
         finam_response=_finam_response_from_frame(first_live),
         observed_at=datetime(2026, 9, 19, 0, tzinfo=timezone.utc),
         trading_windows=[],
+        expected_open_utc=first_extension.index[-1].tz_convert("UTC"),
     )
     assert first_closed.index[-1] == first_extension.index[-1] + pd.Timedelta("1h")
 
@@ -318,6 +319,7 @@ def test_rolling_cache_preserves_authenticated_continuity_after_seed_window(tmp_
         finam_response=_finam_response_from_frame(second_live),
         observed_at=datetime(2026, 9, 20, 0, tzinfo=timezone.utc),
         trading_windows=[],
+        expected_open_utc=second_extension.index[-1].tz_convert("UTC"),
     )
     assert second_closed.index[-1] == second_extension.index[-1] + pd.Timedelta("1h")
 
@@ -336,6 +338,7 @@ def test_rolling_cache_rejects_tamper_and_lost_overlap(tmp_path, monkeypatch):
         finam_response=_finam_response_from_frame(live),
         observed_at=datetime(2026, 9, 19, 0, tzinfo=timezone.utc),
         trading_windows=[],
+        expected_open_utc=live.index[-1].tz_convert("UTC"),
     )
     cache_path = tmp_path / "state" / "production-h1" / "USDRUBF.csv"
     cache_path.write_text(cache_path.read_text(encoding="utf-8") + "\n", encoding="utf-8")
@@ -347,8 +350,31 @@ def test_rolling_cache_rejects_tamper_and_lost_overlap(tmp_path, monkeypatch):
             finam_response=_finam_response_from_frame(live),
             observed_at=datetime(2026, 9, 19, 0, tzinfo=timezone.utc),
             trading_windows=[],
+            expected_open_utc=live.index[-1].tz_convert("UTC"),
         )
 
+
+
+def test_update_production_h1_requires_expected_bar_in_current_finam_tail(tmp_path, monkeypatch):
+    seed = _hourly_frame("2026-09-14 10:00:00", 80)
+    live = seed.iloc[-40:-1].copy()
+    expected_missing = seed.index[-1].tz_convert("UTC")
+    monkeypatch.setattr(
+        "TradingSystemLab.stage8_robot.production_history.load_stage5_seed_open_h1",
+        lambda root, instrument: seed.copy(),
+    )
+    with pytest.raises(
+        ProductionHistoryError, match="STAGE8_12_4_STALE_COMPLETED_H1_DATA"
+    ):
+        update_production_h1(
+            runtime_root=tmp_path,
+            data_root=tmp_path / "data",
+            instrument="USDRUBF",
+            finam_response=_finam_response_from_frame(live),
+            observed_at=datetime(2026, 9, 19, 0, tzinfo=timezone.utc),
+            trading_windows=[],
+            expected_open_utc=expected_missing,
+        )
 
 def test_cache_splice_requires_sufficient_overlap_and_cached_last_bar():
     cached = _hourly_frame("2026-09-14 10:00:00", 80)
