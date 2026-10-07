@@ -62,6 +62,9 @@ class FakeAPI:
         self.calls.append(("transactions", start, end, limit))
         return {"transactions": list(self.transaction_rows)}
 
+    def orders(self, account_id):
+        return {"orders": []}
+
     def place_order(self, account_id, payload):
         self.calls.append(("place_order", payload))
         return {
