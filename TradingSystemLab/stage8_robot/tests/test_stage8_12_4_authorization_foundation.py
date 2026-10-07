@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import hashlib
-import json
 from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
@@ -21,6 +20,7 @@ from TradingSystemLab.stage8_robot.production_authorization import (
     write_authorization,
 )
 from TradingSystemLab.stage8_robot.production_runtime import RuntimeAction
+from TradingSystemLab.stage8_robot.production_safety_gate import write_production_heartbeat
 from TradingSystemLab.stage8_robot.specification import (
     ACTIVE_IDENTITY,
     PRODUCTION_SPECIFICATION_ID,
@@ -44,30 +44,19 @@ def authorize(root: Path):
     )
 
 
-def healthy_heartbeat(root: Path):
-    path = root / "diagnostics" / "stage8-heartbeat.json"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(
-            {
-                "timestamp": NOW.isoformat(),
-                "mode": "REAL_READONLY",
-                "production_id": PRODUCTION_SPECIFICATION_ID,
-                "account_hash": ACCOUNT_HASH,
-                "last_completed_h1_timestamp": "2026-10-07T10:00:00+00:00",
-                "last_successful_finam_api_contact": NOW.isoformat(),
-                "reconciliation_status": "PASS",
-                "entries_enabled": False,
-                "unresolved_order_count": 0,
-                "health_status": "HEALTHY",
-                "failure_code": None,
-                "consecutive_failures": 0,
-                "cycle_count": 1,
-            },
-            sort_keys=True,
-        )
-        + "\n",
-        encoding="utf-8",
+def healthy_heartbeat(root: Path, *, open_positions: int = 0):
+    write_production_heartbeat(
+        root,
+        accepted_commit=COMMIT,
+        account_hash=ACCOUNT_HASH,
+        reconciliation_status="PASS",
+        unresolved_intent_count=0,
+        health_status="HEALTHY",
+        cycle_count=1,
+        last_api_contact=NOW,
+        open_position_count=open_positions,
+        active_protective_stop_count=open_positions,
+        now=NOW,
     )
 
 
@@ -391,3 +380,19 @@ def test_finam_sltp_transport_uses_dedicated_endpoint_and_never_retries_uncertai
             },
         )
     assert len(uncertain_calls) == 2
+
+
+def test_production_gate_allows_reconciled_expected_open_positions(tmp_path):
+    authorize(tmp_path)
+    healthy_heartbeat(tmp_path, open_positions=2)
+    write_kill_switch(tmp_path, "ARMED", allow_arm=True, now=NOW)
+    api = FakeAPI()
+    transport = AuthorizedFinamProductionTransport(
+        api=api,
+        account_id=ACCOUNT,
+        runtime_root=tmp_path,
+        accepted_commit=COMMIT,
+    )
+    transport.connect()
+    result = transport.submit_entry(entry_action(), now=NOW)
+    assert result["order_id"] == "ENTRY-1"
