@@ -360,17 +360,20 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--runtime-root", type=Path, required=True)
     parser.add_argument("--data-root", type=Path, required=True)
     parser.add_argument("--accepted-commit", required=True)
-    parser.add_argument("--account-id", required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     secret = os.environ.get("FINAM_API_SECRET", "")
+    account_id = os.environ.get("FINAM_REAL_ACCOUNT_ID", "")
     if not secret:
         print("STAGE8_12_4_FINAM_API_SECRET_MISSING")
+        return 1
+    if not account_id:
+        print("STAGE8_12_4_FINAM_REAL_ACCOUNT_ID_MISSING")
         return 1
     try:
         report = preflight(
             api=PreflightReadAPI(FinamAPI(secret)),
-            account_id=args.account_id,
+            account_id=account_id,
             runtime_root=args.runtime_root,
             data_root=args.data_root,
             accepted_commit=args.accepted_commit,
