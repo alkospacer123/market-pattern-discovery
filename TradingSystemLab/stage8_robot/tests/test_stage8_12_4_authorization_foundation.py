@@ -324,3 +324,70 @@ def test_protective_stop_requires_exact_position_and_cancel_requires_flat(tmp_pa
         "STOP-1", observed_position_quantity=0
     )
     assert cancelled["order_id"] == "STOP-1"
+
+
+def test_finam_sltp_transport_uses_dedicated_endpoint_and_never_retries_uncertain_post():
+    from io import BytesIO
+    from urllib.error import HTTPError
+
+    from TradingSystemLab.stage8_robot.finam_api import (
+        FinamAPI,
+        FinamUncertainSubmission,
+        RateLimiter,
+    )
+
+    class Response(BytesIO):
+        status = 200
+        headers = {}
+
+    seen = []
+    replies = [b'{"token":"jwt"}', b'{"order_id":"STOP-1"}']
+
+    def ok_transport(request, timeout):
+        seen.append(request)
+        return Response(replies.pop(0))
+
+    api = FinamAPI(
+        "secret", transport=ok_transport, limiter=RateLimiter(199)
+    )
+    api.create_session()
+    result = api.place_sltp_order(
+        ACCOUNT,
+        {
+            "symbol": "USDRUBF@RTSX",
+            "side": "SIDE_SELL",
+            "quantity_sl": {"value": "100"},
+            "sl_qty_measure": "SLTP_QTY_MEASURE_PERCENT",
+            "sl_price": {"value": "99.95"},
+        },
+    )
+    assert result["order_id"] == "STOP-1"
+    assert seen[-1].full_url.endswith(
+        f"/v1/accounts/{ACCOUNT}/sltp-orders"
+    )
+    assert seen[-1].get_method() == "POST"
+
+    uncertain_calls = []
+
+    def uncertain_transport(request, timeout):
+        uncertain_calls.append(request)
+        if len(uncertain_calls) == 1:
+            return Response(b'{"token":"jwt"}')
+        raise HTTPError(request.full_url, 500, "server", {}, None)
+
+    uncertain = FinamAPI(
+        "secret", transport=uncertain_transport, limiter=RateLimiter(199)
+    )
+    uncertain.create_session()
+    with pytest.raises(FinamUncertainSubmission):
+        uncertain.place_sltp_order(
+            ACCOUNT,
+            {
+                "symbol": "USDRUBF@RTSX",
+                "side": "SIDE_SELL",
+                "quantity_sl": {"value": "100"},
+                "sl_qty_measure": "SLTP_QTY_MEASURE_PERCENT",
+                "sl_price": {"value": "99.95"},
+            },
+        )
+    assert len(uncertain_calls) == 2
