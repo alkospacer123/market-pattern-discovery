@@ -67,20 +67,32 @@ def test_position_quantities_are_signed_and_zero_rows_are_flat():
         position_quantities(duplicate)
 
 
-def test_order_views_distinguish_regular_and_close_only_sltp():
-    views = order_views({"orders": [regular("R1"), sltp("S1")]})
+def test_order_views_distinguish_regular_and_sltp_without_owning_manual_history():
+    manual_terminal = sltp(
+        "MANUAL",
+        client="manual",
+        comment="manual-order",
+        status="ORDER_STATUS_EXECUTED",
+    )
+    manual_terminal["sltp_order"]["quantity_sl"] = {"value": "2"}
+    manual_terminal["sltp_order"].pop("sl_qty_measure")
+    views = order_views({"orders": [regular("R1"), manual_terminal]})
     assert [view.kind for view in views] == ["REGULAR", "SLTP"]
-    assert all(view.active for view in views)
-    assert views[1].request["quantity_sl"] == {"value": "100"}
-    assert views[1].request["sl_qty_measure"] == "SLTP_QTY_MEASURE_PERCENT"
+    assert views[0].active is True
+    assert views[1].active is False
 
+
+def test_production_owned_active_sltp_must_preserve_close_only_contract():
     malformed = sltp("BAD")
     malformed["sltp_order"]["quantity_sl"] = {"value": "2"}
+    views = order_views({"orders": [malformed]})
     with pytest.raises(
         ProductionBrokerStateError,
         match="SLTP_CLOSE_ONLY_CONTRACT_INVALID",
     ):
-        order_views({"orders": [malformed]})
+        active_sltp_for_trade(
+            views, trade_id="trade-1", symbol="USDRUBF@RTSX"
+        )
 
 
 def test_terminal_sltp_is_not_active_and_trade_filter_is_identity_specific():
