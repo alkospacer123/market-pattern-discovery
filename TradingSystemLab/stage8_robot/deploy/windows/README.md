@@ -93,3 +93,35 @@ Restore success means only that validated continuity state was committed. Start
 the existing REAL_READONLY supervisor afterward and require its normal account,
 orders, schedule, H1 freshness, expected-H1, entries-disabled and read-only-token
 reconciliation before accepting recovery.
+
+
+## Stage 8.12.4 Package 3 zero-order validation
+
+Package 3 does not authorize trading. Use the exact merged Package-3 commit on
+both the checkout and the disabled production Scheduled Task.
+
+1. Keep `TradingSystemLab-Stage8-Readonly` disabled or absent.
+2. Install `TradingSystemLab-Stage8-Production` with
+   `install-production-task.ps1`. Installation must finish with the task
+   `Disabled`; do not enable or start it.
+3. Confirm
+   `<runtime>\safety\stage8-12-4-production-authorization.json` is absent and
+   the Stage 8 trading kill switch is still `HALTED`.
+4. Run
+   `run-stage8-12-4-package3-zero-order-validation.ps1` with the external
+   runtime root, exact Stage-5 data checkout, and exact merged Package-3 commit.
+5. Accept only output ending with
+   `STAGE8_12_4_PACKAGE3_PASS=true`,
+   `STAGE8_12_4_PACKAGE3_EXECUTION_AUTHORIZED=false`,
+   `STAGE8_12_4_PACKAGE3_KILL_SWITCH=HALTED`,
+   `STAGE8_12_4_PACKAGE3_PRODUCTION_TASK=Disabled`, and
+   `STAGE8_12_4_PACKAGE3_REAL_ORDER_COUNT=0`.
+6. Preserve the emitted external evidence SHA-256. Do not move the evidence
+   file into the repository.
+
+The validator runs the existing foundation tests/audits, focused rolling-H1 and
+production-service tests, and one unauthorized production `--once` cycle.
+That cycle authenticates and performs read-side reconciliation/H1 retrieval,
+but durable authorization is required to construct the order-capable
+transport. Package 4 funding recalculation may begin only after Package 3
+physical PASS.
