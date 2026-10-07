@@ -67,6 +67,11 @@ RESERVE_SCENARIOS = (Decimal("0"), Decimal("0.10"), Decimal("0.20"), Decimal("0.
 PRODUCTION_STATE_FILENAME = "stage8-12-production.sqlite3"
 SUPERVISOR_STATE_FILENAME = "readonly-supervisor.sqlite3"
 STOP_ATR_MULTIPLE = Decimal("2.5")
+# Frozen Stage 7 T3 source (T3_MTF_Trend.py) computes H1 ATR over the
+# continuous H1 series: low["ATR"] = atr(low, p.atr_period).  This benchmark
+# intentionally mirrors that cross-trading-day authority.  Resetting ATR at a
+# day boundary here would change the frozen production strategy.
+FROZEN_T3_H1_ATR_CROSSES_TRADING_DAYS = True
 
 
 class PreflightBlocked(RuntimeError):
@@ -265,7 +270,7 @@ def _read_production_state(runtime_root: Path, broker_equity: Decimal) -> dict[s
             _fail("STAGE8_12_3_PRODUCTION_STATE_IDENTITY_MISMATCH")
         marks = ",".join("?" for _ in TERMINAL_INTENT_STATUSES)
         unresolved = connection.execute(
-            f"SELECT COUNT(*) FROM intents WHERE status NOT IN ({marks})",
+            f"SELECT COUNT(*) FROM intents WHERE COALESCE(status, '') NOT IN ({marks})",
             TERMINAL_INTENT_STATUSES,
         ).fetchone()[0]
         positions_raw = state_rows.get("production_positions")
@@ -333,6 +338,24 @@ def _strategy_loss_per_contract(
     return stop_distance, loss_per_contract
 
 
+def _expected_completed_h1_opens(
+    windows: list[tuple[datetime, datetime]],
+    observed_now: datetime,
+    watermark: datetime,
+) -> list[datetime]:
+    """Return the exact schedule-derived completed H1 opens through watermark."""
+    now_utc = observed_now.astimezone(timezone.utc)
+    expected: list[datetime] = []
+    for start, end in windows:
+        candidate = start
+        while candidate < end:
+            completed_at = min(candidate + timedelta(hours=1), end)
+            if candidate <= watermark and completed_at <= now_utc:
+                expected.append(candidate)
+            candidate += timedelta(hours=1)
+    return expected
+
+
 def _collect_strategy_loss(
     *,
     api: Any,
@@ -381,6 +404,11 @@ def _collect_strategy_loss(
         _fail("STAGE8_12_3_H1_BAR_OUTSIDE_VALIDATED_SCHEDULE")
     if watermark not in completed_by_timestamp:
         _fail("STAGE8_12_3_H1_WATERMARK_BAR_MISSING")
+    expected_opens = _expected_completed_h1_opens(windows, now, watermark)
+    if not expected_opens or expected_opens[-1] != watermark:
+        _fail("STAGE8_12_3_H1_EXPECTED_SEQUENCE_INVALID")
+    if sorted(completed_by_timestamp) != expected_opens:
+        _fail("STAGE8_12_3_H1_EXPECTED_SEQUENCE_GAP")
 
     usable = []
     for timestamp in sorted(completed_by_timestamp):
@@ -427,6 +455,7 @@ def _collect_strategy_loss(
         "latest_completed_h1_open_utc": watermark.isoformat(),
         "benchmark_entry_close": str(Decimal(str(usable[-1][4]))),
         "atr14": str(benchmark_atr),
+        "atr_day_boundary_semantics": "CROSS_DAY_AS_FROZEN_STAGE7_T3_SOURCE",
         "initial_stop_atr_multiple": str(STOP_ATR_MULTIPLE),
         "strategy_stop_distance": str(stop_distance),
         "price_step": str(step),
@@ -494,6 +523,30 @@ def _capacity_report(
     }
 
 
+def _require_broker_clean_snapshot(api: Any, account_id: str) -> dict[str, Any]:
+    account = api.account(account_id)
+    if (
+        not isinstance(account, dict)
+        or account.get("status") not in ACTIVE_ACCOUNT_STATUSES
+    ):
+        _fail("STAGE8_12_3_ACCOUNT_SCHEMA_OR_STATUS_INVALID")
+    orders = api.orders(account_id)
+    order_rows = orders.get("orders") if isinstance(orders, dict) else orders
+    positions = account.get("positions")
+    if not isinstance(positions, list) or not isinstance(order_rows, list):
+        _fail("STAGE8_12_3_ACCOUNT_SCHEMA_OR_STATUS_INVALID")
+    try:
+        nonzero_positions = count_nonzero_positions(positions)
+        active_orders = count_active_orders(order_rows)
+    except ValueError:
+        _fail("STAGE8_12_3_ACCOUNT_SCHEMA_OR_STATUS_INVALID")
+    if nonzero_positions != 0:
+        _fail("STAGE8_12_3_BROKER_POSITION_PRESENT")
+    if active_orders != 0:
+        _fail("STAGE8_12_3_ACTIVE_BROKER_ORDER_PRESENT")
+    return account
+
+
 def preflight_only(
     *,
     api: Any,
@@ -533,26 +586,7 @@ def preflight_only(
     ):
         _fail("STAGE8_12_3_ACCOUNT_NOT_EXACTLY_ENUMERATED")
 
-    account = api.account(account_id)
-    if (
-        not isinstance(account, dict)
-        or account.get("status") not in ACTIVE_ACCOUNT_STATUSES
-    ):
-        _fail("STAGE8_12_3_ACCOUNT_SCHEMA_OR_STATUS_INVALID")
-    orders = api.orders(account_id)
-    order_rows = orders.get("orders") if isinstance(orders, dict) else orders
-    positions = account.get("positions")
-    if not isinstance(positions, list) or not isinstance(order_rows, list):
-        _fail("STAGE8_12_3_ACCOUNT_SCHEMA_OR_STATUS_INVALID")
-    try:
-        nonzero_positions = count_nonzero_positions(positions)
-        active_orders = count_active_orders(order_rows)
-    except ValueError:
-        _fail("STAGE8_12_3_ACCOUNT_SCHEMA_OR_STATUS_INVALID")
-    if nonzero_positions != 0:
-        _fail("STAGE8_12_3_BROKER_POSITION_PRESENT")
-    if active_orders != 0:
-        _fail("STAGE8_12_3_ACTIVE_BROKER_ORDER_PRESENT")
+    account = _require_broker_clean_snapshot(api, account_id)
 
     try:
         financial = portfolio_authority(account)
@@ -628,6 +662,7 @@ def preflight_only(
 
     final_now = observed_now if now is not None else datetime.now(timezone.utc)
     _require_safety_state(runtime_root, final_now, account_hash)
+    _require_broker_clean_snapshot(api, account_id)
 
     return {
         "schema_id": SCHEMA_ID,
