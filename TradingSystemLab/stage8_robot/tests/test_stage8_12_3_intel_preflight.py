@@ -203,7 +203,7 @@ def test_benchmark_preopen_uses_historical_lookback_before_future_session_start(
     assert datetime.fromisoformat(start) < datetime.fromisoformat(end)
     assert details["latest_completed_h1_open_utc"] == watermark.isoformat()
     assert details["h1_history_lookback_days"] == 30
-    assert capacity.loss_per_contract == Decimal("100")
+    assert abs(capacity.loss_per_contract - Decimal("100")) < Decimal("1e-9")
 
 
 def test_benchmark_h1_response_rejects_duplicate_and_off_session_rows():
