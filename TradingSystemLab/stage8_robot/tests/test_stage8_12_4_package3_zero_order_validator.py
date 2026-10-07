@@ -48,6 +48,22 @@ def test_package3_validator_compares_production_principal_by_windows_sid():
     assert "[string]$task.Principal.UserId -cne $currentName" not in text
 
 
+def test_package3_foundation_audits_use_canonical_broker_constants_and_current_handoff():
+    audit = Path("TradingSystemLab/stage8_robot/audit_stage8.py").read_text(encoding="utf-8")
+    final = Path("TradingSystemLab/stage8_robot/final_operational_audit.py").read_text(encoding="utf-8")
+    roadmap = Path("TradingSystemLab/ROADMAP.md").read_text(encoding="utf-8")
+    for source_text in (audit, final):
+        assert "from .protective_stop_contract import QTY_MEASURE, QTY_PERCENT" in source_text
+        assert "measure != QTY_MEASURE" in source_text
+        assert "quantity_sl != QTY_PERCENT" in source_text
+        assert "'\"SLTP_QTY_MEASURE_PERCENT\"'" not in source_text
+    handoff = roadmap.split("## Current handoff", 1)[1].split("\n## ", 1)[0]
+    assert "205/205 PASS" in handoff
+    assert "no authorization record has been created" in handoff.lower()
+    assert "kill switch remains `HALTED`" in handoff
+    assert "production Scheduled Task remains disabled" in handoff
+
+
 def test_package3_validator_runs_existing_audits_and_focused_corrective_tests():
     text = source()
     assert "run-stage8-12-4-foundation-validation.ps1" in text

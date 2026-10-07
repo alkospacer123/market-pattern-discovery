@@ -1299,8 +1299,9 @@ def audit(
           "STAGE_8_12_4_HISTORY_ORDER_INCAPABLE")
     check(all(token in stage8124_broker_state for token in (
               "position_quantities(", "normalize_order_status(",
-              '"SLTP_QTY_MEASURE_PERCENT"', "unique_order_by_client_id(",
-              "active_sltp_for_trade(")),
+              "from .protective_stop_contract import QTY_MEASURE, QTY_PERCENT",
+              "measure != QTY_MEASURE", "quantity_sl != QTY_PERCENT",
+              "unique_order_by_client_id(", "active_sltp_for_trade(")),
           "STAGE_8_12_4_STRICT_BROKER_STATE_PARSER")
     broker_state_tree=ast.parse(stage8124_broker_state)
     broker_state_calls={node.func.attr for node in ast.walk(broker_state_tree)
