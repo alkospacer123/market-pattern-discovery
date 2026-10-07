@@ -32,6 +32,9 @@ function Require-FoundationInactive {
     if ($kill.schema_id -cne "stage8_trading_kill_switch.v1") { throw "STAGE8_12_4_KILL_SWITCH_INVALID" }
     if ($kill.production_specification_id -cne $productionId) { throw "STAGE8_12_4_KILL_SWITCH_PRODUCTION_ID_MISMATCH" }
     if ($kill.state -cne "HALTED") { throw "STAGE8_12_4_KILL_SWITCH_NOT_HALTED" }
+    if ($null -eq $kill.generation -or [int]$kill.generation -lt 1) { throw "STAGE8_12_4_KILL_SWITCH_INVALID" }
+    try { $null = [DateTimeOffset]::Parse([string]$kill.updated_utc) }
+    catch { throw "STAGE8_12_4_KILL_SWITCH_INVALID" }
     Write-Output "STAGE8_12_4_FOUNDATION_INACTIVE=true"
 }
 
