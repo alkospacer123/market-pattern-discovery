@@ -415,6 +415,7 @@ class ProductionRuntime:
             "initial_margin": str(sized.initial_margin),
             "r15_quantity": sized.r15_quantity,
             "margin_quantity": sized.margin_quantity,
+            "signal_timestamp": signal.timestamp.isoformat(),
         })
         if not self.store.persist_intent(key, payload):
             existing = self.store.intent(key)
@@ -473,6 +474,7 @@ class ProductionRuntime:
                 "loss_per_contract": payload["loss_per_contract"],
                 "trade_id": payload["trade_id"],
                 "signal_id": payload["signal_id"],
+                "signal_timestamp": payload["signal_timestamp"],
                 "protective_stop_state": "PENDING",
                 "protective_stop_revision": 0,
             }
@@ -625,7 +627,7 @@ class ProductionRuntime:
         value.update(_position_to_dict(position, {
             k: value[k] for k in (
                 "finam_symbol", "quantity", "risk_cash", "actual_initial_loss_cash",
-                "loss_per_contract", "trade_id", "signal_id",
+                "loss_per_contract", "trade_id", "signal_id", "signal_timestamp",
                 "protective_stop_state", "protective_stop_revision"
             )
         }))
