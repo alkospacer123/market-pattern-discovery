@@ -167,6 +167,11 @@ class ProductionHistoryCache:
             "schema_id": CACHE_SCHEMA,
             "production_specification_id": PRODUCTION_SPECIFICATION_ID,
             "active_identity": ACTIVE_IDENTITY,
+            "phase5_authority_end": PHASE5_AUTHORITY_END.isoformat(),
+            "phase5_h1_authority": {
+                key: {"rows": rows, "sha256": digest}
+                for key, (rows, digest) in sorted(PHASE5_H1_AUTHORITY.items())
+            },
         }
         if identity is None or json.loads(identity[0]) != expected:
             raise ProductionHistoryError("STAGE8_12_4_HISTORY_CACHE_IDENTITY_INVALID")
@@ -222,10 +227,19 @@ class ProductionHistoryCache:
             if windows
             else now_utc.replace(hour=0, minute=0, second=0, microsecond=0)
         )
-        completed_today_by_open = {
-            datetime.fromisoformat(str(row["timestamp"]).replace("Z", "+00:00")).astimezone(timezone.utc): row
-            for row in completed_today
-        }
+        completed_today_by_open: dict[datetime, dict[str, Any]] = {}
+        for row in completed_today:
+            if not isinstance(row, dict):
+                raise ProductionHistoryError("STAGE8_12_4_H1_BARS_SCHEMA_INVALID")
+            try:
+                opened = datetime.fromisoformat(
+                    str(row.get("timestamp")).replace("Z", "+00:00")
+                ).astimezone(timezone.utc)
+            except (TypeError, ValueError):
+                raise ProductionHistoryError("STAGE8_12_4_H1_BARS_SCHEMA_INVALID") from None
+            if opened in completed_today_by_open:
+                raise ProductionHistoryError("STAGE8_12_4_H1_DUPLICATE_BAR")
+            completed_today_by_open[opened] = row
 
         parsed: list[tuple[datetime, tuple[str, str, str, str]]] = []
         seen: set[datetime] = set()
@@ -344,6 +358,11 @@ def initialize_history_cache(
             "schema_id": CACHE_SCHEMA,
             "production_specification_id": PRODUCTION_SPECIFICATION_ID,
             "active_identity": ACTIVE_IDENTITY,
+            "phase5_authority_end": PHASE5_AUTHORITY_END.isoformat(),
+            "phase5_h1_authority": {
+                key: {"rows": rows, "sha256": digest}
+                for key, (rows, digest) in sorted(PHASE5_H1_AUTHORITY.items())
+            },
         }
         db.execute(
             "INSERT INTO metadata(key,value) VALUES(?,?)",
@@ -357,14 +376,15 @@ def initialize_history_cache(
             expected_rows, expected_hash = PHASE5_H1_AUTHORITY[instrument]
             if len(oos) != expected_rows or _phase5_frame_sha(oos) != expected_hash:
                 raise ProductionHistoryError("STAGE8_12_4_PHASE5_H1_AUTHORITY_MISMATCH")
-            if len(frame) < MIN_EXECUTION_BARS:
+            seed_frame = frame.loc[frame.index <= PHASE5_AUTHORITY_END].copy()
+            if len(seed_frame) < MIN_EXECUTION_BARS:
                 raise ProductionHistoryError("STAGE8_12_4_H1_WARMUP_INSUFFICIENT")
             db.executemany(
                 "INSERT INTO bars(instrument,open_time_utc,close_time_moscow,"
                 "open,high,low,close,source) VALUES(?,?,?,?,?,?,?,?)",
                 (
                     (instrument, *row, "PHASE5_AUDITED_SEED")
-                    for row in _seed_rows(frame)
+                    for row in _seed_rows(seed_frame)
                 ),
             )
         db.commit()
