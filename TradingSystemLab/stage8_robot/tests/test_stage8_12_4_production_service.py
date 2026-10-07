@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pytest
 
+from TradingSystemLab.stage8_robot.live_execution import LiveExecutionError
+from TradingSystemLab.stage8_robot.production_runtime import RuntimeAction
 from TradingSystemLab.stage8_robot.production_service import (
     MODE,
     STATE_DATABASE,
@@ -148,6 +150,105 @@ def test_realized_equity_bootstrap_requires_clean_broker_account(tmp_path):
         assert svc.runtime.store.get("starting_realized_equity") is None
     finally:
         svc.close()
+
+
+def _entry_action():
+    return RuntimeAction(
+        "ENTRY",
+        "stage8.12:service-test:entry",
+        "USDRUBF",
+        "USDRUBF@RTSX",
+        "LONG",
+        1,
+        "service-test",
+        "service-signal",
+        Decimal("100"),
+        Decimal("99.95"),
+        1,
+    )
+
+
+def _entry_payload(action):
+    payload = action.payload()
+    payload.update({
+        "risk_cash": "1500",
+        "actual_initial_loss_cash": "50",
+        "loss_per_contract": "50",
+        "initial_margin": "100",
+        "r15_quantity": 1,
+        "margin_quantity": 1,
+        "signal_timestamp": "2026-10-07T12:00:00+03:00",
+    })
+    return payload
+
+
+def test_position_authority_reconciles_entry_before_orders_converge(tmp_path):
+    svc = service(tmp_path)
+    action = _entry_action()
+    try:
+        assert svc.runtime.store.persist_intent(
+            action.idempotency_key, _entry_payload(action)
+        )
+        svc.runtime.store.transition_intent(action.idempotency_key, "SUBMITTED")
+        snap = Snapshot(
+            account={},
+            positions={"USDRUBF@RTSX": 1},
+            orders=[],
+            realized_equity=Decimal("100000"),
+            available_cash=Decimal("100000"),
+            observed_at=datetime(2026, 10, 7, 12, tzinfo=timezone.utc),
+        )
+        svc._reconcile_intents(snap)
+        assert svc.runtime.store.intent(action.idempotency_key)["status"] == "RECONCILED"
+        assert svc.runtime.open_positions()["USDRUBF"]["quantity"] == 1
+        assert svc.runtime.store.unresolved_intent_count() == 1
+    finally:
+        svc.close()
+
+
+def test_pre_submit_gate_failure_does_not_create_uncertain_order_state(tmp_path):
+    class BlockedTransport:
+        def submit_entry(self, action, *, now):
+            raise LiveExecutionError("STAGE8_12_4_ENTRY_GATE_BLOCKED:KILL_SWITCH_NOT_ARMED")
+
+    svc = service(tmp_path)
+    action = _entry_action()
+    try:
+        assert svc.runtime.store.persist_intent(
+            action.idempotency_key, _entry_payload(action)
+        )
+        svc.transport = BlockedTransport()
+        snap = Snapshot(
+            account={},
+            positions={},
+            orders=[],
+            realized_equity=Decimal("100000"),
+            available_cash=Decimal("100000"),
+            observed_at=datetime(2026, 10, 7, 12, tzinfo=timezone.utc),
+        )
+        with pytest.raises(LiveExecutionError):
+            svc._submit(action, snap)
+        assert svc.runtime.store.intent(action.idempotency_key)["status"] == "INTENT_PERSISTED"
+    finally:
+        svc.close()
+
+
+def test_service_requires_current_active_session_before_consuming_entry_signal():
+    source = Path("TradingSystemLab/stage8_robot/production_service.py").read_text()
+    assert "ENTRY_MINIMUM_REMAINING_SESSION = timedelta(minutes=5)" in source
+    assert "def _entry_session_ready" in source
+    assert "newest_expected_h1_close(schedule, now)" in source
+    assert "STAGE8_12_4_ENTRY_H1_NOT_LATEST_CURRENT_SESSION_BAR" in source
+    assert "if not self._entry_session_ready(" in source
+
+
+def test_pending_order_reconciliation_overwrites_healthy_heartbeat():
+    source = Path("TradingSystemLab/stage8_robot/production_service.py").read_text()
+    assert "def _fault_heartbeat" in source
+    assert 'reconciliation_status="FAULT"' in source
+    assert 'health_status="UNHEALTHY"' in source
+    assert "if action_started or self.runtime.store.unresolved_intent_count():" in source
+    assert "if entry_started or self.runtime.store.unresolved_intent_count():" in source
 
 
 def test_production_runtime_persists_entry_signal_watermark_contract():
