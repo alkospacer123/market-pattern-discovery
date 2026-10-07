@@ -708,10 +708,7 @@
         "restart_intent_read_authority": true,
         "order_transmission_added_by_this_layer": false,
         "execution_authorized": false,
-        "real_order_count": 0,
-        "rolling_h1_continuation": "SQLITE_STATE_APPEND_ONLY_EXACT_FINAM_OVERLAP",
-        "rolling_h1_continuity_status": "CODE_READY_PENDING_PACKAGE3_ZERO_ORDER_VALIDATION",
-        "long_downtime_without_overlap": "FAIL_CLOSED"
+        "real_order_count": 0
       }
     },
     "stage8_12_4_package2": {
