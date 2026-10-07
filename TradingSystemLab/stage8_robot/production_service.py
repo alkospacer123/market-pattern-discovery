@@ -84,6 +84,11 @@ DEFAULT_BACKOFF_SECONDS = 30
 PENDING_POLL_SECONDS = 5
 SUBMISSION_RECONCILIATION_POLLS = 5
 SUBMISSION_RECONCILIATION_SLEEP_SECONDS = 1
+FILLED_ORDER_STATUSES = frozenset({"FILLED", "EXECUTED", "SL_EXECUTED", "TP_EXECUTED"})
+REJECTED_ORDER_STATUSES = frozenset({
+    "REJECTED", "FAILED", "DENIED_BY_BROKER", "REJECTED_BY_EXCHANGE",
+    "CANCELLED", "EXPIRED", "DISABLED",
+})
 
 
 class ProductionServiceFault(RuntimeError):
@@ -268,7 +273,7 @@ class ProductionService:
         self.runtime.set_realized_equity(realized)
         return realized, portfolio
 
-    def _snapshot(self) -> tuple[dict[str, Any], list[BrokerOrder], dict[str, int]]:
+    def _snapshot(self) -> tuple[dict[str, Any], list[BrokerOrderView], dict[str, int]]:
         details = self.api.session_details()
         if (
             not isinstance(details, dict)
@@ -285,17 +290,25 @@ class ProductionService:
             or account.get("status") not in ACTIVE_ACCOUNT_STATUSES
         ):
             raise ProductionServiceFault("PRODUCTION_ACCOUNT_NOT_ACTIVE")
-        orders = parse_orders(self.api.orders(self.account_id))
+        try:
+            orders = order_views(self.api.orders(self.account_id))
+            by_symbol = position_quantities(account)
+            require_no_unknown_active_orders(
+                orders, self.runtime.store.all_intents()
+            )
+        except ProductionBrokerStateError as exc:
+            raise ProductionServiceFault(str(exc)) from None
         finam_to_instrument = {
             row["finam_symbol"]: instrument
             for instrument, row in self.runtime.registry.items()
         }
-        positions = broker_positions(
-            account, finam_to_instrument=finam_to_instrument
-        )
-        require_no_unknown_active_orders(
-            orders, self.runtime.store.all_intents()
-        )
+        unknown = set(by_symbol) - set(finam_to_instrument)
+        if unknown:
+            raise ProductionServiceFault("STAGE8_12_4_UNEXPECTED_NON_N4_POSITION")
+        positions = {
+            instrument: by_symbol.get(row["finam_symbol"], 0)
+            for instrument, row in self.runtime.registry.items()
+        }
         self.last_api_contact = self.clock().astimezone(timezone.utc)
         return account, orders, positions
 
@@ -319,10 +332,7 @@ class ProductionService:
             params = self.api.asset_params(symbol, self.account_id)
             schedule = self.api.schedule(symbol)
             binding = validate_finam_binding(
-                instrument,
-                asset,
-                params,
-                schedule,
+                instrument, asset, params, schedule,
                 self.api.asset(symbol, self.account_id),
             ).to_dict()
             if (
@@ -331,8 +341,7 @@ class ProductionService:
                 or binding.get("finam_symbol") != frozen["finam_symbol"]
                 or binding.get("mic") != frozen["mic"]
                 or str(binding.get("security_id")) != frozen["security_id"]
-                or str(binding.get("trade_lot_size"))
-                != frozen["quantity_granularity"]
+                or str(binding.get("trade_lot_size")) != frozen["quantity_granularity"]
             ):
                 raise ProductionServiceFault("PRODUCTION_N4_BINDING_INVALID")
             try:
@@ -345,34 +354,30 @@ class ProductionService:
                     long_initial_margin=directional_initial_margin(params, "LONG"),
                     short_initial_margin=directional_initial_margin(params, "SHORT"),
                 )
-            except (KeyError, ValueError):
-                raise ProductionServiceFault("PRODUCTION_N4_MARGIN_AUTHORITY_INVALID") from None
-            prior_text = self.runtime.store.get(f"expected_h1:{instrument}")
-            if prior_text is None:
-                prior = _readonly_expected_watermark(self.root, instrument)
-            else:
-                try:
-                    prior = datetime.fromisoformat(
-                        str(prior_text).replace("Z", "+00:00")
-                    ).astimezone(timezone.utc)
-                except ValueError:
-                    raise ProductionServiceFault(
-                        "PRODUCTION_H1_WATERMARK_STATE_INVALID"
-                    ) from None
-            response = self.api.bars(symbol, start, now.isoformat())
-            try:
-                history, expected = update_h1_history(
+                windows = trading_h1_windows(schedule)
+                response = self.api.bars(symbol, start, now.isoformat())
+                history = update_production_h1(
                     runtime_root=self.root,
                     data_root=self.data_root,
                     instrument=instrument,
                     finam_response=response,
-                    schedule=schedule,
-                    now=now,
-                    prior_expected=prior,
+                    observed_at=now,
+                    trading_windows=windows,
                 )
-            except ProductionHistoryError as exc:
+                expected_open = newest_expected_h1_close(schedule, now)
+            except (KeyError, ValueError, ProductionHistoryError) as exc:
                 raise ProductionServiceFault(str(exc)) from None
-            self.runtime.store.put(f"expected_h1:{instrument}", expected.isoformat())
+            if expected_open is not None:
+                expected_close = (
+                    pd.Timestamp(expected_open).tz_convert("Europe/Moscow")
+                    + pd.Timedelta("1h")
+                )
+                if expected_close not in history.index:
+                    raise ProductionServiceFault("STALE_COMPLETED_H1_DATA")
+                self.runtime.store.put(
+                    f"expected_h1:{instrument}",
+                    expected_open.astimezone(timezone.utc).isoformat(),
+                )
             authorities[instrument] = authority
             histories[instrument] = history
         return authorities, histories
@@ -460,14 +465,14 @@ class ProductionService:
         intent: dict[str, Any],
         *,
         now: datetime,
-        orders: list[BrokerOrder],
+        orders: list[BrokerOrderView],
         broker_positions_map: dict[str, int],
     ) -> bool:
         key = intent["idempotency_key"]
         payload = intent["payload"]
         action = _runtime_action(payload)
         status = intent["status"]
-        order = order_for_intent(orders, key)
+        order = order_for_intent(orders, idempotency_key=key)
 
         if status == "INTENT_PERSISTED":
             self._submit_intent(
@@ -604,7 +609,7 @@ class ProductionService:
                 if intent.get("status") in {"REJECTED", "CANCELLED"}:
                     continue
                 raise ProductionServiceFault("PROTECTIVE_STOP_TERMINAL_PROOF_MISSING")
-            order = parse_orders([self.api.order(self.account_id, broker_id)])[0]
+            order = order_views([self.api.order(self.account_id, broker_id)])[0]
             if order.active:
                 try:
                     self.transport.cancel_protective_stop_after_flat(
@@ -616,8 +621,8 @@ class ProductionService:
                         halt=False,
                         pending=True,
                     ) from exc
-                order = parse_orders([self.api.order(self.account_id, broker_id)])[0]
-            if not order.terminal:
+                order = order_views([self.api.order(self.account_id, broker_id)])[0]
+            if order.status not in TERMINAL_ORDER_STATUSES:
                 raise ProductionServiceFault(
                     "PROTECTIVE_STOP_TERMINAL_PENDING",
                     halt=False,
@@ -652,7 +657,7 @@ class ProductionService:
 
     def _protection_rows(
         self,
-        orders: list[BrokerOrder],
+        orders: list[BrokerOrderView],
         broker_positions_map: dict[str, int],
     ) -> list[dict[str, Any]]:
         local = self.runtime.open_positions()
@@ -674,7 +679,7 @@ class ProductionService:
             if position.get("protective_stop_state") != "ACTIVE":
                 raise ProductionServiceFault("LOCAL_PROTECTIVE_STOP_NOT_ACTIVE")
             try:
-                stops = active_protection_for_position(orders, position)
+                stops = protected_stop_ids_for_position(orders, position=position)
             except ProductionBrokerStateError as exc:
                 raise ProductionServiceFault(str(exc)) from None
             rows.append({
@@ -824,6 +829,12 @@ class ProductionService:
         self._settle_unresolved(now)
 
         account, orders, broker_map = self._snapshot()
+        local_before_financial = self.runtime.open_positions()
+        if any(
+            quantity != 0 and instrument not in local_before_financial
+            for instrument, quantity in broker_map.items()
+        ):
+            raise ProductionServiceFault("UNEXPECTED_BROKER_POSITION")
         realized, portfolio = self._financial_authority(account, now)
         self._finalize_flat_local_positions(broker_map, realized)
 
