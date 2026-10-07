@@ -396,3 +396,24 @@ def test_production_gate_allows_reconciled_expected_open_positions(tmp_path):
     transport.connect()
     result = transport.submit_entry(entry_action(), now=NOW)
     assert result["order_id"] == "ENTRY-1"
+
+
+def test_foundation_windows_validator_cannot_activate_or_use_credentials():
+    source = Path(
+        "TradingSystemLab/stage8_robot/deploy/windows/"
+        "run-stage8-12-4-foundation-validation.ps1"
+    ).read_text(encoding="utf-8")
+    lower = source.lower()
+    assert "stage8_12_4_authorization_must_be_absent" in lower
+    assert 'state -cne "halted"' in lower
+    assert "trading-credential-store" not in lower
+    assert "get-tradingcredential" not in lower
+    assert "finam_api_secret" not in lower
+    assert "write_kill_switch" not in source
+    assert "allow_arm" not in lower
+    assert "enable-scheduledtask" not in lower
+    assert "start-scheduledtask" not in lower
+    assert "place_order" not in source
+    assert "place_sltp_order" not in source
+    assert "cancel_order" not in source
+    assert "STAGE8_12_4_REAL_ORDER_COUNT=0" in source
