@@ -110,14 +110,6 @@ def order_views(response: Any) -> list[BrokerOrderView]:
             quantity = _contracts(request.get("quantity"), "STAGE8_12_4_ORDER_QUANTITY_INVALID")
             if quantity <= 0:
                 raise ProductionBrokerStateError("STAGE8_12_4_ORDER_QUANTITY_INVALID")
-        else:
-            measure = request.get("sl_qty_measure")
-            quantity_sl = _decimal_object(request.get("quantity_sl"), "STAGE8_12_4_SLTP_QUANTITY_INVALID")
-            if measure != QTY_MEASURE or quantity_sl != QTY_PERCENT:
-                raise ProductionBrokerStateError("STAGE8_12_4_SLTP_CLOSE_ONLY_CONTRACT_INVALID")
-            sl_price = _decimal_object(request.get("sl_price"), "STAGE8_12_4_SLTP_PRICE_INVALID")
-            if sl_price <= 0:
-                raise ProductionBrokerStateError("STAGE8_12_4_SLTP_PRICE_INVALID")
 
         result.append(BrokerOrderView(
             order_id=order_id,
@@ -142,11 +134,32 @@ def unique_order_by_client_id(
     return matches[0] if matches else None
 
 
+def _validate_production_sltp(order: BrokerOrderView) -> None:
+    if order.kind != "SLTP":
+        raise ProductionBrokerStateError("STAGE8_12_4_SLTP_ORDER_REQUIRED")
+    request = order.request
+    measure = request.get("sl_qty_measure")
+    quantity_sl = _decimal_object(
+        request.get("quantity_sl"), "STAGE8_12_4_SLTP_QUANTITY_INVALID"
+    )
+    if measure != QTY_MEASURE or quantity_sl != QTY_PERCENT:
+        raise ProductionBrokerStateError(
+            "STAGE8_12_4_SLTP_CLOSE_ONLY_CONTRACT_INVALID"
+        )
+    sl_price = _decimal_object(
+        request.get("sl_price"), "STAGE8_12_4_SLTP_PRICE_INVALID"
+    )
+    if sl_price <= 0:
+        raise ProductionBrokerStateError("STAGE8_12_4_SLTP_PRICE_INVALID")
+    if request.get("valid_before") != "VALID_BEFORE_GOOD_TILL_CANCEL":
+        raise ProductionBrokerStateError("STAGE8_12_4_SLTP_VALIDITY_INVALID")
+
+
 def active_sltp_for_trade(
     orders: list[BrokerOrderView], *, trade_id: str, symbol: str
 ) -> list[BrokerOrderView]:
     prefix = f"stage8.12:{trade_id}:stop:"
-    return [
+    matched = [
         order
         for order in orders
         if order.active
@@ -155,3 +168,6 @@ def active_sltp_for_trade(
         and isinstance(order.comment, str)
         and order.comment.startswith(prefix)
     ]
+    for order in matched:
+        _validate_production_sltp(order)
+    return matched
