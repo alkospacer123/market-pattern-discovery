@@ -758,30 +758,37 @@ def test_stage_8_10_6_physical_report_contract_mutations_fail_semantic_audits(fi
     _assert_stage_8_10_6_semantic_failure(relative, original.replace(field, '"removed": False'), "STAGE_8_10_6_PHYSICAL_REPORT_CONTRACT")
 
 
-def test_later_execution_stages_started_or_authorized_fail():
-    path = "TradingSystemLab/CURRENT_STATE.md"
-    for old, replacement, error in (
-            ("The physical authorization used for attempt7 is consumed",
-             "The physical authorization used for attempt7 is active",
-             "STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED"),
-            ("Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**",
-             "Stage 8.12 — **STARTED / AUTHORIZED**", "STAGE_8_12_1_CURRENT_HANDOFF")):
-        result = run_audit({path: source(path).replace(
-            old, replacement)})
-        assert error in result["errors"]
 
-
-def test_false_permission_and_real_order_claims_fail():
+def test_current_stage8_12_activation_and_stage811_historical_scope_mutations_fail():
     path = "TradingSystemLab/CURRENT_STATE.md"
-    accepted = run_audit({path: source(path) + "\n\nToken permission boundary validation occurred.\n"})
-    assert "STAGE_8_10_FALSE_AUTHORIZATION_OR_TOKEN_CLAIM" not in accepted["errors"]
-    for claim in ("Broker acceptance was validated.",
-                  "FINAM server accepted an order.",
-                  "Real-order transmission is authorized."):
+    mutations = (
+        (
+            "At the Stage 8.11 closeout, `execution_authorized = false`",
+            "At the Stage 8.11 closeout, `execution_authorized = true`",
+        ),
+        (
+            "Stage 8.12 — FULL/R15 Production Authorization — is **COMPLETE / PASS**",
+            "Stage 8.12 — FULL/R15 Production Authorization — is **NOT AUTHORIZED**",
+        ),
+        (
+            "final production kill switch: `ARMED`",
+            "final production kill switch: `HALTED`",
+        ),
+    )
+    for old, replacement in mutations:
+        result = run_audit({path: source(path).replace(old, replacement, 1)})
+        assert "STAGE_8_10_CURRENT_HANDOFF_EXACT" in result["errors"]
+
+def test_false_broker_acceptance_claims_fail_but_stage8_12_live_authority_is_valid():
+    path = "TradingSystemLab/CURRENT_STATE.md"
+    accepted = run_audit({
+        path: source(path) + "\n\nStage 8.12.4 continuous real production trading is authorized only under the frozen safety gates.\n"
+    })
+    assert "STAGE_8_12_4_NO_FORCED_BROKER_ACCEPTANCE_CLAIM" not in accepted["errors"]
+    for claim in ("Broker acceptance was validated by Package 5.",
+                  "FINAM server accepted an order during live activation."):
         result = run_audit({path: source(path) + "\n\n" + claim + "\n"})
-        assert "STAGE_8_10_FALSE_AUTHORIZATION_OR_TOKEN_CLAIM" in result["errors"]
-
-
+        assert "STAGE_8_12_4_NO_FORCED_BROKER_ACCEPTANCE_CLAIM" in result["errors"]
 def test_tracked_trading_token_and_account_artifacts_fail():
     forbidden = ["secrets/trading-token.json", "runtime/account_id.txt",
                  "runtime/finam-trading-token.dpapi",
@@ -895,13 +902,16 @@ def test_historical_blockers_described_as_current_fail():
         assert "STAGE_8_9_HISTORICAL_BLOCKERS_NOT_CURRENT" in result["errors"]
 
 
-def test_false_full_n4_funding_readiness_claim_fails():
+
+def test_stage8_12_live_closeout_evidence_is_required():
     path = "TradingSystemLab/CURRENT_STATE.md"
-    mutation = source(path) + "\n\nFULL/N4 funding is validated and ready.\n"
+    mutation = source(path).replace(
+        "EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9",
+        "0" * 64,
+        1,
+    )
     result = run_audit({path: mutation})
-    assert "FULL_N4_FUNDING_READINESS_NOT_CLAIMED" in result["errors"]
-
-
+    assert "STAGE_8_12_FULL_R15_PRODUCTION_CLOSEOUT" in result["errors"]
 def test_stage_8_9_provenance_mutations_fail():
     path = "TradingSystemLab/stage8_robot/authority_provenance.json"
     mutations = (
@@ -1003,10 +1013,10 @@ def test_stage_8_10_closeout_document_regressions_fail():
         mutations = (
             original.replace("Stage 8.10 is **COMPLETE**", "Stage 8.10 is **IN PROGRESS**"),
             original.replace("Stage 8.10.8 is **COMPLETE**", "Stage 8.10.8 is **NOT STARTED**"),
-            original.replace("The physical authorization used for attempt7 is consumed",
-                             "The physical authorization used for attempt7 is active"),
-            original.replace("Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**",
-                             "Stage 8.12 — **STARTED / AUTHORIZED**"),
+            original.replace("At the Stage 8.11 closeout, `execution_authorized = false`",
+                             "At the Stage 8.11 closeout, `execution_authorized = true`"),
+            original.replace("Stage 8.12 — FULL/R15 Production Authorization — is **COMPLETE / PASS**",
+                             "Stage 8.12 — FULL/R15 Production Authorization — is **NOT AUTHORIZED**"),
             original.replace(final.STAGE_8_10_COMPLETE_STATUS, "WRONG_CLOSEOUT_STATUS"),
         )
         for mutation in mutations:
@@ -1014,7 +1024,8 @@ def test_stage_8_10_closeout_document_regressions_fail():
             assert result["status"] == "FAIL", (path, result)
 
 
-def test_stage_8_12_2_machine_authority_mutations_fail_both_audits():
+
+def test_stage_8_12_machine_authority_mutations_fail_both_audits():
     path = "TradingSystemLab/stage8_robot/authority_provenance.json"
     authority = json.loads(source(path))
     mutations = (
@@ -1028,15 +1039,16 @@ def test_stage_8_12_2_machine_authority_mutations_fail_both_audits():
         ("stage8_11_position_authority_regression", {"passed":112,"failed":1}),
         ("test_only_real_order_count", 1),
         ("real_order_endpoint_called", True),
-        ("execution_authorized", True),
-        ("live_trading_authorized", True),
-        ("real_order_transmission_authorized", True),
-        ("production_kill_switch_final_state", "ARMED"),
-        ("production_scheduled_task", "Enabled"),
+        ("execution_authorized", False),
+        ("live_trading_authorized", False),
+        ("real_order_transmission_authorized", False),
+        ("production_kill_switch_final_state", "HALTED"),
+        ("production_scheduled_task", "Disabled"),
         ("stage8_12_2_status", "FAIL"),
         ("stage8_12_3_status", "STARTED"),
-        ("stage8_12_4_status", "AUTHORIZED"),
-        ("next_gate", "STAGE_8_12_4"),
+        ("stage8_12_4_status", "STARTED_IMPLEMENTATION_NOT_AUTHORIZED"),
+        ("next_gate", "STAGE_8_12_4_EXPLICIT_FULL_R15_PRODUCTION_AUTHORIZATION"),
+        ("mode", "STAGE8_12_4_IMPLEMENTATION_CODE_ONLY_NOT_AUTHORIZED"),
         ("n4_simultaneous_positive_capacity_calculation", "COMPLETE"),
         ("stage8_12_2_accepted_code_commit", "0" * 40),
         ("stage8_12_2_external_test_only_evidence_sha256", "0" * 64),
@@ -1058,37 +1070,63 @@ def test_stage_8_12_2_machine_authority_mutations_fail_both_audits():
         operational = run_audit({path: payload})
         assert "STAGE_8_12_2_MACHINE_AUTHORITY_EXACT" in independent["errors"], key
         assert "STAGE_8_12_2_MACHINE_AUTHORITY_EXACT" in operational["errors"], key
-
-
 @pytest.mark.parametrize("path", (
     "TradingSystemLab/CURRENT_STATE.md",
     "TradingSystemLab/PROJECT_CONTEXT.md",
     "TradingSystemLab/ROADMAP.md",
     "TradingSystemLab/stage8_robot/README.md",
 ))
-def test_stage_8_12_2_current_handoff_mutations_fail_both_audits(path):
+
+def test_stage_8_12_4_live_activation_provenance_mutations_fail_both_audits():
+    path = "TradingSystemLab/stage8_robot/authority_provenance.json"
+    authority = json.loads(source(path))
+    mutations = (
+        ("status", "FAIL"),
+        ("accepted_code_commit", "0" * 40),
+        ("external_evidence_sha256", "0" * 64),
+        ("durable_authorization_present", False),
+        ("authorization_status", "MISSING"),
+        ("execution_authorized", False),
+        ("kill_switch_final_state", "HALTED"),
+        ("production_task", "Disabled"),
+        ("readonly_task", "Running"),
+        ("live_activation_performed", False),
+        ("forced_trade_required", True),
+        ("completion_status", "INCOMPLETE"),
+    )
+    for key, value in mutations:
+        changed = json.loads(json.dumps(authority))
+        changed["stage8_12"]["stage8_12_4_package5_activation"][key] = value
+        payload = json.dumps(changed)
+        independent = stage8.audit(write_result=False, authority_text=payload)
+        operational = run_audit({path: payload})
+        assert "STAGE_8_12_4_PACKAGE5_LIVE_ACTIVATION_PROVENANCE_EXACT" in independent["errors"], key
+        assert "STAGE_8_12_4_PACKAGE5_LIVE_ACTIVATION_PROVENANCE_EXACT" in operational["errors"], key
+
+
+def test_stage_8_12_live_current_handoff_mutations_fail_both_audits(path):
     original = source(path)
     mutations = (
-        original.replace("Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**",
-                         "Stage 8.12 — **STARTED / AUTHORIZED**", 1),
-        original.replace("2a15f4331afc1433dfbfd0464108e39e59d236f8", "0" * 40, 1),
-        original.replace("4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F",
-                         "0" * 64, 1),
-        original.replace("Stage 8.12.3 — Intel production preflight — is the **NEXT GATE**",
-                         "Stage 8.12.4 is the NEXT GATE", 1),
-        original.replace("test-only real-order count: `0`", "test-only real-order count: `1`", 1),
+        original.replace(
+            "Stage 8.12.4 live activation is **COMPLETE / LIVE PRODUCTION ACTIVATED**",
+            "Stage 8.12.4 live activation is **NOT AUTHORIZED**",
+            1,
+        ),
+        original.replace("883ea1ea6a8268276a8e39ebdc8786c643a21935", "0" * 40, 1),
+        original.replace(
+            "EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9",
+            "0" * 64,
+            1,
+        ),
+        original.replace("`execution_authorized = true`", "`execution_authorized = false`", 1),
+        original.replace("final production kill switch: `ARMED`",
+                         "final production kill switch: `HALTED`", 1),
+        original.replace("post-arm heartbeat: `HEALTHY`",
+                         "post-arm heartbeat: `UNHEALTHY`", 1),
     )
     for mutation in mutations:
         _assert_document_mutation_fails_both(
-            path, mutation, "STAGE_8_12_2_CURRENT_HANDOFF")
-
-
-CANONICAL_STAGE_8_10_DOCS = (
-    "TradingSystemLab/CURRENT_STATE.md", "TradingSystemLab/PROJECT_CONTEXT.md",
-    "TradingSystemLab/ROADMAP.md", "TradingSystemLab/stage8_robot/README.md",
-)
-
-
+            path, mutation, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
 def _assert_document_mutation_fails_both(path, mutation, expected_error):
     relative = path.removeprefix("TradingSystemLab/stage8_robot/")
     if path.startswith("TradingSystemLab/") and not path.startswith("TradingSystemLab/stage8_robot/"):
@@ -1119,7 +1157,8 @@ def test_stage_8_10_semantic_document_regressions_fail_both_audits(
 
 
 @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
-def test_stage_8_10_current_handoff_package5_readiness_passes_both_audits(path):
+
+def test_stage_8_12_live_current_handoff_passes_both_audits(path):
     original = source(path)
     independent = stage8.audit(
         write_result=False, source_overrides={path: original}
@@ -1127,95 +1166,54 @@ def test_stage_8_10_current_handoff_package5_readiness_passes_both_audits(path):
     operational = run_audit({path: original})
     assert "STAGE_8_10_CURRENT_HANDOFF_EXACT" not in independent["errors"]
     assert "STAGE_8_10_CURRENT_HANDOFF_EXACT" not in operational["errors"]
-
-
+    assert "STAGE_8_12_4_LIVE_ACTIVATION_COMPLETE_HANDOFF" not in independent["errors"]
+    assert "STAGE_8_12_4_LIVE_ACTIVATION_COMPLETE_HANDOFF" not in operational["errors"]
 @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
-def test_stage_8_10_current_handoff_stale_gate_and_omission_fail_both_audits(path):
+
+def test_stage_8_12_live_current_handoff_stale_gate_and_omission_fail_both_audits(path):
     original = source(path)
     marker = "## Current handoff"
     start = original.index(marker)
     next_section = original.index("\n## ", start + len(marker))
     handoff = original[start:next_section]
+
     stale_handoff = handoff.replace(
         "Stage 8.10 is **COMPLETE**.",
         "Stage 8.10 is **COMPLETE**, but the next possible lifecycle gate is Stage 8.10.5.",
-        1)
+        1,
+    )
     stale = original[:start] + stale_handoff + original[next_section:]
     _assert_document_mutation_fails_both(path, stale, "STAGE_8_10_NO_STALE_NEXT_GATE")
-    omitted_handoff = handoff.replace("stage8.11.attempt7", "", 1)
-    omitted = original[:start] + omitted_handoff + original[next_section:]
-    _assert_document_mutation_fails_both(path, omitted, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
-    package3_omitted_handoff = handoff.replace(
-        "AB1D22A2BE4A748B5F25C21C56FEAC922CAE03499F6F41DF04A47F192A3E7D30",
-        "",
-        1,
-    )
-    package3_omitted = (
-        original[:start] + package3_omitted_handoff + original[next_section:]
-    )
-    _assert_document_mutation_fails_both(
-        path, package3_omitted, "STAGE_8_10_CURRENT_HANDOFF_EXACT"
-    )
-    package4_omitted_handoff = handoff.replace(
-        "60D9C3EFEC7D54C50BF188B003DCE06D31647A9D6B6F0ED33BB46FF08475621B",
-        "",
-        1,
-    )
-    package4_omitted = (
-        original[:start] + package4_omitted_handoff + original[next_section:]
-    )
-    independent = stage8.audit(
-        write_result=False,
-        source_overrides={path: package4_omitted},
-    )
-    operational = run_audit({path: package4_omitted})
-    assert "STAGE_8_12_4_PACKAGE5_READINESS_PASS_LIVE_NOT_PERFORMED_HANDOFF" in independent["errors"]
-    assert "STAGE_8_12_4_PACKAGE5_READINESS_PASS_LIVE_NOT_PERFORMED_HANDOFF" in operational["errors"]
 
-    postfunding_omitted_handoff = handoff.replace(
-        "54205165758FF6FC200290E61070D7082DFC13494048AABE7A5A61CDDE3C7F11",
-        "",
-        1,
-    )
-    postfunding_omitted = (
-        original[:start] + postfunding_omitted_handoff + original[next_section:]
-    )
-    independent = stage8.audit(
-        write_result=False,
-        source_overrides={path: postfunding_omitted},
-    )
-    operational = run_audit({path: postfunding_omitted})
-    assert "STAGE_8_12_4_PACKAGE5_READINESS_PASS_LIVE_NOT_PERFORMED_HANDOFF" in independent["errors"]
-    assert "STAGE_8_12_4_PACKAGE5_READINESS_PASS_LIVE_NOT_PERFORMED_HANDOFF" in operational["errors"]
-
-    readiness_omitted_handoff = handoff.replace(
+    for token in (
+        "stage8.11.attempt7",
+        "883ea1ea6a8268276a8e39ebdc8786c643a21935",
         "FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD",
-        "",
-        1,
-    )
-    readiness_omitted = (
-        original[:start] + readiness_omitted_handoff + original[next_section:]
-    )
-    independent = stage8.audit(
-        write_result=False,
-        source_overrides={path: readiness_omitted},
-    )
-    operational = run_audit({path: readiness_omitted})
-    assert "STAGE_8_12_4_PACKAGE5_READINESS_PASS_LIVE_NOT_PERFORMED_HANDOFF" in independent["errors"]
-    assert "STAGE_8_12_4_PACKAGE5_READINESS_PASS_LIVE_NOT_PERFORMED_HANDOFF" in operational["errors"]
-
-
+        "EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9",
+        "durable production authorization: `AUTHORIZED`",
+        "final production kill switch: `ARMED`",
+        "post-arm heartbeat: `HEALTHY`",
+        "STAGE_8_12_FULL_R15_PRODUCTION_AUTHORIZATION_COMPLETE",
+    ):
+        omitted_handoff = handoff.replace(token, "", 1)
+        omitted = original[:start] + omitted_handoff + original[next_section:]
+        independent = stage8.audit(
+            write_result=False, source_overrides={path: omitted}
+        )
+        operational = run_audit({path: omitted})
+        assert "STAGE_8_12_4_LIVE_ACTIVATION_COMPLETE_HANDOFF" in independent["errors"] or "STAGE_8_10_CURRENT_HANDOFF_EXACT" in independent["errors"], token
+        assert "STAGE_8_12_4_LIVE_ACTIVATION_COMPLETE_HANDOFF" in operational["errors"] or "STAGE_8_10_CURRENT_HANDOFF_EXACT" in operational["errors"], token
 @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
-def test_stage_8_11_current_handoff_false_authorization_wording_fails_both_audits(path):
+
+def test_stage_8_11_historical_scope_cannot_be_rewritten_as_live_authority(path):
     original = source(path)
     mutated = original.replace(
-        "real-order transmission remains unauthorized after the Stage 8.11 PASS",
-        "additional real-order transmission is authorized by the Stage 8.11 PASS",
-        1)
+        "At the Stage 8.11 closeout, `execution_authorized = false`",
+        "The Stage 8.11 PASS itself permanently authorized continuous production trading",
+        1,
+    )
     _assert_document_mutation_fails_both(
-        path, mutated, "STAGE_8_10_FALSE_AUTHORIZATION_OR_TOKEN_CLAIM")
-
-
+        path, mutated, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
 @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
 def test_stage_8_10_clearly_scoped_historical_text_passes_both_audits(path):
     historical = source(path) + ("\n\nIn this historical snapshot, Stage 8.10.7 was "
