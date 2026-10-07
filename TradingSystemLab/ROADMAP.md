@@ -56,7 +56,7 @@ The accepted normal reconciliation model is position-authoritative: after each p
 
 Attempts 1–6, their failures/OIR classifications, manual closes, and recovery evidence remain immutable historical provenance and are not reclassified by the attempt7 PASS.
 
-Stage 8.12 — **STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 NOT STARTED / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**. Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**. Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**.
+Stage 8.12 — **STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**. Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**. Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**.
 
 Canonical Stage 8.12.1 authority:
 
@@ -91,7 +91,7 @@ Canonical Stage 8.12.2 authority:
 - production kill switch: `HALTED`;
 - production Scheduled Task: `Disabled`.
 
-Stage 8.12.1 assembled the production runtime without adding FINAM order transport. Stage 8.12.2 completed the required TEST/AUDIT-only conformance with zero real orders. Stage 8.12.3 Intel production preflight is now **COMPLETE / PASS** on accepted commit `0a40e3bf7a97f0c011d3a6f5216d9f61dd52ef30` with external evidence SHA-256 `9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1`, zero real order-endpoint calls, zero real orders, `execution_authorized=false`, and kill switch `HALTED`. Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is the **NEXT GATE** and remains **NOT STARTED / NOT AUTHORIZED**.
+Stage 8.12.1 assembled the production runtime without adding FINAM order transport. Stage 8.12.2 completed the required TEST/AUDIT-only conformance with zero real orders. Stage 8.12.3 Intel production preflight is now **COMPLETE / PASS** on accepted commit `0a40e3bf7a97f0c011d3a6f5216d9f61dd52ef30` with external evidence SHA-256 `9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1`, zero real order-endpoint calls, zero real orders, `execution_authorized=false`, and kill switch `HALTED`. Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is the **CURRENT GATE**, **STARTED / IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**.
 
 ## Governing research rule
 
