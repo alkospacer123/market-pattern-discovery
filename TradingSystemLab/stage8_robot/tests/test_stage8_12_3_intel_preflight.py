@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import ast
+import json
+import sqlite3
 from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
@@ -11,11 +13,13 @@ from TradingSystemLab.stage8_robot.n4_capacity import N4CapacityInput
 from TradingSystemLab.stage8_robot.production_runtime import MODE as RUNTIME_MODE, RUNTIME_SCHEMA
 from TradingSystemLab.stage8_robot.specification import ACTIVE_IDENTITY, PRODUCTION_SPECIFICATION_ID
 from TradingSystemLab.stage8_robot.stage8_12_intel_preflight import (
+    FROZEN_T3_H1_ATR_CROSSES_TRADING_DAYS,
     PRODUCTION_STATE_FILENAME,
     PreflightBlocked,
     _capacity_report,
     _collect_strategy_loss,
     _read_production_state,
+    _require_broker_clean_snapshot,
     _require_current_h1_watermark,
     _stage8_11_unresolved_for_account,
     _strategy_loss_per_contract,
@@ -121,6 +125,12 @@ def test_benchmark_loss_obeys_exact_production_tick_grid():
         _strategy_loss_per_contract("USDRUBF", Decimal("0.041"))
 
 
+def test_benchmark_atr_explicitly_mirrors_frozen_cross_day_t3_source():
+    assert FROZEN_T3_H1_ATR_CROSSES_TRADING_DAYS is True
+    source = Path("TradingSystemLab/strategies/trend/T3_MTF_Trend.py").read_text()
+    assert 'low["ATR"] = atr(low, p.atr_period)' in source
+
+
 def _h1_bar(timestamp):
     return {
         "timestamp": timestamp,
@@ -181,6 +191,27 @@ def test_benchmark_h1_response_rejects_duplicate_and_off_session_rows():
         )
 
 
+def test_benchmark_h1_response_rejects_missing_expected_middle_bar():
+    rows = [
+        _h1_bar(f"2026-01-05T{hour:02d}:00:00Z")
+        for hour in range(4, 18)
+    ]
+    missing_middle = rows[:6] + rows[7:]
+    with pytest.raises(
+        PreflightBlocked, match="STAGE8_12_3_H1_EXPECTED_SEQUENCE_GAP"
+    ):
+        _collect_strategy_loss(
+            api=_BarsOnlyAPI(missing_middle),
+            instrument="USDRUBF",
+            symbol="USDRUBF@RTSX",
+            watermark=datetime(2026, 1, 5, 17, 0, tzinfo=timezone.utc),
+            params={},
+            binding={},
+            schedule=_benchmark_schedule(),
+            now=datetime(2026, 1, 5, 18, 30, tzinfo=timezone.utc),
+        )
+
+
 def test_absent_production_state_is_clean_and_not_initialized(tmp_path):
     result = _read_production_state(tmp_path, Decimal("100000"))
     assert result == {
@@ -235,6 +266,75 @@ def test_present_production_state_equity_mismatch_fails_closed(tmp_path):
         _read_production_state(tmp_path, Decimal("100000"))
 
 
+def test_null_production_intent_status_is_unresolved_fail_closed(tmp_path):
+    path = tmp_path / "state" / PRODUCTION_STATE_FILENAME
+    path.parent.mkdir(parents=True)
+    connection = sqlite3.connect(path)
+    try:
+        connection.execute(
+            "CREATE TABLE state(key TEXT PRIMARY KEY,value TEXT NOT NULL)"
+        )
+        connection.execute(
+            "CREATE TABLE intents("
+            "idempotency_key TEXT PRIMARY KEY,payload TEXT NOT NULL,"
+            "status TEXT,broker_order_id TEXT,updated_at TEXT)"
+        )
+        connection.execute("CREATE TABLE fills(fill_id TEXT PRIMARY KEY)")
+        identity = {
+            "schema_id": RUNTIME_SCHEMA,
+            "production_specification_id": PRODUCTION_SPECIFICATION_ID,
+            "active_identity": ACTIVE_IDENTITY,
+            "mode": RUNTIME_MODE,
+        }
+        connection.executemany(
+            "INSERT INTO state(key,value) VALUES(?,?)",
+            [
+                ("database_identity", json.dumps(identity)),
+                ("production_positions", json.dumps({})),
+                ("realized_equity", json.dumps("100000")),
+            ],
+        )
+        connection.execute(
+            "INSERT INTO intents(idempotency_key,payload,status) VALUES(?,?,NULL)",
+            ("malformed", "{}"),
+        )
+        connection.commit()
+    finally:
+        connection.close()
+    with pytest.raises(PreflightBlocked, match="UNRESOLVED_PRODUCTION_INTENTS"):
+        _read_production_state(tmp_path, Decimal("100000"))
+
+
+class _BrokerCleanAPI:
+    def __init__(self, *, positions=None, orders=None):
+        self._positions = [] if positions is None else positions
+        self._orders = [] if orders is None else orders
+
+    def account(self, account_id):
+        return {
+            "status": "ACCOUNT_ACTIVE",
+            "positions": self._positions,
+        }
+
+    def orders(self, account_id):
+        return {"orders": self._orders}
+
+
+def test_broker_clean_snapshot_is_fail_closed():
+    clean = _require_broker_clean_snapshot(_BrokerCleanAPI(), "account")
+    assert clean["status"] == "ACCOUNT_ACTIVE"
+    with pytest.raises(PreflightBlocked, match="BROKER_POSITION_PRESENT"):
+        _require_broker_clean_snapshot(
+            _BrokerCleanAPI(
+                positions=[{
+                    "symbol": "USDRUBF@RTSX",
+                    "quantity": {"value": "1"},
+                }]
+            ),
+            "account",
+        )
+
+
 def test_stage8_12_3_preflight_has_no_order_transmission_calls():
     source = Path("TradingSystemLab/stage8_robot/stage8_12_intel_preflight.py").read_text()
     tree = ast.parse(source)
@@ -251,6 +351,9 @@ def test_stage8_12_3_preflight_has_no_order_transmission_calls():
     assert '"real_order_count": 0' in source
     assert '"stage8_12_4_status": "NOT_STARTED_NOT_AUTHORIZED"' in source
     assert source.count("_require_safety_state(") >= 3
+    assert source.count("_require_broker_clean_snapshot(api, account_id)") >= 2
+    assert "COALESCE(status, '') NOT IN" in source
+    assert "STAGE8_12_3_H1_EXPECTED_SEQUENCE_GAP" in source
 
 
 def test_windows_wrapper_enforces_zero_order_preflight_boundaries():
