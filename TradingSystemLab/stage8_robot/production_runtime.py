@@ -310,6 +310,24 @@ class ProductionRuntime:
             self.store.put(evaluated_key, timestamp.isoformat())
         return signal
 
+    def discard_orphan_pending_signal(self, instrument: str) -> bool:
+        """Drop a pre-intent signal left by a prior process crash."""
+        if instrument not in INSTRUMENTS:
+            raise ProductionRuntimeError("INSTRUMENT_NOT_N4")
+        key = f"pending_signal:{instrument}"
+        pending = self.store.get(key)
+        if pending is None:
+            return False
+        if (
+            not isinstance(pending, dict)
+            or not isinstance(pending.get("timestamp"), str)
+            or not isinstance(pending.get("signal_id"), str)
+        ):
+            raise ProductionRuntimeError("PENDING_SIGNAL_STATE_INVALID")
+        self.store.put(f"last_evaluated_h1:{instrument}", pending["timestamp"])
+        self.store.put(key, None)
+        return True
+
     def discard_pending_signal(self, signal: SignalIntent) -> None:
         """Consume a genuine but operationally ineligible signal without an order."""
         self._consume_pending_signal(signal)
