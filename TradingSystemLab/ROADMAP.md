@@ -414,7 +414,7 @@ Canonical closeout evidence:
 - production kill switch: `HALTED`;
 - production Scheduled Task: `Disabled`.
 
-Exit criterion: **PASS**. Exact tested production commit remained independently auditable with zero real-order transmission authorization. Stage 8.12.3 is the next gate and remains NOT STARTED.
+Exit criterion: **PASS**. Exact tested production commit remained independently auditable with zero real-order transmission authorization. At the Stage 8.12.2 closeout, Stage 8.12.3 was the next gate; it subsequently completed under the Stage 8.12.3 authority recorded below.
 
 ### Stage 8.12.3 — Intel production preflight
 
