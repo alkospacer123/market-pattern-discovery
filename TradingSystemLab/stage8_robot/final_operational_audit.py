@@ -177,10 +177,30 @@ def _stage8_10_document_consistency(document: str) -> tuple[bool, bool, bool]:
     normalized_handoff = " ".join(handoff.split())
     required = (
         "Stage 8.9 is **COMPLETE**", "Stage 8.10 is **COMPLETE**",
-        "Stage 8.11 — Controlled Real Execution Acceptance — is now **COMPLETE / PASS**",
+        "Stage 8.11 — Controlled Real Execution Acceptance — remains **COMPLETE / PASS**",
         "72a910e49b876cda99484a810e6f8a1b16ac0209", "stage8.11.attempt7",
         "704BFCC19B1A63F490192C0D8D0E4715BFECF77664296AFEF47E5B80FBF64B5F",
-        "exactly two real order-endpoint calls", "final position quantity: `0`",
+        "At the Stage 8.11 closeout, `execution_authorized = false`",
+        "That historical state is superseded by the Stage 8.12.4 activation below",
+        "Stage 8.12 — FULL/R15 Production Authorization — is **COMPLETE / PASS**",
+        "Stage 8.12.4 live activation is **COMPLETE / LIVE PRODUCTION ACTIVATED**",
+        "883ea1ea6a8268276a8e39ebdc8786c643a21935",
+        "FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD",
+        "EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9",
+        "durable production authorization: `AUTHORIZED`",
+        "`execution_authorized = true`",
+        "final production kill switch: `ARMED`",
+        "production Scheduled Task: `Running`",
+        "readonly Scheduled Task: `Disabled`",
+        "post-arm heartbeat: `HEALTHY`",
+        "post-arm reconciliation: `PASS`",
+        "post-arm unresolved intents: `0`",
+        "post-arm open positions: `0`",
+        "post-arm active protective stops: `0`",
+        "post-arm production cycle count: `15`",
+        "STAGE_8_12_FULL_R15_PRODUCTION_AUTHORIZATION_COMPLETE",
+    )
+    exactly two real order-endpoint calls", "final position quantity: `0`",
         "final active broker orders: `0`", "unresolved Stage 8.11 intents: `0`",
         "final production kill switch: `HALTED`", "Scheduled Task: `Disabled`",
         "The physical authorization used for attempt7 is consumed",
@@ -866,17 +886,12 @@ def audit(
     check(all(STAGE_8_10_COMPLETE_STATUS in doc for doc in stage8_9_docs),
           "STAGE_8_10_CLOSEOUT_STATUS_SYNCHRONIZED")
     current_handoffs = [_current_handoff(doc) for doc in stage8_9_docs]
-    check(all("Stage 8.11 — Controlled Real Execution Acceptance — is now **COMPLETE / PASS**" in handoff
+    check(all("Stage 8.11 — Controlled Real Execution Acceptance — remains **COMPLETE / PASS**" in handoff
               and "stage8.11.attempt7" in handoff
               and "704BFCC19B1A63F490192C0D8D0E4715BFECF77664296AFEF47E5B80FBF64B5F" in handoff
-              and "exactly two real order-endpoint calls" in handoff
-              and "final position quantity: `0`" in handoff
-              and "final active broker orders: `0`" in handoff
-              and "unresolved Stage 8.11 intents: `0`" in handoff
-              and "The physical authorization used for attempt7 is consumed" in handoff
-              and "Current `execution_authorized = false`" in handoff
-              for handoff in current_handoffs),
-          "STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED")
+              and "At the Stage 8.11 closeout, `execution_authorized = false`" in handoff
+              and "That historical state is superseded by the Stage 8.12.4 activation below" in handoff
+              for handoff in current_handoffs),"STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED")
     physical_entry=text("TradingSystemLab/stage8_robot/stage8_11_physical_acceptance.py")
     physical_wrapper=text("TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-physical-acceptance.ps1")
     attempt3_entry=text("TradingSystemLab/stage8_robot/stage8_11_physical_acceptance_attempt3.py")
@@ -1110,7 +1125,7 @@ def audit(
           len(stage811_provenance.get("historical_failed_prechecks",[])) == 2,
     )), "STAGE_8_11_LIFECYCLE_EVIDENCE_CLOSEOUT")
     stage812_expected = {
-        "status":"STAGE_8_12_STARTED_STAGE8_12_4_IMPLEMENTATION_NOT_AUTHORIZED",
+        "status":"STAGE_8_12_FULL_R15_PRODUCTION_AUTHORIZATION_COMPLETE",
         "stage8_12_1_status":"STAGE_8_12_1_PRODUCTION_RUNTIME_ASSEMBLY_COMPLETE_PASS",
         "accepted_code_commit":"3f2d68ca0c327271fb543a0b63c0e8f842c855bd",
         "external_test_only_evidence_sha256":"F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C",
@@ -1126,14 +1141,14 @@ def audit(
         "stage8_12_3_real_order_count":0,
         "stage8_12_3_execution_authorized":False,
         "stage8_12_3_production_kill_switch_final_state":"HALTED",
-        "stage8_12_4_status":"STARTED_IMPLEMENTATION_NOT_AUTHORIZED",
-        "next_gate":"STAGE_8_12_4_EXPLICIT_FULL_R15_PRODUCTION_AUTHORIZATION",
-        "execution_authorized":False,
-        "live_trading_authorized":False,
-        "real_order_transmission_authorized":False,
-        "production_kill_switch_final_state":"HALTED",
-        "production_scheduled_task":"Disabled",
-        "mode":"STAGE8_12_4_IMPLEMENTATION_CODE_ONLY_NOT_AUTHORIZED",
+        "stage8_12_4_status":"COMPLETE_PASS_LIVE_PRODUCTION_ACTIVATED",
+        "next_gate":"STAGE_8_12_COMPLETE_CONTINUOUS_PRODUCTION_OPERATION",
+        "execution_authorized":True,
+        "live_trading_authorized":True,
+        "real_order_transmission_authorized":True,
+        "production_kill_switch_final_state":"ARMED",
+        "production_scheduled_task":"Running",
+        "mode":"STAGE8_12_FULL_R15_LIVE_PRODUCTION",
     }
     check(all(stage812_provenance.get(key) == value for key,value in stage812_expected.items())
           and stage812_provenance.get("stage8_12_4_authorization_foundation") == {
@@ -1303,6 +1318,48 @@ def audit(
           and package5_readiness.get("live_activation_performed") is False
           and package5_readiness.get("next_step") == "PACKAGE_5_MANUAL_LIVE_ACTIVATION_BOUNDARY",
           "STAGE_8_12_4_PACKAGE5_READINESS_PROVENANCE_COMPLETE_PASS_EXACT")
+
+    package5_activation=stage812_provenance.get("stage8_12_4_package5_activation",{})
+    check(package5_activation == {
+              "status":"COMPLETE_PASS_LIVE_PRODUCTION_ACTIVATED",
+              "physical_activation_performed":True,
+              "accepted_code_commit":"883ea1ea6a8268276a8e39ebdc8786c643a21935",
+              "stage5_data_commit":"50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+              "readiness_external_evidence_sha256":"FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD",
+              "external_evidence":"runtime/diagnostics/package5-live-activation/stage8_12_4_live_activation.json",
+              "external_evidence_sha256":"EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9",
+              "external_evidence_tracked_in_git":False,
+              "durable_authorization_present":True,
+              "authorization_status":"AUTHORIZED",
+              "execution_authorized":True,
+              "live_trading_authorized":True,
+              "real_order_transmission_authorized":True,
+              "prearm_heartbeat":"HEALTHY",
+              "prearm_reconciliation":"PASS",
+              "prearm_unresolved_intents":0,
+              "prearm_open_positions":0,
+              "prearm_active_protective_stops":0,
+              "production_task_prearm":"Running",
+              "kill_switch_prearm":"HALTED",
+              "kill_switch_final_state":"ARMED",
+              "production_task":"Running",
+              "readonly_task":"Disabled",
+              "live_activation_performed":True,
+              "postarm_verification":{
+                  "heartbeat_after_arm":True,
+                  "heartbeat":"HEALTHY",
+                  "reconciliation":"PASS",
+                  "unresolved_intents":0,
+                  "open_positions":0,
+                  "active_protective_stops":0,
+                  "cycle_count":15,
+              },
+              "forced_trade_required":False,
+              "completion_status":"STAGE_8_12_FULL_R15_PRODUCTION_AUTHORIZATION_COMPLETE",
+              "next_step":"CONTINUOUS_PRODUCTION_OPERATION_MONITORING",
+          },
+          "STAGE_8_12_4_PACKAGE5_LIVE_ACTIVATION_PROVENANCE_EXACT")
+
 
     package3_validator=(HERE/"deploy/windows/run-stage8-12-4-package3-zero-order-validation.ps1").read_text()
     package3_lower=package3_validator.lower()
@@ -1479,28 +1536,34 @@ def audit(
           "STAGE_8_11_INTEL_WINDOWS_TIME_SANITY")
     check(all("883ea1ea6a8268276a8e39ebdc8786c643a21935" in handoff
               and "FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD" in handoff
-              and "Package 5 readiness" in handoff
-              and "COMPLETE / PASS / LIVE ACTIVATION NOT PERFORMED" in handoff
-              and "additional funding required: `0`" in handoff
-              and "durable production authorization" in handoff
-              and "execution_authorized = false" in handoff
-              and "HALTED" in handoff
-              and "Disabled" in handoff
-              and "real order count" in handoff.lower()
-              and "live activation performed" in handoff.lower()
+              and "EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9" in handoff
+              and "Stage 8.12.4 live activation is **COMPLETE / LIVE PRODUCTION ACTIVATED**" in handoff
+              and "durable production authorization: `AUTHORIZED`" in handoff
+              and "`execution_authorized = true`" in handoff
+              and "final production kill switch: `ARMED`" in handoff
+              and "production Scheduled Task: `Running`" in handoff
+              and "readonly Scheduled Task: `Disabled`" in handoff
+              and "post-arm heartbeat: `HEALTHY`" in handoff
+              and "post-arm reconciliation: `PASS`" in handoff
+              and "post-arm unresolved intents: `0`" in handoff
+              and "post-arm open positions: `0`" in handoff
+              and "post-arm active protective stops: `0`" in handoff
+              and "post-arm production cycle count: `15`" in handoff
+              and "STAGE_8_12_FULL_R15_PRODUCTION_AUTHORIZATION_COMPLETE" in handoff
               for handoff in current_handoffs),
-          "STAGE_8_12_4_PACKAGE5_READINESS_PASS_LIVE_NOT_PERFORMED_HANDOFF")
+          "STAGE_8_12_4_LIVE_ACTIVATION_COMPLETE_HANDOFF")
     forbidden_claims = (
         r"(?:broker acceptance (?:is |was )?validated|order (?:was )?accepted|FINAM server accepted an order)",
-        r"(?<!not )real-order (?:transmission|capability) is authorized",
     )
     check(not any(re.search(pattern, stage8_9_joined_docs, re.I) for pattern in forbidden_claims),
-          "STAGE_8_10_FALSE_AUTHORIZATION_OR_TOKEN_CLAIM")
+          "STAGE_8_12_4_NO_FORCED_BROKER_ACCEPTANCE_CLAIM")
+    check("STAGE_8_12_FULL_R15_PRODUCTION_AUTHORIZATION_COMPLETE" in stage8_9_joined_docs
+          and "EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9" in stage8_9_joined_docs,
+          "STAGE_8_12_FULL_R15_PRODUCTION_CLOSEOUT")
     check("LIVE_TRADING_NOT_AUTHORIZED" in stage8_9_joined_docs
-          and "REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in stage8_9_joined_docs,
-          "LIVE_AND_REAL_ORDER_TRANSMISSION_UNAUTHORIZED")
-    false_full_claim = re.compile(r"(?:FULL/N4|FULL N4|FULL/R15).{0,40}(?:ready|sufficient|validated)", re.I)
-    check(not false_full_claim.search(stage8_9_joined_docs), "FULL_N4_FUNDING_READINESS_NOT_CLAIMED")
+          and "REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED" in stage8_9_joined_docs
+          and "`execution_authorized = true`" in stage8_9_joined_docs,
+          "LEGACY_AIRGAPS_AND_STAGE8_12_LIVE_BOUNDARY")
 
     controlled = text("TradingSystemLab/stage8_robot/controlled_real_acceptance.py")
     finam = text("TradingSystemLab/stage8_robot/finam_api.py")
@@ -1588,7 +1651,7 @@ def audit(
         "stage8_11_1_status": "COMPLETE_PASS",
         "stage8_11_2_status": "COMPLETE_PASS",
         "stage8_11_3_status": "PRIOR_AUTHORIZATION_CONSUMED",
-        "stage8_11_current_gate": "STAGE_8_12_4_EXPLICIT_FULL_R15_PRODUCTION_AUTHORIZATION",
+        "stage8_11_current_gate": "STAGE_8_12_COMPLETE_CONTINUOUS_PRODUCTION_OPERATION",
         "stage8_11_latest_physical_precheck_result": "STAGE8_11_PRECHECK_ONLY_PASS",
         "stage8_11_physical_precheck_real_order_count": 0,
         "stage8_11_latest_physical_acceptance_result": "PASS",
@@ -1692,14 +1755,19 @@ def audit(
         "stage8_10_live_trading_authorized": False,
         "stage8_10_real_order_transmission_authorized": False,
         "stage8_11_status": "STAGE_8_11_CONTROLLED_REAL_EXECUTION_ACCEPTANCE_COMPLETE_PASS",
-        "stage8_12_status": "STAGE_8_12_STARTED_STAGE8_12_4_IMPLEMENTATION_NOT_AUTHORIZED",
+        "stage8_12_status": "STAGE_8_12_FULL_R15_PRODUCTION_AUTHORIZATION_COMPLETE",
         "stage8_12_1_status": "STAGE_8_12_1_PRODUCTION_RUNTIME_ASSEMBLY_COMPLETE_PASS",
         "stage8_12_1_accepted_code_commit": "3f2d68ca0c327271fb543a0b63c0e8f842c855bd",
         "stage8_12_1_external_evidence_sha256": "F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C",
         "stage8_12_2_status": "STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT_COMPLETE_PASS",
         "stage8_12_2_accepted_code_commit": "2a15f4331afc1433dfbfd0464108e39e59d236f8",
         "stage8_12_2_external_evidence_sha256": "4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F",
-        "stage8_12_next_gate": "STAGE_8_12_4_EXPLICIT_FULL_R15_PRODUCTION_AUTHORIZATION",
+        "stage8_12_next_gate": "STAGE_8_12_COMPLETE_CONTINUOUS_PRODUCTION_OPERATION",
+        "stage8_12_4_status": "COMPLETE_PASS_LIVE_PRODUCTION_ACTIVATED",
+        "stage8_12_4_activation_evidence_sha256": "EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9",
+        "stage8_12_execution_authorized": True,
+        "stage8_12_kill_switch": "ARMED",
+        "stage8_12_production_task": "Running",
         "stage8_9_complete": True, "stage8_9_physical_validation_performed": True,
     }
     if write_result:
