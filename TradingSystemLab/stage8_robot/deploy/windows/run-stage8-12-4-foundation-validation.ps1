@@ -16,7 +16,7 @@ $productionId = "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B
 function Require-DisabledOrAbsentTask([string]$Name) {
     $task = Get-ScheduledTask -TaskName $Name -ErrorAction SilentlyContinue
     if ($null -ne $task -and $task.State -ne "Disabled") {
-        throw "STAGE8_12_4_TASK_NOT_DISABLED:$Name:$($task.State)"
+        throw "STAGE8_12_4_TASK_NOT_DISABLED:${Name}:$($task.State)"
     }
 }
 
