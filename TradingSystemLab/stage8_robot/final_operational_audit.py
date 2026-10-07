@@ -177,14 +177,14 @@ def _stage8_10_document_consistency(document: str) -> tuple[bool, bool, bool]:
         "The physical authorization used for attempt7 is consumed",
         "Current `execution_authorized = false`",
         "real-order transmission remains unauthorized",
-        "Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**",
+        "Stage 8.12 — **STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 NOT STARTED / NOT AUTHORIZED**",
         "Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**",
         "Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**",
         "2a15f4331afc1433dfbfd0464108e39e59d236f8",
         "4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F",
         "19/19 PASS", "25/25 PASS", "144/144 PASS", "48/48 PASS", "113/113 PASS", "111/111 PASS",
         "test-only real-order count: `0`",
-        "Stage 8.12.3 — Intel production preflight — is the **NEXT GATE**")
+        "Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**",\n        "Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is now **STARTED / IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**")
     exact = bool(handoff and all(" ".join(token.split()) in normalized_handoff for token in required))
     if handoff and re.search(r"next (?:possible )?(?:lifecycle )?gate is Stage 8\.10\.[1-8]", handoff, re.I):
         stale_next = True
@@ -1146,16 +1146,16 @@ def audit(
     check("w32tm /query /status" in intel_wrapper and "w32tm /query /source" in intel_wrapper
           and "Get-Service -Name W32Time" in intel_wrapper and "$clock = (Get-Date)" not in intel_wrapper,
           "STAGE_8_11_INTEL_WINDOWS_TIME_SANITY")
-    check(all("Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**" in handoff
-              and "Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**" in handoff
-              and "Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**" in handoff
-              and "2a15f4331afc1433dfbfd0464108e39e59d236f8" in handoff
-              and "4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F" in handoff
-              and "Stage 8.12.3 — Intel production preflight — is the **NEXT GATE**" in handoff
-              and "test-only real-order count: `0`" in handoff
-              and "current `execution_authorized = false`" in handoff
+    check(all("Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**" in handoff
+              and "0a40e3bf7a97f0c011d3a6f5216d9f61dd52ef30" in handoff
+              and "9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1" in handoff
+              and "205/205 PASS" in handoff
+              and "Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is now **STARTED / IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**" in handoff
+              and "no authorization record has been created" in handoff.lower()
+              and "kill switch remains `HALTED`" in handoff
+              and "production Scheduled Task remains disabled" in handoff
               for handoff in current_handoffs),
-          "STAGE_8_12_2_CURRENT_HANDOFF")
+          "STAGE_8_12_4_CURRENT_HANDOFF")
     forbidden_claims = (
         r"(?:broker acceptance (?:is |was )?validated|order (?:was )?accepted|FINAM server accepted an order)",
         r"(?<!not )real-order (?:transmission|capability) is authorized",
@@ -1254,7 +1254,7 @@ def audit(
         "stage8_11_1_status": "COMPLETE_PASS",
         "stage8_11_2_status": "COMPLETE_PASS",
         "stage8_11_3_status": "PRIOR_AUTHORIZATION_CONSUMED",
-        "stage8_11_current_gate": "STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT",
+        "stage8_11_current_gate": "STAGE_8_12_4_EXPLICIT_FULL_R15_PRODUCTION_AUTHORIZATION",
         "stage8_11_latest_physical_precheck_result": "STAGE8_11_PRECHECK_ONLY_PASS",
         "stage8_11_physical_precheck_real_order_count": 0,
         "stage8_11_latest_physical_acceptance_result": "PASS",
