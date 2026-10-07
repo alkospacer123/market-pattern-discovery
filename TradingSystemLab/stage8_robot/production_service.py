@@ -301,6 +301,23 @@ class ProductionService:
         if quantity != action.quantity:
             raise ProductionServiceError("STAGE8_12_4_ORDER_RECONCILIATION_MISMATCH")
 
+
+    def _validate_sltp(self, order: BrokerOrderView, action: RuntimeAction) -> None:
+        if (
+            order.kind != "SLTP"
+            or order.symbol != action.finam_symbol
+            or order.side != _expected_side(action, exit_order=True)
+            or order.comment != action.idempotency_key
+            or action.stop_price is None
+        ):
+            raise ProductionServiceError("STAGE8_12_4_SLTP_RECONCILIATION_MISMATCH")
+        try:
+            price = Decimal(order.request["sl_price"]["value"])
+        except Exception as exc:
+            raise ProductionServiceError("STAGE8_12_4_SLTP_RECONCILIATION_MISMATCH") from exc
+        if price != action.stop_price:
+            raise ProductionServiceError("STAGE8_12_4_SLTP_RECONCILIATION_MISMATCH")
+
     def _submit(self, action: RuntimeAction, snap: Snapshot) -> None:
         if self.transport is None:
             return
