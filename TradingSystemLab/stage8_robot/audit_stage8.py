@@ -671,6 +671,30 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and package3.get("next_package_on_pass") == "PACKAGE_4_FRESH_FUNDING_RECALCULATION",
           "STAGE_8_12_4_PACKAGE3_PROVENANCE_COMPLETE_PASS_EXACT")
 
+    package4=stage812_provenance.get("stage8_12_4_package4",{})
+    check(package4.get("status") == "COMPLETE_PASS_FUNDING_ACTION_REQUIRED"
+          and package4.get("physical_validation_performed") is True
+          and package4.get("accepted_code_commit") == "a31080781e6c51de405d840d5cf30abd91c70ead"
+          and package4.get("external_evidence") == "runtime/diagnostics/package4/stage8_12_3_intel_preflight.json"
+          and package4.get("external_evidence_sha256") == "60D9C3EFEC7D54C50BF188B003DCE06D31647A9D6B6F0ED33BB46FF08475621B"
+          and package4.get("external_evidence_tracked_in_git") is False
+          and package4.get("fresh_get_only_financial_authority") == "PASS"
+          and package4.get("independent_stage8_audit") == {"status":"PASS","checks":281}
+          and package4.get("final_operational_audit") == {"status":"PASS","checks":168}
+          and package4.get("public_financial_values") == "NOT_REPRODUCED_IN_PUBLIC_REPOSITORY"
+          and package4.get("reserve_scenarios") == "EXTERNAL_EVIDENCE_INCLUDES_0_10_20_30_PERCENT"
+          and package4.get("funding_action_required") is True
+          and package4.get("durable_authorization_required_state") == "Absent"
+          and package4.get("kill_switch_required_state") == "HALTED"
+          and package4.get("production_task_required_state") == "Disabled"
+          and package4.get("execution_authorized") is False
+          and package4.get("live_trading_authorized") is False
+          and package4.get("real_order_transmission_authorized") is False
+          and package4.get("real_order_count") == 0
+          and package4.get("next_step") == "OPERATOR_FUNDING_THEN_FRESH_REVALIDATION_BEFORE_PACKAGE5"
+          and package4.get("package5_status") == "NOT_STARTED_NOT_AUTHORIZED",
+          "STAGE_8_12_4_PACKAGE4_PROVENANCE_COMPLETE_PASS_EXACT")
+
     package3_validator=(HERE/"deploy/windows/run-stage8-12-4-package3-zero-order-validation.ps1").read_text()
     package3_lower=package3_validator.lower()
     check(all(token in package3_validator for token in (
@@ -1153,16 +1177,17 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
               and "The physical authorization used for attempt7 is consumed" in handoff
               and "Current `execution_authorized = false`" in handoff
               for handoff in current_handoffs),"STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED")
-    check(all("242c0a4bee0200da171d1a7451472b256241e170" in handoff
-              and "AB1D22A2BE4A748B5F25C21C56FEAC922CAE03499F6F41DF04A47F192A3E7D30" in handoff
-              and "33/33 PASS" in handoff
+    check(all("a31080781e6c51de405d840d5cf30abd91c70ead" in handoff
+              and "60D9C3EFEC7D54C50BF188B003DCE06D31647A9D6B6F0ED33BB46FF08475621B" in handoff
               and "Package 4" in handoff
+              and "COMPLETE / PASS / FUNDING ACTION REQUIRED" in handoff
+              and "Package 5" in handoff
+              and "NOT STARTED / NOT AUTHORIZED" in handoff
               and "HALTED" in handoff
               and "Disabled" in handoff
               and "real order count" in handoff.lower()
-              and "not authorized" in handoff.lower()
               for handoff in current_handoffs),
-          "STAGE_8_12_4_PACKAGE3_PASS_PACKAGE4_CURRENT_HANDOFF")
+          "STAGE_8_12_4_PACKAGE4_PASS_PACKAGE5_NOT_AUTHORIZED_HANDOFF")
     forbidden_claims=(r"(?:broker acceptance (?:is |was )?validated|order (?:was )?accepted|FINAM server accepted an order)",
                       r"(?<!not )real-order (?:transmission|capability) is authorized",)
     check(not any(re.search(pattern,closeout_docs,re.I) for pattern in forbidden_claims),
