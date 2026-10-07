@@ -710,6 +710,26 @@
         "execution_authorized": false,
         "real_order_count": 0
       }
+    },
+    "stage8_12_4_package2": {
+      "status": "IMPLEMENTED_NOT_AUTHORIZED_PENDING_PACKAGE3_ZERO_ORDER_VALIDATION",
+      "production_service": "TradingSystemLab/stage8_robot/production_service.py",
+      "state_database": "stage8-12-production.sqlite3",
+      "h1_live_depth_days": 30,
+      "stage5_data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+      "entry_candle_excluded_from_position_management": true,
+      "missed_completed_h1_bars_replayed_sequentially": true,
+      "realized_equity_authority": "equity - unrealized_profit - explained_external_cash_flows",
+      "production_task_name": "TradingSystemLab-Stage8-Production",
+      "readonly_task_name": "TradingSystemLab-Stage8-Readonly",
+      "production_task_installer_default_state": "Disabled",
+      "automatic_authorization_creation": false,
+      "automatic_kill_switch_arm": false,
+      "production_task_enabled": false,
+      "production_task_started": false,
+      "execution_authorized": false,
+      "real_order_count": 0,
+      "next_package": "PACKAGE_3_INTEL_EXACT_COMMIT_ZERO_ORDER_VALIDATION"
     }
   }
 }
