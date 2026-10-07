@@ -215,6 +215,7 @@ class ProductionService:
         self.consecutive_failures = 0
         self.last_position_protection: list[dict[str, Any]] = []
         self.last_api_contact = self.clock().astimezone(timezone.utc)
+        self.startup_pending_cleanup_complete = False
         self.transport.connect()
 
     def close(self) -> None:
@@ -1112,6 +1113,10 @@ class ProductionService:
         snapshot = self._snapshot()
         authorities, histories, schedules = self._instrument_data(now)
         self._activation_initialize(snapshot, histories)
+        if not self.startup_pending_cleanup_complete:
+            for instrument in INSTRUMENTS:
+                self.runtime.discard_orphan_pending_signal(instrument)
+            self.startup_pending_cleanup_complete = True
 
         # Recover any durable pre-crash intents before interpreting new H1.
         snapshot = self._reconcile_unresolved(snapshot)
