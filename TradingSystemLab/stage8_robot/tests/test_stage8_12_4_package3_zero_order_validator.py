@@ -64,6 +64,14 @@ def test_package3_foundation_audits_use_canonical_broker_constants_and_current_h
     assert "production Scheduled Task remains disabled" in handoff
 
 
+def test_package3_final_audit_preserves_historical_hash_and_allows_exact_stage8124_finam_hash():
+    final = Path("TradingSystemLab/stage8_robot/final_operational_audit.py").read_text(encoding="utf-8")
+    assert '"TradingSystemLab/stage8_robot/finam_api.py": "15c97d5557021ec50702bd9e2abf1bde4e76faf90063b973fd61f9cf9d096cb0"' in final
+    assert "POST_STAGE8_12_4_CORRECTED_SHA256" in final
+    assert '"TradingSystemLab/stage8_robot/finam_api.py": "d1bce44e9b66b4a2936e89f70891f2f4d203cbdd340d0412d08e3aba2cd0b369"' in final
+    assert "stage8124_corrected = POST_STAGE8_12_4_CORRECTED_SHA256.get(path)" in final
+
+
 def test_package3_validator_runs_existing_audits_and_focused_corrective_tests():
     text = source()
     assert "run-stage8-12-4-foundation-validation.ps1" in text
