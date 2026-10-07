@@ -362,57 +362,127 @@ class ProductionService:
             action = _action(row["payload"])
             order = self._matching(snap, action)
             status = row["status"]
+
             if action.kind == "ENTRY":
+                quantity = snap.positions.get(action.finam_symbol, 0)
                 if order is not None:
                     self._validate_regular(order, action, exit_order=False)
-                    if status in {"INTENT_PERSISTED", "SUBMITTED", "UNCERTAIN"}:
-                        self.runtime.store.transition_intent(action.idempotency_key, "ACK", order.order_id)
-                    if order.status in {"REJECTED", "DENIED_BY_BROKER", "REJECTED_BY_EXCHANGE", "FAILED", "CANCELLED", "EXPIRED"}:
-                        if snap.positions.get(action.finam_symbol, 0):
-                            raise ProductionServiceError("STAGE8_12_4_REJECTED_ENTRY_HAS_POSITION")
-                        self.runtime.store.transition_intent(action.idempotency_key, "REJECTED", order.order_id)
-                        continue
-                elif status in {"SUBMITTED", "UNCERTAIN", "ACK", "PARTIAL_FILL"}:
-                    raise ProductionServiceError("STAGE8_12_4_UNCERTAIN_ENTRY_REQUIRES_BROKER_PROOF")
-                quantity = snap.positions.get(action.finam_symbol, 0)
+
+                # Exact /account position is the fill authority. FINAM /orders
+                # may converge later and must not block protective-stop creation.
                 if quantity:
-                    stop = self.runtime.confirm_entry_position(action.idempotency_key, quantity)
+                    if (
+                        order is not None
+                        and order.status in TERMINAL_ORDER_STATUSES
+                        and order.status not in {"FILLED", "EXECUTED"}
+                    ):
+                        raise ProductionServiceError(
+                            "STAGE8_12_4_REJECTED_ENTRY_HAS_POSITION"
+                        )
+                    stop = self.runtime.confirm_entry_position(
+                        action.idempotency_key, quantity
+                    )
                     if stop is not None:
                         generated.append(stop)
-                elif order is not None and order.status in {"FILLED", "EXECUTED"}:
-                    raise ProductionServiceError("STAGE8_12_4_FILLED_ENTRY_WITHOUT_POSITION")
-                elif order is None and status == "INTENT_PERSISTED":
+                    continue
+
+                if order is not None:
+                    if order.status in {"FILLED", "EXECUTED"}:
+                        raise ProductionServiceError(
+                            "STAGE8_12_4_FILLED_ENTRY_WITHOUT_POSITION"
+                        )
+                    if order.status in TERMINAL_ORDER_STATUSES:
+                        terminal = (
+                            "CANCELLED"
+                            if order.status in {"CANCELLED", "REPLACED", "EXPIRED", "DISABLED"}
+                            else "REJECTED"
+                        )
+                        self.runtime.store.transition_intent(
+                            action.idempotency_key, terminal, order.order_id
+                        )
+                        continue
+                    if status in {"INTENT_PERSISTED", "SUBMITTED", "UNCERTAIN"}:
+                        self.runtime.store.transition_intent(
+                            action.idempotency_key, "ACK", order.order_id
+                        )
+                    continue
+
+                if status == "INTENT_PERSISTED":
                     self._submit(action, snap)
+                    continue
+                if status in {"SUBMITTED", "UNCERTAIN", "ACK", "PARTIAL_FILL", "FILL"}:
+                    raise ProductionServiceError(
+                        "STAGE8_12_4_UNCERTAIN_ENTRY_REQUIRES_BROKER_PROOF"
+                    )
 
             elif action.kind in {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}:
                 if order is None:
-                    if status in {"SUBMITTED", "UNCERTAIN", "ACK", "PARTIAL_FILL"}:
-                        raise ProductionServiceError("STAGE8_12_4_UNCERTAIN_STOP_REQUIRES_BROKER_PROOF")
+                    if status in {"SUBMITTED", "UNCERTAIN", "ACK", "PARTIAL_FILL", "FILL"}:
+                        raise ProductionServiceError(
+                            "STAGE8_12_4_UNCERTAIN_STOP_REQUIRES_BROKER_PROOF"
+                        )
                     if status == "INTENT_PERSISTED":
                         self._submit(action, snap)
                     continue
+
                 active = active_sltp_for_trade(
                     snap.orders, trade_id=action.trade_id, symbol=action.finam_symbol
                 )
+                self._validate_sltp(order, action)
                 if order.active and order in active:
-                    self.runtime.confirm_protective_stop(action.idempotency_key, order.order_id)
+                    self.runtime.confirm_protective_stop(
+                        action.idempotency_key, order.order_id
+                    )
                 elif order.status in TERMINAL_ORDER_STATUSES:
-                    raise ProductionServiceError("STAGE8_12_4_PROTECTIVE_STOP_TERMINAL_BEFORE_RECONCILIATION")
+                    raise ProductionServiceError(
+                        "STAGE8_12_4_PROTECTIVE_STOP_TERMINAL_BEFORE_RECONCILIATION"
+                    )
 
             elif action.kind == "EMERGENCY_EXIT_REQUIRED":
+                quantity = snap.positions.get(action.finam_symbol, 0)
+                expected = (
+                    action.quantity if action.direction == "LONG" else -action.quantity
+                )
+                if quantity not in {0, expected}:
+                    raise ProductionServiceError(
+                        "STAGE8_12_4_POSITION_RECONCILIATION_MISMATCH"
+                    )
+
+                # Flat /account position is authoritative even if /orders has
+                # not converged yet or the old protective stop won the race.
+                if quantity == 0:
+                    if order is not None:
+                        self._validate_regular(order, action, exit_order=True)
+                    self.runtime.store.transition_intent(
+                        action.idempotency_key,
+                        "CLOSED",
+                        order.order_id if order is not None else row.get("broker_order_id"),
+                    )
+                    continue
+
                 if order is None:
-                    if status in {"SUBMITTED", "UNCERTAIN", "ACK", "PARTIAL_FILL"}:
-                        raise ProductionServiceError("STAGE8_12_4_UNCERTAIN_EXIT_REQUIRES_BROKER_PROOF")
                     if status == "INTENT_PERSISTED":
                         self._submit(action, snap)
-                    continue
-                self._validate_regular(order, action, exit_order=True)
-                if status in {"INTENT_PERSISTED", "SUBMITTED", "UNCERTAIN"}:
-                    self.runtime.store.transition_intent(action.idempotency_key, "ACK", order.order_id)
-                if not snap.positions.get(action.finam_symbol, 0) and order.status in TERMINAL_ORDER_STATUSES:
-                    self.runtime.store.transition_intent(action.idempotency_key, "CLOSED", order.order_id)
+                        continue
+                    if status in {"SUBMITTED", "UNCERTAIN", "ACK", "PARTIAL_FILL", "FILL"}:
+                        raise ProductionServiceError(
+                            "STAGE8_12_4_UNCERTAIN_EXIT_REQUIRES_BROKER_PROOF"
+                        )
+                else:
+                    self._validate_regular(order, action, exit_order=True)
+                    if order.status in TERMINAL_ORDER_STATUSES:
+                        raise ProductionServiceError(
+                            "STAGE8_12_4_TERMINAL_EXIT_HAS_OPEN_POSITION"
+                        )
+                    if status in {"INTENT_PERSISTED", "SUBMITTED", "UNCERTAIN"}:
+                        self.runtime.store.transition_intent(
+                            action.idempotency_key, "ACK", order.order_id
+                        )
             else:
-                raise ProductionServiceError("STAGE8_12_4_UNKNOWN_UNRESOLVED_INTENT")
+                raise ProductionServiceError(
+                    "STAGE8_12_4_UNKNOWN_UNRESOLVED_INTENT"
+                )
+
         for action in generated:
             self._submit(action, snap)
 
