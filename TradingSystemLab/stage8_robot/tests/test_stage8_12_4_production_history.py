@@ -12,11 +12,14 @@ from TradingSystemLab.stage8_robot.production_history import (
     SEED_FILES,
     SEED_SHA256,
     STAGE5_DATA_COMMIT,
+    MIN_CACHE_OVERLAP_BARS,
     ProductionHistoryError,
     close_index_for_frozen_t3,
     finam_completed_open_h1,
     load_stage5_seed_open_h1,
     splice_seed_and_finam_open_h1,
+    splice_cache_and_finam_open_h1,
+    update_production_h1,
 )
 
 
@@ -243,3 +246,121 @@ def test_finam_history_closed_day_keeps_prior_history_and_rejects_current_day_ba
         match="FINAM_H1_OUTSIDE_CURRENT_SCHEDULE",
     ):
         finam_completed_open_h1(current_bar, observed, [])
+
+
+def _finam_response_from_frame(open_h1: pd.DataFrame) -> dict:
+    bars = []
+    for stamp, row in open_h1.iterrows():
+        utc = stamp.tz_convert("UTC")
+        bars.append({
+            "timestamp": utc.isoformat().replace("+00:00", "Z"),
+            "open": {"value": str(row.Open)},
+            "high": {"value": str(row.High)},
+            "low": {"value": str(row.Low)},
+            "close": {"value": str(row.Close)},
+        })
+    return {"bars": bars}
+
+
+def _hourly_frame(start: str, count: int) -> pd.DataFrame:
+    rows = []
+    stamp = pd.Timestamp(start, tz=MOSCOW)
+    for index in range(count):
+        value = Decimal("100") + Decimal(index) / Decimal("100")
+        rows.append((
+            (stamp + pd.Timedelta(hours=index)).strftime("%Y-%m-%d %H:%M:%S"),
+            value,
+            value + Decimal("0.02"),
+            value - Decimal("0.02"),
+            value + Decimal("0.01"),
+        ))
+    return frame(rows)
+
+
+def test_rolling_cache_preserves_authenticated_continuity_after_seed_window(tmp_path, monkeypatch):
+    seed = _hourly_frame("2026-09-14 10:00:00", 80)
+    first_live = seed.iloc[-40:].copy()
+    first_extension = _hourly_frame("2026-09-17 18:00:00", 4)
+    first_live = pd.concat([first_live, first_extension])
+
+    monkeypatch.setattr(
+        "TradingSystemLab.stage8_robot.production_history.load_stage5_seed_open_h1",
+        lambda root, instrument: seed.copy(),
+    )
+    first_closed = update_production_h1(
+        runtime_root=tmp_path / "runtime",
+        data_root=tmp_path / "data",
+        instrument="USDRUBF",
+        finam_response=_finam_response_from_frame(first_live),
+        observed_at=datetime(2026, 9, 19, 0, tzinfo=timezone.utc),
+        trading_windows=[],
+    )
+    assert first_closed.index[-1] == first_extension.index[-1] + pd.Timedelta("1h")
+
+    cached_open_end = first_extension.index[-1]
+    second_prefix = pd.concat([seed, first_extension]).loc[
+        lambda value: value.index <= cached_open_end
+    ].iloc[-40:]
+    second_extension = _hourly_frame(
+        (cached_open_end + pd.Timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S"),
+        3,
+    )
+    second_live = pd.concat([second_prefix, second_extension])
+
+    monkeypatch.setattr(
+        "TradingSystemLab.stage8_robot.production_history.load_stage5_seed_open_h1",
+        lambda *_: (_ for _ in ()).throw(AssertionError("static seed must not be reread")),
+    )
+    second_closed = update_production_h1(
+        runtime_root=tmp_path / "runtime",
+        data_root=tmp_path / "data",
+        instrument="USDRUBF",
+        finam_response=_finam_response_from_frame(second_live),
+        observed_at=datetime(2026, 9, 20, 0, tzinfo=timezone.utc),
+        trading_windows=[],
+    )
+    assert second_closed.index[-1] == second_extension.index[-1] + pd.Timedelta("1h")
+
+
+def test_rolling_cache_rejects_tamper_and_lost_overlap(tmp_path, monkeypatch):
+    seed = _hourly_frame("2026-09-14 10:00:00", 80)
+    live = seed.iloc[-40:].copy()
+    monkeypatch.setattr(
+        "TradingSystemLab.stage8_robot.production_history.load_stage5_seed_open_h1",
+        lambda root, instrument: seed.copy(),
+    )
+    update_production_h1(
+        runtime_root=tmp_path,
+        data_root=tmp_path / "data",
+        instrument="USDRUBF",
+        finam_response=_finam_response_from_frame(live),
+        observed_at=datetime(2026, 9, 19, 0, tzinfo=timezone.utc),
+        trading_windows=[],
+    )
+    cache_path = tmp_path / "state" / "production-h1" / "USDRUBF.csv"
+    cache_path.write_text(cache_path.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+    with pytest.raises(ProductionHistoryError, match="H1_CACHE_AUTHORITY_MISMATCH"):
+        update_production_h1(
+            runtime_root=tmp_path,
+            data_root=tmp_path / "data",
+            instrument="USDRUBF",
+            finam_response=_finam_response_from_frame(live),
+            observed_at=datetime(2026, 9, 19, 0, tzinfo=timezone.utc),
+            trading_windows=[],
+        )
+
+
+def test_cache_splice_requires_sufficient_overlap_and_cached_last_bar():
+    cached = _hourly_frame("2026-09-14 10:00:00", 80)
+    too_short = cached.iloc[-(MIN_CACHE_OVERLAP_BARS - 1):].copy()
+    with pytest.raises(
+        ProductionHistoryError, match="H1_CACHE_OVERLAP_INSUFFICIENT"
+    ):
+        splice_cache_and_finam_open_h1(cached, too_short)
+
+    missing_last = cached.iloc[-(MIN_CACHE_OVERLAP_BARS + 2):-1].copy()
+    assert len(missing_last) >= MIN_CACHE_OVERLAP_BARS
+    with pytest.raises(
+        ProductionHistoryError, match="H1_CACHE_CONTINUITY_LOST"
+    ):
+        splice_cache_and_finam_open_h1(cached, missing_last)
