@@ -122,12 +122,83 @@ def finam_completed_open_h1(
     observed_at,
     trading_windows,
 ) -> pd.DataFrame:
+    """Return the full completed FINAM H1 lookback, not only today's session.
+
+    FINAM's schedule endpoint supplies the current trading-day authority, while
+    the H1 endpoint supplies up to 30 days of historical bars. Historical rows
+    before the current schedule day are necessarily complete at observed_at and
+    are retained for the pinned-seed overlap. Rows in the current schedule day
+    are accepted only when completed_h1_bars proves them complete.
+    """
+    if (
+        not isinstance(response, dict)
+        or not isinstance(response.get("bars"), list)
+        or not isinstance(trading_windows, list)
+        or not trading_windows
+    ):
+        raise ProductionHistoryError("STAGE8_12_4_FINAM_H1_INVALID")
     try:
-        bars = completed_h1_bars(response, observed_at, trading_windows)
+        observed = pd.Timestamp(observed_at)
+        if observed.tzinfo is None:
+            raise ValueError
+        observed_utc = observed.tz_convert("UTC")
+        current_scope_start = pd.Timestamp(trading_windows[0][0]).tz_convert("UTC").normalize()
+        current_completed = completed_h1_bars(response, observed_at, trading_windows)
     except (TypeError, ValueError) as exc:
         raise ProductionHistoryError("STAGE8_12_4_FINAM_H1_INVALID") from exc
+
+    completed_current_by_open: dict[pd.Timestamp, dict[str, Any]] = {}
+    for bar in current_completed:
+        try:
+            stamp = pd.Timestamp(bar["timestamp"]).tz_convert("UTC")
+        except Exception:
+            raise ProductionHistoryError("STAGE8_12_4_FINAM_H1_INVALID") from None
+        if stamp in completed_current_by_open:
+            raise ProductionHistoryError("STAGE8_12_4_FINAM_H1_INVALID")
+        completed_current_by_open[stamp] = bar
+
+    selected: list[dict[str, Any]] = []
+    seen: set[pd.Timestamp] = set()
+    previous: pd.Timestamp | None = None
+    for raw in response["bars"]:
+        if not isinstance(raw, dict) or not isinstance(raw.get("timestamp"), str):
+            raise ProductionHistoryError("STAGE8_12_4_FINAM_H1_INVALID")
+        try:
+            stamp = pd.Timestamp(raw["timestamp"])
+            if stamp.tzinfo is None:
+                raise ValueError
+            stamp = stamp.tz_convert("UTC")
+        except Exception:
+            raise ProductionHistoryError("STAGE8_12_4_FINAM_H1_INVALID") from None
+        if stamp.minute or stamp.second or stamp.microsecond:
+            raise ProductionHistoryError("STAGE8_12_4_FINAM_H1_INVALID")
+        if stamp in seen or (previous is not None and stamp <= previous):
+            raise ProductionHistoryError("STAGE8_12_4_FINAM_H1_INVALID")
+        seen.add(stamp)
+        previous = stamp
+
+        if stamp < current_scope_start:
+            if stamp >= observed_utc:
+                raise ProductionHistoryError("STAGE8_12_4_FINAM_H1_INVALID")
+            selected.append(raw)
+            continue
+
+        # Today's rows must belong to a validated current schedule window.
+        in_window = any(
+            pd.Timestamp(start).tz_convert("UTC") <= stamp
+            < pd.Timestamp(end).tz_convert("UTC")
+            for start, end in trading_windows
+        )
+        if not in_window:
+            raise ProductionHistoryError("STAGE8_12_4_FINAM_H1_OUTSIDE_CURRENT_SCHEDULE")
+        completed = completed_current_by_open.get(stamp)
+        if completed is not None:
+            selected.append(completed)
+        # A current in-window row absent from completed_current_by_open is the
+        # still-forming H1 bar and is deliberately excluded.
+
     rows: list[tuple[pd.Timestamp, Decimal, Decimal, Decimal, Decimal]] = []
-    for bar in bars:
+    for bar in selected:
         try:
             stamp = pd.Timestamp(bar["timestamp"])
             if stamp.tzinfo is None:
