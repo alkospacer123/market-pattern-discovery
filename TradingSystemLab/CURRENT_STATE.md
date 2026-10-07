@@ -151,17 +151,24 @@ Canonical Package 3 physical authority:
 - production Scheduled Task: `Disabled`;
 - Stage 8.12.4 real order count: `0`.
 
-Package 4 — fresh funding/margin recalculation — is **COMPLETE / PASS / FUNDING ACTION REQUIRED / STILL NOT AUTHORIZED**.
+Package 4 — fresh funding/margin recalculation and post-funding revalidation — is **COMPLETE / PASS / CAPITAL SUFFICIENT / STILL NOT AUTHORIZED**.
 
 Canonical Package 4 authority:
 
-- accepted code commit: `a31080781e6c51de405d840d5cf30abd91c70ead`;
-- external evidence: `runtime/diagnostics/package4/stage8_12_3_intel_preflight.json`;
-- evidence SHA-256: `60D9C3EFEC7D54C50BF188B003DCE06D31647A9D6B6F0ED33BB46FF08475621B`;
+- initial funding recalculation accepted code commit: `a31080781e6c51de405d840d5cf30abd91c70ead`;
+- initial external evidence SHA-256: `60D9C3EFEC7D54C50BF188B003DCE06D31647A9D6B6F0ED33BB46FF08475621B`;
+- post-funding revalidation accepted code commit: `636b6a9abcec459173247f2c52b0d19470dfe738`;
+- post-funding external evidence: `runtime/diagnostics/package4-postfunding-synced/stage8_12_3_intel_preflight.json`;
+- post-funding evidence SHA-256: `54205165758FF6FC200290E61070D7082DFC13494048AABE7A5A61CDDE3C7F11`;
+- production heartbeat/reconciliation after funding: `HEALTHY / PASS`;
+- unresolved production intents: `0`;
+- local open positions: `0`;
+- active protective stops: `0`;
 - fresh GET-only FINAM financial authority: `PASS`;
-- independent Stage 8 audit: `PASS` (`281` checks);
-- final operational audit: `PASS` (`168` checks);
-- reserve scenarios 0/10/20/30% are retained only in external evidence;
+- post-funding capital sufficiency: `PASS`;
+- additional funding required: `0` in external evidence;
+- independent Stage 8 audit: `PASS` (`282` checks);
+- final operational audit: `PASS` (`169` checks);
 - public repository financial values: `NOT_REPRODUCED_IN_PUBLIC_REPOSITORY`;
 - durable production authorization: absent;
 - `execution_authorized = false`;
@@ -169,9 +176,7 @@ Canonical Package 4 authority:
 - production Scheduled Task: `Disabled`;
 - Stage 8.12.4 real order count: `0`.
 
-The external Package 4 evidence proves a funding shortfall. The current operator action is funding the real account, followed by a fresh GET-only revalidation before Package 5. Package 5 — explicit production authorization and activation — is **NOT STARTED / NOT AUTHORIZED**.
-
-Stage 8.12.4 activation remains pending operator funding, fresh post-funding revalidation, and the later explicit operator authorization bound to the accepted production authority. No deposit should be transferred until Package 4 produces and validates the fresh required-capital result.
+Package 5 — explicit production authorization and activation — is now the **CURRENT BOUNDARY / NOT STARTED / NOT AUTHORIZED**. No durable authorization has been created, the kill switch remains `HALTED`, and the production Scheduled Task remains `Disabled`. Stage 8.12.4 activation requires a separate explicit operator authorization action bound to the accepted production authority.
 
 
 
