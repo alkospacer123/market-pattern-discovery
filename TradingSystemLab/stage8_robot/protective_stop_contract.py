@@ -39,6 +39,36 @@ class SyntheticProtectiveStop:
     status: str = "ACTIVE"
 
 
+def percent_position_stop_payload(action: RuntimeAction) -> dict:
+    """Build the one canonical frozen Stage 8.12 protective-stop payload."""
+    if action.kind not in {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}:
+        raise ProtectiveStopContractError("PROTECTIVE_STOP_ACTION_REQUIRED")
+    if (
+        not action.idempotency_key
+        or not action.instrument
+        or action.direction not in {"LONG", "SHORT"}
+        or action.quantity <= 0
+        or not action.trade_id
+        or action.stop_price is None
+        or type(action.expected_position_quantity) is not int
+    ):
+        raise ProtectiveStopContractError("PROTECTIVE_STOP_ACTION_INVALID")
+    expected = action.quantity if action.direction == "LONG" else -action.quantity
+    if action.expected_position_quantity != expected:
+        raise ProtectiveStopContractError("PROTECTIVE_STOP_POSITION_AUTHORITY_INVALID")
+    return {
+        "schema_id": CONTRACT_SCHEMA,
+        "symbol": action.finam_symbol,
+        "side": "SIDE_SELL" if action.direction == "LONG" else "SIDE_BUY",
+        "quantity_sl": {"value": str(QTY_PERCENT)},
+        "sl_qty_measure": QTY_MEASURE,
+        "sl_price": {"value": str(action.stop_price)},
+        "valid_before": VALID_BEFORE,
+        "client_order_id": action.idempotency_key[-20:],
+        "comment": action.idempotency_key,
+    }
+
+
 class SyntheticPercentPositionStopAdapter:
     """Order-incapable proof model for the protective-stop adapter contract."""
 
@@ -50,32 +80,7 @@ class SyntheticPercentPositionStopAdapter:
 
     @staticmethod
     def payload(action: RuntimeAction) -> dict:
-        if action.kind not in {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}:
-            raise ProtectiveStopContractError("PROTECTIVE_STOP_ACTION_REQUIRED")
-        if (
-            not action.idempotency_key
-            or not action.instrument
-            or action.direction not in {"LONG", "SHORT"}
-            or action.quantity <= 0
-            or not action.trade_id
-            or action.stop_price is None
-            or type(action.expected_position_quantity) is not int
-        ):
-            raise ProtectiveStopContractError("PROTECTIVE_STOP_ACTION_INVALID")
-        expected = action.quantity if action.direction == "LONG" else -action.quantity
-        if action.expected_position_quantity != expected:
-            raise ProtectiveStopContractError("PROTECTIVE_STOP_POSITION_AUTHORITY_INVALID")
-        return {
-            "schema_id": CONTRACT_SCHEMA,
-            "symbol": action.finam_symbol,
-            "side": "SIDE_SELL" if action.direction == "LONG" else "SIDE_BUY",
-            "quantity_sl": {"value": str(QTY_PERCENT)},
-            "sl_qty_measure": QTY_MEASURE,
-            "sl_price": {"value": str(action.stop_price)},
-            "valid_before": VALID_BEFORE,
-            "client_order_id": action.idempotency_key[-20:],
-            "comment": action.idempotency_key,
-        }
+        return percent_position_stop_payload(action)
 
     def _trade_stops(self, action: RuntimeAction) -> list[SyntheticProtectiveStop]:
         return [
