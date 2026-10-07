@@ -1169,8 +1169,24 @@ def test_stage_8_10_current_handoff_stale_gate_and_omission_fail_both_audits(pat
         source_overrides={path: package4_omitted},
     )
     operational = run_audit({path: package4_omitted})
-    assert "STAGE_8_12_4_PACKAGE4_PASS_PACKAGE5_NOT_AUTHORIZED_HANDOFF" in independent["errors"]
-    assert "STAGE_8_12_4_PACKAGE4_PASS_PACKAGE5_NOT_AUTHORIZED_HANDOFF" in operational["errors"]
+    assert "STAGE_8_12_4_POSTFUNDING_PASS_PACKAGE5_NOT_AUTHORIZED_HANDOFF" in independent["errors"]
+    assert "STAGE_8_12_4_POSTFUNDING_PASS_PACKAGE5_NOT_AUTHORIZED_HANDOFF" in operational["errors"]
+
+    postfunding_omitted_handoff = handoff.replace(
+        "54205165758FF6FC200290E61070D7082DFC13494048AABE7A5A61CDDE3C7F11",
+        "",
+        1,
+    )
+    postfunding_omitted = (
+        original[:start] + postfunding_omitted_handoff + original[next_section:]
+    )
+    independent = stage8.audit(
+        write_result=False,
+        source_overrides={path: postfunding_omitted},
+    )
+    operational = run_audit({path: postfunding_omitted})
+    assert "STAGE_8_12_4_POSTFUNDING_PASS_PACKAGE5_NOT_AUTHORIZED_HANDOFF" in independent["errors"]
+    assert "STAGE_8_12_4_POSTFUNDING_PASS_PACKAGE5_NOT_AUTHORIZED_HANDOFF" in operational["errors"]
 
 
 @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
