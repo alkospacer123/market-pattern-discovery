@@ -451,14 +451,14 @@ class ProductionService:
                 raise ProductionServiceFault("PROTECTIVE_STOP_REPLACEMENT_REJECTED")
             if action.kind == "EMERGENCY_EXIT_REQUIRED":
                 raise ProductionServiceFault("EMERGENCY_EXIT_REJECTED")
-            return
+            if action.kind == "ENTRY":
+                raise ProductionServiceFault("ENTRY_ORDER_REJECTED")
+            raise ProductionServiceFault("ORDER_REJECTED_KIND_INVALID")
         except FinamUncertainSubmission:
             self.runtime.store.transition_intent(key, "UNCERTAIN")
             raise ProductionServiceFault("ORDER_SUBMISSION_UNCERTAIN") from None
         broker_id = _order_id_from_response(response)
         self._transition_ack(key, broker_id)
-        if action.kind in {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}:
-            self.runtime.confirm_protective_stop(key, broker_id)
 
     def _handle_unresolved_intent(
         self,
@@ -538,10 +538,35 @@ class ProductionService:
             raise ProductionServiceFault("ENTRY_ORDER_TERMINAL_WITHOUT_FILL")
 
         if action.kind in {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}:
-            # ACK of a valid SLTP order is enough to establish broker-side
-            # protection; later cycle reconciliation proves it remains active.
-            self.runtime.confirm_protective_stop(key, order.order_id)
-            return True
+            observed = broker_positions_map[action.instrument]
+            if order.active:
+                self.runtime.confirm_protective_stop(key, order.order_id)
+                return True
+            if order.status in {"SL_EXECUTED", "EXECUTED"} and observed == 0:
+                self._transition_ack(key, order.order_id)
+                self.runtime.store.transition_intent(key, "RECONCILED", order.order_id)
+                return True
+            if order.status in TERMINAL_ORDER_STATUSES:
+                if action.kind == "PROTECTIVE_STOP_INSTALL":
+                    emergency = self.runtime.require_emergency_exit(
+                        action.instrument, reason="PROTECTIVE_STOP_TERMINAL_WITH_POSITION"
+                    )
+                    emergency_intent = self.runtime.store.intent(emergency.idempotency_key)
+                    if emergency_intent is None:
+                        raise ProductionServiceFault("EMERGENCY_EXIT_INTENT_NOT_FOUND")
+                    self._submit_intent(
+                        {"idempotency_key": emergency.idempotency_key, **emergency_intent},
+                        now=now,
+                        broker_positions_map=broker_positions_map,
+                        allow_entry=False,
+                    )
+                    raise ProductionServiceFault(
+                        "PROTECTIVE_STOP_TERMINAL_EMERGENCY_EXIT_SUBMITTED"
+                    )
+                raise ProductionServiceFault("PROTECTIVE_STOP_REPLACEMENT_TERMINAL")
+            raise ProductionServiceFault(
+                "PROTECTIVE_STOP_NOT_ACTIVE", halt=False, pending=True
+            )
 
         if action.kind == "EMERGENCY_EXIT_REQUIRED":
             observed = broker_positions_map[action.instrument]
