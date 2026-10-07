@@ -703,7 +703,8 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and "COALESCE(status,'') NOT IN" in state_source,
           "STAGE_8_12_4_RESTART_INTENT_READ_AUTHORITY")
 
-    production_runtime=(HERE/"production_runtime.py").read_text()\n    stage8124_service=(HERE/"production_service.py").read_text()
+    production_runtime=(HERE/"production_runtime.py").read_text()
+    stage8124_service=(HERE/"production_service.py").read_text()
     stage8124_production_launcher=(HERE/"deploy/windows/run-production.ps1").read_text()
     stage8124_production_installer=(HERE/"deploy/windows/install-production-task.ps1").read_text()
     ast.parse(stage8124_service)
