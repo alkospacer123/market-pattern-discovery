@@ -518,22 +518,67 @@ class ProductionService:
 
     def _protection(self, snap: Snapshot) -> list[dict[str, Any]]:
         result = []
+        intent_by_client: dict[str, dict[str, Any]] = {}
+        for row in self.runtime.store.all_intents():
+            client = compact_client_order_id(row["idempotency_key"])
+            if client in intent_by_client:
+                raise ProductionServiceError(
+                    "STAGE8_12_4_CLIENT_ORDER_ID_COLLISION"
+                )
+            intent_by_client[client] = row
+
         for instrument, value in sorted(self.runtime.open_positions().items()):
-            expected = int(value["quantity"]) if value["direction"] == "LONG" else -int(value["quantity"])
+            expected = (
+                int(value["quantity"])
+                if value["direction"] == "LONG"
+                else -int(value["quantity"])
+            )
             observed = snap.positions.get(value["finam_symbol"], 0)
             if observed != expected:
-                raise ProductionServiceError("STAGE8_12_4_POSITION_RECONCILIATION_MISMATCH")
+                raise ProductionServiceError(
+                    "STAGE8_12_4_POSITION_RECONCILIATION_MISMATCH"
+                )
             stops = active_sltp_for_trade(
                 snap.orders, trade_id=value["trade_id"], symbol=value["finam_symbol"]
             )
             if not stops:
                 raise ProductionServiceError("STAGE8_12_4_OPEN_POSITION_UNPROTECTED")
+
+            for stop in stops:
+                row = intent_by_client.get(stop.client_order_id)
+                if row is None:
+                    raise ProductionServiceError(
+                        "STAGE8_12_4_UNEXPECTED_ACTIVE_PROTECTIVE_STOP"
+                    )
+                action = _action(row["payload"])
+                if (
+                    action.kind not in {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}
+                    or action.trade_id != value["trade_id"]
+                    or action.instrument != instrument
+                ):
+                    raise ProductionServiceError(
+                        "STAGE8_12_4_UNEXPECTED_ACTIVE_PROTECTIVE_STOP"
+                    )
+                self._validate_sltp(stop, action)
+
+            active_ids = [stop.order_id for stop in stops]
+            current_stop_id = value.get("protective_stop_broker_order_id")
+            if (
+                value.get("protective_stop_state") != "ACTIVE"
+                or not isinstance(current_stop_id, str)
+                or current_stop_id not in active_ids
+                or Decimal(str(value.get("protective_stop_price")))
+                != Decimal(str(value["current_stop"]))
+            ):
+                raise ProductionServiceError(
+                    "STAGE8_12_4_CURRENT_PROTECTIVE_STOP_NOT_ACTIVE"
+                )
             result.append({
                 "instrument": instrument,
                 "trade_id": value["trade_id"],
                 "expected_position_quantity": expected,
                 "covered_quantity": abs(expected),
-                "active_stop_order_ids": [stop.order_id for stop in stops],
+                "active_stop_order_ids": active_ids,
             })
         return result
 
