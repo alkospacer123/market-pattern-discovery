@@ -415,6 +415,7 @@ class ProductionRuntime:
             "initial_margin": str(sized.initial_margin),
             "r15_quantity": sized.r15_quantity,
             "margin_quantity": sized.margin_quantity,
+            "signal_timestamp": signal.timestamp.isoformat(),
         })
         if not self.store.persist_intent(key, payload):
             existing = self.store.intent(key)
@@ -473,6 +474,7 @@ class ProductionRuntime:
                 "loss_per_contract": payload["loss_per_contract"],
                 "trade_id": payload["trade_id"],
                 "signal_id": payload["signal_id"],
+                "signal_timestamp": payload["signal_timestamp"],
                 "protective_stop_state": "PENDING",
                 "protective_stop_revision": 0,
             }
@@ -566,6 +568,31 @@ class ProductionRuntime:
         self.set_realized_equity(realized_equity_after_exit)
         return action
 
+    def require_emergency_exit(self, instrument: str, *, reason: str) -> RuntimeAction:
+        if instrument not in INSTRUMENTS:
+            raise ProductionRuntimeError("INSTRUMENT_NOT_N4")
+        if not isinstance(reason, str) or not reason or any(
+            character not in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_" for character in reason
+        ):
+            raise ProductionRuntimeError("EMERGENCY_EXIT_REASON_INVALID")
+        value = self.open_positions().get(instrument)
+        if value is None:
+            raise ProductionRuntimeError("EMERGENCY_EXIT_WITHOUT_LOCAL_POSITION")
+        key = f"stage8.12:{value['trade_id']}:emergency-exit:safety:{reason.lower()}"
+        action = RuntimeAction(
+            "EMERGENCY_EXIT_REQUIRED", key, instrument, value["finam_symbol"],
+            value["direction"], int(value["quantity"]), value["trade_id"], value["signal_id"],
+            Decimal(str(value["current_stop"])), Decimal(str(value["current_stop"])), 0,
+            reason,
+        )
+        existing = self.store.intent(key)
+        if existing is None:
+            if not self.store.persist_intent(key, action.payload()):
+                raise ProductionRuntimeError("DUPLICATE_EMERGENCY_EXIT_INTENT")
+        elif existing["payload"] != action.payload():
+            raise ProductionRuntimeError("IDEMPOTENCY_PAYLOAD_MISMATCH")
+        return action
+
     def manage_completed_bar(self, instrument: str, bar: CompletedBar,
                              *, observed_position_quantity: int) -> RuntimeAction | None:
         if self.store.unresolved_intent_count() != 0:
@@ -599,7 +626,7 @@ class ProductionRuntime:
         value.update(_position_to_dict(position, {
             k: value[k] for k in (
                 "finam_symbol", "quantity", "risk_cash", "actual_initial_loss_cash",
-                "loss_per_contract", "trade_id", "signal_id",
+                "loss_per_contract", "trade_id", "signal_id", "signal_timestamp",
                 "protective_stop_state", "protective_stop_revision"
             )
         }))
