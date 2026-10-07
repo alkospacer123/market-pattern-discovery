@@ -22,7 +22,8 @@ from typing import Any, Callable
 
 import pandas as pd
 
-from .instrument_resolver import INSTRUMENTS, parse_rest_value_object
+from .instrument_resolver import parse_rest_value_object
+from .specification import INSTRUMENTS
 from .readonly_supervisor import (
     SafetyFault,
     newest_expected_h1_close,
