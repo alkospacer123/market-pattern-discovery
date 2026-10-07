@@ -72,6 +72,20 @@ def test_package3_final_audit_preserves_historical_hash_and_allows_exact_stage81
     assert "stage8124_corrected = POST_STAGE8_12_4_CORRECTED_SHA256.get(path)" in final
 
 
+def test_package3_sparse_h1_overlap_authority_is_fail_closed():
+    history = Path("TradingSystemLab/stage8_robot/production_history.py").read_text(encoding="utf-8")
+    audit = Path("TradingSystemLab/stage8_robot/audit_stage8.py").read_text(encoding="utf-8")
+    final = Path("TradingSystemLab/stage8_robot/final_operational_audit.py").read_text(encoding="utf-8")
+    provenance = Path("TradingSystemLab/stage8_robot/authority_provenance.json").read_text(encoding="utf-8")
+    for source_text in (history, audit, final):
+        assert "live_overlap.index.difference(authority_overlap.index)" in source_text
+        assert "seam = authority_overlap.index.max()" in source_text
+        assert "if seam not in live_overlap.index" in source_text
+    assert "authority_overlap.index.equals(live_overlap.index)" not in history
+    assert "FINAM_OVERLAP_SUBSET_OF_FROZEN_AUTHORITY_EXACT_OHLC_AND_SEAM_REQUIRED" in provenance
+    assert "CURRENT_FINAM_WINDOW_MAY_OMIT_AUTHORITY_TIMESTAMPS_BUT_ALL_FINAM_OVERLAP_TIMESTAMPS_MUST_EXIST_IN_STAGE5_OR_PERSISTED_AUTHORITY_WITH_EXACT_OHLC_AND_SEAM" in provenance
+
+
 def test_package3_validator_runs_existing_audits_and_focused_corrective_tests():
     text = source()
     assert "run-stage8-12-4-foundation-validation.ps1" in text

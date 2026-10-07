@@ -598,7 +598,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
                       "IMOEXF":"119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110",
                   },
                   "h1_seed_semantics":"STAGE5_FOREVER_OPEN_TIME_EUROPE_MOSCOW_PLUS_1H_CLOSE_INDEX",
-                  "finam_h1_splice":"EXACT_TIMESTAMP_AND_OHLC_OVERLAP_REQUIRED",
+                  "finam_h1_splice":"FINAM_OVERLAP_SUBSET_OF_FROZEN_AUTHORITY_EXACT_OHLC_AND_SEAM_REQUIRED",
                   "broker_state_parser":"STRICT_READ_SIDE_REGULAR_AND_SLTP",
                   "restart_intent_read_authority":True,
                   "order_transmission_added_by_this_layer":False,
@@ -619,6 +619,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and package2.get("h1_continuation_semantics") == "APPEND_ONLY_VALIDATED_FINAM_COMPLETED_H1"
           and package2.get("h1_continuation_integrity") == "SHA256_CANONICAL_BARS_PAYLOAD"
           and package2.get("rolling_h1_continuity_status") == "CODE_READY_PENDING_PACKAGE3_ZERO_ORDER_VALIDATION"
+          and package2.get("rolling_h1_overlap_rule") == "CURRENT_FINAM_WINDOW_MAY_OMIT_AUTHORITY_TIMESTAMPS_BUT_ALL_FINAM_OVERLAP_TIMESTAMPS_MUST_EXIST_IN_STAGE5_OR_PERSISTED_AUTHORITY_WITH_EXACT_OHLC_AND_SEAM"
           and package2.get("long_downtime_without_overlap") == "FAIL_CLOSED"
           and package2.get("realized_equity_authority") == "equity - unrealized_profit - explained_external_cash_flows"
           and package2.get("production_task_name") == "TradingSystemLab-Stage8-Production"
@@ -740,7 +741,11 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
               '"CNYRUBF": "a3815b88a11aa5878b8bd104140f002859349c2c8d7f6ff0476a0d4c4d9a612e"',
               '"GLDRUBF": "12a626ba6cc47fce2f392d4a6ce3bdb8a3c1aad074306a73ab480fcfbb83b87e"',
               '"IMOEXF": "119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110"',
-              "completed_h1_bars(", "authority_overlap.index.equals(live_overlap.index)",
+              "completed_h1_bars(",
+              "live_overlap.index.difference(authority_overlap.index)",
+              "seam = authority_overlap.index.max()",
+              "if seam not in live_overlap.index",
+              "for stamp in live_overlap.index",
               'CONTINUATION_SCHEMA = "stage8_12_4_h1_continuation.v1"',
               "extend_rolling_open_h1(", '"bars_sha256"',
               "STAGE8_12_4_H1_SPLICE_OHLC_MISMATCH", 'pd.Timedelta("1h")')),
