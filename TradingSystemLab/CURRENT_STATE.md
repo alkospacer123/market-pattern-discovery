@@ -54,7 +54,7 @@ The accepted normal reconciliation model is position-authoritative: after each p
 
 Attempts 1–6, their failures/OIR classifications, manual closes, and recovery evidence remain immutable historical provenance and are not reclassified by the attempt7 PASS.
 
-Stage 8.12 — **STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 NOT STARTED / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**. Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**. Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**.
+Stage 8.12 — **STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 IMPLEMENTATION IN PROGRESS / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**. Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**. Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**.
 
 Canonical Stage 8.12.1 authority:
 
