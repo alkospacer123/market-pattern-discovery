@@ -174,35 +174,42 @@ def validated_finam_tail(
     frame, _ = _parse_finam_rows(response)
     windows = trading_h1_windows(schedule)
     derived = newest_expected_h1_close(schedule, observed)
-    expected = (
-        max(derived, prior_expected)
-        if derived is not None and prior_expected is not None
-        else derived or prior_expected
+    scope_start_utc = (
+        windows[0][0].replace(hour=0, minute=0, second=0, microsecond=0)
+        if windows
+        else observed.replace(hour=0, minute=0, second=0, microsecond=0)
     )
-    if expected is None:
-        raise ProductionHistoryError("H1_EXPECTED_WATERMARK_UNAVAILABLE")
-    expected = expected.astimezone(timezone.utc)
-    expected_msk = pd.Timestamp(expected).tz_convert("Europe/Moscow")
-    if expected_msk not in frame.index:
-        raise ProductionHistoryError("STALE_COMPLETED_H1_DATA")
+    schedule_day_start = pd.Timestamp(scope_start_utc).tz_convert("Europe/Moscow")
 
     try:
         completed_current = completed_h1_bars(response, observed, windows)
     except (SafetyFault, TypeError, ValueError):
         raise ProductionHistoryError("FINAM_H1_CURRENT_SCHEDULE_INVALID") from None
 
-    if windows:
-        schedule_day_start = pd.Timestamp(windows[0][0].replace(
-            hour=0, minute=0, second=0, microsecond=0
-        )).tz_convert("Europe/Moscow")
-        raw_scope = {stamp for stamp in frame.index if stamp >= schedule_day_start and stamp <= expected_msk}
-        completed_scope = {
-            pd.Timestamp(datetime.fromisoformat(row["timestamp"]).astimezone(timezone.utc)).tz_convert("Europe/Moscow")
-            for row in completed_current
-            if pd.Timestamp(datetime.fromisoformat(row["timestamp"]).astimezone(timezone.utc)).tz_convert("Europe/Moscow") <= expected_msk
-        }
-        if raw_scope != completed_scope:
-            raise ProductionHistoryError("FINAM_H1_CURRENT_SCHEDULE_MISMATCH")
+    raw_current_scope = {stamp for stamp in frame.index if stamp >= schedule_day_start}
+    completed_current_scope = {
+        pd.Timestamp(datetime.fromisoformat(row["timestamp"]).astimezone(timezone.utc)).tz_convert("Europe/Moscow")
+        for row in completed_current
+    }
+    if raw_current_scope != completed_current_scope:
+        raise ProductionHistoryError("FINAM_H1_CURRENT_SCHEDULE_MISMATCH")
+
+    historical = frame.loc[frame.index < schedule_day_start]
+    historical_candidate = (
+        historical.index[-1].tz_convert("UTC").to_pydatetime()
+        if not historical.empty else None
+    )
+    candidates = [
+        candidate.astimezone(timezone.utc)
+        for candidate in (derived, prior_expected, historical_candidate)
+        if candidate is not None
+    ]
+    if not candidates:
+        raise ProductionHistoryError("H1_EXPECTED_WATERMARK_UNAVAILABLE")
+    expected = max(candidates)
+    expected_msk = pd.Timestamp(expected).tz_convert("Europe/Moscow")
+    if expected_msk not in frame.index:
+        raise ProductionHistoryError("STALE_COMPLETED_H1_DATA")
 
     frame = frame.loc[frame.index <= expected_msk]
     if frame.empty or frame.index[-1] != expected_msk:
