@@ -121,6 +121,14 @@ def test_package3_validator_proves_rolling_h1_state_for_all_n4():
     assert "STAGE8_12_4_PACKAGE3_STATE_CONTRACT_INVALID" in text
 
 
+def test_package3_state_probe_is_tempfile_and_readonly():
+    text = source()
+    assert "stage8-12-4-package3-state-probe.py" in text
+    assert "?mode=ro" in text
+    assert "uri=True" in text
+    assert "STAGE8_12_4_PACKAGE3_STATE_PROBE_FAILED" in text
+
+
 def test_package3_evidence_is_external_hashed_and_zero_order():
     text = source()
     assert "stage8_12_4_package3_zero_order_validation.v1" in text
