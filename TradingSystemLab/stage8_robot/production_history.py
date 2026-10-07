@@ -14,9 +14,11 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import os
 import re
 import sqlite3
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
@@ -61,6 +63,19 @@ def _phase5_frame_sha(frame: pd.DataFrame) -> str:
     return hashlib.sha256(
         pd.util.hash_pandas_object(frame, index=True).values.tobytes()
     ).hexdigest()
+
+
+def _canonical_decimal(value: Any) -> str:
+    try:
+        number = Decimal(str(value))
+    except (InvalidOperation, ValueError):
+        raise ProductionHistoryError("STAGE8_12_4_H1_PRICE_INVALID") from None
+    if not number.is_finite() or number <= 0:
+        raise ProductionHistoryError("STAGE8_12_4_H1_PRICE_INVALID")
+    text = format(number.normalize(), "f")
+    if "." in text:
+        text = text.rstrip("0").rstrip(".")
+    return text
 
 
 def _read_seed_source(source: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -130,10 +145,10 @@ def _seed_rows(frame: pd.DataFrame):
         yield (
             open_utc.isoformat(),
             close_msk.isoformat(),
-            format(float(row.Open), ".15g"),
-            format(float(row.High), ".15g"),
-            format(float(row.Low), ".15g"),
-            format(float(row.Close), ".15g"),
+            _canonical_decimal(row.Open),
+            _canonical_decimal(row.High),
+            _canonical_decimal(row.Low),
+            _canonical_decimal(row.Close),
         )
 
 
@@ -234,7 +249,9 @@ class ProductionHistoryCache:
                 raise ProductionHistoryError("STAGE8_12_4_H1_CURRENT_SCHEDULE_MISMATCH")
             try:
                 values = tuple(
-                    str(parse_rest_value_object(row.get(name), positive=True))
+                    _canonical_decimal(
+                        parse_rest_value_object(row.get(name), positive=True)
+                    )
                     for name in ("open", "high", "low", "close")
                 )
             except ValueError:
@@ -356,7 +373,12 @@ def initialize_history_cache(
     finally:
         db.close()
     try:
-        temporary.replace(destination)
+        os.link(temporary, destination)
+        temporary.unlink()
+    except FileExistsError:
+        temporary.unlink(missing_ok=True)
+        cache = ProductionHistoryCache(runtime_root)
+        cache.close()
     except OSError as exc:
         temporary.unlink(missing_ok=True)
         raise ProductionHistoryError("STAGE8_12_4_HISTORY_CACHE_PUBLISH_FAILED") from exc
