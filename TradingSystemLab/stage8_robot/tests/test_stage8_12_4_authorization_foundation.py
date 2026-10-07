@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
@@ -11,7 +12,6 @@ from TradingSystemLab.stage8_robot.live_execution import (
     AuthorizedFinamProductionTransport,
     LiveExecutionError,
 )
-from TradingSystemLab.stage8_robot.operations import write_heartbeat
 from TradingSystemLab.stage8_robot.production_authorization import (
     OPERATOR_AUTHORIZATION_PHRASE,
     ProductionAuthorizationError,
@@ -45,20 +45,29 @@ def authorize(root: Path):
 
 
 def healthy_heartbeat(root: Path):
-    write_heartbeat(
-        root / "diagnostics" / "stage8-heartbeat.json",
-        mode="REAL_READONLY",
-        production_id=PRODUCTION_SPECIFICATION_ID,
-        account_hash=ACCOUNT_HASH,
-        last_completed_h1="2026-10-07T10:00:00+00:00",
-        last_api_contact=NOW.isoformat(),
-        reconciliation_status="PASS",
-        entries_enabled=False,
-        unresolved_order_count=0,
-        health_status="HEALTHY",
-        failure_code=None,
-        consecutive_failures=0,
-        cycle_count=1,
+    path = root / "diagnostics" / "stage8-heartbeat.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(
+            {
+                "timestamp": NOW.isoformat(),
+                "mode": "REAL_READONLY",
+                "production_id": PRODUCTION_SPECIFICATION_ID,
+                "account_hash": ACCOUNT_HASH,
+                "last_completed_h1_timestamp": "2026-10-07T10:00:00+00:00",
+                "last_successful_finam_api_contact": NOW.isoformat(),
+                "reconciliation_status": "PASS",
+                "entries_enabled": False,
+                "unresolved_order_count": 0,
+                "health_status": "HEALTHY",
+                "failure_code": None,
+                "consecutive_failures": 0,
+                "cycle_count": 1,
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
     )
 
 
