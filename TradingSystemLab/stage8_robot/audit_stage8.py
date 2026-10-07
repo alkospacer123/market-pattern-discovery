@@ -633,6 +633,58 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and package2.get("next_package") == "PACKAGE_3_INTEL_EXACT_COMMIT_ZERO_ORDER_VALIDATION",
           "STAGE_8_12_4_PACKAGE2_PROVENANCE_EXACT")
 
+    package3=stage812_provenance.get("stage8_12_4_package3",{})
+    check(package3.get("status") == "CODE_READY_PENDING_INTEL_EXECUTION"
+          and package3.get("validator") == "TradingSystemLab/stage8_robot/deploy/windows/run-stage8-12-4-package3-zero-order-validation.ps1"
+          and package3.get("physical_validation_performed") is False
+          and package3.get("accepted_code_commit") is None
+          and package3.get("external_evidence_sha256") is None
+          and package3.get("production_task_required_state") == "Disabled"
+          and package3.get("durable_authorization_required_state") == "Absent"
+          and package3.get("kill_switch_required_state") == "HALTED"
+          and package3.get("exact_commit_binding_required") is True
+          and package3.get("exact_principal_binding_required") is True
+          and package3.get("stage5_data_commit") == "50f1fd2178c18b7ab3bd969be82ad01f47a34745"
+          and package3.get("rolling_h1_continuation_required") is True
+          and package3.get("unauthorized_production_once_required") is True
+          and package3.get("production_heartbeat_required_state") == "HEALTHY"
+          and package3.get("reconciliation_required_state") == "PASS"
+          and package3.get("unresolved_production_intents_required") == 0
+          and package3.get("broker_open_positions_required") == 0
+          and package3.get("local_open_positions_required") == 0
+          and package3.get("order_endpoint_call_count") == 0
+          and package3.get("execution_authorized") is False
+          and package3.get("live_trading_authorized") is False
+          and package3.get("real_order_transmission_authorized") is False
+          and package3.get("real_order_count") == 0
+          and package3.get("next_package_on_pass") == "PACKAGE_4_FRESH_FUNDING_RECALCULATION",
+          "STAGE_8_12_4_PACKAGE3_PROVENANCE_CODE_READY_EXACT")
+
+    package3_validator=(HERE/"deploy/windows/run-stage8-12-4-package3-zero-order-validation.ps1").read_text()
+    package3_lower=package3_validator.lower()
+    check(all(token in package3_validator for token in (
+              "STAGE8_12_4_PACKAGE3_AUTHORIZATION_MUST_BE_ABSENT",
+              'state -cne "HALTED"',
+              "STAGE8_12_4_PACKAGE3_PRODUCTION_TASK_NOT_DISABLED",
+              "STAGE8_12_4_PACKAGE3_PRODUCTION_TASK_BINDING_MISMATCH",
+              "STAGE8_12_4_PACKAGE3_PRODUCTION_TASK_PRINCIPAL_MISMATCH",
+              "run-stage8-12-4-foundation-validation.ps1",
+              "test_stage8_12_4_rolling_h1_continuity.py",
+              "test_stage8_12_4_production_service.py",
+              "run-production.ps1", "-Once",
+              "stage8-12-4-production-heartbeat.json",
+              "production_h1_continuation:USDRUBF",
+              "production_h1_continuation:CNYRUBF",
+              "production_h1_continuation:GLDRUBF",
+              "production_h1_continuation:IMOEXF",
+              "Get-FileHash $report -Algorithm SHA256",
+              "STAGE8_12_4_PACKAGE3_REAL_ORDER_COUNT=0"))
+          and not any(token in package3_lower for token in (
+              "enable-scheduledtask","start-scheduledtask","write_authorization",
+              "allow_arm","place_order","place_sltp_order","cancel_order",
+              "get-tradingcredential","finam_api_secret")),
+          "STAGE_8_12_4_PACKAGE3_ZERO_ORDER_VALIDATOR_BOUNDARY")
+
 
     stage8124_authorization=(HERE/"production_authorization.py").read_text()
     stage8124_live=(HERE/"live_execution.py").read_text()
