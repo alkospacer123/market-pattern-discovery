@@ -514,7 +514,11 @@ def test_production_gate_rejects_duplicate_stop_coverage_across_positions(tmp_pa
         LiveExecutionError,
         match="PRODUCTION_POSITION_PROTECTION_INVALID",
     ):
-        transport.submit_entry(entry_action(), now=NOW)
+        transport.submit_entry(
+            entry_action(),
+            now=NOW,
+            state_store=StateStore(tmp_path / "invalid-protection-entry.db"),
+        )
     assert not [call for call in api.calls if call[0] == "place_order"]
 
 
