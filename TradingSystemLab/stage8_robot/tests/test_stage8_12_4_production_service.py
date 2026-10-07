@@ -37,6 +37,18 @@ class ReadOnlyGetFakeAPI:
         self.calls.append(("account", account_id))
         return {"status": "ACCOUNT_ACTIVE"}
 
+    def schedule(self, symbol):
+        self.calls.append(("schedule", symbol))
+        return {
+            "sessions": [{
+                "type": "CORE_TRADING",
+                "interval": {
+                    "start_time": "2026-10-07T00:00:00Z",
+                    "end_time": "2026-10-07T23:00:00Z",
+                },
+            }],
+        }
+
 
 def service(tmp_path, api=None):
     return ProductionService(
@@ -218,6 +230,8 @@ def test_pre_submit_gate_failure_does_not_create_uncertain_order_state(tmp_path)
             action.idempotency_key, _entry_payload(action)
         )
         svc.transport = BlockedTransport()
+        fixed_now = datetime(2026, 10, 7, 12, tzinfo=timezone.utc)
+        svc.clock = lambda: fixed_now
         snap = Snapshot(
             account={},
             positions={},
