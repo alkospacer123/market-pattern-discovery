@@ -1,5 +1,5 @@
 {
-  "as_of_utc": "2026-10-07T04:30:00Z",
+  "as_of_utc": "2026-10-07T05:30:00Z",
   "binding_status": "AUTHENTICATED_REAL_READONLY",
   "finam": {
     "api_version": "v1",
@@ -692,7 +692,24 @@
       "automatic_kill_switch_arm": false,
       "production_task_enabled": false,
       "production_task_started": false,
-      "real_order_count": 0
+      "real_order_count": 0,
+      "production_service_prerequisites": {
+        "status": "CODE_READY_PENDING_ZERO_ORDER_VALIDATION",
+        "stage5_data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+        "h1_seed_source_sha256": {
+          "USDRUBF": "f0ca366d816a6213742271242e87c53d1e23f5a5fc4655df0123217df418a226",
+          "CNYRUBF": "a3815b88a11aa5878b8bd104140f002859349c2c8d7f6ff0476a0d4c4d9a612e",
+          "GLDRUBF": "12a626ba6cc47fce2f392d4a6ce3bdb8a3c1aad074306a73ab480fcfbb83b87e",
+          "IMOEXF": "119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110"
+        },
+        "h1_seed_semantics": "STAGE5_FOREVER_OPEN_TIME_EUROPE_MOSCOW_PLUS_1H_CLOSE_INDEX",
+        "finam_h1_splice": "EXACT_TIMESTAMP_AND_OHLC_OVERLAP_REQUIRED",
+        "broker_state_parser": "STRICT_READ_SIDE_REGULAR_AND_SLTP",
+        "restart_intent_read_authority": true,
+        "order_transmission_added_by_this_layer": false,
+        "execution_authorized": false,
+        "real_order_count": 0
+      }
     }
   }
 }
