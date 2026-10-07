@@ -72,6 +72,7 @@ STOP_ATR_MULTIPLE = Decimal("2.5")
 # intentionally mirrors that cross-trading-day authority.  Resetting ATR at a
 # day boundary here would change the frozen production strategy.
 FROZEN_T3_H1_ATR_CROSSES_TRADING_DAYS = True
+H1_HISTORY_LOOKBACK_DAYS = 30
 
 
 class PreflightBlocked(RuntimeError):
@@ -373,46 +374,67 @@ def _collect_strategy_loss(
         raise
     if not windows:
         _fail("STAGE8_12_3_H1_TRADING_WINDOW_UNAVAILABLE")
-    start = windows[0][0].isoformat()
-    response = api.bars(symbol, start, now.isoformat())
+
+    # The FINAM schedule endpoint can expose only the current trading day.
+    # Before that day's first session starts, windows[0][0] is in the future
+    # while the canonical readonly supervisor watermark is correctly retained
+    # from the previous completed session.  Fetch the same broad historical H1
+    # window used by the readonly supervisor, then apply today's schedule only
+    # to the schedule-covered portion of that history.
+    now_utc = now.astimezone(timezone.utc)
+    history_start = (now_utc - timedelta(days=H1_HISTORY_LOOKBACK_DAYS)).isoformat()
+    response = api.bars(symbol, history_start, now_utc.isoformat())
     rows = response.get("bars") if isinstance(response, dict) else None
     if not isinstance(rows, list):
         _fail("STAGE8_12_3_H1_BARS_SCHEMA_INVALID")
     try:
-        completed = completed_h1_bars(response, now, windows)
+        completed_current_schedule = completed_h1_bars(response, now_utc, windows)
     except (TypeError, ValueError):
         _fail("STAGE8_12_3_H1_BARS_SCHEMA_INVALID")
 
-    raw_eligible: list[datetime] = []
+    history_by_timestamp: dict[datetime, dict[str, Any]] = {}
     for row in rows:
         if not isinstance(row, dict):
             _fail("STAGE8_12_3_H1_BARS_SCHEMA_INVALID")
         timestamp = _utc_timestamp(row.get("timestamp"))
         if timestamp <= watermark:
-            raw_eligible.append(timestamp)
-    if len(raw_eligible) != len(set(raw_eligible)):
-        _fail("STAGE8_12_3_H1_DUPLICATE_BAR")
+            if timestamp in history_by_timestamp:
+                _fail("STAGE8_12_3_H1_DUPLICATE_BAR")
+            history_by_timestamp[timestamp] = row
 
-    completed_by_timestamp: dict[datetime, dict[str, Any]] = {}
-    for row in completed:
+    if watermark not in history_by_timestamp:
+        _fail("STAGE8_12_3_H1_WATERMARK_BAR_MISSING")
+
+    expected_opens = _expected_completed_h1_opens(windows, now_utc, watermark)
+    schedule_scope_start = windows[0][0].replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+    raw_schedule_scope = {
+        timestamp
+        for timestamp in history_by_timestamp
+        if timestamp >= schedule_scope_start
+    }
+    completed_schedule_scope: dict[datetime, dict[str, Any]] = {}
+    for row in completed_current_schedule:
         timestamp = _utc_timestamp(row.get("timestamp"))
         if timestamp <= watermark:
-            if timestamp in completed_by_timestamp:
+            if timestamp in completed_schedule_scope:
                 _fail("STAGE8_12_3_H1_DUPLICATE_BAR")
-            completed_by_timestamp[timestamp] = row
-    if set(raw_eligible) != set(completed_by_timestamp):
+            completed_schedule_scope[timestamp] = row
+
+    if raw_schedule_scope != set(completed_schedule_scope):
         _fail("STAGE8_12_3_H1_BAR_OUTSIDE_VALIDATED_SCHEDULE")
-    if watermark not in completed_by_timestamp:
-        _fail("STAGE8_12_3_H1_WATERMARK_BAR_MISSING")
-    expected_opens = _expected_completed_h1_opens(windows, now, watermark)
-    if not expected_opens or expected_opens[-1] != watermark:
+    if expected_opens:
+        if expected_opens[-1] != watermark:
+            _fail("STAGE8_12_3_H1_EXPECTED_SEQUENCE_INVALID")
+        if sorted(completed_schedule_scope) != expected_opens:
+            _fail("STAGE8_12_3_H1_EXPECTED_SEQUENCE_GAP")
+    elif watermark >= schedule_scope_start:
         _fail("STAGE8_12_3_H1_EXPECTED_SEQUENCE_INVALID")
-    if sorted(completed_by_timestamp) != expected_opens:
-        _fail("STAGE8_12_3_H1_EXPECTED_SEQUENCE_GAP")
 
     usable = []
-    for timestamp in sorted(completed_by_timestamp):
-        row = completed_by_timestamp[timestamp]
+    for timestamp in sorted(history_by_timestamp):
+        row = history_by_timestamp[timestamp]
         try:
             open_price = float(parse_rest_value_object(row.get("open"), positive=True))
             high = float(parse_rest_value_object(row.get("high"), positive=True))
@@ -456,6 +478,8 @@ def _collect_strategy_loss(
         "benchmark_entry_close": str(Decimal(str(usable[-1][4]))),
         "atr14": str(benchmark_atr),
         "atr_day_boundary_semantics": "CROSS_DAY_AS_FROZEN_STAGE7_T3_SOURCE",
+        "h1_history_lookback_days": H1_HISTORY_LOOKBACK_DAYS,
+        "h1_current_schedule_scope_validation": "EXACT_WHEN_SCHEDULE_COVERS_WATERMARK_DAY",
         "initial_stop_atr_multiple": str(STOP_ATR_MULTIPLE),
         "strategy_stop_distance": str(stop_distance),
         "price_step": str(step),
