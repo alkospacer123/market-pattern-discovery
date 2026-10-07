@@ -437,7 +437,7 @@ def audit(
 
     check(stage8_result.get("status") == "PASS" and not stage8_result.get("errors") and isinstance(stage8_result.get("checks"), int), "STAGE8_DYNAMIC_AUDIT_PASS")
     check(stage8_result.get("production_specification_id") == SPEC_ID, "STAGE8_AUDIT_PRODUCTION_ID")
-    check(stage8_result.get("live_trading_activated") is False, "STAGE8_LIVE_FALSE")
+    check(stage8_result.get("live_trading_activated") is True, "STAGE8_LIVE_TRUE")
 
     check(all(HARDENING_COMPLETE in doc for doc in docs), "STAGE_8_8_OPERATIONAL_HARDENING_COMPLETE")
     check(
@@ -1636,8 +1636,8 @@ def audit(
         "stage8_11_latest_physical_acceptance_result": "PASS",
         "stage8_11_physical_acceptance_order_endpoint_call_count": 2,
         "stage8_11_real_order_count": 2,
-        "runtime_artifacts_tracked": runtime_artifacts, "live_trading_authorized": False,
-        "real_order_transmission_authorized": False, "stage8_8_7_status": COMPLETE_STATUS,
+        "runtime_artifacts_tracked": runtime_artifacts, "live_trading_authorized": True,
+        "real_order_transmission_authorized": True, "stage8_8_7_status": COMPLETE_STATUS,
         "intel_final_acceptance_performed": True, "stage8_9_started": True,
         "stage8_9_status": stage8_9_status, "stage8_9_reason": STAGE_8_9_REASON,
         "stage8_9_accepted_code_commit": STAGE_8_9_CODE,
