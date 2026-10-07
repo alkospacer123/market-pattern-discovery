@@ -18,7 +18,7 @@ from .production_authorization import load_authorization
 from .production_runtime import RuntimeAction
 from .protective_stop_contract import (
     ProtectiveStopContractError,
-    SyntheticPercentPositionStopAdapter,
+    percent_position_stop_payload,
 )
 from .production_safety_gate import evaluate_production_entry_gate
 
@@ -132,7 +132,7 @@ class AuthorizedFinamProductionTransport:
         if type(observed_position_quantity) is not int or observed_position_quantity != expected:
             raise LiveExecutionError("STAGE8_12_4_PROTECTIVE_STOP_POSITION_NOT_EXACT")
         try:
-            payload = SyntheticPercentPositionStopAdapter.payload(action)
+            payload = percent_position_stop_payload(action)
         except ProtectiveStopContractError as exc:
             raise LiveExecutionError(str(exc)) from None
         payload.pop("schema_id", None)
