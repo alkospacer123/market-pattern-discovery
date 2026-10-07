@@ -33,7 +33,7 @@ from .instrument_resolver import (
     discover_finam_asset,
     validate_finam_binding,
 )
-from .live_execution import AuthorizedFinamProductionTransport
+from .live_execution import AuthorizedFinamProductionTransport, LiveExecutionError
 from .margin import (
     directional_initial_margin,
     portfolio_authority,
@@ -448,6 +448,15 @@ class ProductionService:
                 )
             else:
                 raise ProductionServiceFault("LOCAL_INTENT_KIND_INVALID")
+        except LiveExecutionError as exc:
+            code = str(exc)
+            if (
+                action.kind == "ENTRY"
+                and code.startswith("STAGE8_12_4_ENTRY_GATE_BLOCKED:")
+            ):
+                self.runtime.store.transition_intent(key, "CANCELLED")
+                raise ProductionServiceFault(code, halt=False) from None
+            raise ProductionServiceFault(code) from None
         except FinamOrderRejected:
             self.runtime.store.transition_intent(key, "REJECTED")
             if action.kind == "PROTECTIVE_STOP_INSTALL":
