@@ -154,34 +154,50 @@ $stateDb = Join-Path $runtime "state\stage8-12-production.sqlite3"
 if (-not (Test-Path $stateDb -PathType Leaf)) { throw "STAGE8_12_4_PACKAGE3_STATE_DATABASE_MISSING" }
 $stateProbeCode = @'
 import json, sqlite3, sys
-path=sys.argv[1]
-db=sqlite3.connect(path)
+from pathlib import Path
+
+path = Path(sys.argv[1]).resolve()
+db = sqlite3.connect(path.as_uri() + "?mode=ro", uri=True)
 try:
-    rows=dict(db.execute("SELECT key,value FROM state"))
-    keys=sorted(k for k in rows if k.startswith("production_h1_continuation:"))
-    unresolved=db.execute("SELECT COUNT(*) FROM intents WHERE status IS NULL OR status NOT IN ('CANCELLED','REJECTED','CLOSED','RECONCILED')").fetchone()[0]
-    positions=json.loads(rows.get("production_positions", "{}"))
-    cycle=int(json.loads(rows.get("production_service_cycle_count", "0")))
-    payloads=[json.loads(rows[k]) for k in keys]
-    result={
+    rows = dict(db.execute("SELECT key,value FROM state"))
+    keys = sorted(k for k in rows if k.startswith("production_h1_continuation:"))
+    unresolved = db.execute(
+        "SELECT COUNT(*) FROM intents "
+        "WHERE status IS NULL OR status NOT IN ('CANCELLED','REJECTED','CLOSED','RECONCILED')"
+    ).fetchone()[0]
+    positions = json.loads(rows.get("production_positions", "{}"))
+    cycle = int(json.loads(rows.get("production_service_cycle_count", "0")))
+    payloads = [json.loads(rows[k]) for k in keys]
+    result = {
         "continuation_keys": keys,
         "continuation_count": len(keys),
         "continuation_nonempty": all(
-            isinstance(p,dict) and p.get("schema")=="stage8_12_4_h1_continuation.v1"
-            and isinstance(p.get("bars"),list) and len(p["bars"])>0
-            and isinstance(p.get("bars_sha256"),str) and len(p["bars_sha256"])==64
+            isinstance(p, dict)
+            and p.get("schema") == "stage8_12_4_h1_continuation.v1"
+            and isinstance(p.get("bars"), list)
+            and len(p["bars"]) > 0
+            and isinstance(p.get("bars_sha256"), str)
+            and len(p["bars_sha256"]) == 64
             for p in payloads
         ),
         "unresolved_intents": unresolved,
-        "local_open_positions": len(positions) if isinstance(positions,dict) else -1,
+        "local_open_positions": len(positions) if isinstance(positions, dict) else -1,
         "cycle_count": cycle,
     }
-    print(json.dumps(result,sort_keys=True,separators=(",",":")))
+    print(json.dumps(result, sort_keys=True, separators=(",", ":")))
 finally:
     db.close()
 '@
-$stateProbe = & $Python -c $stateProbeCode $stateDb
-if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($stateProbe)) { throw "STAGE8_12_4_PACKAGE3_STATE_PROBE_FAILED" }
+$stateProbePath = Join-Path $runtime "diagnostics\stage8-12-4-package3-state-probe.py"
+Set-Content -Path $stateProbePath -Value $stateProbeCode -Encoding UTF8
+try {
+    $stateProbe = & $Python $stateProbePath $stateDb
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($stateProbe)) {
+        throw "STAGE8_12_4_PACKAGE3_STATE_PROBE_FAILED"
+    }
+} finally {
+    Remove-Item $stateProbePath -Force -ErrorAction SilentlyContinue
+}
 $state = $stateProbe | ConvertFrom-Json
 $expectedContinuationKeys = @(
     "production_h1_continuation:CNYRUBF",
