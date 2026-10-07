@@ -1070,13 +1070,6 @@ def test_stage_8_12_machine_authority_mutations_fail_both_audits():
         operational = run_audit({path: payload})
         assert "STAGE_8_12_2_MACHINE_AUTHORITY_EXACT" in independent["errors"], key
         assert "STAGE_8_12_2_MACHINE_AUTHORITY_EXACT" in operational["errors"], key
-@pytest.mark.parametrize("path", (
-    "TradingSystemLab/CURRENT_STATE.md",
-    "TradingSystemLab/PROJECT_CONTEXT.md",
-    "TradingSystemLab/ROADMAP.md",
-    "TradingSystemLab/stage8_robot/README.md",
-))
-
 def test_stage_8_12_4_live_activation_provenance_mutations_fail_both_audits():
     path = "TradingSystemLab/stage8_robot/authority_provenance.json"
     authority = json.loads(source(path))
@@ -1104,6 +1097,12 @@ def test_stage_8_12_4_live_activation_provenance_mutations_fail_both_audits():
         assert "STAGE_8_12_4_PACKAGE5_LIVE_ACTIVATION_PROVENANCE_EXACT" in operational["errors"], key
 
 
+@pytest.mark.parametrize("path", (
+    "TradingSystemLab/CURRENT_STATE.md",
+    "TradingSystemLab/PROJECT_CONTEXT.md",
+    "TradingSystemLab/ROADMAP.md",
+    "TradingSystemLab/stage8_robot/README.md",
+))
 def test_stage_8_12_live_current_handoff_mutations_fail_both_audits(path):
     original = source(path)
     mutations = (
@@ -1127,6 +1126,12 @@ def test_stage_8_12_live_current_handoff_mutations_fail_both_audits(path):
     for mutation in mutations:
         _assert_document_mutation_fails_both(
             path, mutation, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
+CANONICAL_STAGE_8_10_DOCS = (
+    "TradingSystemLab/CURRENT_STATE.md", "TradingSystemLab/PROJECT_CONTEXT.md",
+    "TradingSystemLab/ROADMAP.md", "TradingSystemLab/stage8_robot/README.md",
+)
+
+
 def _assert_document_mutation_fails_both(path, mutation, expected_error):
     relative = path.removeprefix("TradingSystemLab/stage8_robot/")
     if path.startswith("TradingSystemLab/") and not path.startswith("TradingSystemLab/stage8_robot/"):
