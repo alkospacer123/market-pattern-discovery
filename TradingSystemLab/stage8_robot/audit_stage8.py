@@ -588,6 +588,23 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
               "production_task_enabled":False,
               "production_task_started":False,
               "real_order_count":0,
+              "production_service_prerequisites":{
+                  "status":"CODE_READY_PENDING_ZERO_ORDER_VALIDATION",
+                  "stage5_data_commit":"50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+                  "h1_seed_source_sha256":{
+                      "USDRUBF":"f0ca366d816a6213742271242e87c53d1e23f5a5fc4655df0123217df418a226",
+                      "CNYRUBF":"a3815b88a11aa5878b8bd104140f002859349c2c8d7f6ff0476a0d4c4d9a612e",
+                      "GLDRUBF":"12a626ba6cc47fce2f392d4a6ce3bdb8a3c1aad074306a73ab480fcfbb83b87e",
+                      "IMOEXF":"119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110",
+                  },
+                  "h1_seed_semantics":"STAGE5_FOREVER_OPEN_TIME_EUROPE_MOSCOW_PLUS_1H_CLOSE_INDEX",
+                  "finam_h1_splice":"EXACT_TIMESTAMP_AND_OHLC_OVERLAP_REQUIRED",
+                  "broker_state_parser":"STRICT_READ_SIDE_REGULAR_AND_SLTP",
+                  "restart_intent_read_authority":True,
+                  "order_transmission_added_by_this_layer":False,
+                  "execution_authorized":False,
+                  "real_order_count":0,
+              },
           },
           "STAGE_8_12_CURRENT_MACHINE_AUTHORITY_EXACT")
 
