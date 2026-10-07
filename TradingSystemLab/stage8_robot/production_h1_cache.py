@@ -10,6 +10,7 @@ import json
 import os
 import sqlite3
 import tempfile
+from decimal import Decimal
 from pathlib import Path
 
 import pandas as pd
@@ -212,7 +213,7 @@ class ProductionH1Cache:
             columns=OHLC,
         )
         for column in OHLC:
-            frame[column] = frame[column].map(lambda value: __import__("decimal").Decimal(value))
+            frame[column] = frame[column].map(Decimal)
         if index.has_duplicates or not index.is_monotonic_increasing:
             raise ProductionH1CacheError("STAGE8_12_4_H1_CACHE_ORDER_INVALID")
         return frame
