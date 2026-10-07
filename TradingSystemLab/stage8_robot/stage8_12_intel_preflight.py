@@ -327,16 +327,22 @@ def _frozen_registry_row_valid(row: dict[str, str], instrument: str) -> bool:
 
 def _strategy_loss_per_contract(
     instrument: str, atr_value: Decimal
-) -> tuple[Decimal, Decimal]:
+) -> tuple[Decimal, Decimal, bool]:
+    """Return the exact frozen-strategy benchmark without inventing stop rounding.
+
+    Stage 7 deliberately blocks a live entry when the raw 2.5-ATR stop is not
+    on the authenticated broker tick grid.  Stage 8.12.3 is a funding benchmark,
+    not an entry attempt, so it retains the exact fractional strategy distance
+    for loss-per-contract and reports live grid eligibility separately.
+    """
     step, tick, _ = MOEX_REFERENCE[instrument]
     stop_distance = atr_value * STOP_ATR_MULTIPLE
     ticks = stop_distance / step
-    if ticks != ticks.to_integral_value():
-        _fail("STAGE8_12_3_BENCHMARK_STOP_NOT_ON_TICK_GRID")
+    grid_eligible = ticks == ticks.to_integral_value()
     loss_per_contract = ticks * tick
     if not loss_per_contract.is_finite() or loss_per_contract <= 0:
         _fail("STAGE8_12_3_LOSS_PER_CONTRACT_INVALID")
-    return stop_distance, loss_per_contract
+    return stop_distance, loss_per_contract, grid_eligible
 
 
 def _expected_completed_h1_opens(
@@ -457,8 +463,8 @@ def _collect_strategy_loss(
         _fail("STAGE8_12_3_ATR_INVALID")
     step, tick, _ = MOEX_REFERENCE[instrument]
     benchmark_atr = Decimal(str(float(atr_value)))
-    stop_distance, loss_per_contract = _strategy_loss_per_contract(
-        instrument, benchmark_atr
+    stop_distance, loss_per_contract, live_entry_grid_eligible = (
+        _strategy_loss_per_contract(instrument, benchmark_atr)
     )
     try:
         trade_lot_size = int(Decimal(str(binding["trade_lot_size"])))
@@ -482,6 +488,9 @@ def _collect_strategy_loss(
         "h1_current_schedule_scope_validation": "EXACT_WHEN_SCHEDULE_COVERS_WATERMARK_DAY",
         "initial_stop_atr_multiple": str(STOP_ATR_MULTIPLE),
         "strategy_stop_distance": str(stop_distance),
+        "strategy_stop_ticks": str(stop_distance / step),
+        "live_entry_grid_eligible": live_entry_grid_eligible,
+        "live_entry_grid_policy": "BLOCK_ENTRY_NO_ROUNDING_PER_FROZEN_STAGE7",
         "price_step": str(step),
         "tick_value_rub": str(tick),
         "loss_per_contract": str(loss_per_contract),

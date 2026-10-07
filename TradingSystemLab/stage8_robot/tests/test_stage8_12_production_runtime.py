@@ -113,6 +113,34 @@ def test_latest_signal_wires_context_builder_and_decision_core(tmp_path):
     runtime.close()
 
 
+def test_off_grid_frozen_stop_cleanly_blocks_only_that_entry(tmp_path):
+    runtime = ProductionRuntime(tmp_path / "state.db")
+    budget = runtime.begin_batch(
+        realized_equity=Decimal("100000"), available_cash=Decimal("1000"))
+    off_grid = SignalIntent(
+        signal_id="signal-USDRUBF-off-grid",
+        trade_id="trade-USDRUBF-off-grid",
+        instrument="USDRUBF",
+        direction="LONG",
+        timestamp=datetime(2026, 1, 2, 10, tzinfo=MSK),
+        entry=100.0,
+        initial_stop=99.949,
+        initial_r=0.051,
+        canonical_stop=99.949,
+    )
+    before = budget.remaining
+    action = runtime.plan_entry(
+        off_grid, authority(), realized_equity=Decimal("100000"), budget=budget)
+    assert action.kind == "SKIP_STOP_NOT_ON_TICK_GRID"
+    assert action.quantity == 0
+    assert action.reason == "STOP_NOT_ON_TICK_GRID"
+    assert action.stop_price == Decimal("99.949")
+    assert budget.remaining == before
+    assert runtime.store.unresolved_intent_count() == 0
+    assert runtime.open_positions() == {}
+    runtime.close()
+
+
 def test_entry_r15_margin_position_authority_and_initial_stop(tmp_path):
     runtime = ProductionRuntime(tmp_path / "state.db")
     budget = runtime.begin_batch(
