@@ -176,6 +176,10 @@ def evaluate_production_entry_gate(
             (type(value.get("cycle_count")) is int and value.get("cycle_count") >= 1, "PRODUCTION_CYCLE_COUNT_INVALID"),
             (type(value.get("open_position_count")) is int and value.get("open_position_count") >= 0, "PRODUCTION_POSITION_COUNT_INVALID"),
             (type(value.get("active_protective_stop_count")) is int and value.get("active_protective_stop_count") >= 0, "PRODUCTION_STOP_COUNT_INVALID"),
+            (type(value.get("open_position_count")) is int
+             and type(value.get("active_protective_stop_count")) is int
+             and value.get("active_protective_stop_count") >= value.get("open_position_count"),
+             "PRODUCTION_PROTECTIVE_STOP_COVERAGE_INVALID"),
         )
         for valid, code in checks:
             if not valid:
