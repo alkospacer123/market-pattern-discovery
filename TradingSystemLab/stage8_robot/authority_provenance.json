@@ -771,6 +771,35 @@
       "real_order_transmission_authorized": false,
       "real_order_count": 0,
       "next_package_on_pass": "PACKAGE_4_FRESH_FUNDING_RECALCULATION"
+    },
+    "stage8_12_4_package4": {
+      "status": "COMPLETE_PASS_FUNDING_ACTION_REQUIRED",
+      "physical_validation_performed": true,
+      "accepted_code_commit": "a31080781e6c51de405d840d5cf30abd91c70ead",
+      "external_evidence": "runtime/diagnostics/package4/stage8_12_3_intel_preflight.json",
+      "external_evidence_sha256": "60D9C3EFEC7D54C50BF188B003DCE06D31647A9D6B6F0ED33BB46FF08475621B",
+      "external_evidence_tracked_in_git": false,
+      "fresh_get_only_financial_authority": "PASS",
+      "independent_stage8_audit": {
+        "status": "PASS",
+        "checks": 281
+      },
+      "final_operational_audit": {
+        "status": "PASS",
+        "checks": 168
+      },
+      "public_financial_values": "NOT_REPRODUCED_IN_PUBLIC_REPOSITORY",
+      "reserve_scenarios": "EXTERNAL_EVIDENCE_INCLUDES_0_10_20_30_PERCENT",
+      "funding_action_required": true,
+      "durable_authorization_required_state": "Absent",
+      "kill_switch_required_state": "HALTED",
+      "production_task_required_state": "Disabled",
+      "execution_authorized": false,
+      "live_trading_authorized": false,
+      "real_order_transmission_authorized": false,
+      "real_order_count": 0,
+      "next_step": "OPERATOR_FUNDING_THEN_FRESH_REVALIDATION_BEFORE_PACKAGE5",
+      "package5_status": "NOT_STARTED_NOT_AUTHORIZED"
     }
   }
 }
