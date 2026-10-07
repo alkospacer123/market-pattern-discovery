@@ -287,7 +287,7 @@ The accepted normal reconciliation model is position-authoritative: after each p
 
 Attempts 1–6, their failures/OIR classifications, manual closes, and recovery evidence remain immutable historical provenance and are not reclassified by the attempt7 PASS.
 
-Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**. Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**.
+Stage 8.12 — **STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 NOT STARTED / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**. Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**. Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**.
 
 Canonical Stage 8.12.1 authority:
 
@@ -322,7 +322,27 @@ Canonical Stage 8.12.2 authority:
 - production kill switch: `HALTED`;
 - production Scheduled Task: `Disabled`.
 
-Stage 8.12.2 is closed as TEST/AUDIT ONLY with zero real orders. Stage 8.12.3 — Intel production preflight — is the **NEXT GATE** and remains **NOT STARTED**. Continuous FULL/R15 production execution, Scheduled Task activation, and any new real-order transmission remain unauthorized until the separate explicit Stage 8.12.4 authorization gate.
+Stage 8.12.2 is closed as TEST/AUDIT ONLY with zero real orders.
+Canonical Stage 8.12.3 authority:
+
+- accepted Intel preflight commit: `0a40e3bf7a97f0c011d3a6f5216d9f61dd52ef30`;
+- external sanitized evidence: `runtime/diagnostics/stage8_12_3_intel_preflight.json`;
+- evidence SHA-256: `9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1`;
+- focused Stage 8.12 zero-order regression: `205/205 PASS`;
+- independent Stage 8 audit: `PASS` (`262` checks);
+- final operational audit: `PASS` (`149` checks);
+- physical result: `STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT_PASS`;
+- exact Stage 7 production ID / active identity / real-account binding / trading-capable DPAPI credential: `PASS`;
+- frozen N4 registry, tradability, current H1/reconciliation, clean broker account, and production-state continuity: `PASS`;
+- external evidence contains the required N4 simultaneous-capacity report, strategy-consistent loss-per-contract, and 0/10/20/30% reserve scenarios; account financial values remain external and are not reproduced in the public repository;
+- real order endpoint calls: `0`;
+- real order count: `0`;
+- `execution_authorized = false`;
+- production kill switch: `HALTED`;
+- production Scheduled Task: `DisabledOrAbsent`;
+- Stage 8.12.4: `NOT_STARTED_NOT_AUTHORIZED`.
+
+Stage 8.12.3 is **COMPLETE / PASS / REAL ACCOUNT / ZERO ORDERS / STILL NOT AUTHORIZED**. The **NEXT GATE** is Stage 8.12.4 — Explicit FULL/R15 production authorization and activation. Stage 8.12.4 has **NOT STARTED** and remains **NOT AUTHORIZED**; only that gate may authorize continuous real production trading.
 
 ## Boundaries and startup
 

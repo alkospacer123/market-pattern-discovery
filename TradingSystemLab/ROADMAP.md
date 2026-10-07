@@ -56,7 +56,7 @@ The accepted normal reconciliation model is position-authoritative: after each p
 
 Attempts 1–6, their failures/OIR classifications, manual closes, and recovery evidence remain immutable historical provenance and are not reclassified by the attempt7 PASS.
 
-Stage 8.12 — **STARTED / CODE-ONLY / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**. Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**.
+Stage 8.12 — **STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 NOT STARTED / NOT AUTHORIZED**. Stage 8.12.1 — Production runtime assembly — is **COMPLETE / PASS**. Stage 8.12.2 — Production path conformance and failure audit — is **COMPLETE / PASS**. Stage 8.12.3 — Intel production preflight — is **COMPLETE / PASS**.
 
 Canonical Stage 8.12.1 authority:
 
@@ -91,7 +91,7 @@ Canonical Stage 8.12.2 authority:
 - production kill switch: `HALTED`;
 - production Scheduled Task: `Disabled`.
 
-Stage 8.12.1 assembled the production runtime without adding FINAM order transport. Stage 8.12.2 completed the required TEST/AUDIT-only conformance with zero real orders. Stage 8.12.3 — Intel production preflight — is the **NEXT GATE** and remains **NOT STARTED**. Continuous FULL/R15 production execution, Scheduled Task activation, and any new real-order transmission remain unauthorized until the separate explicit Stage 8.12.4 authorization gate.
+Stage 8.12.1 assembled the production runtime without adding FINAM order transport. Stage 8.12.2 completed the required TEST/AUDIT-only conformance with zero real orders. Stage 8.12.3 Intel production preflight is now **COMPLETE / PASS** on accepted commit `0a40e3bf7a97f0c011d3a6f5216d9f61dd52ef30` with external evidence SHA-256 `9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1`, zero real order-endpoint calls, zero real orders, `execution_authorized=false`, and kill switch `HALTED`. Stage 8.12.4 — Explicit FULL/R15 production authorization and activation — is the **NEXT GATE** and remains **NOT STARTED / NOT AUTHORIZED**.
 
 ## Governing research rule
 
@@ -327,7 +327,7 @@ Do not derive current status from older Stage 8.11 attempt narratives.
 
 ## Stage 8.12 — FULL/R15 Production Authorization
 
-**ROADMAP DEFINED / NOT STARTED / NOT AUTHORIZED.**
+**STARTED / STAGES 8.12.1–8.12.3 COMPLETE / STAGE 8.12.4 NOT STARTED / NOT AUTHORIZED.**
 
 Purpose: move the already frozen and physically accepted Stage 7 production system from controlled acceptance into unattended FULL/R15 production operation on the real FINAM account.
 
@@ -414,11 +414,11 @@ Canonical closeout evidence:
 - production kill switch: `HALTED`;
 - production Scheduled Task: `Disabled`.
 
-Exit criterion: **PASS**. Exact tested production commit remained independently auditable with zero real-order transmission authorization. Stage 8.12.3 is the next gate and remains NOT STARTED.
+Exit criterion: **PASS**. Exact tested production commit remained independently auditable with zero real-order transmission authorization. At the Stage 8.12.2 closeout, Stage 8.12.3 was the next gate; it subsequently completed under the Stage 8.12.3 authority recorded below.
 
 ### Stage 8.12.3 — Intel production preflight
 
-**REAL ACCOUNT / ZERO ORDERS / STILL NOT AUTHORIZED.**
+**COMPLETE / PASS / REAL ACCOUNT / ZERO ORDERS / STILL NOT AUTHORIZED.**
 
 Run one external Intel-host preflight on the exact accepted production commit.
 
@@ -442,7 +442,25 @@ Require:
 
 This preflight does **not** require every N4 instrument to have positive quantity. Each real signal is sized independently under R15 + available margin; quantity `0` means skip that entry.
 
-Exit criterion: external sanitized evidence proves the exact production build is ready to be authorized, while the account remains non-trading.
+Exit criterion: **PASS**. External sanitized evidence proves the exact production build is ready to proceed to the separate authorization gate while the account remains non-trading.
+
+Canonical Stage 8.12.3 closeout evidence:
+
+- accepted Intel preflight commit: `0a40e3bf7a97f0c011d3a6f5216d9f61dd52ef30`;
+- external sanitized evidence: `runtime/diagnostics/stage8_12_3_intel_preflight.json`;
+- external evidence SHA-256: `9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1`;
+- focused Stage 8.12 zero-order regression: `205/205 PASS`;
+- independent Stage 8 audit: `PASS` with `262` checks;
+- final operational audit: `PASS` with `149` checks;
+- physical result: `STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT_PASS`;
+- exact Stage 7 production identity, real-account binding, trading-capable DPAPI credential, clean broker account, current reconciliation/H1 authority, frozen N4 binding/tradability, and production-state continuity: `PASS`;
+- external evidence includes the required N4 simultaneous-capacity report and 0/10/20/30% reserve scenarios; exact account financial values remain external and are not reproduced in the public repository;
+- real order endpoint calls: `0`;
+- real order count: `0`;
+- `execution_authorized = false`;
+- production kill switch: `HALTED`;
+- production Scheduled Task: `DisabledOrAbsent`;
+- Stage 8.12.4 remains `NOT_STARTED_NOT_AUTHORIZED`.
 
 ### Stage 8.12.4 — Explicit FULL/R15 production authorization and activation
 
@@ -499,6 +517,6 @@ Do not:
 
 ## Current roadmap boundary
 
-**NEXT GATE: Stage 8.12.3 — Intel production preflight.**
+**NEXT GATE: Stage 8.12.4 — Explicit FULL/R15 production authorization and activation.**
 
-Stage 8.12 is **STARTED / CODE-ONLY / NOT AUTHORIZED**. Stage 8.12.1 is COMPLETE / PASS. Stage 8.12.2 is COMPLETE / PASS / TEST-AUDIT ONLY / ZERO REAL ORDERS. Stage 8.12.3 remains NOT STARTED. The production kill switch remains `HALTED`, the production Scheduled Task remains disabled, and `execution_authorized = false`. Only Stage 8.12.4 may authorize continuous real production trading.
+Stage 8.12 is **STARTED / NOT YET AUTHORIZED**. Stage 8.12.1 is COMPLETE / PASS. Stage 8.12.2 is COMPLETE / PASS / TEST-AUDIT ONLY / ZERO REAL ORDERS. Stage 8.12.3 is COMPLETE / PASS / REAL ACCOUNT / ZERO ORDERS / STILL NOT AUTHORIZED. Stage 8.12.4 remains **NOT STARTED / NOT AUTHORIZED**. The production kill switch remains `HALTED`, the production Scheduled Task remains disabled, and `execution_authorized = false`. Only Stage 8.12.4 may authorize continuous real production trading.

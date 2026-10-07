@@ -1,5 +1,5 @@
 {
-  "as_of_utc": "2026-10-05T05:24:14Z",
+  "as_of_utc": "2026-10-07T04:13:10Z",
   "binding_status": "AUTHENTICATED_REAL_READONLY",
   "finam": {
     "api_version": "v1",
@@ -299,7 +299,7 @@
     "stage8_11_1_status": "COMPLETE_PASS",
     "stage8_11_2_status": "COMPLETE_PASS",
     "stage8_11_3_status": "PRIOR_AUTHORIZATION_CONSUMED",
-    "current_gate": "STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT",
+    "current_gate": "STAGE_8_12_4_EXPLICIT_FULL_R15_PRODUCTION_AUTHORIZATION",
     "latest_physical_precheck_result": "STAGE8_11_PRECHECK_ONLY_PASS",
     "physical_precheck": {
       "schema_id": "stage8_11_intel_precheck.v1",
@@ -426,7 +426,7 @@
     "stage8_11_6_status": "FLATTEN_NOT_SUBMITTED",
     "stage8_11_7_status": "COMPLETE_PASS_HISTORICAL_INTENT_RECOVERED",
     "stage8_11_8_status": "COMPLETE_STAGE_8_11_CLOSEOUT_PASS",
-    "stage8_12_status": "STARTED_CODE_ONLY_NOT_AUTHORIZED",
+    "stage8_12_status": "STAGE_8_12_3_COMPLETE_STAGE_8_12_4_NOT_STARTED_NOT_AUTHORIZED",
     "operator_boundary_predecessor_authority": {
       "pull_request": 360,
       "base": "cc1508e87c0cfc1994352761aa800da58751c132",
@@ -578,7 +578,7 @@
     "stage8_12_activity": false
   },
   "stage8_12": {
-    "status": "STAGE_8_12_STARTED_CODE_ONLY_NOT_AUTHORIZED",
+    "status": "STAGE_8_12_STARTED_STAGE8_12_3_COMPLETE_NOT_AUTHORIZED",
     "stage8_12_1_status": "STAGE_8_12_1_PRODUCTION_RUNTIME_ASSEMBLY_COMPLETE_PASS",
     "accepted_code_commit": "3f2d68ca0c327271fb543a0b63c0e8f842c855bd",
     "external_test_only_evidence_sha256": "F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C",
@@ -605,12 +605,12 @@
     "real_order_transmission_authorized": false,
     "production_kill_switch_final_state": "HALTED",
     "production_scheduled_task": "Disabled",
-    "mode": "CODE_ONLY_TEST_ONLY",
+    "mode": "STAGE8_12_3_COMPLETE_REAL_ACCOUNT_ZERO_ORDERS_NOT_AUTHORIZED",
     "stage8_12_2_status": "STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT_COMPLETE_PASS",
-    "stage8_12_3_status": "NOT_STARTED",
+    "stage8_12_3_status": "STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT_COMPLETE_PASS",
     "stage8_12_4_status": "NOT_STARTED_NOT_AUTHORIZED",
-    "next_gate": "STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT",
-    "n4_simultaneous_positive_capacity_calculation": "REQUIRED_STAGE8_12_3",
+    "next_gate": "STAGE_8_12_4_EXPLICIT_FULL_R15_PRODUCTION_AUTHORIZATION",
+    "n4_simultaneous_positive_capacity_calculation": "COMPLETE_PASS_EXTERNAL_EVIDENCE",
     "stage8_12_2_accepted_code_commit": "2a15f4331afc1433dfbfd0464108e39e59d236f8",
     "stage8_12_2_external_test_only_evidence_sha256": "4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F",
     "stage8_12_2_external_test_only_evidence_tracked_in_git": false,
@@ -645,6 +645,35 @@
     "stage8_12_2_final_operational_audit": {
       "status": "PASS",
       "checks": 149
-    }
+    },
+    "stage8_12_3_accepted_code_commit": "0a40e3bf7a97f0c011d3a6f5216d9f61dd52ef30",
+    "stage8_12_3_external_evidence_path": "runtime/diagnostics/stage8_12_3_intel_preflight.json",
+    "stage8_12_3_external_evidence_sha256": "9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1",
+    "stage8_12_3_external_evidence_tracked_in_git": false,
+    "stage8_12_3_physical_result": "STAGE_8_12_3_INTEL_PRODUCTION_PREFLIGHT_PASS",
+    "stage8_12_3_focused_zero_order_regression": {
+      "passed": 205,
+      "failed": 0
+    },
+    "stage8_12_3_independent_stage8_audit": {
+      "status": "PASS",
+      "checks": 262
+    },
+    "stage8_12_3_final_operational_audit": {
+      "status": "PASS",
+      "checks": 149
+    },
+    "stage8_12_3_identity_account_credential_binding": "PASS",
+    "stage8_12_3_reconciliation_h1_registry_tradability": "PASS",
+    "stage8_12_3_broker_clean": "PASS",
+    "stage8_12_3_n4_capacity_report": "PASS_EXTERNAL_EVIDENCE_INCLUDES_0_10_20_30_PERCENT_RESERVES",
+    "stage8_12_3_public_financial_values": "NOT_REPRODUCED_IN_PUBLIC_REPOSITORY",
+    "stage8_12_3_order_endpoint_call_count": 0,
+    "stage8_12_3_real_order_count": 0,
+    "stage8_12_3_execution_authorized": false,
+    "stage8_12_3_live_trading_authorized": false,
+    "stage8_12_3_real_order_transmission_authorized": false,
+    "stage8_12_3_production_kill_switch_final_state": "HALTED",
+    "stage8_12_3_production_scheduled_task": "DisabledOrAbsent"
   }
 }
