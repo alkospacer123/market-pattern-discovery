@@ -356,7 +356,15 @@ class ProductionService:
         orders: list[BrokerOrderView],
     ) -> list[dict[str, Any]]:
         protection = []
-        for instrument, value in sorted(self.runtime.open_positions().items()):
+        local_positions = self.runtime.open_positions()
+        local_symbols = {value["finam_symbol"] for value in local_positions.values()}
+        unexpected = {
+            symbol for symbol, quantity in positions.items()
+            if quantity != 0 and symbol not in local_symbols
+        }
+        if unexpected:
+            _fail("STAGE8_12_4_UNEXPECTED_N4_BROKER_POSITION")
+        for instrument, value in sorted(local_positions.items()):
             symbol = value["finam_symbol"]
             expected = (
                 int(value["quantity"])
@@ -467,7 +475,21 @@ class ProductionService:
         allow_missing: bool,
     ) -> bool:
         progress = False
-        for intent in self.runtime.store.unresolved_intents():
+        unresolved = self.runtime.store.unresolved_intents()
+        priority = {
+            "EMERGENCY_EXIT_REQUIRED": 0,
+            "PROTECTIVE_STOP_INSTALL": 1,
+            "PROTECTIVE_STOP_REPLACE": 1,
+            "ENTRY": 2,
+        }
+        unresolved.sort(
+            key=lambda intent: (
+                priority.get(intent.get("payload", {}).get("kind"), 9),
+                intent.get("updated_at", ""),
+                intent.get("idempotency_key", ""),
+            )
+        )
+        for intent in unresolved:
             payload = intent["payload"]
             kind = payload.get("kind")
             key = intent["idempotency_key"]
@@ -576,6 +598,20 @@ class ProductionService:
                     self.runtime.store.transition_intent(
                         key, "RECONCILED", order.order_id
                     )
+                    trade_id = payload.get("trade_id")
+                    local = self.runtime.open_positions().get(payload.get("instrument"))
+                    if local is None and isinstance(trade_id, str):
+                        for candidate in self.runtime.store.unresolved_intents():
+                            cp = candidate.get("payload", {})
+                            if (
+                                cp.get("kind") == "ENTRY"
+                                and cp.get("trade_id") == trade_id
+                            ):
+                                self.runtime.store.transition_intent(
+                                    candidate["idempotency_key"],
+                                    "CLOSED",
+                                    candidate.get("broker_order_id"),
+                                )
                     progress = True
                 elif order.status in MARKET_FILLED and observed != 0:
                     _fail("STAGE8_12_4_EMERGENCY_EXIT_POSITION_STILL_OPEN")
