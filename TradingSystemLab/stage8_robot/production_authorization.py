@@ -112,7 +112,13 @@ def write_authorization(
             stream.write("\n")
             stream.flush()
             os.fsync(stream.fileno())
-        os.replace(temporary, destination)
+        try:
+            os.link(temporary, destination)
+        except FileExistsError:
+            raise ProductionAuthorizationError(
+                "STAGE8_12_4_AUTHORIZATION_ALREADY_EXISTS"
+            ) from None
+        os.unlink(temporary)
         try:
             directory_fd = os.open(destination.parent, os.O_RDONLY)
             try:
