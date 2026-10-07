@@ -13,7 +13,12 @@ from pathlib import Path
 from typing import Any
 
 from .broker import broker_side, compact_client_order_id
-from .finam_api import MARKET_ORDER_TYPE, TIME_IN_FORCE_DAY
+from .finam_api import (
+    MARKET_ORDER_TYPE,
+    TIME_IN_FORCE_DAY,
+    FinamOrderRejected,
+    FinamUncertainSubmission,
+)
 from .production_authorization import load_authorization
 from .production_runtime import RuntimeAction
 from .protective_stop_contract import (
@@ -21,6 +26,7 @@ from .protective_stop_contract import (
     percent_position_stop_payload,
 )
 from .production_safety_gate import evaluate_production_entry_gate
+from .state import StateStore
 
 
 class LiveExecutionError(RuntimeError):
@@ -101,6 +107,64 @@ class AuthorizedFinamProductionTransport:
             raise LiveExecutionError("STAGE8_12_4_RUNTIME_ACTION_INVALID")
 
     @staticmethod
+    def _require_persisted_action(
+        action: RuntimeAction, state_store: StateStore
+    ) -> dict[str, Any]:
+        if not action.idempotency_key:
+            raise LiveExecutionError("STAGE8_12_4_IDEMPOTENCY_KEY_REQUIRED")
+        intent = state_store.intent(action.idempotency_key)
+        if intent is None or intent.get("status") != "INTENT_PERSISTED":
+            raise LiveExecutionError("STAGE8_12_4_PERSISTED_INTENT_REQUIRED")
+        payload = intent.get("payload")
+        if not isinstance(payload, dict):
+            raise LiveExecutionError("STAGE8_12_4_PERSISTED_INTENT_INVALID")
+        expected = action.payload()
+        for key in (
+            "kind", "idempotency_key", "instrument", "finam_symbol",
+            "direction", "quantity", "trade_id", "signal_id",
+            "reference_price", "stop_price", "expected_position_quantity",
+        ):
+            if payload.get(key) != expected.get(key):
+                raise LiveExecutionError("STAGE8_12_4_PERSISTED_INTENT_MISMATCH")
+        return intent
+
+    @staticmethod
+    def _ack_order_id(result: Any) -> str:
+        if not isinstance(result, dict):
+            raise LiveExecutionError("STAGE8_12_4_BROKER_ACK_INVALID")
+        value = result.get("order_id") or result.get("orderId")
+        if not isinstance(value, str) or not value:
+            raise LiveExecutionError("STAGE8_12_4_BROKER_ACK_ORDER_ID_MISSING")
+        return value
+
+    def _submit_persisted(
+        self,
+        action: RuntimeAction,
+        state_store: StateStore,
+        submitter,
+    ) -> dict[str, Any]:
+        self._require_persisted_action(action, state_store)
+        key = action.idempotency_key
+        state_store.transition_intent(key, "SUBMITTED")
+        try:
+            result = submitter()
+        except FinamUncertainSubmission:
+            state_store.transition_intent(key, "UNCERTAIN")
+            raise
+        except FinamOrderRejected:
+            state_store.transition_intent(key, "REJECTED")
+            raise
+        try:
+            broker_id = self._ack_order_id(result)
+        except LiveExecutionError:
+            state_store.transition_intent(key, "UNCERTAIN")
+            raise FinamUncertainSubmission(
+                "RECONCILIATION_REQUIRED:BROKER_ACK_ORDER_ID_MISSING"
+            ) from None
+        state_store.transition_intent(key, "ACK", broker_id)
+        return result
+
+    @staticmethod
     def _market_payload(action: RuntimeAction, *, exit_order: bool) -> dict[str, Any]:
         client_id = compact_client_order_id(action.idempotency_key)
         return {
@@ -112,11 +176,17 @@ class AuthorizedFinamProductionTransport:
             "client_order_id": client_id,
         }
 
-    def submit_entry(self, action: RuntimeAction, *, now) -> dict[str, Any]:
+    def submit_entry(
+        self, action: RuntimeAction, *, now, state_store: StateStore
+    ) -> dict[str, Any]:
         self._validate_action(action, "ENTRY")
         self._require_entry_gate(now)
-        return self.api.place_order(
-            self.account_id, self._market_payload(action, exit_order=False)
+        return self._submit_persisted(
+            action,
+            state_store,
+            lambda: self.api.place_order(
+                self.account_id, self._market_payload(action, exit_order=False)
+            ),
         )
 
     def submit_protective_stop(
@@ -124,6 +194,7 @@ class AuthorizedFinamProductionTransport:
         action: RuntimeAction,
         *,
         observed_position_quantity: int,
+        state_store: StateStore,
     ) -> dict[str, Any]:
         self._require_connected()
         if action.kind not in {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}:
@@ -140,21 +211,30 @@ class AuthorizedFinamProductionTransport:
         if len(action.idempotency_key) > 128:
             raise LiveExecutionError("STAGE8_12_4_PROTECTIVE_STOP_COMMENT_TOO_LONG")
         payload["comment"] = action.idempotency_key
-        return self.api.place_sltp_order(self.account_id, payload)
+        return self._submit_persisted(
+            action,
+            state_store,
+            lambda: self.api.place_sltp_order(self.account_id, payload),
+        )
 
     def submit_emergency_exit(
         self,
         action: RuntimeAction,
         *,
         observed_position_quantity: int,
+        state_store: StateStore,
     ) -> dict[str, Any]:
         self._validate_action(action, "EMERGENCY_EXIT_REQUIRED")
         self._require_connected()
         expected = action.quantity if action.direction == "LONG" else -action.quantity
         if type(observed_position_quantity) is not int or observed_position_quantity != expected:
             raise LiveExecutionError("STAGE8_12_4_EMERGENCY_EXIT_POSITION_NOT_EXACT")
-        return self.api.place_order(
-            self.account_id, self._market_payload(action, exit_order=True)
+        return self._submit_persisted(
+            action,
+            state_store,
+            lambda: self.api.place_order(
+                self.account_id, self._market_payload(action, exit_order=True)
+            ),
         )
 
     def cancel_protective_stop_after_flat(
