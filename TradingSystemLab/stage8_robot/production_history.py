@@ -10,6 +10,9 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import json
+import os
+import tempfile
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
@@ -261,3 +264,167 @@ def close_index_for_frozen_t3(open_h1: pd.DataFrame) -> pd.DataFrame:
     if not closed.index.is_monotonic_increasing or closed.index.has_duplicates:
         raise ProductionHistoryError("STAGE8_12_4_H1_CLOSE_INDEX_INVALID")
     return closed
+
+
+CACHE_SCHEMA = "stage8_12_4_h1_rolling_cache.v1"
+CACHE_DIRNAME = "production-h1"
+MIN_CACHE_OVERLAP_BARS = 32
+
+
+def _cache_paths(runtime_root: Path | str, instrument: str) -> tuple[Path, Path]:
+    root = Path(runtime_root).resolve() / "state" / CACHE_DIRNAME
+    return root / f"{instrument}.csv", root / f"{instrument}.json"
+
+
+def _cache_csv(open_h1: pd.DataFrame) -> str:
+    if open_h1.empty or open_h1.index.tz is None:
+        raise ProductionHistoryError("STAGE8_12_4_H1_CACHE_FRAME_INVALID")
+    lines = ["OpenTime;Open;High;Low;Close"]
+    for stamp, row in open_h1.iterrows():
+        values = []
+        for column in OHLC:
+            value = row[column]
+            if not isinstance(value, Decimal):
+                try:
+                    value = Decimal(str(value))
+                except Exception:
+                    raise ProductionHistoryError("STAGE8_12_4_H1_CACHE_FRAME_INVALID") from None
+            if not value.is_finite() or value <= 0:
+                raise ProductionHistoryError("STAGE8_12_4_H1_CACHE_FRAME_INVALID")
+            values.append(str(value))
+        lines.append(
+            stamp.isoformat() + ";" + ";".join(values)
+        )
+    return "\n".join(lines) + "\n"
+
+
+def _write_cache(runtime_root: Path | str, instrument: str, open_h1: pd.DataFrame) -> None:
+    data_path, meta_path = _cache_paths(runtime_root, instrument)
+    data_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = _cache_csv(open_h1)
+    metadata = {
+        "schema_id": CACHE_SCHEMA,
+        "instrument": instrument,
+        "stage5_data_commit": STAGE5_DATA_COMMIT,
+        "stage5_seed_sha256": SEED_SHA256[instrument],
+        "row_count": len(open_h1),
+        "first_open": open_h1.index[0].isoformat(),
+        "last_open": open_h1.index[-1].isoformat(),
+        "csv_sha256": hashlib.sha256(payload.encode("utf-8")).hexdigest(),
+    }
+    for destination, body in (
+        (data_path, payload),
+        (meta_path, json.dumps(metadata, sort_keys=True, separators=(",", ":")) + "\n"),
+    ):
+        fd, name = tempfile.mkstemp(
+            prefix=f".{destination.name}.", suffix=".tmp", dir=destination.parent
+        )
+        temporary = Path(name)
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as stream:
+                stream.write(body)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary, destination)
+        finally:
+            temporary.unlink(missing_ok=True)
+
+
+def _load_cache(runtime_root: Path | str, instrument: str) -> pd.DataFrame | None:
+    data_path, meta_path = _cache_paths(runtime_root, instrument)
+    if not data_path.exists() and not meta_path.exists():
+        return None
+    if (
+        instrument not in N4
+        or not data_path.is_file()
+        or data_path.is_symlink()
+        or not meta_path.is_file()
+        or meta_path.is_symlink()
+    ):
+        raise ProductionHistoryError("STAGE8_12_4_H1_CACHE_INVALID")
+    try:
+        payload = data_path.read_text(encoding="utf-8")
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        raise ProductionHistoryError("STAGE8_12_4_H1_CACHE_INVALID") from None
+    if (
+        not isinstance(meta, dict)
+        or meta.get("schema_id") != CACHE_SCHEMA
+        or meta.get("instrument") != instrument
+        or meta.get("stage5_data_commit") != STAGE5_DATA_COMMIT
+        or meta.get("stage5_seed_sha256") != SEED_SHA256[instrument]
+        or meta.get("csv_sha256") != hashlib.sha256(payload.encode("utf-8")).hexdigest()
+    ):
+        raise ProductionHistoryError("STAGE8_12_4_H1_CACHE_AUTHORITY_MISMATCH")
+
+    rows: list[tuple[pd.Timestamp, Decimal, Decimal, Decimal, Decimal]] = []
+    try:
+        reader = csv.DictReader(payload.splitlines(), delimiter=";")
+        if reader.fieldnames != ["OpenTime", "Open", "High", "Low", "Close"]:
+            raise ProductionHistoryError("STAGE8_12_4_H1_CACHE_INVALID")
+        for raw in reader:
+            stamp = pd.Timestamp(raw["OpenTime"])
+            if stamp.tzinfo is None:
+                raise ProductionHistoryError("STAGE8_12_4_H1_CACHE_INVALID")
+            stamp = stamp.tz_convert(MOSCOW)
+            rows.append((
+                stamp,
+                _decimal(raw["Open"], "STAGE8_12_4_H1_CACHE_INVALID"),
+                _decimal(raw["High"], "STAGE8_12_4_H1_CACHE_INVALID"),
+                _decimal(raw["Low"], "STAGE8_12_4_H1_CACHE_INVALID"),
+                _decimal(raw["Close"], "STAGE8_12_4_H1_CACHE_INVALID"),
+            ))
+    except (KeyError, TypeError, ValueError):
+        raise ProductionHistoryError("STAGE8_12_4_H1_CACHE_INVALID") from None
+    frame = _validated_frame(rows, source_code="STAGE8_12_4_H1_CACHE")
+    if (
+        meta.get("row_count") != len(frame)
+        or meta.get("first_open") != frame.index[0].isoformat()
+        or meta.get("last_open") != frame.index[-1].isoformat()
+    ):
+        raise ProductionHistoryError("STAGE8_12_4_H1_CACHE_AUTHORITY_MISMATCH")
+    return frame
+
+
+def splice_cache_and_finam_open_h1(
+    cached: pd.DataFrame,
+    live: pd.DataFrame,
+) -> pd.DataFrame:
+    if cached.empty or live.empty:
+        raise ProductionHistoryError("STAGE8_12_4_H1_CACHE_SPLICE_EMPTY")
+    overlap = cached.index.intersection(live.index)
+    if len(overlap) < MIN_CACHE_OVERLAP_BARS:
+        raise ProductionHistoryError("STAGE8_12_4_H1_CACHE_OVERLAP_INSUFFICIENT")
+    if cached.index[-1] not in live.index:
+        raise ProductionHistoryError("STAGE8_12_4_H1_CACHE_CONTINUITY_LOST")
+    for column in OHLC:
+        if any(a != b for a, b in zip(cached.loc[overlap, column], live.loc[overlap, column])):
+            raise ProductionHistoryError("STAGE8_12_4_H1_CACHE_OHLC_MISMATCH")
+    appended = live.loc[live.index > cached.index[-1]]
+    merged = pd.concat([cached, appended])
+    if merged.index.has_duplicates or not merged.index.is_monotonic_increasing:
+        raise ProductionHistoryError("STAGE8_12_4_H1_CACHE_ORDER_INVALID")
+    return merged
+
+
+def update_production_h1(
+    *,
+    runtime_root: Path | str,
+    data_root: Path | str,
+    instrument: str,
+    finam_response: dict[str, Any],
+    observed_at,
+    trading_windows,
+) -> pd.DataFrame:
+    """Return frozen-T3 close-index H1 with durable exact continuity."""
+    live = finam_completed_open_h1(
+        finam_response, observed_at, trading_windows
+    )
+    cached = _load_cache(runtime_root, instrument)
+    if cached is None:
+        seed = load_stage5_seed_open_h1(data_root, instrument)
+        merged = splice_seed_and_finam_open_h1(seed, live)
+    else:
+        merged = splice_cache_and_finam_open_h1(cached, live)
+    _write_cache(runtime_root, instrument, merged)
+    return close_index_for_frozen_t3(merged)
