@@ -110,6 +110,20 @@ class StateStore:
     def intent(self,key:str):
         row=self.db.execute("SELECT payload,status,broker_order_id FROM intents WHERE idempotency_key=?",(key,)).fetchone()
         return ({"payload":json.loads(row[0]),"status":row[1],"broker_order_id":row[2]} if row else None)
+    def all_intents(self)->list[dict]:
+        rows=self.db.execute(
+            "SELECT idempotency_key,payload,status,broker_order_id,updated_at FROM intents ORDER BY updated_at,idempotency_key"
+        ).fetchall()
+        return [{"idempotency_key":row[0],"payload":json.loads(row[1]),"status":row[2],
+                 "broker_order_id":row[3],"updated_at":row[4]} for row in rows]
+    def unresolved_intents(self)->list[dict]:
+        marks=",".join("?" for _ in TERMINAL_INTENT_STATUSES)
+        rows=self.db.execute(
+            f"SELECT idempotency_key,payload,status,broker_order_id,updated_at FROM intents WHERE COALESCE(status,'') NOT IN ({marks}) ORDER BY updated_at,idempotency_key",
+            TERMINAL_INTENT_STATUSES,
+        ).fetchall()
+        return [{"idempotency_key":row[0],"payload":json.loads(row[1]),"status":row[2],
+                 "broker_order_id":row[3],"updated_at":row[4]} for row in rows]
     def transition_intent(self,key:str,status:str,broker_order_id:str|None=None):
         allowed={"INTENT_PERSISTED","SUBMITTED","UNCERTAIN","ACK","PARTIAL_FILL","FILL","CANCELLED","REJECTED","CLOSED","RECONCILED"}
         if status not in allowed: raise ValueError("INVALID_ORDER_STATUS")
