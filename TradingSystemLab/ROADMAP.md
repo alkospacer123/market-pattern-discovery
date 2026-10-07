@@ -478,6 +478,8 @@ Implementation started without activating execution. Current code boundary:
 - protective-stop and emergency-exit transmission remain risk-reducing operations after authorization even if the kill switch later HALTs new entries;
 - no authorization record has been created, the kill switch remains `HALTED`, the production task remains disabled, and Stage 8.12.4 real-order count remains `0`.
 
+Stage 8.12.4 production-service prerequisites are **CODE READY / NOT AUTHORIZED**. Official FINAM H1 history is limited to 30 days, which is insufficient for the frozen T3 four-H1 context validity warm-up. Production history therefore seeds only from the exact Stage 5 TRAIL1 data authority (`market-pattern-data` commit `50f1fd2178c18b7ab3bd969be82ad01f47a34745`, exact frozen N4 H1 source SHA-256 values) and then appends completed FINAM H1 bars. The overlapping seed/FINAM interval must have an identical timestamp set and exact OHLC; any gap or conflict fails closed. Research CSV timestamps remain Moscow H1 open-times and are converted to the frozen `+1h` close-time index only after the exact splice. This prerequisite layer adds no order transmission and does not create production authorization.
+
 The implementation must pass exact-commit zero-order validation before the separate final operator authorization and activation action.
 
 Requires a new explicit operator authorization bound to:
