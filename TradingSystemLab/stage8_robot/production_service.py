@@ -37,9 +37,9 @@ from .production_broker_state import (
 from .production_history import (
     STAGE5_DATA_COMMIT,
     close_index_for_frozen_t3,
+    extend_rolling_open_h1,
     finam_completed_open_h1,
     load_stage5_seed_open_h1,
-    splice_seed_and_finam_open_h1,
 )
 from .production_runtime import InstrumentAuthority, ProductionRuntime, RuntimeAction
 from .production_safety_gate import evaluate_production_entry_gate, write_production_heartbeat
@@ -615,9 +615,18 @@ class ProductionService:
         live_utc = {stamp.tz_convert("UTC").to_pydatetime() for stamp in live.index}
         if expected.astimezone(timezone.utc) not in live_utc:
             raise ProductionServiceError("STAGE8_12_4_STALE_COMPLETED_H1_DATA")
-        self.runtime.store.put(f"production_expected_h1:{instrument}", expected.isoformat())
         seed = load_stage5_seed_open_h1(self.stage5_data_root, instrument)
-        return close_index_for_frozen_t3(splice_seed_and_finam_open_h1(seed, live))
+        continuation_key = f"production_h1_continuation:{instrument}"
+        persisted = self.runtime.store.get(continuation_key)
+        merged, continuation = extend_rolling_open_h1(
+            seed, persisted, live, instrument
+        )
+        if continuation != persisted:
+            self.runtime.store.put(continuation_key, continuation)
+        self.runtime.store.put(
+            f"production_expected_h1:{instrument}", expected.isoformat()
+        )
+        return close_index_for_frozen_t3(merged)
 
     def _manage_positions(
         self, histories: dict[str, pd.DataFrame], snap: Snapshot

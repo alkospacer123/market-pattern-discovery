@@ -729,7 +729,15 @@
       "production_task_started": false,
       "execution_authorized": false,
       "real_order_count": 0,
-      "next_package": "PACKAGE_3_INTEL_EXACT_COMMIT_ZERO_ORDER_VALIDATION"
+      "next_package": "PACKAGE_3_INTEL_EXACT_COMMIT_ZERO_ORDER_VALIDATION",
+      "h1_continuation_schema": "stage8_12_4_h1_continuation.v1",
+      "h1_continuation_state_prefix": "production_h1_continuation:",
+      "h1_continuation_storage": "stage8-12-production.sqlite3",
+      "h1_continuation_semantics": "APPEND_ONLY_VALIDATED_FINAM_COMPLETED_H1",
+      "h1_continuation_integrity": "SHA256_CANONICAL_BARS_PAYLOAD",
+      "rolling_h1_continuity_status": "CODE_READY_PENDING_PACKAGE3_ZERO_ORDER_VALIDATION",
+      "rolling_h1_overlap_rule": "CURRENT_FINAM_WINDOW_MUST_EXACTLY_OVERLAP_STAGE5_OR_PERSISTED_CONTINUATION_BY_TIMESTAMP_AND_OHLC",
+      "long_downtime_without_overlap": "FAIL_CLOSED"
     }
   }
 }
