@@ -178,7 +178,12 @@ class ProductionService:
         self.api.account(self.account_id)
         self.transport = None
 
-    def _realized_basis(self, account: dict[str, Any]) -> Decimal:
+    def _realized_basis(
+        self,
+        account: dict[str, Any],
+        positions: dict[str, int],
+        orders: list[BrokerOrderView],
+    ) -> Decimal:
         try:
             equity = parse_rest_decimal_value_object(account.get("equity"))
             unrealized = parse_rest_decimal_value_object(account.get("unrealized_profit"))
@@ -190,8 +195,30 @@ class ProductionService:
         realized = equity - unrealized - explained
         if realized <= 0:
             raise ProductionServiceError("STAGE8_12_4_REALIZED_EQUITY_INVALID")
-        if self.runtime.store.get("starting_realized_equity") is None:
+
+        persisted = self.runtime.current_realized_equity()
+        starting = self.runtime.store.get("starting_realized_equity")
+        if persisted is None:
+            # The production ledger may bootstrap only from a clean real account.
+            # A lost/new database must never adopt an already-open broker position
+            # or in-flight order as if it were known production state.
+            if (
+                positions
+                or any(order.active for order in orders)
+                or self.runtime.store.unresolved_intent_count()
+            ):
+                raise ProductionServiceError(
+                    "STAGE8_12_4_REALIZED_EQUITY_BOOTSTRAP_REQUIRES_CLEAN_ACCOUNT"
+                )
+            if starting is not None:
+                raise ProductionServiceError("STAGE8_12_4_REALIZED_EQUITY_STATE_INVALID")
             self.runtime.store.put("starting_realized_equity", str(realized))
+        elif starting is None:
+            raise ProductionServiceError("STAGE8_12_4_REALIZED_EQUITY_STATE_INVALID")
+
+        # Broker realized basis is authoritative; raw broker equity never is.
+        # Updating this value while a position is open is safe only because
+        # unrealized PnL and explained external cash flows are removed first.
         self.runtime.set_realized_equity(realized)
         return realized
 
@@ -206,7 +233,14 @@ class ProductionService:
         except (RuntimeError, ValueError) as exc:
             raise ProductionServiceError("STAGE8_12_4_BROKER_STATE_INVALID") from exc
         self.last_api_contact = now
-        return Snapshot(account, positions, orders, self._realized_basis(account), available, now)
+        return Snapshot(
+            account,
+            positions,
+            orders,
+            self._realized_basis(account, positions, orders),
+            available,
+            now,
+        )
 
     def _symbols(self) -> dict[str, str]:
         return {name: self.runtime.registry[name]["finam_symbol"] for name in INSTRUMENTS}
