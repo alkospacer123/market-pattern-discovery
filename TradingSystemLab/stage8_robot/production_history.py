@@ -134,7 +134,6 @@ def finam_completed_open_h1(
         not isinstance(response, dict)
         or not isinstance(response.get("bars"), list)
         or not isinstance(trading_windows, list)
-        or not trading_windows
     ):
         raise ProductionHistoryError("STAGE8_12_4_FINAM_H1_INVALID")
     try:
@@ -142,7 +141,9 @@ def finam_completed_open_h1(
         if observed.tzinfo is None:
             raise ValueError
         observed_utc = observed.tz_convert("UTC")
-        current_scope_start = pd.Timestamp(trading_windows[0][0]).tz_convert("UTC").normalize()
+        current_scope_start = observed_utc.normalize()
+        if trading_windows:
+            current_scope_start = pd.Timestamp(trading_windows[0][0]).tz_convert("UTC").normalize()
         current_completed = completed_h1_bars(response, observed_at, trading_windows)
     except (TypeError, ValueError) as exc:
         raise ProductionHistoryError("STAGE8_12_4_FINAM_H1_INVALID") from exc
