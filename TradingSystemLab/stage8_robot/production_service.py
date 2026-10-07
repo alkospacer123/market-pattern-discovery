@@ -269,6 +269,7 @@ class ProductionService:
             if row is None or row["payload"].get("finam_symbol") != order.symbol:
                 raise ProductionServiceError("STAGE8_12_4_UNEXPECTED_ACTIVE_BROKER_ORDER")
         local = self.runtime.open_positions()
+        unresolved = self.runtime.store.unresolved_intents()
         for instrument, symbol in symbols.items():
             quantity = snap.positions.get(symbol, 0)
             if quantity and instrument not in local:
@@ -276,7 +277,8 @@ class ProductionService:
                     row["payload"].get("kind") == "ENTRY"
                     and row["payload"].get("instrument") == instrument
                     and row["payload"].get("expected_position_quantity") == quantity
-                    for row in intents
+                    and row["status"] in {"SUBMITTED", "UNCERTAIN", "ACK", "PARTIAL_FILL", "FILL"}
+                    for row in unresolved
                 )
                 if not owned:
                     raise ProductionServiceError("STAGE8_12_4_UNEXPECTED_BROKER_POSITION")
