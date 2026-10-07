@@ -672,7 +672,8 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           "STAGE_8_12_4_PACKAGE3_PROVENANCE_COMPLETE_PASS_EXACT")
 
     package4=stage812_provenance.get("stage8_12_4_package4",{})
-    check(package4.get("status") == "COMPLETE_PASS_FUNDING_ACTION_REQUIRED"
+    postfunding=package4.get("post_funding_revalidation",{})
+    check(package4.get("status") == "COMPLETE_PASS_POSTFUNDING_SUFFICIENT"
           and package4.get("physical_validation_performed") is True
           and package4.get("accepted_code_commit") == "a31080781e6c51de405d840d5cf30abd91c70ead"
           and package4.get("external_evidence") == "runtime/diagnostics/package4/stage8_12_3_intel_preflight.json"
@@ -683,7 +684,7 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and package4.get("final_operational_audit") == {"status":"PASS","checks":168}
           and package4.get("public_financial_values") == "NOT_REPRODUCED_IN_PUBLIC_REPOSITORY"
           and package4.get("reserve_scenarios") == "EXTERNAL_EVIDENCE_INCLUDES_0_10_20_30_PERCENT"
-          and package4.get("funding_action_required") is True
+          and package4.get("funding_action_required") is False
           and package4.get("durable_authorization_required_state") == "Absent"
           and package4.get("kill_switch_required_state") == "HALTED"
           and package4.get("production_task_required_state") == "Disabled"
@@ -691,9 +692,31 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
           and package4.get("live_trading_authorized") is False
           and package4.get("real_order_transmission_authorized") is False
           and package4.get("real_order_count") == 0
-          and package4.get("next_step") == "OPERATOR_FUNDING_THEN_FRESH_REVALIDATION_BEFORE_PACKAGE5"
-          and package4.get("package5_status") == "NOT_STARTED_NOT_AUTHORIZED",
-          "STAGE_8_12_4_PACKAGE4_PROVENANCE_COMPLETE_PASS_EXACT")
+          and package4.get("next_step") == "PACKAGE_5_EXPLICIT_PRODUCTION_AUTHORIZATION_AND_ACTIVATION"
+          and package4.get("package5_status") == "NOT_STARTED_NOT_AUTHORIZED"
+          and postfunding.get("status") == "COMPLETE_PASS"
+          and postfunding.get("physical_validation_performed") is True
+          and postfunding.get("accepted_code_commit") == "636b6a9abcec459173247f2c52b0d19470dfe738"
+          and postfunding.get("external_evidence") == "runtime/diagnostics/package4-postfunding-synced/stage8_12_3_intel_preflight.json"
+          and postfunding.get("external_evidence_sha256") == "54205165758FF6FC200290E61070D7082DFC13494048AABE7A5A61CDDE3C7F11"
+          and postfunding.get("external_evidence_tracked_in_git") is False
+          and postfunding.get("production_heartbeat") == "HEALTHY"
+          and postfunding.get("reconciliation") == "PASS"
+          and postfunding.get("unresolved_production_intents") == 0
+          and postfunding.get("local_open_positions") == 0
+          and postfunding.get("active_protective_stops") == 0
+          and postfunding.get("fresh_get_only_financial_authority") == "PASS"
+          and postfunding.get("additional_funding_required_zero") is True
+          and postfunding.get("public_financial_values") == "NOT_REPRODUCED_IN_PUBLIC_REPOSITORY"
+          and postfunding.get("independent_stage8_audit") == {"status":"PASS","checks":282}
+          and postfunding.get("final_operational_audit") == {"status":"PASS","checks":169}
+          and postfunding.get("execution_authorized") is False
+          and postfunding.get("live_trading_authorized") is False
+          and postfunding.get("real_order_transmission_authorized") is False
+          and postfunding.get("real_order_count") == 0
+          and postfunding.get("kill_switch") == "HALTED"
+          and postfunding.get("production_task") == "Disabled",
+          "STAGE_8_12_4_POSTFUNDING_PROVENANCE_COMPLETE_PASS_EXACT")
 
     package3_validator=(HERE/"deploy/windows/run-stage8-12-4-package3-zero-order-validation.ps1").read_text()
     package3_lower=package3_validator.lower()
@@ -1179,15 +1202,17 @@ def audit(write_result=True,readme_text=None,authority_text=None,tracked_files=N
               for handoff in current_handoffs),"STAGE_8_11_LIFECYCLE_CLOSEOUT_SYNCHRONIZED")
     check(all("a31080781e6c51de405d840d5cf30abd91c70ead" in handoff
               and "60D9C3EFEC7D54C50BF188B003DCE06D31647A9D6B6F0ED33BB46FF08475621B" in handoff
-              and "Package 4" in handoff
-              and "COMPLETE / PASS / FUNDING ACTION REQUIRED" in handoff
+              and "636b6a9abcec459173247f2c52b0d19470dfe738" in handoff
+              and "54205165758FF6FC200290E61070D7082DFC13494048AABE7A5A61CDDE3C7F11" in handoff
+              and "CAPITAL SUFFICIENT" in handoff
+              and "additional funding required: `0`" in handoff
               and "Package 5" in handoff
               and "NOT STARTED / NOT AUTHORIZED" in handoff
               and "HALTED" in handoff
               and "Disabled" in handoff
               and "real order count" in handoff.lower()
               for handoff in current_handoffs),
-          "STAGE_8_12_4_PACKAGE4_PASS_PACKAGE5_NOT_AUTHORIZED_HANDOFF")
+          "STAGE_8_12_4_POSTFUNDING_PASS_PACKAGE5_NOT_AUTHORIZED_HANDOFF")
     forbidden_claims=(r"(?:broker acceptance (?:is |was )?validated|order (?:was )?accepted|FINAM server accepted an order)",
                       r"(?<!not )real-order (?:transmission|capability) is authorized",)
     check(not any(re.search(pattern,closeout_docs,re.I) for pattern in forbidden_claims),
