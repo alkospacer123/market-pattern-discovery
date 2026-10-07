@@ -1160,6 +1160,13 @@ def audit(
           and package2.get("production_service") == "TradingSystemLab/stage8_robot/production_service.py"
           and package2.get("state_database") == "stage8-12-production.sqlite3"
           and package2.get("h1_live_depth_days") == 30
+          and package2.get("h1_continuation_schema") == "stage8_12_4_h1_continuation.v1"
+          and package2.get("h1_continuation_state_prefix") == "production_h1_continuation:"
+          and package2.get("h1_continuation_storage") == "stage8-12-production.sqlite3"
+          and package2.get("h1_continuation_semantics") == "APPEND_ONLY_VALIDATED_FINAM_COMPLETED_H1"
+          and package2.get("h1_continuation_integrity") == "SHA256_CANONICAL_BARS_PAYLOAD"
+          and package2.get("rolling_h1_continuity_status") == "CODE_READY_PENDING_PACKAGE3_ZERO_ORDER_VALIDATION"
+          and package2.get("long_downtime_without_overlap") == "FAIL_CLOSED"
           and package2.get("realized_equity_authority") == "equity - unrealized_profit - explained_external_cash_flows"
           and package2.get("production_task_name") == "TradingSystemLab-Stage8-Production"
           and package2.get("readonly_task_name") == "TradingSystemLab-Stage8-Readonly"
@@ -1228,7 +1235,9 @@ def audit(
               '"CNYRUBF": "a3815b88a11aa5878b8bd104140f002859349c2c8d7f6ff0476a0d4c4d9a612e"',
               '"GLDRUBF": "12a626ba6cc47fce2f392d4a6ce3bdb8a3c1aad074306a73ab480fcfbb83b87e"',
               '"IMOEXF": "119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110"',
-              "completed_h1_bars(", "seed_overlap.index.equals(live_overlap.index)",
+              "completed_h1_bars(", "authority_overlap.index.equals(live_overlap.index)",
+              'CONTINUATION_SCHEMA = "stage8_12_4_h1_continuation.v1"',
+              "extend_rolling_open_h1(", '"bars_sha256"',
               "STAGE8_12_4_H1_SPLICE_OHLC_MISMATCH", 'pd.Timedelta("1h")')),
           "STAGE_8_12_4_FROZEN_H1_WARMUP_PROVENANCE")
     history_tree=ast.parse(stage8124_history)
@@ -1258,7 +1267,8 @@ def audit(
     check(all(token in stage8124_service for token in (
               'STATE_DATABASE = "stage8-12-production.sqlite3"',
               "H1_LOOKBACK_DAYS = 30",
-              "load_stage5_seed_open_h1", "splice_seed_and_finam_open_h1",
+              "load_stage5_seed_open_h1", "extend_rolling_open_h1",
+              'continuation_key = f"production_h1_continuation:{instrument}"',
               "newest_expected_h1_close", "self.runtime.context_builder.build",
               "directional_initial_margin", "evaluate_production_entry_gate",
               "write_production_heartbeat", "InstanceLock",
