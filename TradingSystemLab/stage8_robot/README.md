@@ -468,9 +468,9 @@ Canonical Package 4 authority:
 - production Scheduled Task: `Disabled`;
 - Stage 8.12.4 real order count: `0`.
 
-Package 5 readiness is now **COMPLETE / PASS / LIVE ACTIVATION NOT PERFORMED**.
+Historical pre-activation Package 5 readiness snapshot: **COMPLETE / PASS / LIVE ACTIVATION NOT PERFORMED at that time**. This is provenance only; current LIVE authority is the 2026-10-08 hotfix rollover recorded above.
 
-Canonical Package 5 readiness authority:
+Historical canonical Package 5 readiness authority:
 
 - accepted code commit: `883ea1ea6a8268276a8e39ebdc8786c643a21935`;
 - external readiness evidence: `runtime/diagnostics/package5-readiness/stage8_12_3_intel_preflight.json`;
