@@ -22,7 +22,9 @@ This is an independent plan. It creates **no changes** to TradingSystemLab and *
 
 ## Acceptance logic
 
-Choose only candidates with credible **after-cost** expectancy and robustness, sufficient independent trades, controlled tail risk, and repeatable chronological performance. An in-sample top performer is **not automatically a candidate**. Positive result in every calendar month is not assumed.
+Choose only candidates with credible **after-cost** expectancy and robustness, sufficient independent trades, controlled tail risk, and repeatable chronological performance. An in-sample top performer is **not automatically a candidate**.
+
+**Primary research objective:** maximize the share of positive **net calendar months**, aspiring to 12/12, while allowing negative days and weeks. Report positive-month ratio, worst month, longest run of losing months, year-by-year monthly results and open-position mark-to-market at month-end through Baseline, Walk Forward and TRUE OOS. Do not assume 12/12 is achievable, promise monthly profits, manipulate month-end exits, or raise risk to rescue a losing month. Monthly stability is a primary evaluation dimension alongside return and drawdown, not a hard in-sample fit target.
 
 Cash-flow suitability is a separate gate from strategy profitability: simulate fees, taxes, losing months, drawdown-recovery time, minimum viable capital and realistic withdrawal schedules, including reserve protection and external transfers.
 
