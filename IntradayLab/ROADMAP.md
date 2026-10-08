@@ -27,7 +27,7 @@ Build a moderately aggressive, after-cost intraday system with a high fraction o
 | GLDRUBF | present | present | present | present |
 | IMOEXF | present | present | present | present |
 
-The listing confirms **existence only**, not time spans, complete rows, volume quality, continuity, timestamps, or usability. Perform actual content/schema/gap/time audits in Step 1 before any backtest.
+**Current evidence:** the pre-2025 data-content audit has now been performed; see [Stage 1 Data Audit](reports/STAGE1_DATA_AUDIT_20261008.md). M5 data begin 2023-01-03 (USDRUBF/CNYRUBF), 2023-07-11 (GLDRUBF), 2023-11-14 (IMOEXF). Basic OHLC/timestamps/tick tests pass, but the 2024-08-16 IMOEXF M15 evening interval has 20 M15 bars without M5 counterparts. Timezone, actual historical sessions, financing/commission assumptions and intrabar execution remain validation gates; **Stage 1 is not complete**.
 
 **Timeframes:** M5 for signals and price-based execution simulation. M15 / M30 / H1 are candidate *context* timeframes; **M30 -> M5 is the lead hypothesis**, not a preselected winner. Research is strictly intraday. No M1 or M3/M10 data or M1 execution assumptions. No order-book strategy: **Order Flow Imbalance excluded** because historical order-book data is unavailable.
 
@@ -46,7 +46,7 @@ Initial Baseline design: **6 strategy/architecture variants x 4 instruments = up
 | Step | Stage | Required deliverable / exit gate | Status |
 | --- | --- | --- | --- |
 | 0 | Separate project boundary | Research branch + IntradayLab folder, written constraints; protected trees unchanged | **COMPLETE** |
-| 1 | Dataset and execution specification | Audited 16 CSVs: date coverage, timezone/bar timestamp meaning, schemas, duplicates, OHLC consistency, missing bars/sessions, volume, cross-TF agreement; venue calendar, actual instrument specs, tick/lot/margin, FINAM + exchange fees, spread/slippage/nonfill model; frozen pre-2025 development scope and TRUE OOS boundary | **IN PROGRESS — 16/16 path inventory verified; contents/cost QA not yet done** |
+| 1 | Dataset and execution specification | Audited 16 CSVs: date coverage, timezone/bar timestamp meaning, schemas, duplicates, OHLC consistency, missing bars/sessions, volume, cross-TF agreement; venue calendar, actual instrument specs, tick/lot/margin, FINAM + exchange fees, spread/slippage/nonfill model; frozen pre-2025 development scope and TRUE OOS boundary | **IN PROGRESS — 16/16 pre-2025 CSV content audit performed; basic OHLC/timestamp PASS; IMOEXF M15 anomaly, timezone, historical calendar, fees and fill model remain open** |
 | 2 | Baseline | Causal fixed-rule VWAP and Momentum implementations; predeclared six architectures; per-run trade ledgers, after-cost metrics, direction/instrument/monthly reports, no parameters fitted to TRUE OOS | **NOT STARTED** |
 | 3 | Bounded Optimization | Only a small prejustified parameter set where Baseline supports it; immutable run manifests, no mass search, no PF-only ranking | **NOT STARTED** |
 | 4 | Robustness | Parameter-neighborhood, instruments, session regimes, trading costs, widened slippage, ambiguous fills, adverse months, concentration and drawdown | **NOT STARTED** |
