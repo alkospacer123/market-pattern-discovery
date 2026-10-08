@@ -48,7 +48,7 @@ For each higher timeframe, M5 rows were bucketed at minute boundaries 00/15/30 f
 
 Not all buckets contain the expected 3/6/12 M5 candles. These are **partial buckets**, not automatically corrupt bars: sparse trading, session boundaries or missing data are possible. No zero-trade M5 bars were created to patch gaps. Do not substitute an assumed uninterrupted schedule for an actual exchange calendar.
 
-**Specific unresolved anomaly:** IMOEXF M15 includes 20 bars with no corresponding M5 bucket, all between **2024-08-16 19:00 and 23:45**, at 15-minute intervals. Across all common IMOEXF M15 buckets, including partial buckets, OHLCV matched; the 20 exceptional M15 bars require investigation before using them for MTF. Preserve source data unmodified. Fail closed for bars with incomplete or inconsistent causality evidence.
+**Specific unresolved anomaly:** IMOEXF M15 includes 20 bars with no corresponding M5 bucket, all between **2024-08-16 19:00 and 23:45**, at 15-minute intervals. Cross-check for the same date: IMOEXF M5 stops at **18:45**, M30 at **18:30**, H1 at **18:00**, while M15 alone continues to 23:45. Thus the unexplained evening segment is **isolated to M15** in the source data; do not silently import those extra M15 bars into MTF signals. Across all common IMOEXF M15 buckets, including partial buckets, OHLCV matched; the 20 exceptional M15 bars require investigation before using them for MTF. Preserve source data unmodified. Fail closed for bars with incomplete or inconsistent causality evidence.
 
 The observed working Saturdays **2024-04-27, 2024-11-02 and 2024-12-28** agree with MOEX's official 2024 schedule; they are not bad timestamps. Source: https://www.moex.com/n64121.
 
