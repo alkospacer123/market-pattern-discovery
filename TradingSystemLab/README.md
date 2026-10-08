@@ -1,6 +1,6 @@
 # Trading System Lab research domain
 
-**Status:** ЗАПУЩЕН РОБОТ
+**Status:** 
 
 ## Persistent project memory (read first)
 
