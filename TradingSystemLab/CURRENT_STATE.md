@@ -1,9 +1,11 @@
 # Current state — read first
 
-## Memory checkpoint — 2026-10-07
+## Operational checkpoint — 2026-10-08
 
-Current accepted GitHub `main` before this memory-only sync:
-`1576878928e886ebfc7378685d8121b3cc533bea`.
+Current LIVE production code authority is pinned to:
+`4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`.
+
+Repository `main` may advance after documentation-only synchronization; that does **not** move the Intel production checkout. The production checkout remains pinned to the exact accepted production commit until a separately controlled code migration.
 
 Current operational authority:
 
@@ -23,7 +25,8 @@ Attempts 1–6 remain historical failure/recovery provenance and are not rewritt
 
 Current Stage 8.12.4 activation authority:
 
-- accepted production commit: `883ea1ea6a8268276a8e39ebdc8786c643a21935`;
+- accepted production commit: `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`;
+- original 2026-10-07 live-activation commit (historical provenance): `883ea1ea6a8268276a8e39ebdc8786c643a21935`;
 - Stage 5 data authority: `50f1fd2178c18b7ab3bd969be82ad01f47a34745`;
 - Package 5 readiness evidence SHA-256:
   `FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD`;
@@ -37,6 +40,22 @@ Current Stage 8.12.4 activation authority:
 - post-arm heartbeat / reconciliation: `HEALTHY / PASS`;
 - post-arm unresolved intents / open positions / protective stops: `0 / 0 / 0`;
 - post-arm production cycle count: `15`.
+
+### 2026-10-08 H1 hotfix operational rollover — CURRENT
+
+- incident: repeated `STAGE8_12_4_H1_SPLICE_OHLC_MISMATCH` while FINAM connectivity remained available;
+- root cause: production append-only authority was correct, but liveness still depended on exact equality with mutable historical FINAM OHLC;
+- corrective PR: #435;
+- accepted production commit: `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`;
+- Stage 5 data commit remained unchanged and clean: `50f1fd2178c18b7ab3bd969be82ad01f47a34745`;
+- accepted H1 rule: once a completed H1 bar is accepted into Stage-5/persisted production authority, its OHLC is immutable; a later FINAM OHLC revision for the same timestamp does not rewrite accepted history and does not permanently fault production;
+- timestamp safety remains fail-closed: duplicate timestamps, unknown overlap timestamps, missing exact splice seam, no overlap, continuation corruption, stale current H1 and other safety faults remain blocking;
+- Intel preactivation: `15/15 PASS`, `HEALTHY / PASS`, open positions `0`, unresolved intents `0`;
+- new durable authorization created for exact commit `4c7cd7c...`;
+- final re-arm: kill switch `ARMED` generation `58`, production task `Running`, entry gate `OPEN`, post-arm cycle count observed `1772`;
+- no strategy, parameter, N4, TRAIL1, FULL/R15, 6% risk-cap or execution-model change.
+
+The original Package 5 activation commit/evidence remain immutable historical provenance and are not rewritten by this operational hotfix.
 
 The frozen production identity is unchanged:
 `TRAIL1__N4_01__FULL__R15` — T3/H1/TRAIL1, N4
@@ -87,7 +106,8 @@ Stage 8.11 remains the historical physical broker-acceptance authority: accepted
 
 Canonical Stage 8.12.4 production activation authority:
 
-- accepted production commit: `883ea1ea6a8268276a8e39ebdc8786c643a21935`;
+- accepted production commit: `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`;
+- original live-activation commit (historical provenance): `883ea1ea6a8268276a8e39ebdc8786c643a21935`;
 - Stage 5 data commit: `50f1fd2178c18b7ab3bd969be82ad01f47a34745`;
 - Package 5 readiness evidence SHA-256: `FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD`;
 - external activation evidence: `runtime/diagnostics/package5-live-activation/stage8_12_4_live_activation.json`;
@@ -207,7 +227,7 @@ Completed Stage 8.12.4 activation boundary:
 - the FINAM transport now has a dedicated SL/TP POST primitive and preserves no-retry / uncertain-submission behavior;
 - market entry requires durable authorization + `ARMED` + a fresh healthy production gate;
 - protective-stop installation/replacement and emergency exit remain risk-reducing operations after authorization and are not disabled merely because the kill switch subsequently HALTs new entries;
-- durable authorization is present and exact-bound to accepted production commit `883ea1ea6a8268276a8e39ebdc8786c643a21935`; post-arm verification is `HEALTHY / PASS`, the kill switch is `ARMED`, the production Scheduled Task is `Running`, and the readonly task is `Disabled`.
+- durable authorization is present and exact-bound to accepted production commit `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`; post-arm verification is `HEALTHY / PASS`, the kill switch is `ARMED`, the production Scheduled Task is `Running`, and the readonly task is `Disabled`.
 
 Stage 8.12.4 production-service prerequisites are **CODE READY / NOT AUTHORIZED**. Official FINAM H1 history is limited to 30 days, which is insufficient for the frozen T3 four-H1 context validity warm-up. Production history therefore seeds only from the exact Stage 5 TRAIL1 data authority (`market-pattern-data` commit `50f1fd2178c18b7ab3bd969be82ad01f47a34745`, exact frozen N4 H1 source SHA-256 values) and then appends completed FINAM H1 bars. Within the overlap, FINAM may omit historical timestamps that already exist in the frozen `forever` authority; every FINAM overlap timestamp must exist in Stage-5/persisted authority with exact OHLC, and the exact overlap seam must be present. FINAM-only timestamps, OHLC conflicts, a missing seam, or no overlap fail closed. Research CSV timestamps remain Moscow H1 open-times and are converted to the frozen `+1h` close-time index only after the exact splice. This prerequisite layer adds no order transmission and does not create production authorization.
 
