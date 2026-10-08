@@ -1,35 +1,73 @@
-# IntradayLab — compact research roadmap
+# IntradayLab — research roadmap
 
-This is an independent plan. It creates **no changes** to TradingSystemLab and **no LIVE authorization**.
+Decision: **2026-10-08**. Independent intraday research on MOEX perpetual futures. **Only IntradayLab/ may be changed.** This roadmap does not authorize real orders or affect the production TradingSystemLab robot.
 
-| Step | Name | Exit evidence | Status |
+## Research target
+
+Build a moderately aggressive, after-cost intraday system with a high fraction of **positive net calendar months** (12/12 is an aspiration, never a guarantee). Negative days/weeks and some negative months are possible. Evaluate profitability, worst month, consecutive losing months, total and monthly drawdown, time to recovery, sufficient independent opportunities, trading costs, and capacity to fund future withdrawals. Never increase risk or manipulate month-end exits to force a positive month.
+
+**Trading cadence is an observed outcome, not a trading quota.** The provisional aggregate planning range across all four instruments is roughly 5–15 trades/week (20–60/month), with no requirement to trade on every day. Reject overtrading that erases net expectancy.
+
+## Frozen initial research scope
+
+**Instruments (perpetual MOEX futures only):**
+- USDRUBF
+- CNYRUBF
+- GLDRUBF
+- IMOEXF
+
+**Source:** read-only repository alkospacer123/market-pattern-data, path forever/{INSTRUMENT}/{INSTRUMENT}_{TF}.csv. At inventory inspection, market-pattern-data main = f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8.
+
+**Available files verified by GitHub directory listing (16/16):**
+
+| Perpetual instrument | M5 | M15 | M30 | H1 |
+| --- | --- | --- | --- | --- |
+| USDRUBF | present | present | present | present |
+| CNYRUBF | present | present | present | present |
+| GLDRUBF | present | present | present | present |
+| IMOEXF | present | present | present | present |
+
+The listing confirms **existence only**, not time spans, complete rows, volume quality, continuity, timestamps, or usability. Perform actual content/schema/gap/time audits in Step 1 before any backtest.
+
+**Timeframes:** M5 for signals and price-based execution simulation. M15 / M30 / H1 are candidate *context* timeframes; **M30 -> M5 is the lead hypothesis**, not a preselected winner. Research is strictly intraday. No M1 or M3/M10 data or M1 execution assumptions. No order-book strategy: **Order Flow Imbalance excluded** because historical order-book data is unavailable.
+
+**Initial strategies, in sequence:**
+1. **VWAP Mean Reversion** — M5 standalone; M30 -> M5 principal MTF comparison; M15 -> M5 secondary comparison. VWAP is session-anchored. If only OHLCV bars are available, label volume-weighted typical-price VWAP as an approximation, not an observed transaction VWAP. Assess the risk of countertrend entries.
+2. **Intraday / Session Momentum** — M5 standalone; M30 -> M5 principal MTF comparison; H1 -> M5 secondary comparison. Measure session- and instrument-dependent continuation without forcing an H1 holding period.
+3. **Volatility Squeeze Breakout** — **after** the first two strategies are assessed: M5 standalone versus M30 -> M5. Test whether it adds independent portfolio value beyond Momentum.
+4. **Liquidity Sweep / False Breakout** — reserve hypothesis only, not part of initial implementation, subject to a later explicit scope decision.
+
+Initial Baseline design: **6 strategy/architecture variants x 4 instruments = up to 24 runs**, conditional on Step 1 quality gates. These are predeclared comparisons, not optimizer output. The later Squeeze pair would add up to 8 runs only if explicitly started. Do not multiply variants or optimize timeframe choices using TRUE OOS.
+
+**MTF causality:** use only the last fully closed higher-timeframe bar available at each completed M5 signal. Check time-zone, session anchoring, resampling agreement, trading halts/gaps, and boundary resets. Source M5 is the finest available bar: same-bar stop/target ordering is ambiguous; model conservatively, stress alternatives or flag unresolved cases. Do not invent M1-level precision. Validate any backtest fills against the actual execution mechanism and available bid/ask information.
+
+## Stages and exit evidence
+
+| Step | Stage | Required deliverable / exit gate | Status |
 | --- | --- | --- | --- |
-| 0 | Independent project boundary | Dedicated research branch/folder, context, unchanged protected trees | COMPLETE — documentation-only setup, isolated diff audited |
-| 1 | Dataset & execution specification | Confirm available M1 sources/timezones/sessions, instruments, dates, bid/ask or execution proxy, costs, exchange lot/margin, development and locked TRUE OOS | NOT STARTED |
-| 2 | Baseline | Fixed, causal rules for VWAP mean reversion and volatility squeeze; baseline trade ledgers and cost-inclusive reports across predeclared TFs/instruments | NOT STARTED |
-| 3 | Bounded Optimization | Small justified parameter set; no tuning against holdout and no PF chasing | NOT STARTED |
-| 4 | Robustness | Execution costs/slippage stress, parameter neighborhoods, instrument/session variation, concentrated-trade and drawdown tests | NOT STARTED |
-| 5 | Walk Forward | Chronological out-of-sample rolling validation, frozen protocol | NOT STARTED |
-| 6 | TRUE OOS | One final assessment of frozen finalists on locked data, including 2025 only after formal unlock for TRUE OOS | NOT STARTED |
-| 7 | Forward observation & separate-account readiness | Paper/read-only observation, broker-specific execution acceptance and audited protections; requires explicit authorization before any REAL orders | NOT STARTED |
+| 0 | Separate project boundary | Research branch + IntradayLab folder, written constraints; protected trees unchanged | **COMPLETE** |
+| 1 | Dataset and execution specification | Audited 16 CSVs: date coverage, timezone/bar timestamp meaning, schemas, duplicates, OHLC consistency, missing bars/sessions, volume, cross-TF agreement; venue calendar, actual instrument specs, tick/lot/margin, FINAM + exchange fees, spread/slippage/nonfill model; frozen pre-2025 development scope and TRUE OOS boundary | **IN PROGRESS — 16/16 path inventory verified; contents/cost QA not yet done** |
+| 2 | Baseline | Causal fixed-rule VWAP and Momentum implementations; predeclared six architectures; per-run trade ledgers, after-cost metrics, direction/instrument/monthly reports, no parameters fitted to TRUE OOS | **NOT STARTED** |
+| 3 | Bounded Optimization | Only a small prejustified parameter set where Baseline supports it; immutable run manifests, no mass search, no PF-only ranking | **NOT STARTED** |
+| 4 | Robustness | Parameter-neighborhood, instruments, session regimes, trading costs, widened slippage, ambiguous fills, adverse months, concentration and drawdown | **NOT STARTED** |
+| 5 | Walk Forward | Chronological rolling tests with no future-informed decisions; frozen rules; monthly and portfolio comparisons | **NOT STARTED** |
+| 6 | TRUE OOS | Single separately authorized final assessment on **untouched 2025+ data**, frozen finalists and costs, full calendar-month + instrument/portfolio reports | **NOT STARTED / LOCKED** |
+| 7 | Forward observation and separate FINAM-account readiness | Read-only/paper monitoring; fully independent credentials, account bindings, sizing, order ledger, reconciliation, kill switch; explicit approval required for real orders | **NOT STARTED / NO LIVE AUTHORIZATION** |
 
-## Baseline strategy scope
+**2025 onward is reserved TRUE OOS**: do not inspect its strategy performance or use it for training, strategy selection, dates, thresholds or parameter decisions before Step 6 authorization. In Step 1 determine the actual earlier shared history and freeze development/WF windows *without* reading protected performance. Never shorten periods ad hoc to improve metrics.
 
-- Initial hypotheses: VWAP mean reversion (M3/M5/M15) and volatility squeeze breakout (M5/M15).
-- Secondary hypotheses, **only after first pair is assessed**: liquidity sweep/false breakout (M1/M3/M5), intraday momentum/pullback (M5/M15).
-- Instruments initially considered: USDRUBF, CNYRUBF, GLDRUBF, IMOEXF. Confirm continuous contract data availability and execution economics before committing research universe.
-- M1 input bars may be used for causal higher-timeframe aggregation and fill modeling. No future bar in signal calculations.
+## Evaluation and decision logic
 
-## Acceptance logic
+- Report **net** expectancy, PF, trade count, win rate, median holding time, spread/fee/slippage impact, drawdown, return and recovery for each instrument, architecture, year, and month. Include equity marked to market at calendar month end (with open-position P&L and costs); zero-return months are **not** positive.
+- Report positive-month fraction, worst month, count of zero/negative months, longest losing-month streak, rolling 3/6/12-month returns, consistency of opportunities per week/month, and co-loss/correlation of standalone strategies. Compare risk-adjusted results at equal exposure and costs, not on trading frequency alone.
+- MTF must add reliable net benefit versus M5 standalone; never assume a slower context always helps. After independent validation, consider an integrated portfolio only if it genuinely improves after-cost monthly stability and drawdowns.
+- Intraday positions: specify a causal max holding time, planned flat/session-boundary policy and overnight-risk treatment *before* performance selection. Avoid silently changing holding rules to rescue monthly results.
+- Moderate-aggressive study bounds, **not approved LIVE settings**: test 0.25–0.5% of the new account equity risk/trade, a 1–1.5% daily loss guard and 3% weekly guard; include one-contract floor, margin and correlations. No martingale/averaging down. Unaffordable integer positions are skipped.
+- Separately stress-test net distributable profit, taxes, external transfers to TradingSystemLab, future living-expense withdrawals and reserves. Do not present this as guaranteed income.
 
-Choose only candidates with credible **after-cost** expectancy and robustness, sufficient independent trades, controlled tail risk, and repeatable chronological performance. An in-sample top performer is **not automatically a candidate**.
+## Isolation / approval rules
 
-**Primary research objective:** maximize the share of positive **net calendar months**, aspiring to 12/12, while allowing negative days and weeks. Report positive-month ratio, worst month, longest run of losing months, year-by-year monthly results and open-position mark-to-market at month-end through Baseline, Walk Forward and TRUE OOS. Do not assume 12/12 is achievable, promise monthly profits, manipulate month-end exits, or raise risk to rescue a losing month. Monthly stability is a primary evaluation dimension alongside return and drawdown, not a hard in-sample fit target.
-
-Cash-flow suitability is a separate gate from strategy profitability: simulate fees, taxes, losing months, drawdown-recovery time, minimum viable capital and realistic withdrawal schedules, including reserve protection and external transfers.
-
-Do not advance a stage without an explicit audit of its real outputs. Do not create new research phases just to get a desired PASS.
-
-## Hard safety guard
-
-All commits in this branch must change files **only** below `IntradayLab/`; preserve `TradingSystemLab/`, `BBW/`, root files and other results unchanged. Future separate-account broker integration must never reuse TradingSystemLab account bindings, live credentials, SQLite state, operational tasks, or its risk authorities.
+- Code, configs, documentation, generated results and logs for this research belong only under IntradayLab/ on research/intraday-lab; market-pattern-data/forever is read-only.
+- **NEVER change TradingSystemLab/, its active robot/configuration/data authorities, BBW/, other project trees, or repository-root files.** Research ideas may borrow generic engineering discipline only; no imports of TradingSystemLab strategy parameters/results/credentials.
+- Do not merge the research branch into production main without separate explicit authorization and protected-tree review.
+- After each task independently inspect the actual GitHub main and research branch, changed files and diff, repeatable results, and exact completion status. No advancement to the next stage without audit and approval.
