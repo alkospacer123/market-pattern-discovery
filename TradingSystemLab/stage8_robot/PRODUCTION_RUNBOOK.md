@@ -33,6 +33,7 @@ This runbook documents the current production implementation. It does **not** mo
 6. Never run `git pull` in the production checkout while the Scheduled Task is bound to the accepted commit.
 7. Do not change Stage 5 data checkout from the exact pinned commit.
 8. Do not deposit or withdraw cash during live production without a controlled procedure for `explained_external_cash_flows`; otherwise the realized-equity sizing basis can be distorted.
+9. After every accepted production fix, immediately synchronize current operational authority in `CURRENT_STATE.md`, `PROJECT_CONTEXT.md`, `ROADMAP.md`, `METHODOLOGY.md`, this runbook, the Stage 8 README, authority provenance, and operator-facing passport/checklists. Preserve superseded commits as historical provenance, then independently verify factual GitHub `main` and the production checkout binding.
 
 ## 1. Critical runtime files
 
