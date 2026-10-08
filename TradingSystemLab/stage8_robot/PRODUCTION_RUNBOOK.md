@@ -393,6 +393,12 @@ If the expected completed H1 close is not present in current FINAM completed-bar
 
 The cycle faults; new entries do not proceed.
 
+### 7.4.1 Revised historical H1 OHLC
+
+Once a completed H1 bar has been accepted into the Stage-5/persisted production authority, that accepted OHLC is immutable. If a later FINAM historical response revises OHLC for the same already-accepted timestamp, production keeps the accepted authority row and does not rewrite prior history.
+
+Timestamp continuity remains fail-closed: duplicate timestamps, an unknown timestamp inside the overlap, a missing exact splice seam, no overlap, or stale current H1 data still fault the cycle.
+
 ### 7.5 Network/API failure
 
 Network/API errors produce a fault cycle and fast retry.
