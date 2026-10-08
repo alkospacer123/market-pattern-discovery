@@ -6,7 +6,8 @@ Established 2026-10-08. Independent research scope, **not** TradingSystemLab roa
 
 - Moderately aggressive active growth, not maximum leverage.
 - A profitable intraday strategy might fund transfers **into** the already-active TradingSystemLab and later planned living expenses.
-- Long-run ambition is dependable *financial capacity*, not a false promise that each month will be profitable.
+- **Primary return-shape objective:** strive for positive **net trading P&L in every calendar month (12/12 as an aspirational target)**. Losing days and weeks are acceptable; losing months should be minimized. This is an evaluation goal, **never a guarantee or a mandate to increase risk near month-end**.
+- Long-run ambition is dependable *financial capacity* for living expenses and transfers to TradingSystemLab, not a false promise that each month will be profitable.
 - Instruments: MOEX futures; evaluate timeframe(s) among M1, M3, M5, M10, M15 based on forward-credible evidence, not assumed trade frequency.
 - Future LIVE execution on a **new, distinct FINAM brokerage account**, with its own broker authentication, risk ledger, capital authority, state, protection, reconciliation, kill switch, and operator authorization.
 - There must be absolutely **no modification to any TradingSystemLab files or production robot**. Any conceptual borrowing from TradingSystemLab is process-level, not evidence-level or strategy inheritance.
@@ -19,6 +20,7 @@ Established 2026-10-08. Independent research scope, **not** TradingSystemLab roa
 - Living withdrawals and TradingSystemLab transfers can be made only from distributable realized profits after costs and estimated taxes and after preserving a drawdown/margin reserve, operational liquidity and a predefined high-water-mark rule.
 - Do not base fixed recurring expenses on a required winning month. Build an independent living expense reserve before considering full-time trading. Evaluate rolling 3/6/12-month profit, losing-month rate, duration of drawdowns, sequence risk and withdrawal stress.
 - Both accounts remain independent even when profits are transferred: an outward transfer from IntradayLab and an inward contribution to TradingSystemLab are **external cash flows**, not strategy performance.
+- Track positive-month share, worst calendar month, consecutive losing months, and each calendar year's monthly breakdown in Baseline, Walk Forward, TRUE OOS and forward monitoring. Calculate monthly mark-to-market equity including open-position P&L and all execution costs; never hide a loss by deferring realization into the next month.
 - No promises of a stable monthly salary, guaranteed PF, target return, or target risk-adjusted performance without real evidence.
 
 ## Project initial state
