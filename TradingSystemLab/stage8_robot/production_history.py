@@ -3,8 +3,10 @@
 FINAM documents only 30 days of H1 historical depth. Frozen T3/H1 needs a much
 longer validity-based context warm-up, so production seeds from the exact N4 H1
 files already recorded by the Stage 5 TRAIL1 authority, then appends current
-FINAM completed H1 bars. The common interval must match exactly; production
-never repairs, fills, or silently prefers one source over the other.
+FINAM completed H1 bars. Timestamp continuity must match exactly. Once a bar is
+accepted into Stage-5/persisted authority, its OHLC is immutable production
+history: later FINAM historical revisions at the same timestamp never rewrite
+that authority and must not permanently block production liveness.
 """
 from __future__ import annotations
 
@@ -223,13 +225,14 @@ def _splice_authority_and_finam_open_h1(
     authority: pd.DataFrame,
     live: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Extend frozen authority while allowing FINAM to omit historical bars.
+    """Extend immutable authority while allowing mutable FINAM history.
 
     The Stage-5/persisted authority remains canonical. FINAM may be a sparse
-    historical subset inside the overlap, but it may not introduce a timestamp
-    absent from authority, every common OHLC row must match exactly, and the
-    most recent authority timestamp inside the overlap must be present as the
-    exact splice seam.
+    historical subset inside the overlap and may later revise OHLC for a
+    timestamp already accepted by production. Such revisions are ignored:
+    accepted OHLC is never rewritten. FINAM still may not introduce an unknown
+    timestamp inside the overlap, and the most recent authority timestamp must
+    be present to prove the exact splice seam before newer bars are appended.
     """
     if authority.empty or live.empty:
         raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_EMPTY")
@@ -260,11 +263,6 @@ def _splice_authority_and_finam_open_h1(
     seam = authority_overlap.index.max()
     if seam not in live_overlap.index:
         raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_TIMESTAMP_MISMATCH")
-
-    for stamp in live_overlap.index:
-        for column in OHLC:
-            if authority_overlap.at[stamp, column] != live_overlap.at[stamp, column]:
-                raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_OHLC_MISMATCH")
 
     appended = live.loc[live.index > authority.index.max()]
     merged = pd.concat([authority, appended])
