@@ -35,7 +35,8 @@ Established 2026-10-08. Independent research scope, **not** TradingSystemLab roa
 - Read-only historical source: alkospacer123/market-pattern-data, forever/{INSTRUMENT}/{INSTRUMENT}_{TF}.csv.
 - Inspected market-pattern-data main: f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8.
 - GitHub path listing verified **16/16 CSVs**: M5, M15, M30, H1 for each of USDRUBF, CNYRUBF, GLDRUBF and IMOEXF.
-- Presence does **not** establish historical start/end dates, complete coverage, M5 VWAP-valid volume, exchange session continuity, the bar timezone or execution fill accuracy. Those checks belong to Step 1.
+- Full pre-2025 CSV audit recorded in [STAGE1_DATA_AUDIT_20261008.md](reports/STAGE1_DATA_AUDIT_20261008.md). M5 history: USDRUBF/CNYRUBF from 2023-01-03, GLDRUBF from 2023-07-11, IMOEXF from 2023-11-14. Across the 16 pre-2025 files, basic parse/ordering/duplicate/OHLC/volume checks passed. Fully populated M5 aggregation buckets agree exactly with available M15/M30/H1 OHLCV. **20 IMOEXF M15 bars on 2024-08-16 19:00-23:45 lack any M5 bucket**; do not fabricate them. Three 2024 trading Saturdays are valid according to MOEX.
+- **Stage 1 remains IN PROGRESS**, not Baseline-ready: timestamp timezone/start-label semantics, historical sessions and gaps, realistic costs and funding, M5 intrabar ambiguity, and the IMOEXF M15 anomaly require resolution/bounded fail-closed treatment. No 2025+ signal/performance data analyzed. No backtests executed.
 - 2025+ TRUE OOS remains locked for strategy research; do not inspect it to choose candidates. Choose and document the valid pre-2025 development window after a data availability audit.
 
 ## Project discipline
