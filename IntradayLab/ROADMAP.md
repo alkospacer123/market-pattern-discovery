@@ -4,7 +4,7 @@ This is an independent plan. It creates **no changes** to TradingSystemLab and *
 
 | Step | Name | Exit evidence | Status |
 | --- | --- | --- | --- |
-| 0 | Independent project boundary | Dedicated research branch/folder, context, unchanged protected trees | In progress — documentation-only setup |
+| 0 | Independent project boundary | Dedicated research branch/folder, context, unchanged protected trees | COMPLETE — documentation-only setup, isolated diff audited |
 | 1 | Dataset & execution specification | Confirm available M1 sources/timezones/sessions, instruments, dates, bid/ask or execution proxy, costs, exchange lot/margin, development and locked TRUE OOS | NOT STARTED |
 | 2 | Baseline | Fixed, causal rules for VWAP mean reversion and volatility squeeze; baseline trade ledgers and cost-inclusive reports across predeclared TFs/instruments | NOT STARTED |
 | 3 | Bounded Optimization | Small justified parameter set; no tuning against holdout and no PF chasing | NOT STARTED |
