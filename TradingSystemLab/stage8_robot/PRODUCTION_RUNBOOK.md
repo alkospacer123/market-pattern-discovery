@@ -6,11 +6,20 @@ Production specification: `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A3
 
 Active identity: `TRAIL1__N4_01__FULL__R15`
 
-Production code commit: `883ea1ea6a8268276a8e39ebdc8786c643a21935`
+Production code commit: `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`
 
 Stage 5 data commit: `50f1fd2178c18b7ab3bd969be82ad01f47a34745`
 
 Stage 8.12.4 activation evidence SHA-256: `EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9`
+
+Current operational authority after the 2026-10-08 H1 hotfix:
+
+- original live-activation commit `883ea1ea6a8268276a8e39ebdc8786c643a21935` remains historical activation provenance;
+- PR #435 merged as `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`;
+- Intel preactivation validation: `15/15 PASS`, heartbeat `HEALTHY / PASS`, positions `0`, unresolved intents `0`;
+- durable authorization was rolled over to the new exact commit;
+- final re-arm: kill switch `ARMED`, production task `Running`, entry gate `OPEN`, post-arm cycle count observed `1772`;
+- frozen T3/TRAIL1/N4/FULL-R15/risk/execution semantics were not changed.
 
 This runbook documents the current production implementation. It does **not** modify strategy logic, N4 membership, TRAIL1, FULL/R15 sizing, Stage 5 data authority, or research methodology.
 
@@ -24,6 +33,7 @@ This runbook documents the current production implementation. It does **not** mo
 6. Never run `git pull` in the production checkout while the Scheduled Task is bound to the accepted commit.
 7. Do not change Stage 5 data checkout from the exact pinned commit.
 8. Do not deposit or withdraw cash during live production without a controlled procedure for `explained_external_cash_flows`; otherwise the realized-equity sizing basis can be distorted.
+9. After every accepted production fix, immediately synchronize current operational authority in `CURRENT_STATE.md`, `PROJECT_CONTEXT.md`, `ROADMAP.md`, `METHODOLOGY.md`, this runbook, the Stage 8 README, authority provenance, and operator-facing passport/checklists. Preserve superseded commits as historical provenance, then independently verify factual GitHub `main` and the production checkout binding.
 
 ## 1. Critical runtime files
 
@@ -79,7 +89,7 @@ Critical fields:
 - `reconciliation_status = PASS`
 - `unresolved_intent_count = 0`
 - `cycle_count >= 1` and should keep increasing
-- `accepted_code_commit = 883ea1ea6a8268276a8e39ebdc8786c643a21935`
+- `accepted_code_commit = 4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`
 - `timestamp` fresh
 - `last_successful_finam_api_contact` fresh
 - `open_position_count` consistent with `position_protection`
@@ -553,7 +563,7 @@ Do **not** run `git pull` in the active production checkout.
 
 The production launcher requires exact HEAD:
 
-`883ea1ea6a8268276a8e39ebdc8786c643a21935`
+`4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`
 
 and a clean checkout.
 

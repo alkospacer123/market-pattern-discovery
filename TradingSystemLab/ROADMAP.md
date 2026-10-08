@@ -1,9 +1,11 @@
 # Evidence-based roadmap
 
-## Memory checkpoint — 2026-10-07
+## Operational checkpoint — 2026-10-08
 
-Current accepted GitHub `main` before this memory-only sync:
-`1576878928e886ebfc7378685d8121b3cc533bea`.
+Current LIVE production code authority is pinned to:
+`4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`.
+
+Repository `main` may advance after documentation-only synchronization; that does **not** move the Intel production checkout. The production checkout remains pinned to the exact accepted production commit until a separately controlled code migration.
 
 Current operational authority:
 
@@ -23,7 +25,8 @@ Attempts 1–6 remain historical failure/recovery provenance and are not rewritt
 
 Current Stage 8.12.4 activation authority:
 
-- accepted production commit: `883ea1ea6a8268276a8e39ebdc8786c643a21935`;
+- accepted production commit: `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`;
+- original 2026-10-07 live-activation commit (historical provenance): `883ea1ea6a8268276a8e39ebdc8786c643a21935`;
 - Stage 5 data authority: `50f1fd2178c18b7ab3bd969be82ad01f47a34745`;
 - Package 5 readiness evidence SHA-256:
   `FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD`;
@@ -37,6 +40,22 @@ Current Stage 8.12.4 activation authority:
 - post-arm heartbeat / reconciliation: `HEALTHY / PASS`;
 - post-arm unresolved intents / open positions / protective stops: `0 / 0 / 0`;
 - post-arm production cycle count: `15`.
+
+### 2026-10-08 H1 hotfix operational rollover — CURRENT
+
+- incident: repeated `STAGE8_12_4_H1_SPLICE_OHLC_MISMATCH` while FINAM connectivity remained available;
+- root cause: production append-only authority was correct, but liveness still depended on exact equality with mutable historical FINAM OHLC;
+- corrective PR: #435;
+- accepted production commit: `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`;
+- Stage 5 data commit remained unchanged and clean: `50f1fd2178c18b7ab3bd969be82ad01f47a34745`;
+- accepted H1 rule: once a completed H1 bar is accepted into Stage-5/persisted production authority, its OHLC is immutable; a later FINAM OHLC revision for the same timestamp does not rewrite accepted history and does not permanently fault production;
+- timestamp safety remains fail-closed: duplicate timestamps, unknown overlap timestamps, missing exact splice seam, no overlap, continuation corruption, stale current H1 and other safety faults remain blocking;
+- Intel preactivation: `15/15 PASS`, `HEALTHY / PASS`, open positions `0`, unresolved intents `0`;
+- new durable authorization created for exact commit `4c7cd7c...`;
+- final re-arm: kill switch `ARMED` generation `58`, production task `Running`, entry gate `OPEN`, post-arm cycle count observed `1772`;
+- no strategy, parameter, N4, TRAIL1, FULL/R15, 6% risk-cap or execution-model change.
+
+The original Package 5 activation commit/evidence remain immutable historical provenance and are not rewritten by this operational hotfix.
 
 The frozen production identity is unchanged:
 `TRAIL1__N4_01__FULL__R15` — T3/H1/TRAIL1, N4
@@ -89,7 +108,8 @@ Stage 8.11 remains the historical physical broker-acceptance authority: accepted
 
 Canonical Stage 8.12.4 production activation authority:
 
-- accepted production commit: `883ea1ea6a8268276a8e39ebdc8786c643a21935`;
+- accepted production commit: `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`;
+- original live-activation commit (historical provenance): `883ea1ea6a8268276a8e39ebdc8786c643a21935`;
 - Stage 5 data commit: `50f1fd2178c18b7ab3bd969be82ad01f47a34745`;
 - Package 5 readiness evidence SHA-256: `FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD`;
 - external activation evidence: `runtime/diagnostics/package5-live-activation/stage8_12_4_live_activation.json`;
@@ -177,7 +197,7 @@ Canonical Stage 8.12.2 authority:
 - production kill switch: `HALTED`;
 - production Scheduled Task: `Disabled`.
 
-Stage 8.12.1 assembled the production runtime without adding FINAM order transport. Stage 8.12.2 completed the required TEST/AUDIT-only conformance with zero real orders. Stage 8.12.3 Intel production preflight is **COMPLETE / PASS** on accepted commit `0a40e3bf7a97f0c011d3a6f5216d9f61dd52ef30` with external evidence SHA-256 `9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1`. Stage 8.12.4 Package 3 Intel exact-commit zero-order validation is **COMPLETE / PASS** on accepted commit `242c0a4bee0200da171d1a7451472b256241e170` with evidence SHA-256 `AB1D22A2BE4A748B5F25C21C56FEAC922CAE03499F6F41DF04A47F192A3E7D30` and focused rolling/service tests `33/33 PASS`. Package 4 initial funding recalculation is **COMPLETE / PASS** on accepted commit `a31080781e6c51de405d840d5cf30abd91c70ead` with external evidence SHA-256 `60D9C3EFEC7D54C50BF188B003DCE06D31647A9D6B6F0ED33BB46FF08475621B`. Post-funding revalidation is **COMPLETE / PASS / CAPITAL SUFFICIENT** on accepted commit `636b6a9abcec459173247f2c52b0d19470dfe738` with external evidence SHA-256 `54205165758FF6FC200290E61070D7082DFC13494048AABE7A5A61CDDE3C7F11`, HEALTHY production heartbeat, reconciliation PASS, zero unresolved intents, zero open positions, Stage 8.12.4 real order count `0`, and additional funding required: `0` in external evidence. Package 5 readiness is now **COMPLETE / PASS / LIVE ACTIVATION NOT PERFORMED** on accepted commit `883ea1ea6a8268276a8e39ebdc8786c643a21935` with external readiness evidence SHA-256 `FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD`, exact disabled production-task binding PASS, fresh GET-only financial authority PASS, additional funding required: `0`, and Stage 8.12.4 real order count `0`. Account financial values remain external to Git. durable production authorization: absent; `execution_authorized = false`; kill switch `HALTED`; production task `Disabled`; live activation performed: `false`. **Package 5 live activation is the current boundary and has NOT BEEN PERFORMED.**
+Stage 8.12.1 assembled the production runtime without adding FINAM order transport. Stage 8.12.2 completed the required TEST/AUDIT-only conformance with zero real orders. Stage 8.12.3 Intel production preflight is **COMPLETE / PASS** on accepted commit `0a40e3bf7a97f0c011d3a6f5216d9f61dd52ef30` with external evidence SHA-256 `9584F45186DE38ABAE9209E1F326255C783AF762CD736EA45718D19C93BC61B1`. Stage 8.12.4 Package 3 Intel exact-commit zero-order validation is **COMPLETE / PASS** on accepted commit `242c0a4bee0200da171d1a7451472b256241e170` with evidence SHA-256 `AB1D22A2BE4A748B5F25C21C56FEAC922CAE03499F6F41DF04A47F192A3E7D30` and focused rolling/service tests `33/33 PASS`. Package 4 initial funding recalculation is **COMPLETE / PASS** on accepted commit `a31080781e6c51de405d840d5cf30abd91c70ead` with external evidence SHA-256 `60D9C3EFEC7D54C50BF188B003DCE06D31647A9D6B6F0ED33BB46FF08475621B`. Post-funding revalidation is **COMPLETE / PASS / CAPITAL SUFFICIENT** on accepted commit `636b6a9abcec459173247f2c52b0d19470dfe738` with external evidence SHA-256 `54205165758FF6FC200290E61070D7082DFC13494048AABE7A5A61CDDE3C7F11`, HEALTHY production heartbeat, reconciliation PASS, zero unresolved intents, zero open positions, Stage 8.12.4 real order count `0`, and additional funding required: `0` in external evidence. Package 5 readiness is now **COMPLETE / PASS / LIVE ACTIVATION NOT PERFORMED** on accepted commit `883ea1ea6a8268276a8e39ebdc8786c643a21935` with external readiness evidence SHA-256 `FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD`, exact disabled production-task binding PASS, fresh GET-only financial authority PASS, additional funding required: `0`, and Stage 8.12.4 real order count `0`. Account financial values remain external to Git. durable production authorization: absent; `execution_authorized = false`; kill switch `HALTED`; production task `Disabled`; live activation performed: `false`. **Historical pre-activation snapshot:** at that time Package 5 live activation had not yet been performed. It subsequently completed, and current LIVE authority is the 2026-10-08 H1 hotfix rollover at accepted production commit `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129` recorded at the top of this roadmap.
 
 ## Governing research rule
 
