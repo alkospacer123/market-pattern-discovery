@@ -147,19 +147,24 @@ def test_downtime_longer_than_available_overlap_fails_closed():
         )
 
 
-def test_overlap_ohlc_mutation_fails_closed():
+def test_overlap_ohlc_revision_preserves_append_only_authority():
     _, first_payload = extend_rolling_open_h1(
         seed(), None, first_live(), "USDRUBF"
     )
-    bad = rollover_live()
-    bad.loc[pd.Timestamp("2026-09-15 14:00:00", tz=MOSCOW), "Close"] = Decimal("103.5")
-    with pytest.raises(
-        ProductionHistoryError,
-        match="STAGE8_12_4_H1_SPLICE_OHLC_MISMATCH",
-    ):
-        extend_rolling_open_h1(
-            seed(), first_payload, bad, "USDRUBF"
-        )
+    revised_live = rollover_live()
+    seam = pd.Timestamp("2026-09-15 14:00:00", tz=MOSCOW)
+    revised_live.loc[seam, "Close"] = Decimal("103.5")
+
+    merged, second_payload = extend_rolling_open_h1(
+        seed(), first_payload, revised_live, "USDRUBF"
+    )
+
+    assert merged.loc[seam, "Close"] == Decimal("104")
+    assert second_payload["bars"][: len(first_payload["bars"])] == first_payload["bars"]
+    assert [bar["timestamp"] for bar in second_payload["bars"]][-2:] == [
+        "2026-09-15T15:00:00+03:00",
+        "2026-09-15T16:00:00+03:00",
+    ]
 
 
 def test_overlap_timestamp_gap_fails_closed():

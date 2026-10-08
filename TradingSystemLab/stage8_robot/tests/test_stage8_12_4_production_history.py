@@ -117,7 +117,7 @@ def test_finam_completed_h1_keeps_open_timestamp_and_rest_decimal_schema():
         finam_completed_open_h1(malformed, observed, windows)
 
 
-def test_splice_requires_exact_finam_rows_and_appends_only_new_bars():
+def test_splice_preserves_accepted_authority_and_appends_only_new_bars():
     seed = frame([
         ("2026-09-15 20:00:00", 100, 101, 99, 100),
         ("2026-09-15 21:00:00", 100, 102, 100, 101),
@@ -141,9 +141,13 @@ def test_splice_requires_exact_finam_rows_and_appends_only_new_bars():
     assert list(sparse_merged.index) == list(merged.index)
 
     conflicting = live.copy()
-    conflicting.loc[pd.Timestamp("2026-09-15 22:00:00", tz=MOSCOW), "Close"] = Decimal("999")
-    with pytest.raises(ProductionHistoryError, match="H1_SPLICE_OHLC_MISMATCH"):
-        splice_seed_and_finam_open_h1(seed, conflicting)
+    seam = pd.Timestamp("2026-09-15 22:00:00", tz=MOSCOW)
+    conflicting.loc[seam, "Close"] = Decimal("999")
+    revised = splice_seed_and_finam_open_h1(seed, conflicting)
+    assert revised.loc[seam, "Close"] == Decimal("102")
+    assert revised.loc[
+        pd.Timestamp("2026-09-15 23:00:00", tz=MOSCOW), "Close"
+    ] == Decimal("103")
 
     missing = live.drop(pd.Timestamp("2026-09-15 22:00:00", tz=MOSCOW))
     with pytest.raises(ProductionHistoryError, match="H1_SPLICE_TIMESTAMP_MISMATCH"):
