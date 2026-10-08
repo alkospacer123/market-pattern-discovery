@@ -157,13 +157,15 @@ Production history therefore uses a two-layer authority:
 2. append-only validated completed FINAM H1 continuation stored in the production
    state database with integrity digest.
 
-FINAM overlap may omit authority-only historical timestamps, but every FINAM
-overlap timestamp must already exist in Stage-5/persisted authority with exact
-OHLC and an exact overlap seam.
+FINAM overlap may omit authority-only historical timestamps. Once a completed
+H1 bar has been accepted into Stage-5/persisted production authority, that
+accepted OHLC is immutable production history. A later FINAM historical OHLC
+revision for the same already-accepted timestamp must not rewrite authority and
+must not by itself permanently block production liveness.
 
-Fail closed on FINAM-only overlap timestamps, OHLC disagreement, missing seam,
-no overlap, continuation corruption, duplicate/order invalidity, or downtime too
-long to re-establish validated overlap.
+Fail closed on FINAM-only/unknown overlap timestamps, missing exact splice seam,
+no overlap, continuation corruption, duplicate/order invalidity, stale current
+H1, or downtime too long to re-establish validated overlap.
 
 Research source timestamps remain Moscow H1 open-times and are converted to the
 frozen +1h close-time index only after exact authority validation.
@@ -176,7 +178,8 @@ Canonical completion status:
 
 Activation authority:
 
-- accepted production commit: `883ea1ea6a8268276a8e39ebdc8786c643a21935`;
+- current accepted production commit: `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`;
+- original live-activation commit (historical provenance): `883ea1ea6a8268276a8e39ebdc8786c643a21935`;
 - Package 5 readiness evidence SHA-256:
   `FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD`;
 - activation evidence SHA-256:
@@ -186,6 +189,14 @@ Activation authority:
 - production kill switch: `ARMED`;
 - production Scheduled Task: `Running`;
 - readonly Scheduled Task: `Disabled`.
+
+Operational authority was rolled forward on 2026-10-08 by H1 hotfix PR #435.
+Intel validation passed 15/15 targeted tests; re-authorization and explicit
+re-arm completed on exact commit `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`
+with `HEALTHY / PASS`, zero unresolved intents, kill switch `ARMED`, production
+task `Running`, and production entry gate `OPEN`. This changed only the
+production H1 history boundary; frozen T3/TRAIL1/N4/FULL-R15/risk semantics did
+not change.
 
 Authorization is repository-external, create-only and bound to exact production
 commit, sanitized account identity, production specification/identity, and
