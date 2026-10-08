@@ -1,5 +1,58 @@
 # Evidence-based roadmap
 
+## Memory checkpoint — 2026-10-07
+
+Current accepted GitHub `main` before this memory-only sync:
+`1576878928e886ebfc7378685d8121b3cc533bea`.
+
+Current operational authority:
+
+- Stage 8.9 — COMPLETE;
+- Stage 8.10 — COMPLETE;
+- Stage 8.11 Controlled Real Execution Acceptance — **COMPLETE / PASS**;
+- Stage 8.12 FULL/R15 Production Authorization — **COMPLETE / PASS**;
+- Stage 8.12.4 — **COMPLETE / LIVE PRODUCTION ACTIVATED**;
+- canonical completion status: `STAGE_8_12_FULL_R15_PRODUCTION_AUTHORIZATION_COMPLETE`.
+
+Stage 8.11 PASS authority is immutable attempt `stage8.11.attempt7`, accepted code
+`72a910e49b876cda99484a810e6f8a1b16ac0209`, evidence SHA-256
+`704BFCC19B1A63F490192C0D8D0E4715BFECF77664296AFEF47E5B80FBF64B5F`.
+It proved one-contract entry, observed position, controlled flatten, final flat
+account, zero active orders, zero unresolved intents, and reconciliation PASS.
+Attempts 1–6 remain historical failure/recovery provenance and are not rewritten.
+
+Current Stage 8.12.4 activation authority:
+
+- accepted production commit: `883ea1ea6a8268276a8e39ebdc8786c643a21935`;
+- Stage 5 data authority: `50f1fd2178c18b7ab3bd969be82ad01f47a34745`;
+- Package 5 readiness evidence SHA-256:
+  `FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD`;
+- live-activation evidence SHA-256:
+  `EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9`;
+- durable production authorization: `AUTHORIZED`;
+- `execution_authorized = true`;
+- production kill switch: `ARMED`;
+- production Scheduled Task: `Running`;
+- readonly Scheduled Task: `Disabled`;
+- post-arm heartbeat / reconciliation: `HEALTHY / PASS`;
+- post-arm unresolved intents / open positions / protective stops: `0 / 0 / 0`;
+- post-arm production cycle count: `15`.
+
+The frozen production identity is unchanged:
+`TRAIL1__N4_01__FULL__R15` — T3/H1/TRAIL1, N4
+(`USDRUBF`, `CNYRUBF`, `GLDRUBF`, `IMOEXF`), FULL/R15, 1.5% of current
+realized equity per new instrument position, maximum 6% nominal simultaneous
+initial risk.
+
+No forced trade was required to complete activation. Real orders are now permitted
+only for genuine frozen-strategy signals while durable authorization, exact
+identity/account bindings, `ARMED`, fresh `HEALTHY / PASS` production gate,
+risk/margin gates, and all other runtime safety checks remain valid.
+
+Current lifecycle state is **continuous production operation / monitoring**.
+Historical pre-activation and failed-attempt sections below remain provenance only
+and must not be read as current authorization state.
+
 ## Historical archive — Stage 8.11 early physical attempts (superseded for current status)
 
 > **Historical only.** This archive preserves evidence from the failed/partial Stage 8.11 attempts. It does not define current project status. Current authority is the later Current handoff section, `authority_provenance.json`, and the active Stage 8.12 roadmap below.
