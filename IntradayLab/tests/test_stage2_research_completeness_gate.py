@@ -4,9 +4,8 @@ import unittest
 from pathlib import Path
 from datetime import datetime, timedelta
 
-from m5_baseline import next_slot
-
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
+from m5_baseline import next_slot
 from stage2_research_completeness_gate import assess, EXPECTED, MONTHS, VERDICT
 
 
