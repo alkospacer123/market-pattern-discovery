@@ -24,7 +24,7 @@ There is **no guarantee of positive returns in every calendar month**, stable sa
 
 ## Agreed strategy scope (not proven profitable)
 
-**Markets:** four MOEX perpetuals: USDRUBF, CNYRUBF, GLDRUBF, IMOEXF. New read-only OHLCV datasets live in alkospacer123/market-pattern-data/forever: M5, M15, M30, H1 for each instrument (16 files confirmed by path inventory). Data integrity, spans, fees and execution have not yet been audited.
+**Markets:** four MOEX perpetuals: USDRUBF, CNYRUBF, GLDRUBF, IMOEXF. New read-only OHLCV datasets live in alkospacer123/market-pattern-data/forever: M5, M15, M30, H1 for each instrument (16 files confirmed by path inventory). The base audit of these 16 CSV files for the period before 2025 is complete: **DATA QA PARTIAL PASS**. Full Stage 1 remains open: the IMOEXF M15 anomaly, historical sessions, timestamp semantics, commissions, funding and the execution model still require verification. Baseline, TRUE OOS and LIVE are not authorized.
 
 **Trading timeframe:** M5. **MTF contexts:** M30 -> M5 is primary, with M15 -> M5 for VWAP and H1 -> M5 for Momentum as restricted comparisons. No M1, M3 or M10 research in this agreed scope; M5 is the finest available bar and cannot prove tick-level fill ordering.
 
