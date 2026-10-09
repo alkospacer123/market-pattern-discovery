@@ -1,0 +1,149 @@
+{
+  "actual_main_before": "f5dec0a73bf1273f9490502fbc0b9588f9315260",
+  "architectures": [
+    "FROZEN_V2",
+    "ENTRY",
+    "MANAGEMENT",
+    "ENTRY_MANAGEMENT",
+    "FULL_M5"
+  ],
+  "authorization": "Explicit current user task for bounded 2023 Stage2 complete architecture research and Draft PR.",
+  "defaults": {
+    "breakeven_trigger_R": "1",
+    "breakout_stop_buffer_atr": "0.5",
+    "ema_period": 50,
+    "indicator_period": 14,
+    "max_breakout_extension_atr": "1",
+    "max_signal_tr_atr": "2",
+    "minimum_risk_ticks": 4,
+    "stagnation_minutes": 30,
+    "stagnation_progress_R": "0.5",
+    "trail_atr": "2",
+    "trail_trigger_R": "2",
+    "trend_adx": "25"
+  },
+  "fixed_rules": {
+    "ENTRY": "Original stops and exits. Both strategies: prospective at adverse cap and at actual fill Open, risk >=4 dated ticks and (target-entry-2ticks)>=(entry-stop+2ticks) direction adjusted. Momentum: signal and actual fill remain <=1 ATR12 beyond frozen 12-bar edge, fill strictly beyond edge; signal true range <=2 ATR12. No time-of-day cherry-picking.",
+    "ENTRY_MANAGEMENT": "Union ENTRY+MANAGEMENT; isolates their interaction and prevents FULL indicator benefit being confounded with that interaction. No separately adjusted constants.",
+    "FROZEN_V2": "Exact original v2 signals, stop, fixed target, execution and timers. Byte-identical in-memory verification against PR #449 frozen CSVs. Corrective #449 reporting authority.",
+    "FULL_M5": "ENTRY_MANAGEMENT plus ADX14/DI14. ADX must be ready. Momentum ADX>=25 and directional DI aligned; MR rejects ADX>=25 with DI adverse to reversion. This is an economic trend/reversion hypothesis; original diagnostic does NOT prove aligned DI profitable. Never select indicator period/threshold on returns. Native M30 unavailable: explicitly M5 fallback, no MTF contexts used.",
+    "MANAGEMENT": "Original signals without ENTRY filters. ATR14 must be ready at submission. MR initial Stop is farther of 1.5 ATR14 from close or recent 3-bar swing plus one tick; Momentum farther of 1.5 ATR14 from close or breakout edge plus adverse 0.5 ATR14. Rounded direction as frozen v2. MR target remains original decision VWAP. MR: delivered close violates frozen 3-bar swing => premise failure next future Open; after30m nonpositive close progress => no-progress exit. Momentum: remove resident fixed TP after entry, retain original nominal target only for entry admissibility/cost ruler. Delivered close returns inside frozen breakout edge => failed-breakout exit; after30m close progress <0.5 initialR => stagnation exit. Completed close >=1 initialR arms entry +/-2 dated ticks BE; completed close >=2 initialR arms monotone 2 ATR14 trail from best delivered High/Low since entry. Updates queued effective strictly after decision+order delay; pending updates cannot be overwritten retroactively. If new stop is already marketable relative delivered close, request next future Open instead. Opening gaps use worse Open. Max hold and session exit unchanged.",
+    "MTF": "Primary intended context M30->M5, but audit found no native delivery/finalization stamps or approved native delay. Entire M30 bar must lie in approved window with six exact M5 children and be completed AND known available at decision. MTF_BLOCKED, zero admitted contexts. No M15/H1 experiment, no M5 restoration or silently substituted derived M30.",
+    "common": "Reuse frozen v2 conditional observed-bar execution, dated C1, one abstract unit, t+10 availability, next strictly future M5 Open, one-bar entry TTL, 0.25 ATR12 adverse cap, stop-first, entry-bar TP forbidden, strict tick-penetrated TP, B-25 submission/B-10 nominal flat, original 60/90m max-hold timers. All available 2023; full calendar coverage and no unknown outcomes required for full metrics. Never capital returns.",
+    "comparison": "Full independent opportunity replays plus common-signal/common-exact-entry pairs with both outcomes known. Pairs do not attribute altered opportunity counts or unknown outcomes to profit. Management bundle component contributions are descriptive, not factorial causal claims.",
+    "excursions": "Confirmed pre-exit lower bounds from complete known M5 bars strictly before exit; separately report terminal ambiguity and decision-observable lower bounds. Unknown trade MFE/MAE remain null; no High-before-Stop invention.",
+    "indicators": "Wilder14 TR/DM initialized from14 intervals, first ADX mean14 DX, subsequent Wilder smoothing. EMA50 SMA seed reserved diagnostic only: no usable original entry coverage and no demonstrated economic rationale; not used. Indicators reset at window/day/noncontiguous observations, no silent overnight/lunch/gap carry.",
+    "selection": "No winner by highest PF. Positive expectancy, NetPF>=1.6 aim, months/trades/DD/delay/cost sanity jointly; no credible stable plateau or unavailable necessary full metrics => NO ECONOMIC BASELINE PASS / REJECT CANDIDATE. Recommend Volatility Squeeze Breakout without implementing it."
+  },
+  "frozen_on": "2026-10-09 Europe/Moscow",
+  "id": "stage2_complete_architectures_v1",
+  "inputs": {
+    "CNYRUBF": {
+      "blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 39362
+    },
+    "GLDRUBF": {
+      "blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "first": "2023-07-11 10:00:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 18428
+    },
+    "IMOEXF": {
+      "blob": "41b83b109b177d4522e53486950104845d357d99",
+      "first": "2023-11-14 10:00:00",
+      "path": "forever/IMOEXF/IMOEXF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 4429
+    },
+    "USDRUBF": {
+      "blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/USDRUBF/USDRUBF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 42576
+    }
+  },
+  "methodology_head": "d000c5e8aad3e0bbae32f55bbf205483b48e9408",
+  "original_unknown_outcomes": 82,
+  "parameters": {
+    "adverse_entry_cap_atr": "0.25",
+    "atr_period": 12,
+    "availability_minutes": 10,
+    "close_before_boundary_minutes": 20,
+    "decision_delay_minutes": 0,
+    "entry_ttl_bars": 1,
+    "flat_confirm_before_boundary_minutes": 10,
+    "momentum_max_hold_minutes": 90,
+    "momentum_take_atr": "3",
+    "no_entry_before_boundary_minutes": 30,
+    "order_delay_minutes": 0,
+    "range_period": 12,
+    "stop_atr": "1.5",
+    "vwap_deviation_atr": "1",
+    "vwap_max_hold_minutes": 60,
+    "warmup_prior_bars": 13
+  },
+  "parent_head": "ca8922082b0988837f7553e5ff39d6a2c3dece09",
+  "prohibited": [
+    "2024 WF reads",
+    "2025+ TRUE OOS reads",
+    "Stage3 numeric optimization",
+    "mass grids",
+    "gap restoration",
+    "frozen v1/v2/corrective modifications",
+    "protected tree changes",
+    "merge",
+    "LIVE"
+  ],
+  "rationale": {
+    "EMA_MTF": "EMA50 not available at original entries with window-local warmup; native M30 content agreement does not prove availability. Both withheld.",
+    "breakout": "484/1041 closed Momentum stops within10m, stale inside-range fills and >1ATR extensions; preservation and impulse expansion are falsifiable execution guards, not assumed winners.",
+    "cost": "PR449: 187/1017 closed MR targets cannot pay C1; payoff under net1:1 contributes substantial loss. Four-tick risk ensures C1<=0.5R prospectively. No larger arbitrary MR Take.",
+    "management": "304 Momentum and187 MR known trades reached0.5R then lost; winning Momentum holds ~35-40m vs5-10m losses; test failed-premise exits plus future BE/trailing. One common structure/volatility stop, no instrument fitting.",
+    "regime": "Conventional Wilder14/ADX25 regime hypothesis; GLD trend bucket better, others mixed/negative. Test once as an ablation, preserve failures."
+  },
+  "run_matrix": [
+    {
+      "instrument": "USDRUBF",
+      "strategy": "VWAP_MR"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "strategy": "VWAP_MR"
+    },
+    {
+      "instrument": "GLDRUBF",
+      "strategy": "VWAP_MR"
+    },
+    {
+      "instrument": "IMOEXF",
+      "strategy": "VWAP_MR"
+    },
+    {
+      "instrument": "USDRUBF",
+      "strategy": "MOMENTUM"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "strategy": "MOMENTUM"
+    },
+    {
+      "instrument": "GLDRUBF",
+      "strategy": "MOMENTUM"
+    },
+    {
+      "instrument": "IMOEXF",
+      "strategy": "MOMENTUM"
+    }
+  ],
+  "schema": 1,
+  "sensitivities": {
+    "C2": "Accounting stress only: replaces C1 with 2 dated ticks/side on identical C1-admitted fills; BE remains C1-calibrated. No new entry qualification or fill experiment.",
+    "delay": "availability 15m instead of 10m for every architecture; unchanged rules, strict future Open and derived flat deadline"
+  },
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8"
+}
