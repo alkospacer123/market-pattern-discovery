@@ -2,6 +2,9 @@
 import sys
 import unittest
 from pathlib import Path
+from datetime import datetime, timedelta
+
+from m5_baseline import next_slot
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 from stage2_research_completeness_gate import assess, EXPECTED, MONTHS, VERDICT
@@ -60,6 +63,33 @@ class GateTests(unittest.TestCase):
         result, verify, signals = sample()
         with self.assertRaisesRegex(ValueError, 'MANIFEST_HASH'):
             assess(result, verify, signals, 'tampered')
+
+
+    def test_frozen_boundary_timing_is_late(self):
+        """At B-20, next M5 open B-15 confirms only B-5, later than B-10."""
+        for b in ('2023-02-02 14:00:00', '2023-02-02 18:50:00'):
+            B = datetime.fromisoformat(b)
+            current_request = B - timedelta(minutes=20)
+            exit_start = next_slot(current_request)
+            acknowledge = exit_start + timedelta(minutes=10)
+            self.assertEqual(exit_start, B - timedelta(minutes=15))
+            self.assertEqual(acknowledge, B - timedelta(minutes=5))
+            self.assertGreater(acknowledge, B - timedelta(minutes=10))
+
+    def test_proposed_earlier_close_is_only_conditionally_feasible(self):
+        """Proposed B-30 lead supports a last permitted B-35 entry ack at B-25."""
+        for b in ('2023-02-02 14:00:00', '2023-02-02 18:50:00'):
+            B = datetime.fromisoformat(b)
+            last_entry_start = B - timedelta(minutes=35)
+            last_entry_ack = last_entry_start + timedelta(minutes=10)
+            self.assertEqual(last_entry_ack, B - timedelta(minutes=25))
+            earliest_late_close_start = next_slot(last_entry_ack)
+            self.assertEqual(earliest_late_close_start, B - timedelta(minutes=20))
+            self.assertEqual(earliest_late_close_start + timedelta(minutes=10),
+                             B - timedelta(minutes=10))
+            earlier_close = next_slot(B - timedelta(minutes=30))
+            self.assertEqual(earlier_close + timedelta(minutes=10),
+                             B - timedelta(minutes=15))
 
 
 if __name__ == '__main__':
