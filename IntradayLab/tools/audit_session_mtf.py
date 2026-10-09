@@ -26,6 +26,7 @@ MINUTES = {"M5": 5, "M15": 15, "M30": 30, "H1": 60}
 HEADER = ["Ticker", "Datetime", "Open", "High", "Low", "Close", "Volume"]
 CUTOFF = datetime(2025, 1, 1)
 MORNING_SUSPENDED_FROM = date(2024, 6, 14)
+MORNING_AUCTION_EXCEPTION = date(2024, 6, 13)
 SOURCE_REF = "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8"
 WORKING_SATURDAYS = {date(2024, 4, 27), date(2024, 11, 2), date(2024, 12, 28)}
 HOLIDAYS = {(1, 1), (1, 2), (1, 7), (2, 23), (3, 8), (5, 1), (5, 9), (6, 12), (11, 4)}
@@ -44,6 +45,12 @@ SOURCES = [
     {"id": "CBR_MORNING_SUSPENSION", "url": "https://www.cbr.ru/press/PR/?file=638539087789554818SUP_MEAS.htm",
      "published": "2024-06-13", "effective_from": "2024-06-14",
      "fact": "No MOEX FX, metals or derivatives trading sessions before 09:50 MSK from 14 June 2024 until revocation; supersedes earlier morning schedule"},
+    {"id": "MOEX_JUNE13_REGIME", "url": "https://www.moex.com/n70160?nt=0",
+     "published": "2024-06-13", "exception_date": "2024-06-13",
+     "fact": "Dated exception on 13 June 2024: derivatives trading starts at 09:50 MSK, opening auction 09:50-10:00, main session from 10:00"},
+    {"id": "MOEX_JUNE14_REGIME", "url": "https://www.moex.com/n70206",
+     "published": "2024-06-13", "effective_from": "2024-06-14",
+     "fact": "From 14 June 2024: derivatives trading starts at 09:50 MSK, opening auction 09:50-10:00, main session from 10:00"},
     {"id": "MOEX_ALL_INSTRUMENTS", "url": "https://www.moex.com/n51208",
      "published": "2022-09-06", "fact": "All instruments eligible for evening from 9 September and morning from 12 September 2022"},
     {"id": "MOEX_MAR2023_EXTENSION", "url": "https://www.moex.com/n55032",
@@ -80,6 +87,8 @@ def candidate_segments(day: date) -> list[tuple[datetime, datetime]]:
     of later-listed contracts and all exceptional regimes remain unresolved.
     From 14 June 2024 there is no continuous morning segment: trading before
     09:50 was suspended, and 09:50-10:00 is treated separately as an auction.
+    MOEX's separate notice imposes the same hours on 13 June only; it does not
+    move the effective date of the Bank of Russia decision.
     """
     if not is_trading_date(day):
         return []
@@ -88,7 +97,7 @@ def candidate_segments(day: date) -> list[tuple[datetime, datetime]]:
     extended = date(2023, 3, 13) <= day < date(2023, 3, 21)
     afternoon = at(14, 15 if extended else 5)
     evening = at(19, 15 if extended else 5)
-    morning = [(at(9), at(10))] if day < MORNING_SUSPENDED_FROM else []
+    morning = [(at(9), at(10))] if day < MORNING_SUSPENDED_FROM and day != MORNING_AUCTION_EXCEPTION else []
     segments = morning + [(at(10), at(14)), (afternoon, at(18, 50)), (evening, at(23, 50))]
     if day == date(2023, 9, 13):
         segments = [(at(13, 30), at(14)), (afternoon, at(18, 50)), (evening, at(23, 50))]
@@ -105,7 +114,7 @@ def candidate_auction_segments(day: date) -> list[tuple[datetime, datetime]]:
     Never supplies required M5 slots or confirmed continuous SessionWindows.
     CSV timestamp semantics and contract-specific auction coverage are unknown.
     """
-    if not is_trading_date(day) or day < MORNING_SUSPENDED_FROM:
+    if not is_trading_date(day) or (day < MORNING_SUSPENDED_FROM and day != MORNING_AUCTION_EXCEPTION):
         return []
     return [(datetime(day.year, day.month, day.day, 9, 50),
              datetime(day.year, day.month, day.day, 10))]
@@ -239,6 +248,7 @@ def session_diagnostics(m5: list[Bar]) -> dict:
             "candidate_missing_m5_slots_UNRESOLVED": dict(sorted(missing.items())),
             "auction_m5_UNRESOLVED": {
                 "status": "UNRESOLVED", "effective_from": str(MORNING_SUSPENDED_FROM),
+                "exception_dates": [str(MORNING_AUCTION_EXCEPTION)],
                 "clock_interval": "09:50-10:00", "required_m5_slots": False,
                 "ordinary_mtf_authorized": False, "observed_bars": len(auction),
                 "observed_dates": len({t[:10] for t in auction}),

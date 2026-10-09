@@ -6492,6 +6492,9 @@
         "clock_counts": {},
         "clock_interval": "09:50-10:00",
         "effective_from": "2024-06-14",
+        "exception_dates": [
+          "2024-06-13"
+        ],
         "observed_bars": 0,
         "observed_dates": 0,
         "ordinary_mtf_authorized": false,
@@ -6502,7 +6505,7 @@
       "candidate_missing_m5_slots_UNRESOLVED": {
         "daytime": 1127,
         "evening": 3862,
-        "morning": 110
+        "morning": 98
       },
       "conditional_clock_hypothesis": "MSK/start (UNRESOLVED)",
       "dates_observed": 509,
@@ -6553,12 +6556,15 @@
     "GLDRUBF": {
       "auction_m5_UNRESOLVED": {
         "clock_counts": {
-          "09:55:00": 140
+          "09:55:00": 141
         },
         "clock_interval": "09:50-10:00",
         "effective_from": "2024-06-14",
-        "observed_bars": 140,
-        "observed_dates": 140,
+        "exception_dates": [
+          "2024-06-13"
+        ],
+        "observed_bars": 141,
+        "observed_dates": 141,
         "ordinary_mtf_authorized": false,
         "required_m5_slots": false,
         "status": "UNRESOLVED"
@@ -6567,7 +6573,7 @@
       "candidate_missing_m5_slots_UNRESOLVED": {
         "daytime": 1211,
         "evening": 3571,
-        "morning": 155
+        "morning": 144
       },
       "conditional_clock_hypothesis": "MSK/start (UNRESOLVED)",
       "dates_observed": 380,
@@ -6633,12 +6639,15 @@
     "IMOEXF": {
       "auction_m5_UNRESOLVED": {
         "clock_counts": {
-          "09:55:00": 138
+          "09:55:00": 139
         },
         "clock_interval": "09:50-10:00",
         "effective_from": "2024-06-14",
-        "observed_bars": 138,
-        "observed_dates": 138,
+        "exception_dates": [
+          "2024-06-13"
+        ],
+        "observed_bars": 139,
+        "observed_dates": 139,
         "ordinary_mtf_authorized": false,
         "required_m5_slots": false,
         "status": "UNRESOLVED"
@@ -6647,7 +6656,7 @@
       "candidate_missing_m5_slots_UNRESOLVED": {
         "daytime": 1253,
         "evening": 2560,
-        "morning": 189
+        "morning": 178
       },
       "conditional_clock_hypothesis": "MSK/start (UNRESOLVED)",
       "dates_observed": 290,
@@ -6716,6 +6725,9 @@
         "clock_counts": {},
         "clock_interval": "09:50-10:00",
         "effective_from": "2024-06-14",
+        "exception_dates": [
+          "2024-06-13"
+        ],
         "observed_bars": 0,
         "observed_dates": 0,
         "ordinary_mtf_authorized": false,
@@ -6726,7 +6738,7 @@
       "candidate_missing_m5_slots_UNRESOLVED": {
         "daytime": 51,
         "evening": 2084,
-        "morning": 14
+        "morning": 2
       },
       "conditional_clock_hypothesis": "MSK/start (UNRESOLVED)",
       "dates_observed": 509,
@@ -6805,6 +6817,20 @@
       "id": "CBR_MORNING_SUSPENSION",
       "published": "2024-06-13",
       "url": "https://www.cbr.ru/press/PR/?file=638539087789554818SUP_MEAS.htm"
+    },
+    {
+      "exception_date": "2024-06-13",
+      "fact": "Dated exception on 13 June 2024: derivatives trading starts at 09:50 MSK, opening auction 09:50-10:00, main session from 10:00",
+      "id": "MOEX_JUNE13_REGIME",
+      "published": "2024-06-13",
+      "url": "https://www.moex.com/n70160?nt=0"
+    },
+    {
+      "effective_from": "2024-06-14",
+      "fact": "From 14 June 2024: derivatives trading starts at 09:50 MSK, opening auction 09:50-10:00, main session from 10:00",
+      "id": "MOEX_JUNE14_REGIME",
+      "published": "2024-06-13",
+      "url": "https://www.moex.com/n70206"
     },
     {
       "fact": "All instruments eligible for evening from 9 September and morning from 12 September 2022",
