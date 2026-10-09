@@ -127,6 +127,15 @@ class CausalityAndFeatures(unittest.TestCase):
         self.assertEqual(trade['entry_interval_start'],s['planned_execution_at'])
         self.assertNotEqual(trade['entry_interval_start'],s['signal_at'])
 
+    def test_momentum_price_features_do_not_filter_by_volume(self):
+        f=Features(P,price_only=True)
+        for b in bars(13): f.observe(bar(b.timestamp,v='0'),available(b,P))
+        b=bar(T+13*FIVE,h='101',c='101',v='0')
+        x=f.observe(b,available(b,P))
+        self.assertEqual(x['MOMENTUM'],1)
+        self.assertEqual(x['atr'],D('.4'))
+        self.assertIsNone(x['vwap'])
+
     def test_shifted_breakout_excludes_signal_high_and_atr(self):
         f=Features(P)
         for b in bars(13): self.assertIsNone(f.observe(b,available(b,P)))
@@ -232,6 +241,7 @@ class ExecutionAndAccounting(unittest.TestCase):
         self.assertEqual(r.signals[0]['status'],'NONFILL')
         self.assertEqual(r.ledger,[])
         self.assertEqual(r.signals[0]['stop'],D('98.50'))
+        self.assertTrue(any(e['kind']=='ENTRY_CANCEL' and e['status']=='CANCELLED' for e in r.events))
 
     def test_nonfill_partial_and_residual_units(self):
         self.assertEqual(fill_units(2,0),(0,2,'NONFILL'))
@@ -267,6 +277,18 @@ class ExecutionAndAccounting(unittest.TestCase):
         self.assertEqual(r.ledger,[])
         self.assertTrue(any(e['kind']=='ENTRY_CANCEL' for e in r.events))
 
+    def test_pending_entry_gap_not_retroactively_cancelled_or_free(self):
+        for missing_index in (12,13):
+            data=[b for b in bars() if b.timestamp!=T+missing_index*FIVE]
+            r=Scripted().run(data)
+            row=r.ledger[0]
+            self.assertEqual(row['entry_interval_start'],str(T+14*FIVE))
+            self.assertEqual(row['status'],'UNRESOLVED')
+            self.assertIn('PENDING_ENTRY_GAP',row['unresolved_reasons'])
+            self.assertIsNone(row['net_model_c1'])
+            self.assertTrue(any(e['kind']=='ENTRY_CANCEL_REQUEST' and e['status']=='UNRESOLVED' for e in r.events))
+            self.assertEqual(row['residual_model_units'],0)
+
     def test_missing_exit_and_open_residual_not_deleted_at_cutoff(self):
         data=bars(15)  # entry is last observed bar, entire remainder of day absent
         r=Scripted().run(data)
@@ -278,6 +300,13 @@ class ExecutionAndAccounting(unittest.TestCase):
         self.assertEqual(row['c1_exit'],0)
         self.assertEqual(metrics(r.ledger)['metric_status'],'INCOMPLETE / CLOSED-ONLY DIAGNOSTIC')
         self.assertTrue(any(e['kind']=='EXIT' and e['status']=='NONFILL' for e in r.events))
+
+    def test_zero_exit_capacity_keeps_residual_then_retries(self):
+        at=T+14*FIVE+timedelta(minutes=90)
+        r=Scripted(capacities={('EXIT',at):0}).run(bars())
+        self.assertTrue(any(e['kind']=='EXIT' and e['status']=='NONFILL' and e['residual_model_units']==1 for e in r.events))
+        self.assertEqual(r.ledger[0]['residual_model_units'],0)
+        self.assertEqual(r.ledger[0]['c1_total'],D('.02'))
 
     def test_emergency_gap_keeps_unknown_cost_even_if_later_flat(self):
         data=[b for b in bars() if b.timestamp!=T+16*FIVE]

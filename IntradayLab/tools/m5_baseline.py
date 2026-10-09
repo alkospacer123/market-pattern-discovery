@@ -69,8 +69,9 @@ def allowed(symbol, at):
 
 class Features:
     """Past observations only; ATR/range exclude the supplied signal bar."""
-    def __init__(self, params):
+    def __init__(self, params, price_only=False):
         self.p = params
+        self.price_only = price_only
         self.reset()
 
     def reset(self):
@@ -88,9 +89,9 @@ class Features:
             self.reset()
             return None
         if (w != self.window or (self.bars and b.timestamp != self.bars[-1].timestamp + FIVE)
-                or b.volume <= 0):
+                or (b.volume <= 0 and not self.price_only)):
             self.reset()
-        if b.volume <= 0:
+        if b.volume <= 0 and not self.price_only:
             return None
         self.window = w
         prior = self.bars
@@ -101,16 +102,16 @@ class Features:
                        for a, c in pairs), ZERO) / D(self.p['atr_period'])
         self.weight += b.volume
         self.weighted_price += (b.high + b.low + b.close) / 3 * b.volume
-        vwap = self.weighted_price / self.weight
+        vwap = self.weighted_price / self.weight if self.weight > 0 else None
         result = None
         if atr is not None and atr > 0:
             old = prior[-1]
             band = D(self.p['vwap_deviation_atr']) * atr
             prev_vwap = self.vwaps[-1]
             mr = 0
-            if old.close <= prev_vwap-band and vwap-band < b.close < vwap:
+            if vwap is not None and prev_vwap is not None and old.close <= prev_vwap-band and vwap-band < b.close < vwap:
                 mr = 1
-            elif old.close >= prev_vwap+band and vwap < b.close < vwap+band:
+            elif vwap is not None and prev_vwap is not None and old.close >= prev_vwap+band and vwap < b.close < vwap+band:
                 mr = -1
             past_range = prior[-self.p['range_period']:]
             high, low = max(x.high for x in past_range), min(x.low for x in past_range)
@@ -186,7 +187,7 @@ class Replay:
         self.symbol, self.strategy, self.p = symbol, strategy, params
         self.units, self.capacities = abstract_units, capacities or {}
         fill_units(abstract_units)
-        self.features = Features(params)
+        self.features = Features(params, price_only=strategy == "MOMENTUM")
         self.signals, self.events, self.ledger = [], [], []
         self.entry_order = self.close_order = self.position = None
         self.counts = {'flat_target_breaches': 0, 'missing_observations': 0,
@@ -295,6 +296,7 @@ class Replay:
             s['status'] = 'NONFILL'
             s['reason'] = 'OPEN_CAP_OR_FROZEN_PROTECTION'
             self.event(t, 'ENTRY', 'NONFILL', s['reason'], s['signal_id'], self.units, 0, self.units, confirmed=now)
+            self.event(now, 'ENTRY_CANCEL', 'CANCELLED', 'ONE_BAR_TTL', s['signal_id'], self.units, 0, self.units)
             return
         q, left, status = fill_units(self.units, self.capacities.get(('ENTRY',t)))
         self.event(t, 'ENTRY', status, 'CONDITIONAL_OPEN_SCENARIO', s['signal_id'], self.units, q, left, b.open if q else None, now)
@@ -325,6 +327,9 @@ class Replay:
         self.known_cash -= row['c1_entry']
         self.position = Position(row, direction, q, stop, take, b.open, t, window_at(t)[1],
                                  t+timedelta(minutes=hold), [], set())
+        if order.get('gap_notice'):
+            self.unresolved('PENDING_ENTRY_GAP_POSSIBLE_FILL_UNRESOLVED')
+            self.close_request(now,'PENDING_ENTRY_GAP_EMERGENCY')
         ex = level_exit(b,direction,stop,take,tick(self.symbol,t),entry_bar=True)
         if ex:
             self.exit_fill(b, now, *ex)
@@ -397,6 +402,19 @@ class Replay:
                         if self.features.bars:
                             self.counts['gap_resets'] += 1
                         self.features.reset()
+                        if self.entry_order and not self.entry_order.get('gap_notice'):
+                            order = self.entry_order
+                            s = order['signal']
+                            if order['target'] > now:
+                                s['status'], s['reason'] = 'NONFILL', 'GAP_CANCEL_BEFORE_POSSIBLE_ENTRY'
+                                self.event(now, 'ENTRY_CANCEL', 'CANCELLED', s['reason'], s['signal_id'], self.units, 0, self.units)
+                                self.entry_order = None
+                            else:
+                                # Scheduled entry may already have happened:
+                                # a cancellation cannot manufacture a flat.
+                                order['gap_notice'] = now
+                                self.event(now, 'ENTRY_CANCEL_REQUEST', 'UNRESOLVED',
+                                           'POSSIBLE_FILL_AWAITING_ACK',s['signal_id'],self.units,0,self.units)
                         if self.position:
                             if self.close_order and self.close_order['target'] <= expected:
                                 self.event(expected, 'EXIT', 'NONFILL', 'MISSING_EXIT_BAR',

@@ -1,0 +1,1958 @@
+{
+  "implementation_sha256": {
+    "tests/test_m5_baseline.py": "f324e5754406cd16be357437477aeaebc8a9a90657c533c69dff2104f6ec735c",
+    "tools/audit_session_mtf.py": "1c0f22a9b029c72f55d9e20c9bdc4b147b460e5b5a5f1f0667a46b13a97152dc",
+    "tools/m5_baseline.py": "691aae75d033175abd08982a00658bea2587d4eebae9c32a9d8f9aafdb95062b",
+    "tools/run_m5_baseline.py": "3f29274469d04c73f68b1136554d0719cc0ee7c10354fa99365a146da82c3561",
+    "tools/session_mtf.py": "fdb1b78e32bddd83c52d360f3de1720ccc78743f82d920ca6daa943d981f0a20"
+  },
+  "inputs": {
+    "CNYRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-01-03 09:00:00",
+      "frozen_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 2212189,
+      "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+      "rows": 39362
+    },
+    "GLDRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-07-11 10:00:00",
+      "frozen_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 1044351,
+      "prefix_sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b",
+      "rows": 18428
+    },
+    "IMOEXF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-11-14 10:00:00",
+      "frozen_blob": "41b83b109b177d4522e53486950104845d357d99",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 234733,
+      "prefix_sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c",
+      "rows": 4429
+    },
+    "USDRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-01-03 09:00:00",
+      "frozen_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 2342431,
+      "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "rows": 42576
+    }
+  },
+  "manifest_sha256": "7b3a1bd786cee3eca09111f906481a3ab38067c79ec9d0d0d0720c21710319ac",
+  "runs": [
+    {
+      "coverage": {
+        "2023-01": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 7,
+          "raw_2023_bars": 3480,
+          "research_bars": 2198,
+          "research_dates": 21
+        },
+        "2023-02": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 1995,
+          "missing_entire_dates": [],
+          "missing_slots": 5,
+          "raw_2023_bars": 3231,
+          "research_bars": 1990,
+          "research_dates": 19
+        },
+        "2023-03": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2298,
+          "missing_entire_dates": [],
+          "missing_slots": 4,
+          "raw_2023_bars": 3571,
+          "research_bars": 2294,
+          "research_dates": 22
+        },
+        "2023-04": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2100,
+          "missing_entire_dates": [],
+          "missing_slots": 6,
+          "raw_2023_bars": 3329,
+          "research_bars": 2094,
+          "research_dates": 20
+        },
+        "2023-05": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 7,
+          "raw_2023_bars": 3452,
+          "research_bars": 2198,
+          "research_dates": 21
+        },
+        "2023-06": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 4,
+          "raw_2023_bars": 3478,
+          "research_bars": 2201,
+          "research_dates": 21
+        },
+        "2023-07": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 1,
+          "raw_2023_bars": 3581,
+          "research_bars": 2204,
+          "research_dates": 21
+        },
+        "2023-08": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2415,
+          "missing_entire_dates": [
+            "2023-08-31"
+          ],
+          "missing_slots": 109,
+          "raw_2023_bars": 3784,
+          "research_bars": 2306,
+          "research_dates": 22
+        },
+        "2023-09": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 43,
+          "raw_2023_bars": 3504,
+          "research_bars": 2162,
+          "research_dates": 21
+        },
+        "2023-10": {
+          "coverage_status": "COVERED",
+          "expected_research_slots": 2310,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 3758,
+          "research_bars": 2310,
+          "research_dates": 22
+        },
+        "2023-11": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2310,
+          "missing_entire_dates": [],
+          "missing_slots": 1,
+          "raw_2023_bars": 3783,
+          "research_bars": 2309,
+          "research_dates": 22
+        },
+        "2023-12": {
+          "coverage_status": "COVERED",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 3625,
+          "research_bars": 2205,
+          "research_dates": 21
+        }
+      },
+      "execution_counts": {
+        "flat_target_breaches": 17,
+        "gap_resets": 32,
+        "missing_observations": 187,
+        "partial_events": 0,
+        "tp_touch_nonfills": 75
+      },
+      "month_end_model_marks": {
+        "2023-01": {
+          "at": "2023-01-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-0.24",
+          "known_mtm_after_c1_price_units": "-0.24",
+          "mark": "70.15",
+          "net_complete": true,
+          "net_model_c1_mtm": "-0.24",
+          "residual_model_units": 0
+        },
+        "2023-02": {
+          "at": "2023-02-28 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-1.12",
+          "known_mtm_after_c1_price_units": "-1.12",
+          "mark": "74.95",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-03": {
+          "at": "2023-03-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-3.23",
+          "known_mtm_after_c1_price_units": "-3.23",
+          "mark": "77.51",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-04": {
+          "at": "2023-04-28 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-4.12",
+          "known_mtm_after_c1_price_units": "-4.12",
+          "mark": "80.29",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-05": {
+          "at": "2023-05-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-5.63",
+          "known_mtm_after_c1_price_units": "-5.63",
+          "mark": "81.14",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-06": {
+          "at": "2023-06-30 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-6.39",
+          "known_mtm_after_c1_price_units": "-6.39",
+          "mark": "89.5",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-07": {
+          "at": "2023-07-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-8.01",
+          "known_mtm_after_c1_price_units": "-8.01",
+          "mark": "91.49",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-08": {
+          "at": "2023-08-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-9.22",
+          "known_mtm_after_c1_price_units": "-9.22",
+          "mark": "96.21",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-09": {
+          "at": "2023-09-29 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-10.75",
+          "known_mtm_after_c1_price_units": "-10.75",
+          "mark": "98.02",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-10": {
+          "at": "2023-10-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-12.47",
+          "known_mtm_after_c1_price_units": "-12.47",
+          "mark": "93.44",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-11": {
+          "at": "2023-11-30 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-13.99",
+          "known_mtm_after_c1_price_units": "-13.99",
+          "mark": "89.55",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-12": {
+          "at": "2023-12-29 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-15.66",
+          "known_mtm_after_c1_price_units": "-15.66",
+          "mark": "90.27",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        }
+      },
+      "monthly_outcomes": {
+        "NEGATIVE": 6,
+        "UNRESOLVED": 6
+      },
+      "run": "VWAP_MR_USDRUBF",
+      "signal_status_counts": {
+        "MODELLED": 548,
+        "NONFILL": 419,
+        "SKIPPED": 497
+      },
+      "signals": 1464,
+      "status": "EXECUTED_2023_CONDITIONAL_MODEL",
+      "summary": {
+        "PF": "0.4451566951566951566951566952",
+        "PF_null_reason": null,
+        "c1_known": "10.96",
+        "closed_accounted_trades": 542,
+        "closed_only_c1": "10.84",
+        "closed_only_drawdown_price_units": "16.03",
+        "closed_only_gross": "-4.74",
+        "closed_only_net_c1": "-15.58",
+        "expectancy_price_units": "-0.02874538745387453874538745387",
+        "gross_known_price_pnl": "-4.70",
+        "known_cost_mtm_drawdown_diagnostic": "16.15",
+        "mean_net_R": "-0.5483609457594390858625956873",
+        "median_hold_minutes_bar_starts": "10.0",
+        "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+        "net_R": "-297.2116326016159845375268625",
+        "net_model_c1": null,
+        "observed_close_mtm_drawdown_price_units": null,
+        "open_residual_model_units": 0,
+        "trades": 548,
+        "unresolved": 6,
+        "win_rate": "0.3929889298892988929889298893"
+      }
+    },
+    {
+      "coverage": {
+        "2023-01": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 113,
+          "raw_2023_bars": 3227,
+          "research_bars": 2092,
+          "research_dates": 21
+        },
+        "2023-02": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 1995,
+          "missing_entire_dates": [],
+          "missing_slots": 94,
+          "raw_2023_bars": 2965,
+          "research_bars": 1901,
+          "research_dates": 19
+        },
+        "2023-03": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2298,
+          "missing_entire_dates": [],
+          "missing_slots": 204,
+          "raw_2023_bars": 3158,
+          "research_bars": 2094,
+          "research_dates": 22
+        },
+        "2023-04": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2100,
+          "missing_entire_dates": [],
+          "missing_slots": 185,
+          "raw_2023_bars": 2846,
+          "research_bars": 1915,
+          "research_dates": 20
+        },
+        "2023-05": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 152,
+          "raw_2023_bars": 3073,
+          "research_bars": 2053,
+          "research_dates": 21
+        },
+        "2023-06": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 152,
+          "raw_2023_bars": 3048,
+          "research_bars": 2053,
+          "research_dates": 21
+        },
+        "2023-07": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 119,
+          "raw_2023_bars": 3164,
+          "research_bars": 2086,
+          "research_dates": 21
+        },
+        "2023-08": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2415,
+          "missing_entire_dates": [
+            "2023-08-31"
+          ],
+          "missing_slots": 150,
+          "raw_2023_bars": 3573,
+          "research_bars": 2265,
+          "research_dates": 22
+        },
+        "2023-09": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 90,
+          "raw_2023_bars": 3335,
+          "research_bars": 2115,
+          "research_dates": 21
+        },
+        "2023-10": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2310,
+          "missing_entire_dates": [],
+          "missing_slots": 2,
+          "raw_2023_bars": 3694,
+          "research_bars": 2308,
+          "research_dates": 22
+        },
+        "2023-11": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2310,
+          "missing_entire_dates": [],
+          "missing_slots": 9,
+          "raw_2023_bars": 3677,
+          "research_bars": 2301,
+          "research_dates": 22
+        },
+        "2023-12": {
+          "coverage_status": "COVERED",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 3602,
+          "research_bars": 2205,
+          "research_dates": 21
+        }
+      },
+      "execution_counts": {
+        "flat_target_breaches": 11,
+        "gap_resets": 896,
+        "missing_observations": 1270,
+        "partial_events": 0,
+        "tp_touch_nonfills": 120
+      },
+      "month_end_model_marks": {
+        "2023-01": {
+          "at": "2023-01-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-0.96",
+          "known_mtm_after_c1_price_units": "-0.96",
+          "mark": "10.37",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-02": {
+          "at": "2023-02-28 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-1.45",
+          "known_mtm_after_c1_price_units": "-1.45",
+          "mark": "10.78",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-03": {
+          "at": "2023-03-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-1.93",
+          "known_mtm_after_c1_price_units": "-1.93",
+          "mark": "11.29",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-04": {
+          "at": "2023-04-28 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-2.23",
+          "known_mtm_after_c1_price_units": "-2.23",
+          "mark": "11.61",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-05": {
+          "at": "2023-05-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-2.84",
+          "known_mtm_after_c1_price_units": "-2.84",
+          "mark": "11.37",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-06": {
+          "at": "2023-06-30 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-3.44",
+          "known_mtm_after_c1_price_units": "-3.44",
+          "mark": "12.35",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-07": {
+          "at": "2023-07-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-4.12",
+          "known_mtm_after_c1_price_units": "-4.12",
+          "mark": "12.82",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-08": {
+          "at": "2023-08-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-5.09",
+          "known_mtm_after_c1_price_units": "-5.09",
+          "mark": "13.16",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-09": {
+          "at": "2023-09-29 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-5.841",
+          "known_mtm_after_c1_price_units": "-5.841",
+          "mark": "13.479",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-10": {
+          "at": "2023-10-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-6.001",
+          "known_mtm_after_c1_price_units": "-6.001",
+          "mark": "12.707",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-11": {
+          "at": "2023-11-30 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-6.093",
+          "known_mtm_after_c1_price_units": "-6.093",
+          "mark": "12.502",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-12": {
+          "at": "2023-12-29 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-6.246",
+          "known_mtm_after_c1_price_units": "-6.246",
+          "mark": "12.628",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        }
+      },
+      "monthly_outcomes": {
+        "NEGATIVE": 2,
+        "UNRESOLVED": 10
+      },
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_status_counts": {
+        "MODELLED": 367,
+        "NONFILL": 362,
+        "SKIPPED": 326
+      },
+      "signals": 1055,
+      "status": "EXECUTED_2023_CONDITIONAL_MODEL",
+      "summary": {
+        "PF": "0.08804616652926628194558944765",
+        "PF_null_reason": null,
+        "c1_known": "4.856",
+        "closed_accounted_trades": 331,
+        "closed_only_c1": "4.154",
+        "closed_only_drawdown_price_units": "5.531",
+        "closed_only_gross": "-1.377",
+        "closed_only_net_c1": "-5.531",
+        "expectancy_price_units": "-0.01670996978851963746223564955",
+        "gross_known_price_pnl": "-1.390",
+        "known_cost_mtm_drawdown_diagnostic": "6.246",
+        "mean_net_R": "-1.277666942769688326977182005",
+        "median_hold_minutes_bar_starts": "5.0",
+        "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+        "net_R": "-422.9077580567668362294472437",
+        "net_model_c1": null,
+        "observed_close_mtm_drawdown_price_units": null,
+        "open_residual_model_units": 0,
+        "trades": 367,
+        "unresolved": 36,
+        "win_rate": "0.1782477341389728096676737160"
+      }
+    },
+    {
+      "coverage": {
+        "2023-01": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-02": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-03": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-04": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-05": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-06": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-07": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 1575,
+          "missing_entire_dates": [],
+          "missing_slots": 183,
+          "raw_2023_bars": 2087,
+          "research_bars": 1392,
+          "research_dates": 15
+        },
+        "2023-08": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2415,
+          "missing_entire_dates": [],
+          "missing_slots": 212,
+          "raw_2023_bars": 3377,
+          "research_bars": 2203,
+          "research_dates": 23
+        },
+        "2023-09": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 238,
+          "raw_2023_bars": 2830,
+          "research_bars": 1967,
+          "research_dates": 21
+        },
+        "2023-10": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2310,
+          "missing_entire_dates": [],
+          "missing_slots": 90,
+          "raw_2023_bars": 3397,
+          "research_bars": 2220,
+          "research_dates": 22
+        },
+        "2023-11": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2310,
+          "missing_entire_dates": [],
+          "missing_slots": 143,
+          "raw_2023_bars": 3370,
+          "research_bars": 2167,
+          "research_dates": 22
+        },
+        "2023-12": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 66,
+          "raw_2023_bars": 3367,
+          "research_bars": 2139,
+          "research_dates": 21
+        }
+      },
+      "execution_counts": {
+        "flat_target_breaches": 4,
+        "gap_resets": 719,
+        "missing_observations": 932,
+        "partial_events": 0,
+        "tp_touch_nonfills": 2
+      },
+      "month_end_model_marks": {
+        "2023-07": {
+          "at": "2023-07-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-10.3",
+          "known_mtm_after_c1_price_units": "-10.3",
+          "mark": "5710.7",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-08": {
+          "at": "2023-08-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-13.2",
+          "known_mtm_after_c1_price_units": "-13.2",
+          "mark": "5994",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-09": {
+          "at": "2023-09-29 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-23.3",
+          "known_mtm_after_c1_price_units": "-23.3",
+          "mark": "5832.2",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-10": {
+          "at": "2023-10-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-19.5",
+          "known_mtm_after_c1_price_units": "-19.5",
+          "mark": "5834.2",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-11": {
+          "at": "2023-11-30 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-44.9",
+          "known_mtm_after_c1_price_units": "-44.9",
+          "mark": "5725.2",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-12": {
+          "at": "2023-12-29 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-71.4",
+          "known_mtm_after_c1_price_units": "-71.4",
+          "mark": "5914.6",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        }
+      },
+      "monthly_outcomes": {
+        "NEGATIVE": 1,
+        "NO_COVERAGE": 6,
+        "UNRESOLVED": 5
+      },
+      "run": "VWAP_MR_GLDRUBF",
+      "signal_status_counts": {
+        "MODELLED": 126,
+        "NONFILL": 125,
+        "SKIPPED": 109
+      },
+      "signals": 360,
+      "status": "EXECUTED_2023_CONDITIONAL_MODEL",
+      "summary": {
+        "PF": "0.8081591368846931894807821982",
+        "PF_null_reason": null,
+        "c1_known": "25.2",
+        "closed_accounted_trades": 101,
+        "closed_only_c1": "20.2",
+        "closed_only_drawdown_price_units": "73.6",
+        "closed_only_gross": "-36.7",
+        "closed_only_net_c1": "-56.9",
+        "expectancy_price_units": "-0.5633663366336633663366336634",
+        "gross_known_price_pnl": "-46.2",
+        "known_cost_mtm_drawdown_diagnostic": "91.8",
+        "mean_net_R": "-0.1399501330783971392629165925",
+        "median_hold_minutes_bar_starts": "10.0",
+        "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+        "net_R": "-14.13496344091811106555457584",
+        "net_model_c1": null,
+        "observed_close_mtm_drawdown_price_units": null,
+        "open_residual_model_units": 0,
+        "trades": 126,
+        "unresolved": 25,
+        "win_rate": "0.4257425742574257425742574257"
+      }
+    },
+    {
+      "coverage": {
+        "2023-01": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-02": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-03": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-04": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-05": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-06": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-07": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-08": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-09": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-10": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-11": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 1365,
+          "missing_entire_dates": [],
+          "missing_slots": 402,
+          "raw_2023_bars": 1332,
+          "research_bars": 963,
+          "research_dates": 13
+        },
+        "2023-12": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 164,
+          "raw_2023_bars": 3097,
+          "research_bars": 2041,
+          "research_dates": 21
+        }
+      },
+      "execution_counts": {
+        "flat_target_breaches": 0,
+        "gap_resets": 359,
+        "missing_observations": 566,
+        "partial_events": 0,
+        "tp_touch_nonfills": 2
+      },
+      "month_end_model_marks": {
+        "2023-11": {
+          "at": "2023-11-30 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-1.0",
+          "known_mtm_after_c1_price_units": "-1.0",
+          "mark": "3168",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-12": {
+          "at": "2023-12-29 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "13.0",
+          "known_mtm_after_c1_price_units": "13.0",
+          "mark": "3102.5",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        }
+      },
+      "monthly_outcomes": {
+        "NO_COVERAGE": 10,
+        "UNRESOLVED": 2
+      },
+      "run": "VWAP_MR_IMOEXF",
+      "signal_status_counts": {
+        "MODELLED": 21,
+        "NONFILL": 22,
+        "SKIPPED": 17
+      },
+      "signals": 60,
+      "status": "EXECUTED_2023_CONDITIONAL_MODEL",
+      "summary": {
+        "PF": "2.464285714285714285714285714",
+        "PF_null_reason": null,
+        "c1_known": "21.0",
+        "closed_accounted_trades": 13,
+        "closed_only_c1": "13.0",
+        "closed_only_drawdown_price_units": "5.5",
+        "closed_only_gross": "33.5",
+        "closed_only_net_c1": "20.5",
+        "expectancy_price_units": "1.576923076923076923076923077",
+        "gross_known_price_pnl": "34.0",
+        "known_cost_mtm_drawdown_diagnostic": "13.5",
+        "mean_net_R": "-0.2149644473173884938590820944",
+        "median_hold_minutes_bar_starts": "15.0",
+        "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+        "net_R": "-2.794537815126050420168067227",
+        "net_model_c1": null,
+        "observed_close_mtm_drawdown_price_units": null,
+        "open_residual_model_units": 0,
+        "trades": 21,
+        "unresolved": 8,
+        "win_rate": "0.6153846153846153846153846154"
+      }
+    },
+    {
+      "coverage": {
+        "2023-01": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 7,
+          "raw_2023_bars": 3480,
+          "research_bars": 2198,
+          "research_dates": 21
+        },
+        "2023-02": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 1995,
+          "missing_entire_dates": [],
+          "missing_slots": 5,
+          "raw_2023_bars": 3231,
+          "research_bars": 1990,
+          "research_dates": 19
+        },
+        "2023-03": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2298,
+          "missing_entire_dates": [],
+          "missing_slots": 4,
+          "raw_2023_bars": 3571,
+          "research_bars": 2294,
+          "research_dates": 22
+        },
+        "2023-04": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2100,
+          "missing_entire_dates": [],
+          "missing_slots": 6,
+          "raw_2023_bars": 3329,
+          "research_bars": 2094,
+          "research_dates": 20
+        },
+        "2023-05": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 7,
+          "raw_2023_bars": 3452,
+          "research_bars": 2198,
+          "research_dates": 21
+        },
+        "2023-06": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 4,
+          "raw_2023_bars": 3478,
+          "research_bars": 2201,
+          "research_dates": 21
+        },
+        "2023-07": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 1,
+          "raw_2023_bars": 3581,
+          "research_bars": 2204,
+          "research_dates": 21
+        },
+        "2023-08": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2415,
+          "missing_entire_dates": [
+            "2023-08-31"
+          ],
+          "missing_slots": 109,
+          "raw_2023_bars": 3784,
+          "research_bars": 2306,
+          "research_dates": 22
+        },
+        "2023-09": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 43,
+          "raw_2023_bars": 3504,
+          "research_bars": 2162,
+          "research_dates": 21
+        },
+        "2023-10": {
+          "coverage_status": "COVERED",
+          "expected_research_slots": 2310,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 3758,
+          "research_bars": 2310,
+          "research_dates": 22
+        },
+        "2023-11": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2310,
+          "missing_entire_dates": [],
+          "missing_slots": 1,
+          "raw_2023_bars": 3783,
+          "research_bars": 2309,
+          "research_dates": 22
+        },
+        "2023-12": {
+          "coverage_status": "COVERED",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 3625,
+          "research_bars": 2205,
+          "research_dates": 21
+        }
+      },
+      "execution_counts": {
+        "flat_target_breaches": 72,
+        "gap_resets": 32,
+        "missing_observations": 187,
+        "partial_events": 0,
+        "tp_touch_nonfills": 18
+      },
+      "month_end_model_marks": {
+        "2023-01": {
+          "at": "2023-01-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-0.78",
+          "known_mtm_after_c1_price_units": "-0.78",
+          "mark": "70.15",
+          "net_complete": true,
+          "net_model_c1_mtm": "-0.78",
+          "residual_model_units": 0
+        },
+        "2023-02": {
+          "at": "2023-02-28 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-1.04",
+          "known_mtm_after_c1_price_units": "-1.04",
+          "mark": "74.95",
+          "net_complete": true,
+          "net_model_c1_mtm": "-1.04",
+          "residual_model_units": 0
+        },
+        "2023-03": {
+          "at": "2023-03-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-2.32",
+          "known_mtm_after_c1_price_units": "-2.32",
+          "mark": "77.51",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-04": {
+          "at": "2023-04-28 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-2.54",
+          "known_mtm_after_c1_price_units": "-2.54",
+          "mark": "80.29",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-05": {
+          "at": "2023-05-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-3.12",
+          "known_mtm_after_c1_price_units": "-3.12",
+          "mark": "81.14",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-06": {
+          "at": "2023-06-30 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-4.29",
+          "known_mtm_after_c1_price_units": "-4.29",
+          "mark": "89.5",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-07": {
+          "at": "2023-07-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-5.37",
+          "known_mtm_after_c1_price_units": "-5.37",
+          "mark": "91.49",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-08": {
+          "at": "2023-08-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-5.07",
+          "known_mtm_after_c1_price_units": "-5.07",
+          "mark": "96.21",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-09": {
+          "at": "2023-09-29 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-7.27",
+          "known_mtm_after_c1_price_units": "-7.27",
+          "mark": "98.02",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-10": {
+          "at": "2023-10-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-5.94",
+          "known_mtm_after_c1_price_units": "-5.94",
+          "mark": "93.44",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-11": {
+          "at": "2023-11-30 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-7.93",
+          "known_mtm_after_c1_price_units": "-7.93",
+          "mark": "89.55",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-12": {
+          "at": "2023-12-29 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-10.07",
+          "known_mtm_after_c1_price_units": "-10.07",
+          "mark": "90.27",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        }
+      },
+      "monthly_outcomes": {
+        "NEGATIVE": 8,
+        "POSITIVE": 2,
+        "UNRESOLVED": 2
+      },
+      "run": "MOMENTUM_USDRUBF",
+      "signal_status_counts": {
+        "MODELLED": 595,
+        "NONFILL": 617,
+        "SKIPPED": 1409
+      },
+      "signals": 2621,
+      "status": "EXECUTED_2023_CONDITIONAL_MODEL",
+      "summary": {
+        "PF": "0.7407789527985555842145989167",
+        "PF_null_reason": null,
+        "c1_known": "11.90",
+        "closed_accounted_trades": 593,
+        "closed_only_c1": "11.86",
+        "closed_only_drawdown_price_units": "11.15",
+        "closed_only_gross": "1.81",
+        "closed_only_net_c1": "-10.05",
+        "expectancy_price_units": "-0.01694772344013490725126475548",
+        "gross_known_price_pnl": "1.83",
+        "known_cost_mtm_drawdown_diagnostic": "11.48",
+        "mean_net_R": "-0.3763226786444788860360615901",
+        "median_hold_minutes_bar_starts": "15.0",
+        "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+        "net_R": "-223.1593484361759794193845229",
+        "net_model_c1": null,
+        "observed_close_mtm_drawdown_price_units": null,
+        "open_residual_model_units": 0,
+        "trades": 595,
+        "unresolved": 2,
+        "win_rate": "0.2445193929173693086003372681"
+      }
+    },
+    {
+      "coverage": {
+        "2023-01": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 113,
+          "raw_2023_bars": 3227,
+          "research_bars": 2092,
+          "research_dates": 21
+        },
+        "2023-02": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 1995,
+          "missing_entire_dates": [],
+          "missing_slots": 94,
+          "raw_2023_bars": 2965,
+          "research_bars": 1901,
+          "research_dates": 19
+        },
+        "2023-03": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2298,
+          "missing_entire_dates": [],
+          "missing_slots": 204,
+          "raw_2023_bars": 3158,
+          "research_bars": 2094,
+          "research_dates": 22
+        },
+        "2023-04": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2100,
+          "missing_entire_dates": [],
+          "missing_slots": 185,
+          "raw_2023_bars": 2846,
+          "research_bars": 1915,
+          "research_dates": 20
+        },
+        "2023-05": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 152,
+          "raw_2023_bars": 3073,
+          "research_bars": 2053,
+          "research_dates": 21
+        },
+        "2023-06": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 152,
+          "raw_2023_bars": 3048,
+          "research_bars": 2053,
+          "research_dates": 21
+        },
+        "2023-07": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 119,
+          "raw_2023_bars": 3164,
+          "research_bars": 2086,
+          "research_dates": 21
+        },
+        "2023-08": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2415,
+          "missing_entire_dates": [
+            "2023-08-31"
+          ],
+          "missing_slots": 150,
+          "raw_2023_bars": 3573,
+          "research_bars": 2265,
+          "research_dates": 22
+        },
+        "2023-09": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 90,
+          "raw_2023_bars": 3335,
+          "research_bars": 2115,
+          "research_dates": 21
+        },
+        "2023-10": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2310,
+          "missing_entire_dates": [],
+          "missing_slots": 2,
+          "raw_2023_bars": 3694,
+          "research_bars": 2308,
+          "research_dates": 22
+        },
+        "2023-11": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2310,
+          "missing_entire_dates": [],
+          "missing_slots": 9,
+          "raw_2023_bars": 3677,
+          "research_bars": 2301,
+          "research_dates": 22
+        },
+        "2023-12": {
+          "coverage_status": "COVERED",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 3602,
+          "research_bars": 2205,
+          "research_dates": 21
+        }
+      },
+      "execution_counts": {
+        "flat_target_breaches": 39,
+        "gap_resets": 896,
+        "missing_observations": 1270,
+        "partial_events": 0,
+        "tp_touch_nonfills": 25
+      },
+      "month_end_model_marks": {
+        "2023-01": {
+          "at": "2023-01-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-0.44",
+          "known_mtm_after_c1_price_units": "-0.44",
+          "mark": "10.37",
+          "net_complete": true,
+          "net_model_c1_mtm": "-0.44",
+          "residual_model_units": 0
+        },
+        "2023-02": {
+          "at": "2023-02-28 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-0.77",
+          "known_mtm_after_c1_price_units": "-0.77",
+          "mark": "10.78",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-03": {
+          "at": "2023-03-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-0.98",
+          "known_mtm_after_c1_price_units": "-0.98",
+          "mark": "11.29",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-04": {
+          "at": "2023-04-28 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-1.29",
+          "known_mtm_after_c1_price_units": "-1.29",
+          "mark": "11.61",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-05": {
+          "at": "2023-05-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-1.53",
+          "known_mtm_after_c1_price_units": "-1.53",
+          "mark": "11.37",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-06": {
+          "at": "2023-06-30 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-1.83",
+          "known_mtm_after_c1_price_units": "-1.83",
+          "mark": "12.35",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-07": {
+          "at": "2023-07-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-2.20",
+          "known_mtm_after_c1_price_units": "-2.20",
+          "mark": "12.82",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-08": {
+          "at": "2023-08-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-3.06",
+          "known_mtm_after_c1_price_units": "-3.06",
+          "mark": "13.16",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-09": {
+          "at": "2023-09-29 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-3.517",
+          "known_mtm_after_c1_price_units": "-3.517",
+          "mark": "13.479",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-10": {
+          "at": "2023-10-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-3.120",
+          "known_mtm_after_c1_price_units": "-3.120",
+          "mark": "12.707",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-11": {
+          "at": "2023-11-30 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-3.195",
+          "known_mtm_after_c1_price_units": "-3.195",
+          "mark": "12.502",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-12": {
+          "at": "2023-12-29 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-3.417",
+          "known_mtm_after_c1_price_units": "-3.417",
+          "mark": "12.628",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        }
+      },
+      "monthly_outcomes": {
+        "NEGATIVE": 4,
+        "POSITIVE": 1,
+        "UNRESOLVED": 7
+      },
+      "run": "MOMENTUM_CNYRUBF",
+      "signal_status_counts": {
+        "MODELLED": 313,
+        "NONFILL": 350,
+        "SKIPPED": 646
+      },
+      "signals": 1309,
+      "status": "EXECUTED_2023_CONDITIONAL_MODEL",
+      "summary": {
+        "PF": "0.3754758565417751953516329393",
+        "PF_null_reason": null,
+        "c1_known": "3.308",
+        "closed_accounted_trades": 297,
+        "closed_only_c1": "2.988",
+        "closed_only_drawdown_price_units": "3.278",
+        "closed_only_gross": "-0.129",
+        "closed_only_net_c1": "-3.117",
+        "expectancy_price_units": "-0.01049494949494949494949494949",
+        "gross_known_price_pnl": "-0.109",
+        "known_cost_mtm_drawdown_diagnostic": "3.590",
+        "mean_net_R": "-0.9341470498527604861206473596",
+        "median_hold_minutes_bar_starts": "10.0",
+        "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+        "net_R": "-277.4416738062698643778322658",
+        "net_model_c1": null,
+        "observed_close_mtm_drawdown_price_units": null,
+        "open_residual_model_units": 0,
+        "trades": 313,
+        "unresolved": 16,
+        "win_rate": "0.2154882154882154882154882155"
+      }
+    },
+    {
+      "coverage": {
+        "2023-01": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-02": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-03": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-04": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-05": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-06": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-07": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 1575,
+          "missing_entire_dates": [],
+          "missing_slots": 183,
+          "raw_2023_bars": 2087,
+          "research_bars": 1392,
+          "research_dates": 15
+        },
+        "2023-08": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2415,
+          "missing_entire_dates": [],
+          "missing_slots": 212,
+          "raw_2023_bars": 3377,
+          "research_bars": 2203,
+          "research_dates": 23
+        },
+        "2023-09": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 238,
+          "raw_2023_bars": 2830,
+          "research_bars": 1967,
+          "research_dates": 21
+        },
+        "2023-10": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2310,
+          "missing_entire_dates": [],
+          "missing_slots": 90,
+          "raw_2023_bars": 3397,
+          "research_bars": 2220,
+          "research_dates": 22
+        },
+        "2023-11": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2310,
+          "missing_entire_dates": [],
+          "missing_slots": 143,
+          "raw_2023_bars": 3370,
+          "research_bars": 2167,
+          "research_dates": 22
+        },
+        "2023-12": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 66,
+          "raw_2023_bars": 3367,
+          "research_bars": 2139,
+          "research_dates": 21
+        }
+      },
+      "execution_counts": {
+        "flat_target_breaches": 15,
+        "gap_resets": 719,
+        "missing_observations": 932,
+        "partial_events": 0,
+        "tp_touch_nonfills": 0
+      },
+      "month_end_model_marks": {
+        "2023-07": {
+          "at": "2023-07-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-21.5",
+          "known_mtm_after_c1_price_units": "-21.5",
+          "mark": "5710.7",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-08": {
+          "at": "2023-08-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-7.5",
+          "known_mtm_after_c1_price_units": "-7.5",
+          "mark": "5994",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-09": {
+          "at": "2023-09-29 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "26.4",
+          "known_mtm_after_c1_price_units": "26.4",
+          "mark": "5832.2",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-10": {
+          "at": "2023-10-31 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "86.8",
+          "known_mtm_after_c1_price_units": "86.8",
+          "mark": "5834.2",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-11": {
+          "at": "2023-11-30 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "101.2",
+          "known_mtm_after_c1_price_units": "101.2",
+          "mark": "5725.2",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        },
+        "2023-12": {
+          "at": "2023-12-29 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "123.3",
+          "known_mtm_after_c1_price_units": "123.3",
+          "mark": "5914.6",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        }
+      },
+      "monthly_outcomes": {
+        "NO_COVERAGE": 6,
+        "UNRESOLVED": 6
+      },
+      "run": "MOMENTUM_GLDRUBF",
+      "signal_status_counts": {
+        "MODELLED": 147,
+        "NONFILL": 197,
+        "SKIPPED": 477
+      },
+      "signals": 821,
+      "status": "EXECUTED_2023_CONDITIONAL_MODEL",
+      "summary": {
+        "PF": "1.047862453531598513011152416",
+        "PF_null_reason": null,
+        "c1_known": "29.4",
+        "closed_accounted_trades": 122,
+        "closed_only_c1": "24.4",
+        "closed_only_drawdown_price_units": "60.6",
+        "closed_only_gross": "45.0",
+        "closed_only_net_c1": "20.6",
+        "expectancy_price_units": "0.1688524590163934426229508197",
+        "gross_known_price_pnl": "152.7",
+        "known_cost_mtm_drawdown_diagnostic": "60.0",
+        "mean_net_R": "-0.2128309875778469611128917099",
+        "median_hold_minutes_bar_starts": "10.0",
+        "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+        "net_R": "-25.96538048449732925577278861",
+        "net_model_c1": null,
+        "observed_close_mtm_drawdown_price_units": null,
+        "open_residual_model_units": 0,
+        "trades": 147,
+        "unresolved": 25,
+        "win_rate": "0.3196721311475409836065573770"
+      }
+    },
+    {
+      "coverage": {
+        "2023-01": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-02": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-03": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-04": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-05": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-06": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-07": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-08": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-09": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-10": {
+          "coverage_status": "NO_COVERAGE",
+          "expected_research_slots": 0,
+          "missing_entire_dates": [],
+          "missing_slots": 0,
+          "raw_2023_bars": 0,
+          "research_bars": 0,
+          "research_dates": 0
+        },
+        "2023-11": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 1365,
+          "missing_entire_dates": [],
+          "missing_slots": 402,
+          "raw_2023_bars": 1332,
+          "research_bars": 963,
+          "research_dates": 13
+        },
+        "2023-12": {
+          "coverage_status": "PARTIAL_COVERAGE",
+          "expected_research_slots": 2205,
+          "missing_entire_dates": [],
+          "missing_slots": 164,
+          "raw_2023_bars": 3097,
+          "research_bars": 2041,
+          "research_dates": 21
+        }
+      },
+      "execution_counts": {
+        "flat_target_breaches": 2,
+        "gap_resets": 359,
+        "missing_observations": 566,
+        "partial_events": 0,
+        "tp_touch_nonfills": 1
+      },
+      "month_end_model_marks": {
+        "2023-11": {
+          "at": "2023-11-30 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "0",
+          "known_mtm_after_c1_price_units": "0",
+          "mark": "3168",
+          "net_complete": true,
+          "net_model_c1_mtm": "0",
+          "residual_model_units": 0
+        },
+        "2023-12": {
+          "at": "2023-12-29 19:00:00",
+          "gross_open_price_pnl": "0",
+          "known_cash_after_c1_price_units": "-55.5",
+          "known_mtm_after_c1_price_units": "-55.5",
+          "mark": "3102.5",
+          "net_complete": false,
+          "net_model_c1_mtm": null,
+          "residual_model_units": 0
+        }
+      },
+      "monthly_outcomes": {
+        "NO_COVERAGE": 10,
+        "UNRESOLVED": 1,
+        "ZERO_TRADES": 1
+      },
+      "run": "MOMENTUM_IMOEXF",
+      "signal_status_counts": {
+        "MODELLED": 23,
+        "NONFILL": 36,
+        "SKIPPED": 64
+      },
+      "signals": 123,
+      "status": "EXECUTED_2023_CONDITIONAL_MODEL",
+      "summary": {
+        "PF": "0.3266666666666666666666666667",
+        "PF_null_reason": null,
+        "c1_known": "23.0",
+        "closed_accounted_trades": 20,
+        "closed_only_c1": "20.0",
+        "closed_only_drawdown_price_units": "57.0",
+        "closed_only_gross": "-30.5",
+        "closed_only_net_c1": "-50.5",
+        "expectancy_price_units": "-2.525",
+        "gross_known_price_pnl": "-32.5",
+        "known_cost_mtm_drawdown_diagnostic": "62.5",
+        "mean_net_R": "-0.830221951961082395865004561",
+        "median_hold_minutes_bar_starts": "12.5",
+        "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+        "net_R": "-16.60443903922164791730009122",
+        "net_model_c1": null,
+        "observed_close_mtm_drawdown_price_units": null,
+        "open_residual_model_units": 0,
+        "trades": 23,
+        "unresolved": 3,
+        "win_rate": "0.2"
+      }
+    }
+  ],
+  "scope": "8 fixed M5-only 2023 runs; 2024 WF reserved unread; 2025+ TRUE OOS locked unread",
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "unit": "normalized price exposure; no actual equity/GO quantity sizing",
+  "verdict": "STAGE2_M5_BASELINE_IMPLEMENTED_PENDING_AUDIT"
+}

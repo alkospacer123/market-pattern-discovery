@@ -210,10 +210,14 @@ def prepare(root):
              'state':'INPUT_PROVENANCE_SAVED_BEFORE_FIRST_REAL_STRATEGY_CALCULATION',
              'implementation_sha256':implementation_hashes()}
     path=DEST/'input_provenance.json'
-    if path.exists() and path.read_text()!=encoded(payload):
-        raise ValueError('Provenance already frozen: inspect changed implementation/input, do not overwrite')
-    write_text(path,encoded(payload))
-    print(encoded(payload))
+    if path.exists():
+        existing=json.loads(path.read_text())
+        if any(existing.get(k)!=payload[k] for k in ('manifest_sha256','source_ref','inputs','implementation_sha256')):
+            raise ValueError('Provenance frozen: inspect implementation/input, do not overwrite')
+        print(encoded(existing))
+    else:
+        write_text(path,encoded(payload))
+        print(encoded(payload))
 
 
 def run(root):
