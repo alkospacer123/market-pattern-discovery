@@ -1,5 +1,9 @@
 # IntradayLab — research roadmap
 
+## Current Stage 2 result — 2026-10-09
+
+**NO ECONOMIC BASELINE PASS / REJECT CANDIDATE** for the tested VWAP and Momentum architectures. [Complete P&L/architecture report](reports/STAGE2_COMPLETE_ARCHITECTURES_REPORT.md): 48 fixed primary comparisons + their 48 predeclared delay checks, separately frozen payable-entry-price follow-up and exit-only attribution. Some GLD closed subsets improved; insufficient stable months/frequency, concentration and delay fragility prevent a profitable plateau. Full annual Net/PF/DD remain null; original 82 unknown outcomes and v1/v2/#449 retained unchanged. Native M30 composition checked on 2023, delivery/finalization unproved: **MTF_BLOCKED**, independent M5 fallback only. Stage 3/WF/OOS/LIVE/merge not started. Recommend the next roadmap candidate **Volatility Squeeze Breakout**, unimplemented here.
+
 ## Canonical Stage 2 / Stage 3 research method (user decision, 2026-10-09)
 
 **Stage 2 = fully design, test and independently validate complete economically viable Baseline strategies, continuing through reasoned architecture alternatives until a repeatable positive-performance plateau is observed (or the candidate is rejected). Stage 3 = bounded numerical parameter optimization of that independently accepted Baseline architecture and its evidence-backed plateau.** Keep the existing roadmap stages 0–7; this decision changes the research division of work, not their number or the status/authority of existing runs.
