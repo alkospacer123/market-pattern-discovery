@@ -1,0 +1,205 @@
+{
+  "authorization": "Explicit user task: complete bounded Stage 2 causal MTF and create Draft stacked on #450, no merge.",
+  "defaults": {
+    "breakeven_trigger_R": "1",
+    "breakout_stop_buffer_atr": "0.5",
+    "ema_period": 50,
+    "indicator_period": 14,
+    "max_breakout_extension_atr": "1",
+    "max_signal_tr_atr": "2",
+    "minimum_risk_ticks": 4,
+    "stagnation_minutes": 30,
+    "stagnation_progress_R": "0.5",
+    "trail_atr": "2",
+    "trail_trigger_R": "2",
+    "trend_adx": "25"
+  },
+  "fixed_rules": {
+    "C2": "Replace C1 by2dated ticks per side on identical C1-admitted fills; no new entry qualification or stacked real fees.",
+    "MOMENTUM": "Require derived direction equal breakout direction; no-context rejects entry. Retain exact parent persistence/extension/C1/ATR initial stop, failed-breakout/time/BE/trail, max hold and session-flat unchanged.",
+    "VWAP_MR": "Reject direction opposite reversion; no-context rejects entry. Retain frozen payable cap, C1, initial stop, original VWAP take and each parent management/time rules unchanged.",
+    "context": "Exact observed completed M5 children, clock-aligned same continuous research window/day, no gaps, no reconstruction. Last-child availability max(t+10,actual delivery), M30 earliest T+35; same T15 stress as M5 adds5m. All two-parent components must be available by decision. Latest expected incomplete/undelivered bucket blocks context; no stale fallback.",
+    "direction": "Two adjacent parent candles: +1 only if both Close>Open and second Close>first Close; -1 symmetric; otherwise0. Requires two completed parents in same window.",
+    "indicators": "ADX14/DI14 and ATR14 stay on M5 in existing FULL architectures. No higher-TF ADX14: 27 intervals cannot warm up within approved windows without forbidden overnight/lunch carry. No shorter fitted period or new indicator.",
+    "scope": "8 variants per strategy x4 instruments xT10/T15 =128 fixed runs. NONE/M30 baseline, NONE/M30/secondary two preselected comparator parents. No result-driven additions.",
+    "selection": "No full annual PASS with partial calendar/unknown accounting; judge expectancy,PF>=1.6,months,count,diversity,DD,top winner concentration,delay/cost together; no tuned quota. Negative limited tests => reject researched architectures; completeness may remain unavailable.",
+    "stop_rule": "Single frozen batch. Composition/timing failure stops relevant MTF replay; no gap-repair loop. No third strategy,Stage3,2024,2025+,LIVE,merge."
+  },
+  "frozen_on": "2026-10-09 Europe/Moscow",
+  "id": "stage2_causal_mtf_v1",
+  "inputs": {
+    "CNYRUBF": {
+      "blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 39362
+    },
+    "GLDRUBF": {
+      "blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "first": "2023-07-11 10:00:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 18428
+    },
+    "IMOEXF": {
+      "blob": "41b83b109b177d4522e53486950104845d357d99",
+      "first": "2023-11-14 10:00:00",
+      "path": "forever/IMOEXF/IMOEXF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 4429
+    },
+    "USDRUBF": {
+      "blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/USDRUBF/USDRUBF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 42576
+    }
+  },
+  "parameters": {
+    "adverse_entry_cap_atr": "0.25",
+    "atr_period": 12,
+    "availability_minutes": 10,
+    "close_before_boundary_minutes": 20,
+    "decision_delay_minutes": 0,
+    "entry_ttl_bars": 1,
+    "flat_confirm_before_boundary_minutes": 10,
+    "momentum_max_hold_minutes": 90,
+    "momentum_take_atr": "3",
+    "no_entry_before_boundary_minutes": 30,
+    "order_delay_minutes": 0,
+    "range_period": 12,
+    "stop_atr": "1.5",
+    "vwap_deviation_atr": "1",
+    "vwap_max_hold_minutes": 60,
+    "warmup_prior_bars": 13
+  },
+  "parent_head": "095b4b0c829b6f92323a7cd5a023d2f559f3a8a3",
+  "rationale": {
+    "primary": "Sustained adverse higher-TF movement can invalidate VWAP reversion; aligned higher-TF movement can support persistence of a delayed breakout. OHLC direction is a minimal falsifiable regime assumption, not a profitability assertion.",
+    "secondary": "M15 VWAP detects adverse movement sooner with more daytime coverage; H1 Momentum asks for broader directional persistence at the cost of fewer opportunities. Same direction rule, no parameter changes."
+  },
+  "run_matrix": [
+    {
+      "instrument": "USDRUBF",
+      "strategy": "VWAP_MR"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "strategy": "VWAP_MR"
+    },
+    {
+      "instrument": "GLDRUBF",
+      "strategy": "VWAP_MR"
+    },
+    {
+      "instrument": "IMOEXF",
+      "strategy": "VWAP_MR"
+    },
+    {
+      "instrument": "USDRUBF",
+      "strategy": "MOMENTUM"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "strategy": "MOMENTUM"
+    },
+    {
+      "instrument": "GLDRUBF",
+      "strategy": "MOMENTUM"
+    },
+    {
+      "instrument": "IMOEXF",
+      "strategy": "MOMENTUM"
+    }
+  ],
+  "schema": 1,
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "variants": {
+    "MOMENTUM": [
+      {
+        "base": "FROZEN_V2",
+        "minutes": null,
+        "tf": "NONE"
+      },
+      {
+        "base": "FROZEN_V2",
+        "minutes": 30,
+        "tf": "M30"
+      },
+      {
+        "base": "ENTRY_MANAGEMENT",
+        "minutes": null,
+        "tf": "NONE"
+      },
+      {
+        "base": "ENTRY_MANAGEMENT",
+        "minutes": 30,
+        "tf": "M30"
+      },
+      {
+        "base": "ENTRY_MANAGEMENT",
+        "minutes": 60,
+        "tf": "H1"
+      },
+      {
+        "base": "FULL_M5",
+        "minutes": null,
+        "tf": "NONE"
+      },
+      {
+        "base": "FULL_M5",
+        "minutes": 30,
+        "tf": "M30"
+      },
+      {
+        "base": "FULL_M5",
+        "minutes": 60,
+        "tf": "H1"
+      }
+    ],
+    "VWAP_MR": [
+      {
+        "base": "FROZEN_V2",
+        "minutes": null,
+        "tf": "NONE"
+      },
+      {
+        "base": "FROZEN_V2",
+        "minutes": 30,
+        "tf": "M30"
+      },
+      {
+        "base": "PAYABLE_CAP_ENTRY",
+        "minutes": null,
+        "tf": "NONE"
+      },
+      {
+        "base": "PAYABLE_CAP_ENTRY",
+        "minutes": 30,
+        "tf": "M30"
+      },
+      {
+        "base": "PAYABLE_CAP_ENTRY",
+        "minutes": 15,
+        "tf": "M15"
+      },
+      {
+        "base": "PAYABLE_CAP_FULL_M5",
+        "minutes": null,
+        "tf": "NONE"
+      },
+      {
+        "base": "PAYABLE_CAP_FULL_M5",
+        "minutes": 30,
+        "tf": "M30"
+      },
+      {
+        "base": "PAYABLE_CAP_FULL_M5",
+        "minutes": 15,
+        "tf": "M15"
+      }
+    ]
+  }
+}
