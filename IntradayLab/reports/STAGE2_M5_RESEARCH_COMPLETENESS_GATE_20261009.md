@@ -48,6 +48,13 @@ Signals before the eight blocked-state transitions show VWAP CNY median target a
 
 PF is **not** computed across mixed underlying price units. No profitability certification is possible.
 
+
+### Structural close-confirmation timing conflict (separate from missing bars)
+
+At a session end B, the frozen runner first requests a routine close at B−20. With a zero additional delay, `next_slot(B−20)` schedules the fill at the **open of B−15**, but data/fill acknowledgement for that M5 bar is available only at **B−5** under the t+10m contract. The existing requirement is **confirmed flat by B−10**. Thus a first close requested at B−20 cannot be confirmed in time even with a perfect model fill. This independently explains why the corrected artifacts record 12 known-position B−10 breaches; it must not be suppressed with a fabricated earlier acknowledgement.
+
+Corrective **research hypothesis only**: predeclare an earlier exit-request lead time (for example B−30 or earlier), and prove its feasibility against late/absent M5 delivery, weekends, other session boundaries and true nonfills before any replay. This would be a separately versioned execution-spec candidate, **not** an edit to the frozen original Baseline or a post-hoc performance rescue. Position remains unresolved whenever even the earlier schedule fails.
+
 ## Executed corrective work (this separate stacked branch)
 
 - Added `IntradayLab/tools/stage2_research_completeness_gate.py`: read-only evidence gate consuming exclusively the frozen manifest, `results.json`, `verification.json`, `signals.csv`. No OHLCV access or backtest execution.
