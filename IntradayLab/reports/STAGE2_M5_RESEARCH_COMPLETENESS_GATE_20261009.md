@@ -69,6 +69,14 @@ Signals before the eight blocked-state transitions show VWAP CNY median target a
 PF is **not** computed across mixed underlying price units. No profitability certification is possible.
 
 
+### Independent conditional trade-ledger recheck — 2023 derived artifacts
+
+Fetched immutable PR #443 blob records **`trade_ledger.csv` (147 rows)**, **`execution_events.csv` (1,008 rows)**, `unknown_entries.csv` (8 rows) and `metrics.csv` (120 rows). Cross-referenced the entire **7,813-row** signals ledger. For each conditional trade, independently checked the signal ID, planned vs actual entry target, strictly later than ready, acknowledgement not earlier than execution interval, signed gross = direction × (Exit−Entry), historical dated C1 one tick per side (including CNY grid transition), C1 entry + exit totals and closed-only net = gross − C1 when `MODELLED`. **0 detected mismatches across 147 trade rows** with fixed-point price comparisons; this verifies arithmetic and provenance links of already recorded model trades only. It does **not** verify exchange fills, unobserved intrabar paths or full-year performance.
+
+Model ledger exit counts: **85 Stop, 40 Take, 4 Max-hold, 12 Session-flat, 4 Data-gap emergency, 2 Pending-entry-gap emergency**. All 8 unknown-entry order IDs appear with the corresponding unresolved status in the full signal ledger.
+
+The two `PROVISIONAL_COMPLETE` run-month marks both belong to **January 2023 USDRUBF**, with **negative conditional model after-C1 outcome**: VWAP 42 fully accounted trades, model Net C1 **−0.24** (price units), PF **0.8563**; Momentum 48 fully accounted, model Net C1 **−0.78**, PF **0.7224**. These are not portfolio capital returns, and January source coverage is marked partial. All other source-covered run-months remain unresolved.
+
 ### Structural close-confirmation timing conflict (separate from missing bars)
 
 At a session end B, the frozen runner first requests a routine close at B−20. With a zero additional delay, `next_slot(B−20)` schedules the fill at the **open of B−15**, but data/fill acknowledgement for that M5 bar is available only at **B−5** under the t+10m contract. The existing requirement is **confirmed flat by B−10**. Thus a first close requested at B−20 cannot be confirmed in time even with a perfect model fill. This independently explains why the corrected artifacts record 12 known-position B−10 breaches; it must not be suppressed with a fabricated earlier acknowledgement.
@@ -83,7 +91,7 @@ Independent all-signal and integer-tick evidence, including the 96 run-month mat
 - Cross-checks the frozen SHA-256, exactly eight declared runs, signal counts/status distribution, unknown orders and unresolved totals; independently checks closed-only gross − C1 = net in each run using Decimal.
 - Generates all 96 run×calendar-month rows: expected/missing market slots, source coverage, signal counts, blocked counts, conditional model entries and explicit month-end P&L reliability from the existing month marks. `NO_COVERAGE`, provisional complete and unknown/unproven are distinct.
 - Rejects an annual Net/PF supplied despite unresolved cases. It **cannot issue PASS automatically** even if all fills were resolved, because profitability, risk and month stability still need independent analysis.
-- Synthetic negative tests for false full PF, mismatched signals, broken C1 and manifest hash. Real full-artifact execution/CI and code-vs-signal cross-check remain required before accepting even this technical gate as complete. No parameter or prior artifact was edited.
+- Seven synthetic unit tests are authored, including two calendar close-timing fixtures, but **Python execution of those tests and the complete CLI on the GitHub branch has not been verified**. The independent cross-check of all 7,813 signals and 147 conditional ledger entries was executed as a separate exact-data audit (not by invoking the Python gate). Do not claim a Python test PASS. Full-artifact execution/CI of the committed checker and a separate independent audit remain prerequisites to any technical acceptance. No parameter or prior artifact was edited.
 
 **Invocation from the PR #443-based checkout**: `PYTHONDONTWRITEBYTECODE=1 python IntradayLab/tools/stage2_research_completeness_gate.py > stage2-completeness-audit.json` (capture outside protected baseline result tree). Execute `PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s IntradayLab/tests -p 'test_stage2_research_completeness_gate.py' -v`.
 
