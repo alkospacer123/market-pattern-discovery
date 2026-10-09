@@ -58,6 +58,16 @@ Initial Baseline design: **6 strategy/architecture variants x 4 instruments = up
 | 6 | TRUE OOS | Single separately authorized final assessment on **untouched 2025+ data**, frozen finalists and costs, full calendar-month + instrument/portfolio reports | **NOT STARTED / LOCKED** |
 | 7 | Forward observation and separate FINAM-account readiness | Read-only/paper monitoring; fully independent credentials, account bindings, sizing, order ledger, reconciliation, kill switch; explicit approval required for real orders | **NOT STARTED / NO LIVE AUTHORIZATION** |
 
+### Stage 3 — prospective indicator filters (user priority decision, 2026-10-09)
+
+**Not part of Stage 2 Baseline; Stage 3 is NOT STARTED.** After an independently audited VWAP/Momentum M5 Baseline, consider only filters justified by observed strategy failure modes, in this priority order:
+
+1. **ADX** (illustrative period **14**) — first candidate for trend-strength / market-regime filtering. For VWAP, investigate avoiding mean-reversion entries against a strong trend; for Momentum, test whether trend strength improves breakout continuation. ADX does **not** identify trend direction; **+DI / −DI** may be used alongside ADX for that purpose, not treated as an independently approved extra strategy.
+2. **ATR** (illustrative period **14**) — bounded volatility/Stop/Take adaptation, only where needed and not already part of the frozen Baseline.
+3. **EMA** (illustrative period **50**) — **reserve-only** direction filter if Baseline diagnostics specifically justify it.
+
+These are **prioritized candidates**, not guaranteed additions, authorized combinations, fixed parameter values, or an optimization grid. Keep the original Baseline unchanged for comparison; test few prejustified variations in isolation, including transaction costs C1, and reject filters that merely reduce trade count without robust improvement. RSI, MACD and Stochastic are **not** part of the currently agreed candidate set. Do not start Stage 3, alter the running Stage 2 task, open 2025+ TRUE OOS or add research phases without subsequent audit/authorization.
+
 **2025 onward is reserved TRUE OOS**: do not inspect its strategy performance or use it for training, strategy selection, dates, thresholds or parameter decisions before Step 6 authorization. In Step 1 determine the actual earlier shared history and freeze development/WF windows *without* reading protected performance. Never shorten periods ad hoc to improve metrics.
 
 ## Evaluation and decision logic
