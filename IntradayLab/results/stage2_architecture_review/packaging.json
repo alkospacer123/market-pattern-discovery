@@ -1,1 +1,9 @@
-{}
+{
+  "excursion_clock_correction.csv": {
+    "compressed_sha256": "aa181590234d49a0a6ed1eb79464d73a1a37d49b7c0b3227a49d850ce9b5a115",
+    "compression": "gzip9, mtime0, lossless exact CSV; decompress before hash comparison",
+    "stored_as": "excursion_clock_correction.csv.gz",
+    "uncompressed_bytes": 2651340,
+    "uncompressed_sha256": "3f4f51d1ece2dc93859bca3193bb7a091e503b47f76f07a976353778f31862ee"
+  }
+}

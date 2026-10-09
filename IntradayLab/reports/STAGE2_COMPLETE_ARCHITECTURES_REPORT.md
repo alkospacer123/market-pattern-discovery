@@ -101,6 +101,8 @@ GLD Momentum зарабатывал преимущественно LONG (+78 п�
 
 MFE/MAE вычислены только там, где исход известен и путь непрерывен. Внутрисвечной порядок неизвестен: использованы **подтверждённые нижние границы по полностью прошедшим свечам строго до свечи выхода**. Экстремум свечи Stop/Take не объявлен достигнутым до исполнения. Отдельные поля отмечают потенциальное достижение на терминальной свече и экстремумы, уже доступные решению t+10 до выхода. У всех 82 исходных unknown полные MFE/MAE null; их пути не расследовались заново.
 
+[Корректирующий clock view](../results/stage2_architecture_review/excursion_clock_correction.csv.gz) использует фактическую задержку каждого сценария10/15м, строгое `availability < exit start` и отдельную строгую границу `next_future_slot(availability) < exit start` для возможности уже действующей защиты. Он заменяет nominal t+10/≤exit-clock поле observable excursion из frozen raw attribution. Основные pre-exit MFE/MAE/threshold shares не меняются; экстремум, ставший известным одновременно с exit Open, не объявлен пригодным для более раннего решения. Исправление отчётности не меняет правила или P&L.
+
 Доли +0,5/+1/+2/+3R ниже — подтверждённый минимум, а не точная доля всех возможных внутрибарных достижений. R = фактическое расстояние Entry–initial Stop в данном эксперименте; смена первоначального Stop меняет R и сама по себе не доказывает экономическое улучшение. Для пар используется исходный R reference.
 
 | Стратегия / инструмент | Hold побед./убыт., мин | Средн. MFE / MAE lower bound R | +0,5R / +1R / +2R / +3R, % | +0,5R → Net loss | Stop ≤10 мин |
@@ -293,6 +295,7 @@ python IntradayLab/tools/stage2_vwap_payable_cap.py run --data-root /workspace/m
 python IntradayLab/tools/stage2_exit_only_ablation.py run --data-root /workspace/market-pattern-data --output /workspace/work/reproduced_exits
 python IntradayLab/tools/audit_stage2_architectures.py --data-root /workspace/market-pattern-data --output /workspace/work/verified_paths.json
 python IntradayLab/tools/review_stage2_architecture_results.py
+python IntradayLab/tools/correct_stage2_excursion_clocks.py --data-root /workspace/market-pattern-data
 ```
 
 Сверять logical CSV SHA256 после распаковки с `packaging.json` либо байты соответствующих незапакованных small artifacts. Packaging/report review не участвуют в решениях стратегии. Исходный 2023 loader не читает следующие строки/EOF за опубликованным бюджетом; audit source numeric guard отвергает иной год до разбора цен.

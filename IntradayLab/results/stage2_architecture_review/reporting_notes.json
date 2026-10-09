@@ -1,4 +1,5 @@
 {
+  "excursion_clock": "Authoritative excursion_clock_correction view uses scenario10/15m and strict availability/effective-before-exit bounds; nominal raw t10 <=exit clock is retained historical diagnostic only. No trading/output P&L changes.",
   "exit_only_unknown_accounting": "Authoritative correction CSV nulls post-gap exit/residual quantity; raw frozen seed outputs retained. No change to decisions, P&L or unknown count.",
   "indicator_clock": "Raw indicator_available_at is diagnostic nominal minimum t+10. Actual causal strategy clocks are available_at, ready_at and amendment decided_at, including T15."
 }
