@@ -23,6 +23,24 @@
 | PR #445 | `9b404949767356a8b58ca25758d99dfce014f482` | ветка #443, Draft, не merged |
 | PR #447 | `90369e12332e738da222dfe510120747c6ce9e80` | ветка #443, Draft, не merged |
 
+Полная финальная инвентаризация открытых PR дополнительно обнаружила и проверила:
+
+| Объект | HEAD SHA | Base / состояние |
+| --- | --- | --- |
+| PR #446 | `938d7d81f5d7105c470c27c78eec57156948d50c` | main, Draft, не merged |
+| PR #448 | `2505f4b2f04d6b66c92bed422bbc29b57a942851` | ветка #447, Draft, не merged |
+
+Прочитаны GitHub metadata и полный documentation diff обоих PR. #446 приводит
+M5/M15 aggregate evidence для восьми исходных entry targets, но сам исключает
+broker-fill/flat proof и указывает, что его прежняя large-file inspection
+получила multi-year payload. Этот способ доступа не использован в настоящем
+аудите: здесь исходные M15 не читались и защищённые 2024+ CSV bytes не получены.
+Согласие двух экспортированных TF не восстанавливает 82 иных ценовых пути.
+#448 документирует bounded strategy architecture research в Stage 2 и numerical
+optimization только после acceptance, с отдельными gates MTF. Это совместимо
+с будущими отдельными гипотезами ниже; новые архитектуры сейчас не запускались,
+изменения roadmap из соседней ветки не cherry-picked и не merged.
+
 Corrective branch `corrective/intraday-stage2-m5-v2-independent-audit` создана
 непосредственно от HEAD #447. Base нового Draft PR —
 `corrective/intraday-stage2-m5-conditional-v2`. SHA нового коммита и URL PR
