@@ -15,7 +15,7 @@ Date: 2026-10-09 (MSK). **Verdict: STAGE2_M5_BASELINE_NEEDS_FIX_RESEARCH_COMPLET
 | Diagnostic from original PR #443 artifacts | Result |
 | --- | ---: |
 | Generated signals | 7,813 |
-| BLOCKED due to persistent unknown entry state | 7,279 (93.16%) |
+| BLOCKED due to persistent unknown entry state | 7,279 (93.17%, rounded from 7,279/7,813) |
 | Otherwise rule-eligible attempted entries among blocked | 6,032, **not filled trades** |
 | Known conditional model entry ledger rows | 147 |
 | Fully accounted conditional trades | 135 |
@@ -53,7 +53,7 @@ Of **96** run×calendar-month slots: **32** are `NO_COVERAGE` before GLDRUBF/IMO
 
 ATR and breakout range = 12 *prior* M5 bars, warmup 13 bars; VWAP = approximate relative-volume-weighted typical price reset per research window/after gaps. The signal is causal. VWAP entry: re-enter 1 ATR band toward session-fragment VWAP; take at signal VWAP; stop at 1.5 ATR from signal close; 60m max hold. Momentum: break previous 12-bar extremes; target 3 ATR, stop 1.5 ATR; 90m max hold. Entry deterioration cap = 0.25 ATR; t+10m data availability, earliest scheduled later-bar entry nominal t+15m; fixed one-bar entry TTL. Stop-first, no entry-bar TP, TP penetration by one tick, adverse gap and B−30/B−20/B−10 retained.
 
-Signals before the eight blocked-state transitions show VWAP CNY median target approximately **1 historical tick** versus the **2-tick** complete C1 expense; 76.7% of CNY VWAP signal targets are at most two ticks. Its median 0.25 ATR entry cap rounds to **zero ticks** early in 2023. VWAP USD gross PF ~1.51 on 45 closed trades became ~0.86 after C1. Momentum USD had 34 Stops vs 10 Takes on 54 closed trades; Momentum CNY had 12 Stops vs 2 Takes on 15 closed trades. These are **descriptive pre-block/closed-only diagnostics**, not optimized settings or proof of a full-year loss.
+Signals before the eight blocked-state transitions show VWAP CNY median target approximately **1 historical tick** versus the **2-tick** complete C1 expense; the earlier re-audit's 76.7% CNY two-tick figure is superseded by an independent exact signal-ledger recomputation: **28/30 (93.33%)** pre-block target distances ≤2 historical ticks. Its median 0.25 ATR entry cap rounds to **zero ticks** early in 2023. VWAP USD gross PF ~1.51 on 45 closed trades became ~0.86 after C1. Momentum USD had 34 Stops vs 10 Takes on 54 closed trades; Momentum CNY had 12 Stops vs 2 Takes on 15 closed trades. These are **descriptive pre-block/closed-only diagnostics**, not optimized settings or proof of a full-year loss.
 
 | Fixed run | Closed-only accounted | Closed-only PF C1 | Full-year PF |
 | --- | ---: | ---: | --- |
@@ -74,6 +74,8 @@ PF is **not** computed across mixed underlying price units. No profitability cer
 At a session end B, the frozen runner first requests a routine close at B−20. With a zero additional delay, `next_slot(B−20)` schedules the fill at the **open of B−15**, but data/fill acknowledgement for that M5 bar is available only at **B−5** under the t+10m contract. The existing requirement is **confirmed flat by B−10**. Thus a first close requested at B−20 cannot be confirmed in time even with a perfect model fill. This independently explains why the corrected artifacts record 12 known-position B−10 breaches; it must not be suppressed with a fabricated earlier acknowledgement.
 
 Corrective **research hypothesis only**: predeclare an earlier exit-request lead time (for example B−30 or earlier), and prove its feasibility against late/absent M5 delivery, weekends, other session boundaries and true nonfills before any replay. This would be a separately versioned execution-spec candidate, **not** an edit to the frozen original Baseline or a post-hoc performance rescue. Position remains unresolved whenever even the earlier schedule fails.
+
+Independent all-signal and integer-tick evidence, including the 96 run-month matrix and discrepancies with the historical re-audit, is separately archived in [STAGE2_M5_SIGNAL_DIAGNOSTICS_20261009.md](STAGE2_M5_SIGNAL_DIAGNOSTICS_20261009.md). Original artifacts remain frozen.
 
 ## Executed corrective work (this separate stacked branch)
 
