@@ -135,6 +135,6 @@ test_price_cap_is_not_recomputed_from_future_open (test_stage2_vwap_payable_cap.
 test_short_bound_rounds_toward_safe_price (test_stage2_vwap_payable_cap.PayableBounds.test_short_bound_rounds_toward_safe_price) ... ok
 
 ----------------------------------------------------------------------
-Ran 135 tests in 13.046s
+Ran 135 tests in 19.662s
 
 OK

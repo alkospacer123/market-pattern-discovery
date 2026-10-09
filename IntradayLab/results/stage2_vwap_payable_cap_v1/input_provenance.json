@@ -1,9 +1,10 @@
 {
+  "formatting_history": "../stage2_architecture_review/formatting_history.json",
   "implementation_sha256": {
     "tests/test_stage2_vwap_payable_cap.py": "79fa0405433083ffd9d977cb4615c40402daed7ef4a782d66f29a7af802930a2",
     "tools/run_stage2_architectures.py": "c568f3c6809e4850d8dd721f615241178bbf307d549ccdbcc8583643ed58b03a",
     "tools/stage2_architecture_analysis.py": "fe2a3f977eb11706d8af063c4db068f001ec17b8d81401b02424e18d061ad1fc",
-    "tools/stage2_architecture_replay.py": "311d116e59f6cdfc7eae387a6f8d852f9a8a4b5903a62a66cfde8cd14561af43",
+    "tools/stage2_architecture_replay.py": "40d4f3185aa11d1a39f5a6a49eaa5cd1498687ccf3663234ec797658a27f751d",
     "tools/stage2_vwap_payable_cap.py": "232a799120f2cb7326bc01c91b85d3b87d6e5bf709df1787da1385ff6f6eb0a8"
   },
   "inputs": {
@@ -97,5 +98,5 @@
     "results/stage2_m5_v2_corrective_review/unresolved_cases.csv": "84defadef13c6ee3eae6e45c493b79babb446b7c57a47d6e3d141e436bc2bae9",
     "results/stage2_m5_v2_corrective_review/verification.json": "297ce9a8cc7904bd54a3077aa07f3f98af3245b9e119ca4c815080f34b876a58"
   },
-  "state": "FROZEN_BEFORE_PAYABLE_CAP_RETURNS"
+  "state": "ORIGINAL_FROZEN_BEFORE_RETURNS_WITH_AST_IDENTICAL_EOF_FORMATTING_AMENDMENT"
 }

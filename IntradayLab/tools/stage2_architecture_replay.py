@@ -216,4 +216,3 @@ class ArchitectureFeatures(Features):
         return result
 
     # Called after observe; avoid cached context leaking into a different bar.
-

@@ -1,6 +1,7 @@
 {
   "MTF_gate_sha256": "3a561f394406f87c9f110eeb113559a7bbbaf00cd14e7c4ec3e28be227265899",
   "diagnostic_provenance_sha256": "a516e0baebe0392a3c62f6cd823fe1167eac6074574d4cde5ad5e572ca5b00fa",
+  "formatting_history": "../stage2_architecture_review/formatting_history.json",
   "implementation_sha256": {
     "tests/test_stage2_architectures.py": "b9dd71aa58ddf764f6e6b7cc3665eec38c444d904c13e7be14c6c206953b6e78",
     "tools/independent_corrective_review.py": "b10e02a63d990ddb38982fd6b60f5f1f9bfe0b95ba793a279d6b4de4c56594c1",
@@ -9,7 +10,7 @@
     "tools/run_stage2_architectures.py": "c568f3c6809e4850d8dd721f615241178bbf307d549ccdbcc8583643ed58b03a",
     "tools/session_mtf.py": "fdb1b78e32bddd83c52d360f3de1720ccc78743f82d920ca6daa943d981f0a20",
     "tools/stage2_architecture_analysis.py": "fe2a3f977eb11706d8af063c4db068f001ec17b8d81401b02424e18d061ad1fc",
-    "tools/stage2_architecture_replay.py": "311d116e59f6cdfc7eae387a6f8d852f9a8a4b5903a62a66cfde8cd14561af43"
+    "tools/stage2_architecture_replay.py": "40d4f3185aa11d1a39f5a6a49eaa5cd1498687ccf3663234ec797658a27f751d"
   },
   "inputs": {
     "CNYRUBF": {
@@ -102,5 +103,5 @@
     "results/stage2_m5_v2_corrective_review/verification.json": "297ce9a8cc7904bd54a3077aa07f3f98af3245b9e119ca4c815080f34b876a58"
   },
   "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
-  "state": "FROZEN_BEFORE_ARCHITECTURE_RETURNS"
+  "state": "ORIGINAL_FROZEN_BEFORE_RETURNS_WITH_AST_IDENTICAL_EOF_FORMATTING_AMENDMENT"
 }

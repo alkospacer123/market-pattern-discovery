@@ -1,5 +1,6 @@
 {
   "diagnostic_files": 4,
+  "history": "Original two byte-identical runs and exact original freezes retained in formatting_history.json; third full replay after AST-identical EOF cleanup matches current outputs. Only exit-only JSON implementation fingerprint changed, not economics.",
   "independent_run_outputs": {
     "stage2_architecture_diagnostics": {
       "mtf_readiness.json": "3a561f394406f87c9f110eeb113559a7bbbaf00cd14e7c4ec3e28be227265899",
@@ -22,7 +23,7 @@
     "stage2_exit_only_ablation_v1": {
       "execution_events.csv": "82a55f38fe16ca7e64349714b2733e96b2d8eafcc692d97cea687ec59e674a39",
       "paired_exit_only.csv": "4d174b4c2077eeecf19e8cb7c76d52e30a9edc41549d6ce76bed773a1e4f74c8",
-      "results.json": "363ee6d7c3e1ea3b9d452ba4647f48bc65e61ae88472ac8099fcb52bd9f8aeca",
+      "results.json": "fee5c817001614697178b244271bdd6cca603658f453efa4e67dbb219a977d57",
       "signals.csv": "00f8a6ac138b8a7ad403df2422c4a65269dfcb99f0722a97bc5dbc32bc521aac",
       "stop_amendments.csv": "4412d67ea1c1488b309c07e497cc75f3b6768049c3ed9569a45dabd41c244d1d",
       "summary.csv": "7c485f0f335e7e1c1bf0f2fe954be79a4068ce0b592b6d7f17bc84aa78778553",
@@ -40,7 +41,7 @@
       "trade_ledger.csv": "2f9c1f01ff3c6111c188c5bb8f82a3690a45ea05e5dbab8fda2da6cdc9b44008"
     }
   },
-  "scope": "2023 numeric data only, native M30 audit only; zero2024/2025+ bytes, no unknown restoration",
-  "status": "BYTE_IDENTICAL_TWO_COMPLETE_RUNS_EACH",
+  "scope": "2023 numeric data only; zero2024/2025+ bytes; no unknown outcome restoration",
+  "status": "BYTE_IDENTICAL_CURRENT_PUBLISHED_IMPLEMENTATION_REPLAY",
   "strategy_data_files": 26
 }

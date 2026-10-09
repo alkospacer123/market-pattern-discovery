@@ -66,7 +66,7 @@
     {
       "folder": "stage2_exit_only_ablation_v1",
       "ledger_sha256": "c697db69ef75040ddc2395cc7647801481312cde1bea9624f7ba91b0362e4e23",
-      "results_sha256": "363ee6d7c3e1ea3b9d452ba4647f48bc65e61ae88472ac8099fcb52bd9f8aeca",
+      "results_sha256": "fee5c817001614697178b244271bdd6cca603658f453efa4e67dbb219a977d57",
       "signals_sha256": "00f8a6ac138b8a7ad403df2422c4a65269dfcb99f0722a97bc5dbc32bc521aac"
     }
   ],

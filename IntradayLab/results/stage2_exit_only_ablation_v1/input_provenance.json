@@ -1,7 +1,8 @@
 {
+  "formatting_history": "../stage2_architecture_review/formatting_history.json",
   "implementation_sha256": {
     "tools/stage2_architecture_analysis.py": "fe2a3f977eb11706d8af063c4db068f001ec17b8d81401b02424e18d061ad1fc",
-    "tools/stage2_architecture_replay.py": "311d116e59f6cdfc7eae387a6f8d852f9a8a4b5903a62a66cfde8cd14561af43",
+    "tools/stage2_architecture_replay.py": "40d4f3185aa11d1a39f5a6a49eaa5cd1498687ccf3663234ec797658a27f751d",
     "tools/stage2_exit_only_ablation.py": "db09427bec87aa4ac0a1f825f9e224af31c1c422e460e44d8204e9c4a94cb415"
   },
   "inputs": {
@@ -94,5 +95,5 @@
     "results/stage2_m5_v2_corrective_review/unresolved_cases.csv": "84defadef13c6ee3eae6e45c493b79babb446b7c57a47d6e3d141e436bc2bae9",
     "results/stage2_m5_v2_corrective_review/verification.json": "297ce9a8cc7904bd54a3077aa07f3f98af3245b9e119ca4c815080f34b876a58"
   },
-  "state": "FROZEN_BEFORE_EXIT_ONLY_COUNTERFACTUALS"
+  "state": "ORIGINAL_FROZEN_BEFORE_RETURNS_WITH_AST_IDENTICAL_EOF_FORMATTING_AMENDMENT"
 }
