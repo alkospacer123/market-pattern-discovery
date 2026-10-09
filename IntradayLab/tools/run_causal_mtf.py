@@ -97,7 +97,9 @@ def verify_comparator(replay, base, scenario):
         current = serialize(getattr(replay, attr))
         assert len(current) == len(frozen), (base, scenario, filename)
         for a, b in zip(current, frozen):
-            assert all(a[k] == v for k, v in b.items() if k not in ('architecture', 'scenario')), (base, scenario, filename)
+            # Frozen multi-architecture CSVs have a union schema: fields absent
+            # from this parent replay are represented by empty CSV cells.
+            assert all(a.get(k, '') == v for k, v in b.items() if k not in ('architecture', 'scenario')), (base, scenario, filename)
     return 'EXACT_FROZEN_SIGNAL_EVENT_LEDGER_FIELDS'
 
 

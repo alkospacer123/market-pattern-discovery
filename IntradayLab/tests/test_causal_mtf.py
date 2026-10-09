@@ -12,7 +12,7 @@ from causal_mtf import DerivedContext
 from audit_causal_mtf import independent_pair
 from session_mtf import Bar
 from m5_conditional_v2 import Replay, window_at
-from run_causal_mtf import MTFFrozen
+from run_causal_mtf import MTFFrozen, serialize
 
 LAB = Path(__file__).resolve().parents[1]
 PARAMS = json.loads((LAB / 'config/stage2_complete_architectures_v1.json').read_text())['parameters']
@@ -25,6 +25,11 @@ def bars(n=48, start=T):
 
 
 class CausalMTFTests(unittest.TestCase):
+    def test_frozen_union_csv_empty_fields_remain_empty(self):
+        own = serialize([{'a': D(1)}])[0]
+        frozen = {'a': '1', 'atr14': '', 'runner': ''}
+        self.assertTrue(all(own.get(k, '') == v for k, v in frozen.items()))
+
     def test_exact_ohlcv_and_last_child_delay(self):
         c = DerivedContext(bars(), 30, PARAMS)
         self.assertEqual(c.cells[T].ohlcv, (D(100), D(107), D(99), D(106), D(21)))

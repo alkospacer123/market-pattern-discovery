@@ -1,9 +1,10 @@
 {
+  "correction_reason": "First run stopped at frozen NONE comparator before any returns: union CSV schema contains blank fields absent from FROZEN_V2. Only comparator verifier empty-field handling corrected; no trading rule, manifest, input or outcome changed.",
   "implementation_sha256": {
-    "tests/test_causal_mtf.py": "7807a6ffa612248dd25a07cc601f1eda119c9ec4b49398756b0c755bf68da34d",
+    "tests/test_causal_mtf.py": "1658d1ad40bd6d603e34659197c882908a65b15054767ddf1e5dcc0e37247aa1",
     "tools/audit_causal_mtf.py": "2c52694ba57b43bb42647a8092a776f8f8964340ac5e67dadf7e6a31d3645e90",
     "tools/causal_mtf.py": "9ff470800efd442559dd19d9e9de8b5f6610cfeb8848fa16b4eef6ed45f1af9c",
-    "tools/run_causal_mtf.py": "e3eaea3d8b3725257ae8b996cc1f43c6d0c1f1e12aeef63d9d4df2eb5a6507a4"
+    "tools/run_causal_mtf.py": "c7d678fff6498aa074a0a1023a3746504d6074386e689ec0a6dd0bc1de532fcd"
   },
   "inputs": {
     "CNYRUBF": {
