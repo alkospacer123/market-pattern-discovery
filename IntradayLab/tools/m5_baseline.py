@@ -190,8 +190,12 @@ class Replay:
         self.features = Features(params, price_only=strategy == "MOMENTUM")
         self.signals, self.events, self.ledger = [], [], []
         self.entry_order = self.close_order = self.position = None
+        self.unknown_entry = None  # No order acknowledgement: never infer flat.
+        self.unknown_entries = []
         self.counts = {'flat_target_breaches': 0, 'missing_observations': 0,
-                       'gap_resets': 0, 'partial_events': 0, 'tp_touch_nonfills': 0}
+                       'gap_resets': 0, 'partial_events': 0, 'tp_touch_nonfills': 0,
+                       'blocked_signals': 0, 'blocked_entry_opportunities': 0,
+                       'unknown_flat_target_breaches': 0}
         self.last_mark = None
         self.last_window = None
         self.breached = set()
@@ -222,6 +226,36 @@ class Replay:
         p = self.position
         self.event(now, 'EXIT_ORDER', 'SUBMITTED', reason, p.row['signal_id'],
                    requested=p.remaining, residual=p.remaining)
+
+    def missing_entry_target(self, now):
+        """Absent OHLCV cannot prove rejection/expiry of an earlier order."""
+        order = self.entry_order
+        s = order['signal']
+        status = 'UNRESOLVED_POSSIBLE_ENTRY_FILL'
+        s['status'], s['reason'] = status, 'MISSING_OR_UNAVAILABLE_TARGET_BAR'
+        boundary = window_at(order['target'])[1]
+        row = {'run': s['run'], 'signal_id': s['signal_id'],
+               'strategy': self.strategy, 'instrument': self.symbol,
+               'direction': s['direction'], 'session_id': s['session_id'],
+               'signal_at': s['signal_at'], 'available_at': s['available_at'],
+               'ready_at': s['ready_at'], 'planned_execution_at': str(order['target']),
+               'detected_at': str(now), 'status': status, 'reason': s['reason'],
+               'requested_model_units': self.units, 'filled_model_units': None,
+               'possible_residual_model_units': None, 'entry': None,
+               'gross_price_pnl': None, 'c1_entry': None, 'net_model_c1': None,
+               'funding_and_emergency_costs': 'UNRESOLVED',
+               'prior_gap_notice_at': str(order['gap_notice']) if order.get('gap_notice') else None,
+               'session_end': str(boundary), 'close_requirement_recorded': False,
+               'flat_target_breach': False, 'resolution': 'UNRESOLVED_TO_2023_END'}
+        self.unknown_entries.append(row)
+        self.unknown_entry = row
+        self.unknown_liability = True
+        self.event(order['target'], 'ENTRY_OUTCOME', status, s['reason'],
+                   s['signal_id'], self.units, None, None, confirmed=now)
+        self.event(now, 'ENTRY_CANCEL_REQUEST', 'UNRESOLVED',
+                   'LATE_TTL_CANCEL_DOES_NOT_PROVE_NONFILL', s['signal_id'],
+                   self.units, None, None)
+        self.entry_order = None  # Unknown intent persists separately, blocking entries.
 
     def unresolved(self, reason):
         if self.position and reason not in self.position.reasons:
@@ -352,7 +386,17 @@ class Replay:
              'range_high_shifted': f['range_high'], 'range_low_shifted': f['range_low'],
              'stop': stop, 'take': take, 'cap': cap, 'status': 'SUBMITTED', 'reason': ''}
         self.signals.append(s)
-        if self.position or self.entry_order:
+        if self.unknown_entry:
+            s['status'], s['reason'] = 'BLOCKED', 'UNRESOLVED_POSSIBLE_ENTRY_FILL'
+            self.counts['blocked_signals'] += 1
+            # Count otherwise-valid entry opportunities separately from all
+            # blocked signals; schedule/levels use only known information.
+            valid_slot = (allowed(self.symbol,target) and window_at(target) == w and
+                          target+FIVE <= w[1]-timedelta(minutes=self.p['no_entry_before_boundary_minutes']))
+            valid_levels = (stop < b.close < take) if direction == 1 else (take < b.close < stop)
+            if valid_slot and valid_levels:
+                self.counts['blocked_entry_opportunities'] += 1
+        elif self.position or self.entry_order:
             s['status'], s['reason'] = 'SKIPPED', 'POSITION_OR_ORDER_BUSY'
         elif (not allowed(self.symbol,target) or window_at(target) != w or
               target+FIVE > w[1]-timedelta(minutes=self.p['no_entry_before_boundary_minutes'])):
@@ -391,11 +435,7 @@ class Replay:
                     for b in sorted(observations,key=lambda b:b.timestamp):
                         self.execute(b,now)
                     if self.entry_order and self.entry_order['target'] <= expected:
-                        s = self.entry_order['signal']
-                        s['status'], s['reason'] = 'NONFILL','MISSING_OR_UNAVAILABLE_TTL_BAR'
-                        self.event(self.entry_order['target'],'ENTRY','NONFILL',s['reason'],s['signal_id'],self.units,0,self.units,confirmed=now)
-                        self.event(now,'ENTRY_CANCEL','CANCELLED','ONE_BAR_TTL',s['signal_id'],self.units,0,self.units)
-                        self.entry_order = None
+                        self.missing_entry_target(now)
                     current = next((b for b in observations if b.timestamp == expected),None)
                     if allowed(self.symbol,expected) and current is None:
                         self.counts['missing_observations'] += 1
@@ -427,6 +467,20 @@ class Replay:
                         self.features.reset()
                         self.last_window = w_now
                     p = self.position
+                    unknown = self.unknown_entry
+                    if unknown:
+                        boundary = datetime.fromisoformat(unknown['session_end'])
+                        if not unknown['close_requirement_recorded'] and now >= boundary-timedelta(minutes=self.p['close_before_boundary_minutes']):
+                            unknown['close_requirement_recorded'] = True
+                            self.event(now, 'EMERGENCY_CLOSE_REQUIREMENT', 'UNRESOLVED',
+                                       'FILL_RECONCILIATION_REQUIRED_NO_KNOWN_CLOSE_QUANTITY',
+                                       unknown['signal_id'], None, None, None)
+                        if not unknown['flat_target_breach'] and now >= boundary-timedelta(minutes=self.p['flat_confirm_before_boundary_minutes']):
+                            unknown['flat_target_breach'] = True
+                            self.counts['unknown_flat_target_breaches'] += 1
+                            self.event(now, 'FLAT_TARGET', 'UNRESOLVED',
+                                       'POSSIBLE_ENTRY_FILL_NOT_RECONCILED',
+                                       unknown['signal_id'], None, None, None)
                     if p:
                         if now >= p.boundary-timedelta(minutes=self.p['close_before_boundary_minutes']):
                             self.close_request(now,'SESSION_FLAT')
@@ -454,15 +508,18 @@ class Replay:
                         p = self.position
                         remaining = p.remaining
                         open_pnl = remaining*p.direction*(self.last_mark-p.entry)
-                    marked = cash+open_pnl
+                    marked = None if unknown else cash+open_pnl
                     key = str(now)[:7]
-                    self.mtm_peak = max(self.mtm_peak,marked)
-                    self.mtm_drawdown = max(self.mtm_drawdown,self.mtm_peak-marked)
-                    self.month_peaks[key] = max(self.month_peaks.get(key,marked),marked)
-                    self.month_drawdowns[key] = max(self.month_drawdowns.get(key,ZERO),self.month_peaks[key]-marked)
+                    if marked is not None:
+                        self.mtm_peak = max(self.mtm_peak,marked)
+                        self.mtm_drawdown = max(self.mtm_drawdown,self.mtm_peak-marked)
+                        self.month_peaks[key] = max(self.month_peaks.get(key,marked),marked)
+                        self.month_drawdowns[key] = max(self.month_drawdowns.get(key,ZERO),self.month_peaks[key]-marked)
                     complete = not self.position and not self.unknown_liability
                     self.month_marks[key] = {'at':str(now),'residual_model_units':remaining,
-                        'mark':self.last_mark,'gross_open_price_pnl':open_pnl,
+                        'possible_residual_model_units':None if unknown else 0,
+                        'model_flat_confirmed':not self.position and not unknown,
+                        'mark':self.last_mark,'gross_open_price_pnl':None if unknown else open_pnl,
                         'known_cash_after_c1_price_units':cash,'known_mtm_after_c1_price_units':marked,
                         'net_complete':complete,'net_model_c1_mtm':marked if complete else None}
                     now += FIVE
@@ -478,31 +535,42 @@ class Replay:
                          ambiguity_flags='|'.join(sorted(p.flags)),c1_total=p.row['c1_entry']+p.row['c1_exit'],
                          funding_and_emergency_costs='UNRESOLVED')
             self.event(END-FIVE,'RESIDUAL','UNRESOLVED','NO_2024_ACCESS_FOR_EXIT',p.row['signal_id'],p.remaining,0,p.remaining)
+        if self.unknown_entry:
+            self.event(END-FIVE, 'POSSIBLE_ENTRY_RESIDUAL', 'UNRESOLVED',
+                       'NO_ORDER_ACK_NO_2024_ACCESS_FOR_RECONCILIATION',
+                       self.unknown_entry['signal_id'], self.units, None, None)
         return self
 
 
-def metrics(rows):
+def metrics(rows, unknown_entries=()):
     unresolved = [r for r in rows if r['status']=='UNRESOLVED']
     closed = [r for r in rows if r['net_model_c1'] is not None]
     nets = [r['net_model_c1'] for r in closed]
     positive = sum((n for n in nets if n > 0),ZERO)
     negative = -sum((n for n in nets if n < 0),ZERO)
+    incomplete = bool(unresolved or unknown_entries)
+    pf = positive/negative if negative else None
     cumulative = peak = dd = ZERO
     for n in nets:
         cumulative += n
         peak = max(peak,cumulative)
         dd = max(dd,peak-cumulative)
     return {'trades':len(rows),'closed_accounted_trades':len(closed),'unresolved':len(unresolved),
+            'unknown_entry_orders':len(unknown_entries),
+            'total_unresolved_cases':len(unresolved)+len(unknown_entries),
             'open_residual_model_units':sum(r['residual_model_units'] for r in rows),
-            'metric_status':'INCOMPLETE / CLOSED-ONLY DIAGNOSTIC' if unresolved else 'CONDITIONAL_MODEL_COMPLETE',
+            'possible_residual_model_units':None if unknown_entries else 0,
+            'model_flat_confirmed':not unknown_entries and not any(r['residual_model_units'] for r in rows),
+            'metric_status':'INCOMPLETE / CLOSED-ONLY DIAGNOSTIC' if incomplete else 'CONDITIONAL_MODEL_COMPLETE',
             'gross_known_price_pnl':sum((r['gross_price_pnl'] for r in rows),ZERO),
             'c1_known':sum((r['c1_entry']+r['c1_exit'] for r in rows),ZERO),
-            'net_model_c1':None if unresolved else sum(nets,ZERO),
-            'closed_only_net_c1':sum(nets,ZERO),
+            'net_model_c1':None if incomplete else sum(nets,ZERO),
+            'closed_only_net_c1':None if incomplete and not nets else sum(nets,ZERO),
             'closed_only_gross':sum((r['gross_price_pnl'] for r in closed),ZERO),
             'closed_only_c1':sum((r['c1_entry']+r['c1_exit'] for r in closed),ZERO),
             'win_rate':D(sum(n>0 for n in nets))/len(nets) if nets else None,
-            'PF':positive/negative if negative else None,
+            'PF':pf,  # Closed-only diagnostic, retained for historical comparison.
+            'full_PF':None if incomplete else pf,
             'PF_null_reason':'NO_CLOSED_TRADES' if not nets else 'NO_LOSSES' if not negative else None,
             'expectancy_price_units':sum(nets,ZERO)/len(nets) if nets else None,
             'net_R':sum((r['net_R'] for r in closed),ZERO) if closed else None,

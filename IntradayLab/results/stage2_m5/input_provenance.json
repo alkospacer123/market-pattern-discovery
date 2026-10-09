@@ -18,10 +18,11 @@
     "reason": "Explicit TTL cancellation log for cap nonfills; price-only Momentum features accept zero Volume (not a liquidity filter); synthetic zero-capacity exit retry coverage. Fixed manifest and all parameters unchanged."
   },
   "implementation_sha256": {
-    "tests/test_m5_baseline.py": "f324e5754406cd16be357437477aeaebc8a9a90657c533c69dff2104f6ec735c",
+    "tests/test_m5_baseline.py": "4f902fad4a515ff394c7da6fa581fe34419d14cbf2c3e1f5c08625ea0e21fe50",
+    "tools/audit_m5_baseline.py": "bf373b40280fb544e86f8010281b29f116becd8f590360589f087d674c25c20a",
     "tools/audit_session_mtf.py": "1c0f22a9b029c72f55d9e20c9bdc4b147b460e5b5a5f1f0667a46b13a97152dc",
-    "tools/m5_baseline.py": "691aae75d033175abd08982a00658bea2587d4eebae9c32a9d8f9aafdb95062b",
-    "tools/run_m5_baseline.py": "3f29274469d04c73f68b1136554d0719cc0ee7c10354fa99365a146da82c3561",
+    "tools/m5_baseline.py": "9920fff1e4964d81375c9cfe7ab081b7985b2e2e1f98cfb16a2b496d32ba7852",
+    "tools/run_m5_baseline.py": "e749434e653a651c5c09efbb31c20bf14c119aec2004080f97d1780ddb964051",
     "tools/session_mtf.py": "fdb1b78e32bddd83c52d360f3de1720ccc78743f82d920ca6daa943d981f0a20"
   },
   "inputs": {
@@ -67,6 +68,23 @@
     }
   },
   "manifest_sha256": "7b3a1bd786cee3eca09111f906481a3ab38067c79ec9d0d0d0720c21710319ac",
+  "missing_target_correction": {
+    "manifest_parameters_changed": false,
+    "pre_correction_implementation_sha256": {
+      "tests/test_m5_baseline.py": "f324e5754406cd16be357437477aeaebc8a9a90657c533c69dff2104f6ec735c",
+      "tools/audit_session_mtf.py": "1c0f22a9b029c72f55d9e20c9bdc4b147b460e5b5a5f1f0667a46b13a97152dc",
+      "tools/m5_baseline.py": "691aae75d033175abd08982a00658bea2587d4eebae9c32a9d8f9aafdb95062b",
+      "tools/run_m5_baseline.py": "3f29274469d04c73f68b1136554d0719cc0ee7c10354fa99365a146da82c3561",
+      "tools/session_mtf.py": "fdb1b78e32bddd83c52d360f3de1720ccc78743f82d920ca6daa943d981f0a20"
+    },
+    "prior_head": "e38e018c1c7be3863178cd30237cbc5748216de7",
+    "prior_history_sha256": "c0e8774da2c84677f28b13a4858b8a064afcaec2e5531ffeafe94a119dafc9f8",
+    "prior_results_preserved": "Git e38e018c1c7be3863178cd30237cbc5748216de7 and correction_history.json (hashes, eight summaries, 61 cases)",
+    "prior_review_verdict": "STAGE2_M5_BASELINE_NEEDS_FIX",
+    "reason": "Missing target OHLCV cannot establish NONFILL for an already submitted order. Persist an unknown possible entry without filled quantity, entry price or P&L; fail closed through 2023 end without independent reconciliation. Preserve earlier POSSIBLE_FILL_AWAITING_ACK handling and all frozen strategy/execution parameters.",
+    "review_id": 5470886355,
+    "saved_before_corrected_replay": true
+  },
   "original_pre_results_implementation_sha256": {
     "tests/test_m5_baseline.py": "0f211322d243919c5591abbcc094ab8703ebbc6dabed2c1fdc8232fe27556b16",
     "tools/audit_session_mtf.py": "1c0f22a9b029c72f55d9e20c9bdc4b147b460e5b5a5f1f0667a46b13a97152dc",

@@ -166,30 +166,40 @@ def coverage(bars):
 def group_metrics(replay,bars):
     base={'run':f'{replay.strategy}_{replay.symbol}','strategy':replay.strategy,'instrument':replay.symbol}
     cov=coverage(bars)
-    year=metrics(replay.ledger)
-    year['observed_close_mtm_drawdown_price_units']=replay.mtm_drawdown if not year['unresolved'] else None
+    year=metrics(replay.ledger,replay.unknown_entries)
+    year['observed_close_mtm_drawdown_price_units']=replay.mtm_drawdown if not year['total_unresolved_cases'] else None
     year['known_cost_mtm_drawdown_diagnostic']=replay.mtm_drawdown
     result=[base|{'group':'YEAR','period':'2023'}|year]
     for direction in ('LONG','SHORT'):
         rows=[r for r in replay.ledger if r['direction']==direction]
-        result.append(base|{'group':'DIRECTION','period':direction}|metrics(rows))
+        unknown=[u for u in replay.unknown_entries if u['direction']==direction]
+        direction_metrics=metrics(rows,unknown)
+        if replay.unknown_entries:
+            direction_metrics.update(metric_status='INCOMPLETE / CLOSED-ONLY DIAGNOSTIC',
+                                     net_model_c1=None,full_PF=None,model_flat_confirmed=False,
+                                     possible_residual_model_units=None)
+        result.append(base|{'group':'DIRECTION','period':direction}|direction_metrics)
     for key,c in cov.items():
         rows=[r for r in replay.ledger if (r['exit_interval_start'] or r['entry_interval_start'])[:7]==key]
-        m=metrics(rows)
+        unknown=[u for u in replay.unknown_entries if u['planned_execution_at'][:7]<=key]
+        m=metrics(rows,unknown)
         # Outstanding uncertain exposure in any intersected month invalidates
         # that month, even if the eventual model exit occurred another month.
         uncertainty=[r for r in replay.ledger if r['status']=='UNRESOLVED' and
                      r['entry_interval_start'][:7]<=key<= (r['exit_interval_start'] or '2023-12')[:7]]
-        if uncertainty:
+        if uncertainty or unknown:
             m.update(metric_status='INCOMPLETE / CLOSED-ONLY DIAGNOSTIC',
-                     net_model_c1=None,unresolved=len(uncertainty))
-        if c['coverage_status']=='NO_COVERAGE':
+                     net_model_c1=None,full_PF=None,unresolved=len(uncertainty),
+                     total_unresolved_cases=len(uncertainty)+len(unknown))
+        if c['coverage_status']=='NO_COVERAGE' and not uncertainty and not unknown:
             m.update(metric_status='NO_COVERAGE',net_model_c1=None,closed_only_net_c1=None)
-        m['observed_close_mtm_drawdown_price_units']=replay.month_drawdowns.get(key) if not uncertainty and c['coverage_status']!='NO_COVERAGE' else None
+        m['observed_close_mtm_drawdown_price_units']=replay.month_drawdowns.get(key) if not uncertainty and not unknown and c['coverage_status']!='NO_COVERAGE' else None
         m['month_end_known_mtm_after_c1']=replay.month_marks.get(key,{}).get('known_mtm_after_c1_price_units') if c['coverage_status']!='NO_COVERAGE' else None
         m['month_end_residual_model_units']=replay.month_marks.get(key,{}).get('residual_model_units',0)
-        m['month_outcome']=('NO_COVERAGE' if c['coverage_status']=='NO_COVERAGE' else
-                            'UNRESOLVED' if uncertainty else 'ZERO_TRADES' if not rows else
+        m['month_end_possible_residual_model_units']=None if unknown else 0
+        m['month_end_model_flat_confirmed']=False if unknown else replay.month_marks.get(key,{}).get('model_flat_confirmed')
+        m['month_outcome']=('UNRESOLVED' if uncertainty or unknown else
+                            'NO_COVERAGE' if c['coverage_status']=='NO_COVERAGE' else 'ZERO_TRADES' if not rows else
                             'POSITIVE' if m['net_model_c1']>0 else 'NEGATIVE' if m['net_model_c1']<0 else 'ZERO_NET')
         result.append(base|{'group':'MONTH','period':key}|m|
                       {k:v for k,v in c.items() if k!='missing_entire_dates'})
@@ -198,7 +208,7 @@ def group_metrics(replay,bars):
 
 def implementation_hashes():
     paths=[LAB/'tools/m5_baseline.py',LAB/'tools/run_m5_baseline.py',LAB/'tools/session_mtf.py',
-           LAB/'tools/audit_session_mtf.py',LAB/'tests/test_m5_baseline.py']
+           LAB/'tools/audit_session_mtf.py',LAB/'tests/test_m5_baseline.py',LAB/'tools/audit_m5_baseline.py']
     return {str(p.relative_to(LAB)):sha(p) for p in paths}
 
 
@@ -228,19 +238,24 @@ def run(root):
     data,provenance=inputs(root,m)
     if provenance!=prepared['inputs']:
         raise ValueError('2023 input prefix changed')
-    signals,events,ledger,grouped,runs=[],[],[],[],[]
+    history=json.loads((DEST/'correction_history.json').read_text())
+    history_digest=hashlib.sha256(encoded(history['prior']).encode()).hexdigest()
+    if history_digest!=prepared['missing_target_correction']['prior_history_sha256']:
+        raise ValueError('Pre-correction evidence was modified')
+    signals,events,ledger,unknown_entries,grouped,runs=[],[],[],[],[],[]
     for item in m['run_matrix']:
         symbol,strategy=item['instrument'],item['strategy']
         replay=Replay(symbol,strategy,m['parameters']).run(data[symbol])
         groups,cov=group_metrics(replay,data[symbol])
         signals.extend(replay.signals); events.extend(replay.events); ledger.extend(replay.ledger); grouped.extend(groups)
+        unknown_entries.extend(replay.unknown_entries)
         counts=Counter(x['status'] for x in replay.signals)
         outcome=Counter(g['month_outcome'] for g in groups if g['group']=='MONTH')
         runs.append({'run':f'{strategy}_{symbol}','status':'EXECUTED_2023_CONDITIONAL_MODEL',
                      'summary':{k:v for k,v in groups[0].items() if k not in ('run','strategy','instrument','group','period')},'signals':len(replay.signals),'signal_status_counts':dict(counts),
                      'execution_counts':replay.counts,'coverage':cov,'monthly_outcomes':dict(outcome),
                      'month_end_model_marks':replay.month_marks})
-    output={'verdict':'STAGE2_M5_BASELINE_IMPLEMENTED_PENDING_AUDIT','manifest_sha256':msha,
+    output={'verdict':'STAGE2_M5_BASELINE_CORRECTED_PENDING_REAUDIT','manifest_sha256':msha,
             'source_ref':m['source_ref'],'inputs':provenance,'runs':runs,
             'scope':'8 fixed M5-only 2023 runs; 2024 WF reserved unread; 2025+ TRUE OOS locked unread',
             'unit':'normalized price exposure; no actual equity/GO quantity sizing',
@@ -249,8 +264,25 @@ def run(root):
     write_text(DEST/'signals.csv',csv_text(signals))
     write_text(DEST/'execution_events.csv',csv_text(events))
     write_text(DEST/'trade_ledger.csv',csv_text(ledger))
+    write_text(DEST/'unknown_entries.csv',csv_text(unknown_entries))
     fields=list(dict.fromkeys(k for r in grouped for k in r))
     write_text(DEST/'metrics.csv',csv_text(grouped,fields))
+    by_signal={s['signal_id']:s for s in signals}
+    dispositions=[]
+    for old in history['prior']['missing_target_entry_events']:
+        current=by_signal[old['signal_id']]
+        if current['status']=='UNRESOLVED_POSSIBLE_ENTRY_FILL':
+            classification='UNRESOLVED_POSSIBLE_ENTRY_FILL'
+        elif current['status']=='BLOCKED':
+            classification='BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN'
+        else:
+            raise ValueError('An original missing-target case disappeared without causal accounting')
+        dispositions.append(old|{'corrected_classification':classification})
+    history['original_61_case_dispositions']=dispositions
+    history['after']=[{'run':r['run'],'summary':r['summary'],
+                       'execution_counts':r['execution_counts']} for r in runs]
+    history['correction']='Missing target OHLCV => unknown order fill, no price/filled quantity/P&L, no reconciliation from later OHLCV; block subsequent entries to 2023 end. Manifest unchanged.'
+    write_text(DEST/'correction_history.json',encoded(history))
     sums={p.name:sha(p) for p in sorted(DEST.iterdir()) if p.name!='SHA256SUMS' and p.is_file()}
     write_text(DEST/'SHA256SUMS',''.join(f'{v}  {k}\n' for k,v in sums.items()))
     for r in runs:

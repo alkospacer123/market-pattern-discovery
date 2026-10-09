@@ -1,10 +1,13 @@
 {
   "artifact_invariants": "PASS",
+  "blocked_entry_opportunities": 6032,
+  "blocked_signals": 7279,
   "bytes_2024_plus_read": 0,
   "bytes_2025_plus_read": 0,
-  "execution_events": 13752,
+  "execution_events": 1008,
   "fixed_manifest_unchanged_after_results": true,
   "historical_stage1_artifacts_unchanged": true,
+  "known_position_flat_target_breaches": 12,
   "logging_only_correction_invariance_verified_before_gap_fix": true,
   "manifest_sha256": "7b3a1bd786cee3eca09111f906481a3ab38067c79ec9d0d0d0720c21710319ac",
   "matrix_runs": 8,
@@ -13,9 +16,17 @@
     "month": 96,
     "year": 8
   },
+  "missing_target_unknown_order_correction_applied": true,
   "model_fill_is_actual_exchange_evidence": false,
+  "model_flat_confirmed": false,
   "open_residual_model_units": 0,
+  "original_61_case_dispositions": {
+    "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN": 53,
+    "UNRESOLVED_POSSIBLE_ENTRY_FILL": 8
+  },
   "pending_entry_gap_ack_correction_applied": true,
+  "possible_residual_model_units": null,
+  "prior_result_hashes_verified_against_git": true,
   "protected_root_tree_ids": {
     ".gitattributes": "d11ce74a54029c3c6f60a72f30148f58e8a41c99",
     ".gitignore": "75d2f5136fe75e034302dc5ca18c1f473639309b",
@@ -45,11 +56,17 @@
   },
   "read_2023_prefix_bytes": 5833704,
   "read_2023_rows": 104795,
+  "retained_trade_rows_unchanged": true,
   "signals": 7813,
+  "signals_and_parameters_unchanged_except_execution_status": true,
+  "total_unresolved_cases": 20,
   "trade_status_counts": {
-    "MODELLED": 2019,
-    "UNRESOLVED": 121
+    "MODELLED": 135,
+    "UNRESOLVED": 12
   },
+  "unknown_entry_orders": 8,
+  "unknown_order_flat_target_breaches": 8,
+  "verdict": "STAGE2_M5_BASELINE_CORRECTED_PENDING_REAUDIT",
   "zero_volume_2023_bars": {
     "CNYRUBF": 0,
     "GLDRUBF": 0,

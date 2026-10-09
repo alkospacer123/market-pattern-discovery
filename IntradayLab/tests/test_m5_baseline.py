@@ -36,7 +36,8 @@ class Scripted(Replay):
         super().__init__('USDRUBF','MOMENTUM',P,**kwargs)
         self.at=at
     def decision(self,b,now,f):
-        if b.timestamp==self.at:
+        scheduled = self.at if isinstance(self.at,tuple) else (self.at,)
+        if b.timestamp in scheduled:
             super().decision(b,now,{'atr':D(1),'vwap':D(99),'range_high':D(99),
                                    'range_low':D(98),'MOMENTUM':1})
 
@@ -156,7 +157,7 @@ class CausalityAndFeatures(unittest.TestCase):
         self.assertEqual({k:r1.signals[0][k] for k in columns},{k:r2.signals[0][k] for k in columns})
         missing=Scripted().run([b for b in original if b.timestamp!=target])
         self.assertEqual({k:r1.signals[0][k] for k in columns},{k:missing.signals[0][k] for k in columns})
-        self.assertEqual(missing.signals[0]['status'],'NONFILL')
+        self.assertEqual(missing.signals[0]['status'],'UNRESOLVED_POSSIBLE_ENTRY_FILL')
 
     def test_vwap_reset_on_gap_and_session_not_carried(self):
         f=Features(P)
@@ -273,9 +274,78 @@ class ExecutionAndAccounting(unittest.TestCase):
         target=T+14*FIVE
         r=Scripted().run([b for b in bars() if b.timestamp!=target])
         self.assertEqual(len(r.signals),1)
-        self.assertEqual(r.signals[0]['status'],'NONFILL')
+        self.assertEqual(r.signals[0]['status'],'UNRESOLVED_POSSIBLE_ENTRY_FILL')
         self.assertEqual(r.ledger,[])
-        self.assertTrue(any(e['kind']=='ENTRY_CANCEL' for e in r.events))
+        self.assertEqual(len(r.unknown_entries),1)
+        unknown=r.unknown_entries[0]
+        self.assertEqual(unknown['planned_execution_at'],str(target))
+        self.assertEqual(unknown['detected_at'],str(target+2*FIVE))
+        self.assertIsNone(unknown['entry'])
+        self.assertIsNone(unknown['filled_model_units'])
+        self.assertFalse(any(e['kind']=='ENTRY_CANCEL' and e['status']=='CANCELLED' for e in r.events))
+
+    def test_unknown_target_blocks_resumed_bars_and_next_session(self):
+        at=(T+11*FIVE,T+20*FIVE,datetime(2023,1,3,14,30),datetime(2023,1,4,11))
+        data=[b for b in bars() if b.timestamp!=T+14*FIVE]
+        data += [bar(T+timedelta(days=1)+i*FIVE) for i in range(30)]
+        r=Scripted(at=at).run(data)
+        self.assertEqual([s['status'] for s in r.signals],['UNRESOLVED_POSSIBLE_ENTRY_FILL']+['BLOCKED']*3)
+        self.assertEqual(r.counts['blocked_entry_opportunities'],3)
+        self.assertEqual(r.counts['blocked_signals'],3)
+        self.assertEqual(r.ledger,[])
+        self.assertEqual(len([e for e in r.events if e['kind']=='ENTRY_ORDER']),1)
+        self.assertFalse(r.month_marks['2023-12']['model_flat_confirmed'])
+
+    def test_unknown_target_survives_year_end_without_fake_pnl_or_flat(self):
+        r=Scripted().run([b for b in bars() if b.timestamp!=T+14*FIVE])
+        unknown=r.unknown_entries[0]
+        for key in ('entry','filled_model_units','possible_residual_model_units','gross_price_pnl','c1_entry','net_model_c1'):
+            self.assertIsNone(unknown[key],key)
+        self.assertEqual(unknown['funding_and_emergency_costs'],'UNRESOLVED')
+        self.assertEqual(unknown['resolution'],'UNRESOLVED_TO_2023_END')
+        mark=r.month_marks['2023-12']
+        self.assertIsNone(mark['possible_residual_model_units'])
+        self.assertIsNone(mark['gross_open_price_pnl'])
+        self.assertIsNone(mark['known_mtm_after_c1_price_units'])
+        self.assertFalse(mark['net_complete'])
+        self.assertFalse(mark['model_flat_confirmed'])
+        self.assertEqual(r.counts['unknown_flat_target_breaches'],1)
+
+    def test_unknown_target_invalidates_full_year_month_and_direction_metrics(self):
+        data=[b for b in bars() if b.timestamp!=T+14*FIVE]
+        r=Scripted().run(data)
+        summary=metrics(r.ledger,r.unknown_entries)
+        self.assertEqual(summary['unknown_entry_orders'],1)
+        self.assertIsNone(summary['net_model_c1'])
+        self.assertIsNone(summary['full_PF'])
+        self.assertIsNone(summary['closed_only_net_c1'])
+        self.assertFalse(summary['model_flat_confirmed'])
+        groups,_=group_metrics(r,data)
+        for g in groups:
+            self.assertIsNone(g['net_model_c1'])
+            self.assertIsNone(g['full_PF'])
+            if g['group']=='MONTH':
+                self.assertEqual(g['month_outcome'],'UNRESOLVED')
+                if g['period']!='2023-01':
+                    self.assertEqual(g['coverage_status'],'NO_COVERAGE')
+
+    def test_late_target_ohlcv_never_reconciles_unknown_order_automatically(self):
+        data=bars();target=T+14*FIVE
+        data[14]=bar(target,delivery=target+3*FIVE)
+        r=Scripted(at=(T+11*FIVE,T+20*FIVE)).run(data)
+        self.assertEqual(r.signals[0]['status'],'UNRESOLVED_POSSIBLE_ENTRY_FILL')
+        self.assertEqual(r.signals[1]['status'],'BLOCKED')
+        self.assertEqual(len(r.unknown_entries),1)
+        self.assertEqual(r.ledger,[])
+
+    def test_proven_model_nonfill_remains_nonfill_and_does_not_lock(self):
+        target=T+14*FIVE
+        r=Scripted(at=(T+11*FIVE,T+20*FIVE),capacities={('ENTRY',target):0}).run(bars())
+        self.assertEqual(r.signals[0]['status'],'NONFILL')
+        self.assertEqual(r.signals[1]['status'],'MODELLED')
+        self.assertEqual(r.unknown_entries,[])
+        self.assertEqual(r.counts['blocked_entry_opportunities'],0)
+        self.assertEqual(r.ledger[0]['c1_total'],D('.02'))
 
     def test_pending_entry_gap_not_retroactively_cancelled_or_free(self):
         for missing_index in (12,13):
