@@ -29,6 +29,10 @@ A missing scheduled OHLCV M5 bar **cannot** establish whether an already submitt
 
 Recorded missing research-window slots relative to simplified approved windows: USD 187/26,658 (0.70%); CNY 1,270/26,658 (4.76%); GLD 932/13,020 (7.16%); IMOEX 566/3,570 (15.85%). Missing is **not automatically a broken export**: compare historical venue schedules/no-trade periods and missing target slots using authorized 2023-only evidence. USD/CNY 2023-08-31 remains absent. GLDRUBF M5 begins 2023-07-11; IMOEXF begins 2023-11-14. Their 2023 pre-listing months are `NO_COVERAGE`, not zero-return months.
 
+### Independent monthly-coverage aggregation (existing 2023 results.json)
+
+Of **96** run×calendar-month slots: **32** are `NO_COVERAGE` before GLDRUBF/IMOEXF initial history, **64** have some M5 source coverage, but just **2/64** retain a provisional `net_complete && model_flat_confirmed` month-end mark (January USDRUBF for the two strategies). The other **62/64** are unresolved/unproven at month-end. This independent aggregation uses committed `results.json` month-end marks and coverage; it does **not** independently retrieve the large `signals.csv` nor prove real fills. A complete-month mark is not proof of an independently validated profitable month. **This is the concrete missing statistical coverage**, not a justification to shorten the period.
+
 ### Frozen rule economics that justify the next investigation
 
 ATR and breakout range = 12 *prior* M5 bars, warmup 13 bars; VWAP = approximate relative-volume-weighted typical price reset per research window/after gaps. The signal is causal. VWAP entry: re-enter 1 ATR band toward session-fragment VWAP; take at signal VWAP; stop at 1.5 ATR from signal close; 60m max hold. Momentum: break previous 12-bar extremes; target 3 ATR, stop 1.5 ATR; 90m max hold. Entry deterioration cap = 0.25 ATR; t+10m data availability, earliest scheduled later-bar entry nominal t+15m; fixed one-bar entry TTL. Stop-first, no entry-bar TP, TP penetration by one tick, adverse gap and B−30/B−20/B−10 retained.
