@@ -1,0 +1,260 @@
+{
+  "audit": "PASS_FOR_VERIFIED_CHECKS_ONLY",
+  "counts": {
+    "2024_plus_bytes_read": 0,
+    "2025_plus_bytes_read": 0,
+    "all_accounted_exits_and_C1_checked": 2058,
+    "all_model_entries_checked": 2140,
+    "breakout_diagnostic_defect_classes_fixed": 1,
+    "complete_all_direction_months": 6,
+    "complete_month_direction_rows": 18,
+    "corrected_metric_rows": 312,
+    "exit_bar_return_flags_corrected": 329,
+    "independently_enumerated_fixed_rule_signals": 7813,
+    "no_bar_no_model_fill": 61,
+    "position_path_events": 113,
+    "reporting_defect_classes_fixed": 3,
+    "resolved_with_evidence": 0,
+    "signals": 7813,
+    "source_bytes_per_independent_pass": 5833704,
+    "source_loader_or_execution_errors_proved": 0,
+    "source_rows_per_independent_pass": 104795,
+    "unresolved_after": 82,
+    "unresolved_before": 82
+  },
+  "defects_fixed": {
+    "Momentum_exit_bar_close_after_exit": {
+      "return_flags_corrected": 329
+    },
+    "ambiguous_generic_PF_alias": {
+      "previous_computable_PF_now_withheld_as_incomplete": 192
+    },
+    "contradictory_null_reason_and_status": {
+      "corrective_results_and_verification_verdicts": "CONSISTENT",
+      "previous_null_full_PF_without_reason": 115
+    },
+    "partial_coverage_full_metric_scope": {
+      "previous_partial_rows_with_full_PF": 75,
+      "previous_partial_rows_with_generic_Net": 78
+    }
+  },
+  "eight_original_missing_slots": [
+    {
+      "instrument": "USDRUBF",
+      "loader_filter_cause": false,
+      "missing_at_msk": "2023-02-02 15:40:00",
+      "next_observed_at": "2023-02-02 15:45:00",
+      "physical_gap": true,
+      "previous_observed_at": "2023-02-02 15:35:00",
+      "source_blob_sha": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "strategy": "VWAP_MR"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "loader_filter_cause": false,
+      "missing_at_msk": "2023-01-06 17:15:00",
+      "next_observed_at": "2023-01-06 17:25:00",
+      "physical_gap": true,
+      "previous_observed_at": "2023-01-06 17:05:00",
+      "source_blob_sha": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "strategy": "VWAP_MR"
+    },
+    {
+      "instrument": "GLDRUBF",
+      "loader_filter_cause": false,
+      "missing_at_msk": "2023-08-17 16:00:00",
+      "next_observed_at": "2023-08-17 16:05:00",
+      "physical_gap": true,
+      "previous_observed_at": "2023-08-17 15:55:00",
+      "source_blob_sha": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "strategy": "VWAP_MR"
+    },
+    {
+      "instrument": "IMOEXF",
+      "loader_filter_cause": false,
+      "missing_at_msk": "2023-11-30 17:20:00",
+      "next_observed_at": "2023-11-30 17:25:00",
+      "physical_gap": true,
+      "previous_observed_at": "2023-11-30 17:15:00",
+      "source_blob_sha": "41b83b109b177d4522e53486950104845d357d99",
+      "strategy": "VWAP_MR"
+    },
+    {
+      "instrument": "USDRUBF",
+      "loader_filter_cause": false,
+      "missing_at_msk": "2023-02-03 16:15:00",
+      "next_observed_at": "2023-02-03 16:20:00",
+      "physical_gap": true,
+      "previous_observed_at": "2023-02-03 16:10:00",
+      "source_blob_sha": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "strategy": "MOMENTUM"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "loader_filter_cause": false,
+      "missing_at_msk": "2023-01-19 15:25:00",
+      "next_observed_at": "2023-01-19 15:30:00",
+      "physical_gap": true,
+      "previous_observed_at": "2023-01-19 15:20:00",
+      "source_blob_sha": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "strategy": "MOMENTUM"
+    },
+    {
+      "instrument": "GLDRUBF",
+      "loader_filter_cause": false,
+      "missing_at_msk": "2023-07-12 11:40:00",
+      "next_observed_at": "2023-07-12 11:55:00",
+      "physical_gap": true,
+      "previous_observed_at": "2023-07-12 11:35:00",
+      "source_blob_sha": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "strategy": "MOMENTUM"
+    },
+    {
+      "instrument": "IMOEXF",
+      "loader_filter_cause": false,
+      "missing_at_msk": "2023-11-15 16:25:00",
+      "next_observed_at": "2023-11-15 16:30:00",
+      "physical_gap": true,
+      "previous_observed_at": "2023-11-15 16:20:00",
+      "source_blob_sha": "41b83b109b177d4522e53486950104845d357d99",
+      "strategy": "MOMENTUM"
+    }
+  ],
+  "executed_test_log_sha256": "1f05bfc6127dccaa8df44780267027ad94cd674bdf1ccf399336043c5d5db647",
+  "frozen_record_reproduction": {
+    "execution_events.csv": "BYTE_IDENTICAL",
+    "signals.csv": "BYTE_IDENTICAL",
+    "trade_ledger.csv": "BYTE_IDENTICAL"
+  },
+  "frozen_v2_unchanged": true,
+  "gld_momentum_breach": {
+    "Net": null,
+    "absence_detected_at_msk": "2023-10-06 13:50:00",
+    "additional_observation_required": "Missing M5 OHLCV for every listed slot (including Open for a scheduled exit); if venue suspension/no transactions, independently timed halt/resumption and quote/execution evidence. Actual exchange P&L additionally needs fills, quantities, costs and reconciliation.",
+    "admissible_expected_slot": true,
+    "b_minus_10_breach": true,
+    "b_minus_10_msk": "2023-10-06 13:50:00",
+    "calendar_time_replay_error": false,
+    "causal_recovery_possible": false,
+    "conditional_model_flat_ack_msk": "2023-10-06 13:55:00",
+    "conditional_reduce_all_scenario_at_msk": "2023-10-06 13:45:00",
+    "direction": "LONG",
+    "entry_at_msk": "2023-10-06 13:00:00",
+    "entry_price": "5804.4",
+    "first_missing_at_msk": "2023-10-06 13:40:00",
+    "instrument": "GLDRUBF",
+    "known_pre_gap_exit": false,
+    "loader_removed_row": false,
+    "missing_observation_count": 1,
+    "missing_observations_msk": "2023-10-06 13:40:00",
+    "next_observed_at": "2023-10-06 13:45:00",
+    "no_exit_possible": true,
+    "physical_gap": true,
+    "position_open_before_gap": true,
+    "preexisting_exit_order_reason": "SESSION_FLAT",
+    "previous_observed_at": "2023-10-06 13:35:00",
+    "primary_category": "REAL_MISSING_PRICE_PATH",
+    "resolution_status": "OBJECTIVELY_UNRESOLVABLE_WITH_AVAILABLE_2023_M5",
+    "run": "MOMENTUM_GLDRUBF",
+    "scheduled_time_or_session_request_at_msk": "2023-10-06 13:35:00",
+    "scheduled_time_or_session_slot_at_msk": "2023-10-06 13:40:00",
+    "session_exit_possible_under_preexisting_order": true,
+    "signal_id": "MOMENTUM_GLDRUBF_000291",
+    "source_blob_sha": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+    "status_after": "UNRESOLVED",
+    "stop": "5799.9",
+    "stop_possible": true,
+    "strategy": "MOMENTUM",
+    "take": "5822.0",
+    "take_possible": true,
+    "time_exit_possible_under_preexisting_order": false,
+    "time_or_session_exit_price_missing": true,
+    "why_insufficient": "Neighbour OHLCV cannot bound missing intrabar extrema or opening price. Stop, tick-penetrating Take and survival branches remain possible; later reduce-all proves conditional flat only."
+  },
+  "gld_momentum_delay_sensitivity": {
+    "baseline_closed_net": "60.4",
+    "delayed_closed_net": "-149.4",
+    "delayed_entries": 129,
+    "delayed_unresolved": 25,
+    "parameter_search": false
+  },
+  "limitations": [
+    "FINAM/MSK/start-label is exporter attestation, not independently retrieved provider metadata.",
+    "No missing OHLCV repair, exchange execution proof, full annual result, funding imputation or true intrabar drawdown.",
+    "Independent checking algorithm within this task, not second-person review.",
+    "Full calendar research coverage is conditional on the declared approved windows, not an exhaustive historical venue calendar."
+  ],
+  "objective_resolution_status_count": 82,
+  "primary_unresolved_categories": {
+    "EXECUTION_CLOSURE_ERROR": 0,
+    "LOADER_FILTER_TIME_ERROR": 0,
+    "OTHER_OBJECTIVELY_UNRESOLVABLE": 0,
+    "REAL_MISSING_PRICE_PATH": 82
+  },
+  "protected_root_ids_equal_main": true,
+  "reexecuted_integer_feature_payoff_audit": {
+    "arithmetic_linkage_mismatches": 0,
+    "economics_rows": 9953,
+    "events": 13628,
+    "integer_accounted_trades": 2058,
+    "model_entries": 2140,
+    "no_bar_entries": 61,
+    "signals": 7813,
+    "source_verified_exit_events": 2058,
+    "source_verified_stratified_samples": 57,
+    "unresolved_paths": 82
+  },
+  "schema": 1,
+  "source_prefix_provenance": {
+    "CNYRUBF": {
+      "blob_sha": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-01-03 09:00:00",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 2212189,
+      "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+      "reader": "Independent unbuffered read(1), exact header + frozen 2023 row budget",
+      "rows": 39362
+    },
+    "GLDRUBF": {
+      "blob_sha": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-07-11 10:00:00",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 1044351,
+      "prefix_sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b",
+      "reader": "Independent unbuffered read(1), exact header + frozen 2023 row budget",
+      "rows": 18428
+    },
+    "IMOEXF": {
+      "blob_sha": "41b83b109b177d4522e53486950104845d357d99",
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-11-14 10:00:00",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 234733,
+      "prefix_sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c",
+      "reader": "Independent unbuffered read(1), exact header + frozen 2023 row budget",
+      "rows": 4429
+    },
+    "USDRUBF": {
+      "blob_sha": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-01-03 09:00:00",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 2342431,
+      "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "reader": "Independent unbuffered read(1), exact header + frozen 2023 row budget",
+      "rows": 42576
+    }
+  },
+  "verdicts": {
+    "Execution model": "PASS_WITHIN_DECLARED_CONDITIONAL_CONTRACT; B_MINUS_10_BREACH_RETAINED",
+    "Momentum economic viability": "INCONCLUSIVE / NO PASS",
+    "Research completeness": "NEEDS FIX / ADDITIONAL 2023 EVIDENCE REQUIRED",
+    "VWAP economic viability": "INCONCLUSIVE / NO PASS"
+  }
+}
