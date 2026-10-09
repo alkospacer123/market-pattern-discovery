@@ -23,6 +23,23 @@ Stop/Take/cap distances above are computed from **signal close**, not a future e
 
 **Important independent correction to the earlier Stage 2 re-audit:** the previous report's percentages for “signal take-distance ≤2 ticks” do not reproduce against every non-BLOCKED signal under exact integer-tick comparison. The original report stated VWAP USD **20.1%** and VWAP CNY **76.7%**; the independently recomputed figures are **33/134 = 24.63%** and **28/30 = 93.33%**, respectively. For Momentum CNY the exact count is **2/64 = 3.13%**, rather than the prior 1.6%. This discrepancy changes the descriptive cost-feasibility evidence, **not** the original trades or the already-failing quality verdict. These are diagnostic counts, not optimized performance. VWAP CNY has 16 one-tick, 12 two-tick, and 2 more-than-two-tick target distances in the pre-block observations; two ticks is the full ordinary C1 cost of a completely filled round trip.
 
+## Full-year 2023 *pre-known* reward/cost and price-grid feasibility (ALL signals, including blocked)
+
+These are **signal-side theoretical distances**, not backtested profits, executions or independent trade opportunities. In particular, the 7,279 blocked signals stay blocked. For each signal, historical dated tick and rounded `signal_close` / frozen `stop` / `take` / `cap` were read from the immutable signal ledger; 2 ticks is the already-approved nominal **round-trip C1**, not a confirmed tariff. A prospective Take distance at or below two ticks leaves no positive nominal reward *from signal Close* after C1, before execution shift and any other uncertainty. A zero-tick adverse cap is restrictive but **not** logically a zero-fill guarantee (a later price may be equal or better). All recorded rounded levels were on the applicable historical tick grid.
+
+| Frozen run | 2023 signals, including blocked | Take distance ≤2 ticks | 0-tick cap | Take minus C1 > Stop distance |
+| --- | ---: | ---: | ---: | ---: |
+| VWAP USD | 1,464 | 246 (16.8%) | 158 (10.8%) | **0** |
+| VWAP CNY | 1,055 | **693 (65.7%)** | **691 (65.5%)** | **0** |
+| VWAP GLD | 360 | 9 (2.5%) | 0 | **0** |
+| VWAP IMOEX | 60 | 12 (20.0%) | 4 (6.7%) | **0** |
+| Momentum USD | 2,621 | 0 | 292 (11.1%) | 2,621 |
+| Momentum CNY | 1,309 | 11 (0.8%) | 633 (48.4%) | 1,163 |
+| Momentum GLD | 821 | 0 | 0 | 821 |
+| Momentum IMOEX | 123 | 0 | 34 (27.6%) | 121 |
+
+The VWAP entries in the last column have **no pre-signal reward greater than their Stop distance plus the two ticks C1** under these frozen rounded levels; they could still have a positive expectancy if real winning probabilities and achievable fills support it, which has **not** been shown. These descriptive diagnostics make a *prospective* reward-vs-risk and minimum-cost margin gate a defensible **future separately frozen hypothesis**, not an automatic optimized threshold. For Momentum, favourable nominal reward/risk at decision time plainly did not produce positive closed-only PF in the accounted sample — investigate false breakouts, losses to Stop and the delayed execution model before selecting new ADX/ATR thresholds.
+
 ## Full-year signal frequency (four instruments, two independently counted strategies)
 
 | 2023 month | Signals | Blocked | Blocked share |
