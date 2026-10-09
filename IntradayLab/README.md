@@ -1,6 +1,6 @@
 # IntradayLab — independent MOEX intraday strategy research
 
-Status: **RESEARCH SETUP ONLY**. No strategy has been validated, and no LIVE trading is authorized.
+Status: **STAGE 1 OPEN — EXECUTION SPECIFICATION PENDING INDEPENDENT AUDIT**. Stage 0 and Stage 1.2 are complete; Stage 2 Baseline has not started. No strategy has been validated, and no LIVE trading is authorized.
 
 ## Mission
 
@@ -15,7 +15,7 @@ There is **no guarantee of positive returns in every calendar month**, stable sa
 ## Hard isolation boundary
 
 - **NEVER MODIFY any files under `TradingSystemLab/`**, or its Stage 7 / Stage 8 production identity, research results, robot, data authorities, configuration, or operational state.
-- New research files and reports belong only to `IntradayLab/` on `research/intraday-lab` until an explicit future decision about repository arrangement. Do not merge this branch into the production `main` without separate user approval and a protected-tree diff audit.
+- New research files and reports belong only to `IntradayLab/`. The primary branch is **main**, with separate task branches and PRs subject to independent audit. `research/intraday-lab` was the historical setup branch. Do not merge task PRs without separate authorization and a protected-tree diff audit.
 - Do not modify other domains (`BBW/`, `results/`, root project documentation) for this study.
 - No imports of TradingSystemLab strategies, their parameter sets, candidate decisions, results, or execution authority. General research methods and engineering practices may be learned from read-only examination, but **all new hypotheses and evidence must be independent**.
 - No market data or credentials committed to Git. Historical source data is external and read-only.
@@ -25,6 +25,10 @@ There is **no guarantee of positive returns in every calendar month**, stable sa
 ## Agreed strategy scope (not proven profitable)
 
 **Markets:** four MOEX perpetuals: USDRUBF, CNYRUBF, GLDRUBF, IMOEXF. New read-only OHLCV datasets live in alkospacer123/market-pattern-data/forever: M5, M15, M30, H1 for each instrument (16 files confirmed by path inventory). The base audit of these 16 CSV files for the period before 2025 is complete: **DATA QA PARTIAL PASS**. Full Stage 1 remains open: the IMOEXF M15 anomaly, historical sessions, timestamp semantics, commissions, funding and the execution model still require verification. Baseline, TRUE OOS and LIVE are not authorized.
+
+**Stage 1.2 COMPLETE:** [PR #439](https://github.com/alkospacer123/market-pattern-discovery/pull/439) merged into main, independent audit PASS. Real M15/M30/H1 contexts remain blocked; source timezone/start/end and full historical sessions are not confirmed. The original [Stage 1.2 report](reports/STAGE1_2_SESSION_MTF_AUDIT.md), JSON, code and tests retain their reproducible historical state. The IMOEXF 16.08.2024 quarantine and known coverage gaps remain in force.
+
+The [Execution, Costs & Funding Specification](reports/STAGE1_EXECUTION_COSTS_SPEC.md) documents contract units and historical changes, fees with applicability limits, causal M5 execution, nonfill/partial fills, size constraints and planned flat before the relevant clearing boundary. **STAGE1_EXECUTION_SPEC_PENDING_AUDIT** does not close Stage 1: the future FINAM tariff, exact historical financial parameters, CSV provenance and execution evidence remain UNRESOLVED. Current 23:50 funding rules must not replace the historical clearing around 18:50; modern CNY tick size must not replace its older grid. No strategies or later research stages were run.
 
 **Trading timeframe:** M5. **MTF contexts:** M30 -> M5 is primary, with M15 -> M5 for VWAP and H1 -> M5 for Momentum as restricted comparisons. No M1, M3 or M10 research in this agreed scope; M5 is the finest available bar and cannot prove tick-level fill ordering.
 
