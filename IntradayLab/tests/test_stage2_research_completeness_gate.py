@@ -32,6 +32,21 @@ def sample():
              'total_unresolved_cases': 8}, signals)
 
 
+def sample_metrics():
+    rows = []
+    for run in sorted(EXPECTED):
+        rows.append({'run': run, 'group': 'YEAR', 'period': '2023',
+                     'closed_accounted_trades': '1', 'full_PF': '', 'net_model_c1': ''})
+        for direction in ('LONG', 'SHORT'):
+            rows.append({'run': run, 'group': 'DIRECTION', 'period': direction,
+                         'closed_accounted_trades': '0', 'full_PF': '', 'net_model_c1': ''})
+        for month in MONTHS:
+            rows.append({'run': run, 'group': 'MONTH', 'period': month,
+                         'coverage_status': 'COVERED',
+                         'closed_accounted_trades': '0', 'full_PF': '', 'net_model_c1': ''})
+    return rows
+
+
 class GateTests(unittest.TestCase):
     def test_incomplete_never_passes_on_profitable_closed_only(self):
         result, verify, signals = sample()
@@ -89,6 +104,26 @@ class GateTests(unittest.TestCase):
             earlier_close = next_slot(B - timedelta(minutes=30))
             self.assertEqual(earlier_close + timedelta(minutes=10),
                              B - timedelta(minutes=15))
+
+    def test_metrics_120_rows_verify_without_fake_profit(self):
+        result, verify, signals = sample()
+        out = assess(result, verify, signals, 'abc', sample_metrics())
+        self.assertEqual(VERDICT, out['verdict'])
+
+    def test_false_monthly_pf_in_metrics_rejected(self):
+        result, verify, signals = sample()
+        metrics = sample_metrics()
+        month = next(m for m in metrics if m['group'] == 'MONTH')
+        month['full_PF'] = '1.7'
+        with self.assertRaisesRegex(ValueError, 'UNPROVEN_CSV_MONTHLY'):
+            assess(result, verify, signals, 'abc', metrics)
+
+    def test_missing_monthly_metric_rejected(self):
+        result, verify, signals = sample()
+        metrics = sample_metrics()[:-1]
+        with self.assertRaisesRegex(ValueError, 'INVALID_METRIC_GROUP_COUNTS'):
+            assess(result, verify, signals, 'abc', metrics)
+
 
 
 if __name__ == '__main__':
