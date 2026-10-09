@@ -10,6 +10,7 @@
 - M15 blob IDs: USD `6d4f7691c1c6bfbad59b62a6f5d613a4ed1e984e`; CNY `a5ff61bbdd9bb6659a0f4fea7141b04b5e8bc35e`; GLD `726c9242a025e75de4d0e93a2c215cc2778b9a9`; IMOEXF `23d8e02920684a1a55e50b222271faaa81be5120`.
 - Path template: `forever/{SYMBOL}/{SYMBOL}_M5.csv` and `_M15.csv`. Fields: `Ticker;Datetime;Open;High;Low;Close;Volume`. Timestamps are read as FINAM-exported **MSK bar-start labels**, not shifted to UTC.
 - Source row counts for 2023 M5: USD 42,576; CNY 39,362; GLD 18,428; IMOEXF 4,429 (total 104,795); consistent with frozen PR #443 input manifest. This review did not calculate any 2024/2025+ trading metrics.
+- **Source-access limitation:** GitHub's large-file Contents fetch transmitted complete multi-year CSV payloads to the inspection tool, unlike PR #443's prefix-budget reader. Only rows tagged 2023 were selected for these M5/M15 checks; no 2024/2025+ strategy metrics, signals, selection or economic results were computed. This independent inspection must NOT claim that future-year bytes were physically unread.
 
 ## Direct, exact-time verification
 
