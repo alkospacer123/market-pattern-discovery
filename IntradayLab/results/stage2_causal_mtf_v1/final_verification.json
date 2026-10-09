@@ -1,0 +1,101 @@
+{
+  "actual_PRs_443_450": {
+    "443": {
+      "base": "main",
+      "draft": false,
+      "head": "0da11cf86169d5cedf3386549ebe244ca5204fd0",
+      "state": "open"
+    },
+    "444": {
+      "base": "main",
+      "draft": false,
+      "head": "f33e236e1a4f69cd614bb77bd988ba2b6d3f153e",
+      "state": "open"
+    },
+    "445": {
+      "base": "research/intraday-stage2-m5-baseline",
+      "draft": true,
+      "head": "9b404949767356a8b58ca25758d99dfce014f482",
+      "state": "open"
+    },
+    "446": {
+      "base": "main",
+      "draft": true,
+      "head": "938d7d81f5d7105c470c27c78eec57156948d50c",
+      "state": "open"
+    },
+    "447": {
+      "base": "research/intraday-stage2-m5-baseline",
+      "draft": true,
+      "head": "90369e12332e738da222dfe510120747c6ce9e80",
+      "state": "open"
+    },
+    "448": {
+      "base": "corrective/intraday-stage2-m5-conditional-v2",
+      "draft": true,
+      "head": "d000c5e8aad3e0bbae32f55bbf205483b48e9408",
+      "state": "open"
+    },
+    "449": {
+      "base": "corrective/intraday-stage2-m5-conditional-v2",
+      "draft": true,
+      "head": "ca8922082b0988837f7553e5ff39d6a2c3dece09",
+      "state": "open"
+    },
+    "450": {
+      "base": "corrective/intraday-stage2-m5-v2-independent-audit",
+      "draft": true,
+      "head": "095b4b0c829b6f92323a7cd5a023d2f559f3a8a3",
+      "state": "open"
+    }
+  },
+  "actual_main": "f5dec0a73bf1273f9490502fbc0b9588f9315260",
+  "actual_parent_head": "095b4b0c829b6f92323a7cd5a023d2f559f3a8a3",
+  "final_tests": "153 PASS,0 skips",
+  "full_annual_Net_PF_DD": "NULL_ALL_VARIANTS",
+  "implementation_report_sha256": {
+    "reports/STAGE2_CAUSAL_MTF_FINAL_REPORT.md": "39f34d133cf1d473febb00a7abd28b67031c54a425bb66c8c0fa546ce675e1c0",
+    "tests/test_causal_mtf.py": "7807a6ffa612248dd25a07cc601f1eda119c9ec4b49398756b0c755bf68da34d",
+    "tools/audit_causal_mtf.py": "2c52694ba57b43bb42647a8092a776f8f8964340ac5e67dadf7e6a31d3645e90",
+    "tools/causal_mtf.py": "9ff470800efd442559dd19d9e9de8b5f6610cfeb8848fa16b4eef6ed45f1af9c",
+    "tools/review_causal_mtf.py": "018d26b14aee3612ceec881a515b8f4092766eb1dcee588d90e9f085e501213a",
+    "tools/run_causal_mtf.py": "e3eaea3d8b3725257ae8b996cc1f43c6d0c1f1e12aeef63d9d4df2eb5a6507a4"
+  },
+  "logical_replay_artifacts_repeated": 10,
+  "monthly_direction_scenario_rows": 4608,
+  "original_unknowns_unchanged": 82,
+  "post_publication_note": "Final GitHub head/base/draft/diff verification recorded in PR Summary; no self-referential commit hash in this artifact.",
+  "protected_root_ids": {
+    ".gitattributes": "d11ce74a54029c3c6f60a72f30148f58e8a41c99",
+    ".gitignore": "75d2f5136fe75e034302dc5ca18c1f473639309b",
+    "AGENTS.md": "a3aa857b98dca524ea60c24c5171f96517e046c0",
+    "ARTIFACT_HANDOFF_VERIFICATION_REPORT.md": "f26dd57d7b0565c23a4dc932fb0618392f3a5e90",
+    "BBW": "7f9990cf12e4421e54a02fd98e507f1e4ef06cb0",
+    "CURRENT_ARTIFACT_STORAGE_STATUS.md": "4ac9d7d33f9508b80cbfc73ca1596dd3957b1490",
+    "PERMANENT_MEMORY_DIAGNOSTIC_REPORT.md": "22edfaa73b113d1c7599b4c460ddf99ccc782502",
+    "PERSISTENT_MEMORY_VERIFICATION_REPORT.md": "69133200da4beedca7612bd6aa54edb3a2049f6b",
+    "README.md": "9165abcb468852a09c2c81863f35ff396bf6f63b",
+    "ROADMAP.md": "94f8286109b75ddd5215eef194b6c02e3c9153c8",
+    "SMOKE_RUN_V2_REPORT.md": "e3886eb955151d7842669c642333fcfd3a420354",
+    "SMOKE_RUN_V3_REPORT.md": "9bc70e8af8f6423935a56e71da4d0fe2f42a25a0",
+    "TradingSystemLab": "7ee08c92fdd5cef92f4a4a6f00a4d26b89fab6b2",
+    "bbw_system": "b6ec4d85776cbc487baacce26a7d3c46e644e823",
+    "config": "bb4b819a158038a94c87e426f2598c025cd031d1",
+    "docs": "c41260c2e2a7561f0997563c558e8c09c3318144",
+    "evidence": "bf5a5714bef835576baddfabb699cf6b61fb375a",
+    "pyproject.toml": "d1874cd67bece45bfdd0e060876a4f2cbcdeb187",
+    "research": "9517d7b7e8a05fe13d944aa7e7cc0ce33e0a6592",
+    "research_domains.md": "3b957c8c5c02e09ad2b85643d8c5947b7f4a0fe7",
+    "results": "7915a53ca48a840ab7e1d33fe7b7f8246b9bcdeb",
+    "schemas": "e49bddfe93abacf9aa98d2445efdd3b799c0423a",
+    "scripts": "f659ff281b1c14b3173e861c0912946e7055be8c",
+    "src": "49b5b2f90e3f959c197907cfc9bf31fb542af81e",
+    "tests": "2e6e9891fd9179adb60b4e3c76b5418bd650eac1"
+  },
+  "reporting_artifacts_repeated": 9,
+  "retained_immutable_files_verified": 152,
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "source_status": "CLEAN_READ_ONLY",
+  "status": "PASS_FINAL_INDEPENDENT_SCOPE_FROZEN_HASH_PACKAGING_AND_REPORT_AUDIT",
+  "summary_cohorts_independently_checked": 64
+}

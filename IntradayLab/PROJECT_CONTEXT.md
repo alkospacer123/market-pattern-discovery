@@ -1,6 +1,14 @@
 # IntradayLab — project context
 
-## Current Stage 2 result — 2026-10-09
+## Final bounded Stage 2 closeout — 2026-10-09
+
+**VWAP Mean Reversion: NO ECONOMIC BASELINE PASS / REJECT CANDIDATE. Session Momentum: NO ECONOMIC BASELINE PASS / REJECT CANDIDATE.** This final rejection covers the retained M5 architectures and the completed, predeclared derived-M5 M30/M15/H1 tests. See [final causal MTF assessment](reports/STAGE2_CAUSAL_MTF_FINAL_REPORT.md) and [all comparisons](results/stage2_causal_mtf_v1/architecture_comparison.csv). Internal independent-algorithm verification is complete; external acceptance of this Draft remains pending the user's independent audit.
+
+The current user task explicitly authorized this bounded 2023 MTF batch after readiness PASS. **Derived context PASS:** exact completed children only, same window/day, no gaps/reconstruction, M30 availability >= T+35m (T15 stress >= T+40m). Native FINAM higher-TF delivery remains unproved/blocked and is not used. 128 fixed runs include unchanged M5 comparators and their T15 sensitivities; no parameter grid. MTF improves a few known subsets but does not establish adequate trades, stable months, instrument diversity or delay resilience. Full annual Net/PF/DD remain null; the original 82 unknown outcomes and all PR #443/#447/#449/#450 freezes are unchanged.
+
+**Research scope is complete for both candidates; neither advances to Stage 3.** Volatility Squeeze Breakout is the next roadmap recommendation only: **NOT IMPLEMENTED / WAIT FOR A SEPARATE USER DECISION AFTER INDEPENDENT AUDIT.** No merge, LIVE, 2024 WF/2025+ reads or protected-tree changes. The prior decisions below are historical provenance, not the current OPEN status.
+
+## Historical PR #450 M5-only result — 2026-10-09
 
 **Tested M5-only architectures: NO ECONOMIC BASELINE PASS / REJECT THESE M5 VARIANTS. VWAP and Momentum as strategy candidates remain OPEN for their final bounded Stage 2 MTF assessment.** [Frozen economic report](reports/STAGE2_COMPLETE_ARCHITECTURES_REPORT.md) documents 48 primary fixed-rule comparisons and 48 delay checks, the payable-entry follow-up, and exit-only attribution; its original M5-only `NO ECONOMIC BASELINE PASS / REJECT CANDIDATE` conclusion describes **only the tested scope**, not an independently verified MTF rejection. GLD closed subsets lack stable months/trades or delay resilience; annual Net/PF/DD remain null and 82 original unknown paths are untouched. Native M30 OHLCV composition matches on complete 2023 buckets but its delivery/finalization contract is unproved; **native MTF remains BLOCKED**. Stage 3/WF/OOS/LIVE/merge remain unauthorized. **Do not begin Volatility Squeeze Breakout until both VWAP and Momentum have a final independently audited Stage 2 decision, including the MTF comparison or a documented inability to perform it accepted by the user.**
 
