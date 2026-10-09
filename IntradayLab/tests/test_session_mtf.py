@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from session_mtf import (Bar, BlockedInterval, SessionWindow, TimestampEvidence,
                          aggregate, align_contexts, bounded_lines)
 from audit_session_mtf import (IMOEXF_QUARANTINE, candidate_segments,
-                               compare_labels, is_trading_date, read_prefix)
+                               candidate_auction_segments, compare_labels,
+                               is_trading_date, read_prefix, session_diagnostics)
 
 START = datetime(2024, 4, 26, 10)
 PROOF = TimestampEvidence("Europe/Moscow", "start", ("synthetic contract",))
@@ -246,8 +247,54 @@ class HistoricalCalendarTests(unittest.TestCase):
         self.assertEqual(candidate_segments(date(2023, 9, 13))[0][0].strftime("%H:%M"), "13:30")
         self.assertEqual(candidate_segments(date(2024, 9, 19))[-1][0].strftime("%H:%M"), "19:50")
         nov = candidate_segments(date(2024, 11, 19))
-        self.assertEqual(nov[2][1].strftime("%H:%M"), "16:18")
-        self.assertEqual(nov[3][0].strftime("%H:%M"), "16:50")
+        self.assertEqual(nov[-3][1].strftime("%H:%M"), "16:18")
+        self.assertEqual(nov[-2][0].strftime("%H:%M"), "16:50")
+
+    def test_morning_suspension_effective_boundary_and_auction(self):
+        before, effective = date(2024, 6, 13), date(2024, 6, 14)
+        self.assertEqual(candidate_segments(before)[0],
+                         (datetime(2024, 6, 13, 9), datetime(2024, 6, 13, 10)))
+        self.assertEqual(candidate_auction_segments(before), [])
+        for day in (effective, date(2024, 12, 30)):
+            with self.subTest(day=day):
+                self.assertTrue(all(start.hour >= 10 for start, _ in candidate_segments(day)))
+                self.assertEqual(candidate_auction_segments(day),
+                                 [(datetime(day.year, day.month, day.day, 9, 50),
+                                   datetime(day.year, day.month, day.day, 10))])
+        for day in (date(2024, 6, 15), date(2024, 12, 31), date(2025, 1, 3)):
+            self.assertEqual(candidate_segments(day), [])
+            self.assertEqual(candidate_auction_segments(day), [])
+
+    def test_suspended_morning_and_auction_never_supply_required_m5(self):
+        for day, missing_morning in ((date(2024, 6, 13), 12), (date(2024, 6, 14), 0)):
+            with self.subTest(day=day):
+                start = datetime(day.year, day.month, day.day, 10)
+                m5, _ = data(count=1, start=start)
+                stats = session_diagnostics(m5)
+                self.assertEqual(stats["candidate_missing_m5_slots_UNRESOLVED"]["morning"], missing_morning)
+                self.assertEqual(stats["auction_m5_UNRESOLVED"]["observed_bars"], 0)
+        m5, _ = data(count=5, start=datetime(2024, 6, 14, 9, 50))
+        stats = session_diagnostics(m5)
+        self.assertEqual(stats["candidate_missing_m5_slots_UNRESOLVED"]["morning"], 0)
+        self.assertEqual(stats["auction_m5_UNRESOLVED"]["observed_bars"], 2)
+        self.assertEqual(stats["auction_m5_UNRESOLVED"]["observed_dates"], 1)
+        self.assertEqual(stats["outside_candidate_full_bar_count_UNRESOLVED"], 0)
+        self.assertFalse(stats["auction_m5_UNRESOLVED"]["required_m5_slots"])
+        self.assertFalse(stats["auction_m5_UNRESOLVED"]["ordinary_mtf_authorized"])
+
+    def test_auction_context_cannot_cross_into_continuous_session(self):
+        # Explicitly confirmed synthetic daytime only; auction remains unconfirmed.
+        day = date(2024, 6, 14)
+        windows = tuple(SessionWindow(start, end, str(i), day, True, ("synthetic calendar",))
+                        for i, (start, end) in enumerate(candidate_segments(day)))
+        for minutes in (15, 30, 60):
+            with self.subTest(minutes=minutes):
+                start = datetime(2024, 6, 14, 10) - timedelta(minutes=minutes)
+                m5, parents = data(minutes, count=2 * minutes // 5, start=start)
+                out = aligned(m5, parents, minutes, sessions=windows)
+                first_continuous_close = datetime(2024, 6, 14, 10) + timedelta(minutes=minutes)
+                self.assertTrue(all(d.parent is None for d in out if d.asof < first_continuous_close))
+                self.assertIsNotNone(out[-1].parent)
 
 
 class GuardRaw(io.RawIOBase):

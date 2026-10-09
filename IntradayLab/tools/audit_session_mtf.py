@@ -25,6 +25,7 @@ from session_mtf import (Bar, IMOEXF_QUARANTINE, TimestampEvidence, aggregate,
 MINUTES = {"M5": 5, "M15": 15, "M30": 30, "H1": 60}
 HEADER = ["Ticker", "Datetime", "Open", "High", "Low", "Close", "Volume"]
 CUTOFF = datetime(2025, 1, 1)
+MORNING_SUSPENDED_FROM = date(2024, 6, 14)
 SOURCE_REF = "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8"
 WORKING_SATURDAYS = {date(2024, 4, 27), date(2024, 11, 2), date(2024, 12, 28)}
 HOLIDAYS = {(1, 1), (1, 2), (1, 7), (2, 23), (3, 8), (5, 1), (5, 9), (6, 12), (11, 4)}
@@ -40,6 +41,9 @@ SOURCES = [
      "fact": "2023/2024 civil holidays and 2024 working Saturdays; not an exchange session calendar"},
     {"id": "MOEX_MORNING", "url": "https://www.moex.com/n51095",
      "published": "2022-09-01", "fact": "From 12 September 2022: morning 09-10, main 10-19, evening 19:05-23:50 MSK"},
+    {"id": "CBR_MORNING_SUSPENSION", "url": "https://www.cbr.ru/press/PR/?file=638539087789554818SUP_MEAS.htm",
+     "published": "2024-06-13", "effective_from": "2024-06-14",
+     "fact": "No MOEX FX, metals or derivatives trading sessions before 09:50 MSK from 14 June 2024 until revocation; supersedes earlier morning schedule"},
     {"id": "MOEX_ALL_INSTRUMENTS", "url": "https://www.moex.com/n51208",
      "published": "2022-09-06", "fact": "All instruments eligible for evening from 9 September and morning from 12 September 2022"},
     {"id": "MOEX_MAR2023_EXTENSION", "url": "https://www.moex.com/n55032",
@@ -74,6 +78,8 @@ def candidate_segments(day: date) -> list[tuple[datetime, datetime]]:
     The 19 September actual extension endpoint is unresolved: conservatively
     exclude the whole possible extension through 19:50. Morning eligibility
     of later-listed contracts and all exceptional regimes remain unresolved.
+    From 14 June 2024 there is no continuous morning segment: trading before
+    09:50 was suspended, and 09:50-10:00 is treated separately as an auction.
     """
     if not is_trading_date(day):
         return []
@@ -82,14 +88,27 @@ def candidate_segments(day: date) -> list[tuple[datetime, datetime]]:
     extended = date(2023, 3, 13) <= day < date(2023, 3, 21)
     afternoon = at(14, 15 if extended else 5)
     evening = at(19, 15 if extended else 5)
-    segments = [(at(9), at(10)), (at(10), at(14)), (afternoon, at(18, 50)), (evening, at(23, 50))]
+    morning = [(at(9), at(10))] if day < MORNING_SUSPENDED_FROM else []
+    segments = morning + [(at(10), at(14)), (afternoon, at(18, 50)), (evening, at(23, 50))]
     if day == date(2023, 9, 13):
         segments = [(at(13, 30), at(14)), (afternoon, at(18, 50)), (evening, at(23, 50))]
     if day == date(2024, 9, 19):
         segments[-1] = (at(19, 50), at(23, 50))
     if day == date(2024, 11, 19):
-        segments[2:3] = [(afternoon, at(16, 18)), (at(16, 50), at(18, 50))]
+        segments[-2:-1] = [(afternoon, at(16, 18)), (at(16, 50), at(18, 50))]
     return segments
+
+
+def candidate_auction_segments(day: date) -> list[tuple[datetime, datetime]]:
+    """Separate MSK/start auction diagnostic; UNRESOLVED for ordinary MTF.
+
+    Never supplies required M5 slots or confirmed continuous SessionWindows.
+    CSV timestamp semantics and contract-specific auction coverage are unknown.
+    """
+    if not is_trading_date(day) or day < MORNING_SUSPENDED_FROM:
+        return []
+    return [(datetime(day.year, day.month, day.day, 9, 50),
+             datetime(day.year, day.month, day.day, 10))]
 
 
 def read_prefix(path: Path, symbol: str, tf: str, expected: dict) -> tuple[list[Bar], dict]:
@@ -189,8 +208,9 @@ def session_diagnostics(m5: list[Bar]) -> dict:
             expected.add(current)
         current += timedelta(days=1)
     grid = {b.timestamp for b in bars}
-    missing = Counter()
+    missing = Counter({"morning": 0, "daytime": 0, "evening": 0})
     outside = []
+    auction = []
     for day in sorted(observed):
         for start, stop in candidate_segments(day):
             t = start
@@ -200,7 +220,9 @@ def session_diagnostics(m5: list[Bar]) -> dict:
                 t += timedelta(minutes=5)
     for b in bars:
         t = b.timestamp
-        if not any(a <= t and t + timedelta(minutes=5) <= z for a, z in candidate_segments(t.date())):
+        if any(a <= t and t + timedelta(minutes=5) <= z for a, z in candidate_auction_segments(t.date())):
+            auction.append(str(t))
+        elif not any(a <= t and t + timedelta(minutes=5) <= z for a, z in candidate_segments(t.date())):
             outside.append(str(t))
     intraday_gaps = Counter()
     for left, right in zip(bars, bars[1:]):
@@ -215,6 +237,12 @@ def session_diagnostics(m5: list[Bar]) -> dict:
             "first_clock_label": min(b.timestamp.time().isoformat() for b in bars),
             "last_clock_label": max(b.timestamp.time().isoformat() for b in bars),
             "candidate_missing_m5_slots_UNRESOLVED": dict(sorted(missing.items())),
+            "auction_m5_UNRESOLVED": {
+                "status": "UNRESOLVED", "effective_from": str(MORNING_SUSPENDED_FROM),
+                "clock_interval": "09:50-10:00", "required_m5_slots": False,
+                "ordinary_mtf_authorized": False, "observed_bars": len(auction),
+                "observed_dates": len({t[:10] for t in auction}),
+                "clock_counts": dict(sorted(Counter(t[11:] for t in auction).items()))},
             "outside_candidate_full_bar_count_UNRESOLVED": len(outside),
             "outside_candidate_examples": outside[:20],
             "outside_candidate_clock_counts": dict(sorted(Counter(t[11:] for t in outside).items())),
