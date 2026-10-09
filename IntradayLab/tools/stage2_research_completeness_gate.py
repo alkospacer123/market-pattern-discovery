@@ -20,7 +20,7 @@ EXPECTED = {f'{st}_{sy}' for st in STRATEGIES for sy in SYMBOLS}
 MONTHS = [f'2023-{i:02d}' for i in range(1, 13)]
 
 
-def assess(result, verification, signal_rows, manifest_hash):
+def assess(result, verification, signal_rows, manifest_hash, metric_rows=None):
     """Fail closed on provenance/count/accounting inconsistencies."""
     if result['manifest_sha256'] != manifest_hash or verification['manifest_sha256'] != manifest_hash:
         raise ValueError('FROZEN_MANIFEST_HASH_MISMATCH')
@@ -89,6 +89,34 @@ def assess(result, verification, signal_rows, manifest_hash):
                 'unknown_entry_orders': statuses['UNRESOLVED_POSSIBLE_ENTRY_FILL'],
                 'research_PnL_status': month_pnl,
             })
+    if metric_rows is not None:
+        metrics = list(metric_rows)
+        counts = Counter(m['group'] for m in metrics)
+        if counts != {'YEAR': 8, 'DIRECTION': 16, 'MONTH': 96}:
+            raise ValueError('INVALID_METRIC_GROUP_COUNTS')
+        by_key = {}
+        for m in metrics:
+            key = (m['run'], m['group'], m['period'])
+            if m['run'] not in EXPECTED or key in by_key:
+                raise ValueError('UNDECLARED_OR_DUPLICATE_METRIC')
+            by_key[key] = m
+        for d in details:
+            year = by_key.get((d['run'], 'YEAR', '2023'))
+            if year is None:
+                raise ValueError('YEAR_METRIC_MISSING:' + d['run'])
+            if int(year['closed_accounted_trades']) != d['closed_accounted']:
+                raise ValueError('YEAR_CLOSED_TRADE_MISMATCH:' + d['run'])
+            if d['classification'] == 'INCOMPLETE' and (year['full_PF'] or year['net_model_c1']):
+                raise ValueError('UNPROVEN_CSV_ANNUAL_PERFORMANCE:' + d['run'])
+        for m in monthly:
+            record = by_key.get((m['run'], 'MONTH', m['month']))
+            if record is None:
+                raise ValueError('MONTH_METRIC_MISSING:' + m['run'] + '/' + m['month'])
+            if record['coverage_status'] != m['coverage']:
+                raise ValueError('MONTH_COVERAGE_MISMATCH:' + m['run'] + '/' + m['month'])
+            if m['research_PnL_status'] != 'PROVISIONAL_COMPLETE_MTM_REQUIRES_REVIEW':
+                if record['net_model_c1'] or record['full_PF']:
+                    raise ValueError('UNPROVEN_CSV_MONTHLY_PERFORMANCE:' + m['run'] + '/' + m['month'])
     if total_blocked != verification['blocked_signals'] or total_unknown != verification['unknown_entry_orders'] or total_unknown+total_unresolved != verification['total_unresolved_cases']:
         raise ValueError('GLOBAL_VERIFICATION_MISMATCH')
     # A complete replay would still need independent performance, cost and monthly stability review.
@@ -119,8 +147,8 @@ def main():
         raise ValueError('MANIFEST_CHANGED_SINCE_BASELINE')
     result = json.loads((BASE / 'results.json').read_text())
     verification = json.loads((BASE / 'verification.json').read_text())
-    with (BASE / 'signals.csv').open(newline='') as f:
-        out = assess(result, verification, csv.DictReader(f), manifest_hash)
+    with (BASE / 'signals.csv').open(newline='') as f, (BASE / 'metrics.csv').open(newline='') as m:
+        out = assess(result, verification, csv.DictReader(f), manifest_hash, csv.DictReader(m))
     print(json.dumps(out, sort_keys=True, indent=2, ensure_ascii=False))
 
 
