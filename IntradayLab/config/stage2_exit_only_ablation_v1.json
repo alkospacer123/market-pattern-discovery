@@ -1,0 +1,80 @@
+{
+  "authorization": "Explicit current user task for bounded 2023 Stage2 complete architecture research and Draft PR.",
+  "defaults": {
+    "breakeven_trigger_R": "1",
+    "breakout_stop_buffer_atr": "0.5",
+    "ema_period": 50,
+    "indicator_period": 14,
+    "max_breakout_extension_atr": "1",
+    "max_signal_tr_atr": "2",
+    "minimum_risk_ticks": 4,
+    "stagnation_minutes": 30,
+    "stagnation_progress_R": "0.5",
+    "trail_atr": "2",
+    "trail_trigger_R": "2",
+    "trend_adx": "25"
+  },
+  "fixed_rules": {
+    "exit_rules": "Reuse the already frozen MANAGEMENT delivered-close premise/stagnation, Momentum fixed-TP removal/BE/trailing, future amendments, original max hold and session flat. Only initial Stop redesign and ATR14 entry gate disabled, because entries and original protection are deliberately held constant.",
+    "isolation": "Isolates exit-bundle contribution from initial Stop and new entry opportunities; does not factorially isolate every individual exit trigger.",
+    "metrics": "Pairs with same seed entry and original initial risk, both outcomes known. Diagnostic change in Net per instrument, winners damaged/losses reduced and exit counts. Independent overlapping seeds are not a tradable portfolio: no full Net/PF/DD/frequency claim.",
+    "parameters": "No changed constant, threshold or parameter sweep.",
+    "scope": "All2058 original accounted2023 entries independently seeded at exact original Open/time, Stop, Take and R; original82 unknown outcomes excluded unchanged.",
+    "unknown": "If new exit path becomes unknown, keep counterfactual Net=null and omit pair; no missing-bar study or invented prices."
+  },
+  "frozen_on": "2026-10-09 Europe/Moscow",
+  "id": "stage2_exit_only_ablation_v1",
+  "inputs": {
+    "CNYRUBF": {
+      "blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 39362
+    },
+    "GLDRUBF": {
+      "blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "first": "2023-07-11 10:00:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 18428
+    },
+    "IMOEXF": {
+      "blob": "41b83b109b177d4522e53486950104845d357d99",
+      "first": "2023-11-14 10:00:00",
+      "path": "forever/IMOEXF/IMOEXF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 4429
+    },
+    "USDRUBF": {
+      "blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/USDRUBF/USDRUBF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 42576
+    }
+  },
+  "methodology_head": "d000c5e8aad3e0bbae32f55bbf205483b48e9408",
+  "parameters": {
+    "adverse_entry_cap_atr": "0.25",
+    "atr_period": 12,
+    "availability_minutes": 10,
+    "close_before_boundary_minutes": 20,
+    "decision_delay_minutes": 0,
+    "entry_ttl_bars": 1,
+    "flat_confirm_before_boundary_minutes": 10,
+    "momentum_max_hold_minutes": 90,
+    "momentum_take_atr": "3",
+    "no_entry_before_boundary_minutes": 30,
+    "order_delay_minutes": 0,
+    "range_period": 12,
+    "stop_atr": "1.5",
+    "vwap_deviation_atr": "1",
+    "vwap_max_hold_minutes": 60,
+    "warmup_prior_bars": 13
+  },
+  "parent_head": "ca8922082b0988837f7553e5ff39d6a2c3dece09",
+  "rationale": "Initial management bundle can widen Stop and alter opportunity flow; pure exit ablation is needed to test loss reduction versus prematurely closing future winners without attributing structural risk changes to new exits.",
+  "schema": 1,
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8"
+}
