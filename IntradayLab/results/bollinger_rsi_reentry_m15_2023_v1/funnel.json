@@ -1,0 +1,58 @@
+{
+  "CNYRUBF": {
+    "M15_decisions": 8636,
+    "admitted_Open_entries": 48,
+    "breach_candidates": 305,
+    "closed": 44,
+    "model_fills": 48,
+    "pending_entries": 60,
+    "position_busy": 1,
+    "ready_indicator_decisions": 3552,
+    "reentry_signals": 101,
+    "submitted_orders": 60,
+    "unknown": 4,
+    "unknown_possible_fills": 0
+  },
+  "GLDRUBF": {
+    "M15_decisions": 4216,
+    "admitted_Open_entries": 7,
+    "breach_candidates": 28,
+    "closed": 5,
+    "model_fills": 7,
+    "pending_entries": 9,
+    "position_busy": 0,
+    "ready_indicator_decisions": 485,
+    "reentry_signals": 14,
+    "submitted_orders": 9,
+    "unknown": 2,
+    "unknown_possible_fills": 0
+  },
+  "IMOEXF": {
+    "M15_decisions": 1156,
+    "admitted_Open_entries": 3,
+    "breach_candidates": 7,
+    "closed": 3,
+    "model_fills": 3,
+    "pending_entries": 3,
+    "position_busy": 0,
+    "ready_indicator_decisions": 119,
+    "reentry_signals": 4,
+    "submitted_orders": 3,
+    "unknown": 0,
+    "unknown_possible_fills": 0
+  },
+  "USDRUBF": {
+    "M15_decisions": 8636,
+    "admitted_Open_entries": 129,
+    "breach_candidates": 676,
+    "closed": 128,
+    "model_fills": 129,
+    "pending_entries": 141,
+    "position_busy": 3,
+    "ready_indicator_decisions": 7929,
+    "reentry_signals": 249,
+    "submitted_orders": 141,
+    "unknown": 1,
+    "unknown_possible_fills": 0
+  }
+}

@@ -1,0 +1,588 @@
+{
+  "baseline_status": "INCONCLUSIVE",
+  "continuous_portfolio_equity": null,
+  "instruments": {
+    "CNYRUBF": {
+      "admitted_orders": 60,
+      "annual": {
+        "Expectancy_R": null,
+        "Max_DD_R": null,
+        "Net_R": null,
+        "PF_C1_R": null,
+        "PF_C1_price": null,
+        "Win_Rate": null
+      },
+      "annual_complete": false,
+      "calendar_regularity": {
+        "model_fills_per_available_calendar_day": "0.1889763779527559055118110236",
+        "positive_active_month_fraction": "0.2222222222222222222222222222",
+        "positive_month_fraction_of_12": "0.1666666666666666666666666667",
+        "worst_known_closed_month": "2023-11",
+        "worst_known_closed_month_Net_R": "-1.826782085037687958381834210"
+      },
+      "closed": 44,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.06274267282417627411099724132",
+        "Max_DD_R": "5.342790234831764203262730379",
+        "Net_R": "-2.760677604263756060883878618",
+        "Net_price": "-0.087",
+        "PF_C1_R": "0.8492123108548369285070835031",
+        "PF_C1_price": "0.8703427719821162444113263785",
+        "PF_no_losses": false,
+        "Win_Rate": "0.3636363636363636363636363636",
+        "closed": 44,
+        "cost_C1": "0.304",
+        "exit_reasons": {
+          "SESSION_FLAT": 8,
+          "STOP": 11,
+          "TAKE": 7,
+          "TIME": 13,
+          "TRADE_DEADLINE": 5
+        }
+      },
+      "distribution": {
+        "active_months": 9,
+        "average_loser_R": "-0.7041682809667510689216460846",
+        "average_loser_price": "-0.02580769230769230769230769231",
+        "average_winner_R": "0.9717311063044857331924324738",
+        "average_winner_price": "0.0365",
+        "largest_positive_month_share_R": "0.5346552580498930112338535229",
+        "largest_winner_share_R": "0.1286364089705615008884535838",
+        "monthly_closed_Net_R": {
+          "2023-01": "0",
+          "2023-04": "-0.4",
+          "2023-05": "-1.4",
+          "2023-07": "2",
+          "2023-08": "-0.5685703185703185703185703187",
+          "2023-09": "-1.291666666666666666666666667",
+          "2023-10": "1.740728198007104993240408505",
+          "2023-11": "-1.826782085037687958381834210",
+          "2023-12": "-1.014386731996187858757215929"
+        },
+        "negative_months": 6,
+        "positive_months": 2,
+        "top_three_winners_share_R": "0.3495186638476440780719166454",
+        "unique_trade_days": 39,
+        "zero_closed_economy_months": 4
+      },
+      "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+      "events": 8636,
+      "evidence_checks": {
+        "PF_goal_met": false,
+        "complete": false,
+        "concentration_acceptable": false,
+        "enough_sample": true,
+        "monthly_stability": false,
+        "positive_expectancy": false
+      },
+      "formation": {
+        "exact_M15": 7661,
+        "expected_full_M15_slots": 8636,
+        "incomplete_M15": 975,
+        "known_Open_incomplete_M15": 551
+      },
+      "frequency": {
+        "available_research_days": 254,
+        "fills_per_submitted_order": "0.8",
+        "model_fill_days": 43,
+        "no_model_fill_days": 211,
+        "orders_per_signal": "0.5940594059405940594059405941",
+        "pending_per_signal": "0.5940594059405940594059405941"
+      },
+      "funnel": {
+        "M15_decisions": 8636,
+        "admitted_Open_entries": 48,
+        "breach_candidates": 305,
+        "closed": 44,
+        "model_fills": 48,
+        "pending_entries": 60,
+        "position_busy": 1,
+        "ready_indicator_decisions": 3552,
+        "reentry_signals": 101,
+        "submitted_orders": 60,
+        "unknown": 4,
+        "unknown_possible_fills": 0
+      },
+      "model_fills": 48,
+      "optimization_allowed": false,
+      "post_unknown_conditional_closed": 43,
+      "rejection_reasons": {
+        "B_NOT_READY_OR_BOUNDARY": 280,
+        "INDICATORS_NOT_READY": 4109,
+        "INVALID_RISK": 3,
+        "M15_INVALID_BAR": 551,
+        "M15_MISSING_BAR": 424,
+        "NO_BREACH_B": 2967,
+        "NO_REENTRY_C": 177,
+        "NO_RSI_IMPROVEMENT": 27,
+        "POSITION_BUSY": 1,
+        "RISK_BELOW_FOUR_TICKS": 9,
+        "SESSION_ENTRY_CUTOFF": 4,
+        "SESSION_LIMIT": 1,
+        "TRADE_DEADLINE": 35
+      },
+      "signals": 101,
+      "status": "INCONCLUSIVE",
+      "target_C1_diagnostics": {
+        "actual_Take_net_net_R_max": "1.523809523809523809523809524",
+        "actual_Take_net_net_R_min": "1.5",
+        "adverse_Stop_gaps": 0,
+        "cost_R_known_closed": "6.221389563905839857835042911",
+        "cost_price_known_closed": "0.304",
+        "exit_reasons": {
+          "SESSION_FLAT": 8,
+          "STOP": 11,
+          "TAKE": 7,
+          "TIME": 13,
+          "TRADE_DEADLINE": 5
+        },
+        "gross_R_known_closed": "3.460711959642083796951164297",
+        "gross_price_known_closed": "0.217",
+        "initial_R_denominator": "initial gross price risk; unchanged common metric contract",
+        "known_closures_reaching_full_net_1_5R": 7,
+        "mean_positive_realized_net_net_R": "0.8612278228458156401488106419",
+        "planned_full_net_R_max": "1.571428571428571428571428571",
+        "planned_full_net_R_min": "1.5",
+        "target_hit_closed": 7,
+        "target_hit_fraction_known_closed": "0.1590909090909090909090909091",
+        "target_ratio_denominator": "initial gross risk + round-trip C1",
+        "unresolved_filled_targets": 4
+      },
+      "unknown": 4,
+      "unknown_possible_entry": 0,
+      "unknown_reasons": {
+        "INVALID_EXPOSED_BAR": 4
+      }
+    },
+    "GLDRUBF": {
+      "admitted_orders": 9,
+      "annual": {
+        "Expectancy_R": null,
+        "Max_DD_R": null,
+        "Net_R": null,
+        "PF_C1_R": null,
+        "PF_C1_price": null,
+        "Win_Rate": null
+      },
+      "annual_complete": false,
+      "calendar_regularity": {
+        "model_fills_per_available_calendar_day": "0.05645161290322580645161290323",
+        "positive_active_month_fraction": "0.3333333333333333333333333333",
+        "positive_month_fraction_of_12": "0.08333333333333333333333333333",
+        "worst_known_closed_month": "2023-10",
+        "worst_known_closed_month_Net_R": "-2.141949152542372881355932203"
+      },
+      "closed": 5,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.6876789624291854443504755724",
+        "Max_DD_R": "4.228871002622117697942854053",
+        "Net_R": "-3.438394812145927221752377862",
+        "Net_price": "-16.8",
+        "PF_C1_R": "0.1869236942876844787258535782",
+        "PF_C1_price": "0.3306772908366533864541832669",
+        "PF_no_losses": false,
+        "Win_Rate": "0.2",
+        "closed": 5,
+        "cost_C1": "1.0",
+        "exit_reasons": {
+          "SESSION_FLAT": 1,
+          "STOP": 4
+        }
+      },
+      "distribution": {
+        "active_months": 3,
+        "average_loser_R": "-1.057217750655529424485713513",
+        "average_loser_price": "-6.275",
+        "average_winner_R": "0.7904761904761904761904761905",
+        "average_winner_price": "8.3",
+        "largest_positive_month_share_R": "1",
+        "largest_winner_share_R": "1",
+        "monthly_closed_Net_R": {
+          "2023-10": "-2.141949152542372881355932203",
+          "2023-11": "-2.086921850079744816586921850",
+          "2023-12": "0.7904761904761904761904761905"
+        },
+        "negative_months": 2,
+        "positive_months": 1,
+        "top_three_winners_share_R": "1",
+        "unique_trade_days": 5,
+        "zero_closed_economy_months": 9
+      },
+      "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+      "events": 4216,
+      "evidence_checks": {
+        "PF_goal_met": false,
+        "complete": false,
+        "concentration_acceptable": false,
+        "enough_sample": false,
+        "monthly_stability": false,
+        "positive_expectancy": false
+      },
+      "formation": {
+        "exact_M15": 3450,
+        "expected_full_M15_slots": 8636,
+        "incomplete_M15": 5186,
+        "known_Open_incomplete_M15": 477
+      },
+      "frequency": {
+        "available_research_days": 124,
+        "fills_per_submitted_order": "0.7777777777777777777777777778",
+        "model_fill_days": 7,
+        "no_model_fill_days": 117,
+        "orders_per_signal": "0.6428571428571428571428571429",
+        "pending_per_signal": "0.6428571428571428571428571429"
+      },
+      "funnel": {
+        "M15_decisions": 4216,
+        "admitted_Open_entries": 7,
+        "breach_candidates": 28,
+        "closed": 5,
+        "model_fills": 7,
+        "pending_entries": 9,
+        "position_busy": 0,
+        "ready_indicator_decisions": 485,
+        "reentry_signals": 14,
+        "submitted_orders": 9,
+        "unknown": 2,
+        "unknown_possible_fills": 0
+      },
+      "model_fills": 7,
+      "optimization_allowed": false,
+      "post_unknown_conditional_closed": 5,
+      "rejection_reasons": {
+        "B_NOT_READY_OR_BOUNDARY": 56,
+        "INDICATORS_NOT_READY": 2965,
+        "INVALID_RISK": 2,
+        "M15_INVALID_BAR": 477,
+        "M15_MISSING_BAR": 289,
+        "NO_BREACH_B": 401,
+        "NO_REENTRY_C": 11,
+        "NO_RSI_IMPROVEMENT": 3,
+        "SESSION_ENTRY_CUTOFF": 2,
+        "TRADE_DEADLINE": 3
+      },
+      "signals": 14,
+      "status": "INCONCLUSIVE",
+      "target_C1_diagnostics": {
+        "actual_Take_net_net_R_max": null,
+        "actual_Take_net_net_R_min": null,
+        "adverse_Stop_gaps": 0,
+        "cost_R_known_closed": "0.2479186216697367455619016726",
+        "cost_price_known_closed": "1.0",
+        "exit_reasons": {
+          "SESSION_FLAT": 1,
+          "STOP": 4
+        },
+        "gross_R_known_closed": "-3.190476190476190476190476190",
+        "gross_price_known_closed": "-15.8",
+        "initial_R_denominator": "initial gross price risk; unchanged common metric contract",
+        "known_closures_reaching_full_net_1_5R": 0,
+        "mean_positive_realized_net_net_R": "0.7757009345794392523364485981",
+        "planned_full_net_R_max": "1.514285714285714285714285714",
+        "planned_full_net_R_min": "1.5",
+        "target_hit_closed": 0,
+        "target_hit_fraction_known_closed": "0",
+        "target_ratio_denominator": "initial gross risk + round-trip C1",
+        "unresolved_filled_targets": 2
+      },
+      "unknown": 2,
+      "unknown_possible_entry": 0,
+      "unknown_reasons": {
+        "MISSING_EXPOSED_BAR": 2
+      }
+    },
+    "IMOEXF": {
+      "admitted_orders": 3,
+      "annual": {
+        "Expectancy_R": null,
+        "Max_DD_R": null,
+        "Net_R": null,
+        "PF_C1_R": null,
+        "PF_C1_price": null,
+        "Win_Rate": null
+      },
+      "annual_complete": false,
+      "calendar_regularity": {
+        "model_fills_per_available_calendar_day": "0.08823529411764705882352941176",
+        "positive_active_month_fraction": "0",
+        "positive_month_fraction_of_12": "0",
+        "worst_known_closed_month": "2023-12",
+        "worst_known_closed_month_Net_R": "-2.084828215262997871693523868"
+      },
+      "closed": 3,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.694942738420999290564507956",
+        "Max_DD_R": "2.258741258741258741258741259",
+        "Net_R": "-2.084828215262997871693523868",
+        "Net_price": "-18.5",
+        "PF_C1_R": "0.07699555794857988962175259119",
+        "PF_C1_price": "0.09756097560975609756097560976",
+        "PF_no_losses": false,
+        "Win_Rate": "0.3333333333333333333333333333",
+        "closed": 3,
+        "cost_C1": "3.0",
+        "exit_reasons": {
+          "STOP": 2,
+          "TIME": 1
+        }
+      },
+      "distribution": {
+        "active_months": 1,
+        "average_loser_R": "-1.129370629370629370629370630",
+        "average_loser_price": "-10.25",
+        "average_winner_R": "0.1739130434782608695652173913",
+        "average_winner_price": "2.0",
+        "largest_positive_month_share_R": null,
+        "largest_winner_share_R": "1",
+        "monthly_closed_Net_R": {
+          "2023-12": "-2.084828215262997871693523868"
+        },
+        "negative_months": 1,
+        "positive_months": 0,
+        "top_three_winners_share_R": "1",
+        "unique_trade_days": 2,
+        "zero_closed_economy_months": 11
+      },
+      "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+      "events": 1156,
+      "evidence_checks": {
+        "PF_goal_met": false,
+        "complete": false,
+        "concentration_acceptable": false,
+        "enough_sample": false,
+        "monthly_stability": false,
+        "positive_expectancy": false
+      },
+      "formation": {
+        "exact_M15": 769,
+        "expected_full_M15_slots": 8636,
+        "incomplete_M15": 7867,
+        "known_Open_incomplete_M15": 225
+      },
+      "frequency": {
+        "available_research_days": 34,
+        "fills_per_submitted_order": "1",
+        "model_fill_days": 2,
+        "no_model_fill_days": 32,
+        "orders_per_signal": "0.75",
+        "pending_per_signal": "0.75"
+      },
+      "funnel": {
+        "M15_decisions": 1156,
+        "admitted_Open_entries": 3,
+        "breach_candidates": 7,
+        "closed": 3,
+        "model_fills": 3,
+        "pending_entries": 3,
+        "position_busy": 0,
+        "ready_indicator_decisions": 119,
+        "reentry_signals": 4,
+        "submitted_orders": 3,
+        "unknown": 0,
+        "unknown_possible_fills": 0
+      },
+      "model_fills": 3,
+      "optimization_allowed": false,
+      "post_unknown_conditional_closed": 0,
+      "rejection_reasons": {
+        "B_NOT_READY_OR_BOUNDARY": 11,
+        "INDICATORS_NOT_READY": 650,
+        "M15_INVALID_BAR": 225,
+        "M15_MISSING_BAR": 162,
+        "NO_BREACH_B": 101,
+        "NO_REENTRY_C": 3,
+        "TRADE_DEADLINE": 1
+      },
+      "signals": 4,
+      "status": "INCONCLUSIVE",
+      "target_C1_diagnostics": {
+        "actual_Take_net_net_R_max": null,
+        "actual_Take_net_net_R_min": null,
+        "adverse_Stop_gaps": 0,
+        "cost_R_known_closed": "0.3456977804803891760413499544",
+        "cost_price_known_closed": "3.0",
+        "exit_reasons": {
+          "STOP": 2,
+          "TIME": 1
+        },
+        "gross_R_known_closed": "-1.739130434782608695652173913",
+        "gross_price_known_closed": "-15.5",
+        "initial_R_denominator": "initial gross price risk; unchanged common metric contract",
+        "known_closures_reaching_full_net_1_5R": 0,
+        "mean_positive_realized_net_net_R": "0.16",
+        "planned_full_net_R_max": "1.538461538461538461538461538",
+        "planned_full_net_R_min": "1.5",
+        "target_hit_closed": 0,
+        "target_hit_fraction_known_closed": "0",
+        "target_ratio_denominator": "initial gross risk + round-trip C1",
+        "unresolved_filled_targets": 0
+      },
+      "unknown": 0,
+      "unknown_possible_entry": 0,
+      "unknown_reasons": {}
+    },
+    "USDRUBF": {
+      "admitted_orders": 141,
+      "annual": {
+        "Expectancy_R": null,
+        "Max_DD_R": null,
+        "Net_R": null,
+        "PF_C1_R": null,
+        "PF_C1_price": null,
+        "Win_Rate": null
+      },
+      "annual_complete": false,
+      "calendar_regularity": {
+        "model_fills_per_available_calendar_day": "0.5078740157480314960629921260",
+        "positive_active_month_fraction": "0.25",
+        "positive_month_fraction_of_12": "0.25",
+        "worst_known_closed_month": "2023-11",
+        "worst_known_closed_month_Net_R": "-6.639879192333160098762541193"
+      },
+      "closed": 128,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.09572826417295082651193309359",
+        "Max_DD_R": "13.38253111763931099950838867",
+        "Net_R": "-12.25321781413770579352743598",
+        "Net_price": "-2.13",
+        "PF_C1_R": "0.8111015487641097299147219293",
+        "PF_C1_price": "0.8312202852614896988906497623",
+        "PF_no_losses": false,
+        "Win_Rate": "0.3828125",
+        "closed": 128,
+        "cost_C1": "2.56",
+        "exit_reasons": {
+          "SESSION_FLAT": 17,
+          "STOP": 45,
+          "TAKE": 23,
+          "TIME": 28,
+          "TRADE_DEADLINE": 15
+        }
+      },
+      "distribution": {
+        "active_months": 12,
+        "average_loser_R": "-0.8424245823285523277999303251",
+        "average_loser_price": "-0.1638961038961038961038961039",
+        "average_winner_R": "1.073744388268588233613616307",
+        "average_winner_price": "0.2140816326530612244897959184",
+        "largest_positive_month_share_R": "0.9058912060928765435137503293",
+        "largest_winner_share_R": "0.04181438308243117736881883608",
+        "monthly_closed_Net_R": {
+          "2023-01": "-1.990752281773953600578987576",
+          "2023-02": "-2.952380952380952380952380953",
+          "2023-03": "0.811126933495354547986126934",
+          "2023-04": "-1.391209547059930691644246632",
+          "2023-05": "-0.008971175882940588822941765",
+          "2023-06": "0.072719558498774154104383726",
+          "2023-07": "-2.750479641131815044858523120",
+          "2023-08": "-0.1649111550974905012172092916",
+          "2023-09": "-2.990183144535886197842105135",
+          "2023-10": "8.507905918162165549037192171",
+          "2023-11": "-6.639879192333160098762541193",
+          "2023-12": "-2.756203134097870939976203134"
+        },
+        "negative_months": 9,
+        "positive_months": 3,
+        "top_three_winners_share_R": "0.1216418416943452432547457050",
+        "unique_trade_days": 112,
+        "zero_closed_economy_months": 0
+      },
+      "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+      "events": 8636,
+      "evidence_checks": {
+        "PF_goal_met": false,
+        "complete": false,
+        "concentration_acceptable": false,
+        "enough_sample": true,
+        "monthly_stability": false,
+        "positive_expectancy": false
+      },
+      "formation": {
+        "exact_M15": 8553,
+        "expected_full_M15_slots": 8636,
+        "incomplete_M15": 83,
+        "known_Open_incomplete_M15": 21
+      },
+      "frequency": {
+        "available_research_days": 254,
+        "fills_per_submitted_order": "0.9148936170212765957446808511",
+        "model_fill_days": 113,
+        "no_model_fill_days": 141,
+        "orders_per_signal": "0.5662650602409638554216867470",
+        "pending_per_signal": "0.5662650602409638554216867470"
+      },
+      "funnel": {
+        "M15_decisions": 8636,
+        "admitted_Open_entries": 129,
+        "breach_candidates": 676,
+        "closed": 128,
+        "model_fills": 129,
+        "pending_entries": 141,
+        "position_busy": 3,
+        "ready_indicator_decisions": 7929,
+        "reentry_signals": 249,
+        "submitted_orders": 141,
+        "unknown": 1,
+        "unknown_possible_fills": 0
+      },
+      "model_fills": 129,
+      "optimization_allowed": false,
+      "post_unknown_conditional_closed": 80,
+      "rejection_reasons": {
+        "B_NOT_READY_OR_BOUNDARY": 497,
+        "INDICATORS_NOT_READY": 624,
+        "INVALID_RISK": 6,
+        "M15_INVALID_BAR": 21,
+        "M15_MISSING_BAR": 62,
+        "NO_BREACH_B": 6756,
+        "NO_REENTRY_C": 385,
+        "NO_RSI_IMPROVEMENT": 42,
+        "POSITION_BUSY": 3,
+        "RISK_BELOW_FOUR_TICKS": 6,
+        "SESSION_ENTRY_CUTOFF": 21,
+        "SESSION_LIMIT": 8,
+        "TRADE_DEADLINE": 76
+      },
+      "signals": 249,
+      "status": "INCONCLUSIVE",
+      "target_C1_diagnostics": {
+        "actual_Take_net_net_R_max": "1.571428571428571428571428571",
+        "actual_Take_net_net_R_min": "1.5",
+        "adverse_Stop_gaps": 1,
+        "cost_R_known_closed": "16.25745255192586680883814631",
+        "cost_price_known_closed": "2.56",
+        "exit_reasons": {
+          "SESSION_FLAT": 17,
+          "STOP": 45,
+          "TAKE": 23,
+          "TIME": 28,
+          "TRADE_DEADLINE": 15
+        },
+        "gross_R_known_closed": "4.004234737788161015310710339",
+        "gross_price_known_closed": "0.43",
+        "initial_R_denominator": "initial gross price risk; unchanged common metric contract",
+        "known_closures_reaching_full_net_1_5R": 23,
+        "mean_positive_realized_net_net_R": "0.9292981310858186520928006035",
+        "planned_full_net_R_max": "1.571428571428571428571428571",
+        "planned_full_net_R_min": "1.5",
+        "target_hit_closed": 23,
+        "target_hit_fraction_known_closed": "0.1796875",
+        "target_ratio_denominator": "initial gross risk + round-trip C1",
+        "unresolved_filled_targets": 1
+      },
+      "unknown": 1,
+      "unknown_possible_entry": 0,
+      "unknown_reasons": {
+        "MISSING_EXPOSED_BAR": 1
+      }
+    }
+  },
+  "no_cross_instrument_price_pooling": true,
+  "optimization_allowed": false,
+  "overall_policy": "Conservative four-instrument assessment: every declared instrument must supply sufficient complete evidence; per-instrument conditional diagnoses remain separate.",
+  "period": "2023-01-01—2023-12-31",
+  "portfolio_money_return": null,
+  "portfolio_price_PF": null,
+  "research_phase": "BASELINE",
+  "strategy": "BOLLINGER_RSI_REENTRY_M15"
+}
