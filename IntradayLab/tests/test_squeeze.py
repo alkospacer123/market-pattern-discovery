@@ -12,6 +12,7 @@ from session_mtf import Bar
 from squeeze_replay import Indicators, Cycles, Replay, geometry, FIVE, tick
 from causal_mtf import DerivedContext
 from audit_squeeze import batch_indicators, reconstruct, m30, compare, aggregate
+from run_squeeze import coverage
 
 
 def bar(t, o='100', h='100.02', l='99.98', c='100', volume='1'):
@@ -34,6 +35,23 @@ def prepared():
 
 
 class SqueezeTests(unittest.TestCase):
+    def test_holidays_before_first_observation_are_not_launch_gaps(self):
+        c, _ = coverage([bar(DT(2023, 1, 3, 10))])
+        self.assertEqual(c['2023-01']['pre_inception_slots'], 0)
+        self.assertEqual(c['2023-01']['coverage_status'], 'PARTIAL_DATA')
+        c, _ = coverage([bar(DT(2023, 7, 11, 10))])
+        self.assertEqual(c['2023-06']['coverage_status'], 'NO_COVERAGE')
+        self.assertEqual(c['2023-07']['coverage_status'], 'PARTIAL_LAUNCH')
+
+    def test_independent_comparison_rejects_corrupted_payoff(self):
+        r = prepared()
+        r.finish(DT(2023, 1, 3, 11, 30), DT(2023, 1, 3, 11, 40), D('100.31'), 'TAKE')
+        expected = aggregate(r.ledger)
+        actual = {k: '' if v is None else str(v) for k, v in expected.items()}
+        actual['closed_net'] = '1000'
+        with self.assertRaises(AssertionError):
+            compare([expected], [actual], 'corrupted payoff')
+
     def fixture_run(self, delay=10, squeeze_start=20, failed=False, missing=None):
         """Control signal observation only; test actual clock/execution loop."""
         class FixedIndicator:

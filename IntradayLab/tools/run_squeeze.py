@@ -97,7 +97,7 @@ def coverage(bars):
             day += timedelta(days=1)
         observed = expected & index
         missing = {t for t in expected-index if t >= first}
-        status = ('NO_COVERAGE' if m < first.month else 'PARTIAL_LAUNCH' if m == first.month and first.day > 1
+        status = ('NO_COVERAGE' if m < first.month else 'PARTIAL_LAUNCH' if any(t < first for t in expected)
                   else 'PARTIAL_DATA' if missing else 'COVERED')
         months[f'2023-{m:02d}'] = dict(coverage_status=status, expected_slots=len(expected), observed_slots=len(observed),
                                         missing_since_inception=len(missing), pre_inception_slots=sum(t < first for t in expected))

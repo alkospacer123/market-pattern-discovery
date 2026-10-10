@@ -384,17 +384,27 @@ def aggregate(rows, cost=1):
     gw = [r['gross'] for r in closed if r['gross'] > 0]
     gl = [-r['gross'] for r in closed if r['gross'] < 0]
     cum = high = dd = ZERO
+    high_at, recovery = None, 0
     for r in sorted(closed, key=lambda x: (x['exit_ack'], x['signal_id'])):
         cum += r['gross']-cost*r['c1']
-        high = max(cum, high)
+        if cum >= high:
+            high, high_at = cum, r['exit_ack']
+        elif high_at:
+            recovery = max(recovery, int((r['exit_ack']-high_at).total_seconds()/60))
         dd = max(dd, high-cum)
+    top = sorted((x for x in nets if x > 0), reverse=True)
     return dict(entries=len(rows), closed=n, unknown=len(rows)-n, closed_gross=sum((r['gross'] for r in closed), ZERO),
                 closed_cost=sum((cost*r['c1'] for r in closed), ZERO), closed_net=sum(nets, ZERO), closed_net_PF=positive/negative if negative else None,
                 closed_expectancy=sum(nets, ZERO)/n if n else None, closed_win_rate=D(w)/n if n else None,
                 average_net_win=avg_w, average_net_loss=avg_l, realized_net_win_loss_RR=avg_w/avg_l if avg_w is not None and avg_l else None,
                 realized_gross_win_loss_RR=(sum(gw, ZERO)/len(gw))/(sum(gl, ZERO)/len(gl)) if gw and gl else None,
                 closed_net_R=sum((net/r['initial_risk'] for net, r in zip(nets, closed)), ZERO), mean_net_R=sum((net/r['initial_risk'] for net, r in zip(nets, closed)), ZERO)/n if n else None,
-                closed_realized_DD=dd if n else None, known_entry_cost_unknown=sum((cost*r['c1_entry'] for r in rows if r['status'] != 'CLOSED'), ZERO))
+                closed_realized_DD=dd if n else None, closed_unrecovered_minutes=recovery,
+                largest_winner_share=top[0]/positive if top else None,
+                top3_winner_share=sum(top[:3], ZERO)/positive if top else None,
+                top5_winner_share=sum(top[:5], ZERO)/positive if top else None,
+                closed_net_without_top1=sum(nets, ZERO)-(top[0] if top else ZERO),
+                known_entry_cost_unknown=sum((cost*r['c1_entry'] for r in rows if r['status'] != 'CLOSED'), ZERO))
 
 
 def calendar(idx):
@@ -413,7 +423,7 @@ def calendar(idx):
             day += TD(days=1)
         observed = {t for t in slots if t in idx and idx[t][4] > 0}
         missing = {t for t in slots-observed if t >= first}
-        status = 'NO_COVERAGE' if m < first.month else 'PARTIAL_LAUNCH' if m == first.month and first.day > 1 else 'PARTIAL_DATA' if missing else 'COVERED'
+        status = 'NO_COVERAGE' if m < first.month else 'PARTIAL_LAUNCH' if any(t < first for t in slots) else 'PARTIAL_DATA' if missing else 'COVERED'
         coverage[f'2023-{m:02d}'] = dict(coverage_status=status, expected_slots=len(slots), observed_slots=len(observed), missing_since_inception=len(missing), pre_inception_slots=sum(t < first for t in slots))
     return coverage, days
 
@@ -468,6 +478,13 @@ def main():
                                   long_entries=sum(r['direction'] == 'LONG' for r in ledger), short_entries=sum(r['direction'] == 'SHORT' for r in ledger),
                                   eligible_calendar_days=len(days), observed_days=sum(o > 0 for e, o in days.values()), trades_per_expected_day=D(len(ledger))/len(days),
                                   trades_per_observed_day=D(len(ledger))/sum(o > 0 for e, o in days.values()))
+                    reasons = Counter(s['reason'] for s in results['signals'] if s['status'] != 'MODELLED')
+                    exits = Counter(r['exit_reason'] for r in ledger)
+                    totals.update(rejection_reasons=json.dumps(dict(sorted(reasons.items())), sort_keys=True),
+                                  exit_counts=json.dumps(dict(sorted(exits.items())), sort_keys=True),
+                                  planned_min_net_RR=min((r['planned_net_RR'] for r in ledger), default=None),
+                                  mean_initial_risk=sum((r['initial_risk'] for r in ledger), ZERO)/len(ledger) if ledger else None,
+                                  mean_target_atr=sum((r['target_atr'] for r in ledger), ZERO)/len(ledger) if ledger else None)
                     checked['metrics_fields'] += compare([totals], group(metrics), str(key)+' metrics')
                     assert all(r['full_net'] == r['full_PF'] == r['full_DD'] == '' for r in group(metrics)), 'No fabricated full annual metrics'
                     for direction in ('LONG', 'SHORT'):
@@ -479,6 +496,13 @@ def main():
                         if c['coverage_status'] == 'NO_COVERAGE':
                             wanted = {k: v if k in ('entries', 'closed', 'unknown') or k in c else None for k, v in wanted.items()}
                         records = [r for r in group(monthly) if r['period'] == period]
+                        long = aggregate([r for r in subset if r['direction'] == 'LONG'])
+                        short = aggregate([r for r in subset if r['direction'] == 'SHORT'])
+                        sign = 'NO_COVERAGE' if c['coverage_status'] == 'NO_COVERAGE' else 'UNKNOWN' if wanted['unknown'] else 'NO_TRADES' if not subset else 'POSITIVE' if wanted['closed_net'] > 0 else 'NEGATIVE' if wanted['closed_net'] < 0 else 'ZERO_NET'
+                        wanted.update(long_entries=long['entries'], short_entries=short['entries'],
+                                      long_closed_net=long['closed_net'] if c['coverage_status'] != 'NO_COVERAGE' else None,
+                                      short_closed_net=short['closed_net'] if c['coverage_status'] != 'NO_COVERAGE' else None,
+                                      month_status=sign, sign_scope='CONFIRMED_CALENDAR' if c['coverage_status'] == 'COVERED' and not wanted['unknown'] else 'CLOSED_SUBSET_ONLY')
                         checked['monthly_fields'] += compare([wanted], records, str(key)+' '+period)
                         if c['coverage_status'] != 'COVERED' or wanted['unknown']:
                             assert records[0]['full_net'] == records[0]['full_PF'] == records[0]['full_DD'] == ''
@@ -487,8 +511,20 @@ def main():
                         checked['sensitivity_fields'] += compare([aggregate(ledger, multiplier)], sr, str(key)+f'C{multiplier}')
                         assert sr[0]['full_net'] == sr[0]['full_PF'] == sr[0]['full_DD'] == ''
                     counts = Counter(r['entry_at'].date() for r in ledger)
+                    week_entries, week_days = Counter(), Counter()
                     for day, (expected, observed) in days.items():
                         checked['frequency_fields'] += compare([dict(entries=counts[day], expected_slots=expected, observed_slots=observed, no_trade=counts[day] == 0, data_absent=observed == 0)], [r for r in group(frequencies) if r['frequency'] == 'DAY' and r['period'] == str(day)], str(key)+' frequency')
+                        week = f'{day.isocalendar().year}-W{day.isocalendar().week:02d}'
+                        week_entries[week] += counts[day]
+                        week_days[week] += 1
+                    for week in week_days:
+                        checked['weekly_frequency_fields'] += compare([dict(entries=week_entries[week], eligible_days=week_days[week])], [r for r in group(frequencies) if r['frequency'] == 'WEEK' and r['period'] == week], str(key)+week)
+                    for period, c in cov.items():
+                        count = sum(r['entry_at'].strftime('%Y-%m') == period for r in ledger)
+                        checked['monthly_frequency_fields'] += compare([dict(entries=count if c['coverage_status'] != 'NO_COVERAGE' else None, coverage_status=c['coverage_status'])], [r for r in group(frequencies) if r['frequency'] == 'MONTH' and r['period'] == period], str(key)+period)
+                    counts_summary = dict(observed_no_trade_days=sum(observed > 0 and counts[day] == 0 for day, (expected, observed) in days.items()),
+                                          trades_per_available_month=D(len(ledger))/sum(c['coverage_status'] != 'NO_COVERAGE' for c in cov.values()))
+                    checked['frequency_summary_fields'] += compare([counts_summary], group(metrics), str(key)+' frequency summary')
                     summaries.append(dict(instrument=symbol, architecture=architecture, scenario=f'T{delay}') | totals)
             for delay in (10, 15):
                 a, b = (reconstructed[symbol, architecture, delay]['trade_ledger'] for architecture in ('SQUEEZE_M5', 'SQUEEZE_M30_M5'))
