@@ -1,5 +1,12 @@
 # IntradayLab — project context
 
+## Approved future Squeeze comparison design — user decision, 2026-10-10
+
+Two distinct **signal/execution** timeframes: **M5 standalone vs M30→M5** (already-running Codex Baseline, do not change) and, after independent audit plus separate authorization, **M15 standalone vs H1→M15** (new bounded Stage 2 comparison only). Thus the full proposed Squeeze matrix is four architectures × four futures × two latency scenarios T10/T15 = **32 fixed runs**, split 16 now / 16 later if approved, with no parameter grid and C2 treated only as cost stress. For M15, calculate the full strategy on completed M15 candles rather than using M15 as a filter for M5 orders. Preflight M15 indicator warm-up and H1 causal context under actual same-session gap/reset rules BEFORE inspecting returns; a default 20-period-plus-three-squeeze M15 warm-up cannot fit into either current continuous daytime window. Declare valid M15 indicator/clock/entry/fill conventions before testing; infeasibility is **INCONCLUSIVE**, not evidence of losing returns. Do not modify the running Squeeze task, frozen VWAP/Momentum results, 2024 WF/2025+ TRUE OOS or non-IntradayLab trees.
+
+**Historical clarification:** VWAP had M5 standalone, M30→M5 and M15→M5; Momentum had M5 standalone, M30→M5 and H1→M5. Both always used **M5 trading signals/execution**. Neither was independently tested with M15 signals/exits, and their already-accepted M5-scope `REJECT` is unchanged.
+
+
 ## Final bounded Stage 2 closeout — 2026-10-09
 
 **VWAP Mean Reversion: NO ECONOMIC BASELINE PASS / REJECT CANDIDATE. Session Momentum: NO ECONOMIC BASELINE PASS / REJECT CANDIDATE.** This final rejection covers the retained M5 architectures and the completed, predeclared derived-M5 M30/M15/H1 tests. See [final causal MTF assessment](reports/STAGE2_CAUSAL_MTF_FINAL_REPORT.md) and [all comparisons](results/stage2_causal_mtf_v1/architecture_comparison.csv). Internal independent-algorithm verification is complete; external acceptance of this Draft remains pending the user's independent audit.
