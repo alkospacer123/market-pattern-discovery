@@ -1,0 +1,5 @@
+entry_at,exit_price,following_day_contract,instrument,known_entry_cost_C1,missing_interval_end,missing_interval_start,model_filled,net_R_c1,outcome,signal_at,signal_id,unknown_reason
+2023-08-11 11:30:00+03:00,,conditional FLAT assumption; broker FLAT unproven,GLDRUBF,0.1,2023-08-11 12:30:00+03:00,2023-08-11 12:25:00+03:00,True,,UNKNOWN; economics unassigned,2023-08-11 11:25:00+03:00,GLDRUBF_2023-08-11_1120,MISSING_EXPOSED_BAR
+2023-08-17 11:35:00+03:00,,conditional FLAT assumption; broker FLAT unproven,GLDRUBF,0.1,2023-08-17 12:05:00+03:00,2023-08-17 12:00:00+03:00,True,,UNKNOWN; economics unassigned,2023-08-17 11:30:00+03:00,GLDRUBF_2023-08-17_1125,MISSING_EXPOSED_BAR
+2023-12-06 11:35:00+03:00,,conditional FLAT assumption; broker FLAT unproven,IMOEXF,0.5,2023-12-06 11:50:00+03:00,2023-12-06 11:45:00+03:00,True,,UNKNOWN; economics unassigned,2023-12-06 11:30:00+03:00,IMOEXF_2023-12-06_1125,MISSING_EXPOSED_BAR
+2023-12-08 12:20:00+03:00,,conditional FLAT assumption; broker FLAT unproven,IMOEXF,0.5,2023-12-08 12:55:00+03:00,2023-12-08 12:50:00+03:00,True,,UNKNOWN; economics unassigned,2023-12-08 12:15:00+03:00,IMOEXF_2023-12-08_1210,MISSING_EXPOSED_BAR
