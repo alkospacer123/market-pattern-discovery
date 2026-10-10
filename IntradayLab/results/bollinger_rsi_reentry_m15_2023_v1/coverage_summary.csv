@@ -1,0 +1,5 @@
+absence_proves_missed_trade,complete_days,expected_grid,first,incomplete_days,instrument,invalid_expected_slots,last,missing_expected_slots,opening_slots_unavailable_days,pre_inception_days,source_rows_2023
+False,224,approved IntradayLab calendar; conservative full research-window coverage,2023-01-03 09:00:00+03:00,30,USDRUBF,0,2023-12-29 23:45:00+03:00,187,2,0,42576
+False,82,approved IntradayLab calendar; conservative full research-window coverage,2023-01-03 09:00:00+03:00,172,CNYRUBF,0,2023-12-29 23:45:00+03:00,1270,6,0,39362
+False,5,approved IntradayLab calendar; conservative full research-window coverage,2023-07-11 10:00:00+03:00,119,GLDRUBF,0,2023-12-29 23:45:00+03:00,932,9,130,18428
+False,2,approved IntradayLab calendar; conservative full research-window coverage,2023-11-14 10:00:00+03:00,32,IMOEXF,0,2023-12-29 23:45:00+03:00,566,4,220,4429
