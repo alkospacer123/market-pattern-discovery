@@ -18,16 +18,16 @@ brokerage position or resolve the missing execution path.
 
 Run the same base/synthetic tests and then:
 
-\`\`\`powershell
+```powershell
 python -m unittest discover -s IntradayLab/tests -v
 python IntradayLab/tools/run_orb_false_break_fade_daywise.py --data-root /workspace/market-pattern-data
-\`\`\`
+```
 
 Use the actual workspace path to the clean, pinned data repository. The program
 verifies source commit, blob IDs, input prefix hashes, independent raw source,
 independent signal oracle and per-day independent trade oracle. Commit the
 generated new files under
-\`IntradayLab/results/stage2_orb_false_break_fade_m5_daywise_v1/\` only after
+`IntradayLab/results/stage2_orb_false_break_fade_m5_daywise_v1/` only after
 real execution and verification.
 
 Required review: strict versus daywise by each symbol/architecture, UNKNOWN
