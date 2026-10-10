@@ -11,8 +11,8 @@ class Backtester:
     def __init__(self, rules, *, timeframe_minutes=5, cost_ticks_per_side=1,
                  allow_entry_bar_take=False, session_flat_before_end_bars=1,
                  daily_trade_deadline_clock=None):
-        if timeframe_minutes != 5:
-            raise ValueError('Only the explicitly approved M5 clock is implemented')
+        if timeframe_minutes not in (5, 15):
+            raise ValueError('Only the explicitly approved M5 and M15 clocks are implemented')
         if cost_ticks_per_side < 0 or session_flat_before_end_bars < 1:
             raise ValueError('EXECUTION_CONTRACT')
         self.rules = rules
@@ -25,6 +25,12 @@ class Backtester:
             trial = rules.at(date(2023, 1, 1), daily_trade_deadline_clock)
             if trial.second or (trial.hour*60+trial.minute) % timeframe_minutes:
                 raise ValueError('UNALIGNED_TRADE_DEADLINE')
+
+    def flat_boundary(self, window_end):
+        boundary = window_end-self.flat_bars*self.step
+        if self.step == timedelta(minutes=15):
+            boundary = boundary.replace(minute=boundary.minute//15*15, second=0, microsecond=0)
+        return boundary
 
     def run(self, strategy, symbol, rows, *, start, end_exclusive):
         if start >= end_exclusive or end_exclusive > date(2024, 1, 1):
@@ -170,14 +176,14 @@ class Backtester:
                                     s.update(diagnostic);q.update(diagnostic)
                                 dt.append(q)
                                 deadline = min(at+timedelta(minutes=s['max_hold_calendar_minutes']),
-                                               s['window_end']-self.flat_bars*self.step)
+                                               self.flat_boundary(s['window_end']))
                                 if trade_deadline:
                                     deadline = min(deadline, trade_deadline)
                                     q.update(trade_deadline_at=trade_deadline, effective_deadline_at=deadline)
                                 position = {'trade': q, 'deadline': deadline}
                 bar_start = at-self.step
                 window = next((w for w in windows if w[0] <= bar_start < w[1]), None)
-                if window and day >= first_day:
+                if window and day >= first_day and (self.step != timedelta(minutes=15) or bar_start+self.step <= window[1]):
                     ctx = Context(symbol, bar_start, at, window,
                                   self.rules.tick(symbol, bar_start), features.snapshot())
                     # Stable candidate tie-breaking matches the frozen ledger;
@@ -206,11 +212,12 @@ class Backtester:
                             s['reason'] = 'POSITION_BUSY'
                         elif trade_deadline and s['planned_execution_at'] >= trade_deadline:
                             s['reason'] = 'TRADE_DEADLINE'
-                        elif s['planned_execution_at'] >= window[1]-self.flat_bars*self.step:
+                        elif s['planned_execution_at'] >= self.flat_boundary(window[1]):
                             s['reason'] = 'SESSION_LIMIT'
                         elif constraints is not None and s['planned_execution_at']+timedelta(
                                 minutes=constraints.get('reserve_minutes', 0)) > min(
-                                    window[1], trade_deadline or window[1]):
+                                    self.flat_boundary(window[1]) if self.step == timedelta(minutes=15) else window[1],
+                                    trade_deadline or window[1]):
                             s['reason'] = 'SESSION_ENTRY_CUTOFF'
                         else:
                             if constraints is not None:
