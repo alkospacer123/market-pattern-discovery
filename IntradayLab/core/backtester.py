@@ -9,7 +9,8 @@ from .models import Context
 
 class Backtester:
     def __init__(self, rules, *, timeframe_minutes=5, cost_ticks_per_side=1,
-                 allow_entry_bar_take=False, session_flat_before_end_bars=1):
+                 allow_entry_bar_take=False, session_flat_before_end_bars=1,
+                 daily_trade_deadline_clock=None):
         if timeframe_minutes != 5:
             raise ValueError('Only the explicitly approved M5 clock is implemented')
         if cost_ticks_per_side < 0 or session_flat_before_end_bars < 1:
@@ -19,6 +20,11 @@ class Backtester:
         self.cost_sides = cost_ticks_per_side
         self.entry_take = allow_entry_bar_take
         self.flat_bars = session_flat_before_end_bars
+        self.deadline_clock = daily_trade_deadline_clock
+        if daily_trade_deadline_clock is not None:
+            trial = rules.at(date(2023, 1, 1), daily_trade_deadline_clock)
+            if trial.second or (trial.hour*60+trial.minute) % timeframe_minutes:
+                raise ValueError('UNALIGNED_TRADE_DEADLINE')
 
     def run(self, strategy, symbol, rows, *, start, end_exclusive):
         if start >= end_exclusive or end_exclusive > date(2024, 1, 1):
@@ -41,6 +47,7 @@ class Backtester:
         first_day = min(rows).date() if rows else end_exclusive
         while day < end_exclusive:
             windows = self.rules.windows(day)
+            trade_deadline = self.rules.at(day, self.deadline_clock) if self.deadline_clock else None
             strategy.begin_day(symbol, day)
             position = pending = None
             blocked = False
@@ -95,7 +102,8 @@ class Backtester:
                         if result:
                             reason = result[1]
                             if reason == 'SCHEDULED':
-                                reason = 'TIME' if at == q['entry_at']+timedelta(minutes=q['max_hold_calendar_minutes']) else 'SESSION_FLAT'
+                                reason = ('TIME' if at == q['entry_at']+timedelta(minutes=q['max_hold_calendar_minutes'])
+                                          else 'TRADE_DEADLINE' if trade_deadline == at else 'SESSION_FLAT')
                             terminate(at, result[0], reason, point=True)
                 if pending and pending['planned_execution_at'] == at:
                     s = pending
@@ -137,9 +145,12 @@ class Backtester:
                                          model_filled=True, entry_tick=grid,
                                          cost_entry_c1=grid*Decimal(self.cost_sides))
                                 dt.append(q)
-                                position = {'trade': q, 'deadline': min(
-                                    at+timedelta(minutes=s['max_hold_calendar_minutes']),
-                                    s['window_end']-self.flat_bars*self.step)}
+                                deadline = min(at+timedelta(minutes=s['max_hold_calendar_minutes']),
+                                               s['window_end']-self.flat_bars*self.step)
+                                if trade_deadline:
+                                    deadline = min(deadline, trade_deadline)
+                                    q.update(trade_deadline_at=trade_deadline, effective_deadline_at=deadline)
+                                position = {'trade': q, 'deadline': deadline}
                 bar_start = at-self.step
                 window = next((w for w in windows if w[0] <= bar_start < w[1]), None)
                 if window and day >= first_day:
@@ -166,6 +177,8 @@ class Backtester:
                             s['reason'] = 'UNKNOWN_POSITION_BLOCK'
                         elif position or pending:
                             s['reason'] = 'POSITION_BUSY'
+                        elif trade_deadline and s['planned_execution_at'] >= trade_deadline:
+                            s['reason'] = 'TRADE_DEADLINE'
                         elif s['planned_execution_at'] >= window[1]-self.flat_bars*self.step:
                             s['reason'] = 'SESSION_LIMIT'
                         else:

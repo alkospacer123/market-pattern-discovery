@@ -1,0 +1,328 @@
+{
+  "baseline_status": "INCONCLUSIVE",
+  "continuous_portfolio_equity": null,
+  "instruments": {
+    "CNYRUBF": {
+      "admitted_orders": 207,
+      "annual": {
+        "Expectancy_R": null,
+        "Max_DD_R": null,
+        "Net_R": null,
+        "PF_C1_R": null,
+        "PF_C1_price": null,
+        "Win_Rate": null
+      },
+      "annual_complete": false,
+      "closed": 144,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.5106301000135346471445347872",
+        "Max_DD_R": "78.98082091316166139219728706",
+        "Net_R": "-73.53073440194898918881300936",
+        "Net_price": "-2.062",
+        "PF_C1_R": "0.3227521942400567197736735550",
+        "PF_C1_price": "0.3915609324284449690174092653",
+        "PF_no_losses": false,
+        "Win_Rate": "0.2986111111111111111111111111",
+        "closed": 144,
+        "cost_C1": "2.448",
+        "exit_reasons": {
+          "SESSION_FLAT": 12,
+          "STOP": 50,
+          "TAKE": 29,
+          "TIME": 47,
+          "TRADE_DEADLINE": 6
+        }
+      },
+      "distribution": {
+        "active_months": 12,
+        "average_loser_R": "-1.247963962388086500340978618",
+        "average_loser_price": "-0.03895402298850574712643678161",
+        "average_winner_R": "0.8149332633910357288570262867",
+        "average_winner_price": "0.03086046511627906976744186047",
+        "largest_positive_month_share_R": "0.7795712303415357907086084972",
+        "largest_winner_share_R": "0.04130366526222284525394065575",
+        "monthly_closed_Net_R": {
+          "2023-01": "-9.679365079365079365079365080",
+          "2023-02": "-5.111904761904761904761904763",
+          "2023-03": "-8.5",
+          "2023-04": "0.8976190476190476190476190473",
+          "2023-05": "-11.52619047619047619047619048",
+          "2023-06": "-4.126190476190476190476190477",
+          "2023-07": "-6.986111111111111111111111111",
+          "2023-08": "-12.82658730158730158730158730",
+          "2023-09": "-14.84809523809523809523809524",
+          "2023-10": "-3.204040404040404040404040404",
+          "2023-11": "3.174531103242986591398064975",
+          "2023-12": "-0.7943997043261749144102085273"
+        },
+        "negative_months": 10,
+        "positive_months": 2,
+        "top_three_winners_share_R": "0.1233002021912756645956424812",
+        "unique_trade_days": 131,
+        "zero_closed_economy_months": 0
+      },
+      "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+      "events": 322,
+      "evidence_checks": {
+        "PF_goal_met": false,
+        "complete": false,
+        "concentration_acceptable": false,
+        "enough_sample": true,
+        "monthly_stability": false,
+        "positive_expectancy": false
+      },
+      "model_fills": 200,
+      "optimization_allowed": false,
+      "post_unknown_conditional_closed": 144,
+      "rejection_reasons": {
+        "INVALID_STOP_GEOMETRY": 2,
+        "MISSING_EXECUTION_BAR": 5,
+        "NO_OR": 6,
+        "NO_RETEST_CONDITION": 93,
+        "NO_RETEST_MISSING_BAR": 5,
+        "NO_WAITING_BAR": 2,
+        "UNKNOWN_POSITION_BLOCK": 9
+      },
+      "signals": 218,
+      "status": "INCONCLUSIVE",
+      "unknown": 61,
+      "unknown_possible_entry": 5
+    },
+    "GLDRUBF": {
+      "admitted_orders": 22,
+      "annual": {
+        "Expectancy_R": null,
+        "Max_DD_R": null,
+        "Net_R": null,
+        "PF_C1_R": null,
+        "PF_C1_price": null,
+        "Win_Rate": null
+      },
+      "annual_complete": false,
+      "closed": 20,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.08871933815959480651362575945",
+        "Max_DD_R": "6.183231841475281891016243503",
+        "Net_R": "-1.774386763191896130272515189",
+        "Net_price": "33.0",
+        "PF_C1_R": "0.8588350825412740108590538777",
+        "PF_C1_price": "1.454545454545454545454545455",
+        "PF_no_losses": false,
+        "Win_Rate": "0.4",
+        "closed": 20,
+        "cost_C1": "4.0",
+        "exit_reasons": {
+          "STOP": 12,
+          "TAKE": 7,
+          "TIME": 1
+        }
+      },
+      "distribution": {
+        "active_months": 5,
+        "average_loser_R": "-1.047466794591920002908618304",
+        "average_loser_price": "-6.05",
+        "average_winner_R": "1.349401846488892988078863058",
+        "average_winner_price": "13.2",
+        "largest_positive_month_share_R": "0.5242307067042604024122063868",
+        "largest_winner_share_R": "0.1380927357387652650249026259",
+        "monthly_closed_Net_R": {
+          "2023-08": "0.458482676224611708482676225",
+          "2023-09": "-6.183231841475281891016243503",
+          "2023-10": "2.930797351788589160917117607",
+          "2023-11": "2.201383232088366709525752664",
+          "2023-12": "-1.181818181818181818181818182"
+        },
+        "negative_months": 2,
+        "positive_months": 3,
+        "top_three_winners_share_R": "0.4132121324742428623041092205",
+        "unique_trade_days": 18,
+        "zero_closed_economy_months": 7
+      },
+      "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+      "events": 178,
+      "evidence_checks": {
+        "PF_goal_met": false,
+        "complete": false,
+        "concentration_acceptable": false,
+        "enough_sample": false,
+        "monthly_stability": true,
+        "positive_expectancy": false
+      },
+      "model_fills": 21,
+      "optimization_allowed": false,
+      "post_unknown_conditional_closed": 5,
+      "rejection_reasons": {
+        "INVALID_STOP_GEOMETRY": 1,
+        "NO_OR": 9,
+        "NO_RETEST_CONDITION": 138,
+        "NO_RETEST_MISSING_BAR": 6,
+        "NO_RETEST_WINDOW": 2,
+        "NO_WAITING_BAR": 1
+      },
+      "signals": 23,
+      "status": "INCONCLUSIVE",
+      "unknown": 1,
+      "unknown_possible_entry": 0
+    },
+    "IMOEXF": {
+      "admitted_orders": 9,
+      "annual": {
+        "Expectancy_R": null,
+        "Max_DD_R": null,
+        "Net_R": null,
+        "PF_C1_R": null,
+        "PF_C1_price": null,
+        "Win_Rate": null
+      },
+      "annual_complete": false,
+      "closed": 7,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.3408730158730158730158730157",
+        "Max_DD_R": "3.202777777777777777777777777",
+        "Net_R": "-2.386111111111111111111111110",
+        "Net_price": "-12.0",
+        "PF_C1_R": "0.4739742804654011022657685243",
+        "PF_C1_price": "0.625",
+        "PF_no_losses": false,
+        "Win_Rate": "0.2857142857142857142857142857",
+        "closed": 7,
+        "cost_C1": "7.0",
+        "exit_reasons": {
+          "STOP": 3,
+          "TAKE": 1,
+          "TIME": 3
+        }
+      },
+      "distribution": {
+        "active_months": 1,
+        "average_loser_R": "-1.134027777777777777777777778",
+        "average_loser_price": "-8.0",
+        "average_winner_R": "1.075",
+        "average_winner_price": "10.0",
+        "largest_positive_month_share_R": null,
+        "largest_winner_share_R": "0.6511627906976744186046511628",
+        "monthly_closed_Net_R": {
+          "2023-12": "-2.386111111111111111111111110"
+        },
+        "negative_months": 1,
+        "positive_months": 0,
+        "top_three_winners_share_R": "1",
+        "unique_trade_days": 7,
+        "zero_closed_economy_months": 11
+      },
+      "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+      "events": 46,
+      "evidence_checks": {
+        "PF_goal_met": false,
+        "complete": false,
+        "concentration_acceptable": false,
+        "enough_sample": false,
+        "monthly_stability": false,
+        "positive_expectancy": false
+      },
+      "model_fills": 9,
+      "optimization_allowed": false,
+      "post_unknown_conditional_closed": 4,
+      "rejection_reasons": {
+        "NO_OR": 4,
+        "NO_RETEST_CONDITION": 28,
+        "NO_RETEST_MISSING_BAR": 4,
+        "UNKNOWN_POSITION_BLOCK": 1
+      },
+      "signals": 10,
+      "status": "INCONCLUSIVE",
+      "unknown": 2,
+      "unknown_possible_entry": 0
+    },
+    "USDRUBF": {
+      "admitted_orders": 131,
+      "annual": {
+        "Expectancy_R": null,
+        "Max_DD_R": null,
+        "Net_R": null,
+        "PF_C1_R": null,
+        "PF_C1_price": null,
+        "Win_Rate": null
+      },
+      "annual_complete": false,
+      "closed": 126,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.1453488836355604062869056562",
+        "Max_DD_R": "24.58731950196727653397023006",
+        "Net_R": "-18.31395933808061119215011268",
+        "Net_price": "0.35",
+        "PF_C1_R": "0.7352916693323900423591385220",
+        "PF_C1_price": "1.037194473963868225292242295",
+        "PF_no_losses": false,
+        "Win_Rate": "0.4365079365079365079365079365",
+        "closed": 126,
+        "cost_C1": "2.52",
+        "exit_reasons": {
+          "SESSION_FLAT": 12,
+          "STOP": 50,
+          "TAKE": 32,
+          "TIME": 26,
+          "TRADE_DEADLINE": 6
+        }
+      },
+      "distribution": {
+        "active_months": 12,
+        "average_loser_R": "-1.017432775021147530423514580",
+        "average_loser_price": "-0.1383823529411764705882352941",
+        "average_winner_R": "0.9249358066064985613936159776",
+        "average_winner_price": "0.1774545454545454545454545455",
+        "largest_positive_month_share_R": "0.5093803393214708488336887223",
+        "largest_winner_share_R": "0.02839399888623767166555939781",
+        "monthly_closed_Net_R": {
+          "2023-01": "-0.5596495640052808836837874947",
+          "2023-02": "-0.488385868517447464815885869",
+          "2023-03": "-1.906803457979928568163862280",
+          "2023-04": "0.4968881652291263275244968603",
+          "2023-05": "2.532392014776925262858766694",
+          "2023-06": "3.300326135852451641925326136",
+          "2023-07": "-5.114274245678420251475279937",
+          "2023-08": "-4.758796758796758796758796759",
+          "2023-09": "-1.715829173325425199488168002",
+          "2023-10": "-5.831597910286434876598811025",
+          "2023-11": "0.1494936436112906701141995269",
+          "2023-12": "-4.417722318960709053588310554"
+        },
+        "negative_months": 8,
+        "positive_months": 4,
+        "top_three_winners_share_R": "0.08503039069180912154615620210",
+        "unique_trade_days": 110,
+        "zero_closed_economy_months": 0
+      },
+      "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+      "events": 335,
+      "evidence_checks": {
+        "PF_goal_met": false,
+        "complete": false,
+        "concentration_acceptable": false,
+        "enough_sample": true,
+        "monthly_stability": false,
+        "positive_expectancy": false
+      },
+      "model_fills": 129,
+      "optimization_allowed": false,
+      "post_unknown_conditional_closed": 116,
+      "rejection_reasons": {
+        "INVALID_STOP_GEOMETRY": 2,
+        "NO_OR": 2,
+        "NO_RETEST_CONDITION": 198,
+        "NO_RETEST_WINDOW": 4
+      },
+      "signals": 131,
+      "status": "INCONCLUSIVE",
+      "unknown": 3,
+      "unknown_possible_entry": 0
+    }
+  },
+  "no_cross_instrument_price_pooling": true,
+  "optimization_allowed": false,
+  "overall_policy": "Conservative four-instrument assessment: every declared instrument must supply sufficient complete evidence; per-instrument conditional diagnoses remain separate.",
+  "period": "2023-01-01—2023-12-31",
+  "portfolio_money_return": null,
+  "portfolio_price_PF": null,
+  "strategy": "R17_ORB_BREAKOUT_RETEST"
+}
