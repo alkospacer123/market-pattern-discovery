@@ -1,0 +1,15 @@
+{
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s IntradayLab/tests -v",
+  "errors": 0,
+  "failures": 0,
+  "independent_oracle": "Weighted raw-change Wilder expansion, population E[x\u00b2]-E[x]\u00b2; no production imports",
+  "indicator_absolute_comparison_tolerance": "1e-22; all clocks/decisions/prices/ledger exact",
+  "market_PnL_of_new_strategy_computed": false,
+  "new_bollinger_tests": 50,
+  "runtime_source_byte_guard": "PASS: request beyond 2023 prefix and unapproved source timeframe rejected",
+  "skipped": 0,
+  "status": "PASS",
+  "synthetic_end_to_end_audit": "PASS; corrupted economics rejected",
+  "test_log_sha256": "8d69450cd13a1596085f4b539d13669375d9ba4cdc288e56f613794ba53e4f74",
+  "tests_run": 496
+}

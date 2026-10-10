@@ -1,0 +1,204 @@
+{
+  "adaptation": {
+    "B_C": "Adjacent calendar M15 in one approved window/day. LONG B close<own lower and RSI<=35; C within own inclusive bands and RSI_C>RSI_B. SHORT mirrored >upper, RSI>=65, RSI_C<RSI_B. No other filters.",
+    "M15": "Existing aggregate_m15: three consecutive valid completed M5, aligned full calendar M15 inside research windows. Incomplete parent never supplies Close; known first Open is retained only for shared execution.",
+    "entry": "C Close -> complete waiting D -> E Open. Shared Open-only side/grid/minimum four-tick risk. One pending/open position per instrument.",
+    "exit": "Unchanged common Stop-first, adverse Stop gap, no entry-bar Take, C1 one dated tick each side. Hold120 calendar minutes or earlier session flat/deadline17:00.",
+    "indicators": "Close of 20 real completed M15, inclusive current: SMA20 plus/minus 2 population sigma (ddof=0). RSI14 seeds 14 real close changes and uses Wilder smoothing. Both zero=>50; no loss=>100; no gain=>0.",
+    "reserve": "35 minutes from planned E Open to min(shared actual mandatory M15 session-flat Open,17:00). No shortening after P&L.",
+    "selection": "Single fixed user hypothesis; no alternate thresholds/filters/instrument selection or optimization.",
+    "stop": "Fixed at C close: LONG min(B.low,C.low)-one historical signal tick; SHORT max(B.high,C.high)+one tick.",
+    "target": "Shared FULL_NET_C1_R 1.5: distance=1.5*risk+5*entry_tick, rounded outward. Report gross-risk R and full net/net separately.",
+    "unknown": "Missing waiting rejects; missing execution Open => UNKNOWN possible fill; incomplete exposed/exit path => UNKNOWN. No P&L. Current day blocked; next day conditionally FLAT.",
+    "warmup": "Explicit cross-session/day real Close history from pinned 2023 only; no synthetic break observations. Every expected missing/incomplete M15 clears all warm-up. No outside-window/native-M15/future substitution."
+  },
+  "bar_label": "start",
+  "base_main": "a63581a6942974ff7d636387d2ceb23893303096",
+  "calendar": {
+    "extended_lunch": {
+      "end_exclusive": "2023-03-21",
+      "pm_start": "14:15",
+      "start": "2023-03-13"
+    },
+    "holidays": [
+      "01-01",
+      "01-02",
+      "01-07",
+      "02-23",
+      "03-08",
+      "05-01",
+      "05-09",
+      "06-12",
+      "11-04"
+    ],
+    "windows": [
+      [
+        "10:00",
+        "14:00"
+      ],
+      [
+        "14:05",
+        "18:50"
+      ]
+    ]
+  },
+  "classification_policy": {
+    "annual_completeness_required": true,
+    "goal_PF_C1_R": "1.6",
+    "goal_PF_C1_price": "1.6",
+    "maximum_largest_positive_month_share": "0.50",
+    "maximum_largest_winner_share": "0.25",
+    "minimum_active_months": 3,
+    "minimum_closed_trades": 30,
+    "minimum_positive_active_month_fraction": "0.60",
+    "minimum_positive_months": 3,
+    "minimum_unique_trade_days": 15,
+    "precedence": "Incomplete coverage/outcomes => INCONCLUSIVE with separate conditional diagnosis; complete negative known expectancy => NO ECONOMIC BASELINE PASS; positive but insufficient sample => INCONCLUSIVE; complete positive stable unconcentrated sample satisfying all fixed criteria => ECONOMICALLY_PROMISING_BASELINE. No automatic Optimization."
+  },
+  "contract": "One original fixed hypothesis. No optimization, separate backtester, future data, LIVE or merge.",
+  "end_exclusive": "2024-01-01",
+  "execution": {
+    "allow_entry_bar_take": false,
+    "cost_ticks_per_side": 1,
+    "daily_trade_deadline_clock": "17:00",
+    "session_flat_before_end_bars": 1,
+    "target_mode": "FULL_NET_C1_R",
+    "unknown_scope": "current_day; following days conditional FLAT",
+    "wait_complete_bars": 1
+  },
+  "execution_code_sha256": {
+    "IntradayLab/config/bollinger_rsi_reentry_m15_2023_v1_pre_pnl_validation.json": "d4967c514088e2690034c05e12fe8008e627e5f86ddcd7868871c2f81cf07818",
+    "IntradayLab/config/bollinger_rsi_reentry_m15_2023_v1_reachability.json": "7ca639f39eaaf4c9685776dd2a6edf17a74b715f11628f0c749c7048876dd606",
+    "IntradayLab/core/__init__.py": "52a31da3d75de924e39ea2590065a8e4b9d9474621c44c4681aa75c1feb70320",
+    "IntradayLab/core/backtester.py": "d2887a5f12158c83db4694fa698f1746e31fd48ee1b894ba3405890ea8255582",
+    "IntradayLab/core/calendar.py": "a0e831cfbf306a58b03538534afc6e0d078fd53145360587813637786bde3cde",
+    "IntradayLab/core/data_loader.py": "e4eef022b4c998fe270285ef266eb307f9f75f0ef1c1446ba0502f05e09e1c3b",
+    "IntradayLab/core/execution.py": "354acd95ee27f4e08ec35a7e29341a01234de915ca49354f10233b2adafbe97a",
+    "IntradayLab/core/h1_context.py": "29ccc342d760e855f6868c144c99bd5b3d2312089cf0f5851bbeb69bb17b6909",
+    "IntradayLab/core/indicators.py": "73bbb7b92bcaa1f312f952acb491c6aa02e7258df7973f75542f094538f51105",
+    "IntradayLab/core/m15_bars.py": "46bba5ed6a46b65666de3f5f243beaaf161e29d852575b9b2e8a2950c2b0d334",
+    "IntradayLab/core/m15_context.py": "26bca505f8283626f48993ac374d9a2b279231014c468e03593562104d2443c2",
+    "IntradayLab/core/metrics.py": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328",
+    "IntradayLab/core/models.py": "693cdb3c8ba8658bb3872cced37aa5d000cbb8b5f0116676991b13e869bb2cba",
+    "IntradayLab/core/reports.py": "f9d90f5ea836b58f5f4bd243d9deb46611f87d3c30b4e4cb55bf73dd76bc0a56",
+    "IntradayLab/reports/BOLLINGER_RSI_REENTRY_M15_2023_PREREGISTRATION.md": "e5429803d092f5fe3e90acd1ffb12124c4f7ec93ce291a6c617369d22b905848",
+    "IntradayLab/strategies/bollinger_rsi_reentry_m15.py": "37f5a273328c81b0e1a38963e704b8203975b8c0257850eebdd2ee847de72ecb",
+    "IntradayLab/tests/test_bollinger_rsi_reentry.py": "83424818eee30780926a64bda3d74a8ee2003babfa6196d63953af07391de0b3",
+    "IntradayLab/tests/test_bollinger_rsi_reentry_audit.py": "a0572bd1f0de3c3b2c4ece645530f2ec601dc720d3b2cfaccff5725704546ccf",
+    "IntradayLab/tools/audit_bollinger_rsi_reentry_baseline.py": "eaf6067357809fa03974ae132e92de4e9395c5838b97f218e4a8396480391def",
+    "IntradayLab/tools/audit_canonical_baseline.py": "2a5b5f7f471030585421c081de45c36882d28fb2ef43b3384dae57ce065e391f",
+    "IntradayLab/tools/run_bollinger_rsi_reentry_baseline.py": "1c787aa257872809d86db6908cef4ea77b47a2c035380a12c1d890cb9bdddd0a",
+    "IntradayLab/tools/validate_bollinger_rsi_reentry_baseline.py": "3ac0d9fe98dc690552f42602642a837a036e47f605e7d6b1e923a47263ec6c9b",
+    "IntradayLab/tools/validate_trend_pullback_baseline.py": "f5fd1db124c5476e777a5ed1981e809ec304ed3019acd0f9da717806d54e597b",
+    "IntradayLab/tools/verify_trend_pullback_baseline.py": "e945e73cdf2e25ed1fd83de53a8082d386347e0dde6b9c74bd8f5849e5af0327"
+  },
+  "id": "bollinger_rsi_reentry_m15_2023_v1",
+  "inputs": {
+    "CNYRUBF": {
+      "blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M5.csv",
+      "prefix_bytes": 2212189,
+      "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 39362
+    },
+    "GLDRUBF": {
+      "blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "first": "2023-07-11 10:00:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M5.csv",
+      "prefix_bytes": 1044351,
+      "prefix_sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 18428
+    },
+    "IMOEXF": {
+      "blob": "41b83b109b177d4522e53486950104845d357d99",
+      "first": "2023-11-14 10:00:00",
+      "path": "forever/IMOEXF/IMOEXF_M5.csv",
+      "prefix_bytes": 234733,
+      "prefix_sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 4429
+    },
+    "USDRUBF": {
+      "blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/USDRUBF/USDRUBF_M5.csv",
+      "prefix_bytes": 2342431,
+      "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 42576
+    }
+  },
+  "instruments": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "parameters": {
+    "bollinger_ddof": 0,
+    "bollinger_period": 20,
+    "bollinger_stddev": "2.0",
+    "confirmation_bars": 1,
+    "cost": "C1",
+    "daily_trade_deadline": "17:00",
+    "directions": [
+      "LONG",
+      "SHORT"
+    ],
+    "m15_children_m5": 3,
+    "max_hold_calendar_minutes": 120,
+    "min_entry_to_flat_minutes": 35,
+    "min_initial_risk_ticks": 4,
+    "rsi_long_threshold": "35",
+    "rsi_method": "WILDER",
+    "rsi_period": 14,
+    "rsi_short_threshold": "65",
+    "signal_tf": "M15",
+    "stop_buffer_ticks": 1,
+    "target_mode": "FULL_NET_C1_R",
+    "target_net_R": "1.5",
+    "wait_complete_m15_bars": 1
+  },
+  "research_phase": "BASELINE",
+  "schema": 1,
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "source_repository": "alkospacer123/market-pattern-data",
+  "source_timeframe_minutes": 5,
+  "start": "2023-01-01",
+  "strategy": "BOLLINGER_RSI_REENTRY_M15",
+  "tick_schedule": {
+    "CNYRUBF": [
+      [
+        "2023-01-01 00:00:00",
+        "0.01"
+      ],
+      [
+        "2023-09-27 19:00:00",
+        "0.001"
+      ]
+    ],
+    "GLDRUBF": [
+      [
+        "2023-01-01 00:00:00",
+        "0.1"
+      ]
+    ],
+    "IMOEXF": [
+      [
+        "2023-01-01 00:00:00",
+        "0.5"
+      ]
+    ],
+    "USDRUBF": [
+      [
+        "2023-01-01 00:00:00",
+        "0.01"
+      ]
+    ]
+  },
+  "timeframe_minutes": 15,
+  "timezone": "Europe/Moscow"
+}
