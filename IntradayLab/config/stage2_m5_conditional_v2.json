@@ -1,0 +1,197 @@
+{
+  "authorization": "2026-10-09 user corrective task: isolated 2023 M5 conditional model and economics; no LIVE, merge, tuning, WF or OOS",
+  "base_main": "f5dec0a73bf1273f9490502fbc0b9588f9315260",
+  "calendar": {
+    "basis": "USER_APPROVED_RESEARCH_WINDOWS, NOT exhaustive historical session attestation",
+    "development": "2023 only; entire available history per instrument",
+    "exclusive_end": "2024-01-01 00:00:00",
+    "known_missing_date": "USD/CNY 2023-08-31 NOT repaired",
+    "march_exception": "2023-03-13 through 2023-03-20 afternoon starts 14:15; from 21 March 14:05",
+    "quarantine": "IMOEXF [2024-08-16 18:45, 2024-08-17 00:00) retained by common guard",
+    "true_oos": "2025+ LOCKED, physically unread",
+    "unexpected_halts": "not pre-known; only detect missing slots at availability; reset and emergency liquidation without favourable retrospective close",
+    "walk_forward": "2024 RESERVED, physically unread",
+    "windows": [
+      "10:00-14:00",
+      "14:05-18:50"
+    ]
+  },
+  "constants_rationale": [
+    "12-bar ATR/range = simple one-hour completed M5 scale, chosen before any returns",
+    "13 prior bars supply 12 strict prior true ranges and common warm-up",
+    "1 ATR symmetric VWAP band defines material deviation/return without instrument fitting",
+    "1.5 ATR stop supplies fixed volatility scale; Momentum 3 ATR = nominal 2:1 target",
+    "VWAP Take frozen at decision VWAP expresses reversion; 60m hold bounds fade; Momentum 90m allows continuation",
+    "0.25 ATR adverse cap bounds model entry deterioration while absolute protection remains frozen",
+    "zero extra delays are explicit limited scenario above approved t+10m; strictly later execution adds another M5",
+    "all constants shared across instruments; no grid, optimizer, ranking, MTF or PF-driven changes",
+    "One-bar entry TTL unchanged; only separate execution semantics and mathematically required session submission deadline corrected before returns."
+  ],
+  "diagnostics": {
+    "availability": "Baseline signal t+10 -> scheduled Open t+15. Report signed drift and frozen-level reward erosion. Separate fixed t+15 availability sensitivity -> Open t+20, not parameter optimization.",
+    "session_vwap": "Baseline reset-after-gap unchanged. Compare with observed-window anchored accumulator; mark incomplete windows, never claim missing weights recoverable or true transaction/session VWAP.",
+    "uncertainty": "No full annual PF/Net/DD when any unresolved path outcome; NO_COVERAGE for pre-inception months. Available-history diagnostic is not a full calendar year."
+  },
+  "execution": {
+    "C1": "one dated tick per executed abstract unit per side, separate cost column only; no additional ordinary fees/spread/slippage; gaps remain in reference prices",
+    "TP": "precommitted passive target; only strict penetration >= one dated tick; reference TP, no gap improvement; touch alone NONFILL; none in entry bar",
+    "TTL": "one scheduled bar only for entries; cancel unfilled entry remainder; exits retry next strictly eligible full research bar, residual retained",
+    "ambiguity": "Stop-first; entry-bar adverse Stop permitted, TP forbidden; flag ambiguity, unknown within-bar timestamp recorded as interval",
+    "boundary": "Original B-20 intent and B-10 confirmation reserve retained as parameters; derived submission deadline backs off until next_slot(sent+decision+order delay)+availability <= B-10. Nominal t+10 => submit B-25, scenario at B-20, ack B-10. Missing/late/nonfill does not prove FLAT.",
+    "classification": "CONDITIONAL_ON_OBSERVED_ADMISSIBLE_BAR; no physically submitted LIVE orders",
+    "funding": "no snapshot crossed only when flat before boundary; any boundary/emergency unresolved liability => Net_model_C1 null, funding/extra liability UNRESOLVED; no funding credit or zero-imputation",
+    "gap": "Missing path with existing exposure => possible Stop/Take/no-exit branches unknown. No numerical exit, exit quantity, exit C1 or P&L. A pre-scheduled conditional reduce-all on an observed allowed bar establishes model-flat only on its availability acknowledgement. Null trade Net/PF; unresolved outcome/funding persists. Retry if conditional full reduction not confirmed.",
+    "information": "execution results and observations delivered at bar start+10m (or later known delivery); decisions never receive future OHLCV or existence",
+    "liquidity": "Full abstract-unit scenario on eligible observed bars only; no queue/capacity/exchange-fill evidence. Nonfill on observed cap/protection/zero synthetic capacity; absent entry is NO_BAR_NO_MODEL_FILL.",
+    "live_fail_closed": "Original m5_baseline.Replay (v1) retained byte-for-byte for unknown submitted-order scenario. Real order acknowledgement/reconciliation remains necessary; v2 is not a LIVE engine.",
+    "marketable": "reference Open of pre-scheduled full bar with start strictly > ready; fill only if Open respects pre-known cap and stop<entry<take (long), take<entry<stop (short); never choose later favourable bar",
+    "missing_entry": "At target+availability, missing/unavailable exact TTL slot => NO_BAR_NO_MODEL_FILL; no model position, no price/cost, no LIVE NONFILL/cancel assertion. Late target delivery never revives expired scenario.",
+    "price_limits": "cap is model order price cap, NOT verified venue historical price band",
+    "stop": "resident precommitted conditional stop; adverse gap min(Open,Stop) long / max(Open,Stop) short; intrabar touch at Stop is explicitly accepted stop scenario",
+    "tick": {
+      "CNYRUBF": "0.01 before 2023-09-27 19:00 MSK, 0.001 from then; each side dated independently",
+      "GLDRUBF": "0.1",
+      "IMOEXF": "0.5",
+      "USDRUBF": "0.01"
+    },
+    "unit": "one abstract normalized price exposure unit, NOT automatic real q=1; PARTIAL test adapter uses integer abstract units only"
+  },
+  "frozen_on": "2026-10-09",
+  "id": "stage2_m5_conditional_v2",
+  "inputs": {
+    "CNYRUBF": {
+      "blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 39362
+    },
+    "GLDRUBF": {
+      "blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "first": "2023-07-11 10:00:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 18428
+    },
+    "IMOEXF": {
+      "blob": "41b83b109b177d4522e53486950104845d357d99",
+      "first": "2023-11-14 10:00:00",
+      "path": "forever/IMOEXF/IMOEXF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 4429
+    },
+    "USDRUBF": {
+      "blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/USDRUBF/USDRUBF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 42576
+    }
+  },
+  "metric_policy": "normalized price units and net R; no real equity %, CAGR or portfolio returns; unresolved cases retain exposure and liabilities, global Net/PF only CLOSED-ONLY DIAGNOSTIC where incomplete; 12 months include NO_COVERAGE and covered zero-trade separately",
+  "parameters": {
+    "adverse_entry_cap_atr": "0.25",
+    "atr_period": 12,
+    "availability_minutes": 10,
+    "close_before_boundary_minutes": 20,
+    "decision_delay_minutes": 0,
+    "entry_ttl_bars": 1,
+    "flat_confirm_before_boundary_minutes": 10,
+    "momentum_max_hold_minutes": 90,
+    "momentum_take_atr": "3",
+    "no_entry_before_boundary_minutes": 30,
+    "order_delay_minutes": 0,
+    "range_period": 12,
+    "stop_atr": "1.5",
+    "vwap_deviation_atr": "1",
+    "vwap_max_hold_minutes": 60,
+    "warmup_prior_bars": 13
+  },
+  "parent_manifest_sha256": "7b3a1bd786cee3eca09111f906481a3ab38067c79ec9d0d0d0720c21710319ac",
+  "parent_pr_head": "0da11cf86169d5cedf3386549ebe244ca5204fd0",
+  "prior_artifact_sha256": "152adec98e94e895fed41687ee6bcc952b88bef6dd3cdf8ebd02c126074e40c5",
+  "protected_tree_ids": {
+    ".gitattributes": "d11ce74a54029c3c6f60a72f30148f58e8a41c99",
+    ".gitignore": "75d2f5136fe75e034302dc5ca18c1f473639309b",
+    "AGENTS.md": "a3aa857b98dca524ea60c24c5171f96517e046c0",
+    "ARTIFACT_HANDOFF_VERIFICATION_REPORT.md": "f26dd57d7b0565c23a4dc932fb0618392f3a5e90",
+    "BBW": "7f9990cf12e4421e54a02fd98e507f1e4ef06cb0",
+    "CURRENT_ARTIFACT_STORAGE_STATUS.md": "4ac9d7d33f9508b80cbfc73ca1596dd3957b1490",
+    "PERMANENT_MEMORY_DIAGNOSTIC_REPORT.md": "22edfaa73b113d1c7599b4c460ddf99ccc782502",
+    "PERSISTENT_MEMORY_VERIFICATION_REPORT.md": "69133200da4beedca7612bd6aa54edb3a2049f6b",
+    "README.md": "9165abcb468852a09c2c81863f35ff396bf6f63b",
+    "ROADMAP.md": "94f8286109b75ddd5215eef194b6c02e3c9153c8",
+    "SMOKE_RUN_V2_REPORT.md": "e3886eb955151d7842669c642333fcfd3a420354",
+    "SMOKE_RUN_V3_REPORT.md": "9bc70e8af8f6423935a56e71da4d0fe2f42a25a0",
+    "TradingSystemLab": "7ee08c92fdd5cef92f4a4a6f00a4d26b89fab6b2",
+    "bbw_system": "b6ec4d85776cbc487baacce26a7d3c46e644e823",
+    "config": "bb4b819a158038a94c87e426f2598c025cd031d1",
+    "docs": "c41260c2e2a7561f0997563c558e8c09c3318144",
+    "evidence": "bf5a5714bef835576baddfabb699cf6b61fb375a",
+    "pyproject.toml": "d1874cd67bece45bfdd0e060876a4f2cbcdeb187",
+    "research": "9517d7b7e8a05fe13d944aa7e7cc0ce33e0a6592",
+    "research_domains.md": "3b957c8c5c02e09ad2b85643d8c5947b7f4a0fe7",
+    "results": "7915a53ca48a840ab7e1d33fe7b7f8246b9bcdeb",
+    "schemas": "e49bddfe93abacf9aa98d2445efdd3b799c0423a",
+    "scripts": "f659ff281b1c14b3173e861c0912946e7055be8c",
+    "src": "49b5b2f90e3f959c197907cfc9bf31fb542af81e",
+    "tests": "2e6e9891fd9179adb60b4e3c76b5418bd650eac1"
+  },
+  "provenance": {
+    "evidence": "USER_EXPORTER_ATTESTATION 2026-10-09",
+    "same_settings_all_16": true,
+    "source": "FINAM",
+    "timestamp": "bar start",
+    "timezone": "Europe/Moscow UTC+3",
+    "volume": "positive relative OHLCV weights only; NOT verified contracts/capacity"
+  },
+  "rules": {
+    "ATR": "simple mean of 12 previous true ranges; each TR needs previous close; exclude signal bar",
+    "Momentum_LONG": "signal close > highest High of previous 12 bars; SHORT close < lowest Low of previous 12 bars; shifted range excludes signal",
+    "VWAP": "OHLCV approximation: cumulative typical=(H+L+C)/3 times relative Volume / cumulative relative Volume in research window; common normalization cancels; gap/window reset",
+    "VWAP_LONG": "previous close <= previous VWAP - 1*ATR and signal close > current VWAP - 1*ATR and signal close < current VWAP; SHORT symmetric; ATR is shifted signal ATR for both comparisons",
+    "VWAP_take": "current signal VWAP frozen at decision; no moving target",
+    "holding": "UNCHANGED: MAX_HOLD request at entry start + hold - 5m; next strictly eligible slot; late t+10 ack can exceed nominal holding confirmation time. Separate corrected session submission deadline.",
+    "one_position": "one abstract model unit per independent run; no actual contract quantity, equity/GO sizing or averaging; pending orders reserve position",
+    "protection": "absolute Stop/Take frozen around signal Close using shifted ATR; cap at Close +/- 0.25 ATR; long stop rounded up, TP up, cap down; short stop down, TP down, cap up",
+    "warmup": "13 contiguous positive-weight M5 observations before signal; ATR reset on any missing slot and at each window; no previous-day/context carry"
+  },
+  "run_matrix": [
+    {
+      "instrument": "USDRUBF",
+      "strategy": "VWAP_MR"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "strategy": "VWAP_MR"
+    },
+    {
+      "instrument": "GLDRUBF",
+      "strategy": "VWAP_MR"
+    },
+    {
+      "instrument": "IMOEXF",
+      "strategy": "VWAP_MR"
+    },
+    {
+      "instrument": "USDRUBF",
+      "strategy": "MOMENTUM"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "strategy": "MOMENTUM"
+    },
+    {
+      "instrument": "GLDRUBF",
+      "strategy": "MOMENTUM"
+    },
+    {
+      "instrument": "IMOEXF",
+      "strategy": "MOMENTUM"
+    }
+  ],
+  "schema": 1,
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "source_repo": "alkospacer123/market-pattern-data",
+  "source_root": "forever"
+}

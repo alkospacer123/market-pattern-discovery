@@ -1,0 +1,1168 @@
+{
+  "audit": "PASS",
+  "counts": {
+    "arithmetic_linkage_mismatches": 0,
+    "economics_rows": 9953,
+    "events": 13628,
+    "integer_accounted_trades": 2058,
+    "model_entries": 2140,
+    "no_bar_entries": 61,
+    "signals": 7813,
+    "source_verified_exit_events": 2058,
+    "source_verified_stratified_samples": 57,
+    "unresolved_paths": 82
+  },
+  "implementation_sha256": {
+    "tests/test_m5_conditional_v2.py": "13af075cd9b9303f80d3d170c60570e38cf5ac73e740b28fa6cfc5d4dec66bf0",
+    "tools/audit_m5_baseline.py": "bf373b40280fb544e86f8010281b29f116becd8f590360589f087d674c25c20a",
+    "tools/audit_m5_conditional_v2.py": "a4b03f497fbbbbe88bf2531dbd41ec57f3a71e43ba83c52a90190cec851b41f4",
+    "tools/audit_session_mtf.py": "1c0f22a9b029c72f55d9e20c9bdc4b147b460e5b5a5f1f0667a46b13a97152dc",
+    "tools/m5_baseline.py": "9920fff1e4964d81375c9cfe7ab081b7985b2e2e1f98cfb16a2b496d32ba7852",
+    "tools/m5_conditional_v2.py": "3ec56bcfd3429f006473dff53022e8c8966313bb793d4f5bfe2a39b0910bb60e",
+    "tools/m5_economics_v2.py": "10c6a008b007c8a7a8394b8443fc56f877fc2b5e01abf348478fc11f95b7221b",
+    "tools/run_m5_baseline.py": "e749434e653a651c5c09efbb31c20bf14c119aec2004080f97d1780ddb964051",
+    "tools/run_m5_conditional_v2.py": "2a7b4b107251aad7358e1a64d12e770bc8a8f3772faf74bda75ac3ff9d0567dd",
+    "tools/session_mtf.py": "fdb1b78e32bddd83c52d360f3de1720ccc78743f82d920ca6daa943d981f0a20"
+  },
+  "limits": [
+    "Independent algorithm in same task, not a second human/agent review",
+    "Full trade outcomes through missing position bars remain unknown",
+    "Conditional reduce-all acknowledgement is a model assumption, not exchange proof"
+  ],
+  "manifest_sha256": "66913447c5e6d4aca53b79cbb62b6d2fb701f21c6198f3d957d962bbe96ef66a",
+  "method": "Independent integer milli-price arithmetic; all entry/exit bars checked against original bounded 2023 M5 source; stratified samples retained",
+  "physically_verified_missing_cases": [
+    {
+      "confirmed_absent": true,
+      "missing_at": "2023-02-02 15:40:00",
+      "next_observed": "2023-02-02 15:45:00",
+      "previous_observed": "2023-02-02 15:35:00",
+      "run": "VWAP_MR_USDRUBF"
+    },
+    {
+      "confirmed_absent": true,
+      "missing_at": "2023-01-06 17:15:00",
+      "next_observed": "2023-01-06 17:25:00",
+      "previous_observed": "2023-01-06 17:05:00",
+      "run": "VWAP_MR_CNYRUBF"
+    },
+    {
+      "confirmed_absent": true,
+      "missing_at": "2023-08-17 16:00:00",
+      "next_observed": "2023-08-17 16:05:00",
+      "previous_observed": "2023-08-17 15:55:00",
+      "run": "VWAP_MR_GLDRUBF"
+    },
+    {
+      "confirmed_absent": true,
+      "missing_at": "2023-11-30 17:20:00",
+      "next_observed": "2023-11-30 17:25:00",
+      "previous_observed": "2023-11-30 17:15:00",
+      "run": "VWAP_MR_IMOEXF"
+    },
+    {
+      "confirmed_absent": true,
+      "missing_at": "2023-02-03 16:15:00",
+      "next_observed": "2023-02-03 16:20:00",
+      "previous_observed": "2023-02-03 16:10:00",
+      "run": "MOMENTUM_USDRUBF"
+    },
+    {
+      "confirmed_absent": true,
+      "missing_at": "2023-01-19 15:25:00",
+      "next_observed": "2023-01-19 15:30:00",
+      "previous_observed": "2023-01-19 15:20:00",
+      "run": "MOMENTUM_CNYRUBF"
+    },
+    {
+      "confirmed_absent": true,
+      "missing_at": "2023-07-12 11:40:00",
+      "next_observed": "2023-07-12 11:55:00",
+      "previous_observed": "2023-07-12 11:35:00",
+      "run": "MOMENTUM_GLDRUBF"
+    },
+    {
+      "confirmed_absent": true,
+      "missing_at": "2023-11-15 16:25:00",
+      "next_observed": "2023-11-15 16:30:00",
+      "previous_observed": "2023-11-15 16:20:00",
+      "run": "MOMENTUM_IMOEXF"
+    }
+  ],
+  "samples": [
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-03 12:30:00",
+      "gross": "-0.23",
+      "net": "-0.25",
+      "sample_key": [
+        "VWAP_MR_USDRUBF",
+        "SHORT",
+        "STOP"
+      ],
+      "signal_id": "VWAP_MR_USDRUBF_000001",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "source_entry_at": "2023-01-03 11:55:00",
+      "source_entry_open": "70.18",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "70.41",
+      "take": "70.05"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-04 12:10:00",
+      "gross": "0.31",
+      "net": "0.29",
+      "sample_key": [
+        "VWAP_MR_USDRUBF",
+        "SHORT",
+        "TAKE"
+      ],
+      "signal_id": "VWAP_MR_USDRUBF_000006",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "source_entry_at": "2023-01-04 12:05:00",
+      "source_entry_open": "71.77",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "71.82",
+      "take": "71.46"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-06 12:45:00",
+      "gross": "0.04",
+      "net": "0.02",
+      "sample_key": [
+        "VWAP_MR_USDRUBF",
+        "LONG",
+        "MAX_HOLD"
+      ],
+      "signal_id": "VWAP_MR_USDRUBF_000020",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "source_entry_at": "2023-01-06 11:45:00",
+      "source_entry_open": "71.68",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "71.57",
+      "take": "71.84"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-09 12:15:00",
+      "gross": "-0.16",
+      "net": "-0.18",
+      "sample_key": [
+        "VWAP_MR_USDRUBF",
+        "LONG",
+        "STOP"
+      ],
+      "signal_id": "VWAP_MR_USDRUBF_000028",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "source_entry_at": "2023-01-09 12:10:00",
+      "source_entry_open": "70.83",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "70.67",
+      "take": "70.95"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-09 17:15:00",
+      "gross": "0.10",
+      "net": "0.08",
+      "sample_key": [
+        "VWAP_MR_USDRUBF",
+        "LONG",
+        "TAKE"
+      ],
+      "signal_id": "VWAP_MR_USDRUBF_000029",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "source_entry_at": "2023-01-09 17:10:00",
+      "source_entry_open": "69.86",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "69.70",
+      "take": "69.96"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-10 13:40:00",
+      "gross": "-0.04",
+      "net": "-0.06",
+      "sample_key": [
+        "VWAP_MR_USDRUBF",
+        "LONG",
+        "SESSION_FLAT"
+      ],
+      "signal_id": "VWAP_MR_USDRUBF_000030",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "source_entry_at": "2023-01-10 13:05:00",
+      "source_entry_open": "69.63",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "69.57",
+      "take": "69.76"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-27 12:35:00",
+      "gross": "0.03",
+      "net": "0.01",
+      "sample_key": [
+        "VWAP_MR_USDRUBF",
+        "SHORT",
+        "MAX_HOLD"
+      ],
+      "signal_id": "VWAP_MR_USDRUBF_000104",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "source_entry_at": "2023-01-27 11:35:00",
+      "source_entry_open": "69.44",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "69.49",
+      "take": "69.38"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-03-21 18:30:00",
+      "gross": "0.05",
+      "net": "0.03",
+      "sample_key": [
+        "VWAP_MR_USDRUBF",
+        "SHORT",
+        "SESSION_FLAT"
+      ],
+      "signal_id": "VWAP_MR_USDRUBF_000309",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "source_entry_at": "2023-03-21 18:15:00",
+      "source_entry_open": "76.88",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "76.93",
+      "take": "76.80"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-03 11:35:00",
+      "gross": "-0.02",
+      "net": "-0.04",
+      "sample_key": [
+        "VWAP_MR_CNYRUBF",
+        "SHORT",
+        "STOP"
+      ],
+      "signal_id": "VWAP_MR_CNYRUBF_000001",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "source_entry_at": "2023-01-03 11:35:00",
+      "source_entry_open": "9.98",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "10.00",
+      "take": "9.97"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-04 13:40:00",
+      "gross": "0.00",
+      "net": "-0.02",
+      "sample_key": [
+        "VWAP_MR_CNYRUBF",
+        "SHORT",
+        "SESSION_FLAT"
+      ],
+      "signal_id": "VWAP_MR_CNYRUBF_000006",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "source_entry_at": "2023-01-04 12:50:00",
+      "source_entry_open": "10.22",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "10.25",
+      "take": "10.20"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-04 17:00:00",
+      "gross": "-0.01",
+      "net": "-0.03",
+      "sample_key": [
+        "VWAP_MR_CNYRUBF",
+        "LONG",
+        "STOP"
+      ],
+      "signal_id": "VWAP_MR_CNYRUBF_000012",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "source_entry_at": "2023-01-04 16:55:00",
+      "source_entry_open": "10.24",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "10.23",
+      "take": "10.26"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-06 12:20:00",
+      "gross": "0.01",
+      "net": "-0.01",
+      "sample_key": [
+        "VWAP_MR_CNYRUBF",
+        "SHORT",
+        "TAKE"
+      ],
+      "signal_id": "VWAP_MR_CNYRUBF_000027",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "source_entry_at": "2023-01-06 12:15:00",
+      "source_entry_open": "10.41",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "10.43",
+      "take": "10.40"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-10 13:40:00",
+      "gross": "0.01",
+      "net": "-0.01",
+      "sample_key": [
+        "VWAP_MR_CNYRUBF",
+        "LONG",
+        "SESSION_FLAT"
+      ],
+      "signal_id": "VWAP_MR_CNYRUBF_000039",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "source_entry_at": "2023-01-10 13:05:00",
+      "source_entry_open": "10.21",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "10.19",
+      "take": "10.22"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-16 12:00:00",
+      "gross": "0.04",
+      "net": "0.02",
+      "sample_key": [
+        "VWAP_MR_CNYRUBF",
+        "LONG",
+        "TAKE"
+      ],
+      "signal_id": "VWAP_MR_CNYRUBF_000059",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "source_entry_at": "2023-01-16 11:40:00",
+      "source_entry_open": "10.11",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "10.10",
+      "take": "10.15"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-02-10 12:20:00",
+      "gross": "0.01",
+      "net": "-0.01",
+      "sample_key": [
+        "VWAP_MR_CNYRUBF",
+        "LONG",
+        "MAX_HOLD"
+      ],
+      "signal_id": "VWAP_MR_CNYRUBF_000115",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "source_entry_at": "2023-02-10 11:20:00",
+      "source_entry_open": "10.68",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "10.66",
+      "take": "10.70"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-08-15 13:10:00",
+      "gross": "0.00",
+      "net": "-0.02",
+      "sample_key": [
+        "VWAP_MR_CNYRUBF",
+        "SHORT",
+        "MAX_HOLD"
+      ],
+      "signal_id": "VWAP_MR_CNYRUBF_000552",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "source_entry_at": "2023-08-15 12:10:00",
+      "source_entry_open": "13.41",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "13.46",
+      "take": "13.30"
+    },
+    {
+      "c1": "0.2",
+      "exit_at": "2023-07-11 12:50:00",
+      "gross": "-4.9",
+      "net": "-5.1",
+      "sample_key": [
+        "VWAP_MR_GLDRUBF",
+        "LONG",
+        "STOP"
+      ],
+      "signal_id": "VWAP_MR_GLDRUBF_000001",
+      "source_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "source_entry_at": "2023-07-11 12:40:00",
+      "source_entry_open": "5496.6",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "5491.7",
+      "take": "5505.6"
+    },
+    {
+      "c1": "0.2",
+      "exit_at": "2023-07-28 16:05:00",
+      "gross": "-4.8",
+      "net": "-5.0",
+      "sample_key": [
+        "VWAP_MR_GLDRUBF",
+        "SHORT",
+        "STOP"
+      ],
+      "signal_id": "VWAP_MR_GLDRUBF_000015",
+      "source_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "source_entry_at": "2023-07-28 15:35:00",
+      "source_entry_open": "5635.1",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "5639.9",
+      "take": "5629.9"
+    },
+    {
+      "c1": "0.2",
+      "exit_at": "2023-07-31 12:15:00",
+      "gross": "12.5",
+      "net": "12.3",
+      "sample_key": [
+        "VWAP_MR_GLDRUBF",
+        "LONG",
+        "TAKE"
+      ],
+      "signal_id": "VWAP_MR_GLDRUBF_000017",
+      "source_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "source_entry_at": "2023-07-31 11:25:00",
+      "source_entry_open": "5659.7",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "5648.8",
+      "take": "5672.2"
+    },
+    {
+      "c1": "0.2",
+      "exit_at": "2023-08-22 17:55:00",
+      "gross": "1.1",
+      "net": "0.9",
+      "sample_key": [
+        "VWAP_MR_GLDRUBF",
+        "SHORT",
+        "TAKE"
+      ],
+      "signal_id": "VWAP_MR_GLDRUBF_000076",
+      "source_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "source_entry_at": "2023-08-22 17:50:00",
+      "source_entry_open": "5713.2",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "5721.0",
+      "take": "5712.1"
+    },
+    {
+      "c1": "0.2",
+      "exit_at": "2023-10-02 18:30:00",
+      "gross": "-0.1",
+      "net": "-0.3",
+      "sample_key": [
+        "VWAP_MR_GLDRUBF",
+        "SHORT",
+        "SESSION_FLAT"
+      ],
+      "signal_id": "VWAP_MR_GLDRUBF_000134",
+      "source_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "source_entry_at": "2023-10-02 18:15:00",
+      "source_entry_open": "5829.1",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "5837.5",
+      "take": "5825.0"
+    },
+    {
+      "c1": "0.2",
+      "exit_at": "2023-10-23 13:40:00",
+      "gross": "6.5",
+      "net": "6.3",
+      "sample_key": [
+        "VWAP_MR_GLDRUBF",
+        "LONG",
+        "SESSION_FLAT"
+      ],
+      "signal_id": "VWAP_MR_GLDRUBF_000199",
+      "source_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "source_entry_at": "2023-10-23 12:45:00",
+      "source_entry_open": "5856.9",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "5845.5",
+      "take": "5871.6"
+    },
+    {
+      "c1": "0.2",
+      "exit_at": "2023-10-30 17:10:00",
+      "gross": "0.4",
+      "net": "0.2",
+      "sample_key": [
+        "VWAP_MR_GLDRUBF",
+        "SHORT",
+        "MAX_HOLD"
+      ],
+      "signal_id": "VWAP_MR_GLDRUBF_000222",
+      "source_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "source_entry_at": "2023-10-30 16:10:00",
+      "source_entry_open": "5834.1",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "5838.9",
+      "take": "5827.3"
+    },
+    {
+      "c1": "1.0",
+      "exit_at": "2023-12-12 18:30:00",
+      "gross": "-0.5",
+      "net": "-1.5",
+      "sample_key": [
+        "VWAP_MR_IMOEXF",
+        "LONG",
+        "SESSION_FLAT"
+      ],
+      "signal_id": "VWAP_MR_IMOEXF_000019",
+      "source_blob": "41b83b109b177d4522e53486950104845d357d99",
+      "source_entry_at": "2023-12-12 18:10:00",
+      "source_entry_open": "3032.5",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "3029.0",
+      "take": "3037.5"
+    },
+    {
+      "c1": "1.0",
+      "exit_at": "2023-12-14 12:05:00",
+      "gross": "7.5",
+      "net": "6.5",
+      "sample_key": [
+        "VWAP_MR_IMOEXF",
+        "LONG",
+        "TAKE"
+      ],
+      "signal_id": "VWAP_MR_IMOEXF_000023",
+      "source_blob": "41b83b109b177d4522e53486950104845d357d99",
+      "source_entry_at": "2023-12-14 11:25:00",
+      "source_entry_open": "3053",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "3044.5",
+      "take": "3060.5"
+    },
+    {
+      "c1": "1.0",
+      "exit_at": "2023-12-14 15:25:00",
+      "gross": "-0.5",
+      "net": "-1.5",
+      "sample_key": [
+        "VWAP_MR_IMOEXF",
+        "LONG",
+        "STOP"
+      ],
+      "signal_id": "VWAP_MR_IMOEXF_000025",
+      "source_blob": "41b83b109b177d4522e53486950104845d357d99",
+      "source_entry_at": "2023-12-14 15:25:00",
+      "source_entry_open": "3042",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "3041.5",
+      "take": "3047.0"
+    },
+    {
+      "c1": "1.0",
+      "exit_at": "2023-12-15 11:55:00",
+      "gross": "11.0",
+      "net": "10.0",
+      "sample_key": [
+        "VWAP_MR_IMOEXF",
+        "SHORT",
+        "TAKE"
+      ],
+      "signal_id": "VWAP_MR_IMOEXF_000028",
+      "source_blob": "41b83b109b177d4522e53486950104845d357d99",
+      "source_entry_at": "2023-12-15 11:20:00",
+      "source_entry_open": "3016.5",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "3025.0",
+      "take": "3005.5"
+    },
+    {
+      "c1": "1.0",
+      "exit_at": "2023-12-18 12:00:00",
+      "gross": "-3.0",
+      "net": "-4.0",
+      "sample_key": [
+        "VWAP_MR_IMOEXF",
+        "SHORT",
+        "STOP"
+      ],
+      "signal_id": "VWAP_MR_IMOEXF_000036",
+      "source_blob": "41b83b109b177d4522e53486950104845d357d99",
+      "source_entry_at": "2023-12-18 11:55:00",
+      "source_entry_open": "3078.5",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "3081.5",
+      "take": "3073.5"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-03 13:00:00",
+      "gross": "0.54",
+      "net": "0.52",
+      "sample_key": [
+        "MOMENTUM_USDRUBF",
+        "LONG",
+        "TAKE"
+      ],
+      "signal_id": "MOMENTUM_USDRUBF_000001",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "source_entry_at": "2023-01-03 11:50:00",
+      "source_entry_open": "70.2",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "70.03",
+      "take": "70.74"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-04 12:10:00",
+      "gross": "-0.17",
+      "net": "-0.19",
+      "sample_key": [
+        "MOMENTUM_USDRUBF",
+        "LONG",
+        "STOP"
+      ],
+      "signal_id": "MOMENTUM_USDRUBF_000019",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "source_entry_at": "2023-01-04 12:00:00",
+      "source_entry_open": "71.65",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "71.48",
+      "take": "72.14"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-04 18:30:00",
+      "gross": "0.15",
+      "net": "0.13",
+      "sample_key": [
+        "MOMENTUM_USDRUBF",
+        "LONG",
+        "SESSION_FLAT"
+      ],
+      "signal_id": "MOMENTUM_USDRUBF_000023",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "source_entry_at": "2023-01-04 18:05:00",
+      "source_entry_open": "71.99",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "71.94",
+      "take": "72.27"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-09 12:20:00",
+      "gross": "0.41",
+      "net": "0.39",
+      "sample_key": [
+        "MOMENTUM_USDRUBF",
+        "SHORT",
+        "TAKE"
+      ],
+      "signal_id": "MOMENTUM_USDRUBF_000051",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "source_entry_at": "2023-01-09 12:05:00",
+      "source_entry_open": "70.85",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "70.92",
+      "take": "70.44"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-09 16:50:00",
+      "gross": "-0.04",
+      "net": "-0.06",
+      "sample_key": [
+        "MOMENTUM_USDRUBF",
+        "SHORT",
+        "STOP"
+      ],
+      "signal_id": "MOMENTUM_USDRUBF_000058",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "source_entry_at": "2023-01-09 16:00:00",
+      "source_entry_open": "69.85",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "69.89",
+      "take": "69.52"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-13 18:30:00",
+      "gross": "-0.03",
+      "net": "-0.05",
+      "sample_key": [
+        "MOMENTUM_USDRUBF",
+        "SHORT",
+        "SESSION_FLAT"
+      ],
+      "signal_id": "MOMENTUM_USDRUBF_000093",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "source_entry_at": "2023-01-13 17:50:00",
+      "source_entry_open": "68.64",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "68.76",
+      "take": "68.24"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-16 13:25:00",
+      "gross": "-0.05",
+      "net": "-0.07",
+      "sample_key": [
+        "MOMENTUM_USDRUBF",
+        "LONG",
+        "MAX_HOLD"
+      ],
+      "signal_id": "MOMENTUM_USDRUBF_000094",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "source_entry_at": "2023-01-16 11:55:00",
+      "source_entry_open": "68.51",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "68.28",
+      "take": "68.96"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-02-17 13:20:00",
+      "gross": "0.14",
+      "net": "0.12",
+      "sample_key": [
+        "MOMENTUM_USDRUBF",
+        "SHORT",
+        "MAX_HOLD"
+      ],
+      "signal_id": "MOMENTUM_USDRUBF_000337",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "source_entry_at": "2023-02-17 11:50:00",
+      "source_entry_open": "74.66",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "74.74",
+      "take": "74.39"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-03 16:15:00",
+      "gross": "-0.02",
+      "net": "-0.04",
+      "sample_key": [
+        "MOMENTUM_CNYRUBF",
+        "LONG",
+        "STOP"
+      ],
+      "signal_id": "MOMENTUM_CNYRUBF_000001",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "source_entry_at": "2023-01-03 15:35:00",
+      "source_entry_open": "10.14",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "10.12",
+      "take": "10.19"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-05 13:40:00",
+      "gross": "-0.01",
+      "net": "-0.03",
+      "sample_key": [
+        "MOMENTUM_CNYRUBF",
+        "LONG",
+        "SESSION_FLAT"
+      ],
+      "signal_id": "MOMENTUM_CNYRUBF_000014",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "source_entry_at": "2023-01-05 13:25:00",
+      "source_entry_open": "10.33",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "10.31",
+      "take": "10.37"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-05 15:45:00",
+      "gross": "-0.01",
+      "net": "-0.03",
+      "sample_key": [
+        "MOMENTUM_CNYRUBF",
+        "SHORT",
+        "STOP"
+      ],
+      "signal_id": "MOMENTUM_CNYRUBF_000015",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "source_entry_at": "2023-01-05 15:35:00",
+      "source_entry_open": "10.33",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "10.34",
+      "take": "10.27"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-09 12:10:00",
+      "gross": "0.05",
+      "net": "0.03",
+      "sample_key": [
+        "MOMENTUM_CNYRUBF",
+        "SHORT",
+        "TAKE"
+      ],
+      "signal_id": "MOMENTUM_CNYRUBF_000024",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "source_entry_at": "2023-01-09 12:05:00",
+      "source_entry_open": "10.38",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "10.40",
+      "take": "10.33"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-13 16:50:00",
+      "gross": "0.06",
+      "net": "0.04",
+      "sample_key": [
+        "MOMENTUM_CNYRUBF",
+        "LONG",
+        "TAKE"
+      ],
+      "signal_id": "MOMENTUM_CNYRUBF_000045",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "source_entry_at": "2023-01-13 16:05:00",
+      "source_entry_open": "10.16",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "10.14",
+      "take": "10.22"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-01-26 17:35:00",
+      "gross": "0.01",
+      "net": "-0.01",
+      "sample_key": [
+        "MOMENTUM_CNYRUBF",
+        "LONG",
+        "MAX_HOLD"
+      ],
+      "signal_id": "MOMENTUM_CNYRUBF_000071",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "source_entry_at": "2023-01-26 16:05:00",
+      "source_entry_open": "10.27",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "10.25",
+      "take": "10.33"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-05-10 13:40:00",
+      "gross": "0.00",
+      "net": "-0.02",
+      "sample_key": [
+        "MOMENTUM_CNYRUBF",
+        "SHORT",
+        "SESSION_FLAT"
+      ],
+      "signal_id": "MOMENTUM_CNYRUBF_000248",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "source_entry_at": "2023-05-10 13:25:00",
+      "source_entry_open": "10.99",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "11.00",
+      "take": "10.92"
+    },
+    {
+      "c1": "0.02",
+      "exit_at": "2023-08-16 17:10:00",
+      "gross": "0.05",
+      "net": "0.03",
+      "sample_key": [
+        "MOMENTUM_CNYRUBF",
+        "SHORT",
+        "MAX_HOLD"
+      ],
+      "signal_id": "MOMENTUM_CNYRUBF_000484",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "source_entry_at": "2023-08-16 15:40:00",
+      "source_entry_open": "13.03",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "13.06",
+      "take": "12.93"
+    },
+    {
+      "c1": "0.2",
+      "exit_at": "2023-07-11 12:55:00",
+      "gross": "-6.7",
+      "net": "-6.9",
+      "sample_key": [
+        "MOMENTUM_GLDRUBF",
+        "SHORT",
+        "STOP"
+      ],
+      "signal_id": "MOMENTUM_GLDRUBF_000001",
+      "source_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "source_entry_at": "2023-07-11 12:45:00",
+      "source_entry_open": "5496.6",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "5502.5",
+      "take": "5480.1"
+    },
+    {
+      "c1": "0.2",
+      "exit_at": "2023-07-14 12:15:00",
+      "gross": "-0.8",
+      "net": "-1.0",
+      "sample_key": [
+        "MOMENTUM_GLDRUBF",
+        "LONG",
+        "STOP"
+      ],
+      "signal_id": "MOMENTUM_GLDRUBF_000013",
+      "source_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "source_entry_at": "2023-07-14 12:15:00",
+      "source_entry_open": "5529.5",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "5528.7",
+      "take": "5552.2"
+    },
+    {
+      "c1": "0.2",
+      "exit_at": "2023-08-11 12:20:00",
+      "gross": "14.4",
+      "net": "14.2",
+      "sample_key": [
+        "MOMENTUM_GLDRUBF",
+        "LONG",
+        "TAKE"
+      ],
+      "signal_id": "MOMENTUM_GLDRUBF_000073",
+      "source_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "source_entry_at": "2023-08-11 11:50:00",
+      "source_entry_open": "6004.6",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "5998.5",
+      "take": "6019.0"
+    },
+    {
+      "c1": "0.2",
+      "exit_at": "2023-08-11 18:10:00",
+      "gross": "21.7",
+      "net": "21.5",
+      "sample_key": [
+        "MOMENTUM_GLDRUBF",
+        "LONG",
+        "MAX_HOLD"
+      ],
+      "signal_id": "MOMENTUM_GLDRUBF_000077",
+      "source_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "source_entry_at": "2023-08-11 16:40:00",
+      "source_entry_open": "6052.3",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "6043.0",
+      "take": "6082.3"
+    },
+    {
+      "c1": "0.2",
+      "exit_at": "2023-08-16 17:10:00",
+      "gross": "5.2",
+      "net": "5.0",
+      "sample_key": [
+        "MOMENTUM_GLDRUBF",
+        "SHORT",
+        "MAX_HOLD"
+      ],
+      "signal_id": "MOMENTUM_GLDRUBF_000090",
+      "source_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "source_entry_at": "2023-08-16 15:40:00",
+      "source_entry_open": "5768.2",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "5788.4",
+      "take": "5733.1"
+    },
+    {
+      "c1": "0.2",
+      "exit_at": "2023-08-18 18:30:00",
+      "gross": "7",
+      "net": "6.8",
+      "sample_key": [
+        "MOMENTUM_GLDRUBF",
+        "SHORT",
+        "SESSION_FLAT"
+      ],
+      "signal_id": "MOMENTUM_GLDRUBF_000115",
+      "source_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "source_entry_at": "2023-08-18 18:05:00",
+      "source_entry_open": "5667",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "5675.3",
+      "take": "5644.0"
+    },
+    {
+      "c1": "0.2",
+      "exit_at": "2023-09-11 18:00:00",
+      "gross": "24.3",
+      "net": "24.1",
+      "sample_key": [
+        "MOMENTUM_GLDRUBF",
+        "SHORT",
+        "TAKE"
+      ],
+      "signal_id": "MOMENTUM_GLDRUBF_000175",
+      "source_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "source_entry_at": "2023-09-11 17:45:00",
+      "source_entry_open": "5903.1",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "5912.2",
+      "take": "5878.8"
+    },
+    {
+      "c1": "0.2",
+      "exit_at": "2023-10-02 18:30:00",
+      "gross": "0.0",
+      "net": "-0.2",
+      "sample_key": [
+        "MOMENTUM_GLDRUBF",
+        "LONG",
+        "SESSION_FLAT"
+      ],
+      "signal_id": "MOMENTUM_GLDRUBF_000266",
+      "source_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "source_entry_at": "2023-10-02 18:05:00",
+      "source_entry_open": "5829.2",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "5825.1",
+      "take": "5848.6"
+    },
+    {
+      "c1": "1.0",
+      "exit_at": "2023-12-04 13:15:00",
+      "gross": "-1.5",
+      "net": "-2.5",
+      "sample_key": [
+        "MOMENTUM_IMOEXF",
+        "LONG",
+        "STOP"
+      ],
+      "signal_id": "MOMENTUM_IMOEXF_000012",
+      "source_blob": "41b83b109b177d4522e53486950104845d357d99",
+      "source_entry_at": "2023-12-04 13:15:00",
+      "source_entry_open": "3130",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "3128.5",
+      "take": "3143.0"
+    },
+    {
+      "c1": "1.0",
+      "exit_at": "2023-12-07 13:40:00",
+      "gross": "4.0",
+      "net": "3.0",
+      "sample_key": [
+        "MOMENTUM_IMOEXF",
+        "LONG",
+        "SESSION_FLAT"
+      ],
+      "signal_id": "MOMENTUM_IMOEXF_000022",
+      "source_blob": "41b83b109b177d4522e53486950104845d357d99",
+      "source_entry_at": "2023-12-07 13:20:00",
+      "source_entry_open": "3069.5",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "3063.5",
+      "take": "3085.5"
+    },
+    {
+      "c1": "1.0",
+      "exit_at": "2023-12-07 16:20:00",
+      "gross": "11.0",
+      "net": "10.0",
+      "sample_key": [
+        "MOMENTUM_IMOEXF",
+        "LONG",
+        "TAKE"
+      ],
+      "signal_id": "MOMENTUM_IMOEXF_000025",
+      "source_blob": "41b83b109b177d4522e53486950104845d357d99",
+      "source_entry_at": "2023-12-07 16:10:00",
+      "source_entry_open": "3076",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "3071.5",
+      "take": "3087.0"
+    },
+    {
+      "c1": "1.0",
+      "exit_at": "2023-12-12 12:05:00",
+      "gross": "-5.5",
+      "net": "-6.5",
+      "sample_key": [
+        "MOMENTUM_IMOEXF",
+        "SHORT",
+        "STOP"
+      ],
+      "signal_id": "MOMENTUM_IMOEXF_000033",
+      "source_blob": "41b83b109b177d4522e53486950104845d357d99",
+      "source_entry_at": "2023-12-12 11:30:00",
+      "source_entry_open": "3012.5",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "3018.0",
+      "take": "2991.5"
+    },
+    {
+      "c1": "1.0",
+      "exit_at": "2023-12-12 17:20:00",
+      "gross": "11.0",
+      "net": "10.0",
+      "sample_key": [
+        "MOMENTUM_IMOEXF",
+        "SHORT",
+        "TAKE"
+      ],
+      "signal_id": "MOMENTUM_IMOEXF_000040",
+      "source_blob": "41b83b109b177d4522e53486950104845d357d99",
+      "source_entry_at": "2023-12-12 16:50:00",
+      "source_entry_open": "3039",
+      "source_ohlcv_exit_rule_verified": true,
+      "stop": "3041.5",
+      "take": "3028.0"
+    }
+  ],
+  "source_prefix_provenance": {
+    "CNYRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-01-03 09:00:00",
+      "frozen_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 2212189,
+      "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+      "rows": 39362
+    },
+    "GLDRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-07-11 10:00:00",
+      "frozen_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 1044351,
+      "prefix_sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b",
+      "rows": 18428
+    },
+    "IMOEXF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-11-14 10:00:00",
+      "frozen_blob": "41b83b109b177d4522e53486950104845d357d99",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 234733,
+      "prefix_sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c",
+      "rows": 4429
+    },
+    "USDRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-01-03 09:00:00",
+      "frozen_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 2342431,
+      "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "rows": 42576
+    }
+  },
+  "verdicts": {
+    "Execution model": "PASS",
+    "Momentum economic viability": "INCONCLUSIVE",
+    "Research completeness": "NEEDS FIX",
+    "VWAP economic viability": "INCONCLUSIVE"
+  }
+}

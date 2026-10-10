@@ -1,8 +1,10 @@
 # IntradayLab — research roadmap
 
+**Corrective v2 (2026-10-09):** Separate [conditional observed-bar Baseline](reports/STAGE2_M5_CONDITIONAL_V2_REPORT.md), stacked on unmerged PR #443. Frozen v1 parameters/config/results retained; 2,140 model entries (+1,993), 2,058 accounted trades, 82 unknown position paths, 61 NO_BAR_NO_MODEL_FILL, zero missing-entry year latch. Derived B−25 submission / B−20 scenario / B−10 nominal acknowledgement. Execution model PASS with source/arithmetic audit and 100 executed tests; **research completeness NEEDS FIX; both strategy economic verdicts INCONCLUSIVE; all full annual Net/PF/DD null**. NO_COVERAGE preserved; no tuning, protected-tree changes, merge or WF/OOS/LIVE. Historical v1 state below remains separately reproducible.
+
 Decision: **2026-10-08**. Independent intraday research on MOEX perpetual futures. **Only IntradayLab/ may be changed.** This roadmap does not authorize real orders or affect the production TradingSystemLab robot.
 
-**Current audit gate (2026-10-09):** Independent settings re-audit [STAGE2_M5_STRATEGY_SETTINGS_REAUDIT_20261009](reports/STAGE2_M5_STRATEGY_SETTINGS_REAUDIT_20261009.md) found a failed annual research acceptance despite deterministic code/artifact checks. 93.2% signals blocked after 8 missing-target unknown orders; CNY early-2023 ATR/tick economics and VWAP reward-vs-C1 are poor. Original baseline manifest and result artifacts remain frozen for provenance. Stage 2 needs a bounded 2023-only input/execution audit and separate predeclared candidate variants; **NO PR #443 MERGE, NO Stage 3, NO MTF/WF/OOS/LIVE**. Only IntradayLab may change.
+**Historical v1 audit gate (2026-10-09):** Independent settings re-audit [STAGE2_M5_STRATEGY_SETTINGS_REAUDIT_20261009](reports/STAGE2_M5_STRATEGY_SETTINGS_REAUDIT_20261009.md) found a failed annual research acceptance despite deterministic code/artifact checks. 93.2% signals blocked after 8 missing-target unknown orders; CNY early-2023 ATR/tick economics and VWAP reward-vs-C1 are poor. Original baseline manifest and result artifacts remain frozen for provenance. Stage 2 needs a bounded 2023-only input/execution audit and separate predeclared candidate variants; **NO PR #443 MERGE, NO Stage 3, NO MTF/WF/OOS/LIVE**. Only IntradayLab may change.
 
 ## Research target
 
