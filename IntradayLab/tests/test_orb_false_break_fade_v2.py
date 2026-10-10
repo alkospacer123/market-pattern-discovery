@@ -45,10 +45,10 @@ class V2Features(unittest.TestCase):
 
     def test_independent_m15_exact_and_missing_child(self):
         t=datetime(2023,1,3,10,0)
-        bars={t+timedelta(minutes=5*i):bar(close=str(100+i))
+        bars={t+timedelta(minutes=5*i):bar(close=str(D(100)+D(i)/4))
               for i in range(4)}
         s={"signal_at":t+timedelta(minutes=20)}
-        self.assertEqual(v2.independent_m15_close(bars,s),D(102))
+        self.assertEqual(v2.independent_m15_close(bars,s),D("100.5"))
         del bars[t+timedelta(minutes=5)]
         self.assertIsNone(v2.independent_m15_close(bars,s))
 
