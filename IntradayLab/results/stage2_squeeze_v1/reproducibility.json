@@ -1,0 +1,97 @@
+{
+  "all_reporting_prior_versions": "Retained in work with digests in reporting_correction_history.json; no accepted old Lab artifact changed",
+  "config_unchanged": true,
+  "deterministic_gzip": "mtime=0",
+  "independent_runs": {
+    "independent_audit.json": {
+      "identical": true,
+      "sha256_a": "0c952abedd546a7c4bfb57447c2a5dcc7f89632b1913b65f2c99fc1345bb062a",
+      "sha256_b": "0c952abedd546a7c4bfb57447c2a5dcc7f89632b1913b65f2c99fc1345bb062a"
+    },
+    "reconstructed.json.gz": {
+      "identical": true,
+      "sha256_a": "8e2304c98bca98c70ad79f76821abcb7837e2cc720d6becb642148a802b39e89",
+      "sha256_b": "8e2304c98bca98c70ad79f76821abcb7837e2cc720d6becb642148a802b39e89"
+    }
+  },
+  "initial_vs_reporting_corrected_trading_identical": {
+    "execution_events.csv.gz": true,
+    "indicator_features.csv.gz": true,
+    "m5_m30_comparison.csv": true,
+    "signals.csv.gz": true,
+    "squeeze_cycles.csv.gz": true,
+    "trade_ledger.csv.gz": true
+  },
+  "manual_traces": {
+    "identical": true,
+    "sha256_a": "50e308802e339dcde78142d4ddd96c01f084b18213189d606cd65499200c8133",
+    "sha256_b": "50e308802e339dcde78142d4ddd96c01f084b18213189d606cd65499200c8133"
+  },
+  "primary_runs": {
+    "SHA256SUMS": {
+      "identical": true,
+      "sha256_a": "e5dd4501950a1a5f94483c75544d492ab127cc17ec2996a4bf2763a1e6512075",
+      "sha256_b": "e5dd4501950a1a5f94483c75544d492ab127cc17ec2996a4bf2763a1e6512075"
+    },
+    "direction_results.csv": {
+      "identical": true,
+      "sha256_a": "4f24ec2a591aeb8a618b68b4b19e752aca36f7f7442da2c526017acbee1cae08",
+      "sha256_b": "4f24ec2a591aeb8a618b68b4b19e752aca36f7f7442da2c526017acbee1cae08"
+    },
+    "execution_events.csv.gz": {
+      "identical": true,
+      "sha256_a": "f1c6f3c167decc8be43a472c376e5e8c55ae72e888fca728bb0bda1b8d62ec3d",
+      "sha256_b": "f1c6f3c167decc8be43a472c376e5e8c55ae72e888fca728bb0bda1b8d62ec3d"
+    },
+    "frequency_report.csv": {
+      "identical": true,
+      "sha256_a": "3d09027ee74a97bab8cf8032df6585bd3ba0f69fb6aefde1be539c948b6fc2d2",
+      "sha256_b": "3d09027ee74a97bab8cf8032df6585bd3ba0f69fb6aefde1be539c948b6fc2d2"
+    },
+    "indicator_features.csv.gz": {
+      "identical": true,
+      "sha256_a": "b258893161c1e454fe13a1070a2426c0996bb79dc362c002f45428fb4c7970e0",
+      "sha256_b": "b258893161c1e454fe13a1070a2426c0996bb79dc362c002f45428fb4c7970e0"
+    },
+    "input_provenance.json": {
+      "identical": true,
+      "sha256_a": "cdcb1d3d543b643e98552094e25429442e7496db882490153ada314ddf236364",
+      "sha256_b": "cdcb1d3d543b643e98552094e25429442e7496db882490153ada314ddf236364"
+    },
+    "m5_m30_comparison.csv": {
+      "identical": true,
+      "sha256_a": "aa60a6deae1865b4082228c4e7c1c3aa2fc777c079818c8725aff977435240d3",
+      "sha256_b": "aa60a6deae1865b4082228c4e7c1c3aa2fc777c079818c8725aff977435240d3"
+    },
+    "metrics.csv": {
+      "identical": true,
+      "sha256_a": "d9c190ae861dd08337f039c76b16c7d23b95fd070de329a5f4c20a9e861eed3c",
+      "sha256_b": "d9c190ae861dd08337f039c76b16c7d23b95fd070de329a5f4c20a9e861eed3c"
+    },
+    "monthly_results.csv": {
+      "identical": true,
+      "sha256_a": "8f0bdc92b85ea26f4bed46f13d017f4917e2f60b5c2f253a0fb43753a905b714",
+      "sha256_b": "8f0bdc92b85ea26f4bed46f13d017f4917e2f60b5c2f253a0fb43753a905b714"
+    },
+    "sensitivity.csv": {
+      "identical": true,
+      "sha256_a": "8e49c178392192fd00510731d985cf539c66333a94523745f91dc4f2bd9f971c",
+      "sha256_b": "8e49c178392192fd00510731d985cf539c66333a94523745f91dc4f2bd9f971c"
+    },
+    "signals.csv.gz": {
+      "identical": true,
+      "sha256_a": "0f36a3a37516e87f323237373f41139ad085e5698d3c34b08908f907fdc02005",
+      "sha256_b": "0f36a3a37516e87f323237373f41139ad085e5698d3c34b08908f907fdc02005"
+    },
+    "squeeze_cycles.csv.gz": {
+      "identical": true,
+      "sha256_a": "eacc20345ee2c571ca0cd391379d0bf8ccce5cac04089237afeff09cce25465d",
+      "sha256_b": "eacc20345ee2c571ca0cd391379d0bf8ccce5cac04089237afeff09cce25465d"
+    },
+    "trade_ledger.csv.gz": {
+      "identical": true,
+      "sha256_a": "014f157a7b1e370c39ae00607972f3c76684cca9e85235ae682db36967fbc8d1",
+      "sha256_b": "014f157a7b1e370c39ae00607972f3c76684cca9e85235ae682db36967fbc8d1"
+    }
+  }
+}
