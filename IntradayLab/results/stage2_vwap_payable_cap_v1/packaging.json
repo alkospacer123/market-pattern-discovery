@@ -1,0 +1,16 @@
+{
+  "execution_events.csv": {
+    "compressed_sha256": "5a87ee8c9480e1b4f73fbe6bd675575ff05eaaf838ab97f4fecc6227ba030245",
+    "compression": "gzip9, mtime0, lossless exact CSV; decompress before hash comparison",
+    "stored_as": "execution_events.csv.gz",
+    "uncompressed_bytes": 2678424,
+    "uncompressed_sha256": "cb8d2bc242dd14dbe350183fc2a6b464f4693ccf6387290208a7b19f6342471b"
+  },
+  "signals.csv": {
+    "compressed_sha256": "7d38da41ecc9c62014befe5874ea6cc340137ef9da63ea53ffe2f827ce1066af",
+    "compression": "gzip9, mtime0, lossless exact CSV; decompress before hash comparison",
+    "stored_as": "signals.csv.gz",
+    "uncompressed_bytes": 7117010,
+    "uncompressed_sha256": "a9da7aa6e5b1766e270574c7bfb8b353a3f2aa943075eab6f99c166c8ec61de9"
+  }
+}

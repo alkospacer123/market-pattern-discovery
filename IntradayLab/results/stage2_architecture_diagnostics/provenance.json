@@ -1,0 +1,56 @@
+{
+  "base": "ca8922082b0988837f7553e5ff39d6a2c3dece09",
+  "closed": 2058,
+  "corrective_metrics_sha256": "d62faa30a3d971f5499b65ce7d64da61697b4d8b3257424e4ab4944abbc7c10e",
+  "entries": 2140,
+  "frozen_ledger_sha256": "3e424dfddceb6767859f16ebfa6ad30d931c4e54f0a15279ba01206b7877fc49",
+  "frozen_signals_sha256": "2d22fbd215eb34a922537117fea0a95b865da7e7cdff12a4e6f827cc9b689cc0",
+  "implementation_sha256": "fe2a3f977eb11706d8af063c4db068f001ec17b8d81401b02424e18d061ad1fc",
+  "inputs": {
+    "CNYRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-01-03 09:00:00",
+      "frozen_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 2212189,
+      "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+      "rows": 39362
+    },
+    "GLDRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-07-11 10:00:00",
+      "frozen_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 1044351,
+      "prefix_sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b",
+      "rows": 18428
+    },
+    "IMOEXF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-11-14 10:00:00",
+      "frozen_blob": "41b83b109b177d4522e53486950104845d357d99",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 234733,
+      "prefix_sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c",
+      "rows": 4429
+    },
+    "USDRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-01-03 09:00:00",
+      "frozen_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 2342431,
+      "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "rows": 42576
+    }
+  },
+  "methodology_head": "d000c5e8aad3e0bbae32f55bbf205483b48e9408",
+  "mfe_mae_policy": "Known complete pre-exit candles: confirmed lower bounds; terminal extrema ambiguous; all unknown trade excursions null. No invented intrabar sequence.",
+  "scope": "All available 2023; no 2024/WF or 2025+/TRUE OOS bytes read",
+  "source": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "unknown_outcomes_unchanged": 82
+}
