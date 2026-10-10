@@ -1,0 +1,38 @@
+{
+  "actual_executable_trade_count": null,
+  "all_funnels_rows_reasons_geometry_months_days_match": true,
+  "auditor_sha256": "b3415e994235f99aefc71de988cdd8b44f3ac60ff5c3f7684f612d7b5eed741d",
+  "authoritative_funnel_sha256": "6bb424256c06e79ea1bc43f1ce0945b9a7c13c9ded9a7d785b4fac04f841e7e4",
+  "combined": [
+    {
+      "days_without_opportunities": 1,
+      "distinct_instrument_entry_slots": 1754,
+      "distinct_wall_clock_slots": 1587,
+      "observed_union_days": 254,
+      "opportunities_per_union_day": 6.905511811023622,
+      "scenario": 10,
+      "simultaneous_multi_instrument_slots": 161,
+      "unique_opportunities": 1754
+    },
+    {
+      "days_without_opportunities": 2,
+      "distinct_instrument_entry_slots": 1648,
+      "distinct_wall_clock_slots": 1498,
+      "observed_union_days": 254,
+      "opportunities_per_union_day": 6.488188976377953,
+      "scenario": 15,
+      "simultaneous_multi_instrument_slots": 143,
+      "unique_opportunities": 1648
+    }
+  ],
+  "compared_confirmed_rows": 7572,
+  "compared_daily_rows": 1328,
+  "compared_monthly_rows": 96,
+  "config_sha256": "c21f212f3d82326369cf7452c9f2a80d9188caa827b63fc65e96322c523082fb",
+  "economic_baseline_pass": false,
+  "external_acceptance": "PENDING; independent algorithm executed by the same task agent, not an external reviewer",
+  "method": "independent CSV reader, contiguous session segments, six-row slices, integer grids; separate signal confirmation and Open adapter; no production imports",
+  "physical_protected_bytes_read_authoritative_and_audit": 0,
+  "scanner_sha256": "3e8298de054bb3f0be69e274e7f3610ed302a32c934a52f0436fdacc51801e51",
+  "status": "PASS_INDEPENDENT_ALGORITHM"
+}

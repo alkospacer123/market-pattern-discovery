@@ -1,0 +1,3 @@
+scenario,unique_opportunities,observed_union_days,opportunities_per_union_day,days_without_opportunities,distinct_instrument_entry_slots,distinct_wall_clock_slots,simultaneous_multi_instrument_slots
+10,1754,254,6.905511811023622,1,1754,1587,161
+15,1648,254,6.488188976377953,2,1648,1498,143

@@ -12,7 +12,9 @@ import hashlib
 import json
 from pathlib import Path
 import subprocess
+import sys
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from m5_baseline import allowed, next_slot, rounded, tick, window_at, windows, FIVE, SYMBOLS
 
 LAB = Path(__file__).resolve().parents[1]
@@ -37,8 +39,13 @@ def load_bars(root, manifest):
         spec = manifest["inputs"][symbol]
         if git(root, "ls-files", "--stage", "--", spec["path"]).split()[1] != spec["blob"]:
             raise RuntimeError("SOURCE_BLOB_MISMATCH")
-        with (root / spec["path"]).open("rb") as f:
+        source = root / spec["path"]
+        before = source.stat()
+        with source.open("rb", buffering=0) as f:
             content = f.read(spec["prefix_bytes"])
+        after = source.stat()
+        if any(getattr(before,k) != getattr(after,k) for k in ("st_size","st_mtime_ns","st_ctime_ns","st_ino")):
+            raise RuntimeError("SOURCE_CHANGED_DURING_READ")
         if len(content) != spec["prefix_bytes"] or not content.endswith(b"\n"):
             raise RuntimeError("SOURCE_PREFIX_INCOMPLETE")
         if hashlib.sha256(content).hexdigest() != spec["prefix_sha256"]:
@@ -54,16 +61,21 @@ def load_bars(root, manifest):
             if len(fields) != 7 or fields[0] != symbol:
                 raise RuntimeError("SOURCE_CSV_SCHEMA")
             stamp = datetime.fromisoformat(fields[1])
-            if stamp.year != 2023 or (previous is not None and stamp <= previous):
+            if (stamp.year != 2023 or stamp.tzinfo is not None or stamp.minute % 5
+                    or stamp.second or stamp.microsecond
+                    or (previous is not None and stamp <= previous)):
                 raise RuntimeError("SOURCE_DATE_OR_ORDER")
             previous = stamp
             o,h,l,c,v = [D(x) for x in fields[2:]]
-            if not (l <= min(o,c) <= max(o,c) <= h and v >= 0):
+            if not (all(x.is_finite() for x in (o,h,l,c,v)) and l > 0
+                    and l <= min(o,c) <= max(o,c) <= h and v >= 0):
                 raise RuntimeError("SOURCE_OHLCV")
             step = tick(symbol,stamp)
             if any(price % step for price in (o,h,l,c)):
                 raise RuntimeError("SOURCE_PRICE_GRID")
             rows.append((stamp,o,h,l,c,v))
+        if rows[0][0] != datetime.fromisoformat(spec["first"]):
+            raise RuntimeError("SOURCE_FIRST_DATE")
         result[symbol] = rows
     return result
 
@@ -89,14 +101,17 @@ def event_signal(symbol, bar, previous, params):
 
 
 def analyze(symbol, rows, delay, config):
-    """One time-ordered pass. Future candle inspection: Open only, target pre-scheduled."""
+    """Causal admission pass followed by a separate scheduled-Open-only adapter."""
     params = config["parameters"]
-    idx = {bar[0]: bar for bar in rows}
+    # Execution adapter exposes no target High/Low/Close. Volume is a retrospective
+    # observed-bar flag, not information available to a real order at the Open.
+    openings = {bar[0]: (bar[1],bar[5]>0) for bar in rows}
     historic = deque(maxlen=params["level_lookback_completed_m5"])
     last_seen, last_window = None, None
     last_confirmed = {}
     counts = Counter()
     events = []
+    scheduled = []
     valid_days = set()
     for bar in rows:
         at = bar[0]
@@ -112,6 +127,12 @@ def analyze(symbol, rows, delay, config):
             continue
         valid_days.add(at.date().isoformat())
         counts["observed_m5"] += 1
+        if len(historic) == params["level_lookback_completed_m5"]:
+            counts["evaluated_test_bars"] += 1
+            step=tick(symbol,at)
+            if (bar[2] >= max(x[2] for x in historic)+step
+                    or bar[3] <= min(x[3] for x in historic)-step):
+                counts["level_penetration_bars"] += 1
         signal, reason = event_signal(symbol,bar,historic,params)
         historic.append(bar)
         if reason == "WARMUP":
@@ -132,21 +153,44 @@ def analyze(symbol, rows, delay, config):
         counts["unique_confirmed"] += 1
         available_at = at + FIVE + timedelta(minutes=delay)
         target_at = next_slot(available_at)
-        common = dict(symbol=symbol,scenario=delay,status="",direction=side,signal_at=at.isoformat(sep=" "),available_at=available_at.isoformat(sep=" "),target_at=target_at.isoformat(sep=" "),level=str(signal["level"]),stop=str(signal["stop"]),entry_open=None,risk=None,tick=str(tick(symbol, at)),legacy_take=None,full_net_take=None,within_known_range=None,reason="")
+        common = dict(symbol=symbol,scenario=delay,status="",direction=side,signal_at=at.isoformat(sep=" "),available_at=available_at.isoformat(sep=" "),target_at=target_at.isoformat(sep=" "),level=str(signal["level"]),opposite=str(signal["opposite"]),stop=str(signal["stop"]),entry_open=None,risk=None,tick=str(tick(symbol, at)),legacy_take=None,full_net_take=None,legacy_net_reward_to_gross_risk=None,full_net_reward_to_net_stop_loss=None,within_known_range=None,reason="")
         if window_at(target_at)!=w or not allowed(symbol,target_at) or target_at+timedelta(minutes=params["max_session_entry_slack_minutes"])>w[1]:
             common.update(status="NONFILL",reason="SESSION_ENTRY_CUTOFF")
             counts["SESSION_ENTRY_CUTOFF"]+=1
             events.append(common)
             continue
-        target = idx.get(target_at)
+        counts["scheduled_in_window"] += 1
+        # Freeze the admission before the execution adapter sees future data.
+        scheduled.append((common,signal))
+    # Independent conditional execution phase; no feature state can be changed.
+    for common,signal in scheduled:
+        at=signal["signal_at"]
+        target_at=datetime.fromisoformat(common["target_at"])
+        direction=signal["direction"]
+        target = openings.get(target_at)
         # The target bar is NOT used in event_signal(). Only its scheduled OPEN,
         # known at its own existence event, can conditionally establish geometry.
-        if target is None or target[5]<=0:
-            common.update(status="UNKNOWN",reason="MISSING_SCHEDULED_M5_OPEN")
+        if target is None or not target[1]:
+            common.update(status="UNKNOWN",reason="MISSING_SCHEDULED_M5_OPEN" if target is None else "ZERO_VOLUME_SCHEDULED_M5")
             counts["UNKNOWN_POSSIBLE_FILL"]+=1
             events.append(common)
             continue
-        openprice = target[1]
+        # Reset pending decisions only for gaps already observable by this Open.
+        # With strict future scheduling the next source slot's delivery deadline
+        # equals the entry time. Later gaps must never affect this opportunity.
+        check = at + FIVE
+        known_gap = False
+        while check + FIVE + timedelta(minutes=delay) <= target_at:
+            observation = openings.get(check)
+            if observation is None or not observation[1]:
+                known_gap = True
+            check += FIVE
+        if known_gap:
+            common.update(status="NONFILL",reason="OBSERVABLE_GAP_RESET_BEFORE_ENTRY")
+            counts["OBSERVABLE_GAP_RESET_BEFORE_ENTRY"] += 1
+            events.append(common)
+            continue
+        openprice = target[0]
         step = tick(symbol,target_at)
         common["entry_open"] = str(openprice)
         if direction * (openprice-signal["level"]) < step:
@@ -156,14 +200,14 @@ def analyze(symbol, rows, delay, config):
             continue
         risk = direction * (openprice-signal["stop"])
         common["risk"] = str(risk)
-        if risk < params["min_initial_price_risk_ticks"]*step:
-            common.update(status="NONFILL",reason="RISK_BELOW_FOUR_TICKS")
-            counts["RISK_BELOW_FOUR_TICKS"]+=1
-            events.append(common)
-            continue
         if risk <= 0:
             common.update(status="NONFILL",reason="INVALID_RISK")
             counts["INVALID_RISK"]+=1
+            events.append(common)
+            continue
+        if risk < params["min_initial_price_risk_ticks"]*step:
+            common.update(status="NONFILL",reason="RISK_BELOW_FOUR_TICKS")
+            counts["RISK_BELOW_FOUR_TICKS"]+=1
             events.append(common)
             continue
         # Take prices are purely theoretical; NOTHING after target bar's Open is used.
@@ -174,9 +218,12 @@ def analyze(symbol, rows, delay, config):
         boundary_room = direction*(signal["opposite"]-openprice)
         common.update(status="ELIGIBLE_GEOMETRY",reason="",risk=str(risk),tick=str(step),
                       legacy_take=str(take_legacy),full_net_take=str(take_full),
+                      legacy_net_reward_to_gross_risk=str((direction*(take_legacy-openprice)-2*step)/risk),
+                      full_net_reward_to_net_stop_loss=str((direction*(take_full-openprice)-2*step)/(risk+2*step)),
                       within_known_range=bool(boundary_room>=full_distance))
         counts["eligible_geometry"]+=1
         events.append(common)
+    events.sort(key=lambda row: row["signal_at"])
     return events,counts,valid_days
 
 
@@ -223,31 +270,32 @@ def run(all_rows, manifest):
                     state="POST_SOURCE_NO_COVERAGE"
                 calendar.append(dict(symbol=symbol,scenario=delay,month=month,observed_dates=obs,coverage=state,
                                      eligible_geometry=monthly.get((symbol,delay,month),0)))
-    daily_rows=[]
-    for (symbol,delay,day),n in sorted(daily.items()):
-        daily_rows.append(dict(symbol=symbol,scenario=delay,day=day,eligible_geometry=n))
+    daily_rows=[dict(symbol=symbol,scenario=delay,day=day,
+                     eligible_geometry=daily.get((symbol,delay,day),0))
+                for symbol in SYMBOLS for delay in SCHEMES
+                for day in coverage[symbol]["observed_allowed_window_dates"]]
     summary={}
     for delay in SCHEMES:
         sub=[x for x in eligible if x["scenario"]==delay]
         days=set().union(*(set(coverage[s]["observed_allowed_window_dates"]) for s in SYMBOLS))
-        concurrent={}
-        # This is NOT a filled-positions model. Same instrument entry timing duplicates
-        # are collapsed only for a capacity proxy; no exit path is examined.
-        for row in sorted(sub,key=lambda x:(x["target_at"],x["symbol"])):
-            t=datetime.fromisoformat(row["target_at"])
-            old=concurrent.get(row["symbol"])
-            if old is not None and t-old < timedelta(minutes=30):
-                continue
-            concurrent[row["symbol"]]=t
-            day=row["signal_at"][:10]
-            summary.setdefault(f"scenario_{delay}_capacity_proxy_daily",{})
-            proxy=summary[f"scenario_{delay}_capacity_proxy_daily"]
-            proxy[day]=proxy.get(day,0)+1
+        keys={(x["symbol"],x["direction"],x["signal_at"]) for x in sub}
+        if len(keys) != len(sub):
+            raise RuntimeError("DUPLICATE_OPPORTUNITY")
+        slots=Counter(x["target_at"] for x in sub)
         summary[f"scenario_{delay}"]=dict(eligible_upper_bound=len(sub),observed_union_days=len(days),
                                          eligible_per_observed_union_day=len(sub)/len(days) if days else None,
                                          observed_union_days_with_no_eligible=len(days)-len(set(x["signal_at"][:10] for x in sub)),
-                                         capacity_proxy_entries=sum(summary.get(f"scenario_{delay}_capacity_proxy_daily",{}).values()),
+                                         distinct_instrument_entry_slots=len({(x["symbol"],x["target_at"]) for x in sub}),
+                                         distinct_wall_clock_entry_slots=len(slots),
+                                         simultaneous_slots=sum(n>1 for n in slots.values()),
                                          note="No PnL, no guaranteed venue fills, no position-busy simulation; theoretical upper bound.")
+        for symbol in SYMBOLS:
+            own=[x for x in sub if x["symbol"]==symbol]
+            observed=coverage[symbol]["observed_allowed_window_dates"]
+            summary[f"{symbol}_{delay}"]=dict(eligible=len(own),observed_days=len(observed),
+                eligible_per_observed_day=len(own)/len(observed) if observed else None,
+                days_without_opportunities=len(observed)-len({x["signal_at"][:10] for x in own}),
+                full_net_3R_within_known_range=sum(x["within_known_range"] for x in own))
     return dict(status="STAGE2_LEVEL_REJECTION_OPPORTUNITIES_ONLY_NO_ECONOMIC_BASELINE_PASS",
                 manifest_id=manifest["id"],run_count=len(SCHEMES)*len(SYMBOLS),scenarios=list(SCHEMES),
                 summary=summary,counters=counters,coverage=coverage,calendar=calendar,daily=daily_rows,signals=records,

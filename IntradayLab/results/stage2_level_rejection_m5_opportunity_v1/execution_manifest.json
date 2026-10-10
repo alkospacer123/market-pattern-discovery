@@ -1,0 +1,30 @@
+{
+  "authoritative_reader_protected_bytes_read": 0,
+  "base_main": "832739dfb9c9ec8f4f2fc1768d7fc07fbc69521c",
+  "branch_start": "712dfb2d74c1ba9a1870ef56572ee25be94e8c48",
+  "code_sha256": {
+    "tests/test_level_rejection_opportunities.py": "5e90f14170dd02b14adcea1c4cb13cce888af4f7a1ee7ed6bd163cdbe6bcbd20",
+    "tools/audit_level_rejection_opportunities.py": "b3415e994235f99aefc71de988cdd8b44f3ac60ff5c3f7684f612d7b5eed741d",
+    "tools/run_level_rejection_opportunities.py": "3e8298de054bb3f0be69e274e7f3610ed302a32c934a52f0436fdacc51801e51"
+  },
+  "commands": [
+    "python -m unittest discover -s IntradayLab/tests -p test_level_rejection_opportunities.py -v",
+    "python -m unittest discover -s IntradayLab/tests -v",
+    "python IntradayLab/tools/run_level_rejection_opportunities.py --data-root /workspace/market-pattern-data --output IntradayLab/results/stage2_level_rejection_m5_opportunity_v1",
+    "python IntradayLab/tools/audit_level_rejection_opportunities.py --data-root /workspace/market-pattern-data"
+  ],
+  "config_sha256": "c21f212f3d82326369cf7452c9f2a80d9188caa827b63fc65e96322c523082fb",
+  "draft": true,
+  "economic_pass": false,
+  "external_independent_acceptance": "PENDING",
+  "freeze_commit": "1487d7e041e9e32122a5df9ae280386da8ebadb1",
+  "independent_audit": "PASS_INDEPENDENT_ALGORITHM",
+  "initial_reader_deviation": "See correction_history.json: preliminary inherited buffered run cannot certify zero 2024 physical prefetch; parsed market data 2023 only; 2025 not reached",
+  "intradaylab_tests_pass": 222,
+  "pull_request": 459,
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "source_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "targeted_tests_pass": 26,
+  "task_date": "2026-10-10",
+  "verdict": "OPPORTUNITY_FEASIBLE"
+}

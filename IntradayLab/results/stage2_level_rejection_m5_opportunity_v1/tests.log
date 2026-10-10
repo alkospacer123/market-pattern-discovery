@@ -1,0 +1,31 @@
+test_ambiguous_both_sides (test_level_rejection_opportunities.LevelRejectionTests.test_ambiguous_both_sides) ... ok
+test_cny_tick_historical (test_level_rejection_opportunities.LevelRejectionTests.test_cny_tick_historical) ... ok
+test_directional_dedup_thirty_minutes_inclusive (test_level_rejection_opportunities.LevelRejectionTests.test_directional_dedup_thirty_minutes_inclusive) ... ok
+test_exact_t10_t15_and_both_ratios (test_level_rejection_opportunities.LevelRejectionTests.test_exact_t10_t15_and_both_ratios) ... ok
+test_four_ticks_inclusive (test_level_rejection_opportunities.LevelRejectionTests.test_four_ticks_inclusive) ... ok
+test_future_mutation_changes_no_earlier_signal_or_entry (test_level_rejection_opportunities.LevelRejectionTests.test_future_mutation_changes_no_earlier_signal_or_entry) ... ok
+test_long_stop_and_full_net_target (test_level_rejection_opportunities.LevelRejectionTests.test_long_stop_and_full_net_target) ... ok
+test_lunch_day_gap_zero_reset_six_bars (test_level_rejection_opportunities.LevelRejectionTests.test_lunch_day_gap_zero_reset_six_bars) ... ok
+test_march_windows (test_level_rejection_opportunities.LevelRejectionTests.test_march_windows) ... ok
+test_missing_entry_stays_unknown (test_level_rejection_opportunities.LevelRejectionTests.test_missing_entry_stays_unknown) ... ok
+test_missing_target_unknown_despite_intermediate_gap (test_level_rejection_opportunities.LevelRejectionTests.test_missing_target_unknown_despite_intermediate_gap) ... ok
+test_no_pnl_fields_present (test_level_rejection_opportunities.LevelRejectionTests.test_no_pnl_fields_present) ... ok
+test_no_signal_if_close_outside (test_level_rejection_opportunities.LevelRejectionTests.test_no_signal_if_close_outside) ... ok
+test_nonfill_reclaim (test_level_rejection_opportunities.LevelRejectionTests.test_nonfill_reclaim) ... ok
+test_not_yet_observable_gap_keeps_pending (test_level_rejection_opportunities.LevelRejectionTests.test_not_yet_observable_gap_keeps_pending) ... ok
+test_observable_gap_cancels_pending (test_level_rejection_opportunities.LevelRejectionTests.test_observable_gap_cancels_pending) ... ok
+test_parser_rejects_grid_and_schema (test_level_rejection_opportunities.LevelRejectionTests.test_parser_rejects_grid_and_schema) ... ok
+test_parser_rejects_sha_mismatch (test_level_rejection_opportunities.LevelRejectionTests.test_parser_rejects_sha_mismatch) ... ok
+test_parser_rejects_unaligned_and_protected_timestamps (test_level_rejection_opportunities.LevelRejectionTests.test_parser_rejects_unaligned_and_protected_timestamps) ... ok
+test_real_semicolon_parser_bounded_prefix (test_level_rejection_opportunities.LevelRejectionTests.test_real_semicolon_parser_bounded_prefix) ... ok
+test_session_cutoff_inclusive (test_level_rejection_opportunities.LevelRejectionTests.test_session_cutoff_inclusive) ... ok
+test_signal_clock_and_no_future_high_low (test_level_rejection_opportunities.LevelRejectionTests.test_signal_clock_and_no_future_high_low) ... ok
+test_six_past_no_future (test_level_rejection_opportunities.LevelRejectionTests.test_six_past_no_future) ... ok
+test_switch_exact_boundary (test_level_rejection_opportunities.LevelRejectionTests.test_switch_exact_boundary) ... ok
+test_three_ticks_rejected_after_reclaim (test_level_rejection_opportunities.LevelRejectionTests.test_three_ticks_rejected_after_reclaim) ... ok
+test_zero_volume_target_unknown (test_level_rejection_opportunities.LevelRejectionTests.test_zero_volume_target_unknown) ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 0.010s
+
+OK

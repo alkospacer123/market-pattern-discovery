@@ -1,0 +1,5 @@
+symbol,source_rows,source_days,source_first,source_last,observed_research_days,observed_research_m5,expected_research_slots_since_inception,missing_or_zero_volume_slots,continuous_positive_volume_segments
+USDRUBF,42576,253,2023-01-03 09:00:00,2023-12-29 23:45:00,253,26471,26658,187,538
+CNYRUBF,39362,253,2023-01-03 09:00:00,2023-12-29 23:45:00,253,25388,26658,1270,1396
+GLDRUBF,18428,124,2023-07-11 10:00:00,2023-12-29 23:45:00,124,12088,13020,932,960
+IMOEXF,4429,34,2023-11-14 10:00:00,2023-12-29 23:45:00,34,3004,3570,566,425

@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "id": "stage2_level_rejection_m5_opportunity_v1",
+  "authorization": "User 2026-10-10: begin first next-wave candidate's no-PnL Stage 2 bounded opportunity/geometry preflight only; no full Baseline, no Stage 3, no merger, no live orders.",
+  "project": "IntradayLab",
+  "base_main": "832739dfb9c9ec8f4f2fc1768d7fc07fbc69521c",
+  "frozen_on": "2026-10-10",
+  "research_mode": "NO_FORWARD_PNL_OPPORTUNITY_GEOMETRY_ONLY",
+  "strategy": "LEVEL_REJECTION_M5",
+  "signal_timeframe": "M5",
+  "instruments": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "development_start": "2023-01-01",
+  "development_end_exclusive": "2024-01-01",
+  "source_repository": "alkospacer123/market-pattern-data",
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "inputs": {
+    "CNYRUBF": {
+      "blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M5.csv",
+      "prefix_bytes": 2212189,
+      "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 39362
+    },
+    "GLDRUBF": {
+      "blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "first": "2023-07-11 10:00:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M5.csv",
+      "prefix_bytes": 1044351,
+      "prefix_sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 18428
+    },
+    "IMOEXF": {
+      "blob": "41b83b109b177d4522e53486950104845d357d99",
+      "first": "2023-11-14 10:00:00",
+      "path": "forever/IMOEXF/IMOEXF_M5.csv",
+      "prefix_bytes": 234733,
+      "prefix_sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 4429
+    },
+    "USDRUBF": {
+      "blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/USDRUBF/USDRUBF_M5.csv",
+      "prefix_bytes": 2342431,
+      "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 42576
+    }
+  },
+  "scenarios": [
+    10,
+    15
+  ],
+  "parameters": {
+    "level_lookback_completed_m5": 6,
+    "single_test_bar_per_signal": true,
+    "min_level_penetration_ticks": 1,
+    "min_close_reentry_ticks": 1,
+    "stop_beyond_extreme_ticks": 1,
+    "min_initial_price_risk_ticks": 4,
+    "dedup_same_instrument_same_direction_minutes": 30,
+    "max_session_entry_slack_minutes": 35,
+    "planned_net_to_net_R": "3",
+    "planned_legacy_net_to_gross_R": "3",
+    "cost_C1_ticks_per_side": 1,
+    "cost_C2_only_later_not_in_preflight": 2
+  },
+  "rules": {
+    "level": "Before each candidate M5 test bar, require exactly 6 contiguous, positive-Volume, fully completed earlier M5 from SAME continuous approved session window, no gaps and no partials; candidate previous6_high=max(High), previous6_low=min(Low). The six earlier bars must be available by candidate signal observation time. Use no price information from future/entry bars to define these levels.",
+    "signal": "Candidate M5 is complete/delivered at its start+5min+T10/15. SHORT iff candidate High >= previous6_high+dated_tick and candidate Close <= previous6_high-dated_tick; LONG iff candidate Low <= previous6_low-dated_tick and candidate Close >= previous6_low+dated_tick. If both qualify, AMBIGUOUS_BOTH_SIDES and no signal. Candidate M5 Open/High/Low/Close are all used only at its completed availability. All price values on dated tick grid; zero-Volume/missing bars invalid.",
+    "stop": "SHORT initial Stop=candidate High+one dated tick; LONG initial Stop=candidate Low-one dated tick, frozen at signal. No arbitrary ATR or VWAP filters. At actual future entry Open recalc price risk; risk must be >=4 valid tick steps and correct sign; no post-entry OHLC used.",
+    "entry": "Signal source bar timestamp is M5 START in MSK. Earliest availability=bar start+5+scenario minutes, so T10=>T+15 and T15=>T+20. Entry is first exact wall-aligned M5 Open STRICTLY later than signal availability: T10=>T+20, T15=>T+25. No early entry or signal on entry bar. Target existence/price must not be read while admitting decision; at scheduled target a missing M5 is UNKNOWN_POSSIBLE_FILL, not a nonfill. On complete eligible target, require positive Volume, price on dated grid, and entry Open still strictly within prior level: LONG Open >= previous6_low+dated_tick, SHORT Open <= previous6_high-dated_tick. If fails, clear NONFILL. No retries or optimistic same-bar fill.",
+    "dedup": "Per instrument and signal direction, count at most one confirmed signal every 30 clock minutes measured from last confirmed candidate test-bar start, regardless of whether subsequent conditional Open fills, no entry-day shortening or PnL-derived busy simulation. Raw events before dedup also reported. Because no exit paths are simulated, counts of independent theoretical entries are UPPER-BOUND opportunities, not observed executable trades or portfolio capacity. Do not invent position-busy outcomes.",
+    "payability": "Let s=abs(entry_Open - initial_Stop) > 0; t=one historically applicable tick. Legacy net-win/gross-stop>=3 has gross price Take distance 3s+2t. Literal full net-win/net-Stop-loss>=3 has gross Take distance 3s+8t. Both reported with tick-rounding outward. Conservative full-net target is primary; only geometrical price-on-grid/time-to-session info is checked, NOT whether future market reaches the target. Also label whether planned Take is within opposite bound of the prior six M5 range, but do not use past bound as hard invented future liquidity cap.",
+    "time": "Use existing restricted historical session windows 10:00-14:00 and 14:05-18:50 MSK, dated March exception from IntradayLab/m5_baseline.py. Require scheduled entry full M5 bar inside same continuous window and entry_start+35min<=session_end for conservative flat submission/ack safety. No carryover of six-bar source, signals, dedup or pending entries across gaps, lunch, sessions or days. Full available 2023 history only, no cherry-picking.",
+    "outcomes": "No Stop/Take hit lookup; no post-entry OHLC (except conditional entry Open and target-bar existence/volume flag), future returns, profitability, expectancy, PF, realized DD, MFE/MAE, monthly PnL, backtest or hold paths. No annual economic Net/PF/DD. Report funnel/month coverage and explicit UNKNOWN versus NONFILL. No reading of data bytes after frozen 2023 prefix.",
+    "tests": "Prove causal changes to future candles do not alter past decisions; warmup six complete bars; lunch/day/missing gaps reset; both sides ambiguous; price-grid and CNY dated tick; exact T10/T15 future Open; no future high/low usage; no target-touch check; no time-boundary fills; no actual order endpoints; original protected root tree unchanged. Independent auditor of counted rows required for results PASS.",
+    "research_gates": "This is solely opportunity/count/geometry feasibility inside existing Stage 2. 2-3 trades per trading day is flexible combined aspiration, NOT an order quota. It does not prove profitability. Next complete 2023 economic Baseline of this one candidate requires separate explicit authorization after independent count audit; do not auto-run other strategies or later stages."
+  }
+}
