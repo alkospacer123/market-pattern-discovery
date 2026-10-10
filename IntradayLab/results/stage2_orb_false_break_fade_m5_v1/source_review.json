@@ -1,0 +1,44 @@
+{
+  "M1_market_data_read": false,
+  "base_document_hashes": {
+    "IntradayLab/PROJECT_CONTEXT.md": "3af1a3b72155a4a2ec3370d3b9be13bcc550ea38c832b67cb28483512e48d1e2",
+    "IntradayLab/ROADMAP.md": "8f86d5bd776c0a344da34b6edcb7af9575b48a26f583ff5ea93a3af9ac73d0c4"
+  },
+  "base_main": "9914ebbc97e3ba1fded1b6f06fb4bd66a82c2811",
+  "historical_branch": "autonomous-search-v4",
+  "historical_branch_sha": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+  "historical_text_only": true,
+  "reviewed_PRs": {
+    "459": {
+      "head": "9737a8e3df59e944cfe6477b07006632aaa837d1",
+      "merge": "9914ebbc97e3ba1fded1b6f06fb4bd66a82c2811",
+      "merged": true,
+      "review": "Merged code/config/report read from main; fresh metadata checked.",
+      "state": "closed"
+    },
+    "460": {
+      "draft": true,
+      "head": "53442b49e31f6409567e31c4fa14d738814eab49",
+      "review": "Metadata and full two-file patch checked; excluded.",
+      "state": "open"
+    },
+    "461": {
+      "draft": false,
+      "head": "de05392d022611951549badc7581a430e1a624c4",
+      "review": "Metadata and full two-document patch checked; excluded. Explicit current task supersedes historical sequencing.",
+      "state": "open"
+    },
+    "462": {
+      "draft": true,
+      "head": "7a9c5d3759a5c07d002d5ed3e630132829dd7ebf",
+      "review": "Metadata and full two-file patch checked; excluded.",
+      "state": "open"
+    }
+  },
+  "reviewed_historical_files": {
+    "research/autonomous/cycle18_protocol.md": "802c8063f1e7afbd487c2a2724d94310f35d6e16fcd78d7ab7bd78208994da84",
+    "research/autonomous/cycle18_report.md": "a58803885f3b999fc179c426ec9e9583c801c40826d51d89caf5c426886e881f",
+    "research/autonomous/cycle18_runner_contract.md": "cfd64c37525618985610dd62e54209d9d88ccd36ae64c80f5af5ca0acb8921d6",
+    "research/autonomous/registry/cycle18_profitable.csv": "00142eb5ed09207bff45c4db0c8a39d3e02ca3181ac1850b6bac2d201a12af8f"
+  }
+}

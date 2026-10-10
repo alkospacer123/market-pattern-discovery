@@ -1,0 +1,25 @@
+{
+  "checked_fields": 141740,
+  "checks": {
+    "ATR14_SMA_warmup_reset": "PASS",
+    "C1_C2_identical_fills_replacement": "PASS",
+    "Opening_Range_and_no_future_data": "PASS",
+    "Stop_Take_and_historical_ticks": "PASS",
+    "Stop_first_entry_bar_gaps_Time_Session_Flat": "PASS",
+    "UNKNOWN_vs_NONFILL_no_invention": "PASS",
+    "completed_M15_exact_children_context_reset": "PASS",
+    "shared_sweep_reclaim_consumption": "PASS",
+    "signal_wait_order_execution_clock": "PASS",
+    "twelve_months_metrics_coverage": "PASS"
+  },
+  "discrepancies": [],
+  "method": "Independent source reader, backward raw slices, independent chronological order/position state machine. Imports no production trade/signal functions. Internal algorithm verification; external acceptance pending.",
+  "metrics_audit": {
+    "discrepancies": [],
+    "independent_coverage_day_rows": 1016,
+    "monthly_rows": 192,
+    "status": "PASS"
+  },
+  "source_2024_plus_bytes_read": 0,
+  "status": "PASS"
+}

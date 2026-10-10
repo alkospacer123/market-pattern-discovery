@@ -1,0 +1,42 @@
+{
+  "C1_C2_fill_identity": "single ledger and algebraic cost replacement; independently rechecked every trade",
+  "CSV_LF_serialization": "PASS",
+  "bytes_2024_plus_read": 0,
+  "bytes_2025_plus_read": 0,
+  "checked_fields": 141740,
+  "coverage_day_rows": 1016,
+  "deterministic_repetition": {
+    "artifact_count": 13,
+    "byte_identical_sha256": {
+      "REPORT.md": "add3929b0f1332b6d1a0e60f20cbd3eb46e341a7e79ea497f970d05f6213455f",
+      "architecture_comparison.csv": "cd64806ac5061b61b8b30a3f9acfb203cc68d21592523386f63617fa59d45da8",
+      "coverage_report.csv": "9cbb20f23fe21993f9edc3aa6fb92bb23844a4ba89fa1274ec0bf2254396a1e2",
+      "daily_coverage.csv": "859caa6b9c59753ca655ae0ba1d945cfc45771f6a80a547f56d0aa8b19610ef9",
+      "daily_report.csv": "4c33595b63eab2e7d7effbf84a78979d960a7350c8ca2cd5a3122cbd45b023f1",
+      "independent_audit.json": "eaf73e70aafd5e195c5d8e86dc823e4a0466f9f24491604bea9fedfd6f8ef820",
+      "input_provenance.json": "5c407a14092f38f482fae46c56aa072bcce898c0b2bbbf27857936c46325590e",
+      "manifest.json": "90050cbe48221222d3f5ba679b99068c5cbd7c188a7c81442aacf08aff9ff986",
+      "metrics.json": "7ec7ebdbac342aa853cfafbf9e73791400958450c15218380454b2c3c3ee0424",
+      "monthly_report.csv": "631a6f90744511d0d34334367e750cf2c28de3d2aa29f4c3a99b82f84fcaa4d4",
+      "signals.csv": "7a9bdd5735659bfa41d8314668db2e7b4f478acad83136d5c19919e13e836010",
+      "trade_source_map.csv": "f83be4bd947c5aaa83f16c813f112bb15c80f2a0cd450c4dd9df88e96925325a",
+      "trades.csv": "5638d59be6a2868c393088a37561a0c9a0b8f8bb7ff60d194ad77c1e88c3ffab"
+    },
+    "code_commit": "beb412c30910409dd81797a032173eed416fcad4",
+    "run1": "{\"audit\": \"PASS\", \"discrepancies\": 0, \"trades\": 84, \"monthly_rows\": 192}",
+    "run2": "{\"audit\": \"PASS\", \"discrepancies\": 0, \"trades\": 84, \"monthly_rows\": 192}",
+    "status": "PASS"
+  },
+  "discrepancies": [],
+  "independent_audit_status": "PASS",
+  "monthly_rows": 192,
+  "protected_tree_status": "PASS",
+  "remote_main_final_verified": "9914ebbc97e3ba1fded1b6f06fb4bd66a82c2811",
+  "run_command": "python IntradayLab/tools/run_orb_false_break_fade.py --data-root /workspace/market-pattern-data",
+  "source_repository_clean": true,
+  "status": "PASS",
+  "synthetic_tests": 31,
+  "test_command": "python -m unittest discover -s IntradayLab/tests -v",
+  "test_log": "validation_tests.log",
+  "total_IntradayLab_tests": 253
+}
