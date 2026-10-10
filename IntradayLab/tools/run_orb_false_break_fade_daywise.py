@@ -18,7 +18,7 @@ import orb_false_break_fade_replay as engine
 import run_orb_false_break_fade as strict_report
 
 LAB = Path(__file__).resolve().parents[1]
-OUT = LAB / "results" / "stage2_orb_false_break_fade_m5_daywise_v1"
+OUT = LAB / "results" / "stage2_orb_false_break_fade_m5_v2_research" / "v1_daywise"
 CONFIG = LAB / "config" / "stage2_orb_false_break_fade_m5_v1.json"
 ZERO = Decimal(0)
 
@@ -54,10 +54,11 @@ def evaluate_symbol(symbol, rows, events, architecture, spec, audit=True):
         items = events_by_day.get(day, [])
         daily_prices = prices_by_day.get(day, {})
         if not daily_prices:
-            # No observed data means no conditional model fill.
-            continue
+            # Preserve NO_OR and coverage for a physically absent whole day.
+            if any(x['base_reason'] == 'SIGNAL' for x in items):
+                raise AssertionError('Signal without any source history')
         ds, dt = engine.replay(symbol, daily_prices, items, architecture, spec)
-        if audit:
+        if audit and daily_prices:
             oracle_signals, oracle_trades = independent.oracle_trades(
                 symbol, daily_prices, items, architecture, spec
             )
@@ -78,15 +79,22 @@ def evaluate_symbol(symbol, rows, events, architecture, spec, audit=True):
             compared += len(ds) + len(dt)
         for record in ds:
             record["research_mode"] = "DAY_ISOLATED_CONDITIONAL"
+            record['initial_flat_assumed'] = True
+            record['initial_flat_proven'] = False
             record["prior_unknown_requires_flat_assumption"] = unresolved_before
         for record in dt:
             record["research_mode"] = "DAY_ISOLATED_CONDITIONAL"
+            record['initial_flat_assumed'] = True
+            record['initial_flat_proven'] = False
             record["prior_unknown_requires_flat_assumption"] = unresolved_before
         unknown_today = any(t["status"] == "UNKNOWN" for t in dt)
         day_rows.append({
             "architecture": architecture,
             "instrument": symbol,
             "date": day,
+            'initial_flat_assumed': True,
+            'initial_flat_proven': False,
+            'source_observed': bool(daily_prices),
             "signal_count": sum(s["base_reason"] == "SIGNAL" for s in ds),
             "model_fills": sum(t.get("model_filled", False) for t in dt),
             "closed": sum(t["status"] == "CLOSED" for t in dt),
@@ -133,7 +141,7 @@ def monthly(symbol, architecture, trades, coverage):
         cohort = [t for t in trades if str(t["signal_at"]).startswith(ym)]
         source_month = [c for c in coverage
                         if c["instrument"] == symbol and c["date"].startswith(ym)]
-        has_source = any(c["status"] != "PRE_INCEPTION" for c in source_month)
+        has_source = any(c['valid_bars'] > 0 for c in source_month)
         all_complete = bool(source_month) and all(
             c["status"] == "COMPLETE" for c in source_month
         )
@@ -161,6 +169,14 @@ def monthly(symbol, architecture, trades, coverage):
             "diagnostic_PF_c1": c1["net_PF"],
             "diagnostic_PF_R_c1": c1["net_PF_R"],
             "diagnostic_PF_c2": c2["net_PF"],
+            'diagnostic_net_R_c2': c2['net_R'],
+            'diagnostic_expectancy_R_c2': c2['expectancy_R'],
+            'diagnostic_PF_R_c2': c2['net_PF_R'],
+            'diagnostic_net_c1': c1['net'],
+            'diagnostic_net_c2': c2['net'],
+            'diagnostic_sign': 'NO_COVERAGE' if not has_source else 'POSITIVE' if c1['net'] > 0 else 'NEGATIVE' if c1['net'] < 0 else 'ZERO',
+            'covered_days': sum(c['valid_bars'] > 0 for c in source_month),
+            'missing_expected_bars': sum(c['missing_bars'] for c in source_month),
             "full_net": None,
             "full_PF": None,
             "full_DD": None
@@ -277,7 +293,7 @@ def run(data_root, output_dir=OUT):
     })
     hashes = {
         x.name: hashlib.sha256(x.read_bytes()).hexdigest()
-        for x in output_dir.iterdir() if x.is_file()
+        for x in output_dir.iterdir() if x.is_file() and x.name != 'file_hashes.json'
     }
     engine.dump(output_dir / "file_hashes.json", hashes)
     print(json.dumps({

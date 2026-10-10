@@ -11,11 +11,14 @@ from decimal import Decimal
 from pathlib import Path
 import hashlib
 import json
+import subprocess
 
 import orb_false_break_fade_replay as baseline
 import run_orb_false_break_fade as reporting
 import run_orb_false_break_fade_daywise as daywise
 import audit_orb_false_break_fade as original_oracle
+import audit_orb_false_break_fade_v2 as v2_oracle
+import orb_false_break_fade_v2_reporting as v2_reporting
 
 LAB=Path(__file__).resolve().parents[1]
 CONFIG=LAB/"config/stage2_orb_false_break_fade_m5_v2_research.json"
@@ -23,6 +26,7 @@ ORIGINAL=LAB/"config/stage2_orb_false_break_fade_m5_v1.json"
 OUT=LAB/"results/stage2_orb_false_break_fade_m5_v2_research"
 FIVE=timedelta(minutes=5)
 D=Decimal
+FREEZE='6843dbf8037a9df6eae6f88e8d1301c9f60e24bd'
 
 
 def causal_atr14(rows):
@@ -103,7 +107,10 @@ def risk_tick_diagnostic(trades, symbol):
             sum(t["status"]=="CLOSED" for t in group)
             if any(t["status"]=="CLOSED" for t in group) else None
         ),
-        "closed_only_diagnostic_c1":reporting.summary(group,"c1")
+        "closed_only_diagnostic_c1":reporting.summary(group,"c1"),
+        "closed_only_diagnostic_c2":reporting.summary(group,"c2"),
+        "expected_roundtrip_C1_to_risk_mean":sum((2*baseline.tick(symbol,t['entry_at'])/t['risk'] for t in group),D(0))/len(group) if group else None,
+        "expected_roundtrip_C2_to_risk_mean":sum((4*baseline.tick(symbol,t['entry_at'])/t['risk'] for t in group),D(0))/len(group) if group else None
     } for name,group in bands.items()}
 
 
@@ -179,6 +186,9 @@ def run(data_root, output_dir=OUT):
     if output_dir.resolve()!=OUT.resolve():
         raise ValueError("Only isolated IntradayLab v2 directory is writable")
     config=json.loads(CONFIG.read_text())
+    frozen=subprocess.check_output(['git','-C',str(LAB.parent),'show',FREEZE+':IntradayLab/config/'+CONFIG.name])
+    if CONFIG.read_bytes()!=frozen:
+        raise ValueError('V2_FROZEN_CONFIGURATION_CHANGED')
     v1=json.loads(ORIGINAL.read_text())
     if (config["id"]!="stage2_orb_false_break_fade_m5_v2_research"
             or config["source_ref"]!=v1["source_ref"]
@@ -190,9 +200,11 @@ def run(data_root, output_dir=OUT):
     if raw!=independent_raw:
         raise AssertionError("Two raw input readers disagree")
     all_signals=[];all_trades=[];all_days=[];months=[];audit_rows=0
+    v1_signals=[];v1_trades=[];all_coverage=[]
     metrics={};cmp={};eligibility=[]
     for symbol in config["instruments"]:
         original_events, _,coverage=baseline.base_signals(symbol,raw[symbol])
+        all_coverage+=coverage
         expected=original_oracle.oracle_signals(symbol,independent_raw[symbol])
         bad=original_oracle.compare_rows(original_events,expected,
                                         original_oracle.SIGNAL_KEYS,"original_events")
@@ -206,8 +218,9 @@ def run(data_root, output_dir=OUT):
             # position-entry-exit engine handles all actual entries.
             ss,tt,dd,checked=daywise.evaluate_symbol(symbol,raw[symbol],
                     v2events,arch,{"atr":False,"mtf":False},audit=True)
-            _,prior_tt,_,_ =daywise.evaluate_symbol(symbol,raw[symbol],
+            prior_ss,prior_tt,_,_ =daywise.evaluate_symbol(symbol,raw[symbol],
                     original_events,arch,spec,audit=True)
+            v1_signals+=prior_ss;v1_trades+=prior_tt
             if arch=="A_BASE":
                 strict_keys=("signal_id","status","model_filled","entry_at",
                              "entry_price","stop","take","exit_price",
@@ -246,12 +259,21 @@ def run(data_root, output_dir=OUT):
                                "model_fills":metrics[key]["model_fills"],
                                "closed":metrics[key]["closed"],
                                "unknown":metrics[key]["unknown"]})
+    independent_audit=v2_oracle.run(config,independent_raw,all_signals,all_trades,all_days,v1_signals,v1_trades)
+    if independent_audit['status']!='PASS':
+        raise AssertionError('Independent v2 gate/trade audit: '+str(independent_audit['discrepancies'][:5]))
     output_dir.mkdir(parents=True,exist_ok=True)
     reporting.write_csv(output_dir/"signals.csv",all_signals)
     reporting.write_csv(output_dir/"trades.csv",all_trades)
     reporting.write_csv(output_dir/"days.csv",all_days)
     reporting.write_csv(output_dir/"monthly.csv",months)
     reporting.write_csv(output_dir/"eligibility.csv",eligibility)
+    reporting.write_csv(output_dir/'coverage_daily.csv',all_coverage)
+    reporting.write_csv(output_dir/'trade_source_map.csv',reporting.source_map(v1,raw,all_signals,all_trades))
+    baseline.dump(output_dir/'independent_audit.json',independent_audit)
+    v2_reporting.build(output_dir, config, raw, all_signals, all_trades, all_days,
+                       v1_signals, v1_trades, months, all_coverage, metrics,
+                       independent_audit)
     baseline.dump(output_dir/"metrics.json",metrics)
     baseline.dump(output_dir/"comparison_v1_daywise_vs_v2.json",cmp)
     baseline.dump(output_dir/"audit.json",{
@@ -275,8 +297,8 @@ def run(data_root, output_dir=OUT):
         "previous_v1_config_sha256":hashlib.sha256(ORIGINAL.read_bytes()).hexdigest(),
         "all_2024_plus_bytes_read":0
     })
-    hashes={p.name:hashlib.sha256(p.read_bytes()).hexdigest()
-            for p in output_dir.iterdir() if p.is_file()}
+    hashes={name:hashlib.sha256((output_dir/name).read_bytes()).hexdigest()
+            for name in ('signals.csv','trades.csv','days.csv','monthly.csv','eligibility.csv','coverage_daily.csv','trade_source_map.csv','independent_audit.json','metrics.json','comparison_v1_daywise_vs_v2.json','audit.json','input_provenance.json','scenario_summary.csv','direction_report.csv','stop_risk_report.csv','three_models.csv','architecture_comparison.csv','coverage_report.csv','coverage_events.csv','REPORT.md')}
     baseline.dump(output_dir/"sha256.json",hashes)
     print(json.dumps({
         "status":"RESEARCH_DIAGNOSTIC_REQUIRES_EXTERNAL_ACCEPTANCE",
