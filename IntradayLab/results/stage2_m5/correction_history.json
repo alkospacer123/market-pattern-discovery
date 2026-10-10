@@ -1,0 +1,1533 @@
+{
+  "after": [
+    {
+      "execution_counts": {
+        "blocked_entry_opportunities": 1132,
+        "blocked_signals": 1330,
+        "flat_target_breaches": 2,
+        "gap_resets": 32,
+        "missing_observations": 187,
+        "partial_events": 0,
+        "tp_touch_nonfills": 5,
+        "unknown_flat_target_breaches": 1
+      },
+      "run": "VWAP_MR_USDRUBF",
+      "summary": {
+        "PF": "0.8596491228070175438596491228",
+        "PF_null_reason": null,
+        "c1_known": "0.92",
+        "closed_accounted_trades": 45,
+        "closed_only_c1": "0.90",
+        "closed_only_drawdown_price_units": "0.61",
+        "closed_only_gross": "0.66",
+        "closed_only_net_c1": "-0.24",
+        "expectancy_price_units": "-0.005333333333333333333333333333",
+        "full_PF": null,
+        "gross_known_price_pnl": "0.65",
+        "known_cost_mtm_drawdown_diagnostic": "0.65",
+        "mean_net_R": "-0.2574685360923601452459830291",
+        "median_hold_minutes_bar_starts": "10.0",
+        "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+        "model_flat_confirmed": false,
+        "net_R": "-11.58608412415620653606923631",
+        "net_model_c1": null,
+        "observed_close_mtm_drawdown_price_units": null,
+        "open_residual_model_units": 0,
+        "possible_residual_model_units": null,
+        "total_unresolved_cases": 2,
+        "trades": 46,
+        "unknown_entry_orders": 1,
+        "unresolved": 1,
+        "win_rate": "0.5111111111111111111111111111"
+      }
+    },
+    {
+      "execution_counts": {
+        "blocked_entry_opportunities": 874,
+        "blocked_signals": 1025,
+        "flat_target_breaches": 1,
+        "gap_resets": 896,
+        "missing_observations": 1270,
+        "partial_events": 0,
+        "tp_touch_nonfills": 7,
+        "unknown_flat_target_breaches": 1
+      },
+      "run": "VWAP_MR_CNYRUBF",
+      "summary": {
+        "PF": "0E+2",
+        "PF_null_reason": null,
+        "c1_known": "0.26",
+        "closed_accounted_trades": 10,
+        "closed_only_c1": "0.20",
+        "closed_only_drawdown_price_units": "0.31",
+        "closed_only_gross": "-0.11",
+        "closed_only_net_c1": "-0.31",
+        "expectancy_price_units": "-0.031",
+        "full_PF": null,
+        "gross_known_price_pnl": "-0.12",
+        "known_cost_mtm_drawdown_diagnostic": "0.38",
+        "mean_net_R": "-2.116666666666666666666666667",
+        "median_hold_minutes_bar_starts": "5.0",
+        "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+        "model_flat_confirmed": false,
+        "net_R": "-21.16666666666666666666666667",
+        "net_model_c1": null,
+        "observed_close_mtm_drawdown_price_units": null,
+        "open_residual_model_units": 0,
+        "possible_residual_model_units": null,
+        "total_unresolved_cases": 4,
+        "trades": 13,
+        "unknown_entry_orders": 1,
+        "unresolved": 3,
+        "win_rate": "0"
+      }
+    },
+    {
+      "execution_counts": {
+        "blocked_entry_opportunities": 263,
+        "blocked_signals": 301,
+        "flat_target_breaches": 0,
+        "gap_resets": 719,
+        "missing_observations": 932,
+        "partial_events": 0,
+        "tp_touch_nonfills": 0,
+        "unknown_flat_target_breaches": 1
+      },
+      "run": "VWAP_MR_GLDRUBF",
+      "summary": {
+        "PF": "0.476",
+        "PF_null_reason": null,
+        "c1_known": "3.4",
+        "closed_accounted_trades": 10,
+        "closed_only_c1": "2.0",
+        "closed_only_drawdown_price_units": "34.0",
+        "closed_only_gross": "-24.2",
+        "closed_only_net_c1": "-26.2",
+        "expectancy_price_units": "-2.62",
+        "full_PF": null,
+        "gross_known_price_pnl": "-30.5",
+        "known_cost_mtm_drawdown_diagnostic": "53.2",
+        "mean_net_R": "-0.5704518432513975329151106225",
+        "median_hold_minutes_bar_starts": "12.5",
+        "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+        "model_flat_confirmed": false,
+        "net_R": "-5.704518432513975329151106225",
+        "net_model_c1": null,
+        "observed_close_mtm_drawdown_price_units": null,
+        "open_residual_model_units": 0,
+        "possible_residual_model_units": null,
+        "total_unresolved_cases": 8,
+        "trades": 17,
+        "unknown_entry_orders": 1,
+        "unresolved": 7,
+        "win_rate": "0.2"
+      }
+    },
+    {
+      "execution_counts": {
+        "blocked_entry_opportunities": 52,
+        "blocked_signals": 56,
+        "flat_target_breaches": 0,
+        "gap_resets": 359,
+        "missing_observations": 566,
+        "partial_events": 0,
+        "tp_touch_nonfills": 0,
+        "unknown_flat_target_breaches": 1
+      },
+      "run": "VWAP_MR_IMOEXF",
+      "summary": {
+        "PF": null,
+        "PF_null_reason": "NO_CLOSED_TRADES",
+        "c1_known": "1.0",
+        "closed_accounted_trades": 0,
+        "closed_only_c1": "0",
+        "closed_only_drawdown_price_units": null,
+        "closed_only_gross": "0",
+        "closed_only_net_c1": null,
+        "expectancy_price_units": null,
+        "full_PF": null,
+        "gross_known_price_pnl": "0",
+        "known_cost_mtm_drawdown_diagnostic": "1.5",
+        "mean_net_R": null,
+        "median_hold_minutes_bar_starts": null,
+        "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+        "model_flat_confirmed": false,
+        "net_R": null,
+        "net_model_c1": null,
+        "observed_close_mtm_drawdown_price_units": null,
+        "open_residual_model_units": 0,
+        "possible_residual_model_units": null,
+        "total_unresolved_cases": 2,
+        "trades": 1,
+        "unknown_entry_orders": 1,
+        "unresolved": 1,
+        "win_rate": null
+      }
+    },
+    {
+      "execution_counts": {
+        "blocked_entry_opportunities": 1932,
+        "blocked_signals": 2386,
+        "flat_target_breaches": 8,
+        "gap_resets": 32,
+        "missing_observations": 187,
+        "partial_events": 0,
+        "tp_touch_nonfills": 4,
+        "unknown_flat_target_breaches": 1
+      },
+      "run": "MOMENTUM_USDRUBF",
+      "summary": {
+        "PF": "0.7702702702702702702702702703",
+        "PF_null_reason": null,
+        "c1_known": "1.08",
+        "closed_accounted_trades": 54,
+        "closed_only_c1": "1.08",
+        "closed_only_drawdown_price_units": "2.00",
+        "closed_only_gross": "0.40",
+        "closed_only_net_c1": "-0.68",
+        "expectancy_price_units": "-0.01259259259259259259259259259",
+        "full_PF": null,
+        "gross_known_price_pnl": "0.40",
+        "known_cost_mtm_drawdown_diagnostic": "2.31",
+        "mean_net_R": "-0.37917449986574737924553213",
+        "median_hold_minutes_bar_starts": "20.0",
+        "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+        "model_flat_confirmed": false,
+        "net_R": "-20.47542299275035847925873502",
+        "net_model_c1": null,
+        "observed_close_mtm_drawdown_price_units": null,
+        "open_residual_model_units": 0,
+        "possible_residual_model_units": null,
+        "total_unresolved_cases": 1,
+        "trades": 54,
+        "unknown_entry_orders": 1,
+        "unresolved": 0,
+        "win_rate": "0.2222222222222222222222222222"
+      }
+    },
+    {
+      "execution_counts": {
+        "blocked_entry_opportunities": 1021,
+        "blocked_signals": 1245,
+        "flat_target_breaches": 1,
+        "gap_resets": 896,
+        "missing_observations": 1270,
+        "partial_events": 0,
+        "tp_touch_nonfills": 0,
+        "unknown_flat_target_breaches": 1
+      },
+      "run": "MOMENTUM_CNYRUBF",
+      "summary": {
+        "PF": "0.1666666666666666666666666667",
+        "PF_null_reason": null,
+        "c1_known": "0.30",
+        "closed_accounted_trades": 15,
+        "closed_only_c1": "0.30",
+        "closed_only_drawdown_price_units": "0.35",
+        "closed_only_gross": "-0.05",
+        "closed_only_net_c1": "-0.35",
+        "expectancy_price_units": "-0.02333333333333333333333333333",
+        "full_PF": null,
+        "gross_known_price_pnl": "-0.05",
+        "known_cost_mtm_drawdown_diagnostic": "0.36",
+        "mean_net_R": "-1.911111111111111111111111111",
+        "median_hold_minutes_bar_starts": "5.0",
+        "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+        "model_flat_confirmed": false,
+        "net_R": "-28.66666666666666666666666667",
+        "net_model_c1": null,
+        "observed_close_mtm_drawdown_price_units": null,
+        "open_residual_model_units": 0,
+        "possible_residual_model_units": null,
+        "total_unresolved_cases": 1,
+        "trades": 15,
+        "unknown_entry_orders": 1,
+        "unresolved": 0,
+        "win_rate": "0.1333333333333333333333333333"
+      }
+    },
+    {
+      "execution_counts": {
+        "blocked_entry_opportunities": 663,
+        "blocked_signals": 817,
+        "flat_target_breaches": 0,
+        "gap_resets": 719,
+        "missing_observations": 932,
+        "partial_events": 0,
+        "tp_touch_nonfills": 0,
+        "unknown_flat_target_breaches": 1
+      },
+      "run": "MOMENTUM_GLDRUBF",
+      "summary": {
+        "PF": "0E+1",
+        "PF_null_reason": null,
+        "c1_known": "0.2",
+        "closed_accounted_trades": 1,
+        "closed_only_c1": "0.2",
+        "closed_only_drawdown_price_units": "6.9",
+        "closed_only_gross": "-6.7",
+        "closed_only_net_c1": "-6.9",
+        "expectancy_price_units": "-6.9",
+        "full_PF": null,
+        "gross_known_price_pnl": "-6.7",
+        "known_cost_mtm_drawdown_diagnostic": "11.8",
+        "mean_net_R": "-1.169491525423728813559322034",
+        "median_hold_minutes_bar_starts": "10.0",
+        "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+        "model_flat_confirmed": false,
+        "net_R": "-1.169491525423728813559322034",
+        "net_model_c1": null,
+        "observed_close_mtm_drawdown_price_units": null,
+        "open_residual_model_units": 0,
+        "possible_residual_model_units": null,
+        "total_unresolved_cases": 1,
+        "trades": 1,
+        "unknown_entry_orders": 1,
+        "unresolved": 0,
+        "win_rate": "0"
+      }
+    },
+    {
+      "execution_counts": {
+        "blocked_entry_opportunities": 95,
+        "blocked_signals": 119,
+        "flat_target_breaches": 0,
+        "gap_resets": 359,
+        "missing_observations": 566,
+        "partial_events": 0,
+        "tp_touch_nonfills": 0,
+        "unknown_flat_target_breaches": 1
+      },
+      "run": "MOMENTUM_IMOEXF",
+      "summary": {
+        "PF": null,
+        "PF_null_reason": "NO_CLOSED_TRADES",
+        "c1_known": "0",
+        "closed_accounted_trades": 0,
+        "closed_only_c1": "0",
+        "closed_only_drawdown_price_units": null,
+        "closed_only_gross": "0",
+        "closed_only_net_c1": null,
+        "expectancy_price_units": null,
+        "full_PF": null,
+        "gross_known_price_pnl": "0",
+        "known_cost_mtm_drawdown_diagnostic": "0",
+        "mean_net_R": null,
+        "median_hold_minutes_bar_starts": null,
+        "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+        "model_flat_confirmed": false,
+        "net_R": null,
+        "net_model_c1": null,
+        "observed_close_mtm_drawdown_price_units": null,
+        "open_residual_model_units": 0,
+        "possible_residual_model_units": null,
+        "total_unresolved_cases": 1,
+        "trades": 0,
+        "unknown_entry_orders": 1,
+        "unresolved": 0,
+        "win_rate": null
+      }
+    }
+  ],
+  "correction": "Missing target OHLCV => unknown order fill, no price/filled quantity/P&L, no reconciliation from later OHLCV; block subsequent entries to 2023 end. Manifest unchanged.",
+  "original_61_case_dispositions": [
+    {
+      "at": "2023-02-02 15:40:00",
+      "confirmed_at": "2023-02-02 15:50:00",
+      "corrected_classification": "UNRESOLVED_POSSIBLE_ENTRY_FILL",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_USDRUBF",
+      "signal_id": "VWAP_MR_USDRUBF_000134"
+    },
+    {
+      "at": "2023-01-06 17:15:00",
+      "confirmed_at": "2023-01-06 17:25:00",
+      "corrected_classification": "UNRESOLVED_POSSIBLE_ENTRY_FILL",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000030"
+    },
+    {
+      "at": "2023-01-13 12:45:00",
+      "confirmed_at": "2023-01-13 12:55:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000056"
+    },
+    {
+      "at": "2023-02-10 16:30:00",
+      "confirmed_at": "2023-02-10 16:40:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000121"
+    },
+    {
+      "at": "2023-03-02 15:25:00",
+      "confirmed_at": "2023-03-02 15:35:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000179"
+    },
+    {
+      "at": "2023-03-06 17:00:00",
+      "confirmed_at": "2023-03-06 17:10:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000187"
+    },
+    {
+      "at": "2023-03-10 16:25:00",
+      "confirmed_at": "2023-03-10 16:35:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000189"
+    },
+    {
+      "at": "2023-03-28 11:25:00",
+      "confirmed_at": "2023-03-28 11:35:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000226"
+    },
+    {
+      "at": "2023-04-05 13:00:00",
+      "confirmed_at": "2023-04-05 13:10:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000247"
+    },
+    {
+      "at": "2023-04-12 11:25:00",
+      "confirmed_at": "2023-04-12 11:35:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000267"
+    },
+    {
+      "at": "2023-04-17 17:55:00",
+      "confirmed_at": "2023-04-17 18:05:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000275"
+    },
+    {
+      "at": "2023-04-25 16:05:00",
+      "confirmed_at": "2023-04-25 16:15:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000282"
+    },
+    {
+      "at": "2023-05-22 12:35:00",
+      "confirmed_at": "2023-05-22 12:45:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000338"
+    },
+    {
+      "at": "2023-05-31 13:25:00",
+      "confirmed_at": "2023-05-31 13:35:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000349"
+    },
+    {
+      "at": "2023-06-01 17:45:00",
+      "confirmed_at": "2023-06-01 17:55:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000352"
+    },
+    {
+      "at": "2023-06-07 18:15:00",
+      "confirmed_at": "2023-06-07 18:25:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000360"
+    },
+    {
+      "at": "2023-06-14 12:25:00",
+      "confirmed_at": "2023-06-14 12:35:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000367"
+    },
+    {
+      "at": "2023-06-15 18:00:00",
+      "confirmed_at": "2023-06-15 18:10:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000375"
+    },
+    {
+      "at": "2023-07-05 11:40:00",
+      "confirmed_at": "2023-07-05 11:50:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000418"
+    },
+    {
+      "at": "2023-07-07 13:20:00",
+      "confirmed_at": "2023-07-07 13:30:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000437"
+    },
+    {
+      "at": "2023-07-21 13:00:00",
+      "confirmed_at": "2023-07-21 13:10:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000475"
+    },
+    {
+      "at": "2023-08-30 16:55:00",
+      "confirmed_at": "2023-08-30 17:05:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000602"
+    },
+    {
+      "at": "2023-09-05 13:00:00",
+      "confirmed_at": "2023-09-05 13:10:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000612"
+    },
+    {
+      "at": "2023-09-26 11:55:00",
+      "confirmed_at": "2023-09-26 12:05:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_CNYRUBF",
+      "signal_id": "VWAP_MR_CNYRUBF_000682"
+    },
+    {
+      "at": "2023-08-17 16:00:00",
+      "confirmed_at": "2023-08-17 16:10:00",
+      "corrected_classification": "UNRESOLVED_POSSIBLE_ENTRY_FILL",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_GLDRUBF",
+      "signal_id": "VWAP_MR_GLDRUBF_000059"
+    },
+    {
+      "at": "2023-08-18 18:00:00",
+      "confirmed_at": "2023-08-18 18:10:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_GLDRUBF",
+      "signal_id": "VWAP_MR_GLDRUBF_000071"
+    },
+    {
+      "at": "2023-08-23 16:20:00",
+      "confirmed_at": "2023-08-23 16:30:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_GLDRUBF",
+      "signal_id": "VWAP_MR_GLDRUBF_000078"
+    },
+    {
+      "at": "2023-10-11 18:15:00",
+      "confirmed_at": "2023-10-11 18:25:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_GLDRUBF",
+      "signal_id": "VWAP_MR_GLDRUBF_000165"
+    },
+    {
+      "at": "2023-11-07 18:05:00",
+      "confirmed_at": "2023-11-07 18:15:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_GLDRUBF",
+      "signal_id": "VWAP_MR_GLDRUBF_000242"
+    },
+    {
+      "at": "2023-12-05 11:20:00",
+      "confirmed_at": "2023-12-05 11:30:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_GLDRUBF",
+      "signal_id": "VWAP_MR_GLDRUBF_000298"
+    },
+    {
+      "at": "2023-12-06 11:40:00",
+      "confirmed_at": "2023-12-06 11:50:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_GLDRUBF",
+      "signal_id": "VWAP_MR_GLDRUBF_000302"
+    },
+    {
+      "at": "2023-12-19 15:50:00",
+      "confirmed_at": "2023-12-19 16:00:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_GLDRUBF",
+      "signal_id": "VWAP_MR_GLDRUBF_000331"
+    },
+    {
+      "at": "2023-11-30 17:20:00",
+      "confirmed_at": "2023-11-30 17:30:00",
+      "corrected_classification": "UNRESOLVED_POSSIBLE_ENTRY_FILL",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_IMOEXF",
+      "signal_id": "VWAP_MR_IMOEXF_000004"
+    },
+    {
+      "at": "2023-12-11 17:10:00",
+      "confirmed_at": "2023-12-11 17:20:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "VWAP_MR_IMOEXF",
+      "signal_id": "VWAP_MR_IMOEXF_000014"
+    },
+    {
+      "at": "2023-02-03 16:15:00",
+      "confirmed_at": "2023-02-03 16:25:00",
+      "corrected_classification": "UNRESOLVED_POSSIBLE_ENTRY_FILL",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_USDRUBF",
+      "signal_id": "MOMENTUM_USDRUBF_000234"
+    },
+    {
+      "at": "2023-06-01 11:30:00",
+      "confirmed_at": "2023-06-01 11:40:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_USDRUBF",
+      "signal_id": "MOMENTUM_USDRUBF_001020"
+    },
+    {
+      "at": "2023-01-19 15:25:00",
+      "confirmed_at": "2023-01-19 15:35:00",
+      "corrected_classification": "UNRESOLVED_POSSIBLE_ENTRY_FILL",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_CNYRUBF",
+      "signal_id": "MOMENTUM_CNYRUBF_000064"
+    },
+    {
+      "at": "2023-01-31 12:40:00",
+      "confirmed_at": "2023-01-31 12:50:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_CNYRUBF",
+      "signal_id": "MOMENTUM_CNYRUBF_000074"
+    },
+    {
+      "at": "2023-04-04 17:45:00",
+      "confirmed_at": "2023-04-04 17:55:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_CNYRUBF",
+      "signal_id": "MOMENTUM_CNYRUBF_000170"
+    },
+    {
+      "at": "2023-07-12 13:00:00",
+      "confirmed_at": "2023-07-12 13:10:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_CNYRUBF",
+      "signal_id": "MOMENTUM_CNYRUBF_000376"
+    },
+    {
+      "at": "2023-07-14 12:55:00",
+      "confirmed_at": "2023-07-14 13:05:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_CNYRUBF",
+      "signal_id": "MOMENTUM_CNYRUBF_000385"
+    },
+    {
+      "at": "2023-07-18 17:10:00",
+      "confirmed_at": "2023-07-18 17:20:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_CNYRUBF",
+      "signal_id": "MOMENTUM_CNYRUBF_000393"
+    },
+    {
+      "at": "2023-07-19 11:40:00",
+      "confirmed_at": "2023-07-19 11:50:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_CNYRUBF",
+      "signal_id": "MOMENTUM_CNYRUBF_000394"
+    },
+    {
+      "at": "2023-09-20 13:25:00",
+      "confirmed_at": "2023-09-20 13:35:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_CNYRUBF",
+      "signal_id": "MOMENTUM_CNYRUBF_000592"
+    },
+    {
+      "at": "2023-11-28 15:35:00",
+      "confirmed_at": "2023-11-28 15:45:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_CNYRUBF",
+      "signal_id": "MOMENTUM_CNYRUBF_001062"
+    },
+    {
+      "at": "2023-07-12 11:40:00",
+      "confirmed_at": "2023-07-12 11:50:00",
+      "corrected_classification": "UNRESOLVED_POSSIBLE_ENTRY_FILL",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_GLDRUBF",
+      "signal_id": "MOMENTUM_GLDRUBF_000004"
+    },
+    {
+      "at": "2023-07-20 13:20:00",
+      "confirmed_at": "2023-07-20 13:30:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_GLDRUBF",
+      "signal_id": "MOMENTUM_GLDRUBF_000022"
+    },
+    {
+      "at": "2023-08-10 12:05:00",
+      "confirmed_at": "2023-08-10 12:15:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_GLDRUBF",
+      "signal_id": "MOMENTUM_GLDRUBF_000072"
+    },
+    {
+      "at": "2023-08-24 17:15:00",
+      "confirmed_at": "2023-08-24 17:25:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_GLDRUBF",
+      "signal_id": "MOMENTUM_GLDRUBF_000133"
+    },
+    {
+      "at": "2023-09-07 15:25:00",
+      "confirmed_at": "2023-09-07 15:35:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_GLDRUBF",
+      "signal_id": "MOMENTUM_GLDRUBF_000166"
+    },
+    {
+      "at": "2023-09-22 16:50:00",
+      "confirmed_at": "2023-09-22 17:00:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_GLDRUBF",
+      "signal_id": "MOMENTUM_GLDRUBF_000245"
+    },
+    {
+      "at": "2023-10-04 17:55:00",
+      "confirmed_at": "2023-10-04 18:05:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_GLDRUBF",
+      "signal_id": "MOMENTUM_GLDRUBF_000277"
+    },
+    {
+      "at": "2023-10-25 12:40:00",
+      "confirmed_at": "2023-10-25 12:50:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_GLDRUBF",
+      "signal_id": "MOMENTUM_GLDRUBF_000421"
+    },
+    {
+      "at": "2023-11-08 12:55:00",
+      "confirmed_at": "2023-11-08 13:05:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_GLDRUBF",
+      "signal_id": "MOMENTUM_GLDRUBF_000489"
+    },
+    {
+      "at": "2023-11-29 11:40:00",
+      "confirmed_at": "2023-11-29 11:50:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_GLDRUBF",
+      "signal_id": "MOMENTUM_GLDRUBF_000613"
+    },
+    {
+      "at": "2023-11-29 17:15:00",
+      "confirmed_at": "2023-11-29 17:25:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_GLDRUBF",
+      "signal_id": "MOMENTUM_GLDRUBF_000617"
+    },
+    {
+      "at": "2023-11-30 12:25:00",
+      "confirmed_at": "2023-11-30 12:35:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_GLDRUBF",
+      "signal_id": "MOMENTUM_GLDRUBF_000619"
+    },
+    {
+      "at": "2023-12-13 11:25:00",
+      "confirmed_at": "2023-12-13 11:35:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_GLDRUBF",
+      "signal_id": "MOMENTUM_GLDRUBF_000718"
+    },
+    {
+      "at": "2023-11-15 16:25:00",
+      "confirmed_at": "2023-11-15 16:35:00",
+      "corrected_classification": "UNRESOLVED_POSSIBLE_ENTRY_FILL",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_IMOEXF",
+      "signal_id": "MOMENTUM_IMOEXF_000002"
+    },
+    {
+      "at": "2023-12-01 11:20:00",
+      "confirmed_at": "2023-12-01 11:30:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_IMOEXF",
+      "signal_id": "MOMENTUM_IMOEXF_000009"
+    },
+    {
+      "at": "2023-12-18 16:15:00",
+      "confirmed_at": "2023-12-18 16:25:00",
+      "corrected_classification": "BLOCKED_NOT_SUBMITTED_DUE_TO_EARLIER_UNKNOWN",
+      "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+      "run": "MOMENTUM_IMOEXF",
+      "signal_id": "MOMENTUM_IMOEXF_000070"
+    }
+  ],
+  "prior": {
+    "artifact_sha256": {
+      "SHA256SUMS": "ce0e5eb49c9490071133ecdf5e42c9afe33df07c09b9aa53295e583f219c0d80",
+      "execution_events.csv": "f2136cff4fb2c851581b4177ab0220580b9a1ef9bb50b90774914658e279b9ae",
+      "input_provenance.json": "2f6bea9a71ae4f395a4765ddaa7ee89a039d16de6c8f228577a2d6933aeeffbc",
+      "metrics.csv": "1d0813f14923640c16f1b6a8b1e78af188dd01aef2f22e0ac8b776bcf3f6b80f",
+      "results.json": "23c880d77c13789a7e142c624d5cb64b07d0c8f5107447e672c8015fb9003b37",
+      "signals.csv": "ca29b533e373cbad379763cdce94f3d5ee1f029188553e9a6a5b13b769f0a9d1",
+      "trade_ledger.csv": "f8183308910a97415b6407dbae0103ab21bdfba69fb24321d4b038d6855145f6",
+      "verification.json": "d8008698b98a94218c41ecd76a35ab5ac34002efea3e393ba6ab0328812dc3f7"
+    },
+    "head": "e38e018c1c7be3863178cd30237cbc5748216de7",
+    "missing_target_entry_events": [
+      {
+        "at": "2023-02-02 15:40:00",
+        "confirmed_at": "2023-02-02 15:50:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_USDRUBF",
+        "signal_id": "VWAP_MR_USDRUBF_000134"
+      },
+      {
+        "at": "2023-01-06 17:15:00",
+        "confirmed_at": "2023-01-06 17:25:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000030"
+      },
+      {
+        "at": "2023-01-13 12:45:00",
+        "confirmed_at": "2023-01-13 12:55:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000056"
+      },
+      {
+        "at": "2023-02-10 16:30:00",
+        "confirmed_at": "2023-02-10 16:40:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000121"
+      },
+      {
+        "at": "2023-03-02 15:25:00",
+        "confirmed_at": "2023-03-02 15:35:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000179"
+      },
+      {
+        "at": "2023-03-06 17:00:00",
+        "confirmed_at": "2023-03-06 17:10:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000187"
+      },
+      {
+        "at": "2023-03-10 16:25:00",
+        "confirmed_at": "2023-03-10 16:35:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000189"
+      },
+      {
+        "at": "2023-03-28 11:25:00",
+        "confirmed_at": "2023-03-28 11:35:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000226"
+      },
+      {
+        "at": "2023-04-05 13:00:00",
+        "confirmed_at": "2023-04-05 13:10:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000247"
+      },
+      {
+        "at": "2023-04-12 11:25:00",
+        "confirmed_at": "2023-04-12 11:35:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000267"
+      },
+      {
+        "at": "2023-04-17 17:55:00",
+        "confirmed_at": "2023-04-17 18:05:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000275"
+      },
+      {
+        "at": "2023-04-25 16:05:00",
+        "confirmed_at": "2023-04-25 16:15:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000282"
+      },
+      {
+        "at": "2023-05-22 12:35:00",
+        "confirmed_at": "2023-05-22 12:45:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000338"
+      },
+      {
+        "at": "2023-05-31 13:25:00",
+        "confirmed_at": "2023-05-31 13:35:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000349"
+      },
+      {
+        "at": "2023-06-01 17:45:00",
+        "confirmed_at": "2023-06-01 17:55:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000352"
+      },
+      {
+        "at": "2023-06-07 18:15:00",
+        "confirmed_at": "2023-06-07 18:25:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000360"
+      },
+      {
+        "at": "2023-06-14 12:25:00",
+        "confirmed_at": "2023-06-14 12:35:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000367"
+      },
+      {
+        "at": "2023-06-15 18:00:00",
+        "confirmed_at": "2023-06-15 18:10:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000375"
+      },
+      {
+        "at": "2023-07-05 11:40:00",
+        "confirmed_at": "2023-07-05 11:50:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000418"
+      },
+      {
+        "at": "2023-07-07 13:20:00",
+        "confirmed_at": "2023-07-07 13:30:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000437"
+      },
+      {
+        "at": "2023-07-21 13:00:00",
+        "confirmed_at": "2023-07-21 13:10:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000475"
+      },
+      {
+        "at": "2023-08-30 16:55:00",
+        "confirmed_at": "2023-08-30 17:05:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000602"
+      },
+      {
+        "at": "2023-09-05 13:00:00",
+        "confirmed_at": "2023-09-05 13:10:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000612"
+      },
+      {
+        "at": "2023-09-26 11:55:00",
+        "confirmed_at": "2023-09-26 12:05:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_CNYRUBF",
+        "signal_id": "VWAP_MR_CNYRUBF_000682"
+      },
+      {
+        "at": "2023-08-17 16:00:00",
+        "confirmed_at": "2023-08-17 16:10:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_GLDRUBF",
+        "signal_id": "VWAP_MR_GLDRUBF_000059"
+      },
+      {
+        "at": "2023-08-18 18:00:00",
+        "confirmed_at": "2023-08-18 18:10:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_GLDRUBF",
+        "signal_id": "VWAP_MR_GLDRUBF_000071"
+      },
+      {
+        "at": "2023-08-23 16:20:00",
+        "confirmed_at": "2023-08-23 16:30:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_GLDRUBF",
+        "signal_id": "VWAP_MR_GLDRUBF_000078"
+      },
+      {
+        "at": "2023-10-11 18:15:00",
+        "confirmed_at": "2023-10-11 18:25:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_GLDRUBF",
+        "signal_id": "VWAP_MR_GLDRUBF_000165"
+      },
+      {
+        "at": "2023-11-07 18:05:00",
+        "confirmed_at": "2023-11-07 18:15:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_GLDRUBF",
+        "signal_id": "VWAP_MR_GLDRUBF_000242"
+      },
+      {
+        "at": "2023-12-05 11:20:00",
+        "confirmed_at": "2023-12-05 11:30:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_GLDRUBF",
+        "signal_id": "VWAP_MR_GLDRUBF_000298"
+      },
+      {
+        "at": "2023-12-06 11:40:00",
+        "confirmed_at": "2023-12-06 11:50:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_GLDRUBF",
+        "signal_id": "VWAP_MR_GLDRUBF_000302"
+      },
+      {
+        "at": "2023-12-19 15:50:00",
+        "confirmed_at": "2023-12-19 16:00:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_GLDRUBF",
+        "signal_id": "VWAP_MR_GLDRUBF_000331"
+      },
+      {
+        "at": "2023-11-30 17:20:00",
+        "confirmed_at": "2023-11-30 17:30:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_IMOEXF",
+        "signal_id": "VWAP_MR_IMOEXF_000004"
+      },
+      {
+        "at": "2023-12-11 17:10:00",
+        "confirmed_at": "2023-12-11 17:20:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "VWAP_MR_IMOEXF",
+        "signal_id": "VWAP_MR_IMOEXF_000014"
+      },
+      {
+        "at": "2023-02-03 16:15:00",
+        "confirmed_at": "2023-02-03 16:25:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_USDRUBF",
+        "signal_id": "MOMENTUM_USDRUBF_000234"
+      },
+      {
+        "at": "2023-06-01 11:30:00",
+        "confirmed_at": "2023-06-01 11:40:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_USDRUBF",
+        "signal_id": "MOMENTUM_USDRUBF_001020"
+      },
+      {
+        "at": "2023-01-19 15:25:00",
+        "confirmed_at": "2023-01-19 15:35:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_CNYRUBF",
+        "signal_id": "MOMENTUM_CNYRUBF_000064"
+      },
+      {
+        "at": "2023-01-31 12:40:00",
+        "confirmed_at": "2023-01-31 12:50:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_CNYRUBF",
+        "signal_id": "MOMENTUM_CNYRUBF_000074"
+      },
+      {
+        "at": "2023-04-04 17:45:00",
+        "confirmed_at": "2023-04-04 17:55:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_CNYRUBF",
+        "signal_id": "MOMENTUM_CNYRUBF_000170"
+      },
+      {
+        "at": "2023-07-12 13:00:00",
+        "confirmed_at": "2023-07-12 13:10:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_CNYRUBF",
+        "signal_id": "MOMENTUM_CNYRUBF_000376"
+      },
+      {
+        "at": "2023-07-14 12:55:00",
+        "confirmed_at": "2023-07-14 13:05:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_CNYRUBF",
+        "signal_id": "MOMENTUM_CNYRUBF_000385"
+      },
+      {
+        "at": "2023-07-18 17:10:00",
+        "confirmed_at": "2023-07-18 17:20:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_CNYRUBF",
+        "signal_id": "MOMENTUM_CNYRUBF_000393"
+      },
+      {
+        "at": "2023-07-19 11:40:00",
+        "confirmed_at": "2023-07-19 11:50:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_CNYRUBF",
+        "signal_id": "MOMENTUM_CNYRUBF_000394"
+      },
+      {
+        "at": "2023-09-20 13:25:00",
+        "confirmed_at": "2023-09-20 13:35:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_CNYRUBF",
+        "signal_id": "MOMENTUM_CNYRUBF_000592"
+      },
+      {
+        "at": "2023-11-28 15:35:00",
+        "confirmed_at": "2023-11-28 15:45:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_CNYRUBF",
+        "signal_id": "MOMENTUM_CNYRUBF_001062"
+      },
+      {
+        "at": "2023-07-12 11:40:00",
+        "confirmed_at": "2023-07-12 11:50:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_GLDRUBF",
+        "signal_id": "MOMENTUM_GLDRUBF_000004"
+      },
+      {
+        "at": "2023-07-20 13:20:00",
+        "confirmed_at": "2023-07-20 13:30:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_GLDRUBF",
+        "signal_id": "MOMENTUM_GLDRUBF_000022"
+      },
+      {
+        "at": "2023-08-10 12:05:00",
+        "confirmed_at": "2023-08-10 12:15:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_GLDRUBF",
+        "signal_id": "MOMENTUM_GLDRUBF_000072"
+      },
+      {
+        "at": "2023-08-24 17:15:00",
+        "confirmed_at": "2023-08-24 17:25:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_GLDRUBF",
+        "signal_id": "MOMENTUM_GLDRUBF_000133"
+      },
+      {
+        "at": "2023-09-07 15:25:00",
+        "confirmed_at": "2023-09-07 15:35:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_GLDRUBF",
+        "signal_id": "MOMENTUM_GLDRUBF_000166"
+      },
+      {
+        "at": "2023-09-22 16:50:00",
+        "confirmed_at": "2023-09-22 17:00:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_GLDRUBF",
+        "signal_id": "MOMENTUM_GLDRUBF_000245"
+      },
+      {
+        "at": "2023-10-04 17:55:00",
+        "confirmed_at": "2023-10-04 18:05:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_GLDRUBF",
+        "signal_id": "MOMENTUM_GLDRUBF_000277"
+      },
+      {
+        "at": "2023-10-25 12:40:00",
+        "confirmed_at": "2023-10-25 12:50:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_GLDRUBF",
+        "signal_id": "MOMENTUM_GLDRUBF_000421"
+      },
+      {
+        "at": "2023-11-08 12:55:00",
+        "confirmed_at": "2023-11-08 13:05:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_GLDRUBF",
+        "signal_id": "MOMENTUM_GLDRUBF_000489"
+      },
+      {
+        "at": "2023-11-29 11:40:00",
+        "confirmed_at": "2023-11-29 11:50:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_GLDRUBF",
+        "signal_id": "MOMENTUM_GLDRUBF_000613"
+      },
+      {
+        "at": "2023-11-29 17:15:00",
+        "confirmed_at": "2023-11-29 17:25:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_GLDRUBF",
+        "signal_id": "MOMENTUM_GLDRUBF_000617"
+      },
+      {
+        "at": "2023-11-30 12:25:00",
+        "confirmed_at": "2023-11-30 12:35:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_GLDRUBF",
+        "signal_id": "MOMENTUM_GLDRUBF_000619"
+      },
+      {
+        "at": "2023-12-13 11:25:00",
+        "confirmed_at": "2023-12-13 11:35:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_GLDRUBF",
+        "signal_id": "MOMENTUM_GLDRUBF_000718"
+      },
+      {
+        "at": "2023-11-15 16:25:00",
+        "confirmed_at": "2023-11-15 16:35:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_IMOEXF",
+        "signal_id": "MOMENTUM_IMOEXF_000002"
+      },
+      {
+        "at": "2023-12-01 11:20:00",
+        "confirmed_at": "2023-12-01 11:30:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_IMOEXF",
+        "signal_id": "MOMENTUM_IMOEXF_000009"
+      },
+      {
+        "at": "2023-12-18 16:15:00",
+        "confirmed_at": "2023-12-18 16:25:00",
+        "reason": "MISSING_OR_UNAVAILABLE_TTL_BAR",
+        "run": "MOMENTUM_IMOEXF",
+        "signal_id": "MOMENTUM_IMOEXF_000070"
+      }
+    ],
+    "review_id": 5470886355,
+    "review_verdict": "STAGE2_M5_BASELINE_NEEDS_FIX",
+    "run_summaries": [
+      {
+        "execution_counts": {
+          "flat_target_breaches": 17,
+          "gap_resets": 32,
+          "missing_observations": 187,
+          "partial_events": 0,
+          "tp_touch_nonfills": 75
+        },
+        "run": "VWAP_MR_USDRUBF",
+        "summary": {
+          "PF": "0.4451566951566951566951566952",
+          "PF_null_reason": null,
+          "c1_known": "10.96",
+          "closed_accounted_trades": 542,
+          "closed_only_c1": "10.84",
+          "closed_only_drawdown_price_units": "16.03",
+          "closed_only_gross": "-4.74",
+          "closed_only_net_c1": "-15.58",
+          "expectancy_price_units": "-0.02874538745387453874538745387",
+          "gross_known_price_pnl": "-4.70",
+          "known_cost_mtm_drawdown_diagnostic": "16.15",
+          "mean_net_R": "-0.5483609457594390858625956873",
+          "median_hold_minutes_bar_starts": "10.0",
+          "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+          "net_R": "-297.2116326016159845375268625",
+          "net_model_c1": null,
+          "observed_close_mtm_drawdown_price_units": null,
+          "open_residual_model_units": 0,
+          "trades": 548,
+          "unresolved": 6,
+          "win_rate": "0.3929889298892988929889298893"
+        }
+      },
+      {
+        "execution_counts": {
+          "flat_target_breaches": 11,
+          "gap_resets": 896,
+          "missing_observations": 1270,
+          "partial_events": 0,
+          "tp_touch_nonfills": 120
+        },
+        "run": "VWAP_MR_CNYRUBF",
+        "summary": {
+          "PF": "0.08804616652926628194558944765",
+          "PF_null_reason": null,
+          "c1_known": "4.856",
+          "closed_accounted_trades": 331,
+          "closed_only_c1": "4.154",
+          "closed_only_drawdown_price_units": "5.531",
+          "closed_only_gross": "-1.377",
+          "closed_only_net_c1": "-5.531",
+          "expectancy_price_units": "-0.01670996978851963746223564955",
+          "gross_known_price_pnl": "-1.390",
+          "known_cost_mtm_drawdown_diagnostic": "6.246",
+          "mean_net_R": "-1.277666942769688326977182005",
+          "median_hold_minutes_bar_starts": "5.0",
+          "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+          "net_R": "-422.9077580567668362294472437",
+          "net_model_c1": null,
+          "observed_close_mtm_drawdown_price_units": null,
+          "open_residual_model_units": 0,
+          "trades": 367,
+          "unresolved": 36,
+          "win_rate": "0.1782477341389728096676737160"
+        }
+      },
+      {
+        "execution_counts": {
+          "flat_target_breaches": 4,
+          "gap_resets": 719,
+          "missing_observations": 932,
+          "partial_events": 0,
+          "tp_touch_nonfills": 2
+        },
+        "run": "VWAP_MR_GLDRUBF",
+        "summary": {
+          "PF": "0.8081591368846931894807821982",
+          "PF_null_reason": null,
+          "c1_known": "25.2",
+          "closed_accounted_trades": 101,
+          "closed_only_c1": "20.2",
+          "closed_only_drawdown_price_units": "73.6",
+          "closed_only_gross": "-36.7",
+          "closed_only_net_c1": "-56.9",
+          "expectancy_price_units": "-0.5633663366336633663366336634",
+          "gross_known_price_pnl": "-46.2",
+          "known_cost_mtm_drawdown_diagnostic": "91.8",
+          "mean_net_R": "-0.1399501330783971392629165925",
+          "median_hold_minutes_bar_starts": "10.0",
+          "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+          "net_R": "-14.13496344091811106555457584",
+          "net_model_c1": null,
+          "observed_close_mtm_drawdown_price_units": null,
+          "open_residual_model_units": 0,
+          "trades": 126,
+          "unresolved": 25,
+          "win_rate": "0.4257425742574257425742574257"
+        }
+      },
+      {
+        "execution_counts": {
+          "flat_target_breaches": 0,
+          "gap_resets": 359,
+          "missing_observations": 566,
+          "partial_events": 0,
+          "tp_touch_nonfills": 2
+        },
+        "run": "VWAP_MR_IMOEXF",
+        "summary": {
+          "PF": "2.464285714285714285714285714",
+          "PF_null_reason": null,
+          "c1_known": "21.0",
+          "closed_accounted_trades": 13,
+          "closed_only_c1": "13.0",
+          "closed_only_drawdown_price_units": "5.5",
+          "closed_only_gross": "33.5",
+          "closed_only_net_c1": "20.5",
+          "expectancy_price_units": "1.576923076923076923076923077",
+          "gross_known_price_pnl": "34.0",
+          "known_cost_mtm_drawdown_diagnostic": "13.5",
+          "mean_net_R": "-0.2149644473173884938590820944",
+          "median_hold_minutes_bar_starts": "15.0",
+          "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+          "net_R": "-2.794537815126050420168067227",
+          "net_model_c1": null,
+          "observed_close_mtm_drawdown_price_units": null,
+          "open_residual_model_units": 0,
+          "trades": 21,
+          "unresolved": 8,
+          "win_rate": "0.6153846153846153846153846154"
+        }
+      },
+      {
+        "execution_counts": {
+          "flat_target_breaches": 72,
+          "gap_resets": 32,
+          "missing_observations": 187,
+          "partial_events": 0,
+          "tp_touch_nonfills": 18
+        },
+        "run": "MOMENTUM_USDRUBF",
+        "summary": {
+          "PF": "0.7407789527985555842145989167",
+          "PF_null_reason": null,
+          "c1_known": "11.90",
+          "closed_accounted_trades": 593,
+          "closed_only_c1": "11.86",
+          "closed_only_drawdown_price_units": "11.15",
+          "closed_only_gross": "1.81",
+          "closed_only_net_c1": "-10.05",
+          "expectancy_price_units": "-0.01694772344013490725126475548",
+          "gross_known_price_pnl": "1.83",
+          "known_cost_mtm_drawdown_diagnostic": "11.48",
+          "mean_net_R": "-0.3763226786444788860360615901",
+          "median_hold_minutes_bar_starts": "15.0",
+          "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+          "net_R": "-223.1593484361759794193845229",
+          "net_model_c1": null,
+          "observed_close_mtm_drawdown_price_units": null,
+          "open_residual_model_units": 0,
+          "trades": 595,
+          "unresolved": 2,
+          "win_rate": "0.2445193929173693086003372681"
+        }
+      },
+      {
+        "execution_counts": {
+          "flat_target_breaches": 39,
+          "gap_resets": 896,
+          "missing_observations": 1270,
+          "partial_events": 0,
+          "tp_touch_nonfills": 25
+        },
+        "run": "MOMENTUM_CNYRUBF",
+        "summary": {
+          "PF": "0.3754758565417751953516329393",
+          "PF_null_reason": null,
+          "c1_known": "3.308",
+          "closed_accounted_trades": 297,
+          "closed_only_c1": "2.988",
+          "closed_only_drawdown_price_units": "3.278",
+          "closed_only_gross": "-0.129",
+          "closed_only_net_c1": "-3.117",
+          "expectancy_price_units": "-0.01049494949494949494949494949",
+          "gross_known_price_pnl": "-0.109",
+          "known_cost_mtm_drawdown_diagnostic": "3.590",
+          "mean_net_R": "-0.9341470498527604861206473596",
+          "median_hold_minutes_bar_starts": "10.0",
+          "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+          "net_R": "-277.4416738062698643778322658",
+          "net_model_c1": null,
+          "observed_close_mtm_drawdown_price_units": null,
+          "open_residual_model_units": 0,
+          "trades": 313,
+          "unresolved": 16,
+          "win_rate": "0.2154882154882154882154882155"
+        }
+      },
+      {
+        "execution_counts": {
+          "flat_target_breaches": 15,
+          "gap_resets": 719,
+          "missing_observations": 932,
+          "partial_events": 0,
+          "tp_touch_nonfills": 0
+        },
+        "run": "MOMENTUM_GLDRUBF",
+        "summary": {
+          "PF": "1.047862453531598513011152416",
+          "PF_null_reason": null,
+          "c1_known": "29.4",
+          "closed_accounted_trades": 122,
+          "closed_only_c1": "24.4",
+          "closed_only_drawdown_price_units": "60.6",
+          "closed_only_gross": "45.0",
+          "closed_only_net_c1": "20.6",
+          "expectancy_price_units": "0.1688524590163934426229508197",
+          "gross_known_price_pnl": "152.7",
+          "known_cost_mtm_drawdown_diagnostic": "60.0",
+          "mean_net_R": "-0.2128309875778469611128917099",
+          "median_hold_minutes_bar_starts": "10.0",
+          "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+          "net_R": "-25.96538048449732925577278861",
+          "net_model_c1": null,
+          "observed_close_mtm_drawdown_price_units": null,
+          "open_residual_model_units": 0,
+          "trades": 147,
+          "unresolved": 25,
+          "win_rate": "0.3196721311475409836065573770"
+        }
+      },
+      {
+        "execution_counts": {
+          "flat_target_breaches": 2,
+          "gap_resets": 359,
+          "missing_observations": 566,
+          "partial_events": 0,
+          "tp_touch_nonfills": 1
+        },
+        "run": "MOMENTUM_IMOEXF",
+        "summary": {
+          "PF": "0.3266666666666666666666666667",
+          "PF_null_reason": null,
+          "c1_known": "23.0",
+          "closed_accounted_trades": 20,
+          "closed_only_c1": "20.0",
+          "closed_only_drawdown_price_units": "57.0",
+          "closed_only_gross": "-30.5",
+          "closed_only_net_c1": "-50.5",
+          "expectancy_price_units": "-2.525",
+          "gross_known_price_pnl": "-32.5",
+          "known_cost_mtm_drawdown_diagnostic": "62.5",
+          "mean_net_R": "-0.830221951961082395865004561",
+          "median_hold_minutes_bar_starts": "12.5",
+          "metric_status": "INCOMPLETE / CLOSED-ONLY DIAGNOSTIC",
+          "net_R": "-16.60443903922164791730009122",
+          "net_model_c1": null,
+          "observed_close_mtm_drawdown_price_units": null,
+          "open_residual_model_units": 0,
+          "trades": 23,
+          "unresolved": 3,
+          "win_rate": "0.2"
+        }
+      }
+    ]
+  }
+}
