@@ -200,6 +200,16 @@ def run(data_root, output_dir=OUT):
             metrics[key]["signals"] = sum(
                 s["base_reason"] == "SIGNAL" for s in ss
             )
+            metrics[key]["reasons"] = dict(Counter(
+                s["reason"] for s in ss if s["base_reason"] == "SIGNAL"
+            ))
+            metrics[key]["atr_available_on_signal"] = sum(
+                s["atr_ready"] for s in ss if s["base_reason"] == "SIGNAL"
+            )
+            metrics[key]["mtf_aligned_on_signal"] = sum(
+                s.get("m15_direction") == s["direction"]
+                for s in ss if s["base_reason"] == "SIGNAL"
+            )
             metrics[key]["daily_independent_experiments"] = len(dd)
             metrics[key]["counterfactual_days_after_unknown"] = sum(
                 x["prior_unknown_requires_flat_assumption"] for x in dd
