@@ -12,7 +12,7 @@ from session_mtf import Bar
 from squeeze_replay import Indicators, Cycles, Replay, geometry, FIVE, tick
 from causal_mtf import DerivedContext
 from audit_squeeze import batch_indicators, reconstruct, m30, compare, aggregate
-from run_squeeze import coverage
+from run_squeeze import coverage, payoff
 
 
 def bar(t, o='100', h='100.02', l='99.98', c='100', volume='1'):
@@ -35,6 +35,15 @@ def prepared():
 
 
 class SqueezeTests(unittest.TestCase):
+    def test_all_loss_drawdown_age_starts_at_initial_zero_equity(self):
+        a, b = prepared(), prepared()
+        a.finish(DT(2023, 1, 3, 11, 30), DT(2023, 1, 3, 11, 40), D('99.97'), 'STOP')
+        b.ledger[0]['entry_at'] = DT(2023, 1, 3, 12, 15)
+        b.finish(DT(2023, 1, 3, 12, 30), DT(2023, 1, 3, 12, 40), D('99.97'), 'STOP')
+        rows = a.ledger+b.ledger
+        self.assertEqual(payoff(rows)['closed_unrecovered_minutes'], 85)
+        self.assertEqual(aggregate(rows)['closed_unrecovered_minutes'], 85)
+
     def test_holidays_before_first_observation_are_not_launch_gaps(self):
         c, _ = coverage([bar(DT(2023, 1, 3, 10))])
         self.assertEqual(c['2023-01']['pre_inception_slots'], 0)

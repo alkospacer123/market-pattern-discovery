@@ -120,7 +120,7 @@ def payoff(rows, multiplier=1):
         gw = [r['gross'] for r in known if r['gross'] > 0]
         gl = [-r['gross'] for r in known if r['gross'] < 0]
         running = peak = dd = ZERO
-        peak_at = None
+        peak_at = min((r['entry_at'] for r in known), default=None)
         recovery_minutes = 0
         ordered = sorted(known, key=lambda r: (r['exit_ack'], r['signal_id']))
         for r in ordered:

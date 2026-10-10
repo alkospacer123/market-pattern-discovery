@@ -384,7 +384,7 @@ def aggregate(rows, cost=1):
     gw = [r['gross'] for r in closed if r['gross'] > 0]
     gl = [-r['gross'] for r in closed if r['gross'] < 0]
     cum = high = dd = ZERO
-    high_at, recovery = None, 0
+    high_at, recovery = min((r['entry_at'] for r in closed), default=None), 0
     for r in sorted(closed, key=lambda x: (x['exit_ack'], x['signal_id'])):
         cum += r['gross']-cost*r['c1']
         if cum >= high:
