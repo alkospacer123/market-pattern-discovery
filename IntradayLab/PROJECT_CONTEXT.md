@@ -96,6 +96,12 @@ Established 2026-10-08. Independent research scope, **not** TradingSystemLab roa
 - Track positive-month share, worst calendar month, consecutive losing months, and each calendar year's monthly breakdown in Baseline, Walk Forward, TRUE OOS and forward monitoring. Calculate monthly mark-to-market equity including open-position P&L and all execution costs; never hide a loss by deferring realization into the next month.
 - No promises of a stable monthly salary, guaranteed PF, target return, or target risk-adjusted performance without real evidence.
 
+## New Stage 2 candidate shortlist — 2026-10-10 (documentation only)
+
+With Squeeze PR #456/#457 MERGED and no qualified VWAP/Momentum/Squeeze Baseline, the user selected a fixed sequence of NEW, **unproven** M5 OHLCV-only mechanisms: **LEVEL_REJECTION_M5** (previous known high/low breached then reclaimed) first; **IMPULSE_PULLBACK_M5** (completed impulse, separate later pullback, then continuation confirmation) second; **RANGE_ROTATION_M5** (previously bounded non-breaching range-edge rejection, not VWAP) third; **OPENING_DRIVE_PULLBACK_M5** (completed session-open drive followed by later retrace and resumption) reserve. Full evidence and falsifiable definitions in [Roadmap](ROADMAP.md) and [selection memo](reports/STAGE2_NEXT_STRATEGIES_SELECTION_20261010.md).
+
+No new baseline/trading simulation authorized. Separately freeze only the next candidate signal grammar, then do existing Stage 2 **no-P&L opportunity and 3R-after-C1 geometry feasibility** for full available 2023, T10/T15 future M5 Open and unique day/month counts. Don't peek at winners/Stop/Take/PF or force 2–3 combined trades/day; this is aspirational. Full economic Baseline requires separate approval. Original 4 futures, minimal C1 1 tick per executed side, C2 stress, session/delayed execution/UNKNOWN, reserved 2024 WF and locked 2025+ TRUE OOS, all frozen research and TradingSystemLab active robot unchanged.
+
 ## Project initial state
 
 - TradingSystemLab main was inspected **read-only** before setup, at commit `eaaef0884fb54eb5c3946f433619b550545a19a8`.
