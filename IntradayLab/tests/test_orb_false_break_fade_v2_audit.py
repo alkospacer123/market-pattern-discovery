@@ -96,6 +96,18 @@ class V2IndependentAudit(unittest.TestCase):
         next(x for x in forged if x.get('v2_atr_ready'))['v2_atr14']+=D(1)
         self.assertEqual(independent.run(conf,{'USDRUBF':bars},forged,tt,dd,oldss,oldtt)['status'],'FAIL')
 
+    def test_unknown_future_gap_does_not_change_present_busy_reason(self):
+        bars=two_day_fixture()
+        bars[datetime(2023,1,3,10,30)]=row()
+        del bars[datetime(2023,1,3,11,10)]
+        bars[datetime(2023,1,3,10,45)]=row('99.05','99.1','98.95','99.05')
+        events,_,_=engine.base_signals('USDRUBF',bars)
+        ss,tt,_,_=daily.evaluate_symbol('USDRUBF',bars,events,'A_BASE',{'atr':False,'mtf':False})
+        signal=next(x for x in ss if x['date']=='2023-01-03' and x['direction']==1)
+        self.assertEqual(signal['reason'],'POSITION_BUSY')
+        self.assertLess(signal['signal_at'],tt[0]['unknown_detected_at'])
+        self.assertEqual(tt[0]['status'],'UNKNOWN')
+
 
 if __name__=='__main__':
     unittest.main()

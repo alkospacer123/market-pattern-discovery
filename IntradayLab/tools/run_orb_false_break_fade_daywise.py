@@ -58,6 +58,19 @@ def evaluate_symbol(symbol, rows, events, architecture, spec, audit=True):
             if any(x['base_reason'] == 'SIGNAL' for x in items):
                 raise AssertionError('Signal without any source history')
         ds, dt = engine.replay(symbol, daily_prices, items, architecture, spec)
+        # The immutable forward-path engine discovers an eventual UNKNOWN
+        # while simulating the first trade. Before the missing slot is reached,
+        # later signals are blocked by a live/pending position, not yet UNKNOWN.
+        # Correct the diagnostic label only; admission and trade economics stay
+        # unchanged. The independent chronological oracle verifies this timing.
+        unknown_from = min((t['unknown_detected_at'] - engine.FIVE
+                            for t in dt if t['status'] == 'UNKNOWN'),
+                           default=None)
+        for s in ds:
+            if (s['reason'] == 'UNKNOWN_POSITION_BLOCK' and
+                    unknown_from is not None and s['signal_at'] < unknown_from):
+                s['reason'] = 'POSITION_BUSY'
+                s['daywise_causal_reason_corrected'] = True
         if audit and daily_prices:
             oracle_signals, oracle_trades = independent.oracle_trades(
                 symbol, daily_prices, items, architecture, spec
