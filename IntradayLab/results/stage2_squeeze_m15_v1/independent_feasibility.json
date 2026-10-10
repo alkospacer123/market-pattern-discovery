@@ -1,0 +1,161 @@
+{
+  "causality": "Exact aligned 3/12 M5 children; M15 T+20/25, H1 T+65/70; strict future M15 Open; session/gap resets; no stale H1 fallback",
+  "config_sha256": "54e3cef5509807622882059ba354bea638cc4781261757d692ac71fdd7424b56",
+  "independent": true,
+  "instruments": [
+    {
+      "bb20_feasible": false,
+      "bb7_feasible": true,
+      "complete_h1": 1277,
+      "complete_m15": 7661,
+      "instrument": "CNYRUBF",
+      "longest_m15_segment": 18,
+      "ready_m15_features": 3405,
+      "scenarios": {
+        "T10": {
+          "causal_future_targets": 115,
+          "confirmed_breakouts": 115,
+          "confirmed_squeezes": 427,
+          "raw_squeeze_episodes": 558,
+          "ready_h1_pair_at_breakout": 102,
+          "session_safe_targets": 44
+        },
+        "T15": {
+          "causal_future_targets": 115,
+          "confirmed_breakouts": 115,
+          "confirmed_squeezes": 427,
+          "raw_squeeze_episodes": 558,
+          "ready_h1_pair_at_breakout": 102,
+          "session_safe_targets": 44
+        }
+      },
+      "usable_h1": 1277,
+      "usable_m15": 7661
+    },
+    {
+      "bb20_feasible": false,
+      "bb7_feasible": true,
+      "complete_h1": 461,
+      "complete_m15": 3450,
+      "instrument": "GLDRUBF",
+      "longest_m15_segment": 18,
+      "ready_m15_features": 1025,
+      "scenarios": {
+        "T10": {
+          "causal_future_targets": 32,
+          "confirmed_breakouts": 32,
+          "confirmed_squeezes": 123,
+          "raw_squeeze_episodes": 186,
+          "ready_h1_pair_at_breakout": 25,
+          "session_safe_targets": 15
+        },
+        "T15": {
+          "causal_future_targets": 32,
+          "confirmed_breakouts": 32,
+          "confirmed_squeezes": 123,
+          "raw_squeeze_episodes": 186,
+          "ready_h1_pair_at_breakout": 25,
+          "session_safe_targets": 15
+        }
+      },
+      "usable_h1": 461,
+      "usable_m15": 3450
+    },
+    {
+      "bb20_feasible": false,
+      "bb7_feasible": true,
+      "complete_h1": 89,
+      "complete_m15": 769,
+      "instrument": "IMOEXF",
+      "longest_m15_segment": 18,
+      "ready_m15_features": 179,
+      "scenarios": {
+        "T10": {
+          "causal_future_targets": 7,
+          "confirmed_breakouts": 7,
+          "confirmed_squeezes": 25,
+          "raw_squeeze_episodes": 34,
+          "ready_h1_pair_at_breakout": 6,
+          "session_safe_targets": 2
+        },
+        "T15": {
+          "causal_future_targets": 7,
+          "confirmed_breakouts": 7,
+          "confirmed_squeezes": 25,
+          "raw_squeeze_episodes": 34,
+          "ready_h1_pair_at_breakout": 6,
+          "session_safe_targets": 2
+        }
+      },
+      "usable_h1": 89,
+      "usable_m15": 769
+    },
+    {
+      "bb20_feasible": false,
+      "bb7_feasible": true,
+      "complete_h1": 1740,
+      "complete_m15": 8553,
+      "instrument": "USDRUBF",
+      "longest_m15_segment": 18,
+      "ready_m15_features": 5398,
+      "scenarios": {
+        "T10": {
+          "causal_future_targets": 225,
+          "confirmed_breakouts": 225,
+          "confirmed_squeezes": 601,
+          "raw_squeeze_episodes": 739,
+          "ready_h1_pair_at_breakout": 198,
+          "session_safe_targets": 103
+        },
+        "T15": {
+          "causal_future_targets": 225,
+          "confirmed_breakouts": 225,
+          "confirmed_squeezes": 601,
+          "raw_squeeze_episodes": 739,
+          "ready_h1_pair_at_breakout": 198,
+          "session_safe_targets": 103
+        }
+      },
+      "usable_h1": 1740,
+      "usable_m15": 8553
+    }
+  ],
+  "oracle_sha256": "db0a43f072e0bba1c665bfe6d2e4f4cd4b6cc84a66dd1d975501133eafa41e9b",
+  "pnl_calculated": false,
+  "scope": "Accepted restricted historical research windows, not a certified complete venue session calendar",
+  "source_provenance": {
+    "CNYRUBF": {
+      "bytes_read": 2212189,
+      "first": "2023-01-03 09:00:00",
+      "last": "2023-12-29 23:45:00",
+      "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+      "protected_year_bytes_read": 0,
+      "rows": 39362
+    },
+    "GLDRUBF": {
+      "bytes_read": 1044351,
+      "first": "2023-07-11 10:00:00",
+      "last": "2023-12-29 23:45:00",
+      "prefix_sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b",
+      "protected_year_bytes_read": 0,
+      "rows": 18428
+    },
+    "IMOEXF": {
+      "bytes_read": 234733,
+      "first": "2023-11-14 10:00:00",
+      "last": "2023-12-29 23:45:00",
+      "prefix_sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c",
+      "protected_year_bytes_read": 0,
+      "rows": 4429
+    },
+    "USDRUBF": {
+      "bytes_read": 2342431,
+      "first": "2023-01-03 09:00:00",
+      "last": "2023-12-29 23:45:00",
+      "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "protected_year_bytes_read": 0,
+      "rows": 42576
+    }
+  },
+  "status": "FEASIBILITY PASS"
+}
