@@ -1,0 +1,21 @@
+{
+  "Baseline_Report.md": "54b46839d948cf4a6aed6f72156caaad558ca009e3397317669bd406de797307",
+  "Independent_Audit.md": "6afcdab7e5de13a75efecf9c7fa2862427e77ae4e5a2d5a80839c5a1114e86b0",
+  "audit.json": "327212b1c5a35cdd52ed10bd1b8ffa1bbddab913d73077a4fcf0f690078e42dc",
+  "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+  "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+  "coverage_report.csv": "17fccd10d2c398dfb1fbc14b5e7cca891d5525bea6dcd32234c6bd73b3adf064",
+  "coverage_summary.csv": "ebb5c80e6162eb8dface4c7b4984c25592d99492f81fe0b8dc624183d168f551",
+  "days.csv": "0643e026985518bdce020e65948e7b1ad2b18a1c41319b644ee3ffb28a5c31e8",
+  "direction_report.csv": "05a353b91b9a0d17bb34481b816032a4d5dcbf09b3edabff441f506fd2e04ebd",
+  "input_provenance.json": "ec8f5ce5bf2b65e6c9aeadaab6045baf2aeb3e7303c6571e094bf41fca352880",
+  "instrument_report.csv": "d0d00b0c41f9aa64f656847fd155c959b90bf0acea44c4792910c5c9ff2ec720",
+  "metrics.json": "18a2c154a85b2a06e60a6d0332cfb2f5c6a25ed5977f0851f23e001febcd3b1b",
+  "monthly_report.csv": "49f78fdfaab7e6b438b0d8b061113a831b64f9d25c019d081926498f14b019f7",
+  "provenance.json": "ee465f48a17cd59f6a2387e6dda366c3f3cd871cbc9eb0ad87fb8594589fa6e3",
+  "signals.csv": "7622bc3a1f916db96e5d9edeb85547a92af616664d88bb9b349c5c10f479a9ce",
+  "test_execution.log": "b72b2dca7ea0901c8e9d00ce4aebb3a3d0b9e002eeb7ff0cc4b1c303ac0055a0",
+  "trades.csv": "cde689643cb14ac23155d08c3d6a7d2c9615d175199334f953649109d6f72dce",
+  "unknown_report.csv": "558c2bc9d794ef13e214bdd19c8906398fa0c472699c09c8cbeb58bc3037b9cf",
+  "validation.json": "75c5c268a1c7e3d5e6109779a1f4f57bc88f1c68e93b39b389c30e5635301122"
+}
