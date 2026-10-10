@@ -1,0 +1,16 @@
+test_cost_replacement_identical_executions_and_coverage_labels (test_squeeze_m15_audit.IndependentM15OracleTest.test_cost_replacement_identical_executions_and_coverage_labels) ... ok
+test_entry_bar_take_forbidden_later_tick_penetration_required (test_squeeze_m15_audit.IndependentM15OracleTest.test_entry_bar_take_forbidden_later_tick_penetration_required) ... ok
+test_episode_session_reset_clock_annotation (test_squeeze_m15_audit.IndependentM15OracleTest.test_episode_session_reset_clock_annotation) ... ok
+test_gap_resets_seed_and_no_clearing_bridging (test_squeeze_m15_audit.IndependentM15OracleTest.test_gap_resets_seed_and_no_clearing_bridging) ... ok
+test_h1_does_not_consult_not_yet_delivered_child (test_squeeze_m15_audit.IndependentM15OracleTest.test_h1_does_not_consult_not_yet_delivered_child) ... ok
+test_h1_expected_pair_availability_and_continuity_no_fallback (test_squeeze_m15_audit.IndependentM15OracleTest.test_h1_expected_pair_availability_and_continuity_no_fallback) ... ok
+test_market_open_exit_precedes_exit_bar_protection (test_squeeze_m15_audit.IndependentM15OracleTest.test_market_open_exit_precedes_exit_bar_protection) ... ok
+test_missing_child_is_not_a_parent_or_zero_fill (test_squeeze_m15_audit.IndependentM15OracleTest.test_missing_child_is_not_a_parent_or_zero_fill) ... ok
+test_missing_exposure_retains_known_entry_and_unknown_payoff (test_squeeze_m15_audit.IndependentM15OracleTest.test_missing_exposure_retains_known_entry_and_unknown_payoff) ... ok
+test_same_causal_m15_target_both_delays_and_range_excludes_signal (test_squeeze_m15_audit.IndependentM15OracleTest.test_same_causal_m15_target_both_delays_and_range_excludes_signal) ... ok
+test_stop_first_dual_touch_for_long_and_short (test_squeeze_m15_audit.IndependentM15OracleTest.test_stop_first_dual_touch_for_long_and_short) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 1.482s
+
+OK

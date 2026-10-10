@@ -1,0 +1,17 @@
+{
+  "config_sha256": "54e3cef5509807622882059ba354bea638cc4781261757d692ac71fdd7424b56",
+  "files_sha256": {
+    "config/stage2_squeeze_m15_v1.json": "54e3cef5509807622882059ba354bea638cc4781261757d692ac71fdd7424b56",
+    "config/stage2_squeeze_m15_v1.sha256": "556cd8e333e2a1315c9152194c089a94a141dc79635e4323dba0aca2233ca83f",
+    "reports/STAGE2_SQUEEZE_M15_FEASIBILITY.md": "00a99db08384af8fb5d78a83fa3419a6a2e6e16d6d87dc67e678c1925b8fb9d3",
+    "reports/STAGE2_SQUEEZE_M15_PREREGISTRATION.md": "30bfee6cda955c3fa4cdaf20c5d58c0da759d56d99530e83d6832a2941e200ed",
+    "tools/check_squeeze_m15_feasibility.py": "9bc42a29c43252690c946a4365575b1b8a4aada3833074918ed2e9f6294cee1f",
+    "tools/run_squeeze_m15.py": "1ec2866cfa64ce7b9b4fe6c11898f3c3ed3ec651ac3ad19f2334e4ffd869f160",
+    "tools/squeeze_m15_replay.py": "127a71f793bb8152f0f21eb0dcea1dc50cc3cc84eb70ba64c6cfc2cfd34df752"
+  },
+  "frozen_at_utc": "2026-10-10T09:26:05.791658+00:00",
+  "independent_feasibility_sha256": "cfafeea91494d6de8fae5e9a7cff26c1f0a19df081aecce9b80c852dda40084a",
+  "pnl_calculated": false,
+  "rules_changed_after_returns": false,
+  "technical_feasibility_sha256": "4874c672d1ce51d7f19c92630cc364219bc7df12ab9fb041e8a56c87ee5ead55"
+}

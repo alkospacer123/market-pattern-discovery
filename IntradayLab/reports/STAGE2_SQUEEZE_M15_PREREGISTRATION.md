@@ -1,0 +1,15 @@
+# Stage 2 — standalone M15 / H1→M15 preregistration
+
+2026-10-10, Europe/Moscow. Base actual GitHub main `7643513a7ce718b142454fe094186c3e6bbb4605`: PR #456 and #455 both merged. Prior M5/M30 economic rejection remains frozen. This pair implements the four-architecture matrix without changing Stage boundaries.
+
+[Complete numerical rules](../config/stage2_squeeze_m15_v1.json) and adjacent SHA-256 are frozen before P&L. BB/EMA/ATR period **7** means **105 minutes** versus the prior BB20 M5 100 minutes. Minimum compression **two ready M15 candles (30 minutes)** requires persistence at the coarser frame, and is fixed from timing considerations. The first indicator seed is on candle7, earliest confirmed compression on candle8, expansion on candle9. Standard20-period M15 cannot seed in these windows. No retrospective period search.
+
+Exact three/twelve M5 children form wall-clock M15/H1; no native higher-TF read or incomplete parent. M15 available T+20/T+25 and H1 T+65/T+70. Both delays normally target the same strict future M15 Open T+30. Indicators, signal, range, protection and exits are all M15. H1 affects only admission with two adjacent completed parents and continuity through the decision. Historical research windows reset at clearing, gap and day; PM starts14:05 (14:15 during the dated March extension), hence the first complete wall-aligned M15 is14:15 and H1 is15:00.
+
+Compression range excludes the expansion candle. One directional signal consumes the cycle. Structural Stop is edge−direction*0.25ATR, rounded toward entry; cap edge+direction*0.5ATR inward. Risk at least4 dated ticks. Outward rounded Take from actual Open plans **net reward≥3 initial risk** including2 entry ticks; distance≤3ATR at signal and execution. LONG/SHORT symmetric. No BE/trailing or numerical alternatives.
+
+M15 Stop-first, adverse gaps, Take one-tick penetration, entry-bar Take nonfill; scheduled market Open precedes intrabar path. MAX_HOLD120min. Common conservative session flat target is floorM15(B−35min):13:15/18:15, requested5min earlier. Entry must acknowledge under worst25min availability by flat request; cutoff target+25≤flat_slot−5. Both delays share this safety policy so an artificial latency difference is not introduced. Missing target parent preserves **UNKNOWN_POSSIBLE_ENTRY_FILL**, missing exposure preserves UNKNOWN and its null past payoff even after conditional reduce-all. Missing full parents never become fabricated candles/nonfills.
+
+C1 dated tick per executed side; C2 doubles costs on identical fills/levels. All12 months, source coverage, daily/monthly cadence, direction, funnel, closed-only diagnostics and annual nulls. Realized known-ledger DD is labelled; no full annual or true equity claim on gaps. No sum of different quote units. Independent raw-source oracle uses separate code and does not import the replay/indicators/metrics.
+
+Technical feasibility must pass independently before returns. If window/child/readiness/causality cannot hold, report FEASIBILITY BLOCKED / INCONCLUSIVE, with no invented zero-trade backtest. Only these16 scenarios, entire available2023, no optimization or next phase, Draft PR only.

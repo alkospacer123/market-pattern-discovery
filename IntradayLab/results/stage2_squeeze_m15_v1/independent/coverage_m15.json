@@ -1,0 +1,541 @@
+{
+  "instruments": {
+    "CNYRUBF": {
+      "2023-01": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 92,
+        "missing_since_inception": 113,
+        "observed_m15_slots": 622,
+        "observed_slots": 2092,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-02": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 646,
+        "expected_slots": 1995,
+        "missing_m15_since_inception": 83,
+        "missing_since_inception": 94,
+        "observed_m15_slots": 563,
+        "observed_slots": 1901,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-03": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 748,
+        "expected_slots": 2298,
+        "missing_m15_since_inception": 163,
+        "missing_since_inception": 204,
+        "observed_m15_slots": 585,
+        "observed_slots": 2094,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-04": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 680,
+        "expected_slots": 2100,
+        "missing_m15_since_inception": 145,
+        "missing_since_inception": 185,
+        "observed_m15_slots": 535,
+        "observed_slots": 1915,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-05": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 127,
+        "missing_since_inception": 152,
+        "observed_m15_slots": 587,
+        "observed_slots": 2053,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-06": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 133,
+        "missing_since_inception": 152,
+        "observed_m15_slots": 581,
+        "observed_slots": 2053,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-07": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 93,
+        "missing_since_inception": 119,
+        "observed_m15_slots": 621,
+        "observed_slots": 2086,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-08": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 782,
+        "expected_slots": 2415,
+        "missing_m15_since_inception": 72,
+        "missing_since_inception": 150,
+        "observed_m15_slots": 710,
+        "observed_slots": 2265,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-09": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 58,
+        "missing_since_inception": 90,
+        "observed_m15_slots": 656,
+        "observed_slots": 2115,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-10": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 748,
+        "expected_slots": 2310,
+        "missing_m15_since_inception": 2,
+        "missing_since_inception": 2,
+        "observed_m15_slots": 746,
+        "observed_slots": 2308,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-11": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 748,
+        "expected_slots": 2310,
+        "missing_m15_since_inception": 7,
+        "missing_since_inception": 9,
+        "observed_m15_slots": 741,
+        "observed_slots": 2301,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-12": {
+        "coverage_status": "COVERED",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 714,
+        "observed_slots": 2205,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      }
+    },
+    "GLDRUBF": {
+      "2023-01": {
+        "coverage_status": "NO_COVERAGE",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 0,
+        "observed_slots": 0,
+        "pre_inception_m15_slots": 714,
+        "pre_inception_slots": 2205
+      },
+      "2023-02": {
+        "coverage_status": "NO_COVERAGE",
+        "expected_m15_slots": 646,
+        "expected_slots": 1995,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 0,
+        "observed_slots": 0,
+        "pre_inception_m15_slots": 646,
+        "pre_inception_slots": 1995
+      },
+      "2023-03": {
+        "coverage_status": "NO_COVERAGE",
+        "expected_m15_slots": 748,
+        "expected_slots": 2298,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 0,
+        "observed_slots": 0,
+        "pre_inception_m15_slots": 748,
+        "pre_inception_slots": 2298
+      },
+      "2023-04": {
+        "coverage_status": "NO_COVERAGE",
+        "expected_m15_slots": 680,
+        "expected_slots": 2100,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 0,
+        "observed_slots": 0,
+        "pre_inception_m15_slots": 680,
+        "pre_inception_slots": 2100
+      },
+      "2023-05": {
+        "coverage_status": "NO_COVERAGE",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 0,
+        "observed_slots": 0,
+        "pre_inception_m15_slots": 714,
+        "pre_inception_slots": 2205
+      },
+      "2023-06": {
+        "coverage_status": "NO_COVERAGE",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 0,
+        "observed_slots": 0,
+        "pre_inception_m15_slots": 714,
+        "pre_inception_slots": 2205
+      },
+      "2023-07": {
+        "coverage_status": "PARTIAL_LAUNCH",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 151,
+        "missing_since_inception": 183,
+        "observed_m15_slots": 359,
+        "observed_slots": 1392,
+        "pre_inception_m15_slots": 204,
+        "pre_inception_slots": 630
+      },
+      "2023-08": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 782,
+        "expected_slots": 2415,
+        "missing_m15_since_inception": 179,
+        "missing_since_inception": 212,
+        "observed_m15_slots": 603,
+        "observed_slots": 2203,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-09": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 176,
+        "missing_since_inception": 238,
+        "observed_m15_slots": 538,
+        "observed_slots": 1967,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-10": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 748,
+        "expected_slots": 2310,
+        "missing_m15_since_inception": 77,
+        "missing_since_inception": 90,
+        "observed_m15_slots": 671,
+        "observed_slots": 2220,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-11": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 748,
+        "expected_slots": 2310,
+        "missing_m15_since_inception": 124,
+        "missing_since_inception": 143,
+        "observed_m15_slots": 624,
+        "observed_slots": 2167,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-12": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 59,
+        "missing_since_inception": 66,
+        "observed_m15_slots": 655,
+        "observed_slots": 2139,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      }
+    },
+    "IMOEXF": {
+      "2023-01": {
+        "coverage_status": "NO_COVERAGE",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 0,
+        "observed_slots": 0,
+        "pre_inception_m15_slots": 714,
+        "pre_inception_slots": 2205
+      },
+      "2023-02": {
+        "coverage_status": "NO_COVERAGE",
+        "expected_m15_slots": 646,
+        "expected_slots": 1995,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 0,
+        "observed_slots": 0,
+        "pre_inception_m15_slots": 646,
+        "pre_inception_slots": 1995
+      },
+      "2023-03": {
+        "coverage_status": "NO_COVERAGE",
+        "expected_m15_slots": 748,
+        "expected_slots": 2298,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 0,
+        "observed_slots": 0,
+        "pre_inception_m15_slots": 748,
+        "pre_inception_slots": 2298
+      },
+      "2023-04": {
+        "coverage_status": "NO_COVERAGE",
+        "expected_m15_slots": 680,
+        "expected_slots": 2100,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 0,
+        "observed_slots": 0,
+        "pre_inception_m15_slots": 680,
+        "pre_inception_slots": 2100
+      },
+      "2023-05": {
+        "coverage_status": "NO_COVERAGE",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 0,
+        "observed_slots": 0,
+        "pre_inception_m15_slots": 714,
+        "pre_inception_slots": 2205
+      },
+      "2023-06": {
+        "coverage_status": "NO_COVERAGE",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 0,
+        "observed_slots": 0,
+        "pre_inception_m15_slots": 714,
+        "pre_inception_slots": 2205
+      },
+      "2023-07": {
+        "coverage_status": "NO_COVERAGE",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 0,
+        "observed_slots": 0,
+        "pre_inception_m15_slots": 714,
+        "pre_inception_slots": 2205
+      },
+      "2023-08": {
+        "coverage_status": "NO_COVERAGE",
+        "expected_m15_slots": 782,
+        "expected_slots": 2415,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 0,
+        "observed_slots": 0,
+        "pre_inception_m15_slots": 782,
+        "pre_inception_slots": 2415
+      },
+      "2023-09": {
+        "coverage_status": "NO_COVERAGE",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 0,
+        "observed_slots": 0,
+        "pre_inception_m15_slots": 714,
+        "pre_inception_slots": 2205
+      },
+      "2023-10": {
+        "coverage_status": "NO_COVERAGE",
+        "expected_m15_slots": 748,
+        "expected_slots": 2310,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 0,
+        "observed_slots": 0,
+        "pre_inception_m15_slots": 748,
+        "pre_inception_slots": 2310
+      },
+      "2023-11": {
+        "coverage_status": "PARTIAL_LAUNCH",
+        "expected_m15_slots": 748,
+        "expected_slots": 2310,
+        "missing_m15_since_inception": 254,
+        "missing_since_inception": 402,
+        "observed_m15_slots": 188,
+        "observed_slots": 963,
+        "pre_inception_m15_slots": 306,
+        "pre_inception_slots": 945
+      },
+      "2023-12": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 133,
+        "missing_since_inception": 164,
+        "observed_m15_slots": 581,
+        "observed_slots": 2041,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      }
+    },
+    "USDRUBF": {
+      "2023-01": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 7,
+        "missing_since_inception": 7,
+        "observed_m15_slots": 707,
+        "observed_slots": 2198,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-02": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 646,
+        "expected_slots": 1995,
+        "missing_m15_since_inception": 5,
+        "missing_since_inception": 5,
+        "observed_m15_slots": 641,
+        "observed_slots": 1990,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-03": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 748,
+        "expected_slots": 2298,
+        "missing_m15_since_inception": 4,
+        "missing_since_inception": 4,
+        "observed_m15_slots": 744,
+        "observed_slots": 2294,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-04": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 680,
+        "expected_slots": 2100,
+        "missing_m15_since_inception": 6,
+        "missing_since_inception": 6,
+        "observed_m15_slots": 674,
+        "observed_slots": 2094,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-05": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 5,
+        "missing_since_inception": 7,
+        "observed_m15_slots": 709,
+        "observed_slots": 2198,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-06": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 4,
+        "missing_since_inception": 4,
+        "observed_m15_slots": 710,
+        "observed_slots": 2201,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-07": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 1,
+        "missing_since_inception": 1,
+        "observed_m15_slots": 713,
+        "observed_slots": 2204,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-08": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 782,
+        "expected_slots": 2415,
+        "missing_m15_since_inception": 35,
+        "missing_since_inception": 109,
+        "observed_m15_slots": 747,
+        "observed_slots": 2306,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-09": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 15,
+        "missing_since_inception": 43,
+        "observed_m15_slots": 699,
+        "observed_slots": 2162,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-10": {
+        "coverage_status": "COVERED",
+        "expected_m15_slots": 748,
+        "expected_slots": 2310,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 748,
+        "observed_slots": 2310,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-11": {
+        "coverage_status": "PARTIAL_DATA",
+        "expected_m15_slots": 748,
+        "expected_slots": 2310,
+        "missing_m15_since_inception": 1,
+        "missing_since_inception": 1,
+        "observed_m15_slots": 747,
+        "observed_slots": 2309,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      },
+      "2023-12": {
+        "coverage_status": "COVERED",
+        "expected_m15_slots": 714,
+        "expected_slots": 2205,
+        "missing_m15_since_inception": 0,
+        "missing_since_inception": 0,
+        "observed_m15_slots": 714,
+        "observed_slots": 2205,
+        "pre_inception_m15_slots": 0,
+        "pre_inception_slots": 0
+      }
+    }
+  },
+  "scope": "All 12 calendar months; M15 eligible slots in accepted restricted windows; independent raw-source reconstruction"
+}

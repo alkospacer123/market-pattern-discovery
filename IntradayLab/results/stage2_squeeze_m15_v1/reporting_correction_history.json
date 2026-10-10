@@ -1,0 +1,33 @@
+{
+  "changes": {
+    "metrics.csv": {
+      "after_sha256": "7fc9b916bc18805e3c0d6dc02e538c1714fdc1ff3ef79a8f0920ebe9f2e4fafc",
+      "before_sha256": "4b886a24cc0ff40554d3876c803c4be335bec847d60a0711fc2406c4efa258ff"
+    },
+    "monthly_results.csv": {
+      "after_sha256": "7fc63db4c3d6f61962f4ec7174b1b8e2b87c5d3f9da4ecaeb8600457b36cb2b4",
+      "before_sha256": "e83cb44afb9cea5d71345abd72a5d7f3888579317d5197c5fe114b42bbf0451f"
+    }
+  },
+  "configuration_sha256": "54e3cef5509807622882059ba354bea638cc4781261757d692ac71fdd7424b56",
+  "kind": "REPORT_COMPLETENESS_ONLY_NO_TRADING_OR_RETURN_CHANGE",
+  "new_artifacts": [
+    "coverage_m15.csv",
+    "funnel_stages.csv"
+  ],
+  "reason": "Add promised expected/observed M15 coverage, zero-net month counts, positive-month concentration and source-to-execution causal funnel; uncovered unknown-order count represented as zero research orders.",
+  "trading_artifacts_identical": [
+    "signals.csv.gz",
+    "squeeze_cycles.csv.gz",
+    "indicator_features.csv.gz",
+    "trade_ledger.csv.gz",
+    "execution_events.csv.gz",
+    "derived_parents.csv.gz",
+    "sensitivity.csv",
+    "direction_results.csv",
+    "frequency_report.csv",
+    "filter_funnel.csv",
+    "m15_h1_comparison.csv",
+    "input_provenance.json"
+  ]
+}
