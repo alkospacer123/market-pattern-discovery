@@ -1,0 +1,8 @@
+{
+  "annual_Net_PF_unavailable": true,
+  "basis": "Independent reconstructed states; no new variants or economic selection",
+  "exact_economic_delay_C2_retention_concentration_cells": 1600,
+  "primary_comparisons": 64,
+  "retention_column_interpretation": "entries_retention_ratio = current entries / reference entries, includes newly freed; true same-signal counts verified separately",
+  "status": "PASS"
+}
