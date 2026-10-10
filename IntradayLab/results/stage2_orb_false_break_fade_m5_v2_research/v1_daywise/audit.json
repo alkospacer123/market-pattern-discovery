@@ -1,0 +1,10 @@
+{
+  "daywise_signal_trade_records_compared": 4461,
+  "independent_oracle": "PASS",
+  "no_2024_plus_bytes": true,
+  "original_strict_artifacts_modified": false,
+  "raw_signal_event_records": 1028,
+  "result_type": "COUNTERFACTUAL_INDEPENDENT_DAYS_NOT_PORTFOLIO",
+  "source_price_rows_rechecked_independently": true,
+  "unknowns_never_resolved": true
+}

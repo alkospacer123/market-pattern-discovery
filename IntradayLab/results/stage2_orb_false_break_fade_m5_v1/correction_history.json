@@ -1,0 +1,30 @@
+{
+  "authoritative_code_commit": "beb412c30910409dd81797a032173eed416fcad4",
+  "changes": [
+    {
+      "commit": "a347322",
+      "description": "Added independent coverage/DD/concentration audit and source-row references. UNKNOWN detection timestamp moved out of resolved_at; unknown outcomes remain unresolved. No signal, fill, Stop, Take or P&L change.",
+      "type": "audit/report enhancement"
+    },
+    {
+      "commit": "6f6ae73",
+      "description": "Propagate prior UNKNOWN liabilities through subsequent months; withhold their full monthly Net/PF/DD even without new UNKNOWN. Trade membership and P&L unchanged.",
+      "type": "monthly uncertainty reporting correction"
+    },
+    {
+      "commit": "0ad0c18",
+      "description": "Include the synthetic test suite in the SHA-256 manifest.",
+      "type": "manifest completeness"
+    },
+    {
+      "commit": "beb412c30910409dd81797a032173eed416fcad4",
+      "description": "CSV LF instead of default CRLF for clean Git whitespace checks. Parsed signals, executions, prices, P&L and all parameters unchanged.",
+      "type": "artifact serialization"
+    }
+  ],
+  "config_sha256": "7d253d5640d8f17861cb0dec5010da0aaa4688c4c5784226a636e4ce9a38e253",
+  "initial_implementation_before_first_PnL": "74a5d4cb2cf18516f59f890ea83cd444212d3934",
+  "pre_PnL_freeze": "8291f0efb7346b0bf4f01331caffd5eee7a242cc",
+  "preliminary_outputs": "Superseded by the final authoritative repeated outputs. Initial code remains in Git history; all runs had84 ledger records and192 monthly rows. No economic rule or parameter selection was performed.",
+  "strategy_parameters_changed_after_PnL": false
+}
