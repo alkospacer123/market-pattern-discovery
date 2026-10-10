@@ -1,0 +1,20 @@
+{
+  "Baseline_Report.md": "0db37b94fa425d68b20a6dd8f9917403ecaf3d94a7f2b0b4df9116b32eff9e35",
+  "Independent_Audit.md": "7c7b8fa723d5c06dd5803ec2404872d3bd3449a22c26b292848255565af37707",
+  "audit.json": "7cf65cc14148eceb2be8da23b9ad87b0c7900519c85e84794f43a92f665768c4",
+  "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+  "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+  "coverage_report.csv": "5f573f617ad412fa22190e40cc8f6bdc3d487f6da9e513630eec911d28b134ac",
+  "days.csv": "de2591796968b8278413aa7031973c6d65b25136ae373c35a022f78dba004e77",
+  "direction_report.csv": "19aca572419f394abe844425c09951f4f0fd8311fc0ff74ba04f1c359db1baf1",
+  "input_provenance.json": "ec8f5ce5bf2b65e6c9aeadaab6045baf2aeb3e7303c6571e094bf41fca352880",
+  "instrument_report.csv": "b6585eec839f58e5280c74f65dd20b1b595f683275fb98bd8ca1bd0180ab04fe",
+  "metrics.json": "0b5bf4f17118e5fd4743c9ce9207eac8794ffe6c7bd939d45214d085e2ffaf2c",
+  "monthly_report.csv": "4f67e6e54222b639990fc449df8734f027cd8fbaf8781102fe96d98dda875041",
+  "provenance.json": "9af08599273951137404bb403271e1ba35dd013473ef0c197065204eeb250ecc",
+  "signals.csv": "3946ab832e662f4a824cdb571984c74ba8c70958474de1a4b7938cf0aa98ffd5",
+  "test_execution.log": "869cf79baff4f3c2170d5531690fd131c8fbc1c2cef33efb35125d99d864d8c9",
+  "trades.csv": "296e0993ae96f0d031fee1abb9f1152a897cbb50304386a56201b55c21800216",
+  "unknown_report.csv": "aeb04edee01e851ca518765e924e27528019681abbf9e4f2a84c4d54a1b3e62e",
+  "validation.json": "f8a3dfd6d270039318ad6ede13baf3c719c63a9c72047efb836c757387dfefad"
+}
