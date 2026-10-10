@@ -1,0 +1,42 @@
+{
+  "config_sha256": "a1e3c1a3bc7f0de5f90fe9243ce2a14e64a7bc1c380400e5516de3f284098255",
+  "issues": [
+    {
+      "correction": "PARTIAL_LAUNCH only if expected slots actually precede inception; otherwise gap-based PARTIAL_DATA/COVERED.",
+      "effect": "coverage label only; no signals/fills/payoffs affected",
+      "issue": "January USD/CNY labelled PARTIAL_LAUNCH although Jan1/2 are calendar holidays and no pre-inception expected slots exist."
+    },
+    {
+      "correct_ref": "bc47fc59223fd90431f751060093a53b02c8740a",
+      "effect": "Original freeze retained unchanged; exact commit resolved here",
+      "issue": "pre_returns_freeze.json preregistration_commit contains clerical invalid short ref bc47fc5c"
+    },
+    {
+      "correction": "Anchor initial zero-equity high-water clock at first known model entry; count drawdown age to last closed acknowledgement.",
+      "effect": "Recovery-age diagnostic only; all trading rows and P&L unchanged",
+      "issue": "All-loss closed curve drawdown age was0 because the initial zero-equity peak lacked a clock.",
+      "prior_corrected_reporting_sha256": {
+        "direction_results.csv": "03a2b65ddf767589bf0cec9217fd17cfbb0a389ad2ad6e0b3e7c0d16efa95416",
+        "metrics.csv": "3e9a26c6851adedb3f3e809bb8f22ff60635b8c6777ff6c68d7e3036053f7ecd",
+        "monthly_results.csv": "ca40ee5078cc341e5054969a252cf9632d0f1535f25bf9d5a8ef88a84b408947",
+        "sensitivity.csv": "7bbb0f1c0d8d06e1c7914ed7f861fc6eb248d68ad07f2d4537c01e840f0a042d"
+      }
+    }
+  ],
+  "kind": "REPORTING_ONLY_CORRECTIONS_NO_TRADING_RULE_CHANGE",
+  "prior_run_artifacts_sha256": {
+    "SHA256SUMS": "11c0555c1dd9cfa08d7163bf3a879356b8e0d335980d70022f522e82fed279b0",
+    "direction_results.csv": "03a2b65ddf767589bf0cec9217fd17cfbb0a389ad2ad6e0b3e7c0d16efa95416",
+    "execution_events.csv.gz": "f1c6f3c167decc8be43a472c376e5e8c55ae72e888fca728bb0bda1b8d62ec3d",
+    "frequency_report.csv": "231afb3bce7459ca225a4ed5e062528718c8933508d97c55f26bfb18b18b7546",
+    "indicator_features.csv.gz": "b258893161c1e454fe13a1070a2426c0996bb79dc362c002f45428fb4c7970e0",
+    "input_provenance.json": "fc94af37187b976b2c97a647fb5d77443c336144bfa8b1ff7613dca254f5b4b9",
+    "m5_m30_comparison.csv": "aa60a6deae1865b4082228c4e7c1c3aa2fc777c079818c8725aff977435240d3",
+    "metrics.csv": "3e9a26c6851adedb3f3e809bb8f22ff60635b8c6777ff6c68d7e3036053f7ecd",
+    "monthly_results.csv": "b182bc08a846d031dfd9833da77400c324f19336ec329e6603e44023f2f4c76d",
+    "sensitivity.csv": "7bbb0f1c0d8d06e1c7914ed7f861fc6eb248d68ad07f2d4537c01e840f0a042d",
+    "signals.csv.gz": "0f36a3a37516e87f323237373f41139ad085e5698d3c34b08908f907fdc02005",
+    "squeeze_cycles.csv.gz": "eacc20345ee2c571ca0cd391379d0bf8ccce5cac04089237afeff09cce25465d",
+    "trade_ledger.csv.gz": "014f157a7b1e370c39ae00607972f3c76684cca9e85235ae682db36967fbc8d1"
+  }
+}

@@ -1,5 +1,12 @@
 # IntradayLab — research roadmap
 
+## Current Stage 2 — Volatility Squeeze Breakout, 2026-10-10
+
+GitHub `main` verified at `01e092112efd408f331c0a2b95f04e75187573bd`: **PR #454 MERGED**, including the completed [final independent trading-logic audit](reports/STAGE2_FINAL_INDEPENDENT_TRADING_LOGIC_AUDIT.md). **VWAP Mean Reversion and Session Momentum: TRADING LOGIC PASS / NO ECONOMIC BASELINE PASS / REJECT CANDIDATE.** Their code, configurations, audits and results remain frozen; historical entries below are provenance, not active sequencing gates.
+
+The user explicitly authorized the next roadmap candidate **Volatility Squeeze Breakout**, with exactly `SQUEEZE_M5` and `SQUEEZE_M30_M5`, four instruments, entire available 2023 history, 8 C1 T10 runs and their 8 T15 stresses, plus C2 substitution on identical fills. Rules are [frozen before returns](reports/STAGE2_SQUEEZE_PREREGISTRATION.md) in [versioned configuration](config/stage2_squeeze_v1.json). Research is **COMPLETE: STAGE2_SQUEEZE_NO_ECONOMIC_BASELINE_PASS**; [final report](reports/STAGE2_SQUEEZE_FINAL_REPORT.md), [independent audit](results/stage2_squeeze_v1/independent_audit.json). Both fixed architectures have trading-logic PASS but only 4 USD / 3 CNY T10 entries each, no GLD/IMOEX entries; closed-only C1 PF0.667 /0, no credible regular profitable baseline. Full annual Net/PF/DD remain null. PR #456 received independent user acceptance and was merged to main (`23f25d6ea07e778fa4333fcab3564aeddb763a6a`); Stage 3, WF/OOS/LIVE remain unauthorized.
+
+
 ## Approved two-entry-timeframe Squeeze matrix — user decision, 2026-10-10
 
 **Two separate trading timeframes, not four M5 variants.** For Volatility Squeeze Breakout the user explicitly chose these **four complete research architectures**:
@@ -11,14 +18,13 @@
 | `SQUEEZE_M15` | **M15** | none | Independent M15 indicators, squeeze, signal, execution, Stop/Take and exits |
 | `SQUEEZE_H1_M15` | **M15** | completed H1 | Same independent M15 trading engine, additional H1 entry filter |
 
-**Sequencing / existing Codex work:** the already-running first Squeeze task covers ONLY `SQUEEZE_M5` and `SQUEEZE_M30_M5`, frozen rules and 2023 T10/T15 results. **Do not interrupt, modify, extend or invalidate that task.** After its completion and independent audit, conduct a **separately approved**, bounded Stage 2 M15/H1→M15 comparison on a new versioned manifest. No new roadmap phase, optimization grid or retroactive change to earlier manifests. Across both pairs, four instruments × four architectures × T10/T15 = **32 total fixed scenario runs** (16 in the current pair + 16 only in the later approved pair); C2 is a separate identical-fill cost stress, not extra architecture selection.
+**Sequencing after Merge #456:** the first Squeeze pair (`SQUEEZE_M5`, `SQUEEZE_M30_M5`) completed independent review with `STAGE2_SQUEEZE_NO_ECONOMIC_BASELINE_PASS` and was merged into `main` at `23f25d6ea07e778fa4333fcab3564aeddb763a6a`; its rules, findings and all artifacts are frozen. The user now authorizes proceeding with the **separate M15/H1→M15 Stage 2 pair**, to be preregistered and audited on a new manifest **before any P&L**. Do not edit M5/M30 artifacts or retroactively revise its verdict. No new roadmap phase or optimization grid. Across both pairs, four instruments × four architectures × T10/T15 = **32 total fixed scenario runs** (16 completed + 16 newly authorized), with C2 an identical-fill cost stress rather than extra architecture.
 
 **M15/H1 feasibility gate BEFORE economic returns:** the present strict same-window reset has morning 10:00–14:00 (16 M15 slots) and afternoon less than five hours; a naive 20-prior-bar/20-period M15 Bollinger/Keltner plus three-squeeze-bar warm-up cannot fit in either window. Independently verify actual usable completed M15 bars, indicator seed and continuous session coverage; predeclare a technically valid **M15-specific** indicator specification justified by bar duration and signal horizon *before* looking at P&L. Do not silently carry warm-up across lunch, overnight or gaps, or shorten periods after seeing PF. If valid causal warm-up cannot be established, classify M15/H1 study **FEASIBILITY BLOCKED / INCONCLUSIVE**, never a proven losing strategy. Do not automatically copy M5 parameters or presume nonzero M15 signals.
 
 **Causal execution / context:** M15 is the trading bar for M15 variants; all indicators/signals/orders/protection/position events respect M15 completed-bar availability, T10 and T15 research delay semantics and intrabar uncertainty. M5 children may support verification or conservative event observation only under an explicitly authorized, non-look-ahead execution contract; do not call an M5 fill an M15 Open without declaring it. For H1 context, use exact completed children from one continuous session with explicitly verified availability; no native-H1 clock assumption, gaps, interpolation or stale fallback. Keep the same four MOEX perpetual instruments, full usable 2023 development windows, C1, month/unknown accounting and protected 2024 WF / 2025+ TRUE OOS.
 
 **Historical distinction:** prior VWAP/Session Momentum Stage 2 tested **M5 execution throughout**: VWAP standalone M5 plus M30→M5 and M15→M5 filters; Momentum standalone M5 plus M30→M5 and H1→M5 filters. They were **not** tested as standalone M15 signal/execution engines. Their accepted `NO ECONOMIC BASELINE PASS / REJECT` remains binding **for tested M5/MTF architectures only**. This decision does not reopen those frozen studies or authorize new VWAP/Momentum experiments.
-
 
 ## Final bounded Stage 2 closeout — 2026-10-09
 
@@ -71,7 +77,7 @@ Decision: **2026-10-08**. Independent intraday research on MOEX perpetual future
 - **Risk/stability:** controlled drawdown, acceptable recovery, no dependence on one/two very large winning trades, nonfragile execution-delay/cost behavior, and consistency across observable 2023 months and instruments. Avoid forcing a portfolio selection from a 2023 backtest; compare separate instruments and combined exposure only when portfolio accounting is properly defined.
 - **Evidence gate:** targets are research criteria, never performance guarantees. Preserve missing outcome/coverage as UNKNOWN/NO_COVERAGE and full annual Net/PF/DD as null where not provable; do not call a closed-only PF, selected months or a small sample a complete Baseline PASS. Preserve Stage 2 → Stage 3 bounded optimization → Robustness → reserved 2024 Walk Forward → separately authorized 2025+ TRUE OOS, with no LIVE permission.
 
-**Current sequencing:** independent final trading-logic audit of the VWAP/Momentum research remains in progress; do not reopen frozen variants or start Volatility Squeeze Breakout until that audit and an explicit decision. These targets are forward-looking, not permission to edit the robot, TradingSystemLab or the completed Stage 2 artifacts.
+**Current sequencing (2026-10-10):** final VWAP/Momentum audit is complete and accepted through Merge #454. Both candidates are rejected; their artifacts stay frozen. The user authorized the bounded Volatility Squeeze Breakout task above. These targets do not authorize robot/protected-tree changes or Stage 3.
 
 ## Research target
 

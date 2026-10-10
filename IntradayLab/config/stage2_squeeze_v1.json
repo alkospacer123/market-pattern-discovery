@@ -1,0 +1,87 @@
+{
+  "architectures": [
+    "SQUEEZE_M5",
+    "SQUEEZE_M30_M5"
+  ],
+  "authorization": "User authorizes exactly two Squeeze architectures on entire available 2023 history; Draft PR; no merge or next strategy.",
+  "base_main": "01e092112efd408f331c0a2b95f04e75187573bd",
+  "frozen_on": "2026-10-10 Europe/Moscow",
+  "id": "stage2_squeeze_v1",
+  "inputs": {
+    "CNYRUBF": {
+      "blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M5.csv",
+      "prefix_bytes": 2212189,
+      "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 39362
+    },
+    "GLDRUBF": {
+      "blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "first": "2023-07-11 10:00:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M5.csv",
+      "prefix_bytes": 1044351,
+      "prefix_sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 18428
+    },
+    "IMOEXF": {
+      "blob": "41b83b109b177d4522e53486950104845d357d99",
+      "first": "2023-11-14 10:00:00",
+      "path": "forever/IMOEXF/IMOEXF_M5.csv",
+      "prefix_bytes": 234733,
+      "prefix_sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 4429
+    },
+    "USDRUBF": {
+      "blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/USDRUBF/USDRUBF_M5.csv",
+      "prefix_bytes": 2342431,
+      "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 42576
+    }
+  },
+  "parameters": {
+    "bb_sigma": "2",
+    "entry_boundary_reserve_minutes": 30,
+    "flat_ack_reserve_minutes": 10,
+    "kc_atr": "1.5",
+    "max_extension_atr": "0.5",
+    "max_hold_minutes": 120,
+    "max_target_distance_atr": "3",
+    "minimum_risk_ticks": 4,
+    "minimum_squeeze_bars": 3,
+    "period": 20,
+    "planned_net_reward_R": "3",
+    "stop_buffer_atr": "0.25"
+  },
+  "rules": {
+    "atr": "Wilder ATR20, seed average first 20 TR; first candle TR=High-Low; subsequent TR=max(H-L,abs(H-prevC),abs(L-prevC)); then (19*previousATR+TR)/20. Current completed candle included.",
+    "cost": "C1=dated tick at entry+dated tick at exit. C2 replaces with2*C1 on identical admitted trades, protection and exits; never recompute Take or filter. Unknown total cost/Net/R null; known entry cost separate.",
+    "ema": "EMA20 seeded by SMA of first 20 consecutive completed closes, alpha=2/21; current candle included.",
+    "end": "First completed squeeze=false ends the episode, freezes its High/Low and arms it if >=3. A close outside the frozen range on this or a later off candle confirms directional expansion. No extra indicator threshold.",
+    "entry": "MSK UTC+3 start label. Signal ready=start+T10/T15; target=first M5 slot strictly later. Pending reserves run. Exact target Open only, no entry retry. Open must be strictly beyond edge, at/better than cap=edge+direction*0.5*signalATR rounded inward; positive Volume, risk>=4 dated ticks, grid valid. Scheduled full candle must end<=B-30. No lookahead existence/price filter at signal.",
+    "failed_breakout": "Delivered completed Close within inclusive original [Low,High] and candle start>=entry start: request market exit at strictly future Open. Beyond opposite edge alone does not satisfy inside; resident stop remains active.",
+    "metrics": "Per instrument normalized quote units only; no portfolio RUB sum. All12 months; pre-inception NO_COVERAGE, launch month PARTIAL_LAUNCH. Missing expected slots imply PARTIAL_DATA. Full annual Net/PF/DD null if any incomplete coverage or UNKNOWN. Closed-only diagnostic always labelled. Monthly complete Net/PF only when covered and no UNKNOWN; signs of closed subsets separately. MFE uses no favorable exit-bar extremes on Stop/market exits; UNKNOWN MFE lower bound only; early potential winner defined previously observed >=1R and exited before Take.",
+    "missing": "No target candle -> NO_BAR_NO_MODEL_FILL; no price/cost/position. Missing path with exposure -> UNKNOWN (never Stop/profit/zero). Emergency reduce-all requested at observation clock and retries allowed Open until conditional flat acknowledgement; past payoff stays null. Boundary breach remains liability/UNKNOWN; no automatic overnight assumed flat.",
+    "mtf": "DERIVED_EXACT_COMPLETED_M5_V1: latest expected two adjacent clock-aligned M30 cells within same window. Each exactly six existing positive-volume completed delivered M5 children. Missing/late child rejects; no stale fallback. Sustained +1 if both C>O and second C>first C; -1 symmetric; otherwise0. Reject only sustained adverse direction; unknown context rejects.",
+    "protection": "Resident precommitted conditional stop from entry; stop touch, adverse gap worse Open; Stop-first; no TP on entry bar; later TP requires penetration one dated tick; no favourable gap credit.",
+    "rearm": "First directional close consumes cycle regardless of busy/filter/nonfill. Next true candle starts a fresh episode and expires unused old range. Gap/window ends unused range. Equality to boundary or close inside gives no signal; wait only while squeeze remains false.",
+    "reset": "At window/day boundary, missing delivered M5 or nonpositive Volume: indicators, squeeze episode and armed range reset; no data bridging.",
+    "squeeze": "Strict upperBB<upperKC and lowerBB>lowerKC; >=3 contiguous true completed candles confirms. Range includes all true candles in episode including first two, never off/breakout candle.",
+    "std": "Population: sqrt(sum((Close-SMA20)^2)/20), current completed signal candle included; Decimal precision 34. No ddof fitting.",
+    "stop": "edge-direction*0.25*signalATR, rounded LONG up/SHORT down as accepted Stage1 contract. Freeze before Open. Never adjust stop to manufacture R.",
+    "take": "At actual model Open: risk=direction*(Open-stop); predictedC1=2*entry dated tick (same research window cannot cross CNY switch); Take=Open+direction*(3*risk+predictedC1), LONG ceil/SHORT floor tick. Net planned reward/risk>=3. Gross target distance<=3*signalATR; otherwise NONFILL. Same rule is checked at signal Close, then Open, not optimized. Venue price limits/GO remain unverified; normalized exposure model only.",
+    "timers": "Session request latest M5 clock with nextOpen+scenarioDelay<=B-10 (T10 B-25, T15 B-30). MAX_HOLD request at entryStart+115 -> next Open at entryStart+120; acknowledgement later. Session has priority; earliest already scheduled exit is retained. No BE/trailing."
+  },
+  "scenarios": [
+    10,
+    15
+  ],
+  "schema": 1,
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8"
+}
