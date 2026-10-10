@@ -64,6 +64,49 @@ def independent_atr_at(rows,at):
     return sum(values,D(0))/14
 
 
+def independent_m15_close(rows, s):
+    """Recompute the latest complete exact M15 from raw M5 at signal close."""
+    close_time=s["signal_at"]
+    aligned=close_time.replace(minute=(close_time.minute//15)*15,
+                               second=0,microsecond=0)
+    parent_start=aligned-timedelta(minutes=15)
+    windows=baseline.windows(close_time.date())
+    eligible=next((w for w in windows
+                   if w[0]<=parent_start and close_time<=w[1]),None)
+    if eligible is None:
+        return None
+    t=parent_start
+    while t<close_time:
+        if not baseline.valid(rows.get(t)):
+            return None
+        t+=FIVE
+    return rows[parent_start+2*FIVE][3]
+
+
+def risk_tick_diagnostic(trades, symbol):
+    """Historical cost/Stop-size diagnostics only; never filter by risk band."""
+    bands={"LE_2_TICKS":[],"GT_2_LE_5_TICKS":[],"GT_5_TICKS":[]}
+    for t in trades:
+        if not t.get("model_filled") or t.get("risk") is None:
+            continue
+        ticks=t["risk"]/baseline.tick(symbol,t["entry_at"])
+        name=("LE_2_TICKS" if ticks<=2 else
+              "GT_2_LE_5_TICKS" if ticks<=5 else "GT_5_TICKS")
+        bands[name].append(t)
+    return {name:{
+        "fills":len(group),
+        "closed":sum(t["status"]=="CLOSED" for t in group),
+        "unknown":sum(t["status"]=="UNKNOWN" for t in group),
+        "c1_cost_to_gross_risk_ratio_mean":(
+            sum((t["cost_c1"]/t["risk"] for t in group
+                 if t["status"]=="CLOSED"),D(0))/
+            sum(t["status"]=="CLOSED" for t in group)
+            if any(t["status"]=="CLOSED" for t in group) else None
+        ),
+        "closed_only_diagnostic_c1":reporting.summary(group,"c1")
+    } for name,group in bands.items()}
+
+
 def derive_filters(original_records,rows,symbol):
     """Annotate all common ORB episodes BEFORE choosing one of four arms."""
     atrs=causal_atr14(rows)
@@ -77,6 +120,9 @@ def derive_filters(original_records,rows,symbol):
             independent=independent_atr_at(rows,at)
             if a!=independent:
                 raise AssertionError("Independent ATR mismatch %s %s" %(symbol,at))
+            checked_parent=independent_m15_close(rows,old)
+            if checked_parent!=old.get("m15_close"):
+                raise AssertionError("Independent M15 parent mismatch %s %s" %(symbol,at))
             step=baseline.tick(symbol,at)
             s["v2_atr14"]=a
             s["v2_atr_ready"]=a is not None
@@ -166,6 +212,7 @@ def run(data_root, output_dir=OUT):
             key=arch+"_"+symbol
             metrics[key]=daywise.compact_metrics(tt)
             metrics[key].update({
+                "risk_tick_bands":risk_tick_diagnostic(tt,symbol),
                 "common_reclaim_signals":base_count,
                 "atr14_v2_ready":sum(x.get("v2_atr_ready",False) for x in enriched),
                 "atr14_v2_pass":sum(x.get("v2_atr_pass",False) for x in enriched),
@@ -200,6 +247,8 @@ def run(data_root, output_dir=OUT):
     baseline.dump(output_dir/"audit.json",{
         "status":"INDEPENDENT_ORACLE_PASS",
         "v2_atr_reconstructed_independently":True,
+        "v2_m15_parent_reconstructed_from_raw_m5":True,
+        "stop_risk_tick_strata_reported_without_filtering":True,
         "v1_orb_signals_checked_by_separate_oracle":True,
         "v2_selected_trades_checked_by_separate_state_machine":True,
         "trade_signal_rows_independently_compared":audit_rows,
