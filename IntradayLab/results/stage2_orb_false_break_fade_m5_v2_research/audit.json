@@ -1,0 +1,13 @@
+{
+  "annual_pf_net_dd_claim": null,
+  "real_broker_position_reconciled": false,
+  "research_after_unknown": "COUNTERFACTUAL_ONLY",
+  "status": "INDEPENDENT_ORACLE_PASS",
+  "stop_risk_tick_strata_reported_without_filtering": true,
+  "trade_signal_rows_independently_compared": 4968,
+  "v1_orb_signals_checked_by_separate_oracle": true,
+  "v1_results_rewritten": false,
+  "v2_atr_reconstructed_independently": true,
+  "v2_m15_parent_reconstructed_from_raw_m5": true,
+  "v2_selected_trades_checked_by_separate_state_machine": true
+}

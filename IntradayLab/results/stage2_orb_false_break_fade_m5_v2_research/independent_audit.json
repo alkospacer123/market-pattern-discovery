@@ -1,0 +1,15 @@
+{
+  "C1_C2_same_fill_ledger": true,
+  "checked_fields": 312134,
+  "continuous_account_claim": false,
+  "control_fields": 7980,
+  "discrepancies": [],
+  "future_M5_feature_leakage": "PASS",
+  "independent_coverage": "PASS",
+  "independent_metric_cohorts": 320,
+  "independent_month_fields": 960,
+  "method": "Independent bounded raw reader, independent ORB/M15 source oracle, prefix-sum ATR observations, independently selected gates, separate chronological per-day trade engine; no production v2 signal/outcome functions",
+  "monthly_rows": 192,
+  "status": "PASS",
+  "synthetic_cases": "see validation.json / tests.log"
+}

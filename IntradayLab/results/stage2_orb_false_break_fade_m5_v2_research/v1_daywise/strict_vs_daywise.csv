@@ -1,0 +1,17 @@
+NOT_a_portfolio_performance_comparison,architecture_instrument,conditional_after_unknown_closed,daywise_closed,daywise_model_fills,daywise_unknown,extra_conditional_fills,strict_closed,strict_model_fills,strict_unknown
+True,A_BASE_USDRUBF,116,137,138,1,116,21,22,1
+True,B_IND_USDRUBF,21,25,26,1,21,4,5,1
+True,C_MTF_USDRUBF,0,22,22,0,0,22,22,0
+True,D_MTF_IND_USDRUBF,0,4,4,0,0,4,4,0
+True,A_BASE_CNYRUBF,56,59,62,3,58,3,4,1
+True,B_IND_CNYRUBF,0,7,7,0,0,7,7,0
+True,C_MTF_CNYRUBF,0,8,8,0,0,8,8,0
+True,D_MTF_IND_CNYRUBF,0,0,0,0,0,0,0,0
+True,A_BASE_GLDRUBF,40,40,47,10,46,0,1,1
+True,B_IND_GLDRUBF,0,2,3,1,0,2,3,1
+True,C_MTF_GLDRUBF,7,10,10,2,7,3,3,1
+True,D_MTF_IND_GLDRUBF,0,0,0,0,0,0,0,0
+True,A_BASE_IMOEXF,10,10,15,6,14,0,1,1
+True,B_IND_IMOEXF,0,1,2,1,0,1,2,1
+True,C_MTF_IMOEXF,5,5,7,2,6,0,1,1
+True,D_MTF_IND_IMOEXF,0,0,0,0,0,0,0,0

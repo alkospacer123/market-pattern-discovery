@@ -1,0 +1,5 @@
+calendar_closed_days,complete_days,covered_calendar_months,expected_days,expected_m5,first_source,instrument,last_source,missing_expected_m5,observed_days,planned_intraday_break_days,pre_inception_trading_days,source_ref,source_rows_2023,valid_expected_m5,zero_volume_expected_m5
+111,82,12,254,26658,2023-01-03 09:00:00,CNYRUBF,2023-12-29 23:45:00,1270,253,254,,f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8,39362,25388,0
+111,5,6,124,13020,2023-07-11 10:00:00,GLDRUBF,2023-12-29 23:45:00,932,124,254,130,f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8,18428,12088,0
+111,2,2,34,3570,2023-11-14 10:00:00,IMOEXF,2023-12-29 23:45:00,566,34,254,220,f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8,4429,3004,0
+111,224,12,254,26658,2023-01-03 09:00:00,USDRUBF,2023-12-29 23:45:00,187,253,254,,f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8,42576,26471,0
