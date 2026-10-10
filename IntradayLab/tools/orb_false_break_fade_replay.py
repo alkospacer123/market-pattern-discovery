@@ -202,7 +202,7 @@ def trade_path(symbol, rows, trade):
     while at<=end:
         b=rows.get(at)
         if not valid(b):
-            return dict(status='UNKNOWN',exit_reason='UNKNOWN',unknown_reason='MISSING_EXPOSED_BAR' if b is None else 'INVALID_EXPOSED_BAR',exit_at=None,exit_interval_start=None,exit_interval_end=None,exit_price=None,resolved_at=at+FIVE)
+            return dict(status='UNKNOWN',exit_reason='UNKNOWN',unknown_reason='MISSING_EXPOSED_BAR' if b is None else 'INVALID_EXPOSED_BAR',exit_at=None,exit_interval_start=None,exit_interval_end=None,exit_price=None,resolved_at=None,unknown_detected_at=at+FIVE)
         o,h,l,c,v=b
         gap=o<=stop if direction==1 else o>=stop
         if gap:
@@ -245,7 +245,7 @@ def replay(symbol, rows, records, architecture, spec):
         t=dict(architecture=architecture,instrument=symbol,signal_id=s['signal_id'],direction=s['direction'],signal_at=now,sweep_start=s['sweep_start'],reclaim_start=s['reclaim_start'],waiting_bar_closed_at=s['waiting_bar_closed_at'],order_sent_at=s['order_sent_at'],planned_execution_at=target,entry_at=None,entry_price=None,stop=s['stop'],take=None,risk=None,window_end=s['window_end'],gross=None,cost_c1=None,cost_c2=None,net_c1=None,net_c2=None,net_R_c1=None,net_R_c2=None)
         if b is None:
             s.update(status='UNKNOWN',reason='MISSING_EXECUTION_BAR')
-            t.update(status='UNKNOWN',exit_reason='UNKNOWN',unknown_reason='MISSING_EXECUTION_BAR',model_filled=False,exit_at=None,exit_interval_start=None,exit_interval_end=None,exit_price=None,resolved_at=target+FIVE)
+            t.update(status='UNKNOWN',exit_reason='UNKNOWN',unknown_reason='MISSING_EXECUTION_BAR',model_filled=False,exit_at=None,exit_interval_start=None,exit_interval_end=None,exit_price=None,resolved_at=None,unknown_detected_at=target+FIVE)
             trades.append(t);blocked=True;continue
         geometry=open_adapter(b[0],s['direction'],s['stop'],tick(symbol,target))
         if geometry is None:

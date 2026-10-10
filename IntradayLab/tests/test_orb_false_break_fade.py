@@ -200,6 +200,30 @@ class ORB(unittest.TestCase):
         b=sample();sw(b);ss,tt=p.replay('USDRUBF',b,events(b),'A_BASE',{'atr':False,'mtf':False})
         t=tt[0];self.assertEqual(t['net_c2'],t['gross']-t['cost_c2']);self.assertEqual(t['cost_c2'],2*t['cost_c1'])
 
+    def test_independent_reader_never_crosses_2023_LF(self):
+        import hashlib, io, tempfile
+        from unittest.mock import patch
+        parent=p.LAB/'work';parent.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=parent) as temp:
+            root=Path(temp);file=root/'synthetic.csv'
+            prefix=b'Ticker;Datetime;Open;High;Low;Close;Volume\nUSDRUBF;2023-01-03 10:00:00;100;101;99;100;1\n'
+            file.write_bytes(prefix+b'USDRUBF;2024-01-01 10:00:00;DO_NOT_READ\n')
+            class Guard(io.FileIO):
+                def read(self,n=-1):
+                    if n<0 or self.tell()+n>len(prefix):raise AssertionError('Protected byte read')
+                    return super().read(n)
+            original=Path.open
+            def opened(path,*args,**kwargs):
+                return Guard(path,'rb') if path==file else original(path,*args,**kwargs)
+            cfg={'inputs':{'USDRUBF':{'path':'synthetic.csv','rows_2023':1,'prefix_bytes':len(prefix),'prefix_sha256':hashlib.sha256(prefix).hexdigest()}}}
+            with patch.object(Path,'open',opened):raw=a.source(root,cfg)
+            self.assertEqual(len(raw['USDRUBF']),1)
+
+    def test_output_is_confined(self):
+        with self.assertRaisesRegex(ValueError,'Output must'):
+            reporting.run(Path('/unread'),p.LAB.parent/'TradingSystemLab/forbidden_orb')
+        self.assertFalse((p.LAB.parent/'TradingSystemLab/forbidden_orb').exists())
+
     def test_march_calendar_and_holidays(self):
         for d in (datetime(2023,3,13).date(),datetime(2023,3,21).date(),datetime(2023,3,8).date()):
             self.assertEqual(p.windows(d),a.calendar(d))

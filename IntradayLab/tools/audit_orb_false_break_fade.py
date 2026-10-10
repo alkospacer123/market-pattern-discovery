@@ -15,7 +15,7 @@ from pathlib import Path
 D=Decimal; M=timedelta(minutes=5)
 HOLIDAYS={(1,1),(1,2),(1,7),(2,23),(3,8),(5,1),(5,9),(6,12),(11,4)}
 SIGNAL_KEYS=('signal_id','base_reason','direction','sweep_start','signal_at','stop','or_high','or_low','or_available_at','sweep_size','atr14','atr_pass','atr_ready','m15_start','m15_open','m15_high','m15_low','m15_close','m15_direction','m15_available_at','waiting_bar_start','waiting_bar_closed_at','order_sent_at','planned_execution_at')
-TRADE_KEYS=('signal_id','direction','status','model_filled','entry_at','entry_price','stop','take','risk','exit_reason','unknown_reason','exit_price','exit_interval_start','exit_interval_end','resolved_at','gross','cost_c1','cost_c2','net_c1','net_c2','net_R_c1','net_R_c2')
+TRADE_KEYS=('signal_id','direction','status','model_filled','entry_at','entry_price','stop','take','risk','exit_reason','unknown_reason','exit_price','exit_interval_start','exit_interval_end','resolved_at','unknown_detected_at','gross','cost_c1','cost_c2','net_c1','net_c2','net_R_c1','net_R_c2')
 
 
 def calendar(d):
@@ -127,8 +127,8 @@ def oracle_trades(symbol,bars,events,arch,spec):
     pending=None; position=None; blocked=False;trades=[]
     def terminate(t,price,why,point=False,unknown=None):
         nonlocal position,blocked
-        p=position; q=p['trade'];q.update(status='UNKNOWN' if unknown else 'CLOSED',exit_reason=why,exit_price=price,exit_at=t if point and not unknown else None,exit_interval_start=None if unknown else t,exit_interval_end=None if unknown else t if point else t+M,resolved_at=t+M if unknown or not point else t)
-        if unknown:q['unknown_reason']=unknown;blocked=True
+        p=position; q=p['trade'];q.update(status='UNKNOWN' if unknown else 'CLOSED',exit_reason=why,exit_price=price,exit_at=t if point and not unknown else None,exit_interval_start=None if unknown else t,exit_interval_end=None if unknown else t if point else t+M,resolved_at=None if unknown else t+M if not point else t)
+        if unknown:q['unknown_reason']=unknown;q['unknown_detected_at']=t+M;blocked=True
         else:
             gross=q['direction']*(price-q['entry_price']);cost=grid(symbol,q['entry_at'])+grid(symbol,t)
             q.update(gross=gross,cost_c1=cost,cost_c2=cost*2,net_c1=gross-cost,net_c2=gross-2*cost,net_R_c1=(gross-cost)/q['risk'],net_R_c2=(gross-2*cost)/q['risk'])
@@ -159,7 +159,7 @@ def oracle_trades(symbol,bars,events,arch,spec):
                 s['order_admitted']=True;b=bars.get(t)
                 q=dict(architecture=arch,instrument=symbol,signal_id=s['signal_id'],direction=s['direction'],signal_at=s['signal_at'],sweep_start=s['sweep_start'],reclaim_start=s['reclaim_start'],waiting_bar_closed_at=s['waiting_bar_closed_at'],order_sent_at=s['order_sent_at'],planned_execution_at=t,entry_at=None,entry_price=None,stop=s['stop'],take=None,risk=None,window_end=s['window_end'],gross=None,cost_c1=None,cost_c2=None,net_c1=None,net_c2=None,net_R_c1=None,net_R_c2=None)
                 if b is None:
-                    s.update(status='UNKNOWN',reason='MISSING_EXECUTION_BAR');q.update(status='UNKNOWN',exit_reason='UNKNOWN',unknown_reason='MISSING_EXECUTION_BAR',model_filled=False,exit_at=None,exit_interval_start=None,exit_interval_end=None,exit_price=None,resolved_at=t+M);trades.append(q);blocked=True
+                    s.update(status='UNKNOWN',reason='MISSING_EXECUTION_BAR');q.update(status='UNKNOWN',exit_reason='UNKNOWN',unknown_reason='MISSING_EXECUTION_BAR',model_filled=False,exit_at=None,exit_interval_start=None,exit_interval_end=None,exit_price=None,resolved_at=None,unknown_detected_at=t+M);trades.append(q);blocked=True
                 else:
                     r=s['direction']*(b[0]-s['stop'])
                     if r<=0:s.update(status='NONFILL',reason='INVALID_STOP_GEOMETRY')
