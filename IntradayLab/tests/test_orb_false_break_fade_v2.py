@@ -43,6 +43,22 @@ class V2Features(unittest.TestCase):
         e=v2.select_architecture([event],{"atr":False,"mtf":True})[0]
         self.assertEqual(e["base_reason"],"V2_M15_ACCEPTED_BREAKOUT_VETO")
 
+    def test_independent_m15_exact_and_missing_child(self):
+        t=datetime(2023,1,3,10,0)
+        bars={t+timedelta(minutes=5*i):bar(close=str(100+i))
+              for i in range(4)}
+        s={"signal_at":t+timedelta(minutes=20)}
+        self.assertEqual(v2.independent_m15_close(bars,s),D(102))
+        del bars[t+timedelta(minutes=5)]
+        self.assertIsNone(v2.independent_m15_close(bars,s))
+
+    def test_atr_full_prehistory_before_sweep(self):
+        t=datetime(2023,1,3,9,0)
+        bars={t+timedelta(minutes=5*i):bar() for i in range(15)}
+        at=t+timedelta(minutes=70)
+        self.assertEqual(v2.causal_atr14(bars)[at],D(2))
+        self.assertEqual(v2.independent_atr_at(bars,at),D(2))
+
     def test_atr_does_not_block_base_or_mtf(self):
         e=dict(base_reason="SIGNAL",v2_atr_ready=False,v2_atr_pass=False,
                v2_m15_breakout_accepted_veto=False,
