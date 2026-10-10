@@ -1,0 +1,55 @@
+{
+  "id": "stage2_orb_false_break_fade_m5_v2_research",
+  "schema": 1,
+  "previous_frozen_v1": "stage2_orb_false_break_fade_m5_v1",
+  "source_repository": "alkospacer123/market-pattern-data",
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "development": "2023-01-01 inclusive to 2024-01-01 exclusive",
+  "instruments": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "architectures": {
+    "A_BASE": {
+      "atr": false,
+      "mtf": false
+    },
+    "B_IND": {
+      "atr": true,
+      "mtf": false
+    },
+    "C_MTF": {
+      "atr": false,
+      "mtf": true
+    },
+    "D_MTF_IND": {
+      "atr": true,
+      "mtf": true
+    }
+  },
+  "unchanged_rules": {
+    "OR": "exact 10:00,10:05,10:10 fully completed M5; fixed from 10:15; no second OR",
+    "sweep": "first daily side: 1 dated tick beyond OR; reclaim same or next M5 >= 2 ticks inside, with opposing OR bound preserved",
+    "entry": "signal close; wait one FULL completed M5; submit at next boundary; model exact next M5 Open conditional, no T10/T15/FAST",
+    "stop": "past episode extreme plus/minus one dated tick",
+    "TP_gross_R": "1.5",
+    "max_hold_calendar_minutes": 60,
+    "C1_ticks_per_side": 1,
+    "C2_ticks_per_side": 2,
+    "exits": "STOP_FIRST; no same-entry-bar TP; adverse stop gap at worse Open; time/session flat before boundary",
+    "opportunity": "first episode per side/day consumed; no recycling filtered attempts",
+    "research_account": "independent same-day positions; overnight restart only conditional; UNKNOWNS never filled-in",
+    "protected": "old v1 code/config/results untouched; TradingSystemLab untouched; M1 and 2024+ replay prohibited"
+  },
+  "fixes": {
+    "ATR14": "SMA of 14 last observed completed M5 True Ranges, inclusive sweep close, using entire available historical M5 prefix through sweep (including prior sessions and pre-10:00 observations). Each valid current bar has TR max(H-L, abs(H-prev_close), abs(L-prev_close)) ONLY when immediately previous valid bar starts 5 minutes earlier; otherwise TR=H-L to avoid artificial overnight/session jumps. Require 14 genuine observed TR values, no synthetic bars. If invalid/zero-volume source row, reset continuity for TR but retain earlier observed TR values. No recalc using future reclaim, waiting or entry bars.",
+    "ATR_threshold": "sweep excursion >= max(1 historical tick, 0.30 * ATR14); unchanged from v1",
+    "MTF_veto": "At reclaim close use latest available exact full M15 aggregate from M5. For SHORT veto only if this M15 closes STRICTLY ABOVE frozen OR_HIGH (acceptance of upper breakout); for LONG veto only if this M15 closes STRICTLY BELOW OR_LOW. Otherwise allow even if M15 candle has same direction as sweep. If no valid parent, mark MTF_NO_CONTEXT_NEUTRAL and allow, never silently impute parent.",
+    "filter_order": "B ATR only; C M15 acceptance-veto only; D both. A remains no indicator/no MTF. All use same fixed sweep/reclaim signal set and shared entry/exit engine.",
+    "safety": "Do not change fill model, exits, cost, calendar, source or events. The alternative v2 research-only results have annual Net/PF/DD=null when unknown/incomplete and cannot authorize live trading.",
+    "separate_original": "v1 strict replay/artefacts and existing daywise v1 not modified. V2 uses new config, new run report and separate result directory."
+  },
+  "acceptance": "independent raw-input forward/backward calculations; fixed 16 cases and 12-month rows; report raw/filt/signal/filled/closed/UNKNOWN counts, C1/C2 PF(price)/PF(R), Net R, largest winner share and MTF/ATR ablation; no 2024 WF/2025+ OOS/Stage 3"
+}
