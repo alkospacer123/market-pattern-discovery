@@ -44,8 +44,14 @@ def evaluate_symbol(symbol, rows, events, architecture, spec, audit=True):
     signals, trades, day_rows = [], [], []
     unresolved_before = False
     compared = 0
-    for day in sorted(events_by_day):
-        items = events_by_day[day]
+    # Include observed research days with NO event, not just days with sweeps.
+    # Missing full days remain represented by the separate source-coverage table.
+    observed_research_days = {
+        day for day in prices_by_day
+        if engine.windows(date.fromisoformat(day))
+    }
+    for day in sorted(observed_research_days | set(events_by_day)):
+        items = events_by_day.get(day, [])
         daily_prices = prices_by_day.get(day, {})
         if not daily_prices:
             # No observed data means no conditional model fill.
