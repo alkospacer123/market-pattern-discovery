@@ -1,0 +1,7 @@
+{
+  "authoritative_reader": "unbuffered exact-prefix io.FileIO",
+  "no_2024_or_2025_numeric_parsing": true,
+  "no_economic_outcomes": true,
+  "opportunity_funnel_sha256": "6bb424256c06e79ea1bc43f1ce0945b9a7c13c9ded9a7d785b4fac04f841e7e4",
+  "status": "PASS_BYTE_IDENTICAL_REPLAY"
+}

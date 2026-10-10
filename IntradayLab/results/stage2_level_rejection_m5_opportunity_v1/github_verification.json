@@ -1,0 +1,231 @@
+{
+  "actual_main": "832739dfb9c9ec8f4f2fc1768d7fc07fbc69521c",
+  "actual_remote_protected_roots": {
+    ".gitattributes": "d11ce74a54029c3c6f60a72f30148f58e8a41c99",
+    ".gitignore": "75d2f5136fe75e034302dc5ca18c1f473639309b",
+    "AGENTS.md": "a3aa857b98dca524ea60c24c5171f96517e046c0",
+    "ARTIFACT_HANDOFF_VERIFICATION_REPORT.md": "f26dd57d7b0565c23a4dc932fb0618392f3a5e90",
+    "BBW": "7f9990cf12e4421e54a02fd98e507f1e4ef06cb0",
+    "CURRENT_ARTIFACT_STORAGE_STATUS.md": "4ac9d7d33f9508b80cbfc73ca1596dd3957b1490",
+    "PERMANENT_MEMORY_DIAGNOSTIC_REPORT.md": "22edfaa73b113d1c7599b4c460ddf99ccc782502",
+    "PERSISTENT_MEMORY_VERIFICATION_REPORT.md": "69133200da4beedca7612bd6aa54edb3a2049f6b",
+    "README.md": "9165abcb468852a09c2c81863f35ff396bf6f63b",
+    "ROADMAP.md": "94f8286109b75ddd5215eef194b6c02e3c9153c8",
+    "SMOKE_RUN_V2_REPORT.md": "e3886eb955151d7842669c642333fcfd3a420354",
+    "SMOKE_RUN_V3_REPORT.md": "9bc70e8af8f6423935a56e71da4d0fe2f42a25a0",
+    "TradingSystemLab": "7ee08c92fdd5cef92f4a4a6f00a4d26b89fab6b2",
+    "bbw_system": "b6ec4d85776cbc487baacce26a7d3c46e644e823",
+    "config": "bb4b819a158038a94c87e426f2598c025cd031d1",
+    "docs": "c41260c2e2a7561f0997563c558e8c09c3318144",
+    "evidence": "bf5a5714bef835576baddfabb699cf6b61fb375a",
+    "pyproject.toml": "d1874cd67bece45bfdd0e060876a4f2cbcdeb187",
+    "research": "9517d7b7e8a05fe13d944aa7e7cc0ce33e0a6592",
+    "research_domains.md": "3b957c8c5c02e09ad2b85643d8c5947b7f4a0fe7",
+    "results": "7915a53ca48a840ab7e1d33fe7b7f8246b9bcdeb",
+    "schemas": "e49bddfe93abacf9aa98d2445efdd3b799c0423a",
+    "scripts": "f659ff281b1c14b3173e861c0912946e7055be8c",
+    "src": "49b5b2f90e3f959c197907cfc9bf31fb542af81e",
+    "tests": "2e6e9891fd9179adb60b4e3c76b5418bd650eac1"
+  },
+  "all_remote_file_blobs_match_local_commit": true,
+  "all_remote_files_intradaylab_only": true,
+  "changed_files": [
+    {
+      "additions": 89,
+      "deletions": 0,
+      "filename": "IntradayLab/config/stage2_level_rejection_m5_opportunity_v1.json",
+      "sha": "62d819205ab6c97b0c59fca24e34fc2d1472949b",
+      "status": "added"
+    },
+    {
+      "additions": 28,
+      "deletions": 0,
+      "filename": "IntradayLab/reports/STAGE2_LEVEL_REJECTION_M5_OPPORTUNITY_PREREGISTRATION.md",
+      "sha": "18a334af8e2ab473df751a8673e1c193461800f1",
+      "status": "added"
+    },
+    {
+      "additions": 123,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/REPORT.md",
+      "sha": "8608d6703748aa7c8d0602f2daa9338ae0a69556",
+      "status": "added"
+    },
+    {
+      "additions": 20,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/SHA256SUMS",
+      "sha": "ecd664c81d509891369d0cb742f59e92164a8381",
+      "status": "added"
+    },
+    {
+      "additions": 3,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/combined.csv",
+      "sha": "5851a4e62a26dfd84e351d46c14d7aa539870497",
+      "status": "added"
+    },
+    {
+      "additions": 509,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/combined_daily.csv",
+      "sha": "bf72d8a3119691afae25bc559cc3ba11d0f5bbc7",
+      "status": "added"
+    },
+    {
+      "additions": 25,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/combined_monthly.csv",
+      "sha": "5d6ad7c0a7ebf8c3a7c3994e642b5e59effde69f",
+      "status": "added"
+    },
+    {
+      "additions": 89,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/configuration_snapshot.json",
+      "sha": "62d819205ab6c97b0c59fca24e34fc2d1472949b",
+      "status": "added"
+    },
+    {
+      "additions": 77,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/correction_history.json",
+      "sha": "0f1b0086634ee8a27669e77efe80c413d5708885",
+      "status": "added"
+    },
+    {
+      "additions": 1329,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/daily.csv",
+      "sha": "e61fb613518fa123e1bdeb60032c6c2ab6cb0c81",
+      "status": "added"
+    },
+    {
+      "additions": 30,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/execution_manifest.json",
+      "sha": "723df1e10aabf23c9ed9d446703864300810ba91",
+      "status": "added"
+    },
+    {
+      "additions": 227,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/full_tests.log",
+      "sha": "f19602683df11ff94094d8640e929a528ae5b737",
+      "status": "added"
+    },
+    {
+      "additions": 9,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/funnel.csv",
+      "sha": "78d4fc0142d89786d065e148a00f5a811f8d7868",
+      "status": "added"
+    },
+    {
+      "additions": 38,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/independent_audit.json",
+      "sha": "45a58b6dc170f52949e5d2a9dadf63a1259254b2",
+      "status": "added"
+    },
+    {
+      "additions": 5,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/input_coverage.csv",
+      "sha": "33cb8c6be20b7e65f12707211651b7adc640b232",
+      "status": "added"
+    },
+    {
+      "additions": 67,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/input_provenance.json",
+      "sha": "958ab6c8e5d52ef42ec9e97b9a295a360602dcf7",
+      "status": "added"
+    },
+    {
+      "additions": 97,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/monthly.csv",
+      "sha": "a107ae64304d0024310c4fef25339f058e0c99cc",
+      "status": "added"
+    },
+    {
+      "additions": 168712,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/opportunity_funnel.json",
+      "sha": "70471017e054a8512be61aa229da585bca8a8558",
+      "status": "added"
+    },
+    {
+      "additions": 36,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/protected_trees.json",
+      "sha": "b8f244e26d1d23dbfb29c7b8001778ac3d09ae6c",
+      "status": "added"
+    },
+    {
+      "additions": 45,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/rejections.csv",
+      "sha": "a2e01dc410fb0d297fff37272b1a1af41362e25b",
+      "status": "added"
+    },
+    {
+      "additions": 7,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/reproducibility.json",
+      "sha": "667c8ec2436c625aa5f90126f66eb37de9ab7919",
+      "status": "added"
+    },
+    {
+      "additions": 31,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/tests.log",
+      "sha": "db21e81644c3899752ff61f9ef0208794de67ef1",
+      "status": "added"
+    },
+    {
+      "additions": 273,
+      "deletions": 0,
+      "filename": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/weekly.csv",
+      "sha": "24eaf4b77fc38272d4127af1398923903f07e907",
+      "status": "added"
+    },
+    {
+      "additions": 236,
+      "deletions": 0,
+      "filename": "IntradayLab/tests/test_level_rejection_opportunities.py",
+      "sha": "5dfc4cd0edb5c6799b6adb665b3b739e3a6c552c",
+      "status": "added"
+    },
+    {
+      "additions": 314,
+      "deletions": 0,
+      "filename": "IntradayLab/tools/audit_level_rejection_opportunities.py",
+      "sha": "064e15262554f993dc5023a1beef0165e46d0deb",
+      "status": "added"
+    },
+    {
+      "additions": 329,
+      "deletions": 0,
+      "filename": "IntradayLab/tools/run_level_rejection_opportunities.py",
+      "sha": "7e8c8ca547cb4f072cb079904a6b8bfdcc0fc9b0",
+      "status": "added"
+    }
+  ],
+  "draft": true,
+  "independent_acceptance": "PENDING external review; leave Draft, no merge",
+  "large_json_diff": "Exact remote blob SHA verified; GitHub may omit textual patch for the 4.7 MB JSON",
+  "merged": false,
+  "pr": 459,
+  "remote_code_and_report_patches_reviewed": [
+    "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/REPORT.md",
+    "IntradayLab/tests/test_level_rejection_opportunities.py",
+    "IntradayLab/tools/audit_level_rejection_opportunities.py",
+    "IntradayLab/tools/run_level_rejection_opportunities.py"
+  ],
+  "remote_protected_roots_match_main": true,
+  "state": "open",
+  "status": "PASS_ACTUAL_GITHUB_DIFF_AND_PROTECTED_TREES",
+  "verified_result_commit": "c7d3e3cf27595c51424c3eb15c517bd8673c9af6"
+}

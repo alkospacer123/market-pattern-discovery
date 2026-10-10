@@ -1,0 +1,77 @@
+{
+  "authoritative_and_independent_reader_protected_bytes": 0,
+  "corrections": [
+    "Unbuffered exact-prefix FileIO, source stat stability, first date, finite OHLCV, naive aligned M5 timestamps",
+    "Separate immutable admission phase and scheduled Open adapter; adapter contains no target High/Low/Close",
+    "Honor frozen no-pending-across-gap rule only for missing/zero-volume slots whose delivery deadline is <= entry; later gaps ignored. Missing target remains UNKNOWN even if another reset is possible",
+    "Save both ratios and opposite bound, classify nonpositive risk distinctly before four-tick rule",
+    "Remove undeclared nondirectional 30-minute capacity proxy; use exact per-scenario identities and report simultaneous cross-instrument slots",
+    "Include observed zero-opportunity days; preserve pre-inception NO_COVERAGE; support direct and package imports; add independent segment/integer algorithm and regressions"
+  ],
+  "count_comparison": [
+    {
+      "authoritative_eligible": 370,
+      "observable_gap_resets": 4,
+      "preliminary_eligible": 370,
+      "run": "CNYRUBF_10"
+    },
+    {
+      "authoritative_eligible": 343,
+      "observable_gap_resets": 5,
+      "preliminary_eligible": 344,
+      "run": "CNYRUBF_15"
+    },
+    {
+      "authoritative_eligible": 293,
+      "observable_gap_resets": 23,
+      "preliminary_eligible": 302,
+      "run": "GLDRUBF_10"
+    },
+    {
+      "authoritative_eligible": 280,
+      "observable_gap_resets": 19,
+      "preliminary_eligible": 291,
+      "run": "GLDRUBF_15"
+    },
+    {
+      "authoritative_eligible": 49,
+      "observable_gap_resets": 4,
+      "preliminary_eligible": 51,
+      "run": "IMOEXF_10"
+    },
+    {
+      "authoritative_eligible": 43,
+      "observable_gap_resets": 4,
+      "preliminary_eligible": 46,
+      "run": "IMOEXF_15"
+    },
+    {
+      "authoritative_eligible": 1042,
+      "observable_gap_resets": 0,
+      "preliminary_eligible": 1042,
+      "run": "USDRUBF_10"
+    },
+    {
+      "authoritative_eligible": 982,
+      "observable_gap_resets": 0,
+      "preliminary_eligible": 982,
+      "run": "USDRUBF_15"
+    }
+  ],
+  "freeze_commit": "1487d7e041e9e32122a5df9ae280386da8ebadb1",
+  "initial_head": "712dfb2d74c1ba9a1870ef56572ee25be94e8c48",
+  "preliminary_run_not_authoritative": {
+    "control_used_no_market_data": true,
+    "parsing": "2023 prefixes only; no numeric market fields beyond prefixes parsed",
+    "physical_2024_bytes_read": "NOT_INSTRUMENTED; cannot certify zero",
+    "physical_2025_bytes_read": 0,
+    "reader": "inherited BufferedReader may prefetch beyond 2023 byte budget",
+    "synthetic_same_size_control_prefetch_bytes": {
+      "CNYRUBF": 3747,
+      "GLDRUBF": 129,
+      "IMOEXF": 2835,
+      "USDRUBF": 481
+    }
+  },
+  "settings_changed": false
+}
