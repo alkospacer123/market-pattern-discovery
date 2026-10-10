@@ -208,6 +208,16 @@ def run(data_root, output_dir=OUT):
                     v2events,arch,{"atr":False,"mtf":False},audit=True)
             _,prior_tt,_,_ =daywise.evaluate_symbol(symbol,raw[symbol],
                     original_events,arch,spec,audit=True)
+            if arch=="A_BASE":
+                strict_keys=("signal_id","status","model_filled","entry_at",
+                             "entry_price","stop","take","exit_price",
+                             "exit_reason","net_c1","net_c2","net_R_c1")
+                v2_control=sorted(tuple(t.get(k) for k in strict_keys)
+                                  for t in tt)
+                v1_control=sorted(tuple(t.get(k) for k in strict_keys)
+                                  for t in prior_tt)
+                if v2_control!=v1_control:
+                    raise AssertionError("A BASE must be identical in both daywise engines")
             audit_rows+=checked
             key=arch+"_"+symbol
             metrics[key]=daywise.compact_metrics(tt)
