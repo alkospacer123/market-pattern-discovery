@@ -1,5 +1,12 @@
 # IntradayLab — project context
 
+## Current Stage 2 — Volatility Squeeze Breakout, 2026-10-10
+
+GitHub `main` verified at `01e092112efd408f331c0a2b95f04e75187573bd`: **PR #454 MERGED**, including the completed [final independent trading-logic audit](reports/STAGE2_FINAL_INDEPENDENT_TRADING_LOGIC_AUDIT.md). **VWAP Mean Reversion and Session Momentum: TRADING LOGIC PASS / NO ECONOMIC BASELINE PASS / REJECT CANDIDATE.** Their code, configurations, audits and results remain frozen; historical entries below are provenance, not active sequencing gates.
+
+The user explicitly authorized the next roadmap candidate **Volatility Squeeze Breakout**, with exactly `SQUEEZE_M5` and `SQUEEZE_M30_M5`, four instruments, entire available 2023 history, 8 C1 T10 runs and their 8 T15 stresses, plus C2 substitution on identical fills. Rules are [frozen before returns](reports/STAGE2_SQUEEZE_PREREGISTRATION.md) in [versioned configuration](config/stage2_squeeze_v1.json). Research is **IN PROGRESS**, under the existing Stage 2; no new phases or optimization. Draft PR requires independent user acceptance; no automatic merge, Stage 3, WF/OOS/LIVE or other candidate.
+
+
 ## Final bounded Stage 2 closeout — 2026-10-09
 
 **VWAP Mean Reversion: NO ECONOMIC BASELINE PASS / REJECT CANDIDATE. Session Momentum: NO ECONOMIC BASELINE PASS / REJECT CANDIDATE.** This final rejection covers the retained M5 architectures and the completed, predeclared derived-M5 M30/M15/H1 tests. See [final causal MTF assessment](reports/STAGE2_CAUSAL_MTF_FINAL_REPORT.md) and [all comparisons](results/stage2_causal_mtf_v1/architecture_comparison.csv). Internal independent-algorithm verification is complete; external acceptance of this Draft remains pending the user's independent audit.
