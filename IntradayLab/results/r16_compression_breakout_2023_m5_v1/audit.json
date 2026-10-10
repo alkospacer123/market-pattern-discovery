@@ -1,0 +1,241 @@
+{
+  "baseline_status": "INCONCLUSIVE",
+  "bytes_2024_plus_read": 0,
+  "bytes_2025_plus_read": 0,
+  "checked_coverage_fields": 6480,
+  "checked_ledger_fields": 142294,
+  "checked_metric_fields": 115,
+  "checked_report_metric_fields": 1080,
+  "config_freeze_commit": "f0b908d3701c4fc140a4f66f4a689c3e3c2e5aee",
+  "discrepancies": [],
+  "external_human_acceptance": "Not claimed; independent PR review remains required",
+  "instruments": {
+    "CNYRUBF": {
+      "assessment": {
+        "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+        "evidence_checks": {
+          "PF_goal_met": false,
+          "complete": false,
+          "concentration_acceptable": false,
+          "enough_sample": true,
+          "monthly_stability": false,
+          "positive_expectancy": false
+        },
+        "status": "INCONCLUSIVE"
+      },
+      "distribution_from_csv": {
+        "active_months": 12,
+        "average_loser_R": "-0.9287055293413475290512446111",
+        "average_loser_price": "-0.02892",
+        "average_winner_R": "0.9024979992629734222063548117",
+        "average_winner_price": "0.03139130434782608695652173913",
+        "largest_positive_month_share_R": "1",
+        "largest_winner_share_R": "0.03536284140583650110930747105",
+        "monthly_closed_Net_R": {
+          "2023-01": "-3.066666666666666666666666667",
+          "2023-02": "-1.266666666666666666666666667",
+          "2023-03": "-0.25",
+          "2023-04": "-1.266666666666666666666666667",
+          "2023-05": "-0.785714285714285714285714286",
+          "2023-06": "1",
+          "2023-07": "-6.109340659340659340659340659",
+          "2023-08": "-2.366666666666666666666666667",
+          "2023-09": "-3.586956521739130434782608696",
+          "2023-10": "-3.807970726467770735754272052",
+          "2023-11": "-3.305364911497916424024798408",
+          "2023-12": "-3.325992963077857941177623740"
+        },
+        "negative_months": 11,
+        "positive_months": 1,
+        "top_three_winners_share_R": "0.1046752918236458199683729153",
+        "unique_trade_days": 104,
+        "zero_closed_economy_months": 0
+      },
+      "metrics_from_csv": {
+        "Expectancy_R": "-0.2269194091492281230431534231",
+        "Max_DD_R": "28.13800673450428725735102447",
+        "Net_R": "-28.13800673450428725735102447",
+        "Net_price": "-0.725",
+        "PF_C1_R": "0.5960254232654319574637242742",
+        "PF_C1_price": "0.6657445827570308898109727985",
+        "Win_Rate": "0.3709677419354838709677419355",
+        "closed": 124,
+        "cost_C1": "1.490"
+      },
+      "signals": 1530,
+      "trades": 163
+    },
+    "GLDRUBF": {
+      "assessment": {
+        "economic_diagnostic": "POSITIVE_EXPECTANCY_BELOW_EVIDENCE_CRITERIA",
+        "evidence_checks": {
+          "PF_goal_met": false,
+          "complete": false,
+          "concentration_acceptable": true,
+          "enough_sample": true,
+          "monthly_stability": true,
+          "positive_expectancy": true
+        },
+        "status": "INCONCLUSIVE"
+      },
+      "distribution_from_csv": {
+        "active_months": 6,
+        "average_loser_R": "-0.7861422292044001912851158583",
+        "average_loser_price": "-10.69583333333333333333333333",
+        "average_winner_R": "0.9982425402302124464717091770",
+        "average_winner_price": "10.44074074074074074074074074",
+        "largest_positive_month_share_R": "0.3460426000208578568416245787",
+        "largest_winner_share_R": "0.05530334294613478344043283785",
+        "monthly_closed_Net_R": {
+          "2023-07": "1.864133655910844239756706599",
+          "2023-08": "2.456860985413132722209172892",
+          "2023-09": "-0.807385620915032679738562091",
+          "2023-10": "3.077190985921470909540793004",
+          "2023-11": "0.4145560086740109998762924404",
+          "2023-12": "1.079779070305705272248964294"
+        },
+        "negative_months": 1,
+        "positive_months": 5,
+        "top_three_winners_share_R": "0.1658261820798568193430694065",
+        "unique_trade_days": 40,
+        "zero_closed_economy_months": 6
+      },
+      "metrics_from_csv": {
+        "Expectancy_R": "0.1585320604962770875273209243",
+        "Max_DD_R": "3.134771604411341494293486973",
+        "Net_R": "8.085135085310131463893367139",
+        "Net_price": "25.2",
+        "PF_C1_R": "1.428523765852805334141419537",
+        "PF_C1_price": "1.098169068952084144916244644",
+        "Win_Rate": "0.5294117647058823529411764706",
+        "closed": 51,
+        "cost_C1": "10.2"
+      },
+      "signals": 981,
+      "trades": 73
+    },
+    "IMOEXF": {
+      "assessment": {
+        "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+        "evidence_checks": {
+          "PF_goal_met": false,
+          "complete": false,
+          "concentration_acceptable": false,
+          "enough_sample": false,
+          "monthly_stability": false,
+          "positive_expectancy": false
+        },
+        "status": "INCONCLUSIVE"
+      },
+      "distribution_from_csv": {
+        "active_months": 1,
+        "average_loser_R": "-1.365523219573009194327567399",
+        "average_loser_price": "-7.333333333333333333333333333",
+        "average_winner_R": "0.6892857142857142857142857145",
+        "average_winner_price": "2.75",
+        "largest_positive_month_share_R": null,
+        "largest_winner_share_R": "0.8704663212435233160621761655",
+        "monthly_closed_Net_R": {
+          "2023-12": "-6.814567888866626594536832966"
+        },
+        "negative_months": 1,
+        "positive_months": 0,
+        "top_three_winners_share_R": "1",
+        "unique_trade_days": 7,
+        "zero_closed_economy_months": 11
+      },
+      "metrics_from_csv": {
+        "Expectancy_R": "-0.7571742098740696216152036629",
+        "Max_DD_R": "6.814567888866626594536832966",
+        "Net_R": "-6.814567888866626594536832966",
+        "Net_price": "-38.5",
+        "PF_C1_R": "0.1682592441260353757411553005",
+        "PF_C1_price": "0.125",
+        "Win_Rate": "0.2222222222222222222222222222",
+        "closed": 9,
+        "cost_C1": "9.0"
+      },
+      "signals": 445,
+      "trades": 13
+    },
+    "USDRUBF": {
+      "assessment": {
+        "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+        "evidence_checks": {
+          "PF_goal_met": false,
+          "complete": false,
+          "concentration_acceptable": true,
+          "enough_sample": true,
+          "monthly_stability": false,
+          "positive_expectancy": false
+        },
+        "status": "INCONCLUSIVE"
+      },
+      "distribution_from_csv": {
+        "active_months": 12,
+        "average_loser_R": "-0.9391762557249876849124180699",
+        "average_loser_price": "-0.1464335664335664335664335664",
+        "average_winner_R": "0.9350369619580665365330673435",
+        "average_winner_price": "0.1764646464646464646464646465",
+        "largest_positive_month_share_R": "0.4251098024511683923608392958",
+        "largest_winner_share_R": "0.01592954120099482023062502234",
+        "monthly_closed_Net_R": {
+          "2023-01": "-0.168378761761114702291172879",
+          "2023-02": "1.385037622086957950335559445",
+          "2023-03": "-4.508138511814982403217697336",
+          "2023-04": "-3.886840782196819348522134900",
+          "2023-05": "-7.812534748148071517346632113",
+          "2023-06": "2.034830370724333572630786255",
+          "2023-07": "-11.43318366782700105901682982",
+          "2023-08": "0.5483066795763213105814255172",
+          "2023-09": "-6.018664542215873760727519805",
+          "2023-10": "-5.548176096270692860343705549",
+          "2023-11": "-7.144227731332994490889227731",
+          "2023-12": "0.818424834355285483105031977"
+        },
+        "negative_months": 8,
+        "positive_months": 4,
+        "top_three_winners_share_R": "0.04743139010125006998016826040",
+        "unique_trade_days": 178,
+        "zero_closed_economy_months": 0
+      },
+      "metrics_from_csv": {
+        "Expectancy_R": "-0.1696485582716449261207403128",
+        "Max_DD_R": "45.51621572754314273083610037",
+        "Net_R": "-41.73354533482465182570211694",
+        "Net_price": "-3.47",
+        "PF_C1_R": "0.6892564387244672145914657052",
+        "PF_C1_price": "0.8342884431709646609360076409",
+        "Win_Rate": "0.4024390243902439024390243902",
+        "closed": 246,
+        "cost_C1": "4.92"
+      },
+      "signals": 973,
+      "trades": 253
+    }
+  },
+  "method": "Independent batch R16 oracle, raw paths and ledger economics.\n\nImports no production loader, strategy, engine, indicators or metric functions.\nReuses only the accepted independent auditor's calendar/grid/source/assertion\nutilities. This is an independent implementation, not external human signoff.",
+  "source_receipts": {
+    "CNYRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_read": 2212189,
+      "sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9"
+    },
+    "GLDRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_read": 1044351,
+      "sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b"
+    },
+    "IMOEXF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_read": 234733,
+      "sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c"
+    },
+    "USDRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_read": 2342431,
+      "sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d"
+    }
+  },
+  "status": "PASS"
+}
