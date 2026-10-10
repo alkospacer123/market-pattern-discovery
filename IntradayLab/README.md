@@ -1,5 +1,25 @@
 # IntradayLab — independent MOEX intraday strategy research
 
+## Current canonical infrastructure and Baseline — 2026-10-10
+
+The independent [common historical Backtester](core/README.md) is implemented:
+Market Data → Indicators → Strategy → Backtester → Metrics → Reports.
+The first [canonical ORB FALSE-BREAK FADE A BASE M5 Baseline](results/orb_a_base_2023_canonical_v1/Baseline_Report.md)
+uses the unchanged frozen #463 parameters and all physical 2023 M5 history.
+**Technical PASS; Baseline INCONCLUSIVE; NO ECONOMIC BASELINE PASS for known-closure
+C1 expectancy in all four instruments. No Optimization advancement.**
+266 IntradayLab tests pass, including 40 engine/strategy/data contract scenarios
+and four audit corruption guards. Independent implementation audit: 24,428 ledger
+fields, 5,080 coverage fields and 360 report metrics PASS. All 171 trades on 313
+fully sufficient instrument-days match frozen A BASE v2 daywise; incomplete-day
+diagnostics also have zero discrepancies. 246 known closures and 20 UNKNOWN;
+full annual metrics stay null. Coverage remains USD 224/254, CNY 82/254,
+GLD 5/124 and IMOEX 2/34. See [validation](results/orb_a_base_2023_canonical_v1/validation.json)
+for two byte-identical full repeats. Results have a new isolated directory.
+Source commit `f8486b4`, #463 at `9c65d03`, TradingSystemLab and the live robot are
+unchanged. 2024/WF and 2025+/TRUE OOS were not read. Separate Draft PR, no Merge.
+Historical sections below retain their original scope; this is the current state.
+
 > **Canonical architecture decision — 2026-10-10:** IntradayLab adopts the **methodology and reusable Backtester architecture** of TradingSystemLab, while remaining **100% independent**. One strategy with fixed parameters → shared research Baseline → Optimization only on credible positive C1 economics → Robustness → 2024 Walk Forward → 2025+ TRUE OOS. No obligatory ATR/MTF/grid; no year-long UNKNOWN latch in independent historical-day research. All TradingSystemLab files and live robot are protected read-only. Ongoing Draft PR #463 is separate. **Authoritative for future work:** [ARCHITECTURE_DECISION.md](ARCHITECTURE_DECISION.md). Dated sections below are historical evidence and do not override this decision.
 
 **Corrective v2 (2026-10-09):** Separate [conditional observed-bar Baseline](reports/STAGE2_M5_CONDITIONAL_V2_REPORT.md), stacked on unmerged PR #443. Frozen v1 parameters/config/results retained; 2,140 model entries (+1,993), 2,058 accounted trades, 82 unknown position paths, 61 NO_BAR_NO_MODEL_FILL, zero missing-entry year latch. Derived B−25 submission / B−20 scenario / B−10 nominal acknowledgement. Execution model PASS with source/arithmetic audit and 100 executed tests; **research completeness NEEDS FIX; both strategy economic verdicts INCONCLUSIVE; all full annual Net/PF/DD null**. NO_COVERAGE preserved; no tuning, protected-tree changes, merge or WF/OOS/LIVE. Historical v1 state below remains separately reproducible.

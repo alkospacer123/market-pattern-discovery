@@ -1,0 +1,36 @@
+{
+  "by_instrument": {
+    "CNYRUBF": {
+      "complete_day_signals": 125,
+      "complete_day_trades": 49,
+      "complete_days": 82
+    },
+    "GLDRUBF": {
+      "complete_day_signals": 7,
+      "complete_day_trades": 1,
+      "complete_days": 5
+    },
+    "IMOEXF": {
+      "complete_day_signals": 2,
+      "complete_day_trades": 0,
+      "complete_days": 2
+    },
+    "USDRUBF": {
+      "complete_day_signals": 346,
+      "complete_day_trades": 121,
+      "complete_days": 224
+    }
+  },
+  "complete_day_rows": {
+    "signals": 480,
+    "trades": 171
+  },
+  "complete_day_trades": 171,
+  "complete_days": 313,
+  "criterion": "Exact agreement on fully sufficient source days; parameters unchanged",
+  "discrepancies": [],
+  "historical_commit": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+  "incomplete_day_discrepancies": [],
+  "numeric_comparison": "Exact Decimal values; timestamps normalized MSK start labels",
+  "status": "PASS"
+}

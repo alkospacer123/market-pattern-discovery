@@ -1,6 +1,6 @@
 # IntradayLab — approved methodology and independent architecture
 
-**Decision:** 2026-10-10. **Status:** USER APPROVED; the common Backtester is not yet implemented. This is the canonical architectural and methodology decision for **future** IntradayLab research; previously frozen results remain unchanged.
+**Decision:** 2026-10-10. **Status:** USER APPROVED; the independent common Backtester is implemented and technically audited. Its first [canonical ORB A BASE 2023 Baseline](results/orb_a_base_2023_canonical_v1/Baseline_Report.md) is **INCONCLUSIVE**, with negative conditional C1 expectancy on known closures for every instrument (**NO ECONOMIC BASELINE PASS**); no Optimization advancement. See [core contract](core/README.md) and [validation receipt](results/orb_a_base_2023_canonical_v1/validation.json). This remains the canonical architectural and methodology decision for IntradayLab; previously frozen results remain unchanged.
 
 ## 1. Isolation is mandatory
 
@@ -40,8 +40,8 @@ If the candidate is economically negative, preserve **NO ECONOMIC BASELINE PASS*
 
 ## 4. Operating order
 
-1. Finish and independently audit the already running Codex retest for **Draft PR #463**; do not interfere with its branch.
-2. As a **separate next technical task** implement a shared standalone IntradayLab Backtester and contract tests, once. Keep previous frozen studies untouched.
+1. **Historical prerequisite:** finish and independently audit the retest for **Draft PR #463**; do not interfere with its branch. The subsequent implementation uses only its frozen `9c65d03` A BASE parameters/ledgers as historical reference.
+2. **Completed separate technical task:** shared standalone IntradayLab Backtester, contract tests, first canonical A BASE replay and independent implementation audit. All previous frozen studies remain untouched. The new task has its own branch and Draft PR; no Merge.
 3. Connect candidate intraday strategies by strategy module/config; run Baseline first, advance sequentially only after approved evidence. Keep roadmaps and handoffs up to date.
 4. All changes must be auditable from actual GitHub main, with reviewed diff. No TradingSystemLab changes, no LIVE authorization, no automatic Merge or unauthorized next research stage.
 
