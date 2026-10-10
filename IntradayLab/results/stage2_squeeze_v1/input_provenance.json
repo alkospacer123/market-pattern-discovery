@@ -1,0 +1,54 @@
+{
+  "config_sha256": "a1e3c1a3bc7f0de5f90fe9243ce2a14e64a7bc1c380400e5516de3f284098255",
+  "implementation_sha256": {
+    "run_squeeze.py": "a6362876de948f54c906e4b616f71ff4a5ab493f00c2cf089d42bddad643e7fe",
+    "squeeze_replay.py": "59f04fd812f1327d67b52878982193bb3db6d8b89a73e038109549e869c655c1"
+  },
+  "inputs": {
+    "CNYRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-01-03 09:00:00",
+      "frozen_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 2212189,
+      "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+      "rows": 39362
+    },
+    "GLDRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-07-11 10:00:00",
+      "frozen_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 1044351,
+      "prefix_sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b",
+      "rows": 18428
+    },
+    "IMOEXF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-11-14 10:00:00",
+      "frozen_blob": "41b83b109b177d4522e53486950104845d357d99",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 234733,
+      "prefix_sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c",
+      "rows": 4429
+    },
+    "USDRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "first": "2023-01-03 09:00:00",
+      "frozen_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "last": "2023-12-29 23:45:00",
+      "prefix_bytes_read": 2342431,
+      "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "rows": 42576
+    }
+  },
+  "market_time": "MSK UTC+3 / start timestamp",
+  "preregistration_commit": "bc47fc5",
+  "protected_years_bytes_read": 0,
+  "run_count": 16,
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8"
+}

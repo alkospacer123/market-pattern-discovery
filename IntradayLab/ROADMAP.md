@@ -1,5 +1,12 @@
 # IntradayLab — research roadmap
 
+## Current Stage 2 — Volatility Squeeze Breakout, 2026-10-10
+
+GitHub `main` verified at `01e092112efd408f331c0a2b95f04e75187573bd`: **PR #454 MERGED**, including the completed [final independent trading-logic audit](reports/STAGE2_FINAL_INDEPENDENT_TRADING_LOGIC_AUDIT.md). **VWAP Mean Reversion and Session Momentum: TRADING LOGIC PASS / NO ECONOMIC BASELINE PASS / REJECT CANDIDATE.** Their code, configurations, audits and results remain frozen; historical entries below are provenance, not active sequencing gates.
+
+The user explicitly authorized the next roadmap candidate **Volatility Squeeze Breakout**, with exactly `SQUEEZE_M5` and `SQUEEZE_M30_M5`, four instruments, entire available 2023 history, 8 C1 T10 runs and their 8 T15 stresses, plus C2 substitution on identical fills. Rules are [frozen before returns](reports/STAGE2_SQUEEZE_PREREGISTRATION.md) in [versioned configuration](config/stage2_squeeze_v1.json). Research is **COMPLETE: STAGE2_SQUEEZE_NO_ECONOMIC_BASELINE_PASS**; [final report](reports/STAGE2_SQUEEZE_FINAL_REPORT.md), [independent audit](results/stage2_squeeze_v1/independent_audit.json). Both fixed architectures have trading-logic PASS but only 4 USD / 3 CNY T10 entries each, no GLD/IMOEX entries; closed-only C1 PF0.667 /0, no credible regular profitable baseline. Full annual Net/PF/DD remain null. Draft PR awaits independent user acceptance; no automatic merge, Stage 3, WF/OOS/LIVE or other candidate.
+
+
 ## Final bounded Stage 2 closeout — 2026-10-09
 
 **VWAP Mean Reversion: NO ECONOMIC BASELINE PASS / REJECT CANDIDATE. Session Momentum: NO ECONOMIC BASELINE PASS / REJECT CANDIDATE.** This final rejection covers the retained M5 architectures and the completed, predeclared derived-M5 M30/M15/H1 tests. See [final causal MTF assessment](reports/STAGE2_CAUSAL_MTF_FINAL_REPORT.md) and [all comparisons](results/stage2_causal_mtf_v1/architecture_comparison.csv). Internal independent-algorithm verification is complete; external acceptance of this Draft remains pending the user's independent audit.
@@ -51,7 +58,7 @@ Decision: **2026-10-08**. Independent intraday research on MOEX perpetual future
 - **Risk/stability:** controlled drawdown, acceptable recovery, no dependence on one/two very large winning trades, nonfragile execution-delay/cost behavior, and consistency across observable 2023 months and instruments. Avoid forcing a portfolio selection from a 2023 backtest; compare separate instruments and combined exposure only when portfolio accounting is properly defined.
 - **Evidence gate:** targets are research criteria, never performance guarantees. Preserve missing outcome/coverage as UNKNOWN/NO_COVERAGE and full annual Net/PF/DD as null where not provable; do not call a closed-only PF, selected months or a small sample a complete Baseline PASS. Preserve Stage 2 → Stage 3 bounded optimization → Robustness → reserved 2024 Walk Forward → separately authorized 2025+ TRUE OOS, with no LIVE permission.
 
-**Current sequencing:** independent final trading-logic audit of the VWAP/Momentum research remains in progress; do not reopen frozen variants or start Volatility Squeeze Breakout until that audit and an explicit decision. These targets are forward-looking, not permission to edit the robot, TradingSystemLab or the completed Stage 2 artifacts.
+**Current sequencing (2026-10-10):** final VWAP/Momentum audit is complete and accepted through Merge #454. Both candidates are rejected; their artifacts stay frozen. The user authorized the bounded Volatility Squeeze Breakout task above. These targets do not authorize robot/protected-tree changes or Stage 3.
 
 ## Research target
 
