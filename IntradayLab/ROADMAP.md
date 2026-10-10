@@ -1,5 +1,62 @@
 # IntradayLab — research roadmap
 
+## Approved reserve M5 / M15 / MTF strategy sequence — 2026-10-10
+
+**User decision / conditional research queue, not an authorization to execute every candidate.**
+The active Codex task is **R16 Compression Breakout M5**. Complete its separate Draft PR,
+independent GitHub/code/trade-ledger audit and merge decision first; do not restart,
+alter, or parallelize R16. If its Baseline cannot demonstrate credible positive C1
+economics, the following order is approved for **future separately authorized
+one-at-a-time Baseline tasks**. A profitable candidate does not automatically
+trigger another strategy or the next research stage.
+
+| Order | Candidate | Intended trading / context TF | Next action / evidence status |
+| --- | --- | --- | --- |
+| Current | **R16 Compression Breakout** | M5, intrinsic ATR14; no obligatory MTF | Codex task running; fixed historical parameters, 2023 Baseline pending independent review |
+| 1 | **LEVEL_REJECTION_M5** | Standalone M5 | First reserve. Previous [causal opportunity preflight](results/stage2_level_rejection_m5_opportunity_v1/REPORT.md) is `OPPORTUNITY_FEASIBLE` **only**, not a traded/P&L Baseline. Use its preregistered [six-bar rejection grammar](reports/STAGE2_LEVEL_REJECTION_M5_OPPORTUNITY_PREREGISTRATION.md) as provenance; freeze any adaptation to the accepted common M5 execution clock **before P&L** |
+| 2 | **SWING_PULLBACK_M5_M15** | M5 entries + strictly completed/available M15 directional context | New, distinct pullback/continuation hypothesis; preregister causal swing, retracement, confirmation, stop/exit, MTF availability and entry clock before looking at outcomes. Do not relabel existing level-breakout/retest as swing pullback |
+| 3 | **TREND_PULLBACK_M15_H1** | Independent M15 signal, entry, stop and exit + completed/available H1 context | New separately specified M15 strategy. The current shared Backtester is **M5-only**; any M15 support requires its own approved technical change and tests, not an assumption that the M5 engine already supports M15 |
+| 4 | **BOLLINGER_RSI_REENTRY_M15** | Standalone M15; optional higher-TF only if independently justified beforehand | Last reserve: a different re-entry hypothesis, **not** a rerun of rejected VWAP MR with renamed indicators. No automatic MTF addition |
+
+**Execution and evaluation contract:**
+
+- One fixed strategy/parameter set and its causal indicators at a time. Start at
+  **Baseline**, not a grid search; advance only by the existing
+  **Baseline → Optimization → Robustness → Walk Forward → TRUE OOS** lifecycle.
+  No new stage, mandatory four-way indicator/MTF matrix, or retuning after
+  inspecting 2023 P&L. A strategy can include MTF intrinsically if causally
+  defined before its Baseline. Historical variants are not positive evidence
+  until independently audited on the shared contract.
+- Use the pinned, read-only `market-pattern-data` **2023** source, four approved
+  perpetual instruments where data exist, dated tick sizes, C1 one tick per
+  side, proper missing-bar/UNKNOWN accounting, Stop-first execution, monthly
+  instrument/direction breakdowns, PF in price units **and R**, expectancy R,
+  concentration and independent trade-ledger audit. Positive **calendar months**
+  are a central goal, never a guaranteed outcome. Report conditional known
+  closures separately from unproven continuous annual/account economics.
+- The shared Backtester governs timing. For M5 its currently approved clock is
+  completed signal M5 → one complete waiting M5 → next admissible Open. Derived
+  M15/H1 must use exact completed children, session-aware boundaries and
+  strictly available higher-TF observations; no missing-child fill or stale
+  context. Do not alter the entry clock to rescue a negative Baseline; investigate
+  delay impact as a **separate predeclared** research decision.
+- Preserve prior negative / insufficient-evidence work as actual history:
+  ORB A BASE and R17 on the shared M5 core, plus earlier VWAP MR, Session
+  Momentum and Squeeze M5/M30 and M15/H1 research. See
+  [M15 Squeeze verdict](reports/STAGE2_SQUEEZE_M15_FINAL_REPORT.md) and
+  [VWAP/Momentum MTF verdict](reports/STAGE2_CAUSAL_MTF_FINAL_REPORT.md).
+  No recycling a failed variant under a new name and no claim of proven edge
+  from sparse profitable subsets.
+- **2024 remains reserved Walk Forward; 2025+ remains locked TRUE OOS.**
+  Any historic 2026 data used to select old R16/R17 candidates cannot later be
+  labelled untouched TRUE OOS for those candidates.
+- **Isolation:** every new code/config/result/document change must be confined
+  to `IntradayLab/`. Do not modify `TradingSystemLab/`, its robot, strategies,
+  configurations, results, broker authority/runtime, `market-pattern-data`, or
+  already frozen IntradayLab research. Every task independently verifies actual
+  GitHub `main`, protected trees and committed result artifacts; Draft PR,
+  no automatic merge. This queue itself starts no new experiments.
+
 ## Current shared Backtester and first canonical Baseline — 2026-10-10
 
 **Common infrastructure COMPLETE / technical PASS. ORB A BASE Baseline INCONCLUSIVE;
