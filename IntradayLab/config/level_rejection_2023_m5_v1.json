@@ -1,0 +1,192 @@
+{
+  "adaptation": {
+    "Open_admission": "Common execution.entry_admission receives only scalar Open, direction, frozen Stop, observed entry tick and frozen constraints. Reclaim direction*(Open-level)>=1 entry tick; adverse risk>0 then risk>=4 entry ticks. Reasons OPEN_RECLAIM_NOT_PERSISTENT, INVALID_RISK, RISK_BELOW_FOUR_TICKS. Missing/invalid execution Open remains UNKNOWN possible fill before admission. No entry-bar Volume/HLC admission check.",
+    "R_reporting": "Existing gross initial price risk denominator retained for net_R_c1/PF_R. Separately record planned and realized net-win/(initial gross risk+round-trip C1); ideal Take must achieve >=3, ordinary Stop -1 in this net-stop denominator; adverse Stop gaps may lose more. Report actual Take closures versus unreachable/unknown targets.",
+    "Take_full_net_C1": "Optional universal entry_geometry FULL_NET_C1_R: r*(s+c)+c, c=2*observed entry tick*C1 ticks_per_side. r=3 gives d_full=3s+8t; primary target outward entry-grid rounding LONG ceiling / SHORT floor. Plan assumes equal entry/exit ticks, justified by mandatory exits <=17:00 and CNY transition at 19:00. Actual exits still charged their actual dated tick. Core records d_legacy=3s+2t as diagnostic only; not an alternative strategy or filter.",
+    "cost": "Common ledger one corresponding historical tick per side, no own cost or execution in strategy. No C2 or optimizer runs.",
+    "dedup": "Raw one-sided rejections retained; only one confirmed same-direction signal each 30 calendar minutes from prior confirmed test START, regardless of later busy/nonfill/UNKNOWN. Opposite sides separate. All full approved session test bars retained even when execution is later excluded by 17:00/reserve.",
+    "entry_clock": "Canonical START T -> completed signal at T+5 -> full waiting M5 T+5..T+10 -> conditional model Open T+10. One clock only, no extra T10/T15 matrix. Historical opportunity scenarios entered at START T+20 / T+25, so counts 1754 / 1648 are upper-bound historical opportunity provenance under different conditions, not matched trades.",
+    "exit": "120 calendar minutes from model entry, or earlier common window.end-5-minute flat, or exact Open 17:00. Stop-first, adverse gap at Open, no Take on entry bar; no overnight carry, break-even, trailing or partial exits.",
+    "local_range": "Exactly six immediately preceding valid completed positive-volume grid-aligned M5, same day and continuous approved session, at 5-minute spacing. Test bar excluded. Missing/invalid/callback gap/day/window resets range and directional dedup, preserving historical analyze() behavior.",
+    "scope": "One fixed Baseline only; no Optimization, Robustness, Walk Forward, TRUE OOS, LIVE, next candidate or Merge.",
+    "signal": "LONG low<=range_low-1 dated tick AND close>=range_low+1 tick; SHORT high>=range_high+1 tick AND close<=range_high-1 tick. Both full conditions => AMBIGUOUS_BOTH_SIDES, no raw one-sided rejection or confirmed signal. No indicators or MTF filters.",
+    "source": "Same pinned raw 2023 byte prefixes, accepted calendar and dated tick grid. No filling, truncation for economics, or 2024/2025+ reads.",
+    "stop": "One signal historical tick beyond completed test extreme: LONG low-1 tick / SHORT high+1 tick. Exact source grid, no invented extrema; core validates actual entry risk and four-tick minimum.",
+    "time_reserve": "Causal schedule requires entry+35 minutes<=min(calendar session end, exact daily 17:00). Equality allowed. Reserve evaluated at confirmed-signal scheduling because entry time/boundary are already known. Core session flat remains end-5, so historical 35-minute reserve includes the 5-minute flatten buffer. No pending order at/after effective flat deadline.",
+    "unknown": "No imputed UNKNOWN economics. UNKNOWN blocks its own research day; later independent days explicitly conditionally assume FLAT. Coverage/UNKNOWN mean complete annual metrics null; conditional known closures separate."
+  },
+  "bar_label": "start",
+  "base_main": "c18ec04a450bb973c4d19b5ce93c4e56448419ab",
+  "calendar": {
+    "extended_lunch": {
+      "end_exclusive": "2023-03-21",
+      "pm_start": "14:15",
+      "start": "2023-03-13"
+    },
+    "holidays": [
+      "01-01",
+      "01-02",
+      "01-07",
+      "02-23",
+      "03-08",
+      "05-01",
+      "05-09",
+      "06-12",
+      "11-04"
+    ],
+    "windows": [
+      [
+        "10:00",
+        "14:00"
+      ],
+      [
+        "14:05",
+        "18:50"
+      ]
+    ]
+  },
+  "classification_policy": {
+    "annual_completeness_required": true,
+    "goal_PF_C1_R": "1.6",
+    "goal_PF_C1_price": "1.6",
+    "maximum_largest_positive_month_share": "0.50",
+    "maximum_largest_winner_share": "0.25",
+    "minimum_active_months": 3,
+    "minimum_closed_trades": 30,
+    "minimum_positive_active_month_fraction": "0.60",
+    "minimum_positive_months": 3,
+    "minimum_unique_trade_days": 15,
+    "precedence": "Incomplete coverage/outcomes => INCONCLUSIVE with separate conditional diagnosis; complete negative known expectancy => NO ECONOMIC BASELINE PASS; positive but insufficient sample => INCONCLUSIVE; complete positive stable unconcentrated sample satisfying all fixed criteria => ECONOMICALLY_PROMISING_BASELINE. No automatic Optimization."
+  },
+  "contract": "One historical candidate, one frozen M5 adaptation, common Backtester; no optimization or TradingSystemLab changes. 2024 WF / 2025+ TRUE OOS not read.",
+  "end_exclusive": "2024-01-01",
+  "execution": {
+    "allow_entry_bar_take": false,
+    "cost_ticks_per_side": 1,
+    "daily_trade_deadline_clock": "17:00",
+    "session_flat_before_end_bars": 1,
+    "target_mode": "FULL_NET_C1_R",
+    "unknown_scope": "current_day; following days conditional FLAT",
+    "wait_complete_bars": 1
+  },
+  "execution_code_sha256": {
+    "IntradayLab/core/backtester.py": "5654273e073bf1000bd0ded3642337fd734457856d99c17596055160e7a9e190",
+    "IntradayLab/core/execution.py": "354acd95ee27f4e08ec35a7e29341a01234de915ca49354f10233b2adafbe97a",
+    "IntradayLab/strategies/level_rejection.py": "88e265d86132275b937c6b2ee789b881c09f5e00a07b174d93c56ed67a8b4c39"
+  },
+  "historical_reference": "1487d7e041e9e32122a5df9ae280386da8ebadb1",
+  "historical_selection": {
+    "counts_not_comparable_to_new_model_trades": true,
+    "freeze_files_sha256": {
+      "IntradayLab/config/stage2_level_rejection_m5_opportunity_v1.json": "c21f212f3d82326369cf7452c9f2a80d9188caa827b63fc65e96322c523082fb",
+      "IntradayLab/reports/STAGE2_LEVEL_REJECTION_M5_OPPORTUNITY_PREREGISTRATION.md": "36e85f14f392ed77d0344064d70cf074723f0ce42d39983974980b99a585fca2"
+    },
+    "selection_bias": "Preflight inspected 2023 frequency/geometry, no forward Stop/Take/PnL. This is the first complete economic Baseline of the fixed hypothesis; historical opportunity feasibility is not economic confirmation.",
+    "source_files_sha256": {
+      "IntradayLab/config/stage2_level_rejection_m5_opportunity_v1.json": "c21f212f3d82326369cf7452c9f2a80d9188caa827b63fc65e96322c523082fb",
+      "IntradayLab/reports/STAGE2_LEVEL_REJECTION_M5_OPPORTUNITY_PREREGISTRATION.md": "36e85f14f392ed77d0344064d70cf074723f0ce42d39983974980b99a585fca2",
+      "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/REPORT.md": "d579544e5486e37d2522e35915ace373f180344dd1d0d1cad6a9473593d2aa8c",
+      "IntradayLab/tools/run_level_rejection_opportunities.py": "3e8298de054bb3f0be69e274e7f3610ed302a32c934a52f0436fdacc51801e51"
+    },
+    "status": "OPPORTUNITY_FEASIBLE_ONLY_NO_ECONOMIC_PASS",
+    "upper_bound_opportunities_T10": 1754,
+    "upper_bound_opportunities_T15": 1648
+  },
+  "id": "level_rejection_2023_m5_v1",
+  "inputs": {
+    "CNYRUBF": {
+      "blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M5.csv",
+      "prefix_bytes": 2212189,
+      "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 39362
+    },
+    "GLDRUBF": {
+      "blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "first": "2023-07-11 10:00:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M5.csv",
+      "prefix_bytes": 1044351,
+      "prefix_sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 18428
+    },
+    "IMOEXF": {
+      "blob": "41b83b109b177d4522e53486950104845d357d99",
+      "first": "2023-11-14 10:00:00",
+      "path": "forever/IMOEXF/IMOEXF_M5.csv",
+      "prefix_bytes": 234733,
+      "prefix_sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 4429
+    },
+    "USDRUBF": {
+      "blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/USDRUBF/USDRUBF_M5.csv",
+      "prefix_bytes": 2342431,
+      "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 42576
+    }
+  },
+  "instruments": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "parameters": {
+    "cost_C1_ticks_per_side": 1,
+    "dedup_same_instrument_same_direction_minutes": 30,
+    "level_lookback_completed_m5": 6,
+    "max_hold_calendar_minutes": 120,
+    "max_session_entry_slack_minutes": 35,
+    "min_close_reentry_ticks": 1,
+    "min_initial_price_risk_ticks": 4,
+    "min_level_penetration_ticks": 1,
+    "planned_legacy_net_to_gross_R": "3",
+    "planned_net_to_net_R": "3",
+    "single_test_bar_per_signal": true,
+    "stop_beyond_extreme_ticks": 1
+  },
+  "research_phase": "BASELINE",
+  "schema": 1,
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "source_repository": "alkospacer123/market-pattern-data",
+  "start": "2023-01-01",
+  "strategy": "LEVEL_REJECTION_M5",
+  "tick_schedule": {
+    "CNYRUBF": [
+      [
+        "2023-01-01 00:00:00",
+        "0.01"
+      ],
+      [
+        "2023-09-27 19:00:00",
+        "0.001"
+      ]
+    ],
+    "GLDRUBF": [
+      [
+        "2023-01-01 00:00:00",
+        "0.1"
+      ]
+    ],
+    "IMOEXF": [
+      [
+        "2023-01-01 00:00:00",
+        "0.5"
+      ]
+    ],
+    "USDRUBF": [
+      [
+        "2023-01-01 00:00:00",
+        "0.01"
+      ]
+    ]
+  },
+  "timeframe_minutes": 5,
+  "timezone": "Europe/Moscow"
+}
