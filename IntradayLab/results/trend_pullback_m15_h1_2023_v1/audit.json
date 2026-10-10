@@ -1,0 +1,306 @@
+{
+  "baseline_status": "INCONCLUSIVE",
+  "bytes_2024_plus_read": 0,
+  "bytes_2025_plus_read": 0,
+  "checked_context_fields": 866252,
+  "checked_coverage_fields": 6480,
+  "checked_ledger_fields": 1092372,
+  "checked_metric_fields": 195,
+  "checked_report_metric_fields": 1080,
+  "config_freeze_commit": "297ab911e6c34ab4cfa574fbae8b805da099f481",
+  "discrepancies": [],
+  "external_human_acceptance": "Not claimed; independent PR review remains required",
+  "instruments": {
+    "CNYRUBF": {
+      "assessment": {
+        "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+        "evidence_checks": {
+          "PF_goal_met": false,
+          "complete": false,
+          "concentration_acceptable": false,
+          "enough_sample": false,
+          "monthly_stability": false,
+          "positive_expectancy": false
+        },
+        "status": "INCONCLUSIVE"
+      },
+      "distribution_from_csv": {
+        "active_months": 6,
+        "average_loser_R": "-0.7342933439770682913817229015",
+        "average_loser_price": "-0.0201",
+        "average_winner_R": "1.767322988632839705755260361",
+        "average_winner_price": "0.0365",
+        "largest_positive_month_share_R": "0.7007271230041560195820084408",
+        "largest_winner_share_R": "0.2829137646123125833797116395",
+        "monthly_closed_Net_R": {
+          "2023-02": "-0.3333333333333333333333333333",
+          "2023-08": "-1.333333333333333333333333333",
+          "2023-09": "2.866666666666666666666666667",
+          "2023-10": "1.224321925835217177162303670",
+          "2023-11": "-1.316634539872920682515884915",
+          "2023-12": "-1.654970356440944676238793887"
+        },
+        "negative_months": 4,
+        "positive_months": 2,
+        "top_three_winners_share_R": "0.7540157030069223762396778967",
+        "unique_trade_days": 28,
+        "zero_closed_economy_months": 6
+      },
+      "funnel": {
+        "LONG_trends": 1769,
+        "M15_pullbacks": 1259,
+        "SHORT_trends": 1669,
+        "admitted_Open_entries": 32,
+        "closed": 29,
+        "context_decisions": 8636,
+        "continuation_signals": 139,
+        "model_fills": 32,
+        "pending_entries": 40,
+        "position_busy": 4,
+        "rejected_continuation_signals": 107,
+        "submitted_orders": 40,
+        "unique_valid_H1_contexts": 1050,
+        "unknown": 4,
+        "unknown_possible_fills": 1,
+        "valid_H1_contexts": 3737
+      },
+      "metrics_from_csv": {
+        "Expectancy_R": "-0.01887182656822924764111638381",
+        "Max_DD_R": "5.685879510588479633368953416",
+        "Net_R": "-0.5472829704786481815923751306",
+        "Net_price": "-0.110",
+        "PF_C1_R": "0.9627340370869724494159110537",
+        "PF_C1_price": "0.7263681592039800995024875622",
+        "Win_Rate": "0.2758620689655172413793103448",
+        "closed": 29,
+        "cost_C1": "0.094"
+      },
+      "signals": 8636,
+      "trades": 33
+    },
+    "GLDRUBF": {
+      "assessment": {
+        "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+        "evidence_checks": {
+          "PF_goal_met": false,
+          "complete": false,
+          "concentration_acceptable": false,
+          "enough_sample": false,
+          "monthly_stability": false,
+          "positive_expectancy": false
+        },
+        "status": "INCONCLUSIVE"
+      },
+      "distribution_from_csv": {
+        "active_months": 4,
+        "average_loser_R": "-0.739707275929692112901218648",
+        "average_loser_price": "-8.083333333333333333333333333",
+        "average_winner_R": "0.665434939737265318660667498",
+        "average_winner_price": "9.36",
+        "largest_positive_month_share_R": "1",
+        "largest_winner_share_R": "0.2337652357373566682194714661",
+        "monthly_closed_Net_R": {
+          "2023-09": "-2.082693947144075021312872975",
+          "2023-10": "-0.3625722217857049317723475027",
+          "2023-11": "2.578922950434578341555085742",
+          "2023-12": "-1.244725738396624472573839662"
+        },
+        "negative_months": 3,
+        "positive_months": 1,
+        "top_three_winners_share_R": "0.6918143200283170768565057655",
+        "unique_trade_days": 10,
+        "zero_closed_economy_months": 8
+      },
+      "funnel": {
+        "LONG_trends": 583,
+        "M15_pullbacks": 508,
+        "SHORT_trends": 595,
+        "admitted_Open_entries": 20,
+        "closed": 11,
+        "context_decisions": 4216,
+        "continuation_signals": 85,
+        "model_fills": 20,
+        "pending_entries": 25,
+        "position_busy": 3,
+        "rejected_continuation_signals": 65,
+        "submitted_orders": 22,
+        "unique_valid_H1_contexts": 362,
+        "unknown": 11,
+        "unknown_possible_fills": 2,
+        "valid_H1_contexts": 1182
+      },
+      "metrics_from_csv": {
+        "Expectancy_R": "-0.1010062688083478258276340363",
+        "Max_DD_R": "2.756851250514861538166805559",
+        "Net_R": "-1.111068956891826084103974399",
+        "Net_price": "-1.7",
+        "PF_C1_R": "0.7496602162669927890930159273",
+        "PF_C1_price": "0.9649484536082474226804123711",
+        "Win_Rate": "0.4545454545454545454545454545",
+        "closed": 11,
+        "cost_C1": "2.2"
+      },
+      "signals": 4216,
+      "trades": 22
+    },
+    "IMOEXF": {
+      "assessment": {
+        "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+        "evidence_checks": {
+          "PF_goal_met": false,
+          "complete": false,
+          "concentration_acceptable": false,
+          "enough_sample": false,
+          "monthly_stability": false,
+          "positive_expectancy": false
+        },
+        "status": "INCONCLUSIVE"
+      },
+      "distribution_from_csv": {
+        "active_months": 1,
+        "average_loser_R": "-1.5",
+        "average_loser_price": "-3.0",
+        "average_winner_R": null,
+        "average_winner_price": null,
+        "largest_positive_month_share_R": null,
+        "largest_winner_share_R": null,
+        "monthly_closed_Net_R": {
+          "2023-12": "-1.5"
+        },
+        "negative_months": 1,
+        "positive_months": 0,
+        "top_three_winners_share_R": null,
+        "unique_trade_days": 1,
+        "zero_closed_economy_months": 11
+      },
+      "funnel": {
+        "LONG_trends": 97,
+        "M15_pullbacks": 80,
+        "SHORT_trends": 101,
+        "admitted_Open_entries": 4,
+        "closed": 1,
+        "context_decisions": 1156,
+        "continuation_signals": 17,
+        "model_fills": 4,
+        "pending_entries": 4,
+        "position_busy": 0,
+        "rejected_continuation_signals": 13,
+        "submitted_orders": 4,
+        "unique_valid_H1_contexts": 65,
+        "unknown": 3,
+        "unknown_possible_fills": 0,
+        "valid_H1_contexts": 214
+      },
+      "metrics_from_csv": {
+        "Expectancy_R": "-1.5",
+        "Max_DD_R": "1.5",
+        "Net_R": "-1.5",
+        "Net_price": "-3.0",
+        "PF_C1_R": "0E+1",
+        "PF_C1_price": "0E+1",
+        "Win_Rate": "0",
+        "closed": 1,
+        "cost_C1": "1.0"
+      },
+      "signals": 1156,
+      "trades": 4
+    },
+    "USDRUBF": {
+      "assessment": {
+        "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+        "evidence_checks": {
+          "PF_goal_met": false,
+          "complete": false,
+          "concentration_acceptable": true,
+          "enough_sample": true,
+          "monthly_stability": true,
+          "positive_expectancy": false
+        },
+        "status": "INCONCLUSIVE"
+      },
+      "distribution_from_csv": {
+        "active_months": 12,
+        "average_loser_R": "-0.737773474355140735058381715",
+        "average_loser_price": "-0.1352272727272727272727272727",
+        "average_winner_R": "1.190242786629423357030478664",
+        "average_winner_price": "0.2073076923076923076923076923",
+        "largest_positive_month_share_R": "0.2536065826571353680044223342",
+        "largest_winner_share_R": "0.1098676944218651842167603373",
+        "monthly_closed_Net_R": {
+          "2023-01": "1.049882703412115176821059174",
+          "2023-02": "-1.575595238095238095238095238",
+          "2023-03": "2.222027972027972027972027972",
+          "2023-04": "2.133282520325203252032520325",
+          "2023-05": "0.6558608058608058608058608063",
+          "2023-06": "2.994588744588744588744588745",
+          "2023-07": "-3.088551131408274265417122560",
+          "2023-08": "-6.746417523855316859283682219",
+          "2023-09": "0.619176302999832411597117480",
+          "2023-10": "0.776267974934570429392677712",
+          "2023-11": "-1.913165266106442577030812325",
+          "2023-12": "1.356921716054842989827509952"
+        },
+        "negative_months": 4,
+        "positive_months": 8,
+        "top_three_winners_share_R": "0.3272745724409106936422268354",
+        "unique_trade_days": 68,
+        "zero_closed_economy_months": 0
+      },
+      "funnel": {
+        "LONG_trends": 2975,
+        "M15_pullbacks": 2332,
+        "SHORT_trends": 2556,
+        "admitted_Open_entries": 71,
+        "closed": 70,
+        "context_decisions": 8636,
+        "continuation_signals": 307,
+        "model_fills": 71,
+        "pending_entries": 84,
+        "position_busy": 10,
+        "rejected_continuation_signals": 236,
+        "submitted_orders": 84,
+        "unique_valid_H1_contexts": 1487,
+        "unknown": 1,
+        "unknown_possible_fills": 0,
+        "valid_H1_contexts": 5674
+      },
+      "metrics_from_csv": {
+        "Expectancy_R": "-0.02165314884658835799680500254",
+        "Max_DD_R": "12.86893088040228685163182583",
+        "Net_R": "-1.515720419261185059776350178",
+        "Net_price": "-0.56",
+        "PF_C1_R": "0.9533079020264926887311921868",
+        "PF_C1_price": "0.9058823529411764705882352941",
+        "Win_Rate": "0.3714285714285714285714285714",
+        "closed": 70,
+        "cost_C1": "1.40"
+      },
+      "signals": 8636,
+      "trades": 71
+    }
+  },
+  "method": "Independent batch TREND_PULLBACK_M15_H1 oracle, raw paths and ledger economics.\n\nImports no production loader, strategy, engine, indicators or metric functions.\nReuses only the accepted independent auditor's calendar/grid/source/assertion\nutilities. This is an independent implementation, not external human signoff.",
+  "source_receipts": {
+    "CNYRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_read": 2212189,
+      "sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9"
+    },
+    "GLDRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_read": 1044351,
+      "sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b"
+    },
+    "IMOEXF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_read": 234733,
+      "sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c"
+    },
+    "USDRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_read": 2342431,
+      "sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d"
+    }
+  },
+  "status": "PASS"
+}
