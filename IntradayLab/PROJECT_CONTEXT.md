@@ -96,6 +96,14 @@ Established 2026-10-08. Independent research scope, **not** TradingSystemLab roa
 - Track positive-month share, worst calendar month, consecutive losing months, and each calendar year's monthly breakdown in Baseline, Walk Forward, TRUE OOS and forward monitoring. Calculate monthly mark-to-market equity including open-position P&L and all execution costs; never hide a loss by deferring realization into the next month.
 - No promises of a stable monthly salary, guaranteed PF, target return, or target risk-adjusted performance without real evidence.
 
+## Revised second-wave Stage 2 candidate queue — 2026-10-10
+
+**New strategies NOT TESTED; documentation only.** Prior VWAP/Momentum/Squeeze experiments economically unqualified in tested scope (Squeeze #456/#457 merged), protected results frozen.
+
+Sequential M5-only hypotheses: **1 LEVEL_REJECTION_M5** (known level breached and completed candle closes back INSIDE, fade); **2 LEVEL_BREAKOUT_RETEST_M5** (same prior level breached and closes OUTSIDE, then a distinct completed retest and continuation, not a first-break Momentum entry); **3 SWING_PULLBACK_M5** (prior local directional swing, later separate retrace and resumption, WITHOUT a qualifying level retest). De-duplicate competing signals and same-instrument positions before combined frequency. Range Rotation excluded from the active wave for 3R range-width mismatch; Opening Drive Pullback removed as mostly redundant; neither was empirically tested.
+
+User's ten acceptance targets remain binding. **Plan full-net RR after C1** and separately report old net-win-to-raw-stop measure: gross take distance d, initial Stop distance s, tick t. Prior >=3: d>=3s+2t; literal post-C1 win:loss >=3: d>=3s+8t assuming Stop at specified price. No retroactive changes to prior strategy definitions. Before any new P&L, freeze one candidate's causal 2023 M5 signal grammar and perform separately authorized no-return T10/T15 future-Open opportunity and geometry preflight by day/month/instrument; 2–3 combined trades/day remains an aspirational benchmark. Full economic Baseline separately authorized. Existing sessions, 4 futures, C1 two ticks roundtrip, C2 replacement stress, 2024 WF/2025+ TRUE OOS locks and TradingSystemLab active robot all preserved. [Roadmap](ROADMAP.md), [research memo](reports/STAGE2_NEXT_STRATEGIES_SELECTION_20261010.md).
+
 ## Project initial state
 
 - TradingSystemLab main was inspected **read-only** before setup, at commit `eaaef0884fb54eb5c3946f433619b550545a19a8`.
