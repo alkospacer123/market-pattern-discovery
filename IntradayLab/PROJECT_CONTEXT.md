@@ -1,5 +1,15 @@
 # IntradayLab — project context
 
+## Completed Stage 2 — standalone M15 / H1→M15, 2026-10-10
+
+**FEASIBILITY PASS / NO ECONOMIC BASELINE PASS** for `SQUEEZE_M15` and `SQUEEZE_H1_M15`. Actual GitHub main verified at `7643513a7ce718b142454fe094186c3e6bbb4605`, merged PR #455 and #456. This separate pair completes the approved four-architecture matrix: 16 new fixed 2023 scenarios, 32 across both pairs; C2 substitutes costs on identical fills. [Final report](reports/STAGE2_SQUEEZE_M15_FINAL_REPORT.md), [pre-returns rules](config/stage2_squeeze_m15_v1.json), [technical feasibility](reports/STAGE2_SQUEEZE_M15_FEASIBILITY.md).
+
+BB/EMA/ATR7 and two M15 squeeze candles were fixed on technical grounds before P&L; maximum same-window segment18 excludes BB20. Exact3/12 completed M5 parents only; M15 available T+20/25, H1 T+65/70. Both delays target the same future M15 Open, and actually produce identical fills. Independent raw-source oracle: **651721 fields PASS, zero discrepancies**. Full annual Net/PF/DD remain null for incomplete coverage.
+
+USD standalone8 trades, C1 closed PF2.333 / Net0.28; H1 five trades, PF5.167 / Net0.25. High PF on tiny cohorts and partially covered positive months does not establish a profitable regular plateau; standalone C2 PF1.414. CNY two wins only in December, GLD one loss, IMOEX no fill after one genuine nonfilled order. H1 does not show a sustainable advantage. **Each of the four tested Squeeze architectures has NO ECONOMIC BASELINE PASS.** Frozen M5/M30 PR #456 code/config/journals/results and its economic verdict remain unchanged. No parameter selection by maximum PF, new phase, Stage3, WF, TRUE OOS or LIVE; separate Draft PR without Merge.
+
+The earlier sections below are retained as historical provenance; their old current/next wording does not reopen completed experiments or override this closeout.
+
 ## Current Stage 2 — Volatility Squeeze Breakout, 2026-10-10
 
 GitHub `main` verified at `01e092112efd408f331c0a2b95f04e75187573bd`: **PR #454 MERGED**, including the completed [final independent trading-logic audit](reports/STAGE2_FINAL_INDEPENDENT_TRADING_LOGIC_AUDIT.md). **VWAP Mean Reversion and Session Momentum: TRADING LOGIC PASS / NO ECONOMIC BASELINE PASS / REJECT CANDIDATE.** Their code, configurations, audits and results remain frozen; historical entries below are provenance, not active sequencing gates.
