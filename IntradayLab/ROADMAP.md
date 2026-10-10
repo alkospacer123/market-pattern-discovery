@@ -1,5 +1,7 @@
 # IntradayLab — research roadmap
 
+> **Canonical architecture decision — 2026-10-10:** IntradayLab adopts the **methodology and reusable Backtester architecture** of TradingSystemLab, while remaining **100% independent**. One strategy with fixed parameters → shared research Baseline → Optimization only on credible positive C1 economics → Robustness → 2024 Walk Forward → 2025+ TRUE OOS. No obligatory ATR/MTF/grid; no year-long UNKNOWN latch in independent historical-day research. All TradingSystemLab files and live robot are protected read-only. Ongoing Draft PR #463 is separate. **Authoritative for future work:** [ARCHITECTURE_DECISION.md](ARCHITECTURE_DECISION.md). Dated sections below are historical evidence and do not override this decision.
+
 ## Completed Stage 2 — standalone M15 / H1→M15, 2026-10-10
 
 **FEASIBILITY PASS / NO ECONOMIC BASELINE PASS** for `SQUEEZE_M15` and `SQUEEZE_H1_M15`. Actual GitHub main verified at `7643513a7ce718b142454fe094186c3e6bbb4605`, merged PR #455 and #456. This separate pair completes the approved four-architecture matrix: 16 new fixed 2023 scenarios, 32 across both pairs; C2 substitutes costs on identical fills. [Final report](reports/STAGE2_SQUEEZE_M15_FINAL_REPORT.md), [pre-returns rules](config/stage2_squeeze_m15_v1.json), [technical feasibility](reports/STAGE2_SQUEEZE_M15_FEASIBILITY.md).

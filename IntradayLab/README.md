@@ -1,5 +1,7 @@
 # IntradayLab — independent MOEX intraday strategy research
 
+> **Canonical architecture decision — 2026-10-10:** IntradayLab adopts the **methodology and reusable Backtester architecture** of TradingSystemLab, while remaining **100% independent**. One strategy with fixed parameters → shared research Baseline → Optimization only on credible positive C1 economics → Robustness → 2024 Walk Forward → 2025+ TRUE OOS. No obligatory ATR/MTF/grid; no year-long UNKNOWN latch in independent historical-day research. All TradingSystemLab files and live robot are protected read-only. Ongoing Draft PR #463 is separate. **Authoritative for future work:** [ARCHITECTURE_DECISION.md](ARCHITECTURE_DECISION.md). Dated sections below are historical evidence and do not override this decision.
+
 **Corrective v2 (2026-10-09):** Separate [conditional observed-bar Baseline](reports/STAGE2_M5_CONDITIONAL_V2_REPORT.md), stacked on unmerged PR #443. Frozen v1 parameters/config/results retained; 2,140 model entries (+1,993), 2,058 accounted trades, 82 unknown position paths, 61 NO_BAR_NO_MODEL_FILL, zero missing-entry year latch. Derived B−25 submission / B−20 scenario / B−10 nominal acknowledgement. Execution model PASS with source/arithmetic audit and 100 executed tests; **research completeness NEEDS FIX; both strategy economic verdicts INCONCLUSIVE; all full annual Net/PF/DD null**. NO_COVERAGE preserved; no tuning, protected-tree changes, merge or WF/OOS/LIVE. Historical v1 state below remains separately reproducible.
 
 ## Historical v1 — retained
