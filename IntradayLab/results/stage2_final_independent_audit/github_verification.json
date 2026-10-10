@@ -1,0 +1,80 @@
+{
+  "audit_pr": 453,
+  "audit_url": "https://github.com/alkospacer123/market-pattern-discovery/pull/453",
+  "audited_content_commit": "1a4ecfd181db51994ad9ba8a483824051e2b7b78",
+  "base_sha": "2cfab348011c874e5d8e98787855f86b75fb5e43",
+  "diff_sha256_at_content_commit": "5d33663334982a8919de23844e372a23ca76089b8707365ef73bd3724214e327",
+  "draft_open_unmerged": true,
+  "files": [
+    {
+      "blob": "788507526b2f893c47f8dbee16b2d72346a02655",
+      "path": "IntradayLab/reports/STAGE2_FINAL_INDEPENDENT_TRADING_LOGIC_AUDIT.md",
+      "status": "added"
+    },
+    {
+      "blob": "edb3d2649ff194784f22d8f17758862b2d450cb6",
+      "path": "IntradayLab/results/stage2_final_independent_audit/SHA256SUMS",
+      "status": "added"
+    },
+    {
+      "blob": "10e48e342a57a9ca9e631a6263d38a4ed0ff3e87",
+      "path": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+      "status": "added"
+    },
+    {
+      "blob": "3b87f0093a9fea5ebc6d56e2e17dd13c7ea198f3",
+      "path": "IntradayLab/results/stage2_final_independent_audit/economic_summary_check.json",
+      "status": "added"
+    },
+    {
+      "blob": "f5270bff1425b2dad0fbd774b07d652ada92c682",
+      "path": "IntradayLab/results/stage2_final_independent_audit/manual_traces.md",
+      "status": "added"
+    },
+    {
+      "blob": "83dd29c7639f678119e24b02bb75690fb33b81d5",
+      "path": "IntradayLab/results/stage2_final_independent_audit/oracle_execution.log",
+      "status": "added"
+    },
+    {
+      "blob": "ad8307aa2d3402d9dc0809f058ae953b9532ccaa",
+      "path": "IntradayLab/results/stage2_final_independent_audit/reproducibility.json",
+      "status": "added"
+    },
+    {
+      "blob": "d4ccf13e2ec35ff3259095f1f7a18c8e8c2f8c1f",
+      "path": "IntradayLab/results/stage2_final_independent_audit/run_summary.csv",
+      "status": "added"
+    },
+    {
+      "blob": "3d091d0294255f379de238d53c645d82455fcf58",
+      "path": "IntradayLab/results/stage2_final_independent_audit/test_execution.log",
+      "status": "added"
+    },
+    {
+      "blob": "b82ade29dbe89cb3ea87ed08fbe4b3c38868676e",
+      "path": "IntradayLab/tools/final_audit_traces.py",
+      "status": "added"
+    },
+    {
+      "blob": "15ad2db08fc4c3105bb498d36ddeb3f230facd57",
+      "path": "IntradayLab/tools/final_independent_logic_audit.py",
+      "status": "added"
+    }
+  ],
+  "main_sha": "f5dec0a73bf1273f9490502fbc0b9588f9315260",
+  "no_2024_WF_or_2025_plus_market_rows_read": true,
+  "no_merge": true,
+  "no_new_strategy": true,
+  "original_193_Lab_blobs_unchanged_on_GitHub": true,
+  "original_193_local_sha256_unchanged": true,
+  "protected_root_count": 25,
+  "protected_roots_equal_actual_GitHub_main": true,
+  "reproducibility": "two byte-identical exact oracle runs and two byte-identical trace/summary renders",
+  "snapshot": "Remote verification of the audit content commit; the next commit only stores this evidence and updates checksums. Final live SHA/diff verification is also recorded in the PR body.",
+  "source_clean": true,
+  "source_pr": 451,
+  "source_pr_draft_open_unmerged": true,
+  "source_pr_head": "2cfab348011c874e5d8e98787855f86b75fb5e43",
+  "status": "PASS"
+}

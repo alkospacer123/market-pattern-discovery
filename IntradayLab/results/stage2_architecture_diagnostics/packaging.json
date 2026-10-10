@@ -1,0 +1,9 @@
+{
+  "trade_attribution.csv": {
+    "compressed_sha256": "2d49307d705971b3e8b367867748584231a941d0eb37d948e6912c549bb2ee6e",
+    "compression": "gzip9, mtime0, lossless exact CSV; decompress before hash comparison",
+    "stored_as": "trade_attribution.csv.gz",
+    "uncompressed_bytes": 2322260,
+    "uncompressed_sha256": "e081c1e3c8c7ed0f13b6ce3eeade89bfc224b2d65a8be98544d051ca6f000973"
+  }
+}

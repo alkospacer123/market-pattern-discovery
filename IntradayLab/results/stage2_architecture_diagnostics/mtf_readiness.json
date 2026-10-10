@@ -1,0 +1,82 @@
+{
+  "CNYRUBF": {
+    "bytes_2024_plus_read": 0,
+    "bytes_2025_plus_read": 0,
+    "causal_requirement": "start+30m closed AND known delivery/finalization <= M5 decision; whole bucket inside same approved window; never cross lunch/gap/day",
+    "composition_counts": {
+      "complete_exact": 3309,
+      "incomplete_6_child_bucket": 748,
+      "outside_or_crosses_research_window": 3607
+    },
+    "derived_M30": "Not substituted silently for native M30; a distinct conditional hypothesis is untested",
+    "native_M30_2023_rows": 7664,
+    "native_delivery_finalization": "UNRESOLVED_NO_STAMPS_OR_APPROVED_M30_DELAY_CONTRACT",
+    "prefix_2023_plus_header_bytes": 436796,
+    "prefix_2023_plus_header_sha256": "84a4c2d8a28914a57e35d9365bcceb672e417a6fdd82ff5dbfab93575d299695",
+    "skipped_2022_bytes": 222810,
+    "skipped_2022_rows_not_parsed": 4320,
+    "source_blob": "d3013b00e1c8fe8d9e4c0e97465327773c497714",
+    "status": "MTF_BLOCKED",
+    "strategy_contexts_admitted": 0
+  },
+  "GLDRUBF": {
+    "bytes_2024_plus_read": 0,
+    "bytes_2025_plus_read": 0,
+    "causal_requirement": "start+30m closed AND known delivery/finalization <= M5 decision; whole bucket inside same approved window; never cross lunch/gap/day",
+    "composition_counts": {
+      "complete_exact": 1381,
+      "incomplete_6_child_bucket": 596,
+      "outside_or_crosses_research_window": 1777
+    },
+    "derived_M30": "Not substituted silently for native M30; a distinct conditional hypothesis is untested",
+    "native_M30_2023_rows": 3754,
+    "native_delivery_finalization": "UNRESOLVED_NO_STAMPS_OR_APPROVED_M30_DELAY_CONTRACT",
+    "prefix_2023_plus_header_bytes": 215558,
+    "prefix_2023_plus_header_sha256": "ab0555d56c36f17aa535a4b0c855fcde2e65774143c907c5f781a7bd49bc0425",
+    "skipped_2022_bytes": 0,
+    "skipped_2022_rows_not_parsed": 0,
+    "source_blob": "1f08e677c40780ecb4441531452201712fea52d0",
+    "status": "MTF_BLOCKED",
+    "strategy_contexts_admitted": 0
+  },
+  "IMOEXF": {
+    "bytes_2024_plus_read": 0,
+    "bytes_2025_plus_read": 0,
+    "causal_requirement": "start+30m closed AND known delivery/finalization <= M5 decision; whole bucket inside same approved window; never cross lunch/gap/day",
+    "composition_counts": {
+      "complete_exact": 285,
+      "incomplete_6_child_bucket": 258,
+      "outside_or_crosses_research_window": 465
+    },
+    "derived_M30": "Not substituted silently for native M30; a distinct conditional hypothesis is untested",
+    "native_M30_2023_rows": 1008,
+    "native_delivery_finalization": "UNRESOLVED_NO_STAMPS_OR_APPROVED_M30_DELAY_CONTRACT",
+    "prefix_2023_plus_header_bytes": 53975,
+    "prefix_2023_plus_header_sha256": "98983c2f4f8b7da6cdeefbf122d2eb43c95de492a06c779bfb4c8e0d96999637",
+    "skipped_2022_bytes": 0,
+    "skipped_2022_rows_not_parsed": 0,
+    "source_blob": "b6787cf6f33bb08ffca08792c33bfe593c6b1c57",
+    "status": "MTF_BLOCKED",
+    "strategy_contexts_admitted": 0
+  },
+  "USDRUBF": {
+    "bytes_2024_plus_read": 0,
+    "bytes_2025_plus_read": 0,
+    "causal_requirement": "start+30m closed AND known delivery/finalization <= M5 decision; whole bucket inside same approved window; never cross lunch/gap/day",
+    "composition_counts": {
+      "complete_exact": 4011,
+      "incomplete_6_child_bucket": 46,
+      "outside_or_crosses_research_window": 3639
+    },
+    "derived_M30": "Not substituted silently for native M30; a distinct conditional hypothesis is untested",
+    "native_M30_2023_rows": 7696,
+    "native_delivery_finalization": "UNRESOLVED_NO_STAMPS_OR_APPROVED_M30_DELAY_CONTRACT",
+    "prefix_2023_plus_header_bytes": 429545,
+    "prefix_2023_plus_header_sha256": "b017e680621b8a08bb28338f8c85deecb11847188157cb1a336870a8605f9411",
+    "skipped_2022_bytes": 245093,
+    "skipped_2022_rows_not_parsed": 4461,
+    "source_blob": "2330d3ed0f0c2f4c6547e57b62db87ba1a0923b8",
+    "status": "MTF_BLOCKED",
+    "strategy_contexts_admitted": 0
+  }
+}

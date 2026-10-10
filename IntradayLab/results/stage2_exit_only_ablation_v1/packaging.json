@@ -1,0 +1,9 @@
+{
+  "trade_ledger.csv": {
+    "compressed_sha256": "fb9ec146e50dc2ebb890a6c3870b45b4e3658f080536bd28ab4c4977b9aa0fa6",
+    "compression": "gzip9, mtime0, lossless exact CSV; decompress before hash comparison",
+    "stored_as": "trade_ledger.csv.gz",
+    "uncompressed_bytes": 1110593,
+    "uncompressed_sha256": "c697db69ef75040ddc2395cc7647801481312cde1bea9624f7ba91b0362e4e23"
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "anchor_comparison": {
+    "CNYRUBF": {
+      "gap_carry_window_diff_count": 207,
+      "median_abs_daytime_session_minus_reset_ticks": "1.120708428989952619022027",
+      "signals": 1055,
+      "signals_in_incomplete_windows": 434,
+      "true_full_exchange_session_vwap": "UNAVAILABLE"
+    },
+    "GLDRUBF": {
+      "gap_carry_window_diff_count": 147,
+      "median_abs_daytime_session_minus_reset_ticks": "36.75624194754045151427103",
+      "signals": 360,
+      "signals_in_incomplete_windows": 297,
+      "true_full_exchange_session_vwap": "UNAVAILABLE"
+    },
+    "IMOEXF": {
+      "gap_carry_window_diff_count": 14,
+      "median_abs_daytime_session_minus_reset_ticks": "8.301214846443301557223594",
+      "signals": 60,
+      "signals_in_incomplete_windows": 36,
+      "true_full_exchange_session_vwap": "UNAVAILABLE"
+    },
+    "USDRUBF": {
+      "gap_carry_window_diff_count": 45,
+      "median_abs_daytime_session_minus_reset_ticks": "2.3021135370776051567175895",
+      "signals": 1464,
+      "signals_in_incomplete_windows": 89,
+      "true_full_exchange_session_vwap": "UNAVAILABLE"
+    }
+  },
+  "candidate_policy": "Separate predeclared cost/tick-aware VWAP and one bounded breakout-quality Momentum hypothesis only; no runs/tuning here. If neither earns acceptance in separate valid research, roadmap Volatility Squeeze Breakout next.",
+  "covered_run_month_outcomes": {
+    "NEGATIVE": 28,
+    "NO_COVERAGE": 32,
+    "POSITIVE": 3,
+    "UNRESOLVED": 32,
+    "ZERO_TRADES": 1
+  },
+  "detailed_nonfill_reasons": {
+    "ADVERSE_CAP_EXCEEDED": 1013,
+    "ADVERSE_CAP_EXCEEDED|OPEN_AT_OR_BEYOND_TAKE": 467,
+    "NO_BAR_NO_MODEL_FILL": 61,
+    "OPEN_AT_OR_BEYOND_STOP": 579,
+    "OPEN_AT_OR_BEYOND_TAKE": 8
+  },
+  "economic_conclusion": "Six negative closed-only net diagnostics; positive GLD Momentum / IMO VWAP are incomplete. Both strategy-level annual viability verdicts INCONCLUSIVE; neither accepted.",
+  "flat_target_breach_events": [
+    {
+      "at": "2023-10-06 13:50:00",
+      "confirmed_at": "",
+      "filled_model_units": "0",
+      "flags": "",
+      "kind": "FLAT_TARGET",
+      "reason": "NO_CONFIRMED_FLAT_AT_B_MINUS_10",
+      "reference_price": "",
+      "requested_model_units": "1",
+      "residual_model_units": "1",
+      "run": "MOMENTUM_GLDRUBF",
+      "signal_id": "MOMENTUM_GLDRUBF_000291",
+      "status": "UNCONFIRMED"
+    }
+  ],
+  "independent_audit": "PASS",
+  "manifest_sha256": "66913447c5e6d4aca53b79cbb62b6d2fb701f21c6198f3d957d962bbe96ef66a",
+  "missing_slots_by_instrument": {
+    "CNYRUBF": 1270,
+    "GLDRUBF": 932,
+    "IMOEXF": 566,
+    "USDRUBF": 187
+  },
+  "momentum": {
+    "MOMENTUM_CNYRUBF": {
+      "entries": 313,
+      "known_stop_count": 203,
+      "range_reentered_at_model_open_count": 106,
+      "stop_on_entry_bar_count": 89,
+      "stop_within_10_minutes_count": 149
+    },
+    "MOMENTUM_GLDRUBF": {
+      "entries": 147,
+      "known_stop_count": 83,
+      "range_reentered_at_model_open_count": 72,
+      "stop_on_entry_bar_count": 33,
+      "stop_within_10_minutes_count": 57
+    },
+    "MOMENTUM_IMOEXF": {
+      "entries": 23,
+      "known_stop_count": 16,
+      "range_reentered_at_model_open_count": 13,
+      "stop_on_entry_bar_count": 4,
+      "stop_within_10_minutes_count": 9
+    },
+    "MOMENTUM_USDRUBF": {
+      "entries": 595,
+      "known_stop_count": 399,
+      "range_reentered_at_model_open_count": 258,
+      "stop_on_entry_bar_count": 153,
+      "stop_within_10_minutes_count": 269
+    }
+  },
+  "protected_root_ids": {
+    ".gitattributes": "d11ce74a54029c3c6f60a72f30148f58e8a41c99",
+    ".gitignore": "75d2f5136fe75e034302dc5ca18c1f473639309b",
+    "AGENTS.md": "a3aa857b98dca524ea60c24c5171f96517e046c0",
+    "ARTIFACT_HANDOFF_VERIFICATION_REPORT.md": "f26dd57d7b0565c23a4dc932fb0618392f3a5e90",
+    "BBW": "7f9990cf12e4421e54a02fd98e507f1e4ef06cb0",
+    "CURRENT_ARTIFACT_STORAGE_STATUS.md": "4ac9d7d33f9508b80cbfc73ca1596dd3957b1490",
+    "PERMANENT_MEMORY_DIAGNOSTIC_REPORT.md": "22edfaa73b113d1c7599b4c460ddf99ccc782502",
+    "PERSISTENT_MEMORY_VERIFICATION_REPORT.md": "69133200da4beedca7612bd6aa54edb3a2049f6b",
+    "README.md": "9165abcb468852a09c2c81863f35ff396bf6f63b",
+    "ROADMAP.md": "94f8286109b75ddd5215eef194b6c02e3c9153c8",
+    "SMOKE_RUN_V2_REPORT.md": "e3886eb955151d7842669c642333fcfd3a420354",
+    "SMOKE_RUN_V3_REPORT.md": "9bc70e8af8f6423935a56e71da4d0fe2f42a25a0",
+    "TradingSystemLab": "7ee08c92fdd5cef92f4a4a6f00a4d26b89fab6b2",
+    "bbw_system": "b6ec4d85776cbc487baacce26a7d3c46e644e823",
+    "config": "bb4b819a158038a94c87e426f2598c025cd031d1",
+    "docs": "c41260c2e2a7561f0997563c558e8c09c3318144",
+    "evidence": "bf5a5714bef835576baddfabb699cf6b61fb375a",
+    "pyproject.toml": "d1874cd67bece45bfdd0e060876a4f2cbcdeb187",
+    "research": "9517d7b7e8a05fe13d944aa7e7cc0ce33e0a6592",
+    "research_domains.md": "3b957c8c5c02e09ad2b85643d8c5947b7f4a0fe7",
+    "results": "7915a53ca48a840ab7e1d33fe7b7f8246b9bcdeb",
+    "schemas": "e49bddfe93abacf9aa98d2445efdd3b799c0423a",
+    "scripts": "f659ff281b1c14b3173e861c0912946e7055be8c",
+    "src": "49b5b2f90e3f959c197907cfc9bf31fb542af81e",
+    "tests": "2e6e9891fd9179adb60b4e3c76b5418bd650eac1"
+  },
+  "protected_root_ids_equal_main": true,
+  "research_completeness_reason": "82 unknown position paths prevent full annual Net/PF/DD; no full calendar coverage for GLD/IMO",
+  "restored_model_entries": 1993,
+  "review_implementation_sha256": "025a82a9029990a08314277d881d464fcb011bc3947f3732b2555c534abb5868",
+  "source_2024_plus_bytes_read": 0,
+  "source_2025_plus_bytes_read": 0,
+  "source_prefix_bytes_per_pass": 5833704,
+  "source_prefix_rows_per_pass": 104795,
+  "special_tick_economics": {
+    "CNYRUBF_all_signals": {
+      "count": 1055,
+      "median_stop_ticks": "2",
+      "median_take_ticks": "2",
+      "nonpositive_net_take_count": 693,
+      "zero_adverse_cap_count": 691
+    },
+    "CNYRUBF_before_cny_tick_switch": {
+      "count": 682,
+      "median_stop_ticks": "2",
+      "median_take_ticks": "1",
+      "nonpositive_net_take_count": 650,
+      "zero_adverse_cap_count": 679
+    },
+    "USDRUBF_all_signals": {
+      "count": 1464,
+      "median_stop_ticks": "10",
+      "median_take_ticks": "5",
+      "nonpositive_net_take_count": 246,
+      "zero_adverse_cap_count": 158
+    },
+    "USDRUBF_before_cny_tick_switch": {
+      "count": 1079,
+      "median_stop_ticks": "10",
+      "median_take_ticks": "5",
+      "nonpositive_net_take_count": 190,
+      "zero_adverse_cap_count": 132
+    }
+  },
+  "test_count": 100,
+  "tests": "PASS_EXECUTED",
+  "verdicts": {
+    "Execution model": "PASS",
+    "Momentum economic viability": "INCONCLUSIVE",
+    "Research completeness": "NEEDS FIX",
+    "VWAP economic viability": "INCONCLUSIVE"
+  }
+}

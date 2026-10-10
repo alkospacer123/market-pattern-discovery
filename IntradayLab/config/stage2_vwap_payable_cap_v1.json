@@ -1,0 +1,91 @@
+{
+  "architectures": [
+    "PAYABLE_CAP_ENTRY",
+    "PAYABLE_CAP_FULL_M5"
+  ],
+  "authorization": "Explicit current user task for bounded 2023 Stage2 complete architecture research and Draft PR.",
+  "defaults": {
+    "breakeven_trigger_R": "1",
+    "breakout_stop_buffer_atr": "0.5",
+    "ema_period": 50,
+    "indicator_period": 14,
+    "max_breakout_extension_atr": "1",
+    "max_signal_tr_atr": "2",
+    "minimum_risk_ticks": 4,
+    "stagnation_minutes": 30,
+    "stagnation_progress_R": "0.5",
+    "trail_atr": "2",
+    "trail_trigger_R": "2",
+    "trend_adx": "25"
+  },
+  "fixed_rules": {
+    "PAYABLE_CAP_ENTRY": "Changed entry-price architecture; original Stop, frozen decision VWAP Take, MaxHold60 and SessionFlat unchanged.",
+    "PAYABLE_CAP_FULL_M5": "Same payable cap plus parent complete MR ATR14/structure/premise/time exit and ADX14/DI regime. MTF blocked; EMA excluded.",
+    "comparison": "Separate new-entry prices/cohort; baseline exact-entry pairs only where both entered at same Open and known. Do not claim selection improvement is causal P&L of omitted trades.",
+    "entry_cap": "C=2 dated ticks. Long cap=min(original cap, floor((TP+SL-2C)/2 on tick)); Short cap=max(original cap, ceil((TP+SL+2C)/2)). Require risk>=4 ticks at prospective cap and actual Open; net reward>=net risk at actual Open. If next exact TTL Open violates bound => NONFILL, no intrabar limit-touch fills or later favorable retry.",
+    "inheritance": "Same ENTRY or FULL_M5 fixed rules/indicators/exits/2023/unknown/execution contracts as parent, no parameter changes.",
+    "sensitivities": {
+      "C2": "Accounting stress only: replaces C1 with 2 dated ticks/side on identical C1-admitted fills; BE remains C1-calibrated. No new entry qualification or fill experiment.",
+      "delay": "availability 15m instead of 10m for every architecture; unchanged rules, strict future Open and derived flat deadline"
+    },
+    "stop_rule": "This is the last predeclared VWAP follow-up in this task. No grid or returns-driven threshold changes."
+  },
+  "frozen_on": "2026-10-09 Europe/Moscow",
+  "id": "stage2_vwap_payable_cap_v1",
+  "inputs": {
+    "CNYRUBF": {
+      "blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 39362
+    },
+    "GLDRUBF": {
+      "blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "first": "2023-07-11 10:00:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 18428
+    },
+    "IMOEXF": {
+      "blob": "41b83b109b177d4522e53486950104845d357d99",
+      "first": "2023-11-14 10:00:00",
+      "path": "forever/IMOEXF/IMOEXF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 4429
+    },
+    "USDRUBF": {
+      "blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/USDRUBF/USDRUBF_M5.csv",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 42576
+    }
+  },
+  "methodology_head": "d000c5e8aad3e0bbae32f55bbf205483b48e9408",
+  "parameters": {
+    "adverse_entry_cap_atr": "0.25",
+    "atr_period": 12,
+    "availability_minutes": 10,
+    "close_before_boundary_minutes": 20,
+    "decision_delay_minutes": 0,
+    "entry_ttl_bars": 1,
+    "flat_confirm_before_boundary_minutes": 10,
+    "momentum_max_hold_minutes": 90,
+    "momentum_take_atr": "3",
+    "no_entry_before_boundary_minutes": 30,
+    "order_delay_minutes": 0,
+    "range_period": 12,
+    "stop_atr": "1.5",
+    "vwap_deviation_atr": "1",
+    "vwap_max_hold_minutes": 60,
+    "warmup_prior_bars": 13
+  },
+  "parent_head": "ca8922082b0988837f7553e5ff39d6a2c3dece09",
+  "parent_manifest_sha256": "8ee4f7f32910a48ebd07493ce5e26a62525f7b20b2894b4f90598b0fda82bc5f",
+  "prior_results_sha256": "00d9c8a8a08dc6533f532cad2fa40e766b62e33c919909d5ce642ad7c210d9b9",
+  "rationale": "The first net1:1 check at original adverse cap admitted zero MR entries: VWAP reward<1ATR vs1.5ATR Stop before costs. Preserve that rejection; derive payable entry price algebraically instead of enlarging TP or tuning constants.",
+  "schema": 1,
+  "scope": "VWAP only, four instruments, all available2023; one architectural follow-up, same numerical settings, no optimization",
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8"
+}

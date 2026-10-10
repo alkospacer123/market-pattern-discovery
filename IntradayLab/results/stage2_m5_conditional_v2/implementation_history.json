@@ -1,0 +1,98 @@
+{
+  "change": "Independent audit strengthened with direct shifted ATR/range and segment VWAP recomputation plus all eight resumed-entry assertions. Audit samples retain source blob/times and validation result, without copying OHLCV rows. Replay implementation, strategies, manifest, economics and first results unchanged.",
+  "initial_artifact_sha256": {
+    "SHA256SUMS": "65f4d61b37106bed092a0e0dfefd00f8ba70e2d640f5b58b32e67cb0808ffaa6",
+    "delay_sensitivity.json": "446e386325b51cb9fc3f9445900a30331f294aedcba978b49974c26816649cf9",
+    "economics.csv": "3851b3b51f4bd18f5992ff490a2a3ad451a71192887f1671f149e0ab166e066f",
+    "economics_summary.csv": "d5591f93aadaac9502a2e14ba2edb018a8d4ac2f191fcd250bcd0cb017d0ff4c",
+    "execution_diagnostics.csv": "27b763a0e60b1b111b0bad15ae3952af441baa12f0bb8dcee90abbbaad83ca25",
+    "execution_events.csv": "3233656212904954c42e6b56d8850ecff100bc7852260640b8766dc486a8db8b",
+    "input_provenance.json": "94044b1e655c37e3f1d2a6a188ac8dcb2482d982b502e886256ac033ee9d76bb",
+    "metrics.csv": "ec1edb675a68fcc64830f65dfaa1d02149f22a3dea0bff57db0a81ffdf8be48e",
+    "no_bar_entries.csv": "b74b00804f055bbff547ec6562e920223342f817aae25db7f0788a1ff7b6690c",
+    "results.json": "48d18973bf54f9c4cf5a6cb1d075141df0abd67fa57cf7a371d0ff04713ec221",
+    "signals.csv": "2d22fbd215eb34a922537117fea0a95b865da7e7cdff12a4e6f827cc9b689cc0",
+    "trade_frequency.csv": "99d711674256b27a9740bfeafe0c8e1a025d7302b2b1946ac202b339db7aabdc",
+    "trade_ledger.csv": "3e424dfddceb6767859f16ebfa6ad30d931c4e54f0a15279ba01206b7877fc49",
+    "verification.json": "561f06e5180980561ef61ffd11c8b3f3d47eb54647003af204eb0af9c5e1b330",
+    "vwap_anchor_comparison.csv": "d0fb6aa9138578766ebe867b1f11a720476bc29eea2f0cdcd4a422859cb3d557"
+  },
+  "initial_prepared_provenance": {
+    "conditional_flatten_assumption": "Reduce all remaining exposure branches at a pre-scheduled observed admissible bar, with model availability acknowledgement; unknown past P&L is never reconciled by OHLCV",
+    "implementation_sha256": {
+      "tests/test_m5_conditional_v2.py": "13af075cd9b9303f80d3d170c60570e38cf5ac73e740b28fa6cfc5d4dec66bf0",
+      "tools/audit_m5_baseline.py": "bf373b40280fb544e86f8010281b29f116becd8f590360589f087d674c25c20a",
+      "tools/audit_m5_conditional_v2.py": "724116371a105b19a3ed0b39df23595500792cfd2715f67efd4029b9815da02c",
+      "tools/audit_session_mtf.py": "1c0f22a9b029c72f55d9e20c9bdc4b147b460e5b5a5f1f0667a46b13a97152dc",
+      "tools/m5_baseline.py": "9920fff1e4964d81375c9cfe7ab081b7985b2e2e1f98cfb16a2b496d32ba7852",
+      "tools/m5_conditional_v2.py": "3ec56bcfd3429f006473dff53022e8c8966313bb793d4f5bfe2a39b0910bb60e",
+      "tools/m5_economics_v2.py": "10c6a008b007c8a7a8394b8443fc56f877fc2b5e01abf348478fc11f95b7221b",
+      "tools/run_m5_baseline.py": "e749434e653a651c5c09efbb31c20bf14c119aec2004080f97d1780ddb964051",
+      "tools/run_m5_conditional_v2.py": "2a7b4b107251aad7358e1a64d12e770bc8a8f3772faf74bda75ac3ff9d0567dd",
+      "tools/session_mtf.py": "fdb1b78e32bddd83c52d360f3de1720ccc78743f82d920ca6daa943d981f0a20"
+    },
+    "inputs": {
+      "CNYRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_2025_plus_read": 0,
+        "first": "2023-01-03 09:00:00",
+        "frozen_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+        "last": "2023-12-29 23:45:00",
+        "prefix_bytes_read": 2212189,
+        "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+        "rows": 39362
+      },
+      "GLDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_2025_plus_read": 0,
+        "first": "2023-07-11 10:00:00",
+        "frozen_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+        "last": "2023-12-29 23:45:00",
+        "prefix_bytes_read": 1044351,
+        "prefix_sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b",
+        "rows": 18428
+      },
+      "IMOEXF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_2025_plus_read": 0,
+        "first": "2023-11-14 10:00:00",
+        "frozen_blob": "41b83b109b177d4522e53486950104845d357d99",
+        "last": "2023-12-29 23:45:00",
+        "prefix_bytes_read": 234733,
+        "prefix_sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c",
+        "rows": 4429
+      },
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_2025_plus_read": 0,
+        "first": "2023-01-03 09:00:00",
+        "frozen_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+        "last": "2023-12-29 23:45:00",
+        "prefix_bytes_read": 2342431,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "rows": 42576
+      }
+    },
+    "manifest_sha256": "66913447c5e6d4aca53b79cbb62b6d2fb701f21c6198f3d957d962bbe96ef66a",
+    "original_artifact_sha256": {
+      "config/stage2_m5_baseline_v1.json": "7b3a1bd786cee3eca09111f906481a3ab38067c79ec9d0d0d0720c21710319ac",
+      "config/stage2_m5_baseline_v1.sha256": "b7a3e759a18de741b96276080d6b1ef792c10e5b5fe85920b8b4e217fdd2ae55",
+      "results/stage2_m5/SHA256SUMS": "4a9fd57470b207b27f0316d15e34125efdc0c49b2fc5fc924e182b546ab2897c",
+      "results/stage2_m5/correction_history.json": "379bda632d3ef114fd4fc46595ea7f635de18c6bdfba1af6d8ddf85f3af7951e",
+      "results/stage2_m5/execution_events.csv": "0fa822180b9e95867c89c115338bf512894522f53f250935e933e0316812b0a7",
+      "results/stage2_m5/input_provenance.json": "1565bc26455748a05b3fd5f9ec6c644c4cea27875e0179d3124aaa87de557df1",
+      "results/stage2_m5/metrics.csv": "0db7a669996c2e8cf2d222ab00a4e35947f97e1ff82e27dcb9ffdb7d824462c2",
+      "results/stage2_m5/results.json": "2564a15d9403e2bd42a7573e0e9897d2b094614b5210e191445f72ecf52d6b1f",
+      "results/stage2_m5/signals.csv": "91943b375c7eaeebf5a89f4c2bbb69db5f4c47fc1e1cbe349c9c2994bc98bce0",
+      "results/stage2_m5/trade_ledger.csv": "609865c5d34589e45c394d61d0fe60f1ac76e862f51c3af8e7e17ff090cefec1",
+      "results/stage2_m5/unknown_entries.csv": "e1a8cad2e1bbc6a6c809968ebe37517d4ad77ed7f330464ab87c4a3bdb2804c9",
+      "results/stage2_m5/verification.json": "20625ddeed3999970a1be3642a87ca606d157ebbb8217f20c12619f7e9460cad"
+    },
+    "parent_manifest_sha256": "7b3a1bd786cee3eca09111f906481a3ab38067c79ec9d0d0d0720c21710319ac",
+    "scope": "M5 2023 physical prefixes only",
+    "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+    "state": "FROZEN_BEFORE_V2_RETURNS"
+  },
+  "parameter_changes": false,
+  "replay_rule_changes": false
+}

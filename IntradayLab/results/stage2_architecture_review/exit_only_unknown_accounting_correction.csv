@@ -1,0 +1,3 @@
+run,signal_id,status,entry,c1_entry_known,exit,gross_price_pnl,c1_exit,c1_total,net_model_c1,exit_filled_model_units,residual_model_units,possible_residual_model_units,residual_upper_bound_abstract_units,model_flat_confirmed,reason
+MOMENTUM_GLDRUBF,MOMENTUM_GLDRUBF_000073,UNRESOLVED,6004.6,0.1,,,,,,,,,1,False,UNKNOWN_COUNTERFACTUAL_PATH; inherited pre-gap scalar fields are not post-gap exposure evidence
+MOMENTUM_GLDRUBF,MOMENTUM_GLDRUBF_000192,UNRESOLVED,5806,0.1,,,,,,,,,1,False,UNKNOWN_COUNTERFACTUAL_PATH; inherited pre-gap scalar fields are not post-gap exposure evidence
