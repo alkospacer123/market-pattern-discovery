@@ -1,0 +1,47 @@
+{
+  "artifacts": {
+    "audit.json": {
+      "bytes": 141092,
+      "published": true,
+      "sha256": "06cc107215bda0bd4b74df75273c067bfd855428d7b400acf19926cc7fdd633d",
+      "two_passes_byte_identical": true
+    },
+    "economic_summary_check.json": {
+      "bytes": 409,
+      "published": true,
+      "sha256": "785faf7ece36a8a52d77b99bf01ee0ca3d9e4be281502a8dc2d3bc6134a6938f",
+      "two_passes_byte_identical": true
+    },
+    "manual_traces.md": {
+      "bytes": 122898,
+      "published": true,
+      "sha256": "09832baf4dfe6bdc90c89b0637f64ac864410c34673e2a9351d28a2e6319cfca",
+      "two_passes_byte_identical": true
+    },
+    "reconstructed.json": {
+      "bytes": 352504891,
+      "published": false,
+      "sha256": "7ecf6a247a008eb9cdc9741035d5d9633e8e8a5cffe6c3cbaf1f18744d1aef97",
+      "two_passes_byte_identical": true
+    },
+    "run_summary.csv": {
+      "bytes": 16391,
+      "published": true,
+      "sha256": "bc94e3f67baad6e249a69927f0c2a88df1d2d1943368fab070f8681de6b0e33c",
+      "two_passes_byte_identical": true
+    }
+  },
+  "audited_source_head": "2cfab348011c874e5d8e98787855f86b75fb5e43",
+  "bytes_2024_plus_market_rows_read": 0,
+  "code_sha256": {
+    "IntradayLab/tools/final_audit_traces.py": "d33cefe9eeea102269479d86159b19f24840c597d519eba3b800e00ef322b55b",
+    "IntradayLab/tools/final_independent_logic_audit.py": "b510956fd2570b653c42de49083429d15beef285cd59daa35a3316335cb1a06a"
+  },
+  "exact_Decimal_mismatches": 0,
+  "independence": "No production strategy imports or Replay calls; all 128 predeclared variants only",
+  "intermediate": "352MB reconstructed oracle journal remains in work/, not copied into repository",
+  "no_merge_no_third_strategy": true,
+  "oracle_runs": 2,
+  "status": "PASS",
+  "tests": "153 PASS, zero skips; original tests unchanged"
+}
