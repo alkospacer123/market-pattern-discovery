@@ -20,7 +20,7 @@ OUT=engine.LAB/'results/stage2_orb_false_break_fade_m5_v1'
 def write_csv(path,rows):
     columns=sorted(set().union(*(r.keys() for r in rows))) if rows else ['signal_id']
     with path.open('w',newline='') as f:
-        w=csv.DictWriter(f,fieldnames=columns);w.writeheader()
+        w=csv.DictWriter(f,fieldnames=columns,lineterminator="\n");w.writeheader()
         w.writerows({k:('' if v is None else str(v)) for k,v in r.items()} for r in rows)
 
 
