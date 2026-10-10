@@ -67,7 +67,9 @@ def finish(args):
          frozen_config_byte_identical=True,technical_parameters_changed=False,
          source_2024_plus_bytes_read=0,real_account_flat_reconciliation=False))
     code=git('rev-parse','HEAD').decode().strip()
-    files=[p for p in (LAB/'tools').glob('*orb_false_break_fade*.py')]+[conf]
+    files=(list((LAB/'tools').glob('*orb_false_break_fade*.py'))+
+           list((LAB/'tests').glob('test_orb_false_break_fade*.py'))+
+           [conf,LAB/'config/stage2_orb_false_break_fade_m5_v1.json'])
     changed=set(git('diff','--name-only',MAIN,'HEAD').decode().splitlines())
     changed.update(str(p.relative_to(ROOT)) for p in OUT.rglob('*') if p.is_file())
     changed.update(str((OUT/n).relative_to(ROOT)) for n in ['manifest.json','changed_files.txt'])
