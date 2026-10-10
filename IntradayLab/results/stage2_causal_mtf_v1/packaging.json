@@ -1,0 +1,38 @@
+{
+  "daily_frequency.csv": {
+    "bytes": 3832500,
+    "sha256_uncompressed": "ce26764042bb7025ef2702e0e00493835f1a56b037f90865f11f0a032967e4d6"
+  },
+  "execution_events.csv": {
+    "bytes": 32176229,
+    "sha256_uncompressed": "e57019a8f14caa4ddd631d031050abfa29c6c28278ef2b4c8cf6f0e46b6806a7"
+  },
+  "metrics.csv": {
+    "bytes": 3420953,
+    "sha256_uncompressed": "567539f3302ad2cc0580731404b680dd20435ee186929b1119bf1aafb73d2627"
+  },
+  "monthly_results.csv": {
+    "bytes": 3094793,
+    "sha256_uncompressed": "2047f99f5e2e55a429252b79d241ac3cbdc1ae7118fddbb322f60c75b2db5c4f"
+  },
+  "paired_contribution.csv": {
+    "bytes": 898169,
+    "sha256_uncompressed": "6a878d356e3cdda1760ff7f123b72fa55d9b9ebeadfed1232f2aeb83dca0f2ea"
+  },
+  "pnl_segments.csv": {
+    "bytes": 6685745,
+    "sha256_uncompressed": "ec187a3a44c6854954f995643c5644c66786fcde5bc3c03d56dd592fedbf9b71"
+  },
+  "signals.csv": {
+    "bytes": 76320741,
+    "sha256_uncompressed": "71d4cced97e423d424645d0f6ea4f0b282e3f7cc3f180567ba9b6f2a5fa91c5d"
+  },
+  "trade_attribution.csv": {
+    "bytes": 10184934,
+    "sha256_uncompressed": "bc66fecad7066a276deda08c72db5702bc74fc0ffaee8703e9cbaa8be001960f"
+  },
+  "trade_ledger.csv": {
+    "bytes": 4452726,
+    "sha256_uncompressed": "a09942697a15053a6471ece4115e34746004be837ed951b81ece16967db54c40"
+  }
+}
