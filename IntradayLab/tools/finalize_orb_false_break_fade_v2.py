@@ -68,6 +68,10 @@ def finish(args):
          source_2024_plus_bytes_read=0,real_account_flat_reconciliation=False))
     code=git('rev-parse','HEAD').decode().strip()
     files=[p for p in (LAB/'tools').glob('*orb_false_break_fade*.py')]+[conf]
+    changed=set(git('diff','--name-only',MAIN,'HEAD').decode().splitlines())
+    changed.update(str(p.relative_to(ROOT)) for p in OUT.rglob('*') if p.is_file())
+    changed.update(str((OUT/n).relative_to(ROOT)) for n in ['manifest.json','changed_files.txt'])
+    (OUT/'changed_files.txt').write_text('\n'.join(sorted(changed))+'\n')
     artifacts={str(p.relative_to(OUT)):sha(p) for p in OUT.rglob('*') if p.is_file() and p.name!='manifest.json'}
     dump(OUT/'manifest.json',dict(schema=2,classification='INCONCLUSIVE_UNRESOLVED',
          continuous_annual_net_pf_dd=None,research='CONDITIONAL_INDEPENDENT_DAYS_CLOSED_ONLY',
