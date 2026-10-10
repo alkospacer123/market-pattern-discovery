@@ -1,5 +1,24 @@
 # IntradayLab — research roadmap
 
+## Current shared Backtester and first canonical Baseline — 2026-10-10
+
+**Common infrastructure COMPLETE / technical PASS. ORB A BASE Baseline INCONCLUSIVE;
+known-closure C1 expectancy: NO ECONOMIC BASELINE PASS. Do not advance ORB to Optimization.**
+The [independent core](core/README.md) implements the approved architecture without
+ORB rules or TradingSystemLab imports. One [canonical A BASE 2023 run](results/orb_a_base_2023_canonical_v1/Baseline_Report.md)
+uses unchanged #463 initial parameters, exact pinned data and the common M5 clock.
+266 tests and independent audit PASS; 171 sufficient-day trades match frozen #463,
+all 12 months are reported, 246 known closures and 20 UNKNOWN retained, annual
+complete metrics null. Two full repeats are byte-identical. Old studies stay frozen.
+
+This task completes only Baseline infrastructure and its first candidate replay.
+Incomplete data/outcomes remain concrete diagnostics, not a new methodology stage.
+Subsequent candidates should plug into this core and begin with fixed-parameter
+Baseline under separate authorized scope. Optimization requires credible positive
+C1 economics and sufficient evidence; no tuning, extra experimental modes or
+automatic next stage follows this negative/incomplete ORB result. 2024 remains WF,
+2025+ remains locked TRUE OOS, TradingSystemLab/live robot remain untouched.
+
 > **Canonical architecture decision — 2026-10-10:** IntradayLab adopts the **methodology and reusable Backtester architecture** of TradingSystemLab, while remaining **100% independent**. One strategy with fixed parameters → shared research Baseline → Optimization only on credible positive C1 economics → Robustness → 2024 Walk Forward → 2025+ TRUE OOS. No obligatory ATR/MTF/grid; no year-long UNKNOWN latch in independent historical-day research. All TradingSystemLab files and live robot are protected read-only. Ongoing Draft PR #463 is separate. **Authoritative for future work:** [ARCHITECTURE_DECISION.md](ARCHITECTURE_DECISION.md). Dated sections below are historical evidence and do not override this decision.
 
 ## Completed Stage 2 — standalone M15 / H1→M15, 2026-10-10

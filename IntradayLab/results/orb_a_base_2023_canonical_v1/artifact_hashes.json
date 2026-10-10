@@ -1,0 +1,20 @@
+{
+  "Baseline_Report.md": "82c5253cfc143fc4f66af09677cd09902d1728993f2c7b9862a4a570b9f2f050",
+  "audit.json": "506cf390288610ba14d603f515b00956f2e5104d3b7d2ecb26a05c03f619782b",
+  "changed_files.txt": "ab18a30b9a5f87c25fb825efb72af1a8c9dffdbeb86b9128b74b2d194d565e43",
+  "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+  "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+  "coverage_report.csv": "f05c0e786082414db510c22a3bdb150912cb12af38065c968506f135474cab2c",
+  "days.csv": "7e6c8eaf89bdb13f196db16acf5ddef50e7521f8fb086bdca8bdf07c8e4300d0",
+  "direction_report.csv": "f6e337b14774631e52132ea8dbbc676ce66e3603e4e2b39a2c213654bb28c02a",
+  "historical_comparison.json": "e8d071e604ba2188a92c7e4d9fd5bb4e8597c7bb5526961193f7793653658b88",
+  "input_provenance.json": "6a8367f4901038419f7e041d79cd056b754c765f4a7c9fa49e1bd424d5e6d6b4",
+  "instrument_report.csv": "bb6fe0a2108941bd64f4600180be908c63e78802b49a93afcf4a3ce36a0b771a",
+  "metrics.json": "a011a8efe74cfd34f3024e444cd6ae09b3e7c8f802ea467844ea07f21b90e5af",
+  "monthly_report.csv": "5e5caae29ca5521794165a2d7fb0b3f17bf143651fd94500dfd2ff37fb4e6939",
+  "provenance.json": "dc7aa7273f9c037208f56b18614d59f38f2c5cca22106a32871bae89814cdab7",
+  "signals.csv": "42e6a2de41589ba6b24e1f23f54c590d8e6c7ce9d8a7fa63f1924a1977d2cbd4",
+  "trades.csv": "3ab91a3e7853749296d0fd5cca66b93e6288d3f1ac05da3e2c5ec09e9c653d44",
+  "unknown_report.csv": "1ad583f18b0d0ceabc94cc52116a902f0ca65dcc078f3e730e62796c7f64ea51",
+  "validation.json": "a27faea81c85d0df9c792df7179db1b02e996c193ffd6c8c3d643ad11af3835f"
+}

@@ -1,5 +1,32 @@
 # IntradayLab — project context
 
+## Current common Backtester and canonical Baseline — 2026-10-10
+
+Base `origin/main`: `447edace1962232854cc26212c4ae5ca2e17297e` (merged #464).
+Independent infrastructure is implemented under [core/](core/README.md), with one
+strategy module and frozen [JSON parameters](config/orb_a_base_2023_canonical_v1.json).
+The separate [canonical 2023 A BASE run](results/orb_a_base_2023_canonical_v1/Baseline_Report.md)
+is technically validated and implementation-independently audited. **INCONCLUSIVE**
+for full Baseline completeness; **NO ECONOMIC BASELINE PASS** for conditional C1
+expectancy on every known-closure instrument cohort. No Optimization handoff.
+
+266 tests PASS (40 new engine/data/strategy scenarios and four audit guards).
+Independent audit checks 24,428 ledger fields, 5,080 coverage fields and 360 report
+metrics. The frozen #463 `9c65d03` A BASE v2 daywise ledger matches on all 171 trades
+from 313 fully sufficient instrument-days and also on incomplete-day diagnostics.
+246 known closures, 20 UNKNOWN. UNKNOWN blocks the current day; future days are
+conditional FLAT experiments. Unknown prices/net are never assigned, and full
+annual PF/Net/Expectancy/Win Rate/DD stay null. Two complete repeated runs match
+artifact bytes; [provenance](results/orb_a_base_2023_canonical_v1/provenance.json)
+and [validation](results/orb_a_base_2023_canonical_v1/validation.json) pin the evidence.
+
+Read-only source `f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8`; exact 2023 prefixes only.
+All changes are inside IntradayLab, with a separate Draft PR; no modifications or
+imports of TradingSystemLab, no data changes, no robot/account/runtime changes.
+No Merge, Optimization, Robustness, Walk Forward, TRUE OOS or LIVE. The standard
+Baseline → Optimization → Robustness → Walk Forward → TRUE OOS lifecycle is intact.
+Older entries below are historical evidence, not the current implementation state.
+
 > **Canonical architecture decision — 2026-10-10:** IntradayLab adopts the **methodology and reusable Backtester architecture** of TradingSystemLab, while remaining **100% independent**. One strategy with fixed parameters → shared research Baseline → Optimization only on credible positive C1 economics → Robustness → 2024 Walk Forward → 2025+ TRUE OOS. No obligatory ATR/MTF/grid; no year-long UNKNOWN latch in independent historical-day research. All TradingSystemLab files and live robot are protected read-only. Ongoing Draft PR #463 is separate. **Authoritative for future work:** [ARCHITECTURE_DECISION.md](ARCHITECTURE_DECISION.md). Dated sections below are historical evidence and do not override this decision.
 
 ## Completed Stage 2 — standalone M15 / H1→M15, 2026-10-10

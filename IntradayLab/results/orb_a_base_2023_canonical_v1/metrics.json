@@ -1,0 +1,208 @@
+{
+  "baseline_status": "INCONCLUSIVE",
+  "instruments": {
+    "CNYRUBF": {
+      "admitted_orders": 67,
+      "annual": {
+        "Expectancy_R": null,
+        "Max_DD_R": null,
+        "Net_R": null,
+        "PF_C1_R": null,
+        "PF_C1_price": null,
+        "Win_Rate": null
+      },
+      "annual_complete": false,
+      "closed": 59,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.2288062973848287081519714451",
+        "Max_DD_R": "17.59633207141278790991307578",
+        "Net_R": "-13.49957154570489378096631526",
+        "Net_price": "-0.323",
+        "PF_C1_R": "0.6222620904509856800191833304",
+        "PF_C1_price": "0.5424929178470254957507082153",
+        "PF_no_losses": false,
+        "Win_Rate": "0.3728813559322033898305084746",
+        "closed": 59,
+        "cost_C1": "0.388",
+        "exit_reasons": {
+          "STOP": 22,
+          "TAKE": 17,
+          "TIME": 20
+        }
+      },
+      "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+      "events": 380,
+      "model_fills": 62,
+      "optimization_allowed": false,
+      "post_unknown_conditional_closed": 56,
+      "rejection_reasons": {
+        "AMBIGUOUS_BOTH_SIDES": 4,
+        "INVALID_STOP_GEOMETRY": 5,
+        "NO_OR": 6,
+        "NO_RECLAIM": 293,
+        "NO_RECLAIM_GAP": 4,
+        "NO_RECLAIM_WINDOW": 1,
+        "POSITION_BUSY": 5
+      },
+      "signals": 72,
+      "status": "INCONCLUSIVE",
+      "unknown": 3,
+      "unknown_possible_entry": 0
+    },
+    "GLDRUBF": {
+      "admitted_orders": 67,
+      "annual": {
+        "Expectancy_R": null,
+        "Max_DD_R": null,
+        "Net_R": null,
+        "PF_C1_R": null,
+        "PF_C1_price": null,
+        "Win_Rate": null
+      },
+      "annual_complete": false,
+      "closed": 40,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.4356183552866324321592488585",
+        "Max_DD_R": "18.73152129411444890103881039",
+        "Net_R": "-17.42473421146529728636995434",
+        "Net_price": "-61.5",
+        "PF_C1_R": "0.4870940626549218209463626875",
+        "PF_C1_price": "0.6220036877688998156115550092",
+        "PF_no_losses": false,
+        "Win_Rate": "0.375",
+        "closed": 40,
+        "cost_C1": "8.0",
+        "exit_reasons": {
+          "SESSION_FLAT": 1,
+          "STOP": 25,
+          "TAKE": 9,
+          "TIME": 5
+        }
+      },
+      "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+      "events": 204,
+      "model_fills": 47,
+      "optimization_allowed": false,
+      "post_unknown_conditional_closed": 40,
+      "rejection_reasons": {
+        "AMBIGUOUS_BOTH_SIDES": 19,
+        "INVALID_STOP_GEOMETRY": 17,
+        "MISSING_EXECUTION_BAR": 3,
+        "NO_OR": 9,
+        "NO_RECLAIM": 95,
+        "NO_RECLAIM_AMBIGUOUS": 2,
+        "NO_RECLAIM_GAP": 2,
+        "NO_RECLAIM_WINDOW": 1,
+        "NO_WAITING_BAR": 2,
+        "POSITION_BUSY": 5,
+        "UNKNOWN_POSITION_BLOCK": 2
+      },
+      "signals": 76,
+      "status": "INCONCLUSIVE",
+      "unknown": 10,
+      "unknown_possible_entry": 3
+    },
+    "IMOEXF": {
+      "admitted_orders": 17,
+      "annual": {
+        "Expectancy_R": null,
+        "Max_DD_R": null,
+        "Net_R": null,
+        "PF_C1_R": null,
+        "PF_C1_price": null,
+        "Win_Rate": null
+      },
+      "annual_complete": false,
+      "closed": 10,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.406010101010101010101010101",
+        "Max_DD_R": "6.060101010101010101010101010",
+        "Net_R": "-4.060101010101010101010101010",
+        "Net_price": "8.0",
+        "PF_C1_R": "0.5051095789214479192317163260",
+        "PF_C1_price": "1.390243902439024390243902439",
+        "PF_no_losses": false,
+        "Win_Rate": "0.4",
+        "closed": 10,
+        "cost_C1": "10.0",
+        "exit_reasons": {
+          "STOP": 5,
+          "TAKE": 4,
+          "TIME": 1
+        }
+      },
+      "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+      "events": 50,
+      "model_fills": 15,
+      "optimization_allowed": false,
+      "post_unknown_conditional_closed": 10,
+      "rejection_reasons": {
+        "AMBIGUOUS_BOTH_SIDES": 2,
+        "INVALID_STOP_GEOMETRY": 1,
+        "MISSING_EXECUTION_BAR": 1,
+        "NO_OR": 4,
+        "NO_RECLAIM": 21,
+        "NO_RECLAIM_AMBIGUOUS": 1,
+        "NO_RECLAIM_GAP": 3,
+        "NO_WAITING_BAR": 1,
+        "POSITION_BUSY": 1
+      },
+      "signals": 19,
+      "status": "INCONCLUSIVE",
+      "unknown": 6,
+      "unknown_possible_entry": 1
+    },
+    "USDRUBF": {
+      "admitted_orders": 158,
+      "annual": {
+        "Expectancy_R": null,
+        "Max_DD_R": null,
+        "Net_R": null,
+        "PF_C1_R": null,
+        "PF_C1_price": null,
+        "Win_Rate": null
+      },
+      "annual_complete": false,
+      "closed": 137,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.3125439669525435787860608082",
+        "Max_DD_R": "53.67529869074427677479092948",
+        "Net_R": "-42.81852347249847029369033073",
+        "Net_price": "-0.26",
+        "PF_C1_R": "0.5818066286990970328222301260",
+        "PF_C1_price": "0.9637883008356545961002785515",
+        "PF_no_losses": false,
+        "Win_Rate": "0.4379562043795620437956204380",
+        "closed": 137,
+        "cost_C1": "2.74",
+        "exit_reasons": {
+          "SESSION_FLAT": 3,
+          "STOP": 63,
+          "TAKE": 38,
+          "TIME": 33
+        }
+      },
+      "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+      "events": 394,
+      "model_fills": 138,
+      "optimization_allowed": false,
+      "post_unknown_conditional_closed": 116,
+      "rejection_reasons": {
+        "AMBIGUOUS_BOTH_SIDES": 6,
+        "INVALID_STOP_GEOMETRY": 20,
+        "NO_OR": 2,
+        "NO_RECLAIM": 215,
+        "NO_RECLAIM_AMBIGUOUS": 2,
+        "POSITION_BUSY": 10,
+        "SESSION_LIMIT": 1
+      },
+      "signals": 169,
+      "status": "INCONCLUSIVE",
+      "unknown": 1,
+      "unknown_possible_entry": 0
+    }
+  },
+  "optimization_allowed": false,
+  "period": "2023-01-01—2023-12-31",
+  "strategy": "ORB_FALSE_BREAK_FADE_A_BASE"
+}
