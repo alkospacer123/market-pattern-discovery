@@ -62,16 +62,18 @@ def reports(config,signals,trades,daily,coverage):
                 mc=[c for c in cc if c['date'].startswith(name)]
                 md=[d for d in dd if d['date'].startswith(name)]
                 obs=sum(d['observed'] for d in md);u=sum(t['status']=='UNKNOWN' for t in mt)
+                active_unknown=sum(t['status']=='UNKNOWN' and str(t['signal_at'])[:7]<=name for t in tt)
+                carry_unknown=sum(t['status']=='UNKNOWN' and str(t['signal_at'])[:7]<name for t in tt)
                 ds={cost:summary(mt,cost) for cost in ('c1','c2')}
                 covered=sum(c['valid_bars'] for c in mc)>0
                 missing=sum(c['missing_bars']+c['zero_volume_bars'] for c in mc)
-                complete=covered and all(c['status']=='COMPLETE' for c in mc) and not u
+                complete=covered and all(c['status']=='COMPLETE' for c in mc) and not active_unknown
                 value=ds['c1']['net']
                 sign='NO_COVERAGE' if not covered else 'POSITIVE' if value>0 else 'NEGATIVE' if value<0 else 'ZERO'
                 signs[sign]+=1
-                classification='NO_COVERAGE' if not covered else 'UNKNOWN' if u else 'PARTIAL_COVERAGE' if not complete else 'NO_TRADES' if not mt else 'COMPLETE'
+                classification='NO_COVERAGE' if not covered else 'UNKNOWN' if active_unknown else 'PARTIAL_COVERAGE' if not complete else 'NO_TRADES' if not mt else 'COMPLETE'
                 monthly.append(dict(architecture=arch,instrument=symbol,month=name,classification=classification,diagnostic_sign=sign,observed_days=obs,expected_days=len(md),raw_signals=sum(s['base_reason']=='SIGNAL' for s in ms),admitted_orders=sum(s['order_admitted'] for s in ms),model_fills=sum(t['model_filled'] for t in mt),closed_trades=ds['c1']['closed_trades'],unknown=u,missing_bars=missing,
-                                    full_net_c1=ds['c1']['net'] if complete else None,full_PF_c1=ds['c1']['net_PF'] if complete else None,full_DD_R_c1=ds['c1']['max_drawdown_R'] if complete else None,
+                                    unknown_active_at_month_end=active_unknown,unknown_carry_in=carry_unknown,full_net_c1=ds['c1']['net'] if complete else None,full_PF_c1=ds['c1']['net_PF'] if complete else None,full_DD_R_c1=ds['c1']['max_drawdown_R'] if complete else None,
                                     diagnostic_net_c1=value,diagnostic_net_R_c1=ds['c1']['net_R'],diagnostic_PF_c1=ds['c1']['net_PF'],diagnostic_net_c2=ds['c2']['net'],diagnostic_PF_c2=ds['c2']['net_PF'],diagnostic_expectancy_R_c1=ds['c1']['expectancy_R'],diagnostic_expectancy_R_c2=ds['c2']['expectancy_R']))
             entry_days={t['entry_at'].date() for t in fill}
             m=dict(architecture=arch,instrument=symbol,annual_complete=full,annual_net_c1=diagnostics['c1']['net'] if full else None,annual_net_PF_c1=diagnostics['c1']['net_PF'] if full else None,annual_max_DD_R_c1=diagnostics['c1']['max_drawdown_R'] if full else None,
@@ -115,6 +117,9 @@ def independent_metrics_audit(metrics,monthly,trades,signals,coverage,raw=None):
                 total=sum((t['net_'+cost] for t in subset if t['status']=='CLOSED'),D(0))
                 if total!=row['diagnostic_net_'+cost]:errors.append((key,row['month'],cost))
             if sum(t['model_filled'] for t in subset)!=row['model_fills'] or sum(t['status']=='UNKNOWN' for t in subset)!=row['unknown']:errors.append((key,row['month'],'COUNTS'))
+            active=sum(t['status']=='UNKNOWN' and str(t['signal_at'])[:7]<=row['month'] for t in ledger)
+            if active!=row['unknown_active_at_month_end']:errors.append((key,row['month'],'UNKNOWN_PROPAGATION'))
+            if active and any(row[k] is not None for k in ('full_net_c1','full_PF_c1','full_DD_R_c1')):errors.append((key,row['month'],'UNKNOWN_MONTH_NULL'))
         if not m['annual_complete'] and any(m[k] is not None for k in ('annual_net_c1','annual_net_PF_c1','annual_max_DD_R_c1')):errors.append((key,'ANNUAL_NULL'))
     coverage_days=0
     if raw is not None:

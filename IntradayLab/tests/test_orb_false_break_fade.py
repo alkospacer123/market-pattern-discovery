@@ -200,6 +200,21 @@ class ORB(unittest.TestCase):
         b=sample();sw(b);ss,tt=p.replay('USDRUBF',b,events(b),'A_BASE',{'atr':False,'mtf':False})
         t=tt[0];self.assertEqual(t['net_c2'],t['gross']-t['cost_c2']);self.assertEqual(t['cost_c2'],2*t['cost_c1'])
 
+    def test_unknown_persists_in_later_months(self):
+        b=sample();sw(b)
+        for t in list(b):
+            if t>=T+4*F:b[t]=row(o='100.95',h='101',l='100.90',c='100.95')
+        del b[T+6*F]
+        e,dd,cc=p.base_signals('USDRUBF',b);ss,tt=p.replay('USDRUBF',b,e,'A_BASE',{'atr':False,'mtf':False})
+        feb=datetime(2023,2,1,10)
+        cc.append(dict(instrument='USDRUBF',date='2023-02-01',status='COMPLETE',expected_bars=105,valid_bars=105,missing_bars=0,zero_volume_bars=0,or_available=True))
+        dd.append(dict(instrument='USDRUBF',date='2023-02-01',observed=True,or_available=True,base_signals=0))
+        cfg={'architectures':{x:{} for x in ('A_BASE','B_IND','C_MTF','D_MTF_IND')},'instruments':['USDRUBF'],'inputs':{'USDRUBF':{'first':str(min(b)),'rows_2023':len(b)}}}
+        metrics,months,_,_=reporting.reports(cfg,ss,tt,dd,cc)
+        febrow=next(x for x in months if x['architecture']=='A_BASE' and x['month']=='2023-02')
+        self.assertEqual(febrow['classification'],'UNKNOWN');self.assertEqual(febrow['unknown_carry_in'],1)
+        self.assertIsNone(febrow['full_net_c1'])
+
     def test_independent_reader_never_crosses_2023_LF(self):
         import hashlib, io, tempfile
         from unittest.mock import patch
