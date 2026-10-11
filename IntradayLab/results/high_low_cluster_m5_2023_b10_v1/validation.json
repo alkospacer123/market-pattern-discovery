@@ -1,0 +1,658 @@
+{
+  "bytes_2024_plus_read": 0,
+  "bytes_2025_plus_read": 0,
+  "deterministic_artifact_sha256": {
+    "Baseline_Report.md": "ee3bb65e26d1ee1adc0232f56f19213f5139af4406ae82c66996a627456f0334",
+    "audit.json": "acc42d61261568f722e4e4aaf8e85ee6bf330ed5cbe1d51f03b1cce597eac651",
+    "boundary_touch_report.csv": "c90fbe38381c39e37c717a3e8732ae22674c61dcf6f0cffa03d08e22dd535c1f",
+    "config.json": "9e0a9d0649d3530a2a100537979444b4b3ce136c1a87b8a2ff22494b0afcf101",
+    "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+    "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+    "coverage_summary.csv": "f7defd9527083b965ec9bf36b74cdb1ed41fe2753dcf19b3d4f37dfffb5439b4",
+    "days.csv": "2f705255156560cdd4fb5307b00874af47df5fd6024d6fab93d5e909c9ef8a8f",
+    "direction_report.csv": "eb5835d2b7eb3e78b7690f85f0fb5c012f6e8aad729b2d47ff53b7bc46340492",
+    "episodes.csv": "a5628e26562f387a90775a694c6cba3cabfa594e2727855784c841433b5a2c44",
+    "input_provenance.json": "4c0bca7c3516a3ca5be1dbc3871d49738d2fea6af4916a03424057e69c9f98b9",
+    "instrument_report.csv": "008567d44fa062ddb3c7b691a16440a698d8c12066e1e0fcb19e7e99bee912de",
+    "manifest.json": "75daebd8753e18dcbd1cc2f1a0ecd8e5fa9a96b0cb38ea49904374a008caecb4",
+    "metrics.json": "4615b6ef62c4d93bc71c6d4fbd0a94d34da687ec607c4f373aa9c88095084eb0",
+    "monthly_report.csv": "d76546695f4df5a0a32fbcf915fff91310303387a1e7c1809aeaa4b115676bcd",
+    "rejected_entries.csv": "a28aa768251e07723efd375cd684024e29f11763b9d3cf8b4895c25ea36551b4",
+    "round_report.csv": "1a574474adf70785a759be555663f391ec6263dd46a04b1475c7bf77f218ed8f",
+    "signals.csv": "f27675298ea973d447787dbadd2a15c7760011f860edaf9a30447b0bc7208d18",
+    "trades.csv": "1f88841b6baf58274cd2031e2e53a7bae132200193c23e86fa4836ba237526e8",
+    "unknown_report.csv": "1495070e09d677fe346d58328c3348290b2dff8c8fd453c7ce1ce00bdf5849a2"
+  },
+  "optimization_allowed": false,
+  "parameters_changed_after_pnl": false,
+  "pre_pnl_freeze_commit": "e969f85f85c59dc03e3c88b35ea7ba5ea1f4f296",
+  "pre_pnl_test_summary": [
+    "----------------------------------------------------------------------",
+    "Ran 496 tests in 47.730s",
+    "",
+    "OK"
+  ],
+  "pre_pnl_validation": {
+    "C1_initial_risk_R_range": [
+      "0.40",
+      "0.6666666666666666666666666667"
+    ],
+    "accepted_risk_ticks_implication": [
+      3,
+      5
+    ],
+    "actual_read_guard": [
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      }
+    ],
+    "all_three_checked_before_pnl": true,
+    "backtester_used": false,
+    "bytes_2024_plus_read": 0,
+    "bytes_2025_plus_read": 0,
+    "checked_signal_fields": 363588,
+    "historical_PnL_viewed": false,
+    "models": {
+      "B10": {
+        "CNYRUBF": {
+          "admission_geometry_only": {
+            "GEOMETRY_FEASIBLE": 430,
+            "OPEN_REFERENCE_LIMIT": 3,
+            "OPEN_REFERENCE_TOO_FAR": 19,
+            "RISK_BELOW_MINIMUM_TICKS": 308,
+            "UNKNOWN_OPEN": 46
+          },
+          "detected": 1285,
+          "historical_grid_and_raw_oracle": "PASS",
+          "rows_2023": 39362,
+          "signals": 806,
+          "zero_width_count": 0
+        },
+        "GLDRUBF": {
+          "admission_geometry_only": {
+            "OPEN_REFERENCE_TOO_FAR": 1,
+            "RISK_ABOVE_MAXIMUM_TICKS": 3
+          },
+          "detected": 5,
+          "historical_grid_and_raw_oracle": "PASS",
+          "rows_2023": 18428,
+          "signals": 4,
+          "zero_width_count": 0
+        },
+        "IMOEXF": {
+          "admission_geometry_only": {
+            "GEOMETRY_FEASIBLE": 1,
+            "RISK_BELOW_MINIMUM_TICKS": 1
+          },
+          "detected": 2,
+          "historical_grid_and_raw_oracle": "PASS",
+          "rows_2023": 4429,
+          "signals": 2,
+          "zero_width_count": 0
+        },
+        "USDRUBF": {
+          "admission_geometry_only": {
+            "GEOMETRY_FEASIBLE": 37,
+            "OPEN_REFERENCE_LIMIT": 2,
+            "OPEN_REFERENCE_TOO_FAR": 13,
+            "RISK_BELOW_MINIMUM_TICKS": 10,
+            "UNKNOWN_OPEN": 3
+          },
+          "detected": 82,
+          "historical_grid_and_raw_oracle": "PASS",
+          "rows_2023": 42576,
+          "signals": 65,
+          "zero_width_count": 0
+        }
+      },
+      "B4": {
+        "CNYRUBF": {
+          "admission_geometry_only": {
+            "GEOMETRY_FEASIBLE": 759,
+            "OPEN_REFERENCE_LIMIT": 8,
+            "OPEN_REFERENCE_TOO_FAR": 129,
+            "RISK_ABOVE_MAXIMUM_TICKS": 14,
+            "RISK_BELOW_MINIMUM_TICKS": 956,
+            "UNKNOWN_OPEN": 101
+          },
+          "detected": 2985,
+          "historical_grid_and_raw_oracle": "PASS",
+          "rows_2023": 39362,
+          "signals": 1967,
+          "zero_width_count": 0
+        },
+        "GLDRUBF": {
+          "admission_geometry_only": {
+            "GEOMETRY_FEASIBLE": 14,
+            "OPEN_REFERENCE_LIMIT": 5,
+            "OPEN_REFERENCE_TOO_FAR": 12,
+            "RISK_ABOVE_MAXIMUM_TICKS": 36,
+            "RISK_BELOW_MINIMUM_TICKS": 16,
+            "UNKNOWN_OPEN": 5
+          },
+          "detected": 125,
+          "historical_grid_and_raw_oracle": "PASS",
+          "rows_2023": 18428,
+          "signals": 88,
+          "zero_width_count": 0
+        },
+        "IMOEXF": {
+          "admission_geometry_only": {
+            "GEOMETRY_FEASIBLE": 31,
+            "OPEN_REFERENCE_LIMIT": 7,
+            "OPEN_REFERENCE_TOO_FAR": 26,
+            "RISK_ABOVE_MAXIMUM_TICKS": 5,
+            "RISK_BELOW_MINIMUM_TICKS": 29,
+            "UNKNOWN_OPEN": 17
+          },
+          "detected": 175,
+          "historical_grid_and_raw_oracle": "PASS",
+          "rows_2023": 4429,
+          "signals": 115,
+          "zero_width_count": 0
+        },
+        "USDRUBF": {
+          "admission_geometry_only": {
+            "GEOMETRY_FEASIBLE": 686,
+            "OPEN_REFERENCE_LIMIT": 12,
+            "OPEN_REFERENCE_TOO_FAR": 441,
+            "RISK_ABOVE_MAXIMUM_TICKS": 47,
+            "RISK_BELOW_MINIMUM_TICKS": 249,
+            "UNKNOWN_OPEN": 32
+          },
+          "detected": 1819,
+          "historical_grid_and_raw_oracle": "PASS",
+          "rows_2023": 42576,
+          "signals": 1467,
+          "zero_width_count": 0
+        }
+      },
+      "B7": {
+        "CNYRUBF": {
+          "admission_geometry_only": {
+            "GEOMETRY_FEASIBLE": 568,
+            "OPEN_REFERENCE_LIMIT": 2,
+            "OPEN_REFERENCE_TOO_FAR": 34,
+            "RISK_BELOW_MINIMUM_TICKS": 535,
+            "UNKNOWN_OPEN": 72
+          },
+          "detected": 1979,
+          "historical_grid_and_raw_oracle": "PASS",
+          "rows_2023": 39362,
+          "signals": 1211,
+          "zero_width_count": 0
+        },
+        "GLDRUBF": {
+          "admission_geometry_only": {
+            "GEOMETRY_FEASIBLE": 2,
+            "OPEN_REFERENCE_TOO_FAR": 1,
+            "RISK_ABOVE_MAXIMUM_TICKS": 1,
+            "RISK_BELOW_MINIMUM_TICKS": 3
+          },
+          "detected": 10,
+          "historical_grid_and_raw_oracle": "PASS",
+          "rows_2023": 18428,
+          "signals": 7,
+          "zero_width_count": 0
+        },
+        "IMOEXF": {
+          "admission_geometry_only": {
+            "GEOMETRY_FEASIBLE": 4,
+            "OPEN_REFERENCE_LIMIT": 1,
+            "OPEN_REFERENCE_TOO_FAR": 1,
+            "RISK_BELOW_MINIMUM_TICKS": 4,
+            "UNKNOWN_OPEN": 5
+          },
+          "detected": 24,
+          "historical_grid_and_raw_oracle": "PASS",
+          "rows_2023": 4429,
+          "signals": 15,
+          "zero_width_count": 0
+        },
+        "USDRUBF": {
+          "admission_geometry_only": {
+            "GEOMETRY_FEASIBLE": 144,
+            "OPEN_REFERENCE_LIMIT": 3,
+            "OPEN_REFERENCE_TOO_FAR": 86,
+            "RISK_ABOVE_MAXIMUM_TICKS": 6,
+            "RISK_BELOW_MINIMUM_TICKS": 61,
+            "UNKNOWN_OPEN": 5
+          },
+          "detected": 377,
+          "historical_grid_and_raw_oracle": "PASS",
+          "rows_2023": 42576,
+          "signals": 305,
+          "zero_width_count": 0
+        }
+      }
+    },
+    "protected_files": {
+      "TradingSystemLab_diff_empty": true,
+      "all_frozen_strategies_configs_results_unchanged": true,
+      "base_main": "8db73e6338bc5b89eda385e21167e22c74e5a299",
+      "market_pattern_data_clean": true,
+      "outside_IntradayLab_diff_empty": true,
+      "protected_repository_files": 3303,
+      "status": "PASS",
+      "unchanged_existing_intraday_files": 553
+    },
+    "source_receipts": {
+      "CNYRUBF": {
+        "blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+        "bytes_2024_plus_read": 0,
+        "bytes_2025_plus_read": 0,
+        "bytes_read": 2212189,
+        "first": "2023-01-03 09:00:00",
+        "invalid_rows": {},
+        "label": "start",
+        "last": "2023-12-29 23:45:00+03:00",
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv",
+        "prefix_bytes": 2212189,
+        "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+        "reader": "unbuffered exact byte prefix",
+        "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+        "rows_2023": 39362,
+        "timezone": "Europe/Moscow"
+      },
+      "GLDRUBF": {
+        "blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+        "bytes_2024_plus_read": 0,
+        "bytes_2025_plus_read": 0,
+        "bytes_read": 1044351,
+        "first": "2023-07-11 10:00:00",
+        "invalid_rows": {},
+        "label": "start",
+        "last": "2023-12-29 23:45:00+03:00",
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv",
+        "prefix_bytes": 1044351,
+        "prefix_sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b",
+        "reader": "unbuffered exact byte prefix",
+        "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+        "rows_2023": 18428,
+        "timezone": "Europe/Moscow"
+      },
+      "IMOEXF": {
+        "blob": "41b83b109b177d4522e53486950104845d357d99",
+        "bytes_2024_plus_read": 0,
+        "bytes_2025_plus_read": 0,
+        "bytes_read": 234733,
+        "first": "2023-11-14 10:00:00",
+        "invalid_rows": {},
+        "label": "start",
+        "last": "2023-12-29 23:45:00+03:00",
+        "path": "forever/IMOEXF/IMOEXF_M5.csv",
+        "prefix_bytes": 234733,
+        "prefix_sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c",
+        "reader": "unbuffered exact byte prefix",
+        "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+        "rows_2023": 4429,
+        "timezone": "Europe/Moscow"
+      },
+      "USDRUBF": {
+        "blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+        "bytes_2024_plus_read": 0,
+        "bytes_2025_plus_read": 0,
+        "bytes_read": 2342431,
+        "first": "2023-01-03 09:00:00",
+        "invalid_rows": {},
+        "label": "start",
+        "last": "2023-12-29 23:45:00+03:00",
+        "path": "forever/USDRUBF/USDRUBF_M5.csv",
+        "prefix_bytes": 2342431,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "reader": "unbuffered exact byte prefix",
+        "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+        "rows_2023": 42576,
+        "timezone": "Europe/Moscow"
+      }
+    },
+    "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+    "status": "PASS",
+    "trade_paths_evaluated": false,
+    "unittest_count": 496,
+    "unittest_status": "PASS"
+  },
+  "protected_files": {
+    "TradingSystemLab_diff_empty": true,
+    "all_frozen_strategies_configs_results_unchanged": true,
+    "base_main": "8db73e6338bc5b89eda385e21167e22c74e5a299",
+    "market_pattern_data_clean": true,
+    "outside_IntradayLab_diff_empty": true,
+    "protected_repository_files": 3303,
+    "status": "PASS",
+    "unchanged_existing_intraday_files": 553
+  },
+  "regressions": {
+    "canonical": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 14,
+      "independent_audit_status": "PASS",
+      "metadata_exception": "Current common core SHA in replay provenance only; original config/clock/parameters unchanged",
+      "status": "PASS"
+    },
+    "equal_high_low": {
+      "actual_source_reads": [],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 21,
+      "independent_audit_status": "PASS",
+      "metadata_exception": "Current common core SHA in replay provenance only; original config/clock/parameters unchanged",
+      "status": "PASS"
+    },
+    "level_rejection": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 15,
+      "independent_audit_status": "PASS",
+      "metadata_exception": "Current common core SHA in replay provenance only; original config/clock/parameters unchanged",
+      "status": "PASS"
+    },
+    "r16": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 14,
+      "independent_audit_status": "PASS",
+      "metadata_exception": "Current common core SHA in replay provenance only; original config/clock/parameters unchanged",
+      "status": "PASS"
+    },
+    "r17": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 13,
+      "independent_audit_status": "PASS",
+      "metadata_exception": "Current common core SHA in replay provenance only; original config/clock/parameters unchanged",
+      "status": "PASS"
+    },
+    "swing_pullback": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 16,
+      "independent_audit_status": "PASS",
+      "metadata_exception": "Current common core SHA in replay provenance only; original config/clock/parameters unchanged",
+      "status": "PASS"
+    },
+    "trend_pullback": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 21,
+      "independent_audit_status": "PASS",
+      "metadata_exception": "Current common core SHA in replay provenance only; original config/clock/parameters unchanged",
+      "status": "PASS"
+    }
+  },
+  "repeats": [
+    {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "all_bytes_identical": true,
+      "identical_artifact_files": 20,
+      "independent_audit_status": "PASS",
+      "run": "repeat_one"
+    },
+    {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "all_bytes_identical": true,
+      "identical_artifact_files": 20,
+      "independent_audit_status": "PASS",
+      "run": "repeat_two"
+    }
+  ],
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "status": "PASS"
+}

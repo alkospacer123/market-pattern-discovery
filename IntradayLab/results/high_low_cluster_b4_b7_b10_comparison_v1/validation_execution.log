@@ -1,0 +1,14 @@
+B4 repeat_one byte-identical / audit PASS
+B4 repeat_two byte-identical / audit PASS
+B7 repeat_one byte-identical / audit PASS
+B7 repeat_two byte-identical / audit PASS
+B10 repeat_one byte-identical / audit PASS
+B10 repeat_two byte-identical / audit PASS
+canonical unchanged economic artifacts / independent audit PASS
+level_rejection unchanged economic artifacts / independent audit PASS
+r16 unchanged economic artifacts / independent audit PASS
+r17 unchanged economic artifacts / independent audit PASS
+swing_pullback unchanged economic artifacts / independent audit PASS
+trend_pullback unchanged economic artifacts / independent audit PASS
+equal_high_low unchanged economic artifacts / independent audit PASS
+{"models": 3, "regressions": 7, "repeats": 6, "status": "PASS"}
