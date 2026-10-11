@@ -1,0 +1,1737 @@
+{
+  "bytes_2024_plus_read": 0,
+  "bytes_2025_plus_read": 0,
+  "deterministic_artifact_sha256": {
+    "Baseline_Report.md": "fde683b4f390ae0e1fc4b53ff49da8ea4271a5577cba9f0cf9d066e1d6b0d5aa",
+    "Independent_Audit.md": "9be526b8a76fcfadb8f37471f4fad1503de2443737b65aa25b1c7c03d2863dcb",
+    "audit.json": "f9c6adf0477d89a5683db5bdec988a5dc4f973e4f29e2fc8285b5d0e3f46805e",
+    "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+    "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+    "coverage_summary.csv": "f7defd9527083b965ec9bf36b74cdb1ed41fe2753dcf19b3d4f37dfffb5439b4",
+    "days.csv": "0a058032f915ae4bb3e1797099179613d30f45f321ee69ddc3ae3d3c07f6883d",
+    "diagnostics/Execution_Comparison.md": "658233324fc16880879f7ea41885b5cbbe0bfeab7ba0f9570bc1294188f21bb0",
+    "diagnostics/close_oracle_metrics.json": "f6108378ead55539e13f3f35bdafb5b3cdd81aae606f41e3878da97115e3046e",
+    "diagnostics/close_oracle_signals.csv": "2e68f9d0d9ec6e992ad8a6213a7812bf02ab115741774ddb32a74e04c5a2cb69",
+    "diagnostics/close_oracle_trades.csv": "e291312e3f9a3d2d509cf4c63b654cb3ad1d19539fdbc2ae1a13dd6b1da9436a",
+    "diagnostics/entry_comparison.csv": "6043e459a4b1137aec16302efeef3d8829ead817f66144d1eb5cc6916c90fc9e",
+    "direction_report.csv": "ba37e3d6d58f04d08d85be916d13ae9b772c7713669375e09c5f5fdfd47bea99",
+    "funnel.json": "9bf2297850c1b8a63415c4fb366737ea7dea88a9469b2f9e6f7094053f0c9193",
+    "input_provenance.json": "4c0bca7c3516a3ca5be1dbc3871d49738d2fea6af4916a03424057e69c9f98b9",
+    "instrument_report.csv": "8bef4694b0599687c3a98f46ffa969d61275b3a45ec2b57e2c5c9ec9f6f53970",
+    "manifest.json": "99096c0bea0be935adb9865d68733073c29105332d909239fbba3cd2cbcfbc36",
+    "metrics.json": "ef447187f91d3237d1aa9fd1285786b6e2eb3c4f1ad931dac6267fd03ffaf4c8",
+    "monthly_report.csv": "eac2a8d4e312fbb65acb415a3e0330085c5668ee24da3aa2e22ee750f6b4ef39",
+    "rejected_entries.csv": "56408c35cab084c37c2a1a418dd77b467d95419d27207365679e9bf8719038d6",
+    "signals.csv": "6a8cdca1929557cddc67b142caca41a9f42e3e362db1c6a37654fd760f16391e",
+    "trades.csv": "7f60752d78ff9e4e0e856cbcc9663a23c9e6cda43f11543f3d95bd58bf2ecaad",
+    "unknown_report.csv": "a3baee36eace1928588e4aced6fc234f4758ee434bd0ae130d07010a394688fc"
+  },
+  "optimization_allowed": false,
+  "parameters_changed_after_pnl": false,
+  "pre_pnl_freeze_commit": "f880b3c4ac0fd2cb6d997d7680a1e427a2537340",
+  "pre_pnl_tests": {
+    "actual_source_reads": [
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      }
+    ],
+    "effective_admissible_risk_ticks": [
+      3,
+      4,
+      5
+    ],
+    "geometry_cases": [
+      {
+        "direction": -1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 2,
+        "risk_ticks": "3",
+        "take_distance_ticks": "17",
+        "tick": ".01"
+      },
+      {
+        "direction": -1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 3,
+        "risk_ticks": "4",
+        "take_distance_ticks": "20",
+        "tick": ".01"
+      },
+      {
+        "direction": -1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 4,
+        "risk_ticks": "5",
+        "take_distance_ticks": "23",
+        "tick": ".01"
+      },
+      {
+        "direction": 1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 2,
+        "risk_ticks": "3",
+        "take_distance_ticks": "17",
+        "tick": ".01"
+      },
+      {
+        "direction": 1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 3,
+        "risk_ticks": "4",
+        "take_distance_ticks": "20",
+        "tick": ".01"
+      },
+      {
+        "direction": 1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 4,
+        "risk_ticks": "5",
+        "take_distance_ticks": "23",
+        "tick": ".01"
+      },
+      {
+        "direction": -1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 2,
+        "risk_ticks": "3",
+        "take_distance_ticks": "17",
+        "tick": ".001"
+      },
+      {
+        "direction": -1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 3,
+        "risk_ticks": "4",
+        "take_distance_ticks": "20",
+        "tick": ".001"
+      },
+      {
+        "direction": -1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 4,
+        "risk_ticks": "5",
+        "take_distance_ticks": "23",
+        "tick": ".001"
+      },
+      {
+        "direction": 1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 2,
+        "risk_ticks": "3",
+        "take_distance_ticks": "17",
+        "tick": ".001"
+      },
+      {
+        "direction": 1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 3,
+        "risk_ticks": "4",
+        "take_distance_ticks": "20",
+        "tick": ".001"
+      },
+      {
+        "direction": 1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 4,
+        "risk_ticks": "5",
+        "take_distance_ticks": "23",
+        "tick": ".001"
+      },
+      {
+        "direction": -1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 2,
+        "risk_ticks": "3",
+        "take_distance_ticks": "17",
+        "tick": ".1"
+      },
+      {
+        "direction": -1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 3,
+        "risk_ticks": "4",
+        "take_distance_ticks": "20",
+        "tick": ".1"
+      },
+      {
+        "direction": -1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 4,
+        "risk_ticks": "5",
+        "take_distance_ticks": "23",
+        "tick": ".1"
+      },
+      {
+        "direction": 1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 2,
+        "risk_ticks": "3",
+        "take_distance_ticks": "17",
+        "tick": ".1"
+      },
+      {
+        "direction": 1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 3,
+        "risk_ticks": "4",
+        "take_distance_ticks": "20",
+        "tick": ".1"
+      },
+      {
+        "direction": 1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 4,
+        "risk_ticks": "5",
+        "take_distance_ticks": "23",
+        "tick": ".1"
+      },
+      {
+        "direction": -1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 2,
+        "risk_ticks": "3",
+        "take_distance_ticks": "17",
+        "tick": ".5"
+      },
+      {
+        "direction": -1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 3,
+        "risk_ticks": "4",
+        "take_distance_ticks": "20",
+        "tick": ".5"
+      },
+      {
+        "direction": -1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 4,
+        "risk_ticks": "5",
+        "take_distance_ticks": "23",
+        "tick": ".5"
+      },
+      {
+        "direction": 1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 2,
+        "risk_ticks": "3",
+        "take_distance_ticks": "17",
+        "tick": ".5"
+      },
+      {
+        "direction": 1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 3,
+        "risk_ticks": "4",
+        "take_distance_ticks": "20",
+        "tick": ".5"
+      },
+      {
+        "direction": 1,
+        "full_net_net_R": "3",
+        "rebound_ticks": 4,
+        "risk_ticks": "5",
+        "take_distance_ticks": "23",
+        "tick": ".5"
+      }
+    ],
+    "historical_returns_computed": false,
+    "maximum_12_ticks_retained": true,
+    "note": "Only grid/geometry and technical source validity; no trade engine, exits or P&L.",
+    "parameters_changed": false,
+    "pre_pnl": true,
+    "source_grid_problems": {
+      "CNYRUBF": {},
+      "GLDRUBF": {},
+      "IMOEXF": {},
+      "USDRUBF": {}
+    },
+    "source_receipts": {
+      "CNYRUBF": {
+        "blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+        "bytes_2024_plus_read": 0,
+        "bytes_2025_plus_read": 0,
+        "bytes_read": 2212189,
+        "first": "2023-01-03 09:00:00",
+        "invalid_rows": {},
+        "label": "start",
+        "last": "2023-12-29 23:45:00+03:00",
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv",
+        "prefix_bytes": 2212189,
+        "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+        "reader": "unbuffered exact byte prefix",
+        "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+        "rows_2023": 39362,
+        "timezone": "Europe/Moscow"
+      },
+      "GLDRUBF": {
+        "blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+        "bytes_2024_plus_read": 0,
+        "bytes_2025_plus_read": 0,
+        "bytes_read": 1044351,
+        "first": "2023-07-11 10:00:00",
+        "invalid_rows": {},
+        "label": "start",
+        "last": "2023-12-29 23:45:00+03:00",
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv",
+        "prefix_bytes": 1044351,
+        "prefix_sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b",
+        "reader": "unbuffered exact byte prefix",
+        "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+        "rows_2023": 18428,
+        "timezone": "Europe/Moscow"
+      },
+      "IMOEXF": {
+        "blob": "41b83b109b177d4522e53486950104845d357d99",
+        "bytes_2024_plus_read": 0,
+        "bytes_2025_plus_read": 0,
+        "bytes_read": 234733,
+        "first": "2023-11-14 10:00:00",
+        "invalid_rows": {},
+        "label": "start",
+        "last": "2023-12-29 23:45:00+03:00",
+        "path": "forever/IMOEXF/IMOEXF_M5.csv",
+        "prefix_bytes": 234733,
+        "prefix_sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c",
+        "reader": "unbuffered exact byte prefix",
+        "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+        "rows_2023": 4429,
+        "timezone": "Europe/Moscow"
+      },
+      "USDRUBF": {
+        "blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+        "bytes_2024_plus_read": 0,
+        "bytes_2025_plus_read": 0,
+        "bytes_read": 2342431,
+        "first": "2023-01-03 09:00:00",
+        "invalid_rows": {},
+        "label": "start",
+        "last": "2023-12-29 23:45:00+03:00",
+        "path": "forever/USDRUBF/USDRUBF_M5.csv",
+        "prefix_bytes": 2342431,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "reader": "unbuffered exact byte prefix",
+        "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+        "rows_2023": 42576,
+        "timezone": "Europe/Moscow"
+      }
+    },
+    "source_rows_2023": {
+      "CNYRUBF": 39362,
+      "GLDRUBF": 18428,
+      "IMOEXF": 4429,
+      "USDRUBF": 42576
+    },
+    "status": "PASS",
+    "tests": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s IntradayLab/tests -q",
+      "errors": 0,
+      "failures": 0,
+      "log_sha256": "82d448b7165dd60d39204c28d1e2f413b22b33c4f4faf879aef033855763f835",
+      "new_tests": 30,
+      "skips": 0,
+      "status": "PASS",
+      "tests": 476
+    }
+  },
+  "protected_files": {
+    "TradingSystemLab_diff_empty": true,
+    "all_frozen_strategies_configs_results_unchanged": true,
+    "allowed_existing_changes": [
+      "IntradayLab/PROJECT_CONTEXT.md",
+      "IntradayLab/ROADMAP.md",
+      "IntradayLab/core/README.md",
+      "IntradayLab/core/backtester.py",
+      "IntradayLab/core/execution.py"
+    ],
+    "market_pattern_data_clean": true,
+    "outside_IntradayLab_diff_empty": true,
+    "pr_472_expected_head": "82ec9ffe61e18a43cd7510e398f6913b25f045e1",
+    "protected_repository_files": 3303,
+    "status": "PASS",
+    "unchanged_existing_intraday_files": 507
+  },
+  "regressions": {
+    "canonical": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 14,
+      "independent_audit": {
+        "archived_auditor_sha256": "2a5b5f7f471030585421c081de45c36882d28fb2ef43b3384dae57ce065e391f",
+        "checked_fields": 24464,
+        "method": "Unchanged independent archived signal/path/metric oracle, exact published CSV audit fields; byte equality also required",
+        "published_signal_fields": [
+          "base_reason",
+          "direction",
+          "sweep_start",
+          "sweep_closed_at",
+          "signal_at",
+          "stop",
+          "or_high",
+          "or_low",
+          "or_available_at",
+          "sweep_size",
+          "sweep_tick",
+          "reclaim_start",
+          "status",
+          "reason",
+          "order_admitted",
+          "model_filled"
+        ],
+        "published_trade_fields": [
+          "direction",
+          "signal_at",
+          "sweep_start",
+          "reclaim_start",
+          "status",
+          "model_filled",
+          "entry_at",
+          "entry_price",
+          "stop",
+          "take",
+          "risk",
+          "exit_reason",
+          "unknown_reason",
+          "exit_at",
+          "exit_interval_start",
+          "exit_interval_end",
+          "resolved_at",
+          "unknown_detected_at",
+          "exit_price",
+          "gross",
+          "gross_R",
+          "cost_entry_c1",
+          "cost_c1",
+          "cost_R",
+          "net_c1",
+          "net_R_c1",
+          "prior_unknown_requires_flat_assumption",
+          "order_sent_at",
+          "waiting_bar_closed_at",
+          "planned_execution_at"
+        ],
+        "source_receipts": {
+          "CNYRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 2212189,
+            "sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9"
+          },
+          "GLDRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 1044351,
+            "sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b"
+          },
+          "IMOEXF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 234733,
+            "sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c"
+          },
+          "USDRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 2342431,
+            "sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d"
+          }
+        },
+        "status": "PASS"
+      },
+      "metadata_exception": "Only current core SHA values in runner memory; original config bytes/parameters/clocks unchanged",
+      "non_code_provenance_identical": true,
+      "replay_code_identity_changes": {
+        "IntradayLab/core/backtester.py": {
+          "replayed": "aa692dfc853ae3e4a0c0e5cb52745d6fc649a591c69dcfa3388b684caf87f248",
+          "stored": "552d8138b5b1d2e27f30ac68046fbdb09383a8de4cd1feb4a6c7e33138b2938a"
+        },
+        "IntradayLab/core/execution.py": {
+          "replayed": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c",
+          "stored": "adddf4ab2d1662f2de9e395573bdf43b7e8999342118003e4a74467b5b90f791"
+        },
+        "IntradayLab/core/h1_context.py": {
+          "replayed": "29ccc342d760e855f6868c144c99bd5b3d2312089cf0f5851bbeb69bb17b6909",
+          "stored": null
+        },
+        "IntradayLab/core/m15_bars.py": {
+          "replayed": "46bba5ed6a46b65666de3f5f243beaaf161e29d852575b9b2e8a2950c2b0d334",
+          "stored": null
+        },
+        "IntradayLab/core/m15_context.py": {
+          "replayed": "26bca505f8283626f48993ac374d9a2b279231014c468e03593562104d2443c2",
+          "stored": null
+        },
+        "IntradayLab/core/metrics.py": {
+          "replayed": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328",
+          "stored": "d029be49385e13aa6a9cf20dc64e7041288fb43b5b6079401b921aa0362131bd"
+        },
+        "IntradayLab/strategies/compression_breakout.py": {
+          "replayed": "16dadd2d626b69467575c932eeb23b250821888d5870a817661383f4755837ee",
+          "stored": null
+        },
+        "IntradayLab/strategies/equal_high_low_m5.py": {
+          "replayed": "fd465001a573297867709246d6b7d9bc14848deed2dbf53a75a87f684cdc517a",
+          "stored": null
+        },
+        "IntradayLab/strategies/level_rejection.py": {
+          "replayed": "88e265d86132275b937c6b2ee789b881c09f5e00a07b174d93c56ed67a8b4c39",
+          "stored": null
+        },
+        "IntradayLab/strategies/orb_breakout_retest.py": {
+          "replayed": "f646a3a5f65b9e41ff9b9b807dd3003c8e98e21d47dd2d14fe9cd0a410384858",
+          "stored": null
+        },
+        "IntradayLab/strategies/swing_pullback_m5_m15.py": {
+          "replayed": "520128f8f4b18c16a53655a85167e23b2736c161debb3fe1624ab2ceb9d49d19",
+          "stored": null
+        },
+        "IntradayLab/strategies/trend_pullback_m15_h1.py": {
+          "replayed": "64415488ab19efbf182172a03ca142eb61060da6c0f9858ce3b0a9ef8a83be25",
+          "stored": null
+        }
+      },
+      "result_sha256": {
+        "Baseline_Report.md": "82c5253cfc143fc4f66af09677cd09902d1728993f2c7b9862a4a570b9f2f050",
+        "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+        "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+        "coverage_report.csv": "f05c0e786082414db510c22a3bdb150912cb12af38065c968506f135474cab2c",
+        "days.csv": "7e6c8eaf89bdb13f196db16acf5ddef50e7521f8fb086bdca8bdf07c8e4300d0",
+        "direction_report.csv": "f6e337b14774631e52132ea8dbbc676ce66e3603e4e2b39a2c213654bb28c02a",
+        "historical_comparison.json": "e8d071e604ba2188a92c7e4d9fd5bb4e8597c7bb5526961193f7793653658b88",
+        "input_provenance.json": "6a8367f4901038419f7e041d79cd056b754c765f4a7c9fa49e1bd424d5e6d6b4",
+        "instrument_report.csv": "bb6fe0a2108941bd64f4600180be908c63e78802b49a93afcf4a3ce36a0b771a",
+        "metrics.json": "a011a8efe74cfd34f3024e444cd6ae09b3e7c8f802ea467844ea07f21b90e5af",
+        "monthly_report.csv": "5e5caae29ca5521794165a2d7fb0b3f17bf143651fd94500dfd2ff37fb4e6939",
+        "signals.csv": "42e6a2de41589ba6b24e1f23f54c590d8e6c7ce9d8a7fa63f1924a1977d2cbd4",
+        "trades.csv": "3ab91a3e7853749296d0fd5cca66b93e6288d3f1ac05da3e2c5ec09e9c653d44",
+        "unknown_report.csv": "1ad583f18b0d0ceabc94cc52116a902f0ca65dcc078f3e730e62796c7f64ea51"
+      },
+      "status": "PASS"
+    },
+    "level_rejection": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 15,
+      "independent_audit": {
+        "archived_auditor_sha256": "8189e3e8e7496455be8bfba9723d70c099948e2ce951850647a00b9d006e8f45",
+        "checked_fields": 454610,
+        "method": "Unchanged independent archived signal/path/metric oracle, exact published CSV audit fields; byte equality also required",
+        "published_signal_fields": [
+          "base_reason",
+          "direction",
+          "signal_at",
+          "test_start",
+          "range_start",
+          "range_end",
+          "range_bars",
+          "range_high",
+          "range_low",
+          "test_closed_at",
+          "test_high",
+          "test_low",
+          "test_close",
+          "signal_tick",
+          "raw_rejection",
+          "confirmed_signal",
+          "previous_confirmed_start",
+          "level",
+          "opposite_level",
+          "reset_reason",
+          "valid_preceding_bars",
+          "pending_created",
+          "open_admission_passed",
+          "stop",
+          "status",
+          "reason",
+          "order_admitted",
+          "model_filled",
+          "entry_open",
+          "entry_tick",
+          "risk",
+          "take",
+          "recorded_at",
+          "waiting_bar_start",
+          "waiting_bar_closed_at",
+          "planned_execution_at",
+          "target_mode",
+          "target_net_R",
+          "planned_C1",
+          "d_legacy",
+          "d_full",
+          "rounded_take_distance",
+          "planned_net_to_net_R",
+          "legacy_net_to_gross_R"
+        ],
+        "published_trade_fields": [
+          "direction",
+          "signal_at",
+          "status",
+          "model_filled",
+          "entry_at",
+          "entry_price",
+          "entry_tick",
+          "stop",
+          "take",
+          "risk",
+          "exit_reason",
+          "unknown_reason",
+          "exit_at",
+          "exit_interval_start",
+          "exit_interval_end",
+          "resolved_at",
+          "unknown_detected_at",
+          "exit_price",
+          "exit_tick",
+          "gross",
+          "gross_R",
+          "cost_entry_c1",
+          "cost_c1",
+          "cost_R",
+          "net_c1",
+          "net_R_c1",
+          "prior_unknown_requires_flat_assumption",
+          "order_sent_at",
+          "waiting_bar_closed_at",
+          "planned_execution_at",
+          "trade_deadline_at",
+          "effective_deadline_at",
+          "stop_take_conflict",
+          "target_mode",
+          "target_net_R",
+          "planned_C1",
+          "d_legacy",
+          "d_full",
+          "rounded_take_distance",
+          "planned_net_to_net_R",
+          "legacy_net_to_gross_R",
+          "realized_net_to_net_R"
+        ],
+        "source_receipts": {
+          "CNYRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 2212189,
+            "sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9"
+          },
+          "GLDRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 1044351,
+            "sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b"
+          },
+          "IMOEXF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 234733,
+            "sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c"
+          },
+          "USDRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 2342431,
+            "sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d"
+          }
+        },
+        "status": "PASS"
+      },
+      "metadata_exception": "Only current core SHA values in runner memory; original config bytes/parameters/clocks unchanged",
+      "non_code_provenance_identical": true,
+      "replay_code_identity_changes": {
+        "IntradayLab/core/backtester.py": {
+          "replayed": "aa692dfc853ae3e4a0c0e5cb52745d6fc649a591c69dcfa3388b684caf87f248",
+          "stored": "5654273e073bf1000bd0ded3642337fd734457856d99c17596055160e7a9e190"
+        },
+        "IntradayLab/core/execution.py": {
+          "replayed": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c",
+          "stored": "354acd95ee27f4e08ec35a7e29341a01234de915ca49354f10233b2adafbe97a"
+        },
+        "IntradayLab/core/h1_context.py": {
+          "replayed": "29ccc342d760e855f6868c144c99bd5b3d2312089cf0f5851bbeb69bb17b6909",
+          "stored": null
+        },
+        "IntradayLab/core/m15_bars.py": {
+          "replayed": "46bba5ed6a46b65666de3f5f243beaaf161e29d852575b9b2e8a2950c2b0d334",
+          "stored": null
+        },
+        "IntradayLab/core/m15_context.py": {
+          "replayed": "26bca505f8283626f48993ac374d9a2b279231014c468e03593562104d2443c2",
+          "stored": null
+        }
+      },
+      "result_sha256": {
+        "Baseline_Report.md": "700a07d05a4de2bba8cde05460cec221ad68cc646761a06b7dea54dc0150a831",
+        "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+        "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+        "coverage_report.csv": "3b1f96d91b3e761491fa4cdff4a0d483135b47abe4eb7e9bcce29d9be1734661",
+        "coverage_summary.csv": "ebb5c80e6162eb8dface4c7b4984c25592d99492f81fe0b8dc624183d168f551",
+        "days.csv": "5023756bf7be8964790893fab599e44f198ba5d038a6c976e5904be0ef60f6a9",
+        "direction_report.csv": "88248b861efb8131fed99eb9acd33cdfc7633faea8f0e86b042a3834a2b2e49e",
+        "funnel.json": "960b95dfb55691644faafee53f24f68ca09c6fd8b01b9b48177509460e372960",
+        "input_provenance.json": "ec8f5ce5bf2b65e6c9aeadaab6045baf2aeb3e7303c6571e094bf41fca352880",
+        "instrument_report.csv": "ce76101e2284cd98538e8a204deb3abc9ea5844e7604c2923c9bbe49bdedee73",
+        "metrics.json": "aa063f9fa0144679cbae152c9e4cee79352b1cbf6fc6fe42b12247356664e890",
+        "monthly_report.csv": "5d7fb6565cb10754bc10fd0bb4c2463905fbf2653ff16d1d206998b651902ae8",
+        "signals.csv": "29f26865385520522def6196067a98b5098634bb551ba12a3febb273eb7a6874",
+        "trades.csv": "610167469e8cbc3bc4367b5b6314e52dd911cad44723d4c1862d7db6ac80716e",
+        "unknown_report.csv": "c3ae2f6da4fe75fc87d82e25de413f6ff1a3c08061bb31c08bef553d61afd1fc"
+      },
+      "status": "PASS"
+    },
+    "r16": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 14,
+      "independent_audit": {
+        "archived_auditor_sha256": "ccc88c63920001bb12403a96a0d8c87f5e29d4402398d5a5ab40c2925f82d3d1",
+        "checked_fields": 142330,
+        "method": "Unchanged independent archived signal/path/metric oracle, exact published CSV audit fields; byte equality also required",
+        "published_signal_fields": [
+          "base_reason",
+          "direction",
+          "signal_at",
+          "compression_at",
+          "compression_start",
+          "compression_end",
+          "compression_bars",
+          "compression_high",
+          "compression_low",
+          "compression_width",
+          "ATR_ref",
+          "ATR_ref_bar_start",
+          "breakout_start",
+          "breakout_closed_at",
+          "breakout_open",
+          "breakout_close",
+          "breakout_tick",
+          "compression_width_atr",
+          "reset_reason",
+          "valid_preceding_bars",
+          "stop",
+          "status",
+          "reason",
+          "order_admitted",
+          "model_filled",
+          "entry_open",
+          "risk",
+          "take",
+          "recorded_at",
+          "waiting_bar_start",
+          "waiting_bar_closed_at",
+          "planned_execution_at"
+        ],
+        "published_trade_fields": [
+          "direction",
+          "signal_at",
+          "status",
+          "model_filled",
+          "entry_at",
+          "entry_price",
+          "entry_tick",
+          "stop",
+          "take",
+          "risk",
+          "exit_reason",
+          "unknown_reason",
+          "exit_at",
+          "exit_interval_start",
+          "exit_interval_end",
+          "resolved_at",
+          "unknown_detected_at",
+          "exit_price",
+          "exit_tick",
+          "gross",
+          "gross_R",
+          "cost_entry_c1",
+          "cost_c1",
+          "cost_R",
+          "net_c1",
+          "net_R_c1",
+          "prior_unknown_requires_flat_assumption",
+          "order_sent_at",
+          "waiting_bar_closed_at",
+          "planned_execution_at",
+          "trade_deadline_at",
+          "effective_deadline_at",
+          "stop_take_conflict"
+        ],
+        "source_receipts": {
+          "CNYRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 2212189,
+            "sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9"
+          },
+          "GLDRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 1044351,
+            "sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b"
+          },
+          "IMOEXF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 234733,
+            "sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c"
+          },
+          "USDRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 2342431,
+            "sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d"
+          }
+        },
+        "status": "PASS"
+      },
+      "metadata_exception": "Only current core SHA values in runner memory; original config bytes/parameters/clocks unchanged",
+      "non_code_provenance_identical": true,
+      "replay_code_identity_changes": {
+        "IntradayLab/core/backtester.py": {
+          "replayed": "aa692dfc853ae3e4a0c0e5cb52745d6fc649a591c69dcfa3388b684caf87f248",
+          "stored": "50d56700b1498a962cc8dfa9d94ee6b7c9e0147a34d5c6a9003d5f8683570dc5"
+        },
+        "IntradayLab/core/execution.py": {
+          "replayed": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c",
+          "stored": "adddf4ab2d1662f2de9e395573bdf43b7e8999342118003e4a74467b5b90f791"
+        },
+        "IntradayLab/core/h1_context.py": {
+          "replayed": "29ccc342d760e855f6868c144c99bd5b3d2312089cf0f5851bbeb69bb17b6909",
+          "stored": null
+        },
+        "IntradayLab/core/m15_bars.py": {
+          "replayed": "46bba5ed6a46b65666de3f5f243beaaf161e29d852575b9b2e8a2950c2b0d334",
+          "stored": null
+        },
+        "IntradayLab/core/m15_context.py": {
+          "replayed": "26bca505f8283626f48993ac374d9a2b279231014c468e03593562104d2443c2",
+          "stored": null
+        }
+      },
+      "result_sha256": {
+        "Baseline_Report.md": "54b46839d948cf4a6aed6f72156caaad558ca009e3397317669bd406de797307",
+        "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+        "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+        "coverage_report.csv": "17fccd10d2c398dfb1fbc14b5e7cca891d5525bea6dcd32234c6bd73b3adf064",
+        "coverage_summary.csv": "ebb5c80e6162eb8dface4c7b4984c25592d99492f81fe0b8dc624183d168f551",
+        "days.csv": "0643e026985518bdce020e65948e7b1ad2b18a1c41319b644ee3ffb28a5c31e8",
+        "direction_report.csv": "05a353b91b9a0d17bb34481b816032a4d5dcbf09b3edabff441f506fd2e04ebd",
+        "input_provenance.json": "ec8f5ce5bf2b65e6c9aeadaab6045baf2aeb3e7303c6571e094bf41fca352880",
+        "instrument_report.csv": "d0d00b0c41f9aa64f656847fd155c959b90bf0acea44c4792910c5c9ff2ec720",
+        "metrics.json": "18a2c154a85b2a06e60a6d0332cfb2f5c6a25ed5977f0851f23e001febcd3b1b",
+        "monthly_report.csv": "49f78fdfaab7e6b438b0d8b061113a831b64f9d25c019d081926498f14b019f7",
+        "signals.csv": "7622bc3a1f916db96e5d9edeb85547a92af616664d88bb9b349c5c10f479a9ce",
+        "trades.csv": "cde689643cb14ac23155d08c3d6a7d2c9615d175199334f953649109d6f72dce",
+        "unknown_report.csv": "558c2bc9d794ef13e214bdd19c8906398fa0c472699c09c8cbeb58bc3037b9cf"
+      },
+      "status": "PASS"
+    },
+    "r17": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 13,
+      "independent_audit": {
+        "archived_auditor_sha256": "7e23b6294beb21923afef63a9685dea84a3d480a708584abcaa229c245630ebe",
+        "checked_fields": 38478,
+        "method": "Unchanged independent archived signal/path/metric oracle, exact published CSV audit fields; byte equality also required",
+        "published_signal_fields": [
+          "base_reason",
+          "direction",
+          "signal_at",
+          "breakout_start",
+          "breakout_closed_at",
+          "breakout_close",
+          "breakout_atr14",
+          "breakout_tick",
+          "breakout_threshold",
+          "or_high",
+          "or_low",
+          "or_available_at",
+          "signal_window_start",
+          "signal_window_end",
+          "retest_start",
+          "retest_closed_at",
+          "retest_tick",
+          "or_mid_rounded",
+          "stop",
+          "status",
+          "reason",
+          "order_admitted",
+          "model_filled",
+          "entry_open",
+          "risk",
+          "take",
+          "recorded_at",
+          "waiting_bar_start",
+          "waiting_bar_closed_at",
+          "planned_execution_at"
+        ],
+        "published_trade_fields": [
+          "direction",
+          "signal_at",
+          "status",
+          "model_filled",
+          "entry_at",
+          "entry_price",
+          "entry_tick",
+          "stop",
+          "take",
+          "risk",
+          "exit_reason",
+          "unknown_reason",
+          "exit_at",
+          "exit_interval_start",
+          "exit_interval_end",
+          "resolved_at",
+          "unknown_detected_at",
+          "exit_price",
+          "exit_tick",
+          "gross",
+          "gross_R",
+          "cost_entry_c1",
+          "cost_c1",
+          "cost_R",
+          "net_c1",
+          "net_R_c1",
+          "prior_unknown_requires_flat_assumption",
+          "order_sent_at",
+          "waiting_bar_closed_at",
+          "planned_execution_at",
+          "trade_deadline_at",
+          "effective_deadline_at",
+          "stop_take_conflict"
+        ],
+        "source_receipts": {
+          "CNYRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 2212189,
+            "sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9"
+          },
+          "GLDRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 1044351,
+            "sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b"
+          },
+          "IMOEXF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 234733,
+            "sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c"
+          },
+          "USDRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 2342431,
+            "sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d"
+          }
+        },
+        "status": "PASS"
+      },
+      "metadata_exception": "Only current core SHA values in runner memory; original config bytes/parameters/clocks unchanged",
+      "non_code_provenance_identical": true,
+      "replay_code_identity_changes": {
+        "IntradayLab/core/backtester.py": {
+          "replayed": "aa692dfc853ae3e4a0c0e5cb52745d6fc649a591c69dcfa3388b684caf87f248",
+          "stored": "50d56700b1498a962cc8dfa9d94ee6b7c9e0147a34d5c6a9003d5f8683570dc5"
+        },
+        "IntradayLab/core/execution.py": {
+          "replayed": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c",
+          "stored": "adddf4ab2d1662f2de9e395573bdf43b7e8999342118003e4a74467b5b90f791"
+        },
+        "IntradayLab/core/h1_context.py": {
+          "replayed": "29ccc342d760e855f6868c144c99bd5b3d2312089cf0f5851bbeb69bb17b6909",
+          "stored": null
+        },
+        "IntradayLab/core/m15_bars.py": {
+          "replayed": "46bba5ed6a46b65666de3f5f243beaaf161e29d852575b9b2e8a2950c2b0d334",
+          "stored": null
+        },
+        "IntradayLab/core/m15_context.py": {
+          "replayed": "26bca505f8283626f48993ac374d9a2b279231014c468e03593562104d2443c2",
+          "stored": null
+        }
+      },
+      "result_sha256": {
+        "Baseline_Report.md": "0db37b94fa425d68b20a6dd8f9917403ecaf3d94a7f2b0b4df9116b32eff9e35",
+        "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+        "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+        "coverage_report.csv": "5f573f617ad412fa22190e40cc8f6bdc3d487f6da9e513630eec911d28b134ac",
+        "days.csv": "de2591796968b8278413aa7031973c6d65b25136ae373c35a022f78dba004e77",
+        "direction_report.csv": "19aca572419f394abe844425c09951f4f0fd8311fc0ff74ba04f1c359db1baf1",
+        "input_provenance.json": "ec8f5ce5bf2b65e6c9aeadaab6045baf2aeb3e7303c6571e094bf41fca352880",
+        "instrument_report.csv": "b6585eec839f58e5280c74f65dd20b1b595f683275fb98bd8ca1bd0180ab04fe",
+        "metrics.json": "0b5bf4f17118e5fd4743c9ce9207eac8794ffe6c7bd939d45214d085e2ffaf2c",
+        "monthly_report.csv": "4f67e6e54222b639990fc449df8734f027cd8fbaf8781102fe96d98dda875041",
+        "signals.csv": "3946ab832e662f4a824cdb571984c74ba8c70958474de1a4b7938cf0aa98ffd5",
+        "trades.csv": "296e0993ae96f0d031fee1abb9f1152a897cbb50304386a56201b55c21800216",
+        "unknown_report.csv": "aeb04edee01e851ca518765e924e27528019681abbf9e4f2a84c4d54a1b3e62e"
+      },
+      "status": "PASS"
+    },
+    "swing_pullback": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 16,
+      "independent_audit": {
+        "archived_auditor_sha256": "2f6d10635860998ff07c7451a7d6a7eadac85cec212cfebccc9411a85e71cb3b",
+        "checked_fields": 6155124,
+        "method": "Unchanged independent archived signal/path/metric oracle, exact published CSV audit fields; byte equality also required",
+        "published_signal_fields": [
+          "base_reason",
+          "direction",
+          "signal_at",
+          "test_start",
+          "signal_tick",
+          "test_open",
+          "test_high",
+          "test_low",
+          "test_close",
+          "test_closed_at",
+          "pullback_confirmed",
+          "confirmed_signal",
+          "context_valid",
+          "context_direction",
+          "context_reason",
+          "context_decision_id",
+          "context_p3_start",
+          "context_p3_available_at",
+          "correction_1_start",
+          "correction_2_start",
+          "correction_1_open",
+          "correction_1_high",
+          "correction_1_low",
+          "correction_1_close",
+          "correction_2_open",
+          "correction_2_high",
+          "correction_2_low",
+          "correction_2_close",
+          "pending_created",
+          "open_admission_passed",
+          "stop",
+          "status",
+          "reason",
+          "order_admitted",
+          "model_filled",
+          "entry_open",
+          "entry_tick",
+          "risk",
+          "take",
+          "recorded_at",
+          "waiting_bar_start",
+          "waiting_bar_closed_at",
+          "planned_execution_at",
+          "target_mode",
+          "target_net_R",
+          "planned_C1",
+          "d_legacy",
+          "d_full",
+          "rounded_take_distance",
+          "planned_net_to_net_R",
+          "legacy_net_to_gross_R"
+        ],
+        "published_trade_fields": [
+          "direction",
+          "signal_at",
+          "status",
+          "model_filled",
+          "entry_at",
+          "entry_price",
+          "entry_tick",
+          "stop",
+          "take",
+          "risk",
+          "exit_reason",
+          "unknown_reason",
+          "exit_at",
+          "exit_interval_start",
+          "exit_interval_end",
+          "resolved_at",
+          "unknown_detected_at",
+          "exit_price",
+          "exit_tick",
+          "gross",
+          "gross_R",
+          "cost_entry_c1",
+          "cost_c1",
+          "cost_R",
+          "net_c1",
+          "net_R_c1",
+          "prior_unknown_requires_flat_assumption",
+          "order_sent_at",
+          "waiting_bar_closed_at",
+          "planned_execution_at",
+          "trade_deadline_at",
+          "effective_deadline_at",
+          "stop_take_conflict",
+          "target_mode",
+          "target_net_R",
+          "planned_C1",
+          "d_legacy",
+          "d_full",
+          "rounded_take_distance",
+          "planned_net_to_net_R",
+          "legacy_net_to_gross_R",
+          "realized_net_to_net_R"
+        ],
+        "source_receipts": {
+          "CNYRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 2212189,
+            "sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9"
+          },
+          "GLDRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 1044351,
+            "sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b"
+          },
+          "IMOEXF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 234733,
+            "sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c"
+          },
+          "USDRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 2342431,
+            "sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d"
+          }
+        },
+        "status": "PASS"
+      },
+      "metadata_exception": "Only current core SHA values in runner memory; original config bytes/parameters/clocks unchanged",
+      "non_code_provenance_identical": true,
+      "replay_code_identity_changes": {
+        "IntradayLab/core/backtester.py": {
+          "replayed": "aa692dfc853ae3e4a0c0e5cb52745d6fc649a591c69dcfa3388b684caf87f248",
+          "stored": "5654273e073bf1000bd0ded3642337fd734457856d99c17596055160e7a9e190"
+        },
+        "IntradayLab/core/execution.py": {
+          "replayed": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c",
+          "stored": "354acd95ee27f4e08ec35a7e29341a01234de915ca49354f10233b2adafbe97a"
+        },
+        "IntradayLab/core/h1_context.py": {
+          "replayed": "29ccc342d760e855f6868c144c99bd5b3d2312089cf0f5851bbeb69bb17b6909",
+          "stored": null
+        },
+        "IntradayLab/core/m15_bars.py": {
+          "replayed": "46bba5ed6a46b65666de3f5f243beaaf161e29d852575b9b2e8a2950c2b0d334",
+          "stored": null
+        }
+      },
+      "result_sha256": {
+        "Baseline_Report.md": "f1152c48bab8b8dcade9f02ab38b2ba4939a069a4a5bb5017d14bab16c82039d",
+        "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+        "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+        "coverage_report.csv": "6d1cc29eaf7150fbb93bdec2d881afdd71b44b2d7ea63a97b9f2966aef465d84",
+        "coverage_summary.csv": "ebb5c80e6162eb8dface4c7b4984c25592d99492f81fe0b8dc624183d168f551",
+        "days.csv": "aaa55fa0131b5dec51d2a2d0b07533bd22ef296f220a40ee32706f2081475902",
+        "direction_report.csv": "c79acfe9b7f25d38118551f4b1312bdea022f557671b0879b779b39606c98696",
+        "funnel.json": "1e345cf6abde4af377fb8b07e0dcd884d409ae881bfe1edcd26920c3de731ab2",
+        "input_provenance.json": "ec8f5ce5bf2b65e6c9aeadaab6045baf2aeb3e7303c6571e094bf41fca352880",
+        "instrument_report.csv": "b0223db3babe62997c3f8583641a49ef3e64e8723795abffc1f1cc7bef46266c",
+        "metrics.json": "98053317b8ac6c12f2d131ac73700af270faed35bab9b49d29c483faafb17984",
+        "monthly_report.csv": "e643dc646b373f27cf8ab336ee0092dfa7f216736eebf5883dfe6df3122e9cb9",
+        "mtf_context.csv": "feadb822aa20dafb1b59f42b43855190f0033a3e7a547981eda5361a8c57b459",
+        "signals.csv": "08caa7ba7b4e59e8ac77c8b3f1be13a468c8ea71cf2d11f7400bd7d4db7a54f0",
+        "trades.csv": "14700307c6ed81c1c91711c94d8aa72123c697d93042eece42ee4ee82c871121",
+        "unknown_report.csv": "578ee316d6c41a6042dbfd458e30eb0b2b6b91f51f474c3085c36c94ef12113c"
+      },
+      "status": "PASS"
+    },
+    "trend_pullback": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 21,
+      "independent_audit": {
+        "archived_auditor_sha256": "80eb87c62b164beac1820489d60c892318ca997dc9880040934e5a9c015969ec",
+        "checked_fields": 1613220,
+        "method": "Unchanged independent archived signal/path/metric oracle, exact published CSV audit fields; byte equality also required",
+        "published_signal_fields": [
+          "base_reason",
+          "direction",
+          "signal_at",
+          "test_start",
+          "signal_tick",
+          "test_open",
+          "test_high",
+          "test_low",
+          "test_close",
+          "test_closed_at",
+          "pullback_confirmed",
+          "confirmed_signal",
+          "context_valid",
+          "context_direction",
+          "context_reason",
+          "context_decision_id",
+          "context_h1_start",
+          "context_h1_available_at",
+          "correction_start",
+          "correction_open",
+          "correction_high",
+          "correction_low",
+          "correction_close",
+          "signal_child_m5_starts",
+          "correction_child_m5_starts",
+          "pending_created",
+          "open_admission_passed",
+          "stop",
+          "status",
+          "reason",
+          "order_admitted",
+          "model_filled",
+          "entry_open",
+          "entry_tick",
+          "risk",
+          "take",
+          "recorded_at",
+          "waiting_bar_start",
+          "waiting_bar_closed_at",
+          "planned_execution_at",
+          "target_mode",
+          "target_net_R",
+          "planned_C1",
+          "d_legacy",
+          "d_full",
+          "rounded_take_distance",
+          "planned_net_to_net_R",
+          "legacy_net_to_gross_R"
+        ],
+        "published_trade_fields": [
+          "direction",
+          "signal_at",
+          "status",
+          "model_filled",
+          "entry_at",
+          "entry_price",
+          "entry_tick",
+          "stop",
+          "take",
+          "risk",
+          "exit_reason",
+          "unknown_reason",
+          "exit_at",
+          "exit_interval_start",
+          "exit_interval_end",
+          "resolved_at",
+          "unknown_detected_at",
+          "exit_price",
+          "exit_tick",
+          "gross",
+          "gross_R",
+          "cost_entry_c1",
+          "cost_c1",
+          "cost_R",
+          "net_c1",
+          "net_R_c1",
+          "prior_unknown_requires_flat_assumption",
+          "order_sent_at",
+          "waiting_bar_closed_at",
+          "planned_execution_at",
+          "trade_deadline_at",
+          "effective_deadline_at",
+          "stop_take_conflict",
+          "target_mode",
+          "target_net_R",
+          "planned_C1",
+          "d_legacy",
+          "d_full",
+          "rounded_take_distance",
+          "planned_net_to_net_R",
+          "legacy_net_to_gross_R",
+          "realized_net_to_net_R"
+        ],
+        "source_receipts": {
+          "CNYRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 2212189,
+            "sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9"
+          },
+          "GLDRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 1044351,
+            "sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b"
+          },
+          "IMOEXF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 234733,
+            "sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c"
+          },
+          "USDRUBF": {
+            "bytes_2024_plus_read": 0,
+            "bytes_read": 2342431,
+            "sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d"
+          }
+        },
+        "status": "PASS"
+      },
+      "metadata_exception": "Only current core SHA values in runner memory; original config bytes/parameters/clocks unchanged",
+      "non_code_provenance_identical": true,
+      "replay_code_identity_changes": {
+        "IntradayLab/core/backtester.py": {
+          "replayed": "aa692dfc853ae3e4a0c0e5cb52745d6fc649a591c69dcfa3388b684caf87f248",
+          "stored": "d2887a5f12158c83db4694fa698f1746e31fd48ee1b894ba3405890ea8255582"
+        },
+        "IntradayLab/core/execution.py": {
+          "replayed": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c",
+          "stored": "354acd95ee27f4e08ec35a7e29341a01234de915ca49354f10233b2adafbe97a"
+        }
+      },
+      "result_sha256": {
+        "Baseline_Report.md": "9435572a6a8c964eb8235281e9d418c699b799764debbb0c7a7ad88ad2333f2e",
+        "CNYRUBF_m15_formation.csv": "dbfdbeab01f9ac608ef238c3e4b75a84689d8b4f07daf8af67099a1d81a2ce80",
+        "GLDRUBF_m15_formation.csv": "b84641fb3a83c4ec6078df89e71fdcb22163ef864fcb82b7ef7bff248441f5a7",
+        "IMOEXF_m15_formation.csv": "b020353b263932fdd103280d358f4da06bbf5fb78e11d5b9c06529233b30c2d2",
+        "USDRUBF_m15_formation.csv": "76e37c02bc017884d6437938146abd47dd62988615f1d8d4fef3e19952c7d6b8",
+        "calendar_reachability.json": "2fa0193cc0f6a19ac5ab1cc3fe04fda9f7d3a912c9ace19b7f2e2ba904ed2de9",
+        "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+        "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+        "coverage_report.csv": "6040bc7bd489b39192b3b0ebb53df99239627e867098d56c894b67a87b9cbb25",
+        "coverage_summary.csv": "ebb5c80e6162eb8dface4c7b4984c25592d99492f81fe0b8dc624183d168f551",
+        "days.csv": "9905297c732be70a8ebb2646cc7c577aa55843d0222809e504bd2ad289422589",
+        "direction_report.csv": "7f25d8a40b750c73f7de76d68c48fd00c70acc1f38c53cd4954e982bd262b680",
+        "funnel.json": "516d6048871850d7eae172f8df81b0d4f5c28f015659e3535cc695b873742548",
+        "h1_context.csv": "2bd0d2b1244296661d1e711635e819decfb6ea8ce4d916ea8cc6cb04bdbf2a0b",
+        "input_provenance.json": "ec8f5ce5bf2b65e6c9aeadaab6045baf2aeb3e7303c6571e094bf41fca352880",
+        "instrument_report.csv": "5f158649904e5dde0a1933d080ee667152fa183f078405543e794f0f063b7595",
+        "metrics.json": "5d1395c3ca37c18a70afc0d5864a50c60ab45d5e9715dc936af4f00a25f28c88",
+        "monthly_report.csv": "3c1da2887cf9bea35e405aeb9cecc0cdfd7f56ea303e201d3fd232f81b233882",
+        "signals.csv": "be25165f02c349fa35df02434b77cbe2730154f8b31a4591aa36e284c11c578b",
+        "trades.csv": "b9ef177b07a3c126977bec21d0622b23f6e3898cf13a099e796a2a81aae2c2ac",
+        "unknown_report.csv": "af3d0b14696e0b7a574e8ecf7a3cb035dda5b223d1858e2a2f3a2059587cf74e"
+      },
+      "status": "PASS"
+    }
+  },
+  "repeats": [
+    {
+      "all_bytes_identical": true,
+      "identical_artifact_files": 23,
+      "independent_audit_reads": [
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "run": "repeat_one"
+    },
+    {
+      "all_bytes_identical": true,
+      "identical_artifact_files": 23,
+      "independent_audit_reads": [
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "run": "repeat_two"
+    }
+  ],
+  "reporting_correction": {
+    "added_after_first_pnl": true,
+    "correction": "Use unchanged original auditors exact signal_keys/trade_keys; verify all replay economic files byte-identical. No signal, execution, C1 or P&L arithmetic changed.",
+    "observed_example": "canonical USDRUBF_2023-01-03_-1_1235: oracle window_end=2023-01-03 14:00 MSK; canonical rejected-row window_end blank",
+    "original_frozen_validator_standalone_status": "FAIL: legacy internal oracle annotation not in serialized rejected-signal CSV contract",
+    "status": "PASS",
+    "trading_code_or_parameters_changed": false,
+    "verifier_sha256": "713916693a88f64d9b702ef55ca80ef86fa51270fa9f31eaa893a6d5f4d49384"
+  },
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "status": "PASS"
+}

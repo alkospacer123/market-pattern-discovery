@@ -1,0 +1,131 @@
+{
+  "assumptions": "Idealized signal Close fill at signal end; actual next M5 path thereafter; no execution proof. Separate occupancy/funnel.",
+  "diagnostic_only": true,
+  "economic_pass_allowed": false,
+  "instruments": {
+    "CNYRUBF": {
+      "conditional_closed_only": {
+        "Expectancy_R": "-0.6829012345679012345679012426",
+        "Max_DD_R": "192.5500000000000000000000018",
+        "Net_R": "-184.3833333333333333333333355",
+        "Net_price": "-5.633",
+        "PF_C1_R": "0.3778540096727027331008885354",
+        "PF_C1_price": "0.2738171973701173133943534872",
+        "PF_no_losses": false,
+        "Win_Rate": "0.1888888888888888888888888889",
+        "closed": 270,
+        "cost_C1": "4.428",
+        "exit_reasons": {
+          "SESSION_FLAT": 51,
+          "STOP": 162,
+          "TAKE": 13,
+          "TIME": 44
+        }
+      },
+      "model_fills": 339,
+      "refusal_reasons": {
+        "AMBIGUOUS_BOTH_SIDES": 62,
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CLUSTER": 25,
+        "POSITION_BUSY": 356,
+        "SESSION_LIMIT": 74,
+        "STOP_ABOVE_12_TICKS": 4,
+        "STOP_BELOW_3_TICKS": 1200,
+        "UNKNOWN_POSITION_BLOCK": 358
+      },
+      "signals": 2356,
+      "unknown": 69
+    },
+    "GLDRUBF": {
+      "conditional_closed_only": {
+        "Expectancy_R": "0.2866666666666666666666666665",
+        "Max_DD_R": "6.333333333333333333333333334",
+        "Net_R": "2.866666666666666666666666665",
+        "Net_price": "1.4",
+        "PF_C1_R": "1.252941176470588235294117646",
+        "PF_C1_price": "1.378378378378378378378378378",
+        "PF_no_losses": false,
+        "Win_Rate": "0.3",
+        "closed": 10,
+        "cost_C1": "2.0",
+        "exit_reasons": {
+          "STOP": 7,
+          "TAKE": 3
+        }
+      },
+      "model_fills": 12,
+      "refusal_reasons": {
+        "AMBIGUOUS_BOTH_SIDES": 2,
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CLUSTER": 27,
+        "SESSION_LIMIT": 7,
+        "STOP_ABOVE_12_TICKS": 106,
+        "STOP_BELOW_3_TICKS": 25,
+        "UNKNOWN_POSITION_BLOCK": 1
+      },
+      "signals": 178,
+      "unknown": 2
+    },
+    "IMOEXF": {
+      "conditional_closed_only": {
+        "Expectancy_R": "-0.7239130434782608695652173917",
+        "Max_DD_R": "16.65000000000000000000000001",
+        "Net_R": "-16.65000000000000000000000001",
+        "Net_price": "-36.0",
+        "PF_C1_R": "0.3810408921933085501858736058",
+        "PF_C1_price": "0.3009708737864077669902912621",
+        "PF_no_losses": false,
+        "Win_Rate": "0.1304347826086956521739130435",
+        "closed": 23,
+        "cost_C1": "23.0",
+        "exit_reasons": {
+          "SESSION_FLAT": 5,
+          "STOP": 16,
+          "TAKE": 2
+        }
+      },
+      "model_fills": 27,
+      "refusal_reasons": {
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CLUSTER": 12,
+        "POSITION_BUSY": 2,
+        "SESSION_LIMIT": 4,
+        "STOP_ABOVE_12_TICKS": 2,
+        "STOP_BELOW_3_TICKS": 12,
+        "UNKNOWN_POSITION_BLOCK": 2
+      },
+      "signals": 61,
+      "unknown": 4
+    },
+    "USDRUBF": {
+      "conditional_closed_only": {
+        "Expectancy_R": "-0.3401606425702811244979919689",
+        "Max_DD_R": "91.66666666666666666666666688",
+        "Net_R": "-84.70000000000000000000000026",
+        "Net_price": "-3.24",
+        "PF_C1_R": "0.7094339622641509433962264105",
+        "PF_C1_price": "0.7022058823529411764705882353",
+        "PF_no_losses": false,
+        "Win_Rate": "0.2128514056224899598393574297",
+        "closed": 249,
+        "cost_C1": "4.98",
+        "exit_reasons": {
+          "SESSION_FLAT": 21,
+          "STOP": 184,
+          "TAKE": 39,
+          "TIME": 5
+        }
+      },
+      "model_fills": 251,
+      "refusal_reasons": {
+        "AMBIGUOUS_BOTH_SIDES": 22,
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CLUSTER": 145,
+        "POSITION_BUSY": 41,
+        "SESSION_LIMIT": 33,
+        "STOP_ABOVE_12_TICKS": 12,
+        "STOP_BELOW_3_TICKS": 149,
+        "UNKNOWN_POSITION_BLOCK": 1
+      },
+      "signals": 632,
+      "unknown": 2
+    }
+  },
+  "mode": "ENTRY_CLOSE_ORACLE"
+}
