@@ -1,5 +1,19 @@
 # IntradayLab — project context
 
+## Prospective gap handling implemented — 2026-10-11, technical task only
+
+`Backtester(..., data_gap_policy=DATA_GAP_SKIP_V2)` returns named signal,
+CLOSED-trade, daily, skipped-entry and opened-position-exclusion ledgers. Only
+future separately versioned M5 studies can explicitly use it. Existing callers
+retain the legacy tuple and `LEGACY_UNKNOWN` default. New ordinary trades have
+only CLOSED status; excluded fills remain counted with known entry/Stop/Take,
+gap evidence and no economic outcome. Skips permit later signals, exclusions
+block the current day, and later independent days disclose conditional FLAT.
+See [technical implementation and validation](reports/DATA_GAP_SKIP_V2_TECHNICAL_HANDOFF.md).
+This completes the engineering implementation requested below, not a new
+Baseline, Optimization or permission to run model C. Historical results stay
+immutable; protected future prices and TradingSystemLab remain untouched.
+
 ## Current decision — 2026-10-11: Optimize each sufficiently sampled strategy
 
 **LATEST USER POLICY, superseding historical positive-Baseline-only gates:** complete ongoing B4/B7/B10 unchanged, then separately authorize C and any other approved Baselines. Afterwards run individually versioned Optimization for **every IntradayLab family, including earlier negative strategies, that has enough audited and fully resolved trades** and adequate month/day breadth under common thresholds preregistered before ranking. Deliberate 2023 development fitting aims at **net C1 PF >= 2** with sufficient executed trade count, positive expectancy, positive calendar months and controlled DD/concentration, without promising every strategy will succeed. Preserve all frozen Baseline evidence. Continue the same **Baseline → Optimization → Robustness → reserved 2024 WF → locked 2025+ TRUE OOS** sequence with no new phase or automatic next task.

@@ -1,0 +1,3 @@
+accepted_entries,closed,data_gap_skips,data_quality_excluded,date,expected_bars,following_day_contract,initial_flat_assumed,initial_flat_proven,instrument,invalid_bars,missing_bars,prior_exclusion_requires_flat_assumption,remainder_of_day_blocked,status,valid_bars
+1,0,1,1,2023-01-04,105,CONDITIONAL_FLAT; not a proven real close,True,False,USDRUBF,0,2,False,True,INCOMPLETE,103
+2,2,0,0,2023-01-05,105,CONDITIONAL_FLAT; not a proven real close,True,False,USDRUBF,0,0,True,False,COMPLETE,105

@@ -109,3 +109,40 @@ def assess_baseline(summary, distribution, policy):
               else 'ECONOMICALLY_PROMISING_BASELINE' if all(checks.values()) else 'NO ECONOMIC BASELINE PASS')
     return dict(status=status, economic_diagnostic=conditional, evidence_checks=checks,
                 optimization_allowed=False)
+
+
+def summarize_data_quality(result, coverage):
+    """V2 economics per instrument; skipped/excluded paths never reach PF."""
+    result.validate()
+    symbols = sorted({r['instrument'] for r in coverage} |
+                     {r['instrument'] for r in result.signals})
+    instruments = {}
+    for symbol in symbols:
+        signals = [s for s in result.signals if s['instrument']==symbol]
+        trades = [t for t in result.trades if t['instrument']==symbol]
+        excluded = [t for t in result.data_quality_exclusions if t['instrument']==symbol]
+        skips = [s for s in result.data_gap_skips if s['instrument']==symbol]
+        source = [c for c in coverage if c['instrument']==symbol]
+        accepted = sum(s['model_filled'] for s in signals)
+        instruments[symbol] = dict(
+            accepted_entries=accepted, closed=len(trades), data_gap_skips=len(skips),
+            data_quality_excluded=len(excluded),
+            entry_reconciliation_passed=accepted==len(trades)+len(excluded),
+            exclusion_fraction=Decimal(len(excluded))/accepted if accepted else None,
+            conditional_closed_only_C1=closed_metrics(trades),
+            coverage_complete=bool(source) and all(c['status']=='COMPLETE' for c in source),
+            conditional_flat_closed=sum(bool(t['prior_exclusion_requires_flat_assumption']) for t in trades),
+            exclusion_reasons=dict(sorted(Counter(t['exclusion_reason'] for t in excluded).items())),
+            skip_reasons=dict(sorted(Counter(s['reason'] for s in skips).items())))
+    totals = {k:sum(m[k] for m in instruments.values()) for k in (
+        'accepted_entries', 'closed', 'data_gap_skips', 'data_quality_excluded')}
+    totals['exclusion_fraction'] = (Decimal(totals['data_quality_excluded'])/
+        totals['accepted_entries'] if totals['accepted_entries'] else None)
+    return dict(data_gap_policy=result.data_gap_policy, instruments=instruments,
+                totals_counts_only=totals, annual_account_returns=None,
+                annual_economics=None, pooled_price_portfolio=None,
+                diagnostic_scope='Resolved closures only; independent conditional research days',
+                data_quality_warning='Skipped entries and excluded opened positions may bias the resolved sample. '
+                    'Conditional FLAT after an exclusion is not evidence of a real close. '
+                    'Incomplete coverage does not prove annual profitability.',
+                optimization_run=False, research_phase='TECHNICAL_VALIDATION')

@@ -1,5 +1,19 @@
 # IntradayLab — research roadmap
 
+## Data Gap Skip / Backtester v2 — technical implementation, 2026-10-11
+
+The separately authorized engineering task implements opt-in `DATA_GAP_SKIP_V2`
+for future versioned M5 studies. Default `LEGACY_UNKNOWN`, all frozen strategies,
+configs and historical UNKNOWN artifacts remain unchanged. Missing entry Open
+means a counted skip with no delayed fill; missing exposure after a modeled fill
+means a separate no-P&L exclusion and a same-day entry block. Subsequent independent
+days retain explicit conditional FLAT. Six reports disclose accepted = CLOSED +
+EXCLUDED, skips, coverage, exclusion share and selection bias. See the
+[technical handoff](reports/DATA_GAP_SKIP_V2_TECHNICAL_HANDOFF.md) for API, tests,
+independent audit and byte regressions. This supersedes the implementation-PENDING
+status below, without activating v2 in any old runner. **STOP: no C Baseline,
+Optimization, 2024 WF, 2025+ TRUE OOS, LIVE or merge.**
+
 ## Updated USER DECISION — 2026-10-11: optimization after full Baseline queue
 
 **This latest decision supersedes historical positive-Baseline-only Optimization eligibility text below.** Keep exactly the existing **Baseline → Optimization → Robustness → Walk Forward (reserved 2024) → TRUE OOS (locked 2025+)** research lifecycle. Do not alter completed, frozen A_v1 or earlier strategies, configurations, reports or results.

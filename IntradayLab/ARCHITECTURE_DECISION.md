@@ -1,5 +1,21 @@
 # IntradayLab — approved methodology and independent architecture
 
+## Prospective execution policy implemented — 2026-10-11
+
+The common engine now supports explicitly selected `DATA_GAP_SKIP_V2` for new
+versioned M5 studies, while `LEGACY_UNKNOWN` remains the default. ENTRY_NEXT_OPEN
+and ENTRY_WAIT_ONE_BAR clocks are independent of this policy and unchanged.
+Skipped entry Opens have no fill or day latch. Unverifiable opened-position
+outcomes retain known entry evidence in a separate exclusion ledger, contribute
+no closed economics, and block same-day re-entry. Independent later days use
+explicit assumed, unproven FLAT. Reporting reconciles accepted fills with CLOSED
+plus exclusions and discloses missing coverage and sample bias. The new API,
+independent synthetic audit and frozen compatibility receipts are documented in
+the [technical handoff](reports/DATA_GAP_SKIP_V2_TECHNICAL_HANDOFF.md).
+This completes only the separate engineering task anticipated below; it changes
+no frozen strategy, config, old journal or research lifecycle and starts no C or
+Optimization. Draft PR only, no merge.
+
 ## Superseding user decision — 2026-10-11
 
 **The initial positive-Baseline prerequisite for Optimization in the historical architecture below is superseded.** Preserve the common IntradayLab engine isolation, causality, research cost model and unchanged five-step **Baseline → Optimization → Robustness → Walk Forward (2024) → TRUE OOS (2025+)** lifecycle. Finish the current B task unchanged and separately authorized C / other Baselines, then optimize **every strategy family with sufficient audited fully resolved trades**, including earlier negative IntradayLab candidates. Publish consistent minimum-count and month-coverage eligibility rules before ranking. Search/fitting is deliberate on 2023; aim for after-C1 **net PF >= 2** with meaningful trade count, positive expectancy and monthly regularity, not a guarantee or a tiny-sample PF maximum. Keep all old artifact identities and results frozen, then freeze selected candidates before Robustness / reserved WF / locked OOS. Do not tune on WF/OOS.

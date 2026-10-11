@@ -1,0 +1,15 @@
+{
+  "TradingSystemLab_diff_empty": true,
+  "TradingSystemLab_tracked_files": 2961,
+  "allowed_common_core_extensions": [
+    "IntradayLab/core/backtester.py",
+    "IntradayLab/core/metrics.py",
+    "IntradayLab/core/reports.py"
+  ],
+  "base_sha": "4db30149d6c768caa82bd26a04ef80099816c815",
+  "frozen_strategy_config_result_test_tool_files_unchanged": true,
+  "market_pattern_data_clean": true,
+  "outside_IntradayLab_diff_empty": true,
+  "source_sha": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "status": "PASS"
+}

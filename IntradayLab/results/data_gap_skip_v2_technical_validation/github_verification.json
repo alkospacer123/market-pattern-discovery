@@ -1,0 +1,35 @@
+{
+  "base_sha": "4db30149d6c768caa82bd26a04ef80099816c815",
+  "origin_main": "4db30149d6c768caa82bd26a04ef80099816c815",
+  "pull_requests": {
+    "472": {
+      "headRefOid": "82ec9ffe61e18a43cd7510e398f6913b25f045e1",
+      "isDraft": true,
+      "number": 472,
+      "state": "OPEN",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/472"
+    },
+    "475": {
+      "headRefOid": "bf0fb8ac8bcb73af11490e0d3f159c5906964d95",
+      "isDraft": false,
+      "mergeCommit": {
+        "oid": "4db30149d6c768caa82bd26a04ef80099816c815"
+      },
+      "mergedAt": "2026-10-11T09:50:02Z",
+      "number": 475,
+      "state": "MERGED",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/475"
+    },
+    "476": {
+      "headRefOid": "b248ee7f6772a08b6036f4d87f80899df5d45ed1",
+      "isDraft": false,
+      "mergeCommit": {
+        "oid": "15c826cdf3c4fb9fa73e6f1ac9d247ac40e24dbf"
+      },
+      "mergedAt": "2026-10-11T09:40:32Z",
+      "number": 476,
+      "state": "MERGED",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/476"
+    }
+  }
+}
