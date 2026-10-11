@@ -1,0 +1,10 @@
+{
+  "base_sha": "ce89458b063f3af2451f8c4c162107207973c53b",
+  "baseline_files_unchanged": true,
+  "changed_tracked_paths": 20,
+  "modified_preexisting_files": 0,
+  "outside_IntradayLab_diff_empty": true,
+  "preexisting_files_byte_verified": 4042,
+  "registry_unchanged": true,
+  "status": "PASS"
+}

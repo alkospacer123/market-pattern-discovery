@@ -1,0 +1,136 @@
+{
+  "base_main": "ce89458b063f3af2451f8c4c162107207973c53b",
+  "baseline_counts_independently_recounted_from_frozen_ledger": {
+    "CNYRUBF": {
+      "CLOSED": 234,
+      "entry_days": 131,
+      "entry_months": 12,
+      "included": true,
+      "registry_rows": [
+        {
+          "active_closed_months": "12",
+          "baseline_source": "IntradayLab/results/equal_high_low_m5_2023_a_v1/trades.csv",
+          "calendar_pass": "True",
+          "closed": "234",
+          "configuration_id": "equal_high_low_m5_2023_a_v1",
+          "data_gap_skip": "NOT_AVAILABLE",
+          "data_quality_excluded": "NOT_AVAILABLE",
+          "eligibility": "ELIGIBLE",
+          "eligibility_reasons": "100_CLOSED_AND_40_DAYS_AND_6_MONTHS; audited reproducible conditional model; PF unrestricted",
+          "family_id": "A",
+          "historical_unknown": "111",
+          "instrument": "CNYRUBF",
+          "record_type": "BASELINE_CONFIGURATION",
+          "result_commit_sha": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+          "sample_count_pass": "True",
+          "selection_bias_warning": "UNRESOLVED_OR_EXCLUDED_OUTCOMES; conditional cohort may be biased",
+          "technical_status": "VERIFIED_FROZEN_MODEL",
+          "uncertain_outcome_share": "0.3217391304347826086956521739",
+          "unique_closed_trade_days": "131"
+        }
+      ]
+    },
+    "GLDRUBF": {
+      "CLOSED": 9,
+      "entry_days": 9,
+      "entry_months": 5,
+      "included": false,
+      "registry_rows": [
+        {
+          "active_closed_months": "5",
+          "baseline_source": "IntradayLab/results/equal_high_low_m5_2023_a_v1/trades.csv",
+          "calendar_pass": "False",
+          "closed": "9",
+          "configuration_id": "equal_high_low_m5_2023_a_v1",
+          "data_gap_skip": "NOT_AVAILABLE",
+          "data_quality_excluded": "NOT_AVAILABLE",
+          "eligibility": "INSUFFICIENT_TRADES",
+          "eligibility_reasons": "INSUFFICIENT_TRADES|INSUFFICIENT_CALENDAR",
+          "family_id": "A",
+          "historical_unknown": "10",
+          "instrument": "GLDRUBF",
+          "record_type": "BASELINE_CONFIGURATION",
+          "result_commit_sha": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+          "sample_count_pass": "False",
+          "selection_bias_warning": "UNRESOLVED_OR_EXCLUDED_OUTCOMES; conditional cohort may be biased",
+          "technical_status": "VERIFIED_FROZEN_MODEL",
+          "uncertain_outcome_share": "0.5263157894736842105263157895",
+          "unique_closed_trade_days": "9"
+        }
+      ]
+    },
+    "IMOEXF": {
+      "CLOSED": 13,
+      "entry_days": 11,
+      "entry_months": 2,
+      "included": false,
+      "registry_rows": [
+        {
+          "active_closed_months": "2",
+          "baseline_source": "IntradayLab/results/equal_high_low_m5_2023_a_v1/trades.csv",
+          "calendar_pass": "False",
+          "closed": "13",
+          "configuration_id": "equal_high_low_m5_2023_a_v1",
+          "data_gap_skip": "NOT_AVAILABLE",
+          "data_quality_excluded": "NOT_AVAILABLE",
+          "eligibility": "INSUFFICIENT_TRADES",
+          "eligibility_reasons": "INSUFFICIENT_TRADES|INSUFFICIENT_CALENDAR",
+          "family_id": "A",
+          "historical_unknown": "6",
+          "instrument": "IMOEXF",
+          "record_type": "BASELINE_CONFIGURATION",
+          "result_commit_sha": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+          "sample_count_pass": "False",
+          "selection_bias_warning": "UNRESOLVED_OR_EXCLUDED_OUTCOMES; conditional cohort may be biased",
+          "technical_status": "VERIFIED_FROZEN_MODEL",
+          "uncertain_outcome_share": "0.3157894736842105263157894737",
+          "unique_closed_trade_days": "11"
+        }
+      ]
+    },
+    "USDRUBF": {
+      "CLOSED": 235,
+      "entry_days": 149,
+      "entry_months": 12,
+      "included": true,
+      "registry_rows": [
+        {
+          "active_closed_months": "12",
+          "baseline_source": "IntradayLab/results/equal_high_low_m5_2023_a_v1/trades.csv",
+          "calendar_pass": "True",
+          "closed": "235",
+          "configuration_id": "equal_high_low_m5_2023_a_v1",
+          "data_gap_skip": "NOT_AVAILABLE",
+          "data_quality_excluded": "NOT_AVAILABLE",
+          "eligibility": "ELIGIBLE",
+          "eligibility_reasons": "100_CLOSED_AND_40_DAYS_AND_6_MONTHS; audited reproducible conditional model; PF unrestricted",
+          "family_id": "A",
+          "historical_unknown": "4",
+          "instrument": "USDRUBF",
+          "record_type": "BASELINE_CONFIGURATION",
+          "result_commit_sha": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+          "sample_count_pass": "True",
+          "selection_bias_warning": "UNRESOLVED_OR_EXCLUDED_OUTCOMES; conditional cohort may be biased",
+          "technical_status": "VERIFIED_FROZEN_MODEL",
+          "uncertain_outcome_share": "0.01673640167364016736401673640",
+          "unique_closed_trade_days": "149"
+        }
+      ]
+    }
+  },
+  "baseline_original_config_sha256": "cec9b815e1479d7999acf77442840d507eaa5f4e078573e0da4b9d34abc6521a",
+  "bytes_2024_plus_read": 0,
+  "full_existing_tests": {
+    "archived_test_files_unchanged": true,
+    "metadata_adapter": "A_v1 synthetic audit config loaded with actual current hashes of three extended core files, in memory only; no assertion removed",
+    "status": "PASS",
+    "stock_legacy_suite_note": "Before adapter: 495/496 pass, one historical core-SHA assertion fails as expected after the authorized extension",
+    "tests": 556
+  },
+  "independent_V2_synthetic_cases": 12,
+  "origin_main_matches_user_start": true,
+  "pre_PNL_synthetic_tests": 20,
+  "source_blobs_verified": true,
+  "source_candle_files_opened": 0,
+  "source_git_head": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8"
+}

@@ -1,0 +1,41 @@
+{
+  "bytes_2024_plus_read": 0,
+  "checked_fields": {
+    "accepted_ID_checks": 57496,
+    "coverage_fields": 548640,
+    "data_gap_skips_fields": 110178,
+    "data_quality_exclusions_fields": 305429,
+    "direction_fields": 7200,
+    "funnel_fields": 1440,
+    "legacy_signal_fields": 162816,
+    "legacy_trade_fields": 28032,
+    "metric_fields": 7776,
+    "monthly_fields": 57024,
+    "neighborhood_fields": 2464,
+    "signals_fields": 15480216,
+    "trades_fields": 2318078
+  },
+  "comparator_differences": 746,
+  "comparator_legacy_A_v1_replay": "PASS",
+  "comparator_signal_count": 3072,
+  "evaluations": 144,
+  "external_human_signoff": false,
+  "independent_economics_selection": true,
+  "independent_execution_method": "Forward raw Open/interval paths; occupancy from causal resolution/detection times",
+  "independent_imports": "STANDARD_LIBRARY_ONLY",
+  "independent_signal_method": "Backward maximal-run slices",
+  "selection": "NO QUALIFYING OPTIMIZATION CANDIDATE",
+  "source_read_receipts": {
+    "CNYRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_read": 2212189,
+      "sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9"
+    },
+    "USDRUBF": {
+      "bytes_2024_plus_read": 0,
+      "bytes_read": 2342431,
+      "sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d"
+    }
+  },
+  "status": "PASS"
+}

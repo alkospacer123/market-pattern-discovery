@@ -1,0 +1,110 @@
+{
+  "canonical": {
+    "instruments": {
+      "CNYRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "opens": 1,
+        "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+        "read_calls": 1,
+        "rows_2023": 39362,
+        "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686"
+      },
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "opens": 1,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "read_calls": 1,
+        "rows_2023": 42576,
+        "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+      }
+    },
+    "scope": "strace read syscalls on both physical source files across parent and descendants; no source content displayed",
+    "status": "PASS",
+    "trace_sha256": "a60fbdaa0c72db64554252ccbb8bc344cc0c9fda34bd063f82a2808a9cae7046"
+  },
+  "independent_audit": {
+    "instruments": {
+      "CNYRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "opens": 1,
+        "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+        "read_calls": 680,
+        "rows_2023": 39362,
+        "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686"
+      },
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "opens": 1,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "read_calls": 649,
+        "rows_2023": 42576,
+        "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+      }
+    },
+    "scope": "strace read syscalls on both physical source files across parent and descendants; no source content displayed",
+    "status": "PASS",
+    "trace_sha256": "b0040dd03248dc62ea324b6a83b7f3ee49bcdb4d824973528082815fd41731d2"
+  },
+  "repeat_1": {
+    "instruments": {
+      "CNYRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "opens": 1,
+        "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+        "read_calls": 1,
+        "rows_2023": 39362,
+        "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686"
+      },
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "opens": 1,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "read_calls": 1,
+        "rows_2023": 42576,
+        "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+      }
+    },
+    "scope": "strace read syscalls on both physical source files across parent and descendants; no source content displayed",
+    "status": "PASS",
+    "trace_sha256": "9f336261fa3047c00d2b7dd11fcccaf058687e8e18ccc309029d18c6dd309a55"
+  },
+  "repeat_2": {
+    "instruments": {
+      "CNYRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "opens": 1,
+        "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+        "read_calls": 1,
+        "rows_2023": 39362,
+        "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686"
+      },
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "opens": 1,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "read_calls": 1,
+        "rows_2023": 42576,
+        "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+      }
+    },
+    "scope": "strace read syscalls on both physical source files across parent and descendants; no source content displayed",
+    "status": "PASS",
+    "trace_sha256": "4181596d899304974e04165f5862ebd23625ee855b2f308193b316f7447c9089"
+  }
+}

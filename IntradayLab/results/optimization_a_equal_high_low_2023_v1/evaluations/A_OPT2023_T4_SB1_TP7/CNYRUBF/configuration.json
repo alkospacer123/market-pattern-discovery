@@ -1,0 +1,31 @@
+{
+  "configuration_id": "A_OPT2023_T4_SB1_TP7",
+  "execution": {
+    "allow_entry_bar_take": false,
+    "cost_ticks_per_side": 1,
+    "daily_trade_deadline_clock": null,
+    "data_gap_policy": "DATA_GAP_SKIP_V2",
+    "entry_mode": "ENTRY_NEXT_OPEN",
+    "session_flat_before_end_bars": 1,
+    "unknown_scope": "current_day; following days conditional FLAT",
+    "wait_complete_bars": 0
+  },
+  "freeze_commit": "2b6735a3ba459adc59f386620937315d21a060a1",
+  "instrument": "CNYRUBF",
+  "parameters": {
+    "max_hold_calendar_minutes": 120,
+    "maximum_rebound_ticks": 4,
+    "maximum_risk_ticks": 12,
+    "minimum_risk_ticks": 3,
+    "signal_tf": "M5",
+    "stop_buffer_ticks": 1,
+    "target_mode": "FULL_NET_C1_R",
+    "target_net_R": "7",
+    "tolerance_ticks": 0,
+    "touches": 4,
+    "version": "A_OPT2023_v1"
+  },
+  "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+  "source_sha": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "strategy_sha256": "31b5a0462243a7026532bc46008db5ca32ff6a593a1c59d93381c46547a63925"
+}

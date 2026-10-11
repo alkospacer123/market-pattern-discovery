@@ -1,0 +1,181 @@
+{
+  "authorization": "User explicitly authorized this bounded A study; stop after one Draft PR; no merge/auto-merge",
+  "bar_label": "start",
+  "base_main": "ce89458b063f3af2451f8c4c162107207973c53b",
+  "budget": {
+    "adaptive_trials": 0,
+    "canonical_runs": 1,
+    "evaluations_per_full_run": 144,
+    "full_repeats": 2,
+    "independent_audit_full_runs": 1,
+    "instruments": 2,
+    "unique_configurations": 72
+  },
+  "calendar": {
+    "extended_lunch": {
+      "end_exclusive": "2023-03-21",
+      "pm_start": "14:15",
+      "start": "2023-03-13"
+    },
+    "holidays": [
+      "01-01",
+      "01-02",
+      "01-07",
+      "02-23",
+      "03-08",
+      "05-01",
+      "05-09",
+      "06-12",
+      "11-04"
+    ],
+    "windows": [
+      [
+        "10:00",
+        "14:00"
+      ],
+      [
+        "14:05",
+        "18:50"
+      ]
+    ]
+  },
+  "candidate_status": "PROVISIONAL_2023_OPTIMIZATION_CANDIDATE_PENDING_INDEPENDENT_AUDIT",
+  "denominators": {
+    "net_R_c1": "initial gross risk",
+    "planned_net_to_net_R": "initial gross risk + planned round trip C1",
+    "realized_net_to_net_R": "initial gross risk + actual round trip C1"
+  },
+  "end_exclusive": "2024-01-01",
+  "execution": {
+    "allow_entry_bar_take": false,
+    "cost_ticks_per_side": 1,
+    "daily_trade_deadline_clock": null,
+    "data_gap_policy": "DATA_GAP_SKIP_V2",
+    "entry_mode": "ENTRY_NEXT_OPEN",
+    "session_flat_before_end_bars": 1,
+    "unknown_scope": "current_day; following days conditional FLAT",
+    "wait_complete_bars": 0
+  },
+  "grid": {
+    "stop_buffer_ticks": [
+      1,
+      2
+    ],
+    "target_net_R": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "touches": [
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "inputs": {
+    "CNYRUBF": {
+      "blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M5.csv",
+      "prefix_bytes": 2212189,
+      "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 39362
+    },
+    "USDRUBF": {
+      "blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/USDRUBF/USDRUBF_M5.csv",
+      "prefix_bytes": 2342431,
+      "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 42576
+    }
+  },
+  "instruments": [
+    "USDRUBF",
+    "CNYRUBF"
+  ],
+  "limitations": "CLOSED only, conditional FLAT; no complete annual PF/return, continuous equity or broker DD claim; no pooling price units",
+  "no_candidate_status": "NO QUALIFYING OPTIMIZATION CANDIDATE",
+  "numeric": {
+    "Decimal_precision": 28,
+    "audit_absolute_tolerance_R": "1e-20",
+    "explanation": "Same published registry numerical tolerance; does not change trade economics or meaningful zero sign",
+    "metric_precision": 50,
+    "zero_month_sign_tolerance_R": "1e-20"
+  },
+  "parameters": {
+    "max_hold_calendar_minutes": 120,
+    "maximum_rebound_ticks": 4,
+    "maximum_risk_ticks": 12,
+    "minimum_risk_ticks": 3,
+    "signal_tf": "M5",
+    "stop_buffer_ticks": 1,
+    "target_mode": "FULL_NET_C1_R",
+    "target_net_R": "3",
+    "tolerance_ticks": 0,
+    "touches": 3,
+    "version": "A_OPT2023_v1"
+  },
+  "pr_472_head": "82ec9ffe61e18a43cd7510e398f6913b25f045e1",
+  "protected": "Every preexisting repository file unchanged; no source modifications; zero 2024+ candle reads",
+  "research_phase": "Optimization",
+  "schema": "IntradayLab.optimization_A.2023.v1",
+  "selection": {
+    "expectancy_R_strictly_above": "0",
+    "ideal_positive_exit_months": 12,
+    "maximum_conditional_closed_only_DD_R": "20",
+    "maximum_largest_positive_month_share_R": "0.50",
+    "maximum_largest_winner_share_R": "0.25",
+    "minimum_PF_R": "2.0",
+    "minimum_PF_price": "2.0",
+    "minimum_closed": 100,
+    "minimum_entry_days": 40,
+    "minimum_entry_months": 6,
+    "minimum_positive_exit_months": 9,
+    "minimum_positive_neighbor_count": 2,
+    "neighbor_definition": "Exactly one adjacent grid step; same instrument; local 2023 diagnosis, not Robustness",
+    "neighbor_expectancy_R_strictly_above": "0",
+    "neighbor_minimum_PF_R": "1.5",
+    "neighbor_minimum_closed": 100,
+    "ranking": [
+      "positive_exit_months DESC",
+      "min(PF_R,PF_price) DESC",
+      "conditional_closed_only_DD_R ASC",
+      "CLOSED DESC",
+      "configuration_id ASC"
+    ]
+  },
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "source_repository": "alkospacer123/market-pattern-data",
+  "start": "2023-01-01",
+  "target_formula": "distance = R*(initial_gross_risk + 2*entry_tick) + 2*entry_tick; outward entry-date grid rounding; actual cost = dated entry_tick + dated exit_tick",
+  "tick_schedule": {
+    "CNYRUBF": [
+      [
+        "2023-01-01 00:00:00",
+        "0.01"
+      ],
+      [
+        "2023-09-27 19:00:00",
+        "0.001"
+      ]
+    ],
+    "USDRUBF": [
+      [
+        "2023-01-01 00:00:00",
+        "0.01"
+      ]
+    ]
+  },
+  "timeframe_minutes": 5,
+  "timezone": "Europe/Moscow"
+}
