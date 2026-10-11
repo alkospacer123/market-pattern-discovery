@@ -1,0 +1,13 @@
+{
+  "checked_path_and_coverage_fields": 103,
+  "counts": {
+    "accepted_entries": 3,
+    "closed": 2,
+    "data_gap_skips": 1,
+    "data_quality_excluded": 1
+  },
+  "external_human_signoff": false,
+  "independent_imports": "Python standard library only",
+  "scope": "Synthetic M5 technical fixtures; no historical strategy evaluation",
+  "status": "PASS"
+}

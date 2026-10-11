@@ -1,0 +1,1344 @@
+{
+  "b10": {
+    "actual_source_reads": [],
+    "adapter": "In-memory current core identity only; frozen source, signal rules, parameters, entry clock and report bytes unchanged",
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 19,
+    "code_identity_exceptions": {
+      "IntradayLab/core/backtester.py": {
+        "current": "f5803a9df54ab0caf9a1d8feb53c549bc0aef887b12978b0bf5e89ab59eb09cd",
+        "frozen": "aa692dfc853ae3e4a0c0e5cb52745d6fc649a591c69dcfa3388b684caf87f248",
+        "reason": "This task common-core extension"
+      },
+      "IntradayLab/core/metrics.py": {
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
+        "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328",
+        "reason": "This task common-core extension"
+      },
+      "IntradayLab/core/reports.py": {
+        "current": "179cbf1e1560e656a377c8e7b158f4c44637b409b4f2abb60c3ae7f4225a7b88",
+        "frozen": "f9d90f5ea836b58f5f4bd243d9deb46611f87d3c30b4e4cb55bf73dd76bc0a56",
+        "reason": "This task common-core extension"
+      }
+    },
+    "independent_audit_status": "PASS",
+    "sha256": {
+      "Baseline_Report.md": "ee3bb65e26d1ee1adc0232f56f19213f5139af4406ae82c66996a627456f0334",
+      "boundary_touch_report.csv": "c90fbe38381c39e37c717a3e8732ae22674c61dcf6f0cffa03d08e22dd535c1f",
+      "config.json": "9e0a9d0649d3530a2a100537979444b4b3ce136c1a87b8a2ff22494b0afcf101",
+      "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+      "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+      "coverage_summary.csv": "f7defd9527083b965ec9bf36b74cdb1ed41fe2753dcf19b3d4f37dfffb5439b4",
+      "days.csv": "2f705255156560cdd4fb5307b00874af47df5fd6024d6fab93d5e909c9ef8a8f",
+      "direction_report.csv": "eb5835d2b7eb3e78b7690f85f0fb5c012f6e8aad729b2d47ff53b7bc46340492",
+      "episodes.csv": "a5628e26562f387a90775a694c6cba3cabfa594e2727855784c841433b5a2c44",
+      "input_provenance.json": "4c0bca7c3516a3ca5be1dbc3871d49738d2fea6af4916a03424057e69c9f98b9",
+      "instrument_report.csv": "008567d44fa062ddb3c7b691a16440a698d8c12066e1e0fcb19e7e99bee912de",
+      "manifest.json": "75daebd8753e18dcbd1cc2f1a0ecd8e5fa9a96b0cb38ea49904374a008caecb4",
+      "metrics.json": "4615b6ef62c4d93bc71c6d4fbd0a94d34da687ec607c4f373aa9c88095084eb0",
+      "monthly_report.csv": "d76546695f4df5a0a32fbcf915fff91310303387a1e7c1809aeaa4b115676bcd",
+      "rejected_entries.csv": "a28aa768251e07723efd375cd684024e29f11763b9d3cf8b4895c25ea36551b4",
+      "round_report.csv": "1a574474adf70785a759be555663f391ec6263dd46a04b1475c7bf77f218ed8f",
+      "signals.csv": "f27675298ea973d447787dbadd2a15c7760011f860edaf9a30447b0bc7208d18",
+      "trades.csv": "1f88841b6baf58274cd2031e2e53a7bae132200193c23e86fa4836ba237526e8",
+      "unknown_report.csv": "1495070e09d677fe346d58328c3348290b2dff8c8fd453c7ce1ce00bdf5849a2"
+    },
+    "status": "PASS"
+  },
+  "b4": {
+    "actual_source_reads": [],
+    "adapter": "In-memory current core identity only; frozen source, signal rules, parameters, entry clock and report bytes unchanged",
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 19,
+    "code_identity_exceptions": {
+      "IntradayLab/core/backtester.py": {
+        "current": "f5803a9df54ab0caf9a1d8feb53c549bc0aef887b12978b0bf5e89ab59eb09cd",
+        "frozen": "aa692dfc853ae3e4a0c0e5cb52745d6fc649a591c69dcfa3388b684caf87f248",
+        "reason": "This task common-core extension"
+      },
+      "IntradayLab/core/metrics.py": {
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
+        "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328",
+        "reason": "This task common-core extension"
+      },
+      "IntradayLab/core/reports.py": {
+        "current": "179cbf1e1560e656a377c8e7b158f4c44637b409b4f2abb60c3ae7f4225a7b88",
+        "frozen": "f9d90f5ea836b58f5f4bd243d9deb46611f87d3c30b4e4cb55bf73dd76bc0a56",
+        "reason": "This task common-core extension"
+      }
+    },
+    "independent_audit_status": "PASS",
+    "sha256": {
+      "Baseline_Report.md": "01333329268a4c6c334f7ff9a983696e7f956ddc163d14feaa833c88ae9c24fe",
+      "boundary_touch_report.csv": "ffe97cb992d28c6e587973093f6e294ca209800c4925382540e984ead9faa23b",
+      "config.json": "fb194b0e0734ac2dc84cf64a5aa33ec4aad3fd00c796108d56ffc5196459fa5f",
+      "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+      "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+      "coverage_summary.csv": "f7defd9527083b965ec9bf36b74cdb1ed41fe2753dcf19b3d4f37dfffb5439b4",
+      "days.csv": "94380b965a75eff9385f44fd4e8ab6b8b1cfb3dcd753cc281c8fd65170980e4c",
+      "direction_report.csv": "64f1547506af9e5b59677406aae99cf9fddf7a823d7e12052c626d7c4d7590ea",
+      "episodes.csv": "a42bd8a8969e27639ebdf2861e554445ff5303dcdf8465088ca83b820c0c9292",
+      "input_provenance.json": "4c0bca7c3516a3ca5be1dbc3871d49738d2fea6af4916a03424057e69c9f98b9",
+      "instrument_report.csv": "0e8bb6533a8f70c235bd50653f977e71817640cf58c8f29516cf5564568e73e7",
+      "manifest.json": "75cccda33c6b12949cc8b090c08fa689f1a057f9f9acb54d29ca0e95aeeb796d",
+      "metrics.json": "af6b4e0aa35432cf6c7cc5461e2cbcf8a75597c457ecf87651a27efd67d55799",
+      "monthly_report.csv": "39a7c1b4871fbcec9571316c2309d9da67553a0c8bb5a5ac23f744a1086ab535",
+      "rejected_entries.csv": "2ade216fdf57d9cbdf22d6cf6ee08fb5c5627e2c919540456484c6bc3b4090bf",
+      "round_report.csv": "70eb4b47b23d3f45ce94ffdcd562b751b04fe91fd873b0adda7c27a472332cfd",
+      "signals.csv": "2ea5638c8afb5b72c3bbcac66866ec2fa41bad466689ed4d21f1490f309599e9",
+      "trades.csv": "f237cd3ee53a00e04f968fb3e6efb41db881a5b8b8f29706e63cb154d9ad463c",
+      "unknown_report.csv": "ce0acab9cb47311d9d858c48e9a6537e9dbd0b9729248ff14fce2f5dc7d9dc08"
+    },
+    "status": "PASS"
+  },
+  "b7": {
+    "actual_source_reads": [],
+    "adapter": "In-memory current core identity only; frozen source, signal rules, parameters, entry clock and report bytes unchanged",
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 19,
+    "code_identity_exceptions": {
+      "IntradayLab/core/backtester.py": {
+        "current": "f5803a9df54ab0caf9a1d8feb53c549bc0aef887b12978b0bf5e89ab59eb09cd",
+        "frozen": "aa692dfc853ae3e4a0c0e5cb52745d6fc649a591c69dcfa3388b684caf87f248",
+        "reason": "This task common-core extension"
+      },
+      "IntradayLab/core/metrics.py": {
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
+        "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328",
+        "reason": "This task common-core extension"
+      },
+      "IntradayLab/core/reports.py": {
+        "current": "179cbf1e1560e656a377c8e7b158f4c44637b409b4f2abb60c3ae7f4225a7b88",
+        "frozen": "f9d90f5ea836b58f5f4bd243d9deb46611f87d3c30b4e4cb55bf73dd76bc0a56",
+        "reason": "This task common-core extension"
+      }
+    },
+    "independent_audit_status": "PASS",
+    "sha256": {
+      "Baseline_Report.md": "f2961679e4c99f279447b46c1c0318d3554477a43f545cca1a4603e3ad1885ad",
+      "boundary_touch_report.csv": "f7afa590a82ab9e81957b4053954fb547c844bc4000b64ceb32100a2f6fbd2cc",
+      "config.json": "2798aed0a7b045a3d71083d7c25ceda25b6b4a877c4d5554a15730fd149f5fe8",
+      "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+      "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+      "coverage_summary.csv": "f7defd9527083b965ec9bf36b74cdb1ed41fe2753dcf19b3d4f37dfffb5439b4",
+      "days.csv": "d1024a7c4b6d7b22635f96a95a6546d2a6147dd44f08c69ce624fd3703ec1bea",
+      "direction_report.csv": "e388f5b14408c5cc76b49ca700885a6da40b3f93613dae977644015de53f0ee8",
+      "episodes.csv": "ee0247d76bbe7cadea69c8ab0591a5cc136fca2391c96a583127dc6bba1b7302",
+      "input_provenance.json": "4c0bca7c3516a3ca5be1dbc3871d49738d2fea6af4916a03424057e69c9f98b9",
+      "instrument_report.csv": "98e42d8e4a139121a96dcd15e4b6e9b63a043263553510994f493b2b8993439a",
+      "manifest.json": "c7dc3d1432f91ba6f3a265ce06a99fbe056381fe370a24afd4c7b4e51585b4b3",
+      "metrics.json": "87fc32d3be6d2ddbc0c1a80809b13ce435d2bc88dac002f126db3483892a24e1",
+      "monthly_report.csv": "3abab05803bdd0738b7b8031d5de7d2c30a4074327863cda8b0b38960551927d",
+      "rejected_entries.csv": "a4cfde80844ec2969ff21e6f810cbacea71074f2c6bd446cb27b0b0c58464630",
+      "round_report.csv": "7951e14ad612b140927c48f085d6dcd7241283d10a276a0d04f59c952ff63b2b",
+      "signals.csv": "e646bd60e76a7ef4563d52480faa1183d4fd7e9e449c8b810783c0d31e7358c0",
+      "trades.csv": "8853c7188553a50d8bab1d67261e6673c19fadfc496bf9eeb868930c10c78a39",
+      "unknown_report.csv": "0aab5c6f18638ec914282d855bec812d940567d958e9d3117ea3c495dd6a6efb"
+    },
+    "status": "PASS"
+  },
+  "canonical": {
+    "actual_source_reads": [
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      }
+    ],
+    "adapter": "In-memory current core identity only; frozen source, signal rules, parameters, entry clock and report bytes unchanged",
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 14,
+    "code_identity_exceptions": {
+      "IntradayLab/core/backtester.py": {
+        "current": "f5803a9df54ab0caf9a1d8feb53c549bc0aef887b12978b0bf5e89ab59eb09cd",
+        "frozen": "552d8138b5b1d2e27f30ac68046fbdb09383a8de4cd1feb4a6c7e33138b2938a"
+      },
+      "IntradayLab/core/data_quality.py": {
+        "current": "c012de206331f723de4ab2fbe3549bf8645378bc1c2e4473123054083eda4af0",
+        "frozen": null
+      },
+      "IntradayLab/core/execution.py": {
+        "current": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c",
+        "frozen": "adddf4ab2d1662f2de9e395573bdf43b7e8999342118003e4a74467b5b90f791"
+      },
+      "IntradayLab/core/h1_context.py": {
+        "current": "29ccc342d760e855f6868c144c99bd5b3d2312089cf0f5851bbeb69bb17b6909",
+        "frozen": null
+      },
+      "IntradayLab/core/m15_bars.py": {
+        "current": "46bba5ed6a46b65666de3f5f243beaaf161e29d852575b9b2e8a2950c2b0d334",
+        "frozen": null
+      },
+      "IntradayLab/core/m15_context.py": {
+        "current": "26bca505f8283626f48993ac374d9a2b279231014c468e03593562104d2443c2",
+        "frozen": null
+      },
+      "IntradayLab/core/metrics.py": {
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
+        "frozen": "d029be49385e13aa6a9cf20dc64e7041288fb43b5b6079401b921aa0362131bd"
+      },
+      "IntradayLab/core/reports.py": {
+        "current": "179cbf1e1560e656a377c8e7b158f4c44637b409b4f2abb60c3ae7f4225a7b88",
+        "frozen": "f9d90f5ea836b58f5f4bd243d9deb46611f87d3c30b4e4cb55bf73dd76bc0a56"
+      },
+      "IntradayLab/strategies/compression_breakout.py": {
+        "current": "16dadd2d626b69467575c932eeb23b250821888d5870a817661383f4755837ee",
+        "frozen": null
+      },
+      "IntradayLab/strategies/equal_high_low_m5.py": {
+        "current": "fd465001a573297867709246d6b7d9bc14848deed2dbf53a75a87f684cdc517a",
+        "frozen": null
+      },
+      "IntradayLab/strategies/high_low_cluster_m5.py": {
+        "current": "38e91864644e2091929756bafa081e10bc7a6583edd9dd7466f00cbf72b4483a",
+        "frozen": null
+      },
+      "IntradayLab/strategies/level_rejection.py": {
+        "current": "88e265d86132275b937c6b2ee789b881c09f5e00a07b174d93c56ed67a8b4c39",
+        "frozen": null
+      },
+      "IntradayLab/strategies/orb_breakout_retest.py": {
+        "current": "f646a3a5f65b9e41ff9b9b807dd3003c8e98e21d47dd2d14fe9cd0a410384858",
+        "frozen": null
+      },
+      "IntradayLab/strategies/swing_pullback_m5_m15.py": {
+        "current": "520128f8f4b18c16a53655a85167e23b2736c161debb3fe1624ab2ceb9d49d19",
+        "frozen": null
+      },
+      "IntradayLab/strategies/trend_pullback_m15_h1.py": {
+        "current": "64415488ab19efbf182172a03ca142eb61060da6c0f9858ce3b0a9ef8a83be25",
+        "frozen": null
+      }
+    },
+    "independent_audit_status": "PASS",
+    "sha256": {
+      "Baseline_Report.md": "82c5253cfc143fc4f66af09677cd09902d1728993f2c7b9862a4a570b9f2f050",
+      "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+      "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+      "coverage_report.csv": "f05c0e786082414db510c22a3bdb150912cb12af38065c968506f135474cab2c",
+      "days.csv": "7e6c8eaf89bdb13f196db16acf5ddef50e7521f8fb086bdca8bdf07c8e4300d0",
+      "direction_report.csv": "f6e337b14774631e52132ea8dbbc676ce66e3603e4e2b39a2c213654bb28c02a",
+      "historical_comparison.json": "e8d071e604ba2188a92c7e4d9fd5bb4e8597c7bb5526961193f7793653658b88",
+      "input_provenance.json": "6a8367f4901038419f7e041d79cd056b754c765f4a7c9fa49e1bd424d5e6d6b4",
+      "instrument_report.csv": "bb6fe0a2108941bd64f4600180be908c63e78802b49a93afcf4a3ce36a0b771a",
+      "metrics.json": "a011a8efe74cfd34f3024e444cd6ae09b3e7c8f802ea467844ea07f21b90e5af",
+      "monthly_report.csv": "5e5caae29ca5521794165a2d7fb0b3f17bf143651fd94500dfd2ff37fb4e6939",
+      "signals.csv": "42e6a2de41589ba6b24e1f23f54c590d8e6c7ce9d8a7fa63f1924a1977d2cbd4",
+      "trades.csv": "3ab91a3e7853749296d0fd5cca66b93e6288d3f1ac05da3e2c5ec09e9c653d44",
+      "unknown_report.csv": "1ad583f18b0d0ceabc94cc52116a902f0ca65dcc078f3e730e62796c7f64ea51"
+    },
+    "status": "PASS"
+  },
+  "equal_high_low": {
+    "actual_source_reads": [],
+    "adapter": "In-memory current core identity only; frozen source, signal rules, parameters, entry clock and report bytes unchanged",
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 21,
+    "code_identity_exceptions": {
+      "IntradayLab/core/backtester.py": {
+        "current": "f5803a9df54ab0caf9a1d8feb53c549bc0aef887b12978b0bf5e89ab59eb09cd",
+        "frozen": "aa692dfc853ae3e4a0c0e5cb52745d6fc649a591c69dcfa3388b684caf87f248",
+        "reason": "This task common-core extension"
+      },
+      "IntradayLab/core/metrics.py": {
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
+        "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328",
+        "reason": "This task common-core extension"
+      },
+      "IntradayLab/core/reports.py": {
+        "current": "179cbf1e1560e656a377c8e7b158f4c44637b409b4f2abb60c3ae7f4225a7b88",
+        "frozen": "f9d90f5ea836b58f5f4bd243d9deb46611f87d3c30b4e4cb55bf73dd76bc0a56",
+        "reason": "This task common-core extension"
+      }
+    },
+    "independent_audit_status": "PASS",
+    "sha256": {
+      "Baseline_Report.md": "fde683b4f390ae0e1fc4b53ff49da8ea4271a5577cba9f0cf9d066e1d6b0d5aa",
+      "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+      "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+      "coverage_summary.csv": "f7defd9527083b965ec9bf36b74cdb1ed41fe2753dcf19b3d4f37dfffb5439b4",
+      "days.csv": "0a058032f915ae4bb3e1797099179613d30f45f321ee69ddc3ae3d3c07f6883d",
+      "diagnostics/Execution_Comparison.md": "658233324fc16880879f7ea41885b5cbbe0bfeab7ba0f9570bc1294188f21bb0",
+      "diagnostics/close_oracle_metrics.json": "f6108378ead55539e13f3f35bdafb5b3cdd81aae606f41e3878da97115e3046e",
+      "diagnostics/close_oracle_signals.csv": "2e68f9d0d9ec6e992ad8a6213a7812bf02ab115741774ddb32a74e04c5a2cb69",
+      "diagnostics/close_oracle_trades.csv": "e291312e3f9a3d2d509cf4c63b654cb3ad1d19539fdbc2ae1a13dd6b1da9436a",
+      "diagnostics/entry_comparison.csv": "6043e459a4b1137aec16302efeef3d8829ead817f66144d1eb5cc6916c90fc9e",
+      "direction_report.csv": "ba37e3d6d58f04d08d85be916d13ae9b772c7713669375e09c5f5fdfd47bea99",
+      "funnel.json": "9bf2297850c1b8a63415c4fb366737ea7dea88a9469b2f9e6f7094053f0c9193",
+      "input_provenance.json": "4c0bca7c3516a3ca5be1dbc3871d49738d2fea6af4916a03424057e69c9f98b9",
+      "instrument_report.csv": "8bef4694b0599687c3a98f46ffa969d61275b3a45ec2b57e2c5c9ec9f6f53970",
+      "manifest.json": "99096c0bea0be935adb9865d68733073c29105332d909239fbba3cd2cbcfbc36",
+      "metrics.json": "ef447187f91d3237d1aa9fd1285786b6e2eb3c4f1ad931dac6267fd03ffaf4c8",
+      "monthly_report.csv": "eac2a8d4e312fbb65acb415a3e0330085c5668ee24da3aa2e22ee750f6b4ef39",
+      "rejected_entries.csv": "56408c35cab084c37c2a1a418dd77b467d95419d27207365679e9bf8719038d6",
+      "signals.csv": "6a8cdca1929557cddc67b142caca41a9f42e3e362db1c6a37654fd760f16391e",
+      "trades.csv": "7f60752d78ff9e4e0e856cbcc9663a23c9e6cda43f11543f3d95bd58bf2ecaad",
+      "unknown_report.csv": "a3baee36eace1928588e4aced6fc234f4758ee434bd0ae130d07010a394688fc"
+    },
+    "status": "PASS"
+  },
+  "level_rejection": {
+    "actual_source_reads": [
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      }
+    ],
+    "adapter": "In-memory current core identity only; frozen source, signal rules, parameters, entry clock and report bytes unchanged",
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 15,
+    "code_identity_exceptions": {
+      "IntradayLab/core/backtester.py": {
+        "current": "f5803a9df54ab0caf9a1d8feb53c549bc0aef887b12978b0bf5e89ab59eb09cd",
+        "frozen": "5654273e073bf1000bd0ded3642337fd734457856d99c17596055160e7a9e190"
+      },
+      "IntradayLab/core/data_quality.py": {
+        "current": "c012de206331f723de4ab2fbe3549bf8645378bc1c2e4473123054083eda4af0",
+        "frozen": null
+      },
+      "IntradayLab/core/execution.py": {
+        "current": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c",
+        "frozen": "354acd95ee27f4e08ec35a7e29341a01234de915ca49354f10233b2adafbe97a"
+      },
+      "IntradayLab/core/h1_context.py": {
+        "current": "29ccc342d760e855f6868c144c99bd5b3d2312089cf0f5851bbeb69bb17b6909",
+        "frozen": null
+      },
+      "IntradayLab/core/m15_bars.py": {
+        "current": "46bba5ed6a46b65666de3f5f243beaaf161e29d852575b9b2e8a2950c2b0d334",
+        "frozen": null
+      },
+      "IntradayLab/core/m15_context.py": {
+        "current": "26bca505f8283626f48993ac374d9a2b279231014c468e03593562104d2443c2",
+        "frozen": null
+      },
+      "IntradayLab/core/metrics.py": {
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
+        "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328"
+      },
+      "IntradayLab/core/reports.py": {
+        "current": "179cbf1e1560e656a377c8e7b158f4c44637b409b4f2abb60c3ae7f4225a7b88",
+        "frozen": "f9d90f5ea836b58f5f4bd243d9deb46611f87d3c30b4e4cb55bf73dd76bc0a56"
+      }
+    },
+    "independent_audit_status": "PASS",
+    "sha256": {
+      "Baseline_Report.md": "700a07d05a4de2bba8cde05460cec221ad68cc646761a06b7dea54dc0150a831",
+      "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+      "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+      "coverage_report.csv": "3b1f96d91b3e761491fa4cdff4a0d483135b47abe4eb7e9bcce29d9be1734661",
+      "coverage_summary.csv": "ebb5c80e6162eb8dface4c7b4984c25592d99492f81fe0b8dc624183d168f551",
+      "days.csv": "5023756bf7be8964790893fab599e44f198ba5d038a6c976e5904be0ef60f6a9",
+      "direction_report.csv": "88248b861efb8131fed99eb9acd33cdfc7633faea8f0e86b042a3834a2b2e49e",
+      "funnel.json": "960b95dfb55691644faafee53f24f68ca09c6fd8b01b9b48177509460e372960",
+      "input_provenance.json": "ec8f5ce5bf2b65e6c9aeadaab6045baf2aeb3e7303c6571e094bf41fca352880",
+      "instrument_report.csv": "ce76101e2284cd98538e8a204deb3abc9ea5844e7604c2923c9bbe49bdedee73",
+      "metrics.json": "aa063f9fa0144679cbae152c9e4cee79352b1cbf6fc6fe42b12247356664e890",
+      "monthly_report.csv": "5d7fb6565cb10754bc10fd0bb4c2463905fbf2653ff16d1d206998b651902ae8",
+      "signals.csv": "29f26865385520522def6196067a98b5098634bb551ba12a3febb273eb7a6874",
+      "trades.csv": "610167469e8cbc3bc4367b5b6314e52dd911cad44723d4c1862d7db6ac80716e",
+      "unknown_report.csv": "c3ae2f6da4fe75fc87d82e25de413f6ff1a3c08061bb31c08bef553d61afd1fc"
+    },
+    "status": "PASS"
+  },
+  "r16": {
+    "actual_source_reads": [
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      }
+    ],
+    "adapter": "In-memory current core identity only; frozen source, signal rules, parameters, entry clock and report bytes unchanged",
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 14,
+    "code_identity_exceptions": {
+      "IntradayLab/core/backtester.py": {
+        "current": "f5803a9df54ab0caf9a1d8feb53c549bc0aef887b12978b0bf5e89ab59eb09cd",
+        "frozen": "50d56700b1498a962cc8dfa9d94ee6b7c9e0147a34d5c6a9003d5f8683570dc5"
+      },
+      "IntradayLab/core/data_quality.py": {
+        "current": "c012de206331f723de4ab2fbe3549bf8645378bc1c2e4473123054083eda4af0",
+        "frozen": null
+      },
+      "IntradayLab/core/execution.py": {
+        "current": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c",
+        "frozen": "adddf4ab2d1662f2de9e395573bdf43b7e8999342118003e4a74467b5b90f791"
+      },
+      "IntradayLab/core/h1_context.py": {
+        "current": "29ccc342d760e855f6868c144c99bd5b3d2312089cf0f5851bbeb69bb17b6909",
+        "frozen": null
+      },
+      "IntradayLab/core/m15_bars.py": {
+        "current": "46bba5ed6a46b65666de3f5f243beaaf161e29d852575b9b2e8a2950c2b0d334",
+        "frozen": null
+      },
+      "IntradayLab/core/m15_context.py": {
+        "current": "26bca505f8283626f48993ac374d9a2b279231014c468e03593562104d2443c2",
+        "frozen": null
+      },
+      "IntradayLab/core/metrics.py": {
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
+        "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328"
+      },
+      "IntradayLab/core/reports.py": {
+        "current": "179cbf1e1560e656a377c8e7b158f4c44637b409b4f2abb60c3ae7f4225a7b88",
+        "frozen": "f9d90f5ea836b58f5f4bd243d9deb46611f87d3c30b4e4cb55bf73dd76bc0a56"
+      }
+    },
+    "independent_audit_status": "PASS",
+    "sha256": {
+      "Baseline_Report.md": "54b46839d948cf4a6aed6f72156caaad558ca009e3397317669bd406de797307",
+      "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+      "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+      "coverage_report.csv": "17fccd10d2c398dfb1fbc14b5e7cca891d5525bea6dcd32234c6bd73b3adf064",
+      "coverage_summary.csv": "ebb5c80e6162eb8dface4c7b4984c25592d99492f81fe0b8dc624183d168f551",
+      "days.csv": "0643e026985518bdce020e65948e7b1ad2b18a1c41319b644ee3ffb28a5c31e8",
+      "direction_report.csv": "05a353b91b9a0d17bb34481b816032a4d5dcbf09b3edabff441f506fd2e04ebd",
+      "input_provenance.json": "ec8f5ce5bf2b65e6c9aeadaab6045baf2aeb3e7303c6571e094bf41fca352880",
+      "instrument_report.csv": "d0d00b0c41f9aa64f656847fd155c959b90bf0acea44c4792910c5c9ff2ec720",
+      "metrics.json": "18a2c154a85b2a06e60a6d0332cfb2f5c6a25ed5977f0851f23e001febcd3b1b",
+      "monthly_report.csv": "49f78fdfaab7e6b438b0d8b061113a831b64f9d25c019d081926498f14b019f7",
+      "signals.csv": "7622bc3a1f916db96e5d9edeb85547a92af616664d88bb9b349c5c10f479a9ce",
+      "trades.csv": "cde689643cb14ac23155d08c3d6a7d2c9615d175199334f953649109d6f72dce",
+      "unknown_report.csv": "558c2bc9d794ef13e214bdd19c8906398fa0c472699c09c8cbeb58bc3037b9cf"
+    },
+    "status": "PASS"
+  },
+  "r17": {
+    "actual_source_reads": [
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      }
+    ],
+    "adapter": "In-memory current core identity only; frozen source, signal rules, parameters, entry clock and report bytes unchanged",
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 13,
+    "code_identity_exceptions": {
+      "IntradayLab/core/backtester.py": {
+        "current": "f5803a9df54ab0caf9a1d8feb53c549bc0aef887b12978b0bf5e89ab59eb09cd",
+        "frozen": "50d56700b1498a962cc8dfa9d94ee6b7c9e0147a34d5c6a9003d5f8683570dc5"
+      },
+      "IntradayLab/core/data_quality.py": {
+        "current": "c012de206331f723de4ab2fbe3549bf8645378bc1c2e4473123054083eda4af0",
+        "frozen": null
+      },
+      "IntradayLab/core/execution.py": {
+        "current": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c",
+        "frozen": "adddf4ab2d1662f2de9e395573bdf43b7e8999342118003e4a74467b5b90f791"
+      },
+      "IntradayLab/core/h1_context.py": {
+        "current": "29ccc342d760e855f6868c144c99bd5b3d2312089cf0f5851bbeb69bb17b6909",
+        "frozen": null
+      },
+      "IntradayLab/core/m15_bars.py": {
+        "current": "46bba5ed6a46b65666de3f5f243beaaf161e29d852575b9b2e8a2950c2b0d334",
+        "frozen": null
+      },
+      "IntradayLab/core/m15_context.py": {
+        "current": "26bca505f8283626f48993ac374d9a2b279231014c468e03593562104d2443c2",
+        "frozen": null
+      },
+      "IntradayLab/core/metrics.py": {
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
+        "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328"
+      },
+      "IntradayLab/core/reports.py": {
+        "current": "179cbf1e1560e656a377c8e7b158f4c44637b409b4f2abb60c3ae7f4225a7b88",
+        "frozen": "f9d90f5ea836b58f5f4bd243d9deb46611f87d3c30b4e4cb55bf73dd76bc0a56"
+      }
+    },
+    "independent_audit_status": "PASS",
+    "sha256": {
+      "Baseline_Report.md": "0db37b94fa425d68b20a6dd8f9917403ecaf3d94a7f2b0b4df9116b32eff9e35",
+      "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+      "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+      "coverage_report.csv": "5f573f617ad412fa22190e40cc8f6bdc3d487f6da9e513630eec911d28b134ac",
+      "days.csv": "de2591796968b8278413aa7031973c6d65b25136ae373c35a022f78dba004e77",
+      "direction_report.csv": "19aca572419f394abe844425c09951f4f0fd8311fc0ff74ba04f1c359db1baf1",
+      "input_provenance.json": "ec8f5ce5bf2b65e6c9aeadaab6045baf2aeb3e7303c6571e094bf41fca352880",
+      "instrument_report.csv": "b6585eec839f58e5280c74f65dd20b1b595f683275fb98bd8ca1bd0180ab04fe",
+      "metrics.json": "0b5bf4f17118e5fd4743c9ce9207eac8794ffe6c7bd939d45214d085e2ffaf2c",
+      "monthly_report.csv": "4f67e6e54222b639990fc449df8734f027cd8fbaf8781102fe96d98dda875041",
+      "signals.csv": "3946ab832e662f4a824cdb571984c74ba8c70958474de1a4b7938cf0aa98ffd5",
+      "trades.csv": "296e0993ae96f0d031fee1abb9f1152a897cbb50304386a56201b55c21800216",
+      "unknown_report.csv": "aeb04edee01e851ca518765e924e27528019681abbf9e4f2a84c4d54a1b3e62e"
+    },
+    "status": "PASS"
+  },
+  "stage2_causal_mtf_v1": {
+    "actual_source_reads_from_verified_loader_provenance": {
+      "CNYRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_2025_plus_read": 0,
+        "first": "2023-01-03 09:00:00",
+        "frozen_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+        "last": "2023-12-29 23:45:00",
+        "prefix_bytes_read": 2212189,
+        "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+        "rows": 39362
+      },
+      "GLDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_2025_plus_read": 0,
+        "first": "2023-07-11 10:00:00",
+        "frozen_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+        "last": "2023-12-29 23:45:00",
+        "prefix_bytes_read": 1044351,
+        "prefix_sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b",
+        "rows": 18428
+      },
+      "IMOEXF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_2025_plus_read": 0,
+        "first": "2023-11-14 10:00:00",
+        "frozen_blob": "41b83b109b177d4522e53486950104845d357d99",
+        "last": "2023-12-29 23:45:00",
+        "prefix_bytes_read": 234733,
+        "prefix_sha256": "7bd7d9aafee7e0bf467e12e4ec36ab5c4537ee73a37788e5a24ed84a0861ae6c",
+        "rows": 4429
+      },
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_2025_plus_read": 0,
+        "first": "2023-01-03 09:00:00",
+        "frozen_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+        "last": "2023-12-29 23:45:00",
+        "prefix_bytes_read": 2342431,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "rows": 42576
+      }
+    },
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 10,
+    "bytes_2024_plus_read": 0,
+    "bytes_2025_plus_read": 0,
+    "implementation": "Unchanged archived standalone MTF engine; all 128 fixed runs",
+    "metadata_exception": "README already changed before this task; verified identical to task base. Historical ROADMAP/PROJECT_CONTEXT exceptions unchanged.",
+    "read_guard": "Raw FileIO subclass enforced exact pinned M5 2023 limits during the completed run. Loader provenance equality was asserted before replay; original transient guard receipts were not saved because container comparison initially failed.",
+    "sha256": {
+      "daily_frequency.csv.gz": "4fe89c2e3cff85a935fa212c7afde603cf14d01959d46aae43a49500f9136b52",
+      "execution_events.csv.gz": "90fddb4cadc2a5adb6293371643cba41ab0217acb49412254d9113284a68f749",
+      "metrics.csv.gz": "d407754c36d87858d585b2646aa8df8f79eee25f8959501c3b3d40d4791baf6d",
+      "paired_contribution.csv.gz": "cf890b54a3a6a85d8d3e52fb90a5441c0eeb2c9201525cb3e0eb91f64ad7d31f",
+      "pnl_segments.csv.gz": "c6e211a9ea8c29e7ab1beb80a05b953b1706c0fb25d8127026ae07d1cb749947",
+      "results.json": "b813c75cba69afd339ffd5c34da3e8218c8e08c69813bccfe900d337428023c0",
+      "signals.csv.gz": "52819c3aaba767d4e57d4079c8e48015b947ddcdb432e3eb1f0598f076b4ac96",
+      "stop_amendments.csv": "5131af5bd4b0a77051f3c6479d26baf2867310f0ee393a15e0c5802f612e3572",
+      "trade_attribution.csv.gz": "ac237b519fbe1c5c0ea1c0b633ffc0dc5122c5033dab75828f3267573fe4fb2d",
+      "trade_ledger.csv.gz": "ebef436b45596e025b54022a74e6c6ed75497e17c3ce3b477d3615e8e0a5c622"
+    },
+    "status": "PASS",
+    "verification_note": "Initial byte comparison used gzip.compress OS=3 against archived GzipFile OS=255. Comparison now reproduces the original deterministic GzipFile container. Existing completed replay outputs rechecked; no trading change or extra replay.",
+    "workflow_annotation_exceptions": {}
+  },
+  "stage2_complete_architectures_v1": {
+    "actual_source_reads": [
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      }
+    ],
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 10,
+    "implementation": "Unchanged archived standalone engine; no common Backtester import",
+    "output_adapter": "Only DEST redirected for two fixed-destination runners; unchanged pre-return metadata copied into scratch",
+    "sha256": {
+      "daily_frequency.csv.gz": "a3b98b8611db6ff89076e90fccfb6e680e068de528c2645de796e5d15ae668c3",
+      "execution_events.csv.gz": "f3c1241001b86605bbea24bbf8ffee504de092cc1e45b370ca704a4cf34cd73a",
+      "metrics.csv.gz": "9b9908af0796b8f04d5210dedbc8e0343905a013b06c98eac6417a838db41996",
+      "paired_contribution.csv": "640b266727c2332d60b179bfa05c764f48b5b134439b23d7556d9bd84b8a4eee",
+      "pnl_segments.csv.gz": "342aa2124db7e814a12daa73997d55e4406bba209554dfdce12b4802088f0147",
+      "results.json": "00d9c8a8a08dc6533f532cad2fa40e766b62e33c919909d5ce642ad7c210d9b9",
+      "signals.csv.gz": "65075415917759e0089b2782c944735dc725ee457bf325fd956159bbe2db2b4f",
+      "stop_amendments.csv": "818a4f05caea8bf908bf6bf71ba127a00485cb0be84833e401f0a6c5c2982c7a",
+      "trade_attribution.csv.gz": "7b2fd20606c7e76a1685a628441bd5e3300bb44f2e9de7fe1afac420e9b4b30b",
+      "trade_ledger.csv.gz": "dbf6b1a3f8cf0083bb5240de587e172d2467b880c63f7cfd4074987ba6a42e4d"
+    },
+    "status": "PASS",
+    "workflow_annotation_exceptions": {}
+  },
+  "stage2_exit_only_ablation_v1": {
+    "actual_source_reads": [
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      }
+    ],
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 7,
+    "implementation": "Unchanged archived standalone engine; no common Backtester import",
+    "output_adapter": "Only DEST redirected for two fixed-destination runners; unchanged pre-return metadata copied into scratch",
+    "sha256": {
+      "execution_events.csv": "82a55f38fe16ca7e64349714b2733e96b2d8eafcc692d97cea687ec59e674a39",
+      "paired_exit_only.csv": "4d174b4c2077eeecf19e8cb7c76d52e30a9edc41549d6ce76bed773a1e4f74c8",
+      "results.json": "fee5c817001614697178b244271bdd6cca603658f453efa4e67dbb219a977d57",
+      "signals.csv": "00f8a6ac138b8a7ad403df2422c4a65269dfcb99f0722a97bc5dbc32bc521aac",
+      "stop_amendments.csv": "4412d67ea1c1488b309c07e497cc75f3b6768049c3ed9569a45dabd41c244d1d",
+      "summary.csv": "7c485f0f335e7e1c1bf0f2fe954be79a4068ce0b592b6d7f17bc84aa78778553",
+      "trade_ledger.csv.gz": "fb9ec146e50dc2ebb890a6c3870b45b4e3658f080536bd28ab4c4977b9aa0fa6"
+    },
+    "status": "PASS",
+    "workflow_annotation_exceptions": {}
+  },
+  "stage2_m5": {
+    "actual_source_reads": [
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      }
+    ],
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 7,
+    "implementation": "Unchanged archived standalone engine; no common Backtester import",
+    "output_adapter": "Only DEST redirected for two fixed-destination runners; unchanged pre-return metadata copied into scratch",
+    "sha256": {
+      "correction_history.json": "379bda632d3ef114fd4fc46595ea7f635de18c6bdfba1af6d8ddf85f3af7951e",
+      "execution_events.csv": "0fa822180b9e95867c89c115338bf512894522f53f250935e933e0316812b0a7",
+      "metrics.csv": "0db7a669996c2e8cf2d222ab00a4e35947f97e1ff82e27dcb9ffdb7d824462c2",
+      "results.json": "2564a15d9403e2bd42a7573e0e9897d2b094614b5210e191445f72ecf52d6b1f",
+      "signals.csv": "91943b375c7eaeebf5a89f4c2bbb69db5f4c47fc1e1cbe349c9c2994bc98bce0",
+      "trade_ledger.csv": "609865c5d34589e45c394d61d0fe60f1ac76e862f51c3af8e7e17ff090cefec1",
+      "unknown_entries.csv": "e1a8cad2e1bbc6a6c809968ebe37517d4ad77ed7f330464ab87c4a3bdb2804c9"
+    },
+    "status": "PASS",
+    "workflow_annotation_exceptions": {}
+  },
+  "stage2_m5_conditional_v2": {
+    "actual_source_reads": [
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      }
+    ],
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 12,
+    "implementation": "Unchanged archived standalone engine; no common Backtester import",
+    "output_adapter": "Only DEST redirected for two fixed-destination runners; unchanged pre-return metadata copied into scratch",
+    "sha256": {
+      "delay_sensitivity.json": "446e386325b51cb9fc3f9445900a30331f294aedcba978b49974c26816649cf9",
+      "economics.csv": "3851b3b51f4bd18f5992ff490a2a3ad451a71192887f1671f149e0ab166e066f",
+      "economics_summary.csv": "d5591f93aadaac9502a2e14ba2edb018a8d4ac2f191fcd250bcd0cb017d0ff4c",
+      "execution_diagnostics.csv": "27b763a0e60b1b111b0bad15ae3952af441baa12f0bb8dcee90abbbaad83ca25",
+      "execution_events.csv": "3233656212904954c42e6b56d8850ecff100bc7852260640b8766dc486a8db8b",
+      "metrics.csv": "ec1edb675a68fcc64830f65dfaa1d02149f22a3dea0bff57db0a81ffdf8be48e",
+      "no_bar_entries.csv": "b74b00804f055bbff547ec6562e920223342f817aae25db7f0788a1ff7b6690c",
+      "results.json": "776726aefea53c0f23da01fcc6413d3a44054f75a4378f94b1a7c268173a2520",
+      "signals.csv": "2d22fbd215eb34a922537117fea0a95b865da7e7cdff12a4e6f827cc9b689cc0",
+      "trade_frequency.csv": "99d711674256b27a9740bfeafe0c8e1a025d7302b2b1946ac202b339db7aabdc",
+      "trade_ledger.csv": "3e424dfddceb6767859f16ebfa6ad30d931c4e54f0a15279ba01206b7877fc49",
+      "vwap_anchor_comparison.csv": "d0fb6aa9138578766ebe867b1f11a720476bc29eea2f0cdcd4a422859cb3d557"
+    },
+    "status": "PASS",
+    "workflow_annotation_exceptions": {}
+  },
+  "stage2_squeeze_m15_v1": {
+    "actual_source_reads": [
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      }
+    ],
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 15,
+    "implementation": "Unchanged archived standalone engine; no common Backtester import",
+    "output_adapter": "Only DEST redirected for two fixed-destination runners; unchanged pre-return metadata copied into scratch",
+    "sha256": {
+      "coverage_m15.csv": "833fcc9ee5b34b86d698a0f2656f1772c15e6a526994af95bcae0d26bf11fbe7",
+      "derived_parents.csv.gz": "5cb0e52d72772ce90118e7f973248891fcd521e4d8435e7f1090b0bf104d5011",
+      "direction_results.csv": "80a66e91aa1c49967d76bc99daccafed8a0cae77760b846d884e06c1a1669e44",
+      "execution_events.csv.gz": "0429764dae9746de176af2362303d14747ef871b9ffe201d7dc98c71e47bc9e9",
+      "filter_funnel.csv": "bb073d7984df290641e9e7ee951fe62d107cfedd5b33a9aacde8e8a59a0793fc",
+      "frequency_report.csv": "d8fccecb6f7b7b2ecd4494b6ce681064204a3281848d9d4261142a34833ed676",
+      "funnel_stages.csv": "2d0f315dd0df1d343ac167374393824359c2b7987283a48d89cafcec48881396",
+      "indicator_features.csv.gz": "38dff5d1da537f3077be5311672e59c5e53f2213108840ecc721bad8294e1e49",
+      "m15_h1_comparison.csv": "0a5bced8fd902a71931010d6f71b28e3480646a4b38d759f34a963cb1ec4ab6f",
+      "metrics.csv": "7fc9b916bc18805e3c0d6dc02e538c1714fdc1ff3ef79a8f0920ebe9f2e4fafc",
+      "monthly_results.csv": "7fc63db4c3d6f61962f4ec7174b1b8e2b87c5d3f9da4ecaeb8600457b36cb2b4",
+      "sensitivity.csv": "886a649114c7522cd279a3a7ce26b1d12d436aa9e160d287b3cf7c92c69de77b",
+      "signals.csv.gz": "c298c8a96f96ed4ff324aafd597d45597a7b36d9917fd395c147aca2f8eca6b8",
+      "squeeze_cycles.csv.gz": "09e1ef7419f6e7528b900bc6b432ab848b251b346cef931363b140e3516e09fc",
+      "trade_ledger.csv.gz": "0970c8275608861ba43d84de035606ae32e243c2a4e01ed52a7214a5502aaf38"
+    },
+    "status": "PASS",
+    "workflow_annotation_exceptions": {}
+  },
+  "stage2_squeeze_v1": {
+    "actual_source_reads": [
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      }
+    ],
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 11,
+    "implementation": "Unchanged archived standalone engine; no common Backtester import",
+    "output_adapter": "Only DEST redirected for two fixed-destination runners; unchanged pre-return metadata copied into scratch",
+    "sha256": {
+      "direction_results.csv": "4f24ec2a591aeb8a618b68b4b19e752aca36f7f7442da2c526017acbee1cae08",
+      "execution_events.csv.gz": "f1c6f3c167decc8be43a472c376e5e8c55ae72e888fca728bb0bda1b8d62ec3d",
+      "frequency_report.csv": "3d09027ee74a97bab8cf8032df6585bd3ba0f69fb6aefde1be539c948b6fc2d2",
+      "indicator_features.csv.gz": "b258893161c1e454fe13a1070a2426c0996bb79dc362c002f45428fb4c7970e0",
+      "m5_m30_comparison.csv": "aa60a6deae1865b4082228c4e7c1c3aa2fc777c079818c8725aff977435240d3",
+      "metrics.csv": "d9c190ae861dd08337f039c76b16c7d23b95fd070de329a5f4c20a9e861eed3c",
+      "monthly_results.csv": "8f0bdc92b85ea26f4bed46f13d017f4917e2f60b5c2f253a0fb43753a905b714",
+      "sensitivity.csv": "8e49c178392192fd00510731d985cf539c66333a94523745f91dc4f2bd9f971c",
+      "signals.csv.gz": "0f36a3a37516e87f323237373f41139ad085e5698d3c34b08908f907fdc02005",
+      "squeeze_cycles.csv.gz": "eacc20345ee2c571ca0cd391379d0bf8ccce5cac04089237afeff09cce25465d",
+      "trade_ledger.csv.gz": "014f157a7b1e370c39ae00607972f3c76684cca9e85235ae682db36967fbc8d1"
+    },
+    "status": "PASS",
+    "workflow_annotation_exceptions": {}
+  },
+  "stage2_vwap_payable_cap_v1": {
+    "actual_source_reads": [
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      }
+    ],
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 9,
+    "implementation": "Unchanged archived standalone engine; no common Backtester import",
+    "output_adapter": "Only DEST redirected for two fixed-destination runners; unchanged pre-return metadata copied into scratch",
+    "sha256": {
+      "daily_frequency.csv": "191ec09ca9554148b9c2cd3cb125188dd730283e7b3947b8aa061051f1c4ad64",
+      "execution_events.csv.gz": "5a87ee8c9480e1b4f73fbe6bd675575ff05eaaf838ab97f4fecc6227ba030245",
+      "metrics.csv": "400b13210a6406d86e4515b8d1f56093dc224655780eddea9415de160ca85fdf",
+      "paired_contribution.csv": "d784cb04319073545c6f66adf83f2b687abf956494274c3f47af1c51b93e14e8",
+      "pnl_segments.csv": "285e2c21170c3bd58de6206dec919670c30452a8f7fb255e27d2b25871eaa8d6",
+      "results.json": "728324a405a38717bde98163cd62533a5751777f2df06755c14ce5a1db23b8b8",
+      "signals.csv.gz": "7d38da41ecc9c62014befe5874ea6cc340137ef9da63ea53ffe2f827ce1066af",
+      "trade_attribution.csv": "b0d4d13918e0e7ee736d8c35b5fd6a5b76e13d176501bafb5f700b462ebf4233",
+      "trade_ledger.csv": "2f9c1f01ff3c6111c188c5bb8f82a3690a45ea05e5dbab8fda2da6cdc9b44008"
+    },
+    "status": "PASS",
+    "workflow_annotation_exceptions": {}
+  },
+  "swing_pullback": {
+    "actual_source_reads": [
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      }
+    ],
+    "adapter": "In-memory current core identity only; frozen source, signal rules, parameters, entry clock and report bytes unchanged",
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 16,
+    "code_identity_exceptions": {
+      "IntradayLab/core/backtester.py": {
+        "current": "f5803a9df54ab0caf9a1d8feb53c549bc0aef887b12978b0bf5e89ab59eb09cd",
+        "frozen": "5654273e073bf1000bd0ded3642337fd734457856d99c17596055160e7a9e190"
+      },
+      "IntradayLab/core/data_quality.py": {
+        "current": "c012de206331f723de4ab2fbe3549bf8645378bc1c2e4473123054083eda4af0",
+        "frozen": null
+      },
+      "IntradayLab/core/execution.py": {
+        "current": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c",
+        "frozen": "354acd95ee27f4e08ec35a7e29341a01234de915ca49354f10233b2adafbe97a"
+      },
+      "IntradayLab/core/h1_context.py": {
+        "current": "29ccc342d760e855f6868c144c99bd5b3d2312089cf0f5851bbeb69bb17b6909",
+        "frozen": null
+      },
+      "IntradayLab/core/m15_bars.py": {
+        "current": "46bba5ed6a46b65666de3f5f243beaaf161e29d852575b9b2e8a2950c2b0d334",
+        "frozen": null
+      },
+      "IntradayLab/core/metrics.py": {
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
+        "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328"
+      },
+      "IntradayLab/core/reports.py": {
+        "current": "179cbf1e1560e656a377c8e7b158f4c44637b409b4f2abb60c3ae7f4225a7b88",
+        "frozen": "f9d90f5ea836b58f5f4bd243d9deb46611f87d3c30b4e4cb55bf73dd76bc0a56"
+      }
+    },
+    "independent_audit_status": "PASS",
+    "sha256": {
+      "Baseline_Report.md": "f1152c48bab8b8dcade9f02ab38b2ba4939a069a4a5bb5017d14bab16c82039d",
+      "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+      "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+      "coverage_report.csv": "6d1cc29eaf7150fbb93bdec2d881afdd71b44b2d7ea63a97b9f2966aef465d84",
+      "coverage_summary.csv": "ebb5c80e6162eb8dface4c7b4984c25592d99492f81fe0b8dc624183d168f551",
+      "days.csv": "aaa55fa0131b5dec51d2a2d0b07533bd22ef296f220a40ee32706f2081475902",
+      "direction_report.csv": "c79acfe9b7f25d38118551f4b1312bdea022f557671b0879b779b39606c98696",
+      "funnel.json": "1e345cf6abde4af377fb8b07e0dcd884d409ae881bfe1edcd26920c3de731ab2",
+      "input_provenance.json": "ec8f5ce5bf2b65e6c9aeadaab6045baf2aeb3e7303c6571e094bf41fca352880",
+      "instrument_report.csv": "b0223db3babe62997c3f8583641a49ef3e64e8723795abffc1f1cc7bef46266c",
+      "metrics.json": "98053317b8ac6c12f2d131ac73700af270faed35bab9b49d29c483faafb17984",
+      "monthly_report.csv": "e643dc646b373f27cf8ab336ee0092dfa7f216736eebf5883dfe6df3122e9cb9",
+      "mtf_context.csv": "feadb822aa20dafb1b59f42b43855190f0033a3e7a547981eda5361a8c57b459",
+      "signals.csv": "08caa7ba7b4e59e8ac77c8b3f1be13a468c8ea71cf2d11f7400bd7d4db7a54f0",
+      "trades.csv": "14700307c6ed81c1c91711c94d8aa72123c697d93042eece42ee4ee82c871121",
+      "unknown_report.csv": "578ee316d6c41a6042dbfd458e30eb0b2b6b91f51f474c3085c36c94ef12113c"
+    },
+    "status": "PASS"
+  },
+  "trend_pullback": {
+    "actual_source_reads": [
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2212189,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 1044351,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 1044351,
+        "maximum_offset": 1044351,
+        "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 234733,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 234733,
+        "maximum_offset": 234733,
+        "path": "forever/IMOEXF/IMOEXF_M5.csv"
+      },
+      {
+        "approved_prefix_bytes": 2342431,
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "path": "forever/USDRUBF/USDRUBF_M5.csv"
+      }
+    ],
+    "adapter": "In-memory current core identity only; frozen source, signal rules, parameters, entry clock and report bytes unchanged",
+    "archived_files_untouched": true,
+    "byte_identical_result_files": 21,
+    "code_identity_exceptions": {
+      "IntradayLab/core/backtester.py": {
+        "current": "f5803a9df54ab0caf9a1d8feb53c549bc0aef887b12978b0bf5e89ab59eb09cd",
+        "frozen": "d2887a5f12158c83db4694fa698f1746e31fd48ee1b894ba3405890ea8255582"
+      },
+      "IntradayLab/core/data_quality.py": {
+        "current": "c012de206331f723de4ab2fbe3549bf8645378bc1c2e4473123054083eda4af0",
+        "frozen": null
+      },
+      "IntradayLab/core/execution.py": {
+        "current": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c",
+        "frozen": "354acd95ee27f4e08ec35a7e29341a01234de915ca49354f10233b2adafbe97a"
+      },
+      "IntradayLab/core/metrics.py": {
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
+        "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328"
+      },
+      "IntradayLab/core/reports.py": {
+        "current": "179cbf1e1560e656a377c8e7b158f4c44637b409b4f2abb60c3ae7f4225a7b88",
+        "frozen": "f9d90f5ea836b58f5f4bd243d9deb46611f87d3c30b4e4cb55bf73dd76bc0a56"
+      }
+    },
+    "independent_audit_status": "PASS",
+    "sha256": {
+      "Baseline_Report.md": "9435572a6a8c964eb8235281e9d418c699b799764debbb0c7a7ad88ad2333f2e",
+      "CNYRUBF_m15_formation.csv": "dbfdbeab01f9ac608ef238c3e4b75a84689d8b4f07daf8af67099a1d81a2ce80",
+      "GLDRUBF_m15_formation.csv": "b84641fb3a83c4ec6078df89e71fdcb22163ef864fcb82b7ef7bff248441f5a7",
+      "IMOEXF_m15_formation.csv": "b020353b263932fdd103280d358f4da06bbf5fb78e11d5b9c06529233b30c2d2",
+      "USDRUBF_m15_formation.csv": "76e37c02bc017884d6437938146abd47dd62988615f1d8d4fef3e19952c7d6b8",
+      "calendar_reachability.json": "2fa0193cc0f6a19ac5ab1cc3fe04fda9f7d3a912c9ace19b7f2e2ba904ed2de9",
+      "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+      "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+      "coverage_report.csv": "6040bc7bd489b39192b3b0ebb53df99239627e867098d56c894b67a87b9cbb25",
+      "coverage_summary.csv": "ebb5c80e6162eb8dface4c7b4984c25592d99492f81fe0b8dc624183d168f551",
+      "days.csv": "9905297c732be70a8ebb2646cc7c577aa55843d0222809e504bd2ad289422589",
+      "direction_report.csv": "7f25d8a40b750c73f7de76d68c48fd00c70acc1f38c53cd4954e982bd262b680",
+      "funnel.json": "516d6048871850d7eae172f8df81b0d4f5c28f015659e3535cc695b873742548",
+      "h1_context.csv": "2bd0d2b1244296661d1e711635e819decfb6ea8ce4d916ea8cc6cb04bdbf2a0b",
+      "input_provenance.json": "ec8f5ce5bf2b65e6c9aeadaab6045baf2aeb3e7303c6571e094bf41fca352880",
+      "instrument_report.csv": "5f158649904e5dde0a1933d080ee667152fa183f078405543e794f0f063b7595",
+      "metrics.json": "5d1395c3ca37c18a70afc0d5864a50c60ab45d5e9715dc936af4f00a25f28c88",
+      "monthly_report.csv": "3c1da2887cf9bea35e405aeb9cecc0cdfd7f56ea303e201d3fd232f81b233882",
+      "signals.csv": "be25165f02c349fa35df02434b77cbe2730154f8b31a4591aa36e284c11c578b",
+      "trades.csv": "b9ef177b07a3c126977bec21d0622b23f6e3898cf13a099e796a2a81aae2c2ac",
+      "unknown_report.csv": "af3d0b14696e0b7a574e8ecf7a3cb035dda5b223d1858e2a2f3a2059587cf74e"
+    },
+    "status": "PASS"
+  }
+}

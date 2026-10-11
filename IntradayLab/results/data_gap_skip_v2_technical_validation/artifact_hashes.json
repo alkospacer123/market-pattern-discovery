@@ -1,0 +1,19 @@
+{
+  "changed_files.txt": "a74b24bd382ef2b2ad135d111d783b2a6238c52b0d261570431ef5c4b466f774",
+  "code_sha256.json": "967084bb27d52f1f942dc4ed9f74dc101cfa3196839599dd5ef31c6b8298a3a5",
+  "github_verification.json": "484fe6e48581b92c913c77dd208b29e95e2971832ca9ebccde8414cc0e532f06",
+  "new_mode_validation.json": "ba76ffd4ed86428082b3a64093152d7137d09cd20ea7df4b21e4b523fb833188",
+  "protected_scope.json": "c2e126b6e06aea9e6a4efb6fa9903791bdb68e99309e32fc626da6ba30944097",
+  "regression_receipts.json": "b39cf6aa0c8aea0a598b90585fd211e6a03620b12308d7f125778c8fc2e22368",
+  "synthetic_example/audit.json": "6a7bd1d9179b0c8700af445b00da58c8c87b2302c0c62c205678244e2c8e0bdc",
+  "synthetic_example/coverage_report.csv": "895138ee82f49298306f6f527a646addba06c9cf6ef6ddda1565f3c108bdabc9",
+  "synthetic_example/data_gap_skips.csv": "14765840290e2f8b158d251d557bc645a158ab63ef14500613c744bcc8bdca65",
+  "synthetic_example/data_quality_exclusions.csv": "d115e59dafb24de5b285d4aa933e2c663824c819336e0874d1362bf6c1350b4d",
+  "synthetic_example/metrics.json": "b18c88f41c77aeec258562e9a124290622e32047088f35973cf5462fa9ba11ab",
+  "synthetic_example/signals.csv": "1b9a059d8a26650d3ecdb1f04d01bcc393249cdbbecabaa56317bde7614573a9",
+  "synthetic_example/synthetic_contract.json": "4d428533b747b68af1410573aef58a5128476257319208c4c3728ade63b35329",
+  "synthetic_example/synthetic_m5.csv": "4eff58d1e8b39276d2bb8efdfecbc7acc02ebb8b1c5de47c346058ce71b6b5af",
+  "synthetic_example/trades.csv": "d889a92acbdba0a4b244d0cb8700ffd3c21e9f5a895c0734b67b8b68bb523dda",
+  "tests.log": "236073defd23a668c5d5af8f0dbaee4629ccc67ea80672d8e116c1eaec4ed7f8",
+  "validation_summary.json": "80a7e99ad38c7ee77ac9779f05d8eb55188e19c79267e6defaca1df9391efea3"
+}

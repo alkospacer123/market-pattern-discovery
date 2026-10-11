@@ -6,12 +6,14 @@ from .execution import (ENTRY_NEXT_OPEN, ENTRY_WAIT_ONE_BAR, at_open, cost,
                         entry_admission, entry_geometry, in_bar)
 from .indicators import Indicators
 from .models import Context
+from .data_quality import DATA_GAP_SKIP_V2, LEGACY_UNKNOWN, DataQualityResult
 
 
 class Backtester:
     def __init__(self, rules, *, timeframe_minutes=5, cost_ticks_per_side=1,
                  allow_entry_bar_take=False, session_flat_before_end_bars=1,
-                 daily_trade_deadline_clock=None, entry_mode=ENTRY_WAIT_ONE_BAR):
+                 daily_trade_deadline_clock=None, entry_mode=ENTRY_WAIT_ONE_BAR,
+                 data_gap_policy=LEGACY_UNKNOWN):
         if timeframe_minutes not in (5, 15):
             raise ValueError('Only the explicitly approved M5 and M15 clocks are implemented')
         if cost_ticks_per_side < 0 or session_flat_before_end_bars < 1:
@@ -20,6 +22,11 @@ class Backtester:
             raise ValueError('UNAPPROVED_ENTRY_MODE')
         if entry_mode == ENTRY_NEXT_OPEN and timeframe_minutes != 5:
             raise ValueError('ENTRY_NEXT_OPEN_REQUIRES_M5')
+        if data_gap_policy not in (LEGACY_UNKNOWN, DATA_GAP_SKIP_V2):
+            raise ValueError('UNAPPROVED_DATA_GAP_POLICY')
+        if data_gap_policy == DATA_GAP_SKIP_V2 and (timeframe_minutes != 5 or allow_entry_bar_take):
+            raise ValueError('DATA_GAP_SKIP_V2_REQUIRES_M5_NO_ENTRY_TAKE')
+        self.data_gap_policy = data_gap_policy
         self.entry_mode = entry_mode
         self.rules = rules
         self.step = timedelta(minutes=timeframe_minutes)
@@ -54,7 +61,16 @@ class Backtester:
             if at.date() < start:
                 features.observe(rows[at], rows[at].available_at)
         signals, trades, days = [], [], []
+        prospective = self.data_gap_policy == DATA_GAP_SKIP_V2
+        skips, exclusions = [], []
         prior_unknown = False
+        def flat_evidence(record):
+            if prospective:
+                record.pop('prior_unknown_requires_flat_assumption', None)
+                record.update(data_gap_policy=self.data_gap_policy,
+                              prior_exclusion_requires_flat_assumption=prior_unknown,
+                              following_day_contract='CONDITIONAL_FLAT; not a proven real close')
+            return record
         day = start
         first_day = min(rows).date() if rows else end_exclusive
         while day < end_exclusive:
@@ -65,7 +81,8 @@ class Backtester:
             blocked = False
             ds, dt = [], []
 
-            def terminate(at, price=None, reason='UNKNOWN', point=False, unknown=None, conflict=False):
+            def terminate(at, price=None, reason='UNKNOWN', point=False, unknown=None, conflict=False,
+                          detected_at=None):
                 nonlocal position, blocked
                 p = position
                 q = p['trade']
@@ -76,7 +93,20 @@ class Backtester:
                          resolved_at=None if unknown else at if point else at+self.step,
                          stop_take_conflict=conflict)
                 if unknown:
-                    q.update(unknown_reason=unknown, unknown_detected_at=at+self.step)
+                    if prospective:
+                        q.update(status='DATA_QUALITY_EXCLUDED', exclusion_reason=unknown,
+                                 gap_interval_start=at, gap_interval_end=at+self.step,
+                                 gap_detected_at=detected_at,
+                                 remainder_of_day_blocked=True)
+                        # Entry evidence remains; no economic outcome or fallback exit.
+                        for key in ('gross', 'gross_R', 'cost_c1', 'cost_R', 'net_c1',
+                                    'net_R_c1', 'exit_tick', 'realized_net_to_net_R'):
+                            q.pop(key, None)
+                        q['exit_reason'] = None
+                        dt.remove(q)
+                        exclusions.append(q)
+                    else:
+                        q.update(unknown_reason=unknown, unknown_detected_at=at+self.step)
                     blocked = True
                 else:
                     gross = q['direction']*(price-q['entry_price'])
@@ -108,16 +138,23 @@ class Backtester:
                              cost_c1=None, cost_R=None, net_c1=None, net_R_c1=None,
                              initial_flat_assumed=True, initial_flat_proven=False,
                              prior_unknown_requires_flat_assumption=prior_unknown)
+                    flat_evidence(q)
                     open_ok = current is not None and current.open.is_finite() and current.open > 0 and not current.open % self.rules.tick(symbol, at)
                     if not open_ok:
                         reason = 'MISSING_EXECUTION_BAR' if current is None else 'INVALID_EXECUTION_OPEN'
-                        s.update(status='UNKNOWN', reason=reason)
-                        q.update(status='UNKNOWN', exit_reason='UNKNOWN', unknown_reason=reason,
-                                 unknown_detected_at=at+self.step, exit_price=None,
-                                 exit_at=None, exit_interval_start=None, exit_interval_end=None,
-                                 resolved_at=None)
-                        dt.append(q)
-                        blocked = True
+                        if prospective:
+                            s.update(status='DATA_GAP_SKIP', reason=reason,
+                                     order_admitted=False, order_sent_at=None,
+                                     attempted_execution_at=at, gap_detected_at=at)
+                            skips.append(dict(s))
+                        else:
+                            s.update(status='UNKNOWN', reason=reason)
+                            q.update(status='UNKNOWN', exit_reason='UNKNOWN', unknown_reason=reason,
+                                     unknown_detected_at=at+self.step, exit_price=None,
+                                     exit_at=None, exit_interval_start=None, exit_interval_end=None,
+                                     resolved_at=None)
+                            dt.append(q)
+                            blocked = True
                     else:
                         grid = self.rules.tick(symbol, at)
                         constraints = s.get('entry_constraints')
@@ -168,7 +205,7 @@ class Backtester:
                 if position and position['trade']['entry_at'] <= at-self.step < position['deadline']:
                     q = position['trade']
                     if previous is None or not previous.valid:
-                        terminate(at-self.step, unknown='MISSING_EXPOSED_BAR' if previous is None else 'INVALID_EXPOSED_BAR')
+                        terminate(at-self.step, unknown='MISSING_EXPOSED_BAR' if previous is None else 'INVALID_EXPOSED_BAR', detected_at=at)
                     else:
                         result = in_bar(previous, q['direction'], q['stop'], q['take'],
                                         self.entry_take or previous.start != q['entry_at'])
@@ -182,7 +219,7 @@ class Backtester:
                     q = position['trade']
                     open_ok = current is not None and current.open.is_finite() and current.open > 0 and not current.open % self.rules.tick(symbol, at)
                     if not open_ok:
-                        terminate(at, unknown='MISSING_EXPOSED_BAR' if current is None else 'INVALID_EXPOSED_OPEN')
+                        terminate(at, unknown='MISSING_EXPOSED_BAR' if current is None else 'INVALID_EXPOSED_OPEN', detected_at=at)
                     else:
                         result = at_open(current.open, q['direction'], q['stop'], at == position['deadline'])
                         if result:
@@ -208,6 +245,7 @@ class Backtester:
                                  prior_unknown_requires_flat_assumption=prior_unknown,
                                  recorded_at=at)
                         ds.append(s)
+                        flat_evidence(s)
                         if s['base_reason'] != 'SIGNAL':
                             continue
                         if s['signal_at'] != at:
@@ -222,7 +260,7 @@ class Backtester:
                         if constraints is not None:
                             s.update(pending_created=False, open_admission_passed=None)
                         if blocked:
-                            s['reason'] = 'UNKNOWN_POSITION_BLOCK'
+                            s['reason'] = 'DATA_QUALITY_POSITION_BLOCK' if prospective else 'UNKNOWN_POSITION_BLOCK'
                         elif position or pending:
                             s['reason'] = 'POSITION_BUSY'
                         elif trade_deadline and s['planned_execution_at'] >= trade_deadline:
@@ -257,8 +295,20 @@ class Backtester:
                                  unknown=sum(t['status']=='UNKNOWN' for t in dt),
                                  prior_unknown_requires_flat_assumption=prior_unknown,
                                  initial_flat_assumed=True, initial_flat_proven=False))
+                if prospective:
+                    for s in ds:
+                        flat_evidence(s)
+                    d = flat_evidence(days[-1])
+                    d.pop('unknown')
+                    day_exclusions = [q for q in exclusions if q['signal_at'].date()==day]
+                    d.update(data_gap_skips=sum(s['status']=='DATA_GAP_SKIP' for s in ds),
+                             data_quality_excluded=len(day_exclusions),
+                             accepted_entries=sum(s['model_filled'] for s in ds),
+                             remainder_of_day_blocked=blocked)
             signals.extend(ds)
             trades.extend(dt)
             prior_unknown |= blocked
             day += timedelta(days=1)
+        if prospective:
+            return DataQualityResult(signals, trades, days, skips, exclusions).validate()
         return signals, trades, days
