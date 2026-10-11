@@ -1,0 +1,88 @@
+{
+  "instruments": {
+    "CNYRUBF": {
+      "all_candidate_refusal_reasons": {
+        "AMBIGUOUS_BOTH_SIDES": 62,
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CLUSTER": 29,
+        "MISSING_EXECUTION_BAR": 48,
+        "OPEN_WRONG_SIDE_OF_CLUSTER": 25,
+        "POSITION_BUSY": 343,
+        "SESSION_LIMIT": 57,
+        "STOP_ABOVE_12_TICKS": 4,
+        "STOP_BELOW_3_TICKS": 925,
+        "UNKNOWN_POSITION_BLOCK": 628
+      },
+      "closed": 234,
+      "model_fills": 297,
+      "rejected_known_entries": 2011,
+      "signals": 2356,
+      "unknown": 111,
+      "unknown_entry_attempts": 48
+    },
+    "GLDRUBF": {
+      "all_candidate_refusal_reasons": {
+        "AMBIGUOUS_BOTH_SIDES": 2,
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CLUSTER": 23,
+        "MISSING_EXECUTION_BAR": 7,
+        "OPEN_WRONG_SIDE_OF_CLUSTER": 12,
+        "SESSION_LIMIT": 7,
+        "STOP_ABOVE_12_TICKS": 82,
+        "STOP_BELOW_3_TICKS": 32,
+        "UNKNOWN_POSITION_BLOCK": 3
+      },
+      "closed": 9,
+      "model_fills": 12,
+      "rejected_known_entries": 159,
+      "signals": 178,
+      "unknown": 10,
+      "unknown_entry_attempts": 7
+    },
+    "IMOEXF": {
+      "all_candidate_refusal_reasons": {
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CLUSTER": 12,
+        "MISSING_EXECUTION_BAR": 3,
+        "OPEN_WRONG_SIDE_OF_CLUSTER": 5,
+        "POSITION_BUSY": 1,
+        "SESSION_LIMIT": 4,
+        "STOP_ABOVE_12_TICKS": 1,
+        "STOP_BELOW_3_TICKS": 15,
+        "UNKNOWN_POSITION_BLOCK": 4
+      },
+      "closed": 13,
+      "model_fills": 16,
+      "rejected_known_entries": 42,
+      "signals": 61,
+      "unknown": 6,
+      "unknown_entry_attempts": 3
+    },
+    "USDRUBF": {
+      "all_candidate_refusal_reasons": {
+        "AMBIGUOUS_BOTH_SIDES": 22,
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CLUSTER": 144,
+        "MISSING_EXECUTION_BAR": 2,
+        "OPEN_WRONG_SIDE_OF_CLUSTER": 13,
+        "POSITION_BUSY": 34,
+        "SESSION_LIMIT": 33,
+        "STOP_ABOVE_12_TICKS": 16,
+        "STOP_BELOW_3_TICKS": 150,
+        "UNKNOWN_POSITION_BLOCK": 3
+      },
+      "closed": 235,
+      "model_fills": 237,
+      "rejected_known_entries": 393,
+      "signals": 632,
+      "unknown": 4,
+      "unknown_entry_attempts": 2
+    }
+  },
+  "totals_counts_only": {
+    "ambiguous_directional_candidates": 86,
+    "closed": 491,
+    "model_fills": 562,
+    "raw_directional_candidates": 3313,
+    "rejected_known_entries": 2605,
+    "signals": 3227,
+    "unknown": 131,
+    "unknown_entry_attempts": 60
+  }
+}

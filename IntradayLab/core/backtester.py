@@ -2,7 +2,8 @@
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
-from .execution import at_open, cost, entry_admission, entry_geometry, in_bar
+from .execution import (ENTRY_NEXT_OPEN, ENTRY_WAIT_ONE_BAR, at_open, cost,
+                        entry_admission, entry_geometry, in_bar)
 from .indicators import Indicators
 from .models import Context
 
@@ -10,11 +11,16 @@ from .models import Context
 class Backtester:
     def __init__(self, rules, *, timeframe_minutes=5, cost_ticks_per_side=1,
                  allow_entry_bar_take=False, session_flat_before_end_bars=1,
-                 daily_trade_deadline_clock=None):
+                 daily_trade_deadline_clock=None, entry_mode=ENTRY_WAIT_ONE_BAR):
         if timeframe_minutes not in (5, 15):
             raise ValueError('Only the explicitly approved M5 and M15 clocks are implemented')
         if cost_ticks_per_side < 0 or session_flat_before_end_bars < 1:
             raise ValueError('EXECUTION_CONTRACT')
+        if entry_mode not in (ENTRY_WAIT_ONE_BAR, ENTRY_NEXT_OPEN):
+            raise ValueError('UNAPPROVED_ENTRY_MODE')
+        if entry_mode == ENTRY_NEXT_OPEN and timeframe_minutes != 5:
+            raise ValueError('ENTRY_NEXT_OPEN_REQUIRES_M5')
+        self.entry_mode = entry_mode
         self.rules = rules
         self.step = timedelta(minutes=timeframe_minutes)
         self.cost_sides = cost_ticks_per_side
@@ -83,6 +89,78 @@ class Backtester:
                         q['realized_net_to_net_R'] = (gross-costs)/(q['risk']+costs)
                 position = None
 
+            def execute_pending():
+                nonlocal pending, position, blocked
+                s = pending
+                pending = None
+                waiting = rows.get(s['waiting_bar_start'])
+                if self.entry_mode == ENTRY_WAIT_ONE_BAR and (waiting is None or not waiting.valid):
+                    s['reason'] = 'NO_WAITING_BAR'
+                else:
+                    s.update(order_admitted=True, order_sent_at=at)
+                    q = {k: s.get(k) for k in ('signal_id', 'instrument', 'direction', 'signal_at',
+                         'sweep_start', 'reclaim_start', 'waiting_bar_closed_at', 'order_sent_at',
+                         'planned_execution_at', 'stop', 'window_end', 'max_hold_calendar_minutes')}
+                    if self.entry_mode == ENTRY_NEXT_OPEN:
+                        q.update(entry_mode=self.entry_mode, cluster_id=s.get('cluster_id'))
+                    q.update(strategy=strategy.name, entry_at=None, entry_price=None,
+                             risk=None, take=None, model_filled=False, gross=None, gross_R=None,
+                             cost_c1=None, cost_R=None, net_c1=None, net_R_c1=None,
+                             initial_flat_assumed=True, initial_flat_proven=False,
+                             prior_unknown_requires_flat_assumption=prior_unknown)
+                    open_ok = current is not None and current.open.is_finite() and current.open > 0 and not current.open % self.rules.tick(symbol, at)
+                    if not open_ok:
+                        reason = 'MISSING_EXECUTION_BAR' if current is None else 'INVALID_EXECUTION_OPEN'
+                        s.update(status='UNKNOWN', reason=reason)
+                        q.update(status='UNKNOWN', exit_reason='UNKNOWN', unknown_reason=reason,
+                                 unknown_detected_at=at+self.step, exit_price=None,
+                                 exit_at=None, exit_interval_start=None, exit_interval_end=None,
+                                 resolved_at=None)
+                        dt.append(q)
+                        blocked = True
+                    else:
+                        grid = self.rules.tick(symbol, at)
+                        constraints = s.get('entry_constraints')
+                        rejection = None
+                        if constraints is not None:
+                            rejection = entry_admission(current.open, s['direction'], s['stop'], grid, constraints)
+                            s.update(entry_open=current.open, entry_tick=grid,
+                                     open_admission_passed=rejection is None)
+                        geometry = entry_geometry(current.open, s['direction'], s['stop'], grid,
+                                                  Decimal(str(s.get('target_net_R', s['target_gross_R']))),
+                                                  target_mode=s.get('target_mode', 'GROSS_R'),
+                                                  cost_ticks_per_side=self.cost_sides) if rejection is None else None
+                        if rejection:
+                            s.update(status='NONFILL', reason=constraints.get('reason_labels', {}).get(rejection, rejection))
+                        elif geometry is None:
+                            s.update(status='NONFILL', reason='INVALID_STOP_GEOMETRY')
+                        else:
+                            risk, take = geometry
+                            s.update(status='MODEL_FILLED', reason='', model_filled=True,
+                                     entry_open=current.open, risk=risk, take=take)
+                            q.update(entry_at=at, entry_price=current.open, risk=risk, take=take,
+                                     model_filled=True, entry_tick=grid,
+                                     cost_entry_c1=grid*Decimal(self.cost_sides))
+                            if s.get('target_mode') == 'FULL_NET_C1_R':
+                                r = Decimal(str(s['target_net_R']))
+                                round_trip = Decimal(2)*grid*Decimal(self.cost_sides)
+                                diagnostic = dict(target_mode=s['target_mode'], target_net_R=r,
+                                    planned_C1=round_trip,
+                                    d_legacy=r*risk+round_trip,
+                                    d_full=r*(risk+round_trip)+round_trip,
+                                    rounded_take_distance=s['direction']*(take-current.open),
+                                    planned_net_to_net_R=(s['direction']*(take-current.open)-round_trip)/(risk+round_trip),
+                                    legacy_net_to_gross_R=r,
+                                    realized_net_to_net_R=None)
+                                s.update(diagnostic);q.update(diagnostic)
+                            dt.append(q)
+                            deadline = min(at+timedelta(minutes=s['max_hold_calendar_minutes']),
+                                           self.flat_boundary(s['window_end']))
+                            if trade_deadline:
+                                deadline = min(deadline, trade_deadline)
+                                q.update(trade_deadline_at=trade_deadline, effective_deadline_at=deadline)
+                            position = {'trade': q, 'deadline': deadline}
+
             at = datetime.combine(day, datetime.min.time(), self.rules.zone)
             last_boundary = at + timedelta(days=1)
             while at <= last_boundary:
@@ -114,73 +192,7 @@ class Backtester:
                                           else 'TRADE_DEADLINE' if trade_deadline == at else 'SESSION_FLAT')
                             terminate(at, result[0], reason, point=True)
                 if pending and pending['planned_execution_at'] == at:
-                    s = pending
-                    pending = None
-                    waiting = rows.get(s['waiting_bar_start'])
-                    if waiting is None or not waiting.valid:
-                        s['reason'] = 'NO_WAITING_BAR'
-                    else:
-                        s.update(order_admitted=True, order_sent_at=at)
-                        q = {k: s.get(k) for k in ('signal_id', 'instrument', 'direction', 'signal_at',
-                             'sweep_start', 'reclaim_start', 'waiting_bar_closed_at', 'order_sent_at',
-                             'planned_execution_at', 'stop', 'window_end', 'max_hold_calendar_minutes')}
-                        q.update(strategy=strategy.name, entry_at=None, entry_price=None,
-                                 risk=None, take=None, model_filled=False, gross=None, gross_R=None,
-                                 cost_c1=None, cost_R=None, net_c1=None, net_R_c1=None,
-                                 initial_flat_assumed=True, initial_flat_proven=False,
-                                 prior_unknown_requires_flat_assumption=prior_unknown)
-                        open_ok = current is not None and current.open.is_finite() and current.open > 0 and not current.open % self.rules.tick(symbol, at)
-                        if not open_ok:
-                            reason = 'MISSING_EXECUTION_BAR' if current is None else 'INVALID_EXECUTION_OPEN'
-                            s.update(status='UNKNOWN', reason=reason)
-                            q.update(status='UNKNOWN', exit_reason='UNKNOWN', unknown_reason=reason,
-                                     unknown_detected_at=at+self.step, exit_price=None,
-                                     exit_at=None, exit_interval_start=None, exit_interval_end=None,
-                                     resolved_at=None)
-                            dt.append(q)
-                            blocked = True
-                        else:
-                            grid = self.rules.tick(symbol, at)
-                            constraints = s.get('entry_constraints')
-                            rejection = None
-                            if constraints is not None:
-                                rejection = entry_admission(current.open, s['direction'], s['stop'], grid, constraints)
-                                s.update(entry_open=current.open, entry_tick=grid,
-                                         open_admission_passed=rejection is None)
-                            geometry = entry_geometry(current.open, s['direction'], s['stop'], grid,
-                                                      Decimal(str(s.get('target_net_R', s['target_gross_R']))),
-                                                      target_mode=s.get('target_mode', 'GROSS_R'),
-                                                      cost_ticks_per_side=self.cost_sides) if rejection is None else None
-                            if rejection:
-                                s.update(status='NONFILL', reason=constraints.get('reason_labels', {}).get(rejection, rejection))
-                            elif geometry is None:
-                                s.update(status='NONFILL', reason='INVALID_STOP_GEOMETRY')
-                            else:
-                                risk, take = geometry
-                                s.update(status='MODEL_FILLED', reason='', model_filled=True,
-                                         entry_open=current.open, risk=risk, take=take)
-                                q.update(entry_at=at, entry_price=current.open, risk=risk, take=take,
-                                         model_filled=True, entry_tick=grid,
-                                         cost_entry_c1=grid*Decimal(self.cost_sides))
-                                if s.get('target_mode') == 'FULL_NET_C1_R':
-                                    r = Decimal(str(s['target_net_R']))
-                                    round_trip = Decimal(2)*grid*Decimal(self.cost_sides)
-                                    diagnostic = dict(target_mode=s['target_mode'], target_net_R=r,
-                                        planned_C1=round_trip,
-                                        d_legacy=r*risk+round_trip,
-                                        d_full=r*(risk+round_trip)+round_trip,
-                                        rounded_take_distance=s['direction']*(take-current.open),
-                                        planned_net_to_net_R=(s['direction']*(take-current.open)-round_trip)/(risk+round_trip),
-                                        legacy_net_to_gross_R=r,
-                                        realized_net_to_net_R=None)
-                                    s.update(diagnostic);q.update(diagnostic)
-                                dt.append(q)
-                                deadline = min(at+timedelta(minutes=s['max_hold_calendar_minutes']),
-                                               self.flat_boundary(s['window_end']))
-                                if trade_deadline:
-                                    deadline = min(deadline, trade_deadline)
-                                    q.update(trade_deadline_at=trade_deadline, effective_deadline_at=deadline)
-                                position = {'trade': q, 'deadline': deadline}
+                    execute_pending()
                 bar_start = at-self.step
                 window = next((w for w in windows if w[0] <= bar_start < w[1]), None)
                 if window and day >= first_day and (self.step != timedelta(minutes=15) or bar_start+self.step <= window[1]):
@@ -203,6 +215,9 @@ class Backtester:
                         s.update(waiting_bar_start=at, waiting_bar_closed_at=at+self.step,
                                  planned_execution_at=at+self.step,
                                  window_start=window[0], window_end=window[1])
+                        if self.entry_mode == ENTRY_NEXT_OPEN:
+                            s.update(entry_mode=self.entry_mode, waiting_bar_start=None,
+                                     waiting_bar_closed_at=None, planned_execution_at=at)
                         constraints = s.get('entry_constraints')
                         if constraints is not None:
                             s.update(pending_created=False, open_admission_passed=None)
@@ -223,6 +238,8 @@ class Backtester:
                             if constraints is not None:
                                 s['pending_created'] = True
                             pending = s
+                            if self.entry_mode == ENTRY_NEXT_OPEN:
+                                execute_pending()
                 at += self.step
             if position or pending:
                 raise AssertionError('UNRESOLVED_DAY_WITHOUT_UNKNOWN')

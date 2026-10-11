@@ -1,5 +1,15 @@
 # IntradayLab — research roadmap
 
+## Completed first Round Level family A Baseline — 2026-10-11
+
+The single fixed **EQUAL_HIGH_LOW_M5 A_v1** 2023 Baseline is complete: **INCONCLUSIVE** for coverage/outcomes. Conditional known C1 closures have **NO ECONOMIC BASELINE PASS** for USDRUBF, CNYRUBF and IMOEXF; GLDRUBF is positive on only 9 known closures, **INSUFFICIENT_EVIDENCE**. No Optimization handoff. [Baseline report](results/equal_high_low_m5_2023_a_v1/Baseline_Report.md), [independent algorithm audit](results/equal_high_low_m5_2023_a_v1/Independent_Audit.md), [validation note](reports/EQUAL_HIGH_LOW_M5_2023_A_V1_VALIDATION_NOTE.md).
+
+Base GitHub main `d438c72f9fce5c3bf1d30c9b169d14b97079e768` (merged #473). Pre-P&L code/config/contract freeze `f880b3c4ac0fd2cb6d997d7680a1e427a2537340`, 476 tests PASS, config SHA-256 `cec9b815e1479d7999acf77442840d507eaa5f4e078573e0da4b9d34abc6521a`; no frozen trading dependency changed after returns. Opt-in **ENTRY_NEXT_OPEN** resolves completed M5 → immediate next Open at the same boundary; default waiting M5 remains unchanged, with all six old shared-engine candidates' results byte-identical. **ENTRY_CLOSE_ORACLE** is separate diagnostic only, never economic evidence.
+
+3313 raw directional candidates include 86 ambiguous candidates (both sides rejected/consumed); 3227 qualified signals → 562 model fills +2605 known refusals +60 UNKNOWN possible entries. 491 CLOSED /131 UNKNOWN in the ledger; UNKNOWN comprises 71 filled paths and 60 possible entries, never assigned P&L. Two repeats match all 23 deterministic artifacts; A_v1 independent audit PASS, 212520 fields; six default-mode regressions PASS via the separately hashed reporting verifier. Original frozen validator retains a legacy annotation/CSV-field mismatch; the reporting-only correction is disclosed in validation.json and the note, with no trade/config change.
+
+Only exact 2023 M5 prefixes from pinned read-only `f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8`; 2024+ price bytes unread. All old strategies/config/results, TradingSystemLab/live robot/broker settings and separate Draft #472 (`82ec9ffe61e18a43cd7510e398f6913b25f045e1`) preserved. **STOP after separate Draft PR, no Merge.** Allowed next action is review of this result/audit. B 4/7/10 and future 4–10, C approaches, touch/Stop/Take 2/3/5/7/10R optimization, trailing, MTF/filters and comprehensive historical loss attribution stay documented for separate tasks; none ran automatically.
+
 ## Approved Round Level / Touch / Accumulation research plan — 2026-10-11
 
 **USER DECISION: PLAN APPROVED; IMPLEMENTATION / NEW BASELINE NOT YET RUN.**

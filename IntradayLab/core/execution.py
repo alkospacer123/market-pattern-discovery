@@ -1,6 +1,9 @@
 """One historical Open-only entry and resident Stop/Take execution model."""
 from decimal import Decimal, ROUND_CEILING, ROUND_FLOOR
 
+ENTRY_WAIT_ONE_BAR = 'ENTRY_WAIT_ONE_BAR'
+ENTRY_NEXT_OPEN = 'ENTRY_NEXT_OPEN'
+
 
 def entry_geometry(open_price, direction, stop, tick, target_r, *,
                    target_mode='GROSS_R', cost_ticks_per_side=1):
@@ -39,8 +42,15 @@ def entry_admission(open_price, direction, stop, tick, constraints):
     risk = direction*(open_price-stop)
     if risk <= 0:
         return 'INVALID_RISK'
+    maximum = constraints.get('maximum_risk_ticks')
+    if maximum is not None and risk > Decimal(str(maximum))*tick:
+        return 'RISK_ABOVE_MAXIMUM_TICKS'
     if risk < Decimal(str(constraints.get('minimum_risk_ticks', 0)))*tick:
         return 'RISK_BELOW_MINIMUM_TICKS'
+    maximum_distance = constraints.get('maximum_reference_ticks')
+    if reference is not None and maximum_distance is not None and direction*(
+            open_price-Decimal(str(reference))) > Decimal(str(maximum_distance))*tick:
+        return 'OPEN_REFERENCE_TOO_FAR'
     return None
 
 

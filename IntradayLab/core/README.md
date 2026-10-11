@@ -30,13 +30,25 @@ Simultaneous candidate events are sorted by signal_id, independent of callback
 order. Synthetic `TimedStrategy` demonstrates a non-ORB candidate using the
 same engine.
 
-Only the explicitly approved M5 clock is implemented: completed signal M5,
+The default `ENTRY_WAIT_ONE_BAR` M5 clock remains: completed signal M5,
 then one full waiting M5, then model entry at the next interval Open. Stop-first
 and adverse Stop gaps are shared; entry-bar Take is disabled for the frozen
 candidate. Holding and session deadlines use exact Open with Stop-gap precedence.
 Missing/invalid waiting observations reject before submission. Missing/invalid
 entry Open is UNKNOWN possible fill; an unresolved exposed interval is UNKNOWN.
 Unknown entry/exit prices and total net remain blank. Known entry cost is retained.
+
+Opt-in `Backtester(..., entry_mode='ENTRY_NEXT_OPEN')` is approved for M5 only.
+At one boundary it resolves the previous exposed interval, handles current Open
+protection/deadlines, observes the completed signal bar, emits its signal, and
+admits/fills using only the immediately next interval's scalar Open. The signal
+close and next interval start share a timestamp; no additional M5 is waited.
+Current H/L/C/Volume is unavailable for admission. Missing/invalid immediate Open
+is UNKNOWN possible fill, never a later-Open substitution. Optional maximum risk
+and rebound-distance limits are checked before model fill; Stop stays structural.
+Existing strategies retain the default clock and unchanged ledger fields.
+`ENTRY_CLOSE_ORACLE` is not an executable Backtester mode. A_v1 stores it under
+separate diagnostic artifacts; it cannot contribute to economic PASS.
 
 UNKNOWN blocks the current day. Subsequent research days assume FLAT explicitly;
 all later trades retain the prior-UNKNOWN flag. This is not brokerage reconciliation
