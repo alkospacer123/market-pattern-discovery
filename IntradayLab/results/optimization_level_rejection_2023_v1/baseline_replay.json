@@ -1,0 +1,138 @@
+{
+  "actual_python_read_receipts": [
+    {
+      "bytes_2024_plus_read": 0,
+      "bytes_read": 2342431,
+      "candle_rows_read": 42576,
+      "lines_read": 42577,
+      "maximum_offset": 2342431,
+      "path": "forever/USDRUBF/USDRUBF_M5.csv",
+      "read_calls": 1,
+      "rows_2024_plus_read": 0,
+      "sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+    },
+    {
+      "bytes_2024_plus_read": 0,
+      "bytes_read": 2212189,
+      "candle_rows_read": 39362,
+      "lines_read": 39363,
+      "maximum_offset": 2212189,
+      "path": "forever/CNYRUBF/CNYRUBF_M5.csv",
+      "read_calls": 1,
+      "rows_2024_plus_read": 0,
+      "sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+      "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686"
+    },
+    {
+      "bytes_2024_plus_read": 0,
+      "bytes_read": 1044351,
+      "candle_rows_read": 18428,
+      "lines_read": 18429,
+      "maximum_offset": 1044351,
+      "path": "forever/GLDRUBF/GLDRUBF_M5.csv",
+      "read_calls": 1,
+      "rows_2024_plus_read": 0,
+      "sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b",
+      "source_blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d"
+    }
+  ],
+  "bytes_2024_plus_read": 0,
+  "freeze_commit": "e81b10c58a33f36a4eb9e8c174cc0bfd32843b4c",
+  "input_provenance": {
+    "CNYRUBF": {
+      "blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "bytes_read": 2212189,
+      "first": "2023-01-03 09:00:00",
+      "invalid_rows": {},
+      "label": "start",
+      "last": "2023-12-29 23:45:00+03:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M5.csv",
+      "prefix_bytes": 2212189,
+      "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+      "reader": "unbuffered exact byte prefix",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 39362,
+      "timezone": "Europe/Moscow"
+    },
+    "GLDRUBF": {
+      "blob": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "bytes_read": 1044351,
+      "first": "2023-07-11 10:00:00",
+      "invalid_rows": {},
+      "label": "start",
+      "last": "2023-12-29 23:45:00+03:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M5.csv",
+      "prefix_bytes": 1044351,
+      "prefix_sha256": "14d0094ed8a842aabbd66da567a4cc46e2adef11f6a66d40c5d9e942b1e7fc1b",
+      "reader": "unbuffered exact byte prefix",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 18428,
+      "timezone": "Europe/Moscow"
+    },
+    "USDRUBF": {
+      "blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "bytes_read": 2342431,
+      "first": "2023-01-03 09:00:00",
+      "invalid_rows": {},
+      "label": "start",
+      "last": "2023-12-29 23:45:00+03:00",
+      "path": "forever/USDRUBF/USDRUBF_M5.csv",
+      "prefix_bytes": 2342431,
+      "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "reader": "unbuffered exact byte prefix",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 42576,
+      "timezone": "Europe/Moscow"
+    }
+  },
+  "instruments": {
+    "CNYRUBF": {
+      "common_CLOSED": 213,
+      "common_closed_economic_fields_exact": 5538,
+      "legacy_CLOSED": 213,
+      "legacy_UNKNOWN": 15,
+      "legacy_only_ids": [],
+      "original_saved_fields_exact": 182230,
+      "v2_CLOSED": 213,
+      "v2_EXCLUDED": 10,
+      "v2_SKIP": 5,
+      "v2_only_ids": []
+    },
+    "GLDRUBF": {
+      "common_CLOSED": 128,
+      "common_closed_economic_fields_exact": 3328,
+      "legacy_CLOSED": 128,
+      "legacy_UNKNOWN": 56,
+      "legacy_only_ids": [],
+      "original_saved_fields_exact": 130038,
+      "v2_CLOSED": 129,
+      "v2_EXCLUDED": 50,
+      "v2_SKIP": 8,
+      "v2_only_ids": [
+        "GLDRUBF_2023-09-06_1615_1"
+      ]
+    },
+    "USDRUBF": {
+      "common_CLOSED": 614,
+      "common_closed_economic_fields_exact": 15964,
+      "legacy_CLOSED": 614,
+      "legacy_UNKNOWN": 9,
+      "legacy_only_ids": [],
+      "original_saved_fields_exact": 242163,
+      "v2_CLOSED": 614,
+      "v2_EXCLUDED": 9,
+      "v2_SKIP": 0,
+      "v2_only_ids": []
+    }
+  },
+  "original_strategy_config_and_results_unchanged": true,
+  "policy_difference": "LEGACY_UNKNOWN -> DATA_GAP_SKIP_V2; missing execution Open SKIP does not block day; filled exposure EXCLUDED still blocks remainder day",
+  "status": "PASS"
+}

@@ -1,0 +1,33 @@
+{
+  "configuration_id": "LR_OPT2023_REENTRY1_SB2_HOLD60_TP5",
+  "execution": {
+    "allow_entry_bar_take": false,
+    "cost_ticks_per_side": 1,
+    "daily_trade_deadline_clock": "17:00",
+    "data_gap_policy": "DATA_GAP_SKIP_V2",
+    "entry_mode": "ENTRY_WAIT_ONE_BAR",
+    "session_flat_before_end_bars": 1,
+    "target_mode": "FULL_NET_C1_R",
+    "unknown_scope": "current_day; following days conditional FLAT",
+    "wait_complete_bars": 1
+  },
+  "freeze_commit": "e81b10c58a33f36a4eb9e8c174cc0bfd32843b4c",
+  "instrument": "USDRUBF",
+  "parameters": {
+    "cost_C1_ticks_per_side": 1,
+    "dedup_same_instrument_same_direction_minutes": 30,
+    "level_lookback_completed_m5": 6,
+    "max_hold_calendar_minutes": 60,
+    "max_session_entry_slack_minutes": 35,
+    "min_close_reentry_ticks": 1,
+    "min_initial_price_risk_ticks": 4,
+    "min_level_penetration_ticks": 1,
+    "planned_legacy_net_to_gross_R": "3",
+    "planned_net_to_net_R": "5",
+    "single_test_bar_per_signal": true,
+    "stop_beyond_extreme_ticks": 2
+  },
+  "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+  "source_sha": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "strategy_sha256": "f13202b9b176be194a58b9654a2f33030dde4f4f34ead96e18280db9d54140e8"
+}

@@ -1,0 +1,26 @@
+{
+  "all_changes_are_additions_under_IntradayLab": true,
+  "artifact_scope": "Canonical computational reports/journals/audit matched byte-for-byte. Process logs/strace and final publication receipts are operational evidence, not repeat comparison inputs.",
+  "base_main": "e8312745c22539be3eeacd53bcc9e63aae30170f",
+  "canonical_identical_artifacts_per_repeat": 1967,
+  "changed_paths": 2018,
+  "freeze_commit": "e81b10c58a33f36a4eb9e8c174cc0bfd32843b4c",
+  "frozen_code_grid_criteria_changed_after_PNL": false,
+  "original_Baseline_and_A_B_C_and_other_completed_studies_unchanged": true,
+  "preexisting_files_byte_verified": 15536,
+  "protected_TradingSystemLab_unchanged": true,
+  "protected_scope": {
+    "base_sha": "e8312745c22539be3eeacd53bcc9e63aae30170f",
+    "baseline_files_unchanged": true,
+    "changed_tracked_paths": 2018,
+    "modified_preexisting_files": 0,
+    "outside_IntradayLab_diff_empty": true,
+    "registry_unchanged": true,
+    "status": "PASS"
+  },
+  "source_clean": true,
+  "source_head": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "status": "PASS",
+  "three_independent_audits": "PASS",
+  "two_complete_repeats_byte_identical": true
+}
