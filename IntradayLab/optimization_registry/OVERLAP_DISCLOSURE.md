@@ -1,0 +1,24 @@
+# Overlap and repeated evidence
+
+Every family/configuration/instrument is evaluated alone. Configurations may share opportunities even when their complete ledger fingerprints differ. These fingerprints only prove exact saved-ledger equality; unequal fingerprints do not prove independence. No family or price-unit portfolio sum is computed. B4/B7/B10 remain three Baselines of B. C2 overlays reuse the same fills and are not new executions.
+
+| Family | Instrument | Exact ledger SHA-256 | Configuration references |
+| --- | --- | --- | --- |
+| MOMENTUM | USDRUBF | e9cbb2c01b47f386c1b2e51a3563465c45f179c15c3100743e9dd59f72e1dcf5 | stage2_causal_mtf_v1_MOMENTUM_ENTRY_MANAGEMENT__NONE_C1_T10; stage2_complete_architectures_v1_MOMENTUM_ENTRY_MANAGEMENT_C1_T10 |
+| MOMENTUM | USDRUBF | 5e2062f7618e0d3573452c2e5e4185803c6beb976733f97e8686e14fd88b355f | stage2_causal_mtf_v1_MOMENTUM_ENTRY_MANAGEMENT__NONE_C1_T15_DELAY; stage2_complete_architectures_v1_MOMENTUM_ENTRY_MANAGEMENT_C1_T15_DELAY |
+| MOMENTUM | CNYRUBF | ce65357e60f9667cfe88dd1a21aa60674c5c8231eb88103ffde6b786f0b1bc32 | stage2_causal_mtf_v1_MOMENTUM_FROZEN_V2__NONE_C1_T10; stage2_complete_architectures_v1_MOMENTUM_FROZEN_V2_C1_T10; stage2_m5_conditional_v2_MOMENTUM |
+| MOMENTUM | GLDRUBF | 1ca8f6e9dff3cdd3d86ccb3578342f98089ed1e95575dd524127e0e7acff62df | stage2_causal_mtf_v1_MOMENTUM_FROZEN_V2__NONE_C1_T10; stage2_complete_architectures_v1_MOMENTUM_FROZEN_V2_C1_T10; stage2_m5_conditional_v2_MOMENTUM |
+| MOMENTUM | USDRUBF | cc66c8f4317fe92c34f7c944254c3cc1740a3e37e1c5de9068a992bcb61c0b30 | stage2_causal_mtf_v1_MOMENTUM_FROZEN_V2__NONE_C1_T10; stage2_complete_architectures_v1_MOMENTUM_FROZEN_V2_C1_T10; stage2_m5_conditional_v2_MOMENTUM |
+| MOMENTUM | CNYRUBF | d01caa7b7f9f479a3546399a2b20472a2f625407dc0547d2c8aa989026d40e67 | stage2_causal_mtf_v1_MOMENTUM_FROZEN_V2__NONE_C1_T15_DELAY; stage2_complete_architectures_v1_MOMENTUM_FROZEN_V2_C1_T15_DELAY |
+| MOMENTUM | GLDRUBF | b2d5bf52afa2a2dbf302ba52c7f70724926d0c0e082a9f5c9c9952ec0bdb815f | stage2_causal_mtf_v1_MOMENTUM_FROZEN_V2__NONE_C1_T15_DELAY; stage2_complete_architectures_v1_MOMENTUM_FROZEN_V2_C1_T15_DELAY |
+| MOMENTUM | USDRUBF | 2bedd34dbdec580285a15fe3a7746f30324e7c844c3226b7ac68247255ba52a2 | stage2_causal_mtf_v1_MOMENTUM_FROZEN_V2__NONE_C1_T15_DELAY; stage2_complete_architectures_v1_MOMENTUM_FROZEN_V2_C1_T15_DELAY |
+| VWAP_MR | CNYRUBF | d54eeb59eeb3feab3a4531c388716893740e297d3dca297dd7b86059cbf1d9c2 | stage2_causal_mtf_v1_VWAP_MR_FROZEN_V2__NONE_C1_T10; stage2_complete_architectures_v1_VWAP_MR_FROZEN_V2_C1_T10; stage2_m5_conditional_v2_VWAP_MR |
+| VWAP_MR | GLDRUBF | 658e2c5c2bb7fc3d1e217561810ab45ef2e7d19e7485341dd7baa68dee927e7e | stage2_causal_mtf_v1_VWAP_MR_FROZEN_V2__NONE_C1_T10; stage2_complete_architectures_v1_VWAP_MR_FROZEN_V2_C1_T10; stage2_m5_conditional_v2_VWAP_MR |
+| VWAP_MR | USDRUBF | 9358147c3dfc1024ba70edb94175e97a66ebbc26eee38b0ba04781e0f4f19013 | stage2_causal_mtf_v1_VWAP_MR_FROZEN_V2__NONE_C1_T10; stage2_complete_architectures_v1_VWAP_MR_FROZEN_V2_C1_T10; stage2_m5_conditional_v2_VWAP_MR |
+| VWAP_MR | CNYRUBF | 6555cf42bbb8e10de3b082254d4281f737428a67c7af935a7a26cbf033ee0043 | stage2_causal_mtf_v1_VWAP_MR_FROZEN_V2__NONE_C1_T15_DELAY; stage2_complete_architectures_v1_VWAP_MR_FROZEN_V2_C1_T15_DELAY |
+| VWAP_MR | GLDRUBF | 63f32bf4b88df22eea8a4c0fecb0c5a435e53b5d0bd033d742fed98af7f7080c | stage2_causal_mtf_v1_VWAP_MR_FROZEN_V2__NONE_C1_T15_DELAY; stage2_complete_architectures_v1_VWAP_MR_FROZEN_V2_C1_T15_DELAY |
+| VWAP_MR | USDRUBF | d8fbe30b0abc9d0ecf6071c86456228eaa2bcd6f5ef524238effd8863cc19d11 | stage2_causal_mtf_v1_VWAP_MR_FROZEN_V2__NONE_C1_T15_DELAY; stage2_complete_architectures_v1_VWAP_MR_FROZEN_V2_C1_T15_DELAY |
+| VWAP_MR | USDRUBF | bd5d0713f8c6d616972147556d83e589acba1d88917e40d179791596ed8cecfa | stage2_causal_mtf_v1_VWAP_MR_PAYABLE_CAP_ENTRY__NONE_C1_T10; stage2_vwap_payable_cap_v1_VWAP_MR_PAYABLE_CAP_ENTRY_C1_T10 |
+| VWAP_MR | USDRUBF | c1e4004d742198d8d70adc4a22e3c0562164bfd0023714adabd1ad84cdce2be3 | stage2_causal_mtf_v1_VWAP_MR_PAYABLE_CAP_ENTRY__NONE_C1_T15_DELAY; stage2_vwap_payable_cap_v1_VWAP_MR_PAYABLE_CAP_ENTRY_C1_T15_DELAY |
+
+Historical ORB v2 A_BASE and canonical ORB A BASE also reuse a historical construction; timezone/ledger schema differences can prevent byte fingerprint equality. Independent daywise assumptions and archived UNKNOWN remain disclosed. Exit-only ablation uses overlapping independent seeds and is DIAGNOSTIC_ONLY.

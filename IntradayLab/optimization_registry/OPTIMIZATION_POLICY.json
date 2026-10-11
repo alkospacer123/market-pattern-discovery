@@ -1,0 +1,91 @@
+{
+  "C2_policy": "Published replacement-cost stress is retained in COST_STRESS_REFERENCES.csv; same fills are not new independent observations or new strategy configurations",
+  "PF_units": "Per instrument C1 price PF and raw initial-risk R PF separately; no mixed-instrument price PF",
+  "aggregation_numeric_precision": {
+    "Decimal_digits": 50,
+    "monthly_zero_sign_tolerance_R": "1e-20",
+    "published_comparison_absolute_tolerance_R": "1e-20",
+    "reason": "Saved Decimal28 ratios carry final-digit rounding; this reporting tolerance is not a trade/PnL or eligibility adjustment"
+  },
+  "all_failed_requirements_recorded": true,
+  "authorization": "Registry preparation only; no Optimization authorized or executed",
+  "base_sha": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+  "before_each_individual_optimization": [
+    "Separate explicit authorization",
+    "Freeze family-specific bounded grid",
+    "Freeze search budget",
+    "Freeze exact parameters, source, entry/execution/Stop/Take conventions",
+    "Freeze candidate IDs and evaluation rules before P&L"
+  ],
+  "calendar_definition": "Distinct MSK entry dates/months among resolved known CLOSED, never source-coverage days or signal days; positive/negative months use saved closure dates and after-C1 R",
+  "classifications": [
+    "ELIGIBLE",
+    "INSUFFICIENT_TRADES",
+    "INSUFFICIENT_CALENDAR",
+    "INSUFFICIENT_EVIDENCE",
+    "DIAGNOSTIC_ONLY",
+    "NEEDS_VERIFICATION"
+  ],
+  "closed_exclusions": [
+    "UNKNOWN",
+    "UNRESOLVED",
+    "SKIP",
+    "EXCLUDED",
+    "REJECTED",
+    "NONFILL",
+    "synthetic_oracle",
+    "overlapping_exit_only_seeds"
+  ],
+  "decision_date": "2026-10-11",
+  "goals": {
+    "Take_R_definition": "Explicitly freeze gross/raw-risk/net-net denominator for each individual study; do not silently change old target conventions",
+    "Take_profit_range_R": [
+      2,
+      10
+    ],
+    "after_C1_PF_minimum": "2.0",
+    "concentration": "no excessive single-trade/month dependence; bounds frozen before each individual study",
+    "drawdown": "controlled; quantitative bound frozen before each individual study",
+    "neighboring_parameter_stability": true,
+    "positive_expectancy": true,
+    "priority": "regular positive calendar-month results",
+    "sufficient_closed_trades": true
+  },
+  "historical_reference_policy": "Recorded archive audit is not present acceptance/verification of a historical configuration; NEEDS_VERIFICATION until separately confirmed, never discard positive summaries",
+  "lifecycle": [
+    "Baseline",
+    "Optimization",
+    "Robustness",
+    "Walk Forward",
+    "TRUE OOS"
+  ],
+  "missing_value": "NOT_AVAILABLE with field-specific reason; never missing-as-zero",
+  "optimization_history_year": 2023,
+  "per_instrument_minimum": {
+    "active_closed_entry_months": 6,
+    "baseline_PF_requirement": "ANY_PF",
+    "reproducible_code_config_source_required": true,
+    "signal_and_execution_credibility_required": true,
+    "unique_closed_entry_days": 40,
+    "verified_closed_trades": 100
+  },
+  "prohibited_in_this_task": [
+    "new economic Baseline",
+    "parameter search",
+    "trading logic changes",
+    "execution reinterpretation/replay",
+    "Robustness",
+    "WF",
+    "TRUE OOS",
+    "2024+ candle reads",
+    "TradingSystemLab modifications",
+    "market-pattern-data modifications",
+    "Draft PR472 mutations",
+    "merge",
+    "auto-merge"
+  ],
+  "queue_rule": "A then B then C then other eligible families in documented working order; never max historical PF",
+  "schema": "IntradayLab.optimization_policy.v1",
+  "timezone": "Europe/Moscow",
+  "unknown_policy": "Immutable historical UNKNOWN; report exclusions/skips separately; conditional known economics do not establish annual profitability"
+}

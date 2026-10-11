@@ -1,5 +1,38 @@
 # IntradayLab — project context
 
+## Master Strategy Registry / Optimization preparation — 2026-10-11
+
+Fixed A_v1, B4/B7/B10 and C_v1 Baselines are complete and their frozen
+results remain unchanged. Actual GitHub main is
+`f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8`, merge of PR #478.
+The [Master Registry](optimization_registry/REGISTRY_REPORT.md) records all
+found families, configurations, execution variants and historical references.
+
+The common instrument-specific research admission rule is **100 verified
+CLOSED / 40 distinct CLOSED entry days / 6 active CLOSED calendar months**,
+with credible signals/execution and pinned reproducible code/config/source.
+**Any initial Baseline PF** is admissible. UNKNOWN, SKIP, EXCLUDED, rejected
+signals and diagnostic seeds do not count as CLOSED. ELIGIBLE is admission
+for research, not economic PASS or proof of annual profitability.
+
+After independent registry audit, review/acceptance and a separate user merge
+decision, the next lifecycle step is individually authorized **Optimization**:
+[A, B, C, then other eligible families](optimization_registry/OPTIMIZATION_QUEUE.md).
+Each instrument/configuration must qualify; sparse cohorts stay excluded.
+Use only available 2023 development history; target after-C1 PF >= 2.0,
+sufficient closures, positive expectancy, regular positive months, controlled
+DD/concentration and stable neighboring parameters. Freeze each family's grid,
+budget, exact parameters and candidates before its separate Optimization.
+This registry task executes no Optimization and authorizes no following run.
+
+See [machine-readable policy](optimization_registry/OPTIMIZATION_POLICY.json)
+and [registry audit](optimization_registry/REGISTRY_AUDIT.json).
+This current status supersedes older pending A/B/C and positive-PF-only gate
+text below; all historical sections are retained verbatim. The five-step
+Baseline → Optimization → Robustness → Walk Forward (2024) → TRUE OOS (2025+)
+lifecycle is unchanged. TradingSystemLab, frozen artifacts, source data and
+Draft PR #472 remain untouched. **STOP at this registry Draft PR; no merge or auto-merge.**
+
 ## Completed fixed C_v1 Baseline — 2026-10-11, Draft PR review only
 
 The separately authorized **RETURN_RETEST_REJECTION_M5 / C_v1 / 2023** Baseline
