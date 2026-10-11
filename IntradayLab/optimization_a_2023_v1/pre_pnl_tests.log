@@ -1,0 +1,25 @@
+test_admission_buffer_risk_geometry_no_relocation (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_admission_buffer_risk_geometry_no_relocation) ... ok
+test_auditor_detects_corrupted_economics_and_path (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_auditor_detects_corrupted_economics_and_path) ... ok
+test_close_at_extreme_delays_until_first_qualifying_completed_bar (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_close_at_extreme_delays_until_first_qualifying_completed_bar) ... ok
+test_cny_historical_grid_all_ratios (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_cny_historical_grid_all_ratios) ... ok
+test_entry_bar_take_disabled_stop_first_and_gap (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_entry_bar_take_disabled_stop_first_and_gap) ... ok
+test_entry_future_hlc_cannot_change_signal_or_admission (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_entry_future_hlc_cannot_change_signal_or_admission) ... ok
+test_full_grid_all_targets_both_sides_buffers_and_touch_counts (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_full_grid_all_targets_both_sides_buffers_and_touch_counts) ... ok
+test_gap_and_session_reset_no_overlapping_windows (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_gap_and_session_reset_no_overlapping_windows) ... ok
+test_independent_metrics_month_sign_and_no_loss_pf (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_independent_metrics_month_sign_and_no_loss_pf) ... ok
+test_invalid_entry_open_and_invalid_exposure_are_distinct (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_invalid_entry_open_and_invalid_exposure_are_distinct) ... ok
+test_maximal_run_one_signal_and_ambiguous_consumption (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_maximal_run_one_signal_and_ambiguous_consumption) ... ok
+test_missing_entry_skip_and_missing_exposure_exclusion (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_missing_entry_skip_and_missing_exposure_exclusion) ... ok
+test_no_signal_before_complete_or_with_insufficient_touches (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_no_signal_before_complete_or_with_insufficient_touches) ... ok
+test_numeric_sample_and_neighbor_criteria_no_loss_pf (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_numeric_sample_and_neighbor_criteria_no_loss_pf) ... ok
+test_parameters_and_research_dates_are_bounded (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_parameters_and_research_dates_are_bounded) ... ok
+test_round_outward_full_net_formula (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_round_outward_full_net_formula) ... ok
+test_session_flat_open_and_missing_flat_exclusion (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_session_flat_open_and_missing_flat_exclusion) ... ok
+test_skip_recovers_exclusion_blocks_and_next_day_flat_is_conditional (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_skip_recovers_exclusion_blocks_and_next_day_flat_is_conditional) ... ok
+test_source_guard_denies_future_bytes_buffered_and_other_paths (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_source_guard_denies_future_bytes_buffered_and_other_paths) ... ok
+test_syscall_receipt_parser_on_synthetic_prefixes (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_syscall_receipt_parser_on_synthetic_prefixes) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 1.069s
+
+OK

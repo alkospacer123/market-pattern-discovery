@@ -1,0 +1,65 @@
+{
+  "repository": "alkospacer123/market-pattern-discovery",
+  "actual_github_main": "ce89458b063f3af2451f8c4c162107207973c53b",
+  "local_initial_HEAD": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+  "isolated_worktree_base": "ce89458b063f3af2451f8c4c162107207973c53b",
+  "main_diff_from_user_verified_sha": [],
+  "pull_requests": [
+    {
+      "number": 474,
+      "merged": true,
+      "head_sha": "30683692fb4f00f84a13a9747ebc94c9e57ab11d",
+      "merge_commit_sha": "8db73e6338bc5b89eda385e21167e22c74e5a299",
+      "draft": false,
+      "state": "closed"
+    },
+    {
+      "number": 475,
+      "merged": true,
+      "head_sha": "bf0fb8ac8bcb73af11490e0d3f159c5906964d95",
+      "merge_commit_sha": "4db30149d6c768caa82bd26a04ef80099816c815",
+      "draft": false,
+      "state": "closed"
+    },
+    {
+      "number": 476,
+      "merged": true,
+      "head_sha": "b248ee7f6772a08b6036f4d87f80899df5d45ed1",
+      "merge_commit_sha": "15c826cdf3c4fb9fa73e6f1ac9d247ac40e24dbf",
+      "draft": false,
+      "state": "closed"
+    },
+    {
+      "number": 477,
+      "merged": true,
+      "head_sha": "a0af55da2a4291a17259c044f3f895d3d4990445",
+      "merge_commit_sha": "f0e56f5df557ac4eae19af333b6d438524f5f6ff",
+      "draft": false,
+      "state": "closed"
+    },
+    {
+      "number": 478,
+      "merged": true,
+      "head_sha": "e88258749ea75f5a50ed523914d60c7a5eec851a",
+      "merge_commit_sha": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+      "draft": false,
+      "state": "closed"
+    },
+    {
+      "number": 479,
+      "merged": true,
+      "head_sha": "3fc7f07bc4badc44ef757bdd1991300f9027cf93",
+      "merge_commit_sha": "ce89458b063f3af2451f8c4c162107207973c53b",
+      "draft": false,
+      "state": "closed"
+    },
+    {
+      "number": 472,
+      "merged": false,
+      "head_sha": "82ec9ffe61e18a43cd7510e398f6913b25f045e1",
+      "merge_commit_sha": "249df6ca1c7f38a886f44b7f2859c65821084706",
+      "draft": true,
+      "state": "open"
+    }
+  ]
+}
