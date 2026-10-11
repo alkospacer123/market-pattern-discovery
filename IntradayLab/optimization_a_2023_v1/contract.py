@@ -36,7 +36,7 @@ def grid(policy):
 
 
 def verify_freeze():
-    freeze = git('log','-1','--diff-filter=A','--format=%H','--',str(POLICY.relative_to(ROOT)))
+    freeze = git('log','-1','--format=%H','--',str((STUDY/'source_commitments.json').relative_to(ROOT)))
     if len(freeze) != 40:
         raise ValueError('PRE_PNL_FREEZE_COMMIT_REQUIRED')
     manifest = json.loads((STUDY/'source_commitments.json').read_text())

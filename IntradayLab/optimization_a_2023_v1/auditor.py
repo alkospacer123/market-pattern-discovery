@@ -556,4 +556,3 @@ def audit(data_root,output):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--data-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     a=p.parse_args();print(json.dumps(audit(a.data_root,a.output),sort_keys=True))
-

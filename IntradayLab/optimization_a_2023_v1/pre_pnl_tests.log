@@ -20,6 +20,6 @@ test_source_guard_denies_future_bytes_buffered_and_other_paths (IntradayLab.opti
 test_syscall_receipt_parser_on_synthetic_prefixes (IntradayLab.optimization_a_2023_v1.tests.OptimizationTests.test_syscall_receipt_parser_on_synthetic_prefixes) ... ok
 
 ----------------------------------------------------------------------
-Ran 20 tests in 1.069s
+Ran 20 tests in 0.976s
 
 OK
