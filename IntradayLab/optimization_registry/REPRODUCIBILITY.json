@@ -1,0 +1,17 @@
+{
+  "all_byte_identical": true,
+  "artifact_sha256": {
+    "COST_STRESS_REFERENCES.csv": "c7fcfcf163bd9710afe2d2979bb2eadb0ffff6880cfa5c8f5c2789a0b8c398e5",
+    "INSTRUMENT_ELIGIBILITY.csv": "ee2874e012ffb5709011622bbcf091989acc732645c3d7b236b5dbe70f1909dc",
+    "MASTER_STRATEGY_REGISTRY.csv": "b88ee8bdf50e0e0bd4efb8dec2c47a6a66dcd6a8c0b72a288f6f80359dcd4b23",
+    "OPTIMIZATION_POLICY.json": "0e92889cdc9787d2ea8530eb34a8b57f0f09e3815355aab10685e8ce5b43e55d",
+    "PUBLISHED_METRIC_RECONCILIATION.json": "955f670b2477d9ed43d53a00a2f0cfb910400b3fdadca5f883a5ceb0a9b03dae",
+    "REGISTRY_COUNTS.json": "6edac62bbc6cca016d8e57dee3560d0d6f0252a3e3057971280c083edf5d5821",
+    "SOURCE_FILE_INVENTORY.json": "20da7c835ea937ff486f746ea65c9f702fdcc49594d6fab164c6c4118fba669d",
+    "STUDY_CATALOG.json": "5681ec475baf11fff332b6df004be16a2040d77afdb9762bc18f41a95bbfe82b"
+  },
+  "artifacts_compared": 8,
+  "generator_sha256": "0da0486dbab4f7c249ace6df5d572595d9ebee2e5792c043715ca981d53887ac",
+  "method": "Second complete aggregation from identical pinned saved Git objects; no market files/replays",
+  "status": "PASS"
+}

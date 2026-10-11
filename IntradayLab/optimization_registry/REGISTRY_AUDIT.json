@@ -1,0 +1,65 @@
+{
+  "base_sha": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+  "checks": {
+    "coverage": 54,
+    "eligibility": 563,
+    "journal_counts": 752,
+    "missing_values": 55886,
+    "numeric": 6496,
+    "projection": 638,
+    "protected_scope": 5,
+    "provenance": 1512,
+    "published_metrics": 1,
+    "queue": 1,
+    "source_hashes": 862,
+    "trade_arithmetic": 26993,
+    "year_guard": 26993
+  },
+  "errors": [],
+  "independence_limit": "Internal algorithmic audit in same task, not independent human/second-agent signoff; relies on archived signal/execution audits and does not replay trading",
+  "inventory": {
+    "IntradayLab_heads": 43,
+    "all_repository_PRs_metadata_and_bodies_scanned": 477,
+    "configuration_records": 247,
+    "families": 19,
+    "instrument_records": 562,
+    "main_files": 719,
+    "remote_heads_checked": 490,
+    "source_objects_hashed": 862
+  },
+  "method": "Independent source-object reader and separate float/fsum journal aggregation; no generator imports, strategy imports, candle reads, replay or tuning",
+  "protected_scope": {
+    "2024_plus_candle_bytes_read": 0,
+    "PR472_mutated": false,
+    "Robustness_WF_TRUE_OOS_runs": 0,
+    "TradingSystemLab_diff_empty": true,
+    "market_pattern_data_written": false,
+    "new_economic_baselines": 0,
+    "optimization_runs": 0,
+    "source_candle_files_opened": 0
+  },
+  "published_metric_discrepancies": 0,
+  "published_metric_reconciliations": 2143,
+  "schema": "IntradayLab.registry_audit.v1",
+  "status": "PASS",
+  "ten_required_checks": {
+    "all_independent_families_mapped": "PASS",
+    "all_published_intraday_research_inventory": "PASS",
+    "closed_days_months": "PASS",
+    "common_instrument_criteria": "PASS",
+    "no_PF_selection": "PASS: PF not referenced by eligibility decision",
+    "no_fabricated_results": "PASS: missing values explained; historical bps not C1 PF",
+    "no_overlap_pooling": "PASS: separate rows; explicit equivalence/overlap disclosure",
+    "nonexecutable_diagnostics_excluded": "PASS",
+    "real_frozen_file_extraction": "PASS",
+    "terminal_statuses_separate": "PASS"
+  },
+  "unresolved_evidence_gaps_preserved": [
+    "Historic CMD/V4 lacks per-candidate CLOSED journals, period/instrument attribution and complete discarded-grid results",
+    "PR472 signal logic NEEDS_FIX",
+    "PR460 and PR462 have rules but no published economic result journals",
+    "Native MTF blocked diagnostics are not the later audited derived-MTF cohorts",
+    "Legacy UNKNOWN and V2 exclusions prevent annual equity claims",
+    "Recorded branch ORB audits retained; no present acceptance of historical configurations"
+  ]
+}

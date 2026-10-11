@@ -1,0 +1,3007 @@
+[
+  {
+    "audit": "IntradayLab/results/equal_high_low_m5_2023_a_v1/audit.json",
+    "code": "IntradayLab/strategies/equal_high_low_m5.py",
+    "config": "IntradayLab/config/equal_high_low_m5_2023_a_v1.json",
+    "configuration_id": "equal_high_low_m5_2023_a_v1",
+    "family_id": "A",
+    "record_type": "BASELINE_CONFIGURATION",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/equal_high_low_m5_2023_a_v1/trades.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/high_low_cluster_m5_2023_b4_v1/audit.json",
+    "code": "IntradayLab/strategies/high_low_cluster_m5.py",
+    "config": "IntradayLab/config/high_low_cluster_m5_2023_b4_v1.json",
+    "configuration_id": "high_low_cluster_m5_2023_b4_v1",
+    "family_id": "B",
+    "record_type": "BASELINE_CONFIGURATION",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/high_low_cluster_m5_2023_b4_v1/trades.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/high_low_cluster_m5_2023_b7_v1/audit.json",
+    "code": "IntradayLab/strategies/high_low_cluster_m5.py",
+    "config": "IntradayLab/config/high_low_cluster_m5_2023_b7_v1.json",
+    "configuration_id": "high_low_cluster_m5_2023_b7_v1",
+    "family_id": "B",
+    "record_type": "BASELINE_CONFIGURATION",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/high_low_cluster_m5_2023_b7_v1/trades.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/high_low_cluster_m5_2023_b10_v1/audit.json",
+    "code": "IntradayLab/strategies/high_low_cluster_m5.py",
+    "config": "IntradayLab/config/high_low_cluster_m5_2023_b10_v1.json",
+    "configuration_id": "high_low_cluster_m5_2023_b10_v1",
+    "family_id": "B",
+    "record_type": "BASELINE_CONFIGURATION",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/high_low_cluster_m5_2023_b10_v1/trades.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/audit.json",
+    "code": "IntradayLab/strategies/return_retest_rejection_m5.py",
+    "config": "IntradayLab/config/return_retest_rejection_m5_2023_c_v1.json",
+    "configuration_id": "return_retest_rejection_m5_2023_c_v1",
+    "family_id": "C",
+    "record_type": "BASELINE_CONFIGURATION",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/trades.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/r16_compression_breakout_2023_m5_v1/audit.json",
+    "code": "IntradayLab/strategies/compression_breakout.py",
+    "config": "IntradayLab/config/r16_compression_breakout_2023_m5_v1.json",
+    "configuration_id": "r16_compression_breakout_2023_m5_v1",
+    "family_id": "R16",
+    "record_type": "BASELINE_CONFIGURATION",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/r16_compression_breakout_2023_m5_v1/trades.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/r17_orb_breakout_retest_2023_m5_v1/audit.json",
+    "code": "IntradayLab/strategies/orb_breakout_retest.py",
+    "config": "IntradayLab/config/r17_orb_breakout_retest_2023_m5_v1.json",
+    "configuration_id": "r17_orb_breakout_retest_2023_m5_v1",
+    "family_id": "R17",
+    "record_type": "BASELINE_CONFIGURATION",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/r17_orb_breakout_retest_2023_m5_v1/trades.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/orb_a_base_2023_canonical_v1/audit.json",
+    "code": "IntradayLab/strategies/orb_false_break_fade.py",
+    "config": "IntradayLab/config/orb_a_base_2023_canonical_v1.json",
+    "configuration_id": "orb_a_base_2023_canonical_v1",
+    "family_id": "R18",
+    "record_type": "BASELINE_CONFIGURATION",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/orb_a_base_2023_canonical_v1/trades.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/level_rejection_2023_m5_v1/audit.json",
+    "code": "IntradayLab/strategies/level_rejection.py",
+    "config": "IntradayLab/config/level_rejection_2023_m5_v1.json",
+    "configuration_id": "level_rejection_2023_m5_v1",
+    "family_id": "LEVEL_REJECTION",
+    "record_type": "BASELINE_CONFIGURATION",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/level_rejection_2023_m5_v1/trades.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/swing_pullback_m5_m15_2023_v1/audit.json",
+    "code": "IntradayLab/strategies/swing_pullback_m5_m15.py",
+    "config": "IntradayLab/config/swing_pullback_m5_m15_2023_v1.json",
+    "configuration_id": "swing_pullback_m5_m15_2023_v1",
+    "family_id": "SWING_PULLBACK",
+    "record_type": "BASELINE_CONFIGURATION",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/swing_pullback_m5_m15_2023_v1/trades.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/trend_pullback_m15_h1_2023_v1/audit.json",
+    "code": "IntradayLab/strategies/trend_pullback_m15_h1.py",
+    "config": "IntradayLab/config/trend_pullback_m15_h1_2023_v1.json",
+    "configuration_id": "trend_pullback_m15_h1_2023_v1",
+    "family_id": "TREND_PULLBACK",
+    "record_type": "BASELINE_CONFIGURATION",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/trend_pullback_m15_h1_2023_v1/trades.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/bollinger_rsi_reentry_m15_2023_v1/audit.json",
+    "code": "IntradayLab/strategies/bollinger_rsi_reentry_m15.py",
+    "config": "IntradayLab/config/bollinger_rsi_reentry_m15_2023_v1.json",
+    "configuration_id": "bollinger_rsi_reentry_m15_2023_v1",
+    "family_id": "BOLLINGER_RSI",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "82ec9ffe61e18a43cd7510e398f6913b25f045e1",
+    "result": "IntradayLab/results/bollinger_rsi_reentry_m15_2023_v1/trades.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/equal_high_low_m5_2023_a_v1/audit.json",
+    "code": "IntradayLab/tools/run_equal_high_low_baseline.py",
+    "config": "IntradayLab/config/equal_high_low_m5_2023_a_v1.json",
+    "configuration_id": "A_ENTRY_CLOSE_ORACLE",
+    "family_id": "A",
+    "record_type": "DIAGNOSTIC_ONLY",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/equal_high_low_m5_2023_a_v1/diagnostics/close_oracle_trades.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/stage2_m5/verification.json",
+    "code": "IntradayLab/tools/m5_baseline.py",
+    "config": "IntradayLab/config/stage2_m5_baseline_v1.json",
+    "configuration_id": "stage2_m5_VWAP_MR",
+    "family_id": "VWAP_MR",
+    "record_type": "BASELINE_CONFIGURATION",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_m5/trade_ledger.csv",
+    "selectors": {
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_m5/verification.json",
+    "code": "IntradayLab/tools/m5_baseline.py",
+    "config": "IntradayLab/config/stage2_m5_baseline_v1.json",
+    "configuration_id": "stage2_m5_MOMENTUM",
+    "family_id": "MOMENTUM",
+    "record_type": "BASELINE_CONFIGURATION",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_m5/trade_ledger.csv",
+    "selectors": {
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_m5_conditional_v2/verification.json",
+    "code": "IntradayLab/tools/m5_conditional_v2.py",
+    "config": "IntradayLab/config/stage2_m5_conditional_v2.json",
+    "configuration_id": "stage2_m5_conditional_v2_VWAP_MR",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_m5_conditional_v2/trade_ledger.csv",
+    "selectors": {
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_m5_conditional_v2/verification.json",
+    "code": "IntradayLab/tools/m5_conditional_v2.py",
+    "config": "IntradayLab/config/stage2_m5_conditional_v2.json",
+    "configuration_id": "stage2_m5_conditional_v2_MOMENTUM",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_m5_conditional_v2/trade_ledger.csv",
+    "selectors": {
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_m5/verification.json",
+    "code": "IntradayLab/tools/m5_baseline.py",
+    "config": "IntradayLab/config/stage2_m5_baseline_v1.json",
+    "configuration_id": "stage2_m5_VWAP_MR_PRE_CORRECTION",
+    "family_id": "VWAP_MR",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "e38e018c1c7be3863178cd30237cbc5748216de7",
+    "result": "IntradayLab/results/stage2_m5/trade_ledger.csv",
+    "selectors": {
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_m5/verification.json",
+    "code": "IntradayLab/tools/m5_baseline.py",
+    "config": "IntradayLab/config/stage2_m5_baseline_v1.json",
+    "configuration_id": "stage2_m5_MOMENTUM_PRE_CORRECTION",
+    "family_id": "MOMENTUM",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "e38e018c1c7be3863178cd30237cbc5748216de7",
+    "result": "IntradayLab/results/stage2_m5/trade_ledger.csv",
+    "selectors": {
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_MOMENTUM_ENTRY_C1_T10",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "ENTRY",
+      "scenario": "C1_T10",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_MOMENTUM_ENTRY_C1_T15_DELAY",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "ENTRY",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_MOMENTUM_ENTRY_MANAGEMENT_C1_T10",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "ENTRY_MANAGEMENT",
+      "scenario": "C1_T10",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_MOMENTUM_ENTRY_MANAGEMENT_C1_T15_DELAY",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "ENTRY_MANAGEMENT",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_MOMENTUM_FROZEN_V2_C1_T10",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FROZEN_V2",
+      "scenario": "C1_T10",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_MOMENTUM_FROZEN_V2_C1_T15_DELAY",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FROZEN_V2",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_MOMENTUM_FULL_M5_C1_T10",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FULL_M5",
+      "scenario": "C1_T10",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_MOMENTUM_FULL_M5_C1_T15_DELAY",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FULL_M5",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_MOMENTUM_MANAGEMENT_C1_T10",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "MANAGEMENT",
+      "scenario": "C1_T10",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_MOMENTUM_MANAGEMENT_C1_T15_DELAY",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "MANAGEMENT",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_VWAP_MR_ENTRY_C1_T10",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "ENTRY",
+      "scenario": "C1_T10",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_VWAP_MR_ENTRY_C1_T15_DELAY",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "ENTRY",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_VWAP_MR_ENTRY_MANAGEMENT_C1_T10",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "ENTRY_MANAGEMENT",
+      "scenario": "C1_T10",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_VWAP_MR_ENTRY_MANAGEMENT_C1_T15_DELAY",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "ENTRY_MANAGEMENT",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_VWAP_MR_FROZEN_V2_C1_T10",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FROZEN_V2",
+      "scenario": "C1_T10",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_VWAP_MR_FROZEN_V2_C1_T15_DELAY",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FROZEN_V2",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_VWAP_MR_FULL_M5_C1_T10",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FULL_M5",
+      "scenario": "C1_T10",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_VWAP_MR_FULL_M5_C1_T15_DELAY",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FULL_M5",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_VWAP_MR_MANAGEMENT_C1_T10",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "MANAGEMENT",
+      "scenario": "C1_T10",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "stage2_complete_architectures_v1_VWAP_MR_MANAGEMENT_C1_T15_DELAY",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_complete_architectures_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "MANAGEMENT",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_vwap_payable_cap.py",
+    "config": "IntradayLab/config/stage2_vwap_payable_cap_v1.json",
+    "configuration_id": "stage2_vwap_payable_cap_v1_VWAP_MR_PAYABLE_CAP_ENTRY_C1_T10",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_vwap_payable_cap_v1/trade_ledger.csv",
+    "selectors": {
+      "architecture": "PAYABLE_CAP_ENTRY",
+      "scenario": "C1_T10",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_vwap_payable_cap.py",
+    "config": "IntradayLab/config/stage2_vwap_payable_cap_v1.json",
+    "configuration_id": "stage2_vwap_payable_cap_v1_VWAP_MR_PAYABLE_CAP_ENTRY_C1_T15_DELAY",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_vwap_payable_cap_v1/trade_ledger.csv",
+    "selectors": {
+      "architecture": "PAYABLE_CAP_ENTRY",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_vwap_payable_cap.py",
+    "config": "IntradayLab/config/stage2_vwap_payable_cap_v1.json",
+    "configuration_id": "stage2_vwap_payable_cap_v1_VWAP_MR_PAYABLE_CAP_FULL_M5_C1_T10",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_vwap_payable_cap_v1/trade_ledger.csv",
+    "selectors": {
+      "architecture": "PAYABLE_CAP_FULL_M5",
+      "scenario": "C1_T10",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_vwap_payable_cap.py",
+    "config": "IntradayLab/config/stage2_vwap_payable_cap_v1.json",
+    "configuration_id": "stage2_vwap_payable_cap_v1_VWAP_MR_PAYABLE_CAP_FULL_M5_C1_T15_DELAY",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_vwap_payable_cap_v1/trade_ledger.csv",
+    "selectors": {
+      "architecture": "PAYABLE_CAP_FULL_M5",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_MOMENTUM_ENTRY_MANAGEMENT__H1_C1_T10",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "ENTRY_MANAGEMENT__H1",
+      "scenario": "C1_T10",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_MOMENTUM_ENTRY_MANAGEMENT__H1_C1_T15_DELAY",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "ENTRY_MANAGEMENT__H1",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_MOMENTUM_ENTRY_MANAGEMENT__M30_C1_T10",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "ENTRY_MANAGEMENT__M30",
+      "scenario": "C1_T10",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_MOMENTUM_ENTRY_MANAGEMENT__M30_C1_T15_DELAY",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "ENTRY_MANAGEMENT__M30",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_MOMENTUM_ENTRY_MANAGEMENT__NONE_C1_T10",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "ENTRY_MANAGEMENT__NONE",
+      "scenario": "C1_T10",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_MOMENTUM_ENTRY_MANAGEMENT__NONE_C1_T15_DELAY",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "ENTRY_MANAGEMENT__NONE",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_MOMENTUM_FROZEN_V2__M30_C1_T10",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FROZEN_V2__M30",
+      "scenario": "C1_T10",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_MOMENTUM_FROZEN_V2__M30_C1_T15_DELAY",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FROZEN_V2__M30",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_MOMENTUM_FROZEN_V2__NONE_C1_T10",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FROZEN_V2__NONE",
+      "scenario": "C1_T10",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_MOMENTUM_FROZEN_V2__NONE_C1_T15_DELAY",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FROZEN_V2__NONE",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_MOMENTUM_FULL_M5__H1_C1_T10",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FULL_M5__H1",
+      "scenario": "C1_T10",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_MOMENTUM_FULL_M5__H1_C1_T15_DELAY",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FULL_M5__H1",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_MOMENTUM_FULL_M5__M30_C1_T10",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FULL_M5__M30",
+      "scenario": "C1_T10",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_MOMENTUM_FULL_M5__M30_C1_T15_DELAY",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FULL_M5__M30",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_MOMENTUM_FULL_M5__NONE_C1_T10",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FULL_M5__NONE",
+      "scenario": "C1_T10",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_MOMENTUM_FULL_M5__NONE_C1_T15_DELAY",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FULL_M5__NONE",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_VWAP_MR_FROZEN_V2__M30_C1_T10",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FROZEN_V2__M30",
+      "scenario": "C1_T10",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_VWAP_MR_FROZEN_V2__M30_C1_T15_DELAY",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FROZEN_V2__M30",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_VWAP_MR_FROZEN_V2__NONE_C1_T10",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FROZEN_V2__NONE",
+      "scenario": "C1_T10",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_VWAP_MR_FROZEN_V2__NONE_C1_T15_DELAY",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "FROZEN_V2__NONE",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_VWAP_MR_PAYABLE_CAP_ENTRY__M15_C1_T10",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "PAYABLE_CAP_ENTRY__M15",
+      "scenario": "C1_T10",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_VWAP_MR_PAYABLE_CAP_ENTRY__M15_C1_T15_DELAY",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "PAYABLE_CAP_ENTRY__M15",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_VWAP_MR_PAYABLE_CAP_ENTRY__M30_C1_T10",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "PAYABLE_CAP_ENTRY__M30",
+      "scenario": "C1_T10",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_VWAP_MR_PAYABLE_CAP_ENTRY__M30_C1_T15_DELAY",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "PAYABLE_CAP_ENTRY__M30",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_VWAP_MR_PAYABLE_CAP_ENTRY__NONE_C1_T10",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "PAYABLE_CAP_ENTRY__NONE",
+      "scenario": "C1_T10",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_VWAP_MR_PAYABLE_CAP_ENTRY__NONE_C1_T15_DELAY",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "PAYABLE_CAP_ENTRY__NONE",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_VWAP_MR_PAYABLE_CAP_FULL_M5__M15_C1_T10",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "PAYABLE_CAP_FULL_M5__M15",
+      "scenario": "C1_T10",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_VWAP_MR_PAYABLE_CAP_FULL_M5__M15_C1_T15_DELAY",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "PAYABLE_CAP_FULL_M5__M15",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_VWAP_MR_PAYABLE_CAP_FULL_M5__M30_C1_T10",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "PAYABLE_CAP_FULL_M5__M30",
+      "scenario": "C1_T10",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_VWAP_MR_PAYABLE_CAP_FULL_M5__M30_C1_T15_DELAY",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "PAYABLE_CAP_FULL_M5__M30",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_VWAP_MR_PAYABLE_CAP_FULL_M5__NONE_C1_T10",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "PAYABLE_CAP_FULL_M5__NONE",
+      "scenario": "C1_T10",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_final_independent_audit/audit.json",
+    "code": "IntradayLab/tools/causal_mtf.py",
+    "config": "IntradayLab/config/stage2_causal_mtf_v1.json",
+    "configuration_id": "stage2_causal_mtf_v1_VWAP_MR_PAYABLE_CAP_FULL_M5__NONE_C1_T15_DELAY",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_causal_mtf_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "PAYABLE_CAP_FULL_M5__NONE",
+      "scenario": "C1_T15_DELAY",
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_squeeze_v1/independent_audit.json",
+    "code": "IntradayLab/tools/squeeze_replay.py",
+    "config": "IntradayLab/config/stage2_squeeze_v1.json",
+    "configuration_id": "stage2_squeeze_v1_SQUEEZE_M30_M5_T10",
+    "family_id": "SQUEEZE_M5",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_squeeze_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "SQUEEZE_M30_M5",
+      "scenario": "T10"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_squeeze_v1/independent_audit.json",
+    "code": "IntradayLab/tools/squeeze_replay.py",
+    "config": "IntradayLab/config/stage2_squeeze_v1.json",
+    "configuration_id": "stage2_squeeze_v1_SQUEEZE_M30_M5_T15",
+    "family_id": "SQUEEZE_M5",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_squeeze_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "SQUEEZE_M30_M5",
+      "scenario": "T15"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_squeeze_v1/independent_audit.json",
+    "code": "IntradayLab/tools/squeeze_replay.py",
+    "config": "IntradayLab/config/stage2_squeeze_v1.json",
+    "configuration_id": "stage2_squeeze_v1_SQUEEZE_M5_T10",
+    "family_id": "SQUEEZE_M5",
+    "record_type": "BASELINE_CONFIGURATION",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_squeeze_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "SQUEEZE_M5",
+      "scenario": "T10"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_squeeze_v1/independent_audit.json",
+    "code": "IntradayLab/tools/squeeze_replay.py",
+    "config": "IntradayLab/config/stage2_squeeze_v1.json",
+    "configuration_id": "stage2_squeeze_v1_SQUEEZE_M5_T15",
+    "family_id": "SQUEEZE_M5",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_squeeze_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "SQUEEZE_M5",
+      "scenario": "T15"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_squeeze_m15_v1/pre_publication_verification.json",
+    "code": "IntradayLab/tools/squeeze_m15_replay.py",
+    "config": "IntradayLab/config/stage2_squeeze_m15_v1.json",
+    "configuration_id": "stage2_squeeze_m15_v1_SQUEEZE_H1_M15_T10",
+    "family_id": "SQUEEZE_M15",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_squeeze_m15_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "SQUEEZE_H1_M15",
+      "scenario": "T10"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_squeeze_m15_v1/pre_publication_verification.json",
+    "code": "IntradayLab/tools/squeeze_m15_replay.py",
+    "config": "IntradayLab/config/stage2_squeeze_m15_v1.json",
+    "configuration_id": "stage2_squeeze_m15_v1_SQUEEZE_H1_M15_T15",
+    "family_id": "SQUEEZE_M15",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_squeeze_m15_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "SQUEEZE_H1_M15",
+      "scenario": "T15"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_squeeze_m15_v1/pre_publication_verification.json",
+    "code": "IntradayLab/tools/squeeze_m15_replay.py",
+    "config": "IntradayLab/config/stage2_squeeze_m15_v1.json",
+    "configuration_id": "stage2_squeeze_m15_v1_SQUEEZE_M15_T10",
+    "family_id": "SQUEEZE_M15",
+    "record_type": "BASELINE_CONFIGURATION",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_squeeze_m15_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "SQUEEZE_M15",
+      "scenario": "T10"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_squeeze_m15_v1/pre_publication_verification.json",
+    "code": "IntradayLab/tools/squeeze_m15_replay.py",
+    "config": "IntradayLab/config/stage2_squeeze_m15_v1.json",
+    "configuration_id": "stage2_squeeze_m15_v1_SQUEEZE_M15_T15",
+    "family_id": "SQUEEZE_M15",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_squeeze_m15_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "architecture": "SQUEEZE_M15",
+      "scenario": "T15"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_orb_false_break_fade_m5_v1/independent_audit.json",
+    "code": "IntradayLab/tools/orb_false_break_fade_replay.py",
+    "config": "IntradayLab/config/stage2_orb_false_break_fade_m5_v1.json",
+    "configuration_id": "stage2_orb_false_break_fade_m5_v1_A_BASE",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+    "result": "IntradayLab/results/stage2_orb_false_break_fade_m5_v1/trades.csv",
+    "selectors": {
+      "architecture": "A_BASE"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_orb_false_break_fade_m5_v1/independent_audit.json",
+    "code": "IntradayLab/tools/orb_false_break_fade_replay.py",
+    "config": "IntradayLab/config/stage2_orb_false_break_fade_m5_v1.json",
+    "configuration_id": "stage2_orb_false_break_fade_m5_v1_B_IND",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+    "result": "IntradayLab/results/stage2_orb_false_break_fade_m5_v1/trades.csv",
+    "selectors": {
+      "architecture": "B_IND"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_orb_false_break_fade_m5_v1/independent_audit.json",
+    "code": "IntradayLab/tools/orb_false_break_fade_replay.py",
+    "config": "IntradayLab/config/stage2_orb_false_break_fade_m5_v1.json",
+    "configuration_id": "stage2_orb_false_break_fade_m5_v1_C_MTF",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+    "result": "IntradayLab/results/stage2_orb_false_break_fade_m5_v1/trades.csv",
+    "selectors": {
+      "architecture": "C_MTF"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_orb_false_break_fade_m5_v1/independent_audit.json",
+    "code": "IntradayLab/tools/orb_false_break_fade_replay.py",
+    "config": "IntradayLab/config/stage2_orb_false_break_fade_m5_v1.json",
+    "configuration_id": "stage2_orb_false_break_fade_m5_v1_D_MTF_IND",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+    "result": "IntradayLab/results/stage2_orb_false_break_fade_m5_v1/trades.csv",
+    "selectors": {
+      "architecture": "D_MTF_IND"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_orb_false_break_fade_m5_v2_research/independent_audit.json",
+    "code": "IntradayLab/tools/orb_false_break_fade_replay.py",
+    "config": "IntradayLab/config/stage2_orb_false_break_fade_m5_v2_research.json",
+    "configuration_id": "stage2_orb_false_break_fade_m5_v2_research_A_BASE",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+    "result": "IntradayLab/results/stage2_orb_false_break_fade_m5_v2_research/trades.csv",
+    "selectors": {
+      "architecture": "A_BASE"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_orb_false_break_fade_m5_v2_research/independent_audit.json",
+    "code": "IntradayLab/tools/orb_false_break_fade_replay.py",
+    "config": "IntradayLab/config/stage2_orb_false_break_fade_m5_v2_research.json",
+    "configuration_id": "stage2_orb_false_break_fade_m5_v2_research_B_IND",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+    "result": "IntradayLab/results/stage2_orb_false_break_fade_m5_v2_research/trades.csv",
+    "selectors": {
+      "architecture": "B_IND"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_orb_false_break_fade_m5_v2_research/independent_audit.json",
+    "code": "IntradayLab/tools/orb_false_break_fade_replay.py",
+    "config": "IntradayLab/config/stage2_orb_false_break_fade_m5_v2_research.json",
+    "configuration_id": "stage2_orb_false_break_fade_m5_v2_research_C_MTF",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+    "result": "IntradayLab/results/stage2_orb_false_break_fade_m5_v2_research/trades.csv",
+    "selectors": {
+      "architecture": "C_MTF"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_orb_false_break_fade_m5_v2_research/independent_audit.json",
+    "code": "IntradayLab/tools/orb_false_break_fade_replay.py",
+    "config": "IntradayLab/config/stage2_orb_false_break_fade_m5_v2_research.json",
+    "configuration_id": "stage2_orb_false_break_fade_m5_v2_research_D_MTF_IND",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+    "result": "IntradayLab/results/stage2_orb_false_break_fade_m5_v2_research/trades.csv",
+    "selectors": {
+      "architecture": "D_MTF_IND"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_orb_false_break_fade_m5_v2_research/v1_daywise/audit.json",
+    "code": "IntradayLab/tools/orb_false_break_fade_replay.py",
+    "config": "IntradayLab/config/stage2_orb_false_break_fade_m5_v1.json",
+    "configuration_id": "stage2_orb_false_break_fade_m5_v2_research_v1_daywise_A_BASE",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+    "result": "IntradayLab/results/stage2_orb_false_break_fade_m5_v2_research/v1_daywise/trades.csv",
+    "selectors": {
+      "architecture": "A_BASE"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_orb_false_break_fade_m5_v2_research/v1_daywise/audit.json",
+    "code": "IntradayLab/tools/orb_false_break_fade_replay.py",
+    "config": "IntradayLab/config/stage2_orb_false_break_fade_m5_v1.json",
+    "configuration_id": "stage2_orb_false_break_fade_m5_v2_research_v1_daywise_B_IND",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+    "result": "IntradayLab/results/stage2_orb_false_break_fade_m5_v2_research/v1_daywise/trades.csv",
+    "selectors": {
+      "architecture": "B_IND"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_orb_false_break_fade_m5_v2_research/v1_daywise/audit.json",
+    "code": "IntradayLab/tools/orb_false_break_fade_replay.py",
+    "config": "IntradayLab/config/stage2_orb_false_break_fade_m5_v1.json",
+    "configuration_id": "stage2_orb_false_break_fade_m5_v2_research_v1_daywise_C_MTF",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+    "result": "IntradayLab/results/stage2_orb_false_break_fade_m5_v2_research/v1_daywise/trades.csv",
+    "selectors": {
+      "architecture": "C_MTF"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_orb_false_break_fade_m5_v2_research/v1_daywise/audit.json",
+    "code": "IntradayLab/tools/orb_false_break_fade_replay.py",
+    "config": "IntradayLab/config/stage2_orb_false_break_fade_m5_v1.json",
+    "configuration_id": "stage2_orb_false_break_fade_m5_v2_research_v1_daywise_D_MTF_IND",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+    "result": "IntradayLab/results/stage2_orb_false_break_fade_m5_v2_research/v1_daywise/trades.csv",
+    "selectors": {
+      "architecture": "D_MTF_IND"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/independent_audit.json",
+    "code": "IntradayLab/tools/run_level_rejection_opportunities.py",
+    "config": "IntradayLab/config/stage2_level_rejection_m5_opportunity_v1.json",
+    "configuration_id": "level_opportunity",
+    "family_id": "LEVEL_REJECTION",
+    "record_type": "DIAGNOSTIC_ONLY",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_level_rejection_m5_opportunity_v1/opportunity_funnel.json",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "IntradayLab/config/stage2_level_rejection_m5_economic_v1.json",
+    "configuration_id": "level_economic_rules_only_PR460",
+    "family_id": "LEVEL_REJECTION",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "53442b49e31f6409567e31c4fa14d738814eab49",
+    "result": "IntradayLab/reports/STAGE2_LEVEL_REJECTION_M5_ECONOMIC_PREREGISTRATION.md",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "IntradayLab/config/stage2_level_rejection_m5_fast_execution_v1.json",
+    "configuration_id": "level_FAST0_PR462",
+    "family_id": "LEVEL_REJECTION",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "7a9c5d3759a5c07d002d5ed3e630132829dd7ebf",
+    "result": "IntradayLab/reports/STAGE2_LEVEL_REJECTION_M5_FAST_EXECUTION_PREREGISTRATION.md",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "IntradayLab/config/stage2_level_rejection_m5_fast_execution_v1.json",
+    "configuration_id": "level_FAST5_PR462",
+    "family_id": "LEVEL_REJECTION",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "7a9c5d3759a5c07d002d5ed3e630132829dd7ebf",
+    "result": "IntradayLab/reports/STAGE2_LEVEL_REJECTION_M5_FAST_EXECUTION_PREREGISTRATION.md",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_exit_only_ablation.py",
+    "config": "IntradayLab/config/stage2_exit_only_ablation_v1.json",
+    "configuration_id": "exit_only_ablation_VWAP_MR",
+    "family_id": "VWAP_MR",
+    "record_type": "DIAGNOSTIC_ONLY",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_exit_only_ablation_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "strategy": "VWAP_MR"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "native_M30_BLOCKED_VWAP_MR",
+    "family_id": "VWAP_MR",
+    "record_type": "DIAGNOSTIC_ONLY",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_architecture_diagnostics/mtf_readiness.json",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_exit_only_ablation.py",
+    "config": "IntradayLab/config/stage2_exit_only_ablation_v1.json",
+    "configuration_id": "exit_only_ablation_MOMENTUM",
+    "family_id": "MOMENTUM",
+    "record_type": "DIAGNOSTIC_ONLY",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_exit_only_ablation_v1/trade_ledger.csv.gz",
+    "selectors": {
+      "strategy": "MOMENTUM"
+    }
+  },
+  {
+    "audit": "IntradayLab/results/stage2_architecture_review/independent_audit.json",
+    "code": "IntradayLab/tools/stage2_architecture_replay.py",
+    "config": "IntradayLab/config/stage2_complete_architectures_v1.json",
+    "configuration_id": "native_M30_BLOCKED_MOMENTUM",
+    "family_id": "MOMENTUM",
+    "record_type": "DIAGNOSTIC_ONLY",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_architecture_diagnostics/mtf_readiness.json",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/stage2_m5_conditional_v2/verification.json",
+    "code": "IntradayLab/tools/m5_conditional_v2.py",
+    "config": "IntradayLab/config/stage2_m5_conditional_v2.json",
+    "configuration_id": "isolated_v2_T15_summary_VWAP_MR",
+    "family_id": "VWAP_MR",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_m5_conditional_v2/delay_sensitivity.json",
+    "selectors": {}
+  },
+  {
+    "audit": "IntradayLab/results/stage2_m5_conditional_v2/verification.json",
+    "code": "IntradayLab/tools/m5_conditional_v2.py",
+    "config": "IntradayLab/config/stage2_m5_conditional_v2.json",
+    "configuration_id": "isolated_v2_T15_summary_MOMENTUM",
+    "family_id": "MOMENTUM",
+    "record_type": "EXECUTION_VARIANT",
+    "ref": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+    "result": "IntradayLab/results/stage2_m5_conditional_v2/delay_sensitivity.json",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle15_protocol.md",
+    "configuration_id": "C15-48238307094fa0e5",
+    "family_id": "PRIOR_DAY_SWEEP",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle15_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle15_protocol.md",
+    "configuration_id": "C15-b40a4d003574066f",
+    "family_id": "PRIOR_DAY_SWEEP",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle15_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle15_protocol.md",
+    "configuration_id": "C15-ec8670e92eb43241",
+    "family_id": "PRIOR_DAY_SWEEP",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle15_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle15_protocol.md",
+    "configuration_id": "C15-8689ea36e6b8f246",
+    "family_id": "PRIOR_DAY_SWEEP",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle15_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle15_protocol.md",
+    "configuration_id": "C15-d775bf8da72e1d2e",
+    "family_id": "PRIOR_DAY_SWEEP",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle15_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle15_protocol.md",
+    "configuration_id": "C15-8b356e3476671c2d",
+    "family_id": "PRIOR_DAY_SWEEP",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle15_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle15_protocol.md",
+    "configuration_id": "C15-537373f423ff424d",
+    "family_id": "PRIOR_DAY_SWEEP",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle15_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle15_protocol.md",
+    "configuration_id": "C15-91bf752270c50094",
+    "family_id": "PRIOR_DAY_SWEEP",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle15_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle15_protocol.md",
+    "configuration_id": "C15-16f0ac1f9df08b2e",
+    "family_id": "PRIOR_DAY_SWEEP",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle15_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle15_protocol.md",
+    "configuration_id": "C15-b1fa3076d9a46da4",
+    "family_id": "PRIOR_DAY_SWEEP",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle15_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle15_protocol.md",
+    "configuration_id": "C15-e48b95fa86e38ce7",
+    "family_id": "PRIOR_DAY_SWEEP",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle15_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle15_protocol.md",
+    "configuration_id": "C15-0eb82ac87110024a",
+    "family_id": "PRIOR_DAY_SWEEP",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle15_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle15_protocol.md",
+    "configuration_id": "C15-314d42cdbb55a21e",
+    "family_id": "PRIOR_DAY_SWEEP",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle15_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle15_protocol.md",
+    "configuration_id": "C15-fa0ae8ee4557ee0e",
+    "family_id": "PRIOR_DAY_SWEEP",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle15_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle15_protocol.md",
+    "configuration_id": "C15-3b9831b08807dbd8",
+    "family_id": "PRIOR_DAY_SWEEP",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle15_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle15_protocol.md",
+    "configuration_id": "C15-472054ad3666c12a",
+    "family_id": "PRIOR_DAY_SWEEP",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle15_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-eda8af2caeee1259",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-568db15a68e19a7f",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-5970706ef40367fb",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-97b2f2b55fa7dab9",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-7515771c0d3936f7",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-951f6d83a5344bbb",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-dd63b4ab52cded22",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-8ed2718bace0003b",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-259c94eae0ff2de7",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-672a71354d2dd7d2",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-91d7fcf8e6f9d9d4",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-59cbd9a22eb85c93",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-c30d53346c540507",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-7dea8fe366a50b9f",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-3fe37bdf0ae2abda",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-551443ba7720aaa2",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-065766527a4e0729",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-6171f31688fc8387",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-b47e0f00c08d0e60",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-238d2ceb03feeda7",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-b5662d25d38bf7b1",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-1d74fee4ce3fbc55",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-ad931a69aba61126",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-2316dd79e54f3836",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-c70a15ec3665ca28",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-588d4a4c4a8e2c8a",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle16_protocol.md",
+    "configuration_id": "C16-02a133d61d7ea2b9",
+    "family_id": "R16",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle16_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-357ae5a27074861f",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-6a6765308df6a143",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-f5ce27a9b465db70",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-ec0866b524fd8a1e",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-b36cc72f51976c1d",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-f5afa53d3131ef92",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-98f46403bae12a59",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-7c03ca681cb8b569",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-f3546eb3c5e2d03d",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-2530cc3c1d7c43d1",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-347c9072b12a0e6e",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-c033d9710853124d",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-26304c915713b24d",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-cb1df28c34598810",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-2869794ced4abada",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-8b58fc24cdad55e8",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-c613a8ff0a65eada",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-4a869b4f42d0e779",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-70f631a7ce3635f4",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-97fc039fe0d8a83d",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-6815a34047f98a5d",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-66798edb6c9fbcf0",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-59b2553c5e2c16d7",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-6c7b7ed4c9c03e42",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-b11a14c77260bfc1",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-b6fba3e923492ca8",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-46511fb11ec5bb95",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-4c48ca20dfa0aafd",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-595d310512e31739",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-9883671a57d7bf55",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-84024b0fd7e7e522",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-56687f45052019d4",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-b0c192075357c779",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-edcb4bc55656a3ef",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-7770fe25cc5cb6ed",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-3c2ad3a3d2b6d129",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-8ae19a8e80b9abfe",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-74390ed627b63eab",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-313647a00ecd8500",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-38452f5905d9dfe9",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-56c2604840c626cf",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-7fe2dcca6987d145",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle17_protocol.md",
+    "configuration_id": "C17-ac093dd5cb860cc6",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle17_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-d67edca2d39566f5",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-bc25abefffd911ef",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-07ac026ca7aaea7c",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-8a4b7efb44a75460",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-c0326ef7fb677263",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-3b8a45b6e23bdb0b",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-4b923c12ced04aa5",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-22e053ffda224e5b",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-f6ccd9c493662ccf",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-69c4bb0465726a5b",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-a0500e29c5754431",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-59ff79479c987380",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-ca73aa4dc0f9af7e",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-8e3f8329c6d94a1b",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-378a0f8444988fd9",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-ad581053146811e2",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-ddb0f668a4218c8b",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-5b0a53dfd4c102da",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-3530672f84d56ae6",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-5362dcbc4aa5c1de",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-68d153b176b67e5e",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-1b872792dd4c81cd",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-a8deabb94b899acc",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-4498b1af3f697160",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-1a88dc0ebedc6908",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-406f0d8afc98534b",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-77d6edc8841e0d72",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-20bdbd88d1ee2641",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-26e4095660d461c0",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-79af736538d616a0",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-5285b4dce08f2b7d",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-671dfc48e849399a",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-08ff37775c346cad",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-a17611ddb51d8b2e",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-3f0e1f8ec83aacef",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-8bd36760a3b9d7a1",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-a92cb11462fe1acb",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle18_protocol.md",
+    "configuration_id": "C18-74063716a810185a",
+    "family_id": "R18",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/cycle18_profitable.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-bfff700c141f44e931f0b72f",
+    "family_id": "BOLLINGER_RSI",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-d76c31371e656519ffe03cac",
+    "family_id": "BOLLINGER_RSI",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-3b60eefc155e2461107ca1e4",
+    "family_id": "STRUCTURAL_FALSE_BREAK",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-c97ebae6e6a697a362dfd116",
+    "family_id": "BOLLINGER_RSI",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-8c32d1a1a458609fbdd73feb",
+    "family_id": "STRUCTURAL_FALSE_BREAK",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-147e7826a1ad482f37678e31",
+    "family_id": "ORB_DIRECT",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-471da7a4dbe815a93b0a9f42",
+    "family_id": "STRUCTURAL_FALSE_BREAK",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-00989525bb622e33278ceee3",
+    "family_id": "ORB_DIRECT",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-bad2889c8dc6e56696493bbb",
+    "family_id": "BOLLINGER_RSI",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-662d90a52b8e7d71772bed36",
+    "family_id": "STRUCTURAL_FALSE_BREAK",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-6a61abbab37f65f585752ec0",
+    "family_id": "BOLLINGER_RSI",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-e3ee9214767231ecf7879d99",
+    "family_id": "BOLLINGER_RSI",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-b280db2dafd8f6f47142b483",
+    "family_id": "BOLLINGER_RSI",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-6e01436fbfa440d5cfd2ef3c",
+    "family_id": "ORB_DIRECT",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-3ac9d81fe920fc34d00cb9cc",
+    "family_id": "GERCHIK_PROXY",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-f50e5ffc8be025947294856d",
+    "family_id": "R17",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": "src/market_pattern_discovery/backtest/top5_v4/families.py",
+    "config": "config/top5_v4/strategy_contract.json",
+    "configuration_id": "CAND-2777e189a2eb9865523e3ee1",
+    "family_id": "ORB_DIRECT",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/registry/legacy_v4_dev_positive.csv",
+    "selectors": {}
+  },
+  {
+    "audit": "",
+    "code": null,
+    "config": "research/autonomous/cycle14_protocol.md",
+    "configuration_id": "R14_NO_EXECUTABLE_CANDIDATE",
+    "family_id": "VWAP_EXHAUSTION",
+    "record_type": "HISTORICAL_REFERENCE",
+    "ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+    "result": "research/autonomous/cycle14_report.md",
+    "selectors": {}
+  }
+]

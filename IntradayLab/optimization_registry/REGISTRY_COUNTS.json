@@ -1,0 +1,33 @@
+{
+  "classifications": {
+    "DIAGNOSTIC_ONLY": 24,
+    "ELIGIBLE": 74,
+    "INSUFFICIENT_TRADES": 234,
+    "NEEDS_VERIFICATION": 230
+  },
+  "cost_overlay_rows": 304,
+  "eligible_families": [
+    "A",
+    "B",
+    "C",
+    "LEVEL_REJECTION",
+    "MOMENTUM",
+    "R16",
+    "R17",
+    "R18",
+    "VWAP_MR"
+  ],
+  "family_count": 19,
+  "instrument_rows": 562,
+  "main_files": 719,
+  "published_configuration_and_variant_count": 247,
+  "published_metric_checks": 2143,
+  "published_metric_failures": 0,
+  "rows_by_record_type": {
+    "BASELINE_CONFIGURATION": 60,
+    "DIAGNOSTIC_ONLY": 24,
+    "EXECUTION_VARIANT": 264,
+    "HISTORICAL_REFERENCE": 214
+  },
+  "source_files_read": 862
+}

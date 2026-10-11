@@ -1,0 +1,2613 @@
+{
+  "base_sha": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+  "confirmed_pr478_merge_sha": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+  "pr478_merged_at": "2026-10-11T12:19:43Z",
+  "all_repository_prs_scanned": 477,
+  "all_remote_heads_scanned": 490,
+  "all_remote_head_objects_available": true,
+  "intraday_branch_trees": [
+    {
+      "sha": "938d7d81f5d7105c470c27c78eec57156948d50c",
+      "ref": "refs/heads/audit/intraday-stage2-eight-m5-target-gaps-20261009",
+      "intraday_files": 19
+    },
+    {
+      "sha": "1d4dc5ba85f0e9905e3986fcf005b57508c71180",
+      "ref": "refs/heads/audit/intraday-stage2-independent-logic-20261010",
+      "intraday_files": 205
+    },
+    {
+      "sha": "9b404949767356a8b58ca25758d99dfce014f482",
+      "ref": "refs/heads/audit/intraday-stage2-research-completeness-20261009",
+      "intraday_files": 40
+    },
+    {
+      "sha": "cd56627fd050f665eee88ffbd6cc4acba61db8d7",
+      "ref": "refs/heads/chore/intradaylab-folder-main-20261009",
+      "intraday_files": 6
+    },
+    {
+      "sha": "82ec9ffe61e18a43cd7510e398f6913b25f045e1",
+      "ref": "refs/heads/codex/bollinger-rsi-reentry-m15-2023-v1",
+      "intraday_files": 550
+    },
+    {
+      "sha": "30683692fb4f00f84a13a9747ebc94c9e57ab11d",
+      "ref": "refs/heads/codex/equal-high-low-m5-2023-a-v1",
+      "intraday_files": 553
+    },
+    {
+      "sha": "d720ac81012186a3d259a0f64dbac6cf28cdb74e",
+      "ref": "refs/heads/codex/intraday-readme-stage1-audit-20261009",
+      "intraday_files": 6
+    },
+    {
+      "sha": "a0af55da2a4291a17259c044f3f895d3d4990445",
+      "ref": "refs/heads/codex/intradaylab-data-gap-skip-v2",
+      "intraday_files": 672
+    },
+    {
+      "sha": "f3260b3b5b2061dd89720da80eb6dc93102ea582",
+      "ref": "refs/heads/codex/level-rejection-2023-m5-v1",
+      "intraday_files": 441
+    },
+    {
+      "sha": "93d7ab116ebb2e522329c60dff4cdcd90b43445c",
+      "ref": "refs/heads/codex/r16-compression-breakout-2023-m5-v1",
+      "intraday_files": 411
+    },
+    {
+      "sha": "48d9de4a8d262a2fd8c3589cae1a3561d70aa0ad",
+      "ref": "refs/heads/codex/swing-pullback-m5-m15-2023-v1",
+      "intraday_files": 472
+    },
+    {
+      "sha": "5ee7fb90dd6751c003fbc5474fa67742a086ff56",
+      "ref": "refs/heads/codex/trend-pullback-m15-h1-2023-v1",
+      "intraday_files": 512
+    },
+    {
+      "sha": "10290b9d521093aa58d0bcc0b48a8b199c39e485",
+      "ref": "refs/heads/corrective/intraday-stage2-m5-conditional-v2",
+      "intraday_files": 79
+    },
+    {
+      "sha": "11a91a7c348db83ae09d28f0aea6dc7187a70d4a",
+      "ref": "refs/heads/corrective/intraday-stage2-m5-v2-independent-audit",
+      "intraday_files": 154
+    },
+    {
+      "sha": "b248ee7f6772a08b6036f4d87f80899df5d45ed1",
+      "ref": "refs/heads/docs/intraday-optimization-gap-policy-20261011",
+      "intraday_files": 553
+    },
+    {
+      "sha": "bb62cd27bac56d60b7d8f7a432e302f38b658ffd",
+      "ref": "refs/heads/docs/intraday-research-targets-20261010",
+      "intraday_files": 193
+    },
+    {
+      "sha": "1e8bd1707d21618313e182f6ab725ab74ec0647f",
+      "ref": "refs/heads/docs/intraday-round-level-touch-plan-20261011",
+      "intraday_files": 512
+    },
+    {
+      "sha": "f1adb3f97c8a79e5f114915b952ef83fae688023",
+      "ref": "refs/heads/docs/intraday-squeeze-m5-m15-mtf-matrix-20261010",
+      "intraday_files": 235
+    },
+    {
+      "sha": "d000c5e8aad3e0bbae32f55bbf205483b48e9408",
+      "ref": "refs/heads/docs/intraday-stage2-baseline-architecture-policy-20261009",
+      "intraday_files": 66
+    },
+    {
+      "sha": "5bff9f5a24dae0bcbf85898943f720ae958037b3",
+      "ref": "refs/heads/docs/intraday-stage2-next-strategies-20261010",
+      "intraday_files": 287
+    },
+    {
+      "sha": "de05392d022611951549badc7581a430e1a624c4",
+      "ref": "refs/heads/docs/intraday-stage2-orb-level-matrix-20261010",
+      "intraday_files": 314
+    },
+    {
+      "sha": "f33e236e1a4f69cd614bb77bd988ba2b6d3f153e",
+      "ref": "refs/heads/docs/intraday-stage3-filter-priorities-20261009",
+      "intraday_files": 18
+    },
+    {
+      "sha": "39b98e740a0def0f50bdd36d591e3e4c2d319e19",
+      "ref": "refs/heads/docs/intradaylab-approved-reserve-strategies-20261010",
+      "intraday_files": 383
+    },
+    {
+      "sha": "055592400613cadc7246a85618176cd4b152930f",
+      "ref": "refs/heads/docs/intradaylab-independent-tsl-methodology-20261010",
+      "intraday_files": 315
+    },
+    {
+      "sha": "2d7b23580af6b919375d19b78b61e5e3969af3f0",
+      "ref": "refs/heads/intradaylab/r17-m5-baseline-2023",
+      "intraday_files": 383
+    },
+    {
+      "sha": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+      "ref": "refs/heads/main",
+      "intraday_files": 719
+    },
+    {
+      "sha": "bf0fb8ac8bcb73af11490e0d3f159c5906964d95",
+      "ref": "refs/heads/research/intraday-high-low-cluster-b4-b7-b10",
+      "intraday_files": 646
+    },
+    {
+      "sha": "88ba8db3bd385f0372caa5d0840f35803dfe6178",
+      "ref": "refs/heads/research/intraday-lab",
+      "intraday_files": 6
+    },
+    {
+      "sha": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+      "ref": "refs/heads/research/intraday-orb-false-break-fade-stage2",
+      "intraday_files": 384
+    },
+    {
+      "sha": "36902d328ffb2d264f5254c4fd5c97ba9d4b46ac",
+      "ref": "refs/heads/research/intraday-stage1-2-sessions-mtf",
+      "intraday_files": 11
+    },
+    {
+      "sha": "79f974b570e7b8037ef426eba41d4e48793375ee",
+      "ref": "refs/heads/research/intraday-stage1-execution-costs",
+      "intraday_files": 12
+    },
+    {
+      "sha": "8dfe1ed0134c4f33f31c09deee4bf695c274efc2",
+      "ref": "refs/heads/research/intraday-stage1-m5-clock-confirmation",
+      "intraday_files": 18
+    },
+    {
+      "sha": "232ca15ddfd8bb1996939901d16d6904a744a651",
+      "ref": "refs/heads/research/intraday-stage1-m5-readiness",
+      "intraday_files": 15
+    },
+    {
+      "sha": "007e05c349f2fb54e0c3d0baf96cfef09418f739",
+      "ref": "refs/heads/research/intraday-stage2-causal-mtf-final-20261009",
+      "intraday_files": 205
+    },
+    {
+      "sha": "08117fe0c750751b3e2ae49af384d2cb80fc7009",
+      "ref": "refs/heads/research/intraday-stage2-complete-architecture-20261009",
+      "intraday_files": 193
+    },
+    {
+      "sha": "53442b49e31f6409567e31c4fa14d738814eab49",
+      "ref": "refs/heads/research/intraday-stage2-level-rejection-economic-baseline-20261010",
+      "intraday_files": 316
+    },
+    {
+      "sha": "7a9c5d3759a5c07d002d5ed3e630132829dd7ebf",
+      "ref": "refs/heads/research/intraday-stage2-level-rejection-fast-m5-20261010",
+      "intraday_files": 316
+    },
+    {
+      "sha": "9737a8e3df59e944cfe6477b07006632aaa837d1",
+      "ref": "refs/heads/research/intraday-stage2-level-rejection-feasibility-20261010",
+      "intraday_files": 314
+    },
+    {
+      "sha": "72df6a0a718a4d2d13e0a7d2fc82a43aeecfad0c",
+      "ref": "refs/heads/research/intraday-stage2-m5-baseline",
+      "intraday_files": 66
+    },
+    {
+      "sha": "a61d1d926b288cd8bbc31db557c9eefd245e4d41",
+      "ref": "refs/heads/research/intraday-stage2-squeeze-20261010",
+      "intraday_files": 235
+    },
+    {
+      "sha": "633002c515f7ec68fed6a2adaf40836c8c12d87d",
+      "ref": "refs/heads/research/intraday-stage2-squeeze-m15-20261010",
+      "intraday_files": 286
+    },
+    {
+      "sha": "88d1a338d66220bf47669ab392b0f17a82a89ecd",
+      "ref": "refs/heads/research/intraday-universal-backtester-baseline-20261010",
+      "intraday_files": 355
+    },
+    {
+      "sha": "e88258749ea75f5a50ed523914d60c7a5eec851a",
+      "ref": "refs/heads/research/intradaylab-return-retest-rejection-c-v1",
+      "intraday_files": 719
+    }
+  ],
+  "remote_heads": [
+    {
+      "sha": "938d7d81f5d7105c470c27c78eec57156948d50c",
+      "ref": "refs/heads/audit/intraday-stage2-eight-m5-target-gaps-20261009"
+    },
+    {
+      "sha": "1d4dc5ba85f0e9905e3986fcf005b57508c71180",
+      "ref": "refs/heads/audit/intraday-stage2-independent-logic-20261010"
+    },
+    {
+      "sha": "9b404949767356a8b58ca25758d99dfce014f482",
+      "ref": "refs/heads/audit/intraday-stage2-research-completeness-20261009"
+    },
+    {
+      "sha": "6b2da5ed489285139065f5b54b57471217ff4dd3",
+      "ref": "refs/heads/audit/stage6-imoex-marginal-20260929"
+    },
+    {
+      "sha": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+      "ref": "refs/heads/autonomous-search-v4"
+    },
+    {
+      "sha": "cd56627fd050f665eee88ffbd6cc4acba61db8d7",
+      "ref": "refs/heads/chore/intradaylab-folder-main-20261009"
+    },
+    {
+      "sha": "3ca28c4e6f49309e337352a7fc8060ca9da71da2",
+      "ref": "refs/heads/closeout/stage8-11-attempt7-pass"
+    },
+    {
+      "sha": "dd8abf1bf65b6e3da7f1714f3b3d9fb834ae3e1e",
+      "ref": "refs/heads/closeout/stage8-12-4-live-activation-pass"
+    },
+    {
+      "sha": "e8aa09c085846bcf041746ee5da804698e7d87ea",
+      "ref": "refs/heads/closeout/stage8-12-4-package3-pass"
+    },
+    {
+      "sha": "96de72105ba7e6279d2dc69e4058825bb92d413a",
+      "ref": "refs/heads/closeout/stage8-12-4-package4-pass"
+    },
+    {
+      "sha": "bc4f17628f9f59210a5758261b63a183f12e56a9",
+      "ref": "refs/heads/closeout/stage8-12-4-package5-readiness-pass"
+    },
+    {
+      "sha": "d0d0a2e8590c562e896849211b533b3876e263b4",
+      "ref": "refs/heads/closeout/stage8-12-4-postfunding-pass"
+    },
+    {
+      "sha": "e9bda418d4e07ba137a75472b50506eb9344273a",
+      "ref": "refs/heads/codex-0ffr36"
+    },
+    {
+      "sha": "ee2660f0e8906e1c8d97158614584c7252c269b1",
+      "ref": "refs/heads/codex-41qkwh"
+    },
+    {
+      "sha": "53d0c802ca9de134b72cf5e4af7b5877eff35a57",
+      "ref": "refs/heads/codex-4tjnwi"
+    },
+    {
+      "sha": "3c2dd8401e2dcedfb8577f1fd5a15dc702c5275e",
+      "ref": "refs/heads/codex-4ugbqz"
+    },
+    {
+      "sha": "b51b29e23b8cc868e6db361318e9d443e1a6ed06",
+      "ref": "refs/heads/codex-7625rt"
+    },
+    {
+      "sha": "ea9d87fb58d25f2502e79600327f8addd831f3af",
+      "ref": "refs/heads/codex-7wa379"
+    },
+    {
+      "sha": "da7dd7c3f182ae20432e708742097944989185b2",
+      "ref": "refs/heads/codex-aykun1"
+    },
+    {
+      "sha": "027d7887635bedcdfcf546e940093ab07d3f915f",
+      "ref": "refs/heads/codex-gb5w85"
+    },
+    {
+      "sha": "dd293dcdc2316030985c8b8d1eb2c7d3a6577bfb",
+      "ref": "refs/heads/codex-hnil8i"
+    },
+    {
+      "sha": "19b24b1cbefcb6245d7a1d8bea404e78e535e46a",
+      "ref": "refs/heads/codex-k8yub8"
+    },
+    {
+      "sha": "e2afff38c7754ce048c19f50cfc3f9d68dfe07f6",
+      "ref": "refs/heads/codex-lxwex2"
+    },
+    {
+      "sha": "d8adeba8bad47d3b9fe76e54ccfdc45c7eb93f71",
+      "ref": "refs/heads/codex-oh2c4n"
+    },
+    {
+      "sha": "ef185a2601f403e7e927413c7ba30f03d53a85fb",
+      "ref": "refs/heads/codex-pkq7vd"
+    },
+    {
+      "sha": "522f4d84a166774b244d64584456a814cf7e6f1c",
+      "ref": "refs/heads/codex-rd9v69"
+    },
+    {
+      "sha": "11df1be92815e93974e5667fa179867489294244",
+      "ref": "refs/heads/codex-tv2dgs"
+    },
+    {
+      "sha": "741499c1bf0afa41374b1c97353ed0d4053a9fea",
+      "ref": "refs/heads/codex-tyeqz0"
+    },
+    {
+      "sha": "52a9ed96d5553da9522c7d427b70c3f8098fed94",
+      "ref": "refs/heads/codex-vg7j86"
+    },
+    {
+      "sha": "38027563f4ece5715912d728d87c28ebe8c973dc",
+      "ref": "refs/heads/codex-wmmfly"
+    },
+    {
+      "sha": "310b76d958cf49d59a4f5c1a96b69e012751a1b8",
+      "ref": "refs/heads/codex-yx6p58"
+    },
+    {
+      "sha": "afc49e5525e82116ea6055e3d4655c60e267bd87",
+      "ref": "refs/heads/codex/-10-00-21-00"
+    },
+    {
+      "sha": "7d219c9ef28bcb2489fb71a4b678f2b9414693dc",
+      "ref": "refs/heads/codex/-24/7"
+    },
+    {
+      "sha": "7f22463707164cdf8c464d9324d048e1d5d922f1",
+      "ref": "refs/heads/codex/-5-smoke-run-v2"
+    },
+    {
+      "sha": "ee93252a99fc8fead1f9ba657501cb93e0510e0b",
+      "ref": "refs/heads/codex/-5.7"
+    },
+    {
+      "sha": "23ed6e362f586dd9abdf5a80069c3959f6ff8817",
+      "ref": "refs/heads/codex/-8.10"
+    },
+    {
+      "sha": "191a25fad1b55da747fba71c179e0f2e35d02adf",
+      "ref": "refs/heads/codex/-8.10.1"
+    },
+    {
+      "sha": "06ad3880a34f759fedbe0b6c96f9ca1b6b3665aa",
+      "ref": "refs/heads/codex/-8.10.4"
+    },
+    {
+      "sha": "5e74d0a72891fa0415cffd1a892ae8623dc70827",
+      "ref": "refs/heads/codex/-8.10.5"
+    },
+    {
+      "sha": "4368931b426cc00ebbb561dbdefa299999869c80",
+      "ref": "refs/heads/codex/-8.10.7"
+    },
+    {
+      "sha": "a9f419efb2abea282bb879f1ca2941269de62442",
+      "ref": "refs/heads/codex/-8.10.7-7wjr7y"
+    },
+    {
+      "sha": "635bea24710cc41f0cb65eef9c6ed576494f5396",
+      "ref": "refs/heads/codex/-8.8.5"
+    },
+    {
+      "sha": "7a3b1dd2bdf88ed28b611924f1701d2705cca808",
+      "ref": "refs/heads/codex/-8.9"
+    },
+    {
+      "sha": "134d2d91d015d108a513841790b0feebd37ecb6d",
+      "ref": "refs/heads/codex/-backtest-engine"
+    },
+    {
+      "sha": "f2b9a9c76015c91236ffae03bb7c9b36143cb684",
+      "ref": "refs/heads/codex/-backtest-engine-v1"
+    },
+    {
+      "sha": "250cafd91199e2a211fc742d4bab98ccaddcc77d",
+      "ref": "refs/heads/codex/-backtest-engine-v1-kqyqko"
+    },
+    {
+      "sha": "6d552428d19bb6176246ae6597e728f53f501d51",
+      "ref": "refs/heads/codex/-baseline-config-snapshot"
+    },
+    {
+      "sha": "d7a217af6191ea24b08692c7ea4b809229787966",
+      "ref": "refs/heads/codex/-bbw"
+    },
+    {
+      "sha": "39563f6bf2089bfe403058c8ce8b0f711642cb21",
+      "ref": "refs/heads/codex/-bbw-baseline"
+    },
+    {
+      "sha": "4ae459e98c15de6fa4b79d6b4d025688a6c4cda3",
+      "ref": "refs/heads/codex/-bbw-baseline-edvyyd"
+    },
+    {
+      "sha": "c242c5539fd073bfc383dc6b7dfda34e0ee9164e",
+      "ref": "refs/heads/codex/-bbw-core"
+    },
+    {
+      "sha": "e56e14db8ee4c61d279f62a1546cb0d6c911848c",
+      "ref": "refs/heads/codex/-bbw-core-v1"
+    },
+    {
+      "sha": "59e48134ee703ca4129db22f731731f38ac33bbd",
+      "ref": "refs/heads/codex/-bbw-core-v1-8z83ia"
+    },
+    {
+      "sha": "3530590b2c89fffd7cf9afedd10db37330792a71",
+      "ref": "refs/heads/codex/-bbw-core-v1-kmgf9g"
+    },
+    {
+      "sha": "e9b0d2658a500ae1f9ecb3c3fed4dd71ff37b21b",
+      "ref": "refs/heads/codex/-bbw-core-v1.0"
+    },
+    {
+      "sha": "9b7e04c9264e4417946d0d41fd094b58099c1cbf",
+      "ref": "refs/heads/codex/-bbw-engine"
+    },
+    {
+      "sha": "65def189fa6196874a750bed5776e1f2ebf01059",
+      "ref": "refs/heads/codex/-bbw-n0au5h"
+    },
+    {
+      "sha": "b5128d99174176cc06c7641cefc74250673c3d05",
+      "ref": "refs/heads/codex/-be1"
+    },
+    {
+      "sha": "8f67771f905e50d9a94ad02bd3ba6331910263c7",
+      "ref": "refs/heads/codex/-candidate-baseline-v1"
+    },
+    {
+      "sha": "e565253811f253395f8777553a2d6910fed7fe52",
+      "ref": "refs/heads/codex/-closeout-stage-3d"
+    },
+    {
+      "sha": "7d998580ee4e8b140f0ecf8655b23b60e9875d01",
+      "ref": "refs/heads/codex/-cnyrubf"
+    },
+    {
+      "sha": "ba924e3b7510875485a39fc00761fe23af1ba6e3",
+      "ref": "refs/heads/codex/-cnyrubf-x3qk6j"
+    },
+    {
+      "sha": "7973c6588a1d21207433e0e63eaa4bd3d2fcba96",
+      "ref": "refs/heads/codex/-d1"
+    },
+    {
+      "sha": "67d692ef49ae44695f01141c0235f4d07ffbdb5d",
+      "ref": "refs/heads/codex/-finam"
+    },
+    {
+      "sha": "f96fc4aabe79e64e9c2584930eb59a6f7abf4e83",
+      "ref": "refs/heads/codex/-finam-api"
+    },
+    {
+      "sha": "a4c1d2cbc0d7fb6a2c4e4dffc247ac64969221a7",
+      "ref": "refs/heads/codex/-finam-hvelsw"
+    },
+    {
+      "sha": "aa5be7ee899fc39de3ea1a606761057893e8063b",
+      "ref": "refs/heads/codex/-finam-rest"
+    },
+    {
+      "sha": "85ee42515c63ccb579ebfc468df85bc3ba9493e5",
+      "ref": "refs/heads/codex/-h1"
+    },
+    {
+      "sha": "dbc4a98ffc82c2b3bf739922a110831c52193a29",
+      "ref": "refs/heads/codex/-h1-stage-8.8.5"
+    },
+    {
+      "sha": "1ab080fadafa222366b384f7966653b32241e1e7",
+      "ref": "refs/heads/codex/-h4"
+    },
+    {
+      "sha": "7327bcfd91cd3f30ffe39ff23cdb81b0c5069837",
+      "ref": "refs/heads/codex/-h4-robustness"
+    },
+    {
+      "sha": "0a9debf5ac94777195fa9e12f9d0e6900677828e",
+      "ref": "refs/heads/codex/-h4-walk-forward"
+    },
+    {
+      "sha": "bff22d2af13d347bbed5ec1dad8a0d87cd52c508",
+      "ref": "refs/heads/codex/-hardening-bbw-core-v1.0"
+    },
+    {
+      "sha": "00e67f2095440892efc69dac669f9c914ccca9cb",
+      "ref": "refs/heads/codex/-m30"
+    },
+    {
+      "sha": "b9dd4bbf1411c2531dad9d2a131ad5de2e9912b1",
+      "ref": "refs/heads/codex/-m5"
+    },
+    {
+      "sha": "c792613e770ed23dd821250d6625adbbc1815026",
+      "ref": "refs/heads/codex/-n4-full"
+    },
+    {
+      "sha": "164c917fc0c2398da4cae43f6d57e32d7c7f6f36",
+      "ref": "refs/heads/codex/-optimization-r2"
+    },
+    {
+      "sha": "5ebb845d1f5436f12d3f5b1a7b7efaa096b9f774",
+      "ref": "refs/heads/codex/-phase-1-baseline"
+    },
+    {
+      "sha": "6803981f68eb7c8c3e6bc2ebc459a4238549a1e8",
+      "ref": "refs/heads/codex/-phase-2b-t3"
+    },
+    {
+      "sha": "5256874f31b51f3de8646d911ffcefb0cd50c6c8",
+      "ref": "refs/heads/codex/-phase-3-robustness-v3_perpetual"
+    },
+    {
+      "sha": "98f550b939df8ee9f5d8709000447bc83fd0c7bf",
+      "ref": "refs/heads/codex/-phase-4-walk-forward-v3_perpetual"
+    },
+    {
+      "sha": "e7c6b45690fa368ead06bf01239dd82c93c752d2",
+      "ref": "refs/heads/codex/-powershell"
+    },
+    {
+      "sha": "6158bb9a26cca786d1561163e563a2c768054f82",
+      "ref": "refs/heads/codex/-precheck"
+    },
+    {
+      "sha": "3879e9fe0535d937b599fbc3b50c5449b44fc84f",
+      "ref": "refs/heads/codex/-real_readonly-finam"
+    },
+    {
+      "sha": "8f37f77d8d0d96a3c8762099d0978882e6c366f7",
+      "ref": "refs/heads/codex/-rest"
+    },
+    {
+      "sha": "ec3537d4b850ca8305ebb262272e1a18ce86f64c",
+      "ref": "refs/heads/codex/-robustness"
+    },
+    {
+      "sha": "023d470246e163b2cbd3ab02622842090a5e97c0",
+      "ref": "refs/heads/codex/-safety-defect-h1_timing_diagnostic.py"
+    },
+    {
+      "sha": "d9564c4cc72c93367541bdcd74578ddaab2823fc",
+      "ref": "refs/heads/codex/-schema/provenance-framework-stage-3a.1"
+    },
+    {
+      "sha": "c8154d8a87728d8868dc598a9fddd12d668a8fb5",
+      "ref": "refs/heads/codex/-smoke-run"
+    },
+    {
+      "sha": "e15bb1a05c36c09815e5695a9e59dd350298ca72",
+      "ref": "refs/heads/codex/-stage-1"
+    },
+    {
+      "sha": "246f92b21fd70298230e888aafe5b98f628199d2",
+      "ref": "refs/heads/codex/-stage-5"
+    },
+    {
+      "sha": "d6ea3396265d758e27707e7531fc35151915f0ec",
+      "ref": "refs/heads/codex/-stage-5.4"
+    },
+    {
+      "sha": "9ac38141854d5638ade4e4b29cf9f6bd68d84913",
+      "ref": "refs/heads/codex/-stage-5.7"
+    },
+    {
+      "sha": "1fa421780cb8d46c885928c1cf5b1e493129d692",
+      "ref": "refs/heads/codex/-stage-6"
+    },
+    {
+      "sha": "77792dbaae8b5436cdb5edf92594b095980cd1dc",
+      "ref": "refs/heads/codex/-stage-6.7"
+    },
+    {
+      "sha": "8500e04e537393631b008fcd8876ed2f67edf41c",
+      "ref": "refs/heads/codex/-stage-7"
+    },
+    {
+      "sha": "638703f51f2bbdd505adc85d3658a00f88a350ee",
+      "ref": "refs/heads/codex/-stage-8"
+    },
+    {
+      "sha": "402d2e584269f18451d4b797b7b7a099376458da",
+      "ref": "refs/heads/codex/-stage-8.11"
+    },
+    {
+      "sha": "a233ebd9c1d56d85e6878389b3e4fb86a0054683",
+      "ref": "refs/heads/codex/-stage-8.11-7m7xkq"
+    },
+    {
+      "sha": "f1f6cd6f934f401a9d71e07caa685878907f44c0",
+      "ref": "refs/heads/codex/-stage-8.11-pte7mz"
+    },
+    {
+      "sha": "14619244203c18b93aac901eee33f69815a2c04e",
+      "ref": "refs/heads/codex/-stage-8.8.5"
+    },
+    {
+      "sha": "f1c985e0af9a013a309da8d005cc78952f3e3f8e",
+      "ref": "refs/heads/codex/-stage-8.8.6-intel"
+    },
+    {
+      "sha": "4f78c399d028c47625321d795f64733083324aad",
+      "ref": "refs/heads/codex/-svg"
+    },
+    {
+      "sha": "3e290211d9741f836612ceafc47471b1b94df05e",
+      "ref": "refs/heads/codex/-synthetic-api"
+    },
+    {
+      "sha": "be8b8508f10662976bd64d45ff9fda2d0011d943",
+      "ref": "refs/heads/codex/-t2-phase-2a"
+    },
+    {
+      "sha": "18ff52efcc7e6091aa2a1359caaa684d74c9da6d",
+      "ref": "refs/heads/codex/-t2-pullback-continuation"
+    },
+    {
+      "sha": "cd24fce13bf97c0c34b341d2b8d22182333a6ba9",
+      "ref": "refs/heads/codex/-t3"
+    },
+    {
+      "sha": "59d83570198e7d39d4b7c10070a455610227bd38",
+      "ref": "refs/heads/codex/-t3-c1"
+    },
+    {
+      "sha": "9ac6e3b2cfe8034fe80cc8e551b8b62263fea6fd",
+      "ref": "refs/heads/codex/-t3-walk-forward"
+    },
+    {
+      "sha": "8a7734f67d21564eed5be471a63df4a154a6db23",
+      "ref": "refs/heads/codex/-t3_mtf_trend_v1.0"
+    },
+    {
+      "sha": "897944b253cdaf571c1588bf0861415d8ce8b0a0",
+      "ref": "refs/heads/codex/-t3_mtf_trend_v1.0-e4pkiq"
+    },
+    {
+      "sha": "07ea8a2d79aba57da6d9cc94063de5e870c0e663",
+      "ref": "refs/heads/codex/-trading-system-lab-v1"
+    },
+    {
+      "sha": "39025f71c4306cae30f6ca8a38e8c130c4c184c3",
+      "ref": "refs/heads/codex/-tradingsystemlab-v3-perpetual-phase-1"
+    },
+    {
+      "sha": "c1997b5cb11f7266cce07717de13ed6e8ce39f4f",
+      "ref": "refs/heads/codex/-tradingsystemlab-v3-phase-2"
+    },
+    {
+      "sha": "fc21872ee17fd7bc594d2cc14d0d4e39f24cd303",
+      "ref": "refs/heads/codex/-trail1"
+    },
+    {
+      "sha": "8cf5b4b39f13953a5d160fb1ccdf47394a467b87",
+      "ref": "refs/heads/codex/-trail1-7og8is"
+    },
+    {
+      "sha": "5b380222abc13b1758624278f9a872fbf1575beb",
+      "ref": "refs/heads/codex/-trail1-kqxgu0"
+    },
+    {
+      "sha": "2b501f4952952c7744e40d617fbe0477d7382a29",
+      "ref": "refs/heads/codex/-transaction-costs"
+    },
+    {
+      "sha": "3205fcdc71928ea56b7d306a15b072f42f1365fe",
+      "ref": "refs/heads/codex/-true-oos"
+    },
+    {
+      "sha": "c9274b10711e99d2d24e9ef41d6b2f83a487be52",
+      "ref": "refs/heads/codex/-true-oos-t2-t3"
+    },
+    {
+      "sha": "832a3e937f27af5670db8fb2069934e03c03011d",
+      "ref": "refs/heads/codex/-true-oos-validation"
+    },
+    {
+      "sha": "dec552b07316907d33ff8efcc9b1ccd825085004",
+      "ref": "refs/heads/codex/-union-forts"
+    },
+    {
+      "sha": "bad2aaf516b0e21ce16f40945b2f68e379f16ec0",
+      "ref": "refs/heads/codex/-v1"
+    },
+    {
+      "sha": "02ea1ec392ecd3345f22597f3b9488523e6ac9c2",
+      "ref": "refs/heads/codex/-v1-z65w5l"
+    },
+    {
+      "sha": "4ccd60a4c5b17aacd0b28b4c1463133a34413ac5",
+      "ref": "refs/heads/codex/-v1.0"
+    },
+    {
+      "sha": "851a8431936b898b75c863b1b46dedf9274dfef9",
+      "ref": "refs/heads/codex/-v2"
+    },
+    {
+      "sha": "5a94677a4313c55f2fe79e54733595bcea29ca1b",
+      "ref": "refs/heads/codex/-v3"
+    },
+    {
+      "sha": "7645ae5ef84cfc6ccd08160ba545dc28078e2162",
+      "ref": "refs/heads/codex/-v3-phase-1"
+    },
+    {
+      "sha": "2506e3d2ada311268c8ab31b63be9475674da1bf",
+      "ref": "refs/heads/codex/-walk-forward-t3"
+    },
+    {
+      "sha": "3305ad0cd434bdf061cccf11f0aa23730a9f8ad5",
+      "ref": "refs/heads/codex/add-autonomous-run-files-overview"
+    },
+    {
+      "sha": "d13215cfd41aaedf4e6fd474d18143058ee8cc72",
+      "ref": "refs/heads/codex/add-date-window-support-to-data-freeze"
+    },
+    {
+      "sha": "eb8e0b38421d990b81bfe162e1383e6befdd33b7",
+      "ref": "refs/heads/codex/add-deterministic-causal-walk-forward-validation"
+    },
+    {
+      "sha": "9047628c517412520d8084082bf74fb82d5892aa",
+      "ref": "refs/heads/codex/add-frozen-moex-calendar-support"
+    },
+    {
+      "sha": "d5685d2443648250996ee437c32f18c56fb24134",
+      "ref": "refs/heads/codex/add-local-intel-temporal-alignment-runner"
+    },
+    {
+      "sha": "b18202e1711e9f1643de81eec90cfbd72b091d8f",
+      "ref": "refs/heads/codex/add-moex-execution-specification-audit-layer"
+    },
+    {
+      "sha": "7edcaf40369ca2b2ba6d41667af76b56c20bdb0d",
+      "ref": "refs/heads/codex/add-real-windows-dpapi-execution-tests"
+    },
+    {
+      "sha": "09c3257ee8b03e4f74daf6bebae8f867f39ce7c7",
+      "ref": "refs/heads/codex/add-research-domain-isolation-documentation"
+    },
+    {
+      "sha": "9e541231f2ef4dc6a40c042f5fef3a0d05a3d7a7",
+      "ref": "refs/heads/codex/add-robust-baseline-research-framework"
+    },
+    {
+      "sha": "f9acd398ef51664820f61fec4ffc1f46b91520f4",
+      "ref": "refs/heads/codex/audit-and-freeze-behavior-target-set-v1.0"
+    },
+    {
+      "sha": "3542a7b88054b81b9e7dd230192006fc15eea964",
+      "ref": "refs/heads/codex/audit-and-freeze-feature-set-v1.0"
+    },
+    {
+      "sha": "fde6c4ef0370d6c72d43580d8141328e7a860113",
+      "ref": "refs/heads/codex/audit-phase7-track-selector"
+    },
+    {
+      "sha": "043ef48cf6ecaa2028da45fb76112ef9845c2924",
+      "ref": "refs/heads/codex/bind-windows-recovery-wrapper-to-accepted-commit"
+    },
+    {
+      "sha": "82ec9ffe61e18a43cd7510e398f6913b25f045e1",
+      "ref": "refs/heads/codex/bollinger-rsi-reentry-m15-2023-v1"
+    },
+    {
+      "sha": "371dbbdc3999cfa93f26a8278a93ce868380d28e",
+      "ref": "refs/heads/codex/build-and-validate-structural-stack"
+    },
+    {
+      "sha": "e010d103213c3cfca641aeb1f68b390d8cab79ab",
+      "ref": "refs/heads/codex/build-and-validate-structural-stack-candidate"
+    },
+    {
+      "sha": "433268f047ae410fc740b7d1dda14c80a9b66e46",
+      "ref": "refs/heads/codex/candidate-strategy-generator"
+    },
+    {
+      "sha": "5c6a2d5bf67d303cc44700a9d8b2a14eb6b57152",
+      "ref": "refs/heads/codex/close-stage-8.10.2-provisioning"
+    },
+    {
+      "sha": "33bfbb7e8b2ee3caf5e9ae3a4956a95c6987b3a4",
+      "ref": "refs/heads/codex/close-stage-8.10.3-repository-authority"
+    },
+    {
+      "sha": "61e74241def3b0686c90ab4668d4d46afc328fb4",
+      "ref": "refs/heads/codex/close-stage-8.10.6-validation"
+    },
+    {
+      "sha": "63c05d333c9ca3bb96bdc7765ae8825b5eb5299f",
+      "ref": "refs/heads/codex/close-stage-8.11-lifecycle"
+    },
+    {
+      "sha": "990aa59cabd88ac6894d19adee36869c87ff429c",
+      "ref": "refs/heads/codex/close-stage-8.8.7-after-intel-acceptance"
+    },
+    {
+      "sha": "1182c7f1c3e5cb3c9a2597233830794166da8345",
+      "ref": "refs/heads/codex/closeout-independent-audit-for-stage-1"
+    },
+    {
+      "sha": "2e29e1b4e2d90610502dba0abb97d8fad6fa16ad",
+      "ref": "refs/heads/codex/complete-03b-2b-temporal-alignment-checks"
+    },
+    {
+      "sha": "155641bcc11ea0dcd99ac593599f6c9e30209cf4",
+      "ref": "refs/heads/codex/complete-be1-causal-validation"
+    },
+    {
+      "sha": "82dbc62d77a1281e183a58f0d2d0907e80a254b3",
+      "ref": "refs/heads/codex/conduct-final-pre-stage-7-audit"
+    },
+    {
+      "sha": "abb91e8dcbb0243dda869c3eecdb9239a5c6d988",
+      "ref": "refs/heads/codex/conduct-forensic-audit-for-smoke-run-v2"
+    },
+    {
+      "sha": "e2634aad9dec303945b26292fcfc349b5eccc007",
+      "ref": "refs/heads/codex/conduct-minimum-holding-diagnostics"
+    },
+    {
+      "sha": "5acd5f324a4bbd57bbcd914229798fbd5fb416b7",
+      "ref": "refs/heads/codex/conduct-unified-baseline-audit"
+    },
+    {
+      "sha": "93682bc17464f0fc2dfc67902e017b4a9b092465",
+      "ref": "refs/heads/codex/consolidate-phase-2"
+    },
+    {
+      "sha": "2fbf4635b50953920a428368b1f6e49214865421",
+      "ref": "refs/heads/codex/continue-stage-6.6-task-execution"
+    },
+    {
+      "sha": "5ee7e6b1dd14f235e266aec598cea9d544b33eae",
+      "ref": "refs/heads/codex/correct-external-market-data-provenance-validation"
+    },
+    {
+      "sha": "efb193dbb22790dd21b2f1dd9ed34ff33b978142",
+      "ref": "refs/heads/codex/correct-h4-walk-forward-execution"
+    },
+    {
+      "sha": "56aeee1bfa85030a5382cb2b89ab5d6e4ea353e2",
+      "ref": "refs/heads/codex/correct-stale-intel-acceptance-wording"
+    },
+    {
+      "sha": "bd99438bbecc3994a96c12ce2488accc29cbb304",
+      "ref": "refs/heads/codex/create-clean-t3-baseline-audit-pr"
+    },
+    {
+      "sha": "5410e2eb2a1939b86ace845fe3ea9abade6116e6",
+      "ref": "refs/heads/codex/create-persistent-context-and-audit-state-layer"
+    },
+    {
+      "sha": "fc69358b5de33533c8c34f9cdca44cdc13cea469",
+      "ref": "refs/heads/codex/create-strategy-builder-v1"
+    },
+    {
+      "sha": "57554899d6c32122896a6336d2781abbeb56acdf",
+      "ref": "refs/heads/codex/create-trading-candidate-engine"
+    },
+    {
+      "sha": "bb6e756a3d0dffb5726711e57b4dccc3b141f6ff",
+      "ref": "refs/heads/codex/develop-backtest-engine-for-trading-signals"
+    },
+    {
+      "sha": "30683692fb4f00f84a13a9747ebc94c9e57ab11d",
+      "ref": "refs/heads/codex/equal-high-low-m5-2023-a-v1"
+    },
+    {
+      "sha": "679fc0d5352a6e5921eafc1f50db4afcc2bb7f10",
+      "ref": "refs/heads/codex/execute-and-validate-trail1-hypothesis"
+    },
+    {
+      "sha": "7b7baa634a18bffe632485a94b0c256cbe34e526",
+      "ref": "refs/heads/codex/execute-d1-standalone-optimization-stage"
+    },
+    {
+      "sha": "5b8b97b3c4d828244ccd3115dca5d45790c489ee",
+      "ref": "refs/heads/codex/execute-h4-true-oos-validation"
+    },
+    {
+      "sha": "402114d846a8eb884fcfabd65483567a5c0ec436",
+      "ref": "refs/heads/codex/execute-m15-true-oos-validation-using-h1-methodology"
+    },
+    {
+      "sha": "63c368cf0a2735d179286f1b700154804b9d17d8",
+      "ref": "refs/heads/codex/execute-m30-bounded-oat-optimization"
+    },
+    {
+      "sha": "32928f05ee563257850281b6a40d3614192a7dee",
+      "ref": "refs/heads/codex/execute-m30-true-oos-2025+-validation"
+    },
+    {
+      "sha": "82024793a70491c8787ce15e63ae0a1c369a3dc0",
+      "ref": "refs/heads/codex/execute-m30-walk-forward-validation"
+    },
+    {
+      "sha": "d6f7e5b4cd3ff7b82f958765803d1c607b65e3d3",
+      "ref": "refs/heads/codex/execute-phase-4-walk-forward"
+    },
+    {
+      "sha": "32a7acc19ac627b4e9c946723ece78f2aac894f3",
+      "ref": "refs/heads/codex/execute-phase-5-true-oos"
+    },
+    {
+      "sha": "777d42c99aaef5decf09bd9a079829f167aab2f9",
+      "ref": "refs/heads/codex/execute-phase-5b-real-pattern-discovery"
+    },
+    {
+      "sha": "60667c88ede1cd86b92431ecc3eec3c324f7169f",
+      "ref": "refs/heads/codex/execute-stage-5-risk-cap-validation"
+    },
+    {
+      "sha": "d4e582f0e87a0e65b86808ccbf85d6f681b8d5c8",
+      "ref": "refs/heads/codex/execute-t2-m30-and-h1-optimization"
+    },
+    {
+      "sha": "099fb145de5044df84884050ed7680718bdb2242",
+      "ref": "refs/heads/codex/execute-t3-m30-and-h1-optimization"
+    },
+    {
+      "sha": "8c38ce52bb948fd3d9e5d15f4175ea1ad78dcfe7",
+      "ref": "refs/heads/codex/execute-tradingsystemlab-v2-phase-3-robustness"
+    },
+    {
+      "sha": "521f90110f2a4a22d0cba37ece213822b5a3bc0f",
+      "ref": "refs/heads/codex/execute-tradingsystemlab-v2-phase-5-true-oos"
+    },
+    {
+      "sha": "997c5c9193bbd41c6f6e558b378713794eaa64fb",
+      "ref": "refs/heads/codex/extend-feature-builder-with-phase-2b"
+    },
+    {
+      "sha": "7b0efb21ee16b8fbd758045a804ce2b3a4934dc2",
+      "ref": "refs/heads/codex/finalize-finam-demo-instrument-binding"
+    },
+    {
+      "sha": "b5f86fada108f16489eb3ac2e2d7424187a22072",
+      "ref": "refs/heads/codex/finalize-h4_03-total_open_risk_cap-certification"
+    },
+    {
+      "sha": "19d615aab87b881713dc2440953d1640bd0ca8e9",
+      "ref": "refs/heads/codex/finalize-stage-8.9-real-account-funding"
+    },
+    {
+      "sha": "40fcf6f5c165e8bd64b128949358aa7475521f1b",
+      "ref": "refs/heads/codex/fix-acceptance-ledger-schema-validation"
+    },
+    {
+      "sha": "577df8e76c922d63a4cc24aaf67e822e8688db19",
+      "ref": "refs/heads/codex/fix-account-status-and-registry-validation"
+    },
+    {
+      "sha": "029a5b5883e6654c7f2e39a9abb119eae904e4b3",
+      "ref": "refs/heads/codex/fix-availability-calculation-defect"
+    },
+    {
+      "sha": "e7bd358654530576ca5f568e073be35641ac707f",
+      "ref": "refs/heads/codex/fix-canonical-documentation-consistency"
+    },
+    {
+      "sha": "9947fac840f0a065312546480a5623567c31d254",
+      "ref": "refs/heads/codex/fix-certification-defects-for-be1"
+    },
+    {
+      "sha": "35756c80d295c94e2bb914b9f9447294b12211c0",
+      "ref": "refs/heads/codex/fix-certification-defects-in-stage-5.4"
+    },
+    {
+      "sha": "b1decb9f29d15d454410dda31d815ac8474bcc9d",
+      "ref": "refs/heads/codex/fix-certification-defects-in-stage-5.4-yy502r"
+    },
+    {
+      "sha": "b2920d3943d4407590f6b2ed9c33e0437e299a31",
+      "ref": "refs/heads/codex/fix-certification-for-stage-6"
+    },
+    {
+      "sha": "5b8c180eac311b2f2eaa157cbd133e652ebe090d",
+      "ref": "refs/heads/codex/fix-classification-and-reconciliation-issues"
+    },
+    {
+      "sha": "56a01f79f5ad37b55aec912b91e832ebffdede35",
+      "ref": "refs/heads/codex/fix-closeout-and-artifact-consistency"
+    },
+    {
+      "sha": "b7508523e85e20d28be822567bea173f2f9d1dc7",
+      "ref": "refs/heads/codex/fix-closeout-defect-in-stage-3a.1"
+    },
+    {
+      "sha": "55d7f3603027ee500ee02b43e0bfbfe46f276238",
+      "ref": "refs/heads/codex/fix-cnyrubf-source-identity-handling"
+    },
+    {
+      "sha": "6ad95eafb2f0fe4db28116d7d5644242f070536a",
+      "ref": "refs/heads/codex/fix-crlf-hashing-in-stage-8-audit"
+    },
+    {
+      "sha": "e872075dc34a85f44f8d20a091c41bb3695b5946",
+      "ref": "refs/heads/codex/fix-cross-platform-issues-for-windows-deployment"
+    },
+    {
+      "sha": "ca35b7e3d6fa52070a18c620652300424e251629",
+      "ref": "refs/heads/codex/fix-documentation-and-strengthen-phase-5-audit"
+    },
+    {
+      "sha": "49565c34fceea32293acbbb212c710e1c30718ca",
+      "ref": "refs/heads/codex/fix-dpapi-credential-store-initialization"
+    },
+    {
+      "sha": "9c70ca8a8fea9a9dfbd562b394a1946f8ba9790a",
+      "ref": "refs/heads/codex/fix-executable-mutation-tests-for-stage-5"
+    },
+    {
+      "sha": "692566d2964062c2375d0c792811157c123d0e62",
+      "ref": "refs/heads/codex/fix-execution-specification-handling"
+    },
+    {
+      "sha": "17a5f31aaead7f0031ed9c5655722d9188a48da4",
+      "ref": "refs/heads/codex/fix-execution-specification-handling-qgou5u"
+    },
+    {
+      "sha": "0b55410ebd41d7d54aff22c72d34426746f90193",
+      "ref": "refs/heads/codex/fix-failed-physical-attempt-in-stage-8.11"
+    },
+    {
+      "sha": "f65f0cfcb4334ddd6cb66ba77832e1d27936286c",
+      "ref": "refs/heads/codex/fix-final-audit-issues-for-stage-6.7"
+    },
+    {
+      "sha": "44fb0a35ef4f4fbb7a37e489349a3934517ab907",
+      "ref": "refs/heads/codex/fix-finam-futures-lot-size-binding-semantics"
+    },
+    {
+      "sha": "6e7086ffdb62e20ccedbc486317b178e37e13553",
+      "ref": "refs/heads/codex/fix-finam-pagination-transient-cursor-recovery"
+    },
+    {
+      "sha": "73e6340db3ffed6d63e4b3162a5e9839e5263393",
+      "ref": "refs/heads/codex/fix-finam-rest-schema-and-replay-h1-data"
+    },
+    {
+      "sha": "103dcf056bc790470d9543cbe89bf89abd0bdaa3",
+      "ref": "refs/heads/codex/fix-h1-close-price-parsing-in-stage-8.9"
+    },
+    {
+      "sha": "ac5040ca0e69358ebf5a1f5a3c958dc83f9f632a",
+      "ref": "refs/heads/codex/fix-independent-certification-defects"
+    },
+    {
+      "sha": "d154dd901ff340b168e8e15510f6e89a5e61ead0",
+      "ref": "refs/heads/codex/fix-lifecycle-boundary-in-risk-cap"
+    },
+    {
+      "sha": "9aa78c344b8b901bf65467ae1fd6d94b6b46b59d",
+      "ref": "refs/heads/codex/fix-lifecycle-completion-guard-in-audit"
+    },
+    {
+      "sha": "e4096b23a9bb81a0f1e50e3a4e5033bd0c29ac33",
+      "ref": "refs/heads/codex/fix-lifecycle-guard-for-stage-8.8"
+    },
+    {
+      "sha": "9dd6d7d361ef71c0e375e4e76d21564e2c638a02",
+      "ref": "refs/heads/codex/fix-n4-binding-using-real_readonly-evidence"
+    },
+    {
+      "sha": "897fdd736e19fe185aaab550ab7eab9e84d88d6c",
+      "ref": "refs/heads/codex/fix-operational-readme-documentation"
+    },
+    {
+      "sha": "1b24899af2aeaddcbcdb54df376f2ff1ffaa23d7",
+      "ref": "refs/heads/codex/fix-outdated-handoff-text-in-current_state.md"
+    },
+    {
+      "sha": "2754face9cee51598b30af7e27155228645420e1",
+      "ref": "refs/heads/codex/fix-pagination-parsing-bug-in-finamapi"
+    },
+    {
+      "sha": "01c9584b04097f1514757211709802b37ed7ac78",
+      "ref": "refs/heads/codex/fix-per-post-trading-session-clock-authority"
+    },
+    {
+      "sha": "f9bc01e0a28d6115e5fba9d0f19ef952fe9fb7c2",
+      "ref": "refs/heads/codex/fix-phase-4-walk-forward-validation"
+    },
+    {
+      "sha": "72a226eccb5e0e0e6983cc4ace8786b3ca27c666",
+      "ref": "refs/heads/codex/fix-phase-5-closeout-pipeline"
+    },
+    {
+      "sha": "317e0e6a7fe9dc172ba5745803777fe2f84ce777",
+      "ref": "refs/heads/codex/fix-post-commit-cleanup-ambiguity"
+    },
+    {
+      "sha": "603ecee23c21a217f9fd6a70d74137af8d72a585",
+      "ref": "refs/heads/codex/fix-pr-#255-fixed-basket-reassessment"
+    },
+    {
+      "sha": "f8919f2a564291f32283026e52a3aefd047af421",
+      "ref": "refs/heads/codex/fix-pr-#300-audit-and-provenance-inconsistencies"
+    },
+    {
+      "sha": "68afabc6acf5e2d12337940c03a13a53c85fe04d",
+      "ref": "refs/heads/codex/fix-production-per-post-clock-path"
+    },
+    {
+      "sha": "421390e163144d65eb1d5b5f1648fb09ee61e17f",
+      "ref": "refs/heads/codex/fix-protected-hash-portability-for-windows"
+    },
+    {
+      "sha": "6fcd1a3c9f9d1fb8990a2bd0bf9a64d8becd7c61",
+      "ref": "refs/heads/codex/fix-session_details-rest-authentication"
+    },
+    {
+      "sha": "062871e645d09a806bbe2022a2c2b381bc333e25",
+      "ref": "refs/heads/codex/fix-sqlite-handle-lifecycle-on-windows"
+    },
+    {
+      "sha": "2ce0c3bbf4ea11e56705e17cd64504cf56315567",
+      "ref": "refs/heads/codex/fix-sqlite-restore-failure-behavior"
+    },
+    {
+      "sha": "277118a0243e439e59337fa92b553f4c015b1dcd",
+      "ref": "refs/heads/codex/fix-stability-and-risk-audit-issues"
+    },
+    {
+      "sha": "11e2adcf77b8c863515a20e92c85be40071d1e28",
+      "ref": "refs/heads/codex/fix-stage-6-imoexf-monthly-semantics"
+    },
+    {
+      "sha": "abcaf17776b81eacd8fa94bbb1ba69c6a95a4bb2",
+      "ref": "refs/heads/codex/fix-stage-6.6-audit-and-provenance-issues"
+    },
+    {
+      "sha": "6af8a168a3b233cb8413eab57ec7bc518bbc0bab",
+      "ref": "refs/heads/codex/fix-stage-6.7-production-equity-calculation"
+    },
+    {
+      "sha": "60e3f72dae3a08eeb3ba8c756861efbb4c4f28e7",
+      "ref": "refs/heads/codex/fix-stage-8.11-acceptance-ledger-issue"
+    },
+    {
+      "sha": "95c05cae227e005fa70c0eecc36c45c9e113af6d",
+      "ref": "refs/heads/codex/fix-stage-8.11-for-safe-real-execution"
+    },
+    {
+      "sha": "0e6f9247661d321e9403b11ff1848dbc5b82fd0b",
+      "ref": "refs/heads/codex/fix-stage-8.11-reconciliation-errors"
+    },
+    {
+      "sha": "e9aad0bca0100a302a57608611cabb48564a1dad",
+      "ref": "refs/heads/codex/fix-stage-8.9-runtime-diagnostic-integration"
+    },
+    {
+      "sha": "c906023015dcd51dc2409d3cdca3bd5ceb3fd43e",
+      "ref": "refs/heads/codex/fix-train-freeze-normalization-compatibility"
+    },
+    {
+      "sha": "4a0e2208fd7ad184198a30424ff57f889e868481",
+      "ref": "refs/heads/codex/fix-validation-pipeline-robustness"
+    },
+    {
+      "sha": "dc13caf2e33d865e99ea3ac69fcd0a9a1092c745",
+      "ref": "refs/heads/codex/fix-windows-acl-sid-handling-in-credential-store"
+    },
+    {
+      "sha": "67554ceb1ce6be7cc3af023d73062dd8966caaee",
+      "ref": "refs/heads/codex/fix-windows-powershell-behavioral-test-harness"
+    },
+    {
+      "sha": "602753f7e4609d0ccbaf38a5c5f7d084f5726ad5",
+      "ref": "refs/heads/codex/fix-windows-test-fixture-normalization"
+    },
+    {
+      "sha": "468a11b4aa98965917b20a175ef779d6d533431c",
+      "ref": "refs/heads/codex/fix-zero_month-semantic-in-stage-5.6"
+    },
+    {
+      "sha": "b509164346d5d02c3a10491863d33d3c4a9852e4",
+      "ref": "refs/heads/codex/formulate-structural-hypotheses-set"
+    },
+    {
+      "sha": "bc84e55fa8525b00e4640bb5111672be78a604c9",
+      "ref": "refs/heads/codex/freeze-discovery-execution-contract-v1.0"
+    },
+    {
+      "sha": "65bc5d80338225d251024a5690b374e30b1426b6",
+      "ref": "refs/heads/codex/freeze-discovery-execution-contract-v1.0-9lu442"
+    },
+    {
+      "sha": "aa014f3eb51eac1e0d40fda768a5d6e5926bdbb3",
+      "ref": "refs/heads/codex/freeze-discovery-execution-contract-v1.0-ldqf71"
+    },
+    {
+      "sha": "ec1f644bbe7b224c5874a9952105da96d0dd75b9",
+      "ref": "refs/heads/codex/freeze-representative-target-mapping-v1.0"
+    },
+    {
+      "sha": "2889a2bee23ef8896058273229efb57bfa33d08a",
+      "ref": "refs/heads/codex/genuine-research-scale-integration"
+    },
+    {
+      "sha": "0e9e4fe533e818faddf5e6e040fd34386305d690",
+      "ref": "refs/heads/codex/harden-funding-readiness-gate"
+    },
+    {
+      "sha": "3fcd236ca58993952d5d3ecbfb82a57b67df68b1",
+      "ref": "refs/heads/codex/harden-offline-acceptance-harness"
+    },
+    {
+      "sha": "890b1bd33b0b00ee051ff5f2c67b425e5c6827f0",
+      "ref": "refs/heads/codex/harden-physical-evidence-and-audit-for-stage-8.10.6"
+    },
+    {
+      "sha": "37c0ba467eb1cd540638955163b45bcaead26d1c",
+      "ref": "refs/heads/codex/implement-and-backtest-top-5-trading-strategies"
+    },
+    {
+      "sha": "8b675f8e6c5b9d27bbc914178c1fe7bebd88fafc",
+      "ref": "refs/heads/codex/implement-bbw-baseline-parameter-optimization"
+    },
+    {
+      "sha": "0de21360fa495f679c95f58f1e90a6a21fa2abb9",
+      "ref": "refs/heads/codex/implement-bbw-candidate-baseline-v1-robustness-framework"
+    },
+    {
+      "sha": "9221631503c48a1423bc873380261eea8c932cca",
+      "ref": "refs/heads/codex/implement-bbw-expansion-donchian-strategy"
+    },
+    {
+      "sha": "e86e0569e797f098129d506fe23671a14a6cdcf9",
+      "ref": "refs/heads/codex/implement-be1-causal-validation"
+    },
+    {
+      "sha": "aebed9fad61a019586da40e6c71839b1a658765b",
+      "ref": "refs/heads/codex/implement-causal-feature-builder-core-v1.0"
+    },
+    {
+      "sha": "25f7fbf70021e34d4503c0152b59dad5495fc09d",
+      "ref": "refs/heads/codex/implement-cnyrubf-normalization-pipeline"
+    },
+    {
+      "sha": "46e37c41aaf882e312be840da19a0e9d81cd0301",
+      "ref": "refs/heads/codex/implement-cycle37-structural-rejection-mining"
+    },
+    {
+      "sha": "e09ab53cbc84aa8a5a9e437da375b225f9e53601",
+      "ref": "refs/heads/codex/implement-evidence-validated-h1-freshness-model"
+    },
+    {
+      "sha": "90e91e3489f25f9af3ed51ff1e0d0ab0ceea16b4",
+      "ref": "refs/heads/codex/implement-exact-comparator-reconstruction"
+    },
+    {
+      "sha": "b6fb67214d239ec84a5e872f6d87980a12238716",
+      "ref": "refs/heads/codex/implement-final-operational-audit-for-stage-8.8.7"
+    },
+    {
+      "sha": "18df403ac5ea646b4a692da356ed3d4ecede9cc7",
+      "ref": "refs/heads/codex/implement-frozen-baseline-matrix-for-tradingsystemlab"
+    },
+    {
+      "sha": "86be93167925d399d509a706b1dfc951603beb6c",
+      "ref": "refs/heads/codex/implement-frozen-baseline-matrix-for-tradingsystemlab-ie03ui"
+    },
+    {
+      "sha": "3d3c2e0742b57fe94d0bbbb6f3ca7d21829b710a",
+      "ref": "refs/heads/codex/implement-full-be1-lifecycle-dispatcher"
+    },
+    {
+      "sha": "3d74766cb779fe9fb8bbed03a8584e3b2efb89b7",
+      "ref": "refs/heads/codex/implement-future-outcome-engine-v1.0"
+    },
+    {
+      "sha": "e241121ae96dec3f60a33e31e60757f28f7961e7",
+      "ref": "refs/heads/codex/implement-generic-future-behavior-representation"
+    },
+    {
+      "sha": "037287c5716a1ec90f4b047e20352df21cced4c8",
+      "ref": "refs/heads/codex/implement-identity/account-binding-module"
+    },
+    {
+      "sha": "501aaad997c5e4cfbe047a39aa91efd6e234ee9d",
+      "ref": "refs/heads/codex/implement-kill-switch-and-safety-gates"
+    },
+    {
+      "sha": "0c099d54f60bb281255f89b4b902dc8246c02f3a",
+      "ref": "refs/heads/codex/implement-m1-walk-forward-validation"
+    },
+    {
+      "sha": "86b2ec65106ac6b46f4d30c438fe1522b4a3050e",
+      "ref": "refs/heads/codex/implement-m15-baseline-validation"
+    },
+    {
+      "sha": "feac054949c8f6aeae98e20567a9794e9ccca4cf",
+      "ref": "refs/heads/codex/implement-m15-bounded-optimization"
+    },
+    {
+      "sha": "897017de360da0ee9e5ccf05ea5e5eda04f0e6e5",
+      "ref": "refs/heads/codex/implement-m15-robustness-validation"
+    },
+    {
+      "sha": "b642ee3846ca85c4704d998c000a37b4620ee47b",
+      "ref": "refs/heads/codex/implement-m15-walk-forward-validation"
+    },
+    {
+      "sha": "be8dac4d598f61fcabf947a385c54b27710e069c",
+      "ref": "refs/heads/codex/implement-m30-baseline-validation"
+    },
+    {
+      "sha": "f46c111b1d3f49f14cf4a967c65c2034522bb1b8",
+      "ref": "refs/heads/codex/implement-m5-baseline-research-using-h1-template"
+    },
+    {
+      "sha": "abb13f2836a6f5000734d8f1b490fbb83c7832ce",
+      "ref": "refs/heads/codex/implement-m5-diagnostic-analysis"
+    },
+    {
+      "sha": "9d7610664622459e24b70bad8431e518bac83c26",
+      "ref": "refs/heads/codex/implement-m5-entry-quality-diagnostic-analysis"
+    },
+    {
+      "sha": "8ab241cf0f0e781e054d5453c72f339f21762b42",
+      "ref": "refs/heads/codex/implement-m5-full-diagnostic-analysis-framework"
+    },
+    {
+      "sha": "e9da8774036b284d66afad5559f5b2dfe5458c6b",
+      "ref": "refs/heads/codex/implement-m5-holding-time-candidate-analysis"
+    },
+    {
+      "sha": "2433b0a7a4d7b6408cad70c9d1fbfb2222f8d74c",
+      "ref": "refs/heads/codex/implement-m5-intratrade-path-analysis"
+    },
+    {
+      "sha": "7d28df5b8389417a17945203663179ba89316ca0",
+      "ref": "refs/heads/codex/implement-m5-optimization-following-h1-template"
+    },
+    {
+      "sha": "097cc7013bc2540d0fedaa612cafaf990f2fd5c2",
+      "ref": "refs/heads/codex/implement-m5-overextension-and-session-candidate-validation"
+    },
+    {
+      "sha": "8b3a419eaece3b8b5a03dbc9036d39cb61d26753",
+      "ref": "refs/heads/codex/implement-m5-robustness-validation-phase"
+    },
+    {
+      "sha": "43873561301fa8fc2ce3075ff4e2d6d17064c5e5",
+      "ref": "refs/heads/codex/implement-m5-session-filter-candidate-research"
+    },
+    {
+      "sha": "722252a51ff091039d02a42a208a010324950853",
+      "ref": "refs/heads/codex/implement-m5-true-oos-validation"
+    },
+    {
+      "sha": "859eca2c7301d1b289e58c72ea14034d7ae3aa5c",
+      "ref": "refs/heads/codex/implement-m5-walk-forward-validation"
+    },
+    {
+      "sha": "4bd7c1e6f308cf79f44e6ed9732f8d55e30d1149",
+      "ref": "refs/heads/codex/implement-neutral-exploratory-market-analysis"
+    },
+    {
+      "sha": "a09e2e284046908d369125006634dd6dfa5acdf8",
+      "ref": "refs/heads/codex/implement-neutral-exploratory-market-analysis-bgd2km"
+    },
+    {
+      "sha": "28e6f16c906c3a6f5a6d871486f281586dc79619",
+      "ref": "refs/heads/codex/implement-pattern-discovery-framework"
+    },
+    {
+      "sha": "57fa321acd2dabf8870b1c3b68a929a456a63aa2",
+      "ref": "refs/heads/codex/implement-phase-3.2-bounded-optimization"
+    },
+    {
+      "sha": "6c40f98da1b672ed8858fb28f9aa7560abd742e7",
+      "ref": "refs/heads/codex/implement-phase-6-portfolio-construction"
+    },
+    {
+      "sha": "6209a934405d023987f0c055f1a9c53b0c1a42d4",
+      "ref": "refs/heads/codex/implement-phase-6a-strategy-architecture"
+    },
+    {
+      "sha": "64f9cea81137c2ad676c4c15bb3291a4021584d3",
+      "ref": "refs/heads/codex/implement-phase-7.1-research-framework"
+    },
+    {
+      "sha": "94846ad495ad4dca2642e2d88f6289495a64bc12",
+      "ref": "refs/heads/codex/implement-phase-7.2-candidate-analysis"
+    },
+    {
+      "sha": "ac8cfc88ce01c3b0f78c22710e1cc684101d2607",
+      "ref": "refs/heads/codex/implement-phase-7.3-true-mtf-research-framework"
+    },
+    {
+      "sha": "14e58bafadf8fa3905678b65b9839d37c50a279d",
+      "ref": "refs/heads/codex/implement-phase-8.1-m1-baseline-research"
+    },
+    {
+      "sha": "3b46a044585b6ffea5b5368d9f4ad34f3d6c70db",
+      "ref": "refs/heads/codex/implement-phase-8.2-m1-optimization"
+    },
+    {
+      "sha": "14f0bceded2c89d3827ee92fb5867b5fcb135aad",
+      "ref": "refs/heads/codex/implement-phase-8.3-m1-robustness-validation"
+    },
+    {
+      "sha": "9f5b5158390777e9c3a91a70b1fe0a24d6e9e9d5",
+      "ref": "refs/heads/codex/implement-phase-8.5-m1-true-oos-validation"
+    },
+    {
+      "sha": "d00f4343463b28406687d58f6b5f488019b8ee42",
+      "ref": "refs/heads/codex/implement-r1-bollinger-false-breakout-strategy"
+    },
+    {
+      "sha": "1a2b1f94550303fd568450d4602edda334f1f737",
+      "ref": "refs/heads/codex/implement-r1-bollinger-mean-reversion-strategy"
+    },
+    {
+      "sha": "f998091bd20989f0391c1cc31c289b41b513edea",
+      "ref": "refs/heads/codex/implement-r2-liquidity-sweep-strategy"
+    },
+    {
+      "sha": "c13af533aee0564a491c52a8d68d51bf3bba4de5",
+      "ref": "refs/heads/codex/implement-r3-round-level-rejection-strategy"
+    },
+    {
+      "sha": "08fd1535624c4ff360e51102cf646d6245ea4b3b",
+      "ref": "refs/heads/codex/implement-secure-trading-token-provisioning"
+    },
+    {
+      "sha": "15f4d109690fe70b8c0c9fb0bab4dc5fc6f4c531",
+      "ref": "refs/heads/codex/implement-sqlite-backup-and-recovery-tooling"
+    },
+    {
+      "sha": "3af85e0369ecc62babf066113b5d0d0da52fb59f",
+      "ref": "refs/heads/codex/implement-stage-8.11-controlled-execution-acceptance"
+    },
+    {
+      "sha": "77f0ba34460c39f2c5cb59c31272f2130b1261e3",
+      "ref": "refs/heads/codex/implement-stage-8.8.5-stale-data-protection"
+    },
+    {
+      "sha": "7c475338bfc2f8dcebebf412518cd6fe3f7525b8",
+      "ref": "refs/heads/codex/implement-standalone-h4-baseline-stage"
+    },
+    {
+      "sha": "78123421589d8a4c3da449198f1875cb050d0296",
+      "ref": "refs/heads/codex/implement-validation-for-order-path"
+    },
+    {
+      "sha": "01d062992202afcbba35712a52e888b7620dba03",
+      "ref": "refs/heads/codex/implement-windows-dpapi-credential-bootstrap"
+    },
+    {
+      "sha": "068d26fb1db0604a8ba93b8764f03396f92b56ec",
+      "ref": "refs/heads/codex/integrate-autonomous-pipeline-execution"
+    },
+    {
+      "sha": "229df95034729baea44043c04d482e6255024f1a",
+      "ref": "refs/heads/codex/integrate-end-to-end-trading-pipeline"
+    },
+    {
+      "sha": "8af594283844669005015d61d77c7742a92c8724",
+      "ref": "refs/heads/codex/integrate-genuine-known-and-unknown-research"
+    },
+    {
+      "sha": "b64c43ea083604ab4a0fdc5948fc82a4e802399c",
+      "ref": "refs/heads/codex/integrate-genuine-research-scale-features"
+    },
+    {
+      "sha": "3f24ccf4930253aca59398aa79210a1173a281d2",
+      "ref": "refs/heads/codex/integrate-scientific-depth-and-balanced-discovery"
+    },
+    {
+      "sha": "d720ac81012186a3d259a0f64dbac6cf28cdb74e",
+      "ref": "refs/heads/codex/intraday-readme-stage1-audit-20261009"
+    },
+    {
+      "sha": "a0af55da2a4291a17259c044f3f895d3d4990445",
+      "ref": "refs/heads/codex/intradaylab-data-gap-skip-v2"
+    },
+    {
+      "sha": "f3260b3b5b2061dd89720da80eb6dc93102ea582",
+      "ref": "refs/heads/codex/level-rejection-2023-m5-v1"
+    },
+    {
+      "sha": "557dcf9b258f121d014f5236bfd59eb418542063",
+      "ref": "refs/heads/codex/perform-borderline-diagnostics-for-t2-and-t3"
+    },
+    {
+      "sha": "fd7c4e6659278953bc57295d0b62a70b630a3c80",
+      "ref": "refs/heads/codex/perform-fixed-basket-production-reassessment"
+    },
+    {
+      "sha": "1ae12cfa8edf9f23e5d59528db0c50700817548d",
+      "ref": "refs/heads/codex/perform-robustness-validation-for-t2-and-t3"
+    },
+    {
+      "sha": "1ad8ac33ee3294154ae6698deeb7fe3222c0357d",
+      "ref": "refs/heads/codex/perform-smoke-test-for-tradingsystemlab-v2"
+    },
+    {
+      "sha": "c615f890de4a12b2688baaab87a985a12cef3ecb",
+      "ref": "refs/heads/codex/phase5b0-feasibility-audit"
+    },
+    {
+      "sha": "6fbd9204fbcd6e04d5f3dbb3c98c22cd431c7ebe",
+      "ref": "refs/heads/codex/phase7-autonomous-cli"
+    },
+    {
+      "sha": "a5185c7f53067611d4982ae828e5c9ac093b5da5",
+      "ref": "refs/heads/codex/phase7-autonomous-cli-fix"
+    },
+    {
+      "sha": "8ffbe887a8c9be98b36aea1fb81a2d7239237406",
+      "ref": "refs/heads/codex/phase7-autonomous-intel"
+    },
+    {
+      "sha": "c89f31d1ed5c4023debbe12c789b3d8095feb0a3",
+      "ref": "refs/heads/codex/phase7-real-track-routing"
+    },
+    {
+      "sha": "367a62709bacaf9d090bd15e3759a785fdcb915c",
+      "ref": "refs/heads/codex/phase7-track-selector"
+    },
+    {
+      "sha": "6d61c9c33a2c30b3323e15437060d082f72dec4b",
+      "ref": "refs/heads/codex/phase7-unknown-inference-lifecycle"
+    },
+    {
+      "sha": "d81cab4c0376c080c13dea3787cd63da291398b4",
+      "ref": "refs/heads/codex/phase7-unknown-resource-profile"
+    },
+    {
+      "sha": "e134fe16f3b23e2f001c37bcc6c5d86c858f0981",
+      "ref": "refs/heads/codex/prepare-stage-8-for-real-finam-account"
+    },
+    {
+      "sha": "93d7ab116ebb2e522329c60dff4cdcd90b43445c",
+      "ref": "refs/heads/codex/r16-compression-breakout-2023-m5-v1"
+    },
+    {
+      "sha": "b2736f38f6c90b7ec9e4bf5cb4dfaf2a0d712a4b",
+      "ref": "refs/heads/codex/rebuild-and-consolidate-project-foundation"
+    },
+    {
+      "sha": "a9946613aefa9430f69b340d7b0758feff7e41d8",
+      "ref": "refs/heads/codex/rebuild-h4-optimization-from-h1-methodology"
+    },
+    {
+      "sha": "fa23260aa4378797810c64ea5fb849e606e9ddb4",
+      "ref": "refs/heads/codex/rebuild-marketai-multi-horizon-architecture"
+    },
+    {
+      "sha": "4148ad01578bf0be713b8e7d9cffc9b7d0f45d8b",
+      "ref": "refs/heads/codex/rebuild-marketai-multi-horizon-architecture-oy7oai"
+    },
+    {
+      "sha": "09b709f52549b27f6d7f2c135c4201ec7dc26db0",
+      "ref": "refs/heads/codex/rebuild-tradingsystemlab-v2-phase-1"
+    },
+    {
+      "sha": "2c9297b59f7d70560a9d3e8951a8527db06170b3",
+      "ref": "refs/heads/codex/record-stage-8.9-physical-validation"
+    },
+    {
+      "sha": "58584338a9b664a954ee3491001659f4f3023f2c",
+      "ref": "refs/heads/codex/reduce-m1-optimization-development-window"
+    },
+    {
+      "sha": "d738aadc3ffcb522dc74c93675fefec5568d997f",
+      "ref": "refs/heads/codex/refactor-wal-recovery-regression-tests-for-windows"
+    },
+    {
+      "sha": "94d323ab05a60d00d5ff98ab7f55db35e4c65226",
+      "ref": "refs/heads/codex/remove-stale-forts/state-contradictions"
+    },
+    {
+      "sha": "064f0c5cb51f748fad0be5e9108df48785558e2e",
+      "ref": "refs/heads/codex/remove-stale-funding-readiness-statement"
+    },
+    {
+      "sha": "8fde3a1c85f1e2478c4539c536fac9d08e12a27d",
+      "ref": "refs/heads/codex/repair-top-5-research-engine-for-v3"
+    },
+    {
+      "sha": "343050784c363b3da0aea1ff05d5117725273e18",
+      "ref": "refs/heads/codex/require-attempt_id-for-stage-8.11"
+    },
+    {
+      "sha": "81bda31dfb4995f751fa288dd500e0a59a4e22cb",
+      "ref": "refs/heads/codex/run-imoexf-decision-validation-tests"
+    },
+    {
+      "sha": "d50b65e52cc6644c1f72effb5bf3448ef8967c32",
+      "ref": "refs/heads/codex/scientific-depth-balanced-discovery"
+    },
+    {
+      "sha": "ddef9b1f82362b710fd5bd71c195f9519276f6fa",
+      "ref": "refs/heads/codex/strengthen-semantic-safety-audit-for-stage-8.10.7"
+    },
+    {
+      "sha": "48d9de4a8d262a2fd8c3589cae1a3561d70aa0ad",
+      "ref": "refs/heads/codex/swing-pullback-m5-m15-2023-v1"
+    },
+    {
+      "sha": "6a42aeb56f647ad000ff0d17e05667f70dd63ff5",
+      "ref": "refs/heads/codex/take-production-assembly-decision"
+    },
+    {
+      "sha": "38bb33faf3bd7e3e658d6d2e54a937de205e7652",
+      "ref": "refs/heads/codex/test-exit_on_opposite_regime-functionality"
+    },
+    {
+      "sha": "0aef2b6f1e00b2bcb46721216e59ac2ac2e986f0",
+      "ref": "refs/heads/codex/test-lock1_after_2r-rule-implementation"
+    },
+    {
+      "sha": "76d6770411c47ebd9976b5ad77ea8582ef9e45c9",
+      "ref": "refs/heads/codex/test-one_bar-breakout-confirmation"
+    },
+    {
+      "sha": "5ee7fb90dd6751c003fbc5474fa67742a086ff56",
+      "ref": "refs/heads/codex/trend-pullback-m15-h1-2023-v1"
+    },
+    {
+      "sha": "88db55fc1289f88c27ede54a6832c9cce3d61053",
+      "ref": "refs/heads/codex/update-optimization-to-use-baseline_config.json"
+    },
+    {
+      "sha": "cb92ce775c26a84a7abbd372a9d417499e1fb825",
+      "ref": "refs/heads/codex/update-readme-status-and-strengthen-audits"
+    },
+    {
+      "sha": "c69ee0a06c0dbbed2ce75cf22df3c984d945843b",
+      "ref": "refs/heads/codex/v3.5-execution-context"
+    },
+    {
+      "sha": "3d4e155ae3223a50f87f341da9e76894c014bda1",
+      "ref": "refs/heads/codex/v3.5-execution-context-m5-fix"
+    },
+    {
+      "sha": "551b8d52ad44f7911e66db28928f8b4ee261f07c",
+      "ref": "refs/heads/codex/v3.5-pattern-strategy-synthesis"
+    },
+    {
+      "sha": "5ce0ece840ad3792f341fa6fcfb1a3738f2fe5c2",
+      "ref": "refs/heads/codex/v3.5-phase4-autonomous-search"
+    },
+    {
+      "sha": "71e51b917b981a09f355f5bf0421bb62e80a7fec",
+      "ref": "refs/heads/codex/v3.5-rebuild"
+    },
+    {
+      "sha": "ca0355e21f888dd91327dcc0e2f40e1b342a6591",
+      "ref": "refs/heads/codex/v3.5-registry-layer"
+    },
+    {
+      "sha": "6d61c9c33a2c30b3323e15437060d082f72dec4b",
+      "ref": "refs/heads/codex/v3.5-unknown-pattern-discovery"
+    },
+    {
+      "sha": "9ae71377fa78544c52e52141c505def180dbae3a",
+      "ref": "refs/heads/codex/validation-engine-v1"
+    },
+    {
+      "sha": "303bc46cbea1cf5d4896e98bf7b086b3df0229b0",
+      "ref": "refs/heads/codex/verify-cross-session-persistent-memory"
+    },
+    {
+      "sha": "10290b9d521093aa58d0bcc0b48a8b199c39e485",
+      "ref": "refs/heads/corrective/intraday-stage2-m5-conditional-v2"
+    },
+    {
+      "sha": "11a91a7c348db83ae09d28f0aea6dc7187a70d4a",
+      "ref": "refs/heads/corrective/intraday-stage2-m5-v2-independent-audit"
+    },
+    {
+      "sha": "b248ee7f6772a08b6036f4d87f80899df5d45ed1",
+      "ref": "refs/heads/docs/intraday-optimization-gap-policy-20261011"
+    },
+    {
+      "sha": "bb62cd27bac56d60b7d8f7a432e302f38b658ffd",
+      "ref": "refs/heads/docs/intraday-research-targets-20261010"
+    },
+    {
+      "sha": "1e8bd1707d21618313e182f6ab725ab74ec0647f",
+      "ref": "refs/heads/docs/intraday-round-level-touch-plan-20261011"
+    },
+    {
+      "sha": "f1adb3f97c8a79e5f114915b952ef83fae688023",
+      "ref": "refs/heads/docs/intraday-squeeze-m5-m15-mtf-matrix-20261010"
+    },
+    {
+      "sha": "d000c5e8aad3e0bbae32f55bbf205483b48e9408",
+      "ref": "refs/heads/docs/intraday-stage2-baseline-architecture-policy-20261009"
+    },
+    {
+      "sha": "5bff9f5a24dae0bcbf85898943f720ae958037b3",
+      "ref": "refs/heads/docs/intraday-stage2-next-strategies-20261010"
+    },
+    {
+      "sha": "de05392d022611951549badc7581a430e1a624c4",
+      "ref": "refs/heads/docs/intraday-stage2-orb-level-matrix-20261010"
+    },
+    {
+      "sha": "f33e236e1a4f69cd614bb77bd988ba2b6d3f153e",
+      "ref": "refs/heads/docs/intraday-stage3-filter-priorities-20261009"
+    },
+    {
+      "sha": "39b98e740a0def0f50bdd36d591e3e4c2d319e19",
+      "ref": "refs/heads/docs/intradaylab-approved-reserve-strategies-20261010"
+    },
+    {
+      "sha": "055592400613cadc7246a85618176cd4b152930f",
+      "ref": "refs/heads/docs/intradaylab-independent-tsl-methodology-20261010"
+    },
+    {
+      "sha": "88eef436e76cc98a1a4d462f56fca085837ce36c",
+      "ref": "refs/heads/docs/project-memory-live-production-sync-20261007"
+    },
+    {
+      "sha": "d3b754ad6efd0e4bd6891b773a2be393b06c6f88",
+      "ref": "refs/heads/docs/project-memory-stage6-7-sync-20260930"
+    },
+    {
+      "sha": "f26b401f6edc91246c44467cbcda69f008deb68b",
+      "ref": "refs/heads/docs/project-memory-stage6-sync-20260928"
+    },
+    {
+      "sha": "7af22be24909934ac00f50dd471570506452cc92",
+      "ref": "refs/heads/docs/project-memory-stage8-10-closeout-20261004"
+    },
+    {
+      "sha": "bd028b1c467e778038435e464911ef6b0d81131d",
+      "ref": "refs/heads/docs/project-memory-stage8-8-5-sync-20261001"
+    },
+    {
+      "sha": "6f5659fca989fad2688305e3aa9508dc9a8ebd54",
+      "ref": "refs/heads/docs/project-memory-stage8-9-10-sync-20261003"
+    },
+    {
+      "sha": "8caf8ac31963c275fdae73890386741d411e1465",
+      "ref": "refs/heads/docs/stage8-12-h1-hotfix-operational-sync"
+    },
+    {
+      "sha": "bc815be1358d904bc07c9a2a3a3fb4600b8b66ba",
+      "ref": "refs/heads/docs/stage8-12-minimal-roadmap"
+    },
+    {
+      "sha": "594bab5e0179ee44fc59962601860ba1a8240bfb",
+      "ref": "refs/heads/docs/stage8-12-production-runbook"
+    },
+    {
+      "sha": "726e1029f7b40aa59125976c585d9256a0b189f9",
+      "ref": "refs/heads/feat/stage8-11-attempt7-position-authoritative"
+    },
+    {
+      "sha": "883ea1ea6a8268276a8e39ebdc8786c643a21935",
+      "ref": "refs/heads/feat/stage8-12-4-package5-activation"
+    },
+    {
+      "sha": "d062f9a98d37c8f39326ff69e4ea6510443d35b1",
+      "ref": "refs/heads/fix/stage8-11-ack-position-reconciliation"
+    },
+    {
+      "sha": "13e087c17d30b8e6ed528b84c497b0fad622e5bd",
+      "ref": "refs/heads/fix/stage8-11-attempt2-manual-recovery"
+    },
+    {
+      "sha": "b2341b124c834ff03a20e76969e2ad96425bc82b",
+      "ref": "refs/heads/fix/stage8-11-attempt2-protected-hash"
+    },
+    {
+      "sha": "46dce07bf1ece4328d5e4dc250599ad20555ee89",
+      "ref": "refs/heads/fix/stage8-11-attempt3-manual-close-recovery"
+    },
+    {
+      "sha": "7e889c991a9a34b0615dcf3f1f360718c35df0cb",
+      "ref": "refs/heads/fix/stage8-11-attempt3-oir-flatten-recovery"
+    },
+    {
+      "sha": "0e513b654ff119d0525d6f6a2eee0045267e1c53",
+      "ref": "refs/heads/fix/stage8-11-attempt3-recovery-after-history-expiry"
+    },
+    {
+      "sha": "1c9392eaeba874c1a73fd707e4f604f35791ae5d",
+      "ref": "refs/heads/fix/stage8-11-attempt3-recovery-order-detail"
+    },
+    {
+      "sha": "7391268b0b6f56693a06a80908024a8fc4edf614",
+      "ref": "refs/heads/fix/stage8-11-attempt4-manual-close-recovery"
+    },
+    {
+      "sha": "b900194797af5b7b573cb390c642715b4c58b96c",
+      "ref": "refs/heads/fix/stage8-11-attempt4-retry"
+    },
+    {
+      "sha": "7b321162ceed4fcaa73b852367333dfe1542a4ba",
+      "ref": "refs/heads/fix/stage8-11-attempt5-manual-close-recovery"
+    },
+    {
+      "sha": "bd6c1d00040664bfe9fdab42c4c57a5198852ab9",
+      "ref": "refs/heads/fix/stage8-11-attempt5-retry"
+    },
+    {
+      "sha": "b07f0d2ee396c8fe9a2d1e3dd1d22a4b215f5d89",
+      "ref": "refs/heads/fix/stage8-11-attempt6-manual-close-recovery"
+    },
+    {
+      "sha": "680b3e05d257e0029b1a61471421ec080d2aabae",
+      "ref": "refs/heads/fix/stage8-11-attempt6-retry"
+    },
+    {
+      "sha": "e58d3fd8ebe74fb443f49dd8a30ef10d51b5d9cb",
+      "ref": "refs/heads/fix/stage8-11-cancel-fill-race"
+    },
+    {
+      "sha": "cf218f07de51b67141c9dc4264397cc241536ec7",
+      "ref": "refs/heads/fix/stage8-11-closeout-audit-contract"
+    },
+    {
+      "sha": "98a3cd9404ff2951283fb2a8ab7b20af0d97f593",
+      "ref": "refs/heads/fix/stage8-11-fill-proof-lifecycle"
+    },
+    {
+      "sha": "55a41b7d5fa2bcecfc4d6cce233e555fcab2c9f1",
+      "ref": "refs/heads/fix/stage8-11-finam-flat-account-semantics"
+    },
+    {
+      "sha": "41ae2703420aefd5a126c0208f2967871946da38",
+      "ref": "refs/heads/fix/stage8-11-finam-reconciliation-attempt3"
+    },
+    {
+      "sha": "a71bbc67ccba0ef8bb064ff1c2e779731d90c0c6",
+      "ref": "refs/heads/fix/stage8-11-full-finam-order-status-semantics"
+    },
+    {
+      "sha": "581ed5a346b7dd837de628420f391f79a91083a7",
+      "ref": "refs/heads/fix/stage8-11-order-collection-duplicates"
+    },
+    {
+      "sha": "1e2811914040d76784adf491237d0d36c579fac2",
+      "ref": "refs/heads/fix/stage8-11-position-audit-last-mutation"
+    },
+    {
+      "sha": "962d39759d01701c716e7f14e4e4fe2f4e577ccd",
+      "ref": "refs/heads/fix/stage8-11-position-audit-mutation-regressions"
+    },
+    {
+      "sha": "79f8d8faa058fb70b19bf779dca1faa42d50cfea",
+      "ref": "refs/heads/fix/stage8-11-reconciled-fill-proof-propagation"
+    },
+    {
+      "sha": "422e4642ffacab9f298e01270f48a7e995f404e7",
+      "ref": "refs/heads/fix/stage8-11-reconciliation-order-position-proof"
+    },
+    {
+      "sha": "3c5b8169325b98251637535762808f2a3a137295",
+      "ref": "refs/heads/fix/stage8-11-recovery-direct-order-detail"
+    },
+    {
+      "sha": "385ee90de5d4a90dbbfa50aee1a4694e9ddabdc0",
+      "ref": "refs/heads/fix/stage8-11-recovery-provenance-after-authority-fix"
+    },
+    {
+      "sha": "8c15187ce2650b4ccf169adaa9683b55ed583d61",
+      "ref": "refs/heads/fix/stage8-11-stale-attempt2-audit-guard"
+    },
+    {
+      "sha": "47c7bd5dcff8cd0b6b2afdaf08dc952385ccf342",
+      "ref": "refs/heads/fix/stage8-11-terminal-fill-position-proof"
+    },
+    {
+      "sha": "2b2373fd53ce68fcb77ee0f8ca57f5114583c303",
+      "ref": "refs/heads/fix/stage8-11-terminal-history-authority"
+    },
+    {
+      "sha": "5020bd1fff71fbe8dccc8e04c01ba281524a7a25",
+      "ref": "refs/heads/fix/stage8-11-trade-row-ahead-of-executed"
+    },
+    {
+      "sha": "40b95224c240b460ba8d24f91270df398bc5592b",
+      "ref": "refs/heads/fix/stage8-11-trades-http400-supplementary"
+    },
+    {
+      "sha": "dc51bdbd508cad027e4073a036161f724205db17",
+      "ref": "refs/heads/fix/stage8-12-1-closeout-stale-mutation"
+    },
+    {
+      "sha": "0968c703a35c4ea3a374bb4fa69e56add21729a9",
+      "ref": "refs/heads/fix/stage8-12-3-audit-script-invocation"
+    },
+    {
+      "sha": "01860c3abd21c81f11d6fae7a01411d66ed29a75",
+      "ref": "refs/heads/fix/stage8-12-3-benchmark-fp-test"
+    },
+    {
+      "sha": "02daa1db815f6cd4601f53b14f09603eb0cc3b94",
+      "ref": "refs/heads/fix/stage8-12-3-grid-block-semantics"
+    },
+    {
+      "sha": "17480cded4467f4b00628c4c4d21a823f756d670",
+      "ref": "refs/heads/fix/stage8-12-3-preopen-h1-history"
+    },
+    {
+      "sha": "1c7fd8422e253eba469614e15caae93cf5e07594",
+      "ref": "refs/heads/fix/stage8-12-4-package3-audit-handoff"
+    },
+    {
+      "sha": "06a0748e399012cbd057bab3b1574491f8339d5d",
+      "ref": "refs/heads/fix/stage8-12-4-package3-finam-protected-hash"
+    },
+    {
+      "sha": "aee276ceeb2b3c60612e8a79b524b8c6a166890c",
+      "ref": "refs/heads/fix/stage8-12-4-package3-h1-sparse-overlap"
+    },
+    {
+      "sha": "5290234446e202fb491a6a149f725c78e0fe69e0",
+      "ref": "refs/heads/fix/stage8-12-4-package3-principal-sid"
+    },
+    {
+      "sha": "58e67cfa32759049d0b8dd646dc465ad577e0d19",
+      "ref": "refs/heads/fix/stage8-12-4-package3-state-probe"
+    },
+    {
+      "sha": "1109ffeae87d2a13a5e6182c36873af128abcb7e",
+      "ref": "refs/heads/fix/stage8-12-4-package4-current-handoff-audit"
+    },
+    {
+      "sha": "4b9d5cbff66047bec6a078306c3cb6899860d114",
+      "ref": "refs/heads/fix/stage8-12-4-package4-roadmap-case-audit"
+    },
+    {
+      "sha": "5bd36b24b7ac048efd89022852967dce6b778174",
+      "ref": "refs/heads/fix/stage8-12-4-package5-handoff-audit-regression"
+    },
+    {
+      "sha": "7881a6d2b370210b6ff5bf84d86e98e0fbc30432",
+      "ref": "refs/heads/fix/stage8-12-h1-immutable-authority"
+    },
+    {
+      "sha": "2d7b23580af6b919375d19b78b61e5e3969af3f0",
+      "ref": "refs/heads/intradaylab/r17-m5-baseline-2023"
+    },
+    {
+      "sha": "f7a1ff5f12779a2b3dfbe5e4dbfe8f265096d3d8",
+      "ref": "refs/heads/main"
+    },
+    {
+      "sha": "957a165988cf0c89c46d06aa124d29b554232ce2",
+      "ref": "refs/heads/pd01-quality-v1"
+    },
+    {
+      "sha": "99ec6ec23bd6af00a8c0b3aa24030340d7c7a510",
+      "ref": "refs/heads/phase5-autonomous-discovery-v1"
+    },
+    {
+      "sha": "3fd1b2ccd03573cf0c1306fcd424d87785fbcae4",
+      "ref": "refs/heads/phase6b-real-backtest"
+    },
+    {
+      "sha": "d4a1f4c564581f8cc6e475c1ca98d4e732162c66",
+      "ref": "refs/heads/refactor/stage8-11-position-authoritative-reconcile"
+    },
+    {
+      "sha": "bf0fb8ac8bcb73af11490e0d3f159c5906964d95",
+      "ref": "refs/heads/research/intraday-high-low-cluster-b4-b7-b10"
+    },
+    {
+      "sha": "88ba8db3bd385f0372caa5d0840f35803dfe6178",
+      "ref": "refs/heads/research/intraday-lab"
+    },
+    {
+      "sha": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+      "ref": "refs/heads/research/intraday-orb-false-break-fade-stage2"
+    },
+    {
+      "sha": "36902d328ffb2d264f5254c4fd5c97ba9d4b46ac",
+      "ref": "refs/heads/research/intraday-stage1-2-sessions-mtf"
+    },
+    {
+      "sha": "79f974b570e7b8037ef426eba41d4e48793375ee",
+      "ref": "refs/heads/research/intraday-stage1-execution-costs"
+    },
+    {
+      "sha": "8dfe1ed0134c4f33f31c09deee4bf695c274efc2",
+      "ref": "refs/heads/research/intraday-stage1-m5-clock-confirmation"
+    },
+    {
+      "sha": "232ca15ddfd8bb1996939901d16d6904a744a651",
+      "ref": "refs/heads/research/intraday-stage1-m5-readiness"
+    },
+    {
+      "sha": "007e05c349f2fb54e0c3d0baf96cfef09418f739",
+      "ref": "refs/heads/research/intraday-stage2-causal-mtf-final-20261009"
+    },
+    {
+      "sha": "08117fe0c750751b3e2ae49af384d2cb80fc7009",
+      "ref": "refs/heads/research/intraday-stage2-complete-architecture-20261009"
+    },
+    {
+      "sha": "53442b49e31f6409567e31c4fa14d738814eab49",
+      "ref": "refs/heads/research/intraday-stage2-level-rejection-economic-baseline-20261010"
+    },
+    {
+      "sha": "7a9c5d3759a5c07d002d5ed3e630132829dd7ebf",
+      "ref": "refs/heads/research/intraday-stage2-level-rejection-fast-m5-20261010"
+    },
+    {
+      "sha": "9737a8e3df59e944cfe6477b07006632aaa837d1",
+      "ref": "refs/heads/research/intraday-stage2-level-rejection-feasibility-20261010"
+    },
+    {
+      "sha": "72df6a0a718a4d2d13e0a7d2fc82a43aeecfad0c",
+      "ref": "refs/heads/research/intraday-stage2-m5-baseline"
+    },
+    {
+      "sha": "a61d1d926b288cd8bbc31db557c9eefd245e4d41",
+      "ref": "refs/heads/research/intraday-stage2-squeeze-20261010"
+    },
+    {
+      "sha": "633002c515f7ec68fed6a2adaf40836c8c12d87d",
+      "ref": "refs/heads/research/intraday-stage2-squeeze-m15-20261010"
+    },
+    {
+      "sha": "88d1a338d66220bf47669ab392b0f17a82a89ecd",
+      "ref": "refs/heads/research/intraday-universal-backtester-baseline-20261010"
+    },
+    {
+      "sha": "e88258749ea75f5a50ed523914d60c7a5eec851a",
+      "ref": "refs/heads/research/intradaylab-return-retest-rejection-c-v1"
+    },
+    {
+      "sha": "913d8bdd493402a2fc1d8fc2888f40fc6eef5e2a",
+      "ref": "refs/heads/roadmap-post-v3-analysis"
+    },
+    {
+      "sha": "ab3a16c3e9fd33ea29e23e2d387f19178ae243bb",
+      "ref": "refs/heads/stage8-12/closeout-8-12-1"
+    },
+    {
+      "sha": "191ba3852d31f647ddcbd023f9b10e873d6e369f",
+      "ref": "refs/heads/stage8-12/closeout-8-12-2"
+    },
+    {
+      "sha": "1fa98385220d557e56d713927452fdd0f4695ebb",
+      "ref": "refs/heads/stage8-12/closeout-8-12-2-canonical"
+    },
+    {
+      "sha": "089b5867446b4878bcbeeb5d66e97d29ff9c412b",
+      "ref": "refs/heads/stage8-12/production-conformance-audit"
+    },
+    {
+      "sha": "e38a1859cd2aa63bf30ba81cf77b8acc8f3ba9d4",
+      "ref": "refs/heads/stage8-12/production-runtime-assembly"
+    },
+    {
+      "sha": "c73f609ab204ab369bc2c97fcabf3a65d0f4a94d",
+      "ref": "refs/heads/stage8-12/revert-accidental-post-verification"
+    },
+    {
+      "sha": "b6e13406f2aaac94dee268d178fa93ef330a43f6",
+      "ref": "refs/heads/stage8-12/stage8-12-3-closeout"
+    },
+    {
+      "sha": "3d2c0b8ee7e94d9a8929636786826c083dc1fc1d",
+      "ref": "refs/heads/stage8-12/stage8-12-3-intel-preflight"
+    },
+    {
+      "sha": "4d1d6fecd210eeee014c6f4400ccb27697afd99c",
+      "ref": "refs/heads/stage8-12/stage8-12-4-authorization-foundation"
+    },
+    {
+      "sha": "b9f63010ac5196fe62503e93044657cda1fa23aa",
+      "ref": "refs/heads/stage8-12/stage8-12-4-package2-production-service"
+    },
+    {
+      "sha": "f55940edb2271edafa2999a9850368490010db50",
+      "ref": "refs/heads/stage8-12/stage8-12-4-package2-rolling-h1-corrective"
+    },
+    {
+      "sha": "9ebae10344c066a23db262f528f2d42d0199b92d",
+      "ref": "refs/heads/stage8-12/stage8-12-4-package3-zero-order-validation"
+    },
+    {
+      "sha": "ae495835fe9a8d69cf16b51bea838864a47aef7b",
+      "ref": "refs/heads/stage8-12/stage8-12-4-production-runtime-service"
+    },
+    {
+      "sha": "d13a96a15f00d3a12e2e925eb0e60a36d75af5a4",
+      "ref": "refs/heads/stage8-12/stage8-12-4-production-service"
+    },
+    {
+      "sha": "5903a19c4bfe8fc2b94bc46eb132ee360837a90b",
+      "ref": "refs/heads/stage8-12/stage8-12-4-production-service-v2"
+    },
+    {
+      "sha": "dcc5ceebbf65002b0ae1e70eac24e9a92b89d52e",
+      "ref": "refs/heads/stage8-12/stage8-12-4-production-service-v3"
+    },
+    {
+      "sha": "bc5dbdb1d785edad5eee748b22f2bf6d6a9fc5ce",
+      "ref": "refs/heads/stage8124-production-service-20261007"
+    },
+    {
+      "sha": "2831f690c84a6998ec4f277d3cf3f8cc70fe13f2",
+      "ref": "refs/heads/stage8124-production-service-final"
+    },
+    {
+      "sha": "3a2e15396f456083190f5624b6c5574bfe6717ff",
+      "ref": "refs/heads/top5-contract-fix-v2"
+    },
+    {
+      "sha": "b8bbef7da82fe8e79e64eaedec82f4140d5a5275",
+      "ref": "refs/heads/top5-contract-fix-v3"
+    },
+    {
+      "sha": "3dbceddbfbe516e71a9ea7af076bde6c0ce0115c",
+      "ref": "refs/heads/top5-contract-fix-v4"
+    },
+    {
+      "sha": "e395f65ade0889a366fc714e2d46c43ffbac8334",
+      "ref": "refs/heads/top5-real-strategies-v1"
+    },
+    {
+      "sha": "0c194fdce6aca66cfdf3a8361251a5680262a4d7",
+      "ref": "refs/heads/top5-v4-pairs-perf-stage"
+    },
+    {
+      "sha": "872c649aee49cdfe68c7b1bc3c6dee9d021d3391",
+      "ref": "refs/heads/top5-v4-runtime-temp"
+    },
+    {
+      "sha": "7b1a217c84b6a2fa0dd09b034d6825572eb39b2f",
+      "ref": "refs/heads/top5-v4-test-temp"
+    },
+    {
+      "sha": "469361b106c7556864c4beb6aee79d2cd97a7c24",
+      "ref": "refs/heads/top5-v4-upload-staging"
+    },
+    {
+      "sha": "f31c590844d9786a6c95ce683e0dbfdf1e8f4237",
+      "ref": "refs/heads/windows-phase4b-resource-compat"
+    },
+    {
+      "sha": "5cd66a08c013dc64e6b182391a8f8f216a6ae84c",
+      "ref": "refs/heads/windows-validation-compatibility-fix"
+    },
+    {
+      "sha": "bd7a04f13a6d443a2587c6fc7aa6f802c72aa890",
+      "ref": "refs/heads/work"
+    }
+  ],
+  "intraday_prs": [
+    {
+      "number": 478,
+      "title": "IntradayLab: C_v1 return-retest-rejection M5 \u2014 fixed Baseline 2023",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-11T12:19:43Z",
+      "head_sha": "e88258749ea75f5a50ed523914d60c7a5eec851a",
+      "head_ref": "research/intradaylab-return-retest-rejection-c-v1",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/478"
+    },
+    {
+      "number": 477,
+      "title": "IntradayLab: Data Gap Skip / Backtester v2 \u2014 opt-in technical policy",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-11T10:31:21Z",
+      "head_sha": "a0af55da2a4291a17259c044f3f895d3d4990445",
+      "head_ref": "codex/intradaylab-data-gap-skip-v2",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/477"
+    },
+    {
+      "number": 476,
+      "title": "IntradayLab: allow sufficient-sample Optimization and plan data-gap skip policy",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-11T09:40:32Z",
+      "head_sha": "b248ee7f6772a08b6036f4d87f80899df5d45ed1",
+      "head_ref": "docs/intraday-optimization-gap-policy-20261011",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/476"
+    },
+    {
+      "number": 475,
+      "title": "IntradayLab: HIGH_LOW_CLUSTER B4/B7/B10 Baseline 2023 \u2014 INCONCLUSIVE",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-11T09:50:02Z",
+      "head_sha": "bf0fb8ac8bcb73af11490e0d3f159c5906964d95",
+      "head_ref": "research/intraday-high-low-cluster-b4-b7-b10",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/475"
+    },
+    {
+      "number": 474,
+      "title": "IntradayLab: ENTRY_NEXT_OPEN + Equal High/Low A_v1 Baseline 2023 \u2014 INCONCLUSIVE",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-11T08:50:09Z",
+      "head_sha": "30683692fb4f00f84a13a9747ebc94c9e57ab11d",
+      "head_ref": "codex/equal-high-low-m5-2023-a-v1",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/474"
+    },
+    {
+      "number": 473,
+      "title": "IntradayLab: freeze Round Level/Touch/Accumulation research roadmap",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-11T07:53:37Z",
+      "head_sha": "1e8bd1707d21618313e182f6ab725ab74ec0647f",
+      "head_ref": "docs/intraday-round-level-touch-plan-20261011",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/473"
+    },
+    {
+      "number": 472,
+      "title": "IntradayLab: Bollinger RSI Re-entry M15 Baseline 2023 \u2014 audit NEEDS_FIX",
+      "state": "open",
+      "draft": true,
+      "merged_at": null,
+      "head_sha": "82ec9ffe61e18a43cd7510e398f6913b25f045e1",
+      "head_ref": "codex/bollinger-rsi-reentry-m15-2023-v1",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/472"
+    },
+    {
+      "number": 471,
+      "title": "IntradayLab: Trend Pullback M15 + H1 canonical Baseline 2023",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T21:17:05Z",
+      "head_sha": "5ee7fb90dd6751c003fbc5474fa67742a086ff56",
+      "head_ref": "codex/trend-pullback-m15-h1-2023-v1",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/471"
+    },
+    {
+      "number": 470,
+      "title": "IntradayLab: Swing Pullback M5 + M15 canonical Baseline 2023",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T20:50:34Z",
+      "head_sha": "48d9de4a8d262a2fd8c3589cae1a3561d70aa0ad",
+      "head_ref": "codex/swing-pullback-m5-m15-2023-v1",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/470"
+    },
+    {
+      "number": 469,
+      "title": "IntradayLab: Level Rejection M5 economic Baseline 2023",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T20:21:51Z",
+      "head_sha": "f3260b3b5b2061dd89720da80eb6dc93102ea582",
+      "head_ref": "codex/level-rejection-2023-m5-v1",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/469"
+    },
+    {
+      "number": 468,
+      "title": "IntradayLab: fixed R16 Compression Breakout M5 Baseline 2023 \u2014 INCONCLUSIVE",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T19:45:48Z",
+      "head_sha": "93d7ab116ebb2e522329c60dff4cdcd90b43445c",
+      "head_ref": "codex/r16-compression-breakout-2023-m5-v1",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/468"
+    },
+    {
+      "number": 467,
+      "title": "docs(IntradayLab): fix approved M5/M15/MTF reserve strategy roadmap",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T19:36:36Z",
+      "head_sha": "39b98e740a0def0f50bdd36d591e3e4c2d319e19",
+      "head_ref": "docs/intradaylab-approved-reserve-strategies-20261010",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/467"
+    },
+    {
+      "number": 466,
+      "title": "IntradayLab: R17 M5 2023 Baseline \u2014 INCONCLUSIVE, negative conditional R",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T19:07:17Z",
+      "head_sha": "2d7b23580af6b919375d19b78b61e5e3969af3f0",
+      "head_ref": "intradaylab/r17-m5-baseline-2023",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/466"
+    },
+    {
+      "number": 465,
+      "title": "IntradayLab: independent Backtester and canonical ORB A BASE 2023 Baseline",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T18:07:18Z",
+      "head_sha": "88d1a338d66220bf47669ab392b0f17a82a89ecd",
+      "head_ref": "research/intraday-universal-backtester-baseline-20261010",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/465"
+    },
+    {
+      "number": 464,
+      "title": "IntradayLab: adopt independent TradingSystemLab-style research architecture",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T17:09:06Z",
+      "head_sha": "055592400613cadc7246a85618176cd4b152930f",
+      "head_ref": "docs/intradaylab-independent-tsl-methodology-20261010",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/464"
+    },
+    {
+      "number": 463,
+      "title": "research(IntradayLab): ORB fade v2 \u2014 16 audited 2023 daywise retests",
+      "state": "open",
+      "draft": true,
+      "merged_at": null,
+      "head_sha": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+      "head_ref": "research/intraday-orb-false-break-fade-stage2",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/463"
+    },
+    {
+      "number": 462,
+      "title": "research(IntradayLab): rapid M5 execution FAST0/FAST5 economic rerun",
+      "state": "open",
+      "draft": true,
+      "merged_at": null,
+      "head_sha": "7a9c5d3759a5c07d002d5ed3e630132829dd7ebf",
+      "head_ref": "research/intraday-stage2-level-rejection-fast-m5-20261010",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/462"
+    },
+    {
+      "number": 461,
+      "title": "docs(IntradayLab): approve ORB \u00d7 Level second-wave Stage 2 matrix",
+      "state": "open",
+      "draft": false,
+      "merged_at": null,
+      "head_sha": "de05392d022611951549badc7581a430e1a624c4",
+      "head_ref": "docs/intraday-stage2-orb-level-matrix-20261010",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/461"
+    },
+    {
+      "number": 460,
+      "title": "research(IntradayLab): Stage 2 LEVEL_REJECTION_M5 economic Baseline rules freeze",
+      "state": "open",
+      "draft": true,
+      "merged_at": null,
+      "head_sha": "53442b49e31f6409567e31c4fa14d738814eab49",
+      "head_ref": "research/intraday-stage2-level-rejection-economic-baseline-20261010",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/460"
+    },
+    {
+      "number": 459,
+      "title": "research(IntradayLab): audited LEVEL_REJECTION_M5 opportunity preflight",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T11:07:26Z",
+      "head_sha": "9737a8e3df59e944cfe6477b07006632aaa837d1",
+      "head_ref": "research/intraday-stage2-level-rejection-feasibility-20261010",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/459"
+    },
+    {
+      "number": 458,
+      "title": "docs(IntradayLab): revised Stage 2 second-wave strategy shortlist and net 3R criteria",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T10:23:24Z",
+      "head_sha": "5bff9f5a24dae0bcbf85898943f720ae958037b3",
+      "head_ref": "docs/intraday-stage2-next-strategies-20261010",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/458"
+    },
+    {
+      "number": 457,
+      "title": "research(IntradayLab): close M15/H1 Squeeze \u2014 NO ECONOMIC BASELINE PASS",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T09:55:07Z",
+      "head_sha": "633002c515f7ec68fed6a2adaf40836c8c12d87d",
+      "head_ref": "research/intraday-stage2-squeeze-m15-20261010",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/457"
+    },
+    {
+      "number": 456,
+      "title": "research(IntradayLab): audit Squeeze v1 \u2014 no economic baseline PASS",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T09:13:22Z",
+      "head_sha": "a61d1d926b288cd8bbc31db557c9eefd245e4d41",
+      "head_ref": "research/intraday-stage2-squeeze-20261010",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/456"
+    },
+    {
+      "number": 455,
+      "title": "docs(IntradayLab): record two-timeframe Squeeze test matrix and historical scope",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T09:16:31Z",
+      "head_sha": "f1adb3f97c8a79e5f114915b952ef83fae688023",
+      "head_ref": "docs/intraday-squeeze-m5-m15-mtf-matrix-20261010",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/455"
+    },
+    {
+      "number": 454,
+      "title": "chore(IntradayLab): consolidate accepted Stage 2 chain into main",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T07:49:41Z",
+      "head_sha": "007e05c349f2fb54e0c3d0baf96cfef09418f739",
+      "head_ref": "research/intraday-stage2-causal-mtf-final-20261009",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/454"
+    },
+    {
+      "number": 453,
+      "title": "audit(IntradayLab): final independent trading logic PASS for VWAP and Momentum",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T07:45:10Z",
+      "head_sha": "1d4dc5ba85f0e9905e3986fcf005b57508c71180",
+      "head_ref": "audit/intraday-stage2-independent-logic-20261010",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/453"
+    },
+    {
+      "number": 452,
+      "title": "docs(IntradayLab): preserve future intraday performance and frequency requirements",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T07:44:55Z",
+      "head_sha": "bb62cd27bac56d60b7d8f7a432e302f38b658ffd",
+      "head_ref": "docs/intraday-research-targets-20261010",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/452"
+    },
+    {
+      "number": 451,
+      "title": "research(IntradayLab): causal MTF completion and final VWAP/Momentum rejection",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T07:44:42Z",
+      "head_sha": "2cfab348011c874e5d8e98787855f86b75fb5e43",
+      "head_ref": "research/intraday-stage2-causal-mtf-final-20261009",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/451"
+    },
+    {
+      "number": 450,
+      "title": "research(IntradayLab): complete Stage 2 architectures and economic rejection",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T07:44:29Z",
+      "head_sha": "095b4b0c829b6f92323a7cd5a023d2f559f3a8a3",
+      "head_ref": "research/intraday-stage2-complete-architecture-20261009",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/450"
+    },
+    {
+      "number": 449,
+      "title": "fix(IntradayLab): independent v2 corrective audit and complete-period reporting",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T07:44:17Z",
+      "head_sha": "ca8922082b0988837f7553e5ff39d6a2c3dece09",
+      "head_ref": "corrective/intraday-stage2-m5-v2-independent-audit",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/449"
+    },
+    {
+      "number": 448,
+      "title": "docs(IntradayLab): Baseline architecture before bounded optimization",
+      "state": "closed",
+      "draft": true,
+      "merged_at": null,
+      "head_sha": "d000c5e8aad3e0bbae32f55bbf205483b48e9408",
+      "head_ref": "docs/intraday-stage2-baseline-architecture-policy-20261009",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/448"
+    },
+    {
+      "number": 447,
+      "title": "fix(IntradayLab): corrective M5 conditional Baseline v2 (stacked, 2023)",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T07:44:00Z",
+      "head_sha": "90369e12332e738da222dfe510120747c6ce9e80",
+      "head_ref": "corrective/intraday-stage2-m5-conditional-v2",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/447"
+    },
+    {
+      "number": 446,
+      "title": "IntradayLab: independent M5/M15 evidence for eight unresolved Stage 2 targets",
+      "state": "closed",
+      "draft": true,
+      "merged_at": null,
+      "head_sha": "938d7d81f5d7105c470c27c78eec57156948d50c",
+      "head_ref": "audit/intraday-stage2-eight-m5-target-gaps-20261009",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/446"
+    },
+    {
+      "number": 445,
+      "title": "IntradayLab: fail-closed Stage 2 research completeness audit (stacked, no tuning)",
+      "state": "closed",
+      "draft": true,
+      "merged_at": null,
+      "head_sha": "9b404949767356a8b58ca25758d99dfce014f482",
+      "head_ref": "audit/intraday-stage2-research-completeness-20261009",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/445"
+    },
+    {
+      "number": 444,
+      "title": "docs(IntradayLab): record Stage 3 indicator-filter priorities",
+      "state": "closed",
+      "draft": false,
+      "merged_at": null,
+      "head_sha": "f33e236e1a4f69cd614bb77bd988ba2b6d3f153e",
+      "head_ref": "docs/intraday-stage3-filter-priorities-20261009",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/444"
+    },
+    {
+      "number": 443,
+      "title": "IntradayLab: Stage 2 M5-only Baseline (2023)",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-10T07:43:31Z",
+      "head_sha": "0da11cf86169d5cedf3386549ebe244ca5204fd0",
+      "head_ref": "research/intraday-stage2-m5-baseline",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/443"
+    },
+    {
+      "number": 442,
+      "title": "IntradayLab: confirm M5 clock and conditional Baseline readiness",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-09T12:33:55Z",
+      "head_sha": "8dfe1ed0134c4f33f31c09deee4bf695c274efc2",
+      "head_ref": "research/intraday-stage1-m5-clock-confirmation",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/442"
+    },
+    {
+      "number": 441,
+      "title": "IntradayLab: final M5 readiness and explicit timestamp blocker",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-09T11:04:50Z",
+      "head_sha": "232ca15ddfd8bb1996939901d16d6904a744a651",
+      "head_ref": "research/intraday-stage1-m5-readiness",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/441"
+    },
+    {
+      "number": 440,
+      "title": "IntradayLab: Stage 1 execution, costs and funding specification",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-09T10:21:46Z",
+      "head_sha": "79f974b570e7b8037ef426eba41d4e48793375ee",
+      "head_ref": "research/intraday-stage1-execution-costs",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/440"
+    },
+    {
+      "number": 439,
+      "title": "IntradayLab Stage 1.2: historical sessions and fail-closed causal MTF",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-09T09:23:41Z",
+      "head_sha": "36902d328ffb2d264f5254c4fd5c97ba9d4b46ac",
+      "head_ref": "research/intraday-stage1-2-sessions-mtf",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/439"
+    },
+    {
+      "number": 438,
+      "title": "chore(IntradayLab): bring isolated research folder into main",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-09T07:12:25Z",
+      "head_sha": "cd56627fd050f665eee88ffbd6cc4acba61db8d7",
+      "head_ref": "chore/intradaylab-folder-main-20261009",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/438"
+    },
+    {
+      "number": 437,
+      "title": "docs(IntradayLab): reflect partial Stage 1 data audit",
+      "state": "closed",
+      "draft": false,
+      "merged_at": "2026-10-09T05:22:38Z",
+      "head_sha": "d720ac81012186a3d259a0f64dbac6cf28cdb74e",
+      "head_ref": "codex/intraday-readme-stage1-audit-20261009",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/437"
+    }
+  ],
+  "local_untracked_intraday_files": [],
+  "external_lineage_ref": "728d23e25d4bd41fdb6d50e134d1f099c206c6b2",
+  "discovery_date": "2026-10-11",
+  "timezone": "Europe/Moscow"
+}
