@@ -1,0 +1,26 @@
+{
+  "adapters": "In-memory synthetic source/freezing metadata and synthetic legacy comparator ledgers only; every algorithm unchanged",
+  "historical_candle_reads": 0,
+  "independent_checked_fields": {
+    "accepted_ID_checks": 792,
+    "common_baseline_closed_fields": 55,
+    "coverage_fields": 2228850,
+    "data_gap_skips_fields": 5400,
+    "data_quality_exclusions_fields": 2565,
+    "diagnostic_fields": 175914,
+    "direction_fields": 29250,
+    "episode_fields": 9999,
+    "funnel_fields": 6435,
+    "legacy_signal_fields": 639,
+    "legacy_trade_fields": 428,
+    "metric_fields": 31590,
+    "monthly_fields": 231660,
+    "neighborhood_fields": 12800,
+    "rejected_nonfill_fields": 1593,
+    "signals_fields": 65043,
+    "trades_fields": 44820
+  },
+  "selection": "NO QUALIFYING OPTIMIZATION CANDIDATE",
+  "status": "PASS",
+  "synthetic_evaluations": 585
+}

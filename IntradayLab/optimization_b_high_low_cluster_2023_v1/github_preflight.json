@@ -1,0 +1,26 @@
+{
+  "repository": "alkospacer123/market-pattern-discovery",
+  "actual_main": "0aa3851b754705145b3c64af9781e93f553e4a09",
+  "preflight": [
+    {
+      "number": 480,
+      "state": "closed",
+      "merged": true,
+      "draft": false,
+      "head_sha": "adedfd706491d08502074c151f0ddbee93cab195",
+      "base_sha": "ce89458b063f3af2451f8c4c162107207973c53b",
+      "merge_commit_sha": "0aa3851b754705145b3c64af9781e93f553e4a09",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/480"
+    },
+    {
+      "number": 472,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "head_sha": "82ec9ffe61e18a43cd7510e398f6913b25f045e1",
+      "base_sha": "a63581a6942974ff7d636387d2ceb23893303096",
+      "merge_commit_sha": "249df6ca1c7f38a886f44b7f2859c65821084706",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/472"
+    }
+  ]
+}

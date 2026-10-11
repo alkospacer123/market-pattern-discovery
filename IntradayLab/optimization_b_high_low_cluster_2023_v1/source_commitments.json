@@ -1,0 +1,83 @@
+{
+  "base_main": "0aa3851b754705145b3c64af9781e93f553e4a09",
+  "configuration_count": 315,
+  "dependencies_sha256": {
+    "IntradayLab/core/__init__.py": "52a31da3d75de924e39ea2590065a8e4b9d9474621c44c4681aa75c1feb70320",
+    "IntradayLab/core/backtester.py": "f5803a9df54ab0caf9a1d8feb53c549bc0aef887b12978b0bf5e89ab59eb09cd",
+    "IntradayLab/core/calendar.py": "a0e831cfbf306a58b03538534afc6e0d078fd53145360587813637786bde3cde",
+    "IntradayLab/core/data_loader.py": "e4eef022b4c998fe270285ef266eb307f9f75f0ef1c1446ba0502f05e09e1c3b",
+    "IntradayLab/core/data_quality.py": "c012de206331f723de4ab2fbe3549bf8645378bc1c2e4473123054083eda4af0",
+    "IntradayLab/core/execution.py": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c",
+    "IntradayLab/core/h1_context.py": "29ccc342d760e855f6868c144c99bd5b3d2312089cf0f5851bbeb69bb17b6909",
+    "IntradayLab/core/indicators.py": "73bbb7b92bcaa1f312f952acb491c6aa02e7258df7973f75542f094538f51105",
+    "IntradayLab/core/m15_bars.py": "46bba5ed6a46b65666de3f5f243beaaf161e29d852575b9b2e8a2950c2b0d334",
+    "IntradayLab/core/m15_context.py": "26bca505f8283626f48993ac374d9a2b279231014c468e03593562104d2443c2",
+    "IntradayLab/core/metrics.py": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
+    "IntradayLab/core/models.py": "693cdb3c8ba8658bb3872cced37aa5d000cbb8b5f0116676991b13e869bb2cba",
+    "IntradayLab/core/reports.py": "179cbf1e1560e656a377c8e7b158f4c44637b409b4f2abb60c3ae7f4225a7b88",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/EVALUATION_MATRIX.csv": "f9fb49e0bd8b467245e73309e366bbcf6c4016ecf27579ef4f8bafc17c3f8767",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/GRID.csv": "fe99a3992f76702f506a319b496fcb69952c785718a76d18672d0ade030bece9",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/OPTIMIZATION_B_POLICY.json": "6597990606d46d89fa6620ed098ae0f983ef8c896d05199aa12674cf4e6f6f3e",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/PREREGISTRATION.md": "93f807b2ff6e28b7146f0c5e94bf1988302c78f743fda6e655be1dd09b2c9dd8",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/__init__.py": "6dd9a9def0d91dc1f447cc9b60b8f0f32a3eb190e2551937bcfadb1e7e7551fe",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/aggregation.py": "d7bf28ee9bd91aca5d58ea0e4d148938c3eed64fc13c22168f1ecacc28f285b5",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/auditor.py": "9e70331e9f26cb53271418223ac2df985bd5b080985fd030101cd1610347b92f",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/contract.py": "c98450e75b279c4deb7f70c700a849b40f946b1e6d6111db57031ed12c402609",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/existing_full_tests.log": "d636342738037c3774f40d22573487da1a697d7507b922264175d5c6d7932393",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/existing_tests_receipt.log": "f4d19c4aa3bf68951555e7929aae1da6d111021a825fc0c501fc38df03cbc763",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/freeze.py": "19713bdc01fb6cc9203cd46e45fb4a710680a8bb98b1e68f7c6f0226784eea53",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/github_preflight.json": "803d5320f0be4777364aa89158bdffe84ab71ece0f55bd2a8b2f55e975882898",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/optimization_a_regression_tests.log": "dc5f5827548090c9a6b3def198b9c403f037984fea937976ed81f55a3aebedea",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/pre_pnl_tests.log": "88762ea56c37a2ac8ed4d1bb0088da32ed36a2a2c2971e31d536bc7430cc9551",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/preflight.json": "9e3acf840d9b89602849cae190f01850b9a12a90239419ed2a16141bfe2d6f57",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/protected_file_sha256.json": "ef1a87c7c77432e3c5ff76d4a069ce77c0e2735d41f5df2d34eb01f4acd8d41a",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/runner.py": "09f4be7e06cff491b1820d2d7752555aea59420d0f519a03616b79e2fb75e79f",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/synthetic_pipeline.log": "f31596a895c1d32732d1197ee3414f5ae15e9415d8372eb74653db6da6a76402",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/synthetic_pipeline.py": "5f97d8d1648968aaf4f0b59b811fe58d40ee8d2b7414aab2b7c58a00fcd6fe5e",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/synthetic_pipeline_receipt.json": "ea5a62ca565073d3aea03363cdc2d54140da540727c98e7b50cc8cedf24c6d8e",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/tests.py": "4bdcd9ca104deeb69f9507b144e05edb9de00766e9ed9129a818f258247a5a35",
+    "IntradayLab/optimization_b_high_low_cluster_2023_v1/validate.py": "faf6e947c5bebc9bf2cda2562057045f2c6c996b4d63c13d7bff29a74680fb5d",
+    "IntradayLab/strategies/__init__.py": "aefe61f8781c23d9e6a58b181f576c780ca3350551546e462711f2a1eeef0a9d",
+    "IntradayLab/strategies/high_low_cluster_m5_optimization_b_v1.py": "1058b52c23f8d12e582d699211c908d2bc0fd86b87b6616dd1b34114110c3038"
+  },
+  "evaluations_per_run": 585,
+  "input_commitments": {
+    "CNYRUBF": {
+      "blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M5.csv",
+      "prefix_bytes": 2212189,
+      "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 39362
+    },
+    "USDRUBF": {
+      "blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/USDRUBF/USDRUBF_M5.csv",
+      "prefix_bytes": 2342431,
+      "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 42576
+    }
+  },
+  "policy_sha256": "6597990606d46d89fa6620ed098ae0f983ef8c896d05199aa12674cf4e6f6f3e",
+  "pre_PNL_candle_reads": 0,
+  "preexisting_repository_files": 5236,
+  "protection_inventory_sha256": "ef1a87c7c77432e3c5ff76d4a069ce77c0e2735d41f5df2d34eb01f4acd8d41a",
+  "schema": "B_OPT2023_FREEZE_V1",
+  "search_budget": {
+    "adaptive_trials": 0,
+    "canonical_runs": 1,
+    "evaluations_by_instrument": {
+      "CNYRUBF": 315,
+      "USDRUBF": 270
+    },
+    "evaluations_per_full_run": 585,
+    "full_repeats": 2,
+    "independent_audit_full_runs": 3,
+    "instruments": 2,
+    "unique_configurations": 315
+  },
+  "source_sha": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8"
+}
