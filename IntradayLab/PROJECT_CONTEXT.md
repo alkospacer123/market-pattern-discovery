@@ -1,5 +1,10 @@
 # IntradayLab — project context
 
+## Current approved Round Level / Touch / Accumulation plan — 2026-10-11
+
+The latest user decision is captured in [ROADMAP.md](ROADMAP.md), section **"Approved Round Level / Touch / Accumulation research plan — 2026-10-11"**. The first next task is a separate Draft PR containing a backward-compatible opt-in **ENTRY_NEXT_OPEN** M5 clock plus the single preregistered **A EQUAL_HIGH_LOW 3-touch** 2023 Baseline; **ENTRY_CLOSE_ORACLE** is purely idealized diagnostics and cannot qualify economic PASS. Existing waiting-bar execution remains default and all previously frozen code and results remain untouched. B **HIGH_LOW_CLUSTER** counts candle Highs/Lows, NOT consecutive Closes: 4, 7, 10 independent Baselines first, full 4–10 comparison only if justified later; C evaluates independent pullback/retest approaches. Stops lie just beyond observed extreme plus buffer, with predeclared guards against impulse-too-far entry; initial fixed target FULL_NET_C1_R=3. Only after positive audited economics may bounded numerical optimization compare touch counts, widths, Stops, 2/3/5/7/10 net R and trailing; optional MTF/filters are conditional. The general audit of **all** tested historical strategies is deliberately scheduled **after** Round Level research, not before. 2024 reserved WF, 2025+ locked TRUE OOS, only `IntradayLab/` may change, no Merge or LIVE.
+
+
 ## Current common Backtester and canonical Baseline — 2026-10-10
 
 Base `origin/main`: `447edace1962232854cc26212c4ae5ca2e17297e` (merged #464).
