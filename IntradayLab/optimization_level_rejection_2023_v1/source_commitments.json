@@ -22,6 +22,7 @@
     "IntradayLab/optimization_level_rejection_2023_v1/GRID.csv": "a52cdaf5401f72678a4cd1449ae621c98eb5bdde3225175d625b3485143a400b",
     "IntradayLab/optimization_level_rejection_2023_v1/OPTIMIZATION_LEVEL_REJECTION_POLICY.json": "7f3e2e69bf8e7f263aee8d08050ee7aaf72bb4555cc400c7478d692afbbf1d62",
     "IntradayLab/optimization_level_rejection_2023_v1/PREREGISTRATION.md": "e32916ccd88f0dc3a770648cc688ad1e4cd3d48113b48698d0dce099c35ca142",
+    "IntradayLab/optimization_level_rejection_2023_v1/PRE_PNL_FREEZE_COMPLETION.md": "3fcc3724882ccd361537bfab27cf3ee391e5dee9bed1d436b3d853cb1260f3fe",
     "IntradayLab/optimization_level_rejection_2023_v1/__init__.py": "4cccb9ed299932a13b180025191c0ec9f7ed9ae593f4b865797f8945562f60fe",
     "IntradayLab/optimization_level_rejection_2023_v1/aggregation.py": "e49c936bb1accef2fad5a526325685a7a9168a28859712c2afe931941964d1ff",
     "IntradayLab/optimization_level_rejection_2023_v1/audit_tests.log": "348c94d24b69ca5af2f3e63ed28478e37e23e136836f256ad8bd44b490827bb7",
@@ -108,6 +109,12 @@
     }
   },
   "policy_sha256": "7f3e2e69bf8e7f263aee8d08050ee7aaf72bb4555cc400c7478d692afbbf1d62",
+  "pre_PNL_freeze_completion": {
+    "cause": "repository CSV ignore rule; explicit force-add fixes absent grid and evaluation matrix",
+    "incomplete_preparation_commit": "1705712d2edd8b266ccb9841d24631ca40be9ca7",
+    "rejected_before_historical_reads": true,
+    "valid_freeze": "Latest source_commitments Git commit; must verify all files before source read"
+  },
   "pre_PNL_legacy_regression_candle_reads": {
     "bytes": 11667408,
     "bytes_2024_plus_read": 0,
