@@ -1,0 +1,164 @@
+{
+  "canonical": {
+    "instruments": {
+      "CNYRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "opens": 1,
+        "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+        "read_calls": 1,
+        "rows_2023": 39362,
+        "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686"
+      },
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "opens": 1,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "read_calls": 1,
+        "rows_2023": 42576,
+        "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+      }
+    },
+    "scope": "strace read syscalls on both physical source files across parent and descendants; no source content displayed",
+    "status": "PASS",
+    "trace_sha256": "a1c461f033482ba07d612fcea8302109d25ea70bf153465ca1a8cb05f49c94c3"
+  },
+  "canonical_independent_audit": {
+    "instruments": {
+      "CNYRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "opens": 1,
+        "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+        "read_calls": 680,
+        "rows_2023": 39362,
+        "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686"
+      },
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "opens": 1,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "read_calls": 649,
+        "rows_2023": 42576,
+        "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+      }
+    },
+    "scope": "strace read syscalls on both physical source files across parent and descendants; no source content displayed",
+    "status": "PASS",
+    "trace_sha256": "8ccc6c2c7b46170f37aad8cdedcab6ce80825a694a4ae5050ed116fbd0d43c71"
+  },
+  "repeat_1": {
+    "instruments": {
+      "CNYRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "opens": 1,
+        "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+        "read_calls": 1,
+        "rows_2023": 39362,
+        "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686"
+      },
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "opens": 1,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "read_calls": 1,
+        "rows_2023": 42576,
+        "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+      }
+    },
+    "scope": "strace read syscalls on both physical source files across parent and descendants; no source content displayed",
+    "status": "PASS",
+    "trace_sha256": "7354611d1884ca07e0444cb7edd407ddf06cf748119ad99022c7ba1562660b78"
+  },
+  "repeat_1_independent_audit": {
+    "instruments": {
+      "CNYRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "opens": 1,
+        "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+        "read_calls": 680,
+        "rows_2023": 39362,
+        "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686"
+      },
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "opens": 1,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "read_calls": 649,
+        "rows_2023": 42576,
+        "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+      }
+    },
+    "scope": "strace read syscalls on both physical source files across parent and descendants; no source content displayed",
+    "status": "PASS",
+    "trace_sha256": "1f11ef3ce1260011852e5c18c5ca4369b14d405ca3c095f50f69040e69d43082"
+  },
+  "repeat_2": {
+    "instruments": {
+      "CNYRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "opens": 1,
+        "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+        "read_calls": 1,
+        "rows_2023": 39362,
+        "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686"
+      },
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "opens": 1,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "read_calls": 1,
+        "rows_2023": 42576,
+        "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+      }
+    },
+    "scope": "strace read syscalls on both physical source files across parent and descendants; no source content displayed",
+    "status": "PASS",
+    "trace_sha256": "0d6846cafb0b6f169827fba870c29069597a3bde4b3c7da87865ceb04f1ed5fc"
+  },
+  "repeat_2_independent_audit": {
+    "instruments": {
+      "CNYRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2212189,
+        "maximum_offset": 2212189,
+        "opens": 1,
+        "prefix_sha256": "42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9",
+        "read_calls": 680,
+        "rows_2023": 39362,
+        "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686"
+      },
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "opens": 1,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "read_calls": 649,
+        "rows_2023": 42576,
+        "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+      }
+    },
+    "scope": "strace read syscalls on both physical source files across parent and descendants; no source content displayed",
+    "status": "PASS",
+    "trace_sha256": "9e799ba52b8d8d4e122e3f1165a11dc06e7add39c3df284fbb2daea558e6b2c8"
+  }
+}

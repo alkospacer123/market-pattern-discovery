@@ -1,0 +1,51 @@
+{
+  "annual_account_returns": null,
+  "annual_economics": null,
+  "data_gap_policy": "DATA_GAP_SKIP_V2",
+  "data_quality_warning": "Skipped entries and excluded opened positions may bias the resolved sample. Conditional FLAT after an exclusion is not evidence of a real close. Incomplete coverage does not prove annual profitability.",
+  "diagnostic_scope": "Resolved closures only; independent conditional research days",
+  "instruments": {
+    "CNYRUBF": {
+      "accepted_entries": 269,
+      "closed": 175,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.6768571428571428571428571451",
+        "Max_DD_R": "118.4500000000000000000000004",
+        "Net_R": "-118.4500000000000000000000004",
+        "Net_price": "-3.845",
+        "PF_C1_R": "0.2520521995369395916649126489",
+        "PF_C1_price": "0.2584378013500482160077145612",
+        "PF_no_losses": false,
+        "Win_Rate": "0.2057142857142857142857142857",
+        "closed": 175,
+        "cost_C1": "3.446",
+        "exit_reasons": {
+          "SESSION_FLAT": 61,
+          "STOP": 77,
+          "TAKE": 3,
+          "TIME": 34
+        }
+      },
+      "conditional_flat_closed": 167,
+      "coverage_complete": false,
+      "data_gap_skips": 26,
+      "data_quality_excluded": 94,
+      "entry_reconciliation_passed": true,
+      "exclusion_fraction": "0.3494423791821561338289962825",
+      "exclusion_reasons": {
+        "MISSING_EXPOSED_BAR": 94
+      },
+      "skip_reasons": {
+        "MISSING_EXECUTION_BAR": 26
+      }
+    }
+  },
+  "pooled_price_portfolio": null,
+  "totals_counts_only": {
+    "accepted_entries": 269,
+    "closed": 175,
+    "data_gap_skips": 26,
+    "data_quality_excluded": 94,
+    "exclusion_fraction": "0.3494423791821561338289962825"
+  }
+}

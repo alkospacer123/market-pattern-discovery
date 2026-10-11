@@ -1,0 +1,6 @@
+{
+  "CLOSED": 34,
+  "existing_ledger_sha256": "1f88841b6baf58274cd2031e2e53a7bae132200193c23e86fa4836ba237526e8",
+  "new_optimization_evaluation": false,
+  "reason": "INSUFFICIENT_TRADES; existing frozen ledger only; no raw replay of USD N10"
+}

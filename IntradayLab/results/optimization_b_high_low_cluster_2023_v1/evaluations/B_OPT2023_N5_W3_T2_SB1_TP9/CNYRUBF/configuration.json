@@ -1,0 +1,34 @@
+{
+  "configuration_id": "B_OPT2023_N5_W3_T2_SB1_TP9",
+  "execution": {
+    "allow_entry_bar_take": false,
+    "cost_ticks_per_side": 1,
+    "daily_trade_deadline_clock": null,
+    "data_gap_policy": "DATA_GAP_SKIP_V2",
+    "entry_mode": "ENTRY_NEXT_OPEN",
+    "session_flat_before_end_bars": 1,
+    "unknown_scope": "current_day; following days conditional FLAT",
+    "wait_complete_bars": 0
+  },
+  "freeze_commit": "a7d894ba934ff89f8188e2c3574fdb86b9f2b922",
+  "instrument": "CNYRUBF",
+  "parameters": {
+    "cluster_bars": 5,
+    "max_hold_calendar_minutes": 120,
+    "maximum_rebound_ticks": 4,
+    "maximum_risk_ticks": 12,
+    "maximum_width_ticks": 3,
+    "minimum_boundary_touches": 2,
+    "minimum_risk_ticks": 3,
+    "minimum_width_ticks": 1,
+    "signal_tf": "M5",
+    "stop_buffer_ticks": 1,
+    "target_mode": "FULL_NET_C1_R",
+    "target_net_R": "9",
+    "tolerance_ticks": 0,
+    "version": "B_OPT2023_v1"
+  },
+  "source_blob": "01d667868daaa5610cc8794bf90fe0f276e33686",
+  "source_sha": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "strategy_sha256": "1058b52c23f8d12e582d699211c908d2bc0fd86b87b6616dd1b34114110c3038"
+}
