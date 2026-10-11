@@ -1,0 +1,45 @@
+{
+  "criteria": {
+    "expectancy_R_strictly_above": "0",
+    "ideal_positive_exit_months": 12,
+    "maximum_conditional_closed_only_DD_R": "20",
+    "maximum_largest_positive_month_share_R": "0.50",
+    "maximum_largest_winner_share_R": "0.25",
+    "minimum_PF_R": "2.0",
+    "minimum_PF_price": "2.0",
+    "minimum_closed": 100,
+    "minimum_entry_days": 40,
+    "minimum_entry_months": 6,
+    "minimum_positive_exit_months": 9,
+    "minimum_positive_neighbor_count": 2,
+    "neighbor_definition": "Exactly one parameter differs by one index in its published value list; all other parameters equal; same instrument; local 2023 diagnosis, not Robustness",
+    "neighbor_expectancy_R_strictly_above": "0",
+    "neighbor_minimum_PF_R": "1.5",
+    "neighbor_minimum_closed": 100,
+    "ranking": [
+      "positive_exit_months DESC",
+      "min(PF_R,PF_price) DESC",
+      "conditional_closed_only_DD_R ASC",
+      "CLOSED DESC",
+      "configuration_id ASC"
+    ]
+  },
+  "evaluations": 288,
+  "external_independent_review_required": true,
+  "instruments": {
+    "USDRUBF": {
+      "base_study_criteria_pass": 0,
+      "both_PF_pass": 0,
+      "evaluated": 288,
+      "full_criteria_pass": 0,
+      "months_pass": 0,
+      "neighbors_pass": 0,
+      "ranked_ids": [],
+      "result": "NO QUALIFYING OPTIMIZATION CANDIDATE",
+      "sample_and_both_PF_pass": 0,
+      "sample_pass": 216
+    }
+  },
+  "no_automatic_advance": true,
+  "overall_result": "NO QUALIFYING OPTIMIZATION CANDIDATE"
+}

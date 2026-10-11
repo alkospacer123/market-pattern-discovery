@@ -1,0 +1,12 @@
+4530  +++ exited with 0 +++
+4529  --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=4530, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+4531  +++ exited with 0 +++
+4529  --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=4531, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+4532  +++ exited with 0 +++
+4529  --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=4532, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+4533  +++ exited with 0 +++
+4529  --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=4533, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+4529  openat(AT_FDCWD</workspace/work/optimization-c>, "/workspace/market-pattern-data/forever/USDRUBF/USDRUBF_M5.csv", O_RDONLY|O_CLOEXEC) = 3</workspace/market-pattern-data/forever/USDRUBF/USDRUBF_M5.csv>
+4529  read(3</workspace/market-pattern-data/forever/USDRUBF/USDRUBF_M5.csv>, ""..., 2342431) = 2342431
+4529  close(3</workspace/market-pattern-data/forever/USDRUBF/USDRUBF_M5.csv>) = 0
+4529  +++ exited with 0 +++

@@ -1,0 +1,40 @@
+{
+  "actual_python_read_receipts": [
+    {
+      "bytes_2024_plus_read": 0,
+      "bytes_read": 2342431,
+      "candle_rows_read": 42576,
+      "lines_read": 42577,
+      "maximum_offset": 2342431,
+      "path": "forever/USDRUBF/USDRUBF_M5.csv",
+      "read_calls": 1,
+      "rows_2024_plus_read": 0,
+      "sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+    }
+  ],
+  "bytes_2024_plus_read": 0,
+  "candle_bytes_read": 2342431,
+  "candle_rows_read": 42576,
+  "rows_2024_plus_read": 0,
+  "source_sha": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "verified_prefixes": {
+    "USDRUBF": {
+      "blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "bytes_2024_plus_read": 0,
+      "bytes_2025_plus_read": 0,
+      "bytes_read": 2342431,
+      "first": "2023-01-03 09:00:00",
+      "invalid_rows": {},
+      "label": "start",
+      "last": "2023-12-29 23:45:00+03:00",
+      "path": "forever/USDRUBF/USDRUBF_M5.csv",
+      "prefix_bytes": 2342431,
+      "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "reader": "unbuffered exact byte prefix",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 42576,
+      "timezone": "Europe/Moscow"
+    }
+  }
+}

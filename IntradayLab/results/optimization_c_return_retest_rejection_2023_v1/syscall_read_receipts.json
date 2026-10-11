@@ -1,0 +1,104 @@
+{
+  "canonical": {
+    "instruments": {
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "opens": 1,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "read_calls": 1,
+        "rows_2023": 42576,
+        "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+      }
+    },
+    "scope": "strace read syscalls on the single physical USDRUBF source file across parent and descendants; no source content displayed",
+    "status": "PASS",
+    "trace_sha256": "f8046b669bb85650b2d0476795fb1b538789f755f743f19001ff6f2d6a8acca7"
+  },
+  "canonical_independent_audit": {
+    "instruments": {
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "opens": 1,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "read_calls": 1,
+        "rows_2023": 42576,
+        "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+      }
+    },
+    "scope": "strace read syscalls on the single physical USDRUBF source file across parent and descendants; no source content displayed",
+    "status": "PASS",
+    "trace_sha256": "4fe4c6dda87dee69f014e4a22aa158fa8c2a1b83c6589c23a974134629f0ece1"
+  },
+  "repeat_1": {
+    "instruments": {
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "opens": 1,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "read_calls": 1,
+        "rows_2023": 42576,
+        "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+      }
+    },
+    "scope": "strace read syscalls on the single physical USDRUBF source file across parent and descendants; no source content displayed",
+    "status": "PASS",
+    "trace_sha256": "eeb6455dfe2c32be978a92fd5ba61febd0616f0cf6956f68beb1b4f158053322"
+  },
+  "repeat_1_independent_audit": {
+    "instruments": {
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "opens": 1,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "read_calls": 1,
+        "rows_2023": 42576,
+        "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+      }
+    },
+    "scope": "strace read syscalls on the single physical USDRUBF source file across parent and descendants; no source content displayed",
+    "status": "PASS",
+    "trace_sha256": "a91919bcabc33e5958fd3411775e0bee5d99fa99a2b58a03bc950bc7fcf1e5c1"
+  },
+  "repeat_2": {
+    "instruments": {
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "opens": 1,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "read_calls": 1,
+        "rows_2023": 42576,
+        "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+      }
+    },
+    "scope": "strace read syscalls on the single physical USDRUBF source file across parent and descendants; no source content displayed",
+    "status": "PASS",
+    "trace_sha256": "4c7cc6bdb25a39f7332467284ac344b0cffbaed7bdaabb99cff1ca02497e35e2"
+  },
+  "repeat_2_independent_audit": {
+    "instruments": {
+      "USDRUBF": {
+        "bytes_2024_plus_read": 0,
+        "bytes_read": 2342431,
+        "maximum_offset": 2342431,
+        "opens": 1,
+        "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+        "read_calls": 1,
+        "rows_2023": 42576,
+        "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+      }
+    },
+    "scope": "strace read syscalls on the single physical USDRUBF source file across parent and descendants; no source content displayed",
+    "status": "PASS",
+    "trace_sha256": "9614e4fd73d9bcdaf1318b80945c51620bbda5045e945a27e1ea45a837748671"
+  }
+}
