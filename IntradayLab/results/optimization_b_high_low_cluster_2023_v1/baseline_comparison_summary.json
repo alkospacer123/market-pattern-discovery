@@ -1,0 +1,62 @@
+[
+  {
+    "additional_v2_CLOSED": 2,
+    "all_common_entry_Stop_Take_risk_exit_Net_R_exact": true,
+    "classification_or_occupancy_differences": 50,
+    "common_CLOSED": 549,
+    "configuration_id": "B_OPT2023_N4_W3_T2_SB1_TP3",
+    "instrument": "USDRUBF",
+    "legacy_CLOSED": 549,
+    "legacy_CLOSED_absent_from_v2": 0,
+    "per_ID_comparator_rows": 1819,
+    "v2_CLOSED": 551
+  },
+  {
+    "additional_v2_CLOSED": 1,
+    "all_common_entry_Stop_Take_risk_exit_Net_R_exact": true,
+    "classification_or_occupancy_differences": 5,
+    "common_CLOSED": 123,
+    "configuration_id": "B_OPT2023_N7_W3_T2_SB1_TP3",
+    "instrument": "USDRUBF",
+    "legacy_CLOSED": 123,
+    "legacy_CLOSED_absent_from_v2": 0,
+    "per_ID_comparator_rows": 377,
+    "v2_CLOSED": 124
+  },
+  {
+    "additional_v2_CLOSED": 12,
+    "all_common_entry_Stop_Take_risk_exit_Net_R_exact": true,
+    "classification_or_occupancy_differences": 773,
+    "common_CLOSED": 319,
+    "configuration_id": "B_OPT2023_N4_W3_T2_SB1_TP3",
+    "instrument": "CNYRUBF",
+    "legacy_CLOSED": 319,
+    "legacy_CLOSED_absent_from_v2": 0,
+    "per_ID_comparator_rows": 2985,
+    "v2_CLOSED": 331
+  },
+  {
+    "additional_v2_CLOSED": 8,
+    "all_common_entry_Stop_Take_risk_exit_Net_R_exact": true,
+    "classification_or_occupancy_differences": 474,
+    "common_CLOSED": 217,
+    "configuration_id": "B_OPT2023_N7_W3_T2_SB1_TP3",
+    "instrument": "CNYRUBF",
+    "legacy_CLOSED": 217,
+    "legacy_CLOSED_absent_from_v2": 0,
+    "per_ID_comparator_rows": 1979,
+    "v2_CLOSED": 225
+  },
+  {
+    "additional_v2_CLOSED": 4,
+    "all_common_entry_Stop_Take_risk_exit_Net_R_exact": true,
+    "classification_or_occupancy_differences": 305,
+    "common_CLOSED": 164,
+    "configuration_id": "B_OPT2023_N10_W3_T2_SB1_TP3",
+    "instrument": "CNYRUBF",
+    "legacy_CLOSED": 164,
+    "legacy_CLOSED_absent_from_v2": 0,
+    "per_ID_comparator_rows": 1285,
+    "v2_CLOSED": 168
+  }
+]

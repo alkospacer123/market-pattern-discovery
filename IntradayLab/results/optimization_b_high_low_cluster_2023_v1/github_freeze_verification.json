@@ -1,0 +1,242 @@
+{
+  "GRID_present_in_published_freeze": true,
+  "base_main": "0aa3851b754705145b3c64af9781e93f553e4a09",
+  "direct_GitHub_API_commit_tree_and_every_dependency_blob": true,
+  "freeze_sha": "a7d894ba934ff89f8188e2c3574fdb86b9f2b922",
+  "matrix_585_present_in_published_freeze": true,
+  "pre_PNL": true,
+  "repository": "alkospacer123/market-pattern-discovery",
+  "source_candle_reads": 0,
+  "status": "PASS",
+  "verified_blobs": [
+    {
+      "bytes": 66,
+      "path": "IntradayLab/core/__init__.py",
+      "published_git_blob": "645b7c53d3366f6d8c84994cb0213356791c4b2d",
+      "sha256": "52a31da3d75de924e39ea2590065a8e4b9d9474621c44c4681aa75c1feb70320"
+    },
+    {
+      "bytes": 20155,
+      "path": "IntradayLab/core/backtester.py",
+      "published_git_blob": "31787487ae5508e85d999e5c6c9763fe0f6f9fcf",
+      "sha256": "f5803a9df54ab0caf9a1d8feb53c549bc0aef887b12978b0bf5e89ab59eb09cd"
+    },
+    {
+      "bytes": 1552,
+      "path": "IntradayLab/core/calendar.py",
+      "published_git_blob": "55798e1d266a953d94879dabb8f9b6f938b85619",
+      "sha256": "a0e831cfbf306a58b03538534afc6e0d078fd53145360587813637786bde3cde"
+    },
+    {
+      "bytes": 3855,
+      "path": "IntradayLab/core/data_loader.py",
+      "published_git_blob": "c0152b34955662811b7e0bc6a71b77a1ada63a3e",
+      "sha256": "e4eef022b4c998fe270285ef266eb307f9f75f0ef1c1446ba0502f05e09e1c3b"
+    },
+    {
+      "bytes": 2083,
+      "path": "IntradayLab/core/data_quality.py",
+      "published_git_blob": "b0bc470e21526d7427ea889c936e3b514df1d369",
+      "sha256": "c012de206331f723de4ab2fbe3549bf8645378bc1c2e4473123054083eda4af0"
+    },
+    {
+      "bytes": 3248,
+      "path": "IntradayLab/core/execution.py",
+      "published_git_blob": "5268a3673b980dc0063d177fa2da81ee8e36bcf7",
+      "sha256": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c"
+    },
+    {
+      "bytes": 3425,
+      "path": "IntradayLab/core/h1_context.py",
+      "published_git_blob": "0f4f05f25621671572285b8a8f83cbf0282c8a84",
+      "sha256": "29ccc342d760e855f6868c144c99bd5b3d2312089cf0f5851bbeb69bb17b6909"
+    },
+    {
+      "bytes": 1319,
+      "path": "IntradayLab/core/indicators.py",
+      "published_git_blob": "7e627d8335907ae4bc8ce2f4970121116c2d7e2e",
+      "sha256": "73bbb7b92bcaa1f312f952acb491c6aa02e7258df7973f75542f094538f51105"
+    },
+    {
+      "bytes": 2409,
+      "path": "IntradayLab/core/m15_bars.py",
+      "published_git_blob": "7d2eefb949de05cbd53936a713bd37644bb01a35",
+      "sha256": "46bba5ed6a46b65666de3f5f243beaaf161e29d852575b9b2e8a2950c2b0d334"
+    },
+    {
+      "bytes": 4573,
+      "path": "IntradayLab/core/m15_context.py",
+      "published_git_blob": "bb89ba4b9834758280e16a324293f0b33050e57e",
+      "sha256": "26bca505f8283626f48993ac374d9a2b279231014c468e03593562104d2443c2"
+    },
+    {
+      "bytes": 9742,
+      "path": "IntradayLab/core/metrics.py",
+      "published_git_blob": "4147717ee7ce3bcfe38b0276098642df07cbbc4f",
+      "sha256": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf"
+    },
+    {
+      "bytes": 1274,
+      "path": "IntradayLab/core/models.py",
+      "published_git_blob": "fe5283a627c83e37d6494e8210482c79fcbd3808",
+      "sha256": "693cdb3c8ba8658bb3872cced37aa5d000cbb8b5f0116676991b13e869bb2cba"
+    },
+    {
+      "bytes": 9450,
+      "path": "IntradayLab/core/reports.py",
+      "published_git_blob": "f2587da319714d0adf66175803f309192be47755",
+      "sha256": "179cbf1e1560e656a377c8e7b158f4c44637b409b4f2abb60c3ae7f4225a7b88"
+    },
+    {
+      "bytes": 20613,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/EVALUATION_MATRIX.csv",
+      "published_git_blob": "4057eec8f0bb05368e258dc9c30c6cf196c96b0c",
+      "sha256": "f9fb49e0bd8b467245e73309e366bbcf6c4016ecf27579ef4f8bafc17c3f8767"
+    },
+    {
+      "bytes": 32196,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/GRID.csv",
+      "published_git_blob": "87256b533bb5af25d5e79d15d3ab3ec43f92a9ee",
+      "sha256": "fe99a3992f76702f506a319b496fcb69952c785718a76d18672d0ade030bece9"
+    },
+    {
+      "bytes": 7113,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/OPTIMIZATION_B_POLICY.json",
+      "published_git_blob": "6fa4871095623663d392794b182d4d8144b1b51f",
+      "sha256": "6597990606d46d89fa6620ed098ae0f983ef8c896d05199aa12674cf4e6f6f3e"
+    },
+    {
+      "bytes": 6877,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/PREREGISTRATION.md",
+      "published_git_blob": "44968b5724f40aae366d853c27bc409c61a6dd88",
+      "sha256": "93f807b2ff6e28b7146f0c5e94bf1988302c78f743fda6e655be1dd09b2c9dd8"
+    },
+    {
+      "bytes": 60,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/__init__.py",
+      "published_git_blob": "cacc637bc143e2675f92a6da41ab356d545f1582",
+      "sha256": "6dd9a9def0d91dc1f447cc9b60b8f0f32a3eb190e2551937bcfadb1e7e7551fe"
+    },
+    {
+      "bytes": 16646,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/aggregation.py",
+      "published_git_blob": "b9719f4980d3a994b0785c43f7ffd15c870f3f40",
+      "sha256": "d7bf28ee9bd91aca5d58ea0e4d148938c3eed64fc13c22168f1ecacc28f285b5"
+    },
+    {
+      "bytes": 46422,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/auditor.py",
+      "published_git_blob": "35ea5003928e2e13fa81f658dd980aba8011863d",
+      "sha256": "9e70331e9f26cb53271418223ac2df985bd5b080985fd030101cd1610347b92f"
+    },
+    {
+      "bytes": 7377,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/contract.py",
+      "published_git_blob": "82bc42c47e2ed4fe7779fc9d94829ad18536c8b2",
+      "sha256": "c98450e75b279c4deb7f70c700a849b40f946b1e6d6111db57031ed12c402609"
+    },
+    {
+      "bytes": 74140,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/existing_full_tests.log",
+      "published_git_blob": "af89c6683407e91af811dc0f0eefd04e242b0690",
+      "sha256": "d636342738037c3774f40d22573487da1a697d7507b922264175d5c6d7932393"
+    },
+    {
+      "bytes": 14326,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/existing_tests_receipt.log",
+      "published_git_blob": "3bd64d7987a1fb45421a3df0655f7954e2aa66a7",
+      "sha256": "f4d19c4aa3bf68951555e7929aae1da6d111021a825fc0c501fc38df03cbc763"
+    },
+    {
+      "bytes": 2311,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/freeze.py",
+      "published_git_blob": "d7567105edc099f2fce8108629f562886c52ee36",
+      "sha256": "19713bdc01fb6cc9203cd46e45fb4a710680a8bb98b1e68f7c6f0226784eea53"
+    },
+    {
+      "bytes": 899,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/github_preflight.json",
+      "published_git_blob": "c6af3d48b4c2ee11208d4d3961a99f2377cdea27",
+      "sha256": "803d5320f0be4777364aa89158bdffe84ab71ece0f55bd2a8b2f55e975882898"
+    },
+    {
+      "bytes": 3589,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/optimization_a_regression_tests.log",
+      "published_git_blob": "cf47ed020ab5cb0f9ce22a341419cb811f78faac",
+      "sha256": "dc5f5827548090c9a6b3def198b9c403f037984fea937976ed81f55a3aebedea"
+    },
+    {
+      "bytes": 5625,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/pre_pnl_tests.log",
+      "published_git_blob": "81e234c4c91e8f21751d6d9db2b959afeaf6a7df",
+      "sha256": "88762ea56c37a2ac8ed4d1bb0088da32ed36a2a2c2971e31d536bc7430cc9551"
+    },
+    {
+      "bytes": 18651,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/preflight.json",
+      "published_git_blob": "57cb6e17a66ea2d7b701096f7b551b2550c0c894",
+      "sha256": "9e3acf840d9b89602849cae190f01850b9a12a90239419ed2a16141bfe2d6f57"
+    },
+    {
+      "bytes": 800026,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/protected_file_sha256.json",
+      "published_git_blob": "e75f799d8db7497f168b2f92dd5aaf298cf1b3c5",
+      "sha256": "ef1a87c7c77432e3c5ff76d4a069ce77c0e2735d41f5df2d34eb01f4acd8d41a"
+    },
+    {
+      "bytes": 6424,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/runner.py",
+      "published_git_blob": "6556ea0e18f31422a91720f522cf986840cc0cb3",
+      "sha256": "09f4be7e06cff491b1820d2d7752555aea59420d0f519a03616b79e2fb75e79f"
+    },
+    {
+      "bytes": 29553,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/synthetic_pipeline.log",
+      "published_git_blob": "db465af553acea8d2c8d52a99562f49313eab544",
+      "sha256": "f31596a895c1d32732d1197ee3414f5ae15e9415d8372eb74653db6da6a76402"
+    },
+    {
+      "bytes": 3942,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/synthetic_pipeline.py",
+      "published_git_blob": "15a9e3e325f2fcbd80f030c5c7f64f7d990e394c",
+      "sha256": "5f97d8d1648968aaf4f0b59b811fe58d40ee8d2b7414aab2b7c58a00fcd6fe5e"
+    },
+    {
+      "bytes": 867,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/synthetic_pipeline_receipt.json",
+      "published_git_blob": "2bae24594668d5935814995590cfb07a1ee536b4",
+      "sha256": "ea5a62ca565073d3aea03363cdc2d54140da540727c98e7b50cc8cedf24c6d8e"
+    },
+    {
+      "bytes": 21577,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/tests.py",
+      "published_git_blob": "4aba0ccb15a275473c9f832fca0322e045a118d8",
+      "sha256": "4bdcd9ca104deeb69f9507b144e05edb9de00766e9ed9129a818f258247a5a35"
+    },
+    {
+      "bytes": 6514,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/validate.py",
+      "published_git_blob": "e822c51f505acef14f4e72a3ed525bddf3ba3265",
+      "sha256": "faf6e947c5bebc9bf2cda2562057045f2c6c996b4d63c13d7bff29a74680fb5d"
+    },
+    {
+      "bytes": 80,
+      "path": "IntradayLab/strategies/__init__.py",
+      "published_git_blob": "e9007133d67b9be5dfef9ab5e916912f1318d45c",
+      "sha256": "aefe61f8781c23d9e6a58b181f576c780ca3350551546e462711f2a1eeef0a9d"
+    },
+    {
+      "bytes": 7822,
+      "path": "IntradayLab/strategies/high_low_cluster_m5_optimization_b_v1.py",
+      "published_git_blob": "3fad74923af34b0e1ee3c80c94d56023fa36a91c",
+      "sha256": "1058b52c23f8d12e582d699211c908d2bc0fd86b87b6616dd1b34114110c3038"
+    },
+    {
+      "bytes": 6479,
+      "path": "IntradayLab/optimization_b_high_low_cluster_2023_v1/source_commitments.json",
+      "published_git_blob": "fb5bbfc1dcf230b209c9f1fdd5eec28bb0856d9f",
+      "sha256": "04dc8e841f1077483c054a3e46df9100f514e725fdc37f7eb1cec15f81683e94"
+    }
+  ],
+  "verified_dependencies": 37
+}

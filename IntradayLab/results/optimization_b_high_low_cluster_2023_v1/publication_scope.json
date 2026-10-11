@@ -1,0 +1,29 @@
+{
+  "Master_Strategy_Registry_unchanged": true,
+  "Optimization_A_unchanged": true,
+  "TradingSystemLab_LIVE_broker_production_unchanged": true,
+  "WF_2024_TRUE_OOS_2025_plus_untouched": true,
+  "actual_remote_main": "0aa3851b754705145b3c64af9781e93f553e4a09",
+  "added_paths": 7077,
+  "all_scope_changes_additions": true,
+  "draft_PR_472": {
+    "draft": true,
+    "head_sha": "82ec9ffe61e18a43cd7510e398f6913b25f045e1",
+    "state": "open",
+    "unchanged": true
+  },
+  "exact_frozen_dependency_bytes_verified": 37,
+  "final_head_recorded_in_PR_description": true,
+  "freeze_sha": "a7d894ba934ff89f8188e2c3574fdb86b9f2b922",
+  "modified_preexisting_paths": 0,
+  "no_merge_or_auto_merge": true,
+  "original_strategy_B4_B7_B10_unchanged": true,
+  "outside_intraday_diff_empty": true,
+  "protected_intraday_file_count": 1933,
+  "protected_outside_intraday_file_count": 3303,
+  "protected_preexisting_file_count": 5236,
+  "source_HEAD": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "source_clean": true,
+  "status": "PASS",
+  "verified_base_main": "0aa3851b754705145b3c64af9781e93f553e4a09"
+}
