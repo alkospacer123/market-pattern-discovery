@@ -3,7 +3,7 @@
   "IntradayLab/core/data_loader.py": "e4eef022b4c998fe270285ef266eb307f9f75f0ef1c1446ba0502f05e09e1c3b",
   "IntradayLab/core/data_quality.py": "c012de206331f723de4ab2fbe3549bf8645378bc1c2e4473123054083eda4af0",
   "IntradayLab/core/execution.py": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c",
-  "IntradayLab/core/metrics.py": "e88cd9c477ada28ea37d0568a23fe2ce2446c70efe2cf8e20b31016ed0521511",
+  "IntradayLab/core/metrics.py": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
   "IntradayLab/core/reports.py": "179cbf1e1560e656a377c8e7b158f4c44637b409b4f2abb60c3ae7f4225a7b88",
   "IntradayLab/tests/test_data_gap_v2.py": "fcf0ef7f9c225e6beacb6e3e9de7593f14807c3a9937120a7377c10aa9a30a29",
   "IntradayLab/tools/audit_data_gap_v2.py": "daf0555fb597abe535dd6f48cdb61978a55706f8cc41a32e1a5e46383f5687e3",

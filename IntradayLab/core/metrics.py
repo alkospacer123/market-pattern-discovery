@@ -144,5 +144,4 @@ def summarize_data_quality(result, coverage):
                 diagnostic_scope='Resolved closures only; independent conditional research days',
                 data_quality_warning='Skipped entries and excluded opened positions may bias the resolved sample. '
                     'Conditional FLAT after an exclusion is not evidence of a real close. '
-                    'Incomplete coverage does not prove annual profitability.',
-                optimization_run=False, research_phase='TECHNICAL_VALIDATION')
+                    'Incomplete coverage does not prove annual profitability.')

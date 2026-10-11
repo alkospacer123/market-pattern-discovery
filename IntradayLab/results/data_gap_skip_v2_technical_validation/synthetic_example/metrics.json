@@ -38,9 +38,7 @@
       }
     }
   },
-  "optimization_run": false,
   "pooled_price_portfolio": null,
-  "research_phase": "TECHNICAL_VALIDATION",
   "totals_counts_only": {
     "accepted_entries": 3,
     "closed": 2,

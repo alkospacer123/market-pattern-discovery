@@ -513,6 +513,6 @@ test_integrity_and_grid_diagnosed (test_universal_backtester.LoaderTests.test_in
 test_pinned_hash_rejected (test_universal_backtester.LoaderTests.test_pinned_hash_rejected) ... ok
 
 ----------------------------------------------------------------------
-Ran 513 tests in 58.792s
+Ran 513 tests in 110.420s
 
 OK

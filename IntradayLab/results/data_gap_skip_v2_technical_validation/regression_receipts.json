@@ -11,7 +11,7 @@
         "reason": "This task common-core extension"
       },
       "IntradayLab/core/metrics.py": {
-        "current": "e88cd9c477ada28ea37d0568a23fe2ce2446c70efe2cf8e20b31016ed0521511",
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
         "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328",
         "reason": "This task common-core extension"
       },
@@ -57,7 +57,7 @@
         "reason": "This task common-core extension"
       },
       "IntradayLab/core/metrics.py": {
-        "current": "e88cd9c477ada28ea37d0568a23fe2ce2446c70efe2cf8e20b31016ed0521511",
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
         "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328",
         "reason": "This task common-core extension"
       },
@@ -103,7 +103,7 @@
         "reason": "This task common-core extension"
       },
       "IntradayLab/core/metrics.py": {
-        "current": "e88cd9c477ada28ea37d0568a23fe2ce2446c70efe2cf8e20b31016ed0521511",
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
         "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328",
         "reason": "This task common-core extension"
       },
@@ -225,7 +225,7 @@
         "frozen": null
       },
       "IntradayLab/core/metrics.py": {
-        "current": "e88cd9c477ada28ea37d0568a23fe2ce2446c70efe2cf8e20b31016ed0521511",
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
         "frozen": "d029be49385e13aa6a9cf20dc64e7041288fb43b5b6079401b921aa0362131bd"
       },
       "IntradayLab/core/reports.py": {
@@ -292,7 +292,7 @@
         "reason": "This task common-core extension"
       },
       "IntradayLab/core/metrics.py": {
-        "current": "e88cd9c477ada28ea37d0568a23fe2ce2446c70efe2cf8e20b31016ed0521511",
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
         "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328",
         "reason": "This task common-core extension"
       },
@@ -416,7 +416,7 @@
         "frozen": null
       },
       "IntradayLab/core/metrics.py": {
-        "current": "e88cd9c477ada28ea37d0568a23fe2ce2446c70efe2cf8e20b31016ed0521511",
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
         "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328"
       },
       "IntradayLab/core/reports.py": {
@@ -532,7 +532,7 @@
         "frozen": null
       },
       "IntradayLab/core/metrics.py": {
-        "current": "e88cd9c477ada28ea37d0568a23fe2ce2446c70efe2cf8e20b31016ed0521511",
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
         "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328"
       },
       "IntradayLab/core/reports.py": {
@@ -647,7 +647,7 @@
         "frozen": null
       },
       "IntradayLab/core/metrics.py": {
-        "current": "e88cd9c477ada28ea37d0568a23fe2ce2446c70efe2cf8e20b31016ed0521511",
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
         "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328"
       },
       "IntradayLab/core/reports.py": {
@@ -1202,7 +1202,7 @@
         "frozen": null
       },
       "IntradayLab/core/metrics.py": {
-        "current": "e88cd9c477ada28ea37d0568a23fe2ce2446c70efe2cf8e20b31016ed0521511",
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
         "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328"
       },
       "IntradayLab/core/reports.py": {
@@ -1307,7 +1307,7 @@
         "frozen": "354acd95ee27f4e08ec35a7e29341a01234de915ca49354f10233b2adafbe97a"
       },
       "IntradayLab/core/metrics.py": {
-        "current": "e88cd9c477ada28ea37d0568a23fe2ce2446c70efe2cf8e20b31016ed0521511",
+        "current": "82eaa671b7073cd17a3264df1329c8f7d9a558e55ec6548e5957a59817de23cf",
         "frozen": "f4b11dc7c9b58c945001d018f717d2ffdb1d0afe2ed3e205c876d3bd3cefd328"
       },
       "IntradayLab/core/reports.py": {

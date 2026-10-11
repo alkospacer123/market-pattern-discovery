@@ -21,7 +21,8 @@ result = Backtester(
     rules, entry_mode=ENTRY_NEXT_OPEN, data_gap_policy=DATA_GAP_SKIP_V2,
     cost_ticks_per_side=1, allow_entry_bar_take=False,
 ).run(strategy, symbol, rows, start=start, end_exclusive=end)
-write_data_quality_reports(new_output, result, {symbol: rows}, config, rules)
+report_config = dict(config, instruments=[symbol])
+write_data_quality_reports(new_output, result, {symbol: rows}, report_config, rules)
 ```
 
 `LEGACY_UNKNOWN` remains the default; the legacy result is the original
@@ -31,6 +32,8 @@ with named `signals`, `trades`, `days`, `data_gap_skips` and
 accepts only a fresh directory under IntradayLab/work or IntradayLab/results.
 Use the new reporting helper and `summarize_data_quality` with this result;
 the old closed/UNKNOWN summarizer cannot account for a separate exclusion ledger.
+The generic helper does not assign a research phase or claim that an optimization
+ran; those identities belong to the future study's own versioned manifest.
 
 The gap policy and entry clock are separate settings. `ENTRY_NEXT_OPEN` still
 uses the immediate next M5 Open at the signal-close boundary. The default
