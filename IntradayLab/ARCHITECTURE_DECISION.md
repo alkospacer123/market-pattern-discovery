@@ -1,5 +1,11 @@
 # IntradayLab — approved methodology and independent architecture
 
+## Superseding user decision — 2026-10-11
+
+**The initial positive-Baseline prerequisite for Optimization in the historical architecture below is superseded.** Preserve the common IntradayLab engine isolation, causality, research cost model and unchanged five-step **Baseline → Optimization → Robustness → Walk Forward (2024) → TRUE OOS (2025+)** lifecycle. Finish the current B task unchanged and separately authorized C / other Baselines, then optimize **every strategy family with sufficient audited fully resolved trades**, including earlier negative IntradayLab candidates. Publish consistent minimum-count and month-coverage eligibility rules before ranking. Search/fitting is deliberate on 2023; aim for after-C1 **net PF >= 2** with meaningful trade count, positive expectancy and monthly regularity, not a guarantee or a tiny-sample PF maximum. Keep all old artifact identities and results frozen, then freeze selected candidates before Robustness / reserved WF / locked OOS. Do not tune on WF/OOS.
+
+The user requests **no UNKNOWN status in future ordinary trade ledgers**. Missing signal or execution M5: skip the entry and record a data-quality reason. After a modeled entry, missing exposure/exit data mean the outcome must be separately **excluded and auditable**, with entry evidence retained, no invented fill/flat/Stop/Take/P&L and no claim of complete continuous returns. Report excluded count/coverage and possible selection bias. This is a **future versioned implementation task**, not a retroactive edit of archived A_v1 or ongoing B. TradingSystemLab and the running robot remain READ-ONLY; see latest ROADMAP policy.
+
 **Decision:** 2026-10-10. **Status:** USER APPROVED; the independent common Backtester is implemented and technically audited. Its first [canonical ORB A BASE 2023 Baseline](results/orb_a_base_2023_canonical_v1/Baseline_Report.md) is **INCONCLUSIVE**, with negative conditional C1 expectancy on known closures for every instrument (**NO ECONOMIC BASELINE PASS**); no Optimization advancement. See [core contract](core/README.md) and [validation receipt](results/orb_a_base_2023_canonical_v1/validation.json). This remains the canonical architectural and methodology decision for IntradayLab; previously frozen results remain unchanged.
 
 ## 1. Isolation is mandatory
