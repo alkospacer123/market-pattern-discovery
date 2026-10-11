@@ -1,0 +1,17 @@
+C_closed_trades_overlapping_archived_closed_exposure_intervals,exact_qualified_signal_close_direction_overlap,instrument,model
+17,0,CNYRUBF,A_v1
+0,0,GLDRUBF,A_v1
+1,0,IMOEXF,A_v1
+12,0,USDRUBF,A_v1
+24,6,CNYRUBF,B4_v1
+0,0,GLDRUBF,B4_v1
+1,0,IMOEXF,B4_v1
+31,8,USDRUBF,B4_v1
+23,0,CNYRUBF,B7_v1
+0,0,GLDRUBF,B7_v1
+0,0,IMOEXF,B7_v1
+17,1,USDRUBF,B7_v1
+20,6,CNYRUBF,B10_v1
+0,0,GLDRUBF,B10_v1
+0,0,IMOEXF,B10_v1
+6,0,USDRUBF,B10_v1

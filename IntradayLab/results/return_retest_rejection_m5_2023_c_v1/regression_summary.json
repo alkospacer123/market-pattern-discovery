@@ -1,0 +1,83 @@
+{
+  "batches": 18,
+  "byte_identical_result_files": 252,
+  "bytes_2024_plus_read": 0,
+  "historical_params_and_outputs_unchanged": true,
+  "metadata_exceptions": "Archived core identities adapted in memory by unchanged #477 verifier; standalone historical README identity verified against prior base. See complete receipts. No trade/assertion changes.",
+  "models": {
+    "b10": {
+      "files": 19,
+      "status": "PASS"
+    },
+    "b4": {
+      "files": 19,
+      "status": "PASS"
+    },
+    "b7": {
+      "files": 19,
+      "status": "PASS"
+    },
+    "canonical": {
+      "files": 14,
+      "status": "PASS"
+    },
+    "equal_high_low": {
+      "files": 21,
+      "status": "PASS"
+    },
+    "level_rejection": {
+      "files": 15,
+      "status": "PASS"
+    },
+    "r16": {
+      "files": 14,
+      "status": "PASS"
+    },
+    "r17": {
+      "files": 13,
+      "status": "PASS"
+    },
+    "stage2_causal_mtf_v1": {
+      "files": 10,
+      "status": "PASS"
+    },
+    "stage2_complete_architectures_v1": {
+      "files": 10,
+      "status": "PASS"
+    },
+    "stage2_exit_only_ablation_v1": {
+      "files": 7,
+      "status": "PASS"
+    },
+    "stage2_m5": {
+      "files": 7,
+      "status": "PASS"
+    },
+    "stage2_m5_conditional_v2": {
+      "files": 12,
+      "status": "PASS"
+    },
+    "stage2_squeeze_m15_v1": {
+      "files": 15,
+      "status": "PASS"
+    },
+    "stage2_squeeze_v1": {
+      "files": 11,
+      "status": "PASS"
+    },
+    "stage2_vwap_payable_cap_v1": {
+      "files": 9,
+      "status": "PASS"
+    },
+    "swing_pullback": {
+      "files": 16,
+      "status": "PASS"
+    },
+    "trend_pullback": {
+      "files": 21,
+      "status": "PASS"
+    }
+  },
+  "original_missing_git_object_restored": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec; first compatibility attempt lacked this old object, retry restored it without checkout/source changes",
+  "status": "PASS"
+}

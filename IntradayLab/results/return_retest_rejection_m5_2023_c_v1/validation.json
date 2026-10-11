@@ -1,0 +1,276 @@
+{
+  "archived_comparisons": "Separate regression receipt; no archived artifact overwritten",
+  "audit_revision": {
+    "additional_synthetic_tests": {
+      "status": "PASS",
+      "tests": 4
+    },
+    "auditor_version": "C_V1_AUDIT_1.1",
+    "code_sha256": {
+      "IntradayLab/reports/RETURN_RETEST_C_V1_AUDIT_REVISION_1_1.md": "b15062a1c1b730aee5b88210b5d06ab67269a0388a14a40c3f9b21cfa799651d",
+      "IntradayLab/tests/test_return_retest_audit_v1_1.py": "9ad64bb695a64dbd707742db7f28dcf79a7000a97711d889b5e533a918ffb33c",
+      "IntradayLab/tools/audit_return_retest_baseline_v1_1.py": "1bb1b9afea362b4c5b93b1e7f0db4f436eba1eca6e5b156900f09954e9a26d7b",
+      "IntradayLab/tools/validate_return_retest_baseline_v1_1.py": "a1989683f148dcb934379e3c2e8ec1c9c9923d67e37b06e9fe0ac9f8178c5321"
+    },
+    "original_auditor_preserved": true,
+    "parameters_changed": false,
+    "reason": "Pooled Decimal last-place mismatch from closure summation order; correction aligns independent oracle with chronological closed metrics, preserving exact comparisons",
+    "trading_freeze": "16d07c2c5dc7b3fe5ceb90760e9ce4a7ed17358f",
+    "trading_logic_changed": false
+  },
+  "audit_revision_commit": "2804513a2a848908349d5498268609302a9743cf",
+  "bytes_2024_plus_read": 0,
+  "config_sha256": "879801c71ce7d56972c17886ef3f33caf6c6c9d2df81fc3d49f068ec173e27df",
+  "deterministic_repeats": [
+    {
+      "all_bytes_identical": true,
+      "compared_files": 15,
+      "repeat": 1,
+      "sha256": {
+        "Baseline_Report.md": "4dcc0a861e54106c581bd4f92742f0b702f3209703d03766f2244194f19aed41",
+        "config.json": "879801c71ce7d56972c17886ef3f33caf6c6c9d2df81fc3d49f068ec173e27df",
+        "construction_events.csv": "0a887640d875f7da29bec386ffcf43f108fa86601bf411e0d2914100737fca16",
+        "coverage_report.csv": "65f7d8e1262e606d2a48278f7b70de3c077ecb254bb4bfeece303d4bf2031f03",
+        "data_gap_skips.csv": "4f7be7e39ab2e45c5bfb35f8c9d9a141d472e5a1555e9764849b981d67c0a6db",
+        "data_quality_exclusions.csv": "6b36e4eac1bcc98d72d1214f1a41c33387837c087b0985601f7ba1f0e2ad1ea4",
+        "days.csv": "49ec285f8cd678245e463a9af4c7dabbae117ea5bc625758a9ca9ddff19483ad",
+        "direction_report.csv": "b138ede1d678c6ef6a8c86663be0e49c4ea5039ebff7d67c4d499619340c704b",
+        "input_provenance.json": "4c0bca7c3516a3ca5be1dbc3871d49738d2fea6af4916a03424057e69c9f98b9",
+        "manifest.json": "ef81f5f7782e6fae2af8bd1ed8dbfd5821a2bd7ba5a1587f3fc9eace7f395975",
+        "metrics.json": "debaf3bd97c4379b3dcbc66cd383ff8f9311c1177ae8571b097338c4ef29d149",
+        "monthly_report.csv": "98501f84f73ddb33de8cb36867f20af993f09dcc8002b2f4f97f5a1493722f52",
+        "research_metrics.json": "63b1f125589c3075a22dbd8e130c5c6877d7ff3196cf8b244d29088aac18e610",
+        "signals.csv": "b0d1f9b996465f2208cb95c3ed965445878dbd7224d94e1538217ee9d5337237",
+        "trades.csv": "871d3bf185fcabfa3d1ab90bc53362303bcd001efd82b90bd9941d9985cdf42d"
+      },
+      "status": "PASS"
+    },
+    {
+      "all_bytes_identical": true,
+      "compared_files": 15,
+      "repeat": 2,
+      "sha256": {
+        "Baseline_Report.md": "4dcc0a861e54106c581bd4f92742f0b702f3209703d03766f2244194f19aed41",
+        "config.json": "879801c71ce7d56972c17886ef3f33caf6c6c9d2df81fc3d49f068ec173e27df",
+        "construction_events.csv": "0a887640d875f7da29bec386ffcf43f108fa86601bf411e0d2914100737fca16",
+        "coverage_report.csv": "65f7d8e1262e606d2a48278f7b70de3c077ecb254bb4bfeece303d4bf2031f03",
+        "data_gap_skips.csv": "4f7be7e39ab2e45c5bfb35f8c9d9a141d472e5a1555e9764849b981d67c0a6db",
+        "data_quality_exclusions.csv": "6b36e4eac1bcc98d72d1214f1a41c33387837c087b0985601f7ba1f0e2ad1ea4",
+        "days.csv": "49ec285f8cd678245e463a9af4c7dabbae117ea5bc625758a9ca9ddff19483ad",
+        "direction_report.csv": "b138ede1d678c6ef6a8c86663be0e49c4ea5039ebff7d67c4d499619340c704b",
+        "input_provenance.json": "4c0bca7c3516a3ca5be1dbc3871d49738d2fea6af4916a03424057e69c9f98b9",
+        "manifest.json": "ef81f5f7782e6fae2af8bd1ed8dbfd5821a2bd7ba5a1587f3fc9eace7f395975",
+        "metrics.json": "debaf3bd97c4379b3dcbc66cd383ff8f9311c1177ae8571b097338c4ef29d149",
+        "monthly_report.csv": "98501f84f73ddb33de8cb36867f20af993f09dcc8002b2f4f97f5a1493722f52",
+        "research_metrics.json": "63b1f125589c3075a22dbd8e130c5c6877d7ff3196cf8b244d29088aac18e610",
+        "signals.csv": "b0d1f9b996465f2208cb95c3ed965445878dbd7224d94e1538217ee9d5337237",
+        "trades.csv": "871d3bf185fcabfa3d1ab90bc53362303bcd001efd82b90bd9941d9985cdf42d"
+      },
+      "status": "PASS"
+    }
+  ],
+  "first_run_then_two_verification_repeats": true,
+  "independent_audits": [
+    {
+      "accepted_entries_reconciled_by_id": true,
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        }
+      ],
+      "algorithm": "Independent batch contiguous-span reconstruction and raw chronological execution",
+      "auditor_version": "C_V1_AUDIT_1.1",
+      "bytes_2024_plus_read": 0,
+      "calendar_and_coverage_audited": true,
+      "checked_fields": 570434,
+      "counts": {
+        "accepted_entries": 188,
+        "closed": 168,
+        "detected_candidates": 464,
+        "excluded": 20,
+        "first_approaches": 11399,
+        "refusals": 274,
+        "second_approaches": 1925,
+        "signals": 405,
+        "signals_LONG": 205,
+        "signals_SHORT": 200,
+        "skips": 2,
+        "third_approaches": 464
+      },
+      "exact_comparisons_retained": true,
+      "external_human_signoff": false,
+      "independent_imports": "Python standard library only",
+      "original_auditor_preserved": true,
+      "reconstructed_all_constructions": true,
+      "reporting_defect": "Auditor 1.0 pooled closure-sum order differed at Decimal last place; all frozen trade/config/result bytes retained",
+      "status": "PASS",
+      "trading_logic_changed": false
+    },
+    {
+      "accepted_entries_reconciled_by_id": true,
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        }
+      ],
+      "algorithm": "Independent batch contiguous-span reconstruction and raw chronological execution",
+      "auditor_version": "C_V1_AUDIT_1.1",
+      "bytes_2024_plus_read": 0,
+      "calendar_and_coverage_audited": true,
+      "checked_fields": 570434,
+      "counts": {
+        "accepted_entries": 188,
+        "closed": 168,
+        "detected_candidates": 464,
+        "excluded": 20,
+        "first_approaches": 11399,
+        "refusals": 274,
+        "second_approaches": 1925,
+        "signals": 405,
+        "signals_LONG": 205,
+        "signals_SHORT": 200,
+        "skips": 2,
+        "third_approaches": 464
+      },
+      "exact_comparisons_retained": true,
+      "external_human_signoff": false,
+      "independent_imports": "Python standard library only",
+      "original_auditor_preserved": true,
+      "reconstructed_all_constructions": true,
+      "reporting_defect": "Auditor 1.0 pooled closure-sum order differed at Decimal last place; all frozen trade/config/result bytes retained",
+      "status": "PASS",
+      "trading_logic_changed": false
+    },
+    {
+      "accepted_entries_reconciled_by_id": true,
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        }
+      ],
+      "algorithm": "Independent batch contiguous-span reconstruction and raw chronological execution",
+      "auditor_version": "C_V1_AUDIT_1.1",
+      "bytes_2024_plus_read": 0,
+      "calendar_and_coverage_audited": true,
+      "checked_fields": 570434,
+      "counts": {
+        "accepted_entries": 188,
+        "closed": 168,
+        "detected_candidates": 464,
+        "excluded": 20,
+        "first_approaches": 11399,
+        "refusals": 274,
+        "second_approaches": 1925,
+        "signals": 405,
+        "signals_LONG": 205,
+        "signals_SHORT": 200,
+        "skips": 2,
+        "third_approaches": 464
+      },
+      "exact_comparisons_retained": true,
+      "external_human_signoff": false,
+      "independent_imports": "Python standard library only",
+      "original_auditor_preserved": true,
+      "reconstructed_all_constructions": true,
+      "reporting_defect": "Auditor 1.0 pooled closure-sum order differed at Decimal last place; all frozen trade/config/result bytes retained",
+      "status": "PASS",
+      "trading_logic_changed": false
+    }
+  ],
+  "optimization_executed": false,
+  "parameters_changed_after_first_pnl": false,
+  "pre_pnl_freeze_commit": "16d07c2c5dc7b3fe5ceb90760e9ce4a7ed17358f",
+  "pre_pnl_tests": {
+    "archived_test_files_unchanged": true,
+    "metadata_adapter": "A_v1 synthetic audit config loaded with actual current hashes of three extended core files, in memory only; no assertion removed",
+    "status": "PASS",
+    "stock_legacy_suite_note": "Before adapter: 495/496 pass, one historical core-SHA assertion fails as expected after the authorized extension",
+    "tests": 552
+  },
+  "protected_scope": {
+    "TradingSystemLab_diff_empty": true,
+    "common_core_unchanged": true,
+    "frozen_A_B_results_unchanged": true,
+    "preserved_intraday_files": 669,
+    "protected_repository_files": 3303,
+    "source_clean": true,
+    "status": "PASS"
+  },
+  "status": "PASS",
+  "technical_correctness": "PASS"
+}

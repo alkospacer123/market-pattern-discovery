@@ -1,0 +1,9 @@
+test_explicit_chronological_net_sum (IntradayLab.tests.test_return_retest_audit_v1_1.AuditRevisionTests.test_explicit_chronological_net_sum) ... ok
+test_gross_cost_keep_reporting_ledger_order (IntradayLab.tests.test_return_retest_audit_v1_1.AuditRevisionTests.test_gross_cost_keep_reporting_ledger_order) ... ok
+test_no_tolerance_forged_pf_still_rejected (IntradayLab.tests.test_return_retest_audit_v1_1.AuditRevisionTests.test_no_tolerance_forged_pf_still_rejected) ... ok
+test_original_auditor_restored_after_call (IntradayLab.tests.test_return_retest_audit_v1_1.AuditRevisionTests.test_original_auditor_restored_after_call) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+OK

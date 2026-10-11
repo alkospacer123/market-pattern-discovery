@@ -1,0 +1,883 @@
+{
+  "annual_account_returns": null,
+  "continuous_equity": null,
+  "instruments": {
+    "CNYRUBF": {
+      "conditional_economics": "NEGATIVE_AFTER_C1",
+      "counts": {
+        "accepted_entries": 77,
+        "closed": 61,
+        "detected_candidates": 144,
+        "excluded": 16,
+        "first_approaches": 2903,
+        "refusals": 67,
+        "second_approaches": 535,
+        "signals": 132,
+        "signals_LONG": 73,
+        "signals_SHORT": 59,
+        "skips": 0,
+        "third_approaches": 144
+      },
+      "coverage": {
+        "complete_days": 82,
+        "expected_bars": 26658,
+        "incomplete_days": 172,
+        "invalid_bars": 0,
+        "missing_bars": 1270,
+        "pre_inception_days": 0,
+        "valid_bars": 25388
+      },
+      "data_sufficiency": "INCOMPLETE_SOURCE_OR_OUTCOMES",
+      "distribution": {
+        "active_months": 11,
+        "average_loser_R": "-1.229333333333333333333333334",
+        "average_loser_price": "-0.03666",
+        "average_winner_R": "3.85",
+        "average_winner_price": "0.01666666666666666666666666667",
+        "largest_positive_month_share_R": "1",
+        "largest_winner_share_R": "0.2164502164502164502164502165",
+        "monthly_closed_Net_R": {
+          "2023-01": "-8.350000000000000000000000000",
+          "2023-02": "-0.966666666666666666666666667",
+          "2023-04": "-0.75",
+          "2023-05": "-7.000000000000000000000000001",
+          "2023-06": "-0.6",
+          "2023-07": "-9.000000000000000000000000001",
+          "2023-08": "-15.23333333333333333333333333",
+          "2023-09": "-1.366666666666666666666666667",
+          "2023-10": "-3.066666666666666666666666667",
+          "2023-11": "10.7",
+          "2023-12": "-2.733333333333333333333333334"
+        },
+        "negative_months": 10,
+        "positive_months": 1,
+        "top_three_winners_share_R": "0.6277056277056277056277056277",
+        "unique_trade_days": 52,
+        "zero_closed_economy_months": 1
+      },
+      "economics": {
+        "Cost_R": "32.56666666666666666666666671",
+        "Expectancy_R": "-0.6289617486338797814207650280",
+        "Gross_R": "-5.799999999999999999999999993",
+        "Max_DD_R": "47.46666666666666666666666670",
+        "Net_R": "-38.36666666666666666666666671",
+        "Net_price": "-1.733",
+        "PF_C1_R": "0.3758134490238611713665943598",
+        "PF_C1_price": "0.05455537370430987452264048009",
+        "PF_no_losses": false,
+        "Win_Rate": "0.09836065573770491803278688525",
+        "closed": 61,
+        "cost_C1": "0.968",
+        "exit_reasons": {
+          "SESSION_FLAT": 19,
+          "STOP": 33,
+          "TAKE": 5,
+          "TIME": 4
+        }
+      },
+      "exclusion_fraction": "0.2077922077922077922077922078",
+      "exit_attribution": {
+        "SESSION_FLAT": {
+          "Cost_R": "9.933333333333333333333333335",
+          "Gross_R": "2.600000000000000000000000000",
+          "Net_R": "-7.333333333333333333333333334",
+          "count": 19
+        },
+        "STOP": {
+          "Cost_R": "17.93333333333333333333333335",
+          "Gross_R": "-33",
+          "Net_R": "-50.93333333333333333333333336",
+          "count": 33
+        },
+        "TAKE": {
+          "Cost_R": "2.633333333333333333333333334",
+          "Gross_R": "25.53333333333333333333333334",
+          "Net_R": "22.9",
+          "count": 5
+        },
+        "TIME": {
+          "Cost_R": "2.066666666666666666666666667",
+          "Gross_R": "-0.9333333333333333333333333333",
+          "Net_R": "-3.00",
+          "count": 4
+        }
+      },
+      "geometry": {
+        "allowed_zone_width_ticks": 4,
+        "approach_separation_bars": {
+          "count": 288,
+          "histogram": {
+            "10": 10,
+            "11": 5,
+            "12": 8,
+            "13": 8,
+            "14": 6,
+            "15": 3,
+            "16": 9,
+            "17": 3,
+            "18": 3,
+            "2": 37,
+            "20": 3,
+            "3": 45,
+            "4": 34,
+            "5": 32,
+            "6": 33,
+            "7": 24,
+            "8": 10,
+            "9": 15
+          },
+          "maximum": 20,
+          "mean": "6.524305555555555555555555556",
+          "minimum": 2
+        },
+        "observed_touch_width_ticks": {
+          "count": 144,
+          "histogram": {
+            "0": 1,
+            "1": 24,
+            "2": 108,
+            "3": 8,
+            "4": 3
+          },
+          "maximum": "4",
+          "mean": "1.916666666666666666666666667",
+          "minimum": "0"
+        },
+        "retreat_depth_ticks": {
+          "count": 288,
+          "histogram": {
+            "10": 4,
+            "12": 1,
+            "13": 1,
+            "18": 1,
+            "21": 1,
+            "3": 185,
+            "4": 47,
+            "5": 17,
+            "6": 18,
+            "7": 7,
+            "8": 2,
+            "9": 4
+          },
+          "maximum": "21",
+          "mean": "3.961805555555555555555555556",
+          "minimum": "3"
+        },
+        "stop_ticks": {
+          "count": 77,
+          "histogram": {
+            "3": 26,
+            "4": 37,
+            "5": 14
+          },
+          "maximum": "5",
+          "mean": "3.844155844155844155844155844",
+          "minimum": "3"
+        }
+      },
+      "loss_attribution": {
+        "SESSION_FLAT": {
+          "Net_R": "-7.533333333333333333333333334",
+          "count": 14
+        },
+        "STOP": {
+          "Net_R": "-50.93333333333333333333333336",
+          "count": 33
+        },
+        "TAKE": {
+          "Net_R": "0",
+          "count": 0
+        },
+        "TIME": {
+          "Net_R": "-3.00",
+          "count": 3
+        }
+      },
+      "prospective_optimization": "TECHNICALLY_REVIEWABLE; common eligibility thresholds and separate approval required; low initial PF is not a veto",
+      "refusal_reasons": {
+        "DATA_QUALITY_POSITION_BLOCK": 4,
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CONSTRUCTION": 27,
+        "POSITION_BUSY": 5,
+        "SESSION_LIMIT": 9,
+        "STOP_ABOVE_12_TICKS": 3,
+        "STOP_BELOW_3_TICKS": 7,
+        "THIRD_CLOSE_NOT_REJECTED": 12
+      },
+      "reset_reasons": {
+        "DAY_END": 294,
+        "EXPIRED_24_BARS": 385,
+        "MISSING_OR_INVALID_BAR": 483,
+        "OUTER_ZONE_BREAK": 1489,
+        "SESSION_CHANGE": 252
+      },
+      "technical_correctness": "PENDING_INDEPENDENT_AUDIT"
+    },
+    "GLDRUBF": {
+      "conditional_economics": "NEGATIVE_AFTER_C1",
+      "counts": {
+        "accepted_entries": 2,
+        "closed": 2,
+        "detected_candidates": 23,
+        "excluded": 0,
+        "first_approaches": 2766,
+        "refusals": 21,
+        "second_approaches": 170,
+        "signals": 19,
+        "signals_LONG": 10,
+        "signals_SHORT": 9,
+        "skips": 0,
+        "third_approaches": 23
+      },
+      "coverage": {
+        "complete_days": 5,
+        "expected_bars": 26658,
+        "incomplete_days": 119,
+        "invalid_bars": 0,
+        "missing_bars": 14570,
+        "pre_inception_days": 130,
+        "valid_bars": 12088
+      },
+      "data_sufficiency": "INCOMPLETE_SOURCE_OR_OUTCOMES",
+      "distribution": {
+        "active_months": 2,
+        "average_loser_R": "-2.208333333333333333333333334",
+        "average_loser_price": "-0.8",
+        "average_winner_R": null,
+        "average_winner_price": null,
+        "largest_positive_month_share_R": null,
+        "largest_winner_share_R": null,
+        "monthly_closed_Net_R": {
+          "2023-09": "-1.666666666666666666666666667",
+          "2023-11": "-2.75"
+        },
+        "negative_months": 2,
+        "positive_months": 0,
+        "top_three_winners_share_R": null,
+        "unique_trade_days": 2,
+        "zero_closed_economy_months": 10
+      },
+      "economics": {
+        "Cost_R": "1.166666666666666666666666667",
+        "Expectancy_R": "-2.208333333333333333333333334",
+        "Gross_R": "-3.25",
+        "Max_DD_R": "4.416666666666666666666666667",
+        "Net_R": "-4.416666666666666666666666667",
+        "Net_price": "-1.6",
+        "PF_C1_R": "0E+27",
+        "PF_C1_price": "0E+1",
+        "PF_no_losses": false,
+        "Win_Rate": "0",
+        "closed": 2,
+        "cost_C1": "0.4",
+        "exit_reasons": {
+          "STOP": 2
+        }
+      },
+      "exclusion_fraction": "0",
+      "exit_attribution": {
+        "SESSION_FLAT": {
+          "Cost_R": "0",
+          "Gross_R": "0",
+          "Net_R": "0",
+          "count": 0
+        },
+        "STOP": {
+          "Cost_R": "1.166666666666666666666666667",
+          "Gross_R": "-3.25",
+          "Net_R": "-4.416666666666666666666666667",
+          "count": 2
+        },
+        "TAKE": {
+          "Cost_R": "0",
+          "Gross_R": "0",
+          "Net_R": "0",
+          "count": 0
+        },
+        "TIME": {
+          "Cost_R": "0",
+          "Gross_R": "0",
+          "Net_R": "0",
+          "count": 0
+        }
+      },
+      "geometry": {
+        "allowed_zone_width_ticks": 4,
+        "approach_separation_bars": {
+          "count": 46,
+          "histogram": {
+            "10": 1,
+            "11": 2,
+            "12": 1,
+            "13": 1,
+            "17": 1,
+            "2": 14,
+            "3": 11,
+            "4": 5,
+            "5": 7,
+            "6": 2,
+            "8": 1
+          },
+          "maximum": 17,
+          "mean": "4.565217391304347826086956522",
+          "minimum": 2
+        },
+        "observed_touch_width_ticks": {
+          "count": 23,
+          "histogram": {
+            "0E+1": 5,
+            "1": 10,
+            "2": 6,
+            "3": 1,
+            "4": 1
+          },
+          "maximum": "4",
+          "mean": "1.260869565217391304347826087",
+          "minimum": "0E+1"
+        },
+        "retreat_depth_ticks": {
+          "count": 46,
+          "histogram": {
+            "10": 1,
+            "11": 1,
+            "12": 3,
+            "13": 1,
+            "15": 1,
+            "16": 1,
+            "18": 1,
+            "19": 1,
+            "1E+1": 2,
+            "21": 1,
+            "23": 1,
+            "24": 3,
+            "28": 2,
+            "29": 2,
+            "2E+1": 1,
+            "3": 2,
+            "32": 3,
+            "33": 1,
+            "37": 1,
+            "38": 3,
+            "3E+1": 3,
+            "4": 2,
+            "5": 1,
+            "7": 3,
+            "74": 1,
+            "76": 1,
+            "77": 1,
+            "9": 2
+          },
+          "maximum": "77",
+          "mean": "23.10869565217391304347826087",
+          "minimum": "3"
+        },
+        "stop_ticks": {
+          "count": 2,
+          "histogram": {
+            "3": 1,
+            "4": 1
+          },
+          "maximum": "4",
+          "mean": "3.5",
+          "minimum": "3"
+        }
+      },
+      "loss_attribution": {
+        "SESSION_FLAT": {
+          "Net_R": "0",
+          "count": 0
+        },
+        "STOP": {
+          "Net_R": "-4.416666666666666666666666667",
+          "count": 2
+        },
+        "TAKE": {
+          "Net_R": "0",
+          "count": 0
+        },
+        "TIME": {
+          "Net_R": "0",
+          "count": 0
+        }
+      },
+      "prospective_optimization": "TECHNICALLY_REVIEWABLE; common eligibility thresholds and separate approval required; low initial PF is not a veto",
+      "refusal_reasons": {
+        "OPEN_WRONG_SIDE_OF_CONSTRUCTION": 1,
+        "STOP_ABOVE_12_TICKS": 12,
+        "STOP_BELOW_3_TICKS": 4,
+        "THIRD_CLOSE_NOT_REJECTED": 4
+      },
+      "reset_reasons": {
+        "DAY_END": 142,
+        "EXPIRED_24_BARS": 74,
+        "MISSING_OR_INVALID_BAR": 519,
+        "OUTER_ZONE_BREAK": 1924,
+        "SESSION_CHANGE": 107
+      },
+      "technical_correctness": "PENDING_INDEPENDENT_AUDIT"
+    },
+    "IMOEXF": {
+      "conditional_economics": "POSITIVE_CONDITIONAL",
+      "counts": {
+        "accepted_entries": 5,
+        "closed": 3,
+        "detected_candidates": 17,
+        "excluded": 2,
+        "first_approaches": 378,
+        "refusals": 12,
+        "second_approaches": 78,
+        "signals": 15,
+        "signals_LONG": 9,
+        "signals_SHORT": 6,
+        "skips": 0,
+        "third_approaches": 17
+      },
+      "coverage": {
+        "complete_days": 2,
+        "expected_bars": 26658,
+        "incomplete_days": 32,
+        "invalid_bars": 0,
+        "missing_bars": 23654,
+        "pre_inception_days": 220,
+        "valid_bars": 3004
+      },
+      "data_sufficiency": "INCOMPLETE_SOURCE_OR_OUTCOMES",
+      "distribution": {
+        "active_months": 1,
+        "average_loser_R": "-1.45",
+        "average_loser_price": "-3.25",
+        "average_winner_R": "5",
+        "average_winner_price": "7.5",
+        "largest_positive_month_share_R": "1",
+        "largest_winner_share_R": "1",
+        "monthly_closed_Net_R": {
+          "2023-12": "2.1"
+        },
+        "negative_months": 0,
+        "positive_months": 1,
+        "top_three_winners_share_R": "1",
+        "unique_trade_days": 3,
+        "zero_closed_economy_months": 11
+      },
+      "economics": {
+        "Cost_R": "1.566666666666666666666666667",
+        "Expectancy_R": "0.7",
+        "Gross_R": "3.666666666666666666666666667",
+        "Max_DD_R": "2.9",
+        "Net_R": "2.1",
+        "Net_price": "1.0",
+        "PF_C1_R": "1.724137931034482758620689655",
+        "PF_C1_price": "1.153846153846153846153846154",
+        "PF_no_losses": false,
+        "Win_Rate": "0.3333333333333333333333333333",
+        "closed": 3,
+        "cost_C1": "3.0",
+        "exit_reasons": {
+          "STOP": 2,
+          "TAKE": 1
+        }
+      },
+      "exclusion_fraction": "0.4",
+      "exit_attribution": {
+        "SESSION_FLAT": {
+          "Cost_R": "0",
+          "Gross_R": "0",
+          "Net_R": "0",
+          "count": 0
+        },
+        "STOP": {
+          "Cost_R": "0.9",
+          "Gross_R": "-2",
+          "Net_R": "-2.9",
+          "count": 2
+        },
+        "TAKE": {
+          "Cost_R": "0.6666666666666666666666666667",
+          "Gross_R": "5.666666666666666666666666667",
+          "Net_R": "5",
+          "count": 1
+        },
+        "TIME": {
+          "Cost_R": "0",
+          "Gross_R": "0",
+          "Net_R": "0",
+          "count": 0
+        }
+      },
+      "geometry": {
+        "allowed_zone_width_ticks": 4,
+        "approach_separation_bars": {
+          "count": 34,
+          "histogram": {
+            "15": 1,
+            "2": 9,
+            "3": 11,
+            "4": 6,
+            "5": 2,
+            "7": 1,
+            "8": 3,
+            "9": 1
+          },
+          "maximum": 15,
+          "mean": "4.117647058823529411764705882",
+          "minimum": 2
+        },
+        "observed_touch_width_ticks": {
+          "count": 17,
+          "histogram": {
+            "0E+1": 2,
+            "1": 4,
+            "2": 9,
+            "3": 1,
+            "4": 1
+          },
+          "maximum": "4",
+          "mean": "1.705882352941176470588235294",
+          "minimum": "0E+1"
+        },
+        "retreat_depth_ticks": {
+          "count": 34,
+          "histogram": {
+            "15": 1,
+            "3": 7,
+            "4": 8,
+            "5": 7,
+            "6": 3,
+            "7": 4,
+            "8": 2,
+            "9": 2
+          },
+          "maximum": "15",
+          "mean": "5.382352941176470588235294118",
+          "minimum": "3"
+        },
+        "stop_ticks": {
+          "count": 5,
+          "histogram": {
+            "3": 2,
+            "4": 2,
+            "5": 1
+          },
+          "maximum": "5",
+          "mean": "3.8",
+          "minimum": "3"
+        }
+      },
+      "loss_attribution": {
+        "SESSION_FLAT": {
+          "Net_R": "0",
+          "count": 0
+        },
+        "STOP": {
+          "Net_R": "-2.9",
+          "count": 2
+        },
+        "TAKE": {
+          "Net_R": "0",
+          "count": 0
+        },
+        "TIME": {
+          "Net_R": "0",
+          "count": 0
+        }
+      },
+      "prospective_optimization": "TECHNICALLY_REVIEWABLE; common eligibility thresholds and separate approval required; low initial PF is not a veto",
+      "refusal_reasons": {
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CONSTRUCTION": 6,
+        "STOP_ABOVE_12_TICKS": 1,
+        "STOP_BELOW_3_TICKS": 3,
+        "THIRD_CLOSE_NOT_REJECTED": 2
+      },
+      "reset_reasons": {
+        "DAY_END": 19,
+        "EXPIRED_24_BARS": 12,
+        "MISSING_OR_INVALID_BAR": 128,
+        "OUTER_ZONE_BREAK": 197,
+        "SESSION_CHANGE": 22
+      },
+      "technical_correctness": "PENDING_INDEPENDENT_AUDIT"
+    },
+    "USDRUBF": {
+      "conditional_economics": "NEGATIVE_AFTER_C1",
+      "counts": {
+        "accepted_entries": 104,
+        "closed": 102,
+        "detected_candidates": 280,
+        "excluded": 2,
+        "first_approaches": 5352,
+        "refusals": 174,
+        "second_approaches": 1142,
+        "signals": 239,
+        "signals_LONG": 113,
+        "signals_SHORT": 126,
+        "skips": 2,
+        "third_approaches": 280
+      },
+      "coverage": {
+        "complete_days": 224,
+        "expected_bars": 26658,
+        "incomplete_days": 30,
+        "invalid_bars": 0,
+        "missing_bars": 187,
+        "pre_inception_days": 0,
+        "valid_bars": 26471
+      },
+      "data_sufficiency": "INCOMPLETE_SOURCE_OR_OUTCOMES",
+      "distribution": {
+        "active_months": 12,
+        "average_loser_R": "-1.489743589743589743589743591",
+        "average_loser_price": "-0.06051282051282051282051282051",
+        "average_winner_R": "3.160869565217391304347826087",
+        "average_winner_price": "0.1317391304347826086956521739",
+        "largest_positive_month_share_R": "0.5365853658536585365853658537",
+        "largest_winner_share_R": "0.06877579092159559834938101788",
+        "monthly_closed_Net_R": {
+          "2023-01": "9.5",
+          "2023-02": "-11.23333333333333333333333334",
+          "2023-03": "-10.08333333333333333333333334",
+          "2023-04": "-1.100000000000000000000000001",
+          "2023-05": "-1.200000000000000000000000000",
+          "2023-06": "-4.216666666666666666666666667",
+          "2023-07": "-6.133333333333333333333333334",
+          "2023-08": "-4.466666666666666666666666667",
+          "2023-09": "-8.166666666666666666666666668",
+          "2023-10": "11.0",
+          "2023-11": "-8.733333333333333333333333334",
+          "2023-12": "-8.666666666666666666666666667"
+        },
+        "negative_months": 10,
+        "positive_months": 2,
+        "top_three_winners_share_R": "0.2063273727647867950481430536",
+        "unique_trade_days": 82,
+        "zero_closed_economy_months": 0
+      },
+      "economics": {
+        "Cost_R": "51.56666666666666666666666675",
+        "Expectancy_R": "-0.4264705882352941176470588240",
+        "Gross_R": "8.06666666666666666666666667",
+        "Max_DD_R": "53.13333333333333333333333338",
+        "Net_R": "-43.50000000000000000000000005",
+        "Net_price": "-1.69",
+        "PF_C1_R": "0.6256454388984509466437177275",
+        "PF_C1_price": "0.6419491525423728813559322034",
+        "PF_no_losses": false,
+        "Win_Rate": "0.2254901960784313725490196078",
+        "closed": 102,
+        "cost_C1": "2.04",
+        "exit_reasons": {
+          "SESSION_FLAT": 13,
+          "STOP": 75,
+          "TAKE": 13,
+          "TIME": 1
+        }
+      },
+      "exclusion_fraction": "0.01923076923076923076923076923",
+      "exit_attribution": {
+        "SESSION_FLAT": {
+          "Cost_R": "6.566666666666666666666666668",
+          "Gross_R": "16.06666666666666666666666667",
+          "Net_R": "9.500000000000000000000000000",
+          "count": 13
+        },
+        "STOP": {
+          "Cost_R": "38.20000000000000000000000006",
+          "Gross_R": "-75.2",
+          "Net_R": "-113.4000000000000000000000001",
+          "count": 75
+        },
+        "TAKE": {
+          "Cost_R": "6.400000000000000000000000001",
+          "Gross_R": "64.60000000000000000000000001",
+          "Net_R": "58.2",
+          "count": 13
+        },
+        "TIME": {
+          "Cost_R": "0.4",
+          "Gross_R": "2.6",
+          "Net_R": "2.2",
+          "count": 1
+        }
+      },
+      "geometry": {
+        "allowed_zone_width_ticks": 4,
+        "approach_separation_bars": {
+          "count": 560,
+          "histogram": {
+            "10": 20,
+            "11": 14,
+            "12": 12,
+            "13": 9,
+            "14": 3,
+            "15": 6,
+            "16": 5,
+            "17": 4,
+            "18": 4,
+            "2": 86,
+            "20": 3,
+            "3": 95,
+            "4": 99,
+            "5": 71,
+            "6": 41,
+            "7": 36,
+            "8": 29,
+            "9": 23
+          },
+          "maximum": 20,
+          "mean": "5.664285714285714285714285714",
+          "minimum": 2
+        },
+        "observed_touch_width_ticks": {
+          "count": 280,
+          "histogram": {
+            "0": 9,
+            "0E+1": 1,
+            "1": 36,
+            "2": 184,
+            "3": 37,
+            "4": 13
+          },
+          "maximum": "4",
+          "mean": "2.025",
+          "minimum": "0"
+        },
+        "retreat_depth_ticks": {
+          "count": 560,
+          "histogram": {
+            "10": 7,
+            "11": 4,
+            "12": 6,
+            "13": 3,
+            "14": 5,
+            "15": 2,
+            "16": 2,
+            "17": 2,
+            "1E+1": 1,
+            "3": 197,
+            "4": 117,
+            "5": 82,
+            "6": 56,
+            "7": 28,
+            "8": 28,
+            "9": 20
+          },
+          "maximum": "17",
+          "mean": "5.010714285714285714285714286",
+          "minimum": "3"
+        },
+        "stop_ticks": {
+          "count": 104,
+          "histogram": {
+            "3": 33,
+            "4": 25,
+            "5": 46
+          },
+          "maximum": "5",
+          "mean": "4.125",
+          "minimum": "3"
+        }
+      },
+      "loss_attribution": {
+        "SESSION_FLAT": {
+          "Net_R": "-2.8",
+          "count": 3
+        },
+        "STOP": {
+          "Net_R": "-113.4000000000000000000000001",
+          "count": 75
+        },
+        "TAKE": {
+          "Net_R": "0",
+          "count": 0
+        },
+        "TIME": {
+          "Net_R": "0",
+          "count": 0
+        }
+      },
+      "prospective_optimization": "TECHNICALLY_REVIEWABLE; common eligibility thresholds and separate approval required; low initial PF is not a veto",
+      "refusal_reasons": {
+        "AMBIGUOUS_BOTH_SIDES": 2,
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CONSTRUCTION": 99,
+        "MISSING_EXECUTION_BAR": 2,
+        "POSITION_BUSY": 2,
+        "SESSION_LIMIT": 13,
+        "STOP_ABOVE_12_TICKS": 4,
+        "STOP_BELOW_3_TICKS": 15,
+        "THIRD_CLOSE_NOT_REJECTED": 39
+      },
+      "reset_reasons": {
+        "DAY_END": 448,
+        "EXPIRED_24_BARS": 630,
+        "MISSING_OR_INVALID_BAR": 44,
+        "OUTER_ZONE_BREAK": 3806,
+        "SESSION_CHANGE": 424
+      },
+      "technical_correctness": "PENDING_INDEPENDENT_AUDIT"
+    }
+  },
+  "minimum_optimization_sample_rules": "Not selected in this Baseline",
+  "optimization_executed": false,
+  "pooled_R_distribution": {
+    "active_months": 12,
+    "average_loser_R": "-1.401388888888888888888888893",
+    "average_loser_price": null,
+    "average_winner_R": "3.3600000000000000000000000",
+    "average_winner_price": null,
+    "largest_positive_month_share_R": "0.8733944954128440366972477064",
+    "largest_winner_share_R": "0.04960317460317460317460317460",
+    "monthly_closed_Net_R": {
+      "2023-01": "1.150000000000000000000000000",
+      "2023-02": "-12.20000000000000000000000001",
+      "2023-03": "-10.08333333333333333333333334",
+      "2023-04": "-1.850000000000000000000000001",
+      "2023-05": "-8.200000000000000000000000001",
+      "2023-06": "-4.816666666666666666666666667",
+      "2023-07": "-15.13333333333333333333333334",
+      "2023-08": "-19.70000000000000000000000000",
+      "2023-09": "-11.20000000000000000000000001",
+      "2023-10": "7.933333333333333333333333333",
+      "2023-11": "-0.783333333333333333333333334",
+      "2023-12": "-9.30000000000000000000000000"
+    },
+    "negative_months": 10,
+    "positive_months": 2,
+    "top_three_winners_share_R": "0.1488095238095238095238095238",
+    "unique_trade_days": 128,
+    "zero_closed_economy_months": 0
+  },
+  "pooled_normalized_R": {
+    "Cost_R": "86.86666666666666666666666682",
+    "Expectancy_R": "-0.5010912698412698412698412705",
+    "Gross_R": "2.683333333333333333333333341",
+    "Max_DD_R": "85.46666666666666666666666678",
+    "Net_R": "-84.18333333333333333333333345",
+    "Net_price": null,
+    "PF_C1_R": "0.5449139562122713757996215859",
+    "PF_C1_price": null,
+    "PF_no_losses": false,
+    "Win_Rate": "0.1785714285714285714285714286",
+    "closed": 168,
+    "cost_C1": null,
+    "exit_reasons": {
+      "SESSION_FLAT": 32,
+      "STOP": 112,
+      "TAKE": 19,
+      "TIME": 5
+    }
+  },
+  "pooled_price_PF": null,
+  "scope": "Known closed outcomes, normalized initial-risk units; no cash portfolio or continuous equity",
+  "totals": {
+    "accepted_entries": 188,
+    "closed": 168,
+    "detected_candidates": 464,
+    "excluded": 20,
+    "first_approaches": 11399,
+    "refusals": 274,
+    "second_approaches": 1925,
+    "signals": 405,
+    "signals_LONG": 205,
+    "signals_SHORT": 200,
+    "skips": 2,
+    "third_approaches": 464
+  }
+}
