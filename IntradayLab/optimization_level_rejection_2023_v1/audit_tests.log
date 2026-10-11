@@ -1,0 +1,18 @@
+test_bounded_source_read_with_future_suffix (IntradayLab.optimization_level_rejection_2023_v1.audit_tests.IndependentAuditTests.test_bounded_source_read_with_future_suffix) ... ok
+test_close_and_open_parameter_coupling (IntradayLab.optimization_level_rejection_2023_v1.audit_tests.IndependentAuditTests.test_close_and_open_parameter_coupling) ... ok
+test_exclusion_without_fake_closure_or_pnl (IntradayLab.optimization_level_rejection_2023_v1.audit_tests.IndependentAuditTests.test_exclusion_without_fake_closure_or_pnl) ... ok
+test_full_net_and_entry_take_suppression (IntradayLab.optimization_level_rejection_2023_v1.audit_tests.IndependentAuditTests.test_full_net_and_entry_take_suppression) ... ok
+test_independent_metrics_precision_and_gates (IntradayLab.optimization_level_rejection_2023_v1.audit_tests.IndependentAuditTests.test_independent_metrics_precision_and_gates) ... ok
+test_invalid_exposed_bar_observation_time (IntradayLab.optimization_level_rejection_2023_v1.audit_tests.IndependentAuditTests.test_invalid_exposed_bar_observation_time) ... ok
+test_ledger_corruptions_are_rejected (IntradayLab.optimization_level_rejection_2023_v1.audit_tests.IndependentAuditTests.test_ledger_corruptions_are_rejected) ... ok
+test_open_gap_stop (IntradayLab.optimization_level_rejection_2023_v1.audit_tests.IndependentAuditTests.test_open_gap_stop) ... ok
+test_original_baseline_legacy_known_closure_is_preserved (IntradayLab.optimization_level_rejection_2023_v1.audit_tests.IndependentAuditTests.test_original_baseline_legacy_known_closure_is_preserved) ... ok
+test_skip_without_exposure_economics (IntradayLab.optimization_level_rejection_2023_v1.audit_tests.IndependentAuditTests.test_skip_without_exposure_economics) ... ok
+test_stop_first_and_net_stop_denominator (IntradayLab.optimization_level_rejection_2023_v1.audit_tests.IndependentAuditTests.test_stop_first_and_net_stop_denominator) ... ok
+test_structural_buffer_changes_extreme_only (IntradayLab.optimization_level_rejection_2023_v1.audit_tests.IndependentAuditTests.test_structural_buffer_changes_extreme_only) ... ok
+test_tick_change_and_calendar_are_historical (IntradayLab.optimization_level_rejection_2023_v1.audit_tests.IndependentAuditTests.test_tick_change_and_calendar_are_historical) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.023s
+
+OK

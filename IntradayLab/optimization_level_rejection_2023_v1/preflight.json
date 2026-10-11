@@ -1,0 +1,124 @@
+{
+  "base_main": "e8312745c22539be3eeacd53bcc9e63aae30170f",
+  "baseline_admission": {
+    "CNYRUBF": {
+      "CLOSED": 213,
+      "entry_days": 99,
+      "entry_months": 11
+    },
+    "GLDRUBF": {
+      "CLOSED": 128,
+      "entry_days": 70,
+      "entry_months": 6
+    },
+    "IMOEXF": {
+      "CLOSED": 22,
+      "entry_days": 12,
+      "entry_months": 1
+    },
+    "USDRUBF": {
+      "CLOSED": 614,
+      "entry_days": 243,
+      "entry_months": 12
+    }
+  },
+  "budget_adjustment": null,
+  "existing_suite_adapter": "Stock 555/556 PASS; one legacy A_v1 synthetic test asserts old core hashes. In-memory metadata adapter supplies actual current execution_code_sha256 only for that test; all assertions and archived files unchanged; stock failure log preserved.",
+  "grid_configurations": 72,
+  "grid_duplicates": 0,
+  "incompatible_parameters": [],
+  "matrix_rows": 216,
+  "pre_PNL_historical_PNL_runs": 0,
+  "pre_PNL_legacy_regression_source_reads": {
+    "bytes": 11667408,
+    "bytes_2024_plus_read": 0,
+    "instruments": [
+      "USDRUBF",
+      "CNYRUBF",
+      "GLDRUBF",
+      "IMOEXF"
+    ],
+    "rows": 209590,
+    "runs": 2,
+    "scope": "Existing ActualMissingBars test: bounded 2023-only prefixes, missing timestamp membership, no PNL"
+  },
+  "pre_PNL_optimization_source_candle_reads": 0,
+  "runtime": {
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+  },
+  "status": "PASS",
+  "synthetic_full_pipeline": {
+    "adapters": "In-memory synthetic sources/freeze metadata only; production runner and independent computational oracle unchanged",
+    "corruption_checks": [
+      {
+        "case": "PF",
+        "reason": "METRIC LR_OPT2023_REENTRY1_SB1_HOLD120_TP2 USDRUBF PF_R",
+        "status": "DETECTED"
+      },
+      {
+        "case": "MONTH",
+        "reason": "MONTH Net_R",
+        "status": "DETECTED"
+      },
+      {
+        "case": "TRADE",
+        "reason": "LR_OPT2023_REENTRY1_SB1_HOLD120_TP2 USDRUBF trades USDRUBF_2023-12-26_1030_1 take",
+        "status": "DETECTED"
+      },
+      {
+        "case": "SIGNAL",
+        "reason": "LR_OPT2023_REENTRY1_SB1_HOLD120_TP2 USDRUBF signals USDRUBF_2023-12-26_1030_1 stop",
+        "status": "DETECTED"
+      },
+      {
+        "case": "EXCLUSION",
+        "reason": "LR_OPT2023_REENTRY1_SB1_HOLD120_TP2 USDRUBF data_quality_exclusions USDRUBF_2023-12-28_1030_1 entry_price",
+        "status": "DETECTED"
+      },
+      {
+        "case": "NEIGHBOR",
+        "reason": "NEIGHBOR neighbor_PF_R",
+        "status": "DETECTED"
+      },
+      {
+        "case": "MISSING_CONFIG",
+        "reason": "EXACT_ROW_SET CANDIDATES",
+        "status": "DETECTED"
+      },
+      {
+        "case": "MISSING_MONTH",
+        "reason": "EXACT_ROW_SET MONTHS",
+        "status": "DETECTED"
+      }
+    ],
+    "historical_candle_reads": 0,
+    "independent_checked_fields": {
+      "accepted_ID_checks": 864,
+      "common_metric_fields": 6048,
+      "coverage_fields": 877824,
+      "data_gap_skips_fields": 10584,
+      "data_quality_exclusions_fields": 10584,
+      "day_fields": 12096,
+      "direction_fields": 12096,
+      "funnel_fields": 2592,
+      "index_fields": 1512,
+      "metric_fields": 11232,
+      "monthly_fields": 90720,
+      "neighbor_fields": 5160,
+      "rejected_nonfill_fields": 46656,
+      "selection_checks": 30,
+      "signals_fields": 107352,
+      "trades_fields": 33048
+    },
+    "selection": "NO QUALIFYING OPTIMIZATION LEVEL_REJECTION CANDIDATE",
+    "status": "PASS",
+    "synthetic_evaluations": 216
+  },
+  "tests": {
+    "audit_tests": 13,
+    "existing_full_tests": 556,
+    "pre_pnl_tests": 57,
+    "previous_optimization_tests": 94
+  }
+}

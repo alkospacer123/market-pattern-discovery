@@ -1,0 +1,14 @@
+{
+  "base_main": "e8312745c22539be3eeacd53bcc9e63aae30170f",
+  "merge_commit_sha": "e8312745c22539be3eeacd53bcc9e63aae30170f",
+  "method": "actual GitHub REST main/PR and local Git blob metadata",
+  "pr482_merged": true,
+  "source_blobs": {
+    "CNYRUBF": "01d667868daaa5610cc8794bf90fe0f276e33686",
+    "GLDRUBF": "4b1f36bce33b0eeb684edb04f9faf51a636f240d",
+    "USDRUBF": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+  },
+  "source_head": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "source_prices_read": 0,
+  "status": "PASS"
+}

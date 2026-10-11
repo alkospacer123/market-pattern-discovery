@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "suites": {
+    "audit_tests": 13,
+    "existing_full_tests": 556,
+    "pre_pnl_tests": 57,
+    "previous_optimization_tests": 94
+  },
+  "tests": 650
+}

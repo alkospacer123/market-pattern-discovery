@@ -1,0 +1,67 @@
+{
+  "adapters": "In-memory synthetic sources/freeze metadata only; production runner and independent computational oracle unchanged",
+  "corruption_checks": [
+    {
+      "case": "PF",
+      "reason": "METRIC LR_OPT2023_REENTRY1_SB1_HOLD120_TP2 USDRUBF PF_R",
+      "status": "DETECTED"
+    },
+    {
+      "case": "MONTH",
+      "reason": "MONTH Net_R",
+      "status": "DETECTED"
+    },
+    {
+      "case": "TRADE",
+      "reason": "LR_OPT2023_REENTRY1_SB1_HOLD120_TP2 USDRUBF trades USDRUBF_2023-12-26_1030_1 take",
+      "status": "DETECTED"
+    },
+    {
+      "case": "SIGNAL",
+      "reason": "LR_OPT2023_REENTRY1_SB1_HOLD120_TP2 USDRUBF signals USDRUBF_2023-12-26_1030_1 stop",
+      "status": "DETECTED"
+    },
+    {
+      "case": "EXCLUSION",
+      "reason": "LR_OPT2023_REENTRY1_SB1_HOLD120_TP2 USDRUBF data_quality_exclusions USDRUBF_2023-12-28_1030_1 entry_price",
+      "status": "DETECTED"
+    },
+    {
+      "case": "NEIGHBOR",
+      "reason": "NEIGHBOR neighbor_PF_R",
+      "status": "DETECTED"
+    },
+    {
+      "case": "MISSING_CONFIG",
+      "reason": "EXACT_ROW_SET CANDIDATES",
+      "status": "DETECTED"
+    },
+    {
+      "case": "MISSING_MONTH",
+      "reason": "EXACT_ROW_SET MONTHS",
+      "status": "DETECTED"
+    }
+  ],
+  "historical_candle_reads": 0,
+  "independent_checked_fields": {
+    "accepted_ID_checks": 864,
+    "common_metric_fields": 6048,
+    "coverage_fields": 877824,
+    "data_gap_skips_fields": 10584,
+    "data_quality_exclusions_fields": 10584,
+    "day_fields": 12096,
+    "direction_fields": 12096,
+    "funnel_fields": 2592,
+    "index_fields": 1512,
+    "metric_fields": 11232,
+    "monthly_fields": 90720,
+    "neighbor_fields": 5160,
+    "rejected_nonfill_fields": 46656,
+    "selection_checks": 30,
+    "signals_fields": 107352,
+    "trades_fields": 33048
+  },
+  "selection": "NO QUALIFYING OPTIMIZATION LEVEL_REJECTION CANDIDATE",
+  "status": "PASS",
+  "synthetic_evaluations": 216
+}
