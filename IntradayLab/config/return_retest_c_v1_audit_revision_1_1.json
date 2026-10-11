@@ -1,0 +1,18 @@
+{
+  "additional_synthetic_tests": {
+    "status": "PASS",
+    "tests": 4
+  },
+  "auditor_version": "C_V1_AUDIT_1.1",
+  "code_sha256": {
+    "IntradayLab/reports/RETURN_RETEST_C_V1_AUDIT_REVISION_1_1.md": "b15062a1c1b730aee5b88210b5d06ab67269a0388a14a40c3f9b21cfa799651d",
+    "IntradayLab/tests/test_return_retest_audit_v1_1.py": "9ad64bb695a64dbd707742db7f28dcf79a7000a97711d889b5e533a918ffb33c",
+    "IntradayLab/tools/audit_return_retest_baseline_v1_1.py": "1bb1b9afea362b4c5b93b1e7f0db4f436eba1eca6e5b156900f09954e9a26d7b",
+    "IntradayLab/tools/validate_return_retest_baseline_v1_1.py": "a1989683f148dcb934379e3c2e8ec1c9c9923d67e37b06e9fe0ac9f8178c5321"
+  },
+  "original_auditor_preserved": true,
+  "parameters_changed": false,
+  "reason": "Pooled Decimal last-place mismatch from closure summation order; correction aligns independent oracle with chronological closed metrics, preserving exact comparisons",
+  "trading_freeze": "16d07c2c5dc7b3fe5ceb90760e9ce4a7ed17358f",
+  "trading_logic_changed": false
+}
