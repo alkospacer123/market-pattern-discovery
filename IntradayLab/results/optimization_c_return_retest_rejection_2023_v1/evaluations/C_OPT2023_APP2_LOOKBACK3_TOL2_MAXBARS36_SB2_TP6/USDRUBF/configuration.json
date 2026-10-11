@@ -1,0 +1,36 @@
+{
+  "configuration_id": "C_OPT2023_APP2_LOOKBACK3_TOL2_MAXBARS36_SB2_TP6",
+  "execution": {
+    "allow_entry_bar_take": false,
+    "cost_ticks_per_side": 1,
+    "daily_trade_deadline_clock": null,
+    "data_gap_policy": "DATA_GAP_SKIP_V2",
+    "entry_mode": "ENTRY_NEXT_OPEN",
+    "session_flat_before_end_bars": 1,
+    "unknown_scope": "current_day; following days conditional FLAT",
+    "wait_complete_bars": 0
+  },
+  "freeze_commit": "daeba033cd985bd678193df9622bae686ef83782",
+  "instrument": "USDRUBF",
+  "parameters": {
+    "approaches": 2,
+    "local_extreme_lookback": 3,
+    "local_extreme_strict": true,
+    "max_hold_calendar_minutes": 120,
+    "maximum_construction_bars": 36,
+    "maximum_rebound_ticks": 4,
+    "maximum_risk_ticks": 12,
+    "minimum_risk_ticks": 3,
+    "rejection_close_ticks": 1,
+    "retreat_ticks": 3,
+    "signal_tf": "M5",
+    "stop_buffer_ticks": 2,
+    "target_mode": "FULL_NET_C1_R",
+    "target_net_R": "6",
+    "tolerance_ticks": 2,
+    "version": "C_OPT2023_v1"
+  },
+  "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+  "source_sha": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "strategy_sha256": "541ede5d123aae4572ff89fa77dfdd5b2a8c1e4f156448619208f70bf5415d9c"
+}

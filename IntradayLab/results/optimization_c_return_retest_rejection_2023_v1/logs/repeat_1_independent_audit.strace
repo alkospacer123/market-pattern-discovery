@@ -1,0 +1,12 @@
+3994  +++ exited with 0 +++
+3965  --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=3994, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+3995  +++ exited with 0 +++
+3965  --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=3995, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+3996  +++ exited with 0 +++
+3965  --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=3996, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+3997  +++ exited with 0 +++
+3965  --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=3997, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+3965  openat(AT_FDCWD</workspace/work/optimization-c>, "/workspace/market-pattern-data/forever/USDRUBF/USDRUBF_M5.csv", O_RDONLY|O_CLOEXEC) = 3</workspace/market-pattern-data/forever/USDRUBF/USDRUBF_M5.csv>
+3965  read(3</workspace/market-pattern-data/forever/USDRUBF/USDRUBF_M5.csv>, ""..., 2342431) = 2342431
+3965  close(3</workspace/market-pattern-data/forever/USDRUBF/USDRUBF_M5.csv>) = 0
+3965  +++ exited with 0 +++

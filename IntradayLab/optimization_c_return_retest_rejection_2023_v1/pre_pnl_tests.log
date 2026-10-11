@@ -1,0 +1,48 @@
+test_adjacent_published_lists_not_numeric_units (__main__.CTests.test_adjacent_published_lists_not_numeric_units) ... ok
+test_all_288_geometry_and_independent_state_oracle (__main__.CTests.test_all_288_geometry_and_independent_state_oracle) ... ok
+test_bar25_expiry (__main__.CTests.test_bar25_expiry) ... ok
+test_both_sides_ambiguous (__main__.CTests.test_both_sides_ambiguous) ... ok
+test_consecutive_touches_not_three (__main__.CTests.test_consecutive_touches_not_three) ... ok
+test_day_end_resets (__main__.CTests.test_day_end_resets) ... ok
+test_exact_24_bars_allowed (__main__.CTests.test_exact_24_bars_allowed) ... ok
+test_exact_three_tick_retreat (__main__.CTests.test_exact_three_tick_retreat) ... ok
+test_failed_third_close_consumed (__main__.CTests.test_failed_third_close_consumed) ... ok
+test_five_prior_required (__main__.CTests.test_five_prior_required) ... ok
+test_full_grid_unique_and_control (__main__.CTests.test_full_grid_unique_and_control) ... ok
+test_future_guard_unbuffered_and_one_path (__main__.CTests.test_future_guard_unbuffered_and_one_path) ... ok
+test_gap_between_approaches_resets (__main__.CTests.test_gap_between_approaches_resets) ... ok
+test_independent_admission_boundaries (__main__.CTests.test_independent_admission_boundaries) ... ok
+test_independent_exclusions_no_pnl (__main__.CTests.test_independent_exclusions_no_pnl) ... ok
+test_independent_next_open_and_net3 (__main__.CTests.test_independent_next_open_and_net3) ... ok
+test_independent_skips_no_delayed_fill (__main__.CTests.test_independent_skips_no_delayed_fill) ... ok
+test_independent_stop_take_ordering (__main__.CTests.test_independent_stop_take_ordering) ... ok
+test_inner_side_outside_zone_waits (__main__.CTests.test_inner_side_outside_zone_waits) ... ok
+test_invalid_bar_resets (__main__.CTests.test_invalid_bar_resets) ... ok
+test_local_extreme_strict (__main__.CTests.test_local_extreme_strict) ... ok
+test_long_mirror (__main__.CTests.test_long_mirror) ... ok
+test_one_signal_consumed (__main__.CTests.test_one_signal_consumed) ... ok
+test_only_one_retreat_not_three (__main__.CTests.test_only_one_retreat_not_three) ... ok
+test_open_only_admission_not_future_hlc (__main__.CTests.test_open_only_admission_not_future_hlc) ... ok
+test_outer_break_strict (__main__.CTests.test_outer_break_strict) ... ok
+test_parameters_locked (__main__.CTests.test_parameters_locked) ... ok
+test_prior_five_gap_resets (__main__.CTests.test_prior_five_gap_resets) ... ok
+test_session_reset (__main__.CTests.test_session_reset) ... ok
+test_short_three_distinct (__main__.CTests.test_short_three_distinct) ... ok
+test_tick_reset (__main__.CTests.test_tick_reset) ... ok
+test_tolerance_edges (__main__.CTests.test_tolerance_edges) ... ok
+test_two_approach_final_second (__main__.CTests.test_two_approach_final_second) ... ok
+test_two_tick_retreat_insufficient (__main__.CTests.test_two_tick_retreat_insufficient) ... ok
+test_uncompleted_rejected (__main__.CTests.test_uncompleted_rejected) ... ok
+test_exact_metrics_no_losses_unavailable (__main__.FreezeGuardTests.test_exact_metrics_no_losses_unavailable) ... ok
+test_full_gate_failure_not_ranked (__main__.FreezeGuardTests.test_full_gate_failure_not_ranked) ... ok
+test_guard_missing_dependency_rejected (__main__.FreezeGuardTests.test_guard_missing_dependency_rejected) ... ok
+test_immutable_output (__main__.FreezeGuardTests.test_immutable_output) ... ok
+test_maximum36_current_bar_causal_restart (__main__.FreezeGuardTests.test_maximum36_current_bar_causal_restart) ... ok
+test_missing_freeze_stops_before_source (__main__.FreezeGuardTests.test_missing_freeze_stops_before_source) ... ok
+test_second_failed_close_consumes (__main__.FreezeGuardTests.test_second_failed_close_consumes) ... ok
+test_stop_buffer2_fixed_no_risk_repair (__main__.FreezeGuardTests.test_stop_buffer2_fixed_no_risk_repair) ... ok
+
+----------------------------------------------------------------------
+Ran 43 tests in 26.279s
+
+OK

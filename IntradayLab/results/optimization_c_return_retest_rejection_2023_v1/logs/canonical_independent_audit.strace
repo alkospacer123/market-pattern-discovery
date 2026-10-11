@@ -1,0 +1,12 @@
+3033  +++ exited with 0 +++
+3032  --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=3033, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+3034  +++ exited with 0 +++
+3032  --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=3034, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+3035  +++ exited with 0 +++
+3032  --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=3035, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+3036  +++ exited with 0 +++
+3032  --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=3036, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+3032  openat(AT_FDCWD</workspace/work/optimization-c>, "/workspace/market-pattern-data/forever/USDRUBF/USDRUBF_M5.csv", O_RDONLY|O_CLOEXEC) = 3</workspace/market-pattern-data/forever/USDRUBF/USDRUBF_M5.csv>
+3032  read(3</workspace/market-pattern-data/forever/USDRUBF/USDRUBF_M5.csv>, ""..., 2342431) = 2342431
+3032  close(3</workspace/market-pattern-data/forever/USDRUBF/USDRUBF_M5.csv>) = 0
+3032  +++ exited with 0 +++

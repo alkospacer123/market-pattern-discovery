@@ -1,0 +1,240 @@
+{
+  "authorization": "User explicitly authorized bounded Optimization C, USDRUBF 2023 only; stop after one Draft PR; no merge/auto-merge",
+  "bar_label": "start",
+  "base_main": "297137fe17f0de851976ea26180fac441f2ada6e",
+  "baseline_dependencies": [
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/Baseline_Report.md",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/CHANGED_FILES.txt",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/Comparison.md",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/Task_Summary.md",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/artifact_hashes.json",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/audit.json",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/audit_revision_tests.log",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/comparison_overlaps.csv",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/config.json",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/construction_events.csv",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/coverage_report.csv",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/data_gap_skips.csv",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/data_quality_exclusions.csv",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/days.csv",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/direction_report.csv",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/earlier_regressions.json",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/input_provenance.json",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/legacy_regressions.json",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/manifest.json",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/metrics.json",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/monthly_report.csv",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/original_audit_1_0_failure.log",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/protected_scope.json",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/regression_summary.json",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/research_metrics.json",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/signals.csv",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/trades.csv",
+    "IntradayLab/results/return_retest_rejection_m5_2023_c_v1/validation.json",
+    "IntradayLab/strategies/return_retest_rejection_m5.py",
+    "IntradayLab/config/return_retest_rejection_m5_2023_c_v1.json",
+    "IntradayLab/reports/RETURN_RETEST_C_V1_PREREGISTRATION.md",
+    "IntradayLab/optimization_registry/OPTIMIZATION_POLICY.json",
+    "IntradayLab/optimization_registry/INSTRUMENT_ELIGIBILITY.csv",
+    "IntradayLab/optimization_registry/OPTIMIZATION_QUEUE.md"
+  ],
+  "budget": {
+    "adaptive_trials": 0,
+    "canonical_runs": 1,
+    "evaluations_by_instrument": {
+      "USDRUBF": 288
+    },
+    "evaluations_per_full_run": 288,
+    "full_repeats": 2,
+    "independent_audit_full_runs": 3,
+    "instruments": 1,
+    "unique_configurations": 288
+  },
+  "calendar": {
+    "extended_lunch": {
+      "end_exclusive": "2023-03-21",
+      "pm_start": "14:15",
+      "start": "2023-03-13"
+    },
+    "holidays": [
+      "01-01",
+      "01-02",
+      "01-07",
+      "02-23",
+      "03-08",
+      "05-01",
+      "05-09",
+      "06-12",
+      "11-04"
+    ],
+    "windows": [
+      [
+        "10:00",
+        "14:00"
+      ],
+      [
+        "14:05",
+        "18:50"
+      ]
+    ]
+  },
+  "candidate_status": "PROVISIONAL_2023_OPTIMIZATION_CANDIDATE_PENDING_INDEPENDENT_AUDIT",
+  "construction_rule": "C_v1 greedy first-level state machine; one active per side, first causal strict local extreme immutable; whole-bar retreat 3 ticks; next zone touch final at approach 2/3; failed final Close consumes; consumed state until structural reset; max lifetime includes first; current reset bar may restart by causal local extreme only",
+  "denominators": {
+    "net_R_c1": "initial gross risk",
+    "planned_net_to_net_R": "initial gross risk + planned round trip C1",
+    "realized_net_to_net_R": "initial gross risk + actual round trip C1"
+  },
+  "end_exclusive": "2024-01-01",
+  "execution": {
+    "allow_entry_bar_take": false,
+    "cost_ticks_per_side": 1,
+    "daily_trade_deadline_clock": null,
+    "data_gap_policy": "DATA_GAP_SKIP_V2",
+    "entry_mode": "ENTRY_NEXT_OPEN",
+    "session_flat_before_end_bars": 1,
+    "unknown_scope": "current_day; following days conditional FLAT",
+    "wait_complete_bars": 0
+  },
+  "grid": {
+    "approaches": [
+      2,
+      3
+    ],
+    "local_extreme_lookback": [
+      3,
+      5
+    ],
+    "maximum_construction_bars": [
+      24,
+      36
+    ],
+    "stop_buffer_ticks": [
+      1,
+      2
+    ],
+    "target_net_R": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "tolerance_ticks": [
+      1,
+      2
+    ]
+  },
+  "grid_order": [
+    "approaches",
+    "local_extreme_lookback",
+    "tolerance_ticks",
+    "maximum_construction_bars",
+    "stop_buffer_ticks",
+    "target_net_R"
+  ],
+  "historical_control_id": "C_OPT2023_APP3_LOOKBACK5_TOL2_MAXBARS24_SB1_TP3",
+  "inputs": {
+    "USDRUBF": {
+      "blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+      "first": "2023-01-03 09:00:00",
+      "path": "forever/USDRUBF/USDRUBF_M5.csv",
+      "prefix_bytes": 2342431,
+      "prefix_sha256": "047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d",
+      "row_budget_source": "unchanged STAGE1_2_SESSION_MTF_RESULTS.json year_rows.2023",
+      "rows_2023": 42576
+    }
+  },
+  "instrument_admission": {
+    "USDRUBF": {
+      "CLOSED": 102,
+      "decision": "ELIGIBLE",
+      "entry_days": 82,
+      "entry_months": 12
+    },
+    "excluded": {
+      "CNYRUBF": "61 CLOSED; INSUFFICIENT_TRADES",
+      "GLDRUBF": "2 CLOSED; EXCLUDED",
+      "IMOEXF": "3 CLOSED; EXCLUDED"
+    }
+  },
+  "instruments": [
+    "USDRUBF"
+  ],
+  "limitations": "CLOSED only, conditional FLAT; no complete annual PF/return, continuous equity or broker DD claim; no pooling price units",
+  "no_candidate_status": "NO QUALIFYING OPTIMIZATION CANDIDATE",
+  "numeric": {
+    "Decimal_precision": 28,
+    "audit_absolute_tolerance_R": "0",
+    "explanation": "Exact trade-field comparison; Decimal50 study aggregation from saved Decimal28 R. Common Decimal28 reports independently recalculated at precision28; no tolerance or sign repair.",
+    "metric_precision": 50,
+    "zero_month_sign_tolerance_R": "0"
+  },
+  "parameters": {
+    "approaches": 3,
+    "local_extreme_lookback": 5,
+    "local_extreme_strict": true,
+    "max_hold_calendar_minutes": 120,
+    "maximum_construction_bars": 24,
+    "maximum_rebound_ticks": 4,
+    "maximum_risk_ticks": 12,
+    "minimum_risk_ticks": 3,
+    "rejection_close_ticks": 1,
+    "retreat_ticks": 3,
+    "signal_tf": "M5",
+    "stop_buffer_ticks": 1,
+    "target_mode": "FULL_NET_C1_R",
+    "target_net_R": "3",
+    "tolerance_ticks": 2,
+    "version": "C_OPT2023_v1"
+  },
+  "pr_472_head": "82ec9ffe61e18a43cd7510e398f6913b25f045e1",
+  "protected": "Every preexisting repository file unchanged; no source modifications; zero 2024+ candle reads",
+  "research_phase": "Optimization",
+  "schema": "IntradayLab.optimization_C.2023.v1",
+  "selection": {
+    "expectancy_R_strictly_above": "0",
+    "ideal_positive_exit_months": 12,
+    "maximum_conditional_closed_only_DD_R": "20",
+    "maximum_largest_positive_month_share_R": "0.50",
+    "maximum_largest_winner_share_R": "0.25",
+    "minimum_PF_R": "2.0",
+    "minimum_PF_price": "2.0",
+    "minimum_closed": 100,
+    "minimum_entry_days": 40,
+    "minimum_entry_months": 6,
+    "minimum_positive_exit_months": 9,
+    "minimum_positive_neighbor_count": 2,
+    "neighbor_definition": "Exactly one parameter differs by one index in its published value list; all other parameters equal; same instrument; local 2023 diagnosis, not Robustness",
+    "neighbor_expectancy_R_strictly_above": "0",
+    "neighbor_minimum_PF_R": "1.5",
+    "neighbor_minimum_closed": 100,
+    "ranking": [
+      "positive_exit_months DESC",
+      "min(PF_R,PF_price) DESC",
+      "conditional_closed_only_DD_R ASC",
+      "CLOSED DESC",
+      "configuration_id ASC"
+    ]
+  },
+  "source_ref": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "source_repository": "alkospacer123/market-pattern-data",
+  "start": "2023-01-01",
+  "strategy": "RETURN_RETEST_REJECTION_M5",
+  "study": "optimization_c_return_retest_rejection_2023_v1",
+  "target_formula": "distance = R*(initial_gross_risk + 2*entry_tick) + 2*entry_tick; outward entry-date grid rounding; actual cost = dated entry_tick + dated exit_tick",
+  "tick_schedule": {
+    "USDRUBF": [
+      [
+        "2023-01-01 00:00:00",
+        "0.01"
+      ]
+    ]
+  },
+  "timeframe_minutes": 5,
+  "timezone": "Europe/Moscow"
+}

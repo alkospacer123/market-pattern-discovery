@@ -1,0 +1,10 @@
+{
+  "base_main": "297137fe17f0de851976ea26180fac441f2ada6e",
+  "method": "Actual GitHub REST API main and PR472; local pinned source Git metadata only",
+  "pr472_draft": true,
+  "pr472_head": "82ec9ffe61e18a43cd7510e398f6913b25f045e1",
+  "source_blob": "2b621e1c0aa9a84838d95d4c139257889b6f825e",
+  "source_head": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "source_prices_read": 0,
+  "status": "PASS"
+}
