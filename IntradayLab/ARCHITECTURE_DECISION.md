@@ -1,5 +1,44 @@
 # IntradayLab — approved methodology and independent architecture
 
+## Completed fixed C_v1 Baseline — 2026-10-11, Draft PR review only
+
+The separately authorized **RETURN_RETEST_REJECTION_M5 / C_v1 / 2023** Baseline
+is complete. **Technical PASS**, 552 pre-P&L tests plus 4 reporting-audit revision
+tests; independent raw-M5 audit 570434 fields PASS and two full repeats with
+all 15 initial artifacts byte-identical. Base main after merged #477:
+`f0e56f5df557ac4eae19af333b6d438524f5f6ff`; trading/config/audit freeze before
+first C P&L: `16d07c2c5dc7b3fe5ceb90760e9ce4a7ed17358f`.
+
+Three distinct approaches to one strictly causal local extreme require two
+whole-M5 retreats; fixed five-bar lookback, +/-2-tick zone, >=3-tick retreats,
+24-bar maximum, third Close >=1 tick toward rejection. Unchanged common engine,
+ENTRY_NEXT_OPEN and DATA_GAP_SKIP_V2. Config, source guard and trade logic remain
+frozen. A separately versioned **audit 1.1** fixes only pooled Decimal summation
+order (-2E-26 R discrepancy); original auditor and all trading/results bytes
+retained. [Explicit disclosure](reports/RETURN_RETEST_C_V1_AUDIT_REVISION_1_1.md).
+
+**188 accepted entries = 168 CLOSED + 20 EXCLUDED**, 2 SKIP; ordinary trades are
+CLOSED only. Conditional known after-C1 normalized PF **0.545**, Net **-84.183 R**.
+USD 102 CLOSED /12 active months and CNY 61 /11 have negative conditional C1
+expectancy; GLD 2 /2 is sparse and negative; IMOEX 3 /1 is positive but sparse
+with 2 excluded outcomes. Incomplete source/outcomes prevent complete annual
+or continuous account-return evidence; skips/exclusions and conditional FLAT
+are explicit. No pooled cross-instrument price PF.
+
+Under the latest Roadmap, low/negative initial PF does **not** reject family C
+before future Optimization. C is technically reviewable for a separately
+versioned 2023 optimization study, subject to common audited CLOSED-count and
+calendar-breadth thresholds preregistered before ranking. This task selects no
+such thresholds and runs no Optimization. Sparse instrument cohorts do not
+supply sufficient evidence. [Full task summary](results/return_retest_rejection_m5_2023_c_v1/Task_Summary.md),
+[immutable A/B comparison](results/return_retest_rejection_m5_2023_c_v1/Comparison.md).
+
+Only current status is inserted here; historical decisions remain below.
+Common core, frozen A/B and prior results, TradingSystemLab/live robot, pinned
+source and independent Draft #472 remain unchanged. **STOP after Baseline C;
+separate Draft PR without merge/auto-merge. No Optimization, Robustness,
+2024 WF, 2025+ TRUE OOS, LIVE or next strategy.**
+
 ## Prospective execution policy implemented — 2026-10-11
 
 The common engine now supports explicitly selected `DATA_GAP_SKIP_V2` for new

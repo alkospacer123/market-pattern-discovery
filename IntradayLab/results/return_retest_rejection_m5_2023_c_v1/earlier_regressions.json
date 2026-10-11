@@ -1,0 +1,453 @@
+{
+  "bytes_2024_plus_read": 0,
+  "bytes_2025_plus_read": 0,
+  "new_research_or_parameter_search": false,
+  "protected_scope": {
+    "TradingSystemLab_diff_empty": true,
+    "TradingSystemLab_tracked_files": 2961,
+    "allowed_common_core_extensions": [
+      "IntradayLab/core/backtester.py",
+      "IntradayLab/core/metrics.py",
+      "IntradayLab/core/reports.py"
+    ],
+    "base_sha": "4db30149d6c768caa82bd26a04ef80099816c815",
+    "frozen_strategy_config_result_test_tool_files_unchanged": true,
+    "market_pattern_data_clean": true,
+    "outside_IntradayLab_diff_empty": true,
+    "source_sha": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+    "status": "PASS"
+  },
+  "regressions": {
+    "stage2_causal_mtf_v1": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 10,
+      "implementation": "Unchanged archived standalone engine; no common Backtester import",
+      "metadata_exception": "Historical retained README hash predates merged main; README verified byte-identical to task base. Original ROADMAP/PROJECT_CONTEXT exceptions retained. Trading/config/results unchanged.",
+      "output_adapter": "Only DEST redirected for two fixed-destination runners; unchanged pre-return metadata copied into scratch",
+      "sha256": {
+        "daily_frequency.csv.gz": "4fe89c2e3cff85a935fa212c7afde603cf14d01959d46aae43a49500f9136b52",
+        "execution_events.csv.gz": "90fddb4cadc2a5adb6293371643cba41ab0217acb49412254d9113284a68f749",
+        "metrics.csv.gz": "d407754c36d87858d585b2646aa8df8f79eee25f8959501c3b3d40d4791baf6d",
+        "paired_contribution.csv.gz": "cf890b54a3a6a85d8d3e52fb90a5441c0eeb2c9201525cb3e0eb91f64ad7d31f",
+        "pnl_segments.csv.gz": "c6e211a9ea8c29e7ab1beb80a05b953b1706c0fb25d8127026ae07d1cb749947",
+        "results.json": "b813c75cba69afd339ffd5c34da3e8218c8e08c69813bccfe900d337428023c0",
+        "signals.csv.gz": "52819c3aaba767d4e57d4079c8e48015b947ddcdb432e3eb1f0598f076b4ac96",
+        "stop_amendments.csv": "5131af5bd4b0a77051f3c6479d26baf2867310f0ee393a15e0c5802f612e3572",
+        "trade_attribution.csv.gz": "ac237b519fbe1c5c0ea1c0b633ffc0dc5122c5033dab75828f3267573fe4fb2d",
+        "trade_ledger.csv.gz": "ebef436b45596e025b54022a74e6c6ed75497e17c3ce3b477d3615e8e0a5c622"
+      },
+      "status": "PASS",
+      "workflow_annotation_exceptions": {}
+    },
+    "stage2_complete_architectures_v1": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 10,
+      "implementation": "Unchanged archived standalone engine; no common Backtester import",
+      "output_adapter": "Only DEST redirected for two fixed-destination runners; unchanged pre-return metadata copied into scratch",
+      "sha256": {
+        "daily_frequency.csv.gz": "a3b98b8611db6ff89076e90fccfb6e680e068de528c2645de796e5d15ae668c3",
+        "execution_events.csv.gz": "f3c1241001b86605bbea24bbf8ffee504de092cc1e45b370ca704a4cf34cd73a",
+        "metrics.csv.gz": "9b9908af0796b8f04d5210dedbc8e0343905a013b06c98eac6417a838db41996",
+        "paired_contribution.csv": "640b266727c2332d60b179bfa05c764f48b5b134439b23d7556d9bd84b8a4eee",
+        "pnl_segments.csv.gz": "342aa2124db7e814a12daa73997d55e4406bba209554dfdce12b4802088f0147",
+        "results.json": "00d9c8a8a08dc6533f532cad2fa40e766b62e33c919909d5ce642ad7c210d9b9",
+        "signals.csv.gz": "65075415917759e0089b2782c944735dc725ee457bf325fd956159bbe2db2b4f",
+        "stop_amendments.csv": "818a4f05caea8bf908bf6bf71ba127a00485cb0be84833e401f0a6c5c2982c7a",
+        "trade_attribution.csv.gz": "7b2fd20606c7e76a1685a628441bd5e3300bb44f2e9de7fe1afac420e9b4b30b",
+        "trade_ledger.csv.gz": "dbf6b1a3f8cf0083bb5240de587e172d2467b880c63f7cfd4074987ba6a42e4d"
+      },
+      "status": "PASS",
+      "workflow_annotation_exceptions": {}
+    },
+    "stage2_exit_only_ablation_v1": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 7,
+      "implementation": "Unchanged archived standalone engine; no common Backtester import",
+      "output_adapter": "Only DEST redirected for two fixed-destination runners; unchanged pre-return metadata copied into scratch",
+      "sha256": {
+        "execution_events.csv": "82a55f38fe16ca7e64349714b2733e96b2d8eafcc692d97cea687ec59e674a39",
+        "paired_exit_only.csv": "4d174b4c2077eeecf19e8cb7c76d52e30a9edc41549d6ce76bed773a1e4f74c8",
+        "results.json": "fee5c817001614697178b244271bdd6cca603658f453efa4e67dbb219a977d57",
+        "signals.csv": "00f8a6ac138b8a7ad403df2422c4a65269dfcb99f0722a97bc5dbc32bc521aac",
+        "stop_amendments.csv": "4412d67ea1c1488b309c07e497cc75f3b6768049c3ed9569a45dabd41c244d1d",
+        "summary.csv": "7c485f0f335e7e1c1bf0f2fe954be79a4068ce0b592b6d7f17bc84aa78778553",
+        "trade_ledger.csv.gz": "fb9ec146e50dc2ebb890a6c3870b45b4e3658f080536bd28ab4c4977b9aa0fa6"
+      },
+      "status": "PASS",
+      "workflow_annotation_exceptions": {}
+    },
+    "stage2_m5": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 7,
+      "implementation": "Unchanged archived standalone engine; no common Backtester import",
+      "output_adapter": "Only DEST redirected for two fixed-destination runners; unchanged pre-return metadata copied into scratch",
+      "sha256": {
+        "correction_history.json": "379bda632d3ef114fd4fc46595ea7f635de18c6bdfba1af6d8ddf85f3af7951e",
+        "execution_events.csv": "0fa822180b9e95867c89c115338bf512894522f53f250935e933e0316812b0a7",
+        "metrics.csv": "0db7a669996c2e8cf2d222ab00a4e35947f97e1ff82e27dcb9ffdb7d824462c2",
+        "results.json": "2564a15d9403e2bd42a7573e0e9897d2b094614b5210e191445f72ecf52d6b1f",
+        "signals.csv": "91943b375c7eaeebf5a89f4c2bbb69db5f4c47fc1e1cbe349c9c2994bc98bce0",
+        "trade_ledger.csv": "609865c5d34589e45c394d61d0fe60f1ac76e862f51c3af8e7e17ff090cefec1",
+        "unknown_entries.csv": "e1a8cad2e1bbc6a6c809968ebe37517d4ad77ed7f330464ab87c4a3bdb2804c9"
+      },
+      "status": "PASS",
+      "workflow_annotation_exceptions": {}
+    },
+    "stage2_m5_conditional_v2": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 12,
+      "implementation": "Unchanged archived standalone engine; no common Backtester import",
+      "output_adapter": "Only DEST redirected for two fixed-destination runners; unchanged pre-return metadata copied into scratch",
+      "sha256": {
+        "delay_sensitivity.json": "446e386325b51cb9fc3f9445900a30331f294aedcba978b49974c26816649cf9",
+        "economics.csv": "3851b3b51f4bd18f5992ff490a2a3ad451a71192887f1671f149e0ab166e066f",
+        "economics_summary.csv": "d5591f93aadaac9502a2e14ba2edb018a8d4ac2f191fcd250bcd0cb017d0ff4c",
+        "execution_diagnostics.csv": "27b763a0e60b1b111b0bad15ae3952af441baa12f0bb8dcee90abbbaad83ca25",
+        "execution_events.csv": "3233656212904954c42e6b56d8850ecff100bc7852260640b8766dc486a8db8b",
+        "metrics.csv": "ec1edb675a68fcc64830f65dfaa1d02149f22a3dea0bff57db0a81ffdf8be48e",
+        "no_bar_entries.csv": "b74b00804f055bbff547ec6562e920223342f817aae25db7f0788a1ff7b6690c",
+        "results.json": "776726aefea53c0f23da01fcc6413d3a44054f75a4378f94b1a7c268173a2520",
+        "signals.csv": "2d22fbd215eb34a922537117fea0a95b865da7e7cdff12a4e6f827cc9b689cc0",
+        "trade_frequency.csv": "99d711674256b27a9740bfeafe0c8e1a025d7302b2b1946ac202b339db7aabdc",
+        "trade_ledger.csv": "3e424dfddceb6767859f16ebfa6ad30d931c4e54f0a15279ba01206b7877fc49",
+        "vwap_anchor_comparison.csv": "d0fb6aa9138578766ebe867b1f11a720476bc29eea2f0cdcd4a422859cb3d557"
+      },
+      "status": "PASS",
+      "workflow_annotation_exceptions": {}
+    },
+    "stage2_squeeze_m15_v1": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 15,
+      "implementation": "Unchanged archived standalone engine; no common Backtester import",
+      "output_adapter": "Only DEST redirected for two fixed-destination runners; unchanged pre-return metadata copied into scratch",
+      "sha256": {
+        "coverage_m15.csv": "833fcc9ee5b34b86d698a0f2656f1772c15e6a526994af95bcae0d26bf11fbe7",
+        "derived_parents.csv.gz": "5cb0e52d72772ce90118e7f973248891fcd521e4d8435e7f1090b0bf104d5011",
+        "direction_results.csv": "80a66e91aa1c49967d76bc99daccafed8a0cae77760b846d884e06c1a1669e44",
+        "execution_events.csv.gz": "0429764dae9746de176af2362303d14747ef871b9ffe201d7dc98c71e47bc9e9",
+        "filter_funnel.csv": "bb073d7984df290641e9e7ee951fe62d107cfedd5b33a9aacde8e8a59a0793fc",
+        "frequency_report.csv": "d8fccecb6f7b7b2ecd4494b6ce681064204a3281848d9d4261142a34833ed676",
+        "funnel_stages.csv": "2d0f315dd0df1d343ac167374393824359c2b7987283a48d89cafcec48881396",
+        "indicator_features.csv.gz": "38dff5d1da537f3077be5311672e59c5e53f2213108840ecc721bad8294e1e49",
+        "m15_h1_comparison.csv": "0a5bced8fd902a71931010d6f71b28e3480646a4b38d759f34a963cb1ec4ab6f",
+        "metrics.csv": "7fc9b916bc18805e3c0d6dc02e538c1714fdc1ff3ef79a8f0920ebe9f2e4fafc",
+        "monthly_results.csv": "7fc63db4c3d6f61962f4ec7174b1b8e2b87c5d3f9da4ecaeb8600457b36cb2b4",
+        "sensitivity.csv": "886a649114c7522cd279a3a7ce26b1d12d436aa9e160d287b3cf7c92c69de77b",
+        "signals.csv.gz": "c298c8a96f96ed4ff324aafd597d45597a7b36d9917fd395c147aca2f8eca6b8",
+        "squeeze_cycles.csv.gz": "09e1ef7419f6e7528b900bc6b432ab848b251b346cef931363b140e3516e09fc",
+        "trade_ledger.csv.gz": "0970c8275608861ba43d84de035606ae32e243c2a4e01ed52a7214a5502aaf38"
+      },
+      "status": "PASS",
+      "workflow_annotation_exceptions": {}
+    },
+    "stage2_squeeze_v1": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 11,
+      "implementation": "Unchanged archived standalone engine; no common Backtester import",
+      "output_adapter": "Only DEST redirected for two fixed-destination runners; unchanged pre-return metadata copied into scratch",
+      "sha256": {
+        "direction_results.csv": "4f24ec2a591aeb8a618b68b4b19e752aca36f7f7442da2c526017acbee1cae08",
+        "execution_events.csv.gz": "f1c6f3c167decc8be43a472c376e5e8c55ae72e888fca728bb0bda1b8d62ec3d",
+        "frequency_report.csv": "3d09027ee74a97bab8cf8032df6585bd3ba0f69fb6aefde1be539c948b6fc2d2",
+        "indicator_features.csv.gz": "b258893161c1e454fe13a1070a2426c0996bb79dc362c002f45428fb4c7970e0",
+        "m5_m30_comparison.csv": "aa60a6deae1865b4082228c4e7c1c3aa2fc777c079818c8725aff977435240d3",
+        "metrics.csv": "d9c190ae861dd08337f039c76b16c7d23b95fd070de329a5f4c20a9e861eed3c",
+        "monthly_results.csv": "8f0bdc92b85ea26f4bed46f13d017f4917e2f60b5c2f253a0fb43753a905b714",
+        "sensitivity.csv": "8e49c178392192fd00510731d985cf539c66333a94523745f91dc4f2bd9f971c",
+        "signals.csv.gz": "0f36a3a37516e87f323237373f41139ad085e5698d3c34b08908f907fdc02005",
+        "squeeze_cycles.csv.gz": "eacc20345ee2c571ca0cd391379d0bf8ccce5cac04089237afeff09cce25465d",
+        "trade_ledger.csv.gz": "014f157a7b1e370c39ae00607972f3c76684cca9e85235ae682db36967fbc8d1"
+      },
+      "status": "PASS",
+      "workflow_annotation_exceptions": {}
+    },
+    "stage2_vwap_payable_cap_v1": {
+      "actual_source_reads": [
+        {
+          "approved_prefix_bytes": 2212189,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2212189,
+          "maximum_offset": 2212189,
+          "path": "forever/CNYRUBF/CNYRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 1044351,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 1044351,
+          "maximum_offset": 1044351,
+          "path": "forever/GLDRUBF/GLDRUBF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 234733,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 234733,
+          "maximum_offset": 234733,
+          "path": "forever/IMOEXF/IMOEXF_M5.csv"
+        },
+        {
+          "approved_prefix_bytes": 2342431,
+          "bytes_2024_plus_read": 0,
+          "bytes_read": 2342431,
+          "maximum_offset": 2342431,
+          "path": "forever/USDRUBF/USDRUBF_M5.csv"
+        }
+      ],
+      "archived_files_untouched": true,
+      "byte_identical_result_files": 9,
+      "implementation": "Unchanged archived standalone engine; no common Backtester import",
+      "output_adapter": "Only DEST redirected for two fixed-destination runners; unchanged pre-return metadata copied into scratch",
+      "sha256": {
+        "daily_frequency.csv": "191ec09ca9554148b9c2cd3cb125188dd730283e7b3947b8aa061051f1c4ad64",
+        "execution_events.csv.gz": "5a87ee8c9480e1b4f73fbe6bd675575ff05eaaf838ab97f4fecc6227ba030245",
+        "metrics.csv": "400b13210a6406d86e4515b8d1f56093dc224655780eddea9415de160ca85fdf",
+        "paired_contribution.csv": "d784cb04319073545c6f66adf83f2b687abf956494274c3f47af1c51b93e14e8",
+        "pnl_segments.csv": "285e2c21170c3bd58de6206dec919670c30452a8f7fb255e27d2b25871eaa8d6",
+        "results.json": "728324a405a38717bde98163cd62533a5751777f2df06755c14ce5a1db23b8b8",
+        "signals.csv.gz": "7d38da41ecc9c62014befe5874ea6cc340137ef9da63ea53ffe2f827ce1066af",
+        "trade_attribution.csv": "b0d4d13918e0e7ee736d8c35b5fd6a5b76e13d176501bafb5f700b462ebf4233",
+        "trade_ledger.csv": "2f9c1f01ff3c6111c188c5bb8f82a3690a45ea05e5dbab8fda2da6cdc9b44008"
+      },
+      "status": "PASS",
+      "workflow_annotation_exceptions": {}
+    }
+  },
+  "status": "PASS"
+}

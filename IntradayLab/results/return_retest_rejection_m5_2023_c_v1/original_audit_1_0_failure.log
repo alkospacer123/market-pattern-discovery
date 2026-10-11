@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/work/intradaylab-c/IntradayLab/tools/validate_return_retest_baseline.py", line 42, in <module>
+    a=p.parse_args();r=validate(a.data_root,a.baseline,a.output);print(r['status'])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/work/intradaylab-c/IntradayLab/tools/validate_return_retest_baseline.py", line 17, in validate
+    audits.append(dict(audit(baseline,data_root),actual_source_reads=reads))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/work/intradaylab-c/IntradayLab/tools/audit_return_retest_baseline.py", line 396, in audit
+    compare_json(research['pooled_normalized_R'],economics(all_tt,pooled=True),'POOLED_R')
+  File "/workspace/work/intradaylab-c/IntradayLab/tools/audit_return_retest_baseline.py", line 312, in compare_json
+    require(actual[k]==json.loads(json.dumps(v,default=encode,sort_keys=True)),label+' '+k)
+  File "/workspace/work/intradaylab-c/IntradayLab/tools/audit_return_retest_baseline.py", line 22, in require
+    raise AssertionError(label)
+AssertionError: POOLED_R Net_R

@@ -1,0 +1,17 @@
+{
+  "Baseline_Report.md": "4dcc0a861e54106c581bd4f92742f0b702f3209703d03766f2244194f19aed41",
+  "config.json": "879801c71ce7d56972c17886ef3f33caf6c6c9d2df81fc3d49f068ec173e27df",
+  "construction_events.csv": "0a887640d875f7da29bec386ffcf43f108fa86601bf411e0d2914100737fca16",
+  "coverage_report.csv": "65f7d8e1262e606d2a48278f7b70de3c077ecb254bb4bfeece303d4bf2031f03",
+  "data_gap_skips.csv": "4f7be7e39ab2e45c5bfb35f8c9d9a141d472e5a1555e9764849b981d67c0a6db",
+  "data_quality_exclusions.csv": "6b36e4eac1bcc98d72d1214f1a41c33387837c087b0985601f7ba1f0e2ad1ea4",
+  "days.csv": "49ec285f8cd678245e463a9af4c7dabbae117ea5bc625758a9ca9ddff19483ad",
+  "direction_report.csv": "b138ede1d678c6ef6a8c86663be0e49c4ea5039ebff7d67c4d499619340c704b",
+  "input_provenance.json": "4c0bca7c3516a3ca5be1dbc3871d49738d2fea6af4916a03424057e69c9f98b9",
+  "manifest.json": "ef81f5f7782e6fae2af8bd1ed8dbfd5821a2bd7ba5a1587f3fc9eace7f395975",
+  "metrics.json": "debaf3bd97c4379b3dcbc66cd383ff8f9311c1177ae8571b097338c4ef29d149",
+  "monthly_report.csv": "98501f84f73ddb33de8cb36867f20af993f09dcc8002b2f4f97f5a1493722f52",
+  "research_metrics.json": "63b1f125589c3075a22dbd8e130c5c6877d7ff3196cf8b244d29088aac18e610",
+  "signals.csv": "b0d1f9b996465f2208cb95c3ed965445878dbd7224d94e1538217ee9d5337237",
+  "trades.csv": "871d3bf185fcabfa3d1ab90bc53362303bcd001efd82b90bd9941d9985cdf42d"
+}

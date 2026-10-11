@@ -1,0 +1,140 @@
+{
+  "annual_account_returns": null,
+  "annual_economics": null,
+  "data_gap_policy": "DATA_GAP_SKIP_V2",
+  "data_quality_warning": "Skipped entries and excluded opened positions may bias the resolved sample. Conditional FLAT after an exclusion is not evidence of a real close. Incomplete coverage does not prove annual profitability.",
+  "diagnostic_scope": "Resolved closures only; independent conditional research days",
+  "instruments": {
+    "CNYRUBF": {
+      "accepted_entries": 77,
+      "closed": 61,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.6289617486338797814207650280",
+        "Max_DD_R": "47.46666666666666666666666670",
+        "Net_R": "-38.36666666666666666666666671",
+        "Net_price": "-1.733",
+        "PF_C1_R": "0.3758134490238611713665943598",
+        "PF_C1_price": "0.05455537370430987452264048009",
+        "PF_no_losses": false,
+        "Win_Rate": "0.09836065573770491803278688525",
+        "closed": 61,
+        "cost_C1": "0.968",
+        "exit_reasons": {
+          "SESSION_FLAT": 19,
+          "STOP": 33,
+          "TAKE": 5,
+          "TIME": 4
+        }
+      },
+      "conditional_flat_closed": 59,
+      "coverage_complete": false,
+      "data_gap_skips": 0,
+      "data_quality_excluded": 16,
+      "entry_reconciliation_passed": true,
+      "exclusion_fraction": "0.2077922077922077922077922078",
+      "exclusion_reasons": {
+        "MISSING_EXPOSED_BAR": 16
+      },
+      "skip_reasons": {}
+    },
+    "GLDRUBF": {
+      "accepted_entries": 2,
+      "closed": 2,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-2.208333333333333333333333334",
+        "Max_DD_R": "4.416666666666666666666666667",
+        "Net_R": "-4.416666666666666666666666667",
+        "Net_price": "-1.6",
+        "PF_C1_R": "0E+27",
+        "PF_C1_price": "0E+1",
+        "PF_no_losses": false,
+        "Win_Rate": "0",
+        "closed": 2,
+        "cost_C1": "0.4",
+        "exit_reasons": {
+          "STOP": 2
+        }
+      },
+      "conditional_flat_closed": 0,
+      "coverage_complete": false,
+      "data_gap_skips": 0,
+      "data_quality_excluded": 0,
+      "entry_reconciliation_passed": true,
+      "exclusion_fraction": "0",
+      "exclusion_reasons": {},
+      "skip_reasons": {}
+    },
+    "IMOEXF": {
+      "accepted_entries": 5,
+      "closed": 3,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "0.7",
+        "Max_DD_R": "2.9",
+        "Net_R": "2.1",
+        "Net_price": "1.0",
+        "PF_C1_R": "1.724137931034482758620689655",
+        "PF_C1_price": "1.153846153846153846153846154",
+        "PF_no_losses": false,
+        "Win_Rate": "0.3333333333333333333333333333",
+        "closed": 3,
+        "cost_C1": "3.0",
+        "exit_reasons": {
+          "STOP": 2,
+          "TAKE": 1
+        }
+      },
+      "conditional_flat_closed": 0,
+      "coverage_complete": false,
+      "data_gap_skips": 0,
+      "data_quality_excluded": 2,
+      "entry_reconciliation_passed": true,
+      "exclusion_fraction": "0.4",
+      "exclusion_reasons": {
+        "MISSING_EXPOSED_BAR": 2
+      },
+      "skip_reasons": {}
+    },
+    "USDRUBF": {
+      "accepted_entries": 104,
+      "closed": 102,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.4264705882352941176470588240",
+        "Max_DD_R": "53.13333333333333333333333338",
+        "Net_R": "-43.50000000000000000000000005",
+        "Net_price": "-1.69",
+        "PF_C1_R": "0.6256454388984509466437177275",
+        "PF_C1_price": "0.6419491525423728813559322034",
+        "PF_no_losses": false,
+        "Win_Rate": "0.2254901960784313725490196078",
+        "closed": 102,
+        "cost_C1": "2.04",
+        "exit_reasons": {
+          "SESSION_FLAT": 13,
+          "STOP": 75,
+          "TAKE": 13,
+          "TIME": 1
+        }
+      },
+      "conditional_flat_closed": 102,
+      "coverage_complete": false,
+      "data_gap_skips": 2,
+      "data_quality_excluded": 2,
+      "entry_reconciliation_passed": true,
+      "exclusion_fraction": "0.01923076923076923076923076923",
+      "exclusion_reasons": {
+        "MISSING_EXPOSED_BAR": 2
+      },
+      "skip_reasons": {
+        "MISSING_EXECUTION_BAR": 2
+      }
+    }
+  },
+  "pooled_price_portfolio": null,
+  "totals_counts_only": {
+    "accepted_entries": 188,
+    "closed": 168,
+    "data_gap_skips": 2,
+    "data_quality_excluded": 20,
+    "exclusion_fraction": "0.1063829787234042553191489362"
+  }
+}
