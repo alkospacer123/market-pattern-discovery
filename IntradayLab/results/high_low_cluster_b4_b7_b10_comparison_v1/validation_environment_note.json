@@ -1,0 +1,9 @@
+{
+  "final_status": "PASS: six byte-identical repeats, seven legacy regressions",
+  "frozen_validator_or_trading_code_changed": false,
+  "initial_failure": "Historical #463 CSV unavailable in local Git history during canonical regression; all six B repeats already PASS.",
+  "parameters_changed_after_pnl": false,
+  "pinned_historical_commit": "9c65d03aae117c6d88bbb4e6186f6a4fbb6b73ec",
+  "resolution": "git fetch origin pinned commit; verify archived path exists; run identical frozen validator in fresh scratch directories",
+  "status": "RESOLVED"
+}

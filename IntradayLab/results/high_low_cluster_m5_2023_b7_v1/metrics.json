@@ -1,0 +1,709 @@
+{
+  "baseline_status": "INCONCLUSIVE",
+  "entry_mode": "ENTRY_NEXT_OPEN",
+  "instruments": {
+    "CNYRUBF": {
+      "admitted_orders": 613,
+      "all_candidate_refusal_reasons": {
+        "AMBIGUOUS_BOTH_SIDES": 264,
+        "CLOSE_AT_BOUNDARY": 504,
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CLUSTER": 27,
+        "MISSING_EXECUTION_BAR": 17,
+        "POSITION_BUSY": 222,
+        "SESSION_LIMIT": 20,
+        "STOP_BELOW_3_TICKS": 251,
+        "UNKNOWN_POSITION_BLOCK": 356
+      },
+      "ambiguous_M5_events": 132,
+      "ambiguous_directional_candidates": 264,
+      "annual": {
+        "Expectancy_R": null,
+        "Max_DD_R": null,
+        "Net_R": null,
+        "PF_C1_R": null,
+        "PF_C1_price": null,
+        "Win_Rate": null
+      },
+      "annual_complete": false,
+      "available_calendar_trading_days": 254,
+      "close_at_boundary_candidates": 504,
+      "closed": 217,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.4243471582181259600614439331",
+        "Max_DD_R": "92.08333333333333333333333349",
+        "Net_R": "-92.08333333333333333333333349",
+        "Net_price": "-2.950",
+        "PF_C1_R": "0.4648392096086788066640836862",
+        "PF_C1_price": "0.4617770479839445356686735997",
+        "PF_no_losses": false,
+        "Win_Rate": "0.2534562211981566820276497696",
+        "closed": 217,
+        "cost_C1": "4.070",
+        "exit_reasons": {
+          "SESSION_FLAT": 59,
+          "STOP": 88,
+          "TAKE": 5,
+          "TIME": 65
+        }
+      },
+      "detected_accumulations": 1979,
+      "distribution": {
+        "active_months": 12,
+        "average_loser_R": "-1.170521541950113378684807262",
+        "average_loser_price": "-0.03728571428571428571428571429",
+        "average_winner_R": "1.454242424242424242424242424",
+        "average_winner_price": "0.04601818181818181818181818182",
+        "largest_positive_month_share_R": "1",
+        "largest_winner_share_R": "0.06251302354657220254219629090",
+        "monthly_closed_Net_R": {
+          "2023-01": "-17.98333333333333333333333334",
+          "2023-02": "-5.650000000000000000000000000",
+          "2023-03": "-3.750000000000000000000000000",
+          "2023-04": "7.333333333333333333333333333",
+          "2023-05": "-6.983333333333333333333333335",
+          "2023-06": "-5.750000000000000000000000002",
+          "2023-07": "-18.50000000000000000000000001",
+          "2023-08": "-26.38333333333333333333333336",
+          "2023-09": "-6.166666666666666666666666669",
+          "2023-10": "-1.033333333333333333333333334",
+          "2023-11": "-4.150000000000000000000000001",
+          "2023-12": "-3.066666666666666666666666667"
+        },
+        "negative_months": 11,
+        "positive_months": 1,
+        "top_three_winners_share_R": "0.1750364659304021671181496145",
+        "unique_trade_days": 115,
+        "zero_closed_economy_months": 0
+      },
+      "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+      "economics": {
+        "C1_R": "125.7000000000000000000000010",
+        "C1_price": "4.070",
+        "adverse_stop_gap_exits": 3,
+        "gross_R": "33.61666666666666666666666667",
+        "gross_price": "1.120",
+        "net_R": "-92.08333333333333333333333349",
+        "net_price": "-2.950",
+        "planned_net_net_R_max": "3",
+        "planned_net_net_R_min": "3",
+        "scope": "conditional known closures only; incompatible prices never pooled",
+        "stop_risk_ticks_max": "5",
+        "stop_risk_ticks_min": "3"
+      },
+      "events": 1979,
+      "evidence_checks": {
+        "PF_goal_met": false,
+        "complete": false,
+        "concentration_acceptable": false,
+        "enough_sample": true,
+        "monthly_stability": false,
+        "positive_expectancy": false
+      },
+      "fill_days": 180,
+      "geometry": {
+        "boundary_touch_histogram": {
+          "2": 876,
+          "3": 447,
+          "4": 279,
+          "5": 216,
+          "6": 161
+        },
+        "max_C1_initial_risk_R": "0.6666666666666666666666666667",
+        "mean_C1_initial_risk_R": "0.5848008385744234800838574516",
+        "mean_directional_open_vs_signal_close_ticks": "0.09119496855345911949685534591",
+        "mean_entry_distance_ticks": "2.531446540880503144654088050",
+        "mean_known_holding_lower_minutes": "63.36405529953917050691244240",
+        "mean_known_holding_upper_minutes": "65.43778801843317972350230415",
+        "mean_stop_ticks": "3.531446540880503144654088050",
+        "mean_target_distance_ticks": "18.59433962264150943396226415",
+        "min_C1_initial_risk_R": "0.4",
+        "stop_ticks_histogram": {
+          "3": 181,
+          "4": 105,
+          "5": 32
+        }
+      },
+      "loss_attribution": {
+        "SESSION_FLAT": {
+          "cost_R": "35.50000000000000000000000009",
+          "count": 59,
+          "gross_R": "27.43333333333333333333333334",
+          "mean_holding_lower_minutes": "43.05084745762711864406779661",
+          "mean_holding_upper_minutes": "43.05084745762711864406779661",
+          "net_R": "-8.066666666666666666666666667"
+        },
+        "STOP": {
+          "cost_R": "51.56666666666666666666666681",
+          "count": 88,
+          "gross_R": "-88",
+          "mean_holding_lower_minutes": "34.43181818181818181818181818",
+          "mean_holding_upper_minutes": "39.26136363636363636363636364",
+          "net_R": "-139.5666666666666666666666673"
+        },
+        "TAKE": {
+          "cost_R": "2.666666666666666666666666667",
+          "count": 5,
+          "gross_R": "25.66666666666666666666666667",
+          "mean_holding_lower_minutes": "76.0",
+          "mean_holding_upper_minutes": "81.0",
+          "net_R": "23.0"
+        },
+        "TIME": {
+          "cost_R": "35.96666666666666666666666674",
+          "count": 65,
+          "gross_R": "68.51666666666666666666666666",
+          "mean_holding_lower_minutes": "120.0",
+          "mean_holding_upper_minutes": "120.0",
+          "net_R": "32.55000000000000000000000000"
+        }
+      },
+      "model_fills": 318,
+      "model_fills_per_available_day": "1.251968503937007874015748031",
+      "model_fills_per_fill_day": "1.766666666666666666666666667",
+      "optimization_allowed": false,
+      "post_unknown_conditional_closed": 217,
+      "raw_directional_candidates": 1979,
+      "rejected_known_entries": 876,
+      "rejection_reasons": {
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CLUSTER": 27,
+        "MISSING_EXECUTION_BAR": 17,
+        "POSITION_BUSY": 222,
+        "SESSION_LIMIT": 20,
+        "STOP_BELOW_3_TICKS": 251,
+        "UNKNOWN_POSITION_BLOCK": 356
+      },
+      "signals": 1211,
+      "status": "INCONCLUSIVE",
+      "unique_detected_episodes": 1979,
+      "unknown": 118,
+      "unknown_entry_attempts": 17,
+      "unknown_possible_entry": 17,
+      "unknown_reasons": {
+        "MISSING_EXECUTION_BAR": 17,
+        "MISSING_EXPOSED_BAR": 101
+      }
+    },
+    "GLDRUBF": {
+      "admitted_orders": 7,
+      "all_candidate_refusal_reasons": {
+        "CLOSE_AT_BOUNDARY": 3,
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CLUSTER": 1,
+        "STOP_ABOVE_12_TICKS": 1,
+        "STOP_BELOW_3_TICKS": 3
+      },
+      "ambiguous_M5_events": 0,
+      "ambiguous_directional_candidates": 0,
+      "annual": {
+        "Expectancy_R": null,
+        "Max_DD_R": null,
+        "Net_R": null,
+        "PF_C1_R": null,
+        "PF_C1_price": null,
+        "Win_Rate": null
+      },
+      "annual_complete": false,
+      "available_calendar_trading_days": 124,
+      "close_at_boundary_candidates": 3,
+      "closed": 2,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-1.583333333333333333333333334",
+        "Max_DD_R": "3.166666666666666666666666667",
+        "Net_R": "-3.166666666666666666666666667",
+        "Net_price": "-1.1",
+        "PF_C1_R": "0E+27",
+        "PF_C1_price": "0E+1",
+        "PF_no_losses": false,
+        "Win_Rate": "0",
+        "closed": 2,
+        "cost_C1": "0.4",
+        "exit_reasons": {
+          "STOP": 2
+        }
+      },
+      "detected_accumulations": 10,
+      "distribution": {
+        "active_months": 2,
+        "average_loser_R": "-1.583333333333333333333333334",
+        "average_loser_price": "-0.55",
+        "average_winner_R": null,
+        "average_winner_price": null,
+        "largest_positive_month_share_R": null,
+        "largest_winner_share_R": null,
+        "monthly_closed_Net_R": {
+          "2023-11": "-1.5",
+          "2023-12": "-1.666666666666666666666666667"
+        },
+        "negative_months": 2,
+        "positive_months": 0,
+        "top_three_winners_share_R": null,
+        "unique_trade_days": 2,
+        "zero_closed_economy_months": 10
+      },
+      "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+      "economics": {
+        "C1_R": "1.166666666666666666666666667",
+        "C1_price": "0.4",
+        "adverse_stop_gap_exits": 0,
+        "gross_R": "-2",
+        "gross_price": "-0.7",
+        "net_R": "-3.166666666666666666666666667",
+        "net_price": "-1.1",
+        "planned_net_net_R_max": "3",
+        "planned_net_net_R_min": "3",
+        "scope": "conditional known closures only; incompatible prices never pooled",
+        "stop_risk_ticks_max": "4",
+        "stop_risk_ticks_min": "3"
+      },
+      "events": 10,
+      "evidence_checks": {
+        "PF_goal_met": false,
+        "complete": false,
+        "concentration_acceptable": false,
+        "enough_sample": false,
+        "monthly_stability": false,
+        "positive_expectancy": false
+      },
+      "fill_days": 2,
+      "geometry": {
+        "boundary_touch_histogram": {
+          "2": 4,
+          "3": 1,
+          "4": 2,
+          "5": 1,
+          "6": 2
+        },
+        "max_C1_initial_risk_R": "0.6666666666666666666666666667",
+        "mean_C1_initial_risk_R": "0.5833333333333333333333333335",
+        "mean_directional_open_vs_signal_close_ticks": "0",
+        "mean_entry_distance_ticks": "2.5",
+        "mean_known_holding_lower_minutes": "12.5",
+        "mean_known_holding_upper_minutes": "17.5",
+        "mean_stop_ticks": "3.5",
+        "mean_target_distance_ticks": "18.5",
+        "min_C1_initial_risk_R": "0.5",
+        "stop_ticks_histogram": {
+          "3": 1,
+          "4": 1
+        }
+      },
+      "loss_attribution": {
+        "SESSION_FLAT": {
+          "cost_R": "0",
+          "count": 0,
+          "gross_R": "0",
+          "mean_holding_lower_minutes": null,
+          "mean_holding_upper_minutes": null,
+          "net_R": "0"
+        },
+        "STOP": {
+          "cost_R": "1.166666666666666666666666667",
+          "count": 2,
+          "gross_R": "-2",
+          "mean_holding_lower_minutes": "12.5",
+          "mean_holding_upper_minutes": "17.5",
+          "net_R": "-3.166666666666666666666666667"
+        },
+        "TAKE": {
+          "cost_R": "0",
+          "count": 0,
+          "gross_R": "0",
+          "mean_holding_lower_minutes": null,
+          "mean_holding_upper_minutes": null,
+          "net_R": "0"
+        },
+        "TIME": {
+          "cost_R": "0",
+          "count": 0,
+          "gross_R": "0",
+          "mean_holding_lower_minutes": null,
+          "mean_holding_upper_minutes": null,
+          "net_R": "0"
+        }
+      },
+      "model_fills": 2,
+      "model_fills_per_available_day": "0.01612903225806451612903225806",
+      "model_fills_per_fill_day": "1",
+      "optimization_allowed": false,
+      "post_unknown_conditional_closed": 0,
+      "raw_directional_candidates": 10,
+      "rejected_known_entries": 5,
+      "rejection_reasons": {
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CLUSTER": 1,
+        "STOP_ABOVE_12_TICKS": 1,
+        "STOP_BELOW_3_TICKS": 3
+      },
+      "signals": 7,
+      "status": "INCONCLUSIVE",
+      "unique_detected_episodes": 10,
+      "unknown": 0,
+      "unknown_entry_attempts": 0,
+      "unknown_possible_entry": 0,
+      "unknown_reasons": {}
+    },
+    "IMOEXF": {
+      "admitted_orders": 12,
+      "all_candidate_refusal_reasons": {
+        "AMBIGUOUS_BOTH_SIDES": 4,
+        "CLOSE_AT_BOUNDARY": 5,
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CLUSTER": 1,
+        "MISSING_EXECUTION_BAR": 2,
+        "OPEN_WRONG_SIDE_OF_CLUSTER": 1,
+        "SESSION_LIMIT": 3,
+        "STOP_BELOW_3_TICKS": 4
+      },
+      "ambiguous_M5_events": 2,
+      "ambiguous_directional_candidates": 4,
+      "annual": {
+        "Expectancy_R": null,
+        "Max_DD_R": null,
+        "Net_R": null,
+        "PF_C1_R": null,
+        "PF_C1_price": null,
+        "Win_Rate": null
+      },
+      "annual_complete": false,
+      "available_calendar_trading_days": 34,
+      "close_at_boundary_candidates": 5,
+      "closed": 4,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "0.5458333333333333333333333332",
+        "Max_DD_R": "2.316666666666666666666666667",
+        "Net_R": "2.183333333333333333333333333",
+        "Net_price": "4.5",
+        "PF_C1_R": "1.711956521739130434782608695",
+        "PF_C1_price": "1.75",
+        "PF_no_losses": false,
+        "Win_Rate": "0.5",
+        "closed": 4,
+        "cost_C1": "4.0",
+        "exit_reasons": {
+          "SESSION_FLAT": 1,
+          "STOP": 2,
+          "TAKE": 1
+        }
+      },
+      "detected_accumulations": 24,
+      "distribution": {
+        "active_months": 1,
+        "average_loser_R": "-1.533333333333333333333333334",
+        "average_loser_price": "-3.0",
+        "average_winner_R": "2.625",
+        "average_winner_price": "5.25",
+        "largest_positive_month_share_R": "1",
+        "largest_winner_share_R": "0.8571428571428571428571428571",
+        "monthly_closed_Net_R": {
+          "2023-12": "2.183333333333333333333333333"
+        },
+        "negative_months": 0,
+        "positive_months": 1,
+        "top_three_winners_share_R": "1",
+        "unique_trade_days": 4,
+        "zero_closed_economy_months": 11
+      },
+      "economic_diagnostic": "INSUFFICIENT_EVIDENCE",
+      "economics": {
+        "C1_R": "2.066666666666666666666666667",
+        "C1_price": "4.0",
+        "adverse_stop_gap_exits": 0,
+        "gross_R": "4.25",
+        "gross_price": "8.5",
+        "net_R": "2.183333333333333333333333333",
+        "net_price": "4.5",
+        "planned_net_net_R_max": "3",
+        "planned_net_net_R_min": "3",
+        "scope": "conditional known closures only; incompatible prices never pooled",
+        "stop_risk_ticks_max": "5",
+        "stop_risk_ticks_min": "3"
+      },
+      "events": 24,
+      "evidence_checks": {
+        "PF_goal_met": true,
+        "complete": false,
+        "concentration_acceptable": false,
+        "enough_sample": false,
+        "monthly_stability": false,
+        "positive_expectancy": true
+      },
+      "fill_days": 4,
+      "geometry": {
+        "boundary_touch_histogram": {
+          "2": 12,
+          "3": 5,
+          "4": 1,
+          "5": 2,
+          "6": 4
+        },
+        "max_C1_initial_risk_R": "0.6666666666666666666666666667",
+        "mean_C1_initial_risk_R": "0.5166666666666666666666666668",
+        "mean_directional_open_vs_signal_close_ticks": "0",
+        "mean_entry_distance_ticks": "3",
+        "mean_known_holding_lower_minutes": "23.75",
+        "mean_known_holding_upper_minutes": "27.5",
+        "mean_stop_ticks": "4",
+        "mean_target_distance_ticks": "20",
+        "min_C1_initial_risk_R": "0.4",
+        "stop_ticks_histogram": {
+          "3": 1,
+          "4": 2,
+          "5": 1
+        }
+      },
+      "loss_attribution": {
+        "SESSION_FLAT": {
+          "cost_R": "0.5",
+          "count": 1,
+          "gross_R": "1.25",
+          "mean_holding_lower_minutes": "65.0",
+          "mean_holding_upper_minutes": "65.0",
+          "net_R": "0.75"
+        },
+        "STOP": {
+          "cost_R": "1.066666666666666666666666667",
+          "count": 2,
+          "gross_R": "-2",
+          "mean_holding_lower_minutes": "5.0",
+          "mean_holding_upper_minutes": "10.0",
+          "net_R": "-3.066666666666666666666666667"
+        },
+        "TAKE": {
+          "cost_R": "0.5",
+          "count": 1,
+          "gross_R": "5",
+          "mean_holding_lower_minutes": "20.0",
+          "mean_holding_upper_minutes": "25.0",
+          "net_R": "4.5"
+        },
+        "TIME": {
+          "cost_R": "0",
+          "count": 0,
+          "gross_R": "0",
+          "mean_holding_lower_minutes": null,
+          "mean_holding_upper_minutes": null,
+          "net_R": "0"
+        }
+      },
+      "model_fills": 4,
+      "model_fills_per_available_day": "0.1176470588235294117647058824",
+      "model_fills_per_fill_day": "1",
+      "optimization_allowed": false,
+      "post_unknown_conditional_closed": 3,
+      "raw_directional_candidates": 24,
+      "rejected_known_entries": 9,
+      "rejection_reasons": {
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CLUSTER": 1,
+        "MISSING_EXECUTION_BAR": 2,
+        "OPEN_WRONG_SIDE_OF_CLUSTER": 1,
+        "SESSION_LIMIT": 3,
+        "STOP_BELOW_3_TICKS": 4
+      },
+      "signals": 15,
+      "status": "INCONCLUSIVE",
+      "unique_detected_episodes": 24,
+      "unknown": 2,
+      "unknown_entry_attempts": 2,
+      "unknown_possible_entry": 2,
+      "unknown_reasons": {
+        "MISSING_EXECUTION_BAR": 2
+      }
+    },
+    "USDRUBF": {
+      "admitted_orders": 266,
+      "all_candidate_refusal_reasons": {
+        "AMBIGUOUS_BOTH_SIDES": 38,
+        "CLOSE_AT_BOUNDARY": 34,
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CLUSTER": 79,
+        "MISSING_EXECUTION_BAR": 1,
+        "OPEN_WRONG_SIDE_OF_CLUSTER": 3,
+        "POSITION_BUSY": 23,
+        "SESSION_LIMIT": 14,
+        "STOP_ABOVE_12_TICKS": 6,
+        "STOP_BELOW_3_TICKS": 52,
+        "UNKNOWN_POSITION_BLOCK": 2
+      },
+      "ambiguous_M5_events": 19,
+      "ambiguous_directional_candidates": 38,
+      "annual": {
+        "Expectancy_R": null,
+        "Max_DD_R": null,
+        "Net_R": null,
+        "PF_C1_R": null,
+        "PF_C1_price": null,
+        "Win_Rate": null
+      },
+      "annual_complete": false,
+      "available_calendar_trading_days": 254,
+      "close_at_boundary_candidates": 34,
+      "closed": 123,
+      "conditional_closed_only_C1": {
+        "Expectancy_R": "-0.6100271002710027100271002719",
+        "Max_DD_R": "76.86666666666666666666666677",
+        "Net_R": "-75.03333333333333333333333344",
+        "Net_price": "-3.00",
+        "PF_C1_R": "0.4869515669515669515669515653",
+        "PF_C1_price": "0.4623655913978494623655913978",
+        "PF_no_losses": false,
+        "Win_Rate": "0.1626016260162601626016260163",
+        "closed": 123,
+        "cost_C1": "2.46",
+        "exit_reasons": {
+          "SESSION_FLAT": 15,
+          "STOP": 92,
+          "TAKE": 13,
+          "TIME": 3
+        }
+      },
+      "detected_accumulations": 377,
+      "distribution": {
+        "active_months": 12,
+        "average_loser_R": "-1.433823529411764705882352946",
+        "average_loser_price": "-0.05470588235294117647058823529",
+        "average_winner_R": "3.560833333333333333333333334",
+        "average_winner_price": "0.129",
+        "largest_positive_month_share_R": "0.5588235294117647058823529413",
+        "largest_winner_share_R": "0.07020828457758015445822607067",
+        "monthly_closed_Net_R": {
+          "2023-01": "-5.900000000000000000000000001",
+          "2023-02": "-1.816666666666666666666666667",
+          "2023-03": "-16.25000000000000000000000001",
+          "2023-04": "-10.16666666666666666666666667",
+          "2023-05": "-9.33333333333333333333333334",
+          "2023-06": "6.333333333333333333333333333",
+          "2023-07": "1.933333333333333333333333332",
+          "2023-08": "3.066666666666666666666666666",
+          "2023-09": "-9.566666666666666666666666668",
+          "2023-10": "-6.883333333333333333333333334",
+          "2023-11": "-17.15000000000000000000000001",
+          "2023-12": "-9.300000000000000000000000002"
+        },
+        "negative_months": 9,
+        "positive_months": 3,
+        "top_three_winners_share_R": "0.2106248537327404633746782120",
+        "unique_trade_days": 86,
+        "zero_closed_economy_months": 0
+      },
+      "economic_diagnostic": "NO ECONOMIC BASELINE PASS",
+      "economics": {
+        "C1_R": "66.13333333333333333333333347",
+        "C1_price": "2.46",
+        "adverse_stop_gap_exits": 6,
+        "gross_R": "-8.900000000000000000000000007",
+        "gross_price": "-0.54",
+        "net_R": "-75.03333333333333333333333344",
+        "net_price": "-3.00",
+        "planned_net_net_R_max": "3",
+        "planned_net_net_R_min": "3",
+        "scope": "conditional known closures only; incompatible prices never pooled",
+        "stop_risk_ticks_max": "5",
+        "stop_risk_ticks_min": "3"
+      },
+      "events": 377,
+      "evidence_checks": {
+        "PF_goal_met": false,
+        "complete": false,
+        "concentration_acceptable": false,
+        "enough_sample": true,
+        "monthly_stability": false,
+        "positive_expectancy": false
+      },
+      "fill_days": 88,
+      "geometry": {
+        "boundary_touch_histogram": {
+          "2": 226,
+          "3": 88,
+          "4": 41,
+          "5": 19,
+          "6": 3
+        },
+        "max_C1_initial_risk_R": "0.6666666666666666666666666667",
+        "mean_C1_initial_risk_R": "0.5384000000000000000000000011",
+        "mean_directional_open_vs_signal_close_ticks": "0.032",
+        "mean_entry_distance_ticks": "2.872",
+        "mean_known_holding_lower_minutes": "24.67479674796747967479674797",
+        "mean_known_holding_upper_minutes": "28.69918699186991869918699187",
+        "mean_stop_ticks": "3.872",
+        "mean_target_distance_ticks": "19.616",
+        "min_C1_initial_risk_R": "0.4",
+        "stop_ticks_histogram": {
+          "3": 48,
+          "4": 45,
+          "5": 32
+        }
+      },
+      "loss_attribution": {
+        "SESSION_FLAT": {
+          "cost_R": "7.766666666666666666666666668",
+          "count": 15,
+          "gross_R": "11.68333333333333333333333333",
+          "mean_holding_lower_minutes": "32.66666666666666666666666667",
+          "mean_holding_upper_minutes": "32.66666666666666666666666667",
+          "net_R": "3.916666666666666666666666667"
+        },
+        "STOP": {
+          "cost_R": "49.70000000000000000000000010",
+          "count": 92,
+          "gross_R": "-92.25",
+          "mean_holding_lower_minutes": "18.85869565217391304347826087",
+          "mean_holding_upper_minutes": "23.53260869565217391304347826",
+          "net_R": "-141.9500000000000000000000005"
+        },
+        "TAKE": {
+          "cost_R": "7.466666666666666666666666668",
+          "count": 13,
+          "gross_R": "68.86666666666666666666666668",
+          "mean_holding_lower_minutes": "34.61538461538461538461538462",
+          "mean_holding_upper_minutes": "39.61538461538461538461538462",
+          "net_R": "61.4"
+        },
+        "TIME": {
+          "cost_R": "1.2",
+          "count": 3,
+          "gross_R": "2.8",
+          "mean_holding_lower_minutes": "120.0",
+          "mean_holding_upper_minutes": "120.0",
+          "net_R": "1.6"
+        }
+      },
+      "model_fills": 125,
+      "model_fills_per_available_day": "0.4921259842519685039370078740",
+      "model_fills_per_fill_day": "1.420454545454545454545454545",
+      "optimization_allowed": false,
+      "post_unknown_conditional_closed": 118,
+      "raw_directional_candidates": 377,
+      "rejected_known_entries": 179,
+      "rejection_reasons": {
+        "ENTRY_MORE_THAN_4_TICKS_FROM_CLUSTER": 79,
+        "MISSING_EXECUTION_BAR": 1,
+        "OPEN_WRONG_SIDE_OF_CLUSTER": 3,
+        "POSITION_BUSY": 23,
+        "SESSION_LIMIT": 14,
+        "STOP_ABOVE_12_TICKS": 6,
+        "STOP_BELOW_3_TICKS": 52,
+        "UNKNOWN_POSITION_BLOCK": 2
+      },
+      "signals": 305,
+      "status": "INCONCLUSIVE",
+      "unique_detected_episodes": 377,
+      "unknown": 3,
+      "unknown_entry_attempts": 1,
+      "unknown_possible_entry": 1,
+      "unknown_reasons": {
+        "MISSING_EXECUTION_BAR": 1,
+        "MISSING_EXPOSED_BAR": 2
+      }
+    }
+  },
+  "optimization_allowed": false,
+  "pooled_price_portfolio": null,
+  "research_phase": "BASELINE",
+  "strategy": "HIGH_LOW_CLUSTER_M5",
+  "totals_counts_only": {
+    "closed": 346,
+    "detected_accumulations": 2390,
+    "model_fills": 449,
+    "rejected_known_entries": 1069,
+    "signals": 1538,
+    "unknown": 123,
+    "unknown_entry_attempts": 20
+  },
+  "version": "B7_v1"
+}

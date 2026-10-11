@@ -1,0 +1,23 @@
+{
+  "Baseline_Report.md": "01333329268a4c6c334f7ff9a983696e7f956ddc163d14feaa833c88ae9c24fe",
+  "audit.json": "b4957abc9f330e411696e214e3917f6f553518e7e465eb63ad1e4a7f3e01e771",
+  "boundary_touch_report.csv": "ffe97cb992d28c6e587973093f6e294ca209800c4925382540e984ead9faa23b",
+  "config.json": "fb194b0e0734ac2dc84cf64a5aa33ec4aad3fd00c796108d56ffc5196459fa5f",
+  "coverage_daily.csv": "30eb091bbe9a1b7fb7a5a7e72235d3035c7bd12d23fc77d1b37250d949c113a0",
+  "coverage_events.csv": "db2ea67c8053c8e5136bcde926a0a06caecf08b719394baabb8e2b0ef99fddb1",
+  "coverage_summary.csv": "f7defd9527083b965ec9bf36b74cdb1ed41fe2753dcf19b3d4f37dfffb5439b4",
+  "days.csv": "94380b965a75eff9385f44fd4e8ab6b8b1cfb3dcd753cc281c8fd65170980e4c",
+  "direction_report.csv": "64f1547506af9e5b59677406aae99cf9fddf7a823d7e12052c626d7c4d7590ea",
+  "episodes.csv": "a42bd8a8969e27639ebdf2861e554445ff5303dcdf8465088ca83b820c0c9292",
+  "input_provenance.json": "4c0bca7c3516a3ca5be1dbc3871d49738d2fea6af4916a03424057e69c9f98b9",
+  "instrument_report.csv": "0e8bb6533a8f70c235bd50653f977e71817640cf58c8f29516cf5564568e73e7",
+  "manifest.json": "75cccda33c6b12949cc8b090c08fa689f1a057f9f9acb54d29ca0e95aeeb796d",
+  "metrics.json": "af6b4e0aa35432cf6c7cc5461e2cbcf8a75597c457ecf87651a27efd67d55799",
+  "monthly_report.csv": "39a7c1b4871fbcec9571316c2309d9da67553a0c8bb5a5ac23f744a1086ab535",
+  "rejected_entries.csv": "2ade216fdf57d9cbdf22d6cf6ee08fb5c5627e2c919540456484c6bc3b4090bf",
+  "round_report.csv": "70eb4b47b23d3f45ce94ffdcd562b751b04fe91fd873b0adda7c27a472332cfd",
+  "signals.csv": "2ea5638c8afb5b72c3bbcac66866ec2fa41bad466689ed4d21f1490f309599e9",
+  "trades.csv": "f237cd3ee53a00e04f968fb3e6efb41db881a5b8b8f29706e63cb154d9ad463c",
+  "unknown_report.csv": "ce0acab9cb47311d9d858c48e9a6537e9dbd0b9729248ff14fce2f5dc7d9dc08",
+  "validation.json": "3834736e1ef750ea6ed3d1ff1269a47ef57b5e1e3b72484228b74e75a898fadb"
+}
