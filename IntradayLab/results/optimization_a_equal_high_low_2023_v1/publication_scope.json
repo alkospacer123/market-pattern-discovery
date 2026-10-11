@@ -1,0 +1,18 @@
+{
+  "PR472_reverified_open_draft_head": "82ec9ffe61e18a43cd7510e398f6913b25f045e1",
+  "all_1161_initial_deterministic_hashes_match": true,
+  "all_required_report_row_sets_unique_complete": true,
+  "base_sha": "ce89458b063f3af2451f8c4c162107207973c53b",
+  "baseline_files_unchanged": true,
+  "changed_tracked_paths": 1192,
+  "freeze_dependencies_unchanged_after_PNL": true,
+  "main_reverified_before_publication": "ce89458b063f3af2451f8c4c162107207973c53b",
+  "modified_preexisting_files": 0,
+  "outside_IntradayLab_diff_empty": true,
+  "preexisting_files_byte_verified": 4042,
+  "protected_IntradayLab_files": 739,
+  "protected_outside_files": 3303,
+  "registry_unchanged": true,
+  "source_no_mutations": true,
+  "status": "PASS"
+}
