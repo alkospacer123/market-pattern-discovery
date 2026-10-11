@@ -1,0 +1,1 @@
+{"archived_test_files_unchanged": true, "metadata_adapter": "A_v1 synthetic audit config loaded with actual current hashes of three extended core files, in memory only; no assertion removed", "status": "PASS", "stock_legacy_suite_note": "Before adapter: 495/496 pass, one historical core-SHA assertion fails as expected after the authorized extension", "tests": 556}

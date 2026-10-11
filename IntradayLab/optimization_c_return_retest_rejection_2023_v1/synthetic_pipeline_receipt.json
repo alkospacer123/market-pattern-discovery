@@ -1,0 +1,63 @@
+{
+  "adapters": "Only in-memory source and freeze metadata; independent computational algorithms unchanged; synthetic control compares current bytes instead of historical ledger",
+  "corruption_checks": [
+    {
+      "case": "PF",
+      "reason": "METRIC C_OPT2023_APP2_LOOKBACK3_TOL1_MAXBARS24_SB1_TP2 PF_R",
+      "status": "DETECTED"
+    },
+    {
+      "case": "MONTH",
+      "reason": "MONTH Net_R",
+      "status": "DETECTED"
+    },
+    {
+      "case": "TRADE",
+      "reason": "C_OPT2023_APP2_LOOKBACK3_TOL1_MAXBARS24_SB1_TP2 trades C1_USDRUBF_2023-01-04_SHORT_1025_10000 take",
+      "status": "DETECTED"
+    },
+    {
+      "case": "CONSTRUCTION",
+      "reason": "ALL_CONSTRUCTION_STATES C_OPT2023_APP2_LOOKBACK3_TOL1_MAXBARS24_SB1_TP2",
+      "status": "DETECTED"
+    },
+    {
+      "case": "EXCLUSION",
+      "reason": "C_OPT2023_APP2_LOOKBACK3_TOL1_MAXBARS24_SB1_TP2 data_quality_exclusions C1_USDRUBF_2023-01-05_SHORT_1025_10000 entry_price",
+      "status": "DETECTED"
+    },
+    {
+      "case": "MISSING_CONFIG",
+      "reason": "COMPLETE_MATRIX_ROWS",
+      "status": "DETECTED"
+    },
+    {
+      "case": "MISSING_MONTH",
+      "reason": "COMPLETE_MATRIX_ROWS",
+      "status": "DETECTED"
+    }
+  ],
+  "historical_candle_reads": 0,
+  "independent_checked_fields": {
+    "accepted_ID_checks": 720,
+    "baseline_fields": 8570,
+    "construction_fields": 154224,
+    "coverage_fields": 1097280,
+    "data_gap_skips_fields": 5904,
+    "data_quality_exclusions_fields": 15552,
+    "diagnostic_fields": 19440,
+    "direction_fields": 15552,
+    "funnel_fields": 3456,
+    "index_diagnostics_fields": 21744,
+    "metric_fields": 11232,
+    "monthly_fields": 114048,
+    "neighbor_fields": 9760,
+    "rejected_nonfill_fields": 16848,
+    "selection_checks": 9,
+    "signals_fields": 58752,
+    "trades_fields": 11232
+  },
+  "selection": "NO QUALIFYING OPTIMIZATION CANDIDATE",
+  "status": "PASS",
+  "synthetic_evaluations": 288
+}
