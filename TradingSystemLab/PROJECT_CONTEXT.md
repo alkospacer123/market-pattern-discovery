@@ -1,5 +1,18 @@
 # TradingSystemLab project context
 
+## Current operational HOLD — 2026-10-12 (supersedes older operational snapshots)
+
+**HALTED / NOT REARMED.** Operator-provided physical snapshot at `2026-10-12T05:55:33.966970+00:00`: kill switch `HALTED`, generation `59`, production service `Running`, positions `0`, unresolved intents `0`; heartbeat `UNHEALTHY`, reconciliation `FAULT`, cycle_count `9212`, repeated `STAGE8_12_4_H1_SPLICE_TIMESTAMP_MISMATCH`. These are **reported observations**, not a new physical verification.
+
+Observed GET-only diagnosis across all four N4: FINAM later added H1 `2026-10-10 09:00 MSK` inside immutable historical overlap; exact authority seam `2026-10-11 18:00 MSK` remained present and a later live H1 `2026-10-12 07:00 MSK` existed. The first LIVE week independently examined 58 H1 per N4 (232 checks), with 0 complete T3 signals, 0 intents, 0 fills and signal_sequence=0.
+
+Code-only H1-history fix: [PR #484](https://github.com/alkospacer123/market-pattern-discovery/pull/484), merged as `184e8c2b8fa092a606249ff293a4f507160bff29`. This is **repository code**, **not** a physically accepted or deployed LIVE commit. The Intel production checkout remains historically pinned to `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`; Stage5 data is `50f1fd2178c18b7ab3bd969be82ad01f47a34745`. Documentation-only commits may advance `main` without changing that checkout.
+
+Stage5 plus persisted H1 remains immutable; later FINAM-only timestamps `<= authority.max()` are ignored, and only bars `> authority.max()` append after the **exact latest seam** is observed. Missing seam/no overlap, duplicated or unordered timestamps, persisted corruption and stale current H1 continue to fail closed. Frozen T3/H1/TRAIL1/N4/FULL-R15/6%, sizing and execution semantics are unchanged.
+
+**Gates outstanding:** full repository test execution; Intel preactivation under `HALTED` with fresh `HEALTHY/PASS`, positions=0 and unresolved=0; new commit-bound authorization rollover if necessary; **separate explicit re-arm permission**. No `git pull` or automatic checkout movement on Intel; no re-arm, forced entries or retroactive persisted continuation edit. See `stage8_robot/PRODUCTION_OPERATOR_CHECKLIST.md` and `stage8_robot/PRODUCTION_STRATEGY_PASSPORT.md`.
+
+
 ## Operational checkpoint — 2026-10-08
 
 Current LIVE production code authority is pinned to:
