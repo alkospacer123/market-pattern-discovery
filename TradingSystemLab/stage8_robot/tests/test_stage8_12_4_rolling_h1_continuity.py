@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import json
 from decimal import Decimal
 
 import pandas as pd
@@ -199,3 +200,105 @@ def test_persisted_continuation_corruption_fails_closed_before_t3():
         extend_rolling_open_h1(
             seed(), corrupted, rollover_live(), "USDRUBF"
         )
+
+
+def test_later_finam_backfill_in_immutable_persisted_overlap_is_ignored():
+    # At the first acceptance FINAM did not report 13:00. The accepted
+    # persisted continuation contains 14:00 but no 13:00.
+    first = frame(
+        ("2026-09-15 12:00:00", "102"),
+        ("2026-09-15 14:00:00", "104"),
+    )
+    accepted, original = extend_rolling_open_h1(
+        seed(), None, first, "USDRUBF"
+    )
+    original_prefix = json.dumps(
+        original["bars"], sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    backfilled = frame(
+        ("2026-09-15 12:00:00", "102"),
+        ("2026-09-15 13:00:00", "103"),
+        ("2026-09-15 14:00:00", "104"),
+        ("2026-09-15 15:00:00", "105"),
+    )
+
+    merged, updated = extend_rolling_open_h1(
+        seed(), original, backfilled, "USDRUBF"
+    )
+
+    assert accepted.equals(merged.loc[accepted.index])
+    assert pd.Timestamp("2026-09-15 13:00:00", tz=MOSCOW) not in merged.index
+    assert pd.Timestamp("2026-09-15 15:00:00", tz=MOSCOW) in merged.index
+    assert json.dumps(
+        updated["bars"][:len(original["bars"])],
+        sort_keys=True, separators=(",", ":")
+    ).encode("utf-8") == original_prefix
+    assert original["bars"] == [
+        {
+            "timestamp": "2026-09-15T14:00:00+03:00",
+            "open": "104", "high": "105", "low": "103", "close": "104"
+        }
+    ]
+
+
+def test_live_backfilled_timestamp_does_not_change_seam_ohlc():
+    # The 13:00 H1 was missing when the 14:00 continuation was accepted.
+    initial = frame(
+        ("2026-09-15 12:00:00", "102"),
+        ("2026-09-15 14:00:00", "104"),
+    )
+    _, original = extend_rolling_open_h1(
+        seed(), None, initial, "USDRUBF"
+    )
+    update = frame(
+        ("2026-09-15 12:00:00", "102"),
+        ("2026-09-15 13:00:00", "103"),
+        ("2026-09-15 14:00:00", "104"),
+        ("2026-09-15 15:00:00", "105"),
+    )
+    update.loc[pd.Timestamp("2026-09-15 14:00:00", tz=MOSCOW), "Close"] = Decimal("104.5")
+    merged, new_payload = extend_rolling_open_h1(
+        seed(), original, update, "USDRUBF"
+    )
+    assert pd.Timestamp("2026-09-15 13:00:00", tz=MOSCOW) not in merged.index
+    assert merged.loc[pd.Timestamp("2026-09-15 14:00:00", tz=MOSCOW), "Close"] == Decimal("104")
+    assert new_payload["bars"][:len(original["bars"])] == original["bars"]
+
+
+@pytest.mark.parametrize("invalid", ["duplicate", "reversed"])
+def test_live_duplicate_or_invalid_order_fails_closed(invalid):
+    _, original = extend_rolling_open_h1(
+        seed(), None, first_live(), "USDRUBF"
+    )
+    live = rollover_live()
+    if invalid == "duplicate":
+        live = pd.concat([live, live.iloc[[-1]]])
+        code = "STAGE8_12_4_H1_SPLICE_DUPLICATE"
+    else:
+        live = live.iloc[::-1]
+        code = "STAGE8_12_4_H1_SPLICE_ORDER_INVALID"
+    with pytest.raises(ProductionHistoryError, match=code):
+        extend_rolling_open_h1(seed(), original, live, "USDRUBF")
+
+
+def test_seam_must_be_latest_persisted_bar_not_earlier_overlap():
+    _, original = extend_rolling_open_h1(
+        seed(), None, first_live(), "USDRUBF"
+    )
+    earlier_only = frame(
+        ("2026-09-15 12:00:00", "102"),
+        ("2026-09-15 13:00:00", "103"),
+    )
+    with pytest.raises(
+        ProductionHistoryError, match="STAGE8_12_4_H1_SPLICE_TIMESTAMP_MISMATCH"
+    ):
+        extend_rolling_open_h1(seed(), original, earlier_only, "USDRUBF")
+
+
+def test_stale_current_h1_guard_untouched():
+    from pathlib import Path
+    source = Path("TradingSystemLab/stage8_robot/production_service.py").read_text(
+        encoding="utf-8"
+    )
+    assert 'if expected.astimezone(timezone.utc) not in live_utc:' in source
+    assert '"STAGE8_12_4_STALE_COMPLETED_H1_DATA"' in source

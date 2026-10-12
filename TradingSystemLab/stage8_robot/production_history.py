@@ -3,7 +3,8 @@
 FINAM documents only 30 days of H1 historical depth. Frozen T3/H1 needs a much
 longer validity-based context warm-up, so production seeds from the exact N4 H1
 files already recorded by the Stage 5 TRAIL1 authority, then appends current
-FINAM completed H1 bars. Timestamp continuity must match exactly. Once a bar is
+FINAM completed H1 bars. The exact latest accepted timestamp is the splice
+seam. Once a bar is
 accepted into Stage-5/persisted authority, its OHLC is immutable production
 history: later FINAM historical revisions at the same timestamp never rewrite
 that authority and must not permanently block production liveness.
@@ -230,41 +231,34 @@ def _splice_authority_and_finam_open_h1(
     The Stage-5/persisted authority remains canonical. FINAM may be a sparse
     historical subset inside the overlap and may later revise OHLC for a
     timestamp already accepted by production. Such revisions are ignored:
-    accepted OHLC is never rewritten. FINAM still may not introduce an unknown
-    timestamp inside the overlap, and the most recent authority timestamp must
-    be present to prove the exact splice seam before newer bars are appended.
+    accepted OHLC is never rewritten. New FINAM-only historical timestamps at
+    or before the immutable authority maximum are likewise ignored (mutable
+    broker backfill, never inserted into accepted history). The exact latest
+    authority timestamp must still exist in FINAM to prove the seam. Only bars
+    strictly newer than that seam may be appended. Input ordering, duplicate
+    stamps, and empty/missing overlap remain fail-closed.
     """
     if authority.empty or live.empty:
         raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_EMPTY")
     if authority.index.tz is None or live.index.tz is None:
         raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_TIMEZONE_INVALID")
-    authority = authority.sort_index(kind="mergesort")
-    live = live.sort_index(kind="mergesort")
     if authority.index.has_duplicates or live.index.has_duplicates:
         raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_DUPLICATE")
-    if live.index.min() > authority.index.max():
-        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_NO_OVERLAP")
+    if (
+        not authority.index.is_monotonic_increasing
+        or not live.index.is_monotonic_increasing
+    ):
+        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_ORDER_INVALID")
 
-    overlap_start = live.index.min()
-    overlap_end = min(authority.index.max(), live.index.max())
-    authority_overlap = authority.loc[
-        (authority.index >= overlap_start) & (authority.index <= overlap_end)
-    ]
-    live_overlap = live.loc[
-        (live.index >= overlap_start) & (live.index <= overlap_end)
-    ]
-    if authority_overlap.empty or live_overlap.empty:
+    seam = authority.index.max()
+    if live.index.min() > seam or live.index.max() < authority.index.min():
         raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_NO_OVERLAP")
-
-    unexpected_live = live_overlap.index.difference(authority_overlap.index)
-    if len(unexpected_live):
+    if seam not in live.index:
         raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_TIMESTAMP_MISMATCH")
 
-    seam = authority_overlap.index.max()
-    if seam not in live_overlap.index:
-        raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_TIMESTAMP_MISMATCH")
-
-    appended = live.loc[live.index > authority.index.max()]
+    # All FINAM rows <= seam are mutable historical observations, not new
+    # authority. Never rewrite existing OHLC or insert historical backfill.
+    appended = live.loc[live.index > seam]
     merged = pd.concat([authority, appended])
     if merged.index.has_duplicates or not merged.index.is_monotonic_increasing:
         raise ProductionHistoryError("STAGE8_12_4_H1_SPLICE_ORDER_INVALID")

@@ -162,10 +162,16 @@ def test_splice_preserves_accepted_authority_and_appends_only_new_bars():
         ("2026-09-15 22:00:00", 101, 103, 100, 102),
         ("2026-09-15 23:00:00", 102, 104, 101, 103),
     ])
-    with pytest.raises(ProductionHistoryError, match="H1_SPLICE_TIMESTAMP_MISMATCH"):
-        splice_seed_and_finam_open_h1(
-            authority_with_gap, finam_with_unknown_overlap
-        )
+    backfilled = splice_seed_and_finam_open_h1(
+        authority_with_gap, finam_with_unknown_overlap
+    )
+    assert pd.Timestamp("2026-09-15 21:00:00", tz=MOSCOW) not in backfilled.index
+    assert backfilled.loc[
+        pd.Timestamp("2026-09-15 22:00:00", tz=MOSCOW), "Close"
+    ] == Decimal("102")
+    assert backfilled.index[-1] == pd.Timestamp(
+        "2026-09-15 23:00:00", tz=MOSCOW
+    )
 
 
 def test_close_index_matches_frozen_research_loader_semantics():
