@@ -1,0 +1,42 @@
+{
+  "artifact_sha256": {
+    "BASELINE_CONFIGS.json": "1f5bc7f7ddaaa2fa2b3e3b53e5aa0caf54cc3ff65932356f77f5176a80d29a9b",
+    "BASELINE_REPORT.md": "c8571a18b9a46b03ee1743be8b582318f6563388f14b13891676d11913cec2e2",
+    "GATES.json": "41f1fd807ee3835837ee40d743fcf7b1abe845d46ad7a38c2e6d0e77123ea158",
+    "OPEN_POSITIONS.json": "c02fdec2fe99db54f48a003fa504b6d548509e79a8d5aa3791a1bc98c67a5631",
+    "REPRODUCTION_AUDIT.md": "8222b621ed9ef9f9c6c67bf480ab086bef5e5f93426ef2c8a7d2c040ccc0323a",
+    "REPRODUCTION_DETAIL.json": "d2baeeb80664e3783d8c5331bae9a0e8acce7c1109308c6787e92fe129d605be",
+    "REPRODUCTION_DIFF.csv": "50e5a3f973e061bb159d8bd0a10efb2f5118ebc7a3cf7e5b88aa1083f5416f16",
+    "SOURCE_MANIFEST.json": "8496ff9f3685e7eae75056d5cec0c8b3911fcc7ad3f0a89ac0df40f349a09bdd",
+    "WF_REFERENCE_COMPARISON.csv": "d8730d2d688e28701c971fe20ad5763667b592c35ff20ad064379d95a1f2dd99",
+    "direction_report.csv": "0a9e660ff3a4374499d27349b0d83205217722454028732ecd174b084525e459",
+    "exit_diagnostics.csv": "0588b75680e8bb086cbde3588dad868be1fd546365545ed3595dbbaa62eb8870",
+    "instrument_report.csv": "71972bae4f1f8caa8743d8653fddeaa0d7e0cd3f762b2cce52f6b76ea0cd1d0c",
+    "mae_mfe_report.csv": "4ec622203996e5072d59e53938f23b1cbd65db845f3b82c4a90a2ec3443e5453",
+    "monthly_report.csv": "945a86134c167b50d8c0ef052ac973995adc2a619d78e51e1200b2c5b2bbe17e",
+    "quarterly_report.csv": "f7bd0ef1ac198bb5dd103dea321fd9f3e1e29fd50e3fcac5455abc0adf47ba0c",
+    "trades.csv": "a458c7905824abe8a8cc7a42d6079428b53ba78a4c4dc1f2bf73f9eb94a1dd2b",
+    "yearly_report.csv": "13cbe22a851823213874ce78c0290cb6f26e319734328a20152087d528469759"
+  },
+  "audit_results_sha256": "f3cc0f3b7533f3c35bdcdebd398ab7f0be30c92e9dd11caac93405902328e601",
+  "canonical_output_also_identical": true,
+  "code_sha256": {
+    "README.md": "3f454fdfe83130ebe7902c972d6faf998e11e3a299239a1142a64b019bc51218",
+    "SPEC_EVIDENCE.json": "65801b2bf9c2b62cce6a15465d4146886c82691de7890346a573375af1933a27",
+    "audit.py": "1d5efd8aa98c67d10297bb567af60d42c7dd9ff4bd9395677033dc6f47c0daa2",
+    "engine.py": "5dabd2f526255f0e1b003c6820c114e5708d76d8ba5d9580c53c403c2f540c8a",
+    "research.py": "3768d630070f01e1eb95d92cc8f915444e0b02ca6322af742a775f04f7405407",
+    "test_research.py": "c1bddfbca704bda34f5251a46cf65c7dc7df5b4ca8fd4425bd6e53b90d514a86"
+  },
+  "commands": [
+    "PYTHONDONTWRITEBYTECODE=1 python IntradayLab/t3_m15_forever_v1/research.py --data-root <read-only-pinned-data> --output <fresh-run-1>",
+    "PYTHONDONTWRITEBYTECODE=1 python IntradayLab/t3_m15_forever_v1/research.py --data-root <read-only-pinned-data> --output <fresh-run-2>"
+  ],
+  "comparison": "Every generated research artifact, hash manifest and independent audit results is byte-identical in both fresh processes and canonical output; manual meta-reports are outside this set.",
+  "future_ohlc_ingested": false,
+  "generated_artifact_count": 17,
+  "independent_fresh_process_runs": 2,
+  "reference_and_market_data_modified": false,
+  "sha256_manifest_file": "5794dfeea2e76d09137b84d66c0cacdeed598d282342a44caf922e67cf8e2600",
+  "status": "PASS"
+}

@@ -1,0 +1,37 @@
+{
+  "Gate_A": "PASS",
+  "Gate_B": "PASS",
+  "instruments": {
+    "CNYRUBF": {
+      "reason": "Historical per-record reproduction and explicit 0.001 research C1 unit confirmed",
+      "status": "PASS"
+    },
+    "GLDRUBF": {
+      "reason": "Confirmed fixed research price scale from dated MOEX launch announcement; entire prefix passes Decimal grid; R monetary multiplier cancels. Exhaustive dated contract terms not claimed.",
+      "status": "PASS"
+    },
+    "IMOEXF": {
+      "reason": "Confirmed fixed research price scale from dated MOEX launch announcement; entire prefix passes Decimal grid; R monetary multiplier cancels. Exhaustive dated contract terms not claimed.",
+      "status": "PASS"
+    },
+    "USDRUBF": {
+      "reason": "Historical per-record reproduction and explicit 0.001 research C1 unit confirmed",
+      "status": "PASS"
+    }
+  },
+  "price_grid": [
+    {
+      "checked_prices": 88756,
+      "instrument": "GLDRUBF",
+      "off_grid_prices": 0,
+      "research_unit": "0.1"
+    },
+    {
+      "checked_prices": 66372,
+      "instrument": "IMOEXF",
+      "off_grid_prices": 0,
+      "research_unit": "0.5"
+    }
+  ],
+  "scope": "Normalized closed-trade C1 research model only; standalone executable net economics remains unproven"
+}

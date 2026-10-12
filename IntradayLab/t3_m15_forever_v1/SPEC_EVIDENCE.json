@@ -1,0 +1,36 @@
+{
+  "checked_on": "2026-10-12",
+  "scope": "Fixed normalized historical C1 research price units; not LIVE contract validation or a dated total-cost model",
+  "time_rule": "Naive FINAM timestamps are Moscow open labels; available at t+15min. Exporter attestation is recorded in IntradayLab/reports/STAGE1_M5_CLOCK_CONFIRMATION.md at the pinned discovery base.",
+  "instruments": {
+    "USDRUBF": {"research_c1_unit": 0.001, "basis": "Explicit historical reproduction requirement; historical TradingSystemLab/core/instrument_specs.py price_precision. Not the exchange tick."},
+    "CNYRUBF": {"research_c1_unit": 0.001, "basis": "Explicit historical reproduction requirement; historical TradingSystemLab/core/instrument_specs.py price_precision. Not a dated exchange-tick cost model."},
+    "GLDRUBF": {
+      "research_c1_unit": 0.1,
+      "quote": "RUB per gram",
+      "rub_per_price_point": 1,
+      "launch_date": "2023-07-11",
+      "launch_source": "https://www.moex.com/n57171",
+      "confirmed_launch_terms": "MOEX announcement dated 2023-07-10: one gram, price step 0.1 RUB, tick value 0.1 RUB",
+      "archive": "https://www.moex.com/ru/documents/25690",
+      "archive_observation": "One listed edition covers 2023-07-11 through 2025-08-28",
+      "archive_doc": "https://www.moex.com/files/4pvp1h6yxq2ct76njkzfab1hc7",
+      "archive_doc_access": "Web tool returned Unsupported content-type application/msword; full text not attested"
+    },
+    "IMOEXF": {
+      "research_c1_unit": 0.5,
+      "quote": "IMOEX index points",
+      "rub_per_price_point": 10,
+      "launch_date": "2023-11-14",
+      "launch_source": "https://www.moex.com/n65246",
+      "confirmed_launch_terms": "MOEX announcement dated 2023-11-10: quote in points, price step 0.5 points, tick value 5 RUB; hence 10 RUB per point",
+      "archive": "https://www.moex.com/ru/documents/26107",
+      "archive_observation": "Listed editions: 2023-11-14 to 2024-01-28; 2024-01-29 to 2024-09-22; 2024-09-23 to 2025-08-04",
+      "archive_docs": ["https://www.moex.com/files/4fx05spk89p084rsg7z22q1rwy", "https://www.moex.com/files/4j7wb7fr3dkqx5hf728yg413mv", "https://www.moex.com/files/40cpf9c5s32het5e8fdt15mwxe"],
+      "archive_doc_access": "Web tool returned Unsupported content-type application/msword for all three; full texts not attested"
+    }
+  },
+  "gate_b_rule": "Launch-announcement units independently establish the fixed research C1 scale; every historical OHLC must pass its Decimal grid. These checks permit a normalized C1 baseline only. Unavailable full contract editions prevent claims about exhaustive dated exchange terms or complete economic costs.",
+  "r_normalization": "R = signed(exit-entry)/abs(entry-initial_stop); C1_R = 2*price_unit/abs(entry-initial_stop). Multiplying numerator and denominator by RUB-per-point cancels; IMOEXF 10 RUB round-trip/(10*initial_price_risk) = 1/initial_price_risk.",
+  "limitations": ["No funding, dividend adjustment, ordinary fees, additional spread/slippage, margin, contract sizing or observed fills are included", "Si/CNY and new-instrument units have different historical research provenance; aggregate R is descriptive, not a capital-weighted portfolio", "Stops and trailing prices remain continuous as in the historical reference; they are not rounded executable orders"]
+}
