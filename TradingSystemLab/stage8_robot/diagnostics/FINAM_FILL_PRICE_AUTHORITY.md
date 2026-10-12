@@ -1,5 +1,7 @@
 # FINAM fill price authority — PR #493 follow-up
 
+**Current V2: offline candidate PASS / NOT DEPLOYED; physical acceptance BLOCKED.** Original investigation is retained below; the appended V2 section records current code and user-supplied Intel provenance.
+
 **PROPOSED / NOT DEPLOYED. Source found in official schema; physical acceptance remains BLOCKED. LIVE_CHANGES=NONE. REAL_ORDER_ENDPOINT_CALLS=0.** This work adds one read-only diagnostic and offline tests; it does not enable the proposed execution profile or change FINAM production transport, strategy or state.
 
 ## Concrete finding
@@ -84,3 +86,29 @@ Consequently `STOP_TICK_GRID_CANDIDATE=NEEDS_FIX` for the **complete broker exec
 `FINAM_FILL_PRICE_SOURCE=FOUND_DOCUMENTED_TRADES_HISTORY`; `ORDER_IDENTITY_VERIFIED=BLOCKED`, `PARTIAL_FILL_RECONCILIATION=BLOCKED`, `RESTART_RETENTION=BLOCKED`, `ACTUAL_R15_RISK=BLOCKED`, `LIVE_PRODUCTION_READY=NO`.
 
 Next: inspect the READONLY A/B reports against immutable ACK/physical evidence; prove correct interval request succeeds with real price/unit/identity/coverage. If history is unavailable or clipped, obtain FINAM's exact supported retrieval/retention contract rather than invent it. Real partial/restart price coverage remains unproven by one-contract attempts; existing historical multi-fill evidence is needed if available. Then prepare the narrow price handoff/durable fill retention and partial-protection fix in PR #493, with exact identity/idempotency tests, **before** any separate LIVE acceptance. The diagnostic/profile must not enable itself from observed success.
+
+## Current V2 follow-up — 2026-10-12
+
+The preceding sections record the investigation at PR head `3c45b5c777a5bcd823150c9aebd287d3a8e448f9`. Their “no bridge / partial protection missing” descriptions are historical. The **current candidate** adds the bounded GET price handoff and partial initial protection described in the [V2 amendment](../EXECUTION_AMENDMENT_STOP_TICK_GRID.md#v2-fill-handoff-and-partial-exposure-amendment--2026-10-12). The previous `offline_verification.json` is retained as historical evidence; current results are in [fill_handoff_offline_verification.json](fill_handoff_offline_verification.json).
+
+Physical input supplied by the user: Intel READONLY A/B Attempt 6, CNYRUBF@RTSX LONG, GET trades HTTP 200 with correct interval, matching historical ACK account/order/symbol/side, price 12.748, quantity 1, step 0.001, AccountTrade currency XXX, reported identical two-process results and report hashes. Files `PRICE_AB_SUMMARY.json`, `price-observation-A.json`, `price-observation-B.json` are absent from this workspace. **No independent audit of their bytes or SHA-256 is claimed.** The reported one-contract observation does not prove growing-position SLTP coverage or multi-fill/indefinite history retention.
+
+The unconditional `currency == RUB` filter was wrong for this supplied response shape. The shared validator now stores XXX as a separate feed label; RUB tick valuation comes exclusively from authenticated instrument economics. It rejects unknown monetary specifications/labels, performs no conversion, and never interprets XXX as RUB. A synthetic regression reproduces the stated response shape; that regression is not a copy of Intel evidence.
+
+The production-state handoff strictly matches order/account/symbol/side/trade IDs/time/price/quantity/grid and non-clipped history; multiple fills deduplicate, conflicts roll back, and weighted means/risk remain exact rational values after restart. Production position quantity remains `/account` authority. A fill history read or failure cannot defer the initial partial stop. Missing history, unmatched quantity, incomplete history, price/risk conflict and unproved protection create sticky HALTED/OIR with preserved backstop and no repeated ENTRY.
+
+| Check | Current offline candidate | Separate real FINAM acceptance |
+|---|---|---|
+| FINAM_FILL_PRICE_SOURCE | FOUND: bounded AccountTrade history; XXX preserved separately | User reports physical success; original A/B bytes/ACK hashes not independently verified |
+| ORDER_IDENTITY_VERIFIED | PASS | BLOCKED: independent physical provenance audit |
+| PARTIAL_FILL_RECONCILIATION | PASS: record/protect current quantity; inhibit unknown growth, no duplicates | BLOCKED: real multi-fill/races and whole-position percentage-stop growth coverage |
+| RESTART_RETENTION | PASS: transactional production-state facts and exact recomputation | BLOCKED: bounded server history completeness/retention under real restart |
+| ACTUAL_R15_RISK | PASS: exact actual initial stop-distance accounting, separate nominal reservation | BLOCKED: strict 1.5% actual-loss guarantee under arbitrary MARKET fill/gap/fees |
+| STOP_TICK_GRID_CANDIDATE | PASS for applicable offline checks | No LIVE activation/production readiness claim |
+| Frozen/OOS | UNCHANGED; both raw replays 418/418, all 1422 signals | Original OOS executability/returns are not reclassified |
+
+Growth before initial protective submission uses a separately persisted fresh quantity with the same 100% payload/key. Growth after established coverage does not invent new broker semantics: it preserves the existing backstop, blocks management/new entries, and requires intervention. No extra replacement is created merely for quantity growth; a pending ordinary TRAIL1 POST is inhibited while halted. Flat exposure with an unresolved entry remainder cannot trigger backstop cancellation.
+
+The proposed MARKET accounting distinction is implemented solely in the inactive candidate: quantity from executable reference stop, nominal FULL/R15 unchanged, exact actual fill risk retained separately, excess/uncertainty halts with protection. It still needs independent acceptance; a strict actual-risk ceiling cannot be asserted. Commission/currency conversion authority is not invented.
+
+Current status: **OFFLINE_FIX_READY_FOR_REVIEW / STOP_TICK_GRID_CANDIDATE=PASS; LIVE_PRODUCTION_READY=NO.** Required physical items remain BLOCKED as listed above. Candidate revision V2 rejects V1/legacy state, remains opt-in and entry-closed, and supplies no migration/deploy/re-arm commands. No Intel connection or physical FINAM request was made in this work: `REAL_ORDER_ENDPOINT_CALLS=0`, `LIVE_CHANGES=NONE`; no merge/auto-merge/deploy/re-arm.

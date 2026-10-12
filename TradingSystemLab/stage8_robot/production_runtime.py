@@ -11,7 +11,8 @@ from __future__ import annotations
 
 import csv
 from dataclasses import asdict, dataclass
-from decimal import Decimal
+from decimal import Decimal, localcontext
+from fractions import Fraction
 from functools import wraps
 import json
 import sqlite3
@@ -31,7 +32,7 @@ from .execution_grid import (EXECUTION_REVISION, authority_fingerprint, decimal_
                              initial_projection, manage_executable, require_on_grid)
 
 RUNTIME_SCHEMA = "stage8_12_production_runtime.v1"
-AMENDED_RUNTIME_SCHEMA = "stage8_12_production_runtime.stop_tick_grid.v1"
+AMENDED_RUNTIME_SCHEMA = "stage8_12_production_runtime.stop_tick_grid.v2"
 MODE = "STAGE8_12_CODE_ONLY"
 PRODUCTION_REGISTRY = Path(__file__).with_name("production_instrument_registry.csv")
 ActionKind = Literal[
@@ -145,14 +146,14 @@ def _trail_to_dict(state: Trail1State) -> dict[str, Any]:
         "candidate_already_looser": state.candidate_already_looser,
         "gap_through_activated_trail": state.gap_through_activated_trail,
     }
-    return {k: str(v) if isinstance(v, Decimal) else v for k, v in result.items()}
+    return {k: str(v) if isinstance(v, (Decimal, Fraction)) else v for k, v in result.items()}
 
 
-def _trail_from_dict(value: dict[str, Any]) -> Trail1State:
+def _trail_from_dict(value: dict[str, Any], number=lambda value: float(Fraction(str(value)))) -> Trail1State:
     state = Trail1State(
         value["direction"],
-        float(value["entry_price"]),
-        float(value["initial_stop_price"]),
+        number(value["entry_price"]),
+        number(value["initial_stop_price"]),
         enabled=bool(value.get("enabled", True)),
     )
     state.triggered = bool(value.get("triggered", False))
@@ -165,21 +166,35 @@ def _trail_from_dict(value: dict[str, Any]) -> Trail1State:
     return state
 
 
+def _stop_text(value):
+    if isinstance(value,Fraction):
+        remainder=value.denominator
+        for factor in (2,5):
+            while remainder%factor==0:
+                remainder//=factor
+        if remainder != 1:
+            raise ValueError("EXECUTABLE_STOP_DECIMAL_INVALID")
+        with localcontext() as context:
+            context.prec=len(str(abs(value.numerator)))+len(str(value.denominator))+1
+            return str(Decimal(value.numerator)/Decimal(value.denominator))
+    return str(value) if isinstance(value,Decimal) else value
+
+
 def _position_to_dict(position: PositionState, meta: dict[str, Any]) -> dict[str, Any]:
     return {
         **meta,
         "instrument": position.instrument,
         "direction": position.direction,
-        "entry": str(position.entry) if isinstance(position.entry, Decimal) else position.entry,
-        "initial_stop": str(position.initial_stop) if isinstance(position.initial_stop, Decimal) else position.initial_stop,
-        "current_stop": str(position.current_stop) if isinstance(position.current_stop, Decimal) else position.current_stop,
-        "favorable_extreme": str(position.favorable_extreme) if isinstance(position.favorable_extreme, Decimal) else position.favorable_extreme,
+        "entry": str(position.entry) if isinstance(position.entry, (Decimal, Fraction)) else position.entry,
+        "initial_stop": _stop_text(position.initial_stop),
+        "current_stop": _stop_text(position.current_stop),
+        "favorable_extreme": str(position.favorable_extreme) if isinstance(position.favorable_extreme, (Decimal, Fraction)) else position.favorable_extreme,
         "trail1": _trail_to_dict(position.trail1),
     }
 
 
 def _position_from_dict(value: dict[str, Any]) -> PositionState:
-    number = (lambda value: Decimal(str(value))) if value.get("execution_revision") else float
+    number = (lambda value: Fraction(str(value))) if value.get("fill_price_exact") else ((lambda value: Decimal(str(value))) if value.get("execution_revision") else float)
     return PositionState(
         instrument=value["instrument"],
         direction=value["direction"],
@@ -187,7 +202,7 @@ def _position_from_dict(value: dict[str, Any]) -> PositionState:
         initial_stop=number(value["initial_stop"]),
         current_stop=number(value["current_stop"]),
         favorable_extreme=number(value["favorable_extreme"]),
-        trail1=_trail_from_dict(value["trail1"]),
+        trail1=_trail_from_dict(value["trail1"], number),
     )
 
 
@@ -265,6 +280,8 @@ class ProductionRuntime:
         if execution_revision:
             try:
                 self.open_positions()
+                for key in {fill["entry_key"] for fill in self.store.all_fills()}:
+                    self._validated_order_fills(key)
                 for row in self.store.all_intents():
                     if row["payload"].get("execution_revision") != execution_revision:
                         raise ProductionRuntimeError("EXECUTION_STATE_REVISION_MISMATCH")
@@ -282,11 +299,17 @@ class ProductionRuntime:
         return RuntimeAction(*args, **kwargs)
 
     def _authority_evidence(self, authority: InstrumentAuthority) -> dict:
-        result = {k: str(v) if isinstance(v, Decimal) else v for k, v in asdict(authority).items()}
+        result = {k: str(v) if isinstance(v, (Decimal, Fraction)) else v for k, v in asdict(authority).items()}
         result["registry_fingerprint"] = authority_fingerprint(self.registry[authority.instrument])
         return result
 
     def _validate_execution_evidence(self, value: dict) -> None:
+        # Reproduce the persisted sizing context, independent of fill display precision.
+        with localcontext() as context:
+            context.prec = 28
+            self._validate_execution_evidence_decimal(value)
+
+    def _validate_execution_evidence_decimal(self, value: dict) -> None:
         try:
             evidence = value["instrument_authority"]
             authority = InstrumentAuthority(**{k: Decimal(v) if k in {
@@ -316,7 +339,8 @@ class ProductionRuntime:
                 stop=stop, price_step=authority.price_step, tick_value=authority.tick_value, r15_quantity=base.quantity,
                 available_cash=Decimal(sized["available_cash"]), direction=value["direction"],
                 initial_margin=authority.initial_margin(value["direction"]), trade_lot_size=authority.trade_lot_size)
-            if (recomputed.evidence() != sized or value["quantity"] != recomputed.final_quantity
+            if (recomputed.evidence() != sized or value.get("planned_quantity", value["quantity"]) != recomputed.final_quantity
+                    or type(value["quantity"]) is not int or not 0 < value["quantity"] <= recomputed.final_quantity
                     or Decimal(value["risk_cash"]) != recomputed.risk_cash
                     or Decimal(value["margin_reservation"]) != recomputed.final_quantity * recomputed.initial_margin
                     or Decimal(value["reference_initial_loss_cash"]) != recomputed.final_quantity * recomputed.loss_per_contract):
@@ -337,6 +361,8 @@ class ProductionRuntime:
                 and authority.price_step == Decimal(row["price_step"])
                 and authority.tick_value == Decimal(row["tick_value"])
                 and authority.trade_lot_size == int(row["quantity_granularity"])
+                and row.get("currency") == "RUB"
+                and "MOEX frozen tick-value reference" in row.get("authority", "")
                 and type(authority.trade_lot_size) is int
                 and all(v.is_finite() and v > 0 for v in (
                     authority.price_step, authority.tick_value,
@@ -362,21 +388,54 @@ class ProductionRuntime:
                         raise ValueError("POSITION_WATERMARK")
                     if position["instrument"] != instrument or position["trail1"]["direction"] != position["direction"]:
                         raise ValueError("POSITION_IDENTITY")
-                    if Decimal(str(position["initial_stop"])) != Decimal(position["executable_initial_stop"]):
+                    if Fraction(str(position["initial_stop"])) != Fraction(position["executable_initial_stop"]):
                         raise ValueError("INITIAL_STOP")
                     verified = position["verified_fill_entry"]
                     entry = position["reference_entry"] if verified is None else verified
-                    if Decimal(str(position["entry"])) != decimal_price(entry):
+                    if Fraction(str(position["entry"])) != Fraction(str(entry)):
                         raise ValueError("ENTRY_AUTHORITY")
                     if verified is None and (position["fill_authority"] != "MISSING" or position["actual_initial_loss_cash"] is not None):
                         raise ValueError("MISSING_FILL_MUST_NOT_CLAIM_RISK")
-                    require_on_grid(position["current_stop"], step)
+                    if position["fill_authority"] not in {"MISSING", "OFFLINE_SYNTHETIC_VERIFIED", "FINAM_ACCOUNT_TRADE"}:
+                        raise ValueError("FILL_AUTHORITY_UNKNOWN")
+                    if position["fill_authority"] == "FINAM_ACCOUNT_TRADE" and not position.get("fill_price_exact"):
+                        raise ValueError("DURABLE_FILL_PRICE_MISSING")
+                    if position.get("fill_price_exact"):
+                        self._validate_durable_fill_position(position)
+                    self._validate_protective_position(position)
+                    require_on_grid(Fraction(str(position["current_stop"])), step)
                     candidate = position["trail1"]["stored_candidate"]
                     if candidate is not None:
                         require_on_grid(candidate, step)
                 except Exception as exc:
                     raise ProductionRuntimeError("EXECUTION_POSITION_STATE_INVALID") from exc
         return value
+
+    def _validate_protective_position(self, position: dict) -> None:
+        state=position["protective_stop_state"]
+        covered=position["protective_covered_quantity"]
+        if type(covered) is not int or covered<0:
+            raise ValueError("PROTECTIVE_COVERAGE_SCHEMA_INVALID")
+        if state == "PENDING":
+            if covered != 0 or position.get("protective_stop_broker_order_id"):
+                raise ValueError("PENDING_STOP_MUST_NOT_CLAIM_COVERAGE")
+            return
+        if state not in {"ACTIVE","PENDING_REPLACE"}:
+            raise ValueError("PROTECTIVE_STATE_INVALID")
+        broker_id=position["protective_stop_broker_order_id"]
+        rows=[r for r in self.store.all_intents() if r["broker_order_id"]==broker_id
+              and r["payload"].get("kind") in {"PROTECTIVE_STOP_INSTALL","PROTECTIVE_STOP_REPLACE"}]
+        if not broker_id or len(rows)!=1 or rows[0]["status"]!="RECONCILED":
+            raise ValueError("DURABLE_STOP_PROOF_MISSING")
+        row=rows[0];payload=row["payload"]
+        submission=self.store.get(f"protective_submission:{row['idempotency_key']}")
+        expected=abs(submission["position_quantity"]) if submission else payload["quantity"]
+        if (covered!=expected or covered<=0 or covered>position["planned_quantity"]
+                or payload["trade_id"]!=position["trade_id"] or payload["instrument"]!=position["instrument"]
+                or Decimal(position["protective_stop_price"])!=Decimal(payload["stop_price"])):
+            raise ValueError("DURABLE_STOP_COVERAGE_INVALID")
+        if covered!=position["quantity"] and not self.store.get("execution_halt"):
+            raise ValueError("UNCERTAIN_PROTECTION_MUST_HALT")
 
     def _save_positions(self, positions: dict[str, dict[str, Any]]) -> None:
         self.store.put("production_positions", positions)
@@ -481,6 +540,8 @@ class ProductionRuntime:
     @_atomic
     def plan_entry(self, signal: SignalIntent, authority: InstrumentAuthority,
                    *, realized_equity: Decimal, budget: MarginBatchBudget) -> RuntimeAction:
+        if self.execution_revision and self.store.get("execution_halt"):
+            raise ProductionRuntimeError("HALTED_OPERATOR_INTERVENTION_REQUIRED")
         if signal.instrument != authority.instrument or signal.instrument not in INSTRUMENTS:
             raise ProductionRuntimeError("ENTRY_AUTHORITY_INSTRUMENT_MISMATCH")
         self._validate_instrument_authority(authority)
@@ -611,21 +672,12 @@ class ProductionRuntime:
     def confirm_entry_position(self, entry_key: str, observed_quantity: int, *,
                                verified_fill_entry: Decimal | None = None,
                                fill_authority: str | None = None) -> RuntimeAction | None:
+        if self.execution_revision:
+            return self._confirm_candidate_entry(entry_key, observed_quantity, verified_fill_entry=verified_fill_entry, fill_authority=fill_authority)
         intent = self.store.intent(entry_key)
         if not intent or intent["payload"].get("kind") != "ENTRY":
             raise ProductionRuntimeError("ENTRY_INTENT_NOT_FOUND")
         payload = intent["payload"]
-        if self.execution_revision:
-            self._validate_execution_evidence(payload)
-            # This explicit handoff is for order-incapable offline verification.
-            # No current FINAM caller can manufacture a verified fill.
-            if verified_fill_entry is not None:
-                if fill_authority != "OFFLINE_SYNTHETIC_VERIFIED":
-                    raise ProductionRuntimeError("ACTUAL_FILL_AUTHORITY_UNVERIFIED")
-                verified_fill_entry = decimal_price(verified_fill_entry)
-                if (payload["direction"] == "LONG" and verified_fill_entry <= Decimal(payload["stop_price"])
-                        or payload["direction"] == "SHORT" and verified_fill_entry >= Decimal(payload["stop_price"])):
-                    raise ProductionRuntimeError("FILL_BEYOND_INITIAL_STOP_REQUIRES_REVIEW")
         expected = payload.get("expected_position_quantity")
         if type(expected) is not int or type(observed_quantity) is not int:
             raise ProductionRuntimeError("POSITION_AUTHORITY_SCHEMA_INVALID")
@@ -640,8 +692,6 @@ class ProductionRuntime:
             raise ProductionRuntimeError("POSITION_AUTHORITY_UNEXPECTED_QUANTITY")
         if intent["status"] in {"CANCELLED", "REJECTED", "CLOSED"}:
             raise ProductionRuntimeError("TERMINAL_ENTRY_INTENT_HAS_BROKER_POSITION")
-        if self.execution_revision and current is None and intent["status"] == "RECONCILED":
-            raise ProductionRuntimeError("ENTRY_RECONCILED_POSITION_MISSING_REQUIRES_REVIEW")
 
         if current is None:
             direction = payload["direction"]
@@ -662,28 +712,6 @@ class ProductionRuntime:
                 "protective_stop_state": "PENDING",
                 "protective_stop_revision": 0,
             }
-            if self.execution_revision:
-                position.entry = Decimal(payload["reference_price"])
-                position.initial_stop = Decimal(payload["stop_price"])
-                position.current_stop = Decimal(payload["stop_price"])
-                position.favorable_extreme = position.entry
-                meta.update({k: payload[k] for k in (
-                    "execution_revision", "reference_entry", "raw_initial_stop", "raw_initial_r",
-                    "executable_initial_stop", "executable_initial_r", "instrument_authority",
-                    "specification_fingerprint", "sizing", "margin_reservation",
-                    "reference_initial_loss_cash", "last_processed_h1")})
-                meta["verified_fill_entry"] = None if verified_fill_entry is None else str(verified_fill_entry)
-                meta["fill_authority"] = "MISSING" if verified_fill_entry is None else fill_authority
-                meta["actual_initial_r"] = None
-                if verified_fill_entry is not None:
-                    # Actual price may be a weighted average off-grid. Never
-                    # round it or reuse size_position's integral-tick rule.
-                    actual_r = abs(verified_fill_entry - Decimal(payload["stop_price"]))
-                    actual_cash = actual_r / Decimal(payload["price_step"]) * Decimal(payload["instrument_authority"]["tick_value"]) * payload["quantity"]
-                    meta.update(actual_initial_r=str(actual_r), actual_initial_loss_cash=str(actual_cash))
-                    position.entry = verified_fill_entry
-                    position.favorable_extreme = verified_fill_entry
-                    position.trail1 = Trail1State(direction, float(verified_fill_entry), stop)
             positions[payload["instrument"]] = _position_to_dict(position, meta)
             self._save_positions(positions)
             # Entry candle exclusion is part of the frozen causal lifecycle.
@@ -698,8 +726,6 @@ class ProductionRuntime:
             current = positions[payload["instrument"]]
         elif current.get("trade_id") != payload.get("trade_id"):
             raise ProductionRuntimeError("ENTRY_POSITION_ALREADY_EXISTS")
-        elif self.execution_revision and verified_fill_entry is not None and current.get("verified_fill_entry") != str(verified_fill_entry):
-            raise ProductionRuntimeError("FILL_AUTHORITY_CHANGED_REQUIRES_REVIEW")
 
         if intent["status"] != "RECONCILED":
             broker_id = intent.get("broker_order_id")
@@ -722,8 +748,6 @@ class ProductionRuntime:
                 Decimal(payload["reference_price"]), Decimal(payload["stop_price"]), expected,
             )
             stop_payload = stop_action.payload()
-            if self.execution_revision:
-                stop_payload.update(self._stop_evidence(current))
             if not self.store.persist_intent(stop_key, stop_payload):
                 raise ProductionRuntimeError("DUPLICATE_PROTECTIVE_STOP_INTENT")
             return stop_action
@@ -731,12 +755,320 @@ class ProductionRuntime:
             raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
         return self._protective_stop_action_from_payload(stop_intent["payload"])
 
+    def halt(self, reason: str) -> None:
+        """Sticky candidate fault; reconciliation/protection may continue, trading may not."""
+        if not self.execution_revision:
+            raise ProductionRuntimeError("EXECUTION_REVISION_REQUIRED")
+        previous = self.store.get("execution_halt", {})
+        reasons = sorted(set(previous.get("reasons", [])) | {reason})
+        self.store.put("execution_halt", {"status": "HALTED", "operator_intervention_required": True,
+                                          "reasons": reasons, "execution_revision": self.execution_revision})
+
+    @_atomic
+    def record_entry_submission(self, entry_key: str, account_id: str, submitted_at: str) -> None:
+        from .finam_fill_price_readonly import digest
+        from .controlled_real_acceptance import _timestamp
+        row = self.store.intent(entry_key)
+        if not self.execution_revision or not row or row["payload"].get("kind") != "ENTRY":
+            raise ProductionRuntimeError("ENTRY_INTENT_NOT_FOUND")
+        self._validate_execution_evidence(row["payload"])
+        if _timestamp(submitted_at) < _timestamp(row["payload"]["signal_timestamp"]):
+            raise ProductionRuntimeError("ENTRY_SUBMISSION_PRECEDES_SIGNAL")
+        identity = self.store.get("production_service_identity")
+        if not account_id or identity and identity["account_hash"] != digest(account_id):
+            raise ProductionRuntimeError("FILL_ACCOUNT_IDENTITY_MISMATCH")
+        value = {"account_sha256": digest(account_id), "submitted_at": submitted_at,
+                 "execution_revision": self.execution_revision}
+        old = self.store.get(f"entry_submission:{entry_key}")
+        if old is not None and old != value:
+            raise ProductionRuntimeError("ENTRY_SUBMISSION_ALREADY_COMMITTED")
+        if old is not None:
+            return
+        if row["status"] != "INTENT_PERSISTED":
+            raise ProductionRuntimeError("ENTRY_SUBMISSION_BOUNDARY_MISSING")
+        self.store.put(f"entry_submission:{entry_key}", value)
+        self.store.transition_intent(entry_key, "SUBMITTED")
+
+    def handoff_entry_history(self, entry_key: str, **history) -> dict:
+        if not self.execution_revision:
+            raise ProductionRuntimeError("EXECUTION_REVISION_REQUIRED")
+        try:
+            return self._handoff_entry_history(entry_key, **history)
+        except Exception:
+            # Facts roll back first; the durable halt survives the failed handoff.
+            self.halt("FILL_HISTORY_AUTHORITY_UNVERIFIED")
+            raise
+
+    @_atomic
+    def _handoff_entry_history(self, entry_key: str, *, account_id: str, broker_order_id: str,
+                              response: dict, start: str, end: str, limit: int,
+                              observed_at: str) -> dict:
+        """Validate bounded AccountTrade history and atomically adopt execution facts.
+
+        Account positions must have been reconciled first, so missing or delayed
+        price history never postpones creation of the initial protective intent.
+        XXX stays a feed label; only authenticated RUB tick economics value risk.
+        """
+        from .finam_fill_price_readonly import Target, analyze_history, digest
+        from .controlled_real_acceptance import _timestamp
+        row = self.store.intent(entry_key)
+        submission = self.store.get(f"entry_submission:{entry_key}")
+        if not self.execution_revision or not row or row["payload"].get("kind") != "ENTRY":
+            raise ProductionRuntimeError("ENTRY_INTENT_NOT_FOUND")
+        payload = row["payload"]
+        self._validate_execution_evidence(payload)
+        if (not submission or submission["account_sha256"] != digest(account_id)
+                or not broker_order_id or row["broker_order_id"] != broker_order_id):
+            raise ProductionRuntimeError("EXACT_DURABLE_FILL_IDENTITY_REQUIRED")
+        if (_timestamp(start) > _timestamp(submission["submitted_at"])
+                or _timestamp(end) != _timestamp(observed_at)
+                or _timestamp(end) <= _timestamp(submission["submitted_at"])):
+            raise ProductionRuntimeError("HISTORY_COVERAGE_OR_FRESHNESS_UNPROVEN")
+        previous = self.store.get(f"entry_fill_history:{entry_key}")
+        if previous and _timestamp(observed_at) < _timestamp(previous["observed_at"]):
+            raise ProductionRuntimeError("STALE_FILL_HISTORY")
+        target = Target(account_id, entry_key, broker_order_id, payload["finam_symbol"],
+                        "SIDE_BUY" if payload["direction"] == "LONG" else "SIDE_SELL",
+                        payload["quantity"], Decimal(payload["price_step"]))
+        report = analyze_history(response, target, start, end, limit)
+        facts = {fact["trade_id_sha256"]: fact for fact in report["matched_unique_fills"]}
+        positions = self.open_positions()
+        old = self.store.fills_for_order(broker_order_id)
+        if any(fill["broker_trade_id_sha256"] not in facts for fill in old):
+            raise ProductionRuntimeError("DURABLE_FILLS_MISSING_FROM_HISTORY")
+        for source in response["trades"]:
+            if source.get("order_id") != broker_order_id:
+                continue
+            fact = facts[digest(source["trade_id"])]
+            if _timestamp(source["timestamp"]) < _timestamp(submission["submitted_at"]):
+                raise ProductionRuntimeError("FILL_PRECEDES_ENTRY_SUBMISSION")
+            fill = {"fill_id": "finam:"+digest(account_id)+":"+digest(source["trade_id"]),
+                    "broker_order_id": broker_order_id, "broker_trade_id": source["trade_id"],
+                    "broker_trade_id_sha256": digest(source["trade_id"]),
+                    "trade_id": payload["trade_id"], "signal_id": payload["signal_id"],
+                    "entry_key": entry_key, "quantity": fact["quantity"], "price": fact["price"],
+                    "timestamp": [fact["utc_seconds"], fact["nanoseconds"]],
+                    "account_sha256": digest(account_id), "symbol": target.symbol, "side": target.side,
+                    "account_trade_currency": fact["account_trade_currency"],
+                    "risk_currency": "RUB", "currency_conversion_performed": False,
+                    "specification_fingerprint": payload["specification_fingerprint"],
+                    "execution_revision": self.execution_revision}
+            # SQL timestamp is text; nanoseconds are retained without float conversion.
+            fill["timestamp"] = f"{fact['utc_seconds']}:{fact['nanoseconds']:09d}"
+            self.store.persist_fill(fill, strict=True)
+        self.store.put(f"entry_fill_history:{entry_key}", {
+            "start": start, "end_exclusive": end, "observed_at": observed_at,
+            "fill_set_sha256": report["fill_set_sha256"], "matched_quantity": report["matched_quantity"],
+            "weighted_price_exact": report["weighted_price_exact"],
+            "account_trade_currencies": report["account_trade_currencies"], "limit": limit})
+        current = positions.get(payload["instrument"])
+        if current is None or current["trade_id"] != payload["trade_id"]:
+            raise ProductionRuntimeError("FILL_POSITION_HANDOFF_REQUIRED")
+        current["filled_quantity"] = report["matched_quantity"]
+        current["account_trade_currencies"] = report["account_trade_currencies"]
+        current["risk_currency"] = "RUB"
+        current["currency_conversion_performed"] = False
+        if report["matched_quantity"] != current["quantity"]:
+            self.halt("FILL_HISTORY_POSITION_QUANTITY_MISMATCH")
+            current.update(verified_fill_entry=None, fill_authority="MISSING", actual_initial_loss_cash=None,
+                           actual_initial_r=None)
+            for key in ("fill_price_exact", "actual_initial_r_exact", "actual_initial_loss_cash_exact"):
+                current.pop(key, None)
+            current["entry"] = current["reference_entry"]
+        else:
+            mean = Fraction(int(report["weighted_price_exact"]["numerator"]),
+                            int(report["weighted_price_exact"]["denominator"]))
+            stop = Fraction(current["executable_initial_stop"])
+            r = abs(mean-stop)
+            cash = r / Fraction(payload["price_step"]) * Fraction(payload["instrument_authority"]["tick_value"]) * current["quantity"]
+            exact = lambda v: {"numerator": str(v.numerator), "denominator": str(v.denominator)}
+            current.update(entry=str(mean), verified_fill_entry=str(mean), fill_price_exact=exact(mean),
+                           fill_authority="FINAM_ACCOUNT_TRADE", actual_initial_r=str(r),
+                           actual_initial_r_exact=exact(r), actual_initial_loss_cash=str(cash),
+                           actual_initial_loss_cash_exact=exact(cash),
+                           actual_r15_within_reference_budget=cash <= Fraction(payload["risk_cash"]))
+            wrong_side = mean <= stop if payload["direction"] == "LONG" else mean >= stop
+            if wrong_side:
+                self.halt("FILL_BEYOND_PRECOMMITTED_STOP")
+            elif current["trail1"]["triggered"]:
+                if Fraction(str(current["trail1"]["entry_price"])) != mean:
+                    raise ProductionRuntimeError("FILL_CHANGE_AFTER_TRAIL1_STARTED")
+            else:
+                current["trail1"] = _trail_to_dict(Trail1State(payload["direction"], mean, stop))
+                current["favorable_extreme"] = str(mean)
+            if cash > Fraction(payload["risk_cash"]):
+                self.halt("ACTUAL_R15_REFERENCE_BUDGET_EXCEEDED")
+            terminal = self.store.get(f"entry_terminal:{entry_key}")
+            if current["quantity"] == payload["quantity"] or terminal and terminal["order_id"] == broker_order_id:
+                self.store.transition_intent(entry_key, "RECONCILED", broker_order_id)
+        positions[payload["instrument"]] = current
+        self._save_positions(positions)
+        return report
+
+    def _validated_order_fills(self, entry_key: str) -> list[dict]:
+        from .controlled_real_acceptance import _timestamp
+        from .finam_fill_price_readonly import digest
+        row = self.store.intent(entry_key)
+        submission = self.store.get(f"entry_submission:{entry_key}")
+        if not row or not submission or not row["broker_order_id"]:
+            raise ValueError("DURABLE_FILL_IDENTITY_MISSING")
+        payload = row["payload"]
+        if payload.get("kind") != "ENTRY":
+            raise ValueError("DURABLE_FILL_ENTRY_REQUIRED")
+        self._validate_execution_evidence(payload)
+        service = self.store.get("production_service_identity")
+        if service and service["account_hash"] != submission["account_sha256"]:
+            raise ValueError("DURABLE_FILL_ACCOUNT_MISMATCH")
+        fills = self.store.fills_for_order(row["broker_order_id"])
+        for fill in fills:
+            if (fill["broker_order_id"] != row["broker_order_id"] or fill["entry_key"] != entry_key or fill["trade_id"] != payload["trade_id"]
+                    or fill["signal_id"] != payload["signal_id"]
+                    or digest(fill["broker_trade_id"]) != fill["broker_trade_id_sha256"]
+                    or fill["account_sha256"] != submission["account_sha256"]
+                    or fill["symbol"] != payload["finam_symbol"]
+                    or fill["side"] != ("SIDE_BUY" if payload["direction"] == "LONG" else "SIDE_SELL")
+                    or fill["account_trade_currency"] not in {"RUB", "XXX"}
+                    or fill["risk_currency"] != "RUB" or fill["currency_conversion_performed"] is not False
+                    or fill["specification_fingerprint"] != payload["specification_fingerprint"]
+                    or fill["execution_revision"] != self.execution_revision
+                    or fill["fill_id"] != "finam:"+submission["account_sha256"]+":"+fill["broker_trade_id_sha256"]
+                    or type(fill["quantity"]) is not int or fill["quantity"] <= 0):
+                raise ValueError("DURABLE_FILL_IDENTITY_INVALID")
+            require_on_grid(fill["price"], payload["price_step"])
+            seconds,nanos = map(int,fill["timestamp"].split(":"))
+            if not 0 <= nanos < 10**9 or (seconds,nanos) < _timestamp(submission["submitted_at"]):
+                raise ValueError("DURABLE_FILL_TIME_INVALID")
+        quantity=sum(fill["quantity"] for fill in fills)
+        if quantity > payload["quantity"]:
+            raise ValueError("DURABLE_FILLS_EXCEED_REQUEST")
+        history=self.store.get(f"entry_fill_history:{entry_key}")
+        if not history or history["matched_quantity"] != quantity:
+            raise ValueError("DURABLE_FILL_HISTORY_MISSING")
+        canonical=[]
+        for fill in fills:
+            seconds,nanos=map(int,fill["timestamp"].split(":"))
+            if not _timestamp(history["start"]) <= (seconds,nanos) < _timestamp(history["end_exclusive"]):
+                raise ValueError("DURABLE_FILL_HISTORY_TIME_INVALID")
+            canonical.append({"trade_id_sha256":fill["broker_trade_id_sha256"],"quantity":fill["quantity"],
+                              "price":fill["price"],"utc_seconds":seconds,"nanoseconds":nanos,
+                              "account_trade_currency":fill["account_trade_currency"]})
+        canonical.sort(key=lambda fact:fact["trade_id_sha256"])
+        if digest(json.dumps(canonical,sort_keys=True,separators=(",",":"))) != history["fill_set_sha256"]:
+            raise ValueError("DURABLE_FILL_HISTORY_FINGERPRINT_INVALID")
+        return fills
+
+    def _validate_durable_fill_position(self, position: dict) -> None:
+        """Recompute authoritative price/risk from durable fills after every restart."""
+        row = self.store.intent(position["entry_key"])
+        fills = self._validated_order_fills(position["entry_key"])
+        payload = row["payload"]
+        quantity = sum(fill["quantity"] for fill in fills)
+        if quantity != position["quantity"] or quantity != position["filled_quantity"]:
+            raise ValueError("DURABLE_FILL_QUANTITY_INVALID")
+        mean = sum((Fraction(fill["price"])*fill["quantity"] for fill in fills), Fraction(0))/quantity
+        r = abs(mean-Fraction(position["executable_initial_stop"]))
+        cash = r/Fraction(payload["price_step"])*Fraction(payload["instrument_authority"]["tick_value"])*quantity
+        for key, value in (("fill_price_exact",mean),("actual_initial_r_exact",r),("actual_initial_loss_cash_exact",cash)):
+            pair = position[key]
+            if Fraction(int(pair["numerator"]),int(pair["denominator"])) != value:
+                raise ValueError("DURABLE_FILL_PRICE_OR_RISK_INVALID")
+        if (position["fill_authority"] != "FINAM_ACCOUNT_TRADE" or Fraction(position["verified_fill_entry"]) != mean
+                or Fraction(position["actual_initial_r"]) != r or Fraction(position["actual_initial_loss_cash"]) != cash
+                or sorted({f["account_trade_currency"] for f in fills}) != position["account_trade_currencies"]):
+            raise ValueError("DURABLE_FILL_PRICE_OR_RISK_INVALID")
+
+    def _confirm_candidate_entry(self, entry_key: str, observed_quantity: int, *,
+                                 verified_fill_entry: Decimal | None, fill_authority: str | None) -> RuntimeAction | None:
+        intent = self.store.intent(entry_key)
+        if not intent or intent["payload"].get("kind") != "ENTRY":
+            raise ProductionRuntimeError("ENTRY_INTENT_NOT_FOUND")
+        payload = intent["payload"]
+        self._validate_execution_evidence(payload)
+        expected = payload["expected_position_quantity"]
+        if type(observed_quantity) is not int or type(expected) is not int:
+            raise ProductionRuntimeError("POSITION_AUTHORITY_SCHEMA_INVALID")
+        positions = self.open_positions()
+        current = positions.get(payload["instrument"])
+        if observed_quantity == 0:
+            if current is not None:
+                self.halt("POSITION_FLAT_WHILE_ENTRY_UNRESOLVED")
+            return None
+        if observed_quantity*expected <= 0 or abs(observed_quantity) > abs(expected):
+            raise ProductionRuntimeError("POSITION_AUTHORITY_UNEXPECTED_QUANTITY")
+        if intent["status"] in {"CANCELLED","REJECTED","CLOSED"}:
+            raise ProductionRuntimeError("TERMINAL_ENTRY_INTENT_HAS_BROKER_POSITION")
+        if current is None and intent["status"] == "RECONCILED":
+            raise ProductionRuntimeError("ENTRY_RECONCILED_POSITION_MISSING_REQUIRES_REVIEW")
+        if verified_fill_entry is not None and fill_authority != "OFFLINE_SYNTHETIC_VERIFIED":
+            raise ProductionRuntimeError("ACTUAL_FILL_AUTHORITY_UNVERIFIED")
+        if current is None:
+            current = dict(payload)
+            current.pop("kind", None)
+            current.update(entry_key=entry_key, planned_quantity=payload["quantity"], quantity=abs(observed_quantity),
+                           entry=payload["reference_entry"], initial_stop=payload["executable_initial_stop"],
+                           current_stop=payload["executable_initial_stop"], favorable_extreme=payload["reference_entry"],
+                           protective_stop_state="PENDING", protective_stop_revision=0, protective_covered_quantity=0,
+                           trail1=_trail_to_dict(Trail1State(payload["direction"],Decimal(payload["reference_entry"]),Decimal(payload["executable_initial_stop"]))),
+                           filled_quantity=0, actual_initial_r=None)
+            watermark = self.store.get(f"last_managed_h1:{payload['instrument']}")
+            if watermark and watermark > payload["signal_timestamp"]:
+                raise ProductionRuntimeError("ENTRY_SIGNAL_WATERMARK_MISMATCH")
+            self.store.put(f"last_managed_h1:{payload['instrument']}",payload["signal_timestamp"])
+        elif current["trade_id"] != payload["trade_id"]:
+            raise ProductionRuntimeError("ENTRY_POSITION_ALREADY_EXISTS")
+        elif current["quantity"] != abs(observed_quantity):
+            if abs(observed_quantity) < current["quantity"] or current["protective_stop_state"] == "ACTIVE":
+                self.halt("POSITION_CHANGED_WHILE_ENTRY_UNRESOLVED")
+            current["quantity"] = abs(observed_quantity)
+            current.update(entry=current["reference_entry"], verified_fill_entry=None,fill_authority="MISSING",
+                           actual_initial_r=None, actual_initial_loss_cash=None)
+            for field in ("fill_price_exact","actual_initial_r_exact","actual_initial_loss_cash_exact"):
+                current.pop(field,None)
+        if verified_fill_entry is not None:
+            price = decimal_price(verified_fill_entry)
+            stop = Decimal(payload["executable_initial_stop"])
+            if (price <= stop if payload["direction"] == "LONG" else price >= stop):
+                raise ProductionRuntimeError("FILL_BEYOND_INITIAL_STOP_REQUIRES_REVIEW")
+            if current["verified_fill_entry"] not in (None,str(price)):
+                raise ProductionRuntimeError("FILL_AUTHORITY_CHANGED_REQUIRES_REVIEW")
+            r = abs(price-stop)
+            current.update(entry=str(price),verified_fill_entry=str(price),fill_authority=fill_authority,
+                           favorable_extreme=str(price),actual_initial_r=str(r),
+                           actual_initial_loss_cash=str(r/Decimal(payload["price_step"])*Decimal(payload["instrument_authority"]["tick_value"])*current["quantity"]),
+                           trail1=_trail_to_dict(Trail1State(payload["direction"],price,stop)))
+        positions[payload["instrument"]] = current
+        self._save_positions(positions)
+        # Quantity alone proves exposure. It never proves entry price/completion.
+        if verified_fill_entry is not None and abs(observed_quantity) == abs(expected):
+            self.store.transition_intent(entry_key,"RECONCILED",intent["broker_order_id"])
+        elif intent["status"] != "RECONCILED":
+            self.store.transition_intent(entry_key,"PARTIAL_FILL" if abs(observed_quantity)<abs(expected) else "FILL",intent["broker_order_id"])
+        stop_key = f"stage8.12:{payload['trade_id']}:stop:0000"
+        stop_intent = self.store.intent(stop_key)
+        if current["protective_stop_state"] == "PENDING_REPLACE" and intent["status"] == "RECONCILED":
+            return None
+        if current["protective_stop_state"] == "ACTIVE":
+            if current["protective_covered_quantity"] != current["quantity"]:
+                self.halt("PROTECTIVE_COVERAGE_UNVERIFIED")
+            return None
+        if current["protective_stop_state"] != "PENDING":
+            raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
+        if stop_intent is not None:
+            if stop_intent["payload"].get("kind") != "PROTECTIVE_STOP_INSTALL":
+                raise ProductionRuntimeError("PROTECTIVE_STOP_STATE_MISMATCH")
+            return self._protective_stop_action_from_payload(stop_intent["payload"])
+        action = self._action("PROTECTIVE_STOP_INSTALL",stop_key,payload["instrument"],payload["finam_symbol"],
+                              payload["direction"],abs(observed_quantity),payload["trade_id"],payload["signal_id"],
+                              Decimal(payload["reference_entry"]),Decimal(payload["executable_initial_stop"]),observed_quantity)
+        self.store.persist_intent(stop_key,action.payload() | self._stop_evidence(current))
+        return action
+
     def _stop_evidence(self, position: dict) -> dict:
         return {k: position[k] for k in (
             "specification_fingerprint", "instrument_authority", "raw_initial_stop", "raw_initial_r",
             "reference_entry", "verified_fill_entry", "fill_authority", "executable_initial_stop",
             "executable_initial_r", "last_processed_h1", "sizing", "risk_cash",
-            "reference_initial_loss_cash", "margin_reservation")}
+            "reference_initial_loss_cash", "margin_reservation")} | ({"planned_quantity": position.get("planned_quantity", position["quantity"])} if self.execution_revision else {})
 
 
     @_atomic
@@ -772,6 +1104,12 @@ class ProductionRuntime:
             self.store.transition_intent(stop_key, "RECONCILED", broker_order_id)
 
         current["protective_stop_state"] = "ACTIVE"
+        if self.execution_revision:
+            submission = self.store.get(f"protective_submission:{stop_key}")
+            covered = abs(submission["position_quantity"]) if submission else payload["quantity"]
+            current["protective_covered_quantity"] = covered
+            if covered != current["quantity"]:
+                self.halt("PROTECTIVE_COVERAGE_UNVERIFIED")
         current["protective_stop_broker_order_id"] = broker_order_id
         current["protective_stop_price"] = payload["stop_price"]
         positions[payload["instrument"]] = current
@@ -792,7 +1130,7 @@ class ProductionRuntime:
         action = self._action(
             "BROKER_EXIT_OBSERVED", None, instrument, current["finam_symbol"],
             current["direction"], current["quantity"], current["trade_id"], current["signal_id"],
-            Decimal(str(current["entry"])), Decimal(str(current["current_stop"])), 0,
+            Decimal(str(current.get("reference_entry", current["entry"]))), Decimal(str(current["current_stop"])), 0,
             "POSITION_AUTHORITY_FLAT",
         )
         positions.pop(instrument)
@@ -803,6 +1141,8 @@ class ProductionRuntime:
     @_atomic
     def manage_completed_bar(self, instrument: str, bar: CompletedBar,
                              *, observed_position_quantity: int) -> RuntimeAction | None:
+        if self.execution_revision and self.store.get("execution_halt"):
+            raise ProductionRuntimeError("HALTED_OPERATOR_INTERVENTION_REQUIRED")
         if self.store.unresolved_intent_count() != 0:
             raise ProductionRuntimeError("UNRESOLVED_INTENT_BLOCKS_BAR_PROCESSING")
         watermark_key = f"last_managed_h1:{instrument}"
@@ -858,7 +1198,7 @@ class ProductionRuntime:
             action = self._action(
                 "EMERGENCY_EXIT_REQUIRED", key, instrument, value["finam_symbol"],
                 value["direction"], value["quantity"], value["trade_id"], value["signal_id"],
-                Decimal(str(outcome["fill"])), Decimal(str(position.current_stop)), 0,
+                require_on_grid(outcome["fill"], value["instrument_authority"]["price_step"]) if self.execution_revision else Decimal(str(outcome["fill"])), require_on_grid(position.current_stop, value["instrument_authority"]["price_step"]) if self.execution_revision else Decimal(str(position.current_stop)), 0,
                 "PROTECTIVE_STOP_DIVERGENCE_POSITION_STILL_OPEN",
             )
             action_payload = action.payload()
@@ -874,7 +1214,7 @@ class ProductionRuntime:
             action = self._action(
                 "PROTECTIVE_STOP_REPLACE", key, instrument, value["finam_symbol"],
                 value["direction"], value["quantity"], value["trade_id"], value["signal_id"],
-                Decimal(str(position.entry)), Decimal(str(position.current_stop)), expected,
+                Decimal(str(value.get("reference_entry", position.entry))), require_on_grid(position.current_stop, value["instrument_authority"]["price_step"]) if self.execution_revision else Decimal(str(position.current_stop)), expected,
                 "TIGHTER_PERCENT_POSITION_STOP_REQUIRED",
             )
             action_payload = action.payload()

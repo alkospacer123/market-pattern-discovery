@@ -205,11 +205,11 @@ def test_no_matching_fill_and_separate_process_retention_observation():
 
 def test_candidate_fill_math_and_partial_unknown_inhibition(tmp_path):
     rt=runtime(tmp_path/'state.db'); entry=plan(rt)
-    with pytest.raises(ProductionRuntimeError,match='UNEXPECTED_QUANTITY'):
-        rt.confirm_entry_position(entry.idempotency_key,entry.quantity-1)
-    assert rt.open_positions()=={}  # partial protection is not yet implemented/accepted
-    assert rt.store.intent(entry.idempotency_key)['status']=='INTENT_PERSISTED'
-    with pytest.raises(ProductionRuntimeError,match='UNRESOLVED_INTENT'): plan(rt,signal('CNYRUBF'))
+    partial_stop=rt.confirm_entry_position(entry.idempotency_key,entry.quantity-1)
+    assert partial_stop.quantity==entry.quantity-1
+    assert rt.open_positions()['USDRUBF']['quantity']==entry.quantity-1
+    assert rt.store.intent(entry.idempotency_key)['status']=='PARTIAL_FILL'
+    with pytest.raises(ProductionRuntimeError,match='ACTUAL_FILL_AUTHORITY'): plan(rt,signal('CNYRUBF'))
     stop=confirm(rt,entry,D('100.025'))
     position=rt.open_positions()['USDRUBF']
     expected=(D('100.025')-entry.stop_price)/D('.01')*D('10')*entry.quantity

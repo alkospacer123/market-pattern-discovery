@@ -168,8 +168,12 @@ def analyze_history(response: dict, target: Target, start: str, end: str, limit:
         row_fields.update(row)
         if row.get('order_id')!=target.order_id: continue
         if (row.get('account_id')!=target.account_id or row.get('symbol')!=target.symbol
-                or row.get('side')!=target.side or row.get('currency')!='RUB'):
+                or row.get('side')!=target.side):
             raise FillDiagnosticBlocked('MATCHING_ORDER_FILL_IDENTITY_INVALID')
+        # Feed currency is a label, not authority for tick money or conversion.
+        currency=row.get('currency')
+        if currency not in {'RUB','XXX'}:
+            raise FillDiagnosticBlocked('FILL_MONETARY_SEMANTICS_UNPROVEN')
         trade_id=row.get('trade_id')
         if not isinstance(trade_id,str) or not trade_id: raise FillDiagnosticBlocked('FILL_ID_REQUIRED')
         timestamp=_timestamp(row.get('timestamp'))
@@ -180,7 +184,7 @@ def analyze_history(response: dict, target: Target, start: str, end: str, limit:
         price_text=format(price,'f')
         if '.' in price_text: price_text=price_text.rstrip('0').rstrip('.')
         fact={'trade_id_sha256':digest(trade_id),'quantity':quantity,'price':price_text,
-              'utc_seconds':timestamp[0],'nanoseconds':timestamp[1]}
+              'utc_seconds':timestamp[0],'nanoseconds':timestamp[1],'account_trade_currency':currency}
         if trade_id in matched and matched[trade_id]!=fact: raise FillDiagnosticBlocked('CONFLICTING_DUPLICATE_FILL')
         matched[trade_id]=fact
     facts=sorted(matched.values(),key=lambda r:r['trade_id_sha256'])
@@ -200,6 +204,8 @@ def analyze_history(response: dict, target: Target, start: str, end: str, limit:
             'quantity_observation':'FULL_REQUEST_MATCHED' if quantity==target.quantity else 'PARTIAL_REQUEST_MATCHED' if quantity else 'NO_MATCHING_FILLS',
             'weighted_price_exact':None if mean is None else {'numerator':str(mean.numerator),'denominator':str(mean.denominator)},
             'weighted_price_decimal_display_only':display,
+            'account_trade_currencies':sorted({fact['account_trade_currency'] for fact in facts}),
+            'currency_conversion_performed':False,
             'authority_scope':'READONLY_DIAGNOSTIC_ONLY_NO_RUNTIME_HANDOFF'}
 
 

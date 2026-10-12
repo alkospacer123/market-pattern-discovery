@@ -114,7 +114,14 @@ class FinamAPI:
         # This endpoint is exceptional: FINAM requires the JWT in the JSON body.
         return self._request("POST",SESSION_DETAILS_PATH,{"token":self.__jwt},auth=False).body
     def account(self,account_id): return self._request("GET",f"/v1/accounts/{account_id}").body
-    def trades(self,account_id): return self._request("GET",f"/v1/accounts/{account_id}/trades").body
+    def trades(self,account_id,*,start=None,end=None,limit=1000):
+        path=f"/v1/accounts/{account_id}/trades"
+        if start is not None or end is not None:
+            from .controlled_real_acceptance import _timestamp
+            if start is None or end is None or _timestamp(start)>=_timestamp(end) or type(limit) is not int or not 0<limit<2**31:
+                raise ValueError("HISTORY_INTERVAL_OR_LIMIT_INVALID")
+            path+='?'+urlencode({'limit':limit,'interval.start_time':start,'interval.end_time':end})
+        return self._request("GET",path).body
     def orders(self,account_id): return self._request("GET",f"/v1/accounts/{account_id}/orders").body
     def order(self,account_id,order_id): return self._request("GET",f"/v1/accounts/{account_id}/orders/{order_id}").body
     def place_order(self,account_id,payload): return self._request("POST",f"/v1/accounts/{account_id}/orders",payload,retries=0).body

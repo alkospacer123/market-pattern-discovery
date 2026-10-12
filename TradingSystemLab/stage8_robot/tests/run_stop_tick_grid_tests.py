@@ -18,6 +18,7 @@ if __name__=='__main__':
     paths=[
         'TradingSystemLab/stage8_robot/tests/test_stop_tick_grid_amendment.py',
         'TradingSystemLab/stage8_robot/tests/test_finam_fill_price_readonly.py',
+        'TradingSystemLab/stage8_robot/tests/test_finam_durable_fill_handoff.py',
         'TradingSystemLab/stage8_robot/tests/test_stage8_12_production_runtime.py',
         'TradingSystemLab/stage8_robot/tests/test_stage8_12_production_conformance.py',
         'TradingSystemLab/stage8_robot/tests/test_stage8_12_4_production_service.py',

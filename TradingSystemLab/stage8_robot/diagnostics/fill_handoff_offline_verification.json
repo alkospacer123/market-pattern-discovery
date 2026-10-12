@@ -1,0 +1,201 @@
+{
+  "authority_split": {
+    "currency_conversion_performed": false,
+    "entry_price": "EXACT_ORDER_ACCOUNT_TRADE",
+    "fee_money_authority": "NOT_INFERRED",
+    "feed_currency_labels": [
+      "RUB",
+      "XXX"
+    ],
+    "open_quantity": "FINAM_ACCOUNT_POSITION",
+    "tick_value_money": "AUTHENTICATED_N4_REGISTRY_MOEX_REFERENCE_RUB",
+    "xxx_equals_rub": false
+  },
+  "base_main": "5c78d15c5b05e881904b644e1b7aa3b67ee63821",
+  "candidate_parent": "3c45b5c777a5bcd823150c9aebd287d3a8e448f9",
+  "candidate_source_sha256": {
+    "TradingSystemLab/stage8_robot/execution_grid.py": "2b0fa0748107fab67783a0dbb9bf350e012ad5bfa721faef8ba45fd9a1313ec7",
+    "TradingSystemLab/stage8_robot/finam_api.py": "b6a895acbeca632506e84b0ba635324a00326407dea207bce7efaded66c458db",
+    "TradingSystemLab/stage8_robot/finam_fill_price_readonly.py": "4b6c324240c19ea91799a147fccaf68e9c68e132e07df43d4b93598dfb48457d",
+    "TradingSystemLab/stage8_robot/production_runtime.py": "556fae8fb4425d2ac148a8b24df9b3a96e4113207d073e39abd1f12e054e808c",
+    "TradingSystemLab/stage8_robot/production_service.py": "547a68b7996c4b15af987d23cb369f302606f41a3f2f7c8708a6102e86fbded0",
+    "TradingSystemLab/stage8_robot/state.py": "afec9bc5b54ce0ef9fd3be2835a6a3506c79d43826a194932a6d8fca9d979a50",
+    "TradingSystemLab/stage8_robot/tests/run_stop_tick_grid_tests.py": "0e7ad590dcc8a74aa332a39aebd4905f1f6522ac048820b6409ae034f06dd28f",
+    "TradingSystemLab/stage8_robot/tests/test_finam_durable_fill_handoff.py": "b6bb497a421a71431d0990338458d6d29e0b4b77777c965eef278ad49f6c4a87",
+    "TradingSystemLab/stage8_robot/tests/test_finam_fill_price_readonly.py": "b1fcd99ab09eb8c677a7f10fe50802cd29cb44ee42d0ca4fb069702808627a11",
+    "TradingSystemLab/stage8_robot/tests/test_stop_tick_grid_amendment.py": "fa2a190f7847a1d46d5390c9dc634554184fbaae510145e05f6b0b532d573b22"
+  },
+  "classification": "OFFLINE_FIX_READY_FOR_REVIEW",
+  "draft_pr": 493,
+  "execution_revision": "STOP_TICK_GRID_V2_FILL_PROPOSED",
+  "frozen_verification": {
+    "all_original_results": {
+      "file_count": 2508,
+      "git_tree_listing_sha256": "dd7a96853df1d5b6f5e2dede502a16e46c24459d4aa9ff6b10eb33787668a631"
+    },
+    "frozen_stage6_oos_source": {
+      "file_count": 26,
+      "git_tree_listing_sha256": "927ecc285ff4d2cf65cd6c9f0b69c8145138f609619e6fbcfb803928a8b356f1"
+    },
+    "frozen_stage7": {
+      "file_count": 16,
+      "git_tree_listing_sha256": "8b4a046a7f370785ddd0b3d2b141d83aebb2aee7e5598345f32aeca9451296aa"
+    },
+    "original_true_oos": {
+      "file_count": 207,
+      "git_tree_listing_sha256": "19d3cb1487e381a22d11d61680c497b168d284b66d18cecb3323e59befa17b08"
+    }
+  },
+  "intel_ab_provenance": {
+    "bytes_available": false,
+    "claimed_account_trade_currency": "XXX",
+    "claimed_http_status": 200,
+    "claimed_instrument": "CNYRUBF@RTSX",
+    "claimed_price": "12.748",
+    "claimed_price_step": "0.001",
+    "claimed_quantity": 1,
+    "claimed_side": "LONG",
+    "files": [
+      "PRICE_AB_SUMMARY.json",
+      "price-observation-A.json",
+      "price-observation-B.json"
+    ],
+    "sha256_independently_verified": false,
+    "source": "USER_SUPPLIED_PHYSICAL_SUMMARY",
+    "two_process_equal_results_and_report_hashes": "USER_REPORTED_NOT_INDEPENDENTLY_BYTE_AUDITED"
+  },
+  "live_changes": "NONE",
+  "live_status": {
+    "ACTUAL_FILL_AUTHORITY": "BLOCKED_INDEPENDENT_PHYSICAL_ACCEPTANCE",
+    "ACTUAL_R15_RISK": "BLOCKED_STRICT_CEILING_FOR_ARBITRARY_MARKET_GAPS_FEES",
+    "LIVE_PRODUCTION_READY": "NO",
+    "ORDER_IDENTITY_VERIFIED": "BLOCKED_INDEPENDENT_AB_BYTE_ACK_AUDIT",
+    "PARTIAL_FILL_RECONCILIATION": "BLOCKED_REAL_MULTI_FILL_AND_SLTP_GROWTH_COVERAGE",
+    "RESTART_RETENTION": "BLOCKED_BROKER_HISTORY_COMPLETENESS_RETENTION"
+  },
+  "official_source_commit": "52c95c8672542c2f89fbee2a4016774e73a0caa4",
+  "offline_status": {
+    "ACTUAL_FILL_AUTHORITY": "PASS",
+    "ACTUAL_INITIAL_RISK_ACCOUNTING": "PASS",
+    "EXECUTABLE_STOP_CONFORMANCE": "PASS",
+    "ORDER_IDENTITY_VERIFIED": "PASS",
+    "PARTIAL_FILL_RECONCILIATION": "PASS",
+    "R15_MARGIN_CONFORMANCE": "PASS",
+    "RAW_RESEARCH_CONFORMANCE": "PASS",
+    "RESTART_RECOVERY_CONFORMANCE": "PASS",
+    "RESTART_RETENTION": "PASS",
+    "STOP_TICK_GRID_CANDIDATE": "PASS",
+    "TRAIL1_PROTECTION_CONFORMANCE": "PASS"
+  },
+  "physical_finam_requests_by_agent": 0,
+  "production_acceptance": "BLOCKED",
+  "profile_activated": false,
+  "protected_paths": [
+    "TradingSystemLab/results",
+    "TradingSystemLab/strategies",
+    "TradingSystemLab/core",
+    "TradingSystemLab/configs",
+    "TradingSystemLab/ROADMAP.md",
+    "TradingSystemLab/CURRENT_STATE.md",
+    "TradingSystemLab/PROJECT_CONTEXT.md",
+    "TradingSystemLab/METHODOLOGY.md",
+    "audit_only",
+    "TradingSystemLab/stage8_robot/strategy_core.py",
+    "TradingSystemLab/stage8_robot/trail1_state.py",
+    "TradingSystemLab/stage8_robot/context_builder.py",
+    "TradingSystemLab/stage8_robot/risk.py",
+    "TradingSystemLab/stage8_robot/margin.py",
+    "TradingSystemLab/stage8_robot/specification.py",
+    "TradingSystemLab/stage8_robot/production_instrument_registry.csv",
+    "TradingSystemLab/stage8_robot/broker.py",
+    "TradingSystemLab/stage8_robot/production_authorization.py",
+    "TradingSystemLab/stage8_robot/production_safety_gate.py",
+    "TradingSystemLab/stage8_robot/deploy"
+  ],
+  "real_order_endpoint_calls": 0,
+  "remaining_live_requirements": [
+    "Receive original Intel A/B reports and independently verify bytes, known hashes and ACK/account/order provenance",
+    "Verify current N4 instrument price units, tick value in RUB and directional margins; do not convert XXX",
+    "Prove real partial/multi-fill history completeness and broker retention across restart",
+    "Prove percentage SLTP whole-position coverage after growth and submission/replacement/backstop races",
+    "Independently accept proposed MARKET nominal-reference versus actual-risk accounting, fees and gap limitations",
+    "Separately approve production state lifecycle, migration/recovery and LIVE acceptance/rollout"
+  ],
+  "replay": {
+    "adjusted_oos_or_pnl_claim": false,
+    "appended_results_path": "TradingSystemLab/stage8_robot/tests/stop_tick_grid_evidence/fill_v2_results.json",
+    "appended_results_sha256": "dac25769efc9282b643283d5a4fac13672a5a0d6a6643c43001d74e00deaf6b1",
+    "changed_exit_timestamps": 0,
+    "frozen_entry_paths": 422,
+    "management_bars": 10763,
+    "original_execution_comparison_csv_identical": true,
+    "original_replay_evidence_unchanged": true,
+    "protective_grid_prices": 2948,
+    "raw_exact_matches_per_independent_replay": 418,
+    "raw_replays": {
+      "independent_authority": {
+        "R_mismatches": 0,
+        "direction_mismatches": 0,
+        "exact_matches": 418,
+        "expected_trade_count": 418,
+        "extra": 0,
+        "missing": 0,
+        "price_mismatches": 0,
+        "reproduced_trade_count": 418,
+        "state_mismatches": 0,
+        "status": "PASS",
+        "timestamp_mismatches": 0
+      },
+      "production": {
+        "R_mismatches": 0,
+        "direction_mismatches": 0,
+        "exact_matches": 418,
+        "expected_trade_count": 418,
+        "extra": 0,
+        "missing": 0,
+        "price_mismatches": 0,
+        "reproduced_trade_count": 418,
+        "state_mismatches": 0,
+        "status": "PASS",
+        "timestamp_mismatches": 0
+      }
+    },
+    "replacements": 2526,
+    "signals": 1422
+  },
+  "state_policy": "V2 fresh isolated candidate only; legacy/V1/mixed fail closed; no silent migration; sticky HALTED has no implicit resume",
+  "status_flags": {
+    "DEPLOY_NOT_DONE": "YES",
+    "FROZEN_STAGE7_UNCHANGED": "YES",
+    "LIVE_HOST_NOT_TOUCHED": "YES",
+    "MERGE_NOT_DONE": "YES",
+    "ORIGINAL_OOS_UNCHANGED": "YES",
+    "REARM_NOT_DONE": "YES",
+    "ROOT_CAUSE": "CONFIRMED"
+  },
+  "test_suite": {
+    "network_connections": "FORBIDDEN",
+    "new_fill_handoff_cases": 50,
+    "passed": 426,
+    "runner": "TradingSystemLab/stage8_robot/tests/run_stop_tick_grid_tests.py",
+    "skip_reason": "Windows only",
+    "skipped": 1,
+    "subtests_passed": 17,
+    "test_log_sha256": "34af4524d01b5e65796ade1b2a2090442b65a54db91edd74d83a2b0ea9bdbcec"
+  },
+  "unchanged_from_previous_pr_head": {
+    "TradingSystemLab/stage8_robot/broker.py": "e38e9f65dc9ce4ed86b385c54c93a19ab2839adafecb54512db9fa1a60838e5a",
+    "TradingSystemLab/stage8_robot/context_builder.py": "4c4a8b618f032eea04b005971aebfc6888cef44c6d77e3f401f1694b2dab8441",
+    "TradingSystemLab/stage8_robot/live_execution.py": "66490881255cf6e0f9cfb475ab74914ec5ee397e03053c0c03604f70ebbdcbfe",
+    "TradingSystemLab/stage8_robot/margin.py": "05c1c44eb199dccb126d533bdd1f4389ff78ce53d920f2b6bec967155964339e",
+    "TradingSystemLab/stage8_robot/production_authorization.py": "916d156fafae30a55ee73d4eb77512c8743936cb028010a3575fedd74a347b32",
+    "TradingSystemLab/stage8_robot/production_instrument_registry.csv": "90d64e16dfeb292b4b339ac3eb196074e133bf52a962cc6715c488a32d16e013",
+    "TradingSystemLab/stage8_robot/production_safety_gate.py": "a02e4cf11ada2c246178091800abb8f975863bbe7c49cdd2787392cda0583188",
+    "TradingSystemLab/stage8_robot/protective_stop_contract.py": "2725e97cafcbce101e13170bc9d4010f382282bf3eadf05d5ab7ecc5a71dca05",
+    "TradingSystemLab/stage8_robot/risk.py": "322080b499bdb2cd5c27757648aa7e45933ee75523ff61c5ac8d573c9663d1e5",
+    "TradingSystemLab/stage8_robot/specification.py": "2e7ac0e0554a9b27e69eb90ebb17ed556a5a99f8a1509ab4e3182f2d2b02620d",
+    "TradingSystemLab/stage8_robot/strategy_core.py": "ba3cc134f85049e974b6608f144d090da83eb150548efd693ba27a4c54fe9d51",
+    "TradingSystemLab/stage8_robot/trail1_state.py": "047d13618b3c729a0f2385fe46269b513761689469c17bdd66bc07ac09bb866b"
+  },
+  "verification_scope": "Offline source/diff verification before publication; final remote main/head/diff verification is reported in PR summary."
+}

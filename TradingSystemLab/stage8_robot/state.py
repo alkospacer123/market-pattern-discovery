@@ -140,12 +140,31 @@ class StateStore:
         with self.transaction():
             cur=self.db.execute("UPDATE intents SET status=?,broker_order_id=COALESCE(?,broker_order_id),updated_at=CURRENT_TIMESTAMP WHERE idempotency_key=?",(status,broker_order_id,key))
             if cur.rowcount!=1: raise KeyError(key)
-    def persist_fill(self,fill:dict)->bool:
+    def persist_fill(self,fill:dict,*,strict:bool=False)->bool:
         required=("fill_id","broker_order_id","trade_id","quantity","price","timestamp")
         if any(k not in fill for k in required): raise ValueError("INCOMPLETE_FILL")
         values=(fill["fill_id"],fill["broker_order_id"],fill["trade_id"],str(fill["quantity"]),str(fill["price"]),str(fill.get("fee","")),fill["timestamp"],json.dumps(fill,sort_keys=True))
-        with self.transaction(): cur=self.db.execute("INSERT OR IGNORE INTO fills VALUES(?,?,?,?,?,?,?,?)",values)
+        with self.transaction():
+            if strict:
+                old=self.db.execute("SELECT payload FROM fills WHERE fill_id=?",(fill["fill_id"],)).fetchone()
+                if old is not None and json.loads(old[0]) != fill:
+                    raise RuntimeError("CONFLICTING_DURABLE_FILL")
+            cur=self.db.execute("INSERT OR IGNORE INTO fills VALUES(?,?,?,?,?,?,?,?)",values)
         return cur.rowcount==1
+    def _fill_rows(self,query:str,args=())->list[dict]:
+        result=[]
+        for row in self.db.execute(query,args):
+            fill=json.loads(row[7])
+            values=(fill["fill_id"],fill["broker_order_id"],fill["trade_id"],str(fill["quantity"]),
+                    str(fill["price"]),str(fill.get("fee","")),fill["timestamp"])
+            if tuple(row[:7]) != values:
+                raise RuntimeError("DURABLE_FILL_COLUMNS_CONFLICT")
+            result.append(fill)
+        return result
+    def all_fills(self)->list[dict]:
+        return self._fill_rows("SELECT * FROM fills ORDER BY fill_id")
+    def fills_for_order(self,broker_order_id:str)->list[dict]:
+        return self._fill_rows("SELECT * FROM fills WHERE broker_order_id=? ORDER BY fill_id",(broker_order_id,))
     def unresolved_intent_count(self)->int:
         marks=",".join("?" for _ in TERMINAL_INTENT_STATUSES)
         return self.db.execute(f"SELECT COUNT(*) FROM intents WHERE status NOT IN ({marks})",TERMINAL_INTENT_STATUSES).fetchone()[0]

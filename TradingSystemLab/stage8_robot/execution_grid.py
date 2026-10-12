@@ -3,12 +3,13 @@ from __future__ import annotations
 
 from dataclasses import replace
 from decimal import Decimal, InvalidOperation
+from fractions import Fraction
 import hashlib
 import json
 
-EXECUTION_REVISION = "STOP_TICK_GRID_V1_PROPOSED"
-# No accepted, reliable price-of-this-entry contract exists in the current
-# FINAM adapter. Do not turn schema presence or synthetic tests into LIVE proof.
+EXECUTION_REVISION = "STOP_TICK_GRID_V2_FILL_PROPOSED"
+# LIVE acceptance remains blocked: Intel report bytes and growing-position
+# SLTP coverage are not independently verified. The candidate stays inactive.
 FINAM_FILL_AUTHORITY_VERIFIED = False
 
 
@@ -23,7 +24,10 @@ def decimal_price(value) -> Decimal:
 
 
 def _tick_ratio(price, step) -> tuple[int, int]:
-    price, step = decimal_price(price), decimal_price(step)
+    step = decimal_price(step)
+    price = price if isinstance(price, Fraction) else decimal_price(price)
+    if price <= 0:
+        raise ValueError("EXECUTION_PRICE_INVALID")
     pn, pd = price.as_integer_ratio()
     sn, sd = step.as_integer_ratio()
     return pn * sd, pd * sn
@@ -33,7 +37,7 @@ def require_on_grid(price, step) -> Decimal:
     numerator, denominator = _tick_ratio(price, step)
     if numerator % denominator:
         raise ValueError("EXECUTION_PRICE_NOT_ON_TICK_GRID")
-    return decimal_price(price)
+    return project_stop("LONG", price, step) if isinstance(price, Fraction) else decimal_price(price)
 
 
 def project_stop(direction: str, price, step) -> Decimal:
@@ -68,12 +72,14 @@ def authority_fingerprint(evidence: dict) -> str:
 def manage_executable(core, position, bar, step) -> dict:
     """Keep frozen core event order, projecting before stop tests and after bars.
 
-    Executable state uses Decimals. The frozen Trail1State float conversion of a
+    Executable grid prices use Decimals; order-linked means use exact Fractions. The frozen Trail1State float conversion of a
     stored candidate is bypassed numerically, while its event transitions remain
     authoritative. Raw candidate calculation still comes from DecisionCore.
     """
+    rational = isinstance(position.entry, Fraction)
+    number = (lambda value: Fraction(str(value))) if rational else decimal_price
     for field in ("entry", "initial_stop", "current_stop", "favorable_extreme"):
-        setattr(position, field, decimal_price(getattr(position, field)))
+        setattr(position, field, number(getattr(position, field)))
     trail = position.trail1
     trail.initial_risk_price = abs(position.entry - position.initial_stop)
     trail.trigger_price = position.entry + (trail.initial_risk_price if position.direction == "LONG" else -trail.initial_risk_price)
@@ -86,6 +92,8 @@ def manage_executable(core, position, bar, step) -> dict:
         position.current_stop = max(previous, candidate) if position.direction == "LONG" else min(previous, candidate)
     values = {field: require_on_grid(getattr(bar, field), step) for field in ("open", "high", "low", "close")}
     values["atr"] = decimal_price(bar.atr)
+    if rational:
+        values = {key: Fraction(value) for key, value in values.items()}
     was_triggered = trail.triggered
     outcome = core.manage(position, replace(bar, **values))
     if outcome["event"] == "HOLD":

@@ -12,7 +12,7 @@ import argparse
 import hashlib
 import os
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
@@ -232,6 +232,9 @@ class ProductionService:
         account = self.api.account(self.account_id)
         if not isinstance(account, dict) or account.get("status") not in ACTIVE_ACCOUNT_STATUSES:
             raise ProductionServiceError("STAGE8_12_4_ACCOUNT_NOT_ACTIVE")
+        if self.runtime.execution_revision and account.get("account_id") != self.account_id:
+            self.runtime.halt("POSITION_ACCOUNT_IDENTITY_UNVERIFIED")
+            raise ProductionServiceError("STAGE8_12_4_POSITION_ACCOUNT_IDENTITY_UNVERIFIED")
         try:
             positions = position_quantities(account)
             orders = order_views(self.api.orders(self.account_id))
@@ -281,7 +284,9 @@ class ProductionService:
                 owned = any(
                     row["payload"].get("kind") == "ENTRY"
                     and row["payload"].get("instrument") == instrument
-                    and row["payload"].get("expected_position_quantity") == quantity
+                    and (row["payload"].get("expected_position_quantity") == quantity
+                         or self.runtime.execution_revision and quantity*row["payload"].get("expected_position_quantity",0)>0
+                         and abs(quantity)<=abs(row["payload"]["expected_position_quantity"]))
                     and row["status"] in {"SUBMITTED", "UNCERTAIN", "ACK", "PARTIAL_FILL", "FILL"}
                     for row in unresolved
                 )
@@ -345,12 +350,34 @@ class ProductionService:
         intent = self.runtime.store.intent(key) if key else None
         if not key or intent is None or intent["status"] != "INTENT_PERSISTED":
             return
+        if (action.execution_revision == EXECUTION_REVISION and action.kind == "PROTECTIVE_STOP_REPLACE"
+                and self.runtime.store.get("execution_halt")):
+            return  # Keep the existing backstop; no ordinary TRAIL1 POST while halted.
         submit_now = self.clock().astimezone(timezone.utc)
         if action.kind == "ENTRY":
             if action.execution_revision == EXECUTION_REVISION and not FINAM_FILL_AUTHORITY_VERIFIED:
                 raise ProductionServiceError("ACTUAL_FILL_AUTHORITY_BLOCKED_NO_ENTRY_SUBMISSION")
             self._require_entry_submission_session(action.finam_symbol, submit_now)
-        self.runtime.store.transition_intent(key, "SUBMITTED")
+        if action.execution_revision == EXECUTION_REVISION:
+            if action.kind == "ENTRY":
+                self.runtime.record_entry_submission(key, self.account_id, submit_now.isoformat())
+            elif action.kind in {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}:
+                observed = snap.positions.get(action.finam_symbol,0)
+                planned = intent["payload"]["planned_quantity"]
+                if type(observed) is not int or not observed or (observed>0)!=(action.direction=="LONG") or abs(observed)>planned:
+                    self.runtime.halt("PROTECTIVE_SUBMISSION_POSITION_UNVERIFIED")
+                    raise ProductionServiceError("STAGE8_12_4_PROTECTIVE_SUBMISSION_POSITION_UNVERIFIED")
+                # The endpoint always receives 100%, never a fixed contract count.
+                # Persist the fresh pre-POST quantity separately from immutable intent.
+                with self.runtime.store.transaction():
+                    self.runtime.store.put(f"protective_submission:{key}", {"position_quantity":observed,
+                                                                           "submitted_at":submit_now.isoformat()})
+                    self.runtime.store.transition_intent(key,"SUBMITTED")
+                action = replace(action,quantity=abs(observed),expected_position_quantity=observed)
+            else:
+                self.runtime.store.transition_intent(key,"SUBMITTED")
+        else:
+            self.runtime.store.transition_intent(key, "SUBMITTED")
         try:
             if action.kind == "ENTRY":
                 response = self.transport.submit_entry(action, now=submit_now)
@@ -381,12 +408,28 @@ class ProductionService:
 
     def _reconcile_intents(self, snap: Snapshot) -> None:
         generated: list[RuntimeAction] = []
-        for row in tuple(self.runtime.store.unresolved_intents()):
+        faults = []
+        rows = self.runtime.store.unresolved_intents()
+        if self.runtime.execution_revision:
+            # Revalidate price facts for owned open entries after restart, including
+            # terminal local entries. A stale/missing history never causes a retry.
+            local_trades = {p['trade_id'] for p in self.runtime.open_positions().values()}
+            keys = {row['idempotency_key'] for row in rows}
+            rows += [row for row in self.runtime.store.all_intents() if row['idempotency_key'] not in keys
+                     and row['payload'].get('kind')=='ENTRY' and row['payload'].get('trade_id') in local_trades]
+        for row in tuple(rows):
             action = _action(row["payload"])
             order = self._matching(snap, action)
             status = row["status"]
 
             if action.kind == "ENTRY":
+                if self.runtime.execution_revision:
+                    try:
+                        self._reconcile_candidate_entry(row, action, order, snap)
+                    except Exception as exc:
+                        self.runtime.halt("FILL_OR_PARTIAL_RECONCILIATION_UNVERIFIED")
+                        faults.append(exc)
+                    continue
                 quantity = snap.positions.get(action.finam_symbol, 0)
                 if order is not None:
                     self._validate_regular(order, action, exit_order=False)
@@ -509,8 +552,63 @@ class ProductionService:
 
         for action in generated:
             self._submit(action, snap)
+        if faults:
+            raise ProductionServiceError("STAGE8_12_4_HALTED_OPERATOR_INTERVENTION_REQUIRED") from faults[0]
+
+    def _reconcile_candidate_entry(self, row, action, order, snap) -> None:
+        key = action.idempotency_key
+        quantity = snap.positions.get(action.finam_symbol,0)
+        if order is not None:
+            self._validate_regular(order,action,exit_order=False)
+            if row.get("broker_order_id") not in {None,order.order_id}:
+                raise ProductionServiceError("STAGE8_12_4_ENTRY_ORDER_ID_CHANGED")
+            if row.get("broker_order_id") is None:
+                self.runtime.store.transition_intent(key,"ACK",order.order_id)
+            if order.status in TERMINAL_ORDER_STATUSES:
+                self.runtime.store.put(f"entry_terminal:{key}", {"order_id":order.order_id,"status":order.status})
+        if quantity:
+            # Protect exposure before requesting price history (which may fail).
+            stop = self.runtime.confirm_entry_position(key,quantity)
+            if stop is not None:
+                self._submit(stop,snap)
+            current = self.runtime.store.intent(key)
+            submission = self.runtime.store.get(f"entry_submission:{key}")
+            if not current["broker_order_id"] or not submission:
+                raise ProductionServiceError("STAGE8_12_4_EXACT_FILL_IDENTITY_OR_INTERVAL_MISSING")
+            end = snap.observed_at.isoformat()
+            response = self.api.trades(self.account_id,start=submission["submitted_at"],end=end,limit=1000)
+            self.runtime.handoff_entry_history(key, account_id=self.account_id,broker_order_id=current["broker_order_id"],
+                response=response,start=submission["submitted_at"],end=end,limit=1000,observed_at=end)
+            return
+        if self.runtime.open_positions().get(action.instrument):
+            # A stop may have flattened a partial entry while its remainder is
+            # still active. Never remove protection or retry/compensate the entry.
+            if row["status"] != "RECONCILED":
+                self.runtime.halt("FLAT_WITH_OPEN_ENTRY_PRESERVE_BACKSTOP")
+                raise ProductionServiceError("STAGE8_12_4_HALTED_OPERATOR_INTERVENTION_REQUIRED")
+            return
+        if order is not None:
+            if order.status in {"FILLED","EXECUTED"}:
+                raise ProductionServiceError("STAGE8_12_4_FILLED_ENTRY_WITHOUT_POSITION")
+            if order.status in TERMINAL_ORDER_STATUSES:
+                terminal = "CANCELLED" if order.status in {"CANCELLED","REPLACED","EXPIRED","DISABLED"} else "REJECTED"
+                self.runtime.store.transition_intent(key,terminal,order.order_id)
+            elif row["status"] in {"INTENT_PERSISTED","SUBMITTED","UNCERTAIN"}:
+                self.runtime.store.transition_intent(key,"ACK",order.order_id)
+            return
+        if row["status"] == "INTENT_PERSISTED":
+            self._submit(action,snap)
+        elif row["status"] in {"SUBMITTED","UNCERTAIN","ACK","PARTIAL_FILL","FILL"}:
+            raise ProductionServiceError("STAGE8_12_4_UNCERTAIN_ENTRY_REQUIRES_BROKER_PROOF")
 
     def _flat_cleanup_and_exit(self, snap: Snapshot) -> Snapshot:
+        if self.runtime.execution_revision:
+            for row in self.runtime.store.unresolved_intents():
+                if row['payload'].get('kind')=='ENTRY' and not snap.positions.get(row['payload']['finam_symbol'],0):
+                    value = self.runtime.open_positions().get(row['payload']['instrument'])
+                    if value:
+                        self.runtime.halt("FLAT_WITH_OPEN_ENTRY_PRESERVE_BACKSTOP")
+                        raise ProductionServiceError("STAGE8_12_4_HALTED_OPERATOR_INTERVENTION_REQUIRED")
         changed = False
         for instrument, value in tuple(self.runtime.open_positions().items()):
             symbol = value["finam_symbol"]
@@ -559,6 +657,8 @@ class ProductionService:
             )
             observed = snap.positions.get(value["finam_symbol"], 0)
             if observed != expected:
+                if self.runtime.execution_revision:
+                    self.runtime.halt("POSITION_CHANGED_AFTER_RECONCILIATION")
                 raise ProductionServiceError(
                     "STAGE8_12_4_POSITION_RECONCILIATION_MISMATCH"
                 )
@@ -597,6 +697,9 @@ class ProductionService:
                 raise ProductionServiceError(
                     "STAGE8_12_4_CURRENT_PROTECTIVE_STOP_NOT_ACTIVE"
                 )
+            if self.runtime.execution_revision and value.get("protective_covered_quantity") != abs(observed):
+                self.runtime.halt("PROTECTIVE_COVERAGE_UNVERIFIED")
+                raise ProductionServiceError("STAGE8_12_4_HALTED_OPERATOR_INTERVENTION_REQUIRED")
             result.append({
                 "instrument": instrument,
                 "trade_id": value["trade_id"],
@@ -639,7 +742,7 @@ class ProductionService:
     def _manage_positions(
         self, histories: dict[str, pd.DataFrame], snap: Snapshot
     ) -> bool:
-        if self.runtime.store.unresolved_intent_count():
+        if self.runtime.store.unresolved_intent_count() or self.runtime.execution_revision and self.runtime.store.get("execution_halt"):
             return False
         for instrument in tuple(self.runtime.open_positions()):
             execution, _ = self.runtime.context_builder.build(
@@ -706,7 +809,7 @@ class ProductionService:
     def _plan_entry(
         self, histories: dict[str, pd.DataFrame], snap: Snapshot
     ) -> bool:
-        if self.transport is None or self.runtime.store.unresolved_intent_count():
+        if self.transport is None or self.runtime.store.unresolved_intent_count() or self.runtime.execution_revision and self.runtime.store.get("execution_halt"):
             return False
         if self.runtime.execution_revision == EXECUTION_REVISION and not FINAM_FILL_AUTHORITY_VERIFIED:
             return False
@@ -785,6 +888,9 @@ class ProductionService:
         snap = self.snapshot(now)
         self._assert_exact_broker_ownership(snap)
         protection = self._protection(snap)
+        if self.runtime.execution_revision and self.runtime.store.get("execution_halt"):
+            self._fault_heartbeat(now)
+            raise ProductionServiceError("STAGE8_12_4_HALTED_OPERATOR_INTERVENTION_REQUIRED")
         histories = {
             instrument: self._history(instrument, now) for instrument in INSTRUMENTS
         }

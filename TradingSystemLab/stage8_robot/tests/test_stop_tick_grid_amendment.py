@@ -198,7 +198,7 @@ def test_missing_fill_preserves_initial_protection_blocks_management_and_new_ent
     stop = rt.confirm_entry_position(entry.idempotency_key,entry.quantity)
     rt.confirm_protective_stop(stop.idempotency_key,'backstop')
     assert rt.open_positions()['USDRUBF']['actual_initial_loss_cash'] is None
-    with pytest.raises(ProductionRuntimeError,match='ACTUAL_FILL_AUTHORITY_BLOCKS_BAR'):
+    with pytest.raises(ProductionRuntimeError,match='UNRESOLVED_INTENT_BLOCKS_BAR'):
         rt.manage_completed_bar('USDRUBF',bar(11,'101','100','1'),observed_position_quantity=entry.quantity)
     with pytest.raises(ProductionRuntimeError,match='ACTUAL_FILL_AUTHORITY_BLOCKS_NEW'): plan(rt,signal('CNYRUBF'))
     rt.close(); rt = runtime(tmp_path/'state.db')

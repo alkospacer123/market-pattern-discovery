@@ -1,5 +1,7 @@
 # STOP/TICK GRID execution amendment
 
+**Current V2: PROPOSED / NOT DEPLOYED; offline candidate PASS, LIVE acceptance BLOCKED.** The V1 sections below are retained historical proposal/evidence; the appended V2 section defines the current candidate.
+
 **PROPOSED / NOT DEPLOYED. Итог: BLOCKED (ACTUAL_FILL_AUTHORITY). LIVE_PRODUCTION_READY=NO.**
 
 Это append-only execution amendment `STOP_TICK_GRID_V1_PROPOSED`, а не изменение frozen Stage 7 или заявление о прежнем exact Stage 7 execution conformance. Разрешённая область — кандидатный код, offline tests/replay и Draft PR. Merge, deploy, re-arm и реальные заявки не разрешены.
@@ -91,3 +93,53 @@ python TradingSystemLab/stage8_robot/tests/replay_stop_tick_grid.py --data-root 
 The [READONLY investigation](diagnostics/FINAM_FILL_PRICE_AUTHORITY.md) pins the official FINAM REST contract: bounded `/trades` query parameters and order-linked `AccountTrade.price` exist; FORTS `average_price` is explicitly unpopulated. The current adapter omits the documented interval/limit parameters. Whether that explains the actual historical HTTP 400 remains physically unconfirmed. One diagnostic and offline tests are prepared, with no production bridge or profile activation.
 
 The follow-up also makes a missing acceptance requirement explicit: unexpected partial entry quantity is inhibited/idempotent, but candidate runtime does not yet install protection for a newly arisen partial exposure. Thus the complete broker candidate is `NEEDS_FIX` until partial protection and actual price/retention authority are implemented and accepted; existing grid/replay PASS results remain separate. `ACTUAL_FILL_AUTHORITY=BLOCKED`, `LIVE_PRODUCTION_READY=NO`. Original Stage7 and OOS are unchanged.
+## V2 fill handoff and partial exposure amendment — 2026-10-12
+
+**Current proposed revision: `STOP_TICK_GRID_V2_FILL_PROPOSED`; schema `stage8_12_production_runtime.stop_tick_grid.v2`. PROPOSED / NOT DEPLOYED. Offline candidate PASS; LIVE acceptance BLOCKED.** This section supersedes the V1 implementation limitations above, while preserving the original proposal and its evidence. It creates no new roadmap phase. Stage 7 ID, strategy identity, parameters, research signals/results and TRUE OOS remain unchanged.
+
+### Distinct price and monetary authorities
+
+The user reports physical Intel READONLY A/B for historical Stage 8.11 Attempt 6: bounded GET `/trades` HTTP 200, ACK order/account/instrument/side match, CNYRUBF@RTSX LONG, price 12.748, quantity 1, step 0.001, `AccountTrade.currency=XXX`; two processes reportedly returned equal results/report hashes. `PRICE_AB_SUMMARY.json`, `price-observation-A.json`, `price-observation-B.json` were **not available in this workspace**. Their bytes, reported SHA-256 values and account/order bindings have **not been independently audited here**. This is user-supplied physical provenance, not a fixture promoted to broker evidence.
+
+`AccountTrade.price` is authority for the price of its exact order. `/account` remains authority for the current open contract quantity. Neither account average/current price nor reference entry substitutes for a fill. The parser accepts the documented RUB feed label and the physically reported XXX label, stores each label exactly and rejects missing/other labels. **XXX is not RUB. No currency conversion is performed.** Price differences are valued solely in instrument ticks using the separately authenticated N4 registry's price_step and RUB tick_value/MOEX reference, bound into the existing specification fingerprint. Unknown instrument monetary authority fails closed. Commission/accrued-interest currencies are not used to infer money or promise an all-in loss ceiling. Physical price-unit/tick economics for current N4, and fees if required, remain separate acceptance requirements.
+
+Bounded history must match exact durable broker order ID, account, FINAM symbol, side, nonempty unique trade IDs, RFC3339 time (including nanoseconds), positive on-grid prices and positive integer contract quantities. The interval covers the durable pre-POST submission time through the snapshot observation, inclusive start/exclusive end; it cannot begin after submission, use a different observation end, regress observation time or accept pre-submission fills. Total matched quantity cannot exceed the committed ENTRY quantity. Identical fills deduplicate; changes to identity/price/quantity/time/currency conflict and roll back. History saturation (`rows >= limit`), unknown pagination cursor, missing previously retained fills or quantity/history mismatch block authority. No pagination or indefinite broker retention guarantee is invented.
+
+### Durable atomic handoff
+
+Before any candidate ENTRY POST, production state commits exact account binding, submission timestamp and SUBMITTED status together. Existing guards keep all candidate ENTRY POST unavailable in this work. SUBMITTED/UNCERTAIN/ACK never retry ENTRY; a uniquely matching broker order can reconcile its ACK ID, but cannot change an existing ID.
+
+The existing **production** `fills` table retains real order/trade identity, frozen strategy signal/trade identity, quantity, exact Decimal execution price, nanosecond timestamp, account binding, feed currency label, separate RUB risk currency, specification fingerprint and execution revision. No historical Stage 8.11 ledger is adopted or modified. The account-scoped broker trade ID is the idempotency key; conflicting duplicates, including cross-order reuse, fail closed. SQL columns must agree with the canonical stored payload.
+
+Fill insertions, complete bounded-history fingerprint, exact weighted mean, actual R/cash, position state and entry reconciliation share one SQLite transaction. A failure rolls back all facts/state, then commits a sticky HALTED/OIR fault. Weighted mean `sum(price_i * qty_i)/sum(qty_i)` is authoritative as an exact rational numerator/denominator, including repeating decimals. Serialized rational strings are exact; the diagnostic Decimal mean is display-only. Restart recomputes mean/risk from durable fills, checks identity/time/grid/history fingerprint and protective coverage, and rejects inconsistent state. Local durable retention is proven offline; availability/retention of broker history after a real restart remains a separate acceptance item.
+
+Reference entry, raw stop/raw R and executable reference stop/R remain immutable research/planning evidence. `verified_fill_entry`, exact actual initial R and cash are separate. For matched open quantity Q:
+
+```
+R_actual = abs(weighted_fill_entry - precommitted_executable_stop)
+initial_cash_actual = R_actual / authenticated_price_step * authenticated_tick_value_RUB * Q
+```
+
+Quantity is never recomputed/reused from the raw stop or silently resized after a fill. FULL/R15 remains 1.5% realized equity reference sizing with floor, directional margin/local reservation and 6% aggregate nominal initial budget. The full committed nominal risk/margin reservation remains conservative for a partial position until its lifecycle resolves. Actual fill accounting is distinct from that nominal budget.
+
+Ordinary executable TRAIL1 uses the exact verified entry and corresponding actual executable initial R after complete price/position/completion authority. Fraction arithmetic handles a repeating weighted mean; outward projection returns exact Decimal grid stop prices. Raw research R stays separate. Frozen core event ordering, +1R trigger, next-event activation, stop-before-extremes, tighten-only, no retroactive exits, EXIT before ENTRY and duplicate projected-stop suppression remain unchanged.
+
+### Partial exposure and protection uncertainty
+
+Any broker-confirmed positive signed partial quantity within the committed request immediately creates the initial protective intent for that actual quantity at the **precommitted executable stop**, before requesting fill history. Lack of fill price does not postpone protection. The existing payload remains absolute grid stop + 100% `SLTP_QTY_MEASURE_PERCENT`, GTC. Its scope is not converted into an invented fixed-contract or MARKET-fill protection scheme.
+
+If quantity grows before the initial protective POST, the candidate separately persists the latest snapshot quantity at the submission boundary and submits the same 100% stop under the same key. The immutable original protective intent and ENTRY quantity remain intact. Broker active SLTP proof, exact price/identity and the committed submission quantity establish the recorded coverage for that observation. ACK alone does not establish active protection.
+
+If quantity subsequently grows beyond established coverage, the candidate records the current exposure, preserves the existing backstop and sets **HALTED / OPERATOR_INTERVENTION_REQUIRED**. It does **not** assert that an old percentage stop automatically expands, create duplicate percentage stops, cancel the backstop, resend ENTRY, resize the position or make a compensating trade. Whole-position dynamic coverage after growth is **BLOCKED for real FINAM** until independently proven. Shrinking/fluctuating exposure while ENTRY is open, inconsistent history, unknown protection, actual reference-budget excess or fill at/across the committed stop likewise inhibit ordinary management/new entries. Existing protection can still reconcile; unsubmitted ordinary TRAIL1 replacements are not posted while halted. A confirmed cancelled/expired partial remainder can resolve price/completion authority for the remaining matched position, without cancelling anything in this implementation.
+
+Flat position while an ENTRY remainder is unresolved does not permit automatic backstop cancellation or normal lifecycle completion: the remainder can reopen exposure. Restart retains the same intent/submission/stop keys, continues protection reconciliation, never repeats unknown POSTs and never implicitly clears HALTED. Operator recovery/migration is not implemented or authorized by this amendment.
+
+### Separate MARKET accounting contract and LIVE criteria
+
+The candidate implements **proposed** accounting of reference nominal budget versus actual matched-fill initial stop distance. It does not guarantee `actual risk <= 1.5%` for arbitrary MARKET fill, a gap, stop execution slippage or fees. Budget excess is recorded and halts ordinary trading while retaining protection. This contract requires separate acceptance; it changes no R15 parameter and does not replace MARKET with LIMIT. Strict actual-loss ceiling remains BLOCKED under an unrestricted MARKET contract.
+
+V2 rejects legacy, unidentified, V1 and mixed revision databases before adopting positions or unresolved intents. No silent migration, re-arm of old signals or rewrite of legacy positions is provided. The opt-in constructor and the existing closed candidate entry guard remain; CLI/LIVE defaults and deployment/authorization/kill-switch files are unchanged.
+
+Offline PASS covers parser/identity/rational risk, full/partial/multi-fill, duplicate/conflict, missing/stale/clipped history, durable crash rollback/restart, partial initial protection, changing exposure with safe inhibition, grid/TRAIL1 and unchanged raw replay. It does **not** certify actual broker SLTP dynamic coverage, history completeness beyond the documented bounded response, broker retention, fee semantics or unbounded MARKET risk. Before any separately authorized LIVE acceptance: audit the A/B bytes/known hashes and ACK provenance; authenticate current N4 tick/price-unit/margin economics; establish real partial/multi-fill history and restart retention; prove percentage SLTP coverage/races/backstop behavior; independently accept state lifecycle and the proposed MARKET accounting distinction. No real orders are authorized here.
+
+Reproducible V2 results/provenance: [fill handoff verification](diagnostics/fill_handoff_offline_verification.json), [appended replay results](tests/stop_tick_grid_evidence/fill_v2_results.json), [diagnostic follow-up](diagnostics/FINAM_FILL_PRICE_AUTHORITY.md). Original replay evidence remains unchanged.
