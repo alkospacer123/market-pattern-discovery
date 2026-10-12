@@ -1,0 +1,1696 @@
+{
+  "PRODUCTION_CHANGES": "NONE",
+  "authentication": {
+    "byte_exact_source_checks": {
+      "committed_sha": true,
+      "data_commit": true,
+      "event_hash": true,
+      "instruments": true,
+      "lifecycle_registry": true,
+      "lifecycles": true,
+      "parameter": true,
+      "raw_h1_CNYRUBF": true,
+      "raw_h1_GLDRUBF": true,
+      "raw_h1_IMOEXF": true,
+      "raw_h1_USDRUBF": true,
+      "repeated": true,
+      "row_count": true,
+      "t3": true,
+      "trail": true
+    },
+    "data_hash_contract": "Frozen raw Git-blob hashes, including CRLF; sources unchanged",
+    "existing_authenticate_function": "AUTHENTICATION_FAILED:{'row_count': True, 'committed_sha': True, 'event_hash': True, 't3': True, 'parameter': True, 'trail': True, 'data_commit': True, 'lifecycle_registry': True, 'repeated': True, 'instruments': True, 'lifecycles': True, 'h1_USDRUBF': False, 'h1_CNYRUBF': False, 'h1_GLDRUBF': False, 'h1_IMOEXF': False}"
+  },
+  "classifications": {
+    "LIVE_EXECUTION_CONFORMANCE": "FAIL",
+    "OOS_EXECUTABILITY_VERIFIED": "NO",
+    "RESEARCH_SIGNAL_CONFORMANCE": "PASS"
+  },
+  "conformance": {
+    "production": {
+      "R_mismatches": 0,
+      "direction_mismatches": 0,
+      "exact_matches": 418,
+      "expected_trade_count": 418,
+      "extra": 0,
+      "missing": 0,
+      "price_mismatches": 0,
+      "reproduced_trade_count": 418,
+      "state_mismatches": 0,
+      "status": "PASS",
+      "timestamp_mismatches": 0
+    },
+    "research_authority": {
+      "R_mismatches": 0,
+      "direction_mismatches": 0,
+      "exact_matches": 418,
+      "expected_trade_count": 418,
+      "extra": 0,
+      "missing": 0,
+      "price_mismatches": 0,
+      "reproduced_trade_count": 418,
+      "state_mismatches": 0,
+      "status": "PASS",
+      "timestamp_mismatches": 0
+    }
+  },
+  "coverage": [
+    {
+      "first_close": "2022-04-26T11:00:00+03:00",
+      "h1_rows": 17116,
+      "instrument": "USDRUBF",
+      "last_close": "2026-09-16T00:00:00+03:00",
+      "sha256": "f0ca366d816a6213742271242e87c53d1e23f5a5fc4655df0123217df418a226"
+    },
+    {
+      "first_close": "2022-04-26T11:00:00+03:00",
+      "h1_rows": 17116,
+      "instrument": "CNYRUBF",
+      "last_close": "2026-09-16T00:00:00+03:00",
+      "sha256": "a3815b88a11aa5878b8bd104140f002859349c2c8d7f6ff0476a0d4c4d9a612e"
+    },
+    {
+      "first_close": "2023-07-11T11:00:00+03:00",
+      "h1_rows": 13685,
+      "instrument": "GLDRUBF",
+      "last_close": "2026-09-16T00:00:00+03:00",
+      "sha256": "12a626ba6cc47fce2f392d4a6ce3bdb8a3c1aad074306a73ab480fcfbb83b87e"
+    },
+    {
+      "first_close": "2023-11-14T11:00:00+03:00",
+      "h1_rows": 12251,
+      "instrument": "IMOEXF",
+      "last_close": "2026-09-16T00:00:00+03:00",
+      "sha256": "119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110"
+    }
+  ],
+  "data_sha": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+  "frozen_parameters": {
+    "adx_period": 14,
+    "adx_threshold": 20.0,
+    "atr_average_period": 20,
+    "atr_period": 14,
+    "breakout_period": 20,
+    "ema_period": 100,
+    "slope_lookback": 5,
+    "stop_atr": 2.5,
+    "trail_atr": 3.0
+  },
+  "main_at_start": "688560ec2e8a71c1085bec255a9660783b51e122",
+  "original_canonical_oos_artifact": {
+    "completed_trades": 199,
+    "initial_stop_source": "Original serialized artifact omits initial_stop; independently reconstructed in canonical replay, no stop inferred from rounded cost_R",
+    "legacy_equation_max_delta": 4.880362780568248e-11,
+    "legacy_gross_R_equation": "actual_gross_R - C1",
+    "legacy_net_R_C1_equation": "actual_gross_R - 2*C1",
+    "off_grid_entries": 0,
+    "price_time_direction_cost_replay_mismatches": 0,
+    "reconstructed_causal_off_grid_distances": 199,
+    "stage6_basis": "Already accepted CORRECTED_SINGLE_C1; original OOS left unchanged"
+  },
+  "production_code_sha": "184e8c2b8fa092a606249ff293a4f507160bff29",
+  "proposal_entry_grid_exceptions": 0,
+  "proposal_math_checks": 422,
+  "real_broker_operations": 0,
+  "recent_12_signal_claim": "UNVERIFIED: frozen data ends 2026-09-15; 2026-09-16 through 2026-10-11 not replayed",
+  "runtime_matrix_checks": 40,
+  "runtime_rejection_checks": {
+    "available_cash": "1000000 synthetic RUB",
+    "broker_orders": 0,
+    "directional_margin": "LONG 100 / SHORT 120 synthetic RUB; no historical broker snapshots",
+    "equity": "100000 synthetic RUB",
+    "independent_funded_flat_plan_entry_off_grid_checks": 2918,
+    "on_grid_records_not_counted_as_rejected": 0
+  },
+  "signal_counts": {
+    "full_available_admitted_entries": {
+      "completed_trades": 397,
+      "instrument": [
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 116,
+          "instrument": "CNYRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 116,
+          "stop_not_on_tick_grid": 116,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 84,
+          "instrument": "GLDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 84,
+          "stop_not_on_tick_grid": 84,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 80,
+          "instrument": "IMOEXF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 80,
+          "stop_not_on_tick_grid": 80,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 119,
+          "instrument": "USDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 119,
+          "stop_not_on_tick_grid": 119,
+          "stop_on_grid": 0
+        }
+      ],
+      "instrument_year": [
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 9,
+          "instrument": "CNYRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 9,
+          "stop_not_on_tick_grid": 9,
+          "stop_on_grid": 0,
+          "year": "2022"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 8,
+          "instrument": "USDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 8,
+          "stop_not_on_tick_grid": 8,
+          "stop_on_grid": 0,
+          "year": "2022"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 29,
+          "instrument": "CNYRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 29,
+          "stop_not_on_tick_grid": 29,
+          "stop_on_grid": 0,
+          "year": "2023"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 7,
+          "instrument": "GLDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 7,
+          "stop_not_on_tick_grid": 7,
+          "stop_on_grid": 0,
+          "year": "2023"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 32,
+          "instrument": "USDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 32,
+          "stop_not_on_tick_grid": 32,
+          "stop_on_grid": 0,
+          "year": "2023"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 24,
+          "instrument": "CNYRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 24,
+          "stop_not_on_tick_grid": 24,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 33,
+          "instrument": "GLDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 33,
+          "stop_not_on_tick_grid": 33,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 26,
+          "instrument": "IMOEXF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 26,
+          "stop_not_on_tick_grid": 26,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 30,
+          "instrument": "USDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 30,
+          "stop_not_on_tick_grid": 30,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 30,
+          "instrument": "CNYRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 30,
+          "stop_not_on_tick_grid": 30,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 24,
+          "instrument": "GLDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 24,
+          "stop_not_on_tick_grid": 24,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 26,
+          "instrument": "IMOEXF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 26,
+          "stop_not_on_tick_grid": 26,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 26,
+          "instrument": "USDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 26,
+          "stop_not_on_tick_grid": 26,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 24,
+          "instrument": "CNYRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 24,
+          "stop_not_on_tick_grid": 24,
+          "stop_on_grid": 0,
+          "year": "2026"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 20,
+          "instrument": "GLDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 20,
+          "stop_not_on_tick_grid": 20,
+          "stop_on_grid": 0,
+          "year": "2026"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 28,
+          "instrument": "IMOEXF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 28,
+          "stop_not_on_tick_grid": 28,
+          "stop_on_grid": 0,
+          "year": "2026"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 23,
+          "instrument": "USDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 23,
+          "stop_not_on_tick_grid": 23,
+          "stop_on_grid": 0,
+          "year": "2026"
+        }
+      ],
+      "terminal_open_entries": 2,
+      "total": [
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 399,
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 399,
+          "stop_not_on_tick_grid": 399,
+          "stop_on_grid": 0
+        }
+      ],
+      "unique_instrument_timestamp_direction": 399,
+      "year": [
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 17,
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 17,
+          "stop_not_on_tick_grid": 17,
+          "stop_on_grid": 0,
+          "year": "2022"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 68,
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 68,
+          "stop_not_on_tick_grid": 68,
+          "stop_on_grid": 0,
+          "year": "2023"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 113,
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 113,
+          "stop_not_on_tick_grid": 113,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 106,
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 106,
+          "stop_not_on_tick_grid": 106,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 95,
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 95,
+          "stop_not_on_tick_grid": 95,
+          "stop_on_grid": 0,
+          "year": "2026"
+        }
+      ]
+    },
+    "full_available_raw_signals": {
+      "instrument": [
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 366,
+          "instrument": "CNYRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 366,
+          "stop_not_on_tick_grid": 366,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 321,
+          "instrument": "GLDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 321,
+          "stop_not_on_tick_grid": 321,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 299,
+          "instrument": "IMOEXF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 299,
+          "stop_not_on_tick_grid": 299,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 436,
+          "instrument": "USDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 436,
+          "stop_not_on_tick_grid": 436,
+          "stop_on_grid": 0
+        }
+      ],
+      "instrument_year": [
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 33,
+          "instrument": "CNYRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 33,
+          "stop_not_on_tick_grid": 33,
+          "stop_on_grid": 0,
+          "year": "2022"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 40,
+          "instrument": "USDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 40,
+          "stop_not_on_tick_grid": 40,
+          "stop_on_grid": 0,
+          "year": "2022"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 77,
+          "instrument": "CNYRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 77,
+          "stop_not_on_tick_grid": 77,
+          "stop_on_grid": 0,
+          "year": "2023"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 25,
+          "instrument": "GLDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 25,
+          "stop_not_on_tick_grid": 25,
+          "stop_on_grid": 0,
+          "year": "2023"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 125,
+          "instrument": "USDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 125,
+          "stop_not_on_tick_grid": 125,
+          "stop_on_grid": 0,
+          "year": "2023"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 79,
+          "instrument": "CNYRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 79,
+          "stop_not_on_tick_grid": 79,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 104,
+          "instrument": "GLDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 104,
+          "stop_not_on_tick_grid": 104,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 112,
+          "instrument": "IMOEXF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 112,
+          "stop_not_on_tick_grid": 112,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 108,
+          "instrument": "USDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 108,
+          "stop_not_on_tick_grid": 108,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 87,
+          "instrument": "CNYRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 87,
+          "stop_not_on_tick_grid": 87,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 90,
+          "instrument": "GLDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 90,
+          "stop_not_on_tick_grid": 90,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 114,
+          "instrument": "IMOEXF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 114,
+          "stop_not_on_tick_grid": 114,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 74,
+          "instrument": "USDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 74,
+          "stop_not_on_tick_grid": 74,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 90,
+          "instrument": "CNYRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 90,
+          "stop_not_on_tick_grid": 90,
+          "stop_on_grid": 0,
+          "year": "2026"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 102,
+          "instrument": "GLDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 102,
+          "stop_not_on_tick_grid": 102,
+          "stop_on_grid": 0,
+          "year": "2026"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 73,
+          "instrument": "IMOEXF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 73,
+          "stop_not_on_tick_grid": 73,
+          "stop_on_grid": 0,
+          "year": "2026"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 89,
+          "instrument": "USDRUBF",
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 89,
+          "stop_not_on_tick_grid": 89,
+          "stop_on_grid": 0,
+          "year": "2026"
+        }
+      ],
+      "total": [
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 1422,
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 1422,
+          "stop_not_on_tick_grid": 1422,
+          "stop_on_grid": 0
+        }
+      ],
+      "unique_instrument_timestamp_direction": 1422,
+      "year": [
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 73,
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 73,
+          "stop_not_on_tick_grid": 73,
+          "stop_on_grid": 0,
+          "year": "2022"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 227,
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 227,
+          "stop_not_on_tick_grid": 227,
+          "stop_on_grid": 0,
+          "year": "2023"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 403,
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 403,
+          "stop_not_on_tick_grid": 403,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 365,
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 365,
+          "stop_not_on_tick_grid": 365,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 354,
+          "lifecycle": "full_available_continuous",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 354,
+          "stop_not_on_tick_grid": 354,
+          "stop_on_grid": 0,
+          "year": "2026"
+        }
+      ]
+    },
+    "lifecycle_admitted_entries": {
+      "completed_trades": 418,
+      "instrument": [
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 48,
+          "instrument": "CNYRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 48,
+          "stop_not_on_tick_grid": 48,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 40,
+          "instrument": "GLDRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 40,
+          "stop_not_on_tick_grid": 40,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 26,
+          "instrument": "IMOEXF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 26,
+          "stop_not_on_tick_grid": 26,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 58,
+          "instrument": "USDRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 58,
+          "stop_not_on_tick_grid": 58,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 50,
+          "instrument": "CNYRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 50,
+          "stop_not_on_tick_grid": 50,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 41,
+          "instrument": "GLDRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 41,
+          "stop_not_on_tick_grid": 41,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 51,
+          "instrument": "IMOEXF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 51,
+          "stop_not_on_tick_grid": 51,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 44,
+          "instrument": "USDRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 44,
+          "stop_not_on_tick_grid": 44,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 14,
+          "instrument": "CNYRUBF",
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 14,
+          "stop_not_on_tick_grid": 14,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 21,
+          "instrument": "GLDRUBF",
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 21,
+          "stop_not_on_tick_grid": 21,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 15,
+          "instrument": "IMOEXF",
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 15,
+          "stop_not_on_tick_grid": 15,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 14,
+          "instrument": "USDRUBF",
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 14,
+          "stop_not_on_tick_grid": 14,
+          "stop_on_grid": 0
+        }
+      ],
+      "instrument_year": [
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 24,
+          "instrument": "CNYRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 24,
+          "stop_not_on_tick_grid": 24,
+          "stop_on_grid": 0,
+          "year": "2023"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 7,
+          "instrument": "GLDRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 7,
+          "stop_not_on_tick_grid": 7,
+          "stop_on_grid": 0,
+          "year": "2023"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 28,
+          "instrument": "USDRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 28,
+          "stop_not_on_tick_grid": 28,
+          "stop_on_grid": 0,
+          "year": "2023"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 24,
+          "instrument": "CNYRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 24,
+          "stop_not_on_tick_grid": 24,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 33,
+          "instrument": "GLDRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 33,
+          "stop_not_on_tick_grid": 33,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 26,
+          "instrument": "IMOEXF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 26,
+          "stop_not_on_tick_grid": 26,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 30,
+          "instrument": "USDRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 30,
+          "stop_not_on_tick_grid": 30,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 26,
+          "instrument": "CNYRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 26,
+          "stop_not_on_tick_grid": 26,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 21,
+          "instrument": "GLDRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 21,
+          "stop_not_on_tick_grid": 21,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 23,
+          "instrument": "IMOEXF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 23,
+          "stop_not_on_tick_grid": 23,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 21,
+          "instrument": "USDRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 21,
+          "stop_not_on_tick_grid": 21,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 24,
+          "instrument": "CNYRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 24,
+          "stop_not_on_tick_grid": 24,
+          "stop_on_grid": 0,
+          "year": "2026"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 20,
+          "instrument": "GLDRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 20,
+          "stop_not_on_tick_grid": 20,
+          "stop_on_grid": 0,
+          "year": "2026"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 28,
+          "instrument": "IMOEXF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 28,
+          "stop_not_on_tick_grid": 28,
+          "stop_on_grid": 0,
+          "year": "2026"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 23,
+          "instrument": "USDRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 23,
+          "stop_not_on_tick_grid": 23,
+          "stop_on_grid": 0,
+          "year": "2026"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 14,
+          "instrument": "CNYRUBF",
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 14,
+          "stop_not_on_tick_grid": 14,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 21,
+          "instrument": "GLDRUBF",
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 21,
+          "stop_not_on_tick_grid": 21,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 15,
+          "instrument": "IMOEXF",
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 15,
+          "stop_not_on_tick_grid": 15,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 14,
+          "instrument": "USDRUBF",
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 14,
+          "stop_not_on_tick_grid": 14,
+          "stop_on_grid": 0,
+          "year": "2024"
+        }
+      ],
+      "terminal_open_entries": 4,
+      "total": [
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 172,
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 172,
+          "stop_not_on_tick_grid": 172,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 186,
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 186,
+          "stop_not_on_tick_grid": 186,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 64,
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 64,
+          "stop_not_on_tick_grid": 64,
+          "stop_on_grid": 0
+        }
+      ],
+      "unique_instrument_timestamp_direction": 362,
+      "year": [
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 59,
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 59,
+          "stop_not_on_tick_grid": 59,
+          "stop_on_grid": 0,
+          "year": "2023"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 113,
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 113,
+          "stop_not_on_tick_grid": 113,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 91,
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 91,
+          "stop_not_on_tick_grid": 91,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 95,
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 95,
+          "stop_not_on_tick_grid": 95,
+          "stop_on_grid": 0,
+          "year": "2026"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 64,
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 64,
+          "stop_not_on_tick_grid": 64,
+          "stop_on_grid": 0,
+          "year": "2024"
+        }
+      ]
+    },
+    "lifecycle_raw_signals": {
+      "instrument": [
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 145,
+          "instrument": "CNYRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 145,
+          "stop_not_on_tick_grid": 145,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 129,
+          "instrument": "GLDRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 129,
+          "stop_not_on_tick_grid": 129,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 112,
+          "instrument": "IMOEXF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 112,
+          "stop_not_on_tick_grid": 112,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 219,
+          "instrument": "USDRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 219,
+          "stop_not_on_tick_grid": 219,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 158,
+          "instrument": "CNYRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 158,
+          "stop_not_on_tick_grid": 158,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 187,
+          "instrument": "GLDRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 187,
+          "stop_not_on_tick_grid": 187,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 172,
+          "instrument": "IMOEXF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 172,
+          "stop_not_on_tick_grid": 172,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 148,
+          "instrument": "USDRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 148,
+          "stop_not_on_tick_grid": 148,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 57,
+          "instrument": "CNYRUBF",
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 57,
+          "stop_not_on_tick_grid": 57,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 53,
+          "instrument": "GLDRUBF",
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 53,
+          "stop_not_on_tick_grid": 53,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 60,
+          "instrument": "IMOEXF",
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 60,
+          "stop_not_on_tick_grid": 60,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 56,
+          "instrument": "USDRUBF",
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 56,
+          "stop_not_on_tick_grid": 56,
+          "stop_on_grid": 0
+        }
+      ],
+      "instrument_year": [
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 66,
+          "instrument": "CNYRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 66,
+          "stop_not_on_tick_grid": 66,
+          "stop_on_grid": 0,
+          "year": "2023"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 25,
+          "instrument": "GLDRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 25,
+          "stop_not_on_tick_grid": 25,
+          "stop_on_grid": 0,
+          "year": "2023"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 111,
+          "instrument": "USDRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 111,
+          "stop_not_on_tick_grid": 111,
+          "stop_on_grid": 0,
+          "year": "2023"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 79,
+          "instrument": "CNYRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 79,
+          "stop_not_on_tick_grid": 79,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 104,
+          "instrument": "GLDRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 104,
+          "stop_not_on_tick_grid": 104,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 112,
+          "instrument": "IMOEXF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 112,
+          "stop_not_on_tick_grid": 112,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 108,
+          "instrument": "USDRUBF",
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 108,
+          "stop_not_on_tick_grid": 108,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 68,
+          "instrument": "CNYRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 68,
+          "stop_not_on_tick_grid": 68,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 85,
+          "instrument": "GLDRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 85,
+          "stop_not_on_tick_grid": 85,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 99,
+          "instrument": "IMOEXF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 99,
+          "stop_not_on_tick_grid": 99,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 59,
+          "instrument": "USDRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 59,
+          "stop_not_on_tick_grid": 59,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 90,
+          "instrument": "CNYRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 90,
+          "stop_not_on_tick_grid": 90,
+          "stop_on_grid": 0,
+          "year": "2026"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 102,
+          "instrument": "GLDRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 102,
+          "stop_not_on_tick_grid": 102,
+          "stop_on_grid": 0,
+          "year": "2026"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 73,
+          "instrument": "IMOEXF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 73,
+          "stop_not_on_tick_grid": 73,
+          "stop_on_grid": 0,
+          "year": "2026"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 89,
+          "instrument": "USDRUBF",
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 89,
+          "stop_not_on_tick_grid": 89,
+          "stop_on_grid": 0,
+          "year": "2026"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 57,
+          "instrument": "CNYRUBF",
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 57,
+          "stop_not_on_tick_grid": 57,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 53,
+          "instrument": "GLDRUBF",
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 53,
+          "stop_not_on_tick_grid": 53,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 60,
+          "instrument": "IMOEXF",
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 60,
+          "stop_not_on_tick_grid": 60,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 56,
+          "instrument": "USDRUBF",
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 56,
+          "stop_not_on_tick_grid": 56,
+          "stop_on_grid": 0,
+          "year": "2024"
+        }
+      ],
+      "total": [
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 605,
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 605,
+          "stop_not_on_tick_grid": 605,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 665,
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 665,
+          "stop_not_on_tick_grid": 665,
+          "stop_on_grid": 0
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 226,
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 226,
+          "stop_not_on_tick_grid": 226,
+          "stop_on_grid": 0
+        }
+      ],
+      "unique_instrument_timestamp_direction": 1270,
+      "year": [
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 202,
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 202,
+          "stop_not_on_tick_grid": 202,
+          "stop_on_grid": 0,
+          "year": "2023"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 403,
+          "lifecycle": "baseline",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 403,
+          "stop_not_on_tick_grid": 403,
+          "stop_on_grid": 0,
+          "year": "2024"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 311,
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 311,
+          "stop_not_on_tick_grid": 311,
+          "stop_on_grid": 0,
+          "year": "2025"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 354,
+          "lifecycle": "historical_true_oos",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 354,
+          "stop_not_on_tick_grid": 354,
+          "stop_on_grid": 0,
+          "year": "2026"
+        },
+        {
+          "distance_on_grid": 0,
+          "entry_on_grid": 226,
+          "lifecycle": "walk_forward",
+          "near_grid_within_1e_10_ticks": 0,
+          "off_grid_percent": 100.0,
+          "signals": 226,
+          "stop_not_on_tick_grid": 226,
+          "stop_on_grid": 0,
+          "year": "2024"
+        }
+      ]
+    }
+  },
+  "trail1_grid_diagnostic": {
+    "completed_trades": 418,
+    "off_grid_stored_trigger_candidates": 260,
+    "stored_trigger_candidates": 260
+  }
+}

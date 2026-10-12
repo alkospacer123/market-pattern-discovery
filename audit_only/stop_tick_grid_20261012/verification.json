@@ -1,0 +1,77 @@
+{
+  "PRODUCTION_CHANGES": "NONE",
+  "artifact_sha256": {
+    "audit_only/stop_tick_grid_20261012/README.md": "42daec41d048af6925b2af22bf0013f586afdae34048cf48703c67873656f3f9",
+    "audit_only/stop_tick_grid_20261012/REPORT_RU.md": "61d226e2e16a0acc4610aa10b1bc87fd37d85d40ae759e0e7dd663acdadc8aa7",
+    "audit_only/stop_tick_grid_20261012/audit.py": "f07405bec9e30189b270897bd58c025bd07ed344124cc29eec3dc85d69a50c29",
+    "audit_only/stop_tick_grid_20261012/authority_reconciliation.csv": "fb0277cf35040d117ed7f417aa1124a0e089158a079d061373ee29ffdc9debc7",
+    "audit_only/stop_tick_grid_20261012/full_available_admitted_entries.csv": "ba184d0a3835e8d646c8524c4879f80623d106b69addbf7c59c1b380217d79bb",
+    "audit_only/stop_tick_grid_20261012/full_available_raw_signals.csv": "42d7e6aacb2ea28f172d9869ecb5ea66f886e32a854f81f4ea242265a8d3fb82",
+    "audit_only/stop_tick_grid_20261012/lifecycle_admitted_entries.csv": "a9060058fb1cfc297d84945a473ef3f9bf9fc7af572630563aacf54d35d4598f",
+    "audit_only/stop_tick_grid_20261012/lifecycle_raw_signals.csv": "a9bb41f8ef56f8985c68af4278aebbc6c901fc4c2f78e20788dff5a38d4faef9",
+    "audit_only/stop_tick_grid_20261012/outward_rounding_math_only.csv": "79128396b73c61372e47ccb8b1f9d1553ccdef9f6ba92dbc1927b3a3e7beea3e",
+    "audit_only/stop_tick_grid_20261012/production_reconciliation.csv": "fb0277cf35040d117ed7f417aa1124a0e089158a079d061373ee29ffdc9debc7",
+    "audit_only/stop_tick_grid_20261012/results.json": "c358e7b85090aa8d1333337f7e2cfbe216b5ac93cd86e7e94e143c35c4c3e006",
+    "audit_only/stop_tick_grid_20261012/run_existing_tests.py": "f7887516f8e7d5e23d57efd92701279e4c3d2b2d61e404a73d54b1ea63bea5d2",
+    "audit_only/stop_tick_grid_20261012/runtime_matrix.csv": "f95e77d62fc725c624e45da7079e85d216e3d7c299fc55a852f465b2739a7821",
+    "audit_only/stop_tick_grid_20261012/supplemental.py": "64a16a4b963a25505383d30a647435255a1b72f97af5ae2f0c68f8314fca388e",
+    "audit_only/stop_tick_grid_20261012/supplemental_results.json": "5a134da55e4f3859a9a87fc3fe9a5e35689de1b2d51740729928b289a0ab6fa6"
+  },
+  "branch": "audit/stop-tick-grid-20261012",
+  "checked_at_moscow": "2026-10-12T15:23:13.411427+03:00",
+  "diagnostic_log_sha256": {
+    "audit": "a8f1b77ba2b4c8847f102ebfcbc97d9dc4667962bd1273613de43286adbb8413",
+    "existing_tests": "15248ba1c0bed5ee251b03594d5ff60eec66b8cb31c7f0c5d419fb1c6a6fb428",
+    "supplemental": "bea134bd53b0aea410a6043141ac61a8b342603cda6373ee2ed4644a955d0dd6"
+  },
+  "existing_tracked_file_diff_from_base": [],
+  "frozen_stage7_tree": {
+    "184e8c2b8fa092a606249ff293a4f507160bff29": "c4f9f8f5dcbac7acc5707eb075b5cd27aceac790",
+    "688560ec2e8a71c1085bec255a9660783b51e122": "c4f9f8f5dcbac7acc5707eb075b5cd27aceac790"
+  },
+  "github_main_before_commit": "688560ec2e8a71c1085bec255a9660783b51e122",
+  "github_main_start": "688560ec2e8a71c1085bec255a9660783b51e122",
+  "new_files_checked_absent_from_base": [
+    "audit_only/stop_tick_grid_20261012/README.md",
+    "audit_only/stop_tick_grid_20261012/REPORT_RU.md",
+    "audit_only/stop_tick_grid_20261012/audit.py",
+    "audit_only/stop_tick_grid_20261012/authority_reconciliation.csv",
+    "audit_only/stop_tick_grid_20261012/full_available_admitted_entries.csv",
+    "audit_only/stop_tick_grid_20261012/full_available_raw_signals.csv",
+    "audit_only/stop_tick_grid_20261012/lifecycle_admitted_entries.csv",
+    "audit_only/stop_tick_grid_20261012/lifecycle_raw_signals.csv",
+    "audit_only/stop_tick_grid_20261012/outward_rounding_math_only.csv",
+    "audit_only/stop_tick_grid_20261012/production_reconciliation.csv",
+    "audit_only/stop_tick_grid_20261012/results.json",
+    "audit_only/stop_tick_grid_20261012/run_existing_tests.py",
+    "audit_only/stop_tick_grid_20261012/runtime_matrix.csv",
+    "audit_only/stop_tick_grid_20261012/supplemental.py",
+    "audit_only/stop_tick_grid_20261012/supplemental_results.json"
+  ],
+  "original_checkouts": {
+    "/workspace/market-pattern-data": {
+      "head": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+      "status": ""
+    },
+    "/workspace/market-pattern-discovery": {
+      "head": "7927d3d6b465ec1bceae51ec8121def5e7c7e191",
+      "status": ""
+    },
+    "/workspace/work/stop-tick-frozen-data": {
+      "head": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+      "status": ""
+    }
+  },
+  "production_host_access": "NONE; audit does not attest third-party changes on the live host",
+  "production_sha": "184e8c2b8fa092a606249ff293a4f507160bff29",
+  "production_to_main_executable_registry_strategy_results_diff": [],
+  "real_broker_operations": 0,
+  "test_summary": {
+    "named_test": "test_off_grid_frozen_stop_cleanly_blocks_only_that_entry: PASS",
+    "network_connections_forbidden": true,
+    "passed": 263,
+    "skip_reason": "Windows enforces active SQLite file handles",
+    "skipped": 1,
+    "subtests_passed": 17
+  }
+}
