@@ -338,3 +338,140 @@ def test_corrupt_terminal_fill_not_silently_archived_as_valid_ledger(external_sn
     with pytest.raises(release.ReleaseBlocked,match='FILL_LEDGER_VALUE'):
         prepare(external_snapshot)
     assert not (root/'prepared').exists()
+
+
+def path_guard_boundary(role,path,tmp_path):
+    if role=='snapshot':
+        return release.snapshot_rows(path,'0'*64)
+    if role=='output':
+        return release.safe_external(path,must_exist=False)
+    return release.validate_manifest(path,'0'*64,runtime_root=tmp_path/'candidate-root',
+        data_root=tmp_path/'data',account_hash='0'*64,accepted_commit='0'*40)
+
+
+def forbid_path_content_io(monkeypatch):
+    def forbidden(*a,**k):raise AssertionError('PATH_GUARD_MUST_REFUSE_BEFORE_CONTENT_IO')
+    monkeypatch.setattr(release,'sha',forbidden)
+    monkeypatch.setattr(release.sqlite3,'connect',forbidden)
+
+
+@pytest.mark.parametrize('role',['snapshot','output','manifest'])
+@pytest.mark.parametrize('location',['leaf','parent','ancestor'])
+def test_path_guard_windows_reparse_attributes_before_resolve(tmp_path,monkeypatch,role,location):
+    from types import SimpleNamespace
+    parent=tmp_path/'external-alias'/'nested';parent.mkdir(parents=True)
+    path=parent/('new-directory' if role=='output' else role+'.bin')
+    if role=='output':path.mkdir()
+    else:path.write_bytes(b'synthetic, never opened')
+    flagged={'leaf':path,'parent':parent,'ancestor':parent.parent}[location]
+    original=Path.lstat
+    def metadata(item,*a,**k):
+        if item==flagged:
+            return SimpleNamespace(st_file_attributes=0x400,st_reparse_tag=0xA0000003)
+        return original(item,*a,**k)
+    monkeypatch.setattr(Path,'lstat',metadata)
+    monkeypatch.setattr(Path,'is_symlink',lambda p:False)  # Windows mount-point junction is not a symlink.
+    original_resolve=Path.resolve
+    def resolve(item,*a,**k):
+        if item==path:raise AssertionError('REPARSE_MUST_BE_REJECTED_BEFORE_RESOLVE')
+        return original_resolve(item,*a,**k)
+    monkeypatch.setattr(Path,'resolve',resolve)
+    forbid_path_content_io(monkeypatch)
+    with pytest.raises(release.ReleaseBlocked,match='REPARSE'):
+        path_guard_boundary(role,path,tmp_path)
+
+
+@pytest.mark.parametrize('role',['snapshot','output','manifest'])
+@pytest.mark.parametrize('destination',['LIVE','runtime','repository'])
+def test_path_guard_rechecks_resolved_absolute_target(tmp_path,monkeypatch,role,destination):
+    alias=tmp_path/('new-output' if role=='output' else role+'.bin')
+    if role!='output':alias.write_bytes(b'synthetic')
+    resolved=(release.CODE_ROOT/'elsewhere.bin') if destination=='repository' else tmp_path/destination/'nested'/'target.bin'
+    original=Path.resolve
+    def resolve(item,*a,**k):return resolved if item==alias else original(item,*a,**k)
+    monkeypatch.setattr(Path,'resolve',resolve)
+    forbid_path_content_io(monkeypatch)
+    with pytest.raises(release.ReleaseBlocked,match='LIVE_PATH|REPOSITORY'):
+        path_guard_boundary(role,alias,tmp_path)
+
+
+@pytest.mark.parametrize('role',['snapshot','output','manifest'])
+@pytest.mark.parametrize('kind',['reparse','symlink'])
+def test_path_guard_rechecks_all_resolved_parent_aliases(tmp_path,monkeypatch,role,kind):
+    from types import SimpleNamespace
+    alias=tmp_path/('new-output' if role=='output' else role+'.bin')
+    if role!='output':alias.write_bytes(b'synthetic')
+    resolved=tmp_path/'resolved-alias'/'nested'/'target.bin';resolved.parent.mkdir(parents=True)
+    flagged=resolved.parent.parent
+    original_resolve=Path.resolve;original_stat=Path.lstat;original_symlink=Path.is_symlink
+    monkeypatch.setattr(Path,'resolve',lambda p,*a,**k:resolved if p==alias else original_resolve(p,*a,**k))
+    monkeypatch.setattr(Path,'lstat',lambda p,*a,**k:SimpleNamespace(st_file_attributes=0x400,st_mode=original_stat(p).st_mode) if p==flagged and kind=='reparse' else original_stat(p,*a,**k))
+    monkeypatch.setattr(Path,'is_symlink',lambda p:p==flagged if kind=='symlink' else original_symlink(p))
+    forbid_path_content_io(monkeypatch)
+    with pytest.raises(release.ReleaseBlocked,match='REPARSE|SYMLINK'):
+        path_guard_boundary(role,alias,tmp_path)
+
+
+@pytest.mark.parametrize('role',['snapshot','output','manifest'])
+@pytest.mark.parametrize('root_name',['LIVE','runtime'])
+def test_path_guard_relative_path_in_forbidden_absolute_cwd(tmp_path,monkeypatch,role,root_name):
+    cwd=tmp_path/root_name/'nested';cwd.mkdir(parents=True)
+    monkeypatch.chdir(cwd)
+    forbid_path_content_io(monkeypatch)
+    with pytest.raises(release.ReleaseBlocked,match='LIVE_PATH'):
+        path_guard_boundary(role,Path('external.bin'),tmp_path)
+
+
+def test_path_guard_metadata_read_failure_is_fail_closed(tmp_path,monkeypatch):
+    path=tmp_path/'new-output';original=Path.lstat
+    def metadata(item,*a,**k):
+        if item==tmp_path:raise PermissionError('synthetic inaccessible parent')
+        return original(item,*a,**k)
+    monkeypatch.setattr(Path,'lstat',metadata)
+    with pytest.raises(release.ReleaseBlocked,match='PATH_METADATA_UNVERIFIED'):
+        release.safe_external(path,must_exist=False)
+
+
+def test_path_guard_windows_missing_reparse_authority_is_fail_closed(tmp_path,monkeypatch):
+    from types import SimpleNamespace
+    # Only the release module's platform observation is replaced; pathlib/pytest
+    # retain the native platform. No Windows filesystem claim is made here.
+    monkeypatch.setattr(release,'os',SimpleNamespace(name='nt'),raising=False)
+    monkeypatch.setattr(Path,'lstat',lambda *a,**k:SimpleNamespace(st_mode=0))
+    monkeypatch.setattr(Path,'is_symlink',lambda p:False)
+    with pytest.raises(release.ReleaseBlocked,match='WINDOWS_REPARSE_AUTHORITY_UNAVAILABLE'):
+        release.safe_external(tmp_path/'new-output',must_exist=False)
+
+
+def test_path_guard_non_reparse_windows_attributes_do_not_reject_external_output(tmp_path,monkeypatch):
+    from types import SimpleNamespace
+    original=Path.lstat
+    def metadata(item,*a,**k):
+        value=original(item,*a,**k)
+        return SimpleNamespace(st_file_attributes=0x20,st_mode=value.st_mode)
+    monkeypatch.setattr(Path,'lstat',metadata)
+    path=tmp_path/'new-output'
+    assert release.safe_external(path,must_exist=False)==path.resolve()
+
+
+@pytest.mark.skipif(__import__('os').name!='nt',reason='Native Windows junction integration only')
+@pytest.mark.parametrize('role',['snapshot','output','manifest'])
+@pytest.mark.parametrize('target_name',['LIVE','runtime'])
+def test_path_guard_native_windows_junction_to_synthetic_live(tmp_path,monkeypatch,role,target_name):
+    import os,subprocess
+    # These are fresh test directories only, never an Intel/LIVE path.
+    target=tmp_path/target_name/'fixture';target.mkdir(parents=True)
+    leaf='future-output' if role=='output' else role+'.bin'
+    if role!='output':(target/leaf).write_bytes(b'synthetic, never opened')
+    junction=tmp_path/'external-junction'
+    result=subprocess.run(['cmd','/c','mklink','/J',str(junction),str(target)],
+        stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
+    assert result.returncode==0,result.stdout
+    try:
+        assert not junction.is_symlink()
+        forbid_path_content_io(monkeypatch)
+        with pytest.raises(release.ReleaseBlocked,match='REPARSE'):
+            path_guard_boundary(role,junction/leaf,tmp_path)
+        assert not (target/'future-output').exists()
+    finally:
+        os.rmdir(junction)  # Remove the junction itself, never traverse its target.

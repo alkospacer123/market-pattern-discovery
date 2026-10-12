@@ -2,9 +2,11 @@
 from __future__ import annotations
 import hashlib
 import json
+import os
 import re
 import shutil
 import sqlite3
+import stat
 import subprocess
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -69,18 +71,34 @@ def checkout_commit():
     return subprocess.check_output(['git','rev-parse','HEAD'],cwd=CODE_ROOT,text=True).strip()
 
 
-def safe_external(path, *, snapshot=False, must_exist=True):
-    """Reject canonical LIVE names/roots/symlink aliases before any SQLite open."""
-    path=Path(path)
+def _check_external_path(path):
+    """Check the absolute path and every ancestor without following aliases."""
+    if not path.is_absolute():raise ReleaseBlocked('ABSOLUTE_EXTERNAL_PATH_REQUIRED')
     raw_parts={part.casefold() for part in PureWindowsPath(str(path)).parts} | {part.casefold() for part in path.parts}
     if raw_parts & {'live','runtime','state','tradingsystemlab'} or path.name.casefold() in {
             'stage8-12-production.sqlite3','stage8-11-acceptance.sqlite3','readonly-supervisor.sqlite3'}:
         raise ReleaseBlocked('LIVE_PATH_FORBIDDEN')
     for item in (path,*path.parents):
-        if item.is_symlink():raise ReleaseBlocked('SYMLINK_PATH_FORBIDDEN')
-    path=path.resolve()
+        try:
+            if item.is_symlink():raise ReleaseBlocked('SYMLINK_PATH_FORBIDDEN')
+            metadata=item.lstat()
+        except FileNotFoundError:continue  # A new output may have missing components.
+        except OSError as exc:raise ReleaseBlocked('PATH_METADATA_UNVERIFIED') from exc
+        attributes=getattr(metadata,'st_file_attributes',None)
+        if attributes is None and os.name=='nt':
+            raise ReleaseBlocked('WINDOWS_REPARSE_AUTHORITY_UNAVAILABLE')
+        if attributes is not None and attributes & stat.FILE_ATTRIBUTE_REPARSE_POINT:
+            raise ReleaseBlocked('REPARSE_PATH_FORBIDDEN')
     if path==CODE_ROOT or CODE_ROOT in path.parents:
         raise ReleaseBlocked('REPOSITORY_OUTPUT_OR_SNAPSHOT_FORBIDDEN')
+
+
+def safe_external(path, *, snapshot=False, must_exist=True):
+    """Reject LIVE roots and symlink/junction/reparse aliases before content IO."""
+    path=Path(path).absolute()
+    _check_external_path(path)
+    path=path.resolve()
+    _check_external_path(path)
     if must_exist and not path.is_file():raise ReleaseBlocked('EXTERNAL_FILE_REQUIRED')
     if snapshot and path.exists() and path.stat().st_nlink!=1:
         raise ReleaseBlocked('HARDLINK_SNAPSHOT_FORBIDDEN')
