@@ -1,5 +1,20 @@
 # TradingSystemLab Stage 8.12 Production Runbook
 
+## Current operational authority — 2026-10-12, H1 timestamp-backfill fix LIVE restored under HALTED
+
+**AUTHORITATIVE LATEST STATE: HALTED / RUNNING / HEALTHY / RECONCILIATION PASS / NOT REARMED.** This supersedes earlier dated incident, shadow, readiness, and partially failed task-rollout snapshots below; those remain historical provenance, **not** current operational instructions.
+
+Intel operator executed approved fix rollout plus narrow Scheduled Task recovery. The exact active production checkout is **`184e8c2b8fa092a606249ff293a4f507160bff29`**, PR #484, **not latest docs-only GitHub main**. Frozen Stage5 data remains pinned `50f1fd2178c18b7ab3bd969be82ad01f47a34745`; old production source checkout `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129` retained as previous/rollback provenance, not active LIVE code.
+
+- Cutover regression tests **114 passed**; FINAM broker/SQLite safety precheck PASS; separate SQLite cutover backup SHA-256 `759ef278967b9781a79bd916e47bfe5823908b027dc98b48b05b198fa4482bd7`; exact new commit-bound production authorization successfully rolled over once; N4 immutable H1 prefix PASS.
+- First corrected production real-runtime guarded cycle **9213**: `HEALTHY`, reconciliation `PASS`. The initial Scheduled Task update failed due to Windows username/password validation; this is **resolved**, not a current blocker.
+- Subsequent narrow recovery script `stage8_12_h1_resume_task_binding_halted.ps1` operator result: `STAGE8_12_H1_TASK_RECOVERY=PASS`; exact Windows task action rebound with principal unchanged; task started successfully; new actual LIVE cycle **9214**, heartbeat `HEALTHY`, reconciliation `PASS`.
+- Latest recovery broker/SQLite precheck PASS, open positions `0`, unresolved intents `0` (and prior cutover active broker orders `0`); exact-commit task **`RUNNING`**; entry gate **`CLOSED_HALTED`**; kill switch **`HALTED`**, generation **`59`**; **`REARM=NOT_DONE`** and no new trade authorization implied by task recovery.
+- External Intel task-recovery evidence: `c:\tradingsystemlab\verification\h1-live-rollout-184e8c2-20261012\halted-task-recovery-pass.json`, SHA-256 `95d724dce03cedefd444de742d6f73fa3b6a0dbdecf0f8c6418e2149c8a0da43`. These physical facts come from the operator's PowerShell log; external report bytes and runtime are **not** stored in GitHub.
+
+**Next:** preserve running HALTED monitoring; do not repeat rollout, reissue authorization, change task bindings, edit SQLite, or `git pull` the production checkout. Re-arm to enable entries requires **separate explicit operator authorization** after an up-to-date safety check. No Stage7 strategy, T3/H1/TRAIL1, N4, R15/6% limits, risk sizing, research artifacts, or broker execution semantics changed.
+
+
 ## 2026-10-12 HALTED LIVE rollout readiness + backup — PASS (operator evidence)
 
 Operator-ran Intel backup-only gate after the 60/60 isolated H1 tests, 4/4 FINAM GET-only H1 checks, and 4/4 shadow production HEALTHY/PASS:

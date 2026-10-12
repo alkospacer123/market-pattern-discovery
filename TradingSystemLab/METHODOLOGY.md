@@ -1,5 +1,10 @@
 # Canonical research, production, and operational methodology
 
+## 2026-10-12 operational H1 backfill fix — LIVE restored HALTED (no methodology change)
+
+Operator evidence: corrected production code exactly `184e8c2b8fa092a606249ff293a4f507160bff29` (PR #484), 114 regression tests PASS, N4 immutable H1 PASS; real LIVE production cycles 9213 and **9214** `HEALTHY/PASS`. Existing Windows Scheduled Task action was recovered with principal unchanged and now `RUNNING` at exact commit; commit-bound authorization migrated. Kill switch `HALTED` generation 59, entries closed, re-arm not done. Evidence SHA-256 `95d724dce03cedefd444de742d6f73fa3b6a0dbdecf0f8c6418e2149c8a0da43`. Previous incident and stopped task snapshots below are historical. Frozen research phases, T3/H1/TRAIL1/N4/FULL/R15 strategy and 6% initial risk limit remain immutable.
+
+
 ## 2026-10-12 production-readiness evidence (no methodological change)
 
 Intel operator reports `READINESS_BACKUP=PASS` after corrected H1 shadow `HEALTHY/PASS`. Real broker positions/orders/unresolved intents `0/0/0`; kill switch `HALTED` generation 59; exact Stage5 and frozen T3/H1/TRAIL1/N4/R15 unchanged. Read-only online SQLite backup integrity PASS, external backup SHA-256 `6a8c2c7d1ef589ff0190b28624397962abb9583eccfa90bc4099a6f1681486fe`, external report SHA-256 `812ab73de05b896db7d4938b040d20bda49f8fc924a0e852a8c20de45516b644`. LIVE rollout/authorization migration/re-arm not done; LIVE heartbeat recovery unverified. This is an operational hold, not a new research phase or strategy change.

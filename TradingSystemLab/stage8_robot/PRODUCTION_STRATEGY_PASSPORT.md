@@ -1,5 +1,10 @@
 # TradingSystemLab — Frozen Stage 7 Production Strategy Passport
 
+## Latest operator-verified production status — 2026-10-12
+
+**HALTED / RUNNING / HEALTHY / PASS; NOT REARMED.** Active production fix commit `184e8c2b8fa092a606249ff293a4f507160bff29` (PR #484); exact-commit durable authorization and restored scheduled task running. Real LIVE cycle **9214**; `RECONCILIATION=PASS`; entries `CLOSED_HALTED`; kill switch `HALTED` generation **59**. Broker/SQLite recovery precheck PASS, 0 positions/0 unresolved intents; earlier cutover zero active orders. Report SHA-256 `95d724dce03cedefd444de742d6f73fa3b6a0dbdecf0f8c6418e2149c8a0da43`. The failed Windows task binding has been resolved, not a current fault. Stage5 commit, frozen strategy, N4/FULL-R15 risk/execution semantics unchanged. A separately authorized re-arm has **not** occurred.
+
+
 ## HALTED rollout readiness + external backup (2026-10-12)
 
 Intel operator `READINESS_BACKUP=PASS`: broker positions/orders/unresolved `0/0/0`; four N4 continuations; SQLite online backup integrity PASS; backup SHA-256 `6a8c2c7d1ef589ff0190b28624397962abb9583eccfa90bc4099a6f1681486fe`, report SHA-256 `812ab73de05b896db7d4938b040d20bda49f8fc924a0e852a8c20de45516b644`. Original LIVE checkout and authorization/task untouched; `HALTED` generation 59. No live rollout, authorization migration or re-arm; LIVE heartbeat not yet recovered.
