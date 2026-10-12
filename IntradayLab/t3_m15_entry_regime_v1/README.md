@@ -21,10 +21,10 @@ PYTHONDONTWRITEBYTECODE=1 python IntradayLab/t3_m15_entry_regime_v1/research.py 
 PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s IntradayLab/t3_m15_entry_regime_v1 -p 'test_*.py' -v
 PYTHONDONTWRITEBYTECODE=1 python IntradayLab/t3_m15_entry_regime_v1/research.py --data-root /workspace/market-pattern-data
 PYTHONDONTWRITEBYTECODE=1 python IntradayLab/t3_m15_entry_regime_v1/audit.py --data-root /workspace/market-pattern-data
-PYTHONDONTWRITEBYTECODE=1 python IntradayLab/t3_m15_entry_regime_v1/render_report.py
+MPLCONFIGDIR=IntradayLab/t3_m15_entry_regime_v1/work/mplconfig PYTHONDONTWRITEBYTECODE=1 python IntradayLab/t3_m15_entry_regime_v1/render_report.py
 PYTHONDONTWRITEBYTECODE=1 python IntradayLab/t3_m15_entry_regime_v1/verify_repeatability.py --data-root /workspace/market-pattern-data
 ```
 
-Для независимого повтора `research.py --output` направляется только внутрь нового каталога, в `work/`. Independent Audit — отдельная реализация рекурсивных признаков и последовательности событий на стандартной библиотеке; это независимость реализации тем же автором, **не независимый внешний аудитор**. [INDEPENDENT_AUDIT.md](INDEPENDENT_AUDIT.md), `AUDIT_RESULTS.json`, `REPEATABILITY.json`, `SCOPE_CHECK.json` и `ARTIFACT_SHA256.json` фиксируют границы и проверки. Каталог `work/` не входит в PR.
+Для запуска только unit-тестов на свежем checkout сначала выполнить `mkdir -p IntradayLab/t3_m15_entry_regime_v1/work`; контрольная команда выше также создаёт этот каталог. Для независимого повтора `research.py --output` направляется только внутрь нового каталога, в `work/`; два свежих каталога `repeat1` / `repeat2` должны отсутствовать до запуска verifier. Independent Audit — отдельная реализация рекурсивных признаков и последовательности событий на стандартной библиотеке; это независимость реализации тем же автором, **не независимый внешний аудитор**. [INDEPENDENT_AUDIT.md](INDEPENDENT_AUDIT.md), `AUDIT_RESULTS.json`, `REPEATABILITY.json`, `SCOPE_CHECK.json` и `ARTIFACT_SHA256.json` фиксируют границы и проверки. Каталог `work/` не входит в PR.
 
 2023–2024 уже исследованы и не являются новым независимым Walk Forward. OHLC 2025+ не читаются и не используются для выбора или проверки. Комбинации, подбор порогов, Optimization, новая Robustness/WF/TRUE OOS, работа с роботом и брокерскими endpoint не запускались. PF ≥2 — исследовательская цель, не PASS-критерий. Внешний аудит и решение пользователя остаются PENDING. Завершение: отдельный Draft PR без Merge и Auto-Merge, без автоматического следующего пакета.

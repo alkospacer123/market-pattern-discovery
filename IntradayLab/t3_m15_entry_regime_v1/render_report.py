@@ -86,6 +86,10 @@ def main():
     fig.colorbar(im,ax=axes[1],label='Bookkeeping R sum')
     fig.suptitle('GROSS ONLY / COSTS DEFERRED / NOT LIVE READY',fontsize=11)
     fig.tight_layout();fig.savefig(HERE/'gross_summary.svg',metadata={'Date':None});plt.close(fig)
+    # Matplotlib emits trailing spaces inside multiline SVG path data. Normalize
+    # presentation whitespace without changing the chart or its values.
+    svg = HERE/'gross_summary.svg'
+    svg.write_text('\n'.join(line.rstrip() for line in svg.read_text().splitlines())+'\n')
     text = ['# EXPERIMENT REPORT — T3/M15 Entry & Regime v1',
         '**GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY. Внешний аудит и решение пользователя: PENDING.**',
         'Выполнены семь фиксированных одиночных механизмов на BASELINE trailing 3.0 и OPTIMIZED trailing 3.5. Оптимизацию, комбинации и дополнительный подбор не выполняли. PF ≥2 — исследовательская цель, не критерий PASS. Полная таблица сохраняет отрицательные результаты.',
