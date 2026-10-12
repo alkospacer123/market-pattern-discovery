@@ -203,6 +203,12 @@ S1 повышает 2024 R 50.206→74.132 / 80.102→97.030 и PF 1.230→1.318
         'labels':['GROSS_ONLY','COSTS_DEFERRED','NOT_LIVE_READY'],
         'full_period':[{'version':r.version,'rule':r.rule,'gross_PF':r.gross_PF,'gross_R':r.gross_R,'closed':int(r.closed_trades),'open_terminal':int(r.open_terminal_positions)} for r in overall.itertuples()]}
     dump('OBJECTIVE_ASSESSMENT.json',objective)
+    # Matplotlib emits trailing spaces in SVG path coordinates. Canonicalize
+    # presentation bytes without changing the rendered geometry or table values.
+    for name in ('EXPERIMENT_REPORT.md','INSTRUMENT_DIRECTION_DETAIL.md','MONTHLY_DETAIL.md',
+                 'gross_pf.svg','monthly_gross_R.svg','control_s1_closed_R.svg'):
+        target=HERE/name
+        target.write_text('\n'.join(line.rstrip() for line in target.read_text().splitlines()).rstrip()+'\n')
     dump('PRESENTATION_SHA256.json',{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(HERE.iterdir()) if p.suffix in ('.md','.svg')})
     print(json.dumps({'presentation':'COMPLETE','objective':objective['status']},sort_keys=True))
 

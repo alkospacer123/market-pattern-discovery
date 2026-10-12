@@ -8,7 +8,7 @@
   "implementation_sha256": {
     "audit.py": "654a01b23863a8cd83e062dddcb7fdd9c6305985acc5e31ecae5e186aa1c2c72",
     "engine.py": "67e3c5e2c40b6e7ff098ee08665b9b64a700658c0fb31cb1dbf9ecc67357b3fb",
-    "render_report.py": "7b6301974ff6c167ebeeb5d0277bb71fd7a8736ea22c700b1d82e6be93e6354e",
+    "render_report.py": "042d728470ee6d922aab9ba8dd61781583ecbc117dfece8ba7562eae78e9bafe",
     "research.py": "8e9a043400f37e895161d2751a0f64abec6f77fc65e19d539b8e5d7710fd84f2",
     "test_research.py": "69c95bbd4e58401c2aeb0a8ac5bea031b86c20bd9b6ad18e1630c158af505e25",
     "verify_repeatability.py": "d301a23d38aac3a257d1c01ac18dd8b564077de451b261422a9049c6578a73aa"
