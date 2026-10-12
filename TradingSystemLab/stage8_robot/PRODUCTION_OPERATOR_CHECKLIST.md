@@ -1,5 +1,14 @@
 # Stage 8.12.4 — H1 timestamp backfill production operator checklist
 
+## Completed Intel backup gate — 2026-10-12
+
+- [x] `READINESS_BACKUP=PASS`, broker positions/orders/local unresolved intents `0/0/0`, N4 continuation keys `4`.
+- [x] SQLite read-only online backup integrity PASS; backup SHA-256 `6a8c2c7d1ef589ff0190b28624397962abb9583eccfa90bc4099a6f1681486fe`.
+- [x] External readiness report SHA-256 `812ab73de05b896db7d4938b040d20bda49f8fc924a0e852a8c20de45516b644`; old auth/task backups retained externally.
+- [x] Kill switch `HALTED` generation 59; active LIVE checkout, production SQLite, auth and task untouched.
+- [ ] Exact-commit HALTED LIVE deployment, authorized migration procedure, real-runtime `HEALTHY/PASS`, separate explicit re-arm permission.
+
+
 ## Newly accepted physical evidence — 2026-10-12
 
 - [x] Fix PR #484 isolated exact-code targeted tests: 60/60 PASS (full Stage 8 suite pending).

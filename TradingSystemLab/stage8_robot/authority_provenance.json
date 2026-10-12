@@ -983,7 +983,19 @@
       "live_checkout_changed": false,
       "live_authorization_changed": false,
       "live_database_changed_by_shadow": false,
-      "live_task_changed_by_shadow": false
+      "live_task_changed_by_shadow": false,
+      "live_rollout_readiness": "READINESS_BACKUP_PASS_NO_ROLLOUT",
+      "readiness_broker_positions": 0,
+      "readiness_broker_active_orders": 0,
+      "readiness_local_unresolved_intents": 0,
+      "readiness_n4_continuations": 4,
+      "readiness_sqlite_backup_integrity": "PASS",
+      "readiness_sqlite_backup_sha256": "6a8c2c7d1ef589ff0190b28624397962abb9583eccfa90bc4099a6f1681486fe",
+      "readiness_external_report_path": "verification/h1-live-rollout-readiness-backup-20261012/readiness-backup-report.json",
+      "readiness_external_report_sha256": "812ab73de05b896db7d4938b040d20bda49f8fc924a0e852a8c20de45516b644",
+      "readiness_kill_switch": "HALTED",
+      "readiness_kill_generation": 59,
+      "live_rollout": "NOT_STARTED"
     }
   }
 }

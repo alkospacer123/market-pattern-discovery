@@ -1,5 +1,18 @@
 # Evidence-based roadmap
 
+## 2026-10-12 HALTED LIVE rollout readiness + backup — PASS (operator evidence)
+
+Operator-ran Intel backup-only gate after the 60/60 isolated H1 tests, 4/4 FINAM GET-only H1 checks, and 4/4 shadow production HEALTHY/PASS:
+- `READINESS_BACKUP=PASS`, source LIVE SQLite backed up using read-only SQLite online backup; `SQLITE_BACKUP_INTEGRITY=PASS`; exactly four durable N4 H1 continuation keys.
+- Latest broker positions `0`, active broker orders `0`, local unresolved intents `0`; kill switch `HALTED`, generation `59`.
+- External SQLite backup SHA-256: `6a8c2c7d1ef589ff0190b28624397962abb9583eccfa90bc4099a6f1681486fe`.
+- External readiness report: `C:\TradingSystemLab\verification\h1-live-rollout-readiness-backup-20261012\readiness-backup-report.json`; SHA-256: `812ab73de05b896db7d4938b040d20bda49f8fc924a0e852a8c20de45516b644`.
+- The backup also preserved existing authorization and Scheduled Task definition externally. Existing production checkout `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`, authorization, production task `Running`, Stage5 source and LIVE SQLite remain unchanged. `ROLLOUT=NOT_STARTED`; `REARM=NOT_DONE`; LIVE `HEALTHY/PASS` has **not** been proven.
+- **Next operator boundary:** exact-commit controlled HALTED task/code/authorization migration, with old authorization kept immutable as evidence and no automatic re-arm. Requires separate explicit operator permission before altering the active task/authorization. Never `git pull` into active production checkout.
+
+The validation and backup evidence hashes are operator reported; actual external backup bytes remain on Intel. No frozen T3/H1/TRAIL1, N4, R15/6%, sizing, research or execution changes.
+
+
 ## 2026-10-12 validation update — shadow PASS; LIVE still HALTED
 
 Intel operator evidence for code fix PR #484 (commit `184e8c2b8fa092a606249ff293a4f507160bff29`), **not** a production deployment:
