@@ -290,3 +290,7 @@ values and DPAPI material remain outside Git.
 
 `CURRENT_STATE.md` and `ROADMAP.md` define the current operational handoff;
 `PROJECT_CONTEXT.md` preserves stable project context.
+
+## 19. Production H1 history liveness (operational safety clarification, 2026-10-12)
+
+Stage5 seed and persisted completed-H1 continuation form immutable accepted production authority. A later FINAM response is an observation, not retrospective permission to insert bars or revise accepted OHLC. Ignore FINAM-only historical timestamps `<= authority.max()`; append only `> authority.max()` with the **exact latest authority seam present** in the validated FINAM response. Missing seam, no overlap, duplicates or invalid order, corrupted continuation, and stale current completed H1 fail closed. This operational data-integrity clarification does not alter canonical research methodology, frozen T3 signal calculation, risk sizing or execution. PR #484 (code merge `184e8c2b8fa092a606249ff293a4f507160bff29`) remains unaccepted physically on Intel; kill switch HALTED after the 2026-10-12 incident and separate re-arm permission required.
