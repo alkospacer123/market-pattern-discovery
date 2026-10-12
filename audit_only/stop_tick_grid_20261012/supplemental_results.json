@@ -1,0 +1,563 @@
+{
+  "PRODUCTION_CHANGES": "NONE",
+  "causal_prefix_runtime_rejections_and_restart": [
+    {
+      "direction": "LONG",
+      "entry": "74.79",
+      "initial_stop": "74.21677104156213",
+      "instrument": "USDRUBF",
+      "prefix_only": true,
+      "runtime_action": {
+        "active_identity": "TRAIL1__N4_01__FULL__R15",
+        "direction": "LONG",
+        "expected_position_quantity": 0,
+        "finam_symbol": "USDRUBF@RTSX",
+        "idempotency_key": null,
+        "instrument": "USDRUBF",
+        "kind": "SKIP_STOP_NOT_ON_TICK_GRID",
+        "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+        "quantity": 0,
+        "reason": "STOP_NOT_ON_TICK_GRID",
+        "reference_price": "74.79",
+        "runtime_schema": "stage8_12_production_runtime.v1",
+        "signal_id": "34ad7f4da28b8ec1c527c5fa9bdaed4354c805e529db01937c19acadf55fa20f",
+        "stop_price": "74.21677104156213",
+        "trade_id": "39e2d9b5455fd7fe2dc6323423cc9eaf835b45a1569612081a9dcc979cdff271"
+      },
+      "same_bar_after_restart": "NO_SIGNAL",
+      "signal_id": "34ad7f4da28b8ec1c527c5fa9bdaed4354c805e529db01937c19acadf55fa20f",
+      "status": "PASS",
+      "stop_ticks": "57.322895843787",
+      "timestamp": "2023-02-20T23:00:00+03:00"
+    },
+    {
+      "direction": "SHORT",
+      "entry": "78.51",
+      "initial_stop": "79.14284105047284",
+      "instrument": "USDRUBF",
+      "prefix_only": true,
+      "runtime_action": {
+        "active_identity": "TRAIL1__N4_01__FULL__R15",
+        "direction": "SHORT",
+        "expected_position_quantity": 0,
+        "finam_symbol": "USDRUBF@RTSX",
+        "idempotency_key": null,
+        "instrument": "USDRUBF",
+        "kind": "SKIP_STOP_NOT_ON_TICK_GRID",
+        "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+        "quantity": 0,
+        "reason": "STOP_NOT_ON_TICK_GRID",
+        "reference_price": "78.51",
+        "runtime_schema": "stage8_12_production_runtime.v1",
+        "signal_id": "d86b152b7d3ddad3bff9660357329f5defa866fb8fb50984c00ea2b6c4136d32",
+        "stop_price": "79.14284105047284",
+        "trade_id": "1c8ac0dc8d1742d4d39ba9f8597ff23e47d9dcf55a564a8b0d7c3a847ab1c75e"
+      },
+      "same_bar_after_restart": "NO_SIGNAL",
+      "signal_id": "d86b152b7d3ddad3bff9660357329f5defa866fb8fb50984c00ea2b6c4136d32",
+      "status": "PASS",
+      "stop_ticks": "63.284105047284",
+      "timestamp": "2023-05-04T12:00:00+03:00"
+    },
+    {
+      "direction": "LONG",
+      "entry": "10.91",
+      "initial_stop": "10.82355433854263",
+      "instrument": "CNYRUBF",
+      "prefix_only": true,
+      "runtime_action": {
+        "active_identity": "TRAIL1__N4_01__FULL__R15",
+        "direction": "LONG",
+        "expected_position_quantity": 0,
+        "finam_symbol": "CNYRUBF@RTSX",
+        "idempotency_key": null,
+        "instrument": "CNYRUBF",
+        "kind": "SKIP_STOP_NOT_ON_TICK_GRID",
+        "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+        "quantity": 0,
+        "reason": "STOP_NOT_ON_TICK_GRID",
+        "reference_price": "10.91",
+        "runtime_schema": "stage8_12_production_runtime.v1",
+        "signal_id": "6012aa1327ede06969c7e03bfeb9f7ef052a8067b0929fe960e1a3f2cafd36b2",
+        "stop_price": "10.82355433854263",
+        "trade_id": "893e95717246f0f189ca0f7f3a21589cd78e20bd8a1053c10ff5e0b64468134e"
+      },
+      "same_bar_after_restart": "NO_SIGNAL",
+      "signal_id": "6012aa1327ede06969c7e03bfeb9f7ef052a8067b0929fe960e1a3f2cafd36b2",
+      "status": "PASS",
+      "stop_ticks": "86.44566145737",
+      "timestamp": "2023-02-22T19:00:00+03:00"
+    },
+    {
+      "direction": "SHORT",
+      "entry": "11.37",
+      "initial_stop": "11.459005598784728",
+      "instrument": "CNYRUBF",
+      "prefix_only": true,
+      "runtime_action": {
+        "active_identity": "TRAIL1__N4_01__FULL__R15",
+        "direction": "SHORT",
+        "expected_position_quantity": 0,
+        "finam_symbol": "CNYRUBF@RTSX",
+        "idempotency_key": null,
+        "instrument": "CNYRUBF",
+        "kind": "SKIP_STOP_NOT_ON_TICK_GRID",
+        "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+        "quantity": 0,
+        "reason": "STOP_NOT_ON_TICK_GRID",
+        "reference_price": "11.37",
+        "runtime_schema": "stage8_12_production_runtime.v1",
+        "signal_id": "6002023cd750b0ce2d796192bc95100db73e4091b6a4441ee3d4b04f455c67ab",
+        "stop_price": "11.459005598784728",
+        "trade_id": "001fd39b533e3a89d4bf63050cba8c5af724097d642b0a6f0845503290e1ce5a"
+      },
+      "same_bar_after_restart": "NO_SIGNAL",
+      "signal_id": "6002023cd750b0ce2d796192bc95100db73e4091b6a4441ee3d4b04f455c67ab",
+      "status": "PASS",
+      "stop_ticks": "89.005598784728",
+      "timestamp": "2023-05-04T12:00:00+03:00"
+    },
+    {
+      "direction": "LONG",
+      "entry": "5975.0",
+      "initial_stop": "5912.877197749813",
+      "instrument": "GLDRUBF",
+      "prefix_only": true,
+      "runtime_action": {
+        "active_identity": "TRAIL1__N4_01__FULL__R15",
+        "direction": "LONG",
+        "expected_position_quantity": 0,
+        "finam_symbol": "GLDRUBF@RTSX",
+        "idempotency_key": null,
+        "instrument": "GLDRUBF",
+        "kind": "SKIP_STOP_NOT_ON_TICK_GRID",
+        "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+        "quantity": 0,
+        "reason": "STOP_NOT_ON_TICK_GRID",
+        "reference_price": "5975.0",
+        "runtime_schema": "stage8_12_production_runtime.v1",
+        "signal_id": "679e9845d44cd118b42c15614734622e3863ccca3493c1668f9d7d5c7d91ec66",
+        "stop_price": "5912.877197749813",
+        "trade_id": "8a46907a9feab9091694304f2e02f93918c262e14f0032dd4104fecdf9dd467e"
+      },
+      "same_bar_after_restart": "NO_SIGNAL",
+      "signal_id": "679e9845d44cd118b42c15614734622e3863ccca3493c1668f9d7d5c7d91ec66",
+      "status": "PASS",
+      "stop_ticks": "621.22802250187",
+      "timestamp": "2023-09-15T15:00:00+03:00"
+    },
+    {
+      "direction": "SHORT",
+      "entry": "5524.1",
+      "initial_stop": "5563.326520259504",
+      "instrument": "GLDRUBF",
+      "prefix_only": true,
+      "runtime_action": {
+        "active_identity": "TRAIL1__N4_01__FULL__R15",
+        "direction": "SHORT",
+        "expected_position_quantity": 0,
+        "finam_symbol": "GLDRUBF@RTSX",
+        "idempotency_key": null,
+        "instrument": "GLDRUBF",
+        "kind": "SKIP_STOP_NOT_ON_TICK_GRID",
+        "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+        "quantity": 0,
+        "reason": "STOP_NOT_ON_TICK_GRID",
+        "reference_price": "5524.1",
+        "runtime_schema": "stage8_12_production_runtime.v1",
+        "signal_id": "c3c262a3b7c8e3901847ac535ce0a06922adc319860d122ef03c9eac3ca21c97",
+        "stop_price": "5563.326520259504",
+        "trade_id": "3f82c8c0819143d8f707a3ceb1e1e223a9d2eb84cdef7ca4799774b102ffd55f"
+      },
+      "same_bar_after_restart": "NO_SIGNAL",
+      "signal_id": "c3c262a3b7c8e3901847ac535ce0a06922adc319860d122ef03c9eac3ca21c97",
+      "status": "PASS",
+      "stop_ticks": "392.26520259504",
+      "timestamp": "2023-11-20T12:00:00+03:00"
+    },
+    {
+      "direction": "LONG",
+      "entry": "3163.5",
+      "initial_stop": "3149.1203787843365",
+      "instrument": "IMOEXF",
+      "prefix_only": true,
+      "runtime_action": {
+        "active_identity": "TRAIL1__N4_01__FULL__R15",
+        "direction": "LONG",
+        "expected_position_quantity": 0,
+        "finam_symbol": "IMOEXF@RTSX",
+        "idempotency_key": null,
+        "instrument": "IMOEXF",
+        "kind": "SKIP_STOP_NOT_ON_TICK_GRID",
+        "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+        "quantity": 0,
+        "reason": "STOP_NOT_ON_TICK_GRID",
+        "reference_price": "3163.5",
+        "runtime_schema": "stage8_12_production_runtime.v1",
+        "signal_id": "bb881546e54f944070cb851d0313a833dc914330eb7d4c9960d0521ae423266e",
+        "stop_price": "3149.1203787843365",
+        "trade_id": "9d5cbb08080393a931cee2db29315bad7c6b5c418b05083fa2301b135568b1b4"
+      },
+      "same_bar_after_restart": "NO_SIGNAL",
+      "signal_id": "bb881546e54f944070cb851d0313a833dc914330eb7d4c9960d0521ae423266e",
+      "status": "PASS",
+      "stop_ticks": "28.759242431327",
+      "timestamp": "2024-01-09T19:00:00+03:00"
+    },
+    {
+      "direction": "SHORT",
+      "entry": "3387.0",
+      "initial_stop": "3415.032878740587",
+      "instrument": "IMOEXF",
+      "prefix_only": true,
+      "runtime_action": {
+        "active_identity": "TRAIL1__N4_01__FULL__R15",
+        "direction": "SHORT",
+        "expected_position_quantity": 0,
+        "finam_symbol": "IMOEXF@RTSX",
+        "idempotency_key": null,
+        "instrument": "IMOEXF",
+        "kind": "SKIP_STOP_NOT_ON_TICK_GRID",
+        "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+        "quantity": 0,
+        "reason": "STOP_NOT_ON_TICK_GRID",
+        "reference_price": "3387.0",
+        "runtime_schema": "stage8_12_production_runtime.v1",
+        "signal_id": "af3940b0b4b8f3af2db6579ccbdb0b96aaad6bc669ab942568b134b844bffc14",
+        "stop_price": "3415.032878740587",
+        "trade_id": "e189a1fee8aa020a405c580b1fc3654b741464677efc7cdad5706b68055c6115"
+      },
+      "same_bar_after_restart": "NO_SIGNAL",
+      "signal_id": "af3940b0b4b8f3af2db6579ccbdb0b96aaad6bc669ab942568b134b844bffc14",
+      "status": "PASS",
+      "stop_ticks": "56.065757481174",
+      "timestamp": "2024-05-24T15:00:00+03:00"
+    }
+  ],
+  "invalid_authority_checks": 16,
+  "ohlc_grid": [
+    {
+      "instrument": "USDRUBF",
+      "off_grid_ohlc": {
+        "Close": 0,
+        "High": 0,
+        "Low": 0,
+        "Open": 0
+      },
+      "rows": 17116
+    },
+    {
+      "instrument": "CNYRUBF",
+      "off_grid_ohlc": {
+        "Close": 0,
+        "High": 0,
+        "Low": 0,
+        "Open": 0
+      },
+      "rows": 17116
+    },
+    {
+      "instrument": "GLDRUBF",
+      "off_grid_ohlc": {
+        "Close": 0,
+        "High": 0,
+        "Low": 0,
+        "Open": 0
+      },
+      "rows": 13685
+    },
+    {
+      "instrument": "IMOEXF",
+      "off_grid_ohlc": {
+        "Close": 0,
+        "High": 0,
+        "Low": 0,
+        "Open": 0
+      },
+      "rows": 12251
+    }
+  ],
+  "outward_projection_edge_checks": [
+    {
+      "exec_ticks": "5",
+      "instrument": "USDRUBF",
+      "quantity": 30,
+      "raw_ticks": "5",
+      "side": "LONG",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "USDRUBF",
+      "quantity": 25,
+      "raw_ticks": "5.1",
+      "side": "LONG",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "USDRUBF",
+      "quantity": 25,
+      "raw_ticks": "5.5",
+      "side": "LONG",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "USDRUBF",
+      "quantity": 25,
+      "raw_ticks": "5.999999999999",
+      "side": "LONG",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "5",
+      "instrument": "USDRUBF",
+      "quantity": 30,
+      "raw_ticks": "5",
+      "side": "SHORT",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "USDRUBF",
+      "quantity": 25,
+      "raw_ticks": "5.1",
+      "side": "SHORT",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "USDRUBF",
+      "quantity": 25,
+      "raw_ticks": "5.5",
+      "side": "SHORT",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "USDRUBF",
+      "quantity": 25,
+      "raw_ticks": "5.999999999999",
+      "side": "SHORT",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "5",
+      "instrument": "CNYRUBF",
+      "quantity": 300,
+      "raw_ticks": "5",
+      "side": "LONG",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "CNYRUBF",
+      "quantity": 250,
+      "raw_ticks": "5.1",
+      "side": "LONG",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "CNYRUBF",
+      "quantity": 250,
+      "raw_ticks": "5.5",
+      "side": "LONG",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "CNYRUBF",
+      "quantity": 250,
+      "raw_ticks": "5.999999999999",
+      "side": "LONG",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "5",
+      "instrument": "CNYRUBF",
+      "quantity": 300,
+      "raw_ticks": "5",
+      "side": "SHORT",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "CNYRUBF",
+      "quantity": 250,
+      "raw_ticks": "5.1",
+      "side": "SHORT",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "CNYRUBF",
+      "quantity": 250,
+      "raw_ticks": "5.5",
+      "side": "SHORT",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "CNYRUBF",
+      "quantity": 250,
+      "raw_ticks": "5.999999999999",
+      "side": "SHORT",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "5",
+      "instrument": "GLDRUBF",
+      "quantity": 3000,
+      "raw_ticks": "5",
+      "side": "LONG",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "GLDRUBF",
+      "quantity": 2500,
+      "raw_ticks": "5.1",
+      "side": "LONG",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "GLDRUBF",
+      "quantity": 2500,
+      "raw_ticks": "5.5",
+      "side": "LONG",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "GLDRUBF",
+      "quantity": 2500,
+      "raw_ticks": "5.999999999999",
+      "side": "LONG",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "5",
+      "instrument": "GLDRUBF",
+      "quantity": 3000,
+      "raw_ticks": "5",
+      "side": "SHORT",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "GLDRUBF",
+      "quantity": 2500,
+      "raw_ticks": "5.1",
+      "side": "SHORT",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "GLDRUBF",
+      "quantity": 2500,
+      "raw_ticks": "5.5",
+      "side": "SHORT",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "GLDRUBF",
+      "quantity": 2500,
+      "raw_ticks": "5.999999999999",
+      "side": "SHORT",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "5",
+      "instrument": "IMOEXF",
+      "quantity": 60,
+      "raw_ticks": "5",
+      "side": "LONG",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "IMOEXF",
+      "quantity": 50,
+      "raw_ticks": "5.1",
+      "side": "LONG",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "IMOEXF",
+      "quantity": 50,
+      "raw_ticks": "5.5",
+      "side": "LONG",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "IMOEXF",
+      "quantity": 50,
+      "raw_ticks": "5.999999999999",
+      "side": "LONG",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "5",
+      "instrument": "IMOEXF",
+      "quantity": 60,
+      "raw_ticks": "5",
+      "side": "SHORT",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "IMOEXF",
+      "quantity": 50,
+      "raw_ticks": "5.1",
+      "side": "SHORT",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "IMOEXF",
+      "quantity": 50,
+      "raw_ticks": "5.5",
+      "side": "SHORT",
+      "status": "PASS"
+    },
+    {
+      "exec_ticks": "6",
+      "instrument": "IMOEXF",
+      "quantity": 50,
+      "raw_ticks": "5.999999999999",
+      "side": "SHORT",
+      "status": "PASS"
+    }
+  ],
+  "real_broker_operations": 0,
+  "trail1_threshold_checks": [
+    {
+      "direction": "LONG",
+      "exec_1R": "0.06",
+      "exec_trigger": false,
+      "grid_extreme_threshold_checks": 41,
+      "limitation": "Numeric thresholds differ. Same trigger bars require grid OHLC, same entry, same tick step; exits/fills and exact Stage7 conformance remain changed.",
+      "off_grid_extreme_counterexample": 100.055,
+      "raw_1R": "0.051",
+      "raw_trigger": true,
+      "thresholds_equal_on_grid": true
+    },
+    {
+      "direction": "SHORT",
+      "exec_1R": "0.06",
+      "exec_trigger": false,
+      "grid_extreme_threshold_checks": 41,
+      "limitation": "Numeric thresholds differ. Same trigger bars require grid OHLC, same entry, same tick step; exits/fills and exact Stage7 conformance remain changed.",
+      "off_grid_extreme_counterexample": 99.945,
+      "raw_1R": "0.051",
+      "raw_trigger": true,
+      "thresholds_equal_on_grid": true
+    }
+  ]
+}
