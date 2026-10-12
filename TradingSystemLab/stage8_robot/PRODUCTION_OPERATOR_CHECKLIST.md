@@ -1,5 +1,16 @@
 # Stage 8.12.4 — H1 timestamp backfill production operator checklist
 
+## Current daily closeout — 2026-10-12 post-rearm read-only verification
+
+- [x] Explicit operator re-arm `STAGE8_12_H1_REARM=PASS`; kill switch `ARMED` generation **60**, entry gate `OPEN`.
+- [x] Actual production code `184e8c2b8fa092a606249ff293a4f507160bff29`; Stage5 `50f1fd2178c18b7ab3bd969be82ad01f47a34745`; frozen production identity unchanged.
+- [x] At 11:38:23 MSK: Production Scheduled Task `Running`, Readonly `Disabled`, authorization `AUTHORIZED`/`True`, auth and heartbeat both match fix commit.
+- [x] Heartbeat `HEALTHY`, reconciliation `PASS`, cycle **9258**, fresh FINAM contact; open positions **0**, unresolved intents **0**, active protective stops **0** at observation time.
+- [x] Earlier `STAGE8_12_4_H1_SPLICE_TIMESTAMP_MISMATCH` records pre-date fix; cycles **9213–9258** are PASS.
+- [ ] Update separately `check-tradingsystemlab-live.ps1` expected commit: obsolete `4c7cd7c...` causes two false `MISMATCH` warnings; do not modify production robot.
+- [ ] Continue regular LIVE monitoring and broker-side order/position/protection reconciliation on every real position. No new trade/fill observed in the provided log.
+
+
 ## Current operator closeout — 2026-10-12 (supersedes older unchecked items)
 
 - [x] Regression tests **114 PASS**; exact PR #484 fix staged at `184e8c2b8fa092a606249ff293a4f507160bff29`; frozen Stage5 and N4 H1 immutable history preserved.
