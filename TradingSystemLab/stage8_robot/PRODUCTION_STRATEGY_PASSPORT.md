@@ -1,5 +1,12 @@
 # TradingSystemLab — Frozen Stage 7 Production Strategy Passport
 
+## Latest LIVE production state — 2026-10-12 11:38:23 MSK
+
+**ARMED / Running / HEALTHY / reconciliation PASS / ENTRY GATE OPEN.** Explicit operator-approved re-arm `STAGE8_12_H1_REARM=PASS`, kill switch generation **60**. Active exact production commit **`184e8c2b8fa092a606249ff293a4f507160bff29`**, from PR #484; Stage5 data `50f1fd2178c18b7ab3bd969be82ad01f47a34745`. Subsequent read-only operator check confirmed authorization status `AUTHORIZED`, `execution_authorized=True`, exact commit match between heartbeat and auth, cycle **9258**, 0 positions, 0 active protective stops and 0 unresolved intents; tasks Production `Running`, Readonly `Disabled`. No trade claim beyond snapshot. Earlier status `HALTED` generation 59 and old `4c7cd7c...` production binding are historical.
+
+**Operator diagnostic note:** `check-tradingsystemlab-live.ps1` has a stale expected SHA `4c7cd7c...`, hence its two displayed `MISMATCH` labels are incorrect; fix the read-only checker separately, not the robot. The frozen strategy/risk remain exactly T3/H1/TRAIL1, N4, FULL/R15, 1.5% per position and 6% aggregate nominal risk.
+
+
 ## Latest operator-verified production status — 2026-10-12
 
 **HALTED / RUNNING / HEALTHY / PASS; NOT REARMED.** Active production fix commit `184e8c2b8fa092a606249ff293a4f507160bff29` (PR #484); exact-commit durable authorization and restored scheduled task running. Real LIVE cycle **9214**; `RECONCILIATION=PASS`; entries `CLOSED_HALTED`; kill switch `HALTED` generation **59**. Broker/SQLite recovery precheck PASS, 0 positions/0 unresolved intents; earlier cutover zero active orders. Report SHA-256 `95d724dce03cedefd444de742d6f73fa3b6a0dbdecf0f8c6418e2149c8a0da43`. The failed Windows task binding has been resolved, not a current fault. Stage5 commit, frozen strategy, N4/FULL-R15 risk/execution semantics unchanged. A separately authorized re-arm has **not** occurred.

@@ -1,5 +1,16 @@
 # Stage 8 robot foundation
 
+## 2026-10-12 CURRENT operational authority — LIVE ARMED, confirmed after re-arm
+
+**LIVE: ARMED, kill switch generation 60; Scheduled Task Running; fresh HEALTHY / reconciliation PASS; entry gate OPEN.** Production code remains exact fix `184e8c2b8fa092a606249ff293a4f507160bff29` (PR #484); Stage5 data authority `50f1fd2178c18b7ab3bd969be82ad01f47a34745`. Explicit operator-authorized `stage8_12_h1_rearm_once.ps1` returned `STAGE8_12_H1_REARM=PASS`, `REARM_COMPLETED=YES`. Re-arm did not change source, Scheduled Task, authorization or SQLite schema, and did not itself force an order.
+
+**Physical read-only check, 2026-10-12 11:38:23 MSK:** production `Running`, readonly `Disabled`; auth `AUTHORIZED`, `execution_authorized=True`, accepted commit exact `184e8c2...`; `ARMED` gen 60; heartbeat `HEALTHY`, reconciliation `PASS`, **cycle 9258**, heartbeat/API `2026-10-12T08:37:59.022453+00:00`, positions 0, active protective stops 0, unresolved intents 0. Successful production cycles 9213–9258 follow earlier historical H1 timestamp mismatch faults. There is no evidence of a new real trade in this snapshot; trading is eligible only if frozen safety and signal gates pass.
+
+The operator check script `check-tradingsystemlab-live.ps1` still compares authorization and heartbeat to **obsolete** SHA `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`, producing two **false MISMATCH** warnings. Actual authorization and heartbeat both match fixed SHA `184e8c2...`. Updating that read-only diagnostic is a separate small task; do not change live production to accommodate old expectations.
+
+The earlier HALTED and shadow/backup/recovery sections below remain historical and are **superseded as current operational status**. T3/H1/TRAIL1, frozen N4 FULL/R15 (1.5% per new position, 6% nominal aggregate initial risk), margin sizing and all research/strategy/exec semantics are unchanged. **Never `git pull` the active production checkout just because docs-only GitHub main advanced.**
+
+
 ## Current operational authority — 2026-10-12, H1 timestamp-backfill fix LIVE restored under HALTED
 
 **AUTHORITATIVE LATEST STATE: HALTED / RUNNING / HEALTHY / RECONCILIATION PASS / NOT REARMED.** This supersedes earlier dated incident, shadow, readiness, and partially failed task-rollout snapshots below; those remain historical provenance, **not** current operational instructions.

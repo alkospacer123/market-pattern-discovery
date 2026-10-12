@@ -1,5 +1,16 @@
 # Current state — read first
 
+## CURRENT LIVE authority — 2026-10-12 11:38 MSK, after explicit re-arm
+
+**LIVE ARMED / Running / HEALTHY / PASS / ENTRY GATE OPEN.** Operator's successful `stage8_12_h1_rearm_once.ps1` output confirmed `STAGE8_12_H1_REARM=PASS`, kill switch **ARMED generation 60**, gate **OPEN**, and heartbeat **HEALTHY**, reconciliation **PASS**. Exact accepted and running code: `184e8c2b8fa092a606249ff293a4f507160bff29` (PR #484); Stage 5 frozen data commit `50f1fd2178c18b7ab3bd969be82ad01f47a34745`. No additional LIVE code, config, or authorization changes.
+
+A later **read-only operator check at 2026-10-12 11:38:23 MSK** independently reported: production Scheduled Task `Running`, readonly task `Disabled`; durable authorization `AUTHORIZED` and `execution_authorized=True` for `184e8c2...`; switch `ARMED` generation 60; production heartbeat `HEALTHY`, reconciliation `PASS`, cycle **9258**, local open positions **0**, unresolved intents **0**, active protective stops **0**, last broker API contact/heartbeat `2026-10-12T08:37:59.022453+00:00`. Log showed succeeding `PRODUCTION_CYCLE_PASS` cycles **9213–9258**; earlier `STAGE8_12_4_H1_SPLICE_TIMESTAMP_MISMATCH` entries were historical pre-fix failures.
+
+The operator's **`authorization commit check=MISMATCH` and `heartbeat commit check=MISMATCH` are false alarms in the stale read-only `check-tradingsystemlab-live.ps1`**, which still expects old commit `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`. Both actual authorization and heartbeat agree on current fixed commit `184e8c2...`. The diagnostic script itself is **not yet corrected**; do not edit or restart the robot to fix these diagnostic expectations.
+
+**Scope:** TradingSystemLab frozen T3/H1/TRAIL1 `TRAIL1__N4_01__FULL__R15` (N4 USDRUBF/CNYRUBF/GLDRUBF/IMOEXF), 1.5% realized-equity initial per-new-position risk and 6% aggregate nominal initial risk cap, unchanged. Re-arm authorizes conditional broker order submissions; it does not imply that any trade has been opened. Earlier HALTED, shadow and recovery sections below are historical and **superseded** by this dated observation. GitHub docs branch may advance beyond production SHA; never `git pull` the active exact-commit LIVE checkout.
+
+
 ## Current operational authority — 2026-10-12, H1 timestamp-backfill fix LIVE restored under HALTED
 
 **AUTHORITATIVE LATEST STATE: HALTED / RUNNING / HEALTHY / RECONCILIATION PASS / NOT REARMED.** This supersedes earlier dated incident, shadow, readiness, and partially failed task-rollout snapshots below; those remain historical provenance, **not** current operational instructions.
