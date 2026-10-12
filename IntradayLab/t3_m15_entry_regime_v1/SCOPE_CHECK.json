@@ -1,0 +1,12 @@
+{
+  "allowed_prefix": "IntradayLab/t3_m15_entry_regime_v1/",
+  "auto_merge": false,
+  "base_main": "758a0ac1deda8bfa7aa1bc99d8a97a33a9357f02",
+  "broker_endpoints_used": false,
+  "immutable_source_sha256_checked_by": "audit.py SOURCE_MANIFEST.json",
+  "merge": false,
+  "out_of_scope_changed_files": [],
+  "production_changed": false,
+  "raw_data_read_only": true,
+  "status": "PASS"
+}

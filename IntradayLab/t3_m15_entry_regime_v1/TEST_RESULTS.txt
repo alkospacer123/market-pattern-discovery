@@ -1,0 +1,21 @@
+test_donchian_excludes_signal_bar_and_incomplete_blocks (test_research.Causality.test_donchian_excludes_signal_bar_and_incomplete_blocks) ... ok
+test_features_prefix_and_future_mutation (test_research.Causality.test_features_prefix_and_future_mutation) ... ok
+test_filter_equality_and_direction (test_research.Causality.test_filter_equality_and_direction) ... ok
+test_future_ohlc_boundary (test_research.Causality.test_future_ohlc_boundary) ... ok
+test_hand_calculated_gross_metrics (test_research.Causality.test_hand_calculated_gross_metrics) ... ok
+test_previous_h1_is_not_previous_m15_forward_fill (test_research.Causality.test_previous_h1_is_not_previous_m15_forward_fill) ... ok
+test_no_future_intrabar_priority_over_pending_open (test_research.Events.test_no_future_intrabar_priority_over_pending_open) ... ok
+test_one_bar_never_checks_later_return (test_research.Events.test_one_bar_never_checks_later_return) ... ok
+test_one_bar_next_open_and_stop_priority (test_research.Events.test_one_bar_next_open_and_stop_priority) ... ok
+test_protective_exit_prevents_close_decision (test_research.Events.test_protective_exit_prevents_close_decision) ... ok
+test_same_close_reentry_is_recalculated (test_research.Events.test_same_close_reentry_is_recalculated) ... ok
+test_short_mirror (test_research.Events.test_short_mirror) ... ok
+test_stop_before_ratchet_and_next_bar_activation (test_research.Events.test_stop_before_ratchet_and_next_bar_activation) ... ok
+test_terminal_pending_and_missing_next_open (test_research.Events.test_terminal_pending_and_missing_next_open) ... ok
+test_two_bar_disabled_after_fourth (test_research.Events.test_two_bar_disabled_after_fourth) ... ok
+test_two_bar_reset_and_trigger_on_fourth (test_research.Events.test_two_bar_reset_and_trigger_on_fourth) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.620s
+
+OK
