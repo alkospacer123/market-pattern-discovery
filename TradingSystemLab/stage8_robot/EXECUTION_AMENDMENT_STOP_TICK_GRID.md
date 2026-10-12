@@ -143,3 +143,27 @@ V2 rejects legacy, unidentified, V1 and mixed revision databases before adopting
 Offline PASS covers parser/identity/rational risk, full/partial/multi-fill, duplicate/conflict, missing/stale/clipped history, durable crash rollback/restart, partial initial protection, changing exposure with safe inhibition, grid/TRAIL1 and unchanged raw replay. It does **not** certify actual broker SLTP dynamic coverage, history completeness beyond the documented bounded response, broker retention, fee semantics or unbounded MARKET risk. Before any separately authorized LIVE acceptance: audit the A/B bytes/known hashes and ACK provenance; authenticate current N4 tick/price-unit/margin economics; establish real partial/multi-fill history and restart retention; prove percentage SLTP coverage/races/backstop behavior; independently accept state lifecycle and the proposed MARKET accounting distinction. No real orders are authorized here.
 
 Reproducible V2 results/provenance: [fill handoff verification](diagnostics/fill_handoff_offline_verification.json), [appended replay results](tests/stop_tick_grid_evidence/fill_v2_results.json), [diagnostic follow-up](diagnostics/FINAM_FILL_PRICE_AUTHORITY.md). Original replay evidence remains unchanged.
+
+## V2 pre-POST recovery correction — 2026-10-12
+
+**PROPOSED / NOT DEPLOYED. `PRE_POST_RECOVERY_OFFLINE=PASS`; `OFFLINE_FIX_READY_FOR_REVIEW`; `LIVE_PRODUCTION_READY=NO`.** This corrects durable ENTRY recovery in the same candidate/roadmap phase. It changes no price, quantity, risk, strategy or protective-stop semantics; the V2 revision/schema and closed profile remain.
+
+Independent review identified a real defect at candidate `69cf0b2122687d6462d512252e5b75bb828ee344`: a `LiveExecutionError` restored `INTENT_PERSISTED` but retained active `entry_submission`. A subsequent attempt with a new timestamp failed with `ENTRY_SUBMISSION_ALREADY_COMMITTED`; reuse of the old timestamp also needed a fail-closed status check. The new regression fails against that original code before the correction.
+
+The existing transport now emits the narrow subtype `EntryPrePostRefused` only from its ENTRY preflight block, **before invoking `api.place_order`**. The endpoint call is outside that block. Even a marker raised from the endpoint is downgraded to an unclassified error; it cannot become no-POST proof. Generic errors without this explicit contract do not permit a retry, even when an offline observer happens to know that no simulated POST occurred. Authorization/session/gate checks and default profile selection remain unchanged.
+
+For the exact matching SUBMITTED attempt, with no ACK/fill/open-position authority, an existing SQLite transaction atomically:
+
+1. Appends the original account/revision/timestamp and explicit `ENTRY_POST_NOT_CALLED` outcome/reason to `entry_pre_post_refusals:<entry_key>`.
+2. Releases only the active `entry_submission:<entry_key>` reference to JSON null.
+3. Restores the same immutable intent/key to `INTENT_PERSISTED`.
+
+The refused attempt evidence is retained. Repeated recovery of the same proof is a no-op. Repeated reconcile/restart at the same timestamp is also a no-op. A later attempt must pass the existing gates and use a strictly newer timestamp; stale proof cannot release its authority. Clock regression/reused time, conflicting authority or an existing broker ACK cannot silently reset state.
+
+If POST may have occurred, timeout/unclassified endpoint error/invalid ACK retains the original active submission record, marks `UNCERTAIN` and HALTED/OIR, and prohibits automatic ENTRY retry. A crash after durable SUBMITTED but before durable refusal proof likewise keeps SUBMITTED/evidence and requires reconciliation. Recovery transaction failures roll back proof/release/status together and halt. The previous inconsistent `INTENT_PERSISTED + active submission` state is not guessed to be pre-POST: it is inhibited as uncertain with preserved evidence. Healthy existing V2 state is compatible; legacy/V1/mixed adoption and implicit migration/re-arm remain forbidden. No recovery subsystem, table or StateStore/schema change is added.
+
+Protection/multi-fill/stop-grid/R15/TRAIL1 regressions remain controls. The three transport protection/emergency/cancel method bodies and six runtime position/fill/protection/management method bodies are identical to the original candidate; no backstop contract is changed. Test-only guard patches and a network-incapable API spy exercise the otherwise closed candidate path; they do not activate a deployed profile or prove physical FINAM acceptance.
+
+Final connection-forbidden regression runner: **444 PASS, 1 Windows-only skipped, 17 subtests PASS** (426 previous cases plus 18 pre-POST cases). Both independent raw replays remain **418/418**, all **1,422** signals pass the projection/sizing oracle, and the original executable comparison CSV is byte-identical. Original replay evidence and frozen artifacts remain untouched. Current hashes/results and archived previous verification are recorded in [candidate verification](diagnostics/fill_handoff_offline_verification.json).
+
+Physical fill provenance, broker history retention, growing-position percentage-SLTP coverage and unrestricted MARKET risk limitations remain BLOCKED as described above. This correction authorizes no real request, Intel/LIVE change, merge, deploy, re-arm or profile activation. Stop after the Draft PR and summary for independent audit.

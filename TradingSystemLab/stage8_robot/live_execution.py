@@ -28,6 +28,10 @@ class LiveExecutionError(RuntimeError):
     pass
 
 
+class EntryPrePostRefused(LiveExecutionError):
+    """This transport call refused ENTRY before invoking api.place_order."""
+
+
 class AuthorizedFinamProductionTransport:
     """Narrow order-capable adapter gated by exact durable authorization."""
 
@@ -114,13 +118,20 @@ class AuthorizedFinamProductionTransport:
         }
 
     def submit_entry(self, action: RuntimeAction, *, now) -> dict[str, Any]:
-        self._validate_action(action, "ENTRY")
-        if action.execution_revision == EXECUTION_REVISION and not FINAM_FILL_AUTHORITY_VERIFIED:
-            raise LiveExecutionError("ACTUAL_FILL_AUTHORITY_BLOCKED_NO_ENTRY_SUBMISSION")
-        self._require_entry_gate(now)
-        return self.api.place_order(
-            self.account_id, self._market_payload(action, exit_order=False)
-        )
+        try:
+            self._validate_action(action, "ENTRY")
+            if action.execution_revision == EXECUTION_REVISION and not FINAM_FILL_AUTHORITY_VERIFIED:
+                raise LiveExecutionError("ACTUAL_FILL_AUTHORITY_BLOCKED_NO_ENTRY_SUBMISSION")
+            self._require_entry_gate(now)
+            payload = self._market_payload(action, exit_order=False)
+        except LiveExecutionError as exc:
+            raise EntryPrePostRefused(str(exc)) from exc
+        # Exceptions from the endpoint are never classified as pre-POST proof.
+        try:
+            return self.api.place_order(self.account_id, payload)
+        except EntryPrePostRefused as exc:
+            # An exception raised beyond this boundary cannot prove no POST.
+            raise LiveExecutionError(str(exc)) from exc
 
     def submit_protective_stop(
         self,

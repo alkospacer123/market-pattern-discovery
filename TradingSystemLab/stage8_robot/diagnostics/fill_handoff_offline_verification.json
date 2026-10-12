@@ -12,15 +12,17 @@
     "xxx_equals_rub": false
   },
   "base_main": "5c78d15c5b05e881904b644e1b7aa3b67ee63821",
-  "candidate_parent": "3c45b5c777a5bcd823150c9aebd287d3a8e448f9",
+  "candidate_parent": "69cf0b2122687d6462d512252e5b75bb828ee344",
   "candidate_source_sha256": {
     "TradingSystemLab/stage8_robot/execution_grid.py": "2b0fa0748107fab67783a0dbb9bf350e012ad5bfa721faef8ba45fd9a1313ec7",
     "TradingSystemLab/stage8_robot/finam_api.py": "b6a895acbeca632506e84b0ba635324a00326407dea207bce7efaded66c458db",
     "TradingSystemLab/stage8_robot/finam_fill_price_readonly.py": "4b6c324240c19ea91799a147fccaf68e9c68e132e07df43d4b93598dfb48457d",
-    "TradingSystemLab/stage8_robot/production_runtime.py": "556fae8fb4425d2ac148a8b24df9b3a96e4113207d073e39abd1f12e054e808c",
-    "TradingSystemLab/stage8_robot/production_service.py": "547a68b7996c4b15af987d23cb369f302606f41a3f2f7c8708a6102e86fbded0",
+    "TradingSystemLab/stage8_robot/live_execution.py": "c79bf24624cffa5477fee3560368b152163a1c4cf95fd1052e4388c53ff55c14",
+    "TradingSystemLab/stage8_robot/production_runtime.py": "90e026997fed6141418325394901325ad0a935c6ee4cd7a58528212b707e6cb8",
+    "TradingSystemLab/stage8_robot/production_service.py": "2b2121d3b9c16dc1086ca7b1580d668bb60638527801cd226925f0446f8b6add",
     "TradingSystemLab/stage8_robot/state.py": "afec9bc5b54ce0ef9fd3be2835a6a3506c79d43826a194932a6d8fca9d979a50",
-    "TradingSystemLab/stage8_robot/tests/run_stop_tick_grid_tests.py": "0e7ad590dcc8a74aa332a39aebd4905f1f6522ac048820b6409ae034f06dd28f",
+    "TradingSystemLab/stage8_robot/tests/run_stop_tick_grid_tests.py": "5f8b0c9105047f4692708959d39bcc5bb67b2b47134879ae05c444d4842b7a1d",
+    "TradingSystemLab/stage8_robot/tests/test_entry_pre_post_recovery.py": "ad3f6a3f50b7b5e30649732c92a468647d5c352fa00bb9cee6feaa4cf2327943",
     "TradingSystemLab/stage8_robot/tests/test_finam_durable_fill_handoff.py": "b6bb497a421a71431d0990338458d6d29e0b4b77777c965eef278ad49f6c4a87",
     "TradingSystemLab/stage8_robot/tests/test_finam_fill_price_readonly.py": "b1fcd99ab09eb8c677a7f10fe50802cd29cb44ee42d0ca4fb069702808627a11",
     "TradingSystemLab/stage8_robot/tests/test_stop_tick_grid_amendment.py": "fa2a190f7847a1d46d5390c9dc634554184fbaae510145e05f6b0b532d573b22"
@@ -80,6 +82,7 @@
     "EXECUTABLE_STOP_CONFORMANCE": "PASS",
     "ORDER_IDENTITY_VERIFIED": "PASS",
     "PARTIAL_FILL_RECONCILIATION": "PASS",
+    "PRE_POST_RECOVERY_OFFLINE": "PASS",
     "R15_MARGIN_CONFORMANCE": "PASS",
     "RAW_RESEARCH_CONFORMANCE": "PASS",
     "RESTART_RECOVERY_CONFORMANCE": "PASS",
@@ -88,6 +91,55 @@
     "TRAIL1_PROTECTION_CONFORMANCE": "PASS"
   },
   "physical_finam_requests_by_agent": 0,
+  "pre_post_recovery": {
+    "ambiguous_active_evidence_modified_or_deleted": false,
+    "atomic_transition": [
+      "append refused attempt evidence",
+      "release active submission reference",
+      "restore same intent to INTENT_PERSISTED"
+    ],
+    "classification": "PASS_OFFLINE_ONLY",
+    "crash_before_durable_proof_policy": "SUBMITTED + retained authority; reconciliation required, no retry",
+    "endpoint_exception_marker_can_prove_no_post": false,
+    "explicit_proof_type": "EntryPrePostRefused emitted only before api.place_order invocation",
+    "later_attempt_timestamp": "STRICTLY_NEWER; stale recovery proof cannot release later authority",
+    "new_recovery_subsystem": false,
+    "original_code_regression": "FAIL reproduced before fix on original candidate",
+    "previous_inconsistent_state": "NO_SILENT_REPAIR; active evidence retained; UNCERTAIN + HALTED/OIR",
+    "protected_method_ast_sha256_unchanged": {
+      "TradingSystemLab/stage8_robot/live_execution.py:cancel_protective_stop_after_flat": "677a3b2713a0686f16db1190f53d4ab5a9b7a1bbbc382ca6fb66eb7afd712ad3",
+      "TradingSystemLab/stage8_robot/live_execution.py:submit_emergency_exit": "e1c38a65151f38bb024468054d94597913778aa80b67d554ea8df412a578ae1d",
+      "TradingSystemLab/stage8_robot/live_execution.py:submit_protective_stop": "b9159c9772167ecd39fa8a70509620ccc773db87df1ff09b19e8b4311a16d8f9",
+      "TradingSystemLab/stage8_robot/production_runtime.py:_confirm_candidate_entry": "6317d789a89692cb40fad0cc284ac4ae24f0784abcb3f161efd897a431859323",
+      "TradingSystemLab/stage8_robot/production_runtime.py:_handoff_entry_history": "69f8688d21b71100a68bfb33317ddf46c0ba8632e1f4ecc5bc794879eef27235",
+      "TradingSystemLab/stage8_robot/production_runtime.py:confirm_entry_position": "3e6a364cc14a0d672aa56954eaafac27187fc26aab625fd95ec91f63fea5a239",
+      "TradingSystemLab/stage8_robot/production_runtime.py:confirm_protective_stop": "8c4ce1bcfb5510d57dc586ff34207ada6d405566974a471e9c97fc611e8be4a5",
+      "TradingSystemLab/stage8_robot/production_runtime.py:handoff_entry_history": "643ee8322e22e40f351a625643d1fac704d7e36d87aaae21d0c44a852b4466f3",
+      "TradingSystemLab/stage8_robot/production_runtime.py:manage_completed_bar": "37fa3b3a50cd2d899c49c5c9b6a92d74a05e435b39f683be9f1ff99af3db3739"
+    },
+    "refused_evidence_key": "entry_pre_post_refusals:<entry_key>",
+    "root_cause": "INTENT_PERSISTED restored while old entry_submission remained active",
+    "same_timestamp_reconcile": "IDEMPOTENT_NO_OP",
+    "state_store_and_sqlite_schema_changed": false,
+    "test_guard_overrides": "In-memory pytest monkeypatch only, order-incapable API spy; deployed/default profile not activated",
+    "unknown_outcome_policy": "UNCERTAIN + HALTED/OIR; active evidence retained; no automatic ENTRY POST"
+  },
+  "previous_candidate_verification": {
+    "commit": "69cf0b2122687d6462d512252e5b75bb828ee344",
+    "path": "TradingSystemLab/stage8_robot/diagnostics/fill_handoff_offline_verification.json",
+    "scope": "Original 426-case verification remains available in this pinned Git commit",
+    "sha256": "a5e762170ee28cc9f7e668c5cd8c05ea462a36084e13b409f55ea1615a2d8115",
+    "test_suite": {
+      "network_connections": "FORBIDDEN",
+      "new_fill_handoff_cases": 50,
+      "passed": 426,
+      "runner": "TradingSystemLab/stage8_robot/tests/run_stop_tick_grid_tests.py",
+      "skip_reason": "Windows only",
+      "skipped": 1,
+      "subtests_passed": 17,
+      "test_log_sha256": "34af4524d01b5e65796ade1b2a2090442b65a54db91edd74d83a2b0ea9bdbcec"
+    }
+  },
   "production_acceptance": "BLOCKED",
   "profile_activated": false,
   "protected_paths": [
@@ -126,7 +178,10 @@
     "appended_results_path": "TradingSystemLab/stage8_robot/tests/stop_tick_grid_evidence/fill_v2_results.json",
     "appended_results_sha256": "dac25769efc9282b643283d5a4fac13672a5a0d6a6643c43001d74e00deaf6b1",
     "changed_exit_timestamps": 0,
+    "execution_comparison_csv_sha256": "c041544f9e53d9e53c61a4c05d652c63dbfad508260884a6d41932f64efdf040",
     "frozen_entry_paths": 422,
+    "latest_replay_log_sha256": "f9d9685b19bdaab51066e43fd8ad5a33c1cda3d4f51d5752642ce5b60f47e9af",
+    "latest_replay_results_sha256": "87459a6a657cc799a4f51f49ab697b76f095a3bb2eaf6360986282e0fb445f2f",
     "management_bars": 10763,
     "original_execution_comparison_csv_identical": true,
     "original_replay_evidence_unchanged": true,
@@ -176,17 +231,17 @@
   "test_suite": {
     "network_connections": "FORBIDDEN",
     "new_fill_handoff_cases": 50,
-    "passed": 426,
+    "new_pre_post_recovery_cases": 18,
+    "passed": 444,
     "runner": "TradingSystemLab/stage8_robot/tests/run_stop_tick_grid_tests.py",
     "skip_reason": "Windows only",
     "skipped": 1,
     "subtests_passed": 17,
-    "test_log_sha256": "34af4524d01b5e65796ade1b2a2090442b65a54db91edd74d83a2b0ea9bdbcec"
+    "test_log_sha256": "c853f1e896a55406c489c234e41f7d736bb56701178eb66a201d02ca66ccbe22"
   },
   "unchanged_from_previous_pr_head": {
     "TradingSystemLab/stage8_robot/broker.py": "e38e9f65dc9ce4ed86b385c54c93a19ab2839adafecb54512db9fa1a60838e5a",
     "TradingSystemLab/stage8_robot/context_builder.py": "4c4a8b618f032eea04b005971aebfc6888cef44c6d77e3f401f1694b2dab8441",
-    "TradingSystemLab/stage8_robot/live_execution.py": "66490881255cf6e0f9cfb475ab74914ec5ee397e03053c0c03604f70ebbdcbfe",
     "TradingSystemLab/stage8_robot/margin.py": "05c1c44eb199dccb126d533bdd1f4389ff78ce53d920f2b6bec967155964339e",
     "TradingSystemLab/stage8_robot/production_authorization.py": "916d156fafae30a55ee73d4eb77512c8743936cb028010a3575fedd74a347b32",
     "TradingSystemLab/stage8_robot/production_instrument_registry.csv": "90d64e16dfeb292b4b339ac3eb196074e133bf52a962cc6715c488a32d16e013",
@@ -194,8 +249,9 @@
     "TradingSystemLab/stage8_robot/protective_stop_contract.py": "2725e97cafcbce101e13170bc9d4010f382282bf3eadf05d5ab7ecc5a71dca05",
     "TradingSystemLab/stage8_robot/risk.py": "322080b499bdb2cd5c27757648aa7e45933ee75523ff61c5ac8d573c9663d1e5",
     "TradingSystemLab/stage8_robot/specification.py": "2e7ac0e0554a9b27e69eb90ebb17ed556a5a99f8a1509ab4e3182f2d2b02620d",
+    "TradingSystemLab/stage8_robot/state.py": "afec9bc5b54ce0ef9fd3be2835a6a3506c79d43826a194932a6d8fca9d979a50",
     "TradingSystemLab/stage8_robot/strategy_core.py": "ba3cc134f85049e974b6608f144d090da83eb150548efd693ba27a4c54fe9d51",
     "TradingSystemLab/stage8_robot/trail1_state.py": "047d13618b3c729a0f2385fe46269b513761689469c17bdd66bc07ac09bb866b"
   },
-  "verification_scope": "Offline source/diff verification before publication; final remote main/head/diff verification is reported in PR summary."
+  "verification_scope": "Current pre-POST correction and full offline runner/replay, prior verification pinned in Git; final remote main/head/diff checks reported in PR summary. No physical FINAM acceptance."
 }

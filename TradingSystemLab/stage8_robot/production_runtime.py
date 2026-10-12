@@ -783,11 +783,42 @@ class ProductionRuntime:
         if old is not None and old != value:
             raise ProductionRuntimeError("ENTRY_SUBMISSION_ALREADY_COMMITTED")
         if old is not None:
+            if row["status"] == "INTENT_PERSISTED":
+                raise ProductionRuntimeError("ENTRY_SUBMISSION_STATUS_MISMATCH")
             return
-        if row["status"] != "INTENT_PERSISTED":
+        if row["status"] != "INTENT_PERSISTED" or row["broker_order_id"] is not None:
             raise ProductionRuntimeError("ENTRY_SUBMISSION_BOUNDARY_MISSING")
+        refusals = self.store.get(f"entry_pre_post_refusals:{entry_key}", [])
+        if any(_timestamp(submitted_at) <= _timestamp(item["submission"]["submitted_at"]) for item in refusals):
+            raise ProductionRuntimeError("ENTRY_SUBMISSION_TIME_REUSED_OR_REGRESSED")
         self.store.put(f"entry_submission:{entry_key}", value)
         self.store.transition_intent(entry_key, "SUBMITTED")
+
+    @_atomic
+    def restore_entry_pre_post(self, entry_key: str, account_id: str, submitted_at: str, reason: str) -> None:
+        """Called only for EntryPrePostRefused; retain proof, release active authority."""
+        from .finam_fill_price_readonly import digest
+        row = self.store.intent(entry_key)
+        if not self.execution_revision or not row or row["payload"].get("kind") != "ENTRY":
+            raise ProductionRuntimeError("ENTRY_INTENT_NOT_FOUND")
+        self._validate_execution_evidence(row["payload"])
+        expected = {"account_sha256": digest(account_id), "submitted_at": submitted_at,
+                    "execution_revision": self.execution_revision}
+        proof = {"submission": expected, "outcome": "ENTRY_POST_NOT_CALLED", "reason": reason}
+        active_key = f"entry_submission:{entry_key}"
+        history_key = f"entry_pre_post_refusals:{entry_key}"
+        active = self.store.get(active_key)
+        history = self.store.get(history_key, [])
+        if active is None and row["status"] == "INTENT_PERSISTED" and row["broker_order_id"] is None and proof in history:
+            return
+        if (active != expected or row["status"] != "SUBMITTED" or row["broker_order_id"] is not None
+                or self.store.get(f"entry_fill_history:{entry_key}") is not None
+                or self.open_positions().get(row["payload"]["instrument"]) is not None
+                or any(fill["entry_key"] == entry_key for fill in self.store.all_fills())):
+            raise ProductionRuntimeError("ENTRY_PRE_POST_RECOVERY_AUTHORITY_MISMATCH")
+        self.store.put(history_key, history + [proof])
+        self.store.put(active_key, None)
+        self.store.transition_intent(entry_key, "INTENT_PERSISTED")
 
     def handoff_entry_history(self, entry_key: str, **history) -> dict:
         if not self.execution_revision:

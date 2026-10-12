@@ -23,7 +23,7 @@ import pandas as pd
 from .account_cleanliness import TERMINAL_ORDER_STATUSES
 from .broker import compact_client_order_id
 from .finam_api import FinamAPI, FinamOrderRejected, FinamUncertainSubmission
-from .live_execution import AuthorizedFinamProductionTransport, LiveExecutionError
+from .live_execution import AuthorizedFinamProductionTransport, EntryPrePostRefused, LiveExecutionError
 from .margin import directional_initial_margin, parse_rest_decimal_value_object, portfolio_authority
 from .operations import InstanceLock, configure_operational_log
 from .production_authorization import authorization_path, load_authorization
@@ -355,12 +355,26 @@ class ProductionService:
             return  # Keep the existing backstop; no ordinary TRAIL1 POST while halted.
         submit_now = self.clock().astimezone(timezone.utc)
         if action.kind == "ENTRY":
+            if action.execution_revision == EXECUTION_REVISION and self.runtime.store.get("execution_halt"):
+                raise ProductionServiceError("STAGE8_12_4_HALTED_OPERATOR_INTERVENTION_REQUIRED")
             if action.execution_revision == EXECUTION_REVISION and not FINAM_FILL_AUTHORITY_VERIFIED:
                 raise ProductionServiceError("ACTUAL_FILL_AUTHORITY_BLOCKED_NO_ENTRY_SUBMISSION")
+            if action.execution_revision == EXECUTION_REVISION:
+                refusals = self.runtime.store.get(f"entry_pre_post_refusals:{key}", [])
+                if (refusals and self.runtime.store.get(f"entry_submission:{key}") is None
+                        and submit_now == datetime.fromisoformat(refusals[-1]["submission"]["submitted_at"])):
+                    return  # Repeated reconciliation at the same attempt time is a no-op.
             self._require_entry_submission_session(action.finam_symbol, submit_now)
         if action.execution_revision == EXECUTION_REVISION:
             if action.kind == "ENTRY":
-                self.runtime.record_entry_submission(key, self.account_id, submit_now.isoformat())
+                try:
+                    self.runtime.record_entry_submission(key, self.account_id, submit_now.isoformat())
+                except Exception:
+                    with self.runtime.store.transaction():
+                        if self.runtime.store.get(f"entry_submission:{key}") is not None:
+                            self.runtime.store.transition_intent(key, "UNCERTAIN")
+                        self.runtime.halt("ENTRY_SUBMISSION_AUTHORITY_UNVERIFIED")
+                    raise
             elif action.kind in {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}:
                 observed = snap.positions.get(action.finam_symbol,0)
                 planned = intent["payload"]["planned_quantity"]
@@ -391,20 +405,40 @@ class ProductionService:
                 )
             else:
                 raise ProductionServiceError("STAGE8_12_4_ORDER_ACTION_INVALID")
-        except LiveExecutionError:
-            # The transport raises LiveExecutionError only before an order
-            # endpoint is invoked (authorization/gate/action/position checks).
-            # Return the intent to its persisted pre-submit state instead of
-            # manufacturing an uncertain submission.
+            broker_id = _order_id(response)
+        except LiveExecutionError as exc:
+            if action.execution_revision == EXECUTION_REVISION and action.kind == "ENTRY":
+                if isinstance(exc, EntryPrePostRefused):
+                    try:
+                        self.runtime.restore_entry_pre_post(key, self.account_id, submit_now.isoformat(), str(exc))
+                    except Exception:
+                        self.runtime.halt("ENTRY_PRE_POST_RECOVERY_UNVERIFIED")
+                        raise
+                else:
+                    with self.runtime.store.transaction():
+                        self.runtime.store.transition_intent(key, "UNCERTAIN")
+                        self.runtime.halt("ENTRY_SUBMISSION_OUTCOME_UNVERIFIED")
+                raise
+            # Preserve existing legacy/non-ENTRY guard-refusal behavior.
+            # Candidate ENTRY above requires the explicit pre-POST contract.
             self.runtime.store.transition_intent(key, "INTENT_PERSISTED")
             raise
         except FinamUncertainSubmission:
-            self.runtime.store.transition_intent(key, "UNCERTAIN")
+            with self.runtime.store.transaction():
+                self.runtime.store.transition_intent(key, "UNCERTAIN")
+                if action.execution_revision == EXECUTION_REVISION and action.kind == "ENTRY":
+                    self.runtime.halt("ENTRY_SUBMISSION_OUTCOME_UNVERIFIED")
             raise
         except FinamOrderRejected:
             self.runtime.store.transition_intent(key, "REJECTED")
             raise
-        self.runtime.store.transition_intent(key, "ACK", _order_id(response))
+        except Exception:
+            if action.execution_revision == EXECUTION_REVISION and action.kind == "ENTRY":
+                with self.runtime.store.transaction():
+                    self.runtime.store.transition_intent(key, "UNCERTAIN")
+                    self.runtime.halt("ENTRY_SUBMISSION_OUTCOME_UNVERIFIED")
+            raise
+        self.runtime.store.transition_intent(key, "ACK", broker_id)
 
     def _reconcile_intents(self, snap: Snapshot) -> None:
         generated: list[RuntimeAction] = []
@@ -597,7 +631,10 @@ class ProductionService:
                 self.runtime.store.transition_intent(key,"ACK",order.order_id)
             return
         if row["status"] == "INTENT_PERSISTED":
-            self._submit(action,snap)
+            try:
+                self._submit(action,snap)
+            except EntryPrePostRefused:
+                return  # Only this flat ENTRY call supplied the pre-POST proof.
         elif row["status"] in {"SUBMITTED","UNCERTAIN","ACK","PARTIAL_FILL","FILL"}:
             raise ProductionServiceError("STAGE8_12_4_UNCERTAIN_ENTRY_REQUIRES_BROKER_PROOF")
 
