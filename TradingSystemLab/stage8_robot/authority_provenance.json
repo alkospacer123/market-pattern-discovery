@@ -1,5 +1,5 @@
 {
-  "as_of_utc": "2026-10-08T13:40:59.832789+00:00",
+  "as_of_utc": "2026-10-12T05:55:33.966970+00:00",
   "binding_status": "AUTHENTICATED_REAL_READONLY",
   "finam": {
     "api_version": "v1",
@@ -904,10 +904,10 @@
     "current_stage5_data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
     "current_authorization_status": "AUTHORIZED",
     "current_execution_authorized": true,
-    "current_production_kill_switch": "ARMED",
+    "current_production_kill_switch": "HALTED",
     "current_production_scheduled_task": "Running",
     "current_readonly_scheduled_task": "Disabled",
-    "current_entry_gate": "OPEN",
+    "current_entry_gate": "CLOSED_HALTED",
     "stage8_12_4_h1_hotfix_operational_rollover": {
       "status": "COMPLETE_PASS_LIVE_PRODUCTION_RESTORED",
       "incident_date": "2026-10-08",
@@ -940,6 +940,35 @@
       "frozen_portfolio_changed": false,
       "frozen_risk_changed": false,
       "broker_execution_model_changed": false
+    },
+    "stage8_12_4_timestamp_backfill_incident": {
+      "observed_utc": "2026-10-12T05:55:33.966970+00:00",
+      "classification": "HALTED_FIX_MERGED_PREACTIVATION_PENDING",
+      "fault": "STAGE8_12_4_H1_SPLICE_TIMESTAMP_MISMATCH",
+      "emergency_halt_generation": 59,
+      "positions": 0,
+      "unresolved_intents": 0,
+      "old_production_commit": "4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129",
+      "code_fix_pr": 484,
+      "code_fix_merge": "184e8c2b8fa092a606249ff293a4f507160bff29",
+      "stage5_data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+      "backfilled_timestamp_moscow": "2026-10-10T09:00:00+03:00",
+      "exact_seam_moscow": "2026-10-11T18:00:00+03:00",
+      "seam_present": true,
+      "newer_bar_moscow": "2026-10-12T07:00:00+03:00",
+      "n4": [
+        "USDRUBF",
+        "CNYRUBF",
+        "GLDRUBF",
+        "IMOEXF"
+      ],
+      "effective_new_entries": "HALTED",
+      "previous_authorization_record": "AUTHORIZED_FOR_OLD_COMMIT",
+      "code_deployed_to_intel": "NOT_VERIFIED",
+      "intel_preactivation": "NOT_DONE",
+      "authorization_rollover": "NOT_DONE",
+      "rearm": "NOT_AUTHORIZED",
+      "frozen_strategy_risk_execution_changed": false
     }
   }
 }
