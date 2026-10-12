@@ -1,5 +1,15 @@
 # Stage 8.12.4 — H1 timestamp backfill production operator checklist
 
+## Newly accepted physical evidence — 2026-10-12
+
+- [x] Fix PR #484 isolated exact-code targeted tests: 60/60 PASS (full Stage 8 suite pending).
+- [x] FINAM GET-only immutable H1 N4: 4/4 PASS; 2 ignored historical backfills + 2 append-ready bars per N4 at probe; broker positions/orders/unresolved intents 0/0/0. External SHA-256 `2fe51ccd6ab57682579f222158b12413eaae6020abe21aec7afa188d3afddb43`.
+- [x] Isolated one-cycle production shadow with SQLite copy: unchanged prefix 4/4 PASS, 3 bars appended per N4 to shadow only, shadow heartbeat `HEALTHY`, reconciliation `PASS`. External SHA-256 `4799a0b426cd62d143a0b3fdba6035ef44f11dde6654676568b1a28e3a8fbded`.
+- [x] Confirmed old LIVE checkout/authorization/SQLite/Tasks not modified by shadow; kill switch `HALTED` generation 59.
+- [ ] Controlled LIVE exact-code rollout after backups, full applicable audit and commit-bound authorization migration.
+- [ ] Fresh LIVE-runtime `HEALTHY/PASS`, verified flat account/zero unresolved intents and separate explicit re-arm approval.
+
+
 ## Current gate: HALTED / NOT REARMED (2026-10-12)
 
 This checklist supersedes the historical **ARMED** daily-operations checklist until a new explicit operator decision. Existing production authorization remains bound to the previously accepted code commit; its existence is not approval to re-arm after this incident.

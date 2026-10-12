@@ -1,5 +1,10 @@
 # Canonical research, production, and operational methodology
 
+## 2026-10-12 H1 operational validation note — research methodology unchanged
+
+On Intel, PR #484 H1 immutable splice passed 60/60 targeted code tests, 4/4 N4 real FINAM GET-only precheck (SHA-256 `2fe51ccd6ab57682579f222158b12413eaae6020abe21aec7afa188d3afddb43`) and isolated one-cycle production shadow preactivation on a SQLite backup copy (immutable H1 prefixes 4/4 PASS, shadow `HEALTHY/PASS`, SHA-256 `4799a0b426cd62d143a0b3fdba6035ef44f11dde6654676568b1a28e3a8fbded`). These are operator-reported; **LIVE heartbeat recovery, authorization rollover, re-arm and full test suite are not done**. LIVE remains `HALTED` generation 59 and pinned to historical commit. Research methodology, production strategy, Stage 7 portfolio, risk and broker execution semantics remain frozen.
+
+
 This file defines durable TradingSystemLab rules. Historical research identities
 and verdicts remain immutable. Production operation must preserve the exact Stage 7
 identity and fail closed whenever required authority or safety evidence is missing.

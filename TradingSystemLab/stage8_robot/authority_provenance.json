@@ -943,7 +943,7 @@
     },
     "stage8_12_4_timestamp_backfill_incident": {
       "observed_utc": "2026-10-12T05:55:33.966970+00:00",
-      "classification": "HALTED_FIX_MERGED_PREACTIVATION_PENDING",
+      "classification": "HALTED_FIX_MERGED_SHADOW_PREACTIVATION_PASS_LIVE_ROLLOUT_PENDING",
       "fault": "STAGE8_12_4_H1_SPLICE_TIMESTAMP_MISMATCH",
       "emergency_halt_generation": 59,
       "positions": 0,
@@ -965,10 +965,25 @@
       "effective_new_entries": "HALTED",
       "previous_authorization_record": "AUTHORIZED_FOR_OLD_COMMIT",
       "code_deployed_to_intel": "NOT_VERIFIED",
-      "intel_preactivation": "NOT_DONE",
+      "intel_preactivation": "ISOLATED_SHADOW_PASS_LIVE_PREACTIVATION_NOT_DONE",
       "authorization_rollover": "NOT_DONE",
-      "rearm": "NOT_AUTHORIZED",
-      "frozen_strategy_risk_execution_changed": false
+      "rearm": "NOT_AUTHORIZED_NOT_DONE",
+      "frozen_strategy_risk_execution_changed": false,
+      "targeted_code_tests": "60/60_PASS_FULL_SUITE_NOT_RUN",
+      "get_only_physical_n4": "4/4_PASS",
+      "get_only_ignored_backfills_per_n4": 2,
+      "get_only_append_ready_per_n4": 2,
+      "get_only_report_sha256": "2fe51ccd6ab57682579f222158b12413eaae6020abe21aec7afa188d3afddb43",
+      "shadow_n4_immutable_prefix": "4/4_PASS",
+      "shadow_appended_to_isolated_sqlite_per_n4": 3,
+      "shadow_heartbeat": "HEALTHY",
+      "shadow_reconciliation": "PASS",
+      "shadow_report_sha256": "4799a0b426cd62d143a0b3fdba6035ef44f11dde6654676568b1a28e3a8fbded",
+      "live_production_heartbeat_recovery": "NOT_VERIFIED",
+      "live_checkout_changed": false,
+      "live_authorization_changed": false,
+      "live_database_changed_by_shadow": false,
+      "live_task_changed_by_shadow": false
     }
   }
 }
