@@ -1,5 +1,10 @@
 # Canonical research, production, and operational methodology
 
+## 2026-10-12 re-arm operation — current LIVE authority (methodology unchanged)
+
+Operator-approved re-arm `STAGE8_12_H1_REARM=PASS`, switch `ARMED` gen 60, entry gate `OPEN`, exact accepted fixed code `184e8c2b8fa092a606249ff293a4f507160bff29`. Subsequent read-only check 11:38:23 MSK confirmed LIVE production task Running, heartbeat `HEALTHY`, reconciliation `PASS`, cycle 9258, no local open positions/unresolved intents. Earlier H1 splice faults are historical; two commit mismatch warnings arose from an obsolete expected SHA in a separate read-only diagnostic. No change to frozen methodology, candidate, T3/H1/TRAIL1, N4, FULL/R15 or broker execution model.
+
+
 ## 2026-10-12 operational H1 backfill fix — LIVE restored HALTED (no methodology change)
 
 Operator evidence: corrected production code exactly `184e8c2b8fa092a606249ff293a4f507160bff29` (PR #484), 114 regression tests PASS, N4 immutable H1 PASS; real LIVE production cycles 9213 and **9214** `HEALTHY/PASS`. Existing Windows Scheduled Task action was recovered with principal unchanged and now `RUNNING` at exact commit; commit-bound authorization migrated. Kill switch `HALTED` generation 59, entries closed, re-arm not done. Evidence SHA-256 `95d724dce03cedefd444de742d6f73fa3b6a0dbdecf0f8c6418e2149c8a0da43`. Previous incident and stopped task snapshots below are historical. Frozen research phases, T3/H1/TRAIL1/N4/FULL/R15 strategy and 6% initial risk limit remain immutable.
