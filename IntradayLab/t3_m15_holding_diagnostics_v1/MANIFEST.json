@@ -1,0 +1,185 @@
+{
+  "closed_records": 1442,
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "deterministic_artifacts": [
+    "MANIFEST.json",
+    "REPORT.md",
+    "carry_by_direction.csv",
+    "carry_by_year.csv",
+    "carry_kind.csv",
+    "entry_features_by_outcome.csv",
+    "entry_hour.csv",
+    "first_candles.csv",
+    "first_candles_summary.csv",
+    "fixed_version_entry_pairs.csv",
+    "holding_by_bars.csv",
+    "holding_by_direction.csv",
+    "holding_by_year.csv",
+    "holding_carry_direction.csv",
+    "holding_summary.svg",
+    "instrument_year.csv",
+    "monthly.csv",
+    "monthly_carry.csv",
+    "open_position_diagnostics.json",
+    "outcome_by_year.csv",
+    "pooled_bookkeeping.csv",
+    "pooled_year.csv",
+    "stop_by_year.csv",
+    "stop_trajectory.csv",
+    "trade_diagnostics.csv"
+  ],
+  "discovery_main_observed": "d963b783b9de31fc0f2c965f6dfb11ab9cd90f5b",
+  "fixed_parameters": {
+    "BASELINE": {
+      "adx_period": 14,
+      "adx_threshold": 20,
+      "atr_average_period": 20,
+      "atr_period": 14,
+      "breakout_period": 20,
+      "ema_period": 75,
+      "slope_lookback": 5,
+      "stop_atr": 2.0,
+      "trail_atr": 3.0
+    },
+    "OPTIMIZED": {
+      "adx_period": 14,
+      "adx_threshold": 20,
+      "atr_average_period": 20,
+      "atr_period": 14,
+      "breakout_period": 20,
+      "ema_period": 75,
+      "slope_lookback": 5,
+      "stop_atr": 2.0,
+      "trail_atr": 3.5
+    }
+  },
+  "future_OHLC_ingested": false,
+  "implementation_hashes": {
+    "diagnose.py": "a50555d06921f60172c94999e027ddad418d9b4166b415c6c8c7b3e50236f446",
+    "render_report.py": "458149240e20465bd45975b03b854bf9043bf4cf87671d8b9bad0ba301200839",
+    "test_diagnostics.py": "82a0c657cb7b5364e80cf7fbde50e7ea0567eef992feaf3e71c0a026e93b1b6c",
+    "verify.py": "65258cc8fe1fb03306457ec94eb7a4078cbe6d0e6c5381c93c9ed9535c43ee1f"
+  },
+  "open_terminal_records": 2,
+  "replay_checks": [
+    {
+      "instrument": "USDRUBF",
+      "maximum_replay_delta": 9.094947017729282e-13,
+      "trades": 226,
+      "version": "BASELINE"
+    },
+    {
+      "instrument": "USDRUBF",
+      "maximum_replay_delta": 9.094947017729282e-13,
+      "trades": 213,
+      "version": "OPTIMIZED"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "maximum_replay_delta": 2.5579538487363607e-13,
+      "trades": 199,
+      "version": "BASELINE"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "maximum_replay_delta": 2.5579538487363607e-13,
+      "trades": 188,
+      "version": "OPTIMIZED"
+    },
+    {
+      "instrument": "GLDRUBF",
+      "maximum_replay_delta": 5.4569682106375694e-12,
+      "trades": 178,
+      "version": "BASELINE"
+    },
+    {
+      "instrument": "GLDRUBF",
+      "maximum_replay_delta": 5.4569682106375694e-12,
+      "trades": 166,
+      "version": "OPTIMIZED"
+    },
+    {
+      "instrument": "IMOEXF",
+      "maximum_replay_delta": 5.002220859751105e-12,
+      "trades": 138,
+      "version": "BASELINE"
+    },
+    {
+      "instrument": "IMOEXF",
+      "maximum_replay_delta": 5.002220859751105e-12,
+      "trades": 134,
+      "version": "OPTIMIZED"
+    }
+  ],
+  "runtime": {
+    "matplotlib": "3.10.7",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "python": "3.12.14"
+  },
+  "scope": "read-only diagnostics; no alternate signals/exits or selection",
+  "source_input_hashes": {
+    "BASELINE_CONFIGS.json": "1f5bc7f7ddaaa2fa2b3e3b53e5aa0caf54cc3ff65932356f77f5176a80d29a9b",
+    "OPEN_POSITIONS.json": "c02fdec2fe99db54f48a003fa504b6d548509e79a8d5aa3791a1bc98c67a5631",
+    "SOURCE_MANIFEST.json": "8496ff9f3685e7eae75056d5cec0c8b3911fcc7ad3f0a89ac0df40f349a09bdd",
+    "audit.py": "1d5efd8aa98c67d10297bb567af60d42c7dd9ff4bd9395677033dc6f47c0daa2",
+    "engine.py": "5dabd2f526255f0e1b003c6820c114e5708d76d8ba5d9580c53c403c2f540c8a",
+    "trades.csv": "a458c7905824abe8a8cc7a42d6079428b53ba78a4c4dc1f2bf73f9eb94a1dd2b"
+  },
+  "sources": [
+    {
+      "first_close": "2023-01-03T09:15:00+03:00",
+      "first_open": "2023-01-03T09:00:00+03:00",
+      "full_sha256": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+      "git_blob_sha": "6d4f7691c1c6bfbad59b62a6f5d613a4ed1e984e",
+      "historical_prefix_sha256": "03ca797870de164d738da97094013def88583892f54278d362337d22ce0a532e",
+      "instrument": "USDRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/USDRUBF/USDRUBF_M15.csv",
+      "source_open_candles": 29890,
+      "used_candles": 29890
+    },
+    {
+      "first_close": "2023-01-03T09:15:00+03:00",
+      "first_open": "2023-01-03T09:00:00+03:00",
+      "full_sha256": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+      "git_blob_sha": "a5ff61bbdd9bb6659a0f4fea7141b04b5e8bc35e",
+      "historical_prefix_sha256": "41f4f29f4b6ddefbbbc8aad44f91a0f9cd689536ecabeb1c09f34936a004fdbc",
+      "instrument": "CNYRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M15.csv",
+      "source_open_candles": 29633,
+      "used_candles": 29633
+    },
+    {
+      "first_close": "2023-07-11T10:15:00+03:00",
+      "first_open": "2023-07-11T10:00:00+03:00",
+      "full_sha256": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+      "git_blob_sha": "726c9242a025e75de4d0e93a2c215cc2778b9a9a",
+      "historical_prefix_sha256": "86635d2fc733fa47db171326200ac4b09bdcc7f262297490274c16d5e708899f",
+      "instrument": "GLDRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M15.csv",
+      "source_open_candles": 22189,
+      "used_candles": 22189
+    },
+    {
+      "first_close": "2023-11-14T10:15:00+03:00",
+      "first_open": "2023-11-14T10:00:00+03:00",
+      "full_sha256": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773",
+      "git_blob_sha": "23d8e02920684a1a55e50b222271faaa81be5120",
+      "historical_prefix_sha256": "57bd34a441960d9c488daf93d9e295573587960c100e156eb241188ae7440f38",
+      "instrument": "IMOEXF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/IMOEXF/IMOEXF_M15.csv",
+      "source_open_candles": 16593,
+      "used_candles": 16593
+    }
+  ],
+  "time_zone": "Europe/Moscow",
+  "year_month_assignment": "local actual exit timestamp; entry_year also retained"
+}

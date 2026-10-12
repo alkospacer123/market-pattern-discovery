@@ -1,0 +1,171 @@
+{
+  "all_new_files_in_allowed_directory": true,
+  "base_main": "d963b783b9de31fc0f2c965f6dfb11ab9cd90f5b",
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "data_worktree_clean": true,
+  "existing_tracked_files_unchanged": true,
+  "external_audit": "PENDING",
+  "github_data_main_rechecked": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "github_main_rechecked_before_PR": "d963b783b9de31fc0f2c965f6dfb11ab9cd90f5b",
+  "new_tracked_files": [
+    "IntradayLab/t3_m15_holding_diagnostics_v1/.gitignore",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/ARTIFACT_SHA256.json",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/AUDIT_RESULTS.json",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/INDEPENDENT_AUDIT.md",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/MANIFEST.json",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/README.md",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/REPEATABILITY.json",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/REPORT.md",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/SCOPE_CHECK.json",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/carry_by_direction.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/carry_by_year.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/carry_kind.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/diagnose.py",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/entry_features_by_outcome.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/entry_hour.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/first_candles.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/first_candles_summary.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/fixed_version_entry_pairs.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/holding_by_bars.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/holding_by_direction.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/holding_by_year.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/holding_carry_direction.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/holding_summary.svg",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/instrument_year.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/monthly.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/monthly_carry.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/open_position_diagnostics.json",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/outcome_by_year.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/pooled_bookkeeping.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/pooled_year.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/render_report.py",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/requirements.txt",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/stop_by_year.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/stop_trajectory.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/test_diagnostics.py",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/trade_diagnostics.csv",
+    "IntradayLab/t3_m15_holding_diagnostics_v1/verify.py"
+  ],
+  "no_TradingSystemLab_imports": true,
+  "protected_frozen_files": {
+    "IntradayLab/t3_m15_forever_v1/.gitignore": {
+      "git_blob_sha": "7a60b85e148f80966a550e5ab6a762a907c69ca6",
+      "sha256": "862263fa1f46c20f0d1e4dac5ffcc75abd55c08211b2c3864c5f8764b9d87793"
+    },
+    "IntradayLab/t3_m15_forever_v1/ARTIFACT_SHA256.json": {
+      "git_blob_sha": "b22c86017043351bfd9d7707ed373d59da7eac07",
+      "sha256": "5794dfeea2e76d09137b84d66c0cacdeed598d282342a44caf922e67cf8e2600"
+    },
+    "IntradayLab/t3_m15_forever_v1/AUDIT_RESULTS.json": {
+      "git_blob_sha": "3fed078280c82933aea3976ed3802a5166af4e79",
+      "sha256": "f3cc0f3b7533f3c35bdcdebd398ab7f0be30c92e9dd11caac93405902328e601"
+    },
+    "IntradayLab/t3_m15_forever_v1/BASELINE_CONFIGS.json": {
+      "git_blob_sha": "39596baecfe245d739224c43a2932589ce9a8ca0",
+      "sha256": "1f5bc7f7ddaaa2fa2b3e3b53e5aa0caf54cc3ff65932356f77f5176a80d29a9b"
+    },
+    "IntradayLab/t3_m15_forever_v1/BASELINE_REPORT.md": {
+      "git_blob_sha": "c08f06469f5450f810ca914454a4273e0aee16ef",
+      "sha256": "c8571a18b9a46b03ee1743be8b582318f6563388f14b13891676d11913cec2e2"
+    },
+    "IntradayLab/t3_m15_forever_v1/GATES.json": {
+      "git_blob_sha": "72e44ad99075195b269095aec42899d013c375ef",
+      "sha256": "41f1fd807ee3835837ee40d743fcf7b1abe845d46ad7a38c2e6d0e77123ea158"
+    },
+    "IntradayLab/t3_m15_forever_v1/INDEPENDENT_AUDIT.md": {
+      "git_blob_sha": "71927f74d64084736fd9c252713f8d13b922195d",
+      "sha256": "c0358496cd7905da1cf7cadf9d32164b98647a766e39a856326d00eb8ad56cbf"
+    },
+    "IntradayLab/t3_m15_forever_v1/OPEN_POSITIONS.json": {
+      "git_blob_sha": "0660370e3f1c97772d12354c47b1e7fc65605234",
+      "sha256": "c02fdec2fe99db54f48a003fa504b6d548509e79a8d5aa3791a1bc98c67a5631"
+    },
+    "IntradayLab/t3_m15_forever_v1/README.md": {
+      "git_blob_sha": "0087bc91455cc06463791de9020d96c61dd1842e",
+      "sha256": "3f454fdfe83130ebe7902c972d6faf998e11e3a299239a1142a64b019bc51218"
+    },
+    "IntradayLab/t3_m15_forever_v1/REPEATABILITY.json": {
+      "git_blob_sha": "1ceda8239f0541da042631a441c8f8ddb1d75b52",
+      "sha256": "6d2152b45d3508a5063ab0d540cbfe5ec86022ab39af5f3118484c8cec2203c0"
+    },
+    "IntradayLab/t3_m15_forever_v1/REPRODUCTION_AUDIT.md": {
+      "git_blob_sha": "05eb7edd46f71f60ccebc57113c4da31ef414778",
+      "sha256": "8222b621ed9ef9f9c6c67bf480ab086bef5e5f93426ef2c8a7d2c040ccc0323a"
+    },
+    "IntradayLab/t3_m15_forever_v1/REPRODUCTION_DETAIL.json": {
+      "git_blob_sha": "a65b3cfccff44b14407d20f02db7bbd03d81fcd2",
+      "sha256": "d2baeeb80664e3783d8c5331bae9a0e8acce7c1109308c6787e92fe129d605be"
+    },
+    "IntradayLab/t3_m15_forever_v1/REPRODUCTION_DIFF.csv": {
+      "git_blob_sha": "4ef120e850e7bd5aed915626160c70aa8310a8dd",
+      "sha256": "50e5a3f973e061bb159d8bd0a10efb2f5118ebc7a3cf7e5b88aa1083f5416f16"
+    },
+    "IntradayLab/t3_m15_forever_v1/SCOPE_CHECK.json": {
+      "git_blob_sha": "6f9faf5fc4bdcfcaa2f97c3c3ec0000c5d92d10b",
+      "sha256": "191a28c5fb9bd235fe5913ff60c63e6ebc502ba955832b337ee7d201f66605f5"
+    },
+    "IntradayLab/t3_m15_forever_v1/SOURCE_MANIFEST.json": {
+      "git_blob_sha": "53629b387c629c57896f868d0cd369368b5ed11d",
+      "sha256": "8496ff9f3685e7eae75056d5cec0c8b3911fcc7ad3f0a89ac0df40f349a09bdd"
+    },
+    "IntradayLab/t3_m15_forever_v1/SPEC_EVIDENCE.json": {
+      "git_blob_sha": "043a822d06f003472789cfce5bb0da2421baedb7",
+      "sha256": "65801b2bf9c2b62cce6a15465d4146886c82691de7890346a573375af1933a27"
+    },
+    "IntradayLab/t3_m15_forever_v1/WF_REFERENCE_COMPARISON.csv": {
+      "git_blob_sha": "a60f8f8402e3ed808fb497e8f08d64c96831f3ae",
+      "sha256": "d8730d2d688e28701c971fe20ad5763667b592c35ff20ad064379d95a1f2dd99"
+    },
+    "IntradayLab/t3_m15_forever_v1/audit.py": {
+      "git_blob_sha": "e58462f615bdbfb5fb50249a65ae485ba4a9e6b8",
+      "sha256": "1d5efd8aa98c67d10297bb567af60d42c7dd9ff4bd9395677033dc6f47c0daa2"
+    },
+    "IntradayLab/t3_m15_forever_v1/direction_report.csv": {
+      "git_blob_sha": "a07bb0ef18318c12cbc3487d87f54ebe4081a53a",
+      "sha256": "0a9e660ff3a4374499d27349b0d83205217722454028732ecd174b084525e459"
+    },
+    "IntradayLab/t3_m15_forever_v1/engine.py": {
+      "git_blob_sha": "ee5907579dcd1dd438706dcc21ea1681ab8dd602",
+      "sha256": "5dabd2f526255f0e1b003c6820c114e5708d76d8ba5d9580c53c403c2f540c8a"
+    },
+    "IntradayLab/t3_m15_forever_v1/exit_diagnostics.csv": {
+      "git_blob_sha": "d1cf30b7f15c4163aba0f03271caf2c794b5631a",
+      "sha256": "0588b75680e8bb086cbde3588dad868be1fd546365545ed3595dbbaa62eb8870"
+    },
+    "IntradayLab/t3_m15_forever_v1/instrument_report.csv": {
+      "git_blob_sha": "3c73e5c9eea574c4be6682c76d83c1c00b847109",
+      "sha256": "71972bae4f1f8caa8743d8653fddeaa0d7e0cd3f762b2cce52f6b76ea0cd1d0c"
+    },
+    "IntradayLab/t3_m15_forever_v1/mae_mfe_report.csv": {
+      "git_blob_sha": "3ef9e9c5c5762533983c55c8fb568684e348b81e",
+      "sha256": "4ec622203996e5072d59e53938f23b1cbd65db845f3b82c4a90a2ec3443e5453"
+    },
+    "IntradayLab/t3_m15_forever_v1/monthly_report.csv": {
+      "git_blob_sha": "aee7eb4c3eac58cb0765edf4daee7ca089d10f6a",
+      "sha256": "945a86134c167b50d8c0ef052ac973995adc2a619d78e51e1200b2c5b2bbe17e"
+    },
+    "IntradayLab/t3_m15_forever_v1/quarterly_report.csv": {
+      "git_blob_sha": "9a18f6a7eb7cb4c0c1a1fdf508469893e81fba25",
+      "sha256": "f7bd0ef1ac198bb5dd103dea321fd9f3e1e29fd50e3fcac5455abc0adf47ba0c"
+    },
+    "IntradayLab/t3_m15_forever_v1/research.py": {
+      "git_blob_sha": "a0b3c8e95fbf7993e3754c3fb28597545774cb00",
+      "sha256": "3768d630070f01e1eb95d92cc8f915444e0b02ca6322af742a775f04f7405407"
+    },
+    "IntradayLab/t3_m15_forever_v1/test_research.py": {
+      "git_blob_sha": "11bc1feb0f2d77c34f847004d741bba6c89751a5",
+      "sha256": "c1bddfbca704bda34f5251a46cf65c7dc7df5b4ca8fd4425bd6e53b90d514a86"
+    },
+    "IntradayLab/t3_m15_forever_v1/trades.csv": {
+      "git_blob_sha": "a59a7f51b224b2343b7f2c9acac1418f226296d5",
+      "sha256": "a458c7905824abe8a8cc7a42d6079428b53ba78a4c4dc1f2bf73f9eb94a1dd2b"
+    },
+    "IntradayLab/t3_m15_forever_v1/yearly_report.csv": {
+      "git_blob_sha": "0ab89bdbbf3c1da6627fa72da753560f4f6f612b",
+      "sha256": "13cbe22a851823213874ce78c0290cb6f26e319734328a20152087d528469759"
+    }
+  },
+  "scope": "Only two fixed T3/M15 versions and 2023\u20132024 diagnostics; no strategy/config/source changes, new optimization, robustness, walk forward, TRUE OOS, broker calls, merge or auto-merge.",
+  "staging_note": "Research CSV/JSON explicitly staged despite repository-wide ignore rules; work/ and caches excluded.",
+  "status": "PASS"
+}
