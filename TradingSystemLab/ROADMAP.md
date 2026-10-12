@@ -1,5 +1,18 @@
 # Evidence-based roadmap
 
+## 2026-10-12 validation update — shadow PASS; LIVE still HALTED
+
+Intel operator evidence for code fix PR #484 (commit `184e8c2b8fa092a606249ff293a4f507160bff29`), **not** a production deployment:
+
+- Isolated worktree targeted tests **60/60 PASS**. Full Stage 8 suite not yet run.
+- FINAM GET-only immutable H1 physical splice **4/4 N4 PASS**; accepted seam `2026-10-11T18:00:00+03:00`; 2 backfilled historical timestamps ignored and 2 newer append-ready bars **per N4 at probe time**. Broker positions, active orders and unresolved intents: `0/0/0`. External evidence SHA-256: `2fe51ccd6ab57682579f222158b12413eaae6020abe21aec7afa188d3afddb43`.
+- One-cycle corrected production service **on an isolated SQLite online-backup copy**, FINAM restricted to session/GET calls: immutable-prefix checks `4/4 PASS`, **3 newer bars per N4 appended to shadow only**. Shadow heartbeat `HEALTHY`, reconciliation `PASS`. External evidence SHA-256: `4799a0b426cd62d143a0b3fdba6035ef44f11dde6654676568b1a28e3a8fbded`.
+- LIVE checkout remains at old code commit `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`; old-commit-bound authorization and LIVE SQLite/tasks unchanged. Production task `Running`, kill switch `HALTED` generation 59. **LIVE production heartbeat recovery NOT TESTED/NOT PROVEN.** No real order endpoint call or re-arm in these checks.
+- Next gate: operator-controlled HALTED LIVE deployment with validated rollback/backups and exact commit/task/authorization rollover, full applicable tests/audits, fresh real-runtime `HEALTHY/PASS`; re-arm requires a separate explicit operator decision. Do not run historical foundation/package3 scripts against an already authorized, Running LIVE environment; never `git pull` active LIVE checkout.
+
+External report bytes remain on Intel, not committed in Git. No strategy, T3/H1/TRAIL1/N4/FULL-R15, frozen risk/portfolio/execution, Stage5 or research changes.
+
+
 ## Current operational HOLD — 2026-10-12 (supersedes older operational snapshots)
 
 **HALTED / NOT REARMED.** Operator-provided physical snapshot at `2026-10-12T05:55:33.966970+00:00`: kill switch `HALTED`, generation `59`, production service `Running`, positions `0`, unresolved intents `0`; heartbeat `UNHEALTHY`, reconciliation `FAULT`, cycle_count `9212`, repeated `STAGE8_12_4_H1_SPLICE_TIMESTAMP_MISMATCH`. These are **reported observations**, not a new physical verification.

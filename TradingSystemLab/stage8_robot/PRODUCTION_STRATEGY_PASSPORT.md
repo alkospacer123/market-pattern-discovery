@@ -1,5 +1,13 @@
 # TradingSystemLab — Frozen Stage 7 Production Strategy Passport
 
+## Validation update — 2026-10-12 (LIVE HALTED)
+
+- PR #484 exact fix `184e8c2b8fa092a606249ff293a4f507160bff29`: 60/60 targeted tests PASS.
+- FINAM GET-only H1 splice 4/4 N4 PASS, seam `2026-10-11 18:00 MSK`, SHA-256 `2fe51ccd6ab57682579f222158b12413eaae6020abe21aec7afa188d3afddb43`.
+- Isolated SQLite-copy production shadow 4/4 immutable prefix PASS, 3 new bars per N4 appended to shadow only; shadow `HEALTHY/PASS`, SHA-256 `4799a0b426cd62d143a0b3fdba6035ef44f11dde6654676568b1a28e3a8fbded`.
+- LIVE original checkout, durable authorization and database unchanged; `HALTED` generation 59. LIVE heartbeat recovery, exact-commit authorization rollover, full Stage 8 suite and re-arm pending.
+
+
 ## Identity (unchanged)
 - Production specification: `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`
 - Active identity: `TRAIL1__N4_01__FULL__R15`
