@@ -372,3 +372,16 @@ def test_lost_reconciled_position_is_not_rebuilt_as_new_revision(tmp_path):
     with pytest.raises(ProductionRuntimeError,match='RECONCILED_POSITION_MISSING'): confirm(rt,a)
     assert rt.open_positions()=={} and len(rt.store.all_intents())==2
     rt.close()
+
+
+def test_older_h1_history_cannot_create_a_new_signal_after_restart(tmp_path):
+    rt=runtime(tmp_path/'state.db')
+    rt.store.put('last_evaluated_h1:USDRUBF',datetime(2026,1,2,11,tzinfo=MSK).isoformat())
+    rt.close(); rt=runtime(tmp_path/'state.db')
+    class Builder:
+        def build(self,*args):
+            return pd.DataFrame({'Close':[100]},index=pd.DatetimeIndex([datetime(2026,1,2,10,tzinfo=MSK)])),None
+    rt.context_builder=Builder()
+    with pytest.raises(ProductionRuntimeError,match='STALE_OR_NON_MONOTONIC_SIGNAL_H1'): rt.build_latest_signal('USDRUBF',None,None)
+    assert rt.store.get('signal_sequence:USDRUBF') is None and rt.store.all_intents()==[]
+    rt.close()

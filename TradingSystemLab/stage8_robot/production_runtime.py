@@ -413,7 +413,10 @@ class ProductionRuntime:
             return None
         timestamp = execution.index[-1]
         evaluated_key = f"last_evaluated_h1:{instrument}"
-        if self.store.get(evaluated_key) == timestamp.isoformat():
+        evaluated = self.store.get(evaluated_key)
+        if self.execution_revision and evaluated is not None and timestamp < pd.Timestamp(evaluated):
+            raise ProductionRuntimeError("STALE_OR_NON_MONOTONIC_SIGNAL_H1")
+        if evaluated == timestamp.isoformat():
             return None
         eligible = context.loc[context.index <= timestamp]
         if eligible.empty:
