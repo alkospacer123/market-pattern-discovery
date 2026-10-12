@@ -1,0 +1,15 @@
+{
+  "ProductionService_class_AST_unchanged": true,
+  "TradingSystemLab/stage8_robot/execution_grid.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+  "TradingSystemLab/stage8_robot/finam_api.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+  "TradingSystemLab/stage8_robot/finam_fill_price_readonly.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+  "TradingSystemLab/stage8_robot/live_execution.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+  "TradingSystemLab/stage8_robot/production_runtime.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+  "TradingSystemLab/stage8_robot/protective_stop_contract.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+  "TradingSystemLab/stage8_robot/state.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+  "TradingSystemLab/stage8_robot/tests/replay_stop_tick_grid.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+  "TradingSystemLab/stage8_robot/tests/test_entry_pre_post_recovery.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+  "TradingSystemLab/stage8_robot/tests/test_finam_durable_fill_handoff.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+  "current_class_AST_sha256": "7f05b871067e80ae20ad5e371cd6488600795bfb8a6219dbe95b8bad5ea8aa0b",
+  "source_commit": "e59fd8d4676e94d84df0b585f40ec67401ac6ba0"
+}

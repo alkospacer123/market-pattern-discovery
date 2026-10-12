@@ -1,0 +1,383 @@
+{
+  "actual_main_last_observed": "bc4f95f48b332f43d79ed10f26fc03c5ad01cd97",
+  "artifacts": {
+    "committed-runner.stdout.txt": {
+      "bytes": 1090,
+      "git_blob": "3ebd3ce06a6f793f0ea50ad6245d6e7fa7c32f0d",
+      "sha256": "4840122d6020b1dc18dbf53ba213ed0e16e7b5a5656fc3cf41b29d5876a0ac9d"
+    },
+    "exercise_release_path.py": {
+      "bytes": 5315,
+      "git_blob": "75fedf1adbf8740b7bc98b84689d8c5f8bea8757",
+      "sha256": "fe924212a71ae4c11421d1eb488ba560dd96fad8201ca35978f2c0bc40e242a5"
+    },
+    "final-release-module.stdout.txt": {
+      "bytes": 99,
+      "git_blob": "b535ac0bded8b2584e1b09331bf309aa93a4bc5f",
+      "sha256": "c20f6d838182280d28be8b3bff82597179e837335ae0156b9a202e6f70f661b5"
+    },
+    "independent_scope.json": {
+      "bytes": 1210,
+      "git_blob": "c21904349815982ebe242af273eb1b348680488c",
+      "sha256": "51bec02a7c1b52a2e895949cae91a167009b347ce63c45e60c38f38bc31d8833"
+    },
+    "legacy_dryrun.json": {
+      "bytes": 6077,
+      "git_blob": "7f8bcfb31d7df9ec58f03f5bd5b5ce88cec480bf",
+      "sha256": "49fd04bd4df06bd2d828a6dcbf24d945fb4b3cc0ce9be468e24324cafe499589"
+    },
+    "regression.stdout.txt": {
+      "bytes": 667,
+      "git_blob": "82dfb062412258e7902747bfb240c7681dd99f40",
+      "sha256": "0d71e4a0d09f59ebc3e491e99296ae5f055ba839a28f40b0cf5f44b72a32af66"
+    },
+    "replay.stdout.txt": {
+      "bytes": 1327,
+      "git_blob": "9db46804d49d9602f30e7f64e10526b47f0ad589",
+      "sha256": "f9d9685b19bdaab51066e43fd8ad5a33c1cda3d4f51d5752642ce5b60f47e9af"
+    },
+    "replay_results.json": {
+      "bytes": 2431,
+      "git_blob": "39148b377faa93a051f0498e3b418712919d47e4",
+      "sha256": "87459a6a657cc799a4f51f49ab697b76f095a3bb2eaf6360986282e0fb445f2f"
+    },
+    "signal_period.csv": {
+      "bytes": 9996,
+      "git_blob": "4ded05e1bddf3a7e67ffcf682971ad5914011a79",
+      "sha256": "7b62a274b0bba029be1834874477383a2c6f64a64cd77f041c1d52115c9ba804"
+    },
+    "signal_period.json": {
+      "bytes": 6455,
+      "git_blob": "e7735be12df6a67b8e19d5173b8df8441fd512fa",
+      "sha256": "e5301bdb32f8363792d99c6213bdf8120856de341652eb6798b8f90f0a96a278"
+    },
+    "signal_zero.json": {
+      "bytes": 2420,
+      "git_blob": "13f52c0f92ba5b4db91f57d483681565a573f7e8",
+      "sha256": "e47c94ad3c8aacf7f84a06fa54fc68022663f8d8db09963c22fb57aa5d0f32c9"
+    },
+    "stage8-applicable.stdout.txt": {
+      "bytes": 4061,
+      "git_blob": "69d66b23b94db8a02c62b116177ec129bf486d93",
+      "sha256": "5c5212d0e34c970053e8c0d858bbc3707d6a7e43a497950a044ec74a9f7edf0b"
+    },
+    "stage8-main-758-recheck.stdout.txt": {
+      "bytes": 65277,
+      "git_blob": "32e2b7eb4ffdda0533a88bb5dcb8fcd340da1f16",
+      "sha256": "d996666e4052d3f010a4c10d0ae1f6c3c99be737074bef92256dfedda1f60524"
+    },
+    "stage8-prior-head-recheck.stdout.txt": {
+      "bytes": 69476,
+      "git_blob": "70d4c69752b09b0022e7d2a360f0a4e8bcf196f7",
+      "sha256": "c1e4e788f47795fca4194cda16871b0d91b0e8d4634cedbad0ab35fe01f94abc"
+    },
+    "stage8-unfiltered.stdout.txt": {
+      "bytes": 71005,
+      "git_blob": "c7a02f30eac704417a9436c81488e610f082e883",
+      "sha256": "af1d04ea7bc266ff9952e81496a5bd3d14ad0d4edc828ab1d90df257d68559e8"
+    }
+  },
+  "automatic_v2_trading_activated": false,
+  "candidate_parent": "e59fd8d4676e94d84df0b585f40ec67401ac6ba0",
+  "classification": "RELEASE_PREPARATION_OFFLINE_PASS",
+  "deploy_done": false,
+  "documented_live_commit_not_reobserved": "184e8c2b8fa092a606249ff293a4f507160bff29",
+  "draft_pr": 493,
+  "dry_run": {
+    "archive_and_rollback_byte_exact": true,
+    "closed_runner_exact_commit_binding": "PASS_NO_GIT_OR_MANIFEST_VALIDATION_PATCH",
+    "fixture_provenance": "SYNTHETIC_LEGACY_SERVICE_DATABASE_WITH_EXACT_FROZEN_STAGE5_SEEDS_NOT_INTEL_SNAPSHOT",
+    "legacy_intents_fills": "immutable byte-exact archive only, no V2 execution authority",
+    "new_intents_or_fills": 0,
+    "pending_signals_activated": 0,
+    "production_state_opened": false,
+    "source_bytes_unchanged": true,
+    "source_sha256": "6c771f4b67a79317f071b732305f89642ed22a131dde6350e0f1081177a5862f"
+  },
+  "entry_guard": "FINAM_FILL_AUTHORITY_VERIFIED=False unchanged",
+  "expanded_stage8": {
+    "all_35_reproduced_on_prior_head": true,
+    "applicable_failed_nodes": [
+      "TradingSystemLab/stage8_robot/tests/test_release_preparation.py::test_signal_diagnostic_rejects_uncovered_live_week_without_output"
+    ],
+    "applicable_result": "1 failed, 1352 passed, 10 skipped, 35 deselected, 17 subtests passed in 581.47s (0:09:41)",
+    "combined_applicable_checks": "All failed current release cases corrected and all current 57 release cases PASS; previously passing applicable Stage8 checks preserved. No summed or fabricated single-run count.",
+    "current_release_module_final_rerun": "57 passed",
+    "excluded_nodes": "Only the exact 35 baseline-reproduced failures; no entire module excluded",
+    "failed_nodes": [
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_clean_repository_authority_passes",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage8_11_cleanliness_correction_preserves_historical_hash_authority",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_crlf_protected_implementation_hashes_pass",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage8_independent_audit_accepts_canonical_and_crlf_implementation_files[\\n]",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage8_independent_audit_accepts_canonical_and_crlf_implementation_files[\\r\\n]",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage8_12_live_closeout_evidence_is_required",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_12_live_current_handoff_mutations_fail_both_audits[TradingSystemLab/CURRENT_STATE.md]",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_12_live_current_handoff_mutations_fail_both_audits[TradingSystemLab/PROJECT_CONTEXT.md]",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_12_live_current_handoff_mutations_fail_both_audits[TradingSystemLab/ROADMAP.md]",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_12_live_current_handoff_stale_gate_and_omission_fail_both_audits[TradingSystemLab/CURRENT_STATE.md]",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_12_live_current_handoff_stale_gate_and_omission_fail_both_audits[TradingSystemLab/PROJECT_CONTEXT.md]",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_12_live_current_handoff_stale_gate_and_omission_fail_both_audits[TradingSystemLab/ROADMAP.md]",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_10_clearly_scoped_historical_text_passes_both_audits[TradingSystemLab/CURRENT_STATE.md]",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_10_clearly_scoped_historical_text_passes_both_audits[TradingSystemLab/PROJECT_CONTEXT.md]",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_10_clearly_scoped_historical_text_passes_both_audits[TradingSystemLab/ROADMAP.md]",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_10_clearly_scoped_historical_text_passes_both_audits[TradingSystemLab/stage8_robot/README.md]",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage811_schema_validation_weakening_fails_both_audits[COALESCE(status,'') NOT IN-status NOT IN]",
+      "TradingSystemLab/stage8_robot/tests/test_stage8_11_http400_recovery.py::test_http400_ambiguous_account_requires_intervention[options0]",
+      "TradingSystemLab/stage8_robot/tests/test_stage8_11_http400_recovery.py::test_http400_ambiguous_account_requires_intervention[options1]",
+      "TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_default_boundary_is_precheck_only_and_order_incapable",
+      "TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_frozen_order_not_performance_and_report_is_sanitized",
+      "TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_canonical_intent_terminal_semantics[CANCELLED-True]",
+      "TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_canonical_intent_terminal_semantics[REJECTED-True]",
+      "TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_canonical_intent_terminal_semantics[CLOSED-True]",
+      "TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_canonical_intent_terminal_semantics[RECONCILED-True]",
+      "TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_intel_production_schema_regression_uses_separate_authorities",
+      "TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_missing_acceptance_ledger_is_initialized_locally",
+      "TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_frozen_registry_binding_failure_blocks[missing]",
+      "TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_frozen_registry_binding_failure_blocks[mismatch]",
+      "TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_frozen_registry_binding_failure_blocks[nontradable]",
+      "TradingSystemLab/stage8_robot/tests/test_stage8_11_physical_acceptance.py::test_execute_boundary_propagates_fresh_clock_and_refuses_closed_flatten",
+      "TradingSystemLab/stage8_robot/tests/test_stage8_12_4_package3_zero_order_validator.py::test_package3_foundation_audits_use_canonical_broker_constants_and_current_handoff",
+      "TradingSystemLab/stage8_robot/tests/test_stage8_12_4_package3_zero_order_validator.py::test_package3_sparse_h1_overlap_authority_is_fail_closed",
+      "TradingSystemLab/stage8_robot/tests/test_windows_compatibility.py::test_check_only_audits_do_not_write_results",
+      "TradingSystemLab/stage8_robot/tests/test_windows_compatibility.py::test_preflight_is_read_only"
+    ],
+    "final_applicable_status": "PASS_WITH_EXPLICIT_BASELINE_EXCLUSIONS_AND_FINAL_RELEASE_MODULE_RERUN",
+    "fixture_correction": "Uncovered-interval unit test originally patched the loader in the wrong module; corrected diagnostic loader patch. Final 501-case regression passes this test and all 57 current release cases. No production behavior changed for that fixture correction.",
+    "main_758_recheck": "33 failed, 2 passed",
+    "main_passed_nodes": [
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_crlf_protected_implementation_hashes_pass",
+      "TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage8_11_cleanliness_correction_preserves_historical_hash_authority"
+    ],
+    "no_claim_of_unfiltered_stage8_pass": true,
+    "unfiltered_result": "35 failed, 1347 passed, 10 skipped, 17 subtests passed",
+    "unfiltered_scope": "Intermediate working candidate; unfiltered suite is NOT PASS"
+  },
+  "git_blob_changes_this_preparation": {
+    "TradingSystemLab/stage8_robot/EXECUTION_AMENDMENT_STOP_TICK_GRID.md": {
+      "candidate_git_blob": "fb4cc22be1767621a227907a7eeba75cd22d1335",
+      "previous_git_blob": "32478a49b13a495ec3b33a2529acc079da350f3f",
+      "sha256": "4cc7ade5432c87a52567c716cfde1317fae03f4c5576e3efe05b01cc2af01366"
+    },
+    "TradingSystemLab/stage8_robot/RELEASE_PREPARATION_STOP_TICK_GRID_V2.md": {
+      "candidate_git_blob": "9b76312880aadddb9beaf8f437c597c4f0f01380",
+      "previous_git_blob": null,
+      "sha256": "da9b8010f8d05f3d57fe6e8ca3a876282cfd0aee9612dfc0f4231d70e75b133a"
+    },
+    "TradingSystemLab/stage8_robot/production_service.py": {
+      "candidate_git_blob": "d27d485a370de328c70b434335634cb327d1284f",
+      "previous_git_blob": "843f05bd92dbbfe4cfb1cfd14b0d900ba6b921ad",
+      "sha256": "f9a2404c857d4b1bf46b205e49cf0454ba2a2b782e87e0bffd30bda9677749de"
+    },
+    "TradingSystemLab/stage8_robot/release_candidate_runner.py": {
+      "candidate_git_blob": "d232b794387f43964fac2bfbaee1bd10bc2bbc37",
+      "previous_git_blob": null,
+      "sha256": "2d1f22524cb0b5b6301c08dc447b1ab22193c5553b49a8ac18a365b872dc6594"
+    },
+    "TradingSystemLab/stage8_robot/release_preparation.py": {
+      "candidate_git_blob": "55105dbe8c01b1583c5e7f05441346a5c91613ff",
+      "previous_git_blob": null,
+      "sha256": "7cb98381bb47a1c56dcef6d56df170412f6a888b2d8f893c6338a9476752b3ab"
+    },
+    "TradingSystemLab/stage8_robot/signal_execution_diagnostic.py": {
+      "candidate_git_blob": "33f20607c828223d426718768ff3f4669dd31956",
+      "previous_git_blob": null,
+      "sha256": "205d0d1052ff72dada9c8f4b6dede675bb50094bce660048e7fc5b111d5f738c"
+    },
+    "TradingSystemLab/stage8_robot/tests/run_stop_tick_grid_tests.py": {
+      "candidate_git_blob": "2ee0ead016f551a3642d764a91d9d6bb3cf8ffcd",
+      "previous_git_blob": "ec17d42c55f457ce1b87e1333207fb47a6e1dba8",
+      "sha256": "bdec1764fae23ffaddbda437ecf70878a1291cfb528c3aedd64ed22d12760f1b"
+    },
+    "TradingSystemLab/stage8_robot/tests/test_release_preparation.py": {
+      "candidate_git_blob": "6fe6530d6b9f2e86d3a6ef1136659c71500bef5a",
+      "previous_git_blob": null,
+      "sha256": "93f195d26921cc8f1a352013b2f735c61761c2655bbc0cf52d112f53c73654cf"
+    }
+  },
+  "initial_main": "758a0ac1deda8bfa7aa1bc99d8a97a33a9357f02",
+  "intel_connections": 0,
+  "live_changes": "NONE",
+  "live_production_ready": "NO",
+  "live_status": {
+    "ACTUAL_FILL_AUTHORITY": "BLOCKED_INDEPENDENT_PHYSICAL_MULTI_FILL_RETENTION_ACCEPTANCE",
+    "HISTORICAL_SESSION_AUTHORITY": "BLOCKED_NOT_SUPPLIED",
+    "LIVE_PRODUCTION_READY": "NO",
+    "LIVE_WEEK_SIGNAL_DIAGNOSTIC": "BLOCKED_NO_EXTERNAL_LIVE_H1_SNAPSHOT",
+    "PERCENT_SLTP_GROWTH": "BLOCKED_REAL_FINAM_COVERAGE_AND_BACKSTOP_RACES",
+    "REAL_LEGACY_SNAPSHOT_CUTOVER": "BLOCKED_NOT_SUPPLIED_NOT_AUTHORIZED"
+  },
+  "main_advance_scope": "IntradayLab only; no TradingSystemLab changes",
+  "merge_done": false,
+  "next_boundary": "Independent audit; separate physical FINAM acceptance and HALTED cutover authorization. No activation by preparation runner.",
+  "offline_status": {
+    "CAUSAL_STATE_PRESERVATION": "PASS",
+    "EXECUTABLE_STOP_CONFORMANCE": "PASS",
+    "LEGACY_SNAPSHOT_DRY_RUN": "PASS",
+    "PARTIAL_MULTI_FILL_FAKE_COVERAGE": "PASS",
+    "PRE_POST_RECOVERY_OFFLINE": "PASS",
+    "R15_MARGIN_CONFORMANCE": "PASS",
+    "RAW_RESEARCH_CONFORMANCE": "PASS",
+    "RESTART_RECOVERY_CONFORMANCE": "PASS",
+    "ROLLBACK_EXACT": "PASS",
+    "TRAIL1_PROTECTION_CONFORMANCE": "PASS",
+    "V2_EXPLICIT_CLOSED_SERVICE_SELECTION": "PASS"
+  },
+  "physical_finam_endpoint_calls": 0,
+  "physical_provenance": {
+    "fees_tariffs_calculated": false,
+    "fees_tariffs_preparation_blocker": false,
+    "historical_cny_single_contract_entries_reported": 5,
+    "independent_sha256_audit": false,
+    "original_bytes_provided": false,
+    "real_multi_fill_and_sltp_growth_proved": false,
+    "reported_readonly_ab": "PASS",
+    "source": "USER_ATTACHED_TASK_SUMMARY_ONLY"
+  },
+  "previous_core_and_protection": {
+    "ProductionService_class_AST_unchanged": true,
+    "TradingSystemLab/stage8_robot/execution_grid.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+    "TradingSystemLab/stage8_robot/finam_api.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+    "TradingSystemLab/stage8_robot/finam_fill_price_readonly.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+    "TradingSystemLab/stage8_robot/live_execution.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+    "TradingSystemLab/stage8_robot/production_runtime.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+    "TradingSystemLab/stage8_robot/protective_stop_contract.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+    "TradingSystemLab/stage8_robot/state.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+    "TradingSystemLab/stage8_robot/tests/replay_stop_tick_grid.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+    "TradingSystemLab/stage8_robot/tests/test_entry_pre_post_recovery.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+    "TradingSystemLab/stage8_robot/tests/test_finam_durable_fill_handoff.py": "BYTE_IDENTICAL_TO_PREVIOUS_CANDIDATE",
+    "current_class_AST_sha256": "7f05b871067e80ae20ad5e371cd6488600795bfb8a6219dbe95b8bad5ea8aa0b",
+    "source_commit": "e59fd8d4676e94d84df0b585f40ec67401ac6ba0"
+  },
+  "protected_paths": [
+    "TradingSystemLab/results",
+    "TradingSystemLab/strategies",
+    "TradingSystemLab/core",
+    "TradingSystemLab/configs",
+    "TradingSystemLab/ROADMAP.md",
+    "TradingSystemLab/CURRENT_STATE.md",
+    "TradingSystemLab/PROJECT_CONTEXT.md",
+    "TradingSystemLab/METHODOLOGY.md",
+    "audit_only",
+    "TradingSystemLab/stage8_robot/strategy_core.py",
+    "TradingSystemLab/stage8_robot/trail1_state.py",
+    "TradingSystemLab/stage8_robot/context_builder.py",
+    "TradingSystemLab/stage8_robot/risk.py",
+    "TradingSystemLab/stage8_robot/margin.py",
+    "TradingSystemLab/stage8_robot/specification.py",
+    "TradingSystemLab/stage8_robot/production_instrument_registry.csv",
+    "TradingSystemLab/stage8_robot/broker.py",
+    "TradingSystemLab/stage8_robot/production_authorization.py",
+    "TradingSystemLab/stage8_robot/production_safety_gate.py",
+    "TradingSystemLab/stage8_robot/deploy"
+  ],
+  "protected_trees": {
+    "accepted_audit": {
+      "byte_git_blob_identity": "UNCHANGED",
+      "file_count": 16,
+      "git_tree_listing_sha256": "629721acf47dbb963dec49e5c7df863505336d07c272dfa5fa65ca4f7eef6a3c"
+    },
+    "all_original_results": {
+      "byte_git_blob_identity": "UNCHANGED",
+      "file_count": 2508,
+      "git_tree_listing_sha256": "dd7a96853df1d5b6f5e2dede502a16e46c24459d4aa9ff6b10eb33787668a631"
+    },
+    "frozen_stage7": {
+      "byte_git_blob_identity": "UNCHANGED",
+      "file_count": 16,
+      "git_tree_listing_sha256": "8b4a046a7f370785ddd0b3d2b141d83aebb2aee7e5598345f32aeca9451296aa"
+    },
+    "original_true_oos": {
+      "byte_git_blob_identity": "UNCHANGED",
+      "file_count": 207,
+      "git_tree_listing_sha256": "19d3cb1487e381a22d11d61680c497b168d284b66d18cecb3323e59befa17b08"
+    }
+  },
+  "raw_replay": {
+    "adjusted_oos_or_pnl_claim": false,
+    "comparison_csv_sha256": "c041544f9e53d9e53c61a4c05d652c63dbfad508260884a6d41932f64efdf040",
+    "comparison_csv_unchanged": true,
+    "grid_checks": 1422,
+    "independent_authority_exact": 418,
+    "original_oos_unchanged": true,
+    "production_exact": 418,
+    "raw_signals": 1422,
+    "source_hash_note": "Exact frozen raw Git-blob hashes verified. Legacy normalized LF hash helper mismatch is preserved in replay_results.json; no frozen data rewritten."
+  },
+  "real_order_endpoint_calls": 0,
+  "rearm_done": false,
+  "runner": {
+    "all_io": "synthetic API spies, no network",
+    "existing_candidate_cases": 444,
+    "network": "socket.connect/connect_ex/create_connection denied",
+    "new_release_cases": 57,
+    "passed": 501,
+    "skipped": 1,
+    "stdout": "release_preparation_evidence/regression.stdout.txt",
+    "subtests_passed": 17
+  },
+  "schema": "stop_tick_grid_v2_release_preparation_verification.v1",
+  "signal_diagnostic": {
+    "capacity": "Synthetic independent reference scenario, not real authenticated margin proof",
+    "counts": {
+      "CNYRUBF": {
+        "aggregate_risk_skips": 0,
+        "completed_h1": 218,
+        "legacy_grid_skips": 2,
+        "margin_zero": 0,
+        "r15_zero": 0,
+        "raw_t3_signals": 2,
+        "session_unverified": 2,
+        "v2_capacity_zero": 0,
+        "v2_entry_guard_closed": 2,
+        "v2_plannable": 2
+      },
+      "GLDRUBF": {
+        "aggregate_risk_skips": 0,
+        "completed_h1": 218,
+        "legacy_grid_skips": 5,
+        "margin_zero": 0,
+        "r15_zero": 0,
+        "raw_t3_signals": 5,
+        "session_unverified": 5,
+        "v2_capacity_zero": 0,
+        "v2_entry_guard_closed": 5,
+        "v2_plannable": 5
+      },
+      "IMOEXF": {
+        "aggregate_risk_skips": 0,
+        "completed_h1": 218,
+        "legacy_grid_skips": 3,
+        "margin_zero": 0,
+        "r15_zero": 0,
+        "raw_t3_signals": 3,
+        "session_unverified": 3,
+        "v2_capacity_zero": 0,
+        "v2_entry_guard_closed": 3,
+        "v2_plannable": 3
+      },
+      "USDRUBF": {
+        "aggregate_risk_skips": 0,
+        "completed_h1": 216,
+        "legacy_grid_skips": 3,
+        "margin_zero": 0,
+        "r15_zero": 0,
+        "raw_t3_signals": 3,
+        "session_unverified": 3,
+        "v2_capacity_zero": 0,
+        "v2_entry_guard_closed": 3,
+        "v2_plannable": 3
+      }
+    },
+    "fixed_interval": "2026-09-01T00:00:00+03:00 / 2026-09-16T00:00:00+03:00",
+    "legacy_grid_skips": 13,
+    "raw_signals": 13,
+    "session": "UNVERIFIED, not inferred from bars",
+    "v2_guard_closed": 13,
+    "v2_plannable": 13,
+    "zero_interval": "2026-09-15T13:00:00+03:00 / 2026-09-16T00:00:00+03:00",
+    "zero_interval_signals": 0,
+    "zero_message": "GRID_FIX_CANNOT_CREATE_MISSING_T3_SIGNAL"
+  },
+  "source_data_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+  "source_tested_commit": "da0553fd72a66203a37c926599d5c621c5c10b59"
+}

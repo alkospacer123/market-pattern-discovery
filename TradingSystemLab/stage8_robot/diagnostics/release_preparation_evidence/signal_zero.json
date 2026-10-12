@@ -1,0 +1,72 @@
+{
+  "accepted_signal_csv_sha256": "42d7e6aacb2ea28f172d9869ecb5ea66f886e32a854f81f4ea242265a8d3fb82",
+  "actual_examples": [],
+  "end_exclusive": "2026-09-16T00:00:00+03:00",
+  "live_changes": "NONE",
+  "live_production_ready": "NO",
+  "live_week_diagnostic": "BLOCKED_NO_EXTERNAL_LIVE_H1_SNAPSHOT",
+  "message": "NO_RAW_T3_SIGNAL_GRID_FIX_CANNOT_CREATE_SIGNAL",
+  "per_symbol": {
+    "CNYRUBF": {
+      "aggregate_risk_skips": 0,
+      "completed_h1": 11,
+      "legacy_grid_skips": 0,
+      "margin_zero": 0,
+      "r15_zero": 0,
+      "raw_t3_signals": 0,
+      "session_unverified": 0,
+      "v2_capacity_zero": 0,
+      "v2_entry_guard_closed": 0,
+      "v2_plannable": 0
+    },
+    "GLDRUBF": {
+      "aggregate_risk_skips": 0,
+      "completed_h1": 11,
+      "legacy_grid_skips": 0,
+      "margin_zero": 0,
+      "r15_zero": 0,
+      "raw_t3_signals": 0,
+      "session_unverified": 0,
+      "v2_capacity_zero": 0,
+      "v2_entry_guard_closed": 0,
+      "v2_plannable": 0
+    },
+    "IMOEXF": {
+      "aggregate_risk_skips": 0,
+      "completed_h1": 11,
+      "legacy_grid_skips": 0,
+      "margin_zero": 0,
+      "r15_zero": 0,
+      "raw_t3_signals": 0,
+      "session_unverified": 0,
+      "v2_capacity_zero": 0,
+      "v2_entry_guard_closed": 0,
+      "v2_plannable": 0
+    },
+    "USDRUBF": {
+      "aggregate_risk_skips": 0,
+      "completed_h1": 11,
+      "legacy_grid_skips": 0,
+      "margin_zero": 0,
+      "r15_zero": 0,
+      "raw_t3_signals": 0,
+      "session_unverified": 0,
+      "v2_capacity_zero": 0,
+      "v2_entry_guard_closed": 0,
+      "v2_plannable": 0
+    }
+  },
+  "raw_research_conformance": "PASS",
+  "real_order_endpoint_calls": 0,
+  "schema": "stop_tick_grid_signal_diagnostic.v1",
+  "scope": "Existing full T3 conditions; fixed frozen interval. Synthetic independent sizing equity=100000/cash=1000000/GO LONG=100 SHORT=120; not physical margin or actual trading eligibility.",
+  "seed_sha256": {
+    "CNYRUBF": "a3815b88a11aa5878b8bd104140f002859349c2c8d7f6ff0476a0d4c4d9a612e",
+    "GLDRUBF": "12a626ba6cc47fce2f392d4a6ce3bdb8a3c1aad074306a73ab480fcfbb83b87e",
+    "IMOEXF": "119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110",
+    "USDRUBF": "f0ca366d816a6213742271242e87c53d1e23f5a5fc4655df0123217df418a226"
+  },
+  "session_authority": "NOT_PROVIDED_NOT_INFERRED",
+  "source": "EXACT_FROZEN_STAGE5_NO_LIVE_BARS",
+  "start_inclusive": "2026-09-15T13:00:00+03:00"
+}

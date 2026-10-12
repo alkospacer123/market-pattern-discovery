@@ -1,0 +1,975 @@
+....................................................... [  3%]
+........................................................................ [  9%]
+.......F...F..............FFF........................................... [ 14%]
+........................................................................ [ 19%]
+............................F.........FFF............................... [ 24%]
+..FFF.....FFFF......................F................................... [ 29%]
+........................................................................ [ 34%]
+........................................................................ [ 40%]
+........................................................................ [ 45%]
+........................................................................ [ 50%]
+...............................................................s........ [ 55%]
+........................................................................ [ 60%]
+........................................................................ [ 66%]
+.................................................FF..................F.. [ 71%]
+......F...................FFFF..FF.........FFF.................F........ [ 76%]
+......................F.F............................................... [ 81%]
+........................................................................ [ 86%]
+........................................................................ [ 91%]
+............................................................F.F......... [ 97%]
+..sssss........ssss......................                                [100%]
+=================================== FAILURES ===================================
+____________________ test_clean_repository_authority_passes ____________________
+
+    def test_clean_repository_authority_passes():
+        result = run_audit()
+>       assert result["status"] == "PASS"
+E       AssertionError: assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:46: AssertionError
+__ test_stage8_11_cleanliness_correction_preserves_historical_hash_authority ___
+
+    def test_stage8_11_cleanliness_correction_preserves_historical_hash_authority():
+        path = "TradingSystemLab/stage8_robot/readonly_supervisor.py"
+        assert final.PROTECTED_SHA256[path] == "1455fee5fe207c617676a0463ce3034247c5534578555cac293807da22bcaab8"
+        assert final.POST_STAGE8_11_CORRECTED_SHA256[path] == "c4dee8d488dc6379b80a31aca39256b89c3d8e9ae76269267381cd357fe073e5"
+        assert final.POST_STAGE8_11_CORRECTED_SHA256[
+            "TradingSystemLab/stage8_robot/account_cleanliness.py"
+        ] == "7ab8b91483f7e37605f3a4962281fcdc338bf649cee96f141f06ac20294a2184"
+        assert final.POST_STAGE8_11_CORRECTED_SHA256[
+            "TradingSystemLab/stage8_robot/stage8_11_attempt2_manual_recovery.py"
+        ] == "9ceda04454f22608761671335dae221a2c978948e95e4f9e355e4950388cdb84"
+        assert final.POST_STAGE8_11_CORRECTED_SHA256[
+            "TradingSystemLab/stage8_robot/funding_margin_diagnostic.py"
+        ] == "2443f8cab7fafe5b4ab1cb9cb5673e71a9f7bf74b51608425e55f41b1b3645c9"
+        assert final.POST_STAGE8_11_CORRECTED_SHA256[
+            "TradingSystemLab/stage8_robot/stage8_11_physical_acceptance_attempt3.py"
+        ] == "65e832d7c61d27ce8feefe1d41621749a7f376b53d58c478241dcfdbaefc4be9"
+        assert final.POST_STAGE8_11_CORRECTED_SHA256[
+            "TradingSystemLab/stage8_robot/deploy/windows/run-stage8-11-physical-acceptance-attempt3.ps1"
+        ] == "ccdef47390c4c755f65c601db083876b37eb5db633aff79dbfd83e99c2444b41"
+        result = run_audit()
+>       assert result["protected_implementation_status"] == "PASS"
+E       AssertionError: assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:92: AssertionError
+________________ test_crlf_protected_implementation_hashes_pass ________________
+
+    def test_crlf_protected_implementation_hashes_pass():
+        paths = (
+            "TradingSystemLab/stage8_robot/readonly_supervisor.py",
+            "TradingSystemLab/stage8_robot/deploy/windows/run-readonly.ps1",
+            "TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/production_specification.json",
+            "TradingSystemLab/stage8_robot/production_instrument_registry.csv",
+        )
+        overrides = {path: source(path).replace("\n", "\r\n") for path in paths}
+    
+        result = run_audit(overrides)
+    
+>       assert result["protected_implementation_status"] == "PASS"
+E       AssertionError: assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:152: AssertionError
+_ test_stage8_independent_audit_accepts_canonical_and_crlf_implementation_files[\n] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7faa16219970>
+newline = b'\n'
+
+    @pytest.mark.parametrize("newline", [b"\n", b"\r\n"])
+    def test_stage8_independent_audit_accepts_canonical_and_crlf_implementation_files(
+            monkeypatch, newline):
+        original_read_bytes = Path.read_bytes
+        protected = {stage8.HERE / relative for relative in STAGE_8_10_3_IMPLEMENTATION_PATHS}
+    
+        def read_bytes_with_newlines(path):
+            raw = original_read_bytes(path)
+            if path in protected:
+                canonical = raw.replace(b"\r\n", b"\n")
+                return canonical.replace(b"\n", newline)
+            return raw
+    
+        monkeypatch.setattr(Path, "read_bytes", read_bytes_with_newlines)
+        result = stage8.audit(write_result=False)
+    
+>       assert result["status"] == "PASS"
+E       AssertionError: assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:188: AssertionError
+_ test_stage8_independent_audit_accepts_canonical_and_crlf_implementation_files[\r\n] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7faa1621b440>
+newline = b'\r\n'
+
+    @pytest.mark.parametrize("newline", [b"\n", b"\r\n"])
+    def test_stage8_independent_audit_accepts_canonical_and_crlf_implementation_files(
+            monkeypatch, newline):
+        original_read_bytes = Path.read_bytes
+        protected = {stage8.HERE / relative for relative in STAGE_8_10_3_IMPLEMENTATION_PATHS}
+    
+        def read_bytes_with_newlines(path):
+            raw = original_read_bytes(path)
+            if path in protected:
+                canonical = raw.replace(b"\r\n", b"\n")
+                return canonical.replace(b"\n", newline)
+            return raw
+    
+        monkeypatch.setattr(Path, "read_bytes", read_bytes_with_newlines)
+        result = stage8.audit(write_result=False)
+    
+>       assert result["status"] == "PASS"
+E       AssertionError: assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:188: AssertionError
+______________ test_stage8_12_live_closeout_evidence_is_required _______________
+
+    def test_stage8_12_live_closeout_evidence_is_required():
+        path = "TradingSystemLab/CURRENT_STATE.md"
+        mutation = source(path).replace(
+            "EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9",
+            "0" * 64,
+            1,
+        )
+        result = run_audit({path: mutation})
+>       assert "STAGE_8_12_FULL_R15_PRODUCTION_CLOSEOUT" in result["errors"]
+E       AssertionError: assert 'STAGE_8_12_FULL_R15_PRODUCTION_CLOSEOUT' in ['PROTECTED_IMPLEMENTATION_HASHES:TradingSystemLab/stage8_robot/finam_api.py', 'STAGE_8_11_FINAM_TRADES_PRIMITIVE', 'STAGE_8_12_4_FROZEN_H1_WARMUP_PROVENANCE', 'STAGE_8_12_4_PACKAGE2_CONTINUOUS_SERVICE_WIRING']
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:914: AssertionError
+_ test_stage_8_12_live_current_handoff_mutations_fail_both_audits[TradingSystemLab/CURRENT_STATE.md] _
+
+path = 'TradingSystemLab/CURRENT_STATE.md'
+
+    @pytest.mark.parametrize("path", (
+        "TradingSystemLab/CURRENT_STATE.md",
+        "TradingSystemLab/PROJECT_CONTEXT.md",
+        "TradingSystemLab/ROADMAP.md",
+        "TradingSystemLab/stage8_robot/README.md",
+    ))
+    def test_stage_8_12_live_current_handoff_mutations_fail_both_audits(path):
+        original = source(path)
+        mutations = (
+            original.replace(
+                "Stage 8.12.4 live activation is **COMPLETE / LIVE PRODUCTION ACTIVATED**",
+                "Stage 8.12.4 live activation is **NOT AUTHORIZED**",
+                1,
+            ),
+            original.replace("883ea1ea6a8268276a8e39ebdc8786c643a21935", "0" * 40, 1),
+            original.replace(
+                "EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9",
+                "0" * 64,
+                1,
+            ),
+            original.replace("`execution_authorized = true`", "`execution_authorized = false`", 1),
+            original.replace("final production kill switch: `ARMED`",
+                             "final production kill switch: `HALTED`", 1),
+            original.replace("post-arm heartbeat: `HEALTHY`",
+                             "post-arm heartbeat: `UNHEALTHY`", 1),
+        )
+        for mutation in mutations:
+>           _assert_document_mutation_fails_both(
+                path, mutation, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:1120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = 'TradingSystemLab/CURRENT_STATE.md'
+mutation = '# Current state — read first\n\n## CURRENT LIVE authority — 2026-10-12 11:38 MSK, after explicit re-arm\n\n**LIVE ARM...-equity sizing, margin cap, no-pyramiding,\nno-session-filter, and no-canonical-fallback semantics remain unchanged.\n'
+expected_error = 'STAGE_8_10_CURRENT_HANDOFF_EXACT'
+
+    def _assert_document_mutation_fails_both(path, mutation, expected_error):
+        relative = path.removeprefix("TradingSystemLab/stage8_robot/")
+        if path.startswith("TradingSystemLab/") and not path.startswith("TradingSystemLab/stage8_robot/"):
+            relative = path.removeprefix("TradingSystemLab/")
+        independent = stage8.audit(write_result=False, source_overrides={relative: mutation, path: mutation})
+        operational = run_audit({path: mutation})
+>       assert expected_error in independent["errors"], (path, independent)
+E       AssertionError: ('TradingSystemLab/CURRENT_STATE.md', {'status': 'FAIL', 'checks': 284, 'errors': ['STAGE_8_12_4_FROZEN_H1_WARMUP_PROV...], 'production_specification_id': 'PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8', ...})
+E       assert 'STAGE_8_10_CURRENT_HANDOFF_EXACT' in ['STAGE_8_12_4_FROZEN_H1_WARMUP_PROVENANCE', 'STAGE_8_12_4_PACKAGE2_CONTINUOUS_SERVICE_WIRING', 'STAGE_8_11_FINAM_TRADES_PRIMITIVE']
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:1134: AssertionError
+_ test_stage_8_12_live_current_handoff_mutations_fail_both_audits[TradingSystemLab/PROJECT_CONTEXT.md] _
+
+path = 'TradingSystemLab/PROJECT_CONTEXT.md'
+
+    @pytest.mark.parametrize("path", (
+        "TradingSystemLab/CURRENT_STATE.md",
+        "TradingSystemLab/PROJECT_CONTEXT.md",
+        "TradingSystemLab/ROADMAP.md",
+        "TradingSystemLab/stage8_robot/README.md",
+    ))
+    def test_stage_8_12_live_current_handoff_mutations_fail_both_audits(path):
+        original = source(path)
+        mutations = (
+            original.replace(
+                "Stage 8.12.4 live activation is **COMPLETE / LIVE PRODUCTION ACTIVATED**",
+                "Stage 8.12.4 live activation is **NOT AUTHORIZED**",
+                1,
+            ),
+            original.replace("883ea1ea6a8268276a8e39ebdc8786c643a21935", "0" * 40, 1),
+            original.replace(
+                "EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9",
+                "0" * 64,
+                1,
+            ),
+            original.replace("`execution_authorized = true`", "`execution_authorized = false`", 1),
+            original.replace("final production kill switch: `ARMED`",
+                             "final production kill switch: `HALTED`", 1),
+            original.replace("post-arm heartbeat: `HEALTHY`",
+                             "post-arm heartbeat: `UNHEALTHY`", 1),
+        )
+        for mutation in mutations:
+>           _assert_document_mutation_fails_both(
+                path, mutation, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:1120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = 'TradingSystemLab/PROJECT_CONTEXT.md'
+mutation = '# TradingSystemLab project context\n\n## 2026-10-12 CURRENT operational authority — LIVE ARMED, confirmed after re-ar...-equity sizing, margin cap, no-pyramiding,\nno-session-filter, and no-canonical-fallback semantics remain unchanged.\n'
+expected_error = 'STAGE_8_10_CURRENT_HANDOFF_EXACT'
+
+    def _assert_document_mutation_fails_both(path, mutation, expected_error):
+        relative = path.removeprefix("TradingSystemLab/stage8_robot/")
+        if path.startswith("TradingSystemLab/") and not path.startswith("TradingSystemLab/stage8_robot/"):
+            relative = path.removeprefix("TradingSystemLab/")
+        independent = stage8.audit(write_result=False, source_overrides={relative: mutation, path: mutation})
+        operational = run_audit({path: mutation})
+>       assert expected_error in independent["errors"], (path, independent)
+E       AssertionError: ('TradingSystemLab/PROJECT_CONTEXT.md', {'status': 'FAIL', 'checks': 284, 'errors': ['STAGE_8_12_4_FROZEN_H1_WARMUP_PR...], 'production_specification_id': 'PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8', ...})
+E       assert 'STAGE_8_10_CURRENT_HANDOFF_EXACT' in ['STAGE_8_12_4_FROZEN_H1_WARMUP_PROVENANCE', 'STAGE_8_12_4_PACKAGE2_CONTINUOUS_SERVICE_WIRING', 'STAGE_8_11_FINAM_TRADES_PRIMITIVE']
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:1134: AssertionError
+_ test_stage_8_12_live_current_handoff_mutations_fail_both_audits[TradingSystemLab/ROADMAP.md] _
+
+path = 'TradingSystemLab/ROADMAP.md'
+
+    @pytest.mark.parametrize("path", (
+        "TradingSystemLab/CURRENT_STATE.md",
+        "TradingSystemLab/PROJECT_CONTEXT.md",
+        "TradingSystemLab/ROADMAP.md",
+        "TradingSystemLab/stage8_robot/README.md",
+    ))
+    def test_stage_8_12_live_current_handoff_mutations_fail_both_audits(path):
+        original = source(path)
+        mutations = (
+            original.replace(
+                "Stage 8.12.4 live activation is **COMPLETE / LIVE PRODUCTION ACTIVATED**",
+                "Stage 8.12.4 live activation is **NOT AUTHORIZED**",
+                1,
+            ),
+            original.replace("883ea1ea6a8268276a8e39ebdc8786c643a21935", "0" * 40, 1),
+            original.replace(
+                "EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9",
+                "0" * 64,
+                1,
+            ),
+            original.replace("`execution_authorized = true`", "`execution_authorized = false`", 1),
+            original.replace("final production kill switch: `ARMED`",
+                             "final production kill switch: `HALTED`", 1),
+            original.replace("post-arm heartbeat: `HEALTHY`",
+                             "post-arm heartbeat: `UNHEALTHY`", 1),
+        )
+        for mutation in mutations:
+>           _assert_document_mutation_fails_both(
+                path, mutation, "STAGE_8_10_CURRENT_HANDOFF_EXACT")
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:1120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = 'TradingSystemLab/ROADMAP.md'
+mutation = '# Evidence-based roadmap\n\n## 2026-10-12 CURRENT operational authority — LIVE ARMED, confirmed after re-arm\n\n**LIV...or authorization bound to the exact accepted implementation commit may authorize continuous real production trading.\n'
+expected_error = 'STAGE_8_10_CURRENT_HANDOFF_EXACT'
+
+    def _assert_document_mutation_fails_both(path, mutation, expected_error):
+        relative = path.removeprefix("TradingSystemLab/stage8_robot/")
+        if path.startswith("TradingSystemLab/") and not path.startswith("TradingSystemLab/stage8_robot/"):
+            relative = path.removeprefix("TradingSystemLab/")
+        independent = stage8.audit(write_result=False, source_overrides={relative: mutation, path: mutation})
+        operational = run_audit({path: mutation})
+>       assert expected_error in independent["errors"], (path, independent)
+E       AssertionError: ('TradingSystemLab/ROADMAP.md', {'status': 'FAIL', 'checks': 284, 'errors': ['STAGE_8_12_4_FROZEN_H1_WARMUP_PROVENANCE...], 'production_specification_id': 'PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8', ...})
+E       assert 'STAGE_8_10_CURRENT_HANDOFF_EXACT' in ['STAGE_8_12_4_FROZEN_H1_WARMUP_PROVENANCE', 'STAGE_8_12_4_PACKAGE2_CONTINUOUS_SERVICE_WIRING', 'STAGE_8_11_FINAM_TRADES_PRIMITIVE']
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:1134: AssertionError
+_ test_stage_8_12_live_current_handoff_stale_gate_and_omission_fail_both_audits[TradingSystemLab/CURRENT_STATE.md] _
+
+path = 'TradingSystemLab/CURRENT_STATE.md'
+
+    @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
+    
+    def test_stage_8_12_live_current_handoff_stale_gate_and_omission_fail_both_audits(path):
+        original = source(path)
+        marker = "## Current handoff"
+        start = original.index(marker)
+        next_section = original.index("\n## ", start + len(marker))
+        handoff = original[start:next_section]
+    
+        stale_handoff = handoff.replace(
+            "Stage 8.10 is **COMPLETE**.",
+            "Stage 8.10 is **COMPLETE**, but the next possible lifecycle gate is Stage 8.10.5.",
+            1,
+        )
+        stale = original[:start] + stale_handoff + original[next_section:]
+        _assert_document_mutation_fails_both(path, stale, "STAGE_8_10_NO_STALE_NEXT_GATE")
+    
+        for token in (
+            "stage8.11.attempt7",
+            "883ea1ea6a8268276a8e39ebdc8786c643a21935",
+            "FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD",
+            "EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9",
+            "durable production authorization: `AUTHORIZED`",
+            "final production kill switch: `ARMED`",
+            "post-arm heartbeat: `HEALTHY`",
+            "STAGE_8_12_FULL_R15_PRODUCTION_AUTHORIZATION_COMPLETE",
+        ):
+            omitted_handoff = handoff.replace(token, "", 1)
+            omitted = original[:start] + omitted_handoff + original[next_section:]
+            independent = stage8.audit(
+                write_result=False, source_overrides={path: omitted}
+            )
+            operational = run_audit({path: omitted})
+>           assert "STAGE_8_12_4_LIVE_ACTIVATION_COMPLETE_HANDOFF" in independent["errors"] or "STAGE_8_10_CURRENT_HANDOFF_EXACT" in independent["errors"], token
+E           AssertionError: stage8.11.attempt7
+E           assert ('STAGE_8_12_4_LIVE_ACTIVATION_COMPLETE_HANDOFF' in ['STAGE_8_12_4_FROZEN_H1_WARMUP_PROVENANCE', 'STAGE_8_12_4_PACKAGE2_CONTINUOUS_SERVICE_WIRING', 'STAGE_8_11_FINAM_TRADES_PRIMITIVE'] or 'STAGE_8_10_CURRENT_HANDOFF_EXACT' in ['STAGE_8_12_4_FROZEN_H1_WARMUP_PROVENANCE', 'STAGE_8_12_4_PACKAGE2_CONTINUOUS_SERVICE_WIRING', 'STAGE_8_11_FINAM_TRADES_PRIMITIVE'])
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:1202: AssertionError
+_ test_stage_8_12_live_current_handoff_stale_gate_and_omission_fail_both_audits[TradingSystemLab/PROJECT_CONTEXT.md] _
+
+path = 'TradingSystemLab/PROJECT_CONTEXT.md'
+
+    @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
+    
+    def test_stage_8_12_live_current_handoff_stale_gate_and_omission_fail_both_audits(path):
+        original = source(path)
+        marker = "## Current handoff"
+        start = original.index(marker)
+        next_section = original.index("\n## ", start + len(marker))
+        handoff = original[start:next_section]
+    
+        stale_handoff = handoff.replace(
+            "Stage 8.10 is **COMPLETE**.",
+            "Stage 8.10 is **COMPLETE**, but the next possible lifecycle gate is Stage 8.10.5.",
+            1,
+        )
+        stale = original[:start] + stale_handoff + original[next_section:]
+        _assert_document_mutation_fails_both(path, stale, "STAGE_8_10_NO_STALE_NEXT_GATE")
+    
+        for token in (
+            "stage8.11.attempt7",
+            "883ea1ea6a8268276a8e39ebdc8786c643a21935",
+            "FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD",
+            "EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9",
+            "durable production authorization: `AUTHORIZED`",
+            "final production kill switch: `ARMED`",
+            "post-arm heartbeat: `HEALTHY`",
+            "STAGE_8_12_FULL_R15_PRODUCTION_AUTHORIZATION_COMPLETE",
+        ):
+            omitted_handoff = handoff.replace(token, "", 1)
+            omitted = original[:start] + omitted_handoff + original[next_section:]
+            independent = stage8.audit(
+                write_result=False, source_overrides={path: omitted}
+            )
+            operational = run_audit({path: omitted})
+>           assert "STAGE_8_12_4_LIVE_ACTIVATION_COMPLETE_HANDOFF" in independent["errors"] or "STAGE_8_10_CURRENT_HANDOFF_EXACT" in independent["errors"], token
+E           AssertionError: stage8.11.attempt7
+E           assert ('STAGE_8_12_4_LIVE_ACTIVATION_COMPLETE_HANDOFF' in ['STAGE_8_12_4_FROZEN_H1_WARMUP_PROVENANCE', 'STAGE_8_12_4_PACKAGE2_CONTINUOUS_SERVICE_WIRING', 'STAGE_8_11_FINAM_TRADES_PRIMITIVE'] or 'STAGE_8_10_CURRENT_HANDOFF_EXACT' in ['STAGE_8_12_4_FROZEN_H1_WARMUP_PROVENANCE', 'STAGE_8_12_4_PACKAGE2_CONTINUOUS_SERVICE_WIRING', 'STAGE_8_11_FINAM_TRADES_PRIMITIVE'])
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:1202: AssertionError
+_ test_stage_8_12_live_current_handoff_stale_gate_and_omission_fail_both_audits[TradingSystemLab/ROADMAP.md] _
+
+path = 'TradingSystemLab/ROADMAP.md'
+
+    @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
+    
+    def test_stage_8_12_live_current_handoff_stale_gate_and_omission_fail_both_audits(path):
+        original = source(path)
+        marker = "## Current handoff"
+        start = original.index(marker)
+        next_section = original.index("\n## ", start + len(marker))
+        handoff = original[start:next_section]
+    
+        stale_handoff = handoff.replace(
+            "Stage 8.10 is **COMPLETE**.",
+            "Stage 8.10 is **COMPLETE**, but the next possible lifecycle gate is Stage 8.10.5.",
+            1,
+        )
+        stale = original[:start] + stale_handoff + original[next_section:]
+        _assert_document_mutation_fails_both(path, stale, "STAGE_8_10_NO_STALE_NEXT_GATE")
+    
+        for token in (
+            "stage8.11.attempt7",
+            "883ea1ea6a8268276a8e39ebdc8786c643a21935",
+            "FE383E9D269F699639D0F256CB15A303E0A5EE9CBC3990F802E10DCE8A41B7CD",
+            "EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9",
+            "durable production authorization: `AUTHORIZED`",
+            "final production kill switch: `ARMED`",
+            "post-arm heartbeat: `HEALTHY`",
+            "STAGE_8_12_FULL_R15_PRODUCTION_AUTHORIZATION_COMPLETE",
+        ):
+            omitted_handoff = handoff.replace(token, "", 1)
+            omitted = original[:start] + omitted_handoff + original[next_section:]
+            independent = stage8.audit(
+                write_result=False, source_overrides={path: omitted}
+            )
+            operational = run_audit({path: omitted})
+>           assert "STAGE_8_12_4_LIVE_ACTIVATION_COMPLETE_HANDOFF" in independent["errors"] or "STAGE_8_10_CURRENT_HANDOFF_EXACT" in independent["errors"], token
+E           AssertionError: stage8.11.attempt7
+E           assert ('STAGE_8_12_4_LIVE_ACTIVATION_COMPLETE_HANDOFF' in ['STAGE_8_12_4_FROZEN_H1_WARMUP_PROVENANCE', 'STAGE_8_12_4_PACKAGE2_CONTINUOUS_SERVICE_WIRING', 'STAGE_8_11_FINAM_TRADES_PRIMITIVE'] or 'STAGE_8_10_CURRENT_HANDOFF_EXACT' in ['STAGE_8_12_4_FROZEN_H1_WARMUP_PROVENANCE', 'STAGE_8_12_4_PACKAGE2_CONTINUOUS_SERVICE_WIRING', 'STAGE_8_11_FINAM_TRADES_PRIMITIVE'])
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:1202: AssertionError
+_ test_stage_8_10_clearly_scoped_historical_text_passes_both_audits[TradingSystemLab/CURRENT_STATE.md] _
+
+path = 'TradingSystemLab/CURRENT_STATE.md'
+
+    @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
+    def test_stage_8_10_clearly_scoped_historical_text_passes_both_audits(path):
+        historical = source(path) + ("\n\nIn this historical snapshot, Stage 8.10.7 was "
+                                     "NOT STARTED. Subsequently, Stage 8.10.8 completed; "
+                                     "current authority is recorded below.\n")
+        independent = stage8.audit(write_result=False, source_overrides={path: historical})
+        operational = run_audit({path: historical})
+>       assert independent["status"] == "PASS", (path, independent)
+E       AssertionError: ('TradingSystemLab/CURRENT_STATE.md', {'status': 'FAIL', 'checks': 284, 'errors': ['STAGE_8_12_4_FROZEN_H1_WARMUP_PROV...], 'production_specification_id': 'PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8', ...})
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:1222: AssertionError
+_ test_stage_8_10_clearly_scoped_historical_text_passes_both_audits[TradingSystemLab/PROJECT_CONTEXT.md] _
+
+path = 'TradingSystemLab/PROJECT_CONTEXT.md'
+
+    @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
+    def test_stage_8_10_clearly_scoped_historical_text_passes_both_audits(path):
+        historical = source(path) + ("\n\nIn this historical snapshot, Stage 8.10.7 was "
+                                     "NOT STARTED. Subsequently, Stage 8.10.8 completed; "
+                                     "current authority is recorded below.\n")
+        independent = stage8.audit(write_result=False, source_overrides={path: historical})
+        operational = run_audit({path: historical})
+>       assert independent["status"] == "PASS", (path, independent)
+E       AssertionError: ('TradingSystemLab/PROJECT_CONTEXT.md', {'status': 'FAIL', 'checks': 284, 'errors': ['STAGE_8_12_4_FROZEN_H1_WARMUP_PR...], 'production_specification_id': 'PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8', ...})
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:1222: AssertionError
+_ test_stage_8_10_clearly_scoped_historical_text_passes_both_audits[TradingSystemLab/ROADMAP.md] _
+
+path = 'TradingSystemLab/ROADMAP.md'
+
+    @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
+    def test_stage_8_10_clearly_scoped_historical_text_passes_both_audits(path):
+        historical = source(path) + ("\n\nIn this historical snapshot, Stage 8.10.7 was "
+                                     "NOT STARTED. Subsequently, Stage 8.10.8 completed; "
+                                     "current authority is recorded below.\n")
+        independent = stage8.audit(write_result=False, source_overrides={path: historical})
+        operational = run_audit({path: historical})
+>       assert independent["status"] == "PASS", (path, independent)
+E       AssertionError: ('TradingSystemLab/ROADMAP.md', {'status': 'FAIL', 'checks': 284, 'errors': ['STAGE_8_12_4_FROZEN_H1_WARMUP_PROVENANCE...], 'production_specification_id': 'PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8', ...})
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:1222: AssertionError
+_ test_stage_8_10_clearly_scoped_historical_text_passes_both_audits[TradingSystemLab/stage8_robot/README.md] _
+
+path = 'TradingSystemLab/stage8_robot/README.md'
+
+    @pytest.mark.parametrize("path", CANONICAL_STAGE_8_10_DOCS)
+    def test_stage_8_10_clearly_scoped_historical_text_passes_both_audits(path):
+        historical = source(path) + ("\n\nIn this historical snapshot, Stage 8.10.7 was "
+                                     "NOT STARTED. Subsequently, Stage 8.10.8 completed; "
+                                     "current authority is recorded below.\n")
+        independent = stage8.audit(write_result=False, source_overrides={path: historical})
+        operational = run_audit({path: historical})
+>       assert independent["status"] == "PASS", (path, independent)
+E       AssertionError: ('TradingSystemLab/stage8_robot/README.md', {'status': 'FAIL', 'checks': 284, 'errors': ['STAGE_8_12_4_FROZEN_H1_WARMU...], 'production_specification_id': 'PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8', ...})
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:1222: AssertionError
+_ test_stage811_schema_validation_weakening_fails_both_audits[COALESCE(status,'') NOT IN-status NOT IN] _
+
+needle = "COALESCE(status,'') NOT IN", replacement = 'status NOT IN'
+
+    @pytest.mark.parametrize("needle,replacement",[
+        ('tuple(connection.execute(f"PRAGMA table_info({table})")) != expected',
+         'tuple(row[1] for row in connection.execute(f"PRAGMA table_info({table})")) != expected'),
+        ('"status","TEXT",1,None,0','"status","TEXT",0,None,0'),
+        ("COALESCE(status,'') NOT IN","status NOT IN"),
+    ])
+    def test_stage811_schema_validation_weakening_fails_both_audits(needle,replacement):
+        mutated=source(STAGE811_STATE).replace(needle,replacement,1)
+        independent=stage8.audit(write_result=False,source_overrides={"state.py":mutated})
+        operational=run_audit({STAGE811_STATE:mutated})
+        error="STAGE_8_11_EXACT_ACCEPTANCE_SCHEMA_AND_NULL_SAFE_UNRESOLVED"
+>       assert error in independent["errors"]
+E       AssertionError: assert 'STAGE_8_11_EXACT_ACCEPTANCE_SCHEMA_AND_NULL_SAFE_UNRESOLVED' in ['STAGE_8_12_4_FROZEN_H1_WARMUP_PROVENANCE', 'STAGE_8_12_4_PACKAGE2_CONTINUOUS_SERVICE_WIRING', 'STAGE_8_11_FINAM_TRADES_PRIMITIVE']
+
+TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py:1346: AssertionError
+________ test_http400_ambiguous_account_requires_intervention[options0] ________
+
+tmp_path = PosixPath('/workspace/work/release-full-stage8-tests/test_http400_ambiguous_account0')
+options = {'position': 1}
+
+    @pytest.mark.parametrize("options", [{"position":1}, {"active":True}, {"extra_unresolved":True}])
+    def test_http400_ambiguous_account_requires_intervention(tmp_path, options):
+        result, api, store = rejection_run(tmp_path, **options)
+>       assert api.posts == 1 and result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
+E       assert (0 == 1)
+E        +  where 0 = <test_stage8_11_http400_recovery.RejectingAPI object at 0x7faa095f22d0>.posts
+
+TradingSystemLab/stage8_robot/tests/test_stage8_11_http400_recovery.py:100: AssertionError
+________ test_http400_ambiguous_account_requires_intervention[options1] ________
+
+tmp_path = PosixPath('/workspace/work/release-full-stage8-tests/test_http400_ambiguous_account1')
+options = {'active': True}
+
+    @pytest.mark.parametrize("options", [{"position":1}, {"active":True}, {"extra_unresolved":True}])
+    def test_http400_ambiguous_account_requires_intervention(tmp_path, options):
+        result, api, store = rejection_run(tmp_path, **options)
+>       assert api.posts == 1 and result["classification"] == "OPERATOR_INTERVENTION_REQUIRED"
+E       assert (0 == 1)
+E        +  where 0 = <test_stage8_11_http400_recovery.RejectingAPI object at 0x7faa095f2570>.posts
+
+TradingSystemLab/stage8_robot/tests/test_stage8_11_http400_recovery.py:100: AssertionError
+__________ test_default_boundary_is_precheck_only_and_order_incapable __________
+
+tmp_path = PosixPath('/workspace/work/release-full-stage8-tests/test_default_boundary_is_prech0')
+
+    def test_default_boundary_is_precheck_only_and_order_incapable(tmp_path):
+>       result,calls=run(tmp_path)
+                     ^^^^^^^^^^^^^
+
+TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py:41: in run
+    result=precheck_only(api=ReadOnlyAPI(),account_id=ACCOUNT,runtime_root=runtime(tmp_path,**heartbeat),direction="LONG",
+TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py:121: in precheck_only
+    if not recovery_implementation_available(): _fail("STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE")
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+code = 'STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE'
+
+    def _fail(code: str) -> None:
+>       raise PrecheckBlocked(code)
+E       TradingSystemLab.stage8_robot.stage8_11_intel_acceptance.PrecheckBlocked: STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE
+
+TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py:45: PrecheckBlocked
+__________ test_frozen_order_not_performance_and_report_is_sanitized ___________
+
+tmp_path = PosixPath('/workspace/work/release-full-stage8-tests/test_frozen_order_not_performa0')
+
+    def test_frozen_order_not_performance_and_report_is_sanitized(tmp_path):
+        cases={f"{x}:LONG":{"r15_quantity":2,"margin_quantity":2,"final_quantity":2,"pf":999} for x in ("CNYRUBF","USDRUBF")}
+>       result,_=run(tmp_path,funding(per_instrument=cases))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py:41: in run
+    result=precheck_only(api=ReadOnlyAPI(),account_id=ACCOUNT,runtime_root=runtime(tmp_path,**heartbeat),direction="LONG",
+TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py:121: in precheck_only
+    if not recovery_implementation_available(): _fail("STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE")
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+code = 'STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE'
+
+    def _fail(code: str) -> None:
+>       raise PrecheckBlocked(code)
+E       TradingSystemLab.stage8_robot.stage8_11_intel_acceptance.PrecheckBlocked: STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE
+
+TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py:45: PrecheckBlocked
+___________ test_canonical_intent_terminal_semantics[CANCELLED-True] ___________
+
+tmp_path = PosixPath('/workspace/work/release-full-stage8-tests/test_canonical_intent_terminal6')
+status = 'CANCELLED', passes = True
+
+    @pytest.mark.parametrize("status,passes",[("INTENT_PERSISTED",False),("SUBMITTED",False),("UNCERTAIN",False),
+        ("ACK",False),("PARTIAL_FILL",False),("FILL",False),("CANCELLED",True),("REJECTED",True),
+        ("CLOSED",True),("RECONCILED",True)])
+    def test_canonical_intent_terminal_semantics(tmp_path,status,passes):
+        root=runtime(tmp_path); store=StateStore(stage8_11_acceptance_path(root))
+        store.persist_intent("intent",{}); store.transition_intent("intent",status); store.close()
+        kwargs=dict(api=ReadOnlyAPI(),account_id=ACCOUNT,runtime_root=root,direction="LONG",
+                    external_evidence_sha256="a"*64,accepted_commit="c"*40,funding_collector=lambda *_a,**_k:funding(),now=NOW)
+>       if passes: assert precheck_only(**kwargs)["canonical_unresolved_intents"]==0
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+
+TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py:121: in precheck_only
+    if not recovery_implementation_available(): _fail("STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE")
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+code = 'STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE'
+
+    def _fail(code: str) -> None:
+>       raise PrecheckBlocked(code)
+E       TradingSystemLab.stage8_robot.stage8_11_intel_acceptance.PrecheckBlocked: STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE
+
+TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py:45: PrecheckBlocked
+___________ test_canonical_intent_terminal_semantics[REJECTED-True] ____________
+
+tmp_path = PosixPath('/workspace/work/release-full-stage8-tests/test_canonical_intent_terminal7')
+status = 'REJECTED', passes = True
+
+    @pytest.mark.parametrize("status,passes",[("INTENT_PERSISTED",False),("SUBMITTED",False),("UNCERTAIN",False),
+        ("ACK",False),("PARTIAL_FILL",False),("FILL",False),("CANCELLED",True),("REJECTED",True),
+        ("CLOSED",True),("RECONCILED",True)])
+    def test_canonical_intent_terminal_semantics(tmp_path,status,passes):
+        root=runtime(tmp_path); store=StateStore(stage8_11_acceptance_path(root))
+        store.persist_intent("intent",{}); store.transition_intent("intent",status); store.close()
+        kwargs=dict(api=ReadOnlyAPI(),account_id=ACCOUNT,runtime_root=root,direction="LONG",
+                    external_evidence_sha256="a"*64,accepted_commit="c"*40,funding_collector=lambda *_a,**_k:funding(),now=NOW)
+>       if passes: assert precheck_only(**kwargs)["canonical_unresolved_intents"]==0
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+
+TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py:121: in precheck_only
+    if not recovery_implementation_available(): _fail("STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE")
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+code = 'STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE'
+
+    def _fail(code: str) -> None:
+>       raise PrecheckBlocked(code)
+E       TradingSystemLab.stage8_robot.stage8_11_intel_acceptance.PrecheckBlocked: STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE
+
+TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py:45: PrecheckBlocked
+____________ test_canonical_intent_terminal_semantics[CLOSED-True] _____________
+
+tmp_path = PosixPath('/workspace/work/release-full-stage8-tests/test_canonical_intent_terminal8')
+status = 'CLOSED', passes = True
+
+    @pytest.mark.parametrize("status,passes",[("INTENT_PERSISTED",False),("SUBMITTED",False),("UNCERTAIN",False),
+        ("ACK",False),("PARTIAL_FILL",False),("FILL",False),("CANCELLED",True),("REJECTED",True),
+        ("CLOSED",True),("RECONCILED",True)])
+    def test_canonical_intent_terminal_semantics(tmp_path,status,passes):
+        root=runtime(tmp_path); store=StateStore(stage8_11_acceptance_path(root))
+        store.persist_intent("intent",{}); store.transition_intent("intent",status); store.close()
+        kwargs=dict(api=ReadOnlyAPI(),account_id=ACCOUNT,runtime_root=root,direction="LONG",
+                    external_evidence_sha256="a"*64,accepted_commit="c"*40,funding_collector=lambda *_a,**_k:funding(),now=NOW)
+>       if passes: assert precheck_only(**kwargs)["canonical_unresolved_intents"]==0
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+
+TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py:121: in precheck_only
+    if not recovery_implementation_available(): _fail("STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE")
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+code = 'STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE'
+
+    def _fail(code: str) -> None:
+>       raise PrecheckBlocked(code)
+E       TradingSystemLab.stage8_robot.stage8_11_intel_acceptance.PrecheckBlocked: STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE
+
+TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py:45: PrecheckBlocked
+__________ test_canonical_intent_terminal_semantics[RECONCILED-True] ___________
+
+tmp_path = PosixPath('/workspace/work/release-full-stage8-tests/test_canonical_intent_terminal9')
+status = 'RECONCILED', passes = True
+
+    @pytest.mark.parametrize("status,passes",[("INTENT_PERSISTED",False),("SUBMITTED",False),("UNCERTAIN",False),
+        ("ACK",False),("PARTIAL_FILL",False),("FILL",False),("CANCELLED",True),("REJECTED",True),
+        ("CLOSED",True),("RECONCILED",True)])
+    def test_canonical_intent_terminal_semantics(tmp_path,status,passes):
+        root=runtime(tmp_path); store=StateStore(stage8_11_acceptance_path(root))
+        store.persist_intent("intent",{}); store.transition_intent("intent",status); store.close()
+        kwargs=dict(api=ReadOnlyAPI(),account_id=ACCOUNT,runtime_root=root,direction="LONG",
+                    external_evidence_sha256="a"*64,accepted_commit="c"*40,funding_collector=lambda *_a,**_k:funding(),now=NOW)
+>       if passes: assert precheck_only(**kwargs)["canonical_unresolved_intents"]==0
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+
+TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py:121: in precheck_only
+    if not recovery_implementation_available(): _fail("STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE")
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+code = 'STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE'
+
+    def _fail(code: str) -> None:
+>       raise PrecheckBlocked(code)
+E       TradingSystemLab.stage8_robot.stage8_11_intel_acceptance.PrecheckBlocked: STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE
+
+TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py:45: PrecheckBlocked
+______ test_intel_production_schema_regression_uses_separate_authorities _______
+
+tmp_path = PosixPath('/workspace/work/release-full-stage8-tests/test_intel_production_schema_r0')
+
+    def test_intel_production_schema_regression_uses_separate_authorities(tmp_path):
+        root=runtime(tmp_path)
+        import sqlite3
+        supervisor=root/"state/readonly-supervisor.sqlite3"
+        with sqlite3.connect(supervisor) as connection:
+            assert {r[0] for r in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")} == {"operational_state"}
+>       result,_=run(tmp_path)
+                 ^^^^^^^^^^^^^
+
+TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py:41: in run
+    result=precheck_only(api=ReadOnlyAPI(),account_id=ACCOUNT,runtime_root=runtime(tmp_path,**heartbeat),direction="LONG",
+TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py:121: in precheck_only
+    if not recovery_implementation_available(): _fail("STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE")
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+code = 'STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE'
+
+    def _fail(code: str) -> None:
+>       raise PrecheckBlocked(code)
+E       TradingSystemLab.stage8_robot.stage8_11_intel_acceptance.PrecheckBlocked: STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE
+
+TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py:45: PrecheckBlocked
+____________ test_missing_acceptance_ledger_is_initialized_locally _____________
+
+tmp_path = PosixPath('/workspace/work/release-full-stage8-tests/test_missing_acceptance_ledger0')
+
+    def test_missing_acceptance_ledger_is_initialized_locally(tmp_path):
+        root=runtime(tmp_path); stage8_11_acceptance_path(root).unlink()
+>       result=precheck_only(api=ReadOnlyAPI(),account_id=ACCOUNT,runtime_root=root,direction="LONG",
+          external_evidence_sha256="a"*64,accepted_commit="c"*40,funding_collector=lambda *_a,**_k:funding(),now=NOW)
+
+TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py:135: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py:121: in precheck_only
+    if not recovery_implementation_available(): _fail("STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE")
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+code = 'STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE'
+
+    def _fail(code: str) -> None:
+>       raise PrecheckBlocked(code)
+E       TradingSystemLab.stage8_robot.stage8_11_intel_acceptance.PrecheckBlocked: STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE
+
+TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py:45: PrecheckBlocked
+_____________ test_frozen_registry_binding_failure_blocks[missing] _____________
+
+tmp_path = PosixPath('/workspace/work/release-full-stage8-tests/test_frozen_registry_binding_f0')
+mutation = 'missing'
+
+    @pytest.mark.parametrize("mutation",["missing","mismatch","nontradable"])
+    def test_frozen_registry_binding_failure_blocks(tmp_path,mutation):
+        registry=tmp_path/"registry.csv"; source=Path("TradingSystemLab/stage8_robot/production_instrument_registry.csv").read_text()
+        if mutation=="missing": source="\n".join(line for line in source.splitlines() if not line.startswith("USDRUBF,"))+"\n"
+        elif mutation=="mismatch": source=source.replace("AUTHENTICATED_REAL_READONLY","BLOCKED_UNAUTHENTICATED",1)
+        else: source=source.replace(",TRADABLE,",",BLOCKED,",1)
+        registry.write_text(source)
+        root=runtime(tmp_path)
+>       with pytest.raises(PrecheckBlocked,match="FROZEN_REGISTRY_BINDING_INVALID"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'FROZEN_REGISTRY_BINDING_INVALID'
+E         Actual message: 'STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE'
+
+TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py:194: AssertionError
+____________ test_frozen_registry_binding_failure_blocks[mismatch] _____________
+
+tmp_path = PosixPath('/workspace/work/release-full-stage8-tests/test_frozen_registry_binding_f1')
+mutation = 'mismatch'
+
+    @pytest.mark.parametrize("mutation",["missing","mismatch","nontradable"])
+    def test_frozen_registry_binding_failure_blocks(tmp_path,mutation):
+        registry=tmp_path/"registry.csv"; source=Path("TradingSystemLab/stage8_robot/production_instrument_registry.csv").read_text()
+        if mutation=="missing": source="\n".join(line for line in source.splitlines() if not line.startswith("USDRUBF,"))+"\n"
+        elif mutation=="mismatch": source=source.replace("AUTHENTICATED_REAL_READONLY","BLOCKED_UNAUTHENTICATED",1)
+        else: source=source.replace(",TRADABLE,",",BLOCKED,",1)
+        registry.write_text(source)
+        root=runtime(tmp_path)
+>       with pytest.raises(PrecheckBlocked,match="FROZEN_REGISTRY_BINDING_INVALID"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'FROZEN_REGISTRY_BINDING_INVALID'
+E         Actual message: 'STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE'
+
+TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py:194: AssertionError
+___________ test_frozen_registry_binding_failure_blocks[nontradable] ___________
+
+tmp_path = PosixPath('/workspace/work/release-full-stage8-tests/test_frozen_registry_binding_f2')
+mutation = 'nontradable'
+
+    @pytest.mark.parametrize("mutation",["missing","mismatch","nontradable"])
+    def test_frozen_registry_binding_failure_blocks(tmp_path,mutation):
+        registry=tmp_path/"registry.csv"; source=Path("TradingSystemLab/stage8_robot/production_instrument_registry.csv").read_text()
+        if mutation=="missing": source="\n".join(line for line in source.splitlines() if not line.startswith("USDRUBF,"))+"\n"
+        elif mutation=="mismatch": source=source.replace("AUTHENTICATED_REAL_READONLY","BLOCKED_UNAUTHENTICATED",1)
+        else: source=source.replace(",TRADABLE,",",BLOCKED,",1)
+        registry.write_text(source)
+        root=runtime(tmp_path)
+>       with pytest.raises(PrecheckBlocked,match="FROZEN_REGISTRY_BINDING_INVALID"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'FROZEN_REGISTRY_BINDING_INVALID'
+E         Actual message: 'STAGE8_11_RECOVERY_IMPLEMENTATION_UNAVAILABLE'
+
+TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py:194: AssertionError
+___ test_execute_boundary_propagates_fresh_clock_and_refuses_closed_flatten ____
+
+tmp_path = PosixPath('/workspace/work/release-full-stage8-tests/test_execute_boundary_propagat0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7faa0956bd70>
+
+    def test_execute_boundary_propagates_fresh_clock_and_refuses_closed_flatten(tmp_path, monkeypatch):
+        runtime=tmp_path/"runtime"; write_kill_switch(runtime,"HALTED",now=NOW)
+        heartbeat=heartbeat_path(runtime); heartbeat.parent.mkdir(parents=True,exist_ok=True)
+        heartbeat.write_text(json.dumps({"production_id":PRODUCTION_SPECIFICATION_ID,"mode":"REAL_READONLY",
+            "health_status":"HEALTHY","reconciliation_status":"PASS","entries_enabled":False,
+            "unresolved_order_count":0,"failure_code":None,"consecutive_failures":0,"cycle_count":1,
+            "account_hash":HASH,"timestamp":NOW.isoformat(),"last_successful_finam_api_contact":NOW.isoformat()}))
+        report=runtime/"diagnostics"/physical.PRECHECK_REPORT_NAME; report.parent.mkdir(parents=True,exist_ok=True)
+        report.write_bytes(b"synthetic precheck")
+        digest=hashlib.sha256(report.read_bytes()).hexdigest().upper()
+        monkeypatch.setattr(physical,"PRECHECK_EVIDENCE_SHA256",digest)
+        monkeypatch.setattr(physical,"stage8_10_authority_complete",lambda:True)
+        funding=lambda *args,**kwargs:{"funding_classification":physical.READY,"account_clean":True,
+            "account_identity_sha256":HASH,"n4_binding_valid":True,
+            "per_instrument":{"CNYRUBF:LONG":{"r15_quantity":2,"margin_quantity":2}}}
+        supplied=[datetime(2026,10,4,11,59,tzinfo=timezone.utc),
+                  datetime(2026,10,4,11,59,30,tzinfo=timezone.utc),
+                  datetime(2026,10,4,12,0,tzinfo=timezone.utc),
+                  datetime(2026,10,4,12,10,tzinfo=timezone.utc)]
+        seen=[]
+        def clock():
+            value=supplied[len(seen)]; seen.append(value); return value
+        api=EntrypointAPI()
+        result=execute_boundary(accepted_commit="a"*40,authorization=AUTHORIZATION_VALUE,
+            account_id="synthetic-account",api=api,runtime_root=runtime,
+            external_evidence_sha256=digest,funding_collector=funding,clock=clock)
+>       assert seen == supplied
+E       assert [datetime.dat...timezone.utc)] == [datetime.dat...timezone.utc)]
+E         
+E         Right contains one more item: datetime.datetime(2026, 10, 4, 12, 10, tzinfo=datetime.timezone.utc)
+E         Use -v to get more diff
+
+TradingSystemLab/stage8_robot/tests/test_stage8_11_physical_acceptance.py:174: AssertionError
+_ test_package3_foundation_audits_use_canonical_broker_constants_and_current_handoff _
+
+    def test_package3_foundation_audits_use_canonical_broker_constants_and_current_handoff():
+        audit = Path("TradingSystemLab/stage8_robot/audit_stage8.py").read_text(encoding="utf-8")
+        final = Path("TradingSystemLab/stage8_robot/final_operational_audit.py").read_text(encoding="utf-8")
+        roadmap = Path("TradingSystemLab/ROADMAP.md").read_text(encoding="utf-8")
+        for source_text in (audit, final):
+            assert "from .protective_stop_contract import QTY_MEASURE, QTY_PERCENT" in source_text
+            assert "measure != QTY_MEASURE" in source_text
+            assert "quantity_sl != QTY_PERCENT" in source_text
+            assert "'\"SLTP_QTY_MEASURE_PERCENT\"'" not in source_text
+        handoff = roadmap.split("## Current handoff", 1)[1].split("\n## ", 1)[0]
+>       assert "205/205 PASS" in handoff
+E       AssertionError: assert '205/205 PASS' in '\n\nStage 8.9 is **COMPLETE**. Stage 8.10 is **COMPLETE**. Stage 8.11 — Controlled Real Execution Acceptance — remain...llover at accepted production commit `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129` recorded at the top of this roadmap.\n'
+
+TradingSystemLab/stage8_robot/tests/test_stage8_12_4_package3_zero_order_validator.py:61: AssertionError
+___________ test_package3_sparse_h1_overlap_authority_is_fail_closed ___________
+
+    def test_package3_sparse_h1_overlap_authority_is_fail_closed():
+        history = Path("TradingSystemLab/stage8_robot/production_history.py").read_text(encoding="utf-8")
+        audit = Path("TradingSystemLab/stage8_robot/audit_stage8.py").read_text(encoding="utf-8")
+        final = Path("TradingSystemLab/stage8_robot/final_operational_audit.py").read_text(encoding="utf-8")
+        provenance = Path("TradingSystemLab/stage8_robot/authority_provenance.json").read_text(encoding="utf-8")
+        for source_text in (history, audit, final):
+>           assert "live_overlap.index.difference(authority_overlap.index)" in source_text
+E           assert 'live_overlap.index.difference(authority_overlap.index)' in '"""Frozen Stage 8.12.4 H1 warm-up seed plus live FINAM splice.\n\nFINAM documents only 30 days of H1 historical depth...index.has_duplicates:\n        raise ProductionHistoryError("STAGE8_12_4_H1_CLOSE_INDEX_INVALID")\n    return closed\n'
+
+TradingSystemLab/stage8_robot/tests/test_stage8_12_4_package3_zero_order_validator.py:81: AssertionError
+_________________ test_check_only_audits_do_not_write_results __________________
+
+    def test_check_only_audits_do_not_write_results():
+        commands = [
+            [sys.executable, str(STAGE7 / "audit_production_specification.py"), "--check-only"],
+            [sys.executable, str(STAGE8 / "audit_stage8.py"), "--check-only"],
+        ]
+        artifacts = [STAGE7 / "independent_audit_result.json", STAGE8 / "independent_audit_result.json"]
+        before = [path.read_bytes() for path in artifacts]
+        for command in commands:
+            completed = subprocess.run(command, cwd=ROOT, capture_output=True, text=True)
+>           assert completed.returncode == 0, completed.stdout + completed.stderr
+E           AssertionError: {"checks": 284, "deployment_status": "STAGE_8_INTEL_SERVER_DEPLOYMENT_PREPARED", "emergency_halt_validated": true, "enumerated_account_count": 1, "errors": ["STAGE_8_12_4_FROZEN_H1_WARMUP_PROVENANCE", "STAGE_8_12_4_PACKAGE2_CONTINUOUS_SERVICE_WIRING", "STAGE_8_11_FINAM_TRADES_PRIMITIVE"], "execution_authorized": false, "expected_account_enumerated": true, "expected_account_occurrence_count": 1, "finam_authentication_performed": true, "live_trading_activated": true, "local_readonly_trading_account_binding_validated": true, "margin_status": "STAGE_8_MARGIN_AWARE_FULL_R15_CODE_READY", "offline_dry_validation_performed": true, "order_count": 0, "order_endpoint_called": false, "order_path_dry_validation_validated": true, "order_path_validation_performed": false, "physical_provisioning_performed": true, "physical_validation_performed": true, "production_kill_switch_final_state": "HALTED", "production_kill_switch_halted_observed": true, "production_kill_switch_initialized": true, "production_kill_switch_valid": true, "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8", "readonly_token_readonly_observed": true, "real_order_count": 0, "real_order_endpoint_called": false, "real_order_transmission_authorized": true, "stage8_10_1_status": "STAGE_8_10_1_TRADING_TOKEN_PRECONDITIONS_COMPLETE", "stage8_10_2_accepted_code_commit": "f0c271e428c05ee0ff67b7941e342c06b48a42a0", "stage8_10_2_external_evidence_sha256": "E5FEA93CE28006BC5ADA19F1AA1C1C365FF7CF4BE48A5A1B8BC8C5589DFD754D", "stage8_10_2_physical_result": "STAGE_8_10_2_PHYSICAL_SECURE_PROVISIONING_LOCAL_PASS", "stage8_10_2_status": "STAGE_8_10_2_SECURE_PROVISIONING_COMPLETE", "stage8_10_3_accepted_code_commit": "428d285336380726a3ce00487e2c85eb755e2dd9", "stage8_10_3_external_evidence_sha256": "0DA102E61AB06FFA6A508CC64203FEA3F56BBA3016891A887688A4E300E11BB6", "stage8_10_3_physical_result": "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_PASS", "stage8_10_3_status": "STAGE_8_10_3_IDENTITY_ACCOUNT_BINDING_COMPLETE", "stage8_10_4_accepted_code_commit": "44858bacc2902591e11adc85cfa5f79e2b62dd5b", "stage8_10_4_external_evidence_sha256": "E4AEDC153F89E000EC034E5F33A6EF7BECB5DA29BA253BC0B28B2AC3D0C26C5D", "stage8_10_4_physical_result": "STAGE_8_10_4_TOKEN_PERMISSION_BOUNDARY_PASS", "stage8_10_4_physical_validation_performed": true, "stage8_10_4_status": "STAGE_8_10_4_PERMISSION_BOUNDARY_COMPLETE", "stage8_10_5_accepted_code_commit": "ba284e95954c8473c0e77a95172117bc5cefaf65", "stage8_10_5_external_evidence_sha256": "D878309E22FA49BFFA9EE9B37200C3FE207BF77DB5C29D6DE97010F1FFCE904A", "stage8_10_5_external_network_calls": 0, "stage8_10_5_physical_result": "STAGE_8_10_5_OFFLINE_ORDER_PATH_DRY_VALIDATION_PASS", "stage8_10_5_physical_validation_performed": true, "stage8_10_5_status": "STAGE_8_10_5_ORDER_PATH_DRY_VALIDATION_COMPLETE", "stage8_10_6_accepted_code_commit": "35ec9007e6302d66e35e1a42a34fc2e77be8a467", "stage8_10_6_external_evidence_sha256": "CF34E54212B3385F154804F440361FE5E213B0AFA63D8DD8AE56E1EBB49D6B30", "stage8_10_6_external_network_calls": 0, "stage8_10_6_physical_result": "STAGE_8_10_6_PHYSICAL_SAFETY_GATE_VALIDATION_PASS", "stage8_10_6_physical_validation_performed": true, "stage8_10_6_status": "STAGE_8_10_6_KILL_SWITCH_SAFETY_GATES_COMPLETE", "stage8_10_7_accepted_code_commit": "df4bba6be4f98ba4659e13a01c90bec8e4162ff3", "stage8_10_7_expected_account_enumerated": true, "stage8_10_7_expected_account_occurrence_count": 1, "stage8_10_7_external_evidence_sha256": "A2A6B330A5DC1F15D67A84860223D80786022B634BB8B6CD73E01C815EE7D1B6", "stage8_10_7_finam_authentication_performed": true, "stage8_10_7_local_readonly_trading_account_binding_validated": true, "stage8_10_7_order_count": 0, "stage8_10_7_order_endpoint_called": false, "stage8_10_7_physical_result": "STAGE_8_10_7_PHYSICAL_INTEL_TRADING_TOKEN_ACCEPTANCE_PASS", "stage8_10_7_physical_validation_performed": true, "stage8_10_7_production_kill_switch_post_halted_observed": true, "stage8_10_7_production_kill_switch_pre_halted_observed": true, "stage8_10_7_readonly_token_used_for_remote_auth": false, "stage8_10_7_remote_call_scope": "SESSION_CREATE_AND_DETAILS_ONLY", "stage8_10_7_status": "STAGE_8_10_7_INTEL_TRADING_TOKEN_ACCEPTANCE_COMPLETE", "stage8_10_7_trading_dpapi_current_user_validated": true, "stage8_10_7_trading_session_created": true, "stage8_10_7_trading_token_readonly_false_observed": true, "stage8_10_7_trading_token_used": true, "stage8_10_7_trading_token_write_boundary_confirmed": true, "stage8_10_8_status": "STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE", "stage8_10_complete": true, "stage8_10_completed_gate_count": 7, "stage8_10_execution_authorized": false, "stage8_10_live_trading_authorized": false, "stage8_10_order_count": 0, "stage8_10_order_endpoint_called": false, "stage8_10_production_kill_switch_final_state": "HALTED", "stage8_10_real_order_transmission_authorized": false, "stage8_10_status": "STAGE_8_10_TRADING_TOKEN_LIFECYCLE_COMPLETE", "stage8_11_0_status": "COMPLETE", "stage8_11_1_status": "COMPLETE_PASS", "stage8_11_2_status": "COMPLETE_PASS", "stage8_11_3_status": "PRIOR_AUTHORIZATION_CONSUMED", "stage8_11_current_gate": "STAGE_8_12_COMPLETE_CONTINUOUS_PRODUCTION_OPERATION", "stage8_11_latest_physical_acceptance_result": "PASS", "stage8_11_latest_physical_precheck_result": "STAGE8_11_PRECHECK_ONLY_PASS", "stage8_11_physical_acceptance_order_endpoint_call_count": 2, "stage8_11_physical_precheck_real_order_count": 0, "stage8_11_real_order_count": 2, "stage8_11_status": "STAGE_8_11_CONTROLLED_REAL_EXECUTION_ACCEPTANCE_COMPLETE_PASS", "stage8_12_1_accepted_code_commit": "3f2d68ca0c327271fb543a0b63c0e8f842c855bd", "stage8_12_1_external_evidence_sha256": "F11FD6620A21F48499600392F49D3FC8A2340765B2B7B1C3C190822D8316513C", "stage8_12_1_status": "STAGE_8_12_1_PRODUCTION_RUNTIME_ASSEMBLY_COMPLETE_PASS", "stage8_12_2_accepted_code_commit": "2a15f4331afc1433dfbfd0464108e39e59d236f8", "stage8_12_2_external_evidence_sha256": "4F58595E2F62F2A377E5525972B9E88A136B2F9BC51760268D012AF94A70AE9F", "stage8_12_2_status": "STAGE_8_12_2_PRODUCTION_PATH_CONFORMANCE_AND_FAILURE_AUDIT_COMPLETE_PASS", "stage8_12_4_activation_evidence_sha256": "EA14B73FA1AE1D62C2324A0C76624DA792101FCD945383D70B646BDA1D6F8CB9", "stage8_12_4_status": "COMPLETE_PASS_LIVE_PRODUCTION_ACTIVATED", "stage8_12_execution_authorized": true, "stage8_12_kill_switch": "ARMED", "stage8_12_next_gate": "STAGE_8_12_COMPLETE_CONTINUOUS_PRODUCTION_OPERATION", "stage8_12_production_task": "Running", "stage8_12_status": "STAGE_8_12_FULL_R15_PRODUCTION_AUTHORIZATION_COMPLETE", "stage8_9_10_status": "COMPLETE", "stage8_9_8_status": "STAGE_8_9_8_COMPLETE", "stage8_9_9_status": "PHYSICAL_REVALIDATION_COMPLETE", "stage8_9_accepted_code_commit": "1013a5a2324e015ab3bc047a7b9af9064552cd10", "stage8_9_complete": true, "stage8_9_diagnostic_report_sha256": "C87400F845B73A666B95C83DA2E3B6B710F36F3210AD4AD175BFDABB453864D5", "stage8_9_physical_summary_sha256": "099F85A0DCCF94D404411CFFAC2F5D8C80D606C5C1B5AA2F5B650E8BF5FEB636", "stage8_9_physical_validation_performed": true, "stage8_9_positive_batch_reservation_count": 1, "stage8_9_positive_capacity_case_count": 4, "stage8_9_reason": "ALL_AUTHORITIES_VALID", "stage8_9_sizing_case_count": 8, "stage8_9_status": "STAGE_8_9_REAL_ACCOUNT_FUNDING_MARGIN_VALIDATION_COMPLETE", "stage8_9_zero_capacity_case_count": 4, "stage8_status": "STAGE_8_8_6_SQLITE_RECOVERY_INTEL_ACCEPTANCE_COMPLETE", "status": "FAIL", "synthetic_blocked_case_count": 24, "synthetic_case_count": 25, "synthetic_open_case_count": 1, "synthetic_safety_matrix_validated": true, "token_permission_boundary_validated": true, "trading_session_created": true, "trading_token_provisioned": true, "trading_token_readonly_false_observed": true, "trading_token_used": true}
+E             
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['/workspace/.venvs/intradaylab/bin/python', '/workspace/work/stop-tick-grid/TradingSystemLab/st...ing_token_provisioned": true, "trading_token_readonly_false_observed": true, "trading_token_used": true}\n', stderr='').returncode
+
+TradingSystemLab/stage8_robot/tests/test_windows_compatibility.py:87: AssertionError
+_________________________ test_preflight_is_read_only __________________________
+
+tmp_path = PosixPath('/workspace/work/release-full-stage8-tests/test_preflight_is_read_only0')
+
+    def test_preflight_is_read_only(tmp_path):
+        artifacts = [STAGE7 / "independent_audit_result.json", STAGE8 / "independent_audit_result.json"]
+        before = [path.read_bytes() for path in artifacts]
+        completed = subprocess.run(
+            [sys.executable, str(STAGE8 / "server_preflight.py"), "--offline",
+             "--state-directory", str(tmp_path / "state")],
+            cwd=ROOT, capture_output=True, text=True,
+        )
+>       assert completed.returncode == 0, completed.stdout + completed.stderr
+E       AssertionError: {"checks": {"clock_sanity": "LOCAL_UTC_ONLY", "disk_space": true, "finam_network": "SKIPPED_OFFLINE", "python": true, "registry_safe_state": true, "single_instance_lock": true, "sqlite": true, "stage7_authentication_pass": true, "stage8_audit_pass": false, "state_directory_writable": true}, "failures": ["stage8_audit_pass"], "live_trading_authorized": false, "offline": true, "status": "FAIL"}
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/workspace/.venvs/intradaylab/bin/python', '/workspace/work/stop-tick-grid/TradingSystemLab/st... "failures": ["stage8_audit_pass"], "live_trading_authorized": false, "offline": true, "status": "FAIL"}\n', stderr='').returncode
+
+TradingSystemLab/stage8_robot/tests/test_windows_compatibility.py:111: AssertionError
+=========================== short test summary info ============================
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_clean_repository_authority_passes
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage8_11_cleanliness_correction_preserves_historical_hash_authority
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_crlf_protected_implementation_hashes_pass
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage8_independent_audit_accepts_canonical_and_crlf_implementation_files[\n]
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage8_independent_audit_accepts_canonical_and_crlf_implementation_files[\r\n]
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage8_12_live_closeout_evidence_is_required
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_12_live_current_handoff_mutations_fail_both_audits[TradingSystemLab/CURRENT_STATE.md]
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_12_live_current_handoff_mutations_fail_both_audits[TradingSystemLab/PROJECT_CONTEXT.md]
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_12_live_current_handoff_mutations_fail_both_audits[TradingSystemLab/ROADMAP.md]
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_12_live_current_handoff_stale_gate_and_omission_fail_both_audits[TradingSystemLab/CURRENT_STATE.md]
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_12_live_current_handoff_stale_gate_and_omission_fail_both_audits[TradingSystemLab/PROJECT_CONTEXT.md]
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_12_live_current_handoff_stale_gate_and_omission_fail_both_audits[TradingSystemLab/ROADMAP.md]
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_10_clearly_scoped_historical_text_passes_both_audits[TradingSystemLab/CURRENT_STATE.md]
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_10_clearly_scoped_historical_text_passes_both_audits[TradingSystemLab/PROJECT_CONTEXT.md]
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_10_clearly_scoped_historical_text_passes_both_audits[TradingSystemLab/ROADMAP.md]
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage_8_10_clearly_scoped_historical_text_passes_both_audits[TradingSystemLab/stage8_robot/README.md]
+FAILED TradingSystemLab/stage8_robot/tests/test_final_operational_audit.py::test_stage811_schema_validation_weakening_fails_both_audits[COALESCE(status,'') NOT IN-status NOT IN]
+FAILED TradingSystemLab/stage8_robot/tests/test_stage8_11_http400_recovery.py::test_http400_ambiguous_account_requires_intervention[options0]
+FAILED TradingSystemLab/stage8_robot/tests/test_stage8_11_http400_recovery.py::test_http400_ambiguous_account_requires_intervention[options1]
+FAILED TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_default_boundary_is_precheck_only_and_order_incapable
+FAILED TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_frozen_order_not_performance_and_report_is_sanitized
+FAILED TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_canonical_intent_terminal_semantics[CANCELLED-True]
+FAILED TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_canonical_intent_terminal_semantics[REJECTED-True]
+FAILED TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_canonical_intent_terminal_semantics[CLOSED-True]
+FAILED TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_canonical_intent_terminal_semantics[RECONCILED-True]
+FAILED TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_intel_production_schema_regression_uses_separate_authorities
+FAILED TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_missing_acceptance_ledger_is_initialized_locally
+FAILED TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_frozen_registry_binding_failure_blocks[missing]
+FAILED TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_frozen_registry_binding_failure_blocks[mismatch]
+FAILED TradingSystemLab/stage8_robot/tests/test_stage8_11_intel_acceptance.py::test_frozen_registry_binding_failure_blocks[nontradable]
+FAILED TradingSystemLab/stage8_robot/tests/test_stage8_11_physical_acceptance.py::test_execute_boundary_propagates_fresh_clock_and_refuses_closed_flatten
+FAILED TradingSystemLab/stage8_robot/tests/test_stage8_12_4_package3_zero_order_validator.py::test_package3_foundation_audits_use_canonical_broker_constants_and_current_handoff
+FAILED TradingSystemLab/stage8_robot/tests/test_stage8_12_4_package3_zero_order_validator.py::test_package3_sparse_h1_overlap_authority_is_fail_closed
+FAILED TradingSystemLab/stage8_robot/tests/test_windows_compatibility.py::test_check_only_audits_do_not_write_results
+FAILED TradingSystemLab/stage8_robot/tests/test_windows_compatibility.py::test_preflight_is_read_only
+35 failed, 1347 passed, 10 skipped, 17 subtests passed in 627.12s (0:10:27)
