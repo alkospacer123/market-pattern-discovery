@@ -980,6 +980,7 @@ def run_from_environment(
     once: bool = False, poll_seconds: int = DEFAULT_POLL_SECONDS,
     api_factory=FinamAPI, environment: dict[str, str] | None = None,
     clock: Callable[[], datetime] | None = None,
+    release_manifest: Path | None = None, release_manifest_sha256: str | None = None,
 ) -> int:
     environment = dict(os.environ if environment is None else environment)
     if environment.get("FINAM_MODE") != MODE:
@@ -988,6 +989,18 @@ def run_from_environment(
     account = environment.get("FINAM_REAL_ACCOUNT_ID", "")
     if not secret or not account:
         raise ProductionServiceError("STAGE8_12_4_PRODUCTION_CREDENTIAL_MISSING")
+    if release_manifest is not None or release_manifest_sha256 is not None:
+        if release_manifest is None or release_manifest_sha256 is None or not once:
+            raise ProductionServiceError("V2_MANIFEST_HASH_AND_ONCE_REQUIRED")
+        from .release_candidate_runner import run_preview
+        # The ordinary api_factory is not used here: the default preview has
+        # its own request allowlist and requires an existing READONLY credential.
+        result=run_preview(runtime_root,stage5_data_root,manifest=release_manifest,
+            manifest_sha=release_manifest_sha256,accepted_commit=accepted_commit,
+            secret=secret,account_id=account,clock=clock)
+        import json
+        print(json.dumps(result,sort_keys=True))
+        return 0
     lock = InstanceLock(Path(runtime_root) / "state" / INSTANCE_LOCK)
     lock.acquire()
     service = None
@@ -1018,12 +1031,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--accepted-commit", required=True)
     parser.add_argument("--poll-seconds", type=int, default=DEFAULT_POLL_SECONDS)
     parser.add_argument("--once", action="store_true")
+    parser.add_argument("--release-manifest", type=Path)
+    parser.add_argument("--release-manifest-sha256")
     args = parser.parse_args(argv)
     try:
         return run_from_environment(
             args.runtime_root, args.stage5_data_root,
             accepted_commit=args.accepted_commit, once=args.once,
             poll_seconds=args.poll_seconds,
+            release_manifest=args.release_manifest,
+            release_manifest_sha256=args.release_manifest_sha256,
         )
     except (ProductionServiceError, RuntimeError, ValueError) as exc:
         code = str(exc)

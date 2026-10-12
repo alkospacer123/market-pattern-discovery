@@ -13,6 +13,7 @@ import pytest
 if __name__=='__main__':
     parser=argparse.ArgumentParser()
     parser.add_argument('--basetemp',type=Path,required=True)
+    parser.add_argument('--full-stage8',action='store_true')
     args=parser.parse_args()
     args.basetemp.parent.mkdir(parents=True,exist_ok=True)
     paths=[
@@ -20,6 +21,7 @@ if __name__=='__main__':
         'TradingSystemLab/stage8_robot/tests/test_finam_fill_price_readonly.py',
         'TradingSystemLab/stage8_robot/tests/test_finam_durable_fill_handoff.py',
         'TradingSystemLab/stage8_robot/tests/test_entry_pre_post_recovery.py',
+        'TradingSystemLab/stage8_robot/tests/test_release_preparation.py',
         'TradingSystemLab/stage8_robot/tests/test_stage8_12_production_runtime.py',
         'TradingSystemLab/stage8_robot/tests/test_stage8_12_production_conformance.py',
         'TradingSystemLab/stage8_robot/tests/test_stage8_12_4_production_service.py',
@@ -30,4 +32,6 @@ if __name__=='__main__':
         'TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/test_production_specification.py',
         'tests/test_trail1_authoritative_ledger.py',
     ]
+    if args.full_stage8:
+        paths=sorted(set(paths)|{str(p.relative_to(ROOT)) for p in (ROOT/'TradingSystemLab/stage8_robot/tests').glob('test_*.py')})
     raise SystemExit(pytest.main(['-q','-p','no:cacheprovider','--basetemp='+str(args.basetemp),*paths]))
