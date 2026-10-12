@@ -1,5 +1,17 @@
 # Stage 8.12.4 — H1 timestamp backfill production operator checklist
 
+## Current operator closeout — 2026-10-12 (supersedes older unchecked items)
+
+- [x] Regression tests **114 PASS**; exact PR #484 fix staged at `184e8c2b8fa092a606249ff293a4f507160bff29`; frozen Stage5 and N4 H1 immutable history preserved.
+- [x] FINAM + SQLite precheck PASS, initial broker positions/active orders/local unresolved `0/0/0`; cutover backup SHA-256 `759ef278967b9781a79bd916e47bfe5823908b027dc98b48b05b198fa4482bd7`.
+- [x] Authorization rolled over exactly once and bound to fix SHA; guarded real production cycle **9213** `HEALTHY/PASS`.
+- [x] Windows Scheduled Task principal-preserving exact-commit recovery `PASS`, `RUNNING`; next real LIVE cycle **9214** `HEALTHY/PASS`.
+- [x] Recovery broker/SQLite check PASS, 0 positions, 0 unresolved; entry gate `CLOSED_HALTED`; kill switch `HALTED` generation 59.
+- [x] Evidence stored outside Git: `h1-live-rollout-184e8c2-20261012/halted-task-recovery-pass.json`, SHA-256 `95d724dce03cedefd444de742d6f73fa3b6a0dbdecf0f8c6418e2149c8a0da43`.
+- [ ] Separate explicit operator **re-arm** decision after fresh safety checks. Until then **do not change kill switch or enable entries**.
+- [ ] Continue normal HALTED production observation; no repeat code/authorization/task rollout.
+
+
 ## Completed Intel backup gate — 2026-10-12
 
 - [x] `READINESS_BACKUP=PASS`, broker positions/orders/local unresolved intents `0/0/0`, N4 continuation keys `4`.
