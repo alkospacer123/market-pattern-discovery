@@ -242,12 +242,16 @@ def test_later_finam_backfill_in_immutable_persisted_overlap_is_ignored():
 
 
 def test_live_backfilled_timestamp_does_not_change_seam_ohlc():
+    # The 13:00 H1 was missing when the 14:00 continuation was accepted.
+    initial = frame(
+        ("2026-09-15 12:00:00", "102"),
+        ("2026-09-15 14:00:00", "104"),
+    )
     _, original = extend_rolling_open_h1(
-        seed(), None, first_live(), "USDRUBF"
+        seed(), None, initial, "USDRUBF"
     )
     update = frame(
         ("2026-09-15 12:00:00", "102"),
-        ("2026-09-15 12:30:00", "103"),
         ("2026-09-15 13:00:00", "103"),
         ("2026-09-15 14:00:00", "104"),
         ("2026-09-15 15:00:00", "105"),
@@ -256,7 +260,7 @@ def test_live_backfilled_timestamp_does_not_change_seam_ohlc():
     merged, new_payload = extend_rolling_open_h1(
         seed(), original, update, "USDRUBF"
     )
-    assert pd.Timestamp("2026-09-15 12:30:00", tz=MOSCOW) not in merged.index
+    assert pd.Timestamp("2026-09-15 13:00:00", tz=MOSCOW) not in merged.index
     assert merged.loc[pd.Timestamp("2026-09-15 14:00:00", tz=MOSCOW), "Close"] == Decimal("104")
     assert new_payload["bars"][:len(original["bars"])] == original["bars"]
 
