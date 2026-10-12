@@ -85,3 +85,9 @@ python TradingSystemLab/stage8_robot/tests/replay_stop_tick_grid.py --data-root 
 ```
 
 Отдельная LIVE acceptance после явного разрешения должна проверить fill contract, authenticated current N4 specifications/margins, broker SL/TP acceptance and replacement/backstop races, partial/unknown outcomes, cold restart/reconciliation и state lifecycle. Эта работа заканчивается Draft PR и Summary.
+
+## Fill authority follow-up (append-only; still PROPOSED)
+
+The [READONLY investigation](diagnostics/FINAM_FILL_PRICE_AUTHORITY.md) pins the official FINAM REST contract: bounded `/trades` query parameters and order-linked `AccountTrade.price` exist; FORTS `average_price` is explicitly unpopulated. The current adapter omits the documented interval/limit parameters. Whether that explains the actual historical HTTP 400 remains physically unconfirmed. One diagnostic and offline tests are prepared, with no production bridge or profile activation.
+
+The follow-up also makes a missing acceptance requirement explicit: unexpected partial entry quantity is inhibited/idempotent, but candidate runtime does not yet install protection for a newly arisen partial exposure. Thus the complete broker candidate is `NEEDS_FIX` until partial protection and actual price/retention authority are implemented and accepted; existing grid/replay PASS results remain separate. `ACTUAL_FILL_AUTHORITY=BLOCKED`, `LIVE_PRODUCTION_READY=NO`. Original Stage7 and OOS are unchanged.

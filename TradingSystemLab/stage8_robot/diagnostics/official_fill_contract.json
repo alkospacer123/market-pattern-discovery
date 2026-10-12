@@ -1,0 +1,154 @@
+{
+  "account_trade": {
+    "properties": {
+      "account_id": {
+        "title": "Идентификатор аккаунта",
+        "type": "string"
+      },
+      "accrued_interest": {
+        "$ref": "#/definitions/typeDecimal",
+        "title": "НКД (заполняется на следующий день после даты совершения сделки)"
+      },
+      "comment": {
+        "title": "Метка заявки. (максимум 128 символов)",
+        "type": "string"
+      },
+      "commission": {
+        "$ref": "#/definitions/AccountTradeCommission",
+        "title": "Комиссия. Заполняется для исторических сделок"
+      },
+      "currency": {
+        "description": "Валюта цены (например, RUB, USD, EUR)\nПримечание: поле заполняется только при использовании метода Trades\nДля SubscribeTrades данное поле может быть пустым в связи с различиями в источниках данных. При обработке сделок из подписки рекомендуется учитывать возможность пустого значения.",
+        "type": "string"
+      },
+      "order_id": {
+        "title": "Идентификатор заявки",
+        "type": "string"
+      },
+      "price": {
+        "$ref": "#/definitions/typeDecimal",
+        "title": "Цена исполнения"
+      },
+      "side": {
+        "$ref": "#/definitions/v1Side",
+        "title": "Сторона сделки (long или short)"
+      },
+      "size": {
+        "$ref": "#/definitions/typeDecimal",
+        "description": "Размер в шт."
+      },
+      "symbol": {
+        "title": "Символ инструмента",
+        "type": "string"
+      },
+      "timestamp": {
+        "format": "date-time",
+        "title": "Метка времени",
+        "type": "string"
+      },
+      "trade_id": {
+        "title": "Идентификатор сделки",
+        "type": "string"
+      }
+    },
+    "title": "Информация о сделке",
+    "type": "object"
+  },
+  "commit": "52c95c8672542c2f89fbee2a4016774e73a0caa4",
+  "interpretation": "Documentary contract only. Existing HTTP400 attribution to omitted interval is plausible, not physically confirmed. No FINAM request performed.",
+  "order_state_fields": [
+    "accept_at",
+    "exec_id",
+    "executed_quantity",
+    "initial_quantity",
+    "order",
+    "order_id",
+    "remaining_quantity",
+    "sltp_order",
+    "status",
+    "status_description",
+    "transact_at",
+    "triggered_order_id",
+    "withdraw_at"
+  ],
+  "pagination_or_retention_contract": "No cursor or stable ordering/retention guarantee in these request/response definitions.",
+  "position_average_price": {
+    "$ref": "#/definitions/typeDecimal",
+    "title": "Средняя цена. Не заполняется для FORTS позиций"
+  },
+  "publisher": "FinamWeb/finam-trade-api",
+  "rest_trades": {
+    "http_400_description": "Неверно передан интервал",
+    "method": "GET",
+    "parameters": [
+      {
+        "description": "Идентификатор аккаунта",
+        "in": "path",
+        "name": "account_id",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "description": "Лимит количества сделок",
+        "format": "int32",
+        "in": "query",
+        "name": "limit",
+        "required": false,
+        "type": "integer"
+      },
+      {
+        "description": "Optional. Inclusive start of the interval.\n\nIf specified, a Timestamp matching this interval will have to be the same\nor after the start.",
+        "format": "date-time",
+        "in": "query",
+        "name": "interval.start_time",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "description": "Exclusive end of the interval.\n\nA Timestamp matching this interval will have to be before the\nend.",
+        "format": "date-time",
+        "in": "query",
+        "name": "interval.end_time",
+        "required": false,
+        "type": "string"
+      }
+    ],
+    "path": "/v1/accounts/{account_id}/trades",
+    "response": {
+      "properties": {
+        "trades": {
+          "items": {
+            "$ref": "#/definitions/v1AccountTrade",
+            "type": "object"
+          },
+          "title": "Сделки по аккаунту",
+          "type": "array"
+        }
+      },
+      "title": "История по сделкам",
+      "type": "object"
+    }
+  },
+  "sources": [
+    {
+      "path": "docs/swagger/api.swagger.json",
+      "sha256": "649c3a005d31c1611bfedd6c35ff7cf695aef25e5ec613515c162c712699e0d4",
+      "url": "https://github.com/FinamWeb/finam-trade-api/blob/52c95c8672542c2f89fbee2a4016774e73a0caa4/docs/swagger/api.swagger.json"
+    },
+    {
+      "path": "proto/grpc/tradeapi/v1/accounts/accounts_service.proto",
+      "sha256": "2163b6036e371d4b246b3eb6713deadf53480785fa735731377ffe868a094e20",
+      "url": "https://github.com/FinamWeb/finam-trade-api/blob/52c95c8672542c2f89fbee2a4016774e73a0caa4/proto/grpc/tradeapi/v1/accounts/accounts_service.proto"
+    },
+    {
+      "path": "proto/grpc/tradeapi/v1/trade.proto",
+      "sha256": "d9aeba998ce532de12d9e625be1a4cc0cac8af076ecf7e22fb86e6f396429d96",
+      "url": "https://github.com/FinamWeb/finam-trade-api/blob/52c95c8672542c2f89fbee2a4016774e73a0caa4/proto/grpc/tradeapi/v1/trade.proto"
+    },
+    {
+      "path": "proto/grpc/tradeapi/v1/orders/orders_service.proto",
+      "sha256": "283dca8836f11fc0f5caa1693b6ad7d1de0298feb032c3ac8424da5845849ee6",
+      "url": "https://github.com/FinamWeb/finam-trade-api/blob/52c95c8672542c2f89fbee2a4016774e73a0caa4/proto/grpc/tradeapi/v1/orders/orders_service.proto"
+    }
+  ]
+}
