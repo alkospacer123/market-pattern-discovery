@@ -15,7 +15,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import Decimal
 
-from .production_runtime import RuntimeAction
+from .production_runtime import RuntimeAction, _load_registry
+from .execution_grid import EXECUTION_REVISION, require_on_grid
 
 CONTRACT_SCHEMA = "stage8_12_percent_position_protective_stop.v1"
 QTY_MEASURE = "SLTP_QTY_MEASURE_PERCENT"
@@ -56,6 +57,16 @@ def percent_position_stop_payload(action: RuntimeAction) -> dict:
     expected = action.quantity if action.direction == "LONG" else -action.quantity
     if action.expected_position_quantity != expected:
         raise ProtectiveStopContractError("PROTECTIVE_STOP_POSITION_AUTHORITY_INVALID")
+    if action.execution_revision is not None:
+        try:
+            if action.execution_revision != EXECUTION_REVISION:
+                raise ValueError("EXECUTION_REVISION_INVALID")
+            row = _load_registry().get(action.instrument)
+            if row is None or action.finam_symbol != row["finam_symbol"] or action.price_step != Decimal(row["price_step"]):
+                raise ValueError("PROTECTIVE_STOP_GRID_AUTHORITY_INVALID")
+            require_on_grid(action.stop_price, action.price_step)
+        except ValueError as exc:
+            raise ProtectiveStopContractError(str(exc)) from exc
     return {
         "schema_id": CONTRACT_SCHEMA,
         "symbol": action.finam_symbol,

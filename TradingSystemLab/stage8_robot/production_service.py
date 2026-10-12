@@ -46,6 +46,7 @@ from .production_safety_gate import evaluate_production_entry_gate, write_produc
 from .readonly_supervisor import newest_expected_h1_close, trading_h1_windows
 from .specification import ACTIVE_IDENTITY, INSTRUMENTS, PRODUCTION_SPECIFICATION_ID, load_frozen_specification
 from .strategy_core import CompletedBar
+from .execution_grid import EXECUTION_REVISION, FINAM_FILL_AUTHORITY_VERIFIED
 
 MODE = "STAGE8_12_PRODUCTION"
 STATE_DATABASE = "stage8-12-production.sqlite3"
@@ -88,6 +89,8 @@ def _action(payload: dict[str, Any]) -> RuntimeAction:
             None if payload.get("reference_price") is None else Decimal(str(payload["reference_price"])),
             None if payload.get("stop_price") is None else Decimal(str(payload["stop_price"])),
             payload.get("expected_position_quantity"), payload.get("reason"),
+            payload.get("execution_revision"),
+            None if payload.get("price_step") is None else Decimal(payload["price_step"]),
         )
     except (KeyError, TypeError, ValueError) as exc:
         raise ProductionServiceError("STAGE8_12_4_INTENT_PAYLOAD_INVALID") from exc
@@ -108,6 +111,7 @@ class ProductionService:
         accepted_commit: str, *, poll_seconds: int = DEFAULT_POLL_SECONDS,
         clock: Callable[[], datetime] | None = None,
         sleeper: Callable[[float], None] = time.sleep,
+        execution_revision: str | None = None,
     ):
         spec = load_frozen_specification()
         if spec.production_id != PRODUCTION_SPECIFICATION_ID or spec.identity != ACTIVE_IDENTITY:
@@ -129,7 +133,8 @@ class ProductionService:
         self.sleeper = sleeper
         for name in ("state", "audit", "logs", "diagnostics", "backups", "safety"):
             (self.root / name).mkdir(parents=True, exist_ok=True)
-        self.runtime = ProductionRuntime(self.root / "state" / STATE_DATABASE)
+        self.runtime = ProductionRuntime(self.root / "state" / STATE_DATABASE,
+                                         execution_revision=execution_revision)
         self.logger = configure_operational_log(self.root / "logs" / LOG_FILE)
         self.transport: AuthorizedFinamProductionTransport | None = None
         self.cycle_count = int(self.runtime.store.get("production_service_cycle_count", 0) or 0)
@@ -342,6 +347,8 @@ class ProductionService:
             return
         submit_now = self.clock().astimezone(timezone.utc)
         if action.kind == "ENTRY":
+            if action.execution_revision == EXECUTION_REVISION and not FINAM_FILL_AUTHORITY_VERIFIED:
+                raise ProductionServiceError("ACTUAL_FILL_AUTHORITY_BLOCKED_NO_ENTRY_SUBMISSION")
             self._require_entry_submission_session(action.finam_symbol, submit_now)
         self.runtime.store.transition_intent(key, "SUBMITTED")
         try:
@@ -384,8 +391,9 @@ class ProductionService:
                 if order is not None:
                     self._validate_regular(order, action, exit_order=False)
 
-                # Exact /account position is the fill authority. FINAM /orders
-                # may converge later and must not block protective-stop creation.
+                # Exact /account quantity proves exposure, not execution price.
+                # Preserve the precommitted initial protection; missing price
+                # authority blocks management and new entries in the amendment.
                 if quantity:
                     if (
                         order is not None
@@ -699,6 +707,8 @@ class ProductionService:
         self, histories: dict[str, pd.DataFrame], snap: Snapshot
     ) -> bool:
         if self.transport is None or self.runtime.store.unresolved_intent_count():
+            return False
+        if self.runtime.execution_revision == EXECUTION_REVISION and not FINAM_FILL_AUTHORITY_VERIFIED:
             return False
         gate = evaluate_production_entry_gate(
             runtime_root=self.root, now=snap.observed_at,

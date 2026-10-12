@@ -21,6 +21,7 @@ from .protective_stop_contract import (
     percent_position_stop_payload,
 )
 from .production_safety_gate import evaluate_production_entry_gate
+from .execution_grid import EXECUTION_REVISION, FINAM_FILL_AUTHORITY_VERIFIED
 
 
 class LiveExecutionError(RuntimeError):
@@ -114,6 +115,8 @@ class AuthorizedFinamProductionTransport:
 
     def submit_entry(self, action: RuntimeAction, *, now) -> dict[str, Any]:
         self._validate_action(action, "ENTRY")
+        if action.execution_revision == EXECUTION_REVISION and not FINAM_FILL_AUTHORITY_VERIFIED:
+            raise LiveExecutionError("ACTUAL_FILL_AUTHORITY_BLOCKED_NO_ENTRY_SUBMISSION")
         self._require_entry_gate(now)
         return self.api.place_order(
             self.account_id, self._market_payload(action, exit_order=False)

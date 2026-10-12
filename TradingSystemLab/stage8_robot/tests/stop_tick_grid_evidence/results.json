@@ -1,0 +1,70 @@
+{
+  "all_raw_signal_projection_checks": 1422,
+  "authentication": {
+    "byte_exact_source_checks": {
+      "committed_sha": true,
+      "data_commit": true,
+      "event_hash": true,
+      "instruments": true,
+      "lifecycle_registry": true,
+      "lifecycles": true,
+      "parameter": true,
+      "raw_h1_CNYRUBF": true,
+      "raw_h1_GLDRUBF": true,
+      "raw_h1_IMOEXF": true,
+      "raw_h1_USDRUBF": true,
+      "repeated": true,
+      "row_count": true,
+      "t3": true,
+      "trail": true
+    },
+    "data_hash_contract": "Frozen raw Git-blob hashes, including CRLF; sources unchanged",
+    "existing_authenticate_function": "AUTHENTICATION_FAILED:{'row_count': True, 'committed_sha': True, 'event_hash': True, 't3': True, 'parameter': True, 'trail': True, 'data_commit': True, 'lifecycle_registry': True, 'repeated': True, 'instruments': True, 'lifecycles': True, 'h1_USDRUBF': False, 'h1_CNYRUBF': False, 'h1_GLDRUBF': False, 'h1_IMOEXF': False}"
+  },
+  "changed_exit_timestamps": 0,
+  "classifications": {
+    "ACTUAL_FILL_AUTHORITY": "BLOCKED",
+    "EXECUTABLE_STOP_CONFORMANCE": "PASS",
+    "PRODUCTION_READY": "NO",
+    "PROTECTIVE_STOP_CONFORMANCE": "PASS",
+    "R15_MARGIN_CONFORMANCE": "PASS",
+    "RAW_RESEARCH_CONFORMANCE": "PASS"
+  },
+  "completed_executable_paths": 418,
+  "frozen_entry_paths": 422,
+  "independent_rational_projection_sizing_checks": 1422,
+  "management_bars": 10763,
+  "protective_prices_checked": 2948,
+  "raw_replays": {
+    "independent_authority": {
+      "R_mismatches": 0,
+      "direction_mismatches": 0,
+      "exact_matches": 418,
+      "expected_trade_count": 418,
+      "extra": 0,
+      "missing": 0,
+      "price_mismatches": 0,
+      "reproduced_trade_count": 418,
+      "state_mismatches": 0,
+      "status": "PASS",
+      "timestamp_mismatches": 0
+    },
+    "production": {
+      "R_mismatches": 0,
+      "direction_mismatches": 0,
+      "exact_matches": 418,
+      "expected_trade_count": 418,
+      "extra": 0,
+      "missing": 0,
+      "price_mismatches": 0,
+      "reproduced_trade_count": 418,
+      "state_mismatches": 0,
+      "status": "PASS",
+      "timestamp_mismatches": 0
+    }
+  },
+  "real_order_endpoint_calls": 0,
+  "replacement_count": 2526,
+  "scope": "Fixed frozen entry paths; synthetic equity=100000, cash=1000000, LONG margin=100, SHORT=120; no adjusted PnL or OOS claim; actual FINAM fills/spec histories unavailable",
+  "terminal_open_paths": 4
+}
