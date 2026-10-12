@@ -1,5 +1,10 @@
 # TradingSystemLab — Frozen Stage 7 Production Strategy Passport
 
+## HALTED rollout readiness + external backup (2026-10-12)
+
+Intel operator `READINESS_BACKUP=PASS`: broker positions/orders/unresolved `0/0/0`; four N4 continuations; SQLite online backup integrity PASS; backup SHA-256 `6a8c2c7d1ef589ff0190b28624397962abb9583eccfa90bc4099a6f1681486fe`, report SHA-256 `812ab73de05b896db7d4938b040d20bda49f8fc924a0e852a8c20de45516b644`. Original LIVE checkout and authorization/task untouched; `HALTED` generation 59. No live rollout, authorization migration or re-arm; LIVE heartbeat not yet recovered.
+
+
 ## Validation update — 2026-10-12 (LIVE HALTED)
 
 - PR #484 exact fix `184e8c2b8fa092a606249ff293a4f507160bff29`: 60/60 targeted tests PASS.
