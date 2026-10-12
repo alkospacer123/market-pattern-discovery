@@ -1,0 +1,16 @@
+{
+  "comparison": "Direct bytes equality",
+  "files": {
+    "EXPERIMENT_REPORT.md": "b60b31bfe25bdf93fb38b05ded08c74478e5621bb4df794e192cd69cd8d50103",
+    "INSTRUMENT_DIRECTION_DETAIL.md": "fa6c47cb0023b69b16e488faaeaf645f223ad3eea42dd056ee1d9bb5dae5d367",
+    "MONTHLY_DETAIL.md": "21c2129bfa35ea84874a4976e8a64c7da5f479be6e34e32d72ce24a00b6329b3",
+    "OBJECTIVE_ASSESSMENT.json": "0fd7ff42efb71b0cff1b5f461fab599c6d588b9ff293daa28569bfb65fec2dd7",
+    "PRESENTATION_SHA256.json": "251b3c1c9c1e56f4a1469a9126208d718d415c5e7fe29590033d78809276e6b6",
+    "control_s1_closed_R.svg": "b4464c4a90739d027d2995e9f68c6674f69575f670a6630dd1173ca0a5be8146",
+    "gross_pf.svg": "1cdbc964e2f7829ad4c7afe3798ece640deaac5726f34e37ecf95d045824cf34",
+    "monthly_gross_R.svg": "cb67b6b7aaebc773e7ea5f5b3309098314c6cb355bd4db54c0af13213369ea61"
+  },
+  "fresh_process": true,
+  "scope": "All rendered reports, figures, objective assessment and presentation inventory",
+  "status": "PASS"
+}

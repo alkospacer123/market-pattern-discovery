@@ -1,0 +1,40 @@
+{
+  "combined": false,
+  "executed_in_this_experiment": false,
+  "files": {
+    "direction_report.csv": {
+      "reference_sha256": "db29ead72a95378fee03f7a888d93dc1211b68f19b4ec9a9151fd5ef30e62747",
+      "rows_copied": 120
+    },
+    "instrument_report.csv": {
+      "reference_sha256": "7a0b46a6f63e62cfd0ac97984d252067eacab9680446135e00742aa55088d9c9",
+      "rows_copied": 16
+    },
+    "large_winners.csv": {
+      "reference_sha256": "00f9f73bbb14edc1533a7e35f754234aa2cad49b3002d4ed1eee5cfed66e7fe6",
+      "rows_copied": 120
+    },
+    "monthly_report.csv": {
+      "reference_sha256": "5c81bb1c865e46b0390ba25d6f5145ecf18f582e6a97d186f8ded81fee58ed31",
+      "rows_copied": 416
+    },
+    "november_dependence.csv": {
+      "reference_sha256": "5084356642d573a8d29d47ff888774ea2bf56d50439b50a9132561c2e5ad0d25",
+      "rows_copied": 20
+    },
+    "overall_report.csv": {
+      "reference_sha256": "64ebff51e3eae14bc295bacc589abe6b7fe67d0db4bab3d8548c63a13f910e0e",
+      "rows_copied": 20
+    },
+    "winner_loss_changes.csv": {
+      "reference_sha256": "851b3ab58115b0289dd764c6f3032cc64ef3027b81eda4bfa1338eb9bf3345ec",
+      "rows_copied": 60
+    },
+    "yearly_report.csv": {
+      "reference_sha256": "46a22f482f84992933b958210334f994fa99349fe3c7d3ebe0923558a42206d1",
+      "rows_copied": 40
+    }
+  },
+  "source": "Merged PR #495, immutable references",
+  "source_main": "bc4f95f48b332f43d79ed10f26fc03c5ad01cd97"
+}
