@@ -1,0 +1,68 @@
+{
+  "gate_a": "PASS",
+  "replays": [
+    {
+      "actual_trades": 425,
+      "max_absolute_differences": {
+        "MAE_R": 2.467359649926948e-12,
+        "MFE_R": 4.718359036814945e-11,
+        "entry_price": 0.0,
+        "exit_price": 4.800710939889541e-10,
+        "gross_R": 4.960254429420274e-12,
+        "initial_risk": 3.898881217878625e-12,
+        "initial_risk_ticks": 3.899003786500543e-09,
+        "initial_stop": 4.739177938972716e-10,
+        "net_R": 4.9396042811622465e-12
+      },
+      "mismatches": 0,
+      "reference_trades": 425,
+      "version": "BASELINE"
+    },
+    {
+      "actual_trades": 401,
+      "max_absolute_differences": {
+        "MAE_R": 2.467359649926948e-12,
+        "MFE_R": 4.0543568502471317e-11,
+        "entry_price": 0.0,
+        "exit_price": 4.885407633992145e-10,
+        "gross_R": 4.99800201225753e-12,
+        "initial_risk": 3.898881217878625e-12,
+        "initial_risk_ticks": 3.899003786500543e-09,
+        "initial_stop": 4.739177938972716e-10,
+        "net_R": 4.2385650544929376e-11
+      },
+      "mismatches": 0,
+      "reference_trades": 401,
+      "version": "OPTIMIZED"
+    }
+  ],
+  "source_equality": [
+    {
+      "OHLCV_exact": true,
+      "candles": 29890,
+      "instrument": "USDRUBF",
+      "timestamps_exact": true
+    },
+    {
+      "OHLCV_exact": true,
+      "candles": 29633,
+      "instrument": "CNYRUBF",
+      "timestamps_exact": true
+    }
+  ],
+  "tolerances": {
+    "absolute": {
+      "MAE_R": 5e-10,
+      "MFE_R": 5e-10,
+      "entry_price": 5e-09,
+      "exit_price": 5e-09,
+      "gross_R": 5e-10,
+      "initial_risk": 5e-10,
+      "initial_risk_ticks": 5e-07,
+      "initial_stop": 5e-09,
+      "net_R": 5e-10
+    },
+    "relative": 0
+  },
+  "total_differences": 0
+}

@@ -1,0 +1,53 @@
+{
+  "fixed_control_versions": {
+    "BASELINE": {
+      "candidate_id": "T3_candidate_v1",
+      "historical_override_parameters": {
+        "adx_threshold": 20,
+        "atr_average_period": 20,
+        "breakout_period": 20,
+        "ema_period": 75,
+        "stop_atr": 2.0,
+        "trail_atr": 3.0
+      },
+      "historical_parameter_sha256": "938b6b3b78f680010115a204b9a49e7eef962db119f4ea121e388c00741920ba",
+      "parameters": {
+        "adx_period": 14,
+        "adx_threshold": 20,
+        "atr_average_period": 20,
+        "atr_period": 14,
+        "breakout_period": 20,
+        "ema_period": 75,
+        "slope_lookback": 5,
+        "stop_atr": 2.0,
+        "trail_atr": 3.0
+      }
+    },
+    "OPTIMIZED": {
+      "candidate_id": "T3-M15-0011-76dd2f3526c3",
+      "historical_override_parameters": {
+        "adx_threshold": 20,
+        "atr_average_period": 20,
+        "breakout_period": 20,
+        "ema_period": 75,
+        "stop_atr": 2.0,
+        "trail_atr": 3.5
+      },
+      "historical_parameter_sha256": "76dd2f3526c38a3c7abfd3117d2a9ea4a78d0954c868bd01260736011726ba69",
+      "parameters": {
+        "adx_period": 14,
+        "adx_threshold": 20,
+        "atr_average_period": 20,
+        "atr_period": 14,
+        "breakout_period": 20,
+        "ema_period": 75,
+        "slope_lookback": 5,
+        "stop_atr": 2.0,
+        "trail_atr": 3.5
+      }
+    }
+  },
+  "optimization": false,
+  "selection": false,
+  "source_defaults": "Historical T3Parameters; only the explicitly frozen controls are replayed"
+}
