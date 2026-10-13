@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/workspace/work/discovery/IntradayLab/t3_m15_a6_s1_trail_optimization_v1/run.py", line 34, in <module>
+    p=argparse.ArgumentParser();p.add_argument('--data-root',type=Path,default=Path('/workspace/market-pattern-data'));p.add_argument('--output',type=Path,default=C.HERE/'results');p.add_argument('--controls-only',action='store_true');a=p.parse_args();run(a.data_root,a.output,a.controls_only)
+                                                                                                                                                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/work/discovery/IntradayLab/t3_m15_a6_s1_trail_optimization_v1/run.py", line 19, in run
+    control=G.compute(frames,G.CONTROLS);G.persist(control,output/'control');p=G.gate(control,output/'control')
+                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/work/discovery/IntradayLab/t3_m15_a6_s1_trail_optimization_v1/control.py", line 63, in gate
+    assert not cmp.diffs,'CONTROL_MISMATCH_STOP_OPTIMIZATION'
+           ^^^^^^^^^^^^^
+AssertionError: CONTROL_MISMATCH_STOP_OPTIMIZATION

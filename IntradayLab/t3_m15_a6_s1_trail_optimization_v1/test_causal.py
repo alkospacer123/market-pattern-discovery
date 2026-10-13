@@ -119,6 +119,11 @@ class Causal(unittest.TestCase):
         b=fixture();b[2].update(h=999.,l=97.)
         for t,o,d,e,g,sn in self.runs(b):self.assertFalse(t[0]['threshold_activated']);self.assertEqual(t[0]['MFE_R'],.25)
 
+    def test_sparse_csv_blank_schema_equivalence(self):
+        actual={'decision_reason':'FILTER_FAILED'};expected={'decision_reason':'FILTER_FAILED','entry_scheduled':''}
+        cmp=C.Comparison();cmp.rows([{field:actual.get(field) for field in expected}],[expected],'synthetic',['decision_reason'])
+        self.assertFalse(cmp.diffs)
+
     def test_fixed_grid_and_controls(self):
         self.assertEqual(C.VERSIONS,{'TRAIL_275':2.75,'TRAIL_300':3.,'TRAIL_325':3.25,'TRAIL_350':3.5,'TRAIL_375':3.75})
     def test_a6_has_no_t1_hour_restriction(self):

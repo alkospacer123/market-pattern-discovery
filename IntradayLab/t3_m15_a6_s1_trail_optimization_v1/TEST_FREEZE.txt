@@ -20,10 +20,11 @@ test_s1_survived_execution_bar_activation_next_bar_stop (__main__.Causal.test_s1
 test_s1_threshold_equality_and_ratchet (__main__.Causal.test_s1_threshold_equality_and_ratchet) ... ok
 test_same_close_reentry_after_execution_stop (__main__.Causal.test_same_close_reentry_after_execution_stop) ... ok
 test_signal_close_control_excludes_signal_extrema (__main__.Causal.test_signal_close_control_excludes_signal_extrema) ... ok
+test_sparse_csv_blank_schema_equivalence (__main__.Causal.test_sparse_csv_blank_schema_equivalence) ... ok
 test_stop_on_execution_bar_before_activation_both_sides (__main__.Causal.test_stop_on_execution_bar_before_activation_both_sides) ... ok
 test_timestamp_first_future_poison (__main__.Causal.test_timestamp_first_future_poison) ... ok
 
 ----------------------------------------------------------------------
-Ran 24 tests in 0.210s
+Ran 25 tests in 0.214s
 
 OK

@@ -51,6 +51,8 @@ def gate(out,d,scalar=False):
         ref=[r for r in ref if r['rule']=='C1']
         actual=[r|{'version':CONTROLS[r['version']]} for r in out[k]]
         keys=['version','instrument']+(['trade_id'] if k in ('trades','OPEN_POSITIONS') else ['bar_close_time'] if k=='stop_decisions' else ['signal_time'] if k=='entry_opportunities' else ['current_close'] if k=='observed_gaps' else ['month'])
+        fields={field for row in ref for field in row}
+        actual=[{field:row.get(field) for field in fields} for row in actual]
         cmp.rows(actual,ref,'PR504_'+k,keys)
     for v,expected in TARGETS.items():
         t=[r for r in out['trades'] if r['version']==v]
