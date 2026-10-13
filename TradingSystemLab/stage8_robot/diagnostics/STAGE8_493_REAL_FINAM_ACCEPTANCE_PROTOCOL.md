@@ -100,3 +100,16 @@ NO_REAL_ORDER_AUTHORIZATION=YES
 **Decision:** Section 2 repeat READONLY broker flat/isolation check is **PASS** as observed at this physical checkpoint. The row `Current fresh READONLY flatness: PENDING repeat` in the initial 2026-10-13 table above is superseded by this entry; it is **PASS for this observation only**, not continuous flatness. The narrower additional wrapper `stage8-493-real-acceptance-readonly-gate.ps1` is **not claimed physically run**.
 
 All the separate real-order prerequisites remain unsatisfied: current authenticated N4 2-contract cash/margin/tick/fees/slippage budget, exact live AccountTrade fill authority, broker-proven 1→2 active SLTP coverage on actual trigger, and separately signed explicit real-order permission, emergency flatten and risk budget. **No real trade authorized; no Task restoration/rearm, no candidate PR merge or LIVE checkout change.** Next roadmap step is READONLY historical fill authority and cost/margin evidence preparation, not execution.
+
+## 2026-10-13 — Separate N4 broker finances READONLY candidate prepared (offline only)
+
+The operator approved continued preparation, **not** trading/rearm/merge. Candidate only in Draft PR #493: strict independent GET-only N4 finance collector, hash-pinned Intel PowerShell wrapper and 16 synthetic offline tests. See [STAGE8_493_N4_FINANCIAL_READONLY.md](STAGE8_493_N4_FINANCIAL_READONLY.md).
+
+- New Python SHA-256 CF366762E7CB4B75EB25317E890FD59D6F5F4FB88299B85FBE1904FEB3D16F2B (Git blob 608bf691f3ce1748d8a4d42299475f3130ca5151).
+- New PowerShell SHA-256 D46DB28F6437214809B9647CBD4BEC6B12167C6F83FD1AF063ACE25175DBD9D9 (Git blob 412423068758a8554acc2538fe48b30fdfa36d83).
+- 16 passed synthetic only; PowerShell static no-mutation check PASS. Native Intel execution **NOT RUN**.
+- Uses previously physically passed post-isolation GET-only gate afresh; validates exact REAL_READONLY account identity and double flatness; FINAM session POSTs only for authentication, GET account/orders/assets/params N4; no order/SLTP/cancel/trades endpoints, trading token, live SQLite/Task/checkout writes.
+- The create-only output is private under c:\tslaudit\fill493; it will NOT be committed. FINAM available cash, account equity, price-step, lot and LONG/SHORT initial margin are only known after a physical GET. Broker equity is NOT yet accepted realized R15 equity; commissions, stress cash budget, exact two-contract eligibility and real 1→2 dynamic SLTP protection remain NOT VERIFIED.
+- **Next:** operator may install only the two hash-verified standalone diagnostic scripts outside LIVE checkout and execute the documented READONLY command. After receiving its sanitized output and privately supplied hashed report, perform independent financial/provenance audit. No real order follows automatically.
+
+Classification: STAGE8_493_N4_FINANCIAL_READONLY_CANDIDATE_READY_PHYSICAL_GET_PENDING / REAL_ORDER_AUTHORIZED=NO / LIVE_PRODUCTION_READY=NO.
