@@ -248,3 +248,47 @@ Classification: `R15_BASIS_UNVERIFIED_KEY_INVENTORY_PENDING`;
 `REAL_ORDER_AUTHORIZED=NO`. The existing PRICE_GRID V2
 candidate remains offline PASS / not deployed; broker SLTP dynamic
 partial-fill acceptance remains unproven.
+
+
+## 2026-10-13 — independently reproduced absent-position-key semantics
+
+The Intel operator executed the original SHA-pinned R15 checker and received
+`CLASSIFICATION=BLOCKED:R15_STATE_KEYS_MISSING`. A subsequent SHA-pinned,
+SQLite `mode=ro`/`query_only` key-name inventory physically returned
+`HALTED_IDENTITY=PASS` and `PRODUCTION_SQLITE_MODE_RO_QUERY_ONLY=PASS`.
+Of six checked keys, **only `production_positions` was MISSING**. The
+other five (`database_identity`, `production_service_identity`,
+`explained_external_cash_flows`, `realized_equity`,
+`starting_realized_equity`) were PRESENT. No value was changed and no
+position/order was created.
+
+Independent code verification against accepted LIVE commit
+`184e8c2b8fa092a606249ff293a4f507160bff29` shows that
+`ProductionRuntime.open_positions()` uses
+`self.store.get("production_positions", {})`. The existing candidate
+`stage8_493_isolation_sqlite_readonly.py` likewise uses
+`state.get("production_positions", "{}")`. Thus the absent key represents
+an allowed empty local state; the **standalone R15 audit script** was
+incorrect to demand its presence. This is an overly strict diagnostic,
+**not** a production defect and not evidence that broker risk is wrong.
+
+A corrected isolated, standalone READONLY script was prepared outside
+production as `stage8-493-r15-basis-readonly-v2.py`, local SHA-256:
+`785A85BC2656593F54FB6E62FD092307E3619E175DAA31CC3C0B993C463E9090`.
+It retains the five mandatory key requirements and accepts
+`production_positions` absent **or** a present, empty JSON object.
+Present nonempty/malformed positions, missing required keys, changed
+report SHA, ARMED switch or divergent persisted-vs-broker R15 remain
+fail-closed. It reads SQLite only via `mode=ro`/`query_only`, makes no
+broker call, and cannot repair/insert state. **10/10 offline synthetic
+regressions PASS**, including exact no-SQLite-file-mutation checks.
+**Intel physical execution of the corrected v2 script is still pending.**
+
+Stage 7 strategy, position sizing, accepted production checkout,
+operational Task, HALTED and frozen source code remain unchanged.
+No account cash amount or R15 value is promoted into the public repository.
+
+Classification: `R15_DIAGNOSTIC_OPTIONAL_POSITION_KEY_FALSE_BLOCK_RESOLVED_OFFLINE`;
+`R15_REALIZED_BASIS_INTEL_V2_VERIFICATION_PENDING`;
+`REAL_ORDER_AUTHORIZED=NO`. SLTP 1→2 actual FINAM acceptance and deployment
+remain blocked.
