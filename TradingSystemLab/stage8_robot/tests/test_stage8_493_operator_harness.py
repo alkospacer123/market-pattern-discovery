@@ -109,7 +109,9 @@ def test_immediate_fill_two_is_inconclusive_with_no_duplicate_order(tmp_path):
     op,b=new(tmp_path, Fake(positions=(0,2)))
     with pytest.raises(h.Hold,match='DIRECT_0_TO_2_INCONCLUSIVE'):
         op.entry_and_growth()
-    assert b.entry_posts==1 and b.stop_posts==0
+    assert b.entry_posts==1 and b.stop_posts==1
+    assert op.journal.count('stop_intent')==1
+    assert op.journal.value('stop_intent','after_quantity')==2
     assert op.journal.count('operator_hold')==1
 
 
