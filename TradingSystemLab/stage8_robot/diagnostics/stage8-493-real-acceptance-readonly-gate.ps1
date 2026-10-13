@@ -38,13 +38,20 @@ try {
             Write-Output $line
         }
     }
-    if ($code -ne 0 -or
-        @($reply | Where-Object { $_ -ceq 'CLASSIFICATION=POST_ISOLATION_READONLY_PASS_NO_TRADE_AUTHORITY' }).Count -ne 1 -or
-        @($reply | Where-Object { $_ -ceq 'POST_ISOLATION_BROKER_FLAT=PASS' }).Count -ne 1 -or
-        @($reply | Where-Object { $_ -ceq 'FINAM_SESSION=EXACT_READONLY_ACCOUNT_BOUND' }).Count -ne 1 -or
-        @($reply | Where-Object { $_ -ceq 'NO_ORDER_OR_CANCEL=YES' }).Count -ne 1) {
-        throw 'POST_ISOLATION_BROKER_NOT_FRESHLY_VERIFIED'
+    # The verified child captures its internal Python broker lines and emits
+    # only aggregated PASS sentinels. Do not require hidden captured stdout.
+    $required = @(
+        'TASK_DISABLED_AND_PROCESS_ZERO=PASS',
+        'LOCK_HANDLE_QUIESCENT=PASS',
+        'SQLITE_POST_STOP_BEFORE_AFTER=PASS',
+        'FINAM_POST_STOP_TWO_SNAPSHOTS=PASS',
+        'CLASSIFICATION=POST_ISOLATION_READONLY_PASS_NO_TRADE_AUTHORITY'
+    )
+    $valid = ($code -eq 0)
+    foreach ($marker in $required) {
+        if (@($reply | Where-Object { $_ -ceq $marker }).Count -ne 1) { $valid = $false }
     }
+    if (-not $valid) { throw 'POST_ISOLATION_BROKER_NOT_FRESHLY_VERIFIED' }
     $task_after = Get-ScheduledTask -TaskName 'TradingSystemLab-Stage8-Production' -TaskPath '\' -ErrorAction Stop
     $switch_after = Get-Content -LiteralPath (Join-Path $runtime_root 'safety\stage8-trading-kill-switch.json') -Raw | ConvertFrom-Json
     if ([string]$task_after.State -cne 'Disabled' -or $switch_after.state -cne 'HALTED' -or
