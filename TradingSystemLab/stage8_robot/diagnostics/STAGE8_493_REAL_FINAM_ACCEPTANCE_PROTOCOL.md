@@ -447,3 +447,52 @@ blocks V2 production entries; it must not be toggled by tests or a historical 1-
 `FINAL_FLAT_FAIL_CLOSED_FIX_NEW_TESTS_PENDING_INTEL`;
 `REAL_FINAM_TWO_CONTRACT_ACCEPTANCE_NOT_AUTHORIZED`;
 `LIVE_PRODUCTION_READY=NO`.**
+
+
+## 2026-10-13 — Intel 21-test terminal recovery PASS and disconnected FINAM evidence mapping
+
+**Physical Intel observation from operator:** the previously delivered
+`stage8-493-operator-final-flat-offline-pytest.ps1` SHA-256 matched
+`E572DD668EFD19584F53D1A26F81FF0CAF49BC89C1134A1729DD6EB72AF4C5C5`.
+The script checked exact PR commit `3b7d6d7874358d66a6c9dbe65bc54763b91feb90`,
+new final-flat tests blob `9207c8c878602c46884e347f5baecae778330873`,
+operator core blob `96568614634f9f1ee050874def8884293af7e90c`,
+and reported **21 passed in 1.94 seconds** with `PRODUCTION_TASK_DISABLED_AND_HALTED=PASS`,
+`PRODUCTION_TASK_STILL_DISABLED_AND_HALTED=PASS`,
+`NO_LIVE_STATE_OR_ORDER_OPERATIONS_IN_SCRIPT=YES`,
+`PHYSICAL_BROKER_SLTP_VERIFIED=NO` and `LIVE_PRODUCTION_READY=NO`.
+The previous provisional `FINAL_FLAT_FAIL_CLOSED_FIX_NEW_TESTS_PENDING_INTEL` is superseded
+**only for that exact pinned commit** by `FINAL_FLAT_FAIL_CLOSED_INTEL_21_PASS`.
+There was no new broker request, real order, merge, runtime write, authorization or task mutation.
+
+**Next roadmap preparation (Draft PR only):** add
+`diagnostics/stage8_493_finam_readonly_observation.py` and
+`tests/test_stage8_493_finam_readonly_observation.py` as **disconnected, strictly READONLY
+REST response normalizers**. They reuse the existing strict
+`production_broker_state.position_quantities()/order_views()`, verify account hash,
+selected N4 position versus other exposures, full order IDs/remaining
+quantities, SLTP percent/price/validity and bounded order-linked
+`AccountTrade` identity/price/tick/side/interval/pagination constraints.
+New exact Git blobs are `1cacbcf1a05ce1284b2bd239c2244204734b00c3` and
+`02946b6777af5ccd8fc9cf7cfd3eb831bb778d80`.
+The parsers have **no network client, DPAPI, production DB, FinamAPI import,
+API order, cancel, flatten, or ability to authenticate**. Pure response
+normalization never establishes freshness, stable broker retention, actual
+SLTP trigger-time 2-lot protection, or execution permission.
+
+The new mapping test module and the earlier operator harness must be physically
+tested together on a newly pinned Intel detached worktree before this bridge can
+be classified as synthetically verified. Its full physical adapter / emergency
+recovery wiring is **NOT IMPLEMENTED**, not covertly authorized by READONLY
+mapping tests. A future writable bridge must receive a **new specific**
+order/flatten/cancel authorization, current client R15/margin/cash-flow
+reconciliation, exact selected symbol/direction and monetary budget, a fresh
+broker flat gate and operator-supervised recovery with no duplicate POSTs.
+A two-contract growth GET echo remains insufficient to certify real SLTP protection.
+Previous Stage 8.11 one-contract acceptance cannot be repurposed.
+
+**Status: `INTEL_OPERATOR_CORE_21_PASS_EXACT_HEAD`;
+`FINAM_READONLY_RESPONSE_BRIDGE_TESTS_PENDING_INTEL`;
+`TWO_CONTRACT_WRITABLE_BRIDGE_NOT_BUILT`;
+`PRODUCTION_DISABLED_HALTED`;
+`LIVE_PRODUCTION_READY=NO`.**
