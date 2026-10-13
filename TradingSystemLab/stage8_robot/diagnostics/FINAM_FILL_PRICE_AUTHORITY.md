@@ -206,3 +206,15 @@ This is the **correct safety result**: an active ARMED/Running production robot 
 
 `PHYSICAL_SLTP_GROWTH=BLOCKED`; `LIVE_PRODUCTION_READY=NO`; PR #493 remains Draft.
 
+
+## Intel controlled HALT verified — operator physical READONLY report (2026-10-13 11:00:55 MSK)
+
+Operator supplied the full output from `check-tradingsystemlab-live.ps1`, which now expects the correct pinned production commit `184e8c2b8fa092a606249ff293a4f507160bff29`. Physical local state after the explicitly operator-initiated halt:
+
+- **Kill switch `HALTED`, generation 61**, `updated=2026-10-13T08:00:20.700118+00:00`. Historical health-check field `KILL_SWITCH_ARMED=FAIL` means deliberately no longer ARMED, **not** a malfunction.
+- Production Scheduled Task **Running**, Readonly Task **Disabled**; exact task/runtime/code binding, checkout clean, Stage5 `50f1fd2178c18b7ab3bd969be82ad01f47a34745` clean — reported PASS.
+- Durable authorization remains `AUTHORIZED`, `execution_authorized=True` for the same pinned LIVE commit; only the kill switch gates off new entries. No authorization replacement, re-arm, Task stop, SQL edit or test order was performed.
+- New production heartbeat at `2026-10-13T08:00:28.686890+00:00`, cycle **11282**, `HEALTHY`, reconciliation `PASS`, unresolved intents `0`, open positions `0`, active protective stops `0`. Fresh API contact age **28.4 s** reported by the physical check. These **local heartbeat** values are not a fresh independent FINAM `/accounts` and `/orders` account-flat proof.
+- Exact current operational classification: **`HALTED / RUNNING / HEALTHY / PASS` with ENTRY disabled**. The separate V2 physical SLTP/growth acceptance is **NOT RUN**. Do not conflate the status with former ARMED snapshot in `CURRENT_STATE.md`; that historical snapshot is superseded by the operator's above physical report.
+
+**Next**: independently authenticate via the existing DPAPI **READONLY** principal; perform two strict GET-only FINAM `/account` and `/orders` observations, matching the hash to the production heartbeat with still-HALTED gates. A local one-shot synthetic-tested script pair `stage8-493-finam-broker-flat-readonly.ps1` and `.py` is prepared for the operator outside Git (PS SHA-256 `8a5d6110f97c1aa5e390fdc048acf447a0ab1e6fbe852410cd8bc993899017c5`; Python SHA-256 `02dc0b6ada60ce51bfdc9afbb4d54ca3407d0a3cdd94c3ad88e6eb7a78ab8bbe`). Offline synthetic tests: **4 PASS**. Actual Intel FINAM GET outcome is not yet observed. A GET-only PASS does **not** itself authorize disabling/stopping the production task, mutating LIVE or posting a test order; isolation and a separately safety-reviewed, bounded SLTP operator acceptance harness remain pending. No forced trade, no change of frozen T3/H1/TRAIL1/N4/R15. `LIVE_PRODUCTION_READY=NO` for V2.
