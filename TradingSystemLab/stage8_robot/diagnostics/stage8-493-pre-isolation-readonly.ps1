@@ -8,6 +8,8 @@ $live_sha = '184e8c2b8fa092a606249ff293a4f507160bff29'
 $audit = join-path $psscriptroot 'stage8_493_isolation_sqlite_readonly.py'
 $broker_probe = join-path $psscriptroot 'stage8-493-finam-broker-flat-readonly.ps1'
 $audit_sha = '0f102987ca04a56abd62f6f3fe54e8cb3266ccfbe3c3852ccb9c7cb47d28f51b'
+$previous_bytecode = [environment]::getenvironmentvariable('pythondontwritebytecode', 'process')
+$env:pythondontwritebytecode = '1'
 write-output '=== stage8 #493 pre-isolation audit: readonly, no task stop ==='
 write-output 'NO_TRADING_TOKEN NO_LIVE_SQLITE_WRITES NO_ORDER_OR_CANCEL NO_TASK_MUTATION NO_REARM'
 try {
@@ -20,7 +22,7 @@ try {
     if ($actual_sha -cne $audit_sha) { throw 'SQLITE_AUDIT_HASH_INVALID' }
     push-location -literalpath $checkout
     try {
-        $commit = (& git rev-parse @).trim()
+        $commit = (& git rev-parse '@').trim()
         if ($lastexitcode -ne 0 -or $commit -cne $live_sha) { throw 'LIVE_COMMIT_MISMATCH' }
         $dirty = @(& git status --porcelain)
         if ($lastexitcode -ne 0 -or $dirty.count -ne 0) { throw 'LIVE_CHECKOUT_DIRTY' }
@@ -69,4 +71,5 @@ try {
     write-output 'STOP_TASK_AUTHORIZED_BY_THIS_SCRIPT=NO'
     write-output 'PRODUCTION_TASK_CHANGED_BY_THIS_SCRIPT=NO'
     write-output 'SLTP_REAL_ORDER_AUTHORIZED=NO'
+    [environment]::setenvironmentvariable('pythondontwritebytecode', $previous_bytecode, 'process')
 }
