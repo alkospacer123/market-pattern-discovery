@@ -336,3 +336,38 @@ was used by this R15 local check.
 **Checkpoint: `R15_SQLITE_SNAPSHOT_CONSISTENCY_PASS_FUNDING_PROVENANCE_OPEN`;
 `FINAM_REAL_SLTP_MULTIFILL_UNVERIFIED`;
 `REAL_ORDER_AUTHORIZED=NO`.**
+
+
+
+## 2026-10-13 — operator confirms prior funding provenance
+
+The account operator explicitly confirmed that the difference between the
+starting and latest account balance was a **deposit**, not trading profit,
+and confirmed the latest broker balance. These figures remain in the
+private operator evidence and are not published to the public repository.
+The earlier provenance classification `FUNDING_SOURCE_NOT_CONFIRMED`
+is superseded by `EXTERNAL_FUNDING_SOURCE_OPERATOR_CONFIRMED`.
+
+This **does not** reconcile the frozen LIVE ledger: the operator's
+hash-verified R15 read reported persisted
+`explained_external_cash_flows=0` while the subsequent deposit had
+already been received by the broker account. The accepted production
+`ProductionService._realized_basis()` uses
+`broker_equity - unrealized_profit - explained_external_cash_flows`.
+Consequently recognizing a new external flow in that field would
+mathematically change the nominal FULL/R15 risk base and may prevent
+two-contract eligibility, even while broker margin remains sufficient.
+Alternatively treating funded capital as part of the current risk
+capital requires explicit authoritative reconciliation; it cannot be
+silently chosen by a diagnostic tool.
+
+**Do not modify SQLite, reset starting equity, relabel the deposit as
+trading PnL, or change the frozen formula/sizing/strategy.** An
+independently reviewed funding-accounting decision and explicitly
+authorized, backup-and-reconcile procedure are prerequisites to any
+operational adjustment. The operator's factual confirmation is not
+authorization for any production mutation.
+
+**Current gate: `FUNDING_ORIGIN_CONFIRMED_R15_LEDGER_TREATMENT_UNRESOLVED`**;
+FINAM real 1→2 stop coverage and explicit real-order authorization remain
+blocked. Candidate PR #493 still Draft / not deployed.
