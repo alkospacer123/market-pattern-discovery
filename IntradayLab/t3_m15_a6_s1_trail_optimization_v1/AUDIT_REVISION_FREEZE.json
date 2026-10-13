@@ -1,0 +1,9 @@
+{
+  "commit": "d27b79a7a4e754aad9bfb80afb023fa187c04f8e",
+  "files": {
+    "audit_v1_1.py": "300d0a64b7f7ac906b685ffc2d0ddacafa26d16038f4cb70fba6b179b892b472",
+    "repeat_v1_1.py": "b6311d3e577d3046c6f4910c187907b367a72d631957d0a3931b2fc767069492"
+  },
+  "post_result_correction": true,
+  "trading_rules_changed": false
+}
