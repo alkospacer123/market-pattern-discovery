@@ -457,3 +457,44 @@ value, Task, checkout, token or broker order was changed in this work.
 
 **Gate remains: `AUTOMATIC_FUNDING_CLASSIFICATION_NOT_IMPLEMENTED` /
 `REAL_SLTP_ACCEPTANCE_NOT_PROVEN`.**
+
+
+
+## 2026-10-13 — candidate-only automated funding sizing behavior audit
+
+Following operator approval to **continue offline preparations only**, the
+accepted LIVE `184e8c2b8fa092a606249ff293a4f507160bff29` implementation
+was independently inspected. Its `ProductionService._realized_basis` uses
+`FINAM equity - unrealized profit - explained_external_cash_flows`;
+`ProductionRuntime.plan_entry` passes the resulting realized basis through
+the unchanged `risk.size_position` (1.5%) and `margin.cap_r15_by_margin`.
+Thus account equity increases are reflected in **future entry quantities**
+by existing code at the next available authorized signal; **existing**
+positions are not automatically scaled. The code does not identify
+deposits versus realized trading profit without separate external-flow
+classification. The operator-confirmed deposit is an economic source
+fact, NOT authorization to mutate the frozen LIVE `explained_external_cash_flows`
+ledger or choose its accounting interpretation.
+
+An isolated candidate-only test module was added:
+`tests/test_stage8_493_funding_auto_sizing_offline.py`, exercising
+the actual candidate `ProductionService._realized_basis`, unchanged
+`risk.size_position` and unchanged `margin.cap_r15_by_margin` against
+memory-only synthetic scenarios. It covers consecutive account funding
+increases, unrealized gains/losses, external-flow exclusion by the
+*existing* formula, zero capacity, excessive/nonfinite external-flow
+rejection and immutable existing-position evidence. No FINAM API,
+production SQLite, live config, real order, or changes to Stage 7
+strategy/sizing were made.
+
+An **independent arithmetic-only** synthetic check passed 7 examples.
+The full new pytest module has **NOT** been executed on the physical
+Intel pinned candidate worktree; report `OFFLINE_TESTS_PENDING`, not
+`PYTEST_PASS`. Next engineering gate is to run isolated tests, review
+failure cases and resolve the capital-accounting interpretation
+without changing any production authority. Source/frozen settings
+remain unchanged and PR #493 remains Draft.
+
+`FUNDING_ACCOUNTING_DECISION_PENDING` /
+`REAL_SLTP_MULTIFILL_NOT_ACCEPTED` /
+`REAL_ORDER_AUTHORIZED=NO`.
