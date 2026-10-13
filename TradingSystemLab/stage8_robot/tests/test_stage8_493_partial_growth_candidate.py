@@ -16,7 +16,8 @@ from TradingSystemLab.stage8_robot.tests.test_stop_tick_grid_amendment import (
 
 def two_contracts(tmp_path, direction="LONG"):
     rt = runtime(tmp_path / "offline-only.db")
-    budget = rt.begin_batch(realized_equity=D("100000"), available_cash=D("300"))
+    cash = D("250") if direction == "LONG" else D("300")
+    budget = rt.begin_batch(realized_equity=D("100000"), available_cash=cash)
     entry = plan(rt, signal(side=direction), budget=budget)
     assert entry.quantity == 2
     stop = rt.confirm_entry_position(entry.idempotency_key, 1)
@@ -142,7 +143,7 @@ def test_growth_hold_survives_restart_no_unhalt(tmp_path):
 
 def test_pending_first_stop_can_wait_for_remeasured_quantity(tmp_path):
     rt = runtime(tmp_path / "offline-only.db")
-    budget = rt.begin_batch(realized_equity=D("100000"), available_cash=D("300"))
+    budget = rt.begin_batch(realized_equity=D("100000"), available_cash=D("250"))
     entry = plan(rt, signal(), budget=budget)
     assert entry.quantity == 2
     stop = rt.confirm_entry_position(entry.idempotency_key, 1)
