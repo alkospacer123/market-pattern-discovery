@@ -1,0 +1,3 @@
+GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY
+2023–2024: DEVELOPMENT_EXPOSED
+{"repeatability": "PASS", "files_per_repeat": 31}

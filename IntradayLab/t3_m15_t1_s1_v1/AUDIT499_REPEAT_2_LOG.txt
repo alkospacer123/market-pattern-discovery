@@ -1,0 +1,3 @@
+GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY
+2023–2024: DEVELOPMENT_EXPOSED
+{"status": "PASS", "fields_compared": 2580630, "discrepancies": 0, "counts": [{"version": "BASELINE", "rule": "CONTROL", "closed": 741, "terminal_OPEN": 1}, {"version": "BASELINE", "rule": "T1", "closed": 568, "terminal_OPEN": 1}, {"version": "BASELINE", "rule": "T2", "closed": 729, "terminal_OPEN": 1}, {"version": "OPTIMIZED", "rule": "CONTROL", "closed": 701, "terminal_OPEN": 1}, {"version": "OPTIMIZED", "rule": "T1", "closed": 549, "terminal_OPEN": 1}, {"version": "OPTIMIZED", "rule": "T2", "closed": 694, "terminal_OPEN": 1}]}

@@ -1,3 +1,5 @@
+GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY
+2023–2024: DEVELOPMENT_EXPOSED
 test_adverse_open_gap_both_sides (__main__.Execution.test_adverse_open_gap_both_sides) ... ok
 test_future_bar_rejected (__main__.Execution.test_future_bar_rejected) ... ok
 test_next_observed_bar_trail_both_sides (__main__.Execution.test_next_observed_bar_trail_both_sides) ... ok
