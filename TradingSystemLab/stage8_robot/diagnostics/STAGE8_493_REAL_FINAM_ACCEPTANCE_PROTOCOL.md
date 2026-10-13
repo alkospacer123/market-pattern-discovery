@@ -358,3 +358,14 @@ capital-accounting policy explicitly, run pinned offline tests,
 finish non-order-capable SLTP acceptance/recovery review and money
 budget, then seek a **separate bounded real-order authorization**.
 No merge/deploy/rearm, Task change or production SQLite modification.
+
+
+## 2026-10-13 — independent operator-plan exact FULL/R15 sizing gate (candidate only)
+
+Independent comparison to frozen `ProductionRuntime.plan_entry()`, `risk.size_position()`, and `margin.cap_r15_by_margin()` found a narrow operator-plan error: checking only that *two contracts do not exceed* R15/margin lets an asserted two-contract test plan pass when frozen sizing would select more than two. Example, with entirely synthetic CNYRUBF values: realized basis RUB 10,000, reference entry 12.750, stop 12.740, cash RUB 10,000, initial GO RUB 1,000; a two-contract plan loses RUB 20 nominally and fits both limits, but frozen FULL/R15 would produce min(15 R15, 10 margin) = **10 contracts**, not exactly two. No LIVE trade was attempted.
+
+**Candidate-only correction:** standalone order-incapable `diagnostics/stage8_493_sltp_operator_launcher.py` now computes reference R15 and margin quantities with exact `Decimal` floor for frozen N4 lot=1 and rejects unless their minimum is exactly two. The original operator-assertion preconditions remain explicitly unverified; `--execute` still refuses. Added test fixtures for both R15-limited and margin-limited natural two-lot plans, over-capacity negative cases, and cross-checks against the actual frozen `risk.py` and `margin.py`. No frozen engine, production account, order capability, runbook, risk rule, positions, SQLite or LIVE service was changed.
+
+**Verification status on these new commits:** source/diff reviewed; new exact-HEAD pytest **PENDING PHYSICAL INTEL RUN**. Do not claim PASS based on prior 9/9 funding tests, the old operator-plan tests, or 158/158 prior V2 regressions. This correction closes only an **offline plan-consistency gap**, not a physical FINAM SLTP 1→2 acceptance or final cash-loss authority. Any actual same-entry partial fill remains conditional on separately reviewed order/recovery harness, timestamped FINAM evidence and explicit trade authorization. If an initial two-contract order fills 0→2 in one observation, the broker growth proof stays **INCONCLUSIVE**, not PASS.
+
+**Classification:** `OPERATOR_TWO_LOT_REFERENCE_SIZING_FIX_PENDING_PYTEST`; `FINAM_FILL_AUTHORITY_VERIFIED=False`; `REAL_ORDER_AUTHORIZED=NO`; `LIVE_PRODUCTION_READY=NO`.
