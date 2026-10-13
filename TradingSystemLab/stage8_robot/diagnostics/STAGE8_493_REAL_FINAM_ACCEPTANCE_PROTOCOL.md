@@ -387,3 +387,18 @@ Independent source audit of the next operator-execution/recovery boundary:
 6. The existing accepted LIVE source and account remain out of scope. PR #493 may not be merged, installed or rearmed until physical acceptance and subsequent separately approved controlled release checks.
 
 **Audit decision: `OPERATOR_PLAN_PYTEST_26_PASS`; `TWO_CONTRACT_REAL_EXECUTION_HARNESS_NOT_IMPLEMENTED`; `PHYSICAL_FINAM_SLTP_GROWTH_NOT_VERIFIED`; `LIVE_PRODUCTION_READY=NO`.** No live operations are authorized by this documentation.
+
+
+## 2026-10-13 — isolated two-lot operator core, transport disconnected
+
+Following explicit permission to continue **preparatory engineering and offline tests**, a separate operator-only core was added under `diagnostics/stage8_493_operator_harness.py` and a new synthetic negative-path module `tests/test_stage8_493_operator_harness.py`. Exact candidate Git blobs respectively `6e0c0d33fff4b665c676c9d20836d2eaad8aea65` and `d3f4fce94151e877d3c883ea819cc274c608db0d`. Only these two new files were added in this engineering task; the frozen Stage7/8.11 execution, risk and strategy modules were not changed.
+
+The new code has a deliberately **disconnected broker Port protocol**. There is **no FinamAPI import, DPAPI loader, CLI `--execute`, real session instantiation, Task operation, production sqlite access, or unattended cancel/flatten capability**. A physical adapter capable of authenticated real-order execution has **not** been implemented or authorized. The core is not a production executable.
+
+Independently prepared and executed in a local Linux offline interpreter, the exact byte-for-byte Git blob copies passed **15 tests, 0 failures** (scope: synthetic fake-port tests only). The cases include: one entry + one 100%-SLTP stop intent, durable journal before each simulated submission, 0→1 then 1→2 same-entry event, no false real coverage proof after a 100% GET echo, 0→2 immediate fill = INCONCLUSIVE, missing order-linked fills, forged broker account, wrong/terminal/wrong-side/50%-SLTP observations, unknown ACK on entry and stop, restart without duplicate POST, pending entry remainder preventing recovery and double-flat evidence. Local source blob hashes were independently compared with remote GitHub exact hashes after commit. The **physical Intel exact-head pytest run is still pending** and must not be claimed PASSED.
+
+Important recovery limitation: the disconnected core returns `MANUAL_BROKER_TERMINAL_RECOVERY_REQUIRED` when stop/exit races or pending entry exposure cannot be safely resolved, rather than submitting a blind market exit or cancelling a protective stop. An operational two-contract, credential-bound, separately reviewed real FINAM operator bridge and its supervised recovery drill remain **not implemented**. The core's injected `Port` must never be bound to a real writable session on the strength of these synthetic tests. The 1→2 second-contract **real stop-trigger behavior is unproven**. Final double flatness is an evidence check, not broker-trigger proof. `FINAM_FILL_AUTHORITY_VERIFIED=False` and LIVE prohibition remain unchanged.
+
+**Next existing-roadmap work:** exact-HEAD isolated Intel offline pytest; independent audit/fail-closed tests of a future real broker adapter and operator-owned recovery, historical GET /trades fill completeness, time-bounded same-account R15/margin/tick and cash budget; only then separately request explicit real-order permission. **No merging PR #493, real orders, LIVE SQLite writes, task restart or rearm.**
+
+**Current: `TWO_LOT_OPERATOR_CORE_SYNTHETIC_15_PASS_LOCAL_ONLY`; `INTEL_PYTEST_PENDING`; `REAL_TRANSPORT_AND_EMERGENCY_BRIDGE_BLOCKED`; `LIVE_PRODUCTION_READY=NO`.**
