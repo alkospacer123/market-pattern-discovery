@@ -9,7 +9,7 @@ This is an existing Stage 8 acceptance preparation item, not a research phase. D
 | File | SHA-256 / identity |
 | --- | --- |
 | stage8_493_n4_financial_readonly.py | CF366762E7CB4B75EB25317E890FD59D6F5F4FB88299B85FBE1904FEB3D16F2B, Git blob 608bf691f3ce1748d8a4d42299475f3130ca5151 |
-| stage8-493-n4-financial-readonly.ps1 | D46DB28F6437214809B9647CBD4BEC6B12167C6F83FD1AF063ACE25175DBD9D9, Git blob 412423068758a8554acc2538fe48b30fdfa36d83 |
+| stage8-493-n4-financial-readonly.ps1 | DB37C177FED0D34FEB502C15BD462C3D915AA161D4ED2825366639912464E168, Git blob 138966f73d401dbf8c026ce51280d8e3f5971378 (corrected source/hash verification) |
 | test_stage8_493_n4_financial_readonly.py | Git blob 8ff3706d5199bcb8e12fcb1d2f46375c20f7c70a |
 
 **Local independent synthetic pytest: 16 passed.** Both executable source files and the test file were byte-for-byte matched to these Git blob IDs. Python compiled successfully; PowerShell static forbidden-mutation verb audit PASS. **Native Windows PowerShell and actual Intel READONLY GET have NOT been run.** None of these tests accessed FINAM or LIVE.
@@ -45,6 +45,14 @@ Expected if **all** physical GET checks pass:
     NO_REAL_ORDER_AUTHORIZATION=YES
 
 CLASSIFICATION=BLOCKED, malformed/changed account data, parser/import/version failure or missing scratch directory means STOP, independent review; do not bypass, trade, start Task or change tokens. Report uses exclusive create; an approved repeat requires a new filename via -Output within existing external c:\tslaudit\fill493.
+
+## Intel physical false-block and strictly diagnostic correction (2026-10-13)
+
+- Operator verified that the installed financial Python SHA-256 matched `CF366762E7CB4B75EB25317E890FD59D6F5F4FB88299B85FBE1904FEB3D16F2B`, installed previous post-isolation wrapper SHA-256 matched `37DF9E1A8F4B0B18EE37D1ACC8757AD674160E878264B2746ED0E1BB3E66C201`, and the original financial wrapper matched its initial release SHA-256.
+- The initial two attempts stopped with `BLOCKED:EXACT_READONLY_SOURCE_HASH_MISMATCH` **before** finance GET. The cause is the **new wrapper's nested array pair iteration**, not evidence of source tampering. No broker financial numbers were collected; no order authority.
+- Candidate PS-only correction replaces `foreach ($row in @(@(...), @(...)))` with two explicit, separately pinned `Test-Path` + `Get-FileHash` guards, distinguishable fail codes, and `EXACT_READONLY_SOURCE_HASHES=PASS` on success. It retains all original pinned SHA values, old post-isolation guard, Task/HALTED checks, and no trade permissions.
+- New candidate PS SHA-256 `DB37C177FED0D34FEB502C15BD462C3D915AA161D4ED2825366639912464E168`; Git blob `138966f73d401dbf8c026ce51280d8e3f5971378`. Added `test_stage8_493_financial_readonly_wrapper_guard.py`, **3/3 synthetic/static regressions PASS on independent Linux runner** (native PowerShell not available), alongside prior Python 16/16 PASS. This **does not** establish Intel native execution; new version requires operator physical rerun.
+- Only candidate diagnosis changed; the immutable production checkout, Task, kill switch, trading credentials, LIVE SQLite and previous proven wrapper remain untouched. Keep any private FINAM report out of public GitHub.
 
 ## Roadmap gate
 
