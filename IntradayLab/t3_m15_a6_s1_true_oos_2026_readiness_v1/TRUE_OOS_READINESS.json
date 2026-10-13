@@ -42,7 +42,9 @@
       "start": "2026-01-01T00:00:00+03:00",
       "end_exclusive": "2027-01-01T00:00:00+03:00",
       "authorized_read": false,
-      "authorized_replay": false
+      "authorized_replay": false,
+      "earliest_possible_complete_calendar_at": "2027-01-01T00:00:00+03:00",
+      "full_year_available_on_2026_10_13": false
     }
   },
   "source_policy": {
@@ -74,6 +76,7 @@
     "grid_policy": "Validate executable tick/grid and fee provenance before OOS; do not silently round or modify frozen research fills/stops. If incompatible, STOP for explicit review, no after-the-fact rule changes."
   },
   "pre_read_gates": [
+    "Full 2026 calendar must have elapsed (not before 2027-01-01 MSK) and full-year source coverage verified after authorization; do not shorten TRUE OOS to observed 2026 YTD",
     "Separate explicit user authorization identifying TRUE OOS 2026",
     "Cost inputs and tariff source evidence pinned before any 2026 OHLC read",
     "Exact frozen trading code/config and data commit pinned and checked",
@@ -98,7 +101,8 @@
     "actual_fees": true,
     "actual_tick_values": true,
     "adverse_execution_assumptions": true,
-    "explicit_2026_authorization": true
+    "explicit_2026_authorization": true,
+    "complete_2026_calendar": true
   },
   "next_action": "Obtain and independently verify the missing cost instrument/broker inputs, then preregister exact numeric assumptions in a separate reviewed change before requesting user authorization to open TRUE OOS 2026."
 }
