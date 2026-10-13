@@ -87,6 +87,7 @@
   ],
   "objective": "Pooled four-instrument full-period actual Gross PF >=2.0; no automatic economic PASS, no winner selection; one Draft PR then STOP",
   "period": "Full available 2023-2024 M15 close-index prefix; real GLD/IMOEX late starts",
+  "pre_result_correction": "Missing timestamp comparison treats None/NaN/NaT as equal; no replay or parameter changes; variants still unobserved; original freeze f96194ee retained.",
   "pre_result_protocol": [
     "commit specification and all implementation before viewing outcomes",
     "synthetic tests and full 1442 CLOSED + 2 terminal OPEN CONTROL fields against #490/#495 before variants",

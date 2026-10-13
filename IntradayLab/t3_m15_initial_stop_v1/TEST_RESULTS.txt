@@ -1,0 +1,28 @@
+test_changed_future_does_not_change_entries_or_stops (__main__.Causality.test_changed_future_does_not_change_entries_or_stops) ... ok
+test_future_execution_rejected (__main__.Causality.test_future_execution_rejected) ... ok
+test_future_prefix_poison_never_parsed (__main__.Causality.test_future_prefix_poison_never_parsed) ... ok
+test_indicator_and_signal_prefix_invariance (__main__.Causality.test_indicator_and_signal_prefix_invariance) ... ok
+test_no_production_imports_or_future_file_paths (__main__.Causality.test_no_production_imports_or_future_file_paths) ... ok
+test_both_trailing_constants (__main__.Mechanics.test_both_trailing_constants) ... ok
+test_busy_signals_not_filled (__main__.Mechanics.test_busy_signals_not_filled) ... ok
+test_cap_never_expands (__main__.Mechanics.test_cap_never_expands) ... ok
+test_exchange_ticks_not_reproduction_units (__main__.Mechanics.test_exchange_ticks_not_reproduction_units) ... ok
+test_fixed_reference_risk_separate (__main__.Mechanics.test_fixed_reference_risk_separate) ... ok
+test_four_exact_mechanisms_both_directions (__main__.Mechanics.test_four_exact_mechanisms_both_directions) ... ok
+test_gap_long_short (__main__.Mechanics.test_gap_long_short) ... ok
+test_invalid_candidate_logged_even_if_busy (__main__.Mechanics.test_invalid_candidate_logged_even_if_busy) ... ok
+test_no_year_forced_exit_and_boundary_snapshot (__main__.Mechanics.test_no_year_forced_exit_and_boundary_snapshot) ... ok
+test_nonfinite_control_risk (__main__.Mechanics.test_nonfinite_control_risk) ... ok
+test_nonfinite_stop_no_fallback (__main__.Mechanics.test_nonfinite_stop_no_fallback) ... ok
+test_same_bar_reentry_after_exit (__main__.Mechanics.test_same_bar_reentry_after_exit) ... ok
+test_standalone_occupancy_changes_reentries (__main__.Mechanics.test_standalone_occupancy_changes_reentries) ... ok
+test_stop_before_extreme_long_short (__main__.Mechanics.test_stop_before_extreme_long_short) ... ok
+test_terminal_open_not_in_closed (__main__.Mechanics.test_terminal_open_not_in_closed) ... ok
+test_trailing_effective_next_bar (__main__.Mechanics.test_trailing_effective_next_bar) ... ok
+test_trailing_short_reflection (__main__.Mechanics.test_trailing_short_reflection) ... ok
+test_zero_stop_skips_and_later_signal_executes (__main__.Mechanics.test_zero_stop_skips_and_later_signal_executes) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.402s
+
+OK

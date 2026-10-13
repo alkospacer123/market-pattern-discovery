@@ -106,6 +106,12 @@ class Mechanics(unittest.TestCase):
 
 
 class Causality(unittest.TestCase):
+    def test_missing_timestamps_match_but_different_times_fail(self):
+        from research import timestamp_mismatch
+        a=pd.Series([None,'2023-01-03 10:15:00+03:00'])
+        b=pd.Series([np.nan,'2023-01-03 10:30:00+03:00'])
+        self.assertEqual(timestamp_mismatch(a,b).tolist(),[False,True])
+
     def test_future_prefix_poison_never_parsed(self):
         with tempfile.TemporaryDirectory(dir=HERE/'work') as folder:
             p=Path(folder)/'poison.csv'

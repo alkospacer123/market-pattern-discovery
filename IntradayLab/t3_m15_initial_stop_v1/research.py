@@ -18,6 +18,10 @@ def csv(path,rows,columns=None):
     f.to_csv(path,index=False,float_format='%.15g',lineterminator='\n')
 def ordered(f):return f.sort_values(['exit_time','instrument','trade_id'],kind='mergesort').reset_index(drop=True)
 
+def timestamp_mismatch(actual,reference):
+    a=pd.to_datetime(actual,utc=True);r=pd.to_datetime(reference,utc=True)
+    return ~((a==r)|(a.isna()&r.isna())).to_numpy()
+
 def metrics(f,calendar,column='gross_R',opened=0):
     f = ordered(f)
     x = f[column].to_numpy(float)
@@ -67,7 +71,7 @@ def control_gate(trades,opened,output):
             for c in fields:
                 av,rv = a[c],r[c]
                 if c.endswith('_time') or c in ('H1AvailableAt','H1PreviousAvailableAt'):
-                    bad = pd.to_datetime(av,utc=True).to_numpy() != pd.to_datetime(rv,utc=True).to_numpy()
+                    bad = timestamp_mismatch(av,rv)
                 elif pd.api.types.is_numeric_dtype(rv) and not pd.api.types.is_bool_dtype(rv):
                     delta = abs(av.to_numpy(float)-rv.to_numpy(float))
                     bad = (delta>1e-8) | (np.isnan(av.to_numpy(float)) != np.isnan(rv.to_numpy(float)))
