@@ -133,3 +133,37 @@ The report's **private bytes have not been independently supplied/recomputed** t
 **Next existing roadmap gate:** inspect and verify the local report digest and sanitized N4 cash/margin amounts OFFLINE; separately establish realized-equity authority, effective broker tariff, on-grid reference/initial stop, slippage/gap scenario and explicitly approved loss budget before considering any new real-order permission. Never force 2 contracts or conclude readiness from margin alone. Production Task remains Disabled/HALTED at the last successful isolation gate; no merge, deployment, rearm or order permission.
 
 **Classification: STAGE8_493_PHYSICAL_FINAM_N4_FINANCIAL_GET_PASS_REPORT_BYTES_INDEPENDENT_AUDIT_PENDING.**
+
+
+## 2026-10-13 — offline operator N4 field inspection with hash validation
+
+The operator ran a standalone local-only reader on the external Intel financial report. Supplied stdout:
+`REPORT_SHA256=PASS`, per-instrument N4 price steps match frozen
+registry (`0.01,0.001,0.1,0.5`) and the FINAM trade lot equals `1` for all four.
+Both LONG and SHORT account-bound initial-margin fields were present and parsed
+successfully. The report hash is still
+`91749F6834D6E1A2837EA16D933F91DBACD46B728143DD463F9AF4FF979C8174`.
+The account-specific margin *amounts* have deliberately NOT been copied into
+the public repository; they remain in the external private report and
+operator conversation. The inspection did not call the broker.
+
+A mechanical two-contract margin threshold can be computed by multiplying
+the per-contract account-specific direction margin by 2; **that is not
+permission** to trade exactly 2 contracts. Actual available cash, frozen
+R15 realized equity, entry/stop distance and ROUND-TRIP fees must still be
+independently checked. Because cash/equity was not included in this operator
+snippet, it is explicitly `NOT_VERIFIED`, and because the full private JSON
+was not provided the result is local-check evidence rather than an independent
+byte-level review of that report.
+
+Next offline step: use a separately hash-pinned, **read-only local file** to
+display `account_financials` only: broker equity, unrealized PnL,
+available cash, and MC/FORTS portfolio variant. Never print
+`account_sha256`, account IDs, tokens or raw broker payloads; never upload
+the full private JSON to public GitHub. Production realized equity requires
+separate cash-flow reconciliation, which this report does not carry.
+
+**Status:** `N4_ACCOUNT_BOUND_MARGIN_VALUES_OBSERVED_OFFLINE`;
+`TWO_CONTRACT_R15_ELIGIBILITY_NOT_PROVEN`;
+`FINAM_REAL_SLTP_MULTIFILL_NOT_TESTED`;
+`REAL_ORDER_AUTHORIZED=NO`.
