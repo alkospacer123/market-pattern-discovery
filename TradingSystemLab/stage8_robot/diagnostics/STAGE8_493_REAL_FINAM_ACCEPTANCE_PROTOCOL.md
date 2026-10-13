@@ -185,3 +185,26 @@ Checkpoint: `N4_TWO_LOT_MARGIN_CAPACITY_ONLY_PASS_R15_RISK_AND_REAL_SLTP_BLOCKED
 Intel operator's hash-pinned standalone, local-only R15 reader returned `CLASSIFICATION=BLOCKED:R15_STATE_KEYS_MISSING` and `REAL_ORDER_AUTHORIZED=NO`. It did not identify the missing key and did not justify substituting broker equity, creating a new state key, changing production SQLite, or modifying frozen FULL/R15. See `STAGE8_493_N4_FINANCIAL_READONLY.md` for the six-key allowlist and the isolated, read-only key-name inventory prepared for the next Intel observation.
 
 **Gate result:** Broker cash and directional N4 margin observations PASS at their timestamp; realized R15 basis still **UNVERIFIED / BLOCKED**, client commissions and actual entry/stop economics unverified, real SLTP 1→2 dynamic coverage unverified. Production remains Task Disabled / HALTED at last physical acceptance, and no merge, real order, deploy, rearm or restoration is authorized.
+
+
+## 2026-10-13 — R15 key inventory confirms an optional empty position key
+
+The Intel operator's independent SHA-pinned SQLite `mode=ro`/
+`query_only` inventory returned all five necessary R15/identity state
+keys `PRESENT` and the sole missing key `production_positions`.
+Frozen LIVE `ProductionRuntime.open_positions()` explicitly reads
+`get("production_positions", {})`, so the initial strict diagnostic's
+`R15_STATE_KEYS_MISSING` is a **false block for absent empty-position
+state**, not authorization to create a key or alter LIVE.
+
+An isolated R15 read-only v2 checker was prepared outside production:
+SHA-256 `785A85BC2656593F54FB6E62FD092307E3619E175DAA31CC3C0B993C463E9090`;
+10 synthetic tests PASS. It tolerates only the exact optional
+empty-position case and retains all R15/identity/account,
+HALTED, report-hash and no-writes gates. Physical Intel v2 check pending.
+
+**No R15 economic approval is implied** until the exact independent
+derived-vs-persisted R15 comparison succeeds. The client fee/slippage,
+stop entry reference, real 1→2 partial-fill protection and separate
+real-order authorization remain blocked. No candidate merge, Task
+restart, trading, rearm or production mutation.
