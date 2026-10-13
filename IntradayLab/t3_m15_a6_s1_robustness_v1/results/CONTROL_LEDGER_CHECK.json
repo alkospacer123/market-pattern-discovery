@@ -1,0 +1,77 @@
+{
+  "original": {
+    "2023": {
+      "year": "2023",
+      "closed": 165,
+      "gross_PF": 2.207277631364274,
+      "gross_R": 90.39067237690143,
+      "expectancy_R": 0.5478222568297056,
+      "positive_R": 165.26216011808998,
+      "negative_R": 74.87148774118856,
+      "closed_R_DD": 6.016676725015138,
+      "positive_months": 9,
+      "negative_months": 3,
+      "zero_months": 0,
+      "months": 12,
+      "max_negative_month_run": 1
+    },
+    "2024": {
+      "year": "2024",
+      "closed": 315,
+      "gross_PF": 1.7721337045362477,
+      "gross_R": 122.13198384679376,
+      "expectancy_R": 0.3877205836406151,
+      "positive_R": 280.30664081264575,
+      "negative_R": 158.17465696585214,
+      "closed_R_DD": 12.628056181602872,
+      "positive_months": 11,
+      "negative_months": 1,
+      "zero_months": 0,
+      "months": 12,
+      "max_negative_month_run": 1
+    },
+    "ALL": {
+      "year": "ALL",
+      "closed": 480,
+      "gross_PF": 1.9119337995951609,
+      "gross_R": 212.52265622369507,
+      "expectancy_R": 0.4427555337993647,
+      "positive_R": 445.56880093073596,
+      "negative_R": 233.04614470704067,
+      "closed_R_DD": 12.628056181602872,
+      "positive_months": 20,
+      "negative_months": 4,
+      "zero_months": 0,
+      "months": 24,
+      "max_negative_month_run": 1
+    }
+  },
+  "without_november_2024": {
+    "year": "2024",
+    "closed": 288,
+    "gross_PF": 1.4520432276093571,
+    "gross_R": 68.3870684514317,
+    "expectancy_R": 0.2374550987896934,
+    "positive_R": 219.67142418240564,
+    "negative_R": 151.284355730974,
+    "closed_R_DD": 12.628056181602872,
+    "positive_months": 10,
+    "negative_months": 1,
+    "zero_months": 1,
+    "months": 12,
+    "max_negative_month_run": 1
+  },
+  "source": "IntradayLab/t3_m15_early_risk_protection_v1/results/control/trades.csv",
+  "source_git_blob": "72597dbab205be76a1bcb3d26e0e5f39fa4190f2",
+  "archived_control_only": true,
+  "raw_OHLC_replay": "NOT_RUN",
+  "independent_full_raw_backtest": "NOT_RUN",
+  "audit_status": "LEDGER_ARITHMETIC_ONLY",
+  "cost_model": "FIXED_ARITHMETIC_HAIRCUT_NOT_BROKER_COST",
+  "classifications": [
+    "DEVELOPMENT_EXPOSED",
+    "GROSS_ONLY",
+    "COSTS_DEFERRED",
+    "NOT_LIVE_READY"
+  ]
+}
