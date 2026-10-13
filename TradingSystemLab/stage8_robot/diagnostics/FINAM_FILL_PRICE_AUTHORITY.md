@@ -322,3 +322,24 @@ The separate real SLTP 100%-coverage multi-fill acceptance harness (maximum two 
 Operator approval received to continue *controlled Task isolation only* after the Stage8 #493 physical pre-isolation READONLY PASS. The new package is committed to this **Draft PR** as `stage8-493-controlled-task-isolation.ps1` SHA256 `ca87ea62480c71b81e8c95bb0f9104bcbb103d1dac1673ba71f34317baf4924a`, `stage8-493-post-isolation-readonly.ps1` SHA256 `37df9e1a8f4b0b18ee37d1acc8757ad674160e878264b2746ed0e1bb3e66c201`, `stage8_493_post_isolation_broker_readonly.py` SHA256 `92fc06d2fba9d5d5062d3a3dc14bb74c8c3efd32754a07585dc92d5cb7ea7a13` and `test_stage8_493_controlled_task_isolation.py` (15 independent synthetic/static offline tests PASS). These exact local byte streams were matched to their remote Git blob identifiers. No Windows PowerShell 5.1 native dry-run or physical STOP/disable has yet been completed for these scripts.
 
 The executor defaults to no-mutation **check-only**, which reruns the previous pinned process/SQLite/FINAM/HALTED preflight and records exact Task service PID chain. Explicit `-execute` is physically dangerous and must follow successful Intel check-only review, using the operator's existing Task-isolation approval. It exports the original Task XML into a unique standalone audit file, disables the production Task to suppress startup/restarts, and only then stops the registered Task. It checks process exits, broker account/orders with a separate still-readonly post-stop FINAM session, production SQLite and released state lock. No PID force-stop, rearm, trading token, real order or automatic recovery is included. A failure after a Task mutation attempt is `BLOCKED_OPERATOR_RECOVERY_REQUIRED`, *not* evidence that the previous production runner is restored. A physical PASS would require immediate current-state/roadmap/runbook/passport/checklist synchronization and actual GitHub `main` verification. Until then: **`LIVE_TASK_ISOLATION_NOT_EXECUTED`; `LIVE_PRODUCTION_READY=NO`**.
+
+## 2026-10-13 — Intel controlled Task isolation CHECK-ONLY physical PASS; EXECUTE still not observed
+
+Operator physically invoked without `-execute`:
+`powershell.exe -noprofile -executionpolicy bypass -file "c:\tradingsystemlab\stage8-493-controlled-task-isolation.ps1" -python "c:\tslaudit\fill493\venv\scripts\python.exe"`.
+
+Exact reported signals:
+```text
+=== stage8 #493 controlled production Task isolation ===
+NO_REAL_ORDERS NO_REARM NO_TRADING_TOKEN NO_LIVE_SQLITE_MUTATION
+FRESH_PROCESS_SQLITE_FINAM_HALTED=PASS
+IDENTIFIED_TASK_POWERSHELL_PID=8536
+IDENTIFIED_SERVICE_ROOT_PID=6260
+IDENTIFIED_SERVICE_CHILD_PID=11608
+CLASSIFICATION=CHECK_ONLY_PASS_NO_MUTATION
+TASK_MUTATION_ATTEMPTED=False
+REAL_ORDER_AUTHORIZED=NO
+REARM_PERFORMED=NO
+```
+
+This proves the operator's local candidate executor passed **fresh** strict PID chain, Task binding, SQLite before/after, FINAM two READONLY account/orders snapshots and kill switch HALTED before returning at the explicit no-mutation guard. The same PID chain remained `8536 → 6260 → 11608` at that observation. Physical verification of Task backup/disable/stop and post-stop readonly broker/SQLite/lock checks **has not occurred**, and stop semantics/possible orphans remain unproven. The user already gave permission for narrowly scoped controlled isolation, **not** rearm, orders, strategy changes, V2 release or PR merge. Next: execute this exact reviewed isolation file only with `-execute` under the existing explicit permission and fresh preflight; if `BLOCKED_OPERATOR_RECOVERY_REQUIRED`, stop and inspect, never auto-rearm/restart/kill PIDs. If `ISOLATED_HALTED_PENDING_GITHUB_OPERATIONAL_SYNC`, immediately synchronize operational current-state/roadmap/runbook/passport/checklist and verify actual GitHub `main` and Intel physical state. `LIVE_TASK_ISOLATION_NOT_YET_CONFIRMED` and `LIVE_PRODUCTION_READY=NO`.
