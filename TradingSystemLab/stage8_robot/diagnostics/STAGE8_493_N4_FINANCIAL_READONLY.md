@@ -425,3 +425,35 @@ existing Stage8 #493 acceptance items: confirm deposit risk-accounting
 convention without changing frozen sizing, review current client
 tariff/slippage budget and prepare independent real FINAM SLTP 1→2
 proof under a later, separately authorized controlled acceptance.
+
+
+
+## 2026-10-13 — existing production runbook prohibits unattended deposits
+
+Independent audit of actual GitHub main
+`TradingSystemLab/stage8_robot/PRODUCTION_RUNBOOK.md` §4.3 establishes
+a hard **operational** rule: the currently running/frozen Stage 8.12
+service has **no automatic external cash-flow classification** and
+operators must **not** deposit or withdraw during LIVE and assume the
+robot distinguishes it from trading PnL; any new flow needs a controlled
+operator procedure **before new sizing from the changed account**.
+
+This supersedes any possible reading of the previous code audit as
+approval of **unattended future deposits**. The code computes a new
+risk-capital value from the current broker equity automatically; the
+runbook nevertheless rejects unrestricted deposit/withdrawal
+automation in the absence of accepted funding attribution. The
+historical operator-confirmed deposit and 2026-10-13 R15 snapshot PASS
+do not establish a production-grade automatic flow classifier.
+
+**Minimal existing-roadmap decision:** prepare a narrowly scoped
+separate READONLY funding reconciliation/statement evidence process
+and obtain explicit approval for any production handling of new flows.
+Do not invent a new strategy, percentage, phase, setting, DB writer or
+risk formula. Until the runbook is updated after a separately approved
+production fix, future deposits during LIVE remain
+`CONTROLLED_OPERATOR_PROCEDURE_REQUIRED`. No production SQLite
+value, Task, checkout, token or broker order was changed in this work.
+
+**Gate remains: `AUTOMATIC_FUNDING_CLASSIFICATION_NOT_IMPLEMENTED` /
+`REAL_SLTP_ACCEPTANCE_NOT_PROVEN`.**
