@@ -1,0 +1,104 @@
+{
+  "differences": 0,
+  "fields_compared": 933280,
+  "max_numeric_delta": 9.663381206337363e-13,
+  "status": "PASS",
+  "tables": [
+    {
+      "actual_rows": 45,
+      "fields": 2160,
+      "reference_rows": 45,
+      "table": "PR510_summary"
+    },
+    {
+      "actual_rows": 45,
+      "fields": 2160,
+      "reference_rows": 45,
+      "table": "SCALAR_PR510_summary"
+    },
+    {
+      "actual_rows": 360,
+      "fields": 16200,
+      "reference_rows": 360,
+      "table": "PR510_monthly"
+    },
+    {
+      "actual_rows": 360,
+      "fields": 16200,
+      "reference_rows": 360,
+      "table": "SCALAR_PR510_monthly"
+    },
+    {
+      "actual_rows": 1027,
+      "fields": 9243,
+      "reference_rows": 1027,
+      "table": "PR510_loss_runs"
+    },
+    {
+      "actual_rows": 1027,
+      "fields": 9243,
+      "reference_rows": 1027,
+      "table": "SCALAR_PR510_loss_runs"
+    },
+    {
+      "actual_rows": 189,
+      "fields": 10395,
+      "reference_rows": 189,
+      "table": "PR510_scenario_summary"
+    },
+    {
+      "actual_rows": 189,
+      "fields": 10395,
+      "reference_rows": 189,
+      "table": "SCALAR_PR510_scenario_summary"
+    },
+    {
+      "actual_rows": 3024,
+      "fields": 139104,
+      "reference_rows": 3024,
+      "table": "PR510_scenario_monthly"
+    },
+    {
+      "actual_rows": 3024,
+      "fields": 139104,
+      "reference_rows": 3024,
+      "table": "SCALAR_PR510_scenario_monthly"
+    },
+    {
+      "actual_rows": 28800,
+      "fields": 288000,
+      "reference_rows": 28800,
+      "table": "PR510_scenario_ledger"
+    },
+    {
+      "actual_rows": 28800,
+      "fields": 288000,
+      "reference_rows": 28800,
+      "table": "SCALAR_PR510_scenario_ledger"
+    },
+    {
+      "actual_rows": 90,
+      "fields": 900,
+      "reference_rows": 90,
+      "table": "PR510_top_winners"
+    },
+    {
+      "actual_rows": 90,
+      "fields": 900,
+      "reference_rows": 90,
+      "table": "SCALAR_PR510_top_winners"
+    },
+    {
+      "actual_rows": 15,
+      "fields": 630,
+      "reference_rows": 15,
+      "table": "PR510_november2024"
+    },
+    {
+      "actual_rows": 15,
+      "fields": 630,
+      "reference_rows": 15,
+      "table": "SCALAR_PR510_november2024"
+    }
+  ]
+}

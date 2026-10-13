@@ -1,0 +1,6 @@
+{
+  "STOP": true,
+  "WF_results_usable": false,
+  "reason": "TypeError('Object of type int64 is not JSON serializable')",
+  "status": "WF_INVALID"
+}

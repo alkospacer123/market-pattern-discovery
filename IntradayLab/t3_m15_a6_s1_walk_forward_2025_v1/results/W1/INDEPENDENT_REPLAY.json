@@ -1,0 +1,45 @@
+{
+  "differences": 0,
+  "fields_compared": 656805,
+  "max_numeric_delta": 4.440892098500626e-16,
+  "status": "PASS",
+  "tables": [
+    {
+      "actual_rows": 551,
+      "fields": 26999,
+      "reference_rows": 551,
+      "table": "INDEPENDENT_REPLAY_trades"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 24,
+      "reference_rows": 1,
+      "table": "INDEPENDENT_REPLAY_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 14209,
+      "fields": 511524,
+      "reference_rows": 14209,
+      "table": "INDEPENDENT_REPLAY_stop_decisions"
+    },
+    {
+      "actual_rows": 2330,
+      "fields": 83880,
+      "reference_rows": 2330,
+      "table": "INDEPENDENT_REPLAY_entry_opportunities"
+    },
+    {
+      "actual_rows": 2618,
+      "fields": 34034,
+      "reference_rows": 2618,
+      "table": "INDEPENDENT_REPLAY_observed_gaps"
+    },
+    {
+      "actual_rows": 13,
+      "fields": 338,
+      "reference_rows": 13,
+      "table": "INDEPENDENT_REPLAY_PERIOD_END_OPEN_POSITIONS"
+    }
+  ],
+  "tolerance": 1e-08
+}

@@ -1,0 +1,11 @@
+{
+  "OHLC_2026_read": false,
+  "WF_2025_read": false,
+  "attempt_freeze": "cf19f4dc",
+  "evidence": "failure_evidence/control_serialization_attempt",
+  "fix": "Cast checkpoint Signal to int; force-add ignored results paths so every stage is actually committed",
+  "incomplete_first_attempt_results_not_used": true,
+  "new_freeze_before_any_WF_read": true,
+  "reason": "Checkpoint last_features contained numpy.int64 Signal; JSON serialization failed before full CONTROL comparison and before any WF read",
+  "strategy_or_parameters_changed": false
+}

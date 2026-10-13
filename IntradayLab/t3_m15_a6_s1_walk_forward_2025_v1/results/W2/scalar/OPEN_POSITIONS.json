@@ -1,0 +1,28 @@
+[
+  {
+    "activation_time": "2025-06-30T13:45:00+03:00",
+    "active_stop": 2841.5314168880427,
+    "breakout_level": 2817.5,
+    "direction": "LONG",
+    "entry_price": 2819.0,
+    "entry_time": "2025-06-27T19:30:00+03:00",
+    "favorable_extreme": 2851.5,
+    "initial_risk": 12.074677828245513,
+    "initial_stop": 2806.9253221717545,
+    "instrument": "IMOEXF",
+    "last_close": "2025-06-30T23:45:00+03:00",
+    "last_close_price": 2849.0,
+    "mode": "NEXT_OPEN",
+    "pending_exit_decision": null,
+    "rule": "C1",
+    "signal_close": 2819.0,
+    "signal_time": "2025-06-27T19:30:00+03:00",
+    "status": "OPEN_NOT_LIQUIDATED_EXCLUDED_FROM_CLOSED_TRADE_METRICS",
+    "stop_source": "ATR_TRAIL",
+    "stop_updates": 40,
+    "threshold_activated": true,
+    "trade_id": "T3-M15-IMOEXF-000130",
+    "unrealized_gross_R_at_last_close": 2.4845383393851668,
+    "version": "TRAIL_375"
+  }
+]

@@ -1,0 +1,117 @@
+{
+  "absolute_tolerance": 1e-08,
+  "differences": 0,
+  "fields_compared": 1729476,
+  "max_numeric_delta": 0.0,
+  "status": "PASS",
+  "tables": [
+    {
+      "actual_rows": 480,
+      "fields": 23520,
+      "reference_rows": 480,
+      "table": "PR506_trades"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 24,
+      "reference_rows": 1,
+      "table": "PR506_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 12478,
+      "fields": 449208,
+      "reference_rows": 12478,
+      "table": "PR506_stop_decisions"
+    },
+    {
+      "actual_rows": 2017,
+      "fields": 72612,
+      "reference_rows": 2017,
+      "table": "PR506_entry_opportunities"
+    },
+    {
+      "actual_rows": 2370,
+      "fields": 30810,
+      "reference_rows": 2370,
+      "table": "PR506_observed_gaps"
+    },
+    {
+      "actual_rows": 12,
+      "fields": 312,
+      "reference_rows": 12,
+      "table": "PR506_PERIOD_END_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 480,
+      "fields": 23520,
+      "reference_rows": 480,
+      "table": "PR507_trades"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 24,
+      "reference_rows": 1,
+      "table": "PR507_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 12478,
+      "fields": 449208,
+      "reference_rows": 12478,
+      "table": "PR507_stop_decisions"
+    },
+    {
+      "actual_rows": 2017,
+      "fields": 72612,
+      "reference_rows": 2017,
+      "table": "PR507_entry_opportunities"
+    },
+    {
+      "actual_rows": 2370,
+      "fields": 30810,
+      "reference_rows": 2370,
+      "table": "PR507_observed_gaps"
+    },
+    {
+      "actual_rows": 12,
+      "fields": 312,
+      "reference_rows": 12,
+      "table": "PR507_PERIOD_END_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 480,
+      "fields": 23520,
+      "reference_rows": 480,
+      "table": "PR508_trades"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 24,
+      "reference_rows": 1,
+      "table": "PR508_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 12478,
+      "fields": 449208,
+      "reference_rows": 12478,
+      "table": "PR508_stop_decisions"
+    },
+    {
+      "actual_rows": 2017,
+      "fields": 72612,
+      "reference_rows": 2017,
+      "table": "PR508_entry_opportunities"
+    },
+    {
+      "actual_rows": 2370,
+      "fields": 30810,
+      "reference_rows": 2370,
+      "table": "PR508_observed_gaps"
+    },
+    {
+      "actual_rows": 12,
+      "fields": 312,
+      "reference_rows": 12,
+      "table": "PR508_PERIOD_END_OPEN_POSITIONS"
+    }
+  ]
+}

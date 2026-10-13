@@ -1,0 +1,38 @@
+{
+  "analysis.py": {
+    "byte_identical": true,
+    "canonical_path": "IntradayLab/t3_m15_a6_s1_robustness_v1/analysis.py",
+    "copy_sha256": "2695bccef4095fa1a7983edcd8a12ef127e2679cd7b5adc6fb18fc74108f7c92",
+    "sha256": "2695bccef4095fa1a7983edcd8a12ef127e2679cd7b5adc6fb18fc74108f7c92"
+  },
+  "engine.py": {
+    "byte_identical": true,
+    "canonical_path": "IntradayLab/t3_m15_a6_s1_robustness_v1/engine.py",
+    "copy_sha256": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+    "sha256": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d"
+  },
+  "primary_metrics.py": {
+    "byte_identical": true,
+    "canonical_path": "IntradayLab/t3_m15_a6_s1_robustness_v1/primary_metrics.py",
+    "copy_sha256": "24f5d9c9750c03f79e1dd028d132bb42ea6eba7e8df3041fe64250486327a761",
+    "sha256": "24f5d9c9750c03f79e1dd028d132bb42ea6eba7e8df3041fe64250486327a761"
+  },
+  "scalar.py": {
+    "byte_identical": true,
+    "canonical_path": "IntradayLab/t3_m15_a6_s1_robustness_v1/scalar.py",
+    "copy_sha256": "fc022325d9ec9539006c3b1882c975556c6624f8e0beddbb9af3b73d0b6a5739",
+    "sha256": "fc022325d9ec9539006c3b1882c975556c6624f8e0beddbb9af3b73d0b6a5739"
+  },
+  "scalar_analysis.py": {
+    "byte_identical": true,
+    "canonical_path": "IntradayLab/t3_m15_a6_s1_robustness_v1/scalar_analysis.py",
+    "copy_sha256": "f2402b99a1f483bfac90a473acf3ac98d482193a53f35e0eab218d906f056b38",
+    "sha256": "f2402b99a1f483bfac90a473acf3ac98d482193a53f35e0eab218d906f056b38"
+  },
+  "scalar_metrics.py": {
+    "byte_identical": true,
+    "canonical_path": "IntradayLab/t3_m15_a6_s1_robustness_v1/scalar_metrics.py",
+    "copy_sha256": "52fa059e08f0eabff65a8969ffa5adb9a24f2d8d8f447ba91e01343d96fa9a4f",
+    "sha256": "52fa059e08f0eabff65a8969ffa5adb9a24f2d8d8f447ba91e01343d96fa9a4f"
+  }
+}
