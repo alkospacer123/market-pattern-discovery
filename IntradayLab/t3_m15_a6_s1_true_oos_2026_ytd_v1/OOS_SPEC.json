@@ -1,0 +1,71 @@
+{
+  "study_id": "T3_M15_A6_S1_NEXT_OPEN_TRAIL_375_TRUE_OOS_2026_YTD_V1",
+  "asof_research_date": "2026-10-13",
+  "user_authorization": "2026-10-13: use existing 2026 price data and run 2026 OOS now, no commissions/cost deductions",
+  "base_main": "d6946056332ce71658a6ca933cefa0740a7570a2",
+  "frozen_2025_WF_pr": 512,
+  "base_pr_513": "unmerged draft containing only gross-only policy/readiness docs; this task adds YTD runner on the same draft branch",
+  "study_window": {
+    "start": "2026-01-01T00:00:00+03:00",
+    "end_exclusive": "2026-10-13T00:00:00+03:00",
+    "inclusive_label": "All completed M15 bars through 2026-10-12 MSK, subject to available pinned source coverage",
+    "is_full_2026": false,
+    "any_2026_after_cutoff_forbidden": true
+  },
+  "dataset": {
+    "repository": "alkospacer123/market-pattern-data",
+    "commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+    "instruments": [
+      "USDRUBF",
+      "CNYRUBF",
+      "GLDRUBF",
+      "IMOEXF"
+    ],
+    "timeframe": "M15",
+    "pattern": "forever/{INSTRUMENT}/{INSTRUMENT}_M15.csv",
+    "source_immutability": true
+  },
+  "engines": {
+    "primary": "IntradayLab/t3_m15_a6_s1_walk_forward_2025_v1/engine.py",
+    "independent": "IntradayLab/t3_m15_a6_s1_walk_forward_2025_v1/scalar.py",
+    "versions": [
+      "TRAIL_375"
+    ],
+    "entry": "NEXT_OPEN",
+    "rule": "C1/A6+S1",
+    "strategy_unchanged": true
+  },
+  "research_accounting": {
+    "metric": "GROSS_ONLY",
+    "fees_broker": 0,
+    "fees_exchange": 0,
+    "spread_deduction": 0,
+    "slippage_deduction": 0,
+    "funding_cash_deduction": 0,
+    "dividend_cash_deduction": 0,
+    "reason": "Not modeled in research; no claim of net executable performance."
+  },
+  "gates": [
+    "Reproduce all frozen 2023-2025 W4 primary and scalar trade, stop, opportunities, gap and month-open journals",
+    "Independent primary and scalar full-replay complete to YTD cutoff; all output fields match",
+    "No modification of historical controls or main",
+    "Carry inherited 2025 open/pending into full replay with no reset",
+    "All 2026 observed coverage published, 2026 starts 2026-01-01 and stops before predeclared cutoff",
+    "NO_YEAR_END_LIQUIDATION",
+    "No outcome in 2026 after cutoff, no LIVE"
+  ],
+  "reporting": [
+    "2026 calendar closed Gross R/PF",
+    "2026 new-entry cohort Gross R/PF and terminal OPEN",
+    "inherited 2025 into 2026 Gross R and OPEN",
+    "month-by-month, instrument, direction, win/loss expectancy, closed_R drawdown",
+    "first/last source bar and number of loaded rows",
+    "read boundary/source pin",
+    "independent audit"
+  ],
+  "status": "EXECUTION_SCRIPT_STAGED_NOT_EXECUTED_HERE",
+  "limitation": "Current assistant GitHub connector cannot download full 2.5-3.3 MB raw OHLCV CSV for execution; no computation result claimed; requires running script in project repository and pinned market-pattern-data checkout.",
+  "no_merge": true,
+  "no_live": true,
+  "no_TradingSystemLab_modifications": true
+}
