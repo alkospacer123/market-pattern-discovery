@@ -498,3 +498,24 @@ remain unchanged and PR #493 remains Draft.
 `FUNDING_ACCOUNTING_DECISION_PENDING` /
 `REAL_SLTP_MULTIFILL_NOT_ACCEPTED` /
 `REAL_ORDER_AUTHORIZED=NO`.
+
+
+## 2026-10-13 — operator-approved deposit-inclusive FULL/R15 capital treatment
+
+Operator explicitly confirmed: the previously received external top-up is **contributed trading capital for FULL/R15** and **is not trading PnL**. This approval resolves the *capital policy decision*, not the evidence/readiness gates for LIVE order transmission or a production SQLite change.
+
+**Exact unchanged frozen service semantics:** \`ProductionService._realized_basis()\` computes
+\`broker_equity - unrealized_profit - explained_external_cash_flows\` and then passes that basis through frozen \`risk.size_position()\` at 1.5% and \`margin.cap_r15_by_margin()\`. The existing \`explained_external_cash_flows\` field is a **subtractive sizing adjustment**, not a free-standing contribution/PnL ledger. **DO NOT write the deposit amount into this field** as a bookkeeping "fix"; doing so would remove contributed capital from FULL/R15 in direct contradiction of the user's authorization. At the latest observed Intel snapshot this adjustment was zero. Leave it unchanged pending any independent production authority reconciliation.
+
+**Separate private reporting semantics:** for a *matched and time-bounded* broker snapshot, \`contribution_adjusted_account_change = (broker_equity - unrealized_profit - sizing_deduction) - production_starting_realized_equity - cumulative_net_external_contributions\`. This is an **account change adjusted for deposits and withdrawals**, not audited strategy PnL, net of all fees, funding, allocations and unknown movements. Accounting-grade trading PnL requires authenticated broker statement, fees and complete cash-flow history. Do not label a deposit as strategy return. A future deposit/withdrawal remains subject to the existing live runbook §4.3 controlled operator procedure, not unattended classification.
+
+Candidate-only, no network or SQLite: \`diagnostics/stage8_493_capital_pnl_readonly.py\` (blob \`6182f2792e5a9932d7931cc091e88c358a2aecb3\`) and \`tests/test_stage8_493_capital_pnl_readonly.py\` (blob \`fbf5ef0bbfcf2f0c3d09111abbcd01a2e3d3418e\`). The private input is bound to an account SHA-256, frozen specification and active identity. It requires exact Decimal strings, an unchanged zero sizing deduction, matched realized-equity basis, unique cash-flow IDs and explicitly classified deposit/withdrawal source. Operator confirmation and observed statement entries are kept distinguishable; neither is silently promoted to full independent accounting proof.
+
+**PRIVATE data safeguard:** do not commit any actual account balance, deposit amount, account identifier, statement, token, or private evidence into this public repository. All test fixtures in GitHub are synthetic. A future private report on Intel must use separate controlled evidence and read-only queries. These files do not initialize an operator SQLite writer, do not alter LIVE risk, do not authorize an order and are not connected to the robot.
+
+**Next operator gate:** physically run hash-pinned isolated Intel offline tests covering both the unchanged \`test_stage8_493_funding_auto_sizing_offline.py\` and the new policy/reporting tests. Do not claim pytest PASS for the new exact-head files until Intel output is reviewed. Then obtain a fresh sanitized private broker/account/capital audit before preparing any separately authorized production reconciliation. No merge, deployment, Task restart or rearm.
+
+**Classification: \`FULL_R15_CONTRIBUTED_CAPITAL_POLICY_APPROVED\`;
+\`OFF_LEDGER_PNL_ATTRIBUTION_PREPARED\`;
+\`LATEST_POLICY_PYTEST_INTEL_PENDING\`;
+\`LIVE_PRODUCTION_READY=NO\`.**
