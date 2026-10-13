@@ -1,0 +1,46 @@
+{
+  "absolute_tolerance": 1e-08,
+  "closed": 545,
+  "differences": 0,
+  "fields_compared": 547878,
+  "status": "PASS",
+  "tables": [
+    {
+      "actual_rows": 545,
+      "fields": 25070,
+      "reference_rows": 545,
+      "table": "trades.csv"
+    },
+    {
+      "actual_rows": 12792,
+      "fields": 447720,
+      "reference_rows": 12792,
+      "table": "stop_decisions.csv"
+    },
+    {
+      "actual_rows": 2017,
+      "fields": 46391,
+      "reference_rows": 2017,
+      "table": "entry_opportunities.csv"
+    },
+    {
+      "actual_rows": 2370,
+      "fields": 28440,
+      "reference_rows": 2370,
+      "table": "observed_gaps.csv"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 21,
+      "reference_rows": 1,
+      "table": "OPEN_POSITIONS.json"
+    },
+    {
+      "actual_rows": 10,
+      "fields": 230,
+      "reference_rows": 10,
+      "table": "PERIOD_END_OPEN_POSITIONS.json"
+    }
+  ],
+  "terminal_OPEN": 1
+}

@@ -1,0 +1,58 @@
+test_all_entry_and_market_features_prefix_invariant (__main__.DiagnosticCausality.test_all_entry_and_market_features_prefix_invariant) ... ok
+test_breakout_forward_window_gap_is_censored (__main__.DiagnosticCausality.test_breakout_forward_window_gap_is_censored) ... ok
+test_future_numeric_suffix_never_read (__main__.DiagnosticCausality.test_future_numeric_suffix_never_read) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.335s
+
+OK
+test_adverse_open_gap_both_sides (__main__.Execution.test_adverse_open_gap_both_sides) ... ok
+test_future_bar_rejected (__main__.Execution.test_future_bar_rejected) ... ok
+test_next_observed_bar_trail_both_sides (__main__.Execution.test_next_observed_bar_trail_both_sides) ... ok
+test_occupancy_replay_changes_next_signal (__main__.Execution.test_occupancy_replay_changes_next_signal) ... ok
+test_position_held_outside_entry_hours (__main__.Execution.test_position_held_outside_entry_hours) ... ok
+test_replay_prefix_invariant (__main__.Execution.test_replay_prefix_invariant) ... ok
+test_same_close_reentry_allowed (__main__.Execution.test_same_close_reentry_allowed) ... ok
+test_same_close_reentry_forbidden (__main__.Execution.test_same_close_reentry_forbidden) ... ok
+test_stop_first_both_sides (__main__.Execution.test_stop_first_both_sides) ... ok
+test_year_boundary_terminal_open_not_liquidated (__main__.Execution.test_year_boundary_terminal_open_not_liquidated) ... ok
+test_Donchian_excludes_current_extreme (__main__.Features.test_Donchian_excludes_current_extreme) ... ok
+test_H1_available_only_fourth_completed_bar (__main__.Features.test_H1_available_only_fourth_completed_bar) ... ok
+test_H1_daily_ordinal_reset (__main__.Features.test_H1_daily_ordinal_reset) ... ok
+test_H1_gap_block_skipped (__main__.Features.test_H1_gap_block_skipped) ... ok
+test_closed_R_metrics_calendar_and_top (__main__.Features.test_closed_R_metrics_calendar_and_top) ... ok
+test_indicator_prefix_no_lookahead (__main__.Features.test_indicator_prefix_no_lookahead) ... ok
+test_timestamp_first_future_poison_unread (__main__.Features.test_timestamp_first_future_poison_unread) ... ok
+test_t1_UTC_equivalent (__main__.Gates.test_t1_UTC_equivalent) ... ok
+test_t1_inclusive_exclusive_boundaries (__main__.Gates.test_t1_inclusive_exclusive_boundaries) ... ok
+test_t2_absent_predecessor (__main__.Gates.test_t2_absent_predecessor) ... ok
+test_t2_continuous_midnight (__main__.Gates.test_t2_continuous_midnight) ... ok
+test_t2_previous_actual_bar_without_signal (__main__.Gates.test_t2_previous_actual_bar_without_signal) ... ok
+test_t2_strict_15_and_first_only (__main__.Gates.test_t2_strict_15_and_first_only) ... ok
+test_t2_weekend_and_year_gap (__main__.Gates.test_t2_weekend_and_year_gap) ... ok
+test_timezone_and_order_required (__main__.Gates.test_timezone_and_order_required) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.014s
+
+OK
+test_adverse_gap_before_activation (__main__.Combination.test_adverse_gap_before_activation) ... ok
+test_all_accumulated_extrema_after_activation_both_sides (__main__.Combination.test_all_accumulated_extrema_after_activation_both_sides) ... ok
+test_combo_fixed_hours (__main__.Combination.test_combo_fixed_hours) ... ok
+test_entry_candle_favorable_extreme_ignored (__main__.Combination.test_entry_candle_favorable_extreme_ignored) ... ok
+test_exact_1R_survived_activation_next_bar_both_sides (__main__.Combination.test_exact_1R_survived_activation_next_bar_both_sides) ... ok
+test_holding_activation_outside_core_hours (__main__.Combination.test_holding_activation_outside_core_hours) ... ok
+test_immutable_initial_R_activation (__main__.Combination.test_immutable_initial_R_activation) ... ok
+test_initial_stop_2ATR_both_sides_versions (__main__.Combination.test_initial_stop_2ATR_both_sides_versions) ... ok
+test_prefix_invariance_all_four_rules (__main__.Combination.test_prefix_invariance_all_four_rules) ... ok
+test_primary_feature_prefix_and_independent_signal (__main__.Combination.test_primary_feature_prefix_and_independent_signal) ... ok
+test_primary_raw_future_poison (__main__.Combination.test_primary_raw_future_poison) ... ok
+test_same_close_reentry_after_stop_gated (__main__.Combination.test_same_close_reentry_after_stop_gated) ... ok
+test_stop_hit_on_activation_candle_stop_first_both_sides (__main__.Combination.test_stop_hit_on_activation_candle_stop_first_both_sides) ... ok
+test_stop_never_weakens (__main__.Combination.test_stop_never_weakens) ... ok
+test_stop_unchanged_before_1R_both_sides (__main__.Combination.test_stop_unchanged_before_1R_both_sides) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.117s
+
+OK
