@@ -1,0 +1,102 @@
+{
+  "external_audit": "PENDING",
+  "labels": [
+    "GROSS_ONLY",
+    "COSTS_DEFERRED",
+    "NOT_LIVE_READY"
+  ],
+  "no_auto_acceptance_or_next_stage": true,
+  "rows": [
+    {
+      "closed_trades": 741,
+      "delta_closed": 0,
+      "delta_drawdown_R": 0.0,
+      "delta_gross_R": 0.0,
+      "full_PF_ge_2": false,
+      "gross_PF": 1.45415459552713,
+      "gross_R": 144.411236716186,
+      "max_drawdown_closed_R": 23.676541825411,
+      "negative_months": 9,
+      "positive_months": 15,
+      "positive_months_improved": false,
+      "rule": "CONTROL",
+      "version": "BASELINE"
+    },
+    {
+      "closed_trades": 568,
+      "delta_closed": -173,
+      "delta_drawdown_R": -5.074340751477401,
+      "delta_gross_R": -8.890984477235008,
+      "full_PF_ge_2": false,
+      "gross_PF": 1.5474916012828,
+      "gross_R": 135.520252238951,
+      "max_drawdown_closed_R": 18.6022010739336,
+      "negative_months": 7,
+      "positive_months": 17,
+      "positive_months_improved": true,
+      "rule": "T1",
+      "version": "BASELINE"
+    },
+    {
+      "closed_trades": 729,
+      "delta_closed": -12,
+      "delta_drawdown_R": 1.3671797652528,
+      "delta_gross_R": -3.237211149819018,
+      "full_PF_ge_2": false,
+      "gross_PF": 1.44797254957512,
+      "gross_R": 141.174025566367,
+      "max_drawdown_closed_R": 25.0437215906638,
+      "negative_months": 9,
+      "positive_months": 15,
+      "positive_months_improved": false,
+      "rule": "T2",
+      "version": "BASELINE"
+    },
+    {
+      "closed_trades": 701,
+      "delta_closed": 0,
+      "delta_drawdown_R": 0.0,
+      "delta_gross_R": 0.0,
+      "full_PF_ge_2": false,
+      "gross_PF": 1.5461664896355,
+      "gross_R": 178.719822968019,
+      "max_drawdown_closed_R": 26.1260722168051,
+      "negative_months": 7,
+      "positive_months": 17,
+      "positive_months_improved": false,
+      "rule": "CONTROL",
+      "version": "OPTIMIZED"
+    },
+    {
+      "closed_trades": 549,
+      "delta_closed": -152,
+      "delta_drawdown_R": -8.526560288936,
+      "delta_gross_R": -2.9751759698249884,
+      "full_PF_ge_2": false,
+      "gross_PF": 1.67840790588837,
+      "gross_R": 175.744646998194,
+      "max_drawdown_closed_R": 17.5995119278691,
+      "negative_months": 6,
+      "positive_months": 18,
+      "positive_months_improved": true,
+      "rule": "T1",
+      "version": "OPTIMIZED"
+    },
+    {
+      "closed_trades": 694,
+      "delta_closed": -7,
+      "delta_drawdown_R": -0.44075109738679785,
+      "delta_gross_R": -5.850037606684992,
+      "full_PF_ge_2": false,
+      "gross_PF": 1.52986242443558,
+      "gross_R": 172.869785361334,
+      "max_drawdown_closed_R": 25.6853211194183,
+      "negative_months": 7,
+      "positive_months": 17,
+      "positive_months_improved": false,
+      "rule": "T2",
+      "version": "OPTIMIZED"
+    }
+  ],
+  "year_2023_2024_status": "DEVELOPMENT_EXPOSED"
+}
