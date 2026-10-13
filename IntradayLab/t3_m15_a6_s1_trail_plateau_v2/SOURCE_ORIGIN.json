@@ -1,0 +1,40 @@
+{
+  "implementations": {
+    "engine.py": {
+      "byte_identical": true,
+      "sha256": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+      "source": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/engine.py"
+    },
+    "primary_metrics.py": {
+      "byte_identical": true,
+      "sha256": "24f5d9c9750c03f79e1dd028d132bb42ea6eba7e8df3041fe64250486327a761",
+      "source": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/primary_metrics.py"
+    },
+    "scalar.py": {
+      "byte_identical": true,
+      "sha256": "fc022325d9ec9539006c3b1882c975556c6624f8e0beddbb9af3b73d0b6a5739",
+      "source": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/scalar.py"
+    },
+    "scalar_metrics.py": {
+      "byte_identical": true,
+      "sha256": "52fa059e08f0eabff65a8969ffa5adb9a24f2d8d8f447ba91e01343d96fa9a4f",
+      "source": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/scalar_metrics.py"
+    }
+  },
+  "independence": "separate dataframe/object versus streaming/dict/scalar implementations inherited unchanged; same author; external review PENDING",
+  "main": "0546e10d9977687a77638d76847b205c99223e16",
+  "source_receipts": [
+    {
+      "artifact_inventory_verified": 99,
+      "freeze_blobs_verified": 16,
+      "freeze_commit": "3b01eccb79f337e1f979d4e734545876f613de64",
+      "study": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1"
+    },
+    {
+      "artifact_inventory_verified": 70,
+      "freeze_blobs_verified": 12,
+      "freeze_commit": "7c60574af68512a9c96292537dc3ea90230732cd",
+      "study": "IntradayLab/t3_m15_execution_sensitivity_v1"
+    }
+  ]
+}
