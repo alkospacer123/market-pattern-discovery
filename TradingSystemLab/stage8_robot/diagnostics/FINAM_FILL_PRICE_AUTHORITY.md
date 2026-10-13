@@ -181,3 +181,28 @@ A single script was added, [run-stage8-493-sltp-local-readonly-precheck.ps1](run
 For a future physical test, the *proposed* maximum is **one candidate entry order with quantity no greater than 2** in frozen N4 membership, **only if** independently current R15/margin nominal risk and an explicit monetary loss/cost limit permit it. Do not choose instrument or direction for performance and do not manufacture a partial fill (no forced order slicing, layering or repeated entries). A single full 2-contract fill is **INCONCLUSIVE for multi-fill**, not PASS; do not repeat merely to obtain partial fill. A controlled test also needs an approved exit/recovery plan for possible 1–2 contracts, strict pre/post broker/account/stop/order/intent observation, unique ledger keys and a safe HALTED final outcome. The existing Stage 8.11 acceptance code has `MAX_ACCEPTANCE_QUANTITY=1`; it **must not** be repurposed by simply changing its constant, nor should proposed V2's `FINAM_FILL_AUTHORITY_VERIFIED=False` be toggled to make the test run.
 
 **Current hold point:** no actual trading-test harness, real brokerage order, stop order, cancel, LIVE task/service/SQLite/authorization change or re-arm is executed or approved by this READONLY preflight. Fresh operator-controlled broker safety evidence and explicit risk/quantity/recovery limits must be reviewed before a separately audited real-order launcher may be used. SLTP physical growth protection remains BLOCKED; `LIVE_PRODUCTION_READY=NO`.
+
+## Actual Intel SLTP local preflight — 2026-10-13 (operator output, no LIVE changes)
+
+The operator executed `run-stage8-493-sltp-local-readonly-precheck.ps1` on Intel. The report is a **local Task/kill-switch/heartbeat observation, not a fresh FINAM GET or brokerage flatness proof**:
+
+| Observed field | Actual output |
+|---|---|
+| Production Task | `Running` |
+| Readonly Task | `Disabled` |
+| Kill switch | `ARMED` |
+| Heartbeat health / reconciliation | `HEALTHY` / `PASS` |
+| Production cycle count | `11247` |
+| Local positions / unresolved intents / active protective stops | `0 / 0 / 0` |
+| Heartbeat fresh | `True` |
+| Classification | **`BLOCKED_LIVE_PRODUCTION_NOT_ISOLATED`** |
+| Fresh FINAM position/order/margin authority | **`NOT_COLLECTED`** |
+| Real partial-fill and percent-SLTP test | **`NOT_RUN`** |
+| Local changes | **NONE** |
+
+This is the **correct safety result**: an active ARMED/Running production robot cannot be used as an isolated physical-acceptance harness. The original Stage8.11 physical acceptance adapter has immutable `MAX_ACCEPTANCE_QUANTITY=1` and does not demonstrate a partial/growing position; it must not be repurposed by editing the constant. The inactive V2 candidate still enforces `FINAM_FILL_AUTHORITY_VERIFIED=False` and therefore rejects new ENTRY before transport. An operator-only bounded two-contract launcher has **not** yet been independently implemented/reviewed/tested.
+
+**Next order of work:** design and independently verify an isolated, exact-commit-bound operator-only SLTP experiment with one request, explicit maximum 2 contracts only if *fresh* R15/margin/account and operator monetary risk/expense limit permit, durable intent-before-POST, allowed session, 100%-current-position protective stop, strict one-shot POST/idempotency, exact matched AccountTrade evidence, fail-closed uncertain outcomes, operator-controlled flatten and final flat/HALTED plus no active stops/intents. No forced multi-fill or claim that 2 contracts guarantee partial fills. First test the harness offline without network or secrets. **Only after that** request a narrow fresh authorization for a controlled production HALTED/task isolation window. Do not halt the healthy ARMED bot merely to discover the test path is incomplete. No LIVE Task/SQLite/credentials/kill switch/order endpoint or Stage7 strategy/risk modification is implied by this report.
+
+`PHYSICAL_SLTP_GROWTH=BLOCKED`; `LIVE_PRODUCTION_READY=NO`; PR #493 remains Draft.
+
