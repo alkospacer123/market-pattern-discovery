@@ -15,12 +15,15 @@ $priorBytecode = [Environment]::GetEnvironmentVariable('PYTHONDONTWRITEBYTECODE'
 Write-Output '=== Stage8 #493 N4 financial readonly evidence ==='
 Write-Output 'NO_TRADING_TOKEN NO_ORDER_OR_CANCEL NO_TASK_MUTATION NO_REARM NO_LIVE_SQLITE_WRITE'
 try {
-    foreach ($row in @(@($source,$source_sha256), @($probe,$probe_sha256))) {
-        if (-not (Test-Path -LiteralPath $row[0] -PathType Leaf) -or
-            (Get-FileHash -LiteralPath $row[0] -Algorithm SHA256).Hash -cne $row[1]) {
-            throw 'EXACT_READONLY_SOURCE_HASH_MISMATCH'
-        }
+    if (-not (Test-Path -LiteralPath $source -PathType Leaf) -or
+        (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash -cne $source_sha256) {
+        throw 'EXACT_FINANCIAL_PYTHON_SOURCE_HASH_MISMATCH'
     }
+    if (-not (Test-Path -LiteralPath $probe -PathType Leaf) -or
+        (Get-FileHash -LiteralPath $probe -Algorithm SHA256).Hash -cne $probe_sha256) {
+        throw 'EXACT_POST_ISOLATION_SOURCE_HASH_MISMATCH'
+    }
+    Write-Output 'EXACT_READONLY_SOURCE_HASHES=PASS'
     if (-not (Test-Path -LiteralPath $Python -PathType Leaf)) { throw 'EXISTING_PYTHON_NOT_FOUND' }
     if (Test-Path -LiteralPath $Output) { throw 'CREATE_ONLY_FINANCIAL_REPORT_ALREADY_EXISTS' }
     $head = (& git -C $checkout rev-parse HEAD).Trim()
