@@ -191,3 +191,75 @@ def test_invalid_plan_and_unsafe_journal(tmp_path):
         with pytest.raises(h.Hold): item.check()
     with pytest.raises(h.Hold,match='UNSAFE_JOURNAL_DIRECTORY'):
         h.Journal(tmp_path/'runtime'/'scratch',fresh=True)
+
+
+def test_no_entry_ack_must_not_claim_final_flat(tmp_path):
+    op,b=new(tmp_path)
+    b.positions=[0,0]
+    with pytest.raises(h.Hold,match='FINAL_FLAT_KNOWN_ENTRY_ACK_REQUIRED'):
+        op.final_flat()
+
+
+def test_unknown_entry_ack_must_not_claim_final_flat_even_if_positions_zero(tmp_path):
+    b=Fake();b.entry_exception=True
+    op,b=new(tmp_path,b)
+    with pytest.raises(h.Hold,match='ENTRY_ACK_OR_TRANSPORT_UNKNOWN'):
+        op.entry_and_growth()
+    b.positions=[0,0]
+    with pytest.raises(h.Hold,match='FINAL_FLAT_KNOWN_ENTRY_ACK_REQUIRED'):
+        op.final_flat()
+
+
+def test_pending_entry_remainder_disallows_final_flat(tmp_path):
+    op,b=new(tmp_path)
+    op.entry_and_growth()
+    b.remaining=1
+    b.stop_active=False
+    b.positions=[0,0]
+    with pytest.raises(h.Hold,match='FINAL_ENTRY_TERMINAL_NOT_PROVEN'):
+        op.final_flat()
+
+
+def test_missing_stop_terminal_order_disallows_final_flat(tmp_path):
+    op,b=new(tmp_path)
+    op.entry_and_growth()
+    b.stop_active=False
+    b.positions=[0,0]
+    original=b.observe
+    def without_stop():
+        snap=original()
+        snap['orders']=[o for o in snap['orders'] if o['id']!='stop-id']
+        return snap
+    b.observe=without_stop
+    with pytest.raises(h.Hold,match='FINAL_STOP_TERMINAL_NOT_PROVEN'):
+        op.final_flat()
+
+
+def test_order_with_missing_active_field_disallows_flat_claim(tmp_path):
+    op,b=new(tmp_path)
+    op.entry_and_growth()
+    b.stop_active=False
+    b.positions=[0,0]
+    original=b.observe
+    def missing_flag():
+        snap=original()
+        snap['orders'][0].pop('active')
+        return snap
+    b.observe=missing_flag
+    with pytest.raises(h.Hold,match='FINAL_ORDER_OBSERVATION_INVALID'):
+        op.final_flat()
+
+
+def test_duplicate_order_id_disallows_flat_claim(tmp_path):
+    op,b=new(tmp_path)
+    op.entry_and_growth()
+    b.stop_active=False
+    b.positions=[0,0]
+    original=b.observe
+    def duplicated():
+        snap=original()
+        snap['orders'].append(dict(snap['orders'][0]))
+        return snap
+    b.observe=duplicated
+    with pytest.raises(h.Hold,match='FINAL_ORDER_OBSERVATION_INVALID'):
+        op.final_flat()
