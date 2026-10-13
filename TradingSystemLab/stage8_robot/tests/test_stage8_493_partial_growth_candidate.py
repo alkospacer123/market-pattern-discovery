@@ -20,7 +20,8 @@ def two_contracts(tmp_path, direction="LONG"):
     budget = rt.begin_batch(realized_equity=D("100000"), available_cash=cash)
     entry = plan(rt, signal(side=direction), budget=budget)
     assert entry.quantity == 2
-    stop = rt.confirm_entry_position(entry.idempotency_key, 1)
+    observed = 1 if direction == "LONG" else -1
+    stop = rt.confirm_entry_position(entry.idempotency_key, observed)
     assert stop is not None and stop.kind == "PROTECTIVE_STOP_INSTALL"
     rt.confirm_protective_stop(stop.idempotency_key, "synthetic-initial-stop")
     value = rt.open_positions()[entry.instrument]
@@ -58,7 +59,8 @@ def order_for(stop, **updates):
 def test_observed_one_to_two_same_100_percent_stop_only(direction, tmp_path):
     rt, entry, stop = two_contracts(tmp_path, direction)
     before = len(rt.store.all_intents())
-    result = rt.confirm_entry_position(entry.idempotency_key, 2,
+    observed = 2 if direction == "LONG" else -2
+    result = rt.confirm_entry_position(entry.idempotency_key, observed,
         observed_protective_stop=order_for(stop))
     assert result is None
     p = rt.open_positions()[entry.instrument]
