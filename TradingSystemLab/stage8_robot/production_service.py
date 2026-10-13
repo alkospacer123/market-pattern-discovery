@@ -601,8 +601,30 @@ class ProductionService:
             if order.status in TERMINAL_ORDER_STATUSES:
                 self.runtime.store.put(f"entry_terminal:{key}", {"order_id":order.order_id,"status":order.status})
         if quantity:
+            # One account/orders snapshot is the only candidate input for an
+            # active stop's 100%-of-current-position growth observation.
+            # Missing/mismatched evidence is handled by the runtime's durable
+            # HALTED hold. Never POST a second protective order on a guess.
+            stop_observation = None
+            previous = self.runtime.open_positions().get(action.instrument)
+            if (self.runtime.execution_revision and previous is not None
+                    and previous.get("protective_stop_state") == "ACTIVE"
+                    and abs(quantity) > previous["quantity"]):
+                related = active_sltp_for_trade(
+                    snap.orders, trade_id=action.trade_id, symbol=action.finam_symbol,
+                )
+                matches = [
+                    item for item in related
+                    if item.order_id == previous.get("protective_stop_broker_order_id")
+                ]
+                if len(matches) == 1:
+                    stop_observation = matches[0]
             # Protect exposure before requesting price history (which may fail).
-            stop = self.runtime.confirm_entry_position(key,quantity)
+            stop = self.runtime.confirm_entry_position(
+                key, quantity, observed_protective_stop=stop_observation,
+            )
+            if self.runtime.store.get(f"entry_growth_hold:{key}") is not None:
+                raise ProductionServiceError("STAGE8_493_POSITION_GROWTH_OPERATOR_HOLD")
             if stop is not None:
                 self._submit(stop,snap)
             current = self.runtime.store.intent(key)
