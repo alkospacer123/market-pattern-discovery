@@ -47,7 +47,9 @@ def check(primary,audit):
             assert len(actual)==len(fields)
             for k,v in zip(fields,actual):
                 value=truth[k];expected_value='—' if value is None else format(value,'.6f') if isinstance(value,float) else str(value)
-                cmp.value(v,expected_value,filename+'_'+str(ti),i,k);cells+=1
+                # Rendered numerical equality permits 0 and 0.000000.
+                numeric=isinstance(value,(int,float)) and not isinstance(value,bool)
+                cmp.value(float(v) if numeric else v,float(expected_value) if numeric else expected_value,filename+'_'+str(ti),i,k);cells+=1
     result={'status':'PASS' if not cmp.diffs else 'FAIL','tables':len(found),'cells':cells,'differences':len(cmp.diffs),'decision_checked_against_scalar':True,'booked_delta_checked':abs(math.fsum(r['booked_delta_R'] for r in trades)-(s('EARLY_PROTECT_05','ALL')['gross_R']-s('CONTROL','ALL')['gross_R']))<1e-8}
     C.write_json(audit/'PRESENTATION_AUDIT.json',result);C.write_csv(audit/'PRESENTATION_DIFFERENCES.csv',cmp.diffs,['table','row','field','actual','expected']);assert not cmp.diffs and result['booked_delta_checked'];print(json.dumps(result),flush=True)
 

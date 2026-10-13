@@ -1,0 +1,8 @@
+{
+  "booked_delta_checked": true,
+  "cells": 2366,
+  "decision_checked_against_scalar": true,
+  "differences": 1,
+  "status": "FAIL",
+  "tables": 10
+}
