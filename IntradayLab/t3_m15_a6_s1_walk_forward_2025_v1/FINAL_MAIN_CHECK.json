@@ -1,0 +1,45 @@
+{
+  "LIVE_broker_operations": false,
+  "ROADMAP_TradingSystemLab_robot_previous_studies_unchanged": true,
+  "TRUE_OOS_executed": false,
+  "actual_GitHub_main": "fa188b51fbd27df5a51a43a9742bc772a1c17abd",
+  "auto_merge": false,
+  "base_main": "fa188b51fbd27df5a51a43a9742bc772a1c17abd",
+  "canonical_engine_scalar_metrics_byte_identical_to_PR510": true,
+  "changed_tracked_files": 263,
+  "data_HEAD_metadata_only": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "entire_preexisting_git_tree_differences": [],
+  "external_human_review": "PENDING",
+  "frozen_code_spec_differences": [],
+  "merge": false,
+  "original_checkout_HEAD": "fbfb0650ac2af6c6b374d10b67dd62801cd0fcc4",
+  "original_checkout_dirty": "",
+  "outside_allowed_scope": [],
+  "protected_SHA256_differences": [],
+  "protected_SHA256_files": 4091,
+  "raw_data_full_hash_performed": false,
+  "research_branch_head_at_check": "44e90ce8262d2438ac9be7a80559522981fddac3",
+  "sealed_files_checks": {
+    "CONTROL": {
+      "files": 40,
+      "status": "PASS"
+    },
+    "W1": {
+      "files": 41,
+      "status": "PASS"
+    },
+    "W2": {
+      "files": 41,
+      "status": "PASS"
+    },
+    "W3": {
+      "files": 41,
+      "status": "PASS"
+    },
+    "W4": {
+      "files": 43,
+      "status": "PASS"
+    }
+  },
+  "status": "PASS"
+}

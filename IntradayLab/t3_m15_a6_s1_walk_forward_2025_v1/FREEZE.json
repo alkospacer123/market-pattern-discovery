@@ -2,7 +2,7 @@
   "CONTROL_and_WF_results_absent_at_freeze": true,
   "base_main": "fa188b51fbd27df5a51a43a9742bc772a1c17abd",
   "before_any_WF_2025_read": true,
-  "before_any_raw_read": true,
+  "before_any_raw_read": false,
   "code_spec_sha256": {
     "PROTOCOL.md": "139c49cc4cdfeb0f32af693985bf7e8cad6494810bc018fc164f0b29c3fccacf",
     "README.md": "3725f6f457457a6ad9a3384838bbd9c991536765d8ce54e2e32e1da4cfedf8e1",
@@ -29,6 +29,8 @@
     "test_wf.py": "96c25d52b90a21f94ed707474ced05f546a34ff1a920e15339179dc498240245"
   },
   "commit": "2ba722c67b748090536ac1236eb63e4049f05ceb",
+  "development_only_attempt_already_read": true,
+  "initial_freeze_before_any_raw_read": true,
   "initial_preread_commit": "cf19f4dca643d801b0e63a4a0dd3371b68b80bdf",
   "preread_adapter_correction": "PRE_WF_ADAPTER_CORRECTION.json"
 }
