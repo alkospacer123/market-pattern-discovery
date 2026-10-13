@@ -20,7 +20,7 @@ try {
     if ($actual_sha -cne $audit_sha) { throw 'SQLITE_AUDIT_HASH_INVALID' }
     push-location -literalpath $checkout
     try {
-        $commit = (& git rev-parse head).trim()
+        $commit = (& git rev-parse @).trim()
         if ($lastexitcode -ne 0 -or $commit -cne $live_sha) { throw 'LIVE_COMMIT_MISMATCH' }
         $dirty = @(& git status --porcelain)
         if ($lastexitcode -ne 0 -or $dirty.count -ne 0) { throw 'LIVE_CHECKOUT_DIRTY' }
