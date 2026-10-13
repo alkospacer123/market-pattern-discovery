@@ -330,3 +330,31 @@ mathematical behavior and do not authorize that procedure.
 The next **real SLTP test** remains a different, explicitly
 user-authorized broker/order boundary. No order/SLTP/cancel or Task/
 kill-switch/production SQLite/merge action is approved in this turn.
+
+
+
+## 2026-10-13 — funding behavior regressions added before SLTP approval
+
+The accepted LIVE code already reads fresh broker equity and available
+cash and recalculates **new** FULL/R15 entry quantities using the
+unchanged 1.5% risk and directional margin/lot floor. Open positions
+are not increased automatically upon deposit. The production runtime
+does **not** independently identify a new bank deposit: the stored
+`explained_external_cash_flows` is subtracted. The operator-confirmed
+external deposit remains a factual account event; no adjustment to
+SQLite/accounting was authorized and no funding rule is being
+silently redefined.
+
+Candidate-only synthetic regression source
+`tests/test_stage8_493_funding_auto_sizing_offline.py` has been
+added; independent 7-case arithmetic scenarios PASS, while exact
+new-module pytest execution on pinned Intel is still PENDING.
+Tests neither establish current broker trade eligibility nor prove
+future automatic deposit classification, live fill protection,
+round-trip commissions or SLTP 1→2 semantics.
+
+Continue only within the existing Stage 8 roadmap: settle funding
+capital-accounting policy explicitly, run pinned offline tests,
+finish non-order-capable SLTP acceptance/recovery review and money
+budget, then seek a **separate bounded real-order authorization**.
+No merge/deploy/rearm, Task change or production SQLite modification.
