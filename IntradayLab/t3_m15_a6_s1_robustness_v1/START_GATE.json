@@ -1,0 +1,37 @@
+{
+  "PR505_508_merged": true,
+  "actual_main": "9b496d49e3ab8f71a843b24f9ccc288c9c5ff5bd",
+  "expected_after_merge508": "9b496d49e3ab8f71a843b24f9ccc288c9c5ff5bd",
+  "no_historical_calculation_executed": true,
+  "original_checkout_head": "57599b39ed1d7a93a84b97747388408291f30276",
+  "original_checkout_status": "",
+  "protected_files": 420,
+  "source_data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "source_inventory_checks": [
+    {
+      "inventory_entries": 99,
+      "manifest_sha256": "956117ea9712183b71dbe1c0de0931912e65a9ecb782c153df56ceca2c8c1a90",
+      "status": "PASS",
+      "study": "t3_m15_a6_s1_trail_optimization_v1"
+    },
+    {
+      "inventory_entries": 96,
+      "manifest_sha256": "f75baecc8f54610dad16620578d5609c1504258dcc5b1b7aa80599a54ca1545d",
+      "status": "PASS",
+      "study": "t3_m15_a6_s1_trail_plateau_v2"
+    },
+    {
+      "inventory_entries": 89,
+      "manifest_sha256": "ce6c7ca1f5e7eb499ce0c3c59f9fdda8e0af23e7027714d52abd73aa956f080a",
+      "status": "PASS",
+      "study": "t3_m15_a6_s1_entry_quality_v1"
+    },
+    {
+      "inventory_entries": 127,
+      "manifest_sha256": "83513bbeaac2ff37ffbed6be0db8a51cf57654f646b5dd95b80c4d32d668929b",
+      "status": "PASS",
+      "study": "t3_m15_early_risk_protection_v1"
+    }
+  ],
+  "user_main_before508": "6c853d7bd3d7d02cbef81266c4c3e6fb9c3d0838"
+}
