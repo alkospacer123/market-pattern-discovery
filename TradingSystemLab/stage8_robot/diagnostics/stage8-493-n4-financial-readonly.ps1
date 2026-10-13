@@ -56,31 +56,7 @@ try {
         @($result | Where-Object { $_ -ceq 'REAL_ORDER_AUTHORIZED=NO' }).Count -ne 1) {
         # The Python child reports a sanitized uppercase error only. Never echo
         # arbitrary stdout/stderr, which could contain sensitive broker details.
-        $safe = @($result | Where-Object { $_ -cmatch '^CLASSIFICATION=BLOCKED:[A-Z0-9_]{4,120}
-    $task = Get-ScheduledTask -TaskName 'TradingSystemLab-Stage8-Production' -TaskPath '\' -ErrorAction Stop
-    $sw = Get-Content -LiteralPath (Join-Path $root 'safety\stage8-trading-kill-switch.json') -Raw | ConvertFrom-Json
-    if ([string]$task.State -cne 'Disabled' -or [bool]$task.Settings.Enabled -ne $false -or
-        $sw.state -cne 'HALTED' -or $sw.production_specification_id -cne $spec) {
-        throw 'POST_FINANCIAL_PRODUCTION_AUTHORITY_CHANGED'
-    }
-    if (-not (Test-Path -LiteralPath $Output -PathType Leaf)) { throw 'FINANCIAL_REPORT_NOT_CREATED' }
-    Write-Output 'FINAM_N4_FINANCIAL_GET_READONLY=PASS'
-    Write-Output ('REPORT_SHA256=' + (Get-FileHash -LiteralPath $Output -Algorithm SHA256).Hash)
-    Write-Output 'CLASSIFICATION=STAGE8_493_N4_FINANCIAL_READONLY_REPORT_CREATED_NOT_TRADE_AUTHORITY'
-    Write-Output 'FEES_REALIZED_R15_AND_TWO_CONTRACT_ELIGIBILITY=NOT_VERIFIED'
-} catch {
-    $code = [string]$_.Exception.Message
-    if ($code -cnotmatch '^[A-Z0-9_]{4,120}$') { $code = 'FINANCIAL_READONLY_UNEXPECTED' }
-    Write-Output "CLASSIFICATION=BLOCKED:$code"
-    exit 1
-} finally {
-    Remove-Item Env:stage8_493_readonly_secret -ErrorAction SilentlyContinue
-    Remove-Item Env:stage8_493_readonly_account -ErrorAction SilentlyContinue
-    $credential = $null
-    [Environment]::SetEnvironmentVariable('PYTHONDONTWRITEBYTECODE',$priorBytecode,'Process')
-    Write-Output 'NO_REAL_ORDER_AUTHORIZATION=YES'
-}
- })
+        $safe = @($result | Where-Object { $_ -cmatch '^CLASSIFICATION=BLOCKED:[A-Z0-9_]{4,120}$' })
         if ($safe.Count -eq 1) { Write-Output ('FINANCIAL_CHILD_' + $safe[0]) }
         throw 'FINANCIAL_READONLY_COLLECTION_BLOCKED'
     }
