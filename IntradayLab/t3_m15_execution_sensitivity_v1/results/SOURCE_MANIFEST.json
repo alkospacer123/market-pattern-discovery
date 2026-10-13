@@ -1,0 +1,80 @@
+{
+  "CONTROL_status": "PASS",
+  "OHLC_2025_plus_parsed": false,
+  "base_main": "f1403870abed5097c2c28f89638fc9bccf67fc2c",
+  "code_spec_sha256": {
+    "PROTOCOL.md": "e222defccca94435eeb84395b3ebda2ff9fcfc9403e7e2921e058ea4ec8e1d88",
+    "SPEC.json": "8948ab316f0caefbe4cf509adb20a9d7ac37cc10c9f110dab40556b0a9739fcd",
+    "analysis.py": "94d52452111878da1d449a17d315c83961fa0f5d57fc3140148b5b56ab13f60e",
+    "audit.py": "cea09e067f3f5a43bfb2000bec95d27a1f950baf6582e11bf1f11b425c96cdd9",
+    "common.py": "029479fbe1fb768678e4fda962873bc690d74297d3541cb81350717618a37681",
+    "control.py": "71fee13576648213bfc8e02b81dd4d3c11aebf5b7fc2bcd7cf0905960d073c9a",
+    "engine.py": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+    "repeat.py": "40d77ff5e343934290939e4f6d3648fdcf695697ad1332c2b40a259f6ab16940",
+    "requirements.txt": "6979eeaed30ec7f45ff725f33240136e49c396fdf8a5ef12964fb2960c8a5d1e",
+    "run.py": "53e1ca2d83353bcbc7723b91a42a5046d1fbf855f9c2ec4152b22dbd371831fc",
+    "scalar.py": "fc022325d9ec9539006c3b1882c975556c6624f8e0beddbb9af3b73d0b6a5739",
+    "test_causal.py": "a01b8fe40430d4588ef78127e5c205c15c6bca89465f9d7f7db75625373285b3"
+  },
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "frozen_commit": "7c60574af68512a9c96292537dc3ea90230732cd",
+  "labels": "GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY",
+  "period": "2023-2024 DEVELOPMENT_EXPOSED",
+  "raw_quotes_copied": false,
+  "runtime": {
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "python": "3.12.14"
+  },
+  "sources": [
+    {
+      "first_close": "2023-01-03T09:15:00+03:00",
+      "first_open": "2023-01-03T09:00:00+03:00",
+      "full_sha256": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+      "git_blob_sha": "6d4f7691c1c6bfbad59b62a6f5d613a4ed1e984e",
+      "historical_prefix_sha256": "03ca797870de164d738da97094013def88583892f54278d362337d22ce0a532e",
+      "instrument": "USDRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/USDRUBF/USDRUBF_M15.csv",
+      "used_candles": 29890
+    },
+    {
+      "first_close": "2023-01-03T09:15:00+03:00",
+      "first_open": "2023-01-03T09:00:00+03:00",
+      "full_sha256": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+      "git_blob_sha": "a5ff61bbdd9bb6659a0f4fea7141b04b5e8bc35e",
+      "historical_prefix_sha256": "41f4f29f4b6ddefbbbc8aad44f91a0f9cd689536ecabeb1c09f34936a004fdbc",
+      "instrument": "CNYRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M15.csv",
+      "used_candles": 29633
+    },
+    {
+      "first_close": "2023-07-11T10:15:00+03:00",
+      "first_open": "2023-07-11T10:00:00+03:00",
+      "full_sha256": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+      "git_blob_sha": "726c9242a025e75de4d0e93a2c215cc2778b9a9a",
+      "historical_prefix_sha256": "86635d2fc733fa47db171326200ac4b09bdcc7f262297490274c16d5e708899f",
+      "instrument": "GLDRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M15.csv",
+      "used_candles": 22189
+    },
+    {
+      "first_close": "2023-11-14T10:15:00+03:00",
+      "first_open": "2023-11-14T10:00:00+03:00",
+      "full_sha256": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773",
+      "git_blob_sha": "23d8e02920684a1a55e50b222271faaa81be5120",
+      "historical_prefix_sha256": "57bd34a441960d9c488daf93d9e295573587960c100e156eb241188ae7440f38",
+      "instrument": "IMOEXF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/IMOEXF/IMOEXF_M15.csv",
+      "used_candles": 16593
+    }
+  ],
+  "spec_sha256": "8948ab316f0caefbe4cf509adb20a9d7ac37cc10c9f110dab40556b0a9739fcd"
+}
