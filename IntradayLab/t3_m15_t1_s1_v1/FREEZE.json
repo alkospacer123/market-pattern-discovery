@@ -1,0 +1,24 @@
+{
+  "2023_2024": "DEVELOPMENT_EXPOSED",
+  "audit_commit": "623797c90c8300e6b917ecd1edbb07f52628db04",
+  "base_main": "249a9f58a726416bee9d3efd259a9824d348e292",
+  "before_first_historical_combination_result": true,
+  "code_and_spec_SHA256": {
+    "EXPERIMENT_SPECS.json": "8bc1a8872f1d7044142a232b7e1017a7c6e951a27e22deac6b75f458fbb11363",
+    "PREREGISTRATION.md": "510067d4de2e72c502c4df91e13998e6793a4fb7a8e9788f3627e185894bbfb2",
+    "audit_499.py": "caf7200eb59664d0dfec5079857a8912ac5eda38d1af1182e634c1532cff73b4",
+    "engine.py": "1eea354f0d45b6a4917f4d4b0bce4ae9be088ed58008c5d38fef30e74e7f6678",
+    "independent.py": "625ba3712cf6641959f8811e753f1f482ee38df3b7feddd3afa2c68775015628",
+    "independent_combination.py": "530b1fa5c26f01024970a836dbdf647ed79048b1b36de827b5076e9accd444c4",
+    "preflight.py": "f2b5d07d2c4648799a0dac50cfd63fc8e388d50d0b8fd455bd2ff42d57ee8d65",
+    "reports.py": "7971e0400208d5aeed49d8f6cf467791c79cead9a9d2b38acf1a790b1185a34d",
+    "research.py": "7fffdef9060c24dc8d10b2351a3d3c7e71e2c74d3d688c6cd3f0bb1f8e4c01f5",
+    "seal.py": "bba5c45fb8d82af7bf160c1d19f799644758c127761e0a3bd6518e97de32c3f0",
+    "test_causal.py": "85ee010d02ed9281c74a696997677b84e714dea4b614e69b995eac74771e0c93",
+    "test_combination.py": "ed8d0178a0f98726084102a238769b05c38c7a1276887b980b053e52a1666ef4",
+    "verify.py": "edfe7622f98b8b7f08fb2dc81bc225475dd7f31b9e4d0bcea6817ed672d38ca2"
+  },
+  "combination_results_absent_at_commit": true,
+  "freeze_commit": "4012bc519bce58ca08314663a149204a0ad383a5",
+  "labels": "GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY"
+}
