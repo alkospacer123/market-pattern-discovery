@@ -292,3 +292,47 @@ Classification: `R15_DIAGNOSTIC_OPTIONAL_POSITION_KEY_FALSE_BLOCK_RESOLVED_OFFLI
 `R15_REALIZED_BASIS_INTEL_V2_VERIFICATION_PENDING`;
 `REAL_ORDER_AUTHORIZED=NO`. SLTP 1→2 actual FINAM acceptance and deployment
 remain blocked.
+
+
+## 2026-10-13 — Intel exact R15 local READONLY v2: PASS for snapshot, funding provenance open
+
+The operator provided SHA-256 match for the standalone diagnostic v2
+(`785A85BC2656593F54FB6E62FD092307E3619E175DAA31CC3C0B993C463E9090`)
+and the actual Intel stdout:
+`REPORT_SHA256=PASS`,
+`PRODUCTION_SQLITE_QUERY_ONLY=PASS`,
+`STATE_IDENTITY_AND_ACCOUNT_HASH=PASS`,
+`HALTED_AND_LOCAL_FLAT=PASS`,
+`R15_BASIS_CONSISTENCY=PASS_SNAPSHOT_ONLY`,
+`TRADE_FEES_STOP_DISTANCE_AND_SLTP=NOT_VERIFIED`,
+`REAL_ORDER_AUTHORIZED=NO`.
+
+All five mandatory R15/identity state keys were available, and the
+optional absent `production_positions` key correctly represented a
+clean empty local state. The broker-account report and persistent
+production R15 basis agree exactly according to the accepted LIVE
+formula. **This closes the R15 hash/key/schema/snapshot-consistency
+blocker only.**
+
+A separate capital-provenance check remains necessary: the operator's
+starting-realized-equity snapshot differs materially from the latest
+current-realized-equity snapshot while persisted
+`explained_external_cash_flows` is zero. The change may reflect later
+funding, but the script does not prove the economic origin or whether
+the cash-flow accounting is correct for the frozen R15 rule.
+Do not automatically relabel all such changes as profit, adjust risk
+or write to SQLite. This provenance is **OPEN / NOT VERIFIED**;
+private account amounts and transfer details stay outside public GitHub.
+
+Also not established: current on-grid market reference entry and
+initial stop, exactly-two-contract risk-constrained sizing (as opposed
+to margin-only feasibility), client round-trip fees, slippage/gap
+cash-loss budget, genuine FINAM 1→2 partial fills and trigger-time
+SLTP protection, independent physical order acceptance and user
+authorization. Prior N4 financial reports are snapshot-only and can
+become stale. No new FINAM call, trading credential or real order
+was used by this R15 local check.
+
+**Checkpoint: `R15_SQLITE_SNAPSHOT_CONSISTENCY_PASS_FUNDING_PROVENANCE_OPEN`;
+`FINAM_REAL_SLTP_MULTIFILL_UNVERIFIED`;
+`REAL_ORDER_AUTHORIZED=NO`.**
