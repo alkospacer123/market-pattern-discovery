@@ -1055,6 +1055,9 @@ class ProductionRuntime:
         elif current["trade_id"] != payload["trade_id"]:
             raise ProductionRuntimeError("ENTRY_POSITION_ALREADY_EXISTS")
         elif current["quantity"] != abs(observed_quantity):
+            if self.store.get(f"entry_growth_hold:{entry_key}") is not None:
+                self.halt("POSITION_GROWTH_REQUIRES_OPERATOR_RECOVERY")
+                return None
             if abs(observed_quantity) < current["quantity"]:
                 self.halt("POSITION_CHANGED_WHILE_ENTRY_UNRESOLVED")
                 self.store.put(f"entry_growth_hold:{entry_key}", {
@@ -1090,6 +1093,10 @@ class ProductionRuntime:
                         observed_price = Decimal(stop.request["sl_price"]["value"])
                         matched = (
                             stop.order_id == broker_id and stop.active
+                            and stop.status in __import__(
+                                "TradingSystemLab.stage8_robot.account_cleanliness",
+                                fromlist=["ACTIVE_ORDER_STATUSES"],
+                            ).ACTIVE_ORDER_STATUSES
                             and stop.kind == "SLTP"
                             and stop.symbol == payload["finam_symbol"]
                             and stop.side == ("SIDE_SELL" if payload["direction"] == "LONG" else "SIDE_BUY")
