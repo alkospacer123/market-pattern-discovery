@@ -57,9 +57,9 @@
     "hash_or_inspect_locked_suffix_now": false
   },
   "cost_inputs_required_before_OOS_read": {
-    "per_instrument_tick_size_price": null,
-    "per_instrument_tick_value_rub_per_contract": null,
-    "per_instrument_contract_multiplier_and_min_lot": null,
+    "per_instrument_tick_size_price": "VERIFIED_PUBLIC_SNAPSHOT_2026_10_13; see verified_public_contract_specs.contracts",
+    "per_instrument_tick_value_rub_per_contract": "VERIFIED_PUBLIC_SNAPSHOT_2026_10_13; see verified_public_contract_specs.contracts",
+    "per_instrument_contract_multiplier_and_min_lot": "VERIFIED_PUBLIC_SNAPSHOT_2026_10_13; see verified_public_contract_specs.contracts",
     "finam_broker_commission_rub_per_side_and_tariff_dates": null,
     "moex_exchange_and_clearing_fee_rub_per_side_and_effective_dates": null,
     "adverse_execution_ticks_entry_and_exit_including_spread_and_slippage": null,
@@ -71,11 +71,15 @@
   "cost_equations": {
     "cash_initial_R_one_contract": "abs(actual_entry_price - frozen_initial_stop_price) / tick_size_price * tick_value_rub",
     "gross_R": "signed(exit_price - entry_price) / abs(entry_price - frozen_initial_stop_price)",
-    "net_R": "gross_R - (broker_entry_fee_rub + broker_exit_fee_rub + exchange_entry_fee_rub + exchange_exit_fee_rub) / cash_initial_R_one_contract - (entry_adverse_ticks + exit_adverse_ticks) * tick_size_price / abs(entry_price - frozen_initial_stop_price)",
+    "net_R": null,
     "reporting": "Gross and cost-aware Net must be separate; cash-equity performance requires separately fixed portfolio sizing and is not inferred from the sum of R.",
-    "grid_policy": "Validate executable tick/grid and fee provenance before OOS; do not silently round or modify frozen research fills/stops. If incompatible, STOP for explicit review, no after-the-fact rule changes."
+    "grid_policy": "Validate executable tick/grid and fee provenance before OOS; do not silently round or modify frozen research fills/stops. If incompatible, STOP for explicit review, no after-the-fact rule changes.",
+    "price_and_transaction_adjusted_R_before_settlement": "gross_R - transaction_fees_rub/cash_initial_R_one_contract - adverse_execution_ticks*contract_tick_value_rub/cash_initial_R_one_contract (illustrative only: modeled Stops may not be on-grid)",
+    "economic_R": "price_PNL_R plus verified signed funding cash, dividends when applicable, minus verified FINAM/MOEX fees and execution costs; normalize by frozen cash_initial_R_one_contract; requires grid-compatible execution path and cash variation-margin reconciliation; NOT COMPUTABLE YET."
   },
   "pre_read_gates": [
+    "Specify how signed funding cash, settlement timing and IMOEXF dividend adjustments are included (or report economic Net as undefined), with no 2026 data read before authorization.",
+    "RESOLVE NON-GRID execution assumptions without changing frozen strategy, separately authorize and lock ex-ante executable simulation mapping, or STOP economic TRUE OOS.",
     "Full 2026 calendar must have elapsed (not before 2027-01-01 MSK) and full-year source coverage verified after authorization; do not shorten TRUE OOS to observed 2026 YTD",
     "Separate explicit user authorization identifying TRUE OOS 2026",
     "Cost inputs and tariff source evidence pinned before any 2026 OHLC read",
@@ -99,10 +103,125 @@
   },
   "unresolved": {
     "actual_fees": true,
-    "actual_tick_values": true,
+    "actual_tick_values": false,
     "adverse_execution_assumptions": true,
     "explicit_2026_authorization": true,
-    "complete_2026_calendar": true
+    "complete_2026_calendar": true,
+    "execution_grid_compatibility": true,
+    "daily_funding_and_imoex_dividend": true,
+    "historical_exchange_and_broker_tariffs_2026": true
   },
-  "next_action": "Obtain and independently verify the missing cost instrument/broker inputs, then preregister exact numeric assumptions in a separate reviewed change before requesting user authorization to open TRUE OOS 2026."
+  "next_action": "Obtain and independently verify the missing cost instrument/broker inputs, then preregister exact numeric assumptions in a separate reviewed change before requesting user authorization to open TRUE OOS 2026.",
+  "verified_public_contract_specs": {
+    "observation_date_msk": "2026-10-13",
+    "source": "Official MOEX instrument cards, public specifications. Snapshot fees are indicative and NOT fixed historical tariffs.",
+    "contracts": [
+      {
+        "instrument": "USDRUBF",
+        "lot": 1000,
+        "tick_size_price": 0.01,
+        "tick_value_rub": 10,
+        "registration_fee_snapshot_rub": 3.88,
+        "source_url": "https://www.moex.com/ru/derivatives/perpetual-futures/USDRUBF"
+      },
+      {
+        "instrument": "CNYRUBF",
+        "lot": 1000,
+        "tick_size_price": 0.001,
+        "tick_value_rub": 1,
+        "registration_fee_snapshot_rub": 0.58,
+        "source_url": "https://www.moex.com/ru/derivatives/perpetual-futures/CNYRUBF"
+      },
+      {
+        "instrument": "GLDRUBF",
+        "lot": 1,
+        "tick_size_price": 0.1,
+        "tick_value_rub": 0.1,
+        "registration_fee_snapshot_rub": 1.49,
+        "source_url": "https://www.moex.com/ru/derivatives/perpetual-futures/GLDRUBF"
+      },
+      {
+        "instrument": "IMOEXF",
+        "lot": 10,
+        "tick_size_price": 0.5,
+        "tick_value_rub": 5,
+        "registration_fee_snapshot_rub": 1.58,
+        "source_url": "https://www.moex.com/ru/derivatives/perpetual-futures/IMOEXF"
+      }
+    ],
+    "broker_tariff": {
+      "account_specific_plan_verified": false,
+      "current_effective_public_regulation": "FINAM 26/12, effective 2026-10-01",
+      "future_regulation": "FINAM 26/13, effective 2026-10-15",
+      "26_12_url": "https://www.finam.ru/publications/item/opublikovan-prikaz-ob-utverzhdenii-reglamenta-brokerskogo-obsluzhivaniya-v-redaktsii-2612-20260916-1755/",
+      "26_13_url": "https://www.finam.ru/publications/item/opublikovan-prikaz-ob-utverzhdenii-reglamenta-brokerskogo-obsluzhivaniya-v-redaktsii-2513-20260930-1750/",
+      "broker_fee_per_side_rub": null,
+      "tariff_plan": null,
+      "rule": "Account-specific plan and applicable schedule need official confirmation. Marketing tariff page alone is not sufficient."
+    },
+    "exchange_current_fee_snapshot_not_historical": true
+  },
+  "execution_grid_preflight_published_2025_only": {
+    "source": "Merged PR #512, results/W4/primary/trades.csv; CLOSED exit_time year 2025; original record unchanged",
+    "no_2026_price_source_access": true,
+    "tolerance_in_ticks": 1e-8,
+    "by_instrument": [
+      {
+        "instrument": "USDRUBF",
+        "closed": 67,
+        "initial_stop_offgrid": 67,
+        "entry_offgrid": 0,
+        "exit_offgrid": 64,
+        "active_stop_at_exit_offgrid": 67
+      },
+      {
+        "instrument": "CNYRUBF",
+        "closed": 69,
+        "initial_stop_offgrid": 69,
+        "entry_offgrid": 0,
+        "exit_offgrid": 69,
+        "active_stop_at_exit_offgrid": 69
+      },
+      {
+        "instrument": "GLDRUBF",
+        "closed": 75,
+        "initial_stop_offgrid": 75,
+        "entry_offgrid": 0,
+        "exit_offgrid": 71,
+        "active_stop_at_exit_offgrid": 75
+      },
+      {
+        "instrument": "IMOEXF",
+        "closed": 89,
+        "initial_stop_offgrid": 89,
+        "entry_offgrid": 0,
+        "exit_offgrid": 85,
+        "active_stop_at_exit_offgrid": 89
+      }
+    ],
+    "totals": {
+      "closed": 300,
+      "initial_stop_offgrid": 300,
+      "entry_offgrid": 0,
+      "exit_offgrid": 289,
+      "active_stop_at_exit_offgrid": 300
+    },
+    "interpretation": "Evidence of NON-EXECUTABLE idealized research Stops/stop-price exits under current official MOEX price grids, not proof that historic 2025 tick specs were identical. NO parameter change and NO repricing/replay performed.",
+    "live_ready": false,
+    "yearly_gross_result_changed": false
+  },
+  "funding_and_corporate_actions": {
+    "findings": "Official MOEX: perpetual futures have clearing-settled funding as part of daily variation margin; IMOEXF also has a conditional dividend adjustment. Positive funding generally debits LONG, credits SHORT; negative reverse. Holding and settlement exposure matter.",
+    "sources": [
+      "https://www.moex.com/ru/derivatives/perpetual-futures",
+      "https://www.moex.com/a8141",
+      "https://www.moex.com/a8803"
+    ],
+    "historical_2026_funding_or_dividend_data_read": false,
+    "future_required": "When explicitly authorized, load date/contract-specific funding and IMOEX dividend adjustment for settled holding intervals, using an independently validated source. Reconcile model price-change P&L to clearing VM and prevent double counting.",
+    "funding_daily_rub": null,
+    "imoex_dividend_cash_rub": null,
+    "settlement_time_assignment_tested": false,
+    "full_economic_net_R_ready": false
+  }
 }
