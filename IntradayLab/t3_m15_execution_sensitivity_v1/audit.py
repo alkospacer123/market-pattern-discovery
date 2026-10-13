@@ -39,7 +39,7 @@ def stats(rows,calendar):
     return out
 
 def matches(r,target):
-    return (r['rule']==target['rule'] and r['version']==target['version'] and
+    return (r['rule']==(target['rule'] if 'rule' in target else {'A6+S1':'C1','T1':'T1','T1+S1':'COMBINED'}[target['model']]) and r['version']==target['version'] and
         ('mode' not in target or r['mode']==target['mode']) and
         ('scope' not in target or target['scope']=='ALL_FOUR' or r['instrument']==target['scope']) and
         ('direction' not in target or target['direction']=='ALL' or r['direction']==target['direction']))
