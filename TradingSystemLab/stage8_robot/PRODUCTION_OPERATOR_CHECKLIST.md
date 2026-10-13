@@ -1,5 +1,21 @@
 # Stage 8.12.4 — H1 timestamp backfill production operator checklist
 
+## CURRENT OPERATOR CHECKLIST — 2026-10-13 Task isolation PASS / HALTED
+
+- [x] Explicit authorization obtained for Task isolation **only**.
+- [x] Fresh FINAM account/orders double READONLY flatness, SQLite and HALTED precheck PASS.
+- [x] Original production Task XML saved outside Git; SHA-256 `2714BB09FF571EFAE748509F5D3C3BC8DD5F38460173E1A13EF5AEE752DF906E` reported by Intel (actual XML not downloaded).
+- [x] `TradingSystemLab-Stage8-Production` disabled before stop; automatic restart suppressed.
+- [x] PowerShell PID 8536, Python PIDs 6260 / 11608 all exited; no service processes at post-stop gate.
+- [x] Post-stop FINAM double READONLY broker flatness, production SQLite before/after and exclusive lock test PASS.
+- [x] Kill switch HALTED; no order submission, Task rearm, source/strategy/margin/SQLite edits.
+- [ ] Keep Task Disabled; do not apply historical ARMED / Running daily checklist below.
+- [ ] New operator approval required to restore/start Task, rearm or send any real order; no SLTP physical acceptance authorization.
+- [ ] Future post-stop READONLY observations should independently check broker flatness and no service processes; stopped heartbeat stale by design.
+
+**NO TRADING.** Existing durable code-bound authorization is still stored, not revoked. Draft PR #493 remains isolated/unmerged; do not deploy candidate or change frozen Stage7 identity. For emergency broker exposure or orphan process, halt and escalate rather than improvising Task/PID commands.
+
+
 ## Current daily closeout — 2026-10-12 post-rearm read-only verification
 
 - [x] Explicit operator re-arm `STAGE8_12_H1_REARM=PASS`; kill switch `ARMED` generation **60**, entry gate `OPEN`.

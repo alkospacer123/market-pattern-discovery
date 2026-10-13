@@ -1,5 +1,12 @@
 # TradingSystemLab project context
 
+## CURRENT operational authority — 2026-10-13 Stage 8 #493 isolated HALTED
+
+**CURRENT PHYSICAL STATE 2026-10-13: STAGE8_493_PRODUCTION_TASK_ISOLATED_HALTED.** Operator's expressly authorized Intel `stage8-493-controlled-task-isolation.ps1 -execute`: `FRESH_PROCESS_SQLITE_FINAM_HALTED=PASS`; `TASK_DISABLED_RESTART_SUPPRESSED=PASS`; `TASK_STOP_COMMAND_COMPLETED=YES`; original PowerShell PID **8536**, Python service PIDs **6260** and **11608** all exited; post-stop FINAM READONLY two flat broker snapshots / SQLite / lock quiescence `POST_STOP_FINAM_SQLITE_LOCK_GATE=PASS`. Final `ISOLATED_HALTED_PENDING_GITHUB_OPERATIONAL_SYNC`, `REAL_ORDER_AUTHORIZED=NO`, `REARM_PERFORMED=NO`. Original Task XML backed up outside Git under `c:\tslaudit\fill493`, operator-reported SHA-256 `2714BB09FF571EFAE748509F5D3C3BC8DD5F38460173E1A13EF5AEE752DF906E` (bytes not independently inspected). Kill switch remains HALTED; production Task Disabled, not Running; heartbeat will become stale by design.
+
+**Frozen:** Stage 7 `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8` / `TRAIL1__N4_01__FULL__R15`, T3/H1/TRAIL1, N4 USDRUBF/CNYRUBF/GLDRUBF/IMOEXF, R15=1.5% realized equity/new position, max nominal aggregate risk 6%, margin sizing; code `184e8c2b8fa092a606249ff293a4f507160bff29`, Stage5 data `50f1fd2178c18b7ab3bd969be82ad01f47a34745` unchanged. **Existing durable authorization was NOT revoked**; Task Disabled and HALTED keep trading unavailable now but cannot substitute for future explicit restart/rearm controls. Earlier ARMED / Running sections below are historical. Draft PR #493 is unmerged, candidate V2 and real two-contract SLTP multi-fill acceptance are NOT authorized. Never start Task, force-stop processes, change SQLite, rearm, send orders or restore Task XML without fresh separate authorization. No automatic git checkout update.
+
+
 ## 2026-10-12 CURRENT operational authority — LIVE ARMED, confirmed after re-arm
 
 **LIVE: ARMED, kill switch generation 60; Scheduled Task Running; fresh HEALTHY / reconciliation PASS; entry gate OPEN.** Production code remains exact fix `184e8c2b8fa092a606249ff293a4f507160bff29` (PR #484); Stage5 data authority `50f1fd2178c18b7ab3bd969be82ad01f47a34745`. Explicit operator-authorized `stage8_12_h1_rearm_once.ps1` returned `STAGE8_12_H1_REARM=PASS`, `REARM_COMPLETED=YES`. Re-arm did not change source, Scheduled Task, authorization or SQLite schema, and did not itself force an order.
