@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, ROUND_FLOOR
 from pathlib import Path
 
 SPEC = 'PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8'
@@ -89,11 +89,22 @@ def validate_plan(plan: dict) -> dict:
     fail(loss > 0 and loss <= nominal_r15, 'TWO_CONTRACTS_VIOLATE_FROZEN_R15')
     fail(margin * qty <= available, 'TWO_CONTRACTS_EXCEED_MARGIN_CASH')
     fail(loss + costs <= budget, 'OPERATOR_MAX_CASH_LOSS_AND_COST_EXCEEDED')
+    # This is a reference-only mirror of frozen risk.py/margin.py for N4 lot=1.
+    # Merely checking loss<=R15 and 2*margin<=cash is insufficient: such a
+    # plan may ask for two when frozen FULL/R15 would size more (or less).
+    r15_quantity = int((nominal_r15 / loss_per_contract).to_integral_value(rounding=ROUND_FLOOR))
+    margin_quantity = int((available / margin).to_integral_value(rounding=ROUND_FLOOR))
+    frozen_quantity = min(r15_quantity, margin_quantity)
+    fail(frozen_quantity == qty, 'TWO_CONTRACTS_NOT_EXACT_FROZEN_R15_MARGIN_RESULT')
+    # No assertion above establishes fresh account authority, fills or Task isolation.
     # 6% aggregate cap is respected by requiring broker-observed flatness; assertion is NOT proof.
     return {'classification':'OFFLINE_PLAN_VALID_NOT_REAL_ORDER_AUTHORITY',
             'instrument':instrument,'contracts':qty,'stop_tick':tick_text,
             'maximum_reference_initial_loss_rub':str(loss),
             'r15_cash_cap_rub':str(nominal_r15),
+            'r15_reference_quantity':r15_quantity,
+            'margin_reference_quantity':margin_quantity,
+            'frozen_reference_final_quantity':frozen_quantity,
             'estimated_total_loss_and_cost_rub':str(loss+costs),
             'broker_freshness':'NOT_VERIFIED','task_isolation':'NOT_VERIFIED',
             'order_endpoint_calls':0,'live_production_ready':False,
