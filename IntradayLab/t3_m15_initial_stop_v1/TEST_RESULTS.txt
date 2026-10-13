@@ -2,6 +2,7 @@ test_changed_future_does_not_change_entries_or_stops (__main__.Causality.test_ch
 test_future_execution_rejected (__main__.Causality.test_future_execution_rejected) ... ok
 test_future_prefix_poison_never_parsed (__main__.Causality.test_future_prefix_poison_never_parsed) ... ok
 test_indicator_and_signal_prefix_invariance (__main__.Causality.test_indicator_and_signal_prefix_invariance) ... ok
+test_missing_timestamps_match_but_different_times_fail (__main__.Causality.test_missing_timestamps_match_but_different_times_fail) ... ok
 test_no_production_imports_or_future_file_paths (__main__.Causality.test_no_production_imports_or_future_file_paths) ... ok
 test_both_trailing_constants (__main__.Mechanics.test_both_trailing_constants) ... ok
 test_busy_signals_not_filled (__main__.Mechanics.test_busy_signals_not_filled) ... ok
@@ -23,6 +24,6 @@ test_trailing_short_reflection (__main__.Mechanics.test_trailing_short_reflectio
 test_zero_stop_skips_and_later_signal_executes (__main__.Mechanics.test_zero_stop_skips_and_later_signal_executes) ... ok
 
 ----------------------------------------------------------------------
-Ran 23 tests in 0.402s
+Ran 24 tests in 0.445s
 
 OK

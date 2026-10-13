@@ -1,0 +1,10 @@
+{
+  "before_variant_results": true,
+  "closed": 1442,
+  "control": "PASS",
+  "control_reproduction_sha256": "2b1c01a3b0804abaa4ba85ad508cb13852b3fcc320c6992274d8af9cea167453",
+  "freeze_commit": "82662ac1db6280c9b788a76edc87f525b135f084",
+  "terminal_open": 2,
+  "test_log_sha256": "0f59c7ae74471fcf43d68eaa019c75ef0e1f764e51bbfc6b67c5d83a7eee79bd",
+  "tests": "PASS"
+}
