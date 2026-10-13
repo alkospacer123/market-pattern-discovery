@@ -1,0 +1,77 @@
+{
+  "2023_2024": "DEVELOPMENT_EXPOSED",
+  "base_main": "249a9f58a726416bee9d3efd259a9824d348e292",
+  "code_SHA256": {
+    "audit_499.py": "caf7200eb59664d0dfec5079857a8912ac5eda38d1af1182e634c1532cff73b4",
+    "engine.py": "1eea354f0d45b6a4917f4d4b0bce4ae9be088ed58008c5d38fef30e74e7f6678",
+    "independent.py": "625ba3712cf6641959f8811e753f1f482ee38df3b7feddd3afa2c68775015628",
+    "independent_combination.py": "530b1fa5c26f01024970a836dbdf647ed79048b1b36de827b5076e9accd444c4",
+    "preflight.py": "f2b5d07d2c4648799a0dac50cfd63fc8e388d50d0b8fd455bd2ff42d57ee8d65",
+    "reports.py": "7971e0400208d5aeed49d8f6cf467791c79cead9a9d2b38acf1a790b1185a34d",
+    "research.py": "7fffdef9060c24dc8d10b2351a3d3c7e71e2c74d3d688c6cd3f0bb1f8e4c01f5",
+    "seal.py": "bba5c45fb8d82af7bf160c1d19f799644758c127761e0a3bd6518e97de32c3f0",
+    "test_causal.py": "85ee010d02ed9281c74a696997677b84e714dea4b614e69b995eac74771e0c93",
+    "test_combination.py": "ed8d0178a0f98726084102a238769b05c38c7a1276887b980b053e52a1666ef4",
+    "verify.py": "edfe7622f98b8b7f08fb2dc81bc225475dd7f31b9e4d0bcea6817ed672d38ca2"
+  },
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "freeze_commit": "4012bc519bce58ca08314663a149204a0ad383a5",
+  "future_OHLC_parsed": false,
+  "labels": "GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY",
+  "runtime": {
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "python": "3.12.14"
+  },
+  "sources": [
+    {
+      "first_close": "2023-01-03T09:15:00+03:00",
+      "first_open": "2023-01-03T09:00:00+03:00",
+      "full_sha256": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+      "git_blob_sha": "6d4f7691c1c6bfbad59b62a6f5d613a4ed1e984e",
+      "historical_prefix_sha256": "03ca797870de164d738da97094013def88583892f54278d362337d22ce0a532e",
+      "instrument": "USDRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/USDRUBF/USDRUBF_M15.csv",
+      "used_candles": 29890
+    },
+    {
+      "first_close": "2023-01-03T09:15:00+03:00",
+      "first_open": "2023-01-03T09:00:00+03:00",
+      "full_sha256": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+      "git_blob_sha": "a5ff61bbdd9bb6659a0f4fea7141b04b5e8bc35e",
+      "historical_prefix_sha256": "41f4f29f4b6ddefbbbc8aad44f91a0f9cd689536ecabeb1c09f34936a004fdbc",
+      "instrument": "CNYRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M15.csv",
+      "used_candles": 29633
+    },
+    {
+      "first_close": "2023-07-11T10:15:00+03:00",
+      "first_open": "2023-07-11T10:00:00+03:00",
+      "full_sha256": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+      "git_blob_sha": "726c9242a025e75de4d0e93a2c215cc2778b9a9a",
+      "historical_prefix_sha256": "86635d2fc733fa47db171326200ac4b09bdcc7f262297490274c16d5e708899f",
+      "instrument": "GLDRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M15.csv",
+      "used_candles": 22189
+    },
+    {
+      "first_close": "2023-11-14T10:15:00+03:00",
+      "first_open": "2023-11-14T10:00:00+03:00",
+      "full_sha256": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773",
+      "git_blob_sha": "23d8e02920684a1a55e50b222271faaa81be5120",
+      "historical_prefix_sha256": "57bd34a441960d9c488daf93d9e295573587960c100e156eb241188ae7440f38",
+      "instrument": "IMOEXF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/IMOEXF/IMOEXF_M15.csv",
+      "used_candles": 16593
+    }
+  ],
+  "spec_SHA256": "8bc1a8872f1d7044142a232b7e1017a7c6e951a27e22deac6b75f458fbb11363"
+}
