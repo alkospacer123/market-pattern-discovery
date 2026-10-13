@@ -18,10 +18,15 @@ try {
         -not (test-path -literalpath $broker_probe -pathtype leaf)) { throw 'LOCAL_INPUT_MISSING' }
     $actual_sha = (get-filehash -literalpath $audit -algorithm sha256).hash.tolowerinvariant()
     if ($actual_sha -cne $audit_sha) { throw 'SQLITE_AUDIT_HASH_INVALID' }
-    $commit = (& git -c $checkout rev-parse head).trim()
-    if ($lastexitcode -ne 0 -or $commit -cne $live_sha) { throw 'LIVE_COMMIT_MISMATCH' }
-    $dirty = @(& git -c $checkout status --porcelain)
-    if ($lastexitcode -ne 0 -or $dirty.count -ne 0) { throw 'LIVE_CHECKOUT_DIRTY' }
+    push-location -literalpath $checkout
+    try {
+        $commit = (& git rev-parse head).trim()
+        if ($lastexitcode -ne 0 -or $commit -cne $live_sha) { throw 'LIVE_COMMIT_MISMATCH' }
+        $dirty = @(& git status --porcelain)
+        if ($lastexitcode -ne 0 -or $dirty.count -ne 0) { throw 'LIVE_CHECKOUT_DIRTY' }
+    } finally {
+        pop-location
+    }
     $task = get-scheduledtask -taskname 'TradingSystemLab-Stage8-Production' -erroraction stop
     $readonly_task = get-scheduledtask -taskname 'TradingSystemLab-Stage8-Readonly' -erroraction silentlycontinue
     if ([string]$task.state -cne 'Running') { throw 'PRODUCTION_TASK_NOT_RUNNING' }
