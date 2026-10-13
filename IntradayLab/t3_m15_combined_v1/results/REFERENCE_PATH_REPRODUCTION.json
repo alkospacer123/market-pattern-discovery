@@ -1,0 +1,139 @@
+{
+  "details": [
+    {
+      "common_fields": [
+        "direction",
+        "entry_accepted",
+        "instrument",
+        "position_occupied",
+        "rule",
+        "rule_pass",
+        "signal_time",
+        "version"
+      ],
+      "file": "entry_opportunities.csv",
+      "rows": 4034,
+      "rule": "CONTROL",
+      "status": "PASS"
+    },
+    {
+      "common_fields": [
+        "activated_after",
+        "activated_before",
+        "activation_time_after",
+        "activation_time_before",
+        "active_stop",
+        "active_stop_next_bar",
+        "bar_close_time",
+        "bar_open_time",
+        "boundary_stop",
+        "exit_price",
+        "extreme_before",
+        "favorable_R_after",
+        "favorable_extreme_after",
+        "initial_risk",
+        "instrument",
+        "open",
+        "original_trail_proposal",
+        "phase",
+        "ratchet_changed",
+        "rule",
+        "stop_gap",
+        "stop_hit",
+        "stop_source_next",
+        "threshold_R",
+        "threshold_activated_now",
+        "trade_id",
+        "version"
+      ],
+      "file": "stop_decisions.csv",
+      "rows": 27097,
+      "rule": "CONTROL",
+      "status": "PASS"
+    },
+    {
+      "common_fields": [
+        "direction",
+        "entry_accepted",
+        "instrument",
+        "position_occupied",
+        "rule",
+        "rule_pass",
+        "signal_time",
+        "version"
+      ],
+      "file": "entry_opportunities.csv",
+      "rows": 4034,
+      "rule": "A6",
+      "status": "PASS"
+    },
+    {
+      "common_fields": [
+        "direction",
+        "entry_accepted",
+        "instrument",
+        "position_occupied",
+        "rule",
+        "rule_pass",
+        "signal_time",
+        "version"
+      ],
+      "file": "entry_opportunities.csv",
+      "rows": 4034,
+      "rule": "A7",
+      "status": "PASS"
+    },
+    {
+      "common_fields": [
+        "direction",
+        "entry_accepted",
+        "instrument",
+        "position_occupied",
+        "rule",
+        "rule_pass",
+        "signal_time",
+        "version"
+      ],
+      "file": "entry_opportunities.csv",
+      "rows": 4034,
+      "rule": "S1",
+      "status": "PASS"
+    },
+    {
+      "common_fields": [
+        "activated_after",
+        "activated_before",
+        "activation_time_after",
+        "activation_time_before",
+        "active_stop",
+        "active_stop_next_bar",
+        "bar_close_time",
+        "bar_open_time",
+        "boundary_stop",
+        "exit_price",
+        "extreme_before",
+        "favorable_R_after",
+        "favorable_extreme_after",
+        "initial_risk",
+        "instrument",
+        "open",
+        "original_trail_proposal",
+        "phase",
+        "ratchet_changed",
+        "rule",
+        "stop_gap",
+        "stop_hit",
+        "stop_source_next",
+        "threshold_R",
+        "threshold_activated_now",
+        "trade_id",
+        "version"
+      ],
+      "file": "stop_decisions.csv",
+      "rows": 30758,
+      "rule": "S1",
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS"
+}
