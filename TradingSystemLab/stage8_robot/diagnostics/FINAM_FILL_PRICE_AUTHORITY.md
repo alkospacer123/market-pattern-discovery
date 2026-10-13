@@ -229,3 +229,20 @@ Two independently offline-tested sources are committed only on this inactive Dra
 - [test_stage8_493_broker_readonly.py](../tests/test_stage8_493_broker_readonly.py) **6 PASS** locally: account/token/kill-switch/heartbeat/identity validation, two broker snapshots, positive-position/active-order fail-closed behavior, prohibited endpoint/method rejection, wrapper no-mutation contract. Exact GitHub blobs match the locally tested files.
 
 **Interpretation:** `FRESH_FINAM_READONLY_FLAT_PASS_NOT_ISOLATED` means a fresh temporary **observation**, not continued flatness, physical SLTP acceptance, authority to stop the production Task, or authority to transmit any order. If Intel output says `BLOCKED`, do not stop/disable Task, do not rearm or submit. After success, the separate operator-only isolation step must independently verify process/Task/SQLite ownership and another *fresh* broker-flat check immediately around stopping. No V2 deployment, code/configuration change, or physical test submission has occurred; `LIVE_PRODUCTION_READY=NO`.
+
+## Physical Intel fresh FINAM double-READONLY broker-flat acceptance — 2026-10-13 (operator log)
+
+**`FRESH_FINAM_READONLY_FLAT_PASS_NOT_ISOLATED` / `FINAL_READONLY_BROKER_GATE=PASS`.** The operator ran the pinned, committed `stage8-493-finam-broker-flat-readonly.ps1` with existing readonly Python on Intel; the wrapper and Python emitted the following structured observations:
+
+- `FINAM_SESSION=EXACT_READONLY_ACCOUNT_BOUND`; `ACCOUNT_IDENTITY_SHA_MATCH=PASS`.
+- **Snapshot 1:** nonzero positions `0`, active orders `0`, orders scanned `0`.
+- **Snapshot 2:** nonzero positions `0`, active orders `0`, orders scanned `0`.
+- `FRESH_FINAM_TWO_READONLY_SNAPSHOTS=PASS`; `BROKER_FLAT_AND_ZERO_ACTIVE_ORDERS=PASS`.
+- `ORDER_ENDPOINT_CALLS=0`; `NO_TASK_SWITCH_SQLITE_MUTATION=YES`.
+- `LOCAL_PRODUCTION_TASK_STILL_RUNNING=YES`; `STOP_TASK_AUTHORIZED_BY_THIS_PROBE=NO`.
+
+The two independent broker reads were collected with the readonly credential under `HALTED` and an exact production account/commit/heartbeat binding. This closes the **fresh broker-flat snapshot read gate at its observation time**; it is not a guarantee of continuing flatness and does not independently prove zero local unresolved intents at any later time. The production Task remains **Running**; LIVE is **HALTED / RUNNING**, not fully isolated.
+
+**Next operator boundary:** separately review and explicitly authorize production Task isolation only after an immediately refreshed whole-account broker-flat and active-order GET; independently recheck process/task ownership, durable unresolved-intent/SQLite integrity, task restart configuration, kill-switch HALTED and emergency recovery/restore. Do **not** merely call `Stop-ScheduledTask` from this evidence: the Scheduled Task may automatically restart a stopped process, and an exposed position must never be left without supervision. The V2 operator-only 1–2 contract SLTP physical acceptance launcher and its fail-closed offline tests remain unfinished; physical real-order SLTP testing is still **NOT RUN**. No new ENTRY/SLTP/flatten/cancel endpoint is permitted by this read-only PASS. Freeze T3/H1/TRAIL1/N4/R15 unchanged, `LIVE_PRODUCTION_READY=NO` for candidate V2.
+
+This result is sourced from the operator-supplied console transcript; independently accessing the Intel broker account from GitHub is not claimed. Raw account IDs, tokens and response bodies were neither printed nor committed.
