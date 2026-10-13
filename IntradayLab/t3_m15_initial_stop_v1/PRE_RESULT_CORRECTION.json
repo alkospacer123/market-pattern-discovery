@@ -1,0 +1,11 @@
+{
+  "actual_control_count": 1442,
+  "failure": "1442 false mismatches in absent rule_decision_time (None vs parsed CSV NaN)",
+  "fix": "Timestamp equality includes both missing; new regression test",
+  "original_failed_comparison_retained": "preflight_history/",
+  "original_freeze": "f96194ee",
+  "other_field_mismatches": 0,
+  "phase": "CONTROL gate only, before any variants",
+  "terminal_open": 2,
+  "trading_model_changed": false
+}

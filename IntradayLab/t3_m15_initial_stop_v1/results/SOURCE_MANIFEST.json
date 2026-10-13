@@ -1,0 +1,86 @@
+{
+  "base_main": "8513203e6e6d9f6995d9464ecd29bb75775400d3",
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "freeze_commit": "82662ac1db6280c9b788a76edc87f525b135f084",
+  "full_file_integrity": "Opaque byte SHA only; parsers stop at timestamp before first 2025+ OHLC.",
+  "future_OHLC_parsed": false,
+  "implementation_sha256": {
+    "audit.py": "16c279f82085e29336139ec99cdca090cf47954a1a930fd1123b387c708b88d4",
+    "audit_diagnostics.py": "aa467f07528363e6fe43e2a9210cc8dc13db283ddb44345baab355290a450c4e",
+    "diagnostics.py": "b5ad9cbf0e070b2604ad59dd61c43e2d13e773dddb2f6ad2f88ee1da55ecc0f2",
+    "engine.py": "acf9dbcb5b0745e5e4582cd5a3e8009c53b174d0e6ed00a1b6246a0f3e632056",
+    "render_report.py": "e7ad79601f7201fd18dbbea47d7adfc6404816e755ca1715e6d089c51dd9c5d2",
+    "research.py": "2ffc5da4928468549e7c66bad0639910ae611f06c09c539a93538320becdb934",
+    "test_research.py": "2ce7d4419687901feb18fabd6108262c390d1f1245315dec70b09f0824f9f203",
+    "verify.py": "020a740e22913c83db382990abf652ce680ba02f0edd9083c09b6d2b0d09d972"
+  },
+  "labels": [
+    "GROSS_ONLY",
+    "COSTS_DEFERRED",
+    "NOT_LIVE_READY"
+  ],
+  "reference_sha256": {
+    "ROADMAP.md": "c3144fd41adae91b81677de59c3fda3c149b22cd225383ca0c4eba3d257a2479",
+    "reports/STAGE1_EXECUTION_COSTS_SPEC.md": "f65ad0091cd26bd6f2fb017802fede06e23dd5b61bfb6e2d136d84f20b089090",
+    "t3_m15_entry_regime_v1/results/trades_CONTROL.csv": "c29dada6d31f7509070ac91c9be7056343eae283b7ac0ca48bb03c07c7f9ea25",
+    "t3_m15_forever_v1/OPEN_POSITIONS.json": "c02fdec2fe99db54f48a003fa504b6d548509e79a8d5aa3791a1bc98c67a5631",
+    "t3_m15_forever_v1/engine.py": "5dabd2f526255f0e1b003c6820c114e5708d76d8ba5d9580c53c403c2f540c8a",
+    "t3_m15_forever_v1/trades.csv": "a458c7905824abe8a8cc7a42d6079428b53ba78a4c4dc1f2bf73f9eb94a1dd2b"
+  },
+  "runtime": {
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "python": "3.12.14"
+  },
+  "sources": [
+    {
+      "first_close": "2023-01-03T09:15:00+03:00",
+      "first_open": "2023-01-03T09:00:00+03:00",
+      "full_sha256": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+      "git_blob_sha": "6d4f7691c1c6bfbad59b62a6f5d613a4ed1e984e",
+      "historical_prefix_sha256": "03ca797870de164d738da97094013def88583892f54278d362337d22ce0a532e",
+      "instrument": "USDRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/USDRUBF/USDRUBF_M15.csv",
+      "used_candles": 29890
+    },
+    {
+      "first_close": "2023-01-03T09:15:00+03:00",
+      "first_open": "2023-01-03T09:00:00+03:00",
+      "full_sha256": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+      "git_blob_sha": "a5ff61bbdd9bb6659a0f4fea7141b04b5e8bc35e",
+      "historical_prefix_sha256": "41f4f29f4b6ddefbbbc8aad44f91a0f9cd689536ecabeb1c09f34936a004fdbc",
+      "instrument": "CNYRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M15.csv",
+      "used_candles": 29633
+    },
+    {
+      "first_close": "2023-07-11T10:15:00+03:00",
+      "first_open": "2023-07-11T10:00:00+03:00",
+      "full_sha256": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+      "git_blob_sha": "726c9242a025e75de4d0e93a2c215cc2778b9a9a",
+      "historical_prefix_sha256": "86635d2fc733fa47db171326200ac4b09bdcc7f262297490274c16d5e708899f",
+      "instrument": "GLDRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M15.csv",
+      "used_candles": 22189
+    },
+    {
+      "first_close": "2023-11-14T10:15:00+03:00",
+      "first_open": "2023-11-14T10:00:00+03:00",
+      "full_sha256": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773",
+      "git_blob_sha": "23d8e02920684a1a55e50b222271faaa81be5120",
+      "historical_prefix_sha256": "57bd34a441960d9c488daf93d9e295573587960c100e156eb241188ae7440f38",
+      "instrument": "IMOEXF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/IMOEXF/IMOEXF_M15.csv",
+      "used_candles": 16593
+    }
+  ],
+  "spec_sha256": "53abc35ecc6350332354296490194a29402054547ec3f3e6c7b5d4acd1f16bd5"
+}

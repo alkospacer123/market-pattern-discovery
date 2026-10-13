@@ -1,0 +1,14 @@
+{
+  "remote_main_observed": "8513203e6e6d9f6995d9464ecd29bb75775400d3",
+  "expected_merge_497": "8513203e6e6d9f6995d9464ecd29bb75775400d3",
+  "match": true,
+  "remote_checks": ["git fetch origin main + rev-parse origin/main", "gh api git/ref/heads/main"],
+  "subsequent_main_changes": [],
+  "data_head": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "data_worktree_initially_clean": true,
+  "allowed_change_prefix": "IntradayLab/t3_m15_initial_stop_v1/",
+  "user_task_authorizes_standalone_initial_stop_stage": true,
+  "roadmap_and_frozen_studies_immutable": true,
+  "variant_results_observed_before_freeze": false,
+  "same_author_independent_implementation_external_audit_pending": true
+}
