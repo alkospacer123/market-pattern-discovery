@@ -256,10 +256,43 @@ class OperatorHarness:
                 'broker_stop_trigger_proven': False}
 
     def final_flat(self) -> str:
-        """Two independent broker reads required; no residual active orders."""
+        """Fail closed if known entry/stop are not terminal in TWO full reads.
+
+        Flat positions by themselves cannot exclude a delayed ACK/entry fill,
+        an outstanding resting entry, or an active broker protective stop.
+        This is evidence only, never a broker stop-trigger PASS.
+        """
+        if (self.journal.count('entry_intent') != 1 or
+                self.journal.count('entry_ack') != 1 or
+                self.journal.count('double_flat')):
+            self._hold('FINAL_FLAT_KNOWN_ENTRY_ACK_REQUIRED')
+        entry_id = self.journal.value('entry_ack', 'order_id')
+        stop_count = self.journal.count('stop_ack')
+        if stop_count > 1:
+            self._hold('FINAL_FLAT_STOP_LEDGER_AMBIGUOUS')
+        stop_id = self.journal.value('stop_ack', 'order_id') if stop_count else None
         for _ in range(2):
             snap = self.observe()
-            if snap['position'] != 0 or any(o.get('active') for o in snap['orders']):
+            if snap['position'] != 0:
                 self._hold('FINAL_FLAT_OR_ORDERS_NOT_PROVEN')
+            by_id = {}
+            for order in snap['orders']:
+                order_id = order.get('id')
+                if (not isinstance(order_id, str) or not order_id
+                        or type(order.get('active')) is not bool
+                        or order_id in by_id):
+                    self._hold('FINAL_ORDER_OBSERVATION_INVALID')
+                by_id[order_id] = order
+                if order['active']:
+                    self._hold('FINAL_FLAT_OR_ORDERS_NOT_PROVEN')
+            entry = by_id.get(entry_id)
+            if (entry is None or entry.get('kind') != 'regular'
+                    or type(entry.get('remaining')) is not int
+                    or entry['remaining'] != 0):
+                self._hold('FINAL_ENTRY_TERMINAL_NOT_PROVEN')
+            if stop_id is not None:
+                stop = by_id.get(stop_id)
+                if stop is None or stop.get('kind') != 'sltp':
+                    self._hold('FINAL_STOP_TERMINAL_NOT_PROVEN')
         self.journal.add('double_flat', confirmed=True)
         return 'FLAT_AFTER_MANUAL_RECOVERY_NOT_PHYSICAL_SLTP_ACCEPTANCE'
