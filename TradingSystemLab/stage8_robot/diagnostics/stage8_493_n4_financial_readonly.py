@@ -79,8 +79,10 @@ def asset_economics(name, asset, params, row, parse_margin, parse_decimal):
     require(isinstance(asset, dict) and asset.get('ticker') == name
             and asset.get('mic') == 'RTSX', 'ASSET_IDENTITY_INVALID')
     require(isinstance(params, dict) and params.get('symbol') == symbol
-            and isinstance(params.get('account_id'), str)
-            and params.get('is_tradable') == {'value': True}, 'ASSET_PARAMS_ACCOUNT_OR_STATUS_INVALID')
+            and isinstance(params.get('account_id'), str), 'ASSET_PARAMS_ACCOUNT_OR_SYMBOL_INVALID')
+    # The FINAM REST GetAssetParams schema is boolean (not the gRPC BoolValue wrapper).
+    require(type(params.get('is_tradable')) is bool, 'ASSET_PARAMS_REST_TRADEABLE_SCHEMA_INVALID')
+    require(params['is_tradable'] is True, 'ASSET_NOT_TRADABLE_FOR_ACCOUNT')
     decimals = asset.get('decimals')
     rawstep = asset.get('min_step')
     require(type(decimals) is int and 0 <= decimals <= 12
