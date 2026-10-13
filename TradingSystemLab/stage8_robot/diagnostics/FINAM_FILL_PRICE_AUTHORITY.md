@@ -112,3 +112,22 @@ Growth before initial protective submission uses a separately persisted fresh qu
 The proposed MARKET accounting distinction is implemented solely in the inactive candidate: quantity from executable reference stop, nominal FULL/R15 unchanged, exact actual fill risk retained separately, excess/uncertainty halts with protection. It still needs independent acceptance; a strict actual-risk ceiling cannot be asserted. Commission/currency conversion authority is not invented.
 
 Current status: **OFFLINE_FIX_READY_FOR_REVIEW / STOP_TICK_GRID_CANDIDATE=PASS; LIVE_PRODUCTION_READY=NO.** Required physical items remain BLOCKED as listed above. Candidate revision V2 rejects V1/legacy state, remains opt-in and entry-closed, and supplies no migration/deploy/re-arm commands. No Intel connection or physical FINAM request was made in this work: `REAL_ORDER_ENDPOINT_CALLS=0`, `LIVE_CHANGES=NONE`; no merge/auto-merge/deploy/re-arm.
+
+## Intel saved A/B + ACK provenance audit — 2026-10-13 (operator-run, no broker request)
+
+**HISTORICAL_ONE_FILL_AB_ACK_ARTIFACTS_VERIFIED — PASS on Intel.** The operator ran the exact standalone JSON-only Python auditor `stage8-493-finam-ab-ack-offline-audit-v2.py` (locally inspected SHA-256 `c0183eb841c028f2b340d9c4ebd6382ebae7daaf583481b1134f5c7441d6c104`). The auditor contains no network or SQLite imports; it reads only previously saved, local files, verifies pinned hashes and enforces the ACK/account/order/intent/fill/price relationships. A first version of the auditor was blocked by `A_SCHEMA_MISMATCH` because it expected the newer `schema_id/history` shape instead of the actual `finam_fill_price_readonly_xxx_observation.v1` report. The revised V2 checks the original schema/fields; no report was changed to satisfy the checker.
+
+Saved physical evidence, checksummed locally by the Intel auditor (not committed to Git):
+- `price-observation-A.json` and `price-observation-B.json`: same pinned SHA-256 **`71be04598e77685e303495794e6e6b8eb3f4f1936b9ac82599f4b74a6424a186`**, **byte-identical**.
+- `PRICE_AB_SUMMARY.json`: SHA-256 **`26953268d1d155b716bf04998cf923f551cde1b7f62e5f3777ed4e15eb59190e`**.
+- `ACK_CHAIN_READONLY_REPORT.json`: SHA-256 **`282ccbcf2e8ff321de0ae643633bde9aa35698f2bcf5f843d4b5cb8f986eae64`**.
+- Immutable historical ACK ledger **binding** (the ledger itself was not reopened by this audit): SHA-256 `68c703c1677dff7ae2f80d916df5032a6001609ae4c2e2ce862b3ab7f914c217`.
+
+Intel V2 output: `report_a_b_original_sha256=pass`, `report_a_b_byte_identical=pass`, `summary_known_sha256=pass`, `ack_chain_known_sha256=pass`, `ack_account_order_intent_provenance=pass`, `historical_fill_set_and_ack_chain=pass`, classification **`historical_one_fill_ab_ack_artifacts_verified`**.
+
+The retained, bounded `GET /trades` observation identified **one** matching CNYRUBF@RTSX LONG MARKET fill, 1 contract at **12.748** on the **0.001** price grid, historical Attempt 6 on **2026-10-06 14:08:33 UTC**. `AccountTrade.currency=XXX` is a feed label only; no conversion to RUB or money/tick valuation is inferred. The chain binds the historical order ACK, account hash, active specification, order hash, fill-set hash and A/B report hashes. The auditor's reported endpoint calls were zero; the live robot, its task/authorization and SQLite were not touched by this offline audit.
+
+**Scope limitation:** This is an independently constructed *local verification program* executed by the operator against previously saved artifacts. The original A/B/ACK JSON bytes were not uploaded into this conversation or independently retrieved from Intel by the auditing agent. The user-provided program output supports the above physical-local PASS; it does not constitute direct remote rehash by the agent, proof of raw FINAM transport for a fresh session, unbounded history retention, or physical **multi-fill / growth / percentage SLTP** acceptance. Production release remains **BLOCKED**, `LIVE_PRODUCTION_READY=NO`.
+
+**Next physical acceptance boundary (separate explicit authorization if an actual trade is needed):** validate position-linked protection for first partial fill, later increase, unknown ACK and rollback/restart on an isolated controlled acceptance path. Before any live cutover, acquire independently validated real FINAM evidence of exact fill quantity/price completeness and effective 100%-current-position SLTP coverage; no new real ENTRY, protective order, cancel, deployment, task change or re-arm is authorized by the A/B PASS.
+
