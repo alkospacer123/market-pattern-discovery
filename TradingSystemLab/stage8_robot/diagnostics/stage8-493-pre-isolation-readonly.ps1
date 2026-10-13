@@ -43,9 +43,13 @@ try {
             $cmd = [string]$_.commandline
             ($_.name -ieq 'python.exe' -or $_.name -ieq 'pythonw.exe') -and
             $cmd.indexof($runtime_root, [stringcomparison]::ordinalignorecase) -ge 0 -and
-            $cmd.indexof('production_service', [stringcomparison]::ordinalignorecase) -ge 0 -and
-            $cmd.indexof($live_sha, [stringcomparison]::ordinalignorecase) -ge 0
+            $cmd.indexof('production_service', [stringcomparison]::ordinalignorecase) -ge 0
         })
+        foreach ($python_process in $matching) {
+            if ([string]$python_process.commandline -notlike ('*' + $live_sha + '*')) {
+                throw 'PRODUCTION_PROCESS_COMMIT_MISMATCH'
+            }
+        }
         if ($matching.count -lt 1 -or $matching.count -gt 2) { throw 'PRODUCTION_PROCESS_COUNT_INVALID' }
         $roots = @($matching | where-object {
             $item = $_
