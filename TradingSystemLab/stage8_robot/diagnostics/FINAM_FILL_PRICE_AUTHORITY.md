@@ -285,3 +285,34 @@ The operator physically executed `stage8-493-process-lineage-readonly.ps1` with 
 The previous readonly pre-isolation wrapper intentionally rejected both matching Python PIDs by counting `2 != 1`. The proposed candidate-only correction now **accepts only one pinned service Python root, optionally with one direct pinned Python child**, and requires exact `run-production.ps1` parent-PowerShell command identity/commit/runtime/checkout and matching Task action. Any different-commit service process, sibling Python roots, >2 matching service processes, absent/mismatched parent, or a changed PID chain across the SQLite/FINAM prechecks BLOCKS. Subsequent SQLite and fresh two-snapshot FINAM broker checks **have not yet been physically run on the corrected version**. New candidate script SHA256 `2d6e66058b80bef0f5c2dd4c6051c9decbb1032b3531fe05f4d668d836a0def9`; companion `stage8_493_isolation_sqlite_readonly.py` SHA256 remains `0f102987ca04a56abd62f6f3fe54e8cb3266ccfbe3c3852ccb9c7cb47d28f51b`.
 
 This is a READONLY diagnostic refinement only; it never stops Task, re-arms, writes LIVE SQLite, or sends an order. **Task isolation is still NOT AUTHORIZED by a diagnostic PASS**. For controlled isolation, fresh broker flatness and SQLite/lock ownership, Task restart-policy handling and separate explicit operator approval remain hard prerequisites. Stage8.11 one-contract acceptance is not reused; V2 `FINAM_FILL_AUTHORITY_VERIFIED=False` stays in force; `LIVE_PRODUCTION_READY=NO`.
+
+## 2026-10-13 — Intel v3 strict pre-isolation READONLY physical PASS (not Task-stop authority)
+
+Operator executed `powershell.exe -noprofile -executionpolicy bypass -file "c:\tradingsystemlab\stage8-493-pre-isolation-readonly.ps1" -python "c:\tslaudit\fill493\venv\scripts\python.exe"` after installing the reviewed candidate v3 diagnostic (prior pinned SHA-256: `2d6e66058b80bef0f5c2dd4c6051c9decbb1032b3531fe05f4d668d836a0def9`; hash remeasurement was not included in this final operator output). Exact physical stdout:
+
+```text
+=== stage8 #493 pre-isolation audit: readonly, no task stop ===
+NO_TRADING_TOKEN NO_LIVE_SQLITE_WRITES NO_ORDER_OR_CANCEL NO_TASK_MUTATION NO_REARM
+PRODUCTION_SERVICE_PROCESS_CANDIDATES=2
+PRODUCTION_CHAIN_ROOT_PID=6260
+PRODUCTION_CHAIN_CHILD_PID=11608
+PRODUCTION_CHAIN_POWERSHELL_PID=8536
+PRODUCTION_PROCESS_SINGLE_BOUND_CHAIN=PASS
+TASK_RESTART_LIMIT_CONFIGURED=10
+TASK_START_WHEN_AVAILABLE=False
+TASK_MULTIPLE_INSTANCES=IgnoreNew
+TASK_ENABLED_TRIGGER_COUNT=1
+SQLITE_BEFORE_AFTER=PASS
+FRESH_BROKER_DOUBLE_SNAPSHOT=PASS
+KILL_SWITCH_HALTED=PASS
+CLASSIFICATION=PRE_ISOLATION_READONLY_PASS_OPERATOR_REVIEW_REQUIRED
+STOP_TASK_AUTHORIZED_BY_THIS_SCRIPT=NO
+PRODUCTION_TASK_CHANGED_BY_THIS_SCRIPT=NO
+SLTP_REAL_ORDER_AUTHORIZED=NO
+```
+
+**Classification:** `STAGE8_493_PHYSICAL_PRE_ISOLATION_READONLY_PASS_OPERATOR_REVIEW_REQUIRED`. This proves exact single *observed* bound Python parent-child production chain, consistent before/after SQLite readonly state, two broker snapshots satisfying independent FINAM real-readonly account/orders zero-position/zero-active-order checks, and continued Task Running with kill switch HALTED at the observation. Credentials were constrained to the existing readonly session probe, no physical order was sent. The wrapper internally consumes rather than prints all nested SQLite and FINAM evidence; the final PASS reflects those nested gates and their zero/clean predicates. Results are a time-bounded observation, **not enduring broker flatness**.
+
+**Still hard-blocked:** the Task has a startup trigger and a configured restart limit of 10; root Python process ancestry and matching command-line are not exclusive proof of Windows Task PID ownership, scheduler stop semantics, or absence of orphaned children after stop. Production's OS lock authority has not been independently proven quiescent; the present Task is running, so no shutdown/quiescence test has occurred. No Task stop/disable/restart, LIVE SQLite or authorization write, rearm, V2 flag change, merge or deployment is authorized by these diagnostics. Prior to any mutation prepare and review an explicit fail-closed operator-only Task-isolation protocol with fresh broker/SQLite checks immediately before and after, proven scheduler action/PID ownership and restart suppression, no orphaned service/lock holder, retained emergency recovery and rollback. Obtain explicit user/operator approval for this production change. AFTER any actual production mutation synchronize CURRENT_STATE/roadmap/runbook/production passport/checklist, then check actual GitHub main against operational authority.
+
+The separate real SLTP 100%-coverage multi-fill acceptance harness (maximum two contracts) is still *offline planning only* and awaits distinct implementation, testing and express risk/order authority; neither `STAGE8_493_PHYSICAL_PRE_ISOLATION_READONLY_PASS_OPERATOR_REVIEW_REQUIRED` nor later Task isolation can authorize orders. `LIVE_PRODUCTION_READY=NO`.
