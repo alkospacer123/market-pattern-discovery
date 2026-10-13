@@ -1,0 +1,86 @@
+{
+  "CLOSED": 6457,
+  "absolute_tolerance": 1e-08,
+  "differences": 0,
+  "fields_compared": 6570563,
+  "independence": "separate dataframe/object vs stdlib streaming/dict; same author; human review PENDING",
+  "max_numeric_delta": 1.1368683772161603e-13,
+  "signal_decisions": 24204,
+  "status": "PASS",
+  "stop_decisions": 135604,
+  "tables": [
+    {
+      "actual_rows": 3231,
+      "fields": 158319,
+      "reference_rows": 3231,
+      "table": "SIGNAL_CLOSE_trades"
+    },
+    {
+      "actual_rows": 6,
+      "fields": 144,
+      "reference_rows": 6,
+      "table": "SIGNAL_CLOSE_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 67515,
+      "fields": 2430540,
+      "reference_rows": 67515,
+      "table": "SIGNAL_CLOSE_stop_decisions"
+    },
+    {
+      "actual_rows": 12102,
+      "fields": 363060,
+      "reference_rows": 12102,
+      "table": "SIGNAL_CLOSE_entry_opportunities"
+    },
+    {
+      "actual_rows": 14220,
+      "fields": 184860,
+      "reference_rows": 14220,
+      "table": "SIGNAL_CLOSE_observed_gaps"
+    },
+    {
+      "actual_rows": 62,
+      "fields": 1612,
+      "reference_rows": 62,
+      "table": "SIGNAL_CLOSE_PERIOD_END_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 3226,
+      "fields": 158074,
+      "reference_rows": 3226,
+      "table": "NEXT_OPEN_trades"
+    },
+    {
+      "actual_rows": 6,
+      "fields": 144,
+      "reference_rows": 6,
+      "table": "NEXT_OPEN_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 68089,
+      "fields": 2451204,
+      "reference_rows": 68089,
+      "table": "NEXT_OPEN_stop_decisions"
+    },
+    {
+      "actual_rows": 12102,
+      "fields": 435672,
+      "reference_rows": 12102,
+      "table": "NEXT_OPEN_entry_opportunities"
+    },
+    {
+      "actual_rows": 14220,
+      "fields": 184860,
+      "reference_rows": 14220,
+      "table": "NEXT_OPEN_observed_gaps"
+    },
+    {
+      "actual_rows": 66,
+      "fields": 1716,
+      "reference_rows": 66,
+      "table": "NEXT_OPEN_PERIOD_END_OPEN_POSITIONS"
+    }
+  ],
+  "terminal_OPEN": 12
+}

@@ -1,0 +1,17 @@
+{
+  "NO_AUTO_MERGE": true,
+  "NO_MERGE": true,
+  "PR501": "MERGED",
+  "PR502": "six TradingSystemLab documentation files; already included before ba2e42af; read-only git diff inspected",
+  "PR503": "MERGED; diagnostic read-only",
+  "ROADMAP_unchanged": true,
+  "TradingSystemLab_tree_unchanged": true,
+  "changes_since_expected": "57 additions only IntradayLab/t3_m15_month_diagnostics_v1 from merged PR503",
+  "data_clean_pinned": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "expected_task_main": "ba2e42afb31d26ad7090cadeb1bfdca74bdb7312",
+  "initial_and_final_pre_PR_remote_main": "f1403870abed5097c2c28f89638fc9bccf67fc2c",
+  "new_directory_only": true,
+  "original_local_checkout_clean_at": "8c40950726446ebccb1ad80b8f129558470d9c11",
+  "previous_IntradayLab_unchanged": true,
+  "status": "PASS"
+}

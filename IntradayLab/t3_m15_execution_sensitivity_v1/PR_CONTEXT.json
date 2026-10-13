@@ -1,0 +1,46 @@
+{
+  "expected_main": "ba2e42afb31d26ad7090cadeb1bfdca74bdb7312",
+  "observed_main": "f1403870abed5097c2c28f89638fc9bccf67fc2c",
+  "prs": [
+    {
+      "number": 497,
+      "merged": true,
+      "draft": false,
+      "head_sha": "7095bc1e10d2f7b567bd7e82ea3817a59f34fab1",
+      "merge_commit_sha": "8513203e6e6d9f6995d9464ecd29bb75775400d3",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/497"
+    },
+    {
+      "number": 499,
+      "merged": true,
+      "draft": false,
+      "head_sha": "f279ccd7b88505d16fee4a4a6e55a2f0ad1004d0",
+      "merge_commit_sha": "249a9f58a726416bee9d3efd259a9824d348e292",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/499"
+    },
+    {
+      "number": 500,
+      "merged": true,
+      "draft": false,
+      "head_sha": "a28e1b05288842be7f2ab4a2defa520fee817939",
+      "merge_commit_sha": "8c40950726446ebccb1ad80b8f129558470d9c11",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/500"
+    },
+    {
+      "number": 501,
+      "merged": true,
+      "draft": false,
+      "head_sha": "a5f4199c3f445b8700d87299ffee43107ec8d5f1",
+      "merge_commit_sha": "ba2e42afb31d26ad7090cadeb1bfdca74bdb7312",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/501"
+    },
+    {
+      "number": 503,
+      "merged": true,
+      "draft": false,
+      "head_sha": "86572ebd6269716f29435c031acf42e1a35a9715",
+      "merge_commit_sha": "f1403870abed5097c2c28f89638fc9bccf67fc2c",
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/503"
+    }
+  ]
+}

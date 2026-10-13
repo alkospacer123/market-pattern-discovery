@@ -1,0 +1,13 @@
+{
+  "all_trading_csv_json_and_report_identical": true,
+  "changed_code_files": [
+    "audit.py"
+  ],
+  "changed_generated_files": [
+    "SOURCE_MANIFEST.json"
+  ],
+  "correction_commit": "7c60574af68512a9c96292537dc3ea90230732cd",
+  "first_primary_artifacts": 31,
+  "initial_commit": "c0a107e6107825b8e6c9275616f51400d3705c5e",
+  "status": "PASS"
+}

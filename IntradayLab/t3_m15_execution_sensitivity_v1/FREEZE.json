@@ -1,0 +1,40 @@
+{
+  "CONTROL_primary_PASS": true,
+  "CONTROL_scalar_PASS": true,
+  "code_spec_sha256": {
+    "PROTOCOL.md": "e222defccca94435eeb84395b3ebda2ff9fcfc9403e7e2921e058ea4ec8e1d88",
+    "SPEC.json": "8948ab316f0caefbe4cf509adb20a9d7ac37cc10c9f110dab40556b0a9739fcd",
+    "analysis.py": "94d52452111878da1d449a17d315c83961fa0f5d57fc3140148b5b56ab13f60e",
+    "audit.py": "cea09e067f3f5a43bfb2000bec95d27a1f950baf6582e11bf1f11b425c96cdd9",
+    "common.py": "029479fbe1fb768678e4fda962873bc690d74297d3541cb81350717618a37681",
+    "control.py": "71fee13576648213bfc8e02b81dd4d3c11aebf5b7fc2bcd7cf0905960d073c9a",
+    "engine.py": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+    "repeat.py": "40d77ff5e343934290939e4f6d3648fdcf695697ad1332c2b40a259f6ab16940",
+    "requirements.txt": "6979eeaed30ec7f45ff725f33240136e49c396fdf8a5ef12964fb2960c8a5d1e",
+    "run.py": "53e1ca2d83353bcbc7723b91a42a5046d1fbf855f9c2ec4152b22dbd371831fc",
+    "scalar.py": "fc022325d9ec9539006c3b1882c975556c6624f8e0beddbb9af3b73d0b6a5739",
+    "test_causal.py": "a01b8fe40430d4588ef78127e5c205c15c6bca89465f9d7f7db75625373285b3"
+  },
+  "commit": "7c60574af68512a9c96292537dc3ea90230732cd",
+  "first_historical_next_open_not_run": false,
+  "initial_code_spec_sha256": {
+    "PROTOCOL.md": "e222defccca94435eeb84395b3ebda2ff9fcfc9403e7e2921e058ea4ec8e1d88",
+    "SPEC.json": "8948ab316f0caefbe4cf509adb20a9d7ac37cc10c9f110dab40556b0a9739fcd",
+    "analysis.py": "94d52452111878da1d449a17d315c83961fa0f5d57fc3140148b5b56ab13f60e",
+    "audit.py": "06478dfcf50bf8416987e1337eda8972728fdc47dd1a7509fb477ebdb7007051",
+    "common.py": "029479fbe1fb768678e4fda962873bc690d74297d3541cb81350717618a37681",
+    "control.py": "71fee13576648213bfc8e02b81dd4d3c11aebf5b7fc2bcd7cf0905960d073c9a",
+    "engine.py": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+    "repeat.py": "40d77ff5e343934290939e4f6d3648fdcf695697ad1332c2b40a259f6ab16940",
+    "requirements.txt": "6979eeaed30ec7f45ff725f33240136e49c396fdf8a5ef12964fb2960c8a5d1e",
+    "run.py": "53e1ca2d83353bcbc7723b91a42a5046d1fbf855f9c2ec4152b22dbd371831fc",
+    "scalar.py": "fc022325d9ec9539006c3b1882c975556c6624f8e0beddbb9af3b73d0b6a5739",
+    "test_causal.py": "a01b8fe40430d4588ef78127e5c205c15c6bca89465f9d7f7db75625373285b3"
+  },
+  "initial_freeze_preceded_first_result": true,
+  "initial_preresult_commit": "c0a107e6107825b8e6c9275616f51400d3705c5e",
+  "only_post_result_code_change": "audit.py fixed textual model/internal rule schema key; no trading or reporting changes",
+  "remote_freeze_branch_pushed": true,
+  "synthetic_tests": 22,
+  "timestamp_MSK": "2026-10-13T15:05:23.435118+03:00"
+}
