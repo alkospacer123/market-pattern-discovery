@@ -496,3 +496,64 @@ Previous Stage 8.11 one-contract acceptance cannot be repurposed.
 `TWO_CONTRACT_WRITABLE_BRIDGE_NOT_BUILT`;
 `PRODUCTION_DISABLED_HALTED`;
 `LIVE_PRODUCTION_READY=NO`.**
+
+
+## 2026-10-13 — Intel 42 PASS and official percent-of-position execution semantics
+
+**Physical offline test from operator:** hash-pinned
+`stage8-493-finam-readonly-bridge-offline-pytest.ps1` had observed SHA-256
+`7B47D1A7E0DD32CF5FE5FB59D85B61E89D51A56700051B851AB9B1D03A99ABA5`.
+It fetched precise candidate `a2bd378c86bc5dc7fca7c24cbb20f06095f8580d`,
+verified exact new FINAM READONLY source blob
+`1cacbcf1a05ce1284b2bd239c2244204734b00c3`,
+its tests blob `02946b6777af5ccd8fc9cf7cfd3eb831bb778d80`,
+and prior 21-test operator-core blobs
+`96568614634f9f1ee050874def8884293af7e90c` /
+`9207c8c878602c46884e347f5baecae778330873`.
+Result: **42 passed in 4.39 s, zero failures**. Task remained
+Disabled/HALTED throughout. No LIVE files, FINAM session, real order,
+cancel, production checkout, token or SQLite was modified. These are
+user-supplied Intel console facts, not new actual broker observations.
+
+**Independent source finding on the disputed broker SLTP percentage rule:**
+official, exact source
+[FinamWeb/finam-trade-api, `orders_service.proto` at
+`52c95c8672542c2f89fbee2a4016774e73a0caa4`](https://github.com/FinamWeb/finam-trade-api/blob/52c95c8672542c2f89fbee2a4016774e73a0caa4/proto/grpc/tradeapi/v1/orders/orders_service.proto)
+documents `sl_qty_measure`: if `SLTP_QTY_MEASURE_PERCENT`, `quantity_sl`
+means 0–100% **of the position at the time of execution** (Russian:
+`процент (0–100) от позиции на момент исполнения`). The matching
+`SLTPOrder` Swagger definition at the same official commit repeats
+this documented meaning. This is authoritative **schema/contract
+semantics** supporting intention to dynamically size an active 100%
+protective stop after a 1→2 growth. It is NOT physical observation of
+the new 2-contract order's triggering, broker-side rule acceptance,
+latency, position growth/stop race, price execution or failure behavior.
+Do not upgrade `FINAM_FILL_AUTHORITY_VERIFIED=False` or LIVE readiness
+on the strength of a documented rule or 100% GET echo alone.
+
+**Independent current GitHub main** at the audit moved to
+`d6946056332ce71658a6ca933cefa0740a7570a2` from
+`fa188b51fbd27df5a51a43a9742bc772a1c17abd`; verified comparison
+shows only `IntradayLab/` changes. The production runbook blob in
+main remains `31950f6a82b2c004cec31c450fe59d7774ea5de5`.
+No approved TradingSystemLab LIVE code or frozen identity changed.
+
+**Next existing Stage 8 acceptance gates (no extra research phase):**
+(a) reconciled `explained_external_cash_flows`/deposit policy for FULL/R15
+without altering frozen risk formula; (b) fresh authenticated
+account margin/cash/flat/GO and naturally calculated exact two contracts
+for a specific N4 price/stop; (c) explicit operator monetary loss/slippage
+budget; (d) actual separate operator-only two-contract writable adapter
+and independently tested fail-closed recovery with preserved durable
+intent and no-repeat POST, broker token isolation, reconciliation and
+operator terminal escape route; (e) new, narrowly scoped authorization
+for any real entry, protection, cancel, flatten. An actual
+0→2 immediate fill remains inconclusive for observing the 1→2 partial
+growth sequence and must never generate another entry.
+No candidate merge, LIVE deployment, task rearm, kill-switch reset,
+or real orders are authorized by these evidence checks.
+
+**Classification:** `INTEL_READONLY_BRIDGE_AND_OPERATOR_CORE_42_PASS`,
+`FINAM_PERCENT_AT_EXECUTION_DOCUMENTED`,
+`ACTUAL_TWO_CONTRACT_SLTP_NOT_PHYSICALLY_VERIFIED`,
+`LIVE_PRODUCTION_READY=NO`.
