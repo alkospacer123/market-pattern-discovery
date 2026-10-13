@@ -1,0 +1,111 @@
+{
+  "ANNUAL_PF_TARGET_NOT_MET": false,
+  "NO_AUTO_MERGE": true,
+  "NO_MERGE": true,
+  "Robustness_WF_TRUE_OOS_LIVE": false,
+  "categories": [
+    {
+      "ANNUAL_PF_MINIMUM_MET": false,
+      "DD_R": 11.298210584308492,
+      "MONTHLY_STABILITY_IMPROVED": "NOT_ESTABLISHED",
+      "PF2023": 1.9220503727505023,
+      "PF2024": 1.5213294200567602,
+      "PREFERRED_PF_TARGET_MET": false,
+      "annual_category": "NOT MET",
+      "final_stable_winner": false,
+      "november_share_2024_R": 0.5086487450009713,
+      "positive_months": 19,
+      "variant": "TRAIL_275",
+      "worst_month_R": -5.386732048122531
+    },
+    {
+      "ANNUAL_PF_MINIMUM_MET": false,
+      "DD_R": 10.967348074661032,
+      "MONTHLY_STABILITY_IMPROVED": "NOT_ESTABLISHED",
+      "PF2023": 2.0087043965963995,
+      "PF2024": 1.5110869093613468,
+      "PREFERRED_PF_TARGET_MET": false,
+      "annual_category": "NOT MET",
+      "final_stable_winner": false,
+      "november_share_2024_R": 0.5535086231833668,
+      "positive_months": 19,
+      "variant": "TRAIL_300",
+      "worst_month_R": -3.765248580311451
+    },
+    {
+      "ANNUAL_PF_MINIMUM_MET": false,
+      "DD_R": 12.81232358134298,
+      "MONTHLY_STABILITY_IMPROVED": "NOT_ESTABLISHED",
+      "PF2023": 2.038205027857059,
+      "PF2024": 1.6042656965639401,
+      "PREFERRED_PF_TARGET_MET": false,
+      "annual_category": "NOT MET",
+      "final_stable_winner": false,
+      "november_share_2024_R": 0.5237214851366166,
+      "positive_months": 19,
+      "variant": "TRAIL_325",
+      "worst_month_R": -4.157999500712203
+    },
+    {
+      "ANNUAL_PF_MINIMUM_MET": false,
+      "DD_R": 15.142764570878455,
+      "MONTHLY_STABILITY_IMPROVED": "NOT_ESTABLISHED",
+      "PF2023": 2.0891693304534655,
+      "PF2024": 1.6072061338914927,
+      "PREFERRED_PF_TARGET_MET": false,
+      "annual_category": "NOT MET",
+      "final_stable_winner": false,
+      "november_share_2024_R": 0.5254993210172023,
+      "positive_months": 17,
+      "variant": "TRAIL_350",
+      "worst_month_R": -4.5507504211128635
+    },
+    {
+      "ANNUAL_PF_MINIMUM_MET": true,
+      "DD_R": 12.628056181602872,
+      "MONTHLY_STABILITY_IMPROVED": "MIXED_EVIDENCE_WITH_TRADEOFFS",
+      "PF2023": 2.2072776313642746,
+      "PF2024": 1.7721337045362484,
+      "PREFERRED_PF_TARGET_MET": false,
+      "annual_category": "ANNUAL_PF_GATE_MET",
+      "final_stable_winner": false,
+      "november_share_2024_R": 0.4400560254779892,
+      "positive_months": 20,
+      "variant": "TRAIL_375",
+      "worst_month_R": -4.943501341513684
+    }
+  ],
+  "decision": "Observed annual PF and aggregate monthly regularity improve at 3.75; retain as exposed research candidate, not final stable winner because passing region not broad and worst-month/DD/entry-retention tradeoffs remain. STOP, no expansion or further stage.",
+  "labels": "GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY",
+  "monthly_evidence_vs_controls": {
+    "TRAIL_300": {
+      "DD_R": "10.967348→12.628056",
+      "November_share_2024": "55.350862%→44.005603%",
+      "ex_November_PF": "1.243446→1.452043",
+      "large_2R_entries_lost_occupancy": "5/73",
+      "large_5R_entries_lost_occupancy": "1/10",
+      "positive_2023": "10→9",
+      "positive_2024": "9→11",
+      "positive_total": "19→20",
+      "worst_month_R": "−3.765249→−4.943501"
+    },
+    "TRAIL_350": {
+      "DD_R": "15.142765→12.628056",
+      "November_share_2024": "52.549932%→44.005603%",
+      "ex_November_PF": "1.302656→1.452043",
+      "large_2R_entries_lost_occupancy": "2/74",
+      "large_5R_entries_lost_occupancy": "1/18",
+      "positive_2023": "9→9",
+      "positive_2024": "8→11",
+      "positive_total": "17→20",
+      "worst_2024_month_R": "−1.381082→−2.872841",
+      "worst_month_R": "−4.550750→−4.943501"
+    }
+  },
+  "no_monthly_score_or_tuned_cutoff": true,
+  "one_annual_gate_candidate": "TRAIL_375",
+  "preferred_PF_target_any_met": false,
+  "range_expansion": false,
+  "sample": "2023–2024 DEVELOPMENT_EXPOSED",
+  "sustainable_improvement_established": false
+}

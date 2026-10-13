@@ -1,0 +1,116 @@
+{
+  "CLOSED": 2504,
+  "absolute_tolerance": 1e-08,
+  "differences": 0,
+  "fields_compared": 2882061,
+  "independence": "separate streaming/dict/scalar; primary engine/analysis/metrics not imported; same author; external human review PENDING",
+  "max_numeric_delta": 5.684341886080802e-14,
+  "signal_decisions": 10085,
+  "status": "PASS",
+  "stop_decisions": 55982,
+  "tables": [
+    {
+      "actual_rows": 2504,
+      "fields": 122696,
+      "reference_rows": 2504,
+      "table": "REPLAY_trades"
+    },
+    {
+      "actual_rows": 4,
+      "fields": 96,
+      "reference_rows": 4,
+      "table": "REPLAY_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 55982,
+      "fields": 2015352,
+      "reference_rows": 55982,
+      "table": "REPLAY_stop_decisions"
+    },
+    {
+      "actual_rows": 10085,
+      "fields": 363060,
+      "reference_rows": 10085,
+      "table": "REPLAY_entry_opportunities"
+    },
+    {
+      "actual_rows": 11850,
+      "fields": 154050,
+      "reference_rows": 11850,
+      "table": "REPLAY_observed_gaps"
+    },
+    {
+      "actual_rows": 58,
+      "fields": 1508,
+      "reference_rows": 58,
+      "table": "REPLAY_PERIOD_END_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 75,
+      "fields": 1050,
+      "reference_rows": 75,
+      "table": "funnel_occupancy"
+    },
+    {
+      "actual_rows": 25,
+      "fields": 275,
+      "reference_rows": 25,
+      "table": "november"
+    },
+    {
+      "actual_rows": 2504,
+      "fields": 22536,
+      "reference_rows": 2504,
+      "table": "closed_equity"
+    },
+    {
+      "actual_rows": 150,
+      "fields": 2250,
+      "reference_rows": 150,
+      "table": "top_winners"
+    },
+    {
+      "actual_rows": 5035,
+      "fields": 105735,
+      "reference_rows": 5035,
+      "table": "lineage"
+    },
+    {
+      "actual_rows": 60,
+      "fields": 960,
+      "reference_rows": 60,
+      "table": "winner_retention"
+    },
+    {
+      "actual_rows": 50,
+      "fields": 500,
+      "reference_rows": 50,
+      "table": "new_entries"
+    },
+    {
+      "actual_rows": 5,
+      "fields": 115,
+      "reference_rows": 5,
+      "table": "comparison"
+    },
+    {
+      "actual_rows": 4,
+      "fields": 40,
+      "reference_rows": 4,
+      "table": "neighbor_comparison"
+    },
+    {
+      "actual_rows": 12,
+      "fields": 516,
+      "reference_rows": 12,
+      "table": "historical_references"
+    },
+    {
+      "actual_rows": 30,
+      "fields": 180,
+      "reference_rows": 30,
+      "table": "negative_results"
+    }
+  ],
+  "terminal_OPEN": 4
+}
