@@ -12,7 +12,7 @@ This is an existing Stage 8 acceptance preparation item, not a research phase. D
 | stage8-493-n4-financial-readonly.ps1 | DB37C177FED0D34FEB502C15BD462C3D915AA161D4ED2825366639912464E168, Git blob 138966f73d401dbf8c026ce51280d8e3f5971378 (corrected source/hash verification) |
 | test_stage8_493_n4_financial_readonly.py | Git blob 8ff3706d5199bcb8e12fcb1d2f46375c20f7c70a |
 
-**Local independent synthetic pytest: 16 passed.** Both executable source files and the test file were byte-for-byte matched to these Git blob IDs. Python compiled successfully; PowerShell static forbidden-mutation verb audit PASS. **Native Windows PowerShell and actual Intel READONLY GET have NOT been run.** None of these tests accessed FINAM or LIVE.
+**Local independent synthetic pytest: 16 passed.** Both executable source files and the test file were byte-for-byte matched to these Git blob IDs. Python compiled successfully; PowerShell static forbidden-mutation verb audit PASS. **Operator invoked the original Windows PowerShell wrapper twice, but both attempts stopped at the initial hash guard before any financial GET. The corrected wrapper has NOT yet been physically run on Intel; no fresh N4 economics were collected.** None of these tests accessed FINAM or LIVE.
 
 ## GET-only and isolation boundary
 
