@@ -1,0 +1,13 @@
+{
+  "allowed_change_prefix": "IntradayLab/t3_m15_session_entry_v1/",
+  "data_head": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "data_worktree_initially_clean": true,
+  "expected_merge_498": "4b415f95576e00480e344a1da498c35660eef931",
+  "fetched_main_diff": "only merged #498 initial_stop_v1 directory; base is actual remote main",
+  "local_checkout_was_497": "8513203e6e6d9f6995d9464ecd29bb75775400d3",
+  "match": true,
+  "remote_main_observed": "4b415f95576e00480e344a1da498c35660eef931",
+  "roadmap_sha256": "c3144fd41adae91b81677de59c3fda3c149b22cd225383ca0c4eba3d257a2479",
+  "same_author_independent_implementation_external_audit_pending": true,
+  "variant_results_observed_before_freeze": false
+}
