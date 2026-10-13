@@ -1,0 +1,505 @@
+{
+  "schema_version": 1,
+  "design_id": "T3_M15_A6_S1_WALK_FORWARD_DESIGN_V1",
+  "base_main": "fbfb0650ac2af6c6b374d10b67dd62801cd0fcc4",
+  "timezone": "Europe/Moscow",
+  "interval_convention": "[start_inclusive,end_exclusive)",
+  "status": "WF_DATA_BOUNDARY_NOT_AUTHORIZED",
+  "design_ready_for_independent_audit": true,
+  "wf_execution_ready": false,
+  "wf_executed": false,
+  "wf_result": null,
+  "wf_pass": null,
+  "true_oos_executed": false,
+  "live_authorized": false,
+  "labels": [
+    "GROSS_ONLY",
+    "COSTS_DEFERRED",
+    "NOT_LIVE_READY"
+  ],
+  "blocker": "2023-2024 DEVELOPMENT_EXPOSED; no confirmed authorized untouched WF window; 2025+ remains locked TRUE OOS and cannot be read or reallocated without a separate user decision.",
+  "current_task_access": {
+    "read_published_canonical_artifacts": true,
+    "new_raw_market_data_reads": false,
+    "market_pattern_data_repository_opened": false,
+    "ohlc_2025_plus_read": false,
+    "timestamps_or_coverage_2025_plus_read": false,
+    "raw_quotes_copied": false,
+    "new_trading_replay": false,
+    "retrospective_diagnostic_executed": false
+  },
+  "access_policy": {
+    "default": "DENY",
+    "raw_read_allowlist": [],
+    "locked_range": {
+      "start_inclusive": "2025-01-01T00:00:00+03:00",
+      "end_exclusive": null,
+      "role": "LOCKED_TRUE_OOS",
+      "read_authorized": false,
+      "reallocation_authorized": false,
+      "includes": [
+        "OHLCV",
+        "timestamps",
+        "coverage",
+        "warmup",
+        "bridge",
+        "trade_exit_resolution",
+        "performance",
+        "training",
+        "selection"
+      ]
+    },
+    "future_authorization_required": [
+      "exact_dates",
+      "nonoverlapping_WF_then_TRUE_OOS",
+      "state_history_and_bridge_dates",
+      "data_pins_and_untouched_provenance",
+      "per_stage_read_allowlist",
+      "frozen_protocol_before_first_read"
+    ],
+    "design_merge_grants_data_access": false,
+    "wf_unlock_grants_true_oos_access": false
+  },
+  "confirmed_history": {
+    "source": "merged PR510 published SPEC and SOURCE_MANIFEST; no fresh raw-data verification",
+    "inherited_data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+    "current_data_head_verified": false,
+    "start_inclusive": "2023-01-01T00:00:00+03:00",
+    "end_exclusive": "2025-01-01T00:00:00+03:00",
+    "classification": "DEVELOPMENT_EXPOSED",
+    "used_M15_bars": 98305,
+    "sources": [
+      {
+        "instrument": "USDRUBF",
+        "path": "forever/USDRUBF/USDRUBF_M15.csv",
+        "first_open": "2023-01-03T09:00:00+03:00",
+        "first_close": "2023-01-03T09:15:00+03:00",
+        "last_open": "2024-12-30T23:45:00+03:00",
+        "last_close": "2024-12-31T00:00:00+03:00",
+        "used_candles": 29890,
+        "historical_prefix_sha256": "03ca797870de164d738da97094013def88583892f54278d362337d22ce0a532e",
+        "git_blob_sha": "6d4f7691c1c6bfbad59b62a6f5d613a4ed1e984e"
+      },
+      {
+        "instrument": "CNYRUBF",
+        "path": "forever/CNYRUBF/CNYRUBF_M15.csv",
+        "first_open": "2023-01-03T09:00:00+03:00",
+        "first_close": "2023-01-03T09:15:00+03:00",
+        "last_open": "2024-12-30T23:45:00+03:00",
+        "last_close": "2024-12-31T00:00:00+03:00",
+        "used_candles": 29633,
+        "historical_prefix_sha256": "41f4f29f4b6ddefbbbc8aad44f91a0f9cd689536ecabeb1c09f34936a004fdbc",
+        "git_blob_sha": "a5ff61bbdd9bb6659a0f4fea7141b04b5e8bc35e"
+      },
+      {
+        "instrument": "GLDRUBF",
+        "path": "forever/GLDRUBF/GLDRUBF_M15.csv",
+        "first_open": "2023-07-11T10:00:00+03:00",
+        "first_close": "2023-07-11T10:15:00+03:00",
+        "last_open": "2024-12-30T23:45:00+03:00",
+        "last_close": "2024-12-31T00:00:00+03:00",
+        "used_candles": 22189,
+        "historical_prefix_sha256": "86635d2fc733fa47db171326200ac4b09bdcc7f262297490274c16d5e708899f",
+        "git_blob_sha": "726c9242a025e75de4d0e93a2c215cc2778b9a9a"
+      },
+      {
+        "instrument": "IMOEXF",
+        "path": "forever/IMOEXF/IMOEXF_M15.csv",
+        "first_open": "2023-11-14T10:00:00+03:00",
+        "first_close": "2023-11-14T10:15:00+03:00",
+        "last_open": "2024-12-30T23:45:00+03:00",
+        "last_close": "2024-12-31T00:00:00+03:00",
+        "used_candles": 16593,
+        "historical_prefix_sha256": "57bd34a441960d9c488daf93d9e295573587960c100e156eb241188ae7440f38",
+        "git_blob_sha": "23d8e02920684a1a55e50b222271faaa81be5120"
+      }
+    ],
+    "pre_2023_additional_independent_window_confirmed": false,
+    "exposure_includes": [
+      "candidate_and_parameter_selection",
+      "both_annual_PF",
+      "monthly_results",
+      "feature_diagnostics",
+      "negative_experiments",
+      "robustness",
+      "all_available_instruments_and_sides"
+    ]
+  },
+  "strategy": {
+    "candidate": "A6+S1 / T3 M15 / NEXT_OPEN / TRAIL_375",
+    "internal_rule_alias": "C1",
+    "internal_rule_alias_is_transaction_cost_C1": false,
+    "version": "TRAIL_375",
+    "mode": "NEXT_OPEN",
+    "instruments": [
+      "USDRUBF",
+      "CNYRUBF",
+      "GLDRUBF",
+      "IMOEXF"
+    ],
+    "directions": [
+      "LONG",
+      "SHORT"
+    ],
+    "configuration": {
+      "S1_activation_initial_R": 1.0,
+      "adx_period": 14,
+      "adx_threshold": 20,
+      "atr_average_period": 20,
+      "atr_period": 14,
+      "breakout_period": 20,
+      "ema_period": 75,
+      "slope_lookback": 5,
+      "stop_atr": 2.0,
+      "trail_atr": 3.75
+    },
+    "rules": {
+      "long_regime": "H1 Close > EMA75 and slope5 > 0",
+      "short_regime": "H1 Close < EMA75 and slope5 < 0",
+      "H1_ADX": "ADX14 > 20",
+      "H1_ATRRatio": "H1 ATR14 / mean20(H1 ATR14) > 1",
+      "A6": "current published H1 ATRRatio > previous published H1 ATRRatio",
+      "H1_aggregation": "daily ordinal groups of four observed M15; Count=4 and last-first Close=45 minutes; publish at fourth Close",
+      "H1_alignment": "last published closed H1 only; no future bars",
+      "indicator_recursions_and_Donchian_cross_days": true,
+      "H1_daily_block_resets": true,
+      "reporting_boundary_state_resets": false,
+      "Donchian": "M15 rolling20 High/Low shifted1; strict completed Close breakout",
+      "initial_stop": "actual_entry - side * 2 * ATR_of_completed_signal; immutable R=abs(entry-initial_stop)",
+      "S1": "Stop first; activate only on completed survived post-entry bar, including execution bar; tightened Stop effective next observed bar",
+      "trailing": "favorable extreme - side*3.75*completed current M15 ATR14; ratchet only; after S1; effective next observed bar",
+      "stop_gap": "old Stop first; adverse opening gap fills at actual Open, otherwise touched Stop fills at Stop",
+      "adjacency": "execution bar Open time equals signal Close; execution Close equals signal Close +15min; else skip, never wait",
+      "T1": "ABSENT; no new time/session restrictions",
+      "overnight_weekend_holding": "preserved; no forced flat",
+      "position_capacity": "one per symbol, no shared cross-instrument limits",
+      "pending": "unresolved last eligible signal separately, no 2025+ OHLC or fabricated execution",
+      "occupancy_reentry_order": "unchanged canonical engine/scalar"
+    },
+    "parameter_or_signal_or_stop_or_universe_changes_authorized": false,
+    "optimizer_authorized": false,
+    "engine_reference": "IntradayLab/t3_m15_a6_s1_robustness_v1/engine.py",
+    "scalar_reference": "IntradayLab/t3_m15_a6_s1_robustness_v1/scalar.py",
+    "future_period_adapter_requires_full_published_CONTROL": true
+  },
+  "historical_control_reference": {
+    "classification": "DEVELOPMENT_EXPOSED_NOT_WF",
+    "PF2023": 2.2072776313642746,
+    "PF2024": 1.7721337045362484,
+    "PF_ALL": 1.9119337995951602,
+    "Gross_R_ALL": 212.52265622369515,
+    "CLOSED": 480,
+    "terminal_OPEN": 1,
+    "positive_months": 20,
+    "calendar_months": 24,
+    "closed_R_drawdown": 12.628056181602872,
+    "absolute_tolerance": 1e-08
+  },
+  "retrospective_diagnostic": {
+    "status": "NOT_EXECUTED",
+    "classification": "RETROSPECTIVE_DIAGNOSTIC_DEVELOPMENT_EXPOSED",
+    "clean_WF": false,
+    "independent_validation": false,
+    "formation_reference": {
+      "start_inclusive": "2023-01-01T00:00:00+03:00",
+      "end_exclusive": "2024-01-01T00:00:00+03:00",
+      "refit": false
+    },
+    "diagnostic_blocks": [
+      {
+        "id": "D1",
+        "start_inclusive": "2024-01-01T00:00:00+03:00",
+        "end_exclusive": "2024-04-01T00:00:00+03:00",
+        "raw_replay_authorized_in_this_task": false
+      },
+      {
+        "id": "D2",
+        "start_inclusive": "2024-04-01T00:00:00+03:00",
+        "end_exclusive": "2024-07-01T00:00:00+03:00",
+        "raw_replay_authorized_in_this_task": false
+      },
+      {
+        "id": "D3",
+        "start_inclusive": "2024-07-01T00:00:00+03:00",
+        "end_exclusive": "2024-10-01T00:00:00+03:00",
+        "raw_replay_authorized_in_this_task": false
+      },
+      {
+        "id": "D4",
+        "start_inclusive": "2024-10-01T00:00:00+03:00",
+        "end_exclusive": "2025-01-01T00:00:00+03:00",
+        "raw_replay_authorized_in_this_task": false
+      }
+    ]
+  },
+  "future_chronology": {
+    "status": "PROPOSAL_ONLY_UNDATED_UNAUTHORIZED",
+    "T0": null,
+    "T0_rule": "first day of a calendar month, chosen by separate user decision before new data access",
+    "formation": "candidate already frozen on exposed 2023-2024; no future fitting",
+    "state_history": {
+      "start_inclusive": null,
+      "end_exclusive": null,
+      "read_authorized": false,
+      "initialization": "canonical origin and recursions; no ad hoc flat reset; authorize contiguous bridge before computing state"
+    },
+    "WF": {
+      "start_inclusive": null,
+      "end_exclusive": null,
+      "months": 12,
+      "read_authorized": false,
+      "execution_authorized": false,
+      "method": "fixed candidate sequential validation, expanding past-only state; no rolling optimization",
+      "blocks": [
+        {
+          "id": "W1",
+          "start_inclusive": null,
+          "end_exclusive": null,
+          "relative_start_months_from_T0": 0,
+          "relative_end_months_from_T0": 3,
+          "read_authorized": false,
+          "refit": false
+        },
+        {
+          "id": "W2",
+          "start_inclusive": null,
+          "end_exclusive": null,
+          "relative_start_months_from_T0": 3,
+          "relative_end_months_from_T0": 6,
+          "read_authorized": false,
+          "refit": false
+        },
+        {
+          "id": "W3",
+          "start_inclusive": null,
+          "end_exclusive": null,
+          "relative_start_months_from_T0": 6,
+          "relative_end_months_from_T0": 9,
+          "read_authorized": false,
+          "refit": false
+        },
+        {
+          "id": "W4",
+          "start_inclusive": null,
+          "end_exclusive": null,
+          "relative_start_months_from_T0": 9,
+          "relative_end_months_from_T0": 12,
+          "read_authorized": false,
+          "refit": false
+        }
+      ],
+      "seal_before_next_block": true,
+      "economic_early_stop_or_window_cherry_picking": false,
+      "protocol_violation_stop": true
+    },
+    "TRUE_OOS": {
+      "start_inclusive": null,
+      "end_exclusive": null,
+      "relative_start_months_from_T0": 12,
+      "relative_end_months_from_T0": 24,
+      "months": 12,
+      "read_authorized": false,
+      "execution_authorized": false,
+      "separate_authorization_after_WF_audit_required": true,
+      "assessment_count": 1
+    },
+    "calendar_years_2025_plus_allocated_to_WF": [],
+    "length_rationale": "12 months to disclose calendar/seasonal evidence, not a power guarantee or future-performance choice",
+    "order": [
+      "independent_design_audit",
+      "separate_user_data_boundary_decision",
+      "dated_protocol_and_provenance_and_CONTROL",
+      "W1",
+      "W2",
+      "W3",
+      "W4",
+      "full_WF_audit_and_user_decision",
+      "separately_authorized_TRUE_OOS"
+    ],
+    "if_untouched_windows_unavailable": "wait for new data; no exposed clean relabel and no post-result shortening"
+  },
+  "boundary_accounting": {
+    "reporting_event_label": "canonical completed Close labels; exits at Open keep canonical exit Close label",
+    "event_at_end_exclusive": "belongs to next reporting block; do not read next closed block to complete previous report",
+    "carry": [
+      "position",
+      "immutable_initial_R",
+      "active_Stop",
+      "S1_status_and_time",
+      "favorable_extreme",
+      "indicator_recursions",
+      "daily_H1_block",
+      "pending_signal",
+      "occupancy",
+      "trade_ID_sequence"
+    ],
+    "forced_liquidation": false,
+    "quarterly_FLAT_reset": false,
+    "full_trade_R_split_into_multiple_CLOSED": false,
+    "primary_CLOSED_allocation": "full trade initial R, exactly once in exit-Close reporting block; entry-cohort and inherited IDs disclosed separately",
+    "OPEN_in_CLOSED_PF_or_R": false,
+    "snapshot": "last permitted completed bar before boundary, with actual timestamp/staleness; unavailable mark=N/A",
+    "snapshot_fields": [
+      "trade_id",
+      "instrument",
+      "direction",
+      "signal_time",
+      "entry_time",
+      "entry_price",
+      "initial_stop",
+      "initial_risk",
+      "active_stop",
+      "threshold_activated",
+      "activation_time",
+      "favorable_extreme",
+      "last_close",
+      "last_close_price",
+      "unrealized_gross_R_at_last_close",
+      "pending"
+    ],
+    "marked_R_formula": "sum(full_R_of_exits_labelled_in_period) + U_end - U_start",
+    "marked_R_is_capital_return": false,
+    "positive_CLOSED_months_and_positive_marked_months_separate": true,
+    "entry_cohort_rule": "signal and actual entry timestamps both within reporting interval; never use future exit outcomes before authorized",
+    "WF_to_TRUE_OOS": "carry unchanged state; show inherited WF signal/position IDs separately from new OOS-entry cohort; never backfill sealed WF using OOS outcomes",
+    "terminal_OPEN": "not liquidated, not treated as CLOSED or zero-outcome; no future read to resolve",
+    "closed_bridge": "cannot skip protected intervening history or silently reuse stale position/indicator state; separate user authorization required",
+    "full_WF_new_entry_cohort": "signal and actual entry both within full WF; include each known CLOSED once even across W blocks; terminal OPEN stays separate; exclude inherited development/bridge positions"
+  },
+  "metrics": {
+    "scopes": [
+      "ALL_FOUR",
+      "each_instrument",
+      "LONG",
+      "SHORT",
+      "instrument_x_side"
+    ],
+    "reporting": [
+      "each_3_month_block",
+      "cumulative_WF",
+      "full_12_month_WF",
+      "each_calendar_month"
+    ],
+    "required": [
+      "CLOSED",
+      "OPEN",
+      "pending",
+      "skip",
+      "busy",
+      "coverage",
+      "gross_PF",
+      "Gross_R",
+      "expectancy_R",
+      "win_rate",
+      "holding_time",
+      "positive_zero_negative_months",
+      "worst_month",
+      "losing_month_and_trade_runs",
+      "closed_R_drawdown",
+      "recovery",
+      "marked_R",
+      "carried_in_out_IDs",
+      "entry_cohorts",
+      "instrument_and_side_contributions",
+      "best1_best3_months",
+      "top1_top3_top5_top10_winners_IDs"
+    ],
+    "PF_formula": "sum(R>0)/abs(sum(R<0)); undefined denominator -> null with reason, never infinity PASS",
+    "aggregate_PF": "recompute on concatenated unique CLOSED rows; never average block PF",
+    "DD_order": [
+      "exit_time",
+      "instrument",
+      "trade_id"
+    ],
+    "DD_cumulative_across_blocks": true,
+    "calendar_denominator_preserved": true,
+    "zero_month_positive": false,
+    "coverage_states": [
+      "NO_COVERAGE",
+      "AVAILABLE_NO_CLOSED",
+      "WARMUP_NOT_READY",
+      "AVAILABLE"
+    ],
+    "fixed_diagnostics": {
+      "leave_one_out_instruments": true,
+      "excluded_best_month_counts": [
+        1,
+        3
+      ],
+      "excluded_top_winner_counts": [
+        1,
+        3,
+        5,
+        10
+      ],
+      "R_loss_per_CLOSED": [
+        0.05,
+        0.1
+      ],
+      "strategy_replay": false,
+      "rank_within_each_assessment_period": true,
+      "same_tie_breaking_as_PR510": true,
+      "nonpositive_net_R_share": null,
+      "real_cost_model": false
+    }
+  },
+  "decision_protocol": {
+    "automatic_WF_PASS": false,
+    "future_results_currently": null,
+    "evaluation_priority": [
+      "WF_DATA_BOUNDARY_NOT_AUTHORIZED",
+      "WF_INVALID",
+      "WF_INSUFFICIENT_EVIDENCE",
+      "WF_GROSS_EDGE_NOT_CONFIRMED",
+      "WF_MIXED",
+      "WF_REVIEW_REQUIRED"
+    ],
+    "invalid_if": [
+      "unapproved_access_or_leakage",
+      "changed_frozen_rules",
+      "full_CONTROL_not_matching",
+      "unreconciled_journals_or_repeat",
+      "undeclared_boundary"
+    ],
+    "insufficient_if": [
+      "assigned_primary_window_coverage_incomplete_or_unverified",
+      "full_WF_or_new_WF_cohort_has_no_CLOSED",
+      "full_WF_or_new_WF_cohort_PF_undefined"
+    ],
+    "gross_edge_not_confirmed_if": {
+      "full_Gross_R_lte": 0,
+      "full_defined_PF_lte": 1,
+      "full_expectancy_R_lte": 0,
+      "applies_to": [
+        "full_WF_calendar_CLOSED",
+        "new_WF_signal_and_entry_CLOSED_cohort"
+      ]
+    },
+    "mixed_if": "valid sufficient positive full gross edge, but a quarter, instrument, side, fixed stress or exclusion has nonpositive Gross R; retain all evidence and review, no parameter change",
+    "otherwise": "WF_REVIEW_REQUIRED; audit regularity, DD/recovery, concentration, carry and sample size; separate user decision on TRUE OOS",
+    "historical_benchmarks_not_automatic_admission": {
+      "annual_gross_PF_min": 1.7,
+      "preferred_annual_PF_strictly_gt": 2,
+      "positive_months_reference": "20/24",
+      "DD_R_reference": 12.628056181602872
+    },
+    "new_fitted_DD_month_concentration_trade_count_cutoffs": false,
+    "composite_score": false,
+    "all_additional_numeric_gates_if_requested": "preregister separately before new data read; never choose after block results",
+    "next_stage_auto_authorized": false,
+    "real_cost_aware_true_oos_protocol_ready": false,
+    "net_profit_or_live_claims_authorized": false,
+    "inherited_profit_alone_confirms_new_WF_edge": false
+  },
+  "scope": {
+    "new_repository_files_only": "IntradayLab/t3_m15_a6_s1_walk_forward_design_v1/",
+    "roadmap_changed": false,
+    "previous_studies_changed": false,
+    "TradingSystemLab_or_robot_changed": false,
+    "market_pattern_data_changed": false,
+    "draft_PR_count": 1,
+    "merge": false,
+    "auto_merge": false,
+    "stop_after_draft_PR": true
+  }
+}

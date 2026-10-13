@@ -1,0 +1,670 @@
+{
+  "base_main": "fbfb0650ac2af6c6b374d10b67dd62801cd0fcc4",
+  "checked_at_UTC": "2026-10-13T18:13:56.210061+00:00",
+  "PR_status": [
+    {
+      "number": 505,
+      "state": "closed",
+      "merged": true,
+      "draft": false,
+      "merged_at": "2026-10-13T13:16:34Z",
+      "merge_commit_sha": "0546e10d9977687a77638d76847b205c99223e16",
+      "html_url": "https://github.com/alkospacer123/market-pattern-discovery/pull/505",
+      "head_sha": "18b3ef40a43c0aad80749ac001d39d85d1524e72",
+      "base_sha_at_api": "d555765f8a5c02261e9bfbc97cafed9a16ec76cd",
+      "canonical_results_used": true
+    },
+    {
+      "number": 506,
+      "state": "closed",
+      "merged": true,
+      "draft": false,
+      "merged_at": "2026-10-13T15:31:36Z",
+      "merge_commit_sha": "57599b39ed1d7a93a84b97747388408291f30276",
+      "html_url": "https://github.com/alkospacer123/market-pattern-discovery/pull/506",
+      "head_sha": "84ab786ea5a43015a345907547b1b0dbd018823f",
+      "base_sha_at_api": "0546e10d9977687a77638d76847b205c99223e16",
+      "canonical_results_used": true
+    },
+    {
+      "number": 507,
+      "state": "closed",
+      "merged": true,
+      "draft": false,
+      "merged_at": "2026-10-13T16:27:54Z",
+      "merge_commit_sha": "6c853d7bd3d7d02cbef81266c4c3e6fb9c3d0838",
+      "html_url": "https://github.com/alkospacer123/market-pattern-discovery/pull/507",
+      "head_sha": "65e8c0b47ea29c7fffe8dbedf8f264b32eacb832",
+      "base_sha_at_api": "57599b39ed1d7a93a84b97747388408291f30276",
+      "canonical_results_used": true
+    },
+    {
+      "number": 508,
+      "state": "closed",
+      "merged": true,
+      "draft": false,
+      "merged_at": "2026-10-13T17:02:45Z",
+      "merge_commit_sha": "9b496d49e3ab8f71a843b24f9ccc288c9c5ff5bd",
+      "html_url": "https://github.com/alkospacer123/market-pattern-discovery/pull/508",
+      "head_sha": "acbed53eda132d0e691288a132dedeb16954519d",
+      "base_sha_at_api": "6c853d7bd3d7d02cbef81266c4c3e6fb9c3d0838",
+      "canonical_results_used": true
+    },
+    {
+      "number": 509,
+      "state": "closed",
+      "merged": false,
+      "draft": true,
+      "merged_at": null,
+      "merge_commit_sha": "3d9175f469c14283a9209f94fec5802d72f4247c",
+      "html_url": "https://github.com/alkospacer123/market-pattern-discovery/pull/509",
+      "head_sha": "211085db6e884bc7625f464fb6da11452b0fd7ef",
+      "base_sha_at_api": "9b496d49e3ab8f71a843b24f9ccc288c9c5ff5bd",
+      "canonical_results_used": false
+    },
+    {
+      "number": 510,
+      "state": "closed",
+      "merged": true,
+      "draft": false,
+      "merged_at": "2026-10-13T18:03:39Z",
+      "merge_commit_sha": "fbfb0650ac2af6c6b374d10b67dd62801cd0fcc4",
+      "html_url": "https://github.com/alkospacer123/market-pattern-discovery/pull/510",
+      "head_sha": "fa1099c5eb2a97868d6dbbef1ab34d49c6a5219a",
+      "base_sha_at_api": "9b496d49e3ab8f71a843b24f9ccc288c9c5ff5bd",
+      "canonical_results_used": true
+    }
+  ],
+  "PR509_results_read_or_used": false,
+  "ROADMAP_sha256": "d4491dde4a02c84b31923b6745c84acdb1854d44461b077bfb65d09efe3927d2",
+  "AGENTS_sha256": "b13a0178eb644ba90beec2eec7342bf42146b86f52c8710c2833ff13d699b2a8",
+  "checks_in_this_design_task": {
+    "artifact_inventories": [
+      {
+        "directory": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1",
+        "entries_verified": 99,
+        "differences": 0,
+        "inventory_sha256": "956117ea9712183b71dbe1c0de0931912e65a9ecb782c153df56ceca2c8c1a90"
+      },
+      {
+        "directory": "IntradayLab/t3_m15_a6_s1_trail_plateau_v2",
+        "entries_verified": 96,
+        "differences": 0,
+        "inventory_sha256": "f75baecc8f54610dad16620578d5609c1504258dcc5b1b7aa80599a54ca1545d"
+      },
+      {
+        "directory": "IntradayLab/t3_m15_a6_s1_entry_quality_v1",
+        "entries_verified": 89,
+        "differences": 0,
+        "inventory_sha256": "ce6c7ca1f5e7eb499ce0c3c59f9fdda8e0af23e7027714d52abd73aa956f080a"
+      },
+      {
+        "directory": "IntradayLab/t3_m15_early_risk_protection_v1",
+        "entries_verified": 127,
+        "differences": 0,
+        "inventory_sha256": "83513bbeaac2ff37ffbed6be0db8a51cf57654f646b5dd95b80c4d32d668929b"
+      },
+      {
+        "directory": "IntradayLab/t3_m15_a6_s1_robustness_v1",
+        "entries_verified": 102,
+        "differences": 0,
+        "inventory_sha256": "0c29efcc6abe20ef4d654e25dd34b80c8d829153b4efd80df8dfb35d84f56f94"
+      }
+    ],
+    "total_inventory_entries_verified": 513,
+    "all_PR510_files_completely_read": 103,
+    "all_PR510_files_manifest_digest": "9bacc5d2eeaf833d5d9012ab1227f740d0e0fe39980bf8693be0a234810d441c",
+    "all_PR510_CSV_fields_parsed": 2662314,
+    "PR510_CSV_files": [
+      {
+        "path": "CONCLUSION_REVIEW_DIFF.csv",
+        "rows": 0,
+        "columns": 5
+      },
+      {
+        "path": "REPEAT_FILES.csv",
+        "rows": 120,
+        "columns": 5
+      },
+      {
+        "path": "audit/DIFFERENCES.csv",
+        "rows": 0,
+        "columns": 5
+      },
+      {
+        "path": "audit/PRESENTATION_DIFF.csv",
+        "rows": 0,
+        "columns": 5
+      },
+      {
+        "path": "audit/control/CONTROL_DIFF.csv",
+        "rows": 0,
+        "columns": 5
+      },
+      {
+        "path": "audit/control/PR506_508_DIFF.csv",
+        "rows": 0,
+        "columns": 5
+      },
+      {
+        "path": "audit/control/entry_opportunities.csv",
+        "rows": 2017,
+        "columns": 36
+      },
+      {
+        "path": "audit/control/observed_gaps.csv",
+        "rows": 2370,
+        "columns": 13
+      },
+      {
+        "path": "audit/control/stop_decisions.csv",
+        "rows": 12478,
+        "columns": 36
+      },
+      {
+        "path": "audit/control/trades.csv",
+        "rows": 480,
+        "columns": 49
+      },
+      {
+        "path": "audit/loss_runs.csv",
+        "rows": 1027,
+        "columns": 9
+      },
+      {
+        "path": "audit/monthly.csv",
+        "rows": 360,
+        "columns": 45
+      },
+      {
+        "path": "audit/november2024.csv",
+        "rows": 15,
+        "columns": 42
+      },
+      {
+        "path": "audit/scenario_ledger.csv",
+        "rows": 28800,
+        "columns": 10
+      },
+      {
+        "path": "audit/scenario_monthly.csv",
+        "rows": 3024,
+        "columns": 46
+      },
+      {
+        "path": "audit/scenario_summary.csv",
+        "rows": 189,
+        "columns": 55
+      },
+      {
+        "path": "audit/summary.csv",
+        "rows": 45,
+        "columns": 48
+      },
+      {
+        "path": "audit/top_winners.csv",
+        "rows": 90,
+        "columns": 10
+      },
+      {
+        "path": "results/FEATURE_CONTROL_DIFF.csv",
+        "rows": 0,
+        "columns": 5
+      },
+      {
+        "path": "results/control/CONTROL_DIFF.csv",
+        "rows": 0,
+        "columns": 5
+      },
+      {
+        "path": "results/control/PR506_508_DIFF.csv",
+        "rows": 0,
+        "columns": 5
+      },
+      {
+        "path": "results/control/entry_opportunities.csv",
+        "rows": 2017,
+        "columns": 36
+      },
+      {
+        "path": "results/control/observed_gaps.csv",
+        "rows": 2370,
+        "columns": 13
+      },
+      {
+        "path": "results/control/stop_decisions.csv",
+        "rows": 12478,
+        "columns": 36
+      },
+      {
+        "path": "results/control/trades.csv",
+        "rows": 480,
+        "columns": 49
+      },
+      {
+        "path": "results/control_scalar/CONTROL_DIFF.csv",
+        "rows": 0,
+        "columns": 5
+      },
+      {
+        "path": "results/control_scalar/PR506_508_DIFF.csv",
+        "rows": 0,
+        "columns": 5
+      },
+      {
+        "path": "results/control_scalar/entry_opportunities.csv",
+        "rows": 2017,
+        "columns": 36
+      },
+      {
+        "path": "results/control_scalar/observed_gaps.csv",
+        "rows": 2370,
+        "columns": 13
+      },
+      {
+        "path": "results/control_scalar/stop_decisions.csv",
+        "rows": 12478,
+        "columns": 36
+      },
+      {
+        "path": "results/control_scalar/trades.csv",
+        "rows": 480,
+        "columns": 49
+      },
+      {
+        "path": "results/loss_runs.csv",
+        "rows": 1027,
+        "columns": 9
+      },
+      {
+        "path": "results/monthly.csv",
+        "rows": 360,
+        "columns": 45
+      },
+      {
+        "path": "results/november2024.csv",
+        "rows": 15,
+        "columns": 42
+      },
+      {
+        "path": "results/scenario_ledger.csv",
+        "rows": 28800,
+        "columns": 10
+      },
+      {
+        "path": "results/scenario_monthly.csv",
+        "rows": 3024,
+        "columns": 46
+      },
+      {
+        "path": "results/scenario_summary.csv",
+        "rows": 189,
+        "columns": 55
+      },
+      {
+        "path": "results/summary.csv",
+        "rows": 45,
+        "columns": 48
+      },
+      {
+        "path": "results/top_winners.csv",
+        "rows": 90,
+        "columns": 10
+      }
+    ],
+    "canonical_report_metadata": [
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/AUDIT_REVISION_1_1.md",
+        "sha256": "b157f41e7a66402ee3c7b6597a083d9a11ec87a00b2f677821b5c735df6124ca",
+        "lines": 7,
+        "table_data_rows": 0
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/CONCLUSIONS.md",
+        "sha256": "8919bacc73bfddcb884fa0c56e1d9132edefbf8356cba0913d98d03bf6a9eb2a",
+        "lines": 59,
+        "table_data_rows": 6
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/CONTROL_CORRECTION.md",
+        "sha256": "3839c20d1fa5fb47de901a2a43f283a1210cfed5c2e84aebcdd5894c8f49e8e5",
+        "lines": 7,
+        "table_data_rows": 0
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/PROTOCOL.md",
+        "sha256": "e9a75d9bb432dd980c1fe01cbdd8b9cee7fee174178bf7b46b19c59379b4555e",
+        "lines": 41,
+        "table_data_rows": 0
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/README.md",
+        "sha256": "00988c881421538b54d1feeb0552e25a56e0e3427927f97f6f987bc247d8d41c",
+        "lines": 17,
+        "table_data_rows": 0
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/results/MONTHLY_DETAIL.md",
+        "sha256": "a10a4aeef602474ed60aa27f8fb1a175e582c226497d18e7adf5d909d5a35eb8",
+        "lines": 1829,
+        "table_data_rows": 1805
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/results/REPORT.md",
+        "sha256": "7eae4e23f6b1ef7175a35b4f5c0ddc05e5ef81ebe3c75e70f159ef908bed04dd",
+        "lines": 443,
+        "table_data_rows": 347
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_trail_plateau_v2/CONCLUSIONS.md",
+        "sha256": "236cd4c5ba49ee564aed0deb9612bae9804e331b64bc753ea1af192801cdb117",
+        "lines": 113,
+        "table_data_rows": 40
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_trail_plateau_v2/PROTOCOL.md",
+        "sha256": "f02bfc5fa574a8195119564d083f5979860ab08b1c5e30223086a2bdbe51cd61",
+        "lines": 49,
+        "table_data_rows": 0
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_trail_plateau_v2/PROVENANCE_NOTES.md",
+        "sha256": "cb42e3402f19f83375ee6efb58f91b1af1ea7e411a5f2a622a9093c3d2349e8f",
+        "lines": 5,
+        "table_data_rows": 0
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_trail_plateau_v2/README.md",
+        "sha256": "472f7cc34f3ca3082804130272519f5b69477c5b3c65c2d59c4ad9f4d2212a92",
+        "lines": 22,
+        "table_data_rows": 0
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_trail_plateau_v2/results/MONTHLY_DETAIL.md",
+        "sha256": "5fecb1f5c461fb1d2281bd91e898042ad9fd6eb13eb5ff10913ae575c1e447c6",
+        "lines": 1829,
+        "table_data_rows": 1805
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_trail_plateau_v2/results/REPORT.md",
+        "sha256": "2028dedaf7df7ffa8691a6a9e91d807b9b9908228c5fb44e55180aeecdd7cf1c",
+        "lines": 694,
+        "table_data_rows": 588
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_entry_quality_v1/PROTOCOL.md",
+        "sha256": "0fd566bad24a79aa19b01b3b49db920929068b1c7aa1b6e1079ce3b438e89c19",
+        "lines": 17,
+        "table_data_rows": 0
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_entry_quality_v1/README.md",
+        "sha256": "38e61a21616e628427f8d9294143a45d9886c9bd9ec1db2da8b1b043617f753c",
+        "lines": 31,
+        "table_data_rows": 0
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_entry_quality_v1/results/CUTS_DETAIL.md",
+        "sha256": "282aa57d5878caab475e41a6d1c54789b063088786447b9230674150161cd48d",
+        "lines": 1155,
+        "table_data_rows": 1122
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_entry_quality_v1/results/MONTHLY_DETAIL.md",
+        "sha256": "45c7611cae40818e0274da9f2caaa04d7379e386c57070584e21c3f0a1364680",
+        "lines": 471,
+        "table_data_rows": 438
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_entry_quality_v1/results/REPORT.md",
+        "sha256": "e6d09ce863b6a1b39afc85e1b035f3a8da4c5a9ce86e3ecd076dc1d0e96d917c",
+        "lines": 289,
+        "table_data_rows": 175
+      },
+      {
+        "path": "IntradayLab/t3_m15_early_risk_protection_v1/PROTOCOL.md",
+        "sha256": "099b019df7b7ecec0c4042f3f11c8c90147629e0b849954d7b05f71c582abd6c",
+        "lines": 15,
+        "table_data_rows": 0
+      },
+      {
+        "path": "IntradayLab/t3_m15_early_risk_protection_v1/README.md",
+        "sha256": "cf2402bd5c2e9fdc35e0e6418b7d72392b7644b1c0c46daf34ae7f9dba2ab4a3",
+        "lines": 46,
+        "table_data_rows": 9
+      },
+      {
+        "path": "IntradayLab/t3_m15_early_risk_protection_v1/results/DETAIL.md",
+        "sha256": "22571bcf62f507f2e045b73752beca99f8ab3612f25d09b8454c5f8413918439",
+        "lines": 146,
+        "table_data_rows": 137
+      },
+      {
+        "path": "IntradayLab/t3_m15_early_risk_protection_v1/results/REPORT.md",
+        "sha256": "33c2f669c5a48f501276144e171a844f87f9002f90a18adfb6b6d23272e4c38f",
+        "lines": 132,
+        "table_data_rows": 71
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/CONCLUSIONS.md",
+        "sha256": "74aff067643cba91730c6c780bdb3e18f88732800b59e43e351a9710fa872086",
+        "lines": 154,
+        "table_data_rows": 60
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/PROTOCOL.md",
+        "sha256": "984db6eb4ed4591e1483bc2995bb858fd8dda1bdb4d4e24de76edf5306adc4c0",
+        "lines": 18,
+        "table_data_rows": 0
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/PR_BODY.md",
+        "sha256": "3d634f0796aba48b3ebf278a29e4f7b7c72250820759d52839a8f0153ab4902a",
+        "lines": 25,
+        "table_data_rows": 0
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/README.md",
+        "sha256": "d7eb70c5825e7411456971050f813cf08ea425849b32ea650aa9734929b64e39",
+        "lines": 51,
+        "table_data_rows": 7
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/results/MONTHLY_DETAIL.md",
+        "sha256": "9fd1db681d2b744ac24dfa1c5c8ffc703c44f2a1606130fc13989087f7e23fb9",
+        "lines": 367,
+        "table_data_rows": 361
+      },
+      {
+        "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/results/REPORT.md",
+        "sha256": "0e73635c093bfa073482b06d78bbce731a5028b99a7285610252eba9fdbf7659",
+        "lines": 384,
+        "table_data_rows": 343
+      }
+    ],
+    "canonical_MD_JSON_TXT_files_read": 250,
+    "published_CONTROL_primary_scalar_journal_comparisons": [
+      {
+        "compared_to": "results/control_scalar/trades.csv",
+        "rows": 480,
+        "fields": 23520,
+        "differences": 0
+      },
+      {
+        "compared_to": "results/control_scalar/stop_decisions.csv",
+        "rows": 12478,
+        "fields": 449208,
+        "differences": 0
+      },
+      {
+        "compared_to": "results/control_scalar/entry_opportunities.csv",
+        "rows": 2017,
+        "fields": 72612,
+        "differences": 0
+      },
+      {
+        "compared_to": "results/control_scalar/observed_gaps.csv",
+        "rows": 2370,
+        "fields": 30810,
+        "differences": 0
+      },
+      {
+        "compared_to": "results/control_scalar/OPEN_POSITIONS.json",
+        "rows": 1,
+        "differences": 0
+      },
+      {
+        "compared_to": "results/control_scalar/PERIOD_END_OPEN_POSITIONS.json",
+        "rows": 12,
+        "differences": 0
+      },
+      {
+        "compared_to": "audit/control/trades.csv",
+        "rows": 480,
+        "fields": 23520,
+        "differences": 0
+      },
+      {
+        "compared_to": "audit/control/stop_decisions.csv",
+        "rows": 12478,
+        "fields": 449208,
+        "differences": 0
+      },
+      {
+        "compared_to": "audit/control/entry_opportunities.csv",
+        "rows": 2017,
+        "fields": 72612,
+        "differences": 0
+      },
+      {
+        "compared_to": "audit/control/observed_gaps.csv",
+        "rows": 2370,
+        "fields": 30810,
+        "differences": 0
+      },
+      {
+        "compared_to": "audit/control/OPEN_POSITIONS.json",
+        "rows": 1,
+        "differences": 0
+      },
+      {
+        "compared_to": "audit/control/PERIOD_END_OPEN_POSITIONS.json",
+        "rows": 12,
+        "differences": 0
+      }
+    ],
+    "published_CONTROL_PF_R_recomputed_from_existing_CLOSED_ledger": true,
+    "comparison_tolerance": 1e-08
+  },
+  "historical_PR510_receipts_reviewed_NOT_RERUN": [
+    {
+      "path": "results/control/CONTROL_GATE.json",
+      "status": "PASS",
+      "fields_compared": 594730,
+      "differences": 0,
+      "max_numeric_delta": 0.0
+    },
+    {
+      "path": "results/control_scalar/CONTROL_GATE.json",
+      "status": "PASS",
+      "fields_compared": 594730,
+      "differences": 0,
+      "max_numeric_delta": 5.684341886080802e-14
+    },
+    {
+      "path": "results/control/PR506_508_GATE.json",
+      "status": "PASS",
+      "fields_compared": 1729476,
+      "differences": 0,
+      "max_numeric_delta": 0.0
+    },
+    {
+      "path": "results/control_scalar/PR506_508_GATE.json",
+      "status": "PASS",
+      "fields_compared": 1729476,
+      "differences": 0,
+      "max_numeric_delta": 4.440892098500626e-16
+    },
+    {
+      "path": "results/FEATURE_CONTROL.json",
+      "status": "PASS",
+      "fields_compared": 1867799,
+      "differences": 0,
+      "max_numeric_delta": 4.440892098500626e-16
+    },
+    {
+      "path": "results/CAUSAL_INVARIANTS.json",
+      "status": "PASS",
+      "causal_rows_checked": 12959
+    },
+    {
+      "path": "audit/AUDIT_RESULT.json",
+      "status": "PASS",
+      "fields_compared": 1509772,
+      "differences": 0,
+      "max_numeric_delta": 9.663381206337363e-13
+    },
+    {
+      "path": "audit/PRESENTATION_AUDIT.json",
+      "status": "PASS",
+      "differences": 0
+    },
+    {
+      "path": "CONCLUSION_REVIEW.json",
+      "status": "PASS",
+      "differences": 0
+    },
+    {
+      "path": "REPEATABILITY.json",
+      "status": "PASS",
+      "direct_byte_checks": 120,
+      "sha256_checks": 120
+    }
+  ],
+  "frozen_source_hashes": {
+    "SPEC.json": "f636a0b1a8a797b1575cf64cedde2656736efa7a08b220dbe83099182c2c0881",
+    "engine.py": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+    "scalar.py": "fc022325d9ec9539006c3b1882c975556c6624f8e0beddbb9af3b73d0b6a5739",
+    "common.py": "6a90365fb89fea0f342d226bfd566cbf49f04df35606682aab7371b51a0dfcaa",
+    "primary_metrics.py": "24f5d9c9750c03f79e1dd028d132bb42ea6eba7e8df3041fe64250486327a761",
+    "scalar_metrics.py": "52fa059e08f0eabff65a8969ffa5adb9a24f2d8d8f447ba91e01343d96fa9a4f"
+  },
+  "published_terminal_OPEN": [
+    {
+      "activation_time": "2024-12-30T14:00:00+03:00",
+      "active_stop": 2892.021773301086,
+      "breakout_level": 2848.0,
+      "direction": "LONG",
+      "entry_price": 2849.0,
+      "entry_time": "2024-12-30T11:15:00+03:00",
+      "favorable_extreme": 2914.0,
+      "initial_risk": 15.854203047805186,
+      "initial_stop": 2833.145796952195,
+      "instrument": "IMOEXF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_close_price": 2905.0,
+      "mode": "NEXT_OPEN",
+      "pending_exit_decision": null,
+      "rule": "C1",
+      "signal_close": 2850.0,
+      "signal_time": "2024-12-30T11:15:00+03:00",
+      "status": "OPEN_NOT_LIQUIDATED_EXCLUDED_FROM_CLOSED_TRADE_METRICS",
+      "stop_source": "ATR_TRAIL",
+      "stop_updates": 28,
+      "threshold_activated": true,
+      "trade_id": "T3-M15-IMOEXF-000090",
+      "unrealized_gross_R_at_last_close": 3.5321863755083225,
+      "version": "TRAIL_375"
+    }
+  ],
+  "source_data_pin_inherited": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "raw_market_data_repository_opened": false,
+  "new_feature_or_trade_replay_executed": false,
+  "historical_tests_or_audit_or_repeat_executed_in_this_task": false,
+  "independent_human_audit_of_this_design": "PENDING",
+  "notes": [
+    "Inventory and published journal comparisons are artifact review, not WF execution.",
+    "Data coverage is inherited from PR510; no new 2025+ coverage or OHLC access.",
+    "Existing canonical source bytes unchanged."
+  ]
+}

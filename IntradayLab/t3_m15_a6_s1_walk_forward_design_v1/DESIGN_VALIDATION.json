@@ -1,0 +1,159 @@
+{
+  "validation_status": "DESIGN_CHECKS_PASS",
+  "WF_status": "WF_DATA_BOUNDARY_NOT_AUTHORIZED",
+  "WF_execution_ready": false,
+  "WF_result": null,
+  "independent_audit": "PENDING",
+  "base_main": "fbfb0650ac2af6c6b374d10b67dd62801cd0fcc4",
+  "actual_GitHub_main_at_validation": "fbfb0650ac2af6c6b374d10b67dd62801cd0fcc4",
+  "validated_at_UTC": "2026-10-13T18:16:58.398000+00:00",
+  "checks": [
+    {
+      "check": "current execution is blocked, no WF result or artificial PASS",
+      "result": "PASS"
+    },
+    {
+      "check": "2025+ locked, no raw-data allowlist or reallocation",
+      "result": "PASS"
+    },
+    {
+      "check": "future state/WF/OOS dates null and all reads false",
+      "result": "PASS"
+    },
+    {
+      "check": "four contiguous 3-month blocks, no refit or future authorization",
+      "result": "PASS"
+    },
+    {
+      "check": "OOS follows WF and requires separate authorization",
+      "result": "PASS"
+    },
+    {
+      "check": "2023/2024 exposed diagnostic only",
+      "result": "PASS"
+    },
+    {
+      "check": "retrospective periods non-overlapping within exposed history",
+      "result": "PASS"
+    },
+    {
+      "check": "configuration byte-semantic values equal canonical PR510 SPEC",
+      "result": "PASS"
+    },
+    {
+      "check": "no boundary liquidation, resets, splitting or OPEN-in-PF",
+      "result": "PASS"
+    },
+    {
+      "check": "frozen source hashes match protected files",
+      "result": "PASS"
+    },
+    {
+      "check": "CONTROL targets match source receipts",
+      "result": "PASS"
+    },
+    {
+      "check": "all canonical merges and PR509 exclusion",
+      "result": "PASS"
+    },
+    {
+      "check": "published artifact review verified, no replay/data execution",
+      "result": "PASS"
+    },
+    {
+      "check": "no automatic PASS, fitted score or next-stage authorization",
+      "result": "PASS"
+    },
+    {
+      "check": "FROZEN_RULES.md carries required blocker/classification",
+      "result": "PASS"
+    },
+    {
+      "check": "FROZEN_RULES.md local link ../t3_m15_a6_s1_robustness_v1/SPEC.json",
+      "result": "PASS"
+    },
+    {
+      "check": "FROZEN_RULES.md local link ../t3_m15_a6_s1_robustness_v1/engine.py",
+      "result": "PASS"
+    },
+    {
+      "check": "FROZEN_RULES.md local link ../t3_m15_a6_s1_robustness_v1/scalar.py",
+      "result": "PASS"
+    },
+    {
+      "check": "FROZEN_RULES.md local link ../t3_m15_a6_s1_robustness_v1/common.py",
+      "result": "PASS"
+    },
+    {
+      "check": "REPORT_RU.md carries required blocker/classification",
+      "result": "PASS"
+    },
+    {
+      "check": "REPORT_RU.md local link ../ROADMAP.md",
+      "result": "PASS"
+    },
+    {
+      "check": "README.md carries required blocker/classification",
+      "result": "PASS"
+    },
+    {
+      "check": "README.md local link REPORT_RU.md",
+      "result": "PASS"
+    },
+    {
+      "check": "README.md local link WF_SPEC.json",
+      "result": "PASS"
+    },
+    {
+      "check": "README.md local link FROZEN_RULES.md",
+      "result": "PASS"
+    },
+    {
+      "check": "README.md local link SOURCE_REVIEW.json",
+      "result": "PASS"
+    },
+    {
+      "check": "README.md local link DESIGN_VALIDATION.json",
+      "result": "PASS"
+    },
+    {
+      "check": "exactly six design deliverables, no runner",
+      "result": "PASS"
+    },
+    {
+      "check": "tracked diff and untracked scope only additions inside authorized folder",
+      "result": "PASS"
+    },
+    {
+      "check": "actual GitHub main remains pinned merge PR510",
+      "result": "PASS"
+    },
+    {
+      "check": "original checkout preserved",
+      "result": "PASS"
+    },
+    {
+      "check": "git diff whitespace check",
+      "result": "PASS"
+    }
+  ],
+  "changed_files_expected": [
+    "IntradayLab/t3_m15_a6_s1_walk_forward_design_v1/DESIGN_VALIDATION.json",
+    "IntradayLab/t3_m15_a6_s1_walk_forward_design_v1/FROZEN_RULES.md",
+    "IntradayLab/t3_m15_a6_s1_walk_forward_design_v1/README.md",
+    "IntradayLab/t3_m15_a6_s1_walk_forward_design_v1/REPORT_RU.md",
+    "IntradayLab/t3_m15_a6_s1_walk_forward_design_v1/SOURCE_REVIEW.json",
+    "IntradayLab/t3_m15_a6_s1_walk_forward_design_v1/WF_SPEC.json"
+  ],
+  "substantive_file_sha256": {
+    "FROZEN_RULES.md": "7cef1a281210db55fc1834cf7143bd46c5d5ab30e8f81b1d5b51d3843107cb5d",
+    "README.md": "b4150d0579da53efb5a8364800b288d47592dd4336479a5443ce0677de24f7cc",
+    "REPORT_RU.md": "6e247391a49876db43c0971ad213b7cbecfce821426a2db18e251cb66bc87015",
+    "SOURCE_REVIEW.json": "d02e1acda996e1eacaae0c74d3b265c6944e27049469a5a806b697b928774244",
+    "WF_SPEC.json": "96e7f2e2923694db3ad5701e61dec0a9eb5b62e14d83367742b414581cd44740"
+  },
+  "raw_market_data_access": false,
+  "new_strategy_replay_or_tests_executed": false,
+  "protected_repository_paths_changed": false,
+  "scope_evidence": "Tracked diff is additions only inside task folder; all untracked files also within task folder; original checkout clean and unchanged. No market data repository opened. Receipt excludes its own hash."
+}
