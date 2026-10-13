@@ -8,9 +8,9 @@ This is an existing Stage 8 acceptance preparation item, not a research phase. D
 
 | File | SHA-256 / identity |
 | --- | --- |
-| stage8_493_n4_financial_readonly.py | 8ABAE05EB541DC5236266E314BFE0CB38601EF8EDD0E2F84445A30EB75617CA6, Git blob 5ef47cee90dcc1cd73bfea49b9a922250a1ad5c1 (sanitized stage diagnostics) |
-| stage8-493-n4-financial-readonly.ps1 | C3FC8E6FEC2E3129D346A02AE87495D75A54F8B419EDD57A32DE8F3133B849DA, Git blob e7aa54fc6c2da1c0690ee87871f64645282a2673 (safe child blocker + hash guards) |
-| test_stage8_493_n4_financial_readonly.py | Git blob 66093d52451be497c9edca1bd318c9f51d5fdac7 (adds diagnostic redaction regressions) |
+| stage8_493_n4_financial_readonly.py | 68B477B929EB09E299A19F15A79E674F6A60ECF1DBB835A365E514BA3CDFB6D5, Git blob ee9a5cb29a8757c9bc6334e0368b92095ba507c8 (FINAM REST boolean and sanitized stage) |
+| stage8-493-n4-financial-readonly.ps1 | 25360D4CA523CA03B53783E2DC6896776D92D02216861171407C94FD84434A71, Git blob 27a66143fa354b9a819144ccb57c8b95f4e81867 (safe child blocker + corrected Python pin) |
+| test_stage8_493_n4_financial_readonly.py | Git blob 30311bb0b1965466ec2d4d6cda4c1ba88a352fab (REST boolean positive/negative cases and redaction checks) |
 
 **Local independent synthetic pytest: 16 passed.** Both executable source files and the test file were byte-for-byte matched to these Git blob IDs. Python compiled successfully; PowerShell static forbidden-mutation verb audit PASS. **Operator invoked the original Windows PowerShell wrapper twice, but both attempts stopped at the initial hash guard before any financial GET. The corrected wrapper has NOT yet been physically run on Intel; no fresh N4 economics were collected.** None of these tests accessed FINAM or LIVE.
 
@@ -79,3 +79,38 @@ This confirms exact source hashes and a fresh physically passing isolation check
 The current candidate modifies only the two standalone READONLY diagnostic sources and synthetic tests: Python emits fixed uppercase phase labels on unexpected errors without exception contents or account data; PowerShell surfaces only `FINANCIAL_CHILD_CLASSIFICATION=BLOCKED:<SAFE_UPPERCASE_CODE>`, preserving the prior fail-closed exit and all pinned guards. The existing post-isolation verification, production checkout, runtime SQLite, Task, HALTED and trading/order endpoint boundary remain unchanged. Local synthetic success/redaction/negative-path checks PASS; native Windows physical rerun is pending.
 
 **Use the latest SHA-256 values in the table above**, not earlier revisions in the historical log below. Do not publish the external private financial report to GitHub. No real-order authorization or two-contract eligibility results from this diagnostic correction.
+
+
+## Intel follow-up: official REST boolean correction after physical BLOCKED
+
+Operator's latest actual command returned `EXACT_READONLY_SOURCE_HASHES=PASS`,
+`FRESH_POST_ISOLATION_READONLY_GATE=PASS`, and
+`FINANCIAL_CHILD_CLASSIFICATION=BLOCKED:ASSET_PARAMS_ACCOUNT_OR_STATUS_INVALID`.
+This is **not** evidence of insufficient equity, lack of broker permission, or real SLTP failure.
+
+Independent verification against official FINAM documentation
+`https://api.finam.ru/docs/rest/` confirms
+`GET /v1/assets/{symbol}/params` sends top-level JSON **boolean**
+`"is_tradable": true|false`. The candidate diagnostic incorrectly
+expected gRPC-shaped `{"value": true}`. Its candidate-only parser now
+accepts **exact** boolean true, **blocks** actual false as
+`ASSET_NOT_TRADABLE_FOR_ACCOUNT`, and blocks absent/malformed types
+as `ASSET_PARAMS_REST_TRADEABLE_SCHEMA_INVALID`. The
+account ID and symbol binding checks stay mandatory.
+
+Independent local offline regression 15 PASS (4 N4 boolean true, 9
+false/malformed cases, SHA-pinning and safety guards); the PR Python
+test suite was updated with all N4 synthetic data and fail-closed
+negative cases. These do not establish actual REST output or physical
+broker trading eligibility. The pinned standalone PowerShell diagnostic
+hash changed only to follow the new candidate Python SHA. There is no
+modification to LIVE, frozen specification, operational authority,
+production Task, HALTED, trading credentials, order endpoints, or
+production SQLite. No merge.
+
+Next permitted operation: transfer **both** current standalone candidate
+files outside production, verify both new SHA-256 values in the current
+table and repeat only the same READONLY command. If it blocks again,
+record only fixed sanitized classifications; no unsafe fallback.
+
+Decision: `N4_FINANCIAL_READONLY_REST_SCHEMA_FIX_OFFLINE_PASS_PHYSICAL_RERUN_PENDING`.
