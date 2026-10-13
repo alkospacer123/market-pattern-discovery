@@ -1,0 +1,104 @@
+{
+  "document_id": "INTRADAY_T3_M15_TRAIL375_TRUE_OOS_2026_READINESS_V1",
+  "base_main": "d6946056332ce71658a6ca933cefa0740a7570a2",
+  "source_pr_merged": 512,
+  "source_wf_status": "WF_MIXED",
+  "purpose": "Prepare only the existing TRUE OOS step; no price data read or trade execution.",
+  "current_status": "PREPARATION_ONLY_NOT_AUTHORIZED",
+  "candidate": {
+    "name": "T3/M15 A6+S1 NEXT_OPEN TRAIL_375",
+    "ema_period": 75,
+    "slope_lookback": 5,
+    "adx_period": 14,
+    "adx_strictly_greater_than": 20,
+    "atr_ratio_strictly_greater_than": 1,
+    "breakout_period": 20,
+    "donchian_shift_bars": 1,
+    "initial_stop_atr": 2,
+    "S1_activation_initial_R": 1,
+    "trail_atr": 3.75,
+    "sides": [
+      "LONG",
+      "SHORT"
+    ],
+    "instruments": [
+      "USDRUBF",
+      "CNYRUBF",
+      "GLDRUBF",
+      "IMOEXF"
+    ],
+    "strategy_changes_authorized": false
+  },
+  "research_windows": {
+    "development_exposed": {
+      "start": "2023-01-01T00:00:00+03:00",
+      "end_exclusive": "2025-01-01T00:00:00+03:00"
+    },
+    "wf_2025_completed": {
+      "start": "2025-01-01T00:00:00+03:00",
+      "end_exclusive": "2026-01-01T00:00:00+03:00"
+    },
+    "true_oos_2026_locked": {
+      "start": "2026-01-01T00:00:00+03:00",
+      "end_exclusive": "2027-01-01T00:00:00+03:00",
+      "authorized_read": false,
+      "authorized_replay": false
+    }
+  },
+  "source_policy": {
+    "market_data_repo": "alkospacer123/market-pattern-data",
+    "prior_pin": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+    "timeframe": "M15",
+    "prefix_path_format": "forever/{instrument}/{instrument}_M15.csv",
+    "metadata_pin_check_only_now": true,
+    "OHLC_2026_read_now": false,
+    "hash_or_inspect_locked_suffix_now": false
+  },
+  "cost_inputs_required_before_OOS_read": {
+    "per_instrument_tick_size_price": null,
+    "per_instrument_tick_value_rub_per_contract": null,
+    "per_instrument_contract_multiplier_and_min_lot": null,
+    "finam_broker_commission_rub_per_side_and_tariff_dates": null,
+    "moex_exchange_and_clearing_fee_rub_per_side_and_effective_dates": null,
+    "adverse_execution_ticks_entry_and_exit_including_spread_and_slippage": null,
+    "evidence_urls_or_documents_and_dates": null,
+    "no_double_counting_spread_slippage": true,
+    "gross_only_diagnostics_not_a_real_cost_substitute": true,
+    "broker_account_identifiers_or_tokens_in_repo": false
+  },
+  "cost_equations": {
+    "cash_initial_R_one_contract": "abs(actual_entry_price - frozen_initial_stop_price) / tick_size_price * tick_value_rub",
+    "gross_R": "signed(exit_price - entry_price) / abs(entry_price - frozen_initial_stop_price)",
+    "net_R": "gross_R - (broker_entry_fee_rub + broker_exit_fee_rub + exchange_entry_fee_rub + exchange_exit_fee_rub) / cash_initial_R_one_contract - (entry_adverse_ticks + exit_adverse_ticks) * tick_size_price / abs(entry_price - frozen_initial_stop_price)",
+    "reporting": "Gross and cost-aware Net must be separate; cash-equity performance requires separately fixed portfolio sizing and is not inferred from the sum of R.",
+    "grid_policy": "Validate executable tick/grid and fee provenance before OOS; do not silently round or modify frozen research fills/stops. If incompatible, STOP for explicit review, no after-the-fact rule changes."
+  },
+  "pre_read_gates": [
+    "Separate explicit user authorization identifying TRUE OOS 2026",
+    "Cost inputs and tariff source evidence pinned before any 2026 OHLC read",
+    "Exact frozen trading code/config and data commit pinned and checked",
+    "Prior 2023-2024 CONTROL plus 2025 WF prefix/journals/checkpoints match the merged canonical artifacts",
+    "Carry OPEN/pending/Stop/S1/initial R/indicator recursions without FLAT reset at 2026 boundary",
+    "Timestamp-first unbuffered strict cutoff and immutable 2025 prefix",
+    "Predeclared 12-calendar-month report and exit/entry-cohort separation",
+    "One sealed full-year TRUE OOS assessment, independent scalar audit and two identical reproductions",
+    "STOP and retain negative or invalid results; no refit, variant selection or automatic LIVE"
+  ],
+  "actions_this_preparation": {
+    "OHLC_2026_read": false,
+    "TRUE_OOS_run": false,
+    "LIVE": false,
+    "order_endpoints": false,
+    "merge": false,
+    "auto_merge": false,
+    "TradingSystemLab_changes": false,
+    "historical_results_changes": false
+  },
+  "unresolved": {
+    "actual_fees": true,
+    "actual_tick_values": true,
+    "adverse_execution_assumptions": true,
+    "explicit_2026_authorization": true
+  },
+  "next_action": "Obtain and independently verify the missing cost instrument/broker inputs, then preregister exact numeric assumptions in a separate reviewed change before requesting user authorization to open TRUE OOS 2026."
+}
