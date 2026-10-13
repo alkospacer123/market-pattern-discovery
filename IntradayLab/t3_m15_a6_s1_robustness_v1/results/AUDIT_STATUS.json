@@ -1,0 +1,28 @@
+{
+  "archived_ledger_control": "PASS",
+  "independent_simple_scalar_crosscheck": "PASS",
+  "numeric_checks": {
+    "PF_2023": true,
+    "R_2023": true,
+    "COUNT_2023": true,
+    "PF_2024": true,
+    "R_2024": true,
+    "COUNT_2024": true,
+    "CONTROL_480": true,
+    "CONTROL_R": true,
+    "NOVEMBER_2024": true,
+    "LEAVE_USD_2023": true,
+    "STRESS_2024_005": true,
+    "STRESS_2024_010": true
+  },
+  "source_git_blob": "72597dbab205be76a1bcb3d26e0e5f39fa4190f2",
+  "source_closed_rows": 480,
+  "source_prior_controls": "PR505-508",
+  "raw_OHLC_full_control_replay": "NOT_RUN",
+  "causal_engine_independent_audit": "NOT_RUN",
+  "fresh_byte_identical_full_repeats": "NOT_RUN",
+  "python_reproducer_execution_in_current_session": "NOT_RUN",
+  "why": "Connected GitHub file access only; local runtime cannot fetch raw repository or execute fetched code as a live project checkout. These results are deterministic archived CLOSED trade-sensitivity calculations, not full experimental verification.",
+  "classification": "ROBUSTNESS_ARCHIVED_LEDGER_SENSITIVITY_ONLY; NOT_STAGE_PASS",
+  "scope": "IntradayLab only; no modifications to TradingSystemLab or raw market data"
+}
