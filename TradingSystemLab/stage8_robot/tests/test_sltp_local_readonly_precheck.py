@@ -13,7 +13,7 @@ def test_local_sltp_preflight_cannot_mutate_live_or_submit_orders():
     assert "REAL_ORDER_AUTHORIZATION=NOT_GRANTED_BY_THIS_SCRIPT" in text
     assert "184e8c2b8fa092a606249ff293a4f507160bff29" in text
     assert "FRESH_FINAM_POSITION_ORDER_AND_MARGIN_AUTHORITY=NOT_COLLECTED" in text
-    forbidden_verbs = re.compile(r"(?im)^\\s*(?:start|stop|restart|enable|disable|register|unregister|remove|new|set|invoke)\\-[a-z]+")
+    forbidden_verbs = re.compile(r"(?im)^\s*(?:start|stop|restart|enable|disable|register|unregister|remove|new|set|invoke)\-[a-z]+")
     assert not forbidden_verbs.search(text)
     for forbidden in (
         "Get-TradingCredential", "Get-ReadonlyCredential", "FINAM_API_SECRET",
