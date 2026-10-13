@@ -1,0 +1,83 @@
+{
+  "2024_independent_WF": false,
+  "S1_2024_all_four_positive_gross_R_both_controls": true,
+  "all_four_instruments": true,
+  "any_standalone_full_period_PF_ge_2": false,
+  "external_audit": "PENDING",
+  "full_period": [
+    {
+      "closed": 741,
+      "gross_PF": 1.45415459552713,
+      "gross_R": 144.411236716186,
+      "open_terminal": 1,
+      "rule": "CONTROL",
+      "version": "BASELINE"
+    },
+    {
+      "closed": 718,
+      "gross_PF": 1.48535493321218,
+      "gross_R": 166.721454571532,
+      "open_terminal": 1,
+      "rule": "S1",
+      "version": "BASELINE"
+    },
+    {
+      "closed": 753,
+      "gross_PF": 1.45461219548619,
+      "gross_R": 135.786910656904,
+      "open_terminal": 1,
+      "rule": "S2",
+      "version": "BASELINE"
+    },
+    {
+      "closed": 751,
+      "gross_PF": 1.42289846447814,
+      "gross_R": 136.737783127636,
+      "open_terminal": 1,
+      "rule": "S3",
+      "version": "BASELINE"
+    },
+    {
+      "closed": 701,
+      "gross_PF": 1.5461664896355,
+      "gross_R": 178.719822968019,
+      "open_terminal": 1,
+      "rule": "CONTROL",
+      "version": "OPTIMIZED"
+    },
+    {
+      "closed": 689,
+      "gross_PF": 1.57714397273294,
+      "gross_R": 196.708048826806,
+      "open_terminal": 1,
+      "rule": "S1",
+      "version": "OPTIMIZED"
+    },
+    {
+      "closed": 721,
+      "gross_PF": 1.54749937508717,
+      "gross_R": 163.790454029762,
+      "open_terminal": 1,
+      "rule": "S2",
+      "version": "OPTIMIZED"
+    },
+    {
+      "closed": 715,
+      "gross_PF": 1.52568529160812,
+      "gross_R": 176.79568447279,
+      "open_terminal": 1,
+      "rule": "S3",
+      "version": "OPTIMIZED"
+    }
+  ],
+  "full_period_target_gross_PF": 2.0,
+  "labels": [
+    "GROSS_ONLY",
+    "COSTS_DEFERRED",
+    "NOT_LIVE_READY"
+  ],
+  "next_action": "STOP_EXTERNAL_REVIEW_USER_DECISION",
+  "qualitative_tradeoffs": "S1 improves 2024 R but increases DD and loses some entries; S2/S3 do not improve both controls consistently.",
+  "retrospective_thresholds_added": false,
+  "status": "OBJECTIVE_NOT_REACHED"
+}

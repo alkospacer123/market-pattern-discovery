@@ -1,0 +1,25 @@
+test_be_activation_same_bar_return_does_not_exit (test_research.CausalTests.test_be_activation_same_bar_return_does_not_exit) ... ok
+test_both_control_multipliers_preserved (test_research.CausalTests.test_both_control_multipliers_preserved) ... ok
+test_future_ohlc_never_parsed (test_research.CausalTests.test_future_ohlc_never_parsed) ... ok
+test_gap_after_be_or_lock_honors_open (test_research.CausalTests.test_gap_after_be_or_lock_honors_open) ... ok
+test_gap_exceeds_initial_one_r_loss (test_research.CausalTests.test_gap_exceeds_initial_one_r_loss) ... ok
+test_h1_unfinished_and_gapped_blocks_not_used (test_research.CausalTests.test_h1_unfinished_and_gapped_blocks_not_used) ... ok
+test_immutable_initial_risk_with_already_ratchet_stop (test_research.CausalTests.test_immutable_initial_risk_with_already_ratchet_stop) ... ok
+test_lock_activation_same_bar_return_does_not_exit (test_research.CausalTests.test_lock_activation_same_bar_return_does_not_exit) ... ok
+test_never_loosen_after_atr_expansion_or_price_retreat (test_research.CausalTests.test_never_loosen_after_atr_expansion_or_price_retreat) ... ok
+test_occupancy_and_same_close_reentry_are_replayed (test_research.CausalTests.test_occupancy_and_same_close_reentry_are_replayed) ... ok
+test_old_stop_before_activation_on_ambiguous_bar (test_research.CausalTests.test_old_stop_before_activation_on_ambiguous_bar) ... ok
+test_prefix_invariance_of_signal_features (test_research.CausalTests.test_prefix_invariance_of_signal_features) ... ok
+test_s1_accumulated_extreme_and_next_bar_activation (test_research.CausalTests.test_s1_accumulated_extreme_and_next_bar_activation) ... ok
+test_s1_initial_stop_fixed_before_1r (test_research.CausalTests.test_s1_initial_stop_fixed_before_1r) ... ok
+test_sessions_weekend_year_boundary_persist_state (test_research.CausalTests.test_sessions_weekend_year_boundary_persist_state) ... ok
+test_signal_candle_extreme_excluded (test_research.CausalTests.test_signal_candle_extreme_excluded) ... ok
+test_stop_touch_is_exit (test_research.CausalTests.test_stop_touch_is_exit) ... ok
+test_survived_threshold_equality_and_below (test_research.CausalTests.test_survived_threshold_equality_and_below) ... ok
+test_terminal_trigger_remains_open_without_liquidation (test_research.CausalTests.test_terminal_trigger_remains_open_without_liquidation) ... ok
+test_trail_can_be_tighter_than_be_or_lock (test_research.CausalTests.test_trail_can_be_tighter_than_be_or_lock) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.328s
+
+OK
