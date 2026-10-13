@@ -151,6 +151,17 @@ def run():
         for year in ("2023", "2024", "ALL"):
             loo.append(dict(excluded_instrument=exclude, **strip_extra(stats(remaining, year))))
     write_csv(OUT / "leave_one_out.csv", loo)
+    loo_monthly = []
+    for exclude in INSTRUMENTS:
+        remaining = [r for r in rows if r["instrument"] != exclude]
+        original = stats(remaining, "ALL")
+        for month in MONTHS:
+            subset = [r for r in remaining if r["month"] == month]
+            value = original["monthly"][month]
+            loo_monthly.append(dict(excluded_instrument=exclude, month=month,
+                                    closed=len(subset), gross_R=value,
+                                    positive=value > 1e-10))
+    write_csv(OUT / "leave_one_out_monthly.csv", loo_monthly)
 
     direction_rows = []
     instrument_rows = []
