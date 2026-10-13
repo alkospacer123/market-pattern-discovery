@@ -1,0 +1,102 @@
+{
+  "attribution": "CLOSED by historical exit-bar Close timestamp in MSK; open positions snapshot at last available close before each year boundary; cross-year trades remain intact",
+  "base_main": "8513203e6e6d9f6995d9464ecd29bb75775400d3",
+  "calendar": "24 months Jan2023-Dec2024 for every scope; prelaunch NO_COVERAGE zeros disclosed, covered-month share also supplied",
+  "configurations": {
+    "BASELINE": {
+      "adx_period": 14,
+      "adx_threshold": 20,
+      "atr_average_period": 20,
+      "atr_period": 14,
+      "breakout_period": 20,
+      "ema_period": 75,
+      "slope_lookback": 5,
+      "stop_atr": 2.0,
+      "trail_atr": 3.0
+    },
+    "OPTIMIZED": {
+      "adx_period": 14,
+      "adx_threshold": 20,
+      "atr_average_period": 20,
+      "atr_period": 14,
+      "breakout_period": 20,
+      "ema_period": 75,
+      "slope_lookback": 5,
+      "stop_atr": 2.0,
+      "trail_atr": 3.5
+    }
+  },
+  "costs": "Zero deductions: no C1/fees/spread/slippage/funding; GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY",
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "data_guard": "Timestamp-first byte parser stops before first 2025+ OHLC; opaque full-file integrity hashing only; no copied raw data",
+  "development_exposed_years": [
+    2023,
+    2024
+  ],
+  "diagnostic_thresholds_only": {
+    "additional_tick_counts": [
+      1,
+      5
+    ],
+    "extremely_narrow_risk_ticks_le": 2,
+    "gap_loss_R_gt": 1,
+    "large_control_winner_R_ge": 2
+  },
+  "equity_order": "exit_time, instrument, trade_id stable; closed-R drawdown only, not marked-to-market capital drawdown",
+  "exchange_tick_evidence": "Read-only IntradayLab/reports/STAGE1_EXECUTION_COSTS_SPEC.md section 2 / MOEX dated references; historical editions incompletely certified",
+  "exchange_ticks": {
+    "CNYRUBF_before_2023_09_27_1900_MSK": 0.01,
+    "CNYRUBF_from_boundary": 0.001,
+    "GLDRUBF": 0.1,
+    "IMOEXF": 0.5,
+    "USDRUBF": 0.01
+  },
+  "execution": [
+    "historical entry at completed signal Close: unverified execution assumption",
+    "old Stop checked before favorable extreme; adverse Open gap exits at Open",
+    "ratchet after survived completed candle, effective next candle; unchanged trailing 3.0/3.5 ATR",
+    "initial risk fixed at entry; same-bar Close reentry after protective exit",
+    "no day/session/year liquidation; terminal OPEN excluded from CLOSED PF/R"
+  ],
+  "feature_boundaries": "Frozen #490: H1 four daily ordinal M15 bars, complete contiguous only; continuous cross-day EMA/ATR/ADX/Donchian per historical model",
+  "forbidden": [
+    "new multipliers",
+    "buffers",
+    "trailing changes",
+    "combinations",
+    "extra filters",
+    "retrospective exclusions",
+    "Optimization",
+    "Robustness",
+    "Walk Forward",
+    "TRUE OOS",
+    "LIVE",
+    "merge",
+    "auto-merge"
+  ],
+  "initial_risk": "abs(entry Close - initial Stop), finite and >0; invalid entry skipped and reason logged; no fallback",
+  "mechanisms": {
+    "CONTROL": "Close - sign * 2 * signal ATR",
+    "I1": "LONG signal Low / SHORT signal High; no buffer",
+    "I2": "LONG PriorHigh / SHORT PriorLow from Donchian20 shift(1); no buffer",
+    "I3": "LONG max(CONTROL, signal Low); SHORT min(CONTROL, signal High); no widening"
+  },
+  "normalizations": [
+    "ACTUAL_INITIAL_RISK: price PnL / fixed actual initial risk",
+    "REFERENCE_2ATR: price PnL / 2 * signal ATR (parentheses around denominator); not primary Gross R"
+  ],
+  "objective": "Pooled four-instrument full-period actual Gross PF >=2.0; no automatic economic PASS, no winner selection; one Draft PR then STOP",
+  "period": "Full available 2023-2024 M15 close-index prefix; real GLD/IMOEX late starts",
+  "pre_result_protocol": [
+    "commit specification and all implementation before viewing outcomes",
+    "synthetic tests and full 1442 CLOSED + 2 terminal OPEN CONTROL fields against #490/#495 before variants",
+    "independent standard-library implementation",
+    "two complete fresh-process byte repeats"
+  ],
+  "symbols": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ]
+}
