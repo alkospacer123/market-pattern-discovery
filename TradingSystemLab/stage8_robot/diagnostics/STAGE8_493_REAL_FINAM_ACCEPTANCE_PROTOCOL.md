@@ -239,3 +239,32 @@ Task enable/start, real orders, candidate merge or deployment
 are authorized.
 
 **Classification: `STAGE8_493_R15_SNAPSHOT_PASS_EXTERNAL_FLOW_PROVENANCE_PENDING_REAL_SLTP_NOT_RUN`.**
+
+
+
+## 2026-10-13 — operator funding confirmation and R15 accounting hold
+
+The operator confirmed that the previously unexplained account balance
+increase was an **external deposit** and verified the current broker
+balance. Do not publish the personal amount or account data to GitHub.
+This closes the *origin-identification* question but not the R15 ledger
+accounting gate: physically inspected production SQLite still reported
+`explained_external_cash_flows=0`. The frozen live service calculates
+`realized_equity = broker_equity - unrealized_profit -
+explained_external_cash_flows`, so recording the confirmed deposit as
+an external flow would materially change R15 risk capacity compared to
+the current persisted basis. No automatic deposit adjustment or
+reinterpretation of the frozen FULL/R15 formula is permitted.
+
+Before physical multi-fill SLTP acceptance or production reactivation,
+independently reconcile exact funding dates and scope against the
+existing accepted capital-accounting policy and ledger evidence, then
+obtain explicit approval for any narrowly specified production-state
+correction. Preserve a byte-exact backup, broker flatness and HALTED,
+and synchronize operational documents *after* any separately authorized
+production fix. No script here changes LIVE SQLite, code, risk model,
+Task, token, order permission, or kill switch.
+
+Status: `DEPOSIT_CONFIRMED_R15_CAPITAL_ACCOUNTING_HOLD`.
+Candidate #493 is not merged or deployed; real FINAM 1→2 SLTP
+coverage still NOT VERIFIED, and real orders remain NOT AUTHORIZED.
