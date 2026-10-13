@@ -1,0 +1,138 @@
+{
+  "development_exposed_years": [
+    2023,
+    2024
+  ],
+  "external_audit": "PENDING",
+  "goal": "Pooled four-instrument full 2023-2024 Gross PF >=2.0; diagnostic, no automatic PASS",
+  "rows": [
+    {
+      "accepted_risks_le_2_ticks": 0,
+      "economic_advantage_proven": false,
+      "gross_PF_actual": 1.45415459552713,
+      "gross_PF_reference_2ATR": 1.45415459552713,
+      "labels": [
+        "GROSS_ONLY",
+        "COSTS_DEFERRED",
+        "NOT_LIVE_READY"
+      ],
+      "numerical_goal_actual_PF_ge_2": false,
+      "reference_PF_ge_2": false,
+      "rule": "CONTROL",
+      "selection": "NONE",
+      "version": "BASELINE"
+    },
+    {
+      "accepted_risks_le_2_ticks": 37,
+      "economic_advantage_proven": false,
+      "gross_PF_actual": 1.23856136723024,
+      "gross_PF_reference_2ATR": 1.26917431883534,
+      "labels": [
+        "GROSS_ONLY",
+        "COSTS_DEFERRED",
+        "NOT_LIVE_READY"
+      ],
+      "numerical_goal_actual_PF_ge_2": false,
+      "reference_PF_ge_2": false,
+      "rule": "I1",
+      "selection": "NONE",
+      "version": "BASELINE"
+    },
+    {
+      "accepted_risks_le_2_ticks": 248,
+      "economic_advantage_proven": false,
+      "gross_PF_actual": 1.32089510883292,
+      "gross_PF_reference_2ATR": 1.30385849232857,
+      "labels": [
+        "GROSS_ONLY",
+        "COSTS_DEFERRED",
+        "NOT_LIVE_READY"
+      ],
+      "numerical_goal_actual_PF_ge_2": false,
+      "reference_PF_ge_2": false,
+      "rule": "I2",
+      "selection": "NONE",
+      "version": "BASELINE"
+    },
+    {
+      "accepted_risks_le_2_ticks": 37,
+      "economic_advantage_proven": false,
+      "gross_PF_actual": 1.23659034173891,
+      "gross_PF_reference_2ATR": 1.26695605414957,
+      "labels": [
+        "GROSS_ONLY",
+        "COSTS_DEFERRED",
+        "NOT_LIVE_READY"
+      ],
+      "numerical_goal_actual_PF_ge_2": false,
+      "reference_PF_ge_2": false,
+      "rule": "I3",
+      "selection": "NONE",
+      "version": "BASELINE"
+    },
+    {
+      "accepted_risks_le_2_ticks": 0,
+      "economic_advantage_proven": false,
+      "gross_PF_actual": 1.5461664896355,
+      "gross_PF_reference_2ATR": 1.5461664896355,
+      "labels": [
+        "GROSS_ONLY",
+        "COSTS_DEFERRED",
+        "NOT_LIVE_READY"
+      ],
+      "numerical_goal_actual_PF_ge_2": false,
+      "reference_PF_ge_2": false,
+      "rule": "CONTROL",
+      "selection": "NONE",
+      "version": "OPTIMIZED"
+    },
+    {
+      "accepted_risks_le_2_ticks": 37,
+      "economic_advantage_proven": false,
+      "gross_PF_actual": 1.35979259976585,
+      "gross_PF_reference_2ATR": 1.34089041509978,
+      "labels": [
+        "GROSS_ONLY",
+        "COSTS_DEFERRED",
+        "NOT_LIVE_READY"
+      ],
+      "numerical_goal_actual_PF_ge_2": false,
+      "reference_PF_ge_2": false,
+      "rule": "I1",
+      "selection": "NONE",
+      "version": "OPTIMIZED"
+    },
+    {
+      "accepted_risks_le_2_ticks": 244,
+      "economic_advantage_proven": false,
+      "gross_PF_actual": 1.28774140779301,
+      "gross_PF_reference_2ATR": 1.37604507967912,
+      "labels": [
+        "GROSS_ONLY",
+        "COSTS_DEFERRED",
+        "NOT_LIVE_READY"
+      ],
+      "numerical_goal_actual_PF_ge_2": false,
+      "reference_PF_ge_2": false,
+      "rule": "I2",
+      "selection": "NONE",
+      "version": "OPTIMIZED"
+    },
+    {
+      "accepted_risks_le_2_ticks": 37,
+      "economic_advantage_proven": false,
+      "gross_PF_actual": 1.35658822637881,
+      "gross_PF_reference_2ATR": 1.34943955349444,
+      "labels": [
+        "GROSS_ONLY",
+        "COSTS_DEFERRED",
+        "NOT_LIVE_READY"
+      ],
+      "numerical_goal_actual_PF_ge_2": false,
+      "reference_PF_ge_2": false,
+      "rule": "I3",
+      "selection": "NONE",
+      "version": "OPTIMIZED"
+    }
+  ]
+}
