@@ -37,7 +37,7 @@ def test_valid_plan_still_not_physically_authorized():
     {'realized_equity_rub':'100'}, {'available_cash_rub':'100'},
     {'maximum_operator_loss_and_cost_rub':'20'},
     # Previously accepted these operator-subselected quantities despite the
-    # frozen FULL/R15 quantity being 3, 10 or 20 rather than exactly 2.
+    # frozen FULL/R15 quantity being 3, 10 or 15 rather than exactly 2.
     {'available_cash_rub':'3000'},
     {'available_cash_rub':'10000'},
     {'margin_per_contract_rub':'100'},
