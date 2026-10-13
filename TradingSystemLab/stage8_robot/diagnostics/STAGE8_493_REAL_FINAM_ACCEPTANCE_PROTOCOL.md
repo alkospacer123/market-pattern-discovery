@@ -268,3 +268,41 @@ Task, token, order permission, or kill switch.
 Status: `DEPOSIT_CONFIRMED_R15_CAPITAL_ACCOUNTING_HOLD`.
 Candidate #493 is not merged or deployed; real FINAM 1→2 SLTP
 coverage still NOT VERIFIED, and real orders remain NOT AUTHORIZED.
+
+
+
+## 2026-10-13 — deposit behavior verified in source; preserve LIVE hold
+
+Operator explicitly authorized **continued offline preparatory work**,
+not unbounded real-order submission, candidate deployment or rearming.
+Source audit confirms the existing FULL/R15 **new-entry** sizing reads
+the latest broker equity after unrealized PnL and the persisted
+external-flow subtraction; it then enforces the existing current GO
+and 1.5% per-new-position cap. No production risk algorithm change is
+needed merely to make funded capital alter future sizing, provided the
+deposit is included in the accepted risk-equity basis. An operator's
+cash deposit is **not a strategy gain**.
+
+Candidate-only synthetic regression source added at
+`tests/test_stage8_493_funding_auto_sizing_offline.py`;
+the actual exact-candidate test run is **PENDING**, although a separate
+7-case independent arithmetic crosscheck PASS exists. The accounting
+meaning and future handling of `explained_external_cash_flows` remain
+an explicit documented decision gate because writing a deposit there
+**reduces** risk capital under accepted LIVE math. The operator's
+consent to continue does not authorize silently changing that field.
+No private money balances were published to GitHub.
+
+Proceed on the **existing roadmap**, not a new methodology:
+(1) resolve non-PnL funding classification for R15 and inspect client
+fees and stress/stop-risk budget, (2) independently audit the
+operator-only physical multi-fill SLTP acceptance/recovery harness and
+obtain **specific** order/flatten/cancel authorization for a bounded
+test, (3) physical acceptance with final flat/HALTED audit, then (4)
+separate merge/rollout/rearm authorization and current-state/roadmap/
+runbook/passport/checklist synchronization after any production fix.
+Full 1→2 broker stop coverage is still NOT PROVEN. No test may force
+a two-contract R15 quantity; absent a natural exact-two eligible
+signal, the experiment is NOT ELIGIBLE.
+
+**Current gate: `FUNDING_NEW_ENTRY_CODE_SEMANTICS_VERIFIED_OFFLINE_TEST_PENDING_REAL_SLTP_NOT_AUTHORIZED`.**
