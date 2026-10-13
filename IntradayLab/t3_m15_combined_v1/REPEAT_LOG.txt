@@ -1,0 +1,3 @@
+{"closed_total": 7447, "configuration_count": 2, "control": "PASS", "open_total": 12, "rules": 6}
+{"closed_total": 7447, "configuration_count": 2, "control": "PASS", "open_total": 12, "rules": 6}
+{"repeatability": "PASS", "repeats": 2, "artifact_hashes": 63, "scope": "PASS"}

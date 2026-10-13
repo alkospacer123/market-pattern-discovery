@@ -1,0 +1,17 @@
+{
+  "2025_plus_OHLC_parsed": false,
+  "allowed_prefix": "IntradayLab/t3_m15_combined_v1/",
+  "auto_merge": false,
+  "base_main": "bf703671dca481d0451a9eb822de143b96a80037",
+  "code_unchanged_since_preregistration": true,
+  "data_clean_and_pinned": true,
+  "frozen_sources_unchanged": true,
+  "labels": [
+    "GROSS_ONLY",
+    "COSTS_DEFERRED",
+    "NOT_LIVE_READY"
+  ],
+  "merge": false,
+  "out_of_scope_changes": [],
+  "status": "PASS"
+}

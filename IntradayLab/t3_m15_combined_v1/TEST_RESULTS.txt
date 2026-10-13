@@ -1,0 +1,25 @@
+test_a6_strict_and_missing_previous_h1 (test_research.CausalTests.test_a6_strict_and_missing_previous_h1) ... ok
+test_a7_strict_and_missing_previous_m15 (test_research.CausalTests.test_a7_strict_and_missing_previous_m15) ... ok
+test_accumulated_extreme_next_bar_activation (test_research.CausalTests.test_accumulated_extreme_next_bar_activation) ... ok
+test_exact_scope (test_research.CausalTests.test_exact_scope) ... ok
+test_filters_do_not_affect_existing_position (test_research.CausalTests.test_filters_do_not_affect_existing_position) ... ok
+test_future_ohlc_never_parsed (test_research.CausalTests.test_future_ohlc_never_parsed) ... ok
+test_gap_exceeds_initial_risk (test_research.CausalTests.test_gap_exceeds_initial_risk) ... ok
+test_incomplete_gapped_h1_not_used (test_research.CausalTests.test_incomplete_gapped_h1_not_used) ... ok
+test_initial_stop_fixed_before_1r (test_research.CausalTests.test_initial_stop_fixed_before_1r) ... ok
+test_never_loosen (test_research.CausalTests.test_never_loosen) ... ok
+test_new_stop_no_retroactive_exit (test_research.CausalTests.test_new_stop_no_retroactive_exit) ... ok
+test_old_stop_before_activation (test_research.CausalTests.test_old_stop_before_activation) ... ok
+test_prefix_invariance (test_research.CausalTests.test_prefix_invariance) ... ok
+test_same_close_reentry_and_occupancy (test_research.CausalTests.test_same_close_reentry_and_occupancy) ... ok
+test_session_year_state_persists (test_research.CausalTests.test_session_year_state_persists) ... ok
+test_signal_extreme_excluded (test_research.CausalTests.test_signal_extreme_excluded) ... ok
+test_stop_touch_exits (test_research.CausalTests.test_stop_touch_exits) ... ok
+test_terminal_open_not_liquidated (test_research.CausalTests.test_terminal_open_not_liquidated) ... ok
+test_threshold_equality (test_research.CausalTests.test_threshold_equality) ... ok
+test_two_trail_multipliers (test_research.CausalTests.test_two_trail_multipliers) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.441s
+
+OK
