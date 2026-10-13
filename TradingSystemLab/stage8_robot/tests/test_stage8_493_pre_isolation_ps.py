@@ -13,6 +13,8 @@ def test_pre_isolation_shell_no_task_mutation_or_broker_writes():
                       'place_order','place_sltp_order','cancel_order','invoke-restmethod',
                       'set-content','get-tradingcredential','start-scheduledtask'):
         assert forbidden not in data.lower()
+    assert 'push-location -literalpath $checkout' in data and 'pop-location' in data
+    assert 'git -c ' not in data
     cmds=['get-filehash','test-path','get-scheduledtask','get-ciminstance','write-output','get-content']
     assert all(x in data for x in cmds)
     assert not re.search(r'(?m)^\s*[A-Z]+-[A-Za-z]',data)
