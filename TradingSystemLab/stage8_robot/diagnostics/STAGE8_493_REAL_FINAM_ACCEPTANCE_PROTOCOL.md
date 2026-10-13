@@ -75,3 +75,9 @@ The required *observable order of evidence* is:
 | Real production V2 rollout/rearm | **NOT AUTHORIZED** |
 
 **Present status: `STAGE8_493_REAL_ACCEPTANCE_PREPARATION_ONLY` — next permitted action is fresh READONLY broker/Task probe.** No new research phase or strategy/risk modification.
+
+## 2026-10-13 — Additional candidate single-command READONLY wrapper (not needed to change any LIVE component)
+
+Candidate `stage8-493-real-acceptance-readonly-gate.ps1` was created solely to revalidate a physically previously PASSing post-isolation script by **exact local file SHA-256**, require Task Disabled + HALTED, delegate to the exact same READONLY Python/account/orders/SQLite/lock checks, demand five summary PASS markers and re-check Task/HALTED afterward. The wrapper does not itself access trading credentials or any trading/order/cancel endpoint. Its Git object SHA-1: `4118bb3a77217976ea5aae4efeb3850fcb8493a2`; fixed source revision `39c414b41435bdb94be9c9534b29fed323192fb5`. Independent static diff showed no Task enable/disable/stop/start calls, no order/cancel endpoint, no Git checkout change and no rearm. **Windows physical runner validation is PENDING**, so prefer the already proved direct `stage8-493-post-isolation-readonly.ps1` command above to avoid new tooling until needed.
+
+A successful fresh READONLY flat/isolation probe closes **only** the broker flatness precheck. Do not turn the historical `/trades` HTTP 400 conjecture into fill-price authority or assert dynamic stop protection without separate real evidence. A cash-budget proposal and physical real-order approval remain outstanding; the one-contract Stage8.11 real acceptance boundary remains unchanged.
