@@ -3,8 +3,8 @@
   "base_main": "d6946056332ce71658a6ca933cefa0740a7570a2",
   "source_pr_merged": 512,
   "source_wf_status": "WF_MIXED",
-  "purpose": "Freeze GROSS_ONLY research reporting for 2023–2026, with complete calendar TRUE OOS 2026 only after 2026 ends. No source price read or trading in this documentation task.",
-  "current_status": "GROSS_ONLY_POLICY_AUTHORIZED_TRUE_OOS_2026_FULL_YEAR_PENDING",
+  "purpose": "User-authorized GROSS_ONLY research OOS on already-available 2026 prefix, no commission/fee deductions; 2026 YTD is not a complete calendar-year result.",
+  "current_status": "GROSS_ONLY_2026_YTD_OOS_EXPLICITLY_AUTHORIZED_IMPLEMENTATION_STAGED_NOT_YET_RUN",
   "candidate": {
     "name": "T3/M15 A6+S1 NEXT_OPEN TRAIL_375",
     "ema_period": 75,
@@ -41,12 +41,20 @@
     "true_oos_2026_locked": {
       "start": "2026-01-01T00:00:00+03:00",
       "end_exclusive": "2027-01-01T00:00:00+03:00",
-      "authorized_read": false,
-      "authorized_replay": false,
+      "authorized_read": true,
+      "authorized_replay": true,
       "earliest_possible_complete_calendar_at": "2027-01-01T00:00:00+03:00",
       "full_year_available_on_2026_10_13": false,
       "user_authorized_scope_for_future_gross_full_year": true,
-      "read_unlock_condition": "Strict no-read before 2027-01-01 MSK; after full calendar and verified complete source, separate sealed execution protocol/implementation only; no YTD-2026 substitution"
+      "read_unlock_condition": "User approved YTD study through exclusive cutoff 2026-10-13T00:00:00+03:00 using only already available M15; strict source evidence and immutable canonical 2025 prefix. The year remains incomplete; all rows >= cutoff remain unread.",
+      "authorized_read_only_to": "2026-10-13T00:00:00+03:00",
+      "full_year_label_for_ytd_forbidden": true
+    },
+    "true_oos_2026_ytd_authorized": {
+      "start": "2026-01-01T00:00:00+03:00",
+      "end_exclusive": "2026-10-13T00:00:00+03:00",
+      "method": "GROSS_ONLY",
+      "calendar_complete": false
     }
   },
   "source_policy": {
@@ -59,7 +67,7 @@
     "hash_or_inspect_locked_suffix_now": false
   },
   "pre_read_gates": [
-    "Complete calendar-year 2026 must have elapsed, no YTD shortcut; not earlier than 2027-01-01 MSK.",
+    "Read ONLY completed M15 source prefixes before 2026-10-13 00:00 MSK; never interpret YTD as full 2026 TRUE OOS",
     "Freeze exact gross-only research spec and replay code before reading any 2026 OHLC.",
     "Pin and verify source commit, allowed instruments, cutoff and source coverage after full 2026 available.",
     "Independently reproduce unchanged 2023-2024 CONTROL and sealed 2025 WF trade/Stop/signal/gap/indicator prefix and published gross results.",
@@ -85,9 +93,10 @@
     "full_year_2026_coverage_verification": true,
     "pre_read_immutable_oos_implementation": true,
     "research_commissions_or_cost_inputs": false,
-    "explicit_user_permission_for_gross_policy": false
+    "explicit_user_permission_for_gross_policy": false,
+    "user_2026_ytd_authorization": false
   },
-  "next_action": "Keep 2026 prices sealed until the full year finishes. Finalize and independently audit gross-only pre-read protocol; after 2027-01-01 MSK verify full source coverage and exact frozen CONTROL/WF, then execute the single complete gross-only TRUE OOS 2026 under a separate reviewed Draft PR.",
+  "next_action": "Execute already authored IntradayLab/t3_m15_a6_s1_true_oos_2026_ytd_v1/run_ytd_oos.py against local pinned full M15 data checkout in Codex Cloud or equivalent authorized runtime. Preserve closed 2025 prefix and publish actual 2026 YTD Gross PF only with audited CSV/JSON, never invent result.",
   "verified_public_contract_specs": {
     "observation_date_msk": "2026-10-13",
     "source": "Official MOEX instrument cards, public specifications. Snapshot fees are indicative and NOT fixed historical tariffs.",
@@ -204,8 +213,9 @@
     "date": "2026-10-13",
     "instruction": "Во тестах 2023 по 2026 должен быть чистый PF без комиссий и издержек. Комиссии считаем отдельно по факту исполнения заявок. Продолжаем. Даю разрешение.",
     "interpretation": "Research metric is gross pre-cost PF/R, including full 2026 TRUE OOS when complete; separate broker actual-execution accounting must not be subtracted from the research metric.",
-    "authorized_scope": "GROSS_ONLY research protocol and eventual full 2026 OOS under frozen code and prior CONTROL; does not authorize incomplete-year TRUE OOS, LIVE or automatic merge.",
-    "next_stage_reapproval_not_required_for_gross_policy": true
+    "authorized_scope": "Full unchanged historical replay plus partial 2026 YTD prefix through 2026-10-13 00:00 Moscow, explicitly not full calendar-year. No strategy tuning, LIVE, fees or automated merge.",
+    "next_stage_reapproval_not_required_for_gross_policy": true,
+    "updated_instruction": "2026-10-13: Ждать закрытие 2026 года не нужно. Работай по данным которые у нас уже есть. На 2026 нужно запустить OOS."
   },
   "research_metric_policy": {
     "metric_name": "GROSS_PF_BEFORE_ALL_EXECUTION_COSTS",
