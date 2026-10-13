@@ -167,3 +167,47 @@ separate cash-flow reconciliation, which this report does not carry.
 `TWO_CONTRACT_R15_ELIGIBILITY_NOT_PROVEN`;
 `FINAM_REAL_SLTP_MULTIFILL_NOT_TESTED`;
 `REAL_ORDER_AUTHORIZED=NO`.
+
+
+## 2026-10-13 — physical offline account financials, cash/margin threshold and next R15 reconciliation
+
+The operator ran the local-only report reader after independent SHA-256 verification:
+`REPORT_SHA256=PASS`, `PORTFOLIO_VARIANT=MC`, equity/available cash were
+positive and equal, and unrealized PnL was zero. The client-specific numbers
+were supplied to the operator review, **not copied to public GitHub**.
+`REALIZED_EQUITY_R15=NOT_VERIFIED`, `CLIENT_FEES=NOT_VERIFIED` and
+`REAL_ORDER_AUTHORIZED=NO` remain explicit.
+
+Arithmetic comparison to the four previously observed directional GO values:
+current available cash is sufficient for **two contracts of any single
+frozen N4 symbol/side, taken individually** (at the 2026-10-13 snapshot).
+It is NOT sufficient to collateralize two contracts each of all four
+symbols simultaneously. This is only a per-instrument collateral threshold
+under one-snapshot margin, not production order eligibility; does not
+account for other reserved margin, intraday changes, broker fees, any
+additional broker constraint, signal eligibility or the frozen 1.5% R15
+per-position risk.
+
+Production Stage 8.12 service derives realized equity as **FINAM broker
+equity minus unrealized PnL minus persisted explained_external_cash_flows**,
+with a separately stored `realized_equity`; raw broker equity alone cannot
+be substituted. To close this limited blocker, an **independent local-only,
+non-mutating, hash-pinned R15 read** of the existing external report and
+`stage8-12-production.sqlite3` is prepared for the operator outside Git:
+`stage8-493-r15-basis-readonly.py`; SHA-256
+`B21C1B46E56A4CBF7ACE31EF3853D54071BC48921E51B7B1BE536FCEDD448908`.
+It is standalone/offline, performs no FINAM request and no SQLite write,
+requires the exact report hash, HALTED, frozen production/account identity,
+SQLite `mode=ro`/`query_only`, flat local positions and zero unresolved
+intents, and demands exact derived-versus-persisted R15 agreement.
+Four synthetic local gates were tested: consistent ledger PASS; mismatched
+realized equity, ARMED kill switch and altered report each BLOCKED.
+**No Windows/Intel physical result is claimed for this utility.**
+
+Even if the R15 basis matches, this does not establish two-contract quantity:
+the relevant actual entry/stop, nominal per-contract loss, fees, slippage,
+operator cash-loss budget and real 1→2 protective stop evidence remain unproven.
+Never submit an order, rearm, merge or start Task based on these observations.
+
+Classification:
+`STAGE8_493_N4_MARGIN_CAPACITY_SINGLE_SYMBOL_2_LOTS_OBSERVED_R15_BASIS_UNVERIFIED_NO_TRADE`.
