@@ -110,7 +110,7 @@ def checkpoint(out,frames,receipts,end):
         # reconstruction. This receipt records the indicator frontier + lookback.
         for at,row in f.tail(80).iterrows():records.append({'at':at}|{k:None if pd.isna(v) else v for k,v in row.items()})
         digest=C.sha(json.dumps(C.plain(records),sort_keys=True).encode())
-        instruments.append({'instrument':symbol,'last_close':f.index[-1],'last_features':{k:None if pd.isna(v) else v for k,v in last.items()},
+        instruments.append({'instrument':symbol,'last_close':f.index[-1],'last_features':{k:None if pd.isna(v) else int(v) if k=='Signal' else v for k,v in last.items()},
             'last80_features_sha256':digest,'daily_H1_ordinal_observed_bars':len(day),'source_prefix':next(x for x in receipts if x['instrument']==symbol),
             'state_resume':'canonical full original prefix reconstruction, no boundary initialization',
             'occupied_trade_ID':[r['trade_id'] for r in out['OPEN_POSITIONS'] if r['instrument']==symbol],
@@ -132,7 +132,7 @@ def commit_stage(d,label,enabled):
     C.write_json(d/'SEAL.json',{'stage':label,'files_SHA256':manifest,'sealed_before_next_stage':True})
     if enabled:
         assert C.HERE in d.parents
-        C.git('add','--',str(d.relative_to(C.REPO)));C.git('commit','-m',f'IntradayLab WF2025: seal {label} before next block')
+        C.git('add','-f','--',str(d.relative_to(C.REPO)));C.git('commit','-m',f'IntradayLab WF2025: seal {label} before next block')
         print(json.dumps({'sealed_stage':label,'commit':C.git('rev-parse','HEAD').decode().strip()}),flush=True)
     else:print(json.dumps({'sealed_stage':label,'repeat_mode':True}),flush=True)
 
