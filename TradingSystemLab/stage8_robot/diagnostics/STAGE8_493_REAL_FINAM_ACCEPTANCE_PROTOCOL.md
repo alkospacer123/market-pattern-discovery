@@ -1,0 +1,77 @@
+# Stage 8 / PR #493 — REAL FINAM SLTP multi-fill acceptance: decision protocol (NOT AUTHORIZED)
+
+**Operator-ready design only. 2026-10-13. Classification: PHYSICAL_ACCEPTANCE_NOT_RUN / REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED.**
+
+This is the next item of the **existing** TradingSystemLab Stage 8 #493 roadmap. It is not a new research stage and cannot change frozen strategy/production. No candidate V2 merge, Task start/enable, rearm, real ENTRY/SLTP/CANCEL/EXIT, token substitution or runtime SQLite write is permitted by approval to *prepare* this plan. A separate, explicit and bounded user authorization is required **after** the READONLY report, risk budget and recovery plan have been reviewed.
+
+## 1. Frozen production identity and physical checkpoint
+
+- Production specification: `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`
+- Active identity: `TRAIL1__N4_01__FULL__R15`; T3/H1/TRAIL1, N4 `USDRUBF, CNYRUBF, GLDRUBF, IMOEXF`.
+- Risk calculation remains R15, **1.5% of current realized equity per new instrument position**, aggregate 6% nominal initial risk, margin/lot downward cap, zero remains zero. No MICRO cap and no changes to signals/stop strategy.
+- Accepted and physically pinned LIVE checkout: `184e8c2b8fa092a606249ff293a4f507160bff29`; Stage 5 data `50f1fd2178c18b7ab3bd969be82ad01f47a34745`.
+- Last physical Intel state: production Task `TradingSystemLab-Stage8-Production` **Disabled/stopped**, kill switch **HALTED**, old production PIDs absent, production lock free, FINAM two READONLY account/orders snapshots flat. This is timestamped evidence, NOT proof of future flatness. Durable code-bound authorization was **not revoked**.
+- Draft PR #493 candidate V2: 158/158 offline tests PASS on exact detached commit `dac0cb789c1cf5f7655c01fb9323296a080da98e`, 2026-10-13 Intel. `FINAM_FILL_AUTHORITY_VERIFIED=False` and no real-order authorization; offline tests are not physical FINAM SLTP proof.
+- Existing Stage 8.11 controlled-real acceptance is **one-contract**. This plan does not silently replace it with two-contract execution.
+
+## 2. Mandatory READONLY evidence — the NEXT actual operation
+
+**Reuse the already physically executed post-isolation broker probe**, not a new order-capable adapter. Under the normal Intel operator account, first verify its local bytes/SHA and run it while Task remains Disabled/HALTED:
+
+```powershell
+Get-FileHash "c:\tradingsystemlab\stage8-493-post-isolation-readonly.ps1" -Algorithm SHA256
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "c:\tradingsystemlab\stage8-493-post-isolation-readonly.ps1" -python "c:\tslaudit\fill493\venv\scripts\python.exe"
+```
+
+Expected wrapper SHA-256: `37DF9E1A8F4B0B18EE37D1ACC8757AD674160E878264B2746ED0E1BB3E66C201`. Its read-only broker module SHA-256: `92FC06D2FBA9D5D5062D3A3DC14BB74C8C3EFD32754A07585DC92D5CB7EA7A13`. The already used wrapper validates Task binding/disabled, absence of service processes, free production lock, HALTED identity, SQLite before-and-after and two fresh FINAM account+orders GET snapshots with an account-bound READONLY session (session creation is authentication, not a trade). Expected classification **`POST_ISOLATION_READONLY_PASS_NO_TRADE_AUTHORITY`** plus `POST_ISOLATION_BROKER_FLAT=PASS`. A physical failure, changed account, unexpected position/order, missing credential or any unexpected stdout means **BLOCKED / OPERATOR_REVIEW**, with **no** workaround by starting Task or using a trading token. No secrets or account IDs should be posted to GitHub/chat.
+
+This probe establishes **flatness/isolation only**, not fresh available cash, exchange economics, fills, or stop triggering. Do not treat its PASS as a 2-contract real-order clearance.
+
+## 3. Fresh risk authority — never substitute frozen or asserted numbers
+
+Before a later **separately authorized** trade, obtain fresh, authenticated and timestamped values for the *chosen frozen N4 instrument* and direction:
+
+- FINAM real account binding/status; zero positions and zero active orders (two fresh snapshots). A dormant heartbeat is expected while Task stopped.
+- Realized equity, available cash, current directional initial margin, price step, tick value in **RUB**, lot size and expected spread; identify market session and actual bid/ask/stop from current completed/available data. Verify exchange instrument against frozen N4 mapping.
+- Entry reference and stop must be on the authenticated tick grid, stop on the adverse side, quantity **exactly 2** allowed by unchanged FULL/R15 + margin floor rule; two contracts must be naturally eligible, never artificially upsize or change risk. Any result not exactly 2 => **NOT ELIGIBLE**, not a prompt to alter strategy.
+- Record FINAM/exchange/clearing/broker commissions for entry+exit, price slippage/gap stress scenarios and an operator-selected, explicitly acknowledged cash budget **before** orders. Compute conservative *scenario loss*:
+  `2 × (abs(entry_reference − initial_stop) / exchange_tick_size × tick_value_RUB + adverse_slippage_ticks × tick_value_RUB) + round_trip_fees_RUB`.
+  Nominal initial stop loss **must** be ≤ 1.5% of realized equity, and the scenario loss+fees **must** be within the operator's separately specified acceptance cash budget. This is a *stress estimate*, not a guaranteed maximum: stop execution, gaps and outages can exceed it. Undefined cash budget, stale economics, missing or non-RUB tick authority, nonzero exposure or no trusted margin => **BLOCKED**.
+- The existing `stage8_493_sltp_operator_launcher.py` only checks **operator-asserted** values, not fresh broker proof; its `--execute` explicitly refuses. Hardcoded tick values in a planning fixture are **not** verified current exchange authority.
+
+## 4. Mandatory order-linked fill history proof **before considering any live experiment**
+
+FINAM's official `GET /v1/accounts/{account_id}/trades` uses `limit`, `interval.start_time` (inclusive) and `interval.end_time` (exclusive), with timestamped `AccountTrade` entries including order ID, trade ID, price, size, side and symbol. See official documentation `https://api.finam.ru/docs/rest/` and repository-pinned `diagnostics/official_fill_contract.json`. Historical Stage 8.11 records / earlier physical HTTP 400 do **not** establish current read authority; missing query parameters are a plausible historical explanation, not proof. Retrieve a **bounded READONLY historical ledger copy**, verify its SHA and exact order/account/side/symbol/size, and use `run-finam-fill-price-readonly.ps1` only in an isolated diagnostic checkout. Require HTTP200 and the precise historical order-linked fill facts, stable duplicate-free trade identities, complete time window and trace; HTTP400, empty/incomplete fills or mismatch => **HOLD**. Never fabricate a new trade merely to test the endpoint. A historical one-contract fill does not prove the broker's future two-contract stop semantics.
+
+## 5. Future controlled-real acceptance — specification, NOT executable permission
+
+A separately approved **operator-only** acceptance harness must be isolated from Windows Scheduled Task/production runner and the existing live database. It must be reviewed/tested fail-closed and constrained to one pre-authorized N4 symbol and direction, one deliberate market ENTRY of exactly two contracts, one primary `SLTP_QTY_MEASURE_PERCENT=100` stop, no duplicate POST if ACK/result unknown, and no automatic strategy entry or pyramiding. The user must sign off the instrument, direction, test window, observed available cash and margin, planned initial stop, stress/slippage/fees budget, exact operator, abort/recovery and permitted real operations.
+
+The required *observable order of evidence* is:
+
+1. Before POST: exact account/Task/HALTED/flatness/available funds and binding evidence; immutable intent, idempotency key and recovery instructions persisted **outside LIVE SQLite**.
+2. ENTRY: one broker POST at most; ACK order ID does not equal fill. If broker position jumps immediately from 0→2, record `INCONCLUSIVE_FOR_PARTIAL_GROWTH` (not a 1→2 PASS).
+3. If first partial fill is 1, prove that it belongs to the exact entry (FINAM AccountTrade), and observe the fresh broker position=1.
+4. Install one broker protective SLTP at initial stop with 100% of *current position*; observe active broker order by same order/client IDs and validate fields. ACK or local `ACTIVE` alone does not prove coverage.
+5. Observe a subsequent **same-entry** fill taking broker position 1→2; *freshly* verify the **same active protective order** continues to identify 100% of current broker position, and independently verify that FINAM **actually protects the second contract**. A GET response echoing `quantity_sl=100` cannot alone prove trigger-time behavior. If proof cannot be obtained without an unsafe trigger, classify `INCONCLUSIVE / OPERATOR_INTERVENTION_REQUIRED`; do not claim PASS.
+6. Exit/flatten under the separately authorized recovery procedure, including cancellation/reconciliation of any residual ENTRY or stop only with broker-state proof. Require fresh broker position=0, all active orders=0, unresolved intents=0, no residual exposure, no unknown ACK or pending cancel. Never use a blind duplicate exit or automatically restart the robot.
+7. Independently verify final read-only flatness twice and leave Task **Disabled**, switch **HALTED**. Only then close the *acceptance attempt* (which is still distinct from production rollout).
+
+**Emergency branch:** unproven SLTP, stale broker read, missing fill history, two-sided/order mismatch, unexpected quantity, order status uncertainty, network timeout or gap => no second entry/stop/cancel POST without reconciled broker proof. Preserve intent and evidence and use a separately approved supervised emergency flatten/manual FINAM terminal procedure. `HALTED` does not flatten an already open real position; market/operational loss remains possible.
+
+## 6. Current acceptance ledger and final decision
+
+| Gate | Status 2026-10-13 |
+| --- | --- |
+| V2 1→2 growth/durable restart offline | **PASS, 158 tests** |
+| Candidate PR #493 merged/deployed | **NO** |
+| Production Task, kill switch | **Disabled / HALTED at last physical gate** |
+| Current fresh READONLY flatness | **PENDING repeat** |
+| Fresh exact 2-contract N4 funds/margin/costs | **NOT COLLECTED** |
+| Historical FINAM AccountTrade GET / order fill matched | **NOT VERIFIED physically** |
+| Real 1→2 partial fills and dynamic SLTP coverage | **NOT RUN** |
+| Explicit monetary-loss/slippage budget and recovery approval | **NOT RECEIVED** |
+| Operator consent for real-order transmission | **NOT RECEIVED** |
+| Real production V2 rollout/rearm | **NOT AUTHORIZED** |
+
+**Present status: `STAGE8_493_REAL_ACCEPTANCE_PREPARATION_ONLY` — next permitted action is fresh READONLY broker/Task probe.** No new research phase or strategy/risk modification.
