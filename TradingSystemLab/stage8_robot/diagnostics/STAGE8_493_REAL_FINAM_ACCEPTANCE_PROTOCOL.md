@@ -208,3 +208,34 @@ derived-vs-persisted R15 comparison succeeds. The client fee/slippage,
 stop entry reference, real 1→2 partial-fill protection and separate
 real-order authorization remain blocked. No candidate merge, Task
 restart, trading, rearm or production mutation.
+
+
+## 2026-10-13 — Intel R15 snapshot PASS, remaining capital provenance gate
+
+The operator completed the standalone hash-pinned R15 v2 READONLY
+comparison with `REPORT_SHA256=PASS`,
+`PRODUCTION_SQLITE_QUERY_ONLY=PASS`,
+`STATE_IDENTITY_AND_ACCOUNT_HASH=PASS`,
+`HALTED_AND_LOCAL_FLAT=PASS` and
+`R15_BASIS_CONSISTENCY=PASS_SNAPSHOT_ONLY`.
+The previous missing optional `production_positions` key is not a
+production defect; the accepted LIVE runtime explicitly defaults it
+to an empty dict. None of the database content was modified.
+
+**Financial readiness is not yet approved.** The beginning-vs-current
+realized-equity difference is material while persisted
+`explained_external_cash_flows` is zero. The physical reconciliation
+proves snapshot consistency, *not* that a cash transfer was correctly
+classified or that the economic R15 authority is fully reconciled.
+Any operator ledger/statement review is READONLY and outside Git;
+do not infer funding or post private amounts to this public repo.
+Do not set a new value in the live SQLite or change frozen risk.
+
+Full client commissions/slippage and a bounded operator cash-loss
+budget are not yet accepted. Exact quantity 2 must follow naturally
+from R15+margin (never forced); genuine broker 1→2 partial fills and
+trigger-time 100%-SLTP coverage are not proven. No production rearm,
+Task enable/start, real orders, candidate merge or deployment
+are authorized.
+
+**Classification: `STAGE8_493_R15_SNAPSHOT_PASS_EXTERNAL_FLOW_PROVENANCE_PENDING_REAL_SLTP_NOT_RUN`.**
