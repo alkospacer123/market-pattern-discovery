@@ -80,3 +80,27 @@ Physical Intel operator invoked the pinned offline launcher, SHA-256 \`BD058C69C
 **Next physical gate:** new standalone Windows script \`stage8-493-run-durable-growth-regressions-v2-offline.ps1\` pins **\`dac0cb789c1cf5f7655c01fb9323296a080da98e\`** in a *new* detached worktree \`c:\tslaudit\fill493\stage8-493-partial-growth-v2-offline\`, uses existing isolated pytest venv and separate scratch, and runs the same three modules with additional corruption tests. It checks production Task Disabled, HALTED and both HEADs before/after. It neither loads FINAM secrets nor uses an order endpoint, Task mutation, rearm or LIVE SQLite writes. As of this documentation, the corrected integration regression run has **NOT BEEN PHYSICALLY OBSERVED**; status is \`PENDING_OFFLINE_VERIFICATION\`, not PASS.
 
 All LIVE boundaries preserved: accepted production checkout unchanged, Task isolated/Disabled and HALTED per latest operator proof; \`FINAM_FILL_AUTHORITY_VERIFIED=False\`; real-order/SLTP physical acceptance unauthorized, Draft PR #493 unmerged.
+
+## 2026-10-13 — Physical Intel OFFLINE durable growth V2 closeout: 158 PASS / 0 FAIL
+
+**Provenance**: the operator ran `c:\\tradingsystemlab\\stage8-493-run-durable-growth-regressions-v2-offline.ps1`, verified standalone launcher SHA-256 `418AA49072B2E7F62CDDDD898085169B8611E0F9EB101BD9677284A9D84FC7BD`, and provided the complete physical Windows PowerShell output. The operator's normal checkout was `4c7cd7cbbde5fbffb63ed6984cf89b90dc50d129`; the clean detached test worktree `c:\\tslaudit\\fill493\\stage8-493-partial-growth-v2-offline` was pinned to **`dac0cb789c1cf5f7655c01fb9323296a080da98e`**, containing the exact candidate `production_runtime.py` blob `d5789c6685b92640c2cdd6f4f2beaa97946e2234` and growth regression tests blob `0c4974e10e3f6e8b82ddba9cc44bd39f85d288c5`. No tests were run from the moving Draft PR HEAD; they were run from this precise pinned commit.
+
+**Full physical output core**:
+```text
+ISOLATED_TEST_VENV_DEPENDENCIES=PASS
+NEW_ISOLATED_TEST_WORKTREE=CREATED
+ISOLATED_CANDIDATE_SHA=dac0cb789c1cf5f7655c01fb9323296a080da98e
+158 passed in 18.61s
+CLASSIFICATION=OFFLINE_DURABLE_GROWTH_REGRESSIONS_PASS_NOT_REAL_AUTHORITY
+LIVE_TASK_MUTATED=NO
+REAL_ORDER_AUTHORIZED=NO
+PRODUCTION_CHECKOUT_MUTATED=NO
+```
+
+**Acceptance classification: `STAGE8_493_V2_DURABLE_PARTIAL_GROWTH_OFFLINE_REGRESSIONS_PASS`**. All **158** selected Python tests passed, including prior regression tests, candidate LONG/SHORT 1→2 contract protection observation, durable independent growth evidence, post-restart coverage consistency, 13 added corruption/omission/invariant tests, and 100%-SLTP synthetic journal rehearsal. The earlier 2026-10-13 baseline **142 PASS / 3 FAIL** is retained as physical provenance of `DURABLE_STOP_COVERAGE_INVALID` and is **superseded by the 158 PASS corrected candidate**, not erased or retroactively reported as PASS. This is the physical operator's output plus independent comparison of exact GitHub source file hashes, **not** a second independently executed runtime on another machine.
+
+**Current source authority**: The original `protective_submission.position_quantity=1` / STOP intent is never rewritten to 2. For 1→2 growth, durable `entry_growth_stop_observed` must bind original and new quantities, identical reconciled stop broker/client IDs and stop price, `SLTP_QTY_MEASURE_PERCENT=100`, and its exact observation source. Tampering or removal causes fail-closed `EXECUTION_POSITION_STATE_INVALID`, including after restart. Missing fresh broker order verification writes sticky HALTED/operator hold with no duplicate POST or silent recovery.
+
+**Explicit unresolved physical gates**: These offline tests establish source-level safety invariants only. There has been **NO real FINAM 1→2 partial fill, dynamic SLTP triggering/100% coverage proof, fill-price authority confirmation, verified two-contract broker margin/cost/maximum-loss bound, safe real-order operator recovery drill or real-order acceptance**. A parsed active 100% SLTP order does not itself prove actual second-contract protection at trigger time. `FINAM_FILL_AUTHORITY_VERIFIED=False`, `REAL_ORDER_AUTHORIZED=NO`, `LIVE_PRODUCTION_READY=NO`; the existing Stage 8.11 one-contract boundary, frozen T3/H1/TRAIL1 N4 FULL/R15, accepted LIVE code `184e8c2b8fa092a606249ff293a4f507160bff29`, `Task Disabled` and `HALTED` remain unchanged. **Draft PR #493 must not be merged/deployed or promoted to LIVE from this PASS.**
+
+**Roadmap next step**: review an isolated operator-only **real FINAM acceptance plan**, quantitative cash-risk and fee/slippage bounds, current account funds/margin, exact instrument/session selection, proof of order-linked fill and truly dynamic broker 100% stop coverage, and mandatory unknown-ACK/emergency-flatten/manual recovery. Preparing the plan/read-only checks is allowed; **a real order, Task restore, rearm, risk/strategy mutation require a separate explicit authorization**.
