@@ -1,0 +1,161 @@
+{
+  "absolute_tolerance": 1e-08,
+  "differences": 0,
+  "fields_compared": 2442256,
+  "max_numeric_delta": 5.4569682106375694e-12,
+  "status": "PASS",
+  "summary": [
+    {
+      "PF": 1.6373103741864141,
+      "R": 151.0645475572141,
+      "closed": 512,
+      "positive_months": 19,
+      "rule": "C1",
+      "terminal_OPEN": 1,
+      "version": "BASELINE"
+    },
+    {
+      "PF": 1.7377037312891626,
+      "R": 176.33966194973706,
+      "closed": 497,
+      "positive_months": 17,
+      "rule": "C1",
+      "terminal_OPEN": 1,
+      "version": "OPTIMIZED"
+    },
+    {
+      "PF": 1.5474916012828013,
+      "R": 135.52025223895126,
+      "closed": 568,
+      "positive_months": 17,
+      "rule": "T1",
+      "terminal_OPEN": 1,
+      "version": "BASELINE"
+    },
+    {
+      "PF": 1.678407905888374,
+      "R": 175.74464699819373,
+      "closed": 549,
+      "positive_months": 18,
+      "rule": "T1",
+      "terminal_OPEN": 1,
+      "version": "OPTIMIZED"
+    },
+    {
+      "PF": 1.5864360209566175,
+      "R": 155.70796110901352,
+      "closed": 560,
+      "positive_months": 17,
+      "rule": "COMBINED",
+      "terminal_OPEN": 1,
+      "version": "BASELINE"
+    },
+    {
+      "PF": 1.7190937838995832,
+      "R": 192.8191745362194,
+      "closed": 545,
+      "positive_months": 17,
+      "rule": "COMBINED",
+      "terminal_OPEN": 1,
+      "version": "OPTIMIZED"
+    }
+  ],
+  "tables": [
+    {
+      "actual_rows": 1009,
+      "fields": 43387,
+      "reference_rows": 1009,
+      "table": "PR497_C1_trades"
+    },
+    {
+      "actual_rows": 2,
+      "fields": 42,
+      "reference_rows": 2,
+      "table": "PR497_C1_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 22220,
+      "fields": 599940,
+      "reference_rows": 22220,
+      "table": "PR497_C1_stop_decisions"
+    },
+    {
+      "actual_rows": 4034,
+      "fields": 68578,
+      "reference_rows": 4034,
+      "table": "PR497_C1_entry_opportunities"
+    },
+    {
+      "actual_rows": 1117,
+      "fields": 48031,
+      "reference_rows": 1117,
+      "table": "PR499_T1_trades"
+    },
+    {
+      "actual_rows": 2,
+      "fields": 32,
+      "reference_rows": 2,
+      "table": "PR499_T1_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 21174,
+      "fields": 487002,
+      "reference_rows": 21174,
+      "table": "PR499_T1_stop_decisions"
+    },
+    {
+      "actual_rows": 4034,
+      "fields": 92782,
+      "reference_rows": 4034,
+      "table": "PR499_T1_entry_opportunities"
+    },
+    {
+      "actual_rows": 4740,
+      "fields": 56880,
+      "reference_rows": 4740,
+      "table": "PR499_T1_observed_gaps"
+    },
+    {
+      "actual_rows": 19,
+      "fields": 342,
+      "reference_rows": 19,
+      "table": "PR499_T1_PERIOD_END_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 1105,
+      "fields": 50830,
+      "reference_rows": 1105,
+      "table": "PR500_COMBINED_trades"
+    },
+    {
+      "actual_rows": 2,
+      "fields": 42,
+      "reference_rows": 2,
+      "table": "PR500_COMBINED_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 24121,
+      "fields": 844235,
+      "reference_rows": 24121,
+      "table": "PR500_COMBINED_stop_decisions"
+    },
+    {
+      "actual_rows": 4034,
+      "fields": 92782,
+      "reference_rows": 4034,
+      "table": "PR500_COMBINED_entry_opportunities"
+    },
+    {
+      "actual_rows": 4740,
+      "fields": 56880,
+      "reference_rows": 4740,
+      "table": "PR500_COMBINED_observed_gaps"
+    },
+    {
+      "actual_rows": 19,
+      "fields": 437,
+      "reference_rows": 19,
+      "table": "PR500_COMBINED_PERIOD_END_OPEN_POSITIONS"
+    }
+  ]
+}
