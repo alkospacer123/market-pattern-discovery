@@ -1,0 +1,320 @@
+{
+  "R_stress": [
+    0.05,
+    0.1
+  ],
+  "TRUE_OOS": {
+    "end": "2027-01-01T00:00:00+03:00",
+    "execute": false,
+    "read": false,
+    "start": "2026-01-01T00:00:00+03:00"
+  },
+  "WF": [
+    "2025-01-01T00:00:00+03:00",
+    "2026-01-01T00:00:00+03:00"
+  ],
+  "base_main": "fa188b51fbd27df5a51a43a9742bc772a1c17abd",
+  "boundary_accounting": {
+    "OPEN_in_CLOSED_PF_or_R": false,
+    "WF_to_TRUE_OOS": "carry unchanged state; show inherited WF signal/position IDs separately from new OOS-entry cohort; never backfill sealed WF using OOS outcomes",
+    "carry": [
+      "position",
+      "immutable_initial_R",
+      "active_Stop",
+      "S1_status_and_time",
+      "favorable_extreme",
+      "indicator_recursions",
+      "daily_H1_block",
+      "pending_signal",
+      "occupancy",
+      "trade_ID_sequence"
+    ],
+    "closed_bridge": "cannot skip protected intervening history or silently reuse stale position/indicator state; separate user authorization required",
+    "entry_cohort_rule": "signal and actual entry timestamps both within reporting interval; never use future exit outcomes before authorized",
+    "event_at_end_exclusive": "belongs to next reporting block; do not read next closed block to complete previous report",
+    "forced_liquidation": false,
+    "full_WF_new_entry_cohort": "signal and actual entry both within full WF; include each known CLOSED once even across W blocks; terminal OPEN stays separate; exclude inherited development/bridge positions",
+    "full_trade_R_split_into_multiple_CLOSED": false,
+    "marked_R_formula": "sum(full_R_of_exits_labelled_in_period) + U_end - U_start",
+    "marked_R_is_capital_return": false,
+    "positive_CLOSED_months_and_positive_marked_months_separate": true,
+    "primary_CLOSED_allocation": "full trade initial R, exactly once in exit-Close reporting block; entry-cohort and inherited IDs disclosed separately",
+    "quarterly_FLAT_reset": false,
+    "reporting_event_label": "canonical completed Close labels; exits at Open keep canonical exit Close label",
+    "snapshot": "last permitted completed bar before boundary, with actual timestamp/staleness; unavailable mark=N/A",
+    "snapshot_fields": [
+      "trade_id",
+      "instrument",
+      "direction",
+      "signal_time",
+      "entry_time",
+      "entry_price",
+      "initial_stop",
+      "initial_risk",
+      "active_stop",
+      "threshold_activated",
+      "activation_time",
+      "favorable_extreme",
+      "last_close",
+      "last_close_price",
+      "unrealized_gross_R_at_last_close",
+      "pending"
+    ],
+    "terminal_OPEN": "not liquidated, not treated as CLOSED or zero-outcome; no future read to resolve"
+  },
+  "candidate": "A6+S1 / T3 M15 / NEXT_OPEN / TRAIL_375",
+  "classification": "2023-2024 DEVELOPMENT_EXPOSED; GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY",
+  "configuration": {
+    "S1_activation_initial_R": 1.0,
+    "adx_period": 14,
+    "adx_threshold": 20,
+    "atr_average_period": 20,
+    "atr_period": 14,
+    "breakout_period": 20,
+    "ema_period": 75,
+    "slope_lookback": 5,
+    "stop_atr": 2.0,
+    "trail_atr": 3.75
+  },
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "decision": "Qualitative synthesis, no new fitted admission thresholds. Historic PF1.70/month20 not automatic Robustness PASS.",
+  "decision_categories": [
+    "SUPPORTED",
+    "MIXED",
+    "FRAGILE"
+  ],
+  "decision_protocol": {
+    "all_additional_numeric_gates_if_requested": "preregister separately before new data read; never choose after block results",
+    "automatic_WF_PASS": false,
+    "composite_score": false,
+    "evaluation_priority": [
+      "WF_DATA_BOUNDARY_NOT_AUTHORIZED",
+      "WF_INVALID",
+      "WF_INSUFFICIENT_EVIDENCE",
+      "WF_GROSS_EDGE_NOT_CONFIRMED",
+      "WF_MIXED",
+      "WF_REVIEW_REQUIRED"
+    ],
+    "future_results_currently": null,
+    "gross_edge_not_confirmed_if": {
+      "applies_to": [
+        "full_WF_calendar_CLOSED",
+        "new_WF_signal_and_entry_CLOSED_cohort"
+      ],
+      "full_Gross_R_lte": 0,
+      "full_defined_PF_lte": 1,
+      "full_expectancy_R_lte": 0
+    },
+    "historical_benchmarks_not_automatic_admission": {
+      "DD_R_reference": 12.628056181602872,
+      "annual_gross_PF_min": 1.7,
+      "positive_months_reference": "20/24",
+      "preferred_annual_PF_strictly_gt": 2
+    },
+    "inherited_profit_alone_confirms_new_WF_edge": false,
+    "insufficient_if": [
+      "assigned_primary_window_coverage_incomplete_or_unverified",
+      "full_WF_or_new_WF_cohort_has_no_CLOSED",
+      "full_WF_or_new_WF_cohort_PF_undefined"
+    ],
+    "invalid_if": [
+      "unapproved_access_or_leakage",
+      "changed_frozen_rules",
+      "full_CONTROL_not_matching",
+      "unreconciled_journals_or_repeat",
+      "undeclared_boundary"
+    ],
+    "mixed_if": "valid sufficient positive full gross edge, but a quarter, instrument, side, fixed stress or exclusion has nonpositive Gross R; retain all evidence and review, no parameter change",
+    "net_profit_or_live_claims_authorized": false,
+    "new_fitted_DD_month_concentration_trade_count_cutoffs": false,
+    "next_stage_auto_authorized": false,
+    "otherwise": "WF_REVIEW_REQUIRED; audit regularity, DD/recovery, concentration, carry and sample size; separate user decision on TRUE OOS",
+    "real_cost_aware_true_oos_protocol_ready": false
+  },
+  "development": [
+    "2023-01-01T00:00:00+03:00",
+    "2025-01-01T00:00:00+03:00"
+  ],
+  "diagnostics_only": false,
+  "labels": "DEVELOPMENT_2023_2024_EXPOSED / WF_2025_AUTHORIZED / TRUE_OOS_2026_LOCKED / GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY",
+  "leader_checks": {
+    "CLOSED": 480,
+    "DD_ALL": 12.628056,
+    "OPEN": 1,
+    "PF2023": 2.2072776314,
+    "PF2024": 1.7721337045,
+    "PF_ALL": 1.9119337996,
+    "R_ALL": 212.522656,
+    "november_share_2024_percent": 44.0056,
+    "positive2023": 9,
+    "positive2024": 11,
+    "positive_ALL": 20
+  },
+  "metrics": {
+    "DD_cumulative_across_blocks": true,
+    "DD_order": [
+      "exit_time",
+      "instrument",
+      "trade_id"
+    ],
+    "PF_formula": "sum(R>0)/abs(sum(R<0)); undefined denominator -> null with reason, never infinity PASS",
+    "aggregate_PF": "recompute on concatenated unique CLOSED rows; never average block PF",
+    "calendar_denominator_preserved": true,
+    "coverage_states": [
+      "NO_COVERAGE",
+      "AVAILABLE_NO_CLOSED",
+      "WARMUP_NOT_READY",
+      "AVAILABLE"
+    ],
+    "fixed_diagnostics": {
+      "R_loss_per_CLOSED": [
+        0.05,
+        0.1
+      ],
+      "excluded_best_month_counts": [
+        1,
+        3
+      ],
+      "excluded_top_winner_counts": [
+        1,
+        3,
+        5,
+        10
+      ],
+      "leave_one_out_instruments": true,
+      "nonpositive_net_R_share": null,
+      "rank_within_each_assessment_period": true,
+      "real_cost_model": false,
+      "same_tie_breaking_as_PR510": true,
+      "strategy_replay": false
+    },
+    "reporting": [
+      "each_3_month_block",
+      "cumulative_WF",
+      "full_12_month_WF",
+      "each_calendar_month"
+    ],
+    "required": [
+      "CLOSED",
+      "OPEN",
+      "pending",
+      "skip",
+      "busy",
+      "coverage",
+      "gross_PF",
+      "Gross_R",
+      "expectancy_R",
+      "win_rate",
+      "holding_time",
+      "positive_zero_negative_months",
+      "worst_month",
+      "losing_month_and_trade_runs",
+      "closed_R_drawdown",
+      "recovery",
+      "marked_R",
+      "carried_in_out_IDs",
+      "entry_cohorts",
+      "instrument_and_side_contributions",
+      "best1_best3_months",
+      "top1_top3_top5_top10_winners_IDs"
+    ],
+    "scopes": [
+      "ALL_FOUR",
+      "each_instrument",
+      "LONG",
+      "SHORT",
+      "instrument_x_side"
+    ],
+    "zero_month_positive": false
+  },
+  "name": "T3_M15_A6_S1_WALK_FORWARD_2025_V1",
+  "no_new_replay": false,
+  "periods": [
+    "2023",
+    "2024",
+    "ALL"
+  ],
+  "quarters": [
+    {
+      "end": "2025-04-01T00:00:00+03:00",
+      "id": "W1",
+      "start": "2025-01-01T00:00:00+03:00"
+    },
+    {
+      "end": "2025-07-01T00:00:00+03:00",
+      "id": "W2",
+      "start": "2025-04-01T00:00:00+03:00"
+    },
+    {
+      "end": "2025-10-01T00:00:00+03:00",
+      "id": "W3",
+      "start": "2025-07-01T00:00:00+03:00"
+    },
+    {
+      "end": "2026-01-01T00:00:00+03:00",
+      "id": "W4",
+      "start": "2025-10-01T00:00:00+03:00"
+    }
+  ],
+  "ranking": "Separate ranking inside each assessment period; descending frozen gross_R then exit_time,instrument,trade_id. Top month ties: calendar order.",
+  "rules": {
+    "S1": "Stop first; activate only on completed survived post-entry bar, including execution bar; tightened Stop effective next observed bar",
+    "T1": "ABSENT: no entry hour restriction",
+    "adjacency": "execution bar Open time equals signal Close; execution Close equals signal Close +15min; else skip, never wait",
+    "initial_stop": "actual_entry - side * 2 * ATR_of_completed_signal; immutable R=abs(entry-initial_stop)",
+    "pending": "unresolved last eligible signal separately, no 2025+ OHLC or fabricated execution"
+  },
+  "scenario_combinations": false,
+  "sources": [
+    {
+      "first_close": "2023-01-03T09:15:00+03:00",
+      "first_open": "2023-01-03T09:00:00+03:00",
+      "git_blob_sha": "6d4f7691c1c6bfbad59b62a6f5d613a4ed1e984e",
+      "historical_prefix_sha256": "03ca797870de164d738da97094013def88583892f54278d362337d22ce0a532e",
+      "instrument": "USDRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/USDRUBF/USDRUBF_M15.csv",
+      "used_candles": 29890
+    },
+    {
+      "first_close": "2023-01-03T09:15:00+03:00",
+      "first_open": "2023-01-03T09:00:00+03:00",
+      "git_blob_sha": "a5ff61bbdd9bb6659a0f4fea7141b04b5e8bc35e",
+      "historical_prefix_sha256": "41f4f29f4b6ddefbbbc8aad44f91a0f9cd689536ecabeb1c09f34936a004fdbc",
+      "instrument": "CNYRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M15.csv",
+      "used_candles": 29633
+    },
+    {
+      "first_close": "2023-07-11T10:15:00+03:00",
+      "first_open": "2023-07-11T10:00:00+03:00",
+      "git_blob_sha": "726c9242a025e75de4d0e93a2c215cc2778b9a9a",
+      "historical_prefix_sha256": "86635d2fc733fa47db171326200ac4b09bdcc7f262297490274c16d5e708899f",
+      "instrument": "GLDRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M15.csv",
+      "used_candles": 22189
+    },
+    {
+      "first_close": "2023-11-14T10:15:00+03:00",
+      "first_open": "2023-11-14T10:00:00+03:00",
+      "git_blob_sha": "23d8e02920684a1a55e50b222271faaa81be5120",
+      "historical_prefix_sha256": "57bd34a441960d9c488daf93d9e295573587960c100e156eb241188ae7440f38",
+      "instrument": "IMOEXF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/IMOEXF/IMOEXF_M15.csv",
+      "used_candles": 16593
+    }
+  ],
+  "top_winners": [
+    1,
+    3,
+    5,
+    10
+  ]
+}
