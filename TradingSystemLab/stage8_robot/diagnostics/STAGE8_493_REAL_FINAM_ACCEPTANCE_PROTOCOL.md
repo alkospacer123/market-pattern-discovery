@@ -155,3 +155,26 @@ production or attempt a real order. Real 1→2 partial-fill stop coverage is
 still unproven and requires separate explicit authorization.
 
 Checkpoint: `N4_MARGIN_OBSERVED_CASH_AND_R15_UNVERIFIED_NO_TRADE_AUTHORITY`.
+
+
+## 2026-10-13 — offline account-cash observation and two-lot GO-only threshold
+
+The operator's SHA-validated **existing external JSON** was read locally
+without new broker calls: portfolio `MC`, nonnegative account unrealized
+PnL (observed zero), valid broker equity and available cash. Financial
+amounts stay outside public GitHub. Comparing the observed client-specific
+N4 directional margin values to that available cash established the narrow
+**2 contracts of one N4 instrument fit margin at this snapshot**; two each
+across all four simultaneously do not. Neither statement is FULL/R15 trade
+authorization.
+
+Next local-only gate: verify the frozen production SQLite's
+`explained_external_cash_flows`, persisted `realized_equity`, account hash,
+database identity and HALTED state using exact report SHA-256 and SQLite
+`mode=ro`+`query_only`. A standalone operator scratch utility was prepared
+and four synthetic local negative/positive controls tested; native Intel run
+remains pending. Client-specific fees, actual entry/stop loss and approved
+slippage/budget, and dynamic real SLTP 1→2 partial fill remain **UNVERIFIED**.
+Production Task Disabled/HALTED and zero real-order authorization are preserved.
+
+Checkpoint: `N4_TWO_LOT_MARGIN_CAPACITY_ONLY_PASS_R15_RISK_AND_REAL_SLTP_BLOCKED`.
