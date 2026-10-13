@@ -178,3 +178,10 @@ slippage/budget, and dynamic real SLTP 1→2 partial fill remain **UNVERIFIED**.
 Production Task Disabled/HALTED and zero real-order authorization are preserved.
 
 Checkpoint: `N4_TWO_LOT_MARGIN_CAPACITY_ONLY_PASS_R15_RISK_AND_REAL_SLTP_BLOCKED`.
+
+
+## 2026-10-13 — actual R15 SQLite key-presence gate blocked
+
+Intel operator's hash-pinned standalone, local-only R15 reader returned `CLASSIFICATION=BLOCKED:R15_STATE_KEYS_MISSING` and `REAL_ORDER_AUTHORIZED=NO`. It did not identify the missing key and did not justify substituting broker equity, creating a new state key, changing production SQLite, or modifying frozen FULL/R15. See `STAGE8_493_N4_FINANCIAL_READONLY.md` for the six-key allowlist and the isolated, read-only key-name inventory prepared for the next Intel observation.
+
+**Gate result:** Broker cash and directional N4 margin observations PASS at their timestamp; realized R15 basis still **UNVERIFIED / BLOCKED**, client commissions and actual entry/stop economics unverified, real SLTP 1→2 dynamic coverage unverified. Production remains Task Disabled / HALTED at last physical acceptance, and no merge, real order, deploy, rearm or restoration is authorized.
