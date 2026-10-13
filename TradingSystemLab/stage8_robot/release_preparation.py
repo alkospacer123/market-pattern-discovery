@@ -269,6 +269,32 @@ def dry_run(snapshot, expected_sha, out, *, account_hash, source_commit, candida
     return manifest,result
 
 
+def _candidate_state_database(root):
+    """Reject internal V2 state/SQLite aliases, even though their names are reserved."""
+    database=root/'state'/'stage8-12-production.sqlite3'
+    # safe_external(root) has already validated the absolute root and ancestors.
+    # The internal names 'state' and stage8-12-production.sqlite3 cannot pass
+    # safe_external's ordinary external-file name restrictions.
+    for item in (database.parent,database):
+        try:
+            if item.is_symlink():raise ReleaseBlocked('SYMLINK_PATH_FORBIDDEN')
+            metadata=item.lstat()
+        except FileNotFoundError:
+            raise ReleaseBlocked('ISOLATED_RELEASE_ROOT_REQUIRED') from None
+        except OSError as exc:
+            raise ReleaseBlocked('PATH_METADATA_UNVERIFIED') from exc
+        attributes=getattr(metadata,'st_file_attributes',None)
+        if attributes is None and os.name=='nt':
+            raise ReleaseBlocked('WINDOWS_REPARSE_AUTHORITY_UNAVAILABLE')
+        if attributes is not None and attributes & stat.FILE_ATTRIBUTE_REPARSE_POINT:
+            raise ReleaseBlocked('REPARSE_PATH_FORBIDDEN')
+    # No symlink, junction or other reparse redirect may change the canonical
+    # internal root/state/database identity.
+    if database.parent.resolve()!=database.parent or database.resolve()!=database:
+        raise ReleaseBlocked('ISOLATED_RELEASE_ROOT_REQUIRED')
+    return database
+
+
 def validate_manifest(path, expected_sha, *, runtime_root, data_root, account_hash, accepted_commit):
     path=safe_external(path)
     if sha(path)!=expected_sha:raise ReleaseBlocked('RELEASE_MANIFEST_SHA256_MISMATCH')
@@ -281,7 +307,8 @@ def validate_manifest(path, expected_sha, *, runtime_root, data_root, account_ha
             or value.get('code_sha256')!=code_binding() or value.get('code_sha256')!=committed_code_binding(accepted_commit)
             or value.get('stage5_data_commit')!=STAGE5_DATA_COMMIT):
         raise ReleaseBlocked('RELEASE_PROFILE_IDENTITY_OR_CODE_MISMATCH')
-    root=safe_external(runtime_root,must_exist=False);database=root/'state'/'stage8-12-production.sqlite3'
+    root=safe_external(runtime_root,must_exist=False)
+    database=_candidate_state_database(root)
     archive=safe_external(value['archive'],snapshot=True)
     if archive!=path.parent/'legacy-snapshot.archive.sqlite3':raise ReleaseBlocked('BOUND_ARCHIVE_REQUIRED')
     if (str(root)!=value['runtime_root'] or root.parent!=path.parent or str(database)!=value['database']
