@@ -671,9 +671,15 @@ class ProductionRuntime:
     @_atomic
     def confirm_entry_position(self, entry_key: str, observed_quantity: int, *,
                                verified_fill_entry: Decimal | None = None,
-                               fill_authority: str | None = None) -> RuntimeAction | None:
+                               fill_authority: str | None = None,
+                               observed_protective_stop: Any = None) -> RuntimeAction | None:
         if self.execution_revision:
-            return self._confirm_candidate_entry(entry_key, observed_quantity, verified_fill_entry=verified_fill_entry, fill_authority=fill_authority)
+            return self._confirm_candidate_entry(
+                entry_key, observed_quantity, verified_fill_entry=verified_fill_entry,
+                fill_authority=fill_authority, observed_protective_stop=observed_protective_stop,
+            )
+        if observed_protective_stop is not None:
+            raise ProductionRuntimeError("LEGACY_PROTECTION_OBSERVATION_NOT_SUPPORTED")
         intent = self.store.intent(entry_key)
         if not intent or intent["payload"].get("kind") != "ENTRY":
             raise ProductionRuntimeError("ENTRY_INTENT_NOT_FOUND")
@@ -1009,7 +1015,8 @@ class ProductionRuntime:
             raise ValueError("DURABLE_FILL_PRICE_OR_RISK_INVALID")
 
     def _confirm_candidate_entry(self, entry_key: str, observed_quantity: int, *,
-                                 verified_fill_entry: Decimal | None, fill_authority: str | None) -> RuntimeAction | None:
+                                 verified_fill_entry: Decimal | None, fill_authority: str | None,
+                                 observed_protective_stop: Any = None) -> RuntimeAction | None:
         intent = self.store.intent(entry_key)
         if not intent or intent["payload"].get("kind") != "ENTRY":
             raise ProductionRuntimeError("ENTRY_INTENT_NOT_FOUND")
@@ -1048,8 +1055,70 @@ class ProductionRuntime:
         elif current["trade_id"] != payload["trade_id"]:
             raise ProductionRuntimeError("ENTRY_POSITION_ALREADY_EXISTS")
         elif current["quantity"] != abs(observed_quantity):
-            if abs(observed_quantity) < current["quantity"] or current["protective_stop_state"] == "ACTIVE":
+            if abs(observed_quantity) < current["quantity"]:
                 self.halt("POSITION_CHANGED_WHILE_ENTRY_UNRESOLVED")
+                self.store.put(f"entry_growth_hold:{entry_key}", {
+                    "observed_quantity": abs(observed_quantity), "prior_quantity": current["quantity"],
+                    "reason": "POSITION_DECREASED_OR_REVERSED",
+                })
+                return None
+            if current["protective_stop_state"] == "ACTIVE":
+                # An ACTIVE local flag or an SLTP ACK is not proof that FINAM
+                # protects newly filled contracts. Require the *same* broker
+                # stop ID, exact persisted intent, and fresh active 100% order
+                # in the current account/orders observation before growth.
+                from .broker import compact_client_order_id
+                from .production_broker_state import BrokerOrderView, active_sltp_for_trade
+                broker_id = current.get("protective_stop_broker_order_id")
+                related = [
+                    row for row in self.store.all_intents()
+                    if row["payload"].get("kind") in {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}
+                    and row["payload"].get("trade_id") == current["trade_id"]
+                    and row.get("broker_order_id") == broker_id
+                    and row["status"] == "RECONCILED"
+                ]
+                matched = False
+                if (type(current.get("protective_covered_quantity")) is int
+                        and current["protective_covered_quantity"] == current["quantity"]
+                        and current.get("protective_stop_state") == "ACTIVE"
+                        and isinstance(broker_id, str) and broker_id and len(related) == 1
+                        and isinstance(observed_protective_stop, BrokerOrderView)):
+                    stop = observed_protective_stop
+                    row = related[0]
+                    try:
+                        expected_price = Decimal(str(current["current_stop"]))
+                        observed_price = Decimal(stop.request["sl_price"]["value"])
+                        matched = (
+                            stop.order_id == broker_id and stop.active
+                            and stop.kind == "SLTP"
+                            and stop.symbol == payload["finam_symbol"]
+                            and stop.side == ("SIDE_SELL" if payload["direction"] == "LONG" else "SIDE_BUY")
+                            and stop.comment == row["idempotency_key"]
+                            and stop.client_order_id == compact_client_order_id(row["idempotency_key"])
+                            and observed_price == expected_price
+                            and observed_price == Decimal(str(current["protective_stop_price"]))
+                            and active_sltp_for_trade(
+                                [stop], trade_id=current["trade_id"],
+                                symbol=payload["finam_symbol"],
+                            ) == [stop]
+                        )
+                    except (KeyError, TypeError, ValueError, ArithmeticError, RuntimeError):
+                        matched = False
+                if not matched:
+                    self.halt("POSITION_GROWTH_ACTIVE_STOP_NOT_REVERIFIED")
+                    self.store.put(f"entry_growth_hold:{entry_key}", {
+                        "observed_quantity": abs(observed_quantity), "prior_quantity": current["quantity"],
+                        "reason": "ACTIVE_PERCENT_STOP_BROKER_PROOF_MISSING",
+                    })
+                    return None
+                current["protective_covered_quantity"] = abs(observed_quantity)
+                self.store.put(f"entry_growth_stop_observed:{entry_key}", {
+                    "from_quantity": current["quantity"], "to_quantity": abs(observed_quantity),
+                    "broker_stop_id": broker_id, "client_order_id": stop.client_order_id,
+                    "stop_price": str(expected_price), "quantity_measure": "SLTP_QTY_MEASURE_PERCENT",
+                    "quantity_percent": "100", "evidence": "CURRENT_ACCOUNT_ORDERS_SNAPSHOT",
+                    "real_finam_dynamic_coverage_proven": False,
+                })
             current["quantity"] = abs(observed_quantity)
             current.update(entry=current["reference_entry"], verified_fill_entry=None,fill_authority="MISSING",
                            actual_initial_r=None, actual_initial_loss_cash=None)
