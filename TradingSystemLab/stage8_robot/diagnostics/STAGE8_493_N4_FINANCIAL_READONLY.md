@@ -371,3 +371,57 @@ authorization for any production mutation.
 **Current gate: `FUNDING_ORIGIN_CONFIRMED_R15_LEDGER_TREATMENT_UNRESOLVED`**;
 FINAM real 1→2 stop coverage and explicit real-order authorization remain
 blocked. Candidate PR #493 still Draft / not deployed.
+
+
+
+## 2026-10-13 — frozen FULL/R15 deposit-scaling regression design
+
+Following operator approval to **continue candidate-only offline engineering**,
+the accepted LIVE source (`184e8c2b8fa092a606249ff293a4f507160bff29`)
+and the candidate source were compared for financial behavior:
+
+- On every snapshot, the unchanged production method computes
+  `broker_equity - unrealized_profit - explained_external_cash_flows`
+  and stores the resulting risk basis in production state. Only a new
+  entry uses the latest basis, with frozen `0.015` risk fraction and
+  current available broker cash plus directional margin; existing
+  positions are **not pyramided or rescaled** on funding alone.
+- With the currently observed external-flow field at **zero**, an
+  increase in FINAM equity due to funding is included in the risk basis
+  on the next healthy service snapshot and scales a future eligible
+  entry automatically (subject to stop loss per contract, full lots,
+  broker GO, session and authorization).
+- If a deposit is instead added to the exact
+  `explained_external_cash_flows` subtraction field, its value is
+  **excluded** from the risk base. That is a meaningful operational
+  accounting policy decision, not a harmless bookkeeping write.
+- The operator confirmed that the earlier capital increase was a
+  deposit, not trading profit. The risk basis may correctly include
+  funded capital while **trading PnL reporting must not** classify a
+  deposit as strategy return. This review does not alter either
+  financial state or frozen LIVE methods.
+
+An isolated candidate-only test was added:
+`tests/test_stage8_493_funding_auto_sizing_offline.py`. Its inputs are
+**fully synthetic**, not client-specific balances. It exercises the
+actual `ProductionService._realized_basis`, frozen `risk.size_position`
+and `margin.cap_r15_by_margin`, with an in-memory state store and zero
+FINAM connectivity. Scenarios: sequential deposits increase risk and
+new-entry contract counts, unrealized PnL does not, an explained flow
+is subtracted, low risk remains quantity=0, invalid/excessive
+subtractions fail closed, and prior position evidence is not resized.
+An **independent 7-case arithmetic check PASS** ran in the analysis
+environment; the actual new candidate pytest module has **NOT YET
+EXECUTED on an exact candidate checkout** and must not be marked PASS
+until it does. Do not claim true future cashflow classification from
+synthetic tests or presume private FINAM statement verification.
+
+**Decision:** `AUTO_NEW_ENTRY_SIZING_PRESENT_IN_FROZEN_CODE`;
+`DEPOSIT_AS_TRADING_PNL_NOT_AUTHORIZED`;
+`EXTERNAL_FLOW_POLICY_AND_FEES_STILL_PENDING`.
+No modification to runtime SQLite, LIVE process/Task, token, kill
+switch, frozen R15/6%, strategy, results, or production code. Next
+existing Stage8 #493 acceptance items: confirm deposit risk-accounting
+convention without changing frozen sizing, review current client
+tariff/slippage budget and prepare independent real FINAM SLTP 1→2
+proof under a later, separately authorized controlled acceptance.
