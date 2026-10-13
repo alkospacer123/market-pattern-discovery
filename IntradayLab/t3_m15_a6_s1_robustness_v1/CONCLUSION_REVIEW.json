@@ -1,0 +1,12 @@
+{
+  "DECISION_and_README_checked": true,
+  "conclusion_cells": 484,
+  "conclusion_rows": 53,
+  "conclusion_tables": 7,
+  "differences": 0,
+  "frozen_code_unchanged": true,
+  "human_narrative_review": "one author; key numeric/qualitative facts reconciled; external human review PENDING",
+  "source": "fresh independent scalar audit TABLES",
+  "status": "PASS",
+  "total_fields_checked": 3952
+}

@@ -1,0 +1,146 @@
+{
+  "PR506_508": "PASS",
+  "absolute_tolerance": 1e-08,
+  "differences": 0,
+  "fields_compared": 1509772,
+  "fresh_raw_scalar_CONTROL": "PASS",
+  "independence": "computational; one author; external human review PENDING",
+  "max_numeric_delta": 9.663381206337363e-13,
+  "presentation": "PASS",
+  "primary_engine_analysis_metrics_imported": false,
+  "status": "PASS",
+  "tables": [
+    {
+      "actual_rows": 480,
+      "fields": 23520,
+      "reference_rows": 480,
+      "table": "PRIMARY_SCALAR_trades"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 24,
+      "reference_rows": 1,
+      "table": "PRIMARY_SCALAR_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 12478,
+      "fields": 449208,
+      "reference_rows": 12478,
+      "table": "PRIMARY_SCALAR_stop_decisions"
+    },
+    {
+      "actual_rows": 2017,
+      "fields": 72612,
+      "reference_rows": 2017,
+      "table": "PRIMARY_SCALAR_entry_opportunities"
+    },
+    {
+      "actual_rows": 2370,
+      "fields": 30810,
+      "reference_rows": 2370,
+      "table": "PRIMARY_SCALAR_observed_gaps"
+    },
+    {
+      "actual_rows": 12,
+      "fields": 312,
+      "reference_rows": 12,
+      "table": "PRIMARY_SCALAR_PERIOD_END_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 45,
+      "fields": 2160,
+      "reference_rows": 45,
+      "table": "summary_CSV"
+    },
+    {
+      "actual_rows": 45,
+      "fields": 2160,
+      "reference_rows": 45,
+      "table": "summary_JSON"
+    },
+    {
+      "actual_rows": 360,
+      "fields": 16200,
+      "reference_rows": 360,
+      "table": "monthly_CSV"
+    },
+    {
+      "actual_rows": 360,
+      "fields": 16200,
+      "reference_rows": 360,
+      "table": "monthly_JSON"
+    },
+    {
+      "actual_rows": 1027,
+      "fields": 9243,
+      "reference_rows": 1027,
+      "table": "loss_runs_CSV"
+    },
+    {
+      "actual_rows": 1027,
+      "fields": 9243,
+      "reference_rows": 1027,
+      "table": "loss_runs_JSON"
+    },
+    {
+      "actual_rows": 189,
+      "fields": 10395,
+      "reference_rows": 189,
+      "table": "scenario_summary_CSV"
+    },
+    {
+      "actual_rows": 189,
+      "fields": 10395,
+      "reference_rows": 189,
+      "table": "scenario_summary_JSON"
+    },
+    {
+      "actual_rows": 3024,
+      "fields": 139104,
+      "reference_rows": 3024,
+      "table": "scenario_monthly_CSV"
+    },
+    {
+      "actual_rows": 3024,
+      "fields": 139104,
+      "reference_rows": 3024,
+      "table": "scenario_monthly_JSON"
+    },
+    {
+      "actual_rows": 28800,
+      "fields": 288000,
+      "reference_rows": 28800,
+      "table": "scenario_ledger_CSV"
+    },
+    {
+      "actual_rows": 28800,
+      "fields": 288000,
+      "reference_rows": 28800,
+      "table": "scenario_ledger_JSON"
+    },
+    {
+      "actual_rows": 90,
+      "fields": 900,
+      "reference_rows": 90,
+      "table": "top_winners_CSV"
+    },
+    {
+      "actual_rows": 90,
+      "fields": 900,
+      "reference_rows": 90,
+      "table": "top_winners_JSON"
+    },
+    {
+      "actual_rows": 15,
+      "fields": 630,
+      "reference_rows": 15,
+      "table": "november2024_CSV"
+    },
+    {
+      "actual_rows": 15,
+      "fields": 630,
+      "reference_rows": 15,
+      "table": "november2024_JSON"
+    }
+  ]
+}
