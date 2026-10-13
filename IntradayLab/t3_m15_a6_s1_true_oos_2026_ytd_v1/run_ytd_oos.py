@@ -62,7 +62,7 @@ def parse_file(file,cutoff,mode):
     Two independent timestamp parsers, with the same cutoff contract. Reading
     the first excluded timestamp is allowed only to establish the boundary.
     """
-    assert mode in ('primary','scalar') and YEAR_START<cutoff<=CUTOFF
+    assert mode in ('primary','scalar') and datetime(2023,1,1,tzinfo=MOSCOW)<cutoff<=CUTOFF
     sha=hashlib.sha256();rows=[];last=None;reason='EOF'
     with open(file,'rb',buffering=0) as f:
         header=f.readline()
@@ -259,7 +259,7 @@ def run(data_root,output,end):
     for name in G.NAMES:
         fields=set(k for r in p[name]+s[name] for k in r)
         cmp.rows([{k:r.get(k) for k in fields} for r in p[name]],
-                 [{k:r.get(k) for k in fields} for r in s[name]],
+                 C.plain([{k:r.get(k) for k in fields} for r in s[name]]),
                  'INDEPENDENT_'+name,keys[name])
     assert not cmp.diffs,('PRIMARY_SCALAR_MISMATCH',cmp.diffs[:4])
     # Prior to 2026, all completed journal entries and features must be exact.
@@ -270,7 +270,7 @@ def run(data_root,output,end):
         fields=set(k for row in a+b for k in row)
         compare=C.Comparison()
         compare.rows([{k:r.get(k) for k in fields} for r in b],
-                     [{k:r.get(k) for k in fields} for r in a],
+                     C.plain([{k:r.get(k) for k in fields} for r in a]),
                      'SEALED_2025_'+name,keys[name])
         assert not compare.diffs,('SEALED_2025_CHANGED',name,compare.diffs[:3])
     for symbol in C.SYMBOLS:
