@@ -158,3 +158,16 @@ The retained, bounded `GET /trades` observation identified **one** matching CNYR
 - The attached `N4_SPECS_READONLY_REPORT.json`, SHA `364438980ae29ab81bc226b6b2c171f87be2ee764ff94e68a799cc2f189ab49e`, records all four FINAM N4 tick grid, lot and positive directional margin observations as PASS. Its `moex_current_tick_value_reverified=false` and per-instrument `FROZEN_MOEX_REFERENCE_NOT_REVERIFIED` mean **current independent MOEX RUB tick monetary authority remains a separate blocker**. No replacement economic coefficient is guessed or written to the registry.
 
 **Scope:** source files were read and rehashed locally for this independent audit; FINAM was **not** queried anew, LIVE was not accessed, and physical evidence dates do not imply broker flatness now. V2 is not deployed, no experiment has been authorized, and `LIVE_PRODUCTION_READY=NO`. The operator-only physical SLTP test remains blocked pending specific permission, controlled isolation and recovery. Do not bypass `FINAM_FILL_AUTHORITY_VERIFIED=False` or alter frozen strategy/risk parameters.
+
+### Official MOEX public tick-price crosscheck, separate from Intel report (2026-10-13)
+
+A fresh independent public-source lookup of the official MOEX perpetual contract pages confirms the N4 original registry values without editing that registry:
+
+| Perpetual contract | Tick (quote units) | RUB per tick per contract | Lot | Official MOEX source |
+|---|---:|---:|---:|---|
+| USDRUBF | 0.01 | 10 | 1000 | https://www.moex.com/ru/derivatives/perpetual-futures/usdrubf |
+| CNYRUBF | 0.001 | 1 | 1000 | https://www.moex.com/ru/derivatives/perpetual-futures/cnyrubf |
+| GLDRUBF | 0.1 | 0.1 | 1 | https://www.moex.com/ru/derivatives/perpetual-futures/GLDRUBF |
+| IMOEXF | 0.5 | 5 | 10 | https://www.moex.com/ru/derivatives/perpetual-futures/IMOEXF ; also https://www.moex.com/a8803 |
+
+Source/observation scope is separately recorded in [moex_public_tick_crosscheck_20261013.json](moex_public_tick_crosscheck_20261013.json). This **closes the public-documentary N4 tick-value crosscheck**, not the physical trade-time broker risk/margin/fill/SLTP acceptance. The original Intel JSON's `moex_current_tick_value_reverified=false` remains exactly as emitted on October 12; the newer public check does not retroactively change it. Broker cash, instrument/tradability, GO and order safety must be rechecked afresh immediately before any separately authorized real experiment. No currency conversion from AccountTrade `XXX` or frozen specification/risk edit is inferred. `LIVE_PRODUCTION_READY=NO`.
