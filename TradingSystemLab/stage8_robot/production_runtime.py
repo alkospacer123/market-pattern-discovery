@@ -430,7 +430,38 @@ class ProductionRuntime:
         row=rows[0];payload=row["payload"]
         submission=self.store.get(f"protective_submission:{row['idempotency_key']}")
         expected=abs(submission["position_quantity"]) if submission else payload["quantity"]
-        if (covered!=expected or covered<=0 or covered>position["planned_quantity"]
+        growth_proven = covered == expected
+        if covered != expected:
+            # The original stop submission is immutable: it records how many
+            # contracts existed when FINAM first ACKed this 100%-position SLTP.
+            # Later growth needs its own durable account/orders observation,
+            # bound to this *same* reconciled stop, including across restart.
+            from .broker import compact_client_order_id
+            proof=self.store.get(f"entry_growth_stop_observed:{position['entry_key']}")
+            growth_proven = (
+                isinstance(proof, dict)
+                and set(proof) == {
+                    "from_quantity", "to_quantity", "broker_stop_id",
+                    "client_order_id", "stop_price", "quantity_measure",
+                    "quantity_percent", "evidence",
+                    "real_finam_dynamic_coverage_proven",
+                }
+                and type(expected) is int and expected > 0
+                and type(proof["from_quantity"]) is int
+                and proof["from_quantity"] == expected
+                and type(proof["to_quantity"]) is int
+                and proof["to_quantity"] == covered
+                and covered > expected
+                and covered == position["quantity"]
+                and proof["broker_stop_id"] == broker_id
+                and proof["client_order_id"] == compact_client_order_id(row["idempotency_key"])
+                and proof["stop_price"] == str(Decimal(position["protective_stop_price"]))
+                and proof["quantity_measure"] == "SLTP_QTY_MEASURE_PERCENT"
+                and proof["quantity_percent"] == "100"
+                and proof["evidence"] == "CURRENT_ACCOUNT_ORDERS_SNAPSHOT"
+                and proof["real_finam_dynamic_coverage_proven"] is False
+            )
+        if (not growth_proven or covered<=0 or covered>position["planned_quantity"]
                 or payload["trade_id"]!=position["trade_id"] or payload["instrument"]!=position["instrument"]
                 or Decimal(position["protective_stop_price"])!=Decimal(payload["stop_price"])):
             raise ValueError("DURABLE_STOP_COVERAGE_INVALID")
