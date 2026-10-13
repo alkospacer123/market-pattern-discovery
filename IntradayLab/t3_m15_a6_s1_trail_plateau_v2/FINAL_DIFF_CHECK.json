@@ -1,4 +1,30 @@
 {
-  "status": "PENDING_STAGED_AND_COMMITTED_BLOB_VERIFICATION",
-  "allowed_prefix": "IntradayLab/t3_m15_a6_s1_trail_plateau_v2/"
+  "NO_AUTO_MERGE": true,
+  "NO_MERGE": true,
+  "TradingSystemLab_tree_unchanged": true,
+  "all_changes_additions_only_new_directory": true,
+  "artifact_inventory_self_exclusions": [
+    "ARTIFACT_SHA256.json",
+    "FINAL_DIFF_CHECK.json"
+  ],
+  "base_main": "0546e10d9977687a77638d76847b205c99223e16",
+  "changed_files": 98,
+  "committed_artifact_bytes_verified_excluding_this_receipt": 97,
+  "default_whitespace_check": {
+    "findings": [
+      "IntradayLab/t3_m15_a6_s1_trail_plateau_v2/results/MONTHLY_DETAIL.md:1829: new blank line at EOF.",
+      "IntradayLab/t3_m15_a6_s1_trail_plateau_v2/results/REPORT.md:694: new blank line at EOF."
+    ],
+    "reason_preserved": "Two final blank lines emitted by frozen report renderer; preserve first byte-identical primary outputs",
+    "return_code": 2
+  },
+  "first_primary_artifact_bytes_unchanged": 44,
+  "frozen_code_spec_files_unchanged": 23,
+  "github_API_final_main": "0546e10d9977687a77638d76847b205c99223e16",
+  "new_results_or_frozen_code_changed_after_audit": false,
+  "protected_reference_SHA256_files_unchanged": 310,
+  "reviewed_results_commit": "48ff351fa6fff450721c8a5f8a5b45fb11b4156f",
+  "staged_file_bytes_verified": 98,
+  "status": "PASS",
+  "whitespace_check_except_blank_at_EOF": "PASS"
 }
