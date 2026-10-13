@@ -6,7 +6,7 @@
   "auto_merge": false,
   "base_main": "fa188b51fbd27df5a51a43a9742bc772a1c17abd",
   "canonical_engine_scalar_metrics_byte_identical_to_PR510": true,
-  "changed_tracked_files": 263,
+  "changed_tracked_files": 291,
   "data_HEAD_metadata_only": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
   "entire_preexisting_git_tree_differences": [],
   "external_human_review": "PENDING",
@@ -18,7 +18,7 @@
   "protected_SHA256_differences": [],
   "protected_SHA256_files": 4091,
   "raw_data_full_hash_performed": false,
-  "research_branch_head_at_check": "44e90ce8262d2438ac9be7a80559522981fddac3",
+  "research_branch_head_at_check": "e8906ec999de903ebe60a7c7cb29f86e197791cc",
   "sealed_files_checks": {
     "CONTROL": {
       "files": 40,
