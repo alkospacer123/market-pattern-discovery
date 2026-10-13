@@ -1096,6 +1096,10 @@ class ProductionRuntime:
                             stop.order_id == broker_id and stop.active
                             and stop.status in ACTIVE_ORDER_STATUSES
                             and stop.kind == "SLTP"
+                            and stop.request.get("symbol") == stop.symbol
+                            and stop.request.get("side") == stop.side
+                            and stop.request.get("client_order_id") == stop.client_order_id
+                            and stop.request.get("comment") == stop.comment
                             and stop.symbol == payload["finam_symbol"]
                             and stop.side == ("SIDE_SELL" if payload["direction"] == "LONG" else "SIDE_BUY")
                             and stop.comment == row["idempotency_key"]
