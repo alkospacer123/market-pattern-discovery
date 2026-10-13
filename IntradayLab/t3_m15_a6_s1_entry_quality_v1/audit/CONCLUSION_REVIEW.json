@@ -1,0 +1,44 @@
+{
+  "checked_narrative_claims": {
+    "HIGH_RATIO_OCT_SHORT_ENTRIES": {
+      "actual": 0,
+      "expected": 0
+    },
+    "HIGH_RATIO_SHORT_GE2": {
+      "actual": 0,
+      "expected": 0
+    },
+    "LONG2024_intermediate_initial_stops": {
+      "actual": 16,
+      "expected": 16
+    },
+    "MAY_SHORT_RATCHETED_LOSSES": {
+      "actual": 5,
+      "expected": 5
+    },
+    "OCT_SHORT_INITIAL": {
+      "actual": 8,
+      "expected": 8
+    },
+    "SHORT2023_intermediate_initial_stops": {
+      "actual": 7,
+      "expected": 7
+    },
+    "SHORT2024_intermediate_initial_stops": {
+      "actual": 32,
+      "expected": 32
+    },
+    "original_GE2": {
+      "actual": 83,
+      "expected": 83
+    },
+    "original_GE5": {
+      "actual": 21,
+      "expected": 21
+    }
+  },
+  "decision": "NO_SUPPORTED_ENTRY_CHANGE",
+  "qualitative_evidence_judgment": "same author; exact numerical claims verified; human review pending",
+  "status": "PASS",
+  "supplements_independently_computed_from_scalar_raw_trades": true
+}

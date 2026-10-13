@@ -1,0 +1,10 @@
+{
+  "decision": "NO_SUPPORTED_ENTRY_CHANGE",
+  "filter_replays": 0,
+  "frozen_control_unchanged": true,
+  "labels": "GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY",
+  "new_strategies": 0,
+  "proposed_mechanisms": 0,
+  "reason": "SHORT intermediate continuation failures are observable outcomes; available features lack stable cross-year/cross-market weak-month discrimination with strong-winner preservation; extreme ATRRatio short slice is small and does not explain October",
+  "years": "2023-2024 DEVELOPMENT_EXPOSED"
+}
