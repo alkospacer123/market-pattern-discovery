@@ -1,0 +1,17 @@
+{
+  "base_main": "57599b39ed1d7a93a84b97747388408291f30276",
+  "original_checkout_head": "0546e10d9977687a77638d76847b205c99223e16",
+  "PR505": "MERGED",
+  "PR506": "MERGED",
+  "PR506_merge_commit": "57599b39ed1d7a93a84b97747388408291f30276",
+  "files_byte_copied_from_PR506": [
+    "engine.py",
+    "scalar.py",
+    "primary_metrics.py",
+    "scalar_metrics.py",
+    "requirements.txt"
+  ],
+  "common_changes": "BASE and single VERSIONS metadata only; recursive scalar feature logic unchanged",
+  "control_changes": "single frozen TRAIL_375; no new configuration",
+  "protected_files": 257
+}

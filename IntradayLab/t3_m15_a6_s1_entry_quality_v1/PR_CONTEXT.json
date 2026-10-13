@@ -1,0 +1,34 @@
+{
+  "actual_main": "57599b39ed1d7a93a84b97747388408291f30276",
+  "user_previous_main": "0546e10d9977687a77638d76847b205c99223e16",
+  "prs": [
+    {
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/506",
+      "number": 506,
+      "state": "closed",
+      "merged": true,
+      "draft": false,
+      "base": "main",
+      "base_sha": "0546e10d9977687a77638d76847b205c99223e16",
+      "head": "research/t3-m15-a6-s1-trail-plateau-v2",
+      "head_sha": "84ab786ea5a43015a345907547b1b0dbd018823f",
+      "merge_commit_sha": "57599b39ed1d7a93a84b97747388408291f30276",
+      "merged_at": "2026-10-13T15:31:36Z",
+      "title": "IntradayLab: A6+S1 trailing plateau 3.75–4.00; retain frozen TRAIL_375"
+    },
+    {
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/505",
+      "number": 505,
+      "state": "closed",
+      "merged": true,
+      "draft": false,
+      "base": "main",
+      "base_sha": "d555765f8a5c02261e9bfbc97cafed9a16ec76cd",
+      "head": "research/t3-m15-a6-s1-trail-optimization-v1",
+      "head_sha": "18b3ef40a43c0aad80749ac001d39d85d1524e72",
+      "merge_commit_sha": "0546e10d9977687a77638d76847b205c99223e16",
+      "merged_at": "2026-10-13T13:16:34Z",
+      "title": "IntradayLab: A6+S1 trailing — annual PF gate at 3.75, monthly tradeoffs"
+    }
+  ]
+}
