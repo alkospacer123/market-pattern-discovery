@@ -113,3 +113,21 @@ The operator approved continued preparation, **not** trading/rearm/merge. Candid
 - **Next:** operator may install only the two hash-verified standalone diagnostic scripts outside LIVE checkout and execute the documented READONLY command. After receiving its sanitized output and privately supplied hashed report, perform independent financial/provenance audit. No real order follows automatically.
 
 Classification: STAGE8_493_N4_FINANCIAL_READONLY_CANDIDATE_READY_PHYSICAL_GET_PENDING / REAL_ORDER_AUTHORIZED=NO / LIVE_PRODUCTION_READY=NO.
+
+
+## 2026-10-13 — physical FINAM N4 financial READONLY checkpoint (no real-order authority)
+
+After the previously accepted isolation pass and the candidate-only FINAM REST `is_tradable` boolean diagnostic correction, the operator supplied Intel console evidence:
+`EXACT_READONLY_SOURCE_HASHES=PASS`,
+`FRESH_POST_ISOLATION_READONLY_GATE=PASS`,
+`FINAM_N4_FINANCIAL_GET_READONLY=PASS`,
+`REPORT_SHA256=91749F6834D6E1A2837EA16D933F91DBACD46B728143DD463F9AF4FF979C8174`,
+`CLASSIFICATION=STAGE8_493_N4_FINANCIAL_READONLY_REPORT_CREATED_NOT_TRADE_AUTHORITY`,
+`FEES_REALIZED_R15_AND_TWO_CONTRACT_ELIGIBILITY=NOT_VERIFIED`,
+`NO_REAL_ORDER_AUTHORIZATION=YES`.
+
+**Update to historical table in §6 above:** current READONLY isolation+FINAM account/N4 margin GET is **PASS on the dated operator observation**, not PENDING/NOT COLLECTED. The full **two-contract eligibility, fees and stress-loss decision remains NOT VERIFIED** because report contents have not been independently examined and accepted realized equity, entry/stop, client tariffs and loss budget remain missing. The private JSON exists outside production at `c:\tslaudit\fill493\stage8-493-n4-financial-readonly-20261013.json`, with the SHA printed above; keep it off public GitHub and exclude account hash/IDs/tokens from excerpts.
+
+There is **no** change to Stage 7 identity, LIVE checkout, production Task Disabled/HALTED authority, the frozen methodology, real SLTP partial-fill acceptance status, Draft PR merge/deployment status, or any order permission. The next step is local **OFFLINE** evidence inspection and economic evaluation, not another physical trade.
+
+**Checkpoint classification: FINAM_N4_READONLY_FINANCIAL_GET_PASS / REAL_ORDER_ACCEPTANCE_STILL_BLOCKED.**
