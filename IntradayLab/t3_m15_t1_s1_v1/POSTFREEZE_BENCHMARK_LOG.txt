@@ -1,0 +1,3 @@
+GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY
+2023–2024: DEVELOPMENT_EXPOSED
+{"reference_gate": "PASS", "combination_calculated": false, "closed_total": 3966, "terminal_OPEN": 6}

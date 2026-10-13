@@ -1,0 +1,183 @@
+{
+  "2023_2024": "DEVELOPMENT_EXPOSED",
+  "CLOSED_R_order": [
+    "exit_time",
+    "instrument",
+    "trade_id"
+  ],
+  "NO_COVERAGE": "included as zero in 24-month calendar denominator, coverage reported separately",
+  "OHLC_2025_plus_parsed": false,
+  "S1": {
+    "LONG_SHORT_symmetric": true,
+    "activation_bar_stop_first": true,
+    "activation_only_completed_survived_post_entry_bar": true,
+    "activation_threshold": "sign*(accumulated_favorable_extreme-entry) >= immutable_initial_risk",
+    "from_PR": 496,
+    "never_weaken": true,
+    "new_stop_effective": "next actually observed bar",
+    "stop_unchanged_before_activation": true,
+    "trailing_after_activation": "accumulated favorable extrema since entry - sign * fixed trail_atr * current completed M15 ATR"
+  },
+  "absolute_numeric_tolerance": 1e-08,
+  "audit_commit": "623797c90c8300e6b917ecd1edbb07f52628db04",
+  "base_main": "249a9f58a726416bee9d3efd259a9824d348e292",
+  "calendar_months": 24,
+  "completion": "one branch; one Draft PR; STOP",
+  "configurations": {
+    "BASELINE": {
+      "S1_activation_initial_R": 1.0,
+      "adx_period": 14,
+      "adx_threshold": 20,
+      "atr_average_period": 20,
+      "atr_period": 14,
+      "breakout_period": 20,
+      "ema_period": 75,
+      "slope_lookback": 5,
+      "stop_atr": 2.0,
+      "trail_atr": 3.0
+    },
+    "OPTIMIZED": {
+      "S1_activation_initial_R": 1.0,
+      "adx_period": 14,
+      "adx_threshold": 20,
+      "atr_average_period": 20,
+      "atr_period": 14,
+      "breakout_period": 20,
+      "ema_period": 75,
+      "slope_lookback": 5,
+      "stop_atr": 2.0,
+      "trail_atr": 3.5
+    }
+  },
+  "costs": "DEFERRED; no costs or C1 values computed",
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "entry_T1": {
+    "completed_Close_tz": "Europe/Moscow",
+    "exclusive_end": "18:00",
+    "from_PR": 499,
+    "inclusive_start": "10:00"
+  },
+  "evaluation": [
+    "full PF R expectancy closed OPEN",
+    "2023 2024 and all24months",
+    "every instrument LONG SHORT and instrument-direction",
+    "positive months share losing month runs worst month",
+    "CLOSED-R DD losing trade streaks",
+    ">=2R winner retention change degradation lost entries and reasons",
+    "new entries losses and occupancy chronology",
+    "November2024 top5/top10 and removal sensitivity",
+    "duration frequency observed overnight gaps cross-session holding",
+    "compare COMBINED simultaneously with CONTROL T1 S1 on economics regularity DD2024 winner preservation breadth"
+  ],
+  "first_gate_result_SHA256": "db113c8e170d0b9b1833120741dbd8816a8e03b076970cd9310ac2b33f611fbb",
+  "first_gate_status": "PASS",
+  "forbidden": [
+    "numerical Optimization",
+    "Robustness",
+    "Walk Forward",
+    "TRUE OOS",
+    "LIVE",
+    "merge",
+    "auto-merge",
+    "edits outside new directory"
+  ],
+  "full_PF_ge2_required_for_general_goal": true,
+  "gross_PF_objective": 2.0,
+  "historical_signal_Close_fill": "UNVERIFIED_ASSUMPTION",
+  "historical_window": "2023-01-01 <= completed Close < 2025-01-01 Europe/Moscow; every available candle; preserve late starts",
+  "labels": "GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY",
+  "name": "T3_M15_T1_S1_COMBINED_V1",
+  "objective_is_not_automatic_PASS": true,
+  "only_new_mechanism": "T1_CORE_HOURS_ENTRY + S1_TRAIL_AFTER_1R",
+  "reference_SHA256": {
+    "IntradayLab/t3_m15_forever_v1/engine.py": "5dabd2f526255f0e1b003c6820c114e5708d76d8ba5d9580c53c403c2f540c8a",
+    "IntradayLab/t3_m15_session_entry_v1/EXPERIMENT_SPECS.json": "d213fa9a10e7f9e141a3e6c9113bade667a6a5ecee425cfaa2a49cf76eb45d25",
+    "IntradayLab/t3_m15_session_entry_v1/engine.py": "4fe99ca1d91330fe78518a79b39f5549b5a37469c6f50935d4595e6a3df21553",
+    "IntradayLab/t3_m15_stop_exit_v1/engine.py": "67e3c5e2c40b6e7ff098ee08665b9b64a700658c0fb31cb1dbf9ecc67357b3fb",
+    "IntradayLab/t3_m15_stop_exit_v1/results/trades_S1.csv": "3bf4085e216cc7735e29dabbf1c669e51b7c7410c6e9b7f2f30b45eab764b9b1"
+  },
+  "reference_closed_expected": {
+    "CONTROL": [
+      741,
+      701
+    ],
+    "S1": [
+      718,
+      689
+    ],
+    "T1": [
+      568,
+      549
+    ]
+  },
+  "replays": [
+    "CONTROL",
+    "S1",
+    "T1",
+    "COMBINED"
+  ],
+  "selection": "none; retain negative findings; no post-result rule changes",
+  "sources": [
+    {
+      "first_close": "2023-01-03T09:15:00+03:00",
+      "first_open": "2023-01-03T09:00:00+03:00",
+      "full_sha256": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+      "git_blob_sha": "6d4f7691c1c6bfbad59b62a6f5d613a4ed1e984e",
+      "historical_prefix_sha256": "03ca797870de164d738da97094013def88583892f54278d362337d22ce0a532e",
+      "instrument": "USDRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/USDRUBF/USDRUBF_M15.csv",
+      "used_candles": 29890
+    },
+    {
+      "first_close": "2023-01-03T09:15:00+03:00",
+      "first_open": "2023-01-03T09:00:00+03:00",
+      "full_sha256": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+      "git_blob_sha": "a5ff61bbdd9bb6659a0f4fea7141b04b5e8bc35e",
+      "historical_prefix_sha256": "41f4f29f4b6ddefbbbc8aad44f91a0f9cd689536ecabeb1c09f34936a004fdbc",
+      "instrument": "CNYRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M15.csv",
+      "used_candles": 29633
+    },
+    {
+      "first_close": "2023-07-11T10:15:00+03:00",
+      "first_open": "2023-07-11T10:00:00+03:00",
+      "full_sha256": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+      "git_blob_sha": "726c9242a025e75de4d0e93a2c215cc2778b9a9a",
+      "historical_prefix_sha256": "86635d2fc733fa47db171326200ac4b09bdcc7f262297490274c16d5e708899f",
+      "instrument": "GLDRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M15.csv",
+      "used_candles": 22189
+    },
+    {
+      "first_close": "2023-11-14T10:15:00+03:00",
+      "first_open": "2023-11-14T10:00:00+03:00",
+      "full_sha256": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773",
+      "git_blob_sha": "23d8e02920684a1a55e50b222271faaa81be5120",
+      "historical_prefix_sha256": "57bd34a441960d9c488daf93d9e295573587960c100e156eb241188ae7440f38",
+      "instrument": "IMOEXF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/IMOEXF/IMOEXF_M15.csv",
+      "used_candles": 16593
+    }
+  ],
+  "sources_read_only": true,
+  "subset_PF_ge2_is_not_general_goal": true,
+  "terminal_OPEN": "not liquidated; excluded from CLOSED metrics; month/year-end snapshots retained",
+  "unchanged_rules": [
+    "daily ordinal H1 blocks four consecutive completed bars; incomplete/gap block skipped; publish fourth Close",
+    "recursive ATR ADX EMA carry across sessions",
+    "H1 EMA75 slope5 ADX14>20 ATR14>rolling20 mean",
+    "Donchian prior20 observed bars excluding current; cross-session",
+    "causal ffill H1 context; strictly directional breakout at completed Close",
+    "old Stop first; adverse Open gap at Open; no exit-bar favorable extrema",
+    "no forced session/year liquidation; same-Close re-entry allowed subject to T1 and occupancy"
+  ],
+  "year_assignment": "original exit-bar Close in Moscow"
+}

@@ -1,0 +1,33 @@
+{
+  "2023_2024": "DEVELOPMENT_EXPOSED",
+  "labels": "GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY",
+  "runs": [
+    {
+      "FIRST_GATE_direct_byte_equality": true,
+      "FIRST_GATE_files": 8,
+      "direct_byte_equality": true,
+      "fresh_process": true,
+      "generated_files": 31,
+      "independent_direct_byte_equality": true,
+      "independent_generated_files": 9,
+      "independent_manifest_SHA256": "8b3c125eabc4a6f70d29be6d12479bcfb76425ae31dca23b21e3bd45a0ee2129",
+      "manifest_SHA256": "6e2b1f58076b7d3e1c04eae154c42f74d207963a832cc3aa1c7bd5cb8a3b2900",
+      "repeat": 1
+    },
+    {
+      "FIRST_GATE_direct_byte_equality": true,
+      "FIRST_GATE_files": 8,
+      "direct_byte_equality": true,
+      "fresh_process": true,
+      "generated_files": 31,
+      "independent_direct_byte_equality": true,
+      "independent_generated_files": 9,
+      "independent_manifest_SHA256": "8b3c125eabc4a6f70d29be6d12479bcfb76425ae31dca23b21e3bd45a0ee2129",
+      "manifest_SHA256": "6e2b1f58076b7d3e1c04eae154c42f74d207963a832cc3aa1c7bd5cb8a3b2900",
+      "repeat": 2
+    }
+  ],
+  "scope": "primary eight replays + independent eight replays + FIRST GATE #499; every generated trade/Stop/entry/gap/OPEN journal, source manifest, metric, lineage, diagnostic and readable report",
+  "status": "PASS",
+  "two_full_fresh_byte_repeats": true
+}
