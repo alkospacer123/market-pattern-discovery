@@ -1,0 +1,9 @@
+{
+  "CLOSED": 551,
+  "causal_rows_checked": 14761,
+  "executed_entries": 552,
+  "leave_one_out_method": "arithmetic valid for standalone normalized R; no capital/sizing inference",
+  "shared_cross_instrument_limits": false,
+  "status": "PASS",
+  "terminal_OPEN": 1
+}

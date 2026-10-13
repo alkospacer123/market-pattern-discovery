@@ -1,0 +1,7 @@
+{
+  "differences": 0,
+  "fields_compared": 113724,
+  "max_numeric_delta": 1.0658141036401503e-14,
+  "status": "PASS",
+  "tolerance": 1e-08
+}

@@ -1,0 +1,28 @@
+[
+  {
+    "activation_time": null,
+    "active_stop": 8499.257874975508,
+    "breakout_level": 8549.4,
+    "direction": "LONG",
+    "entry_price": 8553.1,
+    "entry_time": "2025-03-31T17:45:00+03:00",
+    "favorable_extreme": 8564.4,
+    "initial_risk": 53.84212502449191,
+    "initial_stop": 8499.257874975508,
+    "instrument": "GLDRUBF",
+    "last_close": "2025-03-31T23:45:00+03:00",
+    "last_close_price": 8560.0,
+    "mode": "NEXT_OPEN",
+    "pending_exit_decision": null,
+    "rule": "C1",
+    "signal_close": 8551.6,
+    "signal_time": "2025-03-31T17:45:00+03:00",
+    "status": "OPEN_NOT_LIQUIDATED_EXCLUDED_FROM_CLOSED_TRADE_METRICS",
+    "stop_source": "INITIAL_STOP",
+    "stop_updates": 0,
+    "threshold_activated": false,
+    "trade_id": "T3-M15-GLDRUBF-000129",
+    "unrealized_gross_R_at_last_close": 0.12815244563361752,
+    "version": "TRAIL_375"
+  }
+]
