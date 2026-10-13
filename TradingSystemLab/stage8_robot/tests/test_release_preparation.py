@@ -475,3 +475,78 @@ def test_path_guard_native_windows_junction_to_synthetic_live(tmp_path,monkeypat
         assert not (target/'future-output').exists()
     finally:
         os.rmdir(junction)  # Remove the junction itself, never traverse its target.
+
+
+@pytest.mark.parametrize('component',['state','database'])
+@pytest.mark.parametrize('alias_kind',['reparse','symlink'])
+def test_manifest_candidate_internal_reparse_or_symlink_is_rejected(external_snapshot,monkeypatch,component,alias_kind):
+    """Internal state/SQLite cannot use safe_external due to their reserved names."""
+    from types import SimpleNamespace
+    manifest,result=prepare(external_snapshot)
+    database=Path(result['database'])
+    flagged=database.parent if component=='state' else database
+    original_lstat=Path.lstat
+    original_is_symlink=Path.is_symlink
+    original_sha=release.sha
+    def metadata(item,*args,**kwargs):
+        value=original_lstat(item,*args,**kwargs)
+        if item==flagged and alias_kind=='reparse':
+            return SimpleNamespace(st_file_attributes=0x400,st_mode=value.st_mode)
+        return value
+    def is_symlink(item):
+        return True if item==flagged and alias_kind=='symlink' else original_is_symlink(item)
+    def refuse_database_hash(path):
+        if Path(path)==database:
+            raise AssertionError('CANDIDATE_DATABASE_MUST_NOT_BE_READ_BEFORE_ALIAS_REJECTION')
+        return original_sha(path)
+    monkeypatch.setattr(Path,'lstat',metadata)
+    monkeypatch.setattr(Path,'is_symlink',is_symlink)
+    monkeypatch.setattr(release,'sha',refuse_database_hash)
+    with pytest.raises(release.ReleaseBlocked,match='REPARSE_PATH_FORBIDDEN|SYMLINK_PATH_FORBIDDEN'):
+        release.validate_manifest(manifest,release.sha(manifest),runtime_root=result['runtime_root'],
+            data_root=external_snapshot[1]/'data',account_hash=release.digest(ACCOUNT),accepted_commit=COMMIT)
+
+
+@pytest.mark.parametrize('component',['state','database'])
+def test_manifest_candidate_internal_missing_windows_reparse_metadata_fails_closed(external_snapshot,monkeypatch,component):
+    """A Windows filesystem without metadata must not silently become trusted."""
+    from types import SimpleNamespace
+    manifest,result=prepare(external_snapshot)
+    database=Path(result['database'])
+    flagged=database.parent if component=='state' else database
+    original_lstat=Path.lstat
+    def metadata(item,*args,**kwargs):
+        value=original_lstat(item,*args,**kwargs)
+        if item==flagged:
+            return SimpleNamespace(st_mode=value.st_mode)
+        return value
+    monkeypatch.setattr(Path,'lstat',metadata)
+    monkeypatch.setattr(release,'os',SimpleNamespace(name='nt'),raising=False)
+    with pytest.raises(release.ReleaseBlocked,match='WINDOWS_REPARSE_AUTHORITY_UNAVAILABLE'):
+        release._candidate_state_database(Path(result['runtime_root']))
+
+
+@pytest.mark.skipif(__import__('os').name!='nt',reason='Native Windows junction integration only')
+def test_native_windows_candidate_state_junction_refused_before_db_open(external_snapshot):
+    """Only synthetic disposable directories; never a production SQLite path."""
+    import os,shutil,subprocess
+    manifest,result=prepare(external_snapshot)
+    root=Path(result['runtime_root'])
+    state=root/'state'
+    saved=external_snapshot[1]/'saved-original-candidate-state'
+    target=external_snapshot[1]/'external-junction-target'
+    target.mkdir()
+    shutil.copy2(result['database'],target/'stage8-12-production.sqlite3')
+    state.rename(saved)
+    linked=False
+    try:
+        command=subprocess.run(['cmd','/c','mklink','/J',str(state),str(target)],
+            stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
+        assert command.returncode==0,command.stdout
+        linked=True
+        with pytest.raises(release.ReleaseBlocked,match='REPARSE_PATH_FORBIDDEN'):
+            release.validate_manifest(manifest,release.sha(manifest),runtime_root=root,
+                data_root=external_snapshot[1]/'data',account_hash=release.digest(ACCOUNT),accepted_commit=COMMIT)
+    finally:
+        if linked:os.rmdir(state)  # Only remove test-created junction, not its target.
+        saved.rename(state)
