@@ -86,8 +86,8 @@ try {
     } finally { $stream.dispose() }
     write-output "TASK_DEFINITION_BACKUP_SHA256=$((get-filehash -literalpath $backup -algorithm sha256).hash)"
     # Authorized production mutation: suppress all Task starts, then stop this Task.
+    $mutated = $true # mutation attempt begins even if the cmdlet partially fails
     disable-scheduledtask -taskname $task_name -taskpath '\' -erroraction stop | out-null
-    $mutated = $true
     $disabled = get-scheduledtask -taskname $task_name -taskpath '\' -erroraction stop
     if ([bool]$disabled.settings.enabled) { throw 'TASK_DISABLE_DID_NOT_PERSIST' }
     write-output 'TASK_DISABLED_RESTART_SUPPRESSED=PASS'
