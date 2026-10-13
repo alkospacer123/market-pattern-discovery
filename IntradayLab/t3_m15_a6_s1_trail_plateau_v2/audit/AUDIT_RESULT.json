@@ -1,0 +1,218 @@
+{
+  "CLOSED": 2424,
+  "absolute_tolerance": 1e-08,
+  "differences": 0,
+  "fields_compared": 3335480,
+  "independence": "separate streaming/dict/scalar; primary engine/analysis/metrics not imported; same author; external human review PENDING",
+  "max_numeric_delta": 6.388223283693151e-13,
+  "signal_decisions": 10085,
+  "status": "PASS",
+  "stop_decisions": 62082,
+  "tables": [
+    {
+      "actual_rows": 2424,
+      "fields": 118776,
+      "reference_rows": 2424,
+      "table": "REPLAY_trades"
+    },
+    {
+      "actual_rows": 5,
+      "fields": 120,
+      "reference_rows": 5,
+      "table": "REPLAY_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 62082,
+      "fields": 2234952,
+      "reference_rows": 62082,
+      "table": "REPLAY_stop_decisions"
+    },
+    {
+      "actual_rows": 10085,
+      "fields": 363060,
+      "reference_rows": 10085,
+      "table": "REPLAY_entry_opportunities"
+    },
+    {
+      "actual_rows": 11850,
+      "fields": 154050,
+      "reference_rows": 11850,
+      "table": "REPLAY_observed_gaps"
+    },
+    {
+      "actual_rows": 62,
+      "fields": 1612,
+      "reference_rows": 62,
+      "table": "REPLAY_PERIOD_END_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 225,
+      "fields": 4050,
+      "reference_rows": 225,
+      "table": "holding_frequency"
+    },
+    {
+      "actual_rows": 780,
+      "fields": 6240,
+      "reference_rows": 780,
+      "table": "negative_month_runs"
+    },
+    {
+      "actual_rows": 75,
+      "fields": 1050,
+      "reference_rows": 75,
+      "table": "funnel_occupancy"
+    },
+    {
+      "actual_rows": 25,
+      "fields": 275,
+      "reference_rows": 25,
+      "table": "november"
+    },
+    {
+      "actual_rows": 2424,
+      "fields": 21816,
+      "reference_rows": 2424,
+      "table": "closed_equity"
+    },
+    {
+      "actual_rows": 150,
+      "fields": 2250,
+      "reference_rows": 150,
+      "table": "top_winners"
+    },
+    {
+      "actual_rows": 4885,
+      "fields": 102585,
+      "reference_rows": 4885,
+      "table": "lineage"
+    },
+    {
+      "actual_rows": 60,
+      "fields": 960,
+      "reference_rows": 60,
+      "table": "winner_retention"
+    },
+    {
+      "actual_rows": 26,
+      "fields": 260,
+      "reference_rows": 26,
+      "table": "new_entries"
+    },
+    {
+      "actual_rows": 5,
+      "fields": 115,
+      "reference_rows": 5,
+      "table": "comparison"
+    },
+    {
+      "actual_rows": 4,
+      "fields": 40,
+      "reference_rows": 4,
+      "table": "neighbor_comparison"
+    },
+    {
+      "actual_rows": 12,
+      "fields": 516,
+      "reference_rows": 12,
+      "table": "historical_references"
+    },
+    {
+      "actual_rows": 26,
+      "fields": 156,
+      "reference_rows": 26,
+      "table": "negative_results"
+    },
+    {
+      "actual_rows": 2424,
+      "fields": 21816,
+      "reference_rows": 2424,
+      "table": "JSON_closed_equity"
+    },
+    {
+      "actual_rows": 5,
+      "fields": 115,
+      "reference_rows": 5,
+      "table": "JSON_comparison"
+    },
+    {
+      "actual_rows": 75,
+      "fields": 1050,
+      "reference_rows": 75,
+      "table": "JSON_funnel_occupancy"
+    },
+    {
+      "actual_rows": 12,
+      "fields": 516,
+      "reference_rows": 12,
+      "table": "JSON_historical_references"
+    },
+    {
+      "actual_rows": 225,
+      "fields": 4050,
+      "reference_rows": 225,
+      "table": "JSON_holding_frequency"
+    },
+    {
+      "actual_rows": 4885,
+      "fields": 102585,
+      "reference_rows": 4885,
+      "table": "JSON_lineage"
+    },
+    {
+      "actual_rows": 1800,
+      "fields": 81000,
+      "reference_rows": 1800,
+      "table": "JSON_monthly"
+    },
+    {
+      "actual_rows": 780,
+      "fields": 6240,
+      "reference_rows": 780,
+      "table": "JSON_negative_month_runs"
+    },
+    {
+      "actual_rows": 26,
+      "fields": 156,
+      "reference_rows": 26,
+      "table": "JSON_negative_results"
+    },
+    {
+      "actual_rows": 4,
+      "fields": 40,
+      "reference_rows": 4,
+      "table": "JSON_neighbor_comparison"
+    },
+    {
+      "actual_rows": 26,
+      "fields": 260,
+      "reference_rows": 26,
+      "table": "JSON_new_entries"
+    },
+    {
+      "actual_rows": 25,
+      "fields": 275,
+      "reference_rows": 25,
+      "table": "JSON_november"
+    },
+    {
+      "actual_rows": 225,
+      "fields": 10125,
+      "reference_rows": 225,
+      "table": "JSON_summary"
+    },
+    {
+      "actual_rows": 150,
+      "fields": 2250,
+      "reference_rows": 150,
+      "table": "JSON_top_winners"
+    },
+    {
+      "actual_rows": 60,
+      "fields": 960,
+      "reference_rows": 60,
+      "table": "JSON_winner_retention"
+    }
+  ],
+  "terminal_OPEN": 5
+}

@@ -1,0 +1,7 @@
+{
+  "all_rendered_rows_match_audited_CSV_or_independently_combined_monthly_rows": true,
+  "cells": 31020,
+  "rows": 2370,
+  "status": "PASS",
+  "tables": 23
+}

@@ -1,0 +1,12 @@
+{
+  "all_conclusion_table_rows_match_independently_audited_csv": true,
+  "balanced_candidate_reason_checked_against_primary_metrics": true,
+  "cells": 350,
+  "conclusion_tables": 5,
+  "decision_comparison_matches_audited_csv": true,
+  "first_primary_artifacts_unchanged": true,
+  "new_search_parameters_or_replays": false,
+  "rows": 35,
+  "status": "PASS",
+  "trading_code_spec_and_all_23_frozen_files_unchanged": true
+}
