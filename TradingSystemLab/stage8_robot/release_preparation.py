@@ -159,7 +159,12 @@ def validate_legacy(state_raw,intents,fills, *, account_hash, data_root, broker)
     if state.get('production_service_identity')!=service:raise ReleaseBlocked('LEGACY_ACCOUNT_SOURCE_IDENTITY_MISMATCH')
     unknown=[key for key in state if key not in FIXED_KEYS and not any(key==f'{prefix}:{symbol}' for prefix in PREFIXES for symbol in INSTRUMENTS)]
     if unknown:raise ReleaseBlocked('UNKNOWN_STATE_KEYS_REQUIRE_REVIEW:'+','.join(sorted(unknown)))
-    if state.get('production_positions')!={}:raise ReleaseBlocked('LOCAL_NONFLAT_POSITION_BLOCKS_CUTOVER')
+    # Legacy StateStore.open_positions() treats an ABSENT key as empty.
+    # Distinguish that valid legacy state from explicit null, malformed values
+    # and genuine positions; broker flatness is validated before any output.
+    if 'production_positions' in state and (
+            type(state['production_positions']) is not dict or state['production_positions']):
+        raise ReleaseBlocked('LOCAL_NONFLAT_POSITION_BLOCKS_CUTOVER')
     for key in ('realized_equity','starting_realized_equity'):
         number=Decimal(str(state.get(key)))
         if not number.is_finite() or number<=0:raise ReleaseBlocked('REALIZED_EQUITY_AUTHORITY_MISSING')
@@ -236,6 +241,11 @@ def dry_run(snapshot, expected_sha, out, *, account_hash, source_commit, candida
         with runtime.store.transaction():
             for key,raw in state_raw.items():
                 if key!='database_identity':runtime.store.db.execute('INSERT OR REPLACE INTO state VALUES(?,?)',(key,raw))
+            # Only on the new, isolated V2 database: materialize the empty key
+            # expected by V2 manifest validation. Never mutate the archive or
+            # silently replace a present-but-invalid source value.
+            if 'production_positions' not in state_raw:
+                runtime.store.put('production_positions',{})
             runtime.store.put('legacy_ledger_archive',{'sha256':expected_sha,'source_commit':source_commit,
                              'intents':len(intents),'fills':len(fills),'archive':str(archive)})
             runtime.halt('RELEASE_PREPARATION_NOT_AUTHORIZED')
@@ -260,6 +270,8 @@ def dry_run(snapshot, expected_sha, out, *, account_hash, source_commit, candida
             'snapshot_sha256':expected_sha,'archive':str(archive),'archive_sha256':sha(archive),
             'database':str(database),'database_sha256':sha(database),'runtime_root':str(root),
             'data_root':str(data_root),'code_sha256':code_binding(),'state_inventory':sorted(state_raw),
+            'legacy_positions_key':'ABSENT' if 'production_positions' not in state_raw else 'EMPTY_OBJECT',
+            'isolated_v2_empty_positions_materialized':'production_positions' not in state_raw,
             'watermarks':watermarks,'archived_terminal_intents':len(intents),'archived_fills':len(fills),
             'causal_state_preserved':True,'rollback_exact':True,'pending_signals_activated':0,
             'broker_snapshot_provenance':'CALLER_SUPPLIED_NOT_PHYSICAL_ACCEPTANCE','broker_snapshot_sha256':digest(json.dumps(broker,sort_keys=True)),
