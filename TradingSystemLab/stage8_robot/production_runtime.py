@@ -1071,6 +1071,7 @@ class ProductionRuntime:
                 # stop ID, exact persisted intent, and fresh active 100% order
                 # in the current account/orders observation before growth.
                 from .broker import compact_client_order_id
+                from .account_cleanliness import ACTIVE_ORDER_STATUSES
                 from .production_broker_state import BrokerOrderView, active_sltp_for_trade
                 broker_id = current.get("protective_stop_broker_order_id")
                 related = [
@@ -1093,10 +1094,7 @@ class ProductionRuntime:
                         observed_price = Decimal(stop.request["sl_price"]["value"])
                         matched = (
                             stop.order_id == broker_id and stop.active
-                            and stop.status in __import__(
-                                "TradingSystemLab.stage8_robot.account_cleanliness",
-                                fromlist=["ACTIVE_ORDER_STATUSES"],
-                            ).ACTIVE_ORDER_STATUSES
+                            and stop.status in ACTIVE_ORDER_STATUSES
                             and stop.kind == "SLTP"
                             and stop.symbol == payload["finam_symbol"]
                             and stop.side == ("SIDE_SELL" if payload["direction"] == "LONG" else "SIDE_BUY")
