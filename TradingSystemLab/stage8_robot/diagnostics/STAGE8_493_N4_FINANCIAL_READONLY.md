@@ -1,6 +1,6 @@
 # Stage 8 / Draft PR #493 — FINAM N4 financial READONLY checkpoint
 
-**2026-10-13. Status: OFFLINE_CANDIDATE_PASS / PHYSICAL_INTEL_GET_PENDING / NO_REAL_ORDER_AUTHORITY.**
+**2026-10-13. Latest operator checkpoint: PHYSICAL_INTEL_N4_READONLY_GET_PASS / FINANCIAL_REPORT_CONTENT_NOT_INDEPENDENTLY_AUDITED / NO_REAL_ORDER_AUTHORITY.**
 
 This is an existing Stage 8 acceptance preparation item, not a research phase. Do not merge, deploy, change the active production checkout, enable/start Task, rearm HALTED, modify LIVE SQLite, obtain a trading token or submit orders. Frozen T3/H1/TRAIL1, TRAIL1__N4_01__FULL__R15, N4 and FULL/R15 risk remain unchanged. Accepted LIVE checkout: 184e8c2b8fa092a606249ff293a4f507160bff29.
 
@@ -114,3 +114,22 @@ table and repeat only the same READONLY command. If it blocks again,
 record only fixed sanitized classifications; no unsafe fallback.
 
 Decision: `N4_FINANCIAL_READONLY_REST_SCHEMA_FIX_OFFLINE_PASS_PHYSICAL_RERUN_PENDING`.
+
+
+## 2026-10-13 — FINAM N4 physical READONLY GET: operator-reported PASS
+
+The operator ran the two current SHA-pinned standalone candidate files on Intel and supplied the full sanitized console summary:
+
+- Python SHA-256 `68B477B929EB09E299A19F15A79E674F6A60ECF1DBB835A365E514BA3CDFB6D5` — **MATCH**.
+- PowerShell SHA-256 `25360D4CA523CA03B53783E2DC6896776D92D02216861171407C94FD84434A71` — **MATCH**.
+- `EXACT_READONLY_SOURCE_HASHES=PASS`; `FRESH_POST_ISOLATION_READONLY_GATE=PASS`.
+- `FINAM_N4_FINANCIAL_GET_READONLY=PASS`.
+- `REPORT_SHA256=91749F6834D6E1A2837EA16D933F91DBACD46B728143DD463F9AF4FF979C8174`.
+- `CLASSIFICATION=STAGE8_493_N4_FINANCIAL_READONLY_REPORT_CREATED_NOT_TRADE_AUTHORITY`.
+- `FEES_REALIZED_R15_AND_TWO_CONTRACT_ELIGIBILITY=NOT_VERIFIED`, `NO_REAL_ORDER_AUTHORIZATION=YES`.
+
+The report's **private bytes have not been independently supplied/recomputed** to this reviewer. The successful wrapper confirms its own validated FINAM account+orders GETs and four N4 asset+account-specific parameter GETs with strict REST tradeability booleans, two account/position/order observations and external create-only report; it does not certify complete cash-flow reconciliation, independent client fees, price/stop references, exact two-contract FULL/R15 viability, or real partial-fill SLTP semantics. The reported report digest must be locally recomputed before any later financial calculation. **Never commit or post the private JSON to public GitHub**. If supplying diagnostic extracts, omit account hash, account IDs, tokens and any raw REST fields.
+
+**Next existing roadmap gate:** inspect and verify the local report digest and sanitized N4 cash/margin amounts OFFLINE; separately establish realized-equity authority, effective broker tariff, on-grid reference/initial stop, slippage/gap scenario and explicitly approved loss budget before considering any new real-order permission. Never force 2 contracts or conclude readiness from margin alone. Production Task remains Disabled/HALTED at the last successful isolation gate; no merge, deployment, rearm or order permission.
+
+**Classification: STAGE8_493_PHYSICAL_FINAM_N4_FINANCIAL_GET_PASS_REPORT_BYTES_INDEPENDENT_AUDIT_PENDING.**
