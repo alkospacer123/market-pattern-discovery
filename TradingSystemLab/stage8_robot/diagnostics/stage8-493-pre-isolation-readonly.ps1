@@ -37,23 +37,63 @@ try {
     if ($task_args.indexof($live_sha, [stringcomparison]::ordinalignorecase) -lt 0 -or
         $task_args.indexof($checkout, [stringcomparison]::ordinalignorecase) -lt 0 -or
         $task_args.indexof($runtime_root, [stringcomparison]::ordinalignorecase) -lt 0) { throw 'TASK_BINDING_UNVERIFIED' }
-    $candidates = @(get-ciminstance -classname win32_process -filter "name = 'python.exe' or name = 'pythonw.exe'" |
-        where-object { $_.commandline -and
-            $_.commandline.indexof($runtime_root, [stringcomparison]::ordinalignorecase) -ge 0 -and
-            ($_.commandline.indexof('production_service', [stringcomparison]::ordinalignorecase) -ge 0 -or
-             $_.commandline.indexof('stage8-12-production', [stringcomparison]::ordinalignorecase) -ge 0) })
-    write-output "PRODUCTION_SERVICE_PROCESS_CANDIDATES=$($candidates.count)"
-    write-output "TASK_RESTART_COUNT=$($task.settings.restartcount)"
+    function get-verified-process-chain {
+        $all = @(get-ciminstance -classname win32_process -erroraction stop)
+        $matching = @($all | where-object {
+            $cmd = [string]$_.commandline
+            ($_.name -ieq 'python.exe' -or $_.name -ieq 'pythonw.exe') -and
+            $cmd.indexof($runtime_root, [stringcomparison]::ordinalignorecase) -ge 0 -and
+            $cmd.indexof('production_service', [stringcomparison]::ordinalignorecase) -ge 0 -and
+            $cmd.indexof($live_sha, [stringcomparison]::ordinalignorecase) -ge 0
+        })
+        if ($matching.count -lt 1 -or $matching.count -gt 2) { throw 'PRODUCTION_PROCESS_COUNT_INVALID' }
+        $roots = @($matching | where-object {
+            $item = $_
+            @($matching | where-object { [int]$_.processid -eq [int]$item.parentprocessid }).count -eq 0
+        })
+        if ($roots.count -ne 1) { throw 'PRODUCTION_PROCESS_ROOT_AMBIGUOUS' }
+        $root = $roots[0]
+        $child_id = 0
+        if ($matching.count -eq 2) {
+            $children = @($matching | where-object { [int]$_.parentprocessid -eq [int]$root.processid })
+            if ($children.count -ne 1) { throw 'PRODUCTION_PROCESS_NOT_SINGLE_CHAIN' }
+            $child_id = [int]$children[0].processid
+        }
+        $parent = @($all | where-object { [int]$_.processid -eq [int]$root.parentprocessid })
+        if ($parent.count -ne 1 -or $parent[0].name -ine 'powershell.exe') { throw 'PRODUCTION_POWERSHELL_PARENT_MISSING' }
+        $parent_cmd = [string]$parent[0].commandline
+        if ($parent_cmd.indexof('run-production.ps1', [stringcomparison]::ordinalignorecase) -lt 0 -or
+            $parent_cmd.indexof($checkout, [stringcomparison]::ordinalignorecase) -lt 0 -or
+            $parent_cmd.indexof($runtime_root, [stringcomparison]::ordinalignorecase) -lt 0 -or
+            $parent_cmd.indexof($live_sha, [stringcomparison]::ordinalignorecase) -lt 0) {
+            throw 'PRODUCTION_POWERSHELL_PARENT_BINDING_INVALID'
+        }
+        return [pscustomobject]@{
+            count = $matching.count
+            root_pid = [int]$root.processid
+            child_pid = $child_id
+            parent_pid = [int]$parent[0].processid
+            signature = ([string]$parent[0].processid + ':' + [string]$root.processid + ':' + [string]$child_id)
+        }
+    }
+    $observed = get-verified-process-chain
+    write-output "PRODUCTION_SERVICE_PROCESS_CANDIDATES=$($observed.count)"
+    write-output "PRODUCTION_CHAIN_ROOT_PID=$($observed.root_pid)"
+    write-output "PRODUCTION_CHAIN_CHILD_PID=$($observed.child_pid)"
+    write-output "PRODUCTION_CHAIN_POWERSHELL_PID=$($observed.parent_pid)"
+    write-output 'PRODUCTION_PROCESS_SINGLE_BOUND_CHAIN=PASS'
+    write-output "TASK_RESTART_LIMIT_CONFIGURED=$($task.settings.restartcount)"
     write-output "TASK_START_WHEN_AVAILABLE=$($task.settings.startwhenavailable)"
     write-output "TASK_MULTIPLE_INSTANCES=$($task.settings.multipleinstances)"
     write-output "TASK_ENABLED_TRIGGER_COUNT=$(@($task.triggers | where-object { $_.enabled }).count)"
-    if ($candidates.count -ne 1) { throw 'PRODUCTION_PROCESS_NOT_UNIQUELY_IDENTIFIED' }
     $before = @(& $python -b $audit --runtime-root $runtime_root)
     if ($lastexitcode -ne 0 -or $before[-1] -cne 'SQLITE_ISOLATION_GATE=PASS_READONLY_NOT_STOP_AUTHORITY') { throw 'SQLITE_PRE_BROKER_AUDIT_BLOCKED' }
     $broker = @(& powershell.exe -noprofile -executionpolicy bypass -file $broker_probe -runtime_root $runtime_root -checkout $checkout -python $python)
     if ($lastexitcode -ne 0 -or $broker[-1] -cne 'FINAL_READONLY_BROKER_GATE=PASS') { throw 'FRESH_BROKER_GATE_BLOCKED' }
     $after = @(& $python -b $audit --runtime-root $runtime_root)
     if ($lastexitcode -ne 0 -or $after[-1] -cne 'SQLITE_ISOLATION_GATE=PASS_READONLY_NOT_STOP_AUTHORITY') { throw 'SQLITE_POST_BROKER_AUDIT_BLOCKED' }
+    $post_chain = get-verified-process-chain
+    if ($post_chain.signature -cne $observed.signature) { throw 'PRODUCTION_PROCESS_CHAIN_CHANGED_DURING_AUDIT' }
     $task_after = get-scheduledtask -taskname 'TradingSystemLab-Stage8-Production' -erroraction stop
     if ([string]$task_after.state -cne 'Running') { throw 'TASK_CHANGED_DURING_AUDIT' }
     $switch = get-content -literalpath (join-path $runtime_root 'safety\stage8-trading-kill-switch.json') -raw | convertfrom-json
