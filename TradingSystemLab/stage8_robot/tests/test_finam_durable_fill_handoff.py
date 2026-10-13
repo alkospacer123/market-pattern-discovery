@@ -100,6 +100,11 @@ def test_multiple_fills_nonterminating_mean_exact_even_low_decimal_precision_and
 
 
 def test_partial_protection_precedes_price_and_growth_preserves_backstop_halts(tmp_path):
+    """Unknown extra fills never turn an unverified 1-contract stop into 3-contract protection.
+
+    The durable broker-quantity observation is kept separately for operator
+    recovery. Local *reconciled* quantity stays 1 and cannot be managed as 3.
+    """
     path=tmp_path/'production.db';rt=runtime(path);entry=setup(rt)
     stop=rt.confirm_entry_position(entry.idempotency_key,1)
     assert stop.quantity==1 and stop.expected_position_quantity==1 and stop.stop_price==entry.stop_price
@@ -114,7 +119,11 @@ def test_partial_protection_precedes_price_and_growth_preserves_backstop_halts(t
     assert rt.confirm_entry_position(entry.idempotency_key,3) is None
     handoff(rt,entry,[fill(entry),fill(entry,2,quantity=2,price='100.01')])
     p=rt.open_positions()['USDRUBF']
-    assert p['quantity']==3 and p['protective_covered_quantity']==1
+    assert p['quantity']==1 and p['protective_covered_quantity']==1
+    assert p['filled_quantity']==3  # order-linked fills are not discarded
+    hold=rt.store.get(f'entry_growth_hold:{entry.idempotency_key}')
+    assert hold['observed_quantity']==3 and hold['prior_quantity']==1
+    assert hold['reason']=='ACTIVE_PERCENT_STOP_BROKER_PROOF_MISSING'
     assert p['protective_stop_broker_order_id']=='original-backstop'
     assert len([r for r in rt.store.all_intents() if r['payload']['kind'].startswith('PROTECTIVE')])==1
     assert rt.store.get('execution_halt')['operator_intervention_required'] is True
@@ -123,7 +132,10 @@ def test_partial_protection_precedes_price_and_growth_preserves_backstop_halts(t
         rt.manage_completed_bar('USDRUBF',bar(11,'100.12','100','.023',close='100.10'),observed_position_quantity=3)
     rt.close();rt=runtime(path)
     assert rt.store.get('execution_halt')['status']=='HALTED'
+    assert rt.store.get(f'entry_growth_hold:{entry.idempotency_key}')==hold
+    assert rt.open_positions()['USDRUBF']['quantity']==1
     assert rt.open_positions()['USDRUBF']['protective_stop_broker_order_id']=='original-backstop'
+    assert rt.confirm_entry_position(entry.idempotency_key,3) is None  # sticky operator hold
     rt.close()
 
 
@@ -286,6 +298,11 @@ def test_service_partial_protects_before_unavailable_history_restart_no_duplicat
 
 
 def test_growth_before_initial_post_uses_fresh_current_quantity_then_growth_halts(tmp_path):
+    """Fresh, order-linked active 100% STOP permits a synthetic 2->3 observation.
+
+    This is *not* physical FINAM dynamic coverage proof, and cannot lift the
+    separate real-entry gate. Missing broker STOP evidence is tested below.
+    """
     svc,api,entry=svc_setup(tmp_path)
     initial=svc.runtime.confirm_entry_position(entry.idempotency_key,1)
     svc.runtime.confirm_entry_position(entry.idempotency_key,2)
@@ -297,9 +314,49 @@ def test_growth_before_initial_post_uses_fresh_current_quantity_then_growth_halt
     assert svc._protection(snapshot(entry,2,actual))[0]['covered_quantity']==2
     api.rows=[fill(entry,quantity=2),fill(entry,2)]
     svc._reconcile_intents(snapshot(entry,3,actual,status='FILLED'))
-    with pytest.raises(ProductionServiceError,match='HALTED'):svc._protection(snapshot(entry,3,actual,status='FILLED'))
+    coverage=svc._protection(snapshot(entry,3,actual,status='FILLED'))
+    assert coverage[0]['covered_quantity']==3
+    assert coverage[0]['active_stop_order_ids']==['synthetic-protective-order']
     assert len(svc.transport.calls)==1
+    p=svc.runtime.open_positions()['USDRUBF']
+    assert p['quantity']==3 and p['protective_covered_quantity']==3
+    assert p['protective_stop_broker_order_id']=='synthetic-protective-order'
+    proof=svc.runtime.store.get(f'entry_growth_stop_observed:{entry.idempotency_key}')
+    assert proof['from_quantity']==2 and proof['to_quantity']==3
+    assert proof['quantity_measure']=='SLTP_QTY_MEASURE_PERCENT'
+    assert proof['quantity_percent']=='100'
+    assert proof['evidence']=='CURRENT_ACCOUNT_ORDERS_SNAPSHOT'
+    assert proof['real_finam_dynamic_coverage_proven'] is False
+    assert svc.runtime.store.get('execution_halt') is None
+    svc.close()
+    # Restart must not silently drop the broker-matched STOP or coverage proof.
+    svc=ProductionService(tmp_path,tmp_path/'data',api,ACCOUNT,'a'*40,
+                          execution_revision=EXECUTION_REVISION,clock=lambda:NOW)
+    svc.transport=SyntheticTransport(api.calls)
+    assert svc.runtime.store.get(f'entry_growth_stop_observed:{entry.idempotency_key}')==proof
+    assert svc._protection(snapshot(entry,3,actual,status='FILLED'))[0]['covered_quantity']==3
+    assert len(svc.transport.calls)==0
+    svc.close()
+
+
+def test_growth_without_fresh_broker_stop_halts_and_preserves_backstop(tmp_path):
+    """Same 2->3 exposure cannot be accepted from local ACK or stale coverage."""
+    svc,api,entry=svc_setup(tmp_path)
+    svc.runtime.confirm_entry_position(entry.idempotency_key,2)
+    api.rows=[fill(entry,quantity=2)]
+    svc._reconcile_intents(snapshot(entry,2))
+    assert len(svc.transport.calls)==1
+    stop=svc.transport.calls[0]
+    svc._reconcile_intents(snapshot(entry,2,stop))
+    api.rows=[fill(entry,quantity=2),fill(entry,2)]
+    with pytest.raises(ProductionServiceError,match='GROWTH_OPERATOR_HOLD'):
+        svc._reconcile_intents(snapshot(entry,3,status='FILLED'))  # no active SLTP order
+    held=svc.runtime.store.get(f'entry_growth_hold:{entry.idempotency_key}')
+    assert held['observed_quantity']==3 and held['prior_quantity']==2
+    assert svc.runtime.store.get('execution_halt')['status']=='HALTED'
+    assert svc.runtime.open_positions()['USDRUBF']['quantity']==2
     assert svc.runtime.open_positions()['USDRUBF']['protective_stop_broker_order_id']=='synthetic-protective-order'
+    assert len(svc.transport.calls)==1  # no duplicate STOP or guessed emergency market order
     svc.close()
 
 
