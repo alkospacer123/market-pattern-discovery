@@ -131,3 +131,27 @@ After the previously accepted isolation pass and the candidate-only FINAM REST `
 There is **no** change to Stage 7 identity, LIVE checkout, production Task Disabled/HALTED authority, the frozen methodology, real SLTP partial-fill acceptance status, Draft PR merge/deployment status, or any order permission. The next step is local **OFFLINE** evidence inspection and economic evaluation, not another physical trade.
 
 **Checkpoint classification: FINAM_N4_READONLY_FINANCIAL_GET_PASS / REAL_ORDER_ACCEPTANCE_STILL_BLOCKED.**
+
+
+## 2026-10-13 — verified offline N4 margin display; R15 authority still blocked
+
+The operator reported `REPORT_SHA256=PASS` from an offline local
+inspection of the previously verified private FINAM report. The four frozen
+N4 symbols have validated price steps and `trade_lot_size=1`; their
+account-specific directional initial margin values were displayed locally.
+Private per-account RUB margin amounts remain outside the public repository.
+
+**This completes only the reported N4 margin-field observation.**
+Current broker equity and available cash have not yet been supplied for
+independent financial evaluation. Moreover, broker equity is not equivalent
+to frozen FULL/R15 realized equity without explained-cash-flow adjustment,
+and no entry/initial-stop reference, client-specific round-trip commission,
+slippage stress or explicitly approved loss budget is established.
+
+The next operation is an **offline read of the existing external JSON's
+whitelisted account_financials**, only after rechecking its exact SHA-256.
+Do not call broker, query trading credentials, start Task, rearm, alter
+production or attempt a real order. Real 1→2 partial-fill stop coverage is
+still unproven and requires separate explicit authorization.
+
+Checkpoint: `N4_MARGIN_OBSERVED_CASH_AND_R15_UNVERIFIED_NO_TRADE_AUTHORITY`.
