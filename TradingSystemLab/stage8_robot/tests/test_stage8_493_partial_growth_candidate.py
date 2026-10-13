@@ -73,6 +73,10 @@ def test_observed_one_to_two_same_100_percent_stop_only(direction, tmp_path):
     assert e["from_quantity"] == 1 and e["to_quantity"] == 2
     assert e["quantity_percent"] == "100"
     assert e["real_finam_dynamic_coverage_proven"] is False
+    # The first stop submission stays pinned to its actual first fill, not
+    # silently rewritten to cover later growth.
+    assert rt.store.get(f"protective_submission:{stop.idempotency_key}") is None
+    assert rt.store.intent(stop.idempotency_key)["payload"]["quantity"] == 1
     rt.close()
 
 
@@ -175,3 +179,51 @@ def test_candidate_service_receives_broker_orders_not_flag():
     assert "observed_protective_stop=stop_observation" in src
     assert "entry_growth_hold" in src
     assert "place_order" not in src and "place_sltp_order" not in src
+
+
+@pytest.mark.parametrize("change", [
+    {"from_quantity": 0},
+    {"from_quantity": 2},
+    {"to_quantity": 1},
+    {"to_quantity": 3},
+    {"broker_stop_id": "synthetic-other-stop"},
+    {"client_order_id": "forged-client-id"},
+    {"stop_price": "99"},
+    {"quantity_measure": "SLTP_QTY_MEASURE_UNITS"},
+    {"quantity_percent": "50"},
+    {"evidence": "UNVERIFIED_LOCAL_ASSERTION"},
+    {"real_finam_dynamic_coverage_proven": True},
+])
+def test_corrupted_durable_growth_proof_blocks_restart(tmp_path, change):
+    from TradingSystemLab.stage8_robot.production_runtime import ProductionRuntimeError
+    rt, entry, stop = two_contracts(tmp_path)
+    rt.confirm_entry_position(entry.idempotency_key, 2, observed_protective_stop=order_for(stop))
+    key = f"entry_growth_stop_observed:{entry.idempotency_key}"
+    proof = dict(rt.store.get(key))
+    proof.update(change)
+    rt.store.put(key, proof)
+    with pytest.raises(ProductionRuntimeError, match="EXECUTION_POSITION_STATE_INVALID"):
+        rt.open_positions()
+    rt.close()
+    with pytest.raises(ProductionRuntimeError, match="EXECUTION_POSITION_STATE_INVALID"):
+        runtime(tmp_path / "offline-only.db")
+
+
+def test_deleted_growth_proof_blocks_restart(tmp_path):
+    from TradingSystemLab.stage8_robot.production_runtime import ProductionRuntimeError
+    rt, entry, stop = two_contracts(tmp_path)
+    rt.confirm_entry_position(entry.idempotency_key, 2, observed_protective_stop=order_for(stop))
+    rt.store.put(f"entry_growth_stop_observed:{entry.idempotency_key}", None)
+    rt.close()
+    with pytest.raises(ProductionRuntimeError, match="EXECUTION_POSITION_STATE_INVALID"):
+        runtime(tmp_path / "offline-only.db")
+
+
+def test_initial_stop_submission_evidence_is_not_rewritten(tmp_path):
+    rt, entry, stop = two_contracts(tmp_path)
+    before = rt.store.intent(stop.idempotency_key)["payload"].copy()
+    rt.confirm_entry_position(entry.idempotency_key, 2, observed_protective_stop=order_for(stop))
+    assert rt.store.intent(stop.idempotency_key)["payload"] == before
+    assert rt.store.get(f"entry_growth_stop_observed:{entry.idempotency_key}")["from_quantity"] == 1
+    assert rt.store.get(f"entry_growth_stop_observed:{entry.idempotency_key}")["to_quantity"] == 2
+    rt.close()
