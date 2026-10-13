@@ -24,6 +24,7 @@ SPEC = 'PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC
 IDENTITY = 'TRAIL1__N4_01__FULL__R15'
 LIVE_SHA = '184e8c2b8fa092a606249ff293a4f507160bff29'
 N4 = ('USDRUBF', 'CNYRUBF', 'GLDRUBF', 'IMOEXF')
+_OBSERVATION_PHASE = 'START'  # Fixed safe diagnostic label, never account data.
 
 
 class Blocked(Exception):
@@ -127,12 +128,16 @@ def safe_output(path, runtime, checkout):
 
 
 def collect(root, checkout, secret, account, output):
+    global _OBSERVATION_PHASE
+    _OBSERVATION_PHASE = 'CREDENTIAL_AND_LIVE_COMMIT'
     require(bool(secret) and bool(account), 'EXACT_READONLY_CREDENTIAL_REQUIRED')
     require(subprocess.check_output(['git', '-C', str(checkout), 'rev-parse', 'HEAD'],
                                    text=True, stderr=subprocess.DEVNULL).strip() == LIVE_SHA,
             'LIVE_CHECKOUT_SHA_MISMATCH')
+    _OBSERVATION_PHASE = 'OUTPUT_PATH_AND_REGISTRY'
     output = safe_output(output, root, checkout)
     registry = read_registry(checkout)
+    _OBSERVATION_PHASE = 'PRODUCTION_MODULE_IMPORT'
     sys.path.insert(0, str(checkout))
     from TradingSystemLab.stage8_robot.finam_api import FinamAPI
     from TradingSystemLab.stage8_robot.margin import (portfolio_authority,
@@ -169,6 +174,7 @@ def collect(root, checkout, secret, account, output):
     def isolation():
         local_gate(root, account)
 
+    _OBSERVATION_PHASE = 'LOCAL_GATE_AND_AUTHENTICATION'
     isolation()
     api = StrictFinam()
     api.create_session()
@@ -180,6 +186,7 @@ def collect(root, checkout, secret, account, output):
     expected = ['SESSION_AUTH', 'SESSION_AUTH']
     before = utc_now()
     isolation()
+    _OBSERVATION_PHASE = 'FIRST_ACCOUNT_AND_ORDERS'
     a1 = api.account(account)
     o1 = api.orders(account)
     verify_orders(o1, order_views)
@@ -188,6 +195,7 @@ def collect(root, checkout, secret, account, output):
     expected += ['ACCOUNT', 'ORDERS']
     instruments = {}
     for name in N4:
+        _OBSERVATION_PHASE = 'ASSET_' + name
         isolation()
         asset = api._request('GET', asset_paths[name]).body
         params = api._request('GET', params_paths[name]).body
@@ -196,6 +204,7 @@ def collect(root, checkout, secret, account, output):
                                              directional_initial_margin, parse_rest_decimal_value_object)
         expected += ['ASSET_' + name, 'PARAMS_' + name]
     isolation()
+    _OBSERVATION_PHASE = 'SECOND_ACCOUNT_AND_ORDERS'
     a2 = api.account(account)
     o2 = api.orders(account)
     verify_orders(o2, order_views)
@@ -203,6 +212,7 @@ def collect(root, checkout, secret, account, output):
                            portfolio_authority, parse_rest_decimal_value_object)
     expected += ['ACCOUNT', 'ORDERS']
     isolation()
+    _OBSERVATION_PHASE = 'CROSS_CHECK_AND_REPORT'
     require(api.trace == expected, 'READONLY_REQUEST_SEQUENCE_INVALID')
     require(f1 == f2, 'BROKER_FINANCIAL_SNAPSHOTS_CHANGED')
     report = {'schema_id':'stage8_493_n4_financial_readonly.v1',
@@ -222,6 +232,7 @@ def collect(root, checkout, secret, account, output):
               'real_order_authorization':False, 'v2_production_ready':False,
               'request_labels':expected}
     # Exclusive creation with report deliberately kept only in external operator scratch.
+    _OBSERVATION_PHASE = 'CREATE_ONLY_PRIVATE_REPORT'
     with output.open('x', encoding='utf-8') as stream:
         json.dump(report, stream, ensure_ascii=False, indent=2, sort_keys=True)
         stream.write('\n')
@@ -243,7 +254,11 @@ def main():
                 os.environ.get('stage8_493_readonly_account', ''), args.output)
         return 0
     except Exception as exc:
-        print('CLASSIFICATION=BLOCKED:' + (str(exc) if isinstance(exc, Blocked) else 'READONLY_FINANCIAL_OBSERVATION_FAILED'))
+        # Only emit hard-coded phase/category labels. Never print an exception, URI, token or account ID.
+        reason = str(exc) if isinstance(exc, Blocked) else 'READONLY_FINANCIAL_OBSERVATION_FAILED_AT_' + _OBSERVATION_PHASE
+        if re.fullmatch(r'[A-Z0-9_]{4,120}', reason) is None:
+            reason = 'READONLY_FINANCIAL_OBSERVATION_FAILED'
+        print('CLASSIFICATION=BLOCKED:' + reason)
         print('REAL_ORDER_AUTHORIZED=NO')
         return 1
 
