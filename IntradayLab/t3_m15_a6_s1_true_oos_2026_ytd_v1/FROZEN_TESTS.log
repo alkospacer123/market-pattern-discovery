@@ -1,0 +1,48 @@
+test_2025_replay_forbidden (test_execution.Causal.test_2025_replay_forbidden) ... ok
+test_a6_completed_signal_context_only (test_execution.Causal.test_a6_completed_signal_context_only) ... ok
+test_a6_has_no_t1_hour_restriction (test_execution.Causal.test_a6_has_no_t1_hour_restriction) ... ok
+test_a6_strict_equality_rejects_both_sides (test_execution.Causal.test_a6_strict_equality_rejects_both_sides) ... ok
+test_adverse_open_gap_later_both_sides (test_execution.Causal.test_adverse_open_gap_later_both_sides) ... ok
+test_all_parameters_and_original_engines_identical (test_execution.Causal.test_all_parameters_and_original_engines_identical) ... ok
+test_each_trail_full_causal_ratchet_both_sides (test_execution.Causal.test_each_trail_full_causal_ratchet_both_sides) ... ok
+test_entry_uses_next_open_and_signal_atr_both_sides (test_execution.Causal.test_entry_uses_next_open_and_signal_atr_both_sides) ... ok
+test_execution_future_extrema_cannot_change_entry (test_execution.Causal.test_execution_future_extrema_cannot_change_entry) ... ok
+test_exit_candle_cannot_activate_s1 (test_execution.Causal.test_exit_candle_cannot_activate_s1) ... ok
+test_feature_prefix_and_H1_causality (test_execution.Causal.test_feature_prefix_and_H1_causality) ... ok
+test_gapped_h1_block_skipped_not_repacked (test_execution.Causal.test_gapped_h1_block_skipped_not_repacked) ... ok
+test_gaps_skip_instead_of_wait (test_execution.Causal.test_gaps_skip_instead_of_wait) ... ok
+test_metrics_year_denominator_and_loss_streak (test_execution.Causal.test_metrics_year_denominator_and_loss_streak) ... ok
+test_no_s1_activation_from_signal_extreme (test_execution.Causal.test_no_s1_activation_from_signal_extreme) ... ok
+test_occupied_signals_not_queued (test_execution.Causal.test_occupied_signals_not_queued) ... ok
+test_pending_across_2023_2024_adjacent (test_execution.Causal.test_pending_across_2023_2024_adjacent) ... ok
+test_pending_last_signal (test_execution.Causal.test_pending_last_signal) ... ok
+test_pending_year_gap_is_skipped (test_execution.Causal.test_pending_year_gap_is_skipped) ... ok
+test_s1_survived_execution_bar_activation_next_bar_stop (test_execution.Causal.test_s1_survived_execution_bar_activation_next_bar_stop) ... ok
+test_s1_threshold_equality_and_ratchet (test_execution.Causal.test_s1_threshold_equality_and_ratchet) ... ok
+test_same_close_reentry_after_execution_stop (test_execution.Causal.test_same_close_reentry_after_execution_stop) ... ok
+test_short_occupancy_and_same_close_reentry (test_execution.Causal.test_short_occupancy_and_same_close_reentry) ... ok
+test_signal_close_control_excludes_signal_extrema (test_execution.Causal.test_signal_close_control_excludes_signal_extrema) ... ok
+test_sparse_csv_blank_schema_equivalence (test_execution.Causal.test_sparse_csv_blank_schema_equivalence) ... ok
+test_stop_on_execution_bar_before_activation_both_sides (test_execution.Causal.test_stop_on_execution_bar_before_activation_both_sides) ... ok
+test_timestamp_first_future_poison (test_execution.Causal.test_timestamp_first_future_poison) ... ok
+test_2026_replay_forbidden (test_wf.WF.test_2026_replay_forbidden) ... ok
+test_authorization_nonoverlap (test_wf.WF.test_authorization_nonoverlap) ... ok
+test_checkpoint_JSON_serializable_numpy_signal (test_wf.WF.test_checkpoint_JSON_serializable_numpy_signal) ... ok
+test_completion_equal_cutoff_excluded_before_tail (test_wf.WF.test_completion_equal_cutoff_excluded_before_tail) ... ok
+test_control_no_2025_timestamp_or_prices (test_wf.WF.test_control_no_2025_timestamp_or_prices) ... ok
+test_fixed_stress_reclassifies_and_winner_ties (test_wf.WF.test_fixed_stress_reclassifies_and_winner_ties) ... ok
+test_future_poison_cannot_change_prefix_digest (test_wf.WF.test_future_poison_cannot_change_prefix_digest) ... ok
+test_inherited_not_new (test_wf.WF.test_inherited_not_new) ... ok
+test_locked_year_no_timestamp_no_prices_no_volume (test_wf.WF.test_locked_year_no_timestamp_no_prices_no_volume) ... ok
+test_pending_cross_quarter_adjacent (test_wf.WF.test_pending_cross_quarter_adjacent) ... ok
+test_positive_PF_not_auto_PASS (test_wf.WF.test_positive_PF_not_auto_PASS) ... ok
+test_quarter_position_initial_R_Stop_extreme_carry (test_wf.WF.test_quarter_position_initial_R_Stop_extreme_carry) ... ok
+test_quarter_reads_2025_then_stops (test_wf.WF.test_quarter_reads_2025_then_stops) ... ok
+test_recovery_hand_case (test_wf.WF.test_recovery_hand_case) ... ok
+test_unbuffered_FileIO (test_wf.WF.test_unbuffered_FileIO) ... ok
+test_unsorted_duplicate_rejected (test_wf.WF.test_unsorted_duplicate_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 43 tests in 0.227s
+
+OK

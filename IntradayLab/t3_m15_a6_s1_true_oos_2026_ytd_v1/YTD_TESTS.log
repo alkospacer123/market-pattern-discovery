@@ -1,0 +1,13 @@
+test_2025_control_reader_uses_2026_boundary (test_ytd.YTDPreRead.test_2025_control_reader_uses_2026_boundary) ... ok
+test_first_excluded_bar_has_poison_ohlc (test_ytd.YTDPreRead.test_first_excluded_bar_has_poison_ohlc) ... ok
+test_future_wrong_prices_not_read (test_ytd.YTDPreRead.test_future_wrong_prices_not_read) ... ok
+test_gross_no_fee_penalty_and_dd (test_ytd.YTDPreRead.test_gross_no_fee_penalty_and_dd) ... ok
+test_independent_reader_boundary (test_ytd.YTDPreRead.test_independent_reader_boundary) ... ok
+test_nonfinite_prices_fail_closed (test_ytd.YTDPreRead.test_nonfinite_prices_fail_closed) ... ok
+test_raw_read_spy_stops_before_excluded_prices (test_ytd.YTDPreRead.test_raw_read_spy_stops_before_excluded_prices) ... ok
+test_sortedness_and_finite_values_fail_closed (test_ytd.YTDPreRead.test_sortedness_and_finite_values_fail_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.008s
+
+OK

@@ -26,6 +26,7 @@ import engine as E
 import scalar as S
 import control as G
 import integrity as F
+import reporting as R
 
 MOSCOW = ZoneInfo('Europe/Moscow')
 YEAR_START = datetime(2026, 1, 1, tzinfo=MOSCOW)
@@ -120,7 +121,7 @@ def parse_file(file,cutoff,mode):
     bars=[dict(at=x[0],o=x[1],h=x[2],l=x[3],c=x[4],v=x[5]) for x in rows]
     return bars,receipt
 
-def compute(root,sources,end):
+def compute(root,sources,end,output):
     C.END=end
     S.END=end   # Scalar imports END at module load; adjust only the run horizon.
     frames={};scalars={};receipts=[]
@@ -137,6 +138,7 @@ def compute(root,sources,end):
                              data_commit=PIN,scalar_prefix_sha256=srec['prefix_sha256']))
     primary=G.compute(frames,['TRAIL_375'])
     independent=G.compute(scalars,['TRAIL_375'],scalar=True)
+    G.feature_gate(frames,scalars,output)
     return frames,primary,independent,receipts
 
 def journal_subset(out,which,end,ignore=None):
@@ -184,7 +186,8 @@ def validate_against_wf(out,label,reference=REFERENCE):
         subset=[{k:r.get(k) for k in fields} for r in subset]
         cmp.rows(subset,ref,'WF2025_'+name,keys[name])
     assert not cmp.diffs,('WF_2025_PREFIX_MISMATCH',cmp.diffs[:4])
-    return {'status':'PASS','fields_compared':cmp.fields,'differences':0}
+    return {'status':'PASS','fields_compared':cmp.fields,'differences':0,
+            'max_numeric_delta':max(cmp.maxima.values(),default=0),'tables':cmp.tables}
 
 def metrics(rows):
     r=[float(x['gross_R']) for x in rows]
@@ -238,16 +241,30 @@ def present(out,frames,end):
             'full_year_OOS_claim':False,'LIVE_authorized':False}
 
 def run(data_root,output,end):
-    assert YEAR_START<end<=CUTOFF,'UNAUTHORIZED_DATE_RANGE'
+    assert end==CUTOFF,'FROZEN_YTD_CUTOFF_MUST_NOT_CHANGE'
     assert data_root.resolve()!=output.resolve()
     sources=assert_source_checkout(data_root)
     assert F.freeze_guard()['before_any_WF_2025_read'],'FROZEN_BASELINE_GUARD'
     output.mkdir(parents=True,exist_ok=True)
-    old_frames,old_p,old_s,old_receipts=compute(data_root,sources,YEAR_START)
+    control_dir=output/'control';control_dir.mkdir()
+    old_frames,old_p,old_s,old_receipts=compute(data_root,sources,YEAR_START,control_dir)
     # Frozen 2025 WF closes exactly at midnight 2026. No 2026 OHLC read here.
-    assert validate_against_wf(old_p,'primary')['status']=='PASS'
-    assert validate_against_wf(old_s,'scalar')['status']=='PASS'
-    current_frames,p,s,receipts=compute(data_root,sources,end)
+    controls={label:validate_against_wf(out,label) for label,out in [('primary',old_p),('scalar',old_s)]}
+    R.persist_features(old_frames,control_dir)
+    with (REFERENCE/'indicators.csv').open() as stream:reference=list(csv.DictReader(stream))
+    with (control_dir/'indicators.csv').open() as stream:actual=list(csv.DictReader(stream))
+    indicator_cmp=C.Comparison()
+    indicator_cmp.rows(actual,reference,'FROZEN_W4_INDICATORS',['instrument','close_time'])
+    assert not indicator_cmp.diffs,('FROZEN_INDICATORS_CHANGED',indicator_cmp.diffs[:3])
+    controls['published_indicators']={'status':'PASS','fields_compared':indicator_cmp.fields,'differences':0}
+    history=R.historical_control(old_p,old_s,metrics)
+    emit(control_dir/'HISTORICAL_CONTROL.json',dict(controls,history=history))
+    emit(control_dir/'SOURCE_RECEIPTS.json',old_receipts)
+    emit(control_dir/'OPEN_AT_2026_START.json',old_p['OPEN_POSITIONS'])
+    G.persist(old_p,control_dir/'primary')
+    G.persist(old_s,control_dir/'scalar')
+    print('HISTORICAL_CONTROL_PASS '+frozen_json(history).replace('\n',' '),flush=True)
+    current_frames,p,s,receipts=compute(data_root,sources,end,output)
     for lbl,result in [('primary',p),('scalar',s)]:
         emit(output/(lbl+'_causality.json'),F.causal(result))
     cmp=C.Comparison()
@@ -276,6 +293,7 @@ def run(data_root,output,end):
     for symbol in C.SYMBOLS:
         pd.testing.assert_frame_equal(old_frames[symbol],current_frames[symbol].loc[current_frames[symbol].index<YEAR_START],check_exact=True)
     summary=present(p,current_frames,end)
+    R.enrich(summary,p,current_frames,old_p,end,metrics,history)
     assert summary['last_available_bar_close']>=YEAR_START,'NO_2026_CANDLES'
     emit(output/'SOURCE_RECEIPTS.json',receipts)
     emit(output/'AUDIT.json',{'status':'PASS','compared_full_replay_fields':cmp.fields,
@@ -286,17 +304,10 @@ def run(data_root,output,end):
     emit(output/'SUMMARY.json',summary)
     G.persist(p,output/'primary')
     G.persist(s,output/'scalar')
-    report=['# TRUE OOS 2026 — YTD, GROSS ONLY','',
-            'Это незавершённый календарный 2026; никаких комиссий и издержек.',
-            'Замороженная T3/M15 A6+S1 NEXT_OPEN TRAIL_375; все 4 инструмента.',
-            f"DATA END EXCLUSIVE: {end.isoformat()}",
-            f"LAST BAR CLOSE: {summary['last_available_bar_close'].isoformat()}",
-            f"CALENDAR CLOSED: {summary['calendar_CLOSED']}",
-            f"NEW 2026 CLOSED: {summary['new_2026_entry_CLOSED']}",
-            f"MONTHS POSITIVE/NEGATIVE: {summary['positive_months']}/{summary['negative_months']}",
-            f"PRIMARY/SCALAR + FROZEN 2025 PREFIX: PASS",
-            'Нет LIVE разрешения и нет утверждения о полном годе.']
-    (output/'REPORT_RU.md').write_text('\n'.join(report)+'\n',encoding='utf-8')
+    R.persist_features(current_frames,output)
+    R.publish(summary,p,old_p,output)
+    subprocess.run([sys.executable,str(HERE/'audit_ytd.py'),'--data-root',str(data_root),
+                    '--results',str(output),'--end-exclusive',end.isoformat()],check=True)
     print(json.dumps({'status':'OOS_2026_YTD_RESEARCH_ONLY','gross_pf':summary['calendar_CLOSED']['gross_PF'],
                       'closed':summary['calendar_CLOSED']['closed'],
                       'gross_R':summary['calendar_CLOSED']['gross_R'],

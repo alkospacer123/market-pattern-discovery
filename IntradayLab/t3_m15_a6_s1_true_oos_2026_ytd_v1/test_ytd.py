@@ -1,6 +1,8 @@
 """Fail-closed synthetic checks for YTD source cutoff and gross-only R."""
 import tempfile
+import io
 import unittest
+from unittest.mock import patch
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -70,6 +72,39 @@ class YTDPreRead(unittest.TestCase):
         self.assertAlmostEqual(r['gross_R'],0.5)
         self.assertAlmostEqual(r['closed_R_drawdown'],1.5)
         self.assertIsNone(T.metrics([])['gross_PF'])
+
+    def test_raw_read_spy_stops_before_excluded_prices(self):
+        admitted=b'USDRUBF;2026-10-12 23:30:00;90;92;88;91;100\n'
+        prefix=b'USDRUBF;2026-10-12 23:45:00;'
+        class Spy(io.BytesIO):
+            def read(self,n=-1):
+                assert n>=0 and self.tell()+n<=len(HEADER+admitted+prefix),'FORBIDDEN_SUFFIX_READ'
+                return super().read(n)
+            def readline(self,n=-1):
+                assert self.tell()<len(HEADER+admitted),'FORBIDDEN_SUFFIX_READLINE'
+                return super().readline(n)
+        for mode in ('primary','scalar'):
+            stream=Spy(HEADER+admitted+prefix+b'FUTURE_SECRET_OHLCV\n')
+            with patch('builtins.open',return_value=stream):
+                rows,receipt=T.parse_file(Path('input.csv'),T.CUTOFF,mode)
+            self.assertEqual(len(rows),1)
+            self.assertEqual(receipt['bytes_consumed'],len(HEADER+admitted+prefix))
+
+    def test_nonfinite_prices_fail_closed(self):
+        td,p=self.write(b'USDRUBF;2026-03-01 10:00:00;90;nan;88;91;100\n')
+        with td:
+            for mode in ('primary','scalar'):
+                with self.assertRaises(AssertionError):T.parse_file(p,T.CUTOFF,mode)
+
+    def test_independent_reader_boundary(self):
+        import audit_ytd as A
+        with tempfile.TemporaryDirectory() as temp:
+            p=Path(temp)/'USDRUBF'/'USDRUBF_M15.csv';p.parent.mkdir()
+            p.write_bytes(HEADER+b'USDRUBF;2026-10-12 23:30:00;90;92;88;91;100\n'+
+                          b'USDRUBF;2026-10-12 23:45:00;POISON\n')
+            rows,receipt=A.read(p,T.CUTOFF)
+            self.assertEqual(len(rows),1)
+            self.assertFalse(receipt['excluded_OHLCV_read'])
 
 if __name__=="__main__":
     unittest.main()

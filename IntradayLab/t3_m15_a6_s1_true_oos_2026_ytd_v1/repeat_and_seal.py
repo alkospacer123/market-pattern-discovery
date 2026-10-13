@@ -39,8 +39,19 @@ def main():
                  '--data-root',str(a.data_root.resolve()),
                  '--output',str(dest),
                  '--end-exclusive',a.end_exclusive]
-            subprocess.run(cmd,cwd=HERE,check=True)
+            with (base/('RUN_'+str(i+1)+'.log')).open('w') as log:
+                process=subprocess.run(cmd,cwd=HERE,stdout=log,stderr=subprocess.STDOUT)
+            if process.returncode:
+                a.output.mkdir(parents=True,exist_ok=False)
+                shutil.copytree(dest,a.output/'failure_evidence',dirs_exist_ok=True)
+                shutil.copy2(base/('RUN_'+str(i+1)+'.log'),a.output/'FAILED_RUN.log')
+                raise RuntimeError('FULL_RUN_FAILED_STOP: '+str(process.returncode))
             runs.append(inventory(dest))
+            if i:
+                assert runs[i].keys()==runs[0].keys(),'FULL_REPEAT_FILE_SET_MISMATCH_STOP'
+                for name in runs[0]:
+                    assert (base/'full_run_1'/name).read_bytes()==(dest/name).read_bytes(),('DIRECT_BYTE_MISMATCH_STOP',i,name)
+            print('COMPLETE_FULL_RUN_'+str(i+1)+'_PASS',flush=True)
         assert runs[0]==runs[1]==runs[2], 'FULL_REPEAT_BYTE_MISMATCH_STOP'
         a.output.mkdir(parents=True,exist_ok=False)
         for src in sorted((base/'full_run_1').rglob('*')):
@@ -56,8 +67,11 @@ def main():
               'data_cutoff_end_exclusive':a.end_exclusive,
               'cost_policy':'GROSS_ONLY',
               'canonical_wf_prefix_revalidated_on_each_run':True,
+              'direct_bytes_compared':True,
+              'independent_audit_on_each_full_run':True,
               'LIVE_authorized':False}
         (a.output/'REPEATABILITY.json').write_text(json.dumps(seal,sort_keys=True,indent=2)+'\n')
+        for i in range(3):shutil.copy2(base/('RUN_'+str(i+1)+'.log'),a.output/('RUN_'+str(i+1)+'.log'))
         print(json.dumps({'status':'PASS','files':len(runs[0]),
                           'output':str(a.output),'full_runs':3}))
 if __name__=='__main__':
