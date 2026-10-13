@@ -557,3 +557,14 @@ or real orders are authorized by these evidence checks.
 `FINAM_PERCENT_AT_EXECUTION_DOCUMENTED`,
 `ACTUAL_TWO_CONTRACT_SLTP_NOT_PHYSICALLY_VERIFIED`,
 `LIVE_PRODUCTION_READY=NO`.
+
+
+## 2026-10-13 — approved deposit-inclusive R15 and separate reporting-only funding attribution
+
+The operator has expressly authorized treating prior contributed funds as **FULL/R15 trading capital**, not strategy profit. Verified current accepted service code: \`realized_basis = broker_equity - unrealized_profit - explained_external_cash_flows\`, and \`explained_external_cash_flows\` is subtractive for risk sizing; it was **zero** at the last Intel read. The approved policy **does NOT approve writing the contribution amount to this subtraction field**, changing Stage7/T3/H1/TRAIL1, R15/6%, or modifying any operating SQLite value. Existing broker-equity-derived FULL/R15 automatically includes capital on the next safe approved snapshot while leaving external cash flows unclassified for PnL reporting.
+
+A small, isolated, purely arithmetic \`stage8_493_capital_pnl_readonly.py\` and offline tests were added to separate **net external contributions for reporting** from the frozen **deposit-inclusive risk-capital authority**. It checks exact account hash, production identity, monetary Decimal semantics, contribution dedupe, per-flow origin, zero sizing deduction and a consistent persisted realized basis. It computes contribution-adjusted account change but explicitly refuses any assertion of independently audited trading profit. No private client amounts, reports, credentials or account identifiers are stored in public GitHub. No code path to a FINAM API, SQL write, Task or order endpoint is included.
+
+This is **not** an automated future deposit classifier. Section 4.3 of main \`PRODUCTION_RUNBOOK.md\` continues to require an operator-controlled deposit/withdrawal procedure before unsupervised LIVE sizing. A financial statement audit with true transaction dates/fees/funding remains separate from the risk sizing equation. For the controlled real two-contract SLTP acceptance, independent physical account funds/GO, exact natural quantity=2, explicit monetary loss/stress allowance, operator recovery and separate order authorization are still missing.
+
+**Current gate:** \`CAPITAL_POLICY_APPROVED_CANDIDATE_ONLY\` / \`SEPARATE_REPORTING_PYTEST_PENDING\` / \`PRODUCTION_SQLITE_UNCHANGED\` / \`REAL_ORDER_AUTHORIZED=NO\`.
