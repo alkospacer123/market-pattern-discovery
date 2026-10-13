@@ -402,3 +402,48 @@ Important recovery limitation: the disconnected core returns `MANUAL_BROKER_TERM
 **Next existing-roadmap work:** exact-HEAD isolated Intel offline pytest; independent audit/fail-closed tests of a future real broker adapter and operator-owned recovery, historical GET /trades fill completeness, time-bounded same-account R15/margin/tick and cash budget; only then separately request explicit real-order permission. **No merging PR #493, real orders, LIVE SQLite writes, task restart or rearm.**
 
 **Current: `TWO_LOT_OPERATOR_CORE_SYNTHETIC_15_PASS_LOCAL_ONLY`; `INTEL_PYTEST_PENDING`; `REAL_TRANSPORT_AND_EMERGENCY_BRIDGE_BLOCKED`; `LIVE_PRODUCTION_READY=NO`.**
+
+
+## 2026-10-13 — Intel operator core physically PASS, narrow double-flat audit correction
+
+The operator provided the Intel SHA-256 and full PowerShell output for the
+hash-pinned standalone `stage8-493-operator-core-offline-pytest.ps1`:
+SHA-256 `52B4DC9B46D977314DA614E0E2A1A27977EA11BCF737E86945B9687574D31228`.
+The script physically fetched PR #493 at exact `198d94b88d75e48881c8c3233e3277f501feb359`,
+verified operator core source blob `6e409e47ed5afc032278b09156e3bbd2df33e80d`
+and test blob `f5c0199421c177595167adad1a665c92914c2564`.
+Intel reported **15 passed in 3.83 seconds**, `PRODUCTION_TASK_DISABLED_AND_HALTED=PASS`,
+`PRODUCTION_TASK_STILL_DISABLED=PASS`,
+`NO_LIVE_STATE_OR_ORDER_OPERATIONS_IN_SCRIPT=YES`,
+`LIVE_PRODUCTION_READY=NO`. These are operator-observed physical offline test results, not broker SLTP evidence.
+
+Follow-on independent review found a **candidate-only final-double-flat false-positive**:
+the previous disconnected operator core counted two snapshots with numeric position zero and
+no truthy `order.active`, even if the ENTRY ACK was missing, a listed order omitted its
+`active` field, the entry still had a nonzero remaining quantity, a known SLTP had
+disappeared from the observation, or duplicate order IDs were supplied. Such a response
+must never count as reliable terminal recovery evidence.
+
+The isolated core's `final_flat()` now additionally requires an acknowledged immutable
+entry intent, a uniquely observed inactive ENTRY with exact integer remaining quantity 0,
+any acknowledged stop uniquely observed as inactive, boolean status fields, and two
+consecutive full-read observations. Absence/contradiction writes a sticky operator hold,
+not a successful recovery classification. Six dedicated synthetic negative tests were added
+for missing ACK (before/after uncertain ENTRY POST), nonzero entry remainder, missing
+terminal stop, missing active status and duplicate order IDs. This still does **not**
+establish actual broker freshness, prove fill/stop semantics, or provide any writable
+FINAM adapter. The now-expanded test module has **not** been physically run on Intel at
+the latest head; previous 15/15 applies **only** to pinned pre-correction `198d94b8`.
+
+The old one-contract acceptance adapter and entire production/strategy configuration remain
+unchanged. The confirmed 47,500 RUB deposit and `explained_external_cash_flows=0`
+make R15 capital-flow treatment an **independent blocking operator-policy reconciliation**:
+never treat the deposit as strategy profit, silently subtract it from sizing capital,
+or edit production SQLite without separate consent and a backup/rollback plan.
+The latest reviewed `execution_grid.FINAM_FILL_AUTHORITY_VERIFIED=False` independently
+blocks V2 production entries; it must not be toggled by tests or a historical 1-lot fill.
+
+**Classification: `OPERATOR_CORE_INTEL_15_PASS_PRIOR_PIN`;
+`FINAL_FLAT_FAIL_CLOSED_FIX_NEW_TESTS_PENDING_INTEL`;
+`REAL_FINAM_TWO_CONTRACT_ACCEPTANCE_NOT_AUTHORIZED`;
+`LIVE_PRODUCTION_READY=NO`.**
