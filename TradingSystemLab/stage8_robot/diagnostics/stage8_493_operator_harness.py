@@ -186,9 +186,9 @@ class OperatorHarness:
         except Hold as exc:
             self._hold(str(exc))
         self.journal.add('entry_fills', quantity=signed, order_id=order_id)
-        if signed == 2:
-            self._hold('DIRECT_0_TO_2_INCONCLUSIVE_MANUAL_RECOVERY')
-        self.journal.add('stop_intent', key=self.plan.stop_key, after_quantity=1, percent=100)
+        # Even direct 0->2 must be covered before classifying the physical
+        # partial-growth experiment INCONCLUSIVE; never strand two lots naked.
+        self.journal.add('stop_intent', key=self.plan.stop_key, after_quantity=signed, percent=100)
         try:
             stop_id = self.port.install_stop(key=self.plan.stop_key, symbol=self.plan.symbol,
                        side='SIDE_SELL' if self.plan.direction == 'LONG' else 'SIDE_BUY',
@@ -203,8 +203,10 @@ class OperatorHarness:
             self._stop(snapshot, stop_id)
         except Hold as exc:
             self._hold(str(exc))
-        if snapshot['position'] != (1 if self.plan.direction == 'LONG' else -1):
+        if snapshot['position'] != (signed if self.plan.direction == 'LONG' else -signed):
             self._hold('POSITION_CHANGED_DURING_STOP_INSTALL')
+        if signed == 2:
+            self._hold('DIRECT_0_TO_2_INCONCLUSIVE_MANUAL_RECOVERY')
         self.journal.add('stop_at_one_observed', order_id=stop_id)
         # No sleep/unbounded polling here; a later independent operator
         # observation must be explicitly requested, not an automatic POST.
