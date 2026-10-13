@@ -168,3 +168,34 @@ def test_integration_synthetic_get_only_hard_allowlist(tmp_path,monkeypatch,caps
                         ('DELETE','/v1/accounts/fake/orders/one'),('GET','/v1/accounts/other'),
                         ('GET','/v1/accounts/fake/trades')]:
         with pytest.raises(m.Blocked,match='FORBIDDEN'):clients[0]._request(method,path)
+
+
+def test_failure_classification_never_prints_private_exception(monkeypatch, capsys, tmp_path):
+    """When an internal read-only probe raises an unexpected error, reveal only phase."""
+    monkeypatch.setenv('stage8_493_readonly_secret', 'PRIVATE_SECRET_MUST_NOT_LEAK')
+    monkeypatch.setenv('stage8_493_readonly_account', 'private-account')
+    monkeypatch.setattr(sys, 'argv', ['n4', '--runtime-root', str(tmp_path/'runtime'),
+                                     '--checkout', str(tmp_path/'checkout'),
+                                     '--output', str(tmp_path/'tslaudit'/'report.json')])
+    monkeypatch.setattr(m.subprocess, 'check_output', lambda *a, **k: m.LIVE_SHA + '\n')
+    def blocked_output(*a, **kw):
+        raise RuntimeError('RAW_ACCOUNT_PRIVATE_SECRET_MUST_NOT_LEAK')
+    monkeypatch.setattr(m, 'safe_output', blocked_output)
+    assert m.main() == 1
+    output = capsys.readouterr().out
+    assert 'CLASSIFICATION=BLOCKED:READONLY_FINANCIAL_OBSERVATION_FAILED_AT_OUTPUT_PATH_AND_REGISTRY' in output
+    assert 'REAL_ORDER_AUTHORIZED=NO' in output
+    assert 'PRIVATE_SECRET_MUST_NOT_LEAK' not in output
+
+
+def test_powershell_child_blocker_is_sanitized():
+    """Only uppercase fixed error codes cross the PowerShell stdout boundary."""
+    ps = (Path(__file__).resolve().parents[1] / 'diagnostics/stage8-493-n4-financial-readonly.ps1').read_text()
+    assert "'^CLASSIFICATION=BLOCKED:[A-Z0-9_]{4,120}$'" in ps
+    assert "Write-Output ('FINANCIAL_CHILD_' + $safe[0])" in ps
+    assert 'EXACT_READONLY_SOURCE_HASHES=PASS' in ps
+    assert 'Get-ReadonlyCredential' in ps
+    assert '37DF9E1A8F4B0B18EE37D1ACC8757AD674160E878264B2746ED0E1BB3E66C201' in ps
+    for forbidden in ('Enable-ScheduledTask', 'Start-ScheduledTask', 'Get-TradingCredential',
+                      'Set-Content', 'Invoke-RestMethod'):
+        assert forbidden not in ps
