@@ -1,0 +1,132 @@
+{
+  "analysis_only": {
+    "calendar": "By exit label in Moscow, include every available calendar month for each instrument and pooled scope; zero months included. R sums are bookkeeping, not real portfolio returns.",
+    "component_comparisons": "Each combination vs CONTROL, its own A6/A7 parent, and S1; every calendar/instrument/direction report row and >=2R reference cohorts.",
+    "component_winner_retention": "Exact version/instrument/direction/entry_time; reference CLOSED >=2R by reference exit year. Fully preserved >=reference R-1e-8; reduced/lost entry/terminal OPEN split. Match is diagnostic, not market counterfactual.",
+    "concentration": "Top 5/10 positive Gross R divided by total positive Gross R, plus removal sensitivity.",
+    "drawdown": "Closed-trade cumulative R, sorted exit_time/instrument/trade_id with initial equity zero. No capital allocation or mark-to-market portfolio model.",
+    "historical_A6_A7": "Full mandatory causal reproduction, not copied/composed outcomes.",
+    "losing_streak": "Consecutive gross_R<0 CLOSED trades in deterministic exit_time/instrument/trade_id order; zero/win resets; also losing-month streak.",
+    "loss_changes": "All original negative trades: eliminated entries, improved/reversed, unchanged, worsened, terminal; signed matched R changes plus new entries. No outcome input in strategy.",
+    "november": "Report 2024, November 2024, and 2024 excluding November using the same replay; removal is post-hoc sensitivity only.",
+    "occupancy": "Observed bars with a position at Open divided by all observed M15 bars except first per instrument. No synthetic time buckets; calendar gaps excluded from denominator. Also raw signals, rejects, occupied passes, accepted entries/1000 bars, mean bars held and elapsed Close-labelled holding minutes.",
+    "trend_categories": "At exact original entry identity: fully preserved R >= original R-1e-8; reduced matched R below original; lost entry absent; terminal OPEN unresolved. Also count original >=2R turned nonpositive and reduced below2R.",
+    "trend_winner": "Original closed gross_R >= 2R; fixed diagnostic definition, never an entry/exit input.",
+    "winner_matching": "Match version/instrument/direction/exact entry_time. Report skipped, changed, open and retained, and newly introduced entry losses separately. Does not claim causal counterfactual equivalence."
+  },
+  "audit_independence": "Separate implementation, same author. External independent human review PENDING; do not claim human independence.",
+  "classification": "2023\u20132024 development-exposed; not independent test",
+  "component_rules": {
+    "A6": "Latest completed H1 ATR/ATRMean > immediately previous completed H1 ATR/ATRMean; strict, missing fails.",
+    "A7": "Current completed M15 ATR > previous completed M15 ATR; strict, missing fails.",
+    "S1": "Keep initial Stop until survived post-entry completed M15 favorable extreme reaches >=1 immutable initial R. Thereafter allow original ATR ratchet using all survived post-entry extrema; next observed candle only."
+  },
+  "configurations": {
+    "BASELINE": {
+      "adx_period": 14,
+      "adx_threshold": 20,
+      "atr_average_period": 20,
+      "atr_period": 14,
+      "breakout_period": 20,
+      "ema_period": 75,
+      "slope_lookback": 5,
+      "stop_atr": 2.0,
+      "trail_atr": 3.0
+    },
+    "OPTIMIZED": {
+      "adx_period": 14,
+      "adx_threshold": 20,
+      "atr_average_period": 20,
+      "atr_period": 14,
+      "breakout_period": 20,
+      "ema_period": 75,
+      "slope_lookback": 5,
+      "stop_atr": 2.0,
+      "trail_atr": 3.5
+    }
+  },
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "execution": {
+    "activation": "Threshold evaluated only on survived candles. Persistent once activated. A new Stop has no effect on trigger bar, including ambiguous intrabar return through that new Stop.",
+    "costs": "Zero deducted expenses; Gross R = direction*(exit-entry)/abs(entry-initial_stop). No C1, fee, slippage, or funding calculation.",
+    "entry": "Original signal Close is a historical oracle, not verified executable Close fill.",
+    "h1": "Original daily ordinal blocks of four consecutive 15-minute closes. Incomplete or gapped blocks skipped without repacking; state indicators explicitly cross days.",
+    "labels": "Protective exits retain historical candle Close timestamp, with actual Open/Close endpoints and gap flag; exact intrabar time unknown.",
+    "risk": "Immutable abs(entry_price-initial_stop), not current Stop distance. SHORT fully mirrored. Threshold equality passes; no floating tolerance for activation.",
+    "sequence": "Before accessing current favorable extreme for ratchet/activation, check pre-existing Stop at Open and then intrabar adverse extreme. On hit fill adverse Open or Stop, never update threshold/extrema/Stop using that exit candle. Next Close may accept original same-close re-entry.",
+    "sessions": "No forced flat or reset: original recursive indicators and open position, initial risk, extrema and activation cross sessions/days/years. First next actual observed Open, no synthetic candles.",
+    "terminal": "No forced liquidation. Terminal OPEN excluded from closed PF/R; report separately and by entry year, not annual snapshots.",
+    "trailing": "Monotone original continuous-price ratchet with current completed-bar ATR, favorable extreme seeded at entry Close; signal-candle High/Low excluded. Newly proposed Stop may lie beyond current Close; acts next candle and adverse Open honored."
+  },
+  "experiments": {
+    "A6": {
+      "entry": "A6",
+      "purpose": "reproduce #495",
+      "stop": "CONTROL"
+    },
+    "A7": {
+      "entry": "A7",
+      "purpose": "reproduce #495",
+      "stop": "CONTROL"
+    },
+    "C1": {
+      "entry": "A6",
+      "name": "H1_ATR_EXPANSION + TRAIL_AFTER_1R",
+      "stop": "S1"
+    },
+    "C2": {
+      "entry": "A7",
+      "name": "M15_ATR_RISING + TRAIL_AFTER_1R",
+      "stop": "S1"
+    },
+    "CONTROL": {
+      "entry": "CONTROL",
+      "purpose": "reproduce #490/#495/#496",
+      "stop": "CONTROL"
+    },
+    "S1": {
+      "entry": "CONTROL",
+      "purpose": "reproduce #496",
+      "stop": "S1"
+    }
+  },
+  "labels": [
+    "GROSS_ONLY",
+    "COSTS_DEFERRED",
+    "NOT_LIVE_READY"
+  ],
+  "main_commit": "bf703671dca481d0451a9eb822de143b96a80037",
+  "objective": "Gross PF >=2.0 for each C1/C2 configuration on ALL_FOUR full available 2023\u20132024. Preserve every outcome including failure; no extra fit.",
+  "prohibited": "Other combinations, new thresholds, component mechanic changes, Optimization, Robustness, Walk Forward, TRUE OOS, LIVE, 2025+ OHLC parsing, original research/data/robot modifications.",
+  "quality_gates": [
+    "20 symmetric causal unit tests before replay",
+    "CONTROL/A6/A7/S1 all common CLOSED and OPEN fields vs frozen sources before C1/C2",
+    "frozen reference entry/Stop paths reproduced",
+    "separate standard-library raw-prefix indicators and all-six replay audit, every trade/entry/Stop/OPEN and all report rows",
+    "two fresh deterministic repetitions with direct bytes + SHA comparisons",
+    "only new directory diff; pinned clean read-only data"
+  ],
+  "scope": "Only IntradayLab/t3_m15_combined_v1/. One Draft PR. No Merge or Auto-Merge. STOP external review.",
+  "source_prs": {
+    "490": {
+      "head": "76820f0a3658b13bd1aa306e97d04695d8b7ba5f",
+      "merge": "d963b783b9de31fc0f2c965f6dfb11ab9cd90f5b"
+    },
+    "495": {
+      "head": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "merge": "bc4f95f48b332f43d79ed10f26fc03c5ad01cd97"
+    },
+    "496": {
+      "head": "7d068c7f524ff4ba58bd852c457c28aa5e619738",
+      "merge": "bf703671dca481d0451a9eb822de143b96a80037"
+    }
+  },
+  "specification_version": "t3_m15_combined_v1_frozen_before_any_combined_results",
+  "symbols": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "window": "2023-01-01 <= M15 close < 2025-01-01 Europe/Moscow; entire available prefix; actual late starts retained"
+}

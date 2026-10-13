@@ -1,0 +1,13 @@
+{
+  "actual_github_main": "bf703671dca481d0451a9eb822de143b96a80037",
+  "checked_at_utc": "2026-10-13T05:40:05.982612+00:00",
+  "head_sha": "7d068c7f524ff4ba58bd852c457c28aa5e619738",
+  "local_base": "bf703671dca481d0451a9eb822de143b96a80037",
+  "main_contains_pr496": true,
+  "merge_commit_sha": "bf703671dca481d0451a9eb822de143b96a80037",
+  "merged": true,
+  "merged_at": "2026-10-13T05:28:18Z",
+  "number": 496,
+  "sources_identical_to_pr_heads": true,
+  "state": "closed"
+}
