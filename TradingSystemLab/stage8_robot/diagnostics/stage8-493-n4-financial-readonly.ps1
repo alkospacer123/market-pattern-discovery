@@ -6,7 +6,7 @@ $ErrorActionPreference = 'Stop'
 $root = 'c:\tradingsystemlab\runtime'
 $checkout = 'c:\tradingsystemlab\production\h1-184e8c2-20261012'
 $source = 'c:\tradingsystemlab\stage8-493-n4-financial-readonly.py'
-$source_sha256 = 'CF366762E7CB4B75EB25317E890FD59D6F5F4FB88299B85FBE1904FEB3D16F2B'
+$source_sha256 = '8ABAE05EB541DC5236266E314BFE0CB38601EF8EDD0E2F84445A30EB75617CA6'
 $probe = 'c:\tradingsystemlab\stage8-493-post-isolation-readonly.ps1'
 $probe_sha256 = '37DF9E1A8F4B0B18EE37D1ACC8757AD674160E878264B2746ED0E1BB3E66C201'
 $spec = 'PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8'
@@ -54,6 +54,34 @@ try {
     if ($resultCode -ne 0 -or
         @($result | Where-Object { $_ -ceq 'CLASSIFICATION=BROKER_N4_ACCOUNT_ASSET_PARAMS_READONLY_PASS_NO_TRADE_AUTHORITY' }).Count -ne 1 -or
         @($result | Where-Object { $_ -ceq 'REAL_ORDER_AUTHORIZED=NO' }).Count -ne 1) {
+        # The Python child reports a sanitized uppercase error only. Never echo
+        # arbitrary stdout/stderr, which could contain sensitive broker details.
+        $safe = @($result | Where-Object { $_ -cmatch '^CLASSIFICATION=BLOCKED:[A-Z0-9_]{4,120}
+    $task = Get-ScheduledTask -TaskName 'TradingSystemLab-Stage8-Production' -TaskPath '\' -ErrorAction Stop
+    $sw = Get-Content -LiteralPath (Join-Path $root 'safety\stage8-trading-kill-switch.json') -Raw | ConvertFrom-Json
+    if ([string]$task.State -cne 'Disabled' -or [bool]$task.Settings.Enabled -ne $false -or
+        $sw.state -cne 'HALTED' -or $sw.production_specification_id -cne $spec) {
+        throw 'POST_FINANCIAL_PRODUCTION_AUTHORITY_CHANGED'
+    }
+    if (-not (Test-Path -LiteralPath $Output -PathType Leaf)) { throw 'FINANCIAL_REPORT_NOT_CREATED' }
+    Write-Output 'FINAM_N4_FINANCIAL_GET_READONLY=PASS'
+    Write-Output ('REPORT_SHA256=' + (Get-FileHash -LiteralPath $Output -Algorithm SHA256).Hash)
+    Write-Output 'CLASSIFICATION=STAGE8_493_N4_FINANCIAL_READONLY_REPORT_CREATED_NOT_TRADE_AUTHORITY'
+    Write-Output 'FEES_REALIZED_R15_AND_TWO_CONTRACT_ELIGIBILITY=NOT_VERIFIED'
+} catch {
+    $code = [string]$_.Exception.Message
+    if ($code -cnotmatch '^[A-Z0-9_]{4,120}$') { $code = 'FINANCIAL_READONLY_UNEXPECTED' }
+    Write-Output "CLASSIFICATION=BLOCKED:$code"
+    exit 1
+} finally {
+    Remove-Item Env:stage8_493_readonly_secret -ErrorAction SilentlyContinue
+    Remove-Item Env:stage8_493_readonly_account -ErrorAction SilentlyContinue
+    $credential = $null
+    [Environment]::SetEnvironmentVariable('PYTHONDONTWRITEBYTECODE',$priorBytecode,'Process')
+    Write-Output 'NO_REAL_ORDER_AUTHORIZATION=YES'
+}
+ })
+        if ($safe.Count -eq 1) { Write-Output ('FINANCIAL_CHILD_' + $safe[0]) }
         throw 'FINANCIAL_READONLY_COLLECTION_BLOCKED'
     }
     $task = Get-ScheduledTask -TaskName 'TradingSystemLab-Stage8-Production' -TaskPath '\' -ErrorAction Stop
