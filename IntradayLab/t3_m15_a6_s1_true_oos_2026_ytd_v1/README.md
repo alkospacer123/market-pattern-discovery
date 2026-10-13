@@ -14,10 +14,10 @@
 cd market-pattern-discovery/IntradayLab/t3_m15_a6_s1_true_oos_2026_ytd_v1
 python -m pip install -r ../t3_m15_a6_s1_walk_forward_2025_v1/requirements.txt
 python -m unittest -v test_ytd
-python run_ytd_oos.py --data-root /workspace/market-pattern-data --output results --end-exclusive 2026-10-13T00:00:00+03:00
+python repeat_and_seal.py --data-root /workspace/market-pattern-data --output results --end-exclusive 2026-10-13T00:00:00+03:00
 ```
 
-**Обязательно сохранить и приложить к Draft PR результаты** `results/primary/`, `results/scalar/`, `SOURCE_RECEIPTS.json`, `SUMMARY.json`, `AUDIT.json`, `REPORT_RU.md`. Затем запустить ещё **2 независимых полных повтора** в новых output-каталогах, сравнить байт-в-байт после нормализации путей/времени (источник/выход неизменны), сохранить SHA256-manifest и log. Результаты публиковать **только после контрольного PASS**, в противном случае `STOP.json`, `OOS_2026_YTD_INVALID_STOP`.
+**Обязательно сохранить и приложить к Draft PR результаты** `results/primary/`, `results/scalar/`, `SOURCE_RECEIPTS.json`, `SUMMARY.json`, `AUDIT.json`, `REPORT_RU.md`. Команда `repeat_and_seal.py` запускает **3 отдельных Python-процесса** (первый + 2 повтора), проверяет полное побайтное равенство всех исходных отчётов, переносит первый результат в `results/` и сохраняет `REPEATABILITY.json` с SHA256 всех файлов. Результаты публиковать **только после контрольного PASS**, в противном случае `STOP.json`, `OOS_2026_YTD_INVALID_STOP`.
 
 Скрипт сам запрещает чтение закрытых свечей >= cutoff, выполняет frozen 2025 W4 CONTROL и scalar-gate по полным опубликованным торговым журналам, потом контроль неизменного 2025 prefix на YTD replay. Переносит исходную открытую позицию декабря 2025 без принудительного выхода. Ничего не оптимизирует.
 
