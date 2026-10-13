@@ -1,0 +1,185 @@
+{
+  "absolute_tolerance": 1e-08,
+  "cost_deductions": false,
+  "differences": 0,
+  "external_human_review": "PENDING",
+  "fields_compared": 8146274,
+  "fresh_scalar_process": true,
+  "independent_reader": true,
+  "markdown_cells": 334,
+  "max_numeric_delta": 4.440892098500626e-16,
+  "primary_imported": false,
+  "source_receipts": [
+    {
+      "buffering": 0,
+      "bytes_consumed": 3126476,
+      "excluded_OHLCV_read": false,
+      "instrument": "USDRUBF",
+      "prefix_sha256": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+      "rows": 55808,
+      "stop_reason": "EOF"
+    },
+    {
+      "buffering": 0,
+      "bytes_consumed": 3323974,
+      "excluded_OHLCV_read": false,
+      "instrument": "CNYRUBF",
+      "prefix_sha256": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+      "rows": 55573,
+      "stop_reason": "EOF"
+    },
+    {
+      "buffering": 0,
+      "bytes_consumed": 3120351,
+      "excluded_OHLCV_read": false,
+      "instrument": "GLDRUBF",
+      "prefix_sha256": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+      "rows": 52025,
+      "stop_reason": "EOF"
+    },
+    {
+      "buffering": 0,
+      "bytes_consumed": 2565195,
+      "excluded_OHLCV_read": false,
+      "instrument": "IMOEXF",
+      "prefix_sha256": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773",
+      "rows": 46215,
+      "stop_reason": "EOF"
+    }
+  ],
+  "status": "PASS",
+  "tables": [
+    {
+      "actual_rows": 1026,
+      "fields": 50274,
+      "reference_rows": 1026,
+      "table": "FRESH_primary_trades"
+    },
+    {
+      "actual_rows": 0,
+      "fields": 0,
+      "reference_rows": 0,
+      "table": "FRESH_primary_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 28136,
+      "fields": 1012896,
+      "reference_rows": 28136,
+      "table": "FRESH_primary_stop_decisions"
+    },
+    {
+      "actual_rows": 4333,
+      "fields": 155988,
+      "reference_rows": 4333,
+      "table": "FRESH_primary_entry_opportunities"
+    },
+    {
+      "actual_rows": 4317,
+      "fields": 56121,
+      "reference_rows": 4317,
+      "table": "FRESH_primary_observed_gaps"
+    },
+    {
+      "actual_rows": 22,
+      "fields": 572,
+      "reference_rows": 22,
+      "table": "FRESH_primary_PERIOD_END_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 1026,
+      "fields": 50274,
+      "reference_rows": 1026,
+      "table": "FRESH_scalar_trades"
+    },
+    {
+      "actual_rows": 0,
+      "fields": 0,
+      "reference_rows": 0,
+      "table": "FRESH_scalar_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 28136,
+      "fields": 1012896,
+      "reference_rows": 28136,
+      "table": "FRESH_scalar_stop_decisions"
+    },
+    {
+      "actual_rows": 4333,
+      "fields": 155988,
+      "reference_rows": 4333,
+      "table": "FRESH_scalar_entry_opportunities"
+    },
+    {
+      "actual_rows": 4317,
+      "fields": 56121,
+      "reference_rows": 4317,
+      "table": "FRESH_scalar_observed_gaps"
+    },
+    {
+      "actual_rows": 22,
+      "fields": 572,
+      "reference_rows": 22,
+      "table": "FRESH_scalar_PERIOD_END_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 209621,
+      "fields": 3144315,
+      "reference_rows": 209621,
+      "table": "FRESH_ALL_INDICATORS"
+    },
+    {
+      "actual_rows": 161617,
+      "fields": 2424255,
+      "reference_rows": 161617,
+      "table": "PUBLISHED_W4_INDICATORS"
+    },
+    {
+      "actual_rows": 4,
+      "fields": 36,
+      "reference_rows": 4,
+      "table": "COVERAGE"
+    },
+    {
+      "actual_rows": 10,
+      "fields": 490,
+      "reference_rows": 10,
+      "table": "TOP_WINNERS"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 24,
+      "reference_rows": 1,
+      "table": "CARRY_START"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 49,
+      "reference_rows": 1,
+      "table": "CARRY_OUTCOME"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 36,
+      "reference_rows": 1,
+      "table": "CARRY_FIRST_STOP"
+    },
+    {
+      "actual_rows": 246,
+      "fields": 12054,
+      "reference_rows": 246,
+      "table": "COHORT_CSV_trades_2026"
+    },
+    {
+      "actual_rows": 245,
+      "fields": 12005,
+      "reference_rows": 245,
+      "table": "COHORT_CSV_new_2026_trades"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 49,
+      "reference_rows": 1,
+      "table": "COHORT_CSV_inherited_2025_trades"
+    }
+  ]
+}

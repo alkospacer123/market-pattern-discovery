@@ -1,0 +1,161 @@
+{
+  "history": {
+    "WF2025_new_cohort": {
+      "OPEN": 1,
+      "avg_loss_R": -0.83491805888873,
+      "avg_win_R": 1.9467779840692314,
+      "closed": 299,
+      "closed_R_drawdown": 28.63739427515992,
+      "expectancy_R": 0.28148169079339497,
+      "gross_PF": 1.5631504735801733,
+      "gross_R": 84.16302554722509,
+      "losses": 179,
+      "wins": 120
+    },
+    "WF2025_status": "WF_MIXED",
+    "status": "PASS",
+    "years": [
+      {
+        "OPEN": 0,
+        "avg_loss_R": -0.8319054193465397,
+        "avg_win_R": 2.2332724340282435,
+        "calendar_months": 12,
+        "closed": 165,
+        "closed_R_drawdown": 6.016676725015138,
+        "expectancy_R": 0.5478222568297058,
+        "gross_PF": 2.207277631364274,
+        "gross_R": 90.39067237690145,
+        "losses": 90,
+        "negative_months": 3,
+        "positive_months": 9,
+        "wins": 74,
+        "year": "2023"
+      },
+      {
+        "OPEN": 1,
+        "avg_loss_R": -0.8936421297505769,
+        "avg_win_R": 2.031207542120622,
+        "calendar_months": 12,
+        "closed": 315,
+        "closed_R_drawdown": 12.628056181602872,
+        "expectancy_R": 0.38772058364061496,
+        "gross_PF": 1.7721337045362484,
+        "gross_R": 122.13198384679372,
+        "losses": 177,
+        "negative_months": 1,
+        "positive_months": 11,
+        "wins": 138,
+        "year": "2024"
+      },
+      {
+        "OPEN": 1,
+        "avg_loss_R": -0.83491805888873,
+        "avg_win_R": 1.9531152559695304,
+        "calendar_months": 12,
+        "closed": 300,
+        "closed_R_drawdown": 28.63739427515992,
+        "expectancy_R": 0.289588711437435,
+        "gross_PF": 1.5813075953333784,
+        "gross_R": 86.8766134312305,
+        "losses": 179,
+        "negative_months": 5,
+        "positive_months": 7,
+        "wins": 121,
+        "year": "2025"
+      }
+    ]
+  },
+  "primary": {
+    "differences": 0,
+    "fields_compared": 956139,
+    "max_numeric_delta": 0.0,
+    "status": "PASS",
+    "tables": [
+      {
+        "actual_rows": 780,
+        "fields": 38220,
+        "reference_rows": 780,
+        "table": "WF2025_trades"
+      },
+      {
+        "actual_rows": 20970,
+        "fields": 754920,
+        "reference_rows": 20970,
+        "table": "WF2025_stop_decisions"
+      },
+      {
+        "actual_rows": 3254,
+        "fields": 117144,
+        "reference_rows": 3254,
+        "table": "WF2025_entry_opportunities"
+      },
+      {
+        "actual_rows": 3487,
+        "fields": 45331,
+        "reference_rows": 3487,
+        "table": "WF2025_observed_gaps"
+      },
+      {
+        "actual_rows": 19,
+        "fields": 494,
+        "reference_rows": 19,
+        "table": "WF2025_PERIOD_END_OPEN_POSITIONS"
+      },
+      {
+        "actual_rows": 1,
+        "fields": 24,
+        "reference_rows": 1,
+        "table": "WF2025_OPEN_POSITIONS"
+      }
+    ]
+  },
+  "published_indicators": {
+    "differences": 0,
+    "fields_compared": 2424256,
+    "status": "PASS"
+  },
+  "scalar": {
+    "differences": 0,
+    "fields_compared": 956139,
+    "max_numeric_delta": 0.0,
+    "status": "PASS",
+    "tables": [
+      {
+        "actual_rows": 780,
+        "fields": 38220,
+        "reference_rows": 780,
+        "table": "WF2025_trades"
+      },
+      {
+        "actual_rows": 20970,
+        "fields": 754920,
+        "reference_rows": 20970,
+        "table": "WF2025_stop_decisions"
+      },
+      {
+        "actual_rows": 3254,
+        "fields": 117144,
+        "reference_rows": 3254,
+        "table": "WF2025_entry_opportunities"
+      },
+      {
+        "actual_rows": 3487,
+        "fields": 45331,
+        "reference_rows": 3487,
+        "table": "WF2025_observed_gaps"
+      },
+      {
+        "actual_rows": 19,
+        "fields": 494,
+        "reference_rows": 19,
+        "table": "WF2025_PERIOD_END_OPEN_POSITIONS"
+      },
+      {
+        "actual_rows": 1,
+        "fields": 24,
+        "reference_rows": 1,
+        "table": "WF2025_OPEN_POSITIONS"
+      }
+    ]
+  }
+}

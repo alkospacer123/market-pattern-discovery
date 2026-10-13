@@ -1,0 +1,490 @@
+{
+  "comparison": [
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.8319054193465397,
+      "avg_win_R": 2.2332724340282435,
+      "calendar_months": 12,
+      "closed": 165,
+      "closed_R_drawdown": 6.016676725015138,
+      "expectancy_R": 0.5478222568297058,
+      "gross_PF": 2.207277631364274,
+      "gross_R": 90.39067237690145,
+      "losses": 90,
+      "negative_months": 3,
+      "positive_months": 9,
+      "wins": 74,
+      "year": "2023"
+    },
+    {
+      "OPEN": 1,
+      "avg_loss_R": -0.8936421297505769,
+      "avg_win_R": 2.031207542120622,
+      "calendar_months": 12,
+      "closed": 315,
+      "closed_R_drawdown": 12.628056181602872,
+      "expectancy_R": 0.38772058364061496,
+      "gross_PF": 1.7721337045362484,
+      "gross_R": 122.13198384679372,
+      "losses": 177,
+      "negative_months": 1,
+      "positive_months": 11,
+      "wins": 138,
+      "year": "2024"
+    },
+    {
+      "OPEN": 1,
+      "avg_loss_R": -0.83491805888873,
+      "avg_win_R": 1.9531152559695304,
+      "calendar_months": 12,
+      "closed": 300,
+      "closed_R_drawdown": 28.63739427515992,
+      "expectancy_R": 0.289588711437435,
+      "gross_PF": 1.5813075953333784,
+      "gross_R": 86.8766134312305,
+      "losses": 179,
+      "negative_months": 5,
+      "positive_months": 7,
+      "wins": 121,
+      "year": "2025"
+    },
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.8803124822738291,
+      "avg_win_R": 1.9373377538272938,
+      "calendar_months": 9,
+      "closed": 246,
+      "closed_R_drawdown": 12.738347466552893,
+      "expectancy_R": 0.48269718478321816,
+      "gross_PF": 2.062109496931445,
+      "gross_R": 118.74350745667167,
+      "losses": 127,
+      "negative_months": 1,
+      "positive_months": 8,
+      "wins": 119,
+      "year": "2026 YTD"
+    }
+  ],
+  "coverage": [
+    {
+      "bars_2026": 10684,
+      "first_2026_close": "2026-01-05T09:00:00+03:00",
+      "instrument": "USDRUBF",
+      "last_available_close": "2026-08-30T19:00:00+03:00",
+      "last_available_open": "2026-08-30T18:45:00+03:00",
+      "loaded_bars_2023_YTD": 55808,
+      "tail_days": 43.208333333333336,
+      "uncovered_tail_end_exclusive": "2026-10-13T00:00:00+03:00",
+      "uncovered_tail_start": "2026-08-30T19:00:00+03:00"
+    },
+    {
+      "bars_2026": 10697,
+      "first_2026_close": "2026-01-05T09:00:00+03:00",
+      "instrument": "CNYRUBF",
+      "last_available_close": "2026-08-30T19:00:00+03:00",
+      "last_available_open": "2026-08-30T18:45:00+03:00",
+      "loaded_bars_2023_YTD": 55573,
+      "tail_days": 43.208333333333336,
+      "uncovered_tail_end_exclusive": "2026-10-13T00:00:00+03:00",
+      "uncovered_tail_start": "2026-08-30T19:00:00+03:00"
+    },
+    {
+      "bars_2026": 13337,
+      "first_2026_close": "2026-01-05T09:00:00+03:00",
+      "instrument": "GLDRUBF",
+      "last_available_close": "2026-09-16T00:00:00+03:00",
+      "last_available_open": "2026-09-15T23:45:00+03:00",
+      "loaded_bars_2023_YTD": 52025,
+      "tail_days": 27.0,
+      "uncovered_tail_end_exclusive": "2026-10-13T00:00:00+03:00",
+      "uncovered_tail_start": "2026-09-16T00:00:00+03:00"
+    },
+    {
+      "bars_2026": 13286,
+      "first_2026_close": "2026-01-05T09:00:00+03:00",
+      "instrument": "IMOEXF",
+      "last_available_close": "2026-09-16T00:00:00+03:00",
+      "last_available_open": "2026-09-15T23:45:00+03:00",
+      "loaded_bars_2023_YTD": 46215,
+      "tail_days": 27.0,
+      "uncovered_tail_end_exclusive": "2026-10-13T00:00:00+03:00",
+      "uncovered_tail_start": "2026-09-16T00:00:00+03:00"
+    }
+  ],
+  "monthly": [
+    {
+      "closed": 23,
+      "coverage_status": "AVAILABLE_SOURCE_PREFIX",
+      "gross_PF": 4.039453495565421,
+      "gross_R": 23.427154470664153,
+      "month": "2026-01",
+      "result_sign": "POSITIVE"
+    },
+    {
+      "closed": 20,
+      "coverage_status": "AVAILABLE_SOURCE_PREFIX",
+      "gross_PF": 0.5708842863643303,
+      "gross_R": -6.067752665392702,
+      "month": "2026-02",
+      "result_sign": "NEGATIVE"
+    },
+    {
+      "closed": 26,
+      "coverage_status": "AVAILABLE_SOURCE_PREFIX",
+      "gross_PF": 4.1657089846717845,
+      "gross_R": 24.715696890604775,
+      "month": "2026-03",
+      "result_sign": "POSITIVE"
+    },
+    {
+      "closed": 29,
+      "coverage_status": "AVAILABLE_SOURCE_PREFIX",
+      "gross_PF": 1.0749269240181833,
+      "gross_R": 1.236258323883667,
+      "month": "2026-04",
+      "result_sign": "POSITIVE"
+    },
+    {
+      "closed": 24,
+      "coverage_status": "AVAILABLE_SOURCE_PREFIX",
+      "gross_PF": 2.2557356016385928,
+      "gross_R": 17.637197874953568,
+      "month": "2026-05",
+      "result_sign": "POSITIVE"
+    },
+    {
+      "closed": 37,
+      "coverage_status": "AVAILABLE_SOURCE_PREFIX",
+      "gross_PF": 2.5548519940428718,
+      "gross_R": 23.9558203953704,
+      "month": "2026-06",
+      "result_sign": "POSITIVE"
+    },
+    {
+      "closed": 35,
+      "coverage_status": "AVAILABLE_SOURCE_PREFIX",
+      "gross_PF": 1.1936472936524494,
+      "gross_R": 3.5957514015101557,
+      "month": "2026-07",
+      "result_sign": "POSITIVE"
+    },
+    {
+      "closed": 44,
+      "coverage_status": "PARTIAL",
+      "gross_PF": 3.2932531765682027,
+      "gross_R": 28.778457158373794,
+      "month": "2026-08",
+      "result_sign": "POSITIVE"
+    },
+    {
+      "closed": 8,
+      "coverage_status": "PARTIAL",
+      "gross_PF": 1.2886643584502937,
+      "gross_R": 1.4649236067038636,
+      "month": "2026-09",
+      "result_sign": "POSITIVE"
+    },
+    {
+      "closed": 0,
+      "coverage_status": "NO_COVERAGE",
+      "gross_PF": null,
+      "gross_R": 0,
+      "month": "2026-10",
+      "result_sign": "NO_COVERAGE"
+    }
+  ],
+  "slices": [
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.8803124822738291,
+      "avg_win_R": 1.9373377538272938,
+      "closed": 246,
+      "closed_R_drawdown": 12.738347466552893,
+      "direction": "ALL",
+      "expectancy_R": 0.48269718478321816,
+      "gross_PF": 2.062109496931445,
+      "gross_R": 118.74350745667167,
+      "losses": 127,
+      "scope": "ALL_FOUR",
+      "wins": 119
+    },
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.869224390022731,
+      "avg_win_R": 1.7311376523731274,
+      "closed": 137,
+      "closed_R_drawdown": 7.667243054848317,
+      "direction": "LONG",
+      "expectancy_R": 0.4784084932627139,
+      "gross_PF": 2.1424668538935916,
+      "gross_R": 65.5419635769918,
+      "losses": 66,
+      "scope": "ALL_FOUR",
+      "wins": 71
+    },
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.892309434545509,
+      "avg_win_R": 2.2423420705615817,
+      "closed": 109,
+      "closed_R_drawdown": 7.856395070289958,
+      "direction": "SHORT",
+      "expectancy_R": 0.488087558529173,
+      "gross_PF": 1.9774148106908211,
+      "gross_R": 53.20154387967986,
+      "losses": 61,
+      "scope": "ALL_FOUR",
+      "wins": 48
+    },
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.8097589104181249,
+      "avg_win_R": 1.9371250322935052,
+      "closed": 51,
+      "closed_R_drawdown": 8.71377220697395,
+      "direction": "ALL",
+      "expectancy_R": 0.5367528262052231,
+      "gross_PF": 2.300215779530431,
+      "gross_R": 27.374394136466382,
+      "losses": 26,
+      "scope": "USDRUBF",
+      "wins": 25
+    },
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.7314716453692931,
+      "avg_win_R": 1.6748776953647895,
+      "closed": 31,
+      "closed_R_drawdown": 2.3899656371813167,
+      "direction": "LONG",
+      "expectancy_R": 0.7433876279838543,
+      "gross_PF": 3.6254169264329335,
+      "gross_R": 23.045016467499483,
+      "losses": 12,
+      "scope": "USDRUBF",
+      "wins": 19
+    },
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.8768622804599806,
+      "avg_win_R": 2.7675749325677708,
+      "closed": 20,
+      "closed_R_drawdown": 8.932925966867804,
+      "direction": "SHORT",
+      "expectancy_R": 0.2164688834483449,
+      "gross_PF": 1.3526679946899343,
+      "gross_R": 4.329377668966898,
+      "losses": 14,
+      "scope": "USDRUBF",
+      "wins": 6
+    },
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.8858141829407499,
+      "avg_win_R": 1.81870301294918,
+      "closed": 57,
+      "closed_R_drawdown": 5.0,
+      "direction": "ALL",
+      "expectancy_R": 0.5850635902625452,
+      "gross_PF": 2.4479779553355003,
+      "gross_R": 33.34862464496508,
+      "losses": 26,
+      "scope": "CNYRUBF",
+      "wins": 31
+    },
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.8255538817549667,
+      "avg_win_R": 1.637267453615334,
+      "closed": 40,
+      "closed_R_drawdown": 3.2135002597359765,
+      "direction": "LONG",
+      "expectancy_R": 0.7137094528514714,
+      "gross_PF": 3.305391870434959,
+      "gross_R": 28.548378114058853,
+      "losses": 15,
+      "scope": "CNYRUBF",
+      "wins": 25
+    },
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.9679873209213633,
+      "avg_win_R": 2.574684510173537,
+      "closed": 17,
+      "closed_R_drawdown": 6.7968694927757936,
+      "direction": "SHORT",
+      "expectancy_R": 0.28236744299448385,
+      "gross_PF": 1.4508179382441033,
+      "gross_R": 4.800246530906225,
+      "losses": 11,
+      "scope": "CNYRUBF",
+      "wins": 6
+    },
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.9638837440356551,
+      "avg_win_R": 2.2607388181563732,
+      "closed": 70,
+      "closed_R_drawdown": 7.36827116342991,
+      "direction": "ALL",
+      "expectancy_R": 0.46416339064938605,
+      "gross_PF": 1.8643301469122233,
+      "gross_R": 32.49143734545702,
+      "losses": 39,
+      "scope": "GLDRUBF",
+      "wins": 31
+    },
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.9433918651691545,
+      "avg_win_R": 2.091093487992007,
+      "closed": 39,
+      "closed_R_drawdown": 7.456563455461551,
+      "direction": "LONG",
+      "expectancy_R": 0.379332519542121,
+      "gross_PF": 1.7128035842285911,
+      "gross_R": 14.79396826214272,
+      "losses": 22,
+      "scope": "GLDRUBF",
+      "wins": 17
+    },
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.9904026460981852,
+      "avg_win_R": 2.466736719070247,
+      "closed": 31,
+      "closed_R_drawdown": 5.0943298592690365,
+      "direction": "SHORT",
+      "expectancy_R": 0.5708860994617517,
+      "gross_PF": 2.0511155207807588,
+      "gross_R": 17.697469083314303,
+      "losses": 17,
+      "scope": "GLDRUBF",
+      "wins": 14
+    },
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.8367588556681945,
+      "avg_win_R": 1.7391365666824432,
+      "closed": 68,
+      "closed_R_drawdown": 8.502775636136395,
+      "direction": "ALL",
+      "expectancy_R": 0.375427225437988,
+      "gross_PF": 1.8474846844015949,
+      "gross_R": 25.529051329783183,
+      "losses": 36,
+      "scope": "IMOEXF",
+      "wins": 32
+    },
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.9090129845307546,
+      "avg_win_R": 1.460782147031358,
+      "closed": 27,
+      "closed_R_drawdown": 8.942602383563152,
+      "direction": "LONG",
+      "expectancy_R": -0.03131108395219444,
+      "gross_PF": 0.9452930051866896,
+      "gross_R": -0.8453992667092498,
+      "losses": 17,
+      "scope": "IMOEXF",
+      "wins": 10
+    },
+    {
+      "OPEN": 0,
+      "avg_loss_R": -0.7721104245806408,
+      "avg_win_R": 1.8656613028874822,
+      "closed": 41,
+      "closed_R_drawdown": 2.50250647609003,
+      "direction": "SHORT",
+      "expectancy_R": 0.6432792828412789,
+      "gross_PF": 2.797837374772785,
+      "gross_R": 26.374450596492434,
+      "losses": 19,
+      "scope": "IMOEXF",
+      "wins": 22
+    }
+  ],
+  "top_winners": [
+    {
+      "direction": "SHORT",
+      "entry_time": "2026-05-18T10:15:00+03:00",
+      "exit_time": "2026-05-20T10:15:00+03:00",
+      "gross_R": 13.326148747294413,
+      "instrument": "USDRUBF",
+      "trade_id": "T3-M15-Si-000239"
+    },
+    {
+      "direction": "SHORT",
+      "entry_time": "2026-01-21T15:00:00+03:00",
+      "exit_time": "2026-01-23T09:15:00+03:00",
+      "gross_R": 6.75001330777627,
+      "instrument": "CNYRUBF",
+      "trade_id": "T3-M15-CNY-000203"
+    },
+    {
+      "direction": "SHORT",
+      "entry_time": "2026-08-14T11:30:00+03:00",
+      "exit_time": "2026-08-17T07:30:00+03:00",
+      "gross_R": 6.360122946885064,
+      "instrument": "IMOEXF",
+      "trade_id": "T3-M15-IMOEXF-000241"
+    },
+    {
+      "direction": "SHORT",
+      "entry_time": "2026-06-09T17:45:00+03:00",
+      "exit_time": "2026-06-11T10:15:00+03:00",
+      "gross_R": 6.035353338656156,
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-M15-GLDRUBF-000225"
+    },
+    {
+      "direction": "SHORT",
+      "entry_time": "2026-03-20T17:30:00+03:00",
+      "exit_time": "2026-03-23T14:15:00+03:00",
+      "gross_R": 5.764857075976719,
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-M15-GLDRUBF-000206"
+    },
+    {
+      "direction": "LONG",
+      "entry_time": "2026-01-28T23:00:00+03:00",
+      "exit_time": "2026-01-29T10:30:00+03:00",
+      "gross_R": 5.449514122740237,
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-M15-GLDRUBF-000197"
+    },
+    {
+      "direction": "SHORT",
+      "entry_time": "2026-05-19T10:30:00+03:00",
+      "exit_time": "2026-05-20T10:15:00+03:00",
+      "gross_R": 5.375068688803599,
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-M15-GLDRUBF-000214"
+    },
+    {
+      "direction": "LONG",
+      "entry_time": "2026-08-07T09:00:00+03:00",
+      "exit_time": "2026-08-08T17:00:00+03:00",
+      "gross_R": 5.253275626103156,
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-M15-GLDRUBF-000246"
+    },
+    {
+      "direction": "LONG",
+      "entry_time": "2026-01-20T20:00:00+03:00",
+      "exit_time": "2026-01-21T10:15:00+03:00",
+      "gross_R": 5.008215764737273,
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-M15-GLDRUBF-000193"
+    },
+    {
+      "direction": "SHORT",
+      "entry_time": "2026-06-08T12:30:00+03:00",
+      "exit_time": "2026-06-09T13:00:00+03:00",
+      "gross_R": 4.805805161895465,
+      "instrument": "IMOEXF",
+      "trade_id": "T3-M15-IMOEXF-000220"
+    }
+  ]
+}
