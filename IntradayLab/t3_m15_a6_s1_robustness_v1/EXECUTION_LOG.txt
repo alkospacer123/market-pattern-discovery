@@ -1,0 +1,2 @@
+{"CONTROL": "PASS", "scalar_CONTROL": "PASS", "PR506_508": "PASS", "scalar_PR506_508": "PASS", "FEATURE": "PASS"}
+{"tables": {"summary": 45, "monthly": 360, "loss_runs": 1027, "scenario_summary": 189, "scenario_monthly": 3024, "scenario_ledger": 28800, "top_winners": 90, "november2024": 15}}
