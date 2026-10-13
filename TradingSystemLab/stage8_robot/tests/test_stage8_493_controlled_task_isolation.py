@@ -91,4 +91,4 @@ def test_scripts_powershell_lowercase_commands():
     import re
     for p in ROOT.glob('*.ps1'):
         code=p.read_text()
-        assert not re.search(r'(?m)^\\s*[A-Z]+-[A-Za-z]',code)
+        assert not re.search(r'(?m)^\s*[A-Z]+-[A-Za-z]',code)
