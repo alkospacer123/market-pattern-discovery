@@ -1,0 +1,1 @@
+{"closed_total": 3982, "control": "PASS", "fixed_replays": 6, "terminal_open_total": 6}

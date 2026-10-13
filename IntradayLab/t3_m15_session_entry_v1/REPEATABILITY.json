@@ -1,0 +1,19 @@
+{
+  "full_fresh_process_repeats": 2,
+  "repeats": [
+    {
+      "aggregate_sha256": "2f54cef73342d3b3a2fb675d390b1d6d8e3eace053f21af370270345d84130b1",
+      "byte_identical": true,
+      "files": 34,
+      "repeat": 1
+    },
+    {
+      "aggregate_sha256": "2f54cef73342d3b3a2fb675d390b1d6d8e3eace053f21af370270345d84130b1",
+      "byte_identical": true,
+      "files": 34,
+      "repeat": 2
+    }
+  ],
+  "scope": "all six replays, journals, reports, diagnostics, manifest, readable report",
+  "status": "PASS"
+}
