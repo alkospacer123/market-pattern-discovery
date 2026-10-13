@@ -31,6 +31,7 @@ def test_python_parent_child_chain_is_explicitly_bounded_and_revalidated():
         '$roots.count -ne 1',
         '$children.count -ne 1',
         'production_process_not_single_chain',
+        'production_process_commit_mismatch',
         "parent[0].name -ine 'powershell.exe'",
         "parent_cmd.indexof('run-production.ps1'",
         "parent_cmd.indexof($checkout",
@@ -43,3 +44,13 @@ def test_python_parent_child_chain_is_explicitly_bounded_and_revalidated():
         assert evidence in data
     assert 'production_process_not_uniquely_identified' not in data
     assert 'stop-scheduledtask' not in data
+
+
+def test_foreign_commit_cannot_disappear_from_production_process_inventory():
+    data = SCRIPT.read_text(encoding='utf-8').lower()
+    assert "foreach ($python_process in $matching)" in data
+    assert "production_process_commit_mismatch" in data
+    assert "cmd.indexof('production_service'" in data
+    assert "cmd.indexof($live_sha" not in data.split("$matching = @(", 1)[1].split("})",1)[0]
+    assert 'get-verified-process-chain' in data
+    assert 'stop_task_authorized_by_this_script=no' in data
