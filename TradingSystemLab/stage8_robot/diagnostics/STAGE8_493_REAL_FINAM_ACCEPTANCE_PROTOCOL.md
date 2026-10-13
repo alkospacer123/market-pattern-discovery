@@ -81,3 +81,22 @@ The required *observable order of evidence* is:
 Candidate `stage8-493-real-acceptance-readonly-gate.ps1` was created solely to revalidate a physically previously PASSing post-isolation script by **exact local file SHA-256**, require Task Disabled + HALTED, delegate to the exact same READONLY Python/account/orders/SQLite/lock checks, demand five summary PASS markers and re-check Task/HALTED afterward. The wrapper does not itself access trading credentials or any trading/order/cancel endpoint. Its Git object SHA-1: `4118bb3a77217976ea5aae4efeb3850fcb8493a2`; fixed source revision `39c414b41435bdb94be9c9534b29fed323192fb5`. Independent static diff showed no Task enable/disable/stop/start calls, no order/cancel endpoint, no Git checkout change and no rearm. **Windows physical runner validation is PENDING**, so prefer the already proved direct `stage8-493-post-isolation-readonly.ps1` command above to avoid new tooling until needed.
 
 A successful fresh READONLY flat/isolation probe closes **only** the broker flatness precheck. Do not turn the historical `/trades` HTTP 400 conjecture into fill-price authority or assert dynamic stop protection without separate real evidence. A cash-budget proposal and physical real-order approval remain outstanding; the one-contract Stage8.11 real acceptance boundary remains unchanged.
+
+## 2026-10-13 — Intel READONLY post-isolation revalidation physically PASS
+
+**Evidence received from the operator** (console output, not a fresh independent remote session): Local `stage8-493-post-isolation-readonly.ps1` SHA-256 was checked and exactly matched `37DF9E1A8F4B0B18EE37D1ACC8757AD674160E878264B2746ED0E1BB3E66C201`. The operator ran the previously proven direct post-isolation READONLY script, not a new real-order harness, using `c:\\tslaudit\\fill493\\venv\\scripts\\python.exe`. Output:
+
+```text
+=== stage8 #493 post-isolation readonly verification ===
+NO_TRADING_TOKEN NO_SQLITE_WRITES NO_ORDER_OR_CANCEL NO_TASK_MUTATION NO_REARM
+TASK_DISABLED_AND_PROCESS_ZERO=PASS
+LOCK_HANDLE_QUIESCENT=PASS
+SQLITE_POST_STOP_BEFORE_AFTER=PASS
+FINAM_POST_STOP_TWO_SNAPSHOTS=PASS
+CLASSIFICATION=POST_ISOLATION_READONLY_PASS_NO_TRADE_AUTHORITY
+NO_REAL_ORDER_AUTHORIZATION=YES
+```
+
+**Decision:** Section 2 repeat READONLY broker flat/isolation check is **PASS** as observed at this physical checkpoint. The row `Current fresh READONLY flatness: PENDING repeat` in the initial 2026-10-13 table above is superseded by this entry; it is **PASS for this observation only**, not continuous flatness. The narrower additional wrapper `stage8-493-real-acceptance-readonly-gate.ps1` is **not claimed physically run**.
+
+All the separate real-order prerequisites remain unsatisfied: current authenticated N4 2-contract cash/margin/tick/fees/slippage budget, exact live AccountTrade fill authority, broker-proven 1→2 active SLTP coverage on actual trigger, and separately signed explicit real-order permission, emergency flatten and risk budget. **No real trade authorized; no Task restoration/rearm, no candidate PR merge or LIVE checkout change.** Next roadmap step is READONLY historical fill authority and cost/margin evidence preparation, not execution.
