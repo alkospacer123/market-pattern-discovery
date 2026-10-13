@@ -40,7 +40,7 @@ def sample_asset(name):
 
 
 def sample_params(name, account='fake'):
-    return {'symbol':f'{name}@RTSX','account_id':account,'is_tradable':{'value':True},
+    return {'symbol':f'{name}@RTSX','account_id':account,'is_tradable':True,
             'trade_lot_size':'1','long_initial_margin':'1000','short_initial_margin':'1200'}
 
 
@@ -82,7 +82,7 @@ def test_asset_broker_forgery_fail_closed(fault):
     if fault=='lot': p['trade_lot_size']='2'
     if fault=='symbol': p['symbol']='IMOEXF@RTSX'
     if fault=='account': p['account_id']=None
-    if fault=='tradeability': p['is_tradable']={'value':False}
+    if fault=='tradeability': p['is_tradable']=False
     if fault=='margin': p['long_initial_margin']='-1'
     if fault=='asset': asset['ticker']='INVALID'
     with pytest.raises((m.Blocked,AssertionError,ValueError)):
@@ -199,3 +199,23 @@ def test_powershell_child_blocker_is_sanitized():
     for forbidden in ('Enable-ScheduledTask', 'Start-ScheduledTask', 'Get-TradingCredential',
                       'Set-Content', 'Invoke-RestMethod'):
         assert forbidden not in ps
+
+ 
+@pytest.mark.parametrize('state', [False, None, {'value': True}, {'value': False}, 1, 0, 'true', []])
+def test_official_rest_tradeability_fail_closed(state):
+    row = ROWS[1]
+    params = sample_params('CNYRUBF')
+    params['is_tradable'] = state
+    with pytest.raises(m.Blocked, match='ASSET_(NOT_TRADABLE_FOR_ACCOUNT|PARAMS_REST_TRADEABLE_SCHEMA_INVALID)'):
+        m.asset_economics('CNYRUBF', sample_asset('CNYRUBF'), params, row, margin, dec)
+ 
+def test_correct_rest_boolean_and_account_binding():
+    row = ROWS[1]
+    result = m.asset_economics('CNYRUBF', sample_asset('CNYRUBF'),
+                              sample_params('CNYRUBF'), row, margin, dec)
+    assert result['account_specific_margin'] is True
+    assert result['trade_lot_size_finam'] == 1
+    params = sample_params('CNYRUBF')
+    params['account_id'] = None
+    with pytest.raises(m.Blocked, match='ASSET_PARAMS_ACCOUNT_OR_SYMBOL_INVALID'):
+        m.asset_economics('CNYRUBF', sample_asset('CNYRUBF'), params, row, margin, dec)
