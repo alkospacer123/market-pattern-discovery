@@ -42,7 +42,21 @@ The operator's isolated Intel SQLite online backup passed integrity and reported
 
 This narrow offline amendment permits only two source representations: absent key or an explicitly empty dictionary. Explicit `null`, list, scalars and nonempty dictionaries still fail; exact account, broker flatness, active orders, unresolved ledger, pending signals, history, equity and causal-key checks remain mandatory. For absent source only, the NEW isolated V2 clone receives `production_positions={}` in its transaction. The original complete SQLite archive/rollback preserves the **absence** byte-for-byte, no legacy intents/fills are promoted and all original causal JSON values stay intact. A manifest field reports `legacy_positions_key=ABSENT|EMPTY_OBJECT` and `isolated_v2_empty_positions_materialized`.
 
-This change is a candidate offline compatibility fix only. **It has not been physically retested on the real Intel snapshot after the commit.** Do not claim `REAL_SNAPSHOT_ISOLATED_V2_DRYRUN=PASS` until the separate exact-HEAD rerun passes. The already running LIVE service and its SQLite, authorization, Task, kill switch and broker trading remain untouched. No merge/deploy/rearm is authorized.
+### Intel exact-HEAD physical replay — 2026-10-13
+
+**OPERATOR-REPORTED PHYSICAL READONLY PASS, NOT LIVE ACCEPTANCE.** Intel output for exact candidate commit `1dc7fd1fd013f7431b771a531d516c4b16ba7e0a` confirmed `PR493_EXACT_ISOLATED_HEAD=PASS`, unchanged confidential original SQLite snapshot SHA-256 `424da7f9cd3b0ae8e1e0642e9ad677e5b3093d6822c56af077fec29f0d390258`, and `EXACT_HEAD_RELEASE_TESTS=PASS` (`113 passed in 20.61s`, test process exit 0).
+
+The same isolated run reported `DRYRUN_EXIT=0`, `REAL_SNAPSHOT_ISOLATED_V2_DRYRUN=PASS`, `LEGACY_ABSENT_POSITION_KEY_ISOLATED_V2=PASS`, `CAUSAL_STATE_PRESERVED=PASS`, `ROLLBACK_BYTE_EXACT=PASS`, and `BROKER_FLAT_2_READONLY_OBSERVATIONS=PASS`. It reused the pre-existing snapshot; **no new LIVE SQLite backup** and **no LIVE SQLite open/write**, FINAM order POST/cancel, task change, Merge, Deploy, Re-arm or authorization change were reported. No real order endpoints were called. `LIVE_PRODUCTION_READY=NO` is unchanged.
+
+Local evidence reported on Intel:
+- Isolated audit directory: `c:\tslaudit\stage8-493-real-legacy-rerun-20261013_091521_544`.
+- Summary (confidential local file): `real-dryrun-summary.json` in the above directory; **do not commit/upload the SQLite or raw broker/account payload**.
+- Test stdout SHA-256: `8e10dc4e86c3533599ed9ad86477dba677835f8b00651f28a74b9c7ec9da35d5`.
+- Dry-run stdout SHA-256: `83018fd933a81095f94eb1e22b4292538243b5bbbae31ff05f2f325399f9d3ff`.
+
+These exact result lines are grounded in the operator's provided PowerShell output. The raw `real-dryrun-summary.json` bytes, SQLite file and FINAM responses were **not supplied to this GitHub audit** and are not independently rehashed here. The earlier blocked dry-run and absent-key diagnosis remain historical; the corrected candidate has now passed the operator-reported physical isolated rehearsal. The still-running LIVE service, its authorization, Task, kill switch and real broker trading remain unchanged; no cutover/rearm is authorized.
+
+
 
 ## B. Explicit, closed service selection
 
@@ -77,7 +91,7 @@ Both independent raw replays remain 418/418, with 1422 raw signals and exact N4 
 
 ## Proposed HALTED cutover procedure — requires separate permission
 
-No step below has been executed on Intel. The next operator boundary is independent audit and a separate decision on physical acceptance/cutover. A preparation PASS is neither merge permission nor production acceptance.
+No LIVE cutover step below has been executed on Intel. The standalone READONLY backup and offline isolated dry-run above are rehearsal evidence only, not quiescent production cutover actions. The next operator boundary is independent physical fill/SLTP acceptance and a separate decision on merge/cutover. A preparation PASS is neither merge permission nor production acceptance.
 
 1. Verify the actual deployed commit, frozen specification/account/source bindings and approved candidate commit. Separately approve stopping the production service/Task, preserve safe Task status and acquire exclusive production lock; prevent a second process or new order submission. Legacy HALTED means an operator-controlled quiescent boundary, not an invented legacy database flag.
 2. Preserve the existing authorization separately with its exact hash and binding; do not repurpose it for V2. Keep configuration/kill switch/credentials unchanged. Obtain fresh account/order GET evidence while quiescent: zero positions, zero active orders, zero unresolved local intents, no uncovered exposure or pending signal. Stop on contradictions or missing authority.
@@ -89,6 +103,6 @@ No step below has been executed on Intel. The next operator boundary is independ
 
 ## Remaining boundaries
 
-Historical Intel five one-contract CNYRUBF entries are reported readonly A/B PASS by the supplied task; their original report bytes have not been supplied/hash-audited here. They do not prove real partial/multi-fill retention or percent-SLTP growth. Those properties, fresh flat cutover evidence, a real external legacy snapshot and trading activation/authorization remain BLOCKED. `XXX` is not RUB; authenticated tick monetary authority is separate. Reference-entry R15 sizing does not guarantee actual MARKET risk <=1.5% under arbitrary slippage/gaps. No fees/tariffs are calculated or introduced as preparation blockers.
+Historical Intel five one-contract CNYRUBF entries are reported readonly A/B PASS by the supplied task; their original report bytes have not been supplied/hash-audited here. They do not prove real partial/multi-fill retention or percent-SLTP growth. Those properties, **fresh quiescent flat cutover evidence**, and trading activation/authorization remain BLOCKED; the existing real external snapshot has passed an isolated operator-reported dry-run, but is not an authorized live cutover snapshot. `XXX` is not RUB; authenticated tick monetary authority is separate. Reference-entry R15 sizing does not guarantee actual MARKET risk <=1.5% under arbitrary slippage/gaps. No fees/tariffs are calculated or introduced as preparation blockers.
 
 `RELEASE_PREPARATION_OFFLINE_PASS` concerns the isolated dry-run and closed opt-in path only. `LIVE_PRODUCTION_READY=NO`; merge, deploy, re-arm and automatic V2 trading remain unperformed.
