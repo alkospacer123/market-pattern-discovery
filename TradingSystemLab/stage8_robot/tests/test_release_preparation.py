@@ -91,6 +91,68 @@ def test_dry_run_preserves_all_causal_values_archives_ledger_and_rolls_back(exte
     assert result['entry_authorized'] is False
 
 
+
+def test_absent_legacy_positions_key_preserved_in_archive_but_materialized_flat_only_in_v2(external_snapshot):
+    """Real-world legacy absence is valid; only the isolated V2 clone gains {}."""
+    snapshot,root=external_snapshot
+    db=sqlite3.connect(snapshot)
+    db.execute("DELETE FROM state WHERE key='production_positions'")
+    db.commit();db.close()
+    before=release.sha(snapshot)
+    _,raw,intents,fills=release.snapshot_rows(snapshot,before)
+    assert 'production_positions' not in raw
+    manifest,result=prepare(external_snapshot)
+    assert result['legacy_positions_key']=='ABSENT'
+    assert result['isolated_v2_empty_positions_materialized'] is True
+    assert 'production_positions' not in result['state_inventory']
+    assert result['rollback_exact'] and result['causal_state_preserved']
+    assert release.sha(snapshot)==before==release.sha(result['archive'])
+    clone=sqlite3.connect(result['database'])
+    try:
+        row=clone.execute("SELECT value FROM state WHERE key='production_positions'").fetchone()
+        assert row is not None and json.loads(row[0])=={}
+        actual=dict(clone.execute("SELECT key,value FROM state"))
+        assert all(actual[k]==v for k,v in raw.items() if k!='database_identity')
+        assert clone.execute('SELECT COUNT(*) FROM intents').fetchone()==(0,)
+        assert clone.execute('SELECT COUNT(*) FROM fills').fetchone()==(0,)
+    finally:clone.close()
+    legacy=release.snapshot_rows(root/'prepared/rollback-restored.sqlite3',before)
+    assert 'production_positions' not in legacy[1] and (legacy[1],legacy[2],legacy[3])==(raw,intents,fills)
+    value=release.validate_manifest(manifest,release.sha(manifest),runtime_root=result['runtime_root'],
+        data_root=root/'data',account_hash=release.digest(ACCOUNT),accepted_commit=COMMIT)
+    assert value['legacy_positions_key']=='ABSENT'
+
+
+@pytest.mark.parametrize('stored',[None, [], False, 0, '', {'CNYRUBF':{'quantity':1}}])
+def test_legacy_positions_key_present_but_invalid_still_blocks(external_snapshot,stored):
+    snapshot,root=external_snapshot
+    db=sqlite3.connect(snapshot)
+    db.execute('UPDATE state SET value=? WHERE key=?',(json.dumps(stored),'production_positions'))
+    db.commit();db.close()
+    with pytest.raises(release.ReleaseBlocked,match='LOCAL_NONFLAT_POSITION_BLOCKS_CUTOVER'):
+        prepare(external_snapshot)
+    assert not (root/'prepared').exists()
+
+
+@pytest.mark.parametrize('broker_case',['position','active_order','wrong_account'])
+def test_missing_legacy_positions_key_cannot_override_broker_safety(external_snapshot,broker_case):
+    snapshot,root=external_snapshot
+    db=sqlite3.connect(snapshot)
+    db.execute("DELETE FROM state WHERE key='production_positions'")
+    db.commit();db.close()
+    observation=broker()
+    if broker_case=='position':
+        observation['account']['positions']=[{'symbol':'CNYRUBF@RTSX','quantity':{'value':'1'}}]
+    elif broker_case=='active_order':
+        observation['orders']={'orders':[{'order_id':'foreign','status':'NEW','order':{
+            'symbol':'CNYRUBF@RTSX','client_order_id':'foreign','side':'SIDE_BUY','quantity':{'value':'1'}}}]}
+    else:
+        observation['account']['account_id']='wrong-account'
+    with pytest.raises(release.ReleaseBlocked):
+        prepare(external_snapshot,observation)
+    assert not (root/'prepared').exists()
+
+
 @pytest.mark.parametrize('change',['nonflat','unresolved','pending','unknown','sequence','watermark','continuation','identity','account','source','schema','fill'])
 def test_contradictory_or_incompatible_state_never_creates_candidate(external_snapshot,change):
     snapshot,root=external_snapshot
