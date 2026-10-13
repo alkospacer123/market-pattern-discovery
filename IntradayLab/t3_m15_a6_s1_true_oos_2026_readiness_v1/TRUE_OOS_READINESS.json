@@ -3,8 +3,8 @@
   "base_main": "d6946056332ce71658a6ca933cefa0740a7570a2",
   "source_pr_merged": 512,
   "source_wf_status": "WF_MIXED",
-  "purpose": "Prepare only the existing TRUE OOS step; no price data read or trade execution.",
-  "current_status": "PREPARATION_ONLY_NOT_AUTHORIZED",
+  "purpose": "Freeze GROSS_ONLY research reporting for 2023–2026, with complete calendar TRUE OOS 2026 only after 2026 ends. No source price read or trading in this documentation task.",
+  "current_status": "GROSS_ONLY_POLICY_AUTHORIZED_TRUE_OOS_2026_FULL_YEAR_PENDING",
   "candidate": {
     "name": "T3/M15 A6+S1 NEXT_OPEN TRAIL_375",
     "ema_period": 75,
@@ -44,7 +44,9 @@
       "authorized_read": false,
       "authorized_replay": false,
       "earliest_possible_complete_calendar_at": "2027-01-01T00:00:00+03:00",
-      "full_year_available_on_2026_10_13": false
+      "full_year_available_on_2026_10_13": false,
+      "user_authorized_scope_for_future_gross_full_year": true,
+      "read_unlock_condition": "Strict no-read before 2027-01-01 MSK; after full calendar and verified complete source, separate sealed execution protocol/implementation only; no YTD-2026 substitution"
     }
   },
   "source_policy": {
@@ -56,40 +58,17 @@
     "OHLC_2026_read_now": false,
     "hash_or_inspect_locked_suffix_now": false
   },
-  "cost_inputs_required_before_OOS_read": {
-    "per_instrument_tick_size_price": "VERIFIED_PUBLIC_SNAPSHOT_2026_10_13; see verified_public_contract_specs.contracts",
-    "per_instrument_tick_value_rub_per_contract": "VERIFIED_PUBLIC_SNAPSHOT_2026_10_13; see verified_public_contract_specs.contracts",
-    "per_instrument_contract_multiplier_and_min_lot": "VERIFIED_PUBLIC_SNAPSHOT_2026_10_13; see verified_public_contract_specs.contracts",
-    "finam_broker_commission_rub_per_side_and_tariff_dates": null,
-    "moex_exchange_and_clearing_fee_rub_per_side_and_effective_dates": null,
-    "adverse_execution_ticks_entry_and_exit_including_spread_and_slippage": null,
-    "evidence_urls_or_documents_and_dates": null,
-    "no_double_counting_spread_slippage": true,
-    "gross_only_diagnostics_not_a_real_cost_substitute": true,
-    "broker_account_identifiers_or_tokens_in_repo": false
-  },
-  "cost_equations": {
-    "cash_initial_R_one_contract": "abs(actual_entry_price - frozen_initial_stop_price) / tick_size_price * tick_value_rub",
-    "gross_R": "signed(exit_price - entry_price) / abs(entry_price - frozen_initial_stop_price)",
-    "net_R": null,
-    "reporting": "Gross and cost-aware Net must be separate; cash-equity performance requires separately fixed portfolio sizing and is not inferred from the sum of R.",
-    "grid_policy": "Validate executable tick/grid and fee provenance before OOS; do not silently round or modify frozen research fills/stops. If incompatible, STOP for explicit review, no after-the-fact rule changes.",
-    "price_and_transaction_adjusted_R_before_settlement": "gross_R - transaction_fees_rub/cash_initial_R_one_contract - adverse_execution_ticks*contract_tick_value_rub/cash_initial_R_one_contract (illustrative only: modeled Stops may not be on-grid)",
-    "economic_R": "price_PNL_R plus verified signed funding cash, dividends when applicable, minus verified FINAM/MOEX fees and execution costs; normalize by frozen cash_initial_R_one_contract; requires grid-compatible execution path and cash variation-margin reconciliation; NOT COMPUTABLE YET."
-  },
   "pre_read_gates": [
-    "Specify how signed funding cash, settlement timing and IMOEXF dividend adjustments are included (or report economic Net as undefined), with no 2026 data read before authorization.",
-    "RESOLVE NON-GRID execution assumptions without changing frozen strategy, separately authorize and lock ex-ante executable simulation mapping, or STOP economic TRUE OOS.",
-    "Full 2026 calendar must have elapsed (not before 2027-01-01 MSK) and full-year source coverage verified after authorization; do not shorten TRUE OOS to observed 2026 YTD",
-    "Separate explicit user authorization identifying TRUE OOS 2026",
-    "Cost inputs and tariff source evidence pinned before any 2026 OHLC read",
-    "Exact frozen trading code/config and data commit pinned and checked",
-    "Prior 2023-2024 CONTROL plus 2025 WF prefix/journals/checkpoints match the merged canonical artifacts",
-    "Carry OPEN/pending/Stop/S1/initial R/indicator recursions without FLAT reset at 2026 boundary",
-    "Timestamp-first unbuffered strict cutoff and immutable 2025 prefix",
-    "Predeclared 12-calendar-month report and exit/entry-cohort separation",
-    "One sealed full-year TRUE OOS assessment, independent scalar audit and two identical reproductions",
-    "STOP and retain negative or invalid results; no refit, variant selection or automatic LIVE"
+    "Complete calendar-year 2026 must have elapsed, no YTD shortcut; not earlier than 2027-01-01 MSK.",
+    "Freeze exact gross-only research spec and replay code before reading any 2026 OHLC.",
+    "Pin and verify source commit, allowed instruments, cutoff and source coverage after full 2026 available.",
+    "Independently reproduce unchanged 2023-2024 CONTROL and sealed 2025 WF trade/Stop/signal/gap/indicator prefix and published gross results.",
+    "Carry terminal 2025 OPEN and pending, initial R, Stop/S1, extrema, indicator state and ID/occupancy through boundary without forced liquidation or FLAT reset.",
+    "Use completed candles, Donchian shift(1), NEXT_OPEN and exact frozen TRAIL_375 in full 2026 replay.",
+    "Produce independent calendar 12-month, 4-instrument, LONG/SHORT, full CLOSED and new-OOS-entry cohort metrics, with OPEN separate.",
+    "Report Gross PF and R before all charges; never apply assumed broker/exchange fees, spread, slippage, funding/dividend or fixed R stresses as deductions.",
+    "Independent scalar audit, two full byte-identical repeats, preserve both negative and positive findings.",
+    "No refitting to 2026, no automated LIVE or authorization to change frozen strategy; STOP after independently reviewable draft."
   ],
   "actions_this_preparation": {
     "OHLC_2026_read": false,
@@ -102,16 +81,13 @@
     "historical_results_changes": false
   },
   "unresolved": {
-    "actual_fees": true,
-    "actual_tick_values": false,
-    "adverse_execution_assumptions": true,
-    "explicit_2026_authorization": true,
-    "complete_2026_calendar": true,
-    "execution_grid_compatibility": true,
-    "daily_funding_and_imoex_dividend": true,
-    "historical_exchange_and_broker_tariffs_2026": true
+    "full_2026_calendar": true,
+    "full_year_2026_coverage_verification": true,
+    "pre_read_immutable_oos_implementation": true,
+    "research_commissions_or_cost_inputs": false,
+    "explicit_user_permission_for_gross_policy": false
   },
-  "next_action": "Obtain and independently verify the missing cost instrument/broker inputs, then preregister exact numeric assumptions in a separate reviewed change before requesting user authorization to open TRUE OOS 2026.",
+  "next_action": "Keep 2026 prices sealed until the full year finishes. Finalize and independently audit gross-only pre-read protocol; after 2027-01-01 MSK verify full source coverage and exact frozen CONTROL/WF, then execute the single complete gross-only TRUE OOS 2026 under a separate reviewed Draft PR.",
   "verified_public_contract_specs": {
     "observation_date_msk": "2026-10-13",
     "source": "Official MOEX instrument cards, public specifications. Snapshot fees are indicative and NOT fixed historical tariffs.",
@@ -218,10 +194,49 @@
       "https://www.moex.com/a8803"
     ],
     "historical_2026_funding_or_dividend_data_read": false,
-    "future_required": "When explicitly authorized, load date/contract-specific funding and IMOEX dividend adjustment for settled holding intervals, using an independently validated source. Reconcile model price-change P&L to clearing VM and prevent double counting.",
+    "future_required": "Not a prerequisite for GROSS_ONLY 2023–2026 tests. Funding and dividend cashflows only matter in separately authorized actual-broker-cash accounting, if applicable.",
     "funding_daily_rub": null,
     "imoex_dividend_cash_rub": null,
     "settlement_time_assignment_tested": false,
     "full_economic_net_R_ready": false
+  },
+  "user_decision": {
+    "date": "2026-10-13",
+    "instruction": "Во тестах 2023 по 2026 должен быть чистый PF без комиссий и издержек. Комиссии считаем отдельно по факту исполнения заявок. Продолжаем. Даю разрешение.",
+    "interpretation": "Research metric is gross pre-cost PF/R, including full 2026 TRUE OOS when complete; separate broker actual-execution accounting must not be subtracted from the research metric.",
+    "authorized_scope": "GROSS_ONLY research protocol and eventual full 2026 OOS under frozen code and prior CONTROL; does not authorize incomplete-year TRUE OOS, LIVE or automatic merge.",
+    "next_stage_reapproval_not_required_for_gross_policy": true
+  },
+  "research_metric_policy": {
+    "metric_name": "GROSS_PF_BEFORE_ALL_EXECUTION_COSTS",
+    "gross_R_per_CLOSED": "signed(exit_price - entry_price) / abs(entry_price - immutable_initial_stop_price)",
+    "gross_PF": "sum(gross_R > 0) / abs(sum(gross_R < 0)); undefined denominator => N/A",
+    "included": "Only frozen research price-path P&L from causally modeled entries and exits; full CLOSED ledger",
+    "excluded_from_research_PF_R": [
+      "FINAM brokerage commissions",
+      "MOEX exchange and clearing fees",
+      "spread assumption or deduction",
+      "slippage assumption or deduction",
+      "fixed R penalties or synthetic execution cost stresses",
+      "funding cashflow",
+      "dividend adjustment cashflow",
+      "position-sizing equity effects"
+    ],
+    "actual_broker_cash_accounting": "Separate later accounting based only on actual execution reports and applicable settlement cashflows, not an adjustment to gross research PF",
+    "avoid_term_net_PF": true,
+    "calendar_report": [
+      "2023 DEVELOPMENT_EXPOSED",
+      "2024 DEVELOPMENT_EXPOSED",
+      "2025 WF_MIXED",
+      "2026 TRUE_OOS_FULL_YEAR_ONLY"
+    ],
+    "combined_2023_2026": "If provided, purely descriptive combined gross; never substitute for separate annual and cohort reports and never call combined sample clean OOS",
+    "strategy_rules_changes": false
+  },
+  "execution_reference_only": {
+    "current_contract_specs_and_2025_grid_preflight": "Existing public spec and 2025 idealized off-grid stop diagnostics retained unchanged below as technical reference; not required for or subtracted from gross research PF.",
+    "live_readiness": "NOT_LIVE_READY; real trading/realized cash returns require separate engineering and broker accounting.",
+    "actual_commissions": "Deduct or report only from actual broker execution data in separate live accounting; no synthetic fees in 2023–2026 research results",
+    "funding": "Research Gross PF excludes cash settlement funding/dividend adjustments; separate real cash account statements may track them when applicable."
   }
 }
