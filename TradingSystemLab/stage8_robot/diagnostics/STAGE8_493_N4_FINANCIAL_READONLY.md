@@ -8,9 +8,9 @@ This is an existing Stage 8 acceptance preparation item, not a research phase. D
 
 | File | SHA-256 / identity |
 | --- | --- |
-| stage8_493_n4_financial_readonly.py | CF366762E7CB4B75EB25317E890FD59D6F5F4FB88299B85FBE1904FEB3D16F2B, Git blob 608bf691f3ce1748d8a4d42299475f3130ca5151 |
-| stage8-493-n4-financial-readonly.ps1 | DB37C177FED0D34FEB502C15BD462C3D915AA161D4ED2825366639912464E168, Git blob 138966f73d401dbf8c026ce51280d8e3f5971378 (corrected source/hash verification) |
-| test_stage8_493_n4_financial_readonly.py | Git blob 8ff3706d5199bcb8e12fcb1d2f46375c20f7c70a |
+| stage8_493_n4_financial_readonly.py | 8ABAE05EB541DC5236266E314BFE0CB38601EF8EDD0E2F84445A30EB75617CA6, Git blob 5ef47cee90dcc1cd73bfea49b9a922250a1ad5c1 (sanitized stage diagnostics) |
+| stage8-493-n4-financial-readonly.ps1 | C3FC8E6FEC2E3129D346A02AE87495D75A54F8B419EDD57A32DE8F3133B849DA, Git blob e7aa54fc6c2da1c0690ee87871f64645282a2673 (safe child blocker + hash guards) |
+| test_stage8_493_n4_financial_readonly.py | Git blob 66093d52451be497c9edca1bd318c9f51d5fdac7 (adds diagnostic redaction regressions) |
 
 **Local independent synthetic pytest: 16 passed.** Both executable source files and the test file were byte-for-byte matched to these Git blob IDs. Python compiled successfully; PowerShell static forbidden-mutation verb audit PASS. **Operator invoked the original Windows PowerShell wrapper twice, but both attempts stopped at the initial hash guard before any financial GET. The corrected wrapper has NOT yet been physically run on Intel; no fresh N4 economics were collected.** None of these tests accessed FINAM or LIVE.
 
@@ -65,3 +65,17 @@ CLASSIFICATION=BLOCKED, malformed/changed account data, parser/import/version fa
 - Real order/Task activation/PR merge: **NOT AUTHORIZED**.
 
 **Decision: STAGE8_493_N4_FINANCIAL_READONLY_CANDIDATE_READY_PHYSICAL_GET_PENDING.** Next independent step after physical READONLY report is to evaluate verified values, current client tariff/realized basis and two-contract budget under unchanged FULL/R15; no physical trade follows automatically.
+
+
+## Intel physical block after source verification / standalone child phase observability
+
+Operator output 2026-10-13:
+`EXACT_READONLY_SOURCE_HASHES=PASS`;
+`FRESH_POST_ISOLATION_READONLY_GATE=PASS`;
+`CLASSIFICATION=BLOCKED:FINANCIAL_READONLY_COLLECTION_BLOCKED`;
+`NO_REAL_ORDER_AUTHORIZATION=YES`.
+This confirms exact source hashes and a fresh physically passing isolation check at that observation; it **does not prove current N4 account funds, assets or margin**. The original diagnostic PowerShell wrapper suppressed the Python child reason. The blocked result must not be classified as insufficient cash, bad margin, or fill failure without more evidence.
+
+The current candidate modifies only the two standalone READONLY diagnostic sources and synthetic tests: Python emits fixed uppercase phase labels on unexpected errors without exception contents or account data; PowerShell surfaces only `FINANCIAL_CHILD_CLASSIFICATION=BLOCKED:<SAFE_UPPERCASE_CODE>`, preserving the prior fail-closed exit and all pinned guards. The existing post-isolation verification, production checkout, runtime SQLite, Task, HALTED and trading/order endpoint boundary remain unchanged. Local synthetic success/redaction/negative-path checks PASS; native Windows physical rerun is pending.
+
+**Use the latest SHA-256 values in the table above**, not earlier revisions in the historical log below. Do not publish the external private financial report to GitHub. No real-order authorization or two-contract eligibility results from this diagnostic correction.
