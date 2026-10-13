@@ -36,6 +36,14 @@ python -m TradingSystemLab.stage8_robot.release_preparation \
 
 This is not automatic LIVE migration. Source commit provenance is supplied by the operator; a synthetic fixture or a valid hash does not prove which Intel checkout created a real snapshot.
 
+## Intel READONLY legacy snapshot — absent position key (2026-10-13)
+
+The operator's isolated Intel SQLite online backup passed integrity and reported local position count **0**, unresolved intents **0**, pending signals **0**. The original snapshot is confidential and remains on Intel; its SHA-256 is `424da7f9cd3b0ae8e1e0642e9ad677e5b3093d6822c56af077fec29f0d390258`. The first V2 dry-run correctly stopped before generating an accepted candidate, reporting `LOCAL_NONFLAT_POSITION_BLOCKS_CUTOVER`; a separate READONLY SQLite query confirmed the actual legacy `production_positions` key is **absent**. This is consistent with the existing `ProductionRuntime.open_positions()` default, which interprets a missing key as an empty dict. The capture's preliminary `len(value or {})` report alone did not distinguish absent from present, so the separate query is decisive.
+
+This narrow offline amendment permits only two source representations: absent key or an explicitly empty dictionary. Explicit `null`, list, scalars and nonempty dictionaries still fail; exact account, broker flatness, active orders, unresolved ledger, pending signals, history, equity and causal-key checks remain mandatory. For absent source only, the NEW isolated V2 clone receives `production_positions={}` in its transaction. The original complete SQLite archive/rollback preserves the **absence** byte-for-byte, no legacy intents/fills are promoted and all original causal JSON values stay intact. A manifest field reports `legacy_positions_key=ABSENT|EMPTY_OBJECT` and `isolated_v2_empty_positions_materialized`.
+
+This change is a candidate offline compatibility fix only. **It has not been physically retested on the real Intel snapshot after the commit.** Do not claim `REAL_SNAPSHOT_ISOLATED_V2_DRYRUN=PASS` until the separate exact-HEAD rerun passes. The already running LIVE service and its SQLite, authorization, Task, kill switch and broker trading remain untouched. No merge/deploy/rearm is authorized.
+
 ## B. Explicit, closed service selection
 
 `release_candidate_runner` dispatches through the actual `production_service.run_from_environment()` and selects `ProductionService(execution_revision=V2)` only with a manifest, its SHA-256, `--once`, exact current checkout commit, frozen identity/schema, matching account/data paths and committed source-file hashes. Mutated state/archive/code, wrong commit/revision/account, symlink/hardlink/WAL aliases and an existing production authorization file are rejected before service construction. An environment flag alone has no effect on legacy profile selection.
