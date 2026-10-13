@@ -306,3 +306,27 @@ a two-contract R15 quantity; absent a natural exact-two eligible
 signal, the experiment is NOT ELIGIBLE.
 
 **Current gate: `FUNDING_NEW_ENTRY_CODE_SEMANTICS_VERIFIED_OFFLINE_TEST_PENDING_REAL_SLTP_NOT_AUTHORIZED`.**
+
+
+
+## 2026-10-13 — runbook §4.3 cashflow hold is operationally binding
+
+Main's accepted production runbook §4.3 explicitly says no
+automatic deposit/withdrawal classification currently exists and
+that any external flow during LIVE requires a controlled operator
+procedure before changed-equity sizing. This is separate from
+the already-proven frozen new-entry calculation based on fresh FINAM
+equity, and **overrides any casual assumption that new deposits may be
+made unattended**.
+
+Do not change `explained_external_cash_flows` or force a particular
+new risk basis via a diagnostic script. Before reactivation the
+confirmed previous deposit must be handled under the agreed accounting
+authority; for future deposits an explicit narrowly reviewed
+operator procedure (or separately authorized and verified flow
+classifier) is necessary. Current candidate tests only describe
+mathematical behavior and do not authorize that procedure.
+
+The next **real SLTP test** remains a different, explicitly
+user-authorized broker/order boundary. No order/SLTP/cancel or Task/
+kill-switch/production SQLite/merge action is approved in this turn.
