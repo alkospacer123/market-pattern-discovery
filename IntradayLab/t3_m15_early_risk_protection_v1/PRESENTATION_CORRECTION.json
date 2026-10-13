@@ -1,0 +1,12 @@
+{
+  "changed_files": [
+    "audit_presentation.py"
+  ],
+  "original_fail": "DETAIL.md row39 worst_month_R: actual 0 vs scalar formatted 0.000000; numerically identical",
+  "original_failure_and_code_preserved": "correction_history/",
+  "original_pre_result_freeze_commit": "10ce4fd0cd4edb641fc6785f15109a9bd5c68f39",
+  "outcome_or_threshold_changes": false,
+  "post_result_correction": true,
+  "scope": "presentation validation only; numeric equality accepts integer zero and formatted floating zero",
+  "strategy_indicator_metrics_parameters_causal_tests_unchanged": true
+}

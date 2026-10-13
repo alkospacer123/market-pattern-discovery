@@ -1,0 +1,14 @@
+{
+  "TradingSystemLab_robot_ROADMAP_prior_research_unchanged": true,
+  "all_changes_under": "IntradayLab/t3_m15_early_risk_protection_v1/",
+  "base_main": "6c853d7bd3d7d02cbef81266c4c3e6fb9c3d0838",
+  "changed_tracked_files": 128,
+  "diff_additions_only": true,
+  "original_checkout_unchanged": true,
+  "read_references_unchanged": true,
+  "source_data_HEAD": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "source_data_clean_unchanged": true,
+  "source_hashes_unchanged": true,
+  "status": "PASS",
+  "untracked_files": 0
+}

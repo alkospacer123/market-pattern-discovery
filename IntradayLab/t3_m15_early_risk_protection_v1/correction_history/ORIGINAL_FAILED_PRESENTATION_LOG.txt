@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/work/early-risk/IntradayLab/t3_m15_early_risk_protection_v1/audit_presentation.py", line 55, in <module>
+    p=argparse.ArgumentParser();p.add_argument('--primary',type=Path,default=C.HERE/'results');p.add_argument('--audit',type=Path,default=C.HERE/'audit');a=p.parse_args();check(a.primary,a.audit)
+                                                                                                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/work/early-risk/IntradayLab/t3_m15_early_risk_protection_v1/audit_presentation.py", line 52, in check
+    C.write_json(audit/'PRESENTATION_AUDIT.json',result);C.write_csv(audit/'PRESENTATION_DIFFERENCES.csv',cmp.diffs,['table','row','field','actual','expected']);assert not cmp.diffs and result['booked_delta_checked'];print(json.dumps(result),flush=True)
+                                                                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

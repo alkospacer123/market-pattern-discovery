@@ -1,0 +1,2 @@
+{"control_primary": "PASS", "control_scalar": "PASS", "PR506_primary": "PASS", "PR506_scalar": "PASS", "feature": "PASS", "closed": 480, "stops": 12478, "signals": 2017}
+{"experiment_closed": 504, "experiment_open": 1, "tables": {"summary": 90, "monthly": 720, "trade_comparison": 505, "signal_comparison": 2017, "cohort32": 32, "winner_retention": 83, "effect_summary": 45}}

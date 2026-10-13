@@ -1,0 +1,17 @@
+test_actual_entry_not_signal_close_is_anchor (__main__.Early.test_actual_entry_not_signal_close_is_anchor) ... ok
+test_adverse_gap_fill_not_assumed_floor (__main__.Early.test_adverse_gap_fill_not_assumed_floor) ... ok
+test_below_half_no_activation (__main__.Early.test_below_half_no_activation) ... ok
+test_completed_prefix_invariant (__main__.Early.test_completed_prefix_invariant) ... ok
+test_dead_bar_extrema_cannot_activate (__main__.Early.test_dead_bar_extrema_cannot_activate) ... ok
+test_early_effect_on_new_exit_bar_does_not_activate_s1 (__main__.Early.test_early_effect_on_new_exit_bar_does_not_activate_s1) ... ok
+test_exact_half_threshold_survived_next_bar_both_sides (__main__.Early.test_exact_half_threshold_survived_next_bar_both_sides) ... ok
+test_floor_then_original_s1 (__main__.Early.test_floor_then_original_s1) ... ok
+test_next_observed_bar_can_be_next_day (__main__.Early.test_next_observed_bar_can_be_next_day) ... ok
+test_protection_never_weakens_s1_trail (__main__.Early.test_protection_never_weakens_s1_trail) ... ok
+test_reentry_occupancy_replayed (__main__.Early.test_reentry_occupancy_replayed) ... ok
+test_signal_extrema_cannot_activate (__main__.Early.test_signal_extrema_cannot_activate) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.053s
+
+OK

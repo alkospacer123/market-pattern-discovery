@@ -1,0 +1,31 @@
+[
+  {
+    "activation_time": "2024-12-30T14:00:00+03:00",
+    "active_stop": 2892.021773301086,
+    "breakout_level": 2848.0,
+    "direction": "LONG",
+    "early_activated": true,
+    "early_activation_time": "2024-12-30T12:00:00+03:00",
+    "early_stop_updates": 1,
+    "entry_price": 2849.0,
+    "entry_time": "2024-12-30T11:15:00+03:00",
+    "favorable_extreme": 2914.0,
+    "initial_risk": 15.854203047805186,
+    "initial_stop": 2833.145796952195,
+    "instrument": "IMOEXF",
+    "last_close": "2024-12-31T00:00:00+03:00",
+    "last_close_price": 2905.0,
+    "mode": "NEXT_OPEN",
+    "pending_exit_decision": null,
+    "rule": "C1",
+    "signal_close": 2850.0,
+    "signal_time": "2024-12-30T11:15:00+03:00",
+    "status": "OPEN_NOT_LIQUIDATED_EXCLUDED_FROM_CLOSED_TRADE_METRICS",
+    "stop_source": "ATR_TRAIL",
+    "stop_updates": 27,
+    "threshold_activated": true,
+    "trade_id": "T3-M15-IMOEXF-000097",
+    "unrealized_gross_R_at_last_close": 3.5321863755083225,
+    "version": "EARLY_PROTECT_05"
+  }
+]

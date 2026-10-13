@@ -1,0 +1,261 @@
+{
+  "cohort": [
+    {
+      "MFE_R": "0.6242103015940039",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "USDRUBF",
+      "signal_time": "2024-01-15T13:00:00+03:00",
+      "trade_id": "T3-M15-Si-000079"
+    },
+    {
+      "MFE_R": "0.684875702101305",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "USDRUBF",
+      "signal_time": "2024-05-13T13:00:00+03:00",
+      "trade_id": "T3-M15-Si-000103"
+    },
+    {
+      "MFE_R": "0.9218285372258477",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "USDRUBF",
+      "signal_time": "2024-05-13T18:30:00+03:00",
+      "trade_id": "T3-M15-Si-000104"
+    },
+    {
+      "MFE_R": "0.8830802050843326",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "USDRUBF",
+      "signal_time": "2024-06-04T11:15:00+03:00",
+      "trade_id": "T3-M15-Si-000108"
+    },
+    {
+      "MFE_R": "0.6289935055902769",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "USDRUBF",
+      "signal_time": "2024-10-11T13:30:00+03:00",
+      "trade_id": "T3-M15-Si-000135"
+    },
+    {
+      "MFE_R": "0.7489321299799504",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "USDRUBF",
+      "signal_time": "2024-12-26T15:45:00+03:00",
+      "trade_id": "T3-M15-Si-000146"
+    },
+    {
+      "MFE_R": "0.8718433077719578",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "CNYRUBF",
+      "signal_time": "2024-01-15T13:00:00+03:00",
+      "trade_id": "T3-M15-CNY-000058"
+    },
+    {
+      "MFE_R": "0.5545143680746228",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "CNYRUBF",
+      "signal_time": "2024-03-27T17:15:00+03:00",
+      "trade_id": "T3-M15-CNY-000078"
+    },
+    {
+      "MFE_R": "0.9975054125645153",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "CNYRUBF",
+      "signal_time": "2024-04-24T16:45:00+03:00",
+      "trade_id": "T3-M15-CNY-000084"
+    },
+    {
+      "MFE_R": "0.7459700694247484",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "CNYRUBF",
+      "signal_time": "2024-05-13T13:00:00+03:00",
+      "trade_id": "T3-M15-CNY-000086"
+    },
+    {
+      "MFE_R": "0.7551807542808875",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "CNYRUBF",
+      "signal_time": "2024-06-03T16:00:00+03:00",
+      "trade_id": "T3-M15-CNY-000095"
+    },
+    {
+      "MFE_R": "0.7789456742109692",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "CNYRUBF",
+      "signal_time": "2024-06-04T11:45:00+03:00",
+      "trade_id": "T3-M15-CNY-000096"
+    },
+    {
+      "MFE_R": "0.9677107838087149",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "CNYRUBF",
+      "signal_time": "2024-08-26T12:00:00+03:00",
+      "trade_id": "T3-M15-CNY-000106"
+    },
+    {
+      "MFE_R": "0.9415240774750246",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "CNYRUBF",
+      "signal_time": "2024-12-06T16:45:00+03:00",
+      "trade_id": "T3-M15-CNY-000127"
+    },
+    {
+      "MFE_R": "0.5040542838616903",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "CNYRUBF",
+      "signal_time": "2024-12-10T11:45:00+03:00",
+      "trade_id": "T3-M15-CNY-000128"
+    },
+    {
+      "MFE_R": "0.8640249318672288",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "GLDRUBF",
+      "signal_time": "2024-01-05T16:30:00+03:00",
+      "trade_id": "T3-M15-GLDRUBF-000030"
+    },
+    {
+      "MFE_R": "0.5216154964856562",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "GLDRUBF",
+      "signal_time": "2024-05-03T10:30:00+03:00",
+      "trade_id": "T3-M15-GLDRUBF-000062"
+    },
+    {
+      "MFE_R": "0.552415225708407",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "GLDRUBF",
+      "signal_time": "2024-12-10T11:30:00+03:00",
+      "trade_id": "T3-M15-GLDRUBF-000108"
+    },
+    {
+      "MFE_R": "0.7358163717268874",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "GLDRUBF",
+      "signal_time": "2024-12-27T11:45:00+03:00",
+      "trade_id": "T3-M15-GLDRUBF-000111"
+    },
+    {
+      "MFE_R": "0.5442222087775617",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "IMOEXF",
+      "signal_time": "2024-01-25T10:45:00+03:00",
+      "trade_id": "T3-M15-IMOEXF-000012"
+    },
+    {
+      "MFE_R": "0.5166535627003725",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "IMOEXF",
+      "signal_time": "2024-04-18T10:45:00+03:00",
+      "trade_id": "T3-M15-IMOEXF-000030"
+    },
+    {
+      "MFE_R": "0.6283225969764017",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "IMOEXF",
+      "signal_time": "2024-05-03T11:00:00+03:00",
+      "trade_id": "T3-M15-IMOEXF-000034"
+    },
+    {
+      "MFE_R": "0.8058377653843763",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "IMOEXF",
+      "signal_time": "2024-07-29T18:15:00+03:00",
+      "trade_id": "T3-M15-IMOEXF-000053"
+    },
+    {
+      "MFE_R": "0.7068227139040143",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "IMOEXF",
+      "signal_time": "2024-08-02T14:45:00+03:00",
+      "trade_id": "T3-M15-IMOEXF-000054"
+    },
+    {
+      "MFE_R": "0.6185810321511979",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "IMOEXF",
+      "signal_time": "2024-08-06T16:00:00+03:00",
+      "trade_id": "T3-M15-IMOEXF-000055"
+    },
+    {
+      "MFE_R": "0.5587551443889665",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "IMOEXF",
+      "signal_time": "2024-08-29T12:45:00+03:00",
+      "trade_id": "T3-M15-IMOEXF-000059"
+    },
+    {
+      "MFE_R": "0.5268948312535489",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "IMOEXF",
+      "signal_time": "2024-09-03T17:45:00+03:00",
+      "trade_id": "T3-M15-IMOEXF-000061"
+    },
+    {
+      "MFE_R": "0.875332439143399",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "IMOEXF",
+      "signal_time": "2024-10-02T19:15:00+03:00",
+      "trade_id": "T3-M15-IMOEXF-000068"
+    },
+    {
+      "MFE_R": "0.9578026385121314",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "IMOEXF",
+      "signal_time": "2024-10-24T12:30:00+03:00",
+      "trade_id": "T3-M15-IMOEXF-000070"
+    },
+    {
+      "MFE_R": "0.5538950045045727",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "IMOEXF",
+      "signal_time": "2024-10-29T11:45:00+03:00",
+      "trade_id": "T3-M15-IMOEXF-000072"
+    },
+    {
+      "MFE_R": "0.7865803460981472",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "IMOEXF",
+      "signal_time": "2024-11-14T17:45:00+03:00",
+      "trade_id": "T3-M15-IMOEXF-000076"
+    },
+    {
+      "MFE_R": "0.9975489598373877",
+      "gross_R": "-1.0",
+      "initial_no_s1": "True",
+      "instrument": "IMOEXF",
+      "signal_time": "2024-12-16T18:00:00+03:00",
+      "trade_id": "T3-M15-IMOEXF-000085"
+    }
+  ],
+  "source": "PR507/results/trade_features.csv"
+}
