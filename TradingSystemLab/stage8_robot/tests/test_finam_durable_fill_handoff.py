@@ -349,7 +349,7 @@ def test_growth_without_fresh_broker_stop_halts_and_preserves_backstop(tmp_path)
     stop=svc.transport.calls[0]
     svc._reconcile_intents(snapshot(entry,2,stop))
     api.rows=[fill(entry,quantity=2),fill(entry,2)]
-    with pytest.raises(ProductionServiceError,match='GROWTH_OPERATOR_HOLD'):
+    with pytest.raises(ProductionServiceError,match='HALTED_OPERATOR_INTERVENTION_REQUIRED'):
         svc._reconcile_intents(snapshot(entry,3,status='FILLED'))  # no active SLTP order
     held=svc.runtime.store.get(f'entry_growth_hold:{entry.idempotency_key}')
     assert held['observed_quantity']==3 and held['prior_quantity']==2
