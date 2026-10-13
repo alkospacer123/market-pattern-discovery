@@ -82,6 +82,13 @@ class WF(unittest.TestCase):
         self.assertTrue(a['WF_2025_AUTHORIZED']);self.assertTrue(a['TRUE_OOS_2026_LOCKED'])
         for x,y in zip(s['quarters'],s['quarters'][1:]):self.assertEqual(x['end'],y['start'])
         self.assertEqual(s['quarters'][-1]['end'],s['TRUE_OOS']['start']);self.assertFalse(s['TRUE_OOS']['read'])
+    def test_checkpoint_JSON_serializable_numpy_signal(self):
+        import pipeline
+        b=fixture();frames={s:frame(b) for s in C.SYMBOLS}
+        out={'OPEN_POSITIONS':[],'entry_opportunities':[],'trades':[]}
+        receipts=[{'instrument':s} for s in C.SYMBOLS]
+        checkpoint=pipeline.checkpoint(out,frames,receipts,self.ce)
+        json.dumps(C.plain(checkpoint),allow_nan=False)
     def test_positive_PF_not_auto_PASS(self):
         r={'period':'FULL_WF','cohort':'CALENDAR_CLOSED','scope':'ALL_FOUR','direction':'ALL','closed':2,'gross_PF':1.1,'gross_R':.1,'expectancy_R':.05};n=r|{'cohort':'NEW_WF_COHORT'}
         t={'summary':[r,n],'scenario_summary':[],'coverage':[{'status':'AVAILABLE'}]*48}
