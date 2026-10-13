@@ -1,0 +1,9 @@
+{
+  "all_trades_stops_signals_OPEN_features_tables_unchanged_direct_hash": true,
+  "changed": [
+    "SOURCE_MANIFEST.json"
+  ],
+  "original_computational_artifacts": 38,
+  "reason": "receipt and presentation auditor SHA metadata only",
+  "status": "PASS"
+}

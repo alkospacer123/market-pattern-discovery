@@ -1,0 +1,121 @@
+{
+  "differences": 0,
+  "fields_compared": 1152993,
+  "max_numeric_delta": 4.440892098500626e-16,
+  "short_2024": {
+    "closed": 148,
+    "closed_R_drawdown": 10.993523560237406,
+    "ex_top10_winners_PF": 0.7217349976018909,
+    "ex_top10_winners_R": -22.520681472970217,
+    "ex_top1_PF": 1.311850073356526,
+    "ex_top1_R": 21.88149668352293,
+    "ex_top3_PF": 1.03712857980427,
+    "ex_top3_R": 2.4448124372209086,
+    "ex_top5_winners_PF": 0.9882076917237409,
+    "ex_top5_winners_R": -0.9543809542414294,
+    "expectancy_R": 0.25892763501031896,
+    "gross_PF": 1.4734969437495409,
+    "gross_R": 38.32128998152721,
+    "losses": 93,
+    "max_losing_trade_run": 13,
+    "max_negative_month_run": 1,
+    "mean_LOSS_R": -0.8702419032714136,
+    "mean_WIN_R": 2.1682506724685213,
+    "months": 12,
+    "negative_R": 80.93249700424147,
+    "negative_months": 5,
+    "positive_R": 119.25378698576868,
+    "positive_months": 7,
+    "top10_share_positive_R": 0.5101890094421747,
+    "top10_winners_R": 60.841971454497425,
+    "top1_months": "2024-06",
+    "top1_months_R": 16.439793298004282,
+    "top1_share_annual_R": 0.42899895347805594,
+    "top3_months": "2024-06,2024-11,2024-09",
+    "top3_months_R": 35.876477544306304,
+    "top3_share_annual_R": 0.9362022406239605,
+    "top5_share_positive_R": 0.32934527220050175,
+    "top5_winners_R": 39.27567093576864,
+    "win_fraction": 0.3716216216216216,
+    "wins": 55,
+    "worst_month": "2024-10",
+    "worst_month_R": -7.955776704339396,
+    "zero_months": 0,
+    "zero_trades": 0
+  },
+  "status": "PASS",
+  "tables": [
+    {
+      "actual_rows": 480,
+      "fields": 23520,
+      "reference_rows": 480,
+      "table": "PR506_trades"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 24,
+      "reference_rows": 1,
+      "table": "PR506_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 12478,
+      "fields": 449208,
+      "reference_rows": 12478,
+      "table": "PR506_stop_decisions"
+    },
+    {
+      "actual_rows": 2017,
+      "fields": 72612,
+      "reference_rows": 2017,
+      "table": "PR506_entry_opportunities"
+    },
+    {
+      "actual_rows": 2370,
+      "fields": 30810,
+      "reference_rows": 2370,
+      "table": "PR506_observed_gaps"
+    },
+    {
+      "actual_rows": 12,
+      "fields": 312,
+      "reference_rows": 12,
+      "table": "PR506_PERIOD_END_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 480,
+      "fields": 23520,
+      "reference_rows": 480,
+      "table": "PR507_trades"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 24,
+      "reference_rows": 1,
+      "table": "PR507_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 12478,
+      "fields": 449208,
+      "reference_rows": 12478,
+      "table": "PR507_stop_decisions"
+    },
+    {
+      "actual_rows": 2017,
+      "fields": 72612,
+      "reference_rows": 2017,
+      "table": "PR507_entry_opportunities"
+    },
+    {
+      "actual_rows": 2370,
+      "fields": 30810,
+      "reference_rows": 2370,
+      "table": "PR507_observed_gaps"
+    },
+    {
+      "actual_rows": 12,
+      "fields": 312,
+      "reference_rows": 12,
+      "table": "PR507_PERIOD_END_OPEN_POSITIONS"
+    }
+  ]
+}
