@@ -211,3 +211,40 @@ Never submit an order, rearm, merge or start Task based on these observations.
 
 Classification:
 `STAGE8_493_N4_MARGIN_CAPACITY_SINGLE_SYMBOL_2_LOTS_OBSERVED_R15_BASIS_UNVERIFIED_NO_TRADE`.
+
+
+## 2026-10-13 — physical R15 state-key discrepancy, diagnosis only
+
+Operator verified standalone R15 read-only checker SHA-256
+`B21C1B46E56A4CBF7ACE31EF3853D54071BC48921E51B7B1BE536FCEDD448908`
+and ran it against the existing quiescent Intel runtime. It returned
+`CLASSIFICATION=BLOCKED:R15_STATE_KEYS_MISSING` and
+`REAL_ORDER_AUTHORIZED=NO`.
+
+The Python checker requires six named production SQLite state keys:
+`database_identity`,
+`production_service_identity`,
+`explained_external_cash_flows`,
+`realized_equity`,
+`starting_realized_equity` and
+`production_positions`. It did not identify which
+particular key was absent; it deliberately did not substitute broker
+equity or insert any state. The exact frozen production-service code
+treats absent starting equity / absent persisted equity differently
+during bootstrap versus continued operation: missing keys must be
+investigated before any state decision, not silently repaired.
+
+A separate **local-only** key-name inventory was prepared for the Intel
+operator, SHA-256
+`28EA316089D572C10C9FCEEC9F9D2CF4A646C7D3675C833D3ABE4CB274009199`.
+It displays only PRESENT/MISSING for those six known keys after checking
+HALTED, SQLite `mode=ro` and `query_only`. No account
+data, token, state values, FINAM API, order or SQLite writing. Six
+synthetic offline tests PASS; **no physical Intel inventory result yet**.
+This standalone script remains outside production; no production
+code/config or schema was changed.
+
+Classification: `R15_BASIS_UNVERIFIED_KEY_INVENTORY_PENDING`;
+`REAL_ORDER_AUTHORIZED=NO`. The existing PRICE_GRID V2
+candidate remains offline PASS / not deployed; broker SLTP dynamic
+partial-fill acceptance remains unproven.
