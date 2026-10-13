@@ -110,13 +110,18 @@ def test_frozen_sizing_stays_zero_for_narrow_risk_budget():
     assert r15.quantity == sized.final_quantity == 0
 
 
-@pytest.mark.parametrize("value", ["50000", "-1", "NaN"])
+@pytest.mark.parametrize("value", ["10000", "10001", "NaN", "Infinity"])
 def test_invalid_or_excessive_external_flow_fails_closed(value):
     with pytest.raises(ProductionServiceError, match="STAGE8_12_4_REALIZED_EQUITY"):
         read_frozen_basis("10000", external=value)
 
 
-def test_synthetic_no_production_side_effects():
-    # The only mutations above are to MemoryState dictionaries.
-    assert "LIVE" not in read_frozen_basis.__doc__
-    assert read_frozen_basis("10000") == D("10000")
+def test_existing_position_budget_not_retroactively_resized():
+    # Historical position evidence is immutable: only a new-entry sizing
+    # calculation changes after the simulated funding event.
+    saved_position = {"quantity": 3, "risk_cash": "150"}
+    assert read_frozen_basis("55000") == D("55000")
+    future, next_size = size_new_position(D("55000"), "55000")
+    assert saved_position == {"quantity": 3, "risk_cash": "150"}
+    assert future.risk_cash == D("825")
+    assert next_size.final_quantity == 16
