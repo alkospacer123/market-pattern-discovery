@@ -15,4 +15,16 @@ PYTHONDONTWRITEBYTECODE=1 python IntradayLab/t3_m15_build_comparison_2023_2026_v
 
 Для побайтных повторов каждый запуск использует новый output. `journals/` содержит полный торговый/Stop/сигнальный журнал каждой сборки, детерминированный gzip (`mtime=0`). `group_audits/` фиксирует поля независимого replay, причинность и контроль исторических сделок. `audit_metrics.py` не импортирует primary metrics/reporting; независимо проверяет все таблицы по журналам.
 
+```bash
+PYTHONDONTWRITEBYTECODE=1 python IntradayLab/t3_m15_build_comparison_2023_2026_v1/repeat.py \
+  --first /workspace/work/comparison-new-run \
+  --data-root /workspace/market-pattern-data \
+  --pr513-root /workspace/work/t3m15-pr513-source \
+  --output /workspace/work/REPEATABILITY.json
+```
+
+Повторы выполняют весь `run.py` в новых каталогах. После успешной побайтной проверки одинаковый REPEATABILITY копируется в каждый output, `render.py`, `plot_months.py`, `presentation_audit.py` и `audit_history.py` отдельно запускаются по результатам каждого полного прогона. Отдельная SUPPLEMENT_REPEATABILITY фиксирует bytes/SHA256 русского отчёта, графика и дополнительных проверок. Не добавлять presentation-артефакты в первый output до завершения core repeat-check. Все логи трёх процессов сохраняются отдельно.
+
+Численная reporting-коррекция перед успешными полными повторами: устойчивое `fsum` вместо нестабильного суммирования при концентрации относительно почти нулевого signed month R. Порог tolerance 1e−8, правила, параметры и журналы сделок не изменены. Полная история исходных артефактов сохраняется.
+
 Первый полный запуск и два полных повтора обязательны. Вычислительная независимость — отдельные реализации, автор один; внешний аудит ChatGPT/пользователя остаётся PENDING. Изменения только в новом каталоге IntradayLab. Один Draft PR, без merge/auto-merge, затем STOP.
