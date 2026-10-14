@@ -62,3 +62,83 @@ MOEX public direction-specific initial GO observed on 2026-10-13: USDRUBF buy 12
 | Candidate V2 merge/deployment/rearm | NOT AUTHORIZED |
 
 **FINAL: `STAGE8_493_READONLY_DOCUMENTARY_AUDIT_COMPLETE_PHYSICAL_ACCEPTANCE_BLOCKED`.** Next work under the existing Stage8 roadmap: prepare/verify an authenticated, timestamped GET-only account+asset-params+fee evidence package on the isolated Intel diagnostic side, independently verify actual monetary R15 eligibility/fees/budget, audit a separate fail-closed order/recovery harness **offline**, then request separate explicit real-order authorization. No physical broker request was made by this GitHub documentary audit. No production files, task, token, SQLite, order endpoints or HALTED setting were modified.
+
+## 2026-10-14 follow-up — final PR #493 audit of real one-shot and release boundary
+
+This section **supersedes the stale 2026-10-13 pending-real-test entries above**
+without rewriting their historic evidence. Audit GitHub MAIN:
+`d6946056332ce71658a6ca933cefa0740a7570a2`; candidate reviewed:
+`83c9fa0a3e2fc5c08ccfceb9ca4d173c843f066f`. PR is DRAFT,
+UNMERGED, mergeable CLEAN after bringing MAIN into the candidate.
+MAIN and the pinned Intel production checkout remain untouched by this
+review; comparison MAIN→candidate finds exactly **98 changed files**
+(**91 added / 7 modified**, zero removed; all inside TradingSystemLab).
+The original frozen core, strategies, Stage7 production/risk identities,
+N4 selection and historical TRUE OOS files are not among the changed paths.
+Current MAIN updates to CURRENT_STATE, PROJECT_CONTEXT, production runbook,
+passport and operator checklist are preserved in the candidate merge tree.
+
+**Real one-shot 2026-10-14:** operator authorized one isolated CNYRUBF
+LONG entry ×2 and a 100%-position SLTP. A durable 8-record external
+operator journal proves one entry intent/ACK and one stop intent/ACK;
+hashed ENTRY/SLTP order IDs match separate FINAM READONLY order
+observations; no duplicate ENTRY is recorded. Two READONLY observations
+with exposure +2 established one SLTP `WATCHING`, `SIDE_SELL`,
+`quantity_sl=100`, `sl_price=12.23`, correct symbol/validity.
+The candidate harness expected string `12.230` and therefore falsely
+held on a textual price difference. Current Draft code compares finite,
+positive Decimal values and retains all other stop, ID, side and
+quantity guards. Operator's exact pinned commit check and **29/29
+focused offline tests PASS** on Intel. No new FINAM order was submitted
+during the code fix or audit.
+
+Operator manually closed the two contracts, then independently removed
+the remaining SLTP, which had persisted active while flat. Final two
+FINAM READONLY observations: zero positions / zero active orders,
+BUY and SELL regular orders FILLED, SLTP DISABLED;
+`DOUBLE_BROKER_FLAT=PASS`. The 8 original journal records remain
+immutable and end with operator HOLD; the manual SELL and stop
+cancellation were performed outside this harness and are **not
+falsely represented as automated recovery or journal entries**.
+Operator reports actual BUY 12.533 / SELL 12.516 ×2; conditional
+gross at frozen CNYRUBF tick economics is **−34 RUB before fees**,
+not an independently reconciled order-linked AccountTrade receipt or
+verified net broker charge.
+
+**Current exact executable boundary:** `execution_grid.py` retains
+`FINAM_FILL_AUTHORITY_VERIFIED=False`. `live_execution.py` and
+`production_service.py` block all candidate-revision ENTRY calls.
+`run_from_environment()` without a manifest selects the existing
+legacy profile (execution_revision unset); the manifest path is
+one-shot `run_preview`, strict READONLY account/orders session,
+structurally disconnected from a trading transport. The isolated
+V2 migration/rollback rehearsal is therefore **not a deployable
+authorized live trading runner**. Flipping the boolean, rearming the
+old task or merging Draft files is not evidence of safe V2 activation.
+
+**Remaining constraints within the EXISTING three-task roadmap:**
+
+1. Actual 2026-10-14 BUY/SELL `AccountTrade` prices, size, IDs, fees:
+   operator prices are plausible but have not been independently
+   matched with bounded FINAM GET /trades. Use a separate GET-only
+   diagnostic, no new ENTRY, no manual reprocessing of stale approvals.
+2. Natural 1→2 within one ENTRY and actual percent-SLTP growth/trigger
+   and restart behavior were **not observed** by direct 0→2. Preserve
+   `INCONCLUSIVE`; do not promote an echo, simulation or successful
+   direct two-lot stop placement to a physical partial-fill PASS.
+   A further real-order test is **not authorized** by this audit.
+3. Candidate V2 release wiring is not production-enabled; exact
+   approval-bound production order transport, restart/halt handling,
+   frozen FULL/R15 sizing, isolated state/cutover and operational
+   authority require review under existing tasks 3.1–3.6. These are
+   existing release boundaries, not a new phase.
+4. The full PR release gate has NOT been rerun on the current merged
+   HEAD. Historical 501-case / 57-case module PASS with documented
+   baseline exclusions remains historical evidence. The new isolated
+   29/29 PASS cannot be called a full release-regression PASS.
+
+**Decision: CANDIDATE_STOP_TEXT_FIX_PASS / MANUAL_RECOVERY_PASS /
+STAGE8_493_FINAL_PRODUCTION_RELEASE_NEEDS_FIX.** The factual two-contract
+one-shot and durable journal should never be repeated simply to obtain
+another sample. No merge, LIVE SQLite/Task/authorization change, rearm,
+trading token usage or new order was performed by this audit.
