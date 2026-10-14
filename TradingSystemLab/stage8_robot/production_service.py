@@ -1035,8 +1035,9 @@ def run_from_environment(
             raise ProductionServiceError("STAGE8_493_V2_RELEASE_AUTHORITY_NOT_VERIFIED")
         if not (Path(runtime_root) / "state" / STATE_DATABASE).is_file():
             raise ProductionServiceError("STAGE8_493_ISOLATED_V2_STATE_REQUIRED")
-        # Never reuse the legacy authorization: commit, account and physical
-        # V2 SQLite revision must independently match before any live session.
+        # Exact commit/account authorization is necessary, not proof of an
+        # independently approved V2 release. Legacy/mixed SQLite revisions
+        # remain rejected by ProductionRuntime before broker authentication.
         load_authorization(runtime_root, expected_commit=accepted_commit,
             expected_account_hash=hashlib.sha256(account.encode("utf-8")).hexdigest())
     lock = InstanceLock(Path(runtime_root) / "state" / INSTANCE_LOCK)
@@ -1085,7 +1086,7 @@ def main(argv: list[str] | None = None) -> int:
         )
     except (ProductionServiceError, RuntimeError, ValueError) as exc:
         code = str(exc)
-        print(code if code.startswith("STAGE8_12_4_") else "STAGE8_12_4_PRODUCTION_STARTUP_FAILED")
+        print(code if code.startswith(("STAGE8_12_4_", "STAGE8_493_")) else "STAGE8_12_4_PRODUCTION_STARTUP_FAILED")
         return 1
 
 
