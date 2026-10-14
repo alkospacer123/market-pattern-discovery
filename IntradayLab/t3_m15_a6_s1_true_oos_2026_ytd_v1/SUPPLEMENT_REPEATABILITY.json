@@ -1,0 +1,10 @@
+{
+  "SHA256_equal": true,
+  "direct_bytes_equal": true,
+  "files_SHA256": {
+    "REVIEW_MEMO_RU.md": "a804e83e35e257e03e928974ef91fef8e6d703ebd9378fc97c053ca586ad41c2",
+    "SUPPLEMENTAL_AUDIT.json": "ca47a71327f027c7aa71ca4b18b74e285c3c63e13654a17bb66ac284a659978c"
+  },
+  "runs": 2,
+  "status": "PASS"
+}

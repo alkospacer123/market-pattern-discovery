@@ -1,0 +1,252 @@
+{
+  "document_id": "INTRADAY_T3_M15_TRAIL375_TRUE_OOS_2026_READINESS_V1",
+  "base_main": "d6946056332ce71658a6ca933cefa0740a7570a2",
+  "source_pr_merged": 512,
+  "source_wf_status": "WF_MIXED",
+  "purpose": "User-authorized GROSS_ONLY research OOS on already-available 2026 prefix, no commission/fee deductions; 2026 YTD is not a complete calendar-year result.",
+  "current_status": "GROSS_ONLY_2026_YTD_OOS_EXPLICITLY_AUTHORIZED_IMPLEMENTATION_STAGED_NOT_YET_RUN",
+  "candidate": {
+    "name": "T3/M15 A6+S1 NEXT_OPEN TRAIL_375",
+    "ema_period": 75,
+    "slope_lookback": 5,
+    "adx_period": 14,
+    "adx_strictly_greater_than": 20,
+    "atr_ratio_strictly_greater_than": 1,
+    "breakout_period": 20,
+    "donchian_shift_bars": 1,
+    "initial_stop_atr": 2,
+    "S1_activation_initial_R": 1,
+    "trail_atr": 3.75,
+    "sides": [
+      "LONG",
+      "SHORT"
+    ],
+    "instruments": [
+      "USDRUBF",
+      "CNYRUBF",
+      "GLDRUBF",
+      "IMOEXF"
+    ],
+    "strategy_changes_authorized": false
+  },
+  "research_windows": {
+    "development_exposed": {
+      "start": "2023-01-01T00:00:00+03:00",
+      "end_exclusive": "2025-01-01T00:00:00+03:00"
+    },
+    "wf_2025_completed": {
+      "start": "2025-01-01T00:00:00+03:00",
+      "end_exclusive": "2026-01-01T00:00:00+03:00"
+    },
+    "true_oos_2026_locked": {
+      "start": "2026-01-01T00:00:00+03:00",
+      "end_exclusive": "2027-01-01T00:00:00+03:00",
+      "authorized_read": true,
+      "authorized_replay": true,
+      "earliest_possible_complete_calendar_at": "2027-01-01T00:00:00+03:00",
+      "full_year_available_on_2026_10_13": false,
+      "user_authorized_scope_for_future_gross_full_year": true,
+      "read_unlock_condition": "User approved YTD study through exclusive cutoff 2026-10-13T00:00:00+03:00 using only already available M15; strict source evidence and immutable canonical 2025 prefix. The year remains incomplete; all rows >= cutoff remain unread.",
+      "authorized_read_only_to": "2026-10-13T00:00:00+03:00",
+      "full_year_label_for_ytd_forbidden": true
+    },
+    "true_oos_2026_ytd_authorized": {
+      "start": "2026-01-01T00:00:00+03:00",
+      "end_exclusive": "2026-10-13T00:00:00+03:00",
+      "method": "GROSS_ONLY",
+      "calendar_complete": false
+    }
+  },
+  "source_policy": {
+    "market_data_repo": "alkospacer123/market-pattern-data",
+    "prior_pin": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+    "timeframe": "M15",
+    "prefix_path_format": "forever/{instrument}/{instrument}_M15.csv",
+    "metadata_pin_check_only_now": true,
+    "OHLC_2026_read_now": false,
+    "hash_or_inspect_locked_suffix_now": false
+  },
+  "pre_read_gates": [
+    "Read ONLY completed M15 source prefixes before 2026-10-13 00:00 MSK; never interpret YTD as full 2026 TRUE OOS",
+    "Freeze exact gross-only research spec and replay code before reading any 2026 OHLC.",
+    "Pin and verify source commit, allowed instruments, cutoff and source coverage after full 2026 available.",
+    "Independently reproduce unchanged 2023-2024 CONTROL and sealed 2025 WF trade/Stop/signal/gap/indicator prefix and published gross results.",
+    "Carry terminal 2025 OPEN and pending, initial R, Stop/S1, extrema, indicator state and ID/occupancy through boundary without forced liquidation or FLAT reset.",
+    "Use completed candles, Donchian shift(1), NEXT_OPEN and exact frozen TRAIL_375 in full 2026 replay.",
+    "Produce independent calendar 12-month, 4-instrument, LONG/SHORT, full CLOSED and new-OOS-entry cohort metrics, with OPEN separate.",
+    "Report Gross PF and R before all charges; never apply assumed broker/exchange fees, spread, slippage, funding/dividend or fixed R stresses as deductions.",
+    "Independent scalar audit, two full byte-identical repeats, preserve both negative and positive findings.",
+    "No refitting to 2026, no automated LIVE or authorization to change frozen strategy; STOP after independently reviewable draft."
+  ],
+  "actions_this_preparation": {
+    "OHLC_2026_read": false,
+    "TRUE_OOS_run": false,
+    "LIVE": false,
+    "order_endpoints": false,
+    "merge": false,
+    "auto_merge": false,
+    "TradingSystemLab_changes": false,
+    "historical_results_changes": false
+  },
+  "unresolved": {
+    "full_2026_calendar": true,
+    "full_year_2026_coverage_verification": true,
+    "pre_read_immutable_oos_implementation": true,
+    "research_commissions_or_cost_inputs": false,
+    "explicit_user_permission_for_gross_policy": false,
+    "user_2026_ytd_authorization": false
+  },
+  "next_action": "Execute already authored IntradayLab/t3_m15_a6_s1_true_oos_2026_ytd_v1/run_ytd_oos.py against local pinned full M15 data checkout in Codex Cloud or equivalent authorized runtime. Preserve closed 2025 prefix and publish actual 2026 YTD Gross PF only with audited CSV/JSON, never invent result.",
+  "verified_public_contract_specs": {
+    "observation_date_msk": "2026-10-13",
+    "source": "Official MOEX instrument cards, public specifications. Snapshot fees are indicative and NOT fixed historical tariffs.",
+    "contracts": [
+      {
+        "instrument": "USDRUBF",
+        "lot": 1000,
+        "tick_size_price": 0.01,
+        "tick_value_rub": 10,
+        "registration_fee_snapshot_rub": 3.88,
+        "source_url": "https://www.moex.com/ru/derivatives/perpetual-futures/USDRUBF"
+      },
+      {
+        "instrument": "CNYRUBF",
+        "lot": 1000,
+        "tick_size_price": 0.001,
+        "tick_value_rub": 1,
+        "registration_fee_snapshot_rub": 0.58,
+        "source_url": "https://www.moex.com/ru/derivatives/perpetual-futures/CNYRUBF"
+      },
+      {
+        "instrument": "GLDRUBF",
+        "lot": 1,
+        "tick_size_price": 0.1,
+        "tick_value_rub": 0.1,
+        "registration_fee_snapshot_rub": 1.49,
+        "source_url": "https://www.moex.com/ru/derivatives/perpetual-futures/GLDRUBF"
+      },
+      {
+        "instrument": "IMOEXF",
+        "lot": 10,
+        "tick_size_price": 0.5,
+        "tick_value_rub": 5,
+        "registration_fee_snapshot_rub": 1.58,
+        "source_url": "https://www.moex.com/ru/derivatives/perpetual-futures/IMOEXF"
+      }
+    ],
+    "broker_tariff": {
+      "account_specific_plan_verified": false,
+      "current_effective_public_regulation": "FINAM 26/12, effective 2026-10-01",
+      "future_regulation": "FINAM 26/13, effective 2026-10-15",
+      "26_12_url": "https://www.finam.ru/publications/item/opublikovan-prikaz-ob-utverzhdenii-reglamenta-brokerskogo-obsluzhivaniya-v-redaktsii-2612-20260916-1755/",
+      "26_13_url": "https://www.finam.ru/publications/item/opublikovan-prikaz-ob-utverzhdenii-reglamenta-brokerskogo-obsluzhivaniya-v-redaktsii-2513-20260930-1750/",
+      "broker_fee_per_side_rub": null,
+      "tariff_plan": null,
+      "rule": "Account-specific plan and applicable schedule need official confirmation. Marketing tariff page alone is not sufficient."
+    },
+    "exchange_current_fee_snapshot_not_historical": true
+  },
+  "execution_grid_preflight_published_2025_only": {
+    "source": "Merged PR #512, results/W4/primary/trades.csv; CLOSED exit_time year 2025; original record unchanged",
+    "no_2026_price_source_access": true,
+    "tolerance_in_ticks": 1e-8,
+    "by_instrument": [
+      {
+        "instrument": "USDRUBF",
+        "closed": 67,
+        "initial_stop_offgrid": 67,
+        "entry_offgrid": 0,
+        "exit_offgrid": 64,
+        "active_stop_at_exit_offgrid": 67
+      },
+      {
+        "instrument": "CNYRUBF",
+        "closed": 69,
+        "initial_stop_offgrid": 69,
+        "entry_offgrid": 0,
+        "exit_offgrid": 69,
+        "active_stop_at_exit_offgrid": 69
+      },
+      {
+        "instrument": "GLDRUBF",
+        "closed": 75,
+        "initial_stop_offgrid": 75,
+        "entry_offgrid": 0,
+        "exit_offgrid": 71,
+        "active_stop_at_exit_offgrid": 75
+      },
+      {
+        "instrument": "IMOEXF",
+        "closed": 89,
+        "initial_stop_offgrid": 89,
+        "entry_offgrid": 0,
+        "exit_offgrid": 85,
+        "active_stop_at_exit_offgrid": 89
+      }
+    ],
+    "totals": {
+      "closed": 300,
+      "initial_stop_offgrid": 300,
+      "entry_offgrid": 0,
+      "exit_offgrid": 289,
+      "active_stop_at_exit_offgrid": 300
+    },
+    "interpretation": "Evidence of NON-EXECUTABLE idealized research Stops/stop-price exits under current official MOEX price grids, not proof that historic 2025 tick specs were identical. NO parameter change and NO repricing/replay performed.",
+    "live_ready": false,
+    "yearly_gross_result_changed": false
+  },
+  "funding_and_corporate_actions": {
+    "findings": "Official MOEX: perpetual futures have clearing-settled funding as part of daily variation margin; IMOEXF also has a conditional dividend adjustment. Positive funding generally debits LONG, credits SHORT; negative reverse. Holding and settlement exposure matter.",
+    "sources": [
+      "https://www.moex.com/ru/derivatives/perpetual-futures",
+      "https://www.moex.com/a8141",
+      "https://www.moex.com/a8803"
+    ],
+    "historical_2026_funding_or_dividend_data_read": false,
+    "future_required": "Not a prerequisite for GROSS_ONLY 2023–2026 tests. Funding and dividend cashflows only matter in separately authorized actual-broker-cash accounting, if applicable.",
+    "funding_daily_rub": null,
+    "imoex_dividend_cash_rub": null,
+    "settlement_time_assignment_tested": false,
+    "full_economic_net_R_ready": false
+  },
+  "user_decision": {
+    "date": "2026-10-13",
+    "instruction": "Во тестах 2023 по 2026 должен быть чистый PF без комиссий и издержек. Комиссии считаем отдельно по факту исполнения заявок. Продолжаем. Даю разрешение.",
+    "interpretation": "Research metric is gross pre-cost PF/R, including full 2026 TRUE OOS when complete; separate broker actual-execution accounting must not be subtracted from the research metric.",
+    "authorized_scope": "Full unchanged historical replay plus partial 2026 YTD prefix through 2026-10-13 00:00 Moscow, explicitly not full calendar-year. No strategy tuning, LIVE, fees or automated merge.",
+    "next_stage_reapproval_not_required_for_gross_policy": true,
+    "updated_instruction": "2026-10-13: Ждать закрытие 2026 года не нужно. Работай по данным которые у нас уже есть. На 2026 нужно запустить OOS."
+  },
+  "research_metric_policy": {
+    "metric_name": "GROSS_PF_BEFORE_ALL_EXECUTION_COSTS",
+    "gross_R_per_CLOSED": "signed(exit_price - entry_price) / abs(entry_price - immutable_initial_stop_price)",
+    "gross_PF": "sum(gross_R > 0) / abs(sum(gross_R < 0)); undefined denominator => N/A",
+    "included": "Only frozen research price-path P&L from causally modeled entries and exits; full CLOSED ledger",
+    "excluded_from_research_PF_R": [
+      "FINAM brokerage commissions",
+      "MOEX exchange and clearing fees",
+      "spread assumption or deduction",
+      "slippage assumption or deduction",
+      "fixed R penalties or synthetic execution cost stresses",
+      "funding cashflow",
+      "dividend adjustment cashflow",
+      "position-sizing equity effects"
+    ],
+    "actual_broker_cash_accounting": "Separate later accounting based only on actual execution reports and applicable settlement cashflows, not an adjustment to gross research PF",
+    "avoid_term_net_PF": true,
+    "calendar_report": [
+      "2023 DEVELOPMENT_EXPOSED",
+      "2024 DEVELOPMENT_EXPOSED",
+      "2025 WF_MIXED",
+      "2026 TRUE_OOS_FULL_YEAR_ONLY"
+    ],
+    "combined_2023_2026": "If provided, purely descriptive combined gross; never substitute for separate annual and cohort reports and never call combined sample clean OOS",
+    "strategy_rules_changes": false
+  },
+  "execution_reference_only": {
+    "current_contract_specs_and_2025_grid_preflight": "Existing public spec and 2025 idealized off-grid stop diagnostics retained unchanged below as technical reference; not required for or subtracted from gross research PF.",
+    "live_readiness": "NOT_LIVE_READY; real trading/realized cash returns require separate engineering and broker accounting.",
+    "actual_commissions": "Deduct or report only from actual broker execution data in separate live accounting; no synthetic fees in 2023–2026 research results",
+    "funding": "Research Gross PF excludes cash settlement funding/dividend adjustments; separate real cash account statements may track them when applicable."
+  }
+}

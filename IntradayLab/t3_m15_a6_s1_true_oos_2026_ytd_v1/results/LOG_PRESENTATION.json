@@ -1,0 +1,27 @@
+{
+  "logs": [
+    {
+      "display_SHA256": "41b7834ad4f3cf6fbf7b245d6cdd51971f2fd8b4f2caaa2a43f6588b42aa5e1f",
+      "display_change": "trailing whitespace stripped only; raw bytes retained losslessly in gzip",
+      "log": "RUN_1.log",
+      "raw_original_SHA256": "d238ad425ef0b5e881ed17d79757e3e024338ce8cf432971b08b19bd8af033f6",
+      "raw_original_gzip": "RUN_1.log.gz"
+    },
+    {
+      "display_SHA256": "d63496c48034f93f8899e79c805787585080b0cf3ba26cc5a2625195dcba5c4e",
+      "display_change": "trailing whitespace stripped only; raw bytes retained losslessly in gzip",
+      "log": "RUN_2.log",
+      "raw_original_SHA256": "014a73d3056914dc3d0259d6f9c43b55187dbfb7ce77133a49030933d6649412",
+      "raw_original_gzip": "RUN_2.log.gz"
+    },
+    {
+      "display_SHA256": "9c607433734571f9433dc72a93862090c3b67bbe0fc54366b2e43f550713799f",
+      "display_change": "trailing whitespace stripped only; raw bytes retained losslessly in gzip",
+      "log": "RUN_3.log",
+      "raw_original_SHA256": "8a6df2a2488ea4bcabef5f35d9ce51d402b1f350590746eb0445c8158c70e40c",
+      "raw_original_gzip": "RUN_3.log.gz"
+    }
+  ],
+  "result_artifacts_changed": false,
+  "sealed_53_artifacts_unchanged": true
+}

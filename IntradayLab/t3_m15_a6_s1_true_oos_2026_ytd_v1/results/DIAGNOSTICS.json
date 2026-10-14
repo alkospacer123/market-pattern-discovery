@@ -1,0 +1,20 @@
+{
+  "ex_top10_winners_PF": 1.4885088232070949,
+  "ex_top10_winners_R": 54.61513267580331,
+  "ex_top1_winners_PF": 1.9429128398242166,
+  "ex_top1_winners_R": 105.41735870937725,
+  "ex_top5_winners_PF": 1.7201005249785728,
+  "ex_top5_winners_R": 80.50701204008304,
+  "max_losing_trade_run": 8,
+  "max_negative_month_run": 1,
+  "top10_share_positive_R": 0.2781620833316105,
+  "top10_winners_R": 64.12837478086836,
+  "top1_months_R": 28.778457158373794,
+  "top1_share_positive_R": 0.05780326276786009,
+  "top1_share_total_R": 0.24235815308786265,
+  "top1_winners_R": 13.326148747294413,
+  "top3_months_R": 77.44997444434897,
+  "top3_share_total_R": 0.652245972038595,
+  "top5_share_positive_R": 0.1658539337808219,
+  "top5_winners_R": 38.236495416588625
+}

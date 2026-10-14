@@ -1,0 +1,36 @@
+{
+  "LIVE_authorized": false,
+  "OOS_SPEC_preserved": true,
+  "OPEN": 0,
+  "actual_last_close": "2026-09-16T00:00:00+03:00",
+  "auto_merge_enabled": false,
+  "calendar_CLOSED": {
+    "avg_loss_R": -0.8803124822738291,
+    "avg_win_R": 1.9373377538272938,
+    "closed": 246,
+    "closed_R_drawdown": 12.738347466552893,
+    "expectancy_R": 0.48269718478321816,
+    "gross_PF": 2.062109496931445,
+    "gross_R": 118.74350745667167,
+    "losses": 127,
+    "wins": 119
+  },
+  "cost_policy": "GROSS_ONLY",
+  "cutoff": "2026-10-13T00:00:00+03:00",
+  "external_review": "PENDING",
+  "full_runs": 3,
+  "independent_audit": "PASS",
+  "merge_performed": false,
+  "original_spec_status_is_preparatory_history": true,
+  "pre_read_environment_setup": "Installed frozen requirements; created temporary directory required by frozen tests. No historical code edits.",
+  "precalculation_code_commit": "61130e70",
+  "primary_scalar": "PASS",
+  "runtime": {
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+  },
+  "status": "OOS_2026_YTD_EXECUTED_TECHNICAL_PASS_NOT_LIVE_READY",
+  "strategy": "T3/M15/A6+S1/NEXT_OPEN/TRAIL_375",
+  "two_byte_repeats": "PASS"
+}

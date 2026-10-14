@@ -1,0 +1,20 @@
+{
+  "code_sha256": {
+    "OOS_SPEC.json": "6b2bc895295e48e5920903e1ce4e59501eb6dee45fbd06d18225c1317ab9dbae",
+    "audit_ytd.py": "3638495533dc4afcc880712a441dea16de1e6811a2ecd1cb9da0eb7ed79a9273",
+    "repeat_and_seal.py": "89f987c19653465eaba5d8553852fff50b4a6c051e63ccc1b5925e01922fc862",
+    "reporting.py": "4c3ac96a13cf6d22fcbde6d46f4828b95cccaf09b0b2e226e0b458d10ff33806",
+    "run_ytd_oos.py": "5617c79e5c8a1e038072e71bb60ef0d687d51a51c299e7cc5255c1919c119781",
+    "test_ytd.py": "c052a29c8d1e034e311b510487f714104ac75b90274b89b74dfd16a5e0a55e7a"
+  },
+  "cutoff": "2026-10-13T00:00:00+03:00",
+  "data_pin": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "main": "d6946056332ce71658a6ca933cefa0740a7570a2",
+  "parent_head": "8d482675a70761b96d49eac889e954d3c8f802bf",
+  "status": "FROZEN_BEFORE_FIRST_2026_OHLC_READ",
+  "strategy_changes": false,
+  "tests": {
+    "frozen": 43,
+    "ytd": 8
+  }
+}
