@@ -259,3 +259,55 @@ not `LIVE_PRODUCTION_READY`. No additional real order, task action,
 SQLite mutation, rollout or rearm is justified by these offline results.
 The next work is the existing Stage 8 roadmap task 3.1 release
 review/closure, not another partial-fill experiment.
+
+## 2026-10-14 — roadmap 3.1 explicit V2 release-selector audit
+
+**Scope:** only the existing frozen three-task roadmap, currently point 3.1.
+Actual GitHub MAIN at inspection was
+`d6946056332ce71658a6ca933cefa0740a7570a2`; Draft #493 is not
+merged and its earlier pinned 89/89 growth HALT tests remain PASS for
+the *unchanged* growth runtime and its two test modules.
+
+**Exact failure identified:** `production_service.run_from_environment()`
+normally instantiates `ProductionService` without `execution_revision`
+(legacy profile). The manifest-bound `release_candidate_runner.run_preview()`
+chooses V2 but is once-only, GET/READONLY and has no order transport.
+Neither is proof of continuously running, authorized V2 production.
+
+**Minimal PR-only release-wiring correction:** an explicit
+`--execution-revision` option forwards `EXECUTION_REVISION` only when
+selected. The legacy/no-flag path is unchanged. The V2 mode immediately
+rejects a wrong revision, coexistence with readonly manifest, and any
+attempt to start while the compiled
+`FINAM_FILL_AUTHORITY_VERIFIED=False`. This refusal occurs before the
+service/SQLite/FINAM/Task transport is opened. Even with a hypothetical
+future separately accepted fill gate, a pre-existing V2 state database
+and exact commit/account production authorization are prerequisites;
+the actual runtime validates schema/revision rather than adopting
+legacy SQLite. Environment variables alone cannot select V2. The
+prior READONLY preview remains separately order-incapable.
+
+Five synthetic tests are added to the existing release-preparation
+test module for closed-gate refusal before any broker or SQLite
+operation, invalid revision, incompatible preview mode, missing
+isolated V2 state/commit-bound authorization, and the explicit
+selection vs unchanged legacy default. **These new tests have NOT yet
+been run on Intel; no PASS or LIVE readiness is claimed for this
+new selector until exact pinned release tests are independently run.**
+
+**Unchanged blockers, no invented new stage:** natural 1→2 and
+real stop-trigger/restart retention remain unobserved physically.
+Existing fail-closed growth HALT and official percent-at-execution
+semantics reduce risk but do not retroactively prove the physical
+scenario. The new selector neither turns on the fill gate nor writes
+a V2 authorization; a valid commit/account record alone is not
+separate operator approval of V2. Physical cutover, fresh broker
+flatness and local-intent authority, external state archive and safe
+rollback, genuine V2 authorization, any flag rearm and automatic
+trading remain confined to the previously documented tasks 3.2–3.6
+and require their separate user approvals.
+
+**Current classification:** `STAGE8_493_3_1_V2_SELECTOR_CODE_READY_TESTS_PENDING`;
+`LIVE_PRODUCTION_READY=NO`. This candidate-only edit is not a
+production deployment or authority change; do not update the LIVE
+current-state/runbook/passport/checklist to claim production changed.
