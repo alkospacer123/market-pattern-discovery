@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from typing import Any, Literal
 
-from .account_cleanliness import ACTIVE_ORDER_STATUSES, normalize_order_status
+from .account_cleanliness import ACTIVE_ORDER_STATUSES, TERMINAL_ORDER_STATUSES, normalize_order_status
 from .protective_stop_contract import QTY_MEASURE, QTY_PERCENT
 
 
@@ -98,7 +98,7 @@ def order_views(response: Any) -> list[BrokerOrderView]:
             not isinstance(symbol, str)
             or not symbol
             or not isinstance(client_id, str)
-            or not client_id
+            or (not client_id and status not in TERMINAL_ORDER_STATUSES)
             or len(client_id) > 20
             or not isinstance(side, str)
             or side not in {"SIDE_BUY", "SIDE_SELL"}
