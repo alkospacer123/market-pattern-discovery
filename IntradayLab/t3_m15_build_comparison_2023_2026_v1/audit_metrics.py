@@ -27,7 +27,7 @@ def independent(rows,months):
   best_instrument_share_R=max((math.fsum(q) for q in ins.values()),default=0)/total if ins and total>0 else None,
   winners_ge2=sum(v>=2 for v in x),winners_ge5=sum(v>=5 for v in x))
  for n in (1,5,10):
-  r=math.fsum(sorted(wins,reverse=True)[:n]);res[f'R_without_top{n}_trades']=total-r;res[f'PF_without_top{n}_trades']=(gain-r)/loss if loss else None
+  r=math.fsum(sorted(wins,reverse=True)[:n]);res[f'top{n}_trades_R']=r;res[f'top{n}_trades_share_signed_R']=r/total if total>0 else None;res[f'top{n}_trades_share_positive_R']=r/gain if gain>0 else None;res[f'R_without_top{n}_trades']=total-r;res[f'PF_without_top{n}_trades']=(gain-r)/loss if loss else None
  for n in (1,3):
   keep=[float(r['gross_R']) for r in ordered if r['exit_time'][:7] not in set(best[:n])];kg=math.fsum(v for v in keep if v>0);kl=-math.fsum(v for v in keep if v<0)
   res[f'R_without_top{n}_months']=math.fsum(keep);res[f'PF_without_top{n}_months']=kg/kl if kl else None

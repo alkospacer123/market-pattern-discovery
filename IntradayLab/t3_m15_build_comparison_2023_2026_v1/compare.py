@@ -35,13 +35,15 @@ def enrich(met,selected,allrows,terminal,entries,coverage,symbols,months,view,ye
  a,z=coverage['views'][view]['start'],coverage['views'][view]['end_exclusive']
  if year!='ALL':a=max(a,year+'-01-01T00:00:00+03:00');z=min(z,str(int(year)+1)+'-01-01T00:00:00+03:00')
  c=coverage_for(coverage,symbols,months,view);covered=sum(x['status']!='NO_COVERAGE' for x in c)
+ quarter_months=[m for m in months if m[:4]+'-Q'+str((int(m[-2:])-1)//3+1)==met['worst_quarter']]
+ quarter_status='PARTIAL_SOURCE_OR_WINDOW' if len(quarter_months)!=3 or any('INCOMPLETE' in x['status'] or 'NO_COVERAGE' in x['status'] for x in c if x['month'] in quarter_months) else 'AVAILABLE_SOURCE_HISTORY_NOT_CALENDAR_CERTIFICATION'
  e=[r for r in entries if r['instrument'] in symbols and a<=r['signal_time']<z]
  reasons=Counter(r.get('decision_reason') or r.get('outcome') or ('ACCEPTED' if r.get('entry_accepted')=='True' else 'FILTER_FAILED' if r.get('rule_pass')=='False' else 'POSITION_OCCUPIED') for r in e if r.get('entry_accepted')!='True')
  def open_at(t):return sum(r['instrument'] in symbols and r['entry_time']<t and r['exit_time']>=t for r in allrows)+sum(r['instrument'] in symbols and r['entry_time']<t for r in terminal)
  return met|dict(covered_months=covered,no_coverage_months=len(months)-covered,positive_share_covered=met['positive_months']/covered if covered else None,
   OPEN_at_start=open_at(a),OPEN_at_end=open_at(z),inherited_CLOSED=sum(r['entry_time']<a for r in selected),signals=len(e),accepted_entries=sum(r.get('entry_accepted')=='True' for r in e),
   rejected_signals=sum(reasons.values()),rejection_reasons=json.dumps(dict(sorted(reasons.items())),sort_keys=True),
-  pending_at_end=sum(r.get('pending_at_end')=='True' for r in e),coverage=';'.join(sorted({x['status'] for x in c})),
+  pending_at_end=sum(r.get('pending_at_end')=='True' for r in e),worst_quarter_coverage=quarter_status,coverage=';'.join(sorted({x['status'] for x in c})),
   descriptive_pooled_Gross_R=True,GROSS_ONLY=True,classification='POST_HOC_COMPARISON')
 
 def run(out,coverage):
@@ -98,6 +100,9 @@ def run(out,coverage):
      CONTROL_winners_ge2=len(large),ge2_same_signal_retained=sum(key(r) in matched and matched[key(r)]['gross_R']>=2 for r in large),ge2_same_signal_lost=sum(key(r) not in matched for r in large),
      instrument_R_delta=json.dumps({s:sum(r['gross_R'] for r in loaded[b['build_id']] if r['instrument']==s and (y=='ALL' or r['exit_time'][:4]==y))-sum(r['gross_R'] for r in original if r['instrument']==s) for s in SYMBOLS},sort_keys=True),
      interpretation='Whole replay; matched signals descriptive only, not subtraction of losing trades'))
+  if b['mode']=='NEXT_OPEN' and b['rule']=='C1':
+   for effect in ('entry_A6_alone','exit_S1_alone'):
+    allcontrib.append(dict(build_id=b['build_id'],CONTROL='NOT_TESTED',effect=effect,year='ALL',status='MISSING_CAUSALLY_COMPARABLE_CONTROL',interpretation='No previously frozen standalone NEXT_OPEN control at this trail; do not infer isolated effect from SIGNAL_CLOSE or invent combination'))
  # No weighted score or fitted 2026 PASS. Rank reproducible NEXT_OPEN by the
  # predeclared lexicographic priorities, keeping all weaknesses visible.
  ranks=[]

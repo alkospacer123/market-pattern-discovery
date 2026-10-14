@@ -27,7 +27,7 @@ def stats(rows,months):
   top3_month_share_R=sum(monthly[m] for m in best[:3])/total if best and total>0 else None,
   winners_ge2=int((x>=2).sum()),winners_ge5=int((x>=5).sum()))
  for n in (1,5,10):
-  removed=float(sum(wins[:n]));res[f'R_without_top{n}_trades']=total-removed;res[f'PF_without_top{n}_trades']=(gain-removed)/loss if loss else None
+  removed=float(sum(wins[:n]));res[f'top{n}_trades_R']=removed;res[f'top{n}_trades_share_signed_R']=removed/total if total>0 else None;res[f'top{n}_trades_share_positive_R']=removed/gain if gain>0 else None;res[f'R_without_top{n}_trades']=total-removed;res[f'PF_without_top{n}_trades']=(gain-removed)/loss if loss else None
  for n in (1,3):
   excluded=set(best[:n]);keep=[r for r in rows if r['exit_time'][:7] not in excluded]
   kg=sum(r['gross_R'] for r in keep if r['gross_R']>0);kl=-sum(r['gross_R'] for r in keep if r['gross_R']<0)
