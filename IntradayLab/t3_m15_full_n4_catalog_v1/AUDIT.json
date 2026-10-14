@@ -1,0 +1,117 @@
+{
+  "NEXT_OPEN": 13,
+  "PR513_exact_commit": "c17709a748f6247e8bd6bf85c9b4f20fac14a4dd",
+  "PR513_trades_exact_common_fields": "PASS",
+  "SIGNAL_CLOSE": 38,
+  "base_main": "d6946056332ce71658a6ca933cefa0740a7570a2",
+  "canonical_positive_months": "35/45",
+  "canonical_yearly_PF": "PASS",
+  "checks": {
+    "PR513_common_fields": 50274,
+    "accepted_next_open_entries": 13990,
+    "catalog_summary_rows": 51,
+    "code_spec_origin_checks": 102,
+    "contribution_rows": 276,
+    "instrument_rows": 3060,
+    "monthly_rows": 2346,
+    "numeric_fields": 1778143,
+    "open_boundaries": 510,
+    "pinned_input_files": 334,
+    "raw_coverage_rows": 184,
+    "source_fill_checks": 69508,
+    "yearly_rows": 255
+  },
+  "closed_ledger_records_across_builds": 69508,
+  "cross_year_closed_records": 66,
+  "data_pin": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "external_review": "PENDING",
+  "findings": [
+    {
+      "detail": "73 source rows = 51 unique builds + 17 NOT_TESTED + 5 DIAGNOSTIC_ONLY.",
+      "id": "REGISTRY_ROWS",
+      "type": "CLARIFICATION"
+    },
+    {
+      "detail": "RULE_DEFINITIONS.csv absent at PR514 pinned HEAD; provided from executable definitions.",
+      "id": "RULE_DEFINITIONS",
+      "type": "MISSING_SOURCE_FILE"
+    },
+    {
+      "detail": "CONTROL 35/45 observed; 35/46 calendar is a different denominator. NO_COVERAGE shown as blank, not zero.",
+      "id": "MONTH_DENOMINATOR",
+      "type": "CLARIFICATION"
+    },
+    {
+      "detail": "Upstream marks GD/MIX Aug2026 incomplete endpoint despite Sep endpoint; per-instrument flag now derives from actual endpoints. No Gross R changes.",
+      "id": "COVERAGE_FLAGS",
+      "type": "REPORTING_CORRECTION_ONLY"
+    },
+    {
+      "detail": "2025 full calendar 300 CLOSED PF1.581308 versus new-entry cohort 299 CLOSED PF1.563150; preserved, not a discrepancy.",
+      "id": "WF_COHORT",
+      "type": "CLARIFICATION"
+    }
+  ],
+  "independence": "Separate standard-library/Decimal implementation; does not import generator or research engine/metrics; same reporting author; external review pending",
+  "max_numeric_delta": "5.1314E-9",
+  "new_optimization": false,
+  "new_rules": false,
+  "new_trading_replay": false,
+  "original_artifacts_unchanged": "PASS",
+  "output_sha256": {
+    "BUILD_CATALOG.csv": "ff2d385c7e0ce2aff345bd2cbbd9f4aa4ce5a438b37890a42d03cda9868563c8",
+    "BUILD_SUMMARY.csv": "8a8ddf50c9fda12904bd28eedde6df0aa834efa945e1bd1a8cde2a93709200bb",
+    "COVERAGE.csv": "3fee52cfa8f24bdc8038cce84aafb93bef583f377b47f96854b607850c4bf6c4",
+    "EXECUTION_EXAMPLE.json": "1672455a841299c875474bc40c744c74eb08bb8293eba980901bc47717c0ab4c",
+    "FINAL_SOURCE_CHECK.json": "44a1bc2c952bf3603a61edc753828f8cdde49252b452b23dcd8bdfac86452b9b",
+    "GITHUB_SOURCES.json": "b2f06233501db9607acc1f871f814467735364647fd275dac96e00726a96ee9f",
+    "INSTRUMENT_MATRIX.csv": "aa76f712d57adbc7533d56a5f17944c16f2c8a42683071c1cdb42190f1ee5d58",
+    "MONTHLY_CONTRIBUTIONS.csv": "53753fe00fc66c8351e883a7b1c58d4cecb833fc5682ed60b27f4a8b23965124",
+    "MONTHLY_HEATMAP.html": "bd685f80228044c79a935becbc0fee068492d1c0dc0a39d2d92e83120cf4ee04",
+    "MONTHLY_MATRIX.csv": "70486bcb34728c6514c54d0cb1dafe5999e25d3ae6519185155b8eb825554afe",
+    "REPORT_RU.md": "850597f2fc6392cf921f47a892e03ab2a85cd28064bf572644fca0f57ddc1ad0",
+    "RULE_DEFINITIONS.csv": "2ce62ffbff55bab5d8846944236f6b4e4db984d11d236862e275f3fa2c127e4d",
+    "SOURCE_SHA256.json": "3b14184fe846a69bae992712264bc5dcec569062345c985332b201d29dfa5763",
+    "TEST_STATUS.csv": "26c1fd0b6064bac2562a0a4632ec52eae5cf500361ac70e39c786cba131f4605",
+    "YEARLY_COMPARISON.csv": "a43beec59307e99a6782edb64508e2c5b9ae9ad6be4f2f1da3b89ae3fdad013f",
+    "build_report.py": "bcf69933b260df11910eef7aa1be1e984d7b497c8780ec17bb5fa27a4aa50267",
+    "verify_report.py": "c387ca905528f932c5e571eaa67acc3ba8df8193cd6e82cbe76e40d74025e841"
+  },
+  "raw_source_sha256": [
+    {
+      "git_blob": "6d4f7691c1c6bfbad59b62a6f5d613a4ed1e984e",
+      "instrument": "USDRUBF",
+      "sha256": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8"
+    },
+    {
+      "git_blob": "a5ff61bbdd9bb6659a0f4fea7141b04b5e8bc35e",
+      "instrument": "CNYRUBF",
+      "sha256": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4"
+    },
+    {
+      "git_blob": "726c9242a025e75de4d0e93a2c215cc2778b9a9a",
+      "instrument": "GLDRUBF",
+      "sha256": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d"
+    },
+    {
+      "git_blob": "23d8e02920684a1a55e50b222271faaa81be5120",
+      "instrument": "IMOEXF",
+      "sha256": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773"
+    }
+  ],
+  "scope": "Independent arithmetic of existing FULL N4 ledgers; no trading replay",
+  "source_code_spec_origins": "102/102 PASS",
+  "source_commit": "4ae4761837937279eee34bc834c7ec75f066ec81",
+  "source_limitations": [
+    "GROSS_ONLY; actual costs, funding, spread, slippage not included",
+    "No common capital, margin, sizing or MTM portfolio model",
+    "NEXT_OPEN boundary zero-latency OHLC model, not robot execution approval",
+    "Source session completeness not independently exchange-certified",
+    "GLD/MIX late starts 2023; Si/CNY end Aug2026; GLD/MIX end Sep2026",
+    "2023/2024 DEVELOPMENT_EXPOSED; original TRAIL375 WF_MIXED; new ranking OOS_NOT_PROVEN"
+  ],
+  "status": "PASS",
+  "stop_rows_verified": 337660,
+  "tolerance": "1e-8",
+  "unique_builds": 51
+}
