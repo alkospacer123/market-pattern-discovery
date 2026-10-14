@@ -1159,6 +1159,16 @@ class ProductionRuntime:
                     "quantity_percent": "100", "evidence": "CURRENT_ACCOUNT_ORDERS_SNAPSHOT",
                     "real_finam_dynamic_coverage_proven": False,
                 })
+                # A 100%-position GET echo and documented FINAM semantics do
+                # not prove that the newly filled contracts were protected
+                # through the actual growth/trigger race. Preserve the SAME
+                # backstop, but do not silently resume ordinary trading.
+                self.halt("POSITION_GROWTH_PHYSICAL_COVERAGE_UNVERIFIED")
+                self.store.put(f"entry_growth_hold:{entry_key}", {
+                    "observed_quantity": abs(observed_quantity),
+                    "prior_quantity": current["quantity"],
+                    "reason": "ACTIVE_PERCENT_STOP_DYNAMIC_COVERAGE_UNPROVEN",
+                })
             current["quantity"] = abs(observed_quantity)
             current.update(entry=current["reference_entry"], verified_fill_entry=None,fill_authority="MISSING",
                            actual_initial_r=None, actual_initial_loss_cash=None)
