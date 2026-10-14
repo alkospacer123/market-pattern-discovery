@@ -366,3 +366,79 @@ The present candidate can be assessed for **guarded merge review** only;
 that is distinct from LIVE authorization. This diagnostic neither
 requests nor performs merging #493, changing the entry gate, swapping
 production checkout/SQLite, writing credentials, or placing orders.
+
+## 2026-10-14 — final task 3.1 guarded merge decision
+
+**Only the fixed three-task roadmap is authoritative.** Task 3.1 has
+two DIFFERENT outcomes, which must not be conflated:
+
+- **`STAGE8_493_3_1_GUARDED_SOURCE_MERGE_REVIEW_PASS`**
+  for a **source-only, closed** GitHub merge to `main`, with **no**
+  Intel deployment, LIVE checkout switch, trading authorization, new
+  production SQLite state, Task/rearm action, or order endpoint access.
+  This is a scoped audit recommendation, **not an operator merge
+  authorization**. Draft PR #493 remains unmerged pending an explicit
+  decision at task 3.2.
+- **`STAGE8_493_LIVE_PRODUCTION_RELEASE_NOT_ACCEPTED`**
+  for a trading-capable rollout/rearm. Do not set
+  `FINAM_FILL_AUTHORITY_VERIFIED=True`, treat the existing legacy
+  authorization as transferable, or represent code-only merge
+  acceptance as permission to trade.
+
+**Reviewed exact public GitHub authority:** MAIN
+`d6946056332ce71658a6ca933cefa0740a7570a2`;
+candidate PR #493 HEAD at audit
+`7408b542ae91b337c3b46084823e8847812c0f12`,
+DRAFT, UNMERGED, CLEAN/mergeable; 98 changed paths, all restricted to
+`TradingSystemLab/` (91 added, 7 modified, zero removals).
+Strategy T3, Stage7 frozen production specification, Stage5 TRAIL1
+source, `stage8_robot/strategy_core.py`, `risk.py`,
+`production_authorization.py`, `specification.py`,
+`CURRENT_STATE.md`, `PROJECT_CONTEXT.md`, production RUNBOOK,
+STRATEGY PASSPORT and OPERATOR CHECKLIST were directly compared
+against MAIN using Git blob SHA: **IDENTICAL** for all twelve files.
+
+**Acceptance evidence and limits retained without reruns:**
+
+- One isolated real FINAM CNYRUBF LONG ×2 ENTRY plus a 100% SLTP:
+  broker ACK/ID, active order observation, bounded BUY AccountTrade
+  and manual SELL AccountTrade quantity/price verified in the
+  operator logs. Manual exit/cancel followed by broker double-flat
+  reconciliation. Gross **−34 RUB before fees**; net charges unknown.
+  No live 1→2 growth or actual SLTP trigger proof.
+- Exact Intel synthetic/offline PINNED PASS: SLTP decimal fix 29/29;
+  growth fail-closed 89/89; explicit V2 selector/release 118/118
+  (including exact Git blob and original raw-signal oracle).
+  These are distinct runs on independently recorded pinned commits,
+  not one fictitious all-project full-suite PASS.
+- PR candidate closed `FINAM_FILL_AUTHORITY_VERIFIED=False`.
+  Explicit V2 selector refuses before FINAM/SQLite service
+  initialization, normal legacy selector remains unchanged,
+  readonly isolated release preview is still order-incapable.
+  Entry-layer runtime and transport guards also independently
+  reject candidate ENTRY while the compiled authority is false.
+- No published GitHub check-runs and no commit status contexts
+  for the audited HEAD (GitHub aggregate status pending / 0
+  reported checks); operator Intel logs are the available
+  regression evidence, **not CI certification**.
+- Existing historical unfiltered expanded-suite failures and
+  partial real fill/stop/restart evidence gaps are **not
+  relabeled as PASS** or silently removed by this conclusion.
+
+**Minimal remaining roadmap decisions:** task **3.2** requires a
+separate **explicit approval for code-only merge** and subsequent
+verification of the actual merged GitHub `main`; nothing deploys
+automatically as part of that review. Tasks **3.3–3.5** retain their
+existing separate production cutover, immutable backup/rollback,
+fresh broker/SQLite authority and operational-doc reconciliation.
+Task **3.6** retains independent trading activation authorization
+and fail-closed risk/stop/history gates. These are **not new phases**.
+The 1→2 physical INCONCLUSIVE case is to be handled through the
+pre-existing sticky HALT/OIR policy without demanding another
+unapproved real trading experiment. No LIVE state has been observed
+again by this GitHub review; last Intel HALTED/Task Disabled/flat
+state is operator-reported at the earlier observation time.
+
+**3.1 is complete strictly for code-only guarded merge review.**
+LIVE trading approval remains NOT GRANTED and no merge or production
+action was performed by this audit.
