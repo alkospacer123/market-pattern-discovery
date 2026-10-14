@@ -867,3 +867,67 @@ This preserves the existing task 2.2 and Stage7 freeze. Before any Stage8
 production release, exact operator-flat + active-orders-zero + unresolved
 intents-zero must be freshly proven and the acceptance outcome independently
 classified. Candidate PR remains Draft; **production is NOT rearmed**.
+
+
+## 2026-10-14 — Intel v4 false pre-ENTRY ASK mismatch; v5 focused repair
+
+Operator executed `stage8-493-intel-execute-v4.ps1 -mode execute`. It passed
+exact source/native file SHA checks, **15/15 synthetic tests**, and a fresh
+Task HALTED/disabled + broker flat isolation gate, then blocked with
+`classification=blocked:orderbook_ask_mismatch` **before interactive entry
+confirmation, creation of the one-attempt journal, ENTRY intent or POST**.
+The operator independently checked the same FINAM terminal and confirmed
+**no real order**. No real position or order is inferred from the failed
+runner. This is a non-atomic `GET quotes/latest` vs `GET orderbook` price
+comparison; the two FINAM responses are not a single snapshot and need not
+have an identical best ASK. It is NOT a reason to alter the frozen robot,
+or rerun Stage8.11 lifecycle checks.
+
+**Existing roadmap task 2.2 only — external executable v5 candidate:**
+`stage8-493-intel-execute-v5.ps1` SHA-256
+`0BC20D294BA5283356098D615A7B72C1631909C14DEDB9E5660D85D9CE6229A8`.
+Embedded Python SHA-256
+`3FEE9D0577C2B92A48FE9BDCB9BA8E05020114D7B649DD002EA380B9C07E213E`;
+tests SHA-256
+`1F0D2E8D3271291D7F2690DDF7AFD19C48DD86A5A08752FFFA8E8E39DDD3FCDF`;
+unchanged native PowerShell source SHA-256
+`A498DCE7F8D33D315A91AB67D3F03093C660AB6FF302436D5CB07B120B473D05`.
+The wrapper embeds all three SHA-pinned files. **19/19 locally run Python
+synthetic regressions PASS**; standalone Windows/native v5 execution and
+real order are NOT yet physically verified.
+
+The focused change **removes strict quote ASK == book best ASK**, retaining
+fresh quotes and exact on-grid, depth >=2, broker-long 2-lot margin,
+flatness, bound FINAM trading session, bounded price deterioration up to
+50 ticks, 300-tick on-grid stop and an at-most **1,000 RUB modeled
+scenario** (600 RUB nominal stop, 100 RUB adverse slippage reserve,
+100 RUB conservative all-in fees ceiling). It permits a limited ASK increase
+between operator confirmation and one ENTRY, provided fresh depth and
+scenario remain inside the prior bounds. It does not guarantee worst-case
+loss or protect against an order-book jump after the final GET.
+
+**Protection priority fix:** after a real entry ACK, SLTP authorization no
+longer falsely demands enough *free* funds for the initial margin a second
+time, or reruns an independent native Windows probe before installing an
+already-authorized 100%-SLTP. It instead verifies the same live account and
+observed existing 1-or-2-contract position. Prior to ENTRY the exact
+native host check, zero positions/orders, active trading session and
+current 2-lot free margin remain mandatory.
+
+The v5 wrapper deliberately **reuses the same exclusive external journal
+path as v4** (`c:\\tslaudit\\fill493\\stage8-493-real-acceptance-v4`),
+so updating the script cannot bypass the no-retry rule if an intent was ever
+written. ONE entry POST and ONE SLTP POST maximum; neither automatic
+exit/flatten nor production rearm. A GET /trades failure AFTER a real
+entry may still lead to HOLD with an open protected position; terminal
+supervised recovery and double flatness verification remain necessary.
+All private session, tariff plan, account and risk quantities stay out of
+public audit artifacts; Stage7 identity, FULL/R15 and current LIVE checkout
+remain frozen.
+
+Classification: `V4_PRE_ENTRY_NON_ATOMIC_ASK_FALSE_BLOCK_CONFIRMED`,
+`V5_OFFLINE_19_PASS_INTEL_PHYSICAL_PENDING`,
+`REAL_ENTRY_NOT_YET_OBSERVED`, `TASK_2_2_OPEN`. If physical v5 opens a
+position, treat HOLD as **real exposure to reconcile**, not permission to
+retry ENTRY, deploy, merge or rearm. Do not classify the acceptance PASS from
+an ACK or a 100%-SLTP echo alone.
