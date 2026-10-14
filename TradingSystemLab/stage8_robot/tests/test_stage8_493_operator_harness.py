@@ -263,3 +263,32 @@ def test_duplicate_order_id_disallows_flat_claim(tmp_path):
     b.observe=duplicated
     with pytest.raises(h.Hold,match='FINAL_ORDER_OBSERVATION_INVALID'):
         op.final_flat()
+
+
+def test_historical_terminal_orders_do_not_block_flat_operator_precheck(tmp_path):
+    broker = Fake()
+    original = broker.observe
+    def with_history():
+        snapshot = original()
+        snapshot["orders"].append({"id": "older-filled", "kind": "regular",
+                                   "active": False, "remaining": 0})
+        return snapshot
+    broker.observe = with_history
+    operator, _ = new(tmp_path, broker)
+    assert operator.entry_and_growth() == "STOP_AT_ONE_OBSERVED_GROWTH_PENDING"
+    assert broker.entry_posts == 1 and broker.stop_posts == 1
+
+
+def test_any_active_historical_order_still_blocks_precheck(tmp_path):
+    broker = Fake()
+    original = broker.observe
+    def with_live_order():
+        snapshot = original()
+        snapshot["orders"].append({"id": "unrelated-active", "kind": "regular",
+                                   "active": True, "remaining": 1})
+        return snapshot
+    broker.observe = with_live_order
+    operator, _ = new(tmp_path, broker)
+    with pytest.raises(h.Hold, match="INITIAL_ACCOUNT_NOT_FLAT"):
+        operator.entry_and_growth()
+    assert broker.entry_posts == 0
