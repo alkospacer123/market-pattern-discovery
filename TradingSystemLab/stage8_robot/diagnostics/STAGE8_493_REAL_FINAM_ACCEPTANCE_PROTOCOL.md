@@ -1036,3 +1036,33 @@ trade or assert `LIVE_PRODUCTION_READY`. Frozen T3/H1/TRAIL1, N4, FULL/R15,
 Stage7 identity, existing production checkout, Task and LIVE SQLite are
 unchanged. PR #493 stays Draft; no merge/deployment/rearm before independent
 audit and separate operator decision.
+
+## 2026-10-14 — final bounded FINAM BUY/SELL AccountTrade linkage
+
+The Intel operator executed a READONLY existing-trade reconciliation
+after the separate two-snapshot final flat verification. The sanitized
+`stage8-493-final-fills-readonly.ps1` output confirms a bound exact
+READONLY FINAM session, account/order linkage, one bounded historical
+`AccountTrade` row for BUY ID SHA256 prefix
+`e21fc5a889385f34` (2 contracts, weighted execution price `12.533`),
+and one for manual SELL ID SHA256 prefix
+`4aeb70e7f7b93c22` (2 contracts, `12.516`).
+`ACCOUNTTRADE_20261014_LINKAGE=PASS_FOR_RETRIEVED_BOUNDED_HISTORY`.
+At the accepted CNYRUBF historical tick economics of 1 RUB per
+0.001 per contract, the difference is **−34.000 RUB gross**.
+
+**Do not confuse prices in order-list terminal columns with actual
+historical executions.** Broker net profit, fees, future retention of
+trade history and actual stop-trigger behavior are **NOT VERIFIED**.
+The natural 1→2 growth case was not observed in this immediate 0→2 fill.
+The original operator journal was not modified by the manual exit or
+READONLY verification; one-shot ENTRY authorization remains consumed.
+There was no new trading-token order call, no Task/kill-switch change,
+no LIVE SQLite write and no production rearm.
+
+**Classification:** `BUY_AND_SELL_BOUNDED_ACCOUNTTRADE_PASS`;
+`BROKER_DOUBLE_FLAT_PASS`; `ENTRY_SLTP_IDENTITY_PASS`;
+`NET_PNL_NOT_VERIFIED`; `SLTP_GROWTH_TRIGGER_NOT_PROVEN`;
+`PRODUCTION_RELEASE_NOT_AUTHORIZED`. This closes the price/quantity/ID
+reconciliation for the completed one-shot only, not the continuous
+V2 production release authority.
