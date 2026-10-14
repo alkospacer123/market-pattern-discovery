@@ -113,6 +113,7 @@ class OperatorOneAttemptWriteGate:
         if (physical["account_hash"] != self.plan.account_hash
                 or physical["task_disabled"] is not True
                 or physical["switch_halted"] is not True
+                or type(physical["production_process_count"]) is not int
                 or physical["production_process_count"] != 0
                 or physical["production_lock_free"] is not True
                 or physical["write_session_exact_account"] is not True
