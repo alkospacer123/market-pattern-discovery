@@ -651,3 +651,44 @@ presence; require the actual accepted physical completion evidence defined
 above, including final flatness and zero active orders. A 0->2 fill may need
 an independently authorized terminal flatten and be INCONCLUSIVE. This
 historical/prior example does not authorize real ENTRY/SLTP/CANCEL/EXIT.
+
+
+## 2026-10-14 — Intel two-contract FINAM focused READONLY acceptance inputs (operator console)
+
+Operator ran isolated `stage8-493-cny-live-readonly-v2.ps1`; reported
+`read_only_source_hash=pass`, `fresh_isolation_and_broker_flat=pass`,
+`classification=focused_cny_quote_and_2lot_margin_readonly_pass_not_trade_authority`.
+FINAM `CNYRUBF@RTSX` authenticated READONLY observed at
+**2026-10-14T12:09:41.823811+00:00**: best ASK **12.548**, worst ASK for
+2 contracts **12.548**; client cash **49,969.56 RUB**; current broker
+LONG initial margin for 2 contracts **2,371.571998 RUB**; illustrative
+300-tick stop **12.248**, nominal initial risk **600 RUB**. External private
+report SHA-256: `55317debe381bfc0000d5c725c0a1a5ec2ae7ac1e2577ded2d1ab628629c07da`.
+The full private JSON was not independently received; this is verified
+**operator console** evidence, not direct account credentials or new server
+observations by the reviewer. No order, cancel, Task mutation or LIVE SQLite.
+
+**Task 2.2 checkpoint:** client 2-lot margin/cash and bid/ask depth PASS for
+this timestamp only. The quantity exception is independent of natural
+production R15 sizing, and 44/44 pinned Intel synthetic tests PASS at
+candidate `16b8964ab8a872b365ddb557526bbcefddb50db9`. The
+proposed fee/slippage envelope 50 adverse ticks per contract (100 RUB)
+plus total roundtrip costs ceiling 100 RUB results in illustrative
+**800 RUB** = 600 + 100 + 100, leaving 200 RUB of the approved
+**1,000 RUB** scenario budget. These two expense ceilings are **NOT**
+verified actual client rates or executable fill limits. It is a scenario
+budget, **not a guaranteed loss cap** (price gaps, liquidity and rejects).
+
+The actual client tariff must be confirmed for the accepted tariff plan and
+execution channel. FINAM Regulation 26/12 is effective on 2026-10-14;
+Regulation 26/13 starts 2026-10-15 and cannot be used as today's authority.
+Public web tariff rates cannot prove this private account's effective rate;
+MOEX normal trade-registration fees must not be conflated with separate
+contract-exercise clearing fees. The independent bounded LIVE operator
+launcher and proven supervised emergency EXIT/CANCEL recovery are still
+pending; do not claim this snapshot proves SLTP acceptance or real
+1-to-2 growth. A future trade requires a new fresh time-bounded price, cash,
+margin, state/Task/kill-switch and independently approved exact-action receipt.
+
+**No real ENTRY/SLTP/CANCEL/EXIT authorization, candidate merge, deploy or
+rearm was performed. Existing roadmap: finish task 2.2, then task 3.**
