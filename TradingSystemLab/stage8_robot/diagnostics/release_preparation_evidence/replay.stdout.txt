@@ -1,0 +1,48 @@
+{
+  "raw_replays": {
+    "production": {
+      "expected_trade_count": 418,
+      "reproduced_trade_count": 418,
+      "exact_matches": 418,
+      "missing": 0,
+      "extra": 0,
+      "timestamp_mismatches": 0,
+      "direction_mismatches": 0,
+      "price_mismatches": 0,
+      "state_mismatches": 0,
+      "R_mismatches": 0,
+      "status": "PASS"
+    },
+    "independent_authority": {
+      "expected_trade_count": 418,
+      "reproduced_trade_count": 418,
+      "exact_matches": 418,
+      "missing": 0,
+      "extra": 0,
+      "timestamp_mismatches": 0,
+      "direction_mismatches": 0,
+      "price_mismatches": 0,
+      "state_mismatches": 0,
+      "R_mismatches": 0,
+      "status": "PASS"
+    }
+  },
+  "all_raw_signal_projection_checks": 1422,
+  "independent_rational_projection_sizing_checks": 1422,
+  "frozen_entry_paths": 422,
+  "completed_executable_paths": 418,
+  "terminal_open_paths": 4,
+  "management_bars": 10763,
+  "protective_prices_checked": 2948,
+  "replacement_count": 2526,
+  "changed_exit_timestamps": 0,
+  "classifications": {
+    "RAW_RESEARCH_CONFORMANCE": "PASS",
+    "EXECUTABLE_STOP_CONFORMANCE": "PASS",
+    "R15_MARGIN_CONFORMANCE": "PASS",
+    "PROTECTIVE_STOP_CONFORMANCE": "PASS",
+    "ACTUAL_FILL_AUTHORITY": "BLOCKED",
+    "PRODUCTION_READY": "NO"
+  },
+  "real_order_endpoint_calls": 0
+}

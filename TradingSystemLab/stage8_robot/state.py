@@ -1,5 +1,6 @@
 """Transactional SQLite state and the isolated Stage 8.11 ledger authority."""
 import hashlib,json,os,sqlite3,tempfile
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 from .specification import PRODUCTION_SPECIFICATION_ID
@@ -99,12 +100,21 @@ class StateStore:
             current=self.get("database_identity")
             if current is not None and current != identity: raise RuntimeError("STATE_ENVIRONMENT_ACCOUNT_MISMATCH")
             self.put("database_identity",identity)
+    @contextmanager
+    def transaction(self):
+        """Group a runtime transition atomically; nested writes never commit it early."""
+        if self.db.in_transaction:
+            yield
+        else:
+            with self.db:
+                self.db.execute("BEGIN IMMEDIATE")
+                yield
     def put(self,key:str,value:Any):
-        with self.db: self.db.execute("INSERT INTO state VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",(key,json.dumps(value,sort_keys=True)))
+        with self.transaction(): self.db.execute("INSERT INTO state VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",(key,json.dumps(value,sort_keys=True)))
     def get(self,key:str,default=None):
         row=self.db.execute("SELECT value FROM state WHERE key=?",(key,)).fetchone(); return json.loads(row[0]) if row else default
     def persist_intent(self,key:str,payload:dict)->bool:
-        with self.db:
+        with self.transaction():
             cur=self.db.execute("INSERT OR IGNORE INTO intents(idempotency_key,payload,status) VALUES(?,?,?)",(key,json.dumps(payload,sort_keys=True),"INTENT_PERSISTED"))
         return cur.rowcount==1
     def intent(self,key:str):
@@ -127,15 +137,34 @@ class StateStore:
     def transition_intent(self,key:str,status:str,broker_order_id:str|None=None):
         allowed={"INTENT_PERSISTED","SUBMITTED","UNCERTAIN","ACK","PARTIAL_FILL","FILL","CANCELLED","REJECTED","CLOSED","RECONCILED"}
         if status not in allowed: raise ValueError("INVALID_ORDER_STATUS")
-        with self.db:
+        with self.transaction():
             cur=self.db.execute("UPDATE intents SET status=?,broker_order_id=COALESCE(?,broker_order_id),updated_at=CURRENT_TIMESTAMP WHERE idempotency_key=?",(status,broker_order_id,key))
             if cur.rowcount!=1: raise KeyError(key)
-    def persist_fill(self,fill:dict)->bool:
+    def persist_fill(self,fill:dict,*,strict:bool=False)->bool:
         required=("fill_id","broker_order_id","trade_id","quantity","price","timestamp")
         if any(k not in fill for k in required): raise ValueError("INCOMPLETE_FILL")
         values=(fill["fill_id"],fill["broker_order_id"],fill["trade_id"],str(fill["quantity"]),str(fill["price"]),str(fill.get("fee","")),fill["timestamp"],json.dumps(fill,sort_keys=True))
-        with self.db: cur=self.db.execute("INSERT OR IGNORE INTO fills VALUES(?,?,?,?,?,?,?,?)",values)
+        with self.transaction():
+            if strict:
+                old=self.db.execute("SELECT payload FROM fills WHERE fill_id=?",(fill["fill_id"],)).fetchone()
+                if old is not None and json.loads(old[0]) != fill:
+                    raise RuntimeError("CONFLICTING_DURABLE_FILL")
+            cur=self.db.execute("INSERT OR IGNORE INTO fills VALUES(?,?,?,?,?,?,?,?)",values)
         return cur.rowcount==1
+    def _fill_rows(self,query:str,args=())->list[dict]:
+        result=[]
+        for row in self.db.execute(query,args):
+            fill=json.loads(row[7])
+            values=(fill["fill_id"],fill["broker_order_id"],fill["trade_id"],str(fill["quantity"]),
+                    str(fill["price"]),str(fill.get("fee","")),fill["timestamp"])
+            if tuple(row[:7]) != values:
+                raise RuntimeError("DURABLE_FILL_COLUMNS_CONFLICT")
+            result.append(fill)
+        return result
+    def all_fills(self)->list[dict]:
+        return self._fill_rows("SELECT * FROM fills ORDER BY fill_id")
+    def fills_for_order(self,broker_order_id:str)->list[dict]:
+        return self._fill_rows("SELECT * FROM fills WHERE broker_order_id=? ORDER BY fill_id",(broker_order_id,))
     def unresolved_intent_count(self)->int:
         marks=",".join("?" for _ in TERMINAL_INTENT_STATUSES)
         return self.db.execute(f"SELECT COUNT(*) FROM intents WHERE status NOT IN ({marks})",TERMINAL_INTENT_STATUSES).fetchone()[0]

@@ -1,0 +1,43 @@
+{
+  "schema": "stage8_493_moex_public_tick_crosscheck_20261013.v1",
+  "date_checked": "2026-10-13",
+  "authority_type": "OFFICIAL_MOEX_PUBLIC_CONTRACT_PAGE_PARAMETERS",
+  "not_authority_for": "LIVE_BROKER_POSITION_OR_ORDERS_OR_EXACT_TRADE_TIME_MARGIN",
+  "status": "PUBLIC_MOEX_TICK_PRICE_AND_RUB_VALUE_MATCH_FROZEN_REFERENCES",
+  "instruments": {
+    "USDRUBF": {
+      "tick": "0.01",
+      "rub_per_tick": "10",
+      "lot": "1000",
+      "source": "https://www.moex.com/ru/derivatives/perpetual-futures/usdrubf",
+      "matches_original_n4_report": true
+    },
+    "CNYRUBF": {
+      "tick": "0.001",
+      "rub_per_tick": "1",
+      "lot": "1000",
+      "source": "https://www.moex.com/ru/derivatives/perpetual-futures/cnyrubf",
+      "matches_original_n4_report": true
+    },
+    "GLDRUBF": {
+      "tick": "0.1",
+      "rub_per_tick": "0.1",
+      "lot": "1",
+      "source": "https://www.moex.com/ru/derivatives/perpetual-futures/GLDRUBF",
+      "matches_original_n4_report": true
+    },
+    "IMOEXF": {
+      "tick": "0.5",
+      "rub_per_tick": "5",
+      "lot": "10",
+      "source": "https://www.moex.com/ru/derivatives/perpetual-futures/IMOEXF",
+      "alternate_official_design": "https://www.moex.com/a8803",
+      "matches_original_n4_report": true
+    }
+  },
+  "source_observation_note": "The publicly accessible MOEX source pages report contract parameters; they are not a newly collected broker account snapshot. Parameters may change. Fresh instrument/GO and cash/risk precheck remains required immediately before any separately authorized real physical experiment.",
+  "original_intel_report_unchanged": true,
+  "live_changes": "NONE",
+  "order_endpoints": "NONE",
+  "production_ready": "NO"
+}

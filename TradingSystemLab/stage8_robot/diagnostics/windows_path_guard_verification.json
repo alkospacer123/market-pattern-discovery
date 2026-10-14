@@ -1,0 +1,104 @@
+{
+  "actual_main_checked": "bc4f95f48b332f43d79ed10f26fc03c5ad01cd97",
+  "artifacts": {
+    "windows-path-regression.stdout.txt": {
+      "git_blob": "6d465248595c566f35f16a44f3330d9193623f4d",
+      "sha256": "b1267871a88cd6f288ea9e9147feb53d7c59f86c9320cec9c0ac38291eb38d1c"
+    },
+    "windows-path-release.stdout.txt": {
+      "git_blob": "0097ebfd133d3f40e8735e21a1c384e615a02dfd",
+      "sha256": "e58c451968576eaee2c41d799d5286c20db65e87d9608aeaeef7482ed1711d27"
+    }
+  },
+  "automatic_v2_trading_activated": false,
+  "candidate_parent": "bbab752621dc9046651192541e16fb8a1a78259e",
+  "changed_source_blobs": {
+    "TradingSystemLab/stage8_robot/release_preparation.py": {
+      "new_git_blob": "1ed40ebed515a7cfd903583b4035b20b67d263a3",
+      "previous_git_blob": "55105dbe8c01b1583c5e7f05441346a5c91613ff",
+      "sha256": "f1e46aaba7a157fc6b5533d56c68841151a940979276021e0c8d5b919d858c62"
+    },
+    "TradingSystemLab/stage8_robot/tests/test_release_preparation.py": {
+      "new_git_blob": "de850cda5a44dfcda8d3807c40bab5d76a2dbfb7",
+      "previous_git_blob": "6fe6530d6b9f2e86d3a6ef1136659c71500bef5a",
+      "sha256": "d0cd6d5ee646a5fd19fcec4afa6f493d4656269d8991ec6c26bd24d74686bdc1"
+    }
+  },
+  "classification": "WINDOWS_PATH_GUARD_OFFLINE_PASS",
+  "coverage": {
+    "before_fix": "29 failed, 4 passed, 6 skipped, 57 deselected (new path cases against original implementation)",
+    "before_fix_stdout_sha256": "9ac9902e2fbe1d868da366d51ba6ea53561cffefd1ce094d8f4623dbf7e6bb54",
+    "content_or_SQL_io_before_refusal": false,
+    "locations": [
+      "leaf",
+      "parent",
+      "ancestor"
+    ],
+    "post_resolve_parent_aliases": [
+      "symlink",
+      "reparse"
+    ],
+    "relative_cwd_targets": [
+      "LIVE",
+      "runtime"
+    ],
+    "resolved_targets": [
+      "LIVE",
+      "runtime",
+      "repository"
+    ],
+    "roles": [
+      "snapshot",
+      "output",
+      "manifest"
+    ]
+  },
+  "deploy_done": false,
+  "fees_or_tariffs_calculated": false,
+  "live_changes": "NONE",
+  "live_production_ready": "NO",
+  "merge_done": false,
+  "native_windows_junction_authority": "BLOCKED_NOT_EXECUTED_ON_LINUX; added real mklink /J tests use fresh synthetic temp targets only, not Intel",
+  "network_connections": "socket connect/connect_ex/create_connection denied by offline runner",
+  "new_cases": {
+    "native_windows": 6,
+    "portable": 33
+  },
+  "path_policy": [
+    "Absolute lexical path checked before resolve",
+    "All path parents checked using lstat Windows FILE_ATTRIBUTE_REPARSE_POINT (0x400), including junctions that are not symlinks",
+    "Same canonical LIVE/runtime/state/repository and alias checks repeated for resolved absolute path and every parent",
+    "Windows metadata without reparse authority and inaccessible metadata fail closed",
+    "Existing SHA, symlink, hardlink and WAL checks retained"
+  ],
+  "physical_finam_endpoint_calls": 0,
+  "previous_verification_retained": {
+    "path": "TradingSystemLab/stage8_robot/diagnostics/release_preparation_verification.json",
+    "sha256": "93f9f22914d4a401de2bbbbb32af5f0647175c60bedeb9cb335811cc0da9fda0",
+    "status": "Independent user audit confirmed its stated offline area; previous evidence not rewritten"
+  },
+  "real_order_endpoint_calls": 0,
+  "rearm_done": false,
+  "release_tests": {
+    "passed": 90,
+    "skip_reason": "Six native Windows junction integration cases; Linux environment",
+    "skipped": 6
+  },
+  "schema": "stop_tick_grid_v2_windows_path_guard_verification.v1",
+  "scope": "Only safe_external path/ancestor checks and path-specific regression cases; no existing production class or execution semantics changed",
+  "stop_tick_grid_runner": {
+    "passed": 534,
+    "runner": "TradingSystemLab/stage8_robot/tests/run_stop_tick_grid_tests.py",
+    "skip_reasons": "Six native junction cases plus one pre-existing Windows-only case",
+    "skipped": 7,
+    "subtests_passed": 17
+  },
+  "unchanged": {
+    "SHA_hardlink_WAL_tail_AST": true,
+    "all_other_release_preparation_function_AST": true,
+    "frozen_T3_H1_TRAIL1_N4_FULL_R15": true,
+    "frozen_stage7_and_original_OOS": true,
+    "legacy_production_code": true,
+    "previous_replay_artifacts": true
+  }
+}

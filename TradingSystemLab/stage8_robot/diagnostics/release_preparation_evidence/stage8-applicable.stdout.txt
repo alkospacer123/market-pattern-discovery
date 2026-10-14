@@ -1,0 +1,54 @@
+........................................................................ [  5%]
+........................................................................ [ 10%]
+........................................................................ [ 15%]
+........................................................................ [ 21%]
+........................................................................ [ 26%]
+........................................................................ [ 31%]
+........................................................................ [ 36%]
+........................................................................ [ 42%]
+........................................................................ [ 47%]
+........................................................................ [ 52%]
+..F.............................s....................................... [ 58%]
+........................................................................ [ 63%]
+........................................................................ [ 68%]
+........................................................................ [ 73%]
+........................................................................ [ 79%]
+........................................................................ [ 84%]
+........................................................................ [ 89%]
+........................................................................ [ 95%]
+.........................sssss........ssss.........................                                                             [100%]
+=================================== FAILURES ===================================
+______ test_signal_diagnostic_rejects_uncovered_live_week_without_output _______
+
+external_snapshot = (PosixPath('/workspace/work/release-applicable-tests/test_signal_diagnostic_rejects0/external-snapshot.sqlite3'), PosixPath('/workspace/work/release-applicable-tests/test_signal_diagnostic_rejects0'))
+
+    def test_signal_diagnostic_rejects_uncovered_live_week_without_output(external_snapshot,monkeypatch):
+        from TradingSystemLab.stage8_robot import signal_execution_diagnostic as diagnostic
+        monkeypatch.setattr(diagnostic,'load_stage5_seed_open_h1',lambda *a:seed())
+        root=external_snapshot[1]
+>       with pytest.raises(release.ReleaseBlocked,match='INTERVAL_NOT_COVERED'):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+TradingSystemLab/stage8_robot/tests/test_release_preparation.py:304: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+TradingSystemLab/stage8_robot/signal_execution_diagnostic.py:54: in diagnose
+    frames={symbol:close_index_for_frozen_t3(load_stage5_seed_open_h1(data_root,symbol).astype(float)) for symbol in INSTRUMENTS}
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data_root = PosixPath('/workspace/work/release-applicable-tests/test_signal_diagnostic_rejects0/data')
+instrument = 'USDRUBF'
+
+    def load_stage5_seed_open_h1(data_root: Path | str, instrument: str) -> pd.DataFrame:
+        if instrument not in N4:
+            raise ProductionHistoryError("STAGE8_12_4_SEED_INSTRUMENT_NOT_N4")
+        root = Path(data_root).resolve()
+        source = (root / SEED_FILES[instrument]).resolve()
+        if root not in source.parents or not source.is_file() or source.is_symlink():
+>           raise ProductionHistoryError("STAGE8_12_4_SEED_FILE_INVALID")
+E           TradingSystemLab.stage8_robot.production_history.ProductionHistoryError: STAGE8_12_4_SEED_FILE_INVALID
+
+TradingSystemLab/stage8_robot/production_history.py:94: ProductionHistoryError
+=========================== short test summary info ============================
+FAILED TradingSystemLab/stage8_robot/tests/test_release_preparation.py::test_signal_diagnostic_rejects_uncovered_live_week_without_output
+1 failed, 1352 passed, 10 skipped, 35 deselected, 17 subtests passed in 581.47s (0:09:41)

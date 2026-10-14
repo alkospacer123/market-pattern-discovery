@@ -1,0 +1,75 @@
+{
+  "accepted_audit_merge": "5c78d15c5b05e881904b644e1b7aa3b67ee63821",
+  "accepted_audit_pr": 492,
+  "all_existing_research_results": {
+    "file_count": 2508,
+    "git_tree_listing_sha256": "dd7a96853df1d5b6f5e2dede502a16e46c24459d4aa9ff6b10eb33787668a631"
+  },
+  "base_main": "5c78d15c5b05e881904b644e1b7aa3b67ee63821",
+  "branch": "candidate/stop-tick-grid-20261012",
+  "candidate_selection": "Explicit execution_revision constructor argument only; existing CLI/default profile preserved; no migration/deploy commands",
+  "frozen_stage7": {
+    "file_count": 16,
+    "git_tree_listing_sha256": "8b4a046a7f370785ddd0b3d2b141d83aebb2aee7e5598345f32aeca9451296aa"
+  },
+  "live_code_sha_supplied": "184e8c2b8fa092a606249ff293a4f507160bff29",
+  "original_true_oos": {
+    "file_count": 53,
+    "git_tree_listing_sha256": "abf76d890bb2bff981987f5fc7a9e212449884acf08d91e783c2fe84bcbb0714"
+  },
+  "production_python_files_identical_before_patch": 64,
+  "production_sources_comparison": "main Git blobs vs supplied LIVE code Git blobs; no host connection",
+  "protected_scope": [
+    "TradingSystemLab/results",
+    "TradingSystemLab/strategies",
+    "TradingSystemLab/core",
+    "TradingSystemLab/configs",
+    "TradingSystemLab/stage8_robot/strategy_core.py",
+    "TradingSystemLab/stage8_robot/trail1_state.py",
+    "TradingSystemLab/stage8_robot/context_builder.py",
+    "TradingSystemLab/stage8_robot/risk.py",
+    "TradingSystemLab/stage8_robot/margin.py",
+    "TradingSystemLab/stage8_robot/specification.py",
+    "TradingSystemLab/stage8_robot/production_instrument_registry.csv",
+    "TradingSystemLab/stage8_robot/finam_api.py",
+    "TradingSystemLab/stage8_robot/production_authorization.py",
+    "TradingSystemLab/stage8_robot/production_safety_gate.py",
+    "TradingSystemLab/stage8_robot/deploy"
+  ],
+  "remaining_live_requirements": [
+    "Reliable accepted FINAM price authority for this entry and full/partial fills, identity/retention/restart proof",
+    "Agreed MARKET slippage/risk contract; actual loss is not bounded by reference R15",
+    "Current authenticated N4 specs/margins and real SLTP/backstop/replacement/unknown outcomes acceptance",
+    "Separately approved clean-account state lifecycle and LIVE acceptance"
+  ],
+  "status_flags": {
+    "ACTUAL_FILL_AUTHORITY": "BLOCKED",
+    "DEPLOY_NOT_DONE": "YES",
+    "EXECUTABLE_STOP_CONFORMANCE": "PASS",
+    "FINAL_STATUS": "BLOCKED",
+    "FROZEN_STAGE7_UNCHANGED": "YES",
+    "LIVE_HOST_NOT_TOUCHED": "YES",
+    "LIVE_PRODUCTION_READY": "NO",
+    "MERGE_NOT_DONE": "YES",
+    "OFFLINE_CANDIDATE_CHECKS": "PASS",
+    "ORIGINAL_OOS_UNCHANGED": "YES",
+    "PROTECTIVE_STOP_CONFORMANCE": "PASS",
+    "R15_MARGIN_CONFORMANCE": "PASS",
+    "RAW_RESEARCH_CONFORMANCE": "PASS",
+    "REAL_ORDER_ENDPOINT_CALLS": 0,
+    "REARM_NOT_DONE": "YES",
+    "RESTART_RECOVERY_CONFORMANCE": "PASS",
+    "ROOT_CAUSE": "CONFIRMED",
+    "TRAIL1_PROTECTION_CONFORMANCE": "PASS"
+  },
+  "test_log_sha256": "06924469385fe8ecee3048e237f4e2ddfad0170dead7abac11683c102d41cc99",
+  "test_suite": {
+    "network_connections": "FORBIDDEN",
+    "passed": 338,
+    "runner": "TradingSystemLab/stage8_robot/tests/run_stop_tick_grid_tests.py",
+    "skip_reason": "Windows only",
+    "skipped": 1,
+    "subtests_passed": 17
+  },
+  "verification_scope": "Pre-publication source and offline evidence. Final GitHub main/Draft/diff checks are reported after PR creation."
+}
