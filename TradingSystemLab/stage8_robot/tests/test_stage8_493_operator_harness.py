@@ -140,6 +140,30 @@ def test_wrong_stop_cannot_pass_one_to_two(tmp_path,field,value):
     assert b.stop_posts==1 and op.journal.count('operator_hold')==1
 
 
+
+def test_finam_normalized_stop_price_preserves_two_lot_safety(tmp_path):
+    # FINAM GET sends "12.74" for a planned "12.740" stop.
+    broker = Fake(positions=(0, 2))
+    broker.stop_price = '12.74'
+    operator, broker = new(tmp_path, broker)
+    # Matching SLTP must pass; the existing direct 0->2 safety HOLD stays.
+    with pytest.raises(h.Hold, match='DIRECT_0_TO_2_INCONCLUSIVE'):
+        operator.entry_and_growth()
+    assert operator.journal.count('entry_fills') == 1
+    assert broker.entry_posts == 1 and broker.stop_posts == 1
+
+
+@pytest.mark.parametrize('bad_price', ['12.739', 'NaN', 'invalid', None])
+def test_finam_stop_price_mismatch_or_invalid_still_holds(tmp_path, bad_price):
+    broker = Fake(positions=(0, 2))
+    broker.stop_price = bad_price
+    operator, broker = new(tmp_path, broker)
+    with pytest.raises(h.Hold, match='ACTIVE_SAME_SLTP_100_PERCENT_NOT_OBSERVED'):
+        operator.entry_and_growth()
+    assert operator.journal.count('entry_fills') == 0
+    assert broker.entry_posts == 1 and broker.stop_posts == 1
+
+
 def test_broker_history_missing_holds_after_protective_stop(tmp_path):
     b=Fake();b.fills_valid=False
     op,b=new(tmp_path,b)
