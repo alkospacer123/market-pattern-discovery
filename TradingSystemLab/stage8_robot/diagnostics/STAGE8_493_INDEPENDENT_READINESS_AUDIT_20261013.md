@@ -220,3 +220,42 @@ HALTED migration and isolated cutover still require separate release
 work and explicit operator authorization under existing tasks 3.1–3.6.
 No frozen strategy, N4, FULL/R15, Stage7 identity, LIVE source,
 production Task, LIVE SQLite or trading authorization were changed.
+
+## 2026-10-14 — Intel pinned growth HALT regressions 89/89 PASS
+
+**Operator-reported physical Intel OFFLINE result; not a live broker
+or deployed-production test.** The exact pinned commit was
+`b2f7c18112a01fbe79aa53720e1c466c91426542`.
+`stage8-493-growth-halt-offline-tests-v6.ps1` reported:
+`LOCAL_PINNED_COMMIT_ONLY_NO_NETWORK=YES`;
+`PINNED_TREE_FILE_COUNT=629`; 8 Stage7 provenance files;
+`RAW_GIT_BLOBS_VERIFIED=629/629`.
+Exact Git blobs for
+`production_runtime.py` (`1f6e1d1e43c2a2bffb97a4bedbd0779b92fa6944`),
+`test_stage8_493_partial_growth_candidate.py`
+(`e58571e8f311cdf20107c463c79b2b495a3f1860`),
+and `test_finam_durable_fill_handoff.py`
+(`b2758b269475a605b6a1bf29526471a555cfc99f`) all PASS.
+
+**Actual changed-module pytest:** `89 passed in 9.88s`,
+`PYTEST_EXIT_CODE=0`;
+`RESEARCH_HEAD_UNCHANGED=PASS`,
+`CLASSIFICATION=STAGE8_493_PINNED_GROWTH_HALT_REGRESSIONS_PASS`,
+`WRAPPER_CLASSIFICATION=PASS`.
+The tests include same-ID 100%-SLTP growth, rejection of mismatched/missing
+orders, sticky HALT with operator intervention, retention of the existing
+backstop, non-resubmission and restart behavior. The test fixtures are
+**synthetic**; this is not a physical natural 1→2, actual stop-trigger,
+broker retention after real restart, or FULL-PR regression PASS.
+
+**Result update:** the narrow candidate-only stop-growth fail-closed
+code fix is `OFFLINE_REGRESSION_PASS` at the pinned commit. The earlier
+29/29 stop-price harness test, real 2026-10-14 BUY/SELL bounded
+AccountTrade and manual double-flat recovery remain separately
+accepted in their stated scope. `FINAM_FILL_AUTHORITY_VERIFIED=False`
+and the production V2 entry/activation path remain closed. The
+release verdict is **`STAGE8_493_PRODUCTION_RELEASE_NEEDS_FIX`**,
+not `LIVE_PRODUCTION_READY`. No additional real order, task action,
+SQLite mutation, rollout or rearm is justified by these offline results.
+The next work is the existing Stage 8 roadmap task 3.1 release
+review/closure, not another partial-fill experiment.
