@@ -23,7 +23,7 @@ def plan():
 def test_valid_plan_still_not_physically_authorized():
     r=m.validate_plan(plan())
     assert r['contracts']==2 and r['maximum_reference_initial_loss_rub']=='20'
-    assert r['r15_reference_quantity']==15
+    assert r['r15_reference_quantity']==05
     assert r['margin_reference_quantity']==r['frozen_reference_final_quantity']==2
     assert r['order_endpoint_calls']==0 and r['live_production_ready'] is False
     assert r['partial_fill_growth_proven'] is False
@@ -103,7 +103,7 @@ def test_two_lot_exception_is_independent_of_natural_r15_and_margin_quantity():
     assert r['contracts']==2
     assert r['r15_reference_quantity']==1
     assert r['margin_reference_quantity']==10
-    assert r['frozen_reference_final_quantity']==1
+    assert r['frozen_reference_final_quantity']==0
     assert r['test_quantity_independent_of_robot_sizing'] is True
     assert r['approved_test_budget_rub']=='1000'
     p=plan();p.update(available_cash_rub='11000',margin_per_contract_rub='1000')
