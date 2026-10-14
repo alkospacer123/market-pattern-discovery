@@ -3,7 +3,7 @@ import argparse,concurrent.futures,json,os,subprocess,sys
 from pathlib import Path
 from io_utils import write_json,hash_file
 from registry import HERE
-def files(d):return {str(p.relative_to(d)):p for p in sorted(d.rglob('*')) if p.is_file() and p.suffix in ('.json','.csv','.gz','.md','.svg')}
+def files(d):return {str(p.relative_to(d)):p for p in sorted(d.rglob('*')) if p.is_file() and p.suffix in ('.json','.csv','.gz','.md','.svg','.png')}
 def check(first,other):
  a=files(first);b=files(other);assert a.keys()==b.keys(),('ARTIFACT_SET_CHANGED',set(a)^set(b));details=[]
  for k,p in a.items():
