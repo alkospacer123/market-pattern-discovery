@@ -1,0 +1,376 @@
+{
+  "all_original_2023_2024_journals": true,
+  "causal_configurations": 13,
+  "details": [
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3p0",
+      "common_fields": 49,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 510,
+      "table": "trades"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3p0",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 10562,
+      "table": "stops"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3p0",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2017,
+      "table": "entries"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3p0",
+      "common_fields": 13,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2370,
+      "table": "gaps"
+    },
+    {
+      "build_id": "T1_NEXT_OPEN_TRAIL_3p0",
+      "common_fields": 49,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 568,
+      "table": "trades"
+    },
+    {
+      "build_id": "T1_NEXT_OPEN_TRAIL_3p0",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 9883,
+      "table": "stops"
+    },
+    {
+      "build_id": "T1_NEXT_OPEN_TRAIL_3p0",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2017,
+      "table": "entries"
+    },
+    {
+      "build_id": "T1_NEXT_OPEN_TRAIL_3p0",
+      "common_fields": 13,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2370,
+      "table": "gaps"
+    },
+    {
+      "build_id": "T1_S1_NEXT_OPEN_TRAIL_3p0",
+      "common_fields": 49,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 560,
+      "table": "trades"
+    },
+    {
+      "build_id": "T1_S1_NEXT_OPEN_TRAIL_3p0",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 11384,
+      "table": "stops"
+    },
+    {
+      "build_id": "T1_S1_NEXT_OPEN_TRAIL_3p0",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2017,
+      "table": "entries"
+    },
+    {
+      "build_id": "T1_S1_NEXT_OPEN_TRAIL_3p0",
+      "common_fields": 13,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2370,
+      "table": "gaps"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3p5",
+      "common_fields": 49,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 495,
+      "table": "trades"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3p5",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 11805,
+      "table": "stops"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3p5",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2017,
+      "table": "entries"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3p5",
+      "common_fields": 13,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2370,
+      "table": "gaps"
+    },
+    {
+      "build_id": "T1_NEXT_OPEN_TRAIL_3p5",
+      "common_fields": 49,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 549,
+      "table": "trades"
+    },
+    {
+      "build_id": "T1_NEXT_OPEN_TRAIL_3p5",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 11595,
+      "table": "stops"
+    },
+    {
+      "build_id": "T1_NEXT_OPEN_TRAIL_3p5",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2017,
+      "table": "entries"
+    },
+    {
+      "build_id": "T1_NEXT_OPEN_TRAIL_3p5",
+      "common_fields": 13,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2370,
+      "table": "gaps"
+    },
+    {
+      "build_id": "T1_S1_NEXT_OPEN_TRAIL_3p5",
+      "common_fields": 49,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 544,
+      "table": "trades"
+    },
+    {
+      "build_id": "T1_S1_NEXT_OPEN_TRAIL_3p5",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 12860,
+      "table": "stops"
+    },
+    {
+      "build_id": "T1_S1_NEXT_OPEN_TRAIL_3p5",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2017,
+      "table": "entries"
+    },
+    {
+      "build_id": "T1_S1_NEXT_OPEN_TRAIL_3p5",
+      "common_fields": 13,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2370,
+      "table": "gaps"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_275",
+      "common_fields": 49,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 518,
+      "table": "trades"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_275",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 9945,
+      "table": "stops"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_275",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2017,
+      "table": "entries"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_275",
+      "common_fields": 13,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2370,
+      "table": "gaps"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_325",
+      "common_fields": 49,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 501,
+      "table": "trades"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_325",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 11192,
+      "table": "stops"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_325",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2017,
+      "table": "entries"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_325",
+      "common_fields": 13,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2370,
+      "table": "gaps"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_375",
+      "common_fields": 49,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 480,
+      "table": "trades"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_375",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 12478,
+      "table": "stops"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_375",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2017,
+      "table": "entries"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_375",
+      "common_fields": 13,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2370,
+      "table": "gaps"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3625",
+      "common_fields": 49,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 491,
+      "table": "trades"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3625",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 12153,
+      "table": "stops"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3625",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2017,
+      "table": "entries"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3625",
+      "common_fields": 13,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2370,
+      "table": "gaps"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3875",
+      "common_fields": 49,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 479,
+      "table": "trades"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3875",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 12741,
+      "table": "stops"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3875",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2017,
+      "table": "entries"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3875",
+      "common_fields": 13,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2370,
+      "table": "gaps"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_400",
+      "common_fields": 49,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 479,
+      "table": "trades"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_400",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 12905,
+      "table": "stops"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_400",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2017,
+      "table": "entries"
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_400",
+      "common_fields": 13,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2370,
+      "table": "gaps"
+    },
+    {
+      "build_id": "A6_S1_EARLY_PROTECT_05_NEXT_OPEN_TRAIL_375",
+      "common_fields": 52,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 504,
+      "table": "trades"
+    },
+    {
+      "build_id": "A6_S1_EARLY_PROTECT_05_NEXT_OPEN_TRAIL_375",
+      "common_fields": 44,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 10622,
+      "table": "stops"
+    },
+    {
+      "build_id": "A6_S1_EARLY_PROTECT_05_NEXT_OPEN_TRAIL_375",
+      "common_fields": 36,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2017,
+      "table": "entries"
+    },
+    {
+      "build_id": "A6_S1_EARLY_PROTECT_05_NEXT_OPEN_TRAIL_375",
+      "common_fields": 13,
+      "pending_boundary_decisions_not_rewritten": 0,
+      "rows": 2370,
+      "table": "gaps"
+    }
+  ],
+  "fields_compared": 7162987,
+  "max_numeric_delta": 0.0,
+  "original_terminal_OPEN_vs_expanded_boundary_state": true,
+  "source": "Immutable main historical NEXT_OPEN artifacts; full expanded causal replays unchanged",
+  "status": "PASS",
+  "tolerance": 1e-08
+}

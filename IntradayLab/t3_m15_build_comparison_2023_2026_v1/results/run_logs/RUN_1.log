@@ -1,0 +1,72 @@
+CANONICAL_CONTROL_ALL_FOUR_YEARS_PASS
+GROUP_COMPLETE combined
+GROUP_COMPLETE stop_exit
+GROUP_COMPLETE entry_regime
+GROUP_COMPLETE t1_s1
+GROUP_COMPLETE initial_stop
+GROUP_COMPLETE session_entry
+GROUP_COMPLETE a6_s1_trail_optimization
+GROUP_COMPLETE execution_sensitivity
+GROUP_COMPLETE a6_s1_trail_plateau
+GROUP_COMPLETE early_risk_protection
+METRICS CONTROL_SIGNAL_CLOSE_TRAIL_3p0
+METRICS A1_SIGNAL_CLOSE_TRAIL_3p0
+METRICS A2_SIGNAL_CLOSE_TRAIL_3p0
+METRICS A3_SIGNAL_CLOSE_TRAIL_3p0
+METRICS A4_SIGNAL_CLOSE_TRAIL_3p0
+METRICS A5_SIGNAL_CLOSE_TRAIL_3p0
+METRICS A6_SIGNAL_CLOSE_TRAIL_3p0
+METRICS A7_SIGNAL_CLOSE_TRAIL_3p0
+METRICS S1_SIGNAL_CLOSE_TRAIL_3p0
+METRICS S2_SIGNAL_CLOSE_TRAIL_3p0
+METRICS S3_SIGNAL_CLOSE_TRAIL_3p0
+METRICS A6_S1_SIGNAL_CLOSE_TRAIL_3p0
+METRICS A7_S1_SIGNAL_CLOSE_TRAIL_3p0
+METRICS I1_SIGNAL_CLOSE_TRAIL_3p0
+METRICS I2_SIGNAL_CLOSE_TRAIL_3p0
+METRICS I3_SIGNAL_CLOSE_TRAIL_3p0
+METRICS T1_SIGNAL_CLOSE_TRAIL_3p0
+METRICS T2_SIGNAL_CLOSE_TRAIL_3p0
+METRICS T1_S1_SIGNAL_CLOSE_TRAIL_3p0
+METRICS A6_S1_NEXT_OPEN_TRAIL_3p0
+METRICS T1_NEXT_OPEN_TRAIL_3p0
+METRICS T1_S1_NEXT_OPEN_TRAIL_3p0
+METRICS CONTROL_SIGNAL_CLOSE_TRAIL_3p5
+METRICS A1_SIGNAL_CLOSE_TRAIL_3p5
+METRICS A2_SIGNAL_CLOSE_TRAIL_3p5
+METRICS A3_SIGNAL_CLOSE_TRAIL_3p5
+METRICS A4_SIGNAL_CLOSE_TRAIL_3p5
+METRICS A5_SIGNAL_CLOSE_TRAIL_3p5
+METRICS A6_SIGNAL_CLOSE_TRAIL_3p5
+METRICS A7_SIGNAL_CLOSE_TRAIL_3p5
+METRICS S1_SIGNAL_CLOSE_TRAIL_3p5
+METRICS S2_SIGNAL_CLOSE_TRAIL_3p5
+METRICS S3_SIGNAL_CLOSE_TRAIL_3p5
+METRICS A6_S1_SIGNAL_CLOSE_TRAIL_3p5
+METRICS A7_S1_SIGNAL_CLOSE_TRAIL_3p5
+METRICS I1_SIGNAL_CLOSE_TRAIL_3p5
+METRICS I2_SIGNAL_CLOSE_TRAIL_3p5
+METRICS I3_SIGNAL_CLOSE_TRAIL_3p5
+METRICS T1_SIGNAL_CLOSE_TRAIL_3p5
+METRICS T2_SIGNAL_CLOSE_TRAIL_3p5
+METRICS T1_S1_SIGNAL_CLOSE_TRAIL_3p5
+METRICS A6_S1_NEXT_OPEN_TRAIL_3p5
+METRICS T1_NEXT_OPEN_TRAIL_3p5
+METRICS T1_S1_NEXT_OPEN_TRAIL_3p5
+METRICS A6_S1_NEXT_OPEN_TRAIL_275
+METRICS A6_S1_NEXT_OPEN_TRAIL_325
+METRICS A6_S1_NEXT_OPEN_TRAIL_375
+METRICS A6_S1_NEXT_OPEN_TRAIL_3625
+METRICS A6_S1_NEXT_OPEN_TRAIL_3875
+METRICS A6_S1_NEXT_OPEN_TRAIL_400
+METRICS A6_S1_EARLY_PROTECT_05_NEXT_OPEN_TRAIL_375
+Traceback (most recent call last):
+  File "/workspace/work/t3m15-comparison/IntradayLab/t3_m15_build_comparison_2023_2026_v1/run.py", line 93, in <module>
+    p=argparse.ArgumentParser();p.add_argument('--data-root',type=Path,required=True);p.add_argument('--pr513-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--jobs',type=int,default=3);a=p.parse_args();run(a.data_root,a.pr513_root,a.output,a.jobs)
+                                                                                                                                                                                                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/work/t3m15-comparison/IntradayLab/t3_m15_build_comparison_2023_2026_v1/run.py", line 79, in run
+    with (out/'ARITHMETIC.log').open('w') as f:subprocess.run([sys.executable,str(HERE/'audit_metrics.py'),'--output',str(out),'--coverage',str(out/'COVERAGE_TIMESTAMPS.json')],check=True,stdout=f,stderr=subprocess.STDOUT)
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python', '/workspace/work/t3m15-comparison/IntradayLab/t3_m15_build_comparison_2023_2026_v1/audit_metrics.py', '--output', '/workspace/work/comparison-run1', '--coverage', '/workspace/work/comparison-run1/COVERAGE_TIMESTAMPS.json']' returned non-zero exit status 1.

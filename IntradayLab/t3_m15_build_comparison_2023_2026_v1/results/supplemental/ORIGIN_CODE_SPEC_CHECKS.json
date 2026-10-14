@@ -1,0 +1,822 @@
+{
+  "checks": [
+    {
+      "build_id": "CONTROL_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/engine.py",
+      "sha256": "ef05bf3824b6f51d77d86a72c9410d7029d1f229eb5af238df290b801626a694",
+      "source_PR": 495
+    },
+    {
+      "build_id": "CONTROL_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f319c9c367c0805c12203736344f43b9ad97eae5d46de8e0964db639faa012d9",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A1_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/engine.py",
+      "sha256": "ef05bf3824b6f51d77d86a72c9410d7029d1f229eb5af238df290b801626a694",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A1_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f319c9c367c0805c12203736344f43b9ad97eae5d46de8e0964db639faa012d9",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A2_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/engine.py",
+      "sha256": "ef05bf3824b6f51d77d86a72c9410d7029d1f229eb5af238df290b801626a694",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A2_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f319c9c367c0805c12203736344f43b9ad97eae5d46de8e0964db639faa012d9",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A3_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/engine.py",
+      "sha256": "ef05bf3824b6f51d77d86a72c9410d7029d1f229eb5af238df290b801626a694",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A3_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f319c9c367c0805c12203736344f43b9ad97eae5d46de8e0964db639faa012d9",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A4_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/engine.py",
+      "sha256": "ef05bf3824b6f51d77d86a72c9410d7029d1f229eb5af238df290b801626a694",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A4_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f319c9c367c0805c12203736344f43b9ad97eae5d46de8e0964db639faa012d9",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A5_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/engine.py",
+      "sha256": "ef05bf3824b6f51d77d86a72c9410d7029d1f229eb5af238df290b801626a694",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A5_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f319c9c367c0805c12203736344f43b9ad97eae5d46de8e0964db639faa012d9",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A6_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/engine.py",
+      "sha256": "ef05bf3824b6f51d77d86a72c9410d7029d1f229eb5af238df290b801626a694",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A6_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f319c9c367c0805c12203736344f43b9ad97eae5d46de8e0964db639faa012d9",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A7_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/engine.py",
+      "sha256": "ef05bf3824b6f51d77d86a72c9410d7029d1f229eb5af238df290b801626a694",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A7_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f319c9c367c0805c12203736344f43b9ad97eae5d46de8e0964db639faa012d9",
+      "source_PR": 495
+    },
+    {
+      "build_id": "S1_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "7d068c7f524ff4ba58bd852c457c28aa5e619738",
+      "path": "IntradayLab/t3_m15_stop_exit_v1/engine.py",
+      "sha256": "67e3c5e2c40b6e7ff098ee08665b9b64a700658c0fb31cb1dbf9ecc67357b3fb",
+      "source_PR": 496
+    },
+    {
+      "build_id": "S1_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "7d068c7f524ff4ba58bd852c457c28aa5e619738",
+      "path": "IntradayLab/t3_m15_stop_exit_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f7d8386002c651a03688350a55a780c13a2c391d26c57e2f1630bad4a006cfdf",
+      "source_PR": 496
+    },
+    {
+      "build_id": "S2_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "7d068c7f524ff4ba58bd852c457c28aa5e619738",
+      "path": "IntradayLab/t3_m15_stop_exit_v1/engine.py",
+      "sha256": "67e3c5e2c40b6e7ff098ee08665b9b64a700658c0fb31cb1dbf9ecc67357b3fb",
+      "source_PR": 496
+    },
+    {
+      "build_id": "S2_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "7d068c7f524ff4ba58bd852c457c28aa5e619738",
+      "path": "IntradayLab/t3_m15_stop_exit_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f7d8386002c651a03688350a55a780c13a2c391d26c57e2f1630bad4a006cfdf",
+      "source_PR": 496
+    },
+    {
+      "build_id": "S3_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "7d068c7f524ff4ba58bd852c457c28aa5e619738",
+      "path": "IntradayLab/t3_m15_stop_exit_v1/engine.py",
+      "sha256": "67e3c5e2c40b6e7ff098ee08665b9b64a700658c0fb31cb1dbf9ecc67357b3fb",
+      "source_PR": 496
+    },
+    {
+      "build_id": "S3_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "7d068c7f524ff4ba58bd852c457c28aa5e619738",
+      "path": "IntradayLab/t3_m15_stop_exit_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f7d8386002c651a03688350a55a780c13a2c391d26c57e2f1630bad4a006cfdf",
+      "source_PR": 496
+    },
+    {
+      "build_id": "A6_S1_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "7095bc1e10d2f7b567bd7e82ea3817a59f34fab1",
+      "path": "IntradayLab/t3_m15_combined_v1/engine.py",
+      "sha256": "08fe4cb40da672c80b28b0bdf52cc78f5b86cda3ada9946d09f37ca4b7ba3e21",
+      "source_PR": 497
+    },
+    {
+      "build_id": "A6_S1_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "7095bc1e10d2f7b567bd7e82ea3817a59f34fab1",
+      "path": "IntradayLab/t3_m15_combined_v1/EXPERIMENT_SPECS.json",
+      "sha256": "d9f64070d6fed4b2dd637981b9a8eb9d22231ffda27521e66a733c946e7f5286",
+      "source_PR": 497
+    },
+    {
+      "build_id": "A7_S1_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "7095bc1e10d2f7b567bd7e82ea3817a59f34fab1",
+      "path": "IntradayLab/t3_m15_combined_v1/engine.py",
+      "sha256": "08fe4cb40da672c80b28b0bdf52cc78f5b86cda3ada9946d09f37ca4b7ba3e21",
+      "source_PR": 497
+    },
+    {
+      "build_id": "A7_S1_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "7095bc1e10d2f7b567bd7e82ea3817a59f34fab1",
+      "path": "IntradayLab/t3_m15_combined_v1/EXPERIMENT_SPECS.json",
+      "sha256": "d9f64070d6fed4b2dd637981b9a8eb9d22231ffda27521e66a733c946e7f5286",
+      "source_PR": 497
+    },
+    {
+      "build_id": "I1_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "8455db86bbae3543db437863fef259d8bdda20d8",
+      "path": "IntradayLab/t3_m15_initial_stop_v1/engine.py",
+      "sha256": "acf9dbcb5b0745e5e4582cd5a3e8009c53b174d0e6ed00a1b6246a0f3e632056",
+      "source_PR": 498
+    },
+    {
+      "build_id": "I1_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "8455db86bbae3543db437863fef259d8bdda20d8",
+      "path": "IntradayLab/t3_m15_initial_stop_v1/EXPERIMENT_SPECS.json",
+      "sha256": "53abc35ecc6350332354296490194a29402054547ec3f3e6c7b5d4acd1f16bd5",
+      "source_PR": 498
+    },
+    {
+      "build_id": "I2_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "8455db86bbae3543db437863fef259d8bdda20d8",
+      "path": "IntradayLab/t3_m15_initial_stop_v1/engine.py",
+      "sha256": "acf9dbcb5b0745e5e4582cd5a3e8009c53b174d0e6ed00a1b6246a0f3e632056",
+      "source_PR": 498
+    },
+    {
+      "build_id": "I2_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "8455db86bbae3543db437863fef259d8bdda20d8",
+      "path": "IntradayLab/t3_m15_initial_stop_v1/EXPERIMENT_SPECS.json",
+      "sha256": "53abc35ecc6350332354296490194a29402054547ec3f3e6c7b5d4acd1f16bd5",
+      "source_PR": 498
+    },
+    {
+      "build_id": "I3_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "8455db86bbae3543db437863fef259d8bdda20d8",
+      "path": "IntradayLab/t3_m15_initial_stop_v1/engine.py",
+      "sha256": "acf9dbcb5b0745e5e4582cd5a3e8009c53b174d0e6ed00a1b6246a0f3e632056",
+      "source_PR": 498
+    },
+    {
+      "build_id": "I3_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "8455db86bbae3543db437863fef259d8bdda20d8",
+      "path": "IntradayLab/t3_m15_initial_stop_v1/EXPERIMENT_SPECS.json",
+      "sha256": "53abc35ecc6350332354296490194a29402054547ec3f3e6c7b5d4acd1f16bd5",
+      "source_PR": 498
+    },
+    {
+      "build_id": "T1_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "f279ccd7b88505d16fee4a4a6e55a2f0ad1004d0",
+      "path": "IntradayLab/t3_m15_session_entry_v1/engine.py",
+      "sha256": "4fe99ca1d91330fe78518a79b39f5549b5a37469c6f50935d4595e6a3df21553",
+      "source_PR": 499
+    },
+    {
+      "build_id": "T1_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "f279ccd7b88505d16fee4a4a6e55a2f0ad1004d0",
+      "path": "IntradayLab/t3_m15_session_entry_v1/EXPERIMENT_SPECS.json",
+      "sha256": "d213fa9a10e7f9e141a3e6c9113bade667a6a5ecee425cfaa2a49cf76eb45d25",
+      "source_PR": 499
+    },
+    {
+      "build_id": "T2_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "f279ccd7b88505d16fee4a4a6e55a2f0ad1004d0",
+      "path": "IntradayLab/t3_m15_session_entry_v1/engine.py",
+      "sha256": "4fe99ca1d91330fe78518a79b39f5549b5a37469c6f50935d4595e6a3df21553",
+      "source_PR": 499
+    },
+    {
+      "build_id": "T2_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "f279ccd7b88505d16fee4a4a6e55a2f0ad1004d0",
+      "path": "IntradayLab/t3_m15_session_entry_v1/EXPERIMENT_SPECS.json",
+      "sha256": "d213fa9a10e7f9e141a3e6c9113bade667a6a5ecee425cfaa2a49cf76eb45d25",
+      "source_PR": 499
+    },
+    {
+      "build_id": "T1_S1_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "a28e1b05288842be7f2ab4a2defa520fee817939",
+      "path": "IntradayLab/t3_m15_t1_s1_v1/engine.py",
+      "sha256": "1eea354f0d45b6a4917f4d4b0bce4ae9be088ed58008c5d38fef30e74e7f6678",
+      "source_PR": 500
+    },
+    {
+      "build_id": "T1_S1_SIGNAL_CLOSE_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "a28e1b05288842be7f2ab4a2defa520fee817939",
+      "path": "IntradayLab/t3_m15_t1_s1_v1/EXPERIMENT_SPECS.json",
+      "sha256": "8bc1a8872f1d7044142a232b7e1017a7c6e951a27e22deac6b75f458fbb11363",
+      "source_PR": 500
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "be8309c859767b5576daf30d6976bc62148ff9e9",
+      "path": "IntradayLab/t3_m15_execution_sensitivity_v1/engine.py",
+      "sha256": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+      "source_PR": 504
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "be8309c859767b5576daf30d6976bc62148ff9e9",
+      "path": "IntradayLab/t3_m15_execution_sensitivity_v1/SPEC.json",
+      "sha256": "8948ab316f0caefbe4cf509adb20a9d7ac37cc10c9f110dab40556b0a9739fcd",
+      "source_PR": 504
+    },
+    {
+      "build_id": "T1_NEXT_OPEN_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "be8309c859767b5576daf30d6976bc62148ff9e9",
+      "path": "IntradayLab/t3_m15_execution_sensitivity_v1/engine.py",
+      "sha256": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+      "source_PR": 504
+    },
+    {
+      "build_id": "T1_NEXT_OPEN_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "be8309c859767b5576daf30d6976bc62148ff9e9",
+      "path": "IntradayLab/t3_m15_execution_sensitivity_v1/SPEC.json",
+      "sha256": "8948ab316f0caefbe4cf509adb20a9d7ac37cc10c9f110dab40556b0a9739fcd",
+      "source_PR": 504
+    },
+    {
+      "build_id": "T1_S1_NEXT_OPEN_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "be8309c859767b5576daf30d6976bc62148ff9e9",
+      "path": "IntradayLab/t3_m15_execution_sensitivity_v1/engine.py",
+      "sha256": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+      "source_PR": 504
+    },
+    {
+      "build_id": "T1_S1_NEXT_OPEN_TRAIL_3p0",
+      "direct_bytes_equal": true,
+      "origin_commit": "be8309c859767b5576daf30d6976bc62148ff9e9",
+      "path": "IntradayLab/t3_m15_execution_sensitivity_v1/SPEC.json",
+      "sha256": "8948ab316f0caefbe4cf509adb20a9d7ac37cc10c9f110dab40556b0a9739fcd",
+      "source_PR": 504
+    },
+    {
+      "build_id": "CONTROL_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/engine.py",
+      "sha256": "ef05bf3824b6f51d77d86a72c9410d7029d1f229eb5af238df290b801626a694",
+      "source_PR": 495
+    },
+    {
+      "build_id": "CONTROL_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f319c9c367c0805c12203736344f43b9ad97eae5d46de8e0964db639faa012d9",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A1_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/engine.py",
+      "sha256": "ef05bf3824b6f51d77d86a72c9410d7029d1f229eb5af238df290b801626a694",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A1_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f319c9c367c0805c12203736344f43b9ad97eae5d46de8e0964db639faa012d9",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A2_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/engine.py",
+      "sha256": "ef05bf3824b6f51d77d86a72c9410d7029d1f229eb5af238df290b801626a694",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A2_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f319c9c367c0805c12203736344f43b9ad97eae5d46de8e0964db639faa012d9",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A3_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/engine.py",
+      "sha256": "ef05bf3824b6f51d77d86a72c9410d7029d1f229eb5af238df290b801626a694",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A3_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f319c9c367c0805c12203736344f43b9ad97eae5d46de8e0964db639faa012d9",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A4_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/engine.py",
+      "sha256": "ef05bf3824b6f51d77d86a72c9410d7029d1f229eb5af238df290b801626a694",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A4_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f319c9c367c0805c12203736344f43b9ad97eae5d46de8e0964db639faa012d9",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A5_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/engine.py",
+      "sha256": "ef05bf3824b6f51d77d86a72c9410d7029d1f229eb5af238df290b801626a694",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A5_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f319c9c367c0805c12203736344f43b9ad97eae5d46de8e0964db639faa012d9",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A6_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/engine.py",
+      "sha256": "ef05bf3824b6f51d77d86a72c9410d7029d1f229eb5af238df290b801626a694",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A6_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f319c9c367c0805c12203736344f43b9ad97eae5d46de8e0964db639faa012d9",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A7_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/engine.py",
+      "sha256": "ef05bf3824b6f51d77d86a72c9410d7029d1f229eb5af238df290b801626a694",
+      "source_PR": 495
+    },
+    {
+      "build_id": "A7_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "9c776d00bfe128ab3f6f7c29e82e56aafe581116",
+      "path": "IntradayLab/t3_m15_entry_regime_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f319c9c367c0805c12203736344f43b9ad97eae5d46de8e0964db639faa012d9",
+      "source_PR": 495
+    },
+    {
+      "build_id": "S1_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "7d068c7f524ff4ba58bd852c457c28aa5e619738",
+      "path": "IntradayLab/t3_m15_stop_exit_v1/engine.py",
+      "sha256": "67e3c5e2c40b6e7ff098ee08665b9b64a700658c0fb31cb1dbf9ecc67357b3fb",
+      "source_PR": 496
+    },
+    {
+      "build_id": "S1_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "7d068c7f524ff4ba58bd852c457c28aa5e619738",
+      "path": "IntradayLab/t3_m15_stop_exit_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f7d8386002c651a03688350a55a780c13a2c391d26c57e2f1630bad4a006cfdf",
+      "source_PR": 496
+    },
+    {
+      "build_id": "S2_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "7d068c7f524ff4ba58bd852c457c28aa5e619738",
+      "path": "IntradayLab/t3_m15_stop_exit_v1/engine.py",
+      "sha256": "67e3c5e2c40b6e7ff098ee08665b9b64a700658c0fb31cb1dbf9ecc67357b3fb",
+      "source_PR": 496
+    },
+    {
+      "build_id": "S2_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "7d068c7f524ff4ba58bd852c457c28aa5e619738",
+      "path": "IntradayLab/t3_m15_stop_exit_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f7d8386002c651a03688350a55a780c13a2c391d26c57e2f1630bad4a006cfdf",
+      "source_PR": 496
+    },
+    {
+      "build_id": "S3_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "7d068c7f524ff4ba58bd852c457c28aa5e619738",
+      "path": "IntradayLab/t3_m15_stop_exit_v1/engine.py",
+      "sha256": "67e3c5e2c40b6e7ff098ee08665b9b64a700658c0fb31cb1dbf9ecc67357b3fb",
+      "source_PR": 496
+    },
+    {
+      "build_id": "S3_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "7d068c7f524ff4ba58bd852c457c28aa5e619738",
+      "path": "IntradayLab/t3_m15_stop_exit_v1/EXPERIMENT_SPECS.json",
+      "sha256": "f7d8386002c651a03688350a55a780c13a2c391d26c57e2f1630bad4a006cfdf",
+      "source_PR": 496
+    },
+    {
+      "build_id": "A6_S1_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "7095bc1e10d2f7b567bd7e82ea3817a59f34fab1",
+      "path": "IntradayLab/t3_m15_combined_v1/engine.py",
+      "sha256": "08fe4cb40da672c80b28b0bdf52cc78f5b86cda3ada9946d09f37ca4b7ba3e21",
+      "source_PR": 497
+    },
+    {
+      "build_id": "A6_S1_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "7095bc1e10d2f7b567bd7e82ea3817a59f34fab1",
+      "path": "IntradayLab/t3_m15_combined_v1/EXPERIMENT_SPECS.json",
+      "sha256": "d9f64070d6fed4b2dd637981b9a8eb9d22231ffda27521e66a733c946e7f5286",
+      "source_PR": 497
+    },
+    {
+      "build_id": "A7_S1_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "7095bc1e10d2f7b567bd7e82ea3817a59f34fab1",
+      "path": "IntradayLab/t3_m15_combined_v1/engine.py",
+      "sha256": "08fe4cb40da672c80b28b0bdf52cc78f5b86cda3ada9946d09f37ca4b7ba3e21",
+      "source_PR": 497
+    },
+    {
+      "build_id": "A7_S1_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "7095bc1e10d2f7b567bd7e82ea3817a59f34fab1",
+      "path": "IntradayLab/t3_m15_combined_v1/EXPERIMENT_SPECS.json",
+      "sha256": "d9f64070d6fed4b2dd637981b9a8eb9d22231ffda27521e66a733c946e7f5286",
+      "source_PR": 497
+    },
+    {
+      "build_id": "I1_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "8455db86bbae3543db437863fef259d8bdda20d8",
+      "path": "IntradayLab/t3_m15_initial_stop_v1/engine.py",
+      "sha256": "acf9dbcb5b0745e5e4582cd5a3e8009c53b174d0e6ed00a1b6246a0f3e632056",
+      "source_PR": 498
+    },
+    {
+      "build_id": "I1_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "8455db86bbae3543db437863fef259d8bdda20d8",
+      "path": "IntradayLab/t3_m15_initial_stop_v1/EXPERIMENT_SPECS.json",
+      "sha256": "53abc35ecc6350332354296490194a29402054547ec3f3e6c7b5d4acd1f16bd5",
+      "source_PR": 498
+    },
+    {
+      "build_id": "I2_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "8455db86bbae3543db437863fef259d8bdda20d8",
+      "path": "IntradayLab/t3_m15_initial_stop_v1/engine.py",
+      "sha256": "acf9dbcb5b0745e5e4582cd5a3e8009c53b174d0e6ed00a1b6246a0f3e632056",
+      "source_PR": 498
+    },
+    {
+      "build_id": "I2_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "8455db86bbae3543db437863fef259d8bdda20d8",
+      "path": "IntradayLab/t3_m15_initial_stop_v1/EXPERIMENT_SPECS.json",
+      "sha256": "53abc35ecc6350332354296490194a29402054547ec3f3e6c7b5d4acd1f16bd5",
+      "source_PR": 498
+    },
+    {
+      "build_id": "I3_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "8455db86bbae3543db437863fef259d8bdda20d8",
+      "path": "IntradayLab/t3_m15_initial_stop_v1/engine.py",
+      "sha256": "acf9dbcb5b0745e5e4582cd5a3e8009c53b174d0e6ed00a1b6246a0f3e632056",
+      "source_PR": 498
+    },
+    {
+      "build_id": "I3_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "8455db86bbae3543db437863fef259d8bdda20d8",
+      "path": "IntradayLab/t3_m15_initial_stop_v1/EXPERIMENT_SPECS.json",
+      "sha256": "53abc35ecc6350332354296490194a29402054547ec3f3e6c7b5d4acd1f16bd5",
+      "source_PR": 498
+    },
+    {
+      "build_id": "T1_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "f279ccd7b88505d16fee4a4a6e55a2f0ad1004d0",
+      "path": "IntradayLab/t3_m15_session_entry_v1/engine.py",
+      "sha256": "4fe99ca1d91330fe78518a79b39f5549b5a37469c6f50935d4595e6a3df21553",
+      "source_PR": 499
+    },
+    {
+      "build_id": "T1_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "f279ccd7b88505d16fee4a4a6e55a2f0ad1004d0",
+      "path": "IntradayLab/t3_m15_session_entry_v1/EXPERIMENT_SPECS.json",
+      "sha256": "d213fa9a10e7f9e141a3e6c9113bade667a6a5ecee425cfaa2a49cf76eb45d25",
+      "source_PR": 499
+    },
+    {
+      "build_id": "T2_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "f279ccd7b88505d16fee4a4a6e55a2f0ad1004d0",
+      "path": "IntradayLab/t3_m15_session_entry_v1/engine.py",
+      "sha256": "4fe99ca1d91330fe78518a79b39f5549b5a37469c6f50935d4595e6a3df21553",
+      "source_PR": 499
+    },
+    {
+      "build_id": "T2_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "f279ccd7b88505d16fee4a4a6e55a2f0ad1004d0",
+      "path": "IntradayLab/t3_m15_session_entry_v1/EXPERIMENT_SPECS.json",
+      "sha256": "d213fa9a10e7f9e141a3e6c9113bade667a6a5ecee425cfaa2a49cf76eb45d25",
+      "source_PR": 499
+    },
+    {
+      "build_id": "T1_S1_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "a28e1b05288842be7f2ab4a2defa520fee817939",
+      "path": "IntradayLab/t3_m15_t1_s1_v1/engine.py",
+      "sha256": "1eea354f0d45b6a4917f4d4b0bce4ae9be088ed58008c5d38fef30e74e7f6678",
+      "source_PR": 500
+    },
+    {
+      "build_id": "T1_S1_SIGNAL_CLOSE_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "a28e1b05288842be7f2ab4a2defa520fee817939",
+      "path": "IntradayLab/t3_m15_t1_s1_v1/EXPERIMENT_SPECS.json",
+      "sha256": "8bc1a8872f1d7044142a232b7e1017a7c6e951a27e22deac6b75f458fbb11363",
+      "source_PR": 500
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "be8309c859767b5576daf30d6976bc62148ff9e9",
+      "path": "IntradayLab/t3_m15_execution_sensitivity_v1/engine.py",
+      "sha256": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+      "source_PR": 504
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "be8309c859767b5576daf30d6976bc62148ff9e9",
+      "path": "IntradayLab/t3_m15_execution_sensitivity_v1/SPEC.json",
+      "sha256": "8948ab316f0caefbe4cf509adb20a9d7ac37cc10c9f110dab40556b0a9739fcd",
+      "source_PR": 504
+    },
+    {
+      "build_id": "T1_NEXT_OPEN_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "be8309c859767b5576daf30d6976bc62148ff9e9",
+      "path": "IntradayLab/t3_m15_execution_sensitivity_v1/engine.py",
+      "sha256": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+      "source_PR": 504
+    },
+    {
+      "build_id": "T1_NEXT_OPEN_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "be8309c859767b5576daf30d6976bc62148ff9e9",
+      "path": "IntradayLab/t3_m15_execution_sensitivity_v1/SPEC.json",
+      "sha256": "8948ab316f0caefbe4cf509adb20a9d7ac37cc10c9f110dab40556b0a9739fcd",
+      "source_PR": 504
+    },
+    {
+      "build_id": "T1_S1_NEXT_OPEN_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "be8309c859767b5576daf30d6976bc62148ff9e9",
+      "path": "IntradayLab/t3_m15_execution_sensitivity_v1/engine.py",
+      "sha256": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+      "source_PR": 504
+    },
+    {
+      "build_id": "T1_S1_NEXT_OPEN_TRAIL_3p5",
+      "direct_bytes_equal": true,
+      "origin_commit": "be8309c859767b5576daf30d6976bc62148ff9e9",
+      "path": "IntradayLab/t3_m15_execution_sensitivity_v1/SPEC.json",
+      "sha256": "8948ab316f0caefbe4cf509adb20a9d7ac37cc10c9f110dab40556b0a9739fcd",
+      "source_PR": 504
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_275",
+      "direct_bytes_equal": true,
+      "origin_commit": "18b3ef40a43c0aad80749ac001d39d85d1524e72",
+      "path": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/engine.py",
+      "sha256": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+      "source_PR": 505
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_275",
+      "direct_bytes_equal": true,
+      "origin_commit": "18b3ef40a43c0aad80749ac001d39d85d1524e72",
+      "path": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/SPEC.json",
+      "sha256": "55d757ad52758c50e60c1b52dd54afd0bfc616e5fb21123d8dbc88d03e2d2847",
+      "source_PR": 505
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_325",
+      "direct_bytes_equal": true,
+      "origin_commit": "18b3ef40a43c0aad80749ac001d39d85d1524e72",
+      "path": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/engine.py",
+      "sha256": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+      "source_PR": 505
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_325",
+      "direct_bytes_equal": true,
+      "origin_commit": "18b3ef40a43c0aad80749ac001d39d85d1524e72",
+      "path": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/SPEC.json",
+      "sha256": "55d757ad52758c50e60c1b52dd54afd0bfc616e5fb21123d8dbc88d03e2d2847",
+      "source_PR": 505
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_375",
+      "direct_bytes_equal": true,
+      "origin_commit": "18b3ef40a43c0aad80749ac001d39d85d1524e72",
+      "path": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/engine.py",
+      "sha256": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+      "source_PR": 505
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_375",
+      "direct_bytes_equal": true,
+      "origin_commit": "18b3ef40a43c0aad80749ac001d39d85d1524e72",
+      "path": "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/SPEC.json",
+      "sha256": "55d757ad52758c50e60c1b52dd54afd0bfc616e5fb21123d8dbc88d03e2d2847",
+      "source_PR": 505
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3625",
+      "direct_bytes_equal": true,
+      "origin_commit": "84ab786ea5a43015a345907547b1b0dbd018823f",
+      "path": "IntradayLab/t3_m15_a6_s1_trail_plateau_v2/engine.py",
+      "sha256": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+      "source_PR": 506
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3625",
+      "direct_bytes_equal": true,
+      "origin_commit": "84ab786ea5a43015a345907547b1b0dbd018823f",
+      "path": "IntradayLab/t3_m15_a6_s1_trail_plateau_v2/SPEC.json",
+      "sha256": "d1792452f7b999ded4f6f955fde46e1cb57a0c32f511a7713f73edaa81d7da56",
+      "source_PR": 506
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3875",
+      "direct_bytes_equal": true,
+      "origin_commit": "84ab786ea5a43015a345907547b1b0dbd018823f",
+      "path": "IntradayLab/t3_m15_a6_s1_trail_plateau_v2/engine.py",
+      "sha256": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+      "source_PR": 506
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_3875",
+      "direct_bytes_equal": true,
+      "origin_commit": "84ab786ea5a43015a345907547b1b0dbd018823f",
+      "path": "IntradayLab/t3_m15_a6_s1_trail_plateau_v2/SPEC.json",
+      "sha256": "d1792452f7b999ded4f6f955fde46e1cb57a0c32f511a7713f73edaa81d7da56",
+      "source_PR": 506
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_400",
+      "direct_bytes_equal": true,
+      "origin_commit": "84ab786ea5a43015a345907547b1b0dbd018823f",
+      "path": "IntradayLab/t3_m15_a6_s1_trail_plateau_v2/engine.py",
+      "sha256": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+      "source_PR": 506
+    },
+    {
+      "build_id": "A6_S1_NEXT_OPEN_TRAIL_400",
+      "direct_bytes_equal": true,
+      "origin_commit": "84ab786ea5a43015a345907547b1b0dbd018823f",
+      "path": "IntradayLab/t3_m15_a6_s1_trail_plateau_v2/SPEC.json",
+      "sha256": "d1792452f7b999ded4f6f955fde46e1cb57a0c32f511a7713f73edaa81d7da56",
+      "source_PR": 506
+    },
+    {
+      "build_id": "A6_S1_EARLY_PROTECT_05_NEXT_OPEN_TRAIL_375",
+      "direct_bytes_equal": true,
+      "origin_commit": "acbed53eda132d0e691288a132dedeb16954519d",
+      "path": "IntradayLab/t3_m15_early_risk_protection_v1/engine.py",
+      "sha256": "c97a9ad5ddda9878fa5bfca07fb0d77b39cf61589ac1179e0ee23f7ae9f2061e",
+      "source_PR": 508
+    },
+    {
+      "build_id": "A6_S1_EARLY_PROTECT_05_NEXT_OPEN_TRAIL_375",
+      "direct_bytes_equal": true,
+      "origin_commit": "acbed53eda132d0e691288a132dedeb16954519d",
+      "path": "IntradayLab/t3_m15_early_risk_protection_v1/SPEC.json",
+      "sha256": "9b12dbec783f282e5f6dce6b9e66c55a5e622dfa177874837d879bb12b31bf9b",
+      "source_PR": 508
+    }
+  ],
+  "count": 102,
+  "status": "PASS"
+}

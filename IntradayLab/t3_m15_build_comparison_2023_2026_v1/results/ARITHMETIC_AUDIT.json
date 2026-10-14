@@ -1,0 +1,16 @@
+{
+  "fields_compared": 5879028,
+  "independence": "Stdlib/f-sum arithmetic; no primary reporting/metrics import; same author",
+  "max_numeric_delta": 0.0,
+  "rows_compared": 121992,
+  "status": "PASS",
+  "tables": {
+    "ANNUAL_COMPARISON": 969,
+    "FILTER_CONTRIBUTION": 285,
+    "INSTRUMENT_COMPARISON": 11628,
+    "MONTHLY_COMPARISON": 94860,
+    "PORTFOLIO_SUBSETS": 14535,
+    "STABILITY_RANKING": 51
+  },
+  "tolerance": 1e-08
+}

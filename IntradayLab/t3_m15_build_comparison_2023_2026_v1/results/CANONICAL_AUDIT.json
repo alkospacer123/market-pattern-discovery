@@ -1,0 +1,12 @@
+{
+  "TradingSystemLab_untouched": true,
+  "compared_full_replay_fields": 1275857,
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "future_OHLCV_suffix_read": false,
+  "no_cost_deductions": true,
+  "primary_scalar_differences": 0,
+  "published_2025_WF_prefix": "PASS",
+  "read_ceiling": "2026-10-13T00:00:00+03:00",
+  "status": "PASS",
+  "unmodified_frozen_engine": "PASS"
+}

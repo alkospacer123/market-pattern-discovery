@@ -1,0 +1,8 @@
+{
+  "arithmetic": "Stable fsum accumulation before near-zero signed-R concentration division",
+  "first_diagnostic_failure": "Absolute concentration delta 1.4029865269549191e-08 under unstable numpy/linear summation; tolerance remains 1e-8",
+  "primary_and_independent_arithmetic_rebuilt": true,
+  "strategy_rules_changed": false,
+  "thresholds_changed": false,
+  "trades_changed": false
+}
