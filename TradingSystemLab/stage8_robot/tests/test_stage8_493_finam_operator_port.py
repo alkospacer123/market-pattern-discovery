@@ -227,3 +227,57 @@ def test_wrong_stop_side_quantity_and_unknown_cancel_never_post():
     with pytest.raises(Hold):
         bridge.cancel("unknown-order-id")
     assert api.entry_submissions == [] and api.cancel_submissions == []
+
+
+def test_operator_recovery_exit_after_order_reconciliation_and_final_double_flat(tmp_path):
+    """OFFLINE fake: an exit must never race the active protective stop.
+
+    Broker-terminal reconciliation precedes the permitted synthetic exit;
+    the final two reads must establish terminal entry AND stop orders.
+    This is NOT evidence that FINAM can physically execute this procedure.
+    """
+    bridge, api = port(FakeFINAM(), permit)
+    audit = Journal(tmp_path / "audited-operator-recovery", fresh=True)
+    operator = OperatorHarness(plan(), bridge, audit)
+    assert operator.entry_and_growth() == "STOP_AT_ONE_OBSERVED_GROWTH_PENDING"
+    assert len(api.entry_submissions) == 1 and len(api.stop_submissions) == 1
+    # While the stop is active the program must not race a market exit.
+    with pytest.raises(Hold, match="OPERATOR_EXIT_REQUIRES_TERMINAL_ORDER_PROOF"):
+        bridge.exit(key="recovery:flatten:1", symbol=SYMBOL,
+                    side="SIDE_SELL", quantity=1)
+    assert len(api.entry_submissions) == 1
+    # Synthetic externally reconciled broker-terminal statuses.
+    api.entry_status = "ORDER_STATUS_CANCELLED"
+    api.entry_remaining = 0
+    api.stop_status = "ORDER_STATUS_CANCELLED"
+    # Synthetic exit only after both entry remainder and stop are inactive.
+    assert bridge.exit(key="recovery:flatten:1", symbol=SYMBOL,
+                       side="SIDE_SELL", quantity=1) == "finam-exit-1"
+    assert api.position == 0
+    assert len(api.entry_submissions) == 2
+    with pytest.raises(Hold, match="REAL_ORDER_OPERATION_OR_KEY_INVALID"):
+        bridge.exit(key="recovery:flatten:1", symbol=SYMBOL,
+                    side="SIDE_SELL", quantity=1)
+    assert len(api.entry_submissions) == 2
+    assert operator.final_flat() == "FLAT_AFTER_MANUAL_RECOVERY_NOT_PHYSICAL_SLTP_ACCEPTANCE"
+    assert audit.count("double_flat") == 1
+    assert len(api.cancel_submissions) == 0
+
+
+def test_operator_unknown_exit_ack_stays_sticky_no_second_market_post():
+    bridge, api = port(FakeFINAM(), permit)
+    bridge.entry(key=plan().entry_key, symbol=SYMBOL, side="SIDE_BUY", quantity=2)
+    api.entry_status = "ORDER_STATUS_CANCELLED"
+    api.entry_remaining = 0
+    def uncertain(account_id, payload):
+        api.entry_submissions.append(payload)
+        raise TimeoutError("synthetic-flatten-ack-uncertain")
+    api.place_order = uncertain
+    with pytest.raises(TimeoutError, match="synthetic-flatten-ack-uncertain"):
+        bridge.exit(key="recovery:exit:uncertain", symbol=SYMBOL,
+                    side="SIDE_SELL", quantity=1)
+    count=len(api.entry_submissions)
+    with pytest.raises(Hold, match="REAL_ORDER_OPERATION_OR_KEY_INVALID"):
+        bridge.exit(key="recovery:exit:uncertain", symbol=SYMBOL,
+                    side="SIDE_SELL", quantity=1)
+    assert len(api.entry_submissions) == count
