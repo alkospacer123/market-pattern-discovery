@@ -181,13 +181,15 @@ def test_no_retry_when_ack_unknown_and_harness_journal_sticky(tmp_path):
     assert len(api.entry_submissions) == 1
 
 
-def test_fill_contract_missing_refuses_protection(tmp_path):
+def test_fill_contract_missing_holds_with_broker_backstop(tmp_path):
     bridge, api = port(FakeFINAM(), permit)
     api.fill_qty = 0
     op = OperatorHarness(plan(), bridge, Journal(tmp_path / "audit", fresh=True))
     with pytest.raises(Hold, match="FILL_HISTORY_MISSING"):
         op.entry_and_growth()
-    assert len(api.entry_submissions) == 1 and len(api.stop_submissions) == 0
+    assert len(api.entry_submissions) == 1 and len(api.stop_submissions) == 1
+    assert op.journal.count("stop_ack") == 1
+    assert op.journal.count("operator_hold") == 1
 
 
 def test_stop_cancel_requires_flat_and_exact_broker_order():
