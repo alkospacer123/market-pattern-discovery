@@ -255,7 +255,7 @@ def test_operator_recovery_exit_after_order_reconciliation_and_final_double_flat
                        side="SIDE_SELL", quantity=1) == "finam-exit-1"
     assert api.position == 0
     assert len(api.entry_submissions) == 2
-    with pytest.raises(Hold, match="REAL_ORDER_OPERATION_OR_KEY_INVALID"):
+    with pytest.raises(Hold, match="OPERATOR_EXIT_REQUIRES_TERMINAL_ORDER_PROOF"):
         bridge.exit(key="recovery:flatten:1", symbol=SYMBOL,
                     side="SIDE_SELL", quantity=1)
     assert len(api.entry_submissions) == 2
