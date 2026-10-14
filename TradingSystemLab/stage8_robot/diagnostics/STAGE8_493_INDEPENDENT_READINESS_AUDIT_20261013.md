@@ -311,3 +311,58 @@ and require their separate user approvals.
 `LIVE_PRODUCTION_READY=NO`. This candidate-only edit is not a
 production deployment or authority change; do not update the LIVE
 current-state/runbook/passport/checklist to claim production changed.
+
+## 2026-10-14 — Intel V2 selector exact release-module regression 118/118 PASS
+
+**Evidence supplied by Intel operator, not direct agent access to the
+physical Intel host.** The offline v8 launcher executed on a temporary
+pinned checkout of `d2dfefe9415c6097476793637ac102fc2b84cbcf`
+(the exact candidate source plus two documentation updates after the
+closed-selector change). Reported output:
+
+- `PINNED_COMMIT=EXACT_LOCAL_OBJECT_PRESENT_NO_NETWORK`;
+  `PINNED_TREE_FILE_COUNT=630`, 8 frozen Stage7 provenance files;
+  `RAW_GIT_BLOBS_VERIFIED=630/630`.
+- Exact pinned `production_service.py` and
+  `tests/test_release_preparation.py` blob checks: PASS.
+- Exact root `audit_only/stop_tick_grid_20261012/full_available_raw_signals.csv`
+  oracle Git blob `2f6cfbbd941a2a89bfbd9e3d28154dbe9bc7b132`
+  included and validated. The earlier v7 outcome (117 PASS,
+  one missing-oracle FileNotFoundError) was caused by an incomplete
+  temporary archive, not a demonstrated release-code failure.
+  The repo CSV, strategy and results were not rewritten.
+- `test_release_preparation.py`: **118 passed in 21.45s**;
+  `PYTEST_EXIT_CODE=0`,
+  `STAGE8_493_PINNED_V2_SELECTOR_RELEASE_TESTS_PASS`,
+  `WRAPPER_CLASSIFICATION=PASS`;
+  `RESEARCH_HEAD_UNCHANGED=PASS`.
+- The launcher had **no** FINAM, token, order, cancel, LIVE SQLite,
+  production Task or rearm operations.
+
+**Scope of PASS:** the five added synthetic tests establish that explicit
+V2 selection stays blocked before service/SQLite/FINAM initialization
+while `FINAM_FILL_AUTHORITY_VERIFIED=False`; wrong revisions and mixing
+a V2 trading selector with the READONLY manifest are rejected; state
+existence and commit/account authority are mandatory in a synthetic
+hypothetical-open-gate test; and the default legacy selector is
+unchanged. Existing release-preparation tests also PASS on this pinned
+checkout. These results complement the previously accepted **89/89**
+growth-HALT and **29/29** normalized SLTP operator-harness tests; counts
+must not be combined into an invented single full-suite run.
+
+**Task 3.1 release audit decision:** `V2_SELECTOR_RELEASE_OFFLINE_PASS`
+and `STOP_GROWTH_FAIL_CLOSED_OFFLINE_PASS`, but **`LIVE_PRODUCTION_READY=NO`**.
+The live compiled fill authority remains FALSE; natural same-ENTRY 1→2,
+stop trigger and actual broker history retention after restart are not
+proven by these synthetic tests or the immediate 0→2 real one-shot.
+No documented acceptance is silently upgraded. The existing isolated
+readonly candidate / cutover rehearsal is not an authorized
+continuously trading deployed V2 instance. Commit-bound production
+authorization, immutable backups, actual Intel cutover, and rearm require
+distinct operator decisions within **existing roadmap 3.2–3.6**, never
+via these tests. No new phase, backtest or trade experiment is added.
+
+The present candidate can be assessed for **guarded merge review** only;
+that is distinct from LIVE authorization. This diagnostic neither
+requests nor performs merging #493, changing the entry gate, swapping
+production checkout/SQLite, writing credentials, or placing orders.
