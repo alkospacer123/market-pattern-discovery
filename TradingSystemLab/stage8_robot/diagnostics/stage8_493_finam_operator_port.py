@@ -61,7 +61,7 @@ class FinamOperatorPort:
 
     def __init__(self, *, api, account_id: str, plan: Plan,
                  history_start: str, history_limit: int = 1000,
-                 operator_write_gate: Callable[[str, Plan], None] | None = None):
+                 operator_write_gate: Callable[[str, Plan, str], None] | None = None):
         plan.check()
         if (type(account_id) is not str or not account_id
                 or hashlib.sha256(account_id.encode()).hexdigest() != plan.account_hash
@@ -137,7 +137,7 @@ class FinamOperatorPort:
             raise Hold("REAL_ORDER_OPERATION_OR_KEY_INVALID")
         # This hook must be provided by the subsequently independently
         # approved operator-only execution runner, NOT by this PR.
-        self.operator_write_gate(action, self.plan)
+        self.operator_write_gate(action, self.plan, key)
         self._sent.add((action, key))  # sticky BEFORE endpoint: no same-process retry.
 
     @staticmethod
