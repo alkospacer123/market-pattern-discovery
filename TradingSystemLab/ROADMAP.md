@@ -1,5 +1,72 @@
 # Evidence-based roadmap
 
+## ЗАФИКСИРОВАННЫЙ ROADMAP ЗАПУСКА — PR #493 → REAL FINAM LIVE (14.10.2026)
+
+**ЕДИНСТВЕННЫЙ АКТИВНЫЙ ПЛАН ДО ЗАПУСКА. РОВНО 3 ЗАДАЧИ: 1 → 2 → 3. НИКАКИХ НОВЫХ ЭТАПОВ, PR, МЕТОДОЛОГИЙ, ОПТИМИЗАЦИЙ И НЕЗАПРОШЕННЫХ ИСПРАВЛЕНИЙ.** Все следующие ниже старые roadmap-разделы сохранены как история; они не вводят дополнительных текущих задач. План закреплён по прямому указанию оператора 14.10.2026. Работа строго по подпунктам; не повторять успешно завершённые offline/READONLY-проверки без фактического основания. Ускорять выполнение, но не обходить необходимые физические safety-gates и отдельные разрешения.
+
+**Цель:** реальный автоматический запуск T3/H1/TRAIL1 на FINAM максимально быстро (целевая дата 14.10.2026, не гарантия). Замороженная производственная спецификация `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`, identity `TRAIL1__N4_01__FULL__R15`, N4 USDRUBF/CNYRUBF/GLDRUBF/IMOEXF, R15=1.5% риска на новую позицию/6% суммарно, текущие ГО/лот/округление, без MICRO-лимита и без изменения стратегии. Основной кандидат — **PR #493**. PR #515 — не действующий путь к запуску, не merge/deploy. Блокировка `FINAM_FILL_AUTHORITY_VERIFIED=False` не снимается без доказательств и отдельного разрешения.
+
+### Задача 1. Закончить подключение FINAM и безопасного закрытия — В РАБОТЕ
+
+| Пункт | Что делаем | Статус |
+| --- | --- | --- |
+| **1.1** | Используем готовый `diagnostics/stage8_493_operator_harness.py` с отдельным журналом приёмки, не связанным с LIVE SQLite и Windows Task. | **Основа готова** |
+| **1.2** | **Текущий следующий шаг.** В рамках существующего PR #493 подключаем операторский инструмент к `FinamAPI` (реальные позиции, заявки, исполнения, строго одна ENTRY, SLTP 100%, согласованные cancel/exit). Готовим, но **не отправляем** реальные заявки. | **Не закончено** |
+| **1.3** | Проверяем реальную историю исполнений FINAM по точной заявке (order ID, account, symbol, side, trade IDs, объём, цена), сначала READONLY на исторических данных. Если невозможно получить однозначную историю — HOLD. | **Не подтверждено полностью** |
+| **1.4** | Используем уже собранный N4 READONLY-отчёт FINAM (SHA-256 `C82BDE1EA674810351224448A20D14236CA7042334292CD11659B42ED8FCE3A3`), для конкретного входа и начального стопа подтверждаем ровно 2 контракта по неизменному FULL/R15+ГО, тик/руб, комиссии, прогноз проскальзывания и заранее согласованный денежный бюджет. Пополнение — капитал R15, не прибыль стратегии; производственное поле subtractive cash flows не трогаем. | **FINAM READONLY PASS; конкретная сделка и бюджет не подтверждены** |
+| **1.5** | На Intel проверяем изолированный реальный адаптер offline: нет повторного POST при неясном ACK, нет обхода защиты при расхождениях, журнал устойчив к перезапуску, ручное восстановление возможно, никаких LIVE SQLite/Task/order изменений. | **Не выполнено для адаптера** |
+
+**Ответственные:** агент разрабатывает/аудирует только эту часть PR #493; оператор Intel запускает отдельно проверенные команды, сообщает фактический вывод. **Готовность задачи 1:** проверенный операторский FINAM-адаптер и подтверждённый бюджет/риск/восстановление для конкретной приёмки. Ни одного реального приказа не отправлено.
+
+### Задача 2. Одна отдельно разрешённая реальная приёмка FINAM — НЕ НАЧАТА
+
+| Пункт | Что делаем | Статус |
+| --- | --- | --- |
+| **2.1** | Непосредственно перед заявкой: проверяем реальный счёт, Task Disabled, HALTED, отсутствие второго процесса и блокировки, две свежие сверки нуля позиций/активных заявок/неразрешённых намерений, действующие средства, ГО, тик и сессию. | **Ожидает** |
+| **2.2** | Выбираем инструмент N4, направление, корректный стоп и **естественно доступные 2 контракта по FULL/R15**, фиксируем стресс-убыток, комиссии и допустимый денежный бюджет, план аварийного закрытия через оператора. Количество искусственно не увеличиваем. | **Ожидает** |
+| **2.3** | Получаем **отдельное конкретное согласие пользователя** на реальные ENTRY, SLTP, возможный cancel/flatten с известными инструментом, направлением, объёмом, временем и денежным бюджетом. Согласие на roadmap/offline не разрешает сделки. | **Ожидает** |
+| **2.4** | Под наблюдением выполняем **одну** ENTRY, подтверждаем реальные связанные с ней fills и позицию, устанавливаем и проверяем защитный SLTP 100% текущей позиции. ACK не равен fill. | **Ожидает** |
+| **2.5** | Если брокер естественно исполнит 1→2, проверяем покрытие той же реальной SLTP-заявкой второго контракта. Немедленные 0→2 или только 100%-echo — **INCONCLUSIVE**, а не PASS. Не создаём дополнительную сделку ради частичного fill. | **Ожидает** |
+| **2.6** | По заранее разрешённой процедуре закрываем позицию, сверяем fills, получаем две независимые проверки **positions=0, active orders=0, unresolved intents=0**; оставляем HALTED и Task Disabled. При неопределённости — безопасная остановка и ручное восстановление, без повторных слепых POST. | **Ожидает** |
+
+**Ответственные:** агент — подготовка/проверка исполнения; оператор Intel — отдельное разрешение на риск и исполнение физического теста. **Готовность задачи 2:** фактические критерии приёмки подтверждены, счёт flat, заявок/неразрешённых намерений нет. Неподтверждённый реальный 1→2 остаётся блокером, не автоматической новой задачей.
+
+### Задача 3. Выпустить PR #493, установить на Intel и запустить робота — НЕ НАЧАТА
+
+| Пункт | Что делаем | Статус |
+| --- | --- | --- |
+| **3.1** | Финальный независимый аудит точного PR #493: статус задач 1–2, фактические тесты/исполнение, frozen стратегия, портфель N4, FULL/R15, риск и отсутствие незакрытых блокеров. | **Ожидает** |
+| **3.2** | После **явного разрешения на выпуск**: merge PR #493, проверка фактического GitHub `main`, точного commit и разрешённого diff. PR #515 не используется. | **Ожидает** |
+| **3.3** | После отдельного согласия на production cutover: неизменяемые резервные копии SQLite/WAL, предыдущего Task/авторизации/commit; точная проверенная версия, безопасная миграция/новая схема только в согласованных рамках PR #493, контролируемое переключение на Intel при HALTED и flat. | **Ожидает** |
+| **3.4** | Проверяем фактические checkout/data SHA, счёт/позиции/заявки FINAM, новую authority/schema, отсутствие неразрешённых intents, N4 и безопасное состояние после переключения. | **Ожидает** |
+| **3.5** | **Сразу после разрешённого production fix:** обновляем `CURRENT_STATE.md`, `ROADMAP.md`, `stage8_robot/PRODUCTION_RUNBOOK.md`, `stage8_robot/PRODUCTION_STRATEGY_PASSPORT.md`, `stage8_robot/PRODUCTION_OPERATOR_CHECKLIST.md` и `PROJECT_CONTEXT.md` если применимо. Независимо сверяем фактический GitHub `main` с реально развёрнутыми Intel checkout/Task/kill switch/authorization; не путать docs-only main SHA с production SHA. | **Ожидает** |
+| **3.6** | После **отдельного разрешения на торговый запуск:** Task Running, kill switch ARMED, HEALTHY, reconciliation PASS, entry gate OPEN и реальная возможность автоматических входов **только по сигналам** замороженного T3/H1. Никаких принудительных сделок для статуса запуска. | **Ожидает** |
+
+**Ответственные:** агент — проверка PR, GitHub/документов и безопасные операторские сценарии; оператор Intel — явное разрешение и выполнение production-команд. **Готовность задачи 3:** включённый, здоровый и сверенный автоматический робот с разрешённой реальной торговлей FINAM. Не требуется искусственно получать сигнал/сделку в тот же день.
+
+### Границы и фактический checkpoint (14.10.2026)
+
+- **Следующий шаг ТОЛЬКО 1.2. После 1.2 — 1.3 → 1.4 → 1.5 → задача 2 → задача 3.** Не добавлять новые задачи/фазы/исследования или параллельные PR без нового согласия пользователя.
+- Сохранены результаты операторских offline-проверок 737 PASS и FINAM READONLY PASS, но ни они, ни текущие средства не доказывают реальное покрытие SLTP на 1→2.
+- Последняя физическая информация Intel: production commit `184e8c2b8fa092a606249ff293a4f507160bff29`, Task **Disabled/stopped**, switch **HALTED**, broker flat на момент двух READONLY снимков. Постоянное полномочие не было автоматически отозвано; без нового специального разрешения Task не запускать, HALTED не снимать, заявки не отправлять.
+- Этот документ — **фиксация порядка работ**, а не отдельное разрешение на кодовые изменения вне пунктов, реальные заявки, merge, миграцию, Scheduled Task или re-arm.
+- Более ранние разделы ниже — исторические сведения. Приоритет у этих ровно **трёх** задач и неизменных уже принятых производственных ограничений.
+
+---
+
+## CURRENT roadmap checkpoint — 2026-10-13 isolation PASS; real SLTP acceptance HOLD
+
+**CURRENT LIVE: STAGE8_493_PRODUCTION_TASK_ISOLATED_HALTED — 2026-10-13 Intel operator evidence.** The authorized `stage8-493-controlled-task-isolation.ps1 -execute` physically returned `ISOLATED_HALTED_PENDING_GITHUB_OPERATIONAL_SYNC`. Fresh before-stop `FINAM + SQLite + HALTED=PASS`; Task `TradingSystemLab-Stage8-Production` was **disabled before stop** with startup/auto-restart suppressed; PowerShell PID **8536**, Python root **6260**, Python child **11608** exited. Post-stop `POST_STOP_FINAM_SQLITE_LOCK_GATE=PASS`: two fresh broker READONLY account/orders flat snapshots, clean production SQLite and lock quiescent. Existing kill switch **HALTED**. No orders or rearm by this operation.
+
+**Evidence:** original Task XML backup saved outside Git in `c:\tslaudit\fill493`, operator-reported SHA-256 `2714BB09FF571EFAE748509F5D3C3BC8DD5F38460173E1A13EF5AEE752DF906E` (backup bytes and exact timestamped filename not independently fetched). Result is a time-bounded *operator-console* observation; heartbeat stops refreshing by design after isolation. The durable commit-bound production authorization record **was not revoked or rewritten**. Disabling Task and keeping HALTED do not erase existing authorization; do not start/rearm without fresh separately approved recovery.
+
+**Frozen identity unaffected:** accepted Intel code `184e8c2b8fa092a606249ff293a4f507160bff29` (PR #484), Stage5 data `50f1fd2178c18b7ab3bd969be82ad01f47a34745`, production spec `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`, `TRAIL1__N4_01__FULL__R15`, T3/H1/TRAIL1, N4 USDRUBF/CNYRUBF/GLDRUBF/IMOEXF, risk 1.5% new position / 6% nominal aggregate and frozen margin sizing. No source, strategy, risk, research, execution adapter, authorization file or production SQLite modification was made.
+
+**HARD HOLD:** Draft PR #493 (candidate STOP/TICK GRID and SLTP acceptance) is not merged/deployed. No real orders, SLTP test, V2 rearm, Task restore/restart, forced PID kills, change to `FINAM_FILL_AUTHORITY_VERIFIED=False` or stage8.11 one-contract policy without new, separate explicit authorization. Post-stop FINAM validation is **readonly** and does not grant fill-price or live-entry authority. The prior `ARMED / Running / HEALTHY` sections below are **historical**, not instructions for current LIVE. Never `git pull` the pinned Intel checkout to follow docs-only GitHub commits.
+
+**Roadmap:** The already-approved Task isolation is complete. Next remains a separately reviewed operator-only multi-fill/SLTP acceptance design (up to two contracts) and independent safety/recovery tests, not an automatically authorized trade. No new phase, optimization, parameter changes or production V2 release.
+
+
 ## 2026-10-12 CURRENT operational authority — LIVE ARMED, confirmed after re-arm
 
 **LIVE: ARMED, kill switch generation 60; Scheduled Task Running; fresh HEALTHY / reconciliation PASS; entry gate OPEN.** Production code remains exact fix `184e8c2b8fa092a606249ff293a4f507160bff29` (PR #484); Stage5 data authority `50f1fd2178c18b7ab3bd969be82ad01f47a34745`. Explicit operator-authorized `stage8_12_h1_rearm_once.ps1` returned `STAGE8_12_H1_REARM=PASS`, `REARM_COMPLETED=YES`. Re-arm did not change source, Scheduled Task, authorization or SQLite schema, and did not itself force an order.
