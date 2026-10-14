@@ -607,3 +607,47 @@ operator-only executable wiring and exact one-shot authorization for
 ENTRY/SLTP/CANCEL/EXIT. Test quantity is not blocked by the previous 11-lot
 robot reference. The order endpoint remains uninvoked; no LIVE mutation,
 production rearm, merge or deployment is authorized by this amendment.
+
+
+### 2026-10-14 reference illustration for operator decision — NOT a trade ticket
+
+Official public MOEX CNYRUBF instrument page (checked on 2026-10-14):
+last displayed trade **12.565**, price tick **0.001**, reference tick value
+**1 RUB/contract**, public LONG initial margin **1007.53 RUB** at first
+concentration level or **2616.79 RUB** with category, exchange registration
+fee **0.58 RUB/contract per transaction**. Thus illustrative LONG two-contract
+margin is **2015.06 / 5233.58 RUB**, respectively; both are **not** the
+client's real-time FINAM GO or free cash. The quote is publicly delayed,
+not a broker-executable ASK or authenticated acceptance price. Source:
+https://www.moex.com/ru/derivatives/perpetual-futures/CNYRUBF
+
+A conservative **illustration only** at reference entry 12.565 and rounded
+protective stop 12.265 (300 ticks) yields 2 x 300 x 1 = **600 RUB** nominal
+initial stop loss. If the independently authenticated worst-case combined
+entry/exit slippage allowance is 50 ticks per contract (100 RUB total)
+and the independently verified total roundtrip broker/exchange/clearing fee
+budget is at most 100 RUB, bounded scenario total = **800 RUB**, within the
+operator's **1000 RUB scenario budget**. These 50-tick/100-RUB allowances
+are proposed testing ceilings, **not observed FINAM fees/slippage**;
+gaps, broker errors and extra costs can exceed them. A different executable
+ASK requires a newly computed tick-grid stop, instrument price band check,
+scenario and fresh explicit approval receipt: do not blindly reuse 12.265.
+
+For the actual test, obtain fresh authenticated executable ASK/liquidity for
+2 contracts, the exact client LONG GO/free cash, applicable client tariff and
+round-trip all-in fees, stop acceptance rules and terminal recovery access.
+Constrain the approval receipt to that same observed entry reference, verified
+stop, quantity 2, adverse slippage/tariff cap, valid 30-minute authorization
+window, one-shot durable IDs and current physical gate. Require no active
+orders/positions and Task Disabled/HALTED immediately before ENTRY. If the
+fresh projection exceeds the fixed 1000 RUB, abort before trading. If an
+unexpected fill, partial state, reject, ACK loss or stop race appears, hold
+and use separately authorized operator-supervised terminal recovery, not a
+blind duplicate POST or concurrent stop cancellation/market flatten.
+
+**Proof boundary:** a direct 0->2 fill with 100%-SLTP ACK/GET echo is not a
+real 1->2 growth/stop-trigger test. Do not mark it PASS solely on stop
+presence; require the actual accepted physical completion evidence defined
+above, including final flatness and zero active orders. A 0->2 fill may need
+an independently authorized terminal flatten and be INCONCLUSIVE. This
+historical/prior example does not authorize real ENTRY/SLTP/CANCEL/EXIT.
