@@ -1,0 +1,16 @@
+{
+  "PR507": "MERGED",
+  "data_HEAD": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "data_status": "",
+  "last_checked_main": "57599b39ed1d7a93a84b97747388408291f30276",
+  "main": "6c853d7bd3d7d02cbef81266c4c3e6fb9c3d0838",
+  "original_checkout_HEAD": "57599b39ed1d7a93a84b97747388408291f30276",
+  "original_checkout_status": "",
+  "protected_tree_ids": {
+    "AGENTS.md": "a3aa857b98dca524ea60c24c5171f96517e046c0",
+    "IntradayLab": "3a380563cb4f5ff13f156956b0bf375a56e84850",
+    "ROADMAP.md": "94f8286109b75ddd5215eef194b6c02e3c9153c8",
+    "TradingSystemLab": "5959dce728f9a784811ff978129879d71ba2a307"
+  },
+  "scope": "additions exclusively IntradayLab/t3_m15_early_risk_protection_v1/"
+}

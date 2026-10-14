@@ -1,5 +1,14 @@
 # TradingSystemLab — Frozen Stage 7 Production Strategy Passport
 
+## LATEST LIVE operational state — 2026-10-13 Stage 8 #493 isolated HALTED
+
+**CURRENT PHYSICAL STATE 2026-10-13: STAGE8_493_PRODUCTION_TASK_ISOLATED_HALTED.** Operator's expressly authorized Intel `stage8-493-controlled-task-isolation.ps1 -execute`: `FRESH_PROCESS_SQLITE_FINAM_HALTED=PASS`; `TASK_DISABLED_RESTART_SUPPRESSED=PASS`; `TASK_STOP_COMMAND_COMPLETED=YES`; original PowerShell PID **8536**, Python service PIDs **6260** and **11608** all exited; post-stop FINAM READONLY two flat broker snapshots / SQLite / lock quiescence `POST_STOP_FINAM_SQLITE_LOCK_GATE=PASS`. Final `ISOLATED_HALTED_PENDING_GITHUB_OPERATIONAL_SYNC`, `REAL_ORDER_AUTHORIZED=NO`, `REARM_PERFORMED=NO`. Original Task XML backed up outside Git under `c:\tslaudit\fill493`, operator-reported SHA-256 `2714BB09FF571EFAE748509F5D3C3BC8DD5F38460173E1A13EF5AEE752DF906E` (bytes not independently inspected). Kill switch remains HALTED; production Task Disabled, not Running; heartbeat will become stale by design.
+
+**Frozen:** Stage 7 `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8` / `TRAIL1__N4_01__FULL__R15`, T3/H1/TRAIL1, N4 USDRUBF/CNYRUBF/GLDRUBF/IMOEXF, R15=1.5% realized equity/new position, max nominal aggregate risk 6%, margin sizing; code `184e8c2b8fa092a606249ff293a4f507160bff29`, Stage5 data `50f1fd2178c18b7ab3bd969be82ad01f47a34745` unchanged. **Existing durable authorization was NOT revoked**; Task Disabled and HALTED keep trading unavailable now but cannot substitute for future explicit restart/rearm controls. Earlier ARMED / Running sections below are historical. Draft PR #493 is unmerged, candidate V2 and real two-contract SLTP multi-fill acceptance are NOT authorized. Never start Task, force-stop processes, change SQLite, rearm, send orders or restore Task XML without fresh separate authorization. No automatic git checkout update.
+
+**Passport note:** The only change is the operational status of the existing Task, not the frozen strategy, results, portfolio or risk specification. No LIVE fill-price authority has been granted.
+
+
 ## Latest LIVE production state — 2026-10-12 11:38:23 MSK
 
 **ARMED / Running / HEALTHY / reconciliation PASS / ENTRY GATE OPEN.** Explicit operator-approved re-arm `STAGE8_12_H1_REARM=PASS`, kill switch generation **60**. Active exact production commit **`184e8c2b8fa092a606249ff293a4f507160bff29`**, from PR #484; Stage5 data `50f1fd2178c18b7ab3bd969be82ad01f47a34745`. Subsequent read-only operator check confirmed authorization status `AUTHORIZED`, `execution_authorized=True`, exact commit match between heartbeat and auth, cycle **9258**, 0 positions, 0 active protective stops and 0 unresolved intents; tasks Production `Running`, Readonly `Disabled`. No trade claim beyond snapshot. Earlier status `HALTED` generation 59 and old `4c7cd7c...` production binding are historical.

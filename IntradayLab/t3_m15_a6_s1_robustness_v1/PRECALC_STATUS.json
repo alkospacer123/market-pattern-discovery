@@ -1,0 +1,12 @@
+{
+  "tests": 38,
+  "status": "PASS",
+  "historical_calculations_performed": false,
+  "earlier_synthetic_setup_fixes": [
+    "old grid assertion adapted to unchanged single configuration",
+    "exact float test assertion replaced with tolerance",
+    "presentation numeric zero checked by value"
+  ],
+  "prior_inventories": "PASS",
+  "unchanged_engine_scalar_metric_files": "PASS"
+}

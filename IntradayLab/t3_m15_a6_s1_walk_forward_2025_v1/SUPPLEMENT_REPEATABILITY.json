@@ -1,0 +1,106 @@
+{
+  "post_run_role": "Reporting disclosures only, no trading or fitted changes; eight outputs from sealed tables",
+  "runs": [
+    {
+      "files": [
+        {
+          "bytes_identical": true,
+          "path": "DECISION_REVIEW.json",
+          "sha256": "3bd5ddfc1042642ada177e22534b3f7c9b537c42fc91d74eccf4caa94fc1c690"
+        },
+        {
+          "bytes_identical": true,
+          "path": "EXECUTION_COUNTS.csv",
+          "sha256": "fad82a88139e7b09a84fa0d6cd629585e2db9ffabecdbdd98cf7d0ced2cbf2f0"
+        },
+        {
+          "bytes_identical": true,
+          "path": "EXECUTION_COUNTS.json",
+          "sha256": "129f59080eb20f7a36a6663e675df89119ba26e979f2533b741375cf437154ff"
+        },
+        {
+          "bytes_identical": true,
+          "path": "MARKED_SUMMARY.csv",
+          "sha256": "e19270b80e67d6f03b4ad6e424b7f12d5cd4d6b0ec07d919585e562377858466"
+        },
+        {
+          "bytes_identical": true,
+          "path": "MARKED_SUMMARY.json",
+          "sha256": "6d353321e813b1afb32cf3ce575b17bfd8046f13e0ac8fb12df4937896a2d1e9"
+        },
+        {
+          "bytes_identical": true,
+          "path": "OPEN_STALENESS.csv",
+          "sha256": "23081bd79049e9b65a2d82315ffde99dc08d9c054ceda3aae5790ca199b8161d"
+        },
+        {
+          "bytes_identical": true,
+          "path": "OPEN_STALENESS.json",
+          "sha256": "78019260d7a17812857d591ca53ebe9ed971d8a3ff38f404d791c4f7b4d13ac7"
+        },
+        {
+          "bytes_identical": true,
+          "path": "REVIEW_MEMO_RU.md",
+          "sha256": "cd0e002e2a323e430329d8a93adb9ee6b16e9e1a3ad1f97e05911233d1570511"
+        }
+      ],
+      "run": "repeat_1",
+      "status": "PASS"
+    },
+    {
+      "files": [
+        {
+          "bytes_identical": true,
+          "original_sha256": "3bd5ddfc1042642ada177e22534b3f7c9b537c42fc91d74eccf4caa94fc1c690",
+          "path": "DECISION_REVIEW.json",
+          "sha256": "3bd5ddfc1042642ada177e22534b3f7c9b537c42fc91d74eccf4caa94fc1c690"
+        },
+        {
+          "bytes_identical": true,
+          "original_sha256": "fad82a88139e7b09a84fa0d6cd629585e2db9ffabecdbdd98cf7d0ced2cbf2f0",
+          "path": "EXECUTION_COUNTS.csv",
+          "sha256": "fad82a88139e7b09a84fa0d6cd629585e2db9ffabecdbdd98cf7d0ced2cbf2f0"
+        },
+        {
+          "bytes_identical": true,
+          "original_sha256": "129f59080eb20f7a36a6663e675df89119ba26e979f2533b741375cf437154ff",
+          "path": "EXECUTION_COUNTS.json",
+          "sha256": "129f59080eb20f7a36a6663e675df89119ba26e979f2533b741375cf437154ff"
+        },
+        {
+          "bytes_identical": true,
+          "original_sha256": "e19270b80e67d6f03b4ad6e424b7f12d5cd4d6b0ec07d919585e562377858466",
+          "path": "MARKED_SUMMARY.csv",
+          "sha256": "e19270b80e67d6f03b4ad6e424b7f12d5cd4d6b0ec07d919585e562377858466"
+        },
+        {
+          "bytes_identical": true,
+          "original_sha256": "6d353321e813b1afb32cf3ce575b17bfd8046f13e0ac8fb12df4937896a2d1e9",
+          "path": "MARKED_SUMMARY.json",
+          "sha256": "6d353321e813b1afb32cf3ce575b17bfd8046f13e0ac8fb12df4937896a2d1e9"
+        },
+        {
+          "bytes_identical": true,
+          "original_sha256": "23081bd79049e9b65a2d82315ffde99dc08d9c054ceda3aae5790ca199b8161d",
+          "path": "OPEN_STALENESS.csv",
+          "sha256": "23081bd79049e9b65a2d82315ffde99dc08d9c054ceda3aae5790ca199b8161d"
+        },
+        {
+          "bytes_identical": true,
+          "original_sha256": "78019260d7a17812857d591ca53ebe9ed971d8a3ff38f404d791c4f7b4d13ac7",
+          "path": "OPEN_STALENESS.json",
+          "sha256": "78019260d7a17812857d591ca53ebe9ed971d8a3ff38f404d791c4f7b4d13ac7"
+        },
+        {
+          "bytes_identical": true,
+          "original_sha256": "cd0e002e2a323e430329d8a93adb9ee6b16e9e1a3ad1f97e05911233d1570511",
+          "path": "REVIEW_MEMO_RU.md",
+          "sha256": "cd0e002e2a323e430329d8a93adb9ee6b16e9e1a3ad1f97e05911233d1570511"
+        }
+      ],
+      "run": "repeat_2",
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS"
+}

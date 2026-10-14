@@ -1,0 +1,19 @@
+{
+  "human_tables": 41,
+  "independent_scalar_CSV_audit_required": true,
+  "numeric_cells_checked": 3690,
+  "source_cells_checked": 5405,
+  "status": "PASS",
+  "table_sources": [
+    "causal_cuts.csv",
+    "entry_feature_distributions.csv",
+    "entry_quality.csv",
+    "historical_A6.csv",
+    "market_regime.csv",
+    "matched_coverage_trades.csv",
+    "monthly.csv",
+    "signal_funnel.csv",
+    "trade_diagnostics.csv",
+    "yearly.csv"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "absolute_tolerance": 1e-08,
+  "bars": 112758,
+  "differences": 0,
+  "fields_compared": 2142406,
+  "max_numeric_delta": 4.440892098500626e-16,
+  "status": "PASS",
+  "tables": [
+    {
+      "actual_rows": 33488,
+      "fields": 636272,
+      "reference_rows": 33488,
+      "table": "USDRUBF_FEATURES"
+    },
+    {
+      "actual_rows": 33231,
+      "fields": 631389,
+      "reference_rows": 33231,
+      "table": "CNYRUBF_FEATURES"
+    },
+    {
+      "actual_rows": 25848,
+      "fields": 491112,
+      "reference_rows": 25848,
+      "table": "GLDRUBF_FEATURES"
+    },
+    {
+      "actual_rows": 20191,
+      "fields": 383629,
+      "reference_rows": 20191,
+      "table": "IMOEXF_FEATURES"
+    }
+  ]
+}

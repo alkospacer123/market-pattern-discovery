@@ -1,0 +1,101 @@
+{
+  "OHLC_2025_plus_read_or_parsed": false,
+  "base_main": "57599b39ed1d7a93a84b97747388408291f30276",
+  "code_spec_sha256": {
+    ".gitignore": "32dae3052f331ee34d628ef535709b301259a45df7c7522c4d35dcf49873f00b",
+    "PROTECTED_SHA256.json": "91d0b86ac3c82da97d7cfe61c897e833678e1d91bfacbf25b6e2c685c47d28eb",
+    "PROTOCOL.md": "0fd566bad24a79aa19b01b3b49db920929068b1c7aa1b6e1079ce3b438e89c19",
+    "PR_CONTEXT.json": "49646566fa5aaa88fcef2f7149a98e28e44348c31e8ef4975397fbce56bab119",
+    "SOURCE_ORIGIN.json": "f44add95edd04abf7f3ee50a9c44d00897e4151e66740f1866155ca657d6b08c",
+    "SPEC.json": "b62bd9639c26dd9f43a2506808f1dc394b133f2933cdfde6a437f6c60fbd2358",
+    "audit.py": "49450bda5b56b97f9a4d13584df6652fe21e8b205541171ed83c2220bff642b5",
+    "common.py": "f8883acf638ae23235d8285d32b2d929770922983881f040068743b9564adeba",
+    "control.py": "e3d34408be38e0a8b5a87f36338d7513da8049de4c7375fa25dbf96d483346fa",
+    "diagnostics.py": "3123f930cd0bffca63c73933ae390f3837b2b7dd5108f48b2da225df4db95a7c",
+    "engine.py": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+    "primary_metrics.py": "24f5d9c9750c03f79e1dd028d132bb42ea6eba7e8df3041fe64250486327a761",
+    "requirements.txt": "6979eeaed30ec7f45ff725f33240136e49c396fdf8a5ef12964fb2960c8a5d1e",
+    "run.py": "72ac6dd69352596d081003743ba4063167204510b9a6337c53ccdecc63bc8648",
+    "run_control.py": "fe034b941a22a429680bd0931b3e81c68d3713dad84f9524cb49cffbd90ea460",
+    "scalar.py": "fc022325d9ec9539006c3b1882c975556c6624f8e0beddbb9af3b73d0b6a5739",
+    "scalar_diagnostics.py": "d1cdce486060fd3e880aa08ae24d8f89261420d307db9b91bf24b1bfdb1ce0ca",
+    "scalar_metrics.py": "52fa059e08f0eabff65a8969ffa5adb9a24f2d8d8f447ba91e01343d96fa9a4f",
+    "test_diagnostics.py": "d500fb8e2672d97c06d6c8a72bf8ead8209a9387f96f95046189d71b4cc071eb",
+    "test_execution.py": "6ff3cf3a3896be98f2cc111a80da41c4966302ea3a861ee2213f38c0c912cf33"
+  },
+  "configuration": {
+    "S1_activation_initial_R": 1.0,
+    "adx_period": 14,
+    "adx_threshold": 20,
+    "atr_average_period": 20,
+    "atr_period": 14,
+    "breakout_period": 20,
+    "ema_period": 75,
+    "slope_lookback": 5,
+    "stop_atr": 2.0,
+    "trail_atr": 3.75
+  },
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "filter_replays": 0,
+  "freeze_commit": "40f938734aff22d3b71ec829b9aba7fad4e624d6",
+  "full_file_hashes": "opaque bytes only",
+  "labels": "GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY",
+  "new_strategies": 0,
+  "raw_quotes_copied": false,
+  "runtime": {
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "python": "3.12.14"
+  },
+  "sources": [
+    {
+      "first_close": "2023-01-03T09:15:00+03:00",
+      "first_open": "2023-01-03T09:00:00+03:00",
+      "full_sha256": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+      "git_blob_sha": "6d4f7691c1c6bfbad59b62a6f5d613a4ed1e984e",
+      "historical_prefix_sha256": "03ca797870de164d738da97094013def88583892f54278d362337d22ce0a532e",
+      "instrument": "USDRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/USDRUBF/USDRUBF_M15.csv",
+      "used_candles": 29890
+    },
+    {
+      "first_close": "2023-01-03T09:15:00+03:00",
+      "first_open": "2023-01-03T09:00:00+03:00",
+      "full_sha256": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+      "git_blob_sha": "a5ff61bbdd9bb6659a0f4fea7141b04b5e8bc35e",
+      "historical_prefix_sha256": "41f4f29f4b6ddefbbbc8aad44f91a0f9cd689536ecabeb1c09f34936a004fdbc",
+      "instrument": "CNYRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M15.csv",
+      "used_candles": 29633
+    },
+    {
+      "first_close": "2023-07-11T10:15:00+03:00",
+      "first_open": "2023-07-11T10:00:00+03:00",
+      "full_sha256": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+      "git_blob_sha": "726c9242a025e75de4d0e93a2c215cc2778b9a9a",
+      "historical_prefix_sha256": "86635d2fc733fa47db171326200ac4b09bdcc7f262297490274c16d5e708899f",
+      "instrument": "GLDRUBF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M15.csv",
+      "used_candles": 22189
+    },
+    {
+      "first_close": "2023-11-14T10:15:00+03:00",
+      "first_open": "2023-11-14T10:00:00+03:00",
+      "full_sha256": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773",
+      "git_blob_sha": "23d8e02920684a1a55e50b222271faaa81be5120",
+      "historical_prefix_sha256": "57bd34a441960d9c488daf93d9e295573587960c100e156eb241188ae7440f38",
+      "instrument": "IMOEXF",
+      "last_close": "2024-12-31T00:00:00+03:00",
+      "last_open": "2024-12-30T23:45:00+03:00",
+      "path": "forever/IMOEXF/IMOEXF_M15.csv",
+      "used_candles": 16593
+    }
+  ],
+  "years": "DEVELOPMENT_EXPOSED"
+}

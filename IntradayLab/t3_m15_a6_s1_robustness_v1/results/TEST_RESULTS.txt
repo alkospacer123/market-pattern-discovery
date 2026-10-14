@@ -1,0 +1,43 @@
+test_2025_replay_forbidden (test_execution.Causal.test_2025_replay_forbidden) ... ok
+test_a6_completed_signal_context_only (test_execution.Causal.test_a6_completed_signal_context_only) ... ok
+test_a6_has_no_t1_hour_restriction (test_execution.Causal.test_a6_has_no_t1_hour_restriction) ... ok
+test_a6_strict_equality_rejects_both_sides (test_execution.Causal.test_a6_strict_equality_rejects_both_sides) ... ok
+test_adverse_open_gap_later_both_sides (test_execution.Causal.test_adverse_open_gap_later_both_sides) ... ok
+test_all_parameters_and_original_engines_identical (test_execution.Causal.test_all_parameters_and_original_engines_identical) ... ok
+test_each_trail_full_causal_ratchet_both_sides (test_execution.Causal.test_each_trail_full_causal_ratchet_both_sides) ... ok
+test_entry_uses_next_open_and_signal_atr_both_sides (test_execution.Causal.test_entry_uses_next_open_and_signal_atr_both_sides) ... ok
+test_execution_future_extrema_cannot_change_entry (test_execution.Causal.test_execution_future_extrema_cannot_change_entry) ... ok
+test_exit_candle_cannot_activate_s1 (test_execution.Causal.test_exit_candle_cannot_activate_s1) ... ok
+test_feature_prefix_and_H1_causality (test_execution.Causal.test_feature_prefix_and_H1_causality) ... ok
+test_gapped_h1_block_skipped_not_repacked (test_execution.Causal.test_gapped_h1_block_skipped_not_repacked) ... ok
+test_gaps_skip_instead_of_wait (test_execution.Causal.test_gaps_skip_instead_of_wait) ... ok
+test_metrics_year_denominator_and_loss_streak (test_execution.Causal.test_metrics_year_denominator_and_loss_streak) ... ok
+test_no_s1_activation_from_signal_extreme (test_execution.Causal.test_no_s1_activation_from_signal_extreme) ... ok
+test_occupied_signals_not_queued (test_execution.Causal.test_occupied_signals_not_queued) ... ok
+test_pending_across_2023_2024_adjacent (test_execution.Causal.test_pending_across_2023_2024_adjacent) ... ok
+test_pending_last_signal (test_execution.Causal.test_pending_last_signal) ... ok
+test_pending_year_gap_is_skipped (test_execution.Causal.test_pending_year_gap_is_skipped) ... ok
+test_s1_survived_execution_bar_activation_next_bar_stop (test_execution.Causal.test_s1_survived_execution_bar_activation_next_bar_stop) ... ok
+test_s1_threshold_equality_and_ratchet (test_execution.Causal.test_s1_threshold_equality_and_ratchet) ... ok
+test_same_close_reentry_after_execution_stop (test_execution.Causal.test_same_close_reentry_after_execution_stop) ... ok
+test_short_occupancy_and_same_close_reentry (test_execution.Causal.test_short_occupancy_and_same_close_reentry) ... ok
+test_signal_close_control_excludes_signal_extrema (test_execution.Causal.test_signal_close_control_excludes_signal_extrema) ... ok
+test_sparse_csv_blank_schema_equivalence (test_execution.Causal.test_sparse_csv_blank_schema_equivalence) ... ok
+test_stop_on_execution_bar_before_activation_both_sides (test_execution.Causal.test_stop_on_execution_bar_before_activation_both_sides) ... ok
+test_timestamp_first_future_poison (test_execution.Causal.test_timestamp_first_future_poison) ... ok
+test_cross_instrument_state_isolation (test_diagnostics.Diagnostics.test_cross_instrument_state_isolation) ... ok
+test_diagnostics_do_not_mutate_input_or_OPEN (test_diagnostics.Diagnostics.test_diagnostics_do_not_mutate_input_or_OPEN) ... ok
+test_fixed_candidate_budget (test_diagnostics.Diagnostics.test_fixed_candidate_budget) ... ok
+test_independent_accounting_hand_drawdown_and_runs (test_diagnostics.Diagnostics.test_independent_accounting_hand_drawdown_and_runs) ... ok
+test_leave_out_additivity_and_calendar (test_diagnostics.Diagnostics.test_leave_out_additivity_and_calendar) ... ok
+test_month_removal_preserves_original_denominator (test_diagnostics.Diagnostics.test_month_removal_preserves_original_denominator) ... ok
+test_no_coverage_distinct_from_available_zero (test_diagnostics.Diagnostics.test_no_coverage_distinct_from_available_zero) ... ok
+test_november2023_noop_and_2024_excluded (test_diagnostics.Diagnostics.test_november2023_noop_and_2024_excluded) ... ok
+test_presentation_matches_independent_small_case (test_diagnostics.Diagnostics.test_presentation_matches_independent_small_case) ... ok
+test_stress_reclassifies_small_winner_and_zero (test_diagnostics.Diagnostics.test_stress_reclassifies_small_winner_and_zero) ... ok
+test_winner_ties_deterministic_and_only_positive (test_diagnostics.Diagnostics.test_winner_ties_deterministic_and_only_positive) ... ok
+
+----------------------------------------------------------------------
+Ran 38 tests (elapsed omitted)
+
+OK

@@ -1,0 +1,5 @@
+{"fresh_audit_stage": "CONTROL", "fields": 2051068, "differences": 0}
+{"fresh_audit_stage": "W1", "fields": 4921277, "differences": 0}
+{"fresh_audit_stage": "W2", "fields": 8573909, "differences": 0}
+{"fresh_audit_stage": "W3", "fields": 13182444, "differences": 0}
+{"fresh_audit_stage": "W4", "fields": 18772861, "differences": 0}

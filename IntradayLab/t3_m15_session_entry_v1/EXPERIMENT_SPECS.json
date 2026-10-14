@@ -1,0 +1,70 @@
+{
+  "STOP": "one Draft PR, no merge/auto-merge",
+  "base_main": "4b415f95576e00480e344a1da498c35660eef931",
+  "calendar_months": "all 24; pre-start NO_COVERAGE not positive; separate coverage denominator",
+  "closed_R_drawdown_order": [
+    "exit_time",
+    "instrument",
+    "trade_id"
+  ],
+  "configurations": {
+    "BASELINE": {
+      "adx_period": 14,
+      "adx_threshold": 20,
+      "atr_average_period": 20,
+      "atr_period": 14,
+      "breakout_period": 20,
+      "ema_period": 75,
+      "slope_lookback": 5,
+      "stop_atr": 2.0,
+      "trail_atr": 3.0
+    },
+    "OPTIMIZED": {
+      "adx_period": 14,
+      "adx_threshold": 20,
+      "atr_average_period": 20,
+      "atr_period": 14,
+      "breakout_period": 20,
+      "ema_period": 75,
+      "slope_lookback": 5,
+      "stop_atr": 2.0,
+      "trail_atr": 3.5
+    }
+  },
+  "costs": 0,
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "exit_logic_unchanged": true,
+  "expected_main_after_498": "4b415f95576e00480e344a1da498c35660eef931",
+  "external_audit": "PENDING",
+  "future_OHLC_parsed": false,
+  "historical_Close_fill_unverified": true,
+  "historical_window": "2023-01-01 <= completed Close < 2025-01-01 MSK",
+  "labels": [
+    "GROSS_ONLY",
+    "COSTS_DEFERRED",
+    "NOT_LIVE_READY"
+  ],
+  "no_combinations": true,
+  "only_fixed_mechanisms": true,
+  "overnight_gap_diagnostic": "observed delta >15min; local source Open dates differ (Close minus 15min)",
+  "parameter_search": false,
+  "rules": {
+    "CONTROL": "original no entry restriction",
+    "T1": {
+      "exclusive_end": "18:00",
+      "inclusive_start": "10:00",
+      "name": "CORE_HOURS_ENTRY",
+      "time": "signal Close Europe/Moscow"
+    },
+    "T2": {
+      "delta_minutes_strictly_greater_than": 15,
+      "missing_previous": "NO_PREVIOUS_OBSERVED_CLOSE",
+      "name": "SKIP_FIRST_BAR_AFTER_GAP",
+      "only_first_after_gap": true,
+      "previous": "previous actually observed completed close, not previous signal"
+    }
+  },
+  "terminal_OPEN_excluded": true,
+  "year_2023_2024": "DEVELOPMENT_EXPOSED",
+  "year_classification": "original exit-bar Close in MSK"
+}

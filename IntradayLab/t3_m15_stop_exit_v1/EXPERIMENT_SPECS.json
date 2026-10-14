@@ -1,0 +1,94 @@
+{
+  "analysis_only": {
+    "calendar": "By exit label in Moscow, include every available calendar month for each instrument and pooled scope; zero months included. R sums are bookkeeping, not real portfolio returns.",
+    "concentration": "Top 5/10 positive Gross R divided by total positive Gross R, plus removal sensitivity.",
+    "drawdown": "Closed-trade cumulative R, sorted exit_time/instrument/trade_id with initial equity zero. No capital allocation or mark-to-market portfolio model.",
+    "historical_A6_A7": "Copy frozen #495 reports as labelled immutable historical benchmarks; never replay or combine.",
+    "losing_streak": "Consecutive gross_R<0 CLOSED trades in deterministic exit_time/instrument/trade_id order; zero/win resets; also losing-month streak.",
+    "loss_changes": "All original negative trades: eliminated entries, improved/reversed, unchanged, worsened, terminal; signed matched R changes plus new entries. No outcome input in strategy.",
+    "november": "Report 2024, November 2024, and 2024 excluding November using the same replay; removal is post-hoc sensitivity only.",
+    "trend_categories": "At exact original entry identity: fully preserved R >= original R-1e-8; reduced matched R below original; lost entry absent; terminal OPEN unresolved. Also count original >=2R turned nonpositive and reduced below2R.",
+    "trend_winner": "Original closed gross_R >= 2R; fixed diagnostic definition, never an entry/exit input.",
+    "winner_matching": "Match version/instrument/direction/exact entry_time. Report skipped, changed, open and retained, and newly introduced entry losses separately. Does not claim causal counterfactual equivalence."
+  },
+  "commits_after_expected_main": [],
+  "configurations": {
+    "BASELINE": {
+      "adx_period": 14,
+      "adx_threshold": 20,
+      "atr_average_period": 20,
+      "atr_period": 14,
+      "breakout_period": 20,
+      "ema_period": 75,
+      "slope_lookback": 5,
+      "stop_atr": 2.0,
+      "trail_atr": 3.0
+    },
+    "OPTIMIZED": {
+      "adx_period": 14,
+      "adx_threshold": 20,
+      "atr_average_period": 20,
+      "atr_period": 14,
+      "breakout_period": 20,
+      "ema_period": 75,
+      "slope_lookback": 5,
+      "stop_atr": 2.0,
+      "trail_atr": 3.5
+    }
+  },
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "execution": {
+    "activation": "Threshold evaluated only on survived candles. Persistent once activated. A new Stop has no effect on trigger bar, including ambiguous intrabar return through that new Stop.",
+    "costs": "Zero deducted expenses; Gross R = direction*(exit-entry)/abs(entry-initial_stop). No C1, fee, slippage, or funding calculation.",
+    "entry": "Original signal Close is a historical oracle, not verified executable Close fill.",
+    "h1": "Original daily ordinal blocks of four consecutive 15-minute closes. Incomplete or gapped blocks skipped without repacking; state indicators explicitly cross days.",
+    "labels": "Protective exits retain historical candle Close timestamp, with actual Open/Close endpoints and gap flag; exact intrabar time unknown.",
+    "risk": "Immutable abs(entry_price-initial_stop), not current Stop distance. SHORT fully mirrored. Threshold equality passes; no floating tolerance for activation.",
+    "sequence": "Before accessing current favorable extreme for ratchet/activation, check pre-existing Stop at Open and then intrabar adverse extreme. On hit fill adverse Open or Stop, never update threshold/extrema/Stop using that exit candle. Next Close may accept original same-close re-entry.",
+    "sessions": "No forced flat or reset: original recursive indicators and open position, initial risk, extrema and activation cross sessions/days/years. First next actual observed Open, no synthetic candles.",
+    "terminal": "No forced liquidation. Terminal OPEN excluded from closed PF/R; report separately and by entry year, not annual snapshots.",
+    "trailing": "Monotone original continuous-price ratchet with current completed-bar ATR, favorable extreme seeded at entry Close; signal-candle High/Low excluded. Newly proposed Stop may lie beyond current Close; acts next candle and adverse Open honored."
+  },
+  "expected_main_commit": "bc4f95f48b332f43d79ed10f26fc03c5ad01cd97",
+  "experiments": {
+    "CONTROL": {
+      "name": "ORIGINAL_ATR_TRAILING",
+      "rule": "Original initial Stop 2 ATR and trailing 3.0 BASELINE / 3.5 OPTIMIZED."
+    },
+    "S1": {
+      "name": "TRAIL_AFTER_1R",
+      "rule": "Hold initial Stop unchanged until favorable extreme on a completed survived post-entry M15 reaches >=1 initial R. Thereafter permit original ATR trailing using all survived favorable extrema since entry. Ratchet active only next observed candle."
+    },
+    "S2": {
+      "name": "BREAK_EVEN_1R",
+      "rule": "Keep original ATR trailing. After completed survived post-entry M15 confirms >=1 initial R, tighten Stop at least to entry. Never loosen. Active only next observed candle."
+    },
+    "S3": {
+      "name": "LOCK_1R_AFTER_2R",
+      "rule": "Keep original ATR trailing. After completed survived post-entry M15 confirms >=2 initial R, tighten Stop at least to entry plus direction*1 initial R. Never loosen. Active only next observed candle."
+    }
+  },
+  "labels": [
+    "COSTS_DEFERRED",
+    "GROSS_ONLY",
+    "NOT_LIVE_READY"
+  ],
+  "main_commit": "bc4f95f48b332f43d79ed10f26fc03c5ad01cd97",
+  "objective": "Gross PF>=2 on meaningful ALL_FOUR full period, separate positive weak-2024 evidence, and review of 2023 R, major winners, frequency and month regularity. No numeric search or respecification after outcomes; report failure honestly.",
+  "prohibited": "S combinations, A6/A7 combinations, new thresholds, numeric search, Optimization, Robustness, WF, TRUE OOS, LIVE, 2025+ OHLC ingestion or checking, 2024 independent-WF claim.",
+  "quality_gates": [
+    "record reconciliation against #490 and #495: 1442 CLOSED + 2 terminal OPEN",
+    "LONG/SHORT causal unit fixtures before outcome computation",
+    "independent standard-library raw-prefix features and full replay; all trades, stops, occupancy, terminal states and report rows",
+    "two fresh runs, all generated bytes identical"
+  ],
+  "scope": "Only new IntradayLab/t3_m15_stop_exit_v1/; immutable original research, ROADMAP, TradingSystemLab, data and production. Draft PR; STOP external review, no merge/auto-merge.",
+  "specification_version": "t3_m15_stop_exit_v1_preregistered_before_all_replay_results",
+  "symbols": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "window": "2023-01-01 <= M15 close < 2025-01-01 Europe/Moscow; actual late starts retained"
+}

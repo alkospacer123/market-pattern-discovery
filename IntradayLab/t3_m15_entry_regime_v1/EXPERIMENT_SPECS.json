@@ -1,0 +1,37 @@
+{
+  "specification_version": "entry_regime_v1_frozen_before_variant_results",
+  "main_commit": "758a0ac1deda8bfa7aa1bc99d8a97a33a9357f02",
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "window": "2023-01-01 <= M15 close < 2025-01-01 Europe/Moscow; actual late starts retained",
+  "configurations": {
+    "BASELINE": {"ema_period":75,"slope_lookback":5,"adx_period":14,"adx_threshold":20,"atr_period":14,"atr_average_period":20,"breakout_period":20,"stop_atr":2.0,"trail_atr":3.0},
+    "OPTIMIZED": {"ema_period":75,"slope_lookback":5,"adx_period":14,"adx_threshold":20,"atr_period":14,"atr_average_period":20,"breakout_period":20,"stop_atr":2.0,"trail_atr":3.5}
+  },
+  "experiments": {
+    "A1": {"name":"ONE_BAR_EXIT","rule":"On the first observed complete post-entry M15 only, if LONG Close <= original PriorHigh or SHORT Close >= original PriorLow, queue exit at next observed M15 Open if still open. No later A1 check."},
+    "A2": {"name":"TWO_BAR_EXIT","window_bars":4,"window_source":"User clarification before any variant results, 2026-10-12","rule":"Only among the first FOUR observed complete post-entry M15 candles, two successive closes on the wrong side of original breakout level queue exit at next observed Open. A correct-side close resets the count. After candle four disable the check permanently, including an uncompleted run. A trigger on candle four executes at candle five Open. Never combined with A1; no window search."},
+    "A3": {"name":"BREAKOUT_BODY_QUALITY","rule":"Permit raw T3 signal only if range > 0, absolute body >= 0.50 * range, and signal * (Close - Open) > 0. Equality at 50% passes; doji fails."},
+    "A4": {"name":"H1_ADX_RISING","rule":"Latest completed original H1 ADX > immediately preceding completed original H1 ADX. Strict inequality. Missing predecessor fails."},
+    "A5": {"name":"H1_EMA_SLOPE_STRENGTHENING","rule":"LONG: current positive H1 slope > previous completed H1 slope. SHORT: abs(current negative H1 slope) > abs(previous completed H1 slope). Original T3 supplies current sign. Missing predecessor fails."},
+    "A6": {"name":"H1_ATR_EXPANSION","rule":"Latest completed H1 ATR/ATRMean > previous completed H1 ATR/ATRMean. Original ATR > ATRMean still applies. Strict inequality; missing predecessor fails."},
+    "A7": {"name":"M15_ATR_RISING","rule":"ATR of completed M15 signal candle > ATR of immediately preceding observed completed M15 candle. Strict inequality; missing predecessor fails."}
+  },
+  "execution": {
+    "entry":"Original signal Close is a historical oracle, not verified executable Close fill.",
+    "h1":"Original daily ordinal blocks of four consecutive 15-minute closes. Incomplete or gapped blocks skipped without repacking; state indicators explicitly cross days.",
+    "stop":"Original continuous initial Stop and trailing, checked before current-bar trailing, new ratchet active next observed bar. No tick-grid correction.",
+    "pending_exit":"At next observed bar Open: adverse protective Stop gap has priority, otherwise queued market exit fills at that Open before any later intrabar event. Never inspect future intrabar Stop to choose a better fill.",
+    "gaps":"First available real next Open, including session gaps. Two consecutive A2 observations may cross a gap; no synthetic candle, reset, or price. No terminal forced liquidation.",
+    "labels":"Original Stop exits preserve historical exit_time = candle close label; exact intrabar time unknown. New exits use known next Open time, with both bar endpoints recorded. Original same-close re-entry retained.",
+    "costs":"Zero deducted expenses; Gross R = direction*(exit-entry)/abs(entry-initial_stop). No C1, fee, slippage, or funding calculation."
+  },
+  "analysis_only": {
+    "trend_winner":"Original closed gross_R >= 2R; fixed diagnostic definition, never an entry/exit input.",
+    "winner_matching":"Match version/instrument/direction/exact entry_time. Report skipped, changed, open and retained, and newly introduced entry losses separately. Does not claim causal counterfactual equivalence.",
+    "concentration":"Top 5/10 positive Gross R divided by total positive Gross R, plus removal sensitivity.",
+    "calendar":"By exit label in Moscow, include every available calendar month for each instrument and pooled scope; zero months included. R sums are bookkeeping, not real portfolio returns.",
+    "drawdown":"Closed-trade cumulative R, sorted exit_time/instrument/trade_id with initial equity zero. No capital allocation or mark-to-market portfolio model.",
+    "november":"Report 2024, November 2024, and 2024 excluding November using the same replay; removal is post-hoc sensitivity only."
+  },
+  "prohibited":"Combinations, numeric search, Optimization, 2025+ OHLC, new Robustness/WF/TRUE OOS, production, broker endpoints, merge or auto-merge."
+}

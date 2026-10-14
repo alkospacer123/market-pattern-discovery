@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "all_first_primary_artifacts_byte_unchanged": true,
+  "files": 39,
+  "frozen_trading_analytic_code_spec_unchanged": true,
+  "revision_files_match_Git_blobs": true,
+  "auditor_revision_only_timestamp_display": true,
+  "CONCLUSIONS_main_table_checked_against_audited_CSV": true,
+  "DECISION_annual_categories_checked": true
+}

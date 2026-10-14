@@ -1,0 +1,44 @@
+{
+  "differences": 0,
+  "fields_compared": 576492,
+  "max_numeric_delta": 0.0,
+  "status": "PASS",
+  "tables": [
+    {
+      "actual_rows": 480,
+      "fields": 23520,
+      "reference_rows": 480,
+      "table": "PR510_SCALAR_trades"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 24,
+      "reference_rows": 1,
+      "table": "PR510_SCALAR_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 12478,
+      "fields": 449208,
+      "reference_rows": 12478,
+      "table": "PR510_SCALAR_stop_decisions"
+    },
+    {
+      "actual_rows": 2017,
+      "fields": 72612,
+      "reference_rows": 2017,
+      "table": "PR510_SCALAR_entry_opportunities"
+    },
+    {
+      "actual_rows": 2370,
+      "fields": 30810,
+      "reference_rows": 2370,
+      "table": "PR510_SCALAR_observed_gaps"
+    },
+    {
+      "actual_rows": 12,
+      "fields": 312,
+      "reference_rows": 12,
+      "table": "PR510_SCALAR_PERIOD_END_OPEN_POSITIONS"
+    }
+  ]
+}

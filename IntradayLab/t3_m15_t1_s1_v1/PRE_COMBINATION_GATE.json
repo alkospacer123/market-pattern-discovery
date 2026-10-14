@@ -1,0 +1,17 @@
+{
+  "2023_2024": "DEVELOPMENT_EXPOSED",
+  "all_common_gross_fields_tolerance": 1e-08,
+  "benchmark_SHA256": "65ec4f70f17efddad81839aa7cc6f2f8d5664d952642482ba39fe93b105b3f02",
+  "benchmarks": "PASS",
+  "causal_test_count": 40,
+  "causal_tests": "PASS",
+  "combination_results_absent": true,
+  "first_gate": "PASS",
+  "first_gate_SHA256": "db113c8e170d0b9b1833120741dbd8816a8e03b076970cd9310ac2b33f611fbb",
+  "freeze_commit": "4012bc519bce58ca08314663a149204a0ad383a5",
+  "independent_benchmark_SHA256": "d86885c65650178792e0c89c0f76245efeaba1687c2422fc16302b12ebb0ac47",
+  "independent_benchmarks": "PASS",
+  "labels": "GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY",
+  "status": "PASS",
+  "tests_SHA256": "c2f3f5982fd3fe639bbd66616ef4b96f55e13d0a538dec4263417da68239aab1"
+}

@@ -1,0 +1,10 @@
+PRIMARY_RUN
+{"closed_total": 5789, "configuration_count": 2, "control": "PASS", "open_total": 8, "rules": 4}
+
+AUDIT_RUN
+{"status": "PASS", "closed_records_verified": 5789, "stop_decisions_verified": 109941, "entry_opportunities_verified": 16136, "report_rows_verified": 2888}
+
+REPEAT_RUN
+{"closed_total": 5789, "configuration_count": 2, "control": "PASS", "open_total": 8, "rules": 4}
+{"closed_total": 5789, "configuration_count": 2, "control": "PASS", "open_total": 8, "rules": 4}
+{"repeatability": "PASS", "repeats": 2, "artifact_hashes": 63, "scope": "PASS"}

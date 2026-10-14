@@ -1,0 +1,90 @@
+{
+  "H1_rows": 22489,
+  "breakouts": 9282,
+  "closed": 545,
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "discrepancies": 0,
+  "fields_compared": 1102167,
+  "future_OHLC_parsed": false,
+  "human_independent_review": "PENDING",
+  "implementation": "stdlib scalar #500 features/replay + separately written scalar aggregation; no primary diagnostic imports",
+  "labels": "GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY",
+  "maximum_numeric_delta": 5.684341886080802e-14,
+  "numeric_tolerance": 1e-08,
+  "status": "PASS",
+  "tables": [
+    {
+      "actual_rows": 545,
+      "fields": 25070,
+      "reference_rows": 545,
+      "table": "trades.csv"
+    },
+    {
+      "actual_rows": 545,
+      "fields": 32155,
+      "reference_rows": 545,
+      "table": "trade_diagnostics.csv"
+    },
+    {
+      "actual_rows": 12792,
+      "fields": 447720,
+      "reference_rows": 12792,
+      "table": "stop_decisions.csv"
+    },
+    {
+      "actual_rows": 2017,
+      "fields": 46391,
+      "reference_rows": 2017,
+      "table": "entry_opportunities.csv"
+    },
+    {
+      "actual_rows": 2370,
+      "fields": 28440,
+      "reference_rows": 2370,
+      "table": "observed_gaps.csv"
+    },
+    {
+      "actual_rows": 22489,
+      "fields": 314846,
+      "reference_rows": 22489,
+      "table": "h1_features.csv"
+    },
+    {
+      "actual_rows": 9282,
+      "fields": 120666,
+      "reference_rows": 9282,
+      "table": "breakout_diagnostics.csv"
+    },
+    {
+      "actual_rows": 8,
+      "fields": 96,
+      "reference_rows": 8,
+      "table": "coverage.csv"
+    },
+    {
+      "actual_rows": 400,
+      "fields": 800,
+      "reference_rows": 400,
+      "table": "matched_dates.csv"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 21,
+      "reference_rows": 1,
+      "table": "OPEN_POSITIONS.json"
+    },
+    {
+      "actual_rows": 10,
+      "fields": 230,
+      "reference_rows": 10,
+      "table": "PERIOD_END_OPEN_POSITIONS.json"
+    },
+    {
+      "actual_rows": 77,
+      "fields": 4543,
+      "reference_rows": 77,
+      "table": "large_winners"
+    }
+  ],
+  "terminal_OPEN": 1
+}

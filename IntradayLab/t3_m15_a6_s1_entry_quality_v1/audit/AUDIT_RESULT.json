@@ -1,0 +1,205 @@
+{
+  "CLOSED": 480,
+  "absolute_tolerance": 1e-08,
+  "differences": 0,
+  "fields_compared": 1339596,
+  "independence": "separate scalar source recursions, position machine, feature enrichment, windows, quantiles and aggregations; primary diagnostics/engine/metrics not imported; common metadata/serialization/comparison shared; same author; human review pending",
+  "max_numeric_delta": 1.3073986337985843e-11,
+  "status": "PASS",
+  "stop_decisions": 12478,
+  "tables": [
+    {
+      "actual_rows": 480,
+      "fields": 23520,
+      "reference_rows": 480,
+      "table": "REPLAY_trades"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 24,
+      "reference_rows": 1,
+      "table": "REPLAY_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 12478,
+      "fields": 449208,
+      "reference_rows": 12478,
+      "table": "REPLAY_stop_decisions"
+    },
+    {
+      "actual_rows": 2017,
+      "fields": 72612,
+      "reference_rows": 2017,
+      "table": "REPLAY_entry_opportunities"
+    },
+    {
+      "actual_rows": 2370,
+      "fields": 30810,
+      "reference_rows": 2370,
+      "table": "REPLAY_observed_gaps"
+    },
+    {
+      "actual_rows": 12,
+      "fields": 312,
+      "reference_rows": 12,
+      "table": "REPLAY_PERIOD_END_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 2017,
+      "fields": 90765,
+      "reference_rows": 2017,
+      "table": "CSV_signal_features"
+    },
+    {
+      "actual_rows": 2017,
+      "fields": 90765,
+      "reference_rows": 2017,
+      "table": "JSON_signal_features"
+    },
+    {
+      "actual_rows": 480,
+      "fields": 42720,
+      "reference_rows": 480,
+      "table": "CSV_trade_features"
+    },
+    {
+      "actual_rows": 480,
+      "fields": 42720,
+      "reference_rows": 480,
+      "table": "JSON_trade_features"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 63,
+      "reference_rows": 1,
+      "table": "CSV_open_features"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 63,
+      "reference_rows": 1,
+      "table": "JSON_open_features"
+    },
+    {
+      "actual_rows": 54,
+      "fields": 3942,
+      "reference_rows": 54,
+      "table": "CSV_summary"
+    },
+    {
+      "actual_rows": 54,
+      "fields": 3942,
+      "reference_rows": 54,
+      "table": "JSON_summary"
+    },
+    {
+      "actual_rows": 432,
+      "fields": 31536,
+      "reference_rows": 432,
+      "table": "CSV_monthly"
+    },
+    {
+      "actual_rows": 432,
+      "fields": 31536,
+      "reference_rows": 432,
+      "table": "JSON_monthly"
+    },
+    {
+      "actual_rows": 54,
+      "fields": 3888,
+      "reference_rows": 54,
+      "table": "CSV_entry_cohorts"
+    },
+    {
+      "actual_rows": 54,
+      "fields": 3888,
+      "reference_rows": 54,
+      "table": "JSON_entry_cohorts"
+    },
+    {
+      "actual_rows": 1674,
+      "fields": 133920,
+      "reference_rows": 1674,
+      "table": "CSV_cuts"
+    },
+    {
+      "actual_rows": 1674,
+      "fields": 133920,
+      "reference_rows": 1674,
+      "table": "JSON_cuts"
+    },
+    {
+      "actual_rows": 3168,
+      "fields": 38016,
+      "reference_rows": 3168,
+      "table": "CSV_feature_distributions"
+    },
+    {
+      "actual_rows": 3168,
+      "fields": 38016,
+      "reference_rows": 3168,
+      "table": "JSON_feature_distributions"
+    },
+    {
+      "actual_rows": 2340,
+      "fields": 14040,
+      "reference_rows": 2340,
+      "table": "CSV_funnel"
+    },
+    {
+      "actual_rows": 2340,
+      "fields": 14040,
+      "reference_rows": 2340,
+      "table": "JSON_funnel"
+    },
+    {
+      "actual_rows": 639,
+      "fields": 2556,
+      "reference_rows": 639,
+      "table": "CSV_matched_dates"
+    },
+    {
+      "actual_rows": 639,
+      "fields": 2556,
+      "reference_rows": 639,
+      "table": "JSON_matched_dates"
+    },
+    {
+      "actual_rows": 24,
+      "fields": 1752,
+      "reference_rows": 24,
+      "table": "CSV_matched_cohorts"
+    },
+    {
+      "actual_rows": 24,
+      "fields": 1752,
+      "reference_rows": 24,
+      "table": "JSON_matched_cohorts"
+    },
+    {
+      "actual_rows": 83,
+      "fields": 2573,
+      "reference_rows": 83,
+      "table": "CSV_winner_entries"
+    },
+    {
+      "actual_rows": 83,
+      "fields": 2573,
+      "reference_rows": 83,
+      "table": "JSON_winner_entries"
+    },
+    {
+      "actual_rows": 216,
+      "fields": 15768,
+      "reference_rows": 216,
+      "table": "CSV_outcome_anatomy"
+    },
+    {
+      "actual_rows": 216,
+      "fields": 15768,
+      "reference_rows": 216,
+      "table": "JSON_outcome_anatomy"
+    }
+  ],
+  "terminal_OPEN": 1
+}

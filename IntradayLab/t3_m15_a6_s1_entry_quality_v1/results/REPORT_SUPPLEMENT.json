@@ -1,0 +1,262 @@
+{
+  "MFE_bands": [
+    {
+      "MFE_band": "LT_0_5",
+      "closed": 24,
+      "direction": "LONG",
+      "fraction": 0.24742268041237114,
+      "gross_R": -24.0,
+      "initial_no_s1": 24,
+      "losses": 24,
+      "year": 2023
+    },
+    {
+      "MFE_band": "0_5_TO_1",
+      "closed": 12,
+      "direction": "LONG",
+      "fraction": 0.12371134020618557,
+      "gross_R": -12.200055502948567,
+      "initial_no_s1": 12,
+      "losses": 12,
+      "year": 2023
+    },
+    {
+      "MFE_band": "1_TO_2",
+      "closed": 23,
+      "direction": "LONG",
+      "fraction": 0.23711340206185566,
+      "gross_R": -3.3757026760388524,
+      "initial_no_s1": 0,
+      "losses": 14,
+      "year": 2023
+    },
+    {
+      "MFE_band": "GE2_MFE",
+      "closed": 38,
+      "direction": "LONG",
+      "fraction": 0.3917525773195876,
+      "gross_R": 92.74079121375377,
+      "initial_no_s1": 0,
+      "losses": 2,
+      "year": 2023
+    },
+    {
+      "MFE_band": "LT_0_5",
+      "closed": 20,
+      "direction": "SHORT",
+      "fraction": 0.29411764705882354,
+      "gross_R": -20.0,
+      "initial_no_s1": 20,
+      "losses": 20,
+      "year": 2023
+    },
+    {
+      "MFE_band": "0_5_TO_1",
+      "closed": 7,
+      "direction": "SHORT",
+      "fraction": 0.10294117647058823,
+      "gross_R": -7.0,
+      "initial_no_s1": 7,
+      "losses": 7,
+      "year": 2023
+    },
+    {
+      "MFE_band": "1_TO_2",
+      "closed": 15,
+      "direction": "SHORT",
+      "fraction": 0.22058823529411764,
+      "gross_R": -3.137555803571696,
+      "initial_no_s1": 0,
+      "losses": 10,
+      "year": 2023
+    },
+    {
+      "MFE_band": "GE2_MFE",
+      "closed": 26,
+      "direction": "SHORT",
+      "fraction": 0.38235294117647056,
+      "gross_R": 67.36319514570678,
+      "initial_no_s1": 0,
+      "losses": 1,
+      "year": 2023
+    },
+    {
+      "MFE_band": "LT_0_5",
+      "closed": 51,
+      "direction": "LONG",
+      "fraction": 0.30538922155688625,
+      "gross_R": -52.04473614802304,
+      "initial_no_s1": 51,
+      "losses": 51,
+      "year": 2024
+    },
+    {
+      "MFE_band": "0_5_TO_1",
+      "closed": 16,
+      "direction": "LONG",
+      "fraction": 0.09580838323353294,
+      "gross_R": -16.0,
+      "initial_no_s1": 16,
+      "losses": 16,
+      "year": 2024
+    },
+    {
+      "MFE_band": "1_TO_2",
+      "closed": 35,
+      "direction": "LONG",
+      "fraction": 0.20958083832335328,
+      "gross_R": -2.504658521132872,
+      "initial_no_s1": 0,
+      "losses": 17,
+      "year": 2024
+    },
+    {
+      "MFE_band": "GE2_MFE",
+      "closed": 65,
+      "direction": "LONG",
+      "fraction": 0.38922155688622756,
+      "gross_R": 154.3600885344224,
+      "initial_no_s1": 0,
+      "losses": 0,
+      "year": 2024
+    },
+    {
+      "MFE_band": "LT_0_5",
+      "closed": 37,
+      "direction": "SHORT",
+      "fraction": 0.25,
+      "gross_R": -37.53277305213005,
+      "initial_no_s1": 37,
+      "losses": 37,
+      "year": 2024
+    },
+    {
+      "MFE_band": "0_5_TO_1",
+      "closed": 32,
+      "direction": "SHORT",
+      "fraction": 0.21621621621621623,
+      "gross_R": -32.0,
+      "initial_no_s1": 32,
+      "losses": 32,
+      "year": 2024
+    },
+    {
+      "MFE_band": "1_TO_2",
+      "closed": 30,
+      "direction": "SHORT",
+      "fraction": 0.20270270270270271,
+      "gross_R": -7.666352087910635,
+      "initial_no_s1": 0,
+      "losses": 22,
+      "year": 2024
+    },
+    {
+      "MFE_band": "GE2_MFE",
+      "closed": 49,
+      "direction": "SHORT",
+      "fraction": 0.3310810810810811,
+      "gross_R": 115.5204151215679,
+      "initial_no_s1": 0,
+      "losses": 2,
+      "year": 2024
+    }
+  ],
+  "extreme_ratio_SHORT": [
+    {
+      "GE2": 0,
+      "GE5": 0,
+      "MFE_GE2": 0,
+      "S1_activated": 3,
+      "closed": 6,
+      "days": 6,
+      "gross_R": -3.8438885680937256,
+      "initial_no_s1": 3,
+      "may_2024_entries": 0,
+      "months": 4,
+      "oct_2024_entries": 0,
+      "year": 2023
+    },
+    {
+      "GE2": 0,
+      "GE5": 0,
+      "MFE_GE2": 3,
+      "S1_activated": 9,
+      "closed": 11,
+      "days": 10,
+      "gross_R": -5.174528916152801,
+      "initial_no_s1": 2,
+      "may_2024_entries": 2,
+      "months": 6,
+      "oct_2024_entries": 0,
+      "year": 2024
+    }
+  ],
+  "focus_signal_cohorts": [
+    {
+      "GE2": 3,
+      "GE5": 0,
+      "closed": 27,
+      "direction": "ALL",
+      "exit_other_month": 1,
+      "failed_lower_MFE": 5,
+      "gross_R": 0.591180647175193,
+      "initial_no_s1": 11,
+      "signal_month": "2024-05"
+    },
+    {
+      "GE2": 0,
+      "GE5": 0,
+      "closed": 2,
+      "direction": "LONG",
+      "exit_other_month": 0,
+      "failed_lower_MFE": 0,
+      "gross_R": 0.11305365213610297,
+      "initial_no_s1": 1,
+      "signal_month": "2024-05"
+    },
+    {
+      "GE2": 3,
+      "GE5": 0,
+      "closed": 25,
+      "direction": "SHORT",
+      "exit_other_month": 1,
+      "failed_lower_MFE": 5,
+      "gross_R": 0.4781269950390903,
+      "initial_no_s1": 10,
+      "signal_month": "2024-05"
+    },
+    {
+      "GE2": 3,
+      "GE5": 1,
+      "closed": 26,
+      "direction": "ALL",
+      "exit_other_month": 0,
+      "failed_lower_MFE": 12,
+      "gross_R": 0.20989820729376696,
+      "initial_no_s1": 16,
+      "signal_month": "2024-10"
+    },
+    {
+      "GE2": 3,
+      "GE5": 1,
+      "closed": 17,
+      "direction": "LONG",
+      "exit_other_month": 0,
+      "failed_lower_MFE": 8,
+      "gross_R": 8.165674911633163,
+      "initial_no_s1": 8,
+      "signal_month": "2024-10"
+    },
+    {
+      "GE2": 0,
+      "GE5": 0,
+      "closed": 9,
+      "direction": "SHORT",
+      "exit_other_month": 0,
+      "failed_lower_MFE": 4,
+      "gross_R": -7.955776704339396,
+      "initial_no_s1": 8,
+      "signal_month": "2024-10"
+    }
+  ]
+}

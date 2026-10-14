@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/workspace/work/discovery/IntradayLab/t3_m15_a6_s1_trail_optimization_v1/audit.py", line 190, in <module>
+    p=argparse.ArgumentParser();p.add_argument('--data-root',type=Path,default=Path('/workspace/market-pattern-data'));p.add_argument('--primary',type=Path,default=C.HERE/'results');p.add_argument('--output',type=Path,default=C.HERE/'audit');a=p.parse_args();run(a.data_root,a.primary,a.output)
+                                                                                                                                                                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/work/discovery/IntradayLab/t3_m15_a6_s1_trail_optimization_v1/audit.py", line 142, in run
+    presentation=presentation_audit(primary,computed)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/work/discovery/IntradayLab/t3_m15_a6_s1_trail_optimization_v1/audit.py", line 185, in presentation_audit
+    assert tuple(values) in allowed,('PRESENTATION_MISMATCH',name,header,values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('PRESENTATION_MISMATCH', 'REPORT.md', ['variant', 'trail_atr', 'year', 'rank', 'in_top5', 'entry_id', 'instrument', 'direction', 'signal_time', 'entry_time', 'exit_time', 'entry_price', 'exit_price', 'gross_R', 'bars_held'], ['TRAIL_275', '2.750000', 'ALL', '1', 'True', 'USDRUBF / SHORT / 2023-04-28T11:15:00+03:00', 'USDRUBF', 'SHORT', '2023-04-28 11:15:00+03:00', '2023-04-28 11:15:00+03:00', '2023-04-28 16:30:00+03:00', '81.140000', '79.586128', '8.498077', '21'])

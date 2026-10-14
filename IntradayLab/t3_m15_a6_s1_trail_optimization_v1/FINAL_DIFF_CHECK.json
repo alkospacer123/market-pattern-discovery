@@ -1,0 +1,14 @@
+{
+  "IntradayLab_ROADMAP_blob_sha": "dfd9bf20705e075b9a5d97df7bafeaaf688a4b90",
+  "TradingSystemLab_tree_sha": "5959dce728f9a784811ff978129879d71ba2a307",
+  "advisory_explanation": "Two generated Markdown files retain the same empty final line from frozen renderer; preserved for exact byte identity, no trading/code changes",
+  "all_substantive_whitespace_checks_PASS": true,
+  "base_main": "d555765f8a5c02261e9bfbc97cafed9a16ec76cd",
+  "protected_references_verified": 207,
+  "scope_only_new_directory": true,
+  "standard_git_diff_check_advisories": [
+    "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/results/MONTHLY_DETAIL.md:1829: new blank line at EOF.",
+    "IntradayLab/t3_m15_a6_s1_trail_optimization_v1/results/REPORT.md:443: new blank line at EOF."
+  ],
+  "status": "PASS"
+}

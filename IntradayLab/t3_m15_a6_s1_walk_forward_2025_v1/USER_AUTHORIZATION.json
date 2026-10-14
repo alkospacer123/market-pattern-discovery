@@ -1,0 +1,38 @@
+{
+  "DEVELOPMENT_2023_2024_EXPOSED": true,
+  "LIVE_broker_operations": false,
+  "TRUE_OOS_2026_LOCKED": true,
+  "TRUE_OOS_execution": false,
+  "WF_2025_AUTHORIZED": true,
+  "allowed_state_history": [
+    "2023-01-01T00:00:00+03:00",
+    "2025-01-01T00:00:00+03:00"
+  ],
+  "authorized_WF": [
+    "2025-01-01T00:00:00+03:00",
+    "2026-01-01T00:00:00+03:00"
+  ],
+  "auto_merge": false,
+  "draft_PR_count": 1,
+  "immutable_candidate": "A6+S1 / T3 M15 / NEXT_OPEN / TRAIL_375",
+  "instruments": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "locked_TRUE_OOS": {
+    "end": "2027-01-01T00:00:00+03:00",
+    "execute": false,
+    "read": false,
+    "start": "2026-01-01T00:00:00+03:00"
+  },
+  "merge": false,
+  "parameters_filters_universe_selection": false,
+  "raw_quotes_copied": false,
+  "schema_version": 1,
+  "source": "Explicit user message in this task",
+  "supersedes_only_for_this_fixed_candidate": "Earlier local 2025+ lock; ROADMAP and AGENTS files remain unchanged",
+  "user_attestation": "Весь календарный 2025 год исключительно для Walk Forward неизменного TRAIL_375. Весь 2026 год зарезервирован для TRUE OOS и остаётся закрытым.",
+  "user_decision_date_MSK": "2026-10-13"
+}

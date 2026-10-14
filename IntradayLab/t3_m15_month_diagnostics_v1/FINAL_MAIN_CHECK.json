@@ -1,0 +1,98 @@
+{
+  "IntradayLab_tree_SHA_at_start": "496675da292ba3a46ef7322761e67d555b5104c7",
+  "IntradayLab_tree_SHA_before_PR": "496675da292ba3a46ef7322761e67d555b5104c7",
+  "PR_base_main": "365108fc6e154123f24670a0a0098f5b1683ae6b",
+  "PR_only_additions_in_allowed_directory": true,
+  "TradingSystemLab_modified_by_this_task": false,
+  "actual_GitHub_main_before_PR": "365108fc6e154123f24670a0a0098f5b1683ae6b",
+  "branch_history_rebased_for_publication": true,
+  "changed_files_since_start": [
+    {
+      "additions": 11,
+      "after_git_blob": "1044e98ad0df7af8ac0e69be9979b803cf45dbca",
+      "before_git_blob": "846fb671abe2734e2f22ddb556866c3931dea4e5",
+      "deletions": 0,
+      "path": "TradingSystemLab/CURRENT_STATE.md",
+      "status": "modified"
+    },
+    {
+      "additions": 7,
+      "after_git_blob": "953b7084f714b08e69a0a3d2e03d1d458840b0ab",
+      "before_git_blob": "f2c83110969504a48b74422b7c880a8ef1bd0835",
+      "deletions": 0,
+      "path": "TradingSystemLab/PROJECT_CONTEXT.md",
+      "status": "modified"
+    },
+    {
+      "additions": 13,
+      "after_git_blob": "a4de907026eac20a283b4a586357052e5a0d16ce",
+      "before_git_blob": "41b8bb0e7634bb821fb13d8090facbb493606155",
+      "deletions": 0,
+      "path": "TradingSystemLab/ROADMAP.md",
+      "status": "modified"
+    },
+    {
+      "additions": 16,
+      "after_git_blob": "878e76610acb69612830fd7c79d0fa055edb9548",
+      "before_git_blob": "168e36ef1ee647e1aad1bffd2f233a4874f68a4b",
+      "deletions": 0,
+      "path": "TradingSystemLab/stage8_robot/PRODUCTION_OPERATOR_CHECKLIST.md",
+      "status": "modified"
+    },
+    {
+      "additions": 13,
+      "after_git_blob": "31950f6a82b2c004cec31c450fe59d7774ea5de5",
+      "before_git_blob": "939f6ba898a0b784723f8687e7ba6d5e8da1dadb",
+      "deletions": 0,
+      "path": "TradingSystemLab/stage8_robot/PRODUCTION_RUNBOOK.md",
+      "status": "modified"
+    },
+    {
+      "additions": 9,
+      "after_git_blob": "7af8ff3524d9fd4d56d1ae84f0e9e7022f66474d",
+      "before_git_blob": "0a3570fa878040bd2b908e74e0bb74d936a18c10",
+      "deletions": 0,
+      "path": "TradingSystemLab/stage8_robot/PRODUCTION_STRATEGY_PASSPORT.md",
+      "status": "modified"
+    }
+  ],
+  "classification": "EXTERNAL_DOCS_ONLY_MAIN_CHANGE_PR_502; entire IntradayLab tree unchanged",
+  "completion": "ONE_DRAFT_PR_AUTO_MERGE_OFF_NO_MERGE_STOP",
+  "historical_sources_and_calculations_affected": false,
+  "main_advance_commits": [
+    {
+      "message": "docs(stage8): synchronize Intel #493 isolated HALTED authority, no real orders",
+      "sha": "25cf66398726b4c5edb801dd07f111fd3e24798e"
+    },
+    {
+      "message": "docs(stage8): synchronize Intel #493 isolated HALTED authority, no real orders",
+      "sha": "6630e144e2062b1f1620cf027d1c011ff6856459"
+    },
+    {
+      "message": "docs(stage8): synchronize Intel #493 isolated HALTED authority, no real orders",
+      "sha": "6d8d842160886d9c54ad813ae5ab5506c63b753f"
+    },
+    {
+      "message": "docs(stage8): closeout Intel #493 HALTED Task isolation operational passport/checklist/context",
+      "sha": "5d65e5b3589f1db9f55a666ed96b7a38cc98712f"
+    },
+    {
+      "message": "docs(stage8): closeout Intel #493 HALTED Task isolation operational passport/checklist/context",
+      "sha": "8347687d8f0bdbb3c64cda00d60a6b1f2bcb7b9f"
+    },
+    {
+      "message": "docs(stage8): closeout Intel #493 HALTED Task isolation operational passport/checklist/context",
+      "sha": "5631e350fcf30b38776891133d61405a3a5eb870"
+    },
+    {
+      "message": "Merge PR #502: Stage 8 #493 Intel Task isolation operational docs\n\nDocs-only: current-state/roadmap/runbook/strategy passport/operator checklist/project context. Keep frozen LIVE code and Draft PR #493 untouched.",
+      "sha": "365108fc6e154123f24670a0a0098f5b1683ae6b"
+    }
+  ],
+  "protected_local_files_written": false,
+  "publication_method": "Isolated Git index seeded with final main; stage ONLY new diagnostic directory; commit-tree with ONE parent final main; no protected working files written.",
+  "research_base_main": "8c40950726446ebccb1ad80b8f129558470d9c11",
+  "source_data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "status": "PASS",
+  "two_fresh_numerical_repeats_remain_valid": true
+}

@@ -1,0 +1,21 @@
+{
+  "primary_plus_fresh_repeats": 3,
+  "repeats": [
+    {
+      "aggregate_sha256": "6fca933397e548fbdd0667565afaf821c77951646b7142e3e05f4cfe5bb9f4e8",
+      "byte_identical": true,
+      "files_compared": 28,
+      "fresh_process": true,
+      "repeat": 1
+    },
+    {
+      "aggregate_sha256": "6fca933397e548fbdd0667565afaf821c77951646b7142e3e05f4cfe5bb9f4e8",
+      "byte_identical": true,
+      "files_compared": 28,
+      "fresh_process": true,
+      "repeat": 2
+    }
+  ],
+  "scope": "All deterministic replay outputs including source manifest, controls, trade journals, signal/exit decisions and reports",
+  "status": "PASS"
+}

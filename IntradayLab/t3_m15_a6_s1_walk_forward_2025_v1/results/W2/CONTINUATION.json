@@ -1,0 +1,17 @@
+{
+  "FLAT_reset": false,
+  "carry": [
+    {
+      "first_next_close": "2025-04-01T00:00:00+03:00",
+      "instrument": "GLDRUBF",
+      "state_checked": true,
+      "trade_id": "T3-M15-GLDRUBF-000129"
+    }
+  ],
+  "differences": 0,
+  "feature_prefix_exact": true,
+  "fields_compared": 656446,
+  "max_numeric_delta": 0.0,
+  "pending_reconstructed_from_history": true,
+  "status": "PASS"
+}

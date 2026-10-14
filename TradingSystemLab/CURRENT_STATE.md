@@ -1,5 +1,16 @@
 # Current state — read first
 
+## CURRENT LIVE authority — 2026-10-13 Stage 8 #493 isolated HALTED
+
+**CURRENT LIVE: STAGE8_493_PRODUCTION_TASK_ISOLATED_HALTED — 2026-10-13 Intel operator evidence.** The authorized `stage8-493-controlled-task-isolation.ps1 -execute` physically returned `ISOLATED_HALTED_PENDING_GITHUB_OPERATIONAL_SYNC`. Fresh before-stop `FINAM + SQLite + HALTED=PASS`; Task `TradingSystemLab-Stage8-Production` was **disabled before stop** with startup/auto-restart suppressed; PowerShell PID **8536**, Python root **6260**, Python child **11608** exited. Post-stop `POST_STOP_FINAM_SQLITE_LOCK_GATE=PASS`: two fresh broker READONLY account/orders flat snapshots, clean production SQLite and lock quiescent. Existing kill switch **HALTED**. No orders or rearm by this operation.
+
+**Evidence:** original Task XML backup saved outside Git in `c:\tslaudit\fill493`, operator-reported SHA-256 `2714BB09FF571EFAE748509F5D3C3BC8DD5F38460173E1A13EF5AEE752DF906E` (backup bytes and exact timestamped filename not independently fetched). Result is a time-bounded *operator-console* observation; heartbeat stops refreshing by design after isolation. The durable commit-bound production authorization record **was not revoked or rewritten**. Disabling Task and keeping HALTED do not erase existing authorization; do not start/rearm without fresh separately approved recovery.
+
+**Frozen identity unaffected:** accepted Intel code `184e8c2b8fa092a606249ff293a4f507160bff29` (PR #484), Stage5 data `50f1fd2178c18b7ab3bd969be82ad01f47a34745`, production spec `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`, `TRAIL1__N4_01__FULL__R15`, T3/H1/TRAIL1, N4 USDRUBF/CNYRUBF/GLDRUBF/IMOEXF, risk 1.5% new position / 6% nominal aggregate and frozen margin sizing. No source, strategy, risk, research, execution adapter, authorization file or production SQLite modification was made.
+
+**HARD HOLD:** Draft PR #493 (candidate STOP/TICK GRID and SLTP acceptance) is not merged/deployed. No real orders, SLTP test, V2 rearm, Task restore/restart, forced PID kills, change to `FINAM_FILL_AUTHORITY_VERIFIED=False` or stage8.11 one-contract policy without new, separate explicit authorization. Post-stop FINAM validation is **readonly** and does not grant fill-price or live-entry authority. The prior `ARMED / Running / HEALTHY` sections below are **historical**, not instructions for current LIVE. Never `git pull` the pinned Intel checkout to follow docs-only GitHub commits.
+
+
 ## CURRENT LIVE authority — 2026-10-12 11:38 MSK, after explicit re-arm
 
 **LIVE ARMED / Running / HEALTHY / PASS / ENTRY GATE OPEN.** Operator's successful `stage8_12_h1_rearm_once.ps1` output confirmed `STAGE8_12_H1_REARM=PASS`, kill switch **ARMED generation 60**, gate **OPEN**, and heartbeat **HEALTHY**, reconciliation **PASS**. Exact accepted and running code: `184e8c2b8fa092a606249ff293a4f507160bff29` (PR #484); Stage 5 frozen data commit `50f1fd2178c18b7ab3bd969be82ad01f47a34745`. No additional LIVE code, config, or authorization changes.

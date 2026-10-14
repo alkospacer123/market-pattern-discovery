@@ -1,0 +1,6 @@
+{
+  "freeze_commit": "2ba722c67b748090536ac1236eb63e4049f05ceb",
+  "labels": "DEVELOPMENT_2023_2024_EXPOSED / WF_2025_AUTHORIZED / TRUE_OOS_2026_LOCKED / GROSS_ONLY / COSTS_DEFERRED / NOT_LIVE_READY",
+  "pandas": "2.2.3",
+  "python": "3.12.14"
+}

@@ -1,0 +1,9 @@
+# Independent implementation audit
+
+The independent verifier `audit.py` does not import this experiment's `engine.py` or `research.py`, pandas or numpy. It derives original H1 blocks, ATR/EMA/ADX, prior-block comparisons and Donchian in standard-library arithmetic. Only the already separate PR #490 byte parser and recursive smoother are reused read-only. It reconstructs favorable/adverse path extrema from the raw historical prefix instead of trusting the experiment's position-state extrema, and replays all sixteen configuration/rule pairs from scratch.
+
+Checks include trade sequence, directions, entry/exit prices and timestamps, initial and active Stop, trailing updates, gap behavior, MAE/MFE, Gross R, decisions in the bounded A2 window, priority at Open, all raw signals with accepted/blocked occupancy, and terminal open positions. Every central annual/monthly/instrument/direction metric, November sensitivity, original-entry lineage and largest-winner cohorts are independently reconciled. Source integrity, immutable references and generated artifact hashes are checked.
+
+Evidence: `AUDIT_RESULTS.json`, `results/CONTROL_REPRODUCTION.json`, `TEST_RESULTS.txt`, `REPEATABILITY.json` and `SCOPE_CHECK.json`. Control must pass before any new variant runs; failure raises and prevents experiments. Specifications are committed before variant outcomes are computed. Two fresh deterministic repeats are compared byte-for-byte with the primary generated artifacts.
+
+This is **implementation independence by the same author**, not separate human/agent authorship or an external review. External Independent Audit remains **PENDING**. No internal PASS implies executable fills, a deployable portfolio, correct broker tick-grid engineering, after-cost profitability or a new OOS result. The requested Draft PR is the boundary for external audit and the user's decision.

@@ -1,0 +1,22 @@
+{
+  "comparison": "Direct bytes equality AND SHA256, including manifest itself",
+  "primary_plus_fresh_repeats": 3,
+  "repeats": [
+    {
+      "aggregate_sha256": "af16680e81c254dcfd705abbdbda2beb06ce6cc61e5b4b1774c1ddffb5d97fae",
+      "byte_identical": true,
+      "files_compared": 40,
+      "fresh_process": true,
+      "repeat": 1
+    },
+    {
+      "aggregate_sha256": "af16680e81c254dcfd705abbdbda2beb06ce6cc61e5b4b1774c1ddffb5d97fae",
+      "byte_identical": true,
+      "files_compared": 40,
+      "fresh_process": true,
+      "repeat": 2
+    }
+  ],
+  "scope": "All deterministic replay outputs including source manifest, controls, trade journals, signal/stop decisions and reports",
+  "status": "PASS"
+}

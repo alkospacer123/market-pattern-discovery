@@ -1,0 +1,11 @@
+--- IntradayLab/t3_m15_a6_s1_trail_optimization_v1/audit.py	2026-10-13 12:45:33.635621672 +0000
++++ IntradayLab/t3_m15_a6_s1_trail_optimization_v1/audit_v1_1.py	2026-10-13 12:52:03.219598473 +0000
+@@ -176,6 +176,8 @@
+                             vals=[]
+                             for k in header:
+                                 val=r[k]
++                                if k in ('signal_time','entry_time','exit_time') and isinstance(val,str) and val:
++                                    val=str(datetime.fromisoformat(val))
+                                 if isinstance(val,str) and val not in ('True','False'):
+                                     try:val=float(val);val=int(val) if k in ('year','closed','CLOSED','OPEN','period_end_OPEN','wins','losses','positive_months','negative_months','zero_months','max_losing_trade_run','max_negative_month_run','rank','bars_held','LONG_CLOSED','SHORT_CLOSED','signals','executed_entries','filtered','occupied_allowed_signals','missing_adjacent_open','unresolved_pending','occupied_observed_bars','observed_bar_denominator','november_CLOSED','original_winners','preserved_or_improved_R','partially_reduced','turned_loss','lost_entry','lost_due_occupancy','terminal_OPEN','entry_id_matched','economic_trajectory_equivalent','still_at_threshold','PR','positive2023','positive2024','positive_ALL','delta_positive_ALL') else val
+                                     except ValueError:pass

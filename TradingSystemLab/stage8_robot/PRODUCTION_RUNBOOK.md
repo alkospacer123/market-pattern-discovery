@@ -1,5 +1,18 @@
 # TradingSystemLab Stage 8.12 Production Runbook
 
+## CURRENT RUNBOOK — 2026-10-13 production Task disabled/stopped, HALTED
+
+**CURRENT LIVE: STAGE8_493_PRODUCTION_TASK_ISOLATED_HALTED — 2026-10-13 Intel operator evidence.** The authorized `stage8-493-controlled-task-isolation.ps1 -execute` physically returned `ISOLATED_HALTED_PENDING_GITHUB_OPERATIONAL_SYNC`. Fresh before-stop `FINAM + SQLite + HALTED=PASS`; Task `TradingSystemLab-Stage8-Production` was **disabled before stop** with startup/auto-restart suppressed; PowerShell PID **8536**, Python root **6260**, Python child **11608** exited. Post-stop `POST_STOP_FINAM_SQLITE_LOCK_GATE=PASS`: two fresh broker READONLY account/orders flat snapshots, clean production SQLite and lock quiescent. Existing kill switch **HALTED**. No orders or rearm by this operation.
+
+**Evidence:** original Task XML backup saved outside Git in `c:\tslaudit\fill493`, operator-reported SHA-256 `2714BB09FF571EFAE748509F5D3C3BC8DD5F38460173E1A13EF5AEE752DF906E` (backup bytes and exact timestamped filename not independently fetched). Result is a time-bounded *operator-console* observation; heartbeat stops refreshing by design after isolation. The durable commit-bound production authorization record **was not revoked or rewritten**. Disabling Task and keeping HALTED do not erase existing authorization; do not start/rearm without fresh separately approved recovery.
+
+**Frozen identity unaffected:** accepted Intel code `184e8c2b8fa092a606249ff293a4f507160bff29` (PR #484), Stage5 data `50f1fd2178c18b7ab3bd969be82ad01f47a34745`, production spec `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`, `TRAIL1__N4_01__FULL__R15`, T3/H1/TRAIL1, N4 USDRUBF/CNYRUBF/GLDRUBF/IMOEXF, risk 1.5% new position / 6% nominal aggregate and frozen margin sizing. No source, strategy, risk, research, execution adapter, authorization file or production SQLite modification was made.
+
+**HARD HOLD:** Draft PR #493 (candidate STOP/TICK GRID and SLTP acceptance) is not merged/deployed. No real orders, SLTP test, V2 rearm, Task restore/restart, forced PID kills, change to `FINAM_FILL_AUTHORITY_VERIFIED=False` or stage8.11 one-contract policy without new, separate explicit authorization. Post-stop FINAM validation is **readonly** and does not grant fill-price or live-entry authority. The prior `ARMED / Running / HEALTHY` sections below are **historical**, not instructions for current LIVE. Never `git pull` the pinned Intel checkout to follow docs-only GitHub commits.
+
+**Recovery boundary:** The pre-isolation FINAM wrapper requires Task Running and is invalid after stop; use only explicitly approved post-stop READONLY checks. If processes reappear, lock is held, broker exposure/orders are not flat, or kill switch changes, classify `OPERATOR_INTERVENTION_REQUIRED`, preserve evidence and follow an independently approved recovery; do not repeat `-execute`, kill PIDs, restore Task or rearm. Original Task XML exists outside Git but must be verified before any future separately approved restoration. Previous daily Running-heartbeat instructions are suspended.
+
+
 ## 2026-10-12 CURRENT operational authority — LIVE ARMED, confirmed after re-arm
 
 **LIVE: ARMED, kill switch generation 60; Scheduled Task Running; fresh HEALTHY / reconciliation PASS; entry gate OPEN.** Production code remains exact fix `184e8c2b8fa092a606249ff293a4f507160bff29` (PR #484); Stage5 data authority `50f1fd2178c18b7ab3bd969be82ad01f47a34745`. Explicit operator-authorized `stage8_12_h1_rearm_once.ps1` returned `STAGE8_12_H1_REARM=PASS`, `REARM_COMPLETED=YES`. Re-arm did not change source, Scheduled Task, authorization or SQLite schema, and did not itself force an order.

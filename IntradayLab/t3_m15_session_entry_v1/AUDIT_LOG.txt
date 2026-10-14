@@ -1,0 +1,1 @@
+{"diagnostic_fields_compared": 81098, "journal_fields_compared": 2349589, "report_fields_compared": 29406, "status": "PASS"}

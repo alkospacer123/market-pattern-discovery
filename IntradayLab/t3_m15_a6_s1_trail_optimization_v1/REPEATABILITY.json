@@ -1,0 +1,631 @@
+{
+  "evidence": [
+    {
+      "direct_bytes_identical": true,
+      "path": "results/MONTHLY_DETAIL.md",
+      "repeat": 1,
+      "sha256": "a10a4aeef602474ed60aa27f8fb1a175e582c226497d18e7adf5d909d5a35eb8"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/REPORT.md",
+      "repeat": 1,
+      "sha256": "7eae4e23f6b1ef7175a35b4f5c0ddc05e5ef81ebe3c75e70f159ef908bed04dd"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/SOURCE_MANIFEST.json",
+      "repeat": 1,
+      "sha256": "b67223b7c2a5ff92101483f17a24bdd29c4b45d5a9218e9fd86e54a77689faa8"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/TEST_RESULTS.txt",
+      "repeat": 1,
+      "sha256": "2052a20615bc03881a64515e1317f72da23e3d4523eea7c847401274fb42cd65"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/closed_equity.csv",
+      "repeat": 1,
+      "sha256": "fd4cc71d18f99a2d4a5f2bdeb61f04a8a51cec828be7b94a13544166cd0adb68"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/comparison.csv",
+      "repeat": 1,
+      "sha256": "7d8eb57bbdce435e7b637409361b692d34610a22f4f9c11b2d12be5b35e84ed7"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control/CONTROL_DIFF.csv",
+      "repeat": 1,
+      "sha256": "19a2de2c15dc4984fcd327f61c8fc4ff055a2f719c7f905e8552f4195e074b94"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control/CONTROL_GATE.json",
+      "repeat": 1,
+      "sha256": "ac7b81e6f0021e20cc88c78f40184c75d188f389cf077239fc173f883c36f330"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control/OPEN_POSITIONS.json",
+      "repeat": 1,
+      "sha256": "45a79cb0ec7acd907ecc9ff7dd49f1748d6dd1318694bd741c302fd97905cec7"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control/PERIOD_END_OPEN_POSITIONS.json",
+      "repeat": 1,
+      "sha256": "36d8407e5e8a25dcd5417f3e860908353e01de639eb0bc21335c414821d1d283"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control/entry_opportunities.csv",
+      "repeat": 1,
+      "sha256": "3f117d2475d5fd9d8e733a3ff0bf8f9cf210202005b0658439df585ccdb6274e"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control/observed_gaps.csv",
+      "repeat": 1,
+      "sha256": "741d3d1f0de12d7987f3f8612b9ac58964cb3b62482a6afedaa327c7416bae5a"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control/stop_decisions.csv",
+      "repeat": 1,
+      "sha256": "b5dbf8a44a939ec95288118c5e46c791713caf3e90a2e360b6a7e73194dd19ee"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control/trades.csv",
+      "repeat": 1,
+      "sha256": "26f52704514f04469fe73a783e9f6a1fe1b59e74af3aeaf05f94a65a5495ad83"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control_scalar/CONTROL_DIFF.csv",
+      "repeat": 1,
+      "sha256": "19a2de2c15dc4984fcd327f61c8fc4ff055a2f719c7f905e8552f4195e074b94"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control_scalar/CONTROL_GATE.json",
+      "repeat": 1,
+      "sha256": "186e8484ddd8391866320028b3177f4035eddcf97501e7417847f4a9af428291"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control_scalar/OPEN_POSITIONS.json",
+      "repeat": 1,
+      "sha256": "45a79cb0ec7acd907ecc9ff7dd49f1748d6dd1318694bd741c302fd97905cec7"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control_scalar/PERIOD_END_OPEN_POSITIONS.json",
+      "repeat": 1,
+      "sha256": "36d8407e5e8a25dcd5417f3e860908353e01de639eb0bc21335c414821d1d283"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control_scalar/entry_opportunities.csv",
+      "repeat": 1,
+      "sha256": "d904d9e4be2ba6f0aa57a43d515186ffb3121af4daf9ea125f7fa176d3b65f23"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control_scalar/observed_gaps.csv",
+      "repeat": 1,
+      "sha256": "741d3d1f0de12d7987f3f8612b9ac58964cb3b62482a6afedaa327c7416bae5a"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control_scalar/stop_decisions.csv",
+      "repeat": 1,
+      "sha256": "b5dbf8a44a939ec95288118c5e46c791713caf3e90a2e360b6a7e73194dd19ee"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control_scalar/trades.csv",
+      "repeat": 1,
+      "sha256": "7dcc99b7918e8d0379d275818c7ef60a9ff12cc2eec974aa9fa8c0da83b83b9e"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/funnel_occupancy.csv",
+      "repeat": 1,
+      "sha256": "3ed7838135654aed0475599f602c0786deeeda66c4dd0fd22c93e48e4432c42e"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/historical_references.csv",
+      "repeat": 1,
+      "sha256": "58af6009cb832241e8e60edb0cd83a583d13d9d8cca3af640ca709028c234e2c"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/lineage.csv",
+      "repeat": 1,
+      "sha256": "7300d554b4d29e520934c2f8c2ec36e36cf5721f571a3931d2d34c2e1e494999"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/monthly.csv",
+      "repeat": 1,
+      "sha256": "e93e8f491438e2362b51653de2fbf4cf31002e0dbcf76e9245a66576a152e726"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/negative_results.csv",
+      "repeat": 1,
+      "sha256": "c895441062c20bb3bd20676bd70bbdeff592f227a3c78a7c57470beafed41657"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/neighbor_comparison.csv",
+      "repeat": 1,
+      "sha256": "2faa95f60a6105f645d573b8e8815066342d80bb3fb8db0aecdb4bc623fac04d"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/new_entries.csv",
+      "repeat": 1,
+      "sha256": "b91eaf59509010a46f241cd7b0906e86bee3c0971741f7d65070897b390aa2b2"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/november.csv",
+      "repeat": 1,
+      "sha256": "4f3e8354e8acee9c082db994abecb4a066be33d2730bc4830de0c66009651f79"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/replay/OPEN_POSITIONS.json",
+      "repeat": 1,
+      "sha256": "76c1d00838dc3b3d1e7f2b92e177796b59089bb142c5bdc201ce8dfc86dd5734"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/replay/PERIOD_END_OPEN_POSITIONS.json",
+      "repeat": 1,
+      "sha256": "60a836dfc1aaddc241525a675925b055ca063db74940ad03dc8baecc5a8a601f"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/replay/entry_opportunities.csv",
+      "repeat": 1,
+      "sha256": "0c00bf0b1d014fe7410a49d3c0669bf304dea87b10ca4fb9693a334ae428e41d"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/replay/observed_gaps.csv",
+      "repeat": 1,
+      "sha256": "12b3b3a2f58bfc6e2fc7b5322e1d9fcc87cf7d6a7bf4b4b94e051e88e6288b80"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/replay/stop_decisions.csv",
+      "repeat": 1,
+      "sha256": "1d0027c59dd678ec0e9cdec4122a64bf83681391b163ef44911f0440f0a9806e"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/replay/trades.csv",
+      "repeat": 1,
+      "sha256": "f111e63563dc7acd0b91634e5b21de19d764226cacbad47a953912eb001115ec"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/summary.csv",
+      "repeat": 1,
+      "sha256": "71f229a030dbdbf560584f839f710743d72c407b1e7e5ab59ebb380d28c7b463"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/top_winners.csv",
+      "repeat": 1,
+      "sha256": "697995bc78ee2d0a3b92326a1e9b918bed9494df88a32671a43c6ff990b2412c"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/winner_retention.csv",
+      "repeat": 1,
+      "sha256": "9e3bdce0c03e32945b10898812aeae2b60e9fbc9cba415f5e877e3b1bb269320"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/AUDIT_RESULT.json",
+      "repeat": 1,
+      "sha256": "2a2ec957ee48b885822cf66facf3be754fd99c4b335a8f90aa8901a21c202920"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/DIFFERENCES.csv",
+      "repeat": 1,
+      "sha256": "19a2de2c15dc4984fcd327f61c8fc4ff055a2f719c7f905e8552f4195e074b94"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/OPEN_POSITIONS.json",
+      "repeat": 1,
+      "sha256": "03297823e629f431a70d75054280c78562e92b946dc602cd2fbf3545870a14f2"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/PERIOD_END_OPEN_POSITIONS.json",
+      "repeat": 1,
+      "sha256": "858850978e00b35141f25d6408cd15a82d3d1604f09794df8842e2bc83a025da"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/PRESENTATION_AUDIT.json",
+      "repeat": 1,
+      "sha256": "031f8534bf7a452a23cc5fe6e138f94ed0eb367ed2448fd23b71f65ed2f1c82e"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/control_scalar/CONTROL_DIFF.csv",
+      "repeat": 1,
+      "sha256": "19a2de2c15dc4984fcd327f61c8fc4ff055a2f719c7f905e8552f4195e074b94"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/control_scalar/CONTROL_GATE.json",
+      "repeat": 1,
+      "sha256": "186e8484ddd8391866320028b3177f4035eddcf97501e7417847f4a9af428291"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/control_scalar/OPEN_POSITIONS.json",
+      "repeat": 1,
+      "sha256": "45a79cb0ec7acd907ecc9ff7dd49f1748d6dd1318694bd741c302fd97905cec7"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/control_scalar/PERIOD_END_OPEN_POSITIONS.json",
+      "repeat": 1,
+      "sha256": "36d8407e5e8a25dcd5417f3e860908353e01de639eb0bc21335c414821d1d283"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/control_scalar/entry_opportunities.csv",
+      "repeat": 1,
+      "sha256": "d904d9e4be2ba6f0aa57a43d515186ffb3121af4daf9ea125f7fa176d3b65f23"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/control_scalar/observed_gaps.csv",
+      "repeat": 1,
+      "sha256": "741d3d1f0de12d7987f3f8612b9ac58964cb3b62482a6afedaa327c7416bae5a"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/control_scalar/stop_decisions.csv",
+      "repeat": 1,
+      "sha256": "b5dbf8a44a939ec95288118c5e46c791713caf3e90a2e360b6a7e73194dd19ee"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/control_scalar/trades.csv",
+      "repeat": 1,
+      "sha256": "7dcc99b7918e8d0379d275818c7ef60a9ff12cc2eec974aa9fa8c0da83b83b9e"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/MONTHLY_DETAIL.md",
+      "repeat": 2,
+      "sha256": "a10a4aeef602474ed60aa27f8fb1a175e582c226497d18e7adf5d909d5a35eb8"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/REPORT.md",
+      "repeat": 2,
+      "sha256": "7eae4e23f6b1ef7175a35b4f5c0ddc05e5ef81ebe3c75e70f159ef908bed04dd"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/SOURCE_MANIFEST.json",
+      "repeat": 2,
+      "sha256": "b67223b7c2a5ff92101483f17a24bdd29c4b45d5a9218e9fd86e54a77689faa8"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/TEST_RESULTS.txt",
+      "repeat": 2,
+      "sha256": "2052a20615bc03881a64515e1317f72da23e3d4523eea7c847401274fb42cd65"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/closed_equity.csv",
+      "repeat": 2,
+      "sha256": "fd4cc71d18f99a2d4a5f2bdeb61f04a8a51cec828be7b94a13544166cd0adb68"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/comparison.csv",
+      "repeat": 2,
+      "sha256": "7d8eb57bbdce435e7b637409361b692d34610a22f4f9c11b2d12be5b35e84ed7"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control/CONTROL_DIFF.csv",
+      "repeat": 2,
+      "sha256": "19a2de2c15dc4984fcd327f61c8fc4ff055a2f719c7f905e8552f4195e074b94"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control/CONTROL_GATE.json",
+      "repeat": 2,
+      "sha256": "ac7b81e6f0021e20cc88c78f40184c75d188f389cf077239fc173f883c36f330"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control/OPEN_POSITIONS.json",
+      "repeat": 2,
+      "sha256": "45a79cb0ec7acd907ecc9ff7dd49f1748d6dd1318694bd741c302fd97905cec7"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control/PERIOD_END_OPEN_POSITIONS.json",
+      "repeat": 2,
+      "sha256": "36d8407e5e8a25dcd5417f3e860908353e01de639eb0bc21335c414821d1d283"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control/entry_opportunities.csv",
+      "repeat": 2,
+      "sha256": "3f117d2475d5fd9d8e733a3ff0bf8f9cf210202005b0658439df585ccdb6274e"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control/observed_gaps.csv",
+      "repeat": 2,
+      "sha256": "741d3d1f0de12d7987f3f8612b9ac58964cb3b62482a6afedaa327c7416bae5a"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control/stop_decisions.csv",
+      "repeat": 2,
+      "sha256": "b5dbf8a44a939ec95288118c5e46c791713caf3e90a2e360b6a7e73194dd19ee"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control/trades.csv",
+      "repeat": 2,
+      "sha256": "26f52704514f04469fe73a783e9f6a1fe1b59e74af3aeaf05f94a65a5495ad83"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control_scalar/CONTROL_DIFF.csv",
+      "repeat": 2,
+      "sha256": "19a2de2c15dc4984fcd327f61c8fc4ff055a2f719c7f905e8552f4195e074b94"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control_scalar/CONTROL_GATE.json",
+      "repeat": 2,
+      "sha256": "186e8484ddd8391866320028b3177f4035eddcf97501e7417847f4a9af428291"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control_scalar/OPEN_POSITIONS.json",
+      "repeat": 2,
+      "sha256": "45a79cb0ec7acd907ecc9ff7dd49f1748d6dd1318694bd741c302fd97905cec7"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control_scalar/PERIOD_END_OPEN_POSITIONS.json",
+      "repeat": 2,
+      "sha256": "36d8407e5e8a25dcd5417f3e860908353e01de639eb0bc21335c414821d1d283"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control_scalar/entry_opportunities.csv",
+      "repeat": 2,
+      "sha256": "d904d9e4be2ba6f0aa57a43d515186ffb3121af4daf9ea125f7fa176d3b65f23"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control_scalar/observed_gaps.csv",
+      "repeat": 2,
+      "sha256": "741d3d1f0de12d7987f3f8612b9ac58964cb3b62482a6afedaa327c7416bae5a"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control_scalar/stop_decisions.csv",
+      "repeat": 2,
+      "sha256": "b5dbf8a44a939ec95288118c5e46c791713caf3e90a2e360b6a7e73194dd19ee"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/control_scalar/trades.csv",
+      "repeat": 2,
+      "sha256": "7dcc99b7918e8d0379d275818c7ef60a9ff12cc2eec974aa9fa8c0da83b83b9e"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/funnel_occupancy.csv",
+      "repeat": 2,
+      "sha256": "3ed7838135654aed0475599f602c0786deeeda66c4dd0fd22c93e48e4432c42e"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/historical_references.csv",
+      "repeat": 2,
+      "sha256": "58af6009cb832241e8e60edb0cd83a583d13d9d8cca3af640ca709028c234e2c"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/lineage.csv",
+      "repeat": 2,
+      "sha256": "7300d554b4d29e520934c2f8c2ec36e36cf5721f571a3931d2d34c2e1e494999"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/monthly.csv",
+      "repeat": 2,
+      "sha256": "e93e8f491438e2362b51653de2fbf4cf31002e0dbcf76e9245a66576a152e726"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/negative_results.csv",
+      "repeat": 2,
+      "sha256": "c895441062c20bb3bd20676bd70bbdeff592f227a3c78a7c57470beafed41657"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/neighbor_comparison.csv",
+      "repeat": 2,
+      "sha256": "2faa95f60a6105f645d573b8e8815066342d80bb3fb8db0aecdb4bc623fac04d"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/new_entries.csv",
+      "repeat": 2,
+      "sha256": "b91eaf59509010a46f241cd7b0906e86bee3c0971741f7d65070897b390aa2b2"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/november.csv",
+      "repeat": 2,
+      "sha256": "4f3e8354e8acee9c082db994abecb4a066be33d2730bc4830de0c66009651f79"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/replay/OPEN_POSITIONS.json",
+      "repeat": 2,
+      "sha256": "76c1d00838dc3b3d1e7f2b92e177796b59089bb142c5bdc201ce8dfc86dd5734"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/replay/PERIOD_END_OPEN_POSITIONS.json",
+      "repeat": 2,
+      "sha256": "60a836dfc1aaddc241525a675925b055ca063db74940ad03dc8baecc5a8a601f"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/replay/entry_opportunities.csv",
+      "repeat": 2,
+      "sha256": "0c00bf0b1d014fe7410a49d3c0669bf304dea87b10ca4fb9693a334ae428e41d"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/replay/observed_gaps.csv",
+      "repeat": 2,
+      "sha256": "12b3b3a2f58bfc6e2fc7b5322e1d9fcc87cf7d6a7bf4b4b94e051e88e6288b80"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/replay/stop_decisions.csv",
+      "repeat": 2,
+      "sha256": "1d0027c59dd678ec0e9cdec4122a64bf83681391b163ef44911f0440f0a9806e"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/replay/trades.csv",
+      "repeat": 2,
+      "sha256": "f111e63563dc7acd0b91634e5b21de19d764226cacbad47a953912eb001115ec"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/summary.csv",
+      "repeat": 2,
+      "sha256": "71f229a030dbdbf560584f839f710743d72c407b1e7e5ab59ebb380d28c7b463"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/top_winners.csv",
+      "repeat": 2,
+      "sha256": "697995bc78ee2d0a3b92326a1e9b918bed9494df88a32671a43c6ff990b2412c"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "results/winner_retention.csv",
+      "repeat": 2,
+      "sha256": "9e3bdce0c03e32945b10898812aeae2b60e9fbc9cba415f5e877e3b1bb269320"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/AUDIT_RESULT.json",
+      "repeat": 2,
+      "sha256": "2a2ec957ee48b885822cf66facf3be754fd99c4b335a8f90aa8901a21c202920"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/DIFFERENCES.csv",
+      "repeat": 2,
+      "sha256": "19a2de2c15dc4984fcd327f61c8fc4ff055a2f719c7f905e8552f4195e074b94"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/OPEN_POSITIONS.json",
+      "repeat": 2,
+      "sha256": "03297823e629f431a70d75054280c78562e92b946dc602cd2fbf3545870a14f2"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/PERIOD_END_OPEN_POSITIONS.json",
+      "repeat": 2,
+      "sha256": "858850978e00b35141f25d6408cd15a82d3d1604f09794df8842e2bc83a025da"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/PRESENTATION_AUDIT.json",
+      "repeat": 2,
+      "sha256": "031f8534bf7a452a23cc5fe6e138f94ed0eb367ed2448fd23b71f65ed2f1c82e"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/control_scalar/CONTROL_DIFF.csv",
+      "repeat": 2,
+      "sha256": "19a2de2c15dc4984fcd327f61c8fc4ff055a2f719c7f905e8552f4195e074b94"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/control_scalar/CONTROL_GATE.json",
+      "repeat": 2,
+      "sha256": "186e8484ddd8391866320028b3177f4035eddcf97501e7417847f4a9af428291"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/control_scalar/OPEN_POSITIONS.json",
+      "repeat": 2,
+      "sha256": "45a79cb0ec7acd907ecc9ff7dd49f1748d6dd1318694bd741c302fd97905cec7"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/control_scalar/PERIOD_END_OPEN_POSITIONS.json",
+      "repeat": 2,
+      "sha256": "36d8407e5e8a25dcd5417f3e860908353e01de639eb0bc21335c414821d1d283"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/control_scalar/entry_opportunities.csv",
+      "repeat": 2,
+      "sha256": "d904d9e4be2ba6f0aa57a43d515186ffb3121af4daf9ea125f7fa176d3b65f23"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/control_scalar/observed_gaps.csv",
+      "repeat": 2,
+      "sha256": "741d3d1f0de12d7987f3f8612b9ac58964cb3b62482a6afedaa327c7416bae5a"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/control_scalar/stop_decisions.csv",
+      "repeat": 2,
+      "sha256": "b5dbf8a44a939ec95288118c5e46c791713caf3e90a2e360b6a7e73194dd19ee"
+    },
+    {
+      "direct_bytes_identical": true,
+      "path": "audit/control_scalar/trades.csv",
+      "repeat": 2,
+      "sha256": "7dcc99b7918e8d0379d275818c7ef60a9ff12cc2eec974aa9fa8c0da83b83b9e"
+    }
+  ],
+  "fresh_processes": true,
+  "status": "PASS",
+  "two_fresh_repeats": true
+}

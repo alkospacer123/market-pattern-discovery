@@ -1,0 +1,50 @@
+{
+  "2023_2024": "DEVELOPMENT_EXPOSED",
+  "auto_merge": false,
+  "combinations": [
+    {
+      "closed": 512,
+      "gross_PF": 1.63731037418641,
+      "gross_R": 151.064547557214,
+      "open": 1,
+      "rule": "C1",
+      "version": "BASELINE"
+    },
+    {
+      "closed": 647,
+      "gross_PF": 1.52593822816947,
+      "gross_R": 161.227410006427,
+      "open": 1,
+      "rule": "C2",
+      "version": "BASELINE"
+    },
+    {
+      "closed": 497,
+      "gross_PF": 1.73770373128916,
+      "gross_R": 176.339661949737,
+      "open": 1,
+      "rule": "C1",
+      "version": "OPTIMIZED"
+    },
+    {
+      "closed": 619,
+      "gross_PF": 1.64521540136706,
+      "gross_R": 195.9136724333,
+      "open": 1,
+      "rule": "C2",
+      "version": "OPTIMIZED"
+    }
+  ],
+  "external_independent_reviewer": "PENDING",
+  "labels": [
+    "GROSS_ONLY",
+    "COSTS_DEFERRED",
+    "NOT_LIVE_READY"
+  ],
+  "merge": false,
+  "next_action": "STOP_EXTERNAL_REVIEW",
+  "retrospective_adjustment": false,
+  "scope": "ALL_FOUR_FULL_PERIOD",
+  "status": "OBJECTIVE_NOT_REACHED",
+  "target_gross_PF": 2.0
+}

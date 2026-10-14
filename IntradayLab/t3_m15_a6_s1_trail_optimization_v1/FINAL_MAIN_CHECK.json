@@ -1,0 +1,10 @@
+{
+  "TradingSystemLab_git_tree_unchanged": true,
+  "base_main": "d555765f8a5c02261e9bfbc97cafed9a16ec76cd",
+  "data_pin_clean": true,
+  "identical": true,
+  "observed_main": "d555765f8a5c02261e9bfbc97cafed9a16ec76cd",
+  "original_checkout_untouched": true,
+  "protected_reference_files_verified": 207,
+  "reviewed_local_to_main_diff_sha256": "ca545ff9bb737c916ec3cebf9b3ac655f7c85f38102e1da563da26ce28495977"
+}

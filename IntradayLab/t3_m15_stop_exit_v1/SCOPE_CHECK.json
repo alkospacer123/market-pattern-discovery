@@ -1,0 +1,12 @@
+{
+  "allowed_prefix": "IntradayLab/t3_m15_stop_exit_v1/",
+  "auto_merge": false,
+  "base_main": "bc4f95f48b332f43d79ed10f26fc03c5ad01cd97",
+  "broker_endpoints_used": false,
+  "immutable_source_sha256_checked_by": "audit.py SOURCE_MANIFEST.json",
+  "merge": false,
+  "out_of_scope_changed_files": [],
+  "production_changed": false,
+  "raw_data_read_only": true,
+  "status": "PASS"
+}

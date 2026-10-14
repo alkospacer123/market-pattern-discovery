@@ -1,0 +1,167 @@
+{
+  "absolute_tolerance": 1e-08,
+  "causal_bars_checked": 23100,
+  "differences": 0,
+  "fields_compared": 1354341,
+  "independence": "stdlib timestamp-first scalar indicators/dict position state machine; separate joins and metrics; primary engine/analysis/metrics never imported; common metadata/serialization/comparison and control reference gates shared; same author; external human review PENDING",
+  "max_numeric_delta": 5.684341886080802e-14,
+  "status": "PASS",
+  "tables": [
+    {
+      "actual_rows": 480,
+      "fields": 23520,
+      "reference_rows": 480,
+      "table": "control_trades"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 24,
+      "reference_rows": 1,
+      "table": "control_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 12478,
+      "fields": 449208,
+      "reference_rows": 12478,
+      "table": "control_stop_decisions"
+    },
+    {
+      "actual_rows": 2017,
+      "fields": 72612,
+      "reference_rows": 2017,
+      "table": "control_entry_opportunities"
+    },
+    {
+      "actual_rows": 2370,
+      "fields": 30810,
+      "reference_rows": 2370,
+      "table": "control_observed_gaps"
+    },
+    {
+      "actual_rows": 12,
+      "fields": 312,
+      "reference_rows": 12,
+      "table": "control_PERIOD_END_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 504,
+      "fields": 26208,
+      "reference_rows": 504,
+      "table": "experiment_trades"
+    },
+    {
+      "actual_rows": 1,
+      "fields": 27,
+      "reference_rows": 1,
+      "table": "experiment_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 10622,
+      "fields": 467368,
+      "reference_rows": 10622,
+      "table": "experiment_stop_decisions"
+    },
+    {
+      "actual_rows": 2017,
+      "fields": 72612,
+      "reference_rows": 2017,
+      "table": "experiment_entry_opportunities"
+    },
+    {
+      "actual_rows": 2370,
+      "fields": 30810,
+      "reference_rows": 2370,
+      "table": "experiment_observed_gaps"
+    },
+    {
+      "actual_rows": 10,
+      "fields": 290,
+      "reference_rows": 10,
+      "table": "experiment_PERIOD_END_OPEN_POSITIONS"
+    },
+    {
+      "actual_rows": 90,
+      "fields": 4320,
+      "reference_rows": 90,
+      "table": "CSV_summary"
+    },
+    {
+      "actual_rows": 90,
+      "fields": 4320,
+      "reference_rows": 90,
+      "table": "JSON_summary"
+    },
+    {
+      "actual_rows": 720,
+      "fields": 31680,
+      "reference_rows": 720,
+      "table": "CSV_monthly"
+    },
+    {
+      "actual_rows": 720,
+      "fields": 31680,
+      "reference_rows": 720,
+      "table": "JSON_monthly"
+    },
+    {
+      "actual_rows": 505,
+      "fields": 13130,
+      "reference_rows": 505,
+      "table": "CSV_trade_comparison"
+    },
+    {
+      "actual_rows": 505,
+      "fields": 13130,
+      "reference_rows": 505,
+      "table": "JSON_trade_comparison"
+    },
+    {
+      "actual_rows": 2017,
+      "fields": 36306,
+      "reference_rows": 2017,
+      "table": "CSV_signal_comparison"
+    },
+    {
+      "actual_rows": 2017,
+      "fields": 36306,
+      "reference_rows": 2017,
+      "table": "JSON_signal_comparison"
+    },
+    {
+      "actual_rows": 32,
+      "fields": 1088,
+      "reference_rows": 32,
+      "table": "CSV_cohort32"
+    },
+    {
+      "actual_rows": 32,
+      "fields": 1088,
+      "reference_rows": 32,
+      "table": "JSON_cohort32"
+    },
+    {
+      "actual_rows": 83,
+      "fields": 2158,
+      "reference_rows": 83,
+      "table": "CSV_winner_retention"
+    },
+    {
+      "actual_rows": 83,
+      "fields": 2158,
+      "reference_rows": 83,
+      "table": "JSON_winner_retention"
+    },
+    {
+      "actual_rows": 45,
+      "fields": 1575,
+      "reference_rows": 45,
+      "table": "CSV_effect_summary"
+    },
+    {
+      "actual_rows": 45,
+      "fields": 1575,
+      "reference_rows": 45,
+      "table": "JSON_effect_summary"
+    }
+  ]
+}

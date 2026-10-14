@@ -1,0 +1,385 @@
+{
+  "evidence": [
+    {
+      "files": [
+        {
+          "direct_bytes_identical": true,
+          "path": "results/MISSING_ADJACENT_OPEN.csv",
+          "sha256": "aa01a3e56d4546114ab3bc50c6a37f5fb4249b476ca1796d6d148761c605879b"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/PENDING_SIGNALS.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/REPORT.md",
+          "sha256": "fedded3bf9e7c445fac85ccc3320c3727dc64925aa07b825b4fc161da1445b34"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/SOURCE_MANIFEST.json",
+          "sha256": "1abc418af49ee59a8a4c479139b14a46282679dea868b7606bfea86202758fb5"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/TABLES.json",
+          "sha256": "ef8fd5a93bd6848bb7a4ffaa48a961e4732decac7be1af4be3a75d4ed8a09176"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/TEST_RESULTS.txt",
+          "sha256": "2adf1562306d582bd6452a61c4c7b4a9ca22fd2ef1a40325e29ccf9f306a1902"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/closed_equity.csv",
+          "sha256": "aba90fec9894cdc5b8898068c421fdf06ef2147bedc5831cc233e31d9e53e5a5"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/comparison.csv",
+          "sha256": "0cd7ff423d4f190a76f0f523f3159de5ad6fbef7fbea887d1543bea0a7a1c8b7"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/entry_price_sensitivity.csv",
+          "sha256": "b95789e18dd7c2a7a171c368da0e82ab12c915369bdac1bc7f5628999ed8367c"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/funnel_occupancy.csv",
+          "sha256": "6068f702498f0a109a9ce9dbc409ecb43a7114bb889750643de4c8a883b1ec29"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/lineage.csv",
+          "sha256": "70f01d893420f7a6ed4e2347875cc60b408579840c94152a144d2222d0d254b0"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/monthly.csv",
+          "sha256": "7c170335d1783fe8aaf4079b428e2d70ca30b93c9a1925aa756108bad4fbe57b"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/negative_results.csv",
+          "sha256": "1817d56667eefc93d8b26188250cce5829fb8fb7a31383a91960ff9acfef2b44"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/new_entries.csv",
+          "sha256": "b9f53da482c57c019f3e33e272db2c4e1484caa72a66148c0b9ac0a9522807d3"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/next_open/OPEN_POSITIONS.json",
+          "sha256": "a97ed77f2529038ad1f8a4c21bb0131d6f893b47859c6a6115c8f6832bba57c3"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/next_open/PERIOD_END_OPEN_POSITIONS.json",
+          "sha256": "8e503f31c7f43b3b424855f36fbf0ca978e54262fef9f770724f0d1aa75ce33e"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/next_open/entry_opportunities.csv",
+          "sha256": "b3d7d8ea4ee4facedd455b84a230866c4d846bbc3df3ad9f206c0f85c7e905d4"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/next_open/observed_gaps.csv",
+          "sha256": "b715a42520d0ebf964da26115083cb887b19d6fce24f10e2aef0efe55fa91e59"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/next_open/stop_decisions.csv",
+          "sha256": "b7bba3cb40a764bf4510f7f23fd175605200136ffb0a008bbc4a474449e4f730"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/next_open/trades.csv",
+          "sha256": "103e54d9c11d15e08d51bf09f2c51d95924d4f229141d2bff2fd5c39ac87a99e"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/november.csv",
+          "sha256": "3c546569c0f09741bd59a90b95c43f1b4e0bb28cec9b7c0f898140a388798b2c"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/signal_close/CONTROL_DIFF.csv",
+          "sha256": "19a2de2c15dc4984fcd327f61c8fc4ff055a2f719c7f905e8552f4195e074b94"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/signal_close/CONTROL_GATE.json",
+          "sha256": "ac6d5ef361f9fde7ac19e61c6aca96fd4460a3deb35ac9ca031f46a892e208bd"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/signal_close/OPEN_POSITIONS.json",
+          "sha256": "7e8c6b275077fb96664557859788f2644d0fe5b125730ba2fd80ed18738c1802"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/signal_close/PERIOD_END_OPEN_POSITIONS.json",
+          "sha256": "eab1932a95f72f3db91dcf4a87b4e61a45bb59a23345342276461eaf0c491481"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/signal_close/entry_opportunities.csv",
+          "sha256": "7b120b399bfcb78e13b42091a27f7fe9807c8736d2e24df5abee7fe9adf38e79"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/signal_close/observed_gaps.csv",
+          "sha256": "f74d223b811ab0f3de36cc1f9e4dad61c31661435058ca5182aa440ced6e9d06"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/signal_close/stop_decisions.csv",
+          "sha256": "a48d01047fae9cb0d6a448d940cc8947e735bc58336f6ce772c13742082b3df9"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/signal_close/trades.csv",
+          "sha256": "f47d2b4cf03c2a9ce35e935fb3dc3569ec029acb4ae53dad4c1a6c6331216fa8"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/summary.csv",
+          "sha256": "d7c39a83d05dd4eb5f8da76abc9483c673a17bc122c0fc8c692f8f7109dd5c44"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/winner_retention.csv",
+          "sha256": "fc1f1c62279e39ec22960f641e3fd191f4667ddd03061031370a6cd17ca46c49"
+        }
+      ],
+      "group": "results",
+      "repeat": 1,
+      "status": "PASS"
+    },
+    {
+      "files": [
+        {
+          "direct_bytes_identical": true,
+          "path": "audit/AUDIT_RESULT.json",
+          "sha256": "596acbc0336b23ef63dc652a630c24bc702772a09ffcb4993177f948196025bb"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "audit/DIFFERENCES.csv",
+          "sha256": "19a2de2c15dc4984fcd327f61c8fc4ff055a2f719c7f905e8552f4195e074b94"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "audit/OPEN_POSITIONS.json",
+          "sha256": "dc6bb7c7267cd1a0663cfe45ba6edd4ee276ec87d19bff0b5997d74bc16762a2"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "audit/PERIOD_END_OPEN_POSITIONS.json",
+          "sha256": "d989bf316d5c1f2c6562fed96a5d1aa4c71817f3ccd84d2e879851db92b3e694"
+        }
+      ],
+      "group": "audit",
+      "repeat": 1,
+      "status": "PASS"
+    },
+    {
+      "files": [
+        {
+          "direct_bytes_identical": true,
+          "path": "results/MISSING_ADJACENT_OPEN.csv",
+          "sha256": "aa01a3e56d4546114ab3bc50c6a37f5fb4249b476ca1796d6d148761c605879b"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/PENDING_SIGNALS.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/REPORT.md",
+          "sha256": "fedded3bf9e7c445fac85ccc3320c3727dc64925aa07b825b4fc161da1445b34"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/SOURCE_MANIFEST.json",
+          "sha256": "1abc418af49ee59a8a4c479139b14a46282679dea868b7606bfea86202758fb5"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/TABLES.json",
+          "sha256": "ef8fd5a93bd6848bb7a4ffaa48a961e4732decac7be1af4be3a75d4ed8a09176"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/TEST_RESULTS.txt",
+          "sha256": "2adf1562306d582bd6452a61c4c7b4a9ca22fd2ef1a40325e29ccf9f306a1902"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/closed_equity.csv",
+          "sha256": "aba90fec9894cdc5b8898068c421fdf06ef2147bedc5831cc233e31d9e53e5a5"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/comparison.csv",
+          "sha256": "0cd7ff423d4f190a76f0f523f3159de5ad6fbef7fbea887d1543bea0a7a1c8b7"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/entry_price_sensitivity.csv",
+          "sha256": "b95789e18dd7c2a7a171c368da0e82ab12c915369bdac1bc7f5628999ed8367c"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/funnel_occupancy.csv",
+          "sha256": "6068f702498f0a109a9ce9dbc409ecb43a7114bb889750643de4c8a883b1ec29"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/lineage.csv",
+          "sha256": "70f01d893420f7a6ed4e2347875cc60b408579840c94152a144d2222d0d254b0"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/monthly.csv",
+          "sha256": "7c170335d1783fe8aaf4079b428e2d70ca30b93c9a1925aa756108bad4fbe57b"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/negative_results.csv",
+          "sha256": "1817d56667eefc93d8b26188250cce5829fb8fb7a31383a91960ff9acfef2b44"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/new_entries.csv",
+          "sha256": "b9f53da482c57c019f3e33e272db2c4e1484caa72a66148c0b9ac0a9522807d3"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/next_open/OPEN_POSITIONS.json",
+          "sha256": "a97ed77f2529038ad1f8a4c21bb0131d6f893b47859c6a6115c8f6832bba57c3"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/next_open/PERIOD_END_OPEN_POSITIONS.json",
+          "sha256": "8e503f31c7f43b3b424855f36fbf0ca978e54262fef9f770724f0d1aa75ce33e"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/next_open/entry_opportunities.csv",
+          "sha256": "b3d7d8ea4ee4facedd455b84a230866c4d846bbc3df3ad9f206c0f85c7e905d4"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/next_open/observed_gaps.csv",
+          "sha256": "b715a42520d0ebf964da26115083cb887b19d6fce24f10e2aef0efe55fa91e59"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/next_open/stop_decisions.csv",
+          "sha256": "b7bba3cb40a764bf4510f7f23fd175605200136ffb0a008bbc4a474449e4f730"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/next_open/trades.csv",
+          "sha256": "103e54d9c11d15e08d51bf09f2c51d95924d4f229141d2bff2fd5c39ac87a99e"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/november.csv",
+          "sha256": "3c546569c0f09741bd59a90b95c43f1b4e0bb28cec9b7c0f898140a388798b2c"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/signal_close/CONTROL_DIFF.csv",
+          "sha256": "19a2de2c15dc4984fcd327f61c8fc4ff055a2f719c7f905e8552f4195e074b94"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/signal_close/CONTROL_GATE.json",
+          "sha256": "ac6d5ef361f9fde7ac19e61c6aca96fd4460a3deb35ac9ca031f46a892e208bd"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/signal_close/OPEN_POSITIONS.json",
+          "sha256": "7e8c6b275077fb96664557859788f2644d0fe5b125730ba2fd80ed18738c1802"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/signal_close/PERIOD_END_OPEN_POSITIONS.json",
+          "sha256": "eab1932a95f72f3db91dcf4a87b4e61a45bb59a23345342276461eaf0c491481"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/signal_close/entry_opportunities.csv",
+          "sha256": "7b120b399bfcb78e13b42091a27f7fe9807c8736d2e24df5abee7fe9adf38e79"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/signal_close/observed_gaps.csv",
+          "sha256": "f74d223b811ab0f3de36cc1f9e4dad61c31661435058ca5182aa440ced6e9d06"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/signal_close/stop_decisions.csv",
+          "sha256": "a48d01047fae9cb0d6a448d940cc8947e735bc58336f6ce772c13742082b3df9"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/signal_close/trades.csv",
+          "sha256": "f47d2b4cf03c2a9ce35e935fb3dc3569ec029acb4ae53dad4c1a6c6331216fa8"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/summary.csv",
+          "sha256": "d7c39a83d05dd4eb5f8da76abc9483c673a17bc122c0fc8c692f8f7109dd5c44"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "results/winner_retention.csv",
+          "sha256": "fc1f1c62279e39ec22960f641e3fd191f4667ddd03061031370a6cd17ca46c49"
+        }
+      ],
+      "group": "results",
+      "repeat": 2,
+      "status": "PASS"
+    },
+    {
+      "files": [
+        {
+          "direct_bytes_identical": true,
+          "path": "audit/AUDIT_RESULT.json",
+          "sha256": "596acbc0336b23ef63dc652a630c24bc702772a09ffcb4993177f948196025bb"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "audit/DIFFERENCES.csv",
+          "sha256": "19a2de2c15dc4984fcd327f61c8fc4ff055a2f719c7f905e8552f4195e074b94"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "audit/OPEN_POSITIONS.json",
+          "sha256": "dc6bb7c7267cd1a0663cfe45ba6edd4ee276ec87d19bff0b5997d74bc16762a2"
+        },
+        {
+          "direct_bytes_identical": true,
+          "path": "audit/PERIOD_END_OPEN_POSITIONS.json",
+          "sha256": "d989bf316d5c1f2c6562fed96a5d1aa4c71817f3ccd84d2e879851db92b3e694"
+        }
+      ],
+      "group": "audit",
+      "repeat": 2,
+      "status": "PASS"
+    }
+  ],
+  "fresh_processes": true,
+  "status": "PASS",
+  "two_fresh_repeats": true
+}

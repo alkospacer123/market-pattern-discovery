@@ -1,0 +1,17 @@
+{
+  "engine.py": {
+    "origin": "IntradayLab/t3_m15_execution_sensitivity_v1/engine.py",
+    "sha256": "30d429f5e62e124555b7df992a0fee0e0a404b02df0a6160cbf287031e09df0d",
+    "byte_identical": true
+  },
+  "scalar.py": {
+    "origin": "IntradayLab/t3_m15_execution_sensitivity_v1/scalar.py",
+    "sha256": "fc022325d9ec9539006c3b1882c975556c6624f8e0beddbb9af3b73d0b6a5739",
+    "byte_identical": true
+  },
+  "common.py": "Copied #504; only base main and fixed five-key VERSIONS changed",
+  "primary_metrics.py": "#504 numpy metrics + WIN/LOSS descriptive fields",
+  "scalar_metrics.py": "#504 scalar stats + independently computed WIN/LOSS descriptive fields",
+  "audit.py": "New separate scalar report validation; no primary executable imports",
+  "author_independence": "One author; independent computations, external human review PENDING"
+}

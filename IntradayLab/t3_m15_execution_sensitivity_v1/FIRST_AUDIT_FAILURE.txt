@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/workspace/work/execution-repo/IntradayLab/t3_m15_execution_sensitivity_v1/audit.py", line 140, in <module>
+    p=argparse.ArgumentParser();p.add_argument('--data-root',type=Path,default=Path('/workspace/market-pattern-data'));p.add_argument('--primary',type=Path,default=C.HERE/'results');p.add_argument('--output',type=Path,default=C.HERE/'audit');a=p.parse_args();run(a.data_root,a.primary,a.output)
+                                                                                                                                                                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/work/execution-repo/IntradayLab/t3_m15_execution_sensitivity_v1/audit.py", line 126, in run
+    c=lookup('SIGNAL_CLOSE','ALL');n=lookup('NEXT_OPEN','ALL');a=lookup('NEXT_OPEN',2023);b=lookup('NEXT_OPEN',2024)
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/work/execution-repo/IntradayLab/t3_m15_execution_sensitivity_v1/audit.py", line 125, in <lambda>
+    lookup=lambda mode,year:stats([r for r in t if matches(r,row) and r['mode']==mode and (year=='ALL' or r['exit_time'].year==year)],C.CALENDAR if year=='ALL' else [m for m in C.CALENDAR if m.startswith(str(year))])
+                                                   ^^^^^^^^^^^^^^
+  File "/workspace/work/execution-repo/IntradayLab/t3_m15_execution_sensitivity_v1/audit.py", line 42, in matches
+    return (r['rule']==target['rule'] and r['version']==target['version'] and
+                       ~~~~~~^^^^^^^^
+KeyError: 'rule'

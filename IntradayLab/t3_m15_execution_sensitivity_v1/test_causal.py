@@ -1,0 +1,132 @@
+"""Synthetic execution fixtures only; no historical outcomes used."""
+from datetime import datetime,timedelta
+from pathlib import Path
+import tempfile,unittest
+import pandas as pd
+import common as C,engine as E,scalar as S
+
+def fixture(times=None,signals=None,side=1):
+    times=times or ['2024-04-01 10:00','2024-04-01 10:15','2024-04-01 10:30']
+    signals=signals or [side,0,0]
+    out=[]
+    for t,s in zip(times,signals):
+        at=datetime.fromisoformat(t).replace(tzinfo=C.TZ)
+        h={'at':at,'adx':25.,'slope':side*1.,'ratio':1.2,'ema':99.,'c':101.}
+        out.append({'at':at,'o':100.,'h':100.5,'l':99.5,'c':100.,'v':1.,'atr':1.,'previous_atr':1.,'upper':99.,'lower':101.,'signal':s,'h1':h,'previous_h1':h|{'ratio':1.1,'at':at-timedelta(hours=1)}})
+    return out
+
+def frame(bars):
+    rows=[]
+    for b in bars:
+        r={k:b[v] for k,v in [('Open','o'),('High','h'),('Low','l'),('Close','c'),('Volume','v'),('ATR','atr'),('PreviousATR','previous_atr'),('PriorHigh','upper'),('PriorLow','lower'),('Signal','signal')]}
+        for name,key in [('ADX','adx'),('Slope','slope'),('ATRRatio','ratio'),('AvailableAt','at')]:
+            r['H1'+name]=b['h1'][key];r['H1Previous'+name]=b['previous_h1'][key]
+        rows.append(r)
+    return pd.DataFrame(rows,index=pd.DatetimeIndex([b['at'] for b in bars]))
+
+class Causal(unittest.TestCase):
+    def runs(self,bars,rule='COMBINED',mode='NEXT_OPEN'):
+        return [E.replay(frame(bars),'USDRUBF','BASELINE',rule,mode),S.simulate(bars,'USDRUBF','BASELINE',rule,mode)]
+    def test_entry_uses_next_open_and_signal_atr_both_sides(self):
+        for side in (1,-1):
+            b=fixture(side=side);b[1].update(o=101.,h=101.5,l=100.5,c=101.,atr=9.)
+            for t,o,d,e,g,sn in self.runs(b):
+                self.assertEqual(e[0]['entry_price'],101.);self.assertEqual(e[0]['candidate_initial_stop'],101.-side*2)
+                self.assertEqual(d[0]['initial_risk'],2.);self.assertEqual(d[0]['bar_open_time'],b[0]['at'])
+    def test_stop_on_execution_bar_before_activation_both_sides(self):
+        for side in (1,-1):
+            b=fixture(side=side);b[1].update(h=110.,l=90.)
+            for t,o,d,e,g,sn in self.runs(b):
+                self.assertEqual(len(t),1);self.assertEqual(t[0]['gross_R'],-1.)
+                self.assertFalse(t[0]['threshold_activated']);self.assertEqual(t[0]['MFE_R'],0.)
+                self.assertEqual(t[0]['bars_held'],1)
+    def test_execution_future_extrema_cannot_change_entry(self):
+        a=fixture();b=fixture();b[1].update(h=1e6,l=-1e6,c=4e5)
+        for ra,rb in zip(self.runs(a),self.runs(b)):
+            for field in ('entry_accepted','entry_price','candidate_initial_stop','execution_open_time'):
+                self.assertEqual(ra[3][0][field],rb[3][0][field])
+    def test_gaps_skip_instead_of_wait(self):
+        for gap in (30,60,24*60,3*24*60):
+            b=fixture();b[1]['at']=b[0]['at']+timedelta(minutes=gap);b=b[:2]
+            for t,o,d,e,g,sn in self.runs(b):
+                self.assertFalse(e[0]['entry_accepted']);self.assertEqual(e[0]['decision_reason'],'SKIPPED_MISSING_ADJACENT_OPEN')
+                self.assertFalse(t or o or d)
+    def test_pending_last_signal(self):
+        for t,o,d,e,g,sn in self.runs(fixture()[:1]):
+            self.assertFalse(t or o);self.assertEqual(e[0]['decision_reason'],'UNRESOLVED_END_OF_DATA')
+    def test_s1_survived_execution_bar_activation_next_bar_stop(self):
+        for side in (1,-1):
+            b=fixture(side=side);b[1].update(h=104. if side==1 else 100.5,l=99.5 if side==1 else 96.)
+            b[2].update(o=100.,h=100.5,l=99.5)
+            for t,o,d,e,g,sn in self.runs(b):
+                self.assertEqual(d[0]['phase'],'SURVIVED');self.assertTrue(d[0]['threshold_activated_now'])
+                self.assertEqual(d[0]['active_stop_next_bar'],101. if side==1 else 99.)
+                self.assertTrue(d[1]['stop_hit']);self.assertTrue(t[0]['exit_at_open'])
+    def test_no_s1_activation_from_signal_extreme(self):
+        for side in (1,-1):
+            b=fixture(side=side);b[0].update(h=1000.,l=-1000.)
+            for t,o,d,e,g,sn in self.runs(b):self.assertTrue(all(not r['activated_after'] for r in d))
+    def test_s1_threshold_equality_and_ratchet(self):
+        b=fixture();b[1]['h']=102.;b[2].update(o=101.,l=100.,h=105.,c=104.)
+        for t,o,d,e,g,sn in self.runs(b):
+            self.assertTrue(d[0]['threshold_activated_now']);self.assertGreaterEqual(d[1]['active_stop_next_bar'],d[0]['active_stop_next_bar'])
+    def test_t1_on_signal_not_execution_close(self):
+        for sig,accepted in [('09:45',False),('10:00',True),('17:45',True),('18:00',False)]:
+            a=datetime.fromisoformat('2024-04-01 '+sig);times=[(a+i*C.STEP).isoformat() for i in range(2)]
+            for t,o,d,e,g,sn in self.runs(fixture(times,[1,0])):self.assertEqual(e[0]['entry_accepted'],accepted)
+    def test_t1_no_filter_recheck_on_execution(self):
+        b=fixture();b[1]['h1']['ratio']=0.5
+        for t,o,d,e,g,sn in self.runs(b):self.assertTrue(e[0]['entry_accepted'])
+    def test_a6_completed_signal_context_only(self):
+        b=fixture();b[1]['h1']['ratio']=0.5
+        for t,o,d,e,g,sn in self.runs(b,'C1'):self.assertTrue(e[0]['entry_accepted'])
+        b[0]['h1']['ratio']=1.1
+        for t,o,d,e,g,sn in self.runs(b,'C1'):self.assertFalse(e[0]['entry_accepted'])
+    def test_occupied_signals_not_queued(self):
+        b=fixture(signals=[1,1,1])
+        for t,o,d,e,g,sn in self.runs(b):
+            self.assertEqual(sum(x['entry_accepted'] for x in e),1);self.assertEqual(e[1]['decision_reason'],'POSITION_OCCUPIED')
+    def test_same_close_reentry_after_execution_stop(self):
+        b=fixture(signals=[1,1,0]);b[1]['l']=97.
+        for t,o,d,e,g,sn in self.runs(b):
+            self.assertEqual(len(t),1);self.assertTrue(e[1]['entry_accepted']);self.assertEqual(e[1]['same_close_exit_trade_id'],t[0]['trade_id'])
+            self.assertEqual(o['signal_time'],b[1]['at'])
+    def test_pending_across_2023_2024_adjacent(self):
+        b=fixture(['2023-12-31 23:45','2024-01-01 00:00'],[1,0])
+        for t,o,d,e,g,sn in self.runs(b,'C1'):self.assertTrue(e[0]['entry_accepted']);self.assertEqual(o['entry_time'],b[0]['at'])
+    def test_pending_year_gap_is_skipped(self):
+        b=fixture(['2023-12-29 23:45','2024-01-03 09:15'],[1,0])
+        for t,o,d,e,g,sn in self.runs(b,'C1'):self.assertEqual(e[0]['decision_reason'],'SKIPPED_MISSING_ADJACENT_OPEN')
+    def test_2025_replay_forbidden(self):
+        b=fixture(['2024-12-31 23:45','2025-01-01 00:00'],[1,0])
+        with self.assertRaises(AssertionError):E.replay(frame(b),'USDRUBF','BASELINE','C1','NEXT_OPEN')
+        with self.assertRaises(AssertionError):S.simulate(b,'USDRUBF','BASELINE','C1','NEXT_OPEN')
+    def test_timestamp_first_future_poison(self):
+        with tempfile.TemporaryDirectory(dir='/workspace/work') as tmp:
+            p=Path(tmp)/'test.csv';p.write_bytes(b'Ticker;Datetime;Open;High;Low;Close;Volume\nX;2024-12-30 10:00:00;100;101;99;100;1\nX;2025-01-01 10:00:00;FUTURE_POISON\n')
+            self.assertEqual(len(E.read_source(p)),1);self.assertEqual(len(C.parse_prefix(p)[0]),1)
+    def test_adverse_open_gap_later_both_sides(self):
+        for side in (1,-1):
+            b=fixture(side=side);b[2].update(o=97. if side==1 else 103.,h=103.,l=97.)
+            for t,o,d,e,g,sn in self.runs(b):self.assertEqual(t[0]['gross_R'],-1.5);self.assertTrue(t[0]['gap_exit'])
+    def test_t1_trails_without_s1(self):
+        b=fixture();b[1].update(h=101.5,atr=.5)
+        for t,o,d,e,g,sn in self.runs(b,'T1'):self.assertEqual(d[0]['active_stop_next_bar'],100.);self.assertFalse(d[0]['activated_after'])
+    def test_signal_close_control_excludes_signal_extrema(self):
+        b=fixture();b[0].update(h=999.,l=-999.)
+        for t,o,d,e,g,sn in self.runs(b,mode='SIGNAL_CLOSE'):self.assertEqual(len(d),2);self.assertEqual(e[0]['entry_price'],100.)
+    def test_feature_prefix_and_H1_causality(self):
+        b=[]
+        for i in range(420):
+            at=datetime(2024,1,1,tzinfo=C.TZ)+i*C.STEP;price=100+i*.03
+            b.append({'at':at,'o':price,'h':price+1,'l':price-1,'c':price+.2,'v':1})
+        def raw(x):return pd.DataFrame([{k:r[v] for k,v in [('Open','o'),('High','h'),('Low','l'),('Close','c'),('Volume','v')]} for r in x],index=pd.DatetimeIndex([r['at'] for r in x]))
+        full=E.features(raw(b));prefix=E.features(raw(b[:401]));pd.testing.assert_frame_equal(full.iloc[:401],prefix)
+        a=C.build_features(b);p=C.build_features(b[:401]);self.assertEqual(C.plain(a[:401]),C.plain(p))
+        for r in a:
+            if r['h1']:self.assertLessEqual(r['h1']['at'],r['at'])
+    def test_exit_candle_cannot_activate_s1(self):
+        b=fixture();b[2].update(h=999.,l=97.)
+        for t,o,d,e,g,sn in self.runs(b):self.assertFalse(t[0]['threshold_activated']);self.assertEqual(t[0]['MFE_R'],.25)
+
+if __name__=='__main__':unittest.main(verbosity=2)

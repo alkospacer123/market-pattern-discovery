@@ -1,0 +1,32 @@
+test_adverse_open_gap_long_short (__main__.Execution.test_adverse_open_gap_long_short) ... ok
+test_all_synthetic_records_independent_replay (__main__.Execution.test_all_synthetic_records_independent_replay) ... ok
+test_busy_reprocessed_changes_later_entry (__main__.Execution.test_busy_reprocessed_changes_later_entry) ... ok
+test_first_bar_is_blocked_in_t2 (__main__.Execution.test_first_bar_is_blocked_in_t2) ... ok
+test_forbidden_keeps_position_and_stop (__main__.Execution.test_forbidden_keeps_position_and_stop) ... ok
+test_future_poison_OHLC_not_parsed (__main__.Execution.test_future_poison_OHLC_not_parsed) ... ok
+test_indicators_prefix_invariant (__main__.Execution.test_indicators_prefix_invariant) ... ok
+test_no_future_bars (__main__.Execution.test_no_future_bars) ... ok
+test_replay_prefix_no_lookahead (__main__.Execution.test_replay_prefix_no_lookahead) ... ok
+test_same_close_reentry_allowed (__main__.Execution.test_same_close_reentry_allowed) ... ok
+test_same_close_reentry_gated (__main__.Execution.test_same_close_reentry_gated) ... ok
+test_stop_first_long_short (__main__.Execution.test_stop_first_long_short) ... ok
+test_t2_forbidden_keeps_open_after_gap (__main__.Execution.test_t2_forbidden_keeps_open_after_gap) ... ok
+test_trail_only_after_survived_bar (__main__.Execution.test_trail_only_after_survived_bar) ... ok
+test_year_transfer_and_open_snapshot (__main__.Execution.test_year_transfer_and_open_snapshot) ... ok
+test_independent_gates (__main__.Gates.test_independent_gates) ... ok
+test_monotonic_required (__main__.Gates.test_monotonic_required) ... ok
+test_rules_closed (__main__.Gates.test_rules_closed) ... ok
+test_t1_exact_boundaries (__main__.Gates.test_t1_exact_boundaries) ... ok
+test_t1_utc_equivalence (__main__.Gates.test_t1_utc_equivalence) ... ok
+test_t2_continuous_midnight (__main__.Gates.test_t2_continuous_midnight) ... ok
+test_t2_day_and_weekend_gaps (__main__.Gates.test_t2_day_and_weekend_gaps) ... ok
+test_t2_exact_15_allowed (__main__.Gates.test_t2_exact_15_allowed) ... ok
+test_t2_first_after_gap_only (__main__.Gates.test_t2_first_after_gap_only) ... ok
+test_t2_missing_previous (__main__.Gates.test_t2_missing_previous) ... ok
+test_t2_previous_every_bar_not_previous_signal (__main__.Gates.test_t2_previous_every_bar_not_previous_signal) ... ok
+test_timezone_required (__main__.Gates.test_timezone_required) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 0.167s
+
+OK

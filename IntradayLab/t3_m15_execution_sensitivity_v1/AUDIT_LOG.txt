@@ -1,0 +1,86 @@
+{
+  "status": "PASS",
+  "fields_compared": 6570563,
+  "differences": 0,
+  "max_numeric_delta": 1.1368683772161603e-13,
+  "absolute_tolerance": 1e-08,
+  "CLOSED": 6457,
+  "terminal_OPEN": 12,
+  "stop_decisions": 135604,
+  "signal_decisions": 24204,
+  "tables": [
+    {
+      "table": "SIGNAL_CLOSE_trades",
+      "actual_rows": 3231,
+      "reference_rows": 3231,
+      "fields": 158319
+    },
+    {
+      "table": "SIGNAL_CLOSE_OPEN_POSITIONS",
+      "actual_rows": 6,
+      "reference_rows": 6,
+      "fields": 144
+    },
+    {
+      "table": "SIGNAL_CLOSE_stop_decisions",
+      "actual_rows": 67515,
+      "reference_rows": 67515,
+      "fields": 2430540
+    },
+    {
+      "table": "SIGNAL_CLOSE_entry_opportunities",
+      "actual_rows": 12102,
+      "reference_rows": 12102,
+      "fields": 363060
+    },
+    {
+      "table": "SIGNAL_CLOSE_observed_gaps",
+      "actual_rows": 14220,
+      "reference_rows": 14220,
+      "fields": 184860
+    },
+    {
+      "table": "SIGNAL_CLOSE_PERIOD_END_OPEN_POSITIONS",
+      "actual_rows": 62,
+      "reference_rows": 62,
+      "fields": 1612
+    },
+    {
+      "table": "NEXT_OPEN_trades",
+      "actual_rows": 3226,
+      "reference_rows": 3226,
+      "fields": 158074
+    },
+    {
+      "table": "NEXT_OPEN_OPEN_POSITIONS",
+      "actual_rows": 6,
+      "reference_rows": 6,
+      "fields": 144
+    },
+    {
+      "table": "NEXT_OPEN_stop_decisions",
+      "actual_rows": 68089,
+      "reference_rows": 68089,
+      "fields": 2451204
+    },
+    {
+      "table": "NEXT_OPEN_entry_opportunities",
+      "actual_rows": 12102,
+      "reference_rows": 12102,
+      "fields": 435672
+    },
+    {
+      "table": "NEXT_OPEN_observed_gaps",
+      "actual_rows": 14220,
+      "reference_rows": 14220,
+      "fields": 184860
+    },
+    {
+      "table": "NEXT_OPEN_PERIOD_END_OPEN_POSITIONS",
+      "actual_rows": 66,
+      "reference_rows": 66,
+      "fields": 1716
+    }
+  ],
+  "independence": "separate dataframe/object vs stdlib streaming/dict; same author; human review PENDING"
+}
