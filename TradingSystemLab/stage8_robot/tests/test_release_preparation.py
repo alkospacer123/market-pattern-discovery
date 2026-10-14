@@ -612,3 +612,94 @@ def test_native_windows_candidate_state_junction_refused_before_db_open(external
     finally:
         if linked:os.rmdir(state)  # Only remove test-created junction, not its target.
         saved.rename(state)
+
+def test_explicit_v2_production_selector_stays_closed_before_side_effects(tmp_path):
+    """Operator's CLI choice cannot bypass the compiled physical fill gate."""
+    from TradingSystemLab.stage8_robot import production_service as svc
+    root=tmp_path/'never-created'
+    calls=[]
+    def forbidden(*args,**kwargs):
+        calls.append((args,kwargs))
+        raise AssertionError('NO_REAL_OR_SYNTHETIC_FINAM_CLIENT')
+    env={'FINAM_MODE':svc.MODE,'FINAM_API_SECRET':'synthetic','FINAM_REAL_ACCOUNT_ID':ACCOUNT,
+         'FINAM_FILL_AUTHORITY_VERIFIED':'true'}
+    with pytest.raises(svc.ProductionServiceError,match='V2_RELEASE_AUTHORITY_NOT_VERIFIED'):
+        svc.run_from_environment(root,tmp_path/'data',accepted_commit=COMMIT,
+            execution_revision=EXECUTION_REVISION,environment=env,api_factory=forbidden)
+    assert calls==[] and not root.exists()
+
+
+def test_explicit_v2_rejects_unknown_revision_before_side_effects(tmp_path):
+    from TradingSystemLab.stage8_robot import production_service as svc
+    root=tmp_path/'untouched'
+    env={'FINAM_MODE':svc.MODE,'FINAM_API_SECRET':'synthetic','FINAM_REAL_ACCOUNT_ID':ACCOUNT}
+    with pytest.raises(svc.ProductionServiceError,match='EXECUTION_REVISION_INVALID'):
+        svc.run_from_environment(root,tmp_path/'data',accepted_commit=COMMIT,
+            execution_revision='V2_UNKNOWN',environment=env,
+            api_factory=lambda _:pytest.fail('FINAM_CLIENT_CONSTRUCTED'))
+    assert not root.exists()
+
+
+def test_explicit_v2_and_readonly_manifest_mutually_exclusive(tmp_path):
+    from TradingSystemLab.stage8_robot import production_service as svc
+    root=tmp_path/'untouched'
+    env={'FINAM_MODE':svc.MODE,'FINAM_API_SECRET':'synthetic','FINAM_REAL_ACCOUNT_ID':ACCOUNT}
+    with pytest.raises(svc.ProductionServiceError,match='V2_PREVIEW_AND_TRADING_MODE_CONFLICT'):
+        svc.run_from_environment(root,tmp_path/'data',accepted_commit=COMMIT,once=True,
+            execution_revision=EXECUTION_REVISION,release_manifest=tmp_path/'missing',
+            release_manifest_sha256='0'*64,environment=env,
+            api_factory=lambda _:pytest.fail('FINAM_CLIENT_CONSTRUCTED'))
+    assert not root.exists()
+
+
+def test_explicit_v2_open_gate_requires_existing_state_and_new_commit_authority(tmp_path,monkeypatch):
+    """Synthetic wiring check only: deliberately bypass the otherwise closed constant."""
+    from TradingSystemLab.stage8_robot import production_service as svc
+    root=tmp_path/'isolated-v2-fixture'
+    env={'FINAM_MODE':svc.MODE,'FINAM_API_SECRET':'synthetic','FINAM_REAL_ACCOUNT_ID':ACCOUNT}
+    calls=[]
+    monkeypatch.setattr(svc,'FINAM_FILL_AUTHORITY_VERIFIED',True)
+    with pytest.raises(svc.ProductionServiceError,match='ISOLATED_V2_STATE_REQUIRED'):
+        svc.run_from_environment(root,tmp_path/'data',accepted_commit=COMMIT,
+            execution_revision=EXECUTION_REVISION,environment=env,
+            api_factory=lambda _:pytest.fail('FINAM_CLIENT_CONSTRUCTED'))
+    database=root/'state'/svc.STATE_DATABASE
+    database.parent.mkdir(parents=True)
+    database.write_bytes(b'synthetic-only-wiring-fixture-not-a-real-sqlite-db')
+    def refuse(*args,**kwargs):
+        calls.append(kwargs)
+        raise svc.ProductionServiceError('STAGE8_493_SYNTHETIC_MISSING_NEW_AUTHORITY')
+    monkeypatch.setattr(svc,'load_authorization',refuse)
+    with pytest.raises(svc.ProductionServiceError,match='SYNTHETIC_MISSING_NEW_AUTHORITY'):
+        svc.run_from_environment(root,tmp_path/'data',accepted_commit=COMMIT,
+            execution_revision=EXECUTION_REVISION,environment=env,
+            api_factory=lambda _:pytest.fail('FINAM_CLIENT_CONSTRUCTED'))
+    assert calls and calls[0]['expected_commit']==COMMIT
+    assert len(calls[0]['expected_account_hash'])==64
+
+
+def test_explicit_v2_selection_is_only_opt_in_and_preserves_legacy_default(tmp_path,monkeypatch):
+    """No real adapter or order: check exact construction kwargs only."""
+    from TradingSystemLab.stage8_robot import production_service as svc
+    root=tmp_path/'isolated-v2'
+    database=root/'state'/svc.STATE_DATABASE
+    database.parent.mkdir(parents=True)
+    database.write_bytes(b'synthetic-only-wiring-fixture-not-a-real-sqlite-db')
+    env={'FINAM_MODE':svc.MODE,'FINAM_API_SECRET':'synthetic','FINAM_REAL_ACCOUNT_ID':ACCOUNT}
+    captured=[]
+    class FakeService:
+        def __init__(self,*args,**kwargs): captured.append(kwargs)
+        def authenticate(self): pass
+        def run(self,**kwargs): return 0
+        def close(self): pass
+    monkeypatch.setattr(svc,'FINAM_FILL_AUTHORITY_VERIFIED',True)
+    monkeypatch.setattr(svc,'load_authorization',lambda *a,**k:None)
+    monkeypatch.setattr(svc,'ProductionService',FakeService)
+    assert svc.run_from_environment(root,tmp_path/'data',accepted_commit=COMMIT,
+        execution_revision=EXECUTION_REVISION,once=True,environment=env,api_factory=lambda _:object())==0
+    assert captured[-1]['execution_revision']==EXECUTION_REVISION
+    assert svc.run_from_environment(root,tmp_path/'data',accepted_commit=COMMIT,
+        once=True,environment=env,api_factory=lambda _:object())==0
+    assert 'execution_revision' not in captured[-1]
+
+
