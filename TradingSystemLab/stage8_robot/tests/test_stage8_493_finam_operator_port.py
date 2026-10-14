@@ -105,9 +105,9 @@ def port(api=None, gate=None):
     return instance, api
 
 
-def permit(action, bound_plan):
+def permit(action, bound_plan, key):
     assert action in {"ENTRY", "SLTP", "CANCEL", "EXIT"}
-    assert bound_plan == plan()
+    assert bound_plan == plan() and isinstance(key, str) and key
 
 
 def test_default_readonly_observation_and_write_denial():
