@@ -142,3 +142,37 @@ STAGE8_493_FINAL_PRODUCTION_RELEASE_NEEDS_FIX.** The factual two-contract
 one-shot and durable journal should never be repeated simply to obtain
 another sample. No merge, LIVE SQLite/Task/authorization change, rearm,
 trading token usage or new order was performed by this audit.
+
+## 2026-10-14 READONLY FINAM AccountTrade closeout (same test, zero new orders)
+
+**This supersedes ONLY the unverified 2026-10-14 entry/exit fill-price
+claim above**, not the unresolved future-history/stop-growth release gates.
+Operator ran the separately provided
+`stage8-493-final-fills-readonly.ps1` on Intel and supplied its sanitized
+output; the agent did **not** independently download raw broker trade JSON,
+account identifiers, or confidential local report bytes.
+
+- READONLY session exact account binding: PASS.
+- Existing flat account / broker order-ID linkage: PASS.
+- BUY `order_id` SHA256 prefix `e21fc5a889385f34`:
+  one bounded `AccountTrade` row, quantity 2.0, weighted fill price **12.533**.
+- SELL `order_id` SHA256 prefix `4aeb70e7f7b93c22`:
+  one bounded `AccountTrade` row, quantity 2.0, weighted fill price **12.516**.
+- `ACCOUNTTRADE_20261014_LINKAGE=PASS_FOR_RETRIEVED_BOUNDED_HISTORY`.
+  The calculation is 2 × (12.516−12.533) / 0.001 × 1 RUB/tick =
+  **−34.000 RUB gross before fees**.
+- `BROKER_NET_PROFIT_AND_COMMISSIONS=NOT_VERIFIED`;
+  `HISTORY_RETENTION_AFTER_RESTART_AND_STOP_TRIGGER=NOT_PROVEN`.
+- Wrapper PASS, no broker order/cancel/exit/stop POST, Task/kill switch unchanged,
+  no LIVE SQLite writes or alteration of the immutable 8-record journal.
+
+**Updated audit verdict:** `EXISTING_TWO_LOT_BUY_SELL_ACCOUNTTRADE_PASS`,
+`ENTRY_SLTP_JOURNAL_IDS_MATCH_BROKER_PASS`, `MANUAL_DOUBLE_FLAT_PASS`,
+`STOP_PRICE_DECIMAL_FIX_29_OF_29_PASS`, **candidate live release
+`NEEDS_FIX`**. Real natural 1→2 coverage, stop trigger semantics and
+restart retention were not established by this single 0→2 trade.
+The next work is still release task 3.1: a bounded review of existing V2
+readiness and operator approval gates, not another trading experiment.
+`FINAM_FILL_AUTHORITY_VERIFIED=False` must remain unchanged until separately
+approved physical authority is sufficient. PR is not authorized to merge,
+deploy or rearm by this diagnostic.
