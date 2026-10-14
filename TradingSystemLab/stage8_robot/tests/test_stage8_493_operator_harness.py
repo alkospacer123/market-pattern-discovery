@@ -140,12 +140,16 @@ def test_wrong_stop_cannot_pass_one_to_two(tmp_path,field,value):
     assert b.stop_posts==1 and op.journal.count('operator_hold')==1
 
 
-def test_broker_history_missing_prevents_stop(tmp_path):
+def test_broker_history_missing_holds_after_protective_stop(tmp_path):
     b=Fake();b.fills_valid=False
     op,b=new(tmp_path,b)
     with pytest.raises(h.Hold,match='FILL_HISTORY_MISSING'):
         op.entry_and_growth()
-    assert b.stop_posts==0 and op.journal.count('operator_hold')==1
+    # Trades API may fail after the broker has opened a position.
+    # The protective backstop MUST already have been installed and observed.
+    assert b.stop_posts==1 and b.entry_posts==1
+    assert op.journal.count('stop_ack')==1 and op.journal.count('entry_fills')==0
+    assert op.journal.count('operator_hold')==1
 
 
 def test_account_identity_mismatch_blocks_entry(tmp_path):
@@ -292,3 +296,21 @@ def test_any_active_historical_order_still_blocks_precheck(tmp_path):
     with pytest.raises(h.Hold, match="INITIAL_ACCOUNT_NOT_FLAT"):
         operator.entry_and_growth()
     assert broker.entry_posts == 0
+
+
+def test_stop_installed_before_any_history_request(tmp_path):
+    broker=Fake()
+    history_events=[]
+    actual_install=broker.install_stop
+    actual_fills=broker.fills
+    def install(**kwargs):
+        history_events.append('SLTP')
+        return actual_install(**kwargs)
+    def fills(order_id):
+        history_events.append('TRADES_GET')
+        return actual_fills(order_id)
+    broker.install_stop=install
+    broker.fills=fills
+    operator, _=new(tmp_path,broker)
+    assert operator.entry_and_growth()=='STOP_AT_ONE_OBSERVED_GROWTH_PENDING'
+    assert history_events==['SLTP','TRADES_GET']
