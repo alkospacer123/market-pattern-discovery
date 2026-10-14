@@ -1,0 +1,170 @@
+{
+  "date": "2026-10-14",
+  "scope": "IntradayLab only, fixed frozen T3/M15 A6+S1 NEXT_OPEN TRAIL_375",
+  "classification": "POST_HOC_DESCRIPTIVE_GROSS_ONLY_NOT_LIVE_READY",
+  "source_repo": "alkospacer123/market-pattern-discovery",
+  "source_pr": 513,
+  "source_pr_head": "c17709a748f6247e8bd6bf85c9b4f20fac14a4dd",
+  "source_file": "IntradayLab/t3_m15_a6_s1_true_oos_2026_ytd_v1/results/primary/trades.csv",
+  "source_blob_sha1": "17750384d7eb8279724905f38f973d9051f095fc",
+  "source_closed_count": 1026,
+  "validations": [
+    "source trade row count and individual unique IDs: 1026",
+    "fixed N4 annual Gross PF matches published 2023, 2024, 2025, 2026 values",
+    "fixed N4 positive months 35/45 and portfolio closed-R DD 28.637394/4",
+    "fixed N2 Gross PF, R and DD agree with PR514 subset table after risk normalization"
+  ],
+  "normalization": "Each variant's instrument risk fractions sum to 1; each closed trade contributes fraction(instrument) * original gross_R; DD uses chronological exit-based closed R and starts at zero for each annual slice.",
+  "not_included": [
+    "broker/market fees, spread, slippage, funding",
+    "gross capital sizing, cash account returns, margin and concurrent-position budget enforcement",
+    "independent OOS for a weight mix selected after viewing 2025/2026",
+    "partial-year 2026 endpoint completion"
+  ],
+  "cases": {
+    "N4_EQUAL": {
+      "2023": {
+        "gross_pf": 2.207278,
+        "weighted_gross_r_budget_units": 22.597668,
+        "max_closed_r_dd_budget_units": 1.504169,
+        "positive_months": 9,
+        "covered_months": 12,
+        "closed": 165
+      },
+      "2024": {
+        "gross_pf": 1.772134,
+        "weighted_gross_r_budget_units": 30.532996,
+        "max_closed_r_dd_budget_units": 3.157014,
+        "positive_months": 11,
+        "covered_months": 12,
+        "closed": 315
+      },
+      "2025": {
+        "gross_pf": 1.581308,
+        "weighted_gross_r_budget_units": 21.719153,
+        "max_closed_r_dd_budget_units": 7.159349,
+        "positive_months": 7,
+        "covered_months": 12,
+        "closed": 300
+      },
+      "2026": {
+        "gross_pf": 2.062109,
+        "weighted_gross_r_budget_units": 29.685877,
+        "max_closed_r_dd_budget_units": 3.184587,
+        "positive_months": 8,
+        "covered_months": 9,
+        "closed": 246
+      },
+      "fixed_budget_fractions": {
+        "USDRUBF": 0.25,
+        "CNYRUBF": 0.25,
+        "GLDRUBF": 0.25,
+        "IMOEXF": 0.25
+      },
+      "ALL": {
+        "gross_pf": 1.845936,
+        "weighted_gross_r_budget_units": 104.535694,
+        "max_closed_r_dd_budget_units": 7.159349,
+        "positive_months": 35,
+        "covered_months": 45,
+        "closed": 1026
+      }
+    },
+    "N4_BALANCED": {
+      "2023": {
+        "gross_pf": 2.373397,
+        "weighted_gross_r_budget_units": 29.312011,
+        "max_closed_r_dd_budget_units": 1.838217,
+        "positive_months": 9,
+        "covered_months": 12,
+        "closed": 165
+      },
+      "2024": {
+        "gross_pf": 1.807298,
+        "weighted_gross_r_budget_units": 31.498717,
+        "max_closed_r_dd_budget_units": 3.629425,
+        "positive_months": 10,
+        "covered_months": 12,
+        "closed": 315
+      },
+      "2025": {
+        "gross_pf": 1.725865,
+        "weighted_gross_r_budget_units": 25.730148,
+        "max_closed_r_dd_budget_units": 9.106057,
+        "positive_months": 6,
+        "covered_months": 12,
+        "closed": 300
+      },
+      "2026": {
+        "gross_pf": 2.151278,
+        "weighted_gross_r_budget_units": 29.911088,
+        "max_closed_r_dd_budget_units": 3.467896,
+        "positive_months": 7,
+        "covered_months": 9,
+        "closed": 246
+      },
+      "fixed_budget_fractions": {
+        "USDRUBF": 0.3333333333333333,
+        "CNYRUBF": 0.3333333333333333,
+        "GLDRUBF": 0.16666666666666666,
+        "IMOEXF": 0.16666666666666666
+      },
+      "ALL": {
+        "gross_pf": 1.956182,
+        "weighted_gross_r_budget_units": 116.451964,
+        "max_closed_r_dd_budget_units": 9.106057,
+        "positive_months": 32,
+        "covered_months": 45,
+        "closed": 1026
+      }
+    },
+    "N2_CURRENCY": {
+      "2023": {
+        "gross_pf": 2.607254,
+        "weighted_gross_r_budget_units": 42.740698,
+        "max_closed_r_dd_budget_units": 2.757325,
+        "positive_months": 9,
+        "covered_months": 12,
+        "closed": 129
+      },
+      "2024": {
+        "gross_pf": 1.880551,
+        "weighted_gross_r_budget_units": 33.430158,
+        "max_closed_r_dd_budget_units": 6.191605,
+        "positive_months": 8,
+        "covered_months": 12,
+        "closed": 150
+      },
+      "2025": {
+        "gross_pf": 2.067515,
+        "weighted_gross_r_budget_units": 33.752137,
+        "max_closed_r_dd_budget_units": 13.201833,
+        "positive_months": 7,
+        "covered_months": 12,
+        "closed": 136
+      },
+      "2026": {
+        "gross_pf": 2.377411,
+        "weighted_gross_r_budget_units": 30.361509,
+        "max_closed_r_dd_budget_units": 6.736692,
+        "positive_months": 6,
+        "covered_months": 8,
+        "closed": 108
+      },
+      "fixed_budget_fractions": {
+        "USDRUBF": 0.5,
+        "CNYRUBF": 0.5,
+        "GLDRUBF": 0,
+        "IMOEXF": 0
+      },
+      "ALL": {
+        "gross_pf": 2.186666,
+        "weighted_gross_r_budget_units": 140.284503,
+        "max_closed_r_dd_budget_units": 13.201833,
+        "positive_months": 30,
+        "covered_months": 44,
+        "closed": 523
+      }
+    }
+  }
+}
