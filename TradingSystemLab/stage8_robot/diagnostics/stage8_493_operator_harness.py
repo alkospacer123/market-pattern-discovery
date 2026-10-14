@@ -182,13 +182,11 @@ class OperatorHarness:
         signed = snapshot['position'] * (1 if self.plan.direction == 'LONG' else -1)
         if signed not in (1, 2):
             self._hold('ENTRY_PARTIAL_OBSERVATION_UNKNOWN')
-        try:
-            self._entry_fills(order_id, signed)
-        except Hold as exc:
-            self._hold(str(exc))
-        self.journal.add('entry_fills', quantity=signed, order_id=order_id)
-        # Even direct 0->2 must be covered before classifying the physical
-        # partial-growth experiment INCONCLUSIVE; never strand two lots naked.
+        # Protection takes precedence over the historical fill-history GET.
+        # GET /trades can be slow/HTTP400 even after a real entry; delaying
+        # SLTP until it succeeds would strand an observed position naked.
+        # The entry ACK and exact broker position are already observed here.
+        # Fill reconciliation remains mandatory below before declaring success.
         self.journal.add('stop_intent', key=self.plan.stop_key, after_quantity=signed, percent=100)
         try:
             stop_id = self.port.install_stop(key=self.plan.stop_key, symbol=self.plan.symbol,
@@ -206,6 +204,11 @@ class OperatorHarness:
             self._hold(str(exc))
         if snapshot['position'] != (signed if self.plan.direction == 'LONG' else -signed):
             self._hold('POSITION_CHANGED_DURING_STOP_INSTALL')
+        try:
+            self._entry_fills(order_id, signed)
+        except Hold as exc:
+            self._hold(str(exc))
+        self.journal.add('entry_fills', quantity=signed, order_id=order_id)
         if signed == 2:
             self._hold('DIRECT_0_TO_2_INCONCLUSIVE_MANUAL_RECOVERY')
         self.journal.add('stop_at_one_observed', order_id=stop_id)
