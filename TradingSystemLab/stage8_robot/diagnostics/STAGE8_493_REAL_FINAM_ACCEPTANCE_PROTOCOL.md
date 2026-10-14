@@ -979,3 +979,60 @@ reconciliation; preserve the original journal, order IDs and evidence privately.
 `FINAL_FLAT_NOT_PROVEN`; `STAGE8_493_TASK_2_2_STILL_OPEN`.
 Frozen Stage7 `TRAIL1__N4_01__FULL__R15`, N4/robot Task/deployed
 checkout and main are untouched; **NO robot rearm/merge/deploy**.
+
+## 2026-10-14 — post-trade READONLY reconciliation and narrow price-match fix
+
+**Operator-supplied physical evidence, not a new agent FINAM request.**
+One real CNYRUBF@RTSX LONG entry of **2 contracts** was followed by an
+operator-supervised SELL of **2** and separate manual SLTP cancellation.
+The independent FINAM READONLY snapshots establish this chronological sequence:
+
+- Before manual exit: twice **position +2**, one active `SLTP/WATCHING`
+  `SIDE_SELL`, `SLTP_QTY_MEASURE_PERCENT=100`, stop price `12.23`,
+  `VALID_BEFORE_GOOD_TILL_CANCEL`; entry order terminal `FILLED`.
+- After manual exit: twice **position 0**, SELL and BUY orders terminal
+  `FILLED`, but the same protective SLTP was still **WATCHING** (one active
+  order). Flat position alone was *not* treated as fully reconciled.
+- After separately cancelling the orphaned SLTP in the FINAM terminal:
+  twice **position 0**, **active orders 0**, SLTP `DISABLED`, both regular
+  orders `FILLED`; exact READONLY output `DOUBLE_BROKER_FLAT=PASS`.
+  Production Task/kill switch were unchanged by the probes; no LIVE SQLite,
+  new order, automatic cancel/flatten or rearm was performed by this fix.
+
+The original external one-attempt journal contained exactly **8 numbered
+JSON records**: precheck, one entry intent, one ENTRY write intent and ACK,
+one stop intent, one SLTP write intent and ACK, and the single
+`ACTIVE_SAME_SLTP_100_PERCENT_NOT_OBSERVED` operator HOLD. Truncated SHA-256
+IDs in the journal READONLY verifier agreed with the separately observed
+broker ENTRY and SLTP IDs. There is **no recorded duplicate ENTRY**; manual
+SELL and SLTP cancellation are not represented as harness writes (correctly:
+they occurred outside the harness). The journal was **not rewritten**.
+
+**Root cause isolated:** exact-ID/side/status/symbol/100% stop matched all
+recorded broker fields; the candidate harness compared string `12.23` to
+planned `12.230`. These are numerically identical on CNYRUBF's 0.001 tick
+grid but not text-identical. This Draft-only fix compares finite, positive
+`Decimal` values, retaining all other checks. Two offline regression
+functions cover equivalent normalized prices and wrong/invalid prices;
+a direct 0→2 fill remains `DIRECT_0_TO_2_INCONCLUSIVE_MANUAL_RECOVERY`,
+**not** a physical partial-growth or stop-trigger PASS.
+
+Operator-reported execution fills: BUY **12.533** ×2, SELL **12.516** ×2.
+The *conditional* gross price result is **−34 RUB** at 1 RUB/tick/contract,
+excluding broker/exchange charges; these fills and net charges are **not yet
+independently matched to immutable FINAM AccountTrade history**.
+Values **13.109 / 12.001** shown on the terminal's order list are not
+asserted to be fill prices. Original `12.530` was a pre-entry reference,
+not an execution fill. The 800 RUB modeled scenario and 1,000 RUB operator
+budget remain historical approvals, **not** guaranteed worst-case risk limits.
+
+**Classification:** `MANUAL_RECOVERY_DOUBLE_BROKER_FLAT_OPERATOR_EVIDENCE_PASS`;
+`ENTRY_SLTP_JOURNAL_ID_LINK_OPERATOR_EVIDENCE_PASS`;
+`NORMALIZED_STOP_TEXT_FALSE_HOLD_IDENTIFIED`;
+`STOP_TRIGGER_NOT_PROVEN`; `NATURAL_PARTIAL_FILL_GROWTH_NOT_PROVEN`;
+`NET_FINAM_FILL_AND_FEES_NOT_RECONCILED`.
+The candidate-only code fix and tests **do not** authorize a new acceptance
+trade or assert `LIVE_PRODUCTION_READY`. Frozen T3/H1/TRAIL1, N4, FULL/R15,
+Stage7 identity, existing production checkout, Task and LIVE SQLite are
+unchanged. PR #493 stays Draft; no merge/deployment/rearm before independent
+audit and separate operator decision.
