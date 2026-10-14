@@ -199,6 +199,11 @@ def test_stop_cancel_requires_flat_and_exact_broker_order():
         bridge.cancel("finam-stop-1")
     assert api.cancel_submissions == []
     api.position = 0
+    # Flatness alone is insufficient: entry remainder can still fill.
+    with pytest.raises(Hold, match="OPERATOR_CANCEL_NOT_SAFE"):
+        bridge.cancel("finam-stop-1")
+    api.entry_status = "ORDER_STATUS_CANCELLED"
+    api.entry_remaining = 0
     assert bridge.cancel("finam-stop-1") == "CANCEL_ACK_NOT_TERMINAL_PROOF"
     assert api.cancel_submissions == [(ACCOUNT, "finam-stop-1")]
 
