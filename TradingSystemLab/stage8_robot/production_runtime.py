@@ -44,6 +44,26 @@ class ProductionRuntimeError(RuntimeError):
     pass
 
 
+def _project_execution_stop(direction: str, raw, step: Decimal) -> Decimal:
+    """Outward absolute N4 grid projection for executable stops only."""
+    try:
+        price, tick = Decimal(str(raw)), Decimal(str(step))
+        if (direction not in {"LONG", "SHORT"} or not price.is_finite()
+                or not tick.is_finite() or price <= 0 or tick <= 0):
+            raise ValueError
+        pn, pd = price.as_integer_ratio()
+        sn, sd = tick.as_integer_ratio()
+        ticks, remainder = divmod(pn * sd, pd * sn)
+        if direction == "SHORT" and remainder:
+            ticks += 1
+        coefficient = int("".join(map(str, tick.as_tuple().digits))) * ticks
+        if coefficient <= 0:
+            raise ValueError
+        return Decimal((0, tuple(map(int, str(coefficient))), tick.as_tuple().exponent))
+    except (ValueError, TypeError, ArithmeticError) as exc:
+        raise ProductionRuntimeError("EXECUTION_STOP_GRID_INVALID") from exc
+
+
 @dataclass(frozen=True)
 class InstrumentAuthority:
     instrument: str
@@ -350,24 +370,22 @@ class ProductionRuntime:
             raise ProductionRuntimeError("UNRESOLVED_INTENT_BLOCKS_NEW_ENTRY")
         contract = ContractEconomics(
             authority.price_step, authority.tick_value, authority.trade_lot_size, True)
+        entry = Decimal(str(signal.entry))
+        raw_stop = Decimal(str(signal.initial_stop))
+        stop_exec = _project_execution_stop(signal.direction, raw_stop, authority.price_step)
+        if (not entry.is_finite() or entry <= 0 or raw_stop <= 0
+                or _project_execution_stop("LONG", entry, authority.price_step) != entry
+                or (signal.direction == "LONG" and (raw_stop >= entry or stop_exec >= entry))
+                or (signal.direction == "SHORT" and (raw_stop <= entry or stop_exec <= entry))):
+            raise ProductionRuntimeError("EXECUTION_ENTRY_OR_STOP_INVALID")
         try:
-            base = size_position(
-                realized_equity, Decimal(str(signal.entry)),
-                Decimal(str(signal.initial_stop)), contract)
+            base = size_position(realized_equity, entry, stop_exec, contract)
         except ValueError as exc:
-            if str(exc) != "STOP_NOT_ON_TICK_GRID":
-                raise
-            self._consume_pending_signal(signal)
-            return RuntimeAction(
-                "SKIP_STOP_NOT_ON_TICK_GRID", None, signal.instrument, authority.finam_symbol,
-                signal.direction, 0, signal.trade_id, signal.signal_id,
-                Decimal(str(signal.entry)), Decimal(str(signal.initial_stop)), 0,
-                "STOP_NOT_ON_TICK_GRID",
-            )
+            raise ProductionRuntimeError("EXECUTION_PROJECTED_SIZING_INVALID") from exc
         sized = cap_r15_by_margin(
             realized_equity=realized_equity,
             entry=Decimal(str(signal.entry)),
-            stop=Decimal(str(signal.initial_stop)),
+            stop=stop_exec,
             price_step=authority.price_step,
             tick_value=authority.tick_value,
             r15_quantity=base.quantity,
@@ -381,7 +399,7 @@ class ProductionRuntime:
             return RuntimeAction(
                 "SKIP_ZERO_CAPACITY", None, signal.instrument, authority.finam_symbol,
                 signal.direction, 0, signal.trade_id, signal.signal_id,
-                Decimal(str(signal.entry)), Decimal(str(signal.initial_stop)), 0,
+                Decimal(str(signal.entry)), stop_exec, 0,
                 "INSUFFICIENT_R15_OR_MARGIN_CAPACITY",
             )
 
@@ -393,7 +411,7 @@ class ProductionRuntime:
             return RuntimeAction(
                 "SKIP_RISK_LIMIT", None, signal.instrument, authority.finam_symbol,
                 signal.direction, 0, signal.trade_id, signal.signal_id,
-                Decimal(str(signal.entry)), Decimal(str(signal.initial_stop)), 0,
+                Decimal(str(signal.entry)), stop_exec, 0,
                 "MAXIMUM_NOMINAL_INITIAL_RISK_EXCEEDED",
             )
         reservation = sized.initial_margin * sized.final_quantity
@@ -406,7 +424,7 @@ class ProductionRuntime:
         payload = RuntimeAction(
             "ENTRY", key, signal.instrument, authority.finam_symbol, signal.direction,
             sized.final_quantity, signal.trade_id, signal.signal_id,
-            Decimal(str(signal.entry)), Decimal(str(signal.initial_stop)), expected,
+            Decimal(str(signal.entry)), stop_exec, expected,
         ).payload()
         payload.update({
             "risk_cash": str(frozen_risk_cash),
@@ -428,7 +446,7 @@ class ProductionRuntime:
         return RuntimeAction(
             "ENTRY", key, signal.instrument, authority.finam_symbol, signal.direction,
             sized.final_quantity, signal.trade_id, signal.signal_id,
-            Decimal(str(signal.entry)), Decimal(str(signal.initial_stop)), expected,
+            Decimal(str(signal.entry)), stop_exec, expected,
         )
 
     def _protective_stop_action_from_payload(self, payload: dict[str, Any]) -> RuntimeAction:
@@ -605,8 +623,21 @@ class ProductionRuntime:
             raise ProductionRuntimeError("PROTECTIVE_STOP_NOT_ACTIVE")
 
         position = _position_from_dict(value)
-        previous_stop = position.current_stop
+        step = Decimal(self.registry[instrument]["price_step"])
+        previous_stop = Decimal(str(position.current_stop))
+        if _project_execution_stop(position.direction, previous_stop, step) != previous_stop:
+            raise ProductionRuntimeError("PERSISTED_PROTECTIVE_STOP_OFF_GRID")
+        # TRAIL1 activation occurs before this bar's stop test. Snap its
+        # previously stored candidate to an executable grid price first.
+        trail = position.trail1
+        if trail.triggered and not trail.activated and trail.stored_candidate is not None:
+            trail.stored_candidate = float(_project_execution_stop(position.direction, trail.stored_candidate, step))
         outcome = self.core.manage(position, bar)
+        if outcome["event"] == "HOLD":
+            if trail.stored_candidate is not None:
+                trail.stored_candidate = float(_project_execution_stop(position.direction, trail.stored_candidate, step))
+            projected = _project_execution_stop(position.direction, position.current_stop, step)
+            position.current_stop = float(max(previous_stop, projected) if position.direction == "LONG" else min(previous_stop, projected))
         value.update(_position_to_dict(position, {
             k: value[k] for k in (
                 "finam_symbol", "quantity", "risk_cash", "actual_initial_loss_cash",
