@@ -792,3 +792,40 @@ not run v1 `-mode execute`: its missing physical recovery and wrong candidate
 module binding have NOT been independently accepted. Existing stage 2.2
 remains open; one-off operator test, final flatness and full robot release
 require physical pass and accepted safe execute/recovery. No merge or rearm.
+
+
+## 2026-10-14 — Intel operator v2 exact child false block, v3 focused fix
+
+Operator ran standalone `stage8-493-intel-inspect-v2.ps1` on Intel.
+`exact_python_sources=pass`, all **11/11** targeted tests PASS,
+`fresh_isolation_and_broker_flat=pass`, then the **second**, inner
+`native_isolation_gate()` returned `NATIVE_HOST_ISOLATION_FAILED`.
+This establishes the failure of the duplicate nested PowerShell check,
+**not** the particular underlying native predicate; no detailed sanitized
+native child reason was captured. Classification remains `INSPECT_BLOCKED`,
+not any trade-readiness PASS. No real order, cancel, Task/SQLite mutation.
+
+Candidate external `stage8-493-intel-inspect-v3.ps1` isolates this
+single duplication for **GET-only session inspection**: the original
+pinned `stage8-493-post-isolation-readonly.ps1` must still PASS with its
+full native checks (Task Disabled, process-zero, lock, production SQLite
+read-only, HALTED, bound FINAM broker flatness). Immediately after the
+exact required PASS markers, parent supplies an ephemeral inspection-only
+marker to the child; the extra encoded-command nested PowerShell is not
+repeated. The executable remains hard order-incapable (session auth and
+allowlisted GET requests only), with no method that submits/cancels orders.
+This inspection-only structure is **NOT AUTHORITY** for a future write
+launcher; its physical checks and emergency recovery must be independently
+accepted at the actual order boundary.
+
+v3 external wrapper SHA-256:
+`BA21F4D7DBA3A5F926DF9E9B173C779DC14924E169EA66EBDE060481BC14C85D`.
+Embedded Python SHA-256:
+`B346491E8B64B8F2110E76BFF96F31B32829CBD6EB3E21A9BB370FF6C26E2612`.
+Embedded tests SHA-256:
+`26D83F453DB6A071FD8F1BF0C42D174619BC4D72138D2CE81B3C8C4ED3E689FD`.
+Local on Linux: Python AST PASS, 11/11 synthetic tests PASS, static forbidden
+order-call scan PASS. **Intel Windows physical v3 pending**. Tariff has
+already been supplied as FINAM Unified Day **0.45 RUB per contract per side**;
+there is no reason to re-ask. The user-authorized CNYRUBF LONG 2-lot,
+1000 RUB scenario acceptance remains NOT EXECUTED, production frozen.
