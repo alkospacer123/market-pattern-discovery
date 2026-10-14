@@ -176,3 +176,47 @@ readiness and operator approval gates, not another trading experiment.
 `FINAM_FILL_AUTHORITY_VERIFIED=False` must remain unchanged until separately
 approved physical authority is sufficient. PR is not authorized to merge,
 deploy or rearm by this diagnostic.
+
+## 2026-10-14 review — bounded stop-growth fail-closed correction
+
+The official FINAM Trade API schema specifies that
+`SLTP_QTY_MEASURE_PERCENT` interprets `quantity_sl=100` as 100% of
+the position **at the time of execution**, not at SLTP creation.
+Source: https://api.finam.ru/docs/rest/ (POST PlaceSLTPOrder, `sl_qty_measure`).
+This is authoritative **contract semantics**, not physical proof of
+timing, stop fills, market gaps or races in a natural same-ENTRY 1→2 event.
+The real operator trade observed exactly one broker SLTP `WATCHING`
+at 100% while holding the immediate full two-contract position.
+
+The independent code review identified a narrow safety issue:
+candidate `production_runtime.py` could accept a fresh matching
+broker SLTP echo after later position growth and resume normal
+management, while its own durable growth evidence explicitly stated
+`real_finam_dynamic_coverage_proven=False`.
+
+**Candidate-only corrective decision (not LIVE deployed):** keep the
+exact same active SLTP ID, unchanged percent payload, original immutable
+stop intent and current observed exposure; persist the fresh account/order
+growth observation but **always enter sticky `HALTED` /
+`OPERATOR_INTERVENTION_REQUIRED` on growth after SLTP became ACTIVE**.
+Do not post another ENTRY/SLTP/EXIT/cancel, infer true stop-trigger
+coverage, or resume automatically on restart. If the broker echo is
+missing/mismatched, the pre-existing missing-stop HALT still applies.
+Growth *before* the initial SLTP submission continues to refresh the
+actual position quantity before the one first protection POST.
+
+Focused synthetic tests of matched/mismatched growth, retained stop
+ID, sticky HALT, existing V2 no-entry guard and restart are updated in
+`test_stage8_493_partial_growth_candidate.py` and
+`test_finam_durable_fill_handoff.py`. **Intel execution of these updated
+tests remains PENDING**; no PASS is claimed until the pinned GitHub
+checkout is independently tested. The 29/29 earlier one-shot harness PASS
+remains valid for its unchanged original scope, not for this new fix.
+
+**Release decision stays NEEDS FIX.** This reduces the specific failure
+mode without making natural 1→2, stop-trigger or broker fill history
+retention PASS. A production V2 entrypoint/commit-bound authorization,
+HALTED migration and isolated cutover still require separate release
+work and explicit operator authorization under existing tasks 3.1–3.6.
+No frozen strategy, N4, FULL/R15, Stage7 identity, LIVE source,
+production Task, LIVE SQLite or trading authorization were changed.
