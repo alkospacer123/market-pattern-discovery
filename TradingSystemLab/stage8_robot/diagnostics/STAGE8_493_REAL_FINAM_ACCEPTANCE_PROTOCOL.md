@@ -692,3 +692,28 @@ margin, state/Task/kill-switch and independently approved exact-action receipt.
 
 **No real ENTRY/SLTP/CANCEL/EXIT authorization, candidate merge, deploy or
 rearm was performed. Existing roadmap: finish task 2.2, then task 3.**
+
+
+## 2026-10-14 — explicit operator request to launch the controlled test
+
+The user explicitly instructed **"Запускай заявку!"** after viewing the
+2026-10-14 FINAM READONLY two-lot quote/cash/GO result. Treat this as the
+operator's intent to proceed with the **single isolated CNYRUBF@RTSX LONG
+quantity 2 acceptance**, under the previously approved **1,000 RUB scenario
+loss-and-cost budget**; **not** permission to alter Stage7 robot sizing,
+strategy, Task/kill-switch or to submit additional entries.
+
+**Execution status: NOT SENT / NOT EXECUTED.** ChatGPT's connected GitHub
+access cannot reach the operator's Intel machine or locally encrypted FINAM
+trading token. The candidate operator harness is intentionally not wired to
+an executable credential-bound CLI and requires independently verified
+pre-submit tariff, fresh quote, current 2-lot margin and zero exposure,
+account-bound active trading permission, and recoverable protective
+SLTP/manual-terminal exit. The read-only quote 12.548 and illustrative
+stop 12.248 at 12:09:41 UTC are historical reference values only and **must
+not become a stale trade ticket**. No real order was submitted and no new
+position/stop state can be inferred from this operator instruction.
+
+The existing roadmap task 2.2 remains open to complete the separate physical
+operator-only executable/recovery boundary and final live pre-submit checks.
+This record does not convert intention into successful physical acceptance.
