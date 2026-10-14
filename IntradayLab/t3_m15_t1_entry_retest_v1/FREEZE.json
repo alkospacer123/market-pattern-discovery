@@ -1,0 +1,21 @@
+{
+  "code_commit": "21b0c54a046857bacead8c19d87639da6e329b45",
+  "files": {
+    "README.md": "eb3ae7a6701b3b3f0ea3869637d11c0d076828e61a36744c4070c90340d687c6",
+    "SPEC.json": "477cbb4da585b3f024c9663908070cb85451d1dba3b538861c46a4680ec64d93",
+    "independent_stats.py": "40f48d8088dbd97d58cc33b10c33310816c777852e887e8ee0af544059790656",
+    "initial_git_context.json": "f566d58bf18d30fb086466a32598dd63e828fd8ad0d5c09ac5006ef76391160b",
+    "io_utils.py": "4057c96f8c09e89ff68e181ac70d243362b19d2a64baa03d800c767b897c9b9f",
+    "metrics.py": "2dc959a930f18116a25e843fc66ace7831d7d74f42d2ae76ab606a255b62c219",
+    "primary.py": "df4054477f87947ff93e962a70590c20006c487d0c4ba70a58c425f07b6e14f8",
+    "published.py": "7cc1c101cda598edc880a3b01c888e30cea8c977e792fc912f698be80dd56c66",
+    "repeat.py": "7c0d814ccc4c650bf92ef7891acbc5de28a7c30b6b26bea9480a7ef1a74e9976",
+    "report.py": "78b351454d1fb086582af1b871e0157c776705f273cebed3bb640ac814659eb7",
+    "requirements.txt": "50bd36afe0a4a4950f51db01fddfedc5d16814a1664c8a21a02e7c247b481bda",
+    "run.py": "b20884e1bad4f020e5ea6b86a09a07a5d7e723b6d2dbad7c4752805e027bc72f",
+    "source.py": "29e6b56bce2283ca321b9331bade810d858201a7d6c45cf74ebd6eb6892c0136",
+    "test_causal.py": "f65000d3020af8ad115d8cd347719a392d9311c6cf983ca22d01eac8d0b18dd0",
+    "verify.py": "b6eb929a6d6e7a5c5f0061110600c2d799ce82e7f1ef9410fe89121e581ba89c"
+  },
+  "scope": "Exactly T1 SIGNAL_CLOSE/NEXT_OPEN ATR3.5 N4; final code frozen after disclosed technical development corrections, before three full deterministic runs"
+}
