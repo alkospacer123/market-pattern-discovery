@@ -717,3 +717,34 @@ position/stop state can be inferred from this operator instruction.
 The existing roadmap task 2.2 remains open to complete the separate physical
 operator-only executable/recovery boundary and final live pre-submit checks.
 This record does not convert intention into successful physical acceptance.
+
+
+## 2026-10-14 — operator-only Intel launcher candidate, OFFLINE only
+
+An external audit-only bundled PowerShell candidate
+`stage8-493-intel-one-shot-v1.ps1` (SHA-256
+`736fe2cbdb5e54a4fa237aed36f5dfde0a7548d74efb78ab79caa8c5990cc695`)
+was prepared for transfer to the Intel operator, separate from the immutable
+LIVE checkout and without any new research phase. It embeds a Python
+operator candidate and 9 synthetic arithmetic/approval tests, locally passed
+on a non-Windows runner. **Windows PowerShell, live FINAM and real-order
+execution have not been physically validated**. Source is retained as
+an external candidate at this checkpoint, not asserted to be deployed.
+
+Its default `check` mode only installs hash-pinned code into the external
+`c:\\tslaudit\\fill493` audit directory and runs exact Python syntax and
+9 focused synthetic tests: no credential, broker or order. A later separate
+`inspect` or `execute` mode is gated on previously proven physical Task
+isolation/broker flatness, exact pinned production checkout, separate bound
+DPAPI trading account, fresh broker quote/depth/margin and independently
+attested local client tariff/recovery approval. There is no valid client
+fee-attestation receipt yet; therefore **DO NOT RUN execute**. Real loss
+is not absolutely limited by the 1,000 RUB *scenario* due to gaps and
+market-order slippage. A post-ENTRY HOLD requires supervised FINAM-terminal
+position/stop reconciliation and independently proven flatness; do not
+interpret ACK or 100%-SLTP echo as physical stop-trigger PASS.
+
+Status: `INTEL_OPERATOR_LAUNCHER_CANDIDATE_OFFLINE_9_PASS_WINDOWS_PENDING`;
+`REAL_ORDER_SENT=NO`, `LIVE_ROBOT_REARMED=NO`,
+`STAGE8_493_TASK_2_2_OPEN`. No production, strategy, N4, FULL/R15 or
+current state authority change.
