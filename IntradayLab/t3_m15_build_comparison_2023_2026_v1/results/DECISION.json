@@ -1,0 +1,13 @@
+{
+  "automatic_parameter_or_composition_change": false,
+  "best_compromise_N4": "A6_S1_NEXT_OPEN_TRAIL_375",
+  "classification": "POST_HOC_COMPARISON",
+  "composition_annual_gate": false,
+  "highest_Gross_PF_N4": "A6_S1_NEXT_OPEN_TRAIL_375",
+  "highest_Gross_R_N4": "A6_S1_NEXT_OPEN_TRAIL_3875",
+  "highest_month_regular_current_composition": "USDRUBF+IMOEXF",
+  "most_regular_N4": "A6_S1_NEXT_OPEN_TRAIL_3625",
+  "most_regular_annual_gate": false,
+  "overall": "NO_ROBUST_WINNER",
+  "retain_N4_as_frozen_research_control": true
+}

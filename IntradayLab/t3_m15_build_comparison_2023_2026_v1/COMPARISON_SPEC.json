@@ -1,0 +1,23 @@
+{
+  "study": "T3_M15_EXISTING_BUILD_COMPARISON_V1",
+  "classification": "POST_HOC_COMPARISON",
+  "scope": "51 unique frozen executable configurations; duplicate behavior merged with all historical origins; missing combinations NOT_TESTED",
+  "base_main": "d6946056332ce71658a6ca933cefa0740a7570a2",
+  "data_pin": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "PR513_readonly_SHA": "c17709a748f6247e8bd6bf85c9b4f20fac14a4dd",
+  "cutoff_exclusive": "2026-10-13T00:00:00+03:00",
+  "costs": "GROSS_ONLY; no fees, spread, slippage, funding, dividends or R haircuts",
+  "new_combinations": false,
+  "new_filters": false,
+  "new_optimization": false,
+  "forced_year_liquidation": false,
+  "ranking_group": "Causal NEXT_OPEN; idealized SIGNAL_CLOSE diagnostic group separately",
+  "ranking_order": ["positive years", "minimum annual positive covered-month fraction", "total positive months", "negative-month streak", "worst month", "CLOSED-R DD", "month concentration", "instrument concentration", "sample size", "minimum annual PF"],
+  "annual_roadmap_minimum": "Gross PF >=1.70 separately in DEVELOPMENT 2023 and 2024; preferred >2.0 each year",
+  "new_2026_PASS_threshold": null,
+  "portfolio": "All 15 nonempty subsets; descriptive pooled Gross R without shared sizing/capital limits",
+  "views": ["full available history", "common actual endpoint envelope", "exact shared completed-bar timestamps", "2026 January-July", "2026 remaining available prefix"],
+  "audit": "Frozen primary vs separate scalar features/state machines; new independent arithmetic; source pins; immutable historical bytes; first full run and two full byte repeats",
+  "evidence_classification": "2023/2024 development; 2025 frozen WF applies to TRAIL_375 only; original PR513 OOS status preserved; current ranking has no independent OOS confirmation",
+  "STOP": "After one new Draft PR for independent ChatGPT audit and user decision; NO MERGE / NO AUTO-MERGE / NO LIVE"
+}

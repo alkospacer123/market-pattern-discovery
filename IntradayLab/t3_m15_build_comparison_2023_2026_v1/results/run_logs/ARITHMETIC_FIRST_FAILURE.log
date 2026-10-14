@@ -1,0 +1,9 @@
+ARITHMETIC_AUDIT ANNUAL_COMPARISON 969
+Traceback (most recent call last):
+  File "/workspace/work/t3m15-comparison/IntradayLab/t3_m15_build_comparison_2023_2026_v1/audit_metrics.py", line 98, in <module>
+    p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);p.add_argument('--coverage',type=Path,required=True);a=p.parse_args();audit(a.output,json.loads(a.coverage.read_text()))
+                                                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/work/t3m15-comparison/IntradayLab/t3_m15_build_comparison_2023_2026_v1/audit_metrics.py", line 62, in audit
+    delta=abs(float(saved)-v);assert delta<=1e-8,(name,bid,k,saved,v,delta);maxdelta=max(maxdelta,delta)
+                                     ^^^^^^^^^^^
+AssertionError: ('MONTHLY_COMPARISON', 'A6_S1_NEXT_OPEN_TRAIL_3p0', 'best_instrument_share_R', '9705.003347284463', 9705.003347270433, 1.4029865269549191e-08)

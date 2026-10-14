@@ -1,0 +1,62 @@
+{
+  "status": "PASS",
+  "suites": [
+    {
+      "group": "entry_regime",
+      "status": "PASS",
+      "tests": 16
+    },
+    {
+      "group": "stop_exit",
+      "status": "PASS",
+      "tests": 20
+    },
+    {
+      "group": "combined",
+      "status": "PASS",
+      "tests": 20
+    },
+    {
+      "group": "initial_stop",
+      "status": "PASS",
+      "tests": 24
+    },
+    {
+      "group": "session_entry",
+      "status": "PASS",
+      "tests": 27
+    },
+    {
+      "group": "t1_s1",
+      "status": "PASS",
+      "tests": 40
+    },
+    {
+      "group": "execution_sensitivity",
+      "status": "PASS",
+      "tests": 22
+    },
+    {
+      "group": "a6_s1_trail_optimization",
+      "status": "PASS",
+      "tests": 25
+    },
+    {
+      "group": "a6_s1_trail_plateau",
+      "status": "PASS",
+      "tests": 29
+    },
+    {
+      "group": "early_risk_protection",
+      "status": "PASS",
+      "tests": 38
+    },
+    {
+      "group": "new_exclusive_cutoff_read_spy",
+      "status": "PASS",
+      "tests": 2
+    }
+  ],
+  "temp_files": "Redirected to /workspace/work; original frozen tests and artifacts unchanged",
+  "total_tests": 263
+}

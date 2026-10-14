@@ -1,0 +1,9 @@
+{
+  "annual_roadmap_minimum": "PF>=1.70 separately 2023/2024, shown as existing research gate; not LIVE permission",
+  "classification": "POST_HOC_COMPARISON",
+  "diagnostics": "SIGNAL_CLOSE separate; not eligible causal winners",
+  "new_2026_PASS": false,
+  "ordering": "positive years; minimum annual covered-month positive fraction; total positive months; negative-month run; worst month; DD; concentration; sample; minimum PF",
+  "primary_group": "CAUSAL_NEXT_OPEN",
+  "weighted_score": false
+}

@@ -1,0 +1,89 @@
+{
+  "PR_state": "CLOSED_NOT_MERGED",
+  "artifacts": [
+    {
+      "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/PROTOCOL.md",
+      "sha256": "62dc646dcc86607a3b9a2da9e10d0730306160c4622e3a432f260563d939c6c2"
+    },
+    {
+      "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/README.md",
+      "sha256": "0b10cf6673c22ed2bfe05ca61c8c3359e079123d75375c9a25a0e4f1f91d4d60"
+    },
+    {
+      "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/REPORT.md",
+      "sha256": "b1af1e047d731b90e358458e78d77e7da3fcd6ecf4444cdf6a920867a4ad9338"
+    },
+    {
+      "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/results/AUDIT_STATUS.json",
+      "sha256": "280074e8b534b4311366b0896e8c94f9f26aec9ea0d5f1415074b13aed4cc8c2"
+    },
+    {
+      "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/results/CONTROL_LEDGER_CHECK.json",
+      "sha256": "4baea131e4dbe629c8fdd73dc63b466db3c7d362a00640f9aacdf7087cec71da"
+    },
+    {
+      "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/results/concentration.csv",
+      "sha256": "f5df713e8b515d54959ee27f92fe58c4f1cccd52381a3160655dcb1e3de24768"
+    },
+    {
+      "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/results/directions.csv",
+      "sha256": "e264daddbdf5902e3547085b7d4f27484e0ea077384fee465e2559f223e51565"
+    },
+    {
+      "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/results/instruments.csv",
+      "sha256": "589012c9eda62b5531f868d41aeb11f2f6208b3466d6c0227e3185d1de635ee2"
+    },
+    {
+      "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/results/leave_one_out.csv",
+      "sha256": "371a5b7be4b60db4f8adfab8676cdcf9ddb56636f97bb85570f2c6cae007d78a"
+    },
+    {
+      "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/results/leave_one_out_monthly.csv",
+      "sha256": "aa374926047aaa90bacb07679a78e17660715caf471305bd6d16ae5dc9434dd8"
+    },
+    {
+      "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/results/monthly_stress.csv",
+      "sha256": "c27a30babb608406f728fb0c2ba1d8e4ad09645f64fc7857a88009777cc8d8eb"
+    },
+    {
+      "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/results/yearly_stress.csv",
+      "sha256": "d6c9ff8d2d4da6b66086df032e14d890f94c405d73f88785a71ea5f5349a8067"
+    },
+    {
+      "path": "IntradayLab/t3_m15_a6_s1_robustness_v1/robustness.py",
+      "sha256": "61e97c96ea8a69aea0583421d66dfdbec749cd19bd6f19ab9a5dae942989382c"
+    }
+  ],
+  "audit": {
+    "archived_ledger_control": "PASS",
+    "causal_engine_independent_audit": "NOT_RUN",
+    "classification": "ROBUSTNESS_ARCHIVED_LEDGER_SENSITIVITY_ONLY; NOT_STAGE_PASS",
+    "fresh_byte_identical_full_repeats": "NOT_RUN",
+    "independent_simple_scalar_crosscheck": "PASS",
+    "numeric_checks": {
+      "CONTROL_480": true,
+      "CONTROL_R": true,
+      "COUNT_2023": true,
+      "COUNT_2024": true,
+      "LEAVE_USD_2023": true,
+      "NOVEMBER_2024": true,
+      "PF_2023": true,
+      "PF_2024": true,
+      "R_2023": true,
+      "R_2024": true,
+      "STRESS_2024_005": true,
+      "STRESS_2024_010": true
+    },
+    "python_reproducer_execution_in_current_session": "NOT_RUN",
+    "raw_OHLC_full_control_replay": "NOT_RUN",
+    "scope": "IntradayLab only; no modifications to TradingSystemLab or raw market data",
+    "source_closed_rows": 480,
+    "source_git_blob": "72597dbab205be76a1bcb3d26e0e5f39fa4190f2",
+    "source_prior_controls": "PR505-508",
+    "why": "Connected GitHub file access only; local runtime cannot fetch raw repository or execute fetched code as a live project checkout. These results are deterministic archived CLOSED trade-sensitivity calculations, not full experimental verification."
+  },
+  "commit": "211085db6e884bc7625f464fb6da11452b0fd7ef",
+  "haircuts_replayed": false,
+  "new_strategy": false,
+  "status": "DIAGNOSTIC_ONLY"
+}

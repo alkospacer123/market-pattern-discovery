@@ -1,0 +1,70 @@
+{
+  "PR513_source_pin": "c17709a748f6247e8bd6bf85c9b4f20fac14a4dd",
+  "TradingSystemLab_tree_unchanged": true,
+  "comparison_core": [
+    {
+      "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/audit_history.py",
+      "sha256": "028770bab900aac52a6c854651f1a9187cacd6db08cc98a9e788b3ce75310d32"
+    },
+    {
+      "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/audit_metrics.py",
+      "sha256": "591b1f3acfa4cfdaabe3b4fc79da5070588f0f9bd836919d1a64ec2a7b85f476"
+    },
+    {
+      "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/compare.py",
+      "sha256": "35bd211dafc521bc37db6104c5775e3b53598ccf8293ad91f772cf460e5da86d"
+    },
+    {
+      "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/frozen_tests.py",
+      "sha256": "fd42270bccd2008322a91b1300aaf203241992f682e88f7ead7879c5da8aeaa2"
+    },
+    {
+      "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/inspect_sources.py",
+      "sha256": "c7f3de19dc262100c27c6be6839e3b178070fd1359953bccb72de1fc1a91fce7"
+    },
+    {
+      "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/io_utils.py",
+      "sha256": "641aa3c35d0da51bdb16c2aca204cba07f8a8c884e3bf0c4a4741b7a64fedfa2"
+    },
+    {
+      "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/metrics.py",
+      "sha256": "fcec4a9682497f7b0d772f240579e60fbd5aa1c7d532d4e100b182fbe88c7805"
+    },
+    {
+      "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/plot_months.py",
+      "sha256": "06379e31be956b7cd92c51115a89421b5e429c0b86b99b719e9429a2106079bf"
+    },
+    {
+      "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/presentation_audit.py",
+      "sha256": "07accf4b2ab0e6b0026c2e63df2a0b1be8cb9fd46e799e67e1708ee38df29b7d"
+    },
+    {
+      "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/registry.py",
+      "sha256": "2c70795cbacaa1ce2f5acdbb0ef218ad6eb339ef8a7667db0a147f0821169585"
+    },
+    {
+      "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/render.py",
+      "sha256": "231ad8357ee30a381920e34125c3f077e53ebde77683f6d0983d99b77151e64e"
+    },
+    {
+      "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/repeat.py",
+      "sha256": "19e8db822f378f066cb1f5935eccaf51d91c515200ca4bcf08ed98002348726f"
+    },
+    {
+      "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/run.py",
+      "sha256": "1d46ed4966ea8e3286ce2c4e6653ef19754dc7aafb4a999c76ed2d4f84b46cb9"
+    },
+    {
+      "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/test_source_guard.py",
+      "sha256": "d3cdc65adf6b481c7fc3acce9aa7252f5c0bab2957384181352af57eb99f83f1"
+    },
+    {
+      "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/worker.py",
+      "sha256": "3d05e69d4a486f950f57e8114122c0ccd9d8ec13506f9e915d640ac74c630c40"
+    }
+  ],
+  "data_pin": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "frozen_code_origin_bytes_equal": true,
+  "spec_sha256": "3686071178b545e0b8e9dd450ee8b4ad28b1eab228e0624ea4297df65e09a2b5",
+  "status": "PASS"
+}

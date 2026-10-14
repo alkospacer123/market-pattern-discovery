@@ -1,0 +1,32 @@
+{
+  "GROSS_ONLY": true,
+  "PR513_readonly_exact_SHA": "c17709a748f6247e8bd6bf85c9b4f20fac14a4dd",
+  "arithmetic": {
+    "fields_compared": 5879028,
+    "independence": "Stdlib/f-sum arithmetic; no primary reporting/metrics import; same author",
+    "max_numeric_delta": 0.0,
+    "rows_compared": 121992,
+    "status": "PASS",
+    "tables": {
+      "ANNUAL_COMPARISON": 969,
+      "FILTER_CONTRIBUTION": 285,
+      "INSTRUMENT_COMPARISON": 11628,
+      "MONTHLY_COMPARISON": 94860,
+      "PORTFOLIO_SUBSETS": 14535,
+      "STABILITY_RANKING": 51
+    },
+    "tolerance": 1e-08
+  },
+  "canonical_control_2023_2026": "PASS",
+  "classification": "POST_HOC_COMPARISON",
+  "external_human_review": "PENDING",
+  "forced_year_liquidation": false,
+  "frozen_artifact_bytes_unchanged": "PASS",
+  "full_replay_groups": 10,
+  "independent_implementations": true,
+  "max_replay_numeric_delta": 5.4569682106375694e-12,
+  "replay_fields_compared": 58937191,
+  "source_pin": "PASS",
+  "status": "PASS",
+  "unique_frozen_configurations": 51
+}
