@@ -1,0 +1,94 @@
+{
+  "counts_tolerance": 1e-08,
+  "different_R": 495,
+  "different_acceptance": 8,
+  "different_entry_price": 709,
+  "different_exit_time": 43,
+  "different_initial_stop": 709,
+  "different_occupancy": 9,
+  "different_signal_presence": 0,
+  "matched_different_entry_price": 701,
+  "matched_different_exit_time": 35,
+  "matched_different_gross_R": 487,
+  "matched_different_initial_risk": 0,
+  "matched_different_initial_stop": 701,
+  "matched_trade_signals": 1110,
+  "max_abs_entry_distance_R": 0.5522666071744408,
+  "mean_adverse_entry_distance_R": -0.0029176859640469978,
+  "next_open_only": 4,
+  "signal_close_only": 4,
+  "unique_entries": [
+    {
+      "direction": "SHORT",
+      "instrument": "CNYRUBF",
+      "next_open_present": false,
+      "next_open_signal_reason": "POSITION_OCCUPIED",
+      "signal_close_present": true,
+      "signal_close_signal_reason": "ACCEPTED",
+      "signal_time": "2023-05-02T12:30:00+03:00"
+    },
+    {
+      "direction": "LONG",
+      "instrument": "GLDRUBF",
+      "next_open_present": false,
+      "next_open_signal_reason": "POSITION_OCCUPIED",
+      "signal_close_present": true,
+      "signal_close_signal_reason": "ACCEPTED",
+      "signal_time": "2023-12-14T17:45:00+03:00"
+    },
+    {
+      "direction": "LONG",
+      "instrument": "IMOEXF",
+      "next_open_present": true,
+      "next_open_signal_reason": "EXECUTED_NEXT_OPEN",
+      "signal_close_present": false,
+      "signal_close_signal_reason": "POSITION_OCCUPIED",
+      "signal_time": "2024-06-21T10:15:00+03:00"
+    },
+    {
+      "direction": "SHORT",
+      "instrument": "USDRUBF",
+      "next_open_present": false,
+      "next_open_signal_reason": "MISSING_ADJACENT_OPEN",
+      "signal_close_present": true,
+      "signal_close_signal_reason": "ACCEPTED",
+      "signal_time": "2023-03-13T14:00:00+03:00"
+    },
+    {
+      "direction": "SHORT",
+      "instrument": "USDRUBF",
+      "next_open_present": true,
+      "next_open_signal_reason": "EXECUTED_NEXT_OPEN",
+      "signal_close_present": false,
+      "signal_close_signal_reason": "POSITION_OCCUPIED",
+      "signal_time": "2023-03-13T14:30:00+03:00"
+    },
+    {
+      "direction": "SHORT",
+      "instrument": "USDRUBF",
+      "next_open_present": true,
+      "next_open_signal_reason": "EXECUTED_NEXT_OPEN",
+      "signal_close_present": false,
+      "signal_close_signal_reason": "POSITION_OCCUPIED",
+      "signal_time": "2023-10-23T11:15:00+03:00"
+    },
+    {
+      "direction": "SHORT",
+      "instrument": "USDRUBF",
+      "next_open_present": true,
+      "next_open_signal_reason": "EXECUTED_NEXT_OPEN",
+      "signal_close_present": false,
+      "signal_close_signal_reason": "POSITION_OCCUPIED",
+      "signal_time": "2023-12-28T13:15:00+03:00"
+    },
+    {
+      "direction": "LONG",
+      "instrument": "USDRUBF",
+      "next_open_present": false,
+      "next_open_signal_reason": "POSITION_OCCUPIED",
+      "signal_close_present": true,
+      "signal_close_signal_reason": "ACCEPTED",
+      "signal_time": "2024-10-01T16:45:00+03:00"
+    }
+  ]
+}

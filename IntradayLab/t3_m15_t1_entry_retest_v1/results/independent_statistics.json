@@ -1,0 +1,8 @@
+{
+  "checked_fields": 2248,
+  "groups": 182,
+  "max_abs_error": 0.0,
+  "order": "exit_time / instrument / trade_id",
+  "source": "Independent scalar replay output, own PF/R/DD/streak/concentration implementation",
+  "status": "PASS"
+}

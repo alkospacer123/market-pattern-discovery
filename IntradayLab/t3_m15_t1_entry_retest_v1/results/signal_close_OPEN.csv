@@ -1,0 +1,1 @@
+model,instrument,trade_id,direction,signal_time,entry_time,entry_price,initial_stop,initial_risk,month,active_stop,last_close,last_close_price,unrealized_gross_R,status
