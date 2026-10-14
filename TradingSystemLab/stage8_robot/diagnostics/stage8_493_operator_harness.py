@@ -164,7 +164,8 @@ class OperatorHarness:
         if self.journal.records:
             raise Hold('JOURNAL_ALREADY_USED_NO_REPLAY')
         snapshot = self.observe()
-        if snapshot['position'] != 0 or snapshot['orders']:
+        if (snapshot['position'] != 0 or snapshot['other_positions'] != 0
+                or any(order.get('active') is not False for order in snapshot['orders'])):
             raise Hold('INITIAL_ACCOUNT_NOT_FLAT')
         self.journal.add('precheck', account_hash=self.plan.account_hash, symbol=self.plan.symbol)
         self.journal.add('entry_intent', key=self.plan.entry_key, quantity=2)
