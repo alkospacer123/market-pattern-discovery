@@ -19,7 +19,8 @@ def run(data,out,published=True):
     models={mode:{k:[] for k in ('trades','signals','stops','snapshots','OPEN','occupancy')} for mode in primary.MODES};allbars={}
     for symbol in primary.SYMBOLS:
         bars=primary.features(primary.load(data/'forever'/symbol/(symbol+'_M15.csv')));allbars[symbol]=bars
-        write_csv(out/'features'/(symbol+'.csv.gz'),bars)
+        # Derived audit features only: original source OHLCV never copied to repo.
+        write_csv(out/'features'/(symbol+'.csv.gz'),[{k:v for k,v in b.items() if k not in ('Open','High','Low','Close','Volume','H1Close')} for b in bars])
         for mode in primary.MODES:
             calculated=primary.replay(bars,symbol,mode)
             for table,value in calculated.items():models[mode][table].extend([value] if table=='occupancy' else value)

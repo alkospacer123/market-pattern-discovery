@@ -165,7 +165,8 @@ def verify(data,out):
     for symbol in ('USDRUBF','CNYRUBF','GLDRUBF','IMOEXF'):
         bars=list(feature_stream(parse(data/'forever'/symbol/(symbol+'_M15.csv'))))
         observed_months.update(b['at'].strftime('%Y-%m') for b in bars)
-        check.compare(bars,read(out/'features'/(symbol+'.csv.gz')),symbol+' features')
+        derived=[{k:v for k,v in b.items() if k not in ('Open','High','Low','Close','Volume','H1Close')} for b in bars]
+        check.compare(derived,read(out/'features'/(symbol+'.csv.gz')),symbol+' derived features')
         for mode in models:
             scalar=simulate(bars,symbol,mode)
             for table,value in scalar.items():models[mode][table].extend([value] if table=='occupancy' else value)
