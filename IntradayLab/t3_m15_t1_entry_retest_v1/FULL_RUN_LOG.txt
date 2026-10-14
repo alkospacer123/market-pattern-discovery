@@ -1,0 +1,23 @@
+FULL RUN 1
+{"stage": "primary", "symbol": "USDRUBF", "candles": 55808}
+{"stage": "primary", "symbol": "CNYRUBF", "candles": 55573}
+{"stage": "primary", "symbol": "GLDRUBF", "candles": 52025}
+{"stage": "primary", "symbol": "IMOEXF", "candles": 46215}
+{"status": "PASS", "compared_rows": 271729, "compared_fields": 3205231}
+{"stage": "finished", "summary": [{"model": "T1_SIGNAL_CLOSE_TRAIL_3p5", "classification": "IDEALIZED_SIGNAL_CLOSE", "CLOSED": 1114, "OPEN": 0, "gross_PF": 1.7577157054892592, "gross_R": 382.7056601986663, "win_rate": 0.42010771992818674, "mean_win_R": 1.8969739913285066, "mean_loss_R": -0.7830669267334494, "expectancy_R": 0.34354188527707924, "max_closed_R_DD": 17.599511927869074, "max_losing_streak": 10, "gross_positive_R": 887.7838279417412, "gross_negative_R": 505.07816774307486, "positive_months": 35, "negative_months": 10, "zero_months": 0, "covered_months": 45, "calendar_months": 46}, {"model": "T1_NEXT_OPEN_TRAIL_3p5", "classification": "CAUSAL_NEXT_OPEN", "CLOSED": 1114, "OPEN": 0, "gross_PF": 1.7784345758955205, "gross_R": 390.44291793789307, "win_rate": 0.42010771992818674, "mean_win_R": 1.9060200819397195, "mean_loss_R": -0.7776348533486753, "expectancy_R": 0.350487359010676, "max_closed_R_DD": 17.198069579106857, "max_losing_streak": 10, "gross_positive_R": 892.0173983477887, "gross_negative_R": 501.57448040989556, "positive_months": 35, "negative_months": 10, "zero_months": 0, "covered_months": 45, "calendar_months": 46}], "audit": "PASS"}
+
+FULL RUN 2
+{"stage": "primary", "symbol": "USDRUBF", "candles": 55808}
+{"stage": "primary", "symbol": "CNYRUBF", "candles": 55573}
+{"stage": "primary", "symbol": "GLDRUBF", "candles": 52025}
+{"stage": "primary", "symbol": "IMOEXF", "candles": 46215}
+{"status": "PASS", "compared_rows": 271729, "compared_fields": 3205231}
+{"stage": "finished", "summary": [{"model": "T1_SIGNAL_CLOSE_TRAIL_3p5", "classification": "IDEALIZED_SIGNAL_CLOSE", "CLOSED": 1114, "OPEN": 0, "gross_PF": 1.7577157054892592, "gross_R": 382.7056601986663, "win_rate": 0.42010771992818674, "mean_win_R": 1.8969739913285066, "mean_loss_R": -0.7830669267334494, "expectancy_R": 0.34354188527707924, "max_closed_R_DD": 17.599511927869074, "max_losing_streak": 10, "gross_positive_R": 887.7838279417412, "gross_negative_R": 505.07816774307486, "positive_months": 35, "negative_months": 10, "zero_months": 0, "covered_months": 45, "calendar_months": 46}, {"model": "T1_NEXT_OPEN_TRAIL_3p5", "classification": "CAUSAL_NEXT_OPEN", "CLOSED": 1114, "OPEN": 0, "gross_PF": 1.7784345758955205, "gross_R": 390.44291793789307, "win_rate": 0.42010771992818674, "mean_win_R": 1.9060200819397195, "mean_loss_R": -0.7776348533486753, "expectancy_R": 0.350487359010676, "max_closed_R_DD": 17.198069579106857, "max_losing_streak": 10, "gross_positive_R": 892.0173983477887, "gross_negative_R": 501.57448040989556, "positive_months": 35, "negative_months": 10, "zero_months": 0, "covered_months": 45, "calendar_months": 46}], "audit": "PASS"}
+
+FULL RUN 3
+{"stage": "primary", "symbol": "USDRUBF", "candles": 55808}
+{"stage": "primary", "symbol": "CNYRUBF", "candles": 55573}
+{"stage": "primary", "symbol": "GLDRUBF", "candles": 52025}
+{"stage": "primary", "symbol": "IMOEXF", "candles": 46215}
+{"status": "PASS", "compared_rows": 271729, "compared_fields": 3205231}
+{"stage": "finished", "summary": [{"model": "T1_SIGNAL_CLOSE_TRAIL_3p5", "classification": "IDEALIZED_SIGNAL_CLOSE", "CLOSED": 1114, "OPEN": 0, "gross_PF": 1.7577157054892592, "gross_R": 382.7056601986663, "win_rate": 0.42010771992818674, "mean_win_R": 1.8969739913285066, "mean_loss_R": -0.7830669267334494, "expectancy_R": 0.34354188527707924, "max_closed_R_DD": 17.599511927869074, "max_losing_streak": 10, "gross_positive_R": 887.7838279417412, "gross_negative_R": 505.07816774307486, "positive_months": 35, "negative_months": 10, "zero_months": 0, "covered_months": 45, "calendar_months": 46}, {"model": "T1_NEXT_OPEN_TRAIL_3p5", "classification": "CAUSAL_NEXT_OPEN", "CLOSED": 1114, "OPEN": 0, "gross_PF": 1.7784345758955205, "gross_R": 390.44291793789307, "win_rate": 0.42010771992818674, "mean_win_R": 1.9060200819397195, "mean_loss_R": -0.7776348533486753, "expectancy_R": 0.350487359010676, "max_closed_R_DD": 17.198069579106857, "max_losing_streak": 10, "gross_positive_R": 892.0173983477887, "gross_negative_R": 501.57448040989556, "positive_months": 35, "negative_months": 10, "zero_months": 0, "covered_months": 45, "calendar_months": 46}], "audit": "PASS"}

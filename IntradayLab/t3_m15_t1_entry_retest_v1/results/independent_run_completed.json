@@ -1,0 +1,10 @@
+{
+  "full_source_replay_completed": true,
+  "independent_feature_and_execution_verification_completed": true,
+  "published_journals_read_before_completion": false,
+  "stage_order": [
+    "new_primary_full_source_replay",
+    "independent_stdlib_full_source_replay",
+    "published_reference_read"
+  ]
+}

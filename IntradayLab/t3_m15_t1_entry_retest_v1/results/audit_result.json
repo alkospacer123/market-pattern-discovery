@@ -1,0 +1,345 @@
+{
+  "causal_test_count": 24,
+  "causal_tests": "PASS",
+  "causality_checks": [
+    {
+      "evidence": "test_features_prefix_and_future_mutation",
+      "status": "PASS",
+      "test": "completed_m15_only"
+    },
+    {
+      "evidence": "full scalar streaming feature comparison; AvailableAt assertion",
+      "status": "PASS",
+      "test": "h1_publication_causal"
+    },
+    {
+      "evidence": "test_donchian_excludes_current; independent deque",
+      "status": "PASS",
+      "test": "donchian_strictly_prior20"
+    },
+    {
+      "evidence": "test_signal_extremes_excluded; test_signal_final_bar_no_stop",
+      "status": "PASS",
+      "test": "signal_close_excludes_signal_extrema"
+    },
+    {
+      "evidence": "test_execution_hlc_not_entry_inputs",
+      "status": "PASS",
+      "test": "next_open_no_future_hlc_in_entry"
+    },
+    {
+      "evidence": "test_busy_signals_no_pyramiding; independent full state replay",
+      "status": "PASS",
+      "test": "one_position_per_symbol"
+    },
+    {
+      "evidence": "test_trailing_no_retroactive_touch; stop-first; no_plus_one_R_delay",
+      "status": "PASS",
+      "test": "no_retroactive_stop_trailing"
+    },
+    {
+      "evidence": "test_gap_cancels_no_future_open; adverse_gap_fill_open; raw source gap receipts",
+      "status": "PASS",
+      "test": "gaps_no_fabrication"
+    },
+    {
+      "evidence": "test_all_symbols_identical_logic",
+      "status": "PASS",
+      "test": "same_frozen_logic_all_four"
+    },
+    {
+      "evidence": "independent_run_completed.json; sequential run.py",
+      "status": "PASS",
+      "test": "published_only_after_independent_replay"
+    }
+  ],
+  "deterministic_repeat_receipt": "../repeatability.json",
+  "differences": {
+    "counts_tolerance": 1e-08,
+    "different_R": 495,
+    "different_acceptance": 8,
+    "different_entry_price": 709,
+    "different_exit_time": 43,
+    "different_initial_stop": 709,
+    "different_occupancy": 9,
+    "different_signal_presence": 0,
+    "matched_different_entry_price": 701,
+    "matched_different_exit_time": 35,
+    "matched_different_gross_R": 487,
+    "matched_different_initial_risk": 0,
+    "matched_different_initial_stop": 701,
+    "matched_trade_signals": 1110,
+    "max_abs_entry_distance_R": 0.5522666071744408,
+    "mean_adverse_entry_distance_R": -0.0029176859640469978,
+    "next_open_only": 4,
+    "signal_close_only": 4,
+    "unique_entries": [
+      {
+        "direction": "SHORT",
+        "instrument": "CNYRUBF",
+        "next_open_present": false,
+        "next_open_signal_reason": "POSITION_OCCUPIED",
+        "signal_close_present": true,
+        "signal_close_signal_reason": "ACCEPTED",
+        "signal_time": "2023-05-02T12:30:00+03:00"
+      },
+      {
+        "direction": "LONG",
+        "instrument": "GLDRUBF",
+        "next_open_present": false,
+        "next_open_signal_reason": "POSITION_OCCUPIED",
+        "signal_close_present": true,
+        "signal_close_signal_reason": "ACCEPTED",
+        "signal_time": "2023-12-14T17:45:00+03:00"
+      },
+      {
+        "direction": "LONG",
+        "instrument": "IMOEXF",
+        "next_open_present": true,
+        "next_open_signal_reason": "EXECUTED_NEXT_OPEN",
+        "signal_close_present": false,
+        "signal_close_signal_reason": "POSITION_OCCUPIED",
+        "signal_time": "2024-06-21T10:15:00+03:00"
+      },
+      {
+        "direction": "SHORT",
+        "instrument": "USDRUBF",
+        "next_open_present": false,
+        "next_open_signal_reason": "MISSING_ADJACENT_OPEN",
+        "signal_close_present": true,
+        "signal_close_signal_reason": "ACCEPTED",
+        "signal_time": "2023-03-13T14:00:00+03:00"
+      },
+      {
+        "direction": "SHORT",
+        "instrument": "USDRUBF",
+        "next_open_present": true,
+        "next_open_signal_reason": "EXECUTED_NEXT_OPEN",
+        "signal_close_present": false,
+        "signal_close_signal_reason": "POSITION_OCCUPIED",
+        "signal_time": "2023-03-13T14:30:00+03:00"
+      },
+      {
+        "direction": "SHORT",
+        "instrument": "USDRUBF",
+        "next_open_present": true,
+        "next_open_signal_reason": "EXECUTED_NEXT_OPEN",
+        "signal_close_present": false,
+        "signal_close_signal_reason": "POSITION_OCCUPIED",
+        "signal_time": "2023-10-23T11:15:00+03:00"
+      },
+      {
+        "direction": "SHORT",
+        "instrument": "USDRUBF",
+        "next_open_present": true,
+        "next_open_signal_reason": "EXECUTED_NEXT_OPEN",
+        "signal_close_present": false,
+        "signal_close_signal_reason": "POSITION_OCCUPIED",
+        "signal_time": "2023-12-28T13:15:00+03:00"
+      },
+      {
+        "direction": "LONG",
+        "instrument": "USDRUBF",
+        "next_open_present": false,
+        "next_open_signal_reason": "POSITION_OCCUPIED",
+        "signal_close_present": true,
+        "signal_close_signal_reason": "ACCEPTED",
+        "signal_time": "2024-10-01T16:45:00+03:00"
+      }
+    ]
+  },
+  "external_human_audit": "PENDING",
+  "full_source_replay": true,
+  "independent": {
+    "compared_fields": 3205231,
+    "compared_rows": 271729,
+    "differences": [],
+    "external_human_audit": "NOT_PERFORMED",
+    "implementation": "Independent stdlib parser, streaming EWM, daily ordinal H1, dict position replay; no primary/frozen imports",
+    "max_abs": {
+      "ATR": 0.0,
+      "H1ADX": 0.0,
+      "H1ATR": 0.0,
+      "H1ATRRatio": 4.440892098500626e-16,
+      "H1EMA": 0.0,
+      "H1Slope": 0.0,
+      "MAE_R": 0.0,
+      "MFE_R": 0.0,
+      "PriorHigh": 0.0,
+      "PriorLow": 0.0,
+      "Signal": 0.0,
+      "active_stop": 0.0,
+      "active_stop_at_exit": 0.0,
+      "bars_held": 0.0,
+      "breakout_level": 0.0,
+      "denominator": 0.0,
+      "entry_price": 0.0,
+      "exit_price": 0.0,
+      "extreme_after": 0.0,
+      "extreme_before": 0.0,
+      "gross_R": 0.0,
+      "holding_minutes": 0.0,
+      "initial_risk": 0.0,
+      "initial_stop": 0.0,
+      "last_close_price": 0.0,
+      "next_stop": 0.0,
+      "observed_bars": 0.0,
+      "observed_gaps_exposed": 0.0,
+      "occupancy": 0.0,
+      "proposal": 0.0,
+      "signal_close": 0.0,
+      "stop_checked_bars": 0.0,
+      "trailing_updates": 0.0,
+      "unrealized_gross_R": 0.0
+    },
+    "statistics": {
+      "checked_fields": 2248,
+      "groups": 182,
+      "max_abs_error": 0.0,
+      "order": "exit_time / instrument / trade_id",
+      "source": "Independent scalar replay output, own PF/R/DD/streak/concentration implementation",
+      "status": "PASS"
+    },
+    "status": "PASS"
+  },
+  "month_sign_mismatches": [],
+  "months_same_sign": 45,
+  "published": {
+    "checked_fields": 869145,
+    "differences": 0,
+    "max_abs_error": 5.684341886080802e-14,
+    "read_after_independent_completion": true,
+    "schema_normalizations": [
+      "Blocked-signal candidate prices in original entries are diagnostics; compare actual accepted fills only",
+      "SIGNAL_CLOSE signal_time/signal_close inferred from entry_time/entry_price in original schema",
+      "RULE_BLOCKED/RULE_AND_OCCUPIED mapped to explicit OUTSIDE_T1 reasons",
+      "OPEN status descriptive text differs; positions and numeric states compared"
+    ],
+    "scope": "Only the two requested build IDs",
+    "source_receipts": [
+      {
+        "independent_rows": 1114,
+        "model": "T1_SIGNAL_CLOSE_TRAIL_3p5",
+        "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/results/journals/T1_SIGNAL_CLOSE_TRAIL_3p5/trades.csv.gz",
+        "published_rows": 1114,
+        "ref": "4ae4761837937279eee34bc834c7ec75f066ec81",
+        "sha256": "8df4a43c42a2cb4d33ed88528df71bd363b74ad641cc2b9e98dd75a4371c295d",
+        "table": "trades",
+        "uncompressed_sha256": "2f13b02eb9844a0923bf107dceba700bc11747f257b35dc42b7266439300370e"
+      },
+      {
+        "independent_rows": 4333,
+        "model": "T1_SIGNAL_CLOSE_TRAIL_3p5",
+        "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/results/journals/T1_SIGNAL_CLOSE_TRAIL_3p5/entries.csv.gz",
+        "published_rows": 4333,
+        "ref": "4ae4761837937279eee34bc834c7ec75f066ec81",
+        "sha256": "ec8b711907000e1232d995668bd429028c22d15d44a4af74479530bbf30f4596",
+        "table": "entries",
+        "uncompressed_sha256": "2de111c413271538739e243db63440e18bc946d9992049eaf4a55a142f709002"
+      },
+      {
+        "independent_rows": 25492,
+        "model": "T1_SIGNAL_CLOSE_TRAIL_3p5",
+        "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/results/journals/T1_SIGNAL_CLOSE_TRAIL_3p5/stops.csv.gz",
+        "published_rows": 25492,
+        "ref": "4ae4761837937279eee34bc834c7ec75f066ec81",
+        "sha256": "3b6f9a1cb243cc56c74a421f8255548a0d61c88074a61e6940c31bdcffd99822",
+        "table": "stops",
+        "uncompressed_sha256": "0ca1649438082c0884db4984498073c7a856acfb98dc8ce76af72f791017d5e9"
+      },
+      {
+        "independent_rows": 0,
+        "model": "T1_SIGNAL_CLOSE_TRAIL_3p5",
+        "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/results/journals/T1_SIGNAL_CLOSE_TRAIL_3p5/OPEN.csv.gz",
+        "published_rows": 0,
+        "ref": "4ae4761837937279eee34bc834c7ec75f066ec81",
+        "sha256": "2c5271e555f347cf36d8a0bda689e0594c99bd1ec5548ed489b506ab96007c12",
+        "table": "OPEN",
+        "uncompressed_sha256": "410f0d9cd0f7d301a94ed7fe486e60b5ee007fca5b7fc1e6bda3dc8475e7525c"
+      },
+      {
+        "independent_rows": 16,
+        "model": "T1_SIGNAL_CLOSE_TRAIL_3p5",
+        "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/results/journals/T1_SIGNAL_CLOSE_TRAIL_3p5/snapshots.csv.gz",
+        "published_rows": 16,
+        "ref": "4ae4761837937279eee34bc834c7ec75f066ec81",
+        "sha256": "004da21f122335c4e62c3638575541eefd04b0727582bc25338776b268274da2",
+        "table": "snapshots",
+        "uncompressed_sha256": "019916d049586b87eee47f78981592bab9b47e018d195e77348134684ca7a794"
+      },
+      {
+        "independent_rows": 1114,
+        "model": "T1_NEXT_OPEN_TRAIL_3p5",
+        "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/results/journals/T1_NEXT_OPEN_TRAIL_3p5/trades.csv.gz",
+        "published_rows": 1114,
+        "ref": "4ae4761837937279eee34bc834c7ec75f066ec81",
+        "sha256": "c4f56904d95a8dd45dbeb6cb21ddde7e3d4cecb5b863e57a08d9d1cdd7434091",
+        "table": "trades",
+        "uncompressed_sha256": "c5c1d742789e7085d82f0aa7ae824a3de60f99cc7c259efca0dd5adbe9687218"
+      },
+      {
+        "independent_rows": 4333,
+        "model": "T1_NEXT_OPEN_TRAIL_3p5",
+        "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/results/journals/T1_NEXT_OPEN_TRAIL_3p5/entries.csv.gz",
+        "published_rows": 4333,
+        "ref": "4ae4761837937279eee34bc834c7ec75f066ec81",
+        "sha256": "abc8725714d9e3a5699d4bce881743e1e389560e71e02de18c87212f645e7154",
+        "table": "entries",
+        "uncompressed_sha256": "494355d471846c220f79ec2d387d11d877f8ce91c15f8b0e44c53d6532cb7c27"
+      },
+      {
+        "independent_rows": 25681,
+        "model": "T1_NEXT_OPEN_TRAIL_3p5",
+        "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/results/journals/T1_NEXT_OPEN_TRAIL_3p5/stops.csv.gz",
+        "published_rows": 25681,
+        "ref": "4ae4761837937279eee34bc834c7ec75f066ec81",
+        "sha256": "58113ce604b1355a47a0413741738d49e93a821679f218e42f4d5c5dd9e2bbd1",
+        "table": "stops",
+        "uncompressed_sha256": "dc1f87c2f0b95bb51bde6818444c6e69b959128fb5c4b9f565c24cc98b2902aa"
+      },
+      {
+        "independent_rows": 0,
+        "model": "T1_NEXT_OPEN_TRAIL_3p5",
+        "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/results/journals/T1_NEXT_OPEN_TRAIL_3p5/OPEN.csv.gz",
+        "published_rows": 0,
+        "ref": "4ae4761837937279eee34bc834c7ec75f066ec81",
+        "sha256": "2c5271e555f347cf36d8a0bda689e0594c99bd1ec5548ed489b506ab96007c12",
+        "table": "OPEN",
+        "uncompressed_sha256": "410f0d9cd0f7d301a94ed7fe486e60b5ee007fca5b7fc1e6bda3dc8475e7525c"
+      },
+      {
+        "independent_rows": 17,
+        "model": "T1_NEXT_OPEN_TRAIL_3p5",
+        "path": "IntradayLab/t3_m15_build_comparison_2023_2026_v1/results/journals/T1_NEXT_OPEN_TRAIL_3p5/snapshots.csv.gz",
+        "published_rows": 17,
+        "ref": "4ae4761837937279eee34bc834c7ec75f066ec81",
+        "sha256": "9b62ce9f90e9b9ad1b6adad905fb52d4240077ee08e0e9b027613c731a0bdb46",
+        "table": "snapshots",
+        "uncompressed_sha256": "c438674aa0244717a26cc221d46586e27f343bf101bf8f8d38f5ced2a2800801"
+      },
+      {
+        "ref": "fbe5e54686e5eba4cae2db5c6f47898dba6605b7",
+        "selected_rows": 10,
+        "sha256": "a43beec59307e99a6782edb64508e2c5b9ae9ad6be4f2f1da3b89ae3fdad013f",
+        "table": "PR517/YEARLY_COMPARISON.csv"
+      },
+      {
+        "ref": "fbe5e54686e5eba4cae2db5c6f47898dba6605b7",
+        "selected_rows": 2,
+        "sha256": "8a8ddf50c9fda12904bd28eedde6df0aa834efa945e1bd1a8cde2a93709200bb",
+        "table": "PR517/BUILD_SUMMARY.csv"
+      }
+    ],
+    "status": "PASS",
+    "unrepresented_original_columns": [
+      "T1_NEXT_OPEN_TRAIL_3p5/snapshots/ATR",
+      "T1_NEXT_OPEN_TRAIL_3p5/snapshots/H1AvailableAt",
+      "T1_SIGNAL_CLOSE_TRAIL_3p5/entries/execution_bar_close",
+      "T1_SIGNAL_CLOSE_TRAIL_3p5/entries/next_observed_close",
+      "T1_SIGNAL_CLOSE_TRAIL_3p5/snapshots/ATR",
+      "T1_SIGNAL_CLOSE_TRAIL_3p5/snapshots/H1AvailableAt"
+    ]
+  },
+  "scope": "Only T1 SIGNAL_CLOSE/NEXT_OPEN trail3.5 N4; no costs, optimization, live or production changes",
+  "status": "PASS"
+}
