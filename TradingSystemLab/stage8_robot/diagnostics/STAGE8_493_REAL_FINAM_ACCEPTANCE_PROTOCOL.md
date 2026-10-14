@@ -748,3 +748,47 @@ Status: `INTEL_OPERATOR_LAUNCHER_CANDIDATE_OFFLINE_9_PASS_WINDOWS_PENDING`;
 `REAL_ORDER_SENT=NO`, `LIVE_ROBOT_REARMED=NO`,
 `STAGE8_493_TASK_2_2_OPEN`. No production, strategy, N4, FULL/R15 or
 current state authority change.
+
+
+## 2026-10-14 — Intel v1 physical 9/9 PASS; tariff already known; operator inspection v2
+
+The operator ran the exact separate `stage8-493-intel-one-shot-v1.ps1 -mode check`
+with output `source_and_tests_sha256=pass`, `Ran 9 tests ... OK`,
+`classification=operator_candidate_offline_checks_pass_no_trade`,
+`real_order_calls=0`, `production_task_unchanged=yes`.
+This verifies only pinned Windows **OFFLINE** synthetic candidate mechanics, not
+actual trading session/SLTP execution/recovery.
+
+**Previously operator-confirmed tariff, not a new missing prerequisite:** FINAM
+`Единый дневной` **0.45 RUB per contract per side** (not 0.45 kopecks).
+Two contracts both directions incur **1.80 RUB FINAM**. Prior MOEX
+registration estimate **0.59 RUB per contract/side** yields **2.36 RUB**
+exchange estimate and **4.16 RUB** combined round-trip estimate, subject to
+actual exchange/clearing and client statement reconciliation. Keep the
+conservative all-in cost *ceiling* 100 RUB for the one-off scenario and
+50 adverse ticks per contract for modeled slippage: 600 + 100 + 100 =
+**800 RUB <= 1,000 RUB scenario budget** at a valid 300-tick protective stop.
+No guaranteed maximum loss is asserted.
+
+A second candidate `stage8-493-intel-inspect-v2.ps1` has been built for a
+single authenticated **TRADING-token session but order-incapable** physical
+inspection. Its internal API subclass enforces sessions authentication and
+strict GET allowlist, explicitly forbidding trade/order/cancel requests. It
+corrects the v1 draft's wrong import source: PR #493 diagnostic modules
+are in the external pinned candidate worktree `16b8964ab8a872b365ddb557526bbcefddb50db9`,
+**not** the immutable accepted production checkout. The new standalone
+wrapper pins the external Python audit sources and reuses accepted fresh
+HALTED/disabled Task and double broker-flat isolation precheck. Python
+arithmetic/safety tests **11/11 PASS on non-Windows runner** and bundle
+static hash/no-order-path checks PASS, but the Windows v2 script has not
+been run physically by the operator. Windows/FINAM physical state is still
+unknown after the reported earlier observation; no new order.
+
+External v2 wrapper SHA-256:
+`22fdc331761c980849681b09b6a243df77124e26d23c884e41bfc202ec27ae29`.
+No user-provided amount is copied into public account-specific artifacts.
+The candidate does not create a trading approval receipt or grant ENTRY. Do
+not run v1 `-mode execute`: its missing physical recovery and wrong candidate
+module binding have NOT been independently accepted. Existing stage 2.2
+remains open; one-off operator test, final flatness and full robot release
+require physical pass and accepted safe execute/recovery. No merge or rearm.
