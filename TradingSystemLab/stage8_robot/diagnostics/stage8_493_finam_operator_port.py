@@ -171,6 +171,7 @@ class FinamOperatorPort:
                 or type(percent) is not int or percent != 100
                 or requested_price != _positive_price(self.plan.stop_price)
                 or requested_price % tick != 0 or signed not in (1, 2)
+                or snap["other_positions"] != 0
                 or any(o["active"] and o["kind"] == "sltp" for o in snap["orders"])):
             raise Hold("OPERATOR_SLTP_PLAN_OR_POSITION_INVALID")
         self._permit("SLTP", key, expected_key=self.plan.stop_key)
@@ -189,7 +190,8 @@ class FinamOperatorPort:
             raise Hold("OPERATOR_CANCEL_ORDER_NOT_ACTIVE")
         row = matches[0]
         if (row["symbol"] != self.plan.symbol or row["kind"] not in {"regular", "sltp"}
-                or (row["kind"] == "sltp" and snap["position"] != 0)
+                or (row["kind"] == "sltp" and (snap["position"] != 0
+                    or any(o["active"] and o["id"] != order_id for o in snap["orders"])))
                 or (row["kind"] == "regular" and row["client_order_id"] !=
                     compact_client_order_id(self.plan.entry_key))):
             raise Hold("OPERATOR_CANCEL_NOT_SAFE")
