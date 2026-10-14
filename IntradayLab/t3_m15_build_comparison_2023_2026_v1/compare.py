@@ -24,8 +24,10 @@ def choose(rows,symbols,view,year,coverage):
   and (view!='COMMON_OBSERVED' or r.get('exit_bar_close_time',r['exit_time']) in common)]
 def coverage_for(coverage,symbols,months,view):
  a,z=coverage['views'][view]['start'],coverage['views'][view]['end_exclusive'];details=[]
+ cache=coverage.setdefault('_coverage_counts',{})
+ if view not in cache:cache[view]={s:Counter(t[:7] for t in ts if a<=t<z and (view!='COMMON_OBSERVED' or t in coverage['common_set'])) for s,ts in coverage['times'].items()}
  for m in months:
-  counts={s:sum(a<=t<z and t[:7]==m and (view!='COMMON_OBSERVED' or t in coverage['common_set']) for t in coverage['times'][s]) for s in symbols}
+  counts={s:cache[view][s][m] for s in symbols}
   state='NO_COVERAGE' if not any(counts.values()) else 'PARTIAL_INSTRUMENT_COVERAGE' if not all(counts.values()) else 'AVAILABLE_SOURCE_PREFIX'
   # These flags concern source endpoints, not a certified exchange calendar.
   if state!='NO_COVERAGE' and (m=='2026-08' or m=='2026-09' or (m=='2023-07' and 'GLDRUBF' in symbols) or (m=='2023-11' and 'IMOEXF' in symbols)):state+=';INCOMPLETE_ENDPOINT_MONTH'
@@ -69,8 +71,9 @@ def run(out,coverage):
        sr=[r for r in selected if r['direction']==side];instrument.append(dict(build_id=bid,mode=b['mode'],view=view,year=year,instrument=symbols[0],direction=side,**stats(sr,cal)))
     # Full calendar monthly ledgers of all 15 subsets in every view.
     cov=coverage_for(coverage,symbols,months,view)
+    all_selected=choose(rows,symbols,view,'ALL',coverage)
     for c in cov:
-     m=c['month'];sr=[r for r in choose(rows,symbols,view,'ALL',coverage) if r['exit_time'][:7]==m]
+     m=c['month'];sr=[r for r in all_selected if r['exit_time'][:7]==m]
      monthly.append(dict(build_id=bid,view=view,scope=scope,instruments=';'.join(symbols),month=m,coverage=c['status'],bars=json.dumps(c['counts'],sort_keys=True),**stats(sr,[m])))
   print('METRICS',bid,flush=True)
  # Paired effects within the exact same frozen execution/initial/trail control.
