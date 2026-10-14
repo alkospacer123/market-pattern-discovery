@@ -829,3 +829,41 @@ order-call scan PASS. **Intel Windows physical v3 pending**. Tariff has
 already been supplied as FINAM Unified Day **0.45 RUB per contract per side**;
 there is no reason to re-ask. The user-authorized CNYRUBF LONG 2-lot,
 1000 RUB scenario acceptance remains NOT EXECUTED, production frozen.
+
+
+## 2026-10-14 — Intel v3 trading-token READONLY preflight PASS, separate executable v4 candidate
+
+The operator has supplied the physical Intel console for standalone
+`stage8-493-intel-inspect-v3.ps1`: SHA/11 synthetic tests PASS,
+`fresh_isolation_and_broker_flat=pass`, authenticated bound trading-session
+READONLY-only request path PASS, `entry_reference=12.542`, `stop_price=12.242`,
+`scenario_rub=800`, FINAM Unified Day tariff 0.45 RUB/contract/side,
+FINAM roundtrip 1.80 RUB, total preliminary roundtrip estimate 4.16 RUB,
+conservative **100 RUB fee** and **50 ticks/contract slippage** reserved.
+No real order, cancel, Task or production SQLite modification; timestamp is
+an observation, not reusable execution authority. N4/FULL/R15 unchanged.
+
+A separate **external operator-only executable** candidate has now been
+assembled as `stage8-493-intel-execute-v4.ps1` (SHA-256
+`9aa7bf9024c6fda1c7305d0d64a2cc5a70f0425d8af3ebee3690783e221c4d08`).
+It packages a pinned Python acceptance runner, a native Windows-only Task/
+lock/HALTED gate and 15 bounded synthetic tests, which passed **on Linux**.
+The candidate is **NOT independently physically validated on Windows**;
+no FINAM order was submitted by this preparation.
+The candidate requires fresh outer immutable post-isolation broker-flat
+proof, the exact accepted production and pinned PR modules, correct separate
+DPAPI trading account, fresh bound trading session/account/quote/orderbook/
+margin, interactive console confirmation at FINAM terminal and a one-attempt
+immutable external journal. It allows at most ONE order POST quantity 2 LONG
+and ONE protective 100-percent SLTP POST. No retry, automated cancel/flatten
+or production rearm exists. A real attempt may leave an open position under
+operator-only FINAM terminal recovery. **Do not treat protected ACK/GET echo,
+GET /trades failure, or 0-to-2 fill as final physical SLTP acceptance**.
+All post-entry return paths are HOLD until external manual reconciliation
+and flatness proof; live execution is not claimed by this documentation.
+The 1,000 RUB limit is a projected scenario, not a hard broker loss cap.
+
+This preserves the existing task 2.2 and Stage7 freeze. Before any Stage8
+production release, exact operator-flat + active-orders-zero + unresolved
+intents-zero must be freshly proven and the acceptance outcome independently
+classified. Candidate PR remains Draft; **production is NOT rearmed**.
