@@ -1,0 +1,29 @@
+{
+  "initial_main": "d6946056332ce71658a6ca933cefa0740a7570a2",
+  "data_head": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "initial_repository_clean": true,
+  "initial_data_clean": true,
+  "observed_prs": [
+    {
+      "number": 514,
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/514",
+      "draft": true,
+      "state": "open",
+      "merged": false,
+      "head": "research/intraday-t3m15-build-comparison-20261014",
+      "head_sha": "4ae4761837937279eee34bc834c7ec75f066ec81",
+      "base_sha": "d6946056332ce71658a6ca933cefa0740a7570a2"
+    },
+    {
+      "number": 517,
+      "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/517",
+      "draft": true,
+      "state": "open",
+      "merged": false,
+      "head": "report/intraday-full-n4-catalog-20261014",
+      "head_sha": "fbe5e54686e5eba4cae2db5c6f47898dba6605b7",
+      "base_sha": "d6946056332ce71658a6ca933cefa0740a7570a2"
+    }
+  ],
+  "authorization": "User explicitly requests one Draft PR, no merge, no LIVE; source read-only; fixed models only"
+}
