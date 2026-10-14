@@ -1,0 +1,36 @@
+{
+  "artifacts_compared": 18,
+  "artifacts_sha256": {
+    "AUDIT.json": "90a29c0e3cdd91f40abcd08cb537f2c150ad09df9f536130c2a533f4fcd888f4",
+    "BUILD_CATALOG.csv": "ff2d385c7e0ce2aff345bd2cbbd9f4aa4ce5a438b37890a42d03cda9868563c8",
+    "BUILD_SUMMARY.csv": "8a8ddf50c9fda12904bd28eedde6df0aa834efa945e1bd1a8cde2a93709200bb",
+    "COVERAGE.csv": "3fee52cfa8f24bdc8038cce84aafb93bef583f377b47f96854b607850c4bf6c4",
+    "EXECUTION_EXAMPLE.json": "1672455a841299c875474bc40c744c74eb08bb8293eba980901bc47717c0ab4c",
+    "FINAL_SOURCE_CHECK.json": "44a1bc2c952bf3603a61edc753828f8cdde49252b452b23dcd8bdfac86452b9b",
+    "GITHUB_SOURCES.json": "b2f06233501db9607acc1f871f814467735364647fd275dac96e00726a96ee9f",
+    "INSTRUMENT_MATRIX.csv": "aa76f712d57adbc7533d56a5f17944c16f2c8a42683071c1cdb42190f1ee5d58",
+    "MONTHLY_CONTRIBUTIONS.csv": "53753fe00fc66c8351e883a7b1c58d4cecb833fc5682ed60b27f4a8b23965124",
+    "MONTHLY_HEATMAP.html": "bd685f80228044c79a935becbc0fee068492d1c0dc0a39d2d92e83120cf4ee04",
+    "MONTHLY_MATRIX.csv": "70486bcb34728c6514c54d0cb1dafe5999e25d3ae6519185155b8eb825554afe",
+    "REPORT_RU.md": "850597f2fc6392cf921f47a892e03ab2a85cd28064bf572644fca0f57ddc1ad0",
+    "RULE_DEFINITIONS.csv": "2ce62ffbff55bab5d8846944236f6b4e4db984d11d236862e275f3fa2c127e4d",
+    "SOURCE_SHA256.json": "3b14184fe846a69bae992712264bc5dcec569062345c985332b201d29dfa5763",
+    "TEST_STATUS.csv": "26c1fd0b6064bac2562a0a4632ec52eae5cf500361ac70e39c786cba131f4605",
+    "YEARLY_COMPARISON.csv": "a43beec59307e99a6782edb64508e2c5b9ae9ad6be4f2f1da3b89ae3fdad013f",
+    "build_report.py": "bcf69933b260df11910eef7aa1be1e984d7b497c8780ec17bb5fa27a4aa50267",
+    "verify_report.py": "c387ca905528f932c5e571eaa67acc3ba8df8193cd6e82cbe76e40d74025e841"
+  },
+  "method": "Fresh generator process and independent verifier process on identical pinned inputs; direct byte equality and SHA256",
+  "new_trading_runs": 0,
+  "presentation": {
+    "browser": "Chromium via Playwright, inline static HTML",
+    "build_year_rows": 204,
+    "cells_reconciled_to_exact_CSV": 2346,
+    "no_coverage_cells": 51,
+    "outside_YTD_cells": 102,
+    "script_errors": 0,
+    "status": "PASS",
+    "tables": 8
+  },
+  "status": "PASS"
+}

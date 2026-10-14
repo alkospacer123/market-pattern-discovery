@@ -1,0 +1,18 @@
+{
+  "auto_merge_requested": false,
+  "checked_date_MSK": "2026-10-14",
+  "excluded_PR516": {
+    "draft": true,
+    "head_sha": "212f2be35d5641da5751d98eb9c5456747d580fa",
+    "merged": false
+  },
+  "main_sha": "d6946056332ce71658a6ca933cefa0740a7570a2",
+  "merge_requested": false,
+  "new_catalog_only": true,
+  "source_PR514": {
+    "draft": true,
+    "head_sha": "4ae4761837937279eee34bc834c7ec75f066ec81",
+    "merged": false
+  },
+  "source_PRs_modified": false
+}
