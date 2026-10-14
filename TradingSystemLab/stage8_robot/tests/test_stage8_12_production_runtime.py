@@ -113,7 +113,7 @@ def test_latest_signal_wires_context_builder_and_decision_core(tmp_path):
     runtime.close()
 
 
-def test_off_grid_frozen_stop_cleanly_blocks_only_that_entry(tmp_path):
+def test_off_grid_stop_is_projected_outward_and_r15_resized(tmp_path):
     runtime = ProductionRuntime(tmp_path / "state.db")
     budget = runtime.begin_batch(
         realized_equity=Decimal("100000"), available_cash=Decimal("1000"))
@@ -128,16 +128,16 @@ def test_off_grid_frozen_stop_cleanly_blocks_only_that_entry(tmp_path):
         initial_r=0.051,
         canonical_stop=99.949,
     )
-    before = budget.remaining
     action = runtime.plan_entry(
         off_grid, authority(), realized_equity=Decimal("100000"), budget=budget)
-    assert action.kind == "SKIP_STOP_NOT_ON_TICK_GRID"
-    assert action.quantity == 0
-    assert action.reason == "STOP_NOT_ON_TICK_GRID"
-    assert action.stop_price == Decimal("99.949")
-    assert budget.remaining == before
-    assert runtime.store.unresolved_intent_count() == 0
-    assert runtime.open_positions() == {}
+    assert action.kind == "ENTRY"
+    assert action.stop_price == Decimal("99.94")
+    assert action.quantity == 10
+    assert off_grid.initial_stop == 99.949
+    assert runtime.store.intent(action.idempotency_key)["payload"]["stop_price"] == "99.94"
+    assert budget.remaining == Decimal("0")
+    stop = runtime.confirm_entry_position(action.idempotency_key, action.quantity)
+    assert stop.stop_price == Decimal("99.94")
     runtime.close()
 
 
@@ -430,3 +430,59 @@ def test_n4_capacity_can_be_margin_dominated_and_requires_exact_n4():
     bad.pop("IMOEXF")
     with pytest.raises(ValueError, match="FROZEN_BASKET"):
         simultaneous_positive_capacity(bad, reserve_fraction=Decimal("0"))
+
+@pytest.mark.parametrize("side,raw,expected", [
+    ("LONG", "99.949", "99.94"), ("SHORT", "100.051", "100.06"),
+    ("LONG", "99.95", "99.95"), ("SHORT", "100.05", "100.05"),
+])
+def test_minimal_grid_outward_exact(side, raw, expected):
+    from TradingSystemLab.stage8_robot.production_runtime import _project_execution_stop
+    assert _project_execution_stop(side, raw, Decimal(".01")) == Decimal(expected)
+
+
+@pytest.mark.parametrize("instrument", list(FROZEN_ECONOMICS))
+@pytest.mark.parametrize("side", ["LONG", "SHORT"])
+def test_minimal_grid_all_n4_initial_protection(tmp_path, instrument, side):
+    from dataclasses import replace
+    runtime = ProductionRuntime(tmp_path / (instrument + side + ".db"))
+    sig = signal(instrument, side)
+    step = authority(instrument).price_step
+    raw = Decimal(str(sig.initial_stop)) + (step / 10 if side == "SHORT" else -step / 10)
+    sig = replace(sig, initial_stop=float(raw))
+    budget = runtime.begin_batch(realized_equity=Decimal("100000"), available_cash=Decimal("10000"))
+    action = runtime.plan_entry(sig, authority(instrument), realized_equity=Decimal("100000"), budget=budget)
+    assert action.kind == "ENTRY"
+    assert action.stop_price / step == (action.stop_price / step).to_integral_value()
+    assert action.stop_price < Decimal(str(sig.entry)) if side == "LONG" else action.stop_price > Decimal(str(sig.entry))
+    stop = runtime.confirm_entry_position(action.idempotency_key, action.expected_position_quantity)
+    assert stop.stop_price == action.stop_price
+    runtime.close()
+
+
+def test_minimal_grid_trail1_replace_is_on_tick_after_restart(tmp_path):
+    runtime = ProductionRuntime(tmp_path / "trail.db")
+    budget = runtime.begin_batch(realized_equity=Decimal("100000"), available_cash=Decimal("1000"))
+    entry = runtime.plan_entry(signal(), authority(), realized_equity=Decimal("100000"), budget=budget)
+    stop = runtime.confirm_entry_position(entry.idempotency_key, entry.quantity)
+    runtime.confirm_protective_stop(stop.idempotency_key, "stop-0")
+    first = CompletedBar(datetime(2026, 1, 2, 11, tzinfo=MSK), 100, 106, 100, 105, 2.003)
+    assert runtime.manage_completed_bar("USDRUBF", first, observed_position_quantity=entry.quantity) is None
+    assert Decimal(str(runtime.open_positions()["USDRUBF"]["trail1"]["stored_candidate"])) == Decimal("99.99")
+    runtime.close()
+    restarted = ProductionRuntime(tmp_path / "trail.db")
+    second = CompletedBar(datetime(2026, 1, 2, 12, tzinfo=MSK), 105, 107, 101, 106, 2.001)
+    action = restarted.manage_completed_bar("USDRUBF", second, observed_position_quantity=entry.quantity)
+    assert action is not None and action.kind == "PROTECTIVE_STOP_REPLACE"
+    assert action.stop_price == Decimal("100.99")
+    assert action.stop_price / Decimal(".01") == (action.stop_price / Decimal(".01")).to_integral_value()
+    restarted.close()
+
+
+def test_minimal_grid_rejects_off_grid_entry_without_intent(tmp_path):
+    from dataclasses import replace
+    runtime = ProductionRuntime(tmp_path / "entry.db")
+    budget = runtime.begin_batch(realized_equity=Decimal("100000"), available_cash=Decimal("1000"))
+    with pytest.raises(ProductionRuntimeError, match="EXECUTION_ENTRY_OR_STOP_INVALID"):
+        runtime.plan_entry(replace(signal(), entry=100.001), authority(), realized_equity=Decimal("100000"), budget=budget)
+    assert runtime.store.unresolved_intent_count() == 0
+    runtime.close()
