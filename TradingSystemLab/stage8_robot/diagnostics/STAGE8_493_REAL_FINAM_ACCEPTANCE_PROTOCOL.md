@@ -931,3 +931,51 @@ Classification: `V4_PRE_ENTRY_NON_ATOMIC_ASK_FALSE_BLOCK_CONFIRMED`,
 position, treat HOLD as **real exposure to reconcile**, not permission to
 retry ENTRY, deploy, merge or rearm. Do not classify the acceptance PASS from
 an ACK or a 100%-SLTP echo alone.
+
+
+## 2026-10-14 — Intel v5 REAL two-contract entry and SLTP; API HOLD, operator terminal confirmation
+
+**This is actual REAL execution, not synthetic acceptance.** The user ran external
+`stage8-493-intel-execute-v5.ps1 -mode execute` and entered the exact
+interactive `cny-two-real-entry` authorization. Their sanitized Intel output:
+
+- Exact sources/native hash PASS; 19/19 synthetic regressions PASS; fresh
+  isolated production Task and broker-flat pre-entry gate PASS.
+- Exact test account/instrument: `CNYRUBF@RTSX`, LONG, **2 contracts**.
+- Pre-submit **reference** entry `12.53` (not broker-confirmed fill price);
+  planned stop **12.230**, 300 ticks/contract, nominal modeled risk **600 RUB**;
+  modeled all-in scenario **800 RUB** inside previously approved **1000 RUB**.
+- Operator manually examined FINAM terminal and explicitly confirmed
+  **2 contracts bought and a protective stop order installed for 2 contracts**.
+- Runner observed `observed_position_after_attempt=2` and
+  `observed_active_orders_after_attempt=1`, then reported
+  `operator_hold:active_same_sltp_100_percent_not_observed`;
+  `manual_finam_terminal_reconcile_and_flatten_required=yes`;
+  `do_not_repeat_entry_or_rearm_robot=yes`.
+- `production_task_unchanged=yes`, `production_sqlite_write=none`.
+
+The HALT indicates failure of the program's exact **API order-identity /
+100%-SLTP representation validation**; the user-reported FINAM terminal
+confirms visible stop coverage, but its order ID, live stop status, trigger,
+remaining quantity and association to this exact position have NOT been
+independently reconciled with immutable broker read-side proof. **Do not infer
+that SLTP is absent solely because the candidate parser held; likewise do not
+certify physical SLTP acceptance PASS merely from a terminal display.**
+
+**Immediate live-state authority: LIVE POSITION MAY STILL BE OPEN — 2 LONG,
+ONE PROTECTIVE ORDER REPORTED.** Operator must supervise FINAM terminal,
+verify exact account/symbol/SELL protection/quantity 2/stop 12.230 and keep
+position protected or execute independently supervised safe manual recovery.
+Do not rerun v5 or submit a second ENTRY. Do not cancel stop in isolation and
+leave open exposure, or place a blind opposite MARKET order racing an active
+stop. On completion require two fresh broker READONLY snapshots showing zero
+positions and zero active orders, plus separate external one-attempt journal
+reconciliation; preserve the original journal, order IDs and evidence privately.
+
+**Outcome:** `REAL_ENTRY_2_CONTRACTS_CONFIRMED_BY_OPERATOR`;
+`PROTECTIVE_SLTP_2_CONTRACTS_CONFIRMED_BY_TERMINAL_OPERATOR`;
+`API_ACTIVE_SAME_SLTP_100_PERCENT_PROOF_BLOCKED`;
+`OPERATOR_INTERVENTION_REQUIRED`; `REAL_STOP_TRIGGER_NOT_PROVEN`;
+`FINAL_FLAT_NOT_PROVEN`; `STAGE8_493_TASK_2_2_STILL_OPEN`.
+Frozen Stage7 `TRAIL1__N4_01__FULL__R15`, N4/robot Task/deployed
+checkout and main are untouched; **NO robot rearm/merge/deploy**.
