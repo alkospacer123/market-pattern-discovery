@@ -1,4 +1,8 @@
-"""Operator-only Stage8 #493 SLTP acceptance planning launcher. NO LIVE TRANSPORT."""
+"""Operator-only Stage8 #493 CNY LONG two-contract plan. NO LIVE TRANSPORT.
+
+The one-shot acceptance quantity is NOT the frozen production R15 quantity.
+This module cannot send orders and never grants production trading rights.
+"""
 from __future__ import annotations
 
 import argparse
@@ -56,10 +60,10 @@ def validate_plan(plan: dict) -> dict:
          and plan['active_identity'] == IDENTITY
          and plan['production_commit'] == LIVE_SHA, 'FROZEN_PRODUCTION_BINDING_INVALID')
     instrument = plan['instrument']
-    fail(type(instrument) is str and instrument in SYMBOLS, 'INSTRUMENT_NOT_N4')
+    fail(type(instrument) is str and instrument == 'CNYRUBF', 'TEST_ONLY_CNYRUBF_APPROVED')
     symbol, tick_text, rub_tick_text = SYMBOLS[instrument]
     fail(plan['finam_symbol'] == symbol, 'FINAM_SYMBOL_NOT_FROZEN')
-    fail(plan['direction'] in ('LONG', 'SHORT'), 'INVALID_DIRECTION')
+    fail(plan['direction'] == 'LONG', 'TEST_ONLY_LONG_APPROVED')
     fail(type(plan['requested_contracts']) is int and plan['requested_contracts'] == 2,
          'MULTIFILL_TEST_MUST_BE_EXACTLY_TWO_CONTRACTS')
     # No authority to treat an asserted state as a physical broker/Task proof.
@@ -72,6 +76,7 @@ def validate_plan(plan: dict) -> dict:
     available = money(plan['available_cash_rub'], 'AVAILABLE_CASH_INVALID')
     margin = money(plan['margin_per_contract_rub'], 'MARGIN_INVALID')
     budget = money(plan['maximum_operator_loss_and_cost_rub'], 'OPERATOR_CASH_LIMIT_INVALID')
+    fail(budget == Decimal('1000'), 'ONE_SHOT_TEST_BUDGET_MUST_BE_1000_RUB')
     costs = money(plan['estimated_total_cost_rub'], 'COST_ESTIMATE_INVALID')
     entry = money(plan['entry_reference_price'], 'ENTRY_INVALID')
     stop = money(plan['stop_price'], 'STOP_INVALID')
@@ -86,22 +91,24 @@ def validate_plan(plan: dict) -> dict:
     loss_per_contract = abs(entry-stop) / tick * tick_rub
     loss = loss_per_contract * qty
     nominal_r15 = equity * Decimal('0.015')
-    fail(loss > 0 and loss <= nominal_r15, 'TWO_CONTRACTS_VIOLATE_FROZEN_R15')
+    fail(loss > 0, 'TWO_CONTRACT_STOP_LOSS_INVALID')
     fail(margin * qty <= available, 'TWO_CONTRACTS_EXCEED_MARGIN_CASH')
     fail(loss + costs <= budget, 'OPERATOR_MAX_CASH_LOSS_AND_COST_EXCEEDED')
-    # This is a reference-only mirror of frozen risk.py/margin.py for N4 lot=1.
-    # Merely checking loss<=R15 and 2*margin<=cash is insufficient: such a
-    # plan may ask for two when frozen FULL/R15 would size more (or less).
+    # Preserve a diagnostic mirror of the frozen robot sizing. The separate
+    # one-shot acceptance has an explicit TWO-contract exception: its quantity
+    # is constrained by current margin/cash and the 1000 RUB scenario budget,
+    # never by equality to the natural FULL/R15 robot quantity.
     r15_quantity = int((nominal_r15 / loss_per_contract).to_integral_value(rounding=ROUND_FLOOR))
     margin_quantity = int((available / margin).to_integral_value(rounding=ROUND_FLOOR))
     frozen_quantity = min(r15_quantity, margin_quantity)
-    fail(frozen_quantity == qty, 'TWO_CONTRACTS_NOT_EXACT_FROZEN_R15_MARGIN_RESULT')
     # No assertion above establishes fresh account authority, fills or Task isolation.
     # 6% aggregate cap is respected by requiring broker-observed flatness; assertion is NOT proof.
     return {'classification':'OFFLINE_PLAN_VALID_NOT_REAL_ORDER_AUTHORITY',
             'instrument':instrument,'contracts':qty,'stop_tick':tick_text,
             'maximum_reference_initial_loss_rub':str(loss),
-            'r15_cash_cap_rub':str(nominal_r15),
+            'r15_cash_cap_rub_reference_only':str(nominal_r15),
+            'test_quantity_independent_of_robot_sizing':True,
+            'approved_test_budget_rub':str(budget),
             'r15_reference_quantity':r15_quantity,
             'margin_reference_quantity':margin_quantity,
             'frozen_reference_final_quantity':frozen_quantity,

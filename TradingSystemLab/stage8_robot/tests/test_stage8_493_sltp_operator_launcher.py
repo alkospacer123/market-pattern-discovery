@@ -14,7 +14,7 @@ def plan():
         production_commit=m.LIVE_SHA, instrument='CNYRUBF',finam_symbol='CNYRUBF@RTSX',
         direction='LONG', requested_contracts=2,entry_reference_price='12.750',
         stop_price='12.740', realized_equity_rub='10000', available_cash_rub='2000',
-        margin_per_contract_rub='1000', maximum_operator_loss_and_cost_rub='100',
+        margin_per_contract_rub='1000', maximum_operator_loss_and_cost_rub='1000',
         estimated_total_cost_rub='10',account_has_zero_positions_and_orders=True,
         production_task_isolated=True,kill_switch_halted=True,
         explicit_operator_trade_authorization=True)
@@ -34,13 +34,8 @@ def test_valid_plan_still_not_physically_authorized():
     {'production_commit':'0'*40}, {'instrument':'NG'},
     {'finam_symbol':'UNKNOWN'}, {'stop_price':'12.751'},
     {'stop_price':'12.7401'}, {'entry_reference_price':'NaN'},
-    {'realized_equity_rub':'100'}, {'available_cash_rub':'100'},
+    {'available_cash_rub':'100'},
     {'maximum_operator_loss_and_cost_rub':'20'},
-    # Previously accepted these operator-subselected quantities despite the
-    # frozen FULL/R15 quantity being 3, 10 or 15 rather than exactly 2.
-    {'available_cash_rub':'3000'},
-    {'available_cash_rub':'10000'},
-    {'margin_per_contract_rub':'100'},
     {'estimated_total_cost_rub':'0'},
     {'explicit_operator_trade_authorization':False},
     {'production_task_isolated':False}, {'kill_switch_halted':False},
@@ -51,10 +46,12 @@ def test_block_invalid_or_insufficient_conditions(change):
     with pytest.raises(m.Blocked):m.validate_plan(p)
 
 
-def test_symmetric_short_and_single_direction_stops():
+def test_only_approved_cny_long_with_protective_stop():
     p=plan();p.update(direction='SHORT',stop_price='12.760')
-    assert m.validate_plan(p)['contracts']==2
-    p.update(direction='LONG')
+    with pytest.raises(m.Blocked):m.validate_plan(p)
+    p=plan();p.update(stop_price='12.760')
+    with pytest.raises(m.Blocked):m.validate_plan(p)
+    p=plan();p.update(instrument='USDRUBF',finam_symbol='USDRUBF@RTSX')
     with pytest.raises(m.Blocked):m.validate_plan(p)
 
 
@@ -97,4 +94,26 @@ def test_frozen_sizing_crosscheck_real_risk_margin_modules():
             initial_margin=D(p['margin_per_contract_rub']),trade_lot_size=1)
         assert r['r15_reference_quantity']==risk.quantity
         assert r['margin_reference_quantity']==margin.margin_quantity
-        assert r['frozen_reference_final_quantity']==margin.final_quantity==2
+        assert r['frozen_reference_final_quantity']==margin.final_quantity
+
+
+def test_two_lot_exception_is_independent_of_natural_r15_and_margin_quantity():
+    p=plan(); p.update(realized_equity_rub='100',available_cash_rub='10000')
+    r=m.validate_plan(p)
+    assert r['contracts']==2
+    assert r['r15_reference_quantity']==1
+    assert r['margin_reference_quantity']==10
+    assert r['frozen_reference_final_quantity']==1
+    assert r['test_quantity_independent_of_robot_sizing'] is True
+    assert r['approved_test_budget_rub']=='1000'
+    p=plan();p.update(available_cash_rub='11000',margin_per_contract_rub='1000')
+    assert m.validate_plan(p)['frozen_reference_final_quantity']>2
+
+
+def test_budget_and_margin_are_independent_hard_blocks():
+    p=plan();p['maximum_operator_loss_and_cost_rub']='1001'
+    with pytest.raises(m.Blocked):m.validate_plan(p)
+    p=plan();p['stop_price']='12.200'
+    with pytest.raises(m.Blocked):m.validate_plan(p)
+    p=plan();p['margin_per_contract_rub']='1001'
+    with pytest.raises(m.Blocked):m.validate_plan(p)

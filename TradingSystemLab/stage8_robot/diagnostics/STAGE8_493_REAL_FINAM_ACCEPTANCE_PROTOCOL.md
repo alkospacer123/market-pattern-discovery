@@ -578,3 +578,32 @@ A small, isolated, purely arithmetic \`stage8_493_capital_pnl_readonly.py\` and 
 This is **not** an automated future deposit classifier. Section 4.3 of main \`PRODUCTION_RUNBOOK.md\` continues to require an operator-controlled deposit/withdrawal procedure before unsupervised LIVE sizing. A financial statement audit with true transaction dates/fees/funding remains separate from the risk sizing equation. For the controlled real two-contract SLTP acceptance, independent physical account funds/GO, exact natural quantity=2, explicit monetary loss/stress allowance, operator recovery and separate order authorization are still missing.
 
 **Current gate:** \`CAPITAL_POLICY_APPROVED_CANDIDATE_ONLY\` / \`SEPARATE_REPORTING_PYTEST_PENDING\` / \`PRODUCTION_SQLITE_UNCHANGED\` / \`REAL_ORDER_AUTHORIZED=NO\`.
+
+
+## 2026-10-14 — bounded two-contract CNYRUBF LONG acceptance exception (candidate only)
+
+The operator has approved precisely **one** separate, controlled REAL SLTP
+acceptance scenario for **CNYRUBF@RTSX LONG, quantity 2**, with a **1000 RUB
+scenario-loss-and-cost budget**. This is an exception to the acceptance
+quantity only, **not** a change of the frozen production strategy, N4, FULL/R15,
+risk sizing, stop logic, operational authorization or Intel checkout.
+
+In this same PR the isolated **order-incapable** two-contract planning launcher
+no longer requires `natural_FULL_R15_quantity == 2`. It still requires
+2-lot margin/cash coverage, stop below entry on the 0.001 tick grid and
+`2 * stop_ticks * 1 RUB + estimated_roundtrip_costs <= 1000 RUB`.
+Natural R15 and margin quantities remain **reference-only** outputs.
+The separate one-attempt write policy is likewise scoped only to CNYRUBF LONG,
+2 contracts, the 1000 RUB scenario including explicit per-contract adverse
+slippage allowance and fees, bounded action IDs and independent fresh physical
+account/margin/budget/recovery and operator-approval callbacks. None of these
+operator-asserted values alone proves the current broker price or commissions.
+
+**Physical gate outstanding within roadmap task 2.2:** new, authenticated
+same-account FINAM executable reference price/spread, stop price, current
+long-side 2-lot GO/free cash and applicable tariff + exchange fees, adverse
+slippage buffer, broker terminal/manual flatten/cancel readiness, independent
+operator-only executable wiring and exact one-shot authorization for
+ENTRY/SLTP/CANCEL/EXIT. Test quantity is not blocked by the previous 11-lot
+robot reference. The order endpoint remains uninvoked; no LIVE mutation,
+production rearm, merge or deployment is authorized by this amendment.

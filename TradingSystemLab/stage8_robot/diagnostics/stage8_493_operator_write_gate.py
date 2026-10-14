@@ -8,6 +8,7 @@ runner AFTER separate exact-deal permission. Without both: HOLD.
 from __future__ import annotations
 
 from datetime import datetime, timezone, timedelta
+from decimal import Decimal, InvalidOperation
 from hashlib import sha256
 import json
 from typing import Callable
@@ -29,7 +30,7 @@ PHYSICAL_FIELDS = frozenset({
     "account_hash", "task_disabled", "switch_halted",
     "production_process_count", "production_lock_free",
     "write_session_exact_account", "broker_snapshot_age_seconds",
-    "risk_and_margin_exact_two_current", "operator_budget_current_verified",
+    "test_two_contract_margin_and_cash_current", "operator_budget_current_verified",
     "unresolved_intents_zero", "recovery_approved",
 })
 
@@ -62,6 +63,8 @@ class OperatorOneAttemptWriteGate:
                 or receipt.get("instrument") != plan.instrument
                 or receipt.get("symbol") != plan.symbol
                 or receipt.get("direction") != plan.direction
+                or receipt.get("instrument") != "CNYRUBF"
+                or receipt.get("direction") != "LONG"
                 or receipt.get("quantity") != 2
                 or receipt.get("entry_key") != plan.entry_key
                 or receipt.get("stop_key") != plan.stop_key
@@ -77,6 +80,27 @@ class OperatorOneAttemptWriteGate:
                 or not isinstance(receipt.get("approved_from"), str)
                 or not isinstance(receipt.get("approved_until"), str)):
             raise Hold("OPERATOR_WRITE_APPROVAL_BINDING_INVALID")
+        # Acceptance-only monetary cap. This gate must NOT compare quantity 2
+        # to the robot's natural FULL/R15 quantity; production is unchanged.
+        try:
+            entry = Decimal(receipt["entry_reference"])
+            stop_price = Decimal(receipt["stop_price"])
+            fees = Decimal(receipt["fees_rub"])
+            budget = Decimal(receipt["risk_budget_rub"])
+        except (InvalidOperation, ValueError):
+            raise Hold("OPERATOR_TEST_MONEY_INVALID") from None
+        tick = Decimal("0.001")
+        if (not all(x.is_finite() for x in (entry, stop_price, fees, budget))
+                or entry <= 0 or stop_price <= 0 or stop_price >= entry
+                or entry % tick != 0 or stop_price % tick != 0
+                or fees < 0 or budget != Decimal("1000")
+                or receipt["slippage_ticks"] < 0):
+            raise Hold("OPERATOR_TEST_PRICE_OR_BUDGET_INVALID")
+        # CNYRUBF frozen reference tick value = 1 RUB; the operator must
+        # independently verify executable broker ticks, fees and slippage.
+        scenario = 2 * (entry - stop_price) / tick + 2 * receipt["slippage_ticks"] + fees
+        if scenario > budget:
+            raise Hold("OPERATOR_TEST_1000_RUB_SCENARIO_EXCEEDED")
         start = _time(receipt["approved_from"])
         stop = _time(receipt["approved_until"])
         if not start < stop or stop-start > timedelta(minutes=30):
@@ -119,7 +143,7 @@ class OperatorOneAttemptWriteGate:
                 or physical["write_session_exact_account"] is not True
                 or type(physical["broker_snapshot_age_seconds"]) is not int
                 or not 0 <= physical["broker_snapshot_age_seconds"] <= 10
-                or physical["risk_and_margin_exact_two_current"] is not True
+                or physical["test_two_contract_margin_and_cash_current"] is not True
                 or physical["operator_budget_current_verified"] is not True
                 or physical["unresolved_intents_zero"] is not True
                 or physical["recovery_approved"] is not True):

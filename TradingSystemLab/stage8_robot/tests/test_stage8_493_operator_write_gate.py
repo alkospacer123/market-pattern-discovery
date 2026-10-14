@@ -25,7 +25,7 @@ def receipt():
         'direction':'LONG', 'quantity':2,
         'entry_key':'entry-A','stop_key':'stop-A','exit_key':'exit-A',
         'stop_price':'12.740','entry_reference':'12.990',
-        'fees_rub':'10','slippage_ticks':3,'risk_budget_rub':'600',
+        'fees_rub':'10','slippage_ticks':3,'risk_budget_rub':'1000',
         'approved_operations':['ENTRY','SLTP','CANCEL','EXIT'],
         'approved_from':(NOW-timedelta(minutes=2)).isoformat(),
         'approved_until':(NOW+timedelta(minutes=2)).isoformat(),
@@ -37,7 +37,7 @@ def physical():
         'account_hash':HASH, 'task_disabled':True, 'switch_halted':True,
         'production_process_count':0, 'production_lock_free':True,
         'write_session_exact_account':True, 'broker_snapshot_age_seconds':0,
-        'risk_and_margin_exact_two_current':True,
+        'test_two_contract_margin_and_cash_current':True,
         'operator_budget_current_verified':True,
         'unresolved_intents_zero':True, 'recovery_approved':True,
     }
@@ -94,7 +94,7 @@ def test_rejected_operator_approval_denies(tmp_path):
     ('task_disabled',False),('switch_halted',False),
     ('production_process_count',1),('production_lock_free',False),
     ('write_session_exact_account',False),('broker_snapshot_age_seconds',20),
-    ('risk_and_margin_exact_two_current',False),
+    ('test_two_contract_margin_and_cash_current',False),
     ('operator_budget_current_verified',False),('unresolved_intents_zero',False),
     ('recovery_approved',False),('account_hash','0'*64),
 ])
@@ -142,3 +142,21 @@ def test_stop_after_cancel_denied(tmp_path):
     with pytest.raises(Hold,match='STOP_AFTER_RECOVERY'):
         g('SLTP',plan(),'stop-A')
     assert j.count('operator_write_intent')==2
+
+
+def test_1000_rub_exact_exception_and_scenario_limit(tmp_path):
+    base=receipt()
+    for key,value in [
+        ('risk_budget_rub','1001'),('risk_budget_rub','999'),
+        ('fees_rub','1000'),('fees_rub','-1'),
+        ('slippage_ticks',-1),('entry_reference','NaN'),
+        ('stop_price','12.990'),('entry_reference','12.9901'),
+        ('direction','SHORT'),('instrument','GLDRUBF'),
+    ]:
+        bad=dict(base);bad[key]=value
+        with pytest.raises(Hold):
+            OperatorOneAttemptWriteGate(plan=plan(),journal=Journal(tmp_path/(key+'-'+str(value)),fresh=True),receipt=bad)
+    # Broker current margin/fees must still be independently revalidated.
+    g,j=gate(tmp_path)
+    g('ENTRY',plan(),'entry-A')
+    assert j.count('operator_write_intent')==1
