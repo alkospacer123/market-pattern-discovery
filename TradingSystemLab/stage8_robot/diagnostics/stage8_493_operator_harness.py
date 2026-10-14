@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Protocol
 
@@ -140,6 +141,18 @@ class OperatorHarness:
         if total != expected_qty:
             raise Hold('ORDER_LINKED_FILL_QUANTITY_INVALID')
 
+    @staticmethod
+    def _same_stop_price(observed: object, planned: str) -> bool:
+        # FINAM normalizes trailing zeroes: 12.23 and 12.230 are the same tick.
+        if type(observed) is not str or type(planned) is not str:
+            return False
+        try:
+            actual, target = Decimal(observed), Decimal(planned)
+        except InvalidOperation:
+            return False
+        return (actual.is_finite() and target.is_finite()
+                and actual > 0 and target > 0 and actual == target)
+
     def _stop(self, snapshot: dict, stop_id: str) -> None:
         stop_side = 'SIDE_SELL' if self.plan.direction == 'LONG' else 'SIDE_BUY'
         matches = [o for o in snapshot['orders'] if o.get('id') == stop_id]
@@ -147,7 +160,7 @@ class OperatorHarness:
                 or matches[0].get('active') is not True
                 or matches[0].get('side') != stop_side
                 or matches[0].get('percent') != 100
-                or matches[0].get('price') != self.plan.stop_price
+                or not self._same_stop_price(matches[0].get('price'), self.plan.stop_price)
                 or matches[0].get('symbol') != self.plan.symbol):
             raise Hold('ACTIVE_SAME_SLTP_100_PERCENT_NOT_OBSERVED')
 
