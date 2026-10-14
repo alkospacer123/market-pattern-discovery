@@ -2,6 +2,16 @@
 
 **Operator-ready design only. 2026-10-13. Classification: PHYSICAL_ACCEPTANCE_NOT_RUN / REAL_ORDER_TRANSMISSION_NOT_AUTHORIZED.**
 
+**ОПЕРАТОРСКОЕ УТОЧНЕНИЕ 14.10.2026 — TEST-ONLY QUANTITY EXCEPTION, СТАРШЕ РАННЕГО ОГРАНИЧЕНИЯ НА NATURAL QUANTITY=2.**
+
+Пользователь отдельно разрешил **ровно 2 контракта CNYRUBF LONG на ОДНУ контролируемую реальную SLTP-приёмку** даже в ситуации, когда замороженный FULL/R15 при справочном входе и стопе выдаёт иное естественное количество (Intel 14.10.2026: reference H1 close=12.541, initial long stop=12.476, reference margin capacity=42, reference FULL/R15 quantity=11).
+
+Это **только тестовая операторская заявка**; объём **не применяется** к действующему роботу, его стратегии, FULL/R15, стопам, конфигурации, результатам, N4 или LIVE SQLite. Раннее условие natural=2 НЕ применяется к этой одной тестовой заявке. Нельзя подгонять/выдумывать стоп, изменять размеры сигналов робота или превращать тест в MICRO cap.
+
+Бюджет оператора **1000 RUB для сценарного планирования**, не гарантирует верхнюю границу гэпа/убытка. До POST необходимы authenticated entry/stop/bid-ask, tick RUB, комиссии/стресс-резерв, контролируемое закрытие, account/Task/HALTED/positions/orders и **отдельное точное разрешение на реальные ENTRY/SLTP/CANCEL/EXIT**. Данное согласие не разрешает orders, merge, deploy, rearm или task mutation.
+
+Existing offline planner `stage8_493_sltp_operator_launcher.py` пока требует natural final R15=2 и **не готов для новой операторской test-only оговорки**: при необходимости изменяется только изолированная ветвь acceptance/gate в #493, НЕ production-код. `FINAM_FILL_AUTHORITY_VERIFIED=False` остаётся до физических доказательств.
+
 This is the next item of the **existing** TradingSystemLab Stage 8 #493 roadmap. It is not a new research stage and cannot change frozen strategy/production. No candidate V2 merge, Task start/enable, rearm, real ENTRY/SLTP/CANCEL/EXIT, token substitution or runtime SQLite write is permitted by approval to *prepare* this plan. A separate, explicit and bounded user authorization is required **after** the READONLY report, risk budget and recovery plan have been reviewed.
 
 ## 1. Frozen production identity and physical checkpoint
@@ -33,7 +43,7 @@ Before a later **separately authorized** trade, obtain fresh, authenticated and 
 
 - FINAM real account binding/status; zero positions and zero active orders (two fresh snapshots). A dormant heartbeat is expected while Task stopped.
 - Realized equity, available cash, current directional initial margin, price step, tick value in **RUB**, lot size and expected spread; identify market session and actual bid/ask/stop from current completed/available data. Verify exchange instrument against frozen N4 mapping.
-- Entry reference and stop must be on the authenticated tick grid, stop on the adverse side, quantity **exactly 2** allowed by unchanged FULL/R15 + margin floor rule; two contracts must be naturally eligible, never artificially upsize or change risk. Any result not exactly 2 => **NOT ELIGIBLE**, not a prompt to alter strategy.
+- Entry reference and initial stop must be authenticated, adverse-side and on-grid. **Production FULL/R15** must always size naturally with its unchanged 1.5% realized-equity and margin formula. **For the one specifically permitted isolated CNYRUBF LONG test only**, the operator has explicitly approved fixed test quantity=2 even when the otherwise unmodified production sizing reference is 11. Do not fake a strategy signal, increase quantity beyond 2, shift the stop to make natural quantity=2, or mutate LIVE production. Budget and protective/exit gates still apply; different instruments/volumes require separate consent.
 - Record FINAM/exchange/clearing/broker commissions for entry+exit, price slippage/gap stress scenarios and an operator-selected, explicitly acknowledged cash budget **before** orders. Compute conservative *scenario loss*:
   `2 × (abs(entry_reference − initial_stop) / exchange_tick_size × tick_value_RUB + adverse_slippage_ticks × tick_value_RUB) + round_trip_fees_RUB`.
   Nominal initial stop loss **must** be ≤ 1.5% of realized equity, and the scenario loss+fees **must** be within the operator's separately specified acceptance cash budget. This is a *stress estimate*, not a guaranteed maximum: stop execution, gaps and outages can exceed it. Undefined cash budget, stale economics, missing or non-RUB tick authority, nonzero exposure or no trusted margin => **BLOCKED**.
