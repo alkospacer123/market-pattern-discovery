@@ -1003,6 +1003,7 @@ def run_from_environment(
     api_factory=FinamAPI, environment: dict[str, str] | None = None,
     clock: Callable[[], datetime] | None = None,
     release_manifest: Path | None = None, release_manifest_sha256: str | None = None,
+    execution_revision: str | None = None,
 ) -> int:
     environment = dict(os.environ if environment is None else environment)
     if environment.get("FINAM_MODE") != MODE:
@@ -1012,6 +1013,8 @@ def run_from_environment(
     if not secret or not account:
         raise ProductionServiceError("STAGE8_12_4_PRODUCTION_CREDENTIAL_MISSING")
     if release_manifest is not None or release_manifest_sha256 is not None:
+        if execution_revision is not None:
+            raise ProductionServiceError("STAGE8_493_V2_PREVIEW_AND_TRADING_MODE_CONFLICT")
         if release_manifest is None or release_manifest_sha256 is None or not once:
             raise ProductionServiceError("V2_MANIFEST_HASH_AND_ONCE_REQUIRED")
         from .release_candidate_runner import run_preview
@@ -1023,6 +1026,19 @@ def run_from_environment(
         import json
         print(json.dumps(result,sort_keys=True))
         return 0
+    if execution_revision is not None:
+        # The default legacy path never selects V2. Explicit V2 startup stays
+        # closed until physical fill authority is separately accepted in code.
+        if execution_revision != EXECUTION_REVISION:
+            raise ProductionServiceError("STAGE8_493_EXECUTION_REVISION_INVALID")
+        if not FINAM_FILL_AUTHORITY_VERIFIED:
+            raise ProductionServiceError("STAGE8_493_V2_RELEASE_AUTHORITY_NOT_VERIFIED")
+        if not (Path(runtime_root) / "state" / STATE_DATABASE).is_file():
+            raise ProductionServiceError("STAGE8_493_ISOLATED_V2_STATE_REQUIRED")
+        # Never reuse the legacy authorization: commit, account and physical
+        # V2 SQLite revision must independently match before any live session.
+        load_authorization(runtime_root, expected_commit=accepted_commit,
+            expected_account_hash=hashlib.sha256(account.encode("utf-8")).hexdigest())
     lock = InstanceLock(Path(runtime_root) / "state" / INSTANCE_LOCK)
     lock.acquire()
     service = None
@@ -1030,6 +1046,7 @@ def run_from_environment(
         service = ProductionService(
             runtime_root, stage5_data_root, api_factory(secret), account, accepted_commit,
             poll_seconds=poll_seconds, clock=clock,
+            **({"execution_revision": execution_revision} if execution_revision is not None else {}),
         )
         try:
             service.authenticate()
@@ -1055,6 +1072,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--once", action="store_true")
     parser.add_argument("--release-manifest", type=Path)
     parser.add_argument("--release-manifest-sha256")
+    parser.add_argument("--execution-revision", help="Explicit V2 release selector; requires separate physical authority")
     args = parser.parse_args(argv)
     try:
         return run_from_environment(
@@ -1063,6 +1081,7 @@ def main(argv: list[str] | None = None) -> int:
             poll_seconds=args.poll_seconds,
             release_manifest=args.release_manifest,
             release_manifest_sha256=args.release_manifest_sha256,
+            execution_revision=args.execution_revision,
         )
     except (ProductionServiceError, RuntimeError, ValueError) as exc:
         code = str(exc)
