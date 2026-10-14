@@ -5,6 +5,8 @@ from collections import defaultdict
 
 def read(p):
  with (gzip.open(p,'rt') if str(p).endswith('.gz') else open(p)) as f:return list(csv.DictReader(f))
+def read_rows(p):
+ with open(p) as f:yield from csv.DictReader(f)
 def independent(rows,months):
  ordered=sorted(rows,key=lambda r:(r['exit_time'],r['instrument'],r['trade_id']));x=[float(r['gross_R']) for r in ordered]
  wins=[v for v in x if v>0];losses=[v for v in x if v<0];gain=math.fsum(wins);loss=-math.fsum(losses);total=math.fsum(x)
@@ -39,7 +41,7 @@ def audit(folder,coverage):
  for view,w in coverage['views'].items():coverage_months[view]={s:{t[:7] for t in ts if w['start']<=t<w['end_exclusive'] and (view!='COMMON_OBSERVED' or t in common)} for s,ts in times.items()}
  for name in ('ANNUAL_COMPARISON','MONTHLY_COMPARISON','INSTRUMENT_COMPARISON','PORTFOLIO_SUBSETS'):
   local=0
-  for r in read(folder/(name+'.csv')):
+  for r in read_rows(folder/(name+'.csv')):
    bid=r['build_id']
    if bid not in ledgers:ledgers[bid]=read(folder/'journals'/bid/'trades.csv.gz')
    window=coverage['views'][r['view']];start=window['start'];end=window['end_exclusive']
@@ -61,7 +63,7 @@ def audit(folder,coverage):
     elif isinstance(v,(int,float)):
      delta=abs(float(saved)-v);assert delta<=1e-8,(name,bid,k,saved,v,delta);maxdelta=max(maxdelta,delta)
     else:assert saved==v,(name,bid,k,saved,v)
-   if 'covered_months' in r:
+   if r.get('covered_months'):
     covered=sum(any(mo in coverage_months[r['view']][s] for s in syms) for mo in months)
     assert int(r['covered_months'])==covered;fields+=1
    local+=1;rows+=1

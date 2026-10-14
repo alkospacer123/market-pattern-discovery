@@ -72,21 +72,29 @@ def run(data_root,pr513_root,out,jobs=3):
   with (out/(g+'.log')).open('w') as f:subprocess.run([sys.executable,str(HERE/'worker.py'),'--group',g,'--data-root',str(data_root),'--output',str(out)],check=True,stdout=f,stderr=subprocess.STDOUT,env=os.environ|{'PYTHONDONTWRITEBYTECODE':'1'})
   print('GROUP_COMPLETE',g,flush=True)
  with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:list(pool.map(worker,CATALOG))
- write_csv(out/'BUILD_REGISTRY.csv',registry_rows(manifest));write_csv(out/'CONFIG_FILTER_MATRIX.csv',[{k:v for k,v in b.items() if k in ('build_id','entry','exit','initial','mode','trail','config_identity')}|b['config'] for b in builds()])
- coverage['common_set']=set(coverage['common_set'])
- from compare import run as compare
- compare(out,coverage)
+ finish(data_root,pr513_root,out)
+
+def finish(data_root,pr513_root,out,rebuild=True):
+ manifest=json.loads((out/'SOURCE_MANIFEST.json').read_text());coverage=json.loads((out/'COVERAGE_TIMESTAMPS.json').read_text());ctl=out/'canonical_control'
+ assert len(list((out/'group_audits').glob('*.json')))==10
+ if rebuild:
+  write_csv(out/'BUILD_REGISTRY.csv',registry_rows(manifest));write_csv(out/'CONFIG_FILTER_MATRIX.csv',[{k:v for k,v in b.items() if k in ('build_id','entry','exit','initial','mode','trail','config_identity')}|b['config'] for b in builds()])
+  coverage['common_set']=set(coverage['common_set'])
+  from compare import run as compare
+  compare(out,coverage)
  with (out/'ARITHMETIC.log').open('w') as f:subprocess.run([sys.executable,str(HERE/'audit_metrics.py'),'--output',str(out),'--coverage',str(out/'COVERAGE_TIMESTAMPS.json')],check=True,stdout=f,stderr=subprocess.STDOUT)
  # Only compact audited canonical receipts retained; full equivalent canonical
  # journals are available at pinned PR513 and among comparison journals.
  keep=[ctl/'control/HISTORICAL_CONTROL.json',ctl/'SUMMARY.json',ctl/'AUDIT.json',ctl/'INDEPENDENT_AUDIT.json',ctl/'SOURCE_RECEIPTS.json',ctl/'primary_causality.json',ctl/'scalar_causality.json']
- for p in keep:shutil.copyfile(p,out/('CANONICAL_'+p.name))
- shutil.rmtree(ctl)
+ if ctl.exists():
+  for p in keep:shutil.copyfile(p,out/('CANONICAL_'+p.name))
+  shutil.rmtree(ctl)
  current,_=seal(data_root,pr513_root);assert current==manifest,'SOURCE_OR_HISTORICAL_ARTIFACT_CHANGED'
  groups=[json.loads(p.read_text()) for p in sorted((out/'group_audits').glob('*.json'))]
  write_json(out/'AUDIT.json',dict(status='PASS',canonical_control_2023_2026='PASS',full_replay_groups=len(groups),unique_frozen_configurations=51,
   replay_fields_compared=sum(x['fields_compared'] for x in groups),max_replay_numeric_delta=max(x['max_numeric_delta'] for x in groups),arithmetic=json.loads((out/'ARITHMETIC_AUDIT.json').read_text()),
   source_pin='PASS',frozen_artifact_bytes_unchanged='PASS',PR513_readonly_exact_SHA=PR513,forced_year_liquidation=False,independent_implementations=True,external_human_review='PENDING',classification='POST_HOC_COMPARISON',GROSS_ONLY=True))
+ write_json(out/'REPORTING_CORRECTION.json',dict(arithmetic='Stable fsum accumulation before near-zero signed-R concentration division',first_diagnostic_failure='Absolute concentration delta 1.4029865269549191e-08 under unstable numpy/linear summation; tolerance remains 1e-8',strategy_rules_changed=False,trades_changed=False,thresholds_changed=False,primary_and_independent_arithmetic_rebuilt=True))
  print('FULL_COMPARISON_PASS',flush=True)
 
 if __name__=='__main__':

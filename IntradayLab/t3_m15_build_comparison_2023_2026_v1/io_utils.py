@@ -16,10 +16,10 @@ def write_csv(p,rows):
  fields=sorted(set(k for r in rows for k in r)) or ['status']
  if p.suffix=='.gz':
   with p.open('wb') as raw,gzip.GzipFile(fileobj=raw,filename='',mode='wb',mtime=0) as zipped,io.TextIOWrapper(zipped,encoding='utf-8',newline='') as f:
-   w=csv.DictWriter(f,fieldnames=fields,lineterminator='\n');w.writeheader();w.writerows(plain(rows))
+   w=csv.DictWriter(f,fieldnames=fields,lineterminator='\n');w.writeheader();w.writerows(plain(r) for r in rows)
  else:
   with p.open('w',encoding='utf-8',newline='') as f:
-   w=csv.DictWriter(f,fieldnames=fields,lineterminator='\n');w.writeheader();w.writerows(plain(rows))
+   w=csv.DictWriter(f,fieldnames=fields,lineterminator='\n');w.writeheader();w.writerows(plain(r) for r in rows)
 def read_csv(p):
  opener=gzip.open if str(p).endswith('.gz') else open
  with opener(p,'rt',encoding='utf-8',newline='') as f:return list(csv.DictReader(f))
