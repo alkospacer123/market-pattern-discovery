@@ -1,0 +1,18 @@
+{
+  "base_commit": "15e96cea2c252a2dfac1b61a070e8505c97c4d77",
+  "initial_main": "d1c74ab284dc5d734a453c44fc41b9912f93a27c",
+  "all_original_files": 17627,
+  "protected_counts": {
+    "TradingSystemLab": 3056,
+    "IntradayLab": 14213
+  },
+  "protected_tree_ids": {
+    "TradingSystemLab": "7ccc7a838707dd8dc2776a0e0300fc72e57edf15",
+    "IntradayLab": "c4f6e652ba442a575ad5711cb3f55841f860f484"
+  },
+  "sha256_manifest_digest": "897501c78383a2534094e9a309e41dd2a1c81771ca83f130ddab0ad09e91e25a",
+  "sha256_content_mismatches": [],
+  "independent_git_blob_mismatches": [],
+  "method": "SHA-256 filesystem before/after + independent native Git blob reconstruction for all original tracked files; no production host access",
+  "external_review": "pending; cross-method checks performed by implementing agent"
+}
