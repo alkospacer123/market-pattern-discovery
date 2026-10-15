@@ -1,27 +1,20 @@
-# Статус roadmap Control Center v1.0 — CC-02
+# Roadmap Control Center v1.0 — CC-03 source preparation
 
-Основание: [Issue #524 / полный roadmap](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6198924792).
-Отдельная ветка от фактического main `2695cd3fce6f2241608d1d43d2b7c693ecaba32d`.
-Предыдущий CC-00/01 PR #529 MERGED (`5d1eb30e…`). Корневые roadmap и trading docs не меняются.
+Основание [#524 / утверждённый roadmap](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6198924792). Без добавления этапов. Base фактического main `52e167d7b36170f1f639827eb875a57d52175491`; CC-02 #531 MERGED. Root roadmap и trading projects не изменяются.
 
-| Этап | Статус этой поставки | Остаток |
+| Этап | Статус | Остаток |
 | --- | --- | --- |
-| CC-00 | Инвентаризация исходников актуализирована; код/документ/physical authority разделены | Actual Intel source existence/cadence UNKNOWN |
-| CC-01 | DEMO сохранён; прежние 115 тестов проходят | Production/runtime authority DEMO не создаётся |
-| CC-02 | H1 receiving adapter, wire schema/контракт, safe file read, typed facts, TTL/provenance и UI OFFLINE_FIXTURE готовы | Draft PR и внешний review; реального sanctioned exporter нет |
-| CC-03 | НЕ НАЧАТ | Отдельное разрешение; exporter/source approval, Windows secure reader/transport + ACL, calendar/TTL/account, physical before/after acceptance |
-| CC-04 | НЕ НАЧАТ | Отдельный M15 runtime/account/provider после approved engineering |
-| CC-05 | НЕ НАЧАТ | Actual decision/financial authority и sample-based broker сверка; current receiving supports test fields only |
-| CC-06 / CC-07 | НЕ НАЧАТЫ | Отдельный control plane/mock/audit и новые узкие разрешения на каждый action |
-| CC-08 | НЕ НАЧАТ | Actual alert/calendar/readiness/retention physical acceptance |
+| CC-00 | Инвентаризация обновлена; producer code / documented / physical authority разделены | Actual Intel sources/paths/cadence не наблюдались |
+| CC-01 | DEMO и independent M15 сохранены | DEMO не runtime authority |
+| CC-02 | #531 merged; fixed OFFLINE_FIXTURE receiver/schema/evidence/TTL сохранены | Test binding не реальный account |
+| CC-03 | Windows secure reader, external partial snapshot exporter, strict source/account/time policy, installation/ACL/rollback и physical plan подготовлены | Native Windows/PowerShell/ACL NOT_VERIFIED; source/account/TTL/calendar approval и физическая Intel приёмка только после нового разрешения |
+| CC-04 | НЕ НАЧАТ | Отдельный M15 runtime/source/account после engineering acceptance |
+| CC-05 | НЕ НАЧАТ | Реальные decision/execution/finance sources и независимая сверка |
+| CC-06 / CC-07 | НЕ НАЧАТЫ | Отдельные control-plane mock/audit и явные approvals на каждое действие |
+| CC-08 | НЕ НАЧАТ | Alert/calendar/readiness/retention acceptance |
 
-H1 frozen T3/H1/TRAIL1 / TRAIL1__N4_01__FULL__R15 / Stage7 / N4 / 1.5% / 6% /
-margin/quantity rounding неизменны. Intel pinned code по #530 `3a18c8c…`, не main;
-последний документированный checkpoint HALTED/Task Disabled/LIVE unauthorized.
-Текущий физический runtime здесь не наблюдался. Heartbeat из документа не доказательство.
+H1 T3/H1/TRAIL1, Stage7, active identity, N4, R15 1.5%/max6%, frozen sizing и параметры не менялись. Последний документированный Intel installed `3a18c8c…`, Disabled/HALTED; #532 документирует созданную durable authorization без start/rearm permission — историческое evidence, не новый read. Source fill flag #528 True не является authorization и не изменяется.
 
-В CC-02 нет FINAM/token/SQLite/WAL/StateStore/process/Task calls, exporter внутри H1,
-production paths, Intel installation, live profile, trading permission или rearm.
-Все 10 controls disabled; H1 failure не затрагивает M15 NOT_DEPLOYED/SYNTHETIC.
+Нынешний частичный exporter не публикует bars, fills, позиции, active SLTP или финансы; реальные account authority/cadence/calendar UNKNOWN. Панель без источника работает; M15 NOT_DEPLOYED отдельно; все 10 controls disabled. Source preparation не равна CC03_PHYSICAL_PASS или завершённому physical CC-03.
 
-**После одного Draft PR — STOP. NO MERGE / NO AUTO-MERGE / NO INTEL DEPLOYMENT.**
+**Один Draft PR → STOP для независимого аудита. NO MERGE / NO AUTO-MERGE / NO INTEL INSTALLATION / NO H1 START/REARM. Самостоятельного перехода к CC-04 нет.**

@@ -23,6 +23,8 @@ def test_no_trade_or_system_capabilities_in_runtime(path):
         'h1_contract.py': {'re'},
         'h1_readonly.py': {'hashlib', 'json', 'pathlib'},
         'readonly_file.py': {'os', 'pathlib', 'stat'},
+        'windows_file.py': {'ctypes', 'multiprocessing', 'pathlib'},
+        'h1_export.py': {'json', 'pathlib'},
     }
     allowed = ALLOWED | receiving.get(path.name, set())
     tree=ast.parse(path.read_text(encoding='utf-8'))

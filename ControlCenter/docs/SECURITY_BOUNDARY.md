@@ -1,50 +1,22 @@
-# Граница безопасности — CC-02
+# Граница безопасности — CC-03
 
-Изменения только в ControlCenter. Runtime capabilities: synthetic generation,
-Streamlit/Plotly rendering и readonly чтение **одного packaged fixture JSON**.
-FINAM/network clients, trading tokens, production SQLite/WAL, engine imports,
-StateStore constructors, subprocess/PowerShell, Windows Tasks, permissions,
-kill switch/authorization, broker order/cancel/flatten отсутствуют.
+Изменения исключительно ControlCenter. TradingSystemLab/IntradayLab byte/Git trees защищены. No strategy/frozen/risk/execution/trading authorization changes. Нет FINAM client, Trading Token, production SQLite/WAL open, robot Task mutation, production service launch, rearm/order/cancel/flatten. UI не управляет брокерскими позициями. Все десять controls disabled без handlers.
 
-Единственный OS module — `cc/providers/readonly_file.py`: directory/file readonly
-open, read/stat/fstat/close. Нет write/create/truncate/append, rename/unlink/chmod,
-процессных/сетевых функций. Ослабление общего import allowlist не выполнялось:
-новые stdlib imports разрешены только по трём конкретным receiving modules;
-дополнительно проверяются AST и runtime read flags/side effects.
+Три разные capabilities:
 
-Фиксированный allowlist: `fixtures/h1/h1.snapshot.json` внутри standalone пакета.
-Нет UI/file upload/user path/env/query configuration. Файл не может выбрать новый
-путь/схему/source/account. Перед показом exact H1/spec/active/commit/test account
-binding, строгий nested field allowlist, max 128 KiB, UTF-8/JSON/schema/hash/time и
-cross-record validation. Unknown/free-form fields (включая raw IDs/secrets/errors)
-отвергаются целиком. Source provenance задаёт код, не `synthetic=false` в JSON.
+| Компонент | Разрешено | Доверие/отказ |
+| --- | --- | --- |
+| Panel `app.py`, `cc/` | DEMO в памяти, fixed fixture, fixed sanitized export + safe receiving policy, rendering | Никаких write paths; source unknown/mismatch/error → новый UNKNOWN, без raw errors/cache |
+| File worker | POSIX fixture no-follow или Windows Kernel32 local NTFS readonly handles; policy owner/DACL read | API unavailable, reparse, traversal, hardlink, replacement, partial/size/timeout → reject; child process не shell |
+| Independent `exporter/` | Два admin-approved pinned JSON read, bounded strict redaction, atomic CC-only write | Не импортируется panel/H1; no broker/DB/network/Task; default preview, real policy отдельно |
+| Deployment scripts | После `-Execute`: own file copy/venv/offline pip, foreground CC launch/verify/rollback | По умолчанию PREVIEW; не применяют ACL, не управляют robot Task; exact manual task probe read-only отдельно |
 
-Reader не следует symlink ни в одном ancestor/root/file, не принимает hardlink,
-FIFO/не regular files; bounded read + identity/size/mtime/ctime/root recheck ловят
-частичную запись и substitution. Unsupported secure primitive → UNKNOWN. Не применяет
-небезопасный cross-platform fallback. На текущем Windows backend физический reader
-не принят; безопасная реализация handle/ACL или sanctioned transport требуется CC-03.
-Checksum не подпись. Trust directory ACL/producer authentication нельзя доказать JSON.
+Windows file `CreateFileW` access только FILE_READ_ATTRIBUTES|READ_CONTROL dirs и GENERIC_READ leaf, OPEN_EXISTING. No write/create/truncate request. Leaf FILE_SHARE_DELETE разрешает producer atomic replace; after/path checks reject changed observation. Security descriptors читаются GetSecurityInfo; policies должны принадлежать SYSTEM/Admin, никакие другие SID не могут менять их или policy ancestors (кроме drive root, проверяемого отдельно physical ACL review). Policy боoleans не являются доказательством своих ACL. Export/source producer доверяется только после отдельно утверждённого root/ACL/evidence. [Ограничения, гонки, ACL matrix и native tests](CC03_WINDOWS_SECURITY.md).
 
-Приложение не является OS sandbox. Будущая установка потребует low-privilege identity,
-доступ только к export directory, запрет чтения токенов/robot directories и записи
-в H1/M15, проверку reparse points/ACL, loopback/VPN/auth separately. Сейчас Intel
-не трогался; реальное разграничение OS/physical data не заявляется выполненным.
+Application policy и private policy раздельны. Exporter не может писать receiver policy; panel не может читать private policy или H1 sources/token directories. Active policy файлы не входят в Git/release manifest. Поставляемые examples нерабочие, production TTL нет. SHA-256 подтверждает целостность, не broker/source authentication. Случайный binding reference/alias разрешён к показу, account hash и actual paths не попадают в export/UI. Unknown/unexpected fields отвергаются, ошибки фиксированные safe codes.
 
-UNKNOWN не равен 0. Неполные позиции/финансы скрываются; stale/unavailable H1 не
-оставляет HEALTHY/цифры из прошлого снимка. HALTED со старым heartbeat не означает
-неисправность, но датированное HALTED не считается новым наблюдением. ACK не fill;
-position не exact fill price; planned stop не действующее поручение; evidence fixture
-не broker truth. Все числовые fixture значения явно OFFLINE_FIXTURE. M15 остаётся
-NOT_DEPLOYED/SYNTHETIC без H1-account/risk/финансов/runtime authority.
+Данные исполнения CC-02 сохраняют шесть уровней фактов; CC-03 partial exporter не публикует их вовсе. Heartbeat counters/protection rows не становятся FILL_CONFIRMED, нулём позиций/риска или active SLTP. Неполные финансы UNKNOWN, cashflows не прибыль. Статическое HALTED из исторической документации не выдаётся за измерение; actual Task/process пока NEEDS_SOURCE_APPROVAL. M15 не получает H1-account/R15/financial identity.
 
-Ordinary exceptions возвращают фиксированный `H1_SNAPSHOT_INVALID_OR_UNAVAILABLE`;
-payload не логируется/не показывается, прежний снимок не кешируется. KeyboardInterrupt/
-SystemExit сохраняются. Fault harness инъецирует RuntimeError/DatabaseError без открытия
-БД и проверяет модели/логи/UI/журнал и независимость M15.
+OS isolation — необходимая часть future acceptance, не свойство Python sandbox. Start scripts проверяют dedicated SID/root ACL; effective group/privileges, source ancestors/leaf и negative access checks ещё требуют Windows оператора. Application/venv admin-owned, panel только logs write, exporter только export write. Никакие права не наследуются от robot identity. При невозможности узких grants оставить source UNAVAILABLE, не читать SQLite/секреты обходным путём.
 
-Все 10 controls `disabled=True`, без callbacks; UI не выдаёт торговую авторизацию.
-Loopback/CORS/XSRF/usage settings сохранены. Нет auth/RBAC, TLS/remote-access rollout,
-LIVE profile, exporter или физической приёмки. Один Draft PR, NO MERGE, NO AUTO-MERGE,
-NO INTEL DEPLOYMENT. Внешний review PR остаётся отдельным решением, не подменяется
-авторскими тестами или отчётом проверок.
+Сеть: Streamlit 127.0.0.1, CORS/XSRF включены. VPN/authenticated restricted proxy только будущий отдельно утверждённый доступ; public 8501/admin credentials запрещены. Нет физического Intel контакта, deployment или Windows tests в этой итерации. Процедура физической приёмки и rollback — только документы, не выполненные действия.

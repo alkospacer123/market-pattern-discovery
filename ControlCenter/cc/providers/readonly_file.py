@@ -1,11 +1,12 @@
 """Bounded descriptor-relative read. No writes, DB, shell, network or secrets.
 
-Fail closed on platforms without no-follow directory descriptors. Windows safe
-handle/ACL physical acceptance is a CC-03 dependency, never a weaker fallback.
+POSIX uses directory descriptors; Windows uses pinned no-reparse NTFS handles.
+Windows native/ACL physical acceptance remains NOT_VERIFIED until run on Windows.
 """
 import os
 from pathlib import Path
 import stat
+from .windows_file import read_windows
 
 
 def fingerprint(info):
@@ -34,6 +35,22 @@ def _directory(root):
 def read_snapshot(root: Path, filename: str, maximum: int) -> bytes:
     if filename != "h1.snapshot.json":
         raise ValueError("FILE_NOT_ALLOWED")
+    return _read_file(root, filename, maximum)
+
+
+def read_source(root, filename, expected_root):
+    if os.name != "nt" or filename not in {"stage8-12-4-production-heartbeat.json", "stage8-trading-kill-switch.json"}:
+        raise ValueError("SOURCE_NOT_ALLOWED")
+    if len(expected_root) != 3 or any(type(x) is not int or x < 0 for x in expected_root):
+        raise ValueError("ROOT_PIN_REQUIRED")
+    return read_windows(root, filename, 128 * 1024, expected_root)
+
+
+def _read_file(root, filename, maximum):
+    if type(maximum) is not int or not 0 < maximum <= 128 * 1024:
+        raise ValueError("SIZE_LIMIT_INVALID")
+    if os.name == "nt":
+        return read_windows(root, filename, maximum)
     directory = _directory(root)
     try:
         descriptor = os.open(filename, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=directory)

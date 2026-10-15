@@ -26,7 +26,7 @@ h1 {letter-spacing:-.035em;} h3 {letter-spacing:-.02em;}
 
 
 def mode(snapshot):
-    return "SYNTHETIC / DEMO" if snapshot.status.provenance.source_kind == SourceKind.SYNTHETIC else "OFFLINE_FIXTURE"
+    return "SYNTHETIC / DEMO" if snapshot.status.provenance.source_kind == SourceKind.SYNTHETIC else snapshot.status.provenance.source_kind.value
 
 
 def source(snapshot: RobotSnapshot, now: datetime):
@@ -69,7 +69,7 @@ def robot_card(snapshot: RobotSnapshot, now: datetime):
 
 def overview(snapshots: dict, now: datetime):
     st.subheader("Два робота · два независимых контура")
-    st.caption("H1 сохраняет HALTED; M15 — NOT_DEPLOYED. Сценарии в боковой панели меняют только локальные тестовые снимки.")
+    st.caption("H1 отображает только состояние своего выбранного источника; M15 — NOT_DEPLOYED. Сценарии в боковой панели меняют только локальные тестовые снимки.")
     for column, robot_id in zip(st.columns(2), RobotId):
         with column:
             robot_card(snapshots[robot_id], now)
@@ -95,11 +95,11 @@ def chart_view(snapshot: RobotSnapshot, key: str):
     if snapshot.status.provenance.source_kind == SourceKind.SYNTHETIC:
         st.caption("Свечи, отметки входа/выхода и DEMO-линия созданы формулой; индикаторы T3 и торговые решения не вычисляются.")
     else:
-        st.caption("OFFLINE_FIXTURE: только опубликованные завершённые свечи и события. UNKNOWN / Причина не опубликована. Актуальность H1 без утверждённого календаря UNKNOWN. T3 не пересчитывается.")
+        st.caption(f"{mode(snapshot)}: только опубликованные завершённые свечи и события. UNKNOWN / Причина не опубликована. Актуальность H1 без утверждённого календаря UNKNOWN. T3 не пересчитывается.")
 
 
 def order_rows(snapshot: RobotSnapshot):
-    return [{"Время": stamp(o.occurred_at), ("Заявка DEMO" if mode(snapshot) == "SYNTHETIC / DEMO" else "Заявка fixture"): o.order_id, "Инструмент": o.instrument,
+    return [{"Время": stamp(o.occurred_at), ("Заявка DEMO" if mode(snapshot) == "SYNTHETIC / DEMO" else ("Заявка fixture" if mode(snapshot) == "OFFLINE_FIXTURE" else "Заявка источника")): o.order_id, "Инструмент": o.instrument,
              "Состояние": o.state.value, "Запрошено": str(o.quantity) if o.quantity is not None else "UNKNOWN",
              "Исполнено": str(o.filled_quantity) if o.filled_quantity is not None else "UNKNOWN",
              "Цена исполнения": metric(o.fill_price), "Доказательство": o.fill_evidence or "UNKNOWN"}
@@ -107,6 +107,12 @@ def order_rows(snapshot: RobotSnapshot):
 
 
 def readonly_details(snapshot):
+    if snapshot.readonly_identity is not None:
+        st.caption(snapshot.readonly_identity)
+    if snapshot.readonly_observations:
+        st.dataframe([{"Набор / источник": row.name, "Время наблюдения": stamp(row.observed_at),
+                       "Актуальность": row.state.value} for row in snapshot.readonly_observations],
+                     hide_index=True, use_container_width=True)
     details = snapshot.h1_readonly
     if details is None:
         return
@@ -179,7 +185,7 @@ def trades_view(snapshot: RobotSnapshot, now: datetime):
     if snapshot.status.provenance.source_kind == SourceKind.SYNTHETIC:
         st.caption("DEMO: начальный капитал H1 100 000 ₽; Net PnL уже учитывает комиссии. Просадка и PF по закрытым DEMO-сделкам; вводы/выводы отсутствуют. M15: финансовая authority отсутствует.")
     else:
-        st.caption("OFFLINE_FIXTURE. Equity не является чистой торговой прибылью. Неполные финансы скрыты; PnL по ACK/модельным ценам не вычисляется.")
+        st.caption(f"{mode(snapshot)}. Equity не является чистой торговой прибылью. Неполные финансы скрыты; PnL по ACK/модельным ценам не вычисляется.")
         readonly_details(snapshot)
     st.subheader(f"Активные позиции · {mode(snapshot)}")
     if snapshot.positions is None:

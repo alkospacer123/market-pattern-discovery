@@ -1,0 +1,492 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_id": {
+      "enum": [
+        "cc03.h1.readonly-observations.v1"
+      ]
+    },
+    "payload_sha256": {
+      "type": "string",
+      "pattern": "[a-f0-9]{64}",
+      "maxLength": 64
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "maxLength": 32
+    },
+    "identity": {
+      "type": "object",
+      "properties": {
+        "robot_id": {
+          "enum": [
+            "H1"
+          ]
+        },
+        "strategy_id": {
+          "enum": [
+            "T3/H1/TRAIL1"
+          ]
+        },
+        "production_specification_id": {
+          "enum": [
+            "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8"
+          ]
+        },
+        "active_identity": {
+          "enum": [
+            "TRAIL1__N4_01__FULL__R15"
+          ]
+        },
+        "installed_code_commit": {
+          "enum": [
+            "3a18c8c24301c866a60f5d725de227288d48f7ec"
+          ]
+        },
+        "source_id": {
+          "type": "string",
+          "pattern": "CC03-H1-[A-Z0-9]{8,32}",
+          "maxLength": 40
+        },
+        "account_alias": {
+          "type": "string",
+          "pattern": "H1-[A-Z0-9]{4,24}",
+          "maxLength": 27
+        },
+        "binding_id": {
+          "type": "string",
+          "pattern": "[a-f0-9]{64}",
+          "maxLength": 64
+        },
+        "account_binding": {
+          "enum": [
+            "UNVERIFIED",
+            "MATCHED_LOCAL_POLICY"
+          ]
+        }
+      },
+      "required": [
+        "robot_id",
+        "strategy_id",
+        "production_specification_id",
+        "active_identity",
+        "installed_code_commit",
+        "source_id",
+        "account_alias",
+        "binding_id",
+        "account_binding"
+      ],
+      "additionalProperties": false
+    },
+    "heartbeat": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "enum": [
+            "H1_PRODUCTION_HEARTBEAT"
+          ]
+        },
+        "status": {
+          "enum": [
+            "AVAILABLE",
+            "UNAVAILABLE",
+            "NEEDS_SOURCE_APPROVAL",
+            "INVALID"
+          ]
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "HEALTHY",
+                    "UNHEALTHY"
+                  ]
+                },
+                "last_api_contact_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "maxLength": 32
+                }
+              },
+              "required": [
+                "state",
+                "last_api_contact_at"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "source",
+        "status",
+        "observed_at",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "kill_switch": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "enum": [
+            "H1_KILL_SWITCH_FILE"
+          ]
+        },
+        "status": {
+          "enum": [
+            "AVAILABLE",
+            "UNAVAILABLE",
+            "NEEDS_SOURCE_APPROVAL",
+            "INVALID"
+          ]
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "HALTED",
+                    "ARMED"
+                  ]
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "maxLength": 32
+                }
+              },
+              "required": [
+                "state",
+                "updated_at"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "source",
+        "status",
+        "observed_at",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "reconciliation": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "enum": [
+            "H1_PRODUCTION_HEARTBEAT"
+          ]
+        },
+        "status": {
+          "enum": [
+            "AVAILABLE",
+            "UNAVAILABLE",
+            "NEEDS_SOURCE_APPROVAL",
+            "INVALID"
+          ]
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "PASS",
+                    "FAULT"
+                  ]
+                },
+                "unresolved_intents": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000000
+                }
+              },
+              "required": [
+                "state",
+                "unresolved_intents"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "source",
+        "status",
+        "observed_at",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "task": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "enum": [
+            "WINDOWS_TASK_PROBE"
+          ]
+        },
+        "status": {
+          "enum": [
+            "AVAILABLE",
+            "UNAVAILABLE",
+            "NEEDS_SOURCE_APPROVAL",
+            "INVALID"
+          ]
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "enum": [
+                "Disabled",
+                "Ready",
+                "Running"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "source",
+        "status",
+        "observed_at",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "candles": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "enum": [
+            "APPROVED_H1_CALENDAR"
+          ]
+        },
+        "status": {
+          "enum": [
+            "AVAILABLE",
+            "UNAVAILABLE",
+            "NEEDS_SOURCE_APPROVAL",
+            "INVALID"
+          ]
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "enum": [
+                "UNKNOWN"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "source",
+        "status",
+        "observed_at",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "finances": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "enum": [
+            "APPROVED_ACCOUNT_FINANCE"
+          ]
+        },
+        "status": {
+          "enum": [
+            "AVAILABLE",
+            "UNAVAILABLE",
+            "NEEDS_SOURCE_APPROVAL",
+            "INVALID"
+          ]
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "enum": [
+                "UNKNOWN"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "source",
+        "status",
+        "observed_at",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "execution": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "enum": [
+            "APPROVED_EXECUTION_EVENTS"
+          ]
+        },
+        "status": {
+          "enum": [
+            "AVAILABLE",
+            "UNAVAILABLE",
+            "NEEDS_SOURCE_APPROVAL",
+            "INVALID"
+          ]
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "enum": [
+                "UNKNOWN"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "source",
+        "status",
+        "observed_at",
+        "value"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_id",
+    "payload_sha256",
+    "generated_at",
+    "identity",
+    "heartbeat",
+    "kill_switch",
+    "reconciliation",
+    "task",
+    "candles",
+    "finances",
+    "execution"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CC03 partial readonly observations"
+}

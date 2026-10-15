@@ -1,58 +1,28 @@
-# Архитектура Control Center — CC-02
+# Архитектура Control Center — CC-03
 
-Основание: [Issue #524 / roadmap v1.0](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6198924792).
-База разработки — фактический GitHub main `2695cd3fce6f2241608d1d43d2b7c693ecaba32d`.
-#529 merged; проверен новый checkpoint #530. Intel pinned code `3a18c8c…` известен
-только из документации, не из физического чтения хоста. Frozen T3/H1/TRAIL1 неизменна.
-Фактический текущий runtime UNKNOWN; последний документированный — HALTED/Disabled.
+Base `52e167d7b36170f1f639827eb875a57d52175491`; [#531 merged](https://github.com/alkospacer123/market-pattern-discovery/pull/531). Intel pinned `3a18c8c…` — отдельная историческая identity из CURRENT_STATE, не текущий main и не полученное нами измерение. Frozen T3/H1/TRAIL1 без изменений. [Roadmap v1.0](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6198924792) сохранён.
 
 ```mermaid
 flowchart LR
-  UI[Streamlit: DEMO / OFFLINE_FIXTURE] --> P[SnapshotProvider]
-  P --> S[SyntheticProvider: H1 / M15 independently]
-  P --> H[H1ReadonlyProvider]
-  H --> R[Bounded no-follow read: fixed local JSON]
-  R --> V[Schema / hash / identity / account / time validation]
-  V --> M[Typed RobotSnapshot + H1ReadonlyDetails]
-  M --> F[Separate observations / TTL / completeness / evidence]
-  F --> UI
-  E[Future sanctioned exporter: not implemented] -. CC-03 acceptance .-> R
+  UI[Streamlit: loopback] --> S[Independent DEMO H1/M15]
+  UI --> F[H1ReadonlyProvider: OFFLINE_FIXTURE]
+  UI --> R[H1ExportProvider: partial READONLY_EXPORT]
+  F --> B[POSIX descriptors / Windows pinned NTFS handles]
+  R --> B
+  P[Admin-owned receiver policy: defaults UNKNOWN] --> R
+  B --> E[Separate sanitized export directory]
+  X[Independent CCExporter identity: one-shot] --> H[Approved heartbeat JSON]
+  X --> K[Approved kill-switch JSON]
+  X --> E
+  X -. no dependency .- T[H1 runtime unchanged]
 ```
 
-`h1_contract.py` — строгий wire allowlist и fixture policy; `readonly_file.py` —
-единственный receiving I/O boundary; `h1_readonly.py` — проверка и конверсия.
-Ни один модуль не импортирует/запускает TradingSystemLab, IntradayLab, StateStore,
-FINAM, SQLite, shell или OS task control. Производящая сторона не изменяется.
+Panel imports only `cc/`, Streamlit/Plotly и stdlib. `exporter/` — отдельный entrypoint с единственной записью в CC export, не импортируется app. Он не запускает/import H1, не читает SQLite/token и не делает broker calls. Windows reader worker — отдельный ограниченный процесс Kernel32 read, без shell/Task/service. При ошибке нет last-good cache; новый пустой UNKNOWN. M15 остаётся независимым SyntheticProvider/NOT_DEPLOYED.
 
-`SnapshotProvider.snapshot(robot_id, scenario, now)` сохранён. H1 provider реализует
-этот интерфейс; принимает только H1, игнорирует demo scenario. UI выбирает его только
-фиксированным documented selector OFFLINE_FIXTURE. M15 остаётся отдельным provider;
-H1 error не затрагивает второй монитор. Нет last-good cache или общего risk/account.
+CC-02 wire schema/fixtures/conversion остаются самостоятельными и сохраняют тестовые TTL. CC-03 `source_contract.py` — отдельная строгая частичная схема, без financial/execution/position records. Приёмник связывает её с независимой trusted receiver policy; policy ACL проверяется WinAPI, не флагом самого JSON. New `READONLY_EXPORT` provenance явно не synthetic и не VERIFIED_LIVE_READONLY. Account-unbound → UNBOUND-H1; FIXTURE-H1 никогда не допускается для этого источника.
 
-Миграция моделей обратно совместима: trailing optional source_kind/TTL в provenance,
-optional side позиции и `RobotSnapshot.h1_readonly=None`, новый UNHEALTHY. Прежние
-позиционные конструкторы/115 тестов работают. SYNTHETIC defaults/DEMO 10s policy
-сохранены. VERIFIED_LIVE_READONLY enum зарезервирован, создание запрещено в CC-02.
+Windows backend проверяет каждый ancestor/leaf no-reparse path/type/identity; удерживает directories, разрешает atomic replacement leaf без блокировки producer и отвергает замеченную замену. Bounded read 128KiB, native worker timeout 2s (ограничения OS timing описаны отдельно). POSIX fixture path не ослаблен. Exporter production sources только Windows local NTFS с independently pinned root IDs, нет POSIX production fallback.
 
-Атомарный provenance envelope сохраняется для всех display records. Реальные времена
-групп не заменяются envelope timestamp: `H1ReadonlyDetails.observations` хранит runtime,
-heartbeat, успешный цикл, reconciliation, bars/signals/orders/positions/stops/finances.
-UI выводит их рядом с receiving данными. Validator проверяет time ordering, а converter
-маскирует numeric поля без свежей complete authority/evidence. Неутверждённые H1 calendar
-и signal-current TTL дают UNKNOWN. HALTED не требует работающего heartbeat.
+`RobotSnapshot.readonly_observations` содержит per-group время/качество/source-status; `readonly_identity` содержит только safe identity/reference и предупреждение broker authority UNKNOWN. Overall state не создаётся из наличия файла или сервера. HALTED/UNRESOLVED/UNHEALTHY/STALE/UNKNOWN различаются; HEALTHY требует независимый свежий Task source, которого current exporter не имеет. Candles/finance/execution остаются UNKNOWN до отдельного approved source/calendar. Planned stop, ACK и position не считаются fill/protection. No strategy recomputation.
 
-INTENT/REQUESTED/ACK/POSITION_OBSERVED не повышаются до fill; неподтверждённый fill —
-UNRESOLVED. Planned stop не означает broker protection. Пустые неизвестные данные
-не равны нулю. Finances требуют полного согласованного экспорта с cashflows/fees;
-PnL из equity/ACK не выводится. T3 в панели не пересчитывается.
-
-[Полный контракт](H1_READONLY_SNAPSHOT_CONTRACT.md) описывает схему, правила, лимиты,
-atomic publication, будущий exporter и CC-03 blockers. Фиксированный packaged fixture
-исторический: реальный rerun ожидаемо показывает STALE, а не передатирует его.
-На Windows без безопасных no-follow primitives provider возвращает UNKNOWN;
-физическая Windows handle/ACL/transport приёмка — отдельная CC-03 зависимость.
-
-Streamlit fragment по-прежнему 2s только при открытой сессии; чтение локального файла
-ограничено 128 KiB. Нет фонового polling брокера или нагрузки на trading runner.
-Управляющие кнопки disabled без callbacks. Будущий control plane отдельный (CC-06/07),
-auth/RBAC/privileged gateway/команды в этой поставке отсутствуют.
+В текущей поставке нет active source/receiver policies: READONLY_EXPORT по умолчанию UNKNOWN. Установка/ACL/binding/cadence и physical before-after проверяются только по [отдельному плану](CC03_PHYSICAL_ACCEPTANCE_PLAN.md) после разрешения. Windows native validation — NOT_VERIFIED. Экспортёр или UI могут отсутствовать/аварийно завершиться без H1/M15 side effects.
