@@ -282,7 +282,12 @@ def test_legacy_and_corrupt_fingerprint_no_silent_migration(tmp_path):
     with pytest.raises(ProductionRuntimeError,match='DURABLE_EVIDENCE_INVALID'): runtime(tmp_path/'amended.db')
 
 
-def test_candidate_real_submission_blocked_without_calls(tmp_path):
+def test_candidate_submission_still_blocks_without_compiled_release_authority(tmp_path,monkeypatch):
+    import TradingSystemLab.stage8_robot.production_service as svc
+    import TradingSystemLab.stage8_robot.live_execution as transport
+    # Simulate unaccepted source without modifying the production build.
+    monkeypatch.setattr(svc,'FINAM_FILL_AUTHORITY_VERIFIED',False)
+    monkeypatch.setattr(transport,'FINAM_FILL_AUTHORITY_VERIFIED',False)
     service=ProductionService(tmp_path/'service',tmp_path/'data',object(),'offline-account','a'*40,
                               execution_revision=EXECUTION_REVISION)
     entry=plan(service.runtime)

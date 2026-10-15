@@ -181,9 +181,15 @@ def test_pending_first_stop_can_wait_for_remeasured_quantity(tmp_path):
     rt.close()
 
 
-def test_growth_does_not_unlock_v2_real_order_transport(tmp_path):
+def test_growth_does_not_create_new_commit_bound_trading_authorization(tmp_path):
     from TradingSystemLab.stage8_robot.execution_grid import FINAM_FILL_AUTHORITY_VERIFIED
-    assert FINAM_FILL_AUTHORITY_VERIFIED is False
+    from TradingSystemLab.stage8_robot.live_execution import AuthorizedFinamProductionTransport
+    from TradingSystemLab.stage8_robot.production_authorization import ProductionAuthorizationError
+    assert FINAM_FILL_AUTHORITY_VERIFIED is True
+    with pytest.raises(ProductionAuthorizationError,match='AUTHORIZATION_MISSING'):
+        AuthorizedFinamProductionTransport(
+            api=object(),account_id='synthetic-unbound-account',
+            runtime_root=tmp_path/'no-authorization',accepted_commit='a'*40)
     rt, entry, stop = two_contracts(tmp_path)
     rt.confirm_entry_position(entry.idempotency_key,2,observed_protective_stop=order_for(stop))
     assert rt.store.get("execution_halt") is None
