@@ -78,6 +78,10 @@
       "sha256": "410764f552c741c13fe963b4a4dead487fbb3eda57f6525e1929ea34db7bc5c6"
     },
     {
+      "path": "ci/windows_acceptance.py",
+      "sha256": "58a21be652a8bae4f35aac99e043675fbdadd7388b0c1a208b756ab48646fe40"
+    },
+    {
       "path": "deployment/Common.ps1",
       "sha256": "a58af50268280e7aad656f1e355fb5deb6425a67378a197791ec14c29d9624d2"
     },
@@ -220,6 +224,10 @@
     {
       "path": "requirements-dev.txt",
       "sha256": "3c3ad6730cf0c0417b77bae38e53c11fa8cd96a34f2f8956998bafc0aaf3ef17"
+    },
+    {
+      "path": "requirements-windows-ci.lock",
+      "sha256": "cef647df4ec4fb250d1469d6fc243cb03539a4b774a36ff92ab2b8b4c9dd82e1"
     },
     {
       "path": "requirements.txt",

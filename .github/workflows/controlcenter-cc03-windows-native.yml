@@ -1,0 +1,49 @@
+name: ControlCenter CC-03 Windows native acceptance
+
+on:
+  pull_request:
+    paths:
+      - 'ControlCenter/**'
+      - '.github/workflows/controlcenter-cc03-windows-native.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  windows-native:
+    runs-on: windows-2022
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: ControlCenter
+    steps:
+      - name: Checkout ControlCenter only
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            ControlCenter
+          sparse-checkout-cone-mode: false
+      - name: Set up CPython 3.12.10 x64
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+      - name: Install exact hashed Windows wheel set
+        run: |
+          python -m venv "$env:RUNNER_TEMP\cc03-python"
+          & "$env:RUNNER_TEMP\cc03-python\Scripts\python.exe" -m pip install --require-hashes --only-binary=:all: --no-deps -r requirements-windows-ci.lock
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Native pytest, package and PowerShell preview acceptance
+        run: |
+          & "$env:RUNNER_TEMP\cc03-python\Scripts\python.exe" ci/windows_acceptance.py
+          exit $LASTEXITCODE
+      - name: Preserve actual Windows execution evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: cc03-windows-native-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/cc03-evidence/
+          if-no-files-found: error
+          retention-days: 30
