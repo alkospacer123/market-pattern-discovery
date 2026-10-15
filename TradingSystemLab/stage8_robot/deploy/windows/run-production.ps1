@@ -5,7 +5,8 @@ param(
     [Parameter(Mandatory=$true)][string]$ExpectedCommit,
     [string]$Python = "py.exe",
     [int]$PollSeconds = 30,
-    [switch]$Once
+    [switch]$Once,
+    [string]$ExecutionRevision = ""
 )
 $ErrorActionPreference = "Stop"
 $expectedStage5Commit = "50f1fd2178c18b7ab3bd969be82ad01f47a34745"
@@ -34,6 +35,25 @@ if ($LASTEXITCODE -ne 0 -or $dataDirty) {
     throw "STAGE8_12_4_STAGE5_DATA_CHECKOUT_NOT_CLEAN"
 }
 
+# Default legacy behavior is preserved, but a V2 SQLite cannot be opened as
+# legacy. Opt-in V2 must be selected explicitly and remains blocked by the
+# unverified production fill authority before any trading token is decrypted.
+if ($ExecutionRevision -cne "" -and $ExecutionRevision -cne "STOP_TICK_GRID_V2_FILL_PROPOSED") {
+    throw "STAGE8_493_EXECUTION_REVISION_INVALID"
+}
+$launcherMode = if ($ExecutionRevision -ceq "") { "legacy" } else { "v2" }
+$stateGate = @(& $Python -m TradingSystemLab.stage8_robot.launcher_revision_guard `
+    --runtime-root $RuntimeRoot --mode $launcherMode)
+$stateGateExit = $LASTEXITCODE
+if ($stateGateExit -ne 0) {
+    $stateGateCode = @($stateGate | Where-Object { $_ -match '^STAGE8_[A-Z0-9_]+$' } | Select-Object -Last 1)
+    if ($stateGateCode.Count -eq 1) { throw [string]$stateGateCode[0] }
+    throw "STAGE8_493_LAUNCHER_STATE_GATE_FAILED"
+}
+if ($stateGate.Count -ne 1 -or [string]$stateGate[0] -cne "STAGE8_493_LAUNCHER_STATE_GATE_PASS") {
+    throw "STAGE8_493_LAUNCHER_STATE_GATE_FAILED"
+}
+
 $productionId = (& $Python -c "from TradingSystemLab.stage8_robot.specification import PRODUCTION_SPECIFICATION_ID,load_frozen_specification; s=load_frozen_specification(); assert s.production_id == PRODUCTION_SPECIFICATION_ID; print(PRODUCTION_SPECIFICATION_ID)")
 if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($productionId)) {
     throw "TRADING_DPAPI_PRODUCTION_AUTHORITY_UNAVAILABLE"
@@ -58,6 +78,7 @@ try {
         "--poll-seconds", [string]$PollSeconds
     )
     if ($Once) { $args += "--once" }
+    if ($ExecutionRevision -cne "") { $args += @("--execution-revision", $ExecutionRevision) }
     & $Python @args
     exit $LASTEXITCODE
 } finally {
