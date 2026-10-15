@@ -21,6 +21,13 @@ class State(StrEnum):
     DATA_GAP = "DATA_GAP"
     API_ERROR = "API_ERROR"
     UNRESOLVED = "UNRESOLVED"
+    UNHEALTHY = "UNHEALTHY"
+
+
+class SourceKind(StrEnum):
+    SYNTHETIC = "SYNTHETIC"
+    OFFLINE_FIXTURE = "OFFLINE_FIXTURE"
+    VERIFIED_LIVE_READONLY = "VERIFIED_LIVE_READONLY"  # reserved; CC-03 required
 
 
 class ExecutionState(StrEnum):
@@ -71,13 +78,26 @@ class DataProvenance:
     received_at: datetime
     synthetic: bool = True
     schema_version: int = 1
+    source_kind: SourceKind = SourceKind.SYNTHETIC
+    snapshot_ttl_seconds: int | None = None
+    heartbeat_ttl_seconds: int | None = None
 
     def __post_init__(self):
         validate_types(self)
-        if not isinstance(self.robot_id, RobotId) or self.account_scope != f"DEMO-{self.robot_id}":
-            raise ValueError("ACCOUNT_SCOPE_MISMATCH")
-        if not self.source.startswith("SYNTHETIC/") or self.synthetic is not True:
-            raise ValueError("CC01_SYNTHETIC_ONLY")
+        if self.source_kind == SourceKind.SYNTHETIC:
+            if self.account_scope != f"DEMO-{self.robot_id}":
+                raise ValueError("ACCOUNT_SCOPE_MISMATCH")
+            if not self.source.startswith("SYNTHETIC/") or self.synthetic is not True:
+                raise ValueError("CC01_SYNTHETIC_ONLY")
+            if self.snapshot_ttl_seconds is not None or self.heartbeat_ttl_seconds is not None:
+                raise ValueError("SYNTHETIC_TTL_FIXED")
+        elif self.source_kind == SourceKind.OFFLINE_FIXTURE:
+            if (self.robot_id != RobotId.H1 or self.account_scope != "FIXTURE-H1"
+                    or self.source != "OFFLINE_FIXTURE/H1" or self.synthetic is not True
+                    or self.snapshot_ttl_seconds != 180 or self.heartbeat_ttl_seconds != 90):
+                raise ValueError("OFFLINE_BINDING_REQUIRED")
+        else:
+            raise ValueError("CC03_PHYSICAL_ACCEPTANCE_REQUIRED")
         if self.schema_version != 1:
             raise ValueError("SCHEMA_VERSION_UNSUPPORTED")
         aware(self.observed_at)
@@ -212,6 +232,7 @@ class PositionSnapshot(Record):
     unrealized_pnl: float | None
     stop_price: float | None
     stop_evidence: str | None
+    side: str | None = None
 
     def __post_init__(self):
         super().__post_init__()
@@ -273,6 +294,63 @@ class SystemAlert(Record):
 
 
 @dataclass(frozen=True)
+class FieldObservation:
+    name: str
+    observed_at: datetime | None
+    state: State
+
+    def __post_init__(self):
+        validate_types(self)
+        aware(self.observed_at)
+
+
+@dataclass(frozen=True)
+class BarObservation(Record):
+    provenance: DataProvenance
+    instrument: str
+    close_at: datetime | None
+    time_source: str
+    gaps: bool | None
+    quality: str
+    freshness: State
+
+
+@dataclass(frozen=True)
+class StopObservation(Record):
+    provenance: DataProvenance
+    instrument: str
+    side: str
+    quantity: int
+    expected_quantity: int
+    observed_quantity: int | None
+    broker_status: str
+    checked_at: datetime | None
+    evidence: str | None
+    protected: bool
+
+
+@dataclass(frozen=True)
+class H1ReadonlyDetails(Record):
+    provenance: DataProvenance
+    production_specification_id: str
+    accepted_code_commit: str
+    account_alias: str
+    generated_at: datetime
+    last_successful_cycle_at: datetime | None
+    reconciliation: str
+    unresolved_intents: int | None
+    source_status: str
+    orders_complete: bool
+    positions_complete: bool
+    observations: tuple[FieldObservation, ...]
+    bars: tuple[BarObservation, ...]
+    stops: tuple[StopObservation, ...]
+    deposits: float | None
+    withdrawals: float | None
+    available_margin: float | None
+
+
+@dataclass(frozen=True)
 class RobotSnapshot:
     status: RobotStatus
     instruments: tuple[InstrumentStatus, ...]
@@ -284,6 +362,7 @@ class RobotSnapshot:
     portfolio: PortfolioSnapshot
     trades: tuple[Trade, ...] | None
     events: tuple[SystemAlert, ...]
+    h1_readonly: H1ReadonlyDetails | None = None
 
     def __post_init__(self):
         validate_types(self)
@@ -291,6 +370,10 @@ class RobotSnapshot:
                    *(self.positions or ()), self.risk, self.portfolio,
                    *(self.trades or ()), *self.events)
         expected = self.status.provenance
+        if self.h1_readonly is not None:
+            if expected.source_kind != SourceKind.OFFLINE_FIXTURE:
+                raise ValueError("READONLY_SOURCE_REQUIRED")
+            records += (self.h1_readonly, *self.h1_readonly.bars, *self.h1_readonly.stops)
         for record in records:
             if not isinstance(record, Record) or (record.provenance.robot_id, record.provenance.account_scope) != (expected.robot_id, expected.account_scope):
                 raise ValueError("CROSS_ACCOUNT_CONTAMINATION")

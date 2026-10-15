@@ -1,12 +1,14 @@
 # Инвентаризация потенциальных источников — CC-00
 
-Проверено **наличие и содержание исходников** на GitHub main
-`15e96cea2c252a2dfac1b61a070e8505c97c4d77`, 15.10.2026.
-Первоначальная база d1c74ab2 после PR #526 проверена до начала реализации.
-Во время работы main продвинулся PR #527; ветка fast-forward обновлена до указанной
-итоговой базы до первого commit. Исходные 17626 файлов до обновления проверены SHA-256:
-без изменений. Четыре изменения IntradayLab принадлежат новому main, не этой поставке.
-GitHub main проверен повторно перед PR.
+CC-02: повторно проверено наличие и содержание исходников на фактическом GitHub main
+`2695cd3fce6f2241608d1d43d2b7c693ecaba32d` (#530). PR #529 MERGED,
+merge commit `5d1eb30ec0b525e6da34963287cecf5fa23edf76`.
+Intel pinned code по последнему операторскому документу — `3a18c8c24301c866a60f5d725de227288d48f7ec`,
+не этот GitHub main. Frozen identity отдельна от обоих code SHAs; текущий
+наблюдённый runtime UNKNOWN. Последний документированный checkpoint HALTED / Task
+Disabled / LIVE unauthorized не является свежей телеметрией. Source fill gate #528
+True не означает разрешение LIVE; исторические False ниже не текущая code authority.
+
 [Roadmap / authority](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6198924792).
 
 **Доступа к Intel, Windows Tasks, production SQLite, runtime JSON/logs или FINAM не было.**
@@ -23,9 +25,11 @@ NOT_LIVE_AUTHORIZED. Это проверенная документационн�
 
 Обозначения: **C** — контракт проверен в коде, runtime authority не проверена;
 **D** — историческое документационное свидетельство; **P** — предложение будущего контракта.
-Все TTL ниже — проектируемые правила CC-02/CC-04, **не** фактическая конфигурация Intel
-и не изменение production gates. Точное расписание и TTL нужно утвердить при интеграции.
-Чтение в таблице описывает **будущий безопасный способ**; в CC-01 он не реализован.
+Таблицы ниже сохраняют инвентаризацию контрактов и предварительные предложения,
+**не** фактическую конфигурацию Intel. Текущая принимающая реализация/TTL/allowlist
+определяются [контрактом CC-02](H1_READONLY_SNAPSHOT_CONTRACT.md); прежний proposal
+Task TTL 60s не реализован. Raw heartbeat/runtime paths из таблицы не читаются.
+Все actual live TTL до CC-03 не утверждены; неизвестный calendar/current signal UNKNOWN.
 
 ## H1 — TradingSystemLab / отдельный account scope
 
@@ -101,5 +105,24 @@ max bytes/history, TTL/completeness, чтение без блокировки ru
 partial writes/отказе/WAL busy. Никакие существующие utility constructors не импортируются
 в Streamlit, так как часть из них создаёт БД, пишет state или обращается к API.
 
-В текущем MVP единственный проверенный и используемый источник — **SYNTHETIC provider**
-в памяти. Его TTL/сценарии не характеризуют реальный runtime.
+В CC-02 используются два доверенных локальных **тестовых** источника: SYNTHETIC provider
+в памяти и фиксированный OFFLINE_FIXTURE JSON, проверяемый H1ReadonlyProvider.
+Новый sanctioned periodic exporter остаётся зависимостью CC-03. Ни один источник
+Intel физически не прочитан. Financial classifier и N4 diagnostics подтверждают
+различие equity/realized/cashflow/margin; commissions/tariff и полная финансовая
+authority не появляются автоматически из GET account. Неполные числа скрываются.
+
+## Карта фактически реализованных receiving полей
+
+| Набор | Wire -> display | Достоверность | Обновление/TTL | Fallback | Источник/чтение | Конфиденциальность |
+| --- | --- | --- | --- | --- | --- | --- |
+| Identity/account | identity exact constants -> provenance/status/details | Только публичный fixture binding; не настоящий account | На каждый read, до отображения | Весь снимок UNKNOWN | Fixed package JSON, schema/hash | Нет raw account ID; binding не выводится |
+| Runtime | state, heartbeat_at, last_successful_cycle_at, source_status | OFFLINE_FIXTURE, HALTED учитывается | 180s envelope / 90s heartbeat+cycle | STALE/UNKNOWN | Ограниченный readonly snapshot | Только safe enums |
+| Reconciliation | status, last_success_at, unresolved_intents | Не broker truth; тестовое свидетельство | 90s | UNKNOWN; numeric authority отсутствует | Та же проверенная упаковка, независимый observed_at | Без API payload |
+| Bars N4 | open_at/close_at/completed/label, gaps, quality, OHLC | Завершённость проверяется, актуальность calendar UNKNOWN | TTL не утверждён; metadata с временем | UNKNOWN/DATA_GAP; stale chart скрыт | Только опубликованные поля; no T3/CSV | N4 только |
+| Signals | emitted/bar_close/direction/reason/risk_result | Только опубликованное событие | Historical event; current UNKNOWN | Причина не опубликована; отсутствие != NO_SIGNAL | Нет пересчёта DecisionCore | Enum причины, no free text |
+| Orders/positions/stops | 6 execution levels, qty/side, отдельное fill/SLTP evidence | Fixture evidence; не live ACK/fill/protection | 90s + complete/reconciled | UNKNOWN/UNRESOLVED, no inferred zero/price/protection | Никаких DB/FINAM | Scoped reference hashes, no raw broker IDs |
+| Finance/risk | equity, separate PnL/fees/cashflows/margin/contracts | Полный fixture account export с evidence | Offline 300s + fresh reconciliation | Все actual numbers UNKNOWN | Полнота/привязка до отображения | Нет account details/secret strings |
+
+Полная схема, доверенные ограничения и будущие physical acceptance requirements:
+[H1_READONLY_SNAPSHOT_CONTRACT.md](H1_READONLY_SNAPSHOT_CONTRACT.md).

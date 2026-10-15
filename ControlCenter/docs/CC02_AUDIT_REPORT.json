@@ -1,0 +1,90 @@
+{
+  "classification": "CC_02_READONLY_ADAPTER_PASS",
+  "base_sha": "2695cd3fce6f2241608d1d43d2b7c693ecaba32d",
+  "head_sha_location": "Final Draft PR body; omitted here to avoid self-referential commit hash",
+  "branch": "codex/controlcenter-cc02",
+  "protected_trees": {
+    "TradingSystemLab": {
+      "base_tree": "ecc5f08f331a55d76f46be48a02febec1877b87f",
+      "index_tree": "ecc5f08f331a55d76f46be48a02febec1877b87f",
+      "tracked_paths": 3056
+    },
+    "IntradayLab": {
+      "base_tree": "c4f6e652ba442a575ad5711cb3f55841f860f484",
+      "index_tree": "c4f6e652ba442a575ad5711cb3f55841f860f484",
+      "tracked_paths": 14213
+    }
+  },
+  "tests": {
+    "full_controlcenter": 254,
+    "standalone_clean_environment": 254,
+    "original_cc00_cc01": 115,
+    "io_fault_injection": 26,
+    "h1_wire_authority": 98,
+    "new_streamlit_apptest": 12,
+    "total_streamlit_apptest": 36
+  },
+  "checks": {
+    "pip_check": "PASS",
+    "diff_check": "PASS",
+    "outside_ControlCenter_changed_paths": 0,
+    "standalone_trading_projects_importable": false,
+    "runtime_broker_db_shell_dependencies": false,
+    "adapter_write_paths": false,
+    "controls_disabled": 10,
+    "intel_contact": false,
+    "live_changes": false
+  },
+  "faults": [
+    "missing/empty/truncated/oversize/invalid JSON/duplicate keys/nonfinite",
+    "unknown/missing fields and identity/account/code/source spoof",
+    "partial in-place rewrite/truncation/growth/atomic replacement during read",
+    "file/root/ancestor symlink, root rebind, hardlink, FIFO, directory, traversal",
+    "clock jump/future/naive/invalid timezone/separate field TTL/HALTED",
+    "ACK without fill, observed position without price, planned stop without evidence",
+    "incomplete finance/cashflow, reconciliation FAULT, unknown != zero",
+    "RuntimeError/DatabaseError no secret in model/log/UI/journal; old HEALTHY removed; M15 survives"
+  ],
+  "verification_environment": {
+    "python": "3.12.14",
+    "streamlit": "1.50.0",
+    "plotly": "6.3.1",
+    "pytest": "8.4.2",
+    "platform": "Linux"
+  },
+  "audit_scope": "Author-run independent test harness, AST/behavioral checks, standalone copy and Git object comparison. External independent PR review pending.",
+  "limitations": [
+    "No sanctioned exporter or actual Intel telemetry",
+    "OFFLINE_FIXTURE only; no VERIFIED_LIVE_READONLY profile",
+    "Real account binding/cadence/TTLs/calendar not accepted",
+    "Windows backend without no-follow descriptors returns UNKNOWN; secure Windows reader/ACL/transport acceptance required in CC-03",
+    "No physical Intel/broker/SQLite/Task or Windows test; no CC-03 execution"
+  ],
+  "tested_file_sha256": {
+    "app.py": "7cd6e3105afc932a7f06b056501bc7739ab7e15783cde43c8f3b3ad9727ecf29",
+    "cc/__init__.py": "a74f410e2f5fe634017a503907b0e8f73012bf93e72c0f33c9cbe24262c5628e",
+    "cc/analytics.py": "ccf511412af0b8a9d821050c0464d7c997735e73861286f4d91305262ef2bd91",
+    "cc/charts.py": "f3a1559b71c6dc12660ae8d657ad0435a551b6c7ed07f87a2c13949efdf3b68f",
+    "cc/freshness.py": "1efe3a2ced5c671704f9a2d74acb8faae2a80393da32b33ba64387a3e5cac0e7",
+    "cc/models.py": "a391c7ab6852d5134a23c9d7889cf9a3d9445db91c0dfd8585d89e4c95e6be4b",
+    "cc/providers/__init__.py": "4318e8c23fd8d550df4f5a93b52f01e2e8ad562afdfe71c4e377ad6d76875f79",
+    "cc/providers/base.py": "3822e3e82eb458578835485bad9dc515f2f64f3040b5425c0f1898cd4b4ce805",
+    "cc/providers/h1_contract.py": "3b85bc9f19260000e9baad5acaf0f58b1f7181bfecf19e948f04e2a4496452b9",
+    "cc/providers/h1_readonly.py": "595e5c73c7db15fd2697ee0de396c675e1f75d64258e5ce1b6d8f3b61c5c9ebd",
+    "cc/providers/readonly_file.py": "1bba91dafd685732a4aff0d21883b600e7c171fd9d37ca3862b78d4cb5956f90",
+    "cc/providers/synthetic.py": "31ce4c90339a707c9c41ad6515f5ad19c8f737c415b91d4d8c6a9ca5609a96b0",
+    "cc/ui.py": "56651b67e6f4feeb616b9f7e8a1d080cc5c41e7323963fcbec6b879419d8cef2",
+    "docs/H1_READONLY_SNAPSHOT_SCHEMA.json": "8bb8e92d33d81cb57139e5185c30cca554e7e03b3458b15863015eee794fc456",
+    "fixtures/h1/h1.snapshot.json": "f0585565d2dd8b7ce68ca81564378dc9c15413a53fed915770ae227924230c84",
+    "requirements-dev.txt": "3c3ad6730cf0c0417b77bae38e53c11fa8cd96a34f2f8956998bafc0aaf3ef17",
+    "requirements.txt": "dffc79ceb7a4eedfc15b4f744cd7108bf2b3c62247083acbe1f237cdfe69748d",
+    "tests/conftest.py": "0027f31b2fdf43d91c815b47258faf7890081313a2599979c6523b0ed2f386a0",
+    "tests/test_boundary.py": "061ba778f04e2d64dffb098027a6b29a74b92eec0b7527adcc0ef50c4dce3caf",
+    "tests/test_contracts.py": "8860339efae2ad60a8d72d37cbfb9783e372395ef0549bfa9f6fa8017e0d9c84",
+    "tests/test_h1_fault_injection.py": "1628498e7630360d7826d7d73ad1f904c79c518313debd4ac6e2cd015a500a89",
+    "tests/test_h1_readonly.py": "235561edc8c1522f19529bad6add609a82b9e9d6f9fe2f8af2bb6f9c1eea4d5e",
+    "tests/test_h1_ui.py": "5d480c341d863cb8588eea7b0f67c93dd960d06a42a0beafa682cb18acb7ce7d",
+    "tests/test_scenarios.py": "fef63028efe7116c13392d424e6b4b6f80cca12e85ed71a589bd2d9aaedbd388",
+    "tests/test_ui.py": "2681ab67b552485ecffba559fd7d6e7585c9e737da80753359bf1319f04bfca2"
+  }
+}

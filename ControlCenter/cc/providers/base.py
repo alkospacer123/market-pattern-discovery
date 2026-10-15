@@ -1,6 +1,7 @@
 """Future adapters implement this bounded snapshot interface, never commands.
 
-CC-01 intentionally includes no file, database, network or broker adapter.
+CC-02 adds only the bounded packaged H1 offline JSON receiver. No commands,
+database, network or broker capability.
 """
 from datetime import datetime
 from typing import Protocol
