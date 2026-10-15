@@ -37,7 +37,7 @@ class LauncherRevisionGuardTests(unittest.TestCase):
             identity["execution_revision"] = EXECUTION_REVISION
         if identity_override:
             identity.update(identity_override)
-        with sqlite3.connect(self.db_path) as db:
+        with contextlib.closing(sqlite3.connect(self.db_path)) as db, db:
             db.executescript(_SCHEMA)
             db.execute("INSERT INTO state(key,value) VALUES(?,?)",
                        ("database_identity", json.dumps(identity)))
@@ -82,7 +82,7 @@ class LauncherRevisionGuardTests(unittest.TestCase):
 
     def test_missing_identity_rejected(self):
         self.make_db()
-        with sqlite3.connect(self.db_path) as db:
+        with contextlib.closing(sqlite3.connect(self.db_path)) as db, db:
             db.execute("DELETE FROM state WHERE key='database_identity'")
         self.assert_denied("v2", "STAGE8_493_LAUNCHER_STATE_REVISION_MISMATCH")
 
@@ -106,13 +106,13 @@ class LauncherRevisionGuardTests(unittest.TestCase):
         self.assertNotIn('Start-ScheduledTask', launcher)
 
     def test_bad_schema_rejected(self):
-        with sqlite3.connect(self.db_path) as db:
+        with contextlib.closing(sqlite3.connect(self.db_path)) as db, db:
             db.execute("CREATE TABLE state(key TEXT, value TEXT)")
         self.assert_denied("v2", "STAGE8_493_LAUNCHER_STATE_UNREADABLE")
 
     def test_bad_json_rejected(self):
         self.make_db()
-        with sqlite3.connect(self.db_path) as db:
+        with contextlib.closing(sqlite3.connect(self.db_path)) as db, db:
             db.execute("UPDATE state SET value='not-json' WHERE key='database_identity'")
         self.assert_denied("v2", "STAGE8_493_LAUNCHER_STATE_UNREADABLE")
 
