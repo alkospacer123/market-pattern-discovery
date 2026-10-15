@@ -8,9 +8,10 @@ $ErrorActionPreference = 'Stop'
 $expectedCommit = '3a18c8c24301c866a60f5d725de227288d48f7ec'
 $expectedStage5 = '50f1fd2178c18b7ab3bd969be82ad01f47a34745'
 $expectedSpec = 'PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8'
-$expectedPythonHash = 'b613d7b757f5bf39734e8b75d535a8ca52b1cc56fad364c019dd1e0e3791fa7a'
+$expectedPythonHash = '0e3fb1dad5feba825cade1c41f99adc8299a1429f2f25d00f49dfb00d3c127a7'
 $oldBytecode = [Environment]::GetEnvironmentVariable('PYTHONDONTWRITEBYTECODE', 'Process')
 $credential = $null
+$blasPrevious = $null
 Write-Output '=== Roadmap 3.6: one-shot post-ARM READONLY observer ==='
 Write-Output 'NO_TRADING_TOKEN_NO_ORDER_OR_CANCEL_NO_TASK_RESTART_NO_REARM_NO_SQLITE_RECOVERY'
 try {
@@ -94,6 +95,15 @@ try {
     $env:TSL36_READONLY_ACCOUNT = [string]$credential.finam_real_account_id
     $credential = $null
     $env:PYTHONDONTWRITEBYTECODE = '1'
+    # Apply thread limits ONLY to this READONLY observer child process. The
+    # running worker/Task have independent environments and remain untouched.
+    # Restore the caller's process environment in finally, even on BLOCKED.
+    $blasVariables = @('OPENBLAS_NUM_THREADS','OMP_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS')
+    $blasPrevious = @{}
+    foreach ($name in $blasVariables) {
+        $blasPrevious[$name] = [Environment]::GetEnvironmentVariable($name, 'Process')
+        [Environment]::SetEnvironmentVariable($name, '1', 'Process')
+    }
     & $python -B $PythonProbe --runtime-root $runtime --checkout $checkout
     if ($LASTEXITCODE -ne 0) { throw 'POST_ARM_FINAM_AND_LEDGER_READONLY_NOT_PASS' }
 
@@ -107,10 +117,15 @@ try {
     if ($code -cnotmatch '^[A-Z0-9_]{4,120}$') { $code = 'POST_ARM_READONLY_OBSERVER_FAILED' }
     Write-Output "FINAL_POST_ARM_READONLY=BLOCKED:$code"
     Write-Output 'NO_AUTO_HALT_NO_AUTO_RECOVERY_NO_AUTO_REARM=YES'
-    exit 1
+    throw 'READONLY_OBSERVER_REPORTED_BLOCKED'
 } finally {
     $credential = $null
     Remove-Item Env:TSL36_READONLY_SECRET -ErrorAction SilentlyContinue
     Remove-Item Env:TSL36_READONLY_ACCOUNT -ErrorAction SilentlyContinue
+    if ($null -ne $blasPrevious) {
+        foreach ($name in $blasPrevious.Keys) {
+            [Environment]::SetEnvironmentVariable($name, $blasPrevious[$name], 'Process')
+        }
+    }
     [Environment]::SetEnvironmentVariable('PYTHONDONTWRITEBYTECODE', $oldBytecode, 'Process')
 }
