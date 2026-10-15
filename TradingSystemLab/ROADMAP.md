@@ -1,5 +1,14 @@
 # Evidence-based roadmap
 
+## CURRENT roadmap checkpoint — 2026-10-15 #47 HALTED cutover PASS; V2 activation still HOLD
+
+**LATEST PHYSICAL CHECKPOINT (Intel operator output, 2026-10-15): Stage 8 roadmap 3.3 HALTED production cutover #47 PASS, NO TRADING.** `CLASSIFICATION=ROADMAP33_HALTED_PRODUCTION_CUTOVER_PASS_NO_TRADING`. The operator's #47 report states exact reviewed code blobs 22/22, fresh legacy SQLite online backup, readonly FINAM flat check/equity **49,931.44 RUB**, pristine V2 manifest, exact new production V2 SQLite hash, preserved causal/history ledger, and verification of disabled Windows Task rebinding to the versioned checkout. Old code-bound authorization was archived and **not reused**; Task **Disabled**, kill switch **HALTED**, no Task start/rearm/order. These are operator-reported physical results, not direct access to Intel host files.
+
+**Current installed production authority:** versioned Intel checkout `c:\tradingsystemlab\production\h1-7cf7a2d-roadmap33-20261015-090830-1372736` pinned to release code **7cf7a2d932e217a64bfcb52639abe0d986d1cbeb** (GitHub main may contain later docs-only commits). Stage5 data **50f1fd2178c18b7ab3bd969be82ad01f47a34745**. Installed pristine V2 SQLite SHA-256 **7368817a82576db8ed301838b1b2de3104c4da508b3edb18f8969dcb4cb2216c**. External private cutover evidence `c:\tslaudit\fill493\stage8-519-39-halted-cutover-20261015-090830-1372736`, preparation plan SHA-256 **0b08b63be99ca925a78bb916152ae1b8237d389db4ea3f14088dbb0b2fcd613c**. Old checkout/database (with original WAL/SHM)/authorization retained for controlled recovery. V2 equity capital basis **49,931.44 RUB**; prior historical starting capital and causal/trading history preserved.
+
+**Strict HOLD:** isolated #38 V2 rehearsal was PASS; #41 interrupted cutover was exactly rolled back by #43; subsequent #47 is the first accepted HALTED production cutover. **No production runtime cycle, V2 trading task start, live signal execution, broker fill/slippage/multi-fill authority, or automatic trading authorization is proven by #47.** `FINAM_FILL_AUTHORITY_VERIFIED=False` remains. Existing Windows Task launcher/legacy-default vs explicitly gated V2 runner must be independently checked before even a HALTED Task start; do not assume that replacing the Task checkout activates V2. Trade/rearm/new durable authorization requires separate explicit permission and approved safety gates. No source, frozen T3/H1/TRAIL1 strategy, N4 portfolio, FULL/R15 initial risk (1.5% per new instrument, max 6% nominal aggregate), margin sizing, frozen Stage7 identity or research artifact changes. Do not run #41-#47 again or `git pull` the pinned production checkout. Prior dated sections below are retained historical evidence and are superseded by this checkpoint.
+
+
 
 ## CURRENT roadmap checkpoint — 2026-10-15 #43 restored HALTED; 3.3 cutover pending
 
