@@ -25,16 +25,21 @@ try {
     if ([string]$action.Execute -notmatch '(?i)powershell\.exe$') { throw 'PRODUCTION_TASK_ACTION_NOT_POWERSHELL' }
     $taskArguments = [string]$action.Arguments
     function BoundArg([string]$Name) {
-        $pattern = '(?i)(?:^|\s)-' + [Regex]::Escape($Name) + '\s+"([^"]+)"'
+        # Windows Task action may contain either -name "value" or -name value.
+        # The independently passed local check accepts both forms. Do not relax
+        # mandatory task bindings, identity, commit or checkout verification.
+        $pattern = '(?i)(?:^|\s)-' + [Regex]::Escape($Name) + '\s+(?:"([^"]+)"|(\S+))'
         $match = [regex]::Match($taskArguments, $pattern)
-        if (-not $match.Success) { throw 'PRODUCTION_TASK_BINDING_MISSING' }
-        return $match.Groups[1].Value
+        if (-not $match.Success) { throw ('PRODUCTION_TASK_BINDING_' + $Name.ToUpperInvariant() + '_MISSING') }
+        if ($match.Groups[1].Success) { return $match.Groups[1].Value }
+        return $match.Groups[2].Value
     }
     $checkout = BoundArg 'Checkout'
     $runtime = BoundArg 'RuntimeRoot'
     $stage5 = BoundArg 'Stage5DataRoot'
     $python = BoundArg 'Python'
-    if ($taskArguments.IndexOf("-ExpectedCommit $expectedCommit", [StringComparison]::OrdinalIgnoreCase) -lt 0 -or
+    $actualTaskCommit = BoundArg 'ExpectedCommit'
+    if ($actualTaskCommit -cne $expectedCommit -or
         $taskArguments.IndexOf('run-production.ps1', [StringComparison]::OrdinalIgnoreCase) -lt 0) {
         throw 'PRODUCTION_TASK_SOURCE_NOT_PINNED'
     }
