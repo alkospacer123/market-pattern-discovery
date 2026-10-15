@@ -18,12 +18,19 @@ ALLOWED={'dataclasses','datetime','enum','math','types','typing','collections','
 
 @pytest.mark.parametrize('path',RUNTIME,ids=lambda p:p.name)
 def test_no_trade_or_system_capabilities_in_runtime(path):
+    # CC-02 grants only receiving modules their narrowly scoped stdlib imports.
+    receiving = {
+        'h1_contract.py': {'re'},
+        'h1_readonly.py': {'hashlib', 'json', 'pathlib'},
+        'readonly_file.py': {'os', 'pathlib', 'stat'},
+    }
+    allowed = ALLOWED | receiving.get(path.name, set())
     tree=ast.parse(path.read_text(encoding='utf-8'))
     for node in ast.walk(tree):
         if isinstance(node,ast.Import):
-            assert all(name.name.split('.')[0] in ALLOWED for name in node.names)
+            assert all(name.name.split('.')[0] in allowed for name in node.names)
         if isinstance(node,ast.ImportFrom) and node.level==0:
-            assert node.module.split('.')[0] in ALLOWED
+            assert node.module.split('.')[0] in allowed
         if isinstance(node,ast.Call) and isinstance(node.func,ast.Name):
             assert node.func.id not in {'open','exec','eval','compile','__import__','input'}
         if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute):

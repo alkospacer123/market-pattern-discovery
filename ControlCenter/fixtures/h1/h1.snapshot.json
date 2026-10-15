@@ -1,0 +1,140 @@
+{
+  "schema_id": "controlcenter.h1.readonly.v1",
+  "source_kind": "OFFLINE_FIXTURE",
+  "complete": true,
+  "payload_sha256": "1c95f0130c86af94fc0ea19b95e5bae64b4672ff0c4f20e28147b2e3781d8840",
+  "generated_at": "2026-10-15T18:20:00Z",
+  "observed_at": "2026-10-15T18:20:00Z",
+  "identity": {
+    "robot_id": "H1",
+    "strategy_id": "T3/H1/TRAIL1",
+    "active_identity": "TRAIL1__N4_01__FULL__R15",
+    "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+    "accepted_code_commit": "3a18c8c24301c866a60f5d725de227288d48f7ec",
+    "account_alias": "FIXTURE-H1",
+    "account_scope": "FIXTURE-H1",
+    "account_binding": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  },
+  "runtime": {
+    "observed_at": "2026-10-15T18:20:00Z",
+    "state": "HALTED",
+    "trading_permission": false,
+    "heartbeat_at": null,
+    "last_successful_cycle_at": null,
+    "source_status": "AVAILABLE"
+  },
+  "reconciliation": {
+    "observed_at": null,
+    "last_success_at": null,
+    "status": "UNKNOWN",
+    "unresolved_intents": null
+  },
+  "bars": [
+    {
+      "instrument": "USDRUBF",
+      "observed_at": "2026-10-15T18:20:00Z",
+      "open_at": "2026-10-15T17:00:00Z",
+      "close_at": "2026-10-15T18:00:00Z",
+      "time_label": "CLOSE",
+      "time_source": "RUNTIME_HISTORY_OPEN_PLUS_1H",
+      "completed": true,
+      "gaps": null,
+      "quality": "CONFIRMED",
+      "calendar": "UNAPPROVED",
+      "ohlc": {
+        "open": 100.0,
+        "high": 102.0,
+        "low": 99.0,
+        "close": 101.0
+      }
+    },
+    {
+      "instrument": "CNYRUBF",
+      "observed_at": "2026-10-15T18:20:00Z",
+      "open_at": "2026-10-15T17:00:00Z",
+      "close_at": "2026-10-15T18:00:00Z",
+      "time_label": "CLOSE",
+      "time_source": "RUNTIME_HISTORY_OPEN_PLUS_1H",
+      "completed": true,
+      "gaps": null,
+      "quality": "CONFIRMED",
+      "calendar": "UNAPPROVED",
+      "ohlc": {
+        "open": 100.0,
+        "high": 102.0,
+        "low": 99.0,
+        "close": 101.0
+      }
+    },
+    {
+      "instrument": "GLDRUBF",
+      "observed_at": "2026-10-15T18:20:00Z",
+      "open_at": "2026-10-15T17:00:00Z",
+      "close_at": "2026-10-15T18:00:00Z",
+      "time_label": "CLOSE",
+      "time_source": "RUNTIME_HISTORY_OPEN_PLUS_1H",
+      "completed": true,
+      "gaps": null,
+      "quality": "CONFIRMED",
+      "calendar": "UNAPPROVED",
+      "ohlc": {
+        "open": 100.0,
+        "high": 102.0,
+        "low": 99.0,
+        "close": 101.0
+      }
+    },
+    {
+      "instrument": "IMOEXF",
+      "observed_at": "2026-10-15T18:20:00Z",
+      "open_at": "2026-10-15T17:00:00Z",
+      "close_at": "2026-10-15T18:00:00Z",
+      "time_label": "CLOSE",
+      "time_source": "RUNTIME_HISTORY_OPEN_PLUS_1H",
+      "completed": true,
+      "gaps": null,
+      "quality": "CONFIRMED",
+      "calendar": "UNAPPROVED",
+      "ohlc": {
+        "open": 100.0,
+        "high": 102.0,
+        "low": 99.0,
+        "close": 101.0
+      }
+    }
+  ],
+  "signals": {
+    "observed_at": null,
+    "complete": false,
+    "items": []
+  },
+  "orders": {
+    "observed_at": null,
+    "complete": false,
+    "items": []
+  },
+  "positions": {
+    "observed_at": null,
+    "complete": false,
+    "items": []
+  },
+  "stops": {
+    "observed_at": null,
+    "complete": false,
+    "items": []
+  },
+  "finances": {
+    "observed_at": null,
+    "complete": false,
+    "evidence": null,
+    "equity": null,
+    "realized_pnl": null,
+    "unrealized_pnl": null,
+    "commissions": null,
+    "deposits": null,
+    "withdrawals": null,
+    "available_margin": null,
+    "used_risk_pct": null,
+    "contracts": null
+  }
+}

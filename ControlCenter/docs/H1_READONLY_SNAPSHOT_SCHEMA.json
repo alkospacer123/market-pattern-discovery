@@ -1,0 +1,1067 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_id": {
+      "enum": [
+        "controlcenter.h1.readonly.v1"
+      ]
+    },
+    "source_kind": {
+      "enum": [
+        "OFFLINE_FIXTURE"
+      ]
+    },
+    "complete": {
+      "enum": [
+        true
+      ]
+    },
+    "payload_sha256": {
+      "type": "string",
+      "pattern": "[a-f0-9]{64}",
+      "maxLength": 64
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "maxLength": 32
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time",
+      "maxLength": 32
+    },
+    "identity": {
+      "type": "object",
+      "properties": {
+        "robot_id": {
+          "enum": [
+            "H1"
+          ]
+        },
+        "strategy_id": {
+          "enum": [
+            "T3/H1/TRAIL1"
+          ]
+        },
+        "active_identity": {
+          "enum": [
+            "TRAIL1__N4_01__FULL__R15"
+          ]
+        },
+        "production_specification_id": {
+          "enum": [
+            "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8"
+          ]
+        },
+        "accepted_code_commit": {
+          "enum": [
+            "3a18c8c24301c866a60f5d725de227288d48f7ec"
+          ]
+        },
+        "account_alias": {
+          "enum": [
+            "FIXTURE-H1"
+          ]
+        },
+        "account_scope": {
+          "enum": [
+            "FIXTURE-H1"
+          ]
+        },
+        "account_binding": {
+          "enum": [
+            "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          ]
+        }
+      },
+      "required": [
+        "robot_id",
+        "strategy_id",
+        "active_identity",
+        "production_specification_id",
+        "accepted_code_commit",
+        "account_alias",
+        "account_scope",
+        "account_binding"
+      ],
+      "additionalProperties": false
+    },
+    "runtime": {
+      "type": "object",
+      "properties": {
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "maxLength": 32
+        },
+        "state": {
+          "enum": [
+            "HALTED",
+            "HEALTHY",
+            "UNHEALTHY",
+            "UNKNOWN"
+          ]
+        },
+        "trading_permission": {
+          "anyOf": [
+            {
+              "enum": [
+                false
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "heartbeat_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "last_successful_cycle_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_status": {
+          "enum": [
+            "AVAILABLE",
+            "UNAVAILABLE",
+            "UNKNOWN"
+          ]
+        }
+      },
+      "required": [
+        "observed_at",
+        "state",
+        "trading_permission",
+        "heartbeat_at",
+        "last_successful_cycle_at",
+        "source_status"
+      ],
+      "additionalProperties": false
+    },
+    "reconciliation": {
+      "type": "object",
+      "properties": {
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "last_success_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAULT",
+            "UNKNOWN"
+          ]
+        },
+        "unresolved_intents": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "observed_at",
+        "last_success_at",
+        "status",
+        "unresolved_intents"
+      ],
+      "additionalProperties": false
+    },
+    "bars": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "instrument": {
+            "enum": [
+              "USDRUBF",
+              "CNYRUBF",
+              "GLDRUBF",
+              "IMOEXF"
+            ]
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "maxLength": 32
+          },
+          "open_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "close_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "time_label": {
+            "enum": [
+              "CLOSE"
+            ]
+          },
+          "time_source": {
+            "enum": [
+              "RUNTIME_HISTORY_OPEN_PLUS_1H",
+              "UNKNOWN"
+            ]
+          },
+          "completed": {
+            "type": "boolean"
+          },
+          "gaps": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "quality": {
+            "enum": [
+              "CONFIRMED",
+              "GAP",
+              "UNKNOWN"
+            ]
+          },
+          "calendar": {
+            "enum": [
+              "UNAPPROVED"
+            ]
+          },
+          "ohlc": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "open": {
+                    "type": "number",
+                    "minimum": 1e-08,
+                    "maximum": 1000000000000.0
+                  },
+                  "high": {
+                    "type": "number",
+                    "minimum": 1e-08,
+                    "maximum": 1000000000000.0
+                  },
+                  "low": {
+                    "type": "number",
+                    "minimum": 1e-08,
+                    "maximum": 1000000000000.0
+                  },
+                  "close": {
+                    "type": "number",
+                    "minimum": 1e-08,
+                    "maximum": 1000000000000.0
+                  }
+                },
+                "required": [
+                  "open",
+                  "high",
+                  "low",
+                  "close"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "instrument",
+          "observed_at",
+          "open_at",
+          "close_at",
+          "time_label",
+          "time_source",
+          "completed",
+          "gaps",
+          "quality",
+          "calendar",
+          "ohlc"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 4
+    },
+    "signals": {
+      "type": "object",
+      "properties": {
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "instrument": {
+                "enum": [
+                  "USDRUBF",
+                  "CNYRUBF",
+                  "GLDRUBF",
+                  "IMOEXF"
+                ]
+              },
+              "bar_close_at": {
+                "type": "string",
+                "format": "date-time",
+                "maxLength": 32
+              },
+              "emitted": {
+                "enum": [
+                  true
+                ]
+              },
+              "direction": {
+                "enum": [
+                  "LONG",
+                  "SHORT",
+                  "NO_SIGNAL"
+                ]
+              },
+              "rejection_reason": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "HALTED",
+                      "RISK_REJECTED",
+                      "SESSION_CLOSED",
+                      "CONDITION_FALSE"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "risk_result": {
+                "enum": [
+                  "PASS",
+                  "FAIL",
+                  "UNKNOWN"
+                ]
+              }
+            },
+            "required": [
+              "instrument",
+              "bar_close_at",
+              "emitted",
+              "direction",
+              "rejection_reason",
+              "risk_result"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 32
+        }
+      },
+      "required": [
+        "observed_at",
+        "complete",
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "orders": {
+      "type": "object",
+      "properties": {
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "instrument": {
+                "enum": [
+                  "USDRUBF",
+                  "CNYRUBF",
+                  "GLDRUBF",
+                  "IMOEXF"
+                ]
+              },
+              "occurred_at": {
+                "type": "string",
+                "format": "date-time",
+                "maxLength": 32
+              },
+              "reference": {
+                "type": "string",
+                "pattern": "[a-f0-9]{64}",
+                "maxLength": 64
+              },
+              "state": {
+                "enum": [
+                  "INTENT",
+                  "REQUESTED",
+                  "ACK",
+                  "POSITION_OBSERVED",
+                  "FILL_CONFIRMED",
+                  "UNRESOLVED"
+                ]
+              },
+              "quantity": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "filled_quantity": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "fill_price": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 1e-08,
+                    "maximum": 1000000000000.0
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "evidence": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "FIXTURE_TRADE_HISTORY",
+                          "FIXTURE_BROKER_SLTP",
+                          "FIXTURE_ACCOUNT"
+                        ]
+                      },
+                      "reference": {
+                        "type": "string",
+                        "pattern": "[a-f0-9]{64}",
+                        "maxLength": 64
+                      },
+                      "observed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "maxLength": 32
+                      },
+                      "complete": {
+                        "enum": [
+                          true
+                        ]
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "reference",
+                      "observed_at",
+                      "complete"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "instrument",
+              "occurred_at",
+              "reference",
+              "state",
+              "quantity",
+              "filled_quantity",
+              "fill_price",
+              "evidence"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 64
+        }
+      },
+      "required": [
+        "observed_at",
+        "complete",
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "positions": {
+      "type": "object",
+      "properties": {
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "instrument": {
+                "enum": [
+                  "USDRUBF",
+                  "CNYRUBF",
+                  "GLDRUBF",
+                  "IMOEXF"
+                ]
+              },
+              "side": {
+                "enum": [
+                  "LONG",
+                  "SHORT"
+                ]
+              },
+              "quantity": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000000
+              },
+              "entry_price": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 1e-08,
+                    "maximum": 1000000000000.0
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "price_evidence": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "FIXTURE_TRADE_HISTORY",
+                          "FIXTURE_BROKER_SLTP",
+                          "FIXTURE_ACCOUNT"
+                        ]
+                      },
+                      "reference": {
+                        "type": "string",
+                        "pattern": "[a-f0-9]{64}",
+                        "maxLength": 64
+                      },
+                      "observed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "maxLength": 32
+                      },
+                      "complete": {
+                        "enum": [
+                          true
+                        ]
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "reference",
+                      "observed_at",
+                      "complete"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "instrument",
+              "side",
+              "quantity",
+              "entry_price",
+              "price_evidence"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 4
+        }
+      },
+      "required": [
+        "observed_at",
+        "complete",
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "stops": {
+      "type": "object",
+      "properties": {
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "instrument": {
+                "enum": [
+                  "USDRUBF",
+                  "CNYRUBF",
+                  "GLDRUBF",
+                  "IMOEXF"
+                ]
+              },
+              "side": {
+                "enum": [
+                  "LONG",
+                  "SHORT"
+                ]
+              },
+              "quantity": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000000
+              },
+              "expected_quantity": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000000
+              },
+              "observed_quantity": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "broker_status": {
+                "enum": [
+                  "ACTIVE",
+                  "INACTIVE",
+                  "UNKNOWN"
+                ]
+              },
+              "checked_at": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "maxLength": 32
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "planned_price": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 1e-08,
+                    "maximum": 1000000000000.0
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "evidence": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "FIXTURE_TRADE_HISTORY",
+                          "FIXTURE_BROKER_SLTP",
+                          "FIXTURE_ACCOUNT"
+                        ]
+                      },
+                      "reference": {
+                        "type": "string",
+                        "pattern": "[a-f0-9]{64}",
+                        "maxLength": 64
+                      },
+                      "observed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "maxLength": 32
+                      },
+                      "complete": {
+                        "enum": [
+                          true
+                        ]
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "reference",
+                      "observed_at",
+                      "complete"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "instrument",
+              "side",
+              "quantity",
+              "expected_quantity",
+              "observed_quantity",
+              "broker_status",
+              "checked_at",
+              "planned_price",
+              "evidence"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 4
+        }
+      },
+      "required": [
+        "observed_at",
+        "complete",
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "finances": {
+      "type": "object",
+      "properties": {
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "FIXTURE_TRADE_HISTORY",
+                    "FIXTURE_BROKER_SLTP",
+                    "FIXTURE_ACCOUNT"
+                  ]
+                },
+                "reference": {
+                  "type": "string",
+                  "pattern": "[a-f0-9]{64}",
+                  "maxLength": 64
+                },
+                "observed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "maxLength": 32
+                },
+                "complete": {
+                  "enum": [
+                    true
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "reference",
+                "observed_at",
+                "complete"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "equity": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": -1000000000000.0,
+              "maximum": 1000000000000.0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "realized_pnl": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": -1000000000000.0,
+              "maximum": 1000000000000.0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unrealized_pnl": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": -1000000000000.0,
+              "maximum": 1000000000000.0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "commissions": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": -1000000000000.0,
+              "maximum": 1000000000000.0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "deposits": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": -1000000000000.0,
+              "maximum": 1000000000000.0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "withdrawals": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": -1000000000000.0,
+              "maximum": 1000000000000.0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "available_margin": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": -1000000000000.0,
+              "maximum": 1000000000000.0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "used_risk_pct": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "contracts": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "observed_at",
+        "complete",
+        "evidence",
+        "equity",
+        "realized_pnl",
+        "unrealized_pnl",
+        "commissions",
+        "deposits",
+        "withdrawals",
+        "available_margin",
+        "used_risk_pct",
+        "contracts"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_id",
+    "source_kind",
+    "complete",
+    "payload_sha256",
+    "generated_at",
+    "observed_at",
+    "identity",
+    "runtime",
+    "reconciliation",
+    "bars",
+    "signals",
+    "orders",
+    "positions",
+    "stops",
+    "finances"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "controlcenter.h1.readonly.v1"
+}

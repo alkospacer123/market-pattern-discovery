@@ -17,3 +17,25 @@ def h1(now):
 @pytest.fixture
 def m15(now):
     return SyntheticProvider().snapshot(RobotId.M15, "BASELINE", now)
+
+
+@pytest.fixture
+def h1_export():
+    import json
+    from pathlib import Path
+    return json.loads((Path(__file__).parents[1] / 'fixtures/h1/h1.snapshot.json').read_text())
+
+
+@pytest.fixture
+def publish(tmp_path, monkeypatch):
+    import json
+    import cc.providers.h1_readonly as adapter
+    monkeypatch.setattr(adapter, 'FIXTURE_ROOT', tmp_path)
+
+    def write(value, *, seal=True):
+        if seal:
+            value['payload_sha256'] = adapter.canonical_digest(value)
+        path = tmp_path / 'h1.snapshot.json'
+        path.write_text(json.dumps(value, allow_nan=True))
+        return path
+    return write

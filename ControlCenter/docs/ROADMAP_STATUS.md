@@ -1,38 +1,27 @@
-# Статус roadmap Control Center v1.0
+# Статус roadmap Control Center v1.0 — CC-02
 
-Основание: [Issue #524, roadmap 15.10.2026](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6198924792).
-Не изменяет roadmap других проектов. Выполнены только CC-00 и CC-01.
+Основание: [Issue #524 / полный roadmap](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6198924792).
+Отдельная ветка от фактического main `2695cd3fce6f2241608d1d43d2b7c693ecaba32d`.
+Предыдущий CC-00/01 PR #529 MERGED (`5d1eb30e…`). Корневые roadmap и trading docs не меняются.
 
 | Этап | Статус этой поставки | Остаток |
 | --- | --- | --- |
-| CC-00 | Анализ кода, source inventory, архитектура и граница достоверности готовы | Intel-файлы и M15 production runtime spec не проверены; план #527 прочитан; это явно указано |
-| CC-01 | Автономный Streamlit DEMO, 2 монитора, графики, журнал, типы и тесты готовы | Внешний аудит Draft PR и решение оператора; Windows smoke на физическом хосте не выполнен |
-| CC-02 | НЕ НАЧАТ | Следующий отдельный Draft PR: read-only H1 snapshot adapter |
-| CC-03 | НЕ НАЧАТ | Отдельная физическая Intel read-only приёмка, identity/ACL и before/after evidence |
-| CC-04 | НЕ НАЧАТ | M15 адаптер после появления approved runtime/spec/account contract |
-| CC-05 | НЕ НАЧАТ | Реальные decision trace и отдельная финансовая authority; текущие таблицы только DEMO |
-| CC-06 / CC-07 | НЕ НАЧАТЫ | Control-plane design/mock, независимый аудит и отдельные разрешения на каждое действие |
-| CC-08 | НЕ НАЧАТ | Реальные alerts, readiness, backup/retention и эксплуатационная приёмка |
+| CC-00 | Инвентаризация исходников актуализирована; код/документ/physical authority разделены | Actual Intel source existence/cadence UNKNOWN |
+| CC-01 | DEMO сохранён; прежние 115 тестов проходят | Production/runtime authority DEMO не создаётся |
+| CC-02 | H1 receiving adapter, wire schema/контракт, safe file read, typed facts, TTL/provenance и UI OFFLINE_FIXTURE готовы | Draft PR и внешний review; реального sanctioned exporter нет |
+| CC-03 | НЕ НАЧАТ | Отдельное разрешение; exporter/source approval, Windows secure reader/transport + ACL, calendar/TTL/account, physical before/after acceptance |
+| CC-04 | НЕ НАЧАТ | Отдельный M15 runtime/account/provider после approved engineering |
+| CC-05 | НЕ НАЧАТ | Actual decision/financial authority и sample-based broker сверка; current receiving supports test fields only |
+| CC-06 / CC-07 | НЕ НАЧАТЫ | Отдельный control plane/mock/audit и новые узкие разрешения на каждый action |
+| CC-08 | НЕ НАЧАТ | Actual alert/calendar/readiness/retention physical acceptance |
 
-## Реализовано в CC-01
+H1 frozen T3/H1/TRAIL1 / TRAIL1__N4_01__FULL__R15 / Stage7 / N4 / 1.5% / 6% /
+margin/quantity rounding неизменны. Intel pinned code по #530 `3a18c8c…`, не main;
+последний документированный checkpoint HALTED/Task Disabled/LIVE unauthorized.
+Текущий физический runtime здесь не наблюдался. Heartbeat из документа не доказательство.
 
-- Русский тёмный адаптивный интерфейс; семь разделов, отдельные H1 и M15.
-- 10 детерминированных локальных сценариев; отсутствие/ошибки/устаревание отображаются явно.
-- H1 frozen identity и справочный риск без изменения торговых исходников.
-- M15 NOT_DEPLOYED, production identity/heartbeat/финансы UNKNOWN, отдельные DEMO-символы; выбранный план #527 показан справочно.
-- Типизированные immutable snapshot contracts, provenance, cross-account guards.
-- Все шесть уровней фактов заявки; ACK не считается fill.
-- Автообновление 2s, таблицы, candles, DEMO-вход/выход/линия/стоп и event filters.
-- Статистика и риск отдельных счетов; M15 без выдуманного капитала.
-- Отключённые кнопки, отсутствие DB/broker/process capability в runtime.
-- Русская документация, тесты, browser screenshots и отчёт проверки границ.
-
-## Следующая задача CC-02 (только после проверки оператором)
-
-Согласовать allowlist экспортов H1, версию/authority контракта и independent field TTL;
-создать read-only reader готовых атомарных снимков с валидацией identity/account,
-размера, времён, stale/missing/malformed/partial/wrong-account, source outage и WAL busy
-при допустимом SQLite-пути. Не добавлять UI FINAM polling, команды или прямые engine
-imports. Не изменять HALTED и production checkout. Реальная M15-интеграция — CC-04.
+В CC-02 нет FINAM/token/SQLite/WAL/StateStore/process/Task calls, exporter внутри H1,
+production paths, Intel installation, live profile, trading permission или rearm.
+Все 10 controls disabled; H1 failure не затрагивает M15 NOT_DEPLOYED/SYNTHETIC.
 
 **После одного Draft PR — STOP. NO MERGE / NO AUTO-MERGE / NO INTEL DEPLOYMENT.**

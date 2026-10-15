@@ -1,6 +1,6 @@
 """Display-only freshness. Thresholds here grant no operational authority."""
 from datetime import datetime, timedelta, timezone
-from .models import DataProvenance, RobotStatus, State, aware
+from .models import DataProvenance, RobotStatus, SourceKind, State, aware
 
 MSK = timezone(timedelta(hours=3), name="MSK")
 MAX_SNAPSHOT_AGE = 10  # synthetic snapshots refresh every 2s
@@ -14,7 +14,10 @@ def freshness(provenance: DataProvenance, now: datetime) -> State:
     age = (now - provenance.observed_at).total_seconds()
     if age < -MAX_CLOCK_SKEW:
         return State.UNKNOWN
-    return State.STALE if age > MAX_SNAPSHOT_AGE else State.HEALTHY
+    ttl = MAX_SNAPSHOT_AGE if provenance.source_kind == SourceKind.SYNTHETIC else provenance.snapshot_ttl_seconds
+    if ttl is None:
+        return State.UNKNOWN
+    return State.STALE if age > ttl else State.HEALTHY
 
 
 def display_state(status: RobotStatus, now: datetime) -> State:
@@ -27,7 +30,10 @@ def display_state(status: RobotStatus, now: datetime) -> State:
         age = (now - status.heartbeat_at).total_seconds()
         if age < -MAX_CLOCK_SKEW:
             return State.UNKNOWN
-        if age > MAX_SNAPSHOT_AGE:
+        ttl = MAX_SNAPSHOT_AGE if status.provenance.source_kind == SourceKind.SYNTHETIC else status.provenance.heartbeat_ttl_seconds
+        if ttl is None:
+            return State.UNKNOWN
+        if age > ttl:
             return State.STALE
     return status.state
 

@@ -1,3 +1,103 @@
+# CC-02 — receiving adapter technical acceptance
+
+**CC_02_READONLY_ADAPTER_PASS** — только техническая приёмка принимающей стороны.
+Не подтверждает доступность реальной телеметрии Intel и не разрешает LIVE/CC-03.
+Основание: Issue #524 / roadmap v1.0. Ветка `codex/controlcenter-cc02` от фактического
+main **2695cd3fce6f2241608d1d43d2b7c693ecaba32d**, после #530. #529 MERGED,
+merge commit 5d1eb30ec0b525e6da34963287cecf5fa23edf76. Head SHA фиксируется в Draft PR
+(самоссылочный hash внутри commit не создаётся).
+
+## Результат
+
+H1ReadonlyProvider реализует SnapshotProvider для одного allowlisted OFFLINE_FIXTURE
+JSON. До отображения проверяет строгую полную схему, версии/identity/accepted code/
+account binding, root и независимые field timestamps, целостность/completeness,
+size/UTF-8/duplicate keys, завершённость H1 и fact evidence. Source kind задаётся
+кодом; wire или UI не могут создать VERIFIED_LIVE_READONLY. Ни exporter внутри H1,
+ни связь с Intel/FINAM не создавались.
+
+Streamlit по умолчанию DEMO; documented OFFLINE_FIXTURE selector без пользовательского
+пути. Новый режим и графики помечены отдельно, stale файл не передатируется. UI показывает
+времена групп/reconciliation/bar quality/stop evidence. UNKNOWN != 0; absent signal !=
+NO SIGNAL; ACK != fill, position != execution price, planned stop != protection,
+incomplete finance != broker performance. M15 независим, NOT_DEPLOYED/SYNTHETIC;
+все 10 controls disabled, callbacks отсутствуют. Frozen H1 N4/R15/spec не изменены.
+
+## Проверки PASS
+
+Python 3.12.14 / Streamlit 1.50.0 / Plotly 6.3.1 / pytest 8.4.2, Linux.
+
+| Контроль | Результат |
+| --- | --- |
+| Полный pytest ControlCenter | **254 PASS** |
+| Прежние CC-00/01 | **115 PASS сохранены**; 3 новых receiving модуля дополнительно проходят AST boundary |
+| H1 wire/authority/time tests | **98 PASS** |
+| Независимый I/O fault harness | **26 PASS** |
+| Новые Streamlit AppTest | **12 PASS**, все 7 разделов, mode switching, H1 failure/M15 isolation, secret-free journal, 10 disabled controls |
+| Все AppTest (старые+новые) | **36 PASS** |
+| Автономная копия только ControlCenter | **254 PASS**, env -i, без токенов/robot paths; оба trading project import недоступны |
+| pip check / git diff --check | PASS |
+| AST/import и behavioral side effects | Нет FINAM/SQLite/StateStore/shell/network clients; readonly open flags, нет file write paths |
+| Защищённые Git trees base -> поставка | Полное совпадение, 0 changed paths вне ControlCenter |
+
+Команды: из ControlCenter `python -m pytest -c pytest.ini`; receiving fault module
+`tests/test_h1_fault_injection.py` выполнялся отдельно и в полном наборе. Автономная
+копия — без соседних trading directories, repo installation/PYTHONPATH отсутствуют.
+Полный pytest относится к **самостоятельному ControlCenter**, торговые/research suites
+и market/OOS данные не запускались/не читались.
+
+Fault injection использует реальные временные тестовые файлы: partial write, rename/
+replacement/truncation/growth/rewrite during read; symlink file/root/ancestor и rebind,
+hardlink, FIFO/nonregular, traversal, unsupported platform primitive. Отдельно malformed,
+missing/unknown nested fields, bad schema/identity/account/code/source, size boundary,
+future/naive/invalid zone, clock jump и per-field TTL/HALTED. RuntimeError/DatabaseError
+инъецированы без открытия DB; secret отсутствует в моделях/логах/UI/журнале, прошлый
+HEALTHY удаляется. Отдельные trading authority tests проверяют fill/stop/PnL/completeness.
+
+Независимость метода: fault harness не использует provider freshness/helper validation;
+AST и runtime flag guards, source hash manifest, Git tree comparison и env-clean copy
+проверяют результат разными способами. Это проверки автора. **Внешний независимый review
+PR ожидается**, не объявляется выполненным чужим аудитором.
+
+## Защищённые файлы и исходная authority
+
+- TradingSystemLab: **3056 paths**, base/index tree
+  `ecc5f08f331a55d76f46be48a02febec1877b87f`.
+- IntradayLab: **14213 paths**, base/index tree
+  `c4f6e652ba442a575ad5711cb3f55841f860f484`.
+- Только ControlCenter diff; protected trees и остальные Git paths неизменны.
+  Изолированный sparse checkout не содержит торговых рабочих каталогов.
+  Доказательство относится к Git-поставке, не к недоступной physical Intel машине.
+- Фактический GitHub main и pinned Intel разделены: installed code `3a18c8c…` — по
+  CURRENT_STATE #530, последний документированный HALTED / Disabled / LIVE unauthorized.
+  Текущий heartbeat/реальное здоровье не наблюдались. Source fill gate #528 True
+  не означает LIVE authority. Ни Task, ни HALTED, ни разрешения не менялись.
+
+Машинный [CC02_AUDIT_REPORT.json](CC02_AUDIT_REPORT.json) содержит trees, counts,
+limitations и SHA-256 фактически проверенных runtime/test/fixture/schema файлов.
+[Полный контракт](H1_READONLY_SNAPSHOT_CONTRACT.md) и
+[полная схема](H1_READONLY_SNAPSHOT_SCHEMA.json) приложены к поставке.
+
+## Ограничения и только план CC-03
+
+Нет sanctioned exporter, настоящих account bindings, authenticated broker evidence,
+утверждённых live TTL/exchange calendar или подключения production paths. Только
+OFFLINE_FIXTURE: checksum не является подписью/доказательством брокера. Numeric fixture
+facts не реальный PnL/защита. PF/DD/actual trade history UNKNOWN.
+
+На текущем Windows backend secure no-follow primitive отсутствует: H1 reader возвращает
+UNKNOWN, DEMO/UI доступны. Windows safe handles/reparse/race/ACL или другой sanctioned
+transport нужно принять отдельно в CC-03; Windows physical PASS не заявляется.
+В CC-03 также нужен отдельный low-privilege OS account, exporter approval, реальный
+identity/account/commit contract, calendar/TTL, source integrity и before/after H1
+Task/switch/authorization/checkout/SQLite-safe evidence, crash/restart/load/isolation.
+**Этот план не выполнялся.** Intel, FINAM, production DB и Windows Tasks не использовались;
+ноль реальных trading operations. После одного Draft PR STOP, без merge/auto-merge.
+
+---
+
+# Исторический отчёт CC-00/CC-01 ниже (не текущая authority CC-02)
+
 # Фактическая приёмка CC-00 / CC-01
 
 ## Исправление независимого аудита PR #529 — 15.10.2026

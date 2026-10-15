@@ -1,93 +1,58 @@
-# Архитектура и изоляция
+# Архитектура Control Center — CC-02
 
-CC-00 / CC-01 следуют [Issue #524](https://github.com/alkospacer123/market-pattern-discovery/issues/524)
-и [roadmap v1.0 от 15.10.2026](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6198924792).
-Работа основана на актуальном `main = 15e96cea2c252a2dfac1b61a070e8505c97c4d77`.
-Установленный Intel commit `5bf1fe0…` не обновлялся и не использовался как checkout разработки.
+Основание: [Issue #524 / roadmap v1.0](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6198924792).
+База разработки — фактический GitHub main `2695cd3fce6f2241608d1d43d2b7c693ecaba32d`.
+#529 merged; проверен новый checkpoint #530. Intel pinned code `3a18c8c…` известен
+только из документации, не из физического чтения хоста. Frozen T3/H1/TRAIL1 неизменна.
+Фактический текущий runtime UNKNOWN; последний документированный — HALTED/Disabled.
 
 ```mermaid
 flowchart LR
-  UI[Streamlit UI] --> Models[Immutable display contracts v1]
-  UI --> Safe[read_safely: per-robot failure boundary]
-  Safe --> P[SnapshotProvider protocol]
-  P --> Synth[Pure synthetic provider]
-  UI --> Fresh[Freshness / UTC / MSK]
-  UI --> Chart[Plotly from snapshots]
-  FutureH1[Будущий H1 exporter] -. CC-02 .-> P
-  FutureM15[Будущий M15 exporter] -. CC-04 .-> P
+  UI[Streamlit: DEMO / OFFLINE_FIXTURE] --> P[SnapshotProvider]
+  P --> S[SyntheticProvider: H1 / M15 independently]
+  P --> H[H1ReadonlyProvider]
+  H --> R[Bounded no-follow read: fixed local JSON]
+  R --> V[Schema / hash / identity / account / time validation]
+  V --> M[Typed RobotSnapshot + H1ReadonlyDetails]
+  M --> F[Separate observations / TTL / completeness / evidence]
+  F --> UI
+  E[Future sanctioned exporter: not implemented] -. CC-03 acceptance .-> R
 ```
 
-## Компоненты
+`h1_contract.py` — строгий wire allowlist и fixture policy; `readonly_file.py` —
+единственный receiving I/O boundary; `h1_readonly.py` — проверка и конверсия.
+Ни один модуль не импортирует/запускает TradingSystemLab, IntradayLab, StateStore,
+FINAM, SQLite, shell или OS task control. Производящая сторона не изменяется.
 
-| Файл | Ответственность |
-| --- | --- |
-| `app.py` | Навигация, выбор двух независимых сценариев, `st.fragment(run_every=2)` |
-| `cc/models.py` | Frozen dataclasses, enum, runtime-валидация типов/инвариантов, schema v1 |
-| `cc/providers/base.py` | Контракт чтения готового RobotSnapshot; методов команд нет |
-| `cc/providers/synthetic.py` | Чистые детерминированные сценарии и изоляция ошибок |
-| `cc/freshness.py` | Свежесть, запрет stale-green, UTC/MSK, явный UNKNOWN |
-| `cc/charts.py` | Свечи/маркеры/DEMO-линия/стоп из переданных полей; без расчёта стратегии |
-| `cc/analytics.py` | Месячная группировка только внутри account scope |
-| `cc/ui.py` | Русские представления; disabled-кнопки без callback |
+`SnapshotProvider.snapshot(robot_id, scenario, now)` сохранён. H1 provider реализует
+этот интерфейс; принимает только H1, игнорирует demo scenario. UI выбирает его только
+фиксированным documented selector OFFLINE_FIXTURE. M15 остаётся отдельным provider;
+H1 error не затрагивает второй монитор. Нет last-good cache или общего risk/account.
 
-Модели: RobotStatus, InstrumentStatus, SignalEvent, OrderEvent, PositionSnapshot,
-RiskSnapshot, PortfolioSnapshot, SystemAlert, DataProvenance; дополнительно Candle,
-Trade и RobotSnapshot. У каждой записи есть provenance с robot_id, account_scope,
-source, observed_at, received_at, synthetic, schema_version. Все записи CC-01 обязаны иметь одинаковый provenance внутри RobotSnapshot;
-это не позволяет освежить старое дочернее поле новым timestamp. Наборы скалярных
-полей status/risk/portfolio атомарны и имеют общий timestamp своего provenance.
-Неодновременные реальные поля в будущем потребуют отдельных provenance/наборов,
-их нельзя освежать временем соседнего поля. None = UNKNOWN; пустой tuple позиций
-означает наблюдённое отсутствие, None — отсутствующую authority.
+Миграция моделей обратно совместима: trailing optional source_kind/TTL в provenance,
+optional side позиции и `RobotSnapshot.h1_readonly=None`, новый UNHEALTHY. Прежние
+позиционные конструкторы/115 тестов работают. SYNTHETIC defaults/DEMO 10s policy
+сохранены. VERIFIED_LIVE_READONLY enum зарезервирован, создание запрещено в CC-02.
 
-Контракты отвергают wrong-account записи, нечисловые/NaN/Infinity цены, naive timestamps,
-некорректный OHLC, отрицательные количества, unsupported schema, выдуманные fill/stop
-без evidence. В CC-01 разрешены исключительно synthetic provenance и DEMO account scopes.
-Реальные scopes/authority будут добавляться в CC-02 отдельной проверенной миграцией контракта.
-Не создаётся конфигурационный путь, превращающий synthetic provider в live.
+Атомарный provenance envelope сохраняется для всех display records. Реальные времена
+групп не заменяются envelope timestamp: `H1ReadonlyDetails.observations` хранит runtime,
+heartbeat, успешный цикл, reconciliation, bars/signals/orders/positions/stops/finances.
+UI выводит их рядом с receiving данными. Validator проверяет time ordering, а converter
+маскирует numeric поля без свежей complete authority/evidence. Неутверждённые H1 calendar
+и signal-current TTL дают UNKNOWN. HALTED не требует работающего heartbeat.
 
-## Состояния и достоверность
+INTENT/REQUESTED/ACK/POSITION_OBSERVED не повышаются до fill; неподтверждённый fill —
+UNRESOLVED. Planned stop не означает broker protection. Пустые неизвестные данные
+не равны нулю. Finances требуют полного согласованного экспорта с cashflows/fees;
+PnL из equity/ACK не выводится. T3 в панели не пересчитывается.
 
-Разделены заявленное состояние, свежесть снимка и торговое разрешение. HALTED не
-сбрасывается при обновлении страницы. Если источник старый или пропал, крупный статус
-становится STALE/UNKNOWN, а последнее заявленное HALTED/NOT_DEPLOYED остаётся контекстом.
-HEALTHY требует свежий provenance и heartbeat; он никогда не выдаёт trading permission.
-Торговое разрешение в моделях CC-01 может быть только False/None.
+[Полный контракт](H1_READONLY_SNAPSHOT_CONTRACT.md) описывает схему, правила, лимиты,
+atomic publication, будущий exporter и CC-03 blockers. Фиксированный packaged fixture
+исторический: реальный rerun ожидаемо показывает STALE, а не передатирует его.
+На Windows без безопасных no-follow primitives provider возвращает UNKNOWN;
+физическая Windows handle/ACL/transport приёмка — отдельная CC-03 зависимость.
 
-`MAX_SNAPSHOT_AGE=10s`, clock skew 2s — **демонстрационные** пороги. Будущие TTL не
-копируют production safety gate 900s автоматически. Время последнего успешного
-producer observation не равно времени перерисовки UI. При ошибке provider старый
-HEALTHY не кэшируется: только для затронутого робота создаётся пустой UNKNOWN.
-В M15 сохранён NOT_DEPLOYED, нет production identity/heartbeat/финансов/R15.
-
-OrderEvent хранит отдельные уровни INTENT, REQUESTED, ACK, POSITION_OBSERVED,
-FILL_CONFIRMED, UNRESOLVED. Первые четыре не имеют fill_price/filled_quantity.
-FILL_CONFIRMED требует цену, количество и явное evidence. Это контракт отображения,
-не reconciliation engine и не автомат переходов реальной заявки.
-
-## Обновление и будущие адаптеры
-
-Fragment обновляется каждые 2 секунды только в открытой browser session. Вычисление
-ограничено 72 свечами на инструмент и короткой историей; нет infinite-loop, sleep,
-threads, subprocess, polling FINAM или чтения БД в приложении. Отключение автообновления
-останавливает fragment timer; навигация/виджеты выполняют обычный rerun.
-
-CC-02 должен получать готовый ограниченный **экспортированный** снимок по allowlist:
-версия схемы, exact robot/account/identity, атомарная публикация, предел размера,
-source observation time, bounded timeout, redaction, независимая freshness каждого
-набора. Ни exporter, ни read-only адаптер **сейчас не реализованы**.
-Производящий торговый процесс не должен ждать интерфейс. UI не должен запускать
-сервис, импортировать engine или самостоятельно воспроизводить стратегию.
-
-Для SQLite предпочтителен согласованный разрешённый snapshot, не открытие live БД
-из Streamlit. Если отдельная задача санкционирует SQLite-reader: `mode=ro`, query-only,
-ограничения времени/размера, проверенная WAL/locking безопасность. `immutable=1` не
-применяется к активному WAL по предположению. Не копировать только `.sqlite3` без
-учёта WAL. Raw БД, broker account IDs и токены не нужны UI.
-
-## Будущий control plane
-
-Отдельный процесс/identity и отдельный аудит: auth/RBAC, per-robot allowlist команд,
-idempotency, предусловия и подтверждённые postconditions. Таймаут = UNKNOWN.
-Никакого универсального shell, implicit REARM, сброса fill-gate или выдачи trading
-permission. CC-01 содержит только disabled UI, без endpoint, клиента или command handler.
+Streamlit fragment по-прежнему 2s только при открытой сессии; чтение локального файла
+ограничено 128 KiB. Нет фонового polling брокера или нагрузки на trading runner.
+Управляющие кнопки disabled без callbacks. Будущий control plane отдельный (CC-06/07),
+auth/RBAC/privileged gateway/команды в этой поставке отсутствуют.

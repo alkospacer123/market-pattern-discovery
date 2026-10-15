@@ -1,8 +1,8 @@
-# TradingSystemLab Control Center — CC-00 / CC-01
+# TradingSystemLab Control Center — CC-02
 
 Локальный бесплатный Streamlit-интерфейс на русском для двух независимых контуров:
 TradingSystemLab `T3/H1/TRAIL1` и IntradayLab `T3/M15/SESSION`.
-**Только SYNTHETIC / DEMO. Торговые системы, FINAM и production SQLite не подключены.**
+**SYNTHETIC / DEMO и OFFLINE_FIXTURE. Торговые системы, FINAM и production SQLite не подключены.**
 Это основа будущего мониторинга, не разрешение торговли и не установка на Intel.
 
 В исходном сценарии H1 — **HALTED**, торговля запрещена; identity
@@ -87,9 +87,35 @@ Pytest нужен только для проверок, Streamlit AppTest вхо
   своего снимка. В таблицах событий дополнительно указаны источник/счёт/время.
 - Все времена aware: UTC и MSK (UTC+3). Фильтр дат и месячная статистика — по MSK.
 
-Реальные read-only адаптеры отсутствуют. Следующий этап **CC-02** — отдельный Draft PR
-после операторской проверки. Не менять порог 10 секунд DEMO в боевой TTL по аналогии:
-он должен учитывать реальный producer, расписание сессий и отдельную authority полей.
+## H1 READONLY: локальная проверка OFFLINE_FIXTURE
+
+В боковой панели «Источник H1» выбрать OFFLINE_FIXTURE. Адаптер читает только
+`fixtures/h1/h1.snapshot.json` этого пакета. Пользовательского пути, upload, env/query
+переключателя LIVE нет. DEMO остаётся вариантом по умолчанию; сценарии относятся к нему.
+M15 при любом выборе независим: NOT_DEPLOYED / SYNTHETIC / NO_RUNTIME_AUTHORITY.
+Все 10 управляющих кнопок отключены.
+
+Поставляемый fixture намеренно датирован `2026-10-15T18:20:00Z`: позднейшее открытие
+покажет STALE, а не новый HEALTHY. Browser refresh не переписывает время файла.
+Позиции/финансы/сверка в этом примере UNKNOWN; в тестах используются также полные
+искусственные exports. Нет разрешённого реального exporter или связи с Intel.
+Ошибки чтения/валидации безопасны: H1 UNKNOWN, второй монитор продолжает работать.
+
+На проверенном Linux backend поддержано no-follow descriptor чтение. На Windows
+без такого примитива H1 fixture reader fail-closed UNKNOWN, DEMO/UI остаются доступны.
+Windows secure handles/ACL либо иной sanctioned transport — отдельный blocker CC-03;
+этот README не заявляет физическую Windows-приёмку. Не копировать реальные production
+файлы в fixture directory. Реальные alias/account binding/TTL/calendar/provenance
+должны быть отдельно утверждены и приняты перед добавлением live profile.
+
+Прочитать [полный контракт](docs/H1_READONLY_SNAPSHOT_CONTRACT.md) и
+[машинную схему](docs/H1_READONLY_SNAPSHOT_SCHEMA.json). Snapshot 180s, heartbeat/cycle/
+reconciliation 90s и finance 300s — **тестовая receiving policy**, не фактические Intel
+настройки. Для H1 calendar/current signal нет утверждённого TTL, поэтому UNKNOWN;
+DEMO 10s не переносится на receiving источники.
+
+CC-02 PASS означает техническую готовность принимающей стороны к следующей отдельной
+проверке. CC-03 не начат; LIVE, Intel deployment, merge и auto-merge не разрешены.
 
 Документы: [архитектура](docs/ARCHITECTURE.md), [инвентаризация](docs/SOURCE_INVENTORY.md),
 [граница безопасности](docs/SECURITY_BOUNDARY.md), [статус roadmap](docs/ROADMAP_STATUS.md),
