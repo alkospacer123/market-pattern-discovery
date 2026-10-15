@@ -11,6 +11,8 @@
 - All four completed H1 expectations must match the latest FINAM schedule and bars; if no completed current session can be proven, return BLOCKED rather than invent freshness.
 - Observe FINAM position/orders twice and recheck local heartbeat/switch/SQLite. If the robot advances during a sample, return BLOCKED and run another independent probe later; **never restart/rearm to make the check pass**.
 
+**Intel v4 READONLY diagnostic isolation:** The observer uses a pinned, strict read-only copy of the position/order response parsers from production commit `3a18c8c…`, without importing `production_broker_state`'s unrelated `protective_stop_contract` → `production_runtime` → `pandas`/OpenBLAS dependency. Its PowerShell wrapper temporarily sets BLAS thread limits to 1 **only in the observer process**, restoring the operator environment on exit. This avoids the previously observed `OpenBLAS error: Memory allocation still failed after 10 retries` while preserving broker-state schema validation. The running production worker, Task, account, and strategy are unchanged. Nine synthetic tests and package integrity pass; physical FINAM/SQLite/WAL acceptance still requires an actual Intel run.
+
 ## On Intel
 
 This branch is draft-only and does **not** modify production. Save the two scripts to a **separate operator diagnostics folder**, not to the installed production checkout, and run under the same account that owns the existing **REAL_READONLY** DPAPI credential. The PowerShell wrapper derives the pinned checkout, runtime and interpreter from the existing scheduled Task action.
