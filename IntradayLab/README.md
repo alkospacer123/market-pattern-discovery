@@ -1,5 +1,12 @@
 # IntradayLab — independent MOEX intraday strategy research
 
+## Выбранный T3/M15-робот — решение пользователя от 15.10.2026
+
+**Исторический ID:** `T1_NEXT_OPEN_TRAIL_3p5` — **T3 / M15 / SESSION T1 / NEXT_OPEN / TRAIL 3.5 / FULL N4**. **Планируемый ID отдельного робота:** `T3_M15_T1_TRAIL35_N4_R20`. **R20: 2% реализованного капитала второго FINAM-счёта на вход**, до четырёх инструментов и 8% суммарного номинального первоначального риска (не гарантированный предел реальных потерь). После завершения H1 использовать проверенные инженерные решения для независимого M15-робота без изменения TradingSystemLab.
+
+Выбор касается **будущей реализации**, но **не является LIVE-авторизацией** и не отменяет слабый 2024 год (Gross PF 1,460921 ниже исследовательского порога 1,70). Подтверждение NEXT_OPEN: [#518](t3_m15_t1_entry_retest_v1/results/REPORT_RU.md). **Полный паспорт выбранной сборки и ограничения:** [SELECTED_T3_M15_SESSION_T1_R20.md](SELECTED_T3_M15_SESSION_T1_R20.md). Архивные разделы ниже описывают свои исторические состояния и не заменяют данное более позднее решение.
+
+
 ## Current canonical infrastructure and Baseline — 2026-10-10
 
 The independent [common historical Backtester](core/README.md) is implemented:
