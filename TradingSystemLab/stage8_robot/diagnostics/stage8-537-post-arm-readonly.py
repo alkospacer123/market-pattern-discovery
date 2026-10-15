@@ -193,8 +193,123 @@ def protection(hb, local_positions, broker_positions, orders):
         print("POSITION_" + key + "=" + str(mapped.get(SYMBOLS[key], 0)))
     print("FINAM_PROTECTION_LINKAGE=PASS")
 
+
+# READONLY projection of frozen production_broker_state POSITION/ORDER parsers.
+# Source authority: production commit 3a18c8c24301c866a60f5d725de227288d48f7ec.
+# Canonical module imports protective_stop_contract -> production_runtime -> pandas
+# -> OpenBLAS. This standalone diagnostic intentionally avoids that dependency.
+from dataclasses import dataclass
+from typing import Any, Literal
+
+class ReadonlyBrokerSchemaError(RuntimeError):
+    pass
+
+def _decimal_object(value: Any, code: str) -> Decimal:
+    if not isinstance(value, dict) or set(value) != {"value"} or not isinstance(value["value"], str):
+        raise ReadonlyBrokerSchemaError(code)
+    try:
+        result = Decimal(value["value"])
+    except InvalidOperation:
+        raise ReadonlyBrokerSchemaError(code) from None
+    if not result.is_finite():
+        raise ReadonlyBrokerSchemaError(code)
+    return result
+
+def _contracts(value: Any, code: str) -> int:
+    result = _decimal_object(value, code)
+    if result != result.to_integral_value():
+        raise ReadonlyBrokerSchemaError(code)
+    return int(result)
+
+def readonly_position_quantities(account: Any) -> dict[str, int]:
+    if not isinstance(account, dict) or not isinstance(account.get("positions"), list):
+        raise ReadonlyBrokerSchemaError("STAGE8_12_4_POSITIONS_SCHEMA_INVALID")
+    result: dict[str, int] = {}
+    for row in account["positions"]:
+        if not isinstance(row, dict):
+            raise ReadonlyBrokerSchemaError("STAGE8_12_4_POSITIONS_SCHEMA_INVALID")
+        symbol = row.get("symbol")
+        if not isinstance(symbol, str) or not symbol or symbol in result:
+            raise ReadonlyBrokerSchemaError("STAGE8_12_4_POSITIONS_SCHEMA_INVALID")
+        quantity = _contracts(row.get("quantity"), "STAGE8_12_4_POSITION_QUANTITY_INVALID")
+        if quantity != 0:
+            result[symbol] = quantity
+    return result
+
+OrderKind = Literal["REGULAR", "SLTP"]
+
+@dataclass(frozen=True)
+class ReadonlyBrokerOrderView:
+    order_id: str
+    status: str
+    active: bool
+    kind: OrderKind
+    symbol: str
+    client_order_id: str
+    comment: str | None
+    side: str
+    request: dict[str, Any]
+
+def readonly_order_views(response: Any) -> list[ReadonlyBrokerOrderView]:
+    from TradingSystemLab.stage8_robot.account_cleanliness import (ACTIVE_ORDER_STATUSES, TERMINAL_ORDER_STATUSES, normalize_order_status)
+    rows = response.get("orders") if isinstance(response, dict) else response
+    if not isinstance(rows, list):
+        raise ReadonlyBrokerSchemaError("STAGE8_12_4_ORDERS_SCHEMA_INVALID")
+    result: list[ReadonlyBrokerOrderView] = []
+    seen_ids: set[str] = set()
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ReadonlyBrokerSchemaError("STAGE8_12_4_ORDERS_SCHEMA_INVALID")
+        order_id = row.get("order_id")
+        if not isinstance(order_id, str) or not order_id or order_id in seen_ids:
+            raise ReadonlyBrokerSchemaError("STAGE8_12_4_ORDER_ID_INVALID")
+        seen_ids.add(order_id)
+        try:
+            status = normalize_order_status(row.get("status"))
+        except ValueError:
+            raise ReadonlyBrokerSchemaError("STAGE8_12_4_ORDER_STATUS_INVALID") from None
+
+        regular = row.get("order")
+        sltp = row.get("sltp_order")
+        regular_present = isinstance(regular, dict) and bool(regular)
+        sltp_present = isinstance(sltp, dict) and bool(sltp)
+        if regular_present == sltp_present:
+            raise ReadonlyBrokerSchemaError("STAGE8_12_4_ORDER_KIND_INVALID")
+        request = regular if regular_present else sltp
+        kind: OrderKind = "REGULAR" if regular_present else "SLTP"
+        symbol = request.get("symbol")
+        client_id = request.get("client_order_id")
+        side = request.get("side")
+        comment = request.get("comment")
+        if (
+            not isinstance(symbol, str)
+            or not symbol
+            or not isinstance(client_id, str)
+            or (not client_id and status not in TERMINAL_ORDER_STATUSES)
+            or len(client_id) > 20
+            or not isinstance(side, str)
+            or side not in {"SIDE_BUY", "SIDE_SELL"}
+            or (comment is not None and (not isinstance(comment, str) or len(comment) > 128))
+        ):
+            raise ReadonlyBrokerSchemaError("STAGE8_12_4_ORDER_REQUEST_INVALID")
+        if kind == "REGULAR":
+            quantity = _contracts(request.get("quantity"), "STAGE8_12_4_ORDER_QUANTITY_INVALID")
+            if quantity <= 0:
+                raise ReadonlyBrokerSchemaError("STAGE8_12_4_ORDER_QUANTITY_INVALID")
+        result.append(ReadonlyBrokerOrderView(
+            order_id=order_id,
+            status=status,
+            active=status in ACTIVE_ORDER_STATUSES,
+            kind=kind,
+            symbol=symbol,
+            client_order_id=client_id,
+            comment=comment,
+            side=side,
+            request=request,
+        ))
+    return result
+
 def broker(api, account_id):
-    from TradingSystemLab.stage8_robot.production_broker_state import position_quantities, order_views
     require(account_id, "ACCOUNT_ID_MISSING")
     account = api.account(account_id)
     orders_payload = api.orders(account_id)
@@ -203,8 +318,8 @@ def broker(api, account_id):
             "BROKER_ACCOUNT_IDENTITY_OR_STATUS_INVALID")
     require(type(orders_payload) is dict and type(orders_payload.get("orders")) is list,
             "BROKER_ORDERS_COLLECTION_INVALID")
-    positions = position_quantities(account)
-    orders = order_views(orders_payload)
+    positions = readonly_position_quantities(account)
+    orders = readonly_order_views(orders_payload)
     require(len(orders) == len(orders_payload["orders"]), "BROKER_ORDERS_INCOMPLETE")
     return positions, orders
 
@@ -297,7 +412,7 @@ def main():
                os.environ.get("TSL36_READONLY_ACCOUNT", ""),
                os.environ.get("TSL36_READONLY_SECRET", ""))
         return 0
-    except Blocked as exc:
+    except (Blocked, ReadonlyBrokerSchemaError) as exc:
         print("CLASSIFICATION=BLOCKED:" + str(exc))
         return 1
     except Exception:
