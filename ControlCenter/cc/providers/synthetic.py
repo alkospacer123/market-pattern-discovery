@@ -140,6 +140,7 @@ def read_safely(provider, robot_id: RobotId, scenario: str, now: datetime) -> Ro
         if not isinstance(value, RobotSnapshot) or value.status.provenance.robot_id != robot_id:
             raise ValueError("WRONG_ROBOT_SNAPSHOT")
         return value
-    except (ValueError, TypeError, OSError):
+    except Exception:
+        # Ordinary provider failures only; KeyboardInterrupt/SystemExit propagate.
         # Never display raw exception payloads: future sources may include secrets.
         return empty_snapshot(robot_id, now, "SYNTHETIC: SNAPSHOT_INVALID_OR_UNAVAILABLE")

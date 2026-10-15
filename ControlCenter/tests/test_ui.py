@@ -1,8 +1,11 @@
 from pathlib import Path
 from datetime import timedelta
+import sqlite3
 import pytest
 from streamlit.testing.v1 import AppTest
 from cc.ui import PAGES, CONTROLS, CONTROL_EXPLANATION
+from cc.models import RobotId
+from cc.providers.synthetic import SyntheticProvider
 
 APP=Path(__file__).resolve().parents[1]/'app.py'
 
@@ -82,3 +85,37 @@ def test_event_filters(app):
     app.text_input[0].set_value('').run()
     app.date_input[0].set_value(app.date_input[1].value+timedelta(days=1)).run()
     assert any('Начальная дата' in row.value for row in app.warning)
+
+
+@pytest.mark.parametrize('failed_robot', list(RobotId))
+@pytest.mark.parametrize('error_type,message', [
+    (RuntimeError, 'SECRET_TRADING_TOKEN_123'),
+    (sqlite3.DatabaseError, 'SENSITIVE_ACCOUNT_DATA'),
+])
+def test_provider_failure_renders_only_safe_unknown(app, monkeypatch, failed_robot, error_type, message):
+    app.selectbox(key='scenario-H1').select('HEALTHY').run()
+    assert any('T3/H1/TRAIL1 · HEALTHY ·' in row.value for row in app.success)
+    original = SyntheticProvider.snapshot
+
+    def failing_snapshot(self, robot_id, scenario, now):
+        if robot_id == failed_robot:
+            raise error_type(message)
+        return original(self, robot_id, scenario, now)
+
+    monkeypatch.setattr(SyntheticProvider, 'snapshot', failing_snapshot)
+    app.run()
+    assert not app.exception
+    strategy = 'T3/H1/TRAIL1' if failed_robot == RobotId.H1 else 'T3/M15/SESSION'
+    assert any(f'{strategy} · UNKNOWN ·' in row.value for row in app.warning)
+    if failed_robot == RobotId.H1:
+        assert not app.success  # previous HEALTHY is not retained
+        assert any('T3/M15/SESSION · NOT_DEPLOYED ·' in row.value for row in app.info)
+    else:
+        assert any('T3/H1/TRAIL1 · HEALTHY ·' in row.value for row in app.success)
+    assert message not in text(app)
+    app.radio[0].set_value('Журнал событий').run()
+    assert not app.exception
+    frame = app.dataframe[0].value
+    failed_events = frame[frame['Робот'] == failed_robot.value]
+    assert list(failed_events['Событие DEMO']) == ['SYNTHETIC: SNAPSHOT_INVALID_OR_UNAVAILABLE']
+    assert message not in frame.to_string() and message not in text(app)

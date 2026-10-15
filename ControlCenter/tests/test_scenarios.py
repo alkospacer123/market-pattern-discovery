@@ -1,6 +1,7 @@
 from dataclasses import asdict, replace
 from datetime import timedelta
 import json
+import sqlite3
 import pytest
 from cc.analytics import monthly
 from cc.charts import candle_chart
@@ -81,3 +82,64 @@ def test_chart_period_and_no_fabricated_t3(h1):
     assert len(chart.data[2].x)==0  # entry outside selected period
     assert chart.data[1].name=='DEMO-линия (не T3)'
     assert len(candle_chart(h1,'UNKNOWN',24).layout.annotations)==1
+
+
+@pytest.mark.parametrize('failed_robot', list(RobotId))
+@pytest.mark.parametrize('error_type,message', [
+    (RuntimeError, 'SECRET_TRADING_TOKEN_123'),
+    (sqlite3.DatabaseError, 'SENSITIVE_ACCOUNT_DATA'),
+])
+def test_provider_failure_is_sanitized_and_isolated(failed_robot, error_type, message, now, capsys, caplog):
+    class IntermittentProvider:
+        failed = False
+
+        def snapshot(self, robot_id, scenario, observed_at):
+            if self.failed and robot_id == failed_robot:
+                raise error_type(message)
+            return SyntheticProvider().snapshot(robot_id, scenario, observed_at)
+
+    provider = IntermittentProvider()
+    scenarios = {RobotId.H1: 'HEALTHY', RobotId.M15: 'BASELINE'}
+    before = {robot: read_safely(provider, robot, scenarios[robot], now) for robot in RobotId}
+    before_json = json.dumps(asdict(before[failed_robot]), default=str, sort_keys=True)
+    assert display_state(before[RobotId.H1].status, now) == State.HEALTHY
+    provider.failed = True
+    after = {robot: read_safely(provider, robot, scenarios[robot], now) for robot in RobotId}
+    failed = after[failed_robot]
+    peer = RobotId.M15 if failed_robot == RobotId.H1 else RobotId.H1
+    assert after[peer] == before[peer]
+    assert json.dumps(asdict(before[failed_robot]), default=str, sort_keys=True) == before_json
+    assert failed is not before[failed_robot]
+    assert display_state(failed.status, now) == State.UNKNOWN
+    assert failed.status.state == (State.HALTED if failed_robot == RobotId.H1 else State.NOT_DEPLOYED)
+    assert failed.status.provenance.observed_at is None
+    assert failed.status.heartbeat_at is None and failed.status.last_bar_at is None
+    assert failed.status.open_positions is None and failed.status.trading_allowed is False
+    assert not any((failed.instruments, failed.candles, failed.signals, failed.orders))
+    assert failed.positions is None and failed.trades is None
+    assert all(value is None for key, value in asdict(failed.portfolio).items() if key != 'provenance')
+    assert all(getattr(failed.risk, field) is None for field in ('per_position_pct', 'maximum_total_pct', 'used_pct', 'contracts'))
+    code = 'SYNTHETIC: SNAPSHOT_INVALID_OR_UNAVAILABLE'
+    assert failed.risk.reason == code
+    assert len(failed.events) == 1 and failed.events[0].message == code
+    output = json.dumps(asdict(failed), default=str, sort_keys=True)
+    captured = capsys.readouterr()
+    for text in (output, captured.out, captured.err, caplog.text):
+        assert message not in text
+        assert error_type.__name__ not in text
+    provider.failed = False
+    assert read_safely(provider, failed_robot, scenarios[failed_robot], now) == before[failed_robot]
+
+
+@pytest.mark.parametrize('robot', list(RobotId))
+@pytest.mark.parametrize('error_type', [KeyboardInterrupt, SystemExit])
+def test_process_control_exceptions_propagate(robot, error_type, now):
+    interrupt = error_type('SYNTHETIC_PROCESS_CONTROL')
+
+    class InterruptedProvider:
+        def snapshot(self, *args):
+            raise interrupt
+
+    with pytest.raises(error_type) as caught:
+        read_safely(InterruptedProvider(), robot, 'BASELINE', now)
+    assert caught.value is interrupt

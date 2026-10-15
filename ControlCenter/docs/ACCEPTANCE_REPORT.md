@@ -1,5 +1,63 @@
 # Фактическая приёмка CC-00 / CC-01
 
+## Исправление независимого аудита PR #529 — 15.10.2026
+
+**AUDIT_FIX_PASS по проверкам автора; повторный независимый аудит и решение оператора ожидаются.**
+Основание: [замечание 6199585665](https://github.com/alkospacer123/market-pattern-discovery/pull/529#issuecomment-6199585665).
+Перед исправлением непосредственно проверены GitHub refs и PR: main
+`15e96cea2c252a2dfac1b61a070e8505c97c4d77`, исходный HEAD
+`7e69d2d019ad3790ca1d46de4ed391952371fcdf`, ветка
+`codex/controlcenter-cc00-cc01`, Draft=true, auto_merge=null, merged_at=null.
+Новый HEAD SHA фиксируется в описании существующего PR после commit этого отчёта
+(включение собственного полного SHA в содержимое commit изменило бы сам SHA).
+
+Единственная правка прикладного runtime: `read_safely()` использует `except Exception`
+вместо перечисления трёх типов. `BaseException` не перехватывается. Возвращается
+существующий пустой RobotSnapshot с отсутствующим observed_at и фиксированным кодом
+`SYNTHETIC: SNAPSHOT_INVALID_OR_UNAVAILABLE`; display_state становится UNKNOWN.
+Контекст HALTED/NOT_DEPLOYED сохраняется согласно прежнему контракту, торговое разрешение
+False. Не сохраняются прошлые HEALTHY, heartbeat, цены, капитал, позиции и заявки.
+Исходное исключение не форматируется, не логируется и не включается в снимок.
+Модели, стратегия, execution contracts, источники и UI-архитектура не менялись.
+
+Изменены только четыре **существующих** файла:
+
+- `ControlCenter/cc/providers/synthetic.py` — ordinary Exception boundary.
+- `ControlCenter/tests/test_scenarios.py` — 8 регрессий ошибок/изоляции/system exceptions.
+- `ControlCenter/tests/test_ui.py` — 4 регрессии рендеринга ошибок через Streamlit AppTest.
+- `ControlCenter/docs/ACCEPTANCE_REPORT.md` — этот отчёт.
+
+Результаты фактических повторных проверок:
+
+| Проверка | Результат |
+| --- | --- |
+| Воспроизведение до fix | 4 регрессии с RuntimeError/DatabaseError и отказом H1/M15 завершались FAILED; 4 проверки KeyboardInterrupt/SystemExit уже PASS |
+| Полный pytest | **115 PASS (3.28s)**, ранее 103; 12 boundary + 37 contract + 42 scenario + 24 AppTest |
+| Автономная копия только ControlCenter, очищенное окружение | **115 PASS (3.56s)**; торговых каталогов и production-ресурсов в копии нет |
+| RuntimeError / sqlite3.DatabaseError | Оба типа изолируются для каждого робота; реальная БД не открывалась, DatabaseError только конструируется в тесте |
+| Санитарная обработка | SECRET_TRADING_TOKEN_123 / SENSITIVE_ACCOUNT_DATA отсутствуют в результате, stdout/stderr/logs, UI и отображаемом журнале; код ошибки фиксированный |
+| Изоляция и восстановление | Сбой H1 не меняет M15; сбой M15 не меняет HEALTHY H1; прежние снимки неизменны; после ошибки новый пустой UNKNOWN; после восстановления возвращается исходный снимок |
+| Системные исключения | KeyboardInterrupt и SystemExit проходят наружу для H1/M15, проверена идентичность исключения |
+| Streamlit AppTest | Все 7 разделов и новые сбои без UI exception; прежний HEALTHY исчезает у отказавшего H1; соседний монитор сохраняет состояние; в журнале только санитарный код |
+| Защитные границы | 10 кнопок остаются disabled без callbacks; HALTED/NOT_DEPLOYED, все прежние сценарии, determinism и side-effect guards PASS |
+| Импорты | AST runtime allowlist PASS: FINAM/SQLite/trading/OS-process capability не добавлена; sqlite3 импортируется только тестами |
+| Зависимости | pip check: No broken requirements found; зависимости не менялись |
+| Git | diff --check PASS; correction diff — только 4 modified ControlCenter файла; новых файлов нет |
+| Защищённые файлы | SHA-256 всех 17627 исходных tracked files main: 0 несовпадений; Git trees main / исходный HEAD / индекс совпадают |
+
+Защищённые trees: TradingSystemLab
+`7ccc7a838707dd8dc2776a0e0300fc72e57edf15`, IntradayLab
+`c4f6e652ba442a575ad5711cb3f55841f860f484`. Полный PR diff относительно main
+по-прежнему содержит только 32 добавленных пути ControlCenter; файлы других проектов,
+конфигурация, данные, авторизация и roadmap не изменены.
+
+Это узкая повторная приёмка исключений с AppTest; браузерные скриншоты ниже относятся
+к первоначальному HEAD и не заявляются как заново снятые. Физического доступа к Intel,
+FINAM, SQLite или Windows Tasks не было. Новый PR не создаётся; обновляется Draft #529.
+Merge / auto-merge / CC-02 / Intel deployment не выполняются. **STOP для повторного аудита.**
+
+## Первоначальная приёмка — история HEAD 7e69d2d (103 теста)
+
 **Технический результат: PASS для автономного SYNTHETIC / DEMO MVP.**
 Внешняя независимая проверка PR и решение оператора ожидаются. Работа выполнена
 15.10.2026; browser-проверка финального кода около **21:33 MSK / 18:33 UTC**.
