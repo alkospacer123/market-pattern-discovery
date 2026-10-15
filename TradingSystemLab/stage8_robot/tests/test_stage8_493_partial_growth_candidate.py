@@ -68,9 +68,8 @@ def test_observed_one_to_two_same_100_percent_stop_only(direction, tmp_path):
     assert p["protective_stop_broker_order_id"] == "synthetic-initial-stop"
     assert p["verified_fill_entry"] is None and p["fill_authority"] == "MISSING"
     assert len(rt.store.all_intents()) == before
-    assert rt.store.get("execution_halt")["status"] == "HALTED"
-    assert rt.store.get("execution_halt")["operator_intervention_required"] is True
-    assert rt.store.get(f"entry_growth_hold:{entry.idempotency_key}")["reason"] == "ACTIVE_PERCENT_STOP_DYNAMIC_COVERAGE_UNPROVEN"
+    assert rt.store.get("execution_halt") is None
+    assert rt.store.get(f"entry_growth_hold:{entry.idempotency_key}") is None
     e = rt.store.get(f"entry_growth_stop_observed:{entry.idempotency_key}")
     assert e["from_quantity"] == 1 and e["to_quantity"] == 2
     assert e["quantity_percent"] == "100"
@@ -118,17 +117,17 @@ def test_growth_wrong_broker_stop_sticky_halt(tmp_path, mutation):
 
 
 
-def test_verified_growth_hold_persists_and_never_auto_unhalts(tmp_path):
+def test_broker_contract_growth_proof_survives_restart_without_new_stop(tmp_path):
     rt, entry, stop = two_contracts(tmp_path)
     observation = order_for(stop)
     assert rt.confirm_entry_position(entry.idempotency_key, 2, observed_protective_stop=observation) is None
-    assert rt.store.get("execution_halt")["status"] == "HALTED"
-    assert rt.store.get(f"entry_growth_hold:{entry.idempotency_key}")["observed_quantity"] == 2
+    assert rt.store.get("execution_halt") is None
+    assert rt.store.get(f"entry_growth_hold:{entry.idempotency_key}") is None
     assert rt.open_positions()[entry.instrument]["protective_stop_broker_order_id"] == "synthetic-initial-stop"
     assert len(rt.store.all_intents()) == 2
     rt.close()
     rt = runtime(tmp_path / "offline-only.db")
-    assert rt.store.get("execution_halt")["operator_intervention_required"] is True
+    assert rt.store.get("execution_halt") is None
     assert rt.confirm_entry_position(entry.idempotency_key, 2, observed_protective_stop=observation) is None
     assert len(rt.store.all_intents()) == 2
     assert rt.open_positions()[entry.instrument]["quantity"] == 2
@@ -152,7 +151,7 @@ def test_growth_success_survives_restart_with_same_stop_id(tmp_path):
     assert rt.open_positions()[entry.instrument]["protective_covered_quantity"] == 2
     assert rt.store.get(f"entry_growth_stop_observed:{entry.idempotency_key}")["broker_stop_id"] == "synthetic-initial-stop"
     assert len(rt.store.all_intents()) == 2
-    assert rt.store.get("execution_halt")["status"] == "HALTED"
+    assert rt.store.get("execution_halt") is None
     rt.close()
 
 
@@ -187,8 +186,8 @@ def test_growth_does_not_unlock_v2_real_order_transport(tmp_path):
     assert FINAM_FILL_AUTHORITY_VERIFIED is False
     rt, entry, stop = two_contracts(tmp_path)
     rt.confirm_entry_position(entry.idempotency_key,2,observed_protective_stop=order_for(stop))
-    assert rt.store.get("execution_halt")["status"] == "HALTED"
-    assert rt.store.get(f"entry_growth_hold:{entry.idempotency_key}")["reason"] == "ACTIVE_PERCENT_STOP_DYNAMIC_COVERAGE_UNPROVEN"
+    assert rt.store.get("execution_halt") is None
+    assert rt.store.get(f"entry_growth_hold:{entry.idempotency_key}") is None
     assert rt.store.get(f"entry_growth_stop_observed:{entry.idempotency_key}")["real_finam_dynamic_coverage_proven"] is False
     rt.close()
 
@@ -248,4 +247,45 @@ def test_initial_stop_submission_evidence_is_not_rewritten(tmp_path):
     assert rt.store.intent(stop.idempotency_key)["payload"] == before
     assert rt.store.get(f"entry_growth_stop_observed:{entry.idempotency_key}")["from_quantity"] == 1
     assert rt.store.get(f"entry_growth_stop_observed:{entry.idempotency_key}")["to_quantity"] == 2
+    rt.close()
+
+
+def test_successive_growth_has_cumulative_proof_and_no_duplicate_stop(tmp_path):
+    rt = runtime(tmp_path / "offline-only.db")
+    budget = rt.begin_batch(realized_equity=D("100000"), available_cash=D("5000"))
+    entry = plan(rt, signal(), budget=budget)
+    assert entry.quantity >= 3
+    stop = rt.confirm_entry_position(entry.idempotency_key, 1)
+    rt.confirm_protective_stop(stop.idempotency_key, "synthetic-initial-stop")
+    assert rt.confirm_entry_position(entry.idempotency_key, 2,
+        observed_protective_stop=order_for(stop)) is None
+    assert rt.confirm_entry_position(entry.idempotency_key, 3,
+        observed_protective_stop=order_for(stop)) is None
+    proof = rt.store.get(f"entry_growth_stop_observed:{entry.idempotency_key}")
+    assert (proof["from_quantity"], proof["to_quantity"]) == (1, 3)
+    assert proof["real_finam_dynamic_coverage_proven"] is False
+    assert rt.open_positions()[entry.instrument]["protective_covered_quantity"] == 3
+    assert len(rt.store.all_intents()) == 2
+    assert rt.store.get("execution_halt") is None
+    rt.close()
+    rt = runtime(tmp_path / "offline-only.db")
+    assert rt.open_positions()[entry.instrument]["quantity"] == 3
+    assert rt.store.get("execution_halt") is None
+    rt.close()
+
+
+def test_successive_growth_missing_stop_sticky_halts(tmp_path):
+    rt = runtime(tmp_path / "offline-only.db")
+    budget = rt.begin_batch(realized_equity=D("100000"), available_cash=D("5000"))
+    entry = plan(rt, signal(), budget=budget)
+    assert entry.quantity >= 3
+    stop = rt.confirm_entry_position(entry.idempotency_key, 1)
+    rt.confirm_protective_stop(stop.idempotency_key, "synthetic-initial-stop")
+    rt.confirm_entry_position(entry.idempotency_key, 2,
+        observed_protective_stop=order_for(stop))
+    assert rt.store.get("execution_halt") is None
+    rt.confirm_entry_position(entry.idempotency_key, 3)
+    assert rt.store.get("execution_halt")["status"] == "HALTED"
+    assert rt.store.get(f"entry_growth_hold:{entry.idempotency_key}")["reason"] == "ACTIVE_PERCENT_STOP_BROKER_PROOF_MISSING"
+    assert rt.open_positions()[entry.instrument]["quantity"] == 2
     rt.close()

@@ -297,7 +297,7 @@ def test_service_partial_protects_before_unavailable_history_restart_no_duplicat
     svc.close()
 
 
-def test_growth_before_initial_post_uses_fresh_current_quantity_then_growth_halts(tmp_path):
+def test_growth_before_initial_post_uses_fresh_current_quantity_then_accepts_broker_contract(tmp_path):
     """Fresh, order-linked active 100% STOP permits a synthetic 2->3 observation.
 
     This is *not* physical FINAM dynamic coverage proof, and cannot lift the
@@ -313,8 +313,7 @@ def test_growth_before_initial_post_uses_fresh_current_quantity_then_growth_halt
     svc._reconcile_intents(snapshot(entry,2,actual))
     assert svc._protection(snapshot(entry,2,actual))[0]['covered_quantity']==2
     api.rows=[fill(entry,quantity=2),fill(entry,2)]
-    with pytest.raises(ProductionServiceError,match='HALTED_OPERATOR_INTERVENTION_REQUIRED'):
-        svc._reconcile_intents(snapshot(entry,3,actual,status='FILLED'))
+    svc._reconcile_intents(snapshot(entry,3,actual,status='FILLED'))
     coverage=svc._protection(snapshot(entry,3,actual,status='FILLED'))
     assert coverage[0]['covered_quantity']==3
     assert coverage[0]['active_stop_order_ids']==['synthetic-protective-order']
@@ -328,15 +327,15 @@ def test_growth_before_initial_post_uses_fresh_current_quantity_then_growth_halt
     assert proof['quantity_percent']=='100'
     assert proof['evidence']=='CURRENT_ACCOUNT_ORDERS_SNAPSHOT'
     assert proof['real_finam_dynamic_coverage_proven'] is False
-    assert svc.runtime.store.get('execution_halt')['status'] == 'HALTED'
-    assert svc.runtime.store.get(f'entry_growth_hold:{entry.idempotency_key}')['reason'] == 'ACTIVE_PERCENT_STOP_DYNAMIC_COVERAGE_UNPROVEN'
+    assert svc.runtime.store.get('execution_halt') is None
+    assert svc.runtime.store.get(f'entry_growth_hold:{entry.idempotency_key}') is None
     svc.close()
     # Restart must not silently drop the broker-matched STOP or coverage proof.
     svc=ProductionService(tmp_path,tmp_path/'data',api,ACCOUNT,'a'*40,
                           execution_revision=EXECUTION_REVISION,clock=lambda:NOW)
     svc.transport=SyntheticTransport(api.calls)
     assert svc.runtime.store.get(f'entry_growth_stop_observed:{entry.idempotency_key}')==proof
-    assert svc.runtime.store.get('execution_halt')['status'] == 'HALTED'
+    assert svc.runtime.store.get('execution_halt') is None
     assert svc._protection(snapshot(entry,3,actual,status='FILLED'))[0]['covered_quantity']==3
     assert len(svc.transport.calls)==0
     svc.close()

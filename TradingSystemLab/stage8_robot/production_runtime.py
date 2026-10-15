@@ -1151,24 +1151,30 @@ class ProductionRuntime:
                         "reason": "ACTIVE_PERCENT_STOP_BROKER_PROOF_MISSING",
                     })
                     return None
+                # Under the documented FINAM percentage contract the stop
+                # quantity is calculated at activation, not on initial POST.
+                # Preserve the first protected quantity across successive
+                # fresh same-stop observations (1->2->3), including restart.
+                prior_growth = self.store.get(f"entry_growth_stop_observed:{entry_key}")
+                if prior_growth is not None:
+                    if (not isinstance(prior_growth, dict)
+                            or prior_growth.get("to_quantity") != current["quantity"]):
+                        self.halt("POSITION_GROWTH_DURABLE_CHAIN_INVALID")
+                        return None
+                initial_covered = (prior_growth["from_quantity"] if prior_growth is not None
+                                   else current["quantity"])
                 current["protective_covered_quantity"] = abs(observed_quantity)
                 self.store.put(f"entry_growth_stop_observed:{entry_key}", {
-                    "from_quantity": current["quantity"], "to_quantity": abs(observed_quantity),
+                    "from_quantity": initial_covered, "to_quantity": abs(observed_quantity),
                     "broker_stop_id": broker_id, "client_order_id": stop.client_order_id,
                     "stop_price": str(expected_price), "quantity_measure": "SLTP_QTY_MEASURE_PERCENT",
                     "quantity_percent": "100", "evidence": "CURRENT_ACCOUNT_ORDERS_SNAPSHOT",
                     "real_finam_dynamic_coverage_proven": False,
                 })
-                # A 100%-position GET echo and documented FINAM semantics do
-                # not prove that the newly filled contracts were protected
-                # through the actual growth/trigger race. Preserve the SAME
-                # backstop, but do not silently resume ordinary trading.
-                self.halt("POSITION_GROWTH_PHYSICAL_COVERAGE_UNVERIFIED")
-                self.store.put(f"entry_growth_hold:{entry_key}", {
-                    "observed_quantity": abs(observed_quantity),
-                    "prior_quantity": current["quantity"],
-                    "reason": "ACTIVE_PERCENT_STOP_DYNAMIC_COVERAGE_UNPROVEN",
-                })
+                # Accept contractual 100%-at-activation coverage only with
+                # exact, fresh broker/position proof above. This is NOT a
+                # physical trigger/fill guarantee: keep the durable flag False.
+                # Do not repost the stop, clear earlier HALTs or infer fills.
             current["quantity"] = abs(observed_quantity)
             current.update(entry=current["reference_entry"], verified_fill_entry=None,fill_authority="MISSING",
                            actual_initial_r=None, actual_initial_loss_cash=None)
