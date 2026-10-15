@@ -350,10 +350,21 @@ def test_invalid_authenticated_specification_never_creates_intent(tmp_path,chang
     rt.close()
 
 
-def test_unconsumed_entry_signal_and_fill_beyond_stop_fail_closed(tmp_path):
+def test_unconsumed_entry_signal_and_fill_beyond_stop_fail_closed(tmp_path,monkeypatch):
+    from TradingSystemLab.stage8_robot import production_service as service_module
+    # The release gate may be accepted, but a closed runtime entry gate
+    # must still reject all new signals before planning or broker calls.
+    gate_calls=[]
+    def closed_gate(**kwargs):
+        gate_calls.append(kwargs)
+        return {'entry_gate_open':False}
+    monkeypatch.setattr(service_module,'evaluate_production_entry_gate',closed_gate)
     service=ProductionService(tmp_path/'service',tmp_path/'data',object(),'offline','a'*40,execution_revision=EXECUTION_REVISION)
     service.transport=object()
-    assert service._plan_entry({},None) is False
+    snap=service_module.Snapshot({}, {}, [], D('100000'), D('100000'),
+        datetime(2026,1,2,7,tzinfo=ZoneInfo('UTC')))
+    assert service._plan_entry({},snap) is False
+    assert len(gate_calls)==1 and gate_calls[0]['execution_authorized'] is True
     assert service.runtime.store.get('signal_sequence:USDRUBF') is None
     a=plan(service.runtime)
     with pytest.raises(ProductionRuntimeError,match='FILL_BEYOND_INITIAL_STOP'):
