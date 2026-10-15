@@ -8,9 +8,14 @@ import hashlib
 import json
 
 EXECUTION_REVISION = "STOP_TICK_GRID_V2_FILL_PROPOSED"
-# LIVE acceptance remains blocked: Intel report bytes and growing-position
-# SLTP coverage are not independently verified. The candidate stays inactive.
-FINAM_FILL_AUTHORITY_VERIFIED = False
+# DRAFT RELEASE CANDIDATE: bounded FINAM order-linked AccountTrade fills,
+# FINAM's written 100%-of-position SLTP activation semantics and the isolated
+# Intel V2 regressions support guarded acceptance, not guaranteed execution.
+# This source gate NEVER substitutes for commit/account-bound authorization,
+# HALTED/Task control, broker reconciliation, or a separate LIVE approval.
+# Physical 1->2 triggering, broker outage, slippage and exchange fill remain
+# residual risks. Deploy only after independent release approval.
+FINAM_FILL_AUTHORITY_VERIFIED = True
 
 
 def decimal_price(value) -> Decimal:

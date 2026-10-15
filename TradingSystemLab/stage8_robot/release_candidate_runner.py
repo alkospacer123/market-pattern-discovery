@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import quote
 
-from .execution_grid import EXECUTION_REVISION, FINAM_FILL_AUTHORITY_VERIFIED
+from .execution_grid import EXECUTION_REVISION
 from .finam_api import FinamAPI
 from .production_service import ProductionService
 from .release_preparation import ReleaseBlocked, digest, flat_broker, validate_manifest
@@ -40,8 +40,10 @@ def run_preview(runtime_root,data_root, *, manifest,manifest_sha,accepted_commit
     """The actual ProductionService selects V2; transport stays structurally absent."""
     validate_manifest(manifest,manifest_sha,runtime_root=runtime_root,data_root=data_root,
                       account_hash=digest(account_id),accepted_commit=accepted_commit)
-    if FINAM_FILL_AUTHORITY_VERIFIED is not False:
-        raise ReleaseBlocked('CLOSED_CANDIDATE_ENTRY_GUARD_REQUIRED')
+    # Preview remains structurally order-incapable in both pre-release and
+    # accepted V2 source. Only a READONLY session and allowlisted GETs are
+    # permitted by CandidateReadonlyAPI; ProductionService gets no transport.
+    # An accepted fill contract must not prevent a separate readonly preview.
     api=(api_factory or CandidateReadonlyAPI)(secret,account_id)
     api.connect_readonly()
     svc=ProductionService(runtime_root,data_root,api,account_id,accepted_commit,

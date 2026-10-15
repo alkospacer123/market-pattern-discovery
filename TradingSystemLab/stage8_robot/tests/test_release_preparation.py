@@ -320,14 +320,16 @@ def test_shadow_nonflat_broker_does_not_trigger_any_protection_order(external_sn
     assert api.calls==['READONLY_SESSION','GET_ACCOUNT','GET_ORDERS']
 
 
-def test_closed_guard_cannot_be_overridden_even_by_valid_manifest(external_snapshot,monkeypatch):
-    manifest,result=prepare(external_snapshot);calls=[]
-    monkeypatch.setattr(preview,'FINAM_FILL_AUTHORITY_VERIFIED',True)
-    with pytest.raises(release.ReleaseBlocked,match='CLOSED_CANDIDATE_ENTRY_GUARD_REQUIRED'):
-        preview.run_preview(result['runtime_root'],external_snapshot[1]/'data',manifest=manifest,
-            manifest_sha=release.sha(manifest),accepted_commit=COMMIT,secret='synthetic',account_id=ACCOUNT,
-            api_factory=lambda *a:calls.append(a))
-    assert calls==[]
+def test_compiled_release_acceptance_does_not_authorize_readonly_preview_orders(external_snapshot):
+    manifest,result=prepare(external_snapshot);api=FakeReadonly()
+    report=preview.run_preview(result['runtime_root'],external_snapshot[1]/'data',manifest=manifest,
+        manifest_sha=release.sha(manifest),accepted_commit=COMMIT,secret='synthetic',account_id=ACCOUNT,
+        api_factory=lambda *a:api,clock=lambda:NOW)
+    assert report['entry_authorized'] is False
+    assert report['real_order_endpoint_calls'] == 0
+    assert report['live_production_ready'] == 'NO'
+    assert api.calls == ['READONLY_SESSION','GET_ACCOUNT','GET_ORDERS']
+    assert not (Path(result['runtime_root'])/'safety/stage8-12-4-production-authorization.json').exists()
 
 
 def test_unexplained_broker_financial_change_does_not_create_new_equity_authority(external_snapshot):
@@ -613,8 +615,8 @@ def test_native_windows_candidate_state_junction_refused_before_db_open(external
         if linked:os.rmdir(state)  # Only remove test-created junction, not its target.
         saved.rename(state)
 
-def test_explicit_v2_production_selector_stays_closed_before_side_effects(tmp_path):
-    """Operator's CLI choice cannot bypass the compiled physical fill gate."""
+def test_explicit_v2_production_selector_requires_isolated_state_before_side_effects(tmp_path):
+    """Release flag and operator ENV cannot construct a client without V2 state."""
     from TradingSystemLab.stage8_robot import production_service as svc
     root=tmp_path/'never-created'
     calls=[]
@@ -623,7 +625,7 @@ def test_explicit_v2_production_selector_stays_closed_before_side_effects(tmp_pa
         raise AssertionError('NO_REAL_OR_SYNTHETIC_FINAM_CLIENT')
     env={'FINAM_MODE':svc.MODE,'FINAM_API_SECRET':'synthetic','FINAM_REAL_ACCOUNT_ID':ACCOUNT,
          'FINAM_FILL_AUTHORITY_VERIFIED':'true'}
-    with pytest.raises(svc.ProductionServiceError,match='V2_RELEASE_AUTHORITY_NOT_VERIFIED'):
+    with pytest.raises(svc.ProductionServiceError,match='ISOLATED_V2_STATE_REQUIRED'):
         svc.run_from_environment(root,tmp_path/'data',accepted_commit=COMMIT,
             execution_revision=EXECUTION_REVISION,environment=env,api_factory=forbidden)
     assert calls==[] and not root.exists()
@@ -653,7 +655,7 @@ def test_explicit_v2_and_readonly_manifest_mutually_exclusive(tmp_path):
 
 
 def test_explicit_v2_open_gate_requires_existing_state_and_new_commit_authority(tmp_path,monkeypatch):
-    """Synthetic wiring check only: deliberately bypass the otherwise closed constant."""
+    """Synthetic check: accepted source still needs exact commit/account authorization."""
     from TradingSystemLab.stage8_robot import production_service as svc
     root=tmp_path/'isolated-v2-fixture'
     env={'FINAM_MODE':svc.MODE,'FINAM_API_SECRET':'synthetic','FINAM_REAL_ACCOUNT_ID':ACCOUNT}
