@@ -21,6 +21,9 @@ from cc.providers.h1_contract import MAX_BYTES
 from cc.providers.h1_readonly import H1ReadonlyProvider, SAFE_ERROR
 
 
+posix_only = pytest.mark.skipif(os.name == "nt", reason="POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py")
+
+
 def get(now):
     return H1ReadonlyProvider().snapshot(RobotId.H1, 'BASELINE', now)
 
@@ -43,6 +46,7 @@ def test_missing_source_has_no_last_good(h1_export, publish, now):
 
 
 @pytest.mark.parametrize('attack', ['file_symlink','directory_symlink','ancestor_symlink','hardlink','fifo','directory'])
+@posix_only
 def test_unsafe_files_and_ancestors_rejected(h1_export, publish, now, tmp_path, monkeypatch, attack):
     path = publish(h1_export)
     if attack == 'file_symlink':
@@ -77,6 +81,7 @@ def test_parent_traversal_rejected(tmp_path):
 
 
 @pytest.mark.parametrize('attack', ['replace','truncate','grow','rewrite','symlink','root_replace','root_symlink'])
+@posix_only
 def test_partial_write_and_path_races_fail_closed(h1_export, publish, now, tmp_path, monkeypatch, attack):
     path = publish(h1_export)
     real_read = os.read
@@ -109,6 +114,7 @@ def test_partial_write_and_path_races_fail_closed(h1_export, publish, now, tmp_p
     assert fired
 
 
+@posix_only
 def test_no_secure_platform_primitive_fails_closed(h1_export, publish, now, monkeypatch):
     publish(h1_export)
     monkeypatch.setattr(os,'supports_dir_fd',set())
@@ -123,6 +129,7 @@ def test_bounded_read_rejects_fake_small_stat(h1_export, publish, now, monkeypat
     unknown(now)
 
 
+@posix_only
 def test_read_uses_no_write_capability_or_external_systems(h1_export, publish, now, monkeypatch):
     path = publish(h1_export)
     before = path.stat(), hashlib.sha256(path.read_bytes()).hexdigest()

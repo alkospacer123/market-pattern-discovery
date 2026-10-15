@@ -1,4 +1,29 @@
-# Инвентаризация потенциальных источников — CC-00
+# Инвентаризация источников — CC-03
+
+Актуальная сверка base `52e167d7b36170f1f639827eb875a57d52175491`, #531 MERGED.
+Новый upstream #532 документирует durable authorization CREATED при Disabled/HALTED, без start/rearm permission; старые no-authorization записи ниже исторические. Реальные Intel файлы не читались. Реализован **внешний** `exporter/snapshot.py` внутри
+ControlCenter для двух отдельно утверждаемых existing JSON: production heartbeat и
+kill switch. Pinned root IDs, safe Windows read, exact schema/spec/active/installed
+commit/account hash; cleaned partial atomic export, no engine/DB/token/broker.
+Источник ещё не подключён: actual paths/ACL/account binding/TTL/cadence неизвестны.
+
+| Источник CC-03 | Code preparation | Физический статус | Fallback |
+| --- | --- | --- | --- |
+| Production heartbeat | Existing schema/writer проверены; bounded external read реализован | NOT_VERIFIED; old-commit heartbeat возможен при HALTED | UNKNOWN/STALE, без нового H1 запуска |
+| Kill switch JSON | Отдельное новое observed_at, updated_utc сохраняется отдельно | NOT_VERIFIED | UNKNOWN без принятой policy/TTL |
+| Reconciliation | Только heartbeat diagnostics, не broker evidence | NOT_VERIFIED | UNKNOWN/UNRESOLVED по свежим подтверждённым данным |
+| Windows Task | Отдельный manual readonly probe подготовлен | Автоматическое ingestion NEEDS_SOURCE_APPROVAL | UNKNOWN |
+| Process | Нет принятого independent producer | NEEDS_SOURCE_APPROVAL | UNKNOWN |
+| H1 bars/calendar/decision trace | Безопасного готового JSON не найдено | NEEDS_SOURCE_APPROVAL | UNKNOWN; без calendar не DATA_GAP |
+| Orders/positions/fills/stops | Готовый approved event export отсутствует | NEEDS_SOURCE_APPROVAL | UNKNOWN, не ноль/protected/fill |
+| Finance/cashflows/PnL | Готовый approved finance export отсутствует | NEEDS_SOURCE_APPROVAL | UNKNOWN |
+| M15 | Не изменён, отдельный будущий runtime/account | NOT_DEPLOYED | NO_RUNTIME_AUTHORITY |
+
+См. [CC03 source authority](CC03_SOURCE_AUTHORITY.md), per-group TTL, schema
+и [Windows security](CC03_WINDOWS_SECURITY.md). Ниже сохранена историческая
+CC-00/02 инвентаризация кодовых контрактов; её предложения TTL не production policy.
+
+## Историческая инвентаризация CC-00/02
 
 CC-02: повторно проверено наличие и содержание исходников на фактическом GitHub main
 `2695cd3fce6f2241608d1d43d2b7c693ecaba32d` (#530). PR #529 MERGED,
@@ -107,7 +132,7 @@ partial writes/отказе/WAL busy. Никакие существующие ut
 
 В CC-02 используются два доверенных локальных **тестовых** источника: SYNTHETIC provider
 в памяти и фиксированный OFFLINE_FIXTURE JSON, проверяемый H1ReadonlyProvider.
-Новый sanctioned periodic exporter остаётся зависимостью CC-03. Ни один источник
+CC-03 теперь содержит отдельный one-shot exporter; periodic cadence и физическое подключение не приняты. Ни один источник
 Intel физически не прочитан. Financial classifier и N4 diagnostics подтверждают
 различие equity/realized/cashflow/margin; commissions/tariff и полная финансовая
 authority не появляются автоматически из GET account. Неполные числа скрываются.

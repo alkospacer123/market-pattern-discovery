@@ -27,6 +27,7 @@ class State(StrEnum):
 class SourceKind(StrEnum):
     SYNTHETIC = "SYNTHETIC"
     OFFLINE_FIXTURE = "OFFLINE_FIXTURE"
+    READONLY_EXPORT = "READONLY_EXPORT"
     VERIFIED_LIVE_READONLY = "VERIFIED_LIVE_READONLY"  # reserved; CC-03 required
 
 
@@ -96,6 +97,11 @@ class DataProvenance:
                     or self.source != "OFFLINE_FIXTURE/H1" or self.synthetic is not True
                     or self.snapshot_ttl_seconds != 180 or self.heartbeat_ttl_seconds != 90):
                 raise ValueError("OFFLINE_BINDING_REQUIRED")
+        elif self.source_kind == SourceKind.READONLY_EXPORT:
+            if (self.robot_id != RobotId.H1 or self.source != "READONLY_EXPORT/H1"
+                    or self.synthetic is not False or self.account_scope in ("FIXTURE-H1", "DEMO-H1")
+                    or not self.account_scope.startswith(("H1-", "UNBOUND-H1"))):
+                raise ValueError("EXPORT_BINDING_REQUIRED")
         else:
             raise ValueError("CC03_PHYSICAL_ACCEPTANCE_REQUIRED")
         if self.schema_version != 1:
@@ -363,6 +369,8 @@ class RobotSnapshot:
     trades: tuple[Trade, ...] | None
     events: tuple[SystemAlert, ...]
     h1_readonly: H1ReadonlyDetails | None = None
+    readonly_observations: tuple[FieldObservation, ...] = ()
+    readonly_identity: str | None = None
 
     def __post_init__(self):
         validate_types(self)

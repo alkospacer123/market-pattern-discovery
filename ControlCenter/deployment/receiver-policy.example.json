@@ -1,0 +1,9 @@
+{
+  "schema_id": "cc03.receiver-policy.v1",
+  "physical_source_approved": false,
+  "policy": {
+    "source_id": null, "account_alias": null, "binding_id": null,
+    "snapshot": null, "heartbeat": null, "task": null, "kill_switch": null,
+    "reconciliation": null, "candles": null, "finances": null
+  }
+}

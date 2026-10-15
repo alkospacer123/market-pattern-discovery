@@ -1,0 +1,15 @@
+{
+  "schema_id": "cc03.private-source-policy.v1",
+  "source_id": "CC03-H1-REQUIRESAPPROVAL",
+  "account_alias": "H1-REQUIRESAPPROVAL",
+  "binding_id": "REPLACE_WITH_RANDOM_NONSECRET_64_HEX_BINDING_REFERENCE",
+  "expected_account_hash": "PRIVATE_VALUE_NEVER_COMMIT",
+  "installed_code_commit": "3a18c8c24301c866a60f5d725de227288d48f7ec",
+  "installed_commit_verified": false,
+  "sources_acl_approved": false,
+  "binding_approved": false,
+  "heartbeat_root": "C:\\REQUIRES_SOURCE_APPROVAL\\diagnostics",
+  "heartbeat_root_id": [],
+  "kill_switch_root": "C:\\REQUIRES_SOURCE_APPROVAL\\safety",
+  "kill_switch_root_id": []
+}
