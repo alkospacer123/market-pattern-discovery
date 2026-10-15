@@ -193,11 +193,15 @@ def test_native_insufficient_file_acl(tmp_path):
     output = subprocess.run(['whoami','/user','/fo','csv','/nh'],check=True,capture_output=True,text=True).stdout
     import csv
     sid = next(csv.reader([output.strip()]))[1]
-    subprocess.run(['icacls',str(path),'/deny',f'*{sid}:(R)'],check=True,capture_output=True)
+    # Deny FILE_READ_DATA only. Denying READ_CONTROL too also prevents icacls
+    # from reading the DACL to remove its own fixture ACE during cleanup.
+    subprocess.run(['icacls',str(path),'/deny',f'*{sid}:(RD)'],check=True,capture_output=True)
     try:
+        with pytest.raises(PermissionError): path.read_bytes()
         with pytest.raises(ValueError): read_snapshot(tmp_path, path.name, 131072)
     finally:
         subprocess.run(['icacls',str(path),'/remove:d',f'*{sid}'],check=True,capture_output=True)
+    assert path.read_bytes() == b'{}'
 
 
 @native

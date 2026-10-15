@@ -15,8 +15,9 @@ from cc.providers.h1_readonly import canonical_digest, _pairs, _reject_constant
 from cc.providers.readonly_file import read_source
 from cc.providers.windows_file import read_windows, components, WinAPI
 from cc.providers.source_contract import SCHEMA, SCHEMA_ID
+from cc.deployment_paths import data_root
 
-DATA_ROOT = Path('C:/TSLControlCenterData')
+DATA_ROOT = data_root()
 EXPORT_ROOT = DATA_ROOT / 'export'
 POLICY_ROOT = DATA_ROOT / 'private'
 HB = 'stage8-12-4-production-heartbeat.json'

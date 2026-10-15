@@ -25,6 +25,7 @@ def test_no_trade_or_system_capabilities_in_runtime(path):
         'readonly_file.py': {'os', 'pathlib', 'stat'},
         'windows_file.py': {'ctypes', 'multiprocessing', 'pathlib'},
         'h1_export.py': {'json', 'pathlib'},
+        'deployment_paths.py': {'os', 'pathlib', 're'},
     }
     allowed = ALLOWED | receiving.get(path.name, set())
     tree=ast.parse(path.read_text(encoding='utf-8'))
@@ -57,7 +58,7 @@ def test_scenarios_have_no_network_database_shell_side_effects(monkeypatch,now):
 
 
 def test_refresh_is_bounded_streamlit_fragment():
-    tree=ast.parse((ROOT/'app.py').read_text())
+    tree=ast.parse((ROOT/'app.py').read_text(encoding='utf-8'))
     calls=[node for node in ast.walk(tree) if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute) and node.func.attr=='fragment']
     assert len(calls)==1
     keyword=calls[0].keywords[0]

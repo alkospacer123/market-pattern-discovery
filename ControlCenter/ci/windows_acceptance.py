@@ -33,20 +33,27 @@ def main():
         ('manifest', [sys.executable, 'deployment/manifest.py', '--check']),
         ('pip-check', [sys.executable, '-m', 'pip', 'check']),
         ('pip-freeze', [sys.executable, '-m', 'pip', 'freeze', '--all']),
+        ('native-share-diagnostic', [sys.executable, '-m', 'ci.windows_share_probe']),
         ('powershell-preview', ['powershell', '-NoProfile', '-Command',
             "$ErrorActionPreference='Stop'; Get-ChildItem deployment/*.ps1 | ForEach-Object { "
             "$tokens=$null; $errors=$null; [void][Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$tokens,[ref]$errors); "
             "if ($errors.Count) { throw ($errors | Out-String) }; Write-Output ('SYNTAX_PASS '+$_.Name); "
             "if ($_.Name -ne 'Common.ps1') { & $_.FullName } }"]),
+        ('powershell-rehearsal', ['powershell', '-NoProfile', '-File', 'ci/Windows-Rehearsal.ps1']),
     ]
     results = {}
     for name, command in commands:
         print(f'\n=== {name} ===', flush=True)
-        completed = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                   encoding='utf-8', errors='replace', timeout=360)
-        print(completed.stdout, flush=True)
-        (evidence / f'{name}.log').write_text(completed.stdout, encoding='utf-8')
-        results[name] = dict(exit_code=completed.returncode)
+        try:
+            completed = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                       encoding='utf-8', errors='replace', timeout=360)
+            output, exit_code = completed.stdout, completed.returncode
+        except subprocess.TimeoutExpired as exc:
+            output = (exc.stdout or b'').decode('utf-8', errors='replace') + '\nACCEPTANCE_COMMAND_TIMEOUT'
+            exit_code = 124
+        print(output, flush=True)
+        (evidence / f'{name}.log').write_text(output, encoding='utf-8')
+        results[name] = dict(exit_code=exit_code)
     for name in ('windows-reader', 'cc03-source', 'full-suite'):
         path = evidence / f'{name}.xml'
         if not path.exists():

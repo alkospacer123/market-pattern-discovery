@@ -160,7 +160,7 @@ def test_no_runtime_write_call_paths():
                'ftruncate','connect','execute','executescript','commit','system','popen','Popen'}
     allowed_os={'open','close','read','stat','fstat'}
     for path in root.rglob('*.py'):
-        tree=ast.parse(path.read_text())
+        tree=ast.parse(path.read_text(encoding='utf-8'))
         for node in ast.walk(tree):
             if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute):
                 display_write = (path.name == 'ui.py' and isinstance(node.func.value,ast.Name)

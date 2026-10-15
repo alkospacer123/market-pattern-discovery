@@ -106,7 +106,8 @@ def test_every_envelope_field_required(group, h1_export, publish, now):
 
 
 @pytest.mark.parametrize('payload', [b'', b'{', b'{"partial":', b'[]', b'null', b'\xff',
-                                     b'{"x":1,"x":2}', b' '* (MAX_BYTES+1)])
+                                     b'{"x":1,"x":2}', b' '* (MAX_BYTES+1)],
+                         ids=['empty','object-start','partial','array','null','invalid-utf8','duplicate','oversize'])
 def test_corrupt_empty_partial_oversize(payload, publish, h1_export, now):
     path = publish(h1_export)
     path.write_bytes(payload)

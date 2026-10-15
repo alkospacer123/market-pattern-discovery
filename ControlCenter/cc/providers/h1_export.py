@@ -10,8 +10,9 @@ from .h1_readonly import canonical_digest, _pairs, _reject_constant
 from .source_contract import SCHEMA, GROUPS
 from .readonly_file import read_snapshot
 from .windows_file import read_windows
+from ..deployment_paths import data_root
 
-EXPORT_ROOT = Path('C:/TSLControlCenterData/export')
+EXPORT_ROOT = data_root() / 'export'
 POLICY_ROOT = Path(__file__).absolute().parents[2] / 'deployment'
 SAFE_ERROR = 'CC03_SOURCE_UNKNOWN_OR_UNAVAILABLE'
 

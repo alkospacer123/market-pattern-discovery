@@ -113,11 +113,13 @@ class WinAPI:
             raise ValueError('LOCAL_NTFS_REQUIRED')
 
     def open(self, path, directory):
-        # FILE_READ_ATTRIBUTES for directories; GENERIC_READ for leaf. OPEN_EXISTING.
+        # FILE_LIST_DIRECTORY + READ_ATTRIBUTES + READ_CONTROL for directories;
+        # metadata-only access does not participate in Windows share checking.
+        # GENERIC_READ for leaf. OPEN_EXISTING.
         # Directories deny WRITE/DELETE; leaves allow DELETE so the observer does
         # not block an atomic os.replace producer. Replaced pathname => rejection.
         # OPEN_REPARSE_POINT applies even to directories; never traverse an unchecked one.
-        handle = self.k.CreateFileW(path, (0x80 | 0x20000) if directory else 0x80000000,
+        handle = self.k.CreateFileW(path, (0x1 | 0x80 | 0x20000) if directory else 0x80000000,
                                     1 if directory else 1 | 4, None, 3, 0x00200000 | 0x02000000, None)
         if handle == ctypes.c_void_p(-1).value or handle is None:
             raise ValueError('OPEN_DENIED')
