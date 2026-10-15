@@ -125,7 +125,7 @@ def ledger(root, account_hash):
     except (OSError, sqlite3.Error, TypeError, ValueError):
         raise Blocked("LEDGER_READONLY_SNAPSHOT_FAILED") from None
 
-def protection(hb, local_positions, broker_positions, orders):
+def protection(hb, local_positions, broker_positions, orders, *, emit=True):
     QTY_MEASURE, QTY_PERCENT = "SLTP_QTY_MEASURE_PERCENT", "100"
     require(set(broker_positions) <= set(SYMBOLS.values()), "BROKER_UNEXPECTED_INSTRUMENT")
     mapped = {}
@@ -187,11 +187,12 @@ def protection(hb, local_positions, broker_positions, orders):
                 percent == Decimal(QTY_PERCENT) and price is not None and
                 price.is_finite() and price > 0,
                 "ACTIVE_STOP_NOT_100PCT_GTC")
-    print("N4_OPEN_POSITIONS=" + str(len(mapped)))
-    print("FINAM_ACTIVE_PROTECTIVE_STOPS=" + str(len(active)))
-    for key in SYMBOLS:
-        print("POSITION_" + key + "=" + str(mapped.get(SYMBOLS[key], 0)))
-    print("FINAM_PROTECTION_LINKAGE=PASS")
+    if emit:
+        print("N4_OPEN_POSITIONS=" + str(len(mapped)))
+        print("FINAM_ACTIVE_PROTECTIVE_STOPS=" + str(len(active)))
+        for key in SYMBOLS:
+            print("POSITION_" + key + "=" + str(mapped.get(SYMBOLS[key], 0)))
+        print("FINAM_PROTECTION_LINKAGE=PASS")
 
 
 # READONLY projection of frozen production_broker_state POSITION/ORDER parsers.
@@ -344,6 +345,36 @@ def h1_observe(api, led, now):
         print("H1_" + name + "=" + value)
     print("FINAM_N4_COMPLETED_H1=PASS")
 
+
+def stable_readonly_window(sw1, hb1, db1, sw2, hb2, db2):
+    """Validate two LIVE observations without treating a healthy cycle as drift.
+
+    Each sample has already passed local_state() and ledger(). In particular,
+    both independent samples must be HEALTHY, ARMED/generation 62, fresh and
+    unresolved-free. Broker snapshots are validated separately. No in-flight
+    position, order or H1 watermark transition is accepted as a stable proof.
+    """
+    require(sw2 == sw1, "KILL_SWITCH_CHANGED_DURING_OBSERVATION")
+    require(hb2["cycle_count"] == db2["cycle"],
+            "FINAL_CYCLE_LEDGER_HEARTBEAT_MISMATCH")
+    require(hb2["cycle_count"] >= hb1["cycle_count"] and
+            db2["cycle"] >= db1["cycle"], "CYCLE_REGRESSED_DURING_OBSERVATION")
+    require(utc(hb2["timestamp"]) >= utc(hb1["timestamp"]) and
+            utc(hb2["last_successful_finam_api_contact"]) >=
+            utc(hb1["last_successful_finam_api_contact"]),
+            "HEARTBEAT_OR_FINAM_CONTACT_REGRESSED")
+    require(db1["positions"] == db2["positions"] and
+            db1["h1"] == db2["h1"] and
+            db1["unresolved"] == db2["unresolved"],
+            "TRADING_LEDGER_STATE_CHANGED_DURING_OBSERVATION")
+    require(hb1["position_protection"] == hb2["position_protection"] and
+            hb1["open_position_count"] == hb2["open_position_count"] and
+            hb1["active_protective_stop_count"] == hb2["active_protective_stop_count"],
+            "POSITION_PROTECTION_CHANGED_DURING_OBSERVATION")
+    print("HEALTHY_CYCLE_WINDOW=" + str(hb1["cycle_count"]) +
+          "->" + str(hb2["cycle_count"]))
+    print("LOCAL_TRADING_STATE_AND_PROTECTION_STABLE=PASS")
+
 def verify(checkout, root, account, secret):
     require(checkout.is_dir() and root.is_dir(), "CHECKOUT_OR_RUNTIME_MISSING")
     proc = subprocess.run(["git", "-C", str(checkout), "rev-parse", "HEAD"],
@@ -390,9 +421,12 @@ def verify(checkout, root, account, secret):
             "BROKER_CHANGED_DURING_OBSERVATION")
     sw2, hb2 = local_state(root, digest)
     db2 = ledger(root, digest)
-    # Healthy cycles may advance naturally, but if state changes require retry.
-    require(sw2 == sw1 and hb2 == hb1 and db2 == db1,
-            "LOCAL_STATE_CHANGED_DURING_OBSERVATION")
+    # A healthy LIVE supervisor legitimately advances its cycle/timestamps.
+    # Reconcile semantic trading-state invariants across the bracketed reads
+    # instead of demanding byte-identical heartbeat/ledger snapshots.
+    stable_readonly_window(sw1, hb1, db1, sw2, hb2, db2)
+    protection(hb2, db2["positions"], positions2, orders2, emit=False)
+    print("FINAL_BROKER_LEDGER_STOP_LINKAGE=PASS")
     print("READONLY_SQLITE_WAL_INTENTS=PASS")
     print("POST_ARMED_HEALTHY_H1_RECONCILIATION=PASS")
     print("KILL_SWITCH=ARMED_GENERATION_62_UNCHANGED")
