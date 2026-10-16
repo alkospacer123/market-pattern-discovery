@@ -46,6 +46,38 @@ def main():
         assert facts['task']['state'] == expected, facts
         if name == 'Denied': assert facts['task']['reason'] == 'ACCESS_DENIED', facts
     print('LOW_SID_OS_READONLY_TASK_AND_REAL_ACCESS_DENIED=PASS; METADATA_DISABLED',flush=True)
+    # Permission-A preflight runs under each actual standard token. The policy
+    # remains fixed to H1; this CI-only adapter selects only UUID fixtures.
+    from observer import intel_preflight as preflight
+    import uuid
+    for name in ('Running', 'Denied'):
+        fixture = fixtures[name]
+        policy = dict(schema_id='cc03.intel-preflight-policy.v1', readonly_preflight_approved=True,
+            observer_sid=sid, task_name=preflight.TASK, task_xml_sha256=fixture['task_xml_sha256'],
+            task_principal_sid=fixture['task_principal_sid'], process_binding=None,
+            cc_panel_sid=None, cc_exporter_sid=None)
+        report = preflight.execute(policy,
+            facts=lambda q: os_facts(dict(q, task_name=fixture['task_name'])))
+        if name == 'Running':
+            assert report['outcome'] == 'PASS' and report['task_state'] == 'TASK_RUNNING_OBSERVED', report
+            assert report['task_before_after'] == 'UNCHANGED_OBSERVED', report
+        else:
+            assert report['outcome'] == 'BLOCKED' and report['task_access'] == 'ACCESS_DENIED', report
+        assert report['cc_identities'] == 'CC_IDENTITIES_NOT_PROVISIONED', report
+        assert all(v == 'UNKNOWN' for v in report['trading'].values()), report
+    previous_root = os.environ['CC03_CI_DISPOSABLE_ROOT']
+    try:
+        os.environ['CC03_CI_DISPOSABLE_ROOT'] = str(Path(previous_root).parent / ('CC03-' + uuid.uuid4().hex))
+        missing = preflight.readiness(policy)
+        assert missing['observer_standard'] and missing['directories'] == 'NOT_PROVISIONED', missing
+    finally:
+        os.environ['CC03_CI_DISPOSABLE_ROOT'] = previous_root
+    preview = subprocess.run([sys.executable, '-m', 'observer.intel_preflight'], capture_output=True, text=True, timeout=10)
+    assert preview.returncode == 0 and json.loads(preview.stdout)['mode'] == 'PREVIEW'
+    unapproved = subprocess.run([sys.executable, '-m', 'observer.intel_preflight', '--execute'],
+                               capture_output=True, text=True, timeout=10)
+    assert unapproved.returncode == 1 and json.loads(unapproved.stdout)['outcome'] == 'NOT_VERIFIED'
+    print('LOW_SID_INTEL_PREFLIGHT_RUNNING_DENIED_MISSING_ROOTS_PREVIEW_UNAPPROVED=PASS', flush=True)
     if sys.argv[2] == 'e':
         # Actual installed observer entrypoint under its separate standard SID.
         # No approved os-policy exists; must fail closed before any H1 probe.

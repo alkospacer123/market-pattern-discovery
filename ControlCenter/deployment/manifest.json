@@ -95,7 +95,7 @@
     },
     {
       "path": "ci/identity_probe.py",
-      "sha256": "29e7b435caec8a094ddf3af86c4b5c44b43fd3460e9d3981616ec15e6401f4f1"
+      "sha256": "98be7bbbfe05af7ee3cd65daf1ffe865712b6a5879c8e2047f1979ca4653f851"
     },
     {
       "path": "ci/metadata_experiment.py",
@@ -103,7 +103,7 @@
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "3c94155fbe367235ba6d164a8910e82df0739bc701134aa0a8e0a884d02004f6"
+      "sha256": "5a5c9601d95c2a6e032599df0b2b083825f705072f64afb286fe1127b81a0471"
     },
     {
       "path": "deployment/Common.ps1",
@@ -139,11 +139,15 @@
     },
     {
       "path": "deployment/manifest.py",
-      "sha256": "bbe3e23f21928e3e64a8143bf6e33cf3fd5f0d35e8293871e8b190b875c61d56"
+      "sha256": "728fd9fef36d0eeac708ce1b7d63246bcfec685922286d3fb4ae6688f6cbae2b"
     },
     {
       "path": "deployment/os-policy.example.json",
-      "sha256": "820abf7b5332748137fb16da7289962fbef4a090dfd179de194c3e2c8e5abec6"
+      "sha256": "2eb59be707bbfc651f111d40a0bcb8cb6f902dd87e3cbfa841b19a26945b093c"
+    },
+    {
+      "path": "deployment/preflight-policy.example.json",
+      "sha256": "bc9d2eee9fc06c41c0f6a070cd5d79f865c03dbf67595aa5fae61c6d535d5579"
     },
     {
       "path": "deployment/receiver-policy.example.json",
@@ -179,7 +183,15 @@
     },
     {
       "path": "docs/CC03_INTEL_INSTALLATION_PLAN.md",
-      "sha256": "b7e95bec894900522c8957aa92da7ced8a8cf58cf6a61e9c2522fbbf6d7ec50e"
+      "sha256": "1955a0dd0131e6de7907563ff09bd121f631bc144a12c32f75b9266aaf6c5d3c"
+    },
+    {
+      "path": "docs/CC03_INTEL_PREFLIGHT_POLICIES.md",
+      "sha256": "499cd280ca0b10361139705ccd6892411132d534467346150918ccd3684e809b"
+    },
+    {
+      "path": "docs/CC03_INTEL_READONLY_PREFLIGHT_PACKAGE.md",
+      "sha256": "6296e9370518a0a6e67d0f461665947d27abb359e3c670ce937a59602fe56271"
     },
     {
       "path": "docs/CC03_OS_ACCEPTANCE.md",
@@ -191,7 +203,7 @@
     },
     {
       "path": "docs/CC03_PHYSICAL_ACCEPTANCE_PLAN.md",
-      "sha256": "3d7db3484eea6f9792244dcaa49b8991f5e9dbc95f4b5cd83c285d1749c7e85a"
+      "sha256": "0da505079c2a39c5a0a50d0226237ad1a9e491ac9918e13140cc494063e757e0"
     },
     {
       "path": "docs/CC03_READONLY_EXPORT_SCHEMA.json",
@@ -207,7 +219,7 @@
     },
     {
       "path": "docs/CC03_WINDOWS_OS_OBSERVER.md",
-      "sha256": "07151598427197a376c505ab5672df6a8f7a5680bef2e3c74de6813da73a1c93"
+      "sha256": "a674e2ff580bf340b925a7406ec8d04b0dd50875b3975439d6a4ced748ffaf08"
     },
     {
       "path": "docs/CC03_WINDOWS_OS_SCHEMA.json",
@@ -231,7 +243,7 @@
     },
     {
       "path": "docs/ROADMAP_STATUS.md",
-      "sha256": "3d4a4d146d33891d1c66a201f0aace541578baba1f922e0fdbfa1c837858b1d5"
+      "sha256": "1b5863dfba060bd2beb8715d00ebb19b29d6de4539311a8ba340a50e89c312e5"
     },
     {
       "path": "docs/SECURITY_BOUNDARY.md",
@@ -278,12 +290,20 @@
       "sha256": "e747dc8cd787394e0bee0fd27cf8fac506545790d7713ff9a4055d7147e2e1b6"
     },
     {
+      "path": "observer/Read-PreflightReadiness.ps1",
+      "sha256": "06b6df0ed8c73d08c293012e31ab4bb6f0b5131624fd3bb65b2ee5b99313e81b"
+    },
+    {
       "path": "observer/__init__.py",
       "sha256": "a992cbb3322223b30aec320920bec3960a8e63f7494c612ab8e30f26d420ce2d"
     },
     {
       "path": "observer/identity.py",
       "sha256": "a45f805443488c3e61a3f53280a1f7578185f4d04c521ce99dac75a0cf7c107f"
+    },
+    {
+      "path": "observer/intel_preflight.py",
+      "sha256": "df5d36fdf45f2ec6efded7467083436cf20e096b8edc814c9077fc0862c01279"
     },
     {
       "path": "observer/windows_os.py",
@@ -336,6 +356,14 @@
     {
       "path": "tests/test_h1_ui.py",
       "sha256": "8ed8b3e2713fe6b177cca09f94f5c65e3df73c96ba5b8c2df787e764fc674b5f"
+    },
+    {
+      "path": "tests/test_intel_preflight.py",
+      "sha256": "7f366d69a58d26ef73eb134384c58f8ecb59e5c38cf20a21e038a85c0afa81fc"
+    },
+    {
+      "path": "tests/test_intel_preflight_native.py",
+      "sha256": "eaad8c40d5e4ac6b9e14bbb8c336d4cd4bfce885a460c392b030d8531bed6e65"
     },
     {
       "path": "tests/test_os_observer.py",

@@ -1,22 +1,22 @@
-> CC-03 current continuation, Draft [#541](https://github.com/alkospacer123/market-pattern-discovery/pull/541): **CC03_OS_READONLY_OBSERVER_PARTIAL**. [Actual Windows evidence](CC03_OS_ACCEPTANCE.md): 375 PASS / 0 FAIL / 15 POSIX-only SKIP; Task/process OS-only observer, 500/500 synthetic replacements without interference. Metadata and legacy content remain BLOCKED/disabled; no production file paths accepted. Intel source binding/TTL/ACL and physical acceptance NOT_EXECUTED. #534 is merged at `a6e9634bc0a5db378fcff32ea1bc8591baaf1d3c`. Older status below is historical; no CC-04 advancement or root roadmap changes.
+# Roadmap Control Center — CC-03 Intel READONLY preflight preparation
 
-# Roadmap Control Center v1.0 — CC-03 source preparation
+Основание [#524](https://github.com/alkospacer123/market-pattern-discovery/issues/524). Новые этапы не создаются. #541 MERGED в actual main `c9dea4e1fb728c97c3c14e70ae75adab6e6cfc94`; предыдущие native Windows результаты: 375 PASS / 0 FAIL / 15 POSIX-only SKIP, observer 37 PASS, synthetic noninterference 500/500. Это hosted evidence, не новая физическая проверка Intel.
 
-Основание [#524 / утверждённый roadmap](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6198924792). Без добавления этапов. Source preparation #533 merged в `1c8b0c702fa73bc99e0a6593dc7dc2fa072eb6cb`; hosted native acceptance — Draft #534. Pinned base и точные результаты приведены в [Windows отчёте](CC03_WINDOWS_HOSTED_ACCEPTANCE.md). Root roadmap и trading projects не изменяются этой веткой.
+Текущий документированный верхний checkpoint `TradingSystemLab/CURRENT_STATE.md`: installed executable `3a18c8c24301c866a60f5d725de227288d48f7ec`, T3/H1/TRAIL1, `TRAIL1__N4_01__FULL__R15`, Task RUNNING, ARMED generation 62 и отдельная торговая авторизация; последняя независимая операторская READONLY-проверка PASS. Это историческое evidence, не гарантия текущего состояния. Старые Disabled/HALTED условия CC-03 отменены; H1 не останавливать ради панели.
 
-| Этап | Статус | Остаток |
+| Этап | Статус | Следующая граница |
 | --- | --- | --- |
-| CC-00 | Инвентаризация обновлена; producer code / documented / physical authority разделены | Actual Intel sources/paths/cadence не наблюдались |
-| CC-01 | DEMO и independent M15 сохранены | DEMO не runtime authority |
-| CC-02 | #531 merged; fixed OFFLINE_FIXTURE receiver/schema/evidence/TTL сохранены | Test binding не реальный account |
-| CC-03 | Hosted Windows native suite реально выполнен в #534; 12 native cases без Windows SKIP | **LIVE_SOURCE_COMPATIBILITY_BLOCKED:** legacy producer нельзя безопасно мониторить данным reader; собственный transport и SID startup проверяются отдельно; [Windows evidence](CC03_WINDOWS_HOSTED_ACCEPTANCE.md). Source/account/TTL/calendar approval и Intel physical остаются отдельными gates |
-| CC-04 | НЕ НАЧАТ | Отдельный M15 runtime/source/account после engineering acceptance |
-| CC-05 | НЕ НАЧАТ | Реальные decision/execution/finance sources и независимая сверка |
-| CC-06 / CC-07 | НЕ НАЧАТЫ | Отдельные control-plane mock/audit и явные approvals на каждое действие |
-| CC-08 | НЕ НАЧАТ | Alert/calendar/readiness/retention acceptance |
+| CC-00 | Inventory/source authority разделены | Текущие Intel OS facts ещё не наблюдались этим пакетом |
+| CC-01 | DEMO / независимый M15 | DEMO не production authority |
+| CC-02 | #531 merged; readonly receiver | Test binding не broker/account authority |
+| CC-03 | **CC03_INTEL_READONLY_PREFLIGHT_PACKAGE_READY**; native 400 PASS / 0 FAIL / 15 POSIX-only SKIP, new preflight 25 PASS; [пакет и фактические проверки](CC03_INTEL_READONLY_PREFLIGHT_PACKAGE.md) | Отдельное решение A; physical NOT_EXECUTED |
+| CC-04 | НЕ НАЧАТ | Независимый M15 source/runtime/account |
+| CC-05 | НЕ НАЧАТ | Подтверждённые finance/execution sources |
+| CC-06 / CC-07 | НЕ НАЧАТЫ | Отдельные control-plane approvals |
+| CC-08 | НЕ НАЧАТ | Alert/calendar/retention acceptance |
 
-H1 T3/H1/TRAIL1, Stage7, active identity, N4, R15 1.5%/max6%, frozen sizing и параметры не менялись этой веткой. Intel installed/Disabled/HALTED и authorization сведения из source preparation #533 — историческое evidence, не новый read. Последующие upstream operational checkpoints не являются результатом CC-03 Windows CI. Source fill flag #528 не изменяется; разрешение start/rearm этой работой не выдаётся.
+[План A](CC03_PHYSICAL_ACCEPTANCE_PLAN.md) — только точечное READONLY OS-наблюдение; [B](CC03_INTEL_INSTALLATION_PLAN.md) — установка собственных CC identities/roots/панели; [C](CC03_INTEL_PREFLIGHT_POLICIES.md) — OS source binding/TTL/ACL и первый real export. Разрешения не совмещать. Preflight default PREVIEW, не публикует snapshot. Нет CC accounts/roots → NOT_PROVISIONED, нет прав/epoch → UNKNOWN/ACCESS_DENIED. TASK_RUNNING_OBSERVED не означает health/authorized/flat/stop protected; positions/orders/fills/SLTP/capital/PnL остаются UNKNOWN.
 
-Нынешний частичный exporter не публикует bars, fills, позиции, active SLTP или финансы; реальные account authority/cadence/calendar UNKNOWN. Панель без источника работает; M15 NOT_DEPLOYED отдельно; все 10 controls disabled. Source preparation не равна CC03_PHYSICAL_PASS или завершённому physical CC-03.
+Legacy live JSON и production metadata остаются BLOCKED/disabled. Runtime retention не принят. Все 10 controls disabled, M15 NOT_DEPLOYED отдельно. Protected projects, strategy/risk/config, Task/ARM/authorization и FINAM не меняются.
 
-**Один Draft PR → STOP для независимого аудита. NO MERGE / NO AUTO-MERGE / NO INTEL INSTALLATION / NO H1 START/REARM. Самостоятельного перехода к CC-04 нет.**
+**Один Draft PR → STOP. NO MERGE / NO AUTO-MERGE / NO INTEL EXECUTION / NO PANEL INSTALL / NO REAL EXPORT / NO CC-04. Следующее отдельное решение оператора — ограниченный физический READONLY-preflight Intel A. Ни package READY, ни A PASS не равны CC03_PHYSICAL_PASS.**

@@ -9,7 +9,7 @@
   "task_xml_sha256": "REQUIRES_APPROVED_EXACT_TASK_XML_FINGERPRINT",
   "task_principal_sid": "REQUIRES_APPROVED_EXACT_PRINCIPAL_SID",
   "process_enabled": false,
-  "process_pid": 1,
+  "process_pid": null,
   "process_creation_sha256": "REQUIRES_APPROVED_PROCESS_CREATION_EPOCH",
   "process_image_sha256": "REQUIRES_APPROVED_EXACT_IMAGE_FINGERPRINT",
   "process_command_sha256": "REQUIRES_APPROVED_EXACT_COMMAND_FINGERPRINT",

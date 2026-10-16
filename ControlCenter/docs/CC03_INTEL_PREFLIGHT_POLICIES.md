@@ -1,0 +1,45 @@
+# CC-03: private policies, existing SID/ACL и утверждение источников
+
+Только подготовка кода: никаких реальных SID/PID/account hash/root pins/TTL в Git. A, B и C из [physical plan](CC03_PHYSICAL_ACCEPTANCE_PLAN.md) независимы. Шаблоны неработоспособны по умолчанию.
+
+## A: policy ограниченного preflight
+
+[preflight-policy.example.json](../deployment/preflight-policy.example.json) содержит false/null и точное имя единственной Task `TradingSystemLab-Stage8-Production`. Runtime читает только `deployment/preflight-policy.json` рядом с проверенной standalone review-копией. Это позволяет A работать без созданных CC accounts/roots. Secure reader проверяет SYSTEM/Admin owner и отсутствие standard-user mutation grants на ancestors/leaf; reparse запрещены. Runtime policy не входит в manifest; оригинал пакета и исходный manifest проверяются независимо. Не выдавать администраторские права observer, CCPanel или CCExporter.
+
+`readonly_preflight_approved` относится исключительно к A. Не создавать `os-policy.json` с `os_policy_approved=true` ради preflight. При отсутствии подходящего existing standard observer token или existing read grants — BLOCKED/UNKNOWN, без изменения Task/H1 ACL.
+
+## Как проверить существующие SID и ACL
+
+1. В отдельном разрешённом operator review сопоставить **существующий** standard observer SID с его токеном; исключить production SID, Administrators (включая deny-only), привилегии/impersonation. Код сам проверяет SID/elevation и Administrators group. Не создавать observer account в A.
+2. Если CCPanel/CCExporter не существуют, оставить их SID null. Код возвращает `CC_IDENTITIES_NOT_PROVISIONED`. Если есть, локально сопоставить exact SID с account; проверить, что SID различаются между собой и с production principals. Одно существование account не доказывает отсутствие privileged memberships: оператор отдельно проверяет direct/nested group membership и effective token. Привилегированные identities не принимаются для B/C.
+3. Для **собственных** existing CC roots (app/venv/data/export/log/private) получить owner/protected DACL и анализ effective rights под настоящими токенами. Не создавать canary и не делать write-test в production. Допустимы только узкие existing-object OS security descriptor/access checks, отдельно перечисленные в решении A; автоматический preflight их не выполняет и оставляет `cc_acl=NOT_VERIFIED`.
+4. По [CC03_WINDOWS_SECURITY](CC03_WINDOWS_SECURITY.md) проверить SYSTEM/Admin ownership code/venv/policies; panel Read/Execute app/venv/export, Modify только own logs; exporter Read/Execute app/venv/private и Modify только own export. Private policy недоступна panel; standard identities не могут менять policy/code/ACL. Проверить ancestors/leaf, наследование, junctions, effective grants. Недостаточные/лишние права блокируют B/C, исправление разрешается только B и только в CC roots.
+5. Existing Task Scheduler READONLY grants и exact-PID CIM permissions проверяются фактическим preflight под тем же standard token. Не разрешать Task mutation, SeDebugPrivilege или admin ради зелёного статуса. Никаких H1 filesystem metadata checks: несовместимый observer отключён независимо от ACL.
+
+## Утверждение Task XML/principal
+
+Оператор в рамках отдельно конкретизированного A использует уже проверенное private Task evidence либо независимое разрешённое локальное Scheduler READONLY-наблюдение **ровно одной Task**; без массового GetTasks/process scans. Проверяет action/principal против утверждённого installed checkpoint и сохраняет raw XML только приватно. XML может содержать sensitive arguments — не transcript/raw stdout в общий лог.
+
+Fingerprint = SHA-256 UTF-8 **полной строки** Scheduler `RegisteredTask.Xml`, без XML canonicalization, trim, newline normalization или BOM. Principal `Definition.Principal.UserId` переводится в SID через Windows identity translation. Approved exact digest и SID в policy вносятся независимым оператором после проверки; fingerprint не самоутверждается и не доказывает содержимое executable на диске. Если independent evidence неполно/устарело — не ставить approval true. Before/after должны совпасть; Running допустим, Disabled/HALTED не требуются.
+
+## Process epoch binding
+
+`process_binding=null` — безопасный task-only A. Никакого поиска по имени, дереву, executable basename или автоподхвата нового PID.
+
+Если **раньше независимо подтверждена** связь exact PID с Task worker, оператор вносит объект с ровно такими полями: `process_pid`, `process_creation_sha256`, `process_image_sha256`, `process_command_sha256`, `process_principal_sid`. PID — фактическое число; creation digest — SHA-256 UTF-8 `CreationDate.ToUniversalTime().ToString('o')` от Win32_Process CIM; image — SHA-256 UTF-8 полного `ExecutablePath.ToLowerInvariant()`; command — SHA-256 UTF-8 полной неизменённой `CommandLine`; owner SID — `GetOwnerSid`. Raw command line и пути сохраняются только в private evidence. Никаких environment reads или executable file opens. Один PID не описывает всё дерево wrapper/parent/child и не доказывает worker health.
+
+Идентичность повторно наблюдается existing observer-ом. Новый PID, другой epoch/image/command/SID, завершение, недоступные атрибуты → `PROCESS_UNKNOWN`; новый binding требует отдельного operator review, никакой автоматической перепривязки. Несовпадение Task блокирует preflight до process query. Успешный Task bracket с PROCESS_UNKNOWN возможен, но source C не готов.
+
+## C: private OS policy и receiver policy
+
+[os-policy.example.json](../deployment/os-policy.example.json): false approval, null PID, отсутствующие fingerprints/root IDs. Заполняется **только после** physical A evidence, B isolation и отдельного решения C. Активный policy читает exporter из own `data/private/os-policy.json`; exact observer SID = CCExporter, отличный от production principals. Root pin относится только к CC export root; никаких production paths. Metadata false всегда. Пока binding процесса не подтверждён, OS source не утверждать: существующий source-policy validator требует полный pinned process даже при выключенном process source.
+
+[receiver-policy.example.json](../deployment/receiver-policy.example.json): `physical_source_approved=false`, TTL/source/alias/binding null. Source ID/random binding ID/alias выбирает оператор, root pin наблюдает только в **CC-owned** export root после B. Не вставлять account hash: OS source не имеет broker/account authority, `account_binding=UNVERIFIED`. Private OS/receiver policy совпадают по source/alias/binding, обе SYSTEM/Admin-owned и protected; panel видит только receiver.
+
+## TTL: предложения для отдельного рассмотрения C
+
+Конкретных TTL в шаблонах нет. Предложение: сначала измерить длительность one-shot probe, задержку публикации/доставки, допустимый clock skew и отдельно одобрить cadence. Рассмотреть `os_observations TTL = approved cadence + worst observed collection/delivery delay + approved skew budget`; envelope TTL не длиннее самого старого допускаемого OS observation. Оператор может выбрать более строгий срок. Если freshness budget не покрывает измеренный worst case, отказаться от источника/частоты, не повышать права и не нагружать H1. Ни эти формулы, ни test TTL не действующая production policy. Heartbeat/KS/finance TTL остаются null: источников нет.
+
+## Необходимые существующие разрешения A
+
+Read/Execute проверенной standalone копии и Python; READ protected preflight policy и её CC-only ancestors; token QUERY собственного процесса; local Scheduler READ ровно одной Task (XML/principal/state); optional CIM READ exact PID, creation/image/command/GetOwnerSid без privilege enable; exact existing SID translation и directory attributes только фиксированных собственных CC roots. Нет broker/network API, production file READ, Task control, accounts/ACL writes или export writes. Недостающие permissions → UNKNOWN/BLOCKED; нельзя расширять scope автоматически.

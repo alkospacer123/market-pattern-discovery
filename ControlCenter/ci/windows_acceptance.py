@@ -1,5 +1,6 @@
 """Run only on the disposable GitHub-hosted Windows VM; preserve exact evidence."""
 import json
+from hashlib import sha256
 import os
 from pathlib import Path
 import platform
@@ -7,7 +8,37 @@ import struct
 import subprocess
 import sys
 import uuid
+import zipfile
 import xml.etree.ElementTree as ET
+
+
+def build_bundle(evidence):
+    """Preserve manifest-verified bytes; Git archive applies Windows EOL filters."""
+    root = Path(__file__).absolute().parents[1]
+    manifest_raw = (root / 'deployment/manifest.json').read_bytes()
+    manifest = json.loads(manifest_raw)
+    bundle = evidence / 'CC03_INTEL_READONLY_PREFLIGHT_PACKAGE.zip'
+    names = {'ControlCenter/deployment/manifest.json'}
+    with zipfile.ZipFile(bundle, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr('ControlCenter/deployment/manifest.json', manifest_raw)
+        for entry in manifest['files']:
+            relative = Path(entry['path'])
+            assert not relative.is_absolute() and '..' not in relative.parts
+            assert relative.name not in {'os-policy.json', 'source-policy.json',
+                                         'receiver-policy.json', 'preflight-policy.json'}
+            name = 'ControlCenter/' + relative.as_posix()
+            assert name not in names
+            names.add(name)
+            raw = (root / relative).read_bytes()
+            assert sha256(raw).hexdigest() == entry['sha256']
+            archive.writestr(name, raw)
+    with zipfile.ZipFile(bundle) as archive:
+        assert set(archive.namelist()) == names
+        assert archive.read('ControlCenter/deployment/manifest.json') == manifest_raw
+        for entry in manifest['files']:
+            assert sha256(archive.read('ControlCenter/' + entry['path'])).hexdigest() == entry['sha256']
+    print('PREFLIGHT_BUNDLE_MANIFEST_VERIFIED=' + str(len(manifest['files'])), flush=True)
+    return bundle, len(manifest['files'])
 
 
 def main():
@@ -33,6 +64,8 @@ def main():
                         ['git', 'rev-parse', 'HEAD:ControlCenter'], text=True).strip())
     print(json.dumps(metadata, indent=2), flush=True)
     (evidence / 'environment.json').write_text(json.dumps(metadata, indent=2), encoding='utf-8')
+    # Fail early on package-byte defects before repeating the full native suite.
+    bundle, bundle_file_count = build_bundle(evidence)
     commands = [
         ('host', ['powershell', '-NoProfile', '-Command',
                   "Get-CimInstance Win32_OperatingSystem | Select Caption,Version,BuildNumber | Format-List; "
@@ -46,6 +79,9 @@ def main():
         ('os-observer', [sys.executable, '-m', 'pytest', '-v', '-ra', '-s',
                          'tests/test_os_observer.py', 'tests/test_os_windows_native.py',
                          f'--junitxml={evidence / "os-observer.xml"}']),
+        ('intel-preflight', [sys.executable, '-m', 'pytest', '-v', '-ra',
+                            'tests/test_intel_preflight.py', 'tests/test_intel_preflight_native.py',
+                            f'--junitxml={evidence / "intel-preflight.xml"}']),
         ('full-suite', [sys.executable, '-m', 'pytest', '-q',
                         f'--junitxml={evidence / "full-suite.xml"}']),
         ('manifest', [sys.executable, 'deployment/manifest.py', '--check']),
@@ -80,7 +116,7 @@ def main():
         print(output, flush=True)
         (evidence / f'{name}.log').write_text(output, encoding='utf-8')
         results[name] = dict(exit_code=exit_code)
-    for name in ('windows-reader', 'windows-transport', 'cc03-source', 'os-observer', 'full-suite'):
+    for name in ('windows-reader', 'windows-transport', 'cc03-source', 'os-observer', 'intel-preflight', 'full-suite'):
         path = evidence / f'{name}.xml'
         if not path.exists():
             results[name]['missing_junit'] = True
@@ -105,7 +141,24 @@ def main():
                       windows_os_observer='NEEDS_FIX' if failed else 'PASS: OS facts only; physical source binding not executed',
                       metadata_source='CC03_METADATA_COMPATIBILITY_BLOCKED: expected-conflict regression is not noninterference acceptance',
                       runtime_retention='DISABLED: bounded stop, no deletion',
+                      intel_readonly_preflight='NEEDS_FIX' if failed else 'PASS: disposable hosted sources only',
                       physical='NOT_EXECUTED')
+    # Package the exact tested Git tree, excluding environments/caches/private
+    # runtime policies by construction. Companion checksums are outside the ZIP,
+    # so final PR head and ZIP/manifest hashes need no self-reference.
+    if not failed:
+        checksums = dict(schema_id='cc03.intel-preflight-package-checksums.v1',
+            classification='CC03_INTEL_READONLY_PREFLIGHT_PACKAGE_READY',
+            pr_base_sha=metadata['pr_base_sha'], pr_head_sha=metadata['pr_head_sha'],
+            tested_checkout_sha=metadata['tested_sha'], controlcenter_tree=metadata['controlcenter_tree'],
+            run_id=metadata['run_id'], intel_execution='NOT_EXECUTED', physical='NOT_VERIFIED',
+            archive_manifest_files_verified=bundle_file_count,
+            files=[dict(path=bundle.name, sha256=sha256(bundle.read_bytes()).hexdigest()),
+                   dict(path='ControlCenter/deployment/manifest.json',
+                        sha256=sha256(Path('deployment/manifest.json').read_bytes()).hexdigest())])
+        (evidence / 'CC03_INTEL_PREFLIGHT_CHECKSUMS.json').write_text(
+            json.dumps(checksums, indent=2) + '\n', encoding='utf-8')
+        print(json.dumps(checksums, indent=2), flush=True)
     (evidence / 'acceptance.json').write_text(json.dumps(acceptance, indent=2), encoding='utf-8')
     print(json.dumps(acceptance, indent=2), flush=True)
     with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
