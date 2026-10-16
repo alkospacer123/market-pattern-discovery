@@ -35,7 +35,7 @@
 
 ### A. Актуальное состояние исходников
 - Фактический GitHub `main` на дату фиксации плана: `a6e9634bc0a5db378fcff32ea1bc8591baaf1d3c`.
-- [Draft PR #540](https://github.com/alkospacer123/market-pattern-discovery/pull/540) открыт, не merged; **23** новых файла в `IntradayLab/m15_robot/`, ни одного в `TradingSystemLab/`.
+- [Draft PR #540](https://github.com/alkospacer123/market-pattern-discovery/pull/540) открыт, не merged; **24** файла (включая этот roadmap) в `IntradayLab/m15_robot/`, ни одного в `TradingSystemLab/`.
 - В коде заявлены **110 синтетических тестов**, но фактический полный прогон/CI **пока не подтверждён**. Не выдавать количество тестов за PASS. Команда для изолированного окружения: `python -m unittest discover -s IntradayLab/m15_robot/tests -v`.
 - Из репозитория доступны H1 production `finam_api`, `production_service`, `production_runtime`, `live_execution`, `production_broker_state`, `execution_grid`, `margin`, `state`, `readonly_supervisor`; переносить узко и не заменять всю M15-механику.
 
