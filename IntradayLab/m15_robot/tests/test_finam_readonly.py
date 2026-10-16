@@ -1,0 +1,162 @@
+"""FINAM M15 REST read-only adapter: synthetic protocol tests, no network."""
+import json
+import unittest
+from urllib.parse import urlparse, parse_qs
+
+from IntradayLab.m15_robot.finam_readonly import (
+    M15FinamReadOnlyAPI, M15FinamReadOnlyError, TIMEFRAME_M15,
+)
+
+
+class FakeResponse:
+    status = 200
+    def __init__(self, payload):
+        self.payload = payload
+    def read(self):
+        return json.dumps(self.payload).encode()
+
+
+class FakeTransport:
+    def __init__(self, *, readonly=True, accounts=None):
+        self.calls = []
+        self.readonly = readonly
+        self.accounts = ["M15-ACCOUNT"] if accounts is None else accounts
+    def __call__(self, request, timeout):
+        parsed = urlparse(request.full_url)
+        self.calls.append((request.get_method(), parsed.path, parsed.query, timeout))
+        if parsed.path == "/v1/sessions":
+            return FakeResponse({"token": "synthetic-jwt"})
+        if parsed.path == "/v1/sessions/details":
+            return FakeResponse({"readonly": self.readonly, "account_ids": self.accounts})
+        if parsed.path == "/v1/accounts/M15-ACCOUNT":
+            return FakeResponse({
+                "account_id": "M15-ACCOUNT", "status": "ACCOUNT_ACTIVE", "positions": [],
+            })
+        if parsed.path == "/v1/accounts/M15-ACCOUNT/orders":
+            return FakeResponse({"orders": []})
+        if parsed.path.startswith("/v1/instruments/"):
+            return FakeResponse({"bars": []})
+        if parsed.path.endswith("/params"):
+            return FakeResponse({"sample_params": 1})
+        if parsed.path.endswith("/schedule"):
+            return FakeResponse({"sample_schedule": 1})
+        raise AssertionError("Unexpected method/path: " + parsed.path)
+
+
+def adapter(transport):
+    return M15FinamReadOnlyAPI(
+        secret="synthetic-secret", account_id="M15-ACCOUNT", transport=transport,
+        sleeper=lambda delay: None,
+    )
+
+
+class ReadOnlyTransport(unittest.TestCase):
+    def test_constructing_client_makes_no_network_calls(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        self.assertEqual(fake.calls, [])
+        self.assertFalse(api.readonly_bound)
+        self.assertNotIn("synthetic-secret", repr(api))
+        self.assertNotIn("synthetic-jwt", repr(api))
+
+    def test_readonly_exact_second_account_sequence(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        api.connect_readonly()
+        self.assertTrue(api.readonly_bound)
+        self.assertEqual(api.account("M15-ACCOUNT")["account_id"], "M15-ACCOUNT")
+        self.assertEqual(api.orders("M15-ACCOUNT")["orders"], [])
+        self.assertEqual(api.asset_params("CNYRUBF@RTSX")["sample_params"], 1)
+        self.assertEqual(api.schedule("CNYRUBF@RTSX")["sample_schedule"], 1)
+        self.assertEqual(api.bars_m15("CNYRUBF@RTSX", "2026-10-15T10:00:00Z",
+                                      "2026-10-15T12:00:00Z")["bars"], [])
+        methods = [(method, path) for method, path, _, _ in fake.calls]
+        self.assertEqual(methods[:2], [("POST", "/v1/sessions"),
+                                      ("POST", "/v1/sessions/details")])
+        self.assertTrue(all(method == "GET" for method, _ in methods[2:]))
+        bars_query = next(query for method, path, query, _ in fake.calls if path.endswith("/bars"))
+        self.assertEqual(parse_qs(bars_query)["timeframe"], [TIMEFRAME_M15])
+        self.assertNotIn("H1", bars_query)
+
+    def test_prohibit_all_order_posts_and_deletes(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        api.connect_readonly()
+        for method, path in [
+            ("POST", "/v1/accounts/M15-ACCOUNT/orders"),
+            ("POST", "/v1/accounts/M15-ACCOUNT/sltp-orders"),
+            ("DELETE", "/v1/accounts/M15-ACCOUNT/orders/order-id"),
+            ("PUT", "/v1/accounts/M15-ACCOUNT/orders/order-id"),
+        ]:
+            with self.subTest(method=method, path=path):
+                with self.assertRaisesRegex(M15FinamReadOnlyError, "FORBIDDEN"):
+                    api._request(method, path, {"secret": "none"})
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_read_before_session_proof_rejected(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "BINDING_REQUIRED"):
+            api.account("M15-ACCOUNT")
+        self.assertEqual(fake.calls, [])
+
+    def test_reject_trading_capable_token(self):
+        fake = FakeTransport(readonly=False)
+        api = adapter(fake)
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "NOT_PROVED"):
+            api.connect_readonly()
+        self.assertFalse(api.readonly_bound)
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_reject_shared_token_with_h1_account(self):
+        fake = FakeTransport(accounts=["M15-ACCOUNT", "H1-ACCOUNT"])
+        api = adapter(fake)
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "NOT_PROVED"):
+            api.connect_readonly()
+        self.assertFalse(api.readonly_bound)
+
+    def test_cross_account_read_never_calls_transport(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        api.connect_readonly()
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "CROSS_ACCOUNT"):
+            api.account("H1-ACCOUNT")
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "CROSS_ACCOUNT"):
+            api.orders("H1-ACCOUNT")
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_reject_symbol_with_url_path_injection(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        api.connect_readonly()
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "SYMBOL_INVALID"):
+            api.bars_m15("IMOEXF@RTSX/../../orders", "2026-10-15T10:00:00Z",
+                         "2026-10-15T12:00:00Z")
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_bad_time_interval_fails_before_get(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        api.connect_readonly()
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "INTERVAL_INVALID"):
+            api.bars_m15("USDRUBF@RTSX", "2026-10-15T12:00:00Z",
+                         "2026-10-15T10:00:00Z")
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_double_session_rebind_rejected(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        api.connect_readonly()
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "ALREADY_BOUND"):
+            api.connect_readonly()
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_malformed_account_id_refused_before_transport(self):
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "ACCOUNT_FORMAT"):
+            M15FinamReadOnlyAPI(
+                secret="synthetic", account_id="../H1-ACCOUNT", transport=FakeTransport(),
+            )
+
+
+if __name__ == "__main__":
+    unittest.main()
