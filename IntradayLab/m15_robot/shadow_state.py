@@ -78,13 +78,19 @@ class ShadowLedger:
             os.close(fd)
             tmp = Path(name)
             try:
-                with sqlite3.connect(tmp) as con:
+                # 'with sqlite3.connect(...)' only commits/rolls back;
+                # it does NOT close the connection. Windows forbids unlinking
+                # a still-open .pending SQLite file (WinError 32).
+                con = sqlite3.connect(tmp)
+                try:
                     con.executescript(SCHEMA)
                     con.execute(
                         "INSERT INTO authority(key,value) VALUES (?,?)",
                         ("identity", json.dumps(self.identity, sort_keys=True)),
                     )
                     con.commit()
+                finally:
+                    con.close()
                 _check_db(tmp, self.identity)
                 try:
                     os.link(tmp, self.path)
