@@ -1,5 +1,6 @@
 """Run only on the disposable GitHub-hosted Windows VM; preserve exact evidence."""
 import json
+from hashlib import sha256
 import os
 from pathlib import Path
 import platform
@@ -110,6 +111,24 @@ def main():
                       runtime_retention='DISABLED: bounded stop, no deletion',
                       intel_readonly_preflight='NEEDS_FIX' if failed else 'PASS: disposable hosted sources only',
                       physical='NOT_EXECUTED')
+    # Package the exact tested Git tree, excluding environments/caches/private
+    # runtime policies by construction. Companion checksums are outside the ZIP,
+    # so final PR head and ZIP/manifest hashes need no self-reference.
+    if not failed:
+        bundle = evidence / 'CC03_INTEL_READONLY_PREFLIGHT_PACKAGE.zip'
+        subprocess.run(['git', 'archive', '--format=zip', '--prefix=ControlCenter/',
+                        '--output=' + str(bundle), 'HEAD:ControlCenter'], check=True, timeout=30)
+        checksums = dict(schema_id='cc03.intel-preflight-package-checksums.v1',
+            classification='CC03_INTEL_READONLY_PREFLIGHT_PACKAGE_READY',
+            pr_base_sha=metadata['pr_base_sha'], pr_head_sha=metadata['pr_head_sha'],
+            tested_checkout_sha=metadata['tested_sha'], controlcenter_tree=metadata['controlcenter_tree'],
+            run_id=metadata['run_id'], intel_execution='NOT_EXECUTED', physical='NOT_VERIFIED',
+            files=[dict(path=bundle.name, sha256=sha256(bundle.read_bytes()).hexdigest()),
+                   dict(path='ControlCenter/deployment/manifest.json',
+                        sha256=sha256(Path('deployment/manifest.json').read_bytes()).hexdigest())])
+        (evidence / 'CC03_INTEL_PREFLIGHT_CHECKSUMS.json').write_text(
+            json.dumps(checksums, indent=2) + '\n', encoding='utf-8')
+        print(json.dumps(checksums, indent=2), flush=True)
     (evidence / 'acceptance.json').write_text(json.dumps(acceptance, indent=2), encoding='utf-8')
     print(json.dumps(acceptance, indent=2), flush=True)
     with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:

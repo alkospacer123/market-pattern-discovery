@@ -103,7 +103,7 @@
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "6294157293940b17cd918663cc9baf2bfc672d74b56003d9ba9ccc69bfcdfa6a"
+      "sha256": "10a2901ec1facdddfc5b95c9ae4798223346f6dd27a81370a3ffdfd5b3504499"
     },
     {
       "path": "deployment/Common.ps1",
@@ -191,7 +191,7 @@
     },
     {
       "path": "docs/CC03_INTEL_READONLY_PREFLIGHT_PACKAGE.md",
-      "sha256": "83fd3a8ba3711d02122e81c11e0f2ea7af0a429b70d09617eb3578c1a00322ec"
+      "sha256": "01985f021f01d2dfaaa88f9f742aac60c9fc67254c429ace602aeed5371a198e"
     },
     {
       "path": "docs/CC03_OS_ACCEPTANCE.md",
