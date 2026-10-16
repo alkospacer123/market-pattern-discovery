@@ -93,12 +93,12 @@ using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text;
 public sealed class CC03Child : IDisposable {
-    IntPtr handle;
+    IntPtr handle; CC03Desktop desktop;
     public int Id { get; private set; }
     [DllImport("kernel32.dll", SetLastError=true)] static extern uint WaitForSingleObject(IntPtr handle, uint milliseconds);
     [DllImport("kernel32.dll", SetLastError=true)] static extern bool GetExitCodeProcess(IntPtr handle, out uint code);
     [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr handle);
-    public CC03Child(IntPtr handle, int id) { this.handle=handle; Id=id; }
+    public CC03Child(IntPtr handle, int id,CC03Desktop desktop) { this.handle=handle; Id=id; this.desktop=desktop; }
     public bool WaitForExit(int milliseconds) {
         uint result=WaitForSingleObject(handle, (uint)milliseconds);
         if (result==0) return true;
@@ -107,7 +107,47 @@ public sealed class CC03Child : IDisposable {
     }
     public bool HasExited { get { return WaitForExit(0); } }
     public int ExitCode { get { uint code; if (!GetExitCodeProcess(handle,out code)) throw new Exception("CHILD_EXIT_UNAVAILABLE"); return unchecked((int)code); } }
-    public void Dispose() { if (handle!=IntPtr.Zero) { CloseHandle(handle); handle=IntPtr.Zero; } }
+    public void Dispose() { if (handle!=IntPtr.Zero) { CloseHandle(handle); handle=IntPtr.Zero; } if (desktop!=null) { desktop.Dispose(); desktop=null; } }
+}
+// Only newly created CI objects receive this DACL. Existing stations/desktops
+// and all token privileges remain untouched.
+public sealed class CC03Desktop : IDisposable {
+    IntPtr station,desktop;
+    public string Name { get; private set; }
+    [StructLayout(LayoutKind.Sequential)] struct SecurityAttributes { public int length; public IntPtr descriptor; public int inherit; }
+    [DllImport("advapi32.dll",CharSet=CharSet.Unicode,SetLastError=true)] static extern bool ConvertStringSecurityDescriptorToSecurityDescriptor(string sddl,int revision,out IntPtr descriptor,out int size);
+    [DllImport("kernel32.dll")] static extern IntPtr LocalFree(IntPtr memory);
+    [DllImport("user32.dll",CharSet=CharSet.Unicode,SetLastError=true)] static extern IntPtr CreateWindowStation(string name,int flags,int access,ref SecurityAttributes security);
+    [DllImport("user32.dll",SetLastError=true)] static extern IntPtr GetProcessWindowStation();
+    [DllImport("user32.dll",SetLastError=true)] static extern bool SetProcessWindowStation(IntPtr station);
+    [DllImport("user32.dll",CharSet=CharSet.Unicode,SetLastError=true)] static extern IntPtr CreateDesktop(string name,IntPtr device,IntPtr mode,int flags,int access,ref SecurityAttributes security);
+    [DllImport("user32.dll")] static extern bool CloseWindowStation(IntPtr station);
+    [DllImport("user32.dll")] static extern bool CloseDesktop(IntPtr desktop);
+    [DllImport("kernel32.dll",EntryPoint="SetLastError")] static extern void ClearError(uint error);
+    public static CC03Desktop Create(string sid) {
+        var result=new CC03Desktop();
+        IntPtr descriptor; int size;
+        if (!ConvertStringSecurityDescriptorToSecurityDescriptor("O:BAG:BAD:P(A;;GA;;;SY)(A;;GA;;;BA)(A;;GA;;;"+sid+")",1,out descriptor,out size)) throw new Exception("PRIVATE_DESKTOP_SECURITY_FAILED");
+        try {
+            var security=new SecurityAttributes(); security.length=Marshal.SizeOf(typeof(SecurityAttributes)); security.descriptor=descriptor;
+            string name="CC03-"+Guid.NewGuid().ToString("N");
+            ClearError(0);
+            result.station=CreateWindowStation(name,0,0x000F037F,ref security);
+            if (result.station==IntPtr.Zero || Marshal.GetLastWin32Error()==183) throw new Exception("PRIVATE_STATION_CREATE_FAILED win32="+Marshal.GetLastWin32Error());
+            IntPtr previous=GetProcessWindowStation();
+            if (previous==IntPtr.Zero || !SetProcessWindowStation(result.station)) throw new Exception("PRIVATE_STATION_SELECT_FAILED");
+            try { result.desktop=CreateDesktop("CC03",IntPtr.Zero,IntPtr.Zero,0,0x000F01FF,ref security); }
+            finally { if (!SetProcessWindowStation(previous)) throw new Exception("PRIVATE_STATION_RESTORE_FAILED"); }
+            if (result.desktop==IntPtr.Zero) throw new Exception("PRIVATE_DESKTOP_CREATE_FAILED win32="+Marshal.GetLastWin32Error());
+            result.Name=name+"\\CC03";
+            return result;
+        } catch { result.Dispose(); throw; }
+        finally { LocalFree(descriptor); }
+    }
+    public void Dispose() {
+        if (desktop!=IntPtr.Zero) { CloseDesktop(desktop); desktop=IntPtr.Zero; }
+        if (station!=IntPtr.Zero) { CloseWindowStation(station); station=IntPtr.Zero; }
+    }
 }
 public static class CC03Access {
     [DllImport("advapi32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
@@ -182,6 +222,8 @@ public static class CC03Access {
             }
             if (input==new IntPtr(-1) || output==new IntPtr(-1)) throw new Exception("CHILD_STDIO_OPEN_FAILED win32="+Marshal.GetLastWin32Error());
             startup.flags=0x100; startup.input=input; startup.output=output; startup.error=output;
+            var privateDesktop=CC03Desktop.Create(expectedSid);
+            startup.desktop=Marshal.StringToHGlobalUni(privateDesktop.Name);
             ProcessInfo process;
             string action="& '"+script.Replace("'","''")+"' *> '"+log.Replace("'","''")+"'";
             var command=new StringBuilder(executable.EndsWith("cmd.exe",StringComparison.OrdinalIgnoreCase)
@@ -193,9 +235,10 @@ public static class CC03Access {
             try {
                 if (!CreateProcessWithTokenW(token,1,executable,command,0x08000400,environment,directory,ref startup,out process))
                     throw new Exception("CREATE_PROCESS_WITH_TOKEN_UNAVAILABLE win32="+Marshal.GetLastWin32Error());
-            } finally { Marshal.FreeHGlobal(environment); CloseHandle(input); CloseHandle(output); }
+            } catch { privateDesktop.Dispose(); throw; }
+            finally { Marshal.FreeHGlobal(environment); CloseHandle(input); CloseHandle(output); Marshal.FreeHGlobal(startup.desktop); }
             CloseHandle(process.thread);
-            return new CC03Child(process.process,process.processId);
+            return new CC03Child(process.process,process.processId,privateDesktop);
         } finally { CloseHandle(token); }
     }
     public static string Probe(string user, string password, string expectedSid, string path, bool write) {
@@ -299,8 +342,8 @@ try {
     try {
         $panelProcess = Start-IdentityScript $panel "$script:AppRoot\deployment\Start-Panel.ps1" "$script:DataRoot\logs\panel-stdout.txt" "$script:DataRoot\logs\panel-stderr.txt"
     } catch {
-        $results['panel_identity_launch'] = 'NOT_VERIFIED: separate-SID process creation unavailable: ' + $_.Exception.Message
-        throw 'SID_REHEARSAL_NOT_VERIFIED'
+        $results['panel_identity_launch'] = 'FAIL: separate-SID startup prerequisite: ' + $_.Exception.Message
+        throw
     }
     $ready = $false
     for ($i=0; $i -lt 30; $i++) {

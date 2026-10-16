@@ -83,7 +83,7 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "0c5f2b5cd34b9140c7db0b649172d09931ccedd2f5863adb3c5bb45f153b7356"
+      "sha256": "641c25159551fa41ded106cff682305c31e5b0711e0f2f780bcff1b68f4eb23d"
     },
     {
       "path": "ci/identity_probe.py",
