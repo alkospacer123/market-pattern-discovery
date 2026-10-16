@@ -44,7 +44,6 @@ def main():
         ('manifest', [sys.executable, 'deployment/manifest.py', '--check']),
         ('pip-check', [sys.executable, '-m', 'pip', 'check']),
         ('pip-freeze', [sys.executable, '-m', 'pip', 'freeze', '--all']),
-        ('native-share-diagnostic', [sys.executable, '-m', 'ci.windows_share_probe']),
         ('powershell-preview', ['powershell', '-NoProfile', '-Command',
             "$ErrorActionPreference='Stop'; Get-ChildItem deployment/*.ps1 | ForEach-Object { "
             "$tokens=$null; $errors=$null; [void][Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$tokens,[ref]$errors); "

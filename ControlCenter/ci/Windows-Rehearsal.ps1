@@ -28,18 +28,26 @@ function Expect-Failure([scriptblock]$Operation, [string]$Expected) {
 
 function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [string]$ErrorLog) {
     function Literal([string]$Value) { return "'" + $Value.Replace("'", "''") + "'" }
-    $lines = @()
+    $lines = @(
+        '$ErrorActionPreference = ''Stop''',
+        'Write-Output (''STARTUP_SID='' + [Security.Principal.WindowsIdentity]::GetCurrent().User.Value)',
+        'Write-Output (''STARTUP_CWD='' + (Get-Location).Path)',
+        'Write-Output (''STARTUP_PID='' + $PID)',
+        'Write-Output (''STARTUP_TEMP='' + $env:TEMP)'
+    )
     foreach ($name in @('GITHUB_ACTIONS','RUNNER_ENVIRONMENT','RUNNER_TEMP','CC03_CI_DISPOSABLE_ROOT',
                         'PSMODULEPATH','STREAMLIT_SERVER_HEADLESS','STREAMLIT_BROWSER_GATHER_USAGE_STATS')) {
         $lines += '$env:' + $name + ' = ' + (Literal ([Environment]::GetEnvironmentVariable($name)))
     }
+    $lines += '& ' + (Literal "$script:VenvRoot\Scripts\python.exe") + ' -m ci.identity_probe ' + (Literal $Identity.Sid)
+    $lines += 'if ($LASTEXITCODE -ne 0) { throw ''IDENTITY_PYTHON_PROBE_FAILED'' }'
     $lines += 'Get-ExecutionPolicy -List | Format-Table | Out-String | Write-Output'
     $lines += '& ' + (Literal $Entry) + ' -Execute -PanelSid ' + (Literal $panelSid) + ' -ExporterSid ' + (Literal $exporterSid)
     $command = '& {' + "`n" + ($lines -join "`n") + "`n" + '}'
     $bootstrap = Join-Path $sandbox ('identity-' + $Identity.Name + '.ps1')
     Set-Content -LiteralPath $bootstrap -Value $command -Encoding UTF8
     $executable = Join-Path $env:SYSTEMROOT 'System32\WindowsPowerShell\v1.0\powershell.exe'
-    return [CC03Access]::StartAs($Identity.Name, $Identity.Password, $executable, $bootstrap, $script:AppRoot, $ErrorLog)
+    return [CC03Access]::StartAs($Identity.Name, $Identity.Password, $executable, $bootstrap, $script:AppRoot, $ErrorLog, $Identity.Sid)
 }
 
 function Set-DisposableACL([string]$Path, [string]$Kind) {
@@ -99,17 +107,50 @@ public static class CC03Access {
     }
     [DllImport("advapi32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
     static extern bool CreateProcessWithTokenW(IntPtr token,int logonFlags,string application,StringBuilder command,int flags,IntPtr environment,string directory,ref StartupInfo startup,out ProcessInfo process);
-    public static CC03Child StartAs(string user,string password,string executable,string script,string directory,string log) {
+    [DllImport("userenv.dll", SetLastError=true)] static extern bool CreateEnvironmentBlock(out IntPtr environment,IntPtr token,bool inherit);
+    [DllImport("userenv.dll")] static extern bool DestroyEnvironmentBlock(IntPtr environment);
+    public static CC03Child StartAs(string user,string password,string executable,string script,string directory,string log,string expectedSid) {
         IntPtr token;
         if (!LogonUser(user,".",password,2,0,out token)) throw new Exception("LOGON_USER_UNAVAILABLE win32="+Marshal.GetLastWin32Error());
         try {
+            // Build the target identity environment BEFORE starting its runtime.
+            // A null block inherits runneradmin TEMP/USERPROFILE and is invalid
+            // for a separate low-privilege SID. Never copy runner secrets.
+            IntPtr original;
+            if (!CreateEnvironmentBlock(out original,token,false)) throw new Exception("USER_ENVIRONMENT_FAILED win32="+Marshal.GetLastWin32Error());
+            var env=new System.Collections.Generic.SortedDictionary<string,string>(StringComparer.OrdinalIgnoreCase);
+            try {
+                int offset=0;
+                while (true) {
+                    string item=Marshal.PtrToStringUni(IntPtr.Add(original,offset));
+                    if (String.IsNullOrEmpty(item)) break;
+                    offset+=(item.Length+1)*2;
+                    int split=item.IndexOf('=',1);
+                    if (split>0) env[item.Substring(0,split)]=item.Substring(split+1);
+                }
+            } finally { DestroyEnvironmentBlock(original); }
+            string temporary=Path.Combine(Path.GetDirectoryName(log),"runtime-"+user);
+            using (var identity=new WindowsIdentity(token))
+            using (var context=identity.Impersonate()) {
+                if (WindowsIdentity.GetCurrent().User.Value!=expectedSid) throw new Exception("WRONG_CHILD_SID");
+                Directory.CreateDirectory(temporary);
+                File.WriteAllText(log,"NATIVE_LAUNCH_SID="+expectedSid+Environment.NewLine);
+            }
+            env["TEMP"]=temporary; env["TMP"]=temporary;
+            env["PYTHONNOUSERSITE"]="1"; env["PYTHONDONTWRITEBYTECODE"]="1";
+            var block=new StringBuilder();
+            foreach (var pair in env) block.Append(pair.Key).Append('=').Append(pair.Value).Append('\0');
+            block.Append('\0');
+            IntPtr environment=Marshal.StringToHGlobalUni(block.ToString());
             var startup=new StartupInfo(); startup.cb=Marshal.SizeOf(typeof(StartupInfo));
             ProcessInfo process;
             string action="& '"+script.Replace("'","''")+"' *> '"+log.Replace("'","''")+"'";
             var command=new StringBuilder("\""+executable+"\" -NoProfile -Command \""+action+"\"");
             if (command.Length>=1024) throw new Exception("LOGON_COMMAND_LINE_TOO_LONG");
-            if (!CreateProcessWithTokenW(token,1,executable,command,0x08000000,IntPtr.Zero,directory,ref startup,out process))
-                throw new Exception("CREATE_PROCESS_WITH_TOKEN_UNAVAILABLE win32="+Marshal.GetLastWin32Error());
+            try {
+                if (!CreateProcessWithTokenW(token,1,executable,command,0x08000400,environment,directory,ref startup,out process))
+                    throw new Exception("CREATE_PROCESS_WITH_TOKEN_UNAVAILABLE win32="+Marshal.GetLastWin32Error());
+            } finally { Marshal.FreeHGlobal(environment); }
             CloseHandle(process.thread);
             return new CC03Child(process.process,process.processId);
         } finally { CloseHandle(token); }
@@ -227,6 +268,10 @@ try {
     }
     if (-not $ready) {
         $results['panel_child_exit'] = $(if ($panelProcess.HasExited) { '0x{0:X8}' -f $panelProcess.ExitCode } else { 'RUNNING_WITHOUT_LISTENER' })
+        Get-CimInstance Win32_Process | Where-Object { $_.ProcessId -eq $panelProcess.Id -or $_.ParentProcessId -eq $panelProcess.Id } | ForEach-Object {
+            $owner = Invoke-CimMethod -InputObject $_ -MethodName GetOwnerSid
+            Write-Output ("CHILD_STATE pid=" + $_.ProcessId + " parent=" + $_.ParentProcessId + " name=" + $_.Name + " sid=" + $owner.Sid + " threads=" + $_.ThreadCount)
+        }
         $results['panel_log_present'] = Test-Path "$script:DataRoot\logs\panel-stderr.txt"
         throw 'DISPOSABLE_PANEL_DID_NOT_BIND_LOOPBACK'
     }

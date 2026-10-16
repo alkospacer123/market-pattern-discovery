@@ -39,11 +39,9 @@ def read_snapshot(root: Path, filename: str, maximum: int) -> bytes:
 
 
 def read_source(root, filename, expected_root):
-    if os.name != "nt" or filename not in {"stage8-12-4-production-heartbeat.json", "stage8-trading-kill-switch.json"}:
-        raise ValueError("SOURCE_NOT_ALLOWED")
-    if len(expected_root) != 3 or any(type(x) is not int or x < 0 for x in expected_root):
-        raise ValueError("ROOT_PIN_REQUIRED")
-    return read_windows(root, filename, 128 * 1024, expected_root)
+    # Never open a legacy producer's live file: even a DELETE-sharing reader
+    # interferes with its os.replace publication on hosted Windows NTFS.
+    raise ValueError("CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED")
 
 
 def _read_file(root, filename, maximum):

@@ -10,6 +10,9 @@ import os
 from pathlib import Path
 import re
 import tempfile
+import hashlib
+import time
+import uuid
 from cc.providers.h1_contract import ACTIVE, SPEC, ACCEPTED_COMMIT, MAX_BYTES, timestamp, validate
 from cc.providers.h1_readonly import canonical_digest, _pairs, _reject_constant
 from cc.providers.readonly_file import read_source
@@ -55,6 +58,8 @@ def stamp(at):
 
 def collect(policy, now, reader=read_source):
     policy_check(policy)
+    if reader is read_source:
+        raise ValueError('CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED')
     identity = dict(robot_id='H1', strategy_id='T3/H1/TRAIL1', production_specification_id=SPEC,
                     active_identity=ACTIVE, installed_code_commit=ACCEPTED_COMMIT,
                     source_id=policy['source_id'], account_alias=policy['account_alias'],
@@ -119,6 +124,7 @@ def publish(value):
     raw = json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode('ascii')
     if len(raw) > MAX_BYTES:
         raise ValueError('EXPORT_TOO_LARGE')
+    name = f'h1-{time.time_ns():020d}-{uuid.uuid4().hex}-{hashlib.sha256(raw).hexdigest()}.json'
     api, held = WinAPI(), []
     try:
         directories, _ = components(str(EXPORT_ROOT), 'h1.snapshot.json')
@@ -133,7 +139,11 @@ def publish(value):
                 stream.write(raw)
                 stream.flush()
                 os.fsync(stream.fileno())
-            os.replace(temporary, EXPORT_ROOT / 'h1.snapshot.json')
+            # Windows rename fails if the unique destination already exists.
+            # Never overwrite/delete an open published snapshot. Completed names
+            # appear only after close+fsync; temp names are never consumed.
+            os.rename(temporary, EXPORT_ROOT / name)
+            return EXPORT_ROOT / name
         finally:
             if os.path.exists(temporary):
                 os.unlink(temporary)
@@ -156,7 +166,7 @@ def main():
         publish(collect(policy, datetime.now(timezone.utc)))
         print('CC03_EXPORT_PUBLISHED_AUTHORITY_LIMITED')
     except Exception:
-        print('CC03_EXPORT_UNAVAILABLE')
+        print('CC03_EXPORT_UNAVAILABLE: CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED')
         raise SystemExit(1)
 
 

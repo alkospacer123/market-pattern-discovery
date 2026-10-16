@@ -55,7 +55,7 @@
     },
     {
       "path": "cc/providers/h1_export.py",
-      "sha256": "8040e5d0d614a9f657886f3085bf1a361fbc86816336413413a8067426a19c2d"
+      "sha256": "c27a6d76e83535b8182def5cc37495386d1c06c13618fda5159777c09da310c4"
     },
     {
       "path": "cc/providers/h1_readonly.py",
@@ -63,7 +63,7 @@
     },
     {
       "path": "cc/providers/readonly_file.py",
-      "sha256": "417f0224e9b7057c29ed8b615f252421eca10bbd0b1dc25e5510f08c2b587251"
+      "sha256": "f48ba8f56155f484d5ce20bf4ca3c046dae74d387fb329c071445d7a22c0452e"
     },
     {
       "path": "cc/providers/source_contract.py",
@@ -75,7 +75,7 @@
     },
     {
       "path": "cc/providers/windows_file.py",
-      "sha256": "1cd79e0fcdf72428e4ccae3a6601d8cde29cf58c7968f1a3c185a37932d73aaf"
+      "sha256": "bba0981f5c2d87ac26fa28276980496912f69fc1ce1ae39e46268771c7f0ede4"
     },
     {
       "path": "cc/ui.py",
@@ -83,11 +83,15 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "a3e8af988c0de199d014f23317d59564d9a11c16bca97ca8221927a31bb885f5"
+      "sha256": "cae9c75453452e8a478d77a185ca46d32beca1205a5a3f399e3359e29b73e56f"
+    },
+    {
+      "path": "ci/identity_probe.py",
+      "sha256": "2dfaaad5a0bee8c486ebbba2dc3ce5860d7d90cd5f0cdc00fdd4e33eb3278a84"
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "2619905f3245aad9264535b5bb87974421a17d5b06827a9f0560faf8d4ee8c52"
+      "sha256": "60ea7f9f5d8499b3a4757f7d799a82532fd85d6f0e3d32296abd9aa901d4744f"
     },
     {
       "path": "ci/windows_share_probe.py",
@@ -227,7 +231,7 @@
     },
     {
       "path": "exporter/snapshot.py",
-      "sha256": "9ba9f1a877313d24b0cbc9e41a813aad2fb22a28fd2a7a95f918e63232a7385b"
+      "sha256": "2429f3229d4ae308ca0c312152dace5b68fb5eae49984fcf57a0539f21627bbc"
     },
     {
       "path": "fixtures/h1/h1.snapshot.json",
@@ -255,11 +259,11 @@
     },
     {
       "path": "tests/test_boundary.py",
-      "sha256": "0e9d7b3e0b260a9994e94fac350f490fe1fb17eab571a7a2e2518a627d90dd72"
+      "sha256": "d249e9cbee5bae2f30bb17614b84fd037b8fb8651de513f554b989ffb830aefc"
     },
     {
       "path": "tests/test_cc03_source.py",
-      "sha256": "2e746162176fe3885bc2f346ece824b60a52105d22493a30d1f29c46f96ad25c"
+      "sha256": "1ace32aaff9f4f0369bb27387f0cdca3279dac0263db5f1c420dcbdb57cde440"
     },
     {
       "path": "tests/test_ci_paths.py",
@@ -291,7 +295,11 @@
     },
     {
       "path": "tests/test_windows_reader.py",
-      "sha256": "7dbaa8bdeb8bc737c066bbb738ca72711f255bb9b1b81adb903235daf654bceb"
+      "sha256": "01de14a509d3e2094d9fe88cdc6f4185328ce32cccc33df8e18ce910abc3a3fa"
+    },
+    {
+      "path": "tests/test_windows_transport.py",
+      "sha256": "1d29202639b04309647ad7a604f5a9e68d58a0b7fdc0936651593affef2cd0c7"
     }
   ]
 }

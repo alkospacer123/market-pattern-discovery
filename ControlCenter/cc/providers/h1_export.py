@@ -9,7 +9,7 @@ from .h1_contract import ACTIVE, SPEC, ACCEPTED_COMMIT, MAX_BYTES, timestamp, va
 from .h1_readonly import canonical_digest, _pairs, _reject_constant
 from .source_contract import SCHEMA, GROUPS
 from .readonly_file import read_snapshot
-from .windows_file import read_windows
+from .windows_file import read_windows, read_latest_windows
 from ..deployment_paths import data_root
 
 EXPORT_ROOT = data_root() / 'export'
@@ -20,6 +20,7 @@ SAFE_ERROR = 'CC03_SOURCE_UNKNOWN_OR_UNAVAILABLE'
 @dataclass(frozen=True)
 class ReceiverPolicy:
     # Trusted, administrator-owned application policy; never taken from an export.
+    export_root_id: tuple[int, int, int] | None = None
     source_id: str | None = None
     account_alias: str | None = None
     binding_id: str | None = None
@@ -70,7 +71,7 @@ class H1ExportProvider:
         try:
             if robot_id != RobotId.H1:
                 raise ValueError('H1_ONLY')
-            raw = read_snapshot(EXPORT_ROOT, 'h1.snapshot.json', MAX_BYTES)
+            raw = read_latest_windows(EXPORT_ROOT, MAX_BYTES, policy.export_root_id)
             value = json.loads(raw.decode('utf-8'), object_pairs_hook=_pairs, parse_constant=_reject_constant)
             validate(value, SCHEMA)
             if canonical_digest(value) != value['payload_sha256']:

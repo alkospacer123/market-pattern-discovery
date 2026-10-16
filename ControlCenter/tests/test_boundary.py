@@ -23,7 +23,7 @@ def test_no_trade_or_system_capabilities_in_runtime(path):
         'h1_contract.py': {'re'},
         'h1_readonly.py': {'hashlib', 'json', 'pathlib'},
         'readonly_file.py': {'os', 'pathlib', 'stat'},
-        'windows_file.py': {'ctypes', 'multiprocessing', 'pathlib'},
+        'windows_file.py': {'ctypes', 'multiprocessing', 'pathlib', 'hashlib', 'os', 're'},
         'h1_export.py': {'json', 'pathlib'},
         'deployment_paths.py': {'os', 'pathlib', 're'},
     }
