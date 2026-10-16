@@ -132,6 +132,11 @@ class ShadowIntegration(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_clean_broker_records_readonly_halted_receipt(self):
+        # The staged SQLite file must be closed and unlinked on Windows.
+        # A leaked sqlite3.Connection holds .pending open (WinError 32).
+        self.assertEqual(
+            list(self.store.path.parent.glob(".m15-shadow-readonly.sqlite3*.pending")), []
+        )
         broker = FakeReadPort()
         report = observe_broker_once(
             ledger=self.store, read_api=broker,
