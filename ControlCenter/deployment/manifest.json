@@ -55,7 +55,7 @@
     },
     {
       "path": "cc/providers/h1_export.py",
-      "sha256": "c27a6d76e83535b8182def5cc37495386d1c06c13618fda5159777c09da310c4"
+      "sha256": "ec2b1142863b3bfc556bdcfb8670cf07a4bab05f735f28092e1baa2217181bb7"
     },
     {
       "path": "cc/providers/h1_readonly.py",
@@ -83,7 +83,7 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "de343ad6bea1b0d54dac36dcb243e636713389b54d97220755a0c578175a8157"
+      "sha256": "c24ba33addee6d5f5affdf7685be2dfdd73dbcd7a7e13db4ad3731410a071a8e"
     },
     {
       "path": "ci/identity_probe.py",
@@ -91,7 +91,7 @@
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "c2df88db016c2b5130327354c07223e7b241fe3d856082f3e9aebfb981111609"
+      "sha256": "a89cacfe9e5edcf02f4156e2f7280eb7951a8fd99a14223cca4389af19e4c5fa"
     },
     {
       "path": "ci/windows_share_probe.py",
@@ -115,7 +115,7 @@
     },
     {
       "path": "deployment/Start-Exporter.ps1",
-      "sha256": "fd83aa095926548c43162876c5d468de0c83096c48e0e2ff9b4e22133e71fac4"
+      "sha256": "f76174866ed4bc98e1c06bbd08647069767d7c29882551b5a299cec563d5ed2e"
     },
     {
       "path": "deployment/Start-Panel.ps1",
@@ -231,7 +231,7 @@
     },
     {
       "path": "exporter/snapshot.py",
-      "sha256": "5b30bbf507c2f5855b4187aa77f82b9c70ec53cab4aa3da118b031215a880033"
+      "sha256": "e4e2aa83ba267fac587115a34f3bf5da81b35fdd2828aff39609c9e88d163b6f"
     },
     {
       "path": "fixtures/h1/h1.snapshot.json",
@@ -275,7 +275,7 @@
     },
     {
       "path": "tests/test_h1_fault_injection.py",
-      "sha256": "a9453356f5036b96380746345986c647da20e8a6007283f6ea003e94794247ae"
+      "sha256": "e048e829461b330b756d6937b539fc927204ad83c2edcf4178d85546e75e4e81"
     },
     {
       "path": "tests/test_h1_readonly.py",
@@ -299,7 +299,7 @@
     },
     {
       "path": "tests/test_windows_transport.py",
-      "sha256": "2617132b8ef284526a6ea90f30b68fc033f0dc2e62a4b5e89c22c6d2a476c4aa"
+      "sha256": "24e42ba5f8b7b9c694500a71e5c65c7ea020fd6cbe50a112eac59f49a9bdb95a"
     }
   ]
 }

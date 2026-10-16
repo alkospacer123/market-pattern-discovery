@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param([switch]$Execute, [string]$PanelSid, [string]$ExporterSid)
 . "$PSScriptRoot\Common.ps1"
-if (-not $Execute) { Write-Output 'PREVIEW: independent one-shot exporter; two pinned JSON reads, own export write. No H1 process or API.'; return }
+if (-not $Execute) { Write-Output 'PREVIEW: independent one-shot exporter; legacy live source BLOCKED, own immutable export only. No H1 process or API.'; return }
 Assert-CurrentIdentity $ExporterSid
 Assert-ACL $script:DataRoot $PanelSid $ExporterSid 'parent'
 Assert-ACL "$script:DataRoot\private" $PanelSid $ExporterSid 'private'

@@ -111,3 +111,13 @@ def test_blocked_legacy_observer_does_not_interfere_with_unchanged_producer(tmp_
             read_source(tmp_path,path.name,pin(tmp_path))
     thread.join(10)
     assert not thread.is_alive() and not errors and path.read_bytes()==b'199'
+
+
+def test_publisher_capacity_rejects_before_writing(policy,sources,now,tmp_path,monkeypatch):
+    monkeypatch.setattr(writer,'EXPORT_ROOT',tmp_path)
+    monkeypatch.setattr(writer,'MAX_ENTRIES',2)
+    (tmp_path/'one').touch(); (tmp_path/'two').touch()
+    before=set(tmp_path.iterdir())
+    with pytest.raises(ValueError,match='EXPORT_DIRECTORY_FULL'):
+        writer.publish(export(policy,sources,now))
+    assert set(tmp_path.iterdir()) == before

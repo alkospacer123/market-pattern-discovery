@@ -167,7 +167,8 @@ def test_no_runtime_write_call_paths():
                                  and node.func.value.id == 'st' and node.func.attr == 'write')
                 assert display_write or node.func.attr not in forbidden, (path,node.func.attr)
                 if isinstance(node.func.value,ast.Name) and node.func.value.id=='os':
-                    assert path.name=='readonly_file.py' and node.func.attr in allowed_os
+                    assert (path.name=='readonly_file.py' and node.func.attr in allowed_os
+                            or path.name=='windows_file.py' and node.func.attr=='scandir')
 
 
 def test_nested_unknown_fields_rejected_without_leak(h1_export, publish, now):

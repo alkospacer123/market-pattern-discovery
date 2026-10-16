@@ -92,7 +92,19 @@ def main():
             results[name]['native_incomplete'] = True
     (evidence / 'results.json').write_text(json.dumps(results, indent=2), encoding='utf-8')
     print(json.dumps(results, indent=2), flush=True)
-    return int(any(r['exit_code'] or r.get('native_incomplete') or r.get('missing_junit') for r in results.values()))
+    failed = any(r['exit_code'] or r.get('native_incomplete') or r.get('missing_junit') for r in results.values())
+    acceptance = dict(classification='CC03_WINDOWS_NATIVE_NEEDS_FIX' if failed else 'CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED',
+                      legacy_live_source='CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED',
+                      original_legacy_replace_requirements='NOT_PASSED: conflicts reproduced, not fixed',
+                      native_transport_and_deployment='NEEDS_FIX' if failed else 'PASS',
+                      physical='NOT_EXECUTED')
+    (evidence / 'acceptance.json').write_text(json.dumps(acceptance, indent=2), encoding='utf-8')
+    print(json.dumps(acceptance, indent=2), flush=True)
+    with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
+        summary.write('\n' + acceptance['classification'] + '\n\nLegacy H1 continuous monitoring remains disabled. '
+                      'Expected-conflict regressions do not satisfy legacy live producer compatibility. '
+                      'Hosted CI is not physical Intel acceptance.\n')
+    return int(failed)
 
 
 if __name__ == '__main__':

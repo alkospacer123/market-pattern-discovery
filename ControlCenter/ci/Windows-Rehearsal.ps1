@@ -50,9 +50,12 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
     $nativeLog = $ErrorLog + '.native'
     $native = [CC03Access]::StartAs($Identity.Name, $Identity.Password, (Join-Path $env:SYSTEMROOT 'System32\cmd.exe'), $bootstrap, $script:AppRoot, $nativeLog, $Identity.Sid)
     try {
-        if (-not $native.WaitForExit(10000) -or $native.ExitCode -ne 0) { throw 'NATIVE_CMD_STARTUP_FAILED' }
-        Write-Output ('NATIVE_CMD_STARTUP_PASS sid=' + $Identity.Sid)
-    } finally { if (-not $native.HasExited) { & taskkill.exe /PID $native.Id /T /F }; $native.Dispose() }
+        if (-not $native.WaitForExit(10000) -or $native.ExitCode -ne 0) {
+            Write-Host ('NATIVE_CMD_STARTUP_STATE=' + $(if ($native.HasExited) { '0x{0:X8}' -f $native.ExitCode } else { 'RUNNING_BEFORE_COMMAND' }))
+            throw 'NATIVE_CMD_STARTUP_FAILED'
+        }
+        Write-Host ('NATIVE_CMD_STARTUP_PASS sid=' + $Identity.Sid)
+    } finally { if (-not $native.HasExited) { & taskkill.exe /PID $native.Id /T /F | Out-Host }; $native.Dispose() }
     $executable = Join-Path $env:SYSTEMROOT 'System32\WindowsPowerShell\v1.0\powershell.exe'
     return [CC03Access]::StartAs($Identity.Name, $Identity.Password, $executable, $bootstrap, $script:AppRoot, $ErrorLog, $Identity.Sid)
 }
@@ -141,9 +144,16 @@ public static class CC03Access {
             using (var context=identity.Impersonate()) {
                 if (WindowsIdentity.GetCurrent().User.Value!=expectedSid) throw new Exception("WRONG_CHILD_SID");
                 Directory.CreateDirectory(temporary);
+                Directory.CreateDirectory(Path.Combine(temporary,"AppData","Roaming"));
+                Directory.CreateDirectory(Path.Combine(temporary,"AppData","Local"));
                 File.WriteAllText(log,"NATIVE_LAUNCH_SID="+expectedSid+Environment.NewLine);
             }
             env["TEMP"]=temporary; env["TMP"]=temporary;
+            env["USERPROFILE"]=temporary;
+            env["APPDATA"]=Path.Combine(temporary,"AppData","Roaming");
+            env["LOCALAPPDATA"]=Path.Combine(temporary,"AppData","Local");
+            env["HOMEDRIVE"]=Path.GetPathRoot(temporary).TrimEnd('\\');
+            env["HOMEPATH"]=temporary.Substring(2);
             env["PYTHONNOUSERSITE"]="1"; env["PYTHONDONTWRITEBYTECODE"]="1";
             var block=new StringBuilder();
             foreach (var pair in env) block.Append(pair.Key).Append('=').Append(pair.Value).Append('\0');
@@ -154,7 +164,7 @@ public static class CC03Access {
             string action="& '"+script.Replace("'","''")+"' *> '"+log.Replace("'","''")+"'";
             var command=new StringBuilder(executable.EndsWith("cmd.exe",StringComparison.OrdinalIgnoreCase)
                 ? "\""+executable+"\" /d /c exit 0"
-                : "\""+executable+"\" -NoProfile -Command \""+action+"\"");
+                : "\""+executable+"\" -NoProfile -NonInteractive -NoLogo -Command \""+action+"\"");
             if (command.Length>=1024) throw new Exception("LOGON_COMMAND_LINE_TOO_LONG");
             try {
                 if (!CreateProcessWithTokenW(token,1,executable,command,0x08000400,environment,directory,ref startup,out process))

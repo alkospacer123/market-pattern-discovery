@@ -8,7 +8,6 @@ from ..models import (DataProvenance, FieldObservation, InstrumentStatus, Portfo
 from .h1_contract import ACTIVE, SPEC, ACCEPTED_COMMIT, MAX_BYTES, timestamp, validate
 from .h1_readonly import canonical_digest, _pairs, _reject_constant
 from .source_contract import SCHEMA, GROUPS
-from .readonly_file import read_snapshot
 from .windows_file import read_windows, read_latest_windows
 from ..deployment_paths import data_root
 

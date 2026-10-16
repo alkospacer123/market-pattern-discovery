@@ -1,4 +1,4 @@
-"""One-shot external observer. Only two pinned existing JSON sources, no engine/DB/API.
+"""CC-owned immutable publication. Legacy live collection is disabled, no engine/DB/API.
 
 Publication destination is fixed under the independent Control Center data tree.
 Private policy and output directory must be provisioned/ACL-audited separately.
@@ -16,7 +16,7 @@ import uuid
 from cc.providers.h1_contract import ACTIVE, SPEC, ACCEPTED_COMMIT, MAX_BYTES, timestamp, validate
 from cc.providers.h1_readonly import canonical_digest, _pairs, _reject_constant
 from cc.providers.readonly_file import read_source
-from cc.providers.windows_file import read_windows, components, WinAPI
+from cc.providers.windows_file import read_windows, components, WinAPI, MAX_ENTRIES
 from cc.providers.source_contract import SCHEMA, SCHEMA_ID
 from cc.deployment_paths import data_root
 
@@ -133,6 +133,10 @@ def publish(value):
             handle = api.open(path, True)
             held.append(handle)
             api.info(handle, path, True)
+        with os.scandir(EXPORT_ROOT) as entries:
+            for index, _ in enumerate(entries):
+                if index >= MAX_ENTRIES - 1:
+                    raise ValueError('EXPORT_DIRECTORY_FULL')
         fd, temporary = tempfile.mkstemp(prefix='.cc03-', suffix='.tmp', dir=EXPORT_ROOT)
         try:
             with os.fdopen(fd, 'wb') as stream:
@@ -157,7 +161,7 @@ def main():
     parser.add_argument('--execute', action='store_true', help='Read approved sources and publish once; default is preview')
     args = parser.parse_args()
     if not args.execute:
-        print('PREVIEW: two pinned JSON reads; atomic Control Center export only; no production action')
+        print('PREVIEW: legacy live source BLOCKED; immutable Control Center transport only; no production action')
         return
     try:
         if os.name != 'nt':
