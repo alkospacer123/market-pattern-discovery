@@ -1,5 +1,12 @@
 # TradingSystemLab — Frozen Stage 7 Production Strategy Passport
 
+## CURRENT LIVE passport — 2026-10-16 ARMED 62 and post-ARM READONLY PASS
+
+**Post-launch physical observation, not strategy modification:** Operator output from `stage8-537-readonly-v5.ps1` reports `ROADMAP36_POST_ARM_INDEPENDENT_READONLY_PASS`, `FINAL_POST_ARM_READONLY=PASS`. Intel Task on pinned source `3a18c8c24301c866a60f5d725de227288d48f7ec` RUNNING; one worker tree, external kill switch **ARMED generation 62**, heartbeat HEALTHY/reconciliation PASS, all four N4 completed H1 bars through `2026-10-16T04:00:00+00:00`, FINAM independent positions **0**, active protective stops **0** while flat, SQLite/WAL and broker/ledger protection matching PASS; 12286→12286 healthy cycle observation. No test orders, cancellations or state writes by diagnostic.
+
+**Frozen production passport remains unchanged:** `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8` / `TRAIL1__N4_01__FULL__R15` / T3/H1/TRAIL1; N4 USDRUBF, CNYRUBF, GLDRUBF, IMOEXF; 1.5% of realized equity nominal risk per new instrument position, aggregate at most 6% nominal initial risk, min(R15, margin) downward lot rounding. No MICRO_LIVE cap, no strategy changes, no new phase. Flat successful post-ARM verification **does not prove execution or loss bounds of a future stop**, natural entry/exit trade statistics, or a refreshed capital snapshot. Continue non-mutating monitoring of actual future trades and stop linkage only; preserve approved LIVE authority.
+
+
 ## CURRENT LIVE strategy passport — 2026-10-15 ARMED generation 62, frozen Stage7 unchanged
 
 **Real activation status:** User-approved Intel operator command `stage8-528-final-live-arm-v2.ps1 -mode execute` returned `ROADMAP36_PR528_FULL_R15_LIVE_ARMED_OPERATOR_PASS`, `NATIVE_EXACT_STAGE7_V2_KILL_SWITCH_ARMED=PASS`, `ARMED_GENERATION=62`, `TASK_RUNNING_EXACT_COMMIT_ARMED_AUTHORIZATION=PASS`. Pinned installed executable source `3a18c8c24301c866a60f5d725de227288d48f7ec`; durable authorization record bound to same commit/account. Physical pre-ARM evidence passed FINAM READONLY dual N4 flat probes, H1/healthy/reconciliation, worker topology as one Task wrapper plus two Python parent-child processes, and copied SQLite+WAL+R15 account authority. Preflight report SHA256 `B08161552FD8B863BCEDFA62DB0504F57066F42C8F0A21678295112A950EF9CE`, private evidence `c:\tslaudit\fill493\stage8-528-v2-final-arm-20261015-212717-3e06d549`.
