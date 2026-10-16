@@ -83,19 +83,15 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "c24ba33addee6d5f5affdf7685be2dfdd73dbcd7a7e13db4ad3731410a071a8e"
+      "sha256": "9bce8f8b233ba6ca975384d305503797493475a68cd8e9bd467f41321eec59e1"
     },
     {
       "path": "ci/identity_probe.py",
-      "sha256": "aa113363c691ae349a34848929a5472f8ce20615efc67557a0b7db7b093bdea2"
+      "sha256": "bd7836d4e64112518b57e2012a9f16d57035524a82b7f98cb1ac5bae1b78f97e"
     },
     {
       "path": "ci/windows_acceptance.py",
       "sha256": "a89cacfe9e5edcf02f4156e2f7280eb7951a8fd99a14223cca4389af19e4c5fa"
-    },
-    {
-      "path": "ci/windows_share_probe.py",
-      "sha256": "a508265b544409abe90dad52ca32f77228eeb0a16a331a2311b40e4bb3c98a08"
     },
     {
       "path": "deployment/Common.ps1",
@@ -263,7 +259,7 @@
     },
     {
       "path": "tests/test_cc03_source.py",
-      "sha256": "1ace32aaff9f4f0369bb27387f0cdca3279dac0263db5f1c420dcbdb57cde440"
+      "sha256": "92f186e55b7fb083e664c1835b3f0e8cdfdf5190db3eb9e49340ec43e5ddf598"
     },
     {
       "path": "tests/test_ci_paths.py",

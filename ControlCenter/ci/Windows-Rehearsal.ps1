@@ -160,6 +160,11 @@ public static class CC03Access {
             block.Append('\0');
             IntPtr environment=Marshal.StringToHGlobalUni(block.ToString());
             var startup=new StartupInfo(); startup.cb=Marshal.SizeOf(typeof(StartupInfo));
+            // NULL inherits the caller desktop, which belongs to runneradmin's
+            // logon session. Empty string asks Windows for the target logon's
+            // noninteractive station/desktop. Never alter an existing desktop
+            // DACL or grant this user interactive runner desktop access.
+            startup.desktop=Marshal.StringToHGlobalUni("");
             ProcessInfo process;
             string action="& '"+script.Replace("'","''")+"' *> '"+log.Replace("'","''")+"'";
             var command=new StringBuilder(executable.EndsWith("cmd.exe",StringComparison.OrdinalIgnoreCase)
@@ -169,7 +174,7 @@ public static class CC03Access {
             try {
                 if (!CreateProcessWithTokenW(token,1,executable,command,0x08000400,environment,directory,ref startup,out process))
                     throw new Exception("CREATE_PROCESS_WITH_TOKEN_UNAVAILABLE win32="+Marshal.GetLastWin32Error());
-            } finally { Marshal.FreeHGlobal(environment); }
+            } finally { Marshal.FreeHGlobal(environment); Marshal.FreeHGlobal(startup.desktop); }
             CloseHandle(process.thread);
             return new CC03Child(process.process,process.processId);
         } finally { CloseHandle(token); }

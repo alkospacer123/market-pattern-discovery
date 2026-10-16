@@ -10,6 +10,18 @@ from cc.providers.windows_file import read_windows, WinAPI
 
 def main():
     assert os.name == 'nt' and os.environ.get('RUNNER_ENVIRONMENT') == 'github-hosted'
+    from ctypes import wintypes as w
+    u=ctypes.WinDLL('user32',use_last_error=True)
+    u.GetProcessWindowStation.restype=w.HANDLE
+    u.GetThreadDesktop.argtypes=[w.DWORD]; u.GetThreadDesktop.restype=w.HANDLE
+    u.GetUserObjectInformationW.argtypes=[w.HANDLE,ctypes.c_int,w.LPVOID,w.DWORD,ctypes.POINTER(w.DWORD)]
+    def object_name(handle):
+        buffer=ctypes.create_unicode_buffer(512); needed=w.DWORD()
+        if not u.GetUserObjectInformationW(handle,2,buffer,ctypes.sizeof(buffer),ctypes.byref(needed)):
+            raise ValueError('CURRENT_DESKTOP_NAME_UNAVAILABLE')
+        return buffer.value
+    print('IDENTITY_WINDOWSTATION='+object_name(u.GetProcessWindowStation()),flush=True)
+    print('IDENTITY_DESKTOP='+object_name(u.GetThreadDesktop(ctypes.windll.kernel32.GetCurrentThreadId())),flush=True)
     # whoami is performed by the PS bootstrap; Python verifies access and spawn.
     root = Path(os.environ['TEMP'])
     path = root/'probe.json'; path.write_bytes(b'{}')

@@ -147,6 +147,7 @@ def test_unresolved_unhealthy_and_no_task_no_healthy(policy,sources,now,tmp_path
 
 def test_corrupt_oversize_and_secret_error_missing_exporter(policy,sources,now,tmp_path,monkeypatch):
     monkeypatch.setattr(receiver,'EXPORT_ROOT',tmp_path)
+    monkeypatch.setattr(receiver,'read_latest_windows',lambda *args: (tmp_path/'h1.snapshot.json').read_bytes())
     provider=receiver.H1ExportProvider(approved(policy))
     for raw in (b'{',b' '*131073,b'{"token":"SECRET_TOKEN"}'):
         (tmp_path/'h1.snapshot.json').write_bytes(raw)
