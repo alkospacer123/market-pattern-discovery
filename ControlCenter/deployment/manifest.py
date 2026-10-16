@@ -15,7 +15,9 @@ EXCLUDED_PARTS = {'.git', '.venv', '__pycache__', '.pytest_cache', 'wheelhouse'}
 
 def entries():
     result = []
-    for path in sorted(ROOT.rglob('*')):
+    # Path ordering is case-sensitive on POSIX and case-insensitive on Windows.
+    # Manifest order must use the same portable package-relative spelling.
+    for path in sorted(ROOT.rglob('*'), key=lambda item: item.relative_to(ROOT).as_posix()):
         relative = path.relative_to(ROOT)
         if (path == MANIFEST or any(part in EXCLUDED_PARTS for part in relative.parts)
                 or path.name in {'receiver-policy.json','source-policy.json'} or not path.is_file()):
@@ -36,7 +38,14 @@ def main():
         MANIFEST.write_text(json.dumps(payload, indent=2) + '\n', encoding='utf-8')
         print('CC03_MANIFEST_WRITTEN')
     else:
-        if json.loads(MANIFEST.read_text(encoding='utf-8')) != payload:
+        expected = json.loads(MANIFEST.read_text(encoding='utf-8'))
+        if expected != payload:
+            old = {entry['path']: entry['sha256'] for entry in expected['files']}
+            actual = {entry['path']: entry['sha256'] for entry in payload['files']}
+            print(json.dumps(dict(missing=sorted(old.keys()-actual.keys()),
+                                  unexpected=sorted(actual.keys()-old.keys()),
+                                  changed=sorted(name for name in old.keys() & actual.keys() if old[name] != actual[name]),
+                                  order_only=old == actual)))
             raise SystemExit('CC03_MANIFEST_MISMATCH')
         print('CC03_MANIFEST_PASS_READONLY')
 

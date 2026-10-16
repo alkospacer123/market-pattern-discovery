@@ -1,7 +1,8 @@
 """Local NTFS read boundary. No shell, trading imports, write handles or fallback.
 
-Directories deny WRITE/DELETE sharing; leaves allow DELETE for atomic producers. A spawned worker
-bounds native I/O; ACL/source trust remains an installation acceptance requirement.
+Directories deny DELETE sharing; leaves allow DELETE sharing. Hosted Windows
+acceptance still exposes a blocking legacy os.replace conflict; do not deploy.
+A spawned worker bounds native I/O; ACL/source trust remains an acceptance gate.
 """
 import ctypes
 from ctypes import wintypes as w
@@ -116,11 +117,12 @@ class WinAPI:
         # FILE_LIST_DIRECTORY + READ_ATTRIBUTES + READ_CONTROL for directories;
         # metadata-only access does not participate in Windows share checking.
         # GENERIC_READ for leaf. OPEN_EXISTING.
-        # Directories deny WRITE/DELETE; leaves allow DELETE so the observer does
-        # not block an atomic os.replace producer. Replaced pathname => rejection.
+        # Directory WRITE sharing permits child publication while DELETE denial
+        # pins the directory itself. Leaf DELETE sharing is necessary but the
+        # hosted test still exposes legacy os.replace blocking on an open leaf.
         # OPEN_REPARSE_POINT applies even to directories; never traverse an unchecked one.
         handle = self.k.CreateFileW(path, (0x1 | 0x80 | 0x20000) if directory else 0x80000000,
-                                    1 if directory else 1 | 4, None, 3, 0x00200000 | 0x02000000, None)
+                                    1 | 2 if directory else 1 | 4, None, 3, 0x00200000 | 0x02000000, None)
         if handle == ctypes.c_void_p(-1).value or handle is None:
             raise ValueError('OPEN_DENIED')
         return handle

@@ -44,9 +44,16 @@ def main():
     results = {}
     for name, command in commands:
         print(f'\n=== {name} ===', flush=True)
+        environment = os.environ.copy()
+        if command[0] == 'powershell':
+            # pwsh's inherited PSModulePath includes incompatible PowerShell 7
+            # copies of built-ins. Rehearse the actual Windows PowerShell 5.1.
+            environment['PSModulePath'] = os.pathsep.join([
+                str(Path(environment['SystemRoot']) / 'System32/WindowsPowerShell/v1.0/Modules'),
+                str(Path(environment['ProgramFiles']) / 'WindowsPowerShell/Modules')])
         try:
             completed = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                       encoding='utf-8', errors='replace', timeout=360)
+                                       encoding='utf-8', errors='replace', timeout=360, env=environment)
             output, exit_code = completed.stdout, completed.returncode
         except subprocess.TimeoutExpired as exc:
             output = (exc.stdout or b'').decode('utf-8', errors='replace') + '\nACCEPTANCE_COMMAND_TIMEOUT'

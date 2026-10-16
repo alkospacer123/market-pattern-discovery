@@ -75,7 +75,7 @@
     },
     {
       "path": "cc/providers/windows_file.py",
-      "sha256": "166267b714f1978144f3fb7b5c49929a7900c61ba2f1e13697702a40095bf339"
+      "sha256": "1cd79e0fcdf72428e4ccae3a6601d8cde29cf58c7968f1a3c185a37932d73aaf"
     },
     {
       "path": "cc/ui.py",
@@ -87,7 +87,7 @@
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "876197ef4db9d0c4370572de0005cf7bfe8d50efc33f7799805800021a05c2da"
+      "sha256": "942efbfb7429f17f2abaa4ebb4a6949975efe2567e421e61076a538c9614a3c9"
     },
     {
       "path": "ci/windows_share_probe.py",
@@ -127,7 +127,7 @@
     },
     {
       "path": "deployment/manifest.py",
-      "sha256": "229f55baf01593eb3abf4175fe51fdc6d7d2bf5c615181c2adde2a36b93d5fcb"
+      "sha256": "e87e2842516cfe99b2099906699ac4d6c381c867d97422bd2b0c23f2ec26b1a4"
     },
     {
       "path": "deployment/receiver-policy.example.json",
@@ -170,8 +170,12 @@
       "sha256": "6fec5bbc4055bab27ace5e974cd6d5cef2816276177603ac809c9156bd708fae"
     },
     {
+      "path": "docs/CC03_WINDOWS_HOSTED_ACCEPTANCE.md",
+      "sha256": "c79a63ad4901d23e59a4fbc915d00d3b650b85a7dafb69789aa6f0a227f5c1c7"
+    },
+    {
       "path": "docs/CC03_WINDOWS_SECURITY.md",
-      "sha256": "454f16398d34d6ac4dcefe85c87be25c5b42d68a4f8a72870b0b588387f383f8"
+      "sha256": "048dbfc0fec831f1a8271ba6ea1173ff9bf4f143221ddcdbb3f80a8f336370a3"
     },
     {
       "path": "docs/H1_READONLY_SNAPSHOT_CONTRACT.md",
