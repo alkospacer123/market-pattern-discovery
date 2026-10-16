@@ -171,11 +171,11 @@
     },
     {
       "path": "docs/CC03_WINDOWS_HOSTED_ACCEPTANCE.md",
-      "sha256": "1036910e508028e090fe871d14821f261c427fec861c5ac36cc50f0fc58ec7b6"
+      "sha256": "0e5bea25e5c2aaeb5eb2c9713b44c91fa277281b8a63c2c7fa57e6d116a79697"
     },
     {
       "path": "docs/CC03_WINDOWS_SECURITY.md",
-      "sha256": "0fd97c062c30bd4e75f05468199673620937e0fa8a0aae385baf340075eaaa61"
+      "sha256": "c96017fa6e0608a9d671b3ee520e72258f19733f0b1864ece6283b98bc6b33d8"
     },
     {
       "path": "docs/H1_READONLY_SNAPSHOT_CONTRACT.md",

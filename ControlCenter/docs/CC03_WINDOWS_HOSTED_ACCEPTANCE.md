@@ -1,91 +1,86 @@
-# CC-03: GitHub-hosted Windows native acceptance
+# CC-03: Windows audit corrections in Draft PR #534
 
-**CC03_WINDOWS_HOSTED_NATIVE_NEEDS_FIX.** Windows инфраструктура доступна; приёмка заблокирована дефектом reader/atomic producer.
+**CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED.** Own immutable transport and legacy live-source compatibility are separate. No `CC03_WINDOWS_NATIVE_PASS` or `CC03_PHYSICAL_PASS` is claimed. Same [Draft PR #534](https://github.com/alkospacer123/market-pattern-discovery/pull/534), same branch `codex/controlcenter-cc03-windows-native`; no new phase, merge, auto-merge, Intel or trading operations.
 
-Один [Draft PR #534](https://github.com/alkospacer123/market-pattern-discovery/pull/534), ветка `codex/controlcenter-cc03-windows-native`. NO MERGE / NO AUTO-MERGE / NO INTEL / NO TRADING. Новая фаза roadmap не создавалась.
+## Actual Windows evidence
 
-## Основное Windows evidence
+Primary engineering run [38868278178](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38868278178); complete decoded job log read and preserved. [Raw logs/JUnit/environment/deployment artifact](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38868278178/artifacts/12032118261), SHA-256 `c3336b7477c92a60ad22fd8da50c1541ec6e5a2c07cb0bee01c09c9b7241974b`, expires 2026-11-15. The PR description records the final report-commit HEAD/run and independent repeat, avoiding a self-referencing commit hash in this manifest-covered file.
 
-- Run ID: [38862012808](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38862012808); actual job log прочитан и сохранён.
-- Проверенный synthetic merge SHA: `797b1d30c2692f5eca429689b74f588410d0d968`.
-- PR head SHA: `0b7fd2b6a67345bed047036868b14af72d96dc48`; base SHA: `cb7e1cc32694fb97fba3c7f9200f9a492d8eebea`.
-- Проверенный ControlCenter tree: `9dcc5752a7f994c2dfea6c585eedea62f0151803`.
-- GitHub-hosted `windows-2022`, Windows Server 2022 Datacenter 10.0.20348 (build 20348), local fixed NTFS.
-- Python: `3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]`; разрядность **64**. pytest 8.4.2.
+- PR head: `c09b4881d53466799ea0bd543e66223118354199`.
+- Tested synthetic merge SHA: `f3235053c99f25beda06aeeed3ed20bce84cec15`.
+- Base: `cb7e1cc32694fb97fba3c7f9200f9a492d8eebea`.
+- Tested ControlCenter tree: `7797cdd2c34d5a5e83e01b9093347b8e56d3e429`.
+- Standard GitHub-hosted `windows-2022`, Windows Server 2022 Datacenter build 20348, local fixed NTFS.
+- Python `3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]`, **64-bit**; pytest 8.4.2. Exact Python 3.12.10 and 44 SHA-256-pinned Windows wheels; freeze in artifact.
 
-| Проверка | PASS | FAIL | SKIP |
+| Actual pytest execution | PASS | FAIL | SKIP |
 | --- | ---: | ---: | ---: |
-| tests/test_windows_reader.py | 42 | 2 | 0 |
-| tests/test_cc03_source.py | 27 | 0 | 0 |
-| Полный python -m pytest -q | 323 | 2 | 15 |
+| windows-reader | 44 | 0 | 0 |
+| windows-transport | 12 | 0 | 0 |
+| cc03-source | 27 | 0 | 0 |
+| full-suite | 337 | 0 | 15 |
 
-`deployment/manifest.py --check`: **PASS**; `python -m pip check`: **PASS**. Все Windows-native skips отсутствуют; 15 skips — только документированные POSIX injections.
+`manifest.py --check`: exit 0; `pip check`: exit 0. Windows-native SKIP count: **zero**. Fifteen POSIX-only skips are listed below; none converted from a native failure.
 
-## Все 12 ранее пропущенных native scenarios
+## A. CC-owned publication
 
-| Реальный Windows test | Результат |
+Exporter now publishes closed, fsynced temporary bytes by Windows rename to a unique completed filename containing a timestamp, UUID and SHA-256. It never overwrites an open published file. Receiver discovers the latest exact completed name inside held no-reparse ancestor/root handles, with an independently installed NTFS root identity pin, bounded directory enumeration and 128 KiB file limit. It verifies filename digest, schema digest, file identity/size/times/link count, canonical path and before/after pathname identity. Partial names are ignored; an invalid completed latest file produces UNKNOWN, without last-good fallback. Source/account provenance and TTL checks remain independent. Directory timestamps are excluded from identity comparison because legitimate child publication changes them; identity and attributes remain checked.
+
+Native transport tests hold an old snapshot open throughout 24 concurrent publications and overlapping reads, require all publications to finish, and verify byte/schema integrity. Substitution, hardlink/symlink, directory, oversize, wrong root pin, changed file and discovery/publisher capacity failures are tested. The publisher refuses new writes at 2048 total directory entries; receiver rejects enumeration beyond that bound. No automatic deletion or production retention policy is introduced. Offline maintenance is a residual deployment gate.
+
+## B. Legacy producers remain incompatible
+
+Audit baseline [38862976125](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38862976125) remains **323 PASS / 2 FAIL / 15 POSIX SKIP**. Its two original compatibility requirements are **NOT PASSED**: an open observer leaf causes `os.replace` WinError 5. No new Win32 share/access flag search was used as a fix. H1 producers, source directories and publication scheme are unchanged.
+
+`read_source` and default CLI collection now fail closed with `CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED` before any legacy source open. Existing conflict tests were explicitly changed into executable negative compatibility regressions: they reproduce the conflict and demonstrate producer recovery after handles close. Their pytest PASS means expected incompatibility was reproduced; it does **not** satisfy the original live compatibility requirement. A separate real concurrent legacy producer test confirms that a disabled observer does not interfere; it reads no heartbeat/kill-switch data. Injected synthetic contract readers are not a CLI bypass or proof of live monitoring. Stopped-source reads are not used as evidence of continuous compatibility.
+
+All twelve original native scenarios execute:
+
+| Executed native regression | Actual pytest result |
 | --- | --- |
 | `test_native_read_and_hardlink` | PASSED |
 | `test_native_symlink[False]` | PASSED |
 | `test_native_symlink[True]` | PASSED |
 | `test_native_junction_reparse` | PASSED |
-| `test_native_inplace_write_denied_atomic_replace_allowed` | FAILED |
+| `test_native_legacy_replace_conflict_requires_live_block` | PASSED |
 | `test_native_api_missing` | PASSED |
 | `test_native_missing_oversize_and_directory` | PASSED |
 | `test_native_existing_writer_and_pinned_directory` | PASSED |
 | `test_native_insufficient_file_acl` | PASSED |
-| `test_native_atomic_producer_is_unblocked_and_receiver_rejects_change` | FAILED |
+| `test_native_legacy_concurrent_conflict_and_release` | PASSED |
 | `test_native_policy_with_untrusted_write_acl_is_rejected` | PASSED |
 | `test_native_admin_owned_policy_accepts_then_rejects_weak_ace` | PASSED |
 
-**10 PASS / 2 FAIL / 0 native SKIP.** Win32 reader не принят: обе ошибки относятся к atomic replacement, а не к отсутствию Windows API.
+Ten original security scenarios are accepted when passing; the two legacy replacement scenarios remain negative compatibility evidence. No native FAIL was changed to SKIP/XFAIL.
 
-Существующий `os.replace` producer получает WinError 5 при открытом leaf handle. Реальная диагностика девяти access/share combinations дала отказ во всех случаях; после закрытия observer handle replacement проходит. WRITE-sharing дополнительно допускает in-place write и не применялся как исправление. Изменять защищённый H1 producer или менять FAIL на SKIP нельзя. Нужен отдельно доказанный совместимый read protocol в рамках CC-03.
+## Separate-SID startup and deployment
 
-Microsoft документирует [FILE_RENAME_POSIX_SEMANTICS](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/ns-ntifs-_file_rename_information) для replacement при открытых handles; reader не может изменить семантику внешнего producer.
+PowerShell 5.1 parser checks all eight deployment files; all seven entrypoints run safe preview, including Probe-H1Task. Probe-H1Task -Execute is never run. Rehearsal uses only its own GUID-named RUNNER_TEMP tree and two disposable standard local users. Passwords remain in memory, absent from process arguments/bootstrap/logs.
 
-## PowerShell и реальные ACL
-
-Windows PowerShell 5.1: восемь deployment files прошли синтаксический parser; все семь entrypoints прошли безопасный preview: Preflight, Install, Verify, Start-Panel, Start-Exporter, Uninstall, Probe-H1Task. Probe-H1Task -Execute не запускался.
-
-| Runtime проверка | Фактический результат |
+| Actual runtime check | Result |
 | --- | --- |
-| Два SID / effective ACL | PASS: 10 actual access probes under two distinct non-admin logon tokens |
-| Bad wheel hash regression | PASS: bad hash rejected before any target write |
-| Offline Install | PASS: real offline install into disposable ACL-provisioned roots |
-| Panel + Verify под отдельным SID | NOT_VERIFIED: dependent startup gate not completed |
-| Exporter под отдельным SID / unapproved policy | NOT_VERIFIED: dependent startup gate not completed |
-| Uninstall / data retention | PASS: own package/venv removed after failed launch; data retained |
+| separate_sid_acl | PASS: 10 actual access probes under two distinct non-admin logon tokens |
+| invalid_wheel_regression | PASS: bad hash rejected before any target write |
+| install | PASS: real offline install into disposable ACL-provisioned roots |
+| panel_listener | PASS: HTTP health 200, 127.0.0.1:8501 owned by CCPanel SID S-1-5-21-3213014087-2684668049-2838998412-1003 |
+| panel_verify | PASS: low-privilege panel and real loopback-only listener; receiver remains UNKNOWN without approved source |
+| exporter_fail_closed | PASS: separate-SID one-shot rejected unapproved policy, published nothing beyond the explicitly synthetic CI probe |
+| physical_source | OUT_OF_SCOPE: physical H1 source/account/TTL authority remains a separate Intel gate |
+| process_cleanup | PASS: own panel process tree exited and listener removed; exporter already exited |
+| uninstall | PASS: own package/venv removed, disposable private/export/log data retained |
+| status | PASS |
 
-Итог rehearsal: **FAIL**. Preflight реально выполнен до install. Установленный venv отдельно подтвердил Python 3.12.10 x64. ACL применялись только к собственному disposable `RUNNER_TEMP/CC03-<guid>`. Два новых standard users удаляются в finally; чужие и production ACL не изменялись.
+Startup diagnosis was independent of Streamlit: run [38867672338](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38867672338) captured a direct Python `_ctypes` DLL initialization failure, while native cmd exited normally. Earlier PowerShell had one thread waiting in LpcReply before CLR/bootstrap. Environment cleanup, a null/empty desktop comparison and stdio alone did not resolve it. Run 38868278178 resolved both Python DLL initialization and PowerShell startup by assigning each launched role process a **new private noninteractive window station/desktop**. Its protected DACL grants only SYSTEM, Administrators and that target SID. Existing stations/desktops and all token privileges are untouched; no user is granted access to the runner's interactive desktop. Handles are retained for the child lifetime and closed after exit.
 
-Не завершённые пункты не засчитываются как PASS:
+Actual direct probes print `PYTHON_ACTUAL_SID`, `IDENTITY_WINDOWSTATION=CC03-<guid>`, `IDENTITY_DESKTOP=CC03`, exact venv executable/cwd, and `ntfs_read_spawn=PASS` for both CCPanel (`...-1003`) and CCExporter (`...-1004`). The listener is a descendant of the launched panel tree with CCPanel owner SID. Its base Python executable shown by CIM is the normal Windows venv redirector behavior; the venv path/version is separately recorded by each direct probe.
 
-```json
-{
-  "panel_child_exit": "RUNNING_WITHOUT_LISTENER",
-  "panel_log_present": false,
-  "status": "FAIL",
-  "error": "DISPOSABLE_PANEL_DID_NOT_BIND_LOOPBACK"
-}
-```
+Native launcher uses an explicit target-user environment block and role-writable temporary/profile directories within existing allowed write roots. It supplies explicit target-owned inheritable stdin/stdout/stderr handles. Native command and direct Python/spawn probes run before PowerShell; bootstrap separately records/verifies actual SID, cwd/PID and venv version. Streamlit must bind only 127.0.0.1:8501, answer health 200, and its listener must be owned by CCPanel SID; Verify independently checks listener ownership. CCExporter independently proves immutable publication of a clearly synthetic UNVERIFIED/UNKNOWN snapshot, then the actual Start-Exporter rejects an unapproved private policy without additional publication. No synthetic fixture claims broker/source authority. Only created process trees are stopped; listener removal and data contents after Uninstall are checked. Any uncompleted check remains unverified, never inferred from previews.
 
-LogonUser и 10 actual file-access probes под двумя SID работают. SeImpersonatePrivilege у runner включена. Отсутствие конкретного Windows права не доказано; ошибки startup не объявляются ошибками permissions. Непроверенные Start-Panel / Verify / Start-Exporter под отдельными SID остаются NOT_VERIFIED. Execution policy, desktop ACL и системные privileges не ослаблялись.
+ACL matrix, administrator-owner requirements, CORS/XSRF, execution policy, account isolation and existing Windows privileges are preserved. Real positive/negative file access uses two non-admin logon tokens. No filesystem ACL is applied outside the disposable CC tree; new private GUI objects receive the narrow role DACL described above. Full source/ACL physical acceptance is not inferred from CI.
 
-Пароль temporary users остаётся в памяти: его нет в process command line, bootstrap или artifacts. Logon command ограничен 1024 chars; [это лимит Windows API](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createprocesswithtokenw). Bootstrap хранит только CI paths/context и защищён ACL. Код панели/exporter продолжает проверять dedicated identity и прежнюю ACL-матрицу.
+## POSIX-only skips
 
-## Исправления, подтверждённые Windows execution
-
-- Directory metadata-only handle не удерживал каталог от rename: добавлен read-only FILE_LIST_DIRECTORY с запретом DELETE-sharing. WRITE-sharing каталога разрешает child publication; write access reader не запрашивает. Leaf security checks сохранены.
-- Deny fixture запрещает FILE_READ_DATA, проверяет настоящий access-denied и затем восстанавливает свой ACE, сохраняя READ_CONTROL для cleanup.
-- UTF-8 source audits используют явную кодировку; oversized binary case получил короткий pytest ID вместо превышения Windows environment limit.
-- Manifest использует одинаковую case-sensitive сортировку package-relative POSIX spelling на Windows и Linux; checkout сохраняет LF.
-- PowerShell 5.1 materializes wheel JSON array перед wrapping: все filename/hash/count checks сохранены. Bad-hash regression подтверждает отказ до записи в targets.
-- Windows PowerShell получает собственный module path; CI-only roots согласованы для Python receiver/exporter и PowerShell. Все default test I/O также ограничены disposable roots.
-
-## Полный список 15 skips
-
-Единственная причина: `POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py`.
+Reason: `POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py`.
 
 - `tests.test_h1_fault_injection.test_unsafe_files_and_ancestors_rejected[file_symlink]`
 - `tests.test_h1_fault_injection.test_unsafe_files_and_ancestors_rejected[directory_symlink]`
@@ -103,47 +98,13 @@ LogonUser и 10 actual file-access probes под двумя SID работают
 - `tests.test_h1_fault_injection.test_no_secure_platform_primitive_fails_closed`
 - `tests.test_h1_fault_injection.test_read_uses_no_write_capability_or_external_systems`
 
-## Actions / воспроизводимость / scope
+## Scope and remaining gates
 
-Один workflow `.github/workflows/controlcenter-cc03-windows-native.yml`: pull_request с двумя path filters, runs-on windows-2022, contents: read, timeout 15 минут, sparse checkout только /ControlCenter/, persist-credentials: false. Нет pull_request_target, self-hosted/larger labels, privileged GitHub token permissions, repository secrets, FINAM tokens, production environment variables или remote sessions. Python 3.12.10 x64, все 44 Windows wheels закреплены versions/SHA256, actions — commit SHA. Freeze и JUnit сохраняются в artifacts на 30 дней.
+Only `ControlCenter/` and `.github/workflows/controlcenter-cc03-windows-native.yml` may differ. Workflow remains pull_request/path-filtered, contents: read, windows-2022, timeout 15 minutes, sparse checkout, persist-credentials false, pinned action commits. No self-hosted/larger runner, pull_request_target, repository secrets, production environment variables, remote sessions or trading operations. Previous read attempts to administrative Actions settings returned 403/404; actual standard runner execution establishes CI availability, not access to those settings.
 
-Administrative Actions permissions / selected-actions GET вернули 403; hosted-runner management endpoint — 404. Чтение этих настроек полностью недоступно текущей integration. Registry перечислил пять legacy active workflows; файлов других workflows в pinned main нет. Реальное выделение windows-2022 VM и execution подтверждены job logs; settings не изменялись.
-
-Начальный main `1c8b0c702fa73bc99e0a6593dc7dc2fa072eb6cb` и merge #533 проверены. Единственная ветка актуализирована на `cb7e1cc32694fb97fba3c7f9200f9a492d8eebea` после upstream #535–#538. Их operational Markdown / diagnostics package не принадлежат diff этого PR и не исполняются данным CI.
-
-| Protected tree | Pinned base = PR head |
+| Protected tree | Base = head |
 | --- | --- |
 | TradingSystemLab | `d27ac7153a4d25455112c1a6673d2b37a1784f43` |
 | IntradayLab | `c4f6e652ba442a575ad5711cb3f55841f860f484` |
 
-Protected diff пуст. Единственное разрешённое изменение вне ControlCenter — новый workflow. TradingSystemLab / IntradayLab, стратегии, identity, production configurations, SQLite, Task, kill switch, authorization и FINAM logic этой веткой не менялись.
-
-## История настоящих Windows runs
-
-| Run | Raw full pytest summary | Manifest |
-| --- | --- | --- |
-| [38805454778](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38805454778) | 6 failed, 306 passed, 15 skipped, 2 errors | FAIL |
-| [38806311854](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38806311854) | 2 failed, 323 passed, 15 skipped | FAIL |
-| [38858099772](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38858099772) | NOT_EXECUTED: wrapper failed before commands | NOT_EXECUTED |
-| [38858276737](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38858276737) | 2 failed, 323 passed, 15 skipped | PASS |
-| [38858709525](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38858709525) | 2 failed, 323 passed, 15 skipped | PASS |
-| [38859180303](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38859180303) | 2 failed, 323 passed, 15 skipped | PASS |
-| [38859974112](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38859974112) | 2 failed, 323 passed, 15 skipped | PASS |
-| [38860731461](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38860731461) | 2 failed, 323 passed, 15 skipped | PASS |
-| [38861276003](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38861276003) | 2 failed, 323 passed, 15 skipped | PASS |
-| [38862012808](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38862012808) | 2 failed, 323 passed, 15 skipped | PASS |
-
-Каждый completed native run имеет actual environment metadata, command logs, JUnit и skip list. Wrapper-only run не засчитывается как Windows acceptance. Raw job logs сохранены отдельно; последняя проверка документального commit и её точные SHA/run URL указаны в Draft PR checks/body.
-
-## Intel physical gate
-
-**CC03_PHYSICAL_PASS не установлен; CC-03 Intel physical NOT_EXECUTED.** GitHub main не является измерением установленного робота. Отдельно остаются:
-
-- реальные Windows identities и ACL сервера;
-- реальный источник H1 heartbeat / kill switch;
-- account binding;
-- утверждённые TTL;
-- физические before/after checks;
-- отдельное разрешение оператора на установку.
-
-Ни Control Center, ни exporter на Intel не устанавливались и не запускались. Merge / Auto-Merge не выполнялись. Оба native FAIL сохраняются открытыми; физический rollout заблокирован. STOP, без CC-04.
+Protected diff is empty. Frozen identities, strategies, production configuration, SQLite/WAL, H1 Task, kill switch, authorization and FINAM logic are untouched. Legacy live compatibility is unresolved; continuous real H1 monitoring remains prohibited. Physical identities/ACLs, real heartbeat/kill-switch source, account binding, approved TTL/calendar, before/after checks and separate operator installation authorization remain Intel acceptance gates. No CC-04. STOP after independent repeat and scope checks.
