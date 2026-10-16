@@ -16,6 +16,12 @@
 - R15 1.5% of authenticated M15 **realized** equity per new position, maximum 6% portfolio nominal initial risk. Margin cap with downward lot rounding, zero remains zero.
 - Possible R20 requires a later **separate** user decision, never automatic.
 
+## FINAM M15 read-only transport (added, no orders)
+
+The isolated `finam_readonly.py` ports H1's authenticated REST request structure to M15. It exposes `connect_readonly()`, `account()`, `orders()`, `asset_params()`, `schedule()` and `bars_m15()`. It requires a separate single-account `readonly == true` FINAM token and enforces the exact M15 account binding. Only session creation/detail POSTs exist; all other supported requests are **GET only**. There is no submission/cancel/SLTP method. The official FINAM REST `TIME_FRAME_M15` enum and 30-day M15 retention are documented; this does **not** prove timestamp/boundary/finalization behavior of an actual FINAM response. No token is provisioned or used in this PR.
+
+`tests/test_finam_readonly.py` contains 11 synthetic, transport-injected tests for exactly those boundaries, including cross-account denial and blocked order-path methods. It does not contact FINAM.
+
 ## Continued H1 reuse: broker read-side and durable shadow
 
 The same PR now also includes **a separate persistent read-only shadow** built from inspected H1 sources:
