@@ -16,6 +16,20 @@ Standard GitHub-hosted `windows-2022`, Windows Server 2022 Datacenter
 | --- | --- | --- | --- | --- |
 | [38805454778](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38805454778) | `f00eda14e64bc8afcf0264660909a2964d455387` | 306 PASS / 6 FAIL / 15 SKIP / 2 ERROR | FAIL | 8 syntax / 7 preview PASS |
 | [38806311854](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38806311854) | `936ef83ca8712e48c108b8193916cf3eb8f4ef1e` | 323 PASS / 2 FAIL / 15 SKIP | FAIL | 8 syntax / 7 preview PASS; rehearsal FAIL из-за наследованного PS7 module path |
+| [38858099772](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38858099772) | `fd572ab34157f3c31bf5aa39b2b37cad07586cda` | NOT_EXECUTED: CI wrapper KeyError перед первой командой | NOT_EXECUTED | NOT_EXECUTED |
+
+Actions проверяет synthetic PR merge commit. Фактически tested SHA первых
+двух runs: `c6b5918f9d3834d4483f2203514c5d1930356b54` и
+`7264c6f40d8de48072c43b738db7093ff79366da` соответственно.
+Третий checkout SHA — `ea15f27ea3bbf7efe995f86baef838a32b57db2e`, но тесты
+не начались, поэтому он не считается native acceptance.
+
+Во время продолжения работы main продвинулся до
+`0aae41d9c02f67e3cd6539a2cb610174fc270e01` через upstream #535/#536:
+только пять operational Markdown / 72 добавленные строки TradingSystemLab.
+Ветка актуализируется на эту базу; собственных protected changes нет.
+Актуальный upstream TradingSystemLab tree — `06dc3c678fca157d12c45b3aa173a310191fdb4f`;
+IntradayLab tree прежний.
 
 Во втором run: reader suite 42 PASS / 2 FAIL / 0 SKIP; source suite
 27 PASS / 0 FAIL / 0 SKIP; все 12 ранее skipped native сценариев реально

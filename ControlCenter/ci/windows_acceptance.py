@@ -48,9 +48,11 @@ def main():
         if command[0] == 'powershell':
             # pwsh's inherited PSModulePath includes incompatible PowerShell 7
             # copies of built-ins. Rehearse the actual Windows PowerShell 5.1.
-            environment['PSModulePath'] = os.pathsep.join([
-                str(Path(environment['SystemRoot']) / 'System32/WindowsPowerShell/v1.0/Modules'),
-                str(Path(environment['ProgramFiles']) / 'WindowsPowerShell/Modules')])
+            # os.environ is case-insensitive on Windows; its plain-dict copy is
+            # not. Use canonical uppercase names and replace the existing key.
+            environment['PSMODULEPATH'] = os.pathsep.join([
+                str(Path(environment['SYSTEMROOT']) / 'System32/WindowsPowerShell/v1.0/Modules'),
+                str(Path(environment['PROGRAMFILES']) / 'WindowsPowerShell/Modules')])
         try:
             completed = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                        encoding='utf-8', errors='replace', timeout=360, env=environment)

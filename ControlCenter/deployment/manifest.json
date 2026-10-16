@@ -87,7 +87,7 @@
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "942efbfb7429f17f2abaa4ebb4a6949975efe2567e421e61076a538c9614a3c9"
+      "sha256": "9002778f743e17891710f468fa3ffe71ea05c88305222c7e6e3d9c4d35eaadc7"
     },
     {
       "path": "ci/windows_share_probe.py",
@@ -171,7 +171,7 @@
     },
     {
       "path": "docs/CC03_WINDOWS_HOSTED_ACCEPTANCE.md",
-      "sha256": "c79a63ad4901d23e59a4fbc915d00d3b650b85a7dafb69789aa6f0a227f5c1c7"
+      "sha256": "e39d0f7208b2819827f84b7e60886a6ee67ae4f44be16a38714b67e9d3cc6d77"
     },
     {
       "path": "docs/CC03_WINDOWS_SECURITY.md",
