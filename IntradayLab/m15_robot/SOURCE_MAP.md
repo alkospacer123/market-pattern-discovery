@@ -1,5 +1,15 @@
 # Audited-source map — M15 offline foundation
 
+## M15 candle source semantics and H1 continuation contract
+
+- `TradingSystemLab/stage8_robot/finam_api.py` → M15 REST bar transport and official decimal `value` schema (READ-ONLY).
+- `TradingSystemLab/stage8_robot/readonly_supervisor.py` → validated session windows EARLY/CORE/LATE, intraday clearing exclusions and schedule-end completion; M15 adds explicitly required 15-minute alignment. (READ-ONLY)
+- `TradingSystemLab/stage8_robot/production_history.py` → immutable pinned historical-prefix seam and fail-closed overlap contract. `IntradayLab/m15_robot/continuation.py` is an isolated non-mutating M15 adaptation; historical data stays outside this repo.
+
+M15 research source `IntradayLab/t3_m15_t1_entry_retest_v1/primary.py` requires the full warmup from past candles; missing old history cannot be replaced with a rolling 30-day-only indicator.
+
+Source-label authority still unverified on a physical M15 FINAM payload, so the bridge refuses it by default. No FINAM tokens, live actions or H1 paths are touched.
+
 Snapshot inspected before this task on actual GitHub main:
 `2f0c9592bbca012471da9cbb15fdfaa764d8e17f`.
 
