@@ -8,6 +8,7 @@ import struct
 import subprocess
 import sys
 import uuid
+import zipfile
 import xml.etree.ElementTree as ET
 
 
@@ -117,12 +118,22 @@ def main():
     if not failed:
         bundle = evidence / 'CC03_INTEL_READONLY_PREFLIGHT_PACKAGE.zip'
         subprocess.run(['git', 'archive', '--format=zip', '--prefix=ControlCenter/',
-                        '--output=' + str(bundle), 'HEAD:ControlCenter'], check=True, timeout=30)
+                        '--output=' + str(bundle), 'HEAD:ControlCenter'], check=True, timeout=30,
+                       cwd=Path(__file__).absolute().parents[2])
+        manifest = json.loads(Path('deployment/manifest.json').read_text(encoding='utf-8'))
+        with zipfile.ZipFile(bundle) as archive:
+            assert archive.read('ControlCenter/deployment/manifest.json') == Path('deployment/manifest.json').read_bytes()
+            for entry in manifest['files']:
+                assert sha256(archive.read('ControlCenter/' + entry['path'])).hexdigest() == entry['sha256']
+            assert not any(n.endswith(('/os-policy.json', '/source-policy.json',
+                                      '/receiver-policy.json', '/preflight-policy.json')) for n in archive.namelist())
+        print('PREFLIGHT_BUNDLE_MANIFEST_VERIFIED=' + str(len(manifest['files'])), flush=True)
         checksums = dict(schema_id='cc03.intel-preflight-package-checksums.v1',
             classification='CC03_INTEL_READONLY_PREFLIGHT_PACKAGE_READY',
             pr_base_sha=metadata['pr_base_sha'], pr_head_sha=metadata['pr_head_sha'],
             tested_checkout_sha=metadata['tested_sha'], controlcenter_tree=metadata['controlcenter_tree'],
             run_id=metadata['run_id'], intel_execution='NOT_EXECUTED', physical='NOT_VERIFIED',
+            archive_manifest_files_verified=len(manifest['files']),
             files=[dict(path=bundle.name, sha256=sha256(bundle.read_bytes()).hexdigest()),
                    dict(path='ControlCenter/deployment/manifest.json',
                         sha256=sha256(Path('deployment/manifest.json').read_bytes()).hexdigest())])
