@@ -1,5 +1,13 @@
 # Audited-source map — M15 offline foundation
 
+## Durable execution & protection — audited H1 architectural sources
+
+- `TradingSystemLab/stage8_robot/state.py` — durable SQLite intent and fill IDs, account-bound identity and recovery. `offline_intents.py` is a **new M15-isolated synthetic-only adaptation** of these invariants; no shared SQLite and no real ACK transport.
+- `TradingSystemLab/stage8_robot/live_execution.py` — authorized order transmission requires distinct exact account, authorized commit, kill-switch and reconciled safety gate. M15 deliberately **does not yet include this adapter**.
+- `TradingSystemLab/stage8_robot/protective_stop_contract.py` — H1 close-only SLTP `SLTP_QTY_MEASURE_PERCENT`, `100` percent and strictly tightening stop; the M15 rehearsal validates synthetic receipts but never claims broker-covered risk.
+
+`tests/test_offline_intents.py` and `tests/test_offline_pipeline.py` are fully synthetic and may safely run without credentials. They do **not** establish actual FINAM order-price authority or LIVE approval.
+
 ## M15 candle source semantics and H1 continuation contract
 
 - `TradingSystemLab/stage8_robot/finam_api.py` → M15 REST bar transport and official decimal `value` schema (READ-ONLY).
