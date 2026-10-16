@@ -194,6 +194,37 @@ class Rehearsal(unittest.TestCase):
                        (json.dumps(self.ledger.identity, sort_keys=True),))
         self.ledger = OfflineIntentLedger(**self.kwargs)
 
+    def test_existing_sqlite_with_deleted_identity_not_reinitialized(self):
+        self.ledger.close()
+        with sqlite3.connect(self.ledger.path) as db:
+            db.execute("DELETE FROM metadata WHERE key='identity'")
+        with self.assertRaisesRegex(M15OfflineLedgerError, "EXISTING_IDENTITY_MISSING"):
+            OfflineIntentLedger(**self.kwargs)
+        # Rebind to the original authority for tearDown without weakening
+        # the tested production constructor.
+        with sqlite3.connect(self.ledger.path) as db:
+            import json
+            db.execute("INSERT INTO metadata(key,value) VALUES('identity',?)",
+                       (json.dumps(self.ledger.identity, sort_keys=True),))
+        self.ledger = OfflineIntentLedger(**self.kwargs)
+
+    def test_unexpected_sqlite_columns_block_on_restart(self):
+        self.ledger.close()
+        with sqlite3.connect(self.ledger.path) as db:
+            db.execute("ALTER TABLE protection ADD COLUMN suspicious TEXT")
+        with self.assertRaisesRegex(M15OfflineLedgerError, "COLUMNS_INVALID"):
+            OfflineIntentLedger(**self.kwargs)
+        # The deliberately corrupted temporary DB cannot be safely repaired
+        # by regular runtime; delete synthetic fixture and create clean store.
+        self.ledger.path.unlink()
+        self.ledger = OfflineIntentLedger(**self.kwargs)
+
+    def test_reject_empty_intent_key_and_invalid_control_char(self):
+        with self.assertRaisesRegex(M15OfflineLedgerError, "INTENT_INVALID"):
+            self.prepare(key="m15:")
+        with self.assertRaisesRegex(M15OfflineLedgerError, "INTENT_INVALID"):
+            self.prepare(key="m15:bad\nkey")
+
     def test_raw_account_id_not_stored_in_sqlite(self):
         self.prepare()
         raw = self.ledger.path.read_bytes()
