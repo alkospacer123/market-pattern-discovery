@@ -91,7 +91,6 @@ Verified SHA-256 of the accepted runtime/templates (independently recomputed loc
 
 | Package file | SHA-256 |
 | --- | --- |
-
 | `observer/intel_preflight.py` | `df5d36fdf45f2ec6efded7467083436cf20e096b8edc814c9077fc0862c01279` |
 | `observer/Read-OsFacts.ps1` | `e747dc8cd787394e0bee0fd27cf8fac506545790d7713ff9a4055d7147e2e1b6` |
 | `observer/Read-PreflightReadiness.ps1` | `06b6df0ed8c73d08c293012e31ab4bb6f0b5131624fd3bb65b2ee5b99313e81b` |
