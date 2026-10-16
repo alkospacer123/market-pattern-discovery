@@ -8,6 +8,12 @@ Snapshot inspected before this task on actual GitHub main:
 - `IntradayLab/t3_m15_t1_entry_retest_v1/primary.py` — original causal `features()` and selected `NEXT_OPEN` replay, reviewed without modifying it.
 - `IntradayLab/t3_m15_t1_entry_retest_v1/SPEC.json` and `results/comparison_summary.csv` — 2 ATR initial, 3.5 ATR trailing, T1 and N4 evidence.
 
+## FINAM read-only network adaptation
+
+`IntradayLab/m15_robot/finam_readonly.py` adapts only the **GET-side and authentication** from `TradingSystemLab/stage8_robot/finam_api.py`, replaces the H1 hardcoded timeframe with the officially documented `TIME_FRAME_M15` and requires a dedicated exact one-account read-only scope. Order functions are **not** copied. Official reference: https://api.finam.ru/docs/rest/ ; H1 source has no edits.
+
+Actual M15 timestamp semantics, schedule and completeness need verified independent FINAM read-only evidence before feeding a trading signal. Official M15 REST lookback is 30 days, not an alternative to immutable history.
+
 ## Latest read-only H1 source parity (repository GitHub verification)
 
 The live H1 modules were fetched and compared to isolated M15 copies in this PR. Direct exact transformation check: **PASS / PASS**.
