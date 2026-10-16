@@ -93,8 +93,8 @@ class M15Publication(unittest.TestCase):
         df = bridge(bars(AT + timedelta(minutes=15),
                          AT + timedelta(hours=1), AT + timedelta(hours=1, minutes=15)),
                     schedule=schedule, now=AT + timedelta(hours=1, minutes=15))
-        self.assertEqual(len(df), 1)
-        self.assertEqual(df.index[0].minute, 15)
+        self.assertEqual(len(df), 2)
+        self.assertEqual([t.minute for t in df.index], [30, 15])
 
     def test_touching_trading_windows_are_merged(self):
         ws = trading_windows(sessions(
@@ -110,10 +110,17 @@ class M15Publication(unittest.TestCase):
                 (AT + timedelta(minutes=45), AT + timedelta(hours=2)),
             ))
 
-    def test_session_end_without_next_open_not_fabricated(self):
+    def test_completed_session_end_without_next_open_is_preserved(self):
         schedule = sessions((AT, AT + timedelta(minutes=30)))
         df = bridge(bars(AT + timedelta(minutes=15)), schedule,
                     now=AT + timedelta(hours=2))
+        self.assertEqual(len(df), 1)
+        self.assertEqual(df.index[0].minute, 30)
+
+    def test_uncompleted_session_end_never_released(self):
+        schedule = sessions((AT, AT + timedelta(minutes=30)))
+        df = bridge(bars(AT + timedelta(minutes=15)), schedule,
+                    now=AT + timedelta(minutes=29))
         self.assertEqual(len(df), 0)
 
     def test_unknown_session_type_fails(self):
