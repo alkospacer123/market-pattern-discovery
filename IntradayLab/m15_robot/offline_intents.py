@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sqlite3
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -18,6 +19,14 @@ from .account_boundary import validate_independent_binding
 from .spec import INSTRUMENTS, ROBOT_ID, EXECUTION_STATUS
 
 FILENAME = "m15-offline-intents.sqlite3"
+KEY_FORMAT = re.compile(r"^m15:[A-Za-z0-9._:-]{1,123}$")
+EXPECTED_COLUMNS = {
+    "metadata": ("key", "value"),
+    "intents": ("intent_key", "instrument", "direction", "planned_quantity",
+                "status", "broker_order_id", "payload_sha256"),
+    "fills": ("fill_id", "intent_key", "broker_order_id", "quantity", "price"),
+    "protection": ("intent_key", "revision", "broker_order_id", "stop_price", "quantity_percent"),
+}
 SCHEMA = """
 CREATE TABLE metadata(key TEXT PRIMARY KEY, value TEXT NOT NULL);
 CREATE TABLE intents(
@@ -85,6 +94,8 @@ class OfflineIntentLedger:
             "authorization": EXECUTION_STATUS,
         }
         self.path = runtime_root.resolve() / "state" / FILENAME
+        if self.path.is_symlink():
+            raise M15OfflineLedgerError("M15_LEDGER_SYMLINK_FORBIDDEN")
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.db = sqlite3.connect(self.path)
         self.db.execute("PRAGMA foreign_keys=ON")
@@ -94,8 +105,12 @@ class OfflineIntentLedger:
                 objects = {r[0] for r in self.db.execute(
                     "SELECT name FROM sqlite_master WHERE type='table'"
                 )}
-                if objects != {"metadata", "intents", "fills", "protection"}:
+                if objects != set(EXPECTED_COLUMNS):
                     raise M15OfflineLedgerError("M15_LEDGER_SCHEMA_INVALID")
+                for name, expected in EXPECTED_COLUMNS.items():
+                    current = tuple(row[1] for row in self.db.execute(f"PRAGMA table_info({name})"))
+                    if current != expected:
+                        raise M15OfflineLedgerError("M15_LEDGER_COLUMNS_INVALID")
                 present = self.db.execute("SELECT value FROM metadata WHERE key='identity'").fetchone()
                 if present is None:
                     # Only bootstrap a wholly clean fresh local store.
@@ -132,7 +147,7 @@ class OfflineIntentLedger:
 
     def prepare(self, *, key: str, instrument: str, direction: str, quantity: int) -> bool:
         if (
-            not isinstance(key, str) or not key.startswith("m15:") or len(key) > 128
+            not isinstance(key, str) or KEY_FORMAT.fullmatch(key) is None
             or instrument not in INSTRUMENTS or direction not in ("LONG", "SHORT")
             or type(quantity) is not int or quantity <= 0
         ):
