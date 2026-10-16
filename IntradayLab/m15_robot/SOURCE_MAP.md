@@ -8,6 +8,17 @@ Snapshot inspected before this task on actual GitHub main:
 - `IntradayLab/t3_m15_t1_entry_retest_v1/primary.py` — original causal `features()` and selected `NEXT_OPEN` replay, reviewed without modifying it.
 - `IntradayLab/t3_m15_t1_entry_retest_v1/SPEC.json` and `results/comparison_summary.csv` — 2 ATR initial, 3.5 ATR trailing, T1 and N4 evidence.
 
+## Latest read-only H1 source parity (repository GitHub verification)
+
+The live H1 modules were fetched and compared to isolated M15 copies in this PR. Direct exact transformation check: **PASS / PASS**.
+
+| H1 audited source file SHA (Git blob) | M15 local counterpart and transformation |
+| --- | --- |
+| `TradingSystemLab/stage8_robot/account_cleanliness.py` — `e3ad17c6f4330431b173658800489722a5731037` | `broker_status.py` — same executable code with a new module header |
+| `TradingSystemLab/stage8_robot/production_broker_state.py` — `894321fc0d3101e75eea48f45ff3a26c0c0f58eb` | `broker_snapshot.py` — imports remapped to local broker_status, constants localized, error prefixes and active-stop comment owner renamed; no algorithm changes |
+
+The new `shadow_state.py` / `shadow_service.py` are **offline shadow integration**, not an H1 release copy. They intentionally have **no REAL order transport or LIVE authorization**. The H1 live identity, token, task and SQLite are never accessed.
+
 ## H1 engineering sources (read-only, NEVER modify/import into M15 LIVE)
 - `TradingSystemLab/stage8_robot/risk.py` — `risk=equity*0.015`, integer tick loss and downward rounding.
 - `TradingSystemLab/stage8_robot/margin.py` — available cash / directional GO and min(risk quantity, margin quantity).
