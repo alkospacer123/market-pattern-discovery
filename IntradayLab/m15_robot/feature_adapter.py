@@ -8,7 +8,7 @@ and frozen-prefix parity must be proven before attaching any order adapter.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 import hashlib
 import math
 from typing import Any
@@ -64,6 +64,9 @@ def validate_completed_history(instrument: str, history: pd.DataFrame, observed_
     price = history.loc[:, ("Open", "High", "Low", "Close")]
     if not bool(price.notna().all().all()) or not bool((price > 0).all().all()):
         raise ValueError("M15_PRICE_INVALID")
+    import numpy as np
+    if not bool(np.isfinite(history.loc[:, REQUIRED_OHLC].to_numpy(dtype=float)).all()):
+        raise ValueError("M15_NONFINITE_OHLCV")
     if not bool((price["High"] >= price[["Open", "Low", "Close"]].max(axis=1)).all()):
         raise ValueError("M15_HIGH_INVALID")
     if not bool((price["Low"] <= price[["Open", "High", "Close"]].min(axis=1)).all()):
@@ -96,8 +99,12 @@ def latest_completed_signal(
         return None
     latest: dict[str, Any] = bars[-1]
     at = _msk_timestamp(latest["at"])
-    if at > _msk_timestamp(observed_at):
+    now = _msk_timestamp(observed_at)
+    if at > now:
         raise ValueError("M15_FUTURE_SIGNAL")
+    if now - at >= timedelta(minutes=TIMEFRAME_MINUTES):
+        # No stale re-entry while FINAM has not provided a new completed candle.
+        return None
     minute = at.hour * 60 + at.minute
     if not SIGNAL_START_MSK_MINUTE <= minute < SIGNAL_END_MSK_MINUTE:
         return None
