@@ -1,8 +1,8 @@
-"""Metadata-only handles: zero desired access, ALL sharing, no ReadFile call.
+"""FAILED CI EXPERIMENT ONLY: metadata handles still interfere with os.replace.
 
-Unlike the legacy content reader these handles cannot deny a producer's DELETE
-or WRITE share. Every ancestor is checked without preventing its replacement;
-identity/path checks fail closed if replacement is detected. No content authority.
+Native run 38873837179 disproved noninterference with zero desired access and
+ALL sharing. Never import from the observer/UI or use on production files.
+The retained experiment reproduces the blocker on disposable NTFS only.
 """
 import ctypes
 from ctypes import wintypes as w

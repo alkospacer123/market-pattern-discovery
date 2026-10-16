@@ -21,16 +21,13 @@ def os_policy():
         observer_sid='S-1-5-21-1-2-3-1001', task_name=observer.TASK, task_xml_sha256='b'*64,
         task_principal_sid='S-1-5-21-1-2-3-1002', process_enabled=True, process_pid=12345,
         process_creation_sha256='e'*64, process_image_sha256='c'*64, process_command_sha256='d'*64,
-        process_principal_sid='S-1-5-21-1-2-3-1002', metadata_enabled=True,
-        heartbeat_root=r'C:\DISPOSABLE\heartbeat', heartbeat_root_id=[1,2,3],
-        kill_switch_root=r'C:\DISPOSABLE\safety', kill_switch_root_id=[1,2,4], export_root_id=[1,2,5])
+        process_principal_sid='S-1-5-21-1-2-3-1002', metadata_enabled=False, export_root_id=[1,2,5])
 
 
 def envelope(policy):
     return observer.collect(policy,
         facts=lambda p: dict(task=observer.row('WINDOWS_TASK_READONLY', 'TASK_RUNNING', 'OK', 'b'*64),
-                            process=observer.row('WINDOWS_PROCESS_READONLY', 'PROCESS_OBSERVED', 'OK', 'd'*64)),
-        metadata=lambda *args: ('FILE_ABSENT', 'NOT_FOUND', None))
+                            process=observer.row('WINDOWS_PROCESS_READONLY', 'PROCESS_OBSERVED', 'OK', 'd'*64)))
 
 
 def received(value, policy, now, monkeypatch):
@@ -54,7 +51,8 @@ def test_os_observations_never_grant_robot_or_account_authority(os_policy, monke
     assert s.positions is None and s.trades is None and s.portfolio.equity is None
     assert not s.signals and not s.orders and not s.candles
     assert s.windows_observations[1].state == 'PROCESS_OBSERVED'
-    assert all(r.authority == 'WINDOWS_OS_ONLY' for r in s.windows_observations)
+    assert all(r.authority == 'WINDOWS_OS_ONLY' for r in s.windows_observations[:2])
+    assert all(r.state == 'UNKNOWN' and r.reason == 'DISABLED' for r in s.windows_observations[2:])
     assert 'VERIFIED_LIVE' not in repr(s) and 'account UNVERIFIED' in s.readonly_identity
 
 
@@ -75,20 +73,21 @@ def test_stale_or_unknown_ttl_hides_positive_os_facts(os_policy, monkeypatch):
         assert all(r.state == 'UNKNOWN' and r.value is None and r.authority == 'UNKNOWN' for r in s.windows_observations)
 
 
-@pytest.mark.parametrize('change', ['future','confidence','unknown_value','extra','broker_authority'])
+@pytest.mark.parametrize('change', ['future','confidence','unknown_value','extra','broker_authority','metadata_fact'])
 def test_forged_or_incoherent_os_facts_rejected(os_policy, monkeypatch, change):
     value = envelope(os_policy)
     if change == 'future': value['task']['observed_at'] = (datetime.now(timezone.utc)+timedelta(days=1)).isoformat()
     elif change == 'confidence': value['task']['confidence'] = 'UNKNOWN'
     elif change == 'unknown_value': value['task']['state'] = 'UNKNOWN'
     elif change == 'extra': value['task']['broker_connected'] = True
-    else: value['identity']['authority'] = 'BROKER_CONNECTED'
+    elif change=='broker_authority': value['identity']['authority'] = 'BROKER_CONNECTED'
+    else: value['heartbeat_metadata'].update(state='FILE_ABSENT',reason='NOT_FOUND',confidence='OS_OBSERVED')
     assert not received(value, approved(os_policy), datetime.now(timezone.utc), monkeypatch).windows_observations
 
 
 @pytest.mark.parametrize('key,bad', [('os_policy_approved',False),('task_name','python.exe'),
     ('observer_sid','S-1-5-18'),('task_principal_sid','S-1-5-21-1-2-3-1001'),
-    ('process_pid',True),('process_pid',0),('export_root_id',[]),('process_enabled','true')])
+    ('process_pid',True),('process_pid',0),('export_root_id',[]),('process_enabled','true'),('metadata_enabled',True)])
 def test_policy_fail_closed_before_native_calls(os_policy,key,bad):
     os_policy[key]=bad
     with pytest.raises(ValueError): observer.policy_check(os_policy)
@@ -119,16 +118,27 @@ def test_missing_h1_and_panel_rerun_leave_m15_and_controls_independent(monkeypat
 def test_observer_is_outside_ui_dependency_graph_and_has_no_trading_capabilities():
     root=Path(__file__).parents[1]
     for path in (root/'observer').glob('*.py'):
-        tree=ast.parse(path.read_text())
+        tree=ast.parse(path.read_text(encoding='utf-8'))
         imports=[n.module or '' for n in ast.walk(tree) if isinstance(n,ast.ImportFrom)]
         imports += [a.name for n in ast.walk(tree) if isinstance(n,ast.Import) for a in n.names]
         assert not any(i.startswith(('TradingSystemLab','IntradayLab','finam','sqlite3','socket','urllib')) for i in imports)
     for path in [root/'app.py',*(root/'cc').rglob('*.py')]:
-        assert 'import observer' not in path.read_text() and 'from observer' not in path.read_text()
-    script=(root/'observer/Read-OsFacts.ps1').read_text()
+        source=path.read_text(encoding='utf-8')
+        assert 'import observer' not in source and 'from observer' not in source
+    script=(root/'observer/Read-OsFacts.ps1').read_text(encoding='utf-8')
     for verb in ('Start-ScheduledTask','Stop-ScheduledTask','RegisterTask','DeleteTask','SetSecurityDescriptor',
                  'Get-Content','Start-Process','Invoke-Expression'):
         assert verb not in script
+
+
+def test_metadata_blocked_before_any_source_path_or_handle(os_policy,monkeypatch):
+    import os
+    monkeypatch.setattr(os,'open',lambda *a,**k:pytest.fail('production file open'))
+    os_policy['metadata_enabled']=True
+    with pytest.raises(ValueError,match='CC03_METADATA_COMPATIBILITY_BLOCKED'):
+        observer.collect(os_policy,facts=lambda p:pytest.fail('must fail before probing'))
+    source=Path(observer.__file__).read_text(encoding='utf-8')
+    assert 'from .metadata' not in source and 'metadata_native' not in source
 
 
 def test_os_schema_matches_packaged_document():

@@ -5,7 +5,6 @@ Default invocation is preview. All positive facts have WINDOWS_OS_ONLY authority
 """
 import argparse
 from datetime import datetime, timezone
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -14,10 +13,9 @@ import subprocess
 from cc.deployment_paths import data_root
 from cc.providers.h1_contract import MAX_BYTES, timestamp, validate
 from cc.providers.h1_readonly import canonical_digest, _pairs, _reject_constant
-from cc.providers.os_contract import SCHEMA, SCHEMA_ID, GROUPS, check_semantics
+from cc.providers.os_contract import SCHEMA, SCHEMA_ID, check_semantics
 from cc.providers.windows_file import read_windows
 from exporter.snapshot import publish
-from .metadata import probe
 
 TASK = 'TradingSystemLab-Stage8-Production'
 SCRIPT = Path(__file__).with_name('Read-OsFacts.ps1')
@@ -29,8 +27,7 @@ def policy_check(p):
     required = {'schema_id', 'os_policy_approved', 'source_id', 'account_alias', 'binding_id',
                 'observer_sid', 'task_name', 'task_xml_sha256', 'task_principal_sid',
                 'process_enabled', 'process_pid', 'process_creation_sha256', 'process_image_sha256', 'process_command_sha256', 'process_principal_sid',
-                'metadata_enabled', 'heartbeat_root', 'heartbeat_root_id', 'kill_switch_root', 'kill_switch_root_id',
-                'export_root_id'}
+                'metadata_enabled', 'export_root_id'}
     if (type(p) is not dict or set(p) != required or p['schema_id'] != 'cc03.os-policy.v1'
             or p['os_policy_approved'] is not True or p['task_name'] != TASK
             or type(p['process_enabled']) is not bool or type(p['metadata_enabled']) is not bool):
@@ -45,9 +42,11 @@ def policy_check(p):
             raise ValueError('OS_IDENTITY_REQUIRED')
     if type(p['process_pid']) is not int or not 1 <= p['process_pid'] <= 2**32-1:
         raise ValueError('PINNED_PROCESS_REQUIRED')
+    if p['metadata_enabled'] is not False:
+        raise ValueError('CC03_METADATA_COMPATIBILITY_BLOCKED')
     if p['observer_sid'] in (p['task_principal_sid'], p['process_principal_sid']):
         raise ValueError('SEPARATE_IDENTITY_REQUIRED')
-    for key in ('export_root_id', 'heartbeat_root_id', 'kill_switch_root_id'):
+    for key in ('export_root_id',):
         if type(p[key]) is not list or len(p[key]) != 3 or any(type(x) is not int or x < 0 for x in p[key]):
             raise ValueError('OS_ROOT_PIN_REQUIRED')
     return p
@@ -89,21 +88,17 @@ def os_facts(policy, script=SCRIPT, timeout=MAX_OPERATION_SECONDS):
         return {name: row(source) for name, source in sources.items()}
 
 
-def collect(policy, facts=None, metadata=None):
+def collect(policy, facts=None):
     policy_check(policy)
     facts = os_facts if facts is None else facts
-    metadata = probe if metadata is None else metadata
     value = dict(schema_id=SCHEMA_ID, payload_sha256='0'*64, generated_at='',
                  identity=dict(robot_id='H1', source_id=policy['source_id'], account_alias=policy['account_alias'],
                                binding_id=policy['binding_id'], account_binding='UNVERIFIED', authority='WINDOWS_OS_ONLY'))
     value.update(facts(policy))
-    for group, root_key, filename in (
-        ('heartbeat_metadata', 'heartbeat_root', 'stage8-12-4-production-heartbeat.json'),
-        ('kill_switch_metadata', 'kill_switch_root', 'stage8-trading-kill-switch.json')):
-        state, reason, result = ('UNKNOWN', 'DISABLED', None)
-        if policy['metadata_enabled']:
-            state, reason, result = metadata(policy[root_key], filename, policy[root_key+'_id'])
-        value[group] = row('WINDOWS_FILE_METADATA', state, reason, result)
+    # Native run 38873837179 disproved noninterference, even with zero-access
+    # handles. No metadata module is imported and no production path is accepted.
+    for group in ('heartbeat_metadata', 'kill_switch_metadata'):
+        value[group] = row('WINDOWS_FILE_METADATA', reason='DISABLED')
     value['generated_at'] = datetime.now(timezone.utc).isoformat()
     value['payload_sha256'] = canonical_digest(value)
     validate(value, SCHEMA)

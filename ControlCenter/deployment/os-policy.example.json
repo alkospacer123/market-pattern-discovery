@@ -15,9 +15,5 @@
   "process_command_sha256": "REQUIRES_APPROVED_EXACT_COMMAND_FINGERPRINT",
   "process_principal_sid": "REQUIRES_APPROVED_EXACT_PROCESS_SID",
   "metadata_enabled": false,
-  "heartbeat_root": "C:\\REQUIRES_SOURCE_APPROVAL\\diagnostics",
-  "heartbeat_root_id": [],
-  "kill_switch_root": "C:\\REQUIRES_SOURCE_APPROVAL\\safety",
-  "kill_switch_root_id": [],
   "export_root_id": []
 }

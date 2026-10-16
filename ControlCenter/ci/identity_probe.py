@@ -45,11 +45,14 @@ def main():
         facts = os_facts(dict(fixture, process_enabled=False))
         assert facts['task']['state'] == expected, facts
         if name == 'Denied': assert facts['task']['reason'] == 'ACCESS_DENIED', facts
-    from observer.metadata import metadata_native
-    state, metadata = metadata_native(str(root),path.name,pin)
-    assert state == 'FILE_PRESENT' and metadata['size'] == 2
-    print('LOW_SID_OS_READONLY_TASK_AND_REAL_ACCESS_DENIED_METADATA=PASS',flush=True)
+    print('LOW_SID_OS_READONLY_TASK_AND_REAL_ACCESS_DENIED=PASS; METADATA_DISABLED',flush=True)
     if sys.argv[2] == 'e':
+        # Actual installed observer entrypoint under its separate standard SID.
+        # No approved os-policy exists; must fail closed before any H1 probe.
+        observer = subprocess.run([sys.executable, '-m', 'observer.windows_os', '--execute'],
+                                  capture_output=True, text=True, timeout=10)
+        assert observer.returncode == 1 and observer.stdout.strip() == 'CC03_OS_OBSERVER_UNAVAILABLE'
+        print('LOW_SID_OBSERVER_ENTRYPOINT_UNAPPROVED_POLICY=FAIL_CLOSED_PASS',flush=True)
         # CI-only transport proof under the real Exporter token. No H1 reads;
         # all observations and binding remain UNKNOWN/unverified.
         from datetime import datetime, timezone

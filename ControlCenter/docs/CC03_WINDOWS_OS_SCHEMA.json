@@ -211,8 +211,6 @@
         },
         "state": {
           "enum": [
-            "FILE_PRESENT",
-            "FILE_ABSENT",
             "UNKNOWN"
           ]
         },
@@ -250,30 +248,9 @@
         "value": {
           "anyOf": [
             {
-              "type": "object",
-              "properties": {
-                "identity": {
-                  "type": "string",
-                  "pattern": "[a-f0-9]{64}",
-                  "maxLength": 64
-                },
-                "modified_at": {
-                  "type": "string",
-                  "format": "date-time",
-                  "maxLength": 32
-                },
-                "size": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 9223372036854775807
-                }
-              },
-              "required": [
-                "identity",
-                "modified_at",
-                "size"
-              ],
-              "additionalProperties": false
+              "enum": [
+                null
+              ]
             },
             {
               "type": "null"
@@ -301,8 +278,6 @@
         },
         "state": {
           "enum": [
-            "FILE_PRESENT",
-            "FILE_ABSENT",
             "UNKNOWN"
           ]
         },
@@ -340,30 +315,9 @@
         "value": {
           "anyOf": [
             {
-              "type": "object",
-              "properties": {
-                "identity": {
-                  "type": "string",
-                  "pattern": "[a-f0-9]{64}",
-                  "maxLength": 64
-                },
-                "modified_at": {
-                  "type": "string",
-                  "format": "date-time",
-                  "maxLength": 32
-                },
-                "size": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 9223372036854775807
-                }
-              },
-              "required": [
-                "identity",
-                "modified_at",
-                "size"
-              ],
-              "additionalProperties": false
+              "enum": [
+                null
+              ]
             },
             {
               "type": "null"

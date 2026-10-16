@@ -11,7 +11,7 @@ import time
 import uuid
 import pytest
 from observer import windows_os as observer
-from observer.metadata import MetadataAPI, metadata_native, probe
+from ci.metadata_experiment import MetadataAPI, metadata_native, probe
 from cc.providers import windows_file as win
 from cc.providers.h1_export import H1ExportProvider
 from cc.models import RobotId, State
@@ -90,7 +90,7 @@ def pin(path):
     finally:api.close(handle)
 
 
-def test_native_metadata_fields_identity_absence_and_wrong_root(tmp_path):
+def test_native_metadata_experiment_fields_identity_absence_and_wrong_root(tmp_path):
     path=tmp_path/'stage8-12-4-production-heartbeat.json'
     path.write_bytes(b'DO NOT READ CONTENT')
     expected=pin(tmp_path)
@@ -104,7 +104,7 @@ def test_native_metadata_fields_identity_absence_and_wrong_root(tmp_path):
     assert probe(str(tmp_path),path.name,expected)[:2]==('FILE_ABSENT','NOT_FOUND')
 
 
-def test_native_metadata_zero_access_does_not_block_os_replace(tmp_path):
+def test_native_metadata_experiment_conflict_requires_runtime_block(tmp_path):
     path=tmp_path/'stage8-12-4-production-heartbeat.json';path.write_bytes(b'initial')
     api=MetadataAPI();held=api.open(str(path),False)
     expected=pin(tmp_path)
@@ -127,15 +127,20 @@ def test_native_metadata_zero_access_does_not_block_os_replace(tmp_path):
                 # Replacement during an observation must produce UNKNOWN, never old truth.
                 assert str(exc) in ('CHANGED','FILE_TYPE_OR_PATH_INVALID');changed+=1
         thread.join(15)
-        assert not thread.is_alive() and not errors and len(done)==500
-        assert observations>0
+        assert not thread.is_alive() and errors and isinstance(errors[0], PermissionError)
+        assert len(done)<500 and observations>0
+        # This is a regression of NOT_PASSED metadata noninterference. It is not
+        # acceptance of metadata as a source, and is never used in the runtime.
         # The original zero-access handle remains OPEN across every replace.
         original=win.FileInfo()
         assert api.k.GetFileInformationByHandle(held,ctypes.byref(original)) and original.size_low==7
     finally:
         thread.join(15);api.close(held)
+    # After all experimental handles close, the same producer operation succeeds.
+    for i in range(500):
+        temporary=tmp_path/'next.tmp';temporary.write_bytes(str(i).encode());os.replace(temporary,path)
     assert path.read_bytes()==b'499'
-    print(f'METADATA_OS_REPLACE: 500/500 publications; {observations} observations, {changed} fail-closed races; held metadata handle survived')
+    print('METADATA_NONINTERFERENCE=NOT_PASSED / BLOCKED: zero-access handle reproduced producer conflict; after close 500/500 replacements recovered; runtime source disabled')
 
 
 def test_native_probe_timeout_is_bounded(os_policy,tasks):
@@ -143,6 +148,35 @@ def test_native_probe_timeout_is_bounded(os_policy,tasks):
     started=time.monotonic();facts=observer.os_facts(p,timeout=.001)
     assert time.monotonic()-started<3
     assert all(r['reason']=='TIMEOUT' and r['state']=='UNKNOWN' for r in facts.values())
+
+
+def test_native_runtime_task_process_observer_does_not_interfere_with_producer(os_policy,tasks,tmp_path):
+    child=subprocess.Popen([sys.executable,'-c','import time; time.sleep(60)'])
+    errors=[];done=[]
+    path=tmp_path/'stage8-12-4-production-heartbeat.json';path.write_bytes(b'initial')
+    def producer():
+        try:
+            for i in range(500):
+                temporary=tmp_path/'next.tmp';temporary.write_bytes(str(i).encode());os.replace(temporary,path)
+                done.append(i);time.sleep(.003)
+        except BaseException as exc:errors.append(exc)
+    thread=None
+    try:
+        p=dict(os_policy,**fixture_operation('Process',pid=child.pid))
+        p.update({k:v for k,v in tasks[0]['Ready'].items() if k!='state'})
+        thread=threading.Thread(target=producer);thread.start()
+        value=observer.collect(os_policy,facts=lambda _:observer.os_facts(p))
+        assert len(done)>0 # producer and actual OS API collection overlapped
+        assert value['task']['state']=='TASK_READY' and value['process']['state']=='PROCESS_OBSERVED'
+        for name in ('heartbeat_metadata','kill_switch_metadata'):
+            assert value[name]['state']=='UNKNOWN' and value[name]['reason']=='DISABLED'
+        thread.join(15)
+        assert not thread.is_alive() and not errors and len(done)==500
+        assert path.read_bytes()==b'499'
+        print('ACTIVE_OS_OBSERVER_NONINTERFERENCE=PASS: Task/process probes, metadata disabled, 500/500 unchanged os.replace operations')
+    finally:
+        if thread is not None:thread.join(15)
+        child.terminate();child.wait(5)
 
 
 def test_native_os_snapshot_transport_and_no_root_substitution(os_policy,tmp_path,monkeypatch):
@@ -181,8 +215,7 @@ def test_native_panel_restart_does_not_change_disposable_task_or_process(os_poli
     # Native OS acquisition occurs outside the panel; UI receives only an envelope.
     p=task_policy(os_policy,fixtures['Ready'])
     p['task_name']=observer.TASK # collect's fixed production allowlist is preserved
-    value=observer.collect(p,facts=lambda _:observer.os_facts(task_policy(os_policy,fixtures['Ready'])),
-                           metadata=lambda *args:('FILE_ABSENT','NOT_FOUND',None))
+    value=observer.collect(p,facts=lambda _:observer.os_facts(task_policy(os_policy,fixtures['Ready'])))
     monkeypatch.setattr(receiver,'read_latest_windows',lambda *a:json.dumps(value).encode())
     monkeypatch.setattr(receiver,'installed_policy',lambda:approved(os_policy))
     before=fixture_operation('Inspect',folder)

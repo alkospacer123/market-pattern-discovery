@@ -1,4 +1,4 @@
-> Current CC-03 OS-only continuation: [independent Windows observer](CC03_WINDOWS_OS_OBSERVER.md). Legacy content remains blocked; OS facts never supply heartbeat/broker authority.
+> Current CC-03 OS-only continuation: [independent Windows observer](CC03_WINDOWS_OS_OBSERVER.md). Legacy content remains blocked; Task/process facts never supply heartbeat/broker authority; metadata is disabled after native interference failure.
 
 # CC-03: source authority и отдельные часы
 

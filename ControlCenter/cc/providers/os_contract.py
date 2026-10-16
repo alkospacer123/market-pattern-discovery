@@ -19,10 +19,9 @@ SCHEMA = obj(
                  account_binding=enum('UNVERIFIED'), authority=enum('WINDOWS_OS_ONLY')),
     task=observation('WINDOWS_TASK_READONLY', ('TASK_DISABLED', 'TASK_READY', 'TASK_RUNNING'), HASH),
     process=observation('WINDOWS_PROCESS_READONLY', ('PROCESS_OBSERVED', 'PROCESS_ABSENT'), HASH),
-    heartbeat_metadata=observation('WINDOWS_FILE_METADATA', ('FILE_PRESENT', 'FILE_ABSENT'),
-        obj(identity=HASH, modified_at=TIME, size=dict(type='integer', minimum=0, maximum=2**63-1))),
-    kill_switch_metadata=observation('WINDOWS_FILE_METADATA', ('FILE_PRESENT', 'FILE_ABSENT'),
-        obj(identity=HASH, modified_at=TIME, size=dict(type='integer', minimum=0, maximum=2**63-1))),
+    # Native noninterference failed; these placeholders can never carry facts.
+    heartbeat_metadata=observation('WINDOWS_FILE_METADATA', (), enum(None)),
+    kill_switch_metadata=observation('WINDOWS_FILE_METADATA', (), enum(None)),
 )
 GROUPS = ('task', 'process', 'heartbeat_metadata', 'kill_switch_metadata')
 
@@ -31,6 +30,8 @@ def check_semantics(value, timestamp):
     generated = timestamp(value['generated_at'])
     for name in GROUPS:
         row = value[name]
+        if name.endswith('_metadata') and (row['state'] != 'UNKNOWN' or row['reason'] != 'DISABLED'):
+            raise ValueError('CC03_METADATA_COMPATIBILITY_BLOCKED')
         at = timestamp(row['observed_at'])
         known = row['state'] != 'UNKNOWN'
         if (at is None or at > generated or

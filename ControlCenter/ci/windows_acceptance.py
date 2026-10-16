@@ -103,6 +103,7 @@ def main():
                       original_legacy_replace_requirements='NOT_PASSED: conflicts reproduced, not fixed',
                       native_transport_and_deployment='NEEDS_FIX' if failed else 'PASS',
                       windows_os_observer='NEEDS_FIX' if failed else 'PASS: OS facts only; physical source binding not executed',
+                      metadata_source='CC03_METADATA_COMPATIBILITY_BLOCKED: expected-conflict regression is not noninterference acceptance',
                       runtime_retention='DISABLED: bounded stop, no deletion',
                       physical='NOT_EXECUTED')
     (evidence / 'acceptance.json').write_text(json.dumps(acceptance, indent=2), encoding='utf-8')

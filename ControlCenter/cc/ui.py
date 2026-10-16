@@ -113,7 +113,7 @@ def readonly_details(snapshot):
                        "Наблюдалось": stamp(r.observed_at), "Актуальность": r.freshness,
                        "Authority": r.authority, "Причина": r.reason, "Metadata / identity": r.value or 'UNKNOWN'}
                       for r in snapshot.windows_observations], hide_index=True, use_container_width=True)
-        st.caption('Heartbeat, сигналы, позиции, ордера, FILL, ACTIVE SLTP, финансы, PnL, депозиты и просадки: UNKNOWN. Файловые метаданные не являются heartbeat.')
+        st.caption('Heartbeat, сигналы, позиции, ордера, FILL, ACTIVE SLTP, финансы, PnL, депозиты и просадки: UNKNOWN. Metadata source DISABLED: native noninterference не пройден.')
     if snapshot.readonly_identity is not None:
         st.caption(snapshot.readonly_identity)
     if snapshot.readonly_observations:
