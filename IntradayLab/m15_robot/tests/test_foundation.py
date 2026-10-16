@@ -4,6 +4,7 @@ import unittest
 from datetime import datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
+from tempfile import gettempdir
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
@@ -209,18 +210,18 @@ class IndependentAccounts(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "REUSE"):
             validate_independent_binding(
                 m15_account_id="H1-ACCOUNT", h1_account_sha256=h,
-                m15_runtime_root=Path("/tmp/intraday_m15"),
-                h1_runtime_root=Path("/tmp/tradingsystem_h1"),
-                repository_root=Path("/tmp/m15_repo"),
+                m15_runtime_root=Path(gettempdir()) / "intraday_m15",
+                h1_runtime_root=Path(gettempdir()) / "tradingsystem_h1",
+                repository_root=Path(gettempdir()) / "m15_repo",
             )
 
     def test_separate_account_and_state_can_be_proven(self):
         h = account_fingerprint("H1-ACCOUNT")
         v = validate_independent_binding(
             m15_account_id="M15-ACCOUNT", h1_account_sha256=h,
-            m15_runtime_root=Path("/tmp/intraday_m15"),
-            h1_runtime_root=Path("/tmp/tradingsystem_h1"),
-            repository_root=Path("/tmp/m15_repo"),
+            m15_runtime_root=Path(gettempdir()) / "intraday_m15",
+            h1_runtime_root=Path(gettempdir()) / "tradingsystem_h1",
+            repository_root=Path(gettempdir()) / "m15_repo",
         )
         self.assertNotEqual(v, h)
 
@@ -228,9 +229,9 @@ class IndependentAccounts(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "OVERLAP"):
             validate_independent_binding(
                 m15_account_id="M15-ACCOUNT", h1_account_sha256=account_fingerprint("H1-ACCOUNT"),
-                m15_runtime_root=Path("/tmp/trading_h1/m15"),
-                h1_runtime_root=Path("/tmp/trading_h1"),
-                repository_root=Path("/tmp/m15_repo"),
+                m15_runtime_root=Path(gettempdir()) / "trading_h1" / "m15",
+                h1_runtime_root=Path(gettempdir()) / "trading_h1",
+                repository_root=Path(gettempdir()) / "m15_repo",
             )
 
     def test_no_real_order_surface(self):
