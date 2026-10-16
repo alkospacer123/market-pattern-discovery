@@ -28,7 +28,7 @@ if (-not (Get-Command $PythonExe -ErrorAction SilentlyContinue)) {
 }
 $pythonMinor = (& $PythonExe -c "import sys; print(str(sys.version_info.major) + '.' + str(sys.version_info.minor))").Trim()
 if ($LASTEXITCODE -ne 0 -or $pythonMinor -notin @("3.11", "3.12", "3.13")) {
-    throw "M15_OFFLINE_UNSUPPORTED_PYTHON_$pythonMinor__USE_PYTHON_3_12_OR_3_13"
+    throw "M15_OFFLINE_UNSUPPORTED_PYTHON_${pythonMinor}__USE_PYTHON_3_12_OR_3_13"
 }
 $parent = Split-Path -Parent $target
 # The parent can be a drive root such as C:\; never attempt to recreate it.
