@@ -27,15 +27,18 @@ if (-not (Get-Command $PythonExe -ErrorAction SilentlyContinue)) {
     throw "PYTHON_NOT_FOUND"
 }
 $parent = Split-Path -Parent $target
-New-Item -Path $parent -ItemType Directory -Force | Out-Null
+# The parent can be a drive root such as C:\; never attempt to recreate it.
+if (-not (Test-Path -LiteralPath $parent -PathType Container)) {
+    [void][System.IO.Directory]::CreateDirectory($parent)
+}
 
-& git clone --no-checkout "https://github.com/alkospacer123/market-pattern-discovery.git" $target
+& git clone --quiet --no-checkout "https://github.com/alkospacer123/market-pattern-discovery.git" $target
 if ($LASTEXITCODE -ne 0) { throw "ISOLATED_GIT_CLONE_FAILED" }
-& git -C $target fetch origin "refs/pull/540/head"
+& git -C $target fetch --quiet origin "refs/pull/540/head"
 if ($LASTEXITCODE -ne 0) { throw "DRAFT_540_GIT_FETCH_FAILED" }
 $commit = (& git -C $target rev-parse FETCH_HEAD).Trim()
 if ($commit -notmatch '^[0-9a-f]{40}$') { throw "DRAFT_540_SHA_INVALID" }
-& git -C $target checkout --detach $commit
+& git -C $target checkout --quiet --detach $commit
 if ($LASTEXITCODE -ne 0) { throw "ISOLATED_CHECKOUT_FAILED" }
 if ($commit -cne $ExpectedHeadSha) {
     throw "M15_DRAFT_540_SHA_CHANGED__EXPECTED_${ExpectedHeadSha}__ACTUAL_${commit}"
