@@ -145,5 +145,72 @@ class M15Publication(unittest.TestCase):
             bridge(b)
 
 
+    def test_offgrid_2350_end_preserved_and_partial_excluded(self):
+        opened = datetime(2026, 10, 16, 20, 0, tzinfo=UTC)  # 23:00 MSK
+        end = opened + timedelta(minutes=50)  # 23:50 MSK, not midnight
+        sch = sessions((opened, end))
+        self.assertEqual(trading_windows(sch), ((opened, end),))
+        df = bridge(
+            bars(opened + timedelta(minutes=30), opened + timedelta(minutes=45)),
+            schedule=sch, now=opened + timedelta(hours=1))
+        self.assertEqual(len(df), 1)
+        self.assertEqual(df.index[-1].strftime("%H:%M"), "23:45")
+
+    def test_offgrid_2350_partial_last_bar_never_completed(self):
+        opened = datetime(2026, 10, 16, 20, 45, tzinfo=UTC)  # 23:45 MSK
+        sch = sessions((opened - timedelta(minutes=45), opened + timedelta(minutes=5)))
+        df = bridge(bars(opened), schedule=sch, now=opened + timedelta(hours=2))
+        self.assertEqual(len(df), 0)
+
+    def test_offgrid_session_start_does_not_fabricate_open(self):
+        sch = sessions((AT - timedelta(minutes=10), AT + timedelta(hours=1)))
+        df = bridge(bars(AT, AT + timedelta(minutes=15)),
+                    schedule=sch, now=AT + timedelta(minutes=15))
+        self.assertEqual(len(df), 1)
+        self.assertEqual(df.index[0].strftime("%H:%M"), "10:15")
+
+    def test_trading_clearing_overlap_refused(self):
+        sch = {"sessions": [
+            {"type": "CORE_TRADING", "interval":
+             {"start_time": iso(AT), "end_time": iso(AT + timedelta(hours=1))}},
+            {"type": "CLEARING", "interval":
+             {"start_time": iso(AT + timedelta(minutes=45)),
+              "end_time": iso(AT + timedelta(hours=2))}},
+        ]}
+        with self.assertRaisesRegex(M15BarAuthorityError, "OVERLAP"):
+            trading_windows(sch)
+
+    def test_trading_auction_overlap_refused(self):
+        sch = {"sessions": [
+            {"type": "OPENING_AUCTION", "interval":
+             {"start_time": iso(AT - timedelta(minutes=10)),
+              "end_time": iso(AT + timedelta(minutes=5))}},
+            {"type": "CORE_TRADING", "interval":
+             {"start_time": iso(AT), "end_time": iso(AT + timedelta(hours=1))}},
+        ]}
+        with self.assertRaisesRegex(M15BarAuthorityError, "OVERLAP"):
+            trading_windows(sch)
+
+    def test_touching_clearing_is_permitted_but_does_not_bridge_gap(self):
+        sch = {"sessions": [
+            {"type": "CORE_TRADING", "interval":
+             {"start_time": iso(AT), "end_time": iso(AT + timedelta(minutes=30))}},
+            {"type": "CLEARING", "interval":
+             {"start_time": iso(AT + timedelta(minutes=30)),
+              "end_time": iso(AT + timedelta(minutes=45))}},
+            {"type": "CORE_TRADING", "interval":
+             {"start_time": iso(AT + timedelta(minutes=45)),
+              "end_time": iso(AT + timedelta(hours=1, minutes=15))}},
+        ]}
+        windows = trading_windows(sch)
+        self.assertEqual(len(windows), 2)
+        df = bridge(bars(AT + timedelta(minutes=15),
+                         AT + timedelta(minutes=45),
+                         AT + timedelta(hours=1)),
+                    schedule=sch, now=AT + timedelta(hours=1))
+        self.assertEqual(len(df), 2)
+        self.assertEqual([x.strftime("%H:%M") for x in df.index], ["10:30", "11:00"])
+
+
 if __name__ == "__main__":
     unittest.main()
