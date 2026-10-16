@@ -1,8 +1,8 @@
 # CC-03 Intel installation — только план после аудита
 
-> PR #534 audit correction: legacy continuous heartbeat/kill-switch reads are `CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED` and disabled before file access. Stopped-source evidence does not establish live compatibility. Own export now uses immutable versioned completed JSON files, not replacement of `h1.snapshot.json`. This historical plan does not authorize installation; see [current hosted report](CC03_WINDOWS_HOSTED_ACCEPTANCE.md).
+**PLAN ONLY / NOT_EXECUTED.** Текущий документированный H1 checkpoint — ARMED generation 62 / Task RUNNING, installed code `3a18c8c24301c866a60f5d725de227288d48f7ec`; это историческое operator evidence, не новый read Intel. Не требовать Disabled/HALTED и не останавливать H1.
 
-**Не исполнено.** Сначала независимый аудит Draft PR, native Windows security suite и отдельное явное разрешение оператора. Не обновлять production checkout. Только отдельная копия ControlCenter из принятого commit, отдельные identity, app/venv/export/log/private roots. H1 не зависит от панели или exporter. Данный пакет не регистрирует никаких Windows Tasks.
+Решения строго разделены: **A** — [ограниченный OS READONLY-preflight](CC03_PHYSICAL_ACCEPTANCE_PLAN.md), без установки; **B** — этот план собственных CC identities/roots/app/venv и панели; **C** — [отдельное утверждение OS source/TTL/ACL](CC03_INTEL_PREFLIGHT_POLICIES.md) и первый real export. A не разрешает B/C, B не разрешает C. В текущей задаче ни одно не исполняется на Intel. Legacy production JSON/content/metadata BLOCKED; отсутствует production file access. H1 checkout, Task, ARM, authorization, SQLite/WAL и FINAM не затрагивать.
 
 ## 1. Подготовить release и offline wheelhouse на отдельном Windows x64
 
@@ -27,7 +27,7 @@ Wheelhouse hash manifest проверить по доверенному transfer
 
 ## 2. Сначала проверить изоляцию
 
-В приватном operator transcript определить `$panelSid`, `$exporterSid` двух новых standard accounts. Без robot/admin membership, shared credentials и inherited robot grants. Создание аккаунтов/ACL требует отдельного физического согласования; пакет этого не делает. Подготовить пустые roots и protected ACL по [матрице](CC03_WINDOWS_SECURITY.md). Только SYSTEM/Admin меняют app/venv/policies, exporter пишет только export, panel пишет только logs. Проверить DACL не только roots, но active policy files и всех source ancestors/leaf; проверить effective token/group rights под настоящими SID. Для approved policy WinAPI дополнительно требует owner SYSTEM/Admin и отсутствие write/delete/write-DACL/ownership grants другим SID на policy path/leaf.
+Только по отдельному решению B в приватном operator transcript определить `$panelSid`, `$exporterSid` двух новых standard accounts. Без robot/admin membership, shared credentials и inherited robot grants. Создание аккаунтов/ACL требует отдельного физического согласования; пакет этого не делает. Подготовить пустые roots и protected ACL по [матрице](CC03_WINDOWS_SECURITY.md). Только SYSTEM/Admin меняют app/venv/policies, exporter пишет только export, panel пишет только logs. Проверить DACL не только roots, но active policy files и всех source ancestors/leaf; проверить effective token/group rights под настоящими SID. Для approved policy WinAPI дополнительно требует owner SYSTEM/Admin и отсутствие write/delete/write-DACL/ownership grants другим SID на policy path/leaf.
 
 Нужны именно отдельные:
 
@@ -39,7 +39,7 @@ C:\TSLControlCenterData\logs       только CC logs
 C:\TSLControlCenterData\private    private source policy; нет panel grant
 ```
 
-Существующие H1 checkout/runtime/state/secrets остаются на своих местах. Actual source roots не копировать в docs, брать из независимо проверенного Task binding/операторского evidence. Не предоставлять recursive read H1 runtime или token directory. Если невозможно узкое read двух JSON — STOP exporter, панель DEMO/UNKNOWN.
+Существующие H1 checkout/runtime/state/secrets остаются на своих местах. Не предоставлять доступ к H1 runtime, JSON, SQLite или token directories. Для OS source нужны только существующие Task/process OS read grants. Если их недостаточно, оставить UNKNOWN и exporter выключенным; production ACL не менять.
 
 ## 3. Preview и install
 
@@ -52,7 +52,6 @@ C:\TSLControlCenterData\private    private source policy; нет panel grant
 .\deployment\Start-Exporter.ps1
 .\deployment\Verify.ps1
 .\deployment\Uninstall.ps1
-.\deployment\Probe-H1Task.ps1
 # Всё выше выводит PREVIEW; ничего не устанавливает/запускает/читает в H1.
 .\deployment\Preflight.ps1 -Execute -PanelSid $panelSid -ExporterSid $exporterSid
 .\deployment\Install.ps1 -Execute -PanelSid $panelSid -ExporterSid $exporterSid -Wheelhouse 'C:\CC03Staging\wheelhouse'
@@ -77,26 +76,17 @@ Get-NetTCPConnection -LocalPort 8501 -State Listen | Select-Object LocalAddress,
 
 Ожидается ровно один listener 127.0.0.1, `CC03_H1_STATE=UNKNOWN` и `CC03_INSTALL_VERIFY_PASS_PHYSICAL_H1_NOT_ACCEPTED`. Наличие listener не означает HEALTHY H1.
 
-## 5. Подготовить источник отдельно
+## 5. OS source — только отдельное решение C
 
-Только после source/ACL/binding/TTL review локально создать active private `source-policy.json` по неработоспособному example. Передать ожидаемый account **hash**, alias/source/binding references, actual source roots и проверенный installed commit. Политика не создаёт trading authorization. Root IDs получить только metadata API, затем независимо записать в policy (для каждого approved root):
+После A evidence и B isolation отдельно утвердить exact Task XML/principal и уже проверенную process epoch binding, реальные права CCExporter, root pin **собственного CC export root**, cadence и TTL. Порядок и неутверждённые private OS/receiver templates: [policies](CC03_INTEL_PREFLIGHT_POLICIES.md). Активный `os-policy.json` запрещён без physical evidence и отдельного C. Не читать legacy heartbeat/kill-switch JSON и не получать production metadata/root pins; `source-policy.json` для live content не активировать.
 
-```powershell
-# $approvedRoot получен из согласованного приватного evidence; не UI input.
-& C:\TSLControlCenterVenv\Scripts\python.exe -c 'import sys; from cc.providers.windows_file import WinAPI; a=WinAPI(); h=a.open(sys.argv[1],True); print(list(a.info(h,sys.argv[1],True)[:3])); a.close(h)' $approvedRoot
-```
-
-Команда выполняется из `C:\TSLControlCenterApp`. Ожидается 3 integer NTFS identity, без содержимого файла. Зафиксировать независимо, не угадывать. После записи source policy проверить protected DACL файла: panel нет доступа, exporter Read/Execute, SYSTEM/Admin Full, owner SYSTEM/Admin. `sources_acl_approved`, `installed_commit_verified`, `binding_approved` могут стать true **только после документированных проверок**, не ради прохождения скрипта.
-
-Receiver active policy создать отдельно из `receiver-policy.example.json` в app/deployment: source_id/account_alias/binding_id точно совпадают с private policy. TTL каждого набора пока null; поставить числа только после принятой измеренной cadence; `physical_source_approved` до приёмки false. File owner SYSTEM/Admin, protected DACL, panel/exporter Read/Execute. Активные policies вне manifest, exporter не пишет receiver policy. Политики не делать доступными через браузер.
-
-Под CCExporter (не CCPanel/robot/admin):
+После отдельного C под CCExporter, без admin, допускается будущий один запуск:
 
 ```powershell
-& C:\TSLControlCenterApp\deployment\Start-Exporter.ps1 -Execute -PanelSid $panelSid -ExporterSid $exporterSid
+& C:\TSLControlCenterApp\deployment\Start-Exporter.ps1 -Execute -OsObserver -PanelSid $panelSid -ExporterSid $exporterSid
 ```
 
-Ожидается один atomic export или `CC03_EXPORT_UNAVAILABLE`; raw path/error/account не выводятся. Запуск one-shot, без daemon/Task/dependency H1. Частота будущих запусков отдельно утверждается; автоматический scheduler не создаётся. Даже успешный export не является PHYSICAL PASS. Если historical heartbeat другого commit, binding не принимается и receiver UNKNOWN; **не запускать H1 ради heartbeat**.
+OS export содержит только Task/process observations, metadata UNKNOWN/DISABLED, account binding UNVERIFIED. Панель H1 health/trading/positions/orders/fills/SLTP/finance/PnL сохраняет UNKNOWN. Нет daemon, Task или автоматического cadence. Успешный export не означает CC03_PHYSICAL_PASS. При PROCESS_UNKNOWN источник не утверждать автоматически и не искать новый PID. Отмена C: завершить только собственную exporter console, не удалять evidence/последний snapshot автоматически; stale/unknown TTL закрывает положительные факты.
 
 ## 6. Логи, сеть и rollback
 

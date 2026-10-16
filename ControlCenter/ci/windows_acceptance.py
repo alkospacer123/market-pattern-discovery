@@ -46,6 +46,9 @@ def main():
         ('os-observer', [sys.executable, '-m', 'pytest', '-v', '-ra', '-s',
                          'tests/test_os_observer.py', 'tests/test_os_windows_native.py',
                          f'--junitxml={evidence / "os-observer.xml"}']),
+        ('intel-preflight', [sys.executable, '-m', 'pytest', '-v', '-ra',
+                            'tests/test_intel_preflight.py', 'tests/test_intel_preflight_native.py',
+                            f'--junitxml={evidence / "intel-preflight.xml"}']),
         ('full-suite', [sys.executable, '-m', 'pytest', '-q',
                         f'--junitxml={evidence / "full-suite.xml"}']),
         ('manifest', [sys.executable, 'deployment/manifest.py', '--check']),
@@ -80,7 +83,7 @@ def main():
         print(output, flush=True)
         (evidence / f'{name}.log').write_text(output, encoding='utf-8')
         results[name] = dict(exit_code=exit_code)
-    for name in ('windows-reader', 'windows-transport', 'cc03-source', 'os-observer', 'full-suite'):
+    for name in ('windows-reader', 'windows-transport', 'cc03-source', 'os-observer', 'intel-preflight', 'full-suite'):
         path = evidence / f'{name}.xml'
         if not path.exists():
             results[name]['missing_junit'] = True
@@ -105,6 +108,7 @@ def main():
                       windows_os_observer='NEEDS_FIX' if failed else 'PASS: OS facts only; physical source binding not executed',
                       metadata_source='CC03_METADATA_COMPATIBILITY_BLOCKED: expected-conflict regression is not noninterference acceptance',
                       runtime_retention='DISABLED: bounded stop, no deletion',
+                      intel_readonly_preflight='NEEDS_FIX' if failed else 'PASS: disposable hosted sources only',
                       physical='NOT_EXECUTED')
     (evidence / 'acceptance.json').write_text(json.dumps(acceptance, indent=2), encoding='utf-8')
     print(json.dumps(acceptance, indent=2), flush=True)

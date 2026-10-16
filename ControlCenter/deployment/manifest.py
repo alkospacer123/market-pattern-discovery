@@ -20,7 +20,7 @@ def entries():
     for path in sorted(ROOT.rglob('*'), key=lambda item: item.relative_to(ROOT).as_posix()):
         relative = path.relative_to(ROOT)
         if (path == MANIFEST or any(part in EXCLUDED_PARTS for part in relative.parts)
-                or path.name in {'receiver-policy.json','source-policy.json','os-policy.json'} or not path.is_file()):
+                or path.name in {'receiver-policy.json','source-policy.json','os-policy.json','preflight-policy.json'} or not path.is_file()):
             continue
         if path.is_symlink():
             raise ValueError('PACKAGE_SYMLINK_FORBIDDEN')
