@@ -97,6 +97,7 @@ class OfflineIntentLedger:
         if self.path.is_symlink():
             raise M15OfflineLedgerError("M15_LEDGER_SYMLINK_FORBIDDEN")
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        existed_before_open = self.path.exists()
         self.db = sqlite3.connect(self.path)
         self.db.execute("PRAGMA foreign_keys=ON")
         try:
@@ -113,7 +114,10 @@ class OfflineIntentLedger:
                         raise M15OfflineLedgerError("M15_LEDGER_COLUMNS_INVALID")
                 present = self.db.execute("SELECT value FROM metadata WHERE key='identity'").fetchone()
                 if present is None:
-                    # Only bootstrap a wholly clean fresh local store.
+                    # Lost identity in an existing store is NEVER reset/rebound,
+                    # including a store with zero intents (H1 authority pattern).
+                    if existed_before_open:
+                        raise M15OfflineLedgerError("M15_LEDGER_EXISTING_IDENTITY_MISSING")
                     if any(self.db.execute(f"SELECT EXISTS(SELECT 1 FROM {table})").fetchone()[0]
                            for table in ("intents", "fills", "protection")):
                         raise M15OfflineLedgerError("M15_LEDGER_IDENTITY_MISSING")
