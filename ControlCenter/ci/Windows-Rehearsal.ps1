@@ -35,11 +35,11 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
     }
     $lines += 'Get-ExecutionPolicy -List | Format-Table | Out-String | Write-Output'
     $lines += '& ' + (Literal $Entry) + ' -Execute -PanelSid ' + (Literal $panelSid) + ' -ExporterSid ' + (Literal $exporterSid)
-    $command = '& {' + "`n" + ($lines -join "`n") + "`n" + '} *> ' + (Literal $ErrorLog)
+    $command = '& {' + "`n" + ($lines -join "`n") + "`n" + '}'
     $bootstrap = Join-Path $sandbox ('identity-' + $Identity.Name + '.ps1')
     Set-Content -LiteralPath $bootstrap -Value $command -Encoding UTF8
     $executable = Join-Path $env:SYSTEMROOT 'System32\WindowsPowerShell\v1.0\powershell.exe'
-    return [CC03Access]::StartAs($Identity.Name, $Identity.Password, $executable, $bootstrap, $script:AppRoot)
+    return [CC03Access]::StartAs($Identity.Name, $Identity.Password, $executable, $bootstrap, $script:AppRoot, $ErrorLog)
 }
 
 function Set-DisposableACL([string]$Path, [string]$Kind) {
@@ -99,13 +99,14 @@ public static class CC03Access {
     }
     [DllImport("advapi32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
     static extern bool CreateProcessWithTokenW(IntPtr token,int logonFlags,string application,StringBuilder command,int flags,IntPtr environment,string directory,ref StartupInfo startup,out ProcessInfo process);
-    public static CC03Child StartAs(string user,string password,string executable,string script,string directory) {
+    public static CC03Child StartAs(string user,string password,string executable,string script,string directory,string log) {
         IntPtr token;
         if (!LogonUser(user,".",password,2,0,out token)) throw new Exception("LOGON_USER_UNAVAILABLE win32="+Marshal.GetLastWin32Error());
         try {
             var startup=new StartupInfo(); startup.cb=Marshal.SizeOf(typeof(StartupInfo));
             ProcessInfo process;
-            var command=new StringBuilder("\""+executable+"\" -NoProfile -File \""+script+"\"");
+            string action="& '"+script.Replace("'","''")+"' *> '"+log.Replace("'","''")+"'";
+            var command=new StringBuilder("\""+executable+"\" -NoProfile -Command \""+action+"\"");
             if (command.Length>=1024) throw new Exception("LOGON_COMMAND_LINE_TOO_LONG");
             if (!CreateProcessWithTokenW(token,1,executable,command,0x08000000,IntPtr.Zero,directory,ref startup,out process))
                 throw new Exception("CREATE_PROCESS_WITH_TOKEN_UNAVAILABLE win32="+Marshal.GetLastWin32Error());
@@ -224,7 +225,11 @@ try {
         if ($listener.Count -eq 1 -and $listener[0].LocalAddress -eq '127.0.0.1') { $ready=$true; break }
         if ($panelProcess.HasExited) { break }
     }
-    if (-not $ready) { throw 'DISPOSABLE_PANEL_DID_NOT_BIND_LOOPBACK' }
+    if (-not $ready) {
+        $results['panel_child_exit'] = $(if ($panelProcess.HasExited) { '0x{0:X8}' -f $panelProcess.ExitCode } else { 'RUNNING_WITHOUT_LISTENER' })
+        $results['panel_log_present'] = Test-Path "$script:DataRoot\logs\panel-stderr.txt"
+        throw 'DISPOSABLE_PANEL_DID_NOT_BIND_LOOPBACK'
+    }
     & "$package\deployment\Verify.ps1" -Execute -PanelSid $panelSid -ExporterSid $exporterSid
     if ($LASTEXITCODE -ne 0) { throw 'VERIFY_FAILED' }
     $results['panel_verify'] = 'PASS: low-privilege panel and real loopback-only listener; receiver remains UNKNOWN without approved source'
