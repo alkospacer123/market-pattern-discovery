@@ -83,11 +83,11 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "294854e5d7d4428d881fac94ae0fec63cfbda62a60669d7cf3c436e922901ad6"
+      "sha256": "3537d7534138608b10ce1fcf0b26871e56d8c209dfe2a5889dba8c1f5159a0e6"
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "fe764e23fe4c6a40eef3a6708e5206b69408d960cece37523847b2c034fa7abd"
+      "sha256": "2619905f3245aad9264535b5bb87974421a17d5b06827a9f0560faf8d4ee8c52"
     },
     {
       "path": "ci/windows_share_probe.py",

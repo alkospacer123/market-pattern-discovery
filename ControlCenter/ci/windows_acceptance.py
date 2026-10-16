@@ -6,12 +6,18 @@ import platform
 import struct
 import subprocess
 import sys
+import uuid
 import xml.etree.ElementTree as ET
 
 
 def main():
     assert os.name == 'nt' and os.environ.get('RUNNER_ENVIRONMENT') == 'github-hosted'
     assert sys.version_info[:3] == (3, 12, 10) and struct.calcsize('P') == 8
+    # Even absence/UI tests must resolve default receiver/exporter I/O to a
+    # disposable path, never the installed machine's conventional CC roots.
+    sandbox = Path(os.environ['RUNNER_TEMP']) / ('CC03-' + uuid.uuid4().hex)
+    sandbox.mkdir()
+    os.environ['CC03_CI_DISPOSABLE_ROOT'] = str(sandbox)
     evidence = Path(os.environ['RUNNER_TEMP']) / 'cc03-evidence'
     evidence.mkdir(exist_ok=True)
     metadata = dict(windows=platform.platform(), windows_version=platform.win32_ver(),

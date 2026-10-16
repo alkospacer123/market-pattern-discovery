@@ -35,8 +35,10 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
     }
     $lines += 'Get-ExecutionPolicy -List | Format-Table | Out-String | Write-Output'
     $lines += '& ' + (Literal $Entry) + ' -Execute -PanelSid ' + (Literal $panelSid) + ' -ExporterSid ' + (Literal $exporterSid)
-    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes(($lines -join "`n")))
-    return Start-Process powershell.exe -Credential $Identity.Credential -LoadUserProfile -ArgumentList @('-NoProfile','-EncodedCommand',$encoded) -WorkingDirectory $script:AppRoot -PassThru -RedirectStandardOutput $Output -RedirectStandardError $ErrorLog
+    $command = '& {' + "`n" + ($lines -join "`n") + "`n" + '} *> ' + (Literal $ErrorLog)
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command))
+    $executable = Join-Path $env:SYSTEMROOT 'System32\WindowsPowerShell\v1.0\powershell.exe'
+    return [CC03Access]::StartAs($Identity.Name, $Identity.Password, $executable, $encoded, $script:AppRoot)
 }
 
 function Set-DisposableACL([string]$Path, [string]$Kind) {
@@ -64,10 +66,51 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using System.Text;
+public sealed class CC03Child : IDisposable {
+    IntPtr handle;
+    public int Id { get; private set; }
+    [DllImport("kernel32.dll", SetLastError=true)] static extern uint WaitForSingleObject(IntPtr handle, uint milliseconds);
+    [DllImport("kernel32.dll", SetLastError=true)] static extern bool GetExitCodeProcess(IntPtr handle, out uint code);
+    [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr handle);
+    public CC03Child(IntPtr handle, int id) { this.handle=handle; Id=id; }
+    public bool WaitForExit(int milliseconds) {
+        uint result=WaitForSingleObject(handle, (uint)milliseconds);
+        if (result==0) return true;
+        if (result==258) return false;
+        throw new Exception("CHILD_WAIT_FAILED win32="+Marshal.GetLastWin32Error());
+    }
+    public bool HasExited { get { return WaitForExit(0); } }
+    public int ExitCode { get { uint code; if (!GetExitCodeProcess(handle,out code)) throw new Exception("CHILD_EXIT_UNAVAILABLE"); return unchecked((int)code); } }
+    public void Dispose() { if (handle!=IntPtr.Zero) { CloseHandle(handle); handle=IntPtr.Zero; } }
+}
 public static class CC03Access {
     [DllImport("advapi32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
     static extern bool LogonUser(string user, string domain, string password, int type, int provider, out IntPtr token);
     [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr token);
+    [StructLayout(LayoutKind.Sequential)] struct StartupInfo {
+        public int cb; public IntPtr reserved,desktop,title;
+        public int x,y,xsize,ysize,xchars,ychars,fill,flags;
+        public short show,reservedSize; public IntPtr reserved2,input,output,error;
+    }
+    [StructLayout(LayoutKind.Sequential)] struct ProcessInfo {
+        public IntPtr process,thread; public int processId,threadId;
+    }
+    [DllImport("advapi32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
+    static extern bool CreateProcessWithTokenW(IntPtr token,int logonFlags,string application,StringBuilder command,int flags,IntPtr environment,string directory,ref StartupInfo startup,out ProcessInfo process);
+    public static CC03Child StartAs(string user,string password,string executable,string encoded,string directory) {
+        IntPtr token;
+        if (!LogonUser(user,".",password,2,0,out token)) throw new Exception("LOGON_USER_UNAVAILABLE win32="+Marshal.GetLastWin32Error());
+        try {
+            var startup=new StartupInfo(); startup.cb=Marshal.SizeOf(typeof(StartupInfo));
+            ProcessInfo process;
+            var command=new StringBuilder("\""+executable+"\" -NoProfile -EncodedCommand "+encoded);
+            if (!CreateProcessWithTokenW(token,1,executable,command,0x08000000,IntPtr.Zero,directory,ref startup,out process))
+                throw new Exception("CREATE_PROCESS_WITH_TOKEN_UNAVAILABLE win32="+Marshal.GetLastWin32Error());
+            CloseHandle(process.thread);
+            return new CC03Child(process.process,process.processId);
+        } finally { CloseHandle(token); }
+    }
     public static string Probe(string user, string password, string expectedSid, string path, bool write) {
         IntPtr token;
         if (!LogonUser(user, ".", password, 2, 0, out token))
@@ -185,15 +228,18 @@ try {
     # A real low-privilege one-shot exporter must reject the unapproved empty
     # policy before any source reads. No physical H1 authority is synthesized.
     Assert-ACL $private $panelSid $exporterSid 'private'
-    $exporterProcess = Start-IdentityScript $exporter "$script:AppRoot\deployment\Start-Exporter.ps1" "$evidence\exporter-stdout.txt" "$evidence\exporter-stderr.txt"
+    $exporterLog = "$script:DataRoot\export\exporter-process.txt"
+    $exporterProcess = Start-IdentityScript $exporter "$script:AppRoot\deployment\Start-Exporter.ps1" $exporterLog $exporterLog
     if (-not $exporterProcess.WaitForExit(30000)) { throw 'EXPORTER_TIMEOUT' }
-    if ($exporterProcess.ExitCode -eq 0 -or (Get-Content -Raw "$evidence\exporter-stderr.txt") -notlike '*CC03_EXPORT_UNAVAILABLE*') { throw 'UNAPPROVED_EXPORTER_DID_NOT_FAIL_CLOSED' }
+    if ($exporterProcess.ExitCode -eq 0 -or (Get-Content -Raw $exporterLog) -notlike '*CC03_EXPORT_UNAVAILABLE*') { throw 'UNAPPROVED_EXPORTER_DID_NOT_FAIL_CLOSED' }
+    $exporterProcess.Dispose()
     $exporterProcess = $null
     if (Test-Path "$script:DataRoot\export\h1.snapshot.json") { throw 'UNAPPROVED_EXPORTER_PUBLISHED_DATA' }
     $results['exporter_fail_closed'] = 'PASS: separate-SID one-shot rejected unapproved policy, published nothing'
     $results['physical_source'] = 'OUT_OF_SCOPE: physical H1 source/account/TTL authority remains a separate Intel gate'
     # Stop only the process tree launched above, before uninstalling own package.
     & taskkill.exe /PID $panelProcess.Id /T /F
+    $panelProcess.Dispose()
     $panelProcess = $null
     & "$package\deployment\Uninstall.ps1" -Execute -PanelSid $panelSid -ExporterSid $exporterSid
     if ($LASTEXITCODE -ne 0) { throw 'UNINSTALL_FAILED' }
@@ -210,6 +256,13 @@ try {
 } finally {
     if ($null -ne $panelProcess -and -not $panelProcess.HasExited) { & taskkill.exe /PID $panelProcess.Id /T /F }
     if ($null -ne $exporterProcess -and -not $exporterProcess.HasExited) { & taskkill.exe /PID $exporterProcess.Id /T /F }
+    if ($null -ne $panelProcess) { $panelProcess.Dispose() }
+    if ($null -ne $exporterProcess) { $exporterProcess.Dispose() }
+    if (Test-Path "$script:DataRoot\export\exporter-process.txt") {
+        Copy-Item "$script:DataRoot\export\exporter-process.txt" -Destination $evidence
+        Write-Output 'REHEARSAL_LOG exporter-process.txt'
+        Get-Content "$script:DataRoot\export\exporter-process.txt"
+    }
     if ($results.Contains('install') -and -not $results.Contains('uninstall')) {
         try {
             & "$package\deployment\Uninstall.ps1" -Execute -PanelSid $panelSid -ExporterSid $exporterSid
