@@ -65,6 +65,7 @@ def get(value, policy, now, tmp_path, monkeypatch):
     value['payload_sha256'] = canonical_digest(value)
     (tmp_path/'h1.snapshot.json').write_text(json.dumps(value))
     monkeypatch.setattr(receiver,'EXPORT_ROOT',tmp_path)
+    monkeypatch.setattr(receiver,'read_latest_windows',lambda *args: (tmp_path/'h1.snapshot.json').read_bytes())
     return receiver.H1ExportProvider(policy).snapshot(RobotId.H1,'READONLY_EXPORT',now)
 
 
@@ -146,6 +147,7 @@ def test_unresolved_unhealthy_and_no_task_no_healthy(policy,sources,now,tmp_path
 
 def test_corrupt_oversize_and_secret_error_missing_exporter(policy,sources,now,tmp_path,monkeypatch):
     monkeypatch.setattr(receiver,'EXPORT_ROOT',tmp_path)
+    monkeypatch.setattr(receiver,'read_latest_windows',lambda *args: (tmp_path/'h1.snapshot.json').read_bytes())
     provider=receiver.H1ExportProvider(approved(policy))
     for raw in (b'{',b' '*131073,b'{"token":"SECRET_TOKEN"}'):
         (tmp_path/'h1.snapshot.json').write_bytes(raw)
@@ -187,33 +189,15 @@ def test_exporter_absence_ui_m15_controls(monkeypatch,tmp_path):
     assert not app.exception and len(app.button)==10 and all(x.disabled for x in app.button)
 
 
-def test_publication_is_atomic_and_only_in_own_directory(policy,sources,now,tmp_path,monkeypatch):
-    import types
-    from exporter import snapshot as writer
-    value=export(policy,sources,now)
-    destination=tmp_path/'h1.snapshot.json'
-    destination.write_bytes(b'old')
-    replace_calls=[]
-    def replace(source,target):
-        assert destination.read_bytes()==b'old'
-        assert Path(source).parent==tmp_path and Path(target)==destination
-        validate(json.loads(Path(source).read_bytes()),SCHEMA)
-        replace_calls.append((source,target)); os.replace(source,target)
-    class API:
-        def volume(self,path): pass
-        def open(self,path,directory): return path
-        def info(self,handle,path,directory): return (1,2,3)
-        def close(self,handle): pass
-    monkeypatch.setattr(writer,'EXPORT_ROOT',tmp_path)
-    monkeypatch.setattr(writer,'WinAPI',API)
-    monkeypatch.setattr(writer,'components',lambda root,name: ([root],str(Path(root)/name)))
-    monkeypatch.setattr(writer,'os',types.SimpleNamespace(name='nt',fdopen=os.fdopen,fsync=os.fsync,
-                        replace=replace,path=os.path,unlink=os.unlink))
-    writer.publish(value)
-    assert len(replace_calls)==1 and json.loads(destination.read_bytes())==value
-    assert list(tmp_path.iterdir())==[destination]
-    value['payload_sha256']='0'*64
-    with pytest.raises(ValueError): writer.publish(value)
+def test_live_source_is_blocked_before_open(policy, now, monkeypatch):
+    from cc.providers.readonly_file import read_source
+    def forbidden(*args, **kwargs): raise AssertionError('must not touch live sources')
+    monkeypatch.setattr(os, 'open', forbidden)
+    with pytest.raises(ValueError, match='CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED'):
+        read_source(policy['heartbeat_root'], 'stage8-12-4-production-heartbeat.json', [1,2,3])
+    with pytest.raises(ValueError, match='CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED'):
+        collect(policy, now)
+
 
 
 def test_deployment_scripts_preview_and_no_production_mutators():

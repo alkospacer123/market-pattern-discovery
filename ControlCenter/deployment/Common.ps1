@@ -21,6 +21,19 @@ function Assert-PlainPath([string]$Path) {
     if ($drive.DriveType -ne 'Fixed' -or $drive.DriveFormat -ne 'NTFS') { throw 'LOCAL_NTFS_REQUIRED' }
 }
 
+# Rehearsal roots are opt-in and confined to this hosted VM's disposable temp.
+# No installation script sets ACLs, provisions identities, or changes H1 paths.
+if (-not [string]::IsNullOrWhiteSpace($env:CC03_CI_DISPOSABLE_ROOT)) {
+    if ($env:GITHUB_ACTIONS -cne 'true' -or $env:RUNNER_ENVIRONMENT -cne 'github-hosted' -or [string]::IsNullOrWhiteSpace($env:RUNNER_TEMP)) { throw 'HOSTED_DISPOSABLE_REHEARSAL_REQUIRED' }
+    $sandbox = [IO.Path]::GetFullPath($env:CC03_CI_DISPOSABLE_ROOT).TrimEnd('\')
+    $temporary = [IO.Path]::GetFullPath($env:RUNNER_TEMP).TrimEnd('\') + '\'
+    if (-not $sandbox.StartsWith($temporary, [StringComparison]::OrdinalIgnoreCase) -or (Split-Path $sandbox -Leaf) -notmatch '^CC03-[a-f0-9]{32}$') { throw 'DISPOSABLE_ROOT_OUTSIDE_RUNNER_TEMP' }
+    Assert-PlainPath $sandbox
+    $script:AppRoot = Join-Path $sandbox 'app'
+    $script:VenvRoot = Join-Path $sandbox 'venv'
+    $script:DataRoot = Join-Path $sandbox 'data'
+}
+
 function Get-Manifest([string]$Root, [switch]$AllowMissing) {
     Assert-PlainPath $Root
     $manifestPath = Join-Path $Root 'deployment\manifest.json'

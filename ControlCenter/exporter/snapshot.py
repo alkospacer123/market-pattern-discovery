@@ -1,4 +1,4 @@
-"""One-shot external observer. Only two pinned existing JSON sources, no engine/DB/API.
+"""CC-owned immutable publication. Legacy live collection is disabled, no engine/DB/API.
 
 Publication destination is fixed under the independent Control Center data tree.
 Private policy and output directory must be provisioned/ACL-audited separately.
@@ -10,13 +10,17 @@ import os
 from pathlib import Path
 import re
 import tempfile
+import hashlib
+import time
+import uuid
 from cc.providers.h1_contract import ACTIVE, SPEC, ACCEPTED_COMMIT, MAX_BYTES, timestamp, validate
 from cc.providers.h1_readonly import canonical_digest, _pairs, _reject_constant
 from cc.providers.readonly_file import read_source
-from cc.providers.windows_file import read_windows, components, WinAPI
+from cc.providers.windows_file import read_windows, components, WinAPI, MAX_ENTRIES
 from cc.providers.source_contract import SCHEMA, SCHEMA_ID
+from cc.deployment_paths import data_root
 
-DATA_ROOT = Path('C:/TSLControlCenterData')
+DATA_ROOT = data_root()
 EXPORT_ROOT = DATA_ROOT / 'export'
 POLICY_ROOT = DATA_ROOT / 'private'
 HB = 'stage8-12-4-production-heartbeat.json'
@@ -52,8 +56,10 @@ def stamp(at):
     return at.astimezone(timezone.utc).isoformat()
 
 
-def collect(policy, now, reader=read_source):
+def collect(policy, now, reader=None):
     policy_check(policy)
+    if reader is None:
+        raise ValueError('CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED')
     identity = dict(robot_id='H1', strategy_id='T3/H1/TRAIL1', production_specification_id=SPEC,
                     active_identity=ACTIVE, installed_code_commit=ACCEPTED_COMMIT,
                     source_id=policy['source_id'], account_alias=policy['account_alias'],
@@ -118,6 +124,7 @@ def publish(value):
     raw = json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode('ascii')
     if len(raw) > MAX_BYTES:
         raise ValueError('EXPORT_TOO_LARGE')
+    name = f'h1-{time.time_ns():020d}-{uuid.uuid4().hex}-{hashlib.sha256(raw).hexdigest()}.json'
     api, held = WinAPI(), []
     try:
         directories, _ = components(str(EXPORT_ROOT), 'h1.snapshot.json')
@@ -126,13 +133,21 @@ def publish(value):
             handle = api.open(path, True)
             held.append(handle)
             api.info(handle, path, True)
+        with os.scandir(EXPORT_ROOT) as entries:
+            for index, _ in enumerate(entries):
+                if index >= MAX_ENTRIES - 1:
+                    raise ValueError('EXPORT_DIRECTORY_FULL')
         fd, temporary = tempfile.mkstemp(prefix='.cc03-', suffix='.tmp', dir=EXPORT_ROOT)
         try:
             with os.fdopen(fd, 'wb') as stream:
                 stream.write(raw)
                 stream.flush()
                 os.fsync(stream.fileno())
-            os.replace(temporary, EXPORT_ROOT / 'h1.snapshot.json')
+            # Windows rename fails if the unique destination already exists.
+            # Never overwrite/delete an open published snapshot. Completed names
+            # appear only after close+fsync; temp names are never consumed.
+            os.rename(temporary, EXPORT_ROOT / name)
+            return EXPORT_ROOT / name
         finally:
             if os.path.exists(temporary):
                 os.unlink(temporary)
@@ -146,7 +161,7 @@ def main():
     parser.add_argument('--execute', action='store_true', help='Read approved sources and publish once; default is preview')
     args = parser.parse_args()
     if not args.execute:
-        print('PREVIEW: two pinned JSON reads; atomic Control Center export only; no production action')
+        print('PREVIEW: legacy live source BLOCKED; immutable Control Center transport only; no production action')
         return
     try:
         if os.name != 'nt':
@@ -154,8 +169,10 @@ def main():
         policy = decode(read_windows(str(POLICY_ROOT).replace('/', '\\'), 'source-policy.json', MAX_BYTES, admin_policy=True))
         publish(collect(policy, datetime.now(timezone.utc)))
         print('CC03_EXPORT_PUBLISHED_AUTHORITY_LIMITED')
-    except Exception:
+    except Exception as exc:
         print('CC03_EXPORT_UNAVAILABLE')
+        if str(exc) == 'CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED':
+            print('CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED')
         raise SystemExit(1)
 
 

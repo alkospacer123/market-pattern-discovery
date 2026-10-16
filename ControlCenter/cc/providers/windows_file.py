@@ -1,15 +1,21 @@
 """Local NTFS read boundary. No shell, trading imports, write handles or fallback.
 
-Directories deny WRITE/DELETE sharing; leaves allow DELETE for atomic producers. A spawned worker
-bounds native I/O; ACL/source trust remains an installation acceptance requirement.
+Directories deny DELETE sharing; leaves allow DELETE sharing. Hosted Windows
+acceptance still exposes a blocking legacy os.replace conflict; do not deploy.
+A spawned worker bounds native I/O; ACL/source trust remains an acceptance gate.
 """
 import ctypes
 from ctypes import wintypes as w
 import multiprocessing
 from pathlib import PureWindowsPath
+import hashlib
+import os
+import re
 
 MAX_BYTES = 128 * 1024
 TIMEOUT_SECONDS = 2.0
+SNAPSHOT_NAME = re.compile(r"h1-[0-9]{20}-[a-f0-9]{32}-([a-f0-9]{64})\.json")
+MAX_ENTRIES = 2048
 
 
 def components(root, filename):
@@ -113,12 +119,15 @@ class WinAPI:
             raise ValueError('LOCAL_NTFS_REQUIRED')
 
     def open(self, path, directory):
-        # FILE_READ_ATTRIBUTES for directories; GENERIC_READ for leaf. OPEN_EXISTING.
-        # Directories deny WRITE/DELETE; leaves allow DELETE so the observer does
-        # not block an atomic os.replace producer. Replaced pathname => rejection.
+        # FILE_LIST_DIRECTORY + READ_ATTRIBUTES + READ_CONTROL for directories;
+        # metadata-only access does not participate in Windows share checking.
+        # GENERIC_READ for leaf. OPEN_EXISTING.
+        # Directory WRITE sharing permits child publication while DELETE denial
+        # pins the directory itself. Leaf DELETE sharing is necessary but the
+        # hosted test still exposes legacy os.replace blocking on an open leaf.
         # OPEN_REPARSE_POINT applies even to directories; never traverse an unchecked one.
-        handle = self.k.CreateFileW(path, (0x80 | 0x20000) if directory else 0x80000000,
-                                    1 if directory else 1 | 4, None, 3, 0x00200000 | 0x02000000, None)
+        handle = self.k.CreateFileW(path, (0x1 | 0x80 | 0x20000) if directory else 0x80000000,
+                                    1 | 2 if directory else 1 | 4, None, 3, 0x00200000 | 0x02000000, None)
         if handle == ctypes.c_void_p(-1).value or handle is None:
             raise ValueError('OPEN_DENIED')
         return handle
@@ -164,6 +173,20 @@ def _read_native(root, filename, maximum, api, expected_root=None, admin_policy=
                 api.admin_policy(handle)
         if expected_root is not None and tuple(held[-1][3][:3]) != tuple(expected_root):
             raise ValueError("ROOT_IDENTITY_MISMATCH")
+        # Discovery occurs while every ancestor and the accepted root are held.
+        # Ignore unpublished temp files. Bound total entries, not just matches.
+        if filename == 'LATEST-COMPLETED':
+            names = []
+            with os.scandir(root) as entries:
+                for index, entry in enumerate(entries):
+                    if index >= MAX_ENTRIES:
+                        raise ValueError('EXPORT_DIRECTORY_FULL')
+                    if SNAPSHOT_NAME.fullmatch(entry.name):
+                        names.append(entry.name)
+            if not names:
+                raise ValueError('NO_COMPLETED_EXPORT')
+            filename = max(names)
+            _, leaf = components(root, filename)
         handle = api.open(leaf, False)
         held.append((handle, leaf, False, None))
         held[-1] = (handle, leaf, False, api.info(handle, leaf, False))
@@ -175,15 +198,22 @@ def _read_native(root, filename, maximum, api, expected_root=None, admin_policy=
         data = api.read(handle, maximum)
         if len(data) != size:
             raise ValueError('PARTIAL_READ')
+        def stable(info, directory):
+            # Publishing a child changes directory timestamps. Only directory
+            # identity and attributes define the pinned no-reparse boundary.
+            return info[:3] + info[-1:] if directory else info
         for handle, path, directory, before in held:
-            if api.info(handle, path, directory) != before:
+            if stable(api.info(handle, path, directory), directory) != stable(before, directory):
                 raise ValueError('FILE_CHANGED')
             check = api.open(path, directory)
             try:
-                if api.info(check, path, directory) != before:
+                if stable(api.info(check, path, directory), directory) != stable(before, directory):
                     raise ValueError('PATH_CHANGED')
             finally:
                 api.close(check)
+        match = SNAPSHOT_NAME.fullmatch(filename)
+        if match and hashlib.sha256(data).hexdigest() != match[1]:
+            raise ValueError('SNAPSHOT_NAME_DIGEST_MISMATCH')
         return data
     finally:
         for handle, *_ in reversed(held):
@@ -223,3 +253,9 @@ def read_windows(root, filename, maximum, expected_root=None, admin_policy=False
                 process.join(0.2)
         receive.close()
         send.close()
+
+
+def read_latest_windows(root, maximum, expected_root):
+    if expected_root is None or len(expected_root) != 3 or any(type(x) is not int or x < 0 for x in expected_root):
+        raise ValueError('EXPORT_ROOT_PIN_REQUIRED')
+    return read_windows(root, 'LATEST-COMPLETED', maximum, expected_root)

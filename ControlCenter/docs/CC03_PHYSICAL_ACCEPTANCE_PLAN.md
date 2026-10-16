@@ -1,5 +1,7 @@
 # CC-03 Intel physical READONLY acceptance — НЕ ИСПОЛНЯТЬ в этой итерации
 
+> PR #534 audit correction: legacy continuous heartbeat/kill-switch reads are `CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED` and disabled before file access. Stopped-source evidence does not establish live compatibility. Own export now uses immutable versioned completed JSON files, not replacement of `h1.snapshot.json`. This historical plan does not authorize installation; see [current hosted report](CC03_WINDOWS_HOSTED_ACCEPTANCE.md).
+
 Статус **NOT_VERIFIED / NOT_EXECUTED**. Это продолжение CC-03 по roadmap #524, не новый этап. Нужны завершённый независимый Draft PR audit, native Windows security results, явное отдельное разрешение оператора с точным commit/source/identity/ACL scope. Никакой автоматической установки в этом PR.
 
 ## Порядок и private evidence

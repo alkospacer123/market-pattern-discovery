@@ -144,14 +144,15 @@ def test_native_junction_reparse(tmp_path):
 
 
 @native
-def test_native_inplace_write_denied_atomic_replace_allowed(tmp_path):
+def test_native_legacy_replace_conflict_requires_live_block(tmp_path):
     path = tmp_path / 'h1.snapshot.json'; path.write_bytes(b'{}')
     api = win.WinAPI()
     handle = api.open(str(path), False)
     try:
         with pytest.raises(OSError): path.write_bytes(b'{')
         replacement = tmp_path / 'new.json'; replacement.write_bytes(b'{ }')
-        os.replace(replacement, path)
+        with pytest.raises(PermissionError):
+            os.replace(replacement, path)
         assert api.read(handle, 131072) == b'{}'
     finally:
         api.close(handle)
@@ -193,24 +194,30 @@ def test_native_insufficient_file_acl(tmp_path):
     output = subprocess.run(['whoami','/user','/fo','csv','/nh'],check=True,capture_output=True,text=True).stdout
     import csv
     sid = next(csv.reader([output.strip()]))[1]
-    subprocess.run(['icacls',str(path),'/deny',f'*{sid}:(R)'],check=True,capture_output=True)
+    # Deny FILE_READ_DATA only. Denying READ_CONTROL too also prevents icacls
+    # from reading the DACL to remove its own fixture ACE during cleanup.
+    subprocess.run(['icacls',str(path),'/deny',f'*{sid}:(RD)'],check=True,capture_output=True)
     try:
+        with pytest.raises(PermissionError): path.read_bytes()
         with pytest.raises(ValueError): read_snapshot(tmp_path, path.name, 131072)
     finally:
         subprocess.run(['icacls',str(path),'/remove:d',f'*{sid}'],check=True,capture_output=True)
+    assert path.read_bytes() == b'{}'
 
 
 @native
-def test_native_atomic_producer_is_unblocked_and_receiver_rejects_change(tmp_path):
+def test_native_legacy_concurrent_conflict_and_release(tmp_path):
     path = tmp_path / 'h1.snapshot.json'; path.write_bytes(b'{}')
     replacement = tmp_path / 'new.json'; replacement.write_bytes(b'{ }')
     class ReplacingAPI(win.WinAPI):
         def read(self, handle, maximum):
             data = super().read(handle, maximum)
-            os.replace(replacement, path)  # MUST succeed while observer handles remain open.
+            os.replace(replacement, path)  # Legacy conflict must remain visible.
             return data
-    with pytest.raises(ValueError):
+    with pytest.raises(PermissionError):
         win._read_native(str(tmp_path), path.name, 131072, ReplacingAPI())
+    # Every reader handle closed even on conflict; producer resumes unchanged.
+    os.replace(replacement, path)
     assert path.read_bytes() == b'{ }'
 
 

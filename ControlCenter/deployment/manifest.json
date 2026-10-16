@@ -11,7 +11,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "f98f1d06b581bffbb2b02eb8476a7e71d18c4d03ca0c99140ecf3ac994f1c54f"
+      "sha256": "7ae357da8e523b1d0d125cb6801d076acd60a16ef060583a67761eced5b5a27c"
     },
     {
       "path": "app.py",
@@ -28,6 +28,10 @@
     {
       "path": "cc/charts.py",
       "sha256": "f3a1559b71c6dc12660ae8d657ad0435a551b6c7ed07f87a2c13949efdf3b68f"
+    },
+    {
+      "path": "cc/deployment_paths.py",
+      "sha256": "4e70a15fb936849268fa80f83c6ce279004d89b45e5a6ca498c6894c78490902"
     },
     {
       "path": "cc/freshness.py",
@@ -51,7 +55,7 @@
     },
     {
       "path": "cc/providers/h1_export.py",
-      "sha256": "7607fcdbfd386ccbbae1b36669704e38a10dd257c7f392a07b5911f5fbcf5043"
+      "sha256": "ec2b1142863b3bfc556bdcfb8670cf07a4bab05f735f28092e1baa2217181bb7"
     },
     {
       "path": "cc/providers/h1_readonly.py",
@@ -59,7 +63,7 @@
     },
     {
       "path": "cc/providers/readonly_file.py",
-      "sha256": "417f0224e9b7057c29ed8b615f252421eca10bbd0b1dc25e5510f08c2b587251"
+      "sha256": "f48ba8f56155f484d5ce20bf4ca3c046dae74d387fb329c071445d7a22c0452e"
     },
     {
       "path": "cc/providers/source_contract.py",
@@ -71,23 +75,35 @@
     },
     {
       "path": "cc/providers/windows_file.py",
-      "sha256": "1e64a7d52caa7a113621cf688c0f103c35f25f83267d5d058d794ac97375dee9"
+      "sha256": "d2449da3b746a66126bac72cc8e8f868f52e998ebb8b6e5516419ffff05735d2"
     },
     {
       "path": "cc/ui.py",
       "sha256": "410764f552c741c13fe963b4a4dead487fbb3eda57f6525e1929ea34db7bc5c6"
     },
     {
+      "path": "ci/Windows-Rehearsal.ps1",
+      "sha256": "641c25159551fa41ded106cff682305c31e5b0711e0f2f780bcff1b68f4eb23d"
+    },
+    {
+      "path": "ci/identity_probe.py",
+      "sha256": "c90470e873ed1b65da23dd9eee95fca17081d4cfe4e9f40a971c5e59f0f809a9"
+    },
+    {
+      "path": "ci/windows_acceptance.py",
+      "sha256": "cb27fe2518f9002c75f51fce270b151ac33517da8485adbace274b95f43090dc"
+    },
+    {
       "path": "deployment/Common.ps1",
-      "sha256": "a58af50268280e7aad656f1e355fb5deb6425a67378a197791ec14c29d9624d2"
+      "sha256": "b2bfcd4983c9200db3e984b7b4e7847303681de8bfdef45cc9db8a1eb4fa7e25"
     },
     {
       "path": "deployment/Install.ps1",
-      "sha256": "31135183bee531b46001dedd453cab24c956d837294df841822449113abbaf2a"
+      "sha256": "188f52be7e688cba341e15119ed183ee3d7108d1078bd534e5944b3c4c03aa8c"
     },
     {
       "path": "deployment/Preflight.ps1",
-      "sha256": "11eaad112f0c8d33f6bffa786b5552f2e32a81215c3486226caf086afd39ca00"
+      "sha256": "bd5a27e0bb886fdace6eb4b290d6bb4eb1ed458f341c684f2518be7fc4974db5"
     },
     {
       "path": "deployment/Probe-H1Task.ps1",
@@ -95,7 +111,7 @@
     },
     {
       "path": "deployment/Start-Exporter.ps1",
-      "sha256": "fd83aa095926548c43162876c5d468de0c83096c48e0e2ff9b4e22133e71fac4"
+      "sha256": "f76174866ed4bc98e1c06bbd08647069767d7c29882551b5a299cec563d5ed2e"
     },
     {
       "path": "deployment/Start-Panel.ps1",
@@ -107,11 +123,11 @@
     },
     {
       "path": "deployment/Verify.ps1",
-      "sha256": "b238d3001670d91d2490bce9641ef77cc0affea1d12dd9bf70e1e3497da14f1b"
+      "sha256": "2306139d1963d9aa39592e8fa53e4254e48cc02022652f6de7ccfecd98984600"
     },
     {
       "path": "deployment/manifest.py",
-      "sha256": "229f55baf01593eb3abf4175fe51fdc6d7d2bf5c615181c2adde2a36b93d5fcb"
+      "sha256": "e87e2842516cfe99b2099906699ac4d6c381c867d97422bd2b0c23f2ec26b1a4"
     },
     {
       "path": "deployment/receiver-policy.example.json",
@@ -127,7 +143,7 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "sha256": "bdd061b297832027de75e07b98c53f9b18cd8f75788e90c65184434221b96f5d"
+      "sha256": "71642a25144e790a38f137bc9c655bc9d4c261b458b16b1e62eca3f4f58153ca"
     },
     {
       "path": "docs/CC02_AUDIT_REPORT.json",
@@ -135,15 +151,15 @@
     },
     {
       "path": "docs/CC03_ACCEPTANCE_REPORT.md",
-      "sha256": "268e52662f131c6bd34609b46563be6da5a41eeda99509614edf7dca52fab6d7"
+      "sha256": "9089f327b2436f0c5249d3664d9689079ece47b12039bd4ff29f07e9503125d5"
     },
     {
       "path": "docs/CC03_INTEL_INSTALLATION_PLAN.md",
-      "sha256": "c67845e3a6eeefa6eec6603e3274ba2ba2af773767b650a0b429c8292e1b5745"
+      "sha256": "b7e95bec894900522c8957aa92da7ced8a8cf58cf6a61e9c2522fbbf6d7ec50e"
     },
     {
       "path": "docs/CC03_PHYSICAL_ACCEPTANCE_PLAN.md",
-      "sha256": "dbb4144a0c173ecf37b6d6271339a7f7c5fa95dd2bfd233cc08b93a18d4023e1"
+      "sha256": "3d7db3484eea6f9792244dcaa49b8991f5e9dbc95f4b5cd83c285d1749c7e85a"
     },
     {
       "path": "docs/CC03_READONLY_EXPORT_SCHEMA.json",
@@ -151,11 +167,15 @@
     },
     {
       "path": "docs/CC03_SOURCE_AUTHORITY.md",
-      "sha256": "6fec5bbc4055bab27ace5e974cd6d5cef2816276177603ac809c9156bd708fae"
+      "sha256": "f2e6ca95184ae6791f7c2a2539ffa2a01d362052951302e7e534a0f91743cdf0"
+    },
+    {
+      "path": "docs/CC03_WINDOWS_HOSTED_ACCEPTANCE.md",
+      "sha256": "0e5bea25e5c2aaeb5eb2c9713b44c91fa277281b8a63c2c7fa57e6d116a79697"
     },
     {
       "path": "docs/CC03_WINDOWS_SECURITY.md",
-      "sha256": "454f16398d34d6ac4dcefe85c87be25c5b42d68a4f8a72870b0b588387f383f8"
+      "sha256": "c96017fa6e0608a9d671b3ee520e72258f19733f0b1864ece6283b98bc6b33d8"
     },
     {
       "path": "docs/H1_READONLY_SNAPSHOT_CONTRACT.md",
@@ -171,7 +191,7 @@
     },
     {
       "path": "docs/ROADMAP_STATUS.md",
-      "sha256": "1cdedea118639f8f0fd41a77e1e22ff6b55b0780d23e465787feff7d16968985"
+      "sha256": "d6b9fcdef9afaa7d02c019202732b9ccb2bbf7d5bb66a105f060069c38eae426"
     },
     {
       "path": "docs/SECURITY_BOUNDARY.md",
@@ -207,7 +227,7 @@
     },
     {
       "path": "exporter/snapshot.py",
-      "sha256": "46e97b47207af32beb7b154a4eb17ef53ced0d02bd1ad67548c6d553e8c7fff6"
+      "sha256": "e4e2aa83ba267fac587115a34f3bf5da81b35fdd2828aff39609c9e88d163b6f"
     },
     {
       "path": "fixtures/h1/h1.snapshot.json",
@@ -222,6 +242,10 @@
       "sha256": "3c3ad6730cf0c0417b77bae38e53c11fa8cd96a34f2f8956998bafc0aaf3ef17"
     },
     {
+      "path": "requirements-windows-ci.lock",
+      "sha256": "cef647df4ec4fb250d1469d6fc243cb03539a4b774a36ff92ab2b8b4c9dd82e1"
+    },
+    {
       "path": "requirements.txt",
       "sha256": "dffc79ceb7a4eedfc15b4f744cd7108bf2b3c62247083acbe1f237cdfe69748d"
     },
@@ -231,11 +255,15 @@
     },
     {
       "path": "tests/test_boundary.py",
-      "sha256": "bbf20844fdcb687b5212b9f083c67dfa4b83bd9478db3d711bd51d27d4417d9c"
+      "sha256": "d249e9cbee5bae2f30bb17614b84fd037b8fb8651de513f554b989ffb830aefc"
     },
     {
       "path": "tests/test_cc03_source.py",
-      "sha256": "2e746162176fe3885bc2f346ece824b60a52105d22493a30d1f29c46f96ad25c"
+      "sha256": "92f186e55b7fb083e664c1835b3f0e8cdfdf5190db3eb9e49340ec43e5ddf598"
+    },
+    {
+      "path": "tests/test_ci_paths.py",
+      "sha256": "ddea0a3d46956bd6b100c78c43656991d8b9e662765e6fcdf0f2fccff39ba549"
     },
     {
       "path": "tests/test_contracts.py",
@@ -243,11 +271,11 @@
     },
     {
       "path": "tests/test_h1_fault_injection.py",
-      "sha256": "a56007685e97573cc29e395577e56f4719bd5210f352aefc813049b38adec634"
+      "sha256": "e048e829461b330b756d6937b539fc927204ad83c2edcf4178d85546e75e4e81"
     },
     {
       "path": "tests/test_h1_readonly.py",
-      "sha256": "235561edc8c1522f19529bad6add609a82b9e9d6f9fe2f8af2bb6f9c1eea4d5e"
+      "sha256": "80f8efe35f8a9830afc457b1908f01ad26ada419021d95f3c7bded1f0efe22c8"
     },
     {
       "path": "tests/test_h1_ui.py",
@@ -263,7 +291,11 @@
     },
     {
       "path": "tests/test_windows_reader.py",
-      "sha256": "e62cab9491b951dc6507a6ffddb982a462b8c810ef020a6e759453c5b5365fda"
+      "sha256": "01de14a509d3e2094d9fe88cdc6f4185328ce32cccc33df8e18ce910abc3a3fa"
+    },
+    {
+      "path": "tests/test_windows_transport.py",
+      "sha256": "6cde297462b4f4f9127cc936a2c6617f3a139da866d0b121fdb3e3f1b7e0db65"
     }
   ]
 }

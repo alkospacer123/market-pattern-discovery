@@ -160,14 +160,15 @@ def test_no_runtime_write_call_paths():
                'ftruncate','connect','execute','executescript','commit','system','popen','Popen'}
     allowed_os={'open','close','read','stat','fstat'}
     for path in root.rglob('*.py'):
-        tree=ast.parse(path.read_text())
+        tree=ast.parse(path.read_text(encoding='utf-8'))
         for node in ast.walk(tree):
             if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute):
                 display_write = (path.name == 'ui.py' and isinstance(node.func.value,ast.Name)
                                  and node.func.value.id == 'st' and node.func.attr == 'write')
                 assert display_write or node.func.attr not in forbidden, (path,node.func.attr)
                 if isinstance(node.func.value,ast.Name) and node.func.value.id=='os':
-                    assert path.name=='readonly_file.py' and node.func.attr in allowed_os
+                    assert (path.name=='readonly_file.py' and node.func.attr in allowed_os
+                            or path.name=='windows_file.py' and node.func.attr=='scandir')
 
 
 def test_nested_unknown_fields_rejected_without_leak(h1_export, publish, now):
