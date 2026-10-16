@@ -3,6 +3,7 @@
 No account secrets, network access, orders, live file paths or Windows tasks.
 """
 import hashlib
+from contextlib import closing
 import sqlite3
 import tempfile
 import unittest
@@ -215,12 +216,12 @@ class ShadowIntegration(unittest.TestCase):
 
     def test_sqlite_forged_identity_refused_on_restart(self):
         self.store.close()
-        with sqlite3.connect(self.store.path) as con:
+        with closing(sqlite3.connect(self.store.path)) as con, con:
             con.execute("UPDATE authority SET value='{}' WHERE key='identity'")
         with self.assertRaisesRegex(ShadowStateError, "IDENTITY_MISMATCH"):
             ShadowLedger(**self.opts)
         # Restore our test store handle for tearDown.
-        with sqlite3.connect(self.store.path) as con:
+        with closing(sqlite3.connect(self.store.path)) as con, con:
             import json
             con.execute("UPDATE authority SET value=? WHERE key='identity'",
                         (json.dumps(self.store.identity, sort_keys=True),))
