@@ -9,7 +9,7 @@
 | CC-00 | Inventory/source authority разделены | Текущие Intel OS facts ещё не наблюдались этим пакетом |
 | CC-01 | DEMO / независимый M15 | DEMO не production authority |
 | CC-02 | #531 merged; readonly receiver | Test binding не broker/account authority |
-| CC-03 | Live-safe Intel preflight CODE PREPARATION; [пакет и фактические проверки](CC03_INTEL_READONLY_PREFLIGHT_PACKAGE.md) | Отдельное решение A; physical NOT_EXECUTED |
+| CC-03 | **CC03_INTEL_READONLY_PREFLIGHT_PACKAGE_READY**; native 400 PASS / 0 FAIL / 15 POSIX-only SKIP, new preflight 25 PASS; [пакет и фактические проверки](CC03_INTEL_READONLY_PREFLIGHT_PACKAGE.md) | Отдельное решение A; physical NOT_EXECUTED |
 | CC-04 | НЕ НАЧАТ | Независимый M15 source/runtime/account |
 | CC-05 | НЕ НАЧАТ | Подтверждённые finance/execution sources |
 | CC-06 / CC-07 | НЕ НАЧАТЫ | Отдельные control-plane approvals |

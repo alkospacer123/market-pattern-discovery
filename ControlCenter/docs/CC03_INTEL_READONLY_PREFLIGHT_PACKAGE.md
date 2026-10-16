@@ -1,17 +1,17 @@
 # CC03 Intel READONLY preflight package
 
-**CODE PREPARATION ONLY.** Engineering classification pending native Windows evidence: `CC03_INTEL_READONLY_PREFLIGHT_NEEDS_FIX` until required checks finish. Intel execution `NOT_EXECUTED`; physical acceptance `NOT_VERIFIED`. This document is updated with actual CI evidence before preparation completes. No result here equals CC03_PHYSICAL_PASS.
+**CODE PREPARATION ONLY.** Engineering classification: **`CC03_INTEL_READONLY_PREFLIGHT_PACKAGE_READY`**. Native boundaries are verified on disposable hosted Windows sources; actual Intel remains unverified. Intel execution `NOT_EXECUTED`; physical acceptance `NOT_VERIFIED`. No result here equals CC03_PHYSICAL_PASS.
 
 ## GitHub provenance and scope
 
-Repository `alkospacer123/market-pattern-discovery`; continuation of #524, previous #541 MERGED. Actual fetched main/base: `c9dea4e1fb728c97c3c14e70ae75adab6e6cfc94`. Branch `codex/cc03-intel-readonly-preflight`; final PR/head and tested checkout recorded below after CI. Only `ControlCenter/` changes; existing workflow unchanged, GitHub-hosted windows-2022 only. No protected production/research code changes or Intel access.
+Repository `alkospacer123/market-pattern-discovery`; continuation of #524, previous #541 MERGED. Actual fetched main/base: `c9dea4e1fb728c97c3c14e70ae75adab6e6cfc94`. Branch `codex/cc03-intel-readonly-preflight`; [Draft PR #542](https://github.com/alkospacer123/market-pattern-discovery/pull/542). Actual GitHub source head observed and accepted by native CI: `ad9a93350f27242801ed81852b65da96a27a3264`; tested GitHub merge-ref checkout `73b4f234e4ea04b09fe4baa1b506510f3657e304`. The final evidence-only commit changes this report/roadmap/manifest, with the same runtime and tests. Its actual head is recorded in the PR metadata/body and companion `CC03_INTEL_PREFLIGHT_CHECKSUMS.json`; it cannot be embedded in a file belonging to that same commit. Final-head CI is available on the PR Checks tab. Only `ControlCenter/` changes; existing workflow unchanged, GitHub-hosted windows-2022 only. No protected production/research code changes or Intel access.
 
 Protected Git tree IDs at actual base (must match final head):
 
 | Tree | Before | After |
 | --- | --- | --- |
-| TradingSystemLab | `d27ac7153a4d25455112c1a6673d2b37a1784f43` | pending final tree check |
-| IntradayLab | `9b71aeff75c49d3fc7b2fff7116b21d03fee5783` | pending final tree check |
+| TradingSystemLab | `d27ac7153a4d25455112c1a6673d2b37a1784f43` | `d27ac7153a4d25455112c1a6673d2b37a1784f43` |
+| IntradayLab | `9b71aeff75c49d3fc7b2fff7116b21d03fee5783` | `9b71aeff75c49d3fc7b2fff7116b21d03fee5783` |
 
 Read actual `TradingSystemLab/CURRENT_STATE.md`: latest documented installed executable `3a18c8c24301c866a60f5d725de227288d48f7ec`, T3/H1/TRAIL1, `TRAIL1__N4_01__FULL__R15`, RUNNING / ARMED generation 62, separate operator trading authorization and independent physical READONLY PASS. Historical operator checkpoint only. Current Intel state is not observed or guaranteed by this preparation. Disabled/HALTED is not a prerequisite; never arrange it for CC.
 
@@ -67,4 +67,38 @@ A cancellation: stop only its own console/preflight, retain sanitized evidence. 
 
 ## Actual verification record
 
-Pending native hosted run and final protected-tree verification.
+Native run [38897646729](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38897646729), job [116961868943](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38897646729/job/116961868943), completed **2026-10-16 12:06:03 UTC / 15:06:03 MSK**, conclusion **success**. Existing unchanged workflow `controlcenter-cc03-windows-native.yml`; GitHub-hosted Windows Server 2022 / 10.0.20348, CPython 3.12.10 x64. Tested ControlCenter tree `10a84cd7c526021866fa9975e16a6cee142158fa`, base/head/merge checkout above.
+
+| Verification | Actual result |
+| --- | --- |
+| Full ControlCenter pytest on Windows | **400 PASS / 0 FAIL / 15 POSIX-only SKIP** |
+| New preflight tests | **25 PASS / 0 FAIL / 0 SKIP** (22 logic/boundary + 3 native) |
+| Existing OS observer tests | 37 PASS / 0 FAIL / 0 SKIP |
+| Windows reader / immutable transport / source | 44 / 12 / 27 PASS |
+| Package manifest / pip check / PowerShell preview | PASS |
+| Real two-standard-SID rehearsal | PASS: preflight Running, real Task Access denied, missing own roots, PREVIEW, unapproved EXECUTE refusal under each token |
+| Disposable Task XML/state before/after | PASS, including standard SID + panel lifecycle |
+| Existing installer/ACL/panel/rollback rehearsal | PASS on disposable VM only |
+| Existing synthetic Task/process noninterference | 500/500 unchanged producer replacements, PASS |
+| Local full pytest before Windows acceptance | 376 PASS / 38 platform SKIP; final added direct native readiness test is skipped on POSIX and accepted on Windows |
+| Protected trees / only-ControlCenter diff / unchanged workflow | PASS at base and accepted source head; repeated for final review commit |
+
+Evidence [artifact 12044224134](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38897646729/artifacts/12044224134), `cc03-windows-native-38897646729-1`, upload-reported ZIP SHA-256 `18b6b0719e1d02d1b9843542c8c684abcec1170b18255e5c54085dd21b6fd7a3`. Reviewed decoded job log and its environment/results/acceptance records; artifact retention 30 days. The artifact digest is GitHub's upload result, not a claim of independent Intel evidence.
+
+The initial run 38896827307 correctly blocked the standard-token rehearsal at readiness (pytest itself 399 PASS). Readiness's child environment was then aligned with the existing proven Windows OS helper allowlist, and direct native missing-root regression plus both standard-token checks passed. No elevated fallback, rights relaxation or production change was introduced. Earlier failure is excluded from acceptance.
+
+Verified SHA-256 of the accepted runtime/templates (independently recomputed locally; native manifest check PASS):
+
+| Package file | SHA-256 |
+| --- | --- |
+
+| `observer/intel_preflight.py` | `df5d36fdf45f2ec6efded7467083436cf20e096b8edc814c9077fc0862c01279` |
+| `observer/Read-OsFacts.ps1` | `e747dc8cd787394e0bee0fd27cf8fac506545790d7713ff9a4055d7147e2e1b6` |
+| `observer/Read-PreflightReadiness.ps1` | `06b6df0ed8c73d08c293012e31ab4bb6f0b5131624fd3bb65b2ee5b99313e81b` |
+| `deployment/preflight-policy.example.json` | `bc9d2eee9fc06c41c0f6a070cd5d79f865c03dbf67595aa5fae61c6d535d5579` |
+| `deployment/os-policy.example.json` | `2eb59be707bbfc651f111d40a0bcb8cb6f902dd87e3cbfa841b19a26945b093c` |
+| `deployment/receiver-policy.example.json` | `f38e727f08d0ff43849a8aa581f3ecc060e8ff17d22b683b841ccb3eb4beeff6` |
+
+Accepted source-head manifest SHA-256: `b8fe0ccd3aa5880ebb781fe8dee9066e36affe456c9cf40aa40e12052b646d9a`. This source manifest precedes the evidence-only report update. The final package manifest includes the finalized report, so its SHA-256 and the final ZIP digest are in the separate companion checksums record and final PR body; no self-referential manifest hash is claimed here. Final deliverable `CC03_INTEL_READONLY_PREFLIGHT_PACKAGE.zip` is a git archive of only the final ControlCenter tree, with no private policies, wheels, credentials or Intel evidence.
+
+**STOP. Next separate operator decision: permission A for limited physical Intel READONLY preflight. No Intel execution, B installation, C source approval/export, merge, auto-merge or CC-04 occurred.**

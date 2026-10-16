@@ -191,7 +191,7 @@
     },
     {
       "path": "docs/CC03_INTEL_READONLY_PREFLIGHT_PACKAGE.md",
-      "sha256": "31da17dcb90cab1379f160a72c8f28322c95ebc8714cc1badfc8cbce38c027d4"
+      "sha256": "97787c1540aac25b86dac7c6552bfcf1b83b784808860661ee84023f10c469c1"
     },
     {
       "path": "docs/CC03_OS_ACCEPTANCE.md",
@@ -243,7 +243,7 @@
     },
     {
       "path": "docs/ROADMAP_STATUS.md",
-      "sha256": "d5947a9450e29cfb8f7cfb07a97ce219ed3fc76daae3055346d80dccd9a458e7"
+      "sha256": "1b5863dfba060bd2beb8715d00ebb19b29d6de4539311a8ba340a50e89c312e5"
     },
     {
       "path": "docs/SECURITY_BOUNDARY.md",
