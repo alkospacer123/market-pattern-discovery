@@ -1,5 +1,8 @@
 # IntradayLab M15 robot — isolated offline foundation
 
+**Инженерный порядок работ, обязательные проверки и условия допуска M15 к LIVE:** [ROADMAP.md](ROADMAP.md). Он описывает внедрение выбранной сборки, не новые исследования, и имеет приоритет как актуальная последовательность реализации.
+
+
 ## H1-style durable intent/fill/stop rehearsal (synthetic only)
 
 `offline_intents.py` ports the **safety lifecycle**, not executable H1 trade authority:
