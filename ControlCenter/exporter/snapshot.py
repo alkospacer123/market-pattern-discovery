@@ -56,9 +56,9 @@ def stamp(at):
     return at.astimezone(timezone.utc).isoformat()
 
 
-def collect(policy, now, reader=read_source):
+def collect(policy, now, reader=None):
     policy_check(policy)
-    if reader is read_source:
+    if reader is None:
         raise ValueError('CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED')
     identity = dict(robot_id='H1', strategy_id='T3/H1/TRAIL1', production_specification_id=SPEC,
                     active_identity=ACTIVE, installed_code_commit=ACCEPTED_COMMIT,
@@ -165,8 +165,10 @@ def main():
         policy = decode(read_windows(str(POLICY_ROOT).replace('/', '\\'), 'source-policy.json', MAX_BYTES, admin_policy=True))
         publish(collect(policy, datetime.now(timezone.utc)))
         print('CC03_EXPORT_PUBLISHED_AUTHORITY_LIMITED')
-    except Exception:
-        print('CC03_EXPORT_UNAVAILABLE: CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED')
+    except Exception as exc:
+        print('CC03_EXPORT_UNAVAILABLE')
+        if str(exc) == 'CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED':
+            print('CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED')
         raise SystemExit(1)
 
 

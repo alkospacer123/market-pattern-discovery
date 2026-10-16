@@ -198,12 +198,16 @@ def _read_native(root, filename, maximum, api, expected_root=None, admin_policy=
         data = api.read(handle, maximum)
         if len(data) != size:
             raise ValueError('PARTIAL_READ')
+        def stable(info, directory):
+            # Publishing a child changes directory timestamps. Only directory
+            # identity and attributes define the pinned no-reparse boundary.
+            return info[:3] + info[-1:] if directory else info
         for handle, path, directory, before in held:
-            if api.info(handle, path, directory) != before:
+            if stable(api.info(handle, path, directory), directory) != stable(before, directory):
                 raise ValueError('FILE_CHANGED')
             check = api.open(path, directory)
             try:
-                if api.info(check, path, directory) != before:
+                if stable(api.info(check, path, directory), directory) != stable(before, directory):
                     raise ValueError('PATH_CHANGED')
             finally:
                 api.close(check)

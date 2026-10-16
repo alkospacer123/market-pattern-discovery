@@ -39,13 +39,20 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
                         'PSMODULEPATH','STREAMLIT_SERVER_HEADLESS','STREAMLIT_BROWSER_GATHER_USAGE_STATS')) {
         $lines += '$env:' + $name + ' = ' + (Literal ([Environment]::GetEnvironmentVariable($name)))
     }
-    $lines += '& ' + (Literal "$script:VenvRoot\Scripts\python.exe") + ' -m ci.identity_probe ' + (Literal $Identity.Sid)
+    $lines += 'if ([Security.Principal.WindowsIdentity]::GetCurrent().User.Value -ne ' + (Literal $Identity.Sid) + ') { throw ''WRONG_STARTUP_TOKEN'' }'
+    $lines += '& ' + (Literal "$script:VenvRoot\Scripts\python.exe") + ' -m ci.identity_probe ' + (Literal $Identity.Sid) + ' ' + (Literal $Identity.Name.Substring(4,1))
     $lines += 'if ($LASTEXITCODE -ne 0) { throw ''IDENTITY_PYTHON_PROBE_FAILED'' }'
     $lines += 'Get-ExecutionPolicy -List | Format-Table | Out-String | Write-Output'
     $lines += '& ' + (Literal $Entry) + ' -Execute -PanelSid ' + (Literal $panelSid) + ' -ExporterSid ' + (Literal $exporterSid)
     $command = '& {' + "`n" + ($lines -join "`n") + "`n" + '}'
     $bootstrap = Join-Path $sandbox ('identity-' + $Identity.Name + '.ps1')
     Set-Content -LiteralPath $bootstrap -Value $command -Encoding UTF8
+    $nativeLog = $ErrorLog + '.native'
+    $native = [CC03Access]::StartAs($Identity.Name, $Identity.Password, (Join-Path $env:SYSTEMROOT 'System32\cmd.exe'), $bootstrap, $script:AppRoot, $nativeLog, $Identity.Sid)
+    try {
+        if (-not $native.WaitForExit(10000) -or $native.ExitCode -ne 0) { throw 'NATIVE_CMD_STARTUP_FAILED' }
+        Write-Output ('NATIVE_CMD_STARTUP_PASS sid=' + $Identity.Sid)
+    } finally { if (-not $native.HasExited) { & taskkill.exe /PID $native.Id /T /F }; $native.Dispose() }
     $executable = Join-Path $env:SYSTEMROOT 'System32\WindowsPowerShell\v1.0\powershell.exe'
     return [CC03Access]::StartAs($Identity.Name, $Identity.Password, $executable, $bootstrap, $script:AppRoot, $ErrorLog, $Identity.Sid)
 }
@@ -145,7 +152,9 @@ public static class CC03Access {
             var startup=new StartupInfo(); startup.cb=Marshal.SizeOf(typeof(StartupInfo));
             ProcessInfo process;
             string action="& '"+script.Replace("'","''")+"' *> '"+log.Replace("'","''")+"'";
-            var command=new StringBuilder("\""+executable+"\" -NoProfile -Command \""+action+"\"");
+            var command=new StringBuilder(executable.EndsWith("cmd.exe",StringComparison.OrdinalIgnoreCase)
+                ? "\""+executable+"\" /d /c exit 0"
+                : "\""+executable+"\" -NoProfile -Command \""+action+"\"");
             if (command.Length>=1024) throw new Exception("LOGON_COMMAND_LINE_TOO_LONG");
             try {
                 if (!CreateProcessWithTokenW(token,1,executable,command,0x08000400,environment,directory,ref startup,out process))
@@ -272,9 +281,21 @@ try {
             $owner = Invoke-CimMethod -InputObject $_ -MethodName GetOwnerSid
             Write-Output ("CHILD_STATE pid=" + $_.ProcessId + " parent=" + $_.ParentProcessId + " name=" + $_.Name + " sid=" + $owner.Sid + " threads=" + $_.ThreadCount)
         }
+        if (-not $panelProcess.HasExited) {
+            $process = Get-Process -Id $panelProcess.Id
+            Write-Output ('CHILD_SESSION=' + $process.SessionId)
+            $process.Threads | ForEach-Object { Write-Output ('CHILD_THREAD id=' + $_.Id + ' state=' + $_.ThreadState + $(if ($_.ThreadState -eq 'Wait') { ' wait=' + $_.WaitReason } else { '' })) }
+            Write-Output ('CHILD_MODULES=' + (($process.Modules | Select-Object -ExpandProperty ModuleName) -join ','))
+        }
         $results['panel_log_present'] = Test-Path "$script:DataRoot\logs\panel-stderr.txt"
         throw 'DISPOSABLE_PANEL_DID_NOT_BIND_LOOPBACK'
     }
+    $listenerProcess = Get-CimInstance Win32_Process -Filter ("ProcessId=" + $listener[0].OwningProcess)
+    $listenerOwner = Invoke-CimMethod -InputObject $listenerProcess -MethodName GetOwnerSid
+    if ($listenerOwner.Sid -ne $panelSid) { throw 'LISTENER_WRONG_SID' }
+    $health = Invoke-WebRequest -Uri 'http://127.0.0.1:8501/_stcore/health' -UseBasicParsing
+    if ($health.StatusCode -ne 200 -or $health.Content -ne 'ok') { throw 'PANEL_HEALTH_FAILED' }
+    $results['panel_listener'] = 'PASS: HTTP health 200, 127.0.0.1:8501 owned by CCPanel SID ' + $listenerOwner.Sid
     & "$package\deployment\Verify.ps1" -Execute -PanelSid $panelSid -ExporterSid $exporterSid
     if ($LASTEXITCODE -ne 0) { throw 'VERIFY_FAILED' }
     $results['panel_verify'] = 'PASS: low-privilege panel and real loopback-only listener; receiver remains UNKNOWN without approved source'
@@ -287,18 +308,24 @@ try {
     if ($exporterProcess.ExitCode -eq 0 -or (Get-Content -Raw $exporterLog) -notlike '*CC03_EXPORT_UNAVAILABLE*') { throw 'UNAPPROVED_EXPORTER_DID_NOT_FAIL_CLOSED' }
     $exporterProcess.Dispose()
     $exporterProcess = $null
-    if (Test-Path "$script:DataRoot\export\h1.snapshot.json") { throw 'UNAPPROVED_EXPORTER_PUBLISHED_DATA' }
-    $results['exporter_fail_closed'] = 'PASS: separate-SID one-shot rejected unapproved policy, published nothing'
+    # The CI identity probe deliberately publishes one synthetic UNKNOWN export;
+    # the production entrypoint with an unapproved policy must add none.
+    $probeSnapshots = @(Get-ChildItem "$script:DataRoot\export" -Filter 'h1-*.json')
+    if ($probeSnapshots.Count -ne 1) { throw 'UNAPPROVED_EXPORTER_PUBLISHED_DATA' }
+    $results['exporter_fail_closed'] = 'PASS: separate-SID one-shot rejected unapproved policy, published nothing beyond the explicitly synthetic CI probe'
     $results['physical_source'] = 'OUT_OF_SCOPE: physical H1 source/account/TTL authority remains a separate Intel gate'
     # Stop only the process tree launched above, before uninstalling own package.
     & taskkill.exe /PID $panelProcess.Id /T /F
+    if (-not $panelProcess.WaitForExit(10000)) { throw 'PANEL_CLEANUP_TIMEOUT' }
+    if (@(Get-NetTCPConnection -LocalPort 8501 -State Listen -ErrorAction SilentlyContinue).Count) { throw 'PANEL_LISTENER_NOT_CLEANED' }
+    $results['process_cleanup'] = 'PASS: own panel process tree exited and listener removed; exporter already exited'
     $panelProcess.Dispose()
     $panelProcess = $null
     & "$package\deployment\Uninstall.ps1" -Execute -PanelSid $panelSid -ExporterSid $exporterSid
     if ($LASTEXITCODE -ne 0) { throw 'UNINSTALL_FAILED' }
     if (Test-Path "$script:AppRoot\app.py") { throw 'OWN_APP_NOT_REMOVED' }
     if (@(Get-ChildItem -Force -LiteralPath $script:VenvRoot).Count -ne 0) { throw 'OWN_VENV_NOT_REMOVED' }
-    if (-not (Test-Path $private) -or -not (Test-Path $exportFile)) { throw 'DATA_NOT_RETAINED' }
+    if (-not (Test-Path $private) -or -not (Test-Path $exportFile) -or (Get-Content -Raw $private).Trim() -ne '{}' -or (Get-Content -Raw $exportFile) -ne 'DISPOSABLE_CC03_PROBE') { throw 'DATA_NOT_RETAINED' }
     $results['uninstall'] = 'PASS: own package/venv removed, disposable private/export/log data retained'
     $results['status'] = 'PASS'
 } catch {

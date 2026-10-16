@@ -37,6 +37,8 @@ def main():
                   "Get-Volume | Where DriveLetter -in @((Get-Item .).PSDrive.Name, (Get-Item $env:RUNNER_TEMP).PSDrive.Name) | Select DriveLetter,FileSystem | Format-Table; whoami /user; whoami /priv"]),
         ('windows-reader', [sys.executable, '-m', 'pytest', '-v', '-ra', 'tests/test_windows_reader.py',
                             f'--junitxml={evidence / "windows-reader.xml"}']),
+        ('windows-transport', [sys.executable, '-m', 'pytest', '-v', '-ra', 'tests/test_windows_transport.py',
+                                f'--junitxml={evidence / "windows-transport.xml"}']),
         ('cc03-source', [sys.executable, '-m', 'pytest', '-q', 'tests/test_cc03_source.py',
                          f'--junitxml={evidence / "cc03-source.xml"}']),
         ('full-suite', [sys.executable, '-m', 'pytest', '-q',
@@ -73,7 +75,7 @@ def main():
         print(output, flush=True)
         (evidence / f'{name}.log').write_text(output, encoding='utf-8')
         results[name] = dict(exit_code=exit_code)
-    for name in ('windows-reader', 'cc03-source', 'full-suite'):
+    for name in ('windows-reader', 'windows-transport', 'cc03-source', 'full-suite'):
         path = evidence / f'{name}.xml'
         if not path.exists():
             results[name]['missing_junit'] = True

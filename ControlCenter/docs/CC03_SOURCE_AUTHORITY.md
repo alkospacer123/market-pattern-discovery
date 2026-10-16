@@ -1,5 +1,7 @@
 # CC-03: source authority и отдельные часы
 
+> PR #534 audit correction: legacy continuous heartbeat/kill-switch reads are `CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED` and disabled before file access. Stopped-source evidence does not establish live compatibility. Own export now uses immutable versioned completed JSON files, not replacement of `h1.snapshot.json`. This historical plan does not authorize installation; see [current hosted report](CC03_WINDOWS_HOSTED_ACCEPTANCE.md).
+
 Основание: [#524 roadmap v1.0](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6198924792), CC-02 merged [#531](https://github.com/alkospacer123/market-pattern-discovery/pull/531). Это подготовка существующего CC-03; физическая часть не исполнена.
 
 GitHub base `52e167d7b36170f1f639827eb875a57d52175491`. Последний документированный Intel installed commit `3a18c8c24301c866a60f5d725de227288d48f7ec`; источник — начало `TradingSystemLab/CURRENT_STATE.md`, операторский checkpoint #528, дополненный merged #532 во время разработки. Между ним и base в TradingSystemLab ровно пять operational Markdown, 100 добавленных строк; IntradayLab не менялся. Main не установленный робот. Последняя запись #532: durable exact-commit/account-bound authorization CREATED, Task Disabled, HALTED, NOT ARMED / NOT RUNNING; отдельного разрешения start/rearm нет. Старое отсутствие authorization в исходном задании и #528-install checkpoint теперь историческое. Это история, не новое измерение.

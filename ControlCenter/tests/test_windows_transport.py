@@ -93,3 +93,21 @@ def test_unbounded_discovery_rejected(tmp_path, monkeypatch):
     monkeypatch.setattr(win, 'MAX_ENTRIES', 3)
     with pytest.raises(ValueError, match='EXPORT_DIRECTORY_FULL'):
         win._read_native(str(tmp_path),'LATEST-COMPLETED',131072,win.WinAPI(),pin(tmp_path))
+
+
+def test_blocked_legacy_observer_does_not_interfere_with_unchanged_producer(tmp_path):
+    from cc.providers.readonly_file import read_source
+    path=tmp_path/'stage8-12-4-production-heartbeat.json'; path.write_bytes(b'{}')
+    errors=[]
+    def produce():
+        try:
+            for i in range(200):
+                temporary=tmp_path/'next.tmp'; temporary.write_bytes(str(i).encode())
+                os.replace(temporary,path)
+        except BaseException as exc: errors.append(exc)
+    thread=threading.Thread(target=produce); thread.start()
+    for _ in range(200):
+        with pytest.raises(ValueError,match='CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED'):
+            read_source(tmp_path,path.name,pin(tmp_path))
+    thread.join(10)
+    assert not thread.is_alive() and not errors and path.read_bytes()==b'199'

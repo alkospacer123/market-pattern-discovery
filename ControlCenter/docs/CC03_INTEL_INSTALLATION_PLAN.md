@@ -1,5 +1,7 @@
 # CC-03 Intel installation — только план после аудита
 
+> PR #534 audit correction: legacy continuous heartbeat/kill-switch reads are `CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED` and disabled before file access. Stopped-source evidence does not establish live compatibility. Own export now uses immutable versioned completed JSON files, not replacement of `h1.snapshot.json`. This historical plan does not authorize installation; see [current hosted report](CC03_WINDOWS_HOSTED_ACCEPTANCE.md).
+
 **Не исполнено.** Сначала независимый аудит Draft PR, native Windows security suite и отдельное явное разрешение оператора. Не обновлять production checkout. Только отдельная копия ControlCenter из принятого commit, отдельные identity, app/venv/export/log/private roots. H1 не зависит от панели или exporter. Данный пакет не регистрирует никаких Windows Tasks.
 
 ## 1. Подготовить release и offline wheelhouse на отдельном Windows x64

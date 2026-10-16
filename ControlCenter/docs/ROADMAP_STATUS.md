@@ -7,7 +7,7 @@
 | CC-00 | Инвентаризация обновлена; producer code / documented / physical authority разделены | Actual Intel sources/paths/cadence не наблюдались |
 | CC-01 | DEMO и independent M15 сохранены | DEMO не runtime authority |
 | CC-02 | #531 merged; fixed OFFLINE_FIXTURE receiver/schema/evidence/TTL сохранены | Test binding не реальный account |
-| CC-03 | Hosted Windows native suite реально выполнен в #534; 12 native cases без Windows SKIP | **NEEDS_FIX:** два atomic producer FAIL; [Windows evidence](CC03_WINDOWS_HOSTED_ACCEPTANCE.md). Source/account/TTL/calendar approval и Intel physical остаются отдельными gates |
+| CC-03 | Hosted Windows native suite реально выполнен в #534; 12 native cases без Windows SKIP | **LIVE_SOURCE_COMPATIBILITY_BLOCKED:** legacy producer нельзя безопасно мониторить данным reader; собственный transport и SID startup проверяются отдельно; [Windows evidence](CC03_WINDOWS_HOSTED_ACCEPTANCE.md). Source/account/TTL/calendar approval и Intel physical остаются отдельными gates |
 | CC-04 | НЕ НАЧАТ | Отдельный M15 runtime/source/account после engineering acceptance |
 | CC-05 | НЕ НАЧАТ | Реальные decision/execution/finance sources и независимая сверка |
 | CC-06 / CC-07 | НЕ НАЧАТЫ | Отдельные control-plane mock/audit и явные approvals на каждое действие |
