@@ -35,7 +35,8 @@ class FakeTransport:
         if parsed.path == "/v1/accounts/M15-ACCOUNT/orders":
             return FakeResponse({"orders": []})
         if parsed.path.startswith("/v1/instruments/"):
-            return FakeResponse({"bars": []})
+            symbol = parsed.path.split("/")[3]
+            return FakeResponse({"symbol": symbol, "bars": []})
         if parsed.path.endswith("/params"):
             return FakeResponse({"sample_params": 1})
         if parsed.path.endswith("/schedule"):
@@ -132,6 +133,28 @@ class ReadOnlyTransport(unittest.TestCase):
         with self.assertRaisesRegex(M15FinamReadOnlyError, "SYMBOL_INVALID"):
             api.bars_m15("IMOEXF@RTSX/../../orders", "2026-10-15T10:00:00Z",
                          "2026-10-15T12:00:00Z")
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_bars_reply_with_foreign_symbol_fails(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        api.connect_readonly()
+        orig = fake.__call__
+        def swapped(request, timeout):
+            if urlparse(request.full_url).path.endswith("/bars"):
+                return FakeResponse({"symbol": "H1_FORTS@RTSX", "bars": []})
+            return orig(request, timeout)
+        api._transport = swapped
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "SYMBOL_OR_SCHEMA"):
+            api.bars_m15("USDRUBF@RTSX", "2026-10-15T10:00:00Z",
+                         "2026-10-15T12:00:00Z")
+
+    def test_reject_get_payload_even_with_bound_session(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        api.connect_readonly()
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "GET_WITH_BODY"):
+            api._request("GET", "/v1/accounts/M15-ACCOUNT", {"bad": "payload"})
         self.assertEqual(len(fake.calls), 2)
 
     def test_bad_time_interval_fails_before_get(self):
