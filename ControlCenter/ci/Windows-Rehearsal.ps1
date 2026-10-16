@@ -14,6 +14,7 @@ $null = New-Item -ItemType Directory -Path $sandbox
 $users = @()
 $panelProcess = $null
 $exporterProcess = $null
+$osFixtureFolder = $null
 $results = [ordered]@{}
 $evidence = Join-Path $env:RUNNER_TEMP 'cc03-evidence'
 
@@ -59,7 +60,7 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
     $pythonLog = $ErrorLog + '.python'
     $python = [CC03Access]::StartAs($Identity.Name, $Identity.Password, "$script:VenvRoot\Scripts\python.exe", $bootstrap, $script:AppRoot, $pythonLog, $Identity.Sid)
     try {
-        if (-not $python.WaitForExit(15000) -or $python.ExitCode -ne 0) { throw 'DIRECT_IDENTITY_PYTHON_FAILED' }
+        if (-not $python.WaitForExit(30000) -or $python.ExitCode -ne 0) { throw 'DIRECT_IDENTITY_PYTHON_FAILED' }
         Write-Host ('DIRECT_IDENTITY_PYTHON_PASS sid=' + $Identity.Sid)
     } finally { if (-not $python.HasExited) { & taskkill.exe /PID $python.Id /T /F | Out-Host }; $python.Dispose() }
     $executable = Join-Path $env:SYSTEMROOT 'System32\WindowsPowerShell\v1.0\powershell.exe'
@@ -338,6 +339,9 @@ try {
     & "$script:VenvRoot\Scripts\python.exe" -c "import sys,struct; print('REHEARSAL_PYTHON='+sys.version); assert sys.version_info[:3]==(3,12,10) and struct.calcsize('P')==8"
     if ($LASTEXITCODE -ne 0) { throw 'REHEARSAL_PYTHON_VERSION_MISMATCH' }
     $results['install'] = 'PASS: real offline install into disposable ACL-provisioned roots'
+    $osFixtureFolder = 'CC03-CI-' + [guid]::NewGuid().ToString('N')
+    & "$package\ci\Os-Fixtures.ps1" -Operation Create -Folder $osFixtureFolder | Set-Content -LiteralPath "$sandbox\Os-Fixtures.json" -Encoding ASCII
+    $osBefore = & "$package\ci\Os-Fixtures.ps1" -Operation Inspect -Folder $osFixtureFolder
     # Verify a loopback-only panel under the actual low-privilege panel SID.
     try {
         $panelProcess = Start-IdentityScript $panel "$script:AppRoot\deployment\Start-Panel.ps1" "$script:DataRoot\logs\panel-stdout.txt" "$script:DataRoot\logs\panel-stderr.txt"
@@ -387,7 +391,11 @@ try {
     # A real low-privilege one-shot exporter must reject the unapproved empty
     # policy before any source reads. No physical H1 authority is synthesized.
     Assert-ACL $private $panelSid $exporterSid 'private'
-    $exporterLog = "$script:DataRoot\export\exporter-process.txt"
+    # Observer stdio/temp are outside the bounded immutable export store.
+    $exporterStdio = "$sandbox\exporter-stdio"
+    $null = New-Item -ItemType Directory -Path $exporterStdio
+    Set-DisposableACL $exporterStdio 'export'
+    $exporterLog = "$exporterStdio\exporter-process.txt"
     $exporterProcess = Start-IdentityScript $exporter "$script:AppRoot\deployment\Start-Exporter.ps1" $exporterLog $exporterLog
     if (-not $exporterProcess.WaitForExit(30000)) { throw 'EXPORTER_TIMEOUT' }
     if ($exporterProcess.ExitCode -eq 0 -or (Get-Content -Raw $exporterLog) -notlike '*CC03_EXPORT_UNAVAILABLE*') { throw 'UNAPPROVED_EXPORTER_DID_NOT_FAIL_CLOSED' }
@@ -404,6 +412,9 @@ try {
     if (-not $panelProcess.WaitForExit(10000)) { throw 'PANEL_CLEANUP_TIMEOUT' }
     if (@(Get-NetTCPConnection -LocalPort 8501 -State Listen -ErrorAction SilentlyContinue).Count) { throw 'PANEL_LISTENER_NOT_CLEANED' }
     $results['process_cleanup'] = 'PASS: own panel process tree exited and listener removed; exporter already exited'
+    $osAfter = & "$package\ci\Os-Fixtures.ps1" -Operation Inspect -Folder $osFixtureFolder
+    if ($osBefore -ne $osAfter) { throw 'OBSERVER_CHANGED_DISPOSABLE_OS_TASKS' }
+    $results['os_readonly_before_after'] = 'PASS: Task XML/state unchanged across separate SID probes and panel lifecycle'
     $panelProcess.Dispose()
     $panelProcess = $null
     & "$package\deployment\Uninstall.ps1" -Execute -PanelSid $panelSid -ExporterSid $exporterSid
@@ -419,11 +430,12 @@ try {
     $results['position'] = $_.InvocationInfo.PositionMessage
     $results['stack'] = $_.ScriptStackTrace
 } finally {
+    if ($null -ne $osFixtureFolder) { & "$package\ci\Os-Fixtures.ps1" -Operation Remove -Folder $osFixtureFolder }
     if ($null -ne $panelProcess -and -not $panelProcess.HasExited) { & taskkill.exe /PID $panelProcess.Id /T /F }
     if ($null -ne $exporterProcess -and -not $exporterProcess.HasExited) { & taskkill.exe /PID $exporterProcess.Id /T /F }
     if ($null -ne $panelProcess) { $panelProcess.Dispose() }
     if ($null -ne $exporterProcess) { $exporterProcess.Dispose() }
-    Get-ChildItem "$script:DataRoot\export" -File -Filter 'exporter-process.txt*' | ForEach-Object {
+    Get-ChildItem "$sandbox\exporter-stdio" -File -Filter 'exporter-process.txt*' -ErrorAction SilentlyContinue | ForEach-Object {
         Copy-Item -LiteralPath $_.FullName -Destination $evidence
         Write-Output ('REHEARSAL_LOG '+$_.Name)
         Get-Content -LiteralPath $_.FullName

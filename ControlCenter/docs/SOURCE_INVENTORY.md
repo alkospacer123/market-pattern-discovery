@@ -1,3 +1,7 @@
+> Current CC-03 continuation: [Windows OS Task/process observer](CC03_WINDOWS_OS_OBSERVER.md). Actual main baseline `a6e9634bc0a5db378fcff32ea1bc8591baaf1d3c`; Task/process mechanisms tested in disposable Windows CI, physical binding remains NOT_EXECUTED. Legacy JSON content and metadata-handle probing both failed noninterference and remain disabled. Runtime accepts no production file paths. Trading data UNKNOWN. Latest CURRENT_STATE documents already-running ARMED H1; dated HALTED checkpoints below are historical.
+
+## Historical source inventory (superseded execution details)
+
 # Инвентаризация источников — CC-03
 
 Актуальная сверка base `52e167d7b36170f1f639827eb875a57d52175491`, #531 MERGED.

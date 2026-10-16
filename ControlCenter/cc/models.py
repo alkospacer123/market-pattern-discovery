@@ -357,6 +357,22 @@ class H1ReadonlyDetails(Record):
 
 
 @dataclass(frozen=True)
+class WindowsObservation:
+    name: str
+    source: str
+    state: str
+    observed_at: datetime
+    freshness: str
+    authority: str
+    reason: str
+    value: str | None
+
+    def __post_init__(self):
+        validate_types(self)
+        aware(self.observed_at)
+
+
+@dataclass(frozen=True)
 class RobotSnapshot:
     status: RobotStatus
     instruments: tuple[InstrumentStatus, ...]
@@ -371,6 +387,7 @@ class RobotSnapshot:
     h1_readonly: H1ReadonlyDetails | None = None
     readonly_observations: tuple[FieldObservation, ...] = ()
     readonly_identity: str | None = None
+    windows_observations: tuple[WindowsObservation, ...] = ()
 
     def __post_init__(self):
         validate_types(self)

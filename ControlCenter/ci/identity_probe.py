@@ -34,7 +34,25 @@ def main():
     try: pin=api.info(handle,str(root),True)[:3]
     finally: api.close(handle)
     assert read_windows(root,path.name,131072,pin) == b'{}'
+    # These are CC03-CI UUID Tasks created by the guarded test harness, never H1.
+    from observer.identity import current_identity
+    from observer.windows_os import os_facts
+    sid, elevated = current_identity()
+    assert sid == actual and not elevated
+    fixtures = json.loads((Path(os.environ['CC03_CI_DISPOSABLE_ROOT'])/'Os-Fixtures.json').read_text())
+    for name, expected in [('Ready','TASK_READY'),('Denied','UNKNOWN')]:
+        fixture = fixtures[name]
+        facts = os_facts(dict(fixture, process_enabled=False))
+        assert facts['task']['state'] == expected, facts
+        if name == 'Denied': assert facts['task']['reason'] == 'ACCESS_DENIED', facts
+    print('LOW_SID_OS_READONLY_TASK_AND_REAL_ACCESS_DENIED=PASS; METADATA_DISABLED',flush=True)
     if sys.argv[2] == 'e':
+        # Actual installed observer entrypoint under its separate standard SID.
+        # No approved os-policy exists; must fail closed before any H1 probe.
+        observer = subprocess.run([sys.executable, '-m', 'observer.windows_os', '--execute'],
+                                  capture_output=True, text=True, timeout=10)
+        assert observer.returncode == 1 and observer.stdout.strip() == 'CC03_OS_OBSERVER_UNAVAILABLE'
+        print('LOW_SID_OBSERVER_ENTRYPOINT_UNAPPROVED_POLICY=FAIL_CLOSED_PASS',flush=True)
         # CI-only transport proof under the real Exporter token. No H1 reads;
         # all observations and binding remain UNKNOWN/unverified.
         from datetime import datetime, timezone

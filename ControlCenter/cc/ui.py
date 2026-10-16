@@ -46,7 +46,7 @@ def status_banner(snapshot: RobotSnapshot, now: datetime):
         st.info(text)
     else:
         st.warning(text)
-    st.caption(f"Заявленное состояние: {status.state}. Торговля: ЗАПРЕЩЕНА. Аккаунт: {status.provenance.account_scope}.")
+    st.caption(f"Заявленное состояние: {status.state}. Торговые действия панели: ЗАПРЕЩЕНЫ. Фактическая trading authorization: UNKNOWN. Аккаунт: {status.provenance.account_scope}.")
     if status.provenance.robot_id == RobotId.M15:
         st.caption("NO_RUNTIME_AUTHORITY · production identity и фактический риск UNKNOWN. График — отдельный DEMO-пример.")
         st.caption("Документированный план #527: T3_M15_T1_TRAIL35_N4_R20 · SESSION T1 / NEXT_OPEN · FULL N4 · R20 2% / 8%. Это план будущего робота, без LIVE-авторизации.")
@@ -62,7 +62,7 @@ def robot_card(snapshot: RobotSnapshot, now: datetime):
         right.metric(f"Ошибки · {mode(snapshot)}", "UNKNOWN" if s.error_count is None else str(s.error_count))
         st.write("**Последняя завершённая свеча:** " + stamp(s.last_bar_at))
         st.write("**Heartbeat:** " + stamp(s.heartbeat_at))
-        st.write("**Task / процесс:** " + (s.task_state or "UNKNOWN"))
+        st.write("**Windows Task:** " + (s.task_state or "UNKNOWN"))
         st.write("**Производственная identity:** " + (s.production_identity or "UNKNOWN"))
         source(snapshot, now)
 
@@ -107,6 +107,13 @@ def order_rows(snapshot: RobotSnapshot):
 
 
 def readonly_details(snapshot):
+    if snapshot.windows_observations:
+        st.caption('Windows OS READONLY: TASK_RUNNING / PROCESS_OBSERVED не доказывают ROBOT_HEALTHY, BROKER_CONNECTED или TRADING_AUTHORIZED. Отсутствие процесса не доказывает отсутствие позиций.')
+        st.dataframe([{"Наблюдение": r.name, "Источник": r.source, "Факт": r.state,
+                       "Наблюдалось": stamp(r.observed_at), "Актуальность": r.freshness,
+                       "Authority": r.authority, "Причина": r.reason, "Metadata / identity": r.value or 'UNKNOWN'}
+                      for r in snapshot.windows_observations], hide_index=True, use_container_width=True)
+        st.caption('Heartbeat, сигналы, позиции, ордера, FILL, ACTIVE SLTP, финансы, PnL, депозиты и просадки: UNKNOWN. Metadata source DISABLED: native noninterference не пройден.')
     if snapshot.readonly_identity is not None:
         st.caption(snapshot.readonly_identity)
     if snapshot.readonly_observations:

@@ -1,0 +1,131 @@
+{
+  "schema_id": "cc03.os-native-evidence.v1",
+  "classification": "CC03_OS_READONLY_OBSERVER_PARTIAL",
+  "run_url": "https://github.com/alkospacer123/market-pattern-discovery/actions/runs/38890829808",
+  "job_id": 116939655825,
+  "head_sha": "e8c7666f3e840cf3e6aa6cab88ad909828e9c1c9",
+  "base_sha": "a6e9634bc0a5db378fcff32ea1bc8591baaf1d3c",
+  "tested_synthetic_merge_sha": "aebb9d3130f9306994ba88db43194c0014b1b042",
+  "controlcenter_tree": "8e2095b540c324416ed465ce9254432354627548",
+  "artifact_id": 12042047232,
+  "artifact_digest": "sha256:53faa862d065b25131f13b1e360328db70e4eeb38c6b79a8dafaeb1a4c9b96e1",
+  "metadata_source": "CC03_METADATA_COMPATIBILITY_BLOCKED",
+  "legacy_content_source": "CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED",
+  "active_observer_producer_replacements": {
+    "passed": 500,
+    "failed": 0,
+    "scope": "disposable native NTFS, Task/process observer; metadata disabled"
+  },
+  "physical": "NOT_EXECUTED",
+  "results": {
+    "host": {
+      "exit_code": 0
+    },
+    "windows-reader": {
+      "exit_code": 0,
+      "passed": 44,
+      "failed": 0,
+      "skipped": []
+    },
+    "windows-transport": {
+      "exit_code": 0,
+      "passed": 12,
+      "failed": 0,
+      "skipped": []
+    },
+    "cc03-source": {
+      "exit_code": 0,
+      "passed": 27,
+      "failed": 0,
+      "skipped": []
+    },
+    "os-observer": {
+      "exit_code": 0,
+      "passed": 37,
+      "failed": 0,
+      "skipped": []
+    },
+    "full-suite": {
+      "exit_code": 0,
+      "passed": 375,
+      "failed": 0,
+      "skipped": [
+        {
+          "test": "tests.test_h1_fault_injection.test_unsafe_files_and_ancestors_rejected[file_symlink]",
+          "reason": "POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py"
+        },
+        {
+          "test": "tests.test_h1_fault_injection.test_unsafe_files_and_ancestors_rejected[directory_symlink]",
+          "reason": "POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py"
+        },
+        {
+          "test": "tests.test_h1_fault_injection.test_unsafe_files_and_ancestors_rejected[ancestor_symlink]",
+          "reason": "POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py"
+        },
+        {
+          "test": "tests.test_h1_fault_injection.test_unsafe_files_and_ancestors_rejected[hardlink]",
+          "reason": "POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py"
+        },
+        {
+          "test": "tests.test_h1_fault_injection.test_unsafe_files_and_ancestors_rejected[fifo]",
+          "reason": "POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py"
+        },
+        {
+          "test": "tests.test_h1_fault_injection.test_unsafe_files_and_ancestors_rejected[directory]",
+          "reason": "POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py"
+        },
+        {
+          "test": "tests.test_h1_fault_injection.test_partial_write_and_path_races_fail_closed[replace]",
+          "reason": "POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py"
+        },
+        {
+          "test": "tests.test_h1_fault_injection.test_partial_write_and_path_races_fail_closed[truncate]",
+          "reason": "POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py"
+        },
+        {
+          "test": "tests.test_h1_fault_injection.test_partial_write_and_path_races_fail_closed[grow]",
+          "reason": "POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py"
+        },
+        {
+          "test": "tests.test_h1_fault_injection.test_partial_write_and_path_races_fail_closed[rewrite]",
+          "reason": "POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py"
+        },
+        {
+          "test": "tests.test_h1_fault_injection.test_partial_write_and_path_races_fail_closed[symlink]",
+          "reason": "POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py"
+        },
+        {
+          "test": "tests.test_h1_fault_injection.test_partial_write_and_path_races_fail_closed[root_replace]",
+          "reason": "POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py"
+        },
+        {
+          "test": "tests.test_h1_fault_injection.test_partial_write_and_path_races_fail_closed[root_symlink]",
+          "reason": "POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py"
+        },
+        {
+          "test": "tests.test_h1_fault_injection.test_no_secure_platform_primitive_fails_closed",
+          "reason": "POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py"
+        },
+        {
+          "test": "tests.test_h1_fault_injection.test_read_uses_no_write_capability_or_external_systems",
+          "reason": "POSIX descriptor fault injection; native Windows equivalents in test_windows_reader.py"
+        }
+      ]
+    },
+    "manifest": {
+      "exit_code": 0
+    },
+    "pip-check": {
+      "exit_code": 0
+    },
+    "pip-freeze": {
+      "exit_code": 0
+    },
+    "powershell-preview": {
+      "exit_code": 0
+    },
+    "powershell-rehearsal": {
+      "exit_code": 0
+    }
+  }
+}
