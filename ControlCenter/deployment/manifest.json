@@ -11,7 +11,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "f98f1d06b581bffbb2b02eb8476a7e71d18c4d03ca0c99140ecf3ac994f1c54f"
+      "sha256": "7ae357da8e523b1d0d125cb6801d076acd60a16ef060583a67761eced5b5a27c"
     },
     {
       "path": "app.py",
@@ -83,15 +83,15 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "9bce8f8b233ba6ca975384d305503797493475a68cd8e9bd467f41321eec59e1"
+      "sha256": "0c5f2b5cd34b9140c7db0b649172d09931ccedd2f5863adb3c5bb45f153b7356"
     },
     {
       "path": "ci/identity_probe.py",
-      "sha256": "bd7836d4e64112518b57e2012a9f16d57035524a82b7f98cb1ac5bae1b78f97e"
+      "sha256": "c90470e873ed1b65da23dd9eee95fca17081d4cfe4e9f40a971c5e59f0f809a9"
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "a89cacfe9e5edcf02f4156e2f7280eb7951a8fd99a14223cca4389af19e4c5fa"
+      "sha256": "cb27fe2518f9002c75f51fce270b151ac33517da8485adbace274b95f43090dc"
     },
     {
       "path": "deployment/Common.ps1",
@@ -143,7 +143,7 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "sha256": "bdd061b297832027de75e07b98c53f9b18cd8f75788e90c65184434221b96f5d"
+      "sha256": "71642a25144e790a38f137bc9c655bc9d4c261b458b16b1e62eca3f4f58153ca"
     },
     {
       "path": "docs/CC02_AUDIT_REPORT.json",
@@ -151,11 +151,11 @@
     },
     {
       "path": "docs/CC03_ACCEPTANCE_REPORT.md",
-      "sha256": "d51dbc25501bba55ce8ab353bfb080fd7ccb1f88b5277a8e713eb594758841c1"
+      "sha256": "9089f327b2436f0c5249d3664d9689079ece47b12039bd4ff29f07e9503125d5"
     },
     {
       "path": "docs/CC03_INTEL_INSTALLATION_PLAN.md",
-      "sha256": "7449e4cfe8246847b8bd20d02c35439b4fec7066d9c0f281c42ed2b52c5c20ee"
+      "sha256": "b7e95bec894900522c8957aa92da7ced8a8cf58cf6a61e9c2522fbbf6d7ec50e"
     },
     {
       "path": "docs/CC03_PHYSICAL_ACCEPTANCE_PLAN.md",
@@ -175,7 +175,7 @@
     },
     {
       "path": "docs/CC03_WINDOWS_SECURITY.md",
-      "sha256": "0b0686b9b537ecf78946987d397c553796ca10f50a7b1d88940421f2cd434d46"
+      "sha256": "0fd97c062c30bd4e75f05468199673620937e0fa8a0aae385baf340075eaaa61"
     },
     {
       "path": "docs/H1_READONLY_SNAPSHOT_CONTRACT.md",
@@ -295,7 +295,7 @@
     },
     {
       "path": "tests/test_windows_transport.py",
-      "sha256": "24e42ba5f8b7b9c694500a71e5c65c7ea020fd6cbe50a112eac59f49a9bdb95a"
+      "sha256": "6cde297462b4f4f9127cc936a2c6617f3a139da866d0b121fdb3e3f1b7e0db65"
     }
   ]
 }

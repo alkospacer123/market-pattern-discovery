@@ -34,7 +34,7 @@ Wheelhouse hash manifest проверить по доверенному transfer
 ```text
 C:\TSLControlCenterApp             code + administrator-owned receiver policy
 C:\TSLControlCenterVenv            Python venv
-C:\TSLControlCenterData\export     очищенный h1.snapshot.json
+C:\TSLControlCenterData\export     immutable completed h1-<time>-<uuid>-<sha256>.json; legacy collection BLOCKED
 C:\TSLControlCenterData\logs       только CC logs
 C:\TSLControlCenterData\private    private source policy; нет panel grant
 ```

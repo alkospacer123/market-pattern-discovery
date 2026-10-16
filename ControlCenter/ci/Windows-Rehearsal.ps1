@@ -40,7 +40,7 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
         $lines += '$env:' + $name + ' = ' + (Literal ([Environment]::GetEnvironmentVariable($name)))
     }
     $lines += 'if ([Security.Principal.WindowsIdentity]::GetCurrent().User.Value -ne ' + (Literal $Identity.Sid) + ') { throw ''WRONG_STARTUP_TOKEN'' }'
-    $lines += '& ' + (Literal "$script:VenvRoot\Scripts\python.exe") + ' -m ci.identity_probe ' + (Literal $Identity.Sid) + ' ' + (Literal $Identity.Name.Substring(4,1))
+    $lines += '& ' + (Literal "$script:VenvRoot\Scripts\python.exe") + ' -c ' + (Literal 'import sys; print(sys.executable); print(sys.version)')
     $lines += 'if ($LASTEXITCODE -ne 0) { throw ''IDENTITY_PYTHON_PROBE_FAILED'' }'
     $lines += 'Get-ExecutionPolicy -List | Format-Table | Out-String | Write-Output'
     $lines += '& ' + (Literal $Entry) + ' -Execute -PanelSid ' + (Literal $panelSid) + ' -ExporterSid ' + (Literal $exporterSid)
@@ -56,6 +56,12 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
         }
         Write-Host ('NATIVE_CMD_STARTUP_PASS sid=' + $Identity.Sid)
     } finally { if (-not $native.HasExited) { & taskkill.exe /PID $native.Id /T /F | Out-Host }; $native.Dispose() }
+    $pythonLog = $ErrorLog + '.python'
+    $python = [CC03Access]::StartAs($Identity.Name, $Identity.Password, "$script:VenvRoot\Scripts\python.exe", $bootstrap, $script:AppRoot, $pythonLog, $Identity.Sid)
+    try {
+        if (-not $python.WaitForExit(15000) -or $python.ExitCode -ne 0) { throw 'DIRECT_IDENTITY_PYTHON_FAILED' }
+        Write-Host ('DIRECT_IDENTITY_PYTHON_PASS sid=' + $Identity.Sid)
+    } finally { if (-not $python.HasExited) { & taskkill.exe /PID $python.Id /T /F | Out-Host }; $python.Dispose() }
     $executable = Join-Path $env:SYSTEMROOT 'System32\WindowsPowerShell\v1.0\powershell.exe'
     return [CC03Access]::StartAs($Identity.Name, $Identity.Password, $executable, $bootstrap, $script:AppRoot, $ErrorLog, $Identity.Sid)
 }
@@ -117,6 +123,9 @@ public static class CC03Access {
     }
     [DllImport("advapi32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
     static extern bool CreateProcessWithTokenW(IntPtr token,int logonFlags,string application,StringBuilder command,int flags,IntPtr environment,string directory,ref StartupInfo startup,out ProcessInfo process);
+    [StructLayout(LayoutKind.Sequential)] struct SecurityAttributes { public int length; public IntPtr descriptor; public int inherit; }
+    [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
+    static extern IntPtr CreateFile(string path,int access,int share,ref SecurityAttributes security,int disposition,int flags,IntPtr template);
     [DllImport("userenv.dll", SetLastError=true)] static extern bool CreateEnvironmentBlock(out IntPtr environment,IntPtr token,bool inherit);
     [DllImport("userenv.dll")] static extern bool DestroyEnvironmentBlock(IntPtr environment);
     public static CC03Child StartAs(string user,string password,string executable,string script,string directory,string log,string expectedSid) {
@@ -154,27 +163,37 @@ public static class CC03Access {
             env["LOCALAPPDATA"]=Path.Combine(temporary,"AppData","Local");
             env["HOMEDRIVE"]=Path.GetPathRoot(temporary).TrimEnd('\\');
             env["HOMEPATH"]=temporary.Substring(2);
+            foreach (string name in new[]{"GITHUB_ACTIONS","RUNNER_ENVIRONMENT","RUNNER_TEMP","CC03_CI_DISPOSABLE_ROOT","PSMODULEPATH","STREAMLIT_SERVER_HEADLESS","STREAMLIT_BROWSER_GATHER_USAGE_STATS"})
+                env[name]=Environment.GetEnvironmentVariable(name) ?? "";
             env["PYTHONNOUSERSITE"]="1"; env["PYTHONDONTWRITEBYTECODE"]="1";
             var block=new StringBuilder();
             foreach (var pair in env) block.Append(pair.Key).Append('=').Append(pair.Value).Append('\0');
             block.Append('\0');
             IntPtr environment=Marshal.StringToHGlobalUni(block.ToString());
             var startup=new StartupInfo(); startup.cb=Marshal.SizeOf(typeof(StartupInfo));
-            // NULL inherits the caller desktop, which belongs to runneradmin's
-            // logon session. Empty string asks Windows for the target logon's
-            // noninteractive station/desktop. Never alter an existing desktop
-            // DACL or grant this user interactive runner desktop access.
-            startup.desktop=Marshal.StringToHGlobalUni("");
+            // Explicit inheritable standard handles; never pass the caller's
+            // anonymous pipe or console handles across the SID boundary.
+            var attributes=new SecurityAttributes(); attributes.length=Marshal.SizeOf(typeof(SecurityAttributes)); attributes.inherit=1;
+            IntPtr input,output;
+            using (var identity=new WindowsIdentity(token))
+            using (var context=identity.Impersonate()) {
+                input=CreateFile("NUL",unchecked((int)0x80000000),3,ref attributes,3,0x80,IntPtr.Zero);
+                output=CreateFile(log,4,3,ref attributes,4,0x80,IntPtr.Zero);
+            }
+            if (input==new IntPtr(-1) || output==new IntPtr(-1)) throw new Exception("CHILD_STDIO_OPEN_FAILED win32="+Marshal.GetLastWin32Error());
+            startup.flags=0x100; startup.input=input; startup.output=output; startup.error=output;
             ProcessInfo process;
             string action="& '"+script.Replace("'","''")+"' *> '"+log.Replace("'","''")+"'";
             var command=new StringBuilder(executable.EndsWith("cmd.exe",StringComparison.OrdinalIgnoreCase)
                 ? "\""+executable+"\" /d /c exit 0"
-                : "\""+executable+"\" -NoProfile -NonInteractive -NoLogo -Command \""+action+"\"");
+                : executable.EndsWith("python.exe",StringComparison.OrdinalIgnoreCase)
+                ? "\""+executable+"\" -m ci.identity_probe "+expectedSid+" "+(user.StartsWith("cc03e") ? "e" : "p")
+                : "\""+executable+"\" -NoProfile -NonInteractive -NoLogo -File \""+script+"\"");
             if (command.Length>=1024) throw new Exception("LOGON_COMMAND_LINE_TOO_LONG");
             try {
                 if (!CreateProcessWithTokenW(token,1,executable,command,0x08000400,environment,directory,ref startup,out process))
                     throw new Exception("CREATE_PROCESS_WITH_TOKEN_UNAVAILABLE win32="+Marshal.GetLastWin32Error());
-            } finally { Marshal.FreeHGlobal(environment); Marshal.FreeHGlobal(startup.desktop); }
+            } finally { Marshal.FreeHGlobal(environment); CloseHandle(input); CloseHandle(output); }
             CloseHandle(process.thread);
             return new CC03Child(process.process,process.processId);
         } finally { CloseHandle(token); }
@@ -308,6 +327,14 @@ try {
     $listenerProcess = Get-CimInstance Win32_Process -Filter ("ProcessId=" + $listener[0].OwningProcess)
     $listenerOwner = Invoke-CimMethod -InputObject $listenerProcess -MethodName GetOwnerSid
     if ($listenerOwner.Sid -ne $panelSid) { throw 'LISTENER_WRONG_SID' }
+    $ancestor = $listenerProcess
+    $ownedTree = $false
+    for ($depth=0; $depth -lt 8 -and $null -ne $ancestor; $depth++) {
+        if ($ancestor.ProcessId -eq $panelProcess.Id) { $ownedTree=$true; break }
+        $ancestor = Get-CimInstance Win32_Process -Filter ("ProcessId=" + $ancestor.ParentProcessId)
+    }
+    if (-not $ownedTree) { throw 'LISTENER_NOT_OWN_CHILD' }
+    Write-Output ('PANEL_LISTENER_PROCESS pid=' + $listenerProcess.ProcessId + ' executable=' + $listenerProcess.ExecutablePath)
     $health = Invoke-WebRequest -Uri 'http://127.0.0.1:8501/_stcore/health' -UseBasicParsing
     if ($health.StatusCode -ne 200 -or $health.Content -ne 'ok') { throw 'PANEL_HEALTH_FAILED' }
     $results['panel_listener'] = 'PASS: HTTP health 200, 127.0.0.1:8501 owned by CCPanel SID ' + $listenerOwner.Sid
@@ -353,10 +380,10 @@ try {
     if ($null -ne $exporterProcess -and -not $exporterProcess.HasExited) { & taskkill.exe /PID $exporterProcess.Id /T /F }
     if ($null -ne $panelProcess) { $panelProcess.Dispose() }
     if ($null -ne $exporterProcess) { $exporterProcess.Dispose() }
-    if (Test-Path "$script:DataRoot\export\exporter-process.txt") {
-        Copy-Item "$script:DataRoot\export\exporter-process.txt" -Destination $evidence
-        Write-Output 'REHEARSAL_LOG exporter-process.txt'
-        Get-Content "$script:DataRoot\export\exporter-process.txt"
+    Get-ChildItem "$script:DataRoot\export" -File -Filter 'exporter-process.txt*' | ForEach-Object {
+        Copy-Item -LiteralPath $_.FullName -Destination $evidence
+        Write-Output ('REHEARSAL_LOG '+$_.Name)
+        Get-Content -LiteralPath $_.FullName
     }
     if ($results.Contains('install') -and -not $results.Contains('uninstall')) {
         try {
@@ -367,7 +394,7 @@ try {
         } catch { $results['uninstall'] = 'FAIL: ' + $_.Exception.Message }
     }
     if (Test-Path "$script:DataRoot\logs") {
-        Get-ChildItem "$script:DataRoot\logs" -Filter '*.txt' | ForEach-Object {
+        Get-ChildItem "$script:DataRoot\logs" -File -Filter '*.txt*' | ForEach-Object {
             Copy-Item -LiteralPath $_.FullName -Destination $evidence
             Write-Output ('REHEARSAL_LOG ' + $_.Name)
             Get-Content -LiteralPath $_.FullName

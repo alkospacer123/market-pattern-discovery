@@ -18,6 +18,8 @@ def main():
     sandbox = Path(os.environ['RUNNER_TEMP']) / ('CC03-' + uuid.uuid4().hex)
     sandbox.mkdir()
     os.environ['CC03_CI_DISPOSABLE_ROOT'] = str(sandbox)
+    os.environ['STREAMLIT_SERVER_HEADLESS'] = 'true'
+    os.environ['STREAMLIT_BROWSER_GATHER_USAGE_STATS'] = 'false'
     evidence = Path(os.environ['RUNNER_TEMP']) / 'cc03-evidence'
     evidence.mkdir(exist_ok=True)
     metadata = dict(windows=platform.platform(), windows_version=platform.win32_ver(),

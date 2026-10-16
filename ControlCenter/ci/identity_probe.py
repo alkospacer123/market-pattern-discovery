@@ -5,11 +5,16 @@ import multiprocessing
 import os
 from pathlib import Path
 import sys
+import subprocess
+import csv
 from cc.providers.windows_file import read_windows, WinAPI
 
 
 def main():
     assert os.name == 'nt' and os.environ.get('RUNNER_ENVIRONMENT') == 'github-hosted'
+    actual=next(csv.reader([subprocess.check_output(['whoami','/user','/fo','csv','/nh'],text=True).strip()]))[1]
+    assert actual == sys.argv[1] and not ctypes.windll.shell32.IsUserAnAdmin()
+    print('PYTHON_ACTUAL_SID='+actual,flush=True)
     from ctypes import wintypes as w
     u=ctypes.WinDLL('user32',use_last_error=True)
     u.GetProcessWindowStation.restype=w.HANDLE

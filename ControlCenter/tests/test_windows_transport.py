@@ -121,3 +121,15 @@ def test_publisher_capacity_rejects_before_writing(policy,sources,now,tmp_path,m
     with pytest.raises(ValueError,match='EXPORT_DIRECTORY_FULL'):
         writer.publish(export(policy,sources,now))
     assert set(tmp_path.iterdir()) == before
+
+
+def test_real_directory_substitution_between_requests_rejected(policy,sources,now,tmp_path,monkeypatch):
+    root=tmp_path/'export'; root.mkdir()
+    monkeypatch.setattr(writer,'EXPORT_ROOT',root)
+    completed=writer.publish(export(policy,sources,now))
+    expected=pin(root)
+    original=tmp_path/'original'; root.rename(original)
+    root.mkdir()
+    # Even byte-identical completed content at the same pathname is a new root.
+    (root/completed.name).write_bytes((original/completed.name).read_bytes())
+    with pytest.raises(ValueError): win.read_latest_windows(root,131072,expected)

@@ -3,7 +3,7 @@
 > Исторический отчёт подготовки #533. Реальная hosted Windows проверка #534
 > обнаружила блокирующий atomic producer conflict; прежнее утверждение о
 > достаточности DELETE-sharing опровергнуто исполнением.
-> Актуальный статус: [CC03_WINDOWS_HOSTED_NATIVE_NEEDS_FIX](CC03_WINDOWS_HOSTED_ACCEPTANCE.md).
+> Актуальный статус: [актуальный Windows audit result](CC03_WINDOWS_HOSTED_ACCEPTANCE.md).
 
 Результат: **CC03_SOURCE_PREPARATION_PASS** для кодовой подготовки. **CC03_PHYSICAL_PASS НЕ установлен.** Windows native/PowerShell/effective ACL и Intel установка/приёмка — **NOT_VERIFIED / NOT_EXECUTED**. После одного Draft PR — STOP для независимого внешнего аудита, без merge/auto-merge/CC-04.
 
