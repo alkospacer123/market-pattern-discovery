@@ -83,7 +83,7 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "3537d7534138608b10ce1fcf0b26871e56d8c209dfe2a5889dba8c1f5159a0e6"
+      "sha256": "126cb80f4764ba7aac5a8fac29f77737df940b32b907fe6a783c6e83ebdfc6cd"
     },
     {
       "path": "ci/windows_acceptance.py",

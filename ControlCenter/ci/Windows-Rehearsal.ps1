@@ -36,13 +36,14 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
     $lines += 'Get-ExecutionPolicy -List | Format-Table | Out-String | Write-Output'
     $lines += '& ' + (Literal $Entry) + ' -Execute -PanelSid ' + (Literal $panelSid) + ' -ExporterSid ' + (Literal $exporterSid)
     $command = '& {' + "`n" + ($lines -join "`n") + "`n" + '} *> ' + (Literal $ErrorLog)
-    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command))
+    $bootstrap = Join-Path $sandbox ('identity-' + $Identity.Name + '.ps1')
+    Set-Content -LiteralPath $bootstrap -Value $command -Encoding UTF8
     $executable = Join-Path $env:SYSTEMROOT 'System32\WindowsPowerShell\v1.0\powershell.exe'
-    return [CC03Access]::StartAs($Identity.Name, $Identity.Password, $executable, $encoded, $script:AppRoot)
+    return [CC03Access]::StartAs($Identity.Name, $Identity.Password, $executable, $bootstrap, $script:AppRoot)
 }
 
 function Set-DisposableACL([string]$Path, [string]$Kind) {
-    if (-not $Path.StartsWith($sandbox + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'ACL_SCOPE_VIOLATION' }
+    if ($Path -ne $sandbox -and -not $Path.StartsWith($sandbox + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'ACL_SCOPE_VIOLATION' }
     $directory = Test-Path -LiteralPath $Path -PathType Container
     $acl = $(if ($directory) { [Security.AccessControl.DirectorySecurity]::new() } else { [Security.AccessControl.FileSecurity]::new() })
     $acl.SetAccessRuleProtection($true, $false)
@@ -98,13 +99,14 @@ public static class CC03Access {
     }
     [DllImport("advapi32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
     static extern bool CreateProcessWithTokenW(IntPtr token,int logonFlags,string application,StringBuilder command,int flags,IntPtr environment,string directory,ref StartupInfo startup,out ProcessInfo process);
-    public static CC03Child StartAs(string user,string password,string executable,string encoded,string directory) {
+    public static CC03Child StartAs(string user,string password,string executable,string script,string directory) {
         IntPtr token;
         if (!LogonUser(user,".",password,2,0,out token)) throw new Exception("LOGON_USER_UNAVAILABLE win32="+Marshal.GetLastWin32Error());
         try {
             var startup=new StartupInfo(); startup.cb=Marshal.SizeOf(typeof(StartupInfo));
             ProcessInfo process;
-            var command=new StringBuilder("\""+executable+"\" -NoProfile -EncodedCommand "+encoded);
+            var command=new StringBuilder("\""+executable+"\" -NoProfile -File \""+script+"\"");
+            if (command.Length>=1024) throw new Exception("LOGON_COMMAND_LINE_TOO_LONG");
             if (!CreateProcessWithTokenW(token,1,executable,command,0x08000000,IntPtr.Zero,directory,ref startup,out process))
                 throw new Exception("CREATE_PROCESS_WITH_TOKEN_UNAVAILABLE win32="+Marshal.GetLastWin32Error());
             CloseHandle(process.thread);
@@ -156,6 +158,7 @@ try {
     $panel = $credentials[0]; $exporter = $credentials[1]
     $panelSid = $panel.Sid; $exporterSid = $exporter.Sid
     Write-Output "DISPOSABLE_PANEL_SID=$panelSid DISPOSABLE_EXPORTER_SID=$exporterSid"
+    Set-DisposableACL $sandbox 'parent'
     foreach ($pair in @(@($script:AppRoot,'app'), @($script:VenvRoot,'venv'), @($script:DataRoot,'parent'),
                         @("$script:DataRoot\export",'export'), @("$script:DataRoot\logs",'logs'), @("$script:DataRoot\private",'private'))) {
         $null = New-Item -ItemType Directory -Path $pair[0] -Force
