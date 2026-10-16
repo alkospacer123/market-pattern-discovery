@@ -78,8 +78,10 @@ def readiness(policy):
              if sandbox is not None else [r'C:\TSLControlCenterApp', r'C:\TSLControlCenterVenv', r'C:\TSLControlCenterData'])
     roots += [str(data_root() / part) for part in ('export', 'logs', 'private')]
     environment = {k: os.environ[k] for k in ('SYSTEMROOT', 'SYSTEMDRIVE', 'WINDIR', 'TEMP', 'TMP',
-                    'USERPROFILE', 'APPDATA', 'LOCALAPPDATA', 'PROGRAMFILES') if k in os.environ}
-    environment['PSModulePath'] = str(executable.parent / 'Modules')
+                    'USERPROFILE', 'APPDATA', 'LOCALAPPDATA', 'PROGRAMFILES',
+                    'PROGRAMFILES(X86)', 'COMSPEC', 'COMPUTERNAME') if k in os.environ}
+    environment['PSModulePath'] = os.pathsep.join((str(executable.parent / 'Modules'),
+        str(Path(os.environ.get('PROGRAMFILES', r'C:\Program Files')) / 'WindowsPowerShell/Modules')))
     environment['PATH'] = str(executable.parent) + os.pathsep + str(executable.parents[2])
     payload = dict(cc_panel_sid=policy['cc_panel_sid'], cc_exporter_sid=policy['cc_exporter_sid'], roots=roots)
     try:

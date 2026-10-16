@@ -2,12 +2,15 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
+$stage = 'INPUT'
 try {
     $p = [Console]::In.ReadToEnd() | ConvertFrom-Json
+    $stage = 'TOKEN'
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
     # Deny even a filtered administrator token, including deny-only Administrators SID.
     $standard = ($identity.User.Value -match '^S-1-5-21-') -and
         (-not (@($identity.Groups | ForEach-Object { $_.Value }) -contains 'S-1-5-32-544'))
+    $stage = 'SIDS'
     $identities = 'EXISTING_SIDS_OBSERVED'
     foreach ($sid in @($p.cc_panel_sid, $p.cc_exporter_sid)) {
         if ($null -eq $sid) { $identities = 'CC_IDENTITIES_NOT_PROVISIONED'; continue }
@@ -15,6 +18,7 @@ try {
         catch [Security.Principal.IdentityNotMappedException] { $identities = 'CC_IDENTITIES_NOT_PROVISIONED' }
         catch { $identities = 'UNKNOWN' }
     }
+    $stage = 'ROOTS'
     $directories = 'EXISTING_ROOTS_OBSERVED'
     foreach ($root in $p.roots) {
         try {
@@ -32,5 +36,6 @@ try {
           catch [UnauthorizedAccessException] { $directories = 'ACCESS_DENIED' }
           catch { $directories = 'UNKNOWN' }
     }
+    $stage = 'SERIALIZE'
     @{observer_standard=$standard; identities=$identities; directories=$directories} | ConvertTo-Json -Compress
-} catch { [Console]::Out.Write('{}'); exit 1 }
+} catch { [Console]::Error.Write('READINESS_' + $stage + '_' + $_.Exception.GetType().Name); [Console]::Out.Write('{}'); exit 1 }

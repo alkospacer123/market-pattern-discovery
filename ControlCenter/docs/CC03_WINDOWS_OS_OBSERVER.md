@@ -1,6 +1,6 @@
 # CC-03 independent Windows OS READONLY observer
 
-Metadata outcome: the first real Windows run disproved noninterference. `observer/` contains no metadata implementation. The failed zero-access handle experiment is quarantined under `ci/metadata_experiment.py`; its expected-conflict test is **NOT** a passed metadata acceptance requirement.
+Metadata outcome: the first real Windows run disproved noninterference. `observer/` contains no production-file metadata implementation; preflight only inspects own CC directory attributes. The failed zero-access handle experiment is quarantined under `ci/metadata_experiment.py`; its expected-conflict test is **NOT** a passed metadata acceptance requirement.
 
 Engineering scope: Issue [#524](https://github.com/alkospacer123/market-pattern-discovery/issues/524), CC-03 only. NO INTEL INSTALL, NO TRADING, NO H1 START/RESTART/REARM, NO FINAM, NO CC-04. Physical acceptance NOT_EXECUTED.
 

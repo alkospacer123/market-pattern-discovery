@@ -219,7 +219,7 @@
     },
     {
       "path": "docs/CC03_WINDOWS_OS_OBSERVER.md",
-      "sha256": "575a0d18a785b11fb69184a23a1787671e872baea06b4a1115e8aefe64baacbe"
+      "sha256": "a674e2ff580bf340b925a7406ec8d04b0dd50875b3975439d6a4ced748ffaf08"
     },
     {
       "path": "docs/CC03_WINDOWS_OS_SCHEMA.json",
@@ -291,7 +291,7 @@
     },
     {
       "path": "observer/Read-PreflightReadiness.ps1",
-      "sha256": "0322d40df810713a37dc6f6f6b3e34e2202f4d6e155245b48695f7aef8b837fc"
+      "sha256": "06b6df0ed8c73d08c293012e31ab4bb6f0b5131624fd3bb65b2ee5b99313e81b"
     },
     {
       "path": "observer/__init__.py",
@@ -303,7 +303,7 @@
     },
     {
       "path": "observer/intel_preflight.py",
-      "sha256": "4251d84d57f3c10c00ec355c919a6c1a3045826bcb21fe29a573b7f52786f260"
+      "sha256": "df5d36fdf45f2ec6efded7467083436cf20e096b8edc814c9077fc0862c01279"
     },
     {
       "path": "observer/windows_os.py",
@@ -363,7 +363,7 @@
     },
     {
       "path": "tests/test_intel_preflight_native.py",
-      "sha256": "1434659ffc249b614f25e525f25b77a8b6786dbdb0be1b3aaaebead26bdbec82"
+      "sha256": "eaad8c40d5e4ac6b9e14bbb8c336d4cd4bfce885a460c392b030d8531bed6e65"
     },
     {
       "path": "tests/test_os_observer.py",

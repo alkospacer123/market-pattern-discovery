@@ -42,3 +42,25 @@ def test_native_preflight_epoch_and_pid_disappearance(preflight_policy,tasks):
         assert native_run(p,tasks[0]['Ready'])['process']=='PROCESS_UNKNOWN'
     finally:
         if child.poll() is None:child.terminate();child.wait(5)
+
+
+def test_native_readiness_script_on_missing_disposable_roots(preflight_policy,monkeypatch):
+    # Capture only this disposable helper's diagnostics, never a production source.
+    original=subprocess.run
+    captured=[]
+    def capture(*args,**kwargs):
+        result=original(*args,**kwargs)
+        captured.append((result.returncode,result.stdout,result.stderr))
+        return result
+    monkeypatch.setattr(subprocess,'run',capture)
+    previous=os.environ['CC03_CI_DISPOSABLE_ROOT']
+    import uuid
+    from pathlib import Path
+    try:
+        os.environ['CC03_CI_DISPOSABLE_ROOT']=str(Path(previous).parent / ('CC03-'+uuid.uuid4().hex))
+        result=preflight.readiness(preflight_policy)
+        assert result['identities']=='CC_IDENTITIES_NOT_PROVISIONED', captured
+        assert result['directories']=='NOT_PROVISIONED', captured
+        assert result['observer_standard'] is False # elevated pytest token
+    finally:
+        os.environ['CC03_CI_DISPOSABLE_ROOT']=previous
