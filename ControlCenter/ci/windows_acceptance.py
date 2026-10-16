@@ -18,6 +18,11 @@ def main():
                     python=sys.version, bits=struct.calcsize('P') * 8,
                     tested_sha=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
                     event_sha=os.environ['GITHUB_SHA'], run_id=os.environ['GITHUB_RUN_ID'])
+    event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text(encoding='utf-8'))
+    metadata.update(pr_head_sha=event['pull_request']['head']['sha'],
+                    pr_base_sha=event['pull_request']['base']['sha'],
+                    controlcenter_tree=subprocess.check_output(
+                        ['git', 'rev-parse', 'HEAD:ControlCenter'], text=True).strip())
     print(json.dumps(metadata, indent=2), flush=True)
     (evidence / 'environment.json').write_text(json.dumps(metadata, indent=2), encoding='utf-8')
     commands = [

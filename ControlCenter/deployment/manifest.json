@@ -83,11 +83,11 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "9a9159d6416d9193a4bea2097fd1db94895f9dbbb0b23dc2e37fbe2b3c63da5f"
+      "sha256": "773df172c7be77cfa0418bef745812fc2f58c32a868b6b53bdbf993954978500"
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "9002778f743e17891710f468fa3ffe71ea05c88305222c7e6e3d9c4d35eaadc7"
+      "sha256": "fe764e23fe4c6a40eef3a6708e5206b69408d960cece37523847b2c034fa7abd"
     },
     {
       "path": "ci/windows_share_probe.py",
@@ -151,7 +151,7 @@
     },
     {
       "path": "docs/CC03_ACCEPTANCE_REPORT.md",
-      "sha256": "268e52662f131c6bd34609b46563be6da5a41eeda99509614edf7dca52fab6d7"
+      "sha256": "d51dbc25501bba55ce8ab353bfb080fd7ccb1f88b5277a8e713eb594758841c1"
     },
     {
       "path": "docs/CC03_INTEL_INSTALLATION_PLAN.md",
@@ -191,7 +191,7 @@
     },
     {
       "path": "docs/ROADMAP_STATUS.md",
-      "sha256": "1cdedea118639f8f0fd41a77e1e22ff6b55b0780d23e465787feff7d16968985"
+      "sha256": "4aa04058ae1f3a9cc74a5825be3538a2a526db021203582161f466e0bfde198c"
     },
     {
       "path": "docs/SECURITY_BOUNDARY.md",

@@ -138,6 +138,8 @@ try {
     }) | ConvertTo-Json | Set-Content -LiteralPath "$wheelhouse\wheels.sha256.json" -Encoding ASCII
     & "$package\deployment\Install.ps1" -Execute -PanelSid $panelSid -ExporterSid $exporterSid -Wheelhouse $wheelhouse
     if ($LASTEXITCODE -ne 0) { throw 'INSTALL_FAILED' }
+    & "$script:VenvRoot\Scripts\python.exe" -c "import sys,struct; print('REHEARSAL_PYTHON='+sys.version); assert sys.version_info[:3]==(3,12,10) and struct.calcsize('P')==8"
+    if ($LASTEXITCODE -ne 0) { throw 'REHEARSAL_PYTHON_VERSION_MISMATCH' }
     $results['install'] = 'PASS: real offline install into disposable ACL-provisioned roots'
     # Verify a loopback-only panel under the actual low-privilege panel SID.
     $arguments = "-NoProfile -File `"$script:AppRoot\deployment\Start-Panel.ps1`" -Execute -PanelSid $panelSid -ExporterSid $exporterSid"
@@ -182,6 +184,8 @@ try {
 } catch {
     $results['status'] = $(if ($_.Exception.Message -match 'SID_REHEARSAL_NOT_VERIFIED|LOGON_USER_UNAVAILABLE') { 'NOT_VERIFIED' } else { 'FAIL' })
     $results['error'] = $_.Exception.Message
+    $results['position'] = $_.InvocationInfo.PositionMessage
+    $results['stack'] = $_.ScriptStackTrace
 } finally {
     if ($null -ne $panelProcess) { & taskkill.exe /PID $panelProcess.Id /T /F }
     if ($null -ne $exporterProcess -and -not $exporterProcess.HasExited) { & taskkill.exe /PID $exporterProcess.Id /T /F }
