@@ -12,6 +12,35 @@ import zipfile
 import xml.etree.ElementTree as ET
 
 
+def build_bundle(evidence):
+    """Preserve manifest-verified bytes; Git archive applies Windows EOL filters."""
+    root = Path(__file__).absolute().parents[1]
+    manifest_raw = (root / 'deployment/manifest.json').read_bytes()
+    manifest = json.loads(manifest_raw)
+    bundle = evidence / 'CC03_INTEL_READONLY_PREFLIGHT_PACKAGE.zip'
+    names = {'ControlCenter/deployment/manifest.json'}
+    with zipfile.ZipFile(bundle, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr('ControlCenter/deployment/manifest.json', manifest_raw)
+        for entry in manifest['files']:
+            relative = Path(entry['path'])
+            assert not relative.is_absolute() and '..' not in relative.parts
+            assert relative.name not in {'os-policy.json', 'source-policy.json',
+                                         'receiver-policy.json', 'preflight-policy.json'}
+            name = 'ControlCenter/' + relative.as_posix()
+            assert name not in names
+            names.add(name)
+            raw = (root / relative).read_bytes()
+            assert sha256(raw).hexdigest() == entry['sha256']
+            archive.writestr(name, raw)
+    with zipfile.ZipFile(bundle) as archive:
+        assert set(archive.namelist()) == names
+        assert archive.read('ControlCenter/deployment/manifest.json') == manifest_raw
+        for entry in manifest['files']:
+            assert sha256(archive.read('ControlCenter/' + entry['path'])).hexdigest() == entry['sha256']
+    print('PREFLIGHT_BUNDLE_MANIFEST_VERIFIED=' + str(len(manifest['files'])), flush=True)
+    return bundle, len(manifest['files'])
+
+
 def main():
     assert os.name == 'nt' and os.environ.get('RUNNER_ENVIRONMENT') == 'github-hosted'
     assert sys.version_info[:3] == (3, 12, 10) and struct.calcsize('P') == 8
@@ -35,6 +64,8 @@ def main():
                         ['git', 'rev-parse', 'HEAD:ControlCenter'], text=True).strip())
     print(json.dumps(metadata, indent=2), flush=True)
     (evidence / 'environment.json').write_text(json.dumps(metadata, indent=2), encoding='utf-8')
+    # Fail early on package-byte defects before repeating the full native suite.
+    bundle, bundle_file_count = build_bundle(evidence)
     commands = [
         ('host', ['powershell', '-NoProfile', '-Command',
                   "Get-CimInstance Win32_OperatingSystem | Select Caption,Version,BuildNumber | Format-List; "
@@ -116,24 +147,12 @@ def main():
     # runtime policies by construction. Companion checksums are outside the ZIP,
     # so final PR head and ZIP/manifest hashes need no self-reference.
     if not failed:
-        bundle = evidence / 'CC03_INTEL_READONLY_PREFLIGHT_PACKAGE.zip'
-        subprocess.run(['git', 'archive', '--format=zip', '--prefix=ControlCenter/',
-                        '--output=' + str(bundle), 'HEAD:ControlCenter'], check=True, timeout=30,
-                       cwd=Path(__file__).absolute().parents[2])
-        manifest = json.loads(Path('deployment/manifest.json').read_text(encoding='utf-8'))
-        with zipfile.ZipFile(bundle) as archive:
-            assert archive.read('ControlCenter/deployment/manifest.json') == Path('deployment/manifest.json').read_bytes()
-            for entry in manifest['files']:
-                assert sha256(archive.read('ControlCenter/' + entry['path'])).hexdigest() == entry['sha256']
-            assert not any(n.endswith(('/os-policy.json', '/source-policy.json',
-                                      '/receiver-policy.json', '/preflight-policy.json')) for n in archive.namelist())
-        print('PREFLIGHT_BUNDLE_MANIFEST_VERIFIED=' + str(len(manifest['files'])), flush=True)
         checksums = dict(schema_id='cc03.intel-preflight-package-checksums.v1',
             classification='CC03_INTEL_READONLY_PREFLIGHT_PACKAGE_READY',
             pr_base_sha=metadata['pr_base_sha'], pr_head_sha=metadata['pr_head_sha'],
             tested_checkout_sha=metadata['tested_sha'], controlcenter_tree=metadata['controlcenter_tree'],
             run_id=metadata['run_id'], intel_execution='NOT_EXECUTED', physical='NOT_VERIFIED',
-            archive_manifest_files_verified=len(manifest['files']),
+            archive_manifest_files_verified=bundle_file_count,
             files=[dict(path=bundle.name, sha256=sha256(bundle.read_bytes()).hexdigest()),
                    dict(path='ControlCenter/deployment/manifest.json',
                         sha256=sha256(Path('deployment/manifest.json').read_bytes()).hexdigest())])
