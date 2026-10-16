@@ -91,7 +91,7 @@
     },
     {
       "path": "ci/windows_share_probe.py",
-      "sha256": "4e6b7cb5be67352f094c3c837de2dabac011486127808e6703f03e5ce2bb98d5"
+      "sha256": "a508265b544409abe90dad52ca32f77228eeb0a16a331a2311b40e4bb3c98a08"
     },
     {
       "path": "deployment/Common.ps1",
@@ -99,7 +99,7 @@
     },
     {
       "path": "deployment/Install.ps1",
-      "sha256": "31135183bee531b46001dedd453cab24c956d837294df841822449113abbaf2a"
+      "sha256": "188f52be7e688cba341e15119ed183ee3d7108d1078bd534e5944b3c4c03aa8c"
     },
     {
       "path": "deployment/Preflight.ps1",

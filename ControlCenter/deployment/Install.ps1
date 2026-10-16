@@ -12,7 +12,10 @@ $manifest = Get-Manifest $script:PackageRoot
 # No dependency execution occurs until operator-approved wheelhouse hashes match.
 $wheelManifest = Join-Path $Wheelhouse 'wheels.sha256.json'
 Assert-PlainPath $wheelManifest
-$wheels = @(Get-Content -Raw -LiteralPath $wheelManifest | ConvertFrom-Json)
+# Windows PowerShell 5.1 emits a JSON array as one pipeline object. Materialize
+# it before @() enumerates it, so each validated record remains a single wheel.
+$wheelRecords = Get-Content -Raw -LiteralPath $wheelManifest | ConvertFrom-Json
+$wheels = @($wheelRecords)
 if ($wheels.Count -eq 0) { throw 'WHEEL_MANIFEST_EMPTY' }
 foreach ($wheel in $wheels) {
     if ($wheel.name -notmatch '^[A-Za-z0-9_.+-]+\.whl$') { throw 'WHEEL_NAME_INVALID' }

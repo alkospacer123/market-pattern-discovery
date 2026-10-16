@@ -32,6 +32,9 @@ def main():
                         record['inplace_write'] = f'WinError {exc.winerror}'
                 finally:
                     api.close(handle)
+                if replacement.exists():
+                    os.replace(replacement, path)
+                    record['replace_after_close'] = 'PASS'
                 results.append(record)
     print(json.dumps(results, indent=2))
 
