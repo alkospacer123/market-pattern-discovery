@@ -1,5 +1,6 @@
 """Deterministic durable intent/fill/stop rehearsal, no FINAM transport."""
 import hashlib
+from contextlib import closing
 import sqlite3
 import tempfile
 import unittest
@@ -184,11 +185,11 @@ class Rehearsal(unittest.TestCase):
 
     def test_forged_sqlite_identity_denied(self):
         self.ledger.close()
-        with sqlite3.connect(self.ledger.path) as db:
+        with closing(sqlite3.connect(self.ledger.path)) as db, db:
             db.execute("UPDATE metadata SET value='{}' WHERE key='identity'")
         with self.assertRaisesRegex(M15OfflineLedgerError, "IDENTITY_MISMATCH"):
             OfflineIntentLedger(**self.kwargs)
-        with sqlite3.connect(self.ledger.path) as db:
+        with closing(sqlite3.connect(self.ledger.path)) as db, db:
             import json
             db.execute("UPDATE metadata SET value=? WHERE key='identity'",
                        (json.dumps(self.ledger.identity, sort_keys=True),))
@@ -196,13 +197,13 @@ class Rehearsal(unittest.TestCase):
 
     def test_existing_sqlite_with_deleted_identity_not_reinitialized(self):
         self.ledger.close()
-        with sqlite3.connect(self.ledger.path) as db:
+        with closing(sqlite3.connect(self.ledger.path)) as db, db:
             db.execute("DELETE FROM metadata WHERE key='identity'")
         with self.assertRaisesRegex(M15OfflineLedgerError, "EXISTING_IDENTITY_MISSING"):
             OfflineIntentLedger(**self.kwargs)
         # Rebind to the original authority for tearDown without weakening
         # the tested production constructor.
-        with sqlite3.connect(self.ledger.path) as db:
+        with closing(sqlite3.connect(self.ledger.path)) as db, db:
             import json
             db.execute("INSERT INTO metadata(key,value) VALUES('identity',?)",
                        (json.dumps(self.ledger.identity, sort_keys=True),))
@@ -210,7 +211,7 @@ class Rehearsal(unittest.TestCase):
 
     def test_unexpected_sqlite_columns_block_on_restart(self):
         self.ledger.close()
-        with sqlite3.connect(self.ledger.path) as db:
+        with closing(sqlite3.connect(self.ledger.path)) as db, db:
             db.execute("ALTER TABLE protection ADD COLUMN suspicious TEXT")
         with self.assertRaisesRegex(M15OfflineLedgerError, "COLUMNS_INVALID"):
             OfflineIntentLedger(**self.kwargs)
