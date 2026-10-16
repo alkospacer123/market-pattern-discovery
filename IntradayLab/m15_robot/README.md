@@ -4,7 +4,7 @@
 
 Исходные свежие котировки N4 от пользователя приняты и проверены **без изменения замороженных данных**. Отчёт: [M15_ZIP_20261016_AUDIT.json](data_intake/M15_ZIP_20261016_AUDIT.json). Проверены уникальность/сетка времени/структура и историческое пересечение (8 123 совпадения из 8 124 reference-строк). Единственное отличие: `IMOEXF;2026-09-09 07:00:00`, Volume старого источника 19786, в ZIP 19781; OHLC одинаковые. Замороженное значение остаётся первичным, отличие нельзя маскировать. Последняя новая M15 OPEN-метка 16.10 12:15 ещё требует доказанного закрытия. **Статус №08: NOT PASS / ONE_VOLUME_CONFLICT, №09: FINAM READONLY PENDING, real signal not authorized.**
 
-**Действующий 28-пунктовый roadmap обязателен; не усложнять методологию, не запускать новые исследования и не менять TradingSystemLab/H1.** См. [ROADMAP.md](ROADMAP.md). Текущие №03–05, 08–09 не пройдены, merge/LIVE запрещены.
+**Действующий 28-пунктовый roadmap обязателен; не усложнять методологию, не запускать новые исследования и не менять TradingSystemLab/H1.** См. [ROADMAP.md](ROADMAP.md). №03–04: **INTEL PASS (Python 3.12.10, 110/110 × 2 на exact SHA `996be71757c77cedb176b78357a01f0099cac850`)**. №05: **статический код-аудит PASS** — [отчёт](AUDIT_05_20261016.md). №08 остаётся NOT PASS; №09 ждёт отдельного FINAM READONLY; merge/LIVE запрещены.
 
 **Инженерный порядок работ, обязательные проверки и условия допуска M15 к LIVE:** [ROADMAP.md](ROADMAP.md). Он описывает внедрение выбранной сборки, не новые исследования, и имеет приоритет как актуальная последовательность реализации.
 
@@ -66,7 +66,7 @@ The same PR now also includes **a separate persistent read-only shadow** built f
 
 Source parity of the two ports has been verified through GitHub with the actual H1 code: **PASS** for both exact specified transformations. The H1 original SHA/blob IDs are recorded in `SOURCE_MAP.md`.
 
-**Limit:** no M15 token or actual FINAM account has yet been connected. The read-side shadow consumes only a fake/injected API interface. Full offline test run and Intel physical read-only acceptance remain pending; no claim of those PASS statuses.
+**Limit:** no M15 token or actual FINAM account has yet been connected. The read-side shadow consumes only a fake/injected API interface. **Offline suite (110×2) прошёл на Intel 16.10.2026; физическая FINAM READONLY приёмка остаётся PENDING (№09/21)**. Не приравнивать offline PASS к broker/SLTP/LIVE PASS.
 
 ## Exactly what has been built in this PR
 
@@ -101,7 +101,7 @@ From the repo root in a Python environment with pandas/numpy:
 python -m unittest discover -s IntradayLab/m15_robot/tests -v
 ```
 
-These files are designed for offline execution with **no broker credentials or network**. This PR does not establish test PASS unless the tests are run independently in an environment with the repository and their results are retained.
+These files are designed for offline execution with **no broker credentials or network**. **Operator-verified Intel offline suite PASS:** exactly 110 tests × 2 full sequential runs, exit codes 0/0, on commit `996be71757c77cedb176b78357a01f0099cac850`, Python 3.12.10. Full logs retained on Intel under `c:\intradaylab-m15-audit-20261016-05\m15_offline_test_reports\v7_windows_safe_rerun`; source audit №05: [AUDIT_05_20261016.md](AUDIT_05_20261016.md). This is not historical parity or live trading approval.
 
 ## Recorded constraints and pending integration
 
