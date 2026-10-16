@@ -153,10 +153,19 @@ class RiskPortFromH1(unittest.TestCase):
         self.assertEqual(s.initial_nominal_risk, Decimal("1500"))
 
     def test_funds_limit_below_r15(self):
+        # A SHORT stop must be ABOVE its entry; never weaken the risk guard.
+        with self.assertRaisesRegex(ValueError, "M15_STOP_WRONG_SIDE"):
+            size_r15(
+                realized_equity=Decimal("100000"), entry=Decimal("100"), stop=Decimal("95"),
+                contract=authority(), direction="SHORT", available_margin_cash=Decimal("3999"),
+            )
         s = size_r15(
-            realized_equity=Decimal("100000"), entry=Decimal("100"), stop=Decimal("95"),
+            realized_equity=Decimal("100000"), entry=Decimal("100"), stop=Decimal("105"),
             contract=authority(), direction="SHORT", available_margin_cash=Decimal("3999"),
         )
+        self.assertEqual(s.risk_budget, Decimal("1500"))
+        self.assertEqual(s.by_risk, 30)
+        self.assertEqual(s.by_margin, 1)
         self.assertEqual(s.final_quantity, 1)
         self.assertEqual(s.reason, "OK")
 
