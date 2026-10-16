@@ -16,6 +16,20 @@
 - R15 1.5% of authenticated M15 **realized** equity per new position, maximum 6% portfolio nominal initial risk. Margin cap with downward lot rounding, zero remains zero.
 - Possible R20 requires a later **separate** user decision, never automatic.
 
+## Continued H1 reuse: broker read-side and durable shadow
+
+The same PR now also includes **a separate persistent read-only shadow** built from inspected H1 sources:
+
+- `broker_status.py`: byte-equivalent port of H1 `account_cleanliness.py` aside from a source header. Exact documented FINAM order statuses, aliases, terminal/active separation; unknown states fail closed.
+- `broker_snapshot.py`: transformed-but-computationally-equivalent port of H1 `production_broker_state.py`, with M15-local imports, error namespace and `m15:` protective-stop comments. It strictly parses position quantity, regular/SLTP order records and stop coverage contract; it has **no** order method.
+- `shadow_state.py`: isolated M15 SQLite authority (account-hashed, immutable binding, create-once and integrity-checked), monotonically timestamped sanitized receipts, no positions/intents/credentials/order transmission in storage and permanently `HALTED`.
+- `shadow_service.py`: one **GET-side only** injected-broker observation using the ported order/position parser. Foreign/nonzero exposure, active orders, wrong account, unknown status, malformed schema or read failures produce `FAULT_HALTED`. `HEALTHY_READONLY` is **never authorization**.
+- `tests/test_shadow.py`: 18 offline synthetic cases covering broker statuses, fake orders and positions, wrong-account denials, SQLite restarts, duplicate cycles and no broker POST/DELETE execution.
+
+Source parity of the two ports has been verified through GitHub with the actual H1 code: **PASS** for both exact specified transformations. The H1 original SHA/blob IDs are recorded in `SOURCE_MAP.md`.
+
+**Limit:** no M15 token or actual FINAM account has yet been connected. The read-side shadow consumes only a fake/injected API interface. Full offline test run and Intel physical read-only acceptance remain pending; no claim of those PASS statuses.
+
 ## Exactly what has been built in this PR
 
 1. `feature_adapter.py`: offline causal completed-bar wrapper on **the already audited read-only feature function** of `IntradayLab/t3_m15_t1_entry_retest_v1/primary.py`. **No new signal calculations or tuning.** Includes T1 gate, latest signal ID, H1 publication guard and historical NEXT_OPEN adjacency.
