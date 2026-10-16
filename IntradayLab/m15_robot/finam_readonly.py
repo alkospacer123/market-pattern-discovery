@@ -94,6 +94,8 @@ class M15FinamReadOnlyAPI:
         )
         if not allowed_auth and not allowed_get:
             raise M15FinamReadOnlyError("M15_FORBIDDEN_HTTP_OPERATION")
+        if allowed_get and payload is not None:
+            raise M15FinamReadOnlyError("M15_READONLY_GET_WITH_BODY_FORBIDDEN")
         if allowed_get and not self.__bound:
             raise M15FinamReadOnlyError("M15_READONLY_ACCOUNT_BINDING_REQUIRED")
         data = json.dumps(payload, separators=(",", ":")).encode() if payload is not None else None
@@ -188,6 +190,7 @@ class M15FinamReadOnlyAPI:
             "interval.end_time": end,
         })
         result = self._request("GET", f"/v1/instruments/{asset}/bars?{query}")
-        if not isinstance(result, dict) or not isinstance(result.get("bars"), list):
-            raise M15FinamReadOnlyError("M15_BARS_SCHEMA_INVALID")
+        if (not isinstance(result, dict) or result.get("symbol") != symbol
+                or not isinstance(result.get("bars"), list)):
+            raise M15FinamReadOnlyError("M15_BARS_SYMBOL_OR_SCHEMA_INVALID")
         return result
