@@ -83,7 +83,7 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "773df172c7be77cfa0418bef745812fc2f58c32a868b6b53bdbf993954978500"
+      "sha256": "294854e5d7d4428d881fac94ae0fec63cfbda62a60669d7cf3c436e922901ad6"
     },
     {
       "path": "ci/windows_acceptance.py",
@@ -103,7 +103,7 @@
     },
     {
       "path": "deployment/Preflight.ps1",
-      "sha256": "11eaad112f0c8d33f6bffa786b5552f2e32a81215c3486226caf086afd39ca00"
+      "sha256": "bd5a27e0bb886fdace6eb4b290d6bb4eb1ed458f341c684f2518be7fc4974db5"
     },
     {
       "path": "deployment/Probe-H1Task.ps1",
@@ -171,7 +171,7 @@
     },
     {
       "path": "docs/CC03_WINDOWS_HOSTED_ACCEPTANCE.md",
-      "sha256": "e39d0f7208b2819827f84b7e60886a6ee67ae4f44be16a38714b67e9d3cc6d77"
+      "sha256": "76015f5dcc2061614927e096baa4fe67c479e0067b440838fd75748f2d2f7dfd"
     },
     {
       "path": "docs/CC03_WINDOWS_SECURITY.md",
@@ -191,7 +191,7 @@
     },
     {
       "path": "docs/ROADMAP_STATUS.md",
-      "sha256": "4aa04058ae1f3a9cc74a5825be3538a2a526db021203582161f466e0bfde198c"
+      "sha256": "1285f93233f68658e65122eaf571d281e6b67521bf1806c52e53ae9b5173ba4b"
     },
     {
       "path": "docs/SECURITY_BOUNDARY.md",

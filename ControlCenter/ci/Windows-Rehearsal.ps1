@@ -7,6 +7,8 @@ if ($env:GITHUB_ACTIONS -cne 'true' -or $env:RUNNER_ENVIRONMENT -cne 'github-hos
 $package = Split-Path $PSScriptRoot -Parent
 $sandbox = Join-Path $env:RUNNER_TEMP ('CC03-' + [guid]::NewGuid().ToString('N'))
 $env:CC03_CI_DISPOSABLE_ROOT = $sandbox
+$env:STREAMLIT_SERVER_HEADLESS = 'true'
+$env:STREAMLIT_BROWSER_GATHER_USAGE_STATS = 'false'
 $null = New-Item -ItemType Directory -Path $sandbox
 . "$package\deployment\Common.ps1"
 $users = @()
@@ -22,6 +24,19 @@ function Expect-Failure([scriptblock]$Operation, [string]$Expected) {
         return
     }
     throw "EXPECTED_FAILURE_MISSING: $Expected"
+}
+
+function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [string]$ErrorLog) {
+    function Literal([string]$Value) { return "'" + $Value.Replace("'", "''") + "'" }
+    $lines = @()
+    foreach ($name in @('GITHUB_ACTIONS','RUNNER_ENVIRONMENT','RUNNER_TEMP','CC03_CI_DISPOSABLE_ROOT',
+                        'PSMODULEPATH','STREAMLIT_SERVER_HEADLESS','STREAMLIT_BROWSER_GATHER_USAGE_STATS')) {
+        $lines += '$env:' + $name + ' = ' + (Literal ([Environment]::GetEnvironmentVariable($name)))
+    }
+    $lines += 'Get-ExecutionPolicy -List | Format-Table | Out-String | Write-Output'
+    $lines += '& ' + (Literal $Entry) + ' -Execute -PanelSid ' + (Literal $panelSid) + ' -ExporterSid ' + (Literal $exporterSid)
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes(($lines -join "`n")))
+    return Start-Process powershell.exe -Credential $Identity.Credential -LoadUserProfile -ArgumentList @('-NoProfile','-EncodedCommand',$encoded) -WorkingDirectory $script:AppRoot -PassThru -RedirectStandardOutput $Output -RedirectStandardError $ErrorLog
 }
 
 function Set-DisposableACL([string]$Path, [string]$Kind) {
@@ -133,18 +148,25 @@ try {
     $wheelhouse = Join-Path $sandbox 'wheels'
     & python -m pip download --require-hashes --only-binary=:all: --no-deps -r "$package\requirements-windows-ci.lock" -d $wheelhouse
     if ($LASTEXITCODE -ne 0) { throw 'WHEEL_DOWNLOAD_FAILED' }
-    @(Get-ChildItem $wheelhouse -Filter '*.whl' | ForEach-Object {
+    $wheelRecords = @(Get-ChildItem $wheelhouse -Filter '*.whl' | ForEach-Object {
         @{name=$_.Name; sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}
-    }) | ConvertTo-Json | Set-Content -LiteralPath "$wheelhouse\wheels.sha256.json" -Encoding ASCII
+    })
+    $validDigest = $wheelRecords[0].sha256
+    $wheelRecords[0].sha256 = '0' * 64
+    $wheelRecords | ConvertTo-Json | Set-Content -LiteralPath "$wheelhouse\wheels.sha256.json" -Encoding ASCII
+    Expect-Failure { & "$package\deployment\Install.ps1" -Execute -PanelSid $panelSid -ExporterSid $exporterSid -Wheelhouse $wheelhouse } 'WHEEL_HASH_MISMATCH'
+    if (@(Get-ChildItem -Force $script:AppRoot).Count -or @(Get-ChildItem -Force $script:VenvRoot).Count) { throw 'INVALID_WHEEL_WROTE_INSTALL_TARGET' }
+    $results['invalid_wheel_regression'] = 'PASS: bad hash rejected before any target write'
+    $wheelRecords[0].sha256 = $validDigest
+    $wheelRecords | ConvertTo-Json | Set-Content -LiteralPath "$wheelhouse\wheels.sha256.json" -Encoding ASCII
     & "$package\deployment\Install.ps1" -Execute -PanelSid $panelSid -ExporterSid $exporterSid -Wheelhouse $wheelhouse
     if ($LASTEXITCODE -ne 0) { throw 'INSTALL_FAILED' }
     & "$script:VenvRoot\Scripts\python.exe" -c "import sys,struct; print('REHEARSAL_PYTHON='+sys.version); assert sys.version_info[:3]==(3,12,10) and struct.calcsize('P')==8"
     if ($LASTEXITCODE -ne 0) { throw 'REHEARSAL_PYTHON_VERSION_MISMATCH' }
     $results['install'] = 'PASS: real offline install into disposable ACL-provisioned roots'
     # Verify a loopback-only panel under the actual low-privilege panel SID.
-    $arguments = "-NoProfile -File `"$script:AppRoot\deployment\Start-Panel.ps1`" -Execute -PanelSid $panelSid -ExporterSid $exporterSid"
     try {
-        $panelProcess = Start-Process powershell.exe -Credential $panel.Credential -LoadUserProfile -ArgumentList $arguments -WorkingDirectory $script:AppRoot -PassThru -RedirectStandardOutput "$script:DataRoot\logs\panel-stdout.txt" -RedirectStandardError "$script:DataRoot\logs\panel-stderr.txt"
+        $panelProcess = Start-IdentityScript $panel "$script:AppRoot\deployment\Start-Panel.ps1" "$script:DataRoot\logs\panel-stdout.txt" "$script:DataRoot\logs\panel-stderr.txt"
     } catch {
         $results['panel_identity_launch'] = 'NOT_VERIFIED: separate-SID process creation unavailable: ' + $_.Exception.Message
         throw 'SID_REHEARSAL_NOT_VERIFIED'
@@ -163,8 +185,7 @@ try {
     # A real low-privilege one-shot exporter must reject the unapproved empty
     # policy before any source reads. No physical H1 authority is synthesized.
     Assert-ACL $private $panelSid $exporterSid 'private'
-    $arguments = "-NoProfile -File `"$script:AppRoot\deployment\Start-Exporter.ps1`" -Execute -PanelSid $panelSid -ExporterSid $exporterSid"
-    $exporterProcess = Start-Process powershell.exe -Credential $exporter.Credential -LoadUserProfile -ArgumentList $arguments -WorkingDirectory $script:AppRoot -PassThru -RedirectStandardOutput "$evidence\exporter-stdout.txt" -RedirectStandardError "$evidence\exporter-stderr.txt"
+    $exporterProcess = Start-IdentityScript $exporter "$script:AppRoot\deployment\Start-Exporter.ps1" "$evidence\exporter-stdout.txt" "$evidence\exporter-stderr.txt"
     if (-not $exporterProcess.WaitForExit(30000)) { throw 'EXPORTER_TIMEOUT' }
     if ($exporterProcess.ExitCode -eq 0 -or (Get-Content -Raw "$evidence\exporter-stderr.txt") -notlike '*CC03_EXPORT_UNAVAILABLE*') { throw 'UNAPPROVED_EXPORTER_DID_NOT_FAIL_CLOSED' }
     $exporterProcess = $null
@@ -187,10 +208,22 @@ try {
     $results['position'] = $_.InvocationInfo.PositionMessage
     $results['stack'] = $_.ScriptStackTrace
 } finally {
-    if ($null -ne $panelProcess) { & taskkill.exe /PID $panelProcess.Id /T /F }
+    if ($null -ne $panelProcess -and -not $panelProcess.HasExited) { & taskkill.exe /PID $panelProcess.Id /T /F }
     if ($null -ne $exporterProcess -and -not $exporterProcess.HasExited) { & taskkill.exe /PID $exporterProcess.Id /T /F }
+    if ($results.Contains('install') -and -not $results.Contains('uninstall')) {
+        try {
+            & "$package\deployment\Uninstall.ps1" -Execute -PanelSid $panelSid -ExporterSid $exporterSid
+            if ($LASTEXITCODE -ne 0 -or (Test-Path "$script:AppRoot\app.py") -or @(Get-ChildItem -Force -LiteralPath $script:VenvRoot).Count -ne 0) { throw 'FALLBACK_UNINSTALL_FAILED' }
+            if (-not (Test-Path $private) -or -not (Test-Path $exportFile)) { throw 'DATA_NOT_RETAINED' }
+            $results['uninstall'] = 'PASS: own package/venv removed after failed launch; data retained'
+        } catch { $results['uninstall'] = 'FAIL: ' + $_.Exception.Message }
+    }
     if (Test-Path "$script:DataRoot\logs") {
-        Get-ChildItem "$script:DataRoot\logs" -Filter '*.txt' | Copy-Item -Destination $evidence
+        Get-ChildItem "$script:DataRoot\logs" -Filter '*.txt' | ForEach-Object {
+            Copy-Item -LiteralPath $_.FullName -Destination $evidence
+            Write-Output ('REHEARSAL_LOG ' + $_.Name)
+            Get-Content -LiteralPath $_.FullName
+        }
     }
     foreach ($name in $users) { Remove-LocalUser -Name $name }
     Remove-Item Env:CC03_CI_DISPOSABLE_ROOT
