@@ -110,3 +110,10 @@ These files are designed for offline execution with **no broker credentials or n
 - Need separately provisioned M15 account, signed/hashed exact account binding, CurrentUser token, isolated persistent state and task.
 - Need proven fill-price authority, immediate protected stop coverage, partial-fill growth, broker stop reconciliation and safe restart. No order-capable code in this first PR.
 - **Do not silently arm**, schedule, create a real order, merge this PR or touch the H1 robot as a consequence of these docs/tests.
+
+
+## Intel Windows — единственный локальный корень M15
+
+По прямому указанию оператора **проект ведём только в `C:\IntradayLab`**: checkout под `checkouts\`, инструменты `tools\`, входные immutable котировки `data\`, отчёты `reports\`, Python `.venv\`, будущий отдельный runtime `runtime\` (когда разрешит roadmap). Новый offline regression v2 не зависит от старых `C:\intradaylab-m15-audit-*` и сохраняет все создаваемые постоянные файлы внутри заданного корня. Старые контрольные папки не удаляются автоматически.
+
+Пункт №09: физические данные v5 подтвердили `1471/1471` OHLCV свечей подтверждённого перекрытия FINAM/ZIP, четыре исключения только на предварительно незавершённом terminal OPEN 16.10.2026 12:15 MSK. Исправлены только M15 `bar_bridge.py` и шесть новых тестов; новая версия **116/116 × 2 пока ожидает проверки на Intel**. Само завершение новой свечи в реальном времени **NOT_PROVEN**. Торговля/LIVE и merge не разрешены; H1 остаётся неизменным.
