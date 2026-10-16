@@ -61,15 +61,16 @@ def _value(raw: Any) -> float:
 
 
 def trading_windows(schedule: Any) -> tuple[tuple[datetime, datetime], ...]:
-    """H1-style validated FINAM session windows, M15-grid alignment.
+    """Validate exact FINAM session boundaries; never round off-grid edges.
 
-    Validate every session including non-trading ones; reject overlap of
-    trading windows, while merge touching trading windows. Only exact
-    continuous trading intervals may witness M15 completed candles.
+    Trading may end at 23:50 MSK. Reject trading-versus-clearing/auction
+    overlap, merge only touching trading windows, and never invent a full
+    M15 bar across an off-grid session boundary.
     """
     if not isinstance(schedule, dict) or not isinstance(schedule.get("sessions"), list):
         raise M15BarAuthorityError("M15_SCHEDULE_SCHEMA_INVALID")
     intervals: list[tuple[datetime, datetime]] = []
+    all_sessions: list[tuple[datetime, datetime, str]] = []
     for row in schedule["sessions"]:
         if not isinstance(row, dict) or row.get("type") not in ALL_TYPES:
             raise M15BarAuthorityError("M15_SCHEDULE_SESSION_INVALID")
@@ -79,11 +80,16 @@ def trading_windows(schedule: Any) -> tuple[tuple[datetime, datetime], ...]:
         start, end = _utc(span.get("start_time")), _utc(span.get("end_time"))
         if end <= start:
             raise M15BarAuthorityError("M15_SCHEDULE_INTERVAL_ORDER_INVALID")
-        if row["type"] not in TRADING_TYPES:
-            continue
-        if any((x.second or x.microsecond or x.minute % 15) for x in (start, end)):
-            raise M15BarAuthorityError("M15_SCHEDULE_GRID_INVALID")
-        intervals.append((start, end))
+        kind = row["type"]
+        all_sessions.append((start, end, kind))
+        if kind in TRADING_TYPES:
+            intervals.append((start, end))
+    # Half-open intervals: an exact shared boundary is permitted, but
+    # overlapping clearing/auction is never silently treated as trading.
+    for i, (a, b, kind) in enumerate(all_sessions):
+        for x, y, other in all_sessions[i + 1:]:
+            if max(a, x) < min(b, y) and (kind in TRADING_TYPES or other in TRADING_TYPES):
+                raise M15BarAuthorityError("M15_TRADING_SESSIONS_OVERLAP")
     out: list[tuple[datetime, datetime]] = []
     for a, b in sorted(intervals):
         if out and a < out[-1][1]:
@@ -145,10 +151,14 @@ def completed_close_labeled_m15(
         if closing > now:
             continue
         next_open = rows[i + 1][0] if i + 1 < len(rows) else None
-        # Strictly validated continuous-session end is a completion witness
-        # even without a following Open. Mirrors the H1 schedule rule.
+        # A 23:45->00:00 interval is NOT a full M15 candle if the
+        # verified session ends at 23:50. Off-grid ends are never rounded.
+        if not any(start <= opened and closing <= end for start, end in windows):
+            continue
+        # Exact aligned session end may witness completion without next OPEN.
         end_witness = any(start <= opened and closing == end for start, end in windows)
-        # Only a witnessed *adjacent* next opening may release an intraday bar.
+        # Otherwise require the NEXT adjacent OPEN within the same session.
+        # Never inspect the next bar's OHLCV.
         adjacency_witness = (
             next_open == closing
             and any(start <= opened and closing < end for start, end in windows)
