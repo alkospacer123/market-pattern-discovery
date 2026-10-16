@@ -1,5 +1,16 @@
 # IntradayLab M15 robot — isolated offline foundation
 
+## H1-style durable intent/fill/stop rehearsal (synthetic only)
+
+`offline_intents.py` ports the **safety lifecycle**, not executable H1 trade authority:
+- Separate `m15-offline-intents.sqlite3`, bound to a hash of the **distinct M15** account and selected M15 robot identity. Strict table/column verification, integrity validation and symlink refusal. No H1 SQLite opened.
+- `prepare()` durably records the intended order **before** any hypothetical broker POST. Same idempotency key is a no-op, conflicting payloads and second same-instrument entry are rejected.
+- `uncertain()` does not retry; a fresh synthetic broker receipt is needed to move out of uncertain state. Synthetic ACK/fill IDs cannot be mistaken for proof from FINAM. Partial fills, overfill, weighted-average price and duplicate fill conflict handled explicitly.
+- `synthetic_stop_ack()` tests the audited H1 **100%-of-position** stop policy, valid initial side, and strictly tightening replacements. Acknowledgment only after simulated broker fill. No source module capable of real order transmission exists.
+- `tests/test_offline_intents.py` has 20 targeted regression tests; `tests/test_offline_pipeline.py` has 3 cross-component rehearsals of GET-only broker cleanliness, R15/margin sizing, durable intent, partial fill, stop 100%, restart and UNCERTAIN duplicate rejection.
+
+**This is NOT real broker reconciliation or proof of protective SLTP installation.** It is synthetic preparation for porting H1's audited `production_runtime.py` / `live_execution.py`. The next integration must verify authoritative broker order IDs, durable actual fill prices, partial fill expansion and broker-proven SLTP activation before any real account can trade. For the entire Draft PR, the order endpoint remains structurally absent and `execution_authorized=False`.
+
 ## M15 candle finalization and frozen-history continuation (offline)
 
 Latest implementation includes:
