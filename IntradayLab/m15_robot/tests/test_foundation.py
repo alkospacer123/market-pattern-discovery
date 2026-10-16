@@ -92,6 +92,18 @@ class SignalGate(unittest.TestCase):
         self.assertEqual(s.completed_at, at(10))
         self.assertEqual(s.signal_atr14, 1.25)
 
+    def test_stale_completed_bar_does_not_repeat_signal(self):
+        with patch("IntradayLab.t3_m15_t1_entry_retest_v1.primary.features",
+                   return_value=[sample_feature(at(10, 0))]):
+            self.assertIsNone(latest_completed_signal(
+                "USDRUBF", bar_frame(at(10, 0)), at(10, 16)))
+
+    def test_rejects_nonfinite_bar_volume(self):
+        bad = bar_frame(at(10, 15))
+        bad.loc[:, "Volume"] = float("inf")
+        with self.assertRaisesRegex(ValueError, "NONFINITE"):
+            validate_completed_history("USDRUBF", bad, at(10, 15))
+
     def test_rejects_entry_signal_at_1800(self):
         with patch("IntradayLab.t3_m15_t1_entry_retest_v1.primary.features",
                    return_value=[sample_feature(at(18))]):
