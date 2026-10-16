@@ -1,3 +1,5 @@
+> **CC-03 Windows OS continuation:** отдельный `python -m observer.windows_os` (default PREVIEW), штатные Task/process READONLY API и metadata-only handles без чтения live JSON. Контракт `WINDOWS_OS_ONLY` не даёт HEALTHY, HALTED, broker или trading authority. [Механизм и ограничения](docs/CC03_WINDOWS_OS_OBSERVER.md), [native evidence](docs/CC03_OS_ACCEPTANCE.md), [будущие источники](docs/CC03_FUTURE_TELEMETRY_SPEC.md), [bounded stop / обслуживание](docs/CC03_EXPORT_MAINTENANCE.md). Production binding и Intel physical NOT_EXECUTED. NO INSTALL / NO TRADING.
+
 # TradingSystemLab Control Center — CC-03 preparation
 
 Автономный бесплатный Streamlit-интерфейс на русском для двух независимых контуров: H1 `T3/H1/TRAIL1` и M15 `T3/M15/SESSION`. По умолчанию **SYNTHETIC / DEMO**; сохранён **OFFLINE_FIXTURE**; добавлен **READONLY_EXPORT** для отдельного очищенного источника. Без принятой policy/exporter он показывает **UNKNOWN**, а не нули или HEALTHY.

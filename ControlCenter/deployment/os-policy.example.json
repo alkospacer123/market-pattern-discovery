@@ -1,0 +1,23 @@
+{
+  "schema_id": "cc03.os-policy.v1",
+  "os_policy_approved": false,
+  "source_id": "CC03-H1-REQUIRESAPPROVAL",
+  "account_alias": "H1-REQUIRESAPPROVAL",
+  "binding_id": "REPLACE_WITH_RANDOM_64_HEX_REFERENCE",
+  "observer_sid": "REQUIRES_SEPARATE_STANDARD_USER_SID",
+  "task_name": "TradingSystemLab-Stage8-Production",
+  "task_xml_sha256": "REQUIRES_APPROVED_EXACT_TASK_XML_FINGERPRINT",
+  "task_principal_sid": "REQUIRES_APPROVED_EXACT_PRINCIPAL_SID",
+  "process_enabled": false,
+  "process_pid": 1,
+  "process_creation_sha256": "REQUIRES_APPROVED_PROCESS_CREATION_EPOCH",
+  "process_image_sha256": "REQUIRES_APPROVED_EXACT_IMAGE_FINGERPRINT",
+  "process_command_sha256": "REQUIRES_APPROVED_EXACT_COMMAND_FINGERPRINT",
+  "process_principal_sid": "REQUIRES_APPROVED_EXACT_PROCESS_SID",
+  "metadata_enabled": false,
+  "heartbeat_root": "C:\\REQUIRES_SOURCE_APPROVAL\\diagnostics",
+  "heartbeat_root_id": [],
+  "kill_switch_root": "C:\\REQUIRES_SOURCE_APPROVAL\\safety",
+  "kill_switch_root_id": [],
+  "export_root_id": []
+}

@@ -1,3 +1,5 @@
+> Current CC-03 OS-only continuation: [independent Windows observer](CC03_WINDOWS_OS_OBSERVER.md). Legacy content remains blocked; OS facts never supply heartbeat/broker authority.
+
 # CC-03: source authority и отдельные часы
 
 > PR #534 audit correction: legacy continuous heartbeat/kill-switch reads are `CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED` and disabled before file access. Stopped-source evidence does not establish live compatibility. Own export now uses immutable versioned completed JSON files, not replacement of `h1.snapshot.json`. This historical plan does not authorize installation; see [current hosted report](CC03_WINDOWS_HOSTED_ACCEPTANCE.md).

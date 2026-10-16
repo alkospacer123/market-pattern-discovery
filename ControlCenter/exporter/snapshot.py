@@ -18,6 +18,7 @@ from cc.providers.h1_readonly import canonical_digest, _pairs, _reject_constant
 from cc.providers.readonly_file import read_source
 from cc.providers.windows_file import read_windows, components, WinAPI, MAX_ENTRIES
 from cc.providers.source_contract import SCHEMA, SCHEMA_ID
+from cc.providers.os_contract import SCHEMA as OS_SCHEMA, SCHEMA_ID as OS_SCHEMA_ID, check_semantics
 from cc.deployment_paths import data_root
 
 DATA_ROOT = data_root()
@@ -25,6 +26,7 @@ EXPORT_ROOT = DATA_ROOT / 'export'
 POLICY_ROOT = DATA_ROOT / 'private'
 HB = 'stage8-12-4-production-heartbeat.json'
 KS = 'stage8-trading-kill-switch.json'
+MAX_EXPORT_BYTES = 256 * 1024 * 1024
 
 
 def decode(raw):
@@ -113,12 +115,17 @@ def collect(policy, now, reader=None):
     return result
 
 
-def publish(value):
+def publish(value, expected_root=None):
     # Fixed, separately provisioned local export directory. No source-derived paths.
     # Root must be protected against reparse/ACL substitution by installation policy.
     if os.name != 'nt' or not EXPORT_ROOT.is_dir() or EXPORT_ROOT.is_symlink() or getattr(EXPORT_ROOT, "is_junction", lambda: False)():
         raise ValueError('EXPORT_DIRECTORY_NOT_ACCEPTED')
-    validate(value, SCHEMA)
+    is_os = value.get('schema_id') == OS_SCHEMA_ID
+    validate(value, OS_SCHEMA if is_os else SCHEMA)
+    if is_os:
+        check_semantics(value, timestamp)
+        if expected_root is None:
+            raise ValueError('EXPORT_ROOT_PIN_REQUIRED')
     if value['payload_sha256'] != canonical_digest(value):
         raise ValueError('EXPORT_INTEGRITY_INVALID')
     raw = json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode('ascii')
@@ -133,10 +140,18 @@ def publish(value):
             handle = api.open(path, True)
             held.append(handle)
             api.info(handle, path, True)
+        if expected_root is not None and tuple(api.info(held[-1], directories[-1], True)[:3]) != tuple(expected_root):
+            raise ValueError('EXPORT_ROOT_IDENTITY_MISMATCH')
+        total_bytes = 0
         with os.scandir(EXPORT_ROOT) as entries:
-            for index, _ in enumerate(entries):
+            for index, entry in enumerate(entries):
                 if index >= MAX_ENTRIES - 1:
                     raise ValueError('EXPORT_DIRECTORY_FULL')
+                if entry.is_symlink() or not entry.is_file(follow_symlinks=False):
+                    raise ValueError('EXPORT_ENTRY_INVALID')
+                total_bytes += entry.stat(follow_symlinks=False).st_size
+                if total_bytes + len(raw) > MAX_EXPORT_BYTES:
+                    raise ValueError('EXPORT_BYTE_LIMIT')
         fd, temporary = tempfile.mkstemp(prefix='.cc03-', suffix='.tmp', dir=EXPORT_ROOT)
         try:
             with os.fdopen(fd, 'wb') as stream:

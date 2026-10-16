@@ -4,10 +4,11 @@ from datetime import datetime
 import json
 from pathlib import Path
 from ..models import (DataProvenance, FieldObservation, InstrumentStatus, PortfolioSnapshot,
-                      RiskSnapshot, RobotId, RobotSnapshot, RobotStatus, SourceKind, State, SystemAlert)
+                      RiskSnapshot, RobotId, RobotSnapshot, RobotStatus, SourceKind, State, SystemAlert, WindowsObservation)
 from .h1_contract import ACTIVE, SPEC, ACCEPTED_COMMIT, MAX_BYTES, timestamp, validate
 from .h1_readonly import canonical_digest, _pairs, _reject_constant
 from .source_contract import SCHEMA, GROUPS
+from .os_contract import SCHEMA as OS_SCHEMA, SCHEMA_ID as OS_SCHEMA_ID, GROUPS as OS_GROUPS, check_semantics
 from .windows_file import read_windows, read_latest_windows
 from ..deployment_paths import data_root
 
@@ -30,9 +31,10 @@ class ReceiverPolicy:
     reconciliation: int | None = None
     candles: int | None = None
     finances: int | None = None
+    os_observations: int | None = None
 
     def __post_init__(self):
-        for key in ('snapshot','heartbeat','task','kill_switch','reconciliation','candles','finances'):
+        for key in ('snapshot','heartbeat','task','kill_switch','reconciliation','candles','finances','os_observations'):
             value = getattr(self, key)
             if value is not None and (type(value) is not int or not 1 <= value <= 86400):
                 raise ValueError('APPROVED_TTL_REQUIRED')
@@ -72,6 +74,8 @@ class H1ExportProvider:
                 raise ValueError('H1_ONLY')
             raw = read_latest_windows(EXPORT_ROOT, MAX_BYTES, policy.export_root_id)
             value = json.loads(raw.decode('utf-8'), object_pairs_hook=_pairs, parse_constant=_reject_constant)
+            if value.get('schema_id') == OS_SCHEMA_ID:
+                return os_snapshot(value, policy, now)
             validate(value, SCHEMA)
             if canonical_digest(value) != value['payload_sha256']:
                 raise ValueError('INTEGRITY_INVALID')
@@ -147,3 +151,41 @@ class H1ExportProvider:
             PortfolioSnapshot(p, None, None, None, None, None, None), None,
             (SystemAlert(p, None, now, 'SOURCE', 'WARNING', SAFE_ERROR if identity is None else 'CC03_PARTIAL_READONLY_NO_BROKER_AUTHORITY'),),
             readonly_observations=observations, readonly_identity=identity)
+
+
+def os_snapshot(value, policy, now):
+    validate(value, OS_SCHEMA)
+    check_semantics(value, timestamp)
+    generated = timestamp(value['generated_at'])
+    identity = value['identity']
+    if (canonical_digest(value) != value['payload_sha256'] or generated > now or
+            identity['source_id'] != policy.source_id or identity['account_alias'] != policy.account_alias or
+            identity['binding_id'] != policy.binding_id):
+        raise ValueError('OS_SOURCE_UNAPPROVED')
+    p = DataProvenance(RobotId.H1, policy.account_alias, 'READONLY_EXPORT/H1', generated, now,
+                       synthetic=False, source_kind=SourceKind.READONLY_EXPORT,
+                       snapshot_ttl_seconds=policy.snapshot, heartbeat_ttl_seconds=None)
+    rows = []
+    for name in OS_GROUPS:
+        row = value[name]
+        at = timestamp(row['observed_at'])
+        q = quality(at, now, policy.os_observations)
+        outer = quality(generated, now, policy.snapshot)
+        if outer != State.HEALTHY:
+            q = outer
+        current = q == State.HEALTHY and row['state'] != 'UNKNOWN'
+        rows.append(WindowsObservation(name, row['source'], row['state'] if current else 'UNKNOWN', at,
+                    'CURRENT' if q == State.HEALTHY else q.value,
+                    'WINDOWS_OS_ONLY' if current else 'UNKNOWN', row['reason'],
+                    json.dumps(row['value'], sort_keys=True) if current and row['value'] is not None else None))
+    task = next(r.state for r in rows if r.name == 'task')
+    return RobotSnapshot(
+        RobotStatus(p, State.UNKNOWN, 'TradingSystemLab', 'T3/H1/TRAIL1', ACTIVE,
+                    None, None, None, None, None, None if task == 'UNKNOWN' else task, None),
+        tuple(InstrumentStatus(p, name, State.UNKNOWN, None, 'SOURCE_BLOCKED', None, None)
+              for name in ('USDRUBF', 'CNYRUBF', 'GLDRUBF', 'IMOEXF')),
+        (), (), (), None, RiskSnapshot(p, None, None, None, None, 'ACCOUNT_AUTHORITY_UNKNOWN'),
+        PortfolioSnapshot(p, None, None, None, None, None, None), None,
+        (SystemAlert(p, None, now, 'SOURCE', 'WARNING', 'WINDOWS_OS_ONLY_NO_ROBOT_OR_BROKER_AUTHORITY'),),
+        readonly_identity=identity['source_id'] + ' · source binding matched local receiver policy · account UNVERIFIED',
+        windows_observations=tuple(rows))

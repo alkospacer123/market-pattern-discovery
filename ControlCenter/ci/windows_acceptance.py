@@ -43,6 +43,9 @@ def main():
                                 f'--junitxml={evidence / "windows-transport.xml"}']),
         ('cc03-source', [sys.executable, '-m', 'pytest', '-q', 'tests/test_cc03_source.py',
                          f'--junitxml={evidence / "cc03-source.xml"}']),
+        ('os-observer', [sys.executable, '-m', 'pytest', '-v', '-ra', '-s',
+                         'tests/test_os_observer.py', 'tests/test_os_windows_native.py',
+                         f'--junitxml={evidence / "os-observer.xml"}']),
         ('full-suite', [sys.executable, '-m', 'pytest', '-q',
                         f'--junitxml={evidence / "full-suite.xml"}']),
         ('manifest', [sys.executable, 'deployment/manifest.py', '--check']),
@@ -77,7 +80,7 @@ def main():
         print(output, flush=True)
         (evidence / f'{name}.log').write_text(output, encoding='utf-8')
         results[name] = dict(exit_code=exit_code)
-    for name in ('windows-reader', 'windows-transport', 'cc03-source', 'full-suite'):
+    for name in ('windows-reader', 'windows-transport', 'cc03-source', 'os-observer', 'full-suite'):
         path = evidence / f'{name}.xml'
         if not path.exists():
             results[name]['missing_junit'] = True
@@ -95,10 +98,12 @@ def main():
     (evidence / 'results.json').write_text(json.dumps(results, indent=2), encoding='utf-8')
     print(json.dumps(results, indent=2), flush=True)
     failed = any(r['exit_code'] or r.get('native_incomplete') or r.get('missing_junit') for r in results.values())
-    acceptance = dict(classification='CC03_WINDOWS_NATIVE_NEEDS_FIX' if failed else 'CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED',
+    acceptance = dict(classification='CC03_WINDOWS_NATIVE_NEEDS_FIX' if failed else 'CC03_OS_READONLY_OBSERVER_PARTIAL',
                       legacy_live_source='CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED',
                       original_legacy_replace_requirements='NOT_PASSED: conflicts reproduced, not fixed',
                       native_transport_and_deployment='NEEDS_FIX' if failed else 'PASS',
+                      windows_os_observer='NEEDS_FIX' if failed else 'PASS: OS facts only; physical source binding not executed',
+                      runtime_retention='DISABLED: bounded stop, no deletion',
                       physical='NOT_EXECUTED')
     (evidence / 'acceptance.json').write_text(json.dumps(acceptance, indent=2), encoding='utf-8')
     print(json.dumps(acceptance, indent=2), flush=True)

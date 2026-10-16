@@ -1,0 +1,396 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CC-03 Windows OS observations only",
+  "type": "object",
+  "properties": {
+    "schema_id": {
+      "enum": [
+        "cc03.h1.windows-os.v1"
+      ]
+    },
+    "payload_sha256": {
+      "type": "string",
+      "pattern": "[a-f0-9]{64}",
+      "maxLength": 64
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "maxLength": 32
+    },
+    "identity": {
+      "type": "object",
+      "properties": {
+        "robot_id": {
+          "enum": [
+            "H1"
+          ]
+        },
+        "source_id": {
+          "type": "string",
+          "pattern": "CC03-H1-[A-Z0-9]{8,32}",
+          "maxLength": 40
+        },
+        "account_alias": {
+          "type": "string",
+          "pattern": "H1-[A-Z0-9]{4,24}",
+          "maxLength": 27
+        },
+        "binding_id": {
+          "type": "string",
+          "pattern": "[a-f0-9]{64}",
+          "maxLength": 64
+        },
+        "account_binding": {
+          "enum": [
+            "UNVERIFIED"
+          ]
+        },
+        "authority": {
+          "enum": [
+            "WINDOWS_OS_ONLY"
+          ]
+        }
+      },
+      "required": [
+        "robot_id",
+        "source_id",
+        "account_alias",
+        "binding_id",
+        "account_binding",
+        "authority"
+      ],
+      "additionalProperties": false
+    },
+    "task": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "enum": [
+            "WINDOWS_TASK_READONLY"
+          ]
+        },
+        "state": {
+          "enum": [
+            "TASK_DISABLED",
+            "TASK_READY",
+            "TASK_RUNNING",
+            "UNKNOWN"
+          ]
+        },
+        "reason": {
+          "enum": [
+            "OK",
+            "NOT_FOUND",
+            "IDENTITY_MISMATCH",
+            "ACCESS_DENIED",
+            "UNAVAILABLE",
+            "TIMEOUT",
+            "DISABLED",
+            "CHANGED",
+            "UNAPPROVED"
+          ]
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "OS_OBSERVED",
+            "UNKNOWN"
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "[a-f0-9]{64}",
+              "maxLength": 64
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "source",
+        "state",
+        "reason",
+        "observed_at",
+        "confidence",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "process": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "enum": [
+            "WINDOWS_PROCESS_READONLY"
+          ]
+        },
+        "state": {
+          "enum": [
+            "PROCESS_OBSERVED",
+            "PROCESS_ABSENT",
+            "UNKNOWN"
+          ]
+        },
+        "reason": {
+          "enum": [
+            "OK",
+            "NOT_FOUND",
+            "IDENTITY_MISMATCH",
+            "ACCESS_DENIED",
+            "UNAVAILABLE",
+            "TIMEOUT",
+            "DISABLED",
+            "CHANGED",
+            "UNAPPROVED"
+          ]
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "OS_OBSERVED",
+            "UNKNOWN"
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "[a-f0-9]{64}",
+              "maxLength": 64
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "source",
+        "state",
+        "reason",
+        "observed_at",
+        "confidence",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "heartbeat_metadata": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "enum": [
+            "WINDOWS_FILE_METADATA"
+          ]
+        },
+        "state": {
+          "enum": [
+            "FILE_PRESENT",
+            "FILE_ABSENT",
+            "UNKNOWN"
+          ]
+        },
+        "reason": {
+          "enum": [
+            "OK",
+            "NOT_FOUND",
+            "IDENTITY_MISMATCH",
+            "ACCESS_DENIED",
+            "UNAVAILABLE",
+            "TIMEOUT",
+            "DISABLED",
+            "CHANGED",
+            "UNAPPROVED"
+          ]
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "OS_OBSERVED",
+            "UNKNOWN"
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "identity": {
+                  "type": "string",
+                  "pattern": "[a-f0-9]{64}",
+                  "maxLength": 64
+                },
+                "modified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "maxLength": 32
+                },
+                "size": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9223372036854775807
+                }
+              },
+              "required": [
+                "identity",
+                "modified_at",
+                "size"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "source",
+        "state",
+        "reason",
+        "observed_at",
+        "confidence",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "kill_switch_metadata": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "enum": [
+            "WINDOWS_FILE_METADATA"
+          ]
+        },
+        "state": {
+          "enum": [
+            "FILE_PRESENT",
+            "FILE_ABSENT",
+            "UNKNOWN"
+          ]
+        },
+        "reason": {
+          "enum": [
+            "OK",
+            "NOT_FOUND",
+            "IDENTITY_MISMATCH",
+            "ACCESS_DENIED",
+            "UNAVAILABLE",
+            "TIMEOUT",
+            "DISABLED",
+            "CHANGED",
+            "UNAPPROVED"
+          ]
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "OS_OBSERVED",
+            "UNKNOWN"
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "identity": {
+                  "type": "string",
+                  "pattern": "[a-f0-9]{64}",
+                  "maxLength": 64
+                },
+                "modified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "maxLength": 32
+                },
+                "size": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9223372036854775807
+                }
+              },
+              "required": [
+                "identity",
+                "modified_at",
+                "size"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "source",
+        "state",
+        "reason",
+        "observed_at",
+        "confidence",
+        "value"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_id",
+    "payload_sha256",
+    "generated_at",
+    "identity",
+    "task",
+    "process",
+    "heartbeat_metadata",
+    "kill_switch_metadata"
+  ],
+  "additionalProperties": false
+}
