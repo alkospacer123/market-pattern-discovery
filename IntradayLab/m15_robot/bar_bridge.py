@@ -6,9 +6,10 @@ trading or infers that actual FINAM M15 timestamps have been verified.
 
 An explicit, operator-attested FINAM M15 *open-label* proof is required.
 A completed M15 candle is accepted only after its immediately adjacent
-next M15 bar OPEN timestamp was observed in the same continuous trading
-window. That next candle's price/extrema are NEVER used. Missing next
-bar => missing evidence, NOT assumed completion. No gap synthesis or
+next M15 bar OPEN timestamp is observed within one continuous session, OR
+on the exact attested session end when schedule completion is proven (same
+end-of-window authority as H1). The next candle's prices/extrema are NEVER
+used. Missing intraday next bar => missing evidence; no gap synthesis or
 repacking across session boundaries. Output timestamps are M15 CLOSE MSK.
 """
 from __future__ import annotations
@@ -139,12 +140,20 @@ def completed_close_labeled_m15(
         # No next candle is needed to validate the open timestamp itself.
         rows.append((opened, row))
 
-    for (opened, row), (next_open, _) in zip(rows, rows[1:]):
+    for i, (opened, row) in enumerate(rows):
         closing = opened + STEP
-        if next_open != closing or closing > now:
+        if closing > now:
             continue
-        # Adjacent bars must both belong to one *same* continuous trading window.
-        if not any(start <= opened and next_open < end for start, end in windows):
+        next_open = rows[i + 1][0] if i + 1 < len(rows) else None
+        # Strictly validated continuous-session end is a completion witness
+        # even without a following Open. Mirrors the H1 schedule rule.
+        end_witness = any(start <= opened and closing == end for start, end in windows)
+        # Only a witnessed *adjacent* next opening may release an intraday bar.
+        adjacency_witness = (
+            next_open == closing
+            and any(start <= opened and closing < end for start, end in windows)
+        )
+        if not (end_witness or adjacency_witness):
             continue
         vals = {key: _value(row.get(key.lower())) for key in ("Open", "High", "Low", "Close")}
         if not (vals["High"] >= max(vals["Open"], vals["Low"], vals["Close"])
