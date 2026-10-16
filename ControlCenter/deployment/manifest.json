@@ -183,7 +183,11 @@
     },
     {
       "path": "docs/CC03_OS_ACCEPTANCE.md",
-      "sha256": "0e0fc5bf002a1955336073f6dfaca7b705b8c9593113d3893e12d275dea7870e"
+      "sha256": "411f453ce3df093388a1954b7aaa2ab9d7fa0d25c612d1b734c6baef90091c91"
+    },
+    {
+      "path": "docs/CC03_OS_NATIVE_RESULTS.json",
+      "sha256": "21f1362dfb9e0d2ac2fdd362fc3ca7d91d71ef6c6611dbce221dd340e535145f"
     },
     {
       "path": "docs/CC03_PHYSICAL_ACCEPTANCE_PLAN.md",
@@ -203,7 +207,7 @@
     },
     {
       "path": "docs/CC03_WINDOWS_OS_OBSERVER.md",
-      "sha256": "8e86defbdb86313f485afe66f33baf5882ce38c841bb949f1101dc8101cae2eb"
+      "sha256": "07151598427197a376c505ab5672df6a8f7a5680bef2e3c74de6813da73a1c93"
     },
     {
       "path": "docs/CC03_WINDOWS_OS_SCHEMA.json",
@@ -227,7 +231,7 @@
     },
     {
       "path": "docs/ROADMAP_STATUS.md",
-      "sha256": "d6b9fcdef9afaa7d02c019202732b9ccb2bbf7d5bb66a105f060069c38eae426"
+      "sha256": "3d4a4d146d33891d1c66a201f0aace541578baba1f922e0fdbfa1c837858b1d5"
     },
     {
       "path": "docs/SECURITY_BOUNDARY.md",

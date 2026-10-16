@@ -48,7 +48,7 @@ The existing unchanged `controlcenter-cc03-windows-native.yml` invokes the expan
 
 Native assertions cover Disabled/Ready/Running, missing/wrong Task, real Access denied under both standard SID tokens, exact process present/epoch/account mismatch/disappeared, stale/wrong source/account, actual timeout, 500 unchanged producer replaces concurrent with the active Task/process observer; a separate CI-only experiment explicitly reproduces metadata interference and recovery after closing handles, secure immutable OS transport and byte/root capacity stops, UI re-instantiation and before/after Task XML/state. Existing transport, ACL, installer/rollback and disabled-controls suites also run. See [execution evidence](CC03_OS_ACCEPTANCE.md) for actual run identifiers/counts; Linux tests do not establish Windows noninterference.
 
-Current engineering result targets **CC03_OS_READONLY_OBSERVER_PARTIAL**: Task/process OS mechanisms can be demonstrated; metadata noninterference failed and is disabled; production source/ACL/account/TTL binding, full heartbeat and broker data remain unavailable, runtime retention is not accepted, and Intel physical acceptance remains NOT_EXECUTED. Neither CI PASS nor this result is CC03_PHYSICAL_PASS or trading permission.
+Current engineering result is **CC03_OS_READONLY_OBSERVER_PARTIAL**: Task/process OS mechanisms can be demonstrated; metadata noninterference failed and is disabled; production source/ACL/account/TTL binding, full heartbeat and broker data remain unavailable, runtime retention is not accepted, and Intel physical acceptance remains NOT_EXECUTED. Neither CI PASS nor this result is CC03_PHYSICAL_PASS or trading permission.
 
 ## Next physical step (plan only)
 

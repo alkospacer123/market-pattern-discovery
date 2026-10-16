@@ -1,3 +1,5 @@
+> CC-03 current continuation, Draft [#541](https://github.com/alkospacer123/market-pattern-discovery/pull/541): **CC03_OS_READONLY_OBSERVER_PARTIAL**. [Actual Windows evidence](CC03_OS_ACCEPTANCE.md): 375 PASS / 0 FAIL / 15 POSIX-only SKIP; Task/process OS-only observer, 500/500 synthetic replacements without interference. Metadata and legacy content remain BLOCKED/disabled; no production file paths accepted. Intel source binding/TTL/ACL and physical acceptance NOT_EXECUTED. #534 is merged at `a6e9634bc0a5db378fcff32ea1bc8591baaf1d3c`. Older status below is historical; no CC-04 advancement or root roadmap changes.
+
 # Roadmap Control Center v1.0 — CC-03 source preparation
 
 Основание [#524 / утверждённый roadmap](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6198924792). Без добавления этапов. Source preparation #533 merged в `1c8b0c702fa73bc99e0a6593dc7dc2fa072eb6cb`; hosted native acceptance — Draft #534. Pinned base и точные результаты приведены в [Windows отчёте](CC03_WINDOWS_HOSTED_ACCEPTANCE.md). Root roadmap и trading projects не изменяются этой веткой.
