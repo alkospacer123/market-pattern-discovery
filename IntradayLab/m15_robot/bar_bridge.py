@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
+import math
 from zoneinfo import ZoneInfo
 from typing import Any
 
@@ -52,7 +53,10 @@ def _value(raw: Any) -> float:
         raise M15BarAuthorityError("M15_REST_PRICE_INVALID") from None
     if not val.is_finite() or val <= 0:
         raise M15BarAuthorityError("M15_REST_PRICE_INVALID")
-    return float(val)
+    out = float(val)
+    if not math.isfinite(out) or out <= 0:
+        raise M15BarAuthorityError("M15_REST_PRICE_FLOAT_RANGE")
+    return out
 
 
 def trading_windows(schedule: Any) -> tuple[tuple[datetime, datetime], ...]:
@@ -121,10 +125,9 @@ def completed_close_labeled_m15(
         if not isinstance(row, dict):
             raise M15BarAuthorityError("M15_BARS_ROW_INVALID")
         opened = _utc(row.get("timestamp"))
-        if opened >= now:
-            # A just-opened next candle may exist *at now*; allowed. Future is not.
-            if opened > now:
-                raise M15BarAuthorityError("M15_BROKER_FUTURE_OPEN")
+        # A just-opened next candle at now is a valid publication witness.
+        if opened > now:
+            raise M15BarAuthorityError("M15_BROKER_FUTURE_OPEN")
         if opened.minute % 15 or opened.second or opened.microsecond:
             raise M15BarAuthorityError("M15_BROKER_OPEN_GRID_INVALID")
         if previous is not None and opened <= previous:
@@ -156,7 +159,10 @@ def completed_close_labeled_m15(
             raise M15BarAuthorityError("M15_BROKER_VOLUME_INVALID") from None
         if not vol.is_finite() or vol < 0:
             raise M15BarAuthorityError("M15_BROKER_VOLUME_INVALID")
-        vals["Volume"] = float(vol)
+        vol_float = float(vol)
+        if not math.isfinite(vol_float):
+            raise M15BarAuthorityError("M15_BROKER_VOLUME_FLOAT_RANGE")
+        vals["Volume"] = vol_float
         accepted.append((closing.astimezone(MOSCOW), vals))
     index = pd.DatetimeIndex([t for t, _ in accepted], tz=MOSCOW)
     values = [v for _, v in accepted]
