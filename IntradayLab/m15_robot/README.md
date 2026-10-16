@@ -1,5 +1,17 @@
 # IntradayLab M15 robot — isolated offline foundation
 
+## M15 candle finalization and frozen-history continuation (offline)
+
+Latest implementation includes:
+
+- `bar_bridge.py`: validated FINAM trading windows (same H1 schedule categories), exact M15 price/volume schema, broker open-labelled timestamp grid and causal translation to *close-labelled MSK* research bars. An intraday M15 bar requires a directly adjacent next bar **open** witness, with the next candle's OHLC never used; a final bar at a verified session end is allowed by H1-equivalent schedule-completion authority. No missing intraday bars are invented. Strict source-label authority defaults **OFF** until operator verification. No trading permission is granted by this boolean.
+- `continuation.py`: H1-style immutable-history overlap guard for stitching FINAM's 30-day M15 REST response onto separately authenticated prior M15 history; refuses absent overlap, revised historical OHLCV, duplicate bars and altered clocks. The full research indicator context must be maintained. A short 30-day-only EMA/ADX calculation must **not** be used as a production signal authority.
+- `tests/test_bar_bridge.py`, `tests/test_continuation.py`: synthetic schedule-end, gaps, no next bar, float/schema corruption, missing seam and unchanged-prefix cases.
+
+**Pending exact authority:** physical FINAM M15 source open-label/finalization evidence, independent historical series seed SHA, price/volume overlap against FINAM and 2023–2026 research parity. The historical seed may be older than FINAM's supported 30-day window; if a clean seam cannot be proven, the pipeline must halt, not silently concatenate or substitute data.
+
+**Official reference:** [FINAM REST bars](https://api.finam.ru/docs/rest/) documents `TIME_FRAME_M15` and 30-day lookback. `bar_bridge.py` consumes the documented REST `{"value":"..." }` OHLCV format. No live API credentials have been accessed or supplied.
+
 **STATUS: CODE FOUNDATION / OFFLINE ONLY / NOT_LIVE_AUTHORIZED.** No order-capable FINAM adapter, order token access, Windows Scheduled Task modification, automatic startup or real brokerage action exists in this package. **Do not deploy to the running H1 checkout.**
 
 ## Selected immutable identity
