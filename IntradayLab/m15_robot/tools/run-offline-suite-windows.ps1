@@ -26,6 +26,10 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
 if (-not (Get-Command $PythonExe -ErrorAction SilentlyContinue)) {
     throw "PYTHON_NOT_FOUND"
 }
+$pythonMinor = (& $PythonExe -c "import sys; print(str(sys.version_info.major) + '.' + str(sys.version_info.minor))").Trim()
+if ($LASTEXITCODE -ne 0 -or $pythonMinor -notin @("3.11", "3.12", "3.13")) {
+    throw "M15_OFFLINE_UNSUPPORTED_PYTHON_$pythonMinor__USE_PYTHON_3_12_OR_3_13"
+}
 $parent = Split-Path -Parent $target
 # The parent can be a drive root such as C:\; never attempt to recreate it.
 if (-not (Test-Path -LiteralPath $parent -PathType Container)) {
@@ -52,7 +56,7 @@ $exe = Join-Path $venv "Scripts\python.exe"
 if (-not (Test-Path -LiteralPath $exe)) { throw "M15_ISOLATED_PYTHON_MISSING" }
 $req = Join-Path $target "IntradayLab\t3_m15_t1_entry_retest_v1\requirements.txt"
 if (-not (Test-Path -LiteralPath $req)) { throw "PINNED_M15_RESEARCH_REQUIREMENTS_MISSING" }
-& $exe -m pip install --disable-pip-version-check -r $req
+& $exe -m pip install --only-binary=:all: --disable-pip-version-check -r $req
 if ($LASTEXITCODE -ne 0) { throw "M15_DEPENDENCY_INSTALL_FAILED" }
 $logDir = Join-Path $target "m15_offline_test_reports"
 New-Item -Path $logDir -ItemType Directory -Force | Out-Null
