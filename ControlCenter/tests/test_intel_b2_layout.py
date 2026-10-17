@@ -38,3 +38,28 @@ def test_staged_manifest_excludes_own_runtime_roots(tmp_path):
     (tmp_path / 'cc').mkdir()
     (tmp_path / 'cc' / 'app.py').write_text('source')
     assert [row['path'] for row in module.entries()] == ['cc/app.py']
+
+
+def test_readiness_uses_only_current_cc_root_and_never_old_install(monkeypatch):
+    import json
+    from pathlib import PureWindowsPath
+    from types import SimpleNamespace
+    from observer import intel_preflight as observer
+
+    seen = []
+    def stub_run(*args, **kwargs):
+        seen.append(json.loads(kwargs['input'])['roots'])
+        return SimpleNamespace(returncode=0, stdout=json.dumps(dict(
+            observer_standard=True, identities='EXISTING_SIDS_OBSERVED',
+            directories='EXISTING_ROOTS_OBSERVED')))
+
+    monkeypatch.setattr(observer.subprocess, 'run', stub_run)
+    monkeypatch.setattr(observer.subprocess, 'CREATE_NO_WINDOW', 0, raising=False)
+    policy = {'cc_panel_sid': None, 'cc_exporter_sid': None}
+    for root in ('C:/Control Center/data', 'C:/Temp/CC03-' + 'a' * 32 + '/data'):
+        monkeypatch.setattr(observer, 'data_root', lambda r=root: PureWindowsPath(r))
+        assert observer.readiness(policy)['directories'] == 'EXISTING_ROOTS_OBSERVED'
+        data = PureWindowsPath(root)
+        assert seen[-1] == [str(data.parent / 'app'), str(data.parent / 'venv'), str(data),
+                            str(data / 'export'), str(data / 'logs'), str(data / 'private')]
+        assert all('TSLControlCenter' not in item for item in seen[-1])
