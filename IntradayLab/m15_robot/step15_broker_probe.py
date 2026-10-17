@@ -10,7 +10,7 @@ import getpass
 import hashlib
 import sys
 
-from .broker_risk_readonly import check_account, check_instrument, M15RiskAuthorityError
+from .broker_risk_readonly import check_account, check_instrument, financial_schema_flags, M15RiskAuthorityError
 from .broker_snapshot import order_views, position_quantities
 from .finam_readonly import M15FinamReadOnlyAPI, M15FinamReadOnlyError
 from .spec import EXECUTION_STATUS, INSTRUMENTS
@@ -106,6 +106,8 @@ def main(*, gui: bool = False) -> int:
         active = [o for o in order_views(orders) if o.active]
         if positions or active:
             raise M15RiskAuthorityError("M15_STEP15_BROKER_NOT_FLAT")
+        for field, shape in sorted(financial_schema_flags(account, m15).items()):
+            print(f"M15_STEP15_FINAM_SHAPE_{field.upper()}={shape}", flush=True)
         funds = check_account(account, m15)
         print("M15_STEP15_EXACT_SEPARATE_READONLY_ACCOUNT=PASS", flush=True)
         print("M15_STEP15_POSITIONS_AND_ACTIVE_ORDERS=0", flush=True)
