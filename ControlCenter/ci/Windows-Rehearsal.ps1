@@ -298,6 +298,8 @@ try {
     Set-DisposableACL $private 'private'
     $exportFile = "$script:DataRoot\export\fixture.json"
     Set-Content -LiteralPath $exportFile -Value '{}' -Encoding ASCII
+    $privateBeforeSha = (Get-FileHash -LiteralPath $private -Algorithm SHA256).Hash
+    $exportBeforeSha = (Get-FileHash -LiteralPath $exportFile -Algorithm SHA256).Hash
     foreach ($case in @(
         @($panel,$private,$false,'ACCESS_DENIED'),
         @($panel,$private,$true,'ACCESS_DENIED'),
@@ -411,7 +413,8 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'UNINSTALL_FAILED' }
     if (Test-Path "$script:AppRoot\app.py") { throw 'OWN_APP_NOT_REMOVED' }
     if (@(Get-ChildItem -Force -LiteralPath $script:VenvRoot).Count -ne 0) { throw 'OWN_VENV_NOT_REMOVED' }
-    if (-not (Test-Path $private) -or -not (Test-Path $exportFile) -or (Get-Content -Raw $private).Trim() -ne '{}' -or (Get-Content -Raw $exportFile) -ne 'DISPOSABLE_CC03_PROBE') { throw 'DATA_NOT_RETAINED' }
+    if (-not (Test-Path -LiteralPath $private -PathType Leaf) -or -not (Test-Path -LiteralPath $exportFile -PathType Leaf)) { throw 'DATA_NOT_RETAINED' }
+    if ((Get-FileHash -LiteralPath $private -Algorithm SHA256).Hash -ne $privateBeforeSha -or (Get-FileHash -LiteralPath $exportFile -Algorithm SHA256).Hash -ne $exportBeforeSha) { throw 'DATA_BYTES_CHANGED' }
     $results['uninstall'] = 'PASS: own package/venv removed, disposable private/export/log data retained'
     $results['status'] = 'PASS'
 } catch {
@@ -427,9 +430,13 @@ try {
     if ($null -ne $exporterProcess) { $exporterProcess.Dispose() }
     if ($results.Contains('install') -and -not $results.Contains('uninstall')) {
         try {
-            & "$package\deployment\Uninstall.ps1" -Execute -PanelSid $panelSid
-            if ($LASTEXITCODE -ne 0 -or (Test-Path "$script:AppRoot\app.py") -or @(Get-ChildItem -Force -LiteralPath $script:VenvRoot).Count -ne 0) { throw 'FALLBACK_UNINSTALL_FAILED' }
+            if (Test-Path -LiteralPath "$script:AppRoot\deployment\manifest.json") {
+                & "$package\deployment\Uninstall.ps1" -Execute -PanelSid $panelSid
+                if ($LASTEXITCODE -ne 0) { throw 'FALLBACK_UNINSTALL_FAILED' }
+            }
+            if ((Test-Path "$script:AppRoot\app.py") -or @(Get-ChildItem -Force -LiteralPath $script:VenvRoot).Count -ne 0) { throw 'FALLBACK_UNINSTALL_FAILED' }
             if (-not (Test-Path $private) -or -not (Test-Path $exportFile)) { throw 'DATA_NOT_RETAINED' }
+            if ((Get-FileHash -LiteralPath $private -Algorithm SHA256).Hash -ne $privateBeforeSha -or (Get-FileHash -LiteralPath $exportFile -Algorithm SHA256).Hash -ne $exportBeforeSha) { throw 'DATA_BYTES_CHANGED' }
             $results['uninstall'] = 'PASS: own package/venv removed after failed launch; data retained'
         } catch { $results['uninstall'] = 'FAIL: ' + $_.Exception.Message }
     }
