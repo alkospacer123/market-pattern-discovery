@@ -1,108 +1,57 @@
-# CC-03 Intel installation — только план после аудита
+# CC-03 Intel installation — single `ccpanel` review plan
 
-**PLAN ONLY / NOT_EXECUTED.** Текущий документированный H1 checkpoint — ARMED generation 62 / Task RUNNING, installed code `3a18c8c24301c866a60f5d725de227288d48f7ec`; это историческое operator evidence, не новый read Intel. Не требовать Disabled/HALTED и не останавливать H1.
+**CODE/DOCUMENTATION ONLY / NOT_EXECUTED.** Operator decision in [#524](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6241614427) overrides the historical dual-SID model and 2-second UI polling. One standard Windows account `ccpanel` is the **only proposed runtime identity**. Existing `ccobserver` and `ccexporter` are not deleted and not used. None of the actions below was executed on Intel by this PR.
 
-Решения строго разделены: **A** — [ограниченный OS READONLY-preflight](CC03_PHYSICAL_ACCEPTANCE_PLAN.md), без установки; **B** — этот план собственных CC identities/roots/app/venv и панели; **C** — [отдельное утверждение OS source/TTL/ACL](CC03_INTEL_PREFLIGHT_POLICIES.md) и первый real export. A не разрешает B/C, B не разрешает C. В текущей задаче ни одно не исполняется на Intel. Legacy production JSON/content/metadata BLOCKED; отсутствует production file access. H1 checkout, Task, ARM, authorization, SQLite/WAL и FINAM не затрагивать.
+Existing H1 is **LIVE ARMED/RUNNING** (last documented installed commit `3a18c8c24301c866a60f5d725de227288d48f7ec`; this is historical evidence, not a new current physical read). No H1 Task/process/kill-switch/authorization, production files, SQLite/WAL, FINAM, trading token, strategy, risk, account, or configured robot may be touched. No merge, install, live producer or user activation is authorized by this document.
 
-## 1. Подготовить release и offline wheelhouse на отдельном Windows x64
+The earlier roadmap decisions remain separate:
+- **A — physical OS READONLY preflight:** existing Task/process metadata only from approved standard observer, no provisioning or H1 production file opens. Does not imply B/C.
+- **B — package/venv/panel:** one `ccpanel` identity, administrator-owned CC roots/ACL, signed/reviewed package with explicit operator approval; **DEMO/UNKNOWN only** until C.
+- **C — real source/receiver:** separate physical acceptance of source, account binding, TTL, noninterference and authority. This single-SID B package **deliberately disables** `Start-Exporter.ps1 -Execute`, so C cannot be inferred from B. No FINAM token/DPAPI secret may be transferred to `ccpanel`.
 
-Поставляемые scripts рассчитаны на Python **3.12 x64**; сам UI/reader поддерживает 3.11/3.12. Для этого installation package выбран один проверяемый вариант 3.12. ExecutionPolicy не ослаблять. Если политика требует подпись — подписать утверждённым способом вне Git, остановиться до её проверки.
+## Release prerequisites
 
-```powershell
-# В независимом review checkout принятого PR; НЕ установленный checkout робота.
-Set-Location .\ControlCenter
-py -3.12 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
-.\.venv\Scripts\python.exe -m pytest -q
-.\.venv\Scripts\python.exe deployment\manifest.py --check
-.\.venv\Scripts\python.exe -m pip download --only-binary=:all: -r requirements.txt --dest wheelhouse
-$wheels = @(Get-ChildItem .\wheelhouse -Filter '*.whl' | Sort-Object Name | ForEach-Object {
-    @{ name=$_.Name; sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() }
-})
-ConvertTo-Json -InputObject $wheels | Set-Content .\wheelhouse\wheels.sha256.json -Encoding UTF8
-Get-FileHash .\wheelhouse\wheels.sha256.json -Algorithm SHA256
-```
+1. Independently review actual `main` and exact Draft PR head; accept **manual UI (#546)** and this **single-ccpanel** change as one audited future release. They are separate drafts; neither alone should be physically installed. Freeze a merged/adjudicated commit, package manifest and file hashes only after explicit operator merge decision.
+2. Windows 2022, Python 3.12 x64. Keep tested offline pinned wheelhouse and hashes outside H1, checked before writing into CC roots. No online dependency installation on Intel. Do not substitute the older 97-file staged package or a different manifest.
+3. Prior to B approval, inspect the actual account `ccpanel` (SID, Enabled, standard non-admin token), verify that `ccobserver` and `ccexporter` remain unused/disabled as documented, and independently inspect the existing fixed `C:\Control Center` root. **This PR does not create/enable/alter Windows accounts or ACLs.** If ccpanel is disabled, no valid SID, or no effective read/listen access, B is BLOCKED.
+4. Pre-provision empty `app`/`venv` and separate `data` roots **only under a separate B authorization** by the local administrator. Roots owner SYSTEM/Administrators, explicit protected DACL, no reparse/junction/hardlinks, no production grants. `ccpanel` must never own or mutate program/policy or export files.
 
-Wheelhouse hash manifest проверить по доверенному transfer record; его checksum сам по себе не аутентифицирует wheels. Зафиксировать полные wheel names/hashes и Python version локально. Не включать `.venv`, wheelhouse, секреты, реальные policies или server reports в GitHub. Офлайн перенести пакет и wheelhouse в новый staging root на Intel **только после разрешения**.
+| `C:\Control Center` subtree | SYSTEM / Administrators | `ccpanel` |
+| --- | --- | --- |
+| `app` (includes admin-owned receiving policy) | Full | Read/Execute |
+| `venv` | Full | Read/Execute |
+| `data` parent | Full | Read/Execute |
+| `data\export` | Full | Read/Execute **only** |
+| `data\logs` | Full | Modify |
+| `data\private` | Full | **No access** |
 
-## 2. Сначала проверить изоляцию
+`Common.ps1` checks SID, owner, protected ACL and listed rights, but is only one layer: physical independent **effective token** tests remain mandatory. `receiver-policy.json` must not be created/approved to assert authority until C. Active `os-policy.json`/`source-policy.json` in private are not supported by the single-ccpanel exporter and cannot be read by the panel.
 
-Только по отдельному решению B в приватном operator transcript определить `$panelSid`, `$exporterSid` двух новых standard accounts. Без robot/admin membership, shared credentials и inherited robot grants. Создание аккаунтов/ACL требует отдельного физического согласования; пакет этого не делает. Подготовить пустые roots и protected ACL по [матрице](CC03_WINDOWS_SECURITY.md). Только SYSTEM/Admin меняют app/venv/policies, exporter пишет только export, panel пишет только logs. Проверить DACL не только roots, но active policy files и всех source ancestors/leaf; проверить effective token/group rights под настоящими SID. Для approved policy WinAPI дополнительно требует owner SYSTEM/Admin и отсутствие write/delete/write-DACL/ownership grants другим SID на policy path/leaf.
+## Operator entrypoints (PREVIEW by default)
 
-На Intel утверждён единственный project root `C:\Control Center`. Корневая папка содержит неизменную проверенную release-копию; `app`, `venv`, `data` — её отдельные собственные защищённые подкаталоги. **Нельзя использовать скрипты из старого пакета #542 для установки:** его Common.ps1 направит запись в прежние места. До любого B-install требуется новая принятая release-сборка с новым manifest и отдельная проверка пути/ACL и источника. Прямое копирование новых скриптов поверх закреплённых 97 файлов без обновлённого manifest запрещено.
-
-Нужны именно отдельные:
-
-```text
-C:\Control Center\app              code + administrator-owned receiver policy
-C:\Control Center\venv             Python venv
-C:\Control Center\data\export      immutable completed h1-<time>-<uuid>-<sha256>.json; legacy collection BLOCKED
-C:\Control Center\data\logs        только CC logs
-C:\Control Center\data\private     private source policy; нет panel grant
-```
-
-Существующие H1 checkout/runtime/state/secrets остаются на своих местах. Не предоставлять доступ к H1 runtime, JSON, SQLite или token directories. Для OS source нужны только существующие Task/process OS read grants. Если их недостаточно, оставить UNKNOWN и exporter выключенным; production ACL не менять.
-
-## 3. Preview и install
-
-Из принятого staging `ControlCenter`, под отдельно разрешённым installer identity:
+The following are *illustrative future commands*, not an execution request. Each PowerShell command is on one lowercase line. From an independently validated ControlCenter package, previews must not write, install, activate or access H1.
 
 ```powershell
-.\deployment\Preflight.ps1
-.\deployment\Install.ps1
-.\deployment\Start-Panel.ps1
-.\deployment\Start-Exporter.ps1
-.\deployment\Verify.ps1
-.\deployment\Uninstall.ps1
-# Всё выше выводит PREVIEW; ничего не устанавливает/запускает/читает в H1.
-.\deployment\Preflight.ps1 -Execute -PanelSid $panelSid -ExporterSid $exporterSid
-.\deployment\Install.ps1 -Execute -PanelSid $panelSid -ExporterSid $exporterSid -Wheelhouse 'C:\Control Center\wheelhouse'
+& '.\deployment\preflight.ps1'
+& '.\deployment\install.ps1'
+& '.\deployment\start-panel.ps1'
+& '.\deployment\start-exporter.ps1'
+& '.\deployment\verify.ps1'
+& '.\deployment\uninstall.ps1'
 ```
 
-Все пути установки должны оставаться внутри `C:\Control Center`; wheelhouse ещё не получен, физическая установка и запуск ролей не разрешены.
+Only after distinct B authorization, `ccpanel` SID validation, path/ACL review, pinned release and wheelhouse checks, local administrator may perform the existing `Preflight.ps1 -Execute -PanelSid <sid>` and `Install.ps1 -Execute -PanelSid <sid> -Wheelhouse <approved-local-path>` operations. Preflight is read-only; Install writes only CC-owned app/venv and never creates a Task or launches Streamlit. No installer operation is included in the approval for read-only source A.
 
-Ожидается `CC03_PREFLIGHT_PASS_NO_H1_ACCESS`, затем `CC03_INSTALLED_SOURCE_POLICY_UNAPPROVED`. Package manifest проверяется до/после копии; цели app/venv должны быть пусты, roots уже созданы и защищены. Установка только offline `--no-index` wheels; `pip check` PASS. Инсталлятор не применяет ACL, не запускает H1, панель, exporter или службы. При partial install manifest и ownership marker позволяют rollback из staging. Если состояние отличается или файл уже изменён — STOP без перезаписи.
+On future start, **only** the standard (not elevated) `ccpanel` token may invoke `Start-Panel.ps1 -Execute -PanelSid <sid>` to launch Streamlit at **127.0.0.1:8501**, with CORS/XSRF enabled and no external firewall bind. The elevated but READONLY `Verify.ps1 -Execute -PanelSid <sid>` checks release/ACL/dependencies, exact single loopback listener + owner SID and that unapproved H1 source is UNKNOWN. A displayed Task Running/HEALTHY cannot be invented from a listener or stale file.
 
-## 4. Первый запуск панели без источника
+**Disabled exporter:** `Start-Exporter.ps1 -Execute` always throws `CC03_SINGLE_CCPANEL_EXPORTER_DISABLED` before touching policy/source. No broker, Task, H1 file, producer, or FINAM read is permitted. Separate C acceptance will need its own reviewed safe external producer; neither app refresh nor the OS-only Task observer is a broker-health source. Known Windows legacy heartbeat `os.replace` interference (`WinError 5`) remains BLOCKED.
 
-Под CCPanel, из отдельной консоли, с локально известными SID (не передавать Windows passwords через параметры):
+## Native acceptance, logs and rollback
 
-```powershell
-& 'C:\Control Center\app\deployment\Start-Panel.ps1' -Execute -PanelSid $panelSid -ExporterSid $exporterSid
-```
+- First require **new** GitHub-hosted Windows-native PASS specifically for one actual disposable nonadmin SID: effective read `app/venv/export`, denied write `app/venv/export/data parent`, denied `private`, permitted `logs`, rejected exporter, single owned loopback listener, no outside Task mutations, bounded uninstall preserving `data`. Old **two-SID CI PASS** is not proof.
+- Then a distinct Intel physical B authorization and before/after checks must verify only CC-owned changes. PREVIEW is not proof of actual privileges or deployed health. Keep raw SID/path/source evidence private, do not publish Windows credentials/FINAM tokens.
+- At first source unknown, leave all broker health, FINAM orders, filled trades, equity, SLTP and H1 position data UNKNOWN. All 10 trading control buttons remain disabled. M15 remains NOT_DEPLOYED.
+- Rollback requires stopping **only** the CC panel launched under ccpanel; never kill/restart H1, alter Task or production SQLite. `Uninstall.ps1` requires exact checked own manifest and own venv marker, removes only CC app/venv while preserving CC export/log/private data. On ACL/hash mismatch fail closed.
+- Remote access requires later separately approved VPN/tunnel or authenticated HTTPS proxy. Do not bind 0.0.0.0, expose port 8501 publicly, disable XSRF/CORS, or give `ccpanel` administrative permissions.
 
-Открыть `http://127.0.0.1:8501`; default DEMO. В READONLY_EXPORT ожидается UNKNOWN без source, а M15 NOT_DEPLOYED и все 10 controls disabled. Start проверяет actual current SID и отсутствие Administrators group; app/venv/export ACL. CORS/XSRF включены, listener только 127.0.0.1. Отдельная elevated readonly консоль:
-
-```powershell
-& 'C:\Control Center\app\deployment\Verify.ps1' -Execute -PanelSid $panelSid -ExporterSid $exporterSid
-Get-NetTCPConnection -LocalPort 8501 -State Listen | Select-Object LocalAddress,LocalPort,State
-```
-
-Ожидается ровно один listener 127.0.0.1, `CC03_H1_STATE=UNKNOWN` и `CC03_INSTALL_VERIFY_PASS_PHYSICAL_H1_NOT_ACCEPTED`. Наличие listener не означает HEALTHY H1.
-
-## 5. OS source — только отдельное решение C
-
-После A evidence и B isolation отдельно утвердить exact Task XML/principal и уже проверенную process epoch binding, реальные права CCExporter, root pin **собственного CC export root**, cadence и TTL. Порядок и неутверждённые private OS/receiver templates: [policies](CC03_INTEL_PREFLIGHT_POLICIES.md). Активный `os-policy.json` запрещён без physical evidence и отдельного C. Не читать legacy heartbeat/kill-switch JSON и не получать production metadata/root pins; `source-policy.json` для live content не активировать.
-
-После отдельного C под CCExporter, без admin, допускается будущий один запуск:
-
-```powershell
-& 'C:\Control Center\app\deployment\Start-Exporter.ps1' -Execute -OsObserver -PanelSid $panelSid -ExporterSid $exporterSid
-```
-
-OS export содержит только Task/process observations, metadata UNKNOWN/DISABLED, account binding UNVERIFIED. Панель H1 health/trading/positions/orders/fills/SLTP/finance/PnL сохраняет UNKNOWN. Нет daemon, Task или автоматического cadence. Успешный export не означает CC03_PHYSICAL_PASS. При PROCESS_UNKNOWN источник не утверждать автоматически и не искать новый PID. Отмена C: завершить только собственную exporter console, не удалять evidence/последний snapshot автоматически; stale/unknown TTL закрывает положительные факты.
-
-## 6. Логи, сеть и rollback
-
-Панель и exporter foreground, stdout/stderr остаются в своих консольных сеансах. Для локального CC-only transcript после проверки отсутствия секретов можно использовать `Start-Transcript -Path 'C:\Control Center\data\logs\panel-<UTC>.txt'` / `Stop-Transcript` вокруг запуска панели; exporter оставляет stdout в своей консоли, отдельный operator-owned capture требует согласованного sink; ограничить retention вручную. Не transcript private source inspection/credentials. Диагностические application errors — фиксированные sanitized codes. UNKNOWN искать по manifest/ACL/native API/source age/binding, не читать токены или БД ради диагностики.
-
-Удалённый доступ в будущем: согласованный VPN, доступ к loopback через защищённый tunnel либо authenticated restricted HTTPS reverse proxy, отдельная authentication/RBAC policy. VPN не настраивался. Не создавать public firewall rule для 8501, не bind 0.0.0.0, не отключать CORS/XSRF; Windows admin/FINAM credentials не помещать в приложение.
-
-Rollback из принятого staging, после ручного Ctrl+C **только в консолях панели/exporter**:
-
-```powershell
-.\deployment\Uninstall.ps1
-.\deployment\Uninstall.ps1 -Execute -PanelSid $panelSid -ExporterSid $exporterSid
-```
-
-Ожидается `CC03_REMOVED_OWN_FILES_DATA_RETAINED`. Удаляются только существующие matching manifest files приложения и содержимое marker-bound CC venv после path/ACL/reparse checks. Неизвестные/изменённые app files, active policies, export/log/private data, accounts и root ACL сохраняются для разбора. Никакого H1 Task stop/start, checkout rollback, kill switch change, SQLite restore или удаления production файлов. Если hash/ACL/reparse mismatch — автоматическое удаление прекращается; оператор рассматривает **только CC roots** отдельно. Частичный venv без marker автоматически не удаляется.
+**Current result of this code-only change:** no Intel install, no active OS/H1 source, no activation and no change to trading runtime. Continue CC-03 only; CC-04 and beyond are not unlocked.
