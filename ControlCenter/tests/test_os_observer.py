@@ -112,7 +112,8 @@ def test_missing_h1_and_panel_rerun_leave_m15_and_controls_independent(monkeypat
     assert not app.exception
     assert any('NOT_DEPLOYED' in str(x.value) for x in app.info)
     app.radio[0].set_value('Управление').run()
-    assert len(app.button)==10 and all(b.disabled for b in app.button)
+    controls = [b for b in app.button if b.key != 'cc03-manual-refresh']
+    assert len(controls) == 10 and all(b.disabled for b in controls)
 
 
 def test_observer_is_outside_ui_dependency_graph_and_has_no_trading_capabilities():
