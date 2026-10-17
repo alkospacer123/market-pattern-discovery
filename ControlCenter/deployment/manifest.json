@@ -335,7 +335,7 @@
     },
     {
       "path": "tests/test_cc03_source.py",
-      "sha256": "a8d69338ba23f4d93682caaa1df9867d5974be87ed4516aba1ccbf4b83b19cf4"
+      "sha256": "beb17ab2c966c78080600882d43cb174d2edd3fc0b554d71debede56d3d57525"
     },
     {
       "path": "tests/test_ci_paths.py",
