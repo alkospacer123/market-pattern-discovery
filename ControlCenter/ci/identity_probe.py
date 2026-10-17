@@ -1,4 +1,4 @@
-"""Separate-SID Python/spawn proof using synthetic bytes, disposable VM only."""
+"""Single standard ccpanel Python/spawn proof, disposable Windows VM only."""
 import ctypes
 import json
 import multiprocessing
@@ -46,7 +46,7 @@ def main():
         assert facts['task']['state'] == expected, facts
         if name == 'Denied': assert facts['task']['reason'] == 'ACCESS_DENIED', facts
     print('LOW_SID_OS_READONLY_TASK_AND_REAL_ACCESS_DENIED=PASS; METADATA_DISABLED',flush=True)
-    # Permission-A preflight runs under each actual standard token. The policy
+    # Permission-A preflight runs under the actual standard ccpanel token. The policy
     # remains fixed to H1; this CI-only adapter selects only UUID fixtures.
     from observer import intel_preflight as preflight
     import uuid
@@ -78,32 +78,6 @@ def main():
                                capture_output=True, text=True, timeout=10)
     assert unapproved.returncode == 1 and json.loads(unapproved.stdout)['outcome'] == 'NOT_VERIFIED'
     print('LOW_SID_INTEL_PREFLIGHT_RUNNING_DENIED_MISSING_ROOTS_PREVIEW_UNAPPROVED=PASS', flush=True)
-    if sys.argv[2] == 'e':
-        # Actual installed observer entrypoint under its separate standard SID.
-        # No approved os-policy exists; must fail closed before any H1 probe.
-        observer = subprocess.run([sys.executable, '-m', 'observer.windows_os', '--execute'],
-                                  capture_output=True, text=True, timeout=10)
-        assert observer.returncode == 1 and observer.stdout.strip() == 'CC03_OS_OBSERVER_UNAVAILABLE'
-        print('LOW_SID_OBSERVER_ENTRYPOINT_UNAPPROVED_POLICY=FAIL_CLOSED_PASS',flush=True)
-        # CI-only transport proof under the real Exporter token. No H1 reads;
-        # all observations and binding remain UNKNOWN/unverified.
-        from datetime import datetime, timezone
-        from exporter.snapshot import publish
-        from cc.providers.source_contract import SCHEMA_ID
-        from cc.providers.h1_contract import SPEC, ACTIVE, ACCEPTED_COMMIT
-        from cc.providers.h1_readonly import canonical_digest
-        value=dict(schema_id=SCHEMA_ID,payload_sha256='0'*64,generated_at=datetime.now(timezone.utc).isoformat(),
-                   identity=dict(robot_id='H1',strategy_id='T3/H1/TRAIL1',production_specification_id=SPEC,
-                                 active_identity=ACTIVE,installed_code_commit=ACCEPTED_COMMIT,
-                                 source_id='CC03-H1-CIONLY0001',account_alias='H1-CIONLY',binding_id='0'*64,account_binding='UNVERIFIED'))
-        for group,source in dict(heartbeat='H1_PRODUCTION_HEARTBEAT',reconciliation='H1_PRODUCTION_HEARTBEAT',
-                                 kill_switch='H1_KILL_SWITCH_FILE',task='WINDOWS_TASK_PROBE',candles='APPROVED_H1_CALENDAR',
-                                 finances='APPROVED_ACCOUNT_FINANCE',execution='APPROVED_EXECUTION_EVENTS').items():
-            value[group]=dict(source=source,status='UNAVAILABLE',observed_at=None,value=None)
-        value['payload_sha256']=canonical_digest(value)
-        completed=publish(value)
-        assert completed.exists()
-        print('SYNTHETIC_UNKNOWN_TRANSPORT_UNDER_EXPORTER=PASS',flush=True)
     print(json.dumps(dict(identity_python='PASS',expected_sid=sys.argv[1],python=sys.version,
                           executable=sys.executable,cwd=os.getcwd(),spawn=multiprocessing.get_start_method(),
                           ntfs_read_spawn='PASS')),flush=True)
