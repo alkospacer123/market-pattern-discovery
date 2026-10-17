@@ -49,7 +49,7 @@ def status_banner(snapshot: RobotSnapshot, now: datetime):
     st.caption(f"Заявленное состояние: {status.state}. Торговые действия панели: ЗАПРЕЩЕНЫ. Фактическая trading authorization: UNKNOWN. Аккаунт: {status.provenance.account_scope}.")
     if status.provenance.robot_id == RobotId.M15:
         st.caption("NO_RUNTIME_AUTHORITY · production identity и фактический риск UNKNOWN. График — отдельный DEMO-пример.")
-        st.caption("Документированный план #527: T3_M15_T1_TRAIL35_N4_R20 · SESSION T1 / NEXT_OPEN · FULL N4 · R20 2% / 8%. Это план будущего робота, без LIVE-авторизации.")
+        st.caption("Выбранная конфигурация M15: T3_M15_T1_TRAIL35_N4_R15 · SESSION T1 / NEXT_OPEN · FULL N4 · R15 1,5% на позицию / 6% общий номинальный риск. Runtime ещё не развёрнут; LIVE-авторизация UNKNOWN.")
 
 
 def robot_card(snapshot: RobotSnapshot, now: datetime):
