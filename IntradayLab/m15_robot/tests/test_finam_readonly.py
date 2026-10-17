@@ -34,6 +34,8 @@ class FakeTransport:
             })
         if parsed.path == "/v1/accounts/M15-ACCOUNT/orders":
             return FakeResponse({"orders": []})
+        if parsed.path == "/v1/accounts/M15-ACCOUNT/trades":
+            return FakeResponse({"trades": []})
         if parsed.path.startswith("/v1/instruments/"):
             symbol = parsed.path.split("/")[3]
             return FakeResponse({"symbol": symbol, "bars": []})
@@ -165,6 +167,70 @@ class ReadOnlyTransport(unittest.TestCase):
             api.bars_m15("USDRUBF@RTSX", "2026-10-15T12:00:00Z",
                          "2026-10-15T10:00:00Z")
         self.assertEqual(len(fake.calls), 2)
+
+    def test_trade_history_uses_only_exact_account_bounded_get(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        api.connect_readonly()
+        reply = api.trades("M15-ACCOUNT", start="2026-10-16T07:00:00Z",
+                           end="2026-10-16T08:00:00Z", limit=1000)
+        self.assertEqual(reply, {"trades": []})
+        method, path, query, timeout = fake.calls[-1]
+        self.assertEqual(method, "GET")
+        self.assertEqual(path, "/v1/accounts/M15-ACCOUNT/trades")
+        self.assertEqual(parse_qs(query), {
+            "limit": ["1000"],
+            "interval.start_time": ["2026-10-16T07:00:00Z"],
+            "interval.end_time": ["2026-10-16T08:00:00Z"],
+        })
+        self.assertTrue(all(method == "GET" for method, _, _, _ in fake.calls[2:]))
+
+    def test_trade_history_forbidden_for_h1_account(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        api.connect_readonly()
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "CROSS_ACCOUNT"):
+            api.trades("H1-ACCOUNT", start="2026-10-16T07:00:00Z",
+                       end="2026-10-16T08:00:00Z")
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_trade_history_needs_valid_explicit_interval_and_limit(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        api.connect_readonly()
+        for start, end, limit in [
+            ("2026-10-16T08:00:00Z", "2026-10-16T07:00:00Z", 1000),
+            ("2026-10-16T07:00:00Z", "2026-10-16T07:00:00Z", 1000),
+            ("2026-10-16T07:00:00Z", "2026-10-16T08:00:00Z", 1001),
+            ("2026-10-16T07:00:00Z", "2026-10-16T08:00:00Z", 0),
+            ("2026-10-16T07:00:00Z", "2026-10-16T08:00:00Z", True),
+        ]:
+            with self.subTest(start=start, end=end, limit=limit):
+                with self.assertRaisesRegex(M15FinamReadOnlyError, "TRADES_INTERVAL_OR_LIMIT"):
+                    api.trades("M15-ACCOUNT", start=start, end=end, limit=limit)
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_trade_history_not_authorized_before_binding(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "BINDING_REQUIRED"):
+            api.trades("M15-ACCOUNT", start="2026-10-16T07:00:00Z",
+                       end="2026-10-16T08:00:00Z")
+        self.assertEqual(fake.calls, [])
+
+    def test_trade_history_refuses_broken_response_schema(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        api.connect_readonly()
+        original = fake.__call__
+        def wrong(request, timeout):
+            if urlparse(request.full_url).path.endswith("/trades"):
+                return FakeResponse({"other": []})
+            return original(request, timeout)
+        api._transport = wrong
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "TRADES_SCHEMA"):
+            api.trades("M15-ACCOUNT", start="2026-10-16T07:00:00Z",
+                       end="2026-10-16T08:00:00Z")
 
     def test_double_session_rebind_rejected(self):
         fake = FakeTransport()
