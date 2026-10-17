@@ -11,6 +11,10 @@ from pathlib import Path
 ROOT = Path(__file__).absolute().parents[1]
 MANIFEST = ROOT / 'deployment' / 'manifest.json'
 EXCLUDED_PARTS = {'.git', '.venv', '__pycache__', '.pytest_cache', 'wheelhouse'}
+# The protected, frozen source package on Intel is staged directly under
+# C:\Control Center; app, venv and data are separate CC-owned runtime roots.
+# Do not hash installed runtime bytes as part of the immutable source package.
+RUNTIME_ROOTS = {'app', 'venv', 'data'}
 
 
 def entries():
@@ -19,7 +23,8 @@ def entries():
     # Manifest order must use the same portable package-relative spelling.
     for path in sorted(ROOT.rglob('*'), key=lambda item: item.relative_to(ROOT).as_posix()):
         relative = path.relative_to(ROOT)
-        if (path == MANIFEST or any(part in EXCLUDED_PARTS for part in relative.parts)
+        if (path == MANIFEST or relative.parts[0] in RUNTIME_ROOTS
+                or any(part in EXCLUDED_PARTS for part in relative.parts)
                 or path.name in {'receiver-policy.json','source-policy.json','os-policy.json','preflight-policy.json'} or not path.is_file()):
             continue
         if path.is_symlink():
