@@ -211,7 +211,7 @@
     },
     {
       "path": "docs/CC03_SOURCE_AUTHORITY.md",
-      "sha256": "dce88f2d4f254d374dbea781cc0f367b1815adab488093dafe5ae9f4fbb777a2"
+      "sha256": "f857402f211895053a49237cc3000e3aa48d296d74720f8f57a00b4f0d986906"
     },
     {
       "path": "docs/CC03_WINDOWS_HOSTED_ACCEPTANCE.md",
@@ -303,7 +303,7 @@
     },
     {
       "path": "observer/intel_preflight.py",
-      "sha256": "df5d36fdf45f2ec6efded7467083436cf20e096b8edc814c9077fc0862c01279"
+      "sha256": "768080a800fb8742907567df2eb87280f4e387201dd1c91ef764d1fd0de0981a"
     },
     {
       "path": "observer/windows_os.py",
@@ -335,7 +335,7 @@
     },
     {
       "path": "tests/test_cc03_source.py",
-      "sha256": "92f186e55b7fb083e664c1835b3f0e8cdfdf5190db3eb9e49340ec43e5ddf598"
+      "sha256": "a8d69338ba23f4d93682caaa1df9867d5974be87ed4516aba1ccbf4b83b19cf4"
     },
     {
       "path": "tests/test_ci_paths.py",
@@ -359,7 +359,7 @@
     },
     {
       "path": "tests/test_intel_b2_layout.py",
-      "sha256": "d2b620e501ec6973bc3340902f2b621646b3e3a976b387861129f62d8f71e813"
+      "sha256": "b90b6dc1674eff17becb31c95c38a8800cca67d251c8367a5c2ed475384d9af7"
     },
     {
       "path": "tests/test_intel_preflight.py",
