@@ -56,6 +56,42 @@ class M15ReadOnlyRiskProof(unittest.TestCase):
         with self.assertRaisesRegex(M15RiskAuthorityError, "DECIMAL"):
             check_account(x, "m15-only")
 
+    def test_missing_equity_has_safe_field_code(self):
+        x = account()
+        x.pop("equity")
+        with self.assertRaisesRegex(M15RiskAuthorityError, "M15_RISK_DECIMAL_EQUITY_MISSING"):
+            check_account(x, "m15-only")
+
+    def test_missing_unrealized_profit_has_safe_field_code(self):
+        x = account()
+        x.pop("unrealized_profit")
+        with self.assertRaisesRegex(M15RiskAuthorityError, "M15_RISK_DECIMAL_UNREALIZED_PROFIT_MISSING"):
+            check_account(x, "m15-only")
+
+    def test_wrong_equity_type_has_safe_field_code(self):
+        x = account()
+        x["equity"] = {"value": 100000}
+        with self.assertRaisesRegex(M15RiskAuthorityError, "M15_RISK_DECIMAL_EQUITY_INVALID"):
+            check_account(x, "m15-only")
+
+    def test_missing_available_cash_has_safe_field_code(self):
+        x = account()
+        x["portfolio_forts"].pop("available_cash")
+        with self.assertRaisesRegex(M15RiskAuthorityError, "M15_RISK_DECIMAL_AVAILABLE_CASH_MISSING"):
+            check_account(x, "m15-only")
+
+    def test_missing_reserved_cash_has_safe_field_code(self):
+        x = account()
+        x["portfolio_forts"].pop("money_reserved")
+        with self.assertRaisesRegex(M15RiskAuthorityError, "M15_RISK_DECIMAL_MONEY_RESERVED_MISSING"):
+            check_account(x, "m15-only")
+
+    def test_invalid_floating_decimal_has_safe_field_code(self):
+        x = account()
+        x["unrealized_profit"] = {"value": "nan"}
+        with self.assertRaisesRegex(M15RiskAuthorityError, "M15_RISK_DECIMAL_UNREALIZED_PROFIT_INVALID"):
+            check_account(x, "m15-only")
+
     def test_nan_decimal_denied(self):
         with self.assertRaisesRegex(M15RiskAuthorityError, "DECIMAL"):
             decimal_value({"value": "nan"})
