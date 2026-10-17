@@ -1,9 +1,9 @@
 [CmdletBinding()]
-param([switch]$Execute, [string]$PanelSid, [string]$ExporterSid)
+param([switch]$Execute, [string]$PanelSid)
 . "$PSScriptRoot\Common.ps1"
 if (-not $Execute) { Write-Output 'PREVIEW: READONLY package/ACL/dependency/listener/source checks; no H1 Task/state/database read or change.'; return }
 $null = Get-Manifest $script:AppRoot
-Assert-LayoutACL $PanelSid $ExporterSid
+Assert-LayoutACL $PanelSid
 & "$script:VenvRoot\Scripts\python.exe" -m pip check
 if ($LASTEXITCODE -ne 0) { throw 'DEPENDENCIES_INVALID' }
 $listener = @(Get-NetTCPConnection -LocalPort 8501 -State Listen -ErrorAction SilentlyContinue)
