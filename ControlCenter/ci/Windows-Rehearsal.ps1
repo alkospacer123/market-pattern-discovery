@@ -46,7 +46,7 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
     $lines += 'Get-ExecutionPolicy -List | Format-Table | Out-String | Write-Output'
     $lines += '& ' + (Literal $Entry) + ' -Execute -PanelSid ' + (Literal $panelSid)
     $command = '& {' + "`n" + ($lines -join "`n") + "`n" + '}'
-    $bootstrap = Join-Path $sandbox ('identity-' + $Identity.Name + '.ps1')
+    $bootstrap = Join-Path $sandbox ('identity-' + $Identity.Name + '-' + [guid]::NewGuid().ToString('N') + '.ps1')
     Set-Content -LiteralPath $bootstrap -Value $command -Encoding UTF8
     $nativeLog = $ErrorLog + '.native'
     $native = [CC03Access]::StartAs($Identity.Name, $Identity.Password, (Join-Path $env:SYSTEMROOT 'System32\cmd.exe'), $bootstrap, $script:AppRoot, $nativeLog, $Identity.Sid)
@@ -230,7 +230,7 @@ public static class CC03Access {
             var command=new StringBuilder(executable.EndsWith("cmd.exe",StringComparison.OrdinalIgnoreCase)
                 ? "\""+executable+"\" /d /c exit 0"
                 : executable.EndsWith("python.exe",StringComparison.OrdinalIgnoreCase)
-                ? "\""+executable+"\" -m ci.identity_probe "+expectedSid+" "+(user.StartsWith("cc03e") ? "e" : "p")
+                ? "\""+executable+"\" -m ci.identity_probe "+expectedSid+" "+"p"
                 : "\""+executable+"\" -NoProfile -NonInteractive -NoLogo -File \""+script+"\"");
             if (command.Length>=1024) throw new Exception("LOGON_COMMAND_LINE_TOO_LONG");
             try {
