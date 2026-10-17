@@ -31,7 +31,7 @@
     },
     {
       "path": "cc/deployment_paths.py",
-      "sha256": "4e70a15fb936849268fa80f83c6ce279004d89b45e5a6ca498c6894c78490902"
+      "sha256": "8fd4f6c07b91cab3f5595ac161bf786e35d5cfade701c2efe6442aeaa8ffab01"
     },
     {
       "path": "cc/freshness.py",
@@ -107,11 +107,11 @@
     },
     {
       "path": "deployment/Common.ps1",
-      "sha256": "b2bfcd4983c9200db3e984b7b4e7847303681de8bfdef45cc9db8a1eb4fa7e25"
+      "sha256": "9c32cf1be508f0e4cd48ad562dfda05744bcee5f86cea281fe5a3426c45de91f"
     },
     {
       "path": "deployment/Install.ps1",
-      "sha256": "188f52be7e688cba341e15119ed183ee3d7108d1078bd534e5944b3c4c03aa8c"
+      "sha256": "3c4ef27c1b4b9084738f2eceb3388357fcc240de4599043f3d86342ba39f2311"
     },
     {
       "path": "deployment/Preflight.ps1",
@@ -139,7 +139,7 @@
     },
     {
       "path": "deployment/manifest.py",
-      "sha256": "728fd9fef36d0eeac708ce1b7d63246bcfec685922286d3fb4ae6688f6cbae2b"
+      "sha256": "c83dbdff8813db9d382302fc2b94d22de6050efc6ff4ac5d991ac0ccc0f38087"
     },
     {
       "path": "deployment/os-policy.example.json",
@@ -183,7 +183,7 @@
     },
     {
       "path": "docs/CC03_INTEL_INSTALLATION_PLAN.md",
-      "sha256": "1955a0dd0131e6de7907563ff09bd121f631bc144a12c32f75b9266aaf6c5d3c"
+      "sha256": "7dac085f7ea2ce4a0b673ddb66683cdbad29e1b18ef3f41a9f5fc33917b9ea4c"
     },
     {
       "path": "docs/CC03_INTEL_PREFLIGHT_POLICIES.md",
@@ -227,7 +227,7 @@
     },
     {
       "path": "docs/CC03_WINDOWS_SECURITY.md",
-      "sha256": "c96017fa6e0608a9d671b3ee520e72258f19733f0b1864ece6283b98bc6b33d8"
+      "sha256": "b210f2f57f8cb3331664ff5e496ffdf0a12ddf4d3319aed16040f8b431a84fe6"
     },
     {
       "path": "docs/H1_READONLY_SNAPSHOT_CONTRACT.md",
@@ -339,7 +339,7 @@
     },
     {
       "path": "tests/test_ci_paths.py",
-      "sha256": "ddea0a3d46956bd6b100c78c43656991d8b9e662765e6fcdf0f2fccff39ba549"
+      "sha256": "db358902272f365bd50f6207f0b4f31114b2541d3409a0bcb004e02a5ecd2d55"
     },
     {
       "path": "tests/test_contracts.py",
@@ -356,6 +356,10 @@
     {
       "path": "tests/test_h1_ui.py",
       "sha256": "8ed8b3e2713fe6b177cca09f94f5c65e3df73c96ba5b8c2df787e764fc674b5f"
+    },
+    {
+      "path": "tests/test_intel_b2_layout.py",
+      "sha256": "d2b620e501ec6973bc3340902f2b621646b3e3a976b387861129f62d8f71e813"
     },
     {
       "path": "tests/test_intel_preflight.py",
