@@ -383,7 +383,7 @@
     },
     {
       "path": "tests/test_intel_preflight_native.py",
-      "sha256": "3ede3fa053d25eb05a873dc1a06e23c4d1d60147d970728b5406067e9dbdcdf3"
+      "sha256": "53d75d92c33274e8f3f431199c9e964849b0c4bfeaba679202db35982a7f17a9"
     },
     {
       "path": "tests/test_manual_gate.py",

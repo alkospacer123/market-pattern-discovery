@@ -97,7 +97,10 @@ def test_native_restricted_execution_policy_is_child_only(preflight_policy):
     before=policies()
     denied=subprocess.run(base+['-ExecutionPolicy','Restricted','-File',str(preflight.READINESS_SCRIPT)],
                           input=payload,capture_output=True,text=True,timeout=10,env=environment)
-    assert denied.returncode!=0 and 'PSSecurityException' in denied.stderr
+    assert denied.returncode!=0 and not denied.stdout.strip()
+    # Windows PowerShell 5.1 wraps -File policy denial in ParentContainsErrorRecordException.
+    # Require the invariant security category/id, not the display wrapper's type.
+    assert 'SecurityError' in denied.stderr and 'FullyQualifiedErrorId : UnauthorizedAccess' in denied.stderr
     observed=preflight.readiness(preflight_policy)
     assert observed['observer_standard'] is False # elevated runner, never standard
     assert observed['identities']=='CCPANEL_NOT_PROVISIONED'
