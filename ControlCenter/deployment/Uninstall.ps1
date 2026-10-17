@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param([switch]$Execute, [string]$PanelSid)
 . "$PSScriptRoot\Common.ps1"
-if (-not $Execute) { Write-Output 'PREVIEW: remove matching manifest files and marked independent venv only; retain logs/export/private policy. Stop only panel/exporter consoles manually first.'; return }
+if (-not $Execute) { Write-Output 'PREVIEW: remove matching manifest files and marked independent venv only; retain logs/export/private policy. Stop only the Control Center panel console manually first.'; return }
 Assert-LayoutACL $PanelSid
 $manifest = Get-Manifest $script:AppRoot -AllowMissing
 Assert-PlainPath $script:VenvRoot
