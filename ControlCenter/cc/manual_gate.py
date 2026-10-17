@@ -3,7 +3,7 @@ from contextlib import contextmanager
 import os
 
 
-def _windows_mutex_name(kernel, ctypes, w):
+def _windows_sid(kernel, ctypes, w):
     # Scope the object to the actual token SID, never an environment username.
     # An administrator/test identity must not create an inaccessible object for
     # the separately owned standard ccpanel. No cross-user grant is introduced.
@@ -28,7 +28,7 @@ def _windows_mutex_name(kernel, ctypes, w):
         if not adv.ConvertSidToStringSidW(w.LPVOID.from_buffer(data), ctypes.byref(sid)):
             raise ctypes.WinError(ctypes.get_last_error())
         try:
-            return 'Global\\ControlCenter.CC03.ManualExportRefresh.v1.' + sid.value
+            return sid.value
         finally:
             kernel.LocalFree(ctypes.cast(sid, w.LPVOID))
     finally:
@@ -46,13 +46,30 @@ def export_gate():
         import ctypes
         from ctypes import wintypes as w
         kernel = ctypes.WinDLL('kernel32', use_last_error=True)
-        kernel.CreateMutexW.argtypes = [w.LPVOID, w.BOOL, w.LPCWSTR]
-        kernel.CreateMutexW.restype = w.HANDLE
+        kernel.CreateMutexExW.argtypes = [w.LPVOID, w.LPCWSTR, w.DWORD, w.DWORD]
+        kernel.CreateMutexExW.restype = w.HANDLE
         kernel.WaitForSingleObject.argtypes = [w.HANDLE, w.DWORD]
         kernel.WaitForSingleObject.restype = w.DWORD
         kernel.ReleaseMutex.argtypes = [w.HANDLE]
         kernel.CloseHandle.argtypes = [w.HANDLE]
-        handle = kernel.CreateMutexW(None, False, _windows_mutex_name(kernel, ctypes, w))
+        sid = _windows_sid(kernel, ctypes, w)
+        # Explicit own-SID rights work across logon sessions; never depend on a
+        # default DACL's logon SID or request ALL_ACCESS to an existing mutex.
+        class SecurityAttributes(ctypes.Structure):
+            _fields_ = [('size', w.DWORD), ('descriptor', w.LPVOID), ('inherit', w.BOOL)]
+        adv = ctypes.WinDLL('advapi32', use_last_error=True)
+        adv.ConvertStringSecurityDescriptorToSecurityDescriptorW.argtypes = [
+            w.LPCWSTR, w.DWORD, ctypes.POINTER(w.LPVOID), ctypes.POINTER(w.DWORD)]
+        descriptor = w.LPVOID()
+        if not adv.ConvertStringSecurityDescriptorToSecurityDescriptorW(
+                'D:P(A;;0x00100001;;;' + sid + ')(A;;GA;;;SY)', 1, ctypes.byref(descriptor), None):
+            raise ctypes.WinError(ctypes.get_last_error())
+        try:
+            attributes = SecurityAttributes(ctypes.sizeof(SecurityAttributes), descriptor, False)
+            handle = kernel.CreateMutexExW(ctypes.byref(attributes),
+                'Global\\ControlCenter.CC03.ManualExportRefresh.v2.' + sid, 0, 0x00100001)
+        finally:
+            kernel.LocalFree(descriptor)
         if not handle:
             raise ctypes.WinError(ctypes.get_last_error())
         owned = False

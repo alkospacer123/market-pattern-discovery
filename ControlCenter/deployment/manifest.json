@@ -39,7 +39,7 @@
     },
     {
       "path": "cc/manual_gate.py",
-      "sha256": "97dd260c6233137a6bf00f7089981acbfd755003a9554569f0bad3eca2d70c42"
+      "sha256": "0355086d9d4aa48c44dc3f3351beb13da25e7ed0111edd2b4facaa57f790048c"
     },
     {
       "path": "cc/models.py",
@@ -223,7 +223,7 @@
     },
     {
       "path": "docs/CC03_SINGLE_CCPANEL_AUDIT.md",
-      "sha256": "26d660e099ca4f9cd8bd443a61fc23108d87884a88472cc1d27daa5662e28748"
+      "sha256": "b9a703f8b48fe03ee6f17d20601d7bcea8948feb9ffb5b27b92c54bb6c2dd65a"
     },
     {
       "path": "docs/CC03_SOURCE_AUTHORITY.md",
