@@ -154,3 +154,36 @@ def test_execute_has_no_robot_file_network_sqlite_or_export_side_effect(prefligh
                          (sqlite3,'connect'),(subprocess,'run')):
         monkeypatch.setattr(module,name,forbidden)
     assert run(preflight_policy)['outcome']=='PASS'
+
+
+def test_readiness_invokes_only_pinned_helper_with_process_scoped_policy(monkeypatch, preflight_policy):
+    """RestrictedPolicy on Windows must not block A; no global policy mutation."""
+    calls=[]
+    def child(argv, **kwargs):
+        calls.append((argv,kwargs))
+        return subprocess.CompletedProcess(argv,0,json.dumps(dict(observer_standard=True,
+            identities='CC_IDENTITIES_NOT_PROVISIONED', directories='EXISTING_ROOTS_OBSERVED')),'')
+    monkeypatch.setattr(subprocess,'run',child)
+    monkeypatch.setattr(subprocess,'CREATE_NO_WINDOW',0,raising=False)  # POSIX CI
+    result=preflight.readiness(preflight_policy)
+    assert result['observer_standard'] is True
+    assert len(calls)==1
+    argv,kwargs=calls[0]
+    assert Path(argv[-1])==preflight.READINESS_SCRIPT
+    assert argv[1:]==['-NoLogo','-NoProfile','-NonInteractive',
+                      '-ExecutionPolicy','Bypass','-File',str(preflight.READINESS_SCRIPT)]
+    assert argv[0].lower().endswith('powershell.exe')
+    assert kwargs['capture_output'] is True and kwargs['text'] is True
+    assert kwargs['timeout']==6 and kwargs['creationflags']==0
+    assert set(json.loads(kwargs['input']))=={'cc_panel_sid','cc_exporter_sid','roots'}
+    assert len(json.loads(kwargs['input'])['roots'])==6
+    assert 'process_enabled' not in kwargs['input']
+
+
+def test_readiness_child_script_denial_fails_closed(monkeypatch, preflight_policy):
+    def denied(argv, **kwargs):
+        return subprocess.CompletedProcess(argv,1,'{}','PSSecurityException')
+    monkeypatch.setattr(subprocess,'run',denied)
+    monkeypatch.setattr(subprocess,'CREATE_NO_WINDOW',0,raising=False)
+    assert preflight.readiness(preflight_policy)==dict(
+        observer_standard=False, identities='UNKNOWN', directories='UNKNOWN')
