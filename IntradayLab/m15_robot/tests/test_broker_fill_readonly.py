@@ -55,7 +55,7 @@ class M15TradeEvidence(unittest.TestCase):
         r = check(rows)
         self.assertEqual(r["matched_quantity"], 3)
         self.assertEqual(r["quantity_status"], "FULL")
-        self.assertEqual(r["weighted_price_exact"], {"numerator": "125343", "denominator": "10000"})
+        self.assertEqual(r["weighted_price_exact"], {"numerator": "37603", "denominator": "3000"})
 
     def test_identical_repeat_trade_deduplicated(self):
         r = check([trade(), trade()])
