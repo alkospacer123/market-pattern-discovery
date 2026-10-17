@@ -83,7 +83,7 @@
     },
     {
       "path": "cc/ui.py",
-      "sha256": "67d26a342e45307ac3ed8bc2cb6637f29e4bc60242f28f34e51f4df3e49e26f4"
+      "sha256": "80e6d71c7ee61d9df37e65e72e93bc40aebe02f835452654a6843f06579e0bdf"
     },
     {
       "path": "ci/Os-Fixtures.ps1",
@@ -335,7 +335,7 @@
     },
     {
       "path": "tests/test_cc03_source.py",
-      "sha256": "a8d69338ba23f4d93682caaa1df9867d5974be87ed4516aba1ccbf4b83b19cf4"
+      "sha256": "d9876e5543713a06bc28cd8b9db15eb7ff6634aef1afef66cdcd5946aea5863e"
     },
     {
       "path": "tests/test_ci_paths.py",
@@ -371,11 +371,11 @@
     },
     {
       "path": "tests/test_os_observer.py",
-      "sha256": "351ba8990319c00a4452240c9a64f1baec0891a1d0cc14e7ea76a61e66060269"
+      "sha256": "046794ae37476a1df5562893c21ed792eefc9b67d81b82d4a82f998b1423b5d2"
     },
     {
       "path": "tests/test_os_windows_native.py",
-      "sha256": "3af53aa1bddb50c705942775d4ea49d13e1b0345a223ca7943a6a59ba5f1259d"
+      "sha256": "185517e4fbf2bf00cb0a7f47b0145664b930077eea35f335d1a96813c56e7103"
     },
     {
       "path": "tests/test_scenarios.py",
