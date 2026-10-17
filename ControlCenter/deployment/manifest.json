@@ -11,7 +11,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "b75cdf46c259c3975d0d3dce4fbe7ed8d315187660d49be817f1b8bae8e82b0b"
+      "sha256": "0d961c6e0bb3090c03be48cbad472ee67e0acc6d56517a80124bc950d945d093"
     },
     {
       "path": "app.py",
@@ -91,11 +91,11 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "e6f267ed6a19c6b4cf770bd718a801816b6476343b3299c90841f5a785c3bef3"
+      "sha256": "9464b6e2d4b1d8233bf776faf9cf0577f868ff6b17126a3e0862a469fbc4c77c"
     },
     {
       "path": "ci/identity_probe.py",
-      "sha256": "98be7bbbfe05af7ee3cd65daf1ffe865712b6a5879c8e2047f1979ca4653f851"
+      "sha256": "61348cf00b98b855d97394f3425974c45c1f2db2c09f6ec769602fae2ef08538"
     },
     {
       "path": "ci/metadata_experiment.py",
@@ -107,15 +107,15 @@
     },
     {
       "path": "deployment/Common.ps1",
-      "sha256": "9c32cf1be508f0e4cd48ad562dfda05744bcee5f86cea281fe5a3426c45de91f"
+      "sha256": "70ee43886fd9c84547b5c99181f36b290ba7ac4db7f2261eb7e39f5cda62ab0d"
     },
     {
       "path": "deployment/Install.ps1",
-      "sha256": "3c4ef27c1b4b9084738f2eceb3388357fcc240de4599043f3d86342ba39f2311"
+      "sha256": "ec5b4bfdd4be8e45deeaa37bfb56cbcacc53bc54a4b0403dabb3404e7a2ba7a9"
     },
     {
       "path": "deployment/Preflight.ps1",
-      "sha256": "bd5a27e0bb886fdace6eb4b290d6bb4eb1ed458f341c684f2518be7fc4974db5"
+      "sha256": "774f6573c54f27804d91b77dc8872bd3a6b1c829f6bc9dbd88f764dbe2438f73"
     },
     {
       "path": "deployment/Probe-H1Task.ps1",
@@ -123,19 +123,19 @@
     },
     {
       "path": "deployment/Start-Exporter.ps1",
-      "sha256": "1c902e3db394e3def569e64e753c88613ec1d06ba61ac36c71131bdd6babc97a"
+      "sha256": "c491f86e2af39f0fe19c3a0762391c35a86525fe0a00e84d470e63fa0f45b87c"
     },
     {
       "path": "deployment/Start-Panel.ps1",
-      "sha256": "382aedb043d4e5216eb2762224a3bace9b2185613187a40d41786db180b32b03"
+      "sha256": "00c30b46ad99791208b936e264fa89848149322ff5dfa902b3ec2742c41e2d29"
     },
     {
       "path": "deployment/Uninstall.ps1",
-      "sha256": "17c2e7f4e3d977829ea8a7fce2473e5e0ba6ee65abd78210484e964b99cf1d28"
+      "sha256": "49a34ee7ad96dabc5c4cde79f938d2fc4713ebcfbf15ae9b5aff2ef599de4506"
     },
     {
       "path": "deployment/Verify.ps1",
-      "sha256": "3a1f4f9baec60be4cca4d03d7e098d8edf25df2707960479dc2d4511904d7134"
+      "sha256": "921a1ef1cb08c9c2679ba47a4816239964c1db46b54dafe39a3c6b7970ef8bb6"
     },
     {
       "path": "deployment/manifest.py",
@@ -183,11 +183,11 @@
     },
     {
       "path": "docs/CC03_INTEL_INSTALLATION_PLAN.md",
-      "sha256": "8184c8dcdc30d47e27a0dd42a99303d3613ad3b311ced610096a6a3c9d7c24a3"
+      "sha256": "b2c6cab9808145cc91ae24d970fa4aa05cba23bd3ac77ff1b1798aabaeb24696"
     },
     {
       "path": "docs/CC03_INTEL_PREFLIGHT_POLICIES.md",
-      "sha256": "499cd280ca0b10361139705ccd6892411132d534467346150918ccd3684e809b"
+      "sha256": "4707af7f72747dae3117ed49f1ffde83c87c80315d75c23934981244a9df9808"
     },
     {
       "path": "docs/CC03_INTEL_READONLY_PREFLIGHT_PACKAGE.md",
@@ -215,7 +215,7 @@
     },
     {
       "path": "docs/CC03_WINDOWS_HOSTED_ACCEPTANCE.md",
-      "sha256": "0e5bea25e5c2aaeb5eb2c9713b44c91fa277281b8a63c2c7fa57e6d116a79697"
+      "sha256": "6b264c0d2f3817ce184d80654e5bb27143eccbe3da1abb50853ef216698c5f1a"
     },
     {
       "path": "docs/CC03_WINDOWS_OS_OBSERVER.md",
@@ -227,7 +227,7 @@
     },
     {
       "path": "docs/CC03_WINDOWS_SECURITY.md",
-      "sha256": "b210f2f57f8cb3331664ff5e496ffdf0a12ddf4d3319aed16040f8b431a84fe6"
+      "sha256": "094f3974af9d05df12747876fc654348d162c88e7164fae5bb37b98f286faa31"
     },
     {
       "path": "docs/H1_READONLY_SNAPSHOT_CONTRACT.md",
@@ -359,7 +359,7 @@
     },
     {
       "path": "tests/test_intel_b2_layout.py",
-      "sha256": "b90b6dc1674eff17becb31c95c38a8800cca67d251c8367a5c2ed475384d9af7"
+      "sha256": "a6b6ada5e0f8fe26646847a654e91edab28d79fa0157010681409d6c0afc3a24"
     },
     {
       "path": "tests/test_intel_preflight.py",
