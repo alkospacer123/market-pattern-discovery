@@ -303,7 +303,7 @@
     },
     {
       "path": "observer/intel_preflight.py",
-      "sha256": "768080a800fb8742907567df2eb87280f4e387201dd1c91ef764d1fd0de0981a"
+      "sha256": "cd5ad051da22887ac0956fec62dfb476480728c86ddacdb1b18685aeb06d5f7d"
     },
     {
       "path": "observer/windows_os.py",
@@ -363,7 +363,7 @@
     },
     {
       "path": "tests/test_intel_preflight.py",
-      "sha256": "7f366d69a58d26ef73eb134384c58f8ecb59e5c38cf20a21e038a85c0afa81fc"
+      "sha256": "28d6adba4249d9719fb179da2884b851ae1d44d48f21c5eab36fc09d5047dee2"
     },
     {
       "path": "tests/test_intel_preflight_native.py",

@@ -88,7 +88,8 @@ def readiness(policy):
     payload = dict(cc_panel_sid=policy['cc_panel_sid'], cc_exporter_sid=policy['cc_exporter_sid'], roots=roots)
     try:
         result = subprocess.run([str(executable), '-NoLogo', '-NoProfile', '-NonInteractive',
-                                 '-File', str(READINESS_SCRIPT)], input=json.dumps(payload),
+                                 '-ExecutionPolicy', 'Bypass', '-File', str(READINESS_SCRIPT)],
+                                input=json.dumps(payload),
                                 capture_output=True, text=True, timeout=6, env=environment,
                                 creationflags=subprocess.CREATE_NO_WINDOW)
         value = json.loads(result.stdout, object_pairs_hook=_pairs, parse_constant=_reject_constant)
