@@ -21,19 +21,30 @@ $target=Join-Path (Join-Path $backup 'incoming') 'cc\deployment_paths.py.old'
 foreach($p in @($src,$dst)){$null=[IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($p))}
 [IO.File]::WriteAllText($src,'new-value')
 [IO.File]::WriteAllText($dst,'old-value')
-[IO.File]::Replace($src,$dst,$null)
-if([IO.File]::Exists($src) -or [IO.File]::ReadAllText($dst) -cne 'new-value'){throw 'NULL_REPLACE_POSTCONDITION'}
-Write-Output 'DISPOSABLE_NULL_BACKUP_REPLACE=PASS'
-[IO.File]::WriteAllText($src,'third-value')
+# PowerShell 5.1 + .NET Framework native regression: a null third argument
+# produced ArgumentException on the operator Intel host and hosted Windows.
+# Observe it without modifying files; fail closed if the environment differs.
+try {
+    [IO.File]::Replace($src,$dst,$null)
+    throw 'EXPECTED_NULL_REPLACE_TO_FAIL'
+} catch [System.Management.Automation.MethodInvocationException] {
+    if ($_.Exception.InnerException -isnot [System.ArgumentException]) { throw 'UNEXPECTED_NULL_REPLACE_FAILURE_TYPE' }
+    Write-Output 'DISPOSABLE_NULL_BACKUP_REPLACE=EXPECTED_ARGUMENT_EXCEPTION'
+}
+if([IO.File]::ReadAllText($src) -cne 'new-value' -or [IO.File]::ReadAllText($dst) -cne 'old-value'){
+    throw 'NULL_REPLACE_MUST_NOT_MODIFY_SOURCE_OR_DESTINATION'
+}
 [IO.File]::Replace($src,$dst,$target)
-if([IO.File]::Exists($src) -or [IO.File]::ReadAllText($dst) -cne 'third-value' -or [IO.File]::ReadAllText($target) -cne 'new-value'){throw 'EXPLICIT_BACKUP_POSTCONDITION'}
+if([IO.File]::Exists($src) -or [IO.File]::ReadAllText($dst) -cne 'new-value' -or [IO.File]::ReadAllText($target) -cne 'old-value'){
+    throw 'EXPLICIT_BACKUP_POSTCONDITION'
+}
 Write-Output 'DISPOSABLE_EXPLICIT_BACKUP_REPLACE=PASS'
 """, encoding="utf-8")
     result = subprocess.run(
         ["powershell.exe", "-NoProfile", "-NonInteractive", "-File", str(script), "-Root", str(root)],
         capture_output=True, text=True, timeout=45)
     assert result.returncode == 0, (result.stdout, result.stderr)
-    assert "DISPOSABLE_NULL_BACKUP_REPLACE=PASS" in result.stdout
+    assert "DISPOSABLE_NULL_BACKUP_REPLACE=EXPECTED_ARGUMENT_EXCEPTION" in result.stdout
     assert "DISPOSABLE_EXPLICIT_BACKUP_REPLACE=PASS" in result.stdout
-    assert (root / "cc" / "deployment_paths.py").read_text() == "third-value"
+    assert (root / "cc" / "deployment_paths.py").read_text() == "old-value"
     assert (root / "data" / "private" / "b2-pr543-backup" / "incoming" / "cc" / "deployment_paths.py.old").read_text() == "new-value"
