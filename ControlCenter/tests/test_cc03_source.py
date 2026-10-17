@@ -186,7 +186,9 @@ def test_exporter_absence_ui_m15_controls(monkeypatch,tmp_path):
     text='\n'.join(str(x.value) for k in ('caption','info','warning','markdown') for x in getattr(app,k))
     assert 'NOT_DEPLOYED' in text and 'DEMO-M15' in text
     app.radio[0].set_value('Управление').run()
-    assert not app.exception and len(app.button)==10 and all(x.disabled for x in app.button)
+    assert not app.exception
+    controls = [b for b in app.button if b.key != 'cc03-manual-refresh']
+    assert len(controls) == 10 and all(b.disabled for b in controls)
 
 
 def test_live_source_is_blocked_before_open(policy, now, monkeypatch):
