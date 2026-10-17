@@ -86,6 +86,7 @@ class M15FinamReadOnlyAPI:
             and (
                 path == f"/v1/accounts/{self.__account}"
                 or path == f"/v1/accounts/{self.__account}/orders"
+                or path.startswith(f"/v1/accounts/{self.__account}/trades?")
                 or path.startswith("/v1/assets/")
                 or path.startswith("/v1/instruments/")
             )
@@ -159,6 +160,28 @@ class M15FinamReadOnlyAPI:
         if not isinstance(response, dict):
             raise M15FinamReadOnlyError("M15_FINAM_ORDERS_SCHEMA_INVALID")
         return response
+
+    def trades(self, account_id: str, *, start: str, end: str, limit: int = 1000) -> dict:
+        """Exact-account FINAM GET-only trade history, no order/cancel capability.
+
+        Unlike raw account/orders, trades require an explicit bounded interval.
+        Missing broker fill evidence must never be replaced by guessed prices.
+        """
+        if _account(account_id) != self.__account:
+            raise M15FinamReadOnlyError("M15_CROSS_ACCOUNT_READ_FORBIDDEN")
+        begin = _stamp(start)
+        finish = _stamp(end)
+        if begin >= finish or type(limit) is not int or not 0 < limit <= 1000:
+            raise M15FinamReadOnlyError("M15_TRADES_INTERVAL_OR_LIMIT_INVALID")
+        query = urlencode({
+            "limit": limit,
+            "interval.start_time": start,
+            "interval.end_time": end,
+        })
+        result = self._request("GET", f"/v1/accounts/{self.__account}/trades?{query}")
+        if not isinstance(result, dict) or not isinstance(result.get("trades"), list):
+            raise M15FinamReadOnlyError("M15_TRADES_SCHEMA_INVALID")
+        return result
 
     def asset_params(self, symbol: str) -> dict:
         asset = quote(_symbol(symbol), safe="@")
