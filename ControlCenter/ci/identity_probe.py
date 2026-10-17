@@ -54,9 +54,14 @@ def main():
     else:
         raise AssertionError('PANEL_PRIVATE_POLICY_READ_ALLOWED')
     from cc.manual_gate import export_gate
+    child_gate = 'from cc.manual_gate import export_gate\nwith export_gate() as acquired: print("ACQUIRED" if acquired else "BLOCKED")'
     with export_gate() as acquired:
         assert acquired, 'STANDARD_TOKEN_GLOBAL_MUTEX_UNAVAILABLE'
-    print('LOW_SID_GLOBAL_MANUAL_MUTEX=PASS',flush=True)
+        child = subprocess.run([sys.executable, '-c', child_gate], capture_output=True, text=True, timeout=10)
+        assert child.returncode == 0 and child.stdout.strip() == 'BLOCKED', (child.stdout, child.stderr)
+    child = subprocess.run([sys.executable, '-c', child_gate], capture_output=True, text=True, timeout=10)
+    assert child.returncode == 0 and child.stdout.strip() == 'ACQUIRED', (child.stdout, child.stderr)
+    print('LOW_SID_GLOBAL_MANUAL_MUTEX_ACQUIRE_CONTEND_RELEASE=PASS',flush=True)
     # Permission-A preflight runs under the actual standard ccpanel token. The policy
     # remains fixed to H1; this CI-only adapter selects only UUID fixtures.
     from observer import intel_preflight as preflight
