@@ -1,6 +1,6 @@
 # IntradayLab M15 — пункт №09: физическая FINAM READONLY-приёмка (план)
 
-**Состояние: READONLY_BINDING_PASS / SCHEDULE_PASS / VERIFIED_PREFIX_1471_EXACT / PHYSICAL_NEW_OPEN_N4_4_OF_4_PASS / RAW_TAIL_AND_SESSION_END_REVIEW_PENDING / NOT_FINAL_PASS.** Этот документ — подготовка уже предусмотренного пункта roadmap, а не новый этап, не команда к запуску торговли и не запрос передать секреты в чат.
+**Состояние: STEP09_CAUSAL_COMPLETED_M15_PASS / READONLY_BINDING_PASS / VERIFIED_PREFIX_1471_EXACT / PHYSICAL_INTRASESSION_N4_4_OF_4_PASS / PHYSICAL_EXACT_SESSION_END_N4_4_OF_4_PASS / ORIGINAL_RAW_TAIL_FAIL_EXCLUDED / NO_LIVE.** Этот документ — подготовка уже предусмотренного пункта roadmap, а не новый этап, не команда к запуску торговли и не запрос передать секреты в чат.
 
 ## Предпосылки
 
@@ -101,3 +101,12 @@ RAW ZIP overlap `FAIL_RAW_OVERLAP` по прежним четырём баров
 ## Физическая v8: преждевременный запуск до конца сессии 17.10.2026
 
 Проверка локального диагностического v8 на Intel: selftest **55/55 PASS**; физическая exact readonly account binding, broker flat (нулевые позиции и активные заявки), `TIME_FRAME_M15=PASS`, `SCHEDULE_AND_CLEARING=PASS`, `N4_CONFIRMED_PREFIX_OVERLAP=PASS`. При этом `observed_utc=2026-10-17T12:00:58.555865+00:00` = **15:00:58 МСК**, т. е. **до фактического запланированного окончания дополнительной сессии выходного дня в 19:00 МСК**. Для всех N4 `recent_aligned_end_msk=null`, `EXACT_SESSION_END_COMPLETION=NOT_PROVEN` (корректный fail-closed), `M15_STEP09_EXIT_CODE=2`. Алгоритм v8 принимает лишь торговую границу FINAM schedule в **от 2 до 90 минут после exact aligned end**, без округления off-grid 23:50. Поэтому этот запуск **не является отрицательным результатом по FINAM и не требует исправления кода**. Один повтор того же READONLY v8 в 19:05–19:20 МСК 17.10.2026, только при подтверждённом FINAM schedule actual exact 19:00. `N4_OVERLAP=FAIL_RAW_OVERLAP` по прежнему только у исключённого terminal ZIP 16.10 12:15, исходный ZIP не изменён. M15 LIVE и №10 по-прежнему запрещены до доказательства №09. H1 не трогать.
+
+
+## Финальная физическая приемка №09 — 17.10.2026 19:17 МСК
+
+По локальному FINAM GET-only v8 `observed_utc=2026-10-17T16:17:37.444131+00:00` после реального FINAM exact session end `2026-10-17T19:00:00+03:00` (для **всех четырёх** N4): завершающая M15 открылась в `18:45 МСК`, присутствует **в обоих GET**, OHLCV стабилен, следующая за конец сессии OPEN отсутствует. `EXACT_SESSION_END_COMPLETION=PASS`, `M15_STEP09_EXACT_SESSION_END_N4=PASS`, `M15_STEP09_EXIT_CODE=0`. `BROKER_FLAT=PASS`, `READONLY_EXACT_BINDING=PASS`, `TIME_FRAME_M15=PASS`, `SCHEDULE_AND_CLEARING=PASS`, PINNED ZIP SHA256 PASS. Нет реальных заказов, H1 доступа или активации.
+
+Вместе с физическим v7 `COMPLETED_BAR_PUBLICATION=PASS` для внутрисессионной смежной публикации **N4 4/4**, Intel offline regression `bar_bridge.py` **116/116 дважды PASS** и v5 префиксом **1471/1471 exact OHLCV**, это доказывает предусмотренный пункт №09 **на допускаемых завершённых барах**. Статус `STEP09_CAUSAL_COMPLETED_M15_PASS` принят в roadmap. **Raw ZIP** по прежнему даёт `N4_OVERLAP=FAIL_RAW_OVERLAP` и `OPEN_LABEL_VERIFIED=FAIL_RAW_OVERLAP`, так как четыре неподтвержденных на момент исходного экспорта терминальных `2026-10-16 12:15 МСК` входят в RAW архив; они **не** входят в допущенное append-only продолжение №08 из 9120 баров. В отчетах RAW FAIL не переписывается, полный сырой ZIP не объявляется равным FINAM. Off-grid 23:50 по-прежнему блокирует partial 23:45–00:00; включение LIVE, `verified_open_labels=True` в действующем роботе, заказы и изменение frozen запрещены.
+
+**Следующий пункт №10** строго по исходному roadmap — независимый паритет индикаторов на полном protected frozen + 9120 staged continuation. Он ещё НЕ PASS.
