@@ -117,6 +117,55 @@ def test_switching_back_to_demo_preserves_scenarios(fixture_app):
     assert [metric.value for metric in app.metric]==['0','0','UNKNOWN','UNKNOWN']
 
 
+def test_manual_refresh_refuses_concurrent_clicks_without_retry(monkeypatch):
+    from datetime import datetime, timezone
+    from threading import Event, Thread
+    from cc.models import State
+    from cc.providers.h1_export import H1ExportProvider, manual_export_refresh, unchecked_export_snapshot
+    started, release = Event(), Event()
+    calls, results = [], []
+    now = datetime(2026, 10, 18, tzinfo=timezone.utc)
+
+    def stalled_provider(self, robot_id, scenario, observed):
+        calls.append((robot_id, scenario))
+        started.set()
+        assert release.wait(10), 'test worker release timed out'
+        return unchecked_export_snapshot(observed)
+
+    monkeypatch.setattr(H1ExportProvider, 'snapshot', stalled_provider)
+    worker = Thread(target=lambda: results.append(manual_export_refresh(now)), daemon=True)
+    worker.start()
+    try:
+        assert started.wait(5)
+        blocked, accepted = manual_export_refresh(now)
+        assert not accepted
+        assert blocked.status.state == State.UNKNOWN
+        assert blocked.status.heartbeat_at is None
+        assert len(calls) == 1
+    finally:
+        release.set()
+        worker.join(10)
+    assert not worker.is_alive() and len(results) == 1
+    assert results[0][1] is True
+    assert manual_export_refresh(now)[1] is True
+    assert len(calls) == 2
+
+
+def test_manual_refresh_exception_is_unknown_and_gate_is_released(monkeypatch):
+    from datetime import datetime, timezone
+    from cc.models import State
+    from cc.providers.h1_export import H1ExportProvider, manual_export_refresh
+    now = datetime(2026, 10, 18, tzinfo=timezone.utc)
+
+    def denied(self, robot_id, scenario, observed):
+        raise PermissionError('SENSITIVE_SOURCE_PATH_CANNOT_BE_SHOWN')
+    monkeypatch.setattr(H1ExportProvider, 'snapshot', denied)
+    for _ in range(2):
+        result, accepted = manual_export_refresh(now)
+        assert not accepted and result.status.state == State.UNKNOWN
+        assert 'SENSITIVE_SOURCE_PATH' not in repr(result)
+
+
 def test_export_is_not_read_without_manual_click_and_navigation_does_not_reread(monkeypatch):
     from cc.providers.h1_export import H1ExportProvider
     calls=[]
