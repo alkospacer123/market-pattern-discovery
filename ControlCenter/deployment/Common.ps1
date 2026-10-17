@@ -1,6 +1,7 @@
 # Shared validation only. No broker, H1 Task, authorization or ACL mutations.
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+. "$PSScriptRoot\PanelIdentity.ps1"
 # Operator-approved Intel-only project root. Never infer roots from the current
 # working directory, production robot checkout, or external environment.
 $script:ControlCenterRoot = 'C:\Control Center'
@@ -62,10 +63,7 @@ function Get-Manifest([string]$Root, [switch]$AllowMissing) {
 # This validates existing ACLs; it never grants permissions or creates accounts.
 function Assert-CCPanelSid([string]$PanelSid) {
     if ([string]::IsNullOrWhiteSpace($PanelSid) -or $PanelSid -notmatch '^S-1-5-21-[0-9]+-[0-9]+-[0-9]+-[0-9]+$') { throw 'VALID_CCPANEL_SID_REQUIRED' }
-    if ([string]::IsNullOrWhiteSpace($env:CC03_CI_DISPOSABLE_ROOT)) {
-        $account = Get-LocalUser -Name 'ccpanel' -ErrorAction SilentlyContinue
-        if ($null -eq $account -or $account.SID.Value -ne $PanelSid -or -not $account.Enabled) { throw 'ENABLED_CCPANEL_ACCOUNT_REQUIRED' }
-    }
+    if ((Get-CCPanelState $PanelSid) -ne 'CCPANEL_ENABLED') { throw 'ENABLED_STANDARD_CCPANEL_ACCOUNT_REQUIRED' }
 }
 
 function Assert-ACL([string]$Path, [string]$PanelSid, [string]$Kind) {
@@ -110,5 +108,6 @@ function Assert-CurrentIdentity([string]$ExpectedSid) {
     Assert-CCPanelSid $ExpectedSid
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
     if ($identity.User.Value -ne $ExpectedSid) { throw 'DEDICATED_IDENTITY_REQUIRED' }
-    if (@($identity.Groups | Where-Object { $_.Value -eq 'S-1-5-32-544' }).Count -ne 0) { throw 'NON_ADMINISTRATOR_REQUIRED' }
+    if ($identity.ImpersonationLevel -ne [Security.Principal.TokenImpersonationLevel]::None) { throw 'PRIMARY_TOKEN_REQUIRED' }
+    if (@($identity.Groups | Where-Object { $_.Value -in $script:CCPrivilegedGroups }).Count -ne 0) { throw 'NON_ADMINISTRATOR_REQUIRED' }
 }

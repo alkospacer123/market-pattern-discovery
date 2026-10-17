@@ -50,12 +50,12 @@ def test_readiness_uses_only_current_cc_root_and_never_old_install(monkeypatch):
     def stub_run(*args, **kwargs):
         seen.append(json.loads(kwargs['input'])['roots'])
         return SimpleNamespace(returncode=0, stdout=json.dumps(dict(
-            observer_standard=True, identities='EXISTING_SIDS_OBSERVED',
+            observer_standard=True, identities='CCPANEL_ENABLED',
             directories='EXISTING_ROOTS_OBSERVED')))
 
     monkeypatch.setattr(observer.subprocess, 'run', stub_run)
     monkeypatch.setattr(observer.subprocess, 'CREATE_NO_WINDOW', 0, raising=False)
-    policy = {'cc_panel_sid': None, 'cc_exporter_sid': None}
+    policy = {'cc_panel_sid': None}
     for root in ('C:/Control Center/data', 'C:/Temp/CC03-' + 'a' * 32 + '/data'):
         monkeypatch.setattr(observer, 'data_root', lambda r=root: PureWindowsPath(r))
         assert observer.readiness(policy)['directories'] == 'EXISTING_ROOTS_OBSERVED'
@@ -67,7 +67,8 @@ def test_readiness_uses_only_current_cc_root_and_never_old_install(monkeypatch):
 def test_single_ccpanel_installer_is_fail_closed():
     root = ROOT / 'deployment'
     common = (root / 'Common.ps1').read_text(encoding='utf-8')
-    assert "Get-LocalUser -Name 'ccpanel'" in common
+    assert "Get-LocalUser -Name 'ccpanel'" in (root / 'PanelIdentity.ps1').read_text()
+    assert "Get-CCPanelState $PanelSid" in common
     assert "CCPANEL_PRIVATE_ACCESS_FORBIDDEN" in common
     assert "CCPANEL_WRITE_FORBIDDEN" in common
     assert "Assert-CCPanelSid" in common

@@ -4,7 +4,7 @@ import streamlit as st
 from cc.models import RobotId
 from cc.providers.synthetic import SCENARIOS, SyntheticProvider, read_safely
 from cc.providers.h1_readonly import H1ReadonlyProvider
-from cc.providers.h1_export import unchecked_export_snapshot, manual_export_refresh
+from cc.providers.h1_export import unchecked_export_snapshot, manual_export_refresh, age_export_snapshot
 from cc.ui import CSS, PAGES, render
 
 st.set_page_config(page_title="TradingSystemLab · Control Center DEMO", page_icon="◈", layout="wide")
@@ -46,7 +46,8 @@ def live_view():
             st.session_state["cc03-last-export"] = snapshot
             if not accepted:
                 st.warning("BLOCKED: предыдущая ручная проверка ещё выполняется или источник недоступен. Новая проверка не запускалась.")
-        snapshots[RobotId.H1] = st.session_state.get("cc03-last-export") or unchecked_export_snapshot(now)
+        snapshots[RobotId.H1] = age_export_snapshot(
+            st.session_state.get("cc03-last-export") or unchecked_export_snapshot(now), now)
         if "cc03-last-export" not in st.session_state:
             st.info("Проверка H1 не запускалась. Нажмите «Обновить данные»; без утверждённого источника результат останется UNKNOWN.")
     render(page, snapshots, now)

@@ -1,9 +1,10 @@
 """Receiver for the external partial CC-03 export. No broker/financial authority."""
-from dataclasses import dataclass
-from datetime import datetime
+from dataclasses import dataclass, replace
+from datetime import datetime, timedelta
 import json
 from pathlib import Path
 from threading import Lock
+from ..manual_gate import export_gate
 from ..models import (DataProvenance, FieldObservation, InstrumentStatus, PortfolioSnapshot,
                       RiskSnapshot, RobotId, RobotSnapshot, RobotStatus, SourceKind, State, SystemAlert, WindowsObservation)
 from .h1_contract import ACTIVE, SPEC, ACCEPTED_COMMIT, MAX_BYTES, timestamp, validate
@@ -16,7 +17,7 @@ from ..deployment_paths import data_root
 EXPORT_ROOT = data_root() / 'export'
 POLICY_ROOT = Path(__file__).absolute().parents[2] / 'deployment'
 SAFE_ERROR = 'CC03_SOURCE_UNKNOWN_OR_UNAVAILABLE'
-# One Streamlit server process, shared by all UI sessions. Not an interprocess lock.
+# Thread gate plus OS gate across panel processes and Windows sessions.
 # No polling, retries, background threads, or H1/FINAM access here.
 _MANUAL_EXPORT_GATE = Lock()
 
@@ -37,20 +38,39 @@ def unchecked_export_snapshot(now: datetime):
 
 
 def manual_export_refresh(now: datetime):
-    """At most one local CC-export read across all sessions in this panel process.
-
-    Concurrent clicks fail closed and never invoke the provider. A different panel
-    process is outside this gate; physical CC-03 acceptance must prove a single
-    loopback Streamlit listener before extending this path to an H1 diagnostic.
-    """
+    """One bounded CC-owned read per click; concurrent attempts fail closed."""
     if not _MANUAL_EXPORT_GATE.acquire(blocking=False):
         return unchecked_export_snapshot(now), False
     try:
-        return H1ExportProvider().snapshot(RobotId.H1, 'READONLY_EXPORT', now), True
+        with export_gate() as acquired:
+            if not acquired:
+                return unchecked_export_snapshot(now), False
+            return H1ExportProvider().snapshot(RobotId.H1, 'READONLY_EXPORT', now), True
     except Exception:
         return unchecked_export_snapshot(now), False
     finally:
         _MANUAL_EXPORT_GATE.release()
+
+
+def age_export_snapshot(snapshot, now):
+    """Expire cached facts without reopening policy/export or moving timestamps."""
+    expires = snapshot.readonly_expires_at
+    if expires is None or snapshot.status.provenance.received_at <= now <= expires:
+        return snapshot
+    state = State.STALE if now > expires else State.UNKNOWN
+    return replace(snapshot,
+        status=replace(snapshot.status, state=state, task_state=None, heartbeat_at=None),
+        readonly_observations=tuple(replace(r, state=state) for r in snapshot.readonly_observations),
+        windows_observations=tuple(replace(r, state='UNKNOWN', freshness=state.value,
+                                          authority='UNKNOWN', value=None) for r in snapshot.windows_observations))
+
+
+def expiry(provenance, observations):
+    if provenance.observed_at is None or provenance.snapshot_ttl_seconds is None:
+        return None
+    deadlines = [provenance.observed_at + timedelta(seconds=provenance.snapshot_ttl_seconds)]
+    deadlines += [at + timedelta(seconds=ttl) for at,ttl in observations if at is not None and ttl is not None]
+    return min(deadlines)
 
 
 @dataclass(frozen=True)
@@ -186,7 +206,9 @@ class H1ExportProvider:
             (), (), (), None, RiskSnapshot(p, None, None, None, None, 'ACCOUNT_AUTHORITY_UNKNOWN'),
             PortfolioSnapshot(p, None, None, None, None, None, None), None,
             (SystemAlert(p, None, now, 'SOURCE', 'WARNING', SAFE_ERROR if identity is None else 'CC03_PARTIAL_READONLY_NO_BROKER_AUTHORITY'),),
-            readonly_observations=observations, readonly_identity=identity)
+            readonly_observations=observations, readonly_identity=identity,
+            readonly_expires_at=expiry(p, [(r.observed_at, getattr(policy, r.name.split('/')[0], None))
+                                            for r in observations]))
 
 
 def os_snapshot(value, policy, now):
@@ -224,4 +246,5 @@ def os_snapshot(value, policy, now):
         PortfolioSnapshot(p, None, None, None, None, None, None), None,
         (SystemAlert(p, None, now, 'SOURCE', 'WARNING', 'WINDOWS_OS_ONLY_NO_ROBOT_OR_BROKER_AUTHORITY'),),
         readonly_identity=identity['source_id'] + ' · source binding matched local receiver policy · account UNVERIFIED',
-        windows_observations=tuple(rows))
+        windows_observations=tuple(rows),
+        readonly_expires_at=expiry(p, [(r.observed_at, policy.os_observations) for r in rows]))

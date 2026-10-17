@@ -14,6 +14,8 @@ $null = Get-Manifest $script:AppRoot
 Assert-PlainPath $script:VenvRoot
 Push-Location $script:AppRoot
 try {
+    & "$script:VenvRoot\Scripts\python.exe" -c "from observer.identity import current_identity; sid,unsafe=current_identity(); assert not unsafe and sid=='$PanelSid'"
+    if ($LASTEXITCODE -ne 0) { throw 'STANDARD_PRIMARY_TOKEN_REQUIRED' }
     & "$script:VenvRoot\Scripts\python.exe" -m streamlit run app.py --server.address=127.0.0.1 --server.port=8501 --server.enableCORS=true --server.enableXsrfProtection=true
     if ($LASTEXITCODE -ne 0) { throw 'PANEL_EXITED_WITH_ERROR' }
 } finally { Pop-Location }

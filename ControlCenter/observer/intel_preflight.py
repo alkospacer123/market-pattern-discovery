@@ -26,13 +26,13 @@ UNKNOWN_FACTS = ('ROBOT_HEALTHY', 'BROKER_CONNECTED', 'TRADING_AUTHORIZED', 'POS
 PREVIEW = dict(mode='PREVIEW', outcome='NOT_VERIFIED', intel_execution='NOT_EXECUTED',
     checks=['own non-elevated standard SID', 'one exact approved Task XML/principal/state before and after',
             'optional already-approved PID/creation/image/command/owner binding; no discovery',
-            'existing CC SIDs and fixed own roots only; no provisioning'],
+            'one existing enabled ccpanel SID and fixed own roots only; no provisioning'],
     permissions=['A: explicit limited READONLY preflight permission + protected private preflight-policy.json',
                  'existing Task Scheduler read and optional exact-PID CIM read under current token',
                  'existing own CC directory/SID read; never production ACL changes',
                  'B: installation and C: OS source/export require separate later decisions'],
     possible_results=['TASK_IDENTITY_MATCHED', 'TASK_RUNNING_OBSERVED', 'PROCESS_IDENTITY_MATCHED',
-                      'PROCESS_UNKNOWN', 'ACCESS_DENIED', 'CC_IDENTITIES_NOT_PROVISIONED',
+                      'PROCESS_UNKNOWN', 'ACCESS_DENIED', 'CCPANEL_NOT_PROVISIONED', 'CCPANEL_DISABLED',
                       'OS_SOURCE_APPROVAL_REQUIRED', 'UNKNOWN'],
     forbidden=['H1 file content/metadata', 'broker/token/SQLite/WAL access', 'Task/process mutation',
                'installation, users, ACL changes, OS export'],
@@ -44,9 +44,17 @@ def valid_sid(value):
 
 
 def policy_check(p):
+    # Only the unused-null v1 exporter field can migrate without a new decision.
+    # Never silently discard a configured exporter identity or infer observer_sid.
+    if type(p) is dict and p.get('schema_id') == 'cc03.intel-preflight-policy.v1':
+        if 'cc_exporter_sid' not in p or p['cc_exporter_sid'] is not None:
+            raise ValueError('EXPLICIT_SINGLE_CCPANEL_MIGRATION_REQUIRED')
+        p = dict(p)
+        del p['cc_exporter_sid']
+        p['schema_id'] = 'cc03.intel-preflight-policy.v2'
     keys = {'schema_id', 'readonly_preflight_approved', 'observer_sid', 'task_name',
-            'task_xml_sha256', 'task_principal_sid', 'process_binding', 'cc_panel_sid', 'cc_exporter_sid'}
-    if (type(p) is not dict or set(p) != keys or p['schema_id'] != 'cc03.intel-preflight-policy.v1'
+            'task_xml_sha256', 'task_principal_sid', 'process_binding', 'cc_panel_sid'}
+    if (type(p) is not dict or set(p) != keys or p['schema_id'] != 'cc03.intel-preflight-policy.v2'
             or p['readonly_preflight_approved'] is not True or p['task_name'] != TASK
             or not valid_sid(p['observer_sid']) or not valid_sid(p['task_principal_sid'])
             or type(p['task_xml_sha256']) is not str
@@ -62,10 +70,9 @@ def policy_check(p):
                        for k in PROCESS_KEYS if k.endswith('sha256'))):
             raise ValueError('PINNED_PROCESS_INVALID')
         production_sids.add(binding['process_principal_sid'])
-    cc = [p['cc_panel_sid'], p['cc_exporter_sid']]
+    cc = [p['cc_panel_sid']]
     if (p['observer_sid'] in production_sids
-            or any(s is not None and (not valid_sid(s) or s in production_sids) for s in cc)
-            or (cc[0] is not None and cc[0] == cc[1])):
+            or any(s is not None and (not valid_sid(s) or s in production_sids) for s in cc)):
         raise ValueError('SEPARATE_STANDARD_IDENTITIES_REQUIRED')
     return p
 
@@ -85,17 +92,18 @@ def readiness(policy):
     environment['PSModulePath'] = os.pathsep.join((str(executable.parent / 'Modules'),
         str(Path(os.environ.get('PROGRAMFILES', r'C:\Program Files')) / 'WindowsPowerShell/Modules')))
     environment['PATH'] = str(executable.parent) + os.pathsep + str(executable.parents[2])
-    payload = dict(cc_panel_sid=policy['cc_panel_sid'], cc_exporter_sid=policy['cc_exporter_sid'], roots=roots)
+    payload = dict(cc_panel_sid=policy['cc_panel_sid'], roots=roots)
     try:
         result = subprocess.run([str(executable), '-NoLogo', '-NoProfile', '-NonInteractive',
-                                 '-File', str(READINESS_SCRIPT)], input=json.dumps(payload),
+                                 '-ExecutionPolicy', 'Bypass', '-File', str(READINESS_SCRIPT)], input=json.dumps(payload),
                                 capture_output=True, text=True, timeout=6, env=environment,
                                 creationflags=subprocess.CREATE_NO_WINDOW)
         value = json.loads(result.stdout, object_pairs_hook=_pairs, parse_constant=_reject_constant)
         if result.returncode or set(value) != {'observer_standard', 'identities', 'directories'}:
             raise ValueError('READINESS_UNAVAILABLE')
         if (type(value['observer_standard']) is not bool
-                or value['identities'] not in {'EXISTING_SIDS_OBSERVED', 'CC_IDENTITIES_NOT_PROVISIONED', 'ACCESS_DENIED', 'UNKNOWN'}
+                or value['identities'] not in {'CCPANEL_ENABLED', 'CCPANEL_NOT_PROVISIONED', 'CCPANEL_DISABLED',
+                                                'CCPANEL_SID_MISMATCH', 'CCPANEL_PRIVILEGED', 'UNKNOWN'}
                 or value['directories'] not in {'EXISTING_ROOTS_OBSERVED', 'NOT_PROVISIONED', 'ACCESS_DENIED', 'UNKNOWN'}):
             raise ValueError('READINESS_UNAVAILABLE')
         return value
@@ -104,11 +112,11 @@ def readiness(policy):
 
 
 def empty_report(reason='UNAVAILABLE'):
-    return dict(schema_id='cc03.intel-preflight-report.v1', mode='EXECUTE', outcome='NOT_VERIFIED',
+    return dict(schema_id='cc03.intel-preflight-report.v2', mode='EXECUTE', outcome='NOT_VERIFIED',
         observed_at=datetime.now(timezone.utc).isoformat(), own_identity='UNKNOWN',
         task_identity='UNKNOWN', task_state='UNKNOWN', task_before_after='UNKNOWN',
         process='PROCESS_UNKNOWN', task_access='UNKNOWN', process_access='UNKNOWN',
-        cc_identities='UNKNOWN', cc_directories='UNKNOWN', cc_acl='NOT_VERIFIED',
+        cc_identities='UNKNOWN', cc_installation='NOT_VERIFIED', cc_directories='UNKNOWN', cc_acl='NOT_VERIFIED',
         os_source='OS_SOURCE_APPROVAL_REQUIRED', reason=reason,
         trading={key: 'UNKNOWN' for key in UNKNOWN_FACTS})
 
@@ -116,7 +124,7 @@ def empty_report(reason='UNAVAILABLE'):
 def execute(policy, *, identity=None, facts=None, cc_readiness=None):
     """Dependencies are injectable for disposable tests; CLI exposes no override."""
     report = empty_report()
-    policy_check(policy)  # reject before identity, Task/process or root probing
+    policy = policy_check(policy)  # reject before identity, Task/process or root probing
     identity = current_identity if identity is None else identity
     facts = os_facts if facts is None else facts
     cc_readiness = readiness if cc_readiness is None else cc_readiness
@@ -126,6 +134,11 @@ def execute(policy, *, identity=None, facts=None, cc_readiness=None):
         return report
     ready = cc_readiness(policy)
     report.update(cc_identities=ready['identities'], cc_directories=ready['directories'])
+    if ready['identities'] == 'CCPANEL_NOT_PROVISIONED' or ready['directories'] == 'NOT_PROVISIONED':
+        report['cc_installation'] = 'NOT_PROVISIONED'
+    if ready['identities'] in {'CCPANEL_DISABLED', 'CCPANEL_SID_MISMATCH', 'CCPANEL_PRIVILEGED'}:
+        report['cc_installation'] = 'BLOCKED'
+    # An enabled panel account never establishes ACL acceptance or source authority.
     if ready['observer_standard'] is not True:
         report.update(outcome='BLOCKED', reason='STANDARD_TOKEN_NOT_VERIFIED')
         return report

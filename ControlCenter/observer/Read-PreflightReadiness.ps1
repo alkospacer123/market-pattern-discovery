@@ -5,19 +5,13 @@ $ProgressPreference = 'SilentlyContinue'
 $stage = 'INPUT'
 try {
     $p = [Console]::In.ReadToEnd() | ConvertFrom-Json
+    . (Join-Path $PSScriptRoot '..\deployment\PanelIdentity.ps1')
     $stage = 'TOKEN'
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
     # Deny even a filtered administrator token, including deny-only Administrators SID.
-    $standard = ($identity.User.Value -match '^S-1-5-21-') -and
-        (-not (@($identity.Groups | ForEach-Object { $_.Value }) -contains 'S-1-5-32-544'))
+    $standard = Test-CCStandardIdentity $identity
     $stage = 'SIDS'
-    $identities = 'EXISTING_SIDS_OBSERVED'
-    foreach ($sid in @($p.cc_panel_sid, $p.cc_exporter_sid)) {
-        if ($null -eq $sid) { $identities = 'CC_IDENTITIES_NOT_PROVISIONED'; continue }
-        try { $null = ([Security.Principal.SecurityIdentifier]::new([string]$sid)).Translate([Security.Principal.NTAccount]) }
-        catch [Security.Principal.IdentityNotMappedException] { $identities = 'CC_IDENTITIES_NOT_PROVISIONED' }
-        catch { $identities = 'UNKNOWN' }
-    }
+    $identities = Get-CCPanelState $p.cc_panel_sid
     $stage = 'ROOTS'
     $directories = 'EXISTING_ROOTS_OBSERVED'
     foreach ($root in $p.roots) {

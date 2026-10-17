@@ -269,7 +269,8 @@ try {
         $results['single_ccpanel_acl'] = 'NOT_VERIFIED: VM token lacks local administrator rights to provision disposable users/ACLs'
         throw 'SID_REHEARSAL_NOT_VERIFIED'
     }
-    $name = 'cc03p' + [guid]::NewGuid().ToString('N').Substring(0,8)
+    $name = 'ccpanel'
+    if (Get-LocalUser -Name $name -ErrorAction SilentlyContinue) { throw 'DISPOSABLE_CCPANEL_ALREADY_EXISTS' }
     $password = 'Cc03!aA9' + [guid]::NewGuid().ToString('N')
     $secret = ConvertTo-SecureString $password -AsPlainText -Force
     try {

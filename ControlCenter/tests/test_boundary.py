@@ -26,6 +26,7 @@ def test_no_trade_or_system_capabilities_in_runtime(path):
         'windows_file.py': {'ctypes', 'multiprocessing', 'pathlib', 'hashlib', 'os', 're'},
         'h1_export.py': {'json', 'pathlib', 'threading'},
         'deployment_paths.py': {'os', 'pathlib', 're'},
+        'manual_gate.py': {'contextlib', 'os', 'ctypes', 'fcntl'},
     }
     allowed = ALLOWED | receiving.get(path.name, set())
     tree=ast.parse(path.read_text(encoding='utf-8'))

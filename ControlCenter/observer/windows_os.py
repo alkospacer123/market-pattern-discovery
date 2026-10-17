@@ -72,7 +72,7 @@ def os_facts(policy, script=SCRIPT, timeout=MAX_OPERATION_SECONDS):
             str(Path(os.environ.get('PROGRAMFILES', r'C:\Program Files')) / 'WindowsPowerShell/Modules')))
         environment['PATH'] = str(executable.parent) + os.pathsep + str(executable.parents[2])
         completed = subprocess.run([str(executable), '-NoLogo', '-NoProfile', '-NonInteractive',
-                                    '-File', str(script)], input=json.dumps(policy),
+                                    '-ExecutionPolicy', 'Bypass', '-File', str(script)], input=json.dumps(policy),
                                    capture_output=True, text=True, timeout=timeout,
                                    env=environment,
                                    creationflags=subprocess.CREATE_NO_WINDOW)

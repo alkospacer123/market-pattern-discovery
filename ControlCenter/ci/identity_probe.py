@@ -46,16 +46,23 @@ def main():
         assert facts['task']['state'] == expected, facts
         if name == 'Denied': assert facts['task']['reason'] == 'ACCESS_DENIED', facts
     print('LOW_SID_OS_READONLY_TASK_AND_REAL_ACCESS_DENIED=PASS; METADATA_DISABLED',flush=True)
+    # No private source policy read is possible under the actual panel token.
+    try:
+        (Path(os.environ['CC03_CI_DISPOSABLE_ROOT'])/'data/private/source-policy.json').read_bytes()
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError('PANEL_PRIVATE_POLICY_READ_ALLOWED')
     # Permission-A preflight runs under the actual standard ccpanel token. The policy
     # remains fixed to H1; this CI-only adapter selects only UUID fixtures.
     from observer import intel_preflight as preflight
     import uuid
     for name in ('Running', 'Denied'):
         fixture = fixtures[name]
-        policy = dict(schema_id='cc03.intel-preflight-policy.v1', readonly_preflight_approved=True,
+        policy = dict(schema_id='cc03.intel-preflight-policy.v2', readonly_preflight_approved=True,
             observer_sid=sid, task_name=preflight.TASK, task_xml_sha256=fixture['task_xml_sha256'],
             task_principal_sid=fixture['task_principal_sid'], process_binding=None,
-            cc_panel_sid=None, cc_exporter_sid=None)
+            cc_panel_sid=sid)
         report = preflight.execute(policy,
             facts=lambda q: os_facts(dict(q, task_name=fixture['task_name'])))
         if name == 'Running':
@@ -63,7 +70,7 @@ def main():
             assert report['task_before_after'] == 'UNCHANGED_OBSERVED', report
         else:
             assert report['outcome'] == 'BLOCKED' and report['task_access'] == 'ACCESS_DENIED', report
-        assert report['cc_identities'] == 'CC_IDENTITIES_NOT_PROVISIONED', report
+        assert report['cc_identities'] == 'CCPANEL_ENABLED', report
         assert all(v == 'UNKNOWN' for v in report['trading'].values()), report
     previous_root = os.environ['CC03_CI_DISPOSABLE_ROOT']
     try:

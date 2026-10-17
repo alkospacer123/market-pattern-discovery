@@ -59,8 +59,51 @@ def test_native_readiness_script_on_missing_disposable_roots(preflight_policy,mo
     try:
         os.environ['CC03_CI_DISPOSABLE_ROOT']=str(Path(previous).parent / ('CC03-'+uuid.uuid4().hex))
         result=preflight.readiness(preflight_policy)
-        assert result['identities']=='CC_IDENTITIES_NOT_PROVISIONED', captured
+        assert result['identities']=='CCPANEL_NOT_PROVISIONED', captured
         assert result['directories']=='NOT_PROVISIONED', captured
         assert result['observer_standard'] is False # elevated pytest token
     finally:
         os.environ['CC03_CI_DISPOSABLE_ROOT']=previous
+
+
+def test_native_actual_local_ccpanel_enabled_absent_disabled_wrong_sid_and_admin():
+    import json
+    from pathlib import Path
+    assert os.environ.get('GITHUB_ACTIONS')=='true' and os.environ.get('RUNNER_ENVIRONMENT')=='github-hosted'
+    script=Path(__file__).parents[1]/'ci/Test-PanelIdentity.ps1'
+    environment=os.environ.copy()
+    environment['PSMODULEPATH']=os.pathsep.join([str(Path(os.environ['SYSTEMROOT'])/'System32/WindowsPowerShell/v1.0/Modules'),
+        str(Path(os.environ['PROGRAMFILES'])/'WindowsPowerShell/Modules')])
+    result=subprocess.run(['powershell.exe','-NoProfile','-NonInteractive','-File',str(script)],
+                          capture_output=True,text=True,timeout=45,env=environment)
+    assert result.returncode==0, result.stderr
+    assert json.loads(result.stdout)==['CCPANEL_NOT_PROVISIONED','CCPANEL_ENABLED','CCPANEL_SID_MISMATCH',
+                                      'CCPANEL_DISABLED','CCPANEL_PRIVILEGED','CCPANEL_ENABLED','FILTERED_ADMIN_REJECTED']
+
+
+def test_native_restricted_execution_policy_is_child_only(preflight_policy):
+    import json
+    payload=json.dumps(dict(cc_panel_sid=None, roots=[]))
+    base=['powershell.exe','-NoLogo','-NoProfile','-NonInteractive']
+    def policies():
+        result=subprocess.run(base+['-Command','Get-ExecutionPolicy -List | ConvertTo-Json -Compress'],
+                              capture_output=True,text=True,timeout=10)
+        assert result.returncode==0, result.stderr
+        return json.loads(result.stdout)
+    before=policies()
+    denied=subprocess.run(base+['-ExecutionPolicy','Restricted','-File',str(preflight.READINESS_SCRIPT)],
+                          input=payload,capture_output=True,text=True,timeout=10)
+    assert denied.returncode!=0 and 'PSSecurityException' in denied.stderr
+    observed=preflight.readiness(preflight_policy)
+    assert observed['observer_standard'] is False # elevated runner, never standard
+    assert observed['identities']=='CCPANEL_NOT_PROVISIONED'
+    assert policies()==before # no machine/user policy mutation
+
+
+def test_native_elevated_runner_token_rejected_before_task(preflight_policy):
+    from observer.identity import current_identity
+    sid,unsafe=current_identity()
+    assert unsafe is True
+    p=dict(preflight_policy,observer_sid=sid)
+    r=preflight.execute(p,facts=lambda _:pytest.fail('privileged observer queried Task'))
+    assert r['outcome']=='BLOCKED' and r['reason']=='OBSERVER_IDENTITY_INVALID'
