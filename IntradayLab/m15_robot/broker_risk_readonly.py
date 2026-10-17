@@ -28,6 +28,20 @@ def decimal_value(value: Any, *, positive: bool = False) -> Decimal:
     return result
 
 
+
+def _account_decimal(container: dict, field: str, *, positive: bool = False) -> Decimal:
+    """Schema-only error detail. Never include broker account values in errors."""
+    if field not in {"equity", "unrealized_profit", "available_cash",
+                     "money_reserved", "initial_margin", "maintenance_margin"}:
+        raise M15RiskAuthorityError("M15_RISK_UNRECOGNIZED_FINANCIAL_FIELD")
+    if field not in container:
+        raise M15RiskAuthorityError("M15_RISK_DECIMAL_" + field.upper() + "_MISSING")
+    try:
+        return decimal_value(container[field], positive=positive)
+    except M15RiskAuthorityError:
+        raise M15RiskAuthorityError("M15_RISK_DECIMAL_" + field.upper() + "_INVALID") from None
+
+
 def rub_money(value: Any, *, positive: bool = False) -> Decimal:
     if (not isinstance(value, dict) or set(value) != {"currency_code", "units", "nanos"}
             or value["currency_code"] != "RUB"
@@ -64,8 +78,8 @@ def check_account(account: dict, expected_account_id: str) -> M15AccountSnapshot
             or account.get("status") not in {"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"}
             or not isinstance(account.get("positions"), list)):
         raise M15RiskAuthorityError("M15_RISK_ACCOUNT_BINDING_INVALID")
-    equity = decimal_value(account.get("equity"), positive=True)
-    floating = decimal_value(account.get("unrealized_profit"))
+    equity = _account_decimal(account, "equity", positive=True)
+    floating = _account_decimal(account, "unrealized_profit")
     fields = [x for x in ("portfolio_forts", "portfolio_mc", "portfolio_mct") if x in account]
     if len(fields) != 1:
         raise M15RiskAuthorityError("M15_RISK_PORTFOLIO_ONEOF_INVALID")
@@ -74,13 +88,13 @@ def check_account(account: dict, expected_account_id: str) -> M15AccountSnapshot
     if not isinstance(portfolio, dict):
         raise M15RiskAuthorityError("M15_RISK_PORTFOLIO_INVALID")
     if account.get("type") in {"FORTS", "ACCOUNT_TYPE_FORTS"} and f == "portfolio_forts":
-        available = decimal_value(portfolio.get("available_cash"))
-        reserved = decimal_value(portfolio.get("money_reserved"))
+        available = _account_decimal(portfolio, "available_cash")
+        reserved = _account_decimal(portfolio, "money_reserved")
         if reserved < 0:
             raise M15RiskAuthorityError("M15_RISK_RESERVED_INVALID")
     elif account.get("type") == "UNION" and f == "portfolio_mc":
-        available = decimal_value(portfolio.get("available_cash"))
-        if decimal_value(portfolio.get("initial_margin")) < 0 or decimal_value(portfolio.get("maintenance_margin")) < 0:
+        available = _account_decimal(portfolio, "available_cash")
+        if _account_decimal(portfolio, "initial_margin") < 0 or _account_decimal(portfolio, "maintenance_margin") < 0:
             raise M15RiskAuthorityError("M15_RISK_MC_MARGIN_INVALID")
     else:
         raise M15RiskAuthorityError("M15_RISK_PORTFOLIO_TYPE_INVALID")
