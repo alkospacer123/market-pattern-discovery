@@ -214,7 +214,10 @@ def test_deployment_scripts_preview_and_no_production_mutators():
     assert "'C:\\Control Center'" in (root/'Common.ps1').read_text()
     assert '--no-index' in (root/'Install.ps1').read_text()
     assert 'Assert-CurrentIdentity $PanelSid' in (root/'Start-Panel.ps1').read_text()
-    assert 'Assert-CurrentIdentity $ExporterSid' in (root/'Start-Exporter.ps1').read_text()
+    exporter = (root/'Start-Exporter.ps1').read_text()
+    assert "throw 'CC03_SINGLE_CCPANEL_EXPORTER_DISABLED'" in exporter
+    assert 'Assert-CurrentIdentity $ExporterSid' not in exporter
+    assert not any(secret in exporter for secret in ('source-policy.json','os-policy.json','FINAM','stage8-'))
 
 
 def test_packaged_source_schema_matches_runtime():
