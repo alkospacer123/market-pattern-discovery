@@ -136,13 +136,25 @@ class M15FinamReadOnlyAPI:
         self.__jwt = auth["token"]
         # FINAM's SessionDetails requires JWT in JSON body, H1 confirmed.
         details = self._request("POST", "/v1/sessions/details", {"token": self.__jwt})
-        if (
-            not isinstance(details, dict)
-            or details.get("readonly") is not True
-            or details.get("account_ids") != [self.__account]
+        # Fail closed with a code that describes only the proof category.
+        # Never include a broker account ID, token, or raw session payload.
+        if not isinstance(details, dict) or "readonly" not in details:
+            reason = "M15_READONLY_EXACT_ACCOUNT_NOT_PROVED_SESSION_SCHEMA"
+        elif details.get("readonly") is not True:
+            reason = "M15_READONLY_EXACT_ACCOUNT_NOT_PROVED_TOKEN_NOT_READONLY"
+        elif not isinstance(details.get("account_ids"), list):
+            reason = "M15_READONLY_EXACT_ACCOUNT_NOT_PROVED_ACCOUNT_LIST_SCHEMA"
+        elif len(details["account_ids"]) != 1 or not all(
+            isinstance(account, str) for account in details["account_ids"]
         ):
+            reason = "M15_READONLY_EXACT_ACCOUNT_NOT_PROVED_ACCOUNT_LIST_NOT_SINGLE"
+        elif details["account_ids"][0] != self.__account:
+            reason = "M15_READONLY_EXACT_ACCOUNT_NOT_PROVED_ACCOUNT_ID_MISMATCH"
+        else:
+            reason = None
+        if reason is not None:
             self.__jwt = None
-            raise M15FinamReadOnlyError("M15_READONLY_EXACT_ACCOUNT_NOT_PROVED")
+            raise M15FinamReadOnlyError(reason)
         self.__bound = True
 
     def account(self, account_id: str) -> dict:
