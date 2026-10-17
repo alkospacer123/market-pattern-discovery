@@ -91,7 +91,7 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "9464b6e2d4b1d8233bf776faf9cf0577f868ff6b17126a3e0862a469fbc4c77c"
+      "sha256": "bd381a460b606fdc5218bf2fd64b99d4f15397050b19abc27720e580b7bd5e3c"
     },
     {
       "path": "ci/identity_probe.py",
@@ -123,7 +123,7 @@
     },
     {
       "path": "deployment/Start-Exporter.ps1",
-      "sha256": "c491f86e2af39f0fe19c3a0762391c35a86525fe0a00e84d470e63fa0f45b87c"
+      "sha256": "886cec63433ebfc7b60fe2d3b7ded6d0759c35c40b1b7a1d1a952f1f10736707"
     },
     {
       "path": "deployment/Start-Panel.ps1",
@@ -131,7 +131,7 @@
     },
     {
       "path": "deployment/Uninstall.ps1",
-      "sha256": "49a34ee7ad96dabc5c4cde79f938d2fc4713ebcfbf15ae9b5aff2ef599de4506"
+      "sha256": "a7d42fc43d8bb67472dcb1714e9f534a63f1199ff33c30e1c7acdfbe9424bfff"
     },
     {
       "path": "deployment/Verify.ps1",
