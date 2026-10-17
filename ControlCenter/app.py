@@ -4,7 +4,7 @@ import streamlit as st
 from cc.models import RobotId
 from cc.providers.synthetic import SCENARIOS, SyntheticProvider, read_safely
 from cc.providers.h1_readonly import H1ReadonlyProvider
-from cc.providers.h1_export import H1ExportProvider, unchecked_export_snapshot
+from cc.providers.h1_export import unchecked_export_snapshot, manual_export_refresh
 from cc.ui import CSS, PAGES, render
 
 st.set_page_config(page_title="TradingSystemLab · Control Center DEMO", page_icon="◈", layout="wide")
@@ -42,8 +42,10 @@ def live_view():
         # No call to the export receiver until the operator explicitly clicks once.
         # The receiver reads only Control Center's isolated export root, not H1.
         if manual_refresh:
-            st.session_state["cc03-last-export"] = H1ExportProvider().snapshot(
-                RobotId.H1, "READONLY_EXPORT", now)
+            snapshot, accepted = manual_export_refresh(now)
+            st.session_state["cc03-last-export"] = snapshot
+            if not accepted:
+                st.warning("BLOCKED: предыдущая ручная проверка ещё выполняется или источник недоступен. Новая проверка не запускалась.")
         snapshots[RobotId.H1] = st.session_state.get("cc03-last-export") or unchecked_export_snapshot(now)
         if "cc03-last-export" not in st.session_state:
             st.info("Проверка H1 не запускалась. Нажмите «Обновить данные»; без утверждённого источника результат останется UNKNOWN.")
