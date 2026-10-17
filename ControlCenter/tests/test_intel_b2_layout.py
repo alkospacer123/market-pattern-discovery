@@ -63,3 +63,27 @@ def test_readiness_uses_only_current_cc_root_and_never_old_install(monkeypatch):
         assert seen[-1] == [str(data.parent / 'app'), str(data.parent / 'venv'), str(data),
                             str(data / 'export'), str(data / 'logs'), str(data / 'private')]
         assert all('TSLControlCenter' not in item for item in seen[-1])
+
+def test_single_ccpanel_installer_is_fail_closed():
+    root = ROOT / 'deployment'
+    common = (root / 'Common.ps1').read_text(encoding='utf-8')
+    assert "Get-LocalUser -Name 'ccpanel'" in common
+    assert "CCPANEL_PRIVATE_ACCESS_FORBIDDEN" in common
+    assert "CCPANEL_WRITE_FORBIDDEN" in common
+    assert "Assert-CCPanelSid" in common
+    assert "Assert-LayoutACL([string]$PanelSid)" in common
+    assert 'ExporterSid' not in common
+    for name in ('Preflight', 'Install', 'Start-Panel', 'Verify', 'Uninstall'):
+        script = (root / (name + '.ps1')).read_text(encoding='utf-8')
+        assert '[string]$PanelSid' in script
+        assert 'ExporterSid' not in script
+        assert 'TradingSystemLab' not in script
+        assert 'IntradayLab' not in script
+    exporter = (root / 'Start-Exporter.ps1').read_text(encoding='utf-8')
+    assert "throw 'CC03_SINGLE_CCPANEL_EXPORTER_DISABLED'" in exporter
+    assert 'source-policy.json' not in exporter and 'os-policy.json' not in exporter
+    native = (ROOT / 'ci/Windows-Rehearsal.ps1').read_text(encoding='utf-8')
+    assert "foreach ($role in @('panel','exporter'))" not in native
+    assert '$exporterSid' not in native
+    assert "DISPOSABLE_CCPANEL_SID=" in native
+    assert 'DISABLED_EXPORTER_PUBLISHED_DATA' in native
