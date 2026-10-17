@@ -17,17 +17,19 @@ class FakeResponse:
 
 
 class FakeTransport:
-    def __init__(self, *, readonly=True, accounts=None):
+    def __init__(self, *, readonly=True, accounts=None, details=None):
         self.calls = []
         self.readonly = readonly
         self.accounts = ["M15-ACCOUNT"] if accounts is None else accounts
+        self.details = details
     def __call__(self, request, timeout):
         parsed = urlparse(request.full_url)
         self.calls.append((request.get_method(), parsed.path, parsed.query, timeout))
         if parsed.path == "/v1/sessions":
             return FakeResponse({"token": "synthetic-jwt"})
         if parsed.path == "/v1/sessions/details":
-            return FakeResponse({"readonly": self.readonly, "account_ids": self.accounts})
+            return FakeResponse(self.details if self.details is not None else
+                                {"readonly": self.readonly, "account_ids": self.accounts})
         if parsed.path == "/v1/accounts/M15-ACCOUNT":
             return FakeResponse({
                 "account_id": "M15-ACCOUNT", "status": "ACCOUNT_ACTIVE", "positions": [],
@@ -119,6 +121,46 @@ class ReadOnlyTransport(unittest.TestCase):
         with self.assertRaisesRegex(M15FinamReadOnlyError, "NOT_PROVED"):
             api.connect_readonly()
         self.assertFalse(api.readonly_bound)
+
+    def test_reject_session_details_without_readonly_proof(self):
+        fake = FakeTransport(details={"account_ids": ["M15-ACCOUNT"]})
+        api = adapter(fake)
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "NOT_PROVED_SESSION_SCHEMA"):
+            api.connect_readonly()
+        self.assertFalse(api.readonly_bound)
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_reject_false_readonly_with_specific_safe_code(self):
+        fake = FakeTransport(readonly=False)
+        api = adapter(fake)
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "NOT_PROVED_TOKEN_NOT_READONLY"):
+            api.connect_readonly()
+        self.assertFalse(api.readonly_bound)
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_reject_multiple_accounts_with_specific_safe_code(self):
+        fake = FakeTransport(accounts=["M15-ACCOUNT", "H1-ACCOUNT"])
+        api = adapter(fake)
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "NOT_PROVED_ACCOUNT_LIST_NOT_SINGLE"):
+            api.connect_readonly()
+        self.assertFalse(api.readonly_bound)
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_reject_nonlist_accounts_with_specific_safe_code(self):
+        fake = FakeTransport(details={"readonly": True, "account_ids": "M15-ACCOUNT"})
+        api = adapter(fake)
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "NOT_PROVED_ACCOUNT_LIST_SCHEMA"):
+            api.connect_readonly()
+        self.assertFalse(api.readonly_bound)
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_reject_other_only_account_with_specific_safe_code(self):
+        fake = FakeTransport(accounts=["H1-ACCOUNT"])
+        api = adapter(fake)
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "NOT_PROVED_ACCOUNT_ID_MISMATCH"):
+            api.connect_readonly()
+        self.assertFalse(api.readonly_bound)
+        self.assertEqual(len(fake.calls), 2)
 
     def test_cross_account_read_never_calls_transport(self):
         fake = FakeTransport()
