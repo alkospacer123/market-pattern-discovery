@@ -334,6 +334,10 @@
       "sha256": "d249e9cbee5bae2f30bb17614b84fd037b8fb8651de513f554b989ffb830aefc"
     },
     {
+      "path": "tests/test_cc03_b2_replace_native_fixture.py",
+      "sha256": "c29bf2e0e5d09f8cd87295adb74c5e9af78dc84818673a66a5303cde326adf34"
+    },
+    {
       "path": "tests/test_cc03_source.py",
       "sha256": "a8d69338ba23f4d93682caaa1df9867d5974be87ed4516aba1ccbf4b83b19cf4"
     },
