@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime
 import json
 from pathlib import Path
+from threading import Lock
 from ..models import (DataProvenance, FieldObservation, InstrumentStatus, PortfolioSnapshot,
                       RiskSnapshot, RobotId, RobotSnapshot, RobotStatus, SourceKind, State, SystemAlert, WindowsObservation)
 from .h1_contract import ACTIVE, SPEC, ACCEPTED_COMMIT, MAX_BYTES, timestamp, validate
@@ -15,6 +16,41 @@ from ..deployment_paths import data_root
 EXPORT_ROOT = data_root() / 'export'
 POLICY_ROOT = Path(__file__).absolute().parents[2] / 'deployment'
 SAFE_ERROR = 'CC03_SOURCE_UNKNOWN_OR_UNAVAILABLE'
+# One Streamlit server process, shared by all UI sessions. Not an interprocess lock.
+# No polling, retries, background threads, or H1/FINAM access here.
+_MANUAL_EXPORT_GATE = Lock()
+
+def unchecked_export_snapshot(now: datetime):
+    """Unobserved H1: render UNKNOWN without opening any file or invoking a provider."""
+    p = DataProvenance(RobotId.H1, 'UNBOUND-H1', 'READONLY_EXPORT/H1', None, now,
+                       synthetic=False, source_kind=SourceKind.READONLY_EXPORT)
+    return RobotSnapshot(
+        RobotStatus(p, State.UNKNOWN, 'TradingSystemLab', 'T3/H1/TRAIL1', ACTIVE,
+                    None, None, None, False, None, None, None),
+        tuple(InstrumentStatus(p, name, State.UNKNOWN, None, 'NOT_CHECKED', None, None)
+              for name in ('USDRUBF', 'CNYRUBF', 'GLDRUBF', 'IMOEXF')),
+        (), (), (), None, RiskSnapshot(p, None, None, None, None, 'NOT_CHECKED'),
+        PortfolioSnapshot(p, None, None, None, None, None, None), None,
+        (SystemAlert(p, None, now, 'SOURCE', 'WARNING', 'MANUAL_REFRESH_REQUIRED'),),
+    )
+
+
+
+def manual_export_refresh(now: datetime):
+    """At most one local CC-export read across all sessions in this panel process.
+
+    Concurrent clicks fail closed and never invoke the provider. A different panel
+    process is outside this gate; physical CC-03 acceptance must prove a single
+    loopback Streamlit listener before extending this path to an H1 diagnostic.
+    """
+    if not _MANUAL_EXPORT_GATE.acquire(blocking=False):
+        return unchecked_export_snapshot(now), False
+    try:
+        return H1ExportProvider().snapshot(RobotId.H1, 'READONLY_EXPORT', now), True
+    except Exception:
+        return unchecked_export_snapshot(now), False
+    finally:
+        _MANUAL_EXPORT_GATE.release()
 
 
 @dataclass(frozen=True)
