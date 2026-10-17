@@ -41,6 +41,8 @@ class FakeTransport:
             return FakeResponse({"symbol": symbol, "bars": []})
         if parsed.path.endswith("/params"):
             return FakeResponse({"sample_params": 1})
+        if parsed.path.startswith("/v1/assets/") and not parsed.path.endswith("/schedule"):
+            return FakeResponse({"ticker": "CNYRUBF", "mic": "RTSX", "min_step": "1", "decimals": 3})
         if parsed.path.endswith("/schedule"):
             return FakeResponse({"sample_schedule": 1})
         raise AssertionError("Unexpected method/path: " + parsed.path)
@@ -167,6 +169,18 @@ class ReadOnlyTransport(unittest.TestCase):
             api.bars_m15("USDRUBF@RTSX", "2026-10-15T12:00:00Z",
                          "2026-10-15T10:00:00Z")
         self.assertEqual(len(fake.calls), 2)
+
+    def test_asset_metadata_read_is_exact_account_get(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        api.connect_readonly()
+        result = api.asset_details("CNYRUBF@RTSX")
+        self.assertEqual(result["min_step"], "1")
+        method, path, query, timeout = fake.calls[-1]
+        self.assertEqual(method, "GET")
+        self.assertEqual(path, "/v1/assets/CNYRUBF@RTSX")
+        self.assertEqual(parse_qs(query), {"account_id": ["M15-ACCOUNT"]})
+        self.assertEqual(len(fake.calls), 3)
 
     def test_trade_history_uses_only_exact_account_bounded_get(self):
         fake = FakeTransport()
