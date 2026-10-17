@@ -4,6 +4,7 @@ from decimal import Decimal as D
 
 from IntradayLab.m15_robot.broker_risk_readonly import (
     M15RiskAuthorityError, check_account, check_instrument, decimal_value, rub_money,
+    financial_schema_flags,
 )
 
 
@@ -55,6 +56,36 @@ class M15ReadOnlyRiskProof(unittest.TestCase):
         x.pop("equity")
         with self.assertRaisesRegex(M15RiskAuthorityError, "DECIMAL"):
             check_account(x, "m15-only")
+
+    def test_financial_schema_never_returns_broker_values(self):
+        a = account()
+        flags = financial_schema_flags(a, "m15-only")
+        self.assertEqual(flags["equity"], "decimal_string")
+        self.assertEqual(flags["portfolio_forts_available_cash"], "decimal_string")
+        self.assertEqual(flags["portfolio_mc_available_cash"], "missing")
+        self.assertNotIn("50000", str(flags))
+        self.assertNotIn("m15-only", str(flags))
+
+    def test_schema_equity_missing_preserves_no_capital_authority(self):
+        a = account()
+        a.pop("equity")
+        flags = financial_schema_flags(a, "m15-only")
+        self.assertEqual(flags["equity"], "missing")
+        with self.assertRaisesRegex(M15RiskAuthorityError, "M15_RISK_DECIMAL_EQUITY_MISSING"):
+            check_account(a, "m15-only")
+
+    def test_schema_wrong_account_rejected_before_introspection(self):
+        with self.assertRaisesRegex(M15RiskAuthorityError, "BINDING"):
+            financial_schema_flags(account(), "h1-account")
+
+    def test_schema_wrong_nested_types_reported_without_values(self):
+        a = account()
+        a["equity"] = {"value": 50000}
+        a["portfolio_forts"]["available_cash"] = "10000"
+        flags = financial_schema_flags(a, "m15-only")
+        self.assertEqual(flags["equity"], "invalid_value_type")
+        self.assertEqual(flags["portfolio_forts_available_cash"], "invalid_schema")
+        self.assertNotIn("10000", str(flags))
 
     def test_missing_equity_has_safe_field_code(self):
         x = account()
