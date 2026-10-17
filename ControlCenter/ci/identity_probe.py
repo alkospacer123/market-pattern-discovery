@@ -53,6 +53,10 @@ def main():
         pass
     else:
         raise AssertionError('PANEL_PRIVATE_POLICY_READ_ALLOWED')
+    from cc.manual_gate import export_gate
+    with export_gate() as acquired:
+        assert acquired, 'STANDARD_TOKEN_GLOBAL_MUTEX_UNAVAILABLE'
+    print('LOW_SID_GLOBAL_MANUAL_MUTEX=PASS',flush=True)
     # Permission-A preflight runs under the actual standard ccpanel token. The policy
     # remains fixed to H1; this CI-only adapter selects only UUID fixtures.
     from observer import intel_preflight as preflight

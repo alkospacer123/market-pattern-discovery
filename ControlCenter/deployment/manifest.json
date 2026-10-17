@@ -99,11 +99,11 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "18e46e372e7ef2a3feaef6f81a6019fe1137040f704a24daefbf4b4b2101851e"
+      "sha256": "bf790a16e5b321e502c74c9973d71d0eb21f9b4608e2aba5a7bd895d1d71d95b"
     },
     {
       "path": "ci/identity_probe.py",
-      "sha256": "9f339e4b1a72177d602bda6f42d11680636d75400315c9770e02ebd42b2fdcbd"
+      "sha256": "4a3ba87446f0582bfe3f0cc7db887e2d4d838007c88c2cdc5f520cf4ecaf34f8"
     },
     {
       "path": "ci/metadata_experiment.py",
@@ -223,7 +223,7 @@
     },
     {
       "path": "docs/CC03_SINGLE_CCPANEL_AUDIT.md",
-      "sha256": "3a439d0cfcf5302f9cdd93fcd7e66cc52c18827dc448e59425c8c62f9b0af230"
+      "sha256": "3140ebbe845646b5204e918bc62384ec035854839da6911c75e3c58aac0090b1"
     },
     {
       "path": "docs/CC03_SOURCE_AUTHORITY.md",

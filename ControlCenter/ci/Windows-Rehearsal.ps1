@@ -291,6 +291,17 @@ try {
         Set-DisposableACL $pair[0] $pair[1]
     }
     Assert-LayoutACL $panelSid
+    # Synthetic non-CC sentinels only, never Intel/production bytes or paths.
+    $canaryRoot = Join-Path $sandbox 'protected-outside-cc'
+    $null = New-Item -ItemType Directory -Path $canaryRoot
+    $canaryHashes = @{}
+    foreach ($canary in @('h1.sqlite3','h1.sqlite3-wal','finam-credential.fixture',
+                           'trading-settings.json','heartbeat.json')) {
+        $file = Join-Path $canaryRoot $canary
+        Set-Content -LiteralPath $file -Value ('SYNTHETIC_CC03_' + [guid]::NewGuid().ToString('N')) -Encoding ASCII
+        Set-DisposableACL $file 'private'
+        $canaryHashes[$canary] = (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash
+    }
     Expect-Failure { Assert-LayoutACL 'S-1-5-32-544' } 'VALID_CCPANEL_SID_REQUIRED'
     Expect-Failure { Assert-CurrentIdentity $panelSid } 'DEDICATED_IDENTITY_REQUIRED'
     # Only fixture directories receive ACLs. Probe real effective rights, not just ACE text.
@@ -416,6 +427,10 @@ try {
     if (@(Get-ChildItem -Force -LiteralPath $script:VenvRoot).Count -ne 0) { throw 'OWN_VENV_NOT_REMOVED' }
     if (-not (Test-Path -LiteralPath $private -PathType Leaf) -or -not (Test-Path -LiteralPath $exportFile -PathType Leaf)) { throw 'DATA_NOT_RETAINED' }
     if ((Get-FileHash -LiteralPath $private -Algorithm SHA256).Hash -ne $privateBeforeSha -or (Get-FileHash -LiteralPath $exportFile -Algorithm SHA256).Hash -ne $exportBeforeSha) { throw 'DATA_BYTES_CHANGED' }
+    foreach ($canary in $canaryHashes.Keys) {
+        if ((Get-FileHash -LiteralPath (Join-Path $canaryRoot $canary) -Algorithm SHA256).Hash -ne $canaryHashes[$canary]) { throw 'PROTECTED_SYNTHETIC_CANARY_CHANGED' }
+    }
+    $results['protected_canaries'] = 'PASS: synthetic SQLite/WAL/credential/settings/heartbeat bytes unchanged outside CC runtime roots'
     $results['uninstall'] = 'PASS: own package/venv removed, disposable private/export/log data retained'
     $results['status'] = 'PASS'
 } catch {
