@@ -10,6 +10,10 @@ H1 frozen identity `TRAIL1__N4_01__FULL__R15`, Stage7 `PROD_STAGE7_46DB784378797
 
 M15 всегда NOT_DEPLOYED / NO_RUNTIME_AUTHORITY, отдельные счёт/риск/runtime. Документированный будущий план #527 `T3_M15_T1_TRAIL35_N4_R20` не присваивается активному runtime. DEMO-M15-A/B — искусственные подписи. Счета, позиции, капитал и риск двух контуров не суммируются. Все **10 управляющих кнопок disabled**, без callbacks. T3 не пересчитывается.
 
+## CC-03: single ccpanel — пакетная подготовка, не разрешение на запуск
+
+Текущая ветка установки использует **один** подтверждённый стандартный Windows SID пользователя `ccpanel`. Подготовленные `ccobserver` и `ccexporter` не удаляются и не используются. `app`, `venv`, `data/export` доступны только на чтение; `data/logs` — на запись; `data/private` — только SYSTEM/Administrators. Панель не получает FINAM или H1 токен. `Start-Exporter.ps1 -Execute` принудительно отклоняется до доступа к политике или источнику. До отдельной проверки защищённого производителя снимков реальные H1-поля UNKNOWN. **Нельзя разворачивать этот отдельный Draft PR с прежним двух-SID пакетом и нельзя разворачивать без принятой версии UI с ручным обновлением (#546).** Испытания в GitHub-hosted Windows не являются Intel physical acceptance.
+
 ## Локальный запуск DEMO / OFFLINE_FIXTURE
 
 Отдельная копия только `ControlCenter/`, Python 3.11/3.12 x64; никаких торговых SDK, token, SQLite или market CSV:
