@@ -6,9 +6,9 @@
 
 **Это кодовая подготовка CC-03. Intel не подключался, установка не выполнялась. Native Windows/ACL — NOT_VERIFIED. Один Draft PR, NO MERGE / NO AUTO-MERGE; после него STOP для аудита.**
 
-H1 frozen identity `TRAIL1__N4_01__FULL__R15`, Stage7 `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`, N4 USDRUBF/CNYRUBF/GLDRUBF/IMOEXF, справочный риск 1,5% / max 6% не изменены. Последний документированный Intel commit `3a18c8c24301c866a60f5d725de227288d48f7ec`, Task Disabled, HALTED; новый документальный checkpoint #532 сообщает созданный durable authorization record, но запуск/rearm не разрешены. Это историческая запись, не новый server read. GitHub base `52e167d7b36170f1f639827eb875a57d52175491` не установленная версия H1.
+H1 frozen identity `TRAIL1__N4_01__FULL__R15`, Stage7 `PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8`, N4 USDRUBF/CNYRUBF/GLDRUBF/IMOEXF, справочный риск 1,5% / max 6% не изменены. Последний документированный Intel installed commit `3a18c8c24301c866a60f5d725de227288d48f7ec`. Историческая запись #532 о HALTED/Task Disabled устарела: согласно утверждённому решению #6241614427 действующий H1 LIVE ARMED/RUNNING. Это операционное указание, не новый server read. Панель обязана подтверждать текущее состояние независимым источником, а без него показывать UNKNOWN. GitHub base `52e167d7b36170f1f639827eb875a57d52175491` не установленная версия H1.
 
-M15 всегда NOT_DEPLOYED / NO_RUNTIME_AUTHORITY, отдельные счёт/риск/runtime. Документированный будущий план #527 `T3_M15_T1_TRAIL35_N4_R20` не присваивается активному runtime. DEMO-M15-A/B — искусственные подписи. Счета, позиции, капитал и риск двух контуров не суммируются. Все **10 управляющих кнопок disabled**, без callbacks. T3 не пересчитывается.
+M15 всегда NOT_DEPLOYED / NO_RUNTIME_AUTHORITY, отдельные счёт/риск/runtime. Утверждённый кандидат `T3_M15_T1_TRAIL35_N4_R15`, риск 1,5%/позицию, совокупно до 6%; эта спецификация не подтверждает наличие runtime или LIVE-авторизации. DEMO-M15-A/B — искусственные подписи. Счета, позиции, капитал и риск двух контуров не суммируются. Все **10 управляющих кнопок disabled**, без callbacks. T3 не пересчитывается.
 
 ## Локальный запуск DEMO / OFFLINE_FIXTURE
 
@@ -23,7 +23,7 @@ py -3.12 -m venv .venv
 
 Открыть `http://127.0.0.1:8501`; Ctrl+C завершает только панель. Запускать из этого каталога: `.streamlit/config.toml` фиксирует loopback, CORS/XSRF enabled, telemetry/file watcher off. Не открывать порт 8501 в интернет; будущий remote доступ только отдельно согласованный VPN/tunnel/authenticated HTTPS proxy. Не помещать Windows admin/FINAM credentials в приложение.
 
-Linux: `python -m venv .venv`, `.venv/bin/python -m pip install -r requirements-dev.txt`, `.venv/bin/python -m streamlit run app.py`. Прямые зависимости закреплены, модели используют stdlib. UI обновляется при открытой сессии раз в 2s, не опрашивает брокера и не запускает exporter.
+Linux: `python -m venv .venv`, `.venv/bin/python -m pip install -r requirements-dev.txt`, `.venv/bin/python -m streamlit run app.py`. Прямые зависимости закреплены, модели используют stdlib. UI не обновляется автоматически: открытие страницы и переходы между вкладками не выполняют READONLY-проверки. Кнопка «Обновить данные» однократно читает только отдельный CC-owned READONLY_EXPORT; без принятой policy статус UNKNOWN. Внутри одного процесса панели параллельные ручные чтения блокируются без retry; при конфликте показывается BLOCKED/UNKNOWN. Этот lock **не межпроцессный**: перед будущей реальной диагностикой требуется отдельная проверка единственного экземпляра панели и безопасного H1-источника. H1/FINAM/Task кнопка не вызывает.
 
 OFFLINE_FIXTURE читает только `fixtures/h1/h1.snapshot.json`, публичный `FIXTURE-H1`; fixture от `2026-10-15T18:20:00Z` не передатируется refresh-ом, позднее STALE. [CC-02 контракт](docs/H1_READONLY_SNAPSHOT_CONTRACT.md) сохранён; его 180/90/300s пороги остаются тестовыми, не production policy. DEMO/fixture FILL evidence никогда не становится реальным broker fill.
 
