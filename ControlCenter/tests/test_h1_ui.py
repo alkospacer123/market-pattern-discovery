@@ -41,7 +41,8 @@ def test_fixture_navigation_and_disabled_controls(page, fixture_app):
     assert not app.exception
     assert 'OFFLINE_FIXTURE' in content(app)
     if page=='Управление':
-        assert len(app.button)==10 and all(row.disabled for row in app.button)
+        controls=[b for b in app.button if b.key!='cc03-manual-refresh']
+        assert len(controls)==10 and all(row.disabled for row in controls)
     if page=='Монитор H1':
         assert 'Причина не опубликована' in content(app)
         assert 'accepted code 3a18c8c' in content(app)
@@ -114,3 +115,30 @@ def test_switching_back_to_demo_preserves_scenarios(fixture_app):
     assert 'T3/H1/TRAIL1 · HEALTHY · SYNTHETIC / DEMO' in content(app)
     assert 'T3/M15/SESSION · NOT_DEPLOYED' in content(app)
     assert [metric.value for metric in app.metric]==['0','0','UNKNOWN','UNKNOWN']
+
+
+def test_export_is_not_read_without_manual_click_and_navigation_does_not_reread(monkeypatch):
+    from cc.providers.h1_export import H1ExportProvider
+    calls=[]
+    def count_reads(self, robot_id, scenario, now):
+        calls.append((robot_id, scenario))
+        from cc.providers.h1_export import unchecked_export_snapshot
+        return unchecked_export_snapshot(now)
+    monkeypatch.setattr(H1ExportProvider, 'snapshot', count_reads)
+    app=AppTest.from_file(str(APP), default_timeout=15).run()
+    app.selectbox(key='h1-source').select('READONLY_EXPORT').run()
+    assert not app.exception and not calls
+    assert 'MANUAL_REFRESH_REQUIRED' in content(app) or 'Проверка H1 не запускалась' in content(app)
+    app.radio[0].set_value('Монитор H1').run()
+    app.radio[0].set_value('Монитор M15').run()
+    assert not calls
+    app.button(key='cc03-manual-refresh').click().run()
+    assert len(calls)==1
+    app.radio[0].set_value('Главная панель').run()
+    app.radio[0].set_value('Монитор H1').run()
+    assert len(calls)==1
+    app.button(key='cc03-manual-refresh').click().run()
+    assert len(calls)==2
+    app.selectbox(key='h1-source').select('SYNTHETIC / DEMO').run()
+    app.selectbox(key='h1-source').select('READONLY_EXPORT').run()
+    assert len(calls)==2 and 'Проверка H1 не запускалась' in content(app)
