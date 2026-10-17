@@ -20,6 +20,10 @@ Actual Windows run 38862976125 proved `PermissionError [WinError 5]` when an unc
 
 ## ACL and identities
 
+Intel B1 layout (operator-readonly verified 2026-10-17): protected `C:\Control Center` with frozen 97-file package plus separate empty `app`, `venv`, `data/export`, `data/logs`, `data/private`. Production root policy is unchanged for CI sandbox: the existing GitHub-hosted disposable override remains restricted to its temporary tree. The root itself is for trusted code review; panel/exporter receive only required traversal at the root, their actual read/write grants are on their own subtrees. All three role accounts initially remain DISABLED; actual role token access is NOT_VERIFIED. No live source is approved.
+
+## Role directory permissions
+
 | Disposable CC resource | SYSTEM / Administrators | CCPanel | CCExporter |
 | --- | --- | --- | --- |
 | app / venv / data parent | Full | Read/Execute | Read/Execute |
