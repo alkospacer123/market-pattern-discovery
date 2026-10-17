@@ -95,7 +95,7 @@
     },
     {
       "path": "ci/Test-PanelIdentity.ps1",
-      "sha256": "5c31e2dda7880f5b655f25e84970953171ca5137994d28a2dd335305da4ab237"
+      "sha256": "e4586953c628627db10456e8e6714633db613be8bcc6c715fa0ddc976c67c3b4"
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
@@ -115,7 +115,7 @@
     },
     {
       "path": "deployment/Common.ps1",
-      "sha256": "5498a21e1b36c7bce509488d0e9879c45495fb72fe7978ac6af963dfb5df5df0"
+      "sha256": "d3b4af69e94459e48b6f3e411484db8bb776873e251538f4e78de51da8ed1028"
     },
     {
       "path": "deployment/Install.ps1",
@@ -123,7 +123,7 @@
     },
     {
       "path": "deployment/PanelIdentity.ps1",
-      "sha256": "ae26dde48a6de6086507a2d5af94b129df65ff598ecae0e2601238268d906991"
+      "sha256": "c2827b66915c3b3679f96f65028949b9b8a9f514766671b366a928970e961d6f"
     },
     {
       "path": "deployment/Preflight.ps1",
@@ -223,7 +223,7 @@
     },
     {
       "path": "docs/CC03_SINGLE_CCPANEL_AUDIT.md",
-      "sha256": "3140ebbe845646b5204e918bc62384ec035854839da6911c75e3c58aac0090b1"
+      "sha256": "a1bfd7c14115affe7e9f635ee5bcc59bdb1eb15d76c5116cd340871cc037679c"
     },
     {
       "path": "docs/CC03_SOURCE_AUTHORITY.md",
@@ -383,7 +383,7 @@
     },
     {
       "path": "tests/test_intel_preflight_native.py",
-      "sha256": "9dfd34ce54826f5e46913447e0de719ac5da2181ebb9b06bbccbee68b5a5fd8d"
+      "sha256": "3ede3fa053d25eb05a873dc1a06e23c4d1d60147d970728b5406067e9dbdcdf3"
     },
     {
       "path": "tests/test_manual_gate.py",

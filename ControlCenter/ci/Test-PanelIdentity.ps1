@@ -43,6 +43,20 @@ public static class CC03RestrictedToken {
     [StructLayout(LayoutKind.Sequential)] public struct SidAndAttributes { public IntPtr Sid; public uint Attributes; }
     [DllImport("advapi32.dll",SetLastError=true)] static extern bool CreateRestrictedToken(IntPtr source,uint flags,uint disableCount,[In] SidAndAttributes[] disable,uint deleteCount,IntPtr delete,uint restrictCount,IntPtr restrict,out IntPtr token);
     [DllImport("kernel32.dll")] public static extern bool CloseHandle(IntPtr handle);
+    [DllImport("advapi32.dll",SetLastError=true)] static extern bool GetTokenInformation(IntPtr token,int kind,IntPtr data,int length,out int needed);
+    public static bool HasDenyOnlyAdmin(IntPtr token) {
+        int needed; GetTokenInformation(token,2,IntPtr.Zero,0,out needed);
+        var data=Marshal.AllocHGlobal(needed);
+        try {
+            if(!GetTokenInformation(token,2,data,needed,out needed)) throw new Exception("FIXTURE_GROUPS_UNAVAILABLE");
+            int offset=IntPtr.Size==8 ? 8 : 4, size=Marshal.SizeOf(typeof(SidAndAttributes));
+            for(int i=0;i<Marshal.ReadInt32(data);i++) {
+                var entry=(SidAndAttributes)Marshal.PtrToStructure(IntPtr.Add(data,offset+i*size),typeof(SidAndAttributes));
+                if(new SecurityIdentifier(entry.Sid).Value=="S-1-5-32-544") return (entry.Attributes & 16)!=0;
+            }
+            return false;
+        } finally { Marshal.FreeHGlobal(data); }
+    }
     public static IntPtr Create() {
         var sid=new SecurityIdentifier("S-1-5-32-544"); var bytes=new byte[sid.BinaryLength]; sid.GetBinaryForm(bytes,0);
         var pointer=Marshal.AllocHGlobal(bytes.Length);
@@ -59,7 +73,7 @@ public static class CC03RestrictedToken {
     try {
         $filtered = [Security.Principal.WindowsIdentity]::new($restricted)
         try {
-            if (-not (@($filtered.Groups | ForEach-Object { $_.Value }) -contains 'S-1-5-32-544')) { throw 'FILTERED_ADMIN_GROUP_MISSING' }
+            if (-not [CC03RestrictedToken]::HasDenyOnlyAdmin($restricted)) { throw 'FILTERED_ADMIN_GROUP_MISSING' }
             if (Test-CCStandardIdentity $filtered) { throw 'FILTERED_ADMIN_ACCEPTED' }
             $checks += 'FILTERED_ADMIN_REJECTED'
         } finally { $filtered.Dispose() }

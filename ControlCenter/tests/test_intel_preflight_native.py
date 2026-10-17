@@ -85,14 +85,18 @@ def test_native_restricted_execution_policy_is_child_only(preflight_policy):
     import json
     payload=json.dumps(dict(cc_panel_sid=None, roots=[]))
     base=['powershell.exe','-NoLogo','-NoProfile','-NonInteractive']
+    from pathlib import Path
+    environment=os.environ.copy()
+    environment['PSMODULEPATH']=os.pathsep.join([str(Path(os.environ['SYSTEMROOT'])/'System32/WindowsPowerShell/v1.0/Modules'),
+        str(Path(os.environ['PROGRAMFILES'])/'WindowsPowerShell/Modules')])
     def policies():
         result=subprocess.run(base+['-Command','Get-ExecutionPolicy -List | ConvertTo-Json -Compress'],
-                              capture_output=True,text=True,timeout=10)
+                              capture_output=True,text=True,timeout=10,env=environment)
         assert result.returncode==0, result.stderr
         return json.loads(result.stdout)
     before=policies()
     denied=subprocess.run(base+['-ExecutionPolicy','Restricted','-File',str(preflight.READINESS_SCRIPT)],
-                          input=payload,capture_output=True,text=True,timeout=10)
+                          input=payload,capture_output=True,text=True,timeout=10,env=environment)
     assert denied.returncode!=0 and 'PSSecurityException' in denied.stderr
     observed=preflight.readiness(preflight_policy)
     assert observed['observer_standard'] is False # elevated runner, never standard

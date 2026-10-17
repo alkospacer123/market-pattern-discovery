@@ -109,5 +109,5 @@ function Assert-CurrentIdentity([string]$ExpectedSid) {
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
     if ($identity.User.Value -ne $ExpectedSid) { throw 'DEDICATED_IDENTITY_REQUIRED' }
     if ($identity.ImpersonationLevel -ne [Security.Principal.TokenImpersonationLevel]::None) { throw 'PRIMARY_TOKEN_REQUIRED' }
-    if (@($identity.Groups | Where-Object { $_.Value -in $script:CCPrivilegedGroups }).Count -ne 0) { throw 'NON_ADMINISTRATOR_REQUIRED' }
+    if (-not (Test-CCStandardIdentity $identity)) { throw 'NON_ADMINISTRATOR_REQUIRED' }
 }
