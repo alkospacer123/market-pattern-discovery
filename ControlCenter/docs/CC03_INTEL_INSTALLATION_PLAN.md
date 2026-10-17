@@ -68,13 +68,13 @@ C:\Control Center\data\private     private source policy; нет panel grant
 Под CCPanel, из отдельной консоли, с локально известными SID (не передавать Windows passwords через параметры):
 
 ```powershell
-& C:\Control Center\app\deployment\Start-Panel.ps1 -Execute -PanelSid $panelSid -ExporterSid $exporterSid
+& 'C:\Control Center\app\deployment\Start-Panel.ps1' -Execute -PanelSid $panelSid -ExporterSid $exporterSid
 ```
 
 Открыть `http://127.0.0.1:8501`; default DEMO. В READONLY_EXPORT ожидается UNKNOWN без source, а M15 NOT_DEPLOYED и все 10 controls disabled. Start проверяет actual current SID и отсутствие Administrators group; app/venv/export ACL. CORS/XSRF включены, listener только 127.0.0.1. Отдельная elevated readonly консоль:
 
 ```powershell
-& C:\Control Center\app\deployment\Verify.ps1 -Execute -PanelSid $panelSid -ExporterSid $exporterSid
+& 'C:\Control Center\app\deployment\Verify.ps1' -Execute -PanelSid $panelSid -ExporterSid $exporterSid
 Get-NetTCPConnection -LocalPort 8501 -State Listen | Select-Object LocalAddress,LocalPort,State
 ```
 
@@ -87,14 +87,14 @@ Get-NetTCPConnection -LocalPort 8501 -State Listen | Select-Object LocalAddress,
 После отдельного C под CCExporter, без admin, допускается будущий один запуск:
 
 ```powershell
-& C:\Control Center\app\deployment\Start-Exporter.ps1 -Execute -OsObserver -PanelSid $panelSid -ExporterSid $exporterSid
+& 'C:\Control Center\app\deployment\Start-Exporter.ps1' -Execute -OsObserver -PanelSid $panelSid -ExporterSid $exporterSid
 ```
 
 OS export содержит только Task/process observations, metadata UNKNOWN/DISABLED, account binding UNVERIFIED. Панель H1 health/trading/positions/orders/fills/SLTP/finance/PnL сохраняет UNKNOWN. Нет daemon, Task или автоматического cadence. Успешный export не означает CC03_PHYSICAL_PASS. При PROCESS_UNKNOWN источник не утверждать автоматически и не искать новый PID. Отмена C: завершить только собственную exporter console, не удалять evidence/последний snapshot автоматически; stale/unknown TTL закрывает положительные факты.
 
 ## 6. Логи, сеть и rollback
 
-Панель и exporter foreground, stdout/stderr остаются в своих консольных сеансах. Для локального CC-only transcript после проверки отсутствия секретов можно использовать `Start-Transcript -Path C:\Control Center\data\logs\panel-<UTC>.txt` / `Stop-Transcript` вокруг запуска панели; exporter оставляет stdout в своей консоли, отдельный operator-owned capture требует согласованного sink; ограничить retention вручную. Не transcript private source inspection/credentials. Диагностические application errors — фиксированные sanitized codes. UNKNOWN искать по manifest/ACL/native API/source age/binding, не читать токены или БД ради диагностики.
+Панель и exporter foreground, stdout/stderr остаются в своих консольных сеансах. Для локального CC-only transcript после проверки отсутствия секретов можно использовать `Start-Transcript -Path 'C:\Control Center\data\logs\panel-<UTC>.txt'` / `Stop-Transcript` вокруг запуска панели; exporter оставляет stdout в своей консоли, отдельный operator-owned capture требует согласованного sink; ограничить retention вручную. Не transcript private source inspection/credentials. Диагностические application errors — фиксированные sanitized codes. UNKNOWN искать по manifest/ACL/native API/source age/binding, не читать токены или БД ради диагностики.
 
 Удалённый доступ в будущем: согласованный VPN, доступ к loopback через защищённый tunnel либо authenticated restricted HTTPS reverse proxy, отдельная authentication/RBAC policy. VPN не настраивался. Не создавать public firewall rule для 8501, не bind 0.0.0.0, не отключать CORS/XSRF; Windows admin/FINAM credentials не помещать в приложение.
 
