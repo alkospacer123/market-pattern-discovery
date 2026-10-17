@@ -183,6 +183,15 @@ class M15FinamReadOnlyAPI:
             raise M15FinamReadOnlyError("M15_TRADES_SCHEMA_INVALID")
         return result
 
+    def asset_details(self, symbol: str) -> dict:
+        """Exact M15-account GET of public exchange metadata; no trading."""
+        asset = quote(_symbol(symbol), safe="@")
+        query = urlencode({"account_id": self.__account})
+        result = self._request("GET", f"/v1/assets/{asset}?{query}")
+        if not isinstance(result, dict):
+            raise M15FinamReadOnlyError("M15_ASSET_DETAILS_SCHEMA_INVALID")
+        return result
+
     def asset_params(self, symbol: str) -> dict:
         asset = quote(_symbol(symbol), safe="@")
         query = urlencode({"account_id": self.__account})
