@@ -16,6 +16,21 @@ EXPORT_ROOT = data_root() / 'export'
 POLICY_ROOT = Path(__file__).absolute().parents[2] / 'deployment'
 SAFE_ERROR = 'CC03_SOURCE_UNKNOWN_OR_UNAVAILABLE'
 
+def unchecked_export_snapshot(now: datetime):
+    """Unobserved H1: render UNKNOWN without opening any file or invoking a provider."""
+    p = DataProvenance(RobotId.H1, 'UNBOUND-H1', 'READONLY_EXPORT/H1', None, now,
+                       synthetic=False, source_kind=SourceKind.READONLY_EXPORT)
+    return RobotSnapshot(
+        RobotStatus(p, State.UNKNOWN, 'TradingSystemLab', 'T3/H1/TRAIL1', ACTIVE,
+                    None, None, None, False, None, None, None),
+        tuple(InstrumentStatus(p, name, State.UNKNOWN, None, 'NOT_CHECKED', None, None)
+              for name in ('USDRUBF', 'CNYRUBF', 'GLDRUBF', 'IMOEXF')),
+        (), (), (), None, RiskSnapshot(p, None, None, None, None, 'NOT_CHECKED'),
+        PortfolioSnapshot(p, None, None, None, None, None, None), None,
+        (SystemAlert(p, None, now, 'SOURCE', 'WARNING', 'MANUAL_REFRESH_REQUIRED'),),
+    )
+
+
 
 @dataclass(frozen=True)
 class ReceiverPolicy:
