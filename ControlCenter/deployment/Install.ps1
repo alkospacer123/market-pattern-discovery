@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param([switch]$Execute, [string]$PanelSid, [string]$ExporterSid, [string]$Wheelhouse)
 . "$PSScriptRoot\Common.ps1"
-if (-not $Execute) { Write-Output 'PREVIEW: copy manifest files into empty C:\TSLControlCenterApp; create independent venv; install offline wheels. No ACL/Task/H1 changes.'; return }
+if (-not $Execute) { Write-Output 'PREVIEW: copy manifest files into empty C:\Control Center\app; create C:\Control Center\venv; install offline wheels. No ACL/Task/H1 changes.'; return }
 & "$PSScriptRoot\Preflight.ps1" -Execute -PanelSid $PanelSid -ExporterSid $ExporterSid
 if ([string]::IsNullOrWhiteSpace($Wheelhouse)) { throw 'OFFLINE_WHEELHOUSE_REQUIRED' }
 Assert-PlainPath $Wheelhouse

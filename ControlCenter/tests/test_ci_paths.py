@@ -1,7 +1,7 @@
 """The rehearsal override must never select a production or neighboring root."""
 from pathlib import PureWindowsPath
 import pytest
-from cc.deployment_paths import sandbox_root
+from cc.deployment_paths import sandbox_root, data_root
 
 
 def environment():
@@ -32,3 +32,8 @@ def test_invalid_rehearsal_root_fails_closed(key, value):
     env = environment(); env[key] = value
     with pytest.raises(ValueError):
         sandbox_root(env, windows=True)
+
+
+def test_production_data_root_uses_operator_approved_project(monkeypatch):
+    monkeypatch.delenv('CC03_CI_DISPOSABLE_ROOT', raising=False)
+    assert str(data_root()).replace('\\', '/') == 'C:/Control Center/data'

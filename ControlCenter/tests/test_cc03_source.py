@@ -211,7 +211,7 @@ def test_deployment_scripts_preview_and_no_production_mutators():
         assert not any(verb in source for verb in ('Start-ScheduledTask','Stop-ScheduledTask','Enable-ScheduledTask',
             'Disable-ScheduledTask','Set-ScheduledTask','Register-ScheduledTask','Set-Acl','Invoke-WebRequest',
             'FINAM_FILL_AUTHORITY_VERIFIED','Stop-Process','git pull'))
-    assert "'C:\\TSLControlCenterApp'" in (root/'Common.ps1').read_text()
+    assert "'C:\\Control Center'" in (root/'Common.ps1').read_text()
     assert '--no-index' in (root/'Install.ps1').read_text()
     assert 'Assert-CurrentIdentity $PanelSid' in (root/'Start-Panel.ps1').read_text()
     assert 'Assert-CurrentIdentity $ExporterSid' in (root/'Start-Exporter.ps1').read_text()

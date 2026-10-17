@@ -29,14 +29,16 @@ Wheelhouse hash manifest проверить по доверенному transfer
 
 Только по отдельному решению B в приватном operator transcript определить `$panelSid`, `$exporterSid` двух новых standard accounts. Без robot/admin membership, shared credentials и inherited robot grants. Создание аккаунтов/ACL требует отдельного физического согласования; пакет этого не делает. Подготовить пустые roots и protected ACL по [матрице](CC03_WINDOWS_SECURITY.md). Только SYSTEM/Admin меняют app/venv/policies, exporter пишет только export, panel пишет только logs. Проверить DACL не только roots, но active policy files и всех source ancestors/leaf; проверить effective token/group rights под настоящими SID. Для approved policy WinAPI дополнительно требует owner SYSTEM/Admin и отсутствие write/delete/write-DACL/ownership grants другим SID на policy path/leaf.
 
+На Intel утверждён единственный project root `C:\Control Center`. Корневая папка содержит неизменную проверенную release-копию; `app`, `venv`, `data` — её отдельные собственные защищённые подкаталоги. **Нельзя использовать скрипты из старого пакета #542 для установки:** его Common.ps1 направит запись в прежние места. До любого B-install требуется новая принятая release-сборка с новым manifest и отдельная проверка пути/ACL и источника. Прямое копирование новых скриптов поверх закреплённых 97 файлов без обновлённого manifest запрещено.
+
 Нужны именно отдельные:
 
 ```text
-C:\TSLControlCenterApp             code + administrator-owned receiver policy
-C:\TSLControlCenterVenv            Python venv
-C:\TSLControlCenterData\export     immutable completed h1-<time>-<uuid>-<sha256>.json; legacy collection BLOCKED
-C:\TSLControlCenterData\logs       только CC logs
-C:\TSLControlCenterData\private    private source policy; нет panel grant
+C:\Control Center\app              code + administrator-owned receiver policy
+C:\Control Center\venv             Python venv
+C:\Control Center\data\export      immutable completed h1-<time>-<uuid>-<sha256>.json; legacy collection BLOCKED
+C:\Control Center\data\logs        только CC logs
+C:\Control Center\data\private     private source policy; нет panel grant
 ```
 
 Существующие H1 checkout/runtime/state/secrets остаются на своих местах. Не предоставлять доступ к H1 runtime, JSON, SQLite или token directories. Для OS source нужны только существующие Task/process OS read grants. Если их недостаточно, оставить UNKNOWN и exporter выключенным; production ACL не менять.
@@ -54,8 +56,10 @@ C:\TSLControlCenterData\private    private source policy; нет panel grant
 .\deployment\Uninstall.ps1
 # Всё выше выводит PREVIEW; ничего не устанавливает/запускает/читает в H1.
 .\deployment\Preflight.ps1 -Execute -PanelSid $panelSid -ExporterSid $exporterSid
-.\deployment\Install.ps1 -Execute -PanelSid $panelSid -ExporterSid $exporterSid -Wheelhouse 'C:\CC03Staging\wheelhouse'
+.\deployment\Install.ps1 -Execute -PanelSid $panelSid -ExporterSid $exporterSid -Wheelhouse 'C:\Control Center\wheelhouse'
 ```
+
+Все пути установки должны оставаться внутри `C:\Control Center`; wheelhouse ещё не получен, физическая установка и запуск ролей не разрешены.
 
 Ожидается `CC03_PREFLIGHT_PASS_NO_H1_ACCESS`, затем `CC03_INSTALLED_SOURCE_POLICY_UNAPPROVED`. Package manifest проверяется до/после копии; цели app/venv должны быть пусты, roots уже созданы и защищены. Установка только offline `--no-index` wheels; `pip check` PASS. Инсталлятор не применяет ACL, не запускает H1, панель, exporter или службы. При partial install manifest и ownership marker позволяют rollback из staging. Если состояние отличается или файл уже изменён — STOP без перезаписи.
 
@@ -64,13 +68,13 @@ C:\TSLControlCenterData\private    private source policy; нет panel grant
 Под CCPanel, из отдельной консоли, с локально известными SID (не передавать Windows passwords через параметры):
 
 ```powershell
-& C:\TSLControlCenterApp\deployment\Start-Panel.ps1 -Execute -PanelSid $panelSid -ExporterSid $exporterSid
+& 'C:\Control Center\app\deployment\Start-Panel.ps1' -Execute -PanelSid $panelSid -ExporterSid $exporterSid
 ```
 
 Открыть `http://127.0.0.1:8501`; default DEMO. В READONLY_EXPORT ожидается UNKNOWN без source, а M15 NOT_DEPLOYED и все 10 controls disabled. Start проверяет actual current SID и отсутствие Administrators group; app/venv/export ACL. CORS/XSRF включены, listener только 127.0.0.1. Отдельная elevated readonly консоль:
 
 ```powershell
-& C:\TSLControlCenterApp\deployment\Verify.ps1 -Execute -PanelSid $panelSid -ExporterSid $exporterSid
+& 'C:\Control Center\app\deployment\Verify.ps1' -Execute -PanelSid $panelSid -ExporterSid $exporterSid
 Get-NetTCPConnection -LocalPort 8501 -State Listen | Select-Object LocalAddress,LocalPort,State
 ```
 
@@ -83,14 +87,14 @@ Get-NetTCPConnection -LocalPort 8501 -State Listen | Select-Object LocalAddress,
 После отдельного C под CCExporter, без admin, допускается будущий один запуск:
 
 ```powershell
-& C:\TSLControlCenterApp\deployment\Start-Exporter.ps1 -Execute -OsObserver -PanelSid $panelSid -ExporterSid $exporterSid
+& 'C:\Control Center\app\deployment\Start-Exporter.ps1' -Execute -OsObserver -PanelSid $panelSid -ExporterSid $exporterSid
 ```
 
 OS export содержит только Task/process observations, metadata UNKNOWN/DISABLED, account binding UNVERIFIED. Панель H1 health/trading/positions/orders/fills/SLTP/finance/PnL сохраняет UNKNOWN. Нет daemon, Task или автоматического cadence. Успешный export не означает CC03_PHYSICAL_PASS. При PROCESS_UNKNOWN источник не утверждать автоматически и не искать новый PID. Отмена C: завершить только собственную exporter console, не удалять evidence/последний snapshot автоматически; stale/unknown TTL закрывает положительные факты.
 
 ## 6. Логи, сеть и rollback
 
-Панель и exporter foreground, stdout/stderr остаются в своих консольных сеансах. Для локального CC-only transcript после проверки отсутствия секретов можно использовать `Start-Transcript -Path C:\TSLControlCenterData\logs\panel-<UTC>.txt` / `Stop-Transcript` вокруг запуска панели; exporter оставляет stdout в своей консоли, отдельный operator-owned capture требует согласованного sink; ограничить retention вручную. Не transcript private source inspection/credentials. Диагностические application errors — фиксированные sanitized codes. UNKNOWN искать по manifest/ACL/native API/source age/binding, не читать токены или БД ради диагностики.
+Панель и exporter foreground, stdout/stderr остаются в своих консольных сеансах. Для локального CC-only transcript после проверки отсутствия секретов можно использовать `Start-Transcript -Path 'C:\Control Center\data\logs\panel-<UTC>.txt'` / `Stop-Transcript` вокруг запуска панели; exporter оставляет stdout в своей консоли, отдельный operator-owned capture требует согласованного sink; ограничить retention вручную. Не transcript private source inspection/credentials. Диагностические application errors — фиксированные sanitized codes. UNKNOWN искать по manifest/ACL/native API/source age/binding, не читать токены или БД ради диагностики.
 
 Удалённый доступ в будущем: согласованный VPN, доступ к loopback через защищённый tunnel либо authenticated restricted HTTPS reverse proxy, отдельная authentication/RBAC policy. VPN не настраивался. Не создавать public firewall rule для 8501, не bind 0.0.0.0, не отключать CORS/XSRF; Windows admin/FINAM credentials не помещать в приложение.
 

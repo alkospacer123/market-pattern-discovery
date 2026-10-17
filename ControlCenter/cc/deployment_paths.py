@@ -23,4 +23,4 @@ def sandbox_root(environment, *, windows):
 
 def data_root():
     root = sandbox_root(os.environ, windows=os.name == 'nt')
-    return Path(root / 'data') if root is not None else Path('C:/TSLControlCenterData')
+    return Path(root / 'data') if root is not None else Path('C:/Control Center/data')

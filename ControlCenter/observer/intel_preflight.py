@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
-from cc.deployment_paths import data_root, sandbox_root
+from cc.deployment_paths import data_root
 from cc.providers.h1_readonly import _pairs, _reject_constant
 from cc.providers.windows_file import read_windows
 from .identity import current_identity
@@ -73,10 +73,12 @@ def policy_check(p):
 def readiness(policy):
     """Fixed own roots only. No H1 path is accepted, resolved or enumerated."""
     executable = Path(os.environ.get('SYSTEMROOT', r'C:\Windows')) / 'System32/WindowsPowerShell/v1.0/powershell.exe'
-    sandbox = sandbox_root(os.environ, windows=os.name == 'nt')
-    roots = ([str(Path(sandbox) / part) for part in ('app', 'venv', 'data')]
-             if sandbox is not None else [r'C:\TSLControlCenterApp', r'C:\TSLControlCenterVenv', r'C:\TSLControlCenterData'])
-    roots += [str(data_root() / part) for part in ('export', 'logs', 'private')]
+    # Resolve all six CC-only paths from the exact deployment path contract.
+    # This preserves the disposable CI sandbox and the approved Intel root,
+    # without probing legacy installation paths or any production H1 files.
+    data = data_root()
+    roots = [str(data.parent / 'app'), str(data.parent / 'venv'), str(data)]
+    roots += [str(data / part) for part in ('export', 'logs', 'private')]
     environment = {k: os.environ[k] for k in ('SYSTEMROOT', 'SYSTEMDRIVE', 'WINDIR', 'TEMP', 'TMP',
                     'USERPROFILE', 'APPDATA', 'LOCALAPPDATA', 'PROGRAMFILES',
                     'PROGRAMFILES(X86)', 'COMSPEC', 'COMPUTERNAME') if k in os.environ}
