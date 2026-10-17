@@ -1,9 +1,12 @@
 # Shared validation only. No broker, H1 Task, authorization or ACL mutations.
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-$script:AppRoot = 'C:\TSLControlCenterApp'
-$script:VenvRoot = 'C:\TSLControlCenterVenv'
-$script:DataRoot = 'C:\TSLControlCenterData'
+# Operator-approved Intel-only project root. Never infer roots from the current
+# working directory, production robot checkout, or external environment.
+$script:ControlCenterRoot = 'C:\Control Center'
+$script:AppRoot = Join-Path $script:ControlCenterRoot 'app'
+$script:VenvRoot = Join-Path $script:ControlCenterRoot 'venv'
+$script:DataRoot = Join-Path $script:ControlCenterRoot 'data'
 $script:PackageRoot = Split-Path $PSScriptRoot -Parent
 
 function Assert-PlainPath([string]$Path) {
