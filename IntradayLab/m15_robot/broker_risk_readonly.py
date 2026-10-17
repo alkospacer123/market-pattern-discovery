@@ -64,6 +64,42 @@ def rub_money(value: Any, *, positive: bool = False) -> Decimal:
     return result
 
 
+
+def financial_schema_flags(account: dict, expected_account_id: str) -> dict[str, str]:
+    """Report ONLY fixed field presence/schema tags; never values or IDs.
+
+    For troubleshooting FINAM REST on an empty separate account, with no
+    fallback to cash/GO and no assumption that a missing equity is zero.
+    """
+    if (not isinstance(account, dict) or
+            account.get("account_id") != expected_account_id):
+        raise M15RiskAuthorityError("M15_RISK_ACCOUNT_BINDING_INVALID")
+
+    def decimal_shape(container: Any, field: str) -> str:
+        if not isinstance(container, dict) or field not in container:
+            return "missing"
+        value = container[field]
+        if isinstance(value, dict) and set(value) == {"value"}:
+            return "decimal_string" if isinstance(value["value"], str) else "invalid_value_type"
+        return "invalid_schema"
+
+    flags = {
+        "equity": decimal_shape(account, "equity"),
+        "unrealized_profit": decimal_shape(account, "unrealized_profit"),
+    }
+    for name in ("portfolio_forts", "portfolio_mc"):
+        portfolio = account.get(name)
+        flags[name] = "object" if isinstance(portfolio, dict) else (
+            "missing" if name not in account else "invalid_schema"
+        )
+        keys = ("available_cash", "money_reserved") if name == "portfolio_forts" else (
+            "available_cash", "initial_margin", "maintenance_margin"
+        )
+        for field in keys:
+            flags[name + "_" + field] = decimal_shape(portfolio, field)
+    return flags
+
+
 @dataclass(frozen=True)
 class M15AccountSnapshot:
     available_cash: Decimal
