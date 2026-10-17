@@ -11,7 +11,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "bb628e07d7e0d8f6f013a52c086c4bd1b0db85c0ee16de147ad791e8a48490a0"
+      "sha256": "1afff28e6ade8d8d23c3a31f33adf7a5db1308763a373184240091ae7e8e0455"
     },
     {
       "path": "app.py",
@@ -39,7 +39,7 @@
     },
     {
       "path": "cc/manual_gate.py",
-      "sha256": "0355086d9d4aa48c44dc3f3351beb13da25e7ed0111edd2b4facaa57f790048c"
+      "sha256": "c7ce36e57704765abad99d6056c0fe759cdd176dcf107d1339ca73524ec7fdd8"
     },
     {
       "path": "cc/models.py",
@@ -103,7 +103,7 @@
     },
     {
       "path": "ci/identity_probe.py",
-      "sha256": "d635826063938203e788b8d62330926b55614c955587a369e37812cc711dc9ef"
+      "sha256": "41d66884ba40bb6db89d5697ea17010c2d4d607ba00293e07b12ca4ebf816690"
     },
     {
       "path": "ci/metadata_experiment.py",
@@ -223,7 +223,7 @@
     },
     {
       "path": "docs/CC03_SINGLE_CCPANEL_AUDIT.md",
-      "sha256": "b9a703f8b48fe03ee6f17d20601d7bcea8948feb9ffb5b27b92c54bb6c2dd65a"
+      "sha256": "91686f1c74f282b95ff95fa45d837e6676a6a3b80691f5a36384cab7cc2d5834"
     },
     {
       "path": "docs/CC03_SOURCE_AUTHORITY.md",

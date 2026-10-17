@@ -4,9 +4,7 @@ import os
 
 
 def _windows_sid(kernel, ctypes, w):
-    # Scope the object to the actual token SID, never an environment username.
-    # An administrator/test identity must not create an inaccessible object for
-    # the separately owned standard ccpanel. No cross-user grant is introduced.
+    # The shared object name uses the actual token SID, never an environment username.
     adv = ctypes.WinDLL('advapi32', use_last_error=True)
     kernel.GetCurrentProcess.restype = w.HANDLE
     kernel.LocalFree.argtypes = [w.LPVOID]
@@ -37,55 +35,39 @@ def _windows_sid(kernel, ctypes, w):
 
 @contextmanager
 def export_gate():
-    """All Windows sessions/processes of the same SID share one mutex during the read.
+    """One local first-instance named pipe per SID, across Windows sessions.
 
-    An inaccessible/precreated object fails closed. The OS releases ownership on
-    process exit. No file in H1, FINAM, or the protected CC package is touched.
+    No connection, read, write, polling thread, or remote client is permitted.
+    Holding the sole server handle is the lock; closing it (also on process exit)
+    removes the instance. A competing/precreated object fails closed. This avoids
+    the Global object namespace which denied the real standard hosted token.
     """
     if os.name == 'nt':
         import ctypes
         from ctypes import wintypes as w
         kernel = ctypes.WinDLL('kernel32', use_last_error=True)
-        kernel.CreateMutexExW.argtypes = [w.LPVOID, w.LPCWSTR, w.DWORD, w.DWORD]
-        kernel.CreateMutexExW.restype = w.HANDLE
-        kernel.WaitForSingleObject.argtypes = [w.HANDLE, w.DWORD]
-        kernel.WaitForSingleObject.restype = w.DWORD
-        kernel.ReleaseMutex.argtypes = [w.HANDLE]
+        kernel.CreateNamedPipeW.argtypes = [w.LPCWSTR, w.DWORD, w.DWORD, w.DWORD,
+                                            w.DWORD, w.DWORD, w.DWORD, w.LPVOID]
+        kernel.CreateNamedPipeW.restype = w.HANDLE
         kernel.CloseHandle.argtypes = [w.HANDLE]
         sid = _windows_sid(kernel, ctypes, w)
-        # Explicit own-SID rights work across logon sessions; never depend on a
-        # default DACL's logon SID or request ALL_ACCESS to an existing mutex.
-        class SecurityAttributes(ctypes.Structure):
-            _fields_ = [('size', w.DWORD), ('descriptor', w.LPVOID), ('inherit', w.BOOL)]
-        adv = ctypes.WinDLL('advapi32', use_last_error=True)
-        adv.ConvertStringSecurityDescriptorToSecurityDescriptorW.argtypes = [
-            w.LPCWSTR, w.DWORD, ctypes.POINTER(w.LPVOID), ctypes.POINTER(w.DWORD)]
-        descriptor = w.LPVOID()
-        if not adv.ConvertStringSecurityDescriptorToSecurityDescriptorW(
-                'D:P(A;;0x00100001;;;' + sid + ')(A;;GA;;;SY)', 1, ctypes.byref(descriptor), None):
-            raise ctypes.WinError(ctypes.get_last_error())
+        # PIPE_ACCESS_INBOUND | FILE_FLAG_FIRST_PIPE_INSTANCE; maximum one
+        # instance; PIPE_REJECT_REMOTE_CLIENTS. Never call ConnectNamedPipe.
+        handle = kernel.CreateNamedPipeW('\\\\.\\pipe\\ControlCenter.CC03.ManualRefresh.v1.' + sid,
+                                         0x00000001 | 0x00080000, 0x00000008, 1, 0, 0, 0, None)
+        if handle == ctypes.c_void_p(-1).value or handle is None:
+            error = ctypes.get_last_error()
+            if error not in (5, 231):  # access denied / busy: including an existing first instance
+                raise ctypes.WinError(error)
+            yield False
+            return
         try:
-            attributes = SecurityAttributes(ctypes.sizeof(SecurityAttributes), descriptor, False)
-            handle = kernel.CreateMutexExW(ctypes.byref(attributes),
-                'Global\\ControlCenter.CC03.ManualExportRefresh.v2.' + sid, 0, 0x00100001)
+            yield True
         finally:
-            kernel.LocalFree(descriptor)
-        if not handle:
-            raise ctypes.WinError(ctypes.get_last_error())
-        owned = False
-        try:
-            result = kernel.WaitForSingleObject(handle, 0)
-            if result == 0xFFFFFFFF:
-                raise ctypes.WinError(ctypes.get_last_error())
-            owned = result in (0, 0x80)
-            yield owned
-        finally:
-            if owned:
-                kernel.ReleaseMutex(handle)
             kernel.CloseHandle(handle)
     else:
         # Development on POSIX: lock the existing module inode read-only.
-        # Windows uses the machine-wide mutex even across separate checkouts.
+        # Windows uses the same pipe name across sessions and separate checkouts.
         import fcntl
         descriptor = os.open(__file__, os.O_RDONLY | os.O_NOFOLLOW)
         try:
