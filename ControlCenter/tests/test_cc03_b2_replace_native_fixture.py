@@ -46,5 +46,5 @@ Write-Output 'DISPOSABLE_EXPLICIT_BACKUP_REPLACE=PASS'
     assert result.returncode == 0, (result.stdout, result.stderr)
     assert "DISPOSABLE_NULL_BACKUP_REPLACE=EXPECTED_ARGUMENT_EXCEPTION" in result.stdout
     assert "DISPOSABLE_EXPLICIT_BACKUP_REPLACE=PASS" in result.stdout
-    assert (root / "cc" / "deployment_paths.py").read_text() == "old-value"
-    assert (root / "data" / "private" / "b2-pr543-backup" / "incoming" / "cc" / "deployment_paths.py.old").read_text() == "new-value"
+    assert (root / "cc" / "deployment_paths.py").read_text() == "new-value"
+    assert (root / "data" / "private" / "b2-pr543-backup" / "incoming" / "cc" / "deployment_paths.py.old").read_text() == "old-value"
