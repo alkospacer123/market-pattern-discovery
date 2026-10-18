@@ -2,6 +2,7 @@
 $script:PythonCoreUri = 'https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.zip'
 $script:PythonCoreHash = '8649692de846c56a7189d6dae5c322ab20deb1b5908b6f39426b62a36f39415d'
 $script:PythonCoreSize = 32399361
+$script:PythonCoreInventory = $null
 
 function Assert-PythonCoreName([string]$Name) {
     if ([string]::IsNullOrWhiteSpace($Name) -or $Name.Length -gt 220 -or
@@ -55,6 +56,12 @@ function Get-PythonCoreInventory([IO.Stream]$Stream) {
     if ($Stream.Length -ne $script:PythonCoreSize) { throw 'ZIP_SIZE_MISMATCH' }
     $Stream.Position = 0
     if ((Get-StreamSHA256 $Stream) -cne $script:PythonCoreHash) { throw 'ZIP_HASH_MISMATCH' }
+    # Exact SHA-256 determines every entry byte. Rehash the held archive on EVERY
+    # call; only avoid decompressing identical pinned bytes repeatedly within
+    # this script invocation. No disk cache, no skipped source/tree validation.
+    if ($null -ne $script:PythonCoreInventory) {
+        return @($script:PythonCoreInventory | ForEach-Object { $_.Clone() })
+    }
     $Stream.Position = 0
     Add-Type -AssemblyName System.IO.Compression
     $archive = [IO.Compression.ZipArchive]::new($Stream,[IO.Compression.ZipArchiveMode]::Read,$true)
@@ -67,6 +74,7 @@ function Get-PythonCoreInventory([IO.Stream]$Stream) {
     }
     if (@($names | Where-Object { $_ -like 'Lib/ensurepip/_bundled/pip-*.whl' }).Count -ne 1 -or
         @($names | Where-Object { $_ -like '*._pth' -or $_ -eq 'pyvenv.cfg' }).Count) { throw 'FULL_PYTHONCORE_REQUIRED' }
+    $script:PythonCoreInventory = @($records | ForEach-Object { $_.Clone() })
     return $records
 }
 

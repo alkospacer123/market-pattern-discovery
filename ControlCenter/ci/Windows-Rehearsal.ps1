@@ -27,9 +27,10 @@ $results = [ordered]@{}
 $evidence = Join-Path $originalRunnerTemp 'cc03-evidence'
 
 function Expect-Failure([scriptblock]$Operation, [string]$Expected) {
+    $timer = [Diagnostics.Stopwatch]::StartNew()
     try { & $Operation } catch {
         if ($_.Exception.Message -notlike "*$Expected*") { throw }
-        Write-Output "EXPECTED_REJECTION $Expected"
+        Write-Output ("EXPECTED_REJECTION $Expected seconds=" + $timer.Elapsed.TotalSeconds.ToString('F3',[Globalization.CultureInfo]::InvariantCulture))
         return
     }
     throw "EXPECTED_FAILURE_MISSING: $Expected"
@@ -475,8 +476,9 @@ try {
     }
     if (@(Get-ChildItem -Force -LiteralPath $poison).Count -ne 2 -or @(Get-ChildItem -Force -LiteralPath $canaryRoot).Count -ne 6) { throw 'INSTALL_WROTE_OUTSIDE_OWN_TARGETS' }
     $results['installer_environment'] = 'PASS: hostile PYTHONHOME/PYTHONPATH/PIP_TARGET/TMPDIR and caller CWD ignored for venv/ensurepip/pip; caller environment/location restored; zero outside writes'
-    & "$script:VenvRoot\Scripts\python.exe" -c "import sys,struct; print('REHEARSAL_PYTHON='+sys.version); assert sys.version_info[:3]==(3,12,10) and struct.calcsize('P')==8"
+    & "$script:VenvRoot\Scripts\python.exe" -I -B -c "import sys,struct; print('REHEARSAL_PYTHON='+sys.version); assert sys.version_info[:3]==(3,12,10) and struct.calcsize('P')==8"
     if ($LASTEXITCODE -ne 0) { throw 'REHEARSAL_PYTHON_VERSION_MISMATCH' }
+    Assert-TrustedBase $panelSid
     $results['install'] = 'PASS: real offline install from exact protected full CPython base, complete hashed runtime lock'
     foreach ($path in @($script:BasePython,"$script:AppRoot\app.py","$script:VenvRoot\pyvenv.cfg")) {
         if ([CC03Access]::Probe($panel.Name,$panel.Password,$panelSid,$path,$true) -ne 'ACCESS_DENIED') { throw 'PANEL_RUNTIME_MUTATION_ALLOWED' }

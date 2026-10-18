@@ -151,6 +151,13 @@ Invoke-TestProvision
 $provenance = Get-Content -Raw -LiteralPath $script:RuntimeProvenance | ConvertFrom-Json
 Copy-Item -LiteralPath $script:RuntimeProvenance -Destination "$evidence\python-base-provenance.json"
 Assert-TrustedBase $panelSid
+$cacheStream = [IO.File]::Open($sourceZip,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read)
+try {
+    $callerInventory = @(Get-PythonCoreInventory $cacheStream)
+    $callerInventory[0].sha256 = '0'*64
+    $freshInventory = @(Get-PythonCoreInventory $cacheStream)
+    Assert-PythonCoreManifest $provenance.files $freshInventory
+} finally { $cacheStream.Dispose() }
 $results['pythoncore_runtime'] = 'PASS: official full ZIP 3845 exact files; archive/manifest/tree hash and PSF supporting signature; real -I -B CPython 3.12.10 x64 with executable/base_prefix/ssl/venv/ensurepip/pip origins'
 # This runtime came from ZIP, not setup-python. Later install and ccpanel
 # lifecycle use it. Earlier transport/ETW/500-replace suites retain their CI venv.
