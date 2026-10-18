@@ -1,0 +1,46 @@
+# CC-03 C: ручной WINDOWS_OS_ONLY — инженерный Draft
+
+Основание: [полное ТЗ #524](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6247468651). Проверенная база GitHub main: `9506d5c8790d4d3b3eabb629d38532a581051e54`, #549 merged. Только ControlCenter; NO MERGE / NO AUTO-MERGE / NO INTEL / NO DEPLOY. Это продолжение CC-03, без новых этапов.
+
+## Выполненный путь и доверие
+
+`Обновить данные → manual_export_refresh(shared lock + manual_gate) → protected deployment/manual-os-policy.json → own primary token → один Read-OsFacts.ps1 → os_contract → h1_export.os_snapshot → session_state`.
+
+Политика C `cc03.manual-os-policy.v1` независима от A `cc03.intel-preflight-policy.v2`, старых OS/export/receiver policies. Нет миграции A→C. Шаблон намеренно invalid/unapproved; active policy исключена из manifest/ZIP. Путь фиксирован относительно установленного CC app, не задаётся UI/env/query parameter. JSON duplicate keys/extra keys/NaN/неполные process pins/неверный Task/TTL отвергаются до Task/PID. Native worker читает максимум 16384 байта, timeout 2s + ограниченная очистка; проверяет NTFS, owner SYSTEM/Administrators, отсутствие untrusted write на ancestors/leaf, reparse/hardlink/path identity. Drive root требует отдельного physical ACL review, как и существующий reader.
+
+Observer SID должен совпасть с фактическим primary token и существующим enabled стандартным локальным `ccpanel`, отличаться от production principals. Python отвергает elevation/limited UAC/impersonation/assigned powerful privileges; fixed helper повторно проверяет SID, full TokenGroups (включая deny-only Administrators) и local account state до Task. Не выдаются права, не меняются аккаунты или Task ACL. Недостаточные существующие Task/CIM read permissions → ACCESS_DENIED/UNKNOWN. Token/source validation error → новый UNKNOWN, без raw path/error/secret.
+
+Один click удерживает существующий per-SID first-instance local named-pipe gate до завершения. Busy/precreated/denied gate → ноль policy/identity/provider calls, без retry. Gate общий с READONLY_EXPORT, между процессами/checkout и Windows sessions; смерть владельца освобождает kernel handle. Отдельной службы, thread, timer, auto refresh/retry нет. Импорт, startup, navigation, source switch и rerun не вызывают live источник. Выбор другого source очищает кеш.
+
+Один фиксированный PowerShell 5.1 subprocess: absolute system binary, `-NoProfile -NonInteractive -ExecutionPolicy Bypass -File`, policy через stdin, scrubbed env без broker credentials/PYTHONPATH/custom PSModulePath. Bypass действует только в child, global policy не меняется. Максимум 6s на весь helper, CIM operation ≤2s; timeout завершается/ожидается subprocess.run, новых попыток нет. Отдельный policy worker также завершается. Helper проверяет exact Task XML SHA256/principal/state до и после optional targeted PID observation. Drift очищает оба факта. Arbitrary command/path/PID discovery отсутствуют. Hash image — hash нормализованной строки ExecutablePath, command/creation — hash строк CIM, это не attestation executable bytes.
+
+Старый exporter import перенесён внутрь его CLI execute; UI импортирует только identity, fixed OS helper boundary и pure envelope builder из observer. `Start-Exporter.ps1` остаётся disabled, `read_source()`/legacy `collect()` не разблокированы. Нет публикации в export, записи snapshot или отдельной source policy в data/private. Обычные Streamlit/session/логовые механизмы приложения не являются source publication.
+
+| Поле | Привязка / authority | TTL / отсутствие |
+| --- | --- | --- |
+| Task | exact approved Task XML + principal, stable state bracket; WINDOWS_OS_ONLY | min(generated + snapshot_ttl_seconds, observed + os_ttl_seconds) |
+| Process | только отдельно approved PID + creation epoch + image/command hashes + owner SID | тот же OS TTL; null process_binding → UNKNOWN/DISABLED; drift/reuse → UNKNOWN |
+| source_id / account_alias / binding_id | утверждённые локальные labels; source/account UNVERIFIED | не broker/account authority |
+| heartbeat/KS metadata | UNKNOWN/DISABLED; никаких legacy opens | времени содержания нет, TTL не делает его известным |
+| health/cycle/reconciliation/FINAM/positions/orders/SLTP/finance | UNKNOWN, без нулей и ROBOT_HEALTHY | не появляются из Task_RUNNING/PROCESS_OBSERVED |
+| M15 | прежний NOT_DEPLOYED/NO_RUNTIME_AUTHORITY | source H1 не используется |
+
+Timestamp каждого факта отдельно; received_at берётся после acquisition, не до него. Новый envelope проверяется schema/semantics/digest и result hash привязками. При UI rerender истечение или rollback часов скрывает факты и authority без нового I/O/переписывания timestamps. Неподвижная страница остаётся датированным прошлым наблюдением: автоматический redraw запрещён. Новая ошибка/конфликт заменяет кеш UNKNOWN. H1 summary всегда UNKNOWN (или STALE при expiry). Все десять controls disabled.
+
+## Noninterference и heartbeat
+
+Legacy безопасный content reader и zero-access metadata handles воспроизводимо мешают Python `os.replace` (WinError 5). Отрицательные regressions сохранены; успешное восстановление после закрытия handle не является разрешением live read. Новый Task/process source вообще не принимает legacy filename и не открывает его.
+
+CI-only эксперимент `GetFileAttributesExW(path)` изучает path-based metadata без собственного удерживаемого handle параллельно неизменённому Python producer. Эти атрибуты не дают heartbeat content/identity, допускают path/reparse/TOCTOU неопределённость и не подключены к runtime даже после экспериментального PASS. Для runtime выбрано полное отсутствие legacy I/O.
+
+Native File Create ETW trace отдельно проверяет отсутствие legacy opens в Python/PowerShell, с положительными parent/PowerShell read controls. Проверяется 500+ producer replacements без конфликтов. Trace failure/missing controls → CI FAIL, не skip. Это дополняет timing competition, не заменяет её. Полные логи/JSON входят в hosted artifact; manifest/package/tree evidence формируются из точных тестированных bytes.
+
+Санитизированный исходник операторского `C:\TradingSystemLab\tsl-h1-01-check.ps1` отдельно не предоставлен; tracked файла с этим именем нет. Скрипт не читался с Intel и не исполнялся. Варианты последующего аудита: (1) выделить из supplied source только чистый readonly источник и доказать share/replace поведение каждого API; (2) отдельный операторский one-shot audit вне панели с sanitized CC snapshot, если ему уже разрешены права; (3) будущая producer-owned immutable telemetry после отдельного разрешения, без изменения H1 сейчас. Запуск целого check-скрипта от имени панели, DPAPI/FINAM/private access и обход legacy block не предлагаются. Полное heartbeat содержание пока UNKNOWN.
+
+## Проверка и аудит
+
+Полный существующий windows-2022 workflow не изменён. `ci/windows_acceptance.py` выполняет unit/native/full-suite, manifest/ZIP, scope-audit и полный single-ccpanel install/lifecycle rehearsal в одноразовой hosted VM. Новый low-SID тест читает настоящую защищённую C policy через spawned reader, выполняет ровно один unchanged fixed helper для UUID Task (CI-only имя адаптируется), проверяет Ready/реальный ACCESS_DENIED/TTL/ноль export writes/private denial. В production такой adapter отсутствует. Новый отдельный UUID policy root в корне NTFS volume нужен, чтобы не ослаблять ACL runner-owned TEMP ancestors; удаляется в finally.
+
+`ci/scope_audit.py` независимо сравнивает все top-level Git entries вне ControlCenter с базовым main, работает даже в sparse/shallow merge checkout. TradingSystemLab tree `d27ac7153a4d25455112c1a6673d2b37a1784f43`, IntradayLab tree `9b71aeff75c49d3fc7b2fff7116b21d03fee5783` неизменны. Ни один protected runtime файл для этого не открывается. Это автоматический независимый контроль evidence, не внешнее одобрение reviewer.
+
+Точные head/run/job/count/digests публикуются в Draft PR после фактического CI, чтобы не создавать self-reference hashed manifest. Результаты автора и автоматических проверок не выдаются за независимое человеческое approval. Остаточный checkpoint — review Draft и отдельная физическая приёмка; см. [отчёт готовности](CC03_MANUAL_OS_INSTALLATION_READINESS.md).

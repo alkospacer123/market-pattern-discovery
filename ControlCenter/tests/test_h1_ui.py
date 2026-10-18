@@ -99,7 +99,7 @@ def test_no_query_parameter_or_user_path_can_enable_live(fixture_app, monkeypatc
     monkeypatch.setenv('CONTROL_CENTER_H1_PATH','/etc/passwd')
     app.run()
     assert not app.exception
-    assert list(app.selectbox(key='h1-source').options)==['SYNTHETIC / DEMO','OFFLINE_FIXTURE','READONLY_EXPORT']
+    assert list(app.selectbox(key='h1-source').options)==['SYNTHETIC / DEMO','OFFLINE_FIXTURE','READONLY_EXPORT','WINDOWS_OS_ONLY']
     assert 'FIXTURE-H1' in content(app)
     assert 'accepted code' not in content(app)  # overview only
     app.radio[0].set_value('Монитор H1').run()

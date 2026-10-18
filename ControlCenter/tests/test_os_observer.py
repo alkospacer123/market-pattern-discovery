@@ -125,7 +125,12 @@ def test_observer_is_outside_ui_dependency_graph_and_has_no_trading_capabilities
         assert not any(i.startswith(('TradingSystemLab','IntradayLab','finam','sqlite3','socket','urllib')) for i in imports)
     for path in [root/'app.py',*(root/'cc').rglob('*.py')]:
         source=path.read_text(encoding='utf-8')
-        assert 'import observer' not in source and 'from observer' not in source
+        if path.name != 'h1_windows_os.py':
+            assert 'import observer' not in source and 'from observer' not in source
+        else:
+            imports={n.module for n in ast.walk(ast.parse(source)) if isinstance(n,ast.ImportFrom)
+                     and n.module and n.module.startswith('observer')}
+            assert imports == {'observer.identity', 'observer.windows_os'}
     script=(root/'observer/Read-OsFacts.ps1').read_text(encoding='utf-8')
     for verb in ('Start-ScheduledTask','Stop-ScheduledTask','RegisterTask','DeleteTask','SetSecurityDescriptor',
                  'Get-Content','Start-Process','Invoke-Expression'):

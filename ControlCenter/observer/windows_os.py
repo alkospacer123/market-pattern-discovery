@@ -15,7 +15,6 @@ from cc.providers.h1_contract import MAX_BYTES, timestamp, validate
 from cc.providers.h1_readonly import canonical_digest, _pairs, _reject_constant
 from cc.providers.os_contract import SCHEMA, SCHEMA_ID, check_semantics
 from cc.providers.windows_file import read_windows
-from exporter.snapshot import publish
 
 TASK = 'TradingSystemLab-Stage8-Production'
 SCRIPT = Path(__file__).with_name('Read-OsFacts.ps1')
@@ -88,13 +87,12 @@ def os_facts(policy, script=SCRIPT, timeout=MAX_OPERATION_SECONDS):
         return {name: row(source) for name, source in sources.items()}
 
 
-def collect(policy, facts=None):
-    policy_check(policy)
-    facts = os_facts if facts is None else facts
+def envelope(policy, facts):
+    """Pure envelope boundary shared by the offline exporter and manual receiver."""
     value = dict(schema_id=SCHEMA_ID, payload_sha256='0'*64, generated_at='',
                  identity=dict(robot_id='H1', source_id=policy['source_id'], account_alias=policy['account_alias'],
                                binding_id=policy['binding_id'], account_binding='UNVERIFIED', authority='WINDOWS_OS_ONLY'))
-    value.update(facts(policy))
+    value.update(facts)
     # Native run 38873837179 disproved noninterference, even with zero-access
     # handles. No metadata module is imported and no production path is accepted.
     for group in ('heartbeat_metadata', 'kill_switch_metadata'):
@@ -104,6 +102,12 @@ def collect(policy, facts=None):
     validate(value, SCHEMA)
     check_semantics(value, timestamp)
     return value
+
+
+def collect(policy, facts=None):
+    policy_check(policy)
+    facts = os_facts if facts is None else facts
+    return envelope(policy, facts(policy))
 
 
 def main():
@@ -123,6 +127,7 @@ def main():
         policy_check(p)
         if elevated or sid != p['observer_sid']:
             raise ValueError('OBSERVER_IDENTITY_INVALID')
+        from exporter.snapshot import publish
         publish(collect(p), expected_root=p['export_root_id'])
         print('CC03_WINDOWS_OS_SNAPSHOT_PUBLISHED_NO_TRADING_AUTHORITY')
     except Exception:

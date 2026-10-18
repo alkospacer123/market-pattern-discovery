@@ -1,3 +1,5 @@
+> Актуальное дополнение CC-03 C: [manual WINDOWS_OS_ONLY](CC03_MANUAL_OS_SOURCE.md) подключает fixed Task/process helper по кнопке под ccpanel с отдельной policy в app/deployment; без exporter/private/legacy I/O. Ниже сохранено описание прежнего receiver/standalone пути.
+
 # CC-03 independent Windows OS READONLY observer
 
 Metadata outcome: the first real Windows run disproved noninterference. `observer/` contains no production-file metadata implementation; preflight only inspects own CC directory attributes. The failed zero-access handle experiment is quarantined under `ci/metadata_experiment.py`; its expected-conflict test is **NOT** a passed metadata acceptance requirement.

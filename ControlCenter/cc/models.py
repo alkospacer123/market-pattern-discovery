@@ -28,6 +28,7 @@ class SourceKind(StrEnum):
     SYNTHETIC = "SYNTHETIC"
     OFFLINE_FIXTURE = "OFFLINE_FIXTURE"
     READONLY_EXPORT = "READONLY_EXPORT"
+    WINDOWS_OS_ONLY = "WINDOWS_OS_ONLY"
     VERIFIED_LIVE_READONLY = "VERIFIED_LIVE_READONLY"  # reserved; CC-03 required
 
 
@@ -97,8 +98,8 @@ class DataProvenance:
                     or self.source != "OFFLINE_FIXTURE/H1" or self.synthetic is not True
                     or self.snapshot_ttl_seconds != 180 or self.heartbeat_ttl_seconds != 90):
                 raise ValueError("OFFLINE_BINDING_REQUIRED")
-        elif self.source_kind == SourceKind.READONLY_EXPORT:
-            if (self.robot_id != RobotId.H1 or self.source != "READONLY_EXPORT/H1"
+        elif self.source_kind in (SourceKind.READONLY_EXPORT, SourceKind.WINDOWS_OS_ONLY):
+            if (self.robot_id != RobotId.H1 or self.source != self.source_kind.value + "/H1"
                     or self.synthetic is not False or self.account_scope in ("FIXTURE-H1", "DEMO-H1")
                     or not self.account_scope.startswith(("H1-", "UNBOUND-H1"))):
                 raise ValueError("EXPORT_BINDING_REQUIRED")

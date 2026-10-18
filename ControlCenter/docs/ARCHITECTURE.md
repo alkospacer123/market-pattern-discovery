@@ -1,3 +1,5 @@
+> Актуальное дополнение CC-03 C: [manual WINDOWS_OS_ONLY](CC03_MANUAL_OS_SOURCE.md) подключает fixed Task/process helper по кнопке под ccpanel с отдельной policy в app/deployment; без exporter/private/legacy I/O. Ниже сохранено описание прежнего receiver/standalone пути.
+
 # Архитектура Control Center — CC-03
 
 Base `52e167d7b36170f1f639827eb875a57d52175491`; [#531 merged](https://github.com/alkospacer123/market-pattern-discovery/pull/531). Intel pinned `3a18c8c…` — отдельная историческая identity из CURRENT_STATE, не текущий main и не полученное нами измерение. Frozen T3/H1/TRAIL1 без изменений. [Roadmap v1.0](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6198924792) сохранён.

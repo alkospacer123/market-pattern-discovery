@@ -15,6 +15,7 @@ $users = @()
 $panelProcess = $null
 $exporterProcess = $null
 $osFixtureFolder = $null
+$manualPolicyRoot = Join-Path ([IO.Path]::GetPathRoot($sandbox)) ('CC03-' + [guid]::NewGuid().ToString('N'))
 $results = [ordered]@{}
 $evidence = Join-Path $env:RUNNER_TEMP 'cc03-evidence'
 
@@ -68,7 +69,8 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
 }
 
 function Set-DisposableACL([string]$Path, [string]$Kind) {
-    if ($Path -ne $sandbox -and -not $Path.StartsWith($sandbox + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'ACL_SCOPE_VIOLATION' }
+    if ($Path -ne $sandbox -and -not $Path.StartsWith($sandbox + '\', [StringComparison]::OrdinalIgnoreCase) -and
+        $Path -ne $manualPolicyRoot -and -not $Path.StartsWith($manualPolicyRoot + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'ACL_SCOPE_VIOLATION' }
     $directory = Test-Path -LiteralPath $Path -PathType Container
     $acl = $(if ($directory) { [Security.AccessControl.DirectorySecurity]::new() } else { [Security.AccessControl.FileSecurity]::new() })
     $acl.SetAccessRuleProtection($true, $false)
@@ -352,6 +354,23 @@ try {
     $osFixtureFolder = 'CC03-CI-' + [guid]::NewGuid().ToString('N')
     & "$package\ci\Os-Fixtures.ps1" -Operation Create -Folder $osFixtureFolder | Set-Content -LiteralPath "$sandbox\Os-Fixtures.json" -Encoding ASCII
     $osBefore = & "$package\ci\Os-Fixtures.ps1" -Operation Inspect -Folder $osFixtureFolder
+    # Separate root avoids weakening runner-owned TEMP ancestors to test the
+    # strict all-ancestor policy boundary. Only this new UUID root receives ACLs.
+    $null = New-Item -ItemType Directory -Path $manualPolicyRoot
+    Set-DisposableACL $manualPolicyRoot 'app'
+    $fixtures = $osBefore | ConvertFrom-Json
+    foreach ($taskName in @('Ready','Denied')) {
+        $fixture = $fixtures.$taskName
+        $p = @{schema_id='cc03.manual-os-policy.v1';manual_source_approved=$true;observer_sid=$panelSid;
+            task_name='TradingSystemLab-Stage8-Production';task_xml_sha256=$fixture.task_xml_sha256;
+            task_principal_sid=$fixture.task_principal_sid;process_binding=$null;
+            source_id='CC03-H1-MANUALCITEST';account_alias='H1-MANUALCITEST';binding_id=('a'*64);
+            snapshot_ttl_seconds=30;os_ttl_seconds=15}
+        $policyPath = Join-Path $manualPolicyRoot ($taskName + '-manual-os-policy.json')
+        $p | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $policyPath -Encoding ASCII
+        Set-DisposableACL $policyPath 'app'
+    }
+    @{root=$manualPolicyRoot} | ConvertTo-Json | Set-Content -LiteralPath "$sandbox\manual-policy-location.json" -Encoding ASCII
     # Verify a loopback-only panel under the actual low-privilege panel SID.
     try {
         $panelProcess = Start-IdentityScript $panel "$script:AppRoot\deployment\Start-Panel.ps1" "$script:DataRoot\logs\panel-stdout.txt" "$script:DataRoot\logs\panel-stderr.txt"
@@ -439,6 +458,7 @@ try {
     $results['position'] = $_.InvocationInfo.PositionMessage
     $results['stack'] = $_.ScriptStackTrace
 } finally {
+    if (Test-Path -LiteralPath $manualPolicyRoot) { Remove-Item -LiteralPath $manualPolicyRoot -Recurse -Force }
     if ($null -ne $osFixtureFolder) { & "$package\ci\Os-Fixtures.ps1" -Operation Remove -Folder $osFixtureFolder }
     if ($null -ne $panelProcess -and -not $panelProcess.HasExited) { & taskkill.exe /PID $panelProcess.Id /T /F }
     if ($null -ne $exporterProcess -and -not $exporterProcess.HasExited) { & taskkill.exe /PID $exporterProcess.Id /T /F }

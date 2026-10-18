@@ -25,7 +25,8 @@ def entries():
         relative = path.relative_to(ROOT)
         if (path == MANIFEST or relative.parts[0] in RUNTIME_ROOTS
                 or any(part in EXCLUDED_PARTS for part in relative.parts)
-                or path.name in {'receiver-policy.json','source-policy.json','os-policy.json','preflight-policy.json'} or not path.is_file()):
+                or path.name in {'receiver-policy.json','source-policy.json','os-policy.json','preflight-policy.json',
+                                 'manual-os-policy.json'} or not path.is_file()):
             continue
         if path.is_symlink():
             raise ValueError('PACKAGE_SYMLINK_FORBIDDEN')
