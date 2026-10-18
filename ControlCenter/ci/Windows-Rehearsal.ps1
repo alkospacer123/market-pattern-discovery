@@ -44,9 +44,9 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
     $lines += '& ' + (Literal "$script:VenvRoot\Scripts\python.exe") + ' -c ' + (Literal 'import sys; print(sys.executable); print(sys.version)')
     $lines += 'if ($LASTEXITCODE -ne 0) { throw ''IDENTITY_PYTHON_PROBE_FAILED'' }'
     $lines += 'Get-ExecutionPolicy -List | Format-Table | Out-String | Write-Output'
-    $lines += '& ' + (Literal $Entry) + ' -Execute -PanelSid ' + (Literal $panelSid) + ' -ExporterSid ' + (Literal $exporterSid)
+    $lines += '& ' + (Literal $Entry) + ' -Execute -PanelSid ' + (Literal $panelSid)
     $command = '& {' + "`n" + ($lines -join "`n") + "`n" + '}'
-    $bootstrap = Join-Path $sandbox ('identity-' + $Identity.Name + '.ps1')
+    $bootstrap = Join-Path $sandbox ('identity-' + $Identity.Name + '-' + [guid]::NewGuid().ToString('N') + '.ps1')
     Set-Content -LiteralPath $bootstrap -Value $command -Encoding UTF8
     $nativeLog = $ErrorLog + '.native'
     $native = [CC03Access]::StartAs($Identity.Name, $Identity.Password, (Join-Path $env:SYSTEMROOT 'System32\cmd.exe'), $bootstrap, $script:AppRoot, $nativeLog, $Identity.Sid)
@@ -75,7 +75,7 @@ function Set-DisposableACL([string]$Path, [string]$Kind) {
     $acl.SetOwner([Security.Principal.SecurityIdentifier]::new('S-1-5-32-544'))
     $rights = @{'S-1-5-18'='FullControl'; 'S-1-5-32-544'='FullControl'}
     if ($Kind -ne 'private') { $rights[$panelSid] = $(if ($Kind -eq 'logs') { 'Modify' } else { 'ReadAndExecute' }) }
-    $rights[$exporterSid] = $(if ($Kind -eq 'export') { 'Modify' } else { 'ReadAndExecute' })
+    # No exporter grant: one standard ccpanel only; private is admin-only.
     foreach ($sid in $rights.Keys) {
         $inherit = $(if ($directory) { 'ContainerInherit,ObjectInherit' } else { 'None' })
         $rule = [Security.AccessControl.FileSystemAccessRule]::new(
@@ -230,7 +230,7 @@ public static class CC03Access {
             var command=new StringBuilder(executable.EndsWith("cmd.exe",StringComparison.OrdinalIgnoreCase)
                 ? "\""+executable+"\" /d /c exit 0"
                 : executable.EndsWith("python.exe",StringComparison.OrdinalIgnoreCase)
-                ? "\""+executable+"\" -m ci.identity_probe "+expectedSid+" "+(user.StartsWith("cc03e") ? "e" : "p")
+                ? "\""+executable+"\" -m ci.identity_probe "+expectedSid+" "+"p"
                 : "\""+executable+"\" -NoProfile -NonInteractive -NoLogo -File \""+script+"\"");
             if (command.Length>=1024) throw new Exception("LOGON_COMMAND_LINE_TOO_LONG");
             try {
@@ -266,35 +266,43 @@ public static class CC03Access {
 
 try {
     if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole('Administrators')) {
-        $results['separate_sid_acl'] = 'NOT_VERIFIED: VM token lacks local administrator rights to provision disposable users/ACLs'
+        $results['single_ccpanel_acl'] = 'NOT_VERIFIED: VM token lacks local administrator rights to provision disposable users/ACLs'
         throw 'SID_REHEARSAL_NOT_VERIFIED'
     }
-    $credentials = @()
-    foreach ($role in @('panel','exporter')) {
-        $name = 'cc03' + $role.Substring(0,1) + [guid]::NewGuid().ToString('N').Substring(0,8)
-        $password = 'Cc03!aA9' + [guid]::NewGuid().ToString('N')
-        $secret = ConvertTo-SecureString $password -AsPlainText -Force
-        try {
-            $user = New-LocalUser -Name $name -Password $secret -AccountNeverExpires -Description 'Disposable CC03 hosted acceptance only'
-            $users += $name
-            Add-LocalGroupMember -SID 'S-1-5-32-545' -Member $name
-        } catch {
-            $results['separate_sid_acl'] = 'NOT_VERIFIED: local user/group provisioning unavailable: ' + $_.Exception.Message
-            throw 'SID_REHEARSAL_NOT_VERIFIED'
-        }
-        $credentials += [pscustomobject]@{ Name=$name; Password=$password; Sid=$user.SID.Value; Credential=[pscredential]::new("$env:COMPUTERNAME\$name", $secret) }
+    $name = 'ccpanel'
+    if (Get-LocalUser -Name $name -ErrorAction SilentlyContinue) { throw 'DISPOSABLE_CCPANEL_ALREADY_EXISTS' }
+    $password = 'Cc03!aA9' + [guid]::NewGuid().ToString('N')
+    $secret = ConvertTo-SecureString $password -AsPlainText -Force
+    try {
+        $user = New-LocalUser -Name $name -Password $secret -AccountNeverExpires -Description 'Disposable single-ccpanel hosted acceptance only'
+        $users += $name
+        Add-LocalGroupMember -SID 'S-1-5-32-545' -Member $name
+    } catch {
+        $results['single_ccpanel_acl'] = 'NOT_VERIFIED: local user/group provisioning unavailable: ' + $_.Exception.Message
+        throw 'SID_REHEARSAL_NOT_VERIFIED'
     }
-    $panel = $credentials[0]; $exporter = $credentials[1]
-    $panelSid = $panel.Sid; $exporterSid = $exporter.Sid
-    Write-Output "DISPOSABLE_PANEL_SID=$panelSid DISPOSABLE_EXPORTER_SID=$exporterSid"
+    $panel = [pscustomobject]@{ Name=$name; Password=$password; Sid=$user.SID.Value; Credential=[pscredential]::new("$env:COMPUTERNAME\$name", $secret) }
+    $panelSid = $panel.Sid
+    Write-Output "DISPOSABLE_CCPANEL_SID=$panelSid"
     Set-DisposableACL $sandbox 'parent'
     foreach ($pair in @(@($script:AppRoot,'app'), @($script:VenvRoot,'venv'), @($script:DataRoot,'parent'),
                         @("$script:DataRoot\export",'export'), @("$script:DataRoot\logs",'logs'), @("$script:DataRoot\private",'private'))) {
         $null = New-Item -ItemType Directory -Path $pair[0] -Force
         Set-DisposableACL $pair[0] $pair[1]
     }
-    Assert-LayoutACL $panelSid $exporterSid
-    Expect-Failure { Assert-LayoutACL $panelSid $panelSid } 'DISTINCT_LOW_PRIVILEGE_SIDS_REQUIRED'
+    Assert-LayoutACL $panelSid
+    # Synthetic non-CC sentinels only, never Intel/production bytes or paths.
+    $canaryRoot = Join-Path $sandbox 'protected-outside-cc'
+    $null = New-Item -ItemType Directory -Path $canaryRoot
+    $canaryHashes = @{}
+    foreach ($canary in @('h1.sqlite3','h1.sqlite3-wal','finam-credential.fixture',
+                           'trading-settings.json','heartbeat.json')) {
+        $file = Join-Path $canaryRoot $canary
+        Set-Content -LiteralPath $file -Value ('SYNTHETIC_CC03_' + [guid]::NewGuid().ToString('N')) -Encoding ASCII
+        Set-DisposableACL $file 'private'
+        $canaryHashes[$canary] = (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash
+    }
+    Expect-Failure { Assert-LayoutACL 'S-1-5-32-544' } 'VALID_CCPANEL_SID_REQUIRED'
     Expect-Failure { Assert-CurrentIdentity $panelSid } 'DEDICATED_IDENTITY_REQUIRED'
     # Only fixture directories receive ACLs. Probe real effective rights, not just ACE text.
     $private = "$script:DataRoot\private\source-policy.json"
@@ -302,22 +310,24 @@ try {
     Set-DisposableACL $private 'private'
     $exportFile = "$script:DataRoot\export\fixture.json"
     Set-Content -LiteralPath $exportFile -Value '{}' -Encoding ASCII
+    $privateBeforeSha = (Get-FileHash -LiteralPath $private -Algorithm SHA256).Hash
+    $exportBeforeSha = (Get-FileHash -LiteralPath $exportFile -Algorithm SHA256).Hash
     foreach ($case in @(
-        @($panel,$private,$false,'ACCESS_DENIED'), @($exporter,$private,$false,'ALLOWED'),
-        @($panel,$exportFile,$false,'ALLOWED'), @($panel,$exportFile,$true,'ACCESS_DENIED'),
-        @($exporter,$exportFile,$true,'ALLOWED'),
+        @($panel,$private,$false,'ACCESS_DENIED'),
+        @($panel,$private,$true,'ACCESS_DENIED'),
+        @($panel,$exportFile,$false,'ALLOWED'),
+        @($panel,$exportFile,$true,'ACCESS_DENIED'),
         @($panel,"$script:AppRoot\forbidden.txt",$true,'ACCESS_DENIED'),
-        @($exporter,"$script:VenvRoot\forbidden.txt",$true,'ACCESS_DENIED'),
-        @($exporter,"$script:DataRoot\parent-forbidden.txt",$true,'ACCESS_DENIED'),
-        @($panel,"$script:DataRoot\logs\allowed.txt",$true,'ALLOWED'),
-        @($exporter,"$script:DataRoot\logs\forbidden.txt",$true,'ACCESS_DENIED'))) {
+        @($panel,"$script:VenvRoot\forbidden.txt",$true,'ACCESS_DENIED'),
+        @($panel,"$script:DataRoot\parent-forbidden.txt",$true,'ACCESS_DENIED'),
+        @($panel,"$script:DataRoot\logs\allowed.txt",$true,'ALLOWED'))) {
         $identity = $case[0]
         $actual = [CC03Access]::Probe($identity.Name,$identity.Password,$identity.Sid,$case[1],$case[2])
         if ($actual -ne $case[3]) { throw "EFFECTIVE_ACL_MISMATCH expected=$($case[3]) actual=$actual" }
         Write-Output "EFFECTIVE_ACL_PASS role=$($identity.Name.Substring(0,5)) write=$($case[2]) result=$actual"
     }
-    $results['separate_sid_acl'] = 'PASS: 10 actual access probes under two distinct non-admin logon tokens'
-    & "$package\deployment\Preflight.ps1" -Execute -PanelSid $panelSid -ExporterSid $exporterSid
+    $results['single_ccpanel_acl'] = 'PASS: 8 actual access probes under the sole non-admin ccpanel logon token'
+    & "$package\deployment\Preflight.ps1" -Execute -PanelSid $panelSid
     if ($LASTEXITCODE -ne 0) { throw 'PREFLIGHT_FAILED' }
     # Downloaded exact hashed wheels are CI-only, never production credentials.
     $wheelhouse = Join-Path $sandbox 'wheels'
@@ -329,12 +339,12 @@ try {
     $validDigest = $wheelRecords[0].sha256
     $wheelRecords[0].sha256 = '0' * 64
     $wheelRecords | ConvertTo-Json | Set-Content -LiteralPath "$wheelhouse\wheels.sha256.json" -Encoding ASCII
-    Expect-Failure { & "$package\deployment\Install.ps1" -Execute -PanelSid $panelSid -ExporterSid $exporterSid -Wheelhouse $wheelhouse } 'WHEEL_HASH_MISMATCH'
+    Expect-Failure { & "$package\deployment\Install.ps1" -Execute -PanelSid $panelSid -Wheelhouse $wheelhouse } 'WHEEL_HASH_MISMATCH'
     if (@(Get-ChildItem -Force $script:AppRoot).Count -or @(Get-ChildItem -Force $script:VenvRoot).Count) { throw 'INVALID_WHEEL_WROTE_INSTALL_TARGET' }
     $results['invalid_wheel_regression'] = 'PASS: bad hash rejected before any target write'
     $wheelRecords[0].sha256 = $validDigest
     $wheelRecords | ConvertTo-Json | Set-Content -LiteralPath "$wheelhouse\wheels.sha256.json" -Encoding ASCII
-    & "$package\deployment\Install.ps1" -Execute -PanelSid $panelSid -ExporterSid $exporterSid -Wheelhouse $wheelhouse
+    & "$package\deployment\Install.ps1" -Execute -PanelSid $panelSid -Wheelhouse $wheelhouse
     if ($LASTEXITCODE -ne 0) { throw 'INSTALL_FAILED' }
     & "$script:VenvRoot\Scripts\python.exe" -c "import sys,struct; print('REHEARSAL_PYTHON='+sys.version); assert sys.version_info[:3]==(3,12,10) and struct.calcsize('P')==8"
     if ($LASTEXITCODE -ne 0) { throw 'REHEARSAL_PYTHON_VERSION_MISMATCH' }
@@ -346,7 +356,7 @@ try {
     try {
         $panelProcess = Start-IdentityScript $panel "$script:AppRoot\deployment\Start-Panel.ps1" "$script:DataRoot\logs\panel-stdout.txt" "$script:DataRoot\logs\panel-stderr.txt"
     } catch {
-        $results['panel_identity_launch'] = 'FAIL: separate-SID startup prerequisite: ' + $_.Exception.Message
+        $results['panel_identity_launch'] = 'FAIL: ccpanel startup prerequisite: ' + $_.Exception.Message
         throw
     }
     $ready = $false
@@ -385,27 +395,21 @@ try {
     $health = Invoke-WebRequest -Uri 'http://127.0.0.1:8501/_stcore/health' -UseBasicParsing
     if ($health.StatusCode -ne 200 -or $health.Content -ne 'ok') { throw 'PANEL_HEALTH_FAILED' }
     $results['panel_listener'] = 'PASS: HTTP health 200, 127.0.0.1:8501 owned by CCPanel SID ' + $listenerOwner.Sid
-    & "$package\deployment\Verify.ps1" -Execute -PanelSid $panelSid -ExporterSid $exporterSid
+    & "$package\deployment\Verify.ps1" -Execute -PanelSid $panelSid
     if ($LASTEXITCODE -ne 0) { throw 'VERIFY_FAILED' }
     $results['panel_verify'] = 'PASS: low-privilege panel and real loopback-only listener; receiver remains UNKNOWN without approved source'
-    # A real low-privilege one-shot exporter must reject the unapproved empty
-    # policy before any source reads. No physical H1 authority is synthesized.
-    Assert-ACL $private $panelSid $exporterSid 'private'
-    # Observer stdio/temp are outside the bounded immutable export store.
-    $exporterStdio = "$sandbox\exporter-stdio"
-    $null = New-Item -ItemType Directory -Path $exporterStdio
-    Set-DisposableACL $exporterStdio 'export'
-    $exporterLog = "$exporterStdio\exporter-process.txt"
-    $exporterProcess = Start-IdentityScript $exporter "$script:AppRoot\deployment\Start-Exporter.ps1" $exporterLog $exporterLog
+    # The disabled exporter must fail under the *same* panel user, not merely
+    # when tested by the administrator. No policy, H1 file or FINAM access.
+    Assert-ACL $private $panelSid 'private'
+    $exporterLog = "$script:DataRoot\logs\exporter-blocked.txt"
+    $exporterProcess = Start-IdentityScript $panel "$script:AppRoot\deployment\Start-Exporter.ps1" $exporterLog $exporterLog
     if (-not $exporterProcess.WaitForExit(30000)) { throw 'EXPORTER_TIMEOUT' }
-    if ($exporterProcess.ExitCode -eq 0 -or (Get-Content -Raw $exporterLog) -notlike '*CC03_EXPORT_UNAVAILABLE*') { throw 'UNAPPROVED_EXPORTER_DID_NOT_FAIL_CLOSED' }
+    if ($exporterProcess.ExitCode -eq 0 -or (Get-Content -Raw $exporterLog) -notlike '*CC03_SINGLE_CCPANEL_EXPORTER_DISABLED*') { throw 'UNAPPROVED_EXPORTER_DID_NOT_FAIL_CLOSED' }
     $exporterProcess.Dispose()
     $exporterProcess = $null
-    # The CI identity probe deliberately publishes one synthetic UNKNOWN export;
-    # the production entrypoint with an unapproved policy must add none.
     $probeSnapshots = @(Get-ChildItem "$script:DataRoot\export" -Filter 'h1-*.json')
-    if ($probeSnapshots.Count -ne 1) { throw 'UNAPPROVED_EXPORTER_PUBLISHED_DATA' }
-    $results['exporter_fail_closed'] = 'PASS: separate-SID one-shot rejected unapproved policy, published nothing beyond the explicitly synthetic CI probe'
+    if ($probeSnapshots.Count -ne 0) { throw 'DISABLED_EXPORTER_PUBLISHED_DATA' }
+    $results['exporter_fail_closed'] = 'PASS: ccpanel exporter entrypoint rejected before opening any policy or source; zero snapshots'
     $results['physical_source'] = 'OUT_OF_SCOPE: physical H1 source/account/TTL authority remains a separate Intel gate'
     # Stop only the process tree launched above, before uninstalling own package.
     & taskkill.exe /PID $panelProcess.Id /T /F
@@ -414,14 +418,19 @@ try {
     $results['process_cleanup'] = 'PASS: own panel process tree exited and listener removed; exporter already exited'
     $osAfter = & "$package\ci\Os-Fixtures.ps1" -Operation Inspect -Folder $osFixtureFolder
     if ($osBefore -ne $osAfter) { throw 'OBSERVER_CHANGED_DISPOSABLE_OS_TASKS' }
-    $results['os_readonly_before_after'] = 'PASS: Task XML/state unchanged across separate SID probes and panel lifecycle'
+    $results['os_readonly_before_after'] = 'PASS: Task XML/state unchanged across ccpanel probes and panel lifecycle'
     $panelProcess.Dispose()
     $panelProcess = $null
-    & "$package\deployment\Uninstall.ps1" -Execute -PanelSid $panelSid -ExporterSid $exporterSid
+    & "$package\deployment\Uninstall.ps1" -Execute -PanelSid $panelSid
     if ($LASTEXITCODE -ne 0) { throw 'UNINSTALL_FAILED' }
     if (Test-Path "$script:AppRoot\app.py") { throw 'OWN_APP_NOT_REMOVED' }
     if (@(Get-ChildItem -Force -LiteralPath $script:VenvRoot).Count -ne 0) { throw 'OWN_VENV_NOT_REMOVED' }
-    if (-not (Test-Path $private) -or -not (Test-Path $exportFile) -or (Get-Content -Raw $private).Trim() -ne '{}' -or (Get-Content -Raw $exportFile) -ne 'DISPOSABLE_CC03_PROBE') { throw 'DATA_NOT_RETAINED' }
+    if (-not (Test-Path -LiteralPath $private -PathType Leaf) -or -not (Test-Path -LiteralPath $exportFile -PathType Leaf)) { throw 'DATA_NOT_RETAINED' }
+    if ((Get-FileHash -LiteralPath $private -Algorithm SHA256).Hash -ne $privateBeforeSha -or (Get-FileHash -LiteralPath $exportFile -Algorithm SHA256).Hash -ne $exportBeforeSha) { throw 'DATA_BYTES_CHANGED' }
+    foreach ($canary in $canaryHashes.Keys) {
+        if ((Get-FileHash -LiteralPath (Join-Path $canaryRoot $canary) -Algorithm SHA256).Hash -ne $canaryHashes[$canary]) { throw 'PROTECTED_SYNTHETIC_CANARY_CHANGED' }
+    }
+    $results['protected_canaries'] = 'PASS: synthetic SQLite/WAL/credential/settings/heartbeat bytes unchanged outside CC runtime roots'
     $results['uninstall'] = 'PASS: own package/venv removed, disposable private/export/log data retained'
     $results['status'] = 'PASS'
 } catch {
@@ -435,16 +444,15 @@ try {
     if ($null -ne $exporterProcess -and -not $exporterProcess.HasExited) { & taskkill.exe /PID $exporterProcess.Id /T /F }
     if ($null -ne $panelProcess) { $panelProcess.Dispose() }
     if ($null -ne $exporterProcess) { $exporterProcess.Dispose() }
-    Get-ChildItem "$sandbox\exporter-stdio" -File -Filter 'exporter-process.txt*' -ErrorAction SilentlyContinue | ForEach-Object {
-        Copy-Item -LiteralPath $_.FullName -Destination $evidence
-        Write-Output ('REHEARSAL_LOG '+$_.Name)
-        Get-Content -LiteralPath $_.FullName
-    }
     if ($results.Contains('install') -and -not $results.Contains('uninstall')) {
         try {
-            & "$package\deployment\Uninstall.ps1" -Execute -PanelSid $panelSid -ExporterSid $exporterSid
-            if ($LASTEXITCODE -ne 0 -or (Test-Path "$script:AppRoot\app.py") -or @(Get-ChildItem -Force -LiteralPath $script:VenvRoot).Count -ne 0) { throw 'FALLBACK_UNINSTALL_FAILED' }
+            if (Test-Path -LiteralPath "$script:AppRoot\deployment\manifest.json") {
+                & "$package\deployment\Uninstall.ps1" -Execute -PanelSid $panelSid
+                if ($LASTEXITCODE -ne 0) { throw 'FALLBACK_UNINSTALL_FAILED' }
+            }
+            if ((Test-Path "$script:AppRoot\app.py") -or @(Get-ChildItem -Force -LiteralPath $script:VenvRoot).Count -ne 0) { throw 'FALLBACK_UNINSTALL_FAILED' }
             if (-not (Test-Path $private) -or -not (Test-Path $exportFile)) { throw 'DATA_NOT_RETAINED' }
+            if ((Get-FileHash -LiteralPath $private -Algorithm SHA256).Hash -ne $privateBeforeSha -or (Get-FileHash -LiteralPath $exportFile -Algorithm SHA256).Hash -ne $exportBeforeSha) { throw 'DATA_BYTES_CHANGED' }
             $results['uninstall'] = 'PASS: own package/venv removed after failed launch; data retained'
         } catch { $results['uninstall'] = 'FAIL: ' + $_.Exception.Message }
     }

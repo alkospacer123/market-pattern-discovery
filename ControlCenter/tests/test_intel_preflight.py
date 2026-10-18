@@ -13,15 +13,15 @@ from observer.windows_os import row
 @pytest.fixture
 def preflight_policy():
     # Synthetic test references only.
-    return dict(schema_id='cc03.intel-preflight-policy.v1', readonly_preflight_approved=True,
+    return dict(schema_id='cc03.intel-preflight-policy.v2', readonly_preflight_approved=True,
         observer_sid='S-1-5-21-1-2-3-1001', task_name=preflight.TASK, task_xml_sha256='a'*64,
         task_principal_sid='S-1-5-21-1-2-3-1002', process_binding=dict(process_pid=12345,
         process_creation_sha256='b'*64, process_image_sha256='c'*64, process_command_sha256='d'*64,
-        process_principal_sid='S-1-5-21-1-2-3-1002'), cc_panel_sid=None, cc_exporter_sid=None)
+        process_principal_sid='S-1-5-21-1-2-3-1002'), cc_panel_sid=None)
 
 
 def ready(_):
-    return dict(observer_standard=True, identities='CC_IDENTITIES_NOT_PROVISIONED', directories='NOT_PROVISIONED')
+    return dict(observer_standard=True, identities='CCPANEL_NOT_PROVISIONED', directories='NOT_PROVISIONED')
 
 
 def facts(p):
@@ -60,7 +60,7 @@ def test_running_allowed_and_provisioning_independent(preflight_policy):
     r=run(preflight_policy)
     assert r['outcome']=='PASS' and r['task_state']=='TASK_RUNNING_OBSERVED'
     assert r['task_identity']=='TASK_IDENTITY_MATCHED' and r['process']=='PROCESS_IDENTITY_MATCHED'
-    assert r['cc_identities']=='CC_IDENTITIES_NOT_PROVISIONED' and r['cc_directories']=='NOT_PROVISIONED'
+    assert r['cc_identities']=='CCPANEL_NOT_PROVISIONED' and r['cc_directories']=='NOT_PROVISIONED'
     assert r['cc_acl']=='NOT_VERIFIED' and r['os_source']=='OS_SOURCE_APPROVAL_REQUIRED'
     assert all(v=='UNKNOWN' for v in r['trading'].values())
 
@@ -154,3 +154,58 @@ def test_execute_has_no_robot_file_network_sqlite_or_export_side_effect(prefligh
                          (sqlite3,'connect'),(subprocess,'run')):
         monkeypatch.setattr(module,name,forbidden)
     assert run(preflight_policy)['outcome']=='PASS'
+
+
+def test_v1_null_exporter_migrates_without_mutation(preflight_policy):
+    legacy = dict(preflight_policy, schema_id='cc03.intel-preflight-policy.v1', cc_exporter_sid=None)
+    before = deepcopy(legacy)
+    assert preflight.policy_check(legacy) == preflight_policy
+    assert legacy == before
+    assert run(legacy)['outcome'] == 'PASS'
+
+
+@pytest.mark.parametrize('change', ['exporter', 'extra', 'missing_observer', 'v2_exporter'])
+def test_ambiguous_or_privileged_migration_refused(preflight_policy, change):
+    p = dict(preflight_policy, schema_id='cc03.intel-preflight-policy.v1', cc_exporter_sid=None)
+    if change == 'exporter': p['cc_exporter_sid'] = 'S-1-5-21-1-2-3-2000'
+    if change == 'extra': p['allow_admin'] = True
+    if change == 'missing_observer': del p['observer_sid']
+    if change == 'v2_exporter': p['schema_id'] = preflight_policy['schema_id']
+    with pytest.raises(ValueError): preflight.policy_check(p)
+
+
+@pytest.mark.parametrize('state,installation', [('CCPANEL_ENABLED','NOT_VERIFIED'),
+    ('CCPANEL_NOT_PROVISIONED','NOT_PROVISIONED'), ('CCPANEL_DISABLED','BLOCKED'),
+    ('CCPANEL_SID_MISMATCH','BLOCKED'), ('CCPANEL_PRIVILEGED','BLOCKED'), ('UNKNOWN','NOT_VERIFIED')])
+def test_panel_readiness_never_approves_b_or_blocks_independent_a(preflight_policy,state,installation):
+    r=run(preflight_policy,cc_readiness=lambda _:dict(ready(None), identities=state,
+                                                   directories='EXISTING_ROOTS_OBSERVED'))
+    assert r['outcome']=='PASS' and r['cc_installation']==installation
+    assert r['cc_acl']=='NOT_VERIFIED' and r['os_source']=='OS_SOURCE_APPROVAL_REQUIRED'
+    assert all(v=='UNKNOWN' for v in r['trading'].values())
+
+
+def test_readiness_pins_process_scoped_policy_and_cc_only_payload(monkeypatch, preflight_policy):
+    calls=[]
+    def child(argv, **kwargs):
+        calls.append((argv,kwargs))
+        return subprocess.CompletedProcess(argv,0,json.dumps(ready(None)),'')
+    monkeypatch.setattr(subprocess,'run',child)
+    monkeypatch.setattr(subprocess,'CREATE_NO_WINDOW',0,raising=False)
+    assert preflight.readiness(preflight_policy)==ready(None)
+    assert len(calls)==1
+    argv,kwargs=calls[0]
+    assert argv[1:]==['-NoLogo','-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass',
+                      '-File',str(preflight.READINESS_SCRIPT)]
+    assert argv[0].lower().endswith('powershell.exe')
+    assert kwargs['timeout']==6 and kwargs['creationflags']==0
+    payload=json.loads(kwargs['input'])
+    assert set(payload)=={'cc_panel_sid','roots'} and len(payload['roots'])==6
+    assert not any('TradingSystemLab' in root or 'IntradayLab' in root for root in payload['roots'])
+    assert 'PSExecutionPolicyPreference' not in kwargs['env']
+
+
+def test_readiness_denial_fails_closed(monkeypatch,preflight_policy):
+    monkeypatch.setattr(subprocess,'run',lambda *a,**k:subprocess.CompletedProcess(a,1,'{}','PSSecurityException'))
+    monkeypatch.setattr(subprocess,'CREATE_NO_WINDOW',0,raising=False)
+    assert preflight.readiness(preflight_policy)==dict(observer_standard=False, identities='UNKNOWN', directories='UNKNOWN')

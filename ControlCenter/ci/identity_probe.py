@@ -1,4 +1,4 @@
-"""Separate-SID Python/spawn proof using synthetic bytes, disposable VM only."""
+"""Single standard ccpanel Python/spawn proof, disposable Windows VM only."""
 import ctypes
 import json
 import multiprocessing
@@ -46,16 +46,32 @@ def main():
         assert facts['task']['state'] == expected, facts
         if name == 'Denied': assert facts['task']['reason'] == 'ACCESS_DENIED', facts
     print('LOW_SID_OS_READONLY_TASK_AND_REAL_ACCESS_DENIED=PASS; METADATA_DISABLED',flush=True)
-    # Permission-A preflight runs under each actual standard token. The policy
+    # No private source policy read is possible under the actual panel token.
+    try:
+        (Path(os.environ['CC03_CI_DISPOSABLE_ROOT'])/'data/private/source-policy.json').read_bytes()
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError('PANEL_PRIVATE_POLICY_READ_ALLOWED')
+    from cc.manual_gate import export_gate
+    child_gate = 'from cc.manual_gate import export_gate\nwith export_gate() as acquired: print("ACQUIRED" if acquired else "BLOCKED")'
+    with export_gate() as acquired:
+        assert acquired, 'STANDARD_TOKEN_LOCAL_PIPE_GATE_UNAVAILABLE'
+        child = subprocess.run([sys.executable, '-c', child_gate], capture_output=True, text=True, timeout=10)
+        assert child.returncode == 0 and child.stdout.strip() == 'BLOCKED', (child.stdout, child.stderr)
+    child = subprocess.run([sys.executable, '-c', child_gate], capture_output=True, text=True, timeout=10)
+    assert child.returncode == 0 and child.stdout.strip() == 'ACQUIRED', (child.stdout, child.stderr)
+    print('LOW_SID_LOCAL_PIPE_GATE_ACQUIRE_CONTEND_RELEASE=PASS',flush=True)
+    # Permission-A preflight runs under the actual standard ccpanel token. The policy
     # remains fixed to H1; this CI-only adapter selects only UUID fixtures.
     from observer import intel_preflight as preflight
     import uuid
     for name in ('Running', 'Denied'):
         fixture = fixtures[name]
-        policy = dict(schema_id='cc03.intel-preflight-policy.v1', readonly_preflight_approved=True,
+        policy = dict(schema_id='cc03.intel-preflight-policy.v2', readonly_preflight_approved=True,
             observer_sid=sid, task_name=preflight.TASK, task_xml_sha256=fixture['task_xml_sha256'],
             task_principal_sid=fixture['task_principal_sid'], process_binding=None,
-            cc_panel_sid=None, cc_exporter_sid=None)
+            cc_panel_sid=sid)
         report = preflight.execute(policy,
             facts=lambda q: os_facts(dict(q, task_name=fixture['task_name'])))
         if name == 'Running':
@@ -63,7 +79,7 @@ def main():
             assert report['task_before_after'] == 'UNCHANGED_OBSERVED', report
         else:
             assert report['outcome'] == 'BLOCKED' and report['task_access'] == 'ACCESS_DENIED', report
-        assert report['cc_identities'] == 'CC_IDENTITIES_NOT_PROVISIONED', report
+        assert report['cc_identities'] == 'CCPANEL_ENABLED', report
         assert all(v == 'UNKNOWN' for v in report['trading'].values()), report
     previous_root = os.environ['CC03_CI_DISPOSABLE_ROOT']
     try:
@@ -78,32 +94,6 @@ def main():
                                capture_output=True, text=True, timeout=10)
     assert unapproved.returncode == 1 and json.loads(unapproved.stdout)['outcome'] == 'NOT_VERIFIED'
     print('LOW_SID_INTEL_PREFLIGHT_RUNNING_DENIED_MISSING_ROOTS_PREVIEW_UNAPPROVED=PASS', flush=True)
-    if sys.argv[2] == 'e':
-        # Actual installed observer entrypoint under its separate standard SID.
-        # No approved os-policy exists; must fail closed before any H1 probe.
-        observer = subprocess.run([sys.executable, '-m', 'observer.windows_os', '--execute'],
-                                  capture_output=True, text=True, timeout=10)
-        assert observer.returncode == 1 and observer.stdout.strip() == 'CC03_OS_OBSERVER_UNAVAILABLE'
-        print('LOW_SID_OBSERVER_ENTRYPOINT_UNAPPROVED_POLICY=FAIL_CLOSED_PASS',flush=True)
-        # CI-only transport proof under the real Exporter token. No H1 reads;
-        # all observations and binding remain UNKNOWN/unverified.
-        from datetime import datetime, timezone
-        from exporter.snapshot import publish
-        from cc.providers.source_contract import SCHEMA_ID
-        from cc.providers.h1_contract import SPEC, ACTIVE, ACCEPTED_COMMIT
-        from cc.providers.h1_readonly import canonical_digest
-        value=dict(schema_id=SCHEMA_ID,payload_sha256='0'*64,generated_at=datetime.now(timezone.utc).isoformat(),
-                   identity=dict(robot_id='H1',strategy_id='T3/H1/TRAIL1',production_specification_id=SPEC,
-                                 active_identity=ACTIVE,installed_code_commit=ACCEPTED_COMMIT,
-                                 source_id='CC03-H1-CIONLY0001',account_alias='H1-CIONLY',binding_id='0'*64,account_binding='UNVERIFIED'))
-        for group,source in dict(heartbeat='H1_PRODUCTION_HEARTBEAT',reconciliation='H1_PRODUCTION_HEARTBEAT',
-                                 kill_switch='H1_KILL_SWITCH_FILE',task='WINDOWS_TASK_PROBE',candles='APPROVED_H1_CALENDAR',
-                                 finances='APPROVED_ACCOUNT_FINANCE',execution='APPROVED_EXECUTION_EVENTS').items():
-            value[group]=dict(source=source,status='UNAVAILABLE',observed_at=None,value=None)
-        value['payload_sha256']=canonical_digest(value)
-        completed=publish(value)
-        assert completed.exists()
-        print('SYNTHETIC_UNKNOWN_TRANSPORT_UNDER_EXPORTER=PASS',flush=True)
     print(json.dumps(dict(identity_python='PASS',expected_sid=sys.argv[1],python=sys.version,
                           executable=sys.executable,cwd=os.getcwd(),spawn=multiprocessing.get_start_method(),
                           ntfs_read_spawn='PASS')),flush=True)

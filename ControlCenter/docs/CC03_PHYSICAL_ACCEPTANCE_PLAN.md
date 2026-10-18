@@ -16,7 +16,7 @@
 | B — установка Control Center | После отдельного решения: собственные CC accounts/roots/ACL, app/venv, DEMO/UNKNOWN панель | H1 ACL/Task/ARM, source approval, real export |
 | C — OS source и первый real export | После отдельного решения: Task/process binding, собственные root pins/ACL, измеренная cadence/TTL, private OS policy и receiver policy, один export | Торговое здоровье, broker authority, production metadata/content, автоматическое расписание |
 
-Разрешения не объединяются. A может наблюдать `CC_IDENTITIES_NOT_PROVISIONED` / `NOT_PROVISIONED`; ничего не создавать. Если standalone package/защищённая конфигурация ещё не доступны в разрешённой операторской зоне, A остаётся NOT_VERIFIED до отдельного решения о подготовке этой зоны; не использовать checkout робота и не запускать installer. Создание CC app/data identities относится только к B.
+Разрешения не объединяются. A может наблюдать `CCPANEL_NOT_PROVISIONED` / `NOT_PROVISIONED`; ничего не создавать. Если standalone package/защищённая конфигурация ещё не доступны в разрешённой операторской зоне, A остаётся NOT_VERIFIED до отдельного решения о подготовке этой зоны; не использовать checkout робота и не запускать installer. Создание CC app/data identities относится только к B.
 
 ## Порядок A после отдельного разрешения
 
@@ -26,11 +26,11 @@
 4. Под существующим утверждённым standard SID, отличным от production principal, выполнить **только** `python -m observer.intel_preflight --execute`. Elevated или filtered administrator token отклоняется. Код проверяет SID, локальный exact Task XML SHA-256/principal/state, затем опциональный PID, затем повторно тот же Task. Один запуск, максимум три OS subprocess по 6 секунд, readiness 6 секунд, policy read 2 секунды плюс короткое завершение worker. Нет цикла ожидания или нового process binding.
 5. Зафиксировать sanitized JSON/stdout и exit code в уже разрешённом private evidence sink; сам preflight не создаёт файлов и ничего не публикует. UTC timestamp в отчёте, операторская запись также UTC+MSK. Raw XML/command line/SID/path не отправлять в GitHub. Не делать вывод о current installed code по совпадению XML: executable attestation не выполнялась.
 6. Сохранность определяется только agreement XML fingerprint/principal и Task state между дискретными наблюдениями. Естественный переход state → BLOCKED/UNKNOWN, без вмешательства. Это не непрерывная гарантия отсутствия изменений. Restart/PID reuse/wrong epoch → PROCESS_UNKNOWN, без поиска нового PID. Отсутствующие права → UNKNOWN/ACCESS_DENIED, без исправления production ACL.
-7. Existing CC SIDs и собственные фиксированные app/venv/data/export/log/private roots наблюдаются только на существование, roots обходятся без reparse. `EXISTING_*_OBSERVED` не доказывает effective ACL или готовность к установке: `cc_acl=NOT_VERIFIED`; независимый review нужен для B/C.
+7. Единственный существующий ccpanel (точный SID/Enabled/membership) и собственные фиксированные app/venv/data/export/log/private roots проверяются без provisioning; roots обходятся без reparse. `EXISTING_*_OBSERVED` не доказывает effective ACL или готовность к установке: `cc_acl=NOT_VERIFIED`; независимый review нужен для B/C.
 
 ## Результаты A
 
-`TASK_IDENTITY_MATCHED`, `TASK_RUNNING_OBSERVED`, `PROCESS_IDENTITY_MATCHED` — независимые OS observations. `PROCESS_UNKNOWN`, `ACCESS_DENIED`, `CC_IDENTITIES_NOT_PROVISIONED`, `OS_SOURCE_APPROVAL_REQUIRED`, `UNKNOWN` остаются отдельными результатами.
+`TASK_IDENTITY_MATCHED`, `TASK_RUNNING_OBSERVED`, `PROCESS_IDENTITY_MATCHED` — независимые OS observations. `PROCESS_UNKNOWN`, `ACCESS_DENIED`, `CCPANEL_NOT_PROVISIONED`, `OS_SOURCE_APPROVAL_REQUIRED`, `UNKNOWN` остаются отдельными результатами.
 
 - **PASS** — только matched standard observer и неизменная identity/state exact Task в bracket. Допускаются Running, Ready, Disabled; менять state не требуется. Process остаётся UNKNOWN, если не привязан/не подтверждён; identities/roots могут быть NOT_PROVISIONED. PASS A не утверждает process source C.
 - **BLOCKED** — неправильная identity/token, Task mismatch, Task access denied, изменённая identity/state или непроверяемый standard token. Доступные независимые факты сохраняются; неизвестное не подменяется успехом.
@@ -41,3 +41,5 @@
 ## Остановка и отмена
 
 При отказе прав, drift, timeout или секретах прекратить **только CC preflight** (Ctrl+C его собственной консоли). Не Stop-Process по именам и не Stop Task. A не создаёт accounts/dirs/ACL, не запускает панель/exporter и не требует uninstall. Сохранить sanitized evidence и сообщить оператору blocker; не чинить H1. Отмена B/C описана отдельно в [installation plan](CC03_INTEL_INSTALLATION_PLAN.md). После отчёта A — STOP и новое решение; никакого автоматического B/C.
+
+После аудита #548 применяется v2 policy/report из [контракта A/B](CC03_INTEL_PREFLIGHT_POLICIES.md). `cc_installation=BLOCKED/NOT_PROVISIONED` не отменяет независимые Task-факты A и не разрешает enable аккаунта. Existing roots не доказывают ACL; автоматическое назначение observer SID запрещено. Текущая задача не выполняет ни одного пункта этого физического плана.

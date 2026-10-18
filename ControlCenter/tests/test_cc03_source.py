@@ -186,7 +186,9 @@ def test_exporter_absence_ui_m15_controls(monkeypatch,tmp_path):
     text='\n'.join(str(x.value) for k in ('caption','info','warning','markdown') for x in getattr(app,k))
     assert 'NOT_DEPLOYED' in text and 'DEMO-M15' in text
     app.radio[0].set_value('Управление').run()
-    assert not app.exception and len(app.button)==10 and all(x.disabled for x in app.button)
+    assert not app.exception
+    controls = [b for b in app.button if b.key != 'cc03-manual-refresh']
+    assert len(controls) == 10 and all(b.disabled for b in controls)
 
 
 def test_live_source_is_blocked_before_open(policy, now, monkeypatch):
@@ -203,10 +205,10 @@ def test_live_source_is_blocked_before_open(policy, now, monkeypatch):
 def test_deployment_scripts_preview_and_no_production_mutators():
     root=Path(__file__).parents[1]/'deployment'
     scripts=list(root.glob('*.ps1'))
-    assert len(scripts)==8  # shared validator plus seven operator entrypoints
+    assert len(scripts)==9  # two shared validators plus seven operator entrypoints
     for path in scripts:
         source=path.read_text()
-        if path.name!='Common.ps1':
+        if path.name not in {'Common.ps1','PanelIdentity.ps1'}:
             assert '[switch]$Execute' in source and 'if (-not $Execute)' in source and 'PREVIEW:' in source
         assert not any(verb in source for verb in ('Start-ScheduledTask','Stop-ScheduledTask','Enable-ScheduledTask',
             'Disable-ScheduledTask','Set-ScheduledTask','Register-ScheduledTask','Set-Acl','Invoke-WebRequest',
@@ -214,7 +216,10 @@ def test_deployment_scripts_preview_and_no_production_mutators():
     assert "'C:\\Control Center'" in (root/'Common.ps1').read_text()
     assert '--no-index' in (root/'Install.ps1').read_text()
     assert 'Assert-CurrentIdentity $PanelSid' in (root/'Start-Panel.ps1').read_text()
-    assert 'Assert-CurrentIdentity $ExporterSid' in (root/'Start-Exporter.ps1').read_text()
+    exporter = (root/'Start-Exporter.ps1').read_text()
+    assert "throw 'CC03_SINGLE_CCPANEL_EXPORTER_DISABLED'" in exporter
+    assert 'Assert-CurrentIdentity $ExporterSid' not in exporter
+    assert not any(secret in exporter for secret in ('source-policy.json','os-policy.json','FINAM','stage8-'))
 
 
 def test_packaged_source_schema_matches_runtime():

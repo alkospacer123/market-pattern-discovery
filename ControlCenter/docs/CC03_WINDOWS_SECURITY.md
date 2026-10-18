@@ -22,18 +22,24 @@ Actual Windows run 38862976125 proved `PermissionError [WinError 5]` when an unc
 
 Intel B1 layout (operator-readonly verified 2026-10-17): protected `C:\Control Center` with frozen 97-file package plus separate empty `app`, `venv`, `data/export`, `data/logs`, `data/private`. Production root policy is unchanged for CI sandbox: the existing GitHub-hosted disposable override remains restricted to its temporary tree. The root itself is for trusted code review; panel/exporter receive only required traversal at the root, their actual read/write grants are on their own subtrees. All three role accounts initially remain DISABLED; actual role token access is NOT_VERIFIED. No live source is approved.
 
-## Role directory permissions
+## Current CC-03 single-ccpanel directory permissions
 
-| Disposable CC resource | SYSTEM / Administrators | CCPanel | CCExporter |
-| --- | --- | --- | --- |
-| app / venv / data parent | Full | Read/Execute | Read/Execute |
-| export | Full | Read/Execute | Modify |
-| logs | Full | Modify | Read/Execute permitted |
-| private | Full | None | Read/Execute |
+| CC resource | SYSTEM / Administrators | ccpanel standard token |
+| --- | --- | --- |
+| app / venv / data parent | Full | Read/Execute |
+| export (immutable completed snapshots) | Full | Read/Execute; **no publish/write/delete** |
+| logs (CC-only) | Full | Modify |
+| private (disabled source policies) | Full | **No access** |
 
-Root owner must be SYSTEM/Administrators, inheritance disabled, and only these explicit SIDs are accepted. Separate standard users must have no Administrators group membership. The panel cannot write code, venv, export or private policy; exporter cannot write code, venv, data parent or panel logs. Policy authenticity is checked from the OS owner/DACL, never its own JSON booleans. Installed scripts validate ACLs; they do not provision or relax them. CI provisions and removes only disposable local users and ACLs under its own GUID-named RUNNER_TEMP tree.
+Root owner must remain SYSTEM or Administrators, inheritance disabled. The only non-privileged SID allowed in installed CC subtree ACLs is the independently verified local **enabled** `ccpanel` SID. Installed entrypoints check exact SID and non-admin token; neither scripts nor tests grant privileges or modify H1. The former `ccobserver` / `ccexporter` accounts are left untouched and unused on Intel. CI provisions/removes precisely one temporary standard user only inside its hosted disposable sandbox.
+
+Panel cannot write program, environment, receiving policy or export root; it cannot access `data/private`, FINAM secrets, DPAPI material or H1 production files. One account cannot safely perform the former private source-exporter role; `Start-Exporter.ps1 -Execute` **always fails closed**. Real CC telemetry remains UNKNOWN until a separately audited source/producer and physical authority review, not by pretending CCPanel can self-certify account identity, health or fills.
 
 The separate-SID launch diagnostic creates a target-user environment block rather than inheriting runneradmin environment, gives each role a writable temporary directory within its existing allowed write root, and checks native process startup, actual token SID, working directory, venv access and Python spawn before Streamlit. Each role process uses a newly created private noninteractive window station/desktop with a protected SYSTEM/Administrators/target-SID DACL; no existing desktop ACL is changed. This resolved the actual `_ctypes` DLL initialization failure and pre-CLR PowerShell wait. Target-owned inheritable standard handles capture early output. No privileges, existing desktop ACL, execution policy, CORS/XSRF or GitHub token permissions are relaxed. The actual evidence determines whether startup passed.
+
+## Evidence interpretation
+
+Older hosted-acceptance transcripts and earlier two-SID diagrams below are historical and apply to the *superseded* two-account rehearsal only. They are not the acceptance record for this one-ccpanel change; the new Draft PR Windows run must pass independently. Exact OS/FINAM source authority remains unapproved.
 
 ## Acceptance boundaries
 

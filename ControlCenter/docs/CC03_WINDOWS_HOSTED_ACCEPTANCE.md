@@ -53,6 +53,10 @@ All twelve original native scenarios execute:
 
 Ten original security scenarios are accepted when passing; the two legacy replacement scenarios remain negative compatibility evidence. No native FAIL was changed to SKIP/XFAIL.
 
+> **Historical evidence only:** below are results of the superseded two-SID deployment rehearsal. The subsequent one-ccpanel branch removes the exporter grant, blocks its entrypoint and must earn a new independent Windows-native run. Do not reuse the old PASS as single-ccpanel acceptance.
+>
+> One-ccpanel Intel install is still **NOT_EXECUTED**, `ccobserver` and `ccexporter` remain untouched, the real H1 export producer is unapproved, and `READONLY_EXPORT` remains UNKNOWN without accepted binding.
+
 ## Separate-SID startup and deployment
 
 PowerShell 5.1 parser checks all eight deployment files; all seven entrypoints run safe preview, including Probe-H1Task. Probe-H1Task -Execute is never run. Rehearsal uses only its own GUID-named RUNNER_TEMP tree and two disposable standard local users. Passwords remain in memory, absent from process arguments/bootstrap/logs.

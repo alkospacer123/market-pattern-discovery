@@ -112,7 +112,8 @@ def test_missing_h1_and_panel_rerun_leave_m15_and_controls_independent(monkeypat
     assert not app.exception
     assert any('NOT_DEPLOYED' in str(x.value) for x in app.info)
     app.radio[0].set_value('Управление').run()
-    assert len(app.button)==10 and all(b.disabled for b in app.button)
+    controls = [b for b in app.button if b.key != 'cc03-manual-refresh']
+    assert len(controls) == 10 and all(b.disabled for b in controls)
 
 
 def test_observer_is_outside_ui_dependency_graph_and_has_no_trading_capabilities():
@@ -145,3 +146,33 @@ def test_os_schema_matches_packaged_document():
     schema=json.loads((Path(__file__).parents[1]/'docs/CC03_WINDOWS_OS_SCHEMA.json').read_text())
     schema.pop('$schema');schema.pop('title')
     assert schema==SCHEMA
+
+
+def test_fixed_os_helper_uses_process_scoped_execution_policy(os_policy, monkeypatch):
+    calls=[]
+    def child(argv, **kwargs):
+        calls.append((argv,kwargs))
+        return subprocess.CompletedProcess(argv,1,'{}','denied')
+    monkeypatch.setattr(subprocess,'run',child)
+    monkeypatch.setattr(subprocess,'CREATE_NO_WINDOW',0,raising=False)
+    assert all(r['state']=='UNKNOWN' for r in observer.os_facts(os_policy).values())
+    argv,kwargs=calls[0]
+    assert len(calls)==1 and argv[1:]==['-NoLogo','-NoProfile','-NonInteractive',
+        '-ExecutionPolicy','Bypass','-File',str(observer.SCRIPT)]
+    assert kwargs['timeout']==6 and 'PSExecutionPolicyPreference' not in kwargs['env']
+
+
+def test_cached_os_facts_expire_without_reread_or_timestamp_rewrite(os_policy, monkeypatch):
+    value=envelope(os_policy)
+    now=datetime.now(timezone.utc)
+    snapshot=received(value, approved(os_policy), now, monkeypatch)
+    assert snapshot.windows_observations[0].freshness=='CURRENT'
+    def forbidden(*a,**k):pytest.fail('cache aging performed source I/O')
+    monkeypatch.setattr(receiver,'installed_policy',forbidden)
+    monkeypatch.setattr(receiver,'read_latest_windows',forbidden)
+    aged=receiver.age_export_snapshot(snapshot,now+timedelta(seconds=16))
+    assert aged.status.provenance==snapshot.status.provenance
+    assert aged.status.task_state is None and aged.status.state==State.STALE
+    assert all(r.state=='UNKNOWN' and r.freshness=='STALE' and r.authority=='UNKNOWN' and r.value is None
+               for r in aged.windows_observations)
+    assert snapshot.windows_observations[0].freshness=='CURRENT' # immutable original

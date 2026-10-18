@@ -24,8 +24,9 @@ def test_no_trade_or_system_capabilities_in_runtime(path):
         'h1_readonly.py': {'hashlib', 'json', 'pathlib'},
         'readonly_file.py': {'os', 'pathlib', 'stat'},
         'windows_file.py': {'ctypes', 'multiprocessing', 'pathlib', 'hashlib', 'os', 're'},
-        'h1_export.py': {'json', 'pathlib'},
+        'h1_export.py': {'json', 'pathlib', 'threading'},
         'deployment_paths.py': {'os', 'pathlib', 're'},
+        'manual_gate.py': {'contextlib', 'os', 'ctypes', 'fcntl'},
     }
     allowed = ALLOWED | receiving.get(path.name, set())
     tree=ast.parse(path.read_text(encoding='utf-8'))
@@ -39,8 +40,17 @@ def test_no_trade_or_system_capabilities_in_runtime(path):
         if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute):
             assert node.func.attr not in {'system','popen','Popen','connect','write_text','write_bytes','unlink','mkdir','run_command'}
             if node.func.attr=='button':
-                assert any(k.arg=='disabled' and isinstance(k.value,ast.Constant) and k.value.value is True for k in node.keywords)
                 assert not any(k.arg in ('on_click','args','kwargs') for k in node.keywords)
+                if path.name == 'app.py':
+                    # Exactly one non-trading UI control; no Task/shell/network capability.
+                    assert len(node.args)==1 and isinstance(node.args[0],ast.Constant)
+                    assert node.args[0].value=='Обновить данные'
+                    assert any(k.arg=='key' and isinstance(k.value,ast.Constant)
+                               and k.value.value=='cc03-manual-refresh' for k in node.keywords)
+                    assert any(k.arg=='disabled' for k in node.keywords)
+                else:
+                    assert any(k.arg=='disabled' and isinstance(k.value,ast.Constant)
+                               and k.value.value is True for k in node.keywords)
 
 
 def test_scenarios_have_no_network_database_shell_side_effects(monkeypatch,now):
@@ -57,10 +67,12 @@ def test_scenarios_have_no_network_database_shell_side_effects(monkeypatch,now):
     assert not any('finam' in name.lower() or name.startswith(('TradingSystemLab','IntradayLab')) for name in added)
 
 
-def test_refresh_is_bounded_streamlit_fragment():
+def test_manual_refresh_only_no_timer_or_background_poll():
     tree=ast.parse((ROOT/'app.py').read_text(encoding='utf-8'))
-    calls=[node for node in ast.walk(tree) if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute) and node.func.attr=='fragment']
-    assert len(calls)==1
-    keyword=calls[0].keywords[0]
-    assert keyword.arg=='run_every' and isinstance(keyword.value,ast.IfExp) and keyword.value.body.value==2
-    assert not any(isinstance(node,(ast.While,ast.AsyncFor)) for node in ast.walk(tree))
+    calls=[node for node in ast.walk(tree) if isinstance(node,ast.Call)
+           and isinstance(node.func,ast.Attribute)]
+    assert not any(c.func.attr in {'fragment','autorefresh','experimental_rerun','rerun'}
+                   for c in calls)
+    buttons=[c for c in calls if c.func.attr=='button']
+    assert len(buttons)==1 and buttons[0].args[0].value=='Обновить данные'
+    assert not any(isinstance(node,(ast.While,ast.AsyncFor,ast.For)) for node in ast.walk(tree))

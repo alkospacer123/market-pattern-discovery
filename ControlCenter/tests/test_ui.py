@@ -58,9 +58,12 @@ def test_failure_scenarios_do_not_affect_m15(app,scenario):
 
 def test_controls_disabled_and_no_handlers(app):
     app.radio[0].set_value('Управление').run()
-    assert len(app.button)==10
-    assert all(button.disabled for button in app.button)
-    assert [b.label for b in app.button]==list(CONTROLS)*2
+    assert len(app.button)==11
+    assert app.button(key='cc03-manual-refresh').disabled
+    control_buttons=[b for b in app.button if b.key!='cc03-manual-refresh']
+    assert len(control_buttons)==10
+    assert all(button.disabled for button in control_buttons)
+    assert [b.label for b in control_buttons]==list(CONTROLS)*2
     assert CONTROL_EXPLANATION in text(app)
 
 

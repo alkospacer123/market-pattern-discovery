@@ -223,6 +223,11 @@ def test_native_panel_restart_does_not_change_disposable_task_or_process(os_poli
         app=AppTest.from_file(str(Path(__file__).parents[1]/'app.py'),default_timeout=15).run()
         app.selectbox(key='h1-source').select('READONLY_EXPORT').run()
         assert not app.exception
+        # Navigation alone must not read or promote the external CC snapshot.
         app.radio[0].set_value('Монитор H1').run()
+        assert not any('TASK_RUNNING / PROCESS_OBSERVED' in str(c.value) for c in app.caption)
+        # Only the operator's explicit button press reads the isolated CC export.
+        app.button(key='cc03-manual-refresh').click().run()
+        assert not app.exception
         assert any('TASK_RUNNING / PROCESS_OBSERVED' in str(c.value) for c in app.caption)
     assert fixture_operation('Inspect',folder)==before

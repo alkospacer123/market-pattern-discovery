@@ -11,11 +11,11 @@
     },
     {
       "path": "README.md",
-      "sha256": "b75cdf46c259c3975d0d3dce4fbe7ed8d315187660d49be817f1b8bae8e82b0b"
+      "sha256": "1afff28e6ade8d8d23c3a31f33adf7a5db1308763a373184240091ae7e8e0455"
     },
     {
       "path": "app.py",
-      "sha256": "a33bbed3ee7cb4615daffe35c8ec25240da60ed7377a38b32f2d1126106e2235"
+      "sha256": "f3814f47d63058fc9b2ab975e3fa1e441059d26f975199ecf64f813823582b1c"
     },
     {
       "path": "cc/__init__.py",
@@ -38,8 +38,12 @@
       "sha256": "1efe3a2ced5c671704f9a2d74acb8faae2a80393da32b33ba64387a3e5cac0e7"
     },
     {
+      "path": "cc/manual_gate.py",
+      "sha256": "c7ce36e57704765abad99d6056c0fe759cdd176dcf107d1339ca73524ec7fdd8"
+    },
+    {
       "path": "cc/models.py",
-      "sha256": "f94b29176c977e6fa365528d98639b25dc310e001e5f3b792f9c2d278b680dd3"
+      "sha256": "09b6a16fb76a8458065f8f702f3ef4863e71f118d79af23aae208af8b0f89136"
     },
     {
       "path": "cc/providers/__init__.py",
@@ -55,7 +59,7 @@
     },
     {
       "path": "cc/providers/h1_export.py",
-      "sha256": "6ae52cb2c6ab914f5e11366066a9f374bdff784ee811c80ec88c8aa080f6a902"
+      "sha256": "143a392aa4ead600ebf9df314326bd797cf7157eb1736102ce0bc8fbbc3df061"
     },
     {
       "path": "cc/providers/h1_readonly.py",
@@ -83,19 +87,23 @@
     },
     {
       "path": "cc/ui.py",
-      "sha256": "67d26a342e45307ac3ed8bc2cb6637f29e4bc60242f28f34e51f4df3e49e26f4"
+      "sha256": "80e6d71c7ee61d9df37e65e72e93bc40aebe02f835452654a6843f06579e0bdf"
     },
     {
       "path": "ci/Os-Fixtures.ps1",
       "sha256": "a3db8ecb934a5a2e22769275abbb1db206e4ea9d5a838e5491e1c0dfa33f4cce"
     },
     {
+      "path": "ci/Test-PanelIdentity.ps1",
+      "sha256": "e4586953c628627db10456e8e6714633db613be8bcc6c715fa0ddc976c67c3b4"
+    },
+    {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "e6f267ed6a19c6b4cf770bd718a801816b6476343b3299c90841f5a785c3bef3"
+      "sha256": "bf790a16e5b321e502c74c9973d71d0eb21f9b4608e2aba5a7bd895d1d71d95b"
     },
     {
       "path": "ci/identity_probe.py",
-      "sha256": "98be7bbbfe05af7ee3cd65daf1ffe865712b6a5879c8e2047f1979ca4653f851"
+      "sha256": "41d66884ba40bb6db89d5697ea17010c2d4d607ba00293e07b12ca4ebf816690"
     },
     {
       "path": "ci/metadata_experiment.py",
@@ -107,15 +115,19 @@
     },
     {
       "path": "deployment/Common.ps1",
-      "sha256": "9c32cf1be508f0e4cd48ad562dfda05744bcee5f86cea281fe5a3426c45de91f"
+      "sha256": "d3b4af69e94459e48b6f3e411484db8bb776873e251538f4e78de51da8ed1028"
     },
     {
       "path": "deployment/Install.ps1",
-      "sha256": "3c4ef27c1b4b9084738f2eceb3388357fcc240de4599043f3d86342ba39f2311"
+      "sha256": "ec5b4bfdd4be8e45deeaa37bfb56cbcacc53bc54a4b0403dabb3404e7a2ba7a9"
+    },
+    {
+      "path": "deployment/PanelIdentity.ps1",
+      "sha256": "c2827b66915c3b3679f96f65028949b9b8a9f514766671b366a928970e961d6f"
     },
     {
       "path": "deployment/Preflight.ps1",
-      "sha256": "bd5a27e0bb886fdace6eb4b290d6bb4eb1ed458f341c684f2518be7fc4974db5"
+      "sha256": "774f6573c54f27804d91b77dc8872bd3a6b1c829f6bc9dbd88f764dbe2438f73"
     },
     {
       "path": "deployment/Probe-H1Task.ps1",
@@ -123,19 +135,19 @@
     },
     {
       "path": "deployment/Start-Exporter.ps1",
-      "sha256": "1c902e3db394e3def569e64e753c88613ec1d06ba61ac36c71131bdd6babc97a"
+      "sha256": "886cec63433ebfc7b60fe2d3b7ded6d0759c35c40b1b7a1d1a952f1f10736707"
     },
     {
       "path": "deployment/Start-Panel.ps1",
-      "sha256": "382aedb043d4e5216eb2762224a3bace9b2185613187a40d41786db180b32b03"
+      "sha256": "e9335b01a7e6ccca8ea0ad909593f29dd2b460d90c22785902e3893fda8993bb"
     },
     {
       "path": "deployment/Uninstall.ps1",
-      "sha256": "17c2e7f4e3d977829ea8a7fce2473e5e0ba6ee65abd78210484e964b99cf1d28"
+      "sha256": "a7d42fc43d8bb67472dcb1714e9f534a63f1199ff33c30e1c7acdfbe9424bfff"
     },
     {
       "path": "deployment/Verify.ps1",
-      "sha256": "3a1f4f9baec60be4cca4d03d7e098d8edf25df2707960479dc2d4511904d7134"
+      "sha256": "921a1ef1cb08c9c2679ba47a4816239964c1db46b54dafe39a3c6b7970ef8bb6"
     },
     {
       "path": "deployment/manifest.py",
@@ -147,7 +159,7 @@
     },
     {
       "path": "deployment/preflight-policy.example.json",
-      "sha256": "bc9d2eee9fc06c41c0f6a070cd5d79f865c03dbf67595aa5fae61c6d535d5579"
+      "sha256": "f1ab4c97dc64180e7e74c6a632538c1a10c9849e320b6427197c076db4b03393"
     },
     {
       "path": "deployment/receiver-policy.example.json",
@@ -183,15 +195,15 @@
     },
     {
       "path": "docs/CC03_INTEL_INSTALLATION_PLAN.md",
-      "sha256": "8184c8dcdc30d47e27a0dd42a99303d3613ad3b311ced610096a6a3c9d7c24a3"
+      "sha256": "b2c6cab9808145cc91ae24d970fa4aa05cba23bd3ac77ff1b1798aabaeb24696"
     },
     {
       "path": "docs/CC03_INTEL_PREFLIGHT_POLICIES.md",
-      "sha256": "499cd280ca0b10361139705ccd6892411132d534467346150918ccd3684e809b"
+      "sha256": "48ba4e427cc71d1dbf46b793dd1cf7266bea045090116b596680f4097b1ab736"
     },
     {
       "path": "docs/CC03_INTEL_READONLY_PREFLIGHT_PACKAGE.md",
-      "sha256": "6296e9370518a0a6e67d0f461665947d27abb359e3c670ce937a59602fe56271"
+      "sha256": "6a931f85208ece91c83c971c1c837a9e89b73ba498e5f7036e0bb1b7dc006796"
     },
     {
       "path": "docs/CC03_OS_ACCEPTANCE.md",
@@ -203,11 +215,15 @@
     },
     {
       "path": "docs/CC03_PHYSICAL_ACCEPTANCE_PLAN.md",
-      "sha256": "0da505079c2a39c5a0a50d0226237ad1a9e491ac9918e13140cc494063e757e0"
+      "sha256": "541af93ad89722b66ab2c39c8e460a1f313a33300a60536be6ebd74e320ffb4f"
     },
     {
       "path": "docs/CC03_READONLY_EXPORT_SCHEMA.json",
       "sha256": "f946cce6da60f0c220e2886ba7b3ee44ed946e7c30e0eae0a69ee99c76c76827"
+    },
+    {
+      "path": "docs/CC03_SINGLE_CCPANEL_AUDIT.md",
+      "sha256": "91686f1c74f282b95ff95fa45d837e6676a6a3b80691f5a36384cab7cc2d5834"
     },
     {
       "path": "docs/CC03_SOURCE_AUTHORITY.md",
@@ -215,11 +231,11 @@
     },
     {
       "path": "docs/CC03_WINDOWS_HOSTED_ACCEPTANCE.md",
-      "sha256": "0e5bea25e5c2aaeb5eb2c9713b44c91fa277281b8a63c2c7fa57e6d116a79697"
+      "sha256": "6b264c0d2f3817ce184d80654e5bb27143eccbe3da1abb50853ef216698c5f1a"
     },
     {
       "path": "docs/CC03_WINDOWS_OS_OBSERVER.md",
-      "sha256": "a674e2ff580bf340b925a7406ec8d04b0dd50875b3975439d6a4ced748ffaf08"
+      "sha256": "9a6dd4e4a90ea7597afd451b5a39f0cfb96af0f039c01a1a86aeaa90e22fefc4"
     },
     {
       "path": "docs/CC03_WINDOWS_OS_SCHEMA.json",
@@ -227,7 +243,7 @@
     },
     {
       "path": "docs/CC03_WINDOWS_SECURITY.md",
-      "sha256": "b210f2f57f8cb3331664ff5e496ffdf0a12ddf4d3319aed16040f8b431a84fe6"
+      "sha256": "094f3974af9d05df12747876fc654348d162c88e7164fae5bb37b98f286faa31"
     },
     {
       "path": "docs/H1_READONLY_SNAPSHOT_CONTRACT.md",
@@ -291,7 +307,7 @@
     },
     {
       "path": "observer/Read-PreflightReadiness.ps1",
-      "sha256": "06b6df0ed8c73d08c293012e31ab4bb6f0b5131624fd3bb65b2ee5b99313e81b"
+      "sha256": "a0a7f2e1968199579085084ac46ac21f108b1e439d21e6961b8c74d1be54c659"
     },
     {
       "path": "observer/__init__.py",
@@ -299,15 +315,15 @@
     },
     {
       "path": "observer/identity.py",
-      "sha256": "a45f805443488c3e61a3f53280a1f7578185f4d04c521ce99dac75a0cf7c107f"
+      "sha256": "5bff760b43c1e4dd696c856bed392841851091b6dbf41a15f2fd3d2466b2c745"
     },
     {
       "path": "observer/intel_preflight.py",
-      "sha256": "768080a800fb8742907567df2eb87280f4e387201dd1c91ef764d1fd0de0981a"
+      "sha256": "65b89d90f459855f9f815f3bcf3a94d54aa6928ac303948926a9976283fa530b"
     },
     {
       "path": "observer/windows_os.py",
-      "sha256": "626701cc4c274bb919b5931eef461ac6bfa23fdc01d3954b43558bf95e98580d"
+      "sha256": "d495871890572dcc51e17ccd2a9ce38412249c0f4e13c17b6cc9c54a4c7d6f87"
     },
     {
       "path": "pytest.ini",
@@ -331,11 +347,11 @@
     },
     {
       "path": "tests/test_boundary.py",
-      "sha256": "d249e9cbee5bae2f30bb17614b84fd037b8fb8651de513f554b989ffb830aefc"
+      "sha256": "b952529e082024c594c019534b6fed3ca2d2673411605ed75f7a0e3c32290f92"
     },
     {
       "path": "tests/test_cc03_source.py",
-      "sha256": "a8d69338ba23f4d93682caaa1df9867d5974be87ed4516aba1ccbf4b83b19cf4"
+      "sha256": "78b733e7917d0dc896c1bc1cddc6f0458bf742342c808882f8ea61362d754d11"
     },
     {
       "path": "tests/test_ci_paths.py",
@@ -347,7 +363,7 @@
     },
     {
       "path": "tests/test_h1_fault_injection.py",
-      "sha256": "e048e829461b330b756d6937b539fc927204ad83c2edcf4178d85546e75e4e81"
+      "sha256": "e949403b773633867261dcb8a54f2621406dc22730c29e71009021950e96ebcb"
     },
     {
       "path": "tests/test_h1_readonly.py",
@@ -355,27 +371,31 @@
     },
     {
       "path": "tests/test_h1_ui.py",
-      "sha256": "8ed8b3e2713fe6b177cca09f94f5c65e3df73c96ba5b8c2df787e764fc674b5f"
+      "sha256": "95fa25486f872cc45b7b2510856f482f2095aad4bbbc6c76ca243e4c8bf07777"
     },
     {
       "path": "tests/test_intel_b2_layout.py",
-      "sha256": "b90b6dc1674eff17becb31c95c38a8800cca67d251c8367a5c2ed475384d9af7"
+      "sha256": "42d2888ba31b0baad7ca4ce9da70ee504a8cb29b73559ac292ae582fdf4abafb"
     },
     {
       "path": "tests/test_intel_preflight.py",
-      "sha256": "7f366d69a58d26ef73eb134384c58f8ecb59e5c38cf20a21e038a85c0afa81fc"
+      "sha256": "d86036bb357fc119fd353c7966efc3fae5365c5f20747f8a6029f91ba4dfc2f4"
     },
     {
       "path": "tests/test_intel_preflight_native.py",
-      "sha256": "eaad8c40d5e4ac6b9e14bbb8c336d4cd4bfce885a460c392b030d8531bed6e65"
+      "sha256": "53d75d92c33274e8f3f431199c9e964849b0c4bfeaba679202db35982a7f17a9"
+    },
+    {
+      "path": "tests/test_manual_gate.py",
+      "sha256": "4c5a6ba7c33747af7114c0dcb083e0aed11621cf4c53acc494d4db7107acaccc"
     },
     {
       "path": "tests/test_os_observer.py",
-      "sha256": "351ba8990319c00a4452240c9a64f1baec0891a1d0cc14e7ea76a61e66060269"
+      "sha256": "e17c3dec53c465838ef79fc149531f7e20921f3575a0364e0207b6ac1ef1658a"
     },
     {
       "path": "tests/test_os_windows_native.py",
-      "sha256": "3af53aa1bddb50c705942775d4ea49d13e1b0345a223ca7943a6a59ba5f1259d"
+      "sha256": "185517e4fbf2bf00cb0a7f47b0145664b930077eea35f335d1a96813c56e7103"
     },
     {
       "path": "tests/test_scenarios.py",
@@ -383,7 +403,7 @@
     },
     {
       "path": "tests/test_ui.py",
-      "sha256": "2681ab67b552485ecffba559fd7d6e7585c9e737da80753359bf1319f04bfca2"
+      "sha256": "d8c5eae06f18bf60056cfc06dc403f166090d6074a8e177505188c0525114483"
     },
     {
       "path": "tests/test_windows_reader.py",

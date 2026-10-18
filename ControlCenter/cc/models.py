@@ -388,9 +388,11 @@ class RobotSnapshot:
     readonly_observations: tuple[FieldObservation, ...] = ()
     readonly_identity: str | None = None
     windows_observations: tuple[WindowsObservation, ...] = ()
+    readonly_expires_at: datetime | None = None
 
     def __post_init__(self):
         validate_types(self)
+        aware(self.readonly_expires_at)
         records = (*self.instruments, *self.candles, *self.signals, *self.orders,
                    *(self.positions or ()), self.risk, self.portfolio,
                    *(self.trades or ()), *self.events)

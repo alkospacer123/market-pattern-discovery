@@ -1,6 +1,7 @@
 # Shared validation only. No broker, H1 Task, authorization or ACL mutations.
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+. "$PSScriptRoot\PanelIdentity.ps1"
 # Operator-approved Intel-only project root. Never infer roots from the current
 # working directory, production robot checkout, or external environment.
 $script:ControlCenterRoot = 'C:\Control Center'
@@ -58,53 +59,55 @@ function Get-Manifest([string]$Root, [switch]$AllowMissing) {
     return $manifest
 }
 
-function Assert-ACL([string]$Path, [string]$PanelSid, [string]$ExporterSid, [string]$Kind) {
+# Single operator-approved standard user. Private source policy remains admin-only.
+# This validates existing ACLs; it never grants permissions or creates accounts.
+function Assert-CCPanelSid([string]$PanelSid) {
+    if ([string]::IsNullOrWhiteSpace($PanelSid) -or $PanelSid -notmatch '^S-1-5-21-[0-9]+-[0-9]+-[0-9]+-[0-9]+$') { throw 'VALID_CCPANEL_SID_REQUIRED' }
+    if ((Get-CCPanelState $PanelSid) -ne 'CCPANEL_ENABLED') { throw 'ENABLED_STANDARD_CCPANEL_ACCOUNT_REQUIRED' }
+}
+
+function Assert-ACL([string]$Path, [string]$PanelSid, [string]$Kind) {
+    Assert-CCPanelSid $PanelSid
     Assert-PlainPath $Path
-    if ($PanelSid -eq $ExporterSid -or $PanelSid -notmatch '^S-1-5-21-' -or $ExporterSid -notmatch '^S-1-5-21-') { throw 'DISTINCT_LOW_PRIVILEGE_SIDS_REQUIRED' }
+    if ($Kind -notin @('app','venv','parent','export','logs','private')) { throw 'CC_KIND_INVALID' }
     $acl = Get-Acl -LiteralPath $Path
     if (-not $acl.AreAccessRulesProtected) { throw 'ACL_INHERITANCE_MUST_BE_DISABLED' }
     $owner = $acl.GetOwner([Security.Principal.SecurityIdentifier]).Value
     if ($owner -notin @('S-1-5-18','S-1-5-32-544')) { throw 'TRUSTED_OWNER_REQUIRED' }
-    $allowed = @('S-1-5-18','S-1-5-32-544',$PanelSid,$ExporterSid)
-    $panelRead = $false; $exporterRead = $false
+    $allowed = @('S-1-5-18','S-1-5-32-544',$PanelSid)
+    $panelRead = $false
     $mutation = [Security.AccessControl.FileSystemRights]::Write -bor [Security.AccessControl.FileSystemRights]::Delete -bor [Security.AccessControl.FileSystemRights]::ChangePermissions -bor [Security.AccessControl.FileSystemRights]::TakeOwnership -bor [Security.AccessControl.FileSystemRights]::DeleteSubdirectoriesAndFiles
     foreach ($rule in $acl.GetAccessRules($true,$true,[Security.Principal.SecurityIdentifier])) {
         $sid = $rule.IdentityReference.Value
         if ($rule.IsInherited -or $sid -notin $allowed -or $rule.AccessControlType -ne 'Allow') { throw 'UNREVIEWED_ACL_RULE' }
-        if ($sid -in @($PanelSid,$ExporterSid)) {
+        if ($sid -eq $PanelSid) {
+            if ($Kind -eq 'private') { throw 'CCPANEL_PRIVATE_ACCESS_FORBIDDEN' }
             $maxRights = [Security.AccessControl.FileSystemRights]::ReadAndExecute -bor [Security.AccessControl.FileSystemRights]::Synchronize
-            if (($sid -eq $PanelSid -and $Kind -eq 'logs') -or ($sid -eq $ExporterSid -and $Kind -eq 'export')) {
+            if ($Kind -eq 'logs') {
                 $maxRights = [Security.AccessControl.FileSystemRights]::Modify -bor [Security.AccessControl.FileSystemRights]::Synchronize
             }
-            if ([int64]$rule.FileSystemRights -band (-bnot [int64]$maxRights)) { throw 'EXCESS_CUSTOM_SID_RIGHTS' }
-        }
-        if ($sid -eq $PanelSid) {
-            if ($Kind -eq 'private' -or ($Kind -ne 'logs' -and ($rule.FileSystemRights -band $mutation))) { throw 'PANEL_EXCESS_PERMISSION' }
+            if ([int64]$rule.FileSystemRights -band (-bnot [int64]$maxRights)) { throw 'CCPANEL_EXCESS_PERMISSION' }
+            if ($Kind -ne 'logs' -and ($rule.FileSystemRights -band $mutation)) { throw 'CCPANEL_WRITE_FORBIDDEN' }
             $requiredRights = [Security.AccessControl.FileSystemRights]::ReadAndExecute
             if ($Kind -eq 'logs') { $requiredRights = [Security.AccessControl.FileSystemRights]::Modify }
             if (($rule.FileSystemRights -band $requiredRights) -eq $requiredRights) { $panelRead = $true }
         }
-        if ($sid -eq $ExporterSid) {
-            if ($Kind -ne 'export' -and ($rule.FileSystemRights -band $mutation)) { throw 'EXPORTER_EXCESS_PERMISSION' }
-            $requiredRights = [Security.AccessControl.FileSystemRights]::ReadAndExecute
-            if ($Kind -eq 'export') { $requiredRights = [Security.AccessControl.FileSystemRights]::Modify }
-            if (($rule.FileSystemRights -band $requiredRights) -eq $requiredRights) { $exporterRead = $true }
-        }
     }
-    if ($Kind -ne 'private' -and -not $panelRead) { throw 'PANEL_READ_RULE_REQUIRED' }
-    if ($Kind -ne 'logs' -and -not $exporterRead) { throw 'EXPORTER_READ_RULE_REQUIRED' }
+    if ($Kind -ne 'private' -and -not $panelRead) { throw 'CCPANEL_READ_RULE_REQUIRED' }
 }
 
-function Assert-LayoutACL([string]$PanelSid, [string]$ExporterSid) {
+function Assert-LayoutACL([string]$PanelSid) {
     foreach ($pair in @(@($script:AppRoot,'app'), @($script:VenvRoot,'venv'),
                         @($script:DataRoot,'parent'), @("$script:DataRoot\export",'export'),
                         @("$script:DataRoot\logs",'logs'), @("$script:DataRoot\private",'private'))) {
-        Assert-ACL $pair[0] $PanelSid $ExporterSid $pair[1]
+        Assert-ACL $pair[0] $PanelSid $pair[1]
     }
 }
 
 function Assert-CurrentIdentity([string]$ExpectedSid) {
+    Assert-CCPanelSid $ExpectedSid
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
     if ($identity.User.Value -ne $ExpectedSid) { throw 'DEDICATED_IDENTITY_REQUIRED' }
-    if (@($identity.Groups | Where-Object { $_.Value -eq 'S-1-5-32-544' }).Count -ne 0) { throw 'NON_ADMINISTRATOR_REQUIRED' }
+    if ($identity.ImpersonationLevel -ne [Security.Principal.TokenImpersonationLevel]::None) { throw 'PRIMARY_TOKEN_REQUIRED' }
+    if (-not (Test-CCStandardIdentity $identity)) { throw 'NON_ADMINISTRATOR_REQUIRED' }
 }

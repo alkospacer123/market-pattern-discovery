@@ -168,7 +168,11 @@ def test_no_runtime_write_call_paths():
                 assert display_write or node.func.attr not in forbidden, (path,node.func.attr)
                 if isinstance(node.func.value,ast.Name) and node.func.value.id=='os':
                     assert (path.name=='readonly_file.py' and node.func.attr in allowed_os
-                            or path.name=='windows_file.py' and node.func.attr=='scandir')
+                            or path.name=='windows_file.py' and node.func.attr=='scandir'
+                            or path.name=='manual_gate.py' and node.func.attr in {'open','close'})
+                    if path.name=='manual_gate.py' and node.func.attr=='open':
+                        assert ast.unparse(node.args[0])=='__file__'
+                        assert ast.unparse(node.args[1])=='os.O_RDONLY | os.O_NOFOLLOW'
 
 
 def test_nested_unknown_fields_rejected_without_leak(h1_export, publish, now):
