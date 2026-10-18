@@ -7,6 +7,7 @@ No trade POST, H1 import, real token, existing runtime or Windows Task.
 from __future__ import annotations
 
 import hashlib
+from contextlib import closing
 import json
 import sqlite3
 import tempfile
@@ -240,7 +241,7 @@ class FailureRecoveryReplay(unittest.TestCase):
 
     def test_sqlite_restart_with_lost_identity_fails_closed(self):
         self.ledger.close()
-        with sqlite3.connect(self.ledger.path) as db:
+        with closing(sqlite3.connect(self.ledger.path)) as db, db:
             db.execute("DELETE FROM metadata WHERE key='identity'")
         with self.assertRaisesRegex(M15OfflineLedgerError, "EXISTING_IDENTITY_MISSING"):
             OfflineIntentLedger(**self.opts)
