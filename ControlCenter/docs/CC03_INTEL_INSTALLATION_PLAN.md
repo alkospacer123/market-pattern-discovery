@@ -1,3 +1,5 @@
+> Python base update: see [CC03_PYTHON312_BASE.md](CC03_PYTHON312_BASE.md). B preflight now requires the protected full CC-owned CPython 3.12.10 base/media provenance and offline Wheelhouse; no launcher fallback. All commands below remain subject to separate A/B/C approval.
+
 # CC-03 Intel installation — single `ccpanel` review plan
 
 **CODE/DOCUMENTATION ONLY / NOT_EXECUTED.** Operator decision in [#524](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6241614427) overrides the historical dual-SID model and 2-second UI polling. One standard Windows account `ccpanel` is the **only proposed runtime identity**. Existing `ccobserver` and `ccexporter` are not deleted and not used. None of the actions below was executed on Intel by this PR.
@@ -40,7 +42,7 @@ The following are *illustrative future commands*, not an execution request. Each
 & '.\deployment\uninstall.ps1'
 ```
 
-Only after distinct B authorization, `ccpanel` SID validation, path/ACL review, pinned release and wheelhouse checks, local administrator may perform the existing `Preflight.ps1 -Execute -PanelSid <sid>` and `Install.ps1 -Execute -PanelSid <sid> -Wheelhouse <approved-local-path>` operations. Preflight is read-only; Install writes only CC-owned app/venv and never creates a Task or launches Streamlit. No installer operation is included in the approval for read-only source A.
+Only after distinct B authorization, `ccpanel` SID validation, path/ACL review, pinned release and wheelhouse checks, local administrator may perform the existing `Preflight.ps1 -Execute -PanelSid <sid> -Wheelhouse <approved-local-path>` and `Install.ps1 -Execute -PanelSid <sid> -Wheelhouse <approved-local-path>` operations. Preflight is read-only; Install writes only CC-owned app/venv and never creates a Task or launches Streamlit. No installer operation is included in the approval for read-only source A.
 
 On future start, **only** the standard (not elevated) `ccpanel` token may invoke `Start-Panel.ps1 -Execute -PanelSid <sid>` to launch Streamlit at **127.0.0.1:8501**, with CORS/XSRF enabled and no external firewall bind. The elevated but READONLY `Verify.ps1 -Execute -PanelSid <sid>` checks release/ACL/dependencies, exact single loopback listener + owner SID and that unapproved H1 source is UNKNOWN. A displayed Task Running/HEALTHY cannot be invented from a listener or stale file.
 

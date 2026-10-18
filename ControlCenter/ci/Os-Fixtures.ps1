@@ -31,10 +31,12 @@ if ($Operation -eq 'Create') {
         $definition.Principal.UserId=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
         $definition.Principal.LogonType=3
         $definition.Settings.Enabled=($name -ne 'Disabled')
-        $definition.Settings.ExecutionTimeLimit='PT2M'
+        # UUID test tasks must survive the complete strict runtime/ACL rehearsal.
+        # Cleanup still stops/removes only this newly created disposable folder.
+        $definition.Settings.ExecutionTimeLimit='PT12M'
         $action=$definition.Actions.Create(0)
         $action.Path=Join-Path $env:SYSTEMROOT 'System32\WindowsPowerShell\v1.0\powershell.exe'
-        $action.Arguments='-NoProfile -NonInteractive -Command Start-Sleep -Seconds 90'
+        $action.Arguments='-NoProfile -NonInteractive -Command Start-Sleep -Seconds 600'
         $registered=$folderObject.RegisterTaskDefinition($name,$definition,2,$null,$null,3,$null)
         $registered.SetSecurityDescriptor('O:BAG:BAD:P(A;;GA;;;SY)(A;;GA;;;BA)(A;;GR;;;BU)',0)
         if ($name -eq 'Running') { $null=$registered.Run($null) }

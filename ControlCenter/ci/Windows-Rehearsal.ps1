@@ -5,6 +5,13 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 if ($env:GITHUB_ACTIONS -cne 'true' -or $env:RUNNER_ENVIRONMENT -cne 'github-hosted') { throw 'GITHUB_HOSTED_VM_REQUIRED' }
 $package = Split-Path $PSScriptRoot -Parent
+# The hosted D: volume is owned by a runner-specific SID, which deliberately
+# fails the production trust contract. Use a newly created protected C: parent;
+# never repair D:/C: ACLs or add a runner SID to the production allowlist.
+$originalRunnerTemp = $env:RUNNER_TEMP
+$rehearsalTemp = Join-Path ($env:SYSTEMDRIVE+'\') ('CC03-' + [guid]::NewGuid().ToString('N'))
+$null = New-Item -ItemType Directory -Path $rehearsalTemp
+$env:RUNNER_TEMP = $rehearsalTemp
 $sandbox = Join-Path $env:RUNNER_TEMP ('CC03-' + [guid]::NewGuid().ToString('N'))
 $env:CC03_CI_DISPOSABLE_ROOT = $sandbox
 $env:STREAMLIT_SERVER_HEADLESS = 'true'
@@ -17,7 +24,7 @@ $exporterProcess = $null
 $osFixtureFolder = $null
 $manualPolicyRoot = Join-Path ([IO.Path]::GetPathRoot($sandbox)) ('CC03-' + [guid]::NewGuid().ToString('N'))
 $results = [ordered]@{}
-$evidence = Join-Path $env:RUNNER_TEMP 'cc03-evidence'
+$evidence = Join-Path $originalRunnerTemp 'cc03-evidence'
 
 function Expect-Failure([scriptblock]$Operation, [string]$Expected) {
     try { & $Operation } catch {
@@ -45,6 +52,8 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
     $lines += '& ' + (Literal "$script:VenvRoot\Scripts\python.exe") + ' -c ' + (Literal 'import sys; print(sys.executable); print(sys.version)')
     $lines += 'if ($LASTEXITCODE -ne 0) { throw ''IDENTITY_PYTHON_PROBE_FAILED'' }'
     $lines += 'Get-ExecutionPolicy -List | Format-Table | Out-String | Write-Output'
+    $lines += '$env:PYTHONHOME = ' + (Literal (Join-Path $sandbox 'protected-outside-cc/unrelated-user-profile'))
+    $lines += '$env:PYTHONPATH = ' + (Literal (Join-Path $sandbox 'protected-outside-cc/unrelated-user-profile'))
     $lines += '& ' + (Literal $Entry) + ' -Execute -PanelSid ' + (Literal $panelSid)
     $command = '& {' + "`n" + ($lines -join "`n") + "`n" + '}'
     $bootstrap = Join-Path $sandbox ('identity-' + $Identity.Name + '-' + [guid]::NewGuid().ToString('N') + '.ps1')
@@ -69,7 +78,7 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
 }
 
 function Set-DisposableACL([string]$Path, [string]$Kind) {
-    if ($Path -ne $sandbox -and -not $Path.StartsWith($sandbox + '\', [StringComparison]::OrdinalIgnoreCase) -and
+    if ($Path -ne $rehearsalTemp -and $Path -ne $sandbox -and -not $Path.StartsWith($sandbox + '\', [StringComparison]::OrdinalIgnoreCase) -and
         $Path -ne $manualPolicyRoot -and -not $Path.StartsWith($manualPolicyRoot + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'ACL_SCOPE_VIOLATION' }
     $directory = Test-Path -LiteralPath $Path -PathType Container
     $acl = $(if ($directory) { [Security.AccessControl.DirectorySecurity]::new() } else { [Security.AccessControl.FileSecurity]::new() })
@@ -286,6 +295,7 @@ try {
     $panel = [pscustomobject]@{ Name=$name; Password=$password; Sid=$user.SID.Value; Credential=[pscredential]::new("$env:COMPUTERNAME\$name", $secret) }
     $panelSid = $panel.Sid
     Write-Output "DISPOSABLE_CCPANEL_SID=$panelSid"
+    Set-DisposableACL $rehearsalTemp 'parent'
     Set-DisposableACL $sandbox 'parent'
     foreach ($pair in @(@($script:AppRoot,'app'), @($script:VenvRoot,'venv'), @($script:DataRoot,'parent'),
                         @("$script:DataRoot\export",'export'), @("$script:DataRoot\logs",'logs'), @("$script:DataRoot\private",'private'))) {
@@ -329,8 +339,72 @@ try {
         Write-Output "EFFECTIVE_ACL_PASS role=$($identity.Name.Substring(0,5)) write=$($case[2]) result=$actual"
     }
     $results['single_ccpanel_acl'] = 'PASS: 8 actual access probes under the sole non-admin ccpanel logon token'
-    & "$package\deployment\Preflight.ps1" -Execute -PanelSid $panelSid
-    if ($LASTEXITCODE -ne 0) { throw 'PREFLIGHT_FAILED' }
+    # B-only runtime preprovisioning inside this disposable hosted CC root.
+    # Full setup-python CPython, never the embeddable ZIP or a user launcher.
+    $null = New-Item -ItemType Directory -Path $script:RuntimeRoot,$script:BaseRoot
+    Set-DisposableACL $script:RuntimeRoot 'app'
+    Set-DisposableACL $script:BaseRoot 'app'
+    $originalBase = (& python -I -B -c 'import sys;print(sys.base_prefix)').Trim()
+    foreach ($name in @('python.exe','pythonw.exe','python3.dll','python312.dll','vcruntime140.dll','vcruntime140_1.dll','LICENSE.txt')) {
+        Copy-Item -LiteralPath (Join-Path $originalBase $name) -Destination $script:BaseRoot
+    }
+    foreach ($name in @('Lib','DLLs')) { Copy-Item -LiteralPath (Join-Path $originalBase $name) -Destination $script:BaseRoot -Recurse }
+    # All copied bytes are administrator-owned; grant only the fixture ccpanel RX.
+    & icacls.exe $script:BaseRoot /setowner '*S-1-5-32-544' /T /Q
+    if ($LASTEXITCODE -ne 0) { throw 'BASE_OWNER_STAGING_FAILED' }
+    $media = Join-Path $script:RuntimeRoot 'python-3.12.10-amd64.exe'
+    Invoke-WebRequest -UseBasicParsing -Uri 'https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe' -OutFile $media
+    Set-DisposableACL $media 'app'
+    $records = @(Get-ChildItem -File -Recurse -LiteralPath $script:BaseRoot | ForEach-Object {
+        @{path=$_.FullName.Substring($script:BaseRoot.Length+1).Replace('\','/');sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}
+    })
+    $provenance = @{schema_id='cc03.python-base.v1';b_only_approved=$true;release='CPython-3.12.10-amd64-full';
+        source_uri='https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe';
+        media_sha256=(Get-FileHash -LiteralPath $media -Algorithm SHA256).Hash.ToLowerInvariant();files=$records}
+    $provenance | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $script:RuntimeProvenance -Encoding ASCII
+    Set-DisposableACL $script:RuntimeProvenance 'app'
+    $provenance | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath "$evidence\python-base-provenance.json" -Encoding ASCII
+    # An unrelated profile Python is unreadable to the real ccpanel token.
+    $unrelated = Join-Path $canaryRoot 'unrelated-user-profile'
+    $null = New-Item -ItemType Directory -Path $unrelated
+    Set-DisposableACL $unrelated 'private'
+    Copy-Item -LiteralPath $script:BasePython -Destination "$unrelated\python.exe"
+    if ([CC03Access]::Probe($panel.Name,$panel.Password,$panelSid,"$unrelated\python.exe",$false) -ne 'ACCESS_DENIED') { throw 'UNRELATED_PROFILE_PYTHON_NOT_DENIED' }
+    $results['unrelated_profile_python'] = 'PASS: real ccpanel ACCESS_DENIED; install still uses the managed base'
+    $savedBase = $script:BasePython
+    $script:BasePython = "$unrelated\python.exe"
+    Expect-Failure { Assert-TrustedBase $panelSid } 'BASE_PATH_NOT_ALLOWLISTED'
+    $script:BasePython = $savedBase
+    # Every rejection below leaves empty app/venv and unchanged CC data.
+    $savedProvenance = Get-Content -Raw -LiteralPath $script:RuntimeProvenance
+    Disable-LocalUser -Name 'ccpanel'
+    Expect-Failure { Assert-TrustedBase $panelSid } 'ENABLED_STANDARD_CCPANEL_ACCOUNT_REQUIRED'
+    Enable-LocalUser -Name 'ccpanel'
+    foreach ($leaf in @('python.exe','Lib\encodings\__init__.py','Lib\venv\__init__.py','Lib\ensurepip\__init__.py')) {
+        $file = Join-Path $script:BaseRoot $leaf
+        Move-Item -LiteralPath $file -Destination ($file+'.held')
+        Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_HASH_MISMATCH'
+        Move-Item -LiteralPath ($file+'.held') -Destination $file
+    }
+    $provenance.media_sha256 = '1'*64
+    $provenance | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $script:RuntimeProvenance -Encoding ASCII
+    Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_MEDIA_HASH_MISMATCH'
+    Set-Content -LiteralPath $script:RuntimeProvenance -Value $savedProvenance -Encoding ASCII
+    $savedACL = Get-Acl -LiteralPath $script:BaseRoot
+    Set-DisposableACL $script:BaseRoot 'private'
+    Expect-Failure { Assert-TrustedBase $panelSid } 'CCPANEL_READ_RULE_REQUIRED'
+    Set-Acl -LiteralPath $script:BaseRoot -AclObject $savedACL
+    $junction = Join-Path $script:BaseRoot 'malicious-junction'
+    & cmd.exe /d /c mklink /J $junction $canaryRoot
+    if ($LASTEXITCODE -ne 0) { throw 'JUNCTION_FIXTURE_FAILED' }
+    Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_REPARSE_FORBIDDEN'
+    [IO.Directory]::Delete($junction)
+    # A real unsupported interpreter, not a mocked version response.
+    $wrongPython = @(Get-ChildItem -Path "$env:RUNNER_TOOL_CACHE\Python\3.14*\x64\python.exe")
+    if ($wrongPython.Count -eq 0) { throw 'REAL_PYTHON_314_FIXTURE_REQUIRED' }
+    Expect-Failure { Invoke-PythonProbe $wrongPython[0].FullName } 'TRUSTED_PYTHON_PROBE_FAILED'
+    if (@(Get-ChildItem -Force $script:AppRoot).Count -or @(Get-ChildItem -Force $script:VenvRoot).Count) { throw 'BASE_NEGATIVE_WROTE_TARGET' }
+    $results['base_negative_cases'] = 'PASS: home allowlist, Disabled ccpanel, exe/stdlib/venv/ensurepip missing, media hash, denied ACL, junction, actual Python 3.14; zero target writes'
     # Downloaded exact hashed wheels are CI-only, never production credentials.
     $wheelhouse = Join-Path $sandbox 'wheels'
     & python -m pip download --require-hashes --only-binary=:all: --no-deps -r "$package\requirements-windows-ci.lock" -d $wheelhouse
@@ -346,11 +420,67 @@ try {
     $results['invalid_wheel_regression'] = 'PASS: bad hash rejected before any target write'
     $wheelRecords[0].sha256 = $validDigest
     $wheelRecords | ConvertTo-Json | Set-Content -LiteralPath "$wheelhouse\wheels.sha256.json" -Encoding ASCII
-    & "$package\deployment\Install.ps1" -Execute -PanelSid $panelSid -Wheelhouse $wheelhouse
-    if ($LASTEXITCODE -ne 0) { throw 'INSTALL_FAILED' }
+    # Missing wheel closure fails before any install write, even with a valid
+    # wheel index for the remaining files.
+    $missingWheel = Get-ChildItem -LiteralPath $wheelhouse -Filter 'streamlit-*.whl' | Select-Object -First 1
+    Move-Item -LiteralPath $missingWheel.FullName -Destination ($missingWheel.FullName+'.held')
+    @($wheelRecords | Where-Object { $_.name -ne $missingWheel.Name }) | ConvertTo-Json | Set-Content -LiteralPath "$wheelhouse\wheels.sha256.json" -Encoding ASCII
+    Expect-Failure { & "$package\deployment\Install.ps1" -Execute -PanelSid $panelSid -Wheelhouse $wheelhouse } 'OFFLINE_PINNED_WHEELS_REQUIRED'
+    if (@(Get-ChildItem -Force $script:AppRoot).Count -or @(Get-ChildItem -Force $script:VenvRoot).Count) { throw 'MISSING_WHEEL_WROTE_TARGET' }
+    Move-Item -LiteralPath ($missingWheel.FullName+'.held') -Destination $missingWheel.FullName
+    $wheelRecords | ConvertTo-Json | Set-Content -LiteralPath "$wheelhouse\wheels.sha256.json" -Encoding ASCII
+    # Fault injection only in the test scope: the production script has no hook.
+    for ($attempt=0; $attempt -lt 2; $attempt++) {
+        $copyFaultState = @{count=0}
+        $copyFault = {
+            param($LiteralPath,$Destination)
+            $copyFaultState.count++
+            if ($copyFaultState.count -eq 3) { throw 'DISPOSABLE_COPY_FAULT' }
+            Microsoft.PowerShell.Management\Copy-Item -LiteralPath $LiteralPath -Destination $Destination
+        }.GetNewClosure()
+        Set-Item -LiteralPath Function:Copy-Item -Value $copyFault
+        try { Expect-Failure { & "$package\deployment\Install.ps1" -Execute -PanelSid $panelSid -Wheelhouse $wheelhouse } 'DISPOSABLE_COPY_FAULT' }
+        finally { Remove-Item Function:Copy-Item }
+        if (@(Get-ChildItem -Force $script:AppRoot).Count -or @(Get-ChildItem -Force $script:VenvRoot).Count) { throw 'ROLLBACK_NOT_EMPTY' }
+    }
+    $results['rollback'] = 'PASS: two real partial-copy faults, stable empty app/venv; base/data/outside roots retained'
+    # A real child-import attack, including -m resolution from an untrusted CWD.
+    $poison = Join-Path $sandbox 'untrusted-python-environment'
+    $null = New-Item -ItemType Directory -Path $poison
+    Set-DisposableACL $poison 'logs'
+    foreach ($name in @('ensurepip.py','sitecustomize.py')) {
+        Set-Content -LiteralPath (Join-Path $poison $name) -Value "raise SystemExit('HOSTILE_PYTHON_ENV_EXECUTED')" -Encoding ASCII
+    }
+    $originalPythonPath = $env:PYTHONPATH
+    $originalPythonHome = $env:PYTHONHOME
+    $originalPipTarget = $env:PIP_TARGET
+    $originalTmpDir = [Environment]::GetEnvironmentVariable('TMPDIR')
+    Push-Location $poison
+    try {
+        $env:PYTHONPATH = $poison
+        $env:PYTHONHOME = $unrelated
+        $env:PIP_TARGET = $canaryRoot
+        $env:TMPDIR = $canaryRoot
+        & "$package\deployment\Install.ps1" -Execute -PanelSid $panelSid -Wheelhouse $wheelhouse
+        if ($LASTEXITCODE -ne 0) { throw 'INSTALL_FAILED' }
+        if ($env:PYTHONPATH -ne $poison -or $env:PYTHONHOME -ne $unrelated -or $env:PIP_TARGET -ne $canaryRoot -or $env:TMPDIR -ne $canaryRoot -or (Get-Location).Path -ne $poison) { throw 'INSTALL_CALLER_ENVIRONMENT_NOT_RESTORED' }
+    } finally {
+        $env:PYTHONPATH = $originalPythonPath
+        $env:PYTHONHOME = $originalPythonHome
+        $env:PIP_TARGET = $originalPipTarget
+        [Environment]::SetEnvironmentVariable('TMPDIR',$originalTmpDir,'Process')
+        Pop-Location
+    }
+    if (@(Get-ChildItem -Force -LiteralPath $poison).Count -ne 2 -or @(Get-ChildItem -Force -LiteralPath $canaryRoot).Count -ne 6) { throw 'INSTALL_WROTE_OUTSIDE_OWN_TARGETS' }
+    $results['installer_environment'] = 'PASS: hostile PYTHONHOME/PYTHONPATH/PIP_TARGET/TMPDIR and caller CWD ignored for venv/ensurepip/pip; caller environment/location restored; zero outside writes'
     & "$script:VenvRoot\Scripts\python.exe" -c "import sys,struct; print('REHEARSAL_PYTHON='+sys.version); assert sys.version_info[:3]==(3,12,10) and struct.calcsize('P')==8"
     if ($LASTEXITCODE -ne 0) { throw 'REHEARSAL_PYTHON_VERSION_MISMATCH' }
-    $results['install'] = 'PASS: real offline install into disposable ACL-provisioned roots'
+    $results['install'] = 'PASS: real offline install from exact protected full CPython base, complete hashed runtime lock'
+    foreach ($path in @($script:BasePython,"$script:AppRoot\app.py","$script:VenvRoot\pyvenv.cfg")) {
+        if ([CC03Access]::Probe($panel.Name,$panel.Password,$panelSid,$path,$true) -ne 'ACCESS_DENIED') { throw 'PANEL_RUNTIME_MUTATION_ALLOWED' }
+    }
+    Copy-Item -LiteralPath "$script:VenvRoot\pyvenv.cfg" -Destination "$evidence\installed-pyvenv.cfg"
+
     $osFixtureFolder = 'CC03-CI-' + [guid]::NewGuid().ToString('N')
     & "$package\ci\Os-Fixtures.ps1" -Operation Create -Folder $osFixtureFolder | Set-Content -LiteralPath "$sandbox\Os-Fixtures.json" -Encoding ASCII
     $osBefore = & "$package\ci\Os-Fixtures.ps1" -Operation Inspect -Folder $osFixtureFolder
@@ -485,6 +615,7 @@ try {
     }
     foreach ($name in $users) { Remove-LocalUser -Name $name }
     Remove-Item Env:CC03_CI_DISPOSABLE_ROOT
+    $env:RUNNER_TEMP = $originalRunnerTemp
     $results | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath "$evidence\powershell-rehearsal.json" -Encoding UTF8
     $results | ConvertTo-Json -Depth 6 | Write-Output
 }

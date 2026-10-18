@@ -205,10 +205,10 @@ def test_live_source_is_blocked_before_open(policy, now, monkeypatch):
 def test_deployment_scripts_preview_and_no_production_mutators():
     root=Path(__file__).parents[1]/'deployment'
     scripts=list(root.glob('*.ps1'))
-    assert len(scripts)==9  # two shared validators plus seven operator entrypoints
+    assert len(scripts)==10  # three shared validators plus seven operator entrypoints
     for path in scripts:
         source=path.read_text()
-        if path.name not in {'Common.ps1','PanelIdentity.ps1'}:
+        if path.name not in {'Common.ps1','PanelIdentity.ps1','PythonRuntime.ps1'}:
             assert '[switch]$Execute' in source and 'if (-not $Execute)' in source and 'PREVIEW:' in source
         assert not any(verb in source for verb in ('Start-ScheduledTask','Stop-ScheduledTask','Enable-ScheduledTask',
             'Disable-ScheduledTask','Set-ScheduledTask','Register-ScheduledTask','Set-Acl','Invoke-WebRequest',
