@@ -13,7 +13,6 @@ from decimal import Decimal
 from .broker_fill_readonly import ExpectedEntry
 from .broker_snapshot import active_sltp_for_trade, order_views, position_quantities
 from .grid_risk import require_on_grid
-from .protective_gate import BrokerProtection, decide_protection
 
 
 class M15SLTPObservationError(RuntimeError):
@@ -96,17 +95,12 @@ def inspect_sltp_between_gets(
         raise M15SLTPObservationError("M15_SLTP_STOP_CHANGED_WITHOUT_SEPARATE_ACK")
     if current_qty < first_qty:
         raise M15SLTPObservationError("M15_SLTP_POSITION_REDUCTION_REQUIRES_EXIT_RECONCILIATION")
-    observed = BrokerProtection(
-        broker_order_id=stop_order_id, stop_price=current_stop,
-        percent=100, covered_quantity_at_ack=first_qty, active=True,
-    )
-    # Existing stop is never cancelled here; later fills require new evidence.
-    decision = decide_protection(
-        direction="LONG" if expected.side == "SIDE_BUY" else "SHORT",
-        actual_entry=Decimal("1"), atr=Decimal("1"),
-        price_step=expected.price_step,
-        broker_position_qty=current_qty, broker_stop=observed,
-        broker_stop_count=1,
+    # This module does not receive verified actual entry/ATR authority, so
+    # never fabricate a synthetic entry price just to call decide_protection.
+    # The production protective_gate must use separately proven entry and ATR.
+    action = (
+        "REPLACE_REQUIRED_COVERAGE" if current_qty > first_qty
+        else "HOLD_CURRENT_OBSERVATION_ONLY"
     )
     import hashlib
     return M15ObservedSLTP(
@@ -114,6 +108,6 @@ def inspect_sltp_between_gets(
         initially_observed_quantity=first_qty,
         current_broker_quantity=current_qty,
         stop_price=current_stop,
-        protection_action=decision.action,
+        protection_action=action,
         stop_count=1,
     )
