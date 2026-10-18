@@ -431,13 +431,14 @@ try {
     $wheelRecords | ConvertTo-Json | Set-Content -LiteralPath "$wheelhouse\wheels.sha256.json" -Encoding ASCII
     # Fault injection only in the test scope: the production script has no hook.
     for ($attempt=0; $attempt -lt 2; $attempt++) {
-        $script:copyCount = 0
-        function Copy-Item {
+        $copyFaultState = @{count=0}
+        $copyFault = {
             param($LiteralPath,$Destination)
-            $script:copyCount++
-            if ($script:copyCount -eq 3) { throw 'DISPOSABLE_COPY_FAULT' }
+            $copyFaultState.count++
+            if ($copyFaultState.count -eq 3) { throw 'DISPOSABLE_COPY_FAULT' }
             Microsoft.PowerShell.Management\Copy-Item -LiteralPath $LiteralPath -Destination $Destination
-        }
+        }.GetNewClosure()
+        Set-Item -LiteralPath Function:Copy-Item -Value $copyFault
         try { Expect-Failure { & "$package\deployment\Install.ps1" -Execute -PanelSid $panelSid -Wheelhouse $wheelhouse } 'DISPOSABLE_COPY_FAULT' }
         finally { Remove-Item Function:Copy-Item }
         if (@(Get-ChildItem -Force $script:AppRoot).Count -or @(Get-ChildItem -Force $script:VenvRoot).Count) { throw 'ROLLBACK_NOT_EMPTY' }
