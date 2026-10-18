@@ -41,17 +41,28 @@ $zipStream = [IO.File]::Open($Archive,[IO.FileMode]::Open,[IO.FileAccess]::Read,
 $mediaStream = $null
 $created = [Collections.Generic.List[string]]::new()
 function New-OwnedDirectory([string]$Path) {
+    $Path = [IO.Path]::GetFullPath($Path)
     if (-not (Test-Path -LiteralPath $Path)) {
         $null = New-Item -ItemType Directory -Path $Path
         $created.Add($Path)
-    }
+    } elseif (-not $created.Contains($Path)) { throw 'PROVISION_UNEXPECTED_DIRECTORY' }
     Assert-PlainPath $Path
 }
 function Write-OwnedStream([string]$Path, [IO.Stream]$InputStream) {
+    $Path = [IO.Path]::GetFullPath($Path)
     Assert-PlainPath $Path
     $output = [IO.File]::Open($Path,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)
     $created.Add($Path)
     try { $InputStream.CopyTo($output) } finally { $output.Dispose() }
+}
+function Assert-FreshRuntimeTree {
+    $actualTree = @(Get-PlainTree $script:RuntimeRoot)
+    $owned = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($path in $created) { $null = $owned.Add([IO.Path]::GetFullPath($path)) }
+    if ($actualTree.Count -ne $owned.Count) { throw 'PROVISION_UNEXPECTED_TREE_STOP' }
+    foreach ($item in $actualTree) {
+        if (-not $owned.Contains($item.FullName)) { throw 'PROVISION_UNEXPECTED_TREE_STOP' }
+    }
 }
 function Protect-FreshCCFiles {
     # Distinct, explicitly approved sealing step. Only this transaction's new
@@ -100,6 +111,8 @@ try {
     $jsonStream = [IO.MemoryStream]::new($bytes,$false)
     try { Write-OwnedStream $script:RuntimeProvenance $jsonStream } finally { $jsonStream.Dispose() }
     Protect-FreshCCFiles
+    Assert-FreshRuntimeTree
+    foreach ($item in @(Get-PlainTree $script:RuntimeRoot)) { Assert-TreeACL $item.FullName $PanelSid }
     $actual = @(Get-PlainTree $script:BaseRoot | Where-Object { -not $_.PSIsContainer } | ForEach-Object {
         @{path=$_.FullName.Substring($script:BaseRoot.Length+1).Replace('\','/');size=$_.Length;
           sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}
@@ -111,6 +124,7 @@ try {
     # Validate ALL owned paths before deleting any. No recursion, no wildcards,
     # no removal of pre-existing roots or unexpected/injected directory contents.
     foreach ($path in $created) { Assert-PlainPath $path }
+    Assert-FreshRuntimeTree
     for ($i=$created.Count-1; $i -ge 0; $i--) {
         $path = $created[$i]
         if (Test-Path -LiteralPath $path -PathType Container) { [IO.Directory]::Delete($path,$false) }

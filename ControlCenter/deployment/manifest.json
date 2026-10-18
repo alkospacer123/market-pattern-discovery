@@ -99,7 +99,7 @@
     },
     {
       "path": "ci/PythonCore-Tests.ps1",
-      "sha256": "33f76cfeb942060f4d658c5bb14626488da6e5d30c88128fe3b628c53fa72e1a"
+      "sha256": "8b847f90b4aada0f7223a7b962372ad6a57b822585e12f9ba52e09805dfd8808"
     },
     {
       "path": "ci/Test-PanelIdentity.ps1",
@@ -131,7 +131,7 @@
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "14d6228357b47214f0f95e9d83df2e97307eabe914d13c4102c4c234037a5404"
+      "sha256": "61f76e2aea4a410dd618bc57257911a5b97935688ad4b245b0f1f020cd02fa53"
     },
     {
       "path": "deployment/Common.ps1",
@@ -155,7 +155,7 @@
     },
     {
       "path": "deployment/Provision-PythonCore.ps1",
-      "sha256": "a16397fd15f6af11db0441f3b553edb14243f53e60df917d9f0b2e1c701660a6"
+      "sha256": "281a880061edb2a8d1f9bf3647aaacf3bfc3e2c3187d92de149e55b408888f09"
     },
     {
       "path": "deployment/PythonCoreArchive.ps1",

@@ -65,7 +65,7 @@ def main():
     print(json.dumps(metadata, indent=2), flush=True)
     (evidence / 'environment.json').write_text(json.dumps(metadata, indent=2), encoding='utf-8')
     (evidence / 'git-blobs.txt').write_text(subprocess.check_output(
-        ['git', 'ls-tree', '-r', 'HEAD', '--', 'ControlCenter'], text=True), encoding='utf-8')
+        ['git', 'ls-tree', '--full-tree', '-r', 'HEAD', '--', 'ControlCenter'], text=True), encoding='utf-8')
     # Fail early on package-byte defects before repeating the full native suite.
     bundle, bundle_file_count = build_bundle(evidence)
     commands = [

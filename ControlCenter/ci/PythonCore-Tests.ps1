@@ -120,12 +120,33 @@ Set-Item -LiteralPath Function:Get-FileHash -Value $fault
 try { Expect-Failure { Invoke-TestProvision } 'DISPOSABLE_EXTRACTION_FAULT' }
 finally { Remove-Item Function:Get-FileHash }
 Assert-EmptyPythonTargets
+$injectionState = @{done=$false}
+$injectionBase = $script:BaseRoot
+$inject = {
+    param($LiteralPath,$Algorithm)
+    if (-not $injectionState.done -and $LiteralPath -like '*\python312\*') {
+        $injectionState.done=$true
+        $null = New-Item -ItemType Directory -Path (Join-Path $injectionBase 'unexpected-empty-directory')
+        throw 'DISPOSABLE_UNEXPECTED_TREE_FAULT'
+    }
+    Microsoft.PowerShell.Utility\Get-FileHash -LiteralPath $LiteralPath -Algorithm $Algorithm
+}.GetNewClosure()
+Set-Item -LiteralPath Function:Get-FileHash -Value $inject
+try { Expect-Failure { Invoke-TestProvision } 'PROVISION_UNEXPECTED_TREE_STOP' }
+finally { Remove-Item Function:Get-FileHash }
+if (@(Get-ChildItem -LiteralPath $script:BaseRoot).Count -lt 2) { throw 'UNEXPECTED_TREE_ROLLBACK_DID_NOT_STOP' }
+# Only this CI test owns the complete disposable fixture, including its injected
+# object. Production rollback deliberately retained it for operator inspection.
+foreach ($item in (@(Get-PlainTree $script:RuntimeRoot) | Sort-Object { $_.FullName.Length } -Descending)) {
+    Remove-Item -LiteralPath $item.FullName
+}
+Assert-EmptyPythonTargets
 $sealFault = { param($LiteralPath,$AclObject) throw 'DISPOSABLE_SEAL_FAULT' }
 Set-Item -LiteralPath Function:Set-Acl -Value $sealFault
 try { Expect-Failure { Invoke-TestProvision } 'DISPOSABLE_SEAL_FAULT' }
 finally { Remove-Item Function:Set-Acl }
 Assert-EmptyPythonTargets
-$results['pythoncore_provision_rollback'] = 'PASS: extracted file 2 and sealing faults remove only fresh transaction paths; existing roots, inputs and private approval retained'
+$results['pythoncore_provision_rollback'] = 'PASS: extracted file 2 and sealing faults remove only fresh transaction paths; unexpected empty directory stops rollback before deletion; existing roots, inputs and private approval retained'
 Invoke-TestProvision
 $provenance = Get-Content -Raw -LiteralPath $script:RuntimeProvenance | ConvertFrom-Json
 Copy-Item -LiteralPath $script:RuntimeProvenance -Destination "$evidence\python-base-provenance.json"
