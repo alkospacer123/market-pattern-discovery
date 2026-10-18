@@ -339,31 +339,8 @@ try {
         Write-Output "EFFECTIVE_ACL_PASS role=$($identity.Name.Substring(0,5)) write=$($case[2]) result=$actual"
     }
     $results['single_ccpanel_acl'] = 'PASS: 8 actual access probes under the sole non-admin ccpanel logon token'
-    # B-only runtime preprovisioning inside this disposable hosted CC root.
-    # Full setup-python CPython, never the embeddable ZIP or a user launcher.
-    $null = New-Item -ItemType Directory -Path $script:RuntimeRoot,$script:BaseRoot
-    Set-DisposableACL $script:RuntimeRoot 'app'
-    Set-DisposableACL $script:BaseRoot 'app'
-    $originalBase = (& python -I -B -c 'import sys;print(sys.base_prefix)').Trim()
-    foreach ($name in @('python.exe','pythonw.exe','python3.dll','python312.dll','vcruntime140.dll','vcruntime140_1.dll','LICENSE.txt')) {
-        Copy-Item -LiteralPath (Join-Path $originalBase $name) -Destination $script:BaseRoot
-    }
-    foreach ($name in @('Lib','DLLs')) { Copy-Item -LiteralPath (Join-Path $originalBase $name) -Destination $script:BaseRoot -Recurse }
-    # All copied bytes are administrator-owned; grant only the fixture ccpanel RX.
-    & icacls.exe $script:BaseRoot /setowner '*S-1-5-32-544' /T /Q
-    if ($LASTEXITCODE -ne 0) { throw 'BASE_OWNER_STAGING_FAILED' }
-    $media = Join-Path $script:RuntimeRoot 'python-3.12.10-amd64.exe'
-    Invoke-WebRequest -UseBasicParsing -Uri 'https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe' -OutFile $media
-    Set-DisposableACL $media 'app'
-    $records = @(Get-ChildItem -File -Recurse -LiteralPath $script:BaseRoot | ForEach-Object {
-        @{path=$_.FullName.Substring($script:BaseRoot.Length+1).Replace('\','/');sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}
-    })
-    $provenance = @{schema_id='cc03.python-base.v1';b_only_approved=$true;release='CPython-3.12.10-amd64-full';
-        source_uri='https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe';
-        media_sha256=(Get-FileHash -LiteralPath $media -Algorithm SHA256).Hash.ToLowerInvariant();files=$records}
-    $provenance | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $script:RuntimeProvenance -Encoding ASCII
-    Set-DisposableACL $script:RuntimeProvenance 'app'
-    $provenance | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath "$evidence\python-base-provenance.json" -Encoding ASCII
+    # Exercise the production ZIP intake and fresh-file sealing transaction.
+    . "$package\ci\PythonCore-Tests.ps1"
     # An unrelated profile Python is unreadable to the real ccpanel token.
     $unrelated = Join-Path $canaryRoot 'unrelated-user-profile'
     $null = New-Item -ItemType Directory -Path $unrelated
@@ -386,10 +363,24 @@ try {
         Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_HASH_MISMATCH'
         Move-Item -LiteralPath ($file+'.held') -Destination $file
     }
-    $provenance.media_sha256 = '1'*64
+    $provenance.supporting_media.sha256 = '1'*64
     $provenance | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $script:RuntimeProvenance -Encoding ASCII
     Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_MEDIA_HASH_MISMATCH'
     Set-Content -LiteralPath $script:RuntimeProvenance -Value $savedProvenance -Encoding ASCII
+    $provenance.schema_id = 'cc03.python-base.v1'
+    $provenance | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $script:RuntimeProvenance -Encoding ASCII
+    Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_PROVENANCE_REQUIRED'
+    Set-Content -LiteralPath $script:RuntimeProvenance -Value $savedProvenance -Encoding ASCII
+    $injected = Join-Path $script:BaseRoot 'injected.py'
+    Set-Content -LiteralPath $injected -Value 'raise SystemExit(1)' -Encoding ASCII
+    Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_FILE_SET_MISMATCH'
+    Remove-Item -LiteralPath $injected
+    $missing = Join-Path $script:BaseRoot 'Lib\ssl.py'
+    $savedSsl = [IO.File]::ReadAllBytes($missing)
+    Remove-Item -LiteralPath $missing
+    Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_FILE_SET_MISMATCH'
+    [IO.File]::WriteAllBytes($missing,$savedSsl)
+    Set-DisposableACL $missing 'app'
     $savedACL = Get-Acl -LiteralPath $script:BaseRoot
     Set-DisposableACL $script:BaseRoot 'private'
     Expect-Failure { Assert-TrustedBase $panelSid } 'CCPANEL_READ_RULE_REQUIRED'

@@ -64,6 +64,8 @@ def main():
                         ['git', 'rev-parse', 'HEAD:ControlCenter'], text=True).strip())
     print(json.dumps(metadata, indent=2), flush=True)
     (evidence / 'environment.json').write_text(json.dumps(metadata, indent=2), encoding='utf-8')
+    (evidence / 'git-blobs.txt').write_text(subprocess.check_output(
+        ['git', 'ls-tree', '-r', 'HEAD', '--', 'ControlCenter'], text=True), encoding='utf-8')
     # Fail early on package-byte defects before repeating the full native suite.
     bundle, bundle_file_count = build_bundle(evidence)
     commands = [
@@ -135,6 +137,23 @@ def main():
         native = [c for c in cases if c.get('name').startswith('test_native_')]
         if name == 'windows-reader' and (len(native) != 12 or any(len(c) > 0 for c in native)):
             results[name]['native_incomplete'] = True
+    # Native provisioning cases are real PowerShell transactions, represented
+    # in JUnit alongside pytest. Missing case or interrupted rehearsal fails.
+    rehearsal_path = evidence / 'powershell-rehearsal.json'
+    rehearsal = json.loads(rehearsal_path.read_text(encoding='utf-8-sig')) if rehearsal_path.exists() else {}
+    suite = ET.Element('testsuite', name='pythoncore-provision', tests='4')
+    failures = 0
+    for name in ('pythoncore_standard_token', 'pythoncore_archive_negatives',
+                 'pythoncore_provision_rollback', 'pythoncore_runtime'):
+        case = ET.SubElement(suite, 'testcase', classname='native.pythoncore', name=name)
+        result = rehearsal.get(name, 'MISSING_NATIVE_EVIDENCE')
+        if not result.startswith('PASS:'):
+            failures += 1
+            ET.SubElement(case, 'failure', message=result)
+        ET.SubElement(case, 'system-out').text = result
+    suite.set('failures', str(failures))
+    ET.ElementTree(suite).write(evidence / 'pythoncore-provision.xml', encoding='utf-8', xml_declaration=True)
+    results['pythoncore-provision'] = dict(exit_code=int(bool(failures)), passed=4-failures, failed=failures)
     (evidence / 'results.json').write_text(json.dumps(results, indent=2), encoding='utf-8')
     print(json.dumps(results, indent=2), flush=True)
     failed = any(r['exit_code'] or r.get('native_incomplete') or r.get('missing_junit') for r in results.values())
@@ -165,6 +184,9 @@ def main():
             json.dumps(checksums, indent=2) + '\n', encoding='utf-8')
         print(json.dumps(checksums, indent=2), flush=True)
     (evidence / 'acceptance.json').write_text(json.dumps(acceptance, indent=2), encoding='utf-8')
+    inventory = [dict(path=p.relative_to(evidence).as_posix(), sha256=sha256(p.read_bytes()).hexdigest(), size=p.stat().st_size)
+                 for p in sorted(evidence.rglob('*')) if p.is_file() and p.name != 'ARTIFACT_SHA256.json']
+    (evidence / 'ARTIFACT_SHA256.json').write_text(json.dumps(inventory, indent=2) + '\n', encoding='utf-8')
     print(json.dumps(acceptance, indent=2), flush=True)
     with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
         summary.write('\n' + acceptance['classification'] + '\n\nLegacy H1 continuous monitoring remains disabled. '
