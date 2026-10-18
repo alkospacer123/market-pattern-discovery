@@ -18,6 +18,7 @@ from urllib.error import HTTPError
 from urllib.parse import urlparse
 
 from IntradayLab.m15_robot.broker_fill_readonly import ExpectedEntry
+from IntradayLab.m15_robot.broker_snapshot import ProductionBrokerStateError
 from IntradayLab.m15_robot.broker_reconcile_gate import (
     M15ReconcileGateError, assess_entry_evidence,
 )
@@ -201,7 +202,7 @@ class FailureRecoveryReplay(unittest.TestCase):
             )
 
     def test_malformed_broker_order_status_is_not_adopted(self):
-        with self.assertRaisesRegex(ValueError, "ORDER_STATUS"):
+        with self.assertRaisesRegex(ProductionBrokerStateError, "ORDER_STATUS"):
             assess_entry_evidence(
                 account={"account_id": ACCOUNT, "status": "ACCOUNT_ACTIVE",
                          "positions": []},
