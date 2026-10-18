@@ -5,8 +5,8 @@ stop/watermark. This module never submits orders or changes live SQLite.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import datetime
+from dataclasses import dataclass, replace
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
 from .grid_risk import TrailingState, ratchet_after_survived_completed_bar
@@ -16,6 +16,18 @@ from .spec import TRAILING_STOP_ATR
 
 class M15TrailingGateError(ValueError):
     pass
+
+
+_MSK = timezone(timedelta(hours=3))
+
+
+def _utc_completed_m15(value: datetime) -> datetime:
+    if not isinstance(value, datetime) or value.tzinfo is None or value.utcoffset() is None:
+        raise M15TrailingGateError("M15_TRAIL_COMPLETED_TIME_UNPROVEN")
+    msk = value.astimezone(_MSK)
+    if msk.minute % 15 or msk.second or msk.microsecond:
+        raise M15TrailingGateError("M15_TRAIL_COMPLETED_M15_GRID_INVALID")
+    return value.astimezone(timezone.utc)
 
 
 @dataclass(frozen=True)
@@ -37,8 +49,7 @@ def propose_trail(
     """Complete-bar, STOP-first, exact broker-protected entry precondition."""
     if type(survived_completed_bar) is not bool or not survived_completed_bar:
         raise M15TrailingGateError("M15_TRAIL_BAR_SURVIVAL_NOT_PROVEN")
-    if not isinstance(completed_at, datetime) or completed_at.tzinfo is None or completed_at.utcoffset() is None:
-        raise M15TrailingGateError("M15_TRAIL_COMPLETED_TIME_UNPROVEN")
+    completed_utc = _utc_completed_m15(completed_at)
     if not isinstance(confirmed, TrailingState):
         raise M15TrailingGateError("M15_TRAIL_STATE_UNPROVEN")
     if confirmed.direction not in {"LONG", "SHORT"}:
@@ -54,9 +65,19 @@ def propose_trail(
         broker_stop=observed_stop, broker_stop_count=1,
     ).action != "HOLD_BROKER_CONFIRMED":
         raise M15TrailingGateError("M15_TRAIL_PROTECTION_NOT_CONFIRMED")
+    # Compare actual instants, not ISO strings with potentially different UTC offsets.
+    normalized = confirmed
+    if confirmed.last_survived_m15_close is not None:
+        try:
+            previous_utc = _utc_completed_m15(datetime.fromisoformat(confirmed.last_survived_m15_close))
+        except (ValueError, TypeError, OverflowError):
+            raise M15TrailingGateError("M15_TRAIL_PREVIOUS_TIME_INVALID") from None
+        if completed_utc <= previous_utc:
+            raise M15TrailingGateError("M15_TRAIL_BAR_OR_GRID_INVALID")
+        normalized = replace(confirmed, last_survived_m15_close=previous_utc.isoformat())
     try:
         candidate = ratchet_after_survived_completed_bar(
-            confirmed, completed_at=completed_at, high=high, low=low,
+            normalized, completed_at=completed_utc, high=high, low=low,
             atr=atr, price_step=price_step,
         )
     except ValueError as exc:
