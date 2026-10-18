@@ -42,7 +42,7 @@ def account(qty=0, **changes):
 
 def entry_order(**changes):
     order = dict(
-        order_id="broker-entry-01", status="ORDER_STATUS_FILLED",
+        order_id="broker-entry-01", status="ORDER_STATUS_NEW",
         order={"symbol": "CNYRUBF@RTSX", "client_order_id": "m15entry0001",
                "side": "SIDE_BUY", "quantity": number(3)},
     )
@@ -80,7 +80,10 @@ def trade(idx=1, **changes):
 
 def assess(*, qty=0, fills=(), orders=None, expected=None, acc=None):
     if orders is None:
-        orders = [entry_order()]
+        count = len(fills)
+        status = ("ORDER_STATUS_FILLED" if count == 3 else
+                  "ORDER_STATUS_PARTIAL_FILL" if count else "ORDER_STATUS_NEW")
+        orders = [entry_order(status=status)]
     return assess_entry_evidence(
         account=account(qty) if acc is None else acc,
         orders_response={"orders": orders},
@@ -107,7 +110,7 @@ class ExactReadOnlyReconciliation(unittest.TestCase):
 
     def test_full_fill_with_sltp_still_not_full_coverage_proof(self):
         result = assess(qty=3, fills=[trade(1), trade(2), trade(3)],
-                        orders=[entry_order(), stop_order()])
+                        orders=[entry_order(status="ORDER_STATUS_FILLED"), stop_order()])
         self.assertEqual(result.quantity_status, "FULL")
         self.assertEqual(result.matched_fill_quantity, 3)
         self.assertEqual(result.active_sltp_count, 1)
@@ -117,7 +120,7 @@ class ExactReadOnlyReconciliation(unittest.TestCase):
 
     def test_partial_fill_with_active_stop_does_not_adopt_full_cover(self):
         result = assess(qty=1, fills=[trade()],
-                        orders=[entry_order(), stop_order()])
+                        orders=[entry_order(status="ORDER_STATUS_PARTIAL_FILL"), stop_order()])
         self.assertEqual(result.protection_status, "ACTIVE_SLTP_COVERAGE_TIMESTAMP_UNPROVEN")
 
     def test_wrong_account_denied_before_fills(self):
@@ -135,6 +138,19 @@ class ExactReadOnlyReconciliation(unittest.TestCase):
     def test_partial_fill_quantity_disagreement_denied(self):
         with self.assertRaisesRegex(M15ReconcileGateError, "POSITION_FILL_DIVERGENCE"):
             assess(qty=2, fills=[trade()])
+
+    def test_filled_order_without_history_is_not_trusted(self):
+        with self.assertRaisesRegex(M15ReconcileGateError, "ORDER_STATUS_FILL_DIVERGENCE"):
+            assess(orders=[entry_order(status="ORDER_STATUS_FILLED")])
+
+    def test_trade_partial_fill_cannot_use_new_order_status(self):
+        with self.assertRaisesRegex(M15ReconcileGateError, "ORDER_STATUS_FILL_DIVERGENCE"):
+            assess(qty=1, fills=[trade()], orders=[entry_order(status="ORDER_STATUS_NEW")])
+
+    def test_fully_matched_trades_with_stale_new_order_state_rejected(self):
+        with self.assertRaisesRegex(M15ReconcileGateError, "ORDER_STATUS_FILL_DIVERGENCE"):
+            assess(qty=3, fills=[trade(1), trade(2), trade(3)],
+                   orders=[entry_order(status="ORDER_STATUS_NEW")])
 
     def test_unknown_broker_entry_id_not_adopted(self):
         with self.assertRaisesRegex(M15ReconcileGateError, "EXACT_ORDER_UNPROVEN"):
@@ -155,18 +171,18 @@ class ExactReadOnlyReconciliation(unittest.TestCase):
         bad = stop_order()
         bad["sltp_order"]["side"] = "SIDE_BUY"
         with self.assertRaisesRegex(M15ReconcileGateError, "CLOSING_SIDE"):
-            assess(qty=1, fills=[trade()], orders=[entry_order(), bad])
+            assess(qty=1, fills=[trade()], orders=[entry_order(status="ORDER_STATUS_PARTIAL_FILL"), bad])
 
     def test_active_stop_off_grid_denied(self):
         bad = stop_order()
         bad["sltp_order"]["sl_price"] = number("12.2305")
         with self.assertRaisesRegex(M15ReconcileGateError, "SLTP_GRID"):
-            assess(qty=1, fills=[trade()], orders=[entry_order(), bad])
+            assess(qty=1, fills=[trade()], orders=[entry_order(status="ORDER_STATUS_PARTIAL_FILL"), bad])
 
     def test_duplicate_active_stops_denied(self):
         with self.assertRaisesRegex(M15ReconcileGateError, "DUPLICATE_ACTIVE_SLTP"):
             assess(qty=1, fills=[trade()], orders=[
-                entry_order(), stop_order(), stop_order(
+                entry_order(status="ORDER_STATUS_PARTIAL_FILL"), stop_order(), stop_order(
                     order_id="broker-sltp-02",
                     sltp_order={**stop_order()["sltp_order"], "client_order_id": "m15stop00002"}),
             ])
@@ -175,7 +191,7 @@ class ExactReadOnlyReconciliation(unittest.TestCase):
         bad = stop_order()
         bad["sltp_order"]["comment"] = "m15:another-trade:stop:0"
         with self.assertRaisesRegex(M15ReconcileGateError, "FOREIGN_ACTIVE_SLTP"):
-            assess(qty=1, fills=[trade()], orders=[entry_order(), bad])
+            assess(qty=1, fills=[trade()], orders=[entry_order(status="ORDER_STATUS_PARTIAL_FILL"), bad])
 
     def test_stop_but_zero_confirmed_fill_denied(self):
         with self.assertRaisesRegex(M15ReconcileGateError, "ORPHAN_ACTIVE_SLTP"):
