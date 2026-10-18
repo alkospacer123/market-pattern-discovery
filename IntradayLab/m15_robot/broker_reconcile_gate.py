@@ -95,6 +95,16 @@ def assess_entry_evidence(
         trades_response, expected, start=start, end=end, limit=limit,
     )
     filled = receipt["matched_quantity"]
+    # Order and trade GETs are independent snapshots. If their states disagree,
+    # HALT rather than infer a fill from the order status or overlook a missing
+    # history page. Repeated GETs may resolve a transient race.
+    if (
+        (entry.status in {"FILLED", "EXECUTED"} and filled != expected.quantity)
+        or (filled == expected.quantity and entry.status not in {"FILLED", "EXECUTED"})
+        or (0 < filled < expected.quantity and entry.status != "PARTIAL_FILL")
+        or (filled == 0 and entry.status == "PARTIAL_FILL")
+    ):
+        raise M15ReconcileGateError("M15_RECONCILE_ORDER_STATUS_FILL_DIVERGENCE")
     signed = filled if expected.side == "SIDE_BUY" else -filled
     current = positions.get(expected.symbol, 0)
     # A full account ledger may legitimately contain multiple instruments.
