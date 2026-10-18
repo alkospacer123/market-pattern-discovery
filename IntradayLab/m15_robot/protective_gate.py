@@ -52,7 +52,6 @@ def decide_protection(
     if type(broker_stop_count) is not int or broker_stop_count < 0 or broker_stop_count > 1:
         raise M15ProtectionError("M15_PROTECTION_DUPLICATE_OR_UNKNOWN_STOP")
     proposed = initial_stop(direction, actual_entry, atr, price_step)
-    entry = require_on_grid(actual_entry, price_step)
     if broker_stop is None:
         if broker_stop_count != 0:
             raise M15ProtectionError("M15_PROTECTION_STOP_EVIDENCE_MISSING")
@@ -68,10 +67,7 @@ def decide_protection(
             or broker_stop.covered_quantity_at_ack <= 0):
         raise M15ProtectionError("M15_PROTECTION_BROKER_STOP_INVALID")
     current_stop = require_on_grid(broker_stop.stop_price, price_step)
-    if (direction == "LONG" and current_stop >= entry) or (
-        direction == "SHORT" and current_stop <= entry
-    ):
-        raise M15ProtectionError("M15_PROTECTION_STOP_WRONG_SIDE")
+    # Existing proven trailing stops may correctly cross the original entry.
     if broker_stop.covered_quantity_at_ack > broker_position_qty:
         raise M15ProtectionError("M15_PROTECTION_COVERAGE_EXCEEDS_POSITION")
     if broker_stop.covered_quantity_at_ack < broker_position_qty:
