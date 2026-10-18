@@ -1,7 +1,7 @@
 """Run from this directory: python -m streamlit run app.py."""
-from datetime import datetime, timezone
 import streamlit as st
 from cc.models import RobotId
+from cc.freshness import utc_now
 from cc.providers.synthetic import SCENARIOS, SyntheticProvider, read_safely
 from cc.providers.h1_readonly import H1ReadonlyProvider
 from cc.providers.h1_export import unchecked_export_snapshot, manual_export_refresh, age_export_snapshot
@@ -31,7 +31,7 @@ with st.sidebar:
 
 
 def live_view():
-    now = datetime.now(timezone.utc)
+    now = utc_now()
     provider = SyntheticProvider()
     snapshots = {robot: read_safely(provider, robot, scenarios[robot], now) for robot in RobotId}
     if st.session_state.get("cc03-last-source") != h1_source:
@@ -49,10 +49,14 @@ def live_view():
             st.session_state["cc03-last-export"] = snapshot
             if not accepted:
                 st.warning("BLOCKED / UNKNOWN: источник недоступен, policy не принята или другая ручная проверка выполняется. Автоматического повтора нет.")
-        now = datetime.now(timezone.utc)
+        now = utc_now()
         snapshots[RobotId.H1] = age_export_snapshot(
             st.session_state.get("cc03-last-export") or unchecked_export_snapshot(
                 now, windows_os=h1_source == "WINDOWS_OS_ONLY"), now)
+        if "cc03-last-export" in st.session_state:
+            # Expiry/clock failure permanently clears cached positives until a
+            # new explicit click. A later clock rewind must not revive them.
+            st.session_state["cc03-last-export"] = snapshots[RobotId.H1]
         if "cc03-last-export" not in st.session_state:
             st.info("Проверка H1 не запускалась. Нажмите «Обновить данные»; без утверждённого источника результат останется UNKNOWN.")
     render(page, snapshots, now)

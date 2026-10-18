@@ -7,6 +7,11 @@ MAX_SNAPSHOT_AGE = 10  # synthetic snapshots refresh every 2s
 MAX_CLOCK_SKEW = 2
 
 
+def utc_now() -> datetime:
+    """UI render clock only; source observation timestamps come from acquisition."""
+    return datetime.now(timezone.utc)
+
+
 def freshness(provenance: DataProvenance, now: datetime) -> State:
     aware(now)
     if provenance.observed_at is None:

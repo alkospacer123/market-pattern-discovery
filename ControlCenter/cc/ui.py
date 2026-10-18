@@ -33,6 +33,8 @@ def source(snapshot: RobotSnapshot, now: datetime):
     p = snapshot.status.provenance
     st.caption(f"{mode(snapshot)} · {p.account_scope} · {p.source}")
     quality = freshness(p, now)
+    if p.source_kind == SourceKind.WINDOWS_OS_ONLY and snapshot.status.state == State.STALE:
+        quality = State.STALE  # Preserve latched expiry even after a clock rewind.
     label = 'CURRENT' if p.source_kind == SourceKind.WINDOWS_OS_ONLY and quality == State.HEALTHY else quality
     st.caption(f"Последнее наблюдение источника: {stamp(p.observed_at)} · качество {label}")
     st.caption(f"Прочитано интерфейсом: {stamp(p.received_at)}. Время получения не подменяет время источника.")

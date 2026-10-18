@@ -195,3 +195,36 @@ def test_manual_os_shares_gate_with_export_across_processes_and_recovers(manual_
     finally:
         if child.poll() is None:child.kill();child.wait(10)
         child.stdin.close();child.stdout.close();child.stderr.close()
+
+
+@pytest.mark.parametrize("invalid_offset, expected_freshness", [(31,"STALE"),(-1,"UNKNOWN")])
+def test_expired_os_cache_never_revives_on_clock_rewind_without_manual_click(manual_policy,monkeypatch,invalid_offset,expected_freshness):
+    from cc import freshness
+    from streamlit.testing.v1 import AppTest
+    clock=[None]
+    calls=[]
+    def probe(p):calls.append(p);return facts(p)
+    wire(monkeypatch,manual_policy,probe)
+    monkeypatch.setattr(freshness,'utc_now',lambda:datetime.now(timezone.utc) if clock[0] is None else clock[0])
+    app=AppTest.from_file(str(Path(__file__).parents[1]/'app.py'),default_timeout=15).run()
+    app.selectbox(key='h1-source').select('WINDOWS_OS_ONLY').run()
+    app.radio[0].set_value('Монитор H1').run()
+    app.button(key='cc03-manual-refresh').click().run()
+    original=app.session_state['cc03-last-export']
+    assert original.status.task_state=='TASK_RUNNING' and len(calls)==1
+    clock[0]=original.status.provenance.received_at+timedelta(seconds=invalid_offset)
+    app.run()
+    assert app.session_state['cc03-last-export'].status.task_state is None
+    clock[0]=original.status.provenance.received_at+timedelta(seconds=5)
+    app.run()
+    cached=app.session_state['cc03-last-export']
+    assert cached.status.task_state is None and cached.status.provenance==original.status.provenance
+    assert all(r.state=='UNKNOWN' and r.authority=='UNKNOWN' and r.value is None for r in cached.windows_observations)
+    assert len(calls)==1 and not app.exception
+    assert cached.windows_observations[0].freshness==expected_freshness
+    if expected_freshness=='STALE':
+        assert any('качество STALE' in str(c.value) for c in app.caption)
+    clock[0]=None
+    app.button(key='cc03-manual-refresh').click().run()
+    assert app.session_state['cc03-last-export'].status.task_state=='TASK_RUNNING'
+    assert len(calls)==2 and not app.exception

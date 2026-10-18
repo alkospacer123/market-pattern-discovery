@@ -15,7 +15,7 @@
     },
     {
       "path": "app.py",
-      "sha256": "33cd70b3bad5d2cfae94cecba30f99f500e73ff6221ae6444dcb838345eea1e1"
+      "sha256": "f7f2e546e35cc460b6a00cb33b5a93e3d1b7efb8daa6d8b13fd3cc8e61826c89"
     },
     {
       "path": "cc/__init__.py",
@@ -35,7 +35,7 @@
     },
     {
       "path": "cc/freshness.py",
-      "sha256": "1efe3a2ced5c671704f9a2d74acb8faae2a80393da32b33ba64387a3e5cac0e7"
+      "sha256": "10985e34cfdc500ba335034dfaa2bc5a0705564301fdcf3a507403b972c930ed"
     },
     {
       "path": "cc/manual_gate.py",
@@ -91,7 +91,7 @@
     },
     {
       "path": "cc/ui.py",
-      "sha256": "e3faaefd0c71c4dac31622be51f0370cd8a06d1203b9e3121af33b1317c55dcd"
+      "sha256": "2cdd7b45bdce24ba9c6d994a2bfcd8b26d2789c840b7b8d21ca63a3b77fbfed7"
     },
     {
       "path": "ci/Os-Fixtures.ps1",
@@ -214,6 +214,10 @@
       "sha256": "a4fa9d7e8089dd9803e1f597b62220572d7ee5884fbf6f64b2c2aaa634cb50a2"
     },
     {
+      "path": "docs/CC03_INDEPENDENT_AUDIT_551.md",
+      "sha256": "85105a45a6fd8017e8d83fe015e024fc214ba9365da2a92524a3c0d712b07453"
+    },
+    {
       "path": "docs/CC03_INTEL_INSTALLATION_PLAN.md",
       "sha256": "b2c6cab9808145cc91ae24d970fa4aa05cba23bd3ac77ff1b1798aabaeb24696"
     },
@@ -231,7 +235,7 @@
     },
     {
       "path": "docs/CC03_MANUAL_OS_SOURCE.md",
-      "sha256": "bf1425c79cb494860686900c69ea617901271587a737eeb1ce2735ca0390003b"
+      "sha256": "588852a9536863c25ff93a9e0eb70892816e2ac1d89f82c6f2a0d9511abf6eb4"
     },
     {
       "path": "docs/CC03_OS_ACCEPTANCE.md",
@@ -419,7 +423,7 @@
     },
     {
       "path": "tests/test_manual_os.py",
-      "sha256": "56bfa06c77044477bda88e7037f175551898109703c9f1f52c18f8f328fb988a"
+      "sha256": "6ef22307a088cc966f45c61140350eee9f5bb1aa55e015464f216dfa3c845cbb"
     },
     {
       "path": "tests/test_manual_os_native.py",
