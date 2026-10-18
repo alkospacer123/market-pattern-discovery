@@ -367,6 +367,17 @@ try {
     $provenance | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $script:RuntimeProvenance -Encoding ASCII
     Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_MEDIA_HASH_MISMATCH'
     Set-Content -LiteralPath $script:RuntimeProvenance -Value $savedProvenance -Encoding ASCII
+    $provenance = $savedProvenance | ConvertFrom-Json
+    $provenance.files[0].sha256 = '1'*64
+    $provenance | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $script:RuntimeProvenance -Encoding ASCII
+    Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_ARCHIVE_MANIFEST_MISMATCH'
+    Set-Content -LiteralPath $script:RuntimeProvenance -Value $savedProvenance -Encoding ASCII
+    $retainedZip = Join-Path $script:RuntimeRoot 'python-3.12.10-amd64.zip'
+    $corruptStream = [IO.File]::OpenWrite($retainedZip)
+    try { $corruptStream.WriteByte(0) } finally { $corruptStream.Dispose() }
+    Expect-Failure { Assert-TrustedBase $panelSid } 'ZIP_HASH_MISMATCH'
+    Copy-Item -LiteralPath $sourceZip -Destination $retainedZip -Force
+    $provenance = $savedProvenance | ConvertFrom-Json
     $provenance.schema_id = 'cc03.python-base.v1'
     $provenance | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $script:RuntimeProvenance -Encoding ASCII
     Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_PROVENANCE_REQUIRED'

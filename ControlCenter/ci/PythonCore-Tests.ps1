@@ -131,5 +131,5 @@ $provenance = Get-Content -Raw -LiteralPath $script:RuntimeProvenance | ConvertF
 Copy-Item -LiteralPath $script:RuntimeProvenance -Destination "$evidence\python-base-provenance.json"
 Assert-TrustedBase $panelSid
 $results['pythoncore_runtime'] = 'PASS: official full ZIP 3845 exact files; archive/manifest/tree hash and PSF supporting signature; real -I -B CPython 3.12.10 x64 with executable/base_prefix/ssl/venv/ensurepip/pip origins'
-# This runtime came from ZIP, not setup-python. All later install, ccpanel and
-# transport/ETW/500-replace suites continue unchanged against these exact bytes.
+# This runtime came from ZIP, not setup-python. Later install and ccpanel
+# lifecycle use it. Earlier transport/ETW/500-replace suites retain their CI venv.

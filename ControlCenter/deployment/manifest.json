@@ -99,7 +99,7 @@
     },
     {
       "path": "ci/PythonCore-Tests.ps1",
-      "sha256": "123e98b32294f71f670e158ff13012411fcc9b7b34ca2513cf9d77a989525253"
+      "sha256": "33f76cfeb942060f4d658c5bb14626488da6e5d30c88128fe3b628c53fa72e1a"
     },
     {
       "path": "ci/Test-PanelIdentity.ps1",
@@ -107,7 +107,7 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "ad7b7c1949471f496389d6be0827aa83e75dcef0af1dae87130ccd9f221163bc"
+      "sha256": "e6c6130d24706acd68d5646c497e7c1cf6fa374e2708b1a0912bc2e73b1735c9"
     },
     {
       "path": "ci/file_open_trace.py",
@@ -163,7 +163,7 @@
     },
     {
       "path": "deployment/PythonRuntime.ps1",
-      "sha256": "7b4dead03457b617d3959c0062af0a7987c98e8925b32ca6fb7f8fdb59e9a92b"
+      "sha256": "4b0674490d0c3ad7420781946f909b1f6ac96fea8e98c32c205eb736796fd9a4"
     },
     {
       "path": "deployment/Start-Exporter.ps1",
@@ -411,7 +411,7 @@
     },
     {
       "path": "tests/test_cc03_source.py",
-      "sha256": "310600f26d3ac0f546cb9539d89b1cef9e230e9e3db8f4a42519a311633620ec"
+      "sha256": "bbe012daa3210e2a69d185ad07548a7a74c844c3a4586be893f2c085da3f0163"
     },
     {
       "path": "tests/test_ci_paths.py",

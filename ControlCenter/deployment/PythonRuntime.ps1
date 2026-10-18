@@ -38,14 +38,20 @@ assert norm(sys.executable) == norm(expected), 'EXACT_EXECUTABLE_REQUIRED'
 assert norm(sys.base_prefix) == norm(base), 'BASE_PREFIX_MISMATCH'
 assert norm(sys._base_executable) == norm(pathlib.Path(base)/'python.exe'), 'BASE_EXECUTABLE_MISMATCH'
 assert norm(sys.prefix) == norm(pathlib.Path(expected).parents[1] if mode == 'venv' else base), 'PREFIX_MISMATCH'
+origins = {}
 for name in ('encodings','ssl','venv','ensurepip') + (('streamlit','plotly','pip') if mode == 'venv' else ('pip',)):
     module = importlib.import_module(name)
     origin = norm(module.__file__)
     roots = (norm(base) + '\\', norm(sys.prefix) + '\\')
     assert origin.startswith(roots), 'MODULE_OUTSIDE_MANAGED_RUNTIME'
+    origins[name] = origin
+import ensurepip
+bundled = list((pathlib.Path(base)/'Lib/ensurepip/_bundled').glob('pip-*.whl'))
+assert len(bundled) == 1 and bundled[0].is_file(), 'BUNDLED_PIP_WHEEL_REQUIRED'
 assert not any('\\users\\' in norm(p) for p in sys.path if p), 'PROFILE_DEPENDENCY_FORBIDDEN'
 print(json.dumps(dict(executable=sys.executable,base_executable=sys._base_executable,
-    base_prefix=sys.base_prefix,prefix=sys.prefix,version=list(sys.version_info[:3]),mode=mode)))
+    base_prefix=sys.base_prefix,prefix=sys.prefix,version=list(sys.version_info[:3]),mode=mode,
+    origins=origins,bundled_pip=str(bundled[0]),ensurepip_version=ensurepip.version())))
 '@
     $mode = $(if ($Venv) { 'venv' } else { 'base' })
     & $Python -I -B -c $probe $script:BaseRoot $Python $mode
