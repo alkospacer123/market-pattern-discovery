@@ -43,8 +43,6 @@ def propose_trail(
         raise M15TrailingGateError("M15_TRAIL_STATE_UNPROVEN")
     if confirmed.direction not in {"LONG", "SHORT"}:
         raise M15TrailingGateError("M15_TRAIL_DIRECTION_INVALID")
-    if confirmed.active_stop == confirmed.entry:
-        raise M15TrailingGateError("M15_TRAIL_INVALID_STOP")
     if (confirmed.direction == "LONG" and confirmed.extreme < confirmed.entry
             or confirmed.direction == "SHORT" and confirmed.extreme > confirmed.entry):
         raise M15TrailingGateError("M15_TRAIL_EXTREME_INVALID")
