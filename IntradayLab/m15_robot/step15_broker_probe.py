@@ -13,6 +13,7 @@ import sys
 from .broker_risk_readonly import check_account, check_instrument, financial_schema_flags, M15RiskAuthorityError
 from .broker_snapshot import order_views, position_quantities
 from .finam_readonly import M15FinamReadOnlyAPI, M15FinamReadOnlyError
+from .exchange_contract import contract_from_moex_and_finam
 from .spec import EXECUTION_STATUS, INSTRUMENTS
 
 
@@ -119,12 +120,15 @@ def main(*, gui: bool = False) -> int:
             asset = api.asset_details(symbol)
             params = api.asset_params(symbol)
             checked = check_instrument(asset, params, symbol, m15)
+            economics = contract_from_moex_and_finam(checked)
             print(f"M15_STEP15_{instrument}_ASSET_STEP_LOT_LONG_SHORT_GO=PASS "
                   f"step={checked.price_step} lot={checked.trade_lot_size} "
                   f"go_long_rub={checked.long_initial_margin_rub} "
                   f"go_short_rub={checked.short_initial_margin_rub}", flush=True)
+            print(f"M15_STEP15_{instrument}_MOEX_TICK_RUB_MATCH=PASS "
+                  f"tick_rub={economics.tick_value}", flush=True)
         print("M15_STEP15_N4_BROKER_GO_READONLY=PASS", flush=True)
-        print("M15_STEP15_TICK_RUB_VALUE_AUTHORITY=NOT_PROVEN", flush=True)
+        print("M15_STEP15_TICK_RUB_VALUE_AUTHORITY=MOEX_2026_10_18_PINNED_GRID_MATCH", flush=True)
         print("M15_STEP15_REALIZED_EQUITY_CASHFLOW_RECONCILIATION=NOT_PROVEN", flush=True)
         print("M15_STEP15_RISK_LIVE_READY=NO", flush=True)
         print("M15_LIVE_AUTHORIZED=NO", flush=True)
