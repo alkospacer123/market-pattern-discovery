@@ -296,3 +296,24 @@
 ## №15 — оператор сообщил о пополнении отдельного M15-счёта
 
 18.10.2026 оператор сообщил: **отдельный FINAM M15-счёт пополнен**. Это сообщение о переводе средств, **не самостоятельное доказательство** фактической доступности `equity`, `unrealized_profit`, `portfolio_forts`, свободной маржи и N4 LONG/SHORT GO в REST API. Теперь разрешена строго прежняя **локальная READONLY-диагностика шага №15** на Intel из проверенного checkout `d498ab371eeb9bac956ae4326d7ea8bb60fb581e` (PR отличается от него пока только roadmap): exact single M15 account/JWT proof, account+orders GET, then account financial schema and N4 asset/params GET. Предыдущее физическое подтверждение: **75/75 synthetic Intel PASS**, реальная READONLY-привязка PASS, счёт flat; все финансовые поля отсутствовали в JSON, пока счёт был не пополнен. После пополнения — **PHYSICAL_RECHECK_PENDING**, не заявлять PASS раньше журнала. Ввод токена только в локальном GUI на Intel, не сохранять его; H1 ID используется лишь локально для неравенства, ни H1 API, ни H1 файлы не трогать. Если данные ещё отсутствуют, останавливаться `FAIL_CLOSED`, не подменять equity балансом или H1. `M15_LIVE_AUTHORIZED=NO` до последующих шагов roadmap; никакой order POST, Task, SLTP, real trade без отдельного разрешения. 
+
+## №15 — пополненный M15 FINAM: N4 account/GO PASS, MOEX рублёвый тик
+
+**Фактический операторский Intel READONLY после пополнения, 18.10.2026** — exact checkout `d498ab371eeb9bac956ae4326d7ea8bb60fb581e`, отдельный счёт M15, local GUI, только session auth POST (дважды) и account/orders/asset/params GET. `M15_STEP15_EXACT_SEPARATE_READONLY_ACCOUNT=PASS`; flat: zero positions/active orders; `equity`, `unrealized_profit` строго Decimal string, `portfolio_mc` UNION доступен, в нём `available_cash`, `initial_margin`, `maintenance_margin` строго Decimal; `M15_STEP15_PORTFOLIO_SCHEMA=PASS`, `M15_STEP15_EQUITY_MINUS_UNREALIZED_PRELIMINARY=PASS`. Нулевые деньги больше не причина отсутствия полей. Секреты/account IDs/номинальный баланс **не раскрыты** и не сохраняются.
+
+Exact FINAM N4 read-only параметры из Intel (руб. на 1 контракт, GO=плавающее значение конкретного счёта и момента):
+
+| Инструмент | executable price step | FINAM trade_lot_size | LONG GO RUB | SHORT GO RUB |
+|---|---:|---:|---:|---:|
+| USDRUBF | 0.01 | 1 | 21942.984 | 21942.984 |
+| CNYRUBF | 0.001 | 1 | 1176.052499 | 1176.052499 |
+| GLDRUBF | 0.1 | 1 | 1761.489839 | 1917.76904 |
+| IMOEXF | 0.5 | 1 | 6950.335 | 8149.847999 |
+
+`M15_STEP15_N4_BROKER_GO_READONLY=PASS`; ГО направлений GLDRUBF/IMOEXF **разные**, запрещено сводить LONG/SHORT к одному значению. Не использовать ГО из исторического H1 или старый sample для настоящего sizing.
+
+**Строго в №15, без новой оптимизации:** независимые первичные страницы Московской биржи (проверено 18.10.2026) однозначно задают рублёвую стоимость минимального ценового тика на контракт: `USDRUBF 0.01→10 RUB` https://www.moex.com/ru/derivatives/perpetual-futures/USDRUBF ; `CNYRUBF 0.001→1 RUB` https://www.moex.com/ru/derivatives/perpetual-futures/CNYRUBF ; `GLDRUBF 0.1→0.1 RUB` https://www.moex.com/ru/derivatives/perpetual-futures/GLDRUBF ; `IMOEXF 0.5→5 RUB` https://www.moex.com/ru/derivatives/perpetual-futures/IMOEXF . Все четыре официальных ценовых шага **совпадают с фактическими шагами FINAM Intel**. Биржевой `лот контракта` (например 1000 USD) не равен `FINAM trade_lot_size` (1 contract), путать запрещено. Эти значения не являются ГО и не являются комиссиями. При изменении спецификации проверить официальное значение снова до LIVE; не угадывать по ГО.
+
+В рамках №15 в Draft PR #540 добавлен минимальный M15-only `exchange_contract.py`: замороженный датированный справочник MOEX N4 RUB/tick и точная сверка каждого `FINAM price_step` + `trade_lot_size` + LONG/SHORT GO, результат строго `grid_risk.ContractAuthority`. Любой mismatch/zero GO/не N4 => fail closed, без H1/токенов/SQL/торговых endpoint. Также 8 synthetic tests `test_exchange_contract.py`; READONLY broker GUI выводит по каждому инструменту `M15_STEP15_<N4>_MOEX_TICK_RUB_MATCH=PASS` только при проверке в актуальном счёте. **Новая версия ещё НЕ запускалась на Intel**; не отмечать новый код PASS до физического запуска.
+
+Состояние: №15 **частичный физический PASS** (broker acct/GO, MOEX spec tick values); `REALIZED_EQUITY_CASHFLOW_RECONCILIATION=NOT_PROVEN` (fresh funded account, начальная база реализованного капитала ещё требует независимой сверки с зачислением и журналом/брокером). Не объявлять `M15_RISK_LIVE_READY` до этого и последующих roadmap gates. №14 physical fill and commissions only after отдельная санкционированная сделка по №23. H1 LIVE/TradingSystemLab/Task и strategy frozen не менять.
