@@ -103,7 +103,7 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "9616342ce7303c81a9221f9c82055c182ce551e9edeb9f13d4934b586cf843da"
+      "sha256": "085881fe5f6dd50a6aec650e7e215cd3db98cb0856363c4443fb3823ae770825"
     },
     {
       "path": "ci/file_open_trace.py",
@@ -135,7 +135,7 @@
     },
     {
       "path": "deployment/Install.ps1",
-      "sha256": "77cefb5b9e5fc0be7adf7fd93cf206bc4f27276eb8d2d16c88cb5112cc13ee23"
+      "sha256": "7ec5617c74d221d081a817e5e605cdfc6989bbfcf852f00cf41359a43dcff95d"
     },
     {
       "path": "deployment/PanelIdentity.ps1",
@@ -259,7 +259,7 @@
     },
     {
       "path": "docs/CC03_PYTHON312_BASE.md",
-      "sha256": "7e7a7217c876e4e39635b5fd51ba85e1987f24bc42d390a61a0ca1f6ea4fcd23"
+      "sha256": "da9198567bce17976027205a8bc3ec637677824bc102f97412193aa4e28c619b"
     },
     {
       "path": "docs/CC03_READONLY_EXPORT_SCHEMA.json",

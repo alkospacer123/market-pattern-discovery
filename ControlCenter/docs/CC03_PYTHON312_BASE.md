@@ -76,7 +76,11 @@ Wheelhouse готовится отдельно на доверенной маш�
 До install writes проверяются индекс, SHA256 из reviewed lock, platform tags и
 полная dependency closure по METADATA без imports/extraction/network/temp writes.
 Установка использует только offline wheelhouse, полный hash lock и isolated pip;
-PIP_* и configs не могут перенаправить установку. Нет сетевого fallback.
+PIP_* и configs не могут перенаправить установку. На время venv/ensurepip/pip также
+очищаются PYTHON* и __PYVENV_LAUNCHER__, запрещён user site/bytecode, а рабочий каталог
+фиксируется на проверенном app: дочерний ensurepip не наследует родительский -I.
+Scratch ограничен собственным venv. Окружение и CWD вызывающего восстанавливаются.
+Нет сетевого fallback.
 
 ## Команды оператора — только PREVIEW
 

@@ -12,6 +12,14 @@ $manifest = Get-Manifest $script:PackageRoot
 $pipEnvironment = @{}
 foreach ($item in @(Get-ChildItem Env:PIP_*)) { $pipEnvironment[$item.Name] = $item.Value; Remove-Item -LiteralPath ('Env:'+$item.Name) }
 $env:PIP_CONFIG_FILE = 'NUL'
+# venv's ensurepip child does not inherit -I/-B. Scrub its Python inputs too.
+$pythonEnvironment = @{}
+foreach ($item in @(Get-ChildItem Env:PYTHON*)) { $pythonEnvironment[$item.Name] = $item.Value; Remove-Item -LiteralPath ('Env:'+$item.Name) }
+$env:PYTHONDONTWRITEBYTECODE = '1'
+$env:PYTHONNOUSERSITE = '1'
+$venvLauncher = [Environment]::GetEnvironmentVariable('__PYVENV_LAUNCHER__')
+[Environment]::SetEnvironmentVariable('__PYVENV_LAUNCHER__',$null,'Process')
+$installLocationPushed = $false
 $savedTemp = $env:TEMP
 $savedTmp = $env:TMP
 $installTemp = Join-Path $script:VenvRoot '.install-temp'
@@ -27,6 +35,9 @@ try {
     }
     Copy-Item -LiteralPath (Join-Path $script:PackageRoot 'deployment\manifest.json') -Destination "$script:AppRoot\deployment\manifest.json"
     Set-Content -LiteralPath "$script:VenvRoot\CC03-owned.txt" -Value 'CC03 independent venv only' -Encoding ASCII
+    # A child launched with -m must never resolve ensurepip from caller CWD.
+    Push-Location $script:AppRoot
+    $installLocationPushed = $true
     & $script:BasePython -I -B -m venv $script:VenvRoot
     if ($LASTEXITCODE -ne 0) { throw 'VENV_CREATION_FAILED' }
     & "$script:VenvRoot\Scripts\python.exe" -I -B -m pip --isolated install --no-index --no-cache-dir --only-binary=:all: --require-hashes --find-links $Wheelhouse -r "$script:AppRoot\requirements-windows.lock"
@@ -45,6 +56,10 @@ try {
     foreach ($item in ($owned | Sort-Object { $_.FullName.Length } -Descending)) { Remove-Item -LiteralPath $item.FullName }
     throw $failure
 } finally {
+    if ($installLocationPushed) { Pop-Location }
+    foreach ($item in @(Get-ChildItem Env:PYTHON*)) { Remove-Item -LiteralPath ('Env:'+$item.Name) }
+    foreach ($key in $pythonEnvironment.Keys) { [Environment]::SetEnvironmentVariable($key,$pythonEnvironment[$key],'Process') }
+    [Environment]::SetEnvironmentVariable('__PYVENV_LAUNCHER__',$venvLauncher,'Process')
     $env:TEMP = $savedTemp
     $env:TMP = $savedTmp
     foreach ($item in @(Get-ChildItem Env:PIP_*)) { Remove-Item -LiteralPath ('Env:'+$item.Name) }
