@@ -75,6 +75,11 @@ Set-Content -LiteralPath $badMedia -Value 'NOT AN EXE' -Encoding ASCII
 $approval.supporting_media_sha256 = (Get-FileHash -LiteralPath $badMedia -Algorithm SHA256).Hash.ToLowerInvariant(); Save-TestApproval
 Expect-Failure { Invoke-TestProvision $sourceZip $badMedia } 'RUNTIME_MEDIA_SIGNATURE_INVALID'
 Remove-Item -LiteralPath $badMedia
+$foreignMedia = Join-Path $env:SYSTEMROOT 'System32\WindowsPowerShell\v1.0\powershell.exe'
+$foreignSignature = Get-AuthenticodeSignature -LiteralPath $foreignMedia
+if ($foreignSignature.Status -ne 'Valid' -or $foreignSignature.SignerCertificate.Subject -notlike '*Microsoft*') { throw 'VALID_FOREIGN_SIGNER_FIXTURE_REQUIRED' }
+$foreignDigest = (Get-FileHash -LiteralPath $foreignMedia -Algorithm SHA256).Hash.ToLowerInvariant()
+Expect-Failure { Assert-SupportingPythonMedia $foreignMedia $foreignDigest } 'RUNTIME_MEDIA_SIGNATURE_INVALID'
 $approval.supporting_media_sha256 = $actualMediaHash; Save-TestApproval
 Assert-EmptyPythonTargets
 
@@ -104,7 +109,7 @@ Test-ArchiveRejection @('Lib/a','lib/B') 0 'ZIP_PATH_COLLISION'
 Test-ArchiveRejection @('Lib','Lib/a') 0 'ZIP_PATH_COLLISION'
 Test-ArchiveRejection @('link') ([int](0xA000 -shl 16)) 'ZIP_LINK_OR_SPECIAL_FORBIDDEN'
 Test-ArchiveRejection @('link') 0x400 'ZIP_LINK_OR_SPECIAL_FORBIDDEN'
-$results['pythoncore_archive_negatives'] = 'PASS: corrupt pinned ZIP, unsigned/wrong supporting media, no B/seal approval, incomplete ACL, zip slip/drive/ADS/NTFS/duplicate/case/file-directory/symlink/reparse inputs; no target writes'
+$results['pythoncore_archive_negatives'] = 'PASS: corrupt pinned ZIP, unsigned/wrong hash/valid foreign-signed supporting media, no B/seal approval, incomplete ACL, zip slip/drive/ADS/NTFS/duplicate/case/file-directory/symlink/reparse inputs; no target writes'
 
 # Two real transaction faults. No production test hooks or unpinned runtime mode.
 $faultState = @{count=0}

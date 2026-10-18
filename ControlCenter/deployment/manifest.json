@@ -99,7 +99,7 @@
     },
     {
       "path": "ci/PythonCore-Tests.ps1",
-      "sha256": "925acabf9a2ac2d3bcaf2b31ece47bf7936f5c22fd4ed844b59561060bed3fa7"
+      "sha256": "a62dcb19e457bc3a5af133449c45f865a9898130a20cafa1b21708a080cc1ef2"
     },
     {
       "path": "ci/Test-PanelIdentity.ps1",
