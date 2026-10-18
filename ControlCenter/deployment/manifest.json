@@ -103,7 +103,7 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "085881fe5f6dd50a6aec650e7e215cd3db98cb0856363c4443fb3823ae770825"
+      "sha256": "17a347c8dd476d471c6a0e74098359797bdf2b2426f2cd13dc91c138fd35881d"
     },
     {
       "path": "ci/file_open_trace.py",

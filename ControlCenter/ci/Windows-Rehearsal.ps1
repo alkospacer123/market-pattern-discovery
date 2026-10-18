@@ -469,7 +469,7 @@ try {
         Pop-Location
     }
     if (@(Get-ChildItem -Force -LiteralPath $poison).Count -ne 2 -or @(Get-ChildItem -Force -LiteralPath $canaryRoot).Count -ne 6) { throw 'INSTALL_WROTE_OUTSIDE_OWN_TARGETS' }
-    $results['installer_environment'] = 'PASS: hostile PYTHONHOME/PYTHONPATH/PIP_TARGET and caller CWD ignored for venv/ensurepip/pip; caller environment/location restored; zero outside writes' 
+    $results['installer_environment'] = 'PASS: hostile PYTHONHOME/PYTHONPATH/PIP_TARGET and caller CWD ignored for venv/ensurepip/pip; caller environment/location restored; zero outside writes'
     & "$script:VenvRoot\Scripts\python.exe" -c "import sys,struct; print('REHEARSAL_PYTHON='+sys.version); assert sys.version_info[:3]==(3,12,10) and struct.calcsize('P')==8"
     if ($LASTEXITCODE -ne 0) { throw 'REHEARSAL_PYTHON_VERSION_MISMATCH' }
     $results['install'] = 'PASS: real offline install from exact protected full CPython base, complete hashed runtime lock'
