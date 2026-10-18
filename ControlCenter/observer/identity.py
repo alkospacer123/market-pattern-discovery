@@ -46,6 +46,30 @@ def current_identity():
         standard = {'SeChangeNotifyPrivilege', 'SeIncreaseWorkingSetPrivilege',
                     'SeTimeZonePrivilege', 'SeShutdownPrivilege', 'SeUndockPrivilege'}
         unsafe = bool(elevation.value) or kind.value != 1
+        # Full TOKEN_GROUPS includes deny-only privileged groups omitted by some
+        # managed identity APIs. Query in-process: no compiler/helper child needed.
+        adv.GetTokenInformation(token, 2, None, 0, ctypes.byref(needed))
+        if not 0 < needed.value <= 1048576:
+            raise ValueError('TOKEN_GROUPS_UNAVAILABLE')
+        groups = ctypes.create_string_buffer(needed.value)
+        if not adv.GetTokenInformation(token, 2, groups, len(groups), ctypes.byref(needed)):
+            raise ValueError('TOKEN_GROUPS_UNAVAILABLE')
+        class SidAndAttributes(ctypes.Structure):
+            _fields_ = [('sid', w.LPVOID), ('attributes', w.DWORD)]
+        group_count = w.DWORD.from_buffer(groups).value
+        offset = 8 if ctypes.sizeof(w.LPVOID) == 8 else 4
+        if group_count > 1024 or offset + group_count * ctypes.sizeof(SidAndAttributes) > needed.value:
+            raise ValueError('TOKEN_GROUPS_INVALID')
+        privileged = {'S-1-5-32-' + str(n) for n in (544,547,548,549,550,551,556,578,580)}
+        for index in range(group_count):
+            entry = SidAndAttributes.from_buffer(groups, offset + index * ctypes.sizeof(SidAndAttributes))
+            name = w.LPWSTR()
+            if not adv.ConvertSidToStringSidW(entry.sid, ctypes.byref(name)):
+                raise ValueError('TOKEN_GROUP_SID_INVALID')
+            try:
+                unsafe = unsafe or name.value in privileged
+            finally:
+                kernel.LocalFree(ctypes.cast(name, w.LPVOID))
         for index in range(count):
             name, size = ctypes.create_unicode_buffer(256), w.DWORD(256)
             if not adv.LookupPrivilegeNameW(None, ctypes.byref(privileges, 4 + index * 12), name, ctypes.byref(size)):

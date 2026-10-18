@@ -4,7 +4,8 @@ Captures kernel file-create events, including native PowerShell child opens.
 Missing positive controls or any lost events is a failure, never a skipped test.
 """
 from contextlib import contextmanager
-import json
+import ctypes
+from ctypes import wintypes as w
 import os
 from pathlib import Path
 import subprocess
@@ -16,6 +17,34 @@ def command(args):
     result = subprocess.run(args, capture_output=True, text=True, timeout=30)
     assert result.returncode == 0, (args[0:3], result.stdout, result.stderr)
     return result.stdout
+
+
+def stop_trace(name):
+    # Obtain FINAL kernel counters when stopping, rather than assuming that a
+    # nonempty trace or two positive controls implies loss-free coverage.
+    class Wnode(ctypes.Structure):
+        _fields_=[('BufferSize',w.DWORD),('ProviderId',w.DWORD),('HistoricalContext',ctypes.c_ulonglong),
+                  ('TimeStamp',ctypes.c_longlong),('Guid',ctypes.c_byte*16),
+                  ('ClientContext',w.DWORD),('Flags',w.DWORD)]
+    class Properties(ctypes.Structure):
+        _fields_=[('Wnode',Wnode),*[(key,w.DWORD) for key in (
+            'BufferSize','MinimumBuffers','MaximumBuffers','MaximumFileSize','LogFileMode',
+            'FlushTimer','EnableFlags','AgeLimit','NumberOfBuffers','FreeBuffers','EventsLost',
+            'BuffersWritten','LogBuffersLost','RealTimeBuffersLost')],
+            ('LoggerThreadId',w.HANDLE),('LogFileNameOffset',w.DWORD),('LoggerNameOffset',w.DWORD)]
+    raw=ctypes.create_string_buffer(ctypes.sizeof(Properties)+4096)
+    stats=Properties.from_buffer(raw)
+    stats.Wnode.BufferSize=len(raw)
+    stats.LoggerNameOffset=ctypes.sizeof(Properties)
+    stats.LogFileNameOffset=ctypes.sizeof(Properties)+2048
+    adv=ctypes.WinDLL('advapi32',use_last_error=True)
+    adv.ControlTraceW.argtypes=[ctypes.c_ulonglong,w.LPCWSTR,w.LPVOID,w.ULONG]
+    adv.ControlTraceW.restype=w.ULONG
+    code=adv.ControlTraceW(0,name,raw,1)  # EVENT_TRACE_CONTROL_STOP
+    assert code==0, ('ETW_STOP_FAILED',code)
+    result={key:getattr(stats,key) for key in ('EventsLost','LogBuffersLost','RealTimeBuffersLost')}
+    assert all(v==0 for v in result.values()), ('ETW_EVENTS_LOST',result)
+    return result
 
 
 @contextmanager
@@ -31,7 +60,7 @@ def file_create_trace(root):
     try:
         yield records
     finally:
-        command(['logman.exe','stop',name,'-ets'])
+        counters=stop_trace(name)
         xml = trace.with_suffix('.xml')
         summary = trace.with_suffix('.summary.txt')
         command(['tracerpt.exe',str(trace),'-o',str(xml),'-of','XML','-summary',str(summary),'-y'])
@@ -56,7 +85,7 @@ def file_create_trace(root):
         # Keep a compact report; raw trace stays in disposable RUNNER_TEMP.
         report = Path(os.environ['RUNNER_TEMP']) / 'cc03-evidence' / 'file-create-trace-summary.txt'
         with report.open('a',encoding='utf-8') as out:
-            out.write(name+'\n'+summary.read_text(errors='replace')+'\n')
+            out.write(name+'\n'+str(counters)+'\n'+summary.read_text(errors='replace')+'\n')
 
 
 def events_for(records, path):

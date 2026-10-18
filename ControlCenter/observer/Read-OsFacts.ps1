@@ -26,7 +26,7 @@ try {
         . "$PSScriptRoot\..\deployment\PanelIdentity.ps1"
         $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
         if ($identity.User.Value -ne $p.observer_sid -or
-            -not (Test-CCStandardIdentity $identity) -or
+            $identity.ImpersonationLevel -ne [Security.Principal.TokenImpersonationLevel]::None -or
             (Get-CCPanelState $p.observer_sid) -ne 'CCPANEL_ENABLED') {
             @{task=(Row 'UNKNOWN' 'ACCESS_DENIED' $null);process=(Row 'UNKNOWN' 'ACCESS_DENIED' $null)} |
                 ConvertTo-Json -Compress -Depth 5

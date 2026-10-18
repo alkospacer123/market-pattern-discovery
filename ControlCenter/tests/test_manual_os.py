@@ -89,7 +89,7 @@ def test_wrong_or_elevated_primary_identity_before_probe(manual_policy,monkeypat
     assert not click()[1]
 
 
-@pytest.mark.parametrize('kind', ['incomplete','forged_task','forged_process','future','old','extra','task_unknown'])
+@pytest.mark.parametrize('kind', ['incomplete','forged_task','forged_process','future','old','extra','task_unknown','reason'])
 def test_incomplete_or_forged_result_clears_values(manual_policy,monkeypatch,kind):
     def bad(p):
         rows=facts(p)
@@ -99,6 +99,7 @@ def test_incomplete_or_forged_result_clears_values(manual_policy,monkeypatch,kin
         elif kind=='future':rows['task']['observed_at']=(datetime.now(timezone.utc)+timedelta(days=1)).isoformat()
         elif kind=='old':rows['task']['observed_at']=(datetime.now(timezone.utc)-timedelta(days=1)).isoformat()
         elif kind=='extra':rows['heartbeat']=rows['task']
+        elif kind=='reason':rows['task']['reason']='NOT_FOUND'
         else:
             rows['task']=observer.row('WINDOWS_TASK_READONLY',reason='CHANGED')
             rows['process']=observer.row('WINDOWS_PROCESS_READONLY','PROCESS_OBSERVED','OK','0'*64)

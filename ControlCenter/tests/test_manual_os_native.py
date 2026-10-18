@@ -57,10 +57,12 @@ def test_native_manual_diagnostic_and_path_attributes_with_replace_zero_legacy_o
             return observer.os_facts(fixture)
         wire(monkeypatch,p,probe)
         observed_pids=[os.getpid()]
+        powershell_pids=[]
         original_popen=subprocess.Popen
         def tracked_popen(*a,**k):
             process=original_popen(*a,**k)
             observed_pids.append(process.pid)
+            if str(a[0][0]).lower().endswith('powershell.exe'):powershell_pids.append(process.pid)
             return process
         monkeypatch.setattr(subprocess,'Popen',tracked_popen)
         with file_create_trace(tmp_path) as trace:
@@ -94,8 +96,9 @@ def test_native_manual_diagnostic_and_path_attributes_with_replace_zero_legacy_o
             assert not producer.is_alive() and producer.exitcode==0 and receive.poll(1)
             done=receive.recv()
             assert not done['errors'] and done['replacements']>=500,done
-        assert events_for(trace,parent_control), 'PARENT_OPEN_POSITIVE_CONTROL_NOT_CAPTURED'
-        assert events_for(trace,ps_control), 'POWERSHELL_OPEN_POSITIVE_CONTROL_NOT_CAPTURED'
+        assert any(e['pid']==os.getpid() for e in events_for(trace,parent_control)), 'PARENT_OPEN_POSITIVE_CONTROL_NOT_CAPTURED'
+        assert any(e['pid'] in powershell_pids for e in events_for(trace,ps_control)), 'POWERSHELL_OPEN_POSITIVE_CONTROL_NOT_CAPTURED'
+        assert len(powershell_pids)==2, 'EXPECTED_ONE_CONTROL_AND_ONE_DIAGNOSTIC'
         # Attribute events by native PID, excluding only the independent producer.
         # Includes BOTH panel Python and every fixed-helper PowerShell child.
         assert not [e for e in events_for(trace,legacy) if e['pid'] in observed_pids], 'LEGACY_FILE_OPEN_DETECTED'

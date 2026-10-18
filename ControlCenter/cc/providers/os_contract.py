@@ -34,6 +34,8 @@ def check_semantics(value, timestamp):
             raise ValueError('CC03_METADATA_COMPATIBILITY_BLOCKED')
         at = timestamp(row['observed_at'])
         known = row['state'] != 'UNKNOWN'
+        if known and row['reason'] != ('NOT_FOUND' if row['state'] == 'PROCESS_ABSENT' else 'OK'):
+            raise ValueError('OS_OBSERVATION_REASON_INVALID')
         if (at is None or at > generated or
                 (known != (row['confidence'] == 'OS_OBSERVED')) or
                 (known and row['reason'] not in ('OK', 'NOT_FOUND')) or

@@ -143,11 +143,16 @@ def test_native_metadata_experiment_conflict_requires_runtime_block(tmp_path):
     print('METADATA_NONINTERFERENCE=NOT_PASSED / BLOCKED: zero-access handle reproduced producer conflict; after close 500/500 replacements recovered; runtime source disabled')
 
 
-def test_native_probe_timeout_is_bounded(os_policy,tasks):
+def test_native_probe_timeout_is_bounded(os_policy,tasks,monkeypatch):
     p=task_policy(os_policy,tasks[0]['Ready'])
+    children=[];original=subprocess.Popen
+    def track(*a,**k):
+        child=original(*a,**k);children.append(child);return child
+    monkeypatch.setattr(subprocess,'Popen',track)
     started=time.monotonic();facts=observer.os_facts(p,timeout=.001)
     assert time.monotonic()-started<3
     assert all(r['reason']=='TIMEOUT' and r['state']=='UNKNOWN' for r in facts.values())
+    assert len(children)==1 and children[0].poll() is not None, 'TIMED_OUT_HELPER_NOT_REAPED'
 
 
 def test_native_runtime_task_process_observer_does_not_interfere_with_producer(os_policy,tasks,tmp_path):
