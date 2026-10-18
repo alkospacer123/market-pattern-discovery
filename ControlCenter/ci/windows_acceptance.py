@@ -7,6 +7,7 @@ import platform
 import struct
 import subprocess
 import sys
+import time
 import uuid
 import zipfile
 import xml.etree.ElementTree as ET
@@ -112,16 +113,22 @@ def main():
             environment['PSMODULEPATH'] = os.pathsep.join([
                 str(Path(environment['SYSTEMROOT']) / 'System32/WindowsPowerShell/v1.0/Modules'),
                 str(Path(environment['PROGRAMFILES']) / 'WindowsPowerShell/Modules')])
-        try:
-            completed = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                       encoding='utf-8', errors='replace', timeout=600 if name == 'powershell-rehearsal' else 360, env=environment)
-            output, exit_code = completed.stdout, completed.returncode
-        except subprocess.TimeoutExpired as exc:
-            output = (exc.stdout or b'').decode('utf-8', errors='replace') + '\nACCEPTANCE_COMMAND_TIMEOUT'
-            exit_code = 124
+        started = time.monotonic()
+        log_path = evidence / f'{name}.log'
+        # Write child output directly to evidence so a VM timeout still retains
+        # the actual last phase and measured rejection, rather than a PIPE buffer.
+        with log_path.open('w', encoding='utf-8') as log:
+            try:
+                completed = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT,
+                                           timeout=600 if name == 'powershell-rehearsal' else 360, env=environment)
+                exit_code = completed.returncode
+            except subprocess.TimeoutExpired:
+                log.write('\nACCEPTANCE_COMMAND_TIMEOUT\n')
+                exit_code = 124
+        output = log_path.read_text(encoding='utf-8', errors='replace')
         print(output, flush=True)
-        (evidence / f'{name}.log').write_text(output, encoding='utf-8')
-        results[name] = dict(exit_code=exit_code)
+        results[name] = dict(exit_code=exit_code, seconds=round(time.monotonic()-started, 3))
+        (evidence / 'command-timings.json').write_text(json.dumps(results, indent=2), encoding='utf-8')
     for name in ('windows-reader', 'windows-transport', 'cc03-source', 'os-observer', 'intel-preflight', 'manual-os', 'full-suite'):
         path = evidence / f'{name}.xml'
         if not path.exists():

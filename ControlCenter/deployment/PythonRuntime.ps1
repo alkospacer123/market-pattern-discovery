@@ -60,7 +60,7 @@ print(json.dumps(dict(executable=sys.executable,base_executable=sys._base_execut
 
 function Assert-RuntimeBoundary([string]$PanelSid) {
     Assert-CCPanelSid $PanelSid
-    foreach ($path in @($script:ControlCenterRoot,$script:RuntimeRoot)) { Assert-ACL $path $PanelSid 'app' }
+    foreach ($path in @($script:ControlCenterRoot,$script:RuntimeRoot)) { Assert-PathACL $path $PanelSid 'app' }
     # Every intermediate ancestor must have the same protected owner/SID grants.
     $ancestor = [IO.DirectoryInfo]::new($script:ControlCenterRoot).Parent
     while ($null -ne $ancestor -and $null -ne $ancestor.Parent) {
@@ -91,7 +91,7 @@ function Assert-SupportingPythonMedia([string]$Media, [string]$Digest) {
 function Assert-TrustedBase([string]$PanelSid) {
     Assert-RuntimeBoundary $PanelSid
     if ($script:BasePython -ne (Join-Path $script:ControlCenterRoot 'runtime\python312\python.exe')) { throw 'BASE_PATH_NOT_ALLOWLISTED' }
-    foreach ($path in @($script:BaseRoot,$script:RuntimeProvenance)) { Assert-ACL $path $PanelSid 'app' }
+    foreach ($path in @($script:BaseRoot,$script:RuntimeProvenance)) { Assert-PathACL $path $PanelSid 'app' }
     $p = Get-Content -Raw -LiteralPath $script:RuntimeProvenance | ConvertFrom-Json
     if ($p.schema_id -cne 'cc03.python-base.v2' -or $p.b_only_approved -ne $true -or
         $p.release -cne 'CPython-3.12.10-amd64-full' -or $p.distribution_id -cne 'pythoncore-3.12-64' -or
@@ -136,7 +136,7 @@ function Assert-TrustedBase([string]$PanelSid) {
 
 function Assert-PanelVenv([string]$PanelSid) {
     Assert-TrustedBase $PanelSid
-    Assert-ACL $script:VenvRoot $PanelSid 'venv'
+    Assert-PathACL $script:VenvRoot $PanelSid 'venv'
     $tree = @(Get-PlainTree $script:VenvRoot)
     foreach ($item in $tree) { Assert-TreeACL $item.FullName $PanelSid }
     $cfg = @{}

@@ -65,6 +65,9 @@ their disposable root/SID and cannot serve as physical Intel approval. Within on
 script invocation only ZIP entry inventory may be reused after rechecking full
 archive size/SHA on every call; callers receive copies. Runtime tree/ACL checks
 are never cached.
+Each bounded validation operation checks live ccpanel account/group state once
+before its path-only ACL checks; standalone `Assert-ACL` also checks it. Account
+state is never cached between operations. Every path/owner/ACE is still checked.
 
 Existing standard, enabled `ccpanel` SID is required. Control Center/runtime/base/
 provenance and intermediate ancestors retain protected admin/SYSTEM ownership

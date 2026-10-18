@@ -69,6 +69,13 @@ function Assert-CCPanelSid([string]$PanelSid) {
 
 function Assert-ACL([string]$Path, [string]$PanelSid, [string]$Kind) {
     Assert-CCPanelSid $PanelSid
+    Assert-PathACL $Path $PanelSid $Kind
+}
+
+# Internal path-only validator for a bounded operation which has just called
+# Assert-CCPanelSid. No account-state cache: every public validation entrypoint
+# checks the live local account again. Avoid nine SAM group scans per path.
+function Assert-PathACL([string]$Path, [string]$PanelSid, [string]$Kind) {
     Assert-PlainPath $Path
     if ($Kind -notin @('app','venv','parent','export','logs','private')) { throw 'CC_KIND_INVALID' }
     $acl = Get-Acl -LiteralPath $Path
@@ -98,10 +105,11 @@ function Assert-ACL([string]$Path, [string]$PanelSid, [string]$Kind) {
 }
 
 function Assert-LayoutACL([string]$PanelSid) {
+    Assert-CCPanelSid $PanelSid
     foreach ($pair in @(@($script:AppRoot,'app'), @($script:VenvRoot,'venv'),
                         @($script:DataRoot,'parent'), @("$script:DataRoot\export",'export'),
                         @("$script:DataRoot\logs",'logs'), @("$script:DataRoot\private",'private'))) {
-        Assert-ACL $pair[0] $PanelSid $pair[1]
+        Assert-PathACL $pair[0] $PanelSid $pair[1]
     }
 }
 
