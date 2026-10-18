@@ -100,6 +100,22 @@ class BrokerConfirmedTrailingOnly(unittest.TestCase):
         with self.assertRaisesRegex(M15TrailingGateError, "BAR_OR_GRID"):
             propose(current=s)
 
+    def test_prior_msk_watermark_compares_as_utc_instant(self):
+        s = replace(state(), last_survived_m15_close="2026-10-18T13:15:00+03:00")
+        p = propose(current=s, at=AT)
+        self.assertEqual(p.candidate.last_survived_m15_close, AT.isoformat())
+        self.assertIs(p.before, s)
+
+    def test_earlier_instant_cannot_pass_via_offset_difference(self):
+        s = replace(state(), last_survived_m15_close="2026-10-18T10:45:00+00:00")
+        msk_at = AT.astimezone(timezone(timedelta(hours=3)))
+        with self.assertRaisesRegex(M15TrailingGateError, "BAR_OR_GRID_INVALID"):
+            propose(current=s, at=msk_at)
+
+    def test_noncompleted_quarter_hour_boundary_refused(self):
+        with self.assertRaisesRegex(M15TrailingGateError, "M15_GRID_INVALID"):
+            propose(at=AT + timedelta(minutes=1))
+
     def test_short_trailing_tighten_and_commit(self):
         s = state("SHORT")
         p = propose(current=s, observed=stop("104"), high="100", low="85")
