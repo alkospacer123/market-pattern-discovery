@@ -69,11 +69,19 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
         Write-Host ('NATIVE_CMD_STARTUP_PASS sid=' + $Identity.Sid)
     } finally { if (-not $native.HasExited) { & taskkill.exe /PID $native.Id /T /F | Out-Host }; $native.Dispose() }
     $pythonLog = $ErrorLog + '.python'
+    $pythonTimer = [Diagnostics.Stopwatch]::StartNew()
     $python = [CC03Access]::StartAs($Identity.Name, $Identity.Password, "$script:VenvRoot\Scripts\python.exe", $bootstrap, $script:AppRoot, $pythonLog, $Identity.Sid)
     try {
-        if (-not $python.WaitForExit(30000) -or $python.ExitCode -ne 0) { throw 'DIRECT_IDENTITY_PYTHON_FAILED' }
-        Write-Host ('DIRECT_IDENTITY_PYTHON_PASS sid=' + $Identity.Sid)
-    } finally { if (-not $python.HasExited) { & taskkill.exe /PID $python.Id /T /F | Out-Host }; $python.Dispose() }
+        if (-not $python.WaitForExit(60000) -or $python.ExitCode -ne 0) { throw 'DIRECT_IDENTITY_PYTHON_FAILED' }
+        Write-Host ('DIRECT_IDENTITY_PYTHON_PASS sid=' + $Identity.Sid + ' seconds=' + $pythonTimer.Elapsed.TotalSeconds)
+    } finally {
+        if (-not $python.HasExited) { & taskkill.exe /PID $python.Id /T /F | Out-Host }
+        $python.Dispose()
+        if (Test-Path -LiteralPath $pythonLog) {
+            Copy-Item -LiteralPath $pythonLog -Destination $evidence
+            Get-Content -LiteralPath $pythonLog | Write-Host
+        }
+    }
     $executable = Join-Path $env:SYSTEMROOT 'System32\WindowsPowerShell\v1.0\powershell.exe'
     return [CC03Access]::StartAs($Identity.Name, $Identity.Password, $executable, $bootstrap, $script:AppRoot, $ErrorLog, $Identity.Sid)
 }

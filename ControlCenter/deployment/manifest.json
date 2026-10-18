@@ -107,7 +107,7 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "2142605e82388c89ea4cdbc2347283e040ac7130cad928f1bd517c21ac5cdca7"
+      "sha256": "54bbbe0a8e72dce7e3409945635b68bb687951fa2ce926b1679d044072dd086f"
     },
     {
       "path": "ci/file_open_trace.py",
@@ -131,11 +131,11 @@
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "f4c4fc9d7cf82b733b16f68336d00848ebc7641b0b12535aae124cddac6151e3"
+      "sha256": "62ed75d00a99a4122df7b53f848a9ec8180d70687f677c2a470189f6154507e3"
     },
     {
       "path": "deployment/Common.ps1",
-      "sha256": "a372726cb68d934ef2c742150179c6e08fa218331a865049c9b069b6f9021936"
+      "sha256": "ae337c523a1d86a001f6e69adc78c7944cf1a4903f9a0e3a379dab83a5ac0bff"
     },
     {
       "path": "deployment/Install.ps1",
@@ -443,7 +443,7 @@
     },
     {
       "path": "tests/test_intel_preflight_native.py",
-      "sha256": "53d75d92c33274e8f3f431199c9e964849b0c4bfeaba679202db35982a7f17a9"
+      "sha256": "79f20a99c39093d024526e79bf8b5cf00f3726792e369687aa2447820616bc89"
     },
     {
       "path": "tests/test_manual_gate.py",

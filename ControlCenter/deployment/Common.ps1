@@ -15,9 +15,15 @@ function Assert-PlainPath([string]$Path) {
     if ($full -notmatch '^[A-Za-z]:\\' -or $full.Contains('..') -or $full.Substring(2).Contains(':')) { throw 'LOCAL_PATH_REQUIRED' }
     $current = [IO.DirectoryInfo]::new($full)
     while ($null -ne $current) {
-        if (Test-Path -LiteralPath $current.FullName) {
-            $item = Get-Item -Force -LiteralPath $current.FullName
-            if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'REPARSE_POINT_FORBIDDEN' }
+        # Same complete ancestor walk, one native attribute query per node.
+        # Only absence is permitted for fresh targets; all other I/O failures
+        # (including access denied) propagate. Reparse metadata is read on the
+        # link itself; no PowerShell provider resolution or traversal occurs.
+        try {
+            $attributes = [IO.File]::GetAttributes($current.FullName)
+            if ($attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'REPARSE_POINT_FORBIDDEN' }
+        } catch [IO.FileNotFoundException] {
+        } catch [IO.DirectoryNotFoundException] {
         }
         $current = $current.Parent
     }

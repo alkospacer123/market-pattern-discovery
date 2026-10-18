@@ -99,7 +99,7 @@ def main():
             "$tokens=$null; $errors=$null; [void][Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$tokens,[ref]$errors); "
             "if ($errors.Count) { throw ($errors | Out-String) }; Write-Output ('SYNTAX_PASS '+$_.Name); "
             "if ($_.Name -ne 'Common.ps1') { & $_.FullName } }"]),
-        ('powershell-rehearsal', ['powershell', '-NoProfile', '-File', 'ci/Windows-Rehearsal.ps1']),
+        ('powershell-rehearsal', ['powershell', '-NoProfile', '-NonInteractive', '-File', 'ci/Windows-Rehearsal.ps1']),
     ]
     results = {}
     for name, command in commands:
