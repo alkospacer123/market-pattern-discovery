@@ -1,6 +1,7 @@
 """FINAM M15 REST read-only adapter: synthetic protocol tests, no network."""
 import json
 import unittest
+from urllib.error import HTTPError
 from urllib.parse import urlparse, parse_qs
 
 from IntradayLab.m15_robot.finam_readonly import (
@@ -58,6 +59,53 @@ def adapter(transport):
 
 
 class ReadOnlyTransport(unittest.TestCase):
+    def test_http_session_create_403_stage(self):
+        def callback(req, timeout):
+            raise HTTPError(req.full_url, 403, "", None, None)
+        api = adapter(callback)
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "SESSION_CREATE_STATUS_403"):
+            api.connect_readonly()
+        self.assertFalse(api.readonly_bound)
+
+    def test_http_session_details_401_stage(self):
+        fake = FakeTransport()
+        def callback(req, timeout):
+            if urlparse(req.full_url).path == "/v1/sessions/details":
+                raise HTTPError(req.full_url, 401, "", None, None)
+            return fake(req, timeout)
+        api = adapter(callback)
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "SESSION_DETAILS_STATUS_401"):
+            api.connect_readonly()
+        self.assertFalse(api.readonly_bound)
+
+    def test_http_account_404_stage_no_retry(self):
+        fake = FakeTransport()
+        count = [0]
+        def callback(req, timeout):
+            if urlparse(req.full_url).path == "/v1/accounts/M15-ACCOUNT":
+                count[0] += 1
+                raise HTTPError(req.full_url, 404, "", None, None)
+            return fake(req, timeout)
+        api = adapter(callback)
+        api.connect_readonly()
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "HTTP_ACCOUNT_STATUS_404"):
+            api.account("M15-ACCOUNT")
+        self.assertEqual(count[0], 1)
+
+    def test_http_orders_503_single_retry(self):
+        fake = FakeTransport()
+        count = [0]
+        def callback(req, timeout):
+            if urlparse(req.full_url).path == "/v1/accounts/M15-ACCOUNT/orders":
+                count[0] += 1
+                raise HTTPError(req.full_url, 503, "", None, None)
+            return fake(req, timeout)
+        api = adapter(callback)
+        api.connect_readonly()
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "ACCOUNT_ORDERS_STATUS_503"):
+            api.orders("M15-ACCOUNT")
+        self.assertEqual(count[0], 2)
+
     def test_constructing_client_makes_no_network_calls(self):
         fake = FakeTransport()
         api = adapter(fake)
