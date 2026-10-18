@@ -62,6 +62,8 @@ def _safe_request_stage(method: str, path: str) -> str:
                 return "ACCOUNT_ORDERS"
             if route.endswith("/trades"):
                 return "ACCOUNT_TRADES"
+            if route.endswith("/transactions"):
+                return "ACCOUNT_TRANSACTIONS"
             return "ACCOUNT"
         if path.startswith("/v1/assets/"):
             route = path.split("?", 1)[0]
@@ -127,6 +129,7 @@ class M15FinamReadOnlyAPI:
                 path == f"/v1/accounts/{self.__account}"
                 or path == f"/v1/accounts/{self.__account}/orders"
                 or path.startswith(f"/v1/accounts/{self.__account}/trades?")
+                or path.startswith(f"/v1/accounts/{self.__account}/transactions?")
                 or path.startswith("/v1/assets/")
                 or path.startswith("/v1/instruments/")
             )
@@ -212,6 +215,22 @@ class M15FinamReadOnlyAPI:
         if not isinstance(response, dict):
             raise M15FinamReadOnlyError("M15_FINAM_ORDERS_SCHEMA_INVALID")
         return response
+
+    def transactions(self, account_id: str, *, start: str, end: str, limit: int = 1000) -> dict:
+        """Bounded exact M15 account GET-only cash-flow source. No trade endpoints."""
+        if _account(account_id) != self.__account:
+            raise M15FinamReadOnlyError("M15_CROSS_ACCOUNT_READ_FORBIDDEN")
+        if _stamp(start) >= _stamp(end) or type(limit) is not int or not 0 < limit <= 1000:
+            raise M15FinamReadOnlyError("M15_TRANSACTIONS_INTERVAL_OR_LIMIT_INVALID")
+        query = urlencode({
+            "limit": limit,
+            "interval.start_time": start,
+            "interval.end_time": end,
+        })
+        result = self._request("GET", f"/v1/accounts/{self.__account}/transactions?{query}")
+        if not isinstance(result, dict) or not isinstance(result.get("transactions"), list):
+            raise M15FinamReadOnlyError("M15_TRANSACTIONS_SCHEMA_INVALID")
+        return result
 
     def trades(self, account_id: str, *, start: str, end: str, limit: int = 1000) -> dict:
         """Exact-account FINAM GET-only trade history, no order/cancel capability.
