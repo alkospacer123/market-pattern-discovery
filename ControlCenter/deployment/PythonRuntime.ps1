@@ -58,6 +58,14 @@ function Assert-TrustedBase([string]$PanelSid) {
     foreach ($path in @($script:ControlCenterRoot,$script:RuntimeRoot,$script:BaseRoot,$script:RuntimeProvenance)) {
         Assert-ACL $path $PanelSid 'app'
     }
+    # Every intermediate ancestor must have the same protected owner/SID grants.
+    $ancestor = [IO.DirectoryInfo]::new($script:ControlCenterRoot).Parent
+    while ($null -ne $ancestor -and $null -ne $ancestor.Parent) {
+        Assert-PlainPath $ancestor.FullName
+        if (-not (Get-Acl -LiteralPath $ancestor.FullName).AreAccessRulesProtected) { throw 'UNPROTECTED_RUNTIME_ANCESTOR' }
+        Assert-TreeACL $ancestor.FullName $PanelSid
+        $ancestor = $ancestor.Parent
+    }
     # Drive roots may grant Users CreateDirectories but never DeleteChild or
     # modification of existing protected children. Do not change system ACLs.
     $driveACL = Get-Acl -LiteralPath ([IO.Path]::GetPathRoot($script:ControlCenterRoot))

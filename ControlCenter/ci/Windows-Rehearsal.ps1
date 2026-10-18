@@ -5,6 +5,13 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 if ($env:GITHUB_ACTIONS -cne 'true' -or $env:RUNNER_ENVIRONMENT -cne 'github-hosted') { throw 'GITHUB_HOSTED_VM_REQUIRED' }
 $package = Split-Path $PSScriptRoot -Parent
+# The hosted D: volume is owned by a runner-specific SID, which deliberately
+# fails the production trust contract. Use a newly created protected C: parent;
+# never repair D:/C: ACLs or add a runner SID to the production allowlist.
+$originalRunnerTemp = $env:RUNNER_TEMP
+$rehearsalTemp = Join-Path ($env:SYSTEMDRIVE+'\') ('CC03-' + [guid]::NewGuid().ToString('N'))
+$null = New-Item -ItemType Directory -Path $rehearsalTemp
+$env:RUNNER_TEMP = $rehearsalTemp
 $sandbox = Join-Path $env:RUNNER_TEMP ('CC03-' + [guid]::NewGuid().ToString('N'))
 $env:CC03_CI_DISPOSABLE_ROOT = $sandbox
 $env:STREAMLIT_SERVER_HEADLESS = 'true'
@@ -17,7 +24,7 @@ $exporterProcess = $null
 $osFixtureFolder = $null
 $manualPolicyRoot = Join-Path ([IO.Path]::GetPathRoot($sandbox)) ('CC03-' + [guid]::NewGuid().ToString('N'))
 $results = [ordered]@{}
-$evidence = Join-Path $env:RUNNER_TEMP 'cc03-evidence'
+$evidence = Join-Path $originalRunnerTemp 'cc03-evidence'
 
 function Expect-Failure([scriptblock]$Operation, [string]$Expected) {
     try { & $Operation } catch {
@@ -45,6 +52,8 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
     $lines += '& ' + (Literal "$script:VenvRoot\Scripts\python.exe") + ' -c ' + (Literal 'import sys; print(sys.executable); print(sys.version)')
     $lines += 'if ($LASTEXITCODE -ne 0) { throw ''IDENTITY_PYTHON_PROBE_FAILED'' }'
     $lines += 'Get-ExecutionPolicy -List | Format-Table | Out-String | Write-Output'
+    $lines += '$env:PYTHONHOME = ' + (Literal (Join-Path $sandbox 'protected-outside-cc/unrelated-user-profile'))
+    $lines += '$env:PYTHONPATH = ' + (Literal (Join-Path $sandbox 'protected-outside-cc/unrelated-user-profile'))
     $lines += '& ' + (Literal $Entry) + ' -Execute -PanelSid ' + (Literal $panelSid)
     $command = '& {' + "`n" + ($lines -join "`n") + "`n" + '}'
     $bootstrap = Join-Path $sandbox ('identity-' + $Identity.Name + '-' + [guid]::NewGuid().ToString('N') + '.ps1')
@@ -69,7 +78,7 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
 }
 
 function Set-DisposableACL([string]$Path, [string]$Kind) {
-    if ($Path -ne $sandbox -and -not $Path.StartsWith($sandbox + '\', [StringComparison]::OrdinalIgnoreCase) -and
+    if ($Path -ne $rehearsalTemp -and $Path -ne $sandbox -and -not $Path.StartsWith($sandbox + '\', [StringComparison]::OrdinalIgnoreCase) -and
         $Path -ne $manualPolicyRoot -and -not $Path.StartsWith($manualPolicyRoot + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'ACL_SCOPE_VIOLATION' }
     $directory = Test-Path -LiteralPath $Path -PathType Container
     $acl = $(if ($directory) { [Security.AccessControl.DirectorySecurity]::new() } else { [Security.AccessControl.FileSecurity]::new() })
@@ -286,6 +295,7 @@ try {
     $panel = [pscustomobject]@{ Name=$name; Password=$password; Sid=$user.SID.Value; Credential=[pscredential]::new("$env:COMPUTERNAME\$name", $secret) }
     $panelSid = $panel.Sid
     Write-Output "DISPOSABLE_CCPANEL_SID=$panelSid"
+    Set-DisposableACL $rehearsalTemp 'parent'
     Set-DisposableACL $sandbox 'parent'
     foreach ($pair in @(@($script:AppRoot,'app'), @($script:VenvRoot,'venv'), @($script:DataRoot,'parent'),
                         @("$script:DataRoot\export",'export'), @("$script:DataRoot\logs",'logs'), @("$script:DataRoot\private",'private'))) {
@@ -414,8 +424,11 @@ try {
     # wheel index for the remaining files.
     $missingWheel = Get-ChildItem -LiteralPath $wheelhouse -Filter 'streamlit-*.whl' | Select-Object -First 1
     Move-Item -LiteralPath $missingWheel.FullName -Destination ($missingWheel.FullName+'.held')
-    Expect-Failure { & "$package\deployment\Install.ps1" -Execute -PanelSid $panelSid -Wheelhouse $wheelhouse } ''
+    @($wheelRecords | Where-Object { $_.name -ne $missingWheel.Name }) | ConvertTo-Json | Set-Content -LiteralPath "$wheelhouse\wheels.sha256.json" -Encoding ASCII
+    Expect-Failure { & "$package\deployment\Install.ps1" -Execute -PanelSid $panelSid -Wheelhouse $wheelhouse } 'OFFLINE_PINNED_WHEELS_REQUIRED'
+    if (@(Get-ChildItem -Force $script:AppRoot).Count -or @(Get-ChildItem -Force $script:VenvRoot).Count) { throw 'MISSING_WHEEL_WROTE_TARGET' }
     Move-Item -LiteralPath ($missingWheel.FullName+'.held') -Destination $missingWheel.FullName
+    $wheelRecords | ConvertTo-Json | Set-Content -LiteralPath "$wheelhouse\wheels.sha256.json" -Encoding ASCII
     # Fault injection only in the test scope: the production script has no hook.
     for ($attempt=0; $attempt -lt 2; $attempt++) {
         $script:copyCount = 0
@@ -574,6 +587,7 @@ try {
     }
     foreach ($name in $users) { Remove-LocalUser -Name $name }
     Remove-Item Env:CC03_CI_DISPOSABLE_ROOT
+    $env:RUNNER_TEMP = $originalRunnerTemp
     $results | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath "$evidence\powershell-rehearsal.json" -Encoding UTF8
     $results | ConvertTo-Json -Depth 6 | Write-Output
 }

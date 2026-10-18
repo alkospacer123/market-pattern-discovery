@@ -12,7 +12,14 @@ $manifest = Get-Manifest $script:PackageRoot
 $pipEnvironment = @{}
 foreach ($item in @(Get-ChildItem Env:PIP_*)) { $pipEnvironment[$item.Name] = $item.Value; Remove-Item -LiteralPath ('Env:'+$item.Name) }
 $env:PIP_CONFIG_FILE = 'NUL'
+$savedTemp = $env:TEMP
+$savedTmp = $env:TMP
+$installTemp = Join-Path $script:VenvRoot '.install-temp'
 try {
+    # venv/ensurepip/pip scratch writes are confined to this own empty CC root.
+    $null = New-Item -ItemType Directory -Path $installTemp
+    $env:TEMP = $installTemp
+    $env:TMP = $installTemp
     foreach ($entry in $manifest.files) {
         $target = Join-Path $script:AppRoot $entry.path
         $null = New-Item -ItemType Directory -Force -Path (Split-Path $target -Parent)
@@ -27,6 +34,8 @@ try {
     & "$script:VenvRoot\Scripts\python.exe" -I -B -m pip check
     if ($LASTEXITCODE -ne 0) { throw 'DEPENDENCY_CHECK_FAILED' }
     $null = Get-Manifest $script:AppRoot
+    foreach ($item in (@(Get-PlainTree $installTemp) | Sort-Object { $_.FullName.Length } -Descending)) { Remove-Item -LiteralPath $item.FullName }
+    Remove-Item -LiteralPath $installTemp
     Assert-PanelVenv $PanelSid
 } catch {
     $failure = $_
@@ -36,6 +45,8 @@ try {
     foreach ($item in ($owned | Sort-Object { $_.FullName.Length } -Descending)) { Remove-Item -LiteralPath $item.FullName }
     throw $failure
 } finally {
+    $env:TEMP = $savedTemp
+    $env:TMP = $savedTmp
     foreach ($item in @(Get-ChildItem Env:PIP_*)) { Remove-Item -LiteralPath ('Env:'+$item.Name) }
     foreach ($key in $pipEnvironment.Keys) { [Environment]::SetEnvironmentVariable($key,$pipEnvironment[$key],'Process') }
 }

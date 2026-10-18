@@ -103,7 +103,7 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "39008ea8ba788656ad74162931468b5bcc096e1ee03f0a805f726379666810a9"
+      "sha256": "9e983aec8c6f7c6ae5e105d51ab7f6a08becdcf10065b0472e950dafd1c5cee4"
     },
     {
       "path": "ci/file_open_trace.py",
@@ -135,7 +135,7 @@
     },
     {
       "path": "deployment/Install.ps1",
-      "sha256": "77b9d603a96e076914d92292066282c18b8764f0c6cff52b6b65809d54318616"
+      "sha256": "77cefb5b9e5fc0be7adf7fd93cf206bc4f27276eb8d2d16c88cb5112cc13ee23"
     },
     {
       "path": "deployment/PanelIdentity.ps1",
@@ -151,7 +151,7 @@
     },
     {
       "path": "deployment/PythonRuntime.ps1",
-      "sha256": "ce243bf3595f6c559709f2bd3e22cb0e021bf93c1a12b2895d3170b164322797"
+      "sha256": "0758cc1d54cae95c28454128dfe8c14abbef1061e976e3ffec6259eadc54383e"
     },
     {
       "path": "deployment/Start-Exporter.ps1",
@@ -159,7 +159,7 @@
     },
     {
       "path": "deployment/Start-Panel.ps1",
-      "sha256": "8b613057517e2a85214f0f0a9174009a88b2c6e39a398aeed412253b84ad5778"
+      "sha256": "762256c000ccc85680027c80e14526a1f12f16da8ff0e36fbf7fe86e71f3afac"
     },
     {
       "path": "deployment/Uninstall.ps1",
@@ -167,7 +167,7 @@
     },
     {
       "path": "deployment/Verify.ps1",
-      "sha256": "70e0268b1b7b68d4226f73c7aa83c2e9c0698aa98c5e3a22d0fe08ca833b9dfc"
+      "sha256": "4c490b244267b5831a9cb620882821d5708084289512e1d0cce72d2e70ce3c81"
     },
     {
       "path": "deployment/check_wheels.py",
