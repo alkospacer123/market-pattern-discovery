@@ -95,6 +95,7 @@ function Assert-TrustedBase([string]$PanelSid) {
     $p = Get-Content -Raw -LiteralPath $script:RuntimeProvenance | ConvertFrom-Json
     if ($p.schema_id -cne 'cc03.python-base.v2' -or $p.b_only_approved -ne $true -or
         $p.release -cne 'CPython-3.12.10-amd64-full' -or $p.distribution_id -cne 'pythoncore-3.12-64' -or
+        $p.control_center_root -ne $script:ControlCenterRoot -or $p.panel_sid -ne $PanelSid -or
         $p.source_uri -cne $script:PythonCoreUri -or $p.archive_sha256 -cne $script:PythonCoreHash -or
         $p.archive_size -ne $script:PythonCoreSize -or
         $p.supporting_media.source_uri -cne 'https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe') { throw 'RUNTIME_PROVENANCE_REQUIRED' }

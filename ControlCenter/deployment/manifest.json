@@ -107,7 +107,7 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "6192d223fbf29648cc441a15a9378cfcaf7f6ff355f40b4cec384ddbd75eb392"
+      "sha256": "2142605e82388c89ea4cdbc2347283e040ac7130cad928f1bd517c21ac5cdca7"
     },
     {
       "path": "ci/file_open_trace.py",
@@ -155,7 +155,7 @@
     },
     {
       "path": "deployment/Provision-PythonCore.ps1",
-      "sha256": "281a880061edb2a8d1f9bf3647aaacf3bfc3e2c3187d92de149e55b408888f09"
+      "sha256": "a29cbb11c5955af53ee5ca4407bf902f8734873300d47937d04785a847c740b4"
     },
     {
       "path": "deployment/PythonCoreArchive.ps1",
@@ -163,7 +163,7 @@
     },
     {
       "path": "deployment/PythonRuntime.ps1",
-      "sha256": "4b0674490d0c3ad7420781946f909b1f6ac96fea8e98c32c205eb736796fd9a4"
+      "sha256": "46952ceebe6c49f6bd278d7036b351fdf400e5f76830c77f7d3a23a779c586e5"
     },
     {
       "path": "deployment/Start-Exporter.ps1",
@@ -271,7 +271,7 @@
     },
     {
       "path": "docs/CC03_PYTHON312_BASE.md",
-      "sha256": "9ac2206e024ef90181b547017e7a2c736b120821155c762cdc9aa8aff1e11b9e"
+      "sha256": "5b788d597badacef927b9e80911f792aab1c473085e3486fc0ccef1dd92dc810"
     },
     {
       "path": "docs/CC03_READONLY_EXPORT_SCHEMA.json",

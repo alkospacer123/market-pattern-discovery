@@ -379,6 +379,11 @@ try {
     Expect-Failure { Assert-TrustedBase $panelSid } 'ZIP_HASH_MISMATCH'
     Copy-Item -LiteralPath $sourceZip -Destination $retainedZip -Force
     $provenance = $savedProvenance | ConvertFrom-Json
+    $provenance.panel_sid = 'S-1-5-21-1-2-3-1234'
+    $provenance | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $script:RuntimeProvenance -Encoding ASCII
+    Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_PROVENANCE_REQUIRED'
+    Set-Content -LiteralPath $script:RuntimeProvenance -Value $savedProvenance -Encoding ASCII
+    $provenance = $savedProvenance | ConvertFrom-Json
     $provenance.schema_id = 'cc03.python-base.v1'
     $provenance | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $script:RuntimeProvenance -Encoding ASCII
     Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_PROVENANCE_REQUIRED'

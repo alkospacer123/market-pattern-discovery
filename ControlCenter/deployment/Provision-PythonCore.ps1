@@ -104,7 +104,8 @@ try {
         }
     } finally { $zip.Dispose() }
     $provenance = @{schema_id='cc03.python-base.v2';b_only_approved=$true;release='CPython-3.12.10-amd64-full';
-        distribution_id='pythoncore-3.12-64';source_uri=$script:PythonCoreUri;archive_sha256=$script:PythonCoreHash;
+        distribution_id='pythoncore-3.12-64';control_center_root=$script:ControlCenterRoot;panel_sid=$PanelSid;
+        source_uri=$script:PythonCoreUri;archive_sha256=$script:PythonCoreHash;
         archive_size=$script:PythonCoreSize;review_reference=$approval.review_reference;files=$records;
         supporting_media=@{source_uri='https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe';sha256=$approval.supporting_media_sha256}}
     $bytes = [Text.Encoding]::UTF8.GetBytes(($provenance | ConvertTo-Json -Depth 6))

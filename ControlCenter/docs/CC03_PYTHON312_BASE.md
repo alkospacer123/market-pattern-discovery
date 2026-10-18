@@ -38,6 +38,8 @@ The v1 EXE-source schema is rejected. The generated v2 record contains:
   "b_only_approved": true,
   "release": "CPython-3.12.10-amd64-full",
   "distribution_id": "pythoncore-3.12-64",
+  "control_center_root": "C:\\Control Center",
+  "panel_sid": "<existing independently checked ccpanel SID>",
   "source_uri": "https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.zip",
   "archive_sha256": "8649692de846c56a7189d6dae5c322ab20deb1b5908b6f39426b62a36f39415d",
   "archive_size": 32399361,
@@ -58,6 +60,11 @@ execution. Supporting EXE hash and valid PSF organizational Authenticode signatu
 are checked separately. `-I -B` verifies exact executable, `_base_executable`,
 `base_prefix`, `prefix`, version/x64 and encodings/ssl/venv/ensurepip/pip origins.
 Start and Verify revalidate these boundaries and exact venv binding.
+Provenance is bound to the exact CC root and panel SID. Hosted CI records name
+their disposable root/SID and cannot serve as physical Intel approval. Within one
+script invocation only ZIP entry inventory may be reused after rechecking full
+archive size/SHA on every call; callers receive copies. Runtime tree/ACL checks
+are never cached.
 
 Existing standard, enabled `ccpanel` SID is required. Control Center/runtime/base/
 provenance and intermediate ancestors retain protected admin/SYSTEM ownership
