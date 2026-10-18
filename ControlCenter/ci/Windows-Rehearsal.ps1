@@ -454,22 +454,25 @@ try {
     $originalPythonPath = $env:PYTHONPATH
     $originalPythonHome = $env:PYTHONHOME
     $originalPipTarget = $env:PIP_TARGET
+    $originalTmpDir = [Environment]::GetEnvironmentVariable('TMPDIR')
     Push-Location $poison
     try {
         $env:PYTHONPATH = $poison
         $env:PYTHONHOME = $unrelated
         $env:PIP_TARGET = $canaryRoot
+        $env:TMPDIR = $canaryRoot
         & "$package\deployment\Install.ps1" -Execute -PanelSid $panelSid -Wheelhouse $wheelhouse
         if ($LASTEXITCODE -ne 0) { throw 'INSTALL_FAILED' }
-        if ($env:PYTHONPATH -ne $poison -or $env:PYTHONHOME -ne $unrelated -or $env:PIP_TARGET -ne $canaryRoot -or (Get-Location).Path -ne $poison) { throw 'INSTALL_CALLER_ENVIRONMENT_NOT_RESTORED' }
+        if ($env:PYTHONPATH -ne $poison -or $env:PYTHONHOME -ne $unrelated -or $env:PIP_TARGET -ne $canaryRoot -or $env:TMPDIR -ne $canaryRoot -or (Get-Location).Path -ne $poison) { throw 'INSTALL_CALLER_ENVIRONMENT_NOT_RESTORED' }
     } finally {
         $env:PYTHONPATH = $originalPythonPath
         $env:PYTHONHOME = $originalPythonHome
         $env:PIP_TARGET = $originalPipTarget
+        [Environment]::SetEnvironmentVariable('TMPDIR',$originalTmpDir,'Process')
         Pop-Location
     }
     if (@(Get-ChildItem -Force -LiteralPath $poison).Count -ne 2 -or @(Get-ChildItem -Force -LiteralPath $canaryRoot).Count -ne 6) { throw 'INSTALL_WROTE_OUTSIDE_OWN_TARGETS' }
-    $results['installer_environment'] = 'PASS: hostile PYTHONHOME/PYTHONPATH/PIP_TARGET and caller CWD ignored for venv/ensurepip/pip; caller environment/location restored; zero outside writes'
+    $results['installer_environment'] = 'PASS: hostile PYTHONHOME/PYTHONPATH/PIP_TARGET/TMPDIR and caller CWD ignored for venv/ensurepip/pip; caller environment/location restored; zero outside writes'
     & "$script:VenvRoot\Scripts\python.exe" -c "import sys,struct; print('REHEARSAL_PYTHON='+sys.version); assert sys.version_info[:3]==(3,12,10) and struct.calcsize('P')==8"
     if ($LASTEXITCODE -ne 0) { throw 'REHEARSAL_PYTHON_VERSION_MISMATCH' }
     $results['install'] = 'PASS: real offline install from exact protected full CPython base, complete hashed runtime lock'
