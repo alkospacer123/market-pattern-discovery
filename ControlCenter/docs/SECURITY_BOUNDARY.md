@@ -1,3 +1,5 @@
+> Актуальное дополнение CC-03 C: [manual WINDOWS_OS_ONLY](CC03_MANUAL_OS_SOURCE.md) подключает fixed Task/process helper по кнопке под ccpanel с отдельной policy в app/deployment; без exporter/private/legacy I/O. Ниже сохранено описание прежнего receiver/standalone пути.
+
 # Граница безопасности — CC-03
 
 Изменения исключительно ControlCenter. TradingSystemLab/IntradayLab byte/Git trees защищены. No strategy/frozen/risk/execution/trading authorization changes. Нет FINAM client, Trading Token, production SQLite/WAL open, robot Task mutation, production service launch, rearm/order/cancel/flatten. UI не управляет брокерскими позициями. Все десять controls disabled без handlers.

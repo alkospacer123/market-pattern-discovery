@@ -19,6 +19,20 @@ try {
     $p = [Console]::In.ReadToEnd() | ConvertFrom-Json
     $task = Row 'UNKNOWN' 'UNAVAILABLE' $null
     $process = Row 'UNKNOWN' 'DISABLED' $null
+    # Manual C uses the same standard primary ccpanel as the panel. Fail before
+    # any Task/PID query; this is a read-only account/token check, no ACL repair.
+    if ($p.PSObject.Properties.Name -contains 'require_ccpanel') {
+        if ($p.require_ccpanel -cne $true) { throw 'CCPANEL_REQUIRED' }
+        . "$PSScriptRoot\..\deployment\PanelIdentity.ps1"
+        $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+        if ($identity.User.Value -ne $p.observer_sid -or
+            $identity.ImpersonationLevel -ne [Security.Principal.TokenImpersonationLevel]::None -or
+            (Get-CCPanelState $p.observer_sid) -ne 'CCPANEL_ENABLED') {
+            @{task=(Row 'UNKNOWN' 'ACCESS_DENIED' $null);process=(Row 'UNKNOWN' 'ACCESS_DENIED' $null)} |
+                ConvertTo-Json -Compress -Depth 5
+            exit 0
+        }
+    }
     try {
         $service = New-Object -ComObject 'Schedule.Service'
         $service.Connect() # local host, current low-privilege identity only
@@ -41,7 +55,8 @@ try {
         $reason = if ($code -eq 2 -or $code -eq 3) {'NOT_FOUND'} elseif ($code -eq 5) {'ACCESS_DENIED'} else {'UNAVAILABLE'}
         $task = Row 'UNKNOWN' $reason $null
     }
-    if ($p.process_enabled) {
+    if ($p.process_enabled -and $task.state -eq 'UNKNOWN') { $process=Row 'UNKNOWN' 'UNAPPROVED' $null }
+    if ($p.process_enabled -and $task.state -ne 'UNKNOWN') {
         try {
             # Exact approved PID + creation epoch; PID reuse cannot satisfy identity.
             # No wildcard/name discovery, command invocation or environment read.
@@ -73,6 +88,22 @@ try {
             elseif ($uncertain) { $process=Row 'UNKNOWN' $(if ($denied) {'ACCESS_DENIED'} else {'IDENTITY_MISMATCH'}) $null }
             else { $process=Row 'PROCESS_ABSENT' 'NOT_FOUND' $p.process_command_sha256 }
         } catch { $process=Row 'UNKNOWN' 'UNAVAILABLE' $null }
+    }
+    # One helper invocation brackets the optional PID read with the same exact
+    # Task. State/XML/principal drift clears BOTH positive facts, never retries.
+    if ($task.state -ne 'UNKNOWN') {
+        try {
+            $final = $service.GetFolder('\').GetTask([string]$p.task_name)
+            if ((Digest ([string]$final.Xml)) -ne $fingerprint -or
+                (Sid ([string]$final.Definition.Principal.UserId)) -ne $principal -or
+                [int]$final.State -ne $state) {
+                $task=Row 'UNKNOWN' 'CHANGED' $null
+                $process=Row 'UNKNOWN' 'CHANGED' $null
+            }
+        } catch {
+            $task=Row 'UNKNOWN' 'UNAVAILABLE' $null
+            $process=Row 'UNKNOWN' 'UNAVAILABLE' $null
+        }
     }
     @{task=$task;process=$process} | ConvertTo-Json -Compress -Depth 5
 } catch { [Console]::Out.Write('{}'); exit 1 }

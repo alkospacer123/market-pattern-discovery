@@ -25,7 +25,7 @@ def build_bundle(evidence):
             relative = Path(entry['path'])
             assert not relative.is_absolute() and '..' not in relative.parts
             assert relative.name not in {'os-policy.json', 'source-policy.json',
-                                         'receiver-policy.json', 'preflight-policy.json'}
+                                         'receiver-policy.json', 'preflight-policy.json', 'manual-os-policy.json'}
             name = 'ControlCenter/' + relative.as_posix()
             assert name not in names
             names.add(name)
@@ -67,6 +67,7 @@ def main():
     # Fail early on package-byte defects before repeating the full native suite.
     bundle, bundle_file_count = build_bundle(evidence)
     commands = [
+        ('scope-audit', [sys.executable, 'ci/scope_audit.py']),
         ('host', ['powershell', '-NoProfile', '-Command',
                   "Get-CimInstance Win32_OperatingSystem | Select Caption,Version,BuildNumber | Format-List; "
                   "Get-Volume | Where DriveLetter -in @((Get-Item .).PSDrive.Name, (Get-Item $env:RUNNER_TEMP).PSDrive.Name) | Select DriveLetter,FileSystem | Format-Table; whoami /user; whoami /priv"]),
@@ -82,6 +83,9 @@ def main():
         ('intel-preflight', [sys.executable, '-m', 'pytest', '-v', '-ra',
                             'tests/test_intel_preflight.py', 'tests/test_intel_preflight_native.py',
                             f'--junitxml={evidence / "intel-preflight.xml"}']),
+        ('manual-os', [sys.executable, '-m', 'pytest', '-v', '-ra', '-s',
+                       'tests/test_manual_os.py','tests/test_manual_os_native.py',
+                       f'--junitxml={evidence / "manual-os.xml"}']),
         ('full-suite', [sys.executable, '-m', 'pytest', '-q',
                         f'--junitxml={evidence / "full-suite.xml"}']),
         ('manifest', [sys.executable, 'deployment/manifest.py', '--check']),
@@ -116,7 +120,7 @@ def main():
         print(output, flush=True)
         (evidence / f'{name}.log').write_text(output, encoding='utf-8')
         results[name] = dict(exit_code=exit_code)
-    for name in ('windows-reader', 'windows-transport', 'cc03-source', 'os-observer', 'intel-preflight', 'full-suite'):
+    for name in ('windows-reader', 'windows-transport', 'cc03-source', 'os-observer', 'intel-preflight', 'manual-os', 'full-suite'):
         path = evidence / f'{name}.xml'
         if not path.exists():
             results[name]['missing_junit'] = True
@@ -139,6 +143,7 @@ def main():
                       original_legacy_replace_requirements='NOT_PASSED: conflicts reproduced, not fixed',
                       native_transport_and_deployment='NEEDS_FIX' if failed else 'PASS',
                       windows_os_observer='NEEDS_FIX' if failed else 'PASS: OS facts only; physical source binding not executed',
+                      manual_os_source='NEEDS_FIX' if failed else 'PASS: manual one-shot; session-local; source/account UNVERIFIED',
                       metadata_source='CC03_METADATA_COMPATIBILITY_BLOCKED: expected-conflict regression is not noninterference acceptance',
                       runtime_retention='DISABLED: bounded stop, no deletion',
                       intel_readonly_preflight='NEEDS_FIX' if failed else 'PASS: disposable hosted sources only',

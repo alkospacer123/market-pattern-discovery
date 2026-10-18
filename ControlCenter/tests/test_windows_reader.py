@@ -151,8 +151,9 @@ def test_native_legacy_replace_conflict_requires_live_block(tmp_path):
     try:
         with pytest.raises(OSError): path.write_bytes(b'{')
         replacement = tmp_path / 'new.json'; replacement.write_bytes(b'{ }')
-        with pytest.raises(PermissionError):
+        with pytest.raises(PermissionError) as conflict:
             os.replace(replacement, path)
+        assert conflict.value.winerror == 5
         assert api.read(handle, 131072) == b'{}'
     finally:
         api.close(handle)
@@ -214,8 +215,9 @@ def test_native_legacy_concurrent_conflict_and_release(tmp_path):
             data = super().read(handle, maximum)
             os.replace(replacement, path)  # Legacy conflict must remain visible.
             return data
-    with pytest.raises(PermissionError):
+    with pytest.raises(PermissionError) as conflict:
         win._read_native(str(tmp_path), path.name, 131072, ReplacingAPI())
+    assert conflict.value.winerror == 5
     # Every reader handle closed even on conflict; producer resumes unchanged.
     os.replace(replacement, path)
     assert path.read_bytes() == b'{ }'

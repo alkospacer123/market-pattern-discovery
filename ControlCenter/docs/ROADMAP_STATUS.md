@@ -1,4 +1,6 @@
-# Roadmap Control Center — CC-03 Intel READONLY preflight preparation
+# Roadmap Control Center — CC-03 manual H1 OS source
+
+Актуальная база main `9506d5c8790d4d3b3eabb629d38532a581051e54`, #549 merged. [Ручной источник C и проверки](CC03_MANUAL_OS_SOURCE.md), [отдельная физическая готовность](CC03_MANUAL_OS_INSTALLATION_READINESS.md). Только инженерный Draft; A продолжается отдельно, B/C physical не разрешены. Следующие исторические checkpoints не являются доказательством нового HEAD.
 
 Основание [#524](https://github.com/alkospacer123/market-pattern-discovery/issues/524). Новые этапы не создаются. #541 MERGED в actual main `c9dea4e1fb728c97c3c14e70ae75adab6e6cfc94`; предыдущие native Windows результаты: 375 PASS / 0 FAIL / 15 POSIX-only SKIP, observer 37 PASS, synthetic noninterference 500/500. Это hosted evidence, не новая физическая проверка Intel.
 

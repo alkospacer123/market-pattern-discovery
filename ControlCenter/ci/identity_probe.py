@@ -62,6 +62,39 @@ def main():
     child = subprocess.run([sys.executable, '-c', child_gate], capture_output=True, text=True, timeout=10)
     assert child.returncode == 0 and child.stdout.strip() == 'ACQUIRED', (child.stdout, child.stderr)
     print('LOW_SID_LOCAL_PIPE_GATE_ACQUIRE_CONTEND_RELEASE=PASS',flush=True)
+    # Native protected C policy -> one unmodified standard-ccpanel helper ->
+    # session-only conversion. Only CI maps the production Task name to UUIDs.
+    from datetime import datetime, timezone, timedelta
+    from cc.providers import h1_windows_os as manual
+    from cc.providers.h1_export import age_export_snapshot
+    location=json.loads((Path(os.environ['CC03_CI_DISPOSABLE_ROOT'])/'manual-policy-location.json').read_text())
+    manual.POLICY_ROOT=Path(location['root'])
+    real_facts=manual.os_facts
+    for name in ('Ready','Denied'):
+        manual.POLICY_NAME=name+'-manual-os-policy.json'
+        p=manual.installed_policy()  # real secure spawned reader, every ancestor/leaf checked
+        assert p['observer_sid']==sid and p['process_binding'] is None
+        calls=[]
+        def disposable_facts(q):
+            calls.append(q)
+            assert q['require_ccpanel'] is True and q['observer_sid']==sid
+            return real_facts(dict(q,task_name=fixtures[name]['task_name']))
+        manual.os_facts=disposable_facts
+        result,accepted=manual.manual_os_refresh(datetime.now(timezone.utc))
+        assert accepted and len(calls)==1, (accepted,result)
+        assert result.status.state=='UNKNOWN' and result.status.heartbeat_at is None
+        assert result.status.trading_allowed is None and result.positions is None
+        if name=='Ready':
+            assert result.status.task_state=='TASK_READY',result
+            expired=age_export_snapshot(result,result.readonly_expires_at+timedelta(seconds=1))
+            assert expired.status.task_state is None and expired.windows_observations[0].freshness=='STALE'
+        else:
+            assert result.status.task_state is None and result.windows_observations[0].reason=='ACCESS_DENIED',result
+        assert all(r.state=='UNKNOWN' for r in result.windows_observations[1:])
+    manual.os_facts=real_facts
+    # Zero export writes: panel retains only its session-local immutable result.
+    assert not list((Path(os.environ['CC03_CI_DISPOSABLE_ROOT'])/'data/export').glob('h1-*.json'))
+    print('LOW_SID_MANUAL_C_PROTECTED_POLICY_ONE_HELPER_READY_DENIED_TTL_NO_EXPORT=PASS',flush=True)
     # Permission-A preflight runs under the actual standard ccpanel token. The policy
     # remains fixed to H1; this CI-only adapter selects only UUID fixtures.
     from observer import intel_preflight as preflight

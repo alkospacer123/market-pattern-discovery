@@ -21,13 +21,14 @@ SAFE_ERROR = 'CC03_SOURCE_UNKNOWN_OR_UNAVAILABLE'
 # No polling, retries, background threads, or H1/FINAM access here.
 _MANUAL_EXPORT_GATE = Lock()
 
-def unchecked_export_snapshot(now: datetime):
+def unchecked_export_snapshot(now: datetime, *, windows_os=False):
     """Unobserved H1: render UNKNOWN without opening any file or invoking a provider."""
-    p = DataProvenance(RobotId.H1, 'UNBOUND-H1', 'READONLY_EXPORT/H1', None, now,
-                       synthetic=False, source_kind=SourceKind.READONLY_EXPORT)
+    kind = SourceKind.WINDOWS_OS_ONLY if windows_os else SourceKind.READONLY_EXPORT
+    p = DataProvenance(RobotId.H1, 'UNBOUND-H1', kind.value + '/H1', None, now,
+                       synthetic=False, source_kind=kind)
     return RobotSnapshot(
         RobotStatus(p, State.UNKNOWN, 'TradingSystemLab', 'T3/H1/TRAIL1', ACTIVE,
-                    None, None, None, False, None, None, None),
+                    None, None, None, None if windows_os else False, None, None, None),
         tuple(InstrumentStatus(p, name, State.UNKNOWN, None, 'NOT_CHECKED', None, None)
               for name in ('USDRUBF', 'CNYRUBF', 'GLDRUBF', 'IMOEXF')),
         (), (), (), None, RiskSnapshot(p, None, None, None, None, 'NOT_CHECKED'),
@@ -37,17 +38,19 @@ def unchecked_export_snapshot(now: datetime):
 
 
 
-def manual_export_refresh(now: datetime):
+def manual_export_refresh(now: datetime, reader=None, *, windows_os=False):
     """One bounded CC-owned read per click; concurrent attempts fail closed."""
     if not _MANUAL_EXPORT_GATE.acquire(blocking=False):
-        return unchecked_export_snapshot(now), False
+        return unchecked_export_snapshot(now, windows_os=windows_os), False
     try:
         with export_gate() as acquired:
             if not acquired:
-                return unchecked_export_snapshot(now), False
-            return H1ExportProvider().snapshot(RobotId.H1, 'READONLY_EXPORT', now), True
+                return unchecked_export_snapshot(now, windows_os=windows_os), False
+            snapshot = (H1ExportProvider().snapshot(RobotId.H1, 'READONLY_EXPORT', now)
+                        if reader is None else reader())
+            return snapshot, True
     except Exception:
-        return unchecked_export_snapshot(now), False
+        return unchecked_export_snapshot(now, windows_os=windows_os), False
     finally:
         _MANUAL_EXPORT_GATE.release()
 
@@ -211,7 +214,7 @@ class H1ExportProvider:
                                             for r in observations]))
 
 
-def os_snapshot(value, policy, now):
+def os_snapshot(value, policy, now, *, manual=False):
     validate(value, OS_SCHEMA)
     check_semantics(value, timestamp)
     generated = timestamp(value['generated_at'])
@@ -220,8 +223,9 @@ def os_snapshot(value, policy, now):
             identity['source_id'] != policy.source_id or identity['account_alias'] != policy.account_alias or
             identity['binding_id'] != policy.binding_id):
         raise ValueError('OS_SOURCE_UNAPPROVED')
-    p = DataProvenance(RobotId.H1, policy.account_alias, 'READONLY_EXPORT/H1', generated, now,
-                       synthetic=False, source_kind=SourceKind.READONLY_EXPORT,
+    kind = SourceKind.WINDOWS_OS_ONLY if manual else SourceKind.READONLY_EXPORT
+    p = DataProvenance(RobotId.H1, policy.account_alias, kind.value + '/H1', generated, now,
+                       synthetic=False, source_kind=kind,
                        snapshot_ttl_seconds=policy.snapshot, heartbeat_ttl_seconds=None)
     rows = []
     for name in OS_GROUPS:
@@ -245,6 +249,7 @@ def os_snapshot(value, policy, now):
         (), (), (), None, RiskSnapshot(p, None, None, None, None, 'ACCOUNT_AUTHORITY_UNKNOWN'),
         PortfolioSnapshot(p, None, None, None, None, None, None), None,
         (SystemAlert(p, None, now, 'SOURCE', 'WARNING', 'WINDOWS_OS_ONLY_NO_ROBOT_OR_BROKER_AUTHORITY'),),
-        readonly_identity=identity['source_id'] + ' · source binding matched local receiver policy · account UNVERIFIED',
+        readonly_identity=identity['source_id'] + (' · declared source/account UNVERIFIED; OS pins matched local manual policy'
+                         if manual else ' · source binding matched local receiver policy · account UNVERIFIED'),
         windows_observations=tuple(rows),
         readonly_expires_at=expiry(p, [(r.observed_at, policy.os_observations) for r in rows]))

@@ -1,0 +1,14 @@
+{
+  "schema_id": "cc03.manual-os-policy.v1",
+  "manual_source_approved": false,
+  "observer_sid": null,
+  "task_name": "TradingSystemLab-Stage8-Production",
+  "task_xml_sha256": null,
+  "task_principal_sid": null,
+  "process_binding": null,
+  "source_id": null,
+  "account_alias": null,
+  "binding_id": null,
+  "snapshot_ttl_seconds": null,
+  "os_ttl_seconds": null
+}
