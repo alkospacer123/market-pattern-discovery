@@ -15,6 +15,25 @@ def main():
     actual=next(csv.reader([subprocess.check_output(['whoami','/user','/fo','csv','/nh'],text=True).strip()]))[1]
     assert actual == sys.argv[1] and not ctypes.windll.shell32.IsUserAnAdmin()
     print('PYTHON_ACTUAL_SID='+actual,flush=True)
+    import importlib
+    managed = Path(os.environ['CC03_CI_DISPOSABLE_ROOT'])
+    base = managed/'runtime/python312'
+    assert Path(sys.executable) == managed/'venv/Scripts/python.exe'
+    assert Path(sys.base_prefix) == base and Path(sys._base_executable) == base/'python.exe'
+    assert Path(sys.prefix) == managed/'venv'
+    assert 'include-system-site-packages = false' in (managed/'venv/pyvenv.cfg').read_text()
+    for name in ('venv','ensurepip','ssl','streamlit','plotly','pip'):
+        origin = Path(importlib.import_module(name).__file__)
+        assert origin.is_relative_to(base) or origin.is_relative_to(managed/'venv')
+    for denied in (managed/'protected-outside-cc/h1.sqlite3',
+                   managed/'protected-outside-cc/unrelated-user-profile/python.exe'):
+        try: denied.read_bytes()
+        except PermissionError: pass
+        else: raise AssertionError('OUTSIDE_RUNTIME_READ_ALLOWED')
+    print('LOW_SID_MANAGED_PYTHON_BASE_VENV_MODULES_H1_PROFILE_DENIAL=PASS',flush=True)
+    print(json.dumps(dict(executable=sys.executable,base_executable=sys._base_executable,
+                         base_prefix=sys.base_prefix,prefix=sys.prefix)),flush=True)
+
     from ctypes import wintypes as w
     u=ctypes.WinDLL('user32',use_last_error=True)
     u.GetProcessWindowStation.restype=w.HANDLE

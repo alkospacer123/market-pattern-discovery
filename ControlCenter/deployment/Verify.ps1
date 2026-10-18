@@ -4,7 +4,8 @@ param([switch]$Execute, [string]$PanelSid)
 if (-not $Execute) { Write-Output 'PREVIEW: READONLY package/ACL/dependency/listener/source checks; no H1 Task/state/database read or change.'; return }
 $null = Get-Manifest $script:AppRoot
 Assert-LayoutACL $PanelSid
-& "$script:VenvRoot\Scripts\python.exe" -m pip check
+Assert-PanelVenv $PanelSid
+& "$script:VenvRoot\Scripts\python.exe" -I -B -m pip check
 if ($LASTEXITCODE -ne 0) { throw 'DEPENDENCIES_INVALID' }
 $listener = @(Get-NetTCPConnection -LocalPort 8501 -State Listen -ErrorAction SilentlyContinue)
 if ($listener.Count -ne 1 -or $listener[0].LocalAddress -ne '127.0.0.1') { throw 'LOOPBACK_LISTENER_REQUIRED' }

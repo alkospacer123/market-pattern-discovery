@@ -112,7 +112,7 @@ def main():
                 str(Path(environment['PROGRAMFILES']) / 'WindowsPowerShell/Modules')])
         try:
             completed = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                       encoding='utf-8', errors='replace', timeout=360, env=environment)
+                                       encoding='utf-8', errors='replace', timeout=600 if name == 'powershell-rehearsal' else 360, env=environment)
             output, exit_code = completed.stdout, completed.returncode
         except subprocess.TimeoutExpired as exc:
             output = (exc.stdout or b'').decode('utf-8', errors='replace') + '\nACCEPTANCE_COMMAND_TIMEOUT'

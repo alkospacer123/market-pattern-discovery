@@ -14,7 +14,7 @@ EXCLUDED_PARTS = {'.git', '.venv', '__pycache__', '.pytest_cache', 'wheelhouse'}
 # The protected, frozen source package on Intel is staged directly under
 # C:\Control Center; app, venv and data are separate CC-owned runtime roots.
 # Do not hash installed runtime bytes as part of the immutable source package.
-RUNTIME_ROOTS = {'app', 'venv', 'data'}
+RUNTIME_ROOTS = {'app', 'venv', 'data', 'runtime'}
 
 
 def entries():

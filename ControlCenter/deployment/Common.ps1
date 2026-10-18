@@ -33,6 +33,7 @@ if (-not [string]::IsNullOrWhiteSpace($env:CC03_CI_DISPOSABLE_ROOT)) {
     $temporary = [IO.Path]::GetFullPath($env:RUNNER_TEMP).TrimEnd('\') + '\'
     if (-not $sandbox.StartsWith($temporary, [StringComparison]::OrdinalIgnoreCase) -or (Split-Path $sandbox -Leaf) -notmatch '^CC03-[a-f0-9]{32}$') { throw 'DISPOSABLE_ROOT_OUTSIDE_RUNNER_TEMP' }
     Assert-PlainPath $sandbox
+    $script:ControlCenterRoot = $sandbox
     $script:AppRoot = Join-Path $sandbox 'app'
     $script:VenvRoot = Join-Path $sandbox 'venv'
     $script:DataRoot = Join-Path $sandbox 'data'
@@ -111,3 +112,10 @@ function Assert-CurrentIdentity([string]$ExpectedSid) {
     if ($identity.ImpersonationLevel -ne [Security.Principal.TokenImpersonationLevel]::None) { throw 'PRIMARY_TOKEN_REQUIRED' }
     if (-not (Test-CCStandardIdentity $identity)) { throw 'NON_ADMINISTRATOR_REQUIRED' }
 }
+
+# The full base is preprovisioned by a separately approved B operation only.
+$script:RuntimeRoot = Join-Path $script:ControlCenterRoot 'runtime'
+$script:BaseRoot = Join-Path $script:RuntimeRoot 'python312'
+$script:BasePython = Join-Path $script:BaseRoot 'python.exe'
+$script:RuntimeProvenance = Join-Path $script:RuntimeRoot 'python312.provenance.json'
+. "$PSScriptRoot\PythonRuntime.ps1"

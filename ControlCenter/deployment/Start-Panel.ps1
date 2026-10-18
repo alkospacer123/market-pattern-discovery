@@ -3,6 +3,7 @@ param([switch]$Execute, [string]$PanelSid)
 . "$PSScriptRoot\Common.ps1"
 if (-not $Execute) { Write-Output 'PREVIEW: foreground Streamlit on 127.0.0.1:8501, CORS/XSRF enabled; only panel process.'; return }
 Assert-CurrentIdentity $PanelSid
+Assert-PanelVenv $PanelSid
 Assert-ACL $script:DataRoot $PanelSid 'parent'
 if (Test-Path -LiteralPath "$script:AppRoot\deployment\receiver-policy.json") {
     Assert-ACL "$script:AppRoot\deployment\receiver-policy.json" $PanelSid 'app'
