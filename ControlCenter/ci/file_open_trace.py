@@ -6,6 +6,7 @@ Missing positive controls or any lost events is a failure, never a skipped test.
 from contextlib import contextmanager
 import ctypes
 from ctypes import wintypes as w
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -82,6 +83,11 @@ def file_create_trace(root):
                 pid=int(execution.get('ProcessID','0')) if execution is not None else 0,
                 values=values, xml=ET.tostring(event,encoding='unicode')))
         assert records, 'ETW_EMPTY_TRACE'
+        relevant=[{k:v for k,v in record.items() if k!='xml'} for record in records
+                  if any(term in record['xml'].casefold() for term in (
+                      'parent-positive','ps-positive','stage8-12-4-production-heartbeat','next.tmp'))]
+        (Path(os.environ['RUNNER_TEMP'])/'cc03-evidence'/(name+'.json')).write_text(
+            json.dumps(dict(final_counters=counters,records=relevant),indent=2),encoding='utf-8')
         # Keep a compact report; raw trace stays in disposable RUNNER_TEMP.
         report = Path(os.environ['RUNNER_TEMP']) / 'cc03-evidence' / 'file-create-trace-summary.txt'
         with report.open('a',encoding='utf-8') as out:

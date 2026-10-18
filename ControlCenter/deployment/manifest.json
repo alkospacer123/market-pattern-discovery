@@ -107,7 +107,7 @@
     },
     {
       "path": "ci/file_open_trace.py",
-      "sha256": "9d71ab420135c34ebf7db9b8f44be4802cbf2b3d378a6c0581d98ed32d73b9f4"
+      "sha256": "16f177550d2377d3dee134d220c1b1f156005f5e6055c198af83565234af617e"
     },
     {
       "path": "ci/identity_probe.py",
@@ -231,7 +231,7 @@
     },
     {
       "path": "docs/CC03_MANUAL_OS_SOURCE.md",
-      "sha256": "2ed6c9127494194ea94ca5a0c7c3f0ee056f7fd2a954506a034adec8fd2179d8"
+      "sha256": "b82d173648a75e170a4a7dd4b705aafe7dbbeea4e4768560778e879aa66ba979"
     },
     {
       "path": "docs/CC03_OS_ACCEPTANCE.md",
@@ -423,7 +423,7 @@
     },
     {
       "path": "tests/test_manual_os_native.py",
-      "sha256": "00b11a0928c9b5b57e62f38e9303fac14e50ac9c94f5c1edff9dc34f8d09fbc0"
+      "sha256": "7057a709e6bb2c68a81063998eccfee0408c1290e86c5305e53dc6b78b0bb240"
     },
     {
       "path": "tests/test_os_observer.py",
