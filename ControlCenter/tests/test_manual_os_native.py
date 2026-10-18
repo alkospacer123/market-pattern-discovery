@@ -31,7 +31,8 @@ def replace_producer(root,stop,started,send):
             os.replace(temporary,path)
             i+=1;started.set();time.sleep(.003)
         send.send(dict(replacements=i,errors=[]))
-    except BaseException as exc:send.send(dict(replacements=i,errors=[repr(exc)]))
+    except BaseException as exc:send.send(dict(replacements=i,errors=[dict(
+        type=type(exc).__name__,winerror=getattr(exc,'winerror',None),errno=getattr(exc,'errno',None))]))
     finally:send.close()
 
 
@@ -86,34 +87,20 @@ def test_native_manual_diagnostic_and_path_attributes_with_replace_zero_legacy_o
             assert snapshot.windows_observations[1].state=='PROCESS_OBSERVED'
             assert producer.is_alive()
             parent_control.read_bytes()
+            stop.set();producer.join(15)
+            assert not producer.is_alive() and producer.exitcode==0 and receive.poll(1)
+            done=receive.recv()
+            assert not done['errors'] and done['replacements']>=500,done
         assert any(e['pid']==os.getpid() for e in events_for(trace,parent_control)), 'PARENT_OPEN_POSITIVE_CONTROL_NOT_CAPTURED'
         assert any(e['pid'] in powershell_pids for e in events_for(trace,ps_control)), 'POWERSHELL_OPEN_POSITIVE_CONTROL_NOT_CAPTURED'
         assert len(powershell_pids)==2, 'EXPECTED_ONE_CONTROL_AND_ONE_DIAGNOSTIC'
         # Attribute events by native PID, excluding only the independent producer.
         # Includes BOTH panel Python and every fixed-helper PowerShell child.
         assert not [e for e in events_for(trace,legacy) if e['pid'] in observed_pids], 'LEGACY_FILE_OPEN_DETECTED'
-        # Separate rejected path-attributes experiment AFTER the runtime audit.
-        # Run 39111630879 proved that GetFileAttributesExW can emit kernel Create
-        # events despite not exposing a caller-owned handle. Never call it a
-        # zero-open path or include it in the source/observer trace acceptance.
-        kernel=ctypes.WinDLL('kernel32',use_last_error=True)
-        kernel.GetFileAttributesExW.argtypes=[w.LPCWSTR,ctypes.c_int,w.LPVOID]
-        kernel.GetFileAttributesExW.restype=w.BOOL
-        class Attributes(ctypes.Structure):
-            _fields_=[('attributes',w.DWORD),('created',w.FILETIME),('accessed',w.FILETIME),
-                      ('modified',w.FILETIME),('size_high',w.DWORD),('size_low',w.DWORD)]
-        for _ in range(500):
-            data=Attributes()
-            assert kernel.GetFileAttributesExW(str(legacy),0,ctypes.byref(data)),ctypes.get_last_error()
-        stop.set();producer.join(15)
-        assert not producer.is_alive() and producer.exitcode==0 and receive.poll(1)
-        done=receive.recv()
-        assert not done['errors'] and done['replacements']>=500,done
         evidence=dict(replacements=done['replacements'],producer_errors=len(done['errors']),legacy_opens=0,
             observer_pids=observed_pids,producer_pid=producer.pid,
             parent_positive_opens=len(events_for(trace,parent_control)),
             powershell_positive_opens=len(events_for(trace,ps_control)),
-            path_attribute_calls_outside_runtime_audit=500,path_attributes='NOT_ACCEPTED_KERNEL_OPENS_OBSERVED',
             metadata_runtime='DISABLED',task_process='OS_ONLY')
         (Path(os.environ['RUNNER_TEMP'])/'cc03-evidence/manual-os-noninterference.json').write_text(json.dumps(evidence,indent=2))
         print('MANUAL_OS_NATIVE_ZERO_LEGACY_OPENS='+json.dumps(evidence))
@@ -124,6 +111,45 @@ def test_native_manual_diagnostic_and_path_attributes_with_replace_zero_legacy_o
             if producer.is_alive():producer.terminate();producer.join(5)
         receive.close();send.close()
         child.terminate();child.wait(5)
+
+
+def test_native_rejected_path_attribute_experiment_records_conflicts_without_source_acceptance(tmp_path):
+    # Optional experiment, never part of the positive OS-source audit. Earlier
+    # runs 39111630879/39112369673 proved kernel opens AND real producer conflict.
+    # A run without collision cannot revoke that negative evidence.
+    path=tmp_path/'stage8-12-4-production-heartbeat.json';path.write_bytes(b'initial')
+    context=multiprocessing.get_context('spawn')
+    stop=context.Event();started=context.Event();receive,send=context.Pipe(False)
+    producer=context.Process(target=replace_producer,args=(str(tmp_path),stop,started,send))
+    try:
+        producer.start();send.close();assert started.wait(10)
+        kernel=ctypes.WinDLL('kernel32',use_last_error=True)
+        kernel.GetFileAttributesExW.argtypes=[w.LPCWSTR,ctypes.c_int,w.LPVOID]
+        kernel.GetFileAttributesExW.restype=w.BOOL
+        class Attributes(ctypes.Structure):
+            _fields_=[('attributes',w.DWORD),('created',w.FILETIME),('accessed',w.FILETIME),
+                      ('modified',w.FILETIME),('size_high',w.DWORD),('size_low',w.DWORD)]
+        unavailable=[]
+        for _ in range(5000):
+            data=Attributes()
+            if not kernel.GetFileAttributesExW(str(path),0,ctypes.byref(data)):
+                unavailable.append(ctypes.get_last_error())
+        stop.set();producer.join(15)
+        assert not producer.is_alive() and producer.exitcode==0 and receive.poll(1)
+        done=receive.recv()
+        assert all(e['type']=='PermissionError' and e['winerror'] in (5,32) for e in done['errors']),done
+        assert all(e in (2,3,5,32) for e in unavailable),unavailable
+        report=dict(classification='NOT_ACCEPTED',runtime='DISABLED',kernel_opens='PREVIOUSLY_OBSERVED',
+            producer=done,attribute_calls=5000,unavailable=unavailable,
+            explanation='A timing run without conflict cannot prove handle-free/noninterference')
+        (Path(os.environ['RUNNER_TEMP'])/'cc03-evidence/path-attributes-experiment.json').write_text(json.dumps(report,indent=2))
+        print('PATH_ATTRIBUTES_REJECTED_EXPERIMENT='+json.dumps(report))
+    finally:
+        stop.set()
+        if producer.pid is not None:
+            producer.join(15)
+            if producer.is_alive():producer.terminate();producer.join(5)
+        receive.close();send.close()
 
 
 def test_native_manual_rejects_real_elevated_identity_before_helper(manual_policy,monkeypatch):
