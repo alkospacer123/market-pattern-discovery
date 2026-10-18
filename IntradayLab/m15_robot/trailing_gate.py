@@ -10,7 +10,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from .grid_risk import TrailingState, ratchet_after_survived_completed_bar
-from .protective_gate import BrokerProtection, decide_protection
+from .protective_gate import BrokerProtection, M15ProtectionError, decide_protection
 from .spec import TRAILING_STOP_ATR
 
 
@@ -95,7 +95,7 @@ def confirm_trail(
             broker_position_qty=broker_position_qty, broker_stop=observed_stop,
             broker_stop_count=observed_stop_count,
         )
-    except ValueError:
+    except (ValueError, M15ProtectionError):
         raise M15TrailingGateError("M15_TRAIL_BROKER_STOP_INVALID") from None
     if decision.action != "HOLD_BROKER_CONFIRMED":
         raise M15TrailingGateError("M15_TRAIL_BROKER_COVERAGE_UNPROVEN")
