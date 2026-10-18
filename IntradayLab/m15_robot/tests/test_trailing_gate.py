@@ -78,7 +78,7 @@ class BrokerConfirmedTrailingOnly(unittest.TestCase):
 
     def test_nonactive_broker_ack_denied(self):
         p = propose()
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(M15TrailingGateError, "BROKER_STOP_INVALID"):
             confirm_trail(p, observed_stop=stop("108", active=False),
                           observed_stop_count=1, broker_position_qty=2,
                           price_step=Decimal("1"))
