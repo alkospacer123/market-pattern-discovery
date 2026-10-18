@@ -49,6 +49,46 @@ def _account(value: str) -> str:
     return value
 
 
+def _safe_request_stage(method: str, path: str) -> str:
+    """Constant-code stage tags; NEVER echo path, account, URL or symbol."""
+    if method == "POST" and path == "/v1/sessions":
+        return "SESSION_CREATE"
+    if method == "POST" and path == "/v1/sessions/details":
+        return "SESSION_DETAILS"
+    if method == "GET":
+        if path.startswith("/v1/accounts/"):
+            route = path.split("?", 1)[0]
+            if route.endswith("/orders"):
+                return "ACCOUNT_ORDERS"
+            if route.endswith("/trades"):
+                return "ACCOUNT_TRADES"
+            return "ACCOUNT"
+        if path.startswith("/v1/assets/"):
+            route = path.split("?", 1)[0]
+            if route.endswith("/params"):
+                return "ASSET_PARAMS"
+            if route.endswith("/schedule"):
+                return "ASSET_SCHEDULE"
+            return "ASSET_DETAILS"
+        if path.startswith("/v1/instruments/"):
+            return "INSTRUMENT_BARS"
+    return "UNRECOGNIZED"
+
+
+def _safe_http_status(status: object) -> str:
+    """Status digits only; no exception messages or network payloads."""
+    if type(status) is int and 400 <= status <= 599:
+        return str(status)
+    return "OTHER"
+
+
+def _http_failure(method: str, path: str, status: object) -> M15FinamReadOnlyError:
+    return M15FinamReadOnlyError(
+        "M15_FINAM_HTTP_" + _safe_request_stage(method, path)
+        + "_STATUS_" + _safe_http_status(status)
+    )
+
+
 class M15FinamReadOnlyAPI:
     BASE_URL = "https://api.finam.ru"
     def __init__(
@@ -110,15 +150,15 @@ class M15FinamReadOnlyAPI:
         for attempt in range(2 if allowed_get else 1):
             try:
                 response = self._transport(req, timeout=self._timeout)
-                raw = response.read()
                 if getattr(response, "status", 200) != 200:
-                    raise M15FinamReadOnlyError("M15_FINAM_HTTP_NON200")
+                    raise _http_failure(method, path, getattr(response, "status", None))
+                raw = response.read()
                 return json.loads(raw) if raw else {}
             except HTTPError as exc:
                 if allowed_get and exc.code in (429, 500, 502, 503, 504) and attempt == 0:
                     self._sleeper(1.0)
                     continue
-                raise M15FinamReadOnlyError("M15_FINAM_HTTP_FAIL_CLOSED") from None
+                raise _http_failure(method, path, exc.code) from None
             except (TimeoutError, URLError, OSError, ValueError):
                 if allowed_get and attempt == 0:
                     self._sleeper(1.0)
