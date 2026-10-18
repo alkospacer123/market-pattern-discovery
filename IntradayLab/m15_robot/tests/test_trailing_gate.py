@@ -123,6 +123,11 @@ class BrokerConfirmedTrailingOnly(unittest.TestCase):
                           observed_stop_count=1, broker_position_qty=2,
                           price_step=Decimal("1"))
 
+    def test_existing_breakeven_stop_is_valid_before_new_bar(self):
+        s = replace(state(), active_stop=Decimal("100"))
+        p = propose(current=s, observed=stop("100"), high="115", low="101")
+        self.assertEqual(p.candidate.active_stop, Decimal("108"))
+
     def test_proposed_candidate_never_mutates_frozen_state(self):
         s = state()
         a = propose(current=s)
