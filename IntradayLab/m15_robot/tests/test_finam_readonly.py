@@ -39,6 +39,8 @@ class FakeTransport:
             return FakeResponse({"orders": []})
         if parsed.path == "/v1/accounts/M15-ACCOUNT/trades":
             return FakeResponse({"trades": []})
+        if parsed.path == "/v1/accounts/M15-ACCOUNT/transactions":
+            return FakeResponse({"transactions": []})
         if parsed.path.startswith("/v1/instruments/"):
             symbol = parsed.path.split("/")[3]
             return FakeResponse({"symbol": symbol, "bars": []})
@@ -309,6 +311,49 @@ class ReadOnlyTransport(unittest.TestCase):
         self.assertEqual(path, "/v1/assets/CNYRUBF@RTSX")
         self.assertEqual(parse_qs(query), {"account_id": ["M15-ACCOUNT"]})
         self.assertEqual(len(fake.calls), 3)
+
+    def test_transactions_exact_readonly_account_bounded_get(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        api.connect_readonly()
+        result = api.transactions("M15-ACCOUNT", start="2026-10-17T00:00:00Z",
+                                  end="2026-10-18T00:00:00Z", limit=1000)
+        self.assertEqual(result, {"transactions": []})
+        method, path, query, _ = fake.calls[-1]
+        self.assertEqual(method, "GET")
+        self.assertEqual(path, "/v1/accounts/M15-ACCOUNT/transactions")
+        self.assertEqual(parse_qs(query), {
+            "limit": ["1000"],
+            "interval.start_time": ["2026-10-17T00:00:00Z"],
+            "interval.end_time": ["2026-10-18T00:00:00Z"],
+        })
+        self.assertTrue(all(method == "GET" for method, _, _, _ in fake.calls[2:]))
+
+    def test_transactions_reject_h1_account_before_any_http(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        api.connect_readonly()
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "CROSS_ACCOUNT"):
+            api.transactions("H1-ACCOUNT", start="2026-10-17T00:00:00Z",
+                             end="2026-10-18T00:00:00Z")
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_transactions_reject_invalid_interval_before_http(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        api.connect_readonly()
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "TRANSACTIONS_INTERVAL"):
+            api.transactions("M15-ACCOUNT", start="2026-10-18T00:00:00Z",
+                             end="2026-10-17T00:00:00Z")
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_transactions_never_accessible_before_session_binding(self):
+        fake = FakeTransport()
+        api = adapter(fake)
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "BINDING_REQUIRED"):
+            api.transactions("M15-ACCOUNT", start="2026-10-17T00:00:00Z",
+                             end="2026-10-18T00:00:00Z")
+        self.assertEqual(fake.calls, [])
 
     def test_trade_history_uses_only_exact_account_bounded_get(self):
         fake = FakeTransport()
