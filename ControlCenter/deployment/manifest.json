@@ -231,7 +231,7 @@
     },
     {
       "path": "docs/CC03_MANUAL_OS_SOURCE.md",
-      "sha256": "b82d173648a75e170a4a7dd4b705aafe7dbbeea4e4768560778e879aa66ba979"
+      "sha256": "b69476dda3bed93017e91ca1b337df0a76be272d3cb18b20732cd02a46f0af45"
     },
     {
       "path": "docs/CC03_OS_ACCEPTANCE.md",
@@ -423,7 +423,7 @@
     },
     {
       "path": "tests/test_manual_os_native.py",
-      "sha256": "7057a709e6bb2c68a81063998eccfee0408c1290e86c5305e53dc6b78b0bb240"
+      "sha256": "2f3c4f3d470779b4b05e2a96a82a757c847e68d49d38d9fde51b4b1632fa6ee7"
     },
     {
       "path": "tests/test_os_observer.py",

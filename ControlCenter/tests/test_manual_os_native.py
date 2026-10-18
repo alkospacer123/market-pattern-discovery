@@ -8,7 +8,9 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import shutil
 import time
+import uuid
 import pytest
 from observer import windows_os as observer
 from cc.providers import h1_windows_os as manual
@@ -132,3 +134,41 @@ def test_native_manual_rejects_real_elevated_identity_before_helper(manual_polic
     monkeypatch.setattr(manual,'installed_policy',lambda:manual.policy_check(manual_policy))
     monkeypatch.setattr(manual,'os_facts',lambda p:pytest.fail('elevated token invoked helper'))
     assert not manual.manual_os_refresh(datetime.now(timezone.utc))[1]
+
+
+@pytest.mark.parametrize('case',['valid','junction','writable_parent','missing','duplicate'])
+def test_native_manual_policy_owner_acl_reparse_and_parse_before_diagnostic(manual_policy,monkeypatch,case):
+    assert os.environ.get('GITHUB_ACTIONS')=='true' and os.environ.get('RUNNER_ENVIRONMENT')=='github-hosted'
+    root=Path(Path(os.environ['RUNNER_TEMP']).anchor)/('CC03-'+uuid.uuid4().hex)
+    target=root/'policy';target.mkdir(parents=True)
+    leaf=target/'manual-os-policy.json'
+    raw=json.dumps(manual_policy)
+    if case=='duplicate':raw=raw[:-1]+',"schema_id":"cc03.manual-os-policy.v1"}'
+    leaf.write_text(raw)
+    def acl(*args):
+        result=subprocess.run(['icacls.exe',*map(str,args)],capture_output=True,text=True,timeout=10)
+        assert result.returncode==0,(result.stdout,result.stderr)
+    try:
+        # New disposable root only; never alter runner TEMP/drive ancestors.
+        acl(root,'/inheritance:r','/grant:r','*S-1-5-18:(OI)(CI)F','*S-1-5-32-544:(OI)(CI)F')
+        acl(root,'/setowner','*S-1-5-32-544','/T')
+        if case=='writable_parent':acl(target,'/grant','*S-1-5-32-545:(WD)')
+        if case=='missing':leaf.unlink()
+        selected=target
+        if case=='junction':
+            selected=root/'junction'
+            result=subprocess.run(['cmd.exe','/c','mklink','/J',str(selected),str(target)],capture_output=True,text=True,timeout=10)
+            assert result.returncode==0,result.stderr
+        monkeypatch.setattr(manual,'POLICY_ROOT',selected)
+        monkeypatch.setattr(manual,'current_identity',lambda:(manual_policy['observer_sid'],False))
+        calls=[]
+        from test_manual_os import facts
+        def probe(p):calls.append(p);return facts(p)
+        monkeypatch.setattr(manual,'os_facts',probe)
+        result,accepted=manual.manual_os_refresh(datetime.now(timezone.utc))
+        assert accepted==(case=='valid'),(case,accepted,result)
+        assert len(calls)==(1 if case=='valid' else 0)
+    finally:
+        junction=root/'junction'
+        if junction.exists():junction.rmdir()
+        shutil.rmtree(root)
