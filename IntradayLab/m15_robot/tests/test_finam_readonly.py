@@ -106,6 +106,44 @@ class ReadOnlyTransport(unittest.TestCase):
             api.orders("M15-ACCOUNT")
         self.assertEqual(count[0], 2)
 
+    def test_http_asset_params_400_stage(self):
+        fake = FakeTransport()
+        def callback(req, timeout):
+            if urlparse(req.full_url).path == "/v1/assets/CNYRUBF@RTSX/params":
+                raise HTTPError(req.full_url, 400, "", None, None)
+            return fake(req, timeout)
+        api = adapter(callback)
+        api.connect_readonly()
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "ASSET_PARAMS_STATUS_400"):
+            api.asset_params("CNYRUBF@RTSX")
+
+    def test_http_asset_details_404_stage(self):
+        fake = FakeTransport()
+        def callback(req, timeout):
+            if urlparse(req.full_url).path == "/v1/assets/CNYRUBF@RTSX":
+                raise HTTPError(req.full_url, 404, "", None, None)
+            return fake(req, timeout)
+        api = adapter(callback)
+        api.connect_readonly()
+        with self.assertRaises(M15FinamReadOnlyError) as failure:
+            api.asset_details("CNYRUBF@RTSX")
+        self.assertEqual(str(failure.exception), "M15_FINAM_HTTP_ASSET_DETAILS_STATUS_404")
+        self.assertNotIn("CNYRUBF", str(failure.exception))
+        self.assertNotIn("M15-ACCOUNT", str(failure.exception))
+
+    def test_http_non200_response_safely_staged(self):
+        fake = FakeTransport()
+        def callback(req, timeout):
+            if urlparse(req.full_url).path == "/v1/accounts/M15-ACCOUNT":
+                response = FakeResponse({})
+                response.status = 409
+                return response
+            return fake(req, timeout)
+        api = adapter(callback)
+        api.connect_readonly()
+        with self.assertRaisesRegex(M15FinamReadOnlyError, "ACCOUNT_STATUS_409"):
+            api.account("M15-ACCOUNT")
+
     def test_constructing_client_makes_no_network_calls(self):
         fake = FakeTransport()
         api = adapter(fake)
