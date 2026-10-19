@@ -1,0 +1,1 @@
+instrument,trade_id,direction,entry_time,entry_price,initial_stop_price,initial_risk_price,exit_time,exit_price,exit_reason,gross_R,cost_R,net_R_C1

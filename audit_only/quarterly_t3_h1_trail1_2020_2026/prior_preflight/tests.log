@@ -1,0 +1,16 @@
+test_context_publishes_four_observations_and_never_crosses_day (__main__.IndependentScalarTests.test_context_publishes_four_observations_and_never_crosses_day) ... ok
+test_prior_donchian_excludes_current_bar (__main__.IndependentScalarTests.test_prior_donchian_excludes_current_bar) ... ok
+test_scalar_ewm_manual_values_and_missing_observation_weight (__main__.IndependentScalarTests.test_scalar_ewm_manual_values_and_missing_observation_weight) ... ok
+test_scalar_reference_and_production_with_future_perturbations (__main__.IndependentScalarTests.test_scalar_reference_and_production_with_future_perturbations) ... ok
+test_duplicate_conflicts_are_detected_before_any_deduplication (__main__.SourcePreflightTests.test_duplicate_conflicts_are_detected_before_any_deduplication) ... ok
+test_frozen_source_and_parameter_payload_authenticate (__main__.SourcePreflightTests.test_frozen_source_and_parameter_payload_authenticate) ... ok
+test_gap_is_unobserved_slot_not_certified_missing_bar (__main__.SourcePreflightTests.test_gap_is_unobserved_slot_not_certified_missing_bar) ... ok
+test_invalid_ohlc_and_nonfinite_are_reported (__main__.SourcePreflightTests.test_invalid_ohlc_and_nonfinite_are_reported) ... ok
+test_output_inside_data_root_is_rejected_before_writing (__main__.SourcePreflightTests.test_output_inside_data_root_is_rejected_before_writing) ... ok
+test_uncomputed_metrics_are_blank_never_zero (__main__.SourcePreflightTests.test_uncomputed_metrics_are_blank_never_zero) ... ok
+test_unexpected_schema_and_empty_series_are_rejected (__main__.SourcePreflightTests.test_unexpected_schema_and_empty_series_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 2.962s
+
+OK

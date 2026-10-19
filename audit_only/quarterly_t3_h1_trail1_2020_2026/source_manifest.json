@@ -1,66 +1,24 @@
 {
+  "COMPUTATIONAL_AUDIT": "PASS",
+  "EXPLORATORY_REPLAY": "COMPLETE",
+  "ROLL_PROVENANCE": "UNVERIFIED",
+  "SOURCE_INTEGRITY": "PASS",
+  "TRADABLE_QUARTERLY_PERFORMANCE": "NOT_VALIDATED",
   "audit_code_sha256": {
+    "build_report.py": "fa74cc261ba1a6d61eeb70f79cd01827698972c3990f5217fdc23d7c56233667",
+    "exploratory_core.py": "0fcc50595803e4ef6e3615370ed78578569498c30a8cc043b50526def4732b1f",
+    "exploratory_tables.py": "c4a7a24d68d9c4a82a569e55915c856a6c2f81d2c6c05e300eb448cd1af75d0c",
     "preflight.py": "59d1a5e9f3ad13cc990718d8d1de4ac9d4380eae73db7cd837ee9d302bdc9f95",
     "reproduce.py": "6ede63d58eda90e97c688c7a159f58474c3438744f0f7ce8321568847c92eeba",
+    "reproduce_exploratory.py": "b59faabaf6f6b9c0550aecbd8abddd10bdc6838b187757b9f6d541b059c08678",
+    "roll_diagnostics.py": "2101152a1effd962692b9a6c0605ec6b6d7d6bd5cfb330a3695b3d32ccd68b5f",
+    "run_exploratory.py": "867dda4d3b106dd91660754014dfb255939a6cd8ebd51242e0f0a5fe1fb41d5b",
     "scalar_audit.py": "a7fa46721036300e3704c35eabf205bbead5dd86aaaa4764147ea33ce896aebe",
+    "test_exploratory.py": "1b0274dd878d714e2a8deb8a15e1cf0f20825cf12f5942eed8119b531a50aa6b",
     "test_preflight.py": "154d56da2390a94f3b097092b0ec38fcd38431661da54c9200cd51d1d9d44ce5"
   },
-  "data_checkout_clean": true,
-  "data_checkout_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
-  "data_frozen_reference_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
-  "quarterly_inputs": [
-    {
-      "bytes": 2524304,
-      "hash_matches_frozen_data_commit": true,
-      "hash_matches_registry": true,
-      "registry_identity": "50f1fd2178c18b7ab3bd969be82ad01f47a34745:futures_quarterly/Si/Si_H1.csv:5d9f749322f22faf775a2d52019f0c19a6309b71fbd35dca717b3944c1035b08",
-      "relative_path": "futures_quarterly/Si/Si_H1.csv",
-      "sha256": "5d9f749322f22faf775a2d52019f0c19a6309b71fbd35dca717b3944c1035b08"
-    },
-    {
-      "bytes": 1688516,
-      "hash_matches_frozen_data_commit": true,
-      "hash_matches_registry": true,
-      "registry_identity": "50f1fd2178c18b7ab3bd969be82ad01f47a34745:futures_quarterly/CNY/CNY_H1.csv:0f8e033f9b41495dcaaf8aed0d0be6d3018e86a92d7a2bacee02cd228ba580d4",
-      "relative_path": "futures_quarterly/CNY/CNY_H1.csv",
-      "sha256": "0f8e033f9b41495dcaaf8aed0d0be6d3018e86a92d7a2bacee02cd228ba580d4"
-    },
-    {
-      "bytes": 2560015,
-      "hash_matches_frozen_data_commit": true,
-      "hash_matches_registry": true,
-      "registry_identity": "50f1fd2178c18b7ab3bd969be82ad01f47a34745:futures_quarterly/GD/GD_H1.csv:2911950344bd6b9471fbe570f12020cba64f65efb59da424d9ab2b7440e44bb3",
-      "relative_path": "futures_quarterly/GD/GD_H1.csv",
-      "sha256": "2911950344bd6b9471fbe570f12020cba64f65efb59da424d9ab2b7440e44bb3"
-    },
-    {
-      "bytes": 2531546,
-      "hash_matches_frozen_data_commit": true,
-      "hash_matches_registry": true,
-      "registry_identity": "50f1fd2178c18b7ab3bd969be82ad01f47a34745:futures_quarterly/MIX/MIX_H1.csv:1aebe871790d3a5e4c8d155a253c77666c38cc6f668e9eeb468bbac4c6d4eac5",
-      "relative_path": "futures_quarterly/MIX/MIX_H1.csv",
-      "sha256": "1aebe871790d3a5e4c8d155a253c77666c38cc6f668e9eeb468bbac4c6d4eac5"
-    },
-    {
-      "bytes": 2582179,
-      "hash_matches_frozen_data_commit": true,
-      "hash_matches_registry": true,
-      "registry_identity": "50f1fd2178c18b7ab3bd969be82ad01f47a34745:futures_quarterly/BR/BR_H1.csv:c988c127f7e12a6125aa8d80b479dcf2182eaa4d4087997dec73eac42614f6be",
-      "relative_path": "futures_quarterly/BR/BR_H1.csv",
-      "sha256": "c988c127f7e12a6125aa8d80b479dcf2182eaa4d4087997dec73eac42614f6be"
-    },
-    {
-      "bytes": 2596977,
-      "hash_matches_frozen_data_commit": true,
-      "hash_matches_registry": true,
-      "registry_identity": "50f1fd2178c18b7ab3bd969be82ad01f47a34745:futures_quarterly/NG/NG_H1.csv:4c932cf3679c506c57297d53706a97900a7e94b8299462102c1168fc2a4a3fbe",
-      "relative_path": "futures_quarterly/NG/NG_H1.csv",
-      "sha256": "4c932cf3679c506c57297d53706a97900a7e94b8299462102c1168fc2a4a3fbe"
-    }
-  ],
-  "raw_candles_in_artifacts": false,
-  "repository_base_commit": "38489db7e69336548a583f968f13aab49c20913b",
-  "sources": [
+  "data_checkout": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "frozen_sources": [
     {
       "actual_sha256": "706e7198ef39788bc3a3d33474583411d76d4d14480fad67357557feea33a684",
       "expected_sha256": "706e7198ef39788bc3a3d33474583411d76d4d14480fad67357557feea33a684",
@@ -178,6 +136,107 @@
       "actual_sha256": "595823a21036b89cb681eac6cb299f99d94bc07db11eda06eb7c5555054ebd72",
       "path": "TradingSystemLab/results/post_v3_analysis/stage6_fixed_basket_reassessment/trail1_authoritative_ledger_manifest.json",
       "role": "additional_readonly_authority"
+    },
+    {
+      "actual_sha256": "2ec3573b4de80589627594802fd5c5bf42353d4c29a7e00125dc3be0fbdc8221",
+      "matches_original_main_bytes": true,
+      "path": "TradingSystemLab/results/robustness_v2/T3/H1/year_report.csv"
+    },
+    {
+      "actual_sha256": "a6f8affd558b7dfce156109fa158fb63696a0c739d80277d791a7bc1889c1677",
+      "matches_original_main_bytes": true,
+      "path": "TradingSystemLab/results/robustness_v2/T3/H1/instrument_report.csv"
+    },
+    {
+      "actual_sha256": "8aba877adb218dce4cda9be7bc2bdb07b6a760f3e0a341880db250f23c2e076c",
+      "matches_original_main_bytes": true,
+      "path": "TradingSystemLab/results/true_oos_v2/T3/H1/trades.csv"
+    },
+    {
+      "actual_sha256": "59614a29983606e1f2cfad0f373fb062f70d7c47ccb07340a0feeaadc56f305c",
+      "matches_original_main_bytes": true,
+      "path": "TradingSystemLab/results/true_oos_v2/T3/H1/manifest.json"
+    },
+    {
+      "actual_sha256": "0dbd6b377477e889e6f6bcd43381bb5aaf407b984fa7f28dfa56dde7ff701694",
+      "matches_original_main_bytes": true,
+      "path": "TradingSystemLab/optimization/phase2b_t3.py"
+    },
+    {
+      "actual_sha256": "4be27421460c1845587c087f69e479d4ace50f5a2608b3ace3356d74f33ab52a",
+      "matches_original_main_bytes": true,
+      "path": "TradingSystemLab/optimization/phase32.py"
+    },
+    {
+      "actual_sha256": "8b5632e21ce38e82a6f5da7d01be03d300e604ab7af21ecd3a7674d5dff5356d",
+      "matches_original_main_bytes": true,
+      "path": "TradingSystemLab/core/backtester.py"
     }
-  ]
+  ],
+  "inputs": [
+    {
+      "first_close": "2020-01-03T11:00:00+03:00",
+      "instrument": "Si",
+      "last_close": "2026-09-16T00:00:00+03:00",
+      "path": "futures_quarterly/Si/Si_H1.csv",
+      "roll_provenance": "UNVERIFIED",
+      "sha256": "5d9f749322f22faf775a2d52019f0c19a6309b71fbd35dca717b3944c1035b08",
+      "source_rows": 25695,
+      "timestamp_convention": "ASSUMED_OPEN_LABELLED_EUROPE_MOSCOW_PLUS_1H"
+    },
+    {
+      "first_close": "2022-04-21T11:00:00+03:00",
+      "instrument": "CNY",
+      "last_close": "2026-09-16T00:00:00+03:00",
+      "path": "futures_quarterly/CNY/CNY_H1.csv",
+      "roll_provenance": "UNVERIFIED",
+      "sha256": "0f8e033f9b41495dcaaf8aed0d0be6d3018e86a92d7a2bacee02cd228ba580d4",
+      "source_rows": 17220,
+      "timestamp_convention": "ASSUMED_OPEN_LABELLED_EUROPE_MOSCOW_PLUS_1H"
+    },
+    {
+      "first_close": "2020-01-03T11:00:00+03:00",
+      "instrument": "GD",
+      "last_close": "2026-09-16T00:00:00+03:00",
+      "path": "futures_quarterly/GD/GD_H1.csv",
+      "roll_provenance": "UNVERIFIED",
+      "sha256": "2911950344bd6b9471fbe570f12020cba64f65efb59da424d9ab2b7440e44bb3",
+      "source_rows": 26398,
+      "timestamp_convention": "ASSUMED_OPEN_LABELLED_EUROPE_MOSCOW_PLUS_1H"
+    },
+    {
+      "first_close": "2020-01-03T11:00:00+03:00",
+      "instrument": "MIX",
+      "last_close": "2026-09-16T00:00:00+03:00",
+      "path": "futures_quarterly/MIX/MIX_H1.csv",
+      "roll_provenance": "UNVERIFIED",
+      "sha256": "1aebe871790d3a5e4c8d155a253c77666c38cc6f668e9eeb468bbac4c6d4eac5",
+      "source_rows": 26345,
+      "timestamp_convention": "ASSUMED_OPEN_LABELLED_EUROPE_MOSCOW_PLUS_1H"
+    },
+    {
+      "first_close": "2020-01-03T11:00:00+03:00",
+      "instrument": "BR",
+      "last_close": "2026-09-16T00:00:00+03:00",
+      "path": "futures_quarterly/BR/BR_H1.csv",
+      "roll_provenance": "UNVERIFIED",
+      "sha256": "c988c127f7e12a6125aa8d80b479dcf2182eaa4d4087997dec73eac42614f6be",
+      "source_rows": 26313,
+      "timestamp_convention": "ASSUMED_OPEN_LABELLED_EUROPE_MOSCOW_PLUS_1H"
+    },
+    {
+      "first_close": "2020-02-03T11:00:00+03:00",
+      "instrument": "NG",
+      "last_close": "2026-09-16T00:00:00+03:00",
+      "path": "futures_quarterly/NG/NG_H1.csv",
+      "roll_provenance": "UNVERIFIED",
+      "sha256": "4c932cf3679c506c57297d53706a97900a7e94b8299462102c1168fc2a4a3fbe",
+      "source_rows": 26279,
+      "timestamp_convention": "ASSUMED_OPEN_LABELLED_EUROPE_MOSCOW_PLUS_1H"
+    }
+  ],
+  "original_data_reference": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+  "original_main": "38489db7e69336548a583f968f13aab49c20913b",
+  "prior_preflight_preserved_under": "prior_preflight/",
+  "raw_candles_published": false
 }

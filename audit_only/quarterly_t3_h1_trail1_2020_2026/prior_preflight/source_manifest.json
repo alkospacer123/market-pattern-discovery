@@ -1,0 +1,183 @@
+{
+  "audit_code_sha256": {
+    "preflight.py": "59d1a5e9f3ad13cc990718d8d1de4ac9d4380eae73db7cd837ee9d302bdc9f95",
+    "reproduce.py": "6ede63d58eda90e97c688c7a159f58474c3438744f0f7ce8321568847c92eeba",
+    "scalar_audit.py": "a7fa46721036300e3704c35eabf205bbead5dd86aaaa4764147ea33ce896aebe",
+    "test_preflight.py": "154d56da2390a94f3b097092b0ec38fcd38431661da54c9200cd51d1d9d44ce5"
+  },
+  "data_checkout_clean": true,
+  "data_checkout_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "data_frozen_reference_commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+  "quarterly_inputs": [
+    {
+      "bytes": 2524304,
+      "hash_matches_frozen_data_commit": true,
+      "hash_matches_registry": true,
+      "registry_identity": "50f1fd2178c18b7ab3bd969be82ad01f47a34745:futures_quarterly/Si/Si_H1.csv:5d9f749322f22faf775a2d52019f0c19a6309b71fbd35dca717b3944c1035b08",
+      "relative_path": "futures_quarterly/Si/Si_H1.csv",
+      "sha256": "5d9f749322f22faf775a2d52019f0c19a6309b71fbd35dca717b3944c1035b08"
+    },
+    {
+      "bytes": 1688516,
+      "hash_matches_frozen_data_commit": true,
+      "hash_matches_registry": true,
+      "registry_identity": "50f1fd2178c18b7ab3bd969be82ad01f47a34745:futures_quarterly/CNY/CNY_H1.csv:0f8e033f9b41495dcaaf8aed0d0be6d3018e86a92d7a2bacee02cd228ba580d4",
+      "relative_path": "futures_quarterly/CNY/CNY_H1.csv",
+      "sha256": "0f8e033f9b41495dcaaf8aed0d0be6d3018e86a92d7a2bacee02cd228ba580d4"
+    },
+    {
+      "bytes": 2560015,
+      "hash_matches_frozen_data_commit": true,
+      "hash_matches_registry": true,
+      "registry_identity": "50f1fd2178c18b7ab3bd969be82ad01f47a34745:futures_quarterly/GD/GD_H1.csv:2911950344bd6b9471fbe570f12020cba64f65efb59da424d9ab2b7440e44bb3",
+      "relative_path": "futures_quarterly/GD/GD_H1.csv",
+      "sha256": "2911950344bd6b9471fbe570f12020cba64f65efb59da424d9ab2b7440e44bb3"
+    },
+    {
+      "bytes": 2531546,
+      "hash_matches_frozen_data_commit": true,
+      "hash_matches_registry": true,
+      "registry_identity": "50f1fd2178c18b7ab3bd969be82ad01f47a34745:futures_quarterly/MIX/MIX_H1.csv:1aebe871790d3a5e4c8d155a253c77666c38cc6f668e9eeb468bbac4c6d4eac5",
+      "relative_path": "futures_quarterly/MIX/MIX_H1.csv",
+      "sha256": "1aebe871790d3a5e4c8d155a253c77666c38cc6f668e9eeb468bbac4c6d4eac5"
+    },
+    {
+      "bytes": 2582179,
+      "hash_matches_frozen_data_commit": true,
+      "hash_matches_registry": true,
+      "registry_identity": "50f1fd2178c18b7ab3bd969be82ad01f47a34745:futures_quarterly/BR/BR_H1.csv:c988c127f7e12a6125aa8d80b479dcf2182eaa4d4087997dec73eac42614f6be",
+      "relative_path": "futures_quarterly/BR/BR_H1.csv",
+      "sha256": "c988c127f7e12a6125aa8d80b479dcf2182eaa4d4087997dec73eac42614f6be"
+    },
+    {
+      "bytes": 2596977,
+      "hash_matches_frozen_data_commit": true,
+      "hash_matches_registry": true,
+      "registry_identity": "50f1fd2178c18b7ab3bd969be82ad01f47a34745:futures_quarterly/NG/NG_H1.csv:4c932cf3679c506c57297d53706a97900a7e94b8299462102c1168fc2a4a3fbe",
+      "relative_path": "futures_quarterly/NG/NG_H1.csv",
+      "sha256": "4c932cf3679c506c57297d53706a97900a7e94b8299462102c1168fc2a4a3fbe"
+    }
+  ],
+  "raw_candles_in_artifacts": false,
+  "repository_base_commit": "38489db7e69336548a583f968f13aab49c20913b",
+  "sources": [
+    {
+      "actual_sha256": "706e7198ef39788bc3a3d33474583411d76d4d14480fad67357557feea33a684",
+      "expected_sha256": "706e7198ef39788bc3a3d33474583411d76d4d14480fad67357557feea33a684",
+      "path": "TradingSystemLab/results/post_v3_analysis/stage6_7_n4_full_four_case_test/independent_audit_result.json",
+      "role": "four_case_audit"
+    },
+    {
+      "actual_sha256": "e1f5edbff005ce17fcaa73c71837db1b3906bdd3d92d1f249788e80c725c34a2",
+      "expected_sha256": "e1f5edbff005ce17fcaa73c71837db1b3906bdd3d92d1f249788e80c725c34a2",
+      "path": "TradingSystemLab/results/post_v3_analysis/stage6_7_n4_full_four_case_test/four_case_registry.csv",
+      "role": "four_case_registry"
+    },
+    {
+      "actual_sha256": "f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6",
+      "expected_sha256": "f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6",
+      "path": "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/canonical_lifecycle_registry.csv",
+      "role": "stage5_lifecycle"
+    },
+    {
+      "actual_sha256": "8f0493f5dd4edf087881622005efde0531c6146903a38c362e72dbc508071b1e",
+      "expected_sha256": "8f0493f5dd4edf087881622005efde0531c6146903a38c362e72dbc508071b1e",
+      "path": "TradingSystemLab/results/post_v3_analysis/stage6_unified_candidate_comparison/portfolio_trade_scaling_registry.csv",
+      "role": "stage6_registry"
+    },
+    {
+      "actual_sha256": "a4c88308571470b91eeec987038c314ffedf76355c99a09fda76a18e12be93ea",
+      "expected_sha256": "a4c88308571470b91eeec987038c314ffedf76355c99a09fda76a18e12be93ea",
+      "path": "TradingSystemLab/results/perpetual_v3/robustness/T3/H1/manifest.json",
+      "role": "t3_manifest"
+    },
+    {
+      "actual_sha256": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c",
+      "expected_sha256": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c",
+      "path": "TradingSystemLab/strategies/trend/T3_MTF_Trend.py",
+      "role": "t3_source"
+    },
+    {
+      "actual_sha256": "ae29ceba3c52509336ea3c097863aa92ca3e404c15415e3192b49646d29862dd",
+      "expected_sha256": "ae29ceba3c52509336ea3c097863aa92ca3e404c15415e3192b49646d29862dd",
+      "path": "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/trail1/manifest_trail1.json",
+      "role": "trail1_manifest"
+    },
+    {
+      "actual_sha256": "d1d8ac2eeea9095becd6f74295e4a540d02ee0494237af5f16f6d66a487f221b",
+      "expected_sha256": "d1d8ac2eeea9095becd6f74295e4a540d02ee0494237af5f16f6d66a487f221b",
+      "path": "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_trail1_execution.py",
+      "role": "trail1_source"
+    },
+    {
+      "actual_sha256": "c719bb3e7b9a7e707077fc499867613010068d623d6879c247f480f7658aff7c",
+      "path": "TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/production_specification.json",
+      "role": "additional_readonly_authority"
+    },
+    {
+      "actual_sha256": "4d6e3d7d221e019ea00faa3d523affd39d0b45df3f6898c41e2e8c7ed4c3d494",
+      "path": "TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/source_provenance.json",
+      "role": "additional_readonly_authority"
+    },
+    {
+      "actual_sha256": "e134e37764ef02288a6788c6b81134261a48d38b5be4d347e81266795af08f7f",
+      "path": "TradingSystemLab/results/perpetual_v3/phase3_candidate_freeze/candidate_registry.json",
+      "role": "additional_readonly_authority"
+    },
+    {
+      "actual_sha256": "9afc08573222439c2e6289c288b0f0fbfd04116f8638df01e4bf6127141bb349",
+      "path": "TradingSystemLab/results/phase3_candidate_freeze/candidate_registry.json",
+      "role": "additional_readonly_authority"
+    },
+    {
+      "actual_sha256": "59614a29983606e1f2cfad0f373fb062f70d7c47ccb07340a0feeaadc56f305c",
+      "path": "TradingSystemLab/results/true_oos_v2/T3/H1/manifest.json",
+      "role": "additional_readonly_authority"
+    },
+    {
+      "actual_sha256": "06345d89e212c72e97f0aec97268dc43208e057c1f7123374e62a9be8dd24f47",
+      "path": "TradingSystemLab/core/indicators.py",
+      "role": "additional_readonly_authority"
+    },
+    {
+      "actual_sha256": "b6babd985fb3cf45b939a00aafe173bc7ce4ca7b02ab834dd06aec33559d305d",
+      "path": "TradingSystemLab/core/data_loader.py",
+      "role": "additional_readonly_authority"
+    },
+    {
+      "actual_sha256": "2c7ba2685838c1777987616e1e830443c129ef8839d6ef5b36f2b2ced5e575da",
+      "path": "TradingSystemLab/stage8_robot/production_replay.py",
+      "role": "additional_readonly_authority"
+    },
+    {
+      "actual_sha256": "026095fe9226aded95c12146263dca70129b9b3015c00cef5c7867155343c05c",
+      "path": "TradingSystemLab/stage8_robot/authority_replay.py",
+      "role": "additional_readonly_authority"
+    },
+    {
+      "actual_sha256": "4c4a8b618f032eea04b005971aebfc6888cef44c6d77e3f401f1694b2dab8441",
+      "path": "TradingSystemLab/stage8_robot/context_builder.py",
+      "role": "additional_readonly_authority"
+    },
+    {
+      "actual_sha256": "ba3cc134f85049e974b6608f144d090da83eb150548efd693ba27a4c54fe9d51",
+      "path": "TradingSystemLab/stage8_robot/strategy_core.py",
+      "role": "additional_readonly_authority"
+    },
+    {
+      "actual_sha256": "047d13618b3c729a0f2385fe46269b513761689469c17bdd66bc07ac09bb866b",
+      "path": "TradingSystemLab/stage8_robot/trail1_state.py",
+      "role": "additional_readonly_authority"
+    },
+    {
+      "actual_sha256": "0f9034edf228a687da67e9f3e35fad01f2339be162c558e6d802c3cd77eea8ad",
+      "path": "TradingSystemLab/results/post_v3_analysis/stage6_fixed_basket_reassessment/trail1_authoritative_trades.csv",
+      "role": "additional_readonly_authority"
+    },
+    {
+      "actual_sha256": "595823a21036b89cb681eac6cb299f99d94bc07db11eda06eb7c5555054ebd72",
+      "path": "TradingSystemLab/results/post_v3_analysis/stage6_fixed_basket_reassessment/trail1_authoritative_ledger_manifest.json",
+      "role": "additional_readonly_authority"
+    }
+  ]
+}

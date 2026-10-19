@@ -1,0 +1,142 @@
+{
+  "authentication": {
+    "candidate_parameter_sha256": "4e73cdb77246cb07b5953160b9fc0ab36bfd4bd6d9a7f7faaae7e6e392ee340a",
+    "checks": [
+      {
+        "check": "four_case_audit",
+        "pass": true
+      },
+      {
+        "check": "four_case_registry",
+        "pass": true
+      },
+      {
+        "check": "stage5_lifecycle",
+        "pass": true
+      },
+      {
+        "check": "stage6_registry",
+        "pass": true
+      },
+      {
+        "check": "t3_manifest",
+        "pass": true
+      },
+      {
+        "check": "t3_source",
+        "pass": true
+      },
+      {
+        "check": "trail1_manifest",
+        "pass": true
+      },
+      {
+        "check": "trail1_source",
+        "pass": true
+      },
+      {
+        "check": "candidate_parameter_serialization_sha256",
+        "pass": true
+      },
+      {
+        "check": "all_effective_parameters_equal_stage7",
+        "pass": true
+      },
+      {
+        "check": "production_identity",
+        "pass": true
+      },
+      {
+        "check": "configuration",
+        "pass": true
+      },
+      {
+        "check": "C1",
+        "pass": true
+      },
+      {
+        "check": "published_v2_parameter_identity",
+        "pass": true
+      },
+      {
+        "check": "existing_stage7_check_only_auditor",
+        "pass": true
+      },
+      {
+        "check": "stage6_physical_ledger_bytes",
+        "pass": true
+      },
+      {
+        "check": "stage6_selected_rows_identity",
+        "pass": true
+      }
+    ],
+    "effective_nine_parameters": {
+      "adx_period": 14,
+      "adx_threshold": 20.0,
+      "atr_average_period": 20,
+      "atr_period": 14,
+      "breakout_period": 20,
+      "ema_period": 100,
+      "slope_lookback": 5,
+      "stop_atr": 2.5,
+      "trail_atr": 3.0
+    },
+    "parameter_hash_scope": "SIX_FIELD_FROZEN_CANDIDATE_PAYLOAD",
+    "stage6_ledger": {
+      "aggregation_executed": false,
+      "identity_labels_by_lifecycle": {
+        "baseline": "T3-H1-4e73cdb77246",
+        "historical_true_oos": "T3_H1_candidate_v3"
+      },
+      "non_walk_forward_rows": 355,
+      "path": "TradingSystemLab/results/post_v3_analysis/stage6_fixed_basket_reassessment/trail1_authoritative_trades.csv",
+      "physical_rows": 418,
+      "sha256": "0f9034edf228a687da67e9f3e35fad01f2339be162c558e6d802c3cd77eea8ad",
+      "stage7_digest_scope": "ALL_STAGE5_LIFECYCLES_NOT_THIS_STAGE6_N4_FILE",
+      "walk_forward_rows_excluded": 63
+    },
+    "stage7_check_only": {
+      "checks": 22,
+      "errors": [],
+      "mutation_test_count": 19,
+      "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+      "stage6_economics_rewritten": false,
+      "status": "PASS"
+    },
+    "status": "PASS"
+  },
+  "economic_conclusion": "INCONCLUSIVE",
+  "historical_checks": {
+    "activation": "NOT_RUN_DATA_BLOCKED",
+    "exit_year_assignment": "NOT_RUN_DATA_BLOCKED",
+    "gaps": "NOT_RUN_DATA_BLOCKED",
+    "gross_cost_net_pf_arithmetic": "NOT_RUN_DATA_BLOCKED",
+    "instrument_year_aggregate_reconciliation": "NOT_RUN_DATA_BLOCKED",
+    "no_future_data": "NOT_RUN_DATA_BLOCKED",
+    "one_position": "NOT_RUN_DATA_BLOCKED",
+    "roll_causality": "NOT_RUN_DATA_BLOCKED",
+    "signals": "NOT_RUN_DATA_BLOCKED",
+    "trail1_trace": "NOT_RUN_DATA_BLOCKED",
+    "two_historical_replays": "NOT_RUN_DATA_BLOCKED"
+  },
+  "not_a_full_historical_audit_pass": true,
+  "synthetic_independent_scalar": {
+    "adversarial_long_short_trigger_gap_checks": 2,
+    "causal_prefix_and_future_perturbation_checks": 3,
+    "fixture_bars": 1800,
+    "fixture_closed_trades": 7,
+    "historical_quarterly_replay_executed": false,
+    "indicator_and_trade_field_comparisons": 8864,
+    "maximum_indicator_absolute_error": 2.1316282072803006e-14,
+    "reference_trade_counts": {
+      "production_replay": 7,
+      "research_authority": 7
+    },
+    "scope": "SYNTHETIC_ONLY_NOT_HISTORICAL_CERTIFICATION",
+    "shared_indicator_or_lifecycle_calculation_in_scalar_answer": false,
+    "signal_comparisons": 1800,
+    "status": "PASS"
+  },
+  "technical_status": "DATA_BLOCKED"
+}

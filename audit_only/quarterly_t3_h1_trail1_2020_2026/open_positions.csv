@@ -1,0 +1,4 @@
+instrument,trade_id,direction,entry_time,entry_price,initial_stop_price,initial_risk_price,stop,as_of,trigger_price,trail1_triggered,trigger_bar_time,stored_trail_candidate,trail1_activation_time,trail1_activated,candidate_already_looser,gap_through_activated_trail
+GD,T3-H1-GD-000172,SHORT,2026-09-14 13:00:00+03:00,4293.1000000000004,4341.8076005635776,48.707600563577216,4341.8076005635776,2026-09-16 00:00:00+03:00,4244.3923994364231,False,,,,False,False,False
+MIX,T3-H1-MIX-000179,LONG,2026-09-14 19:00:00+03:00,236250,232520.00576312724,3729.9942368727643,232520.00576312724,2026-09-16 00:00:00+03:00,239979.99423687276,False,,,,False,False,False
+BR,T3-H1-BR-000181,LONG,2026-09-15 21:00:00+03:00,109.26000000000001,106.45638525866154,2.803614741338464,106.45638525866154,2026-09-16 00:00:00+03:00,112.06361474133847,False,,,,False,False,False

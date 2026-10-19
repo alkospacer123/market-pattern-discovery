@@ -1,5 +1,11 @@
 {
-  "authentication": {
+  "COMPUTATIONAL_AUDIT": "PASS",
+  "EXPLORATORY_REPLAY": "COMPLETE",
+  "ROLL_PROVENANCE": "UNVERIFIED",
+  "SOURCE_INTEGRITY": "PASS",
+  "TRADABLE_QUARTERLY_PERFORMANCE": "NOT_VALIDATED",
+  "aggregation_reconciliation": "PASS",
+  "frozen_authentication": {
     "candidate_parameter_sha256": "4e73cdb77246cb07b5953160b9fc0ab36bfd4bd6d9a7f7faaae7e6e392ee340a",
     "checks": [
       {
@@ -106,37 +112,151 @@
     },
     "status": "PASS"
   },
-  "economic_conclusion": "INCONCLUSIVE",
-  "historical_checks": {
-    "activation": "NOT_RUN_DATA_BLOCKED",
-    "exit_year_assignment": "NOT_RUN_DATA_BLOCKED",
-    "gaps": "NOT_RUN_DATA_BLOCKED",
-    "gross_cost_net_pf_arithmetic": "NOT_RUN_DATA_BLOCKED",
-    "instrument_year_aggregate_reconciliation": "NOT_RUN_DATA_BLOCKED",
-    "no_future_data": "NOT_RUN_DATA_BLOCKED",
-    "one_position": "NOT_RUN_DATA_BLOCKED",
-    "roll_causality": "NOT_RUN_DATA_BLOCKED",
-    "signals": "NOT_RUN_DATA_BLOCKED",
-    "trail1_trace": "NOT_RUN_DATA_BLOCKED",
-    "two_historical_replays": "NOT_RUN_DATA_BLOCKED"
-  },
-  "not_a_full_historical_audit_pass": true,
-  "synthetic_independent_scalar": {
-    "adversarial_long_short_trigger_gap_checks": 2,
-    "causal_prefix_and_future_perturbation_checks": 3,
-    "fixture_bars": 1800,
-    "fixture_closed_trades": 7,
-    "historical_quarterly_replay_executed": false,
-    "indicator_and_trade_field_comparisons": 8864,
-    "maximum_indicator_absolute_error": 2.1316282072803006e-14,
-    "reference_trade_counts": {
-      "production_replay": 7,
-      "research_authority": 7
+  "historical_independent_checks": [
+    {
+      "all_real_management_events_checked": 4555,
+      "bars": 25695,
+      "causal_prefix_checks": [
+        "2021-06-15",
+        "2023-11-15",
+        "2025-06-15",
+        "2026-03-15"
+      ],
+      "closed_trades": 188,
+      "full_reference_trade_counts": {
+        "production_replay": 188,
+        "research_authority": 188
+      },
+      "gap_stop_exits_checked": 1,
+      "independent_decimal_trade_arithmetic": 188,
+      "instrument": "Si",
+      "maximum_indicator_absolute_error": 9.094947017729282e-13,
+      "scalar_indicator_comparisons": 128529,
+      "scalar_signal_comparisons": 25695,
+      "status": "PASS"
     },
-    "scope": "SYNTHETIC_ONLY_NOT_HISTORICAL_CERTIFICATION",
-    "shared_indicator_or_lifecycle_calculation_in_scalar_answer": false,
-    "signal_comparisons": 1800,
-    "status": "PASS"
+    {
+      "all_real_management_events_checked": 2719,
+      "bars": 17220,
+      "causal_prefix_checks": [
+        "2023-11-15",
+        "2025-06-15",
+        "2026-03-15"
+      ],
+      "closed_trades": 113,
+      "full_reference_trade_counts": {
+        "production_replay": 113,
+        "research_authority": 113
+      },
+      "gap_stop_exits_checked": 4,
+      "independent_decimal_trade_arithmetic": 113,
+      "instrument": "CNY",
+      "maximum_indicator_absolute_error": 2.1316282072803006e-14,
+      "scalar_indicator_comparisons": 85968,
+      "scalar_signal_comparisons": 17220,
+      "status": "PASS"
+    },
+    {
+      "all_real_management_events_checked": 4526,
+      "bars": 26398,
+      "causal_prefix_checks": [
+        "2021-06-15",
+        "2023-11-15",
+        "2025-06-15",
+        "2026-03-15"
+      ],
+      "closed_trades": 171,
+      "full_reference_trade_counts": {
+        "production_replay": 171,
+        "research_authority": 171
+      },
+      "gap_stop_exits_checked": 11,
+      "independent_decimal_trade_arithmetic": 171,
+      "instrument": "GD",
+      "maximum_indicator_absolute_error": 2.842170943040401e-14,
+      "scalar_indicator_comparisons": 131916,
+      "scalar_signal_comparisons": 26398,
+      "status": "PASS"
+    },
+    {
+      "all_real_management_events_checked": 4489,
+      "bars": 26345,
+      "causal_prefix_checks": [
+        "2021-06-15",
+        "2023-11-15",
+        "2025-06-15",
+        "2026-03-15"
+      ],
+      "closed_trades": 178,
+      "full_reference_trade_counts": {
+        "production_replay": 178,
+        "research_authority": 178
+      },
+      "gap_stop_exits_checked": 3,
+      "independent_decimal_trade_arithmetic": 178,
+      "instrument": "MIX",
+      "maximum_indicator_absolute_error": 7.275957614183426e-12,
+      "scalar_indicator_comparisons": 131370,
+      "scalar_signal_comparisons": 26345,
+      "status": "PASS"
+    },
+    {
+      "all_real_management_events_checked": 4328,
+      "bars": 26313,
+      "causal_prefix_checks": [
+        "2021-06-15",
+        "2023-11-15",
+        "2025-06-15",
+        "2026-03-15"
+      ],
+      "closed_trades": 180,
+      "full_reference_trade_counts": {
+        "production_replay": 180,
+        "research_authority": 180
+      },
+      "gap_stop_exits_checked": 8,
+      "independent_decimal_trade_arithmetic": 180,
+      "instrument": "BR",
+      "maximum_indicator_absolute_error": 4.263256414560601e-14,
+      "scalar_indicator_comparisons": 131517,
+      "scalar_signal_comparisons": 26313,
+      "status": "PASS"
+    },
+    {
+      "all_real_management_events_checked": 4246,
+      "bars": 26279,
+      "causal_prefix_checks": [
+        "2021-06-15",
+        "2023-11-15",
+        "2025-06-15",
+        "2026-03-15"
+      ],
+      "closed_trades": 172,
+      "full_reference_trade_counts": {
+        "production_replay": 172,
+        "research_authority": 172
+      },
+      "gap_stop_exits_checked": 12,
+      "independent_decimal_trade_arithmetic": 172,
+      "instrument": "NG",
+      "maximum_indicator_absolute_error": 2.1316282072803006e-14,
+      "scalar_indicator_comparisons": 131424,
+      "scalar_signal_comparisons": 26279,
+      "status": "PASS"
+    }
+  ],
+  "metric_audit": "INDEPENDENT_DECIMAL_PF_SUMS_DRAWDOWN_ON_INSTRUMENT_YEAR_DIRECTION_AND_BASKET",
+  "n4_comparison_source_rows": 355,
+  "n4_source_ledger_physical_rows": 418,
+  "n4_walk_forward_rows_excluded": 63,
+  "roll_causality_of_source_construction": "UNVERIFIED",
+  "source_price_and_gap_repairs": false,
+  "two_full_replays": "RECORDED_SEPARATELY_IN_REPRODUCIBILITY_JSON",
+  "v2_reconciliation": {
+    "published_2020_2024_years_reconciled": 5,
+    "published_legacy_double_C1_disclosed": true,
+    "v2_development_closed_trades": 714,
+    "v2_existing_2025_2026_closed_trades": 327
   },
-  "technical_status": "DATA_BLOCKED"
+  "year_attribution": "EXIT_TIME_EUROPE_MOSCOW"
 }

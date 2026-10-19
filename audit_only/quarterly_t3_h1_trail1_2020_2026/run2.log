@@ -1,3 +1,17 @@
-expected_exit_code=2
-observed_exit_code=2
-{"actual_source_end_as_stored": "2026-09-15T23:00:00", "base_commit": "38489db7e69336548a583f968f13aab49c20913b", "blockers": [{"code": "ROLL_CONSTRUCTION_UNAUTHENTICATED", "instruments": ["Si", "CNY", "GD", "MIX", "BR", "NG"], "required": ["provider and export version", "constituent contract identifiers and effective switch timestamps", "selection rule known at the time", "additive/multiplicative/unadjusted treatment and adjustment factors", "point-in-time availability of adjustments", "timezone and open/close timestamp labels", "historical session calendars", "position/stop and rollover cash-flow interpretation"]}], "capital_model": "NOT_RUN", "clean_true_oos_claim": false, "economic_conclusion": "INCONCLUSIVE", "historical_quarterly_replay_executed": false, "historical_trade_count": null, "missing_source_files": [], "net_R": null, "net_pf": null, "positive_instruments": null, "positive_years": null, "profitability": null, "request_end_date_moscow": "2026-10-19", "secondary_execution_sensitivity": "NOT_RUN_HISTORICAL_CONTRACT_SPECS_UNAUTHENTICATED", "synthetic_scalar_audit": "PASS", "tables_contain_uncomputed_blank_metrics": true, "technical_status": "DATA_BLOCKED"}
+Si: 25695 completed H1; 188 closed trades; historical audit
+Si: authority/production/scalar/events/prefixes PASS
+CNY: 17220 completed H1; 113 closed trades; historical audit
+CNY: authority/production/scalar/events/prefixes PASS
+GD: 26398 completed H1; 171 closed trades; historical audit
+GD: authority/production/scalar/events/prefixes PASS
+MIX: 26345 completed H1; 178 closed trades; historical audit
+MIX: authority/production/scalar/events/prefixes PASS
+BR: 26313 completed H1; 180 closed trades; historical audit
+BR: authority/production/scalar/events/prefixes PASS
+NG: 26279 completed H1; 172 closed trades; historical audit
+NG: authority/production/scalar/events/prefixes PASS
+Annual, monthly, quarterly, direction, robustness and Decimal PF audit complete
+Predeclared calendar / large-gap diagnostics complete
+N4 common-interval comparison complete; no Walk Forward duplication
+Published v2 years reconciled; legacy cost accounting disclosed
+{"COMPUTATIONAL_AUDIT": "PASS", "EXPLORATORY_REPLAY": "COMPLETE", "ROLL_PROVENANCE": "UNVERIFIED", "SOURCE_INTEGRITY": "PASS", "TRADABLE_QUARTERLY_PERFORMANCE": "NOT_VALIDATED", "closed_trades": 1002, "positive_instruments": 6}

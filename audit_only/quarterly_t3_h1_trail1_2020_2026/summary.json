@@ -1,43 +1,253 @@
 {
-  "actual_source_end_as_stored": "2026-09-15T23:00:00",
-  "base_commit": "38489db7e69336548a583f968f13aab49c20913b",
-  "blockers": [
+  "COMPUTATIONAL_AUDIT": "PASS",
+  "EXPLORATORY_REPLAY": "COMPLETE",
+  "ROLL_PROVENANCE": "UNVERIFIED",
+  "SOURCE_INTEGRITY": "PASS",
+  "TRADABLE_QUARTERLY_PERFORMANCE": "NOT_VALIDATED",
+  "actual_coverage": [
     {
-      "code": "ROLL_CONSTRUCTION_UNAUTHENTICATED",
-      "instruments": [
-        "Si",
-        "CNY",
-        "GD",
-        "MIX",
-        "BR",
-        "NG"
-      ],
-      "required": [
-        "provider and export version",
-        "constituent contract identifiers and effective switch timestamps",
-        "selection rule known at the time",
-        "additive/multiplicative/unadjusted treatment and adjustment factors",
-        "point-in-time availability of adjustments",
-        "timezone and open/close timestamp labels",
-        "historical session calendars",
-        "position/stop and rollover cash-flow interpretation"
-      ]
+      "first_close": "2020-01-03T11:00:00+03:00",
+      "instrument": "Si",
+      "last_close": "2026-09-16T00:00:00+03:00",
+      "path": "futures_quarterly/Si/Si_H1.csv",
+      "roll_provenance": "UNVERIFIED",
+      "sha256": "5d9f749322f22faf775a2d52019f0c19a6309b71fbd35dca717b3944c1035b08",
+      "source_rows": 25695,
+      "timestamp_convention": "ASSUMED_OPEN_LABELLED_EUROPE_MOSCOW_PLUS_1H"
+    },
+    {
+      "first_close": "2022-04-21T11:00:00+03:00",
+      "instrument": "CNY",
+      "last_close": "2026-09-16T00:00:00+03:00",
+      "path": "futures_quarterly/CNY/CNY_H1.csv",
+      "roll_provenance": "UNVERIFIED",
+      "sha256": "0f8e033f9b41495dcaaf8aed0d0be6d3018e86a92d7a2bacee02cd228ba580d4",
+      "source_rows": 17220,
+      "timestamp_convention": "ASSUMED_OPEN_LABELLED_EUROPE_MOSCOW_PLUS_1H"
+    },
+    {
+      "first_close": "2020-01-03T11:00:00+03:00",
+      "instrument": "GD",
+      "last_close": "2026-09-16T00:00:00+03:00",
+      "path": "futures_quarterly/GD/GD_H1.csv",
+      "roll_provenance": "UNVERIFIED",
+      "sha256": "2911950344bd6b9471fbe570f12020cba64f65efb59da424d9ab2b7440e44bb3",
+      "source_rows": 26398,
+      "timestamp_convention": "ASSUMED_OPEN_LABELLED_EUROPE_MOSCOW_PLUS_1H"
+    },
+    {
+      "first_close": "2020-01-03T11:00:00+03:00",
+      "instrument": "MIX",
+      "last_close": "2026-09-16T00:00:00+03:00",
+      "path": "futures_quarterly/MIX/MIX_H1.csv",
+      "roll_provenance": "UNVERIFIED",
+      "sha256": "1aebe871790d3a5e4c8d155a253c77666c38cc6f668e9eeb468bbac4c6d4eac5",
+      "source_rows": 26345,
+      "timestamp_convention": "ASSUMED_OPEN_LABELLED_EUROPE_MOSCOW_PLUS_1H"
+    },
+    {
+      "first_close": "2020-01-03T11:00:00+03:00",
+      "instrument": "BR",
+      "last_close": "2026-09-16T00:00:00+03:00",
+      "path": "futures_quarterly/BR/BR_H1.csv",
+      "roll_provenance": "UNVERIFIED",
+      "sha256": "c988c127f7e12a6125aa8d80b479dcf2182eaa4d4087997dec73eac42614f6be",
+      "source_rows": 26313,
+      "timestamp_convention": "ASSUMED_OPEN_LABELLED_EUROPE_MOSCOW_PLUS_1H"
+    },
+    {
+      "first_close": "2020-02-03T11:00:00+03:00",
+      "instrument": "NG",
+      "last_close": "2026-09-16T00:00:00+03:00",
+      "path": "futures_quarterly/NG/NG_H1.csv",
+      "roll_provenance": "UNVERIFIED",
+      "sha256": "4c932cf3679c506c57297d53706a97900a7e94b8299462102c1168fc2a4a3fbe",
+      "source_rows": 26279,
+      "timestamp_convention": "ASSUMED_OPEN_LABELLED_EUROPE_MOSCOW_PLUS_1H"
     }
   ],
   "capital_model": "NOT_RUN",
-  "clean_true_oos_claim": false,
-  "economic_conclusion": "INCONCLUSIVE",
-  "historical_quarterly_replay_executed": false,
-  "historical_trade_count": null,
-  "missing_source_files": [],
-  "net_R": null,
-  "net_pf": null,
-  "positive_instruments": null,
-  "positive_years": null,
-  "profitability": null,
-  "request_end_date_moscow": "2026-10-19",
-  "secondary_execution_sensitivity": "NOT_RUN_HISTORICAL_CONTRACT_SPECS_UNAUTHENTICATED",
-  "synthetic_scalar_audit": "PASS",
-  "tables_contain_uncomputed_blank_metrics": true,
-  "technical_status": "DATA_BLOCKED"
+  "clean_true_oos": false,
+  "closed_trades": 1002,
+  "configuration": "T3-H1-4e73cdb77246",
+  "economic_inference": "DESCRIPTIVE_ON_PROVIDED_SERIES_ONLY",
+  "observed_all6_mean_R_positive": true,
+  "original_main_commit": "38489db7e69336548a583f968f13aab49c20913b",
+  "positions_or_indicators_reset_at_year_boundaries": false,
+  "positive_instruments": 6,
+  "positive_years_by_basket": {
+    "ADDITIONAL2": 5,
+    "ALL6": 7,
+    "PRIMARY4": 7
+  },
+  "prior_preflight_commit": "7404fc23f2e92344fd5aea66924b74410f777ebe",
+  "production_identity_reference": "TRAIL1__N4_01__FULL__R15",
+  "research_acceptance_change": "Explicit user authorization in this thread for descriptive replay without roll passport",
+  "roll_diagnostic_definitions": {
+    "monthly_3d": [
+      [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      3
+    ],
+    "quarter_3d": [
+      [
+        3,
+        6,
+        9,
+        12
+      ],
+      3
+    ],
+    "quarter_7d": [
+      [
+        3,
+        6,
+        9,
+        12
+      ],
+      7
+    ]
+  },
+  "secondary_execution": "NOT_RUN_NO_HISTORICAL_CONTRACT_SPECS",
+  "totals": {
+    "ADDITIONAL2": {
+      "average_R": 0.09793170600078184,
+      "average_loss_R": -0.9577894169323894,
+      "average_win_R": 1.2281743199645299,
+      "cost_R": 2.7981850263936834,
+      "gross_R": 37.27014553866889,
+      "gross_pf": 1.2156017553822596,
+      "max_closed_R_drawdown": -27.15938328995459,
+      "max_losing_streak": 8,
+      "net_R": 34.47196051227521,
+      "net_pf": 1.1977536743386703,
+      "trades": 352,
+      "win_pct": 48.29545454545455
+    },
+    "ALL6": {
+      "average_R": 0.21985059478383148,
+      "average_loss_R": -0.9404772645758702,
+      "average_win_R": 1.357247073523776,
+      "cost_R": 4.871396466116913,
+      "gross_R": 225.16169243951606,
+      "gross_pf": 1.485117011801923,
+      "max_closed_R_drawdown": -21.490876844752943,
+      "max_losing_streak": 9,
+      "net_R": 220.29029597339914,
+      "net_pf": 1.4722428472919906,
+      "trades": 1002,
+      "win_pct": 50.49900199600798
+    },
+    "BR": {
+      "average_R": 0.12668201389176426,
+      "average_loss_R": -0.9358045966100538,
+      "average_win_R": 1.1891686243935824,
+      "cost_R": 0.3877029771922491,
+      "gross_R": 23.190465477709814,
+      "gross_pf": 1.2759813586165503,
+      "max_closed_R_drawdown": -23.492330654675904,
+      "max_losing_streak": 8,
+      "net_R": 22.802762500517566,
+      "net_pf": 1.2707445856766872,
+      "trades": 180,
+      "win_pct": 50.0
+    },
+    "CNY": {
+      "average_R": 0.5175322567343729,
+      "average_loss_R": -0.9200120821195257,
+      "average_win_R": 1.658440462173975,
+      "cost_R": 2.0563787013420582,
+      "gross_R": 60.53752371232619,
+      "gross_pf": 2.3416080383638334,
+      "max_closed_R_drawdown": -5.576872530876457,
+      "max_losing_streak": 4,
+      "net_R": 58.48114501098413,
+      "net_pf": 2.2713125435538877,
+      "trades": 113,
+      "win_pct": 55.75221238938053
+    },
+    "GD": {
+      "average_R": 0.18851871804232045,
+      "average_loss_R": -0.9873465805096855,
+      "average_win_R": 1.350711164285582,
+      "cost_R": 0.016291836904747996,
+      "gross_R": 32.25299262214155,
+      "gross_pf": 1.3843466003756453,
+      "max_closed_R_drawdown": -11.73149075470971,
+      "max_losing_streak": 10,
+      "net_R": 32.2367007852368,
+      "net_pf": 1.3841156801899783,
+      "trades": 171,
+      "win_pct": 50.292397660818715
+    },
+    "MIX": {
+      "average_R": 0.2452406739733521,
+      "average_loss_R": -0.9439399323173394,
+      "average_win_R": 1.2842089931536405,
+      "cost_R": 8.761784317809023e-05,
+      "gross_R": 43.65292758509985,
+      "gross_pf": 1.5571744082763614,
+      "max_closed_R_drawdown": -9.257082292514474,
+      "max_losing_streak": 5,
+      "net_R": 43.652839967256675,
+      "net_pf": 1.5571729862509838,
+      "trades": 178,
+      "win_pct": 53.37078651685393
+    },
+    "NG": {
+      "average_R": 0.06784417448696302,
+      "average_loss_R": -0.9792963063781523,
+      "average_win_R": 1.2720557274818456,
+      "cost_R": 2.4104820492014345,
+      "gross_R": 14.079680060959074,
+      "gross_pf": 1.158489657518338,
+      "max_closed_R_drawdown": -12.861950700248876,
+      "max_losing_streak": 7,
+      "net_R": 11.66919801175764,
+      "net_pf": 1.1295206649890845,
+      "trades": 172,
+      "win_pct": 46.51162790697674
+    },
+    "PRIMARY4": {
+      "average_R": 0.285874362247883,
+      "average_loss_R": -0.9304428323182699,
+      "average_win_R": 1.422551740503157,
+      "cost_R": 2.0732114397232295,
+      "gross_R": 187.89154690084717,
+      "gross_pf": 1.6450697039345081,
+      "max_closed_R_drawdown": -15.356038471810436,
+      "max_losing_streak": 11,
+      "net_R": 185.81833546112395,
+      "net_pf": 1.636017730328216,
+      "trades": 650,
+      "win_pct": 51.69230769230769
+    },
+    "Si": {
+      "average_R": 0.2736577111576932,
+      "average_loss_R": -0.8738226199614377,
+      "average_win_R": 1.4710284914559169,
+      "cost_R": 0.0004532836332450584,
+      "gross_R": 51.448102981279575,
+      "gross_pf": 1.6133043370378526,
+      "max_closed_R_drawdown": -8.154810214505178,
+      "max_losing_streak": 7,
+      "net_R": 51.44764969764633,
+      "net_pf": 1.6132972590106056,
+      "trades": 188,
+      "win_pct": 48.93617021276596
+    }
+  },
+  "unclosed_positions": 3
 }

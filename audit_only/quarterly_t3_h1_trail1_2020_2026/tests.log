@@ -11,6 +11,15 @@ test_uncomputed_metrics_are_blank_never_zero (__main__.SourcePreflightTests.test
 test_unexpected_schema_and_empty_series_are_rejected (__main__.SourcePreflightTests.test_unexpected_schema_and_empty_series_are_rejected) ... ok
 
 ----------------------------------------------------------------------
-Ran 11 tests in 2.962s
+Ran 11 tests in 2.936s
+
+OK
+test_calendar_proxy_is_labelled_unconfirmed_and_has_inclusive_end_day (__main__.ExploratoryTests.test_calendar_proxy_is_labelled_unconfirmed_and_has_inclusive_end_day) ... ok
+test_drawdown_includes_zero_and_is_invariant_to_input_permutation (__main__.ExploratoryTests.test_drawdown_includes_zero_and_is_invariant_to_input_permutation) ... ok
+test_moscow_exit_year_differs_from_utc_year (__main__.ExploratoryTests.test_moscow_exit_year_differs_from_utc_year) ... ok
+test_no_losses_does_not_become_zero_pf (__main__.ExploratoryTests.test_no_losses_does_not_become_zero_pf) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.020s
 
 OK
