@@ -22,7 +22,9 @@ from typing import Any
 
 from .broker_fill_readonly import ExpectedEntry, analyze_account_trades
 from .broker_reconcile_gate import assess_entry_evidence
-from .grid_risk import project_stop
+from .grid_risk import TrailingState, project_stop
+from .protective_gate import BrokerProtection
+from .trailing_gate import PendingTrail, propose_trail
 from .spec import INITIAL_STOP_ATR
 from .trade_draft_contract import M15OfflineTradeDrafts
 
@@ -399,6 +401,45 @@ class M15OutboundJournal:
         # Persist BEFORE any possible POST. A proposal is NEVER a broker ACK.
         self.prepare(key=stop_key, draft=proposal)
         return proposal
+
+
+    def prepare_trailing_sltp_from_broker(
+        self, *, drafts: M15OfflineTradeDrafts, stop_key: str,
+        confirmed: TrailingState, broker_stop: BrokerProtection,
+        broker_position_qty: int, completed_at: datetime,
+        high: Decimal, low: Decimal, atr: Decimal, price_step: Decimal,
+        survived_completed_bar: bool,
+    ) -> tuple[PendingTrail, M15Draft | None]:
+        """H1-style broker-protected STOP-before-TRAIL, no live state advance.
+
+        A new stop is a durable, unsubmitted intent. Caller MUST separately
+        obtain FINAM ACK and call existing trailing_gate.confirm_trail before
+        committing the candidate stop/watermark. Never cancel the old stop.
+        """
+        if not isinstance(drafts, M15OfflineTradeDrafts) or drafts.execution_authorized:
+            raise M15ExecutionError("M15_TRAIL_DRAFT_AUTHORITY_INVALID")
+        pending = propose_trail(
+            confirmed=confirmed, observed_stop=broker_stop,
+            broker_position_qty=broker_position_qty,
+            completed_at=completed_at, high=high, low=low, atr=atr,
+            price_step=price_step, survived_completed_bar=survived_completed_bar,
+        )
+        if not pending.replace_required:
+            return pending, None
+        signed = (broker_position_qty if confirmed.direction == "LONG"
+                  else -broker_position_qty)
+        proposal = drafts.protective_stop(
+            instrument=confirmed.instrument, direction=confirmed.direction,
+            idempotency_key=stop_key, observed_position_quantity=signed,
+            stop_price=pending.candidate.active_stop, price_step=price_step,
+            kind="PROTECTIVE_STOP_REPLACE",
+            previous_active_stop=confirmed.active_stop,
+        )
+        if (proposal.account_fingerprint != self.account_hash
+                or proposal.submitted or proposal.live_authorized):
+            raise M15ExecutionError("M15_TRAIL_DRAFT_ACCOUNT_OR_LIVE_INVALID")
+        self.prepare(key=stop_key, draft=proposal)
+        return pending, proposal
 
     def reconcile_entry_broker_get(
         self, *, key: str, draft: M15Draft, expected: ExpectedEntry,
