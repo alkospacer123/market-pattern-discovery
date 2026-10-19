@@ -15,6 +15,9 @@ from typing import Any, Callable
 
 from .spec import EXECUTION_STATUS
 
+# Separate reviewed code-release gate. Changing spec alone NEVER releases POST.
+M15_ORDER_POST_RELEASED = False
+
 
 class M15FinamTradeError(RuntimeError):
     pass
@@ -57,6 +60,9 @@ class M15FinamTradingAPI:
                  *, authenticated: bool = True) -> Any:
         if EXECUTION_STATUS != "LIVE_AUTHORIZED":
             raise M15FinamTradeError("M15_TRADING_WIRE_STATIC_LIVE_FREEZE")
+        if (method == "POST" and path.endswith(("/orders", "/sltp-orders"))
+                or method == "DELETE") and M15_ORDER_POST_RELEASED is not True:
+            raise M15FinamTradeError("M15_TRADING_WIRE_ORDER_POST_RELEASE_NOT_APPROVED")
         if not ((method == "POST" and path in
                  {"/v1/sessions", "/v1/sessions/details"})
                 or (method == "GET" and self.__jwt is not None
