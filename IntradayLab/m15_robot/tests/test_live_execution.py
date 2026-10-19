@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import hashlib
+from decimal import Decimal
+from fractions import Fraction
 from pathlib import Path
 import tempfile
 import unittest
@@ -10,6 +12,7 @@ from IntradayLab.m15_robot.live_execution import (
     M15AuthorizedExecutionTransport, M15ExecutionError, M15OutboundJournal,
     M15PrePostRefused, load_execution_authorization,
 )
+from IntradayLab.m15_robot.broker_fill_readonly import ExpectedEntry
 from IntradayLab.m15_robot.trade_draft_contract import M15Draft
 
 
@@ -174,6 +177,118 @@ class M15ExecutionStageTests(unittest.TestCase):
             M15AuthorizedExecutionTransport(
                 api=api, accepted_commit="a" * 40, **self.args)
         self.assertEqual(api.calls, [])
+
+
+    def broker_get(self, *, filled=1, second_id="fill-2",
+                   second_price="12.501", account="M15-SYNTH",
+                   client_id=None, incomplete=False):
+        rows = [
+            {"trade_id": "fill-1", "order_id": "broker-entry-1",
+             "account_id": account, "symbol": "CNYRUBF@RTSX",
+             "side": "SIDE_BUY", "currency": "XXX",
+             "timestamp": "2026-10-19T10:15:00Z",
+             "price": {"value": "12.500"}, "size": {"value": "1"}},
+        ] if filled else []
+        if filled == 2:
+            rows.append({
+                "trade_id": second_id, "order_id": "broker-entry-1",
+                "account_id": account, "symbol": "CNYRUBF@RTSX",
+                "side": "SIDE_BUY", "currency": "XXX",
+                "timestamp": "2026-10-19T10:16:00Z",
+                "price": {"value": second_price}, "size": {"value": "1"},
+            })
+        trades = {"trades": rows}
+        if incomplete:
+            trades["next_cursor"] = "another-page"
+        return {
+            "key": self.key, "draft": self.draft,
+            "expected": ExpectedEntry(
+                account_id="M15-SYNTH", order_id="broker-entry-1",
+                symbol="CNYRUBF@RTSX", side="SIDE_BUY",
+                quantity=2, price_step=Decimal("0.001"),
+            ),
+            "expected_client_order_id": client_id or
+                                        self.draft.payload["client_order_id"],
+            "stop_trade_tag": "trade-1",
+            "account": {
+                "account_id": account, "status": "ACCOUNT_ACTIVE",
+                "positions": ([{"symbol": "CNYRUBF@RTSX",
+                                "quantity": {"value": str(filled)}}]
+                              if filled else []),
+            },
+            "orders_response": {
+                "orders": [{
+                    "order_id": "broker-entry-1",
+                    "status": ("ORDER_STATUS_FILLED" if filled == 2
+                               else "ORDER_STATUS_PARTIAL_FILL" if filled
+                               else "ORDER_STATUS_NEW"),
+                    "order": {
+                        "symbol": "CNYRUBF@RTSX", "side": "SIDE_BUY",
+                        "quantity": {"value": "2"},
+                        "client_order_id": self.draft.payload["client_order_id"],
+                    },
+                }],
+            },
+            "trades_response": trades,
+            "start": "2026-10-19T10:00:00Z",
+            "end": "2026-10-19T11:00:00Z",
+        }
+
+    def test_broker_get_recovers_uncertain_partial_full_without_new_post(self):
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        partial = self.j.reconcile_entry_broker_get(**self.broker_get())
+        self.assertEqual((partial["matched_quantity"], partial["new_durable_fills"]), (1, 1))
+        self.assertEqual(self.j.inspect(self.key)["state"], "ACK")
+        self.assertFalse(partial["live_authorized"] or partial["broker_stop_acknowledged"])
+        full = self.j.reconcile_entry_broker_get(**self.broker_get(filled=2))
+        self.assertEqual((full["matched_quantity"], full["new_durable_fills"]), (2, 1))
+        v = full["weighted_vwap_exact"]
+        self.assertEqual(Fraction(int(v["numerator"]), int(v["denominator"])),
+                         Fraction(25001, 2000))
+        self.j.close()
+        self.j = M15OutboundJournal(**self.args)
+        replay = self.j.reconcile_entry_broker_get(**self.broker_get(filled=2))
+        self.assertEqual(replay["new_durable_fills"], 0)
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM broker_fills").fetchone()[0], 2)
+
+    def test_broker_get_rejects_lost_prior_fill_after_restart(self):
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        self.j.reconcile_entry_broker_get(**self.broker_get(filled=2))
+        with self.assertRaisesRegex(M15ExecutionError, "DURABLE_HISTORY_MISSING"):
+            self.j.reconcile_entry_broker_get(**self.broker_get(filled=1))
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM broker_fills").fetchone()[0], 2)
+
+    def test_broker_get_rejects_fill_id_rewrite_same_quantity(self):
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        self.j.reconcile_entry_broker_get(**self.broker_get(filled=2))
+        with self.assertRaisesRegex(M15ExecutionError, "DURABLE_HISTORY_MISSING"):
+            self.j.reconcile_entry_broker_get(**self.broker_get(
+                filled=2, second_id="another-fill-id"))
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM broker_fills").fetchone()[0], 2)
+
+    def test_broker_get_requires_post_boundary_not_just_prepared(self):
+        self.j.prepare(key=self.key, draft=self.draft)
+        with self.assertRaisesRegex(M15ExecutionError, "UNCERTAIN_OR_ACK"):
+            self.j.reconcile_entry_broker_get(**self.broker_get())
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM broker_fills").fetchone()[0], 0)
+
+    def test_broker_get_invalid_account_or_pagination_never_writes(self):
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        with self.assertRaisesRegex(RuntimeError, "ACCOUNT_BINDING"):
+            self.j.reconcile_entry_broker_get(**self.broker_get(account="OTHER"))
+        with self.assertRaisesRegex(RuntimeError, "COMPLETENESS_UNPROVEN"):
+            self.j.reconcile_entry_broker_get(**self.broker_get(incomplete=True))
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM broker_fills").fetchone()[0], 0)
+        self.assertEqual(self.j.inspect(self.key)["state"], "UNCERTAIN")
 
     def test_authorization_file_cannot_override_frozen_status(self):
         root = self.args["runtime_root"]
