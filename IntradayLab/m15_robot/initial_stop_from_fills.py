@@ -74,7 +74,10 @@ def initial_stop_draft_from_broker_get(
             or prepared.draft.payload.get("symbol") != expected.symbol
             or expected.side != prepared.draft.payload.get("side")
             or prepared.quantity != expected.quantity
-            or prepared.draft.payload.get("quantity") != {"value": str(expected.quantity)}):
+            or prepared.direction != ("LONG" if expected.side == "SIDE_BUY" else "SHORT")
+            or prepared.draft.payload.get("quantity") != {"value": str(expected.quantity)}
+            or prepared.draft.payload.get("client_order_id") !=
+                "m15" + hashlib.sha256(prepared.key.encode("utf-8")).hexdigest()[:17]):
         raise M15InitialStopDraftError("M15_INITIAL_SLTP_DRAFT_BROKER_IDENTITY_MISMATCH")
     client_id = prepared.draft.payload.get("client_order_id")
     if not isinstance(client_id, str) or not client_id:
@@ -126,7 +129,9 @@ def initial_stop_draft_from_broker_get(
         observed_position_quantity=signed,
         stop_price=stop, price_step=expected.price_step,
     )
-    if draft.submitted or draft.live_authorized or draft.payload["quantity_sl"] != {"value": "100"}:
+    if (draft.submitted or draft.live_authorized
+            or draft.account_fingerprint != account_sha
+            or draft.payload["quantity_sl"] != {"value": "100"}):
         raise M15InitialStopDraftError("M15_INITIAL_SLTP_UNEXPECTED_AUTHORITY")
     return M15InitialStopProposal(draft, evidence.matched_fill_quantity, avg,
                                   stop, evidence.fill_set_sha256)
