@@ -9,6 +9,34 @@
 **Инженерный порядок работ, обязательные проверки и условия допуска M15 к LIVE:** [ROADMAP.md](ROADMAP.md). Он описывает внедрение выбранной сборки, не новые исследования, и имеет приоритет как актуальная последовательность реализации.
 
 
+## M15 initial 2ATR protective STOP DRAFT based on broker GET fills
+
+`initial_stop_from_fills.py` is a new **pure, offline** adapter within the
+existing №14–16 roadmap. It accepts only a bounded independently cross-checked
+FINAM AccountTrade/order/account snapshot matching one M15 ENTRY draft, and
+proposes a full-position **100% SLTP** based on the **exact quantity-weighted
+average** of independently validated fills, never on hypothetical NEXT_OPEN
+or SIGNAL_CLOSE. The execution average can fall between ticks; this adapter
+uses exact Fraction arithmetic and **projects the resulting protective stop**
+outwards to the executable tick grid, without rounding a real average price
+or changing the fixed 2ATR distance. Partial fills use the actual matched
+and broker-observed position quantity, not the planned order quantity.
+
+Empty, incomplete, off-tick or wrong-account history, competing orders,
+position divergence, or an existing stop fail closed. Existing broker-side
+SLTP stops need the separate coverage/replacement logic and cannot be blindly
+installed again. The output is **only a proposal**:
+`broker_stop_acknowledged=False`,
+`broker_position_protected=False`,
+`order_submission_authorized=False`, `live_authorized=False`.
+No trade POST, token, real trading SQLite, H1 or Task calls exist in the module.
+
+`tests/test_initial_stop_from_fills.py` contains 16 synthetic test methods;
+full-dependency Intel verification is **PENDING**. Actual trading
+authorization, fill-to-production-ledger adoption, broker protective STOP
+ACK, R15 revalidation after executable fill price and 3.5 ATR trail
+replacement remain **OPEN** under №14–17/№23–26.
+
 ## M15 offline draft/intent/GET handoff (no real fills or trading)
 
 `offline_trade_handoff.py` combines existing **M15-only** components without
