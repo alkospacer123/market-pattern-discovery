@@ -553,6 +553,9 @@ class M15ExecutionStageTests(unittest.TestCase):
             key=key, draft=draft, account=account, orders_response=before)
         self.assertEqual(self.j.inspect(key)["state"], "UNCERTAIN")
         after_account, after = self.protective_observation(draft)
+        # FINAM may serialize the SAME numeric price/percentage at a new scale.
+        after["orders"][-1]["sltp_order"]["sl_price"] = {"value": "12.4"}
+        after["orders"][-1]["sltp_order"]["quantity_sl"] = {"value": "100.0"}
         proof = self.j.reconcile_protective_broker_get(
             key=key, draft=draft, account=after_account, orders_response=after)
         self.assertEqual(proof.stop_price, Decimal("12.400"))
