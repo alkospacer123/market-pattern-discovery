@@ -2,6 +2,8 @@
 
 **SOURCE_DATA_BLOCKED_M15.** [Отчёт](REPORT_RU.md), [пилот](DATA_ACQUISITION_PILOT.md), [источники](DATA_ACQUISITION_REPORT.md), [требования к данным](DATA_REQUIREMENTS_RU.md). Стратегия не исполнялась; статистических/торговых CSV нет.
 
+АЛОР также дал CONNECT 403. Подготовлены автономный [Python 3.12-загрузчик](download_quarterly_m15_alor.py), [PowerShell-инструкция Windows](ALOR_WINDOWS_RUNBOOK_RU.md), [offline synthetic tests](test_alor_downloader.py), [сетевой receipt](ALOR_NETWORK_PROBE.json). Реальный API/Windows ещё не проверены. Тесты: `python -m unittest -v test_alor_downloader` — без сети и без токенов.
+
 Offline-проверка файлов (Python 3, только stdlib; data checkout должен быть чистым на закреплённом commit):
 
 ```bash

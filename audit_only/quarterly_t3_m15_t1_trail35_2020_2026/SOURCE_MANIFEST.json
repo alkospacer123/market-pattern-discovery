@@ -1,4 +1,9 @@
 {
+  "alor_network_evidence": {
+    "path": "ALOR_NETWORK_PROBE.json",
+    "result": "PROXY_CONNECT_403_BEFORE_PROVIDER",
+    "sha256": "ffd42b70c5f8ea9de3ed221c973596240a03e6899d3e60564cdbc6ff75af37fc"
+  },
   "control_metrics_origin": "READ_PUBLISHED_NOT_RECOMPUTED",
   "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
   "downloaded_raw_fragments": [],

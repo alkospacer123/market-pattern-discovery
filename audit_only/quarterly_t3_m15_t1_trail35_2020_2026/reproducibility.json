@@ -1,6 +1,6 @@
 {
   "command_run1": "python preflight.py --data /workspace/market-pattern-data > run1.log",
-  "command_run2": "python preflight.py --data /workspace/market-pattern-data --out /workspace/work/quarterly_m15_private/preflight_run2 > run2.log",
+  "command_run2": "python preflight.py --data /workspace/market-pattern-data --out /workspace/work/quarterly_m15_private/alor/source_gate_repeat > run2.log",
   "excluded_from_self_hash": [
     "reproducibility.json"
   ],
@@ -9,44 +9,60 @@
     "No target M15 source obtained",
     "No historical scalar trade audit",
     "No two full strategy replay runs",
-    "No claim of computed Gross performance"
+    "No claim of computed Gross performance",
+    "Standalone downloader has not received a real ALOR response or run on Windows"
   ],
   "no_new_true_oos": true,
   "offline_source_gate_runs": 2,
   "packet_sha256": {
     ".gitignore": "862263fa1f46c20f0d1e4dac5ffcc75abd55c08211b2c3864c5f8764b9d87793",
-    "DATA_ACQUISITION_PILOT.md": "db23c150effc429568bff6021344c3269bbb75be4ce61ab1f2c68518419b2fcb",
-    "DATA_ACQUISITION_REPORT.md": "8ddb0c01b2b71a92c93c52dab64aba292e258678f49c6aa3c14e51a5f40f9b85",
-    "DATA_AUDIT.md": "3b6fd01bdb7a23ef199fc8e544c96c7411ec6c5379406904b573b7ad0c22f138",
-    "DATA_REQUIREMENTS_RU.md": "116c429c831bbf5aa2f2e51a0aa792ac869746d893525e127e62853d2e828638",
+    "ALOR_ACQUISITION_REPORT.md": "09889d407a1a16e05bfd76725ede2e3d72d3cb68f6fb527868aab53633c3d2ec",
+    "ALOR_DOCUMENTATION_RECEIPT.json": "fcaba95bea6227e6f9e3bbd3e504a003f950ccec6834092589461ede2503b50b",
+    "ALOR_NETWORK_PROBE.json": "ffd42b70c5f8ea9de3ed221c973596240a03e6899d3e60564cdbc6ff75af37fc",
+    "ALOR_STATUS.json": "48ea07af0859582bf24135a635acac659b49be1838012c92e4c12d73a8c16345",
+    "ALOR_TESTS.log": "63ce58be79a4c7f244c5acaac7da5424d491b66e2a5e81944bc19081db5d1bdc",
+    "ALOR_WINDOWS_RUNBOOK_RU.md": "f51dc548355b6cf61cc81e039028c098865f291cd3bf8d88ae7c6d0e773c30a4",
+    "DATA_ACQUISITION_PILOT.md": "438c4932ba25116c3668ba6010a7884c86281ed1b430b30ce3aded1f7257d812",
+    "DATA_ACQUISITION_REPORT.md": "2c72a2fcfe82da89c8c22096c4cf5d3f776af1a66b6c8565c089042d274e33b1",
+    "DATA_AUDIT.md": "922004ab2ecea8b54b2870643b8427c2b5820681978e927aec3cb812bebae048",
+    "DATA_REQUIREMENTS_RU.md": "bb768b59650d4a2abfe463b49db8409499ac46c4e2087a2b3f4375203da3a047",
     "PROTOCOL_RU.md": "e5f91725918057b018e8d96b98520933f93020f4a9586a082ca4c6ea06452ac9",
-    "README_RU.md": "db2f56236e49f26621393f9e85af62d51b534b7a14762016886abd07d6de6ac5",
-    "REPORT_RU.md": "a6a46421b3d6aec9ad1e413c7334b52fbad1a7781f4ada762f72519f9cf72ab6",
+    "README_RU.md": "95a58709dba8a3d6784d218e957d93af4a9dfddc47c4412b997fae0e1723459f",
+    "REPORT_RU.md": "0d3218f21530d06916571486486cc6ee5519172ac3395586ab4b062877b697f0",
     "ROLL_DIAGNOSTICS_RU.md": "aa45f67ad5db38a378a1b84dbac2b72b70e68fa5413c8b6838acd211a0ed7ef4",
-    "SOURCE_MANIFEST.json": "2ed2b90504d38f293e30a54227d9759166bb865567f7699657cab67c7a274d2c",
+    "SOURCE_MANIFEST.json": "ddccbbcc7d7730e02acb60515ce3b6db29a05ba0cd320a2c7d1c99c3fbd2147d",
+    "download_quarterly_m15_alor.py": "c5479798f2347f553ad71fd55920e7fc3638010cd42683305f98a6b806824164",
     "independent_audit.json": "bbb898867e50e7c26b50cac56a02dad1f87bdb4c0cd6c446f0bb12203cfce2f1",
     "initial_git_context.json": "c6691efa44524f585666d21f6999730fef4ff85fb74613ce8fbc99ca230c32df",
     "network_evidence.json": "fb40062fe8c3fdbff2e4351fd0cea7ab89b1236ff0f7cda52d4806030f080f5b",
     "pilot_plan.json": "e484164e57ac04db1df6de00fa921101d7f61a03f1c798ab67f3809cd3cc81ae",
-    "preflight.py": "b818b97b8d8a18d707fb7c39a6941e6eae50ae2af0118185b67223da81e1d29d",
+    "preflight.py": "8e727b47a618723c4fc385a5b2cd5b10f559ae0f1b970ed5d40d61b67fa0f085",
     "probe_network.py": "6ddd40b15b90495bd19c7161260db88b174d9e36ed7a64aa0e41abb811af3966",
     "run1.log": "55b3a522dd1c89ab5212913e77fcee85df1a35950507c41c12f363f3e1b6efe8",
     "run2.log": "55b3a522dd1c89ab5212913e77fcee85df1a35950507c41c12f363f3e1b6efe8",
     "source_coverage.json": "88ff80b0e0947d42ff636ab186cd95d470d2bc15c7b18a22bfa31d12568b9c46",
-    "summary.json": "0dcfad5bb285238e6f5d17a8ab06c9b555bab9e257049796b72096cd6097357b",
+    "summary.json": "c474fcb40d74b9a4fc6e142d76ad00ccd68c9ca7218033d24a0b9a25e900011f",
+    "test_alor_downloader.py": "c22fc7279d88c1c780cdf4d247de70be1a8c296b2ade3ed86a0ca5c759f106f0",
     "test_preflight.py": "75ffe3278bd9b6f47faf85ffaeff7acefba7e7fcca78e47b735ad9552c101f6b",
-    "tests.log": "028f6ae8812b8f5eb0ea07a70d9b8b65f3e392344d65a20e61653cc2e04f8918",
+    "tests.log": "7d8a70b1b4a3d870fe7afba4e95107fdce8ed606d43d5c02b2ba724b6c57b786",
     "verify_artifacts.py": "b60fdfa8294cb785d764fe9c20f3302d25a7df96dab00cb6e89d012dec65e49e",
     "web_research.json": "db30296f5497f571b0aede751b4d98ff00f8fde0f5dfdb0d036bb8407e59a787"
   },
   "raw_data_copied_to_research_repo": false,
-  "schema_version": 1,
-  "scope": "OFFLINE_SOURCE_GATE_ONLY_NOT_STRATEGY_REPLAY",
+  "real_alor_get_attempts": 1,
+  "real_alor_provider_responses": 0,
+  "real_windows_execution": "NOT_RUN",
+  "runtime": {
+    "os": "Linux",
+    "python": "3.12.14"
+  },
+  "schema_version": 2,
+  "scope": "OFFLINE_SOURCE_GATE_AND_SYNTHETIC_DOWNLOADER_TESTS_NOT_STRATEGY_REPLAY",
   "source_gate_calculated_artifacts": {
     "SOURCE_MANIFEST.json": {
       "byte_identical": true,
-      "run1_sha256": "2ed2b90504d38f293e30a54227d9759166bb865567f7699657cab67c7a274d2c",
-      "run2_sha256": "2ed2b90504d38f293e30a54227d9759166bb865567f7699657cab67c7a274d2c"
+      "run1_sha256": "ddccbbcc7d7730e02acb60515ce3b6db29a05ba0cd320a2c7d1c99c3fbd2147d",
+      "run2_sha256": "ddccbbcc7d7730e02acb60515ce3b6db29a05ba0cd320a2c7d1c99c3fbd2147d"
     },
     "independent_audit.json": {
       "byte_identical": true,
@@ -60,15 +76,18 @@
     },
     "summary.json": {
       "byte_identical": true,
-      "run1_sha256": "0dcfad5bb285238e6f5d17a8ab06c9b555bab9e257049796b72096cd6097357b",
-      "run2_sha256": "0dcfad5bb285238e6f5d17a8ab06c9b555bab9e257049796b72096cd6097357b"
+      "run1_sha256": "c474fcb40d74b9a4fc6e142d76ad00ccd68c9ca7218033d24a0b9a25e900011f",
+      "run2_sha256": "c474fcb40d74b9a4fc6e142d76ad00ccd68c9ca7218033d24a0b9a25e900011f"
     }
   },
   "source_gate_logs_byte_identical": true,
   "tests": {
-    "count": 6,
-    "log": "tests.log",
-    "result": "PASS",
-    "scope": "source receipts/cache/fail-closed behavior; no trading algorithm verification"
+    "alor_synthetic_count": 31,
+    "alor_synthetic_log": "ALOR_TESTS.log",
+    "alor_synthetic_result": "PASS",
+    "scope": "No live ALOR tests; synthetic transport blocks network; no trading algorithm verification",
+    "source_gate_count": 6,
+    "source_gate_log": "tests.log",
+    "source_gate_result": "PASS"
   }
 }

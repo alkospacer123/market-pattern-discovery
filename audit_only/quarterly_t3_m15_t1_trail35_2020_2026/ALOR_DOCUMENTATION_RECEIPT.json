@@ -1,0 +1,37 @@
+{
+  "countBack_omitted": true,
+  "documentation_last_update_displayed": "2026-09-21",
+  "history_anonymous_documented": true,
+  "history_query_keys": [
+    "symbol",
+    "exchange",
+    "instrumentGroup",
+    "tf",
+    "from",
+    "to",
+    "untraded",
+    "splitAdjust",
+    "format"
+  ],
+  "next_prev_semantics": "UTC start timestamps of neighboring candles; not opaque pagination tokens",
+  "observed_date_moscow": "2026-10-19",
+  "official_sdk_commit": "10bd1f814c693c0c4ce136e0ff117ff700b223e3",
+  "official_sdk_repository": "https://github.com/alor-broker/OpenAPI.SDK",
+  "official_sdk_schema_path": "WarpOpenAPIv2.yml",
+  "official_sdk_schema_sha256": "e5ddcbb9f6884e724ca6dcfb08f2a860318e3d2e259b1e585e28ae5bfd4aeb4d",
+  "private_metadata_endpoints_not_used": [
+    "/md/v2/Securities/{exchange}",
+    "/md/v2/Securities/{exchange}/{symbol}"
+  ],
+  "provider_docs": "https://alor.dev/docs/api/http/md-v-2-history-get",
+  "public_metadata_endpoint": "/md/v2/Securities",
+  "read_primary_documentation": [
+    "https://alor.dev/docs/api/http/md-v-2-history-get",
+    "https://alor.dev/docs/api/http/md-v-2-securities-get",
+    "https://alor.dev/docs/api/http/md-v-2-securities-exchange-symbol-get",
+    "https://alor.dev/docs/api/usage/limits-and-recommendations",
+    "https://alor.dev/docs/api/access/environments"
+  ],
+  "real_provider_retention_verified": false,
+  "real_provider_schema_verified": false
+}

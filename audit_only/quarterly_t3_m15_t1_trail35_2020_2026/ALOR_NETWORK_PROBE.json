@@ -1,0 +1,20 @@
+{
+  "authorization_sent": false,
+  "checked_at_utc": "2026-10-19T18:18:34.989887+00:00",
+  "dns_result": "NOT_SEPARATELY_PROBED_PROXY_RESOLVES_DESTINATION",
+  "error": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+  "json_parse": "NOT_RECEIVED",
+  "method": "GET",
+  "provider_http_status": null,
+  "proxy_connect_status": 403,
+  "proxy_in_use": true,
+  "received_candles": null,
+  "received_source_bytes": 0,
+  "result": "PROXY_CONNECT_403_BEFORE_PROVIDER",
+  "source_sha256": null,
+  "statement": "No provider response received; API archive availability and ticker validity are NOT established.",
+  "symbol_identity": "UNVERIFIED_BASE_SYMBOL_CONNECTIVITY_PROBE_ONLY",
+  "tcp_result": "NOT_SEPARATELY_OBSERVABLE_BEHIND_PROXY",
+  "tls_to_provider": "NOT_ESTABLISHED",
+  "url": "https://api.alor.ru/md/v2/history?symbol=Si&exchange=MOEX&tf=900&from=1788246000&to=1788249600&untraded=true&splitAdjust=false&format=Simple"
+}

@@ -1,5 +1,7 @@
 # Получение данных: BLOCKED
 
+Дополнение АЛОР OpenAPI: один production history GET дал CONNECT 403 до поставщика. Подготовлен автономный загрузчик Windows; реальные ответы API и срок хранения не проверены. [ALOR_ACQUISITION_REPORT.md](ALOR_ACQUISITION_REPORT.md) и [ALOR_WINDOWS_RUNBOOK_RU.md](ALOR_WINDOWS_RUNBOOK_RU.md) описывают актуальный путь продолжения. Ниже сохранён первоначальный preflight Финам/ISS; его счётчики относятся к той попытке.
+
 Проверка выполнена 19.10.2026. **Целевых исходных OHLCV-фрагментов не получено.** Полные технические receipts двух executor-запросов — `network_evidence.json`; исходные пустые captures и первоначальный диагностический JSON оставлены в `/workspace/work/quarterly_m15_private/`, вне research-репозитория.
 
 ## Финам — приоритет 1

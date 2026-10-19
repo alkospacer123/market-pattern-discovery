@@ -1,0 +1,37 @@
+test_cli_blocked_probe_preserves_evidence_and_invalidates_old_gate (test_alor_downloader.IntegrationTests.test_cli_blocked_probe_preserves_evidence_and_invalidates_old_gate) ... ok
+test_complete_synthetic_probe_resume_gate_and_manifest (test_alor_downloader.IntegrationTests.test_complete_synthetic_probe_resume_gate_and_manifest)
+Nine fake samples; no API or economics; exercise actual cache and gate. ... ok
+test_empty_history_does_not_expand_to_neighbor_outside_request (test_alor_downloader.PaginationTests.test_empty_history_does_not_expand_to_neighbor_outside_request) ... ok
+test_fixed_chunks_cover_range_exactly (test_alor_downloader.PaginationTests.test_fixed_chunks_cover_range_exactly) ... ok
+test_history_follows_both_neighbor_subranges (test_alor_downloader.PaginationTests.test_history_follows_both_neighbor_subranges) ... ok
+test_request_boundaries_and_no_countback (test_alor_downloader.PaginationTests.test_request_boundaries_and_no_countback) ... ok
+test_security_page_repetition_rejected (test_alor_downloader.PaginationTests.test_security_page_repetition_rejected) ... ok
+test_stuck_cursor_rejected (test_alor_downloader.PaginationTests.test_stuck_cursor_rejected) ... ok
+test_bad_ohlcv_time_volume (test_alor_downloader.ParserTests.test_bad_ohlcv_time_volume) ... ok
+test_decimal_values_are_not_binary_rounded (test_alor_downloader.ParserTests.test_decimal_values_are_not_binary_rounded) ... ok
+test_foreign_or_spot_or_option_or_board_rejected (test_alor_downloader.ParserTests.test_foreign_or_spot_or_option_or_board_rejected) ... ok
+test_fragment_conflict_is_fatal (test_alor_downloader.ParserTests.test_fragment_conflict_is_fatal) ... ok
+test_identical_duplicates_deduplicated_conflicts_rejected (test_alor_downloader.ParserTests.test_identical_duplicates_deduplicated_conflicts_rejected) ... ok
+test_missing_dates_not_invented_from_contract_name (test_alor_downloader.ParserTests.test_missing_dates_not_invented_from_contract_name) ... ok
+test_monthly_br_ng_and_no_perpetual_substitution (test_alor_downloader.ParserTests.test_monthly_br_ng_and_no_perpetual_substitution) ... ok
+test_nearby_sampling_does_not_select_2026_for_2020 (test_alor_downloader.ParserTests.test_nearby_sampling_does_not_select_2026_for_2020) ... ok
+test_order_is_not_silently_repaired (test_alor_downloader.ParserTests.test_order_is_not_silently_repaired) ... ok
+test_reject_malformed_nonfinite_wrong_schema (test_alor_downloader.ParserTests.test_reject_malformed_nonfinite_wrong_schema) ... ok
+test_valid_ohlcv_and_utc_moscow (test_alor_downloader.ParserTests.test_valid_ohlcv_and_utc_moscow) ... ok
+test_changed_contract_identity_not_overwritten (test_alor_downloader.StorageTests.test_changed_contract_identity_not_overwritten) ... ok
+test_download_without_successful_probe_fails_before_requests (test_alor_downloader.StorageTests.test_download_without_successful_probe_fails_before_requests) ... ok
+test_http_errors_are_distinct_and_preserved_without_retry (test_alor_downloader.StorageTests.test_http_errors_are_distinct_and_preserved_without_retry) ... ok
+test_immutable_raw_and_versioned_reports (test_alor_downloader.StorageTests.test_immutable_raw_and_versioned_reports) ... ok
+test_interrupted_attempt_is_not_overwritten (test_alor_downloader.StorageTests.test_interrupted_attempt_is_not_overwritten) ... ok
+test_pilot_repeat_price_change_is_fatal (test_alor_downloader.StorageTests.test_pilot_repeat_price_change_is_fatal) ... ok
+test_proxy_failure_is_not_provider_403_and_explicit_retry_is_new_attempt (test_alor_downloader.StorageTests.test_proxy_failure_is_not_provider_403_and_explicit_retry_is_new_attempt) ... ok
+test_request_budget_stops_before_next_get (test_alor_downloader.StorageTests.test_request_budget_stops_before_next_get) ... ok
+test_resume_success_uses_exact_cached_bytes (test_alor_downloader.StorageTests.test_resume_success_uses_exact_cached_bytes) ... ok
+test_single_bar_does_not_pass_m15_pilot (test_alor_downloader.StorageTests.test_single_bar_does_not_pass_m15_pilot) ... ok
+test_dns_tls_and_proxy_errors_are_distinct (test_alor_downloader.TransportTests.test_dns_tls_and_proxy_errors_are_distinct) ... ok
+test_public_get_sends_no_authorization_and_only_production (test_alor_downloader.TransportTests.test_public_get_sends_no_authorization_and_only_production) ... ok
+
+----------------------------------------------------------------------
+Ran 31 tests in 0.067s
+
+OK

@@ -139,8 +139,15 @@ def collect(data):
                 frozen_research_files=frozen, published_control_receipt=published,
                 published_control_metrics=control, control_metrics_origin='READ_PUBLISHED_NOT_RECOMPUTED',
                 h1_555_reference_receipts=h1_receipts, target_m15_source_files=[],
+                alor_network_evidence=receipt_additional_evidence('ALOR_NETWORK_PROBE.json'),
                 downloaded_raw_fragments=[], quarterly_m15_identity='NOT_ESTABLISHED',
                 roll_provenance='UNVERIFIED', raw_ohlcv_published=False)
+
+
+def receipt_additional_evidence(name):
+    path = HERE / name
+    return dict(path=name, sha256=digest(path),
+                result=json.loads(path.read_text()).get('result')) if path.exists() else None
 
 
 def run(data, out):
@@ -159,6 +166,8 @@ def run(data, out):
           model='T1_NEXT_OPEN_TRAIL_3p5', downloaded_m15_candles=0,
           quarterly_closed_trades=None, gross_R=None, gross_PF=None,
           reason='EXECUTOR_PROXY_CONNECT_403; required dated-futures M15 absent',
+          alor_acquisition='PROXY_CONNECT_403_BEFORE_PROVIDER',
+          alor_live_api_verified=False, windows_downloader='download_quarterly_m15_alor.py',
           clean_true_oos=False, capital_model='NOT_RUN',
           continuation='Resume same study after legal data delivery or network setup; rerun pilot first'))
     checks = [
