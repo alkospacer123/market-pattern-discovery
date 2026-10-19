@@ -1,5 +1,6 @@
 # Validation only. Never stage Python, repair ACLs, use a launcher or registry.
 # Included by Common.ps1; executing this file alone is a no-op preview.
+. "$PSScriptRoot\PythonCoreArchive.ps1"
 function Get-PlainTree([string]$Root) {
     Assert-PlainPath $Root
     foreach ($item in @(Get-ChildItem -Force -LiteralPath $Root)) {
@@ -37,27 +38,29 @@ assert norm(sys.executable) == norm(expected), 'EXACT_EXECUTABLE_REQUIRED'
 assert norm(sys.base_prefix) == norm(base), 'BASE_PREFIX_MISMATCH'
 assert norm(sys._base_executable) == norm(pathlib.Path(base)/'python.exe'), 'BASE_EXECUTABLE_MISMATCH'
 assert norm(sys.prefix) == norm(pathlib.Path(expected).parents[1] if mode == 'venv' else base), 'PREFIX_MISMATCH'
+origins = {}
 for name in ('encodings','ssl','venv','ensurepip') + (('streamlit','plotly','pip') if mode == 'venv' else ('pip',)):
     module = importlib.import_module(name)
     origin = norm(module.__file__)
     roots = (norm(base) + '\\', norm(sys.prefix) + '\\')
     assert origin.startswith(roots), 'MODULE_OUTSIDE_MANAGED_RUNTIME'
+    origins[name] = origin
+import ensurepip
+bundled = list((pathlib.Path(base)/'Lib/ensurepip/_bundled').glob('pip-*.whl'))
+assert len(bundled) == 1 and bundled[0].is_file(), 'BUNDLED_PIP_WHEEL_REQUIRED'
 assert not any('\\users\\' in norm(p) for p in sys.path if p), 'PROFILE_DEPENDENCY_FORBIDDEN'
 print(json.dumps(dict(executable=sys.executable,base_executable=sys._base_executable,
-    base_prefix=sys.base_prefix,prefix=sys.prefix,version=list(sys.version_info[:3]),mode=mode)))
+    base_prefix=sys.base_prefix,prefix=sys.prefix,version=list(sys.version_info[:3]),mode=mode,
+    origins=origins,bundled_pip=str(bundled[0]),ensurepip_version=ensurepip.version())))
 '@
     $mode = $(if ($Venv) { 'venv' } else { 'base' })
     & $Python -I -B -c $probe $script:BaseRoot $Python $mode
     if ($LASTEXITCODE -ne 0) { throw 'TRUSTED_PYTHON_PROBE_FAILED' }
 }
 
-function Assert-TrustedBase([string]$PanelSid) {
+function Assert-RuntimeBoundary([string]$PanelSid) {
     Assert-CCPanelSid $PanelSid
-    # Fixed allowlist; no caller supplied base path or per-user launcher lookup.
-    if ($script:BasePython -ne (Join-Path $script:ControlCenterRoot 'runtime\python312\python.exe')) { throw 'BASE_PATH_NOT_ALLOWLISTED' }
-    foreach ($path in @($script:ControlCenterRoot,$script:RuntimeRoot,$script:BaseRoot,$script:RuntimeProvenance)) {
-        Assert-ACL $path $PanelSid 'app'
-    }
+    foreach ($path in @($script:ControlCenterRoot,$script:RuntimeRoot)) { Assert-PathACL $path $PanelSid 'app' }
     # Every intermediate ancestor must have the same protected owner/SID grants.
     $ancestor = [IO.DirectoryInfo]::new($script:ControlCenterRoot).Parent
     while ($null -ne $ancestor -and $null -ne $ancestor.Parent) {
@@ -75,17 +78,38 @@ function Assert-TrustedBase([string]$PanelSid) {
         if ($rule.IdentityReference.Value -notin @('S-1-5-18','S-1-5-32-544') -and
             ($rule.FileSystemRights -band ([Security.AccessControl.FileSystemRights]::DeleteSubdirectoriesAndFiles -bor [Security.AccessControl.FileSystemRights]::ChangePermissions -bor [Security.AccessControl.FileSystemRights]::TakeOwnership))) { throw 'UNTRUSTED_DRIVE_MUTATION' }
     }
+}
+
+function Assert-SupportingPythonMedia([string]$Media, [string]$Digest) {
+    Assert-PlainPath $Media
+    if ($Digest -cnotmatch '^[a-f0-9]{64}$' -or
+        (Get-FileHash -LiteralPath $Media -Algorithm SHA256).Hash.ToLowerInvariant() -cne $Digest) { throw 'RUNTIME_MEDIA_HASH_MISMATCH' }
+    $signature = Get-AuthenticodeSignature -LiteralPath $Media
+    if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch '(?:^|,\s*)O=Python Software Foundation(?:,|$)') { throw 'RUNTIME_MEDIA_SIGNATURE_INVALID' }
+}
+
+function Assert-TrustedBase([string]$PanelSid) {
+    Assert-RuntimeBoundary $PanelSid
+    if ($script:BasePython -ne (Join-Path $script:ControlCenterRoot 'runtime\python312\python.exe')) { throw 'BASE_PATH_NOT_ALLOWLISTED' }
+    foreach ($path in @($script:BaseRoot,$script:RuntimeProvenance)) { Assert-PathACL $path $PanelSid 'app' }
     $p = Get-Content -Raw -LiteralPath $script:RuntimeProvenance | ConvertFrom-Json
-    if ($p.schema_id -cne 'cc03.python-base.v1' -or $p.b_only_approved -ne $true -or
-        $p.release -cne 'CPython-3.12.10-amd64-full' -or
-        $p.source_uri -cne 'https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe' -or
-        $p.media_sha256 -cnotmatch '^[a-f0-9]{64}$' -or $p.media_sha256 -eq ('0'*64)) { throw 'RUNTIME_PROVENANCE_REQUIRED' }
+    if ($p.schema_id -cne 'cc03.python-base.v2' -or $p.b_only_approved -ne $true -or
+        $p.release -cne 'CPython-3.12.10-amd64-full' -or $p.distribution_id -cne 'pythoncore-3.12-64' -or
+        $p.control_center_root -ne $script:ControlCenterRoot -or $p.panel_sid -ne $PanelSid -or
+        $p.source_uri -cne $script:PythonCoreUri -or $p.archive_sha256 -cne $script:PythonCoreHash -or
+        $p.archive_size -ne $script:PythonCoreSize -or
+        $p.supporting_media.source_uri -cne 'https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe') { throw 'RUNTIME_PROVENANCE_REQUIRED' }
+    # Supporting signed EXE is never represented as the source of extracted bytes.
     $media = Join-Path $script:RuntimeRoot 'python-3.12.10-amd64.exe'
     Assert-PlainPath $media
     Assert-TreeACL $media $PanelSid
-    if ((Get-FileHash -LiteralPath $media -Algorithm SHA256).Hash.ToLowerInvariant() -cne $p.media_sha256) { throw 'RUNTIME_MEDIA_HASH_MISMATCH' }
-    $signature = Get-AuthenticodeSignature -LiteralPath $media
-    if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notlike '*O=Python Software Foundation*') { throw 'RUNTIME_MEDIA_SIGNATURE_INVALID' }
+    Assert-SupportingPythonMedia $media $p.supporting_media.sha256
+    $zip = Join-Path $script:RuntimeRoot 'python-3.12.10-amd64.zip'
+    Assert-PlainPath $zip
+    Assert-TreeACL $zip $PanelSid
+    $stream = [IO.File]::Open($zip,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read)
+    try { $inventory = @(Get-PythonCoreInventory $stream) } finally { $stream.Dispose() }
+    Assert-PythonCoreManifest $p.files $inventory
     $tree = @(Get-PlainTree $script:BaseRoot)
     $files = @($tree | Where-Object { -not $_.PSIsContainer })
     $seen = @{}
@@ -112,7 +136,7 @@ function Assert-TrustedBase([string]$PanelSid) {
 
 function Assert-PanelVenv([string]$PanelSid) {
     Assert-TrustedBase $PanelSid
-    Assert-ACL $script:VenvRoot $PanelSid 'venv'
+    Assert-PathACL $script:VenvRoot $PanelSid 'venv'
     $tree = @(Get-PlainTree $script:VenvRoot)
     foreach ($item in $tree) { Assert-TreeACL $item.FullName $PanelSid }
     $cfg = @{}

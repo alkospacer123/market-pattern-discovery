@@ -47,6 +47,20 @@ def test_native_preflight_epoch_and_pid_disappearance(preflight_policy,tasks):
 def test_native_readiness_script_on_missing_disposable_roots(preflight_policy,monkeypatch):
     # Capture only this disposable helper's diagnostics, never a production source.
     original=subprocess.run
+    # Warm the hosted VM's cold PowerShell/C# compiler with the actual fixed
+    # readonly helper. Production readiness below retains its six-second bound;
+    # a cold timeout correctly returns UNKNOWN and is covered separately.
+    import json
+    from pathlib import Path
+    warm_environment=os.environ.copy()
+    warm_environment['PSMODULEPATH']=os.pathsep.join([
+        str(Path(os.environ['SYSTEMROOT'])/'System32/WindowsPowerShell/v1.0/Modules'),
+        str(Path(os.environ['PROGRAMFILES'])/'WindowsPowerShell/Modules')])
+    warmup=original(['powershell.exe','-NoProfile','-NonInteractive','-File',str(preflight.READINESS_SCRIPT)],
+                    input=json.dumps(dict(cc_panel_sid=None,roots=[])),capture_output=True,text=True,timeout=30,
+                    env=warm_environment)
+    assert warmup.returncode==0, warmup.stderr
+    assert json.loads(warmup.stdout)['observer_standard'] is False
     captured=[]
     def capture(*args,**kwargs):
         result=original(*args,**kwargs)

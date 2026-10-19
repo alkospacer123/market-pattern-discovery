@@ -15,9 +15,15 @@ function Assert-PlainPath([string]$Path) {
     if ($full -notmatch '^[A-Za-z]:\\' -or $full.Contains('..') -or $full.Substring(2).Contains(':')) { throw 'LOCAL_PATH_REQUIRED' }
     $current = [IO.DirectoryInfo]::new($full)
     while ($null -ne $current) {
-        if (Test-Path -LiteralPath $current.FullName) {
-            $item = Get-Item -Force -LiteralPath $current.FullName
-            if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'REPARSE_POINT_FORBIDDEN' }
+        # Same complete ancestor walk, one native attribute query per node.
+        # Only absence is permitted for fresh targets; all other I/O failures
+        # (including access denied) propagate. Reparse metadata is read on the
+        # link itself; no PowerShell provider resolution or traversal occurs.
+        try {
+            $attributes = [IO.File]::GetAttributes($current.FullName)
+            if ($attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'REPARSE_POINT_FORBIDDEN' }
+        } catch [IO.FileNotFoundException] {
+        } catch [IO.DirectoryNotFoundException] {
         }
         $current = $current.Parent
     }
@@ -69,6 +75,13 @@ function Assert-CCPanelSid([string]$PanelSid) {
 
 function Assert-ACL([string]$Path, [string]$PanelSid, [string]$Kind) {
     Assert-CCPanelSid $PanelSid
+    Assert-PathACL $Path $PanelSid $Kind
+}
+
+# Internal path-only validator for a bounded operation which has just called
+# Assert-CCPanelSid. No account-state cache: every public validation entrypoint
+# checks the live local account again. Avoid nine SAM group scans per path.
+function Assert-PathACL([string]$Path, [string]$PanelSid, [string]$Kind) {
     Assert-PlainPath $Path
     if ($Kind -notin @('app','venv','parent','export','logs','private')) { throw 'CC_KIND_INVALID' }
     $acl = Get-Acl -LiteralPath $Path
@@ -98,10 +111,11 @@ function Assert-ACL([string]$Path, [string]$PanelSid, [string]$Kind) {
 }
 
 function Assert-LayoutACL([string]$PanelSid) {
+    Assert-CCPanelSid $PanelSid
     foreach ($pair in @(@($script:AppRoot,'app'), @($script:VenvRoot,'venv'),
                         @($script:DataRoot,'parent'), @("$script:DataRoot\export",'export'),
                         @("$script:DataRoot\logs",'logs'), @("$script:DataRoot\private",'private'))) {
-        Assert-ACL $pair[0] $PanelSid $pair[1]
+        Assert-PathACL $pair[0] $PanelSid $pair[1]
     }
 }
 

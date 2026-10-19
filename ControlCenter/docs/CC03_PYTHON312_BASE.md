@@ -1,120 +1,140 @@
-# CC-03 B — независимая полная база Python 3.12
+# CC-03 B — official PythonCore ZIP, full isolated base
 
-Основание: [ТЗ #524](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6251496487).
-Только code-only Draft PR. Intel A = NOT_VERIFIED; B/C = NOT_AUTHORIZED / NOT_EXECUTED.
-Ни merge, ни физические изменения этим документом не разрешаются.
+Authority: [roadmap #524 task](https://github.com/alkospacer123/market-pattern-discovery/issues/524#issuecomment-6253566301),
+main `86279fe366b188dc8d2c1d63b832b429f0c0775e`. Code-only Draft PR.
+Intel A = NOT_VERIFIED; B installation = NOT_EXECUTED; C = NOT_ACTIVATED.
+Hosted CI cannot grant physical B approval. No merge or Intel execution here.
 
-## Фиксированный layout и доверие
+## One accepted distribution
 
-Единственная панельная identity — уже существующий **standard ccpanel** с отдельно
-проверенным effective token. ccobserver/ccexporter не используются. Disabled ccpanel
-блокирует B; код не создаёт/включает учётные записи и не исправляет ACL.
+[PSF index](https://www.python.org/ftp/python/3.12.10/windows-3.12.10.json)
+identifies `pythoncore-3.12-64`, version `3.12.10`, separately from PythonEmbed.
+The [official directory](https://www.python.org/ftp/python/3.12.10/) lists the
+32,399,361-byte complete archive:
+`https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.zip`.
+SHA-256: `8649692de846c56a7189d6dae5c322ab20deb1b5908b6f39426b62a36f39415d`.
+These exact bytes, with 3845 regular files, are the only B distribution.
+Embeddable, other versions/architectures, `py.exe`, registry/PATH discovery,
+profile Python and copied setup-python trees cannot satisfy provenance v2.
 
-- `C:\Control Center\runtime\python312\python.exe` — единственный разрешённый
-  полный CPython **3.12.10 amd64**; никакого `py.exe`, registry discovery, PATH или
-  базы под Users, TradingSystemLab, IntradayLab. Embeddable ZIP запрещён: это не
-  штатная база для venv/ensurepip/pip.
-- `C:\Control Center\runtime\python-3.12.10-amd64.exe` — сохранённое OFFLINE media.
-- `C:\Control Center\runtime\python312.provenance.json` — отдельная утверждённая
-  B provenance, **не поставляется активной в release**.
-- app/venv/data сохраняют прежние отдельные roots. `runtime` не входит в исходный
-  manifest пакета и не удаляется rollback/uninstall панели.
+Fixed active paths under `C:\Control Center\runtime`:
 
-Root Control Center, runtime, python312 и provenance должны быть admin/SYSTEM-owned,
-с protected DACL: SYSTEM `S-1-5-18` и Administrators `S-1-5-32-544` FullControl;
-только независимо проверенный ccpanel SID — ReadAndExecute/Synchronize. Дочерние
-файлы могут наследовать эти grants, но каждый owner/ACE проверяется. Панель не
-владеет кодом, базой, venv, не имеет write/delete/change-permissions. Data/private
-остаётся admin-only. Drive root не должен позволять непривилегированной identity
-удалять защищённые children или менять DACL/owner. Системные/H1 ACL не исправлять.
+- `python312\python.exe`: full CPython 3.12.10 amd64.
+- `python-3.12.10-amd64.zip`: retained actual source bytes.
+- `python-3.12.10-amd64.exe`: retained signed **supporting media** only.
+- `python312.provenance.json`: protected, independently approved B handoff.
 
-## Отдельная B-only подготовка OFFLINE media
+The extracted base is **not installed from EXE**. The EXE signature does not
+authenticate ZIP bytes. No EXE/MSI, system Python, launcher, registration or
+installer `/layout` command is executed by this implementation.
 
-Это описание будущей операции B, **не команда к выполнению сейчас**. На отдельной
-доверенной provisioning-машине получить официальный полный Windows installer:
-`https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe`.
-Проверить валидную Authenticode подпись Python Software Foundation и независимо
-зафиксировать SHA256 именно полученных bytes в review B. Подготовить полный offline
-layout installer, включая все MSI/CAB для выбранных компонентов; зафиксировать их
-SHA256 и provenance в B handoff. В чистом staging установить из этого media полный
-CPython 3.12.10 x64 без launcher, PATH, associations, shortcuts и system-wide
-installation; требуются Lib, DLLs, ssl, encodings, venv, ensurepip с bundled pip wheel,
-а также рабочий pip. Переносимый **полный** runtime tree проверить в конечном exact
-layout; отсутствие исходной provisioning-машины не должно менять imports/prefixes.
-Не копировать чужую пользовательскую установку Intel и не читать профиль alkos.
+## Protected provenance v2
 
-После отдельного B approval администратор размещает media и runtime tree только в
-указанных CC roots, проверяет каждый ancestor/reparse/owner/ACL и frozen file list.
-Сам installer панели не загружает и не устанавливает базу. Не доверять одному
-самовычисленному digest: reviewer B должен сопоставить release/media SHA256 и полный
-runtime tree с полученным offline handoff. Из CI нельзя переносить approval на Intel.
-
-Protected provenance JSON имеет обязательные поля:
+The v1 EXE-source schema is rejected. The generated v2 record contains:
 
 ```json
 {
-  "schema_id": "cc03.python-base.v1",
+  "schema_id": "cc03.python-base.v2",
   "b_only_approved": true,
   "release": "CPython-3.12.10-amd64-full",
-  "source_uri": "https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe",
-  "media_sha256": "<64 lowercase hex: independently reviewed actual offline installer SHA256>",
-  "files": [{"path": "python.exe", "sha256": "<actual SHA256>"}]
+  "distribution_id": "pythoncore-3.12-64",
+  "control_center_root": "C:\\Control Center",
+  "panel_sid": "<existing independently checked ccpanel SID>",
+  "source_uri": "https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.zip",
+  "archive_sha256": "8649692de846c56a7189d6dae5c322ab20deb1b5908b6f39426b62a36f39415d",
+  "archive_size": 32399361,
+  "review_reference": "<independent B review reference>",
+  "supporting_media": {
+    "source_uri": "https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe",
+    "sha256": "<independently reviewed supporting EXE hash>"
+  },
+  "files": [{"path": "python.exe", "sha256": "<actual ZIP entry hash>", "size": 0}]
 }
 ```
 
-Это схема, не рабочая policy. `files` содержит **все** файлы базы, portable `/` paths,
-без дублей и посторонних файлов; venv или `._pth` запрещены. Обязательны python.exe,
-python312.dll, encodings, venv и ensurepip. Media SHA256 сверяется с сохранённым
-installer, подпись проверяется до запуска Python. Все bytes базы сверяются до
-первого запуска exact executable; затем `-I -B` проверяет версию/x64, executable,
-base_executable/base_prefix/prefix и origins модулей. Изменение runtime требует
-нового B review и нового provenance, не автоматической регенерации на Intel.
+This is a schema illustration, not an active approval. `files` must contain all
+3845 actual entries with real sizes and hashes. Reader independently reopens the
+retained ZIP, checks the compiled-in SHA/size, validates every entry, compares its
+inventory with provenance and then hashes the entire runtime tree before Python
+execution. Supporting EXE hash and valid PSF organizational Authenticode signature
+are checked separately. `-I -B` verifies exact executable, `_base_executable`,
+`base_prefix`, `prefix`, version/x64 and encodings/ssl/venv/ensurepip/pip origins.
+Start and Verify revalidate these boundaries and exact venv binding.
+Provenance is bound to the exact CC root and panel SID. Hosted CI records name
+their disposable root/SID and cannot serve as physical Intel approval. Within one
+script invocation only ZIP entry inventory may be reused after rechecking full
+archive size/SHA on every call; callers receive copies. Runtime tree/ACL checks
+are never cached.
+Each bounded validation operation checks live ccpanel account/group state once
+before its path-only ACL checks; standalone `Assert-ACL` also checks it. Account
+state is never cached between operations. Every path/owner/ACE is still checked.
 
-Wheelhouse готовится отдельно на доверенной машине под Windows CPython 3.12 x64
-по `requirements-windows.lock` (`--require-hashes --only-binary=:all: --no-deps`).
-`wheels.sha256.json` содержит уникальные `{name, sha256}` для всех `.whl`.
-До install writes проверяются индекс, SHA256 из reviewed lock, platform tags и
-полная dependency closure по METADATA без imports/extraction/network/temp writes.
-Установка использует только offline wheelhouse, полный hash lock и isolated pip;
-PIP_* и configs не могут перенаправить установку. На время venv/ensurepip/pip также
-очищаются PYTHON* и __PYVENV_LAUNCHER__, запрещён user site/bytecode, а рабочий каталог
-фиксируется на проверенном app: дочерний ensurepip не наследует родительский -I.
-TEMP/TMP/TMPDIR фиксируются на scratch внутри собственного venv; перед venv
-проверяется фактический tempfile.gettempdir(), исходные значения восстанавливаются. Окружение и CWD вызывающего восстанавливаются.
-Нет сетевого fallback.
+Existing standard, enabled `ccpanel` SID is required. Control Center/runtime/base/
+provenance and intermediate ancestors retain protected admin/SYSTEM ownership
+and DACLs. Only SYSTEM/Administrators and ccpanel RX/Synchronize are accepted;
+ccpanel cannot write/delete/change permissions. Every child owner/ACE and reparse
+state is checked. Drive-root mutation rights fail closed. Data/private remains
+admin-only. No account creation/enabling, old staging ACL repair or system/H1 ACL
+repair is part of provisioning.
 
-## Команды оператора — только PREVIEW
+## Offline B provisioning contract
 
-Однострочные lowercase PowerShell команды; ни одна не имеет `-execute`:
+`deployment/Provision-PythonCore.ps1` defaults to PREVIEW with no reads of media,
+approval or targets and no writes. Execution is separate from Install/Start/Verify.
+It requires elevated B administrator, explicit `-Execute -SealFreshCCFiles`, existing
+CC roots and ACL contract, empty runtime/app/venv, validated package manifest and
+an independently installed admin-only approval at
+`data\private\pythoncore-b-approval.json`. No approval is shipped active.
+
+Approval schema `cc03.pythoncore-b-approval.v1` requires `b_execution_approved=true`,
+`seal_fresh_cc_files_approved=true`, exact `panel_sid`, `archive_sha256` (the pinned
+ZIP), `supporting_media_sha256`, `package_manifest_sha256` and nonempty
+`review_reference`. An authorized reviewer must authenticate those values before
+placing the private file. Do not create it merely by measuring unreviewed inputs.
+
+Both input media must already exist within CC, under protected plain ancestors,
+with trusted ownership and no ccpanel write. Source handles deny write/delete for
+the transaction. All source verification precedes target writes. Archive entries
+reject traversal/absolute/drive/UNC/backslash/ADS/wildcards, duplicate or case
+collisions including ancestors, file/directory conflicts, reserved NTFS names,
+trailing dot/space, symlink/reparse/special files and oversized entries. Extraction
+uses CreateNew only; every output is rehashed against the authenticated offline
+ZIP inventory. There is no network or Python execution in provisioning.
+
+The distinct `Protect-FreshCCFiles` sealing step requires both the switch and
+private approval. It sets trusted owner and seals only transaction-created CC
+paths; it never changes existing roots/ancestors/input media. Failed preconditions
+make zero target writes. Transaction failure prevalidates all tracked paths for
+reparse state and removes only those exact fresh files and empty directories,
+without recursive deletion. Unexpected objects cause STOP. Existing CC roots,
+review input, private approval, prior 98/103 packages and other staging survive.
+Runtime is retained by the panel's Install rollback and Uninstall.
+
+Panel Install remains separate: exact full 40-wheel `requirements-windows.lock`,
+offline hash/metadata/platform/dependency closure, isolated pip with no network
+fallback. It scrubs PIP/PYTHON/launcher environment and fixes TEMP/TMP/TMPDIR and
+CWD inside its own initially empty roots, restoring the caller afterward.
+
+## Native evidence and operator handoff
+
+Existing unchanged Windows Server 2022 workflow runs `ci/PythonCore-Tests.ps1`
+through the production provisioner, downloads the official index/ZIP/supporting
+EXE only on disposable hosted Windows, and exercises real full ZIP runtime and
+standard ccpanel access. CI-only users/ACL/Task fixtures are never Intel users or
+Tasks. Previous suites, ETW/PID/counters and 500 os.replace regressions remain.
+Negatives cover ZIP corruption/names/links, approval/signature/provenance,
+missing/injected files, privileges/ACL and two provisioning rollback faults.
+JUnit, provenance inventory, index, Git blobs and artifact hashes accompany results.
+
+Only after native tests PASS and independent audit may exact reviewed package
+hashes and staging commands be issued in the final handoff. No Intel execution
+command is authorized here. Safe default preview (lowercase single-line):
 
 ```powershell
-powershell.exe -noprofile -file 'c:\control center\deployment\preflight.ps1'
-powershell.exe -noprofile -file 'c:\control center\deployment\install.ps1'
-powershell.exe -noprofile -file 'c:\control center\app\deployment\verify.ps1'
-powershell.exe -noprofile -file 'c:\control center\app\deployment\start-panel.ps1'
+powershell.exe -noprofile -file 'c:\control center\deployment\provision-pythoncore.ps1'
 ```
 
-Реальный B Preflight дополнительно потребует PanelSid и локальный Wheelhouse;
-Install допускается только elevated администратору после отдельного B approval.
-До записи требуются пустые app/venv, полный package manifest, enabled standard
-ccpanel, trusted base/media и полный offline wheelhouse. Ошибка после начала
-copy/venv/pip удаляет только содержимое первоначально пустых app/venv, сохраняя их
-ACL, runtime и data. Обнаруженный reparse при rollback означает STOP без обхода
-ссылки. Не удалять/ремонтировать чужие каталоги.
-
-Start-Panel под реальным ccpanel и Verify заново проверяют provenance/base/tree ACL,
-`venv\pyvenv.cfg` home/executable/version/system-site-packages и реальный runtime
-со Streamlit/Plotly/pip. Следует отдельно подтвердить effective denial H1/private,
-невозможность менять app/venv/base и loopback-only listener. Hosted rehearsal
-доказывает это только на disposable fixtures, не на Intel.
-
-## STOP
-
-Любой missing/hash/version/architecture/signature/stdlib/venv/ensurepip/wheel failure,
-профильная или другая неразрешённая база, junction/reparse, неизвестный owner/ACE,
-ненадёжные ancestors, Disabled/привилегированный/непроверенный ccpanel, непустые
-app/venv, mismatch pyvenv/runtime, ACCESS_DENIED либо неутверждённый B handoff:
-**STOP; ничего не исправлять автоматически**. Не менять аккаунты/ACL/Windows Task,
-H1 ARM/HALTED/SQLite/WAL, FINAM/пароли/DPAPI. C source/task остаётся disabled до
-отдельного C approval. A policy v2 для ccobserver не переносится на ccpanel;
-необходим отдельный A policy rebind и физическая A приёмка. H1/M15 не объединяются.
+Physical B still requires a separate operator decision, standard ccpanel effective
+access (including private denial), full offline runtime and wheel closure,
+and CC-only ACL acceptance. Physical A binding and C source activation remain
+separate. HALTED/fill/trading gates are unchanged.

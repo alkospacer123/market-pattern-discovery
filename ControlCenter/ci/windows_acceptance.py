@@ -7,6 +7,7 @@ import platform
 import struct
 import subprocess
 import sys
+import time
 import uuid
 import zipfile
 import xml.etree.ElementTree as ET
@@ -64,6 +65,8 @@ def main():
                         ['git', 'rev-parse', 'HEAD:ControlCenter'], text=True).strip())
     print(json.dumps(metadata, indent=2), flush=True)
     (evidence / 'environment.json').write_text(json.dumps(metadata, indent=2), encoding='utf-8')
+    (evidence / 'git-blobs.txt').write_text(subprocess.check_output(
+        ['git', 'ls-tree', '--full-tree', '-r', 'HEAD', '--', 'ControlCenter'], text=True), encoding='utf-8')
     # Fail early on package-byte defects before repeating the full native suite.
     bundle, bundle_file_count = build_bundle(evidence)
     commands = [
@@ -96,7 +99,7 @@ def main():
             "$tokens=$null; $errors=$null; [void][Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$tokens,[ref]$errors); "
             "if ($errors.Count) { throw ($errors | Out-String) }; Write-Output ('SYNTAX_PASS '+$_.Name); "
             "if ($_.Name -ne 'Common.ps1') { & $_.FullName } }"]),
-        ('powershell-rehearsal', ['powershell', '-NoProfile', '-File', 'ci/Windows-Rehearsal.ps1']),
+        ('powershell-rehearsal', ['powershell', '-NoProfile', '-NonInteractive', '-File', 'ci/Windows-Rehearsal.ps1']),
     ]
     results = {}
     for name, command in commands:
@@ -110,16 +113,22 @@ def main():
             environment['PSMODULEPATH'] = os.pathsep.join([
                 str(Path(environment['SYSTEMROOT']) / 'System32/WindowsPowerShell/v1.0/Modules'),
                 str(Path(environment['PROGRAMFILES']) / 'WindowsPowerShell/Modules')])
-        try:
-            completed = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                       encoding='utf-8', errors='replace', timeout=600 if name == 'powershell-rehearsal' else 360, env=environment)
-            output, exit_code = completed.stdout, completed.returncode
-        except subprocess.TimeoutExpired as exc:
-            output = (exc.stdout or b'').decode('utf-8', errors='replace') + '\nACCEPTANCE_COMMAND_TIMEOUT'
-            exit_code = 124
+        started = time.monotonic()
+        log_path = evidence / f'{name}.log'
+        # Write child output directly to evidence so a VM timeout still retains
+        # the actual last phase and measured rejection, rather than a PIPE buffer.
+        with log_path.open('w', encoding='utf-8') as log:
+            try:
+                completed = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT,
+                                           timeout=600 if name == 'powershell-rehearsal' else 360, env=environment)
+                exit_code = completed.returncode
+            except subprocess.TimeoutExpired:
+                log.write('\nACCEPTANCE_COMMAND_TIMEOUT\n')
+                exit_code = 124
+        output = log_path.read_text(encoding='utf-8', errors='replace')
         print(output, flush=True)
-        (evidence / f'{name}.log').write_text(output, encoding='utf-8')
-        results[name] = dict(exit_code=exit_code)
+        results[name] = dict(exit_code=exit_code, seconds=round(time.monotonic()-started, 3))
+        (evidence / 'command-timings.json').write_text(json.dumps(results, indent=2), encoding='utf-8')
     for name in ('windows-reader', 'windows-transport', 'cc03-source', 'os-observer', 'intel-preflight', 'manual-os', 'full-suite'):
         path = evidence / f'{name}.xml'
         if not path.exists():
@@ -135,6 +144,23 @@ def main():
         native = [c for c in cases if c.get('name').startswith('test_native_')]
         if name == 'windows-reader' and (len(native) != 12 or any(len(c) > 0 for c in native)):
             results[name]['native_incomplete'] = True
+    # Native provisioning cases are real PowerShell transactions, represented
+    # in JUnit alongside pytest. Missing case or interrupted rehearsal fails.
+    rehearsal_path = evidence / 'powershell-rehearsal.json'
+    rehearsal = json.loads(rehearsal_path.read_text(encoding='utf-8-sig')) if rehearsal_path.exists() else {}
+    suite = ET.Element('testsuite', name='pythoncore-provision', tests='4')
+    failures = 0
+    for name in ('pythoncore_standard_token', 'pythoncore_archive_negatives',
+                 'pythoncore_provision_rollback', 'pythoncore_runtime'):
+        case = ET.SubElement(suite, 'testcase', classname='native.pythoncore', name=name)
+        result = rehearsal.get(name, 'MISSING_NATIVE_EVIDENCE')
+        if not result.startswith('PASS:'):
+            failures += 1
+            ET.SubElement(case, 'failure', message=result)
+        ET.SubElement(case, 'system-out').text = result
+    suite.set('failures', str(failures))
+    ET.ElementTree(suite).write(evidence / 'pythoncore-provision.xml', encoding='utf-8', xml_declaration=True)
+    results['pythoncore-provision'] = dict(exit_code=int(bool(failures)), passed=4-failures, failed=failures)
     (evidence / 'results.json').write_text(json.dumps(results, indent=2), encoding='utf-8')
     print(json.dumps(results, indent=2), flush=True)
     failed = any(r['exit_code'] or r.get('native_incomplete') or r.get('missing_junit') for r in results.values())
@@ -165,6 +191,9 @@ def main():
             json.dumps(checksums, indent=2) + '\n', encoding='utf-8')
         print(json.dumps(checksums, indent=2), flush=True)
     (evidence / 'acceptance.json').write_text(json.dumps(acceptance, indent=2), encoding='utf-8')
+    inventory = [dict(path=p.relative_to(evidence).as_posix(), sha256=sha256(p.read_bytes()).hexdigest(), size=p.stat().st_size)
+                 for p in sorted(evidence.rglob('*')) if p.is_file() and p.name != 'ARTIFACT_SHA256.json']
+    (evidence / 'ARTIFACT_SHA256.json').write_text(json.dumps(inventory, indent=2) + '\n', encoding='utf-8')
     print(json.dumps(acceptance, indent=2), flush=True)
     with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
         summary.write('\n' + acceptance['classification'] + '\n\nLegacy H1 continuous monitoring remains disabled. '

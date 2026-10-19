@@ -27,9 +27,10 @@ $results = [ordered]@{}
 $evidence = Join-Path $originalRunnerTemp 'cc03-evidence'
 
 function Expect-Failure([scriptblock]$Operation, [string]$Expected) {
+    $timer = [Diagnostics.Stopwatch]::StartNew()
     try { & $Operation } catch {
         if ($_.Exception.Message -notlike "*$Expected*") { throw }
-        Write-Output "EXPECTED_REJECTION $Expected"
+        Write-Output ("EXPECTED_REJECTION $Expected seconds=" + $timer.Elapsed.TotalSeconds.ToString('F3',[Globalization.CultureInfo]::InvariantCulture))
         return
     }
     throw "EXPECTED_FAILURE_MISSING: $Expected"
@@ -68,11 +69,19 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
         Write-Host ('NATIVE_CMD_STARTUP_PASS sid=' + $Identity.Sid)
     } finally { if (-not $native.HasExited) { & taskkill.exe /PID $native.Id /T /F | Out-Host }; $native.Dispose() }
     $pythonLog = $ErrorLog + '.python'
+    $pythonTimer = [Diagnostics.Stopwatch]::StartNew()
     $python = [CC03Access]::StartAs($Identity.Name, $Identity.Password, "$script:VenvRoot\Scripts\python.exe", $bootstrap, $script:AppRoot, $pythonLog, $Identity.Sid)
     try {
-        if (-not $python.WaitForExit(30000) -or $python.ExitCode -ne 0) { throw 'DIRECT_IDENTITY_PYTHON_FAILED' }
-        Write-Host ('DIRECT_IDENTITY_PYTHON_PASS sid=' + $Identity.Sid)
-    } finally { if (-not $python.HasExited) { & taskkill.exe /PID $python.Id /T /F | Out-Host }; $python.Dispose() }
+        if (-not $python.WaitForExit(60000) -or $python.ExitCode -ne 0) { throw 'DIRECT_IDENTITY_PYTHON_FAILED' }
+        Write-Host ('DIRECT_IDENTITY_PYTHON_PASS sid=' + $Identity.Sid + ' seconds=' + $pythonTimer.Elapsed.TotalSeconds)
+    } finally {
+        if (-not $python.HasExited) { & taskkill.exe /PID $python.Id /T /F | Out-Host }
+        $python.Dispose()
+        if (Test-Path -LiteralPath $pythonLog) {
+            Copy-Item -LiteralPath $pythonLog -Destination $evidence
+            Get-Content -LiteralPath $pythonLog | Write-Host
+        }
+    }
     $executable = Join-Path $env:SYSTEMROOT 'System32\WindowsPowerShell\v1.0\powershell.exe'
     return [CC03Access]::StartAs($Identity.Name, $Identity.Password, $executable, $bootstrap, $script:AppRoot, $ErrorLog, $Identity.Sid)
 }
@@ -339,31 +348,8 @@ try {
         Write-Output "EFFECTIVE_ACL_PASS role=$($identity.Name.Substring(0,5)) write=$($case[2]) result=$actual"
     }
     $results['single_ccpanel_acl'] = 'PASS: 8 actual access probes under the sole non-admin ccpanel logon token'
-    # B-only runtime preprovisioning inside this disposable hosted CC root.
-    # Full setup-python CPython, never the embeddable ZIP or a user launcher.
-    $null = New-Item -ItemType Directory -Path $script:RuntimeRoot,$script:BaseRoot
-    Set-DisposableACL $script:RuntimeRoot 'app'
-    Set-DisposableACL $script:BaseRoot 'app'
-    $originalBase = (& python -I -B -c 'import sys;print(sys.base_prefix)').Trim()
-    foreach ($name in @('python.exe','pythonw.exe','python3.dll','python312.dll','vcruntime140.dll','vcruntime140_1.dll','LICENSE.txt')) {
-        Copy-Item -LiteralPath (Join-Path $originalBase $name) -Destination $script:BaseRoot
-    }
-    foreach ($name in @('Lib','DLLs')) { Copy-Item -LiteralPath (Join-Path $originalBase $name) -Destination $script:BaseRoot -Recurse }
-    # All copied bytes are administrator-owned; grant only the fixture ccpanel RX.
-    & icacls.exe $script:BaseRoot /setowner '*S-1-5-32-544' /T /Q
-    if ($LASTEXITCODE -ne 0) { throw 'BASE_OWNER_STAGING_FAILED' }
-    $media = Join-Path $script:RuntimeRoot 'python-3.12.10-amd64.exe'
-    Invoke-WebRequest -UseBasicParsing -Uri 'https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe' -OutFile $media
-    Set-DisposableACL $media 'app'
-    $records = @(Get-ChildItem -File -Recurse -LiteralPath $script:BaseRoot | ForEach-Object {
-        @{path=$_.FullName.Substring($script:BaseRoot.Length+1).Replace('\','/');sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}
-    })
-    $provenance = @{schema_id='cc03.python-base.v1';b_only_approved=$true;release='CPython-3.12.10-amd64-full';
-        source_uri='https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe';
-        media_sha256=(Get-FileHash -LiteralPath $media -Algorithm SHA256).Hash.ToLowerInvariant();files=$records}
-    $provenance | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $script:RuntimeProvenance -Encoding ASCII
-    Set-DisposableACL $script:RuntimeProvenance 'app'
-    $provenance | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath "$evidence\python-base-provenance.json" -Encoding ASCII
+    # Exercise the production ZIP intake and fresh-file sealing transaction.
+    . "$package\ci\PythonCore-Tests.ps1"
     # An unrelated profile Python is unreadable to the real ccpanel token.
     $unrelated = Join-Path $canaryRoot 'unrelated-user-profile'
     $null = New-Item -ItemType Directory -Path $unrelated
@@ -386,10 +372,40 @@ try {
         Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_HASH_MISMATCH'
         Move-Item -LiteralPath ($file+'.held') -Destination $file
     }
-    $provenance.media_sha256 = '1'*64
+    $provenance.supporting_media.sha256 = '1'*64
     $provenance | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $script:RuntimeProvenance -Encoding ASCII
     Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_MEDIA_HASH_MISMATCH'
     Set-Content -LiteralPath $script:RuntimeProvenance -Value $savedProvenance -Encoding ASCII
+    $provenance = $savedProvenance | ConvertFrom-Json
+    $provenance.files[0].sha256 = '1'*64
+    $provenance | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $script:RuntimeProvenance -Encoding ASCII
+    Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_ARCHIVE_MANIFEST_MISMATCH'
+    Set-Content -LiteralPath $script:RuntimeProvenance -Value $savedProvenance -Encoding ASCII
+    $retainedZip = Join-Path $script:RuntimeRoot 'python-3.12.10-amd64.zip'
+    $corruptStream = [IO.File]::OpenWrite($retainedZip)
+    try { $corruptStream.WriteByte(0) } finally { $corruptStream.Dispose() }
+    Expect-Failure { Assert-TrustedBase $panelSid } 'ZIP_HASH_MISMATCH'
+    Copy-Item -LiteralPath $sourceZip -Destination $retainedZip -Force
+    $provenance = $savedProvenance | ConvertFrom-Json
+    $provenance.panel_sid = 'S-1-5-21-1-2-3-1234'
+    $provenance | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $script:RuntimeProvenance -Encoding ASCII
+    Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_PROVENANCE_REQUIRED'
+    Set-Content -LiteralPath $script:RuntimeProvenance -Value $savedProvenance -Encoding ASCII
+    $provenance = $savedProvenance | ConvertFrom-Json
+    $provenance.schema_id = 'cc03.python-base.v1'
+    $provenance | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $script:RuntimeProvenance -Encoding ASCII
+    Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_PROVENANCE_REQUIRED'
+    Set-Content -LiteralPath $script:RuntimeProvenance -Value $savedProvenance -Encoding ASCII
+    $injected = Join-Path $script:BaseRoot 'injected.py'
+    Set-Content -LiteralPath $injected -Value 'raise SystemExit(1)' -Encoding ASCII
+    Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_FILE_SET_MISMATCH'
+    Remove-Item -LiteralPath $injected
+    $missing = Join-Path $script:BaseRoot 'Lib\ssl.py'
+    $savedSsl = [IO.File]::ReadAllBytes($missing)
+    Remove-Item -LiteralPath $missing
+    Expect-Failure { Assert-TrustedBase $panelSid } 'RUNTIME_FILE_SET_MISMATCH'
+    [IO.File]::WriteAllBytes($missing,$savedSsl)
+    Set-DisposableACL $missing 'app'
     $savedACL = Get-Acl -LiteralPath $script:BaseRoot
     Set-DisposableACL $script:BaseRoot 'private'
     Expect-Failure { Assert-TrustedBase $panelSid } 'CCPANEL_READ_RULE_REQUIRED'
@@ -473,8 +489,9 @@ try {
     }
     if (@(Get-ChildItem -Force -LiteralPath $poison).Count -ne 2 -or @(Get-ChildItem -Force -LiteralPath $canaryRoot).Count -ne 6) { throw 'INSTALL_WROTE_OUTSIDE_OWN_TARGETS' }
     $results['installer_environment'] = 'PASS: hostile PYTHONHOME/PYTHONPATH/PIP_TARGET/TMPDIR and caller CWD ignored for venv/ensurepip/pip; caller environment/location restored; zero outside writes'
-    & "$script:VenvRoot\Scripts\python.exe" -c "import sys,struct; print('REHEARSAL_PYTHON='+sys.version); assert sys.version_info[:3]==(3,12,10) and struct.calcsize('P')==8"
+    & "$script:VenvRoot\Scripts\python.exe" -I -B -c "import sys,struct; print('REHEARSAL_PYTHON='+sys.version); assert sys.version_info[:3]==(3,12,10) and struct.calcsize('P')==8"
     if ($LASTEXITCODE -ne 0) { throw 'REHEARSAL_PYTHON_VERSION_MISMATCH' }
+    Assert-TrustedBase $panelSid
     $results['install'] = 'PASS: real offline install from exact protected full CPython base, complete hashed runtime lock'
     foreach ($path in @($script:BasePython,"$script:AppRoot\app.py","$script:VenvRoot\pyvenv.cfg")) {
         if ([CC03Access]::Probe($panel.Name,$panel.Password,$panelSid,$path,$true) -ne 'ACCESS_DENIED') { throw 'PANEL_RUNTIME_MUTATION_ALLOWED' }

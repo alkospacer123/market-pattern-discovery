@@ -205,14 +205,21 @@ def test_live_source_is_blocked_before_open(policy, now, monkeypatch):
 def test_deployment_scripts_preview_and_no_production_mutators():
     root=Path(__file__).parents[1]/'deployment'
     scripts=list(root.glob('*.ps1'))
-    assert len(scripts)==10  # three shared validators plus seven operator entrypoints
+    assert len(scripts)==12  # four shared validators plus eight operator entrypoints
     for path in scripts:
         source=path.read_text()
-        if path.name not in {'Common.ps1','PanelIdentity.ps1','PythonRuntime.ps1'}:
+        if path.name not in {'Common.ps1','PanelIdentity.ps1','PythonRuntime.ps1','PythonCoreArchive.ps1'}:
             assert '[switch]$Execute' in source and 'if (-not $Execute)' in source and 'PREVIEW:' in source
         assert not any(verb in source for verb in ('Start-ScheduledTask','Stop-ScheduledTask','Enable-ScheduledTask',
-            'Disable-ScheduledTask','Set-ScheduledTask','Register-ScheduledTask','Set-Acl','Invoke-WebRequest',
+            'Disable-ScheduledTask','Set-ScheduledTask','Register-ScheduledTask','Invoke-WebRequest',
             'FINAM_FILL_AUTHORITY_VERIFIED','Stop-Process','git pull'))
+        if path.name != 'Provision-PythonCore.ps1':
+            assert 'Set-Acl' not in source
+        else:
+            # The separate B provisioner seals only its fresh tracked paths.
+            assert source.count('Set-Acl') == 1
+            assert 'function Protect-FreshCCFiles' in source and 'foreach ($path in $created)' in source
+            assert '[switch]$SealFreshCCFiles' in source and 'seal_fresh_cc_files_approved' in source
     assert "'C:\\Control Center'" in (root/'Common.ps1').read_text()
     assert '--no-index' in (root/'Install.ps1').read_text()
     assert 'Assert-CurrentIdentity $PanelSid' in (root/'Start-Panel.ps1').read_text()
