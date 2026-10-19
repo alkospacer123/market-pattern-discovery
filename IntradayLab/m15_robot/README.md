@@ -9,6 +9,31 @@
 **Инженерный порядок работ, обязательные проверки и условия допуска M15 к LIVE:** [ROADMAP.md](ROADMAP.md). Он описывает внедрение выбранной сборки, не новые исследования, и имеет приоритет как актуальная последовательность реализации.
 
 
+## M15 trade-request DRAFT contract (code only; real POST still absent)
+
+`trade_draft_contract.py` formats **only offline proposals** for FINAM MARKET
+entry, full-position 100% SLTP install/replacement and emergency market exit.
+It follows the proven H1 REST payload structure **without importing or changing
+H1 code**. It rejects H1-account fingerprint reuse, any non-N4 symbol, invalid
+M15 idempotency key, a second instrument entry, missing/zero R15+GO sizing,
+off-tick stop, incompatible signed broker position and stop widening.
+
+It does **not** contain a FINAM trading transport or submit/cancel endpoint.
+`submit()` and `cancel()` always raise
+`M15_REAL_ORDER_*_NOT_AUTHORIZED`; drafts always report
+`live_authorized=False` and `submitted=False`. The request shapes cannot be
+used as evidence that a real FINAM order, fill or protective stop exists.
+An entry-sized `SizedOrder` is not a broker-authenticated durable intent;
+the entire live state machine remains unavailable.
+
+`tests/test_trade_draft_contract.py` supplies 15 additional **synthetic**
+request, account isolation, grid, 100% SLTP and hard-block tests. Operator Intel
+full-repo verification is **PENDING**. The existing №14–17 remain open for
+real broker fill→SQLite, live-account R15/GO ledger, actual 100% SLTP ACK and
+trailing broker replacement. No order token is installed, no Task is started,
+no merge and no LIVE authorization. This is the authorized code-only first
+slice of that existing roadmap, not a new stage.
+
 ## H1-style durable intent/fill/stop rehearsal (synthetic only)
 
 `offline_intents.py` ports the **safety lifecycle**, not executable H1 trade authority:
