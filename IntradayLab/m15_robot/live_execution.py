@@ -53,6 +53,19 @@ class M15SubmissionUncertain(M15ExecutionError):
     """After the POST boundary a failure MUST be reconciled, NEVER retried."""
 
 
+def _rest_value_equals(value: Any, expected: str) -> bool:
+    """FINAM REST decimal object; equal numeric value need not share text scale."""
+    if (not isinstance(value, dict) or set(value) != {"value"}
+            or not isinstance(value["value"], str)):
+        return False
+    try:
+        got = Decimal(value["value"])
+        want = Decimal(expected)
+    except (ValueError, TypeError, ArithmeticError):
+        return False
+    return got.is_finite() and want.is_finite() and got == want
+
+
 def _digest(payload: dict) -> str:
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
@@ -398,9 +411,11 @@ class M15OutboundJournal:
                 raise M15ExecutionError("M15_PROTECTIVE_PREPOST_BACKSTOP_UNPROVEN")
             old = active[0]
             if (old.side != draft.payload["side"]
-                    or old.request.get("quantity_sl") != {"value": "100"}
+                    or not _rest_value_equals(old.request.get("quantity_sl"), "100")
                     or old.request.get("sl_qty_measure") !=
-                    "SLTP_QTY_MEASURE_PERCENT"):
+                    "SLTP_QTY_MEASURE_PERCENT"
+                    or not _rest_value_equals(old.request.get("sl_price"),
+                                              old.request.get("sl_price", {}).get("value", ""))):
                 raise M15ExecutionError("M15_PROTECTIVE_PREPOST_BACKSTOP_INVALID")
             old_price = Decimal(old.request["sl_price"]["value"])
             new_price = Decimal(draft.payload["sl_price"]["value"])
@@ -487,11 +502,12 @@ class M15OutboundJournal:
                     != prepost[1]):
                 raise M15ExecutionError("M15_PROTECTIVE_ACK_OLD_BACKSTOP_MISSING")
         if (stop.side != draft.payload["side"]
-                or stop.request.get("quantity_sl") != {"value": "100"}
+                or not _rest_value_equals(stop.request.get("quantity_sl"), "100")
                 or stop.request.get("sl_qty_measure") != "SLTP_QTY_MEASURE_PERCENT"
                 or stop.request.get("valid_before") !=
                 "VALID_BEFORE_GOOD_TILL_CANCEL"
-                or stop.request.get("sl_price") != draft.payload["sl_price"]):
+                or not _rest_value_equals(stop.request.get("sl_price"),
+                                          draft.payload["sl_price"]["value"])):
             raise M15ExecutionError("M15_PROTECTIVE_ACK_PRICE_OR_100_PERCENT_MISMATCH")
         broker_hash = hashlib.sha256(stop.order_id.encode()).hexdigest()
         quantity = abs(signed)
