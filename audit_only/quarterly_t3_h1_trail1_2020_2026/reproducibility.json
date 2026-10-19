@@ -1,0 +1,82 @@
+{
+  "all_generated_artifact_sha256_identical": true,
+  "artifacts": {
+    "annual_additional2.csv": {
+      "run1_sha256": "3ff8b4103b79ce4aafe34d758484792cba01d5020d3c870459652dc2b35201be",
+      "run2_sha256": "3ff8b4103b79ce4aafe34d758484792cba01d5020d3c870459652dc2b35201be"
+    },
+    "annual_all6.csv": {
+      "run1_sha256": "070598adf37d013cd3511bee1c8492fce35a89a7598263ba4797911feb03f61d",
+      "run2_sha256": "070598adf37d013cd3511bee1c8492fce35a89a7598263ba4797911feb03f61d"
+    },
+    "annual_by_instrument.csv": {
+      "run1_sha256": "d7b48433b067aed4a9a48aba896bec6e857270be37632938c606cf19d7b2f0ce",
+      "run2_sha256": "d7b48433b067aed4a9a48aba896bec6e857270be37632938c606cf19d7b2f0ce"
+    },
+    "annual_primary4.csv": {
+      "run1_sha256": "82577350f061a9125ac3da703211762d160cb39ae52fb57332774ffa5abfa9d1",
+      "run2_sha256": "82577350f061a9125ac3da703211762d160cb39ae52fb57332774ffa5abfa9d1"
+    },
+    "data_quality.json": {
+      "run1_sha256": "c0cd6554c5d1fe55741aa9a09f1cba2af00521020d55203b8c2d7c0eb64d788d",
+      "run2_sha256": "c0cd6554c5d1fe55741aa9a09f1cba2af00521020d55203b8c2d7c0eb64d788d"
+    },
+    "independent_audit.json": {
+      "run1_sha256": "fbeac16b61f1b6be0f11ec7c7b2a9f1c61aab64dcbb2bb2c36f14538a3f6a6dc",
+      "run2_sha256": "fbeac16b61f1b6be0f11ec7c7b2a9f1c61aab64dcbb2bb2c36f14538a3f6a6dc"
+    },
+    "monthly.csv": {
+      "run1_sha256": "3100873452ce509eebc08df2559d42a2dafb86d97db6814ea1fac59a5e7317f6",
+      "run2_sha256": "3100873452ce509eebc08df2559d42a2dafb86d97db6814ea1fac59a5e7317f6"
+    },
+    "preflight.log": {
+      "run1_sha256": "b8d9f1507d9671160e64881fc636f6ed3ec9d4335c713db5baeee17257680cc4",
+      "run2_sha256": "b8d9f1507d9671160e64881fc636f6ed3ec9d4335c713db5baeee17257680cc4"
+    },
+    "quarterly.csv": {
+      "run1_sha256": "28dde122414e85879c4706356e1e3605c30a46e7cbf6c170950c9fd3cb785418",
+      "run2_sha256": "28dde122414e85879c4706356e1e3605c30a46e7cbf6c170950c9fd3cb785418"
+    },
+    "quarterly_vs_perpetual_n4.csv": {
+      "run1_sha256": "7992ffa6dcd24f09649126d23ed8d6fc9ab1d3bc1cd0a21a5a4a93fa24d13595",
+      "run2_sha256": "7992ffa6dcd24f09649126d23ed8d6fc9ab1d3bc1cd0a21a5a4a93fa24d13595"
+    },
+    "robustness.csv": {
+      "run1_sha256": "d888cf81e50e51c0ae30769e22f40ba05f43abe46ee04aaeee00ddd63c6636e0",
+      "run2_sha256": "d888cf81e50e51c0ae30769e22f40ba05f43abe46ee04aaeee00ddd63c6636e0"
+    },
+    "source_coverage.csv": {
+      "run1_sha256": "829404164f8f0626559b9f2cca406ae93c701e12c87a065bd785d61892bac29d",
+      "run2_sha256": "829404164f8f0626559b9f2cca406ae93c701e12c87a065bd785d61892bac29d"
+    },
+    "source_manifest.json": {
+      "run1_sha256": "6d731d81d5640a58a8b3069e9042d9fb588738a6243da67a2b986af2eb4d64ca",
+      "run2_sha256": "6d731d81d5640a58a8b3069e9042d9fb588738a6243da67a2b986af2eb4d64ca"
+    },
+    "summary.json": {
+      "run1_sha256": "8a57af307d6d75f2ed7523fd235b6b7fecc3462282cd8f14ad7881a69b559e26",
+      "run2_sha256": "8a57af307d6d75f2ed7523fd235b6b7fecc3462282cd8f14ad7881a69b559e26"
+    },
+    "trades.csv": {
+      "run1_sha256": "d69f6cd68dbcc8edf4c0a45b8036b0e64306960a3c68ebb3203be8a6cb90f9e6",
+      "run2_sha256": "d69f6cd68dbcc8edf4c0a45b8036b0e64306960a3c68ebb3203be8a6cb90f9e6"
+    },
+    "trail1_trace.csv": {
+      "run1_sha256": "56364630d465c41f57a7b61e725c8f9d71639b80488870b1146a3e8a2e20eccf",
+      "run2_sha256": "56364630d465c41f57a7b61e725c8f9d71639b80488870b1146a3e8a2e20eccf"
+    },
+    "v2_vs_v3_comparison.csv": {
+      "run1_sha256": "ba0818215f6861d88d6b1b565c0b86ba56bf68233a2c325aa7b75331b6b36947",
+      "run2_sha256": "ba0818215f6861d88d6b1b565c0b86ba56bf68233a2c325aa7b75331b6b36947"
+    }
+  },
+  "command": "PYTHONDONTWRITEBYTECODE=1 python audit_only/quarterly_t3_h1_trail1_2020_2026/reproduce.py --data-root /workspace/market-pattern-data --scratch-root /workspace/work",
+  "historical_trade_reproducibility": "NOT_RUN_DATA_BLOCKED",
+  "offline_tests_exit_code": 0,
+  "python_version": "3.12.14",
+  "raw_quotes_copied": false,
+  "scope": "PREFLIGHT_AND_SYNTHETIC_FIXTURES_NOT_HISTORICAL_BACKTEST",
+  "status": "BLOCKED_PREFLIGHT_REPRODUCIBLE",
+  "technical_status": "DATA_BLOCKED",
+  "two_fresh_runs": true
+}

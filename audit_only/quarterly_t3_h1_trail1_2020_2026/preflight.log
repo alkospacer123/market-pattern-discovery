@@ -1,0 +1,52 @@
+READONLY_PREFLIGHT
+{
+  "technical_status": "DATA_BLOCKED",
+  "sources": [
+    {
+      "instrument": "Si",
+      "rows": 25695,
+      "sha256_matches": true,
+      "readme_nonwhitespace_bytes": 0,
+      "intraday_unobserved_hour_slots": 4
+    },
+    {
+      "instrument": "CNY",
+      "rows": 17220,
+      "sha256_matches": true,
+      "readme_nonwhitespace_bytes": 0,
+      "intraday_unobserved_hour_slots": 2
+    },
+    {
+      "instrument": "GD",
+      "rows": 26398,
+      "sha256_matches": true,
+      "readme_nonwhitespace_bytes": 0,
+      "intraday_unobserved_hour_slots": 3
+    },
+    {
+      "instrument": "MIX",
+      "rows": 26345,
+      "sha256_matches": true,
+      "readme_nonwhitespace_bytes": 0,
+      "intraday_unobserved_hour_slots": 4
+    },
+    {
+      "instrument": "BR",
+      "rows": 26313,
+      "sha256_matches": true,
+      "readme_nonwhitespace_bytes": 0,
+      "intraday_unobserved_hour_slots": 3
+    },
+    {
+      "instrument": "NG",
+      "rows": 26279,
+      "sha256_matches": true,
+      "readme_nonwhitespace_bytes": 0,
+      "intraday_unobserved_hour_slots": 27
+    }
+  ],
+  "authentication": "PASS",
+  "scalar_fixture_audit": "PASS",
+  "historical_replay": "NOT_RUN",
+  "source_files_missing": []
+}
