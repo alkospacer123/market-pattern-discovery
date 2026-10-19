@@ -265,6 +265,15 @@ class M15OutboundJournal:
                 ).fetchone()
                 if occupied:
                     raise M15ExecutionError("M15_OUTBOUND_INSTRUMENT_OCCUPIED")
+            if draft.kind == "PROTECTIVE_STOP_INSTALL":
+                existing_stop = self.db.execute(
+                    "SELECT 1 FROM outbound WHERE symbol=? AND "
+                    "kind='PROTECTIVE_STOP_INSTALL' AND "
+                    "state IN ('PREPARED','UNCERTAIN','ACK') LIMIT 1",
+                    (draft.payload["symbol"],),
+                ).fetchone()
+                if existing_stop:
+                    raise M15ExecutionError("M15_OUTBOUND_DUPLICATE_INITIAL_STOP")
             self.db.execute(
                 "INSERT INTO outbound VALUES(?,?,?,?,?,NULL)",
                 (key, draft.kind, draft.payload["symbol"], sha, "PREPARED"),
