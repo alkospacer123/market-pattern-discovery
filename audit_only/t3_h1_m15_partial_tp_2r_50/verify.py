@@ -54,7 +54,11 @@ def independent_audit(streams,results):
                     for part in (1,2):
                         if part not in legs:legs[part]=(at,price,'INITIAL_STOP' if stop==t['initial_stop_price'] else 'ATR_TRAILING_STOP')
                     found_end=True;break
-                if target_hit and t['variant']=='PARTIAL_TP_2R_50' and 1 not in legs:legs[1]=(at,target,'PARTIAL_TP_2R_50')
+                if target_hit and t['variant']=='PARTIAL_TP_2R_50' and 1 not in legs:
+                    fill=max(b['Open'],target) if side==1 else min(b['Open'],target)
+                    assert b['Low']<=fill<=b['High'],'INDEPENDENT_TP_PRICE_OUTSIDE_BAR'
+                    assert Decimal(str(fill))%tick==0,'INDEPENDENT_TP_FILL_OFF_GRID'
+                    legs[1]=(at,fill,'PARTIAL_TP_2R_50')
                 extreme=max(extreme,b['High']) if side==1 else min(extreme,b['Low'])
                 proposal=extreme-side*(3 if t['system']=='H1' else 3.5)*b['ATR']
                 if t['system']=='H1':

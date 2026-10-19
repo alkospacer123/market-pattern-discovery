@@ -1,20 +1,23 @@
 {
+  "execution_correction": "Resting limit favorable gaps use observed Open, never an off-range target credit; previous code/output series superseded",
   "files": {
-    "PROTOCOL_RU.md": "9ec06b4da908a8fb80441b8e6fff2a328f026eb56e7356973b8916ccd29f3e05",
-    "README.md": "1f5b51acf51bed67bfb93b84c111c9b2ce8bebfc0873212702364b96ceaa8a3b",
+    "EXECUTION_CORRECTION.json": "9a5b1baea298b8caa7782cd447d0734b5dca8e5b31ccffb50bc25405307f8906",
+    "PROTOCOL_RU.md": "2fe0bac4c49c9bb8480f804a13f35d4d2170ec87f8c3bb6e3914c0861d3c8981",
+    "PROTOCOL_V1_RU.md": "9ec06b4da908a8fb80441b8e6fff2a328f026eb56e7356973b8916ccd29f3e05",
+    "README.md": "9d6e564d780bdfc76ce90e310e9d09dbf790d4ddcdfb0c442d5b10e10f98f092",
     "analyze.py": "5e1bc3255fbd8079301ee190a815c79d201f5dc60996f1e5825732d760a6721a",
-    "common.py": "4a70cc3c12a2b14608bb387e8ba3f7cab691db8df90090320fe576c7ed38a748",
+    "common.py": "878260548db77f436f129f83e3639cd18f318868b08bf5e9c994895359ab7e21",
     "engines.py": "4067065bcf1436d3007eecd8721697cef60f46414d0d99a4260b2c23f1ae7fc1",
     "reconcile.py": "c8af2111d57ce93cd0bdc14e914a8d1009ecdac36e28565428e1660f6aca2e43",
     "repeat.py": "004f9fe8cd13add37c450679d7757760756fbd089611fa98870fd0b2381ea221",
-    "report.py": "e2ec129d5ad049fdfd4762a17218ea600365e7c9829bfe1a327357ece0d29f87",
+    "report.py": "e708c61a3eb79e5c9989f0dea514e7012944005412a0a492a3b9bd5519cbf327",
     "requirements.txt": "50bd36afe0a4a4950f51db01fddfedc5d16814a1664c8a21a02e7c247b481bda",
-    "run.py": "6d69473cebc8cb92ef9e0c4bf018a7bed183d0286e353729e57bd49856665e87",
-    "sources.py": "b6d8e5cbea19a1c6197de971020aa48bb11541e84f5faff08cb19078320ffcad",
-    "test_synthetic.py": "1721bc538f30366f1339e88bbf645077a0a401b375667f99b06c3f7debf793a0",
-    "verify.py": "945e2aec50f2457dd1d7d1ff3b57b24182f1f0074196a7ad045b431ae4b20b51"
+    "run.py": "0b194be4faf8d9760fb35eb77399ed51b27161a0f3db7de39e11fc06a9157c2c",
+    "sources.py": "b6ff9867d6cc6bf8de3e678d687a83ac98ab6ec6015eb9bb2270364ce3c85e56",
+    "test_synthetic.py": "383a6235135535c841c6f7b60f485ce46e4e7e3831b862fe20b4d1f4226ca585",
+    "verify.py": "6652f9a6fdcfb0fd9fbc17f96c7cf414017283297771cbe5c1bb4958eb018719"
   },
-  "parameters": "Only CONTROL and PARTIAL_TP_2R_50; unchanged precommitted protocol",
-  "prepared_on_parent": "7cea2b54576dc58ec2158a9b35fb3660068d10bf",
-  "status": "FINAL_CODE_BEFORE_THREE_FRESH_COMPLETE_PROCESSES"
+  "parameters": "CONTROL and PARTIAL_TP_2R_50 only; thresholds and evaluation criteria unchanged",
+  "prepared_on_parent": "9cf853b536eaf2c069b2301c5476d9980d35ed9e",
+  "status": "FINAL_CORRECTED_EXECUTION_BEFORE_THREE_FRESH_COMPLETE_PROCESSES"
 }

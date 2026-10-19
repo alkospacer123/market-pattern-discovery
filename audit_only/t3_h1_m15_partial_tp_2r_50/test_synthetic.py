@@ -23,8 +23,10 @@ class Synthetic(unittest.TestCase):
         p=pos();protect_and_tp(p,bar(op=85,hi=87,lo=80));self.assertEqual(p['gross_R'],-1.5)
     def test_short_adverse_gap(self):
         p=pos(-1);protect_and_tp(p,bar(op=115,hi=120,lo=114));self.assertEqual(p['gross_R'],-1.5)
-    def test_tp_favorable_gap_no_improvement(self):
-        p=pos();protect_and_tp(p,bar(op=125,hi=130,lo=124));self.assertEqual(p['part1_exit_price'],120.)
+    def test_tp_favorable_gap_observed_open(self):
+        p=pos();protect_and_tp(p,bar(op=125,hi=130,lo=124));self.assertEqual(p['part1_exit_price'],125.)
+    def test_short_tp_favorable_gap_observed_open(self):
+        p=pos(-1);protect_and_tp(p,bar(op=75,hi=76,lo=70));self.assertEqual(p['part1_exit_price'],75.)
     def test_tp_once(self):
         p=pos();protect_and_tp(p,bar(hi=125,lo=95));at=p['part1_exit_time'];protect_and_tp(p,bar(at=AT+timedelta(hours=1),hi=130,lo=95));self.assertEqual(p['part1_exit_time'],at);self.assertEqual(p['_remaining'],.5)
     def test_one_contract(self):self.assertEqual(partial_quantity(1,True),0)

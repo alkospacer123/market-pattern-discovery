@@ -20,6 +20,7 @@ def run(h1data,m15data,out):
     manifest=prepare(h1data,m15data)
     manifest['experiment_code_sha256']={p.name:sha(p) for p in sorted(HERE.glob('*.py'))}
     manifest['protocol_sha256']=sha(HERE/'PROTOCOL_RU.md')
+    manifest['execution_correction_evidence_sha256']=sha(HERE/'EXECUTION_CORRECTION.json')
     manifest['implementation_commit']=git('log','-1','--format=%H','--','audit_only/t3_h1_m15_partial_tp_2r_50/run.py')
     js(out/'SOURCE_MANIFEST.json',manifest)
     buf=io.StringIO();test=unittest.TextTestRunner(stream=buf).run(unittest.defaultTestLoader.loadTestsFromTestCase(Synthetic))

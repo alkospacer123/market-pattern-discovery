@@ -82,7 +82,9 @@ def protect_and_tp(p,b):
         p['gap_through_activated_trail']=bool(p['_activated'] and price!=stop)
         return True
     if touched and p['variant']=='PARTIAL_TP_2R_50' and not p['partial_executed']:
-        fill_part(p,1,b['at'],p['target_price'],'PARTIAL_TP_2R_50');p['partial_executed']=True
+        fill=max(b['Open'],p['target_price']) if side==1 else min(b['Open'],p['target_price'])
+        assert b['Low']<=fill<=b['High'],'TP_FILL_OUTSIDE_OBSERVED_RANGE'
+        fill_part(p,1,b['at'],fill,'PARTIAL_TP_2R_50');p['partial_executed']=True
     return False
 
 def public(p):

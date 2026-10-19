@@ -10,7 +10,7 @@ M15='IntradayLab/t3_m15_t1_entry_retest_v1/'
 
 def prepare(h1root,m15root):
     assert git('merge-base','--is-ancestor',BASE,'HEAD')==''
-    assert git('show',PROTOCOL_COMMIT+':audit_only/t3_h1_m15_partial_tp_2r_50/PROTOCOL_RU.md').encode()+b'\n'==(HERE/'PROTOCOL_RU.md').read_bytes()
+    assert git('show',PROTOCOL_COMMIT+':audit_only/t3_h1_m15_partial_tp_2r_50/PROTOCOL_RU.md').encode()+b'\n'==(HERE/'PROTOCOL_V1_RU.md').read_bytes()
     checked={}
     def check(rel,expected=None):
         raw=(ROOT/rel).read_bytes();digest=hashlib.sha256(raw).hexdigest()
@@ -62,6 +62,8 @@ def prepare(h1root,m15root):
             assert ts.is_monotonic_increasing and not ts.duplicated().any()
             data.append(dict(system=system,instrument=symbol,path=rel,commit=commit,sha256=digest,rows=len(f),first_open=str(ts.iloc[0]),last_open=str(ts.iloc[-1]),last_close=str(ts.iloc[-1]+pd.Timedelta(tf.replace('H1','1h').replace('M15','15min')))))
     return dict(status='SOURCE_IDENTITY_PASS',main_at_start=BASE,protocol_commit=PROTOCOL_COMMIT,
+        execution_correction_protocol_commit=git('log','-1','--format=%H','--','audit_only/t3_h1_m15_partial_tp_2r_50/PROTOCOL_RU.md'),
+        execution_correction='Preliminary target-price gap credits superseded; final TP fills use observed Open for favorable gaps',
         source_files=checked,data=data,h1_identity=spec,m15_spec=m15spec,
         pr518=dict(number=518,head='d85cf85083d6fea047a1a960c9ead441f7b4a6ed',merge='a77fc3ce79db693041c06192f6525f6847017de7'),
         pr540=dict(number=540,head=pr540,spec_sha256=hashlib.sha256(raw).hexdigest(),parsed_literals=values),

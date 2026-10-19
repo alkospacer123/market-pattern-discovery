@@ -2,6 +2,10 @@
 
 Start with [PROTOCOL_RU.md](PROTOCOL_RU.md), then [REPORT_RU.md](REPORT_RU.md).
 No production imports with broker side effects, no API/trading operations.
+The preliminary target-price gap credits were superseded after a feasible-price
+audit. See EXECUTION_CORRECTION.json and the protocol's explicit correction.
+Final resting-limit fills use observed Open on favorable gaps; the scalar audit
+checks every new TP fill against the candle range and price grid.
 Python 3.11+, pandas 2.2.3, numpy 2.3.5; no other third-party dependencies.
 
 Use two read-only data checkouts. H1 must be at
