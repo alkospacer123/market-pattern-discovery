@@ -80,26 +80,24 @@ def test_strict_limit(tmp_path, size):
 
 
 def test_timeout_worker_is_terminated(monkeypatch):
-    class Connection:
-        def close(self): pass
-        def poll(self, seconds):
-            assert seconds == 2
-            return False
     class Process:
-        pid = 1
         terminated = False
-        def start(self): pass
-        def join(self, seconds): assert seconds <= .2
-        def is_alive(self): return True
-        def terminate(self): self.terminated = True
+        waited = False
+        def __enter__(self): return self
+        def __exit__(self, *args): self.wait()
+        def communicate(self, data=None, timeout=None):
+            if not self.terminated:
+                assert timeout == 2
+                raise subprocess.TimeoutExpired('fixed-reader', timeout)
+            return b'', None
+        def kill(self): self.terminated = True
+        def wait(self): self.waited = True
     process = Process()
-    class Context:
-        def Pipe(self, duplex): return Connection(), Connection()
-        def Process(self, **kwargs): return process
-    monkeypatch.setattr(win.multiprocessing, 'get_context', lambda method: Context())
+    monkeypatch.setattr(subprocess, 'CREATE_NO_WINDOW', 0x08000000, raising=False)
+    monkeypatch.setattr(subprocess, 'Popen', lambda *a, **k: process)
     with pytest.raises(ValueError, match='TIMEOUT'):
         win.read_windows(r'C:\CC', 'h1.snapshot.json', 131072)
-    assert process.terminated
+    assert process.terminated and process.waited
 
 
 native = pytest.mark.skipif(os.name != 'nt', reason='NOT_VERIFIED: requires real Windows local NTFS')
