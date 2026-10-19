@@ -9,6 +9,34 @@
 **Инженерный порядок работ, обязательные проверки и условия допуска M15 к LIVE:** [ROADMAP.md](ROADMAP.md). Он описывает внедрение выбранной сборки, не новые исследования, и имеет приоритет как актуальная последовательность реализации.
 
 
+## M15 post-fill R15/GO nominal risk review (code only)
+
+`postfill_risk_review.py` checks the actual verified broker-fill VWAP
+as an exact Fraction against the initial broker-derived executable STOP and
+the frozen **1.5% new-position / 6% total nominal risk**. This closes an
+important measurement gap: a multi-fill average can be *between* price ticks
+and should not be rounded as though it was a single executable entry price.
+It requires pre-entry account cash/GO snapshot evidence, independently
+proposed realized capital, the original `SizedOrder` and the exact N4
+contract tick-value authority. FINAM cash available AFTER fill cannot be
+substituted for the pre-entry unreserved margin balance.
+
+The result only reports **WITHIN_NOMINAL_R15_GO_OFFLINE_ONLY** or
+**POSTFILL_RISK_OR_MARGIN_OVERRUN_REQUIRES_BROKER_REVIEW**, without suggesting
+that an already-filled position can be undone or safely resized. It contains
+no order/SLTP/Task/token/H1 access and always sets
+`new_entries_authorized=False`, `order_submission_authorized=False`,
+`stop_broker_acknowledged=False`, `live_authorized=False`.
+Broker commission authority and freshness/identity of a persisted
+pre-entry cash snapshot are not yet established, so the result is
+diagnostic only — NOT real R15 authority.
+
+`tests/test_postfill_risk_review.py` has 17 synthetic cases, including
+off-grid VWAP, NOMINAL R15/6% cap, GO, wrong-side/off-grid STOP,
+partial/overfilled quantities and fail-closed source guards.
+**Intel physical run PENDING.** №14–17 remain open for real broker
+trade/protective adoption, LIVE risk ledger and proof of broker SLTP ACK.
+
 ## M15 initial 2ATR protective STOP DRAFT based on broker GET fills
 
 `initial_stop_from_fills.py` is a new **pure, offline** adapter within the
