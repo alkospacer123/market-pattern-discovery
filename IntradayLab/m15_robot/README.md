@@ -1,5 +1,35 @@
 # IntradayLab M15 robot — isolated offline foundation
 
+## 19.10.2026 — accelerated H1-derived M15 outbound execution (NOT LIVE)
+
+After physically accepted Intel №15 post-fill **17/17 synthetic PASS**, H1's actual
+`TradingSystemLab/stage8_robot/live_execution.py`, `finam_api.py`,
+`production_runtime.py` and external authorization design were inspected
+**read-only** against current GitHub main. M15-only Draft PR #540 adds:
+
+- `live_execution.py`: M15-account-hash-bound durable SQLite outbound intent
+  journal, `PREPARED → UNCERTAIN → broker order ACK`; uncertainty is persisted
+  **before any proposed FINAM POST**, no automatic retry, one open ENTRY
+  intent per instrument, fail-closed restart identity and idempotency.
+- `finam_trading.py`: separate M15 write-capable FINAM REST schema for account,
+  MARKET order, SLTP and cancel, with non-retried POST and fail-closed ambiguous
+  outcomes. It does not reuse an H1 session, secret, runtime or client.
+- `tests/test_live_execution.py`: **14 offline synthetic** journal, identity,
+  risk-shape and no-network authorization-refusal cases.
+
+The current frozen `spec.EXECUTION_STATUS = "NOT_LIVE_AUTHORIZED"` blocks
+the entire trading wire *before construction or session authentication*,
+and `live_execution` requires its own external exact M15 commit/account
+authorization which does not exist. Crucially, entry submission, real
+protection replacement, exit and cancellation still additionally refuse
+because trustworthy LIVE reconciliation/risk/stop/flat gates have not yet
+been wired in. Thus this is **CODE ONLY**, not a working enabled robot, not
+proof of real broker SLTP ACK, and not a reason to start the Windows Task.
+No trading endpoint has been called; source/test Intel execution is PENDING.
+The prior #14 checkpoint v2 stopped at a PS1 hash check, so its nine tests
+are included in the next **single existing-checkout** full suite instead of
+an extra ZIP. No H1 edits and no new clone/worktree.
+
 ## Данные M15.zip — checkpoint 16.10.2026
 
 Исходные свежие котировки N4 от пользователя приняты и проверены **без изменения замороженных данных**. Отчёт: [M15_ZIP_20261016_AUDIT.json](data_intake/M15_ZIP_20261016_AUDIT.json). Проверены уникальность/сетка времени/структура и историческое пересечение (8 123 совпадения из 8 124 reference-строк). Единственное отличие: `IMOEXF;2026-09-09 07:00:00`, Volume старого источника 19786, в ZIP 19781; OHLC одинаковые. Замороженное значение остаётся первичным, отличие нельзя маскировать. Последняя новая M15 OPEN-метка 16.10 12:15 ещё требует доказанного закрытия. **Статус №08: NOT PASS / ONE_VOLUME_CONFLICT, №09: FINAM READONLY PENDING, real signal not authorized.**
@@ -120,7 +150,7 @@ slice of that existing roadmap, not a new stage.
 - `synthetic_stop_ack()` tests the audited H1 **100%-of-position** stop policy, valid initial side, and strictly tightening replacements. Acknowledgment only after simulated broker fill. No source module capable of real order transmission exists.
 - `tests/test_offline_intents.py` has 20 targeted regression tests; `tests/test_offline_pipeline.py` has 3 cross-component rehearsals of GET-only broker cleanliness, R15/margin sizing, durable intent, partial fill, stop 100%, restart and UNCERTAIN duplicate rejection.
 
-**This is NOT real broker reconciliation or proof of protective SLTP installation.** It is synthetic preparation for porting H1's audited `production_runtime.py` / `live_execution.py`. The next integration must verify authoritative broker order IDs, durable actual fill prices, partial fill expansion and broker-proven SLTP activation before any real account can trade. For the entire Draft PR, the order endpoint remains structurally absent and `execution_authorized=False`.
+**This is NOT real broker reconciliation or proof of protective SLTP installation.** It is synthetic preparation for porting H1's audited `production_runtime.py` / `live_execution.py`. The next integration must verify authoritative broker order IDs, durable actual fill prices, partial fill expansion and broker-proven SLTP activation before any real account can trade. Earlier this was offline-only; the new M15-only transport is now staged in `finam_trading.py`, but its constructor is still blocked by the frozen `NOT_LIVE_AUTHORIZED` gate. No live execution authorization exists.
 
 ## M15 candle finalization and frozen-history continuation (offline)
 
