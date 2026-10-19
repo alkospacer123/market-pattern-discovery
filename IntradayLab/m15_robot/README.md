@@ -9,6 +9,27 @@
 **Инженерный порядок работ, обязательные проверки и условия допуска M15 к LIVE:** [ROADMAP.md](ROADMAP.md). Он описывает внедрение выбранной сборки, не новые исследования, и имеет приоритет как актуальная последовательность реализации.
 
 
+## M15 offline draft/intent/GET handoff (no real fills or trading)
+
+`offline_trade_handoff.py` combines existing **M15-only** components without
+changing any production state: `trade_draft_contract.py` formats a proposed
+ENTRY; `OfflineIntentLedger.prepare()` durably stores a **SYNTHETIC_ONLY**
+rehearsal intent with exactly the same identity, refusing second instruments
+and preventing a second submission after `UNCERTAIN`. Separately
+`M15ReadOnlyBrokerReceiptStore.observe()` validates the expected broker
+order/account/client ID, bounded fill history, position and available stop
+evidence and appends only sanitized GET receipt hashes.
+
+There is **no real FINAM transport or token**, no real fill or SLTP SQLite
+adoption, no ACK inferred from JSON, no order execution or re-arm. The two
+databases deliberately remain separate. Receipt observation cannot move a
+synthetic intent out of PREPARED/UNCERTAIN or permit a live trade.
+`tests/test_offline_trade_handoff.py` contains 16 synthetic cases, including
+idempotent prepare, no second instrument, uncertain non-retry, mismatched
+broker/account identity, partial fill observation without ledger adoption,
+stale receipt refusal and hard no-POST. **Intel physical execute PENDING.**
+The original №14–17 acceptance gates remain OPEN.
+
 ## M15 trade-request DRAFT contract (code only; real POST still absent)
 
 `trade_draft_contract.py` formats **only offline proposals** for FINAM MARKET
