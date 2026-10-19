@@ -331,6 +331,8 @@ class M15OutboundJournal:
                           broker_order_id: str) -> None:
         """A POST ACK confirms an order ID only; never an execution or stop coverage."""
         _valid_draft(draft, account_hash=self.account_hash, key=key)
+        if draft.kind != "ENTRY":
+            raise M15ExecutionError("M15_PROTECTIVE_ACK_REQUIRES_ACTIVE_BROKER_GET")
         if not isinstance(broker_order_id, str) or not broker_order_id or len(broker_order_id) > 128:
             raise M15ExecutionError("M15_OUTBOUND_BROKER_ORDER_ID_MISSING")
         self.db.execute("BEGIN IMMEDIATE")
