@@ -512,6 +512,142 @@ class M15ExecutionStageTests(unittest.TestCase):
                 **dict(args, orders_response=orders))
         self.assertIsNone(self.j.inspect(args["stop_key"]))
 
+
+    def protective_observation(self, draft, *, include_new=True, old_stop=None):
+        data = self.broker_get(filled=1)
+        rows = list(data["orders_response"]["orders"])
+        if old_stop is not None:
+            rows.append({
+                "order_id": "broker-old-stop", "status": "ORDER_STATUS_NEW",
+                "sltp_order": dict(old_stop.payload),
+            })
+        if include_new:
+            rows.append({
+                "order_id": "broker-new-stop", "status": "ORDER_STATUS_NEW",
+                "sltp_order": dict(draft.payload),
+            })
+        return data["account"], {"orders": rows}
+
+    def test_protective_prepost_unknown_to_verified_active_get_no_retry(self):
+        key = "m15:stop:synthetic:1"
+        draft = self.stop(key)
+        self.j.prepare(key=key, draft=draft)
+        account, before = self.protective_observation(draft, include_new=False)
+        with self.assertRaisesRegex(M15ExecutionError, "REQUIRES_BROKER_POSITION"):
+            self.j.begin_post_uncertain(key=key, draft=draft)
+        self.j.begin_protective_post_uncertain(
+            key=key, draft=draft, account=account, orders_response=before)
+        self.assertEqual(self.j.inspect(key)["state"], "UNCERTAIN")
+        after_account, after = self.protective_observation(draft)
+        proof = self.j.reconcile_protective_broker_get(
+            key=key, draft=draft, account=after_account, orders_response=after)
+        self.assertEqual(proof.stop_price, Decimal("12.400"))
+        self.assertEqual(proof.percent, 100)
+        self.assertEqual(proof.covered_quantity_at_ack, 1)
+        self.assertTrue(proof.active)
+        self.assertEqual(self.j.inspect(key)["state"], "ACK")
+        self.j.close()
+        self.j = M15OutboundJournal(**self.args)
+        again = self.j.reconcile_protective_broker_get(
+            key=key, draft=draft, account=after_account, orders_response=after)
+        self.assertEqual(again, proof)
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM protective_coverage").fetchone()[0], 1)
+
+    def test_protective_100_percent_ack_does_not_cover_later_fill(self):
+        key = "m15:stop:synthetic:1"
+        draft = self.stop(key)
+        self.j.prepare(key=key, draft=draft)
+        account, before = self.protective_observation(draft, include_new=False)
+        self.j.begin_protective_post_uncertain(
+            key=key, draft=draft, account=account, orders_response=before)
+        account, after = self.protective_observation(draft)
+        self.j.reconcile_protective_broker_get(
+            key=key, draft=draft, account=account, orders_response=after)
+        grown = dict(account, positions=[{
+            "symbol": "CNYRUBF@RTSX", "quantity": {"value": "2"}}])
+        with self.assertRaisesRegex(M15ExecutionError, "COVERAGE_UNPROVEN"):
+            self.j.reconcile_protective_broker_get(
+                key=key, draft=draft, account=grown, orders_response=after)
+        self.assertEqual(self.j.db.execute(
+            "SELECT covered_quantity_at_ack FROM protective_coverage"
+        ).fetchone()[0], 1)
+
+    def test_protective_missing_or_mismatched_sltp_never_ack(self):
+        key = "m15:stop:synthetic:1"
+        draft = self.stop(key)
+        self.j.prepare(key=key, draft=draft)
+        account, before = self.protective_observation(draft, include_new=False)
+        self.j.begin_protective_post_uncertain(
+            key=key, draft=draft, account=account, orders_response=before)
+        with self.assertRaisesRegex(M15ExecutionError, "NOT_ACTIVE"):
+            self.j.reconcile_protective_broker_get(
+                key=key, draft=draft, account=account, orders_response=before)
+        _, valid = self.protective_observation(draft)
+        for field, value in (
+            ("sl_price", {"value": "12.399"}),
+            ("quantity_sl", {"value": "99"}),
+            ("side", "SIDE_BUY"),
+        ):
+            rows = list(valid["orders"])
+            bad = dict(rows[-1], sltp_order={
+                **rows[-1]["sltp_order"], field: value})
+            with self.subTest(field=field):
+                with self.assertRaisesRegex(M15ExecutionError, "MISMATCH"):
+                    self.j.reconcile_protective_broker_get(
+                        key=key, draft=draft, account=account,
+                        orders_response={"orders": rows[:-1] + [bad]})
+        self.assertEqual(self.j.inspect(key)["state"], "UNCERTAIN")
+
+    def test_protective_prepost_rejects_wrong_account_and_old_stop(self):
+        key = "m15:stop:synthetic:1"
+        draft = self.stop(key)
+        self.j.prepare(key=key, draft=draft)
+        account, before = self.protective_observation(draft, include_new=False)
+        with self.assertRaisesRegex(M15ExecutionError, "ACCOUNT_INVALID"):
+            self.j.begin_protective_post_uncertain(
+                key=key, draft=draft,
+                account=dict(account, account_id="H1-ACCOUNT"),
+                orders_response=before)
+        _, with_stop = self.protective_observation(draft)
+        with self.assertRaisesRegex(M15ExecutionError, "EXISTING_STOP"):
+            self.j.begin_protective_post_uncertain(
+                key=key, draft=draft, account=account,
+                orders_response=with_stop)
+        self.assertEqual(self.j.inspect(key)["state"], "PREPARED")
+
+    def test_protective_replacement_keeps_broker_backstop_until_new_ack(self):
+        old_key = "m15:stop:synthetic:1"
+        old = self.stop(old_key)
+        new_key = "m15:trail:synthetic:1"
+        updated = self.stop(new_key)
+        new = M15Draft(
+            "PROTECTIVE_STOP_REPLACE", updated.account_fingerprint,
+            updated.endpoint, {**updated.payload, "sl_price": {"value": "12.500"}},
+        )
+        self.j.prepare(key=new_key, draft=new)
+        account, prior = self.protective_observation(
+            new, include_new=False, old_stop=old)
+        with self.assertRaisesRegex(M15ExecutionError, "BACKSTOP_UNPROVEN"):
+            self.j.begin_protective_post_uncertain(
+                key=new_key, draft=new, account=account,
+                orders_response=prior)
+        self.j.begin_protective_post_uncertain(
+            key=new_key, draft=new, account=account,
+            orders_response=prior, prior_active_broker_stop_id="broker-old-stop")
+        account, both = self.protective_observation(new, old_stop=old)
+        proof = self.j.reconcile_protective_broker_get(
+            key=new_key, draft=new, account=account,
+            orders_response=both)
+        self.assertEqual(proof.stop_price, Decimal("12.500"))
+        self.assertEqual(proof.covered_quantity_at_ack, 1)
+        self.assertEqual(self.j.inspect(new_key)["state"], "ACK")
+        _, without_old = self.protective_observation(new)
+        with self.assertRaisesRegex(M15ExecutionError, "OLD_BACKSTOP_MISSING"):
+            self.j.reconcile_protective_broker_get(
+                key=new_key, draft=new, account=account,
+                orders_response=without_old)
+
     def test_authorization_file_cannot_override_frozen_status(self):
         root = self.args["runtime_root"]
         (root / "safety").mkdir(parents=True, exist_ok=True)
