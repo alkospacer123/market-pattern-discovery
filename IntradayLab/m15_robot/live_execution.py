@@ -198,10 +198,21 @@ class M15OutboundJournal:
                     price TEXT NOT NULL,
                     trade_timestamp TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS protective_prepost (
+                    intent_key TEXT PRIMARY KEY REFERENCES outbound(intent_key),
+                    signed_position_quantity INTEGER NOT NULL CHECK(signed_position_quantity!=0),
+                    prior_stop_sha256 TEXT
+                );
+                CREATE TABLE IF NOT EXISTS protective_coverage (
+                    intent_key TEXT PRIMARY KEY REFERENCES outbound(intent_key),
+                    broker_stop_sha256 TEXT NOT NULL,
+                    covered_quantity_at_ack INTEGER NOT NULL CHECK(covered_quantity_at_ack>0),
+                    stop_price TEXT NOT NULL
+                );
             """)
             tables = {r[0] for r in self.db.execute(
                 "SELECT name FROM sqlite_master WHERE type='table'")}
-            if tables != {"metadata", "outbound", "broker_fills"}:
+            if tables != {"metadata", "outbound", "broker_fills", "protective_prepost", "protective_coverage"}:
                 raise M15ExecutionError("M15_OUTBOUND_SCHEMA_TABLES_INVALID")
             expected = {
                 "metadata": ("key", "value"),
@@ -209,6 +220,10 @@ class M15OutboundJournal:
                              "state", "broker_order_sha256"),
                 "broker_fills": ("trade_sha256", "intent_key", "broker_order_sha256",
                                  "quantity", "price", "trade_timestamp"),
+                "protective_prepost": ("intent_key", "signed_position_quantity",
+                                       "prior_stop_sha256"),
+                "protective_coverage": ("intent_key", "broker_stop_sha256",
+                                        "covered_quantity_at_ack", "stop_price"),
             }
             for table, cols in expected.items():
                 found = tuple(row[1] for row in self.db.execute(f"PRAGMA table_info({table})"))
@@ -291,6 +306,8 @@ class M15OutboundJournal:
     def begin_post_uncertain(self, *, key: str, draft: M15Draft) -> None:
         """Durably record uncertainty BEFORE entering the FINAM POST boundary."""
         _valid_draft(draft, account_hash=self.account_hash, key=key)
+        if draft.kind != "ENTRY":
+            raise M15ExecutionError("M15_PROTECTIVE_REQUIRES_BROKER_POSITION_PREPOST")
         self.db.execute("BEGIN IMMEDIATE")
         try:
             row = self.inspect(key)
@@ -335,6 +352,184 @@ class M15OutboundJournal:
 
 
 
+
+
+    def begin_protective_post_uncertain(
+        self, *, key: str, draft: M15Draft, account: dict,
+        orders_response: dict, prior_active_broker_stop_id: str | None = None,
+    ) -> None:
+        """H1: durable signed quantity + UNKNOWN boundary BEFORE stop POST.
+
+        This ONLY prepares for an externally authorized broker operation:
+        it never sends, cancels or approves SLTP / orders.
+        """
+        _valid_draft(draft, account_hash=self.account_hash, key=key)
+        if draft.kind not in {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}:
+            raise M15ExecutionError("M15_PROTECTIVE_PREPOST_KIND_INVALID")
+        if (not isinstance(account, dict)
+                or account.get("status") not in
+                {"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"}
+                or not isinstance(account.get("account_id"), str)
+                or hashlib.sha256(account["account_id"].encode()).hexdigest()
+                != self.account_hash):
+            raise M15ExecutionError("M15_PROTECTIVE_PREPOST_ACCOUNT_INVALID")
+        positions = position_quantities(account)
+        signed = positions.get(draft.payload["symbol"], 0)
+        if (type(signed) is not int or signed == 0
+                or draft.payload["side"] !=
+                ("SIDE_SELL" if signed > 0 else "SIDE_BUY")):
+            raise M15ExecutionError("M15_PROTECTIVE_PREPOST_POSITION_INVALID")
+        orders = order_views(orders_response)
+        active = [
+            x for x in orders if x.active and x.kind == "SLTP"
+            and x.symbol == draft.payload["symbol"]
+        ]
+        previous_hash = None
+        if draft.kind == "PROTECTIVE_STOP_INSTALL":
+            if active or prior_active_broker_stop_id is not None:
+                raise M15ExecutionError("M15_PROTECTIVE_PREPOST_EXISTING_STOP")
+        else:
+            if (len(active) != 1
+                    or not isinstance(prior_active_broker_stop_id, str)
+                    or not prior_active_broker_stop_id
+                    or active[0].order_id != prior_active_broker_stop_id):
+                raise M15ExecutionError("M15_PROTECTIVE_PREPOST_BACKSTOP_UNPROVEN")
+            old = active[0]
+            if (old.side != draft.payload["side"]
+                    or old.request.get("quantity_sl") != {"value": "100"}
+                    or old.request.get("sl_qty_measure") !=
+                    "SLTP_QTY_MEASURE_PERCENT"):
+                raise M15ExecutionError("M15_PROTECTIVE_PREPOST_BACKSTOP_INVALID")
+            old_price = Decimal(old.request["sl_price"]["value"])
+            new_price = Decimal(draft.payload["sl_price"]["value"])
+            if (old_price <= 0
+                    or (signed > 0 and new_price < old_price)
+                    or (signed < 0 and new_price > old_price)):
+                raise M15ExecutionError("M15_PROTECTIVE_PREPOST_STOP_WIDENING")
+            previous_hash = hashlib.sha256(
+                prior_active_broker_stop_id.encode("utf-8")).hexdigest()
+        self.db.execute("BEGIN IMMEDIATE")
+        try:
+            row = self.inspect(key)
+            if (row is None or row["state"] != "PREPARED"
+                    or row["kind"] != draft.kind
+                    or row["payload_sha256"] != _digest(draft.payload)):
+                raise M15ExecutionError("M15_PROTECTIVE_PREPOST_NOT_PREPARED")
+            if self.db.execute(
+                "SELECT 1 FROM protective_prepost WHERE intent_key=?", (key,)
+            ).fetchone():
+                raise M15ExecutionError("M15_PROTECTIVE_PREPOST_ALREADY_USED")
+            self.db.execute(
+                "INSERT INTO protective_prepost VALUES(?,?,?)",
+                (key, signed, previous_hash),
+            )
+            self.db.execute(
+                "UPDATE outbound SET state='UNCERTAIN' WHERE intent_key=? AND state='PREPARED'",
+                (key,),
+            )
+            self.db.execute("COMMIT")
+        except Exception:
+            if self.db.in_transaction:
+                self.db.execute("ROLLBACK")
+            raise
+
+    def reconcile_protective_broker_get(
+        self, *, key: str, draft: M15Draft,
+        account: dict, orders_response: dict,
+    ) -> BrokerProtection:
+        """H1 broker SLTP ACK: durable pre-POST quantity + matching ACTIVE GET.
+
+        ACK is not a fill. A later partial fill makes this coverage stale and
+        MUST hold new entries / trailing until another verified protection.
+        """
+        _valid_draft(draft, account_hash=self.account_hash, key=key)
+        if draft.kind not in {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}:
+            raise M15ExecutionError("M15_PROTECTIVE_ACK_KIND_INVALID")
+        if (not isinstance(account, dict)
+                or account.get("status") not in
+                {"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"}
+                or not isinstance(account.get("account_id"), str)
+                or hashlib.sha256(account["account_id"].encode()).hexdigest()
+                != self.account_hash):
+            raise M15ExecutionError("M15_PROTECTIVE_ACK_ACCOUNT_INVALID")
+        signed = position_quantities(account).get(draft.payload["symbol"], 0)
+        if (type(signed) is not int or signed == 0
+                or draft.payload["side"] !=
+                ("SIDE_SELL" if signed > 0 else "SIDE_BUY")):
+            raise M15ExecutionError("M15_PROTECTIVE_ACK_POSITION_INVALID")
+        prepost = self.db.execute(
+            "SELECT signed_position_quantity,prior_stop_sha256 "
+            "FROM protective_prepost WHERE intent_key=?", (key,),
+        ).fetchone()
+        if prepost is None or signed != prepost[0]:
+            raise M15ExecutionError("M15_PROTECTIVE_ACK_COVERAGE_UNPROVEN")
+        orders = order_views(orders_response)
+        candidates = [
+            x for x in orders if x.active and x.kind == "SLTP"
+            and x.symbol == draft.payload["symbol"]
+        ]
+        matching = [
+            x for x in candidates if x.client_order_id ==
+            draft.payload["client_order_id"] and x.comment == key
+        ]
+        if len(matching) != 1:
+            raise M15ExecutionError("M15_PROTECTIVE_ACK_EXACT_STOP_NOT_ACTIVE")
+        stop = matching[0]
+        other = [x for x in candidates if x.order_id != stop.order_id]
+        if draft.kind == "PROTECTIVE_STOP_INSTALL":
+            if other or prepost[1] is not None:
+                raise M15ExecutionError("M15_PROTECTIVE_ACK_DUPLICATE_ACTIVE_STOP")
+        else:
+            if (len(other) != 1 or prepost[1] is None
+                    or hashlib.sha256(other[0].order_id.encode()).hexdigest()
+                    != prepost[1]):
+                raise M15ExecutionError("M15_PROTECTIVE_ACK_OLD_BACKSTOP_MISSING")
+        if (stop.side != draft.payload["side"]
+                or stop.request.get("quantity_sl") != {"value": "100"}
+                or stop.request.get("sl_qty_measure") != "SLTP_QTY_MEASURE_PERCENT"
+                or stop.request.get("valid_before") !=
+                "VALID_BEFORE_GOOD_TILL_CANCEL"
+                or stop.request.get("sl_price") != draft.payload["sl_price"]):
+            raise M15ExecutionError("M15_PROTECTIVE_ACK_PRICE_OR_100_PERCENT_MISMATCH")
+        broker_hash = hashlib.sha256(stop.order_id.encode()).hexdigest()
+        quantity = abs(signed)
+        self.db.execute("BEGIN IMMEDIATE")
+        try:
+            row = self.inspect(key)
+            if (row is None or row["kind"] != draft.kind
+                    or row["state"] not in {"UNCERTAIN", "ACK"}
+                    or row["payload_sha256"] != _digest(draft.payload)
+                    or (row["state"] == "ACK"
+                        and row["broker_order_sha256"] != broker_hash)):
+                raise M15ExecutionError("M15_PROTECTIVE_ACK_INTENT_NOT_MATCHED")
+            existing = self.db.execute(
+                "SELECT broker_stop_sha256,covered_quantity_at_ack,stop_price "
+                "FROM protective_coverage WHERE intent_key=?", (key,),
+            ).fetchone()
+            expected = (broker_hash, quantity, draft.payload["sl_price"]["value"])
+            if existing is not None and existing != expected:
+                raise M15ExecutionError("M15_PROTECTIVE_ACK_COVERAGE_CHANGED")
+            if existing is None:
+                self.db.execute(
+                    "INSERT INTO protective_coverage VALUES(?,?,?,?)",
+                    (key, *expected),
+                )
+            if row["state"] == "UNCERTAIN":
+                self.db.execute(
+                    "UPDATE outbound SET state='ACK',broker_order_sha256=? "
+                    "WHERE intent_key=? AND state='UNCERTAIN'",
+                    (broker_hash, key),
+                )
+            self.db.execute("COMMIT")
+        except Exception:
+            if self.db.in_transaction:
+                self.db.execute("ROLLBACK")
+            raise
+        return BrokerProtection(
+            broker_order_id=stop.order_id,
+            stop_price=Decimal(draft.payload["sl_price"]["value"]),
+            percent=100, covered_quantity_at_ack=quantity, active=True,
+        )
 
     def prepare_initial_sltp_from_broker_position(
         self, *, entry_key: str, entry_draft: M15Draft, stop_key: str,
