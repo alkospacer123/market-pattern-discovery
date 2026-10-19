@@ -968,13 +968,63 @@ class M15AuthorizedExecutionTransport:
         return self._transmit(journal=journal, key=key, draft=draft,
                               send=self.api.place_order)
 
-    def submit_protective_stop(self, *, journal: M15OutboundJournal, key: str,
-                               draft: M15Draft, broker_position_qty: int):
+    def submit_protective_stop(
+        self, *, journal: M15OutboundJournal, key: str, draft: M15Draft,
+        broker_position_qty: int, account: dict, orders_response: dict,
+        prior_active_broker_stop_id: str | None = None,
+    ) -> dict:
+        """H1 STOP-first POST transition; never calls it in current no-LIVE mode.
+
+        Durable signed broker position is committed BEFORE transmission.
+        Successful POST ACK is ONLY a receipt; independent active SLTP
+        broker GET and exact quantity must call reconcile_protective_broker_get.
+        An error after the boundary is always UNCERTAIN, never retried.
+        """
         if draft.kind not in {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}:
-            raise M15ExecutionError("M15_PROTECTIVE_DRAFT_KIND_INVALID")
-        # Real replacement requires an independently observed current active
-        # STOP, ACK sequence and tightening-first. The draft alone is NOT proof.
-        raise M15PrePostRefused("M15_PROTECTION_BROKER_ACK_GATE_NOT_IMPLEMENTED")
+            raise M15PrePostRefused("M15_PROTECTIVE_DRAFT_KIND_INVALID")
+        self._require_connected()
+        from .finam_trading import M15FinamTradingAPI, M15_ORDER_POST_RELEASED
+        if M15_ORDER_POST_RELEASED is not True:
+            raise M15PrePostRefused("M15_PROTECTIVE_POST_RELEASE_NOT_AUTHORIZED")
+        if not isinstance(self.api, M15FinamTradingAPI):
+            raise M15ExecutionError("M15_PROTECTIVE_TRADING_CLIENT_INVALID")
+        if (not isinstance(journal, M15OutboundJournal)
+                or journal.account_hash != self.account_hash
+                or journal.path.parent.parent.resolve()
+                != self.runtime_root.resolve()):
+            raise M15ExecutionError("M15_PROTECTIVE_JOURNAL_IDENTITY_MISMATCH")
+        _valid_draft(draft, account_hash=self.account_hash, key=key)
+        if (type(broker_position_qty) is not int or broker_position_qty == 0
+                or not isinstance(account, dict)):
+            raise M15ExecutionError("M15_PROTECTIVE_BROKER_POSITION_INVALID")
+        observed = position_quantities(account).get(draft.payload["symbol"], 0)
+        if broker_position_qty != observed:
+            raise M15ExecutionError("M15_PROTECTIVE_BROKER_POSITION_MISMATCH")
+        journal.begin_protective_post_uncertain(
+            key=key, draft=draft, account=account,
+            orders_response=orders_response,
+            prior_active_broker_stop_id=prior_active_broker_stop_id,
+        )
+        try:
+            response = self.api.place_sltp_order(
+                self.account_id, dict(draft.payload))
+        except Exception as exc:
+            raise M15SubmissionUncertain(
+                "M15_PROTECTIVE_POST_UNCERTAIN_GET_RECONCILIATION_REQUIRED"
+            ) from exc
+        if (not isinstance(response, dict)
+                or not isinstance(response.get("order_id"), str)
+                or not response["order_id"]):
+            raise M15SubmissionUncertain(
+                "M15_PROTECTIVE_POST_ACK_ORDER_ID_NOT_PROVED")
+        return {
+            "broker_order_sha256": hashlib.sha256(
+                response["order_id"].encode("utf-8")).hexdigest(),
+            "post_ack_observed": True,
+            "broker_stop_active_confirmed": False,
+            "broker_coverage_confirmed": False,
+            "live_protection_reconciled": False,
+        }
 
     def submit_emergency_exit(self, *, journal: M15OutboundJournal, key: str,
                               draft: M15Draft, broker_position_qty: int):
