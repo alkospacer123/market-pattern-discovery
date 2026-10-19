@@ -22,6 +22,9 @@ from typing import Any
 
 from .broker_fill_readonly import ExpectedEntry, analyze_account_trades
 from .broker_reconcile_gate import assess_entry_evidence
+from .grid_risk import project_stop
+from .spec import INITIAL_STOP_ATR
+from .trade_draft_contract import M15OfflineTradeDrafts
 
 from .account_boundary import validate_independent_binding
 from .spec import EXECUTION_STATUS, INSTRUMENTS, ROBOT_ID
@@ -318,6 +321,75 @@ class M15OutboundJournal:
                 self.db.execute("ROLLBACK")
             raise
 
+
+
+    def prepare_initial_sltp_from_durable_fills(
+        self, *, entry_key: str, entry_draft: M15Draft,
+        broker_report: dict, stop_key: str, drafts: M15OfflineTradeDrafts,
+        instrument: str, direction: str, atr_at_signal: Decimal,
+        price_step: Decimal,
+    ) -> M15Draft:
+        """H1 STOP-first: exact broker GET fills -> persisted 100%-position SLTP.
+
+        Does NOT transmit or ACK the stop. A new entry stays forbidden
+        until a separately obtained broker-side 100% protection receipt.
+        """
+        _valid_draft(entry_draft, account_hash=self.account_hash, key=entry_key)
+        row = self.inspect(entry_key)
+        if (not row or row["state"] != "ACK" or row["kind"] != "ENTRY"
+                or row["payload_sha256"] != _digest(entry_draft.payload)
+                or not isinstance(broker_report, dict)
+                or broker_report.get("broker_order_sha256") != row["broker_order_sha256"]
+                or broker_report.get("protection_status") != "UNPROTECTED_BROKER_FILL"
+                or broker_report.get("live_authorized") is not False):
+            raise M15ExecutionError("M15_STOP_BROKER_FILL_OR_NO_STOP_PROOF_REQUIRED")
+        if (instrument not in INSTRUMENTS
+                or entry_draft.payload["symbol"] != instrument + "@RTSX"
+                or direction not in {"LONG", "SHORT"}
+                or entry_draft.payload["side"] !=
+                ("SIDE_BUY" if direction == "LONG" else "SIDE_SELL")
+                or not isinstance(drafts, M15OfflineTradeDrafts)
+                or drafts.execution_authorized):
+            raise M15ExecutionError("M15_STOP_DRAFT_IDENTITY_INVALID")
+        if (not isinstance(atr_at_signal, Decimal) or not atr_at_signal.is_finite()
+                or atr_at_signal <= 0 or not isinstance(price_step, Decimal)
+                or not price_step.is_finite() or price_step <= 0):
+            raise M15ExecutionError("M15_STOP_ATR_OR_GRID_INVALID")
+        rows = self.db.execute(
+            "SELECT quantity,price FROM broker_fills WHERE intent_key=?",
+            (entry_key,),
+        ).fetchall()
+        filled = sum(q for q, _ in rows)
+        signed = filled if direction == "LONG" else -filled
+        if (filled <= 0
+                or broker_report.get("matched_quantity") != filled
+                or broker_report.get("broker_position_quantity") != signed):
+            raise M15ExecutionError("M15_STOP_DURABLE_BROKER_QUANTITY_MISMATCH")
+        weighted = sum((Fraction(price) * qty for qty, price in rows), Fraction(0))
+        average = weighted / filled
+        exact = broker_report.get("weighted_vwap_exact")
+        if (not isinstance(exact, dict) or
+                exact != {"numerator": str(average.numerator),
+                          "denominator": str(average.denominator)}):
+            raise M15ExecutionError("M15_STOP_VWAP_RECONCILIATION_FAILED")
+        raw = (average - Fraction(INITIAL_STOP_ATR) * Fraction(atr_at_signal)
+               if direction == "LONG"
+               else average + Fraction(INITIAL_STOP_ATR) * Fraction(atr_at_signal))
+        if (raw <= 0 or (direction == "LONG" and raw >= average)
+                or (direction == "SHORT" and raw <= average)):
+            raise M15ExecutionError("M15_STOP_WRONG_SIDE")
+        stop = project_stop(direction, raw, price_step)
+        proposal = drafts.protective_stop(
+            instrument=instrument, direction=direction,
+            idempotency_key=stop_key, observed_position_quantity=signed,
+            stop_price=stop, price_step=price_step,
+        )
+        if (proposal.account_fingerprint != self.account_hash
+                or proposal.submitted or proposal.live_authorized):
+            raise M15ExecutionError("M15_STOP_ACCOUNT_OR_LIVE_PROPOSAL_INVALID")
+        # Persist BEFORE any possible POST. A proposal is NEVER a broker ACK.
+        self.prepare(key=stop_key, draft=proposal)
+        return proposal
 
     def reconcile_entry_broker_get(
         self, *, key: str, draft: M15Draft, expected: ExpectedEntry,
