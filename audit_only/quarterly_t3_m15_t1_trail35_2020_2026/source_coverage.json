@@ -1,0 +1,380 @@
+[
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "Si",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/Si/Si_M15.csv",
+    "state": "NO_DATA",
+    "year": 2020,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "Si",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/Si/Si_M15.csv",
+    "state": "NO_DATA",
+    "year": 2021,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "Si",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/Si/Si_M15.csv",
+    "state": "NO_DATA",
+    "year": 2022,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "Si",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/Si/Si_M15.csv",
+    "state": "NO_DATA",
+    "year": 2023,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "Si",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/Si/Si_M15.csv",
+    "state": "NO_DATA",
+    "year": 2024,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "Si",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/Si/Si_M15.csv",
+    "state": "NO_DATA",
+    "year": 2025,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "Si",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/Si/Si_M15.csv",
+    "state": "NO_DATA",
+    "year": 2026,
+    "year_is_complete": false
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "CNY",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/CNY/CNY_M15.csv",
+    "state": "NO_DATA",
+    "year": 2020,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "CNY",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/CNY/CNY_M15.csv",
+    "state": "NO_DATA",
+    "year": 2021,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "CNY",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/CNY/CNY_M15.csv",
+    "state": "NO_DATA",
+    "year": 2022,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "CNY",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/CNY/CNY_M15.csv",
+    "state": "NO_DATA",
+    "year": 2023,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "CNY",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/CNY/CNY_M15.csv",
+    "state": "NO_DATA",
+    "year": 2024,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "CNY",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/CNY/CNY_M15.csv",
+    "state": "NO_DATA",
+    "year": 2025,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "CNY",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/CNY/CNY_M15.csv",
+    "state": "NO_DATA",
+    "year": 2026,
+    "year_is_complete": false
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "GD",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/GD/GD_M15.csv",
+    "state": "NO_DATA",
+    "year": 2020,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "GD",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/GD/GD_M15.csv",
+    "state": "NO_DATA",
+    "year": 2021,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "GD",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/GD/GD_M15.csv",
+    "state": "NO_DATA",
+    "year": 2022,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "GD",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/GD/GD_M15.csv",
+    "state": "NO_DATA",
+    "year": 2023,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "GD",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/GD/GD_M15.csv",
+    "state": "NO_DATA",
+    "year": 2024,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "GD",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/GD/GD_M15.csv",
+    "state": "NO_DATA",
+    "year": 2025,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "GD",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/GD/GD_M15.csv",
+    "state": "NO_DATA",
+    "year": 2026,
+    "year_is_complete": false
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "MIX",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/MIX/MIX_M15.csv",
+    "state": "NO_DATA",
+    "year": 2020,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "MIX",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/MIX/MIX_M15.csv",
+    "state": "NO_DATA",
+    "year": 2021,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "MIX",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/MIX/MIX_M15.csv",
+    "state": "NO_DATA",
+    "year": 2022,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "MIX",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/MIX/MIX_M15.csv",
+    "state": "NO_DATA",
+    "year": 2023,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "MIX",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/MIX/MIX_M15.csv",
+    "state": "NO_DATA",
+    "year": 2024,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "MIX",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/MIX/MIX_M15.csv",
+    "state": "NO_DATA",
+    "year": 2025,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "MIX",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/MIX/MIX_M15.csv",
+    "state": "NO_DATA",
+    "year": 2026,
+    "year_is_complete": false
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "BR",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/BR/BR_M15.csv",
+    "state": "NO_DATA",
+    "year": 2020,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "BR",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/BR/BR_M15.csv",
+    "state": "NO_DATA",
+    "year": 2021,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "BR",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/BR/BR_M15.csv",
+    "state": "NO_DATA",
+    "year": 2022,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "BR",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/BR/BR_M15.csv",
+    "state": "NO_DATA",
+    "year": 2023,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "BR",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/BR/BR_M15.csv",
+    "state": "NO_DATA",
+    "year": 2024,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "BR",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/BR/BR_M15.csv",
+    "state": "NO_DATA",
+    "year": 2025,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "BR",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/BR/BR_M15.csv",
+    "state": "NO_DATA",
+    "year": 2026,
+    "year_is_complete": false
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "NG",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/NG/NG_M15.csv",
+    "state": "NO_DATA",
+    "year": 2020,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "NG",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/NG/NG_M15.csv",
+    "state": "NO_DATA",
+    "year": 2021,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "NG",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/NG/NG_M15.csv",
+    "state": "NO_DATA",
+    "year": 2022,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "NG",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/NG/NG_M15.csv",
+    "state": "NO_DATA",
+    "year": 2023,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "NG",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/NG/NG_M15.csv",
+    "state": "NO_DATA",
+    "year": 2024,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "NG",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/NG/NG_M15.csv",
+    "state": "NO_DATA",
+    "year": 2025,
+    "year_is_complete": null
+  },
+  {
+    "explanation": "Required M15 source absent; not a zero-trade result",
+    "instrument": "NG",
+    "m15_candles": null,
+    "required_path": "futures_quarterly/NG/NG_M15.csv",
+    "state": "NO_DATA",
+    "year": 2026,
+    "year_is_complete": false
+  }
+]

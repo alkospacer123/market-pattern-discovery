@@ -1,0 +1,20 @@
+{
+  "COMPUTATIONAL_AUDIT": "NOT_RUN",
+  "DATA_ACQUISITION": "BLOCKED",
+  "ECONOMIC_CONCLUSION": "INCONCLUSIVE",
+  "EXPLORATORY_REPLAY": "NOT_RUN",
+  "FROZEN_STRATEGY_REPLICATION": "NOT_RUN",
+  "ROLL_PROVENANCE": "UNVERIFIED",
+  "SOURCE_INTEGRITY": "INCOMPLETE",
+  "TRADABLE_QUARTERLY_PERFORMANCE": "NOT_VALIDATED",
+  "capital_model": "NOT_RUN",
+  "clean_true_oos": false,
+  "continuation": "Resume same study after legal data delivery or network setup; rerun pilot first",
+  "downloaded_m15_candles": 0,
+  "gross_PF": null,
+  "gross_R": null,
+  "model": "T1_NEXT_OPEN_TRAIL_3p5",
+  "overall_status": "SOURCE_DATA_BLOCKED_M15",
+  "quarterly_closed_trades": null,
+  "reason": "EXECUTOR_PROXY_CONNECT_403; required dated-futures M15 absent"
+}

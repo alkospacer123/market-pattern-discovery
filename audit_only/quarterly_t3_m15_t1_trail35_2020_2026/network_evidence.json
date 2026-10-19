@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "observed_date_moscow": "2026-10-19",
+  "executor_requests": [
+    {
+      "id": "EXECUTOR-1",
+      "method": "GET",
+      "url": "https://www.finam.ru/quote/forts/si/export/",
+      "observed_at_utc": "2026-10-19T17:37:12.902171+00:00",
+      "purpose": "export page discovery",
+      "request_period": null,
+      "candle_request": false,
+      "provider_http_status": null,
+      "proxy_connect_http_status": 403,
+      "application_request_reached_provider": false,
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+      "received_source_bytes": 0,
+      "source_sha256": null,
+      "result": "BLOCKED_BY_EXECUTOR_PROXY_BEFORE_PROVIDER"
+    },
+    {
+      "id": "EXECUTOR-2",
+      "method": "GET",
+      "url": "https://iss.moex.com/iss/securities/SiH0.json",
+      "observed_at_utc": "2026-10-19T17:37:12.928563+00:00",
+      "purpose": "candidate expired contract metadata discovery; SECID unverified",
+      "request_period": null,
+      "candle_request": false,
+      "provider_http_status": null,
+      "proxy_connect_http_status": 403,
+      "application_request_reached_provider": false,
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+      "received_source_bytes": 0,
+      "source_sha256": null,
+      "result": "BLOCKED_BY_EXECUTOR_PROXY_BEFORE_PROVIDER"
+    }
+  ],
+  "candle_download_requests_executed": 0,
+  "downloaded_candles": 0,
+  "network_policy": {
+    "mode": "restricted",
+    "runtime_state": "unknown",
+    "observations_current": true,
+    "vpn_configured": false,
+    "relevant_explicit_allowed_hosts": [
+      "api.github.com",
+      "github.com"
+    ],
+    "finam_and_moex_in_effective_allowlist": false
+  },
+  "interpretation": "CONNECT rejection belongs to execution environment. Provider availability, authorization and archive depth are not established. No alternate route used to obtain blocked raw data."
+}

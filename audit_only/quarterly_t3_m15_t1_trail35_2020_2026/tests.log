@@ -1,0 +1,12 @@
+test_cached_blocked_probe_never_calls_network (test_preflight.SourceGateTests.test_cached_blocked_probe_never_calls_network) ... ok
+test_corrupted_success_cache_fails_closed (test_preflight.SourceGateTests.test_corrupted_success_cache_fails_closed) ... ok
+test_missing_candles_are_unknown_not_zero (test_preflight.SourceGateTests.test_missing_candles_are_unknown_not_zero) ... ok
+test_new_m15_does_not_silently_clear_gate (test_preflight.SourceGateTests.test_new_m15_does_not_silently_clear_gate) ... ok
+test_real_sources_and_no_trade_artifacts (test_preflight.SourceGateTests.test_real_sources_and_no_trade_artifacts) ... ok
+test_receipt_rejects_changed_real_git_file (test_preflight.SourceGateTests.test_receipt_rejects_changed_real_git_file) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.638s
+
+OK
+{"frozen_receipts": 27, "replay_runs": 0, "source_receipts": {"FROZEN_N4_CONTROL_ONLY": 4, "LEGACY_FILENAME_IDENTITY_CHECK": 22, "REFERENCE_ONLY_NOT_M15": 12}, "status": "SOURCE_DATA_BLOCKED_M15"}

@@ -1,0 +1,110 @@
+{
+  "COMPUTATIONAL_AUDIT": "NOT_RUN",
+  "checks": [
+    {
+      "check": "Frozen source identity",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "Frozen configuration identity",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "Causal H1 publication",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "No look-ahead",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "Donchian shift(1)",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "NEXT_OPEN adjacency",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "Pending cancellation",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "Initial Stop from execution price",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "Immutable Initial R",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "Stop-first execution",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "Adverse Open gaps",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "Trailing 3.5 ATR",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "No +1R TRAIL1",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "No pyramiding",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "Cross-year continuity",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "Gross R/PF/DD arithmetic",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "Table reconciliation",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "Missing versus zero periods",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "Perpetual comparison",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    },
+    {
+      "check": "H1 #555 comparison",
+      "reason": "Source gate blocked",
+      "status": "NOT_RUN_ON_REAL_TARGET_M15"
+    }
+  ],
+  "clarification": "File/hash/status checks are not a strategy computational audit",
+  "economic_interpretation_permitted": false,
+  "full_replay_runs": 0,
+  "historical_scalar_verification": "NOT_RUN",
+  "source_gate_receipts": "PASS"
+}

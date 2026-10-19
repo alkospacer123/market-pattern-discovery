@@ -1,0 +1,111 @@
+{
+  "caveat": "Search snippets and rendered pages do not certify market identity, export authorization, M15 depth or continuity rules. No public-web route was used to download blocked raw candles. Search discovered MFD but its archive and rights were not verified.",
+  "date_moscow": "2026-10-19",
+  "opened_pages": [
+    {
+      "observation": "FORM_RENDERED; time and label controls; four-month intraday limit",
+      "url": "https://www.finam.ru/quote/forts/si/export/"
+    },
+    {
+      "observation": "REQUEST_REFERENCE_RENDERED; not a candles response",
+      "url": "https://iss.moex.com/"
+    },
+    {
+      "observation": "OFFICIAL_ISS_DESCRIPTION_RENDERED",
+      "url": "https://www.moex.com/a2193"
+    },
+    {
+      "observation": "FORM_RENDERED; local GD identity still requires verification",
+      "url": "https://www.finam.ru/quote/forts/gold/export/"
+    },
+    {
+      "observation": "WEB_TOOL_NOT_ACCESSIBLE; tried twice",
+      "url": "https://www.finam.ru/quote/forts/cny/export/"
+    },
+    {
+      "observation": "FUTURES_CANDLES_SCHEMA_RENDERED; does not prove historical depth",
+      "url": "https://moexalgo.github.io/docs/api/get-futures-candles/"
+    },
+    {
+      "observation": "FORM_RENDERED",
+      "url": "https://www.finam.ru/quote/forts/mix/export/"
+    },
+    {
+      "observation": "FORM_RENDERED",
+      "url": "https://www.finam.ru/quote/forts/br/export/"
+    },
+    {
+      "observation": "WEB_TOOL_NOT_ACCESSIBLE",
+      "url": "https://www.finam.ru/quote/forts/ng/export/"
+    }
+  ],
+  "purpose": "PUBLIC_DOCUMENTATION_DISCOVERY_ONLY_NOT_RAW_DATA_DOWNLOAD",
+  "search_queries": [
+    {
+      "domain_filter": null,
+      "q": "site.finam.ru quote forts gold export 4 месяца"
+    },
+    {
+      "domain_filter": null,
+      "q": "site.moex.com ISS исторические минутные свечи фьючерсы доступ"
+    },
+    {
+      "domain_filter": null,
+      "q": "site.finam.ru/quote/forts/ \"Экспорт данных\" \"CNY\""
+    },
+    {
+      "domain_filter": null,
+      "q": "site.finam.ru/quote/forts/ \"Экспорт данных\" \"MIX\""
+    },
+    {
+      "domain_filter": null,
+      "q": "site.finam.ru/quote/forts/ \"Экспорт данных\" \"BR\""
+    },
+    {
+      "domain_filter": null,
+      "q": "site.finam.ru/quote/forts/ \"Экспорт данных\" \"NG\""
+    },
+    {
+      "domain_filter": [
+        "moex.com"
+      ],
+      "q": "\"CNY\" фьючерс начало торгов 2015"
+    },
+    {
+      "domain_filter": [
+        "finam.ru"
+      ],
+      "q": "\"Экспорт\" \"BR\" фьючерс"
+    },
+    {
+      "domain_filter": [
+        "finam.ru"
+      ],
+      "q": "\"Экспорт\" \"MIX\" фьючерс"
+    },
+    {
+      "domain_filter": [
+        "finam.ru"
+      ],
+      "q": "\"Экспорт\" \"NG\" фьючерс"
+    },
+    {
+      "domain_filter": [
+        "moex.com"
+      ],
+      "q": "\"CNY\" \"фьючерс\" \"21 апреля 2022\""
+    },
+    {
+      "domain_filter": [
+        "finam.ru"
+      ],
+      "q": "\"MIX\" \"Фьючерс\" \"Финам\""
+    },
+    {
+      "domain_filter": [
+        "finam.ru"
+      ],
+      "q": "\"CNY\" \"фьючерс\" \"Экспорт\""
+    }
+  ]
+}

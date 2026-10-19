@@ -1,0 +1,30 @@
+{
+  "research_repository": "alkospacer123/market-pattern-discovery",
+  "research_main": "38489db7e69336548a583f968f13aab49c20913b",
+  "data_repository": "alkospacer123/market-pattern-data",
+  "data_main": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "h1_555_calculation_commit": "d9a3a13cf5df69ca10d91b05f283ffaad641cb00",
+  "h1_555_observed_state": "open draft",
+  "observed_date_moscow": "2026-10-19",
+  "verified_by": [
+    "GitHub API branches/main",
+    "git fetch origin main and rev-parse origin/main"
+  ],
+  "initial_existing_worktrees": {
+    "research": {
+      "branch": "work",
+      "head": "38489db7e69336548a583f968f13aab49c20913b",
+      "porcelain": ""
+    },
+    "data": {
+      "branch": "work",
+      "head": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+      "porcelain": ""
+    }
+  },
+  "isolated_research_branch": "codex/audit-quarterly-m15-t1-trail35-2020-2026",
+  "isolated_worktree": "/workspace/work/quarterly-t3-m15",
+  "source_data_directory": "/workspace/market-pattern-data",
+  "private_acquisition_directory": "/workspace/work/quarterly_m15_private",
+  "allowed_change_prefix": "audit_only/quarterly_t3_m15_t1_trail35_2020_2026/"
+}

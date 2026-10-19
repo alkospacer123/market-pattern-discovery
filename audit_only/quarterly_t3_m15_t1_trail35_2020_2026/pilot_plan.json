@@ -1,0 +1,86 @@
+{
+  "pilot_status": "BLOCKED_BEFORE_CANDLE_DOWNLOAD",
+  "samples": [
+    {
+      "end_date_inclusive_moscow": "2020-01-10",
+      "instrument": "Si",
+      "request_executed": false,
+      "secid": null,
+      "source_url": null,
+      "start_date_inclusive_moscow": "2020-01-09",
+      "status": "NOT_EXECUTED_NETWORK_BLOCK"
+    },
+    {
+      "end_date_inclusive_moscow": "2024-04-03",
+      "instrument": "Si",
+      "request_executed": false,
+      "secid": null,
+      "source_url": null,
+      "start_date_inclusive_moscow": "2024-04-02",
+      "status": "NOT_EXECUTED_NETWORK_BLOCK"
+    },
+    {
+      "end_date_inclusive_moscow": "2026-09-02",
+      "instrument": "Si",
+      "request_executed": false,
+      "secid": null,
+      "source_url": null,
+      "start_date_inclusive_moscow": "2026-09-01",
+      "status": "NOT_EXECUTED_NETWORK_BLOCK"
+    },
+    {
+      "end_date_inclusive_moscow": "2020-01-10",
+      "instrument": "GD",
+      "request_executed": false,
+      "secid": null,
+      "source_url": null,
+      "start_date_inclusive_moscow": "2020-01-09",
+      "status": "NOT_EXECUTED_NETWORK_BLOCK"
+    },
+    {
+      "end_date_inclusive_moscow": "2024-04-03",
+      "instrument": "GD",
+      "request_executed": false,
+      "secid": null,
+      "source_url": null,
+      "start_date_inclusive_moscow": "2024-04-02",
+      "status": "NOT_EXECUTED_NETWORK_BLOCK"
+    },
+    {
+      "end_date_inclusive_moscow": "2026-09-02",
+      "instrument": "GD",
+      "request_executed": false,
+      "secid": null,
+      "source_url": null,
+      "start_date_inclusive_moscow": "2026-09-01",
+      "status": "NOT_EXECUTED_NETWORK_BLOCK"
+    },
+    {
+      "end_date_inclusive_moscow": null,
+      "instrument": "CNY",
+      "is_listing_date_proof": false,
+      "local_h1_first_date": "2022-04-21",
+      "request_executed": false,
+      "start_date_inclusive_moscow": null,
+      "status": "REQUIRES_FIRST_AVAILABLE_DATED_CONTRACT_METADATA"
+    },
+    {
+      "end_date_inclusive_moscow": "2024-04-03",
+      "instrument": "CNY",
+      "request_executed": false,
+      "secid": null,
+      "source_url": null,
+      "start_date_inclusive_moscow": "2024-04-02",
+      "status": "NOT_EXECUTED_NETWORK_BLOCK"
+    },
+    {
+      "end_date_inclusive_moscow": "2026-09-02",
+      "instrument": "CNY",
+      "request_executed": false,
+      "secid": null,
+      "source_url": null,
+      "start_date_inclusive_moscow": "2026-09-01",
+      "status": "NOT_EXECUTED_NETWORK_BLOCK"
+    }
+  ]
+}
