@@ -346,19 +346,16 @@ class M15AuthorizedExecutionTransport:
         account = self.api.account(self.account_id)
         if not isinstance(account, dict) or account.get("account_id") != self.account_id:
             raise M15ExecutionError("M15_TRADING_ACCOUNT_NOT_BOUND")
+        from .finam_trading import M15FinamTradingAPI
+        if not isinstance(self.api, M15FinamTradingAPI):
+            raise M15ExecutionError("M15_TRADING_WRONG_API_CLIENT")
+        self.api._bind_exact_session(details=details, account=account)
         self.connected = True
 
     def _require_connected(self) -> None:
         self._require_authorization()
         if self.connected is not True:
             raise M15ExecutionError("M15_TRADING_SESSION_NOT_CONNECTED")
-
-    def _require_journal(self, journal: M15OutboundJournal, draft: M15Draft) -> None:
-        if not isinstance(journal, M15OutboundJournal) or journal.account_hash != self.account_hash:
-            raise M15ExecutionError("M15_TRADING_JOURNAL_ACCOUNT_INVALID")
-        if journal.path.parent.parent.resolve() != self.runtime_root.resolve():
-            raise M15ExecutionError("M15_TRADING_JOURNAL_RUNTIME_MISMATCH")
-        _valid_draft(draft, account_hash=self.account_hash, key=draft.payload.get("comment") or "")
 
     def _transmit(self, *, journal: M15OutboundJournal, key: str,
                   draft: M15Draft, send, protective_position_qty: int | None = None):
