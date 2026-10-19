@@ -59,9 +59,10 @@ class M15FinamTradingAPI:
             raise M15FinamTradeError("M15_TRADING_WIRE_STATIC_LIVE_FREEZE")
         if not ((method == "POST" and path in
                  {"/v1/sessions", "/v1/sessions/details"})
+                or (method == "GET" and self.__jwt is not None
+                    and path == f"/v1/accounts/{self.__account}")
                 or (self.__connected and (
-                    method == "GET" and path == f"/v1/accounts/{self.__account}"
-                    or method == "POST" and path in {
+                    method == "POST" and path in {
                         f"/v1/accounts/{self.__account}/orders",
                         f"/v1/accounts/{self.__account}/sltp-orders"}
                     or method == "DELETE" and
