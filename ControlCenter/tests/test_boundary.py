@@ -23,7 +23,7 @@ def test_no_trade_or_system_capabilities_in_runtime(path):
         'h1_contract.py': {'re'},
         'h1_readonly.py': {'hashlib', 'json', 'pathlib'},
         'readonly_file.py': {'os', 'pathlib', 'stat'},
-        'windows_file.py': {'ctypes', 'multiprocessing', 'pathlib', 'hashlib', 'os', 're'},
+        'windows_file.py': {'ctypes', 'pathlib', 'hashlib', 'os', 're', 'json', 'subprocess', 'sys'},
         'h1_export.py': {'json', 'pathlib', 'threading'},
         'h1_windows_os.py': {'json', 'pathlib', 're', 'observer'},
         'deployment_paths.py': {'os', 'pathlib', 're'},
@@ -77,3 +77,21 @@ def test_manual_refresh_only_no_timer_or_background_poll():
     buttons=[c for c in calls if c.func.attr=='button']
     assert len(buttons)==1 and buttons[0].args[0].value=='Обновить данные'
     assert not any(isinstance(node,(ast.While,ast.AsyncFor,ast.For)) for node in ast.walk(tree))
+
+
+def test_native_reader_has_only_one_fixed_isolated_child_and_no_shell():
+    tree = ast.parse((ROOT / 'cc/providers/windows_file.py').read_text(encoding='utf-8'))
+    children = [node for node in ast.walk(tree) if isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and isinstance(node.func.value, ast.Name) and node.func.value.id == 'subprocess'
+                and node.func.attr in {'run', 'Popen', 'call', 'check_call', 'check_output'}]
+    assert len(children) == 1 and children[0].func.attr == 'run'
+    child = children[0]
+    assert ast.unparse(child.args[0]) == "[sys.executable, '-I', '-B', str(Path(__file__).absolute())]"
+    options = {k.arg: ast.unparse(k.value) for k in child.keywords}
+    assert options == dict(input='request', stdout='subprocess.PIPE', stderr='subprocess.DEVNULL',
+                           timeout='TIMEOUT_SECONDS', env='environment',
+                           creationflags='subprocess.CREATE_NO_WINDOW')
+    writes = [ast.unparse(node) for node in ast.walk(tree) if isinstance(node, ast.Call)
+              and isinstance(node.func, ast.Attribute) and node.func.attr == 'write']
+    assert sorted(writes) == ["sys.stdout.buffer.write(b'N')", "sys.stdout.buffer.write(b'Y' + data)"]

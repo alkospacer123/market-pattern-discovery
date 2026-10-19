@@ -84,14 +84,27 @@ async def _browser_click(edge, profile, evidence, log):
             await asyncio.sleep(.1)
         value = state(evidence)
         assert value['clicks'] == 1 and value['policy_reads'] == 1, value
-        assert value['accepted'] is False and value['probes'] == 0, value
+        assert value['accepted'] is True and value['probes'] == 1, value
+        assert value['task'] == 'TASK_RUNNING' and value['robot_state'] == 'UNKNOWN', value
+        assert value['source_kind'] == 'WINDOWS_OS_ONLY', value
+        assert value['heartbeat'] is None and value['trading'] is None, value
         assert value['streamlit_main'] is True, value
         assert value['server_isolated'] is True and value['server_no_bytecode'] is True, value
-        await until("document.body.innerText.includes('BLOCKED / UNKNOWN')")
+        async def page(name):
+            await evaluate("Array.from(document.querySelectorAll('[data-testid=stRadio] label'))"
+                           ".find(e=>e.textContent.includes(" + json.dumps(name) + ")).click()")
+        await page('Управление')
+        await until("document.querySelectorAll('[data-testid=stButton] button:disabled').length === 10")
+        await page('Монитор H1')
+        await until("document.body.innerText.includes('TASK_RUNNING')")
+        assert not await evaluate("document.body.innerText.includes('BLOCKED / UNKNOWN')")
+        assert state(evidence)['policy_reads'] == 1
+        assert state(evidence)['probes'] == 1
         screenshot = await call('Page.captureScreenshot', dict(format='png'))
         (evidence.parent / 'streamlit-click.png').write_bytes(base64.b64decode(screenshot['data']))
         value['real_browser_click'] = True
-        value['baseline_expected_blocked'] = True
+        value['navigation_zero_extra_reads'] = True
+        value['disabled_trading_controls'] = 10
         return value
     finally:
         if socket is not None:

@@ -2,20 +2,24 @@
 
 Directories deny DELETE sharing; leaves allow DELETE sharing. Hosted Windows
 acceptance still exposes a blocking legacy os.replace conflict; do not deploy.
-A spawned worker bounds native I/O; ACL/source trust remains an acceptance gate.
+A fixed isolated Python child bounds native I/O without re-importing the UI
+script as __main__; ACL/source trust remains an acceptance gate.
 """
 import ctypes
 from ctypes import wintypes as w
-import multiprocessing
-from pathlib import PureWindowsPath
+from pathlib import Path, PureWindowsPath
 import hashlib
+import json
 import os
 import re
+import subprocess
+import sys
 
 MAX_BYTES = 128 * 1024
 TIMEOUT_SECONDS = 2.0
 SNAPSHOT_NAME = re.compile(r"h1-[0-9]{20}-[a-f0-9]{32}-([a-f0-9]{64})\.json")
 MAX_ENTRIES = 2048
+MAX_REQUEST = 256 * 1024
 
 
 def components(root, filename):
@@ -220,42 +224,59 @@ def _read_native(root, filename, maximum, api, expected_root=None, admin_policy=
             api.close(handle)
 
 
-def _worker(connection, root, filename, maximum, expected_root, admin_policy):
-    try:
-        connection.send_bytes(b'Y' + _read_native(root, filename, maximum, WinAPI(), expected_root, admin_policy))
-    except Exception:
-        connection.send_bytes(b'N')  # Never disclose native paths/errors.
-    finally:
-        connection.close()
-
-
 def read_windows(root, filename, maximum, expected_root=None, admin_policy=False):
     if type(maximum) is not int or not 0 < maximum <= MAX_BYTES:
         raise ValueError('SIZE_LIMIT_INVALID')
     components(root, filename)
-    context = multiprocessing.get_context('spawn')
-    receive, send = context.Pipe(duplex=False)
-    process = context.Process(target=_worker, args=(send, str(root), filename, maximum, expected_root, admin_policy), daemon=True)
+    request = json.dumps([str(root), filename, maximum, expected_root, admin_policy]).encode('utf-8')
+    if len(request) > MAX_REQUEST:
+        raise ValueError('READ_REQUEST_INVALID')
+    # Windows spawn re-executes Streamlit's active __main__ (app.py) before
+    # entering its target. Execute only this protected, stdlib-only file instead.
+    # No caller-selected command, module, shell, environment or worker target.
+    environment = {name: os.environ[name] for name in (
+        'SYSTEMROOT', 'WINDIR', 'SYSTEMDRIVE', 'TEMP', 'TMP') if name in os.environ}
     try:
-        process.start()
-        send.close()
-        if not receive.poll(TIMEOUT_SECONDS):
-            raise ValueError('READ_TIMEOUT')
-        data = receive.recv_bytes(maxlength=maximum + 1)
-        if not data.startswith(b'Y') or not 1 < len(data) <= maximum + 1:
-            raise ValueError('SECURE_READ_UNAVAILABLE')
-        return data[1:]
-    finally:
-        if process.pid is not None:
-            process.join(0.1)
-            if process.is_alive():
-                process.terminate()
-                process.join(0.2)
-        receive.close()
-        send.close()
+        result = subprocess.run([sys.executable, '-I', '-B', str(Path(__file__).absolute())],
+            input=request, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            timeout=TIMEOUT_SECONDS, env=environment, creationflags=subprocess.CREATE_NO_WINDOW)
+    except subprocess.TimeoutExpired:
+        # subprocess.run terminates and waits for its own child on timeout.
+        raise ValueError('READ_TIMEOUT') from None
+    except Exception:
+        raise ValueError('READ_WORKER_UNAVAILABLE') from None
+    data = result.stdout
+    if result.returncode or not data.startswith(b'Y') or not 1 < len(data) <= maximum + 1:
+        raise ValueError('SECURE_READ_UNAVAILABLE')
+    return data[1:]
 
 
 def read_latest_windows(root, maximum, expected_root):
     if expected_root is None or len(expected_root) != 3 or any(type(x) is not int or x < 0 for x in expected_root):
         raise ValueError('EXPORT_ROOT_PIN_REQUIRED')
     return read_windows(root, 'LATEST-COMPLETED', maximum, expected_root)
+
+
+def _main():
+    # One bounded request, one read, one bounded response, then process exit.
+    # Only the existing native read boundary has file access. Never load CC/UI,
+    # user site packages, PYTHONPATH, a command string or a pickled target.
+    try:
+        raw = sys.stdin.buffer.read(MAX_REQUEST + 1)
+        if len(raw) > MAX_REQUEST:
+            raise ValueError('READ_REQUEST_INVALID')
+        root, filename, maximum, expected_root, admin_policy = json.loads(raw)
+        if (type(root) is not str or type(filename) is not str
+                or type(maximum) is not int or not 0 < maximum <= MAX_BYTES
+                or type(admin_policy) is not bool
+                or expected_root is not None and (type(expected_root) is not list
+                    or len(expected_root) != 3 or any(type(x) is not int or x < 0 for x in expected_root))):
+            raise ValueError('READ_REQUEST_INVALID')
+        data = _read_native(root, filename, maximum, WinAPI(), expected_root, admin_policy)
+        sys.stdout.buffer.write(b'Y' + data)
+    except Exception:
+        sys.stdout.buffer.write(b'N')  # No native paths, messages or stacks.
+
+
+if __name__ == '__main__':
+    _main()
