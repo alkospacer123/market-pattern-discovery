@@ -528,6 +528,20 @@ class M15ExecutionStageTests(unittest.TestCase):
             })
         return data["account"], {"orders": rows}
 
+    def test_protective_raw_post_ack_never_proves_stop_coverage(self):
+        key = "m15:stop:synthetic:1"
+        draft = self.stop(key)
+        self.j.prepare(key=key, draft=draft)
+        account, before = self.protective_observation(draft, include_new=False)
+        self.j.begin_protective_post_uncertain(
+            key=key, draft=draft, account=account, orders_response=before)
+        with self.assertRaisesRegex(M15ExecutionError, "REQUIRES_ACTIVE_BROKER_GET"):
+            self.j.record_broker_ack(
+                key=key, draft=draft, broker_order_id="claimed-ack")
+        self.assertEqual(self.j.inspect(key)["state"], "UNCERTAIN")
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM protective_coverage").fetchone()[0], 0)
+
     def test_protective_prepost_unknown_to_verified_active_get_no_retry(self):
         key = "m15:stop:synthetic:1"
         draft = self.stop(key)
