@@ -22,17 +22,21 @@ def main():
     fixtures = json.loads((root / 'Os-Fixtures.json').read_text())
     manual.POLICY_ROOT = Path(location['root'])
     manual.POLICY_NAME = 'Running-manual-os-policy.json'
-    output = root / 'data/logs/streamlit-click.json'
+    output = root / 'data/logs/streamlit-click.jsonl'
     result = dict(sid_standard=True, policy_reads=0, probes=0, clicks=0)
 
     def save():
-        output.write_text(json.dumps(result), encoding='utf-8')
+        # Append-only fixture evidence; never replace a file while the browser
+        # harness may hold a Windows read handle. Readers ignore incomplete lines.
+        with output.open('a', encoding='utf-8') as stream:
+            stream.write(json.dumps(result) + '\n')
 
     original_read, original_facts = manual.read_windows, manual.os_facts
     original_refresh = manual.manual_os_refresh
 
     def read(*args, **kwargs):
         result['policy_reads'] += 1
+        result['streamlit_main'] = Path(sys.modules['__main__'].__file__).name == 'app.py'
         started = time.monotonic()
         try:
             return original_read(*args, **kwargs)
@@ -57,6 +61,7 @@ def main():
         snapshot, accepted = original_refresh(now)
         result.update(accepted=accepted, task=snapshot.status.task_state,
                       robot_state=snapshot.status.state.value,
+                      source_kind=snapshot.status.provenance.source_kind.value,
                       heartbeat=snapshot.status.heartbeat_at,
                       trading=snapshot.status.trading_allowed)
         save()
@@ -64,10 +69,12 @@ def main():
 
     manual.read_windows, manual.os_facts, manual.manual_os_refresh = read, facts, refresh
     save()
-    bootstrap.run(str(Path(__file__).parents[1] / 'app.py'), False, [], {
+    flags = {
         'server.address': '127.0.0.1', 'server.port': 8502,
         'server.headless': True, 'browser.gatherUsageStats': False,
-        'server.enableCORS': True, 'server.enableXsrfProtection': True})
+        'server.enableCORS': True, 'server.enableXsrfProtection': True}
+    bootstrap.load_config_options(flags)
+    bootstrap.run(str(Path(__file__).parents[1] / 'app.py'), False, [], flags)
 
 
 if __name__ == '__main__':

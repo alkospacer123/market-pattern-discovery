@@ -107,7 +107,7 @@
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
-      "sha256": "13fbc298323444e00a77183ea8bc9b9fc687214dc3a45df2b4618603a98fda55"
+      "sha256": "530a00f21130acc1d7bd2e686b2574b571842b475548da51c8cd91b559107d2a"
     },
     {
       "path": "ci/file_open_trace.py",
@@ -131,11 +131,11 @@
     },
     {
       "path": "ci/streamlit_click.py",
-      "sha256": "8592175af9612b846c5dd821548695c2fdaec1eb382bf36cdf53170163e9b1af"
+      "sha256": "3ae41e03294d4c9c8593d51fd9ab9756d3d14ba265b4a6c4f2edd9366e87c1a9"
     },
     {
       "path": "ci/streamlit_host.py",
-      "sha256": "6f427685187fec04beb6d95c9f7aa9b7fb68ee14aaf47bf119a24e10f0e17e44"
+      "sha256": "504ae9f9c9ec879eded21fac83a95327cccef7b6ed04c1665a7be24a8771046d"
     },
     {
       "path": "ci/windows_acceptance.py",

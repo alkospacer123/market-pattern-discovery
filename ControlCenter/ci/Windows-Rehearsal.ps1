@@ -24,6 +24,7 @@ $exporterProcess = $null
 $osFixtureFolder = $null
 $manualPolicyRoot = Join-Path ([IO.Path]::GetPathRoot($sandbox)) ('CC03-' + [guid]::NewGuid().ToString('N'))
 $results = [ordered]@{}
+$script:StreamlitClickVerified = $false
 $evidence = Join-Path $originalRunnerTemp 'cc03-evidence'
 
 function Expect-Failure([scriptblock]$Operation, [string]$Expected) {
@@ -72,6 +73,13 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
     $pythonTimer = [Diagnostics.Stopwatch]::StartNew()
     $python = [CC03Access]::StartAs($Identity.Name, $Identity.Password, "$script:VenvRoot\Scripts\python.exe", $bootstrap, $script:AppRoot, $pythonLog, $Identity.Sid)
     try {
+        if (-not $script:StreamlitClickVerified) {
+            # Browser uses runner's existing desktop. Server/native reader/helper
+            # remain children of the real standard ccpanel primary-token probe.
+            & "$script:VenvRoot\Scripts\python.exe" -I -B "$script:AppRoot\ci\streamlit_click.py" --browser-only
+            if ($LASTEXITCODE -ne 0) { throw 'REAL_STREAMLIT_BROWSER_FAILED' }
+            $script:StreamlitClickVerified = $true
+        }
         if (-not $python.WaitForExit(150000) -or $python.ExitCode -ne 0) { throw 'DIRECT_IDENTITY_PYTHON_FAILED' }
         Write-Host ('DIRECT_IDENTITY_PYTHON_PASS sid=' + $Identity.Sid + ' seconds=' + $pythonTimer.Elapsed.TotalSeconds)
     } finally {
@@ -624,6 +632,9 @@ try {
         } catch { $results['uninstall'] = 'FAIL: ' + $_.Exception.Message }
     }
     if (Test-Path "$script:DataRoot\logs") {
+        Get-ChildItem "$script:DataRoot\logs" -File | Where-Object { $_.Name -like 'streamlit-*.json*' -or $_.Name -eq 'streamlit-click.png' } | ForEach-Object {
+            Copy-Item -LiteralPath $_.FullName -Destination $evidence
+        }
         Get-ChildItem "$script:DataRoot\logs" -File -Filter '*.txt*' | ForEach-Object {
             Copy-Item -LiteralPath $_.FullName -Destination $evidence
             Write-Output ('REHEARSAL_LOG ' + $_.Name)
