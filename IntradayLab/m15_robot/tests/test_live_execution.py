@@ -14,7 +14,7 @@ from IntradayLab.m15_robot.live_execution import (
     M15PrePostRefused, load_execution_authorization,
 )
 from IntradayLab.m15_robot.broker_fill_readonly import ExpectedEntry
-from IntradayLab.m15_robot.grid_risk import TrailingState
+from IntradayLab.m15_robot.grid_risk import ContractAuthority, TrailingState, size_r15
 from IntradayLab.m15_robot.protective_gate import BrokerProtection
 from IntradayLab.m15_robot.trailing_gate import confirm_trail
 from IntradayLab.m15_robot.trade_draft_contract import M15Draft, M15OfflineTradeDrafts
@@ -409,6 +409,107 @@ class M15ExecutionStageTests(unittest.TestCase):
                 price_step=Decimal("1"), survived_completed_bar=True,
             )
         self.assertIsNone(self.j.inspect("m15:trail:synthetic:1"))
+
+
+    def protection_first_args(self):
+        """A synthetic two-contract R15 pre-entry plan, no AccountTrade needed."""
+        drafts = M15OfflineTradeDrafts(
+            m15_account_id=self.args["m15_account_id"],
+            h1_account_sha256=self.args["h1_account_sha256"],
+            m15_runtime_root=self.args["runtime_root"],
+            h1_runtime_root=self.args["h1_runtime_root"],
+            repository_root=self.args["repository_root"],
+        )
+        contract = ContractAuthority(
+            price_step=Decimal("0.001"), tick_value=Decimal("1"),
+            trade_lot_size=1, long_initial_margin=Decimal("100"),
+            short_initial_margin=Decimal("100"),
+        )
+        sized = size_r15(
+            realized_equity=Decimal("30000"), entry=Decimal("12.500"),
+            stop=Decimal("12.300"), contract=contract, direction="LONG",
+            available_margin_cash=Decimal("1000"),
+        )
+        self.assertEqual(sized.final_quantity, 2)
+        snapshot = self.broker_get(filled=1)
+        return dict(
+            entry_key=self.key, entry_draft=self.draft,
+            stop_key="m15:stop:precommit:1", drafts=drafts,
+            instrument="CNYRUBF", direction="LONG",
+            reference_entry=Decimal("12.500"),
+            precommitted_stop=Decimal("12.300"),
+            atr_at_signal=Decimal("0.100"), contract=contract, sized=sized,
+            account=snapshot["account"],
+            orders_response=snapshot["orders_response"],
+        )
+
+    def test_h1_protection_first_partial_position_without_trade_history(self):
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        args = self.protection_first_args()
+        # The only broker facts are authenticated-looking account+orders GET,
+        # not a trades response. Initial STOP must not wait for fill-price GET.
+        proposal = self.j.prepare_initial_sltp_from_broker_position(**args)
+        self.assertEqual(proposal.kind, "PROTECTIVE_STOP_INSTALL")
+        self.assertEqual(proposal.payload["sl_price"], {"value": "12.300"})
+        self.assertEqual(proposal.payload["quantity_sl"], {"value": "100"})
+        self.assertEqual(self.j.inspect(self.key)["state"], "ACK")
+        self.assertEqual(self.j.inspect(args["stop_key"])["state"], "PREPARED")
+        self.assertEqual(
+            self.j.db.execute("SELECT COUNT(*) FROM broker_fills").fetchone()[0], 0)
+        self.assertFalse(proposal.submitted or proposal.live_authorized)
+
+    def test_h1_protection_first_restarts_idempotently_without_second_stop(self):
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        args = self.protection_first_args()
+        proposal = self.j.prepare_initial_sltp_from_broker_position(**args)
+        self.j.close()
+        self.j = M15OutboundJournal(**self.args)
+        replay = self.j.prepare_initial_sltp_from_broker_position(**args)
+        self.assertEqual(replay.payload, proposal.payload)
+        self.assertEqual(
+            self.j.db.execute("SELECT COUNT(*) FROM outbound WHERE kind='PROTECTIVE_STOP_INSTALL'").fetchone()[0], 1)
+        with self.assertRaisesRegex(M15ExecutionError, "DUPLICATE_INITIAL_STOP"):
+            self.j.prepare_initial_sltp_from_broker_position(
+                **dict(args, stop_key="m15:stop:precommit:2"))
+
+    def test_h1_protection_first_blocks_wrong_r15_or_stop_or_broker_position(self):
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        args = self.protection_first_args()
+        with self.assertRaisesRegex(M15ExecutionError, "2ATR_MISMATCH"):
+            self.j.prepare_initial_sltp_from_broker_position(
+                **dict(args, precommitted_stop=Decimal("12.299")))
+        with self.assertRaisesRegex(M15ExecutionError, "R15_GO_INVALID"):
+            self.j.prepare_initial_sltp_from_broker_position(
+                **dict(args, sized=__import__("dataclasses").replace(
+                    args["sized"], final_quantity=3)))
+        fake_account = dict(args["account"], account_id="DIFFERENT-ACCOUNT")
+        with self.assertRaisesRegex(M15ExecutionError, "BROKER_ACCOUNT_NOT_BOUND"):
+            self.j.prepare_initial_sltp_from_broker_position(
+                **dict(args, account=fake_account))
+        flat_account = dict(args["account"], positions=[])
+        with self.assertRaisesRegex(M15ExecutionError, "BROKER_POSITION_NOT_MATCHED"):
+            self.j.prepare_initial_sltp_from_broker_position(
+                **dict(args, account=flat_account))
+        self.assertIsNone(self.j.inspect(args["stop_key"]))
+        self.assertEqual(self.j.inspect(self.key)["state"], "UNCERTAIN")
+
+    def test_h1_protection_first_rejects_competing_order_before_stop_prep(self):
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        args = self.protection_first_args()
+        second = {
+            "order_id": "competitor",
+            "status": "ORDER_STATUS_NEW",
+            "order": dict(args["orders_response"]["orders"][0]["order"]),
+        }
+        orders = {"orders": args["orders_response"]["orders"] + [second]}
+        with self.assertRaisesRegex(M15ExecutionError, "COMPETING_BROKER_ORDER"):
+            self.j.prepare_initial_sltp_from_broker_position(
+                **dict(args, orders_response=orders))
+        self.assertIsNone(self.j.inspect(args["stop_key"]))
 
     def test_authorization_file_cannot_override_frozen_status(self):
         root = self.args["runtime_root"]
