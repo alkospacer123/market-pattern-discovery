@@ -72,7 +72,7 @@ function Start-IdentityScript($Identity, [string]$Entry, [string]$Output, [strin
     $pythonTimer = [Diagnostics.Stopwatch]::StartNew()
     $python = [CC03Access]::StartAs($Identity.Name, $Identity.Password, "$script:VenvRoot\Scripts\python.exe", $bootstrap, $script:AppRoot, $pythonLog, $Identity.Sid)
     try {
-        if (-not $python.WaitForExit(60000) -or $python.ExitCode -ne 0) { throw 'DIRECT_IDENTITY_PYTHON_FAILED' }
+        if (-not $python.WaitForExit(150000) -or $python.ExitCode -ne 0) { throw 'DIRECT_IDENTITY_PYTHON_FAILED' }
         Write-Host ('DIRECT_IDENTITY_PYTHON_PASS sid=' + $Identity.Sid + ' seconds=' + $pythonTimer.Elapsed.TotalSeconds)
     } finally {
         if (-not $python.HasExited) { & taskkill.exe /PID $python.Id /T /F | Out-Host }
@@ -506,7 +506,7 @@ try {
     $null = New-Item -ItemType Directory -Path $manualPolicyRoot
     Set-DisposableACL $manualPolicyRoot 'app'
     $fixtures = $osBefore | ConvertFrom-Json
-    foreach ($taskName in @('Ready','Denied')) {
+    foreach ($taskName in @('Ready','Denied','Running')) {
         $fixture = $fixtures.$taskName
         $p = @{schema_id='cc03.manual-os-policy.v1';manual_source_approved=$true;observer_sid=$panelSid;
             task_name='TradingSystemLab-Stage8-Production';task_xml_sha256=$fixture.task_xml_sha256;

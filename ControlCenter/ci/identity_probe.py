@@ -114,6 +114,8 @@ def main():
     # Zero export writes: panel retains only its session-local immutable result.
     assert not list((Path(os.environ['CC03_CI_DISPOSABLE_ROOT'])/'data/export').glob('h1-*.json'))
     print('LOW_SID_MANUAL_C_PROTECTED_POLICY_ONE_HELPER_READY_DENIED_TTL_NO_EXPORT=PASS',flush=True)
+    from ci.streamlit_click import main as streamlit_click
+    streamlit_click(sid)
     # Permission-A preflight runs under the actual standard ccpanel token. The policy
     # remains fixed to H1; this CI-only adapter selects only UUID fixtures.
     from observer import intel_preflight as preflight
