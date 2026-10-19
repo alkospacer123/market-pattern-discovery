@@ -505,6 +505,7 @@ class M15ExecutionStageTests(unittest.TestCase):
             "status": "ORDER_STATUS_NEW",
             "order": dict(args["orders_response"]["orders"][0]["order"]),
         }
+        second["order"]["client_order_id"] = "m15other001"
         orders = {"orders": args["orders_response"]["orders"] + [second]}
         with self.assertRaisesRegex(M15ExecutionError, "COMPETING_BROKER_ORDER"):
             self.j.prepare_initial_sltp_from_broker_position(
