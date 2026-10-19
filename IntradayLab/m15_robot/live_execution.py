@@ -21,8 +21,9 @@ from fractions import Fraction
 from typing import Any
 
 from .broker_fill_readonly import ExpectedEntry, analyze_account_trades
+from .broker_snapshot import order_views, position_quantities, unique_order_by_client_id
 from .broker_reconcile_gate import assess_entry_evidence
-from .grid_risk import TrailingState, project_stop
+from .grid_risk import ContractAuthority, SizedOrder, TrailingState, initial_stop, project_stop
 from .protective_gate import BrokerProtection
 from .trailing_gate import PendingTrail, propose_trail
 from .spec import INITIAL_STOP_ATR
@@ -333,6 +334,111 @@ class M15OutboundJournal:
             raise
 
 
+
+
+    def prepare_initial_sltp_from_broker_position(
+        self, *, entry_key: str, entry_draft: M15Draft, stop_key: str,
+        drafts: M15OfflineTradeDrafts, instrument: str, direction: str,
+        reference_entry: Decimal, precommitted_stop: Decimal,
+        atr_at_signal: Decimal, contract: ContractAuthority,
+        sized: SizedOrder, account: dict, orders_response: dict,
+    ) -> M15Draft:
+        """H1 STOP-FIRST: broker position + PRECOMMITTED risk/stop, before trades.
+
+        No AccountTrade/VWAP history is required to prepare the protective
+        100%-position intent. This is still an unsent draft, NOT SLTP ACK.
+        Real entry/stop POST remains forbidden under the separate LIVE gates.
+        Subsequent authenticated trade history must validate exact fill VWAP
+        and realized R15 risk without withdrawing this initial backstop.
+        """
+        _valid_draft(entry_draft, account_hash=self.account_hash, key=entry_key)
+        row = self.inspect(entry_key)
+        if (not row or row["kind"] != "ENTRY"
+                or row["state"] not in {"UNCERTAIN", "ACK"}
+                or row["payload_sha256"] != _digest(entry_draft.payload)):
+            raise M15ExecutionError("M15_STOP_DURABLE_POST_BOUNDARY_REQUIRED")
+        if (instrument not in INSTRUMENTS
+                or entry_draft.payload["symbol"] != instrument + "@RTSX"
+                or direction not in {"LONG", "SHORT"}
+                or entry_draft.payload["side"] !=
+                ("SIDE_BUY" if direction == "LONG" else "SIDE_SELL")
+                or not isinstance(drafts, M15OfflineTradeDrafts)
+                or drafts.execution_authorized):
+            raise M15ExecutionError("M15_STOP_ACCOUNT_OR_ENTRY_IDENTITY_INVALID")
+        if (not isinstance(contract, ContractAuthority)
+                or not isinstance(sized, SizedOrder)):
+            raise M15ExecutionError("M15_STOP_PRECOMMITTED_R15_GO_MISSING")
+        contract.validate()
+        if (not isinstance(atr_at_signal, Decimal) or
+                not atr_at_signal.is_finite() or atr_at_signal <= 0 or
+                not isinstance(reference_entry, Decimal) or
+                not isinstance(precommitted_stop, Decimal)):
+            raise M15ExecutionError("M15_STOP_PRECOMMITTED_PRICE_INVALID")
+        try:
+            computed = initial_stop(
+                direction, reference_entry, atr_at_signal, contract.price_step)
+        except ValueError:
+            raise M15ExecutionError("M15_STOP_INITIAL_STOP_INVALID") from None
+        if computed != precommitted_stop:
+            raise M15ExecutionError("M15_STOP_PRECOMMITTED_2ATR_MISMATCH")
+        planned = int(entry_draft.payload["quantity"]["value"])
+        per_contract_risk = (
+            abs(reference_entry - computed) / contract.price_step * contract.tick_value
+        )
+        if (sized.reason != "OK" or type(sized.final_quantity) is not int
+                or sized.final_quantity != planned
+                or sized.per_contract_loss != per_contract_risk
+                or sized.initial_nominal_risk != per_contract_risk * planned
+                or sized.risk_budget <= 0
+                or sized.initial_nominal_risk > sized.risk_budget
+                or planned % contract.trade_lot_size != 0
+                or planned > sized.by_risk or planned > sized.by_margin):
+            raise M15ExecutionError("M15_STOP_PRECOMMITTED_R15_GO_INVALID")
+        if (not isinstance(account, dict)
+                or account.get("status") not in
+                {"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"}
+                or not isinstance(account.get("account_id"), str)
+                or hashlib.sha256(account["account_id"].encode()).hexdigest()
+                != self.account_hash):
+            raise M15ExecutionError("M15_STOP_BROKER_ACCOUNT_NOT_BOUND")
+        positions = position_quantities(account)
+        signed = positions.get(entry_draft.payload["symbol"], 0)
+        if (type(signed) is not int or signed == 0
+                or (signed > 0) != (direction == "LONG")
+                or abs(signed) > planned):
+            raise M15ExecutionError("M15_STOP_BROKER_POSITION_NOT_MATCHED")
+        orders = order_views(orders_response)
+        expected_client_id = entry_draft.payload["client_order_id"]
+        order = unique_order_by_client_id(orders, expected_client_id)
+        if (order is None or order.kind != "REGULAR"
+                or order.symbol != entry_draft.payload["symbol"]
+                or order.side != entry_draft.payload["side"]
+                or order.request.get("quantity") != {"value": str(planned)}
+                or order.status not in {"PARTIAL_FILL", "FILLED", "EXECUTED"}):
+            raise M15ExecutionError("M15_STOP_BROKER_ENTRY_ORDER_NOT_MATCHED")
+        for other in orders:
+            if (other.active and other.symbol == order.symbol
+                    and other.order_id != order.order_id):
+                raise M15ExecutionError("M15_STOP_COMPETING_BROKER_ORDER_OR_STOP")
+        if row["state"] == "ACK":
+            expected_order_hash = hashlib.sha256(order.order_id.encode()).hexdigest()
+            if row["broker_order_sha256"] != expected_order_hash:
+                raise M15ExecutionError("M15_STOP_BROKER_ORDER_CHANGED")
+        proposal = drafts.protective_stop(
+            instrument=instrument, direction=direction, idempotency_key=stop_key,
+            observed_position_quantity=signed, stop_price=computed,
+            price_step=contract.price_step,
+        )
+        if (proposal.account_fingerprint != self.account_hash
+                or proposal.submitted or proposal.live_authorized):
+            raise M15ExecutionError("M15_STOP_PROPOSAL_ACCOUNT_OR_LIVE_INVALID")
+        # First durable broker-order identity, then durable stop intent.
+        # Crash between transactions is safe: restart can prepare same key.
+        if row["state"] == "UNCERTAIN":
+            self.record_broker_ack(
+                key=entry_key, draft=entry_draft, broker_order_id=order.order_id)
+        self.prepare(key=stop_key, draft=proposal)
+        return proposal
 
     def prepare_initial_sltp_from_durable_fills(
         self, *, entry_key: str, entry_draft: M15Draft,
