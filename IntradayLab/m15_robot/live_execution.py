@@ -16,7 +16,12 @@ import json
 from pathlib import Path
 import re
 import sqlite3
+from decimal import Decimal
+from fractions import Fraction
 from typing import Any
+
+from .broker_fill_readonly import ExpectedEntry, analyze_account_trades
+from .broker_reconcile_gate import assess_entry_evidence
 
 from .account_boundary import validate_independent_binding
 from .spec import EXECUTION_STATUS, INSTRUMENTS, ROBOT_ID
@@ -179,15 +184,25 @@ class M15OutboundJournal:
                     state TEXT NOT NULL CHECK(state IN ('PREPARED','UNCERTAIN','ACK')),
                     broker_order_sha256 TEXT
                 );
+                CREATE TABLE IF NOT EXISTS broker_fills (
+                    trade_sha256 TEXT PRIMARY KEY,
+                    intent_key TEXT NOT NULL REFERENCES outbound(intent_key),
+                    broker_order_sha256 TEXT NOT NULL,
+                    quantity INTEGER NOT NULL CHECK(quantity>0),
+                    price TEXT NOT NULL,
+                    trade_timestamp TEXT NOT NULL
+                );
             """)
             tables = {r[0] for r in self.db.execute(
                 "SELECT name FROM sqlite_master WHERE type='table'")}
-            if tables != {"metadata", "outbound"}:
+            if tables != {"metadata", "outbound", "broker_fills"}:
                 raise M15ExecutionError("M15_OUTBOUND_SCHEMA_TABLES_INVALID")
             expected = {
                 "metadata": ("key", "value"),
                 "outbound": ("intent_key", "kind", "symbol", "payload_sha256",
                              "state", "broker_order_sha256"),
+                "broker_fills": ("trade_sha256", "intent_key", "broker_order_sha256",
+                                 "quantity", "price", "trade_timestamp"),
             }
             for table, cols in expected.items():
                 found = tuple(row[1] for row in self.db.execute(f"PRAGMA table_info({table})"))
@@ -302,6 +317,115 @@ class M15OutboundJournal:
             if self.db.in_transaction:
                 self.db.execute("ROLLBACK")
             raise
+
+
+    def reconcile_entry_broker_get(
+        self, *, key: str, draft: M15Draft, expected: ExpectedEntry,
+        expected_client_order_id: str, stop_trade_tag: str,
+        account: dict, orders_response: dict, trades_response: dict,
+        start: str, end: str, limit: int = 1000,
+    ) -> dict:
+        """H1-style GET-only recovery of a real-shaped entry, incl. UNCERTAIN POST.
+
+        The caller must separately prove a fresh authenticated M15 broker
+        session. No token, FINAM API, order transport or live permission here.
+        Atomic durable fills are facts, never an SLTP ACK or trading permit.
+        """
+        _valid_draft(draft, account_hash=self.account_hash, key=key)
+        if not isinstance(expected, ExpectedEntry) or draft.kind != "ENTRY":
+            raise M15ExecutionError("M15_FILL_EXPECTED_ENTRY_REQUIRED")
+        if (hashlib.sha256(expected.account_id.encode("utf-8")).hexdigest() != self.account_hash
+                or expected.symbol != draft.payload["symbol"]
+                or expected.side != draft.payload["side"]
+                or expected.quantity != int(draft.payload["quantity"]["value"])
+                or expected_client_order_id != draft.payload["client_order_id"]):
+            raise M15ExecutionError("M15_FILL_DURABLE_BROKER_IDENTITY_MISMATCH")
+        # Both validators require matching account, order/client ID, position,
+        # complete bounded FINAM AccountTrade history and compatible stop list.
+        evidence = assess_entry_evidence(
+            account=account, orders_response=orders_response,
+            trades_response=trades_response, expected=expected,
+            expected_client_order_id=expected_client_order_id,
+            stop_trade_tag=stop_trade_tag, start=start, end=end, limit=limit,
+        )
+        report = analyze_account_trades(
+            trades_response, expected, start=start, end=end, limit=limit,
+        )
+        if (evidence.matched_fill_quantity != report["matched_quantity"]
+                or evidence.fill_set_sha256 != report["fill_set_sha256"]
+                or evidence.sqlite_adoption_authorized or evidence.live_authorized
+                or report["sqlite_reconciled"] or report["live_authorized"]):
+            raise M15ExecutionError("M15_FILL_INDEPENDENT_GET_DIVERGENCE")
+        broker_hash = hashlib.sha256(expected.order_id.encode("utf-8")).hexdigest()
+        # Normalize exact validated trade facts. Duplicate identical GET rows
+        # collapse by trade ID; different trade IDs never share SQL authority.
+        observations = {}
+        for raw in trades_response["trades"]:
+            if raw["order_id"] != expected.order_id:
+                continue
+            trade_hash = hashlib.sha256(raw["trade_id"].encode("utf-8")).hexdigest()
+            price = str(Decimal(raw["price"]["value"]))
+            qty = int(Decimal(raw["size"]["value"]))
+            fact = (key, broker_hash, qty, price, raw["timestamp"])
+            if trade_hash in observations and observations[trade_hash] != fact:
+                raise M15ExecutionError("M15_FILL_DUPLICATE_GET_CONFLICT")
+            observations[trade_hash] = fact
+        if sum(v[2] for v in observations.values()) != evidence.matched_fill_quantity:
+            raise M15ExecutionError("M15_FILL_GET_QUANTITY_DIVERGENCE")
+        self.db.execute("BEGIN IMMEDIATE")
+        try:
+            row = self.inspect(key)
+            if (row is None or row["kind"] != "ENTRY"
+                    or row["state"] not in {"UNCERTAIN", "ACK"}
+                    or row["symbol"] != expected.symbol
+                    or row["payload_sha256"] != _digest(draft.payload)
+                    or (row["state"] == "ACK"
+                        and row["broker_order_sha256"] != broker_hash)):
+                raise M15ExecutionError("M15_FILL_UNCERTAIN_OR_ACK_INTENT_REQUIRED")
+            old = self.db.execute(
+                "SELECT trade_sha256,intent_key,broker_order_sha256,quantity,"
+                "price,trade_timestamp FROM broker_fills WHERE intent_key=?",
+                (key,),
+            ).fetchall()
+            for trade_hash, *previous in old:
+                if observations.get(trade_hash) != tuple(previous):
+                    raise M15ExecutionError("M15_FILL_DURABLE_HISTORY_MISSING_OR_CHANGED")
+            new_count = 0
+            old_hashes = {r[0] for r in old}
+            for trade_hash, fact in observations.items():
+                if trade_hash not in old_hashes:
+                    self.db.execute(
+                        "INSERT INTO broker_fills VALUES(?,?,?,?,?,?)",
+                        (trade_hash, *fact),
+                    )
+                    new_count += 1
+            if row["state"] == "UNCERTAIN":
+                # Verified order/client-ID/account/trades GET proves the order
+                # exists, even when its original POST ACK was lost.
+                self.db.execute(
+                    "UPDATE outbound SET state='ACK',broker_order_sha256=? "
+                    "WHERE intent_key=? AND state='UNCERTAIN'",
+                    (broker_hash, key),
+                )
+            self.db.execute("COMMIT")
+        except Exception:
+            if self.db.in_transaction:
+                self.db.execute("ROLLBACK")
+            raise
+        return {
+            "broker_order_sha256": broker_hash,
+            "fill_set_sha256": report["fill_set_sha256"],
+            "matched_quantity": report["matched_quantity"],
+            "broker_position_quantity": evidence.broker_position_quantity,
+            "quantity_status": evidence.quantity_status,
+            "weighted_vwap_exact": report["weighted_price_exact"],
+            "new_durable_fills": new_count,
+            "protection_status": evidence.protection_status,
+            "broker_stop_acknowledged": False,
+            "new_entries_authorized": False,
+            "order_submission_authorized": False,
+            "live_authorized": False,
+        }
 
 
 class M15AuthorizedExecutionTransport:
