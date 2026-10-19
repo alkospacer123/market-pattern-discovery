@@ -10,20 +10,21 @@ import sys
 import time
 
 
-def main():
+def main(expected_sid=None):
     assert os.name == 'nt' and os.environ.get('RUNNER_ENVIRONMENT') == 'github-hosted'
     from observer.identity import current_identity
     from cc.providers import h1_windows_os as manual
     from streamlit.web import bootstrap
     root = Path(os.environ['CC03_CI_DISPOSABLE_ROOT'])
     sid, unsafe = current_identity()
-    assert sid == sys.argv[1] and not unsafe
+    assert sid == (expected_sid or sys.argv[1]) and not unsafe
     location = json.loads((root / 'manual-policy-location.json').read_text())
     fixtures = json.loads((root / 'Os-Fixtures.json').read_text())
     manual.POLICY_ROOT = Path(location['root'])
     manual.POLICY_NAME = 'Running-manual-os-policy.json'
     output = root / 'data/logs/streamlit-click.jsonl'
-    result = dict(sid_standard=True, policy_reads=0, probes=0, clicks=0)
+    result = dict(sid_standard=True, policy_reads=0, probes=0, clicks=0,
+                  server_isolated=bool(sys.flags.isolated), server_no_bytecode=bool(sys.flags.dont_write_bytecode))
 
     def save():
         # Append-only fixture evidence; never replace a file while the browser

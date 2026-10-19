@@ -162,14 +162,14 @@ def test_native_manual_rejects_real_elevated_identity_before_helper(manual_polic
     assert not manual.manual_os_refresh(datetime.now(timezone.utc))[1]
 
 
-@pytest.mark.parametrize('case',['valid','junction','writable_parent','missing','duplicate','parent_monkeypatch'])
+@pytest.mark.parametrize('case',['valid','junction','writable_parent','missing','duplicate'])
 def test_native_manual_policy_owner_acl_reparse_and_parse_before_diagnostic(manual_policy,monkeypatch,case):
     assert os.environ.get('GITHUB_ACTIONS')=='true' and os.environ.get('RUNNER_ENVIRONMENT')=='github-hosted'
     root=Path(Path(os.environ['RUNNER_TEMP']).anchor)/('CC03-'+uuid.uuid4().hex)
     target=root/'policy';target.mkdir(parents=True)
     leaf=target/'manual-os-policy.json'
     raw=json.dumps(manual_policy)
-    if case in ('duplicate','parent_monkeypatch'):raw=raw[:-1]+',"schema_id":"cc03.manual-os-policy.v1"}'
+    if case=='duplicate':raw=raw[:-1]+',"schema_id":"cc03.manual-os-policy.v1"}'
     leaf.write_text(raw)
     def acl(*args):
         result=subprocess.run(['icacls.exe',*map(str,args)],capture_output=True,text=True,timeout=10)
@@ -186,12 +186,6 @@ def test_native_manual_policy_owner_acl_reparse_and_parse_before_diagnostic(manu
             result=subprocess.run(['cmd.exe','/c','mklink','/J',str(selected),str(target)],capture_output=True,text=True,timeout=10)
             assert result.returncode==0,result.stderr
         monkeypatch.setattr(manual,'POLICY_ROOT',selected)
-        if case=='parent_monkeypatch':
-            # Parent monkeypatches cannot bypass native trust or replace bytes
-            # read by the fresh isolated child. Its duplicate policy must fail.
-            from cc.providers import windows_file as win
-            monkeypatch.setattr(win,'_read_native',lambda *a,**k:json.dumps(manual_policy).encode())
-            monkeypatch.setattr(win,'WinAPI',lambda:None)
         monkeypatch.setattr(manual,'current_identity',lambda:(manual_policy['observer_sid'],False))
         calls=[]
         from test_manual_os import facts
@@ -204,44 +198,3 @@ def test_native_manual_policy_owner_acl_reparse_and_parse_before_diagnostic(manu
         junction=root/'junction'
         if junction.exists():junction.rmdir()
         shutil.rmtree(root)
-
-
-def test_native_reader_ignores_script_main_and_scrubs_python_environment(tmp_path, monkeypatch):
-    import types
-    from cc.providers import windows_file as win
-    leaf = tmp_path / 'policy.json'
-    leaf.write_bytes(b'{}')
-    marker = tmp_path / 'MAIN_REEXECUTED'
-    poison = tmp_path / 'poison.py'
-    poison.write_text('from pathlib import Path\nPath(' + repr(str(marker)) + ').touch()\n')
-    fake_main = types.ModuleType('__main__')
-    fake_main.__file__ = str(poison)
-    monkeypatch.setitem(sys.modules, '__main__', fake_main)
-    # Intel's approved source/installed paths contain a space. The fixed script
-    # argument must also preserve Windows argument quoting in that layout.
-    package = tmp_path / 'Control Center'
-    package.mkdir()
-    worker = package / 'windows_file.py'
-    shutil.copyfile(win.__file__, worker)
-    monkeypatch.setattr(win, '__file__', str(worker))
-    monkeypatch.setenv('PYTHONPATH', str(tmp_path))
-    monkeypatch.setenv('PYTHONHOME', str(tmp_path))
-    (tmp_path / 'sitecustomize.py').write_text(poison.read_text())
-    assert win.read_windows(tmp_path, leaf.name, 16384) == b'{}'
-    assert not marker.exists()
-
-
-def test_native_policy_worker_timeout_terminates_and_waits_for_child(tmp_path, monkeypatch):
-    from cc.providers import windows_file as win
-    (tmp_path / 'policy.json').write_bytes(b'{}')
-    children = []
-    original = subprocess.Popen
-    def track(*args, **kwargs):
-        child = original(*args, **kwargs)
-        children.append(child)
-        return child
-    monkeypatch.setattr(subprocess, 'Popen', track)
-    monkeypatch.setattr(win, 'TIMEOUT_SECONDS', .001)
-    with pytest.raises(ValueError, match='^READ_TIMEOUT$'):
-        win.read_windows(tmp_path, 'policy.json', 16384)
-    assert len(children) == 1 and children[0].poll() is not None

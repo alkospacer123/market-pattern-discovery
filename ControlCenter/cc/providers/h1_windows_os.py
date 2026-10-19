@@ -12,7 +12,7 @@ from observer.windows_os import TASK, os_facts, envelope
 from .h1_contract import timestamp
 from .h1_readonly import _pairs, _reject_constant
 from .windows_file import read_windows
-from .h1_export import ManualRefreshFailure, ReceiverPolicy, manual_export_refresh, os_snapshot
+from .h1_export import ReceiverPolicy, manual_export_refresh, os_snapshot
 
 POLICY_ROOT = Path(__file__).absolute().parents[2] / 'deployment'
 POLICY_NAME = 'manual-os-policy.json'
@@ -56,46 +56,22 @@ def policy_check(p):
 def installed_policy():
     # The existing native reader bounds the operation and authenticates every
     # ancestor/leaf owner, DACL, local NTFS identity and no-reparse boundary.
-    try:
-        raw = read_windows(str(POLICY_ROOT), POLICY_NAME, 16384, admin_policy=True)
-    except Exception:
-        raise ManualRefreshFailure('POLICY_READ') from None
-    try:
-        return policy_check(json.loads(raw, object_pairs_hook=_pairs, parse_constant=_reject_constant))
-    except Exception:
-        raise ManualRefreshFailure('POLICY_VALIDATE') from None
+    raw = read_windows(str(POLICY_ROOT), POLICY_NAME, 16384, admin_policy=True)
+    return policy_check(json.loads(raw, object_pairs_hook=_pairs, parse_constant=_reject_constant))
 
 
 def snapshot():
-    try:
-        p = installed_policy()  # Invalid/duplicate/missing policy -> zero diagnostic calls.
-    except ManualRefreshFailure:
-        raise
-    except Exception:
-        raise ManualRefreshFailure('POLICY_VALIDATE') from None
-    try:
-        sid, unsafe = current_identity()
-        if unsafe or sid != p['observer_sid']:
-            raise ValueError('STANDARD_CCPANEL_PRIMARY_TOKEN_REQUIRED')
-    except Exception:
-        raise ManualRefreshFailure('IDENTITY') from None
+    p = installed_policy()  # Invalid/duplicate/missing policy -> zero diagnostic calls.
+    sid, unsafe = current_identity()
+    if unsafe or sid != p['observer_sid']:
+        raise ValueError('STANDARD_CCPANEL_PRIMARY_TOKEN_REQUIRED')
     query = dict(task_name=p['task_name'], task_xml_sha256=p['task_xml_sha256'],
                  task_principal_sid=p['task_principal_sid'], process_enabled=p['process_binding'] is not None,
                  require_ccpanel=True, observer_sid=p['observer_sid'])
     if p['process_binding'] is not None:
         query.update(p['process_binding'])
     started = datetime.now(timezone.utc)
-    try:
-        facts = os_facts(query)  # Exactly ONE fixed helper, total timeout <=6s. No retry.
-    except Exception:
-        raise ManualRefreshFailure('OS_PROBE') from None
-    try:
-        return _checked_snapshot(p, query, facts, started)
-    except Exception:
-        raise ManualRefreshFailure('OS_VALIDATE') from None
-
-
-def _checked_snapshot(p, query, facts, started):
+    facts = os_facts(query)  # Exactly ONE fixed helper, total timeout <=6s. No retry.
     value = envelope(p, facts)  # Strict OS schema, timestamps, reasons, no extra fields.
     for name, row in facts.items():
         if timestamp(row['observed_at']) < started:

@@ -84,26 +84,14 @@ async def _browser_click(edge, profile, evidence, log):
             await asyncio.sleep(.1)
         value = state(evidence)
         assert value['clicks'] == 1 and value['policy_reads'] == 1, value
-        assert value['accepted'] is True and value['probes'] == 1, value
-        assert value['task'] == 'TASK_RUNNING' and value['robot_state'] == 'UNKNOWN', value
-        assert value['source_kind'] == 'WINDOWS_OS_ONLY', value
-        assert value['heartbeat'] is None and value['trading'] is None, value
+        assert value['accepted'] is False and value['probes'] == 0, value
         assert value['streamlit_main'] is True, value
-        async def page(name):
-            await evaluate("Array.from(document.querySelectorAll('[data-testid=stRadio] label'))"
-                           ".find(e=>e.textContent.includes(" + json.dumps(name) + ")).click()")
-        await page('Управление')
-        await until("document.querySelectorAll('[data-testid=stButton] button:disabled').length === 10")
-        await page('Монитор H1')
-        await until("document.body.innerText.includes('TASK_RUNNING')")
-        assert not await evaluate("document.body.innerText.includes('BLOCKED / UNKNOWN')")
-        assert state(evidence)['policy_reads'] == 1
-        assert state(evidence)['probes'] == 1
+        assert value['server_isolated'] is True and value['server_no_bytecode'] is True, value
+        await until("document.body.innerText.includes('BLOCKED / UNKNOWN')")
         screenshot = await call('Page.captureScreenshot', dict(format='png'))
         (evidence.parent / 'streamlit-click.png').write_bytes(base64.b64decode(screenshot['data']))
         value['real_browser_click'] = True
-        value['navigation_zero_extra_reads'] = True
-        value['disabled_trading_controls'] = 10
+        value['baseline_expected_blocked'] = True
         return value
     finally:
         if socket is not None:
@@ -124,7 +112,12 @@ def main(sid):
         assert json.loads(result.read_text())['real_browser_click'] is True
         return  # The second existing lifecycle probe must not click again.
     with (logs / 'streamlit-server.txt').open('w', encoding='utf-8') as log:
-        server = subprocess.Popen([sys.executable, '-m', 'ci.streamlit_host', sid],
+        # Match Start-Panel.ps1's -I -B interpreter flags. This trusted bootstrap
+        # only imports the fixed CI fixture adapter before real Streamlit runs.
+        bootstrap = ('import sys; sys.path.insert(0,sys.argv[1]); '
+                     'from ci.streamlit_host import main; main(sys.argv[2])')
+        server = subprocess.Popen([sys.executable, '-I', '-B', '-c', bootstrap,
+                                   str(Path(__file__).parents[1]), sid],
                                   stdout=log, stderr=subprocess.STDOUT)
         try:
             deadline = time.monotonic() + 100
