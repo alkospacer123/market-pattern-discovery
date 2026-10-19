@@ -414,8 +414,9 @@ class M15OutboundJournal:
                     or not _rest_value_equals(old.request.get("quantity_sl"), "100")
                     or old.request.get("sl_qty_measure") !=
                     "SLTP_QTY_MEASURE_PERCENT"
-                    or not _rest_value_equals(old.request.get("sl_price"),
-                                              old.request.get("sl_price", {}).get("value", ""))):
+                    or not isinstance(old.request.get("sl_price"), dict)
+                    or not _rest_value_equals(old.request["sl_price"],
+                                              old.request["sl_price"].get("value", ""))):
                 raise M15ExecutionError("M15_PROTECTIVE_PREPOST_BACKSTOP_INVALID")
             old_price = Decimal(old.request["sl_price"]["value"])
             new_price = Decimal(draft.payload["sl_price"]["value"])
