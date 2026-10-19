@@ -13,7 +13,7 @@ from IntradayLab.m15_robot.live_execution import (
     M15PrePostRefused, load_execution_authorization,
 )
 from IntradayLab.m15_robot.broker_fill_readonly import ExpectedEntry
-from IntradayLab.m15_robot.trade_draft_contract import M15Draft
+from IntradayLab.m15_robot.trade_draft_contract import M15Draft, M15OfflineTradeDrafts
 
 
 class FakeOrderAPI:
@@ -289,6 +289,70 @@ class M15ExecutionStageTests(unittest.TestCase):
         self.assertEqual(self.j.db.execute(
             "SELECT COUNT(*) FROM broker_fills").fetchone()[0], 0)
         self.assertEqual(self.j.inspect(self.key)["state"], "UNCERTAIN")
+
+
+    def test_broker_full_fill_exact_vwap_to_100_percent_stop_durable(self):
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        broker = self.j.reconcile_entry_broker_get(**self.broker_get(filled=2))
+        drafts = M15OfflineTradeDrafts(
+            m15_account_id=self.args["m15_account_id"],
+            h1_account_sha256=self.args["h1_account_sha256"],
+            m15_runtime_root=self.args["runtime_root"],
+            h1_runtime_root=self.args["h1_runtime_root"],
+            repository_root=self.args["repository_root"],
+        )
+        kwargs = dict(
+            entry_key=self.key, entry_draft=self.draft,
+            broker_report=broker, stop_key="m15:stop:fill:1",
+            drafts=drafts, instrument="CNYRUBF", direction="LONG",
+            atr_at_signal=Decimal("0.100"), price_step=Decimal("0.001"),
+        )
+        stop = self.j.prepare_initial_sltp_from_durable_fills(**kwargs)
+        self.assertEqual(stop.payload["sl_price"], {"value": "12.300"})
+        self.assertEqual(stop.payload["quantity_sl"], {"value": "100"})
+        self.assertEqual(stop.kind, "PROTECTIVE_STOP_INSTALL")
+        self.assertEqual(self.j.inspect("m15:stop:fill:1")["state"], "PREPARED")
+        self.assertFalse(stop.submitted or stop.live_authorized)
+        self.j.close()
+        self.j = M15OutboundJournal(**self.args)
+        same = self.j.prepare_initial_sltp_from_durable_fills(**kwargs)
+        self.assertEqual(same.payload, stop.payload)
+        with self.assertRaisesRegex(M15ExecutionError, "DUPLICATE_INITIAL_STOP"):
+            self.j.prepare_initial_sltp_from_durable_fills(
+                **dict(kwargs, stop_key="m15:stop:fill:2"))
+
+    def test_initial_stop_rejects_unproven_vwap_or_partial_position(self):
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        broker = self.j.reconcile_entry_broker_get(**self.broker_get(filled=1))
+        drafts = M15OfflineTradeDrafts(
+            m15_account_id=self.args["m15_account_id"],
+            h1_account_sha256=self.args["h1_account_sha256"],
+            m15_runtime_root=self.args["runtime_root"],
+            h1_runtime_root=self.args["h1_runtime_root"],
+            repository_root=self.args["repository_root"],
+        )
+        kwargs = dict(
+            entry_key=self.key, entry_draft=self.draft, broker_report=broker,
+            stop_key="m15:stop:fill:1", drafts=drafts, instrument="CNYRUBF",
+            direction="LONG", atr_at_signal=Decimal("0.100"),
+            price_step=Decimal("0.001"),
+        )
+        tampered = dict(broker, weighted_vwap_exact={
+            "numerator": "999", "denominator": "1"})
+        with self.assertRaisesRegex(M15ExecutionError, "VWAP_RECONCILIATION_FAILED"):
+            self.j.prepare_initial_sltp_from_durable_fills(
+                **dict(kwargs, broker_report=tampered))
+        tampered_qty = dict(broker, broker_position_quantity=2)
+        with self.assertRaisesRegex(M15ExecutionError, "QUANTITY_MISMATCH"):
+            self.j.prepare_initial_sltp_from_durable_fills(
+                **dict(kwargs, broker_report=tampered_qty))
+        self.assertIsNone(self.j.inspect("m15:stop:fill:1"))
+        partial = self.j.prepare_initial_sltp_from_durable_fills(**kwargs)
+        self.assertEqual(partial.payload["sl_price"], {"value": "12.300"})
+        self.assertEqual(partial.payload["quantity_sl"], {"value": "100"})
+        self.assertFalse(partial.submitted)
 
     def test_authorization_file_cannot_override_frozen_status(self):
         root = self.args["runtime_root"]
