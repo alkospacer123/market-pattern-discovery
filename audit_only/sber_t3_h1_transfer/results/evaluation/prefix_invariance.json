@@ -1,0 +1,26 @@
+{
+  "label": "DEVELOPMENT_PREFIX_INVARIANCE",
+  "maximum_numeric_deltas": {
+    "bars_held": 0.0,
+    "cost_R": 0.0,
+    "direction": 0.0,
+    "entry_price": 0.0,
+    "entry_time": 0.0,
+    "exit_price": 0.0,
+    "exit_time": 0.0,
+    "gross_R": 0.0,
+    "initial_risk_price": 0.0,
+    "initial_stop_price": 0.0,
+    "net_R": 0.0,
+    "stored_trail_candidate": 0.0,
+    "trail1_activated": 0.0,
+    "trail1_activation_time": 0.0,
+    "trail1_triggered": 0.0,
+    "trigger_bar_time": 0.0
+  },
+  "mismatches": [],
+  "other_rows": 621,
+  "primary_rows": 621,
+  "status": "PASS",
+  "tolerance": 1e-09
+}

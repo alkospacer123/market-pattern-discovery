@@ -1,0 +1,1 @@
+{"status": "PASS", "comparisons": 7319, "max_roundtrip_csv_numeric_delta": 5.000018177270249e-10, "tolerance": 1e-07, "errors": [], "implementation": "independent csv/statistics arithmetic and temporal audit"}

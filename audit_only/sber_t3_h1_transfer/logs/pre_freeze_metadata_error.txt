@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/market-pattern-discovery/audit_only/sber_t3_h1_transfer/study.py", line 318, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/market-pattern-discovery/audit_only/sber_t3_h1_transfer/study.py", line 304, in main
+    audit,summary=calculate(frame,a.out)
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/market-pattern-discovery/audit_only/sber_t3_h1_transfer/study.py", line 250, in calculate
+    native=pd.DataFrame(runner(frame,'SBER',{'lifecycle':'external_transfer','fold_id':''})).rename(columns={'net_R_C1':'net_R'})
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/market-pattern-discovery/TradingSystemLab/stage8_robot/authority_replay.py", line 19, in replay_authority
+    return run_t3(frame,symbol,frozen_parameters(),{"generation":"v3_perpetual","strategy":"T3","timeframe":"H1",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/market-pattern-discovery/TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_trail1_lifecycle.py", line 76, in run_t3
+    price=bs.stop_fill(float(b.Open),old);out.append(_record(meta,pos,bs,t,price,'INITIAL_STOP' if bs.enabled and old==pos['initial'] else 'ATR_TRAILING_STOP'));pos=None
+                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/market-pattern-discovery/TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_trail1_lifecycle.py", line 35, in _record
+    d={**meta,'trade_id':f"{meta['strategy']}-{meta['timeframe']}-{meta['instrument']}-{pos['seq']:06d}",'direction':pos['direction'],'entry_time':pos['entry_time'],'entry_price':pos['entry'],'exit_time':t,'exit_price':price,'exit_reason':reason,'gross_R':gross,'cost_R':cost,'net_R_C1':gross-cost,'bars_held':pos['bars']+1,**state.event_fields()}
+                                                                   ~~~~^^^^^^^^^^^^^^
+KeyError: 'instrument'

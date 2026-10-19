@@ -1,0 +1,20 @@
+{
+  "duplicate_timestamps": 0,
+  "excluded_potentially_incomplete_rows": 0,
+  "first_open": "2011-11-17T10:00:00+04:00",
+  "flat_bars": 2410,
+  "gaps_over_5pct": 14,
+  "gaps_over_72h": 59,
+  "invalid_ohlc": 0,
+  "last_authorized_close": "2024-12-31T00:00:00+03:00",
+  "last_source_open": "2024-12-30T23:00:00+03:00",
+  "main_sha": "38489db7e69336548a583f968f13aab49c20913b",
+  "max_elapsed_hours": 634.0,
+  "null_or_nonfinite_ohlcv": 0,
+  "price_adjustment": "UNKNOWN; treated as raw/unadjusted; no dividend income or corporate-action adjustment",
+  "raw_rows": 37298,
+  "source_sha256": "888bf47b5030f362f2e83c018a18da6ec9ba49d1d9ded3fceed4293886cfd2a0",
+  "timestamp_basis": "NAIVE_MOSCOW_OPEN_ASSUMED_CONSISTENT_NOT_INDEPENDENTLY_AUTHENTICATED",
+  "usable_rows": 37298,
+  "zero_volume": 0
+}

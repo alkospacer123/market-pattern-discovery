@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/market-pattern-discovery/audit_only/sber_t3_h1_transfer/report.py", line 173, in <module>
+    if __name__=='__main__':render()
+                            ^^^^^^^^
+  File "/workspace/market-pattern-discovery/audit_only/sber_t3_h1_transfer/report.py", line 45, in render
+    n4=n4_comparison(out)
+       ^^^^^^^^^^^^^^^^^^
+  File "/workspace/market-pattern-discovery/audit_only/sber_t3_h1_transfer/report.py", line 18, in n4_comparison
+    assert not n.source_trade_id.duplicated().any()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

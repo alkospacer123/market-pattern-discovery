@@ -1,0 +1,10 @@
+{
+  "correction": "Bare IDs restart per lifecycle. Use (lifecycle, source_trade_id); no deduplication or economics changes.",
+  "duplicate_bare_ids": 157,
+  "duplicate_lifecycle_ids": 0,
+  "errors": [],
+  "main_sha": "38489db7e69336548a583f968f13aab49c20913b",
+  "source_rows_retained": 355,
+  "source_sha256": "8f0493f5dd4edf087881622005efde0531c6146903a38c362e72dbc508071b1e",
+  "status": "PASS"
+}

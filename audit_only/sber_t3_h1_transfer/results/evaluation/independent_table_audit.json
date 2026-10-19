@@ -1,0 +1,8 @@
+{
+  "comparisons": 8525,
+  "errors": [],
+  "implementation": "independent csv/statistics arithmetic and temporal audit",
+  "max_roundtrip_csv_numeric_delta": 5.000018177270249e-10,
+  "status": "PASS",
+  "tolerance": 1e-07
+}

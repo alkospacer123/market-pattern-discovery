@@ -1,0 +1,7 @@
+{
+  "freeze_sha256": "395cc83c3b1d69d3ba911e1d5447e1a6f92a70b271de9e6926bef580926515bb",
+  "main_sha": "38489db7e69336548a583f968f13aab49c20913b",
+  "mode": "SINGLE_EVALUATION_WITH_DETERMINISTIC_REPLAY",
+  "source_sha256": "888bf47b5030f362f2e83c018a18da6ec9ba49d1d9ded3fceed4293886cfd2a0",
+  "utc_time": "2026-10-19T14:11:11.908391+00:00"
+}

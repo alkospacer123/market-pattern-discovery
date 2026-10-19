@@ -1,0 +1,16 @@
+
+==================================== ERRORS ====================================
+________ ERROR collecting audit_only/sber_t3_h1_transfer/test_study.py _________
+ImportError while importing test module '/workspace/market-pattern-discovery/audit_only/sber_t3_h1_transfer/test_study.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+audit_only/sber_t3_h1_transfer/test_study.py:6: in <module>
+    from . import engine, scalar, study
+E   ImportError: attempted relative import with no known parent package
+=========================== short test summary info ============================
+ERROR audit_only/sber_t3_h1_transfer/test_study.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.75s
