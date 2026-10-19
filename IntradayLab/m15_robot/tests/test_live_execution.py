@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+from datetime import datetime, timezone
 from decimal import Decimal
 from fractions import Fraction
 from pathlib import Path
@@ -13,6 +14,9 @@ from IntradayLab.m15_robot.live_execution import (
     M15PrePostRefused, load_execution_authorization,
 )
 from IntradayLab.m15_robot.broker_fill_readonly import ExpectedEntry
+from IntradayLab.m15_robot.grid_risk import TrailingState
+from IntradayLab.m15_robot.protective_gate import BrokerProtection
+from IntradayLab.m15_robot.trailing_gate import confirm_trail
 from IntradayLab.m15_robot.trade_draft_contract import M15Draft, M15OfflineTradeDrafts
 
 
@@ -353,6 +357,58 @@ class M15ExecutionStageTests(unittest.TestCase):
         self.assertEqual(partial.payload["sl_price"], {"value": "12.300"})
         self.assertEqual(partial.payload["quantity_sl"], {"value": "100"})
         self.assertFalse(partial.submitted)
+
+
+    def test_broker_covered_trail_proposal_durable_but_old_stop_unchanged(self):
+        drafts = M15OfflineTradeDrafts(
+            m15_account_id=self.args["m15_account_id"],
+            h1_account_sha256=self.args["h1_account_sha256"],
+            m15_runtime_root=self.args["runtime_root"],
+            h1_runtime_root=self.args["h1_runtime_root"],
+            repository_root=self.args["repository_root"],
+        )
+        confirmed = TrailingState("USDRUBF", "LONG", Decimal("100"),
+                                  Decimal("96"), Decimal("100"))
+        stop = BrokerProtection("broker-old-stop", Decimal("96"), 100, 2, True)
+        pending, proposal = self.j.prepare_trailing_sltp_from_broker(
+            drafts=drafts, stop_key="m15:trail:synthetic:1",
+            confirmed=confirmed, broker_stop=stop, broker_position_qty=2,
+            completed_at=datetime(2026, 10, 19, 10, 30, tzinfo=timezone.utc),
+            high=Decimal("115"), low=Decimal("100"), atr=Decimal("2"),
+            price_step=Decimal("1"), survived_completed_bar=True,
+        )
+        self.assertEqual(confirmed.active_stop, Decimal("96"))
+        self.assertEqual(pending.candidate.active_stop, Decimal("108"))
+        self.assertEqual(proposal.payload["sl_price"], {"value": "108"})
+        self.assertEqual(self.j.inspect("m15:trail:synthetic:1")["state"], "PREPARED")
+        self.assertFalse(proposal.submitted or proposal.live_authorized)
+        observed = BrokerProtection("broker-new-stop", Decimal("108"), 100, 2, True)
+        after = confirm_trail(
+            pending, observed_stop=observed, observed_stop_count=1,
+            broker_position_qty=2, price_step=Decimal("1"),
+        )
+        self.assertEqual(after.active_stop, Decimal("108"))
+
+    def test_undercovered_broker_stop_blocks_trail_without_sqlite_intent(self):
+        drafts = M15OfflineTradeDrafts(
+            m15_account_id=self.args["m15_account_id"],
+            h1_account_sha256=self.args["h1_account_sha256"],
+            m15_runtime_root=self.args["runtime_root"],
+            h1_runtime_root=self.args["h1_runtime_root"],
+            repository_root=self.args["repository_root"],
+        )
+        confirmed = TrailingState("USDRUBF", "LONG", Decimal("100"),
+                                  Decimal("96"), Decimal("100"))
+        old = BrokerProtection("broker-old-stop", Decimal("96"), 100, 1, True)
+        with self.assertRaisesRegex(ValueError, "PROTECTION_NOT_CONFIRMED"):
+            self.j.prepare_trailing_sltp_from_broker(
+                drafts=drafts, stop_key="m15:trail:synthetic:1",
+                confirmed=confirmed, broker_stop=old, broker_position_qty=2,
+                completed_at=datetime(2026, 10, 19, 10, 30, tzinfo=timezone.utc),
+                high=Decimal("115"), low=Decimal("100"), atr=Decimal("2"),
+                price_step=Decimal("1"), survived_completed_bar=True,
+            )
+        self.assertIsNone(self.j.inspect("m15:trail:synthetic:1"))
 
     def test_authorization_file_cannot_override_frozen_status(self):
         root = self.args["runtime_root"]
