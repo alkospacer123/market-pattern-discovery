@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 from datetime import datetime, timedelta, timezone
+from dataclasses import replace
 from decimal import Decimal
 from fractions import Fraction
 from pathlib import Path
@@ -776,11 +777,142 @@ class M15ExecutionStageTests(unittest.TestCase):
     def test_h1_entry_r15_no_second_prepare_without_risk_reconciliation(self):
         args = self.r15_entry_inputs()
         self.j.prepare_entry_from_broker_r15(**args)
-        with self.assertRaisesRegex(M15ExecutionError, "EXISTING_INTENTS"):
+        with self.assertRaisesRegex(M15ExecutionError, "UNRESOLVED_OR_DUPLICATE_ENTRY"):
             self.j.prepare_entry_from_broker_r15(**dict(
                 args, key="m15:entry:r15:2", instrument="CNYRUBF"))
         self.assertEqual(self.j.db.execute(
             "SELECT COUNT(*) FROM outbound").fetchone()[0], 1)
+
+
+    def synthetic_owned_n4(self):
+        """A complete H1-style GET entry+fills+active stop on first CNY position."""
+        data = self.r15_entry_inputs()
+        entry, _ = self.j.prepare_entry_from_broker_r15(**data)
+        self.j.begin_post_uncertain(key=data["key"], draft=entry)
+        order_id = "broker-owned-cny"
+        self.j.record_broker_ack(
+            key=data["key"], draft=entry, broker_order_id=order_id)
+        account = dict(data["account"], positions=[
+            {"symbol": "CNYRUBF@RTSX", "quantity": {"value": "3"}},
+        ])
+        orders = [{
+            "order_id": order_id, "status": "ORDER_STATUS_FILLED",
+            "order": {**entry.payload},
+        }]
+        trades = [{
+            "trade_id": "owned-fill-" + str(n),
+            "account_id": "M15-SYNTH", "order_id": order_id,
+            "symbol": "CNYRUBF@RTSX", "side": "SIDE_BUY",
+            "currency": "XXX", "timestamp": "2026-10-18T08:15:00Z",
+            "price": {"value": "12.500"}, "size": {"value": "1"},
+        } for n in range(3)]
+        self.j.reconcile_entry_broker_get(
+            key=data["key"], draft=entry,
+            expected=ExpectedEntry(
+                account_id="M15-SYNTH", order_id=order_id,
+                symbol="CNYRUBF@RTSX", side="SIDE_BUY",
+                quantity=3, price_step=Decimal("0.001"),
+            ),
+            expected_client_order_id=entry.payload["client_order_id"],
+            stop_trade_tag="trade-1", account=account,
+            orders_response={"orders": orders}, trades_response={"trades": trades},
+            start="2026-10-18T08:00:00Z", end="2026-10-18T09:00:00Z",
+        )
+        stop_key = "m15:trade-1:stop:0"
+        stop = data["drafts"].protective_stop(
+            instrument="CNYRUBF", direction="LONG",
+            idempotency_key=stop_key, observed_position_quantity=3,
+            stop_price=Decimal("12.300"), price_step=Decimal("0.001"),
+        )
+        self.j.prepare(key=stop_key, draft=stop)
+        self.j.begin_protective_post_uncertain(
+            key=stop_key, draft=stop, account=account,
+            orders_response={"orders": orders},
+        )
+        all_orders = orders + [{
+            "order_id": "broker-owned-cny-stop", "status": "ORDER_STATUS_NEW",
+            "sltp_order": dict(stop.payload),
+        }]
+        self.j.reconcile_protective_broker_get(
+            key=stop_key, draft=stop, account=account,
+            orders_response={"orders": all_orders},
+        )
+        data["account"] = account
+        data["orders_response"] = {"orders": all_orders}
+        return data
+
+    def usd_followup(self, existing):
+        return dict(
+            existing, key="m15:entry:r15:2", instrument="USDRUBF",
+            reference_entry=Decimal("100.00"),
+            signal_atr=Decimal("0.10"),
+            contract=ContractAuthority(Decimal("0.01"), Decimal("10"), 1,
+                                       Decimal("100"), Decimal("100")),
+            asset={"ticker": "USDRUBF", "mic": "RTSX",
+                   "decimals": 2, "min_step": "1"},
+            asset_params={
+                **existing["asset_params"],
+                "symbol": "USDRUBF@RTSX",
+            },
+        )
+
+    def test_h1_n4_second_symbol_reserves_existing_broker_risk(self):
+        data = self.synthetic_owned_n4()
+        self.assertEqual(
+            self.j._owned_n4_risk_from_broker(
+                positions={"CNYRUBF@RTSX": 3},
+                orders=__import__("IntradayLab.m15_robot.broker_snapshot",
+                                   fromlist=["order_views"]).order_views(
+                                       data["orders_response"]))[0],
+            Decimal("600"),
+        )
+        new, sized = self.j.prepare_entry_from_broker_r15(
+            **self.usd_followup(data))
+        self.assertEqual(sized.final_quantity, 3)
+        self.assertEqual(sized.initial_nominal_risk, Decimal("600"))
+        self.assertEqual(new.payload["symbol"], "USDRUBF@RTSX")
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM entry_r15_basis").fetchone()[0], 2)
+        self.assertFalse(new.submitted or new.live_authorized)
+
+    def test_h1_n4_position_growth_after_stop_ack_blocks_new_entry(self):
+        data = self.synthetic_owned_n4()
+        changed = dict(data["account"], positions=[
+            {"symbol": "CNYRUBF@RTSX", "quantity": {"value": "4"}},
+        ])
+        with self.assertRaisesRegex(M15ExecutionError, "POSITION_NOT_FULLY_FILLED"):
+            self.j.prepare_entry_from_broker_r15(
+                **self.usd_followup(dict(data, account=changed)))
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM entry_r15_basis").fetchone()[0], 1)
+
+    def test_h1_n4_lost_protective_order_blocks_followup(self):
+        data = self.synthetic_owned_n4()
+        orders = {"orders": data["orders_response"]["orders"][:1]}
+        with self.assertRaisesRegex(M15ExecutionError, "ONE_ACTIVE_PROTECTIVE_STOP"):
+            self.j.prepare_entry_from_broker_r15(
+                **self.usd_followup(dict(data, orders_response=orders)))
+
+    def test_h1_n4_tick_value_cannot_be_forged_by_caller(self):
+        args = self.r15_entry_inputs()
+        wrong = replace(args["contract"], tick_value=Decimal("0.1"))
+        with self.assertRaisesRegex(M15ExecutionError, "CONTRACT_OR_GO_MISMATCH"):
+            self.j.prepare_entry_from_broker_r15(
+                **dict(args, contract=wrong))
+        self.assertIsNone(self.j.inspect(args["key"]))
+
+    def test_h1_n4_unresolved_stop_intent_blocks_new_entry(self):
+        data = self.synthetic_owned_n4()
+        pending = data["drafts"].protective_stop(
+            instrument="CNYRUBF", direction="LONG",
+            idempotency_key="m15:pending:replace:1",
+            observed_position_quantity=3, stop_price=Decimal("12.300"),
+            price_step=Decimal("0.001"), kind="PROTECTIVE_STOP_REPLACE",
+            previous_active_stop=Decimal("12.300"),
+        )
+        self.j.prepare(key="m15:pending:replace:1", draft=pending)
+        with self.assertRaisesRegex(M15ExecutionError, "UNRESOLVED_PROTECTIVE"):
+            self.j.prepare_entry_from_broker_r15(**self.usd_followup(data))
 
     def test_authorization_file_cannot_override_frozen_status(self):
         root = self.args["runtime_root"]
