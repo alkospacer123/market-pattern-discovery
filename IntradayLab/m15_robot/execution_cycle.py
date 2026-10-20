@@ -33,7 +33,7 @@ def reconcile_m15_readonly_once(
     *, journal: M15OutboundJournal, api: M15FinamReadOnlyAPI,
     m15_account_id: str, trade_start: str | None = None,
     trade_end: str | None = None, stop_trade_tag: str | None = None,
-    limit: int = 1000,
+    limit: int = 1000, observed_at: datetime | None = None,
 ) -> dict:
     """Reconcile durable M15 ENTRY and 100% SLTP from one broker snapshot.
 
@@ -51,6 +51,10 @@ def reconcile_m15_readonly_once(
             or hashlib.sha256(m15_account_id.encode("utf-8")).hexdigest()
             != journal.account_hash):
         raise M15ReadOnlyCycleError("M15_RECOVERY_EXACT_READONLY_ACCOUNT_REQUIRED")
+    if observed_at is not None and (
+            not isinstance(observed_at, datetime)
+            or observed_at.tzinfo is None or observed_at.utcoffset() is None):
+        raise M15ReadOnlyCycleError("M15_RECOVERY_OBSERVATION_TIME_INVALID")
     has_window = (trade_start is not None or trade_end is not None
                   or stop_trade_tag is not None)
     if has_window:
@@ -166,6 +170,49 @@ def reconcile_m15_readonly_once(
         # Never print broker IDs, user accounts or raw REST bodies.
         events.append({"kind": kind, "state": stage, "symbol": symbol})
 
+    # Existing H1-derived FLAT/cleanup gate is authoritative. No synthetic
+    # zero-position assumption can release a durable entry or its R15.
+    # Only ENTRY ACK plus independently stored real fills + exactly one
+    # acknowledged protective stop is eligible for flat reconciliation.
+    if observed_at is not None:
+        for entry_key, kind, symbol, state, _ in items:
+            if kind != "ENTRY" or state != "ACK" or positions.get(symbol, 0) != 0:
+                continue
+            filled = journal.db.execute(
+                "SELECT COALESCE(SUM(quantity),0) FROM broker_fills "
+                "WHERE intent_key=?", (entry_key,),
+            ).fetchone()[0]
+            if filled == 0:
+                continue
+            stopped = [
+                (stop_key, stop_kind) for stop_key, stop_kind, stop_symbol,
+                stop_state, _ in items
+                if stop_kind in {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}
+                and stop_symbol == symbol and stop_state == "ACK"
+                and journal.db.execute(
+                    "SELECT 1 FROM protective_coverage WHERE intent_key=?",
+                    (stop_key,),
+                ).fetchone() is not None
+            ]
+            if len(stopped) != 1:
+                raise M15ReadOnlyCycleError("M15_RECOVERY_FLAT_STOP_AMBIGUOUS")
+            stop_key = stopped[0][0]
+            linked_exits = journal.db.execute(
+                "SELECT intent_key FROM exit_prepost WHERE entry_key=?",
+                (entry_key,),
+            ).fetchall()
+            if len(linked_exits) > 1:
+                raise M15ReadOnlyCycleError("M15_RECOVERY_FLAT_EXIT_AMBIGUOUS")
+            exit_key = linked_exits[0][0] if linked_exits else None
+            report = journal.observe_flat_broker_get(
+                entry_key=entry_key, stop_key=stop_key, exit_key=exit_key,
+                account=account, orders_response=orders_response,
+                observed_at=observed_at,
+            )
+            stage = ("FLAT_DURABLY_RECONCILED" if report["durable_closed"]
+                     else "FLAT_ACTIVE_SLTP_CLEANUP_REQUIRED")
+            events.append({"kind": "FLAT", "state": stage, "symbol": symbol})
+
     return {
         "status": "HALTED_READONLY_RECOVERY",
         "intent_count": len(items),
@@ -219,6 +266,7 @@ def run_m15_readonly_recovery_once(
                 journal=journal, api=api, m15_account_id=m15_account_id,
                 trade_start=trade_start, trade_end=trade_end,
                 stop_trade_tag=stop_trade_tag, limit=limit,
+                observed_at=observed_at,
             )
         except Exception:
             # Never serialize a FINAM exception body, account, symbol or token.
