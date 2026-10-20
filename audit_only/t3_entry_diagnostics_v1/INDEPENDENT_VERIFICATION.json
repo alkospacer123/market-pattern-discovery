@@ -1,0 +1,13 @@
+{
+  "calendar_rows": 48,
+  "feature_fields": 86526,
+  "fields_checked": 115540,
+  "independence": "Separate scalar algorithm, same author; no independent human or separate-agent review",
+  "locked_numeric_rows": 0,
+  "max_abs_numeric_error": 6.461498003318411e-14,
+  "methods": "Fresh stdlib pinned-prefix parser, independent EWM/aggregation/signals/features, stop-first bounds, post-stop levels/order, Decimal returns and MSK calendar, direct stratification",
+  "outcome_path_fields": 18770,
+  "post_stop_threshold_checks": 3416,
+  "signal_rows": 2622,
+  "status": "PASS"
+}
