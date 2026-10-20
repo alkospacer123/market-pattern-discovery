@@ -1880,8 +1880,9 @@ class M15AuthorizedExecutionTransport:
                 or not isinstance(journal, M15OutboundJournal)
                 or journal.account_hash != self.account_hash
                 or journal.path.parent.parent.resolve() != self.runtime_root.resolve()
-                or not isinstance(expected, ExpectedEntry)
-                or expected.account_id != self.account_id):
+                or (expected is not None
+                    and (not isinstance(expected, ExpectedEntry)
+                         or expected.account_id != self.account_id))):
             raise M15ExecutionError("M15_ENTRY_RECONCILE_SESSION_OR_ACCOUNT_INVALID")
         _valid_draft(draft, account_hash=self.account_hash, key=key)
         if draft.kind != "ENTRY":
