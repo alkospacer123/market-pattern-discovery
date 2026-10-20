@@ -594,7 +594,8 @@ class M15OutboundJournal:
         return risk, {r[2].split("@")[0] for r in entries}
 
     def prepare_verified_next_open_r15(
-        self, *, api: Any, drafts: M15OfflineTradeDrafts,
+        self, *, api: Any, m15_account_id: str,
+        drafts: M15OfflineTradeDrafts,
         instrument: str, authenticated_seed: Any,
         interval_start: str, interval_end: str,
         observed_at: datetime, now: datetime,
@@ -626,24 +627,22 @@ class M15OutboundJournal:
         # The feature adapter strictly checks exact M15 FINAM client type and
         # closed-broker-bar provenance; the key is the deterministic signal ID.
         # Never write an outbound intent until every GET and R15 proof passes.
-        account_id = None
-        # Only the journal's separately bound M15 account hash is authoritative.
-        # The exact account ID is delivered by an authenticated M15 API, not
-        # inferred from a fingerprint or an H1 source.
+        # Exact M15 account supplied by the owning service: JWT-bound
+        # broker methods reject all foreign-account GETs independently.
+        # No API-private account attributes or H1 state are accessed.
         from .finam_readonly import M15FinamReadOnlyAPI
         from .finam_trading import M15FinamTradingAPI
-        if type(api) is M15FinamReadOnlyAPI:
-            if api.readonly_bound is not True:
-                raise M15ExecutionError("M15_NEXT_OPEN_READONLY_SESSION_UNBOUND")
-            account_id = api.account_id
-        elif type(api) is M15FinamTradingAPI:
-            # Trading client keeps the account ID private. A caller must
-            # supply it explicitly at this boundary below.
-            raise M15ExecutionError("M15_NEXT_OPEN_TRADING_ACCOUNT_ID_REQUIRED")
-        else:
-            raise M15ExecutionError("M15_NEXT_OPEN_FINAM_CLIENT_INVALID")
-        if hashlib.sha256(account_id.encode("utf-8")).hexdigest() != self.account_hash:
+        if (not isinstance(m15_account_id, str) or not m15_account_id
+                or hashlib.sha256(m15_account_id.encode("utf-8")).hexdigest()
+                != self.account_hash):
             raise M15ExecutionError("M15_NEXT_OPEN_ACCOUNT_MISMATCH")
+        if type(api) is M15FinamReadOnlyAPI:
+            if (api.readonly_bound is not True
+                    or api.account_id != m15_account_id):
+                raise M15ExecutionError("M15_NEXT_OPEN_READONLY_SESSION_UNBOUND")
+        elif type(api) is not M15FinamTradingAPI:
+            raise M15ExecutionError("M15_NEXT_OPEN_FINAM_CLIENT_INVALID")
+        account_id = m15_account_id
         evidence = latest_verified_finam_entry(
             api=api, m15_account_id=account_id,
             instrument=instrument, authenticated_seed=authenticated_seed,

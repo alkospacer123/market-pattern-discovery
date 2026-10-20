@@ -1559,7 +1559,7 @@ class M15ExecutionStageTests(unittest.TestCase):
               patch("IntradayLab.t3_m15_t1_entry_retest_v1.primary.features",
                     return_value=[signal])):
             outcome = self.j.prepare_verified_next_open_r15(
-                api=api, drafts=data["drafts"], instrument="CNYRUBF",
+                api=api, m15_account_id="M15-SYNTH", drafts=data["drafts"], instrument="CNYRUBF",
                 authenticated_seed=seed,
                 interval_start=times[0].isoformat(),
                 interval_end=(now + timedelta(minutes=15)).isoformat(),
@@ -1591,7 +1591,7 @@ class M15ExecutionStageTests(unittest.TestCase):
               patch.object(M15FinamReadOnlyAPI, "account_id", "M15-SYNTH")):
             with self.assertRaisesRegex(ValueError, "OPEN_LABEL_PROOF_REQUIRED"):
                 self.j.prepare_verified_next_open_r15(
-                    api=api, drafts=data["drafts"], instrument="CNYRUBF",
+                    api=api, m15_account_id="M15-SYNTH", drafts=data["drafts"], instrument="CNYRUBF",
                     authenticated_seed=None, interval_start="invalid",
                     interval_end="invalid", observed_at=data["now"],
                     now=data["now"], verified_open_labels=False,
