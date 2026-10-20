@@ -765,11 +765,11 @@ class M15ExecutionStageTests(unittest.TestCase):
         args = self.r15_entry_inputs()
         occupied = dict(args["account"], positions=[{
             "symbol": "USDRUBF@RTSX", "quantity": {"value": "1"}}])
-        with self.assertRaisesRegex(M15ExecutionError, "CLEAN_BROKER_BOOTSTRAP"):
+        with self.assertRaisesRegex(M15ExecutionError, "M15_N4_UNOWNED_BROKER_POSITION_OR_ORDER"):
             self.j.prepare_entry_from_broker_r15(
                 **dict(args, account=occupied))
         active = self.broker_get(filled=0)["orders_response"]
-        with self.assertRaisesRegex(M15ExecutionError, "CLEAN_BROKER_BOOTSTRAP"):
+        with self.assertRaisesRegex(M15ExecutionError, "M15_N4_UNOWNED_BROKER_POSITION_OR_ORDER"):
             self.j.prepare_entry_from_broker_r15(
                 **dict(args, orders_response=active))
         self.assertIsNone(self.j.inspect(args["key"]))
