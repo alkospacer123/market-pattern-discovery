@@ -74,3 +74,15 @@ research replay. Никаких LIVE, production execution, токенов, FINA
 Один Draft PR; no merge/auto-merge. Синтетические тесты, отдельный verifier,
 code freeze и минимум два свежих полных побайтных повтора обязательны.
 Ретроспективный replay известного TRUE OOS не новый независимый OOS.
+
+## Уточнения реализации до code freeze
+
+LOW_FOLLOW_THROUGH классифицируется только для CONTROL, как определено выше;
+альтернативные MAE/MFE и giveback остаются в их собственном frozen initial R0.
+MFE−exit включает и потерю ниже entry; дополнительно выводятся возвращённая
+положительная MFE и loss below entry. Frozen Close exit label сохраняется
+для сверки; фактическое время выхода и observed exposure имеют нижнюю/верхнюю
+границы, Open exit точен. Post-stop order сравнивает ordinal свечи и OPEN/INTERVAL,
+чтобы различать prior-bar intrabar hit и Open следующей свечи с той же timestamp.
+Дополнительные модели не вводятся. Это уточнения наблюдений/сериализации, не
+изменения сигналов или торговых параметров.

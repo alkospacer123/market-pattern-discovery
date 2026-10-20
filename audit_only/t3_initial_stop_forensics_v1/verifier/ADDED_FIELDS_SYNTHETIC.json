@@ -1,0 +1,19 @@
+{
+  "checks": [
+    {
+      "fields_checked": 26,
+      "max_abs_numeric_error": 0.0,
+      "method": "Separate stdlib stop-first excursions, extrema bounds, first excursion times, early adverse and threshold recomputation from frozen bars; no primary forensics import",
+      "positions": 1,
+      "status": "PASS"
+    },
+    {
+      "fields_checked": 26,
+      "max_abs_numeric_error": 0.0,
+      "method": "Separate stdlib stop-first excursions, extrema bounds, first excursion times, early adverse and threshold recomputation from frozen bars; no primary forensics import",
+      "positions": 1,
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS"
+}
