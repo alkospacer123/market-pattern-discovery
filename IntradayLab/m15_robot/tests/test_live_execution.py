@@ -1198,6 +1198,102 @@ class M15ExecutionStageTests(unittest.TestCase):
         self.assertEqual(self.j.db.execute(
             "SELECT COUNT(*) FROM broker_flat").fetchone()[0], 0)
 
+
+    def h1_entry_prepost_args(self):
+        """Same synthetic FINAM account/GO/initial equity already audited for R15."""
+        data = self.r15_entry_inputs()
+        draft, _ = self.j.prepare_entry_from_broker_r15(**data)
+        now = data["now"]
+        schedule = {"sessions": [{
+            "type": "CORE_TRADING",
+            "interval": {
+                "start_time": (now - timedelta(hours=1)).isoformat(),
+                "end_time": (now + timedelta(hours=1)).isoformat(),
+            },
+        }]}
+        kwargs = {
+            "key": data["key"], "draft": draft,
+            "account": data["account"],
+            "orders_response": data["orders_response"],
+            "asset": data["asset"],
+            "asset_params": data["asset_params"],
+            "schedule": schedule,
+            "signal_atr": data["signal_atr"],
+            "signal_closed_at": now,
+            "now": now,
+        }
+        return data, kwargs
+
+    def test_h1_entry_prepost_fresh_n4_r15_to_uncertain_once(self):
+        data, kw = self.h1_entry_prepost_args()
+        self.j.begin_entry_post_uncertain_checked(**kw)
+        self.assertEqual(self.j.inspect(data["key"])["state"], "UNCERTAIN")
+        self.assertEqual(
+            self.j.db.execute("SELECT COUNT(*) FROM entry_r15_basis").fetchone()[0], 1)
+        self.j.close()
+        self.j = M15OutboundJournal(**self.args)
+        with self.assertRaisesRegex(M15ExecutionError, "DURABLE_R15_MISSING"):
+            self.j.begin_entry_post_uncertain_checked(**kw)
+        self.assertEqual(self.j.inspect(data["key"])["state"], "UNCERTAIN")
+
+    def test_h1_entry_prepost_stale_basis_and_offtime_never_send(self):
+        data, kw = self.h1_entry_prepost_args()
+        with self.assertRaisesRegex(M15ExecutionError, "R15_STALE"):
+            self.j.begin_entry_post_uncertain_checked(**dict(
+                kw, now=kw["now"] + timedelta(minutes=1),
+                signal_closed_at=kw["now"] + timedelta(minutes=1)))
+        with self.assertRaisesRegex(M15ExecutionError, "NOT_NEXT_OPEN"):
+            self.j.begin_entry_post_uncertain_checked(**dict(
+                kw, signal_closed_at=kw["now"] - timedelta(minutes=15)))
+        with self.assertRaisesRegex(M15ExecutionError, "SESSION_NOT_OPEN"):
+            closed = {"sessions": [{
+                "type": "CORE_TRADING", "interval": {
+                    "start_time": (kw["now"] - timedelta(hours=2)).isoformat(),
+                    "end_time": (kw["now"] - timedelta(hours=1)).isoformat(),
+                },
+            }]}
+            self.j.begin_entry_post_uncertain_checked(**dict(
+                kw, schedule=closed))
+        self.assertEqual(self.j.inspect(data["key"])["state"], "PREPARED")
+
+    def test_h1_entry_prepost_capital_go_or_broker_account_changed(self):
+        data, kw = self.h1_entry_prepost_args()
+        mutated = dict(kw["account"], equity={"value": "49999"})
+        with self.assertRaisesRegex(M15ExecutionError, "CAPITAL_OR_GO_CHANGED"):
+            self.j.begin_entry_post_uncertain_checked(**dict(
+                kw, account=mutated))
+        bad_go = dict(kw["asset_params"], long_initial_margin={
+            "currency_code": "RUB", "units": "150", "nanos": 0})
+        with self.assertRaisesRegex(M15ExecutionError, "R15_GO_RECALC_MISMATCH"):
+            self.j.begin_entry_post_uncertain_checked(**dict(
+                kw, asset_params=bad_go))
+        with self.assertRaisesRegex(M15ExecutionError, "ACCOUNT_MISMATCH"):
+            self.j.begin_entry_post_uncertain_checked(**dict(
+                kw, account=dict(kw["account"], account_id="H1-ACCOUNT")))
+        self.assertEqual(self.j.inspect(data["key"])["state"], "PREPARED")
+
+    def test_h1_entry_prepost_rejects_foreign_active_order_or_position(self):
+        data, kw = self.h1_entry_prepost_args()
+        with self.assertRaisesRegex(M15ExecutionError, "UNOWNED_BROKER"):
+            self.j.begin_entry_post_uncertain_checked(**dict(
+                kw, account=dict(kw["account"], positions=[{
+                    "symbol": "USDRUBF@RTSX", "quantity": {"value": "1"},
+                }])))
+        with self.assertRaisesRegex(M15ExecutionError, "UNOWNED_BROKER"):
+            self.j.begin_entry_post_uncertain_checked(**dict(
+                kw, orders_response=self.broker_get(filled=0)["orders_response"]))
+        self.assertEqual(self.j.inspect(data["key"])["state"], "PREPARED")
+
+    def test_h1_entry_prepost_rejects_repriced_atr_or_bad_session_format(self):
+        data, kw = self.h1_entry_prepost_args()
+        with self.assertRaisesRegex(M15ExecutionError, "2ATR_GRID_CHANGED"):
+            self.j.begin_entry_post_uncertain_checked(**dict(
+                kw, signal_atr=Decimal("0.150")))
+        with self.assertRaises(ValueError):
+            self.j.begin_entry_post_uncertain_checked(**dict(
+                kw, schedule={"sessions": []}))
+        self.assertEqual(self.j.inspect(data["key"])["state"], "PREPARED")
+
     def test_authorization_file_cannot_override_frozen_status(self):
         root = self.args["runtime_root"]
         (root / "safety").mkdir(parents=True, exist_ok=True)
