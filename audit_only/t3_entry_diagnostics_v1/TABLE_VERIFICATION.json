@@ -1,0 +1,6 @@
+{
+  "fields_checked": 10886,
+  "max_abs_numeric_error": 8.881784197001252e-16,
+  "method": "Fresh CSV counts/returns/medians/quantiles; independently reconstructed seeded month-cluster intervals for every outcome, feature bucket and instrument/direction/year summary; every stability/breakout-stratum difference with month/quarter intervals; execution-gap summaries",
+  "status": "PASS"
+}
