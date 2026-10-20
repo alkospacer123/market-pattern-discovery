@@ -224,7 +224,7 @@ class SignalGate(unittest.TestCase):
         api = object.__new__(M15FinamTradingAPI)
         seed = bar_frame(at(10))
         schedule = {"sessions": [{"type": "CORE_TRADING", "interval": {
-            "start_time": at(9).isoformat(), "end_time": at(12).isoformat()
+            "start_time": at(9).isoformat(), "end_time": at(10,15).isoformat()
         }}]}
         raw = {"symbol": "CNYRUBF@RTSX", "bars": [{
             "timestamp": at(9,45).isoformat(),
@@ -242,7 +242,15 @@ class SignalGate(unittest.TestCase):
               patch.object(M15FinamTradingAPI, "schedule", return_value=schedule),
               patch.object(M15FinamTradingAPI, "bars_m15", return_value=raw),
               patch("IntradayLab.t3_m15_t1_entry_retest_v1.primary.features",
-                    return_value=[sample_feature(at(10))])):
+                    return_value=[sample_feature(at(10,15))])):
+            # A genuine completed signal may exist at the exact session end,
+            # but it is not an executable NEXT_OPEN without a new broker OPEN.
+            self.assertIsInstance(latest_verified_finam_signal(
+                api=api, m15_account_id="M15-FAKE", instrument="CNYRUBF",
+                authenticated_seed=seed, observed_at=at(10,15),
+                interval_start=at(9,45).isoformat(),
+                interval_end=at(10,30).isoformat(),
+                verified_open_labels=True), M15Signal)
             with self.assertRaisesRegex(ValueError, "NEXT_OPEN_BROKER_OPEN_NOT_PROVEN"):
                 latest_verified_finam_entry(
                     api=api, m15_account_id="M15-FAKE", instrument="CNYRUBF",

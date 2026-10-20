@@ -147,7 +147,8 @@ def _latest_verified_finam_observation(
     authenticated_seed: pd.DataFrame, observed_at: datetime,
     interval_start: str, interval_end: str,
     verified_open_labels: bool = False,
-) -> M15Signal | None:
+    require_next_open: bool = False,
+) -> M15Signal | M15VerifiedNextOpen | None:
     """M15-only same-session FINAM bars -> completed bars -> frozen T1 signal.
 
     The seed is the independently authenticated, append-only research history;
@@ -191,8 +192,8 @@ def _latest_verified_finam_observation(
         return None
     history = immutable_prefix_splice(authenticated_seed, newer)
     signal = latest_completed_signal(instrument, history, observed_at)
-    if signal is None:
-        return None
+    if signal is None or not require_next_open:
+        return signal
     # NEXT_OPEN is the actual broker OPEN of the bar opening at the
     # signal's close. Never use signal_close as an executable price.
     if signal.completed_at != history.index[-1].to_pydatetime():
@@ -230,8 +231,9 @@ def latest_verified_finam_signal(
         authenticated_seed=authenticated_seed, observed_at=observed_at,
         interval_start=interval_start, interval_end=interval_end,
         verified_open_labels=verified_open_labels,
+        require_next_open=False,
     )
-    return None if evidence is None else evidence.signal
+    return evidence
 
 
 def latest_verified_finam_entry(
@@ -250,6 +252,7 @@ def latest_verified_finam_entry(
         authenticated_seed=authenticated_seed, observed_at=observed_at,
         interval_start=interval_start, interval_end=interval_end,
         verified_open_labels=verified_open_labels,
+        require_next_open=True,
     )
     if evidence is None:
         return None
