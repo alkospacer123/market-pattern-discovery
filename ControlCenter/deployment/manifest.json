@@ -439,7 +439,7 @@
     },
     {
       "path": "tests/test_broker_readonly_contract.py",
-      "sha256": "d135f2d3e693474957b7696a1916fe2e5b947e06aa610f5e0b64148f3e54e722"
+      "sha256": "924377e8c766cc382dcd23c7f1d65553e29217c24acd4d1b77c772a55d28adc4"
     },
     {
       "path": "tests/test_broker_readonly_operator_ps.py",
