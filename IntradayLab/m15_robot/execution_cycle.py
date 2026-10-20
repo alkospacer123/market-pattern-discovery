@@ -249,12 +249,139 @@ def reconcile_m15_readonly_once(
     }
 
 
+def prepare_next_verified_m15_trail(
+    *, journal: M15OutboundJournal, api: M15FinamReadOnlyAPI,
+    m15_account_id: str, entry_key: str, drafts: Any,
+    authenticated_seed: Any, interval_start: str, interval_end: str,
+    observed_at: datetime, verified_open_labels: bool = False,
+) -> dict:
+    """FINAM completed M15 -> frozen ATR 3.5 -> durable stop DRAFT or hold.
+
+    This is GET-only for broker IO, never POST/DELETE or an SLTP ACK.
+    One adjacent completed bar at a time; a missed completed-bar chain
+    cannot be silently compressed into one hindsight trailing decision.
+    A new stop stays PREPARED until independently authorized transmission
+    and later broker ACTIVE GET. Existing confirmed stop remains unchanged.
+    """
+    from .trade_draft_contract import M15OfflineTradeDrafts
+    from .feature_adapter import (
+        M15VerifiedTrailBar, latest_verified_finam_trail_bar,
+    )
+    from .trailing_persistence import (
+        verified_broker_trailing_state, record_verified_trail_hold,
+    )
+    from .protective_gate import BrokerProtection
+    if (not isinstance(journal, M15OutboundJournal)
+            or type(api) is not M15FinamReadOnlyAPI
+            or api.readonly_bound is not True
+            or api.account_id != m15_account_id
+            or hashlib.sha256(m15_account_id.encode()).hexdigest()
+            != journal.account_hash
+            or not isinstance(drafts, M15OfflineTradeDrafts)
+            or drafts.execution_authorized is not False):
+        raise M15ReadOnlyCycleError("M15_TRAIL_NEXT_BAR_ACCOUNT_OR_DRAFT_INVALID")
+    entry = journal.inspect(entry_key)
+    if entry is None or entry["kind"] != "ENTRY" or entry["state"] != "ACK":
+        raise M15ReadOnlyCycleError("M15_TRAIL_NEXT_BAR_ENTRY_NOT_ACK")
+    instrument = entry["symbol"].split("@")[0]
+    account = api.account(m15_account_id)
+    orders_response = api.orders(m15_account_id)
+    confirmed = verified_broker_trailing_state(
+        journal=journal, entry_key=entry_key,
+        account=account, orders_response=orders_response)
+    if confirmed is None:
+        raise M15ReadOnlyCycleError("M15_TRAIL_NEXT_BAR_INITIAL_STOP_NOT_CONFIRMED")
+    bar = latest_verified_finam_trail_bar(
+        api=api, m15_account_id=m15_account_id,
+        instrument=instrument, authenticated_seed=authenticated_seed,
+        observed_at=observed_at, interval_start=interval_start,
+        interval_end=interval_end,
+        verified_open_labels=verified_open_labels)
+    if bar is None:
+        return {"state": "TRAIL_NO_FRESH_COMPLETED_BAR", "symbol": entry["symbol"]}
+    if type(bar) is not M15VerifiedTrailBar or bar.instrument != instrument:
+        raise M15ReadOnlyCycleError("M15_TRAIL_COMPLETED_SOURCE_MISMATCH")
+    if bar.observed_at != observed_at:
+        raise M15ReadOnlyCycleError("M15_TRAIL_OBSERVATION_CHANGED")
+    previous = confirmed.last_survived_m15_close
+    if previous is not None:
+        at = datetime.fromisoformat(previous)
+        if at.tzinfo is None or at.utcoffset() is None:
+            raise M15ReadOnlyCycleError("M15_TRAIL_WATERMARK_INVALID")
+        if bar.completed_at <= at:
+            return {"state": "TRAIL_ALREADY_PROCESSED", "symbol": entry["symbol"]}
+        if (bar.previous_completed_at.astimezone(timezone.utc)
+                != at.astimezone(timezone.utc)):
+            raise M15ReadOnlyCycleError("M15_TRAIL_UNPROCESSED_BAR_GAP")
+    else:
+        fills = journal.db.execute(
+            "SELECT trade_timestamp FROM broker_fills WHERE intent_key=?",
+            (entry_key,)).fetchall()
+        if not fills:
+            raise M15ReadOnlyCycleError("M15_TRAIL_ENTRY_FILLS_MISSING")
+        try:
+            last_fill = max(datetime.fromisoformat(x[0].replace("Z","+00:00"))
+                            for x in fills)
+        except (ValueError, TypeError, AttributeError):
+            raise M15ReadOnlyCycleError("M15_TRAIL_FILL_TIME_INVALID") from None
+        if last_fill.tzinfo is None or last_fill.utcoffset() is None:
+            raise M15ReadOnlyCycleError("M15_TRAIL_FILL_TIME_UNBOUND")
+        gap = (bar.previous_completed_at.astimezone(timezone.utc)
+               - last_fill.astimezone(timezone.utc)).total_seconds()
+        if not 0 <= gap <= 30 * 60:
+            raise M15ReadOnlyCycleError("M15_TRAIL_FIRST_FULL_BAR_NOT_PROVEN")
+    symbol = entry["symbol"]
+    asset = api.asset_details(symbol)
+    params = api.asset_params(symbol)
+    contract = contract_from_moex_and_finam(
+        check_instrument(asset, params, symbol, m15_account_id))
+    orders = order_views(orders_response)
+    active = [o for o in orders if o.kind == "SLTP" and o.active
+              and o.symbol == symbol]
+    if len(active) != 1:
+        raise M15ReadOnlyCycleError("M15_TRAIL_ACTIVE_STOP_NOT_UNIQUE")
+    covered = abs(position_quantities(account).get(symbol,0))
+    stop = BrokerProtection(
+        active[0].order_id, confirmed.active_stop, 100, covered, True)
+    stop_key = "m15:trail:" + hashlib.sha256(
+        (entry_key + "|" + bar.completed_at.isoformat()).encode()
+    ).hexdigest()[:24]
+    pending, draft = journal.prepare_trailing_sltp_from_broker(
+        drafts=drafts, stop_key=stop_key,
+        confirmed=confirmed, broker_stop=stop,
+        broker_position_qty=covered,
+        completed_at=bar.completed_at, high=bar.high,
+        low=bar.low, atr=bar.atr14,
+        price_step=contract.price_step, survived_completed_bar=True)
+    if draft is None:
+        state = record_verified_trail_hold(
+            journal=journal, entry_key=entry_key, pending=pending,
+            account=account, orders_response=orders_response,
+            price_step=contract.price_step)
+        return {
+            "state": "TRAIL_COMPLETED_HOLD_BROKER_CONFIRMED",
+            "symbol": symbol,
+            "confirmed_at": state.last_survived_m15_close,
+        }
+    # No POST and no change to confirmed trailing state; only a
+    # deterministic, restart-recoverable PREPARED protective draft.
+    return {
+        "state": "TRAIL_REPLACE_PREPARED_NO_POST",
+        "symbol": symbol,
+        "draft_key": stop_key,
+        "confirmed_stop_unchanged": str(confirmed.active_stop),
+        "candidate_stop": str(pending.candidate.active_stop),
+        "order_post_permitted": False,
+    }
+
+
 def run_m15_readonly_recovery_once(
     *, runtime_root: Path, journal: M15OutboundJournal,
     api: M15FinamReadOnlyAPI, m15_account_id: str,
     observed_at: datetime,
     trade_start: str | None = None, trade_end: str | None = None,
     stop_trade_tag: str | None = None, limit: int = 1000,
+    trailing_request: dict | None = None,
 ) -> dict:
     """One OS-locked recovery poll plus separate, non-authorizing heartbeat.
 
@@ -292,6 +419,14 @@ def run_m15_readonly_recovery_once(
                 stop_trade_tag=stop_trade_tag, limit=limit,
                 observed_at=observed_at,
             )
+            if trailing_request is not None:
+                if not isinstance(trailing_request, dict):
+                    raise M15ReadOnlyCycleError("M15_TRAIL_REQUEST_INVALID")
+                trailing = prepare_next_verified_m15_trail(
+                    journal=journal, api=api,
+                    m15_account_id=m15_account_id,
+                    observed_at=observed_at, **trailing_request)
+                result["events"].append({"kind": "TRAIL", **trailing})
         except Exception:
             # Never serialize a FINAM exception body, account, symbol or token.
             _atomic_json(heartbeat, base | {
