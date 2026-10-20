@@ -255,10 +255,16 @@ class M15OutboundJournal:
                     observed_at_utc TEXT NOT NULL,
                     reason TEXT NOT NULL CHECK(reason IN ('EMERGENCY_EXIT','PROTECTIVE_EXECUTED'))
                 );
+                CREATE TABLE IF NOT EXISTS flat_stop_cleanup (
+                    entry_key TEXT PRIMARY KEY REFERENCES outbound(intent_key),
+                    stop_key TEXT NOT NULL REFERENCES outbound(intent_key),
+                    broker_stop_sha256 TEXT NOT NULL,
+                    state TEXT NOT NULL CHECK(state IN ('UNCERTAIN','RECONCILED'))
+                );
             """)
             tables = {r[0] for r in self.db.execute(
                 "SELECT name FROM sqlite_master WHERE type='table'")}
-            if tables != {"metadata", "outbound", "broker_fills", "protective_prepost", "protective_coverage", "entry_r15_basis", "exit_prepost", "broker_flat"}:
+            if tables != {"metadata", "outbound", "broker_fills", "protective_prepost", "protective_coverage", "entry_r15_basis", "exit_prepost", "broker_flat", "flat_stop_cleanup"}:
                 raise M15ExecutionError("M15_OUTBOUND_SCHEMA_TABLES_INVALID")
             expected = {
                 "metadata": ("key", "value"),
@@ -278,6 +284,8 @@ class M15OutboundJournal:
                                  "signed_position_quantity", "protected_stop_sha256"),
                 "broker_flat": ("entry_key", "stop_key", "exit_key",
                                 "confirmed_stop_sha256", "observed_at_utc", "reason"),
+                "flat_stop_cleanup": ("entry_key", "stop_key",
+                                      "broker_stop_sha256", "state"),
             }
             for table, cols in expected.items():
                 found = tuple(row[1] for row in self.db.execute(f"PRAGMA table_info({table})"))
@@ -853,6 +861,51 @@ class M15OutboundJournal:
                 self.db.execute("ROLLBACK")
             raise
 
+
+    def begin_flat_stop_cancel_uncertain(
+        self, *, entry_key: str, stop_key: str, broker_order_id: str,
+        account: dict, orders_response: dict, observed_at: datetime,
+    ) -> None:
+        """H1: only broker-FLAT owned 100% SLTP, durable before future DELETE.
+
+        A lost HTTP DELETE receipt is UNCERTAIN, never retried blindly.
+        Caller separately uses observe_flat_broker_get on fresh FINAM GET;
+        only broker-confirmed absence of the stop can reconcile cleanup.
+        """
+        if (not isinstance(broker_order_id, str) or not broker_order_id
+                or len(broker_order_id) > 128
+                or any(c in broker_order_id for c in "/?#")):
+            raise M15ExecutionError("M15_FLAT_CANCEL_BROKER_STOP_ID_INVALID")
+        status = self.observe_flat_broker_get(
+            entry_key=entry_key, stop_key=stop_key, account=account,
+            orders_response=orders_response, observed_at=observed_at,
+        )
+        expected_hash = hashlib.sha256(broker_order_id.encode()).hexdigest()
+        if (status["active_sltp_cleanup_required"] is not True
+                or status["broker_stop_sha256"] != expected_hash):
+            raise M15ExecutionError("M15_FLAT_CANCEL_OWNED_ACTIVE_STOP_REQUIRED")
+        self.db.execute("BEGIN IMMEDIATE")
+        try:
+            if self.db.execute(
+                "SELECT 1 FROM flat_stop_cleanup WHERE entry_key=?",
+                (entry_key,),
+            ).fetchone():
+                raise M15ExecutionError("M15_FLAT_CANCEL_ALREADY_ATTEMPTED")
+            if self.db.execute(
+                "SELECT 1 FROM broker_flat WHERE entry_key=?",
+                (entry_key,),
+            ).fetchone():
+                raise M15ExecutionError("M15_FLAT_CANCEL_ALREADY_CLOSED")
+            self.db.execute(
+                "INSERT INTO flat_stop_cleanup VALUES(?,?,?,'UNCERTAIN')",
+                (entry_key, stop_key, expected_hash),
+            )
+            self.db.execute("COMMIT")
+        except Exception:
+            if self.db.in_transaction:
+                self.db.execute("ROLLBACK")
+            raise
+
     def observe_flat_broker_get(
         self, *, entry_key: str, stop_key: str,
         account: dict, orders_response: dict, observed_at: datetime,
@@ -937,6 +990,18 @@ class M15OutboundJournal:
                     "INSERT INTO broker_flat VALUES(?,?,?,?,?,?)",
                     (entry_key, stop_key, exit_key, stop_hash,
                      observed_at.astimezone(timezone.utc).isoformat(), reason),
+                )
+            cleanup = self.db.execute(
+                "SELECT stop_key,broker_stop_sha256,state FROM flat_stop_cleanup "
+                "WHERE entry_key=?", (entry_key,),
+            ).fetchone()
+            if cleanup is not None:
+                if cleanup[0] != stop_key or cleanup[1] != stop_hash:
+                    raise M15ExecutionError("M15_FLAT_CANCEL_IDENTITY_CHANGED")
+                self.db.execute(
+                    "UPDATE flat_stop_cleanup SET state='RECONCILED' "
+                    "WHERE entry_key=? AND state='UNCERTAIN'",
+                    (entry_key,),
                 )
             self.db.execute("COMMIT")
         except Exception:
@@ -1655,11 +1720,42 @@ class M15AuthorizedExecutionTransport:
             "live_close_reconciled": False,
         }
 
-    def cancel_protective_stop_after_flat(self, *, broker_order_id: str,
-                                           observed_broker_position_qty: int):
+    def cancel_protective_stop_after_flat(
+        self, *, journal: M15OutboundJournal, entry_key: str, stop_key: str,
+        broker_order_id: str, account: dict, orders_response: dict,
+        observed_at: datetime,
+    ) -> dict:
+        """Riskless residual SLTP DELETE only after exact FINAM FLAT proof.
+
+        Disabled by static M15 freeze and independent order-release switch.
+        Successful HTTP DELETE is not a broker-confirmed disappearance; GET
+        is mandatory before durable close, no second DELETE on uncertainty.
+        """
         self._require_connected()
-        if type(observed_broker_position_qty) is not int or observed_broker_position_qty != 0:
-            raise M15ExecutionError("M15_CANCEL_REQUIRES_BROKER_FLAT")
-        # Actual cancelled protection must have a fully reconciled broker
-        # exit; current no-live stage has no independent proof of that fact.
-        raise M15PrePostRefused("M15_CANCEL_REAL_FLAT_PROOF_NOT_IMPLEMENTED")
+        from .finam_trading import M15FinamTradingAPI, M15_ORDER_POST_RELEASED
+        if M15_ORDER_POST_RELEASED is not True:
+            raise M15PrePostRefused("M15_FLAT_CANCEL_RELEASE_NOT_AUTHORIZED")
+        if not isinstance(self.api, M15FinamTradingAPI):
+            raise M15ExecutionError("M15_FLAT_CANCEL_TRADING_CLIENT_INVALID")
+        if (not isinstance(journal, M15OutboundJournal)
+                or journal.account_hash != self.account_hash
+                or journal.path.parent.parent.resolve()
+                != self.runtime_root.resolve()):
+            raise M15ExecutionError("M15_FLAT_CANCEL_JOURNAL_IDENTITY_MISMATCH")
+        journal.begin_flat_stop_cancel_uncertain(
+            entry_key=entry_key, stop_key=stop_key,
+            broker_order_id=broker_order_id, account=account,
+            orders_response=orders_response, observed_at=observed_at,
+        )
+        try:
+            self.api.cancel_order(self.account_id, broker_order_id)
+        except Exception as exc:
+            raise M15SubmissionUncertain(
+                "M15_FLAT_CANCEL_UNCERTAIN_BROKER_GET_REQUIRED") from exc
+        return {
+            "cancel_http_receipt_observed": True,
+            "broker_stop_inactive_confirmed": False,
+            "durable_closed": False,
+            "new_entries_authorized": False,
+            "live_authorized": False,
+        }
