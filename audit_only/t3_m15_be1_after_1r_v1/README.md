@@ -8,7 +8,7 @@
 изменения входов/ATR/SESSION/R15 или оптимизации. Только новый audit-only
 каталог; никакого production доступа, merge или auto-merge.
 
-Python 3.11+ (использован 3.11), pandas 2.2.3, numpy 2.3.5. Из корня
+Python 3.11+ (использован 3.12.14), pandas 2.2.3, numpy 2.3.5. Из корня
 полного clone с data repository рядом:
 
 ```bash
