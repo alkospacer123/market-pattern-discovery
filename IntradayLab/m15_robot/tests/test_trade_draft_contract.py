@@ -269,5 +269,41 @@ class DraftContractTests(unittest.TestCase):
                     self.assertEqual(set(parse_qs(query)),
                                      {"limit", "interval.start_time", "interval.end_time"})
 
+    def test_trade_session_m15_bars_get_without_releasing_order_post(self):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        from urllib.parse import urlsplit, parse_qs
+        import json
+        requests = []
+        class Reply:
+            status = 200
+            def __init__(self, data): self.data = data
+            def read(self): return json.dumps(self.data).encode()
+        def transport(request, timeout):
+            parsed = urlsplit(request.full_url)
+            requests.append((request.get_method(), parsed.path, parsed.query))
+            return Reply({"symbol": "CNYRUBF@RTSX", "bars": []})
+        with patch("IntradayLab.m15_robot.finam_trading.EXECUTION_STATUS",
+                   "LIVE_AUTHORIZED"):
+            api = M15FinamTradingAPI(
+                secret="fake", account_id="M15-FAKE", transport=transport)
+            api._M15FinamTradingAPI__jwt = "fake"
+            api._M15FinamTradingAPI__connected = True
+            first, last = "2026-10-20T08:00:00+00:00", "2026-10-20T08:30:00+00:00"
+            result = api.bars_m15("CNYRUBF@RTSX", first, last)
+            self.assertEqual(result["bars"], [])
+            self.assertEqual(len(requests), 1)
+            self.assertEqual(requests[0][0], "GET")
+            self.assertEqual(requests[0][1],
+                             "/v1/instruments/CNYRUBF@RTSX/bars")
+            self.assertEqual(parse_qs(requests[0][2])["timeframe"],
+                             ["TIME_FRAME_M15"])
+            with self.assertRaisesRegex(M15FinamTradeError, "INTERVAL_INVALID"):
+                api.bars_m15("CNYRUBF@RTSX", last, first)
+            with self.assertRaisesRegex(M15FinamTradeError, "SYMBOL_OR_SESSION"):
+                api.bars_m15("OIL@RTSX", first, last)
+            with self.assertRaisesRegex(M15FinamTradeError, "NOT_APPROVED"):
+                api.place_order("M15-FAKE", {"fake": True})
+            self.assertEqual(len(requests), 1)
+
 if __name__ == "__main__":
     unittest.main()

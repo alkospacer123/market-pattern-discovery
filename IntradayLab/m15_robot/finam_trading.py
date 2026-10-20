@@ -11,7 +11,8 @@ from __future__ import annotations
 import json
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
-from urllib.parse import urlencode, parse_qs, urlsplit
+from urllib.parse import urlencode, parse_qs, urlsplit, quote
+from datetime import timedelta
 from typing import Any, Callable
 
 from .spec import EXECUTION_STATUS, INSTRUMENTS
@@ -95,6 +96,23 @@ class M15FinamTradingAPI:
                             history_allowed = True
                     except (ValueError, TypeError, RuntimeError):
                         pass
+        bars_allowed = False
+        if self.__connected and method == "GET":
+            parsed = urlsplit(path)
+            if (not parsed.fragment and parsed.path in {
+                    f"/v1/instruments/{quote(symbol, safe='@')}/bars"
+                    for symbol in symbols}):
+                fields = parse_qs(parsed.query, keep_blank_values=True)
+                if (set(fields) == {"timeframe", "interval.start_time",
+                                   "interval.end_time"}
+                        and all(len(values) == 1 for values in fields.values())
+                        and fields["timeframe"] == ["TIME_FRAME_M15"]):
+                    try:
+                        lower = _stamp(fields["interval.start_time"][0])
+                        upper = _stamp(fields["interval.end_time"][0])
+                        bars_allowed = lower < upper and upper - lower <= timedelta(days=30)
+                    except (ValueError, TypeError, RuntimeError):
+                        pass
         if not ((method == "POST" and path in
                  {"/v1/sessions", "/v1/sessions/details"})
                 or (method == "GET" and self.__jwt is not None
@@ -103,7 +121,8 @@ class M15FinamTradingAPI:
                     method == "GET" and (
                         path == f"/v1/accounts/{self.__account}/orders"
                         or path in allowed_asset_get
-                        or history_allowed)
+                        or history_allowed
+                        or bars_allowed)
                     or method == "POST" and path in {
                         f"/v1/accounts/{self.__account}/orders",
                         f"/v1/accounts/{self.__account}/sltp-orders"}
@@ -231,6 +250,25 @@ class M15FinamTradingAPI:
 
     def schedule(self, symbol: str) -> dict:
         return self._asset_get(symbol, "/schedule", account_bound=False)
+
+    def bars_m15(self, symbol: str, start: str, end: str) -> dict:
+        """Same authenticated trading-session GET, no new JWT or order call."""
+        if not self.__connected or symbol not in {
+                name + "@RTSX" for name in INSTRUMENTS}:
+            raise M15FinamTradeError("M15_TRADING_BARS_SYMBOL_OR_SESSION_INVALID")
+        lower, upper = _stamp(start), _stamp(end)
+        if not lower < upper or upper - lower > timedelta(days=30):
+            raise M15FinamTradeError("M15_TRADING_BARS_INTERVAL_INVALID")
+        query = urlencode({
+            "timeframe": "TIME_FRAME_M15",
+            "interval.start_time": start, "interval.end_time": end,
+        })
+        response = self._request(
+            "GET", f"/v1/instruments/{quote(symbol, safe='@')}/bars?{query}")
+        if (not isinstance(response, dict) or response.get("symbol") != symbol
+                or not isinstance(response.get("bars"), list)):
+            raise M15FinamTradeError("M15_TRADING_BARS_SCHEMA_INVALID")
+        return response
 
     def place_order(self, account_id: str, payload: dict) -> dict:
         if account_id != self.__account or not self.__connected:

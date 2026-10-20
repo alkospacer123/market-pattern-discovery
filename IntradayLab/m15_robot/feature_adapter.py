@@ -129,6 +129,57 @@ def latest_completed_signal(
     return M15Signal(f"m15:{digest}", instrument, side, at, price, atr, available, breakout)
 
 
+def latest_verified_finam_signal(
+    *, api: Any, m15_account_id: str, instrument: str,
+    authenticated_seed: pd.DataFrame, observed_at: datetime,
+    interval_start: str, interval_end: str,
+    verified_open_labels: bool = False,
+) -> M15Signal | None:
+    """M15-only same-session FINAM bars -> completed bars -> frozen T1 signal.
+
+    The seed is the independently authenticated, append-only research history;
+    broker recent M15 data must overlap its last candle byte-for-value after
+    parsing. Never bootstrap features from just FINAM's last-30-days slice.
+    No signal here authorizes ENTRY, writes SQLite or invokes any order method.
+    """
+    from .bar_bridge import completed_close_labeled_m15
+    from .continuation import immutable_prefix_splice
+    from .finam_readonly import M15FinamReadOnlyAPI, _stamp
+    from .finam_trading import M15FinamTradingAPI
+    if verified_open_labels is not True:
+        raise ValueError("M15_LIVE_BROKER_OPEN_LABEL_PROOF_REQUIRED")
+    if instrument not in INSTRUMENTS:
+        raise ValueError("M15_LIVE_SIGNAL_NOT_N4")
+    if (type(api) not in (M15FinamReadOnlyAPI, M15FinamTradingAPI)
+            or not isinstance(m15_account_id, str) or not m15_account_id):
+        raise ValueError("M15_SIGNAL_FINAM_M15_SESSION_REQUIRED")
+    if type(api) is M15FinamReadOnlyAPI and (
+            api.account_id != m15_account_id or api.readonly_bound is not True):
+        raise ValueError("M15_SIGNAL_READONLY_ACCOUNT_UNBOUND")
+    if not isinstance(observed_at, datetime) or observed_at.tzinfo is None:
+        raise ValueError("M15_SIGNAL_OBSERVATION_TIME_INVALID")
+    start, end = _stamp(interval_start), _stamp(interval_end)
+    if not start < end or (end - start) > timedelta(days=30):
+        raise ValueError("M15_SIGNAL_FINAM_BARS_INTERVAL_INVALID")
+    symbol = instrument + "@RTSX"
+    account = api.account(m15_account_id)
+    if (not isinstance(account, dict)
+            or account.get("account_id") != m15_account_id
+            or account.get("status") not in {"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"}):
+        raise ValueError("M15_SIGNAL_ACCOUNT_IDENTITY_INVALID")
+    schedule = api.schedule(symbol)
+    broker_bars = api.bars_m15(symbol, interval_start, interval_end)
+    if broker_bars.get("symbol") != symbol:
+        raise ValueError("M15_SIGNAL_FINAM_SYMBOL_MISMATCH")
+    newer = completed_close_labeled_m15(
+        broker_bars, schedule, observed_at=observed_at,
+        verified_open_labels=True)
+    if newer.empty:
+        return None
+    history = immutable_prefix_splice(authenticated_seed, newer)
+    return latest_completed_signal(instrument, history, observed_at)
+
+
 def consecutive_next_open_allowed(signal_close: datetime, next_bar_close: datetime) -> bool:
     """Historical NEXT_OPEN adjacency only; never wait another M15 after close."""
     a, b = _msk_timestamp(signal_close), _msk_timestamp(next_bar_close)

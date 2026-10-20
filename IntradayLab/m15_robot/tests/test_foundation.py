@@ -13,6 +13,7 @@ import pandas as pd
 from IntradayLab.m15_robot import spec
 from IntradayLab.m15_robot.feature_adapter import (
     M15Signal, consecutive_next_open_allowed, latest_completed_signal,
+    latest_verified_finam_signal,
     validate_completed_history,
 )
 from IntradayLab.m15_robot.grid_risk import (
@@ -129,6 +130,54 @@ class SignalGate(unittest.TestCase):
         self.assertEqual(a.signal_id, b.signal_id)
         self.assertEqual(a.direction, "SHORT")
 
+
+    def test_same_m15_finam_jwt_verified_seam_generates_frozen_signal(self):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        api = object.__new__(M15FinamTradingAPI)
+        now = at(10, 15)
+        seed = bar_frame(at(10))
+        def row(opened):
+            return {
+                "timestamp": opened.isoformat(),
+                "open": {"value": "100"}, "high": {"value": "102"},
+                "low": {"value": "99"}, "close": {"value": "101"},
+                "volume": {"value": "200"},
+            }
+        schedule = {"sessions": [{"type": "CORE_TRADING", "interval": {
+            "start_time": at(9).isoformat(), "end_time": at(12).isoformat(),
+        }}]}
+        raw = {"symbol": "CNYRUBF@RTSX",
+               "bars": [row(at(9,45)), row(at(10)), row(at(10,15))]}
+        params = dict(
+            api=api, m15_account_id="M15-FAKE", instrument="CNYRUBF",
+            authenticated_seed=seed, observed_at=now,
+            interval_start=at(9,45).isoformat(),
+            interval_end=at(10,30).isoformat(),
+            verified_open_labels=True,
+        )
+        from IntradayLab.m15_robot.continuation import M15HistoryContinuityError
+        with (patch.object(M15FinamTradingAPI, "account", return_value={
+                   "account_id": "M15-FAKE", "status": "ACCOUNT_ACTIVE"}) as account,
+              patch.object(M15FinamTradingAPI, "schedule", return_value=schedule) as session,
+              patch.object(M15FinamTradingAPI, "bars_m15", return_value=raw) as bars,
+              patch("IntradayLab.t3_m15_t1_entry_retest_v1.primary.features",
+                    return_value=[sample_feature(now)]) as features):
+            signal = latest_verified_finam_signal(**params)
+            self.assertIsInstance(signal, M15Signal)
+            self.assertEqual(signal.completed_at, now)
+            self.assertEqual(signal.instrument, "CNYRUBF")
+            self.assertEqual(signal.direction, "LONG")
+            self.assertEqual(len(features.call_args.args[0]), 2)
+            account.assert_called_once_with("M15-FAKE")
+            session.assert_called_once_with("CNYRUBF@RTSX")
+            bars.assert_called_once()
+            with self.assertRaisesRegex(ValueError, "OPEN_LABEL_PROOF_REQUIRED"):
+                latest_verified_finam_signal(**dict(params, verified_open_labels=False))
+            with self.assertRaisesRegex(M15HistoryContinuityError,
+                                        "IMMUTABLE_HISTORY_CHANGED"):
+                bad = seed.copy()
+                bad.loc[:, "Close"] = 100.5
+                latest_verified_finam_signal(**dict(params, authenticated_seed=bad))
 
 class RiskPortFromH1(unittest.TestCase):
     def test_stop_outward_grid_projection(self):
