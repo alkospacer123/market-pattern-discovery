@@ -6,6 +6,7 @@ from cc.providers.synthetic import SCENARIOS, SyntheticProvider, read_safely
 from cc.providers.h1_readonly import H1ReadonlyProvider
 from cc.providers.h1_export import unchecked_export_snapshot, manual_export_refresh, age_export_snapshot
 from cc.providers.h1_windows_os import manual_os_refresh
+from cc.providers.h1_broker_snapshot import manual_broker_refresh, age as age_broker
 from cc.ui import CSS, PAGES, render
 
 st.set_page_config(page_title="TradingSystemLab · Control Center DEMO", page_icon="◈", layout="wide")
@@ -37,6 +38,7 @@ def live_view():
     if st.session_state.get("cc03-last-source") != h1_source:
         # Switching source clears cached positives, without invoking either source.
         st.session_state.pop("cc03-last-export", None)
+        st.session_state.pop("cc03-last-broker", None)
         st.session_state["cc03-last-source"] = h1_source
     if h1_source == "OFFLINE_FIXTURE":
         snapshots[RobotId.H1] = H1ReadonlyProvider().snapshot(RobotId.H1, "OFFLINE_FIXTURE", now)
@@ -47,6 +49,8 @@ def live_view():
             refresh = manual_os_refresh if h1_source == "WINDOWS_OS_ONLY" else manual_export_refresh
             snapshot, accepted = refresh(now)
             st.session_state["cc03-last-export"] = snapshot
+            if h1_source == "WINDOWS_OS_ONLY":
+                st.session_state["cc03-last-broker"] = manual_broker_refresh(utc_now())
             if not accepted:
                 st.warning("BLOCKED / UNKNOWN · " + snapshot.events[0].message +
                            ": источник недоступен, policy не принята или другая ручная проверка выполняется. Автоматического повтора нет.")
@@ -60,7 +64,10 @@ def live_view():
             st.session_state["cc03-last-export"] = snapshots[RobotId.H1]
         if "cc03-last-export" not in st.session_state:
             st.info("Проверка H1 не запускалась. Нажмите «Обновить данные»; без утверждённого источника результат останется UNKNOWN.")
-    render(page, snapshots, now)
+    broker = age_broker(st.session_state.get('cc03-last-broker'), now) if h1_source == 'WINDOWS_OS_ONLY' else None
+    if h1_source == 'WINDOWS_OS_ONLY' and 'cc03-last-broker' in st.session_state:
+        st.session_state['cc03-last-broker'] = broker
+    render(page, snapshots, now, broker=broker)
 
 
 live_view()
