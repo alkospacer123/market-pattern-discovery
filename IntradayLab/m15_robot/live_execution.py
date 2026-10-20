@@ -1737,12 +1737,66 @@ class M15AuthorizedExecutionTransport:
         except Exception as exc:
             raise M15SubmissionUncertain("M15_POST_UNCERTAIN_BROKER_GET_RECONCILE_REQUIRED") from exc
 
-    def submit_entry(self, *, journal: M15OutboundJournal, key: str,
-                     draft: M15Draft):
+    def submit_entry(
+        self, *, journal: M15OutboundJournal, key: str, draft: M15Draft,
+        signal_atr: Decimal, signal_closed_at: datetime,
+    ) -> dict:
+        """H1 pre-POST: exact trading-session broker GET + durable R15/GO recheck.
+
+        The M15 completed-bar/signal producer must separately establish the
+        causal NEXT_OPEN event. No operator input can replace that upstream
+        evidence. This method remains INERT under both frozen LIVE gates.
+        """
         if draft.kind != "ENTRY":
             raise M15PrePostRefused("M15_ENTRY_DRAFT_KIND_INVALID")
-        return self._transmit(journal=journal, key=key, draft=draft,
-                              send=self.api.place_order)
+        self._require_connected()
+        from .finam_trading import M15FinamTradingAPI, M15_ORDER_POST_RELEASED
+        if M15_ORDER_POST_RELEASED is not True:
+            raise M15PrePostRefused("M15_ENTRY_POST_RELEASE_NOT_AUTHORIZED")
+        if not isinstance(self.api, M15FinamTradingAPI):
+            raise M15ExecutionError("M15_ENTRY_TRADING_CLIENT_INVALID")
+        if (not isinstance(journal, M15OutboundJournal)
+                or journal.account_hash != self.account_hash
+                or journal.path.parent.parent.resolve()
+                != self.runtime_root.resolve()):
+            raise M15ExecutionError("M15_ENTRY_JOURNAL_IDENTITY_MISMATCH")
+        _valid_draft(draft, account_hash=self.account_hash, key=key)
+        symbol = draft.payload["symbol"]
+        # These GETs use the SAME JWT-bound M15 trading session as POST.
+        # No H1 import, account ID, token or runtime can be read from here.
+        account = self.api.account(self.account_id)
+        orders = self.api.orders(self.account_id)
+        asset = self.api.asset_details(symbol)
+        params = self.api.asset_params(symbol)
+        schedule = self.api.schedule(symbol)
+        journal.begin_entry_post_uncertain_checked(
+            key=key, draft=draft, account=account, orders_response=orders,
+            asset=asset, asset_params=params, schedule=schedule,
+            signal_atr=signal_atr, signal_closed_at=signal_closed_at,
+            now=datetime.now(timezone.utc),
+        )
+        try:
+            receipt = self.api.place_order(self.account_id, dict(draft.payload))
+        except Exception as exc:
+            raise M15SubmissionUncertain(
+                "M15_ENTRY_POST_UNCERTAIN_FINAM_GET_RECOVERY_REQUIRED") from exc
+        if (not isinstance(receipt, dict)
+                or not isinstance(receipt.get("order_id"), str)
+                or not receipt["order_id"]):
+            raise M15SubmissionUncertain("M15_ENTRY_POST_ACK_ORDER_ID_NOT_PROVED")
+        # The order ID is not a fill and NEVER implies active protective SLTP.
+        journal.record_broker_ack(
+            key=key, draft=draft, broker_order_id=receipt["order_id"],
+        )
+        return {
+            "broker_order_sha256": hashlib.sha256(
+                receipt["order_id"].encode("utf-8")).hexdigest(),
+            "post_ack_observed": True,
+            "broker_fill_confirmed": False,
+            "broker_stop_100_percent_confirmed": False,
+            "new_entries_authorized": False,
+            "live_reconciled": False,
+        }
 
     def submit_protective_stop(
         self, *, journal: M15OutboundJournal, key: str, draft: M15Draft,
