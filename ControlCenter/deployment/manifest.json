@@ -131,7 +131,7 @@
     },
     {
       "path": "ci/streamlit_click.py",
-      "sha256": "14d37b3c0786a9dcf741e79e7a57b5a4418996160a1c4cace0f74a843b0b86cf"
+      "sha256": "3fed610870c96d26288f27adb9dd4e84a3f6dee506b6f4ef4f7f437d6f1c1ab1"
     },
     {
       "path": "ci/streamlit_host.py",
@@ -139,7 +139,7 @@
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "cd5a095431f914bab8fd6a9d6fb7f19e65c3e2a6d77ad6ebce3d45c8e9971da8"
+      "sha256": "9108f1a6f8bfb1f773cd8517ca9911d83253896872ae36193cb687d25decd26a"
     },
     {
       "path": "deployment/Common.ps1",
@@ -295,7 +295,7 @@
     },
     {
       "path": "docs/CC03_STREAMLIT_REFRESH_558.md",
-      "sha256": "170d36d611eef3b2998b088a6372471be5a77876c1b66fdbb0e3a896d9b1e603"
+      "sha256": "4d0d720088df9af9281bf752dc1f6ffb33188ce13303cb25531c5ebece5e5f09"
     },
     {
       "path": "docs/CC03_WINDOWS_HOSTED_ACCEPTANCE.md",

@@ -157,12 +157,6 @@ def main():
         heartbeat=None, trading=None, real_browser_click=True,
         navigation_zero_extra_reads=True, disabled_trading_controls=10, rendered_task_running=True).items())
     browser_verified = browser_verified and (evidence / 'streamlit-click.png').is_file()
-    browser_verified = browser_verified and browser.get('synthetic_cpu_load', {}).get('all_workers_started') is True
-    browser_verified = browser_verified and browser.get('synthetic_cpu_load', {}).get('all_children_exited') is True
-    browser_verified = browser_verified and all(
-        browser.get('load_controls', {}).get(mode, {}).get('accepted') is True
-        and browser.get('load_controls', {}).get(mode, {}).get('task') == 'TASK_RUNNING'
-        for mode in ('direct', 'threaded'))
     results['streamlit-click'] = dict(exit_code=0 if browser_verified else 1,
                                      passed=int(browser_verified), failed=int(not browser_verified))
     suite = ET.Element('testsuite', name='pythoncore-provision', tests='4')

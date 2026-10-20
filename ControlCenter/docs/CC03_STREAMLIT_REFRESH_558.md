@@ -68,22 +68,40 @@ Candidate без нагрузки успешно прошёл native acceptance:
 [run 39324054902](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/39324054902).
 Первый: 503 full-suite PASS / 15 platform SKIP, read_seconds=0.266; все
 existing native gates и 500 producer replacements / zero errors / zero legacy opens PASS.
-Последняя пара проверяет дополнительную timing-гипотезу при неизменном timeout 2s:
-в disposable runner запускается по одному CPU-only child на logical CPU (cap 8, не более 45s),
-а исходный full wrapper напрямую и в потоке под тем же standard SID должен
-сначала вернуть TASK_RUNNING под той же нагрузкой. После этого выполняется один
-реальный Streamlit click. Искусственных задержек внутри reader и уменьшения
-timeout нет; children завершаются/ожидаются в finally. Если control не проходит,
-это не считается воспроизведением source-specific failure. Первоначальный рецепт
-3x logical CPU (min 4/cap 16) оказался непригоден: прямой control отказал
-до click и на main, и на candidate (3.766s / 3.828s); runs
-[39376950438](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/39376950438) /
-[39376978877](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/39376978877)
-не воспроизводят Streamlit defect. Поэтому нагрузка изменена на естественный
-рецепт один worker на CPU, без изменения product budget; partial controls теперь
-сохраняют фиксированный этап и whitelisted read error. Каждый worker подтверждает
-начало работы до запуска controls, cleanup проверяется отдельно. Даже возможный
-READ_TIMEOUT в таком тесте не доказывает причину физического Intel отказа.
+
+Нагрузочные эксперименты **не дали допустимого source-specific reproduction**.
+Во всех сохранялся product budget 2s/6s, native trust и genuine Task values;
+CPU-only children были ограничены 45s и завершались/ожидались в finally.
+Прямой и threaded full wrapper должны были сначала вернуть TASK_RUNNING
+под той же нагрузкой, до одного UI click. Это условие не выполнено:
+
+- 3x logical CPU (4 CPU / 12 workers): direct control отказал до click
+  и на main, и на candidate (3.766s / 3.828s),
+  [39376950438](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/39376950438) /
+  [39376978877](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/39376978877).
+- Та же 3x схема с RUNNING acknowledgement каждого worker до controls:
+  [39377444914](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/39377444914) /
+  [39377454228](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/39377454228),
+  direct control отказал до click (3.531s / 2.813s). Все четыре artifacts
+  независимо проверены; app reads/probes/clicks=0. CPU children exited,
+  но overall rehearsal/uninstall FAIL — полного cleanup PASS нет.
+- Естественная saturation-схема один worker на logical CPU (cap 8):
+  [baseline 39378276042](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/39378276042)
+  тоже остановился до click: direct accepted=true, Task=None,
+  policy read=1.0s, total=7.156s. Companion
+  [candidate 39378402624](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/39378402624)
+  тоже остановился до click: direct accepted=true, Task=None,
+  policy read=1.156s, total=7.203s. Причина отсутствующего Task этими записями
+  не установлена; оба controls делают source-specific сравнение недопустимым.
+
+Дальнейшего подбора нагрузки ради отрицательного результата нет. CPU-эксперимент
+исключён из финального обязательного harness; история и artifacts сохранены
+как INVALID evidence. Финальный regression проверяет штатный Windows click
+и отдельно native concurrency/gate/monkeypatch/malformed-policy cases.
+**Причина физического Intel BLOCKED остаётся UNRESOLVED; обязательное
+воспроизведение исходного сбоя в Streamlit ещё не получено.** Этот Draft
+содержит проверяемый bridge candidate и классификацию будущего отказа,
+а не заявление о завершении physical C acceptance.
 
 Финальный harness использует тот же isolated launcher и требует: стандартный primary SID
 `ccpanel`, действительная admin-owned C policy, ровно один реальный DOM click,
