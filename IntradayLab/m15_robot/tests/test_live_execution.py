@@ -1045,6 +1045,49 @@ class M15ExecutionStageTests(unittest.TestCase):
         self.assertEqual(
             self.j.db.execute("SELECT COUNT(*) FROM broker_flat").fetchone()[0], 0)
 
+
+    def test_h1_proven_flat_releases_r15_for_same_symbol_new_trade(self):
+        owned = self.synthetic_owned_n4()
+        flat = dict(owned["account"], positions=[])
+        orders = [dict(x) for x in owned["orders_response"]["orders"]]
+        orders[-1]["status"] = "ORDER_STATUS_SL_EXECUTED"
+        self.j.observe_flat_broker_get(
+            entry_key=owned["key"], stop_key="m15:trade-1:stop:0",
+            account=flat, orders_response={"orders": orders},
+            observed_at=datetime(2026, 10, 18, 12, tzinfo=timezone.utc),
+        )
+        risk, occupied = self.j._owned_n4_risk_from_broker(
+            positions={}, orders=__import__(
+                "IntradayLab.m15_robot.broker_snapshot",
+                fromlist=["order_views"]).order_views({"orders": orders}))
+        self.assertEqual(risk, Decimal("0"))
+        self.assertEqual(occupied, set())
+        proposal, size = self.j.prepare_entry_from_broker_r15(
+            **dict(owned, key="m15:entry:r15:new-cycle",
+                   account=flat, orders_response={"orders": orders}))
+        self.assertEqual(proposal.payload["symbol"], "CNYRUBF@RTSX")
+        self.assertEqual(size.final_quantity, 3)
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM broker_flat").fetchone()[0], 1)
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM entry_r15_basis").fetchone()[0], 2)
+        self.assertFalse(proposal.live_authorized)
+
+    def test_h1_flat_not_released_while_orphan_sltp_active(self):
+        owned = self.synthetic_owned_n4()
+        flat = dict(owned["account"], positions=[])
+        observed = self.j.observe_flat_broker_get(
+            entry_key=owned["key"], stop_key="m15:trade-1:stop:0",
+            account=flat, orders_response=owned["orders_response"],
+            observed_at=datetime(2026, 10, 18, 12, tzinfo=timezone.utc),
+        )
+        self.assertTrue(observed["active_sltp_cleanup_required"])
+        with self.assertRaisesRegex(M15ExecutionError, "POSITION_OR_ORDER_UNOWNED"):
+            self.j.prepare_entry_from_broker_r15(
+                **dict(owned, key="m15:entry:r15:new-cycle",
+                       account=flat))
+        self.assertIsNone(self.j.inspect("m15:entry:r15:new-cycle"))
+
     def test_authorization_file_cannot_override_frozen_status(self):
         root = self.args["runtime_root"]
         (root / "safety").mkdir(parents=True, exist_ok=True)
