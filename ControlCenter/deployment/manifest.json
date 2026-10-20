@@ -27,7 +27,7 @@
     },
     {
       "path": "broker_readonly/finam-one-shot-operator.ps1",
-      "sha256": "71f9f2fa52be09e9049e4da673a87153797e0a414294bca6f6f62a7c1620b9f3"
+      "sha256": "33668f23c7ffb774e198b4f7ef55c85d73a6d407cd84b2a3cb1ea5bd6a97fc7c"
     },
     {
       "path": "cc/__init__.py",
