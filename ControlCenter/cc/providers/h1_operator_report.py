@@ -108,3 +108,21 @@ def age_operator_report(report, now):
             or (now.astimezone(timezone.utc) - report["observed_at"]).total_seconds() > 900):
         return dict(report, status="STALE")
     return report
+
+def manual_published_report(now):
+    """Read the separately published operator report from pinned admin-owned CC root.
+
+    Never invoke the H1 script, FINAM, DPAPI, scheduler or production filesystem.
+    Same previously accepted trusted directory as FINAM one-shot, different
+    fixed filename that cannot be selected as a broker h1-<digest>.json.
+    """
+    import json
+    from .h1_broker_snapshot import ROOT, POLICY_ROOT, POLICY, _policy
+    from .h1_readonly import _pairs, _reject_constant
+    from .windows_file import read_windows
+    policy_bytes = read_windows(str(POLICY_ROOT), POLICY, 4096, admin_policy=True)
+    policy = _policy(json.loads(policy_bytes.decode("utf-8"),
+                                object_pairs_hook=_pairs, parse_constant=_reject_constant))
+    raw = read_windows(str(ROOT), "h1-local-report.txt", 65536,
+                       expected_root=policy["export_root_id"], admin_policy=True)
+    return parse_operator_report(raw.decode("utf-8-sig"), now)

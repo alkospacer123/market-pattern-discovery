@@ -11,7 +11,7 @@
     },
     {
       "path": "app.py",
-      "sha256": "4055b52ba147c7b5f4e60f5c1862683d3ff8da95e8d287fe77f31883f0766f91"
+      "sha256": "81efcb8e72afc1fa08e0f72f7b52b316389e81c4bbefb85527459bdfeea8f54c"
     },
     {
       "path": "broker_readonly/__init__.py",
@@ -28,6 +28,10 @@
     {
       "path": "broker_readonly/publish-from-one-shot.ps1",
       "sha256": "250232266b1634042d3b3301118b967d958f6a4159d26531163547a6b591d36f"
+    },
+    {
+      "path": "broker_readonly/publish-local-h1-check.ps1",
+      "sha256": "93c6409e2d3155fe2cb6252ff841bdd433c16ad5f4cf7170c1d622ea575b83de"
     },
     {
       "path": "cc/__init__.py",
@@ -79,7 +83,7 @@
     },
     {
       "path": "cc/providers/h1_operator_report.py",
-      "sha256": "1605e670e3ac94c5574a21cbbc0d1990aaab47699ecfd16722bf504dd91e51c0"
+      "sha256": "669e58a456c19333694d2038adfd74e64692b630dad81d6abafd87afbdc21222"
     },
     {
       "path": "cc/providers/h1_readonly.py",
@@ -487,7 +491,7 @@
     },
     {
       "path": "tests/test_h1_operator_report.py",
-      "sha256": "be04aebaea581d2b2323804f2c643295811d0f754d4fad1fede7ac9faad4b768"
+      "sha256": "b298811ae8b80df200d37f91e9955aa76a603fe8c182d15d8756300a6674ab0e"
     },
     {
       "path": "tests/test_h1_readonly.py",

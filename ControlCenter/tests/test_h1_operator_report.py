@@ -58,6 +58,21 @@ class TestOperatorReport(unittest.TestCase):
         self.assertEqual(y["status"], "STALE")
         self.assertEqual(age_operator_report(y, NOW)["status"], "STALE")
 
+    def test_protected_cc_only_publication_reader(self):
+        from unittest.mock import patch
+        from cc.providers.h1_operator_report import manual_published_report
+        with patch("cc.providers.h1_broker_snapshot.read_windows") as ignored:
+            with patch("cc.providers.windows_file.read_windows") as also_ignored:
+                with patch("cc.providers.h1_operator_report.read_windows",
+                           side_effect=[b"{}", report().encode("utf-8")]) as native:
+                    with patch("cc.providers.h1_operator_report._policy",
+                               return_value={"export_root_id": [1, 2, 3]}):
+                        accepted = manual_published_report(NOW)
+        self.assertEqual(accepted["cycle_count"], 12000)
+        self.assertEqual(native.call_count, 2)
+        self.assertEqual(native.call_args.kwargs["expected_root"], [1, 2, 3])
+        self.assertTrue(native.call_args.kwargs["admin_policy"])
+
     def test_failed_final_check(self):
         with self.assertRaises(ValueError):
             parse_operator_report(report().replace("TRADINGSYSTEMLAB_LIVE_LOCAL_READONLY_CHECK=PASS", "TRADINGSYSTEMLAB_LIVE_LOCAL_READONLY_CHECK=FAIL"), NOW)

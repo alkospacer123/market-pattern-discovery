@@ -8,7 +8,7 @@ from cc.providers.h1_export import unchecked_export_snapshot, manual_export_refr
 from cc.providers.h1_windows_os import manual_os_refresh
 from cc.providers.h1_broker_snapshot import manual_broker_refresh, age as age_broker
 from cc.ui import CSS, PAGES, render
-from cc.providers.h1_operator_report import parse_operator_report, age_operator_report
+from cc.providers.h1_operator_report import manual_published_report, age_operator_report
 
 st.set_page_config(page_title="TradingSystemLab · Control Center DEMO", page_icon="◈", layout="wide")
 st.markdown(CSS, unsafe_allow_html=True)  # fixed local CSS only
@@ -30,19 +30,14 @@ with st.sidebar:
     st.caption("Только по кнопке; без таймеров и повторов. WINDOWS_OS_ONLY не читает heartbeat/файлы H1. FINAM не вызывается. Снимок истекает по TTL при следующем отображении.")
     st.caption("DEMO и OFFLINE_FIXTURE — тестовые локальные данные. M15 остаётся NOT_DEPLOYED.")
     if h1_source == "WINDOWS_OS_ONLY":
-        st.divider()
-        st.caption("H1: локальный отчёт действующего tsl-h1-01-check.ps1. Не FINAM-сверка. Скрипт запускается оператором отдельно, не из Streamlit.")
-        local_check_text = st.text_area("Вставить вывод H1 CHECK (без паролей/токенов)", key="cc03-operator-check-text", height=125)
-        local_check_apply = st.button("Показать H1 CHECK", key="cc03-operator-check-apply", disabled=not bool(local_check_text))
-    else:
-        local_check_text, local_check_apply = "", False
+        st.caption("H1 CHECK: оператор публикует один READONLY-отчёт в собственный каталог Control Center. Кнопка «Обновить данные» читает готовый отчёт без доступа к файлам H1.")
     st.caption("UTC / MSK (UTC+3) · локальный доступ")
 
 
 def h1_operator_view(report, now):
     st.subheader("H1 · реальная локальная операторская проверка")
     if not report:
-        st.info("H1 CHECK ещё не загружен. Запусти существующий tsl-h1-01-check.ps1 отдельно, вставь его текст слева и нажми «Показать H1 CHECK». Панель сама H1 не читает.")
+        st.info("H1 CHECK ещё не опубликован. Оператор выполняет отдельную CC-only команду публикации, затем нажимает «Обновить данные». Панель сама H1 не читает.")
         return
     report = age_operator_report(report, now)
     if report["status"] == "STALE":
@@ -64,13 +59,6 @@ def h1_operator_view(report, now):
 
 def live_view():
     now = utc_now()
-    if local_check_apply:
-        try:
-            st.session_state["cc03-local-check"] = parse_operator_report(local_check_text, now)
-            st.session_state.pop("cc03-local-check-error", None)
-        except ValueError:
-            st.session_state.pop("cc03-local-check", None)
-            st.session_state["cc03-local-check-error"] = True
     provider = SyntheticProvider()
     snapshots = {robot: read_safely(provider, robot, scenarios[robot], now) for robot in RobotId}
     if st.session_state.get("cc03-last-source") != h1_source:
@@ -91,6 +79,12 @@ def live_view():
             st.session_state["cc03-last-export"] = snapshot
             if h1_source == "WINDOWS_OS_ONLY":
                 st.session_state["cc03-last-broker"] = manual_broker_refresh(utc_now())
+                try:
+                    st.session_state["cc03-local-check"] = manual_published_report(utc_now())
+                    st.session_state.pop("cc03-local-check-error", None)
+                except (ValueError, OSError):
+                    st.session_state.pop("cc03-local-check", None)
+                    st.session_state["cc03-local-check-error"] = True
             if not accepted:
                 st.warning("BLOCKED / UNKNOWN · " + snapshot.events[0].message +
                            ": источник недоступен, policy не принята или другая ручная проверка выполняется. Автоматического повтора нет.")
