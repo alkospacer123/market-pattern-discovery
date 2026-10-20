@@ -192,6 +192,18 @@ def test_manual_os_shares_gate_with_export_across_processes_and_recovers(manual_
         if terminate:child.terminate()
         else:child.stdin.write('\n');child.stdin.flush()
         child.wait(10)
+        # Windows may keep the named-pipe first-instance namespace briefly after
+        # the process handle signals. Only the TEST waits for kernel cleanup;
+        # production manual refresh remains one-shot, nonblocking, no retries.
+        from cc.manual_gate import export_gate
+        import time
+        deadline = time.monotonic() + 3
+        while True:
+            with export_gate() as released:
+                if released:
+                    break
+            assert time.monotonic() < deadline, 'MANUAL_GATE_NOT_RELEASED_AFTER_OWNER_EXIT'
+            time.sleep(0.05)
         wire(monkeypatch,manual_policy)
         assert click()[0].status.task_state=='TASK_RUNNING'
     finally:
