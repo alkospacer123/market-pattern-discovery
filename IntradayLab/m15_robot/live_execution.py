@@ -10,7 +10,7 @@ No H1 module/runtime/token/Task is imported or mutated here.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import hashlib
 import json
 from pathlib import Path
@@ -592,6 +592,99 @@ class M15OutboundJournal:
                                  or order.kind != "SLTP"):
                 raise M15ExecutionError("M15_N4_UNEXPECTED_ACTIVE_BROKER_ORDER")
         return risk, {r[2].split("@")[0] for r in entries}
+
+    def prepare_verified_next_open_r15(
+        self, *, api: Any, drafts: M15OfflineTradeDrafts,
+        instrument: str, authenticated_seed: Any,
+        interval_start: str, interval_end: str,
+        observed_at: datetime, now: datetime,
+        verified_open_labels: bool = False,
+    ) -> tuple[Any, M15Draft, SizedOrder] | None:
+        """Closed M15 -> witnessed NEXT_OPEN -> exact M15 broker R15 -> PREPARED.
+
+        Reuses the existing frozen T1 features, verified N4 GO/tick contract,
+        lifetime cashflow gate and atomic SQLite R15 prepare. The only broker
+        methods used here are GET. No entry order, SLTP or H1 access is possible.
+        A lost/missing NEXT_OPEN or incomplete transactions never becomes a
+        fallback signal-close fill or a guessed capital basis.
+        """
+        from .feature_adapter import latest_verified_finam_entry
+        from .initial_capital import _timestamp
+        if (not isinstance(now, datetime) or now.tzinfo is None
+                or now.utcoffset() is None
+                or not isinstance(observed_at, datetime)
+                or observed_at.tzinfo is None or observed_at.utcoffset() is None):
+            raise M15ExecutionError("M15_NEXT_OPEN_PREPARE_CLOCK_REQUIRED")
+        age = (now.astimezone(timezone.utc)
+               - observed_at.astimezone(timezone.utc)).total_seconds()
+        if not 0 <= age <= 30:
+            raise M15ExecutionError("M15_NEXT_OPEN_PREPARE_STALE")
+        if (not isinstance(drafts, M15OfflineTradeDrafts)
+                or drafts.execution_authorized
+                or instrument not in INSTRUMENTS):
+            raise M15ExecutionError("M15_NEXT_OPEN_PREPARE_DRAFT_INVALID")
+        # The feature adapter strictly checks exact M15 FINAM client type and
+        # closed-broker-bar provenance; the key is the deterministic signal ID.
+        # Never write an outbound intent until every GET and R15 proof passes.
+        account_id = None
+        # Only the journal's separately bound M15 account hash is authoritative.
+        # The exact account ID is delivered by an authenticated M15 API, not
+        # inferred from a fingerprint or an H1 source.
+        from .finam_readonly import M15FinamReadOnlyAPI
+        from .finam_trading import M15FinamTradingAPI
+        if type(api) is M15FinamReadOnlyAPI:
+            if api.readonly_bound is not True:
+                raise M15ExecutionError("M15_NEXT_OPEN_READONLY_SESSION_UNBOUND")
+            account_id = api.account_id
+        elif type(api) is M15FinamTradingAPI:
+            # Trading client keeps the account ID private. A caller must
+            # supply it explicitly at this boundary below.
+            raise M15ExecutionError("M15_NEXT_OPEN_TRADING_ACCOUNT_ID_REQUIRED")
+        else:
+            raise M15ExecutionError("M15_NEXT_OPEN_FINAM_CLIENT_INVALID")
+        if hashlib.sha256(account_id.encode("utf-8")).hexdigest() != self.account_hash:
+            raise M15ExecutionError("M15_NEXT_OPEN_ACCOUNT_MISMATCH")
+        evidence = latest_verified_finam_entry(
+            api=api, m15_account_id=account_id,
+            instrument=instrument, authenticated_seed=authenticated_seed,
+            interval_start=interval_start, interval_end=interval_end,
+            observed_at=observed_at,
+            verified_open_labels=verified_open_labels,
+        )
+        if evidence is None:
+            return None
+        if (not 0 <= (now.astimezone(timezone.utc)
+                       - evidence.signal.completed_at.astimezone(timezone.utc)
+                       ).total_seconds() <= 30):
+            raise M15ExecutionError("M15_NEXT_OPEN_PREPARE_NOT_FRESH")
+        account = api.account(account_id)
+        orders = api.orders(account_id)
+        symbol = instrument + "@RTSX"
+        asset = api.asset_details(symbol)
+        params = api.asset_params(symbol)
+        contract = contract_from_moex_and_finam(
+            check_instrument(asset, params, symbol, account_id))
+        opened = _timestamp(account.get("open_account_date"))
+        if opened > now.astimezone(timezone.utc):
+            raise M15ExecutionError("M15_NEXT_OPEN_ACCOUNT_DATE_INVALID")
+        start = opened - timedelta(seconds=1)
+        end = now.astimezone(timezone.utc) + timedelta(minutes=1)
+        limit = 1000
+        transactions = api.transactions(
+            account_id, start=start.isoformat(), end=end.isoformat(),
+            limit=limit)
+        windows = [CashflowWindow(start, end, transactions, limit)]
+        proposal, sized = self.prepare_entry_from_broker_r15(
+            key=evidence.signal.signal_id, drafts=drafts,
+            instrument=instrument, direction=evidence.signal.direction,
+            reference_entry=evidence.reference_open,
+            signal_atr=Decimal(str(evidence.signal.signal_atr14)),
+            contract=contract, asset=asset, asset_params=params,
+            account=account, orders_response=orders,
+            cashflow_windows=windows,
+            observed_at=now, now=now,
+        )
+        return evidence, proposal, sized
 
     def prepare_entry_from_broker_r15(
         self, *, key: str, drafts: M15OfflineTradeDrafts,

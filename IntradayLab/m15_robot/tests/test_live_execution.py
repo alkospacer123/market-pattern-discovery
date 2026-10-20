@@ -1511,5 +1511,93 @@ class M15ExecutionStageTests(unittest.TestCase):
         self.assertEqual(
             self.j.db.execute("SELECT COUNT(*) FROM broker_fills").fetchone()[0], 0)
 
+
+    def test_verified_next_open_same_m15_account_prepares_atomic_r15(self):
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        import pandas as pd
+        from zoneinfo import ZoneInfo
+        data = self.r15_entry_inputs()
+        now = data["now"]
+        seed_close = now - timedelta(minutes=15)
+        times = [now - timedelta(minutes=30), seed_close, now]
+        seed = pd.DataFrame(
+            {"Open": [12.5], "High": [12.6], "Low": [12.4],
+             "Close": [12.5], "Volume": [200]},
+            index=pd.DatetimeIndex([seed_close]).tz_convert(ZoneInfo("Europe/Moscow")),
+        )
+        def bar(at, op):
+            return {
+                "timestamp": at.isoformat(),
+                "open": {"value": op}, "high": {"value": "12.600"},
+                "low": {"value": "12.400"}, "close": {"value": "12.500"},
+                "volume": {"value": "200"},
+            }
+        raw = {"symbol": "CNYRUBF@RTSX", "bars": [
+            bar(times[0], "12.500"), bar(times[1], "12.500"),
+            bar(times[2], "12.505"),
+        ]}
+        session = {"sessions": [{"type": "CORE_TRADING", "interval": {
+            "start_time": (now - timedelta(hours=2)).isoformat(),
+            "end_time": (now + timedelta(hours=1)).isoformat(),
+        }}]}
+        signal = {"at": now.astimezone(ZoneInfo("Europe/Moscow")),
+                  "Signal": 1, "ATR": 0.1, "Close": 12.5,
+                  "H1AvailableAt": (now - timedelta(minutes=15)).astimezone(
+                      ZoneInfo("Europe/Moscow")),
+                  "PriorHigh": 12.4, "PriorLow": 12.6}
+        api = object.__new__(M15FinamReadOnlyAPI)
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-SYNTH"),
+              patch.object(M15FinamReadOnlyAPI, "account", return_value=data["account"]),
+              patch.object(M15FinamReadOnlyAPI, "orders", return_value=data["orders_response"]),
+              patch.object(M15FinamReadOnlyAPI, "asset_details", return_value=data["asset"]),
+              patch.object(M15FinamReadOnlyAPI, "asset_params", return_value=data["asset_params"]),
+              patch.object(M15FinamReadOnlyAPI, "schedule", return_value=session),
+              patch.object(M15FinamReadOnlyAPI, "bars_m15", return_value=raw),
+              patch.object(M15FinamReadOnlyAPI, "transactions",
+                           return_value=data["cashflow_windows"][0].response) as tx,
+              patch("IntradayLab.t3_m15_t1_entry_retest_v1.primary.features",
+                    return_value=[signal])):
+            outcome = self.j.prepare_verified_next_open_r15(
+                api=api, drafts=data["drafts"], instrument="CNYRUBF",
+                authenticated_seed=seed,
+                interval_start=times[0].isoformat(),
+                interval_end=(now + timedelta(minutes=15)).isoformat(),
+                observed_at=now, now=now, verified_open_labels=True,
+            )
+            self.assertIsNotNone(outcome)
+            evidence, entry, sized = outcome
+            self.assertEqual(evidence.reference_open, Decimal("12.505"))
+            self.assertEqual(entry.payload["quantity"]["value"], "3")
+            self.assertEqual(sized.final_quantity, 3)
+            self.assertEqual(self.j.inspect(entry.payload["client_order_id"]), None)
+            values = self.j.db.execute(
+                "SELECT reference_entry,stop_price,quantity "
+                "FROM entry_r15_basis WHERE intent_key=?",
+                (evidence.signal.signal_id,),
+            ).fetchone()
+            self.assertEqual(values, ("12.505", "12.305", 3))
+            self.assertEqual(self.j.inspect(evidence.signal.signal_id)["state"], "PREPARED")
+            self.assertFalse(entry.submitted or entry.live_authorized)
+            tx.assert_called_once()
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM outbound").fetchone()[0], 1)
+
+    def test_verified_next_open_missing_proof_fails_without_sqlite_intent(self):
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        data = self.r15_entry_inputs()
+        api = object.__new__(M15FinamReadOnlyAPI)
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-SYNTH")):
+            with self.assertRaisesRegex(ValueError, "OPEN_LABEL_PROOF_REQUIRED"):
+                self.j.prepare_verified_next_open_r15(
+                    api=api, drafts=data["drafts"], instrument="CNYRUBF",
+                    authenticated_seed=None, interval_start="invalid",
+                    interval_end="invalid", observed_at=data["now"],
+                    now=data["now"], verified_open_labels=False,
+                )
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM outbound").fetchone()[0], 0)
+
 if __name__ == "__main__":
     unittest.main()
