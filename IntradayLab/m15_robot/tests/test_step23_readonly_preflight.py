@@ -115,6 +115,16 @@ class M15Step23PreflightTests(TestCase):
             with self.assertRaisesRegex(Exception,"REALIZED_EQUITY_MISMATCH"):
                 verify_m15_step23_financial_preflight(**self.kw)
 
+    def test_no_free_margin_refuses_r15_financial_pass(self):
+        broken = {**ACCOUNT, "portfolio_forts": {
+            "available_cash": {"value": "0"},
+            "money_reserved": {"value": "20000"},
+        }}
+        with self.patch_broker(account=broken):
+            with self.assertRaisesRegex(M15Step23PreflightError,
+                                        "NO_AVAILABLE_GO"):
+                verify_m15_step23_financial_preflight(**self.kw)
+
     def test_existing_production_artifacts_require_review_no_overwrite(self):
         (self.root/"diagnostics").mkdir()
         path=self.root/"diagnostics"/"m15-production-heartbeat.json"

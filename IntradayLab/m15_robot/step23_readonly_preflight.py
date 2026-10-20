@@ -111,6 +111,9 @@ def verify_m15_step23_financial_preflight(
             broker.broker_equity_minus_unrealized
             or capital.proposed_realized_equity * RISK_FRACTION <= 0):
         raise M15Step23PreflightError("M15_STEP23_REALIZED_R15_NOT_PROVEN")
+    if broker.available_cash <= 0:
+        raise M15Step23PreflightError("M15_STEP23_NO_AVAILABLE_GO")
+    one_contract_possible = False
     for instrument in INSTRUMENTS:
         symbol = instrument + "@RTSX"
         asset = api.asset_details(symbol)
@@ -119,6 +122,12 @@ def verify_m15_step23_financial_preflight(
             asset, params, symbol, m15_account_id)
         contract = contract_from_moex_and_finam(authority)
         contract.validate()
+        if broker.available_cash >= min(
+                contract.long_initial_margin,
+                contract.short_initial_margin) * contract.trade_lot_size:
+            one_contract_possible = True
+    if not one_contract_possible:
+        raise M15Step23PreflightError("M15_STEP23_NO_AFFORDABLE_N4_GO")
     return {
         "status": "PASS_FINANCIAL_GET_ONLY",
         "account_readonly_exact": True,
