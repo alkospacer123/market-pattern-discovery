@@ -20,19 +20,8 @@ SAFE_ERROR = 'CC03_SOURCE_UNKNOWN_OR_UNAVAILABLE'
 # Thread gate plus OS gate across panel processes and Windows sessions.
 # No polling, retries, background threads, or H1/FINAM access here.
 _MANUAL_EXPORT_GATE = Lock()
-REFRESH_STAGES = frozenset({'GATE', 'POLICY_READ', 'POLICY_VALIDATE', 'IDENTITY', 'OS_PROBE', 'OS_VALIDATE', 'SOURCE'})
-REFRESH_REASONS = frozenset({'MANUAL_REFRESH_REQUIRED', 'MANUAL_REFRESH_BUSY',
-                           *('MANUAL_REFRESH_BLOCKED_' + stage for stage in REFRESH_STAGES)})
 
-
-class ManualRefreshFailure(Exception):
-    """Only a fixed acquisition step may cross the UI boundary, never error text."""
-    def __init__(self, stage):
-        self.stage = stage if stage in REFRESH_STAGES else 'SOURCE'
-        super().__init__(self.stage)
-
-
-def unchecked_export_snapshot(now: datetime, *, windows_os=False, reason='MANUAL_REFRESH_REQUIRED'):
+def unchecked_export_snapshot(now: datetime, *, windows_os=False):
     """Unobserved H1: render UNKNOWN without opening any file or invoking a provider."""
     kind = SourceKind.WINDOWS_OS_ONLY if windows_os else SourceKind.READONLY_EXPORT
     p = DataProvenance(RobotId.H1, 'UNBOUND-H1', kind.value + '/H1', None, now,
@@ -44,8 +33,7 @@ def unchecked_export_snapshot(now: datetime, *, windows_os=False, reason='MANUAL
               for name in ('USDRUBF', 'CNYRUBF', 'GLDRUBF', 'IMOEXF')),
         (), (), (), None, RiskSnapshot(p, None, None, None, None, 'NOT_CHECKED'),
         PortfolioSnapshot(p, None, None, None, None, None, None), None,
-        (SystemAlert(p, None, now, 'SOURCE', 'WARNING', reason if reason in REFRESH_REASONS
-                     else 'MANUAL_REFRESH_BLOCKED_SOURCE'),),
+        (SystemAlert(p, None, now, 'SOURCE', 'WARNING', 'MANUAL_REFRESH_REQUIRED'),),
     )
 
 
@@ -53,21 +41,16 @@ def unchecked_export_snapshot(now: datetime, *, windows_os=False, reason='MANUAL
 def manual_export_refresh(now: datetime, reader=None, *, windows_os=False):
     """One bounded CC-owned read per click; concurrent attempts fail closed."""
     if not _MANUAL_EXPORT_GATE.acquire(blocking=False):
-        return unchecked_export_snapshot(now, windows_os=windows_os, reason='MANUAL_REFRESH_BUSY'), False
-    stage = 'GATE'
+        return unchecked_export_snapshot(now, windows_os=windows_os), False
     try:
         with export_gate() as acquired:
             if not acquired:
-                return unchecked_export_snapshot(now, windows_os=windows_os, reason='MANUAL_REFRESH_BUSY'), False
-            stage = 'SOURCE'
+                return unchecked_export_snapshot(now, windows_os=windows_os), False
             snapshot = (H1ExportProvider().snapshot(RobotId.H1, 'READONLY_EXPORT', now)
                         if reader is None else reader())
             return snapshot, True
-    except Exception as exc:
-        if isinstance(exc, ManualRefreshFailure) and exc.stage in REFRESH_STAGES:
-            stage = exc.stage
-        return unchecked_export_snapshot(now, windows_os=windows_os,
-                                        reason='MANUAL_REFRESH_BLOCKED_' + stage), False
+    except Exception:
+        return unchecked_export_snapshot(now, windows_os=windows_os), False
     finally:
         _MANUAL_EXPORT_GATE.release()
 

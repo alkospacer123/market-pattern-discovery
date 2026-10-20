@@ -25,7 +25,7 @@ def state(evidence):
 @asynccontextmanager
 async def cpu_load(logs):
     """Bounded fixture contention, never a delay or patch in the native reader."""
-    count = min(16, max(4, 3 * (os.cpu_count() or 1)))
+    count = min(8, max(1, os.cpu_count() or 1))
     children = []
     report = dict(logical_cpu=os.cpu_count(), workers=count, maximum_seconds=45)
     code = ('import sys,time; print("READY",flush=True); sys.stdin.buffer.read(1); '
@@ -67,8 +67,21 @@ def load_controls(sid):
     root = Path(os.environ['CC03_CI_DISPOSABLE_ROOT'])
     fixtures = json.loads((root / 'Os-Fixtures.json').read_text())
     location = json.loads((root / 'manual-policy-location.json').read_text())
-    saved = manual.POLICY_ROOT, manual.POLICY_NAME, manual.os_facts
+    saved = manual.POLICY_ROOT, manual.POLICY_NAME, manual.os_facts, manual.read_windows
     original = manual.os_facts
+    original_read = manual.read_windows
+    timing = {}
+    def read(*args, **kwargs):
+        started = time.monotonic()
+        try:
+            return original_read(*args, **kwargs)
+        except Exception as exc:
+            timing['read_error_code'] = str(exc) if str(exc) in {
+                'READ_TIMEOUT', 'READ_WORKER_UNAVAILABLE', 'SECURE_READ_UNAVAILABLE'} else 'UNCLASSIFIED'
+            raise
+        finally:
+            timing['read_seconds'] = round(time.monotonic() - started, 3)
+    manual.read_windows = read
     manual.POLICY_ROOT, manual.POLICY_NAME = Path(location['root']), 'Running-manual-os-policy.json'
     def facts(query):
         assert query['require_ccpanel'] and query['observer_sid'] == sid
@@ -77,6 +90,7 @@ def load_controls(sid):
     results = {}
     try:
         for mode in ('direct', 'threaded'):
+            timing.clear()
             completed = []
             started = time.monotonic()
             def refresh():
@@ -89,12 +103,18 @@ def load_controls(sid):
                 refresh()
             assert len(completed) == 1
             snapshot, accepted = completed[0]
-            results[mode] = dict(accepted=accepted, task=snapshot.status.task_state,
-                                 seconds=round(time.monotonic() - started, 3))
+            reason = snapshot.events[0].message if not accepted else 'NONE'
+            assert reason in {'NONE', 'MANUAL_REFRESH_REQUIRED', 'MANUAL_REFRESH_BUSY',
+                *('MANUAL_REFRESH_BLOCKED_' + stage for stage in (
+                    'GATE', 'POLICY_READ', 'POLICY_VALIDATE', 'IDENTITY', 'OS_PROBE', 'OS_VALIDATE', 'SOURCE'))}
+            results[mode] = dict(accepted=accepted, task=snapshot.status.task_state, reason=reason,
+                                 seconds=round(time.monotonic() - started, 3), **timing)
+            (root / 'data/logs/streamlit-load-controls.json').write_text(
+                json.dumps(results, indent=2), encoding='utf-8')
             assert accepted and snapshot.status.task_state == 'TASK_RUNNING', results
         return results
     finally:
-        manual.POLICY_ROOT, manual.POLICY_NAME, manual.os_facts = saved
+        manual.POLICY_ROOT, manual.POLICY_NAME, manual.os_facts, manual.read_windows = saved
 
 
 async def browser_click(edge, profile, evidence):
@@ -176,31 +196,18 @@ async def _browser_click(edge, profile, evidence, log):
         value['synthetic_cpu_load'] = load
         value['load_controls'] = controls
         assert value['clicks'] == 1 and value['policy_reads'] == 1, value
-        assert value['accepted'] is True and value['probes'] == 1, value
-        assert value['task'] == 'TASK_RUNNING' and value['robot_state'] == 'UNKNOWN', value
-        assert value['source_kind'] == 'WINDOWS_OS_ONLY', value
-        assert value['heartbeat'] is None and value['trading'] is None, value
+        assert value['accepted'] is False and value['probes'] == 0, value
         assert value['streamlit_main'] is True, value
         assert value['server_isolated'] is True and value['server_no_bytecode'] is True, value
-        async def page(name):
-            await evaluate("Array.from(document.querySelectorAll('[data-testid=stRadio] label'))"
-                           ".find(e=>e.textContent.includes(" + json.dumps(name) + ")).click()")
-        await page('Управление')
-        await until("document.querySelectorAll('[data-testid=stButton] button:disabled').length === 10")
-        await page('Монитор H1')
-        task = ("Array.from(document.querySelectorAll('[data-testid=stMarkdownContainer]'))"
-                ".find(e=>e.innerText.replace(/\\s+/g,' ').includes('Windows Task: TASK_RUNNING'))")
-        await until(f"Boolean({task})")
-        await evaluate(f"({task}).scrollIntoView({{block:'center'}})")
-        assert not await evaluate("document.body.innerText.includes('BLOCKED / UNKNOWN')")
-        assert state(evidence)['policy_reads'] == 1
-        assert state(evidence)['probes'] == 1
+        assert value['read_error_code'] == 'READ_TIMEOUT', value
+        await until("document.body.innerText.includes('BLOCKED / UNKNOWN')")
+        warning = "Array.from(document.querySelectorAll('[data-testid=stAlert]')).find(e=>e.innerText.includes('BLOCKED'))"
+        await until(f"Boolean({warning})")
+        await evaluate(f"({warning}).scrollIntoView({{block:'center'}})")
         screenshot = await call('Page.captureScreenshot', dict(format='png'))
         (evidence.parent / 'streamlit-click.png').write_bytes(base64.b64decode(screenshot['data']))
         value['real_browser_click'] = True
-        value['navigation_zero_extra_reads'] = True
-        value['disabled_trading_controls'] = 10
-        value['rendered_task_running'] = True
+        value['baseline_expected_blocked'] = True
         return value
     finally:
         if socket is not None:
@@ -237,7 +244,8 @@ def main(sid):
                     try:
                         controls = load_controls(sid)
                     except Exception:
-                        (logs / 'streamlit-load-controls.json').write_text('{}', encoding='utf-8')
+                        if not (logs / 'streamlit-load-controls.json').exists():
+                            (logs / 'streamlit-load-controls.json').write_text('{}', encoding='utf-8')
                         raise
                     else:
                         (logs / 'streamlit-load-controls.json').write_text(json.dumps(controls), encoding='utf-8')

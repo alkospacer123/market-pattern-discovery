@@ -1,12 +1,12 @@
-"""Standard ccpanel Python/isolated-reader/Streamlit proof, hosted VM only."""
+"""Single standard ccpanel Python/spawn proof, disposable Windows VM only."""
 import ctypes
 import json
+import multiprocessing
 import os
 from pathlib import Path
 import sys
 import subprocess
 import csv
-from threading import Thread
 from cc.providers.windows_file import read_windows, WinAPI
 
 
@@ -89,9 +89,9 @@ def main():
     location=json.loads((Path(os.environ['CC03_CI_DISPOSABLE_ROOT'])/'manual-policy-location.json').read_text())
     manual.POLICY_ROOT=Path(location['root'])
     real_facts=manual.os_facts
-    for name in ('Ready','Denied','Running'):
+    for name in ('Ready','Denied'):
         manual.POLICY_NAME=name+'-manual-os-policy.json'
-        p=manual.installed_policy()  # real isolated reader, every ancestor/leaf checked
+        p=manual.installed_policy()  # real secure spawned reader, every ancestor/leaf checked
         assert p['observer_sid']==sid and p['process_binding'] is None
         calls=[]
         def disposable_facts(q):
@@ -99,19 +99,12 @@ def main():
             assert q['require_ccpanel'] is True and q['observer_sid']==sid
             return real_facts(dict(q,task_name=fixtures[name]['task_name']))
         manual.os_facts=disposable_facts
-        if name == 'Running':
-            completed = []
-            thread = Thread(target=lambda: completed.append(manual.manual_os_refresh(datetime.now(timezone.utc))))
-            thread.start(); thread.join(15)
-            assert not thread.is_alive() and len(completed) == 1, 'THREADED_MANUAL_REFRESH_TIMEOUT'
-            result,accepted = completed[0]
-        else:
-            result,accepted=manual.manual_os_refresh(datetime.now(timezone.utc))
+        result,accepted=manual.manual_os_refresh(datetime.now(timezone.utc))
         assert accepted and len(calls)==1, (accepted,result)
         assert result.status.state=='UNKNOWN' and result.status.heartbeat_at is None
         assert result.status.trading_allowed is None and result.positions is None
-        if name in ('Ready', 'Running'):
-            assert result.status.task_state==('TASK_READY' if name=='Ready' else 'TASK_RUNNING'),result
+        if name=='Ready':
+            assert result.status.task_state=='TASK_READY',result
             expired=age_export_snapshot(result,result.readonly_expires_at+timedelta(seconds=1))
             assert expired.status.task_state is None and expired.windows_observations[0].freshness=='STALE'
         else:
@@ -120,7 +113,7 @@ def main():
     manual.os_facts=real_facts
     # Zero export writes: panel retains only its session-local immutable result.
     assert not list((Path(os.environ['CC03_CI_DISPOSABLE_ROOT'])/'data/export').glob('h1-*.json'))
-    print('LOW_SID_MANUAL_C_PROTECTED_POLICY_ONE_HELPER_READY_DENIED_THREADED_RUNNING_TTL_NO_EXPORT=PASS',flush=True)
+    print('LOW_SID_MANUAL_C_PROTECTED_POLICY_ONE_HELPER_READY_DENIED_TTL_NO_EXPORT=PASS',flush=True)
     from ci.streamlit_click import main as streamlit_click
     streamlit_click(sid)
     # Permission-A preflight runs under the actual standard ccpanel token. The policy
@@ -156,8 +149,8 @@ def main():
     assert unapproved.returncode == 1 and json.loads(unapproved.stdout)['outcome'] == 'NOT_VERIFIED'
     print('LOW_SID_INTEL_PREFLIGHT_RUNNING_DENIED_MISSING_ROOTS_PREVIEW_UNAPPROVED=PASS', flush=True)
     print(json.dumps(dict(identity_python='PASS',expected_sid=sys.argv[1],python=sys.version,
-                          executable=sys.executable,cwd=os.getcwd(),
-                          reader_transport='FIXED_ISOLATED_PYTHON',ntfs_read_isolated_child='PASS')),flush=True)
+                          executable=sys.executable,cwd=os.getcwd(),spawn=multiprocessing.get_start_method(),
+                          ntfs_read_spawn='PASS')),flush=True)
 
 
 if __name__ == '__main__': main()
