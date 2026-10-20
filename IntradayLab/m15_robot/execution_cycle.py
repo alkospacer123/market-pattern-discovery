@@ -274,6 +274,7 @@ def prepare_next_verified_m15_trail(
     if (not isinstance(journal, M15OutboundJournal)
             or type(api) is not M15FinamReadOnlyAPI
             or api.readonly_bound is not True
+            or not isinstance(m15_account_id, str) or not m15_account_id
             or api.account_id != m15_account_id
             or hashlib.sha256(m15_account_id.encode()).hexdigest()
             != journal.account_hash

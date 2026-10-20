@@ -2261,7 +2261,7 @@ class M15ExecutionStageTests(unittest.TestCase):
         owned, event, now = self.trailing_cycle_inputs()
         wrong = M15VerifiedTrailBar(
             event.instrument, event.completed_at,
-            event.previous_completed_at - timedelta(minutes=15),
+            event.previous_completed_at - timedelta(minutes=30),
             event.high, event.low, event.atr14, event.observed_at)
         api = object.__new__(M15FinamReadOnlyAPI)
         with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
