@@ -1698,6 +1698,66 @@ class M15ExecutionStageTests(unittest.TestCase):
         self.assertEqual(self.j.db.execute(
             "SELECT COUNT(*) FROM outbound").fetchone()[0], 0)
 
+
+    def test_readonly_cycle_adopts_only_proven_finam_fills_once(self):
+        from IntradayLab.m15_robot.execution_cycle import reconcile_m15_readonly_once
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        broker = self.broker_get(filled=1)
+        source = self.r15_entry_inputs()
+        api = object.__new__(M15FinamReadOnlyAPI)
+        kwargs = dict(
+            journal=self.j, api=api, m15_account_id="M15-SYNTH",
+            trade_start=broker["start"], trade_end=broker["end"],
+            stop_trade_tag="trade-1",
+        )
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-SYNTH"),
+              patch.object(M15FinamReadOnlyAPI, "account",
+                           return_value=broker["account"]),
+              patch.object(M15FinamReadOnlyAPI, "orders",
+                           return_value=broker["orders_response"]),
+              patch.object(M15FinamReadOnlyAPI, "asset_details",
+                           return_value=source["asset"]) as asset,
+              patch.object(M15FinamReadOnlyAPI, "asset_params",
+                           return_value=source["asset_params"]) as params,
+              patch.object(M15FinamReadOnlyAPI, "trades",
+                           return_value=broker["trades_response"]) as trades):
+            first = reconcile_m15_readonly_once(**kwargs)
+            self.assertEqual(first["events"][0]["state"],
+                             "ENTRY_BROKER_FILL_RECONCILED_STOP_UNPROVEN")
+            self.assertEqual(self.j.inspect(self.key)["state"], "ACK")
+            self.assertEqual(self.j.db.execute(
+                "SELECT COUNT(*) FROM broker_fills").fetchone()[0], 1)
+            self.j.close()
+            self.j = M15OutboundJournal(**self.args)
+            kwargs["journal"] = self.j
+            second = reconcile_m15_readonly_once(**kwargs)
+            self.assertEqual(first, second)
+            self.assertEqual(self.j.db.execute(
+                "SELECT COUNT(*) FROM broker_fills").fetchone()[0], 1)
+            asset.assert_called()
+            params.assert_called()
+            self.assertEqual(trades.call_count, 2)
+
+    def test_readonly_cycle_wrong_m15_account_never_queries_broker(self):
+        from IntradayLab.m15_robot.execution_cycle import (
+            reconcile_m15_readonly_once, M15ReadOnlyCycleError,
+        )
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        api = object.__new__(M15FinamReadOnlyAPI)
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-OTHER"),
+              patch.object(M15FinamReadOnlyAPI, "account") as account,
+              patch.object(M15FinamReadOnlyAPI, "orders") as orders):
+            with self.assertRaisesRegex(M15ReadOnlyCycleError,
+                                        "EXACT_READONLY_ACCOUNT_REQUIRED"):
+                reconcile_m15_readonly_once(
+                    journal=self.j, api=api, m15_account_id="M15-SYNTH")
+            account.assert_not_called()
+            orders.assert_not_called()
+
     def test_restart_recovers_exact_entry_draft_without_reposting(self):
         self.j.prepare(key=self.key, draft=self.draft)
         self.j.begin_post_uncertain(key=self.key, draft=self.draft)
