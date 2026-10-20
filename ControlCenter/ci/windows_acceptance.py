@@ -26,7 +26,8 @@ def build_bundle(evidence):
             relative = Path(entry['path'])
             assert not relative.is_absolute() and '..' not in relative.parts
             assert relative.name not in {'os-policy.json', 'source-policy.json',
-                                         'receiver-policy.json', 'preflight-policy.json', 'manual-os-policy.json'}
+                                         'receiver-policy.json', 'preflight-policy.json', 'manual-os-policy.json',
+                                         'broker-readonly-policy.json'}
             name = 'ControlCenter/' + relative.as_posix()
             assert name not in names
             names.add(name)
