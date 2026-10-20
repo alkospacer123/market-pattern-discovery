@@ -130,6 +130,89 @@ def latest_completed_signal(
     return M15Signal(f"m15:{digest}", instrument, side, at, price, atr, available, breakout)
 
 
+
+@dataclass(frozen=True)
+class M15VerifiedTrailBar:
+    """Completed M15 OHLC plus frozen-research ATR, NOT trading authority."""
+    instrument: str
+    completed_at: datetime
+    previous_completed_at: datetime
+    high: Decimal
+    low: Decimal
+    atr14: Decimal
+    observed_at: datetime
+
+
+def latest_verified_finam_trail_bar(
+    *, api: Any, m15_account_id: str, instrument: str,
+    authenticated_seed: pd.DataFrame, observed_at: datetime,
+    interval_start: str, interval_end: str,
+    verified_open_labels: bool = False,
+) -> M15VerifiedTrailBar | None:
+    """Same authenticated FINAM/immutable-history source as frozen T1 signals.
+
+    Unlike ENTRY, trailing runs irrespective of Signal/T1 entry session.
+    A next-OPEN witness must establish completed M15 OHLC, and ATR comes
+    from the original research features, not a new implementation.
+    """
+    from .bar_bridge import completed_close_labeled_m15
+    from .continuation import immutable_prefix_splice
+    from .finam_readonly import M15FinamReadOnlyAPI, _stamp
+    if verified_open_labels is not True:
+        raise ValueError("M15_TRAIL_OPEN_LABEL_AUTHORITY_REQUIRED")
+    if (type(api) is not M15FinamReadOnlyAPI or api.readonly_bound is not True
+            or not isinstance(m15_account_id, str) or not m15_account_id
+            or api.account_id != m15_account_id or instrument not in INSTRUMENTS):
+        raise ValueError("M15_TRAIL_FINAM_ACCOUNT_UNBOUND")
+    if not isinstance(observed_at, datetime) or observed_at.tzinfo is None or observed_at.utcoffset() is None:
+        raise ValueError("M15_TRAIL_OBSERVATION_CLOCK_INVALID")
+    start, end = _stamp(interval_start), _stamp(interval_end)
+    if start >= end or end - start > timedelta(days=30):
+        raise ValueError("M15_TRAIL_BAR_WINDOW_INVALID")
+    symbol = instrument + "@RTSX"
+    account = api.account(m15_account_id)
+    if (not isinstance(account, dict) or account.get("account_id") != m15_account_id
+            or account.get("status") not in {"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"}):
+        raise ValueError("M15_TRAIL_FINAM_ACCOUNT_MISMATCH")
+    schedule = api.schedule(symbol)
+    bars = api.bars_m15(symbol, interval_start, interval_end)
+    if bars.get("symbol") != symbol:
+        raise ValueError("M15_TRAIL_BROKER_SYMBOL_MISMATCH")
+    newest = completed_close_labeled_m15(
+        bars, schedule, observed_at=observed_at, verified_open_labels=True)
+    if newest.empty:
+        return None
+    history = immutable_prefix_splice(authenticated_seed, newest)
+    validate_completed_history(instrument, history, observed_at)
+    from IntradayLab.t3_m15_t1_entry_retest_v1.primary import features
+    f = features(history.loc[:, REQUIRED_OHLC])
+    if not f or len(history) < 2:
+        return None
+    last = f[-1]
+    completed = _msk_timestamp(last["at"])
+    if completed != history.index[-1].to_pydatetime():
+        raise ValueError("M15_TRAIL_FEATURE_BAR_NOT_LAST")
+    age = (_msk_timestamp(observed_at) - completed).total_seconds()
+    if not 0 <= age < 15 * 60:
+        return None
+    published = last.get("H1AvailableAt")
+    if not isinstance(published, datetime) or _msk_timestamp(published) > completed:
+        raise ValueError("M15_TRAIL_H1_CONTEXT_NOT_PUBLISHED")
+    atr = Decimal(str(last["ATR"]))
+    if not atr.is_finite() or atr <= 0:
+        raise ValueError("M15_TRAIL_ATR_INVALID")
+    row = history.iloc[-1]
+    high = Decimal(str(row["High"]))
+    low = Decimal(str(row["Low"]))
+    if not (high.is_finite() and low.is_finite()
+            and 0 < low <= high):
+        raise ValueError("M15_TRAIL_OHLC_INVALID")
+    return M15VerifiedTrailBar(
+        instrument, completed, history.index[-2].to_pydatetime(),
+        high, low, atr, observed_at,
+    )
+
+
 @dataclass(frozen=True)
 class M15VerifiedNextOpen:
     """Real FINAM next-candle OPEN reference, not a signal-close substitute.

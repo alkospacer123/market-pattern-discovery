@@ -14,6 +14,7 @@ from IntradayLab.m15_robot import spec
 from IntradayLab.m15_robot.feature_adapter import (
     M15Signal, consecutive_next_open_allowed, latest_completed_signal,
     latest_verified_finam_signal, latest_verified_finam_entry,
+    latest_verified_finam_trail_bar,
     validate_completed_history,
 )
 from IntradayLab.m15_robot.grid_risk import (
@@ -179,6 +180,61 @@ class SignalGate(unittest.TestCase):
                 bad.loc[:, "Close"] = 100.5
                 latest_verified_finam_signal(**dict(params, authenticated_seed=bad))
 
+
+
+    def test_trail_accepts_completed_finam_bar_even_without_entry_signal(self):
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        api = object.__new__(M15FinamReadOnlyAPI)
+        def row(time):
+            return {
+                "timestamp": time.isoformat(),
+                "open": {"value": "100"}, "high": {"value": "102"},
+                "low": {"value": "99"}, "close": {"value": "101"},
+                "volume": {"value": "200"},
+            }
+        raw = {"symbol": "CNYRUBF@RTSX",
+               "bars": [row(at(9,45)), row(at(10)), row(at(10,15))]}
+        schedule = {"sessions": [{"type": "CORE_TRADING", "interval": {
+            "start_time": at(9).isoformat(), "end_time": at(12).isoformat(),
+        }}]}
+        args = dict(
+            api=api, m15_account_id="M15-FAKE", instrument="CNYRUBF",
+            authenticated_seed=bar_frame(at(10)),
+            observed_at=at(10,15) + timedelta(seconds=5),
+            interval_start=at(9,45).isoformat(),
+            interval_end=at(10,30).isoformat(),
+            verified_open_labels=True,
+        )
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-FAKE"),
+              patch.object(M15FinamReadOnlyAPI, "account", return_value={
+                  "account_id": "M15-FAKE", "status": "ACCOUNT_ACTIVE"}),
+              patch.object(M15FinamReadOnlyAPI, "schedule", return_value=schedule),
+              patch.object(M15FinamReadOnlyAPI, "bars_m15", return_value=raw),
+              patch("IntradayLab.t3_m15_t1_entry_retest_v1.primary.features",
+                    return_value=[sample_feature(at(10,15), side=0)])):
+            event = latest_verified_finam_trail_bar(**args)
+            self.assertEqual(event.completed_at, at(10,15))
+            self.assertEqual(event.previous_completed_at, at(10))
+            self.assertEqual((event.high,event.low,event.atr14),
+                             (Decimal("102.0"), Decimal("99.0"), Decimal("1.25")))
+            self.assertIsNone(latest_verified_finam_trail_bar(**dict(
+                args, observed_at=at(10,31))))
+
+    def test_trail_refuses_unverified_open_labels_and_wrong_account(self):
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        api = object.__new__(M15FinamReadOnlyAPI)
+        kw = dict(api=api, m15_account_id="M15-FAKE", instrument="CNYRUBF",
+                  authenticated_seed=bar_frame(at(10)), observed_at=at(10,15),
+                  interval_start=at(10).isoformat(),
+                  interval_end=at(10,30).isoformat(),
+                  verified_open_labels=False)
+        with self.assertRaisesRegex(ValueError, "OPEN_LABEL_AUTHORITY_REQUIRED"):
+            latest_verified_finam_trail_bar(**kw)
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "OTHER")):
+            with self.assertRaisesRegex(ValueError, "ACCOUNT_UNBOUND"):
+                latest_verified_finam_trail_bar(**dict(kw, verified_open_labels=True))
 
     def test_broker_next_open_not_signal_close_is_r15_reference(self):
         from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
