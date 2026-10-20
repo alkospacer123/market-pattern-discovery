@@ -63,7 +63,9 @@ def test_bad_candidate_fails_closed(case):
         check(x)
 
 @pytest.mark.parametrize('raw', [b'{}', b'[]', b'{"a":1,"a":2}',b'NaN',b'\xff',
-    b' '*65537, b'', b'{"secret": "token"}'])
+    b' '*65537, b'', b'{"secret": "token"}'],
+    ids=['empty-object', 'empty-list', 'duplicate-key', 'nan', 'bad-utf8',
+         'oversized-input', 'empty-bytes', 'secret-field'])
 def test_bad_json_rejected_silently(raw):
     with pytest.raises(CandidateRejected) as err:
         validate_candidate(raw, expected_source=SOURCE, expected_alias=ALIAS,
