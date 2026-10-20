@@ -8,6 +8,7 @@ from cc.providers.h1_export import unchecked_export_snapshot, manual_export_refr
 from cc.providers.h1_windows_os import manual_os_refresh
 from cc.providers.h1_broker_snapshot import manual_broker_refresh, age as age_broker
 from cc.ui import CSS, PAGES, render
+from cc.providers.h1_operator_report import parse_operator_report, age_operator_report
 
 st.set_page_config(page_title="TradingSystemLab · Control Center DEMO", page_icon="◈", layout="wide")
 st.markdown(CSS, unsafe_allow_html=True)  # fixed local CSS only
@@ -28,17 +29,56 @@ with st.sidebar:
                                disabled=h1_source not in ("READONLY_EXPORT", "WINDOWS_OS_ONLY"))
     st.caption("Только по кнопке; без таймеров и повторов. WINDOWS_OS_ONLY не читает heartbeat/файлы H1. FINAM не вызывается. Снимок истекает по TTL при следующем отображении.")
     st.caption("DEMO и OFFLINE_FIXTURE — тестовые локальные данные. M15 остаётся NOT_DEPLOYED.")
+    if h1_source == "WINDOWS_OS_ONLY":
+        st.divider()
+        st.caption("H1: локальный отчёт действующего tsl-h1-01-check.ps1. Не FINAM-сверка. Скрипт запускается оператором отдельно, не из Streamlit.")
+        local_check_text = st.text_area("Вставить вывод H1 CHECK (без паролей/токенов)", key="cc03-operator-check-text", height=125)
+        local_check_apply = st.button("Показать H1 CHECK", key="cc03-operator-check-apply", disabled=not bool(local_check_text))
+    else:
+        local_check_text, local_check_apply = "", False
     st.caption("UTC / MSK (UTC+3) · локальный доступ")
+
+
+def h1_operator_view(report, now):
+    st.subheader("H1 · реальная локальная операторская проверка")
+    if not report:
+        st.info("H1 CHECK ещё не загружен. Запусти существующий tsl-h1-01-check.ps1 отдельно, вставь его текст слева и нажми «Показать H1 CHECK». Панель сама H1 не читает.")
+        return
+    report = age_operator_report(report, now)
+    if report["status"] == "STALE":
+        st.warning("STALE · локальный операторский отчёт устарел. Показана история, а не текущее здоровье H1.")
+    else:
+        st.success("LOCAL CHECK PASS · наблюдение H1. Независимая сверка позиций/стопов с FINAM этим отчётом не доказана.")
+    st.caption("Heartbeat UTC: " + report["observed_at"].isoformat() + " · FINAM contact (по H1): " + report["contact_at"].isoformat())
+    cols = st.columns(4)
+    for col, label, value in zip(cols,
+        ("Цикл H1", "Локальных позиций", "Локальных стопов", "Unresolved"),
+        (report["cycle_count"], report["positions"], report["stops"], report["unresolved"])):
+        col.metric(label, str(value))
+    st.caption("Task: " + report["task"] + " · Kill switch: " + report["kill_switch"] + " · generation: " + report["generation"] +
+               " · Health (reported): " + report["health"] + " · Reconciliation (reported): " + report["reconciliation"])
+    st.subheader("Последние 10 попыток циклов H1 · PASS / FAULT")
+    st.dataframe(report["cycles"], width="stretch", hide_index=True)
+    st.caption("Источник: операторский локальный CHECK, не независимый брокер. Отсутствие ошибок/позиций в отчёте не доказывает брокерский FLAT, FILL или SLTP 100%. Сигналы и причины SKIP этим скриптом не публикуются.")
 
 
 def live_view():
     now = utc_now()
+    if local_check_apply:
+        try:
+            st.session_state["cc03-local-check"] = parse_operator_report(local_check_text, now)
+            st.session_state.pop("cc03-local-check-error", None)
+        except ValueError:
+            st.session_state.pop("cc03-local-check", None)
+            st.session_state["cc03-local-check-error"] = True
     provider = SyntheticProvider()
     snapshots = {robot: read_safely(provider, robot, scenarios[robot], now) for robot in RobotId}
     if st.session_state.get("cc03-last-source") != h1_source:
         # Switching source clears cached positives, without invoking either source.
         st.session_state.pop("cc03-last-export", None)
         st.session_state.pop("cc03-last-broker", None)
+        st.session_state.pop("cc03-local-check", None)
+        st.session_state.pop("cc03-local-check-error", None)
         st.session_state["cc03-last-source"] = h1_source
     if h1_source == "OFFLINE_FIXTURE":
         snapshots[RobotId.H1] = H1ReadonlyProvider().snapshot(RobotId.H1, "OFFLINE_FIXTURE", now)
@@ -67,6 +107,10 @@ def live_view():
     broker = age_broker(st.session_state.get('cc03-last-broker'), now) if h1_source == 'WINDOWS_OS_ONLY' else None
     if h1_source == 'WINDOWS_OS_ONLY' and 'cc03-last-broker' in st.session_state:
         st.session_state['cc03-last-broker'] = broker
+    if h1_source == "WINDOWS_OS_ONLY" and page in (PAGES[0], PAGES[1]):
+        if st.session_state.get("cc03-local-check-error"):
+            st.warning("H1 CHECK: отчёт неполный, устарел по структуре или содержит FAIL. Ничего не принято.")
+        h1_operator_view(st.session_state.get("cc03-local-check"), now)
     render(page, snapshots, now, broker=broker)
 
 
