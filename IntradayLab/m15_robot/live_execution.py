@@ -21,9 +21,12 @@ from fractions import Fraction
 from typing import Any
 
 from .broker_fill_readonly import ExpectedEntry, analyze_account_trades
+from .broker_risk_readonly import check_account, check_instrument
+from .cashflow_reconcile_gate import CashflowWindow, propose_realized_capital
 from .broker_snapshot import order_views, position_quantities, unique_order_by_client_id
 from .broker_reconcile_gate import assess_entry_evidence
 from .grid_risk import ContractAuthority, SizedOrder, TrailingState, initial_stop, project_stop
+from .risk_batch import M15BatchRiskBudget
 from .protective_gate import BrokerProtection
 from .trailing_gate import PendingTrail, propose_trail
 from .spec import INITIAL_STOP_ATR
@@ -222,10 +225,24 @@ class M15OutboundJournal:
                     covered_quantity_at_ack INTEGER NOT NULL CHECK(covered_quantity_at_ack>0),
                     stop_price TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS entry_r15_basis (
+                    intent_key TEXT PRIMARY KEY REFERENCES outbound(intent_key),
+                    account_sha256 TEXT NOT NULL,
+                    account_observed_utc TEXT NOT NULL,
+                    cashflow_sha256 TEXT NOT NULL,
+                    realized_equity TEXT NOT NULL,
+                    available_cash TEXT NOT NULL,
+                    symbol TEXT NOT NULL,
+                    direction TEXT NOT NULL,
+                    reference_entry TEXT NOT NULL,
+                    stop_price TEXT NOT NULL,
+                    quantity INTEGER NOT NULL CHECK(quantity>0),
+                    nominal_initial_risk TEXT NOT NULL
+                );
             """)
             tables = {r[0] for r in self.db.execute(
                 "SELECT name FROM sqlite_master WHERE type='table'")}
-            if tables != {"metadata", "outbound", "broker_fills", "protective_prepost", "protective_coverage"}:
+            if tables != {"metadata", "outbound", "broker_fills", "protective_prepost", "protective_coverage", "entry_r15_basis"}:
                 raise M15ExecutionError("M15_OUTBOUND_SCHEMA_TABLES_INVALID")
             expected = {
                 "metadata": ("key", "value"),
@@ -237,6 +254,10 @@ class M15OutboundJournal:
                                        "prior_stop_sha256"),
                 "protective_coverage": ("intent_key", "broker_stop_sha256",
                                         "covered_quantity_at_ack", "stop_price"),
+                "entry_r15_basis": ("intent_key", "account_sha256", "account_observed_utc",
+                                    "cashflow_sha256", "realized_equity", "available_cash",
+                                    "symbol", "direction", "reference_entry", "stop_price",
+                                    "quantity", "nominal_initial_risk"),
             }
             for table, cols in expected.items():
                 found = tuple(row[1] for row in self.db.execute(f"PRAGMA table_info({table})"))
@@ -368,6 +389,125 @@ class M15OutboundJournal:
 
 
 
+
+
+    def prepare_entry_from_broker_r15(
+        self, *, key: str, drafts: M15OfflineTradeDrafts,
+        instrument: str, direction: str, reference_entry: Decimal,
+        signal_atr: Decimal, contract: ContractAuthority,
+        asset: dict, asset_params: dict,
+        account: dict, orders_response: dict,
+        cashflow_windows: list[CashflowWindow],
+        observed_at: datetime, now: datetime,
+    ) -> tuple[M15Draft, SizedOrder]:
+        """Existing H1 clean-account R15/GO bootstrap -> ONE durable M15 ENTRY.
+
+        Does not use H1 funds, estimated equity, hypothetical GO or position
+        fills. Broker history, asset/account and freshness MUST be supplied
+        from a separately authenticated M15-only read session.
+
+        Current scope is FIRST flat-account entry: other open instruments
+        require a reconciled existing risk ledger before the 6% portfolio
+        authority is allowed. This path NEVER authorizes broker POST.
+        """
+        if not isinstance(drafts, M15OfflineTradeDrafts) or drafts.execution_authorized:
+            raise M15ExecutionError("M15_ENTRY_R15_DRAFT_AUTHORITY_INVALID")
+        if (instrument not in INSTRUMENTS or direction not in {"LONG", "SHORT"}
+                or not isinstance(contract, ContractAuthority)):
+            raise M15ExecutionError("M15_ENTRY_R15_INSTRUMENT_INVALID")
+        if (not isinstance(observed_at, datetime) or observed_at.tzinfo is None
+                or observed_at.utcoffset() is None
+                or not isinstance(now, datetime) or now.tzinfo is None
+                or now.utcoffset() is None):
+            raise M15ExecutionError("M15_ENTRY_R15_BROKER_CLOCK_INVALID")
+        age = (now.astimezone(timezone.utc) -
+               observed_at.astimezone(timezone.utc)).total_seconds()
+        if not 0 <= age <= 30:
+            raise M15ExecutionError("M15_ENTRY_R15_STALE_ACCOUNT_SNAPSHOT")
+        if (not isinstance(account, dict) or
+                not isinstance(account.get("account_id"), str)
+                or hashlib.sha256(account["account_id"].encode()).hexdigest()
+                != self.account_hash):
+            raise M15ExecutionError("M15_ENTRY_R15_WRONG_FINAM_ACCOUNT")
+        try:
+            broker = check_account(account, account["account_id"])
+            capital = propose_realized_capital(
+                account=account, expected_account_id=account["account_id"],
+                windows=cashflow_windows, now=now,
+            )
+        except (ValueError, TypeError) as exc:
+            raise M15ExecutionError("M15_ENTRY_R15_BROKER_CAPITAL_INVALID") from exc
+        if (capital.proposed_realized_equity !=
+                broker.broker_equity_minus_unrealized
+                or capital.transaction_count < 1
+                or capital.runtime_r15_authorized or capital.live_authorized
+                or capital.source != "BOUNDED_FINAM_GET_OFFLINE_VERIFICATION"):
+            raise M15ExecutionError("M15_ENTRY_R15_CAPITAL_AUTHORITY_INVALID")
+        observed_positions = position_quantities(account)
+        observed_orders = order_views(orders_response)
+        if observed_positions or any(order.active for order in observed_orders):
+            raise M15ExecutionError("M15_ENTRY_R15_REQUIRES_CLEAN_BROKER_BOOTSTRAP")
+        if self.db.execute("SELECT 1 FROM outbound LIMIT 1").fetchone():
+            raise M15ExecutionError("M15_ENTRY_R15_EXISTING_INTENTS_REQUIRE_RECONCILIATION")
+        symbol = instrument + "@RTSX"
+        verified = check_instrument(asset, asset_params, symbol, account["account_id"])
+        contract.validate()
+        if (contract.price_step != verified.price_step
+                or contract.trade_lot_size != verified.trade_lot_size
+                or contract.long_initial_margin != verified.long_initial_margin_rub
+                or contract.short_initial_margin != verified.short_initial_margin_rub):
+            raise M15ExecutionError("M15_ENTRY_R15_CONTRACT_OR_GO_MISMATCH")
+        # Tick value must originate from the existing, separately audited
+        # RUB contract authority; FINAM asset parameters don't prove it.
+        try:
+            stop = initial_stop(
+                direction, reference_entry, signal_atr, contract.price_step)
+            budget = M15BatchRiskBudget(
+                realized_equity=capital.proposed_realized_equity,
+                available_margin_cash=broker.available_cash,
+            )
+            sized = budget.size_and_reserve(
+                instrument=instrument, direction=direction,
+                entry=reference_entry, stop=stop, contract=contract,
+            )
+        except ValueError as exc:
+            raise M15ExecutionError("M15_ENTRY_R15_PRICING_OR_MARGIN_INVALID") from exc
+        if sized.reason != "OK" or sized.final_quantity <= 0:
+            raise M15ExecutionError("M15_ENTRY_R15_ZERO_ORDER_CAPACITY")
+        draft = drafts.entry(
+            instrument=instrument, direction=direction,
+            idempotency_key=key, sized=sized, observed_occupied=False,
+        )
+        _valid_draft(draft, account_hash=self.account_hash, key=key)
+        evidence = (
+            key, self.account_hash, observed_at.astimezone(timezone.utc).isoformat(),
+            capital.transaction_fingerprint_sha256,
+            str(capital.proposed_realized_equity), str(broker.available_cash),
+            symbol, direction, str(reference_entry), str(stop),
+            sized.final_quantity, str(sized.initial_nominal_risk),
+        )
+        # No window between ENTRY and basis commits can POST: this method
+        # contains no trading transport, and the outer static LIVE freeze
+        # plus separate release gate remain permanently closed at this SHA.
+        self.prepare(key=key, draft=draft)
+        self.db.execute("BEGIN IMMEDIATE")
+        try:
+            existing = self.db.execute(
+                "SELECT * FROM entry_r15_basis WHERE intent_key=?", (key,),
+            ).fetchone()
+            if existing is not None and existing != evidence:
+                raise M15ExecutionError("M15_ENTRY_R15_BASIS_CONFLICT")
+            if existing is None:
+                self.db.execute(
+                    "INSERT INTO entry_r15_basis VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+                    evidence,
+                )
+            self.db.execute("COMMIT")
+        except Exception:
+            if self.db.in_transaction:
+                self.db.execute("ROLLBACK")
+            raise
+        return draft, sized
 
     def begin_protective_post_uncertain(
         self, *, key: str, draft: M15Draft, account: dict,
