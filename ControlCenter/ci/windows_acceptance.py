@@ -130,6 +130,13 @@ def main():
         print(output, flush=True)
         results[name] = dict(exit_code=exit_code, seconds=round(time.monotonic()-started, 3))
         (evidence / 'command-timings.json').write_text(json.dumps(results, indent=2), encoding='utf-8')
+        if exit_code and name in {'scope-audit', 'source-feasibility-audit', 'windows-reader', 'windows-transport'}:
+            # Preserve the actual early failure; do not spend eight minutes on
+            # lifecycle rehearsal after native source/transport acceptance failed.
+            (evidence / 'acceptance.json').write_text(json.dumps(dict(
+                classification='CC03_WINDOWS_NATIVE_NEEDS_FIX', failed_step=name,
+                physical='NOT_EXECUTED'), indent=2), encoding='utf-8')
+            return 1
     for name in ('windows-reader', 'windows-transport', 'cc03-source', 'os-observer', 'intel-preflight', 'manual-os', 'full-suite'):
         path = evidence / f'{name}.xml'
         if not path.exists():

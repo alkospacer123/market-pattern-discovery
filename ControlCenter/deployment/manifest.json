@@ -111,7 +111,7 @@
     },
     {
       "path": "ci/file_open_trace.py",
-      "sha256": "767b4b520c2f9aad63fad8eaaa88395ae0884aa9b3b8e4136f4ab28d3cd2c971"
+      "sha256": "5c0cb7c4eed6d7840266196f1cbda49232f3184a904f03e632510b35e4933181"
     },
     {
       "path": "ci/identity_probe.py",
@@ -143,7 +143,7 @@
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "e929b80bcfba45907ee7d8986ebda6d2694627017db7a0fe051e6a335f081e99"
+      "sha256": "25cf45cf2f7c025cf7134f3c386f43a9a4479a485bf4a7dc52397209ddcd7ae4"
     },
     {
       "path": "deployment/Common.ps1",
@@ -251,7 +251,7 @@
     },
     {
       "path": "docs/CC03_H1_SOURCE_FEASIBILITY.md",
-      "sha256": "6048bc0438303807a41c1714b0cec44341165f3560009205ba284f614acc24e9"
+      "sha256": "e3fe2a597ee547098c3c87d317d076dba8856ebc83cd48b05458767646f84ee0"
     },
     {
       "path": "docs/CC03_H1_SOURCE_OPERATOR_CHECKPOINT.md",

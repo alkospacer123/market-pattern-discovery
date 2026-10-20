@@ -113,6 +113,12 @@ Windows venv redirector, отдельно от producer tree; assertion чтен
 и запрет H1 opens сохранены. Production reader не менялся. Точный итоговый native
 run и evidence публикуются в Draft PR после проверки, не выводятся из этого FAIL.
 
+Второй run [39398168422](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/39398168422)
+также FAIL: `logman` отверг два `-p` до запуска trace. Multi-provider test исправлен
+на штатный `-pf` provider-file. CI теперь сохраняет ранний native/transport failure
+и завершает run до долгой lifecycle rehearsal; успешный run по-прежнему обязан
+выполнить полный прежний набор. Ни один неуспешный trace не считается zero-open PASS.
+
 ## Операторский checkpoint: NO INSTALL / NO SOURCE ACTIVATION
 
 Практический порядок после отдельного source/package review приведён в

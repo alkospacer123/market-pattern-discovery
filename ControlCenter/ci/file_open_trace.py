@@ -59,7 +59,12 @@ def file_create_trace(root, *, process_events=False):
     if process_events:
         # The Windows venv redirector can create a second interpreter process.
         # Attribute opens through kernel ProcessStart, not Popen launcher PID alone.
-        providers += ['-p', 'Microsoft-Windows-Kernel-Process', '0x10', '5']
+        provider_file = trace.with_suffix('.providers.txt')
+        provider_file.write_text('Microsoft-Windows-Kernel-File 0x90 5\n'
+                                 'Microsoft-Windows-Kernel-Process 0x10 5\n', encoding='ascii')
+        # logman accepts -p once. Its provider-file format enables both in the
+        # same session without silently replacing the file-open provider.
+        providers = ['-pf', str(provider_file)]
     command(['logman.exe','start',name,'-ets','-o',str(trace), *providers,
              '-bs','64','-nb','16','256'])
     records = []
