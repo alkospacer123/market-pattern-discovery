@@ -196,18 +196,31 @@ async def _browser_click(edge, profile, evidence, log):
         value['synthetic_cpu_load'] = load
         value['load_controls'] = controls
         assert value['clicks'] == 1 and value['policy_reads'] == 1, value
-        assert value['accepted'] is False and value['probes'] == 0, value
+        assert value['accepted'] is True and value['probes'] == 1, value
+        assert value['task'] == 'TASK_RUNNING' and value['robot_state'] == 'UNKNOWN', value
+        assert value['source_kind'] == 'WINDOWS_OS_ONLY', value
+        assert value['heartbeat'] is None and value['trading'] is None, value
         assert value['streamlit_main'] is True, value
         assert value['server_isolated'] is True and value['server_no_bytecode'] is True, value
-        assert value['read_error_code'] == 'READ_TIMEOUT', value
-        await until("document.body.innerText.includes('BLOCKED / UNKNOWN')")
-        warning = "Array.from(document.querySelectorAll('[data-testid=stAlert]')).find(e=>e.innerText.includes('BLOCKED'))"
-        await until(f"Boolean({warning})")
-        await evaluate(f"({warning}).scrollIntoView({{block:'center'}})")
+        async def page(name):
+            await evaluate("Array.from(document.querySelectorAll('[data-testid=stRadio] label'))"
+                           ".find(e=>e.textContent.includes(" + json.dumps(name) + ")).click()")
+        await page('Управление')
+        await until("document.querySelectorAll('[data-testid=stButton] button:disabled').length === 10")
+        await page('Монитор H1')
+        task = ("Array.from(document.querySelectorAll('[data-testid=stMarkdownContainer]'))"
+                ".find(e=>e.innerText.replace(/\\s+/g,' ').includes('Windows Task: TASK_RUNNING'))")
+        await until(f"Boolean({task})")
+        await evaluate(f"({task}).scrollIntoView({{block:'center'}})")
+        assert not await evaluate("document.body.innerText.includes('BLOCKED / UNKNOWN')")
+        assert state(evidence)['policy_reads'] == 1
+        assert state(evidence)['probes'] == 1
         screenshot = await call('Page.captureScreenshot', dict(format='png'))
         (evidence.parent / 'streamlit-click.png').write_bytes(base64.b64decode(screenshot['data']))
         value['real_browser_click'] = True
-        value['baseline_expected_blocked'] = True
+        value['navigation_zero_extra_reads'] = True
+        value['disabled_trading_controls'] = 10
+        value['rendered_task_running'] = True
         return value
     finally:
         if socket is not None:

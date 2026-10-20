@@ -148,6 +148,23 @@ def main():
     # in JUnit alongside pytest. Missing case or interrupted rehearsal fails.
     rehearsal_path = evidence / 'powershell-rehearsal.json'
     rehearsal = json.loads(rehearsal_path.read_text(encoding='utf-8-sig')) if rehearsal_path.exists() else {}
+    browser_path = evidence / 'streamlit-browser-result.json'
+    browser = json.loads(browser_path.read_text(encoding='utf-8')) if browser_path.exists() else {}
+    browser_verified = all(key in browser and browser[key] == expected for key, expected in dict(
+        sid_standard=True, streamlit_main=True, server_isolated=True, server_no_bytecode=True,
+        clicks=1, policy_reads=1, probes=1,
+        accepted=True, task='TASK_RUNNING', source_kind='WINDOWS_OS_ONLY', robot_state='UNKNOWN',
+        heartbeat=None, trading=None, real_browser_click=True,
+        navigation_zero_extra_reads=True, disabled_trading_controls=10, rendered_task_running=True).items())
+    browser_verified = browser_verified and (evidence / 'streamlit-click.png').is_file()
+    browser_verified = browser_verified and browser.get('synthetic_cpu_load', {}).get('all_workers_started') is True
+    browser_verified = browser_verified and browser.get('synthetic_cpu_load', {}).get('all_children_exited') is True
+    browser_verified = browser_verified and all(
+        browser.get('load_controls', {}).get(mode, {}).get('accepted') is True
+        and browser.get('load_controls', {}).get(mode, {}).get('task') == 'TASK_RUNNING'
+        for mode in ('direct', 'threaded'))
+    results['streamlit-click'] = dict(exit_code=0 if browser_verified else 1,
+                                     passed=int(browser_verified), failed=int(not browser_verified))
     suite = ET.Element('testsuite', name='pythoncore-provision', tests='4')
     failures = 0
     for name in ('pythoncore_standard_token', 'pythoncore_archive_negatives',
@@ -169,7 +186,7 @@ def main():
                       original_legacy_replace_requirements='NOT_PASSED: conflicts reproduced, not fixed',
                       native_transport_and_deployment='NEEDS_FIX' if failed else 'PASS',
                       windows_os_observer='NEEDS_FIX' if failed else 'PASS: OS facts only; physical source binding not executed',
-                      manual_os_source='NEEDS_FIX' if failed else 'PASS: manual one-shot; session-local; source/account UNVERIFIED',
+                      manual_os_source='NEEDS_FIX' if failed else 'PASS: real Edge/Streamlit click, standard SID, one policy read/probe; source/account UNVERIFIED',
                       metadata_source='CC03_METADATA_COMPATIBILITY_BLOCKED: expected-conflict regression is not noninterference acceptance',
                       runtime_retention='DISABLED: bounded stop, no deletion',
                       intel_readonly_preflight='NEEDS_FIX' if failed else 'PASS: disposable hosted sources only',
