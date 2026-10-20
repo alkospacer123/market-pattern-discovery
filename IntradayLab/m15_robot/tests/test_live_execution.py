@@ -1432,5 +1432,84 @@ class M15ExecutionStageTests(unittest.TestCase):
                 start=start, end=end,
             )
 
+
+    def test_uncertain_entry_without_post_ack_recovers_exact_broker_client_id(self):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        broker = self.broker_get(filled=1)
+        source = self.r15_entry_inputs()
+        controller = object.__new__(M15AuthorizedExecutionTransport)
+        controller.api = object.__new__(M15FinamTradingAPI)
+        controller.account_id = "M15-SYNTH"
+        controller.account_hash = self.j.account_hash
+        controller.runtime_root = self.args["runtime_root"]
+        controller._require_connected = lambda: None
+        payload = dict(journal=self.j, key=self.key, draft=self.draft,
+                       expected=None, stop_trade_tag="trade-1",
+                       start=broker["start"], end=broker["end"])
+        with (patch.object(M15FinamTradingAPI, "account",
+                           return_value=broker["account"]) as a,
+              patch.object(M15FinamTradingAPI, "orders",
+                           return_value=broker["orders_response"]) as o,
+              patch.object(M15FinamTradingAPI, "asset_details",
+                           return_value=source["asset"]) as asset,
+              patch.object(M15FinamTradingAPI, "asset_params",
+                           return_value=source["asset_params"]) as params,
+              patch.object(M15FinamTradingAPI, "trades",
+                           return_value=broker["trades_response"]) as trades):
+            first = controller.reconcile_entry_from_finam(**payload)
+            self.assertEqual(first["matched_quantity"], 1)
+            self.assertEqual(first["new_durable_fills"], 1)
+            self.assertFalse(first["broker_stop_acknowledged"])
+            self.assertEqual(self.j.inspect(self.key)["state"], "ACK")
+            self.assertEqual(
+                self.j.inspect(self.key)["broker_order_sha256"],
+                hashlib.sha256(b"broker-entry-1").hexdigest())
+            second = controller.reconcile_entry_from_finam(**payload)
+            self.assertEqual(second["new_durable_fills"], 0)
+            a.assert_called()
+            o.assert_called()
+            asset.assert_called()
+            params.assert_called()
+            trades.assert_called()
+        self.assertEqual(
+            self.j.db.execute("SELECT COUNT(*) FROM broker_fills").fetchone()[0], 1)
+
+    def test_uncertain_entry_missing_or_duplicate_client_order_never_reposts(self):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        source = self.broker_get(filled=1)
+        controller = object.__new__(M15AuthorizedExecutionTransport)
+        controller.api = object.__new__(M15FinamTradingAPI)
+        controller.account_id = "M15-SYNTH"
+        controller.account_hash = self.j.account_hash
+        controller.runtime_root = self.args["runtime_root"]
+        controller._require_connected = lambda: None
+        payload = dict(journal=self.j, key=self.key, draft=self.draft,
+                       expected=None, stop_trade_tag="trade-1",
+                       start=source["start"], end=source["end"])
+        with (patch.object(M15FinamTradingAPI, "account",
+                           return_value=source["account"]),
+              patch.object(M15FinamTradingAPI, "orders",
+                           return_value={"orders": []})):
+            with self.assertRaisesRegex(
+                    M15ExecutionError, "CLIENT_ORDER_NOT_FOUND_NO_REPOST"):
+                controller.reconcile_entry_from_finam(**payload)
+        duplicate = dict(source["orders_response"]["orders"][0])
+        duplicate["order_id"] = "broker-other-entry"
+        with (patch.object(M15FinamTradingAPI, "account",
+                           return_value=source["account"]),
+              patch.object(M15FinamTradingAPI, "orders",
+                           return_value={"orders": source["orders_response"]["orders"]
+                                                 + [duplicate]})):
+            with self.assertRaisesRegex(
+                    RuntimeError, "DUPLICATE_CLIENT_ORDER_ID"):
+                controller.reconcile_entry_from_finam(**payload)
+        self.assertEqual(self.j.inspect(self.key)["state"], "UNCERTAIN")
+        self.assertEqual(
+            self.j.db.execute("SELECT COUNT(*) FROM broker_fills").fetchone()[0], 0)
+
 if __name__ == "__main__":
     unittest.main()

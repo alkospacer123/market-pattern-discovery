@@ -1866,7 +1866,7 @@ class M15AuthorizedExecutionTransport:
 
     def reconcile_entry_from_finam(
         self, *, journal: M15OutboundJournal, key: str, draft: M15Draft,
-        expected: ExpectedEntry, stop_trade_tag: str,
+        expected: ExpectedEntry | None, stop_trade_tag: str,
         start: str, end: str, limit: int = 1000,
     ) -> dict:
         """Step 14: same authenticated M15 trading JWT -> durable FINAM fills.
@@ -1886,9 +1886,35 @@ class M15AuthorizedExecutionTransport:
         _valid_draft(draft, account_hash=self.account_hash, key=key)
         if draft.kind != "ENTRY":
             raise M15ExecutionError("M15_ENTRY_RECONCILE_WRONG_DRAFT")
-        # GETs are exact account-bound on the same FINAM write-session JWT.
+        # Resolve lost-ACK ENTRY from the immutable deterministic client ID.
+        # NEVER create or retry a FINAM order just because its HTTP ACK was lost.
         account = self.api.account(self.account_id)
         orders = self.api.orders(self.account_id)
+        if expected is None:
+            order = unique_order_by_client_id(
+                order_views(orders), draft.payload["client_order_id"])
+            if order is None:
+                raise M15ExecutionError(
+                    "M15_ENTRY_RECOVERY_CLIENT_ORDER_NOT_FOUND_NO_REPOST")
+            if (order.kind != "REGULAR"
+                    or order.symbol != draft.payload["symbol"]
+                    or order.side != draft.payload["side"]
+                    or not _rest_value_equals(
+                        order.request.get("quantity"),
+                        draft.payload["quantity"]["value"])):
+                raise M15ExecutionError("M15_ENTRY_RECOVERY_ORDER_MISMATCH")
+            # The executable tick grid comes only from the same M15 JWT,
+            # checked against the pinned MOEX N4 reference, not from a guess.
+            asset = self.api.asset_details(order.symbol)
+            params = self.api.asset_params(order.symbol)
+            contract = contract_from_moex_and_finam(
+                check_instrument(asset, params, order.symbol, self.account_id))
+            expected = ExpectedEntry(
+                account_id=self.account_id, order_id=order.order_id,
+                symbol=order.symbol, side=order.side,
+                quantity=int(draft.payload["quantity"]["value"]),
+                price_step=contract.price_step,
+            )
         trades = self.api.trades(
             self.account_id, start=start, end=end, limit=limit)
         return journal.reconcile_entry_broker_get(
