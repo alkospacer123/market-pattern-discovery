@@ -486,22 +486,23 @@ class M15OutboundJournal:
             symbol, direction, str(reference_entry), str(stop),
             sized.final_quantity, str(sized.initial_nominal_risk),
         )
-        # No window between ENTRY and basis commits can POST: this method
-        # contains no trading transport, and the outer static LIVE freeze
-        # plus separate release gate remain permanently closed at this SHA.
-        self.prepare(key=key, draft=draft)
+        # H1 atomicity: the planned ENTRY and broker-capital/R15 basis are
+        # ONE SQLite commit. No executor may observe a prepared entry that
+        # lacks its original GO, risk, timestamp and account identity proof.
         self.db.execute("BEGIN IMMEDIATE")
         try:
-            existing = self.db.execute(
-                "SELECT * FROM entry_r15_basis WHERE intent_key=?", (key,),
-            ).fetchone()
-            if existing is not None and existing != evidence:
-                raise M15ExecutionError("M15_ENTRY_R15_BASIS_CONFLICT")
-            if existing is None:
-                self.db.execute(
-                    "INSERT INTO entry_r15_basis VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
-                    evidence,
-                )
+            if self.db.execute("SELECT 1 FROM outbound LIMIT 1").fetchone():
+                raise M15ExecutionError(
+                    "M15_ENTRY_R15_EXISTING_INTENTS_REQUIRE_RECONCILIATION")
+            self.db.execute(
+                "INSERT INTO outbound VALUES(?,?,?,?,?,NULL)",
+                (key, draft.kind, draft.payload["symbol"],
+                 _digest(draft.payload), "PREPARED"),
+            )
+            self.db.execute(
+                "INSERT INTO entry_r15_basis VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+                evidence,
+            )
             self.db.execute("COMMIT")
         except Exception:
             if self.db.in_transaction:
