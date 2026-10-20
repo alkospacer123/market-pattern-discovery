@@ -2287,6 +2287,80 @@ class M15ExecutionStageTests(unittest.TestCase):
             self.assertEqual(self.j.db.execute(
                 "SELECT COUNT(*) FROM outbound").fetchone()[0], 2)
 
+    def test_one_shot_live_witness_exact_frozen_next_open_passes(self):
+        from IntradayLab.m15_robot.feature_adapter import (
+            M15Signal, M15VerifiedNextOpen,
+        )
+        from IntradayLab.m15_robot.live_execution import (
+            require_verified_one_shot_next_open,
+        )
+        at = datetime(2026, 10, 20, 11, 15, tzinfo=timezone.utc)
+        sig = M15Signal("m15:witness-test", "CNYRUBF", "LONG",
+                        at, 12.5, 0.1, at - timedelta(minutes=15), 12.4)
+        witness = M15VerifiedNextOpen(sig, Decimal("12.505"), at + timedelta(seconds=5))
+        require_verified_one_shot_next_open(
+            witness=witness, key=sig.signal_id, instrument="CNYRUBF",
+            reference_entry=Decimal("12.505"), signal_atr=Decimal("0.1"),
+            signal_closed_at=at, now=at + timedelta(seconds=7))
+
+    def test_one_shot_witness_rejects_different_id_reference_and_atr(self):
+        from IntradayLab.m15_robot.feature_adapter import (
+            M15Signal, M15VerifiedNextOpen,
+        )
+        from IntradayLab.m15_robot.live_execution import (
+            require_verified_one_shot_next_open,
+        )
+        at = datetime(2026, 10, 20, 11, 15, tzinfo=timezone.utc)
+        sig = M15Signal("m15:witness-test", "CNYRUBF", "LONG",
+                        at, 12.5, 0.1, at - timedelta(minutes=15), 12.4)
+        witness = M15VerifiedNextOpen(sig, Decimal("12.505"), at + timedelta(seconds=5))
+        base = dict(witness=witness, key=sig.signal_id, instrument="CNYRUBF",
+                    reference_entry=Decimal("12.505"), signal_atr=Decimal("0.1"),
+                    signal_closed_at=at, now=at + timedelta(seconds=7))
+        for changed in ({"key": "m15:other"},
+                        {"reference_entry": Decimal("12.510")},
+                        {"signal_atr": Decimal("0.2")},
+                        {"instrument": "GLDRUBF"},
+                        {"signal_closed_at": at - timedelta(minutes=15)}):
+            with self.subTest(changed=changed), self.assertRaisesRegex(
+                    M15PrePostRefused, "SIGNAL_R15_MISMATCH"):
+                require_verified_one_shot_next_open(**(base | changed))
+
+    def test_one_shot_witness_stale_or_future_fails_before_order(self):
+        from IntradayLab.m15_robot.feature_adapter import (
+            M15Signal, M15VerifiedNextOpen,
+        )
+        from IntradayLab.m15_robot.live_execution import (
+            require_verified_one_shot_next_open,
+        )
+        at = datetime(2026, 10, 20, 11, 15, tzinfo=timezone.utc)
+        sig = M15Signal("m15:witness-test", "CNYRUBF", "LONG",
+                        at, 12.5, 0.1, at - timedelta(minutes=15), 12.4)
+        kw = dict(key=sig.signal_id, instrument="CNYRUBF",
+                  reference_entry=Decimal("12.505"), signal_atr=Decimal("0.1"),
+                  signal_closed_at=at)
+        with self.assertRaisesRegex(M15PrePostRefused, "NEXT_OPEN_STALE"):
+            require_verified_one_shot_next_open(
+                **kw, witness=M15VerifiedNextOpen(sig, Decimal("12.505"), at),
+                now=at + timedelta(seconds=31))
+        with self.assertRaisesRegex(M15PrePostRefused, "SIGNAL_R15_MISMATCH"):
+            require_verified_one_shot_next_open(
+                **kw, witness=M15VerifiedNextOpen(
+                    sig, Decimal("12.505"), at + timedelta(seconds=20)),
+                now=at + timedelta(seconds=15))
+
+    def test_one_shot_witness_requires_typed_get_broker_proof(self):
+        from IntradayLab.m15_robot.live_execution import (
+            require_verified_one_shot_next_open,
+        )
+        with self.assertRaisesRegex(M15PrePostRefused, "WITNESS_INVALID"):
+            require_verified_one_shot_next_open(
+                witness=None, key=self.key, instrument="CNYRUBF",
+                reference_entry=Decimal("12.505"),
+                signal_atr=Decimal("0.1"),
+                signal_closed_at=datetime.now(timezone.utc),
+                now=datetime.now(timezone.utc))
+
     def test_restart_recovers_exact_entry_draft_without_reposting(self):
         self.j.prepare(key=self.key, draft=self.draft)
         self.j.begin_post_uncertain(key=self.key, draft=self.draft)

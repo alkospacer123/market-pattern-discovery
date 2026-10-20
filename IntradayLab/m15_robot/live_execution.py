@@ -1810,6 +1810,52 @@ class M15OutboundJournal:
         }
 
 
+def require_verified_one_shot_next_open(
+    *, witness: Any, key: str, instrument: str,
+    reference_entry: Decimal, signal_atr: Decimal,
+    signal_closed_at: datetime, now: datetime,
+) -> None:
+    """Exact frozen M15 signal witness -> original R15 draft before ANY POST.
+
+    Caller must produce the witness using latest_verified_finam_entry from
+    the *same trading JWT* as post-entry account/GO/schedule GETs. This
+    function rejects an injected close/ATR/OPEN, a stale next-open, and a
+    different deterministic signal key. It cannot authorize an order.
+    """
+    from .feature_adapter import M15VerifiedNextOpen, M15Signal
+    if (type(witness) is not M15VerifiedNextOpen
+            or type(witness.signal) is not M15Signal
+            or not isinstance(reference_entry, Decimal)
+            or not reference_entry.is_finite() or reference_entry <= 0
+            or not isinstance(signal_atr, Decimal)
+            or not signal_atr.is_finite() or signal_atr <= 0
+            or not all(
+                isinstance(x, datetime) and x.tzinfo is not None
+                and x.utcoffset() is not None
+                for x in (signal_closed_at, now, witness.observed_at,
+                          witness.signal.completed_at))):
+        raise M15PrePostRefused("M15_ONE_SHOT_NEXT_OPEN_WITNESS_INVALID")
+    sig = witness.signal
+    if (instrument not in INSTRUMENTS or sig.instrument != instrument
+            or sig.signal_id != key
+            or sig.direction not in {"LONG", "SHORT"}
+            or not isinstance(witness.reference_open, Decimal)
+            or witness.reference_open != reference_entry
+            or sig.completed_at.astimezone(timezone.utc)
+            != signal_closed_at.astimezone(timezone.utc)
+            or Decimal(str(sig.signal_atr14)) != signal_atr
+            or witness.observed_at.astimezone(timezone.utc)
+            > now.astimezone(timezone.utc)):
+        raise M15PrePostRefused("M15_ONE_SHOT_NEXT_OPEN_SIGNAL_R15_MISMATCH")
+    age = (now.astimezone(timezone.utc)
+           - signal_closed_at.astimezone(timezone.utc)).total_seconds()
+    if not 0 <= age <= 30:
+        raise M15PrePostRefused("M15_ONE_SHOT_NEXT_OPEN_STALE")
+    if (now.astimezone(timezone.utc)
+            - witness.observed_at.astimezone(timezone.utc)).total_seconds() > 30:
+        raise M15PrePostRefused("M15_ONE_SHOT_WITNESS_OBSERVATION_STALE")
+
+
 def require_m15_production_entry_gate(*, runtime_root: Path, accepted_commit: str,
                                       account_hash: str, now: datetime) -> None:
     """H1-style M15 ARMED and healthy reconciliation: fail closed, no arming.
@@ -1963,6 +2009,8 @@ class M15AuthorizedExecutionTransport:
     def submit_entry(
         self, *, journal: M15OutboundJournal, key: str, draft: M15Draft,
         signal_atr: Decimal, signal_closed_at: datetime,
+        authenticated_seed: Any, interval_start: str, interval_end: str,
+        verified_open_labels: bool = False,
     ) -> dict:
         """H1 pre-POST: exact trading-session broker GET + durable R15/GO recheck.
 
@@ -1988,6 +2036,34 @@ class M15AuthorizedExecutionTransport:
         require_m15_production_entry_gate(
             runtime_root=self.runtime_root, accepted_commit=self.accepted_commit,
             account_hash=self.account_hash, now=datetime.now(timezone.utc),
+        )
+        # Reconfirm the exact completed FINAM candle, true NEXT_OPEN price,
+        # frozen ATR and deterministic signal id in the SAME JWT session.
+        # Never accept caller-only timestamps or stale standalone witnesses.
+        from .feature_adapter import latest_verified_finam_entry
+        try:
+            witness = latest_verified_finam_entry(
+                api=self.api, m15_account_id=self.account_id,
+                instrument=symbol.split("@")[0],
+                authenticated_seed=authenticated_seed,
+                observed_at=datetime.now(timezone.utc),
+                interval_start=interval_start, interval_end=interval_end,
+                verified_open_labels=verified_open_labels,
+            )
+        except (ValueError, TypeError, ArithmeticError):
+            raise M15PrePostRefused(
+                "M15_ENTRY_LIVE_FINAM_NEXT_OPEN_SOURCE_INVALID") from None
+        price_row = journal.db.execute(
+            "SELECT reference_entry FROM entry_r15_basis WHERE intent_key=?",
+            (key,),
+        ).fetchone()
+        if price_row is None:
+            raise M15PrePostRefused("M15_ENTRY_LIVE_ORIGINAL_R15_MISSING")
+        require_verified_one_shot_next_open(
+            witness=witness, key=key, instrument=symbol.split("@")[0],
+            reference_entry=Decimal(price_row[0]),
+            signal_atr=signal_atr, signal_closed_at=signal_closed_at,
+            now=datetime.now(timezone.utc),
         )
         # These GETs use the SAME JWT-bound M15 trading session as POST.
         # No H1 import, account ID, token or runtime can be read from here.
