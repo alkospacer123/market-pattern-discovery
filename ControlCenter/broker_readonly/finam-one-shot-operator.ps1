@@ -68,7 +68,8 @@ try{
   write-output 'readonly_session=verified_true'
   write-output 'readonly_account_in_session=verified_true'
   write-output 'broker_account_identity=pass'
-  write-output ('broker_observed_at_utc='+[datetime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ'))
+  write-output ('broker_response_received_at_utc='+[datetime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ'))
+  write-output 'broker_original_snapshot_timestamp=not_supplied_by_api_response'
   foreach($n in @('USDRUBF','CNYRUBF','GLDRUBF','IMOEXF')){write-output ('broker_'+$n.ToLowerInvariant()+'_position_contracts='+$n4qty[$n])}
   write-output ('broker_other_nonzero_position_symbols='+$other)
   write-output ('broker_order_rows='+@($orders.orders).count)
