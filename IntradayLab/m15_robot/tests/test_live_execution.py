@@ -2152,6 +2152,141 @@ class M15ExecutionStageTests(unittest.TestCase):
             self.assertEqual(reconcile_m15_readonly_once(**kwargs), first)
         self.assertFalse(first["order_post_permitted"])
 
+
+    def trailing_cycle_inputs(self, *, high="12.6", low="12.4", atr="0.2"):
+        from IntradayLab.m15_robot.feature_adapter import M15VerifiedTrailBar
+        from IntradayLab.m15_robot.trailing_persistence import record_verified_trailing_state
+        owned = self.synthetic_owned_n4()
+        initial = TrailingState("CNYRUBF", "LONG", Decimal("12.500"),
+                                Decimal("12.300"), Decimal("12.500"))
+        record_verified_trailing_state(
+            journal=self.j, entry_key=owned["key"],
+            stop_key="m15:trade-1:stop:0", initial=initial,
+            account=owned["account"], orders_response=owned["orders_response"],
+            price_step=Decimal("0.001"))
+        when = datetime(2026, 10, 18, 8, 45, tzinfo=timezone.utc)
+        observed = when + timedelta(seconds=5)
+        event = M15VerifiedTrailBar(
+            "CNYRUBF", when, when - timedelta(minutes=15),
+            Decimal(high), Decimal(low), Decimal(atr), observed)
+        return owned, event, observed
+
+    def test_next_finam_trail_no_tightening_advances_only_on_active_get(self):
+        from IntradayLab.m15_robot.execution_cycle import prepare_next_verified_m15_trail
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        from IntradayLab.m15_robot.trailing_persistence import verified_broker_trailing_state
+        owned, event, now = self.trailing_cycle_inputs()
+        api = object.__new__(M15FinamReadOnlyAPI)
+        args = dict(journal=self.j, api=api, m15_account_id="M15-SYNTH",
+                    entry_key=owned["key"], drafts=owned["drafts"],
+                    authenticated_seed=None, interval_start="unused",
+                    interval_end="unused", observed_at=now,
+                    verified_open_labels=True)
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-SYNTH"),
+              patch.object(M15FinamReadOnlyAPI, "account",
+                           return_value=owned["account"]),
+              patch.object(M15FinamReadOnlyAPI, "orders",
+                           return_value=owned["orders_response"]),
+              patch.object(M15FinamReadOnlyAPI, "asset_details",
+                           return_value=owned["asset"]),
+              patch.object(M15FinamReadOnlyAPI, "asset_params",
+                           return_value=owned["asset_params"]),
+              patch("IntradayLab.m15_robot.feature_adapter.latest_verified_finam_trail_bar",
+                    return_value=event)):
+            result = prepare_next_verified_m15_trail(**args)
+            self.assertEqual(result["state"], "TRAIL_COMPLETED_HOLD_BROKER_CONFIRMED")
+            self.assertEqual(self.j.db.execute(
+                "SELECT COUNT(*) FROM outbound").fetchone()[0], 2)
+            self.j.close()
+            self.j = M15OutboundJournal(**self.args)
+            args["journal"] = self.j
+            confirmed = verified_broker_trailing_state(
+                journal=self.j, entry_key=owned["key"],
+                account=owned["account"],
+                orders_response=owned["orders_response"])
+            self.assertEqual(confirmed.active_stop, Decimal("12.300"))
+            self.assertEqual(confirmed.last_survived_m15_close,
+                             event.completed_at.isoformat())
+            self.assertEqual(prepare_next_verified_m15_trail(**args)["state"],
+                             "TRAIL_ALREADY_PROCESSED")
+
+    def test_next_finam_trail_tightening_persists_one_prepared_draft_only(self):
+        from IntradayLab.m15_robot.execution_cycle import (
+            prepare_next_verified_m15_trail, run_m15_readonly_recovery_once,
+        )
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        owned, event, now = self.trailing_cycle_inputs(high="13.5", atr="0.1")
+        api = object.__new__(M15FinamReadOnlyAPI)
+        inputs = dict(entry_key=owned["key"], drafts=owned["drafts"],
+                      authenticated_seed=None, interval_start="unused",
+                      interval_end="unused", verified_open_labels=True)
+        args = dict(runtime_root=self.args["runtime_root"], journal=self.j,
+                    api=api, m15_account_id="M15-SYNTH",
+                    observed_at=now, trailing_request=inputs)
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-SYNTH"),
+              patch.object(M15FinamReadOnlyAPI, "account",
+                           return_value=owned["account"]),
+              patch.object(M15FinamReadOnlyAPI, "orders",
+                           return_value=owned["orders_response"]),
+              patch.object(M15FinamReadOnlyAPI, "asset_details",
+                           return_value=owned["asset"]),
+              patch.object(M15FinamReadOnlyAPI, "asset_params",
+                           return_value=owned["asset_params"]),
+              patch("IntradayLab.m15_robot.feature_adapter.latest_verified_finam_trail_bar",
+                    return_value=event)):
+            first = run_m15_readonly_recovery_once(**args)
+            decision = first["events"][-1]
+            self.assertEqual(decision["state"], "TRAIL_REPLACE_PREPARED_NO_POST")
+            self.assertEqual(decision["confirmed_stop_unchanged"], "12.300")
+            self.assertEqual(self.j.inspect(decision["draft_key"])["state"], "PREPARED")
+            self.assertFalse(first["order_post_permitted"])
+            self.assertEqual(self.j.db.execute(
+                "SELECT COUNT(*) FROM outbound").fetchone()[0], 3)
+            self.j.close()
+            self.j = M15OutboundJournal(**self.args)
+            args["journal"] = self.j
+            second = run_m15_readonly_recovery_once(**args)
+            self.assertEqual(second["events"][-1], decision)
+            self.assertEqual(self.j.db.execute(
+                "SELECT COUNT(*) FROM outbound").fetchone()[0], 3)
+
+    def test_next_finam_trail_rejects_skipped_completed_bar(self):
+        from IntradayLab.m15_robot.execution_cycle import (
+            prepare_next_verified_m15_trail, M15ReadOnlyCycleError,
+        )
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        from IntradayLab.m15_robot.feature_adapter import M15VerifiedTrailBar
+        owned, event, now = self.trailing_cycle_inputs()
+        wrong = M15VerifiedTrailBar(
+            event.instrument, event.completed_at,
+            event.previous_completed_at - timedelta(minutes=15),
+            event.high, event.low, event.atr14, event.observed_at)
+        api = object.__new__(M15FinamReadOnlyAPI)
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-SYNTH"),
+              patch.object(M15FinamReadOnlyAPI, "account",
+                           return_value=owned["account"]),
+              patch.object(M15FinamReadOnlyAPI, "orders",
+                           return_value=owned["orders_response"]),
+              patch.object(M15FinamReadOnlyAPI, "asset_details",
+                           return_value=owned["asset"]),
+              patch.object(M15FinamReadOnlyAPI, "asset_params",
+                           return_value=owned["asset_params"]),
+              patch("IntradayLab.m15_robot.feature_adapter.latest_verified_finam_trail_bar",
+                    return_value=wrong)):
+            with self.assertRaisesRegex(M15ReadOnlyCycleError,
+                                        "FIRST_FULL_BAR_NOT_PROVEN"):
+                prepare_next_verified_m15_trail(
+                    journal=self.j, api=api, m15_account_id="M15-SYNTH",
+                    entry_key=owned["key"], drafts=owned["drafts"],
+                    authenticated_seed=None, interval_start="unused",
+                    interval_end="unused", observed_at=now,
+                    verified_open_labels=True)
+            self.assertEqual(self.j.db.execute(
+                "SELECT COUNT(*) FROM outbound").fetchone()[0], 2)
+
     def test_restart_recovers_exact_entry_draft_without_reposting(self):
         self.j.prepare(key=self.key, draft=self.draft)
         self.j.begin_post_uncertain(key=self.key, draft=self.draft)
