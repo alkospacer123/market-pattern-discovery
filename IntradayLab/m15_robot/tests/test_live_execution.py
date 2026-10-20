@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from datetime import datetime, timedelta, timezone
 from dataclasses import replace
 from decimal import Decimal
@@ -15,6 +16,7 @@ from IntradayLab.m15_robot.live_execution import (
     M15PrePostRefused, load_execution_authorization,
 )
 from IntradayLab.m15_robot.broker_fill_readonly import ExpectedEntry
+from IntradayLab.m15_robot.spec import ROBOT_ID
 from IntradayLab.m15_robot.cashflow_reconcile_gate import CashflowWindow
 from IntradayLab.m15_robot.grid_risk import ContractAuthority, TrailingState, size_r15
 from IntradayLab.m15_robot.protective_gate import BrokerProtection
@@ -1330,6 +1332,51 @@ class M15ExecutionStageTests(unittest.TestCase):
                 account_hash=self.j.account_hash,
             )
 
+
+
+    def test_m15_entry_requires_armed_fresh_reconciled_production_evidence(self):
+        from IntradayLab.m15_robot.live_execution import require_m15_production_entry_gate
+        now = datetime.now(timezone.utc)
+        args = dict(runtime_root=self.args["runtime_root"], accepted_commit="a"*40,
+                    account_hash=self.j.account_hash, now=now)
+        with self.assertRaisesRegex(M15PrePostRefused, "EVIDENCE_MISSING"):
+            require_m15_production_entry_gate(**args)
+        root = args["runtime_root"]
+        (root / "safety").mkdir(exist_ok=True)
+        (root / "diagnostics").mkdir(exist_ok=True)
+        sw_path = root / "safety" / "m15-trading-kill-switch.json"
+        hb_path = root / "diagnostics" / "m15-production-heartbeat.json"
+        sw = {"schema_id":"m15_trading_kill_switch.v1", "robot_id":ROBOT_ID,
+              "state":"HALTED", "generation":1,
+              "updated_utc":(now-timedelta(days=1)).isoformat()}
+        hb = {"schema_id":"m15_production_heartbeat.v1", "robot_id":ROBOT_ID,
+              "accepted_code_commit":args["accepted_commit"],
+              "account_hash":args["account_hash"], "reconciliation_status":"PASS",
+              "health_status":"HEALTHY", "cycle_count":1, "unresolved_intent_count":0,
+              "kill_switch_generation":1, "position_protection_verified":True,
+              "timestamp":now.isoformat(),
+              "last_successful_finam_api_contact":now.isoformat()}
+        sw_path.write_text(json.dumps(sw),encoding="utf-8")
+        hb_path.write_text(json.dumps(hb),encoding="utf-8")
+        with self.assertRaisesRegex(M15PrePostRefused, "NOT_ARMED"):
+            require_m15_production_entry_gate(**args)
+        sw["state"]="ARMED"
+        sw_path.write_text(json.dumps(sw),encoding="utf-8")
+        require_m15_production_entry_gate(**args)
+        hb["unresolved_intent_count"]=1
+        hb_path.write_text(json.dumps(hb),encoding="utf-8")
+        with self.assertRaisesRegex(M15PrePostRefused, "NOT_RECONCILED"):
+            require_m15_production_entry_gate(**args)
+        hb["unresolved_intent_count"]=0
+        hb["last_successful_finam_api_contact"]=(now-timedelta(minutes=2)).isoformat()
+        hb_path.write_text(json.dumps(hb),encoding="utf-8")
+        with self.assertRaisesRegex(M15PrePostRefused, "EVIDENCE_STALE"):
+            require_m15_production_entry_gate(**args)
+        hb["last_successful_finam_api_contact"]=now.isoformat()
+        hb["accepted_code_commit"]="b"*40
+        hb_path.write_text(json.dumps(hb),encoding="utf-8")
+        with self.assertRaisesRegex(M15PrePostRefused, "NOT_RECONCILED"):
+            require_m15_production_entry_gate(**args)
 
 if __name__ == "__main__":
     unittest.main()

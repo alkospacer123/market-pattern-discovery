@@ -1649,6 +1649,65 @@ class M15OutboundJournal:
         }
 
 
+def require_m15_production_entry_gate(*, runtime_root: Path, accepted_commit: str,
+                                      account_hash: str, now: datetime) -> None:
+    """H1-style M15 ARMED and healthy reconciliation: fail closed, no arming.
+
+    Only a production M15 producer can furnish this evidence. The offline
+    service heartbeat is explicitly insufficient to enable trading.
+    """
+    if not isinstance(now, datetime) or now.tzinfo is None or now.utcoffset() is None:
+        raise M15PrePostRefused("M15_ENTRY_RUNTIME_CLOCK_INVALID")
+    root = Path(runtime_root).resolve()
+    paths = (
+        (root / "safety" / "m15-trading-kill-switch.json", "m15_trading_kill_switch.v1"),
+        (root / "diagnostics" / "m15-production-heartbeat.json", "m15_production_heartbeat.v1"),
+    )
+    values = []
+    for path, schema in paths:
+        if path.is_symlink() or path.parent.is_symlink() or not path.is_file():
+            raise M15PrePostRefused("M15_ENTRY_RUNTIME_EVIDENCE_MISSING")
+        try:
+            if path.stat().st_size > 65536:
+                raise ValueError("oversized")
+            value = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, ValueError):
+            raise M15PrePostRefused("M15_ENTRY_RUNTIME_EVIDENCE_INVALID") from None
+        if not isinstance(value, dict) or value.get("schema_id") != schema:
+            raise M15PrePostRefused("M15_ENTRY_RUNTIME_SCHEMA_MISMATCH")
+        values.append(value)
+    switch, heartbeat = values
+    if (switch.get("robot_id") != ROBOT_ID or switch.get("state") != "ARMED"
+            or type(switch.get("generation")) is not int or switch["generation"] < 1):
+        raise M15PrePostRefused("M15_ENTRY_KILL_SWITCH_NOT_ARMED")
+    if (heartbeat.get("robot_id") != ROBOT_ID
+            or heartbeat.get("accepted_code_commit") != accepted_commit
+            or heartbeat.get("account_hash") != account_hash
+            or heartbeat.get("reconciliation_status") != "PASS"
+            or heartbeat.get("health_status") != "HEALTHY"
+            or type(heartbeat.get("cycle_count")) is not int
+            or heartbeat["cycle_count"] < 1
+            or type(heartbeat.get("unresolved_intent_count")) is not int
+            or heartbeat["unresolved_intent_count"] != 0
+            or heartbeat.get("kill_switch_generation") != switch["generation"]
+            or heartbeat.get("position_protection_verified") is not True):
+        raise M15PrePostRefused("M15_ENTRY_RUNTIME_NOT_RECONCILED")
+    for kind, raw in (("switch", switch.get("updated_utc")),
+                      ("heartbeat", heartbeat.get("timestamp")),
+                      ("finam", heartbeat.get("last_successful_finam_api_contact"))):
+        try:
+            when = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+            if when.tzinfo is None or when.utcoffset() is None:
+                raise ValueError("timezone")
+            age = (now.astimezone(timezone.utc) -
+                   when.astimezone(timezone.utc)).total_seconds()
+        except (TypeError, ValueError, AttributeError):
+            raise M15PrePostRefused("M15_ENTRY_RUNTIME_TIMESTAMP_INVALID") from None
+        # H1 behavior: ARMED persists; heartbeat and FINAM contact must be fresh.
+        if age < -5 or (kind != "switch" and age > 60):
+            raise M15PrePostRefused("M15_ENTRY_RUNTIME_EVIDENCE_STALE")
+
+
 class M15AuthorizedExecutionTransport:
     """H1-style FINAM order interface; absolutely inert until independent LIVE approval.
 
@@ -1765,6 +1824,10 @@ class M15AuthorizedExecutionTransport:
             raise M15ExecutionError("M15_ENTRY_JOURNAL_IDENTITY_MISMATCH")
         _valid_draft(draft, account_hash=self.account_hash, key=key)
         symbol = draft.payload["symbol"]
+        require_m15_production_entry_gate(
+            runtime_root=self.runtime_root, accepted_commit=self.accepted_commit,
+            account_hash=self.account_hash, now=datetime.now(timezone.utc),
+        )
         # These GETs use the SAME JWT-bound M15 trading session as POST.
         # No H1 import, account ID, token or runtime can be read from here.
         account = self.api.account(self.account_id)
