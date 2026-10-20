@@ -1,0 +1,11 @@
+{
+  "calendar": "Frozen H1 reports UTC, frozen M15 MSK; primary new calendar tables MSK",
+  "checks": 1645,
+  "fields_checked": 201606,
+  "first_errors": [],
+  "h1_closed": 418,
+  "m15_closed": 1114,
+  "mismatches": 0,
+  "precision": "H1 per-trade equality at original 12 significant figures; M15 1e-8 absolute; aggregate 1e-8",
+  "status": "PASS"
+}

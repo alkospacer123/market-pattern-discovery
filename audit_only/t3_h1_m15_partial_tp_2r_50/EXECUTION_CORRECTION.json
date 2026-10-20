@@ -1,0 +1,146 @@
+{
+  "status": "PRELIMINARY_OUTPUTS_SUPERSEDED_NOT_CERTIFYING",
+  "previous_code_commit": "577053eb51098dad4492dd1a80d301b470123b20",
+  "issue": "Crediting resting limit target outside observed candle range after favorable gap violates requested feasible-price audit",
+  "correction": "LONG max(Open,target), SHORT min(Open,target), still old Stop-first; unchanged threshold, fraction, strategy, signs/verdict criteria",
+  "outside_range_events": [
+    {
+      "system": "H1",
+      "lifecycle": "baseline",
+      "fold_id": "",
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-H1-GLDRUBF-000003",
+      "exit_bar_close": "2023-12-04T09:00:00+03:00"
+    },
+    {
+      "system": "H1",
+      "lifecycle": "baseline",
+      "fold_id": "",
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-H1-GLDRUBF-000035",
+      "exit_bar_close": "2024-10-30T10:00:00+03:00"
+    },
+    {
+      "system": "H1",
+      "lifecycle": "historical_true_oos",
+      "fold_id": "",
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-H1-GLDRUBF-000003",
+      "exit_bar_close": "2025-04-22T09:00:00+03:00"
+    },
+    {
+      "system": "H1",
+      "lifecycle": "historical_true_oos",
+      "fold_id": "",
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-H1-GLDRUBF-000006",
+      "exit_bar_close": "2025-09-01T09:00:00+03:00"
+    },
+    {
+      "system": "H1",
+      "lifecycle": "historical_true_oos",
+      "fold_id": "",
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-H1-GLDRUBF-000011",
+      "exit_bar_close": "2025-10-06T09:00:00+03:00"
+    },
+    {
+      "system": "H1",
+      "lifecycle": "historical_true_oos",
+      "fold_id": "",
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-H1-GLDRUBF-000024",
+      "exit_bar_close": "2026-01-29T09:00:00+03:00"
+    },
+    {
+      "system": "H1",
+      "lifecycle": "historical_true_oos",
+      "fold_id": "",
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-H1-GLDRUBF-000027",
+      "exit_bar_close": "2026-03-23T09:00:00+03:00"
+    },
+    {
+      "system": "H1",
+      "lifecycle": "historical_true_oos",
+      "fold_id": "",
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-H1-GLDRUBF-000032",
+      "exit_bar_close": "2026-06-10T09:00:00+03:00"
+    },
+    {
+      "system": "H1",
+      "lifecycle": "historical_true_oos",
+      "fold_id": "",
+      "instrument": "IMOEXF",
+      "trade_id": "T3-H1-IMOEXF-000008",
+      "exit_bar_close": "2025-07-14T09:00:00+03:00"
+    },
+    {
+      "system": "H1",
+      "lifecycle": "historical_true_oos",
+      "fold_id": "",
+      "instrument": "IMOEXF",
+      "trade_id": "T3-H1-IMOEXF-000029",
+      "exit_bar_close": "2026-03-09T09:00:00+03:00"
+    },
+    {
+      "system": "M15",
+      "lifecycle": "history_2023_2026",
+      "fold_id": "",
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-M15-GLDRUBF-000055",
+      "exit_bar_close": "2024-03-11T09:00:00+03:00"
+    },
+    {
+      "system": "M15",
+      "lifecycle": "history_2023_2026",
+      "fold_id": "",
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-M15-GLDRUBF-000216",
+      "exit_bar_close": "2026-03-23T09:00:00+03:00"
+    },
+    {
+      "system": "M15",
+      "lifecycle": "history_2023_2026",
+      "fold_id": "",
+      "instrument": "GLDRUBF",
+      "trade_id": "T3-M15-GLDRUBF-000240",
+      "exit_bar_close": "2026-06-10T09:00:00+03:00"
+    },
+    {
+      "system": "M15",
+      "lifecycle": "history_2023_2026",
+      "fold_id": "",
+      "instrument": "IMOEXF",
+      "trade_id": "T3-M15-IMOEXF-000046",
+      "exit_bar_close": "2024-05-20T09:00:00+03:00"
+    }
+  ],
+  "previous_output_sha256": {
+    "AUDIT.json": "9b406e959cdf5f0d1dba3f76d5e43d044faeb55d04783ca416ae64093ce0f687",
+    "CONTROL_GATE.json": "868e686bcd021e0642ab7b7b85138703d18f8e514b999dd41cf13a7168eba17e",
+    "CONTROL_RECONCILIATION.csv": "ba93632b1bd26e6fb2bfd5509fb48ad5ba976e13d166b602aca445b3b57caf53",
+    "EXPOSURE.csv": "843a0d1fd9cae3f5ead6ad2f9f8be2f42959b6a566ecb5a2573e1eb9c631bf55",
+    "H1_MARKS.csv.gz": "dd8228b618e23c0584cb2160d407fedf3d8462b921d3c4449ecfcf9be27c3e05",
+    "H1_MONTHLY.csv": "e334c3930937d5d365da19cd37c080f7e5f47d32b1f86ec4156004fe86e9f4f6",
+    "H1_SIGNALS.csv.gz": "fd91562bea559809973f01c41d6fe95a5466548dfc5a7c84ef21108c1ed6c6f4",
+    "H1_SUMMARY.csv": "dcacbffebfb372af1be8e53d2d93f43cb1c394de69510ba99570d1954cea97d0",
+    "H1_TRACE.csv.gz": "ed685ed7147f531426f52d75247c55b4bd169ca33329d94a03561954269148d4",
+    "H1_TRADES.csv": "cd92714738347c82ef6ace4bfb005ed952e287455a045429de606d37b043dbc5",
+    "M15_MARKS.csv.gz": "088f5b201fca20f707da58811530f791628b95f67a2bbd6060563659253b1575",
+    "M15_MONTHLY.csv": "a4b4ced333506ae02d869bd19376ee55f3709c6b807a5713c5ed2ec82a8a0263",
+    "M15_SIGNALS.csv.gz": "eb4f64a5b8acbff9a64fa62fb84d2ccb95bb49f50ae36ee2ed4819347cdeb9c6",
+    "M15_SUMMARY.csv": "82dd0eab8c627ec5d8a06a3c3564155861a09aeedac8f75b3c1552c145446a40",
+    "M15_TRACE.csv.gz": "1adaad61f364b09f3ec768942934734a0769328bedf7d4bfde888a3666fbdda2",
+    "M15_TRADES.csv": "92fcf548bc6885a072d6277c3344db49df0ac00966ae41d2454d604963057658",
+    "MONTH_SIGN_TRANSITIONS.csv": "fb0afc2d1ca0a4a0dfbbaa5e4f9139baaa7faab53f7a55b838225cdc7916ea50",
+    "OPEN_BOUNDARIES.csv": "441f651da9cbf8906aef6abe04d5289992095140a0e127482384b2c622cf2b75",
+    "PARTIAL_EXECUTION_FEASIBILITY.csv": "0b6a18454143b2951d95b12a8c828c0bf5890b27ca46b9508d7ef5dfb651b528",
+    "REPORT_RU.md": "9b9c3233c598a1c21c7ff3dc5371b380c8b9ee5e2c17a47bf12f4a9f090a4747",
+    "SOURCE_MANIFEST.json": "f8f1fb355b5571ab256cd7d7c921446269b7de432634bf5df0aeb90fa20e8d04",
+    "SYNTHETIC_TESTS.json": "412a9107ec5112f3d18551683e18e6f8908afe263b66e6013fa3b7cb4ed835ef",
+    "WINNER_GIVEBACK.csv": "e65b2a53655a06d241744d79bb2ad5240d44151f9bfb0e8868e9c3ee0c38a765"
+  },
+  "old_repeat_series": "Three old processes completed byte/SHA checks; superseded by subsequent feasible-price audit, not accepted as final certification or published"
+}
