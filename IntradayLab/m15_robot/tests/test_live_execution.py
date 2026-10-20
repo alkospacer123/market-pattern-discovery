@@ -1599,6 +1599,60 @@ class M15ExecutionStageTests(unittest.TestCase):
         self.assertEqual(self.j.db.execute(
             "SELECT COUNT(*) FROM protective_coverage").fetchone()[0], 0)
 
+
+    def test_restart_recovers_exact_entry_draft_without_reposting(self):
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        self.j.close()
+        self.j = M15OutboundJournal(**self.args)
+        recovered = self.j.recover_draft(self.key)
+        self.assertEqual(recovered, self.draft)
+        self.assertEqual(self.j.inspect(self.key)["state"], "UNCERTAIN")
+        self.assertFalse(recovered.submitted or recovered.live_authorized)
+        self.assertFalse(self.j.prepare(key=self.key, draft=recovered))
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM outbound").fetchone()[0], 1)
+
+    def test_restart_recovers_protective_draft_while_unknown(self):
+        key = "m15:stop:synthetic:1"
+        protective = self.stop(key)
+        self.j.prepare(key=key, draft=protective)
+        account, orders = self.protective_observation(
+            protective, include_new=False)
+        self.j.begin_protective_post_uncertain(
+            key=key, draft=protective, account=account,
+            orders_response=orders)
+        self.j.close()
+        self.j = M15OutboundJournal(**self.args)
+        recovered = self.j.recover_draft(key)
+        self.assertEqual(recovered, protective)
+        self.assertEqual(self.j.inspect(key)["state"], "UNCERTAIN")
+        self.assertFalse(self.j.prepare(key=key, draft=recovered))
+
+    def test_modified_or_missing_durable_draft_refused_after_restart(self):
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.db.execute(
+            "UPDATE outbound_drafts SET payload_json=? WHERE intent_key=?",
+            ('{"symbol":"CNYRUBF@RTSX"}', self.key))
+        with self.assertRaises(M15ExecutionError):
+            self.j.recover_draft(self.key)
+        self.j.db.execute(
+            "DELETE FROM outbound_drafts WHERE intent_key=?", (self.key,))
+        with self.assertRaisesRegex(M15ExecutionError, "DRAFT_MISSING"):
+            self.j.recover_draft(self.key)
+        with self.assertRaisesRegex(M15ExecutionError, "DRAFT_MISSING"):
+            self.j.prepare(key=self.key, draft=self.draft)
+        self.assertEqual(self.j.inspect(self.key)["state"], "PREPARED")
+
+    def test_r15_atomic_prepare_also_persists_exact_entry_payload(self):
+        args = self.r15_entry_inputs()
+        proposal, _ = self.j.prepare_entry_from_broker_r15(**args)
+        self.j.close()
+        self.j = M15OutboundJournal(**self.args)
+        self.assertEqual(self.j.recover_draft(args["key"]), proposal)
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM entry_r15_basis").fetchone()[0], 1)
+
     def test_verified_next_open_same_m15_account_prepares_atomic_r15(self):
         from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
         import pandas as pd

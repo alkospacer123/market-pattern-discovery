@@ -209,6 +209,11 @@ class M15OutboundJournal:
                     state TEXT NOT NULL CHECK(state IN ('PREPARED','UNCERTAIN','ACK')),
                     broker_order_sha256 TEXT
                 );
+                CREATE TABLE IF NOT EXISTS outbound_drafts (
+                    intent_key TEXT PRIMARY KEY REFERENCES outbound(intent_key),
+                    endpoint TEXT NOT NULL,
+                    payload_json TEXT NOT NULL
+                );
                 CREATE TABLE IF NOT EXISTS broker_fills (
                     trade_sha256 TEXT PRIMARY KEY,
                     intent_key TEXT NOT NULL REFERENCES outbound(intent_key),
@@ -266,12 +271,13 @@ class M15OutboundJournal:
             """)
             tables = {r[0] for r in self.db.execute(
                 "SELECT name FROM sqlite_master WHERE type='table'")}
-            if tables != {"metadata", "outbound", "broker_fills", "protective_prepost", "protective_coverage", "entry_r15_basis", "exit_prepost", "broker_flat", "flat_stop_cleanup"}:
+            if tables != {"metadata", "outbound", "outbound_drafts", "broker_fills", "protective_prepost", "protective_coverage", "entry_r15_basis", "exit_prepost", "broker_flat", "flat_stop_cleanup"}:
                 raise M15ExecutionError("M15_OUTBOUND_SCHEMA_TABLES_INVALID")
             expected = {
                 "metadata": ("key", "value"),
                 "outbound": ("intent_key", "kind", "symbol", "payload_sha256",
                              "state", "broker_order_sha256"),
+                "outbound_drafts": ("intent_key", "endpoint", "payload_json"),
                 "broker_fills": ("trade_sha256", "intent_key", "broker_order_sha256",
                                  "quantity", "price", "trade_timestamp"),
                 "protective_prepost": ("intent_key", "signed_position_quantity",
@@ -327,6 +333,45 @@ class M15OutboundJournal:
         return None if row is None else dict(zip(
             ("kind", "symbol", "payload_sha256", "state", "broker_order_sha256"), row))
 
+    def recover_draft(self, key: str) -> M15Draft:
+        """Restore original exact M15 order draft after restart, NEVER resend.
+
+        Legacy/missing rows or modified JSON fail closed. This method only
+        reconstructs data; POST/DELETE requires independent LIVE authorization.
+        """
+        row = self.inspect(key)
+        stored = self.db.execute(
+            "SELECT endpoint,payload_json FROM outbound_drafts WHERE intent_key=?",
+            (key,),
+        ).fetchone()
+        if row is None or stored is None:
+            raise M15ExecutionError("M15_OUTBOUND_RECOVERY_DRAFT_MISSING")
+        if (type(stored[1]) is not str or len(stored[1]) > 16384):
+            raise M15ExecutionError("M15_OUTBOUND_RECOVERY_DRAFT_INVALID")
+        try:
+            payload = json.loads(stored[1])
+        except (ValueError, TypeError):
+            raise M15ExecutionError("M15_OUTBOUND_RECOVERY_DRAFT_INVALID") from None
+        draft = M15Draft(row["kind"], self.account_hash, stored[0], payload)
+        _valid_draft(draft, account_hash=self.account_hash, key=key)
+        if (row["symbol"] != payload["symbol"]
+                or row["payload_sha256"] != _digest(payload)
+                or stored[1] != json.dumps(
+                    payload, sort_keys=True, separators=(",", ":"),
+                    ensure_ascii=False)):
+            raise M15ExecutionError("M15_OUTBOUND_RECOVERY_HASH_MISMATCH")
+        return draft
+
+    def _persist_draft(self, key: str, draft: M15Draft) -> None:
+        """Must be invoked inside the SAME existing outbound SQL transaction."""
+        payload_json = json.dumps(
+            draft.payload, sort_keys=True, separators=(",", ":"),
+            ensure_ascii=False)
+        self.db.execute(
+            "INSERT INTO outbound_drafts VALUES(?,?,?)",
+            (key, draft.endpoint, payload_json),
+        )
+
     def prepare(self, *, key: str, draft: M15Draft) -> bool:
         _valid_draft(draft, account_hash=self.account_hash, key=key)
         sha = _digest(draft.payload)
@@ -337,6 +382,11 @@ class M15OutboundJournal:
                 if (existing["kind"] != draft.kind or existing["symbol"] != draft.payload["symbol"]
                         or existing["payload_sha256"] != sha):
                     raise M15ExecutionError("M15_OUTBOUND_IDEMPOTENCY_CONFLICT")
+                # An existing intent without its original durable payload
+                # cannot be safely replayed after restart or operator action.
+                recovered = self.recover_draft(key)
+                if recovered.endpoint != draft.endpoint:
+                    raise M15ExecutionError("M15_OUTBOUND_RECOVERY_ENDPOINT_MISMATCH")
                 self.db.execute("COMMIT")
                 return False
             if draft.kind == "ENTRY":
@@ -370,6 +420,7 @@ class M15OutboundJournal:
                 "INSERT INTO outbound VALUES(?,?,?,?,?,NULL)",
                 (key, draft.kind, draft.payload["symbol"], sha, "PREPARED"),
             )
+            self._persist_draft(key, draft)
             self.db.execute("COMMIT")
             return True
         except Exception:
@@ -798,6 +849,7 @@ class M15OutboundJournal:
                 (key, draft.kind, draft.payload["symbol"],
                  _digest(draft.payload), "PREPARED"),
             )
+            self._persist_draft(key, draft)
             self.db.execute(
                 "INSERT INTO entry_r15_basis VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
                 evidence,
