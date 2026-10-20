@@ -7,6 +7,7 @@ from unittest.mock import patch
 from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
 from IntradayLab.m15_robot.step23_trade_jwt_get import (
     M15TradingJwtGetError, verify_m15_trade_jwt_broker_get,
+    safe_trade_jwt_failure,
 )
 from IntradayLab.m15_robot.tests.test_step23_readonly_preflight import (
     ACCOUNT, asset, params,
@@ -72,6 +73,17 @@ class TestM15TradeJWTGetOnly(TestCase):
         with scope, self.assertRaisesRegex(
             M15TradingJwtGetError, "BROKER_NOT_FLAT"):
             verify_m15_trade_jwt_broker_get(**self.kw)
+
+    def test_safe_diagnostics_never_print_raw_credentials(self):
+        self.assertEqual(safe_trade_jwt_failure(
+            M15TradingJwtGetError("M15_STEP23_TRADING_JWT_NO_FREE_GO")),
+            "M15_STEP23_TRADING_JWT_NO_FREE_GO")
+        self.assertEqual(safe_trade_jwt_failure(
+            M15TradingJwtGetError("secret=abc account=999")),
+            "M15_STEP23_TRADING_JWT_UNCLASSIFIED_FAILURE")
+        self.assertEqual(safe_trade_jwt_failure(
+            RuntimeError("password=123")),
+            "M15_STEP23_TRADING_JWT_UNEXPECTED_FAILURE")
 
     def test_halted_runtime_must_exist(self):
         (self.root / "state" / "kill-switch.json").unlink()

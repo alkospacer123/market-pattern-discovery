@@ -9,15 +9,20 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 import sys
+import re
 
-from .finam_readonly import M15FinamReadOnlyAPI
-from .broker_risk_readonly import check_account, check_instrument
+from .finam_readonly import M15FinamReadOnlyAPI, M15FinamReadOnlyError
+from .broker_risk_readonly import (
+    check_account, check_instrument, M15RiskAuthorityError,
+)
 from .broker_snapshot import order_views, position_quantities
 from .exchange_contract import contract_from_moex_and_finam
 from .finam_trading import M15_ORDER_POST_RELEASED
 from .spec import EXECUTION_STATUS, INSTRUMENTS
-from .step23_readonly_preflight import inspect_m15_halted_runtime
-from .step23_trading_token_scope import _gui_credentials, safe_failure_code
+from .step23_readonly_preflight import (
+    inspect_m15_halted_runtime, M15Step23PreflightError,
+)
+from .step23_trading_token_scope import _gui_credentials
 
 
 class M15TradingJwtGetError(RuntimeError):
@@ -75,6 +80,17 @@ def verify_m15_trade_jwt_broker_get(
     }
 
 
+def safe_trade_jwt_failure(exc: Exception) -> str:
+    """Only fixed local error names may reach the operator transcript."""
+    if not isinstance(exc, (M15TradingJwtGetError, M15FinamReadOnlyError,
+                            M15RiskAuthorityError, M15Step23PreflightError)):
+        return "M15_STEP23_TRADING_JWT_UNEXPECTED_FAILURE"
+    code = str(exc)
+    if len(code) <= 108 and re.fullmatch(r"M15_[A-Z][A-Z0-9_]*", code):
+        return code
+    return "M15_STEP23_TRADING_JWT_UNCLASSIFIED_FAILURE"
+
+
 def main() -> int:
     print("m15_step23_same_trading_jwt_get_only=yes", flush=True)
     print("m15_step23_no_order_no_task_no_h1_access=yes", flush=True)
@@ -102,7 +118,7 @@ def main() -> int:
         print("m15_step23_same_jwt_phase=" + phase, flush=True)
         # Local-only constant-code exceptions, no FINAM response or secrets.
         print("m15_step23_same_jwt_failure="
-              + safe_failure_code(exc), flush=True)
+              + safe_trade_jwt_failure(exc), flush=True)
         print("m15_step23_same_jwt_get=fail_closed", flush=True)
         print("m15_live_authorized=no", flush=True)
         return 1
