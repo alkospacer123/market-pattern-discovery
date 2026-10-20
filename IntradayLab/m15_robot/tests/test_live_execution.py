@@ -1284,6 +1284,31 @@ class M15ExecutionStageTests(unittest.TestCase):
                 kw, orders_response=self.broker_get(filled=0)["orders_response"]))
         self.assertEqual(self.j.inspect(data["key"])["state"], "PREPARED")
 
+    def test_h1_n4_second_prepared_entry_not_double_counted_prepost(self):
+        owned = self.synthetic_owned_n4()
+        candidate = self.usd_followup(owned)
+        draft, size = self.j.prepare_entry_from_broker_r15(**candidate)
+        self.assertEqual(size.final_quantity, 3)
+        now = candidate["now"]
+        session = {"sessions": [{
+            "type": "CORE_TRADING",
+            "interval": {
+                "start_time": (now - timedelta(hours=1)).isoformat(),
+                "end_time": (now + timedelta(hours=1)).isoformat(),
+            },
+        }]}
+        self.j.begin_entry_post_uncertain_checked(
+            key=candidate["key"], draft=draft, account=candidate["account"],
+            orders_response=candidate["orders_response"],
+            asset=candidate["asset"], asset_params=candidate["asset_params"],
+            schedule=session, signal_atr=candidate["signal_atr"],
+            signal_closed_at=now, now=now,
+        )
+        self.assertEqual(self.j.inspect(candidate["key"])["state"], "UNCERTAIN")
+        self.assertEqual(self.j.inspect(owned["key"])["state"], "ACK")
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM entry_r15_basis").fetchone()[0], 2)
+
     def test_h1_entry_prepost_rejects_repriced_atr_or_bad_session_format(self):
         data, kw = self.h1_entry_prepost_args()
         with self.assertRaisesRegex(M15ExecutionError, "2ATR_GRID_CHANGED"):
