@@ -2226,6 +2226,102 @@ class M15AuthorizedExecutionTransport:
             "live_acceptance_complete": False,
         }
 
+    def observe_one_shot_coverage_or_flat_once(
+        self, *, journal: M15OutboundJournal, entry_key: str,
+        stop_key: str, observed_at: datetime,
+        exit_key: str | None = None,
+    ) -> dict:
+        """Step #23 same-JWT broker state after STOP-first, no outbound order.
+
+        Existing broker position/SLTP/exit and durable fill/flat proofs are the
+        only authority. POST ACK, no-position after an uncertain ENTRY, and
+        HTTP DELETE ACK can never complete the real acceptance. Unexpected
+        positions or active orders on the one-shot account fail closed.
+        This method NEVER submits orders, cancels a stop, or arms M15.
+        """
+        self._require_connected()
+        from .finam_trading import M15FinamTradingAPI
+        if (type(self.api) is not M15FinamTradingAPI
+                or not isinstance(journal, M15OutboundJournal)
+                or journal.account_hash != self.account_hash
+                or journal.path.parent.parent.resolve()
+                != self.runtime_root.resolve()
+                or not isinstance(observed_at, datetime)
+                or observed_at.tzinfo is None
+                or observed_at.utcoffset() is None):
+            raise M15ExecutionError("M15_ONE_SHOT_FLAT_OBSERVER_IDENTITY_INVALID")
+        entry = journal.inspect(entry_key)
+        if (entry is None or entry["kind"] != "ENTRY"
+                or entry["state"] not in {"UNCERTAIN", "ACK"}):
+            raise M15ExecutionError("M15_ONE_SHOT_FLAT_ENTRY_NOT_DURABLE")
+        account = self.api.account(self.account_id)
+        response = self.api.orders(self.account_id)
+        if (not isinstance(account, dict)
+                or account.get("account_id") != self.account_id
+                or account.get("status") not in
+                {"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"}):
+            raise M15ExecutionError("M15_ONE_SHOT_FLAT_ACCOUNT_NOT_BOUND")
+        positions = position_quantities(account)
+        if any(symbol != entry["symbol"] for symbol in positions):
+            raise M15ExecutionError("M15_ONE_SHOT_FOREIGN_ACCOUNT_POSITION")
+        signed = positions.get(entry["symbol"], 0)
+        orders = order_views(response)
+        stop = journal.inspect(stop_key)
+        if signed:
+            if (stop is None or stop["state"] not in {"UNCERTAIN", "ACK"}
+                    or stop["kind"] not in
+                    {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}
+                    or stop["symbol"] != entry["symbol"]):
+                raise M15ExecutionError("M15_ONE_SHOT_POSITION_UNPROTECTED")
+            recovered = journal.recover_draft(stop_key)
+            proof = journal.reconcile_protective_broker_get(
+                key=stop_key, draft=recovered,
+                account=account, orders_response=response)
+            if (proof.active is not True or proof.percent != 100
+                    or proof.covered_quantity_at_ack != abs(signed)):
+                raise M15ExecutionError("M15_ONE_SHOT_STOP_COVERAGE_INCOMPLETE")
+            if any(x.active and x.symbol != entry["symbol"] for x in orders):
+                raise M15ExecutionError("M15_ONE_SHOT_FOREIGN_ACTIVE_ORDER")
+            return {
+                "status": "BROKER_OPEN_STOP_100_PERCENT_CONFIRMED",
+                "broker_position_open": True,
+                "active_sltp_cleanup_required": False,
+                "durable_flat": False,
+                "new_entries_authorized": False,
+                "real_acceptance_complete": False,
+            }
+        # No signed position is insufficient evidence of a closed trade:
+        # an UNKNOWN ENTRY may never have filled in the first place.
+        if stop is None or stop["state"] != "ACK":
+            raise M15ExecutionError("M15_ONE_SHOT_FLAT_NO_ACKED_STOP")
+        if any(x.active for x in orders if x.symbol != entry["symbol"]):
+            raise M15ExecutionError("M15_ONE_SHOT_FLAT_FOREIGN_ACTIVE_ORDER")
+        result = journal.observe_flat_broker_get(
+            entry_key=entry_key, stop_key=stop_key,
+            exit_key=exit_key, account=account,
+            orders_response=response, observed_at=observed_at)
+        if result["active_sltp_cleanup_required"]:
+            return {
+                "status": "BROKER_FLAT_ORPHAN_SLTP_CLEANUP_REQUIRED",
+                "broker_position_open": False,
+                "active_sltp_cleanup_required": True,
+                "durable_flat": False,
+                "new_entries_authorized": False,
+                "real_acceptance_complete": False,
+            }
+        if result["durable_closed"] is not True:
+            raise M15ExecutionError("M15_ONE_SHOT_FLAT_NOT_DURABLE")
+        # A separate accepted final operator checkpoint must also reconcile
+        # commissions, all intents, and the exact active-account state.
+        return {
+            "status": "BROKER_FLAT_STOP_CLEANUP_RECONCILED",
+            "broker_position_open": False,
+            "active_sltp_cleanup_required": False,
+            "durable_flat": True,
+            "new_entries_authorized": False,
+            "real_acceptance_complete": False,
+        }
+
     def reconcile_entry_from_finam(
         self, *, journal: M15OutboundJournal, key: str, draft: M15Draft,
         expected: ExpectedEntry | None, stop_trade_tag: str,

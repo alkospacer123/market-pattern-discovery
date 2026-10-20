@@ -2505,6 +2505,102 @@ class M15ExecutionStageTests(unittest.TestCase):
         self.assertFalse(outcome["live_acceptance_complete"])
         self.assertFalse(outcome["new_entries_authorized"])
 
+    def one_shot_flat_controller(self, owned):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        controller = object.__new__(M15AuthorizedExecutionTransport)
+        controller.api = object.__new__(M15FinamTradingAPI)
+        controller.account_id = "M15-SYNTH"
+        controller.account_hash = self.j.account_hash
+        controller.runtime_root = self.args["runtime_root"]
+        controller._require_connected = lambda: None
+        return controller
+
+    def test_one_shot_same_jwt_open_position_requires_exact_100pct_stop(self):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        owned=self.synthetic_owned_n4()
+        controller=self.one_shot_flat_controller(owned)
+        with (patch.object(M15FinamTradingAPI, "account",
+                           return_value=owned["account"]),
+              patch.object(M15FinamTradingAPI, "orders",
+                           return_value=owned["orders_response"])):
+            result=controller.observe_one_shot_coverage_or_flat_once(
+                journal=self.j, entry_key=owned["key"],
+                stop_key="m15:trade-1:stop:0",
+                observed_at=datetime(2026,10,20,12,tzinfo=timezone.utc))
+        self.assertEqual(result["status"],
+                         "BROKER_OPEN_STOP_100_PERCENT_CONFIRMED")
+        self.assertTrue(result["broker_position_open"])
+        self.assertFalse(result["real_acceptance_complete"])
+
+    def test_one_shot_same_jwt_stop_executed_flat_durable(self):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        owned=self.synthetic_owned_n4()
+        controller=self.one_shot_flat_controller(owned)
+        flat=dict(owned["account"],positions=[])
+        orders=[dict(x) for x in owned["orders_response"]["orders"]]
+        orders[-1]["status"]="ORDER_STATUS_SL_EXECUTED"
+        with (patch.object(M15FinamTradingAPI,"account",return_value=flat),
+              patch.object(M15FinamTradingAPI,"orders",
+                           return_value={"orders":orders})):
+            result=controller.observe_one_shot_coverage_or_flat_once(
+                journal=self.j,entry_key=owned["key"],
+                stop_key="m15:trade-1:stop:0",
+                observed_at=datetime(2026,10,20,12,tzinfo=timezone.utc))
+        self.assertTrue(result["durable_flat"])
+        self.assertFalse(result["real_acceptance_complete"])
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM broker_flat").fetchone()[0],1)
+
+    def test_one_shot_same_jwt_flat_with_active_stop_requires_cleanup(self):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        owned=self.synthetic_owned_n4()
+        controller=self.one_shot_flat_controller(owned)
+        flat=dict(owned["account"],positions=[])
+        with (patch.object(M15FinamTradingAPI,"account",return_value=flat),
+              patch.object(M15FinamTradingAPI,"orders",
+                           return_value=owned["orders_response"])):
+            result=controller.observe_one_shot_coverage_or_flat_once(
+                journal=self.j,entry_key=owned["key"],
+                stop_key="m15:trade-1:stop:0",
+                observed_at=datetime(2026,10,20,12,tzinfo=timezone.utc))
+        self.assertTrue(result["active_sltp_cleanup_required"])
+        self.assertFalse(result["durable_flat"])
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM broker_flat").fetchone()[0],0)
+
+    def test_one_shot_same_jwt_no_stop_no_false_flat(self):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        self.j.prepare(key=self.key,draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key,draft=self.draft)
+        controller=self.one_shot_flat_controller(None)
+        with (patch.object(M15FinamTradingAPI,"account",return_value={
+                    "account_id":"M15-SYNTH","status":"ACCOUNT_ACTIVE",
+                    "positions":[]}),
+              patch.object(M15FinamTradingAPI,"orders",
+                           return_value={"orders":[]}),
+              self.assertRaisesRegex(M15ExecutionError,"FLAT_NO_ACKED_STOP")):
+            controller.observe_one_shot_coverage_or_flat_once(
+                journal=self.j,entry_key=self.key,
+                stop_key="m15:missing:stop",
+                observed_at=datetime(2026,10,20,12,tzinfo=timezone.utc))
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM broker_flat").fetchone()[0],0)
+
+    def test_one_shot_same_jwt_foreign_position_refuses(self):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        owned=self.synthetic_owned_n4()
+        controller=self.one_shot_flat_controller(owned)
+        foreign=dict(owned["account"],positions=[
+            {"symbol":"GLDRUBF@RTSX","quantity":{"value":"1"}}])
+        with (patch.object(M15FinamTradingAPI,"account",return_value=foreign),
+              patch.object(M15FinamTradingAPI,"orders",
+                           return_value=owned["orders_response"]),
+              self.assertRaisesRegex(M15ExecutionError,"FOREIGN_ACCOUNT_POSITION")):
+            controller.observe_one_shot_coverage_or_flat_once(
+                journal=self.j,entry_key=owned["key"],
+                stop_key="m15:trade-1:stop:0",
+                observed_at=datetime(2026,10,20,12,tzinfo=timezone.utc))
+
     def test_restart_recovers_exact_entry_draft_without_reposting(self):
         self.j.prepare(key=self.key, draft=self.draft)
         self.j.begin_post_uncertain(key=self.key, draft=self.draft)
