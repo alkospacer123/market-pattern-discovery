@@ -408,6 +408,13 @@ class M15OutboundJournal:
             if positions or any(o.active for o in orders):
                 raise M15ExecutionError("M15_N4_UNOWNED_BROKER_POSITION_OR_ORDER")
             return Decimal("0"), set()
+        # New attempts must wait until every unrelated initial/protective
+        # intent is either fully reconciled or independently reviewed.
+        if any(r[1] != "ENTRY" and r[3] != "ACK" for r in all_rows):
+            raise M15ExecutionError("M15_N4_UNRESOLVED_PROTECTIVE_OR_EXIT_INTENT")
+        if any(r[1] not in {"ENTRY","PROTECTIVE_STOP_INSTALL",
+                             "PROTECTIVE_STOP_REPLACE"} for r in all_rows):
+            raise M15ExecutionError("M15_N4_UNRECONCILED_EXIT_INTENT")
         entries = [r for r in all_rows if r[1] == "ENTRY"]
         if (not entries or len(entries) > len(INSTRUMENTS)
                 or any(r[3] != "ACK" or not r[4] for r in entries)
