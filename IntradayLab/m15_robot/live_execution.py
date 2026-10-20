@@ -747,7 +747,7 @@ class M15OutboundJournal:
                      != entry["broker_order_sha256"])):
             raise M15ExecutionError("M15_EXIT_ENTRY_ORDER_IDENTITY_MISMATCH")
         coverage = self.db.execute(
-            "SELECT broker_stop_sha256,covered_quantity_at_ack "
+            "SELECT broker_stop_sha256,covered_quantity_at_ack,stop_price "
             "FROM protective_coverage WHERE intent_key=?", (stop_key,),
         ).fetchone()
         if (coverage is None or coverage[0] != stop["broker_order_sha256"]
@@ -764,7 +764,12 @@ class M15OutboundJournal:
                 "m15" + hashlib.sha256(stop_key.encode()).hexdigest()[:17]
                 or matched_stop[0].comment != stop_key
                 or matched_stop[0].side !=
-                ("SIDE_SELL" if fill_row[0] == "LONG" else "SIDE_BUY")):
+                ("SIDE_SELL" if fill_row[0] == "LONG" else "SIDE_BUY")
+                or not _rest_value_equals(matched_stop[0].request.get("quantity_sl"), "100")
+                or matched_stop[0].request.get("sl_qty_measure") !=
+                "SLTP_QTY_MEASURE_PERCENT"
+                or not _rest_value_equals(matched_stop[0].request.get("sl_price"),
+                                          coverage[2])):
             raise M15ExecutionError("M15_EXIT_STOP_OWNERSHIP_MISMATCH")
         if require_open:
             planned = fill_qty if fill_row[0] == "LONG" else -fill_qty
