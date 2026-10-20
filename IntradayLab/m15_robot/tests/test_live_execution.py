@@ -665,11 +665,37 @@ class M15ExecutionStageTests(unittest.TestCase):
         self.assertEqual(proof.covered_quantity_at_ack, 1)
         self.assertEqual(self.j.inspect(new_key)["state"], "ACK")
         _, without_old = self.protective_observation(new)
+        # After the first ACK with BOTH broker stops present, removing the
+        # old backstop is expected; the new one is the sole active protection.
+        again = self.j.reconcile_protective_broker_get(
+            key=new_key, draft=new, account=account,
+            orders_response=without_old)
+        self.assertEqual(again, proof)
+
+
+    def test_replacement_without_old_before_broker_ack_is_refused(self):
+        old_key = "m15:stop:synthetic:1"
+        old = self.stop(old_key)
+        new_key = "m15:trail:synthetic:before-ack"
+        current = self.stop(new_key)
+        draft = M15Draft(
+            "PROTECTIVE_STOP_REPLACE", current.account_fingerprint,
+            current.endpoint, {**current.payload,
+                               "sl_price": {"value": "12.500"}},
+        )
+        self.j.prepare(key=new_key, draft=draft)
+        account, prior = self.protective_observation(
+            draft, include_new=False, old_stop=old)
+        self.j.begin_protective_post_uncertain(
+            key=new_key, draft=draft, account=account,
+            orders_response=prior,
+            prior_active_broker_stop_id="broker-old-stop")
+        _, missing_old = self.protective_observation(draft)
         with self.assertRaisesRegex(M15ExecutionError, "OLD_BACKSTOP_MISSING"):
             self.j.reconcile_protective_broker_get(
-                key=new_key, draft=new, account=account,
-                orders_response=without_old)
-
+                key=new_key, draft=draft, account=account,
+                orders_response=missing_old)
+        self.assertEqual(self.j.inspect(new_key)["state"], "UNCERTAIN")
 
     def r15_entry_inputs(self):
         """Synthetic separate M15 FINAM equity/GO/transaction & frozen T1 risk."""

@@ -1421,9 +1421,26 @@ class M15OutboundJournal:
             if other or prepost[1] is not None:
                 raise M15ExecutionError("M15_PROTECTIVE_ACK_DUPLICATE_ACTIVE_STOP")
         else:
-            if (len(other) != 1 or prepost[1] is None
-                    or hashlib.sha256(other[0].order_id.encode()).hexdigest()
-                    != prepost[1]):
+            if prepost[1] is None:
+                raise M15ExecutionError("M15_PROTECTIVE_ACK_OLD_BACKSTOP_MISSING")
+            existing_row = self.inspect(key)
+            confirmed = self.db.execute(
+                "SELECT broker_stop_sha256,covered_quantity_at_ack,stop_price "
+                "FROM protective_coverage WHERE intent_key=?", (key,),
+            ).fetchone()
+            if len(other) == 1:
+                if hashlib.sha256(other[0].order_id.encode()).hexdigest() != prepost[1]:
+                    raise M15ExecutionError("M15_PROTECTIVE_ACK_OLD_BACKSTOP_MISSING")
+            elif not (
+                len(other) == 0 and existing_row is not None
+                and existing_row["state"] == "ACK"
+                and confirmed is not None
+                and confirmed[0] == hashlib.sha256(stop.order_id.encode()).hexdigest()
+                and confirmed[1] == abs(signed)
+                and Decimal(confirmed[2]) == Decimal(draft.payload["sl_price"]["value"])
+            ):
+                # The old broker stop may disappear only AFTER an earlier
+                # independently proven ACK with both the new and old active.
                 raise M15ExecutionError("M15_PROTECTIVE_ACK_OLD_BACKSTOP_MISSING")
         if (stop.side != draft.payload["side"]
                 or not _rest_value_equals(stop.request.get("quantity_sl"), "100")

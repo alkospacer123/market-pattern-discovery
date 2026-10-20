@@ -175,6 +175,25 @@ def reconcile_m15_readonly_once(
         # Never print broker IDs, user accounts or raw REST bodies.
         events.append({"kind": kind, "state": stage, "symbol": symbol})
 
+    # Durable 3.5 ATR state is admitted only when current FINAM GET still
+    # proves the exact sole active 100% SLTP for the bound M15 position.
+    # No candle extremum, stop change or watermark is invented here.
+    from .trailing_persistence import verified_broker_trailing_state
+    if observed_at is not None:
+        for entry_key, kind, symbol, state, _ in items:
+            if kind != "ENTRY" or positions.get(symbol, 0) == 0:
+                continue
+            confirmed = verified_broker_trailing_state(
+                journal=journal, entry_key=entry_key,
+                account=account, orders_response=orders_response)
+            if confirmed is not None:
+                events.append({
+                    "kind": "TRAIL",
+                    "state": "TRAIL_CONFIRMED_BROKER_STOP_UNCHANGED",
+                    "symbol": symbol,
+                    "last_completed": confirmed.last_survived_m15_close,
+                })
+
     # Existing H1-derived FLAT/cleanup gate is authoritative. No synthetic
     # zero-position assumption can release a durable entry or its R15.
     # Only ENTRY ACK plus independently stored real fills + exactly one
