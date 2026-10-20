@@ -152,6 +152,11 @@ def reconcile_m15_readonly_once(
                 stage = "STOP_PREPARED_NOT_SENT"
             elif order is None or not order.active:
                 stage = "STOP_NOT_ACTIVE_NO_REPOST"
+            elif positions.get(symbol, 0) == 0:
+                # FINAM still lists a live stop after position became FLAT.
+                # Existing flat/cleanup authority handles that orphan. Never
+                # claim coverage of zero contracts or cancel without approval.
+                stage = "STOP_ORPHAN_ACTIVE_AFTER_FLAT"
             else:
                 proof = journal.reconcile_protective_broker_get(
                     key=key, draft=draft, account=account,
