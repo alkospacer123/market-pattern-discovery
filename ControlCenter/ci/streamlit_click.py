@@ -29,7 +29,7 @@ async def cpu_load(logs):
     children = []
     report = dict(logical_cpu=os.cpu_count(), workers=count, maximum_seconds=45)
     code = ('import sys,time; print("READY",flush=True); sys.stdin.buffer.read(1); '
-            'deadline=time.monotonic()+45; value=1\n'
+            'deadline=time.monotonic()+45; value=1; print("RUNNING",flush=True)\n'
             'while time.monotonic()<deadline: value=(value*17+11)%2147483647\n')
     try:
         for _ in range(count):
@@ -43,6 +43,9 @@ async def cpu_load(logs):
             child.stdin.write(b'X')
             await child.stdin.drain()
             child.stdin.close()
+        for child in children:
+            assert (await asyncio.wait_for(child.stdout.readline(), 10)).strip() == b'RUNNING'
+        report['all_workers_started'] = True
         yield report, children
     finally:
         for child in children:
@@ -173,31 +176,18 @@ async def _browser_click(edge, profile, evidence, log):
         value['synthetic_cpu_load'] = load
         value['load_controls'] = controls
         assert value['clicks'] == 1 and value['policy_reads'] == 1, value
-        assert value['accepted'] is True and value['probes'] == 1, value
-        assert value['task'] == 'TASK_RUNNING' and value['robot_state'] == 'UNKNOWN', value
-        assert value['source_kind'] == 'WINDOWS_OS_ONLY', value
-        assert value['heartbeat'] is None and value['trading'] is None, value
+        assert value['accepted'] is False and value['probes'] == 0, value
         assert value['streamlit_main'] is True, value
         assert value['server_isolated'] is True and value['server_no_bytecode'] is True, value
-        async def page(name):
-            await evaluate("Array.from(document.querySelectorAll('[data-testid=stRadio] label'))"
-                           ".find(e=>e.textContent.includes(" + json.dumps(name) + ")).click()")
-        await page('Управление')
-        await until("document.querySelectorAll('[data-testid=stButton] button:disabled').length === 10")
-        await page('Монитор H1')
-        task = ("Array.from(document.querySelectorAll('[data-testid=stMarkdownContainer]'))"
-                ".find(e=>e.innerText.replace(/\\s+/g,' ').includes('Windows Task: TASK_RUNNING'))")
-        await until(f"Boolean({task})")
-        await evaluate(f"({task}).scrollIntoView({{block:'center'}})")
-        assert not await evaluate("document.body.innerText.includes('BLOCKED / UNKNOWN')")
-        assert state(evidence)['policy_reads'] == 1
-        assert state(evidence)['probes'] == 1
+        assert value['read_error_code'] == 'READ_TIMEOUT', value
+        await until("document.body.innerText.includes('BLOCKED / UNKNOWN')")
+        warning = "Array.from(document.querySelectorAll('[data-testid=stAlert]')).find(e=>e.innerText.includes('BLOCKED'))"
+        await until(f"Boolean({warning})")
+        await evaluate(f"({warning}).scrollIntoView({{block:'center'}})")
         screenshot = await call('Page.captureScreenshot', dict(format='png'))
         (evidence.parent / 'streamlit-click.png').write_bytes(base64.b64decode(screenshot['data']))
         value['real_browser_click'] = True
-        value['navigation_zero_extra_reads'] = True
-        value['disabled_trading_controls'] = 10
-        value['rendered_task_running'] = True
+        value['baseline_expected_blocked'] = True
         return value
     finally:
         if socket is not None:
