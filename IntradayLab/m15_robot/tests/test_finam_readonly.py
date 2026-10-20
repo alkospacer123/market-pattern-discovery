@@ -436,3 +436,60 @@ class ReadOnlyTransport(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class M15TradingGetOnlyTransportTests(unittest.TestCase):
+    def test_exact_trading_jwt_get_only_never_grants_readonly_bound(self):
+        fake = FakeTransport(readonly=False)
+        api = adapter(fake)
+        api.connect_trading_get_only()
+        self.assertFalse(api.readonly_bound)
+        self.assertTrue(api.trading_get_only_bound)
+        self.assertEqual(api.account("M15-ACCOUNT")["account_id"], "M15-ACCOUNT")
+        self.assertEqual(api.orders("M15-ACCOUNT"), {"orders": []})
+        self.assertEqual([p for _, p, _, _ in fake.calls],
+            ["/v1/sessions", "/v1/sessions/details",
+             "/v1/accounts/M15-ACCOUNT", "/v1/accounts/M15-ACCOUNT/orders"])
+
+    def test_readonly_token_must_not_bind_trading_observer(self):
+        api = adapter(FakeTransport(readonly=True))
+        with self.assertRaisesRegex(
+            M15FinamReadOnlyError, "TRADING_GET_ONLY_TOKEN_NOT_TRADING"):
+            api.connect_trading_get_only()
+        self.assertFalse(api.trading_get_only_bound)
+        self.assertFalse(api.readonly_bound)
+        with self.assertRaisesRegex(
+            M15FinamReadOnlyError, "ACCOUNT_BINDING_REQUIRED"):
+            api.account("M15-ACCOUNT")
+
+    def test_multi_account_trading_token_refused(self):
+        api = adapter(FakeTransport(readonly=False, accounts=[
+            "M15-ACCOUNT", "FOREIGN"]))
+        with self.assertRaisesRegex(
+            M15FinamReadOnlyError, "NOT_EXACT_SINGLE_ACCOUNT"):
+            api.connect_trading_get_only()
+        self.assertFalse(api.trading_get_only_bound)
+
+    def test_get_only_trading_token_never_has_order_route(self):
+        fake = FakeTransport(readonly=False)
+        api = adapter(fake)
+        api.connect_trading_get_only()
+        self.assertFalse(hasattr(api, "place_order"))
+        self.assertFalse(hasattr(api, "cancel_order"))
+        self.assertFalse(hasattr(api, "place_sltp_order"))
+        with self.assertRaisesRegex(
+            M15FinamReadOnlyError, "FORBIDDEN_HTTP_OPERATION"):
+            api._request("POST", "/v1/accounts/M15-ACCOUNT/orders",
+                         {"symbol": "CNYRUBF@RTSX"})
+        with self.assertRaisesRegex(
+            M15FinamReadOnlyError, "FORBIDDEN_HTTP_OPERATION"):
+            api._request("DELETE", "/v1/accounts/M15-ACCOUNT/orders/test")
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_no_switching_bound_trading_scope_into_readonly_session(self):
+        api = adapter(FakeTransport(readonly=False))
+        api.connect_trading_get_only()
+        with self.assertRaisesRegex(
+            M15FinamReadOnlyError, "SESSION_ALREADY_BOUND"):
+            api.connect_readonly()
+        self.assertFalse(api.readonly_bound)

@@ -106,6 +106,7 @@ class M15FinamReadOnlyAPI:
         self.__jwt: str | None = None
         self.__account = account_id
         self.__bound = False
+        self.__trading_get_only_bound = False
         self._transport = transport or urlopen
         self._timeout = float(timeout)
         self._sleeper = sleeper
@@ -120,6 +121,11 @@ class M15FinamReadOnlyAPI:
     @property
     def readonly_bound(self) -> bool:
         return self.__bound
+
+    @property
+    def trading_get_only_bound(self) -> bool:
+        """Trading JWT accepted for GETs; this class has NO order route."""
+        return self.__trading_get_only_bound
 
     def _request(self, method: str, path: str, payload: dict | None = None) -> Any:
         allowed_auth = method == "POST" and path in ("/v1/sessions", "/v1/sessions/details")
@@ -140,7 +146,7 @@ class M15FinamReadOnlyAPI:
             raise M15FinamReadOnlyError("M15_FORBIDDEN_HTTP_OPERATION")
         if allowed_get and payload is not None:
             raise M15FinamReadOnlyError("M15_READONLY_GET_WITH_BODY_FORBIDDEN")
-        if allowed_get and not self.__bound:
+        if allowed_get and not (self.__bound or self.__trading_get_only_bound):
             raise M15FinamReadOnlyError("M15_READONLY_ACCOUNT_BINDING_REQUIRED")
         data = json.dumps(payload, separators=(",", ":")).encode() if payload is not None else None
         headers = {"Accept": "application/json", "Content-Type": "application/json"}
@@ -171,7 +177,7 @@ class M15FinamReadOnlyAPI:
 
     def connect_readonly(self) -> None:
         """Official session auth; refuse trading-capable or multi-account binding."""
-        if self.__bound:
+        if self.__bound or self.__trading_get_only_bound:
             raise M15FinamReadOnlyError("M15_SESSION_ALREADY_BOUND")
         auth = self._request("POST", "/v1/sessions", {"secret": self.__secret})
         if not isinstance(auth, dict) or not isinstance(auth.get("token"), str) or not auth["token"]:
@@ -199,6 +205,35 @@ class M15FinamReadOnlyAPI:
             self.__jwt = None
             raise M15FinamReadOnlyError(reason)
         self.__bound = True
+
+    def connect_trading_get_only(self) -> None:
+        """Exact single M15 trading JWT for broker GET checks, NO order routes.
+
+        Keep readonly_bound=False to preserve the existing READONLY token
+        invariant. This narrowly scoped observer CANNOT place, replace or
+        cancel an order, even with an otherwise trading-capable API secret.
+        """
+        if self.__bound or self.__trading_get_only_bound:
+            raise M15FinamReadOnlyError("M15_SESSION_ALREADY_BOUND")
+        auth = self._request("POST", "/v1/sessions", {"secret": self.__secret})
+        if (not isinstance(auth, dict)
+                or not isinstance(auth.get("token"), str)
+                or not auth["token"]):
+            raise M15FinamReadOnlyError("M15_SESSION_TOKEN_INVALID")
+        self.__jwt = auth["token"]
+        try:
+            details = self._request(
+                "POST", "/v1/sessions/details", {"token": self.__jwt})
+            if not isinstance(details, dict) or details.get("readonly") is not False:
+                raise M15FinamReadOnlyError(
+                    "M15_TRADING_GET_ONLY_TOKEN_NOT_TRADING")
+            if details.get("account_ids") != [self.__account]:
+                raise M15FinamReadOnlyError(
+                    "M15_TRADING_GET_ONLY_NOT_EXACT_SINGLE_ACCOUNT")
+        except Exception:
+            self.__jwt = None
+            raise
+        self.__trading_get_only_bound = True
 
     def account(self, account_id: str) -> dict:
         if _account(account_id) != self.__account:
