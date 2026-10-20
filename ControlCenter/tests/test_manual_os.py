@@ -170,6 +170,8 @@ def test_startup_reruns_switches_and_m15_zero_calls_click_failure_clears_cache(m
     monkeypatch.setattr(manual,'installed_policy',lambda:(_ for _ in ()).throw(PermissionError('SECRET')))
     app.button(key='cc03-manual-refresh').click().run()
     assert app.session_state['cc03-last-export'].status.task_state is None and len(calls)==1
+    assert any('MANUAL_REFRESH_BLOCKED_POLICY_VALIDATE' in str(w.value) for w in app.warning)
+    assert all('SECRET' not in str(w.value) for w in app.warning)
     app.radio[0].set_value('Монитор M15').run()
     assert any('NOT_DEPLOYED' in str(x.value) for x in app.info)
     app.selectbox(key='h1-source').select('READONLY_EXPORT').run()
@@ -228,3 +230,93 @@ def test_expired_os_cache_never_revives_on_clock_rewind_without_manual_click(man
     app.button(key='cc03-manual-refresh').click().run()
     assert app.session_state['cc03-last-export'].status.task_state=='TASK_RUNNING'
     assert len(calls)==2 and not app.exception
+
+
+@pytest.mark.parametrize('step', ['POLICY_READ', 'POLICY_VALIDATE', 'IDENTITY', 'OS_PROBE', 'OS_VALIDATE'])
+def test_failure_step_is_fixed_redacted_and_gate_recovers(manual_policy, monkeypatch, step):
+    wire(monkeypatch, manual_policy)
+    secret = 'SECRET_TOKEN C:\\private\\account.json traceback broker'
+    def fail(*args, **kwargs):
+        raise RuntimeError(secret)
+    if step == 'POLICY_READ':
+        monkeypatch.undo()
+        monkeypatch.setattr(manual, 'read_windows', fail)
+    elif step == 'POLICY_VALIDATE':
+        monkeypatch.setattr(manual, 'installed_policy', fail)
+    elif step == 'IDENTITY':
+        monkeypatch.setattr(manual, 'current_identity', fail)
+    elif step == 'OS_PROBE':
+        monkeypatch.setattr(manual, 'os_facts', fail)
+    else:
+        monkeypatch.setattr(manual, 'os_facts', lambda p: {'invalid': secret})
+    failed, accepted = click()
+    assert not accepted and failed.events[0].message == 'MANUAL_REFRESH_BLOCKED_' + step
+    assert not failed.windows_observations and failed.status.task_state is None
+    assert secret not in repr(failed) and 'SECRET_TOKEN' not in repr(failed)
+    monkeypatch.undo()
+    wire(monkeypatch, manual_policy)
+    assert click()[0].status.task_state == 'TASK_RUNNING'
+
+
+def test_parallel_click_blocks_before_policy_and_returns_classified_busy(manual_policy, monkeypatch):
+    from threading import Event, Thread
+    entered, release = Event(), Event()
+    calls = []
+    def probe(p):
+        calls.append(p)
+        entered.set()
+        assert release.wait(10)
+        return facts(p)
+    wire(monkeypatch, manual_policy, probe)
+    completed = []
+    thread = Thread(target=lambda: completed.append(click()))
+    thread.start()
+    try:
+        assert entered.wait(10)
+        blocked, accepted = click()
+        assert not accepted and blocked.events[0].message == 'MANUAL_REFRESH_BUSY'
+        assert len(calls) == 1 and blocked.status.task_state is None
+    finally:
+        release.set()
+        thread.join(10)
+    assert not thread.is_alive() and completed[0][1]
+
+
+@pytest.mark.parametrize('response,code,expected', [
+    (b'Y{}', 0, b'{}'), (b'N', 0, None), (b'', 0, None),
+    (b'Y', 0, None), (b'Y' + b'X' * 17, 0, None), (b'Y{}', 1, None)])
+def test_fixed_reader_protocol_and_environment(response, code, expected, monkeypatch):
+    from types import SimpleNamespace
+    from cc.providers import windows_file as win
+    monkeypatch.setattr(subprocess, 'CREATE_NO_WINDOW', 0x08000000, raising=False)
+    monkeypatch.setenv('FINAM_TOKEN', 'SECRET')
+    monkeypatch.setenv('PYTHONPATH', 'SECRET')
+    monkeypatch.setenv('PYTHONHOME', 'SECRET')
+    calls = []
+    def run(argv, **kwargs):
+        calls.append(argv)
+        assert argv == [sys.executable, '-I', '-B', str(Path(win.__file__).absolute())]
+        assert json.loads(kwargs['input']) == [r'C:\CC', 'policy.json', 16, None, True]
+        assert set(kwargs['env']) <= {'SYSTEMROOT','WINDIR','SYSTEMDRIVE','TEMP','TMP'}
+        assert kwargs['timeout'] == 2 and kwargs['stderr'] == subprocess.DEVNULL
+        return SimpleNamespace(stdout=response, returncode=code)
+    monkeypatch.setattr(subprocess, 'run', run)
+    if expected is None:
+        with pytest.raises(ValueError, match='^SECURE_READ_UNAVAILABLE$'):
+            win.read_windows(r'C:\CC', 'policy.json', 16, admin_policy=True)
+    else:
+        assert win.read_windows(r'C:\CC', 'policy.json', 16, admin_policy=True) == expected
+    assert len(calls) == 1
+
+
+@pytest.mark.parametrize('failure', [PermissionError('SECRET'), subprocess.TimeoutExpired('SECRET', 2)])
+def test_fixed_reader_start_and_timeout_errors_are_redacted(failure, monkeypatch):
+    from cc.providers import windows_file as win
+    monkeypatch.setattr(subprocess, 'CREATE_NO_WINDOW', 0x08000000, raising=False)
+    def fail(*args, **kwargs):
+        raise failure
+    monkeypatch.setattr(subprocess, 'run', fail)
+    with pytest.raises(ValueError) as raised:
+        win.read_windows(r'C:\CC', 'policy.json', 16)
+    assert str(raised.value) == ('READ_TIMEOUT' if isinstance(failure, subprocess.TimeoutExpired)
+                                 else 'READ_WORKER_UNAVAILABLE')
