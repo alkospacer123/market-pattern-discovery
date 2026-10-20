@@ -340,8 +340,10 @@ class M15OutboundJournal:
                     raise M15ExecutionError("M15_OUTBOUND_INSTRUMENT_OCCUPIED")
             if draft.kind == "EMERGENCY_EXIT":
                 if self.db.execute(
-                    "SELECT 1 FROM outbound WHERE symbol=? AND "
-                    "kind='EMERGENCY_EXIT' LIMIT 1",
+                    "SELECT 1 FROM outbound o WHERE o.symbol=? AND "
+                    "o.kind='EMERGENCY_EXIT' AND NOT EXISTS "
+                    "(SELECT 1 FROM broker_flat b WHERE b.exit_key=o.intent_key) "
+                    "LIMIT 1",
                     (draft.payload["symbol"],),
                 ).fetchone():
                     raise M15ExecutionError("M15_EXIT_DUPLICATE_OR_UNRESOLVED")
