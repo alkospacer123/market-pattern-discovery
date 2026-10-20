@@ -15,7 +15,7 @@
     },
     {
       "path": "app.py",
-      "sha256": "eaf3b40c74cd090aae26e05e0cb54eb93d7be2e3dacced965d86102672671bf9"
+      "sha256": "9afa996a2aadcd0e27f521e8fb228c25d810592c30e55d08b87cf9c8286e865a"
     },
     {
       "path": "broker_readonly/__init__.py",
@@ -28,6 +28,10 @@
     {
       "path": "broker_readonly/finam-one-shot-operator.ps1",
       "sha256": "33668f23c7ffb774e198b4f7ef55c85d73a6d407cd84b2a3cb1ea5bd6a97fc7c"
+    },
+    {
+      "path": "broker_readonly/publish-from-one-shot.ps1",
+      "sha256": "1a05078f48c8a5161cd82f6fb7cc5203f40667a6d0cc6981105106641a1a60dc"
     },
     {
       "path": "cc/__init__.py",
@@ -64,6 +68,10 @@
     {
       "path": "cc/providers/base.py",
       "sha256": "3822e3e82eb458578835485bad9dc515f2f64f3040b5425c0f1898cd4b4ce805"
+    },
+    {
+      "path": "cc/providers/h1_broker_snapshot.py",
+      "sha256": "dbd30034609ce8833eaa2a635a42e0c5f33b128732d214e9566eb0de8a657dac"
     },
     {
       "path": "cc/providers/h1_contract.py",
@@ -103,7 +111,7 @@
     },
     {
       "path": "cc/ui.py",
-      "sha256": "2cdd7b45bdce24ba9c6d994a2bfcd8b26d2789c840b7b8d21ca63a3b77fbfed7"
+      "sha256": "da82a20ed9ef95ac437f3a901be5ac8e499eab02affcfa091e7567cdbb447b1a"
     },
     {
       "path": "ci/Os-Fixtures.ps1",
@@ -151,7 +159,7 @@
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "9108f1a6f8bfb1f773cd8517ca9911d83253896872ae36193cb687d25decd26a"
+      "sha256": "da410ea84924480f8487701a421d230f254866a03edeca85dd30dff88c65c497"
     },
     {
       "path": "deployment/Common.ps1",
@@ -202,12 +210,16 @@
       "sha256": "4c490b244267b5831a9cb620882821d5708084289512e1d0cce72d2e70ce3c81"
     },
     {
+      "path": "deployment/broker-readonly-policy.example.json",
+      "sha256": "a0b7017e2e624b91395d71b66b202ab9d0db0904a32e9926bb6c261dba8e07c3"
+    },
+    {
       "path": "deployment/check_wheels.py",
       "sha256": "c851042cadf2a00fdde2a564d74d8026e50ba5967c86208e480d8a370db5a512"
     },
     {
       "path": "deployment/manifest.py",
-      "sha256": "57d1fa66486b8bffd995e8c4180ae8e574db8fef81ee8671011529dc97b3dc87"
+      "sha256": "f593bfe1f69c32fee27361fabd864d85a1db4d31fa04715ba344ad2bccf7fefd"
     },
     {
       "path": "deployment/manual-os-policy.example.json",
@@ -244,6 +256,10 @@
     {
       "path": "docs/CC03_ACCEPTANCE_REPORT.md",
       "sha256": "9089f327b2436f0c5249d3664d9689079ece47b12039bd4ff29f07e9503125d5"
+    },
+    {
+      "path": "docs/CC03_BROKER_SNAPSHOT_RELEASE.md",
+      "sha256": "02c5b4301c1e1325cae5e18390a7484a682a8b6356fc3cfb7e6c2e8c65a600f8"
     },
     {
       "path": "docs/CC03_EXPORT_MAINTENANCE.md",
@@ -435,7 +451,7 @@
     },
     {
       "path": "tests/test_boundary.py",
-      "sha256": "8344a60b3f9ec74244a98593aa5b930354ac18f5449e236c7f320a953f90687f"
+      "sha256": "5064bb10c797915d1ac791e7643ed6bca8754807a8aac643f1c51f676be197a4"
     },
     {
       "path": "tests/test_broker_readonly_contract.py",
@@ -444,6 +460,10 @@
     {
       "path": "tests/test_broker_readonly_operator_ps.py",
       "sha256": "ab42c8ce25d9761b693d2d17e8b9cf72603e0b099a8950add19ce3f575aa7ac7"
+    },
+    {
+      "path": "tests/test_broker_snapshot.py",
+      "sha256": "b0c1dccf22c3ae6b27e0fe098c0b166adba574490d636ffac1aea676bf984f58"
     },
     {
       "path": "tests/test_cc03_source.py",
