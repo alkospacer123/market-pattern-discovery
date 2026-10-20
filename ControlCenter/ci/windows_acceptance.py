@@ -71,6 +71,7 @@ def main():
     bundle, bundle_file_count = build_bundle(evidence)
     commands = [
         ('scope-audit', [sys.executable, 'ci/scope_audit.py']),
+        ('source-feasibility-audit', [sys.executable, 'ci/source_feasibility_audit.py']),
         ('host', ['powershell', '-NoProfile', '-Command',
                   "Get-CimInstance Win32_OperatingSystem | Select Caption,Version,BuildNumber | Format-List; "
                   "Get-Volume | Where DriveLetter -in @((Get-Item .).PSDrive.Name, (Get-Item $env:RUNNER_TEMP).PSDrive.Name) | Select DriveLetter,FileSystem | Format-Table; whoami /user; whoami /priv"]),

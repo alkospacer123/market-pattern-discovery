@@ -59,3 +59,10 @@ Native tests запускать только в disposable Windows sandbox; он
 [Windows security/ACL](docs/CC03_WINDOWS_SECURITY.md) · [Physical acceptance — план](docs/CC03_PHYSICAL_ACCEPTANCE_PLAN.md) · [Architecture](docs/ARCHITECTURE.md) · [Security boundary](docs/SECURITY_BOUNDARY.md) · [Source inventory](docs/SOURCE_INVENTORY.md) · [Roadmap](docs/ROADMAP_STATUS.md).
 
 Аудит согласования preflight A/B под одного ccpanel: [CC03_SINGLE_CCPANEL_AUDIT.md](docs/CC03_SINGLE_CCPANEL_AUDIT.md). Это подготовка кода CC-03, без Intel execution и без принятого источника C.
+
+## CC-03 #550: independent H1 source feasibility
+
+Current result: **NOT_AUTHORIZED / NO_SAFE_SOURCE** for richer H1 telemetry.
+See [source evidence and field blockers](docs/CC03_H1_SOURCE_FEASIBILITY.md) and
+[operator checkpoint](docs/CC03_H1_SOURCE_OPERATOR_CHECKPOINT.md).
+The accepted Task-only lane is preserved; this feasibility package activates no source.
