@@ -121,7 +121,7 @@ def test_native_one_manual_immutable_read_with_legacy_replacements_zero_h1_opens
     from datetime import datetime, timezone
     from cc.models import RobotId, State
     from cc.providers import h1_export as receiver
-    from ci.file_open_trace import file_create_trace, events_for
+    from ci.file_open_trace import file_create_trace, events_for, descendant_pids, process_edges
     from test_cc03_source import approved
     from test_manual_os_native import replace_producer
 
@@ -145,14 +145,19 @@ def test_native_one_manual_immutable_read_with_legacy_replacements_zero_h1_opens
     receive, send = context.Pipe(False)
     producer = context.Process(target=replace_producer, args=(str(legacy_root), stop, started, send))
     observed_pids = [os.getpid()]
+    reader_launchers = []
     original_popen = subprocess.Popen
     def tracked_popen(*args, **kwargs):
         child = original_popen(*args, **kwargs)
         observed_pids.append(child.pid)
+        command = args[0]
+        if (isinstance(command, list) and len(command) == 4 and command[1:3] == ['-I', '-B']
+                and Path(command[3]).name == 'windows_file.py'):
+            reader_launchers.append(child.pid)
         return child
     monkeypatch.setattr(subprocess, 'Popen', tracked_popen)
     try:
-        with file_create_trace(tmp_path) as trace:
+        with file_create_trace(tmp_path, process_events=True) as trace:
             # Warm the provider before the canary bracket, as in existing OS audit.
             env = os.environ.copy(); env['CC03_OPEN_CONTROL'] = str(before)
             control = subprocess.run(['powershell.exe', '-NoProfile', '-NonInteractive', '-Command',
@@ -178,12 +183,22 @@ def test_native_one_manual_immutable_read_with_legacy_replacements_zero_h1_opens
         assert events_for(trace, before) and events_for(trace, after), 'CANARY_BRACKET_MISSING'
         assert any(e['pid'] == os.getpid() for e in events_for(trace, before))
         assert any(e['pid'] == os.getpid() for e in events_for(trace, after))
-        assert any(e['pid'] in observed_pids for e in events_for(trace, completed)), 'CC_READER_NOT_OBSERVED'
-        assert not [e for e in events_for(trace, legacy) if e['pid'] in observed_pids], 'H1_OPEN_DETECTED'
+        # Include each fixed child's real interpreter descendants, excluding the
+        # independent producer tree. Never accept an arbitrary PID's file event.
+        assert len(reader_launchers) == 1
+        reader_family = descendant_pids(trace, reader_launchers)
+        observer_family = {os.getpid()} | descendant_pids(trace, observed_pids[1:])
+        assert producer.pid not in observer_family
+        completed_events = events_for(trace, completed)
+        assert any(e['pid'] in reader_family for e in completed_events), (
+            'CC_READER_NOT_OBSERVED', sorted(reader_family), completed_events, process_edges(trace))
+        assert not [e for e in events_for(trace, legacy) if e['pid'] in observer_family], 'H1_OPEN_DETECTED'
         assert completed.read_bytes() == expected_raw and not list(cc_root.glob('*.tmp'))
         evidence = dict(classification='SYNTHETIC_IMMUTABLE_TRANSPORT_ONLY_NO_LIVE_AUTHORITY',
             replacements=done['replacements'], producer_errors=0, legacy_opens=0,
-            manual_probes=len(probes), observer_pids=observed_pids, producer_pid=producer.pid,
+            manual_probes=len(probes), observer_pids=sorted(observer_family), producer_pid=producer.pid,
+            reader_launcher_pids=reader_launchers, reader_family=sorted(reader_family),
+            completed_open_pids=sorted({e['pid'] for e in completed_events}), process_edges=process_edges(trace),
             before_canary_opens=len(events_for(trace, before)), after_canary_opens=len(events_for(trace, after)),
             live_source='NOT_AUTHORIZED / NO_SAFE_SOURCE')
         (Path(os.environ['RUNNER_TEMP']) / 'cc03-evidence/source-feasibility-noninterference.json').write_text(

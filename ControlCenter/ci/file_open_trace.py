@@ -49,14 +49,19 @@ def stop_trace(name):
 
 
 @contextmanager
-def file_create_trace(root):
+def file_create_trace(root, *, process_events=False):
     assert os.name == 'nt' and os.environ.get('RUNNER_ENVIRONMENT') == 'github-hosted'
     name = 'CC03-FileOpen-' + uuid.uuid4().hex
     trace = Path(root) / (name + '.etl')
     # Microsoft-Windows-Kernel-File: filename + create. No production provider,
     # registry, account or ACL configuration is modified; ephemeral ETW only.
-    command(['logman.exe','start',name,'-ets','-o',str(trace),'-p',
-             'Microsoft-Windows-Kernel-File','0x90','5','-bs','64','-nb','16','256'])
+    providers = ['-p', 'Microsoft-Windows-Kernel-File', '0x90', '5']
+    if process_events:
+        # The Windows venv redirector can create a second interpreter process.
+        # Attribute opens through kernel ProcessStart, not Popen launcher PID alone.
+        providers += ['-p', 'Microsoft-Windows-Kernel-Process', '0x10', '5']
+    command(['logman.exe','start',name,'-ets','-o',str(trace), *providers,
+             '-bs','64','-nb','16','256'])
     records = []
     try:
         yield records
@@ -85,7 +90,9 @@ def file_create_trace(root):
         assert records, 'ETW_EMPTY_TRACE'
         relevant=[{k:v for k,v in record.items() if k!='xml'} for record in records
                   if any(term in record['xml'].casefold() for term in (
-                      'parent-positive','ps-positive','stage8-12-4-production-heartbeat','next.tmp'))]
+                      'parent-positive','ps-positive','before-positive','after-positive','cc-export',
+                      'stage8-12-4-production-heartbeat','next.tmp'))
+                  or process_events and record['provider']=='Microsoft-Windows-Kernel-Process']
         (Path(os.environ['RUNNER_TEMP'])/'cc03-evidence'/(name+'.json')).write_text(
             json.dumps(dict(final_counters=counters,records=relevant),indent=2),encoding='utf-8')
         # Keep a compact report; raw trace stays in disposable RUNNER_TEMP.
@@ -98,3 +105,24 @@ def events_for(records, path):
     # Device paths and drive-letter paths have the same unique fixture suffix.
     suffix = '\\' + Path(path).parent.name.casefold() + '\\' + Path(path).name.casefold()
     return [r for r in records if r['id']=='12' and suffix in r['xml'].casefold()]
+
+
+def process_edges(records):
+    def number(value):
+        try:
+            return int(value, 0)
+        except ValueError:
+            return int(value, 10)
+    return [(number(r['values']['ParentProcessID']), number(r['values']['ProcessID']))
+            for r in records if r['provider']=='Microsoft-Windows-Kernel-Process' and r['id']=='1']
+
+
+def descendant_pids(records, roots):
+    result = set(roots)
+    edges = process_edges(records)
+    for _ in range(len(edges)):
+        expanded = result | {child for parent, child in edges if parent in result}
+        if expanded == result:
+            break
+        result = expanded
+    return result

@@ -98,3 +98,13 @@ def test_receipt_does_not_refresh_original_source_clock(policy, sources, now, mo
     assert second.status.provenance.observed_at == first.status.provenance.observed_at == now
     assert value == original
     assert second.positions is None and second.portfolio.equity is None
+
+
+def test_etw_reader_family_includes_venv_redirector_without_producer():
+    from ci.file_open_trace import descendant_pids
+    def edge(parent, child):
+        return dict(provider='Microsoft-Windows-Kernel-Process', id='1',
+                    values={'ParentProcessID': str(parent), 'ProcessID': hex(child)})
+    records = [edge(20, 30), edge(1, 40), edge(40, 50), edge(1, 10), edge(10, 20)]
+    # 1=panel, 10=reader launcher, 20/30=interpreter descendants; 40/50=producer.
+    assert descendant_pids(records, [10]) == {10, 20, 30}

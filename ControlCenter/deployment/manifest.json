@@ -111,7 +111,7 @@
     },
     {
       "path": "ci/file_open_trace.py",
-      "sha256": "16f177550d2377d3dee134d220c1b1f156005f5e6055c198af83565234af617e"
+      "sha256": "767b4b520c2f9aad63fad8eaaa88395ae0884aa9b3b8e4136f4ab28d3cd2c971"
     },
     {
       "path": "ci/identity_probe.py",
@@ -251,7 +251,7 @@
     },
     {
       "path": "docs/CC03_H1_SOURCE_FEASIBILITY.md",
-      "sha256": "fd2ab3ab743ad9214aa3f6b066f7d6c60624cf3483edca8dd888f13b0f0dd8fd"
+      "sha256": "6048bc0438303807a41c1714b0cec44341165f3560009205ba284f614acc24e9"
     },
     {
       "path": "docs/CC03_H1_SOURCE_OPERATOR_CHECKPOINT.md",
@@ -503,7 +503,7 @@
     },
     {
       "path": "tests/test_source_feasibility.py",
-      "sha256": "2456c2847e8a5c44ec2a20135858aa224f97c76bd1ee83e6c2c3b3b95e0e7639"
+      "sha256": "f70d619e0948c5fefbdf6c965cad7fadca17c31cdb57b23a3cfff7dfb66daae1"
     },
     {
       "path": "tests/test_ui.py",
@@ -515,7 +515,7 @@
     },
     {
       "path": "tests/test_windows_transport.py",
-      "sha256": "ca6e4e46f664044bea5c7ba03c07966537b871df9f95e18636f1401f8380c366"
+      "sha256": "b5d64360f46508f6aba189e07e550adf46c49ee49a1475ee2b243c00017c513e"
     }
   ]
 }

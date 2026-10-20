@@ -85,7 +85,8 @@
 подмену producer/spec/release/account/time и отсутствие побочных вызовов при
 заблокированном collection. Native ETW тест выполняет один gated read уже
 закрытого CC-only snapshot параллельно 500+ legacy producer replacements,
-учитывает parent/worker PIDs, требует canary opens до/после и zero lost ETW events,
+учитывает parent/worker PIDs, включая venv interpreter descendants по kernel
+ProcessStart, требует canary opens до/после и zero lost ETW events,
 ноль legacy opens и producer errors. Это проверяет **отсутствие доступа**, не
 совместимость чтения legacy. Положительные HALTED/HEALTHY inputs в тестах synthetic,
 не реальная H1 authority. Существующий полный Windows security/policy/gate/standard
@@ -102,6 +103,15 @@ SID/Streamlit click regression выполняется прежним hosted work
 а существующий offline fixture и transport уже позволяют проверить границу.
 Десять trading controls остаются disabled, M15 — NOT_DEPLOYED. Scope только CC-03.
 Phone/VPN access не входит в эту поставку.
+
+Первый native run [39396318488](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/39396318488)
+сохранён как FAIL: новый ETW тест не подтвердил CC reader PID (`CC_READER_NOT_OBSERVED`),
+хотя сам gated probe, 500+ replacements и canary bracket прошли. Full suite:
+515 PASS / 1 FAIL / 15 POSIX SKIP; security/standard-SID и настоящий Streamlit click
+PASS. В тест добавлен kernel ProcessStart graph для real interpreter descendants
+Windows venv redirector, отдельно от producer tree; assertion чтения CC snapshot
+и запрет H1 opens сохранены. Production reader не менялся. Точный итоговый native
+run и evidence публикуются в Draft PR после проверки, не выводятся из этого FAIL.
 
 ## Операторский checkpoint: NO INSTALL / NO SOURCE ACTIVATION
 
