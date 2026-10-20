@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from decimal import Decimal, InvalidOperation
 import hashlib
 import math
 from typing import Any
@@ -129,7 +130,19 @@ def latest_completed_signal(
     return M15Signal(f"m15:{digest}", instrument, side, at, price, atr, available, breakout)
 
 
-def latest_verified_finam_signal(
+@dataclass(frozen=True)
+class M15VerifiedNextOpen:
+    """Real FINAM next-candle OPEN reference, not a signal-close substitute.
+
+    This is verified read-side evidence only; broker order permission and
+    exact R15/GO sizing remain independent gates.
+    """
+    signal: M15Signal
+    reference_open: Decimal
+    observed_at: datetime
+
+
+def _latest_verified_finam_observation(
     *, api: Any, m15_account_id: str, instrument: str,
     authenticated_seed: pd.DataFrame, observed_at: datetime,
     interval_start: str, interval_end: str,
@@ -177,7 +190,72 @@ def latest_verified_finam_signal(
     if newer.empty:
         return None
     history = immutable_prefix_splice(authenticated_seed, newer)
-    return latest_completed_signal(instrument, history, observed_at)
+    signal = latest_completed_signal(instrument, history, observed_at)
+    if signal is None:
+        return None
+    # NEXT_OPEN is the actual broker OPEN of the bar opening at the
+    # signal's close. Never use signal_close as an executable price.
+    if signal.completed_at != history.index[-1].to_pydatetime():
+        raise ValueError("M15_NEXT_OPEN_SIGNAL_NOT_LAST_COMPLETED")
+    from .bar_bridge import _utc
+    matching = [
+        row for row in broker_bars["bars"]
+        if _utc(row["timestamp"]) == signal.completed_at.astimezone(
+            ZoneInfo("UTC"))
+    ]
+    if len(matching) != 1:
+        raise ValueError("M15_NEXT_OPEN_BROKER_OPEN_NOT_PROVEN")
+    obj = matching[0].get("open")
+    if (not isinstance(obj, dict) or set(obj) != {"value"}
+            or not isinstance(obj["value"], str)):
+        raise ValueError("M15_NEXT_OPEN_PRICE_SCHEMA_INVALID")
+    try:
+        reference = Decimal(obj["value"])
+    except InvalidOperation:
+        raise ValueError("M15_NEXT_OPEN_PRICE_INVALID") from None
+    if not reference.is_finite() or reference <= 0:
+        raise ValueError("M15_NEXT_OPEN_PRICE_INVALID")
+    return M15VerifiedNextOpen(signal, reference, observed_at)
+
+
+def latest_verified_finam_signal(
+    *, api: Any, m15_account_id: str, instrument: str,
+    authenticated_seed: pd.DataFrame, observed_at: datetime,
+    interval_start: str, interval_end: str,
+    verified_open_labels: bool = False,
+) -> M15Signal | None:
+    """Existing no-order signal interface; uses exact same FINAM GET chain."""
+    evidence = _latest_verified_finam_observation(
+        api=api, m15_account_id=m15_account_id, instrument=instrument,
+        authenticated_seed=authenticated_seed, observed_at=observed_at,
+        interval_start=interval_start, interval_end=interval_end,
+        verified_open_labels=verified_open_labels,
+    )
+    return None if evidence is None else evidence.signal
+
+
+def latest_verified_finam_entry(
+    *, api: Any, m15_account_id: str, instrument: str,
+    authenticated_seed: pd.DataFrame, observed_at: datetime,
+    interval_start: str, interval_end: str,
+    verified_open_labels: bool = False,
+) -> M15VerifiedNextOpen | None:
+    """Exact broker NEXT_OPEN within the first 30s; otherwise skip, never catch up.
+
+    Returns evidence for downstream PREPARED R15 calculations, not permission
+    to POST a trading order.
+    """
+    evidence = _latest_verified_finam_observation(
+        api=api, m15_account_id=m15_account_id, instrument=instrument,
+        authenticated_seed=authenticated_seed, observed_at=observed_at,
+        interval_start=interval_start, interval_end=interval_end,
+        verified_open_labels=verified_open_labels,
+    )
+    if evidence is None:
+        return None
+    seconds = (evidence.observed_at.astimezone(ZoneInfo("UTC"))
+               - evidence.signal.completed_at.astimezone(ZoneInfo("UTC"))).total_seconds()
+    return evidence if 0 <= seconds <= 30 else None
 
 
 def consecutive_next_open_allowed(signal_close: datetime, next_bar_close: datetime) -> bool:

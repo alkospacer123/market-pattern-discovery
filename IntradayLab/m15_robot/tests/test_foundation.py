@@ -13,7 +13,7 @@ import pandas as pd
 from IntradayLab.m15_robot import spec
 from IntradayLab.m15_robot.feature_adapter import (
     M15Signal, consecutive_next_open_allowed, latest_completed_signal,
-    latest_verified_finam_signal,
+    latest_verified_finam_signal, latest_verified_finam_entry,
     validate_completed_history,
 )
 from IntradayLab.m15_robot.grid_risk import (
@@ -178,6 +178,78 @@ class SignalGate(unittest.TestCase):
                 bad = seed.copy()
                 bad.loc[:, "Close"] = 100.5
                 latest_verified_finam_signal(**dict(params, authenticated_seed=bad))
+
+
+    def test_broker_next_open_not_signal_close_is_r15_reference(self):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        api = object.__new__(M15FinamTradingAPI)
+        now = at(10, 15) + timedelta(seconds=8)
+        seed = bar_frame(at(10))
+        schedule = {"sessions": [{"type": "CORE_TRADING", "interval": {
+            "start_time": at(9).isoformat(), "end_time": at(12).isoformat()
+        }}]}
+        def row(time, op):
+            return {
+                "timestamp": time.isoformat(),
+                "open": {"value": op}, "high": {"value": "102"},
+                "low": {"value": "99"}, "close": {"value": "101"},
+                "volume": {"value": "200"}
+            }
+        raw = {"symbol": "CNYRUBF@RTSX",
+               "bars": [row(at(9,45), "100"), row(at(10), "100"),
+                        row(at(10,15), "100.375")]}
+        kw = dict(api=api, m15_account_id="M15-FAKE", instrument="CNYRUBF",
+                  authenticated_seed=seed, observed_at=now,
+                  interval_start=at(9,45).isoformat(),
+                  interval_end=at(10,30).isoformat(),
+                  verified_open_labels=True)
+        with (patch.object(M15FinamTradingAPI, "account", return_value={
+                    "account_id": "M15-FAKE", "status": "ACCOUNT_ACTIVE"}),
+              patch.object(M15FinamTradingAPI, "schedule", return_value=schedule),
+              patch.object(M15FinamTradingAPI, "bars_m15", return_value=raw) as bars,
+              patch("IntradayLab.t3_m15_t1_entry_retest_v1.primary.features",
+                    return_value=[sample_feature(at(10,15))])):
+            evidence = latest_verified_finam_entry(**kw)
+            self.assertIsNotNone(evidence)
+            self.assertEqual(evidence.reference_open, Decimal("100.375"))
+            self.assertNotEqual(evidence.reference_open, Decimal("101.0"))
+            self.assertEqual(evidence.signal.completed_at, at(10,15))
+            self.assertFalse(hasattr(evidence, "live_authorized"))
+            self.assertIsNone(latest_verified_finam_entry(**dict(
+                kw, observed_at=at(10,15) + timedelta(seconds=31))))
+            self.assertEqual(bars.call_count, 2)
+
+    def test_broker_next_open_missing_refuses_r15_reference(self):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        api = object.__new__(M15FinamTradingAPI)
+        seed = bar_frame(at(10))
+        schedule = {"sessions": [{"type": "CORE_TRADING", "interval": {
+            "start_time": at(9).isoformat(), "end_time": at(12).isoformat()
+        }}]}
+        raw = {"symbol": "CNYRUBF@RTSX", "bars": [{
+            "timestamp": at(9,45).isoformat(),
+            "open": {"value": "100"}, "high": {"value": "102"},
+            "low": {"value": "99"}, "close": {"value": "101"},
+            "volume": {"value": "200"},
+        }, {
+            "timestamp": at(10).isoformat(),
+            "open": {"value": "100"}, "high": {"value": "102"},
+            "low": {"value": "99"}, "close": {"value": "101"},
+            "volume": {"value": "200"},
+        }]}
+        with (patch.object(M15FinamTradingAPI, "account", return_value={
+                    "account_id": "M15-FAKE", "status": "ACCOUNT_ACTIVE"}),
+              patch.object(M15FinamTradingAPI, "schedule", return_value=schedule),
+              patch.object(M15FinamTradingAPI, "bars_m15", return_value=raw),
+              patch("IntradayLab.t3_m15_t1_entry_retest_v1.primary.features",
+                    return_value=[sample_feature(at(10))])):
+            with self.assertRaisesRegex(ValueError, "NEXT_OPEN_BROKER_OPEN_NOT_PROVEN"):
+                latest_verified_finam_entry(
+                    api=api, m15_account_id="M15-FAKE", instrument="CNYRUBF",
+                    authenticated_seed=seed, observed_at=at(10,15),
+                    interval_start=at(9,45).isoformat(),
+                    interval_end=at(10,30).isoformat(),
+                    verified_open_labels=True)
 
 class RiskPortFromH1(unittest.TestCase):
     def test_stop_outward_grid_projection(self):
