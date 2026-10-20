@@ -1,0 +1,26 @@
+{
+  "files": {
+    ".gitignore": "7c0e3807a109f275f04fa607825e26c8d69f2e23f684cf4ca68e03df1173780a",
+    "DATA_DICTIONARY_RU.md": "6b178269ca0cbe55e831d888d192c0be366ee4b9b379151ea2c5897313a2caba",
+    "HYPOTHESES.md": "df3c312b3c9200064a679a1e5118abc17513d2a1d426f08aff85dc9d2748f113",
+    "PROTOCOL_RU.md": "faa0e3708da6e16bd798070d3bc39a1369202c6b035f05ad2042a91854254d06",
+    "README.md": "b445efe3b29624ffc34563e5c27cbce597afd41c7565726dd424c9112b6fdad1",
+    "analysis_tables.py": "68ed56987b8560e3b08fbd83c15aa689c1a1b78cea2ef127b3646d6dce63702f",
+    "causality.py": "2991298e8b8b7e6020377b104268495908c09a8c8d0c1e4bf0de855f8b41ac00",
+    "control.py": "468af23a565a238c07385597646bf6da2b0041e799e25c8dc9e69f84633d9938",
+    "development.py": "afc03e849e7cf0fdce88db818e6ef653967aa9c727def263e485841091a9dc3f",
+    "features.py": "70c820d471a78a1760f73039fad41fa348085b2977437bb07db97969faf7832c",
+    "outcomes.py": "7a233e816237f59f489f3deef8a41e443d68f41b5f0e0d31e67a73bed5cc8989",
+    "repeat.py": "bd459c68dac802c3cc5c6d2c42a0b815b476957a5158820ba2d2cbbd87c46d54",
+    "report.py": "32c6c9920a31a1ce0a104d6821abdffd1321219d78634ba01e00b210d977e85c",
+    "requirements.txt": "4a3b8f655b2cbaa5e7a06fea1584c7553e94ef3ff58161798cb4c120fd627c3a",
+    "run.py": "ae126ceb9c9bb5daaa0ce7440725fadbd61d0dd15d0c5ec445d103cf0d919708",
+    "support.py": "01ee5b0f22a375f9554124c77dc01ed8ff68ae2ab4444fa8e7207d3d65ada9e8",
+    "test_contract.py": "2bddb7b2c450894227cd82aefcf3d33f26631efba75cc0d1e28d83b78fa57370",
+    "verify.py": "0d7bd5bc3a25fd30e3b5b27b35f8cea081410d37dd0a7dc2511cf4d2888ce43b",
+    "verify_tables.py": "8b6fa5788c8a098262d2b0cf922d6e6ca929ec06a2765fd805d36d0347c76b82"
+  },
+  "hypotheses_commit": "9729ea2e",
+  "protocol_commit": "e00cf40dc7b45d590e914a5d0f66316eca507769",
+  "status": "FROZEN_BEFORE_THREE_FRESH_REPEATS"
+}
