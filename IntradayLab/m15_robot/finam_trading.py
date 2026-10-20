@@ -11,10 +11,11 @@ from __future__ import annotations
 import json
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
-from urllib.parse import urlencode
+from urllib.parse import urlencode, parse_qs, urlsplit
 from typing import Any, Callable
 
 from .spec import EXECUTION_STATUS, INSTRUMENTS
+from .finam_readonly import _stamp
 
 # Separate reviewed code-release gate. Changing spec alone NEVER releases POST.
 M15_ORDER_POST_RELEASED = False
@@ -73,6 +74,27 @@ class M15FinamTradingAPI:
                 f"/v1/assets/{symbol}/schedule",
             )
         }
+        # Broker fill/cashflow history: GET-only, bounded, exact M15 account.
+        # These endpoints share the SAME JWT as orders, needed for recovery.
+        history_allowed = False
+        if self.__connected and method == "GET":
+            parsed = urlsplit(path)
+            if (parsed.path in {
+                    f"/v1/accounts/{self.__account}/trades",
+                    f"/v1/accounts/{self.__account}/transactions"}
+                    and not parsed.fragment):
+                fields = parse_qs(parsed.query, keep_blank_values=True)
+                if (set(fields) == {"limit", "interval.start_time",
+                                   "interval.end_time"}
+                        and all(len(values) == 1 for values in fields.values())):
+                    try:
+                        limit = int(fields["limit"][0])
+                        if (str(limit) == fields["limit"][0] and 0 < limit <= 1000
+                                and _stamp(fields["interval.start_time"][0])
+                                < _stamp(fields["interval.end_time"][0])):
+                            history_allowed = True
+                    except (ValueError, TypeError, RuntimeError):
+                        pass
         if not ((method == "POST" and path in
                  {"/v1/sessions", "/v1/sessions/details"})
                 or (method == "GET" and self.__jwt is not None
@@ -80,7 +102,8 @@ class M15FinamTradingAPI:
                 or (self.__connected and (
                     method == "GET" and (
                         path == f"/v1/accounts/{self.__account}/orders"
-                        or path in allowed_asset_get)
+                        or path in allowed_asset_get
+                        or history_allowed)
                     or method == "POST" and path in {
                         f"/v1/accounts/{self.__account}/orders",
                         f"/v1/accounts/{self.__account}/sltp-orders"}
@@ -159,6 +182,38 @@ class M15FinamTradingAPI:
         if account_id != self.__account or not self.__connected:
             raise M15FinamTradeError("M15_TRADING_ORDERS_ACCOUNT_NOT_BOUND")
         return self._request("GET", f"/v1/accounts/{self.__account}/orders")
+
+    def _history(self, account_id: str, kind: str, *,
+                 start: str, end: str, limit: int = 1000) -> dict:
+        if (not self.__connected or account_id != self.__account
+                or kind not in {"trades", "transactions"}
+                or type(limit) is not int or not 0 < limit <= 1000):
+            raise M15FinamTradeError("M15_TRADING_HISTORY_ACCOUNT_OR_LIMIT_INVALID")
+        try:
+            if _stamp(start) >= _stamp(end):
+                raise ValueError("interval")
+        except (ValueError, TypeError, RuntimeError):
+            raise M15FinamTradeError("M15_TRADING_HISTORY_INTERVAL_INVALID") from None
+        query = urlencode({
+            "limit": limit, "interval.start_time": start, "interval.end_time": end,
+        })
+        result = self._request(
+            "GET", f"/v1/accounts/{self.__account}/{kind}?{query}")
+        if not isinstance(result, dict) or not isinstance(result.get(kind), list):
+            raise M15FinamTradeError("M15_TRADING_HISTORY_SCHEMA_INVALID")
+        return result
+
+    def trades(self, account_id: str, *, start: str, end: str,
+               limit: int = 1000) -> dict:
+        """Bounded authenticated M15 fill evidence for restart reconciliation."""
+        return self._history(account_id, "trades", start=start, end=end,
+                             limit=limit)
+
+    def transactions(self, account_id: str, *, start: str, end: str,
+                     limit: int = 1000) -> dict:
+        """Bounded authenticated M15 cashflow evidence for realized R15."""
+        return self._history(account_id, "transactions", start=start, end=end,
+                             limit=limit)
 
     def _asset_get(self, symbol: str, suffix: str = "", *,
                    account_bound: bool = True) -> dict:

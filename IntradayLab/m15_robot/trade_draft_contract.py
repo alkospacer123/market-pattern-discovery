@@ -85,8 +85,10 @@ class M15OfflineTradeDrafts:
             m15_runtime_root=m15_runtime_root, h1_runtime_root=h1_runtime_root,
             repository_root=repository_root,
         )
-        if EXECUTION_STATUS != "NOT_LIVE_AUTHORIZED":
-            raise M15DraftError("M15_DRAFT_EXECUTION_STATUS_CHANGED")
+        # Drafts are inert regardless of the independently authorized wire status.
+        # The original NO-LIVE-only check would deadlock LIVE SLTP/ENTRY creation.
+        if EXECUTION_STATUS not in {"NOT_LIVE_AUTHORIZED", "LIVE_AUTHORIZED"}:
+            raise M15DraftError("M15_DRAFT_EXECUTION_STATUS_INVALID")
         self._identity = ROBOT_ID
 
     @property

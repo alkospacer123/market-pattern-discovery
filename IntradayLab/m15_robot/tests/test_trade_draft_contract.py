@@ -2,13 +2,17 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import tempfile
 import unittest
+from unittest.mock import patch
+from urllib.parse import urlsplit, parse_qs
 from decimal import Decimal
 from pathlib import Path
 
 from IntradayLab.m15_robot.grid_risk import ContractAuthority, size_r15
 from IntradayLab.m15_robot.trade_draft_contract import M15DraftError, M15OfflineTradeDrafts
+from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI, M15FinamTradeError
 
 
 class DraftContractTests(unittest.TestCase):
@@ -183,6 +187,87 @@ class DraftContractTests(unittest.TestCase):
         self.assertFalse(hasattr(self.contract, "place_sltp_order"))
         self.assertFalse(hasattr(self.contract, "cancel_order"))
 
+
+
+    def test_offline_draft_factory_does_not_deadlock_authorized_live_status(self):
+        root = Path(self.tmp.name)
+        with patch("IntradayLab.m15_robot.trade_draft_contract.EXECUTION_STATUS",
+                   "LIVE_AUTHORIZED"):
+            drafts = M15OfflineTradeDrafts(
+                m15_account_id="TEST-M15-NO-REAL-ACCOUNT",
+                h1_account_sha256=hashlib.sha256(b"OTHER-FAKE-H1").hexdigest(),
+                m15_runtime_root=root / "m15",
+                h1_runtime_root=root / "h1", repository_root=root / "code",
+            )
+            entry = drafts.entry(
+                instrument="CNYRUBF", direction="LONG",
+                idempotency_key="m15:live-factory-test",
+                sized=self.sized, observed_occupied=False,
+            )
+            self.assertFalse(drafts.execution_authorized)
+            self.assertFalse(entry.live_authorized or entry.submitted)
+            with self.assertRaisesRegex(M15DraftError, "NOT_AUTHORIZED"):
+                drafts.submit(entry)
+        with patch("IntradayLab.m15_robot.trade_draft_contract.EXECUTION_STATUS",
+                   "INVALID"):
+            with self.assertRaisesRegex(M15DraftError, "STATUS_INVALID"):
+                M15OfflineTradeDrafts(
+                    m15_account_id="TEST-M15-NO-REAL-ACCOUNT",
+                    h1_account_sha256=hashlib.sha256(b"OTHER-FAKE-H1").hexdigest(),
+                    m15_runtime_root=root / "m15",
+                    h1_runtime_root=root / "h1", repository_root=root / "code",
+                )
+
+    def test_write_session_supports_same_jwt_bounded_readonly_broker_history(self):
+        calls = []
+        class Reply:
+            status = 200
+            def __init__(self, payload):
+                self.payload = payload
+            def read(self):
+                return json.dumps(self.payload).encode("utf-8")
+        def transport(request, timeout):
+            parts = urlsplit(request.full_url)
+            method = request.get_method()
+            calls.append((method, parts.path, parts.query))
+            if parts.path == "/v1/sessions":
+                return Reply({"token": "fake-jwt"})
+            if parts.path == "/v1/sessions/details":
+                return Reply({"readonly": False, "account_ids": ["M15-FAKE"]})
+            if parts.path == "/v1/accounts/M15-FAKE":
+                return Reply({"account_id": "M15-FAKE"})
+            if parts.path.endswith("/trades"):
+                return Reply({"trades": []})
+            if parts.path.endswith("/transactions"):
+                return Reply({"transactions": []})
+            raise AssertionError("Unexpected trading request")
+        with patch("IntradayLab.m15_robot.finam_trading.EXECUTION_STATUS",
+                   "LIVE_AUTHORIZED"):
+            api = M15FinamTradingAPI(
+                secret="synthetic", account_id="M15-FAKE", transport=transport)
+            api.create_session()
+            details = api.session_details()
+            account = api.account("M15-FAKE")
+            api._bind_exact_session(details=details, account=account)
+            start, end = "2026-10-20T08:00:00+00:00", "2026-10-20T09:00:00+00:00"
+            self.assertEqual(
+                api.trades("M15-FAKE", start=start, end=end), {"trades": []})
+            self.assertEqual(
+                api.transactions("M15-FAKE", start=start, end=end),
+                {"transactions": []})
+            with self.assertRaisesRegex(M15FinamTradeError, "ACCOUNT_OR_LIMIT"):
+                api.trades("OTHER", start=start, end=end)
+            with self.assertRaisesRegex(M15FinamTradeError, "INTERVAL_INVALID"):
+                api.trades("M15-FAKE", start=end, end=start)
+            with self.assertRaisesRegex(M15FinamTradeError, "NOT_APPROVED"):
+                api.place_order("M15-FAKE", {"fake": True})
+            for method, path, query in calls:
+                self.assertNotEqual((method, path),
+                                    ("POST", "/v1/accounts/M15-FAKE/orders"))
+                if path.endswith(("/trades", "/transactions")):
+                    self.assertEqual(method, "GET")
+                    self.assertEqual(set(parse_qs(query)),
+                                     {"limit", "interval.start_time", "interval.end_time"})
 
 if __name__ == "__main__":
     unittest.main()
