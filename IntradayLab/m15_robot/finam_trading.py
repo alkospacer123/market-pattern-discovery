@@ -11,9 +11,10 @@ from __future__ import annotations
 import json
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
+from urllib.parse import urlencode
 from typing import Any, Callable
 
-from .spec import EXECUTION_STATUS
+from .spec import EXECUTION_STATUS, INSTRUMENTS
 
 # Separate reviewed code-release gate. Changing spec alone NEVER releases POST.
 M15_ORDER_POST_RELEASED = False
@@ -63,12 +64,24 @@ class M15FinamTradingAPI:
         if (method == "POST" and path.endswith(("/orders", "/sltp-orders"))
                 or method == "DELETE") and M15_ORDER_POST_RELEASED is not True:
             raise M15FinamTradeError("M15_TRADING_WIRE_ORDER_POST_RELEASE_NOT_APPROVED")
+        symbols = tuple(name + "@RTSX" for name in INSTRUMENTS)
+        query = urlencode({"account_id": self.__account})
+        allowed_asset_get = {
+            form for symbol in symbols for form in (
+                f"/v1/assets/{symbol}?{query}",
+                f"/v1/assets/{symbol}/params?{query}",
+                f"/v1/assets/{symbol}/schedule",
+            )
+        }
         if not ((method == "POST" and path in
                  {"/v1/sessions", "/v1/sessions/details"})
                 or (method == "GET" and self.__jwt is not None
                     and path == f"/v1/accounts/{self.__account}")
                 or (self.__connected and (
-                    method == "POST" and path in {
+                    method == "GET" and (
+                        path == f"/v1/accounts/{self.__account}/orders"
+                        or path in allowed_asset_get)
+                    or method == "POST" and path in {
                         f"/v1/accounts/{self.__account}/orders",
                         f"/v1/accounts/{self.__account}/sltp-orders"}
                     or method == "DELETE" and
@@ -141,6 +154,28 @@ class M15FinamTradingAPI:
                 or account.get("account_id") != self.__account):
             raise M15FinamTradeError("M15_TRADING_EXACT_ACCOUNT_BINDING_INVALID")
         self.__connected = True
+
+    def orders(self, account_id: str) -> dict:
+        if account_id != self.__account or not self.__connected:
+            raise M15FinamTradeError("M15_TRADING_ORDERS_ACCOUNT_NOT_BOUND")
+        return self._request("GET", f"/v1/accounts/{self.__account}/orders")
+
+    def _asset_get(self, symbol: str, suffix: str = "", *,
+                   account_bound: bool = True) -> dict:
+        if not self.__connected or symbol not in {
+            x + "@RTSX" for x in INSTRUMENTS}:
+            raise M15FinamTradeError("M15_TRADING_ASSET_NOT_EXACT_N4_BOUND")
+        query = "?" + urlencode({"account_id": self.__account}) if account_bound else ""
+        return self._request("GET", f"/v1/assets/{symbol}{suffix}{query}")
+
+    def asset_details(self, symbol: str) -> dict:
+        return self._asset_get(symbol)
+
+    def asset_params(self, symbol: str) -> dict:
+        return self._asset_get(symbol, "/params")
+
+    def schedule(self, symbol: str) -> dict:
+        return self._asset_get(symbol, "/schedule", account_bound=False)
 
     def place_order(self, account_id: str, payload: dict) -> dict:
         if account_id != self.__account or not self.__connected:
