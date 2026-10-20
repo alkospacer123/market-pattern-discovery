@@ -145,6 +145,8 @@ def test_operator_publisher_invokes_only_pinned_existing_readonly_probe():
     assert "no_h1_json_sqlite_task_order_cancel_or_write" in code
     assert "cc03_broker_publish=preview_no_network_no_file_write" in code
     assert code.count('powershell.exe -noprofile') == 1
+    assert code.count("throw 'probe_output_invalid'") == 1
+    assert "^([a-z0-9_]+)=([a-za-z0-9_.:-]+)$" in code
     for forbidden in ('invoke-restmethod', 'start-scheduledtask', 'stop-scheduledtask',
                       'invoke-expression', 'set-acl', 'set-content', 'add-content',
                       '-method delete', 'cancel-order', 'place-order', 'sqlite3.connect'):
@@ -157,7 +159,7 @@ def test_operator_publisher_invokes_only_pinned_existing_readonly_probe():
                   "',[ref]$tokens,[ref]$errors);if(@($errors).count -gt 0){exit 1}")
         p = subprocess.run(['powershell.exe', '-noprofile', '-noninteractive', '-command', parser],
                            capture_output=True, text=True, timeout=20)
-        assert p.returncode == 0, 'PUBLISHER_SYNTAX_INVALID'
+        assert p.returncode == 0, 'PUBLISHER_SYNTAX_INVALID: ' + p.stdout + p.stderr
         p = subprocess.run(['powershell.exe', '-noprofile', '-noninteractive', '-file', str(path)],
                            capture_output=True, text=True, timeout=20)
         assert p.returncode == 0 and 'preview_no_network_no_file_write' in p.stdout
