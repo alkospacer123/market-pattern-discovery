@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from fractions import Fraction
 from pathlib import Path
@@ -14,6 +14,7 @@ from IntradayLab.m15_robot.live_execution import (
     M15PrePostRefused, load_execution_authorization,
 )
 from IntradayLab.m15_robot.broker_fill_readonly import ExpectedEntry
+from IntradayLab.m15_robot.cashflow_reconcile_gate import CashflowWindow
 from IntradayLab.m15_robot.grid_risk import ContractAuthority, TrailingState, size_r15
 from IntradayLab.m15_robot.protective_gate import BrokerProtection
 from IntradayLab.m15_robot.trailing_gate import confirm_trail
@@ -664,6 +665,122 @@ class M15ExecutionStageTests(unittest.TestCase):
             self.j.reconcile_protective_broker_get(
                 key=new_key, draft=new, account=account,
                 orders_response=without_old)
+
+
+    def r15_entry_inputs(self):
+        """Synthetic separate M15 FINAM equity/GO/transaction & frozen T1 risk."""
+        birth = datetime(2026, 10, 16, 12, tzinfo=timezone.utc)
+        now = datetime(2026, 10, 18, 12, tzinfo=timezone.utc)
+        account = {
+            "account_id": "M15-SYNTH", "status": "ACCOUNT_ACTIVE",
+            "type": "FORTS", "open_account_date": birth.isoformat(),
+            "positions": [],
+            "equity": {"value": "50000.00"},
+            "unrealized_profit": {"value": "0.00"},
+            "portfolio_forts": {
+                "available_cash": {"value": "50000.00"},
+                "money_reserved": {"value": "0"},
+            },
+        }
+        windows = [CashflowWindow(
+            birth - timedelta(seconds=1), now + timedelta(minutes=1),
+            {"transactions": [{
+                "id": "deposit-1", "timestamp": birth.isoformat(),
+                "transaction_category": "DEPOSIT",
+                "change": {"currency_code": "RUB", "units": "50000", "nanos": 0},
+            }]},
+        )]
+        contract = ContractAuthority(
+            price_step=Decimal("0.001"), tick_value=Decimal("1"),
+            trade_lot_size=1, long_initial_margin=Decimal("100"),
+            short_initial_margin=Decimal("100"),
+        )
+        rub100 = {"currency_code": "RUB", "units": "100", "nanos": 0}
+        drafts = M15OfflineTradeDrafts(
+            m15_account_id=self.args["m15_account_id"],
+            h1_account_sha256=self.args["h1_account_sha256"],
+            m15_runtime_root=self.args["runtime_root"],
+            h1_runtime_root=self.args["h1_runtime_root"],
+            repository_root=self.args["repository_root"],
+        )
+        return {
+            "key": "m15:entry:r15:1", "drafts": drafts, "instrument": "CNYRUBF",
+            "direction": "LONG", "reference_entry": Decimal("12.500"),
+            "signal_atr": Decimal("0.100"), "contract": contract,
+            "asset": {"ticker": "CNYRUBF", "mic": "RTSX", "decimals": 3,
+                      "min_step": "1"},
+            "asset_params": {"symbol": "CNYRUBF@RTSX",
+                             "account_id": "M15-SYNTH", "trade_lot_size": "1",
+                             "long_initial_margin": rub100,
+                             "short_initial_margin": rub100},
+            "account": account, "orders_response": {"orders": []},
+            "cashflow_windows": windows,
+            "observed_at": now - timedelta(seconds=5), "now": now,
+        }
+
+    def test_h1_entry_r15_go_clean_finam_account_to_durable_intent(self):
+        args = self.r15_entry_inputs()
+        proposal, sized = self.j.prepare_entry_from_broker_r15(**args)
+        self.assertEqual(sized.final_quantity, 3)
+        self.assertEqual(sized.initial_nominal_risk, Decimal("600"))
+        self.assertEqual(proposal.payload["quantity"], {"value": "3"})
+        self.assertEqual(proposal.payload["side"], "SIDE_BUY")
+        self.assertEqual(self.j.inspect(args["key"])["state"], "PREPARED")
+        record = self.j.db.execute(
+            "SELECT realized_equity,available_cash,quantity,stop_price,"
+            "nominal_initial_risk FROM entry_r15_basis").fetchone()
+        self.assertEqual(record, ("50000", "50000.00", 3, "12.300", "600"))
+        self.assertFalse(proposal.live_authorized or proposal.submitted)
+        self.j.close()
+        self.j = M15OutboundJournal(**self.args)
+        self.assertEqual(self.j.inspect(args["key"])["state"], "PREPARED")
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM entry_r15_basis").fetchone()[0], 1)
+
+    def test_h1_entry_r15_rejects_stale_or_foreign_account(self):
+        args = self.r15_entry_inputs()
+        with self.assertRaisesRegex(M15ExecutionError, "STALE"):
+            self.j.prepare_entry_from_broker_r15(
+                **dict(args, observed_at=args["now"] - timedelta(minutes=5)))
+        wrong = dict(args["account"], account_id="H1-SYNTH")
+        with self.assertRaisesRegex(M15ExecutionError, "WRONG_FINAM_ACCOUNT"):
+            self.j.prepare_entry_from_broker_r15(
+                **dict(args, account=wrong))
+        self.assertIsNone(self.j.inspect(args["key"]))
+
+    def test_h1_entry_r15_missing_cashflow_or_bad_margin_refused(self):
+        args = self.r15_entry_inputs()
+        with self.assertRaisesRegex(RuntimeError, "LIFETIME_INCOMPLETE"):
+            self.j.prepare_entry_from_broker_r15(
+                **dict(args, cashflow_windows=[]))
+        wrong = dict(args["asset_params"], long_initial_margin={
+            "currency_code": "RUB", "units": "101", "nanos": 0})
+        with self.assertRaisesRegex(M15ExecutionError, "CONTRACT_OR_GO_MISMATCH"):
+            self.j.prepare_entry_from_broker_r15(
+                **dict(args, asset_params=wrong))
+        self.assertIsNone(self.j.inspect(args["key"]))
+
+    def test_h1_entry_r15_no_bootstrap_on_existing_position_or_order(self):
+        args = self.r15_entry_inputs()
+        occupied = dict(args["account"], positions=[{
+            "symbol": "USDRUBF@RTSX", "quantity": {"value": "1"}}])
+        with self.assertRaisesRegex(M15ExecutionError, "CLEAN_BROKER_BOOTSTRAP"):
+            self.j.prepare_entry_from_broker_r15(
+                **dict(args, account=occupied))
+        active = self.broker_get(filled=0)["orders_response"]
+        with self.assertRaisesRegex(M15ExecutionError, "CLEAN_BROKER_BOOTSTRAP"):
+            self.j.prepare_entry_from_broker_r15(
+                **dict(args, orders_response=active))
+        self.assertIsNone(self.j.inspect(args["key"]))
+
+    def test_h1_entry_r15_no_second_prepare_without_risk_reconciliation(self):
+        args = self.r15_entry_inputs()
+        self.j.prepare_entry_from_broker_r15(**args)
+        with self.assertRaisesRegex(M15ExecutionError, "EXISTING_INTENTS"):
+            self.j.prepare_entry_from_broker_r15(**dict(
+                args, key="m15:entry:r15:2", instrument="CNYRUBF"))
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM outbound").fetchone()[0], 1)
 
     def test_authorization_file_cannot_override_frozen_status(self):
         root = self.args["runtime_root"]
