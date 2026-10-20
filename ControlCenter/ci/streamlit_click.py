@@ -96,6 +96,10 @@ async def _browser_click(edge, profile, evidence, log):
         await page('Управление')
         await until("document.querySelectorAll('[data-testid=stButton] button:disabled').length === 10")
         await page('Монитор H1')
+        await until("document.body.innerText.includes('Windows OS READONLY:')")
+        # The explicit Windows Task summary belongs to overview; monitor uses
+        # a readonly observation table and a caption containing the same token.
+        await page('Главная панель')
         task = ("Array.from(document.querySelectorAll('[data-testid=stMarkdownContainer]'))"
                 ".find(e=>e.innerText.replace(/\\s+/g,' ').includes('Windows Task: TASK_RUNNING'))")
         await until(f"Boolean({task})")
@@ -110,6 +114,14 @@ async def _browser_click(edge, profile, evidence, log):
         value['disabled_trading_controls'] = 10
         value['rendered_task_running'] = True
         return value
+    except BaseException:
+        if socket is not None:
+            try:
+                failed = await call('Page.captureScreenshot', dict(format='png'))
+                (evidence.parent / 'streamlit-click.png').write_bytes(base64.b64decode(failed['data']))
+            except Exception:
+                pass  # The original failure remains authoritative.
+        raise
     finally:
         if socket is not None:
             socket.close()

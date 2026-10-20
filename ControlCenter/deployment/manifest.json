@@ -131,7 +131,7 @@
     },
     {
       "path": "ci/streamlit_click.py",
-      "sha256": "3fed610870c96d26288f27adb9dd4e84a3f6dee506b6f4ef4f7f437d6f1c1ab1"
+      "sha256": "fe540653282d7044ad27728377ae22e4571b234a1e17cdd62b18eaa409eb524a"
     },
     {
       "path": "ci/streamlit_host.py",
@@ -295,7 +295,7 @@
     },
     {
       "path": "docs/CC03_STREAMLIT_REFRESH_558.md",
-      "sha256": "4d0d720088df9af9281bf752dc1f6ffb33188ce13303cb25531c5ebece5e5f09"
+      "sha256": "19e2d7ba6a7a8d6ac5bc47780246bef968082714e82d641765c5fbdd0082e9f0"
     },
     {
       "path": "docs/CC03_WINDOWS_HOSTED_ACCEPTANCE.md",

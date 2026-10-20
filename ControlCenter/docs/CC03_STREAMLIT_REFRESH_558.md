@@ -103,6 +103,16 @@ CPU-only children были ограничены 45s и завершались/о
 содержит проверяемый bridge candidate и классификацию будущего отказа,
 а не заявление о завершении physical C acceptance.
 
+[Run 39379406889](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/39379406889),
+head `b1b92954`, выполнил actual click/read/probe=1, accepted=true,
+TASK_RUNNING, read_seconds=0.250. Однако strict screenshot assertion
+искал summary-строку Windows Task на «Монитор H1», где её нет:
+эта строка находится в robot_card на «Главной панели». Поэтому DOM_WAIT_TIMEOUT
+— дефект harness, не reader failure и не passed acceptance. Независимый audit
+подтвердил JSONL и соответствие selector странице. Исправлен только CI маршрут:
+после H1 monitor проверяется overview summary; failure screenshot тоже сохраняется,
+но сам по себе не удовлетворяет positive acceptance.
+
 Финальный harness использует тот же isolated launcher и требует: стандартный primary SID
 `ccpanel`, действительная admin-owned C policy, ровно один реальный DOM click,
 один policy read, один unchanged fixed helper, `TASK_RUNNING`,
