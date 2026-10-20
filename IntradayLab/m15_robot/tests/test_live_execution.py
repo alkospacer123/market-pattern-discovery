@@ -1600,6 +1600,104 @@ class M15ExecutionStageTests(unittest.TestCase):
             "SELECT COUNT(*) FROM protective_coverage").fetchone()[0], 0)
 
 
+
+    def test_readonly_cycle_prepared_intent_never_reposts(self):
+        from IntradayLab.m15_robot.execution_cycle import reconcile_m15_readonly_once
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        self.j.prepare(key=self.key, draft=self.draft)
+        api = object.__new__(M15FinamReadOnlyAPI)
+        account = {"account_id": "M15-SYNTH", "status": "ACCOUNT_ACTIVE",
+                   "positions": []}
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-SYNTH"),
+              patch.object(M15FinamReadOnlyAPI, "account", return_value=account) as a,
+              patch.object(M15FinamReadOnlyAPI, "orders",
+                           return_value={"orders": []}) as o):
+            first = reconcile_m15_readonly_once(
+                journal=self.j, api=api, m15_account_id="M15-SYNTH")
+            self.assertEqual(first["events"][0]["state"], "ENTRY_PREPARED_NOT_SENT")
+            self.assertFalse(first["new_entries_authorized"])
+            self.assertEqual(self.j.inspect(self.key)["state"], "PREPARED")
+            self.j.close()
+            self.j = M15OutboundJournal(**self.args)
+            second = reconcile_m15_readonly_once(
+                journal=self.j, api=api, m15_account_id="M15-SYNTH")
+            self.assertEqual(first, second)
+            self.assertEqual(a.call_count, 2)
+            self.assertEqual(o.call_count, 2)
+
+    def test_readonly_cycle_uncertain_missing_order_never_resends(self):
+        from IntradayLab.m15_robot.execution_cycle import reconcile_m15_readonly_once
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        api = object.__new__(M15FinamReadOnlyAPI)
+        account = {"account_id": "M15-SYNTH", "status": "ACCOUNT_ACTIVE",
+                   "positions": []}
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-SYNTH"),
+              patch.object(M15FinamReadOnlyAPI, "account", return_value=account),
+              patch.object(M15FinamReadOnlyAPI, "orders",
+                           return_value={"orders": []})):
+            result = reconcile_m15_readonly_once(
+                journal=self.j, api=api, m15_account_id="M15-SYNTH")
+        self.assertEqual(result["events"][0]["state"],
+                         "ENTRY_UNCERTAIN_NO_REPOST")
+        self.assertEqual(self.j.inspect(self.key)["state"], "UNCERTAIN")
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM broker_fills").fetchone()[0], 0)
+
+    def test_readonly_cycle_active_protective_get_ack_and_restart(self):
+        from IntradayLab.m15_robot.execution_cycle import reconcile_m15_readonly_once
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        key = "m15:stop:synthetic:1"
+        stop = self.stop(key)
+        self.j.prepare(key=key, draft=stop)
+        account, before = self.protective_observation(stop, include_new=False)
+        self.j.begin_protective_post_uncertain(
+            key=key, draft=stop, account=account, orders_response=before)
+        account, after = self.protective_observation(stop, include_new=True)
+        api = object.__new__(M15FinamReadOnlyAPI)
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-SYNTH"),
+              patch.object(M15FinamReadOnlyAPI, "account", return_value=account),
+              patch.object(M15FinamReadOnlyAPI, "orders", return_value=after)):
+            first = reconcile_m15_readonly_once(
+                journal=self.j, api=api, m15_account_id="M15-SYNTH")
+            self.assertEqual(first["events"][1]["state"],
+                             "STOP_BROKER_ACTIVE_100_PERCENT_RECONCILED")
+            self.assertEqual(self.j.inspect(key)["state"], "ACK")
+            self.j.close()
+            self.j = M15OutboundJournal(**self.args)
+            second = reconcile_m15_readonly_once(
+                journal=self.j, api=api, m15_account_id="M15-SYNTH")
+            self.assertEqual(first, second)
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM protective_coverage").fetchone()[0], 1)
+
+    def test_readonly_cycle_foreign_position_fails_closed(self):
+        from IntradayLab.m15_robot.execution_cycle import (
+            reconcile_m15_readonly_once, M15ReadOnlyCycleError,
+        )
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        api = object.__new__(M15FinamReadOnlyAPI)
+        account = {"account_id": "M15-SYNTH", "status": "ACCOUNT_ACTIVE",
+                   "positions": [{"symbol": "CNYRUBF@RTSX",
+                                  "quantity": {"value": "1"}}]}
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-SYNTH"),
+              patch.object(M15FinamReadOnlyAPI, "account", return_value=account),
+              patch.object(M15FinamReadOnlyAPI, "orders",
+                           return_value={"orders": []})):
+            with self.assertRaisesRegex(M15ReadOnlyCycleError,
+                                        "FOREIGN_POSITION_HALTED"):
+                reconcile_m15_readonly_once(
+                    journal=self.j, api=api, m15_account_id="M15-SYNTH")
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM outbound").fetchone()[0], 0)
+
     def test_restart_recovers_exact_entry_draft_without_reposting(self):
         self.j.prepare(key=self.key, draft=self.draft)
         self.j.begin_post_uncertain(key=self.key, draft=self.draft)
