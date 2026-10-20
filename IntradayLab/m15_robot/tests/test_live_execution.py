@@ -1892,6 +1892,76 @@ class M15ExecutionStageTests(unittest.TestCase):
         self.assertEqual(self.j.db.execute(
             "SELECT COUNT(*) FROM broker_flat").fetchone()[0], 0)
 
+
+    def test_readonly_cycle_finam_emergency_exit_flat_reconciled(self):
+        from IntradayLab.m15_robot.execution_cycle import reconcile_m15_readonly_once
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        owned = self.synthetic_owned_n4()
+        entry_key = owned["key"]
+        stop_key = "m15:trade-1:stop:0"
+        exit_key = "m15:exit:trade-1:readonly"
+        exit_draft = self.j.prepare_emergency_exit_from_broker(
+            entry_key=entry_key, stop_key=stop_key, exit_key=exit_key,
+            drafts=owned["drafts"], account=owned["account"],
+            orders_response=owned["orders_response"])
+        self.j.begin_exit_post_uncertain(
+            entry_key=entry_key, stop_key=stop_key, exit_key=exit_key,
+            draft=exit_draft, account=owned["account"],
+            orders_response=owned["orders_response"])
+        flat = dict(owned["account"], positions=[])
+        terminal = [dict(row) for row in owned["orders_response"]["orders"]]
+        terminal[-1]["status"] = "ORDER_STATUS_CANCELLED"
+        terminal.append({
+            "order_id": "broker-exit-readonly", "status": "ORDER_STATUS_FILLED",
+            "order": dict(exit_draft.payload),
+        })
+        api = object.__new__(M15FinamReadOnlyAPI)
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-SYNTH"),
+              patch.object(M15FinamReadOnlyAPI, "account", return_value=flat),
+              patch.object(M15FinamReadOnlyAPI, "orders",
+                           return_value={"orders": terminal})):
+            result = reconcile_m15_readonly_once(
+                journal=self.j, api=api, m15_account_id="M15-SYNTH",
+                observed_at=datetime(2026, 10, 20, 12, tzinfo=timezone.utc))
+            self.assertEqual(result["events"][-1]["state"],
+                             "FLAT_DURABLY_RECONCILED")
+            self.assertEqual(self.j.db.execute(
+                "SELECT reason FROM broker_flat").fetchone()[0], "EMERGENCY_EXIT")
+            self.assertFalse(result["live_authorized"])
+
+    def test_readonly_cycle_missing_exit_fill_never_claims_flat(self):
+        from IntradayLab.m15_robot.execution_cycle import reconcile_m15_readonly_once
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        owned = self.synthetic_owned_n4()
+        exit_key = "m15:exit:trade-1:unproven"
+        proposal = self.j.prepare_emergency_exit_from_broker(
+            entry_key=owned["key"], stop_key="m15:trade-1:stop:0",
+            exit_key=exit_key, drafts=owned["drafts"],
+            account=owned["account"],
+            orders_response=owned["orders_response"])
+        self.j.begin_exit_post_uncertain(
+            entry_key=owned["key"], stop_key="m15:trade-1:stop:0",
+            exit_key=exit_key, draft=proposal,
+            account=owned["account"],
+            orders_response=owned["orders_response"])
+        flat = dict(owned["account"], positions=[])
+        terminal = [dict(row) for row in owned["orders_response"]["orders"]]
+        terminal[-1]["status"] = "ORDER_STATUS_CANCELLED"
+        api = object.__new__(M15FinamReadOnlyAPI)
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-SYNTH"),
+              patch.object(M15FinamReadOnlyAPI, "account", return_value=flat),
+              patch.object(M15FinamReadOnlyAPI, "orders",
+                           return_value={"orders": terminal})):
+            with self.assertRaisesRegex(M15ExecutionError,
+                                        "FLAT_EXIT_FILL_ORDER_UNVERIFIED"):
+                reconcile_m15_readonly_once(
+                    journal=self.j, api=api, m15_account_id="M15-SYNTH",
+                    observed_at=datetime(2026, 10, 20, 12, tzinfo=timezone.utc))
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM broker_flat").fetchone()[0], 0)
+
     def test_restart_recovers_exact_entry_draft_without_reposting(self):
         self.j.prepare(key=self.key, draft=self.draft)
         self.j.begin_post_uncertain(key=self.key, draft=self.draft)
