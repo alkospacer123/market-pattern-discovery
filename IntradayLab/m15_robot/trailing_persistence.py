@@ -223,3 +223,64 @@ def record_verified_trailing_state(
             journal.db.execute("ROLLBACK")
         raise
     return candidate
+
+
+def record_verified_trail_hold(
+    *, journal: M15OutboundJournal, entry_key: str,
+    pending: PendingTrail, account: dict, orders_response: dict,
+    price_step: Decimal,
+) -> TrailingState:
+    """Advance survived-candle extrema/watermark if broker STOP needs no change.
+
+    Reuses already broker-confirmed ACTIVE 100% SLTP, never submits an order.
+    No watermark is advanced until current FINAM GET proves the old stop is
+    still the sole active protection with exact covered contracts.
+    """
+    if not isinstance(pending, PendingTrail) or pending.replace_required:
+        raise M15TrailPersistenceError("M15_TRAIL_HOLD_PROPOSAL_REQUIRED")
+    old = _read(journal, entry_key)
+    confirmed = verified_broker_trailing_state(
+        journal=journal, entry_key=entry_key,
+        account=account, orders_response=orders_response,
+    )
+    if (old is None or confirmed is None or pending.before != confirmed
+            or pending.broker_position_qty != old["qty"]
+            or hashlib.sha256(pending.broker_stop_id_at_proposal.encode()).hexdigest()
+            != old["stop_sha"]):
+        raise M15TrailPersistenceError("M15_TRAIL_HOLD_BROKER_STATE_MISMATCH")
+    stop = next((x for x in order_views(orders_response)
+                 if x.active and x.kind == "SLTP"
+                 and hashlib.sha256(x.order_id.encode()).hexdigest() == old["stop_sha"]),
+                None)
+    if stop is None:
+        raise M15TrailPersistenceError("M15_TRAIL_HOLD_ACTIVE_STOP_MISSING")
+    proof = BrokerProtection(stop.order_id, confirmed.active_stop, 100, old["qty"], True)
+    candidate = confirm_trail(
+        pending, observed_stop=proof, observed_stop_count=1,
+        broker_position_qty=old["qty"], price_step=price_step)
+    if (candidate.active_stop != confirmed.active_stop
+            or candidate.last_survived_m15_close == confirmed.last_survived_m15_close):
+        raise M15TrailPersistenceError("M15_TRAIL_HOLD_BAR_NOT_ADVANCED")
+    changed = dict(old)
+    changed["extreme"] = str(candidate.extreme)
+    changed["last_completed"] = candidate.last_survived_m15_close
+    key = "trailing-v1:" + entry_key
+    journal.db.execute("BEGIN IMMEDIATE")
+    try:
+        if _read(journal, entry_key) != old:
+            raise M15TrailPersistenceError("M15_TRAIL_HOLD_STATE_CONFLICT")
+        journal.db.execute(
+            "UPDATE metadata SET value=? WHERE key=?",
+            (json.dumps(changed,sort_keys=True,separators=(",", ":")),key),
+        )
+        verified = verified_broker_trailing_state(
+            journal=journal, entry_key=entry_key,
+            account=account, orders_response=orders_response)
+        if verified != candidate:
+            raise M15TrailPersistenceError("M15_TRAIL_HOLD_VERIFY_FAILED")
+        journal.db.execute("COMMIT")
+    except Exception:
+        if journal.db.in_transaction:
+            journal.db.execute("ROLLBACK")
+        raise
+    return candidate
