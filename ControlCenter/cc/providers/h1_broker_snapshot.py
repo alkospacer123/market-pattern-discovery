@@ -99,7 +99,8 @@ def validate(raw, policy, now):
     if received > now + timedelta(seconds=10):
         raise ValueError('FUTURE_RECEIPT')
     status = 'CURRENT' if now - received <= timedelta(seconds=policy['received_ttl_seconds']) else 'STALE'
-    return dict(status=status, received_at=received, quantities={s: quantities[s] for s in N4},
+    return dict(status=status, received_at=received, expires_at=received + timedelta(seconds=policy['received_ttl_seconds']),
+                quantities={s: quantities[s] for s in N4},
                 other_nonzero=value['other_nonzero_position_symbols'],
                 order_rows=value['order_rows'], active_orders=value['active_order_rows'],
                 active_sltp=value['active_sltp_order_rows'],
@@ -125,12 +126,12 @@ def manual_broker_refresh(now):
         return unavailable
 
 
-def age(observation, now, ttl=600):
+def age(observation, now):
     """Never let an earlier cache become CURRENT after expiry or clock rewind."""
     if observation is None:
         return dict(status='UNKNOWN', reason='MANUAL_REFRESH_REQUIRED')
     if observation.get('status') != 'CURRENT':
         return observation
-    if now < observation['received_at'] or now - observation['received_at'] > timedelta(seconds=ttl):
+    if now < observation['received_at'] or now > observation['expires_at']:
         return dict(observation, status='STALE')
     return observation
