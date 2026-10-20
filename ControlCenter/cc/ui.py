@@ -71,13 +71,15 @@ def robot_card(snapshot: RobotSnapshot, now: datetime):
         source(snapshot, now)
 
 
-def overview(snapshots: dict, now: datetime):
+def overview(snapshots: dict, now: datetime, broker=None):
     st.subheader("Два робота · два независимых контура")
     st.caption("H1 отображает только состояние своего выбранного источника; M15 — NOT_DEPLOYED. Сценарии в боковой панели меняют только локальные тестовые снимки.")
     for column, robot_id in zip(st.columns(2), RobotId):
         with column:
             robot_card(snapshots[robot_id], now)
     st.info("Счета, капитал и риск H1 / M15 отображаются раздельно. Суммарного портфеля двух роботов нет.")
+    if broker is not None:
+        broker_readonly_view(broker)
 
 
 def chart_view(snapshot: RobotSnapshot, key: str):
@@ -108,6 +110,32 @@ def order_rows(snapshot: RobotSnapshot):
              "Исполнено": str(o.filled_quantity) if o.filled_quantity is not None else "UNKNOWN",
              "Цена исполнения": metric(o.fill_price), "Доказательство": o.fill_evidence or "UNKNOWN"}
             for o in snapshot.orders]
+
+
+def broker_readonly_view(broker):
+    """Separate FINAM response rows; neither H1 health nor position protection."""
+    st.subheader("FINAM · отдельное READONLY-наблюдение брокера")
+    if not broker or broker.get('status') == 'UNKNOWN':
+        st.info("UNKNOWN · защищённый брокерский снимок ещё не принят. Нажмите «Обновить данные» после отдельной публикации.")
+        return
+    if broker['status'] == 'STALE':
+        st.warning("STALE · данные устарели, показаны только как история наблюдения.")
+    else:
+        st.caption("CURRENT · принятый обезличенный ответ FINAM REAL_READONLY; только время получения API-ответа.")
+    st.caption("Ответ получен: " + stamp(broker['received_at']) +
+               ". Оригинальная временная метка брокерского снимка: НЕ ПРЕДОСТАВЛЕНА.")
+    st.dataframe([{"Инструмент": symbol, "Контрактов в ответе": broker['quantities'][symbol]}
+                  for symbol in ('USDRUBF', 'CNYRUBF', 'GLDRUBF', 'IMOEXF')],
+                 hide_index=True, width="stretch")
+    a, b, c = st.columns(3)
+    a.metric("Строки заявок FINAM", broker['order_rows'])
+    b.metric("Активные заявки FINAM", broker['active_orders'])
+    c.metric("Активные SLTP-строки", broker['active_sltp'])
+    st.caption("Других инструментов с ненулевым количеством в ответе: " +
+               str(broker['other_nonzero']) +
+               ". Полнота/пагинация ответа: НЕ ДОКАЗАНА. Нули не означают подтверждённый flat.")
+    st.caption("H1 ownership: UNVERIFIED · покрытие стопом: UNVERIFIED · FILL, PnL, equity: UNKNOWN. " 
+               "Одна заявка или SLTP не доказывает защиту позиции.")
 
 
 def readonly_details(snapshot):
@@ -147,7 +175,7 @@ def readonly_details(snapshot):
     st.caption(f"Вводы: {metric(details.deposits)} · Выводы: {metric(details.withdrawals)} · Доступная маржа: {metric(details.available_margin)}")
 
 
-def monitor(snapshot: RobotSnapshot, now: datetime):
+def monitor(snapshot: RobotSnapshot, now: datetime, broker=None):
     status_banner(snapshot, now)
     source(snapshot, now)
     st.write("**Heartbeat:** " + stamp(snapshot.status.heartbeat_at))
@@ -156,6 +184,8 @@ def monitor(snapshot: RobotSnapshot, now: datetime):
         st.info(snapshot.status.session)
     chart_view(snapshot, snapshot.status.provenance.robot_id.value)
     readonly_details(snapshot)
+    if broker is not None:
+        broker_readonly_view(broker)
     st.subheader(f"Условия, стопы и состояние инструментов · {mode(snapshot)}")
     st.dataframe([{"Инструмент": r.instrument, "Состояние источника": r.state.value,
                    "Свеча runtime": stamp(r.last_bar_at), "Условие / отказ": r.condition or "UNKNOWN",
@@ -182,7 +212,7 @@ def choose_robot(snapshots: dict, key: str) -> RobotSnapshot:
     return snapshots[robot]
 
 
-def trades_view(snapshot: RobotSnapshot, now: datetime):
+def trades_view(snapshot: RobotSnapshot, now: datetime, broker=None):
     status_banner(snapshot, now)
     source(snapshot, now)
     st.subheader(f"Финансы отдельного счёта · {mode(snapshot)}")
@@ -198,6 +228,8 @@ def trades_view(snapshot: RobotSnapshot, now: datetime):
     else:
         st.caption(f"{mode(snapshot)}. Equity не является чистой торговой прибылью. Неполные финансы скрыты; PnL по ACK/модельным ценам не вычисляется.")
         readonly_details(snapshot)
+    if broker is not None:
+        broker_readonly_view(broker)
     st.subheader(f"Активные позиции · {mode(snapshot)}")
     if snapshot.positions is None:
         st.info("UNKNOWN — позиции не наблюдались.")
@@ -260,18 +292,20 @@ def controls_view(snapshots: dict, now: datetime):
     st.caption("Кнопки не имеют обработчиков. Отдельный защищённый control plane — будущая работа после проверки и разрешения оператора.")
 
 
-def render(page: str, snapshots: dict, now: datetime):
+def render(page: str, snapshots: dict, now: datetime, broker=None):
     if page == PAGES[0]:
-        overview(snapshots, now)
+        overview(snapshots, now, broker=broker)
     elif page in (PAGES[1], PAGES[2]):
-        monitor(snapshots[RobotId.H1 if page == PAGES[1] else RobotId.M15], now)
+        selected = RobotId.H1 if page == PAGES[1] else RobotId.M15
+        monitor(snapshots[selected], now, broker=broker if selected == RobotId.H1 else None)
     elif page == PAGES[3]:
         snapshot = choose_robot(snapshots, "chart-robot")
         status_banner(snapshot, now)
         source(snapshot, now)
         chart_view(snapshot, "signals")
     elif page == PAGES[4]:
-        trades_view(choose_robot(snapshots, "trades-robot"), now)
+        selected = choose_robot(snapshots, "trades-robot")
+        trades_view(selected, now, broker=broker if selected.status.provenance.robot_id == RobotId.H1 else None)
     elif page == PAGES[5]:
         events_view(snapshots, now)
     else:
