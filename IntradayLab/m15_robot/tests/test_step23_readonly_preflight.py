@@ -8,7 +8,7 @@ from unittest.mock import patch
 from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
 from IntradayLab.m15_robot.step23_readonly_preflight import (
     M15Step23PreflightError, inspect_m15_halted_runtime,
-    verify_m15_step23_financial_preflight,
+    verify_m15_step23_financial_preflight, safe_preflight_failure_code,
 )
 from IntradayLab.m15_robot.spec import INSTRUMENTS
 
@@ -124,6 +124,34 @@ class M15Step23PreflightTests(TestCase):
             with self.assertRaisesRegex(M15Step23PreflightError,
                                         "NO_AVAILABLE_GO"):
                 verify_m15_step23_financial_preflight(**self.kw)
+
+    def test_failure_codes_never_contain_untrusted_error_payload(self):
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyError
+        self.assertEqual(
+            safe_preflight_failure_code(
+                M15Step23PreflightError("M15_STEP23_NO_AVAILABLE_GO")),
+            "M15_STEP23_NO_AVAILABLE_GO")
+        self.assertEqual(
+            safe_preflight_failure_code(
+                M15FinamReadOnlyError("secret=token-123 account=999")),
+            "M15_STEP23_UNCLASSIFIED_ERROR")
+        self.assertEqual(
+            safe_preflight_failure_code(RuntimeError("jwt=x")),
+            "M15_STEP23_UNEXPECTED_ERROR")
+
+    def test_failure_stage_is_local_and_safe(self):
+        stages = []
+        with self.patch_broker(account={**ACCOUNT,
+                "portfolio_forts": {
+                    "available_cash": {"value": "0"},
+                    "money_reserved": {"value": "20000"},
+                }}):
+            with self.assertRaisesRegex(M15Step23PreflightError,
+                                        "NO_AVAILABLE_GO"):
+                verify_m15_step23_financial_preflight(
+                    **self.kw, diagnostic=stages.append)
+        self.assertEqual(stages[-1], "available_go")
+        self.assertEqual(stages[0], "static_guard")
 
     def test_existing_production_artifacts_require_review_no_overwrite(self):
         (self.root/"diagnostics").mkdir()
