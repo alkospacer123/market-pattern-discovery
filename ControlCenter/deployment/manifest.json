@@ -31,7 +31,7 @@
     },
     {
       "path": "broker_readonly/publish-from-one-shot.ps1",
-      "sha256": "1a05078f48c8a5161cd82f6fb7cc5203f40667a6d0cc6981105106641a1a60dc"
+      "sha256": "635eb81f3fd141b862dade5084ed8ead344e88f07ee5168103742509d7e570ab"
     },
     {
       "path": "cc/__init__.py",
