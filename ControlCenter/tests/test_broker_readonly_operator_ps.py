@@ -36,7 +36,7 @@ def test_native_powershell_parser_and_preview():
     code = ("$tokens=$null;$errors=$null;"
             f"[void][system.management.automation.language.parser]::parsefile('{SCRIPT}',"
             "[ref]$tokens,[ref]$errors);"
-            "if(@($errors).count -ne 0){exit 1}")
+            "if($null -ne $errors -and @($errors).count -gt 0){exit 1}")
     p = subprocess.run(['powershell.exe','-noprofile','-noninteractive','-command',code],
                        capture_output=True,text=True,timeout=20)
     assert p.returncode == 0, 'OPERATOR_SCRIPT_POWERSHELL_SYNTAX'
