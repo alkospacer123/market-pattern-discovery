@@ -8,7 +8,8 @@ not declared ready until a separate M15 live acceptance.
 """
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from decimal import Decimal
 import hashlib
 from typing import Any
@@ -21,6 +22,7 @@ from .broker_snapshot import (
 from .exchange_contract import contract_from_moex_and_finam
 from .finam_readonly import M15FinamReadOnlyAPI, _stamp
 from .live_execution import M15OutboundJournal, M15ExecutionError
+from .service_clock import M15SingleInstance, _atomic_json
 
 
 class M15ReadOnlyCycleError(RuntimeError):
@@ -174,3 +176,60 @@ def reconcile_m15_readonly_once(
         "stop_coverage_globally_proven": False,
         "live_authorized": False,
     }
+
+
+def run_m15_readonly_recovery_once(
+    *, runtime_root: Path, journal: M15OutboundJournal,
+    api: M15FinamReadOnlyAPI, m15_account_id: str,
+    observed_at: datetime,
+    trade_start: str | None = None, trade_end: str | None = None,
+    stop_trade_tag: str | None = None, limit: int = 1000,
+) -> dict:
+    """One OS-locked recovery poll plus separate, non-authorizing heartbeat.
+
+    The existing native Windows process lock prevents duplicate M15 workers.
+    On errors, a FAULT_HALTED heartbeat replaces a stale healthy readout.
+    No external authorization, order route, H1 path or Task is touched.
+    """
+    if (not isinstance(runtime_root, Path)
+            or not isinstance(journal, M15OutboundJournal)
+            or not isinstance(observed_at, datetime)
+            or observed_at.tzinfo is None
+            or observed_at.utcoffset() is None):
+        raise M15ReadOnlyCycleError("M15_READONLY_CYCLE_ARGUMENT_INVALID")
+    root = runtime_root.resolve()
+    if (runtime_root.is_symlink()
+            or journal.path.parent.parent.resolve() != root):
+        raise M15ReadOnlyCycleError("M15_READONLY_CYCLE_RUNTIME_MISMATCH")
+    state = root / "state"
+    diagnostics = root / "diagnostics"
+    if state.is_symlink() or diagnostics.is_symlink():
+        raise M15ReadOnlyCycleError("M15_READONLY_CYCLE_SYMLINK_DENIED")
+    diagnostics.mkdir(parents=True, exist_ok=True)
+    heartbeat = diagnostics / "m15-readonly-execution-recovery.json"
+    base = {
+        "schema_id": "m15_readonly_execution_recovery.v1",
+        "observed_utc": observed_at.astimezone(timezone.utc).isoformat(),
+        "live_authorized": False,
+        "order_post_permitted": False,
+    }
+    with M15SingleInstance(state / "m15-outbound-recovery.lock"):
+        try:
+            result = reconcile_m15_readonly_once(
+                journal=journal, api=api, m15_account_id=m15_account_id,
+                trade_start=trade_start, trade_end=trade_end,
+                stop_trade_tag=stop_trade_tag, limit=limit,
+            )
+        except Exception:
+            # Never serialize a FINAM exception body, account, symbol or token.
+            _atomic_json(heartbeat, base | {
+                "status": "FAULT_HALTED_NO_TRADING", "intent_count": None,
+                "broker_position_count": None,
+            })
+            raise
+        _atomic_json(heartbeat, base | {
+            "status": "HALTED_READONLY_RECOVERY",
+            "intent_count": result["intent_count"],
+            "broker_position_count": result["broker_position_count"],
+        })
+        return result

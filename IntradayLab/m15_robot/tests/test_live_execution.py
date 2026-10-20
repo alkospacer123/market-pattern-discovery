@@ -1758,6 +1758,70 @@ class M15ExecutionStageTests(unittest.TestCase):
             account.assert_not_called()
             orders.assert_not_called()
 
+
+    def test_readonly_recovery_operator_one_cycle_heartbeat_and_restart(self):
+        from IntradayLab.m15_robot.execution_cycle import run_m15_readonly_recovery_once
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        self.j.prepare(key=self.key, draft=self.draft)
+        account = {"account_id": "M15-SYNTH", "status": "ACCOUNT_ACTIVE",
+                   "positions": []}
+        api = object.__new__(M15FinamReadOnlyAPI)
+        kw = dict(
+            runtime_root=self.args["runtime_root"], journal=self.j,
+            api=api, m15_account_id="M15-SYNTH",
+            observed_at=datetime(2026,10,20,12,tzinfo=timezone.utc))
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-SYNTH"),
+              patch.object(M15FinamReadOnlyAPI, "account", return_value=account),
+              patch.object(M15FinamReadOnlyAPI, "orders",
+                           return_value={"orders": []})):
+            result = run_m15_readonly_recovery_once(**kw)
+            self.assertEqual(result["status"], "HALTED_READONLY_RECOVERY")
+            heartbeat = self.args["runtime_root"] / "diagnostics" / "m15-readonly-execution-recovery.json"
+            recorded = json.loads(heartbeat.read_text(encoding="utf-8"))
+            self.assertFalse(recorded["order_post_permitted"])
+            self.assertFalse(recorded["live_authorized"])
+            self.assertEqual(recorded["intent_count"], 1)
+            self.j.close()
+            self.j = M15OutboundJournal(**self.args)
+            kw["journal"] = self.j
+            again = run_m15_readonly_recovery_once(**kw)
+            self.assertEqual(result, again)
+
+    def test_readonly_recovery_duplicate_instance_refused_without_network(self):
+        from IntradayLab.m15_robot.execution_cycle import run_m15_readonly_recovery_once
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        from IntradayLab.m15_robot.service_clock import M15SingleInstance, M15ClockError
+        api = object.__new__(M15FinamReadOnlyAPI)
+        state = self.args["runtime_root"] / "state"
+        with M15SingleInstance(state / "m15-outbound-recovery.lock"):
+            with patch.object(M15FinamReadOnlyAPI, "account") as account:
+                with self.assertRaisesRegex(M15ClockError, "SECOND_PROCESS"):
+                    run_m15_readonly_recovery_once(
+                        runtime_root=self.args["runtime_root"], journal=self.j,
+                        api=api, m15_account_id="M15-SYNTH",
+                        observed_at=datetime(2026,10,20,12,tzinfo=timezone.utc))
+                account.assert_not_called()
+
+    def test_readonly_recovery_fault_overwrites_stale_heartbeat(self):
+        from IntradayLab.m15_robot.execution_cycle import (
+            run_m15_readonly_recovery_once, M15ReadOnlyCycleError,
+        )
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        api = object.__new__(M15FinamReadOnlyAPI)
+        heartbeat = self.args["runtime_root"] / "diagnostics" / "m15-readonly-execution-recovery.json"
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-OTHER")):
+            with self.assertRaisesRegex(M15ReadOnlyCycleError,
+                                        "EXACT_READONLY_ACCOUNT_REQUIRED"):
+                run_m15_readonly_recovery_once(
+                    runtime_root=self.args["runtime_root"], journal=self.j,
+                    api=api, m15_account_id="M15-SYNTH",
+                    observed_at=datetime(2026,10,20,12,tzinfo=timezone.utc))
+        recorded = json.loads(heartbeat.read_text(encoding="utf-8"))
+        self.assertEqual(recorded["status"], "FAULT_HALTED_NO_TRADING")
+        self.assertFalse(recorded["live_authorized"])
+
     def test_restart_recovers_exact_entry_draft_without_reposting(self):
         self.j.prepare(key=self.key, draft=self.draft)
         self.j.begin_post_uncertain(key=self.key, draft=self.draft)
