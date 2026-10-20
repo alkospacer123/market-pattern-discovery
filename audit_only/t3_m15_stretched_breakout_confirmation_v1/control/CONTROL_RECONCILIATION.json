@@ -1,0 +1,11 @@
+{
+  "CLOSED": 1114,
+  "INITIAL_STOP": 356,
+  "PR518_and_PR560_compared_fields": 473218,
+  "independent_full_replay_fields": 450938,
+  "independent_full_replay_rows": 31149,
+  "mismatches": 0,
+  "no_alternative": true,
+  "scope": "2023–2026 RETROSPECTIVE_CONTROL_ONLY; not new independent OOS",
+  "status": "PASS"
+}
