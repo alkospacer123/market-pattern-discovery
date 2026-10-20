@@ -18,6 +18,14 @@
       "sha256": "eaf3b40c74cd090aae26e05e0cb54eb93d7be2e3dacced965d86102672671bf9"
     },
     {
+      "path": "broker_readonly/__init__.py",
+      "sha256": "484eb994585385b78a0ff96935a82640b53a787264bca93bb88c984bc4bad243"
+    },
+    {
+      "path": "broker_readonly/contract.py",
+      "sha256": "dd3a3e63e6cf6528eaba9612928d383801510d8db4c656ae4bf907369edd0773"
+    },
+    {
       "path": "cc/__init__.py",
       "sha256": "a74f410e2f5fe634017a503907b0e8f73012bf93e72c0f33c9cbe24262c5628e"
     },
@@ -238,6 +246,10 @@
       "sha256": "fb48f4b2cdfb289fc54901a50abe4fca26e5325d9e97f791c254558b8ab0725f"
     },
     {
+      "path": "docs/CC03_FINAM_READONLY_ONE_SHOT_DESIGN.md",
+      "sha256": "9beec1a4390bca92aa2dcfd56c8fdb990bda1e6773389961da6c1e9cde0da742"
+    },
+    {
       "path": "docs/CC03_FUTURE_TELEMETRY_SPEC.md",
       "sha256": "a4fa9d7e8089dd9803e1f597b62220572d7ee5884fbf6f64b2c2aaa634cb50a2"
     },
@@ -420,6 +432,10 @@
     {
       "path": "tests/test_boundary.py",
       "sha256": "8344a60b3f9ec74244a98593aa5b930354ac18f5449e236c7f320a953f90687f"
+    },
+    {
+      "path": "tests/test_broker_readonly_contract.py",
+      "sha256": "d135f2d3e693474957b7696a1916fe2e5b947e06aa610f5e0b64148f3e54e722"
     },
     {
       "path": "tests/test_cc03_source.py",
