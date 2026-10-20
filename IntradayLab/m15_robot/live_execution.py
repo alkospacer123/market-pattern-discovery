@@ -2101,6 +2101,131 @@ class M15AuthorizedExecutionTransport:
             "live_reconciled": False,
         }
 
+    def drive_one_shot_initial_stop_once(
+        self, *, journal: M15OutboundJournal, entry_key: str,
+        entry_draft: M15Draft, stop_key: str, drafts: M15OfflineTradeDrafts,
+        instrument: str, direction: str, reference_entry: Decimal,
+        precommitted_stop: Decimal, atr_at_signal: Decimal,
+        contract: ContractAuthority, sized: SizedOrder,
+    ) -> dict:
+        """One #23 STOP-first transition on an owned REAL broker position.
+
+        The supervisor MUST keep polling until independent ACTIVE 100% broker
+        protection or proven broker FLAT. No-entry/fill-not-yet-seen is NOT an
+        acceptance outcome. An UNCERTAIN stop is ONLY GET-reconciled; never
+        POSTed twice. Grow-after-ACK fails closed until independently handled
+        by protected quantity-replacement logic. Current static M15 LIVE gates
+        make this method inert in production.
+        """
+        self._require_connected()
+        from .finam_trading import M15_ORDER_POST_RELEASED
+        if M15_ORDER_POST_RELEASED is not True:
+            raise M15PrePostRefused("M15_ONE_SHOT_STOP_POST_NOT_RELEASED")
+        if (not isinstance(journal, M15OutboundJournal)
+                or journal.account_hash != self.account_hash
+                or journal.path.parent.parent.resolve()
+                != self.runtime_root.resolve()):
+            raise M15ExecutionError("M15_ONE_SHOT_JOURNAL_IDENTITY_INVALID")
+        _valid_draft(entry_draft, account_hash=self.account_hash, key=entry_key)
+        if (entry_draft.kind != "ENTRY"
+                or entry_draft.payload["symbol"] != instrument + "@RTSX"
+                or direction not in {"LONG", "SHORT"}
+                or entry_draft.payload["side"] !=
+                ("SIDE_BUY" if direction == "LONG" else "SIDE_SELL")
+                or not isinstance(stop_key, str) or not _KEY.fullmatch(stop_key)
+                or not isinstance(drafts, M15OfflineTradeDrafts)):
+            raise M15ExecutionError("M15_ONE_SHOT_ENTRY_OR_STOP_IDENTITY_INVALID")
+        entry = journal.inspect(entry_key)
+        if (entry is None or entry["kind"] != "ENTRY"
+                or entry["state"] not in {"UNCERTAIN", "ACK"}
+                or entry["payload_sha256"] != _digest(entry_draft.payload)):
+            raise M15ExecutionError("M15_ONE_SHOT_ENTRY_POST_NOT_DURABLE")
+        # Check existing STOP identity FIRST. On restart UNCERTAIN/ACK must
+        # never be POSTed again. A merely PREPARED stop also needs
+        # independent recovery before any new operator send.
+        old_stop = journal.inspect(stop_key)
+        if old_stop is not None:
+            if (old_stop["kind"] not in
+                    {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}
+                    or old_stop["symbol"] != entry_draft.payload["symbol"]):
+                raise M15ExecutionError("M15_ONE_SHOT_STOP_KEY_REUSED")
+            if old_stop["state"] == "PREPARED":
+                return {
+                    "status": "STOP_PREPARED_REQUIRE_BROKER_RECOVERY",
+                    "position_protected": False,
+                    "new_entries_authorized": False,
+                    "live_acceptance_complete": False,
+                }
+            recovered = journal.recover_draft(stop_key)
+            # Missing, different or stale broker-side stop never proves cover;
+            # no duplicate POST regardless of the exception.
+            verified = self.reconcile_protective_from_finam(
+                journal=journal, key=stop_key, draft=recovered)
+            if (verified.active is not True or verified.percent != 100
+                    or verified.covered_quantity_at_ack <= 0):
+                raise M15ExecutionError("M15_ONE_SHOT_STOP_RECOVERY_NOT_ACTIVE_100")
+            return {
+                "status": "BROKER_STOP_100_PERCENT_RECOVERED",
+                "position_protected": True,
+                "new_entries_authorized": False,
+                "live_acceptance_complete": False,
+            }
+        account = self.api.account(self.account_id)
+        orders = self.api.orders(self.account_id)
+        if (not isinstance(account, dict)
+                or account.get("account_id") != self.account_id):
+            raise M15ExecutionError("M15_ONE_SHOT_BROKER_ACCOUNT_INVALID")
+        signed = position_quantities(account).get(
+            entry_draft.payload["symbol"], 0)
+        if signed == 0:
+            # Outstanding ENTRY, unresolved ACK or broker reporting delay:
+            # retain the original intent and poll again; NEVER create a
+            # second ENTRY, claim FLAT or mark #23 accepted.
+            return {
+                "status": "ENTRY_FILL_NOT_PROVEN_KEEP_POLLING",
+                "position_protected": False,
+                "new_entries_authorized": False,
+                "live_acceptance_complete": False,
+            }
+        if ((signed > 0) != (direction == "LONG")
+                or abs(signed) > int(entry_draft.payload["quantity"]["value"])):
+            raise M15ExecutionError("M15_ONE_SHOT_UNEXPECTED_POSITION")
+        # prepare_initial_stop_from_finam uses the original, durable R15/GO
+        # basis and a second same-JWT GET of owned broker order/position.
+        proposed = self.prepare_initial_stop_from_finam(
+            journal=journal, entry_key=entry_key, entry_draft=entry_draft,
+            stop_key=stop_key, drafts=drafts, instrument=instrument,
+            direction=direction, reference_entry=reference_entry,
+            precommitted_stop=precommitted_stop, atr_at_signal=atr_at_signal,
+            contract=contract, sized=sized)
+        # Fresh GET immediately before the protective POST; size must not
+        # grow or shrink between stop preparation and its durable boundary.
+        fresh_account = self.api.account(self.account_id)
+        fresh_orders = self.api.orders(self.account_id)
+        fresh_signed = position_quantities(fresh_account).get(
+            entry_draft.payload["symbol"], 0)
+        if fresh_signed != signed:
+            raise M15ExecutionError("M15_ONE_SHOT_POSITION_CHANGED_BEFORE_STOP")
+        # This transition commits stop UNCERTAIN durably BEFORE first POST.
+        # Its uncertainty on timeout requires broker GET, NEVER blind retry.
+        self.submit_protective_stop(
+            journal=journal, key=stop_key, draft=proposed,
+            broker_position_qty=signed, account=fresh_account,
+            orders_response=fresh_orders)
+        # HTTP ACK alone cannot prove protection. An ACTIVE 100% SLTP
+        # with exact size, identity and price must be seen via broker GET.
+        verified = self.reconcile_protective_from_finam(
+            journal=journal, key=stop_key, draft=proposed)
+        if (verified.active is not True or verified.percent != 100
+                or verified.covered_quantity_at_ack != abs(signed)):
+            raise M15ExecutionError("M15_ONE_SHOT_STOP_100_PERCENT_UNPROVEN")
+        return {
+            "status": "BROKER_STOP_100_PERCENT_CONFIRMED",
+            "position_protected": True,
+            "new_entries_authorized": False,
+            "live_acceptance_complete": False,
+        }
+
     def reconcile_entry_from_finam(
         self, *, journal: M15OutboundJournal, key: str, draft: M15Draft,
         expected: ExpectedEntry | None, stop_trade_tag: str,

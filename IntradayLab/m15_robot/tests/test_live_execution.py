@@ -2361,6 +2361,150 @@ class M15ExecutionStageTests(unittest.TestCase):
                 signal_closed_at=datetime.now(timezone.utc),
                 now=datetime.now(timezone.utc))
 
+    def one_shot_stop_context(self, *, signed=1):
+        from unittest.mock import Mock
+        from IntradayLab.m15_robot.live_execution import (
+            M15AuthorizedExecutionTransport,
+        )
+        self.j.prepare(key=self.key, draft=self.draft)
+        self.j.begin_post_uncertain(key=self.key, draft=self.draft)
+        stop_key = "m15:stop:synthetic:1"
+        entry_pos = {"account_id": "M15-SYNTH", "status": "ACCOUNT_ACTIVE",
+                     "positions": ([{"symbol":"CNYRUBF@RTSX",
+                                    "quantity":{"value":str(signed)}}]
+                                   if signed else [])}
+        transport = object.__new__(M15AuthorizedExecutionTransport)
+        transport.api = Mock()
+        transport.api.account.return_value = entry_pos
+        transport.api.orders.return_value = {"orders": []}
+        transport.account_id = "M15-SYNTH"
+        transport.account_hash = self.j.account_hash
+        transport.runtime_root = self.args["runtime_root"]
+        kw = dict(
+            journal=self.j, entry_key=self.key, entry_draft=self.draft,
+            stop_key=stop_key, drafts=Mock(), instrument="CNYRUBF",
+            direction="LONG", reference_entry=Decimal("12.505"),
+            precommitted_stop=Decimal("12.305"),
+            atr_at_signal=Decimal("0.1"), contract=Mock(), sized=Mock(),
+        )
+        # Replace the drafts mock with a genuine M15 account-bound draft
+        # container, while transport-specific broker actions stay mocked.
+        kw["drafts"] = M15OfflineTradeDrafts(
+            m15_account_id="M15-SYNTH",
+            h1_account_sha256=self.args["h1_account_sha256"],
+            m15_runtime_root=self.args["runtime_root"],
+            h1_runtime_root=self.args["h1_runtime_root"],
+            repository_root=self.args["repository_root"],
+        )
+        return transport, kw
+
+    def test_one_shot_stop_first_frozen_live_refuses_without_get(self):
+        transport, kw = self.one_shot_stop_context()
+        with patch.object(transport, "_require_connected",
+                          return_value=None), self.assertRaisesRegex(
+                              M15PrePostRefused, "STOP_POST_NOT_RELEASED"):
+            transport.drive_one_shot_initial_stop_once(**kw)
+        transport.api.account.assert_not_called()
+        transport.api.orders.assert_not_called()
+
+    def test_one_shot_stop_first_no_fill_never_submits(self):
+        from IntradayLab.m15_robot import finam_trading
+        transport, kw = self.one_shot_stop_context(signed=0)
+        with (patch.object(transport, "_require_connected"),
+              patch.object(finam_trading, "M15_ORDER_POST_RELEASED", True),
+              patch.object(transport, "submit_protective_stop") as send):
+            outcome = transport.drive_one_shot_initial_stop_once(**kw)
+        self.assertEqual(outcome["status"], "ENTRY_FILL_NOT_PROVEN_KEEP_POLLING")
+        self.assertFalse(outcome["position_protected"])
+        send.assert_not_called()
+
+    def test_one_shot_stop_first_prepared_stays_unsent_on_restart(self):
+        from IntradayLab.m15_robot import finam_trading
+        transport, kw = self.one_shot_stop_context()
+        self.j.prepare(key=kw["stop_key"], draft=self.stop(kw["stop_key"]))
+        with (patch.object(transport, "_require_connected"),
+              patch.object(finam_trading, "M15_ORDER_POST_RELEASED", True),
+              patch.object(transport, "submit_protective_stop") as send):
+            result = transport.drive_one_shot_initial_stop_once(**kw)
+        self.assertEqual(result["status"], "STOP_PREPARED_REQUIRE_BROKER_RECOVERY")
+        send.assert_not_called()
+
+    def test_one_shot_stop_first_uncertain_uses_get_never_reposts(self):
+        from IntradayLab.m15_robot import finam_trading
+        from unittest.mock import Mock
+        transport, kw = self.one_shot_stop_context()
+        self.j.prepare(key=kw["stop_key"], draft=self.stop(kw["stop_key"]))
+        self.j.begin_protective_post_uncertain(
+            key=kw["stop_key"], draft=self.stop(kw["stop_key"]),
+            account=transport.api.account.return_value,
+            orders_response={"orders":[]})
+        with (patch.object(transport, "_require_connected"),
+              patch.object(finam_trading, "M15_ORDER_POST_RELEASED", True),
+              patch.object(transport, "reconcile_protective_from_finam",
+                           return_value=Mock(active=True, percent=100,
+                                             covered_quantity_at_ack=1)) as get,
+              patch.object(transport, "submit_protective_stop") as send):
+            outcome=transport.drive_one_shot_initial_stop_once(**kw)
+        self.assertEqual(outcome["status"], "BROKER_STOP_100_PERCENT_RECOVERED")
+        get.assert_called_once()
+        send.assert_not_called()
+
+    def test_one_shot_stop_first_position_changes_before_stop_aborts(self):
+        from IntradayLab.m15_robot import finam_trading
+        from unittest.mock import Mock
+        transport, kw=self.one_shot_stop_context()
+        first=transport.api.account.return_value
+        second={"account_id":"M15-SYNTH","status":"ACCOUNT_ACTIVE",
+                "positions":[{"symbol":"CNYRUBF@RTSX",
+                              "quantity":{"value":"2"}}]}
+        transport.api.account.side_effect=[first,second]
+        with (patch.object(transport, "_require_connected"),
+              patch.object(finam_trading, "M15_ORDER_POST_RELEASED", True),
+              patch.object(transport, "prepare_initial_stop_from_finam",
+                           return_value=self.stop(kw["stop_key"])),
+              patch.object(transport, "submit_protective_stop") as send,
+              self.assertRaisesRegex(M15ExecutionError,
+                                      "POSITION_CHANGED_BEFORE_STOP")):
+            transport.drive_one_shot_initial_stop_once(**kw)
+        send.assert_not_called()
+
+    def test_one_shot_stop_first_requires_independent_sltp_get(self):
+        from IntradayLab.m15_robot import finam_trading
+        from unittest.mock import Mock
+        transport, kw=self.one_shot_stop_context()
+        with (patch.object(transport, "_require_connected"),
+              patch.object(finam_trading, "M15_ORDER_POST_RELEASED", True),
+              patch.object(transport, "prepare_initial_stop_from_finam",
+                           return_value=self.stop(kw["stop_key"])),
+              patch.object(transport, "submit_protective_stop",
+                           return_value={"post_ack_observed":True}) as send,
+              patch.object(transport, "reconcile_protective_from_finam",
+                           return_value=Mock(active=False, percent=100,
+                                             covered_quantity_at_ack=1)),
+              self.assertRaisesRegex(M15ExecutionError,
+                                      "STOP_100_PERCENT_UNPROVEN")):
+            transport.drive_one_shot_initial_stop_once(**kw)
+        send.assert_called_once()
+
+    def test_one_shot_stop_first_active_100_percent_is_only_partial_acceptance(self):
+        from IntradayLab.m15_robot import finam_trading
+        from unittest.mock import Mock
+        transport, kw=self.one_shot_stop_context()
+        with (patch.object(transport, "_require_connected"),
+              patch.object(finam_trading, "M15_ORDER_POST_RELEASED", True),
+              patch.object(transport, "prepare_initial_stop_from_finam",
+                           return_value=self.stop(kw["stop_key"])),
+              patch.object(transport, "submit_protective_stop",
+                           return_value={"post_ack_observed":True}),
+              patch.object(transport, "reconcile_protective_from_finam",
+                           return_value=Mock(active=True, percent=100,
+                                             covered_quantity_at_ack=1))):
+            outcome=transport.drive_one_shot_initial_stop_once(**kw)
+        self.assertEqual(outcome["status"], "BROKER_STOP_100_PERCENT_CONFIRMED")
+        self.assertTrue(outcome["position_protected"])
+        self.assertFalse(outcome["live_acceptance_complete"])
+        self.assertFalse(outcome["new_entries_authorized"])
+
     def test_restart_recovers_exact_entry_draft_without_reposting(self):
         self.j.prepare(key=self.key, draft=self.draft)
         self.j.begin_post_uncertain(key=self.key, draft=self.draft)
