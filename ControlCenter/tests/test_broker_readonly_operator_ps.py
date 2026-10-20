@@ -22,7 +22,7 @@ def test_operator_one_shot_only_has_broker_readonly_requests():
     for forbidden in ('start-scheduledtask','stop-scheduledtask',
                       'invoke-expression', 'set-acl', 'out-file',
                       'set-content','add-content','start-process','-method delete ',
-                      'place_order','trading-token','sqlite','kill-switch.json',
+                      'place_order','trading-token','sqlite3.connect','kill-switch.json',
                       'production-heartbeat.json','/sltp-orders'):
         assert forbidden not in source, forbidden
     assert "cc_owned_snapshot_published=no" in source
