@@ -1,4 +1,7 @@
 {
+  "all_39_non_AUDIT_artifacts_equal_to_prior_freeze": true,
+  "generated_files": 40,
+  "new_three_fresh_processes_completed": 3,
   "new_three_fresh_processes_required": true,
   "prior_freeze": {
     "alternatives": [
@@ -92,5 +95,6 @@
     "status": "PASS"
   },
   "reason": "README stated Python 3.11; actual AUDIT runtime is 3.12.14",
-  "trading_and_verifier_code_unchanged": true
+  "trading_and_verifier_code_unchanged": true,
+  "trading_results_changed": false
 }
