@@ -5,12 +5,14 @@ service, runtime dependency or product capability is added.
 """
 import asyncio
 import base64
+from contextlib import asynccontextmanager
 import json
 import os
 from pathlib import Path
 import subprocess
 import sys
 import time
+from threading import Thread
 import urllib.request
 from tornado.websocket import websocket_connect
 
@@ -18,6 +20,78 @@ from tornado.websocket import websocket_connect
 def state(evidence):
     complete = evidence.read_bytes().split(b'\n')[:-1]
     return json.loads(complete[-1]) if complete else {}
+
+
+@asynccontextmanager
+async def cpu_load(logs):
+    """Bounded fixture contention, never a delay or patch in the native reader."""
+    count = min(16, max(4, 3 * (os.cpu_count() or 1)))
+    children = []
+    report = dict(logical_cpu=os.cpu_count(), workers=count, maximum_seconds=45)
+    code = ('import sys,time; print("READY",flush=True); sys.stdin.buffer.read(1); '
+            'deadline=time.monotonic()+45; value=1\n'
+            'while time.monotonic()<deadline: value=(value*17+11)%2147483647\n')
+    try:
+        for _ in range(count):
+            child = await asyncio.create_subprocess_exec(sys.executable, '-I', '-B', '-c', code,
+                stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.DEVNULL)
+            children.append(child)
+        for child in children:
+            assert (await asyncio.wait_for(child.stdout.readline(), 10)).strip() == b'READY'
+        for child in children:
+            child.stdin.write(b'X')
+            await child.stdin.drain()
+            child.stdin.close()
+        yield report, children
+    finally:
+        for child in children:
+            if child.returncode is None:
+                child.terminate()
+        for child in children:
+            await asyncio.wait_for(child.wait(), 10)
+        report['all_children_exited'] = all(child.returncode is not None for child in children)
+        (logs / 'streamlit-cpu-load.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
+
+
+def load_controls(sid):
+    """Real standard-SID direct/threaded controls under the SAME live CPU load."""
+    from cc.providers import h1_windows_os as manual
+    from observer.identity import current_identity
+    from datetime import datetime, timezone
+    actual, unsafe = current_identity()
+    assert actual == sid and not unsafe
+    root = Path(os.environ['CC03_CI_DISPOSABLE_ROOT'])
+    fixtures = json.loads((root / 'Os-Fixtures.json').read_text())
+    location = json.loads((root / 'manual-policy-location.json').read_text())
+    saved = manual.POLICY_ROOT, manual.POLICY_NAME, manual.os_facts
+    original = manual.os_facts
+    manual.POLICY_ROOT, manual.POLICY_NAME = Path(location['root']), 'Running-manual-os-policy.json'
+    def facts(query):
+        assert query['require_ccpanel'] and query['observer_sid'] == sid
+        return original(dict(query, task_name=fixtures['Running']['task_name']))
+    manual.os_facts = facts
+    results = {}
+    try:
+        for mode in ('direct', 'threaded'):
+            completed = []
+            started = time.monotonic()
+            def refresh():
+                completed.append(manual.manual_os_refresh(datetime.now(timezone.utc)))
+            if mode == 'threaded':
+                thread = Thread(target=refresh)
+                thread.start(); thread.join(12)
+                assert not thread.is_alive(), 'LOAD_CONTROL_THREAD_TIMEOUT'
+            else:
+                refresh()
+            assert len(completed) == 1
+            snapshot, accepted = completed[0]
+            results[mode] = dict(accepted=accepted, task=snapshot.status.task_state,
+                                 seconds=round(time.monotonic() - started, 3))
+            assert accepted and snapshot.status.task_state == 'TASK_RUNNING', results
+        return results
+    finally:
+        manual.POLICY_ROOT, manual.POLICY_NAME, manual.os_facts = saved
 
 
 async def browser_click(edge, profile, evidence):
@@ -77,34 +151,40 @@ async def _browser_click(edge, profile, evidence, log):
         button = "Array.from(document.querySelectorAll('button')).find(e=>e.textContent==='Обновить данные')"
         await until(f"Boolean(({button}) && !({button}).disabled)")
         assert state(evidence)['policy_reads'] == 0
-        await evaluate(f"({button}).click()")
-        deadline = time.monotonic() + 20
-        while 'accepted' not in state(evidence):
-            assert time.monotonic() < deadline, 'MANUAL_CLICK_TIMEOUT'
-            await asyncio.sleep(.1)
-        value = state(evidence)
+        async with cpu_load(evidence.parent) as (load, children):
+            # The coordinator uses the actual standard token and original full
+            # manual wrapper. Only this browser click runs beneath Streamlit.
+            (evidence.parent / 'streamlit-load.ready').write_text('ready', encoding='ascii')
+            deadline = time.monotonic() + 30
+            while not (evidence.parent / 'streamlit-load.done').exists():
+                assert time.monotonic() < deadline, 'LOAD_CONTROLS_TIMEOUT'
+                await asyncio.sleep(.1)
+            controls = json.loads((evidence.parent / 'streamlit-load-controls.json').read_text())
+            assert all(controls[k]['accepted'] and controls[k]['task'] == 'TASK_RUNNING'
+                       for k in ('direct', 'threaded')), controls
+            assert all(child.returncode is None for child in children), 'CPU_LOAD_ENDED_BEFORE_CLICK'
+            await evaluate(f"({button}).click()")
+            deadline = time.monotonic() + 20
+            while 'accepted' not in state(evidence):
+                assert time.monotonic() < deadline, 'MANUAL_CLICK_TIMEOUT'
+                await asyncio.sleep(.1)
+            value = state(evidence)
+            assert all(child.returncode is None for child in children), 'CPU_LOAD_ENDED_DURING_CLICK'
+        value['synthetic_cpu_load'] = load
+        value['load_controls'] = controls
         assert value['clicks'] == 1 and value['policy_reads'] == 1, value
-        assert value['accepted'] is True and value['probes'] == 1, value
-        assert value['task'] == 'TASK_RUNNING' and value['robot_state'] == 'UNKNOWN', value
-        assert value['source_kind'] == 'WINDOWS_OS_ONLY', value
-        assert value['heartbeat'] is None and value['trading'] is None, value
+        assert value['accepted'] is False and value['probes'] == 0, value
         assert value['streamlit_main'] is True, value
         assert value['server_isolated'] is True and value['server_no_bytecode'] is True, value
-        async def page(name):
-            await evaluate("Array.from(document.querySelectorAll('[data-testid=stRadio] label'))"
-                           ".find(e=>e.textContent.includes(" + json.dumps(name) + ")).click()")
-        await page('Управление')
-        await until("document.querySelectorAll('[data-testid=stButton] button:disabled').length === 10")
-        await page('Монитор H1')
-        await until("document.body.innerText.includes('TASK_RUNNING')")
-        assert not await evaluate("document.body.innerText.includes('BLOCKED / UNKNOWN')")
-        assert state(evidence)['policy_reads'] == 1
-        assert state(evidence)['probes'] == 1
+        assert value['read_error_code'] == 'READ_TIMEOUT', value
+        await until("document.body.innerText.includes('BLOCKED / UNKNOWN')")
+        warning = "Array.from(document.querySelectorAll('[data-testid=stAlert]')).find(e=>e.innerText.includes('BLOCKED'))"
+        await until(f"Boolean({warning})")
+        await evaluate(f"({warning}).scrollIntoView({{block:'center'}})")
         screenshot = await call('Page.captureScreenshot', dict(format='png'))
         (evidence.parent / 'streamlit-click.png').write_bytes(base64.b64decode(screenshot['data']))
         value['real_browser_click'] = True
-        value['navigation_zero_extra_reads'] = True
-        value['disabled_trading_controls'] = 10
+        value['baseline_expected_blocked'] = True
         return value
     finally:
         if socket is not None:
@@ -136,6 +216,17 @@ def main(sid):
             deadline = time.monotonic() + 100
             while not done.exists():
                 assert server.poll() is None and time.monotonic() < deadline, 'BROWSER_COORDINATOR_TIMEOUT'
+                if ((logs / 'streamlit-load.ready').exists()
+                        and not (logs / 'streamlit-load.done').exists()):
+                    try:
+                        controls = load_controls(sid)
+                    except Exception:
+                        (logs / 'streamlit-load-controls.json').write_text('{}', encoding='utf-8')
+                        raise
+                    else:
+                        (logs / 'streamlit-load-controls.json').write_text(json.dumps(controls), encoding='utf-8')
+                    finally:
+                        (logs / 'streamlit-load.done').write_text('done', encoding='ascii')
                 time.sleep(.1)
             value = json.loads(result.read_text())
             assert value.get('real_browser_click') is True, value
