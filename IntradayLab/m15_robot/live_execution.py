@@ -1604,13 +1604,51 @@ class M15AuthorizedExecutionTransport:
             "live_protection_reconciled": False,
         }
 
-    def submit_emergency_exit(self, *, journal: M15OutboundJournal, key: str,
-                              draft: M15Draft, broker_position_qty: int):
+    def submit_emergency_exit(
+        self, *, journal: M15OutboundJournal, key: str,
+        entry_key: str, stop_key: str, draft: M15Draft,
+        account: dict, orders_response: dict,
+    ) -> dict:
+        """H1 risk-reducing EXIT: durable unknown-before-POST, never resend.
+
+        Dormant while static M15 NO-LIVE and separate POST release are OFF.
+        The POST receipt never asserts the position is FLAT; caller must
+        re-GET FINAM /account and /orders, then verify/cancel residual SLTP.
+        """
         if draft.kind != "EMERGENCY_EXIT":
-            raise M15ExecutionError("M15_EXIT_DRAFT_KIND_INVALID")
-        # Production emergency exit must be risk-reducing after exact broker
-        # reconciliation; cannot be inferred from untrusted supplied quantity.
-        raise M15PrePostRefused("M15_EXIT_BROKER_POSITION_GATE_NOT_IMPLEMENTED")
+            raise M15PrePostRefused("M15_EXIT_DRAFT_KIND_INVALID")
+        self._require_connected()
+        from .finam_trading import M15FinamTradingAPI, M15_ORDER_POST_RELEASED
+        if M15_ORDER_POST_RELEASED is not True:
+            raise M15PrePostRefused("M15_EXIT_POST_RELEASE_NOT_AUTHORIZED")
+        if not isinstance(self.api, M15FinamTradingAPI):
+            raise M15ExecutionError("M15_EXIT_TRADING_CLIENT_INVALID")
+        if (not isinstance(journal, M15OutboundJournal)
+                or journal.account_hash != self.account_hash
+                or journal.path.parent.parent.resolve()
+                != self.runtime_root.resolve()):
+            raise M15ExecutionError("M15_EXIT_JOURNAL_IDENTITY_MISMATCH")
+        journal.begin_exit_post_uncertain(
+            entry_key=entry_key, stop_key=stop_key, exit_key=key,
+            draft=draft, account=account, orders_response=orders_response,
+        )
+        try:
+            receipt = self.api.place_order(self.account_id, dict(draft.payload))
+        except Exception as exc:
+            raise M15SubmissionUncertain(
+                "M15_EXIT_POST_UNCERTAIN_GET_RECONCILIATION_REQUIRED") from exc
+        if (not isinstance(receipt, dict)
+                or not isinstance(receipt.get("order_id"), str)
+                or not receipt["order_id"]):
+            raise M15SubmissionUncertain("M15_EXIT_POST_ACK_ORDER_ID_NOT_PROVEN")
+        return {
+            "broker_order_sha256": hashlib.sha256(
+                receipt["order_id"].encode("utf-8")).hexdigest(),
+            "post_ack_observed": True,
+            "broker_flat_confirmed": False,
+            "old_stop_cleanup_confirmed": False,
+            "live_close_reconciled": False,
+        }
 
     def cancel_protective_stop_after_flat(self, *, broker_order_id: str,
                                            observed_broker_position_qty: int):
