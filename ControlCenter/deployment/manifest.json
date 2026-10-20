@@ -479,7 +479,7 @@
     },
     {
       "path": "tests/test_manual_os.py",
-      "sha256": "e77e4b99f185bbbbbebe3f3fa2e4791741b8782534e537c15959be6c40b6bcac"
+      "sha256": "2a2f6607e84743ed5f7353f73d216785f62ab2ccc3d74084017bae05b8c2552b"
     },
     {
       "path": "tests/test_manual_os_native.py",
