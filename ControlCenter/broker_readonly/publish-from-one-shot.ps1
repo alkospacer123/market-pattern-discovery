@@ -30,7 +30,7 @@ try {
   foreach($p in @('c:\control center','c:\control center\data',$target)){if(([io.file]::GetAttributes($p) -band [io.fileattributes]::ReparsePoint) -ne 0){throw 'ROOT_REPARSE_FORBIDDEN'}}
   $acl=get-acl -literalpath $target
   $trusted=@('S-1-5-18','S-1-5-32-544')
-  $owner=(new-object security.principal.ntaccount($acl.Owner)).translate([security.principal.securityidentifier]).value
+  $owner=$acl.getowner([security.principal.securityidentifier]).value
   if($trusted -cnotcontains $owner){throw 'ROOT_OWNER_UNTRUSTED'}
   foreach($rule in $acl.access){
     if($rule.accesscontroltype -ne [security.accesscontrol.accesscontroltype]::Allow){continue}
