@@ -2018,6 +2018,90 @@ class M15AuthorizedExecutionTransport:
             start=start, end=end, limit=limit,
         )
 
+    def prepare_initial_stop_from_finam(
+        self, *, journal: M15OutboundJournal, entry_key: str,
+        entry_draft: M15Draft, stop_key: str,
+        drafts: M15OfflineTradeDrafts, instrument: str, direction: str,
+        reference_entry: Decimal, precommitted_stop: Decimal,
+        atr_at_signal: Decimal, contract: ContractAuthority,
+        sized: SizedOrder,
+    ) -> M15Draft:
+        """STOP-first: same M15 JWT broker GET -> checked 100% STOP intent.
+
+        Uses the *durable* initial R15 risk record, not a fresh guess or
+        caller-only price. Exact N4 tick and GO also rechecked against FINAM.
+        No POST/DELETE, and this is never an SLTP acknowledgement.
+        """
+        self._require_connected()
+        from .finam_trading import M15FinamTradingAPI
+        if (type(self.api) is not M15FinamTradingAPI
+                or not isinstance(journal, M15OutboundJournal)
+                or journal.account_hash != self.account_hash
+                or journal.path.parent.parent.resolve()
+                != self.runtime_root.resolve()):
+            raise M15ExecutionError("M15_STOP_SAME_TRADING_SESSION_REQUIRED")
+        _valid_draft(entry_draft, account_hash=self.account_hash, key=entry_key)
+        if (instrument not in INSTRUMENTS
+                or entry_draft.payload["symbol"] != instrument + "@RTSX"):
+            raise M15ExecutionError("M15_STOP_ENTRY_SYMBOL_MISMATCH")
+        proof = journal.db.execute(
+            "SELECT symbol,direction,reference_entry,stop_price,quantity,"
+            "nominal_initial_risk FROM entry_r15_basis WHERE intent_key=?",
+            (entry_key,),
+        ).fetchone()
+        if (proof is None or not isinstance(sized, SizedOrder)
+                or not isinstance(reference_entry, Decimal)
+                or not isinstance(precommitted_stop, Decimal)
+                or not isinstance(contract, ContractAuthority)
+                or proof != (
+                    entry_draft.payload["symbol"], direction,
+                    str(reference_entry), str(precommitted_stop),
+                    sized.final_quantity, str(sized.initial_nominal_risk))):
+            raise M15ExecutionError("M15_STOP_DURABLE_R15_BASIS_MISMATCH")
+        symbol = instrument + "@RTSX"
+        asset = self.api.asset_details(symbol)
+        params = self.api.asset_params(symbol)
+        approved = contract_from_moex_and_finam(
+            check_instrument(asset, params, symbol, self.account_id))
+        if approved != contract:
+            raise M15ExecutionError("M15_STOP_FRESH_FINAM_GO_TICK_MISMATCH")
+        account = self.api.account(self.account_id)
+        orders = self.api.orders(self.account_id)
+        return journal.prepare_initial_sltp_from_broker_position(
+            entry_key=entry_key, entry_draft=entry_draft,
+            stop_key=stop_key, drafts=drafts,
+            instrument=instrument, direction=direction,
+            reference_entry=reference_entry,
+            precommitted_stop=precommitted_stop,
+            atr_at_signal=atr_at_signal, contract=contract,
+            sized=sized, account=account, orders_response=orders,
+        )
+
+    def reconcile_protective_from_finam(
+        self, *, journal: M15OutboundJournal,
+        key: str, draft: M15Draft,
+    ) -> BrokerProtection:
+        """FINAM active GET, not HTTP POST ACK, proves SLTP coverage.
+
+        Missing/wrong active 100%-quantity broker stop fails closed. A
+        recovered uncertain stop is NOT re-sent after reboot.
+        """
+        self._require_connected()
+        from .finam_trading import M15FinamTradingAPI
+        if (type(self.api) is not M15FinamTradingAPI
+                or not isinstance(journal, M15OutboundJournal)
+                or journal.account_hash != self.account_hash
+                or journal.path.parent.parent.resolve()
+                != self.runtime_root.resolve()):
+            raise M15ExecutionError("M15_STOP_RECONCILE_SESSION_MISMATCH")
+        _valid_draft(draft, account_hash=self.account_hash, key=key)
+        account = self.api.account(self.account_id)
+        orders = self.api.orders(self.account_id)
+        return journal.reconcile_protective_broker_get(
+            key=key, draft=draft, account=account,
+            orders_response=orders,
+        )
+
     def submit_protective_stop(
         self, *, journal: M15OutboundJournal, key: str, draft: M15Draft,
         broker_position_qty: int, account: dict, orders_response: dict,

@@ -1512,6 +1512,93 @@ class M15ExecutionStageTests(unittest.TestCase):
             self.j.db.execute("SELECT COUNT(*) FROM broker_fills").fetchone()[0], 0)
 
 
+    def test_stop_first_same_session_get_requires_durable_r15_then_100pct_ack(self):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        seed = self.r15_entry_inputs()
+        entry, sized = self.j.prepare_entry_from_broker_r15(**seed)
+        self.j.begin_post_uncertain(key=seed["key"], draft=entry)
+        broker = self.broker_get(filled=1)
+        broker["orders_response"]["orders"][0]["order"]["client_order_id"] = (
+            entry.payload["client_order_id"])
+        broker["orders_response"]["orders"][0]["order"]["quantity"] = {"value": "3"}
+        controller = object.__new__(M15AuthorizedExecutionTransport)
+        controller.api = object.__new__(M15FinamTradingAPI)
+        controller.account_id = "M15-SYNTH"
+        controller.account_hash = self.j.account_hash
+        controller.runtime_root = self.args["runtime_root"]
+        controller._require_connected = lambda: None
+        stop_key = "m15:stop:same-jwt:1"
+        args = dict(journal=self.j, entry_key=seed["key"],
+                    entry_draft=entry, stop_key=stop_key,
+                    drafts=seed["drafts"], instrument="CNYRUBF",
+                    direction="LONG", reference_entry=seed["reference_entry"],
+                    precommitted_stop=Decimal("12.300"),
+                    atr_at_signal=seed["signal_atr"],
+                    contract=seed["contract"], sized=sized)
+        with (patch.object(M15FinamTradingAPI, "asset_details",
+                           return_value=seed["asset"]) as a,
+              patch.object(M15FinamTradingAPI, "asset_params",
+                           return_value=seed["asset_params"]) as p,
+              patch.object(M15FinamTradingAPI, "account",
+                           return_value=broker["account"]) as acct,
+              patch.object(M15FinamTradingAPI, "orders",
+                           return_value=broker["orders_response"]) as orders):
+            with self.assertRaisesRegex(M15ExecutionError, "DURABLE_R15_BASIS_MISMATCH"):
+                controller.prepare_initial_stop_from_finam(
+                    **dict(args, precommitted_stop=Decimal("12.299")))
+            self.assertEqual(orders.call_count, 0)
+            stop = controller.prepare_initial_stop_from_finam(**args)
+            self.assertEqual(stop.kind, "PROTECTIVE_STOP_INSTALL")
+            self.assertEqual(stop.payload["sl_price"], {"value": "12.300"})
+            self.assertEqual(stop.payload["quantity_sl"], {"value": "100"})
+            self.assertEqual(self.j.inspect(stop_key)["state"], "PREPARED")
+            self.assertEqual(self.j.inspect(seed["key"])["state"], "ACK")
+            self.assertEqual(orders.call_count, 1)
+            self.j.begin_protective_post_uncertain(
+                key=stop_key, draft=stop,
+                account=broker["account"],
+                orders_response=broker["orders_response"])
+            after = {"orders": broker["orders_response"]["orders"] + [{
+                "order_id": "broker-M15-stop", "status": "ORDER_STATUS_NEW",
+                "sltp_order": dict(stop.payload),
+            }]}
+            orders.return_value = after
+            proof = controller.reconcile_protective_from_finam(
+                journal=self.j, key=stop_key, draft=stop)
+            self.assertEqual(proof.covered_quantity_at_ack, 1)
+            self.assertEqual(proof.stop_price, Decimal("12.300"))
+            self.assertTrue(proof.active)
+            self.assertEqual(self.j.inspect(stop_key)["state"], "ACK")
+            self.assertEqual(self.j.db.execute(
+                "SELECT COUNT(*) FROM protective_coverage").fetchone()[0], 1)
+            a.assert_called_once_with("CNYRUBF@RTSX")
+            p.assert_called_once_with("CNYRUBF@RTSX")
+            self.assertEqual(acct.call_count, 2)
+            self.assertEqual(orders.call_count, 2)
+
+    def test_protective_same_session_without_active_stop_cannot_ack(self):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        key = "m15:stop:synthetic:1"
+        stop = self.stop(key)
+        self.j.prepare(key=key, draft=stop)
+        account, before = self.protective_observation(stop, include_new=False)
+        self.j.begin_protective_post_uncertain(
+            key=key, draft=stop, account=account, orders_response=before)
+        controller = object.__new__(M15AuthorizedExecutionTransport)
+        controller.api = object.__new__(M15FinamTradingAPI)
+        controller.account_id = "M15-SYNTH"
+        controller.account_hash = self.j.account_hash
+        controller.runtime_root = self.args["runtime_root"]
+        controller._require_connected = lambda: None
+        with (patch.object(M15FinamTradingAPI, "account", return_value=account),
+              patch.object(M15FinamTradingAPI, "orders", return_value=before)):
+            with self.assertRaisesRegex(M15ExecutionError, "EXACT_STOP_NOT_ACTIVE"):
+                controller.reconcile_protective_from_finam(
+                    journal=self.j, key=key, draft=stop)
+        self.assertEqual(self.j.inspect(key)["state"], "UNCERTAIN")
+        self.assertEqual(self.j.db.execute(
+            "SELECT COUNT(*) FROM protective_coverage").fetchone()[0], 0)
+
     def test_verified_next_open_same_m15_account_prepares_atomic_r15(self):
         from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
         import pandas as pd
