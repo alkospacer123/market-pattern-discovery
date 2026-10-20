@@ -491,7 +491,10 @@ class M15OutboundJournal:
         planned = self.db.execute(
             "SELECT intent_key,symbol,direction,quantity,nominal_initial_risk,"
             "stop_price FROM entry_r15_basis "
-            "WHERE intent_key NOT IN (SELECT entry_key FROM broker_flat)").fetchall()
+            "WHERE intent_key NOT IN (SELECT entry_key FROM broker_flat) "
+            "AND (? IS NULL OR intent_key<>?)",
+            (excluded_prepared_entry_key, excluded_prepared_entry_key),
+        ).fetchall()
         if len(planned) != len(entries):
             raise M15ExecutionError("M15_N4_ENTRY_RISK_BASIS_INCOMPLETE")
         risk_basis = {r[0]: r for r in planned}
