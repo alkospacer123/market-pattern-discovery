@@ -1240,8 +1240,8 @@ class M15ExecutionStageTests(unittest.TestCase):
         data, kw = self.h1_entry_prepost_args()
         with self.assertRaisesRegex(M15ExecutionError, "R15_STALE"):
             self.j.begin_entry_post_uncertain_checked(**dict(
-                kw, now=kw["now"] + timedelta(minutes=1),
-                signal_closed_at=kw["now"] + timedelta(minutes=1)))
+                kw, now=kw["now"] + timedelta(minutes=15),
+                signal_closed_at=kw["now"] + timedelta(minutes=15)))
         with self.assertRaisesRegex(M15ExecutionError, "NOT_NEXT_OPEN"):
             self.j.begin_entry_post_uncertain_checked(**dict(
                 kw, signal_closed_at=kw["now"] - timedelta(minutes=15)))
@@ -1263,7 +1263,7 @@ class M15ExecutionStageTests(unittest.TestCase):
             self.j.begin_entry_post_uncertain_checked(**dict(
                 kw, account=mutated))
         bad_go = dict(kw["asset_params"], long_initial_margin={
-            "currency_code": "RUB", "units": "150", "nanos": 0})
+            "currency_code": "RUB", "units": "20000", "nanos": 0})
         with self.assertRaisesRegex(M15ExecutionError, "R15_GO_RECALC_MISMATCH"):
             self.j.begin_entry_post_uncertain_checked(**dict(
                 kw, asset_params=bad_go))
@@ -1289,7 +1289,7 @@ class M15ExecutionStageTests(unittest.TestCase):
         with self.assertRaisesRegex(M15ExecutionError, "2ATR_GRID_CHANGED"):
             self.j.begin_entry_post_uncertain_checked(**dict(
                 kw, signal_atr=Decimal("0.150")))
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(RuntimeError, "NO_TRADING_SESSIONS"):
             self.j.begin_entry_post_uncertain_checked(**dict(
                 kw, schedule={"sessions": []}))
         self.assertEqual(self.j.inspect(data["key"])["state"], "PREPARED")
