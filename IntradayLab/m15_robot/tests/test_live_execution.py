@@ -1088,6 +1088,24 @@ class M15ExecutionStageTests(unittest.TestCase):
                        account=flat))
         self.assertIsNone(self.j.inspect("m15:entry:r15:new-cycle"))
 
+
+    def test_h1_emergency_exit_rejects_broker_stop_rewritten_same_id(self):
+        owned = self.synthetic_owned_n4()
+        args = dict(
+            entry_key=owned["key"], stop_key="m15:trade-1:stop:0",
+            exit_key="m15:exit:trade-1:emergency", drafts=owned["drafts"],
+            account=owned["account"],
+        )
+        for value in ({"sl_price": {"value": "12.299"}},
+                      {"quantity_sl": {"value": "95"}}):
+            orders = [dict(x) for x in owned["orders_response"]["orders"]]
+            orders[-1]["sltp_order"] = {**orders[-1]["sltp_order"], **value}
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(M15ExecutionError, "STOP_OWNERSHIP_MISMATCH"):
+                    self.j.prepare_emergency_exit_from_broker(
+                        **dict(args, orders_response={"orders": orders}))
+        self.assertIsNone(self.j.inspect(args["exit_key"]))
+
     def test_authorization_file_cannot_override_frozen_status(self):
         root = self.args["runtime_root"]
         (root / "safety").mkdir(parents=True, exist_ok=True)
