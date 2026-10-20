@@ -1962,6 +1962,137 @@ class M15ExecutionStageTests(unittest.TestCase):
         self.assertEqual(self.j.db.execute(
             "SELECT COUNT(*) FROM broker_flat").fetchone()[0], 0)
 
+
+    def test_trailing_initial_confirmation_survives_restart(self):
+        from IntradayLab.m15_robot.trailing_persistence import (
+            record_verified_trailing_state, verified_broker_trailing_state,
+        )
+        owned = self.synthetic_owned_n4()
+        state = TrailingState("CNYRUBF", "LONG", Decimal("12.500"),
+                              Decimal("12.300"), Decimal("12.500"))
+        kw = dict(journal=self.j, entry_key=owned["key"],
+                  stop_key="m15:trade-1:stop:0",
+                  account=owned["account"], orders_response=owned["orders_response"],
+                  price_step=Decimal("0.001"))
+        self.assertEqual(record_verified_trailing_state(**kw, initial=state), state)
+        self.j.close()
+        self.j = M15OutboundJournal(**self.args)
+        kw["journal"] = self.j
+        self.assertEqual(verified_broker_trailing_state(
+            journal=self.j, entry_key=owned["key"], account=owned["account"],
+            orders_response=owned["orders_response"]), state)
+        self.assertFalse(self.j.execution_authorized)
+
+    def test_trailing_no_broker_active_ack_does_not_seed(self):
+        from IntradayLab.m15_robot.trailing_persistence import (
+            record_verified_trailing_state, M15TrailPersistenceError,
+        )
+        owned = self.synthetic_owned_n4()
+        state = TrailingState("CNYRUBF", "LONG", Decimal("12.500"),
+                              Decimal("12.300"), Decimal("12.500"))
+        with self.assertRaisesRegex(M15TrailPersistenceError, "UNIQUE_ACTIVE_STOP"):
+            record_verified_trailing_state(
+                journal=self.j, entry_key=owned["key"],
+                stop_key="m15:trade-1:stop:0", initial=state,
+                account=owned["account"],
+                orders_response={"orders": owned["orders_response"]["orders"][:1]},
+                price_step=Decimal("0.001"))
+        self.assertIsNone(self.j.db.execute(
+            "SELECT value FROM metadata WHERE key=?",
+            ("trailing-v1:" + owned["key"],)).fetchone())
+
+    def test_trailing_new_protective_must_replace_old_before_state_advance(self):
+        from IntradayLab.m15_robot.trailing_persistence import (
+            record_verified_trailing_state, verified_broker_trailing_state,
+            M15TrailPersistenceError,
+        )
+        from IntradayLab.m15_robot.trailing_gate import propose_trail
+        owned = self.synthetic_owned_n4()
+        initial = TrailingState("CNYRUBF", "LONG", Decimal("12.500"),
+                                Decimal("12.300"), Decimal("12.500"))
+        base = dict(journal=self.j, entry_key=owned["key"],
+                    account=owned["account"], orders_response=owned["orders_response"],
+                    price_step=Decimal("0.001"))
+        old_stop_key = "m15:trade-1:stop:0"
+        record_verified_trailing_state(**base, stop_key=old_stop_key,
+                                        initial=initial)
+        old_proof = BrokerProtection(
+            "broker-owned-cny-stop", Decimal("12.300"), 100, 3, True)
+        when = datetime(2026,10,19,10,30,tzinfo=timezone.utc)
+        pending = propose_trail(
+            confirmed=initial, observed_stop=old_proof, broker_position_qty=3,
+            completed_at=when, high=Decimal("13.500"), low=Decimal("12.5"),
+            atr=Decimal("0.100"), price_step=Decimal("0.001"),
+            survived_completed_bar=True)
+        self.assertTrue(pending.replace_required)
+        stop_key = "m15:trail:trade-1:1"
+        proposal = owned["drafts"].protective_stop(
+            instrument="CNYRUBF", direction="LONG",
+            idempotency_key=stop_key, observed_position_quantity=3,
+            stop_price=pending.candidate.active_stop,
+            price_step=Decimal("0.001"), kind="PROTECTIVE_STOP_REPLACE",
+            previous_active_stop=initial.active_stop)
+        self.j.prepare(key=stop_key, draft=proposal)
+        self.j.begin_protective_post_uncertain(
+            key=stop_key, draft=proposal, account=owned["account"],
+            orders_response=owned["orders_response"],
+            prior_active_broker_stop_id="broker-owned-cny-stop")
+        both = {"orders": owned["orders_response"]["orders"] + [{
+            "order_id": "new-cny-trail", "status": "ORDER_STATUS_NEW",
+            "sltp_order": dict(proposal.payload),
+        }]}
+        self.j.reconcile_protective_broker_get(
+            key=stop_key, draft=proposal, account=owned["account"],
+            orders_response=both)
+        with self.assertRaisesRegex(M15TrailPersistenceError,
+                                    "UNIQUE_ACTIVE_STOP"):
+            record_verified_trailing_state(
+                **dict(base, orders_response=both), stop_key=stop_key,
+                pending=pending)
+        previous = verified_broker_trailing_state(**{
+            "journal": self.j, "entry_key": owned["key"],
+            "account": owned["account"],
+            "orders_response": owned["orders_response"]})
+        self.assertEqual(previous, initial)
+        clean = {"orders": [owned["orders_response"]["orders"][0],
+                            both["orders"][-1]]}
+        advanced = record_verified_trailing_state(
+            **dict(base, orders_response=clean), stop_key=stop_key,
+            pending=pending)
+        self.assertEqual(advanced.active_stop, pending.candidate.active_stop)
+        self.j.close()
+        self.j = M15OutboundJournal(**self.args)
+        reloaded = verified_broker_trailing_state(
+            journal=self.j, entry_key=owned["key"], account=owned["account"],
+            orders_response=clean)
+        self.assertEqual(reloaded, advanced)
+        self.assertEqual(reloaded.last_survived_m15_close,
+                         pending.candidate.last_survived_m15_close)
+
+    def test_trailing_fake_price_rejected_without_advancement(self):
+        from IntradayLab.m15_robot.trailing_persistence import (
+            record_verified_trailing_state, verified_broker_trailing_state,
+            M15TrailPersistenceError,
+        )
+        owned = self.synthetic_owned_n4()
+        initial = TrailingState("CNYRUBF", "LONG", Decimal("12.500"),
+                                Decimal("12.300"), Decimal("12.500"))
+        bad = {"orders": [dict(x) for x in owned["orders_response"]["orders"]]}
+        bad["orders"][-1]["sltp_order"] = {
+            **bad["orders"][-1]["sltp_order"],
+            "sl_price": {"value": "12.301"}}
+        with self.assertRaisesRegex(M15TrailPersistenceError,
+                                    "ACTIVE_BROKER_STOP_CHANGED"):
+            record_verified_trailing_state(
+                journal=self.j, entry_key=owned["key"],
+                stop_key="m15:trade-1:stop:0", initial=initial,
+                account=owned["account"], orders_response=bad,
+                price_step=Decimal("0.001"))
+        self.assertIsNone(verified_broker_trailing_state(
+            journal=self.j, entry_key=owned["key"], account=owned["account"],
+            orders_response=owned["orders_response"]))
+
+
     def test_restart_recovers_exact_entry_draft_without_reposting(self):
         self.j.prepare(key=self.key, draft=self.draft)
         self.j.begin_post_uncertain(key=self.key, draft=self.draft)
