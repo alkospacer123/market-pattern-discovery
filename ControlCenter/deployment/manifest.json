@@ -31,7 +31,7 @@
     },
     {
       "path": "broker_readonly/publish-from-one-shot.ps1",
-      "sha256": "433192b0b4c588cab1654e31b3a4f777fd93508e8261c2a64e3f41da7dc45ef9"
+      "sha256": "250232266b1634042d3b3301118b967d958f6a4159d26531163547a6b591d36f"
     },
     {
       "path": "cc/__init__.py",
@@ -463,7 +463,7 @@
     },
     {
       "path": "tests/test_broker_snapshot.py",
-      "sha256": "b0c1dccf22c3ae6b27e0fe098c0b166adba574490d636ffac1aea676bf984f58"
+      "sha256": "a66f576bf35d2700b823cbfd551e6335d6f303b446010be4a206d476e6fecb6b"
     },
     {
       "path": "tests/test_cc03_source.py",
