@@ -2119,6 +2119,39 @@ class M15ExecutionStageTests(unittest.TestCase):
             orders_response=owned["orders_response"]))
 
 
+
+    def test_readonly_cycle_recovers_confirmed_trail_without_raising_watermark(self):
+        from IntradayLab.m15_robot.trailing_persistence import (
+            record_verified_trailing_state,
+        )
+        from IntradayLab.m15_robot.execution_cycle import reconcile_m15_readonly_once
+        from IntradayLab.m15_robot.finam_readonly import M15FinamReadOnlyAPI
+        owned = self.synthetic_owned_n4()
+        initial = TrailingState("CNYRUBF", "LONG", Decimal("12.500"),
+                                Decimal("12.300"), Decimal("12.500"))
+        record_verified_trailing_state(
+            journal=self.j, entry_key=owned["key"],
+            stop_key="m15:trade-1:stop:0", initial=initial,
+            account=owned["account"], orders_response=owned["orders_response"],
+            price_step=Decimal("0.001"))
+        api = object.__new__(M15FinamReadOnlyAPI)
+        kwargs = dict(journal=self.j, api=api, m15_account_id="M15-SYNTH",
+                      observed_at=datetime(2026,10,20,12,tzinfo=timezone.utc))
+        with (patch.object(M15FinamReadOnlyAPI, "readonly_bound", True),
+              patch.object(M15FinamReadOnlyAPI, "account_id", "M15-SYNTH"),
+              patch.object(M15FinamReadOnlyAPI, "account",
+                           return_value=owned["account"]),
+              patch.object(M15FinamReadOnlyAPI, "orders",
+                           return_value=owned["orders_response"])):
+            first = reconcile_m15_readonly_once(**kwargs)
+            self.assertIn("TRAIL_CONFIRMED_BROKER_STOP_UNCHANGED",
+                          [x["state"] for x in first["events"]])
+            self.j.close()
+            self.j = M15OutboundJournal(**self.args)
+            kwargs["journal"] = self.j
+            self.assertEqual(reconcile_m15_readonly_once(**kwargs), first)
+        self.assertFalse(first["order_post_permitted"])
+
     def test_restart_recovers_exact_entry_draft_without_reposting(self):
         self.j.prepare(key=self.key, draft=self.draft)
         self.j.begin_post_uncertain(key=self.key, draft=self.draft)
