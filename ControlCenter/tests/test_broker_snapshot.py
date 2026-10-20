@@ -150,10 +150,11 @@ def test_operator_publisher_invokes_only_pinned_existing_readonly_probe():
                       '-method delete', 'cancel-order', 'place-order', 'sqlite3.connect'):
         assert forbidden not in code
     if os.name == 'nt':
-        parser = ('$tokens=$null;$errors=$null;'
-                  '[void][management.automation.language.parser]::parsefile('
-                  + repr(str(path)).replace('"', '\"') +
-                  ',[ref]$tokens,[ref]$errors);if(@($errors).count -gt 0){exit 1}')
+        ps_path = str(path).replace("'", "''")
+        parser = ("$tokens=$null;$errors=$null;"
+                  "[void][management.automation.language.parser]::parsefile('"
+                  + ps_path +
+                  "',[ref]$tokens,[ref]$errors);if(@($errors).count -gt 0){exit 1}")
         p = subprocess.run(['powershell.exe', '-noprofile', '-noninteractive', '-command', parser],
                            capture_output=True, text=True, timeout=20)
         assert p.returncode == 0, 'PUBLISHER_SYNTAX_INVALID'
