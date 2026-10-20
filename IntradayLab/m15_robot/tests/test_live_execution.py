@@ -10,6 +10,7 @@ from fractions import Fraction
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from IntradayLab.m15_robot.live_execution import (
     M15AuthorizedExecutionTransport, M15ExecutionError, M15OutboundJournal,
@@ -1377,6 +1378,59 @@ class M15ExecutionStageTests(unittest.TestCase):
         hb_path.write_text(json.dumps(hb),encoding="utf-8")
         with self.assertRaisesRegex(M15PrePostRefused, "NOT_RECONCILED"):
             require_m15_production_entry_gate(**args)
+
+
+    def test_same_trading_jwt_entry_fill_recovery_uses_only_three_gets(self):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        controller = object.__new__(M15AuthorizedExecutionTransport)
+        controller.api = object.__new__(M15FinamTradingAPI)
+        controller.account_id = self.args["m15_account_id"]
+        controller.account_hash = self.j.account_hash
+        controller.runtime_root = self.args["runtime_root"]
+        controller._require_connected = lambda: None  # synthetic, no FINAM
+        expected = ExpectedEntry(
+            "M15-SYNTH", "broker-order-1", "CNYRUBF@RTSX",
+            "SIDE_BUY", 2, Decimal("0.001"),
+        )
+        first = {"account_id": "M15-SYNTH", "positions": []}
+        orders = {"orders": []}
+        trades = {"trades": []}
+        start, end = "2026-10-20T08:00:00+00:00", "2026-10-20T09:00:00+00:00"
+        with (patch.object(M15FinamTradingAPI, "account", return_value=first) as a,
+              patch.object(M15FinamTradingAPI, "orders", return_value=orders) as o,
+              patch.object(M15FinamTradingAPI, "trades", return_value=trades) as t,
+              patch.object(self.j, "reconcile_entry_broker_get",
+                           return_value={"matched_quantity": 0,
+                                         "live_authorized": False}) as adopted):
+            result = controller.reconcile_entry_from_finam(
+                journal=self.j, key=self.key, draft=self.draft,
+                expected=expected, stop_trade_tag="test-order",
+                start=start, end=end,
+            )
+            self.assertEqual(result["matched_quantity"], 0)
+            self.assertFalse(result["live_authorized"])
+            a.assert_called_once_with("M15-SYNTH")
+            o.assert_called_once_with("M15-SYNTH")
+            t.assert_called_once_with(
+                "M15-SYNTH", start=start, end=end, limit=1000)
+            kwargs = adopted.call_args.kwargs
+            self.assertIs(kwargs["account"], first)
+            self.assertIs(kwargs["orders_response"], orders)
+            self.assertIs(kwargs["trades_response"], trades)
+            self.assertEqual(
+                kwargs["expected_client_order_id"],
+                self.draft.payload["client_order_id"],
+            )
+        foreign = ExpectedEntry(
+            "OTHER", "broker-order-1", "CNYRUBF@RTSX",
+            "SIDE_BUY", 2, Decimal("0.001"),
+        )
+        with self.assertRaisesRegex(M15ExecutionError, "SESSION_OR_ACCOUNT_INVALID"):
+            controller.reconcile_entry_from_finam(
+                journal=self.j, key=self.key, draft=self.draft,
+                expected=foreign, stop_trade_tag="test-order",
+                start=start, end=end,
+            )
 
 if __name__ == "__main__":
     unittest.main()

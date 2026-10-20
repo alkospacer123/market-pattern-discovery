@@ -1864,6 +1864,41 @@ class M15AuthorizedExecutionTransport:
             "live_reconciled": False,
         }
 
+    def reconcile_entry_from_finam(
+        self, *, journal: M15OutboundJournal, key: str, draft: M15Draft,
+        expected: ExpectedEntry, stop_trade_tag: str,
+        start: str, end: str, limit: int = 1000,
+    ) -> dict:
+        """Step 14: same authenticated M15 trading JWT -> durable FINAM fills.
+
+        Mandatory on restart/unknown POST and after normal POST ACK. No order
+        submission, no retry, and no inference of protective STOP from fills.
+        """
+        self._require_connected()
+        from .finam_trading import M15FinamTradingAPI
+        if (not isinstance(self.api, M15FinamTradingAPI)
+                or not isinstance(journal, M15OutboundJournal)
+                or journal.account_hash != self.account_hash
+                or journal.path.parent.parent.resolve() != self.runtime_root.resolve()
+                or not isinstance(expected, ExpectedEntry)
+                or expected.account_id != self.account_id):
+            raise M15ExecutionError("M15_ENTRY_RECONCILE_SESSION_OR_ACCOUNT_INVALID")
+        _valid_draft(draft, account_hash=self.account_hash, key=key)
+        if draft.kind != "ENTRY":
+            raise M15ExecutionError("M15_ENTRY_RECONCILE_WRONG_DRAFT")
+        # GETs are exact account-bound on the same FINAM write-session JWT.
+        account = self.api.account(self.account_id)
+        orders = self.api.orders(self.account_id)
+        trades = self.api.trades(
+            self.account_id, start=start, end=end, limit=limit)
+        return journal.reconcile_entry_broker_get(
+            key=key, draft=draft, expected=expected,
+            expected_client_order_id=draft.payload["client_order_id"],
+            stop_trade_tag=stop_trade_tag, account=account,
+            orders_response=orders, trades_response=trades,
+            start=start, end=end, limit=limit,
+        )
+
     def submit_protective_stop(
         self, *, journal: M15OutboundJournal, key: str, draft: M15Draft,
         broker_position_qty: int, account: dict, orders_response: dict,
