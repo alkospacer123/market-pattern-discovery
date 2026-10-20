@@ -23,6 +23,7 @@ from typing import Any
 from .broker_fill_readonly import ExpectedEntry, analyze_account_trades
 from .broker_risk_readonly import check_account, check_instrument
 from .cashflow_reconcile_gate import CashflowWindow, propose_realized_capital
+from .exchange_contract import contract_from_moex_and_finam, MOEX_N4_2026_10_18
 from .broker_snapshot import order_views, position_quantities, unique_order_by_client_id
 from .broker_reconcile_gate import assess_entry_evidence
 from .grid_risk import ContractAuthority, SizedOrder, TrailingState, initial_stop, project_stop
@@ -391,6 +392,133 @@ class M15OutboundJournal:
 
 
 
+
+    def _owned_n4_risk_from_broker(self, *, positions: dict[str, int],
+                                  orders: list) -> tuple[Decimal, set[str]]:
+        """H1-style portfolio gate: count ONLY exact owned protected N4 fills.
+
+        Mismatches halt new entry preparation. Do not infer that a 100% SLTP
+        was still covering a position that grew AFTER its first broker ACK.
+        Previous/uncertain intents never become available capital on a guess.
+        """
+        all_rows = self.db.execute(
+            "SELECT intent_key,kind,symbol,state,broker_order_sha256 "
+            "FROM outbound").fetchall()
+        if not all_rows:
+            if positions or any(o.active for o in orders):
+                raise M15ExecutionError("M15_N4_UNOWNED_BROKER_POSITION_OR_ORDER")
+            return Decimal("0"), set()
+        entries = [r for r in all_rows if r[1] == "ENTRY"]
+        if (not entries or len(entries) > len(INSTRUMENTS)
+                or any(r[3] != "ACK" or not r[4] for r in entries)
+                or len({r[2] for r in entries}) != len(entries)):
+            raise M15ExecutionError("M15_N4_UNRESOLVED_OR_DUPLICATE_ENTRY")
+        symbols = {name + "@RTSX" for name in INSTRUMENTS}
+        if (set(positions) - symbols
+                or {s for s,q in positions.items() if q} != {r[2] for r in entries}
+                or any(o.active and o.kind == "REGULAR" for o in orders)):
+            raise M15ExecutionError("M15_N4_BROKER_POSITION_OR_ORDER_UNOWNED")
+        planned = self.db.execute(
+            "SELECT intent_key,symbol,direction,quantity,nominal_initial_risk,"
+            "stop_price FROM entry_r15_basis").fetchall()
+        if len(planned) != len(entries):
+            raise M15ExecutionError("M15_N4_ENTRY_RISK_BASIS_INCOMPLETE")
+        risk_basis = {r[0]: r for r in planned}
+        risk = Decimal("0")
+        for key, _, symbol, _, order_hash in entries:
+            base = risk_basis.get(key)
+            if not base or base[1] != symbol:
+                raise M15ExecutionError("M15_N4_ENTRY_RISK_BASIS_MISMATCH")
+            _, _, direction, planned_qty, committed, initial = base
+            signed = positions[symbol]
+            if ((signed > 0) != (direction == "LONG")
+                    or abs(signed) != planned_qty):
+                raise M15ExecutionError("M15_N4_POSITION_NOT_FULLY_FILLED")
+            order = unique_order_by_client_id(
+                orders, "m15" + hashlib.sha256(key.encode()).hexdigest()[:17])
+            if (order is None or order.kind != "REGULAR"
+                    or order.symbol != symbol
+                    or order.side != ("SIDE_BUY" if signed > 0 else "SIDE_SELL")
+                    or order.status not in {"FILLED", "EXECUTED"}
+                    or hashlib.sha256(order.order_id.encode()).hexdigest()
+                    != order_hash
+                    or not _rest_value_equals(order.request.get("quantity"),
+                                              str(planned_qty))):
+                raise M15ExecutionError("M15_N4_ORDER_ACK_IDENTITY_UNPROVEN")
+            fills = self.db.execute(
+                "SELECT quantity,price,broker_order_sha256 FROM broker_fills "
+                "WHERE intent_key=?", (key,),
+            ).fetchall()
+            if (sum(q for q, _, _ in fills) != planned_qty
+                    or any(h != order_hash for _, _, h in fills)):
+                raise M15ExecutionError("M15_N4_DURABLE_BROKER_FILLS_INCOMPLETE")
+            candidates = [
+                x for x in orders if x.active and x.kind == "SLTP"
+                and x.symbol == symbol
+            ]
+            if len(candidates) != 1:
+                raise M15ExecutionError("M15_N4_ONE_ACTIVE_PROTECTIVE_STOP_REQUIRED")
+            stop = candidates[0]
+            if (stop.side != ("SIDE_SELL" if signed > 0 else "SIDE_BUY")
+                    or not _rest_value_equals(stop.request.get("quantity_sl"), "100")
+                    or stop.request.get("sl_qty_measure") !=
+                    "SLTP_QTY_MEASURE_PERCENT"
+                    or stop.request.get("valid_before") !=
+                    "VALID_BEFORE_GOOD_TILL_CANCEL"):
+                raise M15ExecutionError("M15_N4_ACTIVE_SLTP_SHAPE_INVALID")
+            stop_rows = self.db.execute(
+                "SELECT o.intent_key,c.broker_stop_sha256,"
+                "c.covered_quantity_at_ack,c.stop_price "
+                "FROM outbound o JOIN protective_coverage c "
+                "ON c.intent_key=o.intent_key "
+                "WHERE o.symbol=? AND o.state='ACK' "
+                "AND o.kind IN ('PROTECTIVE_STOP_INSTALL',"
+                "'PROTECTIVE_STOP_REPLACE')", (symbol,),
+            ).fetchall()
+            owned = [
+                x for x in stop_rows if x[1] ==
+                hashlib.sha256(stop.order_id.encode()).hexdigest()
+                and stop.client_order_id ==
+                "m15" + hashlib.sha256(x[0].encode()).hexdigest()[:17]
+                and stop.comment == x[0]
+            ]
+            if (len(owned) != 1 or owned[0][2] != abs(signed)
+                    or not _rest_value_equals(stop.request.get("sl_price"), owned[0][3])):
+                raise M15ExecutionError("M15_N4_STOP_ACK_COVERAGE_OR_OWNER_UNPROVEN")
+            spec = MOEX_N4_2026_10_18[symbol]
+            vwap = sum(
+                (Fraction(price) * quantity for quantity, price, _ in fills),
+                Fraction(0),
+            ) / planned_qty
+            initial_price = Fraction(initial)
+            if ((signed > 0 and vwap <= initial_price)
+                    or (signed < 0 and vwap >= initial_price)):
+                raise M15ExecutionError("M15_N4_INITIAL_RISK_WRONG_SIDE")
+            real_risk = (abs(vwap-initial_price) / Fraction(spec.price_step)
+                         * Fraction(spec.tick_rub) * planned_qty)
+            fixed = Decimal(committed)
+            if fixed <= 0 or not fixed.is_finite():
+                raise M15ExecutionError("M15_N4_INITIAL_RISK_INVALID")
+            # No rounding-down: maximum verified original vs. actual fill
+            # risk is reserved; Fraction comparison retains exact precision.
+            higher = max(Fraction(fixed), real_risk)
+            if higher.denominator == 1:
+                risk += Decimal(higher.numerator)
+            else:
+                # Terminating values are usual for decimal broker prices.
+                # A fraction is converted with rounding UP to be conservative.
+                from decimal import ROUND_CEILING, localcontext
+                with localcontext() as ctx:
+                    ctx.prec = 36
+                    ctx.rounding = ROUND_CEILING
+                    risk += Decimal(higher.numerator) / Decimal(higher.denominator)
+        # No unowned active orders even on different symbols / same account.
+        for order in orders:
+            if order.active and (order.symbol not in {r[2] for r in entries}
+                                 or order.kind != "SLTP"):
+                raise M15ExecutionError("M15_N4_UNEXPECTED_ACTIVE_BROKER_ORDER")
+        return risk, {r[2].split("@")[0] for r in entries}
+
     def prepare_entry_from_broker_r15(
         self, *, key: str, drafts: M15OfflineTradeDrafts,
         instrument: str, direction: str, reference_entry: Decimal,
@@ -406,9 +534,9 @@ class M15OutboundJournal:
         fills. Broker history, asset/account and freshness MUST be supplied
         from a separately authenticated M15-only read session.
 
-        Current scope is FIRST flat-account entry: other open instruments
-        require a reconciled existing risk ledger before the 6% portfolio
-        authority is allowed. This path NEVER authorizes broker POST.
+        Supports the first FLAT-account entry and subsequent N4 instruments
+        ONLY after all existing positions, entry fills, original risk basis and
+        current broker SLTP coverage exactly reconcile. This path NEVER authorizes broker POST.
         """
         if not isinstance(drafts, M15OfflineTradeDrafts) or drafts.execution_authorized:
             raise M15ExecutionError("M15_ENTRY_R15_DRAFT_AUTHORITY_INVALID")
@@ -445,26 +573,28 @@ class M15OutboundJournal:
             raise M15ExecutionError("M15_ENTRY_R15_CAPITAL_AUTHORITY_INVALID")
         observed_positions = position_quantities(account)
         observed_orders = order_views(orders_response)
-        if observed_positions or any(order.active for order in observed_orders):
-            raise M15ExecutionError("M15_ENTRY_R15_REQUIRES_CLEAN_BROKER_BOOTSTRAP")
-        if self.db.execute("SELECT 1 FROM outbound LIMIT 1").fetchone():
-            raise M15ExecutionError("M15_ENTRY_R15_EXISTING_INTENTS_REQUIRE_RECONCILIATION")
+        # H1 N4: a second instrument is admissible only when every existing
+        # broker position, durable fill, and protective STOP ACK reconciles.
+        reserved_risk, occupied = self._owned_n4_risk_from_broker(
+            positions=observed_positions, orders=observed_orders)
+        if instrument in occupied:
+            raise M15ExecutionError("M15_ENTRY_R15_INSTRUMENT_ALREADY_OCCUPIED")
         symbol = instrument + "@RTSX"
         verified = check_instrument(asset, asset_params, symbol, account["account_id"])
         contract.validate()
-        if (contract.price_step != verified.price_step
-                or contract.trade_lot_size != verified.trade_lot_size
-                or contract.long_initial_margin != verified.long_initial_margin_rub
-                or contract.short_initial_margin != verified.short_initial_margin_rub):
+        # Reuse audited MOEX+FINAM contract authority; never accept arbitrary
+        # caller tick-RUB numbers that could silently oversize live R15.
+        approved = contract_from_moex_and_finam(verified)
+        if contract != approved:
             raise M15ExecutionError("M15_ENTRY_R15_CONTRACT_OR_GO_MISMATCH")
-        # Tick value must originate from the existing, separately audited
-        # RUB contract authority; FINAM asset parameters don't prove it.
         try:
             stop = initial_stop(
                 direction, reference_entry, signal_atr, contract.price_step)
             budget = M15BatchRiskBudget(
                 realized_equity=capital.proposed_realized_equity,
                 available_margin_cash=broker.available_cash,
+                committed_initial_risk=reserved_risk,
+                occupied_instruments=tuple(sorted(occupied)),
             )
             sized = budget.size_and_reserve(
                 instrument=instrument, direction=direction,
@@ -491,9 +621,12 @@ class M15OutboundJournal:
         # lacks its original GO, risk, timestamp and account identity proof.
         self.db.execute("BEGIN IMMEDIATE")
         try:
-            if self.db.execute("SELECT 1 FROM outbound LIMIT 1").fetchone():
-                raise M15ExecutionError(
-                    "M15_ENTRY_R15_EXISTING_INTENTS_REQUIRE_RECONCILIATION")
+            confirmed_risk, confirmed_occupied = self._owned_n4_risk_from_broker(
+                positions=observed_positions, orders=observed_orders)
+            if confirmed_risk != reserved_risk or confirmed_occupied != occupied:
+                raise M15ExecutionError("M15_ENTRY_R15_PORTFOLIO_STATE_CHANGED")
+            if instrument in confirmed_occupied or self.inspect(key) is not None:
+                raise M15ExecutionError("M15_ENTRY_R15_DUPLICATE_INTENT")
             self.db.execute(
                 "INSERT INTO outbound VALUES(?,?,?,?,?,NULL)",
                 (key, draft.kind, draft.payload["symbol"],
