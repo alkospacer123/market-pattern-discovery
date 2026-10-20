@@ -240,10 +240,25 @@ class M15OutboundJournal:
                     quantity INTEGER NOT NULL CHECK(quantity>0),
                     nominal_initial_risk TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS exit_prepost (
+                    intent_key TEXT PRIMARY KEY REFERENCES outbound(intent_key),
+                    entry_key TEXT NOT NULL REFERENCES outbound(intent_key),
+                    stop_key TEXT NOT NULL REFERENCES outbound(intent_key),
+                    signed_position_quantity INTEGER NOT NULL CHECK(signed_position_quantity!=0),
+                    protected_stop_sha256 TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS broker_flat (
+                    entry_key TEXT PRIMARY KEY REFERENCES outbound(intent_key),
+                    stop_key TEXT NOT NULL REFERENCES outbound(intent_key),
+                    exit_key TEXT REFERENCES outbound(intent_key),
+                    confirmed_stop_sha256 TEXT NOT NULL,
+                    observed_at_utc TEXT NOT NULL,
+                    reason TEXT NOT NULL CHECK(reason IN ('EMERGENCY_EXIT','PROTECTIVE_EXECUTED'))
+                );
             """)
             tables = {r[0] for r in self.db.execute(
                 "SELECT name FROM sqlite_master WHERE type='table'")}
-            if tables != {"metadata", "outbound", "broker_fills", "protective_prepost", "protective_coverage", "entry_r15_basis"}:
+            if tables != {"metadata", "outbound", "broker_fills", "protective_prepost", "protective_coverage", "entry_r15_basis", "exit_prepost", "broker_flat"}:
                 raise M15ExecutionError("M15_OUTBOUND_SCHEMA_TABLES_INVALID")
             expected = {
                 "metadata": ("key", "value"),
@@ -259,6 +274,10 @@ class M15OutboundJournal:
                                     "cashflow_sha256", "realized_equity", "available_cash",
                                     "symbol", "direction", "reference_entry", "stop_price",
                                     "quantity", "nominal_initial_risk"),
+                "exit_prepost": ("intent_key", "entry_key", "stop_key",
+                                 "signed_position_quantity", "protected_stop_sha256"),
+                "broker_flat": ("entry_key", "stop_key", "exit_key",
+                                "confirmed_stop_sha256", "observed_at_utc", "reason"),
             }
             for table, cols in expected.items():
                 found = tuple(row[1] for row in self.db.execute(f"PRAGMA table_info({table})"))
@@ -318,6 +337,13 @@ class M15OutboundJournal:
                 ).fetchone()
                 if occupied:
                     raise M15ExecutionError("M15_OUTBOUND_INSTRUMENT_OCCUPIED")
+            if draft.kind == "EMERGENCY_EXIT":
+                if self.db.execute(
+                    "SELECT 1 FROM outbound WHERE symbol=? AND "
+                    "kind='EMERGENCY_EXIT' LIMIT 1",
+                    (draft.payload["symbol"],),
+                ).fetchone():
+                    raise M15ExecutionError("M15_EXIT_DUPLICATE_OR_UNRESOLVED")
             if draft.kind == "PROTECTIVE_STOP_INSTALL":
                 existing_stop = self.db.execute(
                     "SELECT 1 FROM outbound WHERE symbol=? AND "
@@ -649,6 +675,256 @@ class M15OutboundJournal:
                 self.db.execute("ROLLBACK")
             raise
         return draft, sized
+
+
+    def _owned_exit_snapshot(
+        self, *, entry_key: str, stop_key: str, account: dict,
+        orders_response: dict, require_open: bool,
+    ) -> tuple[str, int, str, list]:
+        """Existing H1 broker ownership: exact M15 position and verified SLTP."""
+        if (not isinstance(account, dict)
+                or not isinstance(account.get("account_id"), str)
+                or hashlib.sha256(account["account_id"].encode()).hexdigest()
+                != self.account_hash
+                or account.get("status") not in
+                {"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"}):
+            raise M15ExecutionError("M15_EXIT_EXACT_ACCOUNT_NOT_PROVEN")
+        positions = position_quantities(account)
+        orders = order_views(orders_response)
+        entry = self.inspect(entry_key)
+        stop = self.inspect(stop_key)
+        if (entry is None or entry["kind"] != "ENTRY"
+                or entry["state"] != "ACK" or not entry["broker_order_sha256"]
+                or stop is None or stop["kind"] not in
+                {"PROTECTIVE_STOP_INSTALL", "PROTECTIVE_STOP_REPLACE"}
+                or stop["state"] != "ACK" or not stop["broker_order_sha256"]
+                or entry["symbol"] != stop["symbol"]):
+            raise M15ExecutionError("M15_EXIT_DURABLE_OWNERSHIP_NOT_PROVEN")
+        symbol = entry["symbol"]
+        if set(positions) - {x + "@RTSX" for x in INSTRUMENTS}:
+            raise M15ExecutionError("M15_EXIT_UNEXPECTED_BROKER_POSITION")
+        broker_qty = positions.get(symbol, 0)
+        fill_row = self.db.execute(
+            "SELECT b.direction,b.quantity FROM entry_r15_basis b "
+            "WHERE b.intent_key=? AND b.symbol=?", (entry_key, symbol),
+        ).fetchone()
+        fill_qty = self.db.execute(
+            "SELECT COALESCE(SUM(quantity),0) FROM broker_fills "
+            "WHERE intent_key=?", (entry_key,),
+        ).fetchone()[0]
+        if (fill_row is None or fill_row[1] != fill_qty
+                or fill_qty <= 0):
+            raise M15ExecutionError("M15_EXIT_MATCHED_ENTRY_FILLS_REQUIRED")
+        original = unique_order_by_client_id(
+            orders, "m15" + hashlib.sha256(entry_key.encode()).hexdigest()[:17])
+        if (original is not None
+                and (original.kind != "REGULAR"
+                     or original.symbol != symbol
+                     or original.side !=
+                     ("SIDE_BUY" if fill_row[0] == "LONG" else "SIDE_SELL")
+                     or hashlib.sha256(original.order_id.encode()).hexdigest()
+                     != entry["broker_order_sha256"])):
+            raise M15ExecutionError("M15_EXIT_ENTRY_ORDER_IDENTITY_MISMATCH")
+        coverage = self.db.execute(
+            "SELECT broker_stop_sha256,covered_quantity_at_ack "
+            "FROM protective_coverage WHERE intent_key=?", (stop_key,),
+        ).fetchone()
+        if (coverage is None or coverage[0] != stop["broker_order_sha256"]
+                or coverage[1] != fill_qty):
+            raise M15ExecutionError("M15_EXIT_PROTECTION_COVERAGE_UNPROVEN")
+        matched_stop = [
+            x for x in orders if x.kind == "SLTP" and x.symbol == symbol
+            and hashlib.sha256(x.order_id.encode()).hexdigest() == coverage[0]
+        ]
+        if len(matched_stop) > 1:
+            raise M15ExecutionError("M15_EXIT_DUPLICATE_OWNED_STOP")
+        if matched_stop and (
+                matched_stop[0].client_order_id !=
+                "m15" + hashlib.sha256(stop_key.encode()).hexdigest()[:17]
+                or matched_stop[0].comment != stop_key
+                or matched_stop[0].side !=
+                ("SIDE_SELL" if fill_row[0] == "LONG" else "SIDE_BUY")):
+            raise M15ExecutionError("M15_EXIT_STOP_OWNERSHIP_MISMATCH")
+        if require_open:
+            planned = fill_qty if fill_row[0] == "LONG" else -fill_qty
+            if broker_qty != planned:
+                raise M15ExecutionError("M15_EXIT_OPEN_POSITION_CHANGED")
+            if (len(matched_stop) != 1 or not matched_stop[0].active):
+                raise M15ExecutionError("M15_EXIT_PROTECTIVE_STOP_NOT_ACTIVE")
+        elif broker_qty != 0:
+            raise M15ExecutionError("M15_EXIT_BROKER_NOT_FLAT")
+        return symbol, broker_qty, coverage[0], orders
+
+    def prepare_emergency_exit_from_broker(
+        self, *, entry_key: str, stop_key: str, exit_key: str,
+        drafts: M15OfflineTradeDrafts, account: dict, orders_response: dict,
+    ) -> M15Draft:
+        """H1 exact-ownership, risk-reducing EXIT proposal: never POST."""
+        if not isinstance(drafts, M15OfflineTradeDrafts) or drafts.execution_authorized:
+            raise M15ExecutionError("M15_EXIT_DRAFT_AUTHORITY_INVALID")
+        symbol, qty, _, orders = self._owned_exit_snapshot(
+            entry_key=entry_key, stop_key=stop_key, account=account,
+            orders_response=orders_response, require_open=True,
+        )
+        if (self.db.execute(
+                "SELECT 1 FROM broker_flat WHERE entry_key=?", (entry_key,)
+            ).fetchone()
+                or any(o.active and o.symbol == symbol and o.kind == "REGULAR"
+                       for o in orders)):
+            raise M15ExecutionError("M15_EXIT_COMPETING_ORDER_OR_ALREADY_FLAT")
+        direction = "LONG" if qty > 0 else "SHORT"
+        draft = drafts.emergency_exit(
+            instrument=symbol.split("@")[0], direction=direction,
+            idempotency_key=exit_key, observed_position_quantity=qty,
+        )
+        if draft.account_fingerprint != self.account_hash:
+            raise M15ExecutionError("M15_EXIT_WRONG_ACCOUNT_DRAFT")
+        self.prepare(key=exit_key, draft=draft)
+        return draft
+
+    def begin_exit_post_uncertain(
+        self, *, entry_key: str, stop_key: str, exit_key: str,
+        draft: M15Draft, account: dict, orders_response: dict,
+    ) -> None:
+        """Durable UNKNOWN boundary before any future independently gated EXIT."""
+        _valid_draft(draft, account_hash=self.account_hash, key=exit_key)
+        if draft.kind != "EMERGENCY_EXIT":
+            raise M15ExecutionError("M15_EXIT_WRONG_KIND")
+        symbol, qty, stop_hash, orders = self._owned_exit_snapshot(
+            entry_key=entry_key, stop_key=stop_key, account=account,
+            orders_response=orders_response, require_open=True,
+        )
+        if (draft.payload["symbol"] != symbol
+                or draft.payload["side"] !=
+                ("SIDE_SELL" if qty > 0 else "SIDE_BUY")
+                or not _rest_value_equals(draft.payload["quantity"], str(abs(qty)))
+                or any(o.active and o.symbol == symbol and o.kind == "REGULAR"
+                       for o in orders)):
+            raise M15ExecutionError("M15_EXIT_PREPOST_POSITION_OR_ORDER_CHANGED")
+        self.db.execute("BEGIN IMMEDIATE")
+        try:
+            row = self.inspect(exit_key)
+            if (row is None or row["kind"] != "EMERGENCY_EXIT"
+                    or row["state"] != "PREPARED"
+                    or row["payload_sha256"] != _digest(draft.payload)
+                    or self.db.execute(
+                        "SELECT 1 FROM exit_prepost WHERE intent_key=?",
+                        (exit_key,),
+                    ).fetchone()):
+                raise M15ExecutionError("M15_EXIT_PREPOST_ALREADY_SENT_OR_CHANGED")
+            self.db.execute(
+                "INSERT INTO exit_prepost VALUES(?,?,?,?,?)",
+                (exit_key, entry_key, stop_key, qty, stop_hash),
+            )
+            self.db.execute(
+                "UPDATE outbound SET state='UNCERTAIN' "
+                "WHERE intent_key=? AND state='PREPARED'",
+                (exit_key,),
+            )
+            self.db.execute("COMMIT")
+        except Exception:
+            if self.db.in_transaction:
+                self.db.execute("ROLLBACK")
+            raise
+
+    def observe_flat_broker_get(
+        self, *, entry_key: str, stop_key: str,
+        account: dict, orders_response: dict, observed_at: datetime,
+        exit_key: str | None = None,
+    ) -> dict:
+        """H1 flat→orphan SLTP cleanup→broker GET no-active→durable flat.
+
+        No stop cancellation, market order, close-price or realized PnL is
+        invented. An active STOP is surfaced for operator-approved cleanup
+        and flat is NOT durably accepted until a subsequent clean GET.
+        """
+        if (not isinstance(observed_at, datetime)
+                or observed_at.tzinfo is None or observed_at.utcoffset() is None):
+            raise M15ExecutionError("M15_FLAT_OBSERVATION_TIME_INVALID")
+        symbol, qty, stop_hash, orders = self._owned_exit_snapshot(
+            entry_key=entry_key, stop_key=stop_key, account=account,
+            orders_response=orders_response, require_open=False,
+        )
+        if qty != 0:
+            raise M15ExecutionError("M15_FLAT_POSITION_STILL_OPEN")
+        active = [o for o in orders if o.active and o.symbol == symbol]
+        if any(o.kind != "SLTP" for o in active):
+            raise M15ExecutionError("M15_FLAT_ACTIVE_ENTRY_OR_EXIT_UNRESOLVED")
+        if active:
+            if (len(active) != 1
+                    or hashlib.sha256(active[0].order_id.encode()).hexdigest()
+                    != stop_hash or active[0].kind != "SLTP"):
+                raise M15ExecutionError("M15_FLAT_FOREIGN_ACTIVE_STOP")
+            return {
+                "flat_broker_observed": True,
+                "active_sltp_cleanup_required": True,
+                "broker_stop_sha256": stop_hash,
+                "durable_closed": False,
+                "new_entries_authorized": False,
+                "live_authorized": False,
+            }
+        terminal_stop = [
+            o for o in orders if o.kind == "SLTP" and o.symbol == symbol
+            and hashlib.sha256(o.order_id.encode()).hexdigest() == stop_hash
+        ]
+        exit_row = self.inspect(exit_key) if exit_key is not None else None
+        if exit_key is not None:
+            prepost = self.db.execute(
+                "SELECT entry_key,stop_key,signed_position_quantity,"
+                "protected_stop_sha256 FROM exit_prepost WHERE intent_key=?",
+                (exit_key,),
+            ).fetchone()
+            if (exit_row is None or exit_row["kind"] != "EMERGENCY_EXIT"
+                    or exit_row["state"] not in {"UNCERTAIN", "ACK"}
+                    or exit_row["symbol"] != symbol
+                    or prepost is None or prepost[0] != entry_key
+                    or prepost[1] != stop_key or prepost[3] != stop_hash):
+                raise M15ExecutionError("M15_FLAT_EXIT_PREPOST_IDENTITY_UNPROVEN")
+            exit_order = unique_order_by_client_id(
+                orders, "m15" + hashlib.sha256(exit_key.encode()).hexdigest()[:17])
+            if (exit_order is None or exit_order.kind != "REGULAR"
+                    or exit_order.symbol != symbol
+                    or exit_order.side !=
+                    ("SIDE_SELL" if prepost[2] > 0 else "SIDE_BUY")
+                    or not _rest_value_equals(
+                        exit_order.request.get("quantity"), str(abs(prepost[2])))
+                    or exit_order.status not in {"FILLED", "EXECUTED"}):
+                raise M15ExecutionError("M15_FLAT_EXIT_FILL_ORDER_UNVERIFIED")
+            reason = "EMERGENCY_EXIT"
+        else:
+            if len(terminal_stop) != 1 or terminal_stop[0].status not in {
+                "SL_EXECUTED", "TP_EXECUTED", "FILLED", "EXECUTED"
+            }:
+                raise M15ExecutionError("M15_FLAT_PROTECTIVE_EXECUTION_UNVERIFIED")
+            reason = "PROTECTIVE_EXECUTED"
+        self.db.execute("BEGIN IMMEDIATE")
+        try:
+            existing = self.db.execute(
+                "SELECT stop_key,exit_key,confirmed_stop_sha256,reason "
+                "FROM broker_flat WHERE entry_key=?", (entry_key,),
+            ).fetchone()
+            expected = (stop_key, exit_key, stop_hash, reason)
+            if existing is not None and existing != expected:
+                raise M15ExecutionError("M15_FLAT_DURABLE_HISTORY_CONFLICT")
+            if existing is None:
+                self.db.execute(
+                    "INSERT INTO broker_flat VALUES(?,?,?,?,?,?)",
+                    (entry_key, stop_key, exit_key, stop_hash,
+                     observed_at.astimezone(timezone.utc).isoformat(), reason),
+                )
+            self.db.execute("COMMIT")
+        except Exception:
+            if self.db.in_transaction:
+                self.db.execute("ROLLBACK")
+            raise
+        return {
+            "flat_broker_observed": True,
+            "active_sltp_cleanup_required": False,
+            "durable_closed": True,
+            "reason": reason,
+            "new_entries_authorized": False,
+            "live_authorized": False,
+        }
 
     def begin_protective_post_uncertain(
         self, *, key: str, draft: M15Draft, account: dict,
