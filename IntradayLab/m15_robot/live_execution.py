@@ -331,8 +331,9 @@ class M15OutboundJournal:
                 return False
             if draft.kind == "ENTRY":
                 occupied = self.db.execute(
-                    "SELECT 1 FROM outbound WHERE symbol=? AND kind='ENTRY' "
-                    "AND state IN ('PREPARED','UNCERTAIN','ACK') LIMIT 1",
+                    "SELECT 1 FROM outbound o WHERE o.symbol=? AND o.kind='ENTRY' "
+                    "AND o.state IN ('PREPARED','UNCERTAIN','ACK') "
+                    "AND NOT EXISTS (SELECT 1 FROM broker_flat c WHERE c.entry_key=o.intent_key) LIMIT 1",
                     (draft.payload["symbol"],),
                 ).fetchone()
                 if occupied:
@@ -434,15 +435,32 @@ class M15OutboundJournal:
             if positions or any(o.active for o in orders):
                 raise M15ExecutionError("M15_N4_UNOWNED_BROKER_POSITION_OR_ORDER")
             return Decimal("0"), set()
-        # New attempts must wait until every unrelated initial/protective
-        # intent is either fully reconciled or independently reviewed.
-        if any(r[1] != "ENTRY" and r[3] != "ACK" for r in all_rows):
+        # A broker-proven FLAT with no active SLTP releases original R15
+        # reservation but does NOT erase audit evidence or permit LIVE.
+        # Pending EXIT on an unclosed instrument still blocks every new entry.
+        closed_pairs = self.db.execute(
+            "SELECT entry_key,exit_key FROM broker_flat").fetchall()
+        closed = {k: v for k, v in closed_pairs}
+        if len(closed) != len(closed_pairs):
+            raise M15ExecutionError("M15_N4_DUPLICATE_FLAT_EVIDENCE")
+        allowed_exits = {v for v in closed.values() if v is not None}
+        if any(r[1] == "EMERGENCY_EXIT" and r[0] not in allowed_exits
+               for r in all_rows):
             raise M15ExecutionError("M15_N4_UNRESOLVED_PROTECTIVE_OR_EXIT_INTENT")
-        if any(r[1] not in {"ENTRY","PROTECTIVE_STOP_INSTALL",
+        if any(r[1] not in {"ENTRY", "EMERGENCY_EXIT",
+                             "PROTECTIVE_STOP_INSTALL",
                              "PROTECTIVE_STOP_REPLACE"} for r in all_rows):
             raise M15ExecutionError("M15_N4_UNRECONCILED_EXIT_INTENT")
-        entries = [r for r in all_rows if r[1] == "ENTRY"]
-        if (not entries or len(entries) > len(INSTRUMENTS)
+        if any(r[1] in {"PROTECTIVE_STOP_INSTALL","PROTECTIVE_STOP_REPLACE"}
+               and r[3] != "ACK" for r in all_rows):
+            raise M15ExecutionError("M15_N4_UNRESOLVED_PROTECTIVE_OR_EXIT_INTENT")
+        entries = [r for r in all_rows
+                   if r[1] == "ENTRY" and r[0] not in closed]
+        if not entries:
+            if positions or any(o.active for o in orders):
+                raise M15ExecutionError("M15_N4_UNOWNED_BROKER_POSITION_OR_ORDER")
+            return Decimal("0"), set()
+        if (len(entries) > len(INSTRUMENTS)
                 or any(r[3] != "ACK" or not r[4] for r in entries)
                 or len({r[2] for r in entries}) != len(entries)):
             raise M15ExecutionError("M15_N4_UNRESOLVED_OR_DUPLICATE_ENTRY")
@@ -453,7 +471,8 @@ class M15OutboundJournal:
             raise M15ExecutionError("M15_N4_BROKER_POSITION_OR_ORDER_UNOWNED")
         planned = self.db.execute(
             "SELECT intent_key,symbol,direction,quantity,nominal_initial_risk,"
-            "stop_price FROM entry_r15_basis").fetchall()
+            "stop_price FROM entry_r15_basis "
+            "WHERE intent_key NOT IN (SELECT entry_key FROM broker_flat)").fetchall()
         if len(planned) != len(entries):
             raise M15ExecutionError("M15_N4_ENTRY_RISK_BASIS_INCOMPLETE")
         risk_basis = {r[0]: r for r in planned}
