@@ -48,7 +48,8 @@ def live_view():
             snapshot, accepted = refresh(now)
             st.session_state["cc03-last-export"] = snapshot
             if not accepted:
-                st.warning("BLOCKED / UNKNOWN: источник недоступен, policy не принята или другая ручная проверка выполняется. Автоматического повтора нет.")
+                st.warning("BLOCKED / UNKNOWN · " + snapshot.events[0].message +
+                           ": источник недоступен, policy не принята или другая ручная проверка выполняется. Автоматического повтора нет.")
         now = utc_now()
         snapshots[RobotId.H1] = age_export_snapshot(
             st.session_state.get("cc03-last-export") or unchecked_export_snapshot(

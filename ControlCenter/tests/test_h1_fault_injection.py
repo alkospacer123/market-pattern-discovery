@@ -165,7 +165,11 @@ def test_no_runtime_write_call_paths():
             if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute):
                 display_write = (path.name == 'ui.py' and isinstance(node.func.value,ast.Name)
                                  and node.func.value.id == 'st' and node.func.attr == 'write')
-                assert display_write or node.func.attr not in forbidden, (path,node.func.attr)
+                # The fixed isolated native reader returns bounded bytes only
+                # to its inherited stdout pipe. This grants no file write path.
+                reader_ipc = (path.name == 'windows_file.py'
+                              and ast.unparse(node.func) == 'sys.stdout.buffer.write')
+                assert display_write or reader_ipc or node.func.attr not in forbidden, (path,node.func.attr)
                 if isinstance(node.func.value,ast.Name) and node.func.value.id=='os':
                     assert (path.name=='readonly_file.py' and node.func.attr in allowed_os
                             or path.name=='windows_file.py' and node.func.attr=='scandir'
