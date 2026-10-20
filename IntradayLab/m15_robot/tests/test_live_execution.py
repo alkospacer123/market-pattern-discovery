@@ -914,6 +914,137 @@ class M15ExecutionStageTests(unittest.TestCase):
         with self.assertRaisesRegex(M15ExecutionError, "UNRESOLVED_PROTECTIVE"):
             self.j.prepare_entry_from_broker_r15(**self.usd_followup(data))
 
+
+    def test_h1_emergency_exit_prepost_restart_and_flat_stop_cleanup(self):
+        owned = self.synthetic_owned_n4()
+        exit_key = "m15:exit:trade-1:emergency"
+        proposal = self.j.prepare_emergency_exit_from_broker(
+            entry_key=owned["key"], stop_key="m15:trade-1:stop:0",
+            exit_key=exit_key, drafts=owned["drafts"],
+            account=owned["account"], orders_response=owned["orders_response"],
+        )
+        self.assertEqual(proposal.kind, "EMERGENCY_EXIT")
+        self.assertEqual(proposal.payload["quantity"], {"value": "3"})
+        self.assertEqual(proposal.payload["side"], "SIDE_SELL")
+        self.assertEqual(self.j.inspect(exit_key)["state"], "PREPARED")
+        self.j.begin_exit_post_uncertain(
+            entry_key=owned["key"], stop_key="m15:trade-1:stop:0",
+            exit_key=exit_key, draft=proposal,
+            account=owned["account"], orders_response=owned["orders_response"],
+        )
+        self.assertEqual(self.j.inspect(exit_key)["state"], "UNCERTAIN")
+        self.j.close()
+        self.j = M15OutboundJournal(**self.args)
+        with self.assertRaisesRegex(M15ExecutionError, "ALREADY_SENT"):
+            self.j.begin_exit_post_uncertain(
+                entry_key=owned["key"], stop_key="m15:trade-1:stop:0",
+                exit_key=exit_key, draft=proposal,
+                account=owned["account"], orders_response=owned["orders_response"],
+            )
+        flat_account = dict(owned["account"], positions=[])
+        snapshot = dict(
+            entry_key=owned["key"], stop_key="m15:trade-1:stop:0",
+            exit_key=exit_key, account=flat_account,
+            observed_at=datetime(2026, 10, 18, 12, tzinfo=timezone.utc),
+        )
+        # Even a broker-flat account cannot remove a still-ACTIVE stop.
+        active_result = self.j.observe_flat_broker_get(
+            **dict(snapshot, orders_response=owned["orders_response"]))
+        self.assertTrue(active_result["active_sltp_cleanup_required"])
+        self.assertFalse(active_result["durable_closed"])
+        self.assertEqual(
+            self.j.db.execute("SELECT COUNT(*) FROM broker_flat").fetchone()[0], 0)
+        terminal = [dict(x) for x in owned["orders_response"]["orders"]]
+        terminal[-1]["status"] = "ORDER_STATUS_CANCELLED"
+        terminal.append({
+            "order_id": "broker-exit-one", "status": "ORDER_STATUS_FILLED",
+            "order": dict(proposal.payload),
+        })
+        proven = self.j.observe_flat_broker_get(
+            **dict(snapshot, orders_response={"orders": terminal}))
+        self.assertTrue(proven["durable_closed"])
+        self.assertFalse(proven["active_sltp_cleanup_required"])
+        self.assertEqual(proven["reason"], "EMERGENCY_EXIT")
+        self.assertFalse(proven["live_authorized"] or proven["new_entries_authorized"])
+        self.j.close()
+        self.j = M15OutboundJournal(**self.args)
+        replay = self.j.observe_flat_broker_get(
+            **dict(snapshot, orders_response={"orders": terminal}))
+        self.assertEqual(replay, proven)
+        self.assertEqual(
+            self.j.db.execute("SELECT COUNT(*) FROM broker_flat").fetchone()[0], 1)
+
+    def test_h1_stop_filled_flat_without_exit_is_durably_observed(self):
+        owned = self.synthetic_owned_n4()
+        flat = dict(owned["account"], positions=[])
+        orders = [dict(x) for x in owned["orders_response"]["orders"]]
+        orders[-1]["status"] = "ORDER_STATUS_SL_EXECUTED"
+        result = self.j.observe_flat_broker_get(
+            entry_key=owned["key"], stop_key="m15:trade-1:stop:0",
+            account=flat, orders_response={"orders": orders},
+            observed_at=datetime(2026, 10, 18, 12, tzinfo=timezone.utc),
+        )
+        self.assertEqual(result["reason"], "PROTECTIVE_EXECUTED")
+        self.assertTrue(result["durable_closed"])
+        self.assertFalse(result["new_entries_authorized"])
+
+    def test_h1_flat_cannot_be_claimed_from_broker_position_still_open(self):
+        owned = self.synthetic_owned_n4()
+        with self.assertRaisesRegex(M15ExecutionError, "BROKER_NOT_FLAT"):
+            self.j.observe_flat_broker_get(
+                entry_key=owned["key"], stop_key="m15:trade-1:stop:0",
+                account=owned["account"],
+                orders_response=owned["orders_response"],
+                observed_at=datetime(2026, 10, 18, 12, tzinfo=timezone.utc),
+            )
+        self.assertEqual(
+            self.j.db.execute("SELECT COUNT(*) FROM broker_flat").fetchone()[0], 0)
+
+    def test_h1_exit_refuses_uncovered_growth_and_duplicate(self):
+        owned = self.synthetic_owned_n4()
+        kw = dict(
+            entry_key=owned["key"], stop_key="m15:trade-1:stop:0",
+            exit_key="m15:exit:trade-1:emergency", drafts=owned["drafts"],
+            account=owned["account"], orders_response=owned["orders_response"],
+        )
+        grown = dict(owned["account"], positions=[
+            {"symbol": "CNYRUBF@RTSX", "quantity": {"value": "4"}}])
+        with self.assertRaisesRegex(M15ExecutionError, "OPEN_POSITION_CHANGED"):
+            self.j.prepare_emergency_exit_from_broker(
+                **dict(kw, account=grown))
+        draft = self.j.prepare_emergency_exit_from_broker(**kw)
+        self.assertEqual(draft.payload["quantity"], {"value": "3"})
+        with self.assertRaisesRegex(M15ExecutionError, "DUPLICATE_OR_UNRESOLVED"):
+            self.j.prepare_emergency_exit_from_broker(
+                **dict(kw, exit_key="m15:exit:trade-1:again"))
+        self.assertIsNone(self.j.inspect("m15:exit:trade-1:again"))
+
+    def test_h1_exit_no_false_flat_on_missing_fill_order(self):
+        owned = self.synthetic_owned_n4()
+        exit_key = "m15:exit:trade-1:emergency"
+        draft = self.j.prepare_emergency_exit_from_broker(
+            entry_key=owned["key"], stop_key="m15:trade-1:stop:0",
+            exit_key=exit_key, drafts=owned["drafts"],
+            account=owned["account"], orders_response=owned["orders_response"],
+        )
+        self.j.begin_exit_post_uncertain(
+            entry_key=owned["key"], stop_key="m15:trade-1:stop:0",
+            exit_key=exit_key, draft=draft,
+            account=owned["account"], orders_response=owned["orders_response"],
+        )
+        flat = dict(owned["account"], positions=[])
+        orders = [dict(x) for x in owned["orders_response"]["orders"]]
+        orders[-1]["status"] = "ORDER_STATUS_CANCELLED"
+        with self.assertRaisesRegex(M15ExecutionError, "EXIT_FILL_ORDER_UNVERIFIED"):
+            self.j.observe_flat_broker_get(
+                entry_key=owned["key"], stop_key="m15:trade-1:stop:0",
+                exit_key=exit_key, account=flat,
+                orders_response={"orders": orders},
+                observed_at=datetime(2026, 10, 18, 12, tzinfo=timezone.utc),
+            )
+        self.assertEqual(
+            self.j.db.execute("SELECT COUNT(*) FROM broker_flat").fetchone()[0], 0)
+
     def test_authorization_file_cannot_override_frozen_status(self):
         root = self.args["runtime_root"]
         (root / "safety").mkdir(parents=True, exist_ok=True)
