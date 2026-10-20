@@ -22,6 +22,7 @@ from typing import Any
 
 from .broker_fill_readonly import ExpectedEntry, analyze_account_trades
 from .broker_risk_readonly import check_account, check_instrument
+from .bar_bridge import MOSCOW, trading_windows
 from .cashflow_reconcile_gate import CashflowWindow, propose_realized_capital
 from .exchange_contract import contract_from_moex_and_finam, MOEX_N4_2026_10_18
 from .broker_snapshot import order_views, position_quantities, unique_order_by_client_id
@@ -34,7 +35,8 @@ from .spec import INITIAL_STOP_ATR
 from .trade_draft_contract import M15OfflineTradeDrafts
 
 from .account_boundary import validate_independent_binding
-from .spec import EXECUTION_STATUS, INSTRUMENTS, ROBOT_ID
+from .spec import (EXECUTION_STATUS, INSTRUMENTS, ROBOT_ID,
+                   SIGNAL_START_MSK_MINUTE, SIGNAL_END_MSK_MINUTE)
 from .trade_draft_contract import M15Draft
 
 _SHA40 = re.compile(r"^[0-9a-f]{40}$")
@@ -431,7 +433,9 @@ class M15OutboundJournal:
 
 
     def _owned_n4_risk_from_broker(self, *, positions: dict[str, int],
-                                  orders: list) -> tuple[Decimal, set[str]]:
+                                  orders: list,
+                                  excluded_prepared_entry_key: str | None = None,
+                                  ) -> tuple[Decimal, set[str]]:
         """H1-style portfolio gate: count ONLY exact owned protected N4 fills.
 
         Mismatches halt new entry preparation. Do not infer that a 100% SLTP
@@ -441,6 +445,11 @@ class M15OutboundJournal:
         all_rows = self.db.execute(
             "SELECT intent_key,kind,symbol,state,broker_order_sha256 "
             "FROM outbound").fetchall()
+        if excluded_prepared_entry_key is not None:
+            own = [x for x in all_rows if x[0] == excluded_prepared_entry_key]
+            if len(own) != 1 or own[0][1] != "ENTRY" or own[0][3] != "PREPARED":
+                raise M15ExecutionError("M15_ENTRY_PREPOST_NOT_PREPARED")
+            all_rows = [x for x in all_rows if x[0] != excluded_prepared_entry_key]
         if not all_rows:
             if positions or any(o.active for o in orders):
                 raise M15ExecutionError("M15_N4_UNOWNED_BROKER_POSITION_OR_ORDER")
@@ -705,6 +714,125 @@ class M15OutboundJournal:
             raise
         return draft, sized
 
+
+
+    def begin_entry_post_uncertain_checked(
+        self, *, key: str, draft: M15Draft,
+        account: dict, orders_response: dict, asset: dict, asset_params: dict,
+        schedule: dict, signal_atr: Decimal, signal_closed_at: datetime,
+        now: datetime,
+    ) -> None:
+        """H1 pre-POST gate: session + latest NEXT_OPEN + broker N4/R15/GO.
+
+        Caller must supply snapshots from the SAME authenticated M15 trading
+        session; live transport re-GETs them instead of trusting a draft.
+        The transition PREPARED→UNCERTAIN is ONE durable SQLite transaction;
+        no FINAM order send or release of frozen LIVE authority happens here.
+        """
+        _valid_draft(draft, account_hash=self.account_hash, key=key)
+        if draft.kind != "ENTRY":
+            raise M15ExecutionError("M15_ENTRY_PREPOST_KIND_INVALID")
+        if any(not isinstance(v, datetime) or v.tzinfo is None
+               or v.utcoffset() is None for v in (signal_closed_at, now)):
+            raise M15ExecutionError("M15_ENTRY_PREPOST_CLOCK_INVALID")
+        current = now.astimezone(timezone.utc)
+        signal = signal_closed_at.astimezone(timezone.utc)
+        delta = (current - signal).total_seconds()
+        msk = signal_closed_at.astimezone(MOSCOW)
+        minute = msk.hour * 60 + msk.minute
+        if (not 0 <= delta <= 30
+                or not SIGNAL_START_MSK_MINUTE <= minute < SIGNAL_END_MSK_MINUTE
+                or msk.minute % 15 != 0 or msk.second or msk.microsecond):
+            raise M15ExecutionError("M15_ENTRY_PREPOST_NOT_NEXT_OPEN")
+        windows = trading_windows(schedule)
+        if not any(start <= signal <= current < end
+                   and (end - current).total_seconds() >= 30
+                   for start, end in windows):
+            raise M15ExecutionError("M15_ENTRY_PREPOST_SESSION_NOT_OPEN")
+        row = self.inspect(key)
+        proof = self.db.execute(
+            "SELECT account_sha256,account_observed_utc,cashflow_sha256,"
+            "realized_equity,available_cash,symbol,direction,reference_entry,"
+            "stop_price,quantity,nominal_initial_risk "
+            "FROM entry_r15_basis WHERE intent_key=?", (key,),
+        ).fetchone()
+        if (row is None or row["kind"] != "ENTRY"
+                or row["state"] != "PREPARED"
+                or row["payload_sha256"] != _digest(draft.payload)
+                or not proof or proof[0] != self.account_hash
+                or proof[5] != draft.payload["symbol"]
+                or not isinstance(proof[2], str) or not _SHA64.fullmatch(proof[2])
+                or proof[9] != int(draft.payload["quantity"]["value"])):
+            raise M15ExecutionError("M15_ENTRY_PREPOST_DURABLE_R15_MISSING")
+        try:
+            prior = datetime.fromisoformat(proof[1])
+            age = (current-prior.astimezone(timezone.utc)).total_seconds()
+        except (TypeError, ValueError, AttributeError):
+            raise M15ExecutionError("M15_ENTRY_PREPOST_R15_CLOCK_INVALID") from None
+        if not 0 <= age <= 30:
+            raise M15ExecutionError("M15_ENTRY_PREPOST_R15_STALE")
+        if (not isinstance(account, dict)
+                or not isinstance(account.get("account_id"), str)
+                or hashlib.sha256(account["account_id"].encode()).hexdigest()
+                != self.account_hash):
+            raise M15ExecutionError("M15_ENTRY_PREPOST_ACCOUNT_MISMATCH")
+        funds = check_account(account, account["account_id"])
+        if (funds.broker_equity_minus_unrealized != Decimal(proof[3])
+                or funds.available_cash != Decimal(proof[4])):
+            raise M15ExecutionError("M15_ENTRY_PREPOST_CAPITAL_OR_GO_CHANGED")
+        symbol = proof[5]
+        instrument = symbol.split("@")[0]
+        direction = proof[6]
+        if (direction not in {"LONG", "SHORT"}
+                or draft.payload["side"] !=
+                ("SIDE_BUY" if direction == "LONG" else "SIDE_SELL")):
+            raise M15ExecutionError("M15_ENTRY_PREPOST_SIDE_MISMATCH")
+        verified = check_instrument(asset, asset_params, symbol, account["account_id"])
+        contract = contract_from_moex_and_finam(verified)
+        reference = Decimal(proof[7])
+        planned_stop = Decimal(proof[8])
+        if (not isinstance(signal_atr, Decimal)
+                or initial_stop(direction, reference, signal_atr,
+                                contract.price_step) != planned_stop):
+            raise M15ExecutionError("M15_ENTRY_PREPOST_2ATR_GRID_CHANGED")
+        positions = position_quantities(account)
+        orders = order_views(orders_response)
+        self.db.execute("BEGIN IMMEDIATE")
+        try:
+            state = self.inspect(key)
+            if state is None or state["state"] != "PREPARED":
+                raise M15ExecutionError("M15_ENTRY_PREPOST_ALREADY_SENT")
+            risk, occupied = self._owned_n4_risk_from_broker(
+                positions=positions, orders=orders,
+                excluded_prepared_entry_key=key,
+            )
+            if instrument in occupied or any(
+                o.client_order_id == draft.payload["client_order_id"]
+                for o in orders
+            ):
+                raise M15ExecutionError("M15_ENTRY_PREPOST_ALREADY_AT_BROKER")
+            budget = M15BatchRiskBudget(
+                realized_equity=funds.broker_equity_minus_unrealized,
+                available_margin_cash=funds.available_cash,
+                committed_initial_risk=risk,
+                occupied_instruments=tuple(sorted(occupied)),
+            )
+            sized = budget.size_and_reserve(
+                instrument=instrument, direction=direction,
+                entry=reference, stop=planned_stop, contract=contract,
+            )
+            if (sized.reason != "OK" or sized.final_quantity != proof[9]
+                    or sized.initial_nominal_risk != Decimal(proof[10])):
+                raise M15ExecutionError("M15_ENTRY_PREPOST_R15_GO_RECALC_MISMATCH")
+            self.db.execute(
+                "UPDATE outbound SET state='UNCERTAIN' "
+                "WHERE intent_key=? AND state='PREPARED'", (key,),
+            )
+            self.db.execute("COMMIT")
+        except Exception:
+            if self.db.in_transaction:
+                self.db.execute("ROLLBACK")
+            raise
 
     def _owned_exit_snapshot(
         self, *, entry_key: str, stop_key: str, account: dict,
