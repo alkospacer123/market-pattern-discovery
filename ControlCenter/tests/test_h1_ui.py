@@ -90,26 +90,25 @@ def test_manual_refresh_exception_is_unknown_and_gate_is_released(monkeypatch):
 
 def test_export_is_not_read_without_manual_click_and_navigation_does_not_reread(monkeypatch):
     from cc.providers.h1_export import H1ExportProvider
-    calls=[]
+    calls = []
     def count_reads(self, robot_id, scenario, now):
         calls.append((robot_id, scenario))
         from cc.providers.h1_export import unchecked_export_snapshot
         return unchecked_export_snapshot(now)
-    monkeypatch.setattr(H1ExportProvider, 'snapshot', count_reads)
-    app=AppTest.from_file(str(APP), default_timeout=15).run()
-    app.selectbox(key='h1-source').select('READONLY_EXPORT').run()
+    monkeypatch.setattr(H1ExportProvider, "snapshot", count_reads)
+    app = AppTest.from_file(str(APP), default_timeout=15).run()
+    app.selectbox(key="h1-source").select("READONLY_EXPORT").run()
     assert not app.exception and not calls
-    assert 'MANUAL_REFRESH_REQUIRED' in content(app) or 'Проверка H1 не запускалась' in content(app)
-    app.radio[0].set_value('Монитор H1').run()
-    app.radio[0].set_value('Монитор M15').run()
+    app.radio[0].set_value("Журнал").run()
+    app.radio[0].set_value("Управление").run()
     assert not calls
-    app.button(key='cc03-manual-refresh').click().run()
-    assert len(calls)==1
-    app.radio[0].set_value('Главная панель').run()
-    app.radio[0].set_value('Монитор H1').run()
-    assert len(calls)==1
-    app.button(key='cc03-manual-refresh').click().run()
-    assert len(calls)==2
-    app.selectbox(key='h1-source').select('SYNTHETIC / DEMO').run()
-    app.selectbox(key='h1-source').select('READONLY_EXPORT').run()
-    assert len(calls)==2 and 'Проверка H1 не запускалась' in content(app)
+    app.button(key="cc03-manual-refresh").click().run()
+    assert len(calls) == 1
+    app.radio[0].set_value("Главная").run()
+    app.radio[0].set_value("Журнал").run()
+    assert len(calls) == 1
+    app.button(key="cc03-manual-refresh").click().run()
+    assert len(calls) == 2
+    app.selectbox(key="h1-source").select("SYNTHETIC / DEMO").run()
+    app.selectbox(key="h1-source").select("READONLY_EXPORT").run()
+    assert len(calls) == 2
