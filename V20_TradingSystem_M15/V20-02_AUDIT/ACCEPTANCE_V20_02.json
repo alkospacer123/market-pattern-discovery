@@ -1,0 +1,113 @@
+{
+  "stage": "V20-02",
+  "status": "PASS",
+  "archive_file_sha256": "7417bf26bad151e6015f6d58a3eadb358354d06936db42e5094f9bee3eb739b7",
+  "source": "fully offline; no broker, no new repo, no server mutation",
+  "real_broker_orders": 0,
+  "main_observed_sha": "c3695b1304aef1acdd889264b3451184f7332bf7",
+  "independent_replay": "pure Python multi-account finite state replay (not frozen numba replay)",
+  "signal_validation": "Independent formulas match V20 Shallow/OBV and archived V4 Inside at every source M15 bar",
+  "parity_trades": 1589,
+  "unexpected_differences": 0,
+  "frozen_input_files": 18,
+  "meta": {
+    "SHALLOW_PULLBACK": {
+      "unclosed": 0,
+      "terminal_positions": [],
+      "exits": {
+        "1": 488,
+        "3": 277,
+        "4": 19,
+        "2": 13
+      },
+      "checks": {
+        "entries": 797
+      }
+    },
+    "OBV_PRESSURE": {
+      "unclosed": 0,
+      "terminal_positions": [],
+      "exits": {
+        "1": 398,
+        "3": 181,
+        "4": 26,
+        "2": 7
+      },
+      "checks": {
+        "entries": 612
+      }
+    },
+    "INSIDE_DAY_RELEASE": {
+      "unclosed": 1,
+      "terminal_positions": [
+        {
+          "symbol": "USDRUBF",
+          "side": 1,
+          "entry_dt": "2026-08-29 13:45:00",
+          "initial_stop": 86.46000000000001,
+          "entry_price": 86.6,
+          "risk_price_units": 0.13999999999998636
+        }
+      ],
+      "exits": {
+        "3": 60,
+        "1": 109,
+        "4": 8,
+        "2": 3
+      },
+      "checks": {
+        "entries": 181
+      }
+    }
+  },
+  "summary": [
+    {
+      "account": "Shallow Pullback",
+      "model": "SHALLOW_PULLBACK",
+      "trades": 797,
+      "PF": 1.911027909035898,
+      "net_R": 512.17026832203,
+      "max_abs_diff_R": 3.552713678800501e-15,
+      "bar_signal_parity": "PASS",
+      "price_stop_cost_parity": "PASS",
+      "reference_trade_parity": "PASS",
+      "remaining_open": 0
+    },
+    {
+      "account": "OBV Pressure",
+      "model": "OBV_PRESSURE",
+      "trades": 612,
+      "PF": 1.7181219101851681,
+      "net_R": 337.441919035229,
+      "max_abs_diff_R": 1.7763568394002505e-15,
+      "bar_signal_parity": "PASS",
+      "price_stop_cost_parity": "PASS",
+      "reference_trade_parity": "PASS",
+      "remaining_open": 0
+    },
+    {
+      "account": "Inside Day Release",
+      "model": "INSIDE_DAY_RELEASE",
+      "trades": 180,
+      "PF": 2.2652489630976147,
+      "net_R": 167.80804352224897,
+      "max_abs_diff_R": 3.552713678800501e-15,
+      "bar_signal_parity": "PASS",
+      "price_stop_cost_parity": "PASS",
+      "reference_trade_parity": "PASS",
+      "remaining_open": 1
+    },
+    {
+      "account": "ALL THREE INDEPENDENT",
+      "model": "ALL",
+      "trades": 1589,
+      "PF": 1.8735373223997072,
+      "net_R": 1017.4202308795079,
+      "max_abs_diff_R": 3.552713678800501e-15,
+      "bar_signal_parity": "PASS",
+      "price_stop_cost_parity": "PASS",
+      "reference_trade_parity": "PASS",
+      "remaining_open": 1
+    }
+  ]
+}

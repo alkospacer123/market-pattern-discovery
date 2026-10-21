@@ -1,0 +1,111 @@
+{
+  "stage": "V20-03",
+  "status": "PARTIAL/HOLD",
+  "research_execution": "COMPLETED_FOR_AVAILABLE_DATA",
+  "full_stress_acceptance": "HOLD",
+  "independent_OOS": false,
+  "full_N4": false,
+  "checks": [
+    {
+      "check": "INPUT_ZIPS_AND_FROZEN_BYTES",
+      "status": "PASS",
+      "detail": "Оба оригинальных ZIP, 43 CSV, frozen code и принятый V20-02 сохранены; 137 полученных файлов проверены, 3 обновлённых документа имеют исходные копии."
+    },
+    {
+      "check": "CURRENT_MAIN_AND_NO_H1_M15_MUTATION",
+      "status": "PASS",
+      "detail": "Remote main и локальный HEAD = c3695b1…, git status пуст до/после; GitHub только GET."
+    },
+    {
+      "check": "ROADMAP_EXACTLY_V20_01_TO_10",
+      "status": "PASS",
+      "detail": "Исходный roadmap и tracker не изменены, новые этапы не добавлены; актуальный статус 03 в этом acceptance."
+    },
+    {
+      "check": "RAW_OHLC_DATETIME_VOLUME",
+      "status": "PASS",
+      "detail": "149028 строк, 43 серии; нет невалидных OHLC/объёмов/внутрисерийных дублей/не-M15 отметок."
+    },
+    {
+      "check": "HISTORICAL_TICK_GRIDS",
+      "status": "PASS",
+      "detail": "Si=1; MIX=25; CNY=.01→.001 с 06.10.2022 19:00. Проверены все OHLC, нарушений 0. Историческая идентичность всех выпусков остаётся условной."
+    },
+    {
+      "check": "FROZEN_SIGNAL_BODIES",
+      "status": "PASS",
+      "detail": "Непереписанные AST-тела frozen prepare/signals/prep/add_indicators; 3 сигнала сверены с независимыми формулами V20-02."
+    },
+    {
+      "check": "ACCEPTED_1589_REFERENCE",
+      "status": "PASS",
+      "detail": "209621 эталонный бар; 1589 сделок, max |delta R|=3.552713678800501e-15."
+    },
+    {
+      "check": "SIGNAL_AND_ROLL_CAUSALITY",
+      "status": "PASS",
+      "detail": "61 prefix run на всех 43 реальных контрактах; 6 срезов ролла; 12 срезов полного stress replay. Будущее не меняет предшествующие сигналы/решения/сделки."
+    },
+    {
+      "check": "NEXT_OPEN_STOP_AND_SESSION_EXIT",
+      "status": "PASS",
+      "detail": "Смежный NEXT_OPEN, наружный grid stop 2×ATR14 исходного Wilder ewm, stop-first, неблагоприятный Open через стоп, максимум span=3 для допустимых сделок."
+    },
+    {
+      "check": "INDEPENDENT_ACCOUNT_LIMITS",
+      "status": "PASS",
+      "detail": "574/332/110 входов, максимум 2 на сессию на каждом счёте; максимум 1 вход/позиция на базовый символ, сохраняется при ролле."
+    },
+    {
+      "check": "NO_SYNTHETIC_FUTURE_OR_CLOSE",
+      "status": "PASS",
+      "detail": "Нет достройки Si-9.19, интерполяции или forced close; 12 censored сделок вынесены отдельно, открытых 0."
+    },
+    {
+      "check": "COSTS_AND_ALL_BREAKDOWNS",
+      "status": "PASS",
+      "detail": "1/2/4 тика на сторону, без фактических комиссий; стратегии/2018–2022/месяцы/инструменты/PF/R/DD/концентрация."
+    },
+    {
+      "check": "DETERMINISTIC_REPEAT",
+      "status": "PASS",
+      "detail": "18 файлов, два независимых завершённых запуска; побайтовых отличий 0."
+    },
+    {
+      "check": "FULL_N4_HISTORY",
+      "status": "FAIL",
+      "detail": "Нет GLD, CNY только 2022, квартальные прокси не эквивалентны perpetual N4; конец 2022 после 15.12 отсутствует."
+    },
+    {
+      "check": "POINT_IN_TIME_SECURITY_MASTER",
+      "status": "FAIL",
+      "detail": "Не подтверждены отдельным историческим security master все 43 идентичности/исключения календаря/изменения спецификаций 2018–2021."
+    },
+    {
+      "check": "VENDOR_TIMEZONE_AND_FULL_CALENDAR",
+      "status": "FAIL",
+      "detail": "MSK и начало M15 условны; биржевые окна подтверждены частично, но метаданных экспортера и полного календаря остановок нет."
+    },
+    {
+      "check": "COMPLETE_UNBIASED_SAMPLE",
+      "status": "FAIL",
+      "detail": "409 неподтверждённых внутрисессионных разрывов по фиксированному критерию, прогревы, отсутствие кандидата и 12 исключений; смещение выборки возможно."
+    },
+    {
+      "check": "FULL_N4_OOS_OR_REAL_RUB_CLAIM",
+      "status": "PASS",
+      "detail": "Все числа CONDITIONAL, независимый OOS=false, full_N4=false, RUB/ГО/целые контракты не моделируются."
+    }
+  ],
+  "metrics": {
+    "stat_eligible_closed": 1004,
+    "censored_closed": 12,
+    "open_positions": 0
+  },
+  "policy_sha256": "74acf11239763c43be73982aa6c3f64d24e75fe16f272339db3b910dc62564bb",
+  "frozen_sources": {
+    "base.py": "b7b9df00f8d7fb0a88c5cba103034e5a2335c108ae283258e5d8ebd5476aa59d",
+    "run.py": "223545374f98d8c87cf2c09b3a7302b05b07020dc8bf34b5984ebaa3d74389fe",
+    "legacy_v4/study_v4.py": "0f49432e207235f631807a82536f521751ad5559cc374fc6c42f8ca4f289bd08"
+  }
+}

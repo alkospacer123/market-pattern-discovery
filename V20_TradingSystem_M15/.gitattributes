@@ -1,0 +1,4 @@
+# Preserve reviewed legacy bytes; exceptions apply only to archived source files.
+research_original_v20/run.py -text whitespace=-trailing-space
+research_original_v20/legacy_v4/dependencies/portfolio_cap.py -text whitespace=-trailing-space
+V20-03/evidence/archive_original/docs/TASK_TRACKER.csv -text whitespace=cr-at-eol

@@ -1,0 +1,103 @@
+{
+  "stage": "V20-03",
+  "stage_status": "PARTIAL/HOLD",
+  "publication_status": "UPDATED_WITH_ORIGINAL_QUARTERLY_QUOTES_DRAFT_REVIEW",
+  "base_repository": "alkospacer123/market-pattern-discovery",
+  "base_sha": "c3695b1304aef1acdd889264b3451184f7332bf7",
+  "branch": "codex/v20-03-publish-partial-hold-20261021",
+  "allowed_change_prefix": "V20_TradingSystem_M15/",
+  "primary_scenario": "C1",
+  "C2_STRICT_role": "INFORMATIONAL_ONLY_NOT_REQUIRED_GO_HOLD_CRITERION",
+  "replay_runs_during_publication": 0,
+  "optimization_runs": 0,
+  "walk_forward_runs": 0,
+  "new_cost_scenarios": 0,
+  "main_merge": false,
+  "production_mutation": false,
+  "source_archive_sha256": "1ab1f85373c2bbd7a385d228ea061f0cd8259f409a73d40babbcfc0ba7f5eb50",
+  "inherited_calculation_acceptance": {
+    "status": "PARTIAL/HOLD",
+    "PASS": 14,
+    "FAIL": 4,
+    "failed_checks": [
+      "FULL_N4_HISTORY",
+      "POINT_IN_TIME_SECURITY_MASTER",
+      "VENDOR_TIMEZONE_AND_FULL_CALENDAR",
+      "COMPLETE_UNBIASED_SAMPLE"
+    ]
+  },
+  "checks": [
+    {
+      "check": "SOURCE_OFFLINE_ARCHIVE",
+      "status": "NOT VERIFIED",
+      "detail": "Historical index retained; original ZIP absent in current environment"
+    },
+    {
+      "check": "EXISTING_RESULTS_COPIED",
+      "status": "PASS",
+      "detail": "All 18 result files preserve archived bytes and RESULT_HASHES"
+    },
+    {
+      "check": "FROZEN_SOURCES",
+      "status": "PASS",
+      "detail": "Signals, dependencies, roll, runner and prior causality sources retain bytes"
+    },
+    {
+      "check": "REPORT_CSV_JSON_CONSISTENCY",
+      "status": "PASS",
+      "detail": "Primary C1 strategy/year/instrument/month views use existing values; all 12 exclusions mapped"
+    },
+    {
+      "check": "H1_M15_SCOPE",
+      "status": "PASS",
+      "detail": "All Git changes confined to new V20_TradingSystem_M15/; no runtime/workflow changes"
+    },
+    {
+      "check": "NO_SOURCE_DATA_IN_REPOSITORY",
+      "status": "PASS",
+      "detail": "Source market data and ZIPs remain outside Git per root AGENTS.md"
+    },
+    {
+      "check": "ROADMAP_AND_HOLD",
+      "status": "PASS",
+      "detail": "Exactly 8 stages; V20-04 development; full-comparability PARTIAL; historical originals retained"
+    },
+    {
+      "check": "C1_DECISION_SCENARIO",
+      "status": "PASS",
+      "detail": "C1 only primary; prior C2/STRICT informational, no new cost scenarios"
+    },
+    {
+      "check": "LIMITED_DIAGNOSTIC_REPLAY_NO_OPTIMIZATION",
+      "status": "PASS",
+      "detail": "Previous missing-ledger late baseline plus one required late V1 methodology diagnostic; no quarterly portfolio replay/optimization/WF"
+    },
+    {
+      "check": "UPLOADED_QUARTERLY_QUOTES",
+      "status": "PASS",
+      "detail": "Original ZIP/43 CSV hashes match; quote paths and model first exits verified"
+    }
+  ],
+  "required_artifacts_unavailable": [
+    "Original 1589 reference ledger / PARITY_REPORT",
+    "Original full offline ZIP"
+  ],
+  "intentionally_external_inputs": [
+    "history_2018_2022_original/",
+    "source_archive/2018-2022.zip",
+    "original_received/V20_TradingSystem_M15_10_STAGES.zip",
+    "research_original_v20/marketdata_m15/",
+    "research_original_v20/inside_day_signals/",
+    "complete archived reference payload"
+  ],
+  "current_roadmap_stages": 8,
+  "V20_04": "DEVELOPMENT_H1_M15",
+  "source_offline_archive_currently_available": false,
+  "limited_diagnostic_replay_batches": 2,
+  "limited_diagnostic_strategy_replays": 6,
+  "C0_diagnostic_existing_fills": true,
+  "replay_runs_during_publication_scope": "INITIAL_PUBLICATION_ONLY; limited diagnostic update recorded separately",
+  "quote_source_zip_sha256": "df1aaf4d23757d18689dfdf61d6fc1ec77f0b26ae7d8af1193322d460707888a",
+  "quarterly_sources_currently_available": true,
+  "current_quote_update_late_V1_batches": 1
+}

@@ -1,0 +1,14 @@
+{
+  "operation": "Audit aggregation of existing rows, no replay and no additional cost scenario",
+  "true_execution_in_gap": "UNKNOWN",
+  "primary_count": 1004,
+  "censored_count": 12,
+  "primary_net_C1_R": 205.45424654957716,
+  "primary_PF_C1": 1.2658597646842096,
+  "observed_censored_net_C1_R": 37.207785786082,
+  "all_observed_count": 1016,
+  "all_observed_model_net_C1_R": 242.66203233565918,
+  "all_observed_model_PF_C1": 1.3123134083082473,
+  "primary_scenario": "C1",
+  "use_all_observed_for_decision": false
+}

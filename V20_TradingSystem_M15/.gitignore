@@ -1,0 +1,25 @@
+# Source market data stays read-only and outside this repository (root AGENTS.md).
+history_2018_2022_original/
+source_archive/
+research_original_v20/marketdata_m15/
+research_original_v20/inside_day_signals/
+*.zip
+*.parquet
+__pycache__/
+*.py[cod]
+work/
+# Reviewed derived results and metadata are explicitly versioned here only.
+!V20-02_AUDIT/PARITY_SUMMARY.csv
+!V20-02_AUDIT/SIGNAL_AUDIT.csv
+!V20-03/*.csv
+!V20-03/results/
+!V20-03/results/**
+!V20-03/publication/*.csv
+!V20-03/comparison/PERIOD_STRATEGY_COMPARISON.csv
+!V20-03/comparison/INSTRUMENT_COMPARISON.csv
+!V20-03/comparison/TRADE_DISTRIBUTION.csv
+!V20-03/comparison/YEARLY_STABILITY.csv
+!V20-03/comparison/DIAGNOSTIC_REPLAY_TRADES.csv
+!V20-03/comparison/QUOTE_PATH_DIAGNOSTICS.csv
+!V20-03/evidence/archive_original/docs/TASK_TRACKER.csv
+!docs/TASK_TRACKER.csv
