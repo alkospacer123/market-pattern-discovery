@@ -2150,9 +2150,100 @@ class M15AuthorizedExecutionTransport:
                     or old_stop["symbol"] != entry_draft.payload["symbol"]):
                 raise M15ExecutionError("M15_ONE_SHOT_STOP_KEY_REUSED")
             if old_stop["state"] == "PREPARED":
+                # Same as H1: a PREPARED initial stop has NOT crossed the
+                # durable UNCERTAIN/POST boundary. After restart it may be
+                # sent ONCE, but only from the original immutable R15 basis,
+                # an exact entry order and a fresh FINAM position snapshot.
+                # UNCERTAIN/ACK stop states NEVER enter this branch.
+                recovered = journal.recover_draft(stop_key)
+                if recovered.kind != "PROTECTIVE_STOP_INSTALL":
+                    raise M15ExecutionError(
+                        "M15_ONE_SHOT_RESTART_ONLY_INITIAL_STOP")
+                row = journal.db.execute(
+                    "SELECT symbol,direction,reference_entry,stop_price,"
+                    "quantity,nominal_initial_risk FROM entry_r15_basis "
+                    "WHERE intent_key=?", (entry_key,),
+                ).fetchone()
+                if (row is None or not isinstance(contract, ContractAuthority)
+                        or not isinstance(sized, SizedOrder)
+                        or not isinstance(reference_entry, Decimal)
+                        or not isinstance(precommitted_stop, Decimal)
+                        or not isinstance(atr_at_signal, Decimal)
+                        or row != (
+                            entry_draft.payload["symbol"], direction,
+                            str(reference_entry), str(precommitted_stop),
+                            sized.final_quantity, str(sized.initial_nominal_risk))
+                        or sized.reason != "OK"
+                        or sized.initial_nominal_risk > sized.risk_budget
+                        or initial_stop(
+                            direction, reference_entry, atr_at_signal,
+                            contract.price_step) != precommitted_stop
+                        or recovered.payload.get("sl_price") != {
+                            "value": str(precommitted_stop)}
+                        or recovered.payload.get("quantity_sl") != {
+                            "value": "100"}
+                        or recovered.payload.get("sl_qty_measure")
+                        != "SLTP_QTY_MEASURE_PERCENT"):
+                    raise M15ExecutionError(
+                        "M15_ONE_SHOT_RESTART_PREPARED_R15_MISMATCH")
+                symbol = entry_draft.payload["symbol"]
+                authority = contract_from_moex_and_finam(
+                    check_instrument(
+                        self.api.asset_details(symbol),
+                        self.api.asset_params(symbol), symbol,
+                        self.account_id))
+                if authority != contract:
+                    raise M15ExecutionError(
+                        "M15_ONE_SHOT_RESTART_GO_TICK_CHANGED")
+                account = self.api.account(self.account_id)
+                orders_response = self.api.orders(self.account_id)
+                if (account.get("account_id") != self.account_id
+                        or account.get("status") not in
+                        {"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"}):
+                    raise M15ExecutionError(
+                        "M15_ONE_SHOT_RESTART_ACCOUNT_INVALID")
+                positions = position_quantities(account)
+                signed = positions.get(symbol, 0)
+                if (signed == 0
+                        or (signed > 0) != (direction == "LONG")
+                        or abs(signed) > int(
+                            entry_draft.payload["quantity"]["value"])):
+                    raise M15ExecutionError(
+                        "M15_ONE_SHOT_RESTART_POSITION_CHANGED")
+                orders = order_views(orders_response)
+                existing_entry = unique_order_by_client_id(
+                    orders, entry_draft.payload["client_order_id"])
+                if (entry["state"] != "ACK"
+                        or existing_entry is None
+                        or existing_entry.kind != "REGULAR"
+                        or existing_entry.symbol != symbol
+                        or existing_entry.side != entry_draft.payload["side"]
+                        or existing_entry.status not in
+                        {"PARTIAL_FILL", "FILLED", "EXECUTED"}
+                        or hashlib.sha256(
+                            existing_entry.order_id.encode()).hexdigest()
+                        != entry["broker_order_sha256"]
+                        or any(o.active and o.symbol == symbol
+                               and o.order_id != existing_entry.order_id
+                               for o in orders)):
+                    raise M15ExecutionError(
+                        "M15_ONE_SHOT_RESTART_BROKER_ENTRY_NOT_EXACT")
+                # No broker stop may already exist before the first POST.
+                # submit_protective_stop atomically persists UNCERTAIN and
+                # independently reconciles the broker order afterward.
+                self.submit_protective_stop(
+                    journal=journal, key=stop_key, draft=recovered,
+                    broker_position_qty=signed, account=account,
+                    orders_response=orders_response)
+                verified = self.reconcile_protective_from_finam(
+                    journal=journal, key=stop_key, draft=recovered)
+                if (verified.active is not True or verified.percent != 100
+                        or verified.covered_quantity_at_ack != abs(signed)):
+                    raise M15ExecutionError(
+                        "M15_ONE_SHOT_RESTART_STOP_COVERAGE_UNPROVEN")
                 return {
-                    "status": "STOP_PREPARED_REQUIRE_BROKER_RECOVERY",
-                    "position_protected": False,
+                    "status": "BROKER_STOP_100_PERCENT_CONFIRMED",
+                    "position_protected": True,
                     "new_entries_authorized": False,
                     "live_acceptance_complete": False,
                 }

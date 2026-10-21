@@ -2418,15 +2418,16 @@ class M15ExecutionStageTests(unittest.TestCase):
         self.assertFalse(outcome["position_protected"])
         send.assert_not_called()
 
-    def test_one_shot_stop_first_prepared_stays_unsent_on_restart(self):
+    def test_one_shot_prepared_restart_rejects_missing_r15_without_post(self):
         from IntradayLab.m15_robot import finam_trading
         transport, kw = self.one_shot_stop_context()
         self.j.prepare(key=kw["stop_key"], draft=self.stop(kw["stop_key"]))
         with (patch.object(transport, "_require_connected"),
               patch.object(finam_trading, "M15_ORDER_POST_RELEASED", True),
-              patch.object(transport, "submit_protective_stop") as send):
-            result = transport.drive_one_shot_initial_stop_once(**kw)
-        self.assertEqual(result["status"], "STOP_PREPARED_REQUIRE_BROKER_RECOVERY")
+              patch.object(transport, "submit_protective_stop") as send,
+              self.assertRaisesRegex(M15ExecutionError,
+                                     "RESTART_PREPARED_R15_MISMATCH")):
+            transport.drive_one_shot_initial_stop_once(**kw)
         send.assert_not_called()
 
     def test_one_shot_stop_first_uncertain_uses_get_never_reposts(self):
