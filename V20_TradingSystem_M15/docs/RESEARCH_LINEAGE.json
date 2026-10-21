@@ -1,0 +1,52 @@
+{
+  "v20_v20_engine": {
+    "filename": "base.py",
+    "sha256": "b7b9df00f8d7fb0a88c5cba103034e5a2335c108ae283258e5d8ebd5476aa59d",
+    "bytes": 16766
+  },
+  "v20_signals": {
+    "filename": "run.py",
+    "sha256": "223545374f98d8c87cf2c09b3a7302b05b07020dc8bf34b5984ebaa3d74389fe",
+    "bytes": 6298
+  },
+  "v20_source_strategy": {
+    "filename": "PROTOCOL_RU.md",
+    "sha256": "eb3315b443d77a4ec0fee368ac5a85ae6610988b60ea377c9634eddc5dc67a7b",
+    "bytes": 4139
+  },
+  "v4_inside_day_engine": {
+    "filename": "study_v4.py",
+    "sha256": "0f49432e207235f631807a82536f521751ad5559cc374fc6c42f8ca4f289bd08",
+    "bytes": 12519
+  },
+  "v4_inside_day_protocol": {
+    "filename": "PROTOCOL.md",
+    "sha256": "c5c5cfa025cfc10b691fb163459645cac9b0764a47ea842d9caf89e86d7e660b",
+    "bytes": 2861
+  },
+  "independent_trades": {
+    "filename": "V20_three_accounts_trades.csv",
+    "sha256": "63844fac6741e21cca00c7ad0143114e743d7bb5649b18d5a8a64b76db121efb",
+    "bytes": 186781
+  },
+  "independent_year_stats": {
+    "filename": "V20_three_accounts_yearly_stats.csv",
+    "sha256": "eed23af5f13f3ab53f211e8f587c940428422052bad7456c622c2d3f674ff45c",
+    "bytes": 5588
+  },
+  "independent_month_stats": {
+    "filename": "V20_three_accounts_monthly_stats.csv",
+    "sha256": "8d341b4143f29ff3803b5a63a2b68f4575a47fb42aac4c9c384309c21f2b5919",
+    "bytes": 12564
+  },
+  "original_research_zip": {
+    "filename": "search_v20_complete.zip",
+    "sha256": "357e4c4f3fdc3ab74ddfeb2c541b1f95e6d6c4391776be7978f47996b0c3e83d",
+    "bytes": 5901820
+  },
+  "original_v4_research_zip": {
+    "filename": "newtrend_v4_complete.zip",
+    "sha256": "1d8a34305f694fcfa2cc286a2ec5d1f6b0ca6b4cafb5700348f82c899d9506dc",
+    "bytes": 5631918
+  }
+}

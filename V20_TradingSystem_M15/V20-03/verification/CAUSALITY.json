@@ -1,0 +1,114 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "check": "ORIGINALS_BYTE_IDENTICAL",
+      "status": "PASS",
+      "detail": {
+        "files": 134
+      }
+    },
+    {
+      "check": "RAW_43_CONTRACTS_AND_TICK_GRIDS",
+      "status": "PASS",
+      "detail": {
+        "files": 43,
+        "bad_grid": 0
+      }
+    },
+    {
+      "check": "EXECUTION_STATE_MACHINE",
+      "status": "PASS",
+      "detail": {
+        "assertions": "cap 2, one symbol/session, independent account invocations, NEXT_OPEN adjacency, stop-first, gap-open, third session, censor, roll occupancy, terminal unknown, CNY grid"
+      }
+    },
+    {
+      "check": "ACCEPTED_V20_02_BASELINE",
+      "status": "PASS",
+      "detail": {
+        "bars": 209621,
+        "trades": 1589,
+        "max_R_error": 3.552713678800501e-15,
+        "all_three_signal_arrays_match": true
+      }
+    },
+    {
+      "check": "ROLL_PREFIX_INVARIANCE",
+      "status": "PASS",
+      "detail": {
+        "cutoffs": 6,
+        "proof": "prior completed observations only",
+        "si_2019": [
+          {
+            "family": "Si",
+            "day": "2019-06-20 00:00:00",
+            "decision_time": "2019-06-20 09:00:00",
+            "previous_observed_session": "2019-06-19 00:00:00",
+            "chosen_contract": "",
+            "proof_known_after": "NaT",
+            "candidate_count": "0",
+            "reason": "NO_ELIGIBLE_PAST_CONTRACT"
+          },
+          {
+            "family": "Si",
+            "day": "2019-06-21 00:00:00",
+            "decision_time": "2019-06-21 09:00:00",
+            "previous_observed_session": "2019-06-20 00:00:00",
+            "chosen_contract": "Si-9.19",
+            "proof_known_after": "2019-06-21 00:00:00",
+            "candidate_count": "2",
+            "reason": "NEAREST_ALREADY_OBSERVED"
+          },
+          {
+            "family": "Si",
+            "day": "2019-06-24 00:00:00",
+            "decision_time": "2019-06-24 09:00:00",
+            "previous_observed_session": "2019-06-21 00:00:00",
+            "chosen_contract": "Si-12.19",
+            "proof_known_after": "2019-06-22 00:00:00",
+            "candidate_count": "1",
+            "reason": "NEAREST_ALREADY_OBSERVED"
+          },
+          {
+            "family": "Si",
+            "day": "2019-06-25 00:00:00",
+            "decision_time": "2019-06-25 09:00:00",
+            "previous_observed_session": "2019-06-24 00:00:00",
+            "chosen_contract": "Si-12.19",
+            "proof_known_after": "2019-06-25 00:00:00",
+            "candidate_count": "1",
+            "reason": "NEAREST_ALREADY_OBSERVED"
+          },
+          {
+            "family": "Si",
+            "day": "2019-06-26 00:00:00",
+            "decision_time": "2019-06-26 09:00:00",
+            "previous_observed_session": "2019-06-25 00:00:00",
+            "chosen_contract": "Si-12.19",
+            "proof_known_after": "2019-06-25 23:45:00",
+            "candidate_count": "1",
+            "reason": "NEAREST_ALREADY_OBSERVED"
+          }
+        ]
+      }
+    },
+    {
+      "check": "FROZEN_SIGNALS_PREFIX_INVARIANCE",
+      "status": "PASS",
+      "detail": {
+        "prefix_runs": 61,
+        "all_real_contracts": 43,
+        "compared_prefix_rows": 74504
+      }
+    },
+    {
+      "check": "ACTUAL_STRESS_REPLAY_PREFIX_INVARIANCE",
+      "status": "PASS",
+      "detail": {
+        "comparisons": 12,
+        "closed_records_compared": 2441
+      }
+    }
+  ]
+}

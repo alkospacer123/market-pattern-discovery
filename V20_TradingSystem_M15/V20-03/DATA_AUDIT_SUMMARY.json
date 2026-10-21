@@ -1,0 +1,43 @@
+{
+  "archive_sha256": "df1aaf4d23757d18689dfdf61d6fc1ec77f0b26ae7d8af1193322d460707888a",
+  "csv_files": 43,
+  "total_bars_including_overlap": 149028,
+  "families": [
+    {
+      "family": "CNY",
+      "files": 3,
+      "bars": 8335,
+      "first": "2022-04-21 10:00:00",
+      "last": "2022-12-15 13:45:00"
+    },
+    {
+      "family": "MIX",
+      "files": 20,
+      "bars": 70733,
+      "first": "2017-10-23 11:30:00",
+      "last": "2022-12-15 18:45:00"
+    },
+    {
+      "family": "Si",
+      "files": 20,
+      "bars": 69960,
+      "first": "2018-01-03 10:00:00",
+      "last": "2022-12-15 13:45:00"
+    }
+  ],
+  "OHLC_invalid": 0,
+  "nonfinite": 0,
+  "duplicate_timestamps_within_contract": 0,
+  "non_M15_boundary": 0,
+  "zero_volume": 0,
+  "negative_volume": 0,
+  "intraday_gaps_over_15m": 2462,
+  "files_under_1000_bars": [
+    "si/Si-9.19_M15.csv"
+  ],
+  "missing_2018_2022_GLDRUBF": true,
+  "timezone_proven": false,
+  "source_tick_specs_proven": false,
+  "roll_ready": false,
+  "stage_V20_03": "IN_PROGRESS_PARTIAL_DATA"
+}

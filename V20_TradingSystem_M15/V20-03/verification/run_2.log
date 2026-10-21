@@ -1,0 +1,47 @@
+features CNY-12.22 3858 segments 2
+features CNY-6.22 1174 segments 62
+features CNY-9.22 3303 segments 8
+features MIX-12.18 3555 segments 1
+features MIX-12.19 3535 segments 1
+features MIX-12.20 3552 segments 2
+features MIX-12.21 4335 segments 1
+features MIX-12.22 3876 segments 4
+features MIX-3.18 3506 segments 183
+features MIX-3.19 3410 segments 1
+features MIX-3.20 3279 segments 2
+features MIX-3.21 3526 segments 1
+features MIX-3.22 3478 segments 1
+features MIX-6.18 3185 segments 5
+features MIX-6.19 3444 segments 2
+features MIX-6.20 3442 segments 3
+features MIX-6.21 4335 segments 1
+features MIX-6.22 1868 segments 1
+features MIX-9.18 3610 segments 1
+features MIX-9.19 3608 segments 3
+features MIX-9.20 3480 segments 1
+features MIX-9.21 4402 segments 1
+features MIX-9.22 3307 segments 25
+features Si-12.18 3536 segments 1
+features Si-12.19 6914 segments 116
+features Si-12.20 3533 segments 2
+features Si-12.21 4316 segments 1
+features Si-12.22 3858 segments 2
+features Si-3.18 2655 segments 1
+features Si-3.19 3391 segments 1
+features Si-3.20 3261 segments 1
+features Si-3.21 3507 segments 1
+features Si-3.22 3726 segments 1
+features Si-6.18 3171 segments 1
+features Si-6.19 3426 segments 1
+features Si-6.20 3424 segments 2
+features Si-6.21 4316 segments 1
+features Si-6.22 2127 segments 1
+features Si-9.18 3591 segments 1
+features Si-9.19 55 segments 1
+features Si-9.20 3461 segments 1
+features Si-9.21 4383 segments 1
+features Si-9.22 3309 segments 3
+SHALLOW_PULLBACK closed observed 574 eligible 568 open 0
+OBV_PRESSURE closed observed 332 eligible 328 open 0
+INSIDE_DAY_RELEASE closed observed 110 eligible 108 open 0
+{"stage": "V20-03", "status": "PARTIAL/HOLD", "independent_OOS": false, "full_N4": false, "policy_sha256": "74acf11239763c43be73982aa6c3f64d24e75fe16f272339db3b910dc62564bb", "original_preserved_files": 134, "input_contracts": 43, "input_rows": 149028, "observed_closed": 1016, "stat_eligible_closed": 1004, "censored_closed": 12, "open_positions": 0, "entries": 1016}
