@@ -159,7 +159,7 @@
     },
     {
       "path": "ci/streamlit_click.py",
-      "sha256": "e1b4304feb70c25891d53d9124207baca4057130b3b01f12de4f629aa120654f"
+      "sha256": "ba22ac5cee0ba017c42db9c064e872f480e304337deed2b88b81c7ed6c53395d"
     },
     {
       "path": "ci/streamlit_host.py",
