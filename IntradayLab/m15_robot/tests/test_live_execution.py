@@ -2430,6 +2430,117 @@ class M15ExecutionStageTests(unittest.TestCase):
             transport.drive_one_shot_initial_stop_once(**kw)
         send.assert_not_called()
 
+    def test_h1_prepared_stop_restart_sends_once_after_real_broker_proof(self):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        from IntradayLab.m15_robot import finam_trading
+        from unittest.mock import Mock
+        seed = self.r15_entry_inputs()
+        entry, sized = self.j.prepare_entry_from_broker_r15(**seed)
+        self.j.begin_post_uncertain(key=seed["key"], draft=entry)
+        broker = self.broker_get(filled=1)
+        broker["orders_response"]["orders"][0]["order"]["client_order_id"] = (
+            entry.payload["client_order_id"])
+        broker["orders_response"]["orders"][0]["order"]["quantity"] = {
+            "value": "3"}
+        controller = object.__new__(M15AuthorizedExecutionTransport)
+        controller.api = object.__new__(M15FinamTradingAPI)
+        controller.account_id = "M15-SYNTH"
+        controller.account_hash = self.j.account_hash
+        controller.runtime_root = self.args["runtime_root"]
+        controller._require_connected = lambda: None
+        stop_key = "m15:stop:restart:one"
+        kw = dict(
+            journal=self.j, entry_key=seed["key"], entry_draft=entry,
+            stop_key=stop_key, drafts=seed["drafts"],
+            instrument="CNYRUBF", direction="LONG",
+            reference_entry=seed["reference_entry"],
+            precommitted_stop=Decimal("12.300"),
+            atr_at_signal=seed["signal_atr"], contract=seed["contract"],
+            sized=sized,
+        )
+        with (patch.object(M15FinamTradingAPI, "asset_details",
+                           return_value=seed["asset"]),
+              patch.object(M15FinamTradingAPI, "asset_params",
+                           return_value=seed["asset_params"]),
+              patch.object(M15FinamTradingAPI, "account",
+                           return_value=broker["account"]),
+              patch.object(M15FinamTradingAPI, "orders",
+                           return_value=broker["orders_response"])):
+            stop = controller.prepare_initial_stop_from_finam(**kw)
+            self.assertEqual(self.j.inspect(stop_key)["state"], "PREPARED")
+            self.j.close()
+            self.j = M15OutboundJournal(**self.args)
+            kw["journal"] = self.j
+
+            def once(**args):
+                self.j.begin_protective_post_uncertain(
+                    key=args["key"], draft=args["draft"],
+                    account=args["account"],
+                    orders_response=args["orders_response"])
+
+            with (patch.object(finam_trading, "M15_ORDER_POST_RELEASED", True),
+                  patch.object(controller, "submit_protective_stop",
+                               side_effect=once) as send,
+                  patch.object(controller, "reconcile_protective_from_finam",
+                               return_value=Mock(
+                                   active=True, percent=100,
+                                   covered_quantity_at_ack=1)) as get):
+                first = controller.drive_one_shot_initial_stop_once(**kw)
+                second = controller.drive_one_shot_initial_stop_once(**kw)
+            self.assertEqual(first["status"],
+                             "BROKER_STOP_100_PERCENT_CONFIRMED")
+            self.assertEqual(second["status"],
+                             "BROKER_STOP_100_PERCENT_RECOVERED")
+            self.assertEqual(self.j.inspect(stop_key)["state"], "UNCERTAIN")
+            send.assert_called_once()
+            self.assertEqual(get.call_count, 2)
+
+    def test_h1_prepared_stop_recovery_refuses_changed_go_without_post(self):
+        from IntradayLab.m15_robot.finam_trading import M15FinamTradingAPI
+        from IntradayLab.m15_robot import finam_trading
+        seed = self.r15_entry_inputs()
+        entry, sized = self.j.prepare_entry_from_broker_r15(**seed)
+        self.j.begin_post_uncertain(key=seed["key"], draft=entry)
+        broker = self.broker_get(filled=1)
+        broker["orders_response"]["orders"][0]["order"]["client_order_id"] = (
+            entry.payload["client_order_id"])
+        broker["orders_response"]["orders"][0]["order"]["quantity"] = {
+            "value": "3"}
+        controller = object.__new__(M15AuthorizedExecutionTransport)
+        controller.api = object.__new__(M15FinamTradingAPI)
+        controller.account_id = "M15-SYNTH"
+        controller.account_hash = self.j.account_hash
+        controller.runtime_root = self.args["runtime_root"]
+        controller._require_connected = lambda: None
+        stop_key = "m15:stop:restart:changed-go"
+        kw = dict(
+            journal=self.j, entry_key=seed["key"], entry_draft=entry,
+            stop_key=stop_key, drafts=seed["drafts"],
+            instrument="CNYRUBF", direction="LONG",
+            reference_entry=seed["reference_entry"],
+            precommitted_stop=Decimal("12.300"),
+            atr_at_signal=seed["signal_atr"],
+            contract=seed["contract"], sized=sized,
+        )
+        with (patch.object(M15FinamTradingAPI, "asset_details",
+                           return_value=seed["asset"]),
+              patch.object(M15FinamTradingAPI, "asset_params",
+                           return_value=seed["asset_params"]),
+              patch.object(M15FinamTradingAPI, "account",
+                           return_value=broker["account"]),
+              patch.object(M15FinamTradingAPI, "orders",
+                           return_value=broker["orders_response"])):
+            controller.prepare_initial_stop_from_finam(**kw)
+            altered = dict(seed["asset_params"])
+            altered["initial_margin"] = {"value": "999999"}
+            with (patch.object(M15FinamTradingAPI, "asset_params",
+                               return_value=altered),
+                  patch.object(finam_trading, "M15_ORDER_POST_RELEASED", True),
+                  patch.object(controller, "submit_protective_stop") as send,
+                  self.assertRaises(M15ExecutionError)):
+                controller.drive_one_shot_initial_stop_once(**kw)
+            send.assert_not_called()
+
     def test_one_shot_stop_first_uncertain_uses_get_never_reposts(self):
         from IntradayLab.m15_robot import finam_trading
         from unittest.mock import Mock
