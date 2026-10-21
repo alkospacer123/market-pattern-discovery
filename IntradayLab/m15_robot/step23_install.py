@@ -1,8 +1,8 @@
 """Roadmap #23: install the ORIGINAL H1-style durable M15 intent journal.
 
 This is a physical installation, not a simulated run: only after the existing
-HALTED + scoped M15 trading-JWT GET-only financial guard sees FLAT account,
-zero active orders and N4 GO. Creates the isolated M15 SQLite once. Does NOT
+HALTED + exact M15 READONLY financial preflight sees FLAT account,
+zero active orders, reconciled cashflow and N4 GO. Creates the isolated M15 SQLite once. Does NOT
 send or cancel orders, arm a task, create production permission/heartbeat, or
 read H1 files. M15 and H1 account identifiers remain local and never printed.
 """
@@ -10,14 +10,16 @@ from __future__ import annotations
 
 import hashlib
 from pathlib import Path
-import sqlite3
+from datetime import datetime, timezone
 import sys
 
 from .finam_readonly import M15FinamReadOnlyAPI, M15FinamReadOnlyError
 from .finam_trading import M15_ORDER_POST_RELEASED
 from .live_execution import M15OutboundJournal
 from .spec import EXECUTION_STATUS
-from .step23_trade_jwt_get import verify_m15_trade_jwt_broker_get, safe_trade_jwt_failure
+from .step23_readonly_preflight import (
+    verify_m15_step23_financial_preflight, safe_preflight_failure_code,
+)
 
 ROOT = Path("c:/intradaylab/runtime/m15")
 REPO = Path(__file__).resolve().parents[2]
@@ -47,13 +49,17 @@ def install_m15_journal_once(*, api: M15FinamReadOnlyAPI,
             or not repository_root.is_absolute()
             or runtime_root.is_symlink()
             or runtime_root.resolve() != ROOT.resolve()
-            or not isinstance(api, M15FinamReadOnlyAPI)
-            or api.account_id != m15_account_id):
+            or type(api) is not M15FinamReadOnlyAPI
+            or api.account_id != m15_account_id
+            or api.readonly_bound is not True):
         raise M15InstallError("M15_INSTALL_RUNTIME_OR_SESSION_INVALID")
-    # Same real trading JWT that will later belong solely to the M15 executor;
-    # transport has no order-capable methods at all.
-    verify_m15_trade_jwt_broker_get(
-        api=api, m15_account_id=m15_account_id, runtime_root=runtime_root)
+    # H1-style installation needs proven broker/account/risk facts, NOT an
+    # order-capable API token. The READONLY client has no order endpoint.
+    # A separate trading JWT is rechecked at actual execution, not persisted.
+    verify_m15_step23_financial_preflight(
+        api=api, m15_account_id=m15_account_id,
+        h1_account_id=h1_account_id, runtime_root=runtime_root,
+        observed_at=datetime.now(timezone.utc))
     db_path = runtime_root / "state" / DB_NAME
     if (db_path.is_symlink() or db_path.parent.is_symlink()
             or db_path.exists()
@@ -91,7 +97,7 @@ def install_m15_journal_once(*, api: M15FinamReadOnlyAPI,
 
 
 def _gui() -> tuple[str, str, str]:
-    """Only locally entered identifiers / masked trading key; never persisted."""
+    """Only locally entered identifiers / masked READONLY key; never persisted."""
     import tkinter as tk
     root = tk.Tk()
     chosen = None
@@ -106,7 +112,7 @@ def _gui() -> tuple[str, str, str]:
         tk.Label(root, text="H1 FINAM account (local inequality check only)").pack()
         h1 = tk.Entry(root, width=80)
         h1.pack()
-        tk.Label(root, text="M15 TRADING API secret (not READONLY, masked)").pack()
+        tk.Label(root, text="M15 READONLY API secret (masked; no trading key needed)").pack()
         secret = tk.Entry(root, width=80, show="*")
         secret.pack()
         message = tk.Label(root, text="")
@@ -135,9 +141,9 @@ def _error_code(exc: Exception) -> str:
     if isinstance(exc, M15InstallError):
         code = str(exc)
         return code if code.startswith("M15_INSTALL_") and code.isascii() and code.replace("_","").isalnum() and len(code)<100 else "M15_INSTALL_FAILED"
-    if isinstance(exc, M15FinamReadOnlyError):
-        return safe_trade_jwt_failure(exc)
-    return "M15_INSTALL_FAIL_CLOSED"
+    # Preserve only fixed local diagnostic codes: no account, secret or
+    # broker payload can escape into PowerShell on a failed install.
+    return safe_preflight_failure_code(exc)
 
 
 def main() -> int:
@@ -148,10 +154,10 @@ def main() -> int:
         m15, h1, secret = _gui()
         api = M15FinamReadOnlyAPI(secret=secret, account_id=m15)
         del secret
-        api.connect_trading_get_only()
+        api.connect_readonly()
         install_m15_journal_once(
             api=api, m15_account_id=m15, h1_account_id=h1)
-        print("m15_broker_get_bound_flat_n4_go=pass", flush=True)
+        print("m15_broker_readonly_capital_flat_n4_go=pass", flush=True)
         print("m15_production_intent_sqlite_installed=pass", flush=True)
         print("m15_order_post_authorized=no", flush=True)
         print("m15_live_authorized=no", flush=True)
