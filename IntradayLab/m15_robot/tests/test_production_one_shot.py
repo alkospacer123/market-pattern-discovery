@@ -12,7 +12,6 @@ from IntradayLab.m15_robot.production_one_shot import (
     M15OneShotCycleError, persist_original_signal_context,
     restore_original_signal_context, stop_key_for, trade_tag,
 )
-from IntradayLab.m15_robot.tests.test_live_execution import TestLiveExecution
 
 
 class TestProductionOneShotContext(TestCase):
