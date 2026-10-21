@@ -25,10 +25,12 @@ V20-03/comparison/INSTRUMENT_COMPARISON.csv,ADDED,pf_diagnostic
 V20-03/comparison/METHODOLOGY_EFFECTS_RU.md,ADDED,pf_diagnostic
 V20-03/comparison/PERIOD_STRATEGY_COMPARISON.csv,ADDED,pf_diagnostic
 V20-03/comparison/PF_DIAGNOSTIC_REPORT_RU.md,ADDED,pf_diagnostic
+V20-03/comparison/QUOTE_PATH_DIAGNOSTICS.csv,ADDED,quote_diagnostic
 V20-03/comparison/TRADE_DISTRIBUTION.csv,ADDED,pf_diagnostic
 V20-03/comparison/VERIFICATION.json,ADDED,pf_diagnostic
 V20-03/comparison/YEARLY_STABILITY.csv,ADDED,pf_diagnostic
 V20-03/comparison/build_diagnostics.py,ADDED,pf_diagnostic
+V20-03/comparison/quote_diagnostics.py,ADDED,quote_diagnostic
 V20-03/evidence/GITHUB_MAIN_CHECK.json,ADDED,prior_evidence
 V20-03/evidence/H1_M15_READONLY_CHECK.json,ADDED,prior_evidence
 V20-03/evidence/SOURCES_RU.md,ADDED,prior_evidence

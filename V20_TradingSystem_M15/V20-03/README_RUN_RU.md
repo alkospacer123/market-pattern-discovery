@@ -1,4 +1,21 @@
-> **21.10.2026, обновление:** актуальная диагностика — comparison/PF_DIAGNOSTIC_REPORT_RU.md. Roadmap 8 этапов; V20-04 разработка. Прежний offline ZIP и квартальные M15 сейчас недоступны, историческое описание восстановления ниже не подтверждает их наличие в этой среде. Выполнено одно ограниченное late-воспроизведение на совпавших SHA256 исходных perpetual CSV; инструкции — comparison/build_diagnostics.py. Старый quarterly replay не повторялся.
+> **Актуальное дополнение по котировкам, 21.10.2026:** оригинальный `2018-2022.zip` и все 43 quarterly M15 получены и совпали SHA256. Оригинальный полный offline ZIP/reference ledger 1589 по-прежнему отсутствуют. Диагностика включает проверку исходных траекторий и один необходимый late V1 replay из-за обнаруженного различия gap/reset. Roadmap 8 этапов, V20-04 разработка.
+
+## Воспроизведение quote-добавки
+
+Исходный ZIP и perpetual CSV должны оставаться вне Git. Ни брокер, ни сеть не нужны. Команда использует опубликованные базовые журналы, точные frozen feature-функции и один существующий V1 diagnostic replay; готовые проверенные caches повторно не исполняют replay.
+
+```bash
+python V20-03/comparison/quote_diagnostics.py \
+  --quarterly-zip /external/2018-2022.zip \
+  --market-data /external/forever \
+  --work /external/work/v20_quotes \
+  --gap-v1
+```
+
+Структура perpetual-входов: `forever/USDRUBF/USDRUBF_M15.csv` и аналогично CNYRUBF/GLDRUBF/IMOEXF. Их SHA256 проверяются по исходному архивному индексу. Папка `--work` обязана быть вне репозитория; `--reuse-measurements` допускает только созданные этой задачей cache с проверкой подписи функций и SHA256, а не произвольный pickle.
+
+Основные результаты: comparison/PF_DIAGNOSTIC_REPORT_RU.md, METHODOLOGY_EFFECTS_RU.md, VERIFICATION.json. Проверка публикации ниже не выполняет replay. Описания исходной первой offline-публикации далее исторические и не задают актуальную нумерацию roadmap.
+
 
 # Проверка опубликованного V20-03 без повторного replay
 

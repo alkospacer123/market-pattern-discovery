@@ -57,7 +57,8 @@ def main():
   'V20-03/publication/PUBLICATION_ACCEPTANCE.json','V20-03/publication/PUBLICATION_FILE_LIST.csv']
  required += ['V20-03/comparison/'+n for n in ['PF_DIAGNOSTIC_REPORT_RU.md','PERIOD_STRATEGY_COMPARISON.csv',
   'INSTRUMENT_COMPARISON.csv','TRADE_DISTRIBUTION.csv','YEARLY_STABILITY.csv','METHODOLOGY_EFFECTS_RU.md',
-  'DEVELOPMENT_DECISION_RU.md','VERIFICATION.json','DIAGNOSTIC_REPLAY_TRADES.csv','build_diagnostics.py']]
+  'DEVELOPMENT_DECISION_RU.md','VERIFICATION.json','DIAGNOSTIC_REPLAY_TRADES.csv','build_diagnostics.py',
+  'QUOTE_PATH_DIAGNOSTICS.csv','quote_diagnostics.py']]
  for p in required:assert (ROOT/p).is_file(),p
  ok('REQUIRED_ARTIFACTS_PRESENT','Reports, source documentation, derived CSV/JSON, roll, audit and prior checks present')
 
@@ -159,11 +160,15 @@ def main():
 
  diagnostic=data(STAGE/'comparison/VERIFICATION.json')
  assert diagnostic['status']=='PARTIAL' and not diagnostic['original_1589_ledger_available']
- assert Counter(r['status'] for r in diagnostic['checks'])=={'PASS':14,'FAIL':2,'NOT VERIFIED':3}
+ assert diagnostic['quarterly_quotes_available'] and diagnostic['quarterly_source_zip']['status']=='PASS'
+ assert Counter(r['status'] for r in diagnostic['checks'])=={'PASS':24,'FAIL':1,'NOT VERIFIED':2}
  for name,h in diagnostic['artifact_hashes'].items():assert sha(STAGE/'comparison'/name)==h,name
  late=rows(STAGE/'comparison/DIAGNOSTIC_REPLAY_TRADES.csv')
  assert len(late)==1589 and Counter(r['account'] for r in late)=={'SHALLOW_PULLBACK':797,'OBV_PRESSURE':612,'INSIDE_DAY_RELEASE':180}
- ok('DIAGNOSTIC_PROVENANCE_AND_LIMITATIONS','1589 derived late rows; original-ledger FAIL explicitly retained; output hashes match; no original row parity claimed')
+ quote=rows(STAGE/'comparison/QUOTE_PATH_DIAGNOSTICS.csv')
+ assert Counter(r['record_type'] for r in quote)=={'EXECUTED_TRADE':2605,'RAW_SIGNAL':4986,'GAP_V1_DIAGNOSTIC_TRADE':1251}
+ assert diagnostic['quote_update']['quarterly_portfolio_replays']==0 and diagnostic['quote_update']['late_V1_diagnostic_replay_batches']==1
+ ok('DIAGNOSTIC_PROVENANCE_AND_LIMITATIONS','43 original quote sources verified; 2605 baseline and 1251 V1 model quote checks; 4986 raw signals; original-ledger FAIL retained; no original row parity claimed')
 
  assert data(STAGE/'verification/CAUSALITY.json')['status']=='PASS'
  repeat=data(STAGE/'verification/REPEAT.json')
@@ -178,6 +183,6 @@ def main():
   staged=subprocess.check_output(['git','diff','--name-only','--cached'],cwd=repository,text=True).splitlines()
   assert all(p.startswith('V20_TradingSystem_M15/') for p in staged),staged
  ok('GIT_DIFF_SCOPE','All tracked changes relative to pinned main are inside V20_TradingSystem_M15/')
- print(json.dumps(dict(status='PASS',scope='PUBLICATION_CHECKS_ONLY',checks=checks,replay_runs=0,diagnostic_replay_batches_in_update=1,optimization_runs=0,stage_status='PARTIAL/HOLD',primary_scenario='C1'),ensure_ascii=False,indent=2))
+ print(json.dumps(dict(status='PASS',scope='PUBLICATION_CHECKS_ONLY',checks=checks,replay_runs=0,diagnostic_replay_batches_in_current_quote_update=1,total_diagnostic_late_batches=2,optimization_runs=0,stage_status='PARTIAL/HOLD',primary_scenario='C1'),ensure_ascii=False,indent=2))
 
 if __name__=='__main__':main()

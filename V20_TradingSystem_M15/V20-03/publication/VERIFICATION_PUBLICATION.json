@@ -60,7 +60,7 @@
     {
       "check": "DIAGNOSTIC_PROVENANCE_AND_LIMITATIONS",
       "status": "PASS",
-      "detail": "1589 derived late rows; original-ledger FAIL explicitly retained; output hashes match; no original row parity claimed"
+      "detail": "43 original quote sources verified; 2605 baseline and 1251 V1 model quote checks; 4986 raw signals; original-ledger FAIL retained; no original row parity claimed"
     },
     {
       "check": "PRIOR_CHECKS_PRESERVED",
@@ -74,7 +74,8 @@
     }
   ],
   "replay_runs": 0,
-  "diagnostic_replay_batches_in_update": 1,
+  "diagnostic_replay_batches_in_current_quote_update": 1,
+  "total_diagnostic_late_batches": 2,
   "optimization_runs": 0,
   "stage_status": "PARTIAL/HOLD",
   "primary_scenario": "C1"

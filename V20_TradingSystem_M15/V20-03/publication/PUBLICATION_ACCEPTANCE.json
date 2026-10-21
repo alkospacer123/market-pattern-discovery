@@ -1,7 +1,7 @@
 {
   "stage": "V20-03",
   "stage_status": "PARTIAL/HOLD",
-  "publication_status": "UPDATED_PF_DIAGNOSTICS_DRAFT_REVIEW",
+  "publication_status": "UPDATED_WITH_ORIGINAL_QUARTERLY_QUOTES_DRAFT_REVIEW",
   "base_repository": "alkospacer123/market-pattern-discovery",
   "base_sha": "c3695b1304aef1acdd889264b3451184f7332bf7",
   "branch": "codex/v20-03-publish-partial-hold-20261021",
@@ -70,13 +70,17 @@
     {
       "check": "LIMITED_DIAGNOSTIC_REPLAY_NO_OPTIMIZATION",
       "status": "PASS",
-      "detail": "First publication had no replay; this update reproduced only missing late ledger with immutable rules; no quarterly replay/optimization/WF"
+      "detail": "Previous missing-ledger late baseline plus one required late V1 methodology diagnostic; no quarterly portfolio replay/optimization/WF"
+    },
+    {
+      "check": "UPLOADED_QUARTERLY_QUOTES",
+      "status": "PASS",
+      "detail": "Original ZIP/43 CSV hashes match; quote paths and model first exits verified"
     }
   ],
   "required_artifacts_unavailable": [
     "Original 1589 reference ledger / PARITY_REPORT",
-    "Original offline ZIP",
-    "43 quarterly source M15 files"
+    "Original full offline ZIP"
   ],
   "intentionally_external_inputs": [
     "history_2018_2022_original/",
@@ -89,8 +93,11 @@
   "current_roadmap_stages": 8,
   "V20_04": "DEVELOPMENT_H1_M15",
   "source_offline_archive_currently_available": false,
-  "limited_diagnostic_replay_batches": 1,
-  "limited_diagnostic_strategy_replays": 3,
+  "limited_diagnostic_replay_batches": 2,
+  "limited_diagnostic_strategy_replays": 6,
   "C0_diagnostic_existing_fills": true,
-  "replay_runs_during_publication_scope": "INITIAL_PUBLICATION_ONLY; limited diagnostic update recorded separately"
+  "replay_runs_during_publication_scope": "INITIAL_PUBLICATION_ONLY; limited diagnostic update recorded separately",
+  "quote_source_zip_sha256": "df1aaf4d23757d18689dfdf61d6fc1ec77f0b26ae7d8af1193322d460707888a",
+  "quarterly_sources_currently_available": true,
+  "current_quote_update_late_V1_batches": 1
 }

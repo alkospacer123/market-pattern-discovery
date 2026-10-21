@@ -8,6 +8,8 @@ Only the missing late three-strategy ledger is reproduced. Archived causality,
 signal parity, full research, quarterly replay, C2/STRICT and WF are not rerun.
 --existing-replay reads a previously generated diagnostic ledger in this task.
 Market data and feature caches remain outside the repository.
+This is the base-ledger layer. For the current uploaded-quarterly quote analysis,
+run quote_diagnostics.py afterwards as documented in ../README_RUN_RU.md.
 """
 from __future__ import annotations
 import argparse, ast, hashlib, json, math, sys, warnings

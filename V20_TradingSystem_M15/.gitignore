@@ -20,5 +20,6 @@ work/
 !V20-03/comparison/TRADE_DISTRIBUTION.csv
 !V20-03/comparison/YEARLY_STABILITY.csv
 !V20-03/comparison/DIAGNOSTIC_REPLAY_TRADES.csv
+!V20-03/comparison/QUOTE_PATH_DIAGNOSTICS.csv
 !V20-03/evidence/archive_original/docs/TASK_TRACKER.csv
 !docs/TASK_TRACKER.csv

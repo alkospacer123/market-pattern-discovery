@@ -10,7 +10,7 @@
   "late_trade_basis": "ONE_LIMITED_EXACT_RULE_REPRODUCTION",
   "late_row_parity_with_original": "NOT VERIFIED",
   "late_replay_reason": "Missing original trade ledger prevents requested instrument, exit and concentration diagnostics; four original M15 hashes match archive index",
-  "replay_scope": "Only three frozen strategies, full late N4, unchanged V20-02 run_one AST; no parameter search, no quarterly replay, no causality rerun",
+  "replay_scope": "Previous missing-ledger baseline reproduction plus one late locked-V1 gap/reset diagnostic; no quarterly portfolio replay, parameter changes, optimization, WF or causality rerun",
   "replay_meta": {
     "SHALLOW_PULLBACK": {
       "unclosed": 0,
@@ -61,8 +61,8 @@
       }
     }
   },
-  "new_replay_batches": 1,
-  "strategy_replays": 3,
+  "new_replay_batches": 2,
+  "strategy_replays": 6,
   "C2_STRICT_runs": 0,
   "optimization_runs": 0,
   "walk_forward_runs": 0,
@@ -264,6 +264,264 @@
       "sha256": "68a4169a80870cfd10537aa896ea0b3bcd8b3baf9803240d7d7a48b78ba485ff",
       "bytes": 12393,
       "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/cny/CNY-12.22_M15.csv",
+      "sha256": "dc6cc88f52381853edb8d996d7ed5fc94b25f039794696d1b1d878d5ef257ebf",
+      "bytes": 188486,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/cny/CNY-6.22_M15.csv",
+      "sha256": "09fe1a29f78de4fa405ab926c7e9578bb21bc6c481c9826cc15119604e2a8e9f",
+      "bytes": 52537,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/cny/CNY-9.22_M15.csv",
+      "sha256": "3297b510013af1123fb8d7b533ce60bb535077f13085294491d2b162d6107d48",
+      "bytes": 149331,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-12.18_M15.csv",
+      "sha256": "939dd5356d273143132756e0d9816a3a27606271cfa5378179b35cc6211f2b55",
+      "bytes": 217250,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-12.19_M15.csv",
+      "sha256": "3cf8eced979e8664ffbd467e693ae40a6c07bebe9babe93aa633670ea6131af8",
+      "bytes": 214802,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-12.20_M15.csv",
+      "sha256": "bd4bc28fa9969e4f9da6fbb9ab82d759925d42660175ccaf284772ea3481e968",
+      "bytes": 216559,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-12.21_M15.csv",
+      "sha256": "fbcc686409a732af3740509fa630a2f7ca2b9b24fc6a3a05b61318d22d3b91ea",
+      "bytes": 264239,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-12.22_M15.csv",
+      "sha256": "1847de0d93b8599fb1d607a61477051233defc2d3548f6c45f3899af31f45f6c",
+      "bytes": 235716,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-3.18_M15.csv",
+      "sha256": "c14eb7bb1e6b9bd76f2ab0679839897d23225d7a985d7864ac995b47d3483052",
+      "bytes": 212817,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-3.19_M15.csv",
+      "sha256": "473d42e8133c5c7dd895054182243dda87bde9d0c9a667c456bb4b8995045e82",
+      "bytes": 207592,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-3.20_M15.csv",
+      "sha256": "d6974dd2f1b6d8ff22a6db4bc97188151c079eb7ba3509e58a7245abcd53b94f",
+      "bytes": 200027,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-3.21_M15.csv",
+      "sha256": "300962086a7c99ca997c9b8a31ff1907ce2eb87341ed86dbd221554ae7e31387",
+      "bytes": 215167,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-3.22_M15.csv",
+      "sha256": "00b391943af4f736d8af7293b133d9fb364bee1cda3108191eb7e741f63820a2",
+      "bytes": 212152,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-6.18_M15.csv",
+      "sha256": "d525fd64b0be1c5248d13492388cb180017f288e8b3979c74fa0a160caffbf5d",
+      "bytes": 194341,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-6.19_M15.csv",
+      "sha256": "f8cf91ef37f571c5bb79521037a216c17cf5f5ffaeddda9bd3b3848ad7010877",
+      "bytes": 209322,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-6.20_M15.csv",
+      "sha256": "7c7f70e488bf1ab6daa36a7bc65fa73a39ff1ee49e72b271a9fc13f228c8dec9",
+      "bytes": 209680,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-6.21_M15.csv",
+      "sha256": "9c9e253ca604d020527a1417e43d886fb1184b2e19765bdeef6fbd5014003e23",
+      "bytes": 264095,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-6.22_M15.csv",
+      "sha256": "33c068e64c78916361ab4a03056b394169aab6f16ac65670873661d70d118fd4",
+      "bytes": 113520,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-9.18_M15.csv",
+      "sha256": "687362960e3620ad070119fed026db26f2180d8ccedbc77e5b79684672f0118f",
+      "bytes": 219930,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-9.19_M15.csv",
+      "sha256": "81c25176604ab0751db1dc00148d8fd4156f05a588ce80170ad73be4708fd821",
+      "bytes": 219517,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-9.20_M15.csv",
+      "sha256": "10cd1189719e3bb5b16a6b4a1fd55c5ebb57d54dc5bfff93f225a8ae336017ff",
+      "bytes": 211617,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-9.21_M15.csv",
+      "sha256": "c45b6855ba8c8bd99d15f6e8194e909afae1cfb2ed768791eeaf28f1cb7f200d",
+      "bytes": 267743,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/mix/MIX-9.22_M15.csv",
+      "sha256": "04a18179afffe43ea8626e1c8aaf7a5e381c354e3b41e2b9c7423f7a206c934b",
+      "bytes": 200191,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-12.18_M15.csv",
+      "sha256": "32a92a550cae93168312433c49a4a2ffd841afd289ad7ccfe86e4e06634c4629",
+      "bytes": 208147,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-12.19_M15.csv",
+      "sha256": "679cc89c25cd98ddf6c3a4e3c6e55d8b90062958c0d2bc297900961bb1581254",
+      "bytes": 398670,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-12.20_M15.csv",
+      "sha256": "3761f0ee53678670b74fb477633293cfbb024af644481c946a91b64720834f3b",
+      "bytes": 209058,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-12.21_M15.csv",
+      "sha256": "61955fc4528c7a20658b870f71af22c264ead406b6ca438732d51b2c7428b165",
+      "bytes": 254428,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-12.22_M15.csv",
+      "sha256": "2a1b81a24c2a670ab682cf9b927acd40f28702d98c63cad9d9fd57abe1ee34b0",
+      "bytes": 225687,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-3.18_M15.csv",
+      "sha256": "658a605be7a2934321e1d53ac9229585a210d191b62eaf87106e8bda4c59e38e",
+      "bytes": 156258,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-3.19_M15.csv",
+      "sha256": "047d58e3670c530c5a3eff1de0821578420c58827677b2e77304715b40bdcb6f",
+      "bytes": 199283,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-3.20_M15.csv",
+      "sha256": "95adc19a545dcaa5cab38ccd2831bb91a53dcb64092a855f059161e4dccdb150",
+      "bytes": 192246,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-3.21_M15.csv",
+      "sha256": "300e1ab6b964999a3b139744c3175212ba8f7357e8865907212c5a598879099e",
+      "bytes": 207367,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-3.22_M15.csv",
+      "sha256": "3ffff5a65b3e7fcaf48b45cc325a3ce2dcd5275c80e99b2b57bb0fe7787632c0",
+      "bytes": 221125,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-6.18_M15.csv",
+      "sha256": "971ddceed0cc4242b80c203c6592ab90cb38ee9f401c462402d41107f430fded",
+      "bytes": 186798,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-6.19_M15.csv",
+      "sha256": "414f9adfe3e5a05f24cb3720688b6ccb5bb667ac56eb76c8205a6025a85a9604",
+      "bytes": 201151,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-6.20_M15.csv",
+      "sha256": "bf16d87c0e36572d232688b83dd318bf153076610140912f10f19d8b0c81b6bf",
+      "bytes": 201831,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-6.21_M15.csv",
+      "sha256": "5d8bd31368f4095c926dbe3073c236ae903b0b19079bd37d9f56da9bac37ba77",
+      "bytes": 254338,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-6.22_M15.csv",
+      "sha256": "4d844a537adb5fcc096c794ec7f127c7519fa87d10aa871ae96a4e6a3830a22c",
+      "bytes": 126718,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-9.18_M15.csv",
+      "sha256": "e827fa894fa0d7069cf07bb59fec3e4aff338e6f114574bfbe0f9df3fea232b6",
+      "bytes": 211266,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-9.19_M15.csv",
+      "sha256": "d4bb29345c127b5dce1ddf5cc242ffe32196d4297183e6f7e9f54bf652e55a80",
+      "bytes": 3266,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-9.20_M15.csv",
+      "sha256": "aa452ce704de0ff46e5ec2caffd51c21b608f1fc8b5861b3095d16521a89039a",
+      "bytes": 204174,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-9.21_M15.csv",
+      "sha256": "3731710520a0d1e2bb038bb5b857dd186328611ee0051c92a11f0f7791f47de5",
+      "bytes": 257985,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
+    },
+    {
+      "path": "/workspace/work/v20_pf/quarterly/history_2018_2022_original/si/Si-9.22_M15.csv",
+      "sha256": "a9496089868d67c5381b65f4cdbb8688896c49b08fb64de7fcff182f4f67db72",
+      "bytes": 194772,
+      "role": "UPLOADED_ORIGINAL_QUARTERLY_M15"
     }
   ],
   "checks": [
@@ -347,8 +605,8 @@
     },
     {
       "check": "OLD_M15_SOURCE_AVAILABLE",
-      "status": "FAIL",
-      "detail": "43 quarterly source files/ZIP missing; no old price-path or market-regime comparison asserted"
+      "status": "PASS",
+      "detail": "Uploaded original ZIP and all 43 CSV hashes match prior V20-03 source metadata; 149028 bars"
     },
     {
       "check": "STRICT_PERIOD_TYPE_ATTRIBUTION",
@@ -358,12 +616,52 @@
     {
       "check": "SUPPRESSION_COUNTERFACTUAL",
       "status": "NOT VERIFIED",
-      "detail": "No signal-level rejection journal in original publication; no independent two-symbol replay performed"
+      "detail": "Direct two-entry-cap refusals counted on unchanged realized history; independent two-instrument PnL remains NOT VERIFIED"
     },
     {
       "check": "OLD_INTRABAR_EXECUTION",
-      "status": "NOT VERIFIED",
-      "detail": "Trade and session journals permit consistency checks, not independent candle replay"
+      "status": "PASS",
+      "detail": "All 1016 observed old model exits match first frozen trigger in original quotes; true execution inside 12 gaps remains unknown"
+    },
+    {
+      "check": "QUARTERLY_ZIP_SHA256",
+      "status": "PASS",
+      "detail": "df1aaf4d23757d18689dfdf61d6fc1ec77f0b26ae7d8af1193322d460707888a"
+    },
+    {
+      "check": "ALL_43_QUARTERLY_SOURCE_HASHES",
+      "status": "PASS",
+      "detail": "Each CSV byte hash matches RUN_METADATA; safe extraction outside Git"
+    },
+    {
+      "check": "QUARTERLY_INPUT_FORMAT_AND_GAP_PARITY",
+      "status": "PASS",
+      "detail": "149028 bars, OHLC/volume/grid/order; exact 409 gap records match publication"
+    },
+    {
+      "check": "QUOTE_FEATURE_SUMMARY_PARITY",
+      "status": "PASS",
+      "detail": "Recalculated exact frozen features match all 2853 contract/session signal and warmup summaries"
+    },
+    {
+      "check": "ALL_CLOSED_TRADES_QUOTE_EXECUTION",
+      "status": "PASS",
+      "detail": "2605 baseline observed model trades (1016 old +1589 late), plus1251 late V1 model trades: signal/entry/stop/first exit checked; true gap execution unknown"
+    },
+    {
+      "check": "RAW_SIGNAL_ADMISSION_RECONCILIATION",
+      "status": "PASS",
+      "detail": "Executed raw signal gates reproduce 1016 old entries and 1590 late entries including one open"
+    },
+    {
+      "check": "MATCHED_PATH_OBSERVABILITY",
+      "status": "PASS",
+      "detail": "Same locked V1 gap recognition applied to path diagnostics in both periods; original PnL and modern feature continuity unchanged"
+    },
+    {
+      "check": "LATE_EXISTING_V1_PIPELINE_DIAGNOSTIC",
+      "status": "PASS",
+      "detail": "One required methodology diagnostic: exact original V1 feature resets/censoring on unchanged late quotes and frozen run_one; no optimization or quarterly portfolio replay"
     }
   ],
   "coverage_by_family_year": [
@@ -862,7 +1160,7 @@
   ],
   "DD_method": "Closed C1 R, initial peak=0, stable sort exit_dt/entry_dt/account_num/contract; pooled independent accounts are arithmetic diagnostics, not cash/MTM equity",
   "market_bins": "Absolute displacement in 2 ATR initial risk to first Open of third observed session, bins >1R and <=1R; descriptive, no new trading filters",
-  "path_method": "Raw signals: all original signals independent of execution constraints, exact NEXT_OPEN and original horizon. Actual paths: favorable excursion lower bound using prior bars and exit Open, excluding stop-candle OHLC ambiguity",
+  "path_method": "Both periods: original NEXT_OPEN, initial executable stop risk, first Open of third observed family session in same contract. Unknown V1 gaps/contract-session skips censor path summaries only. Favorable-before-loss lower bound excludes exit-candle High/Low. Post-stop horizon is descriptive price potential, not PnL of another exit policy.",
   "original_checks_rerun": false,
   "scope": "V20_TradingSystem_M15 only; no production/FINAM/main mutation",
   "python": "3.12.14",
@@ -903,15 +1201,17 @@
     }
   ],
   "artifact_hashes": {
-    "DEVELOPMENT_DECISION_RU.md": "3d4e8b09fff1346bb061acb58c896693e87e183665695d48206286ee3fe7d970",
+    "DEVELOPMENT_DECISION_RU.md": "8c12c01757838ac9dfdb3882d445cae18edb48ffa3dc37a5d69817cd8c8e4683",
     "DIAGNOSTIC_REPLAY_TRADES.csv": "9d9ac249b2b1961eead6ed6adf15d67a2e1fb498b7c323786b33777d3ba4067a",
-    "INSTRUMENT_COMPARISON.csv": "27ea4bb95b6e22345e40ae604b089c809b466a6c55f62db38fb2723b8c51b4a3",
-    "METHODOLOGY_EFFECTS_RU.md": "c3ca27ddc0af2a845ce68f951df64fca58d1ccdb15e2d5309085e82ed0cefa53",
+    "INSTRUMENT_COMPARISON.csv": "04bbc076857c71f50ae8e07f7878d17f577b12606db9a7dd028d159dd4f2daa0",
+    "METHODOLOGY_EFFECTS_RU.md": "36b3b7c7b17f7224161412dd665bdb7cd6e2c6c25103d06987d2c3bcc2980dad",
     "PERIOD_STRATEGY_COMPARISON.csv": "740132afccaa9acaf2c8e587097e6c5711ad1b4002a51b5690850246bfb747fa",
-    "PF_DIAGNOSTIC_REPORT_RU.md": "615550d44b688c0ab21294be216043819106931bc08d2e8de02e6c0e603e6e7b",
-    "TRADE_DISTRIBUTION.csv": "cf70afc58fc7e9d3647e869d789232138360ca94269cc5d69036e90cee28ce83",
+    "PF_DIAGNOSTIC_REPORT_RU.md": "89efa540a1747571382113e832bf5c08bdb6b3d592ad0a23b9f5797c3f456a43",
+    "QUOTE_PATH_DIAGNOSTICS.csv": "1f936dca02b9c99ed1df6ca30ef52c4c33128c9d06743175b6f5d6f59dee9c0f",
+    "TRADE_DISTRIBUTION.csv": "029d6cb91f14e523aeea76c1ec6e82187e5b8824b3157414e105fb9dbfe74556",
     "YEARLY_STABILITY.csv": "23d2e42b1be049490ec7e492b5aadc068c3c83dfa2b84b95228772b35272df26",
-    "build_diagnostics.py": "1bc89733baf74012dd3a59f61dbccfcb989b50bdccc4aa96a395ed6764bb4035"
+    "build_diagnostics.py": "b6504e7b347765b57abaa2c587ec022f0f490012be94fb09d727db26b0acdf7a",
+    "quote_diagnostics.py": "8ae5dca341a1c6fc2c74be19bed611f0d403530c8225cfb61580bac18b12cf87"
   },
   "publication_checks": "See ../publication/VERIFICATION_PUBLICATION.json; its PASS does not remove the two diagnostic source-availability FAILs",
   "independent_table_validation": {
@@ -919,5 +1219,998 @@
     "rows": 195,
     "method": "Independent stdlib PF/net/WR/expectancy/closed-DD; no replay"
   },
-  "entry_frequency_method": "All observed entries including 12 old censored and one late open; denominator union of observed session keys, not verified exchange calendar or post-warmup opportunity set"
+  "entry_frequency_method": "All observed entries including 12 old censored and one late open; denominator union of observed session keys, not verified exchange calendar or post-warmup opportunity set",
+  "quote_update_input_PR_sha": "9beb954201ba2ee18d8c89d82b551be8b5e745c3",
+  "quarterly_source_zip": {
+    "path": "/workspace/attachments/155d578d-f938-42a6-9707-d84da54a7f3c/2018-2022.zip",
+    "sha256": "df1aaf4d23757d18689dfdf61d6fc1ec77f0b26ae7d8af1193322d460707888a",
+    "bytes": 2014592,
+    "expected_sha256": "df1aaf4d23757d18689dfdf61d6fc1ec77f0b26ae7d8af1193322d460707888a",
+    "status": "PASS"
+  },
+  "quarterly_quotes_available": true,
+  "quote_update": {
+    "source_bars": 149028,
+    "quarterly_source_files": 43,
+    "quarterly_portfolio_replays": 0,
+    "strategy_parameter_changes": 0,
+    "roll_policy_changes": 0,
+    "new_C2_STRICT_runs": 0,
+    "optimization_runs": 0,
+    "walk_forward_runs": 0,
+    "trade_quote_rows": 2605,
+    "raw_selected_signal_rows": 4986,
+    "diagnostic_output_sha256": "1f936dca02b9c99ed1df6ca30ef52c4c33128c9d06743175b6f5d6f59dee9c0f",
+    "path_status_counts": [
+      {
+        "period": "2018-2022",
+        "status": "OBSERVED_V1",
+        "count": 1004
+      },
+      {
+        "period": "2018-2022",
+        "status": "UNKNOWN_INTRASESSION_GAP",
+        "count": 12
+      },
+      {
+        "period": "2023-2026",
+        "status": "OBSERVED_V1",
+        "count": 1503
+      },
+      {
+        "period": "2023-2026",
+        "status": "UNKNOWN_INTRASESSION_GAP",
+        "count": 86
+      }
+    ],
+    "horizon_status_counts": [
+      {
+        "period": "2018-2022",
+        "status": "OBSERVED_V1",
+        "count": 991
+      },
+      {
+        "period": "2018-2022",
+        "status": "UNKNOWN_INTRASESSION_GAP",
+        "count": 25
+      },
+      {
+        "period": "2023-2026",
+        "status": "END_OF_ARCHIVE",
+        "count": 1
+      },
+      {
+        "period": "2023-2026",
+        "status": "OBSERVED_V1",
+        "count": 1337
+      },
+      {
+        "period": "2023-2026",
+        "status": "UNKNOWN_INTRASESSION_GAP",
+        "count": 251
+      }
+    ],
+    "observability_sensitivity": [
+      {
+        "record_type": "OBSERVABILITY_SENSITIVITY",
+        "period": "2018-2022",
+        "strategy": "ALL_INDEPENDENT_ACCOUNTS",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "EXISTING_TRADES_ONLY_NO_SIGNAL_RESET_OR_REPLAY",
+        "flagged_existing_trades": 0,
+        "primary_PF_C1": 1.2658597646842096,
+        "primary_net_R": 205.45424654957716,
+        "trades": 1004,
+        "PF_C1": 1.2658597646842096,
+        "net_R": 205.45424654957716,
+        "expectancy": 0.2046357037346386
+      },
+      {
+        "record_type": "OBSERVABILITY_SENSITIVITY",
+        "period": "2018-2022",
+        "strategy": "INSIDE_DAY_RELEASE",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "EXISTING_TRADES_ONLY_NO_SIGNAL_RESET_OR_REPLAY",
+        "flagged_existing_trades": 0,
+        "primary_PF_C1": 1.5828406600505538,
+        "primary_net_R": 47.35000045861001,
+        "trades": 108,
+        "PF_C1": 1.5828406600505538,
+        "net_R": 47.35000045861001,
+        "expectancy": 0.4384259301723149
+      },
+      {
+        "record_type": "OBSERVABILITY_SENSITIVITY",
+        "period": "2018-2022",
+        "strategy": "OBV_PRESSURE",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "EXISTING_TRADES_ONLY_NO_SIGNAL_RESET_OR_REPLAY",
+        "flagged_existing_trades": 0,
+        "primary_PF_C1": 1.1683549874352985,
+        "primary_net_R": 44.709637331182996,
+        "trades": 328,
+        "PF_C1": 1.1683549874352985,
+        "net_R": 44.709637331182996,
+        "expectancy": 0.13630986991214328
+      },
+      {
+        "record_type": "OBSERVABILITY_SENSITIVITY",
+        "period": "2018-2022",
+        "strategy": "SHALLOW_PULLBACK",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "EXISTING_TRADES_ONLY_NO_SIGNAL_RESET_OR_REPLAY",
+        "flagged_existing_trades": 0,
+        "primary_PF_C1": 1.2661944538937049,
+        "primary_net_R": 113.39460875978422,
+        "trades": 568,
+        "PF_C1": 1.2661944538937049,
+        "net_R": 113.39460875978422,
+        "expectancy": 0.19963839570384545
+      },
+      {
+        "record_type": "OBSERVABILITY_SENSITIVITY",
+        "period": "2023-2026",
+        "strategy": "ALL_INDEPENDENT_ACCOUNTS",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "EXISTING_TRADES_ONLY_NO_SIGNAL_RESET_OR_REPLAY",
+        "flagged_existing_trades": 86,
+        "primary_PF_C1": 1.8735373224002136,
+        "primary_net_R": 1017.4202308798535,
+        "trades": 1503,
+        "PF_C1": 1.6909675439586338,
+        "net_R": 787.1165292508058,
+        "expectancy": 0.5236969589160384
+      },
+      {
+        "record_type": "OBSERVABILITY_SENSITIVITY",
+        "period": "2023-2026",
+        "strategy": "INSIDE_DAY_RELEASE",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "EXISTING_TRADES_ONLY_NO_SIGNAL_RESET_OR_REPLAY",
+        "flagged_existing_trades": 10,
+        "primary_PF_C1": 2.265248963098536,
+        "primary_net_R": 167.8080435223335,
+        "trades": 170,
+        "PF_C1": 2.072614285034332,
+        "net_R": 139.8835979260732,
+        "expectancy": 0.8228446936827836
+      },
+      {
+        "record_type": "OBSERVABILITY_SENSITIVITY",
+        "period": "2023-2026",
+        "strategy": "OBV_PRESSURE",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "EXISTING_TRADES_ONLY_NO_SIGNAL_RESET_OR_REPLAY",
+        "flagged_existing_trades": 34,
+        "primary_PF_C1": 1.7181219101855794,
+        "primary_net_R": 337.4419190353247,
+        "trades": 578,
+        "PF_C1": 1.5159960864842277,
+        "net_R": 237.6418919553837,
+        "expectancy": 0.4111451417913213
+      },
+      {
+        "record_type": "OBSERVABILITY_SENSITIVITY",
+        "period": "2023-2026",
+        "strategy": "SHALLOW_PULLBACK",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "EXISTING_TRADES_ONLY_NO_SIGNAL_RESET_OR_REPLAY",
+        "flagged_existing_trades": 42,
+        "primary_PF_C1": 1.9110279090363762,
+        "primary_net_R": 512.1702683221954,
+        "trades": 755,
+        "PF_C1": 1.7471729333075914,
+        "net_R": 409.59103936934883,
+        "expectancy": 0.5425046879064223
+      }
+    ],
+    "admission_summary": [
+      {
+        "record_type": "SIGNAL_ADMISSION_YEAR",
+        "period": "2018-2022",
+        "strategy": "ALL_INDEPENDENT_ACCOUNTS",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "REALIZED_HISTORY_GATE_DIAGNOSTIC_NOT_COUNTERFACTUAL_REPLAY",
+        "raw_signals": 1781,
+        "quota_blocked_candidate_signals": 0,
+        "quota_blocked_family_sessions": 0,
+        "removed_instruments_direct_cap_block_signals": 0,
+        "removed_instruments_direct_cap_block_family_sessions": 0,
+        "admission_EXECUTED": 1016,
+        "admission_POSITION_OCCUPIED_AT_SIGNAL_CLOSE": 719,
+        "admission_FAMILY_ALREADY_ENTERED_SESSION": 46
+      },
+      {
+        "record_type": "SIGNAL_ADMISSION_YEAR",
+        "period": "2018-2022",
+        "strategy": "SHALLOW_PULLBACK",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "REALIZED_HISTORY_GATE_DIAGNOSTIC_NOT_COUNTERFACTUAL_REPLAY",
+        "raw_signals": 989,
+        "quota_blocked_candidate_signals": 0,
+        "quota_blocked_family_sessions": 0,
+        "removed_instruments_direct_cap_block_signals": 0,
+        "removed_instruments_direct_cap_block_family_sessions": 0,
+        "admission_EXECUTED": 574,
+        "admission_POSITION_OCCUPIED_AT_SIGNAL_CLOSE": 401,
+        "admission_FAMILY_ALREADY_ENTERED_SESSION": 14
+      },
+      {
+        "record_type": "SIGNAL_ADMISSION_YEAR",
+        "period": "2018-2022",
+        "strategy": "OBV_PRESSURE",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "REALIZED_HISTORY_GATE_DIAGNOSTIC_NOT_COUNTERFACTUAL_REPLAY",
+        "raw_signals": 620,
+        "quota_blocked_candidate_signals": 0,
+        "quota_blocked_family_sessions": 0,
+        "removed_instruments_direct_cap_block_signals": 0,
+        "removed_instruments_direct_cap_block_family_sessions": 0,
+        "admission_EXECUTED": 332,
+        "admission_POSITION_OCCUPIED_AT_SIGNAL_CLOSE": 275,
+        "admission_FAMILY_ALREADY_ENTERED_SESSION": 13
+      },
+      {
+        "record_type": "SIGNAL_ADMISSION_YEAR",
+        "period": "2018-2022",
+        "strategy": "INSIDE_DAY_RELEASE",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "REALIZED_HISTORY_GATE_DIAGNOSTIC_NOT_COUNTERFACTUAL_REPLAY",
+        "raw_signals": 172,
+        "quota_blocked_candidate_signals": 0,
+        "quota_blocked_family_sessions": 0,
+        "removed_instruments_direct_cap_block_signals": 0,
+        "removed_instruments_direct_cap_block_family_sessions": 0,
+        "admission_EXECUTED": 110,
+        "admission_POSITION_OCCUPIED_AT_SIGNAL_CLOSE": 43,
+        "admission_FAMILY_ALREADY_ENTERED_SESSION": 19
+      },
+      {
+        "record_type": "SIGNAL_ADMISSION_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL_INDEPENDENT_ACCOUNTS",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "REALIZED_HISTORY_GATE_DIAGNOSTIC_NOT_COUNTERFACTUAL_REPLAY",
+        "raw_signals": 3205,
+        "quota_blocked_candidate_signals": 213,
+        "quota_blocked_family_sessions": 138,
+        "removed_instruments_direct_cap_block_signals": 121,
+        "removed_instruments_direct_cap_block_family_sessions": 81,
+        "admission_EXECUTED": 1590,
+        "admission_POSITION_OCCUPIED_AT_SIGNAL_CLOSE": 1313,
+        "admission_ACCOUNT_TWO_ENTRY_CAP": 213,
+        "admission_FAMILY_ALREADY_ENTERED_SESSION": 87,
+        "admission_NO_NEXT_OPEN": 2
+      },
+      {
+        "record_type": "SIGNAL_ADMISSION_YEAR",
+        "period": "2023-2026",
+        "strategy": "SHALLOW_PULLBACK",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "REALIZED_HISTORY_GATE_DIAGNOSTIC_NOT_COUNTERFACTUAL_REPLAY",
+        "raw_signals": 1604,
+        "quota_blocked_candidate_signals": 134,
+        "quota_blocked_family_sessions": 90,
+        "removed_instruments_direct_cap_block_signals": 73,
+        "removed_instruments_direct_cap_block_family_sessions": 50,
+        "admission_EXECUTED": 797,
+        "admission_POSITION_OCCUPIED_AT_SIGNAL_CLOSE": 655,
+        "admission_ACCOUNT_TWO_ENTRY_CAP": 134,
+        "admission_FAMILY_ALREADY_ENTERED_SESSION": 18
+      },
+      {
+        "record_type": "SIGNAL_ADMISSION_YEAR",
+        "period": "2023-2026",
+        "strategy": "OBV_PRESSURE",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "REALIZED_HISTORY_GATE_DIAGNOSTIC_NOT_COUNTERFACTUAL_REPLAY",
+        "raw_signals": 1299,
+        "quota_blocked_candidate_signals": 73,
+        "quota_blocked_family_sessions": 45,
+        "removed_instruments_direct_cap_block_signals": 47,
+        "removed_instruments_direct_cap_block_family_sessions": 30,
+        "admission_EXECUTED": 612,
+        "admission_POSITION_OCCUPIED_AT_SIGNAL_CLOSE": 582,
+        "admission_ACCOUNT_TWO_ENTRY_CAP": 73,
+        "admission_FAMILY_ALREADY_ENTERED_SESSION": 32
+      },
+      {
+        "record_type": "SIGNAL_ADMISSION_YEAR",
+        "period": "2023-2026",
+        "strategy": "INSIDE_DAY_RELEASE",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "REALIZED_HISTORY_GATE_DIAGNOSTIC_NOT_COUNTERFACTUAL_REPLAY",
+        "raw_signals": 302,
+        "quota_blocked_candidate_signals": 6,
+        "quota_blocked_family_sessions": 3,
+        "removed_instruments_direct_cap_block_signals": 1,
+        "removed_instruments_direct_cap_block_family_sessions": 1,
+        "admission_EXECUTED": 181,
+        "admission_POSITION_OCCUPIED_AT_SIGNAL_CLOSE": 76,
+        "admission_FAMILY_ALREADY_ENTERED_SESSION": 37,
+        "admission_ACCOUNT_TWO_ENTRY_CAP": 6,
+        "admission_NO_NEXT_OPEN": 2
+      }
+    ],
+    "source_feature_cache_policy": "Only locally generated caches; per-CSV hash plus immutable source-code signature and cache SHA256 validated",
+    "late_V1_diagnostic_replay_batches": 1,
+    "late_V1_diagnostic_strategy_replays": 3,
+    "late_V1_diagnostic_reason": "86 original late trades cross gaps under locked historical V1; a mere closed-row filter cannot measure indicator warmup/reset selection. Exactly one existing V1 pipeline is applied to the same late quotes; no thresholds/rules are selected by results.",
+    "late_V1_replay_meta": {
+      "SHALLOW_PULLBACK": {
+        "unclosed": 0,
+        "terminal_positions": [],
+        "exits": {
+          "1": 392,
+          "3": 232,
+          "4": 16,
+          "2": 9
+        },
+        "checks": {
+          "entries": 649
+        }
+      },
+      "OBV_PRESSURE": {
+        "unclosed": 0,
+        "terminal_positions": [],
+        "exits": {
+          "1": 297,
+          "3": 139,
+          "4": 20,
+          "2": 4
+        },
+        "checks": {
+          "entries": 460
+        }
+      },
+      "INSIDE_DAY_RELEASE": {
+        "unclosed": 1,
+        "terminal_positions": [
+          {
+            "symbol": "USDRUBF",
+            "side": 1,
+            "entry_dt": "2026-08-29 13:45:00",
+            "initial_stop": 86.46000000000001,
+            "entry_price": 86.6,
+            "risk_price_units": 0.13999999999998636
+          }
+        ],
+        "exits": {
+          "3": 49,
+          "1": 84,
+          "4": 6,
+          "2": 3
+        },
+        "checks": {
+          "entries": 143
+        }
+      }
+    },
+    "late_V1_replay_input_hashes": {
+      "/workspace/market-pattern-data/forever/CNYRUBF/CNYRUBF_M15.csv": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+      "/workspace/market-pattern-data/forever/GLDRUBF/GLDRUBF_M15.csv": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+      "/workspace/market-pattern-data/forever/IMOEXF/IMOEXF_M15.csv": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773",
+      "/workspace/market-pattern-data/forever/USDRUBF/USDRUBF_M15.csv": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8"
+    },
+    "late_V1_replay_summaries": [
+      {
+        "trades": 1231,
+        "PF_C1": 1.827657257939806,
+        "net_R": 749.7102438982215,
+        "expectancy": 0.6090253809083847,
+        "record_type": "GAP_V1_REPLAY_SENSITIVITY",
+        "period": "2023-2026",
+        "strategy": "ALL_INDEPENDENT_ACCOUNTS",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "ONE_LOCKED_V1_PIPELINE_DIAGNOSTIC_NOT_NEW_STRATEGY",
+        "max_DD_closed_R": 30.76270064539503
+      },
+      {
+        "trades": 606,
+        "PF_C1": 1.7990197628573295,
+        "net_R": 364.17183941579515,
+        "expectancy": 0.6009436293990019,
+        "record_type": "GAP_V1_REPLAY_SENSITIVITY",
+        "period": "2023-2026",
+        "strategy": "ALL_INDEPENDENT_ACCOUNTS",
+        "instrument": "TWO_FILTERED_EXECUTED",
+        "year": "ALL",
+        "status": "ONE_LOCKED_V1_PIPELINE_DIAGNOSTIC_NOT_NEW_STRATEGY",
+        "max_DD_closed_R": 39.106155592362626
+      },
+      {
+        "trades": 140,
+        "PF_C1": 2.4713379535986197,
+        "net_R": 151.03406246177232,
+        "expectancy": 1.0788147318698023,
+        "record_type": "GAP_V1_REPLAY_SENSITIVITY",
+        "period": "2023-2026",
+        "strategy": "INSIDE_DAY_RELEASE",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "ONE_LOCKED_V1_PIPELINE_DIAGNOSTIC_NOT_NEW_STRATEGY",
+        "max_DD_closed_R": 13.000840440267586
+      },
+      {
+        "trades": 81,
+        "PF_C1": 2.545394520029742,
+        "net_R": 86.07211545622849,
+        "expectancy": 1.062618709336154,
+        "record_type": "GAP_V1_REPLAY_SENSITIVITY",
+        "period": "2023-2026",
+        "strategy": "INSIDE_DAY_RELEASE",
+        "instrument": "TWO_FILTERED_EXECUTED",
+        "year": "ALL",
+        "status": "ONE_LOCKED_V1_PIPELINE_DIAGNOSTIC_NOT_NEW_STRATEGY",
+        "max_DD_closed_R": 9.167746624882515
+      },
+      {
+        "trades": 453,
+        "PF_C1": 1.6304537343730021,
+        "net_R": 221.80176717221428,
+        "expectancy": 0.4896286251042258,
+        "record_type": "GAP_V1_REPLAY_SENSITIVITY",
+        "period": "2023-2026",
+        "strategy": "OBV_PRESSURE",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "ONE_LOCKED_V1_PIPELINE_DIAGNOSTIC_NOT_NEW_STRATEGY",
+        "max_DD_closed_R": 27.76958450895944
+      },
+      {
+        "trades": 211,
+        "PF_C1": 1.5252353680181971,
+        "net_R": 90.23136179108803,
+        "expectancy": 0.4276367857397537,
+        "record_type": "GAP_V1_REPLAY_SENSITIVITY",
+        "period": "2023-2026",
+        "strategy": "OBV_PRESSURE",
+        "instrument": "TWO_FILTERED_EXECUTED",
+        "year": "ALL",
+        "status": "ONE_LOCKED_V1_PIPELINE_DIAGNOSTIC_NOT_NEW_STRATEGY",
+        "max_DD_closed_R": 16.41947345256722
+      },
+      {
+        "trades": 638,
+        "PF_C1": 1.8349782456269474,
+        "net_R": 376.874414264235,
+        "expectancy": 0.5907122480630642,
+        "record_type": "GAP_V1_REPLAY_SENSITIVITY",
+        "period": "2023-2026",
+        "strategy": "SHALLOW_PULLBACK",
+        "instrument": "ALL",
+        "year": "ALL",
+        "status": "ONE_LOCKED_V1_PIPELINE_DIAGNOSTIC_NOT_NEW_STRATEGY",
+        "max_DD_closed_R": 17.561623862793567
+      },
+      {
+        "trades": 314,
+        "PF_C1": 1.8229548854806894,
+        "net_R": 187.86836216847868,
+        "expectancy": 0.5983068858868748,
+        "record_type": "GAP_V1_REPLAY_SENSITIVITY",
+        "period": "2023-2026",
+        "strategy": "SHALLOW_PULLBACK",
+        "instrument": "TWO_FILTERED_EXECUTED",
+        "year": "ALL",
+        "status": "ONE_LOCKED_V1_PIPELINE_DIAGNOSTIC_NOT_NEW_STRATEGY",
+        "max_DD_closed_R": 21.180755857863193
+      }
+    ],
+    "late_V1_gap_intervals_by_symbol": {
+      "CNYRUBF": 222,
+      "GLDRUBF": 219,
+      "IMOEXF": 179,
+      "USDRUBF": 54
+    },
+    "late_V1_warmup_coverage": [
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "CNYRUBF",
+        "year": "ALL",
+        "bars": 55573,
+        "warmup_bars": 12677,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 319,
+        "OBV_PRESSURE_signals": 270,
+        "INSIDE_DAY_RELEASE_signals": 66
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "CNYRUBF",
+        "year": 2023,
+        "bars": 14854,
+        "warmup_bars": 10289,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 44,
+        "OBV_PRESSURE_signals": 24,
+        "INSIDE_DAY_RELEASE_signals": 1
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "CNYRUBF",
+        "year": 2024,
+        "bars": 14779,
+        "warmup_bars": 995,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 124,
+        "OBV_PRESSURE_signals": 130,
+        "INSIDE_DAY_RELEASE_signals": 26
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "CNYRUBF",
+        "year": 2025,
+        "bars": 15243,
+        "warmup_bars": 1194,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 71,
+        "OBV_PRESSURE_signals": 58,
+        "INSIDE_DAY_RELEASE_signals": 20
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "CNYRUBF",
+        "year": 2026,
+        "bars": 10697,
+        "warmup_bars": 199,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 80,
+        "OBV_PRESSURE_signals": 58,
+        "INSIDE_DAY_RELEASE_signals": 19
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "GLDRUBF",
+        "year": "ALL",
+        "bars": 52025,
+        "warmup_bars": 13483,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 334,
+        "OBV_PRESSURE_signals": 263,
+        "INSIDE_DAY_RELEASE_signals": 36
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "GLDRUBF",
+        "year": 2023,
+        "bars": 7264,
+        "warmup_bars": 6146,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 7,
+        "OBV_PRESSURE_signals": 9,
+        "INSIDE_DAY_RELEASE_signals": 0
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "GLDRUBF",
+        "year": 2024,
+        "bars": 14925,
+        "warmup_bars": 4707,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 113,
+        "OBV_PRESSURE_signals": 117,
+        "INSIDE_DAY_RELEASE_signals": 12
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "GLDRUBF",
+        "year": 2025,
+        "bars": 16499,
+        "warmup_bars": 2232,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 95,
+        "OBV_PRESSURE_signals": 67,
+        "INSIDE_DAY_RELEASE_signals": 15
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "GLDRUBF",
+        "year": 2026,
+        "bars": 13337,
+        "warmup_bars": 398,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 119,
+        "OBV_PRESSURE_signals": 70,
+        "INSIDE_DAY_RELEASE_signals": 9
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "IMOEXF",
+        "year": "ALL",
+        "bars": 46215,
+        "warmup_bars": 8579,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 228,
+        "OBV_PRESSURE_signals": 140,
+        "INSIDE_DAY_RELEASE_signals": 48
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "IMOEXF",
+        "year": 2023,
+        "bars": 1887,
+        "warmup_bars": 1763,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 0,
+        "OBV_PRESSURE_signals": 0,
+        "INSIDE_DAY_RELEASE_signals": 0
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "IMOEXF",
+        "year": 2024,
+        "bars": 14706,
+        "warmup_bars": 5423,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 72,
+        "OBV_PRESSURE_signals": 66,
+        "INSIDE_DAY_RELEASE_signals": 7
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "IMOEXF",
+        "year": 2025,
+        "bars": 16336,
+        "warmup_bars": 1194,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 84,
+        "OBV_PRESSURE_signals": 42,
+        "INSIDE_DAY_RELEASE_signals": 14
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "IMOEXF",
+        "year": 2026,
+        "bars": 13286,
+        "warmup_bars": 199,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 72,
+        "OBV_PRESSURE_signals": 32,
+        "INSIDE_DAY_RELEASE_signals": 27
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "USDRUBF",
+        "year": "ALL",
+        "bars": 55808,
+        "warmup_bars": 6952,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 390,
+        "OBV_PRESSURE_signals": 275,
+        "INSIDE_DAY_RELEASE_signals": 83
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "USDRUBF",
+        "year": 2023,
+        "bars": 15115,
+        "warmup_bars": 3980,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 127,
+        "OBV_PRESSURE_signals": 78,
+        "INSIDE_DAY_RELEASE_signals": 17
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "USDRUBF",
+        "year": 2024,
+        "bars": 14775,
+        "warmup_bars": 1518,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 126,
+        "OBV_PRESSURE_signals": 92,
+        "INSIDE_DAY_RELEASE_signals": 22
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "USDRUBF",
+        "year": 2025,
+        "bars": 15234,
+        "warmup_bars": 1194,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 74,
+        "OBV_PRESSURE_signals": 62,
+        "INSIDE_DAY_RELEASE_signals": 24
+      },
+      {
+        "record_type": "GAP_V1_COVERAGE_YEAR",
+        "period": "2023-2026",
+        "strategy": "ALL",
+        "instrument": "USDRUBF",
+        "year": 2026,
+        "bars": 10684,
+        "warmup_bars": 260,
+        "status": "LOCKED_V1_DIAGNOSTIC_SAME_QUOTES",
+        "SHALLOW_PULLBACK_signals": 63,
+        "OBV_PRESSURE_signals": 43,
+        "INSIDE_DAY_RELEASE_signals": 20
+      }
+    ],
+    "late_V1_quote_checked_closed_rows": 1251
+  },
+  "contemporaneous_input_inventory": [
+    {
+      "path": "/workspace/market-pattern-data/2026/CNY/CNY_M15_2023_Q1.csv",
+      "sha256": "947e0c92594e052e7c1f7250e9be7c2f3b6324f4150fe98ef98efc8275be28ae",
+      "rows": 4790,
+      "tickers": [
+        "CNYRUBF"
+      ],
+      "first_date": 20230103,
+      "last_date": 20230428
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/CNY/CNY_M15_2023_Q2.csv",
+      "sha256": "adf29963f9c05d74e13de9f45e02f4e6afc4bf5e421ec629961fda52d859650d",
+      "rows": 4944,
+      "tickers": [
+        "CNYRUBF"
+      ],
+      "first_date": 20230502,
+      "last_date": 20230830
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/CNY/CNY_M15_2023_Q3.csv",
+      "sha256": "fa96717162e5c5d9f7716ecc65bdb1f80ad5ddb61786af56a21d2d979b5df86b",
+      "rows": 5120,
+      "tickers": [
+        "CNYRUBF"
+      ],
+      "first_date": 20230901,
+      "last_date": 20231229
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/CNY/CNY_M15_2024_Q1.csv",
+      "sha256": "9e0aa5f4861296a53d4a90e52d93544a23b1142402010b100db9d5bb3b6e386e",
+      "rows": 5038,
+      "tickers": [
+        "CNYRUBF"
+      ],
+      "first_date": 20240103,
+      "last_date": 20240430
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/CNY/CNY_M15_2024_Q2.csv",
+      "sha256": "37163e4a95bd64e8fcf555f6a2fc44012f7e51b8d5d2645c89e4bafc3119247d",
+      "rows": 4872,
+      "tickers": [
+        "CNYRUBF"
+      ],
+      "first_date": 20240502,
+      "last_date": 20240830
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/CNY/CNY_M15_2024_Q3.csv",
+      "sha256": "3639572a7db9048370d66aaa580e6efb794e379c94ddb6ae75ae1e023413c77f",
+      "rows": 4869,
+      "tickers": [
+        "CNYRUBF"
+      ],
+      "first_date": 20240902,
+      "last_date": 20241230
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/CNY/CNY_M15_2025_Q1.csv",
+      "sha256": "adf12b18079e1f9122f0719e688025e8758a100ea5633c126e71c3a26cb8357c",
+      "rows": 4914,
+      "tickers": [
+        "CNYRUBF"
+      ],
+      "first_date": 20250103,
+      "last_date": 20250430
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/CNY/CNY_M15_2025_Q2.csv",
+      "sha256": "0773403f21eb351900db0ce9d3e0207bdaf122036ec36c43e5197daae0832a8a",
+      "rows": 5059,
+      "tickers": [
+        "CNYRUBF"
+      ],
+      "first_date": 20250502,
+      "last_date": 20250829
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/CNY/CNY_M15_2025_Q3.csv",
+      "sha256": "410ab000be2b571e28a9ddd70e2dcabc8560f9b101d4f2ffabbe2525d7ac4066",
+      "rows": 5270,
+      "tickers": [
+        "CNYRUBF"
+      ],
+      "first_date": 20250901,
+      "last_date": 20251230
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/CNY/CNY_M15_2026_Q1.csv",
+      "sha256": "36a9ebc08a820c5ebc2ee388d4a704767f8da763bafbfda367b5116fa4faaddd",
+      "rows": 4980,
+      "tickers": [
+        "CNYRUBF"
+      ],
+      "first_date": 20260105,
+      "last_date": 20260430
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/CNY/CNY_M15_2026_Q2.csv",
+      "sha256": "ee2d6c39de5bd21c1d53984bff57942346a780b08f916de6f613ad0ea446bc17",
+      "rows": 5717,
+      "tickers": [
+        "CNYRUBF"
+      ],
+      "first_date": 20260504,
+      "last_date": 20260830
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/Si/Si_M15_2023_Q1.csv",
+      "sha256": "c0266d5510687d03d35f904cdf0f0619382321853c5e56ff68d115017cbb3c71",
+      "rows": 4891,
+      "tickers": [
+        "USDRUBF"
+      ],
+      "first_date": 20230103,
+      "last_date": 20230428
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/Si/Si_M15_2023_Q2.csv",
+      "sha256": "11a48cded2750bc3280f4bdbfd38b84cbf2f1638b4b1b69933f75b5edcaddf38",
+      "rows": 5084,
+      "tickers": [
+        "USDRUBF"
+      ],
+      "first_date": 20230502,
+      "last_date": 20230830
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/Si/Si_M15_2023_Q3.csv",
+      "sha256": "0a6ff4945dcc98976813b07ff5d9a5556eeab147fba046b863393992e1a88110",
+      "rows": 5140,
+      "tickers": [
+        "USDRUBF"
+      ],
+      "first_date": 20230901,
+      "last_date": 20231229
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/Si/Si_M15_2024_Q1.csv",
+      "sha256": "05081e5c0dc995e9cff095b42fa9ea93fd12765db156fb210c654e30d7ffc6d0",
+      "rows": 5039,
+      "tickers": [
+        "USDRUBF"
+      ],
+      "first_date": 20240103,
+      "last_date": 20240430
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/Si/Si_M15_2024_Q2.csv",
+      "sha256": "842e32c61032af1a7597aeb96b9facb580d4ee5598bf2962116d9f9679096f79",
+      "rows": 4869,
+      "tickers": [
+        "USDRUBF"
+      ],
+      "first_date": 20240502,
+      "last_date": 20240830
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/Si/Si_M15_2024_Q3.csv",
+      "sha256": "60b696629c535a21816e982ac498bd99469d3dfc5b5779e0bf23b19bdce7a5d7",
+      "rows": 4867,
+      "tickers": [
+        "USDRUBF"
+      ],
+      "first_date": 20240902,
+      "last_date": 20241230
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/Si/Si_M15_2025_Q1.csv",
+      "sha256": "ff51800e1510b1a912cd418c5a62806adc211a75512b61fcd3b75011d07fdba3",
+      "rows": 4914,
+      "tickers": [
+        "USDRUBF"
+      ],
+      "first_date": 20250103,
+      "last_date": 20250430
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/Si/Si_M15_2025_Q2.csv",
+      "sha256": "cfbe75ff0f41f4d0aaa08a7da90552174feae9043a66d51f858d5eb392d39b09",
+      "rows": 5053,
+      "tickers": [
+        "USDRUBF"
+      ],
+      "first_date": 20250502,
+      "last_date": 20250829
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/Si/Si_M15_2025_Q3.csv",
+      "sha256": "9a6926109ce6099bfb595fb6166c26e7b379109b5bf2aa90fe5273baaea5a728",
+      "rows": 5267,
+      "tickers": [
+        "USDRUBF"
+      ],
+      "first_date": 20250901,
+      "last_date": 20251230
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/Si/Si_M15_2026_Q1.csv",
+      "sha256": "d1d6cc447ca9a9c44ded2e583b193be077296b3e35a8570812aaa74143d92360",
+      "rows": 4971,
+      "tickers": [
+        "USDRUBF"
+      ],
+      "first_date": 20260105,
+      "last_date": 20260430
+    },
+    {
+      "path": "/workspace/market-pattern-data/2026/Si/Si_M15_2026_Q2.csv",
+      "sha256": "e0111a19d2272f4f340bf3f2bd74c1eea6feba4b1323640438582c3e0a75aa9f",
+      "rows": 5713,
+      "tickers": [
+        "USDRUBF"
+      ],
+      "first_date": 20260504,
+      "last_date": 20260830
+    }
+  ],
+  "contemporaneous_inventory_conclusion": "All 22 M15 files under 2026/Si and 2026/CNY actually contain USDRUBF or CNYRUBF tickers. Folder names do not establish quarterly instruments; no authenticated same-date quarterly/perpetual M15 pair established.",
+  "independent_quote_table_validation": {
+    "status": "PASS",
+    "rows": 481,
+    "path_records": 8842,
+    "method": "Independent stdlib means/PF/net/counts/DD/stop-touch from row diagnostics"
+  }
 }
