@@ -122,3 +122,41 @@ def test_provider_failure_renders_only_safe_unknown(app, monkeypatch, failed_rob
     failed_events = frame[frame['Робот'] == failed_robot.value]
     assert list(failed_events['Событие DEMO']) == ['SYNTHETIC: SNAPSHOT_INVALID_OR_UNAVAILABLE']
     assert message not in frame.to_string() and message not in text(app)
+
+
+
+def test_local_h1_check_promoted_to_card_not_broker_authority(app):
+    from datetime import datetime, timezone
+    app.selectbox(key="h1-source").select("WINDOWS_OS_ONLY").run()
+    now = datetime.now(timezone.utc)
+    app.session_state["cc03-local-check"] = {
+        "status": "CURRENT", "received_at": now, "observed_at": now,
+        "contact_at": now, "health": "HEALTHY", "task": "Running",
+        "reconciliation": "PASS", "positions": 2, "stops": 1, "unresolved": 0,
+        "cycle_count": 22877, "kill_switch": "ARMED", "generation": "62",
+        "cycles": [{"Попытка": n, "Результат": "PASS", "Цикл": str(22867+n), "Причина": "NONE"}
+                   for n in range(1, 11)],
+    }
+    app.run()
+    assert not app.exception
+    assert "HEALTHY по локальному H1 CHECK" in text(app)
+    assert any(m.value == "10/10 PASS" for m in app.metric)
+    assert "T3/M15/SESSION · NOT_DEPLOYED" in text(app)
+    assert "НЕ ДОКАЗАНЫ" in text(app)
+
+
+def test_stale_local_h1_check_not_green(app):
+    from datetime import datetime, timedelta, timezone
+    app.selectbox(key="h1-source").select("WINDOWS_OS_ONLY").run()
+    old = datetime.now(timezone.utc) - timedelta(hours=2)
+    app.session_state["cc03-local-check"] = {
+        "status": "STALE", "received_at": old, "observed_at": old,
+        "contact_at": old, "health": "HEALTHY", "task": "Running",
+        "reconciliation": "PASS", "positions": 2, "stops": 1, "unresolved": 0,
+        "cycle_count": 22877, "kill_switch": "ARMED", "generation": "62", "cycles": [],
+    }
+    app.run()
+    assert not app.exception
+    assert "H1 CHECK STALE" in text(app)
+    assert "HEALTHY по локальному H1 CHECK" not in text(app)
+    assert all(m.label != "Локальные позиции · H1 CHECK" for m in app.metric)

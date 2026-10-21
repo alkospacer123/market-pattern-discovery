@@ -56,27 +56,45 @@ def status_banner(snapshot: RobotSnapshot, now: datetime):
         st.caption("Выбранная конфигурация M15: T3_M15_T1_TRAIL35_N4_R15 · SESSION T1 / NEXT_OPEN · FULL N4 · R15 1,5% на позицию / 6% общий номинальный риск. Runtime ещё не развёрнут; LIVE-авторизация UNKNOWN.")
 
 
-def robot_card(snapshot: RobotSnapshot, now: datetime):
+def robot_card(snapshot: RobotSnapshot, now: datetime, local_report=None):
     s = snapshot.status
     with st.container(border=True):
         st.subheader(s.strategy)
-        status_banner(snapshot, now)
+        local_valid = (local_report is not None and s.provenance.robot_id == RobotId.H1
+                       and s.provenance.source_kind == SourceKind.WINDOWS_OS_ONLY)
+        fresh = local_valid and local_report["status"] == "CURRENT"
+        if fresh:
+            st.success("T3/H1/TRAIL1 · HEALTHY по локальному H1 CHECK · ARMED")
+            st.caption("Локальная сверка H1 PASS; независимая FINAM-сверка и покрытие стопами НЕ ДОКАЗАНЫ.")
+        elif local_valid:
+            st.warning("T3/H1/TRAIL1 · H1 CHECK STALE · текущий HEALTHY не подтверждён")
+        else:
+            status_banner(snapshot, now)
         left, right = st.columns(2)
-        left.metric(f"Открытые позиции · {mode(snapshot)}", "UNKNOWN" if s.open_positions is None else str(s.open_positions))
-        right.metric(f"Ошибки · {mode(snapshot)}", "UNKNOWN" if s.error_count is None else str(s.error_count))
+        if fresh:
+            left.metric("Локальные позиции · H1 CHECK", str(local_report["positions"]))
+            right.metric("Последние 10 циклов · H1 CHECK",
+                         str(sum(c["Результат"] == "PASS" for c in local_report["cycles"])) + "/10 PASS")
+        else:
+            left.metric(f"Открытые позиции · {mode(snapshot)}", "UNKNOWN" if s.open_positions is None else str(s.open_positions))
+            right.metric(f"Ошибки · {mode(snapshot)}", "UNKNOWN" if s.error_count is None else str(s.error_count))
         st.write("**Последняя завершённая свеча:** " + stamp(s.last_bar_at))
-        st.write("**Heartbeat:** " + stamp(s.heartbeat_at))
+        if fresh:
+            st.write("**Heartbeat H1 CHECK:** " + stamp(local_report["observed_at"]))
+            st.caption("Цикл H1: " + str(local_report["cycle_count"]) + " · Unresolved (локально): " + str(local_report["unresolved"]))
+        else:
+            st.write("**Heartbeat:** " + stamp(s.heartbeat_at))
         st.write("**Windows Task:** " + (s.task_state or "UNKNOWN"))
         st.write("**Производственная identity:** " + (s.production_identity or "UNKNOWN"))
         source(snapshot, now)
 
 
-def overview(snapshots: dict, now: datetime, broker=None):
+def overview(snapshots: dict, now: datetime, broker=None, local_report=None):
     st.subheader("Два робота · два независимых контура")
     st.caption("H1 отображает только состояние своего выбранного источника; M15 — NOT_DEPLOYED. Сценарии в боковой панели меняют только локальные тестовые снимки.")
     for column, robot_id in zip(st.columns(2), RobotId):
         with column:
-            robot_card(snapshots[robot_id], now)
+            robot_card(snapshots[robot_id], now, local_report=local_report if robot_id == RobotId.H1 else None)
     st.info("Счета, капитал и риск H1 / M15 отображаются раздельно. Суммарного портфеля двух роботов нет.")
     if broker is not None:
         broker_readonly_view(broker)
@@ -175,10 +193,18 @@ def readonly_details(snapshot):
     st.caption(f"Вводы: {metric(details.deposits)} · Выводы: {metric(details.withdrawals)} · Доступная маржа: {metric(details.available_margin)}")
 
 
-def monitor(snapshot: RobotSnapshot, now: datetime, broker=None):
-    status_banner(snapshot, now)
+def monitor(snapshot: RobotSnapshot, now: datetime, broker=None, local_report=None):
+    fresh = (local_report is not None and local_report["status"] == "CURRENT"
+             and snapshot.status.provenance.source_kind == SourceKind.WINDOWS_OS_ONLY)
+    if fresh:
+        st.success("T3/H1/TRAIL1 · HEALTHY по локальному H1 CHECK · ARMED")
+        st.caption("Локальные данные H1; не независимая FINAM-сверка.")
+    elif local_report is not None and snapshot.status.provenance.source_kind == SourceKind.WINDOWS_OS_ONLY:
+        st.warning("T3/H1/TRAIL1 · H1 CHECK STALE · текущий HEALTHY не подтверждён")
+    else:
+        status_banner(snapshot, now)
     source(snapshot, now)
-    st.write("**Heartbeat:** " + stamp(snapshot.status.heartbeat_at))
+    st.write("**Heartbeat H1 CHECK:** " + stamp(local_report["observed_at"]) if fresh else "**Heartbeat:** " + stamp(snapshot.status.heartbeat_at))
     st.write("**Последняя завершённая свеча:** " + stamp(snapshot.status.last_bar_at))
     if snapshot.status.session:
         st.info(snapshot.status.session)
@@ -292,12 +318,13 @@ def controls_view(snapshots: dict, now: datetime):
     st.caption("Кнопки не имеют обработчиков. Отдельный защищённый control plane — будущая работа после проверки и разрешения оператора.")
 
 
-def render(page: str, snapshots: dict, now: datetime, broker=None):
+def render(page: str, snapshots: dict, now: datetime, broker=None, local_report=None):
     if page == PAGES[0]:
-        overview(snapshots, now, broker=broker)
+        overview(snapshots, now, broker=broker, local_report=local_report)
     elif page in (PAGES[1], PAGES[2]):
         selected = RobotId.H1 if page == PAGES[1] else RobotId.M15
-        monitor(snapshots[selected], now, broker=broker if selected == RobotId.H1 else None)
+        monitor(snapshots[selected], now, broker=broker if selected == RobotId.H1 else None,
+                local_report=local_report if selected == RobotId.H1 else None)
     elif page == PAGES[3]:
         snapshot = choose_robot(snapshots, "chart-robot")
         status_banner(snapshot, now)

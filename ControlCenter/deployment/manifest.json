@@ -15,7 +15,7 @@
     },
     {
       "path": "app.py",
-      "sha256": "13890eb968deb608967dfeccfd38f2aade6ee115000624275bf4b5d8098c52fe"
+      "sha256": "4568fa7274076a975e39d362ea6544b16310e491454f6946c42f8111e5eb0fb6"
     },
     {
       "path": "broker_readonly/__init__.py",
@@ -119,7 +119,7 @@
     },
     {
       "path": "cc/ui.py",
-      "sha256": "da82a20ed9ef95ac437f3a901be5ac8e499eab02affcfa091e7567cdbb447b1a"
+      "sha256": "0cda19b4dcbf211ccf3305e0a7ec74aae465df23d58ed59789a822a6b41fb216"
     },
     {
       "path": "ci/Os-Fixtures.ps1",
@@ -543,7 +543,7 @@
     },
     {
       "path": "tests/test_ui.py",
-      "sha256": "d8c5eae06f18bf60056cfc06dc403f166090d6074a8e177505188c0525114483"
+      "sha256": "58dcf2570e24e68c6159dc5d9b66adb6f1d3f079454a7145f21bd1c5c89744a8"
     },
     {
       "path": "tests/test_windows_reader.py",

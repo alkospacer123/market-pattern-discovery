@@ -10,11 +10,11 @@ from cc.providers.h1_broker_snapshot import manual_broker_refresh, age as age_br
 from cc.ui import CSS, PAGES, render
 from cc.providers.h1_operator_report import manual_published_report, age_operator_report
 
-st.set_page_config(page_title="TradingSystemLab · Control Center DEMO", page_icon="◈", layout="wide")
+st.set_page_config(page_title="TradingSystemLab · Control Center", page_icon="◈", layout="wide")
 st.markdown(CSS, unsafe_allow_html=True)  # fixed local CSS only
 st.caption("TRADINGSYSTEMLAB / CONTROL CENTER     ·     CC-03     ·     READ ONLY")
 st.title("Центр наблюдения")
-st.warning("SYNTHETIC / DEMO и OFFLINE_FIXTURE — тестовые данные. WINDOWS_OS_ONLY — ручные Task/process-факты с отдельной policy. Состояние робота и broker authority UNKNOWN. Торговля запрещена.")
+st.warning("DEMO / OFFLINE_FIXTURE — тестовые данные. WINDOWS_OS_ONLY — реальные Task/process-факты и локальный H1 CHECK при опубликованном CURRENT-отчёте. FINAM — отдельный READONLY-снимок. Управление торговлей отключено.")
 with st.sidebar:
     st.title("◈ Control Center")
     st.caption("Два робота. Независимые контуры.")
@@ -101,11 +101,15 @@ def live_view():
     broker = age_broker(st.session_state.get('cc03-last-broker'), now) if h1_source == 'WINDOWS_OS_ONLY' else None
     if h1_source == 'WINDOWS_OS_ONLY' and 'cc03-last-broker' in st.session_state:
         st.session_state['cc03-last-broker'] = broker
+    local_report = None
+    if h1_source == "WINDOWS_OS_ONLY" and "cc03-local-check" in st.session_state:
+        local_report = age_operator_report(st.session_state["cc03-local-check"], now)
+        st.session_state["cc03-local-check"] = local_report
+    render(page, snapshots, now, broker=broker, local_report=local_report)
     if h1_source == "WINDOWS_OS_ONLY" and page in (PAGES[0], PAGES[1]):
         if st.session_state.get("cc03-local-check-error"):
             st.warning("H1 CHECK: отчёт неполный, устарел по структуре или содержит FAIL. Ничего не принято.")
-        h1_operator_view(st.session_state.get("cc03-local-check"), now)
-    render(page, snapshots, now, broker=broker)
+        h1_operator_view(local_report, now)
 
 
 live_view()
