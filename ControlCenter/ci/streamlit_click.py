@@ -95,10 +95,9 @@ async def _browser_click(edge, profile, evidence, log):
         await page('Журнал')
         await until("document.body.innerText.includes('Последние 10 циклов H1')")
         await page('Главная')
-        task = ("Array.from(document.querySelectorAll('[data-testid=stMarkdownContainer]'))"
-                ".find(e=>e.innerText.replace(/\\s+/g,' ').includes('Windows Task: TASK_RUNNING'))")
-        await until(f"Boolean({task})")
-        await evaluate(f"({task}).scrollIntoView({{block:'center'}})")
+        # The compact status now uses a caption, not a stMarkdownContainer.
+        await until("document.body.innerText.includes('TASK_RUNNING')")
+        await evaluate("window.scrollTo(0, 0)")
         assert not await evaluate("document.body.innerText.includes('BLOCKED / UNKNOWN')")
         assert state(evidence)['policy_reads'] == 1
         assert state(evidence)['probes'] == 1
