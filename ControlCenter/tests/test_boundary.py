@@ -26,6 +26,8 @@ def test_no_trade_or_system_capabilities_in_runtime(path):
         'windows_file.py': {'ctypes', 'pathlib', 'hashlib', 'os', 're', 'json', 'subprocess', 'sys'},
         'h1_export.py': {'json', 'pathlib', 'threading'},
         'h1_windows_os.py': {'json', 'pathlib', 're', 'observer'},
+        'h1_broker_snapshot.py': {'json', 'pathlib', 're'},
+        'h1_operator_report.py': {'json', 're'},
         'deployment_paths.py': {'os', 'pathlib', 're'},
         'manual_gate.py': {'contextlib', 'os', 'ctypes', 'fcntl'},
     }

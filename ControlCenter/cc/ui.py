@@ -7,10 +7,9 @@ from .freshness import MSK, display_state, freshness, metric, stamp
 from .models import RobotId, RobotSnapshot, SourceKind, State
 from .providers.synthetic import EVENT_TYPES
 
-PAGES = ("Главная панель", "Монитор H1", "Монитор M15", "Графики и сигналы",
-         "Сделки и статистика", "Журнал событий", "Управление")
+PAGES = ("Главная", "Журнал", "Управление")
 CONTROLS = ("Пауза новых входов", "Аварийная остановка", "Безопасная остановка", "Перезапуск", "Диагностика")
-CONTROL_EXPLANATION = "Управление будет доступно после отдельной разработки, проверки безопасности и разрешения оператора"
+CONTROL_EXPLANATION = "Управление ещё не подключено. Команды START / STOP / RESTART не выполняются."
 CSS = """
 <style>
 .block-container {max-width:1450px;padding-top:4rem;padding-bottom:3rem;}
@@ -56,29 +55,85 @@ def status_banner(snapshot: RobotSnapshot, now: datetime):
         st.caption("Выбранная конфигурация M15: T3_M15_T1_TRAIL35_N4_R15 · SESSION T1 / NEXT_OPEN · FULL N4 · R15 1,5% на позицию / 6% общий номинальный риск. Runtime ещё не развёрнут; LIVE-авторизация UNKNOWN.")
 
 
-def robot_card(snapshot: RobotSnapshot, now: datetime):
+def robot_card(snapshot: RobotSnapshot, now: datetime, local_report=None):
     s = snapshot.status
     with st.container(border=True):
         st.subheader(s.strategy)
-        status_banner(snapshot, now)
+        local_valid = (local_report is not None and s.provenance.robot_id == RobotId.H1
+                       and s.provenance.source_kind == SourceKind.WINDOWS_OS_ONLY)
+        fresh = local_valid and local_report["status"] == "CURRENT"
+        if fresh:
+            st.success("T3/H1/TRAIL1 · HEALTHY по локальному H1 CHECK · ARMED")
+            st.caption("Локальная сверка H1 PASS; независимая FINAM-сверка и покрытие стопами НЕ ДОКАЗАНЫ.")
+        elif local_valid:
+            st.warning("T3/H1/TRAIL1 · H1 CHECK STALE · текущий HEALTHY не подтверждён")
+        else:
+            status_banner(snapshot, now)
         left, right = st.columns(2)
-        left.metric(f"Открытые позиции · {mode(snapshot)}", "UNKNOWN" if s.open_positions is None else str(s.open_positions))
-        right.metric(f"Ошибки · {mode(snapshot)}", "UNKNOWN" if s.error_count is None else str(s.error_count))
+        if fresh:
+            left.metric("Локальные позиции · H1 CHECK", str(local_report["positions"]))
+            right.metric("Последние 10 циклов · H1 CHECK",
+                         str(sum(c["Результат"] == "PASS" for c in local_report["cycles"])) + "/10 PASS")
+        else:
+            left.metric(f"Открытые позиции · {mode(snapshot)}", "UNKNOWN" if s.open_positions is None else str(s.open_positions))
+            right.metric(f"Ошибки · {mode(snapshot)}", "UNKNOWN" if s.error_count is None else str(s.error_count))
         st.write("**Последняя завершённая свеча:** " + stamp(s.last_bar_at))
-        st.write("**Heartbeat:** " + stamp(s.heartbeat_at))
+        if fresh:
+            st.write("**Heartbeat H1 CHECK:** " + stamp(local_report["observed_at"]))
+            st.caption("Цикл H1: " + str(local_report["cycle_count"]) + " · Unresolved (локально): " + str(local_report["unresolved"]))
+        else:
+            st.write("**Heartbeat:** " + stamp(s.heartbeat_at))
         st.write("**Windows Task:** " + (s.task_state or "UNKNOWN"))
         st.write("**Производственная identity:** " + (s.production_identity or "UNKNOWN"))
         source(snapshot, now)
 
 
-def overview(snapshots: dict, now: datetime):
-    st.subheader("Два робота · два независимых контура")
-    st.caption("H1 отображает только состояние своего выбранного источника; M15 — NOT_DEPLOYED. Сценарии в боковой панели меняют только локальные тестовые снимки.")
-    for column, robot_id in zip(st.columns(2), RobotId):
-        with column:
-            robot_card(snapshots[robot_id], now)
-    st.info("Счета, капитал и риск H1 / M15 отображаются раздельно. Суммарного портфеля двух роботов нет.")
-
+def overview(snapshots: dict, now: datetime, broker=None, local_report=None):
+    h1 = snapshots[RobotId.H1]
+    local = (local_report if h1.status.provenance.source_kind == SourceKind.WINDOWS_OS_ONLY else None)
+    fresh = local is not None and local["status"] == "CURRENT"
+    st.subheader("H1 · T3 / TRAIL1")
+    if fresh:
+        st.success("HEALTHY · ARMED · сверка H1 PASS")
+    elif local is not None:
+        st.warning("STALE · H1 CHECK устарел")
+    else:
+        st.warning("UNKNOWN · нет актуального H1 CHECK")
+    a, b, c, d = st.columns(4)
+    a.metric("Цикл", str(local["cycle_count"]) if fresh else "—")
+    b.metric("Позиции H1", str(local["positions"]) if fresh else "—")
+    c.metric("Стопы H1", str(local["stops"]) if fresh else "—")
+    d.metric("Ошибки / unresolved", str(local["unresolved"]) if fresh else "—")
+    if fresh:
+        st.caption("Heartbeat " + stamp(local["observed_at"]) + " · Task " + (h1.status.task_state or "UNKNOWN") +
+                   " · 10 циклов: " + str(sum(v["Результат"] == "PASS" for v in local["cycles"])) + "/10 PASS")
+    else:
+        st.caption("Windows Task: " + (h1.status.task_state or "UNKNOWN") + " · последнее достоверное здоровье неизвестно")
+    st.divider()
+    st.subheader("FINAM · брокер")
+    if not broker or broker.get("status") == "UNKNOWN":
+        st.info("Нет принятого снимка брокера")
+    else:
+        if broker["status"] == "STALE":
+            st.warning("STALE · брокерский снимок устарел")
+        else:
+            st.caption("CURRENT · отдельный FINAM READONLY-снимок")
+        a, b, c = st.columns(3)
+        a.metric("Заявки", str(broker["order_rows"]) if broker["status"] == "CURRENT" else "—")
+        b.metric("Активные", str(broker["active_orders"]) if broker["status"] == "CURRENT" else "—")
+        c.metric("SLTP", str(broker["active_sltp"]) if broker["status"] == "CURRENT" else "—")
+        st.caption("Снимок " + stamp(broker["received_at"]))
+    st.divider()
+    st.subheader("M15")
+    st.caption("Источник M15 не подключён к Control Center")
+    with st.expander("Сведения об источниках и N4", expanded=False):
+        st.caption("H1 CHECK — локальный отчёт движка; брокерские позиции, исполнения и покрытие стопов он не подтверждает.")
+        st.caption("FINAM — отдельное наблюдение; нули не доказывают FLAT без полноты ответа и привязки счёта.")
+        if broker and broker.get("status") != "UNKNOWN":
+            st.dataframe([{"Инструмент": name, "В ответе FINAM": broker["quantities"][name]}
+                          for name in ("USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF")],
+                         width="stretch", hide_index=True)
+        st.caption("Текущее подтверждение сигналов/причин отказов, PnL и риска — отсутствует.")
 
 def chart_view(snapshot: RobotSnapshot, key: str):
     symbols = [row.instrument for row in snapshot.instruments]
@@ -108,6 +163,32 @@ def order_rows(snapshot: RobotSnapshot):
              "Исполнено": str(o.filled_quantity) if o.filled_quantity is not None else "UNKNOWN",
              "Цена исполнения": metric(o.fill_price), "Доказательство": o.fill_evidence or "UNKNOWN"}
             for o in snapshot.orders]
+
+
+def broker_readonly_view(broker):
+    """Separate FINAM response rows; neither H1 health nor position protection."""
+    st.subheader("FINAM · отдельное READONLY-наблюдение брокера")
+    if not broker or broker.get('status') == 'UNKNOWN':
+        st.info("UNKNOWN · защищённый брокерский снимок ещё не принят. Нажмите «Обновить данные» после отдельной публикации.")
+        return
+    if broker['status'] == 'STALE':
+        st.warning("STALE · данные устарели, показаны только как история наблюдения.")
+    else:
+        st.caption("CURRENT · принятый обезличенный ответ FINAM REAL_READONLY; только время получения API-ответа.")
+    st.caption("Ответ получен: " + stamp(broker['received_at']) +
+               ". Оригинальная временная метка брокерского снимка: НЕ ПРЕДОСТАВЛЕНА.")
+    st.dataframe([{"Инструмент": symbol, "Контрактов в ответе": broker['quantities'][symbol]}
+                  for symbol in ('USDRUBF', 'CNYRUBF', 'GLDRUBF', 'IMOEXF')],
+                 hide_index=True, width="stretch")
+    a, b, c = st.columns(3)
+    a.metric("Строки заявок FINAM", broker['order_rows'])
+    b.metric("Активные заявки FINAM", broker['active_orders'])
+    c.metric("Активные SLTP-строки", broker['active_sltp'])
+    st.caption("Других инструментов с ненулевым количеством в ответе: " +
+               str(broker['other_nonzero']) +
+               ". Полнота/пагинация ответа: НЕ ДОКАЗАНА. Нули не означают подтверждённый flat.")
+    st.caption("H1 ownership: UNVERIFIED · покрытие стопом: UNVERIFIED · FILL, PnL, equity: UNKNOWN. " 
+               "Одна заявка или SLTP не доказывает защиту позиции.")
 
 
 def readonly_details(snapshot):
@@ -147,15 +228,25 @@ def readonly_details(snapshot):
     st.caption(f"Вводы: {metric(details.deposits)} · Выводы: {metric(details.withdrawals)} · Доступная маржа: {metric(details.available_margin)}")
 
 
-def monitor(snapshot: RobotSnapshot, now: datetime):
-    status_banner(snapshot, now)
+def monitor(snapshot: RobotSnapshot, now: datetime, broker=None, local_report=None):
+    fresh = (local_report is not None and local_report["status"] == "CURRENT"
+             and snapshot.status.provenance.source_kind == SourceKind.WINDOWS_OS_ONLY)
+    if fresh:
+        st.success("T3/H1/TRAIL1 · HEALTHY по локальному H1 CHECK · ARMED")
+        st.caption("Локальные данные H1; не независимая FINAM-сверка.")
+    elif local_report is not None and snapshot.status.provenance.source_kind == SourceKind.WINDOWS_OS_ONLY:
+        st.warning("T3/H1/TRAIL1 · H1 CHECK STALE · текущий HEALTHY не подтверждён")
+    else:
+        status_banner(snapshot, now)
     source(snapshot, now)
-    st.write("**Heartbeat:** " + stamp(snapshot.status.heartbeat_at))
+    st.write("**Heartbeat H1 CHECK:** " + stamp(local_report["observed_at"]) if fresh else "**Heartbeat:** " + stamp(snapshot.status.heartbeat_at))
     st.write("**Последняя завершённая свеча:** " + stamp(snapshot.status.last_bar_at))
     if snapshot.status.session:
         st.info(snapshot.status.session)
     chart_view(snapshot, snapshot.status.provenance.robot_id.value)
     readonly_details(snapshot)
+    if broker is not None:
+        broker_readonly_view(broker)
     st.subheader(f"Условия, стопы и состояние инструментов · {mode(snapshot)}")
     st.dataframe([{"Инструмент": r.instrument, "Состояние источника": r.state.value,
                    "Свеча runtime": stamp(r.last_bar_at), "Условие / отказ": r.condition or "UNKNOWN",
@@ -182,7 +273,7 @@ def choose_robot(snapshots: dict, key: str) -> RobotSnapshot:
     return snapshots[robot]
 
 
-def trades_view(snapshot: RobotSnapshot, now: datetime):
+def trades_view(snapshot: RobotSnapshot, now: datetime, broker=None):
     status_banner(snapshot, now)
     source(snapshot, now)
     st.subheader(f"Финансы отдельного счёта · {mode(snapshot)}")
@@ -198,6 +289,8 @@ def trades_view(snapshot: RobotSnapshot, now: datetime):
     else:
         st.caption(f"{mode(snapshot)}. Equity не является чистой торговой прибылью. Неполные финансы скрыты; PnL по ACK/модельным ценам не вычисляется.")
         readonly_details(snapshot)
+    if broker is not None:
+        broker_readonly_view(broker)
     st.subheader(f"Активные позиции · {mode(snapshot)}")
     if snapshot.positions is None:
         st.info("UNKNOWN — позиции не наблюдались.")
@@ -220,59 +313,30 @@ def trades_view(snapshot: RobotSnapshot, now: datetime):
         st.dataframe(monthly(snapshot.trades), width="stretch", hide_index=True)
 
 
-def events_view(snapshots: dict, now: datetime):
-    st.subheader("Хронология событий · источник указан в каждой записи")
-    a, b = st.columns(2)
-    robots = a.multiselect("Роботы", list(RobotId), default=list(RobotId))
-    kinds = b.multiselect("Типы событий", list(EVENT_TYPES), format_func=lambda v: EVENT_TYPES[v])
-    all_events = [e for snapshot in snapshots.values() for e in snapshot.events]
-    symbols = sorted({e.instrument for e in all_events if e.instrument})
-    c, d = st.columns(2)
-    instruments = c.multiselect("Инструменты", symbols)
-    query = d.text_input("Поиск по сообщению")
-    start, end = st.columns(2)
-    since = start.date_input("С даты (MSK)", now.astimezone(MSK).date())
-    until = end.date_input("По дату (MSK)", now.astimezone(MSK).date())
-    if since > until:
-        st.warning("Начальная дата позже конечной.")
+def events_view(snapshots: dict, now: datetime, local_report=None):
+    st.subheader("Последние 10 циклов H1")
+    if local_report is None:
+        st.info("Нет опубликованного H1 CHECK. Обнови данные на главной странице.")
         return
-    rows = [e for e in all_events if e.provenance.robot_id in robots
-            and (not kinds or e.kind in kinds) and (not instruments or e.instrument in instruments)
-            and since <= e.occurred_at.astimezone(MSK).date() <= until and query.casefold() in e.message.casefold()]
-    st.caption(f"Найдено событий: {len(rows)}. История ограничена текущими снимками; отсутствие событий не доказывает отсутствие операций.")
-    st.dataframe([{"Время UTC / MSK": stamp(e.occurred_at), "Робот": e.provenance.robot_id.value,
-                   "Счёт DEMO": e.provenance.account_scope, "Инструмент": e.instrument or "UNKNOWN",
-                   "Тип": EVENT_TYPES.get(e.kind, e.kind), "Уровень": e.severity,
-                   "Событие DEMO": e.message, "Источник": e.provenance.source,
-                   "Время источника": stamp(e.provenance.observed_at), "Режим": e.provenance.source_kind.value}
-                  for e in sorted(rows, key=lambda row: row.occurred_at, reverse=True)], width="stretch", hide_index=True)
+    if local_report["status"] == "STALE":
+        st.warning("STALE · показана история, не текущее состояние")
+    st.dataframe(local_report["cycles"], hide_index=True, width="stretch")
+    st.caption("Локальный журнал H1 · время heartbeat: " + stamp(local_report["observed_at"]))
+    st.caption("Отдельные сигналы T3 и причины SKIP этот источник не публикует.")
 
 
 def controls_view(snapshots: dict, now: datetime):
-    st.subheader("Управление · недоступно в CC-02")
-    st.warning(CONTROL_EXPLANATION)
-    for robot_id in RobotId:
-        with st.container(border=True):
-            st.write(f"**{robot_id} · {snapshots[robot_id].status.provenance.account_scope}**")
-            status_banner(snapshots[robot_id], now)
-            for label in CONTROLS:
-                st.button(label, key=f"disabled-{robot_id}-{label}", disabled=True, width="stretch")
-    st.caption("Кнопки не имеют обработчиков. Отдельный защищённый control plane — будущая работа после проверки и разрешения оператора.")
+    st.subheader("Управление роботами")
+    st.info(CONTROL_EXPLANATION)
+    st.caption("H1 · управление недоступно")
+    st.caption("M15 · управление недоступно")
+    st.caption("Никаких торговых действий из панели не выполняется.")
 
 
-def render(page: str, snapshots: dict, now: datetime):
+def render(page: str, snapshots: dict, now: datetime, broker=None, local_report=None):
     if page == PAGES[0]:
-        overview(snapshots, now)
-    elif page in (PAGES[1], PAGES[2]):
-        monitor(snapshots[RobotId.H1 if page == PAGES[1] else RobotId.M15], now)
-    elif page == PAGES[3]:
-        snapshot = choose_robot(snapshots, "chart-robot")
-        status_banner(snapshot, now)
-        source(snapshot, now)
-        chart_view(snapshot, "signals")
-    elif page == PAGES[4]:
-        trades_view(choose_robot(snapshots, "trades-robot"), now)
-    elif page == PAGES[5]:
-        events_view(snapshots, now)
+        overview(snapshots, now, broker=broker, local_report=local_report)
+    elif page == PAGES[1]:
+        events_view(snapshots, now, local_report=local_report)
     else:
         controls_view(snapshots, now)

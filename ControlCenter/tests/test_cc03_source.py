@@ -174,21 +174,17 @@ def test_exporter_no_network_db_process_or_h1_writes(policy,sources,now,monkeypa
                 assert not any(n.name.startswith(('TradingSystemLab','IntradayLab','finam','sqlite3','subprocess','socket')) for n in node.names)
 
 
-def test_exporter_absence_ui_m15_controls(monkeypatch,tmp_path):
+def test_exporter_absence_ui_m15_controls(monkeypatch, tmp_path):
     from streamlit.testing.v1 import AppTest
-    monkeypatch.setattr(receiver,'EXPORT_ROOT',tmp_path)
-    app=AppTest.from_file(str(Path(__file__).parents[1]/'app.py'),default_timeout=15).run()
-    app.selectbox(key='h1-source').select('READONLY_EXPORT').run()
+    monkeypatch.setattr(receiver, "EXPORT_ROOT", tmp_path)
+    app = AppTest.from_file(str(Path(__file__).parents[1] / "app.py"), default_timeout=15).run()
     assert not app.exception
-    content='\n'.join(str(x.value) for k in ('caption','info','warning','markdown') for x in getattr(app,k))
-    assert 'H1 сохраняет HALTED' not in content and 'READONLY_EXPORT' in content
-    app.radio[0].set_value('Монитор M15').run()
-    text='\n'.join(str(x.value) for k in ('caption','info','warning','markdown') for x in getattr(app,k))
-    assert 'NOT_DEPLOYED' in text and 'DEMO-M15' in text
-    app.radio[0].set_value('Управление').run()
+    assert list(app.radio[0].options) == ["Главная", "Журнал", "Управление"]
+    app.radio[0].set_value("Управление").run()
     assert not app.exception
-    controls = [b for b in app.button if b.key != 'cc03-manual-refresh']
-    assert len(controls) == 10 and all(b.disabled for b in controls)
+    assert len(app.button) == 1
+    assert app.button(key="cc03-manual-refresh").disabled is False
+    assert not app.get("plotly_chart")
 
 
 def test_live_source_is_blocked_before_open(policy, now, monkeypatch):
