@@ -1,5 +1,6 @@
 {
   "status": "PASS",
+  "scope": "PUBLICATION_CHECKS_ONLY",
   "checks": [
     {
       "check": "PUBLICATION_SHA256_AND_FILE_SET",
@@ -52,9 +53,14 @@
       "detail": "All 12 event IDs, contracts, entry/exit times and existing gap intervals in report/CSV; true gap PnL unknown"
     },
     {
-      "check": "TEN_STAGES_AND_C1_PARTIAL_HOLD",
+      "check": "EIGHT_STAGES_AND_C1_PARTIAL_HOLD",
       "status": "PASS",
-      "detail": "Exactly V20-01..V20-10; C1 primary, C2/STRICT informational; no advancement or new stages"
+      "detail": "Exactly V20-01..V20-08; V20-04 development; C1 primary; historical originals retained"
+    },
+    {
+      "check": "DIAGNOSTIC_PROVENANCE_AND_LIMITATIONS",
+      "status": "PASS",
+      "detail": "1589 derived late rows; original-ledger FAIL explicitly retained; output hashes match; no original row parity claimed"
     },
     {
       "check": "PRIOR_CHECKS_PRESERVED",
@@ -68,6 +74,7 @@
     }
   ],
   "replay_runs": 0,
+  "diagnostic_replay_batches_in_update": 1,
   "optimization_runs": 0,
   "stage_status": "PARTIAL/HOLD",
   "primary_scenario": "C1"

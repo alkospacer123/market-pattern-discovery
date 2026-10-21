@@ -1,11 +1,9 @@
 ID;Работа;Статус;Артефакт;PASS условие
-V20-01;Паспорт и документация;LOCAL PASS;"docs/ROADMAP_RU.md;docs/PROJECT_SPEC_RU.md";"Локально готово; без Intel/FINAM"
-V20-02;Эталонный replay 1589;PASS;V20-02_AUDIT/PARITY_REPORT.csv;"797/612/180; 0 расхождений"
-V20-03;2018–2022 квартальные данные и stress test;PARTIAL/HOLD — результаты на рассмотрении;"V20-03/STRESS_REPORT_RU.md;V20-03/ACCEPTANCE_V20_03.json;V20-03/PUBLICATION_RU.md";"Ролл/таймзона/покрытие; неизменные стратегии"
-V20-04;Денежный replay трёх счетов;BLOCKED by 03;"REAL_RUB_EQUITY.csv;MONTHLY_PNL_DD.csv";ГО, комиссии, риски и RUB MTM
-V20-05;GO/HOLD/NO-GO, утверждение риска;PENDING;GO_NO_GO_RU.md;Решение владельца
-V20-06;Общий исполнительный каркас и 3 робота;NOT STARTED;3 configs/isolated ledger/tasks;H1/M15 reuse, раздельные токены
-V20-07;Offline/Windows acceptance;BLOCKED by 06;ACCEPTANCE_REPORT.json;Сигналы/SLTP/recovery/account isolation
-V20-08;FINAM READONLY 3 accounts;BLOCKED by accounts;BROKER_READONLY_REPORT.json;"3/3 broker bind PASS; no orders"
-V20-09;Intel staging, LIVE off;BLOCKED by 07/08;INTEL_STAGING_REPORT.json;3 disabled tasks H1 unchanged
-V20-10;Пробная заявка и отдельный LIVE-запуск;USER APPROVAL REQUIRED;"REAL_ACCEPTANCE.json;PRODUCTION_FREEZE.json";"Каждая проба и LIVE отдельно авторизованы; reconcile + SLTP"
+V20-01;Паспорт и документация;LOCAL PASS;docs/ROADMAP_RU.md;Локальные документы и frozen provenance
+V20-02;Эталон 1589 закрытых сделок;ARCHIVED PASS — original ledger unavailable now;V20-02_AUDIT/ACCEPTANCE_V20_02.json;797/612/180 по прежней parity
+V20-03;История 2018–2022 и диагностика падения PF;PARTIAL/HOLD по полной сопоставимости;V20-03/comparison/VERIFICATION.json;Проверяемый доступный состав и явно оставленные ограничения
+V20-04;Разработка на базе H1/M15;NOT STARTED;Изолированный каркас и конфигурации;Неизменные стратегии и независимое состояние
+V20-05;Offline и Windows acceptance;NOT STARTED;ACCEPTANCE_REPORT.json;Сигналы/SLTP/sizing/ГО/комиссии/recovery/account isolation
+V20-06;FINAM READONLY 3 accounts;NOT STARTED;BROKER_READONLY_REPORT.json;3/3 broker binding без заявок
+V20-07;Intel staging LIVE off;NOT STARTED;INTEL_STAGING_REPORT.json;Pinned SHA и изолированные Disabled Task
+V20-08;Пробные сделки и отдельный LIVE;NOT STARTED — индивидуальные разрешения;REAL_ACCEPTANCE.json;Каждая проба и штатный LIVE отдельно авторизованы

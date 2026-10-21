@@ -5,7 +5,7 @@
       "published_path": "README.md",
       "archive_path": "README.md",
       "source_sha256": "d8310fa4e20e24abcf2ee2729cb5c10cf59dfe10fa240beb5ecd0a841b13278b",
-      "published_sha256": "1080b498f0b1137e359997d11aadba513be498db56a03d63b36b1b9456da2007",
+      "published_sha256": "df0c6ba8990f09ac7f2c8b173b4c7b0a3d0212e27f3d4f0ca243c7718a1c2adf",
       "byte_identical": false
     },
     {
@@ -75,7 +75,7 @@
       "published_path": "V20-03/README_RUN_RU.md",
       "archive_path": "V20-03/README_RUN_RU.md",
       "source_sha256": "3b6a4eeec30b1c8094bc790cc68e25e048161408cc1b9041ab616b46d612135e",
-      "published_sha256": "6f6b8398b4cae2e53f4af1f3f7c185706426647c7a161d64d5a4694afcf5f285",
+      "published_sha256": "d4a72e0073959cff217b504a685323decf69366621e031f8cafa81831f5a5103",
       "byte_identical": false
     },
     {
@@ -96,7 +96,7 @@
       "published_path": "V20-03/STRESS_REPORT_RU.md",
       "archive_path": "V20-03/STRESS_REPORT_RU.md",
       "source_sha256": "adb9e4e4f50b4d025b2627b1ff105e4e3223e8060419e357388dfb188a9213ea",
-      "published_sha256": "8e33c7c109c07dd4539a98500daf81ebe653eef7bb50c5b431c8b82ac1dd8f1f",
+      "published_sha256": "d8d11f45ad8f45f9011ecd90641f976cc305228516dd67657ad3ad6094ad10d6",
       "byte_identical": false
     },
     {
@@ -355,8 +355,8 @@
       "published_path": "docs/PROJECT_SPEC_RU.md",
       "archive_path": "docs/PROJECT_SPEC_RU.md",
       "source_sha256": "6d26bed59fd108f37739915960d4b7573b85fe1dbd12f541a724259c20439a5b",
-      "published_sha256": "6d26bed59fd108f37739915960d4b7573b85fe1dbd12f541a724259c20439a5b",
-      "byte_identical": true
+      "published_sha256": "7c27aaf53d4b55edac72ec77e378c501af1bbae99ecb20f7e108a7ac826b9501",
+      "byte_identical": false
     },
     {
       "published_path": "docs/RESEARCH_LINEAGE.json",
@@ -369,14 +369,14 @@
       "published_path": "docs/ROADMAP_RU.md",
       "archive_path": "docs/ROADMAP_RU.md",
       "source_sha256": "4fde58c76ba373d77fdb299573ce78f60af914f8d3f986f6a447cf74184a4d7f",
-      "published_sha256": "425d353ecf4880baa6987e6f0f2335c54fb73556010aa5858bd92f2f6596a850",
+      "published_sha256": "31d259e6b3529bb5929e623c9d394528b2320f201a2d330f13dd1bb4d68aa1db",
       "byte_identical": false
     },
     {
       "published_path": "docs/TASK_TRACKER.csv",
       "archive_path": "docs/TASK_TRACKER.csv",
       "source_sha256": "b147448458586c21a9057a508acf053bb972aa8b28c6940401f3025d1732afe0",
-      "published_sha256": "554259b62876711a9816477fe1728ce330a2c7743270bf50b52020543e037355",
+      "published_sha256": "265734cb66beb3fa6919f5ce444d5b2fa1b938f319f3ddb9e110786656d419c7",
       "byte_identical": false
     },
     {

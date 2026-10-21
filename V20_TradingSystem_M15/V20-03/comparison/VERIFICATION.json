@@ -1,0 +1,923 @@
+{
+  "status": "PARTIAL",
+  "date": "2026-10-21",
+  "repository": "alkospacer123/market-pattern-discovery",
+  "main_sha": "c3695b1304aef1acdd889264b3451184f7332bf7",
+  "input_PR_sha": "072c4ccc9ab22e5c8b0c3d172272ebe29932fdd3",
+  "original_offline_zip_expected_sha256": "1ab1f85373c2bbd7a385d228ea061f0cd8259f409a73d40babbcfc0ba7f5eb50",
+  "original_offline_zip_available": false,
+  "original_1589_ledger_available": false,
+  "late_trade_basis": "ONE_LIMITED_EXACT_RULE_REPRODUCTION",
+  "late_row_parity_with_original": "NOT VERIFIED",
+  "late_replay_reason": "Missing original trade ledger prevents requested instrument, exit and concentration diagnostics; four original M15 hashes match archive index",
+  "replay_scope": "Only three frozen strategies, full late N4, unchanged V20-02 run_one AST; no parameter search, no quarterly replay, no causality rerun",
+  "replay_meta": {
+    "SHALLOW_PULLBACK": {
+      "unclosed": 0,
+      "terminal_positions": [],
+      "exits": {
+        "1": 488,
+        "3": 277,
+        "4": 19,
+        "2": 13
+      },
+      "checks": {
+        "entries": 797
+      }
+    },
+    "OBV_PRESSURE": {
+      "unclosed": 0,
+      "terminal_positions": [],
+      "exits": {
+        "1": 398,
+        "3": 181,
+        "4": 26,
+        "2": 7
+      },
+      "checks": {
+        "entries": 612
+      }
+    },
+    "INSIDE_DAY_RELEASE": {
+      "unclosed": 1,
+      "terminal_positions": [
+        {
+          "symbol": "USDRUBF",
+          "side": 1,
+          "entry_dt": "2026-08-29 13:45:00",
+          "initial_stop": 86.46000000000001,
+          "entry_price": 86.6,
+          "risk_price_units": 0.13999999999998636
+        }
+      ],
+      "exits": {
+        "3": 60,
+        "1": 109,
+        "4": 8,
+        "2": 3
+      },
+      "checks": {
+        "entries": 181
+      }
+    }
+  },
+  "new_replay_batches": 1,
+  "strategy_replays": 3,
+  "C2_STRICT_runs": 0,
+  "optimization_runs": 0,
+  "walk_forward_runs": 0,
+  "source_files": [
+    {
+      "path": "/workspace/market-pattern-data/forever/CNYRUBF/CNYRUBF_M15.csv",
+      "sha256": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+      "status": "PASS",
+      "role": "ORIGINAL_MARKET_BYTES"
+    },
+    {
+      "path": "/workspace/market-pattern-data/forever/GLDRUBF/GLDRUBF_M15.csv",
+      "sha256": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+      "status": "PASS",
+      "role": "ORIGINAL_MARKET_BYTES"
+    },
+    {
+      "path": "/workspace/market-pattern-data/forever/IMOEXF/IMOEXF_M15.csv",
+      "sha256": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773",
+      "status": "PASS",
+      "role": "ORIGINAL_MARKET_BYTES"
+    },
+    {
+      "path": "/workspace/market-pattern-data/forever/USDRUBF/USDRUBF_M15.csv",
+      "sha256": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+      "status": "PASS",
+      "role": "ORIGINAL_MARKET_BYTES"
+    },
+    {
+      "path": "V20-03/results/RUN_METADATA.json",
+      "sha256": "698c12edaa0b4cc0c5ed6769ea2df24bbc2d256bbcb970752b0f548542598120",
+      "bytes": 6547,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/ROLL_DECISIONS.csv",
+      "sha256": "8ed580d15de0a87b3e1404cc56abba972de593648caba198a4ca3618a9cdfb5a",
+      "bytes": 276658,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/EFFECTIVE_COVERAGE.csv",
+      "sha256": "0599e4af46dff41345884a13f9ad721f06189bc5b04faaa2cc8c272a493988af",
+      "bytes": 447428,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/CLOSED_TRADES.csv",
+      "sha256": "8cf10bb3fc0228c1f3d41ed3f29b514af980960666e59d3428676af8edad0886",
+      "bytes": 302264,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/OPEN_POSITIONS.csv",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "bytes": 1,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/STATISTICS.csv",
+      "sha256": "b6e56ab0f18082d7ea32b126795630a23498d430e27d5da6f5b25e9e3be0ce9e",
+      "bytes": 366055,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/ALL_OBSERVED_CLOSED.csv",
+      "sha256": "a3c3dd618e7addbb408a3298aef651660d2732bb94ef1ef5b42b393c95764c27",
+      "bytes": 305887,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/INVALID_INTERVALS.csv",
+      "sha256": "e467b0c3567cbcbe31cfaa1e816f086894beabc571baafb18457fb94876729df",
+      "bytes": 39191,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/CONTRACT_MAP.csv",
+      "sha256": "cb6cb71857038922c98cfc1f97449e379d1f32c865d44f1521d8234158240cd4",
+      "bytes": 20273,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/CONCENTRATION.csv",
+      "sha256": "8f5bf7bab87d4a947c0b8e0226cc3d635f579ef72e413ae37ccdfec4a8c50ebc",
+      "bytes": 6039,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/ENTRY_FREQUENCY.csv",
+      "sha256": "68c6067d37177dc9ea60df292def1f91bce0a3beffdef269335b0db0bbe19a1f",
+      "bytes": 114776,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/BEST_MONTHS.csv",
+      "sha256": "0458bf2d8c4d3fdbb01a173e98e1b0aa1d088fb279c042dec40a9f0635a0ad99",
+      "bytes": 56582,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/SESSION_AUDIT.csv",
+      "sha256": "f3249c5a433231d2019fa24eccb1289da5e7a10514996026d2dbd6d678594d39",
+      "bytes": 269168,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/SIGNAL_AND_COVERAGE_AUDIT.csv",
+      "sha256": "960cfbe7504e911727e2a4b71c90a6cc624af48c9167707f79563a43c476f98f",
+      "bytes": 118729,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/RESULT_HASHES.json",
+      "sha256": "1248783c7b8ccc60d033745ff0e361cff0b46f1699e2084ab4f760fc50b47e6c",
+      "bytes": 1574,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/EXECUTION_EVENTS.csv",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "bytes": 1,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/CENSORED_CLOSED.csv",
+      "sha256": "bb69b3ca8d7d5719a85672b30f312a7d0f4398168e8510251e6233ec16d404aa",
+      "bytes": 3980,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/results/ENTRIES.csv",
+      "sha256": "6d5b0084c7bbdcfcbfef016f9d8e4b5f61d1aa2d507ed4d684dafa10a6bbef24",
+      "bytes": 197948,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-02_AUDIT/PARITY_SUMMARY.csv",
+      "sha256": "1936bf196b4074df1176f55f8dc3a989197306b076f0d6c9bc217f4fe5ea3c0b",
+      "bytes": 568,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-02_AUDIT/ACCEPTANCE_V20_02.json",
+      "sha256": "d2b4f883f647b2a763b89726a3c18a7d52564a0e50b50c3b7af5c79cd9355aa5",
+      "bytes": 2999,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-02_AUDIT/replay_independent.py",
+      "sha256": "cca6683954f9400bbc6e0c9f4070ea1cf687593fe61c71dd5ab0d2159d5a443a",
+      "bytes": 15158,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/publication/ARCHIVE_FILE_INDEX.json",
+      "sha256": "1dae0121abb36aa1df4e4ba24f778921bc390f21c39e8589c38a44211e872de8",
+      "bytes": 31095,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "docs/RESEARCH_LINEAGE.json",
+      "sha256": "12cd0face8e352dd36939f8238488c3117f6b899e34a03bb3bc37e8697d21126",
+      "bytes": 1733,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/ROLL_POLICY_LOCKED_V1.md",
+      "sha256": "74acf11239763c43be73982aa6c3f64d24e75fe16f272339db3b910dc62564bb",
+      "bytes": 7536,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "V20-03/offline/stress_v20_03.py",
+      "sha256": "0800f41fed4f6ad3749a0eb9987970a8d954c1682c18cd2c8eecdab7b50c91d0",
+      "bytes": 23965,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "research_original_v20/base.py",
+      "sha256": "b7b9df00f8d7fb0a88c5cba103034e5a2335c108ae283258e5d8ebd5476aa59d",
+      "bytes": 16766,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "research_original_v20/run.py",
+      "sha256": "223545374f98d8c87cf2c09b3a7302b05b07020dc8bf34b5984ebaa3d74389fe",
+      "bytes": 6298,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "research_original_v20/legacy_v4/study_v4.py",
+      "sha256": "0f49432e207235f631807a82536f521751ad5559cc374fc6c42f8ca4f289bd08",
+      "bytes": 12519,
+      "role": "PUBLISHED_ORIGINAL"
+    },
+    {
+      "path": "research_original_v20/legacy_v4/dependencies/study.py",
+      "sha256": "68a4169a80870cfd10537aa896ea0b3bcd8b3baf9803240d7d7a48b78ba485ff",
+      "bytes": 12393,
+      "role": "PUBLISHED_ORIGINAL"
+    }
+  ],
+  "checks": [
+    {
+      "check": "LATE_REPRODUCTION_SHALLOW_PULLBACK",
+      "status": "PASS",
+      "trades": 797,
+      "basis": "EXACT_INPUT_SHA256_AND_AGGREGATE_EXIT_COUNTS_NOT_ROW_PARITY_WITH_MISSING_ORIGINAL"
+    },
+    {
+      "check": "LATE_REPRODUCTION_OBV_PRESSURE",
+      "status": "PASS",
+      "trades": 612,
+      "basis": "EXACT_INPUT_SHA256_AND_AGGREGATE_EXIT_COUNTS_NOT_ROW_PARITY_WITH_MISSING_ORIGINAL"
+    },
+    {
+      "check": "LATE_REPRODUCTION_INSIDE_DAY_RELEASE",
+      "status": "PASS",
+      "trades": 180,
+      "basis": "EXACT_INPUT_SHA256_AND_AGGREGATE_EXIT_COUNTS_NOT_ROW_PARITY_WITH_MISSING_ORIGINAL"
+    },
+    {
+      "check": "NEXT_OPEN",
+      "status": "PASS",
+      "detail": "1016 entries: +15 minutes exactly"
+    },
+    {
+      "check": "RISK_AND_ATR",
+      "status": "PASS",
+      "detail": "Original 2 ATR with outward rounding, no stop optimization"
+    },
+    {
+      "check": "STOP_GRID",
+      "status": "PASS",
+      "detail": "Executable grid at entry"
+    },
+    {
+      "check": "C1_FORMULA",
+      "status": "PASS",
+      "detail": "One tick per side"
+    },
+    {
+      "check": "ENTRY_CAPS",
+      "status": "PASS",
+      "detail": "Separate accounts, one underlying/session, two entries/session"
+    },
+    {
+      "check": "CHOSEN_CONTRACT",
+      "status": "PASS",
+      "detail": "Existing entry records agree with locked selection"
+    },
+    {
+      "check": "STOP_PRICES",
+      "status": "PASS",
+      "detail": "Stop hits execute at original stop"
+    },
+    {
+      "check": "THIRD_OBSERVED_SESSION",
+      "status": "PASS",
+      "detail": "All time exits at third observed family session; first bar checked against published session audit separately"
+    },
+    {
+      "check": "ROLL_FROM_EXISTING_SUMMARIES",
+      "status": "PASS",
+      "detail": "All 2805 choices reproduce from prior-session summaries; no new roll rules"
+    },
+    {
+      "check": "TIME_EXIT_FIRST_OBSERVED_CONTRACT_BAR",
+      "status": "PASS",
+      "detail": "All 267 time exits match first bar of their third session in SESSION_AUDIT"
+    },
+    {
+      "check": "OLD_LEDGER_AGGREGATES",
+      "status": "PASS",
+      "detail": "Independent PF/net/DD calculations agree"
+    },
+    {
+      "check": "ORIGINAL_1589_LEDGER_AVAILABLE",
+      "status": "FAIL",
+      "detail": "Missing locally and in PR/main; expected SHA256 63844fac6741e21cca00c7ad0143114e743d7bb5649b18d5a8a64b76db121efb. Diagnostic reproduction is NOT an original artifact."
+    },
+    {
+      "check": "OLD_M15_SOURCE_AVAILABLE",
+      "status": "FAIL",
+      "detail": "43 quarterly source files/ZIP missing; no old price-path or market-regime comparison asserted"
+    },
+    {
+      "check": "STRICT_PERIOD_TYPE_ATTRIBUTION",
+      "status": "NOT VERIFIED",
+      "detail": "No matched contemporaneous quarterly/perpetual dataset established"
+    },
+    {
+      "check": "SUPPRESSION_COUNTERFACTUAL",
+      "status": "NOT VERIFIED",
+      "detail": "No signal-level rejection journal in original publication; no independent two-symbol replay performed"
+    },
+    {
+      "check": "OLD_INTRABAR_EXECUTION",
+      "status": "NOT VERIFIED",
+      "detail": "Trade and session journals permit consistency checks, not independent candle replay"
+    }
+  ],
+  "coverage_by_family_year": [
+    {
+      "family": "CNY",
+      "year": 2022,
+      "observed_family_sessions": 165,
+      "no_past_candidate": 12,
+      "selected_without_bars": 0,
+      "selected_bars": 7727,
+      "selected_warmup_bars": 1984,
+      "unknown_gaps_all_series": 69
+    },
+    {
+      "family": "MIX",
+      "year": 2017,
+      "observed_family_sessions": 46,
+      "no_past_candidate": 32,
+      "selected_without_bars": 0,
+      "selected_bars": 588,
+      "selected_warmup_bars": 410,
+      "unknown_gaps_all_series": 182
+    },
+    {
+      "family": "MIX",
+      "year": 2018,
+      "observed_family_sessions": 254,
+      "no_past_candidate": 16,
+      "selected_without_bars": 0,
+      "selected_bars": 12444,
+      "selected_warmup_bars": 979,
+      "unknown_gaps_all_series": 4
+    },
+    {
+      "family": "MIX",
+      "year": 2019,
+      "observed_family_sessions": 253,
+      "no_past_candidate": 17,
+      "selected_without_bars": 0,
+      "selected_bars": 12921,
+      "selected_warmup_bars": 999,
+      "unknown_gaps_all_series": 4
+    },
+    {
+      "family": "MIX",
+      "year": 2020,
+      "observed_family_sessions": 250,
+      "no_past_candidate": 16,
+      "selected_without_bars": 0,
+      "selected_bars": 12847,
+      "selected_warmup_bars": 1168,
+      "unknown_gaps_all_series": 3
+    },
+    {
+      "family": "MIX",
+      "year": 2021,
+      "observed_family_sessions": 300,
+      "no_past_candidate": 57,
+      "selected_without_bars": 0,
+      "selected_bars": 12786,
+      "selected_warmup_bars": 268,
+      "unknown_gaps_all_series": 0
+    },
+    {
+      "family": "MIX",
+      "year": 2022,
+      "observed_family_sessions": 233,
+      "no_past_candidate": 23,
+      "selected_without_bars": 0,
+      "selected_bars": 10499,
+      "selected_warmup_bars": 2500,
+      "unknown_gaps_all_series": 27
+    },
+    {
+      "family": "Si",
+      "year": 2018,
+      "observed_family_sessions": 254,
+      "no_past_candidate": 17,
+      "selected_without_bars": 0,
+      "selected_bars": 12394,
+      "selected_warmup_bars": 720,
+      "unknown_gaps_all_series": 0
+    },
+    {
+      "family": "Si",
+      "year": 2019,
+      "observed_family_sessions": 253,
+      "no_past_candidate": 13,
+      "selected_without_bars": 1,
+      "selected_bars": 12917,
+      "selected_warmup_bars": 2902,
+      "unknown_gaps_all_series": 115
+    },
+    {
+      "family": "Si",
+      "year": 2020,
+      "observed_family_sessions": 250,
+      "no_past_candidate": 16,
+      "selected_without_bars": 0,
+      "selected_bars": 12848,
+      "selected_warmup_bars": 775,
+      "unknown_gaps_all_series": 2
+    },
+    {
+      "family": "Si",
+      "year": 2021,
+      "observed_family_sessions": 300,
+      "no_past_candidate": 57,
+      "selected_without_bars": 0,
+      "selected_bars": 12786,
+      "selected_warmup_bars": 268,
+      "unknown_gaps_all_series": 0
+    },
+    {
+      "family": "Si",
+      "year": 2022,
+      "observed_family_sessions": 247,
+      "no_past_candidate": 23,
+      "selected_without_bars": 0,
+      "selected_bars": 11009,
+      "selected_warmup_bars": 864,
+      "unknown_gaps_all_series": 3
+    }
+  ],
+  "censored_sensitivity": [
+    {
+      "strategy": "ALL_INDEPENDENT_ACCOUNTS",
+      "censored_trades": 12,
+      "observed_censored_R": 37.207785786082,
+      "primary": {
+        "trades": 1004,
+        "PF_C1": 1.2658597646842096,
+        "net_R": 205.45424654957716,
+        "expectancy": 0.2046357037346386,
+        "wins": 258,
+        "losses": 746,
+        "breakeven": 0,
+        "win_rate": 0.25697211155378485,
+        "average_win": 3.7916513498006092,
+        "average_loss": 1.0359139432962199,
+        "win_loss_ratio": 3.660199164552017,
+        "max_DD_closed_R": 58.766111366483116,
+        "gross_profit_R": 978.2460482485571,
+        "gross_loss_R": 772.79180169898,
+        "PF_C0": 1.330534802879117,
+        "net_C0_R": 245.38022773045978,
+        "C1_cost_R": 39.9259811808826,
+        "stop_exits": 737,
+        "time_exits": 267,
+        "entry_bar_stops": 22,
+        "gap_reason_exits": 1,
+        "adverse_gap_exits": 2,
+        "stop_exits_fraction": 0.7340637450199203,
+        "time_exits_fraction": 0.26593625498007967,
+        "entry_bar_stops_fraction": 0.021912350597609563,
+        "gap_reason_exits_fraction": 0.00099601593625498,
+        "adverse_gap_exits_fraction": 0.00199203187250996,
+        "top5_winners_R": 111.99448001190001,
+        "top5_share_positive_R": 0.11448498075960942,
+        "top5_over_net_R": 0.5451066692110215,
+        "without_top5_net_R": 93.45976653767718,
+        "without_top5_PF": 1.1209378338799743,
+        "top10_winners_R": 176.42517261769999,
+        "top10_share_positive_R": 0.18034846441094243,
+        "top10_over_net_R": 0.8587078416757266,
+        "without_top10_net_R": 29.029073931877203,
+        "without_top10_PF": 1.0375638999638155
+      },
+      "mechanical_all_observed": {
+        "trades": 1016,
+        "PF_C1": 1.3123134083082473,
+        "net_R": 242.66203233565918,
+        "expectancy": 0.23884058300753855,
+        "wins": 266,
+        "losses": 750,
+        "breakeven": 0,
+        "win_rate": 0.2618110236220472,
+        "average_win": 3.8332498755787188,
+        "average_loss": 1.0359765794243734,
+        "win_loss_ratio": 3.700131790342802,
+        "max_DD_closed_R": 52.68446572007106,
+        "gross_profit_R": 1019.6444669039392,
+        "gross_loss_R": 776.98243456828,
+        "PF_C0": 1.3794983094644853,
+        "net_C0_R": 283.24742320586085,
+        "C1_cost_R": 40.5853908702016,
+        "stop_exits": 741,
+        "time_exits": 275,
+        "entry_bar_stops": 22,
+        "gap_reason_exits": 1,
+        "adverse_gap_exits": 2,
+        "stop_exits_fraction": 0.7293307086614174,
+        "time_exits_fraction": 0.2706692913385827,
+        "entry_bar_stops_fraction": 0.021653543307086614,
+        "gap_reason_exits_fraction": 0.000984251968503937,
+        "adverse_gap_exits_fraction": 0.001968503937007874,
+        "top5_winners_R": 117.33885675730001,
+        "top5_share_positive_R": 0.1150782067337541,
+        "top5_over_net_R": 0.4835484794547196,
+        "without_top5_net_R": 125.32317557835921,
+        "without_top5_PF": 1.1612947346074731,
+        "top10_winners_R": 185.96161744629995,
+        "top10_share_positive_R": 0.18237888154383464,
+        "top10_over_net_R": 0.7663399818108789,
+        "without_top10_net_R": 56.700414889359195,
+        "without_top10_PF": 1.0729751566660115
+      },
+      "true_gap_execution": "UNKNOWN"
+    },
+    {
+      "strategy": "SHALLOW_PULLBACK",
+      "censored_trades": 6,
+      "observed_censored_R": 6.393405223769999,
+      "primary": {
+        "trades": 568,
+        "PF_C1": 1.2661944538937049,
+        "net_R": 113.39460875978422,
+        "expectancy": 0.19963839570384545,
+        "wins": 156,
+        "losses": 412,
+        "breakeven": 0,
+        "win_rate": 0.2746478873239437,
+        "average_win": 3.457555919128149,
+        "average_loss": 1.03394202578691,
+        "win_loss_ratio": 3.344052019257734,
+        "max_DD_closed_R": 26.90853787317586,
+        "gross_profit_R": 539.3787233839912,
+        "gross_loss_R": 425.984114624207,
+        "PF_C0": 1.3261365978540554,
+        "net_C0_R": 133.92889162293642,
+        "C1_cost_R": 20.5342828631522,
+        "stop_exits": 408,
+        "time_exits": 160,
+        "entry_bar_stops": 10,
+        "gap_reason_exits": 0,
+        "adverse_gap_exits": 1,
+        "stop_exits_fraction": 0.7183098591549296,
+        "time_exits_fraction": 0.28169014084507044,
+        "entry_bar_stops_fraction": 0.017605633802816902,
+        "gap_reason_exits_fraction": 0.0,
+        "adverse_gap_exits_fraction": 0.0017605633802816902,
+        "top5_winners_R": 82.85124357320001,
+        "top5_share_positive_R": 0.15360495321988638,
+        "top5_over_net_R": 0.7306453497159865,
+        "without_top5_net_R": 30.543365186584207,
+        "without_top5_PF": 1.0717007140360828,
+        "top10_winners_R": 133.5231547892,
+        "top10_share_positive_R": 0.24754991066665233,
+        "top10_over_net_R": 1.1775088449932942,
+        "without_top10_net_R": -20.128546029415812,
+        "without_top10_PF": 0.9527481299457077
+      },
+      "mechanical_all_observed": {
+        "trades": 574,
+        "PF_C1": 1.279808550761638,
+        "net_R": 119.78801398355418,
+        "expectancy": 0.20868991983197593,
+        "wins": 160,
+        "losses": 414,
+        "breakeven": 0,
+        "win_rate": 0.2787456445993031,
+        "average_win": 3.424344166699195,
+        "average_loss": 1.0340750064935194,
+        "win_loss_ratio": 3.3115046250957385,
+        "max_DD_closed_R": 26.363828878465867,
+        "gross_profit_R": 547.8950666718712,
+        "gross_loss_R": 428.107052688317,
+        "PF_C0": 1.3411523047966003,
+        "net_C0_R": 140.7774376202864,
+        "C1_cost_R": 20.989423636732205,
+        "stop_exits": 410,
+        "time_exits": 164,
+        "entry_bar_stops": 10,
+        "gap_reason_exits": 0,
+        "adverse_gap_exits": 1,
+        "stop_exits_fraction": 0.7142857142857143,
+        "time_exits_fraction": 0.2857142857142857,
+        "entry_bar_stops_fraction": 0.017421602787456445,
+        "gap_reason_exits_fraction": 0.0,
+        "adverse_gap_exits_fraction": 0.0017421602787456446,
+        "top5_winners_R": 82.85124357320001,
+        "top5_share_positive_R": 0.15121735641182327,
+        "top5_over_net_R": 0.6916488621689206,
+        "without_top5_net_R": 36.9367704103542,
+        "without_top5_PF": 1.0862792850022163,
+        "top10_winners_R": 133.5231547892,
+        "top10_share_positive_R": 0.24370205703853445,
+        "top10_over_net_R": 1.1146620629968165,
+        "without_top10_net_R": -13.735140805645806,
+        "without_top10_PF": 0.967916574325521
+      },
+      "true_gap_execution": "UNKNOWN"
+    },
+    {
+      "strategy": "OBV_PRESSURE",
+      "censored_trades": 4,
+      "observed_censored_R": 11.082008767411999,
+      "primary": {
+        "trades": 328,
+        "PF_C1": 1.1683549874352985,
+        "net_R": 44.709637331182996,
+        "expectancy": 0.13630986991214328,
+        "wins": 72,
+        "losses": 256,
+        "breakeven": 0,
+        "win_rate": 0.21951219512195122,
+        "average_win": 4.3094066820485555,
+        "average_loss": 1.0373736085012226,
+        "win_loss_ratio": 4.154151066436617,
+        "max_DD_closed_R": 39.49453871508502,
+        "gross_profit_R": 310.277281107496,
+        "gross_loss_R": 265.567643776313,
+        "PF_C0": 1.2358048284340468,
+        "net_C0_R": 59.82854110901639,
+        "C1_cost_R": 15.118903777833403,
+        "stop_exits": 251,
+        "time_exits": 77,
+        "entry_bar_stops": 9,
+        "gap_reason_exits": 1,
+        "adverse_gap_exits": 1,
+        "stop_exits_fraction": 0.7652439024390244,
+        "time_exits_fraction": 0.2347560975609756,
+        "entry_bar_stops_fraction": 0.027439024390243903,
+        "gap_reason_exits_fraction": 0.003048780487804878,
+        "adverse_gap_exits_fraction": 0.003048780487804878,
+        "top5_winners_R": 89.39272014894,
+        "top5_share_positive_R": 0.2881059155535457,
+        "top5_over_net_R": 1.9994060673489857,
+        "without_top5_net_R": -44.683082817757,
+        "without_top5_PF": 0.8317450040887004,
+        "top10_winners_R": 129.12995048652,
+        "top10_share_positive_R": 0.41617597661551875,
+        "top10_over_net_R": 2.8881905153915786,
+        "without_top10_net_R": -84.420313155337,
+        "without_top10_PF": 0.682113709505801
+      },
+      "mechanical_all_observed": {
+        "trades": 332,
+        "PF_C1": 1.2092923134835325,
+        "net_R": 55.791646098594995,
+        "expectancy": 0.16804712680299697,
+        "wins": 75,
+        "losses": 257,
+        "breakeven": 0,
+        "win_rate": 0.22590361445783133,
+        "average_win": 4.298193129067974,
+        "average_loss": 1.0372483991498171,
+        "win_loss_ratio": 4.143841660870238,
+        "max_DD_closed_R": 39.36317380208302,
+        "gross_profit_R": 322.36448468009803,
+        "gross_loss_R": 266.572838581503,
+        "PF_C0": 1.2787408574257146,
+        "net_C0_R": 71.00103674086739,
+        "C1_cost_R": 15.209390642272403,
+        "stop_exits": 252,
+        "time_exits": 80,
+        "entry_bar_stops": 9,
+        "gap_reason_exits": 1,
+        "adverse_gap_exits": 1,
+        "stop_exits_fraction": 0.7590361445783133,
+        "time_exits_fraction": 0.24096385542168675,
+        "entry_bar_stops_fraction": 0.02710843373493976,
+        "gap_reason_exits_fraction": 0.0030120481927710845,
+        "adverse_gap_exits_fraction": 0.0030120481927710845,
+        "top5_winners_R": 89.39272014894,
+        "top5_share_positive_R": 0.2773032526757712,
+        "top5_over_net_R": 1.6022599510859599,
+        "without_top5_net_R": -33.601074050345005,
+        "without_top5_PF": 0.8739516215187404,
+        "top10_winners_R": 131.12713941601,
+        "top10_share_positive_R": 0.406766705538718,
+        "top10_over_net_R": 2.3503006020701043,
+        "without_top10_net_R": -75.335493317415,
+        "without_top10_PF": 0.7173924630945413
+      },
+      "true_gap_execution": "UNKNOWN"
+    },
+    {
+      "strategy": "INSIDE_DAY_RELEASE",
+      "censored_trades": 2,
+      "observed_censored_R": 19.7323717949,
+      "primary": {
+        "trades": 108,
+        "PF_C1": 1.5828406600505538,
+        "net_R": 47.35000045861001,
+        "expectancy": 0.4384259301723149,
+        "wins": 30,
+        "losses": 78,
+        "breakeven": 0,
+        "win_rate": 0.2777777777777778,
+        "average_win": 4.286334791902333,
+        "average_loss": 1.041539016646923,
+        "win_loss_ratio": 4.11538571613144,
+        "max_DD_closed_R": 23.354463981669998,
+        "gross_profit_R": 128.59004375707,
+        "gross_loss_R": 81.24004329846,
+        "PF_C0": 1.6618307051090642,
+        "net_C0_R": 51.622794998507,
+        "C1_cost_R": 4.2727945398969975,
+        "stop_exits": 78,
+        "time_exits": 30,
+        "entry_bar_stops": 3,
+        "gap_reason_exits": 0,
+        "adverse_gap_exits": 0,
+        "stop_exits_fraction": 0.7222222222222222,
+        "time_exits_fraction": 0.2777777777777778,
+        "entry_bar_stops_fraction": 0.027777777777777776,
+        "gap_reason_exits_fraction": 0.0,
+        "adverse_gap_exits_fraction": 0.0,
+        "top5_winners_R": 48.22276427448,
+        "top5_share_positive_R": 0.37501164837910456,
+        "top5_over_net_R": 1.018432181782826,
+        "without_top5_net_R": -0.8727638158700031,
+        "without_top5_PF": 0.9892569750035258,
+        "top10_winners_R": 75.16139995776,
+        "top10_share_positive_R": 0.5845040390510603,
+        "top10_over_net_R": 1.5873579562783895,
+        "without_top10_net_R": -27.811399499150003,
+        "without_top10_PF": 0.6576639010767588
+      },
+      "mechanical_all_observed": {
+        "trades": 110,
+        "PF_C1": 1.815070465201106,
+        "net_R": 67.08237225350999,
+        "expectancy": 0.6098397477591817,
+        "wins": 31,
+        "losses": 79,
+        "breakeven": 0,
+        "win_rate": 0.2818181818181818,
+        "average_win": 4.818868243611935,
+        "average_loss": 1.0418043455501267,
+        "win_loss_ratio": 4.625502153254432,
+        "max_DD_closed_R": 24.41696398167,
+        "gross_profit_R": 149.38491555196998,
+        "gross_loss_R": 82.30254329846001,
+        "PF_C0": 1.9046702385405954,
+        "net_C0_R": 71.468948844707,
+        "C1_cost_R": 4.386576591196999,
+        "stop_exits": 79,
+        "time_exits": 31,
+        "entry_bar_stops": 3,
+        "gap_reason_exits": 0,
+        "adverse_gap_exits": 0,
+        "stop_exits_fraction": 0.7181818181818181,
+        "time_exits_fraction": 0.2818181818181818,
+        "entry_bar_stops_fraction": 0.02727272727272727,
+        "gap_reason_exits_fraction": 0.0,
+        "adverse_gap_exits_fraction": 0.0,
+        "top5_winners_R": 61.926132801410006,
+        "top5_share_positive_R": 0.4145407357402584,
+        "top5_over_net_R": 0.9231357019901724,
+        "without_top5_net_R": 5.156239452099998,
+        "without_top5_PF": 1.0626498191362266,
+        "top10_winners_R": 91.23871450075,
+        "top10_share_positive_R": 0.6107625670478669,
+        "top10_over_net_R": 1.3600997018404648,
+        "without_top10_net_R": -24.15634224724,
+        "without_top10_PF": 0.7064933685021128
+      },
+      "true_gap_execution": "UNKNOWN"
+    }
+  ],
+  "composition_contrasts": [
+    {
+      "strategy": "ALL_INDEPENDENT_ACCOUNTS",
+      "full_PF_gap": 0.607677557715498,
+      "two_filtered_PF_gap": 0.538116989133006,
+      "descriptive_composition_contrast": 0.06956056858249204,
+      "fraction_of_full_gap": 0.11446953684450341,
+      "causal": false
+    },
+    {
+      "strategy": "SHALLOW_PULLBACK",
+      "full_PF_gap": 0.644833455142193,
+      "two_filtered_PF_gap": 0.5846535940413748,
+      "descriptive_composition_contrast": 0.06017986110081819,
+      "fraction_of_full_gap": 0.09332620790828518,
+      "causal": false
+    },
+    {
+      "strategy": "OBV_PRESSURE",
+      "full_PF_gap": 0.5497669227498696,
+      "two_filtered_PF_gap": 0.3645646675834724,
+      "descriptive_composition_contrast": 0.1852022551663972,
+      "fraction_of_full_gap": 0.3368741324778822,
+      "causal": false
+    },
+    {
+      "strategy": "INSIDE_DAY_RELEASE",
+      "full_PF_gap": 0.6824083030470609,
+      "two_filtered_PF_gap": 0.9667346461698003,
+      "descriptive_composition_contrast": -0.2843263431227394,
+      "fraction_of_full_gap": -0.41665135352717336,
+      "causal": false
+    }
+  ],
+  "DD_method": "Closed C1 R, initial peak=0, stable sort exit_dt/entry_dt/account_num/contract; pooled independent accounts are arithmetic diagnostics, not cash/MTM equity",
+  "market_bins": "Absolute displacement in 2 ATR initial risk to first Open of third observed session, bins >1R and <=1R; descriptive, no new trading filters",
+  "path_method": "Raw signals: all original signals independent of execution constraints, exact NEXT_OPEN and original horizon. Actual paths: favorable excursion lower bound using prior bars and exit Open, excluding stop-candle OHLC ambiguity",
+  "original_checks_rerun": false,
+  "scope": "V20_TradingSystem_M15 only; no production/FINAM/main mutation",
+  "python": "3.12.14",
+  "pandas": "2.2.3",
+  "numpy": "2.3.5",
+  "outcome_PF_identity_decomposition": [
+    {
+      "strategy": "ALL_INDEPENDENT_ACCOUNTS",
+      "old_over_late_win_loss_count_ratio": 0.7772660734551555,
+      "old_over_late_average_win": 0.8496811867872722,
+      "late_over_old_average_loss": 1.0230515855920712,
+      "old_over_late_PF": 0.67565228060599,
+      "causal": false
+    },
+    {
+      "strategy": "SHALLOW_PULLBACK",
+      "old_over_late_win_loss_count_ratio": 0.7717334914400059,
+      "old_over_late_average_win": 0.8431809619740259,
+      "late_over_old_average_loss": 1.018228472931642,
+      "old_over_late_PF": 0.6625724553264477,
+      "causal": false
+    },
+    {
+      "strategy": "OBV_PRESSURE",
+      "old_over_late_win_loss_count_ratio": 0.73125,
+      "old_over_late_average_win": 0.9074267363312862,
+      "late_over_old_average_loss": 1.0248100846012604,
+      "old_over_late_PF": 0.6800186765040419,
+      "causal": false
+    },
+    {
+      "strategy": "INSIDE_DAY_RELEASE",
+      "old_over_late_win_loss_count_ratio": 0.8299595141700404,
+      "old_over_late_average_win": 0.8132203181526313,
+      "late_over_old_average_loss": 1.0352759588672678,
+      "old_over_late_PF": 0.6987490937348794,
+      "causal": false
+    }
+  ],
+  "artifact_hashes": {
+    "DEVELOPMENT_DECISION_RU.md": "3d4e8b09fff1346bb061acb58c896693e87e183665695d48206286ee3fe7d970",
+    "DIAGNOSTIC_REPLAY_TRADES.csv": "9d9ac249b2b1961eead6ed6adf15d67a2e1fb498b7c323786b33777d3ba4067a",
+    "INSTRUMENT_COMPARISON.csv": "27ea4bb95b6e22345e40ae604b089c809b466a6c55f62db38fb2723b8c51b4a3",
+    "METHODOLOGY_EFFECTS_RU.md": "c3ca27ddc0af2a845ce68f951df64fca58d1ccdb15e2d5309085e82ed0cefa53",
+    "PERIOD_STRATEGY_COMPARISON.csv": "740132afccaa9acaf2c8e587097e6c5711ad1b4002a51b5690850246bfb747fa",
+    "PF_DIAGNOSTIC_REPORT_RU.md": "615550d44b688c0ab21294be216043819106931bc08d2e8de02e6c0e603e6e7b",
+    "TRADE_DISTRIBUTION.csv": "cf70afc58fc7e9d3647e869d789232138360ca94269cc5d69036e90cee28ce83",
+    "YEARLY_STABILITY.csv": "23d2e42b1be049490ec7e492b5aadc068c3c83dfa2b84b95228772b35272df26",
+    "build_diagnostics.py": "1bc89733baf74012dd3a59f61dbccfcb989b50bdccc4aa96a395ed6764bb4035"
+  },
+  "publication_checks": "See ../publication/VERIFICATION_PUBLICATION.json; its PASS does not remove the two diagnostic source-availability FAILs",
+  "independent_table_validation": {
+    "status": "PASS",
+    "rows": 195,
+    "method": "Independent stdlib PF/net/WR/expectancy/closed-DD; no replay"
+  },
+  "entry_frequency_method": "All observed entries including 12 old censored and one late open; denominator union of observed session keys, not verified exchange calendar or post-warmup opportunity set"
+}
