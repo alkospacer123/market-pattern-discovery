@@ -167,7 +167,7 @@
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "da410ea84924480f8487701a421d230f254866a03edeca85dd30dff88c65c497"
+      "sha256": "7d62b974e515b9015b96621cb15e5eede86276cc02b9d01b6cbe86828adaf505"
     },
     {
       "path": "deployment/Common.ps1",
