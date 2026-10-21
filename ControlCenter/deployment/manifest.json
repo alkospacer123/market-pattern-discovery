@@ -519,7 +519,7 @@
     },
     {
       "path": "tests/test_manual_os.py",
-      "sha256": "2a2f6607e84743ed5f7353f73d216785f62ab2ccc3d74084017bae05b8c2552b"
+      "sha256": "b1fef97ab53fd6a4997dc30e8376c160837f7d58cc59eab12ca363cc6c852af2"
     },
     {
       "path": "tests/test_manual_os_native.py",
@@ -527,11 +527,11 @@
     },
     {
       "path": "tests/test_os_observer.py",
-      "sha256": "deb4a7afa2067ef71fc8f82a80ec1e1b2048fe2e6f1d096a5df40a436718b27a"
+      "sha256": "13cf6bffa72d10e99c70a92b8936d399afe5f466c71c6264c40dc488aa857a0f"
     },
     {
       "path": "tests/test_os_windows_native.py",
-      "sha256": "f3863334ad5471c0b84be55740d82c23d249b59c6c3682429b4c145fc51d7c5e"
+      "sha256": "9c4135e40169bb7d9960c91932212d43aefd97e7aeef572f1968691e33adffd4"
     },
     {
       "path": "tests/test_python_runtime.py",
@@ -543,7 +543,7 @@
     },
     {
       "path": "tests/test_ui.py",
-      "sha256": "ead47cc64f681dd14b1e7d697917d133605ec0c00844242ff71cc1a770065b91"
+      "sha256": "382babb6b90dd99dac0e547c2289b6dab493edc4dd7b5ce18495049faa073191"
     },
     {
       "path": "tests/test_windows_reader.py",
