@@ -14,7 +14,7 @@ REQUIRED_PASS = (
     "HEARTBEAT_EXACT_FROZEN_IDENTITY",
     "HEARTBEAT_AUTHORIZATION_ACCOUNT_MATCH",
     "HEARTBEAT_HEALTHY_RECONCILIATION_PASS",
-    "KILL_SWITCH_ARMED_GENERATION_AT_LEAST_62",
+    "KILL_SWITCH_ARMED_EXACT_GENERATION_62",
     "HEARTBEAT_POSITION_STOP_COVERAGE_INTERNAL_CONSISTENCY",
     "LAST_10_PRODUCTION_CYCLE_ATTEMPTS_PRESENT",
     "LATEST_PRODUCTION_CYCLE_ATTEMPT_PASS",
@@ -41,7 +41,7 @@ def _timestamp(value):
 
 
 def parse_operator_report(raw, now):
-    """One manual pasted report. Fail closed on any incomplete/failed check."""
+    """Parse a CC-published operator report; fail closed on unverified checks."""
     if type(raw) is not str or not 0 < len(raw.encode("utf-8")) <= 65536:
         raise ValueError("OPERATOR_REPORT_SIZE_INVALID")
     if now.tzinfo is None:

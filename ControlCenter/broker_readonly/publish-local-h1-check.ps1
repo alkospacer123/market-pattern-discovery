@@ -5,6 +5,7 @@ $erroractionpreference='stop'
 if(-not $execute){write-output 'cc03_h1_local_publish=preview_no_h1_read_no_write';return}
 $root='c:\control center\data\broker-readonly'
 $source='c:\tradingsystemlab\tsl-h1-01-check.ps1'
+$expectedsha='66630f23e83ee6df30ce5ca402a15795159a38ae7f9c4156b355980ede7ddb81'
 $dest=join-path $root 'h1-local-report.txt'
 $tmp=$null
 try {
@@ -25,6 +26,7 @@ try {
     if((($rights -band 0x000d0156) -ne 0 -or ($rights -band 0x50000000) -ne 0) -and $trusted -cnotcontains $sid){throw 'UNTRUSTED_WRITER'}
   }
   if([io.file]::Exists($dest) -and ([io.file]::GetAttributes($dest) -band [io.fileattributes]::ReparsePoint) -ne 0){throw 'DEST_REPARSE_FORBIDDEN'}
+  if((get-filehash -literalpath $source -algorithm sha256).hash.tolowerinvariant() -ne $expectedsha){throw 'H1_CHECK_SOURCE_HASH_MISMATCH'}
   $lines=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $source 2>&1)
   if($lastexitcode -ne 0){throw 'EXISTING_H1_CHECK_FAILED'}
   $raw=($lines -join "`n")+"`n"

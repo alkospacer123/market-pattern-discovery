@@ -15,7 +15,7 @@
     },
     {
       "path": "app.py",
-      "sha256": "81efcb8e72afc1fa08e0f72f7b52b316389e81c4bbefb85527459bdfeea8f54c"
+      "sha256": "13890eb968deb608967dfeccfd38f2aade6ee115000624275bf4b5d8098c52fe"
     },
     {
       "path": "broker_readonly/__init__.py",
@@ -35,7 +35,7 @@
     },
     {
       "path": "broker_readonly/publish-local-h1-check.ps1",
-      "sha256": "93c6409e2d3155fe2cb6252ff841bdd433c16ad5f4cf7170c1d622ea575b83de"
+      "sha256": "217221b4a1f79a32029a886c9cfcec03307d480ceb59364f33dcf7d168afb1f0"
     },
     {
       "path": "cc/__init__.py",
@@ -87,7 +87,7 @@
     },
     {
       "path": "cc/providers/h1_operator_report.py",
-      "sha256": "669e58a456c19333694d2038adfd74e64692b630dad81d6abafd87afbdc21222"
+      "sha256": "e5b7b247f24eab3c1d986ce99d23b0cc8a6fa30a63365615eefd1e16e8186eab"
     },
     {
       "path": "cc/providers/h1_readonly.py",
@@ -459,7 +459,7 @@
     },
     {
       "path": "tests/test_boundary.py",
-      "sha256": "5064bb10c797915d1ac791e7643ed6bca8754807a8aac643f1c51f676be197a4"
+      "sha256": "f6b4a522c9d72318c4db456434eb3bfbd20aaf832a98a8d79a61fd6f31a8fd93"
     },
     {
       "path": "tests/test_broker_readonly_contract.py",
@@ -491,7 +491,7 @@
     },
     {
       "path": "tests/test_h1_operator_report.py",
-      "sha256": "bc3447a4371e9375783e45ec3daa81cd7db20f189658ee0a5eee2632fdf1f869"
+      "sha256": "9ad73ebe5a37b44057a94fa723e02285a03de9b70dd4d7b88a3ba2e613b19bc6"
     },
     {
       "path": "tests/test_h1_readonly.py",

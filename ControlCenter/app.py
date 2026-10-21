@@ -46,10 +46,10 @@ def h1_operator_view(report, now):
         st.success("LOCAL CHECK PASS · наблюдение H1. Независимая сверка позиций/стопов с FINAM этим отчётом не доказана.")
     st.caption("Heartbeat UTC: " + report["observed_at"].isoformat() + " · FINAM contact (по H1): " + report["contact_at"].isoformat())
     cols = st.columns(4)
-    for col, label, value in zip(cols,
-        ("Цикл H1", "Локальных позиций", "Локальных стопов", "Unresolved"),
-        (report["cycle_count"], report["positions"], report["stops"], report["unresolved"])):
-        col.metric(label, str(value))
+    cols[0].metric("Цикл H1", str(report["cycle_count"]))
+    cols[1].metric("Локальных позиций", str(report["positions"]))
+    cols[2].metric("Локальных стопов", str(report["stops"]))
+    cols[3].metric("Unresolved", str(report["unresolved"]))
     st.caption("Task: " + report["task"] + " · Kill switch: " + report["kill_switch"] + " · generation: " + report["generation"] +
                " · Health (reported): " + report["health"] + " · Reconciliation (reported): " + report["reconciliation"])
     st.subheader("Последние 10 попыток циклов H1 · PASS / FAULT")

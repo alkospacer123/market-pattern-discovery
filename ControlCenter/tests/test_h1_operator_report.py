@@ -37,6 +37,11 @@ class TestOperatorReport(unittest.TestCase):
         self.assertEqual(x["cycle_count"], 12000)
         self.assertEqual(len(x["cycles"]), 10)
         self.assertEqual(x["health"], "HEALTHY")
+        self.assertEqual(x["generation"], "62")
+
+    def test_uploaded_exact_generation_name_required(self):
+        with self.assertRaises(ValueError):
+            parse_operator_report(report().replace("KILL_SWITCH_ARMED_EXACT_GENERATION_62=PASS", "KILL_SWITCH_ARMED_GENERATION_AT_LEAST_62=PASS"), NOW)
 
     def test_bad_authority_rejected(self):
         with self.assertRaises(ValueError):
