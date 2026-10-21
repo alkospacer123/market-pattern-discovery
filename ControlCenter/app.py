@@ -12,26 +12,19 @@ from cc.providers.h1_operator_report import manual_published_report, age_operato
 
 st.set_page_config(page_title="TradingSystemLab · Control Center", page_icon="◈", layout="wide")
 st.markdown(CSS, unsafe_allow_html=True)  # fixed local CSS only
-st.caption("TRADINGSYSTEMLAB / CONTROL CENTER     ·     CC-03     ·     READ ONLY")
-st.title("Центр наблюдения")
-st.warning("DEMO / OFFLINE_FIXTURE — тестовые данные. WINDOWS_OS_ONLY — реальные Task/process-факты и локальный H1 CHECK при опубликованном CURRENT-отчёте. FINAM — отдельный READONLY-снимок. Управление торговлей отключено.")
+st.title("Control Center")
+st.caption("Роботы H1 и M15 · ручное обновление · только наблюдение")
 with st.sidebar:
-    st.title("◈ Control Center")
-    st.caption("Два робота. Независимые контуры.")
-    page = st.radio("Раздел", PAGES)
+    page = st.radio("Раздел", PAGES, label_visibility="collapsed")
     st.divider()
-    h1_source = st.selectbox("Источник H1", ("SYNTHETIC / DEMO", "OFFLINE_FIXTURE", "READONLY_EXPORT", "WINDOWS_OS_ONLY"), key="h1-source")
-    st.caption("WINDOWS_OS_ONLY: одна ручная диагностика Windows Task/process. Без отдельной утверждённой policy C — UNKNOWN. READONLY_EXPORT: отдельный очищенный снимок.")
-    st.subheader("Локальные сценарии DEMO")
-    scenarios = {robot: st.selectbox(f"Сценарий {robot}", list(SCENARIOS), format_func=SCENARIOS.get,
-                                    key=f"scenario-{robot}") for robot in RobotId}
-    manual_refresh = st.button("Обновить данные", key="cc03-manual-refresh",
-                               disabled=h1_source not in ("READONLY_EXPORT", "WINDOWS_OS_ONLY"))
-    st.caption("Только по кнопке; без таймеров и повторов. WINDOWS_OS_ONLY не читает heartbeat/файлы H1. FINAM не вызывается. Снимок истекает по TTL при следующем отображении.")
-    st.caption("DEMO и OFFLINE_FIXTURE — тестовые локальные данные. M15 остаётся NOT_DEPLOYED.")
-    if h1_source == "WINDOWS_OS_ONLY":
-        st.caption("H1 CHECK: оператор публикует один READONLY-отчёт в собственный каталог Control Center. Кнопка «Обновить данные» читает готовый отчёт без доступа к файлам H1.")
-    st.caption("UTC / MSK (UTC+3) · локальный доступ")
+    manual_refresh = st.button("Обновить данные", key="cc03-manual-refresh", disabled=False, use_container_width=True)
+    st.caption("Только вручную · без фонового опроса")
+    with st.expander("Настройки источника", expanded=False):
+        h1_source = st.selectbox("Источник H1", ("SYNTHETIC / DEMO", "OFFLINE_FIXTURE", "READONLY_EXPORT", "WINDOWS_OS_ONLY"), index=3, key="h1-source")
+        scenarios = {robot: st.selectbox(f"Тестовый сценарий {robot}", list(SCENARIOS), format_func=SCENARIOS.get,
+                                        key=f"scenario-{robot}") for robot in RobotId}
+        st.caption("DEMO/OFFLINE_FIXTURE — только для диагностики. В рабочем режиме WINDOWS_OS_ONLY.")
+    st.caption("Локальный интерфейс · READONLY")
 
 
 def h1_operator_view(report, now):
@@ -105,11 +98,9 @@ def live_view():
     if h1_source == "WINDOWS_OS_ONLY" and "cc03-local-check" in st.session_state:
         local_report = age_operator_report(st.session_state["cc03-local-check"], now)
         st.session_state["cc03-local-check"] = local_report
+    if h1_source == "WINDOWS_OS_ONLY" and st.session_state.get("cc03-local-check-error"):
+        st.warning("H1 CHECK недоступен: последний отчёт не прошёл проверку.")
     render(page, snapshots, now, broker=broker, local_report=local_report)
-    if h1_source == "WINDOWS_OS_ONLY" and page in (PAGES[0], PAGES[1]):
-        if st.session_state.get("cc03-local-check-error"):
-            st.warning("H1 CHECK: отчёт неполный, устарел по структуре или содержит FAIL. Ничего не принято.")
-        h1_operator_view(local_report, now)
 
 
 live_view()

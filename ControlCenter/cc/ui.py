@@ -7,10 +7,9 @@ from .freshness import MSK, display_state, freshness, metric, stamp
 from .models import RobotId, RobotSnapshot, SourceKind, State
 from .providers.synthetic import EVENT_TYPES
 
-PAGES = ("Главная панель", "Монитор H1", "Монитор M15", "Графики и сигналы",
-         "Сделки и статистика", "Журнал событий", "Управление")
+PAGES = ("Главная", "Журнал", "Управление")
 CONTROLS = ("Пауза новых входов", "Аварийная остановка", "Безопасная остановка", "Перезапуск", "Диагностика")
-CONTROL_EXPLANATION = "Управление будет доступно после отдельной разработки, проверки безопасности и разрешения оператора"
+CONTROL_EXPLANATION = "Управление ещё не подключено. Команды START / STOP / RESTART не выполняются."
 CSS = """
 <style>
 .block-container {max-width:1450px;padding-top:4rem;padding-bottom:3rem;}
@@ -90,15 +89,51 @@ def robot_card(snapshot: RobotSnapshot, now: datetime, local_report=None):
 
 
 def overview(snapshots: dict, now: datetime, broker=None, local_report=None):
-    st.subheader("Два робота · два независимых контура")
-    st.caption("H1 отображает только состояние своего выбранного источника; M15 — NOT_DEPLOYED. Сценарии в боковой панели меняют только локальные тестовые снимки.")
-    for column, robot_id in zip(st.columns(2), RobotId):
-        with column:
-            robot_card(snapshots[robot_id], now, local_report=local_report if robot_id == RobotId.H1 else None)
-    st.info("Счета, капитал и риск H1 / M15 отображаются раздельно. Суммарного портфеля двух роботов нет.")
-    if broker is not None:
-        broker_readonly_view(broker)
-
+    h1 = snapshots[RobotId.H1]
+    local = (local_report if h1.status.provenance.source_kind == SourceKind.WINDOWS_OS_ONLY else None)
+    fresh = local is not None and local["status"] == "CURRENT"
+    st.subheader("H1 · T3 / TRAIL1")
+    if fresh:
+        st.success("HEALTHY · ARMED · сверка H1 PASS")
+    elif local is not None:
+        st.warning("STALE · H1 CHECK устарел")
+    else:
+        st.warning("UNKNOWN · нет актуального H1 CHECK")
+    a, b, c, d = st.columns(4)
+    a.metric("Цикл", str(local["cycle_count"]) if fresh else "—")
+    b.metric("Позиции H1", str(local["positions"]) if fresh else "—")
+    c.metric("Стопы H1", str(local["stops"]) if fresh else "—")
+    d.metric("Ошибки / unresolved", str(local["unresolved"]) if fresh else "—")
+    if fresh:
+        st.caption("Heartbeat " + stamp(local["observed_at"]) + " · Task " + (h1.status.task_state or "UNKNOWN") +
+                   " · 10 циклов: " + str(sum(v["Результат"] == "PASS" for v in local["cycles"])) + "/10 PASS")
+    else:
+        st.caption("Windows Task: " + (h1.status.task_state or "UNKNOWN") + " · последнее достоверное здоровье неизвестно")
+    st.divider()
+    st.subheader("FINAM · брокер")
+    if not broker or broker.get("status") == "UNKNOWN":
+        st.info("Нет принятого снимка брокера")
+    else:
+        if broker["status"] == "STALE":
+            st.warning("STALE · брокерский снимок устарел")
+        else:
+            st.caption("CURRENT · отдельный FINAM READONLY-снимок")
+        a, b, c = st.columns(3)
+        a.metric("Заявки", str(broker["order_rows"]) if broker["status"] == "CURRENT" else "—")
+        b.metric("Активные", str(broker["active_orders"]) if broker["status"] == "CURRENT" else "—")
+        c.metric("SLTP", str(broker["active_sltp"]) if broker["status"] == "CURRENT" else "—")
+        st.caption("Снимок " + stamp(broker["received_at"]))
+    st.divider()
+    st.subheader("M15")
+    st.caption("Источник M15 не подключён к Control Center")
+    with st.expander("Сведения об источниках и N4", expanded=False):
+        st.caption("H1 CHECK — локальный отчёт движка; брокерские позиции, исполнения и покрытие стопов он не подтверждает.")
+        st.caption("FINAM — отдельное наблюдение; нули не доказывают FLAT без полноты ответа и привязки счёта.")
+        if broker and broker.get("status") != "UNKNOWN":
+            st.dataframe([{"Инструмент": name, "В ответе FINAM": broker["quantities"][name]}
+                          for name in ("USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF")],
+                         width="stretch", hide_index=True)
+        st.caption("Текущее подтверждение сигналов/причин отказов, PnL и риска — отсутствует.")
 
 def chart_view(snapshot: RobotSnapshot, key: str):
     symbols = [row.instrument for row in snapshot.instruments]
@@ -278,62 +313,30 @@ def trades_view(snapshot: RobotSnapshot, now: datetime, broker=None):
         st.dataframe(monthly(snapshot.trades), width="stretch", hide_index=True)
 
 
-def events_view(snapshots: dict, now: datetime):
-    st.subheader("Хронология событий · источник указан в каждой записи")
-    a, b = st.columns(2)
-    robots = a.multiselect("Роботы", list(RobotId), default=list(RobotId))
-    kinds = b.multiselect("Типы событий", list(EVENT_TYPES), format_func=lambda v: EVENT_TYPES[v])
-    all_events = [e for snapshot in snapshots.values() for e in snapshot.events]
-    symbols = sorted({e.instrument for e in all_events if e.instrument})
-    c, d = st.columns(2)
-    instruments = c.multiselect("Инструменты", symbols)
-    query = d.text_input("Поиск по сообщению")
-    start, end = st.columns(2)
-    since = start.date_input("С даты (MSK)", now.astimezone(MSK).date())
-    until = end.date_input("По дату (MSK)", now.astimezone(MSK).date())
-    if since > until:
-        st.warning("Начальная дата позже конечной.")
+def events_view(snapshots: dict, now: datetime, local_report=None):
+    st.subheader("Последние 10 циклов H1")
+    if local_report is None:
+        st.info("Нет опубликованного H1 CHECK. Обнови данные на главной странице.")
         return
-    rows = [e for e in all_events if e.provenance.robot_id in robots
-            and (not kinds or e.kind in kinds) and (not instruments or e.instrument in instruments)
-            and since <= e.occurred_at.astimezone(MSK).date() <= until and query.casefold() in e.message.casefold()]
-    st.caption(f"Найдено событий: {len(rows)}. История ограничена текущими снимками; отсутствие событий не доказывает отсутствие операций.")
-    st.dataframe([{"Время UTC / MSK": stamp(e.occurred_at), "Робот": e.provenance.robot_id.value,
-                   "Счёт DEMO": e.provenance.account_scope, "Инструмент": e.instrument or "UNKNOWN",
-                   "Тип": EVENT_TYPES.get(e.kind, e.kind), "Уровень": e.severity,
-                   "Событие DEMO": e.message, "Источник": e.provenance.source,
-                   "Время источника": stamp(e.provenance.observed_at), "Режим": e.provenance.source_kind.value}
-                  for e in sorted(rows, key=lambda row: row.occurred_at, reverse=True)], width="stretch", hide_index=True)
+    if local_report["status"] == "STALE":
+        st.warning("STALE · показана история, не текущее состояние")
+    st.dataframe(local_report["cycles"], hide_index=True, width="stretch")
+    st.caption("Локальный журнал H1 · время heartbeat: " + stamp(local_report["observed_at"]))
+    st.caption("Отдельные сигналы T3 и причины SKIP этот источник не публикует.")
 
 
 def controls_view(snapshots: dict, now: datetime):
-    st.subheader("Управление · недоступно в CC-02")
-    st.warning(CONTROL_EXPLANATION)
-    for robot_id in RobotId:
-        with st.container(border=True):
-            st.write(f"**{robot_id} · {snapshots[robot_id].status.provenance.account_scope}**")
-            status_banner(snapshots[robot_id], now)
-            for label in CONTROLS:
-                st.button(label, key=f"disabled-{robot_id}-{label}", disabled=True, width="stretch")
-    st.caption("Кнопки не имеют обработчиков. Отдельный защищённый control plane — будущая работа после проверки и разрешения оператора.")
+    st.subheader("Управление роботами")
+    st.info(CONTROL_EXPLANATION)
+    st.caption("H1 · управление недоступно")
+    st.caption("M15 · управление недоступно")
+    st.caption("Никаких торговых действий из панели не выполняется.")
 
 
 def render(page: str, snapshots: dict, now: datetime, broker=None, local_report=None):
     if page == PAGES[0]:
         overview(snapshots, now, broker=broker, local_report=local_report)
-    elif page in (PAGES[1], PAGES[2]):
-        selected = RobotId.H1 if page == PAGES[1] else RobotId.M15
-        monitor(snapshots[selected], now, broker=broker if selected == RobotId.H1 else None,
-                local_report=local_report if selected == RobotId.H1 else None)
-    elif page == PAGES[3]:
-        snapshot = choose_robot(snapshots, "chart-robot")
-        status_banner(snapshot, now)
-        source(snapshot, now)
-        chart_view(snapshot, "signals")
-    elif page == PAGES[4]:
-        selected = choose_robot(snapshots, "trades-robot")
-        trades_view(selected, now, broker=broker if selected.status.provenance.robot_id == RobotId.H1 else None)
-    elif page == PAGES[5]:
-        events_view(snapshots, now)
+    elif page == PAGES[1]:
+        events_view(snapshots, now, local_report=local_report)
     else:
         controls_view(snapshots, now)
