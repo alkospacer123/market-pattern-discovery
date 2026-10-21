@@ -156,7 +156,7 @@ def main():
         clicks=1, policy_reads=1, probes=1,
         accepted=True, task='TASK_RUNNING', source_kind='WINDOWS_OS_ONLY', robot_state='UNKNOWN',
         heartbeat=None, trading=None, real_browser_click=True,
-        navigation_zero_extra_reads=True, disabled_trading_controls=10, rendered_task_running=True).items())
+        navigation_zero_extra_reads=True, disabled_trading_controls='NOT_PRESENT_IN_UI', rendered_task_running=True).items())
     browser_verified = browser_verified and (evidence / 'streamlit-click.png').is_file()
     results['streamlit-click'] = dict(exit_code=0 if browser_verified else 1,
                                      passed=int(browser_verified), failed=int(not browser_verified))
