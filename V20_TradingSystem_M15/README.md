@@ -1,8 +1,8 @@
-# V20_TradingSystem_M15 — V20-03: диагностика PF
+# V20_TradingSystem_M15 — V20-04: три независимых робота
 
-Актуальный результат — [PF_DIAGNOSTIC_REPORT_RU.md](V20-03/comparison/PF_DIAGNOSTIC_REPORT_RU.md), [методологические эффекты](V20-03/comparison/METHODOLOGY_EFFECTS_RU.md) и [решение о разработке](V20-03/comparison/DEVELOPMENT_DECISION_RU.md). Работа в Draft PR #565 без merge. Roadmap **ровно V20-01–V20-08**, **V20-04 = разработка H1/M15**; денежный replay, GO/HOLD/NO-GO и Shadow не являются самостоятельными этапами.
+Актуальный результат — [PF_DIAGNOSTIC_REPORT_RU.md](V20-03/comparison/PF_DIAGNOSTIC_REPORT_RU.md), [методологические эффекты](V20-03/comparison/METHODOLOGY_EFFECTS_RU.md) и [решение о разработке](V20-03/comparison/DEVELOPMENT_DECISION_RU.md). V20-03 принят владельцем с сохранением PARTIAL-ограничений, PR #565 предназначен для разрешённого merge. Roadmap **ровно V20-01–V20-08**, **V20-04 = разработка H1/M15**; денежный replay, GO/HOLD/NO-GO и Shadow не являются самостоятельными этапами.
 
-По доступным данным рекомендуем вариант B: offline-разработка Shallow первой и Inside второй конфигурацией, OBV HOLD. Это заключение V20-03, не разрешение LIVE и не запуск V20-04. Статус полной сопоставимости PARTIAL; исходные 14 PASS / 4 FAIL не переписываются.
+**Текущее решение владельца:** разработать все три — Shallow, OBV, Inside — на едином H1/M15 исполнительном каркасе. **V20-04 IN PROGRESS / OFFLINE ONLY.** Прежняя аналитическая рекомендация B сохранена в V20-03 как историческая оценка разной надёжности, но не ограничивает разработку OBV. LIVE и реальное брокерское исполнение запрещены до отдельного разрешения. См. [решение от 21.10.2026](docs/DECISION_V20_03_CLOSE_20261021_RU.md). Статус полной сопоставимости PARTIAL; исходные 14 PASS / 4 FAIL не переписываются.
 
 | Стратегия | PF C1 2023–2026 | PF C1 2018–2022 |
 |---|---:|---:|
