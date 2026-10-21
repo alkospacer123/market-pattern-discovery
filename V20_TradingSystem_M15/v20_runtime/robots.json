@@ -1,0 +1,34 @@
+{
+  "execution_mode": "OFFLINE_ONLY",
+  "planned_account_capital_rub": 500000,
+  "provisional_risk_fraction": "0.015",
+  "symbols": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "robots": [
+    {
+      "robot_id": "v20-shallow",
+      "strategy": "SHALLOW_PULLBACK",
+      "task": "v20-shallow",
+      "state_dir": "C:\\V20Lab\\shallow\\state",
+      "token_binding": "UNCONFIGURED"
+    },
+    {
+      "robot_id": "v20-obv",
+      "strategy": "OBV_PRESSURE",
+      "task": "v20-obv",
+      "state_dir": "C:\\V20Lab\\obv\\state",
+      "token_binding": "UNCONFIGURED"
+    },
+    {
+      "robot_id": "v20-inside",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "task": "v20-inside",
+      "state_dir": "C:\\V20Lab\\inside\\state",
+      "token_binding": "UNCONFIGURED"
+    }
+  ]
+}
