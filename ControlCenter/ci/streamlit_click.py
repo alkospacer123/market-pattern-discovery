@@ -69,11 +69,8 @@ async def _browser_click(edge, profile, evidence, log):
                 await asyncio.sleep(.1)
 
         await call('Page.navigate', dict(url='http://127.0.0.1:8502'))
-        await until("document.querySelectorAll('[data-testid=stSelectbox]').length >= 1")
+        await until("document.body.innerText.includes('Control Center')")
         assert state(evidence)['policy_reads'] == 0
-        await evaluate("document.querySelector('[data-testid=stSelectbox] [role=combobox]').click()")
-        await until("Array.from(document.querySelectorAll('[role=option]')).some(e=>e.textContent==='WINDOWS_OS_ONLY')")
-        await evaluate("Array.from(document.querySelectorAll('[role=option]')).find(e=>e.textContent==='WINDOWS_OS_ONLY').click()")
         button = "Array.from(document.querySelectorAll('button')).find(e=>e.textContent==='Обновить данные')"
         await until(f"Boolean(({button}) && !({button}).disabled)")
         assert state(evidence)['policy_reads'] == 0
@@ -94,12 +91,10 @@ async def _browser_click(edge, profile, evidence, log):
             await evaluate("Array.from(document.querySelectorAll('[data-testid=stRadio] label'))"
                            ".find(e=>e.textContent.includes(" + json.dumps(name) + ")).click()")
         await page('Управление')
-        await until("document.querySelectorAll('[data-testid=stButton] button:disabled').length === 10")
-        await page('Монитор H1')
-        await until("document.body.innerText.includes('Windows OS READONLY:')")
-        # The explicit Windows Task summary belongs to overview; monitor uses
-        # a readonly observation table and a caption containing the same token.
-        await page('Главная панель')
+        await until("document.body.innerText.includes('Управление ещё не подключено')")
+        await page('Журнал')
+        await until("document.body.innerText.includes('Последние 10 циклов H1')")
+        await page('Главная')
         task = ("Array.from(document.querySelectorAll('[data-testid=stMarkdownContainer]'))"
                 ".find(e=>e.innerText.replace(/\\s+/g,' ').includes('Windows Task: TASK_RUNNING'))")
         await until(f"Boolean({task})")
@@ -111,7 +106,7 @@ async def _browser_click(edge, profile, evidence, log):
         (evidence.parent / 'streamlit-click.png').write_bytes(base64.b64decode(screenshot['data']))
         value['real_browser_click'] = True
         value['navigation_zero_extra_reads'] = True
-        value['disabled_trading_controls'] = 10
+        value['disabled_trading_controls'] = 'NOT_PRESENT_IN_UI'
         value['rendered_task_running'] = True
         return value
     except BaseException:
