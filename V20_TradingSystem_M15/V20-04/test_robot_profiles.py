@@ -24,8 +24,8 @@ class V20ProfilesTest(unittest.TestCase):
             self.assertFalse(p.live_enabled)
             self.assertEqual(p.execution_mode, "OFFLINE_ONLY")
             self.assertEqual(p.risk_fraction_provisional, Decimal("0.015"))
-            self.assertNotIn("TOKEN", str(p))
-            self.assertNotIn("ACCOUNT_ID=", str(p))
+            self.assertTrue(p.token_ref_env.endswith("_FINAM_TOKEN_REF"))
+            self.assertTrue(p.account_env.endswith("_FINAM_ACCOUNT_ID"))
 
     def test_isolation(self):
         for field in ("root", "task_name", "state_path", "audit_path",
