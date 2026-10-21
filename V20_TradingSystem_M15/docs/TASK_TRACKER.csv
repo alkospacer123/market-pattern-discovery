@@ -1,8 +1,8 @@
 ID;Работа;Статус;Артефакт;PASS условие
 V20-01;Паспорт и документация;LOCAL PASS;docs/ROADMAP_RU.md;Локальные документы и frozen provenance
-V20-02;Эталон 1589 закрытых сделок;ARCHIVED PASS — original ledger unavailable now;V20-02_AUDIT/ACCEPTANCE_V20_02.json;797/612/180 по прежней parity
-V20-03;История 2018–2022 и диагностика падения PF;PARTIAL/HOLD по полной сопоставимости;V20-03/comparison/VERIFICATION.json;Проверяемый доступный состав и явно оставленные ограничения
-V20-04;Разработка на базе H1/M15;NOT STARTED;Изолированный каркас и конфигурации;Неизменные стратегии и независимое состояние
+V20-02;Эталон 1589 закрытых сделок;ARCHIVED PASS — reference ledger independently found in prior project archive;V20-02_AUDIT/ACCEPTANCE_V20_02.json;797/612/180 по прежней parity
+V20-03;История 2018–2022 и диагностика падения PF;CLOSED / ACCEPTED WITH LIMITATIONS (research PARTIAL);V20-03/comparison/VERIFICATION.json;Проверяемый доступный состав и явно оставленные ограничения
+V20-04;Разработка трёх стратегий на базе H1/M15;IN PROGRESS — OFFLINE ONLY;Изолированный общий каркас и конфигурации Shallow OBV Inside;Неизменные стратегии и три независимых состояния
 V20-05;Offline и Windows acceptance;NOT STARTED;ACCEPTANCE_REPORT.json;Сигналы/SLTP/sizing/ГО/комиссии/recovery/account isolation
 V20-06;FINAM READONLY 3 accounts;NOT STARTED;BROKER_READONLY_REPORT.json;3/3 broker binding без заявок
 V20-07;Intel staging LIVE off;NOT STARTED;INTEL_STAGING_REPORT.json;Pinned SHA и изолированные Disabled Task
