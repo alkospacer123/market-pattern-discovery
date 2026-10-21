@@ -1,0 +1,90 @@
+{
+  "schema": "v20_04_offline_source_inventory_v1",
+  "source_main_commit": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
+  "hash_type": "git_blob_sha1",
+  "production_h1_mutations_allowed": false,
+  "signal_optimization_allowed": false,
+  "live_authorized": false,
+  "components": [
+    {
+      "path": "TradingSystemLab/stage8_robot/finam_api.py",
+      "git_blob_sha1": "a1126a7d2c618c19b5895f5c54da8e1ad73b339a",
+      "role": "FINAM API transport; reuse only in isolated later stage"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/live_execution.py",
+      "git_blob_sha1": "0c2fcd742a3157575cdecc5e1dac40d0c906b203",
+      "role": "Authorization/account-bound order path; adapted, not used in bootstrap"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/production_service.py",
+      "git_blob_sha1": "46b258c6b01d79fea4c3be9338185c121e575755",
+      "role": "Production service orchestration; avoid T3-specific code"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/production_runtime.py",
+      "git_blob_sha1": "4ec35199be9269af5fc10093a086e0feb4207a34",
+      "role": "Durable execution/state patterns; T3-coupled, inspect before reuse"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/execution_grid.py",
+      "git_blob_sha1": "d8e55d6083153f4854139ffcc9b921b35bdfca8a",
+      "role": "Executable stop grid from PR493 family"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/margin.py",
+      "git_blob_sha1": "80117ff6ea169305a7c22ee52a12e3e9103c9deb",
+      "role": "GO/margin capacity"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/state.py",
+      "git_blob_sha1": "4f12e1cb61eccb0b14c1efb9ff0cdf2532a7b22b",
+      "role": "Durable SQLite intent and state; isolate per robot"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/protective_stop_contract.py",
+      "git_blob_sha1": "51a7ab88d2f64f969088d8ef04927383b7abc1aa",
+      "role": "Protection SLTP contract"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/production_safety_gate.py",
+      "git_blob_sha1": "f8c399bba0a373fe5154e96f43118871f90c0228",
+      "role": "Authorization/new entry gate pattern"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/reconciliation.py",
+      "git_blob_sha1": "6585cfa96efd532ff651c23c5ce4b5b3880b88ad",
+      "role": "Reconciliation"
+    },
+    {
+      "path": "IntradayLab/core/m15_bars.py",
+      "git_blob_sha1": "7d2eefb949de05cbd53936a713bd37644bb01a35",
+      "role": "Completed M15 bars with independently observable NEXT_OPEN scalar"
+    },
+    {
+      "path": "IntradayLab/core/calendar.py",
+      "git_blob_sha1": "55798e1d266a953d94879dabb8f9b6f938b85619",
+      "role": "Known trading sessions/windows; adapt to FINAM observed calendar"
+    },
+    {
+      "path": "V20_TradingSystem_M15/research_original_v20/base.py",
+      "git_blob_sha1": "b917cc9c7c99fbad38423d9f4fdfbb82767545be",
+      "role": "Frozen indicators/ATR; extract only exact functions without side effects"
+    },
+    {
+      "path": "V20_TradingSystem_M15/research_original_v20/run.py",
+      "git_blob_sha1": "7d9ddf0ef498f0c93a139c0104af2a72d0e79151",
+      "role": "Frozen Shallow/OBV signals"
+    },
+    {
+      "path": "V20_TradingSystem_M15/research_original_v20/legacy_v4/study_v4.py",
+      "git_blob_sha1": "7749f82edcb8a04b4002978b588beeb26e484f71",
+      "role": "Frozen Inside signal"
+    },
+    {
+      "path": "V20_TradingSystem_M15/V20-02_AUDIT/replay_independent.py",
+      "git_blob_sha1": "edea279392e36d2d8f5e38d22c800ed6fa4c0dbf",
+      "role": "Parity authority for offline V20 signals"
+    }
+  ]
+}
