@@ -2532,7 +2532,8 @@ class M15ExecutionStageTests(unittest.TestCase):
                            return_value=broker["orders_response"])):
             controller.prepare_initial_stop_from_finam(**kw)
             altered = dict(seed["asset_params"])
-            altered["initial_margin"] = {"value": "999999"}
+            altered["long_initial_margin"] = {
+                "currency_code": "RUB", "units": "101", "nanos": 0}
             with (patch.object(M15FinamTradingAPI, "asset_params",
                                return_value=altered),
                   patch.object(finam_trading, "M15_ORDER_POST_RELEASED", True),
