@@ -499,7 +499,7 @@
     },
     {
       "path": "tests/test_h1_ui.py",
-      "sha256": "77fcd93eb598cd6fba09dc667ee1f9bf363a44638fbb717aaa3f573c487e7153"
+      "sha256": "6a94979186267b0ff803c465bf5918a6f8591f396b7a0c1be140d7c1078d264a"
     },
     {
       "path": "tests/test_intel_b2_layout.py",
