@@ -15,7 +15,7 @@
     },
     {
       "path": "app.py",
-      "sha256": "4568fa7274076a975e39d362ea6544b16310e491454f6946c42f8111e5eb0fb6"
+      "sha256": "9a1415165d8e32915f1c155fdfecac29c8cdee909933479e436c43e554edf6db"
     },
     {
       "path": "broker_readonly/__init__.py",
@@ -119,7 +119,7 @@
     },
     {
       "path": "cc/ui.py",
-      "sha256": "0cda19b4dcbf211ccf3305e0a7ec74aae465df23d58ed59789a822a6b41fb216"
+      "sha256": "97422146de8dc197c1f54d55a2e59b3459da288451a42c0655e098650ca7297a"
     },
     {
       "path": "ci/Os-Fixtures.ps1",
@@ -159,7 +159,7 @@
     },
     {
       "path": "ci/streamlit_click.py",
-      "sha256": "fe540653282d7044ad27728377ae22e4571b234a1e17cdd62b18eaa409eb524a"
+      "sha256": "e1b4304feb70c25891d53d9124207baca4057130b3b01f12de4f629aa120654f"
     },
     {
       "path": "ci/streamlit_host.py",
@@ -475,7 +475,7 @@
     },
     {
       "path": "tests/test_cc03_source.py",
-      "sha256": "bbe012daa3210e2a69d185ad07548a7a74c844c3a4586be893f2c085da3f0163"
+      "sha256": "3a134a2937e5ce152264a2aedf92d5a00a61e6cc56da69e9334801fd70b8d8ee"
     },
     {
       "path": "tests/test_ci_paths.py",
@@ -499,7 +499,7 @@
     },
     {
       "path": "tests/test_h1_ui.py",
-      "sha256": "1999fd8cc3eeeae067e3d997a02234d4db6e0b5c4a12ba92de21d7e831b40a49"
+      "sha256": "77fcd93eb598cd6fba09dc667ee1f9bf363a44638fbb717aaa3f573c487e7153"
     },
     {
       "path": "tests/test_intel_b2_layout.py",
@@ -543,7 +543,7 @@
     },
     {
       "path": "tests/test_ui.py",
-      "sha256": "58dcf2570e24e68c6159dc5d9b66adb6f1d3f079454a7145f21bd1c5c89744a8"
+      "sha256": "ead47cc64f681dd14b1e7d697917d133605ec0c00844242ff71cc1a770065b91"
     },
     {
       "path": "tests/test_windows_reader.py",
