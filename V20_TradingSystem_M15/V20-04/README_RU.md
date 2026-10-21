@@ -1,5 +1,7 @@
 # V20-04 — общий каркас трёх роботов: начата offline-разработка
 
+**Утверждённые подэтапы V20-04.1–04.6** восстановлены в [docs/ROADMAP_DETAILED_RU.md](../docs/ROADMAP_DETAILED_RU.md); оперативные статусы — в [docs/TASK_TRACKER.csv](../docs/TASK_TRACKER.csv). Draft PR — это начало интеграции, а не PASS этапа 04.6.
+
 **Основание:** решение владельца `docs/DECISION_V20_03_CLOSE_20261021_RU.md`; merge V20-03 `6f352acfac7ebdfabba73e143c4dfea3a6e48507`. Roadmap 8 этапов, V20-04 = разработка. **LIVE OFF**.
 
 ## Что реализовано в этом Draft PR
