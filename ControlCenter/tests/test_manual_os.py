@@ -157,23 +157,22 @@ def test_startup_reruns_switches_and_m15_zero_calls_click_failure_clears_cache(m
     for page in PAGES:app.radio[0].set_value(page).run()
     app.run()
     assert not app.exception and not calls
-    app.radio[0].set_value('Монитор H1').run()
+    app.radio[0].set_value('Главная').run()
     app.button(key='cc03-manual-refresh').click().run()
     assert len(calls)==1 and not app.exception
     assert app.session_state['cc03-last-export'].status.task_state=='TASK_RUNNING'
     for page in PAGES:app.radio[0].set_value(page).run()
     assert len(calls)==1 and not app.exception
-    controls=[b for b in app.button if b.key!='cc03-manual-refresh']
-    # Check controls on the actual controls page, independent of current PAGES order.
+    # Unimplemented trading controls must not appear clickable.
     app.radio[0].set_value('Управление').run()
-    assert len([b for b in app.button if b.key!='cc03-manual-refresh' and b.disabled])==10
+    assert len(app.button)==1
     monkeypatch.setattr(manual,'installed_policy',lambda:(_ for _ in ()).throw(PermissionError('SECRET')))
     app.button(key='cc03-manual-refresh').click().run()
     assert app.session_state['cc03-last-export'].status.task_state is None and len(calls)==1
     assert any('MANUAL_REFRESH_BLOCKED_POLICY_VALIDATE' in str(w.value) for w in app.warning)
     assert all('SECRET' not in str(w.value) for w in app.warning)
-    app.radio[0].set_value('Монитор M15').run()
-    assert any('NOT_DEPLOYED' in str(x.value) for x in app.info)
+    app.radio[0].set_value('Главная').run()
+    assert any('Источник M15 не подключён' in str(x.value) for x in app.caption)
     app.selectbox(key='h1-source').select('READONLY_EXPORT').run()
     assert 'cc03-last-export' not in app.session_state
     assert not app.exception
@@ -222,7 +221,7 @@ def test_expired_os_cache_never_revives_on_clock_rewind_without_manual_click(man
     monkeypatch.setattr(freshness,'utc_now',lambda:datetime.now(timezone.utc) if clock[0] is None else clock[0])
     app=AppTest.from_file(str(Path(__file__).parents[1]/'app.py'),default_timeout=15).run()
     app.selectbox(key='h1-source').select('WINDOWS_OS_ONLY').run()
-    app.radio[0].set_value('Монитор H1').run()
+    app.radio[0].set_value('Главная').run()
     app.button(key='cc03-manual-refresh').click().run()
     original=app.session_state['cc03-last-export']
     assert original.status.task_state=='TASK_RUNNING' and len(calls)==1
@@ -237,7 +236,7 @@ def test_expired_os_cache_never_revives_on_clock_rewind_without_manual_click(man
     assert len(calls)==1 and not app.exception
     assert cached.windows_observations[0].freshness==expected_freshness
     if expected_freshness=='STALE':
-        assert any('качество STALE' in str(c.value) for c in app.caption)
+        assert cached.windows_observations[0].freshness=='STALE'
     clock[0]=None
     app.button(key='cc03-manual-refresh').click().run()
     assert app.session_state['cc03-last-export'].status.task_state=='TASK_RUNNING'

@@ -35,7 +35,7 @@ def test_only_three_requested_sections(app):
     assert app.button(key="cc03-manual-refresh").disabled is False
     assert len(app.button) == 1
     assert "H1" in page_text(app) and "M15" in page_text(app)
-    assert "Нет актуального H1 CHECK" in page_text(app)
+    assert "нет актуального H1 CHECK" in page_text(app)
     assert not app.get("plotly_chart")
 
 

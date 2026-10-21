@@ -108,12 +108,11 @@ def test_missing_h1_and_panel_rerun_leave_m15_and_controls_independent(monkeypat
     app=AppTest.from_file(str(Path(__file__).parents[1]/'app.py'),default_timeout=15).run()
     app.selectbox(key='h1-source').select('READONLY_EXPORT').run()
     for _ in range(2): app.run()
-    app.radio[0].set_value('Монитор M15').run()
+    app.radio[0].set_value('Главная').run()
     assert not app.exception
-    assert any('NOT_DEPLOYED' in str(x.value) for x in app.info)
+    assert any('Источник M15 не подключён' in str(x.value) for x in app.caption)
     app.radio[0].set_value('Управление').run()
-    controls = [b for b in app.button if b.key != 'cc03-manual-refresh']
-    assert len(controls) == 10 and all(b.disabled for b in controls)
+    assert len(app.button) == 1  # no inert trading controls
 
 
 def test_observer_is_outside_ui_dependency_graph_and_has_no_trading_capabilities():
