@@ -211,8 +211,15 @@ def evaluate_market_card(
     """
     if symbol not in N4:
         raise ValueError("SYMBOL_OUTSIDE_FROZEN_N4")
-    if previous is not None and previous.get("symbol") != symbol:
-        raise ValueError("PREVIOUS_CARD_SYMBOL_MISMATCH")
+    if previous is not None:
+        if previous.get("symbol") != symbol:
+            raise ValueError("PREVIOUS_CARD_SYMBOL_MISMATCH")
+        try:
+            previous_at = datetime.fromisoformat(previous["as_of_msk"])
+        except (KeyError, ValueError, TypeError) as exc:
+            raise ValueError("PREVIOUS_CARD_TIMESTAMP_INVALID") from exc
+        if previous_at.tzinfo is not None or previous_at >= as_of:
+            raise ValueError("PREVIOUS_CARD_NOT_CAUSALLY_EARLIER")
     recent, quality = _check(sessions, as_of)
     complete = len(recent) == WINDOW and quality["missing_bars"] == 0
     bars = [b for s in recent for b in s.bars]
