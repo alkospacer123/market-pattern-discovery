@@ -4,7 +4,7 @@ V20-02;Эталон 1589 закрытых сделок;ARCHIVED PASS — referen
 V20-03;История 2018–2022 и диагностика падения PF;CLOSED / ACCEPTED WITH LIMITATIONS (research PARTIAL);V20-03/comparison/VERIFICATION.json;Проверяемый доступный состав и явно оставленные ограничения
 V20-04;Разработка трёх стратегий на базе H1/M15;IN PROGRESS — OFFLINE ONLY;Изолированный общий каркас и конфигурации Shallow OBV Inside;Неизменные стратегии и три независимых состояния
 V20-04.1;Карта и SHA проверенных H1/M15 источников;PARTIAL;V20-04/SOURCE_MAP.md (ещё не создан);Подтверждены H1 + M15 pinned source SHA
-V20-04.2;Три frozen сигнала completed M15 NEXT_OPEN;PARTIAL;v20_runtime/frozen_adapter.py и robots.json;Совпадение с frozen и причинный M15 pipeline
+V20-04.2;Три frozen сигнала completed M15 NEXT_OPEN и информационная карточка рынка;PARTIAL;v20_runtime/frozen_adapter.py robots.json и V20-04/MARKET_SUITABILITY_CARD_RU.md;Совпадение с frozen причинный M15 pipeline и READONLY карточка без влияния на сделки
 V20-04.3;FINAM orders SLTP reconciliation recovery H1;NOT DONE;H1 stage8_robot source reused without changes;Единая исполнительная часть V20 LIVE OFF
 V20-04.4;Риск стоп тик ГО количество и расходы;PARTIAL;v20_runtime/offline_planner.py;Исполнимый размер по фактическому fill и деньгам счёта
 V20-04.5;Три независимых процесса счета и состояния;PARTIAL;v20_runtime/robots.json;3 isolated configs processes state and logs
