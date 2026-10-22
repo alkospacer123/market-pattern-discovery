@@ -9,11 +9,14 @@ from copy import deepcopy
 from datetime import date, datetime
 from math import isfinite
 from typing import Any, Mapping
+from .market_suitability import METRIC_SCHEMA
 
+# Five diagnostic aspects are NOT five mandatory trading conditions. Only this
+# compact, externally validated strategy profile can ever label the card.
 STRATEGY_METRICS = {
     "SHALLOW_PULLBACK": frozenset(("directional_efficiency", "continuation_rate")),
-    "OBV_PRESSURE": frozenset(("signed_volume_pressure_abs", "continuation_rate")),
-    "INSIDE_DAY_RELEASE": frozenset(("inside_session_share", "continuation_rate")),
+    "OBV_PRESSURE": frozenset(("pressure_direction_alignment", "continuation_rate")),
+    "INSIDE_DAY_RELEASE": frozenset(("range_compression_ratio", "inside_release_continuation_rate")),
 }
 VERDICTS = ("ДОПУСТИМО", "НЕЙТРАЛЬНО", "НЕДОПУСТИМО")
 
@@ -25,7 +28,8 @@ def _number(value: Any) -> bool:
 def _validated(reference: Mapping[str, Any] | None, symbol: str, as_of: str) -> tuple[bool, str]:
     if not isinstance(reference, Mapping):
         return False, "REFERENCE_NOT_PROVIDED"
-    if reference.get("schema") != "v20.market_suitability.validated_reference.v1":
+    if (reference.get("schema") != "v20.market_suitability.validated_reference.v2"
+            or reference.get("metric_schema") != METRIC_SCHEMA):
         return False, "REFERENCE_SCHEMA_NOT_VALIDATED"
     evidence = reference.get("evidence")
     if not isinstance(evidence, Mapping) or evidence.get("validation_status") != "PASS":
@@ -62,6 +66,8 @@ def apply_market_reference(card: Mapping[str, Any], reference: Mapping[str, Any]
     result["affects_signals_or_risk"] = False
     result["trading_instrument_authority"] = "OPERATOR_ONLY"
     valid, evidence_reason = _validated(reference, result["symbol"], result["as_of_msk"])
+    if result.get("metric_schema") != METRIC_SCHEMA:
+        valid, evidence_reason = False, "CARD_METRIC_SCHEMA_MISMATCH"
     result["reference_evidence"] = {"ready": valid, "reason": evidence_reason,
                                     "external_audit_required": True,
                                     "artifact_sha256": (reference.get("evidence", {}).get("artifact_sha256")
@@ -81,7 +87,7 @@ def apply_market_reference(card: Mapping[str, Any], reference: Mapping[str, Any]
             entry["suitability"] = "НЕ ОЦЕНЕНО"
             entry["explanation"] = ["STRATEGY_RULE_NOT_VALIDATED"]
             continue
-        missing, bad, good, explanations = False, False, True, []
+        missing, bad_count, good, explanations = False, 0, True, []
         for metric in sorted(fields):
             value = entry["diagnostics"].get(metric)
             spec = rule[metric]
@@ -96,7 +102,8 @@ def apply_market_reference(card: Mapping[str, Any], reference: Mapping[str, Any]
                 explanations.append(f"{metric}:REFERENCE_RULE_INVALID")
                 continue
             if value < spec["reject_below"] or value > spec["reject_above"]:
-                bad = True
+                bad_count += 1
+                good = False
                 explanations.append(f"{metric}={value:.6g}:OUTSIDE_EVIDENCED_RANGE[{spec['reject_below']},{spec['reject_above']}]")
             elif spec["allow_min"] <= value <= spec["allow_max"]:
                 explanations.append(f"{metric}={value:.6g}:WITHIN_EVIDENCED_RANGE[{spec['allow_min']},{spec['allow_max']}]")
@@ -105,7 +112,7 @@ def apply_market_reference(card: Mapping[str, Any], reference: Mapping[str, Any]
                 explanations.append(f"{metric}={value:.6g}:BORDERLINE")
         # Missing evidence is not a negative market assessment; never issue BAD on partial rule data.
         entry["suitability"] = ("НЕ ОЦЕНЕНО" if missing else
-                                 "НЕДОПУСТИМО" if bad else
+                                 "НЕДОПУСТИМО" if bad_count == len(fields) else
                                  "ДОПУСТИМО" if good else "НЕЙТРАЛЬНО")
         entry["explanation"] = explanations
     return result

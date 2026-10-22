@@ -21,7 +21,7 @@ from .market_suitability import (
 from .market_verdict import apply_market_reference
 
 
-def _load_snapshot(path: Path) -> tuple[str, datetime, tuple[CompletedSession, ...], dict]:
+def _load_snapshot(path: Path) -> tuple:
     data = json.loads(path.read_text(encoding="utf-8"))
     sessions = tuple(CompletedSession(
         day=date.fromisoformat(s["day"]),
@@ -33,24 +33,32 @@ def _load_snapshot(path: Path) -> tuple[str, datetime, tuple[CompletedSession, .
         closed_at=datetime.fromisoformat(s["closed_at"]),
     ) for s in data["completed_sessions"])
     return (data["symbol"], datetime.fromisoformat(data["as_of_msk"]),
-            sessions, data.get("execution_readonly", {}))
+            sessions, data.get("execution_readonly", {}),
+            tuple(date.fromisoformat(d) for d in data["expected_session_days"])
+            if "expected_session_days" in data else None)
 
 
-def format_text(card: dict) -> str:
+def format_text(card: dict, *, details: bool = False) -> str:
     quality = card["metrics"]["data_quality"]
     lines = [
         "V20 MARKET SUITABILITY — READONLY / НЕ ТОРГОВЫЙ ФИЛЬТР",
         f"Инструмент {card['symbol']} | данные до {card['as_of_msk']} МСК",
         f"Завершённых сессий {quality['observed_sessions']}/{quality['required_sessions']}; "
-        f"пропусков M15 {quality['missing_bars']}",
+        f"пропусков M15 {quality['missing_bars']}; сессий {quality['missing_sessions']}",
     ]
     for name in STRATEGIES:
         diagnostics = card["strategies"][name]
-        metrics = ", ".join(f"{k}={v if v is not None else 'НЕИЗВЕСТНО'}"
-                            for k, v in diagnostics["diagnostics"].items())
-        lines.append(f"{name}: {diagnostics['suitability']} | {metrics}")
-        if diagnostics.get("explanation"):
-            lines.append("  Причины: " + "; ".join(diagnostics["explanation"]))
+        lines.append(f"{name}: {diagnostics['suitability']}")
+        reasons = diagnostics.get("explanation", [])[:2]
+        readable = {"REFERENCE_NOT_PROVIDED": "Нет проверенного профиля классификации.",
+                    "INCOMPLETE_OR_UNVERIFIED_M15": "Недостаточно подтверждённых завершённых сессий."}
+        if reasons:
+            lines.append("  Причины: " + "; ".join(readable.get(r,r) for r in reasons))
+    if details:
+        for name in ("volatility", "directionality", "breakouts", "volume_pressure", "compression", "liquidity"):
+            lines.append(name + ": " + ", ".join(
+                f"{k}={v if v is not None else 'НЕИЗВЕСТНО'}"
+                for k, v in card["metrics"][name].items()))
     lines.append("Изменения значений не являются подтверждением улучшения пригодности; "
                  "сигналы, стопы и риск не изменяются.")
     return "\n".join(lines)
@@ -64,20 +72,21 @@ def main(argv: list[str] | None = None) -> int:
                         help="previous output card JSON, for metric deltas")
     parser.add_argument("--reference-profile", type=Path, default=None,
                         help="explicitly reviewed holdout-validated diagnostic profile; never a trading gate")
-    parser.add_argument("--format", choices=("json", "text"), default="json")
+    parser.add_argument("--format", choices=("json", "text"), default="text")
+    parser.add_argument("--details", action="store_true", help="show numeric details in text output")
     args = parser.parse_args(argv)
     try:
-        symbol, as_of, sessions, execution = _load_snapshot(args.input)
+        symbol, as_of, sessions, execution, calendar = _load_snapshot(args.input)
         previous = (json.loads(args.previous.read_text(encoding="utf-8"))
                     if args.previous is not None else None)
         card = evaluate_market_card(
             symbol, sessions, as_of=as_of, previous=previous,
-            execution_readonly=execution)
+            execution_readonly=execution, expected_session_days=calendar)
         reference = (json.loads(args.reference_profile.read_text(encoding="utf-8"))
                      if args.reference_profile is not None else None)
         card = apply_market_reference(card, reference)
         output = (json.dumps(card, ensure_ascii=False, indent=2, allow_nan=False)
-                  if args.format == "json" else format_text(card))
+                  if args.format == "json" else format_text(card, details=args.details))
         print(output)
         return 0
     except (KeyError, ValueError, TypeError, OSError, json.JSONDecodeError) as exc:
