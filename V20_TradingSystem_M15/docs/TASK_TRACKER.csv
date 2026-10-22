@@ -4,11 +4,11 @@ V20-02;Эталон 1589 закрытых сделок;ARCHIVED PASS — referen
 V20-03;История 2018–2022 и диагностика падения PF;CLOSED / ACCEPTED WITH LIMITATIONS (research PARTIAL);V20-03/comparison/VERIFICATION.json;Проверяемый доступный состав и явно оставленные ограничения
 V20-04;Разработка трёх стратегий на базе H1/M15;IN PROGRESS — OFFLINE ONLY;Изолированный общий каркас и конфигурации Shallow OBV Inside;Неизменные стратегии и три независимых состояния
 V20-04.1;Карта и SHA проверенных H1/M15 источников;SOURCE MAP PASS (GitHub source/sha only);V20-04/SOURCE_MAP.md;Подтверждены H1 + M15 pinned source SHA
-V20-04.2;Три frozen сигнала completed M15 NEXT_OPEN и информационная карточка рынка;PARTIAL (SHA frozen M15 verified; 3423 windows; 957/1589 preliminary trade links; NO validated verdict; local 8 tests PASS);v20_runtime/frozen_adapter.py robots.json market_suitability.py market_suitability_cli.py tests/test_market_suitability.py и V20-04/MARKET_SUITABILITY_CARD_RU.md;Совпадение с frozen причинный M15 pipeline и READONLY карточка без влияния на сделки
+V20-04.2;Frozen M15 NEXT_OPEN and universal READONLY market card;PARTIAL: Codex 684f0ca reports 61 offline PASS and 2031 horizon / 2018 CLV / 177 Inside checks, 1604 raw joined, NO validated verdict, signal parity/integration outstanding;V20-04/MARKET_CARD_RESEARCH_V2_RU.md v20_runtime/market_suitability.py market_verdict.py market_outcome_research.py;Causal five-group card and frozen signal parity without trading influence
 V20-04.3;FINAM orders SLTP reconciliation recovery H1;PARTIAL (H1 StateStore and InstanceLock offline only, no transport);v20_runtime/h1_state_journal.py tests/test_h1_state_journal.py;Единая исполнительная часть V20 LIVE OFF
 V20-04.4;Риск стоп тик ГО количество и расходы;PARTIAL;v20_runtime/offline_planner.py;Исполнимый размер по фактическому fill и деньгам счёта
 V20-04.5;Три независимых процесса счета и состояния;PARTIAL;v20_runtime/robots.json;3 isolated configs processes state and logs
-V20-04.6;Draft PR и минимальная интеграционная приёмка;DRAFT OPEN TESTS NOT VERIFIED;PR #567;PASS нового стыка и H1 без изменений
+V20-04.6;Draft PR and minimal integration acceptance;DRAFT OPEN: market-card offline PASS reported, full robot/order integration NOT VERIFIED;PR #567;PASS of new trading integration and no H1 changes
 V20-05;Offline и Windows acceptance;NOT STARTED;ACCEPTANCE_REPORT.json;Сигналы/SLTP/sizing/ГО/комиссии/recovery/account isolation
 V20-06;FINAM READONLY 3 accounts;NOT STARTED;BROKER_READONLY_REPORT.json;3/3 broker binding без заявок
 V20-07;Intel staging LIVE off;NOT STARTED;INTEL_STAGING_REPORT.json;Pinned SHA и изолированные Disabled Task
