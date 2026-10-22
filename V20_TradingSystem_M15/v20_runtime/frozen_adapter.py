@@ -8,6 +8,7 @@ production adapter only after signal-by-signal parity is demonstrated.
 from __future__ import annotations
 
 import importlib.util
+import tempfile
 from datetime import datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -27,7 +28,12 @@ def _frozen_immutable_features(source: pd.DataFrame) -> pd.DataFrame:
         raise RuntimeError("PINNED_FROZEN_ADAPTER_UNAVAILABLE")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return module.frozen_signals(source)
+    # The locked helper needs a temporary CSV. Bind only its scratch parent to
+    # an external OS workspace; BASE and every frozen AST/formula stay intact.
+    # Source candles must never be copied into the repository checkout.
+    with tempfile.TemporaryDirectory(prefix="v20_frozen_adapter_") as workspace:
+        module.ROOT = Path(workspace) / "runtime_root"
+        return module.frozen_signals(source)
 
 
 def completed_signal(symbol: str, strategy: str, bars: pd.DataFrame,

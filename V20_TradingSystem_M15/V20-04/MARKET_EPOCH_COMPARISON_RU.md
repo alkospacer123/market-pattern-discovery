@@ -129,7 +129,7 @@ INSIDE_DAY_RELEASE: СМЕШАННЫЙ / НЕРАЗЛИЧИМО | пригодн
 
 Изменены `v20_runtime/market_epochs.py`, `market_suitability_cli.py`, `tests/test_market_epochs.py`; добавлены этот отчёт и `MARKET_EPOCH_PROFILES.json`; актуализированы README/спецификация карточки и `docs/TASK_TRACKER.csv`. Исходные свечи не коммитились. Прежние результаты V20-03/V20-04, frozen research, риск, N4, стопы, H1/M15/FINAM не изменены.
 
-SHA256 входов и кода/тестов — в [машинном профиле](MARKET_EPOCH_PROFILES.json), итоговый Git SHA сообщается после commit и запуска тестов на нём. Команды:
+Карточка и 77 PASS зафиксированы на Git SHA `29089f1502d58e586d20d0114b688c97a855e40f`. SHA256 входов и кода/тестов — в [машинном профиле](MARKET_EPOCH_PROFILES.json). После закрытия карточки без нового исследования начат [адресный frozen parity](FROZEN_PARITY_PROGRESS_RU.md); он отдельно описывает последующий прогон 85 тестов. Команды:
 
 ```sh
 python -m unittest discover -s V20_TradingSystem_M15/v20_runtime/tests -v
