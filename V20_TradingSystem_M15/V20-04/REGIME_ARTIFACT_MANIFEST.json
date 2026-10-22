@@ -1,0 +1,79 @@
+{
+  "schema": "v20.regime_artifacts.v1",
+  "input_head": "e47e786c96b28e854ac9f7d6627b9b8f2354e14b",
+  "main": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
+  "artifacts": {
+    "V20_TradingSystem_M15/V20-04/REGIME_ASSOCIATIONS.csv": {
+      "bytes": 16727,
+      "sha256": "e58a55bb01bb52a3a10fb175fd14dce2dd0fc04af9cde868f0248b374a104339"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_BLOCKS.csv": {
+      "bytes": 27317,
+      "sha256": "2a4c826737a302d8d87324448ba06fe5a05e99ef035468025b5999144c0dbee3"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_DETECTIONS.csv": {
+      "bytes": 8839,
+      "sha256": "023e2f6bd5b445405f4d35eec4a12c10c0f70e39983a2744cdf9ce7814756989"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_ER_M15.csv.gz": {
+      "bytes": 4557659,
+      "sha256": "85b7ac548a5e316bd027fa5fc1914d20f3d3a17f0f7b41217eaf66c2c0739d46"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_ER_MONTHLY.csv": {
+      "bytes": 23023,
+      "sha256": "ac8750440e78e42db9991c168321d16f44e22d168288e061cc384717df201aea"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_EVENTS.csv": {
+      "bytes": 889667,
+      "sha256": "35cf524fda42d025feec35a39c9605669fc532d6d1107b23b698ecff3d348a5b"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_METRICS.csv": {
+      "bytes": 20644,
+      "sha256": "f088b74c198a5d6a59310582511714f256427ba22120ef20a42604627db6aede"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_PERIODS.csv": {
+      "bytes": 774,
+      "sha256": "e559aaf621d46a6b8fb4b5a933e7ff708d3dd3904a5569b937b41ec0769d2905"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_RESEARCH_PROTOCOL_RU.md": {
+      "bytes": 13382,
+      "sha256": "630f802c75fc59884862378e66b5d9408ea295cc62a5854678a86d596ccddf6e"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_RESEARCH_RU.md": {
+      "bytes": 41702,
+      "sha256": "12011a62d2c544398ddd29449880178ca5e482080b77233b038333e5a09b49e2"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_RESULTS.json": {
+      "bytes": 139433,
+      "sha256": "639158ec76c1b007fc318c8d367bd9e96e7d7dd45a242ba7d48906857c3910e0"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_TIMELINE.csv.gz": {
+      "bytes": 267346,
+      "sha256": "2948516f32db3241a2002a64807d0ffc1b96406b7cee29cfa98097e0e50089db"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_VERIFICATION.json": {
+      "bytes": 613,
+      "sha256": "5181baef638cfd7768548e5e3b92b76bbef6e824594e42a7f8d89c4187855aac"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_WARNINGS.csv": {
+      "bytes": 1047712,
+      "sha256": "739e8692e59136410045ec129a43158cef61c7e4b59179f0673d0126c09950e6"
+    },
+    "V20_TradingSystem_M15/V20-04/README_RU.md": {
+      "bytes": 25572,
+      "sha256": "9419c8c6d9b011cb7b1087776e5d016ec9b6ff7cc1e1dc488b398e7574f1e7cb"
+    },
+    "V20_TradingSystem_M15/docs/TASK_TRACKER.csv": {
+      "bytes": 3122,
+      "sha256": "f83b25e33178f91671cb4a787bc786398d7fb1daef6b0941304734560b172b24"
+    },
+    "V20_TradingSystem_M15/v20_runtime/regime_research.py": {
+      "bytes": 36149,
+      "sha256": "2c4014fd1ed721ec50838c1c2294350c036d324836aa7b31a356024885cf4e0f"
+    },
+    "V20_TradingSystem_M15/v20_runtime/tests/test_regime_research.py": {
+      "bytes": 7282,
+      "sha256": "16fcdeee61e4a118008d6d767f818012dffba155b682b5e934704ed90f96b9b8"
+    }
+  }
+}
