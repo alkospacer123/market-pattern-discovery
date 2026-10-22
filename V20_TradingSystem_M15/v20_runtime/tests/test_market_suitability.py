@@ -49,6 +49,8 @@ class SuitabilityCardTests(unittest.TestCase):
         self.assertEqual(output["trading_instrument_authority"], "OPERATOR_ONLY")
         self.assertIs(output["live_authorized"], False)
         self.assertGreater(output["metrics"]["volatility"]["atr14_wilder_price"], 0)
+        self.assertAlmostEqual(output["strategies"]["OBV_PRESSURE"]["diagnostics"]["signed_volume_pressure_abs"],
+                               abs(output["strategies"]["OBV_PRESSURE"]["diagnostics"]["signed_volume_pressure_ratio"]))
         json.dumps(output, ensure_ascii=False, allow_nan=False)
 
     def test_no_invented_spread_cost_or_margin(self):
