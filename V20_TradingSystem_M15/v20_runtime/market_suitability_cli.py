@@ -20,6 +20,7 @@ from .market_suitability import (
 )
 from .market_verdict import apply_market_reference
 from .market_ranges import DEFAULT_RANGES, annotate_card
+from .market_epochs import DEFAULT_EPOCHS, FIVE, annotate_epochs
 
 
 def _load_snapshot(path: Path) -> tuple:
@@ -49,6 +50,7 @@ def format_text(card: dict, *, details: bool = False) -> str:
     ]
     ranges = card.get('typical_ranges', {})
     typical = ranges.get('values', {})
+    historical = card.get('historical_similarity', {})
     def range_line(spec):
         if spec['p25'] is None or spec['p75'] is None:
             return spec['label']+': типичный диапазон НЕ ПРОВЕРЕНО'
@@ -57,13 +59,23 @@ def format_text(card: dict, *, details: bool = False) -> str:
         value = f"{spec['value']*scale:.4g}{unit}" if spec['value'] is not None else 'НЕИЗВЕСТНО'
         return (f"{spec['label']}: {value} / типично {spec['p25']*scale:.4g}–"
                 f"{spec['p75']*scale:.4g}{unit} / {spec['position']}")
-    if typical:
+    if historical:
+        lines.append('Историческое сходство — описание среды, не прогноз прибыли.')
+        lines.append(historical.get('limitation',historical.get('status','')))
+        if not card.get('reference_evidence',{}).get('ready'):
+            lines.append('Нет проверенного профиля классификации.')
+    if typical and (not historical or details):
         lines.append('Типичные диапазоны N4, 2023–2024; календарь эталона FINAM не подтверждён.')
         lines.append(range_line(typical['COMMON_ATR']))
         if not ranges['symbol_in_reference']:
             lines.append('Перенос диапазонов на этот инструмент не проверен.')
     for name in STRATEGIES:
         diagnostics = card["strategies"][name]
+        similarity = historical.get('strategies',{}).get(name)
+        if similarity:
+            lines.append(f"{name}: {similarity['status']} | пригодность: {diagnostics['suitability']}")
+            lines.append('  '+'; '.join(similarity['reasons'][:2]))
+            continue
         lines.append(f"{name}: {diagnostics['suitability']}")
         reasons = diagnostics.get("explanation", [])[:2]
         readable = {"REFERENCE_NOT_PROVIDED": "Нет проверенного профиля классификации.",
@@ -72,9 +84,15 @@ def format_text(card: dict, *, details: bool = False) -> str:
             lines.append("  Причины: " + "; ".join(readable.get(r,r) for r in reasons))
         if name in typical:
             lines.append('  '+range_line(typical[name]))
-    if ranges.get('interval_check'):
+    if ranges.get('interval_check') and not historical:
         lines.append('Пригодность по диапазонам не доказана; независимой проверки нет.')
     if details:
+        for metric in FIVE:
+            item=historical.get('metrics',{}).get(metric)
+            if item:
+                lines.append(f"{item['label']}: {item['value']} / 2018–2022 "
+                             f"[{item['old']['p25']}, {item['old']['p75']}] / 2023–2024 "
+                             f"[{item['new']['p25']}, {item['new']['p75']}] / {item['status']}")
         for name in ("volatility", "directionality", "breakouts", "volume_pressure", "compression", "liquidity"):
             lines.append(name + ": " + ", ".join(
                 f"{k}={v if v is not None else 'НЕИЗВЕСТНО'}"
@@ -94,6 +112,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="explicitly reviewed holdout-validated diagnostic profile; never a trading gate")
     parser.add_argument("--typical-ranges", type=Path, default=DEFAULT_RANGES,
                         help="descriptive p25/p75 artifact; never a validated suitability profile")
+    parser.add_argument("--epoch-profile",type=Path,default=DEFAULT_EPOCHS,
+                        help="descriptive historical similarity only; no trading authority")
     parser.add_argument("--format", choices=("json", "text"), default="text")
     parser.add_argument("--details", action="store_true", help="show numeric details in text output")
     args = parser.parse_args(argv)
@@ -109,6 +129,8 @@ def main(argv: list[str] | None = None) -> int:
         card = apply_market_reference(card, reference)
         if args.typical_ranges.exists():
             card = annotate_card(card,json.loads(args.typical_ranges.read_text(encoding='utf-8')))
+        if args.epoch_profile.exists():
+            card = annotate_epochs(card,json.loads(args.epoch_profile.read_text(encoding='utf-8')))
         output = (json.dumps(card, ensure_ascii=False, indent=2, allow_nan=False)
                   if args.format == "json" else format_text(card, details=args.details))
         print(output)

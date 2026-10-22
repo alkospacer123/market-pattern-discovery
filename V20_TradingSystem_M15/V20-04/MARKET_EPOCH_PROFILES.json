@@ -1,0 +1,836 @@
+{
+  "schema": "v20.market_epochs.descriptive.v1",
+  "metric_schema": "v20.market_metrics.clv_inside.v2",
+  "status": "DESCRIPTIVE_EPOCH_SIMILARITY_NOT_SUITABILITY",
+  "available_from_msk": "2025-01-01T00:00:00",
+  "epoch_years": {
+    "2018-2022": [
+      2018,
+      2019,
+      2020,
+      2021,
+      2022
+    ],
+    "2023-2024": [
+      2023,
+      2024
+    ]
+  },
+  "locked_2025_excluded": true,
+  "minimum_snapshots": 20,
+  "calendar": "CONDITIONAL_LOCKED_V1_OBSERVED_DATES",
+  "overlapping_daily_windows": true,
+  "old_contract_families": {
+    "CNY-12.22": "CNY",
+    "CNY-6.22": "CNY",
+    "CNY-9.22": "CNY",
+    "MIX-12.18": "INDEX",
+    "MIX-12.19": "INDEX",
+    "MIX-12.20": "INDEX",
+    "MIX-12.21": "INDEX",
+    "MIX-12.22": "INDEX",
+    "MIX-3.18": "INDEX",
+    "MIX-3.19": "INDEX",
+    "MIX-3.20": "INDEX",
+    "MIX-3.21": "INDEX",
+    "MIX-3.22": "INDEX",
+    "MIX-6.18": "INDEX",
+    "MIX-6.19": "INDEX",
+    "MIX-6.20": "INDEX",
+    "MIX-6.21": "INDEX",
+    "MIX-6.22": "INDEX",
+    "MIX-9.18": "INDEX",
+    "MIX-9.19": "INDEX",
+    "MIX-9.20": "INDEX",
+    "MIX-9.21": "INDEX",
+    "MIX-9.22": "INDEX",
+    "SI-12.18": "USD",
+    "SI-12.19": "USD",
+    "SI-12.20": "USD",
+    "SI-12.21": "USD",
+    "SI-12.22": "USD",
+    "SI-3.18": "USD",
+    "SI-3.19": "USD",
+    "SI-3.20": "USD",
+    "SI-3.21": "USD",
+    "SI-3.22": "USD",
+    "SI-6.18": "USD",
+    "SI-6.19": "USD",
+    "SI-6.20": "USD",
+    "SI-6.21": "USD",
+    "SI-6.22": "USD",
+    "SI-9.18": "USD",
+    "SI-9.19": "USD",
+    "SI-9.20": "USD",
+    "SI-9.21": "USD",
+    "SI-9.22": "USD"
+  },
+  "source_sha256": {
+    "2018-2022.zip": "df1aaf4d23757d18689dfdf61d6fc1ec77f0b26ae7d8af1193322d460707888a",
+    "USDRUBF": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+    "CNYRUBF": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+    "GLDRUBF": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+    "IMOEXF": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773",
+    "LOCKED_V1": "74acf11239763c43be73982aa6c3f64d24e75fe16f272339db3b910dc62564bb",
+    "ROLL_DECISIONS": "8ed580d15de0a87b3e1404cc56abba972de593648caba198a4ca3618a9cdfb5a",
+    "market_suitability.py": "f4bd0ce7c0b489792fe63154354e462ab984a141a866056d4364be3f9614a157"
+  },
+  "archive_verification": {
+    "archive_files": 43,
+    "archive_rows": 149028,
+    "accepted_session_rows": 2853,
+    "accepted_unknown_gaps": 409
+  },
+  "epochs": {
+    "2018-2022": {
+      "CNY": {
+        "coverage": {
+          "observed_sessions": 165,
+          "NO_LOCKED_SELECTION": 12,
+          "selected_sessions": 153,
+          "incomplete_sessions": 22,
+          "INITIAL_OR_ROLL_WARMUP": 57,
+          "INCOMPLETE_WINDOW": 13,
+          "snapshots": 67,
+          "UNKNOWN_GAP_WINDOW": 16
+        },
+        "metrics": {
+          "atr14_pct_close": {
+            "n": 67,
+            "median": 0.0018799310891611325,
+            "p25": 0.0012680037672864373,
+            "p75": 0.003764651111509811
+          },
+          "directional_efficiency": {
+            "n": 67,
+            "median": 0.10481586402266248,
+            "p25": 0.039783861331704654,
+            "p75": 0.20464585470147217
+          },
+          "continuation_rate": {
+            "n": 67,
+            "median": 0.390625,
+            "p25": 0.35805860805860806,
+            "p75": 0.4484126984126984
+          },
+          "pressure_direction_alignment": {
+            "n": 67,
+            "median": 0.09285571578702412,
+            "p25": 0.08216604220797032,
+            "p75": 0.10014275171330948
+          },
+          "range_compression_ratio": {
+            "n": 67,
+            "median": 1.0112359550561736,
+            "p25": 0.9411764705882382,
+            "p75": 1.0305343511450482
+          },
+          "inside_session_share": {
+            "n": 67,
+            "median": 0.21052631578947367,
+            "p25": 0.10526315789473684,
+            "p75": 0.21052631578947367
+          },
+          "inside_release_continuation_rate": {
+            "n": 67,
+            "median": 0.3333333333333333,
+            "p25": 0.0,
+            "p75": 0.5
+          },
+          "return_inside_rate": {
+            "n": 67,
+            "median": 0.27906976744186046,
+            "p25": 0.26666666666666666,
+            "p75": 0.3023255813953488
+          }
+        }
+      },
+      "INDEX": {
+        "coverage": {
+          "observed_sessions": 1290,
+          "selected_sessions": 1161,
+          "incomplete_sessions": 55,
+          "INITIAL_OR_ROLL_WARMUP": 541,
+          "INCOMPLETE_WINDOW": 23,
+          "UNKNOWN_GAP_WINDOW": 112,
+          "snapshots": 485,
+          "NO_LOCKED_SELECTION": 129
+        },
+        "metrics": {
+          "atr14_pct_close": {
+            "n": 485,
+            "median": 0.0018935808382163708,
+            "p25": 0.001556793063022593,
+            "p75": 0.0024304145813586293
+          },
+          "directional_efficiency": {
+            "n": 485,
+            "median": 0.20662251655629138,
+            "p25": 0.0824295010845987,
+            "p75": 0.37025641025641026
+          },
+          "continuation_rate": {
+            "n": 485,
+            "median": 0.43661971830985913,
+            "p25": 0.38461538461538464,
+            "p75": 0.48484848484848486
+          },
+          "pressure_direction_alignment": {
+            "n": 485,
+            "median": 0.11148447002872099,
+            "p25": 0.10179115874968925,
+            "p75": 0.11992187835961775
+          },
+          "range_compression_ratio": {
+            "n": 485,
+            "median": 0.9763779527559056,
+            "p25": 0.94,
+            "p75": 1.019438444924406
+          },
+          "inside_session_share": {
+            "n": 485,
+            "median": 0.10526315789473684,
+            "p25": 0.05263157894736842,
+            "p75": 0.15789473684210525
+          },
+          "inside_release_continuation_rate": {
+            "n": 445,
+            "median": 0.4,
+            "p25": 0.0,
+            "p75": 0.6666666666666666
+          },
+          "return_inside_rate": {
+            "n": 485,
+            "median": 0.2676056338028169,
+            "p25": 0.2361111111111111,
+            "p75": 0.2987012987012987
+          }
+        }
+      },
+      "USD": {
+        "coverage": {
+          "observed_sessions": 1304,
+          "NO_LOCKED_SELECTION": 126,
+          "selected_sessions": 1178,
+          "incomplete_sessions": 74,
+          "INITIAL_OR_ROLL_WARMUP": 539,
+          "snapshots": 536,
+          "INCOMPLETE_WINDOW": 59,
+          "UNKNOWN_GAP_WINDOW": 44
+        },
+        "metrics": {
+          "atr14_pct_close": {
+            "n": 536,
+            "median": 0.0015390133515786003,
+            "p25": 0.0011476643598445169,
+            "p75": 0.002047007388799837
+          },
+          "directional_efficiency": {
+            "n": 536,
+            "median": 0.18099918546030896,
+            "p25": 0.07231174259684611,
+            "p75": 0.32020076309938605
+          },
+          "continuation_rate": {
+            "n": 536,
+            "median": 0.4579802259887006,
+            "p25": 0.40350877192982454,
+            "p75": 0.514390756302521
+          },
+          "pressure_direction_alignment": {
+            "n": 536,
+            "median": 0.08539758414224813,
+            "p25": 0.0749514592494436,
+            "p75": 0.09236079884223211
+          },
+          "range_compression_ratio": {
+            "n": 536,
+            "median": 0.975103734439834,
+            "p25": 0.9381818181818182,
+            "p75": 1.0135422068904494
+          },
+          "inside_session_share": {
+            "n": 536,
+            "median": 0.10526315789473684,
+            "p25": 0.05263157894736842,
+            "p75": 0.15789473684210525
+          },
+          "inside_release_continuation_rate": {
+            "n": 456,
+            "median": 0.4,
+            "p25": 0.25,
+            "p75": 0.6
+          },
+          "return_inside_rate": {
+            "n": 536,
+            "median": 0.2459016393442623,
+            "p25": 0.20689655172413793,
+            "p75": 0.2783333333333333
+          }
+        }
+      }
+    },
+    "2023-2024": {
+      "USD": {
+        "coverage": {
+          "observed_sessions": 509,
+          "selected_sessions": 509,
+          "incomplete_sessions": 9,
+          "INITIAL_OR_ROLL_WARMUP": 19,
+          "UNKNOWN_GAP_WINDOW": 199,
+          "snapshots": 209,
+          "INCOMPLETE_WINDOW": 82
+        },
+        "metrics": {
+          "atr14_pct_close": {
+            "n": 209,
+            "median": 0.0013464389362168236,
+            "p25": 0.0010684948584927176,
+            "p75": 0.0017726993967969254
+          },
+          "directional_efficiency": {
+            "n": 209,
+            "median": 0.23943661971830907,
+            "p25": 0.08029197080292032,
+            "p75": 0.4300341296928321
+          },
+          "continuation_rate": {
+            "n": 209,
+            "median": 0.48484848484848486,
+            "p25": 0.4406779661016949,
+            "p75": 0.5303030303030303
+          },
+          "pressure_direction_alignment": {
+            "n": 209,
+            "median": 0.08994888674476084,
+            "p25": 0.07832119395032588,
+            "p75": 0.10508890367598007
+          },
+          "range_compression_ratio": {
+            "n": 209,
+            "median": 0.9537037037037063,
+            "p25": 0.9122807017543921,
+            "p75": 1.0093457943925148
+          },
+          "inside_session_share": {
+            "n": 209,
+            "median": 0.15789473684210525,
+            "p25": 0.10526315789473684,
+            "p75": 0.15789473684210525
+          },
+          "inside_release_continuation_rate": {
+            "n": 203,
+            "median": 0.5,
+            "p25": 0.3333333333333333,
+            "p75": 0.6666666666666666
+          },
+          "return_inside_rate": {
+            "n": 209,
+            "median": 0.24528301886792453,
+            "p25": 0.21875,
+            "p75": 0.2765957446808511
+          }
+        }
+      },
+      "CNY": {
+        "coverage": {
+          "observed_sessions": 509,
+          "selected_sessions": 509,
+          "incomplete_sessions": 22,
+          "INITIAL_OR_ROLL_WARMUP": 19,
+          "UNKNOWN_GAP_WINDOW": 136,
+          "INCOMPLETE_WINDOW": 155,
+          "snapshots": 199
+        },
+        "metrics": {
+          "atr14_pct_close": {
+            "n": 199,
+            "median": 0.0013439836383887002,
+            "p25": 0.0010799544817237318,
+            "p75": 0.0017970126274165377
+          },
+          "directional_efficiency": {
+            "n": 199,
+            "median": 0.19650655021833996,
+            "p25": 0.10008077544426519,
+            "p75": 0.3305045836195771
+          },
+          "continuation_rate": {
+            "n": 199,
+            "median": 0.4827586206896552,
+            "p25": 0.42340286831812257,
+            "p75": 0.5221018418201517
+          },
+          "pressure_direction_alignment": {
+            "n": 199,
+            "median": 0.09506409754206849,
+            "p25": 0.07855232058651547,
+            "p75": 0.10893355420225542
+          },
+          "range_compression_ratio": {
+            "n": 199,
+            "median": 0.9644670050761349,
+            "p25": 0.9173060528559276,
+            "p75": 1.0179372197309398
+          },
+          "inside_session_share": {
+            "n": 199,
+            "median": 0.10526315789473684,
+            "p25": 0.05263157894736842,
+            "p75": 0.15789473684210525
+          },
+          "inside_release_continuation_rate": {
+            "n": 182,
+            "median": 0.5,
+            "p25": 0.0,
+            "p75": 0.6666666666666666
+          },
+          "return_inside_rate": {
+            "n": 199,
+            "median": 0.24528301886792453,
+            "p25": 0.2195444915254237,
+            "p75": 0.3009433962264151
+          }
+        }
+      },
+      "GOLD": {
+        "coverage": {
+          "observed_sessions": 418,
+          "selected_sessions": 418,
+          "incomplete_sessions": 50,
+          "INITIAL_OR_ROLL_WARMUP": 19,
+          "INCOMPLETE_WINDOW": 292,
+          "UNKNOWN_GAP_WINDOW": 36,
+          "snapshots": 71
+        },
+        "metrics": {
+          "atr14_pct_close": {
+            "n": 71,
+            "median": 0.0020976332108640877,
+            "p25": 0.0016340482122520154,
+            "p75": 0.002481520864032662
+          },
+          "directional_efficiency": {
+            "n": 71,
+            "median": 0.28826597131681847,
+            "p25": 0.12715522910535282,
+            "p75": 0.4333476487853456
+          },
+          "continuation_rate": {
+            "n": 71,
+            "median": 0.5263157894736842,
+            "p25": 0.4873234916559692,
+            "p75": 0.5536227717078781
+          },
+          "pressure_direction_alignment": {
+            "n": 71,
+            "median": 0.11590980153444572,
+            "p25": 0.10374416668525638,
+            "p75": 0.1280970189358303
+          },
+          "range_compression_ratio": {
+            "n": 71,
+            "median": 0.9569202566452814,
+            "p25": 0.8506666666666691,
+            "p75": 0.9709226519624627
+          },
+          "inside_session_share": {
+            "n": 71,
+            "median": 0.10526315789473684,
+            "p25": 0.05263157894736842,
+            "p75": 0.15789473684210525
+          },
+          "inside_release_continuation_rate": {
+            "n": 47,
+            "median": 0.5,
+            "p25": 0.3333333333333333,
+            "p75": 1.0
+          },
+          "return_inside_rate": {
+            "n": 71,
+            "median": 0.22826086956521738,
+            "p25": 0.20501245330012452,
+            "p75": 0.26871386154086574
+          }
+        }
+      },
+      "INDEX": {
+        "coverage": {
+          "observed_sessions": 306,
+          "selected_sessions": 306,
+          "incomplete_sessions": 34,
+          "INITIAL_OR_ROLL_WARMUP": 19,
+          "INCOMPLETE_WINDOW": 165,
+          "UNKNOWN_GAP_WINDOW": 22,
+          "snapshots": 100
+        },
+        "metrics": {
+          "atr14_pct_close": {
+            "n": 100,
+            "median": 0.0028658280503270814,
+            "p25": 0.002256083076374907,
+            "p75": 0.0034851499836662343
+          },
+          "directional_efficiency": {
+            "n": 100,
+            "median": 0.26960725370078487,
+            "p25": 0.1634918235451253,
+            "p75": 0.37139431937751743
+          },
+          "continuation_rate": {
+            "n": 100,
+            "median": 0.42424242424242425,
+            "p25": 0.39381520119225033,
+            "p75": 0.4561974789915966
+          },
+          "pressure_direction_alignment": {
+            "n": 100,
+            "median": 0.08221860745576373,
+            "p25": 0.06529117938162157,
+            "p75": 0.10447639728118724
+          },
+          "range_compression_ratio": {
+            "n": 100,
+            "median": 0.9516421780466724,
+            "p25": 0.9310344827586207,
+            "p75": 1.0
+          },
+          "inside_session_share": {
+            "n": 100,
+            "median": 0.05263157894736842,
+            "p25": 0.05263157894736842,
+            "p75": 0.10526315789473684
+          },
+          "inside_release_continuation_rate": {
+            "n": 75,
+            "median": 0.5,
+            "p25": 0.25,
+            "p75": 0.5
+          },
+          "return_inside_rate": {
+            "n": 100,
+            "median": 0.28660714285714284,
+            "p25": 0.261371237458194,
+            "p75": 0.3160087719298246
+          }
+        }
+      }
+    }
+  },
+  "pooled_available_composition": {
+    "2018-2022": {
+      "atr14_pct_close": {
+        "n": 1088,
+        "median": 0.0017365932568876971,
+        "p25": 0.0013391248813450418,
+        "p75": 0.0022832544800182623
+      },
+      "directional_efficiency": {
+        "n": 1088,
+        "median": 0.1825981132711773,
+        "p25": 0.07551568235650699,
+        "p75": 0.33582645132470224
+      },
+      "continuation_rate": {
+        "n": 1088,
+        "median": 0.4444444444444444,
+        "p25": 0.39215686274509803,
+        "p75": 0.494108301337217
+      },
+      "pressure_direction_alignment": {
+        "n": 1088,
+        "median": 0.09552854673461361,
+        "p25": 0.08365079899339904,
+        "p75": 0.11237525400146739
+      },
+      "range_compression_ratio": {
+        "n": 1088,
+        "median": 0.9767441860465116,
+        "p25": 0.9381818181818182,
+        "p75": 1.019751247486408
+      },
+      "inside_session_share": {
+        "n": 1088,
+        "median": 0.10526315789473684,
+        "p25": 0.05263157894736842,
+        "p75": 0.15789473684210525
+      },
+      "inside_release_continuation_rate": {
+        "n": 968,
+        "median": 0.4,
+        "p25": 0.0,
+        "p75": 0.6
+      },
+      "return_inside_rate": {
+        "n": 1088,
+        "median": 0.2587221095334686,
+        "p25": 0.22186147186147184,
+        "p75": 0.29075052854122624
+      }
+    },
+    "2023-2024": {
+      "atr14_pct_close": {
+        "n": 579,
+        "median": 0.0015938155397397752,
+        "p25": 0.0011829376628779593,
+        "p75": 0.002303454787871476
+      },
+      "directional_efficiency": {
+        "n": 579,
+        "median": 0.23330106485963215,
+        "p25": 0.10844814478295567,
+        "p75": 0.3733804179974919
+      },
+      "continuation_rate": {
+        "n": 579,
+        "median": 0.47540983606557374,
+        "p25": 0.42857142857142855,
+        "p75": 0.5231663685152057
+      },
+      "pressure_direction_alignment": {
+        "n": 579,
+        "median": 0.09373153655796988,
+        "p25": 0.07776766704554544,
+        "p75": 0.1103712120819488
+      },
+      "range_compression_ratio": {
+        "n": 579,
+        "median": 0.9545454545454591,
+        "p25": 0.9119414558495715,
+        "p75": 1.0
+      },
+      "inside_session_share": {
+        "n": 579,
+        "median": 0.10526315789473684,
+        "p25": 0.05263157894736842,
+        "p75": 0.15789473684210525
+      },
+      "inside_release_continuation_rate": {
+        "n": 507,
+        "median": 0.5,
+        "p25": 0.3333333333333333,
+        "p75": 0.6666666666666666
+      },
+      "return_inside_rate": {
+        "n": 579,
+        "median": 0.2537313432835821,
+        "p25": 0.2222222222222222,
+        "p75": 0.290994623655914
+      }
+    }
+  },
+  "iqr_overlap": {
+    "CNY": {
+      "atr14_pct_close": {
+        "status": "IQR ПЕРЕКРЫВАЮТСЯ",
+        "intersection_over_union": 0.197046047684074
+      },
+      "directional_efficiency": {
+        "status": "IQR ПЕРЕКРЫВАЮТСЯ",
+        "intersection_over_union": 0.359675355902791
+      },
+      "continuation_rate": {
+        "status": "IQR ПЕРЕКРЫВАЮТСЯ",
+        "intersection_over_union": 0.1524587727338426
+      },
+      "pressure_direction_alignment": {
+        "status": "IQR ПЕРЕКРЫВАЮТСЯ",
+        "intersection_over_union": 0.5917043966254802
+      },
+      "range_compression_ratio": {
+        "status": "IQR ПЕРЕКРЫВАЮТСЯ",
+        "intersection_over_union": 0.6779290186513122
+      }
+    },
+    "INDEX": {
+      "atr14_pct_close": {
+        "status": "IQR ПЕРЕКРЫВАЮТСЯ",
+        "intersection_over_union": 0.09040416901946466
+      },
+      "directional_efficiency": {
+        "status": "IQR ПЕРЕКРЫВАЮТСЯ",
+        "intersection_over_union": 0.7155355033625277
+      },
+      "continuation_rate": {
+        "status": "IQR ПЕРЕКРЫВАЮТСЯ",
+        "intersection_over_union": 0.6223720273469666
+      },
+      "pressure_direction_alignment": {
+        "status": "IQR ПЕРЕКРЫВАЮТСЯ",
+        "intersection_over_union": 0.049152556744323096
+      },
+      "range_compression_ratio": {
+        "status": "IQR ПЕРЕКРЫВАЮТСЯ",
+        "intersection_over_union": 0.6787026116259481
+      }
+    },
+    "USD": {
+      "atr14_pct_close": {
+        "status": "IQR ПЕРЕКРЫВАЮТСЯ",
+        "intersection_over_union": 0.638760381286311
+      },
+      "directional_efficiency": {
+        "status": "IQR ПЕРЕКРЫВАЮТСЯ",
+        "intersection_over_union": 0.6706563551810697
+      },
+      "continuation_rate": {
+        "status": "IQR ПЕРЕКРЫВАЮТСЯ",
+        "intersection_over_union": 0.58135747743293
+      },
+      "pressure_direction_alignment": {
+        "status": "IQR ПЕРЕКРЫВАЮТСЯ",
+        "intersection_over_union": 0.465852535244964
+      },
+      "range_compression_ratio": {
+        "status": "IQR ПЕРЕКРЫВАЮТСЯ",
+        "intersection_over_union": 0.7027742291118334
+      }
+    }
+  },
+  "raw_signal_reference": [
+    {
+      "epoch": "2018-2022",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "raw": 172,
+      "observed_horizons": 165,
+      "locked_target_excluded": 0,
+      "mean_horizon_R": 0.2048073179980927,
+      "stop_touch_share": 0.7090909090909091,
+      "matched_prior_snapshots": 83,
+      "matched_mean_horizon_R": -0.5942354792775084,
+      "prior_feature_medians": {
+        "atr14_pct_close": 0.0015256490381326353,
+        "directional_efficiency": 0.15324814583147173,
+        "continuation_rate": 0.4482758620689655,
+        "pressure_direction_alignment": 0.09542305900031242,
+        "range_compression_ratio": 0.9565217391304348,
+        "inside_session_share": 0.15789473684210525,
+        "inside_release_continuation_rate": 0.45,
+        "return_inside_rate": 0.25333333333333335
+      }
+    },
+    {
+      "epoch": "2018-2022",
+      "strategy": "OBV_PRESSURE",
+      "raw": 620,
+      "observed_horizons": 598,
+      "locked_target_excluded": 0,
+      "mean_horizon_R": 0.22646624774679147,
+      "stop_touch_share": 0.754180602006689,
+      "matched_prior_snapshots": 290,
+      "matched_mean_horizon_R": 0.10239694405060172,
+      "prior_feature_medians": {
+        "atr14_pct_close": 0.0017322913522019236,
+        "directional_efficiency": 0.22573839662447256,
+        "continuation_rate": 0.4592379264510412,
+        "pressure_direction_alignment": 0.10074229580596311,
+        "range_compression_ratio": 0.9858141858141858,
+        "inside_session_share": 0.10526315789473684,
+        "inside_release_continuation_rate": 0.5,
+        "return_inside_rate": 0.25
+      }
+    },
+    {
+      "epoch": "2018-2022",
+      "strategy": "SHALLOW_PULLBACK",
+      "raw": 989,
+      "observed_horizons": 962,
+      "locked_target_excluded": 0,
+      "mean_horizon_R": 0.4061623769370345,
+      "stop_touch_share": 0.7151767151767152,
+      "matched_prior_snapshots": 473,
+      "matched_mean_horizon_R": 0.3531590621079666,
+      "prior_feature_medians": {
+        "atr14_pct_close": 0.0017312932278250018,
+        "directional_efficiency": 0.18567469622681732,
+        "continuation_rate": 0.4444444444444444,
+        "pressure_direction_alignment": 0.09920195235801245,
+        "range_compression_ratio": 0.9835596854896355,
+        "inside_session_share": 0.10526315789473684,
+        "inside_release_continuation_rate": 0.4,
+        "return_inside_rate": 0.26
+      }
+    },
+    {
+      "epoch": "2023-2024",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "raw": 141,
+      "observed_horizons": 99,
+      "locked_target_excluded": 1,
+      "mean_horizon_R": 0.7713722511046505,
+      "stop_touch_share": 0.7070707070707071,
+      "matched_prior_snapshots": 50,
+      "matched_mean_horizon_R": 0.5330671999830798,
+      "prior_feature_medians": {
+        "atr14_pct_close": 0.0012222776364885079,
+        "directional_efficiency": 0.29944928979932056,
+        "continuation_rate": 0.46774193548387094,
+        "pressure_direction_alignment": 0.0908621827393074,
+        "range_compression_ratio": 0.9390847247990148,
+        "inside_session_share": 0.15789473684210525,
+        "inside_release_continuation_rate": 0.4444444444444444,
+        "return_inside_rate": 0.2539843157095877
+      }
+    },
+    {
+      "epoch": "2023-2024",
+      "strategy": "OBV_PRESSURE",
+      "raw": 837,
+      "observed_horizons": 611,
+      "locked_target_excluded": 5,
+      "mean_horizon_R": 0.5567384039075668,
+      "stop_touch_share": 0.7168576104746317,
+      "matched_prior_snapshots": 267,
+      "matched_mean_horizon_R": 0.7672771092940804,
+      "prior_feature_medians": {
+        "atr14_pct_close": 0.0017252980334304085,
+        "directional_efficiency": 0.2515489467162333,
+        "continuation_rate": 0.4782608695652174,
+        "pressure_direction_alignment": 0.09747545030315377,
+        "range_compression_ratio": 0.9608938547486002,
+        "inside_session_share": 0.10526315789473684,
+        "inside_release_continuation_rate": 0.5,
+        "return_inside_rate": 0.24615384615384617
+      }
+    },
+    {
+      "epoch": "2023-2024",
+      "strategy": "SHALLOW_PULLBACK",
+      "raw": 904,
+      "observed_horizons": 708,
+      "locked_target_excluded": 2,
+      "mean_horizon_R": 0.9270519833086744,
+      "stop_touch_share": 0.6836158192090396,
+      "matched_prior_snapshots": 321,
+      "matched_mean_horizon_R": 0.5123096228158137,
+      "prior_feature_medians": {
+        "atr14_pct_close": 0.001597336878933189,
+        "directional_efficiency": 0.20654911838790743,
+        "continuation_rate": 0.4915254237288136,
+        "pressure_direction_alignment": 0.09007951071247654,
+        "range_compression_ratio": 0.9576271186440612,
+        "inside_session_share": 0.10526315789473684,
+        "inside_release_continuation_rate": 0.5,
+        "return_inside_rate": 0.25
+      }
+    }
+  ],
+  "no_outcome_fitting": true,
+  "affects_signals_or_risk": false,
+  "independent_holdout": false,
+  "verification": {
+    "runtime_tests": 77,
+    "new_tests": 8,
+    "status": "PASS",
+    "source_archive_audit": "PASS",
+    "shared_features_roll_gap_cutoff": "PASS",
+    "classification": "NOT_PROVEN",
+    "code_sha256": {
+      "v20_runtime/market_epochs.py": "ff23a19e91e61155b321e6c921a422187a05ee63a004762211123624e6b36feb",
+      "v20_runtime/market_suitability_cli.py": "21a04549d4451f373dd8d2b48a8ac5943b2f6c089c089587dc32e0b47e3f4dc9",
+      "v20_runtime/market_suitability.py": "f4bd0ce7c0b489792fe63154354e462ab984a141a866056d4364be3f9614a157",
+      "v20_runtime/market_verdict.py": "9acade410b7a8bd762e0a16c5d488ce332c468d470e9b4bf67c6a353e77f9dbf",
+      "v20_runtime/tests/test_market_epochs.py": "0babc9ebf4c29e304721e1270e442545aecc297cf858439da20f51990a12565e"
+    }
+  }
+}
