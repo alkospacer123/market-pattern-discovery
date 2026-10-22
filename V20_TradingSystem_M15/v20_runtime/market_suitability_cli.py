@@ -18,6 +18,7 @@ from pathlib import Path
 from .market_suitability import (
     CompletedSession, M15Bar, STRATEGIES, evaluate_market_card,
 )
+from .market_verdict import apply_market_reference
 
 
 def _load_snapshot(path: Path) -> tuple[str, datetime, tuple[CompletedSession, ...], dict]:
@@ -48,6 +49,8 @@ def format_text(card: dict) -> str:
         metrics = ", ".join(f"{k}={v if v is not None else 'НЕИЗВЕСТНО'}"
                             for k, v in diagnostics["diagnostics"].items())
         lines.append(f"{name}: {diagnostics['suitability']} | {metrics}")
+        if diagnostics.get("explanation"):
+            lines.append("  Причины: " + "; ".join(diagnostics["explanation"]))
     lines.append("Изменения значений не являются подтверждением улучшения пригодности; "
                  "сигналы, стопы и риск не изменяются.")
     return "\n".join(lines)
@@ -59,6 +62,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="locally verified closed sessions JSON")
     parser.add_argument("--previous", type=Path, default=None,
                         help="previous output card JSON, for metric deltas")
+    parser.add_argument("--reference-profile", type=Path, default=None,
+                        help="explicitly reviewed holdout-validated diagnostic profile; never a trading gate")
     parser.add_argument("--format", choices=("json", "text"), default="json")
     args = parser.parse_args(argv)
     try:
@@ -68,6 +73,9 @@ def main(argv: list[str] | None = None) -> int:
         card = evaluate_market_card(
             symbol, sessions, as_of=as_of, previous=previous,
             execution_readonly=execution)
+        reference = (json.loads(args.reference_profile.read_text(encoding="utf-8"))
+                     if args.reference_profile is not None else None)
+        card = apply_market_reference(card, reference)
         output = (json.dumps(card, ensure_ascii=False, indent=2, allow_nan=False)
                   if args.format == "json" else format_text(card))
         print(output)
