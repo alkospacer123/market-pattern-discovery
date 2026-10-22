@@ -66,6 +66,21 @@ class RegimeTests(unittest.TestCase):
         card = instrument_regime_card(b, "USDRUBF", b[-1]["available"] + timedelta(days=91))
         self.assertIn("RAW_OUTCOME_STALE", card["reasons"])
 
+    def test_published_sha_verified_source_pooled_counts(self):
+        # Reads the existing pinned V20-03 CSV; no external prices or replay.
+        from V20_TradingSystem_M15.v20_runtime.market_rolling_raw import load_paths
+        rows, coverage = load_paths()
+        self.assertEqual(len(rows), 4431)
+        self.assertEqual(sum(v for k, v in coverage.items() if k.endswith('/raw')), 4986)
+        as_of = datetime(2026, 10, 22, 19, 15)
+        expected = {'MIX': 762, 'Si': 722, 'CNY': 75,
+                    'USDRUBF': 721, 'CNYRUBF': 647,
+                    'GLDRUBF': 633, 'IMOEXF': 430}
+        result = {symbol: len(unique_events(rows, instrument=symbol, as_of=as_of))
+                  for symbol in expected}
+        self.assertEqual(result, expected)
+        self.assertEqual(sum(result.values()), 3990)
+
     def test_stop_aware_metric_not_pnl(self):
         a = paths(40, values=[2] * 40)
         card = instrument_regime_card(a, "USDRUBF", a[-1]["available"])
