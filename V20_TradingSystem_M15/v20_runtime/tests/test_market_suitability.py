@@ -117,6 +117,16 @@ class SuitabilityCardTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "PREVIOUS_CARD_SYMBOL_MISMATCH"):
             inspect(make_sessions(), previous=older)
 
+    def test_future_or_equal_previous_comparison_rejected(self):
+        card = inspect(make_sessions())
+        with self.assertRaisesRegex(ValueError, "PREVIOUS_CARD_NOT_CAUSALLY_EARLIER"):
+            inspect(make_sessions(), previous=card)
+        future = dict(card)
+        future["as_of_msk"] = (make_sessions()[-1].closed_at
+                               + timedelta(days=1)).isoformat()
+        with self.assertRaisesRegex(ValueError, "PREVIOUS_CARD_NOT_CAUSALLY_EARLIER"):
+            inspect(make_sessions(), previous=future)
+
     def test_outside_n4_rejected(self):
         with self.assertRaisesRegex(ValueError, "SYMBOL_OUTSIDE_FROZEN_N4"):
             evaluate_market_card("BR", make_sessions(), as_of=make_sessions()[-1].closed_at)
