@@ -112,3 +112,41 @@ def evidence_card(rows, instrument, as_of):
                 predictive_reliability_validated=False,
                 iid_exchangeability_validated=False,
                 affects_orders_or_risk=False)
+
+
+def main(argv=None):
+    """Independent research invocation; never changes the operator card."""
+    import argparse
+    import csv
+    import hashlib
+    import json
+    from pathlib import Path
+    from zoneinfo import ZoneInfo
+
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--symbol", required=True)
+    p.add_argument("--as-of", default=None)
+    p.add_argument("--events", type=Path, default=Path(__file__).resolve().parents[1] /
+                   "V20-04/REGIME_EVENTS.csv")
+    opts = p.parse_args(argv)
+    as_of = (time_of(opts.as_of) if opts.as_of
+             else datetime.now(ZoneInfo("Europe/Moscow")).replace(
+                 tzinfo=None, second=0, microsecond=0))
+    expected = "35cf524fda42d025feec35a39c9605669fc532d6d1107b23b698ecff3d348a5b"
+    if hashlib.sha256(opts.events.read_bytes()).hexdigest() != expected:
+        raise ValueError("PUBLISHED_REGIME_EVENTS_SHA_MISMATCH")
+    rows = []
+    with opts.events.open(encoding="utf-8", newline="") as stream:
+        for row in csv.DictReader(stream):
+            if row["instrument"].upper() != opts.symbol.upper():
+                continue
+            if time_of(row["available"]) <= as_of:
+                row["fp2"] = int(row["fp2"])
+            rows.append(row)
+    print(json.dumps(evidence_card(rows, opts.symbol, as_of),
+                     ensure_ascii=False, indent=2, allow_nan=False))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
