@@ -26,6 +26,9 @@ from .market_epochs import DEFAULT_EPOCHS, annotate_epochs, annotate_instrument
 from .market_rolling_raw import (
     SCHEMA as RAW_SCHEMA, DEFAULT_PROFILE, NAMES, load_paths, instrument_card, atr_reference, stamp,
 )
+from .instrument_regime import (
+    instrument_regime_card, format_card as format_instrument_regime,
+)
 
 
 def _load_snapshot(path: Path) -> tuple:
@@ -158,10 +161,10 @@ def main(argv: list[str] | None = None) -> int:
                 raise ValueError('LEGACY_DIAGNOSTICS_REQUIRES_SNAPSHOT')
             as_of=stamp(args.as_of) if args.as_of else datetime.now(ZoneInfo('Europe/Moscow')).replace(tzinfo=None,second=0,microsecond=0)
             paths,_=load_paths(as_of=as_of)
-            card=instrument_card(paths,args.symbol,as_of,profile=raw_profile,
-                                 atr=atr_reference(args.data_dir,args.symbol.upper(),as_of))
+            card=instrument_regime_card(paths,args.symbol,as_of)
+            card['atr_reference']=atr_reference(args.data_dir,args.symbol.upper(),as_of)
             print(json.dumps(card,ensure_ascii=False,indent=2,allow_nan=False) if args.format=='json'
-                  else format_raw_text(card,details=args.details))
+                  else format_instrument_regime(card))
             return 0
         symbol, as_of, sessions, execution, calendar = _load_snapshot(args.input)
         if args.as_of is not None and stamp(args.as_of)!=as_of:
