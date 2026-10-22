@@ -88,10 +88,10 @@ class AttributionTests(unittest.TestCase):
             path.write_text(json.dumps(snapshot))
             stream = io.StringIO()
             with redirect_stdout(stream):
-                result = main(['--input',str(path),'--details'])
+                result = main(['--input',str(path),'--details','--legacy-diagnostics'])
             compact = io.StringIO()
             with redirect_stdout(compact):
-                self.assertEqual(main(['--input',str(path)]),0)
+                self.assertEqual(main(['--input',str(path),'--legacy-diagnostics']),0)
         self.assertEqual(result,0)
         output = stream.getvalue()
         for group in ('volatility:','directionality:','breakouts:','volume_pressure:','compression:'):
