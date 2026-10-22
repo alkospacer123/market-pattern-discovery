@@ -1,0 +1,88 @@
+{
+  "study": "IntradayLab/M15",
+  "date": "2026-10-16",
+  "roadmap_steps": {
+    "06": "RECEIVED",
+    "07": "INPUT_VALIDATED",
+    "08": "OVERLAP_ONE_VOLUME_CONFLICT_NOT_PASS",
+    "09": "PHYSICAL_FINAM_READONLY_PENDING"
+  },
+  "source_reference": "alkospacer123/market-pattern-data@f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "frozen_manifest": "IntradayLab/t3_m15_t1_entry_retest_v1/results/source_manifest.json",
+  "original_upload": "M15.zip",
+  "zip_sha256": "60c984a6561402fb5c1eca97fb4131c59dd23e3411105f37fd7a0a27e2b1ced2",
+  "source_range_open_label": "2026-08-03 06:45:00 to 2026-10-16 12:15:00 (all 4; timestamps match Moscow OPEN labels in frozen overlap)",
+  "method": "Independent local CSV structural audit and exact frozen last candle OHLCV plus canonical FNV32 daily row-sequence fingerprints of GitHub frozen blobs; frozen OHLCV normalized numerically. FNV32 is diagnostic, not cryptographic source authenticity. Source SHA256 pinned from #518 manifest.",
+  "inputs": [
+    {
+      "instrument": "USDRUBF",
+      "file_sha256": "78e2a1909b700adda86965257fa1c7123bf5b155889c09a0e92553231f6b8844",
+      "rows": 4317,
+      "frozen_last_open": "2026-08-30 18:45:00",
+      "frozen_source_sha256": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+      "reference_overlap_rows": 1576,
+      "overlap_matching": 1576,
+      "overlap_conflicts": 0,
+      "new_tail_rows": 2723,
+      "new_first_open": "2026-08-31 06:45:00"
+    },
+    {
+      "instrument": "CNYRUBF",
+      "file_sha256": "45d3b606a579eaeef4fc1795b5cc54dcc089942da9cf8aece9f6367aac28cf73",
+      "rows": 4335,
+      "frozen_last_open": "2026-08-30 18:45:00",
+      "frozen_source_sha256": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+      "reference_overlap_rows": 1578,
+      "overlap_matching": 1578,
+      "overlap_conflicts": 0,
+      "new_tail_rows": 2734,
+      "new_first_open": "2026-08-31 06:45:00"
+    },
+    {
+      "instrument": "GLDRUBF",
+      "file_sha256": "4296d8f1fb701afe7f281b8e7b7dc6d469e25d1bba78406604adcd9ae42e0e21",
+      "rows": 4332,
+      "frozen_last_open": "2026-09-15 23:45:00",
+      "frozen_source_sha256": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+      "reference_overlap_rows": 2502,
+      "overlap_matching": 2502,
+      "overlap_conflicts": 0,
+      "new_tail_rows": 1830,
+      "new_first_open": "2026-09-16 06:45:00"
+    },
+    {
+      "instrument": "IMOEXF",
+      "file_sha256": "ed62be632b892e0931d82f8992c280444225556040db9e43ce552f839f98c9b8",
+      "rows": 4341,
+      "frozen_last_open": "2026-09-15 23:45:00",
+      "frozen_source_sha256": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773",
+      "reference_overlap_rows": 2468,
+      "overlap_matching": 2467,
+      "overlap_conflicts": 1,
+      "new_tail_rows": 1837,
+      "new_first_open": "2026-09-16 06:45:00"
+    }
+  ],
+  "global": {
+    "overlap_reference_rows": 8124,
+    "overlap_matching": 8123,
+    "overlap_conflicts": 1,
+    "all_input_duplicate_timestamps": 0,
+    "all_input_invalid_ohlcv_rows": 0,
+    "all_input_off_m15_grid": 0,
+    "trailing_open_unverified": "2026-10-16 12:15:00",
+    "trailing_bar_close_if_msk_open": "2026-10-16 12:30:00"
+  },
+  "single_conflict": {
+    "instrument": "IMOEXF",
+    "timestamp_open_msk": "2026-09-09 07:00:00",
+    "field": "Volume",
+    "reference": "19786",
+    "uploaded": "19781",
+    "reference_ohlc": "2279|2279.5|2273.5|2276",
+    "uploaded_ohlc": "2279|2279.5|2273.5|2276",
+    "policy": "No overwriting frozen data; keep research source first, record source discrepancy for resolution."
+  },
+  "safety": "NOT_SIGNAL_AUTHORIZED / NOT_LIVE_AUTHORIZED. Never overwrite historical reference; no order or H1 changes; actual FINAM timestamp publication needs step 09 physical validation.",
+  "raw_bytes_location": "User-provided attachment M15.zip in conversation; not committed to market-pattern-data or repository."
+}
