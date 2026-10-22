@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
+from contextlib import closing
 from datetime import timedelta
 from pathlib import Path
 
@@ -34,8 +35,14 @@ class V20StateBoundaryError(RuntimeError):
 
 def _require_v20_root(root: Path) -> Path:
     path = Path(root)
-    if not path.is_absolute() or path.name.casefold() != "v20lab" or path.is_symlink():
+    if not path.is_absolute() or path.name.casefold() != "v20lab":
         raise V20StateBoundaryError("EXACT_ISOLATED_V20LAB_ROOT_REQUIRED")
+    parents = (path, *path.parents)
+    if any(p.is_symlink() for p in parents):
+        raise V20StateBoundaryError("V20_PATH_SYMLINK_FORBIDDEN")
+    protected = {"tradingsystemlab", "intradaylab", "controlcenter", ".git"}
+    if any(p.name.casefold() in protected for p in path.parents):
+        raise V20StateBoundaryError("V20_ROOT_INSIDE_PROTECTED_PROJECT")
     return path.resolve(strict=False)
 
 
@@ -83,7 +90,7 @@ class IsolatedReferenceJournal:
         if not path.is_file() or path.is_symlink():
             raise V20StateBoundaryError("V20_DATABASE_INVALID")
         try:
-            with sqlite3.connect(path.as_uri() + "?mode=ro", uri=True) as db:
+            with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True)) as db:
                 if db.execute("PRAGMA integrity_check").fetchone() != ("ok",):
                     raise V20StateBoundaryError("V20_DATABASE_INTEGRITY_INVALID")
                 row = db.execute(
@@ -101,10 +108,12 @@ class IsolatedReferenceJournal:
         self.close()
 
     def close(self) -> None:
-        if self.store is not None:
-            self.store.close()
-            self.store = None
-        self.lock.release()
+        try:
+            if self.store is not None:
+                self.store.close()
+                self.store = None
+        finally:
+            self.lock.release()
 
     def _require_open(self) -> StateStore:
         if self.store is None:
