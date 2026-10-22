@@ -10,13 +10,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from math import isfinite
+import re
 from statistics import median
 from typing import Any, Mapping, Sequence
 
 STEP = timedelta(minutes=15)
 SESSION_OFFSET = timedelta(hours=9)  # frozen V20 observation-day key
 WINDOW = 20
-N4 = frozenset(("USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF"))
+# Instrument selection belongs to the operator; trading N4 remains in robots.json.
+SYMBOL_PATTERN = re.compile(r"[A-Z][A-Z0-9._-]{0,31}")
 STRATEGIES = ("SHALLOW_PULLBACK", "OBV_PRESSURE", "INSIDE_DAY_RELEASE")
 
 
@@ -209,8 +211,8 @@ def evaluate_market_card(
     execution_readonly may contain price_step, tick_value_rub, roundtrip_cost_rub,
     spread_price, initial_margin_rub. Missing fields stay None/UNKNOWN.
     """
-    if symbol not in N4:
-        raise ValueError("SYMBOL_OUTSIDE_FROZEN_N4")
+    if not isinstance(symbol, str) or SYMBOL_PATTERN.fullmatch(symbol) is None:
+        raise ValueError("INVALID_MARKET_ANALYSIS_SYMBOL")
     if previous is not None:
         if previous.get("symbol") != symbol:
             raise ValueError("PREVIOUS_CARD_SYMBOL_MISMATCH")
@@ -277,6 +279,8 @@ def evaluate_market_card(
             name: {"suitability": label, "diagnostics": readouts[name]}
             for name in STRATEGIES},
         "changes_are_not_suitability_verdicts": True,
+        "unrestricted_diagnostic_universe": True,
+        "trading_instrument_authority": "OPERATOR_ONLY",
         "affects_signals_or_risk": False,
         "live_authorized": False,
     }
