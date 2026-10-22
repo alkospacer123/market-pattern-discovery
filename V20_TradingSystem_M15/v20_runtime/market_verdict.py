@@ -42,7 +42,10 @@ def _validated(reference: Mapping[str, Any] | None, symbol: str) -> tuple[bool, 
         return False, "HOLDOUT_DATES_INVALID"
     if calibration_end >= holdout_start:
         return False, "NON_CHRONOLOGICAL_REFERENCE"
-    if symbol not in reference.get("validated_symbols", ()):
+    universe = reference.get("validated_symbols")
+    if not isinstance(universe, (list, tuple)) or not all(isinstance(s, str) for s in universe):
+        return False, "VALIDATED_SYMBOL_UNIVERSE_INVALID"
+    if symbol not in universe:
         return False, "SYMBOL_NOT_VALIDATED"
     return True, "VERIFIED_REFERENCE"
 
@@ -69,7 +72,8 @@ def apply_market_reference(card: Mapping[str, Any], reference: Mapping[str, Any]
             entry["suitability"] = "НЕ ОЦЕНЕНО"
             entry["explanation"] = [evidence_reason]
             continue
-        rule = reference.get("strategies", {}).get(strategy)
+        strategies = reference.get("strategies")
+        rule = strategies.get(strategy) if isinstance(strategies, Mapping) else None
         if not isinstance(rule, Mapping) or set(rule) != fields:
             entry["suitability"] = "НЕ ОЦЕНЕНО"
             entry["explanation"] = ["STRATEGY_RULE_NOT_VALIDATED"]
