@@ -28,9 +28,9 @@ def make_sessions(n=20, *, first_volume=10, last_volume=10, base_volume=10):
     return tuple(data)
 
 
-def inspect(sessions, *, previous=None, as_of=None, execution=None):
+def inspect(sessions, *, symbol="CNYRUBF", previous=None, as_of=None, execution=None):
     return evaluate_market_card(
-        "CNYRUBF", sessions,
+        symbol, sessions,
         as_of=as_of or sessions[-1].closed_at,
         previous=previous, execution_readonly=execution,
     )
@@ -45,6 +45,8 @@ class SuitabilityCardTests(unittest.TestCase):
         self.assertTrue(all(x["suitability"] == "НЕ ОЦЕНЕНО"
                             for x in output["strategies"].values()))
         self.assertIs(output["affects_signals_or_risk"], False)
+        self.assertTrue(output["unrestricted_diagnostic_universe"])
+        self.assertEqual(output["trading_instrument_authority"], "OPERATOR_ONLY")
         self.assertIs(output["live_authorized"], False)
         self.assertGreater(output["metrics"]["volatility"]["atr14_wilder_price"], 0)
         json.dumps(output, ensure_ascii=False, allow_nan=False)
@@ -127,9 +129,29 @@ class SuitabilityCardTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "PREVIOUS_CARD_NOT_CAUSALLY_EARLIER"):
             inspect(make_sessions(), previous=future)
 
-    def test_outside_n4_rejected(self):
-        with self.assertRaisesRegex(ValueError, "SYMBOL_OUTSIDE_FROZEN_N4"):
-            evaluate_market_card("BR", make_sessions(), as_of=make_sessions()[-1].closed_at)
+    def test_other_futures_have_cards_but_no_trading_authorization(self):
+        sessions = make_sessions()
+        for symbol in ("BR", "SILV", "CNYRUBF", "IMOEXF"):
+            with self.subTest(symbol=symbol):
+                output = inspect(sessions, symbol=symbol)
+                self.assertEqual(output["symbol"], symbol)
+                self.assertTrue(output["unrestricted_diagnostic_universe"])
+                self.assertEqual(output["trading_instrument_authority"], "OPERATOR_ONLY")
+                self.assertFalse(output["affects_signals_or_risk"])
+                self.assertEqual(output["strategies"]["SHALLOW_PULLBACK"]["suitability"],
+                                 "НЕ ОЦЕНЕНО")
+
+    def test_untrusted_or_malformed_market_symbol_rejected(self):
+        for symbol in ("", "../robots.json", "cnyrubf", "SILV/USDT", "🇷🇺", None):
+            with self.subTest(symbol=symbol):
+                with self.assertRaisesRegex(ValueError, "INVALID_MARKET_ANALYSIS_SYMBOL"):
+                    inspect(make_sessions(), symbol=symbol)
+
+    def test_independent_previous_cards_must_match_symbol(self):
+        previous = inspect(make_sessions(), symbol="SILV")
+        later = make_sessions(21)
+        with self.assertRaisesRegex(ValueError, "PREVIOUS_CARD_SYMBOL_MISMATCH"):
+            inspect(later, symbol="BR", previous=previous)
 
     def test_unsorted_duplicate_or_wrong_session_open_rejected(self):
         s = list(make_sessions())
