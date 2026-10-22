@@ -97,10 +97,11 @@ class AttributionTests(unittest.TestCase):
         for group in ('volatility:','directionality:','breakouts:','volume_pressure:','compression:'):
             self.assertIn(group,output)
         self.assertIn('lot_size=НЕИЗВЕСТНО',output)
-        self.assertIn('НЕ ОЦЕНЕНО',output)
+        self.assertIn('ОБЩИЙ ИСТОРИЧЕСКИЙ РЕЖИМ: НЕДОСТАТОЧНО ДАННЫХ',output)
         self.assertNotIn('pressure_direction_alignment',compact.getvalue())
-        self.assertEqual(compact.getvalue().count('НЕ ОЦЕНЕНО'),3)
-        self.assertIn('Нет проверенного профиля классификации.',compact.getvalue())
+        self.assertEqual(compact.getvalue().count('ОБЩИЙ ИСТОРИЧЕСКИЙ РЕЖИМ:'),1)
+        self.assertNotIn('SHALLOW_PULLBACK:',compact.getvalue())
+        self.assertIn('Независимая торговая пригодность не доказана.',compact.getvalue())
 
 
 if __name__ == '__main__':

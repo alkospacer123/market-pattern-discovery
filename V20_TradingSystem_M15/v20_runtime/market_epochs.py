@@ -355,7 +355,211 @@ def signal_brief(records,calendars):
     return output
 
 
-def build(archive,data_dir):
+# One final, predeclared diagnosis. No threshold search, PF fit or replay.
+# A median split describes association; it is NOT a suitability boundary.
+DIAGNOSTIC_METRICS = ('continuation_rate','return_inside_rate','directional_efficiency',
+    'pressure_direction_alignment','inside_release_continuation_rate','range_compression_ratio')
+MIN_PAST_PATHS = 10  # sufficiency count, fixed before observing the result
+
+
+def annotate_instrument(card, profile=None):
+    """ONE historical assessment. IQR similarity cannot grant suitability.
+
+    The final diagnosis found aggregate associations, with conflicting proxy /
+    chronological cells and no validated from-to suitability rules. Consequently
+    this release returns NEUTRAL for comparable complete data, never manufactures
+    positive/negative labels. The independent market_verdict gate is untouched.
+    """
+    result=deepcopy(card)
+    comparison={}
+    if profile is not None:
+        comparison=annotate_epochs(card,profile)['historical_similarity']
+    quality=card['metrics']['data_quality']
+    complete=(quality['observed_sessions']>=quality['required_sessions']
+              and quality['missing_bars']==0 and quality['missing_sessions']==0)
+    comparable=any(item['old']['n']>=MIN_SNAPSHOTS and item['new']['n']>=MIN_SNAPSHOTS
+                   for item in comparison.get('metrics',{}).values())
+    diagnosed=bool(profile and profile.get('outcome_diagnosis'))
+    status='НЕЙТРАЛЬНО' if complete and comparable and diagnosed else 'НЕДОСТАТОЧНО ДАННЫХ'
+    reason=('Продолжение и возвраты связаны с исходами в сводке; устойчивые границы пригодности не подтверждены.'
+            if status=='НЕЙТРАЛЬНО' else 'Недостаточно полной истории или сопоставимых проверенных данных двух эпох.')
+    values=card_values(card)
+    family=comparison.get('family')
+    old_metrics=(profile or {}).get('epochs',{}).get(EPOCHS[0],{}).get(family,{}).get('metrics',{})
+    new_metrics=(profile or {}).get('epochs',{}).get(EPOCHS[1],{}).get(family,{}).get('metrics',{})
+    rows=[]
+    for metric in DIAGNOSTIC_METRICS:
+        item=comparison.get('metrics',{}).get(metric,{})
+        check=(profile or {}).get('outcome_diagnosis',{}).get('checks',{}).get(metric,{})
+        association=check.get('joint_SL_win_direction_consistent',False)
+        events=(card['metrics']['breakouts'].get('completed_breakouts')
+                if metric in ('continuation_rate','return_inside_rate') else
+                card['metrics']['compression'].get('completed_release_breakouts')
+                if metric=='inside_release_continuation_rate' else None)
+        assessment=('СВЯЗЬ В СВОДКЕ; НЕУСТОЙЧИВО' if association else 'НЕТ ПОДТВЕРЖДЕНИЯ')
+        if events is not None and events<MIN_PAST_PATHS:
+            assessment='НЕДОСТАТОЧНО НАБЛЮДЕНИЙ'
+        rows.append(dict(metric=metric,label=LABELS[metric],value=values.get(metric) if values else None,
+            old=old_metrics.get(metric),new=new_metrics.get(metric),
+            similarity=item.get('status','НЕТ СОПОСТАВЛЕНИЯ'),
+            current_events=events,assessment=assessment,
+            affects_verdict=False))
+    result['instrument_assessment']=dict(status=status,reason=reason,rows=rows,
+        scope='ALL_V20_THREE_INDEPENDENT_ACCOUNTS',
+        atr14_pct_close=values.get('atr14_pct_close') if values else None,
+        verdict_metrics=[],historical_only=True,affects_signals_or_risk=False,
+        limitation=comparison.get('limitation',comparison.get('status','Нет профиля двух эпох.')))
+    return result
+
+
+def available_paths(rows, *, contract, start_day, cutoff):
+    """Same-contract raw paths initiated in the past 20 sessions, FULLY ended.
+
+    Outcome time is checked before any outcome value is used. This one minimal
+    refinement measures survival of the original stop, never a new strategy.
+    Overlapping signals remain dependent; accounts are never mutually blocked.
+    """
+    return [r for r in rows if r['record_type']=='RAW_SIGNAL' and r['contract']==contract
+            and start_day<=r['entry_dt'][:10]<=cutoff[:10]
+            and r['entry_dt']<cutoff and r['outcome_at']<=cutoff]
+
+
+def path_summary(rows):
+    n=len(rows)
+    def avg(key):
+        return mean(r[key] for r in rows) if rows else None
+    winners=[r['net_R'] for r in rows if r.get('net_R',0)>0]
+    return dict(n=n,stop_touch_share=avg('stop_touch'),mean_horizon_R=avg('horizon_R'),
+        mean_MFE_R=avg('mfe'),mean_MAE_R=avg('mae'),
+        reached_1R=sum(r['mfe']>=1 for r in rows),reached_2R=sum(r['mfe']>=2 for r in rows),
+        positive_horizon=sum(r['horizon_R']>0 for r in rows),
+        gained_1R_then_nonpositive_horizon=sum(r['mfe']>=1 and r['horizon_R']<=0 for r in rows),
+        stop_exits=sum(r.get('stop_exit',False) for r in rows),
+        winners=len(winners),average_win_R=mean(winners) if winners else None)
+
+
+def diagnostic_rows(path):
+    """Published paths only; filter locked signal/entry/exit/horizon before numbers."""
+    result=[]
+    coverage=Counter()
+    with path.open() as stream:
+        for r in csv.DictReader(stream):
+            if r['record_type'] not in ('RAW_SIGNAL','EXECUTED_TRADE'):
+                continue
+            year=int(r['signal_bar_dt'][:4])
+            if year not in (2018,2019,2020,2021,2022,2023,2024):
+                continue
+            epoch=EPOCHS[0] if year<=2022 else EPOCHS[1]
+            key=f"{epoch}/{r['record_type']}"
+            coverage[key+'/published']+=1
+            stamps=[r[k] for k in ('entry_dt','exit_dt','horizon_exit_dt') if r[k]]
+            if any(s.startswith('2025-') for s in stamps):
+                coverage[key+'/locked_target']+=1
+                continue
+            if r['horizon_status']!='OBSERVED_V1':
+                coverage[key+'/unobserved_horizon']+=1
+                continue
+            trade=r['record_type']=='EXECUTED_TRADE'
+            if trade and (r['stat_eligible']!='True' or r['actual_path_status']!='OBSERVED_V1'):
+                coverage[key+'/ineligible_or_unobserved_trade']+=1
+                continue
+            result.append(dict(record_type=r['record_type'],epoch=epoch,year=year,
+                strategy=r['strategy'],family=FAMILY[r['instrument']],contract=r['contract'],
+                signal_dt=r['signal_bar_dt'],entry_dt=r['entry_dt'],
+                outcome_at=max(r['horizon_exit_dt'],r['exit_dt']) if trade else r['horizon_exit_dt'],
+                horizon_R=float(r['horizon_R']),mfe=float(r['horizon_MFE_R']),mae=float(r['horizon_MAE_R']),
+                stop_touch=r['horizon_stop_touch']=='True',
+                **(dict(net_R=float(r['net_C1_R']),stop_exit=int(r['exit_reason']) in (1,2,4)) if trade else {})))
+            coverage[key+'/fully_observed']+=1
+    return result,dict(coverage)
+
+
+def diagnose_outcomes(records,calendars):
+    """One immutable median-split analysis, identical formulas in both epochs.
+
+    Raw path and accepted trade denominators stay separate. Calendar/contract
+    matching reuses the accepted epoch snapshots; no frozen tester is rerun.
+    """
+    path=STAGE/'comparison/QUOTE_PATH_DIAGNOSTICS.csv'
+    expected=json.loads((ROOT/'V20-04/MARKET_CARD_RESEARCH_V2.json').read_text())['source_sha256']
+    if sha(path)!=expected['V20-03/comparison/QUOTE_PATH_DIAGNOSTICS.csv']:
+        raise ValueError('PUBLISHED_RAW_SOURCE_CHANGED')
+    rows,coverage=diagnostic_rows(path)
+    joined=[]
+    examples={}
+    for r in rows:
+        key=(r['epoch'],r['family'])
+        days=calendars[key]
+        day=day_key(datetime.fromisoformat(r['signal_dt']))
+        i=bisect_left(days,day)
+        before=records[key].get(days[i-1]) if 0<i<len(days) and days[i]==day else None
+        if before is None or before['contract']!=r['contract']:
+            continue
+        if i<20:
+            raise ValueError('SHORT_PRIOR_WINDOW')
+        cutoff=before['cutoff'].replace('T',' ')
+        if cutoff>=r['signal_dt'] or cutoff[:10]>=str(day):
+            raise ValueError('SIGNAL_FEATURE_NOT_BEFORE_DAY')
+        past=available_paths(rows,contract=r['contract'],start_day=str(days[i-20]),cutoff=cutoff)
+        survival=mean(not p['stop_touch'] for p in past) if len(past)>=MIN_PAST_PATHS else None
+        features=dict(before['values'],past_v20_stop_survival=survival)
+        item=dict(r,cutoff=cutoff,features=features,past_paths=len(past))
+        joined.append(item)
+        if r['record_type']=='RAW_SIGNAL':
+            examples[r['contract']]=dict(cutoff=cutoff,values=features,past_paths=len(past))
+    metrics=DIAGNOSTIC_METRICS+('past_v20_stop_survival',)
+    checks={}
+    for metric in metrics:
+        base=[r['features'][metric] for r in joined if r['epoch']==EPOCHS[1]
+              and r['record_type']=='RAW_SIGNAL' and r['features'].get(metric) is not None]
+        boundary=median(base) if base else None
+        cells=[]
+        for epoch in EPOCHS:
+            # ALL and common economic proxies: no retuned family boundaries.
+            for scope in ('ALL','USD','INDEX','CNY','2023','2024'):
+                for kind in ('RAW_SIGNAL','EXECUTED_TRADE'):
+                    for side in ('LOW','HIGH'):
+                        group=[r for r in joined if r['epoch']==epoch and r['record_type']==kind
+                            and (scope=='ALL' or r['family']==scope or str(r['year'])==scope)
+                            and r['features'].get(metric) is not None and boundary is not None
+                            and (r['features'][metric]>=boundary)==(side=='HIGH')]
+                        if not group:
+                            continue
+                        cells.append(dict(epoch=epoch,scope=scope,kind=kind,bucket=side,**path_summary(group)))
+        directions=[]
+        for epoch in EPOCHS:
+            pair=[next((c for c in cells if c['epoch']==epoch and c['scope']=='ALL'
+                       and c['kind']=='EXECUTED_TRADE' and c['bucket']==side),path_summary([])) for side in ('LOW','HIGH')]
+            lo,hi=pair
+            direction=0
+            if min(lo['n'],hi['n'])>=20 and min(lo['winners'],hi['winners'])>=5:
+                sl=hi['stop_exits']/hi['n']-lo['stop_exits']/lo['n']
+                win=hi['average_win_R']-lo['average_win_R']
+                direction=1 if sl<0 and win>0 else -1 if sl>0 and win<0 else 0
+            directions.append(direction)
+        checks[metric]=dict(fixed_new_raw_median=boundary,cells=cells,
+            joint_SL_win_direction_consistent=bool(directions[0] and directions[0]==directions[1]),
+            directions_old_new=directions,independently_validated=False)
+    summaries=[]
+    for epoch in EPOCHS:
+        for kind in ('RAW_SIGNAL','EXECUTED_TRADE'):
+            for scope in ('ALL','SHALLOW_PULLBACK','OBV_PRESSURE','INSIDE_DAY_RELEASE','USD','INDEX','CNY',
+                          '2018','2019','2020','2021','2022','2023','2024'):
+                for matched,data in ((False,rows),(True,joined)):
+                    group=[r for r in data if r['epoch']==epoch and r['record_type']==kind
+                        and (scope=='ALL' or r['strategy']==scope or r['family']==scope or str(r['year'])==scope)]
+                    if group:
+                        summaries.append(dict(epoch=epoch,kind=kind,scope=scope,matched=matched,**path_summary(group)))
+    return dict(protocol='ONE_FIXED_MEDIAN_SPLIT_2023_2024_NO_PF_FIT',
+        allowed_years=[2018,2019,2020,2021,2022,2023,2024],locked_2025_excluded=True,
+        minimum_past_paths=MIN_PAST_PATHS,coverage=coverage,joined_counts=dict(Counter(
+            r['epoch']+'/'+r['record_type'] for r in joined)),summaries=summaries,checks=checks,
+        examples=examples,verdict_metrics=[],
+        conclusion='NO_INDEPENDENTLY_CONFIRMED_SUITABILITY_BOUNDARIES',
+        independent_holdout=False)
+
+
+def build(archive,data_dir, *, diagnose=False):
     old,decisions,receipt=load_old(archive)
     all_records={}
     calendars={}
@@ -381,7 +585,7 @@ def build(archive,data_dir):
     pooled={e:distribution([r for (ep,_),group in all_records.items() if ep==e for r in group.values()]) for e in EPOCHS}
     overlaps={family:{m:overlap(epochs[EPOCHS[0]][family]['metrics'][m],epochs[EPOCHS[1]][family]['metrics'][m])
                        for m in FIVE} for family in sorted(set(epochs[EPOCHS[0]])&set(epochs[EPOCHS[1]]))}
-    return dict(schema=SCHEMA,metric_schema=METRIC_SCHEMA,
+    report = dict(schema=SCHEMA,metric_schema=METRIC_SCHEMA,
         status='DESCRIPTIVE_EPOCH_SIMILARITY_NOT_SUITABILITY',available_from_msk='2025-01-01T00:00:00',
         epoch_years={'2018-2022':[2018,2019,2020,2021,2022],'2023-2024':[2023,2024]},
         locked_2025_excluded=True,minimum_snapshots=MIN_SNAPSHOTS,
@@ -394,6 +598,9 @@ def build(archive,data_dir):
         archive_verification=receipt,epochs=epochs,pooled_available_composition=pooled,
         iqr_overlap=overlaps,raw_signal_reference=signal_brief(all_records,calendars),
         no_outcome_fitting=True,affects_signals_or_risk=False,independent_holdout=False)
+    if diagnose:
+        report['outcome_diagnosis']=diagnose_outcomes(all_records,calendars)
+    return report
 
 
 def main(argv=None):
@@ -402,8 +609,9 @@ def main(argv=None):
     parser.add_argument('--archive',type=Path,required=True)
     parser.add_argument('--data-dir',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--diagnose-outcomes',action='store_true',help='one final fixed outcome diagnosis; no replay')
     args=parser.parse_args(argv)
-    report=build(args.archive,args.data_dir)
+    report=build(args.archive,args.data_dir,diagnose=args.diagnose_outcomes)
     args.output.write_text(json.dumps(report,ensure_ascii=False,indent=2,allow_nan=False)+'\n')
     print(report['status'])
     for epoch,families in report['epochs'].items():

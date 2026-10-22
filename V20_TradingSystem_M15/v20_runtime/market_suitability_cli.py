@@ -16,11 +16,11 @@ from datetime import date, datetime
 from pathlib import Path
 
 from .market_suitability import (
-    CompletedSession, M15Bar, STRATEGIES, evaluate_market_card,
+    CompletedSession, M15Bar, evaluate_market_card,
 )
 from .market_verdict import apply_market_reference
 from .market_ranges import DEFAULT_RANGES, annotate_card
-from .market_epochs import DEFAULT_EPOCHS, FIVE, annotate_epochs
+from .market_epochs import DEFAULT_EPOCHS, annotate_epochs, annotate_instrument
 
 
 def _load_snapshot(path: Path) -> tuple:
@@ -42,63 +42,40 @@ def _load_snapshot(path: Path) -> tuple:
 
 def format_text(card: dict, *, details: bool = False) -> str:
     quality = card["metrics"]["data_quality"]
+    assessment = card.get('instrument_assessment') or annotate_instrument(card)['instrument_assessment']
+    def number(value):
+        return f"{value:.4f}" if value is not None else 'Н/Д'
+    def interval(item):
+        if not item or item['p25'] is None or item['p75'] is None:
+            return 'Н/Д'
+        return f"{number(item['p25'])}–{number(item['p75'])} (N={item['n']})"
     lines = [
-        "V20 MARKET SUITABILITY — READONLY / НЕ ТОРГОВЫЙ ФИЛЬТР",
-        f"Инструмент {card['symbol']} | данные до {card['as_of_msk']} МСК",
-        f"Завершённых сессий {quality['observed_sessions']}/{quality['required_sessions']}; "
-        f"пропусков M15 {quality['missing_bars']}; сессий {quality['missing_sessions']}",
+        "V20 — АНАЛИТИЧЕСКАЯ КАРТОЧКА ИНСТРУМЕНТА",
+        f"ИНСТРУМЕНТ {card['symbol']} | M15 | ДАННЫЕ ДО {card.get('last_completed_session', card['as_of_msk'])}",
+        f"Сопоставление с эталонами на {card['as_of_msk']} МСК; исторический снимок, не LIVE.",
+        f"ОБЩИЙ ИСТОРИЧЕСКИЙ РЕЖИМ: {assessment['status']}",
+        f"Причина: {assessment['reason']} Историческая диагностика, не прогноз PF.",
+        "Параметр | Сейчас | 2018–2022: от–до | 2023–2024: от–до | Оценка",
     ]
-    ranges = card.get('typical_ranges', {})
-    typical = ranges.get('values', {})
-    historical = card.get('historical_similarity', {})
-    def range_line(spec):
-        if spec['p25'] is None or spec['p75'] is None:
-            return spec['label']+': типичный диапазон НЕ ПРОВЕРЕНО'
-        scale = 100 if spec['metric']=='atr14_pct_close' else 1
-        unit = '%' if scale==100 else ''
-        value = f"{spec['value']*scale:.4g}{unit}" if spec['value'] is not None else 'НЕИЗВЕСТНО'
-        return (f"{spec['label']}: {value} / типично {spec['p25']*scale:.4g}–"
-                f"{spec['p75']*scale:.4g}{unit} / {spec['position']}")
-    if historical:
-        lines.append('Историческое сходство — описание среды, не прогноз прибыли.')
-        lines.append(historical.get('limitation',historical.get('status','')))
-        if not card.get('reference_evidence',{}).get('ready'):
-            lines.append('Нет проверенного профиля классификации.')
-    if typical and (not historical or details):
-        lines.append('Типичные диапазоны N4, 2023–2024; календарь эталона FINAM не подтверждён.')
-        lines.append(range_line(typical['COMMON_ATR']))
-        if not ranges['symbol_in_reference']:
-            lines.append('Перенос диапазонов на этот инструмент не проверен.')
-    for name in STRATEGIES:
-        diagnostics = card["strategies"][name]
-        similarity = historical.get('strategies',{}).get(name)
-        if similarity:
-            lines.append(f"{name}: {similarity['status']} | пригодность: {diagnostics['suitability']}")
-            lines.append('  '+'; '.join(similarity['reasons'][:2]))
-            continue
-        lines.append(f"{name}: {diagnostics['suitability']}")
-        reasons = diagnostics.get("explanation", [])[:2]
-        readable = {"REFERENCE_NOT_PROVIDED": "Нет проверенного профиля классификации.",
-                    "INCOMPLETE_OR_UNVERIFIED_M15": "Недостаточно подтверждённых завершённых сессий."}
-        if reasons:
-            lines.append("  Причины: " + "; ".join(readable.get(r,r) for r in reasons))
-        if name in typical:
-            lines.append('  '+range_line(typical[name]))
-    if ranges.get('interval_check') and not historical:
-        lines.append('Пригодность по диапазонам не доказана; независимой проверки нет.')
+    for row in assessment['rows']:
+        events=f" (N={row['current_events']})" if row['current_events'] is not None else ''
+        lines.append(f"{row['label']} | {number(row['value'])}{events} | {interval(row['old'])} | "
+                     f"{interval(row['new'])} | {row['assessment']}")
+    atr = assessment['atr14_pct_close']
+    lines += [f"Справочно ATR14/Close: {number(100*atr) if atr is not None else 'Н/Д'}%",
+        "Диапазоны — семейные p25–p75 рынка, не границы пригодности.",
+        f"Данные: {quality['observed_sessions']}/{quality['required_sessions']} завершённых сессий; "
+        f"пропусков M15 {quality['missing_bars']}; сессий {quality['missing_sessions']}.",
+        f"Календарь: {quality.get('session_calendar','ОПРЕДЕЛЁН ИСТОЧНИКОМ')}; полнота требует внешней проверки.",
+        assessment['limitation'],
+        "2023–2024 — рабочее сравнение; полный опубликованный эталон 2023–2026: 1589 сделок.",
+        "Не влияет на заявки, сигнал, стоп и риск. Независимая торговая пригодность не доказана.",
+    ]
     if details:
-        for metric in FIVE:
-            item=historical.get('metrics',{}).get(metric)
-            if item:
-                lines.append(f"{item['label']}: {item['value']} / 2018–2022 "
-                             f"[{item['old']['p25']}, {item['old']['p75']}] / 2023–2024 "
-                             f"[{item['new']['p25']}, {item['new']['p75']}] / {item['status']}")
         for name in ("volatility", "directionality", "breakouts", "volume_pressure", "compression", "liquidity"):
             lines.append(name + ": " + ", ".join(
                 f"{k}={v if v is not None else 'НЕИЗВЕСТНО'}"
                 for k, v in card["metrics"][name].items()))
-    lines.append("Изменения значений не являются подтверждением улучшения пригодности; "
-                 "сигналы, стопы и риск не изменяются.")
     return "\n".join(lines)
 
 
@@ -129,8 +106,11 @@ def main(argv: list[str] | None = None) -> int:
         card = apply_market_reference(card, reference)
         if args.typical_ranges.exists():
             card = annotate_card(card,json.loads(args.typical_ranges.read_text(encoding='utf-8')))
-        if args.epoch_profile.exists():
-            card = annotate_epochs(card,json.loads(args.epoch_profile.read_text(encoding='utf-8')))
+        epoch_profile = (json.loads(args.epoch_profile.read_text(encoding='utf-8'))
+                         if args.epoch_profile.exists() else None)
+        if epoch_profile is not None:
+            card = annotate_epochs(card,epoch_profile)
+        card = annotate_instrument(card,epoch_profile)
         output = (json.dumps(card, ensure_ascii=False, indent=2, allow_nan=False)
                   if args.format == "json" else format_text(card, details=args.details))
         print(output)
