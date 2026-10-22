@@ -202,8 +202,11 @@ class RollingRawTests(unittest.TestCase):
             rc=main(['--symbol','BR','--as-of','2026-10-22T17:00:00','--format','json'])
         self.assertEqual(rc,0)
         result=json.loads(output.getvalue())
-        self.assertEqual(result['schema'],raw.SCHEMA)
-        self.assertTrue(all(r['trend']=='НЕДОСТАТОЧНО ДАННЫХ' for r in result['rows']))
+        self.assertEqual(result['schema'],'v20.instrument_regime.readonly.v1')
+        self.assertEqual(result['unique_completed_events'],0)
+        self.assertEqual(result['status'],'НЕДОСТАТОЧНО ДАННЫХ')
+        self.assertFalse(result['prediction_validated'])
+        self.assertEqual(result['finam_live_feed'],'NOT_CONNECTED')
 
 
 if __name__=='__main__':
