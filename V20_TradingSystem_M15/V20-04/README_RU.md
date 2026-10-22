@@ -27,6 +27,18 @@ python -m unittest V20_TradingSystem_M15.v20_runtime.tests.test_market_suitabili
 
 JSON snapshot содержит: `symbol`, `as_of_msk`, `completed_sessions` (массив с `day`, `closed_at`, `expected_opens`, `bars`), каждый bar: `open_time,open,high,low,close,volume`. Все времена — московские naive ISO, Open-labelled M15. `closed_at` и `expected_opens` **уже подтверждены внешней достоверной сессионной authority**; CLI не умеет их доказать и не обращается к брокеру. Опциональные поля `execution_readonly`: `price_step`, `tick_value_rub`, `roundtrip_cost_rub`, `spread_price`, `initial_margin_rub`. Без них значения остаются неизвестными. Поставляемый CLI выводит результат в stdout; интеграция с реальным state/log — часть оставшегося 04.2/04.5. Последние 20 подтверждённых сессий вытесняют предыдущие автоматически, прежняя карточка подаётся `--previous` и используется **только** для дельт, не для оценки пригодности.
 
+## V20-04.3 — начата прямая интеграция H1 StateStore (OFFLINE ONLY)
+
+- `v20_runtime/h1_state_journal.py` импортирует без переписывания проверенные H1 `StateStore` и `InstanceLock`. Использует отдельные `V20Lab/shallow|obv|inside/state/v20-offline-reference.sqlite3` с точной robot/account-hash identity; защищённые каталоги H1/M15 и чужая SQLite запрещены; reference-планы записываются атомарно и переживают перезапуск. Записи **не являются** `persist_intent` для реальной заявки; broker intents/fills намеренно не создаются.
+- `v20_runtime/tests/test_h1_state_journal.py`: синтетические offline проверки трёх независимых счетов, восстановления, двойного экземпляра и 2/1 session caps; пока **NOT RUN**.
+- `ProductionService` и `ProductionRuntime` H1 жестко привязаны к H1/T3 identity и `DecisionCore`, поэтому прямой вызов с M15 не работает. Следующий обязательный шаг в этом же 04.3 — тонкий V20-адаптер к H1 FINAM order/SLTP/fill/reconciliation контрактам, без изменений `TradingSystemLab/`. Защита фактических частичных исполнений и restart остаётся НЕ РЕАЛИЗОВАНА. **04.3 PARTIAL / НЕ ГОТОВО К LIVE**.
+
+Проверки нового офлайн-слоя (из корня репозитория, без токенов):
+
+```sh
+python -m unittest V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal -v
+```
+
 ## Проверенная база повторного использования из актуального GitHub main
 
 | Назначение | Существующий источник |
