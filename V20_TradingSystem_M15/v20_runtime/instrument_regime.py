@@ -136,6 +136,7 @@ def format_card(card):
         f"Raw R завершённые 20: {num(current['raw_R'])} | предыдущие 20: {num(previous['raw_R'])} | Δ: {num(card['delta_raw_R'])}",
         f"Условно с 2ATR стопом (НЕ PnL): {num(current['stop_aware_reference_R'])}",
         f"Касания стопа: {num(current['stop_touch_pct'], '%')} | движение 5R без стопа: {num(current['tail5_no_stop_pct'], '%')}",
+        f"ATR14/Close (справочно): {num(card.get('atr_reference', {}).get('atr14_pct_close') * 100 if card.get('atr_reference', {}).get('atr14_pct_close') is not None else None, '%')}",
         f"Наблюдений: {card['unique_completed_events']} уникальных / {card['observed_raw_paths']} raw; повторов {card['duplicate_paths_removed']}",
         f"Последний полный горизонт: {current['last_horizon'] or 'Н/Д'}, давность {card['age_days']} д.",
         f"Статус: {card['status']} | подтверждений за последние 5 завершений: {card['warning_persistence']}",
