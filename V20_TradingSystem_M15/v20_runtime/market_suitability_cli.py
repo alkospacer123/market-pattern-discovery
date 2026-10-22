@@ -29,6 +29,10 @@ from .market_rolling_raw import (
 from .instrument_regime import (
     instrument_regime_card, format_card as format_instrument_regime,
 )
+from .confirmed_market_regime import (
+    load_published as load_confirmed_events,
+    confirmed_card, format_text as format_confirmed_regime,
+)
 
 
 def _load_snapshot(path: Path) -> tuple:
@@ -143,6 +147,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument('--data-dir',type=Path,help='optional SHA-verified N4 quotes for reference ATR only')
     parser.add_argument('--raw-profile',type=Path,default=DEFAULT_PROFILE)
     parser.add_argument('--legacy-diagnostics',action='store_true',help='archived five-group interface')
+    parser.add_argument('--raw-diagnostics',action='store_true',
+                        help='legacy pooled mean raw 20/20 instead of confirmed observational card')
     parser.add_argument("--previous", type=Path, default=None,
                         help="previous output card JSON, for metric deltas")
     parser.add_argument("--reference-profile", type=Path, default=None,
@@ -160,11 +166,22 @@ def main(argv: list[str] | None = None) -> int:
             if args.legacy_diagnostics:
                 raise ValueError('LEGACY_DIAGNOSTICS_REQUIRES_SNAPSHOT')
             as_of=stamp(args.as_of) if args.as_of else datetime.now(ZoneInfo('Europe/Moscow')).replace(tzinfo=None,second=0,microsecond=0)
-            paths,_=load_paths(as_of=as_of)
-            card=instrument_regime_card(paths,args.symbol,as_of)
-            card['atr_reference']=atr_reference(args.data_dir,args.symbol.upper(),as_of)
+            if args.raw_diagnostics:
+                paths,_=load_paths(as_of=as_of)
+                card=instrument_regime_card(paths,args.symbol,as_of)
+                card['atr_reference']=atr_reference(args.data_dir,args.symbol.upper(),as_of)
+                render=format_instrument_regime
+            else:
+                # The published path-quality CSV is pinned. Latest verified M15
+                # source is informational, NOT a FINAM LIVE connection.
+                events=load_confirmed_events(instrument=args.symbol,as_of=as_of)
+                atr=atr_reference(args.data_dir,args.symbol.upper(),as_of)
+                card=confirmed_card(events,args.symbol,as_of=as_of,
+                    latest_completed_m15=atr.get('data_through'),feed_connected=False)
+                card['atr_reference']=atr
+                render=format_confirmed_regime
             print(json.dumps(card,ensure_ascii=False,indent=2,allow_nan=False) if args.format=='json'
-                  else format_instrument_regime(card))
+                  else render(card))
             return 0
         symbol, as_of, sessions, execution, calendar = _load_snapshot(args.input)
         if args.as_of is not None and stamp(args.as_of)!=as_of:
