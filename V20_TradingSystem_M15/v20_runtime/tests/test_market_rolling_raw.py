@@ -202,11 +202,17 @@ class RollingRawTests(unittest.TestCase):
             rc=main(['--symbol','BR','--as-of','2026-10-22T17:00:00','--format','json'])
         self.assertEqual(rc,0)
         result=json.loads(output.getvalue())
-        self.assertEqual(result['schema'],'v20.instrument_regime.readonly.v1')
+        self.assertEqual(result['schema'],'v20.confirmed_current_regime.readonly.v1')
         self.assertEqual(result['unique_completed_events'],0)
-        self.assertEqual(result['status'],'НЕДОСТАТОЧНО ДАННЫХ')
+        self.assertEqual(result['historical_observation'],'STALE_OR_MISSING_COMPLETED_OUTCOMES')
         self.assertFalse(result['prediction_validated'])
-        self.assertEqual(result['finam_live_feed'],'NOT_CONNECTED')
+        self.assertEqual(result['live_current_status'],'LIVE_FEED_NOT_CONNECTED')
+        self.assertFalse(result['trading_gate'])
+        previous=io.StringIO()
+        with redirect_stdout(previous):
+            self.assertEqual(main(['--symbol','BR','--raw-diagnostics',
+                                   '--as-of','2026-10-22T17:00:00','--format','json']),0)
+        self.assertEqual(json.loads(previous.getvalue())['schema'],'v20.instrument_regime.readonly.v1')
 
 
 if __name__=='__main__':
