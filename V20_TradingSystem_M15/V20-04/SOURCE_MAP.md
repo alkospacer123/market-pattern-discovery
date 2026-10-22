@@ -60,6 +60,15 @@ GitHub SHA в таблицах ниже — **Git blob SHA конкретног�
 - `V20_TradingSystem_M15/research_original_v20/base.py`, `run.py`, `legacy_v4/study_v4.py` — research authority, **никаких изменений формул**.
 - `V20_TradingSystem_M15/v20_runtime/offline_planner.py` — текущий reference-only вызов H1 grid/risk/GO, не умеет работать с реальной ценой fill, SQLite или FINAM.
 
+## Обнаруженная H1-специфичная граница и первый интеграционный стык
+
+Проверено в `main`: `ProductionService.__init__` вызывает `load_frozen_specification()` с `PRODUCTION_SPECIFICATION_ID / ACTIVE_IDENTITY` H1, а `ProductionRuntime.__init__` инициализирует `DecisionCore` T3/H1, `T3ContextBuilder`, H1 registry/state identity. **Нельзя** создать `ProductionService(..., M15)` или переименовать `H1` в M15 и утверждать, что это V20-исполнитель. Это фактическая интерфейсная несовместимость, **не основание менять действующий H1**.
+
+V20-04.3 первый узкий стык (без транспорта):
+- `v20_runtime/h1_state_journal.py`: импорт **без копирования алгоритмов** `TradingSystemLab.stage8_robot.state.StateStore` и `operations.InstanceLock`, три отдельных БД внутри ровно `V20Lab/shallow|obv|inside/state`, идентичность привязана к роботу и SHA256 account_id; защита от чужой БД/симлинков/путей защищённых проектов; только reference-only записи, нет broker order intents.
+- `v20_runtime/tests/test_h1_state_journal.py`: синтетическая проверка boundary/account isolation/restart/caps; тесты в PR, выполнение ещё **NOT RUN**.
+- Дальнейший **тот же V20-04.3**: конкретный V20 adapter для H1 order transport, 100% SLTP, verified fills/partial fills, atomic intent+reconciliation+recovery и собственный V20 authorization/kill-switch; H1 `production_service.py` и `production_runtime.py` нельзя напрямую запускать для V20 из-за жёсткой frozen H1 identity. Не строить новый концептуальный торговый движок, переиспользовать готовые H1 операции.
+
 ## Реальный порядок дальнейшей сборки (без новых этапов)
 
 1. **V20-04.2:** existing frozen signals -> завершённая M15 -> NEXT_OPEN; отдельная карточка пригодности по последним 20 завершённым сессиям (READONLY, только метрики, NEVER FILTER).
