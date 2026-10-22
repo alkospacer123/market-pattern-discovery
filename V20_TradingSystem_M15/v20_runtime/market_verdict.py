@@ -6,7 +6,7 @@ must be supplied before issuing 3-state verdicts. Unreviewed profiles cannot lab
 from __future__ import annotations
 
 from copy import deepcopy
-from datetime import date
+from datetime import date, datetime
 from math import isfinite
 from typing import Any, Mapping
 
@@ -22,7 +22,7 @@ def _number(value: Any) -> bool:
     return isinstance(value, (float, int)) and not isinstance(value, bool) and isfinite(value)
 
 
-def _validated(reference: Mapping[str, Any] | None, symbol: str) -> tuple[bool, str]:
+def _validated(reference: Mapping[str, Any] | None, symbol: str, as_of: str) -> tuple[bool, str]:
     if not isinstance(reference, Mapping):
         return False, "REFERENCE_NOT_PROVIDED"
     if reference.get("schema") != "v20.market_suitability.validated_reference.v1":
@@ -38,9 +38,11 @@ def _validated(reference: Mapping[str, Any] | None, symbol: str) -> tuple[bool, 
     try:
         calibration_end = date.fromisoformat(evidence["calibration_end"])
         holdout_start = date.fromisoformat(evidence["holdout_start"])
+        holdout_end = date.fromisoformat(evidence["holdout_end"])
+        evaluation_date = datetime.fromisoformat(as_of).date()
     except (ValueError, TypeError, KeyError):
         return False, "HOLDOUT_DATES_INVALID"
-    if calibration_end >= holdout_start:
+    if not calibration_end < holdout_start <= holdout_end < evaluation_date:
         return False, "NON_CHRONOLOGICAL_REFERENCE"
     universe = reference.get("validated_symbols")
     if not isinstance(universe, (list, tuple)) or not all(isinstance(s, str) for s in universe):
@@ -59,8 +61,9 @@ def apply_market_reference(card: Mapping[str, Any], reference: Mapping[str, Any]
     result = deepcopy(dict(card))
     result["affects_signals_or_risk"] = False
     result["trading_instrument_authority"] = "OPERATOR_ONLY"
-    valid, evidence_reason = _validated(reference, result["symbol"])
+    valid, evidence_reason = _validated(reference, result["symbol"], result["as_of_msk"])
     result["reference_evidence"] = {"ready": valid, "reason": evidence_reason,
+                                    "external_audit_required": True,
                                     "artifact_sha256": (reference.get("evidence", {}).get("artifact_sha256")
                                                         if valid else None)}
     for strategy, fields in STRATEGY_METRICS.items():
