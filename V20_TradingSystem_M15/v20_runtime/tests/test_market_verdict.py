@@ -6,7 +6,7 @@ from V20_TradingSystem_M15.v20_runtime.market_verdict import apply_market_refere
 
 
 def card():
-    return {"symbol": "SILV", "strategies": {
+    return {"symbol": "SILV", "as_of_msk": "2026-10-22T18:00:00", "strategies": {
         "SHALLOW_PULLBACK": {"suitability": "НЕ ОЦЕНЕНО", "diagnostics": {
             "directional_efficiency": .4, "continuation_rate": .6}},
         "OBV_PRESSURE": {"suitability": "НЕ ОЦЕНЕНО", "diagnostics": {
@@ -26,7 +26,8 @@ def profile():
                 "causal_entry_precedes_outcome": True,
                 "artifact_sha256": "a" * 64,
                 "calibration_end": "2024-12-31",
-                "holdout_start": "2025-01-01"},
+                "holdout_start": "2025-01-01",
+                "holdout_end": "2026-09-30"},
             "strategies": {
                 strategy: {metric: bounds.copy() for metric in entry["diagnostics"]}
                 for strategy, entry in card()["strategies"].items()}}
@@ -72,6 +73,18 @@ class VerdictTests(unittest.TestCase):
         reference["evidence"]["calibration_end"] = "2025-07-01"
         self.assertEqual(apply_market_reference(card(), reference)["reference_evidence"]["reason"],
                          "NON_CHRONOLOGICAL_REFERENCE")
+
+    def test_holdout_not_finished_before_card_cannot_label(self):
+        reference = profile()
+        reference["evidence"]["holdout_end"] = "2027-01-01"
+        self.assertEqual(apply_market_reference(card(), reference)["reference_evidence"]["reason"],
+                         "NON_CHRONOLOGICAL_REFERENCE")
+
+    def test_bad_rule_remains_not_evaluated(self):
+        reference = profile()
+        reference["strategies"]["SHALLOW_PULLBACK"]["continuation_rate"]["allow_min"] = 2
+        self.assertEqual(apply_market_reference(card(), reference)["strategies"]["SHALLOW_PULLBACK"]["suitability"],
+                         "НЕ ОЦЕНЕНО")
 
     def test_missing_and_bad_metric_never_false_negative(self):
         original, reference = card(), profile()
