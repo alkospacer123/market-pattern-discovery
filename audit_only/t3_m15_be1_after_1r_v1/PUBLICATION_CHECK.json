@@ -1,0 +1,20 @@
+{
+  "all_generated_file_hashes_match_repeat_receipt": true,
+  "auto_merge": null,
+  "checked_content_commit": "dfb439b6c121aaeff85f23b6572975c106aaa91f",
+  "checks": "Local scalar/Decimal, 23 synthetic contracts and three fresh full processes; no external signoff",
+  "current_main": "c3695b1304aef1acdd889264b3451184f7332bf7",
+  "draft": true,
+  "files_added": 67,
+  "final_seal_commit_changes_only": [
+    "PUBLICATION_CHECK.json",
+    "SHA256SUMS"
+  ],
+  "frozen_code_and_documentation_hashes_match": true,
+  "merged": false,
+  "only_new_audit_directory": true,
+  "pr_number": 564,
+  "source_data_unchanged": true,
+  "status": "PASS",
+  "url": "https://github.com/alkospacer123/market-pattern-discovery/pull/564"
+}

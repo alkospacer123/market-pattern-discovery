@@ -1,0 +1,17 @@
+{
+  "frozen_stops": "UNROUNDED_RESEARCH_VALUES",
+  "missing": [
+    "starting capital and cashflows",
+    "dated historical GO/margin",
+    "dated contract size, tick size and tick value",
+    "verified fees, slippage, funding, settlement"
+  ],
+  "no_cash_inference_from_R": true,
+  "nominal_risk_limit": 0.06,
+  "normalized_cost_R": 0,
+  "normalized_slippage_R": 0,
+  "production_parameters_modified": false,
+  "quantity_formula": "floor(min(0.015*realized_equity_RUB/risk_per_lot_RUB,available_margin_RUB/dated_GO_RUB)); total reserved nominal initial risk <=0.06*realized_equity_RUB",
+  "risk_fraction": 0.015,
+  "status": "NOT_VALIDATED"
+}
