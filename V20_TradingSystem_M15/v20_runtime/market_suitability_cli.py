@@ -4,7 +4,7 @@ Usage (repository root):
 python -m V20_TradingSystem_M15.v20_runtime.market_suitability_cli --input completed_sessions.json
 
 Input is a previously VERIFIED snapshot, not a FINAM session discovery tool.
-Default output to stdout, so the existing V20 logger/operator can capture JSON.
+Compact text by default; --details or --format json expose the five groups.
 No write to SQLite, tasks, tokens, orders, H1 or IntradayLab.
 """
 from __future__ import annotations
@@ -19,6 +19,7 @@ from .market_suitability import (
     CompletedSession, M15Bar, STRATEGIES, evaluate_market_card,
 )
 from .market_verdict import apply_market_reference
+from .market_ranges import DEFAULT_RANGES, annotate_card
 
 
 def _load_snapshot(path: Path) -> tuple:
@@ -46,6 +47,21 @@ def format_text(card: dict, *, details: bool = False) -> str:
         f"Завершённых сессий {quality['observed_sessions']}/{quality['required_sessions']}; "
         f"пропусков M15 {quality['missing_bars']}; сессий {quality['missing_sessions']}",
     ]
+    ranges = card.get('typical_ranges', {})
+    typical = ranges.get('values', {})
+    def range_line(spec):
+        if spec['p25'] is None or spec['p75'] is None:
+            return spec['label']+': типичный диапазон НЕ ПРОВЕРЕНО'
+        scale = 100 if spec['metric']=='atr14_pct_close' else 1
+        unit = '%' if scale==100 else ''
+        value = f"{spec['value']*scale:.4g}{unit}" if spec['value'] is not None else 'НЕИЗВЕСТНО'
+        return (f"{spec['label']}: {value} / типично {spec['p25']*scale:.4g}–"
+                f"{spec['p75']*scale:.4g}{unit} / {spec['position']}")
+    if typical:
+        lines.append('Типичные диапазоны N4, 2023–2024; календарь эталона FINAM не подтверждён.')
+        lines.append(range_line(typical['COMMON_ATR']))
+        if not ranges['symbol_in_reference']:
+            lines.append('Перенос диапазонов на этот инструмент не проверен.')
     for name in STRATEGIES:
         diagnostics = card["strategies"][name]
         lines.append(f"{name}: {diagnostics['suitability']}")
@@ -54,6 +70,10 @@ def format_text(card: dict, *, details: bool = False) -> str:
                     "INCOMPLETE_OR_UNVERIFIED_M15": "Недостаточно подтверждённых завершённых сессий."}
         if reasons:
             lines.append("  Причины: " + "; ".join(readable.get(r,r) for r in reasons))
+        if name in typical:
+            lines.append('  '+range_line(typical[name]))
+    if ranges.get('interval_check'):
+        lines.append('Пригодность по диапазонам не доказана; независимой проверки нет.')
     if details:
         for name in ("volatility", "directionality", "breakouts", "volume_pressure", "compression", "liquidity"):
             lines.append(name + ": " + ", ".join(
@@ -72,6 +92,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="previous output card JSON, for metric deltas")
     parser.add_argument("--reference-profile", type=Path, default=None,
                         help="explicitly reviewed holdout-validated diagnostic profile; never a trading gate")
+    parser.add_argument("--typical-ranges", type=Path, default=DEFAULT_RANGES,
+                        help="descriptive p25/p75 artifact; never a validated suitability profile")
     parser.add_argument("--format", choices=("json", "text"), default="text")
     parser.add_argument("--details", action="store_true", help="show numeric details in text output")
     args = parser.parse_args(argv)
@@ -85,6 +107,8 @@ def main(argv: list[str] | None = None) -> int:
         reference = (json.loads(args.reference_profile.read_text(encoding="utf-8"))
                      if args.reference_profile is not None else None)
         card = apply_market_reference(card, reference)
+        if args.typical_ranges.exists():
+            card = annotate_card(card,json.loads(args.typical_ranges.read_text(encoding='utf-8')))
         output = (json.dumps(card, ensure_ascii=False, indent=2, allow_nan=False)
                   if args.format == "json" else format_text(card, details=args.details))
         print(output)

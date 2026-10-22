@@ -91,20 +91,34 @@ def associations(joined):
     return output
 
 
-def build(data_dir):
+def build(data_dir, *, observations_only=False):
     assert sha(RAW_PATH)==RAW_SHA, 'PUBLISHED_RAW_ARTIFACT_CHANGED'
     with RAW_PATH.open() as f:
-        rows = raw_rows(csv.DictReader(f))
-    summary = contrast(rows)
+        source_rows = csv.DictReader(f)
+        if observations_only:
+            # The final range check reuses this exact causal join, without
+            # revisiting published 2025 outcomes or the previous correlations.
+            source_rows = (r for r in source_rows if r['period']=='2023-2026'
+                           and not r['signal_bar_dt'].startswith('2025-')
+                           and not r['horizon_exit_dt'].startswith('2025-'))
+        rows = raw_rows(source_rows)
+    if not observations_only:
+        return _build_with_rows(data_dir, rows)
+    return _build_with_rows(data_dir, rows, observations_only=True)
+
+
+def _build_with_rows(data_dir, rows, *, observations_only=False):
     distribution_path = ROOT/'V20-03/comparison/TRADE_DISTRIBUTION.csv'
-    with distribution_path.open() as f:
-        published = [r for r in csv.DictReader(f) if r['record_type']=='RAW_FROZEN_SIGNALS'
-                     and r['instrument']=='ALL' and r['year']=='ALL']
-    for rec in summary:
-        match = next(r for r in published if r['period']==rec['period'] and r['strategy']==rec['strategy'])
-        assert int(match['observations'])==rec['raw_signals']
-        assert int(match['horizon_observed_paths'])==rec['observed_horizons']
-        assert isclose(float(match['mean_horizon_R']),rec['mean_horizon_R'],abs_tol=1e-10)
+    if not observations_only:
+        summary = contrast(rows)
+        with distribution_path.open() as f:
+            published = [r for r in csv.DictReader(f) if r['record_type']=='RAW_FROZEN_SIGNALS'
+                         and r['instrument']=='ALL' and r['year']=='ALL']
+        for rec in summary:
+            match = next(r for r in published if r['period']==rec['period'] and r['strategy']==rec['strategy'])
+            assert int(match['observations'])==rec['raw_signals']
+            assert int(match['horizon_observed_paths'])==rec['observed_horizons']
+            assert isclose(float(match['mean_horizon_R']),rec['mean_horizon_R'],abs_tol=1e-10)
     cards, quote_index, coverage, source_sessions = {}, {}, {}, {}
     for sym in SOURCE_SHA256:
         sessions = load_sessions(data_dir,sym)  # SHA verified; locked year excluded.
@@ -184,8 +198,13 @@ def build(data_dir):
         joined.append(dict(strategy=r['strategy'],symbol=sym,signal_day=str(day),
             block='2026_YTD' if signal.year==2026 else '2023-2024',
             cutoff=card['as_of_msk'],horizon_R=float(r['horizon_R']),
+            signal_dt=r['signal_bar_dt'], outcome_at=r['horizon_exit_dt'],
+            horizon_stop_touch=r['horizon_stop_touch']=='True',
             features={m:diagnostics[m] for m in METRICS}))
     assert len(joined)+sum(skipped.values())==len(rows)
+    if observations_only:
+        return dict(observations=joined, skipped=dict(skipped), coverage=coverage,
+                    source_sha256={str(RAW_PATH.relative_to(ROOT)):RAW_SHA, **SOURCE_SHA256})
     assoc = associations(joined)
     # Old rows expose only source ATR and source pressure. Do not invent the
     # other three card groups from executed trades or from economic proxies.
