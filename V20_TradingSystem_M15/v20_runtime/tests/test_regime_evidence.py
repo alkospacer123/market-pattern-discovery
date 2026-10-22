@@ -73,6 +73,16 @@ class RegimeEvidenceTests(unittest.TestCase):
         self.assertLess(total, 0.025)
         self.assertGreater(total, 0.02499)
 
+    def test_significant_recovery_uses_upper_tail_in_chronological_order(self):
+        rows=self.sample(160)
+        for i,row in enumerate(rows):
+            row['fp2']=int(i>=80)
+        card=evidence_card(rows,'USDRUBF',rows[-1]['available'])
+        self.assertEqual(card['last_status'],'FP2_RECOVERY_EVIDENCE')
+        check=card['checks'][-1]
+        self.assertLess(check['p_up'],check['alpha'])
+        self.assertGreater(check['p_down'],.99)
+
 
 if __name__ == "__main__":
     unittest.main()

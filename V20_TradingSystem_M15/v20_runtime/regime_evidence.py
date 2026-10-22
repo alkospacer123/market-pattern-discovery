@@ -81,8 +81,9 @@ def evidence_card(rows, instrument, as_of):
         old_successes = sum(e["fp2"] for e in base)
         new_successes = sum(e["fp2"] for e in recent)
         down_p = exact_lower_tail(BASELINE, old_successes, LATEST, new_successes)
-        up_p = exact_lower_tail(LATEST, LATEST-new_successes,
-                                BASELINE, BASELINE-old_successes)
+        # A rise in successes is a fall in failures in the SAME time order.
+        up_p = exact_lower_tail(BASELINE, BASELINE-old_successes,
+                                LATEST, LATEST-new_successes)
         number = len(checks) + 1
         # Sum_{k>=1} 1/(k*(k+1)) = 1. Split 5% between both directions.
         alpha_each = (FAMILY_ALPHA / 2) / (number * (number + 1))
