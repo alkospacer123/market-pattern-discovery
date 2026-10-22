@@ -31,6 +31,20 @@ python -m unittest V20_TradingSystem_M15.v20_runtime.tests.test_market_suitabili
 
 JSON snapshot содержит: `symbol`, `as_of_msk`, `completed_sessions` (массив с `day`, `closed_at`, `expected_opens`, `bars`), каждый bar: `open_time,open,high,low,close,volume`. Все времена — московские naive ISO, Open-labelled M15. `closed_at` и `expected_opens` **уже подтверждены внешней достоверной сессионной authority**; CLI не умеет их доказать и не обращается к брокеру. Опциональные поля `execution_readonly`: `price_step`, `tick_value_rub`, `roundtrip_cost_rub`, `spread_price`, `initial_margin_rub`. Без них значения остаются неизвестными. Поставляемый CLI выводит результат в stdout; интеграция с реальным state/log — часть оставшегося 04.2/04.5. Последние 20 подтверждённых сессий вытесняют предыдущие автоматически, прежняя карточка подаётся `--previous` и используется **только** для дельт, не для оценки пригодности.
 
+## V20-04.2 — исторический эталон и доказательная пригодность
+
+- `MARKET_REFERENCE_2023_2026_RU.md`: зафиксирована фактическая характеристика 3 423 двадцатисессионных окон по SHA-verified frozen M15 всех N4 за 2023–2026 YTD. **Только описательная статистика, не пороги пригодности.**
+- `MARKET_OUTCOME_EXPLORATORY_RU.md`: результаты причинной привязки признаков по 20 завершённым сессиям до входа к 957 сделкам из усечённого журнала 997 из 1 589. Не доказано, что больший ATR / направленность обеспечивают лучшее математическое ожидание; границы не выбирались.
+- `v20_runtime/market_reference_descriptive.py`: автономный offline расчёт рынка с проверкой замороженных SHA256, без FINAM и торговых команд. В исследовательской среде с NumPy используйте:
+
+```sh
+python -m V20_TradingSystem_M15.v20_runtime.market_reference_descriptive --data-dir <folder_with_N4_M15_csv> --output market_descriptive.json
+```
+
+- `v20_runtime/market_verdict.py` и `tests/test_market_verdict.py`: поддержка статусов **ДОПУСТИМО / НЕЙТРАЛЬНО / НЕДОПУСТИМО** при наличии **независимо подтверждённого** причинного эталона. Сейчас такого профиля нет, поэтому корректный результат — **НЕ ОЦЕНЕНО**. Отсутствие достаточной истории — **НЕДОСТАТОЧНО ДАННЫХ**. Модуль не читает `robots.json` и не вызывает торговые API.
+- В ограниченной локальной проверке 8 тестов ветви вычисления статусов **PASS**, ещё две проверки хронологии добавлены в Draft PR и требуют запуска в checkout. Полная new-code / Windows / FINAM проверка не утверждалась.
+- Стопы, сигналы и frozen N4 роботов не менялись; карточка — независимое средство аналитика.
+
 ## V20-04.3 — начата прямая интеграция H1 StateStore (OFFLINE ONLY)
 
 - `v20_runtime/h1_state_journal.py` импортирует без переписывания проверенные H1 `StateStore` и `InstanceLock`. Использует отдельные `V20Lab/shallow|obv|inside/state/v20-offline-reference.sqlite3` с точной robot/account-hash identity; защищённые каталоги H1/M15 и чужая SQLite запрещены; reference-планы записываются атомарно и переживают перезапуск. Записи **не являются** `persist_intent` для реальной заявки; broker intents/fills намеренно не создаются.
