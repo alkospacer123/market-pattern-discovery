@@ -172,6 +172,7 @@ def _strategy_readouts(sessions: list[CompletedSession], metrics: dict[str, Any]
             "continuation_rate": metrics["breakouts"]["continuation_rate"]},
         "OBV_PRESSURE": {
             "signed_volume_pressure_ratio": obv_pressure,
+            "signed_volume_pressure_abs": abs(obv_pressure) if obv_pressure is not None else None,
             "continuation_rate": metrics["breakouts"]["continuation_rate"]},
         "INSIDE_DAY_RELEASE": {
             "inside_session_share": inside_count / inside_pairs if inside_pairs else None,
