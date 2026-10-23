@@ -11,7 +11,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "796245e8ee366e7bbfda828a95ece36b5a5376818b49ef653204a7adc7171d06"
+      "sha256": "31087c6b87d03be692481b177934fb69a9077f6768f0ed6cf2c1dd1d244f22e3"
     },
     {
       "path": "app.py",
@@ -111,7 +111,7 @@
     },
     {
       "path": "ci/file_open_trace.py",
-      "sha256": "16f177550d2377d3dee134d220c1b1f156005f5e6055c198af83565234af617e"
+      "sha256": "5c0cb7c4eed6d7840266196f1cbda49232f3184a904f03e632510b35e4933181"
     },
     {
       "path": "ci/identity_probe.py",
@@ -123,11 +123,15 @@
     },
     {
       "path": "ci/protected-main-tree.json",
-      "sha256": "e75f839176c9954d7d54b5f3d09586473157c515b6fde1e9171aabfce2c579f8"
+      "sha256": "2ed24a70402291124fe9958e6f65250a21ce32532f1e32c431fd762d6d0353e7"
     },
     {
       "path": "ci/scope_audit.py",
       "sha256": "6bfc58583e500fc00984a7107a506bb17d3ebdb4e6a9301254d9dea12a6fc13b"
+    },
+    {
+      "path": "ci/source_feasibility_audit.py",
+      "sha256": "589dfa2a452a7995c47f0e24c17ff1c06dfcd980cce4828cddd6ccf92e915480"
     },
     {
       "path": "ci/streamlit_click.py",
@@ -139,7 +143,7 @@
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "9108f1a6f8bfb1f773cd8517ca9911d83253896872ae36193cb687d25decd26a"
+      "sha256": "25cf45cf2f7c025cf7134f3c386f43a9a4479a485bf4a7dc52397209ddcd7ae4"
     },
     {
       "path": "deployment/Common.ps1",
@@ -240,6 +244,18 @@
     {
       "path": "docs/CC03_FUTURE_TELEMETRY_SPEC.md",
       "sha256": "a4fa9d7e8089dd9803e1f597b62220572d7ee5884fbf6f64b2c2aaa634cb50a2"
+    },
+    {
+      "path": "docs/CC03_H1_SOURCE_EVIDENCE.json",
+      "sha256": "317a57bfb18ac90f56e95678ca8ce096c87c8a06a8caa18d334f43f4ac786537"
+    },
+    {
+      "path": "docs/CC03_H1_SOURCE_FEASIBILITY.md",
+      "sha256": "e3fe2a597ee547098c3c87d317d076dba8856ebc83cd48b05458767646f84ee0"
+    },
+    {
+      "path": "docs/CC03_H1_SOURCE_OPERATOR_CHECKPOINT.md",
+      "sha256": "33addfa954538f95d81491a03110c6e7c8760e4696013d11e2f70cfcd9ebb0d6"
     },
     {
       "path": "docs/CC03_INDEPENDENT_AUDIT_551.md",
@@ -486,6 +502,10 @@
       "sha256": "fef63028efe7116c13392d424e6b4b6f80cca12e85ed71a589bd2d9aaedbd388"
     },
     {
+      "path": "tests/test_source_feasibility.py",
+      "sha256": "f70d619e0948c5fefbdf6c965cad7fadca17c31cdb57b23a3cfff7dfb66daae1"
+    },
+    {
       "path": "tests/test_ui.py",
       "sha256": "d8c5eae06f18bf60056cfc06dc403f166090d6074a8e177505188c0525114483"
     },
@@ -495,7 +515,7 @@
     },
     {
       "path": "tests/test_windows_transport.py",
-      "sha256": "6cde297462b4f4f9127cc936a2c6617f3a139da866d0b121fdb3e3f1b7e0db65"
+      "sha256": "b5d64360f46508f6aba189e07e550adf46c49ee49a1475ee2b243c00017c513e"
     }
   ]
 }

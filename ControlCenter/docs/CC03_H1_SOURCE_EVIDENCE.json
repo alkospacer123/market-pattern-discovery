@@ -1,0 +1,148 @@
+{
+  "schema_id": "cc03.h1-source-feasibility-evidence.v1",
+  "base_sha": "c3695b1304aef1acdd889264b3451184f7332bf7",
+  "assignment": "https://github.com/alkospacer123/market-pattern-discovery/issues/550#issuecomment-6286945101",
+  "classification": "NOT_AUTHORIZED / NO_SAFE_SOURCE",
+  "intel_execution": "NOT_EXECUTED",
+  "private_check_script": "NOT_TRACKED_NOT_SUPPLIED_NOT_INSPECTED",
+  "inspected_source_files": [
+    {
+      "path": "TradingSystemLab/stage8_robot/diagnostics/stage8-537-post-arm-readonly.py",
+      "git_blob": "b30d100e6d835a028c0f05577ec950f8c9124dc1",
+      "sha256": "35cd33dde50cb7c9e9eb0b9af53cb5cfe4d43545454e7ddee139e3e836e71820",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/diagnostics/stage8-537-post-arm-readonly.ps1",
+      "git_blob": "b54854faa9dd5a7846cb15f3b33d97c4f571d4dc",
+      "sha256": "9280c4b37af32e828b8114e90dff1fe1524880adb7850ceef4a54bf0ac871c7f",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/diagnostics/stage8_493_post_isolation_broker_readonly.py",
+      "git_blob": "bd74de6795b0da1c80bde6bb0c659da692e9847a",
+      "sha256": "92fc06d2fba9d5d5062d3a3dc14bb74c8c3efd32754a07585dc92d5cb7ea7a13",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/diagnostics/stage8-493-finam-broker-flat-readonly.py",
+      "git_blob": "4646594236f23a4dbdfce3280f88121886b34814",
+      "sha256": "02dc0b6ada60ce51bfdc9afbb4d54ca3407d0a3cdd94c3ad88e6eb7a78ab8bbe",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/diagnostics/stage8-493-finam-broker-flat-readonly.ps1",
+      "git_blob": "4804583f772a6ce0773ff4835479400ab3c185b8",
+      "sha256": "8a5d6110f97c1aa5e390fdc048acf447a0ab1e6fbe852410cd8bc993899017c5",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/diagnostics/stage8_493_n4_financial_readonly.py",
+      "git_blob": "ee9a5cb29a8757c9bc6334e0368b92095ba507c8",
+      "sha256": "68b477b929eb09e299a19f15a79e674f6a60ecf1dbb835a365e514ba3cdfb6d5",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/diagnostics/stage8-493-n4-financial-readonly.ps1",
+      "git_blob": "27a66143fa354b9a819144ccb57c8b95f4e81867",
+      "sha256": "25360d4ca523ca03b53783e2dc6896776d92d02216861171407c94fd84434a71",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/diagnostics/stage8_493_finam_readonly_observation.py",
+      "git_blob": "1cacbcf1a05ce1284b2bd239c2244204734b00c3",
+      "sha256": "547bed34109f7a4ddba3b1041c752076156e2775215c01b9da069371220c25c7",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/diagnostics/stage8_493_capital_pnl_readonly.py",
+      "git_blob": "6182f2792e5a9932d7931cc091e88c358a2aecb3",
+      "sha256": "53aab549324b0a2c7dd29bfe5abff589d77b5062ca0902d7e07f78be2936bcb7",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/readonly_supervisor.py",
+      "git_blob": "4c2006cd77c7826a01edd854d5eaf0cd15ee11eb",
+      "sha256": "c4dee8d488dc6379b80a31aca39256b89c3d8e9ae76269267381cd357fe073e5",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/deploy/windows/run-readonly.ps1",
+      "git_blob": "e2d8eee02ec67dff327e9d808eb41d89e5475d9c",
+      "sha256": "c91937716e84d8e746475ad27b89d32b0424cc928aeedc239c7628477d5055e3",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/production_safety_gate.py",
+      "git_blob": "f8c399bba0a373fe5154e96f43118871f90c0228",
+      "sha256": "a02e4cf11ada2c246178091800abb8f975863bbe7c49cdd2787392cda0583188",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/trading_safety_gate.py",
+      "git_blob": "e938048a8dc3caa9db29209489a7050e64d0bb5a",
+      "sha256": "64c781579e630836cfde7a0b772df1e2707caf35decafb9acdc75d7d2e3df6e4",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/production_runtime.py",
+      "git_blob": "4ec35199be9269af5fc10093a086e0feb4207a34",
+      "sha256": "8c5b24586c48eac851097edbe191422de85fff886a0f8d77fde8383cb733d504",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/production_service.py",
+      "git_blob": "46b258c6b01d79fea4c3be9338185c121e575755",
+      "sha256": "c232972a7ff7b84a36672f594ce596a0e9c70321a9f5bf456b29b6c5f61a68a1",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/state.py",
+      "git_blob": "4f12e1cb61eccb0b14c1efb9ff0cdf2532a7b22b",
+      "sha256": "afec9bc5b54ce0ef9fd3be2835a6a3506c79d43826a194932a6d8fca9d979a50",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/finam_fill_price_readonly.py",
+      "git_blob": "4b6d9b533058f31e70ef9e7a8068ea1fb6b83cc4",
+      "sha256": "4b6c324240c19ea91799a147fccaf68e9c68e132e07df43d4b93598dfb48457d",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/diagnostics/run-finam-fill-price-readonly.ps1",
+      "git_blob": "d769b9aa4a7dee2701d5380232bd5c330f16a417",
+      "sha256": "cdc106aa6fe5c8ac7ee716117a3e756e52b8a2c03ad6970cef4d9d4c9f300aac",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/diagnostics/independent_uploaded_finam_evidence_audit_20261013.json",
+      "git_blob": "76313b7c1aa98dfab6bdc59e57ad31f8bdd4ac7a",
+      "sha256": "2932e2f48ce311b51e0ba65c3b2d0096153069fd5437e4a96869f7a5c77ac3c5",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/diagnostics/run-stage8-493-sltp-local-readonly-precheck.ps1",
+      "git_blob": "729cdebc7ea071efdb768dad8a0bac0a295a8909",
+      "sha256": "bb8301c8c2f11949c2006449f9ee050ca397440946fb62dcf3c6ac2bf8c79d9f",
+      "access": "REPOSITORY_SOURCE_TEXT_ONLY_NOT_EXECUTED"
+    }
+  ],
+  "unchanged_runtime_git_entries": {
+    "ControlCenter/app.py": "100644 blob f82154c78290a4ff0a4052098ca91ac69d260eda",
+    "ControlCenter/cc": "040000 tree a1815272df294bc4ee310d1dd338c17c70358f62",
+    "ControlCenter/deployment/Common.ps1": "100644 blob 886c5c33be0d4d5b07cb3aae9cb4291492e2216a",
+    "ControlCenter/deployment/Install.ps1": "100644 blob 330e8972c5dcf77fe8c39aec335cbf0d79813604",
+    "ControlCenter/deployment/PanelIdentity.ps1": "100644 blob 913ca76570825e1cea20a1c85762159ee2e6507d",
+    "ControlCenter/deployment/Preflight.ps1": "100644 blob da984392d2676674448dc30f83041a6a8953427d",
+    "ControlCenter/deployment/Probe-H1Task.ps1": "100644 blob 893ca677e25b3051352bb04d2ba2358a6eb9cb5f",
+    "ControlCenter/deployment/Provision-PythonCore.ps1": "100644 blob 51bd2029be4037ec2dfae30090c36b95784447a2",
+    "ControlCenter/deployment/PythonCoreArchive.ps1": "100644 blob 9487383e14f19e0e7c91d5e3553b46a662a02e31",
+    "ControlCenter/deployment/PythonRuntime.ps1": "100644 blob 023eebc7943ecb9ee57e4ee4823e0f67faec5786",
+    "ControlCenter/deployment/Start-Exporter.ps1": "100644 blob 228ab1dcd35bb0c8f2bb4bd25f5fbd0aa8d8c77f",
+    "ControlCenter/deployment/Start-Panel.ps1": "100644 blob 664118c14affa7bd48a3ff5375c40b244b360d8b",
+    "ControlCenter/deployment/Uninstall.ps1": "100644 blob 9e484fcc02ff200a7d94dae31b665669f0165f84",
+    "ControlCenter/deployment/Verify.ps1": "100644 blob 4a80a518b68fb5e56f8b23d23fe873253fdebc54",
+    "ControlCenter/exporter": "040000 tree a1daad5d76fc8b81f0163528ab56492c72c6a76f",
+    "ControlCenter/observer": "040000 tree 292fe546a635c64e3ecdc371accef78624c7e886"
+  }
+}
