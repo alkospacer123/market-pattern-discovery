@@ -9,9 +9,9 @@ $source = Join-Path $root 'source-raw'
 $venv = Join-Path $root '.venv-raw'
 $scratch = Join-Path $root 'acceptance-raw'
 $repo = 'alkospacer123/market-pattern-discovery'
-$manifestCommit = 'ec0babac511ee1369e184c528cf6ada948303e64'
-$manifestGitBlob = '84638b891cc38fb444df806ba134a3879c3159eb'
-$sourceCommit = '4fdf17bacfa12a4e84eaa0b6f0b9d2cfe412ec12'
+$manifestCommit = '7d8701795c65023ce564e48f8c25d2e0e34c45cb'
+$manifestGitBlob = '1caf543ad547503bf4ce8c14c1a5a52212c22b7a'
+$sourceCommit = '52e8be3bb11eb5e968abab502acfebaa200b2b62'
 $mainCommit = '6f352acfac7ebdfabba73e143c4dfea3a6e48507'
 
 function checked {
