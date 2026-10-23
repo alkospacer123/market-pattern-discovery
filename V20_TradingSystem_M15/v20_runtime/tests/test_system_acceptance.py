@@ -1,4 +1,5 @@
 """V20-05 new acceptance boundaries, not another historical replay."""
+from contextlib import closing
 from datetime import datetime
 from decimal import Decimal
 import hashlib
@@ -76,7 +77,7 @@ class SystemAcceptanceTests(TestCase):
                     self.assertEqual(after["phase"], "recovered")
                 if phase in {"fill", "stop"}:
                     self.assertEqual(book["orders"][1]["sltp_order"]["quantity_sl"], {"value": "100"})
-                with sqlite3.connect(self.root/"shallow/state/v20-offline-execution.sqlite3") as db:
+                with closing(sqlite3.connect(self.root/"shallow/state/v20-offline-execution.sqlite3")) as db:
                     self.assertEqual(db.execute("pragma integrity_check").fetchone(), ("ok",))
                 records.append(dict(phase=phase, killed=before, restarted=after,
                                     posts_after_restart=book["post_count"], exit_code=first.returncode))
