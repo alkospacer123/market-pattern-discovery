@@ -15,10 +15,12 @@ $sourceCommit = '4fdf17bacfa12a4e84eaa0b6f0b9d2cfe412ec12'
 $mainCommit = '6f352acfac7ebdfabba73e143c4dfea3a6e48507'
 
 function checked {
-    param([string]$command, [string[]]$args)
-    & $command @args
+    param([string]$executable, [string[]]$argumentlist)
+    # Powershell reserves $args as an automatic variable. Never use it
+    # as a user-defined parameter: positional arguments can disappear.
+    & $executable @argumentlist
     if ($LASTEXITCODE -ne 0) {
-        throw "COMMAND_FAILED: $command; exit=$LASTEXITCODE"
+        throw "COMMAND_FAILED: $executable; exit=$LASTEXITCODE; args=$($argumentlist -join ' ')"
     }
 }
 function verified-blob {
@@ -117,18 +119,18 @@ if (-not (Test-Path -LiteralPath $python -PathType Leaf)) {
     }
     $pyLauncher = Get-Command py.exe -ErrorAction SilentlyContinue
     if ($pyLauncher) {
-        checked $pyLauncher.Source @('-3.12','-m','venv',$venv)
+        checked -executable $pyLauncher.Source -argumentlist @('-3.12','-m','venv',$venv)
     } else {
         $pyLauncher = Get-Command python.exe -ErrorAction SilentlyContinue
         if (-not $pyLauncher) { throw 'PYTHON_3_12_NOT_FOUND' }
-        checked $pyLauncher.Source @('-m','venv',$venv)
+        checked -executable $pyLauncher.Source -argumentlist @('-m','venv',$venv)
     }
 }
 $pyVersion = & $python -c 'import sys;print("{}.{}".format(*sys.version_info[:2]))'
 if ($LASTEXITCODE -ne 0 -or $pyVersion.Trim() -ne '3.12') {
     throw "PYTHON_3_12_REQUIRED: $pyVersion"
 }
-checked $python @('-m','pip','install','--disable-pip-version-check',
+checked -executable $python -argumentlist @('-m','pip','install','--disable-pip-version-check',
     'numpy==2.3.5','pandas==2.2.3','jsonschema>=4.0,<5','tabulate>=0.9,<1')
 $env:V20_MAIN_SHA_PIN = $mainCommit
 $env:V20_SOURCE_SHA_PIN = $sourceCommit
