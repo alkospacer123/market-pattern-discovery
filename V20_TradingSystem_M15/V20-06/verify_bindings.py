@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
-import os
 import hashlib
 import json
 from pathlib import Path
@@ -31,56 +30,6 @@ def _read_h1():
 
 def _fingerprint(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
-
-def _read_secret_from_windows_console(prompt: str) -> str:
-    """Paste-friendly Windows line input with echo OFF (no popup or argv secret).
-
-    Python's getpass on Windows uses msvcrt.getwch() one character at a time,
-    which doesn't support ordinary console paste. ReadConsoleW in LINE_INPUT
-    mode accepts pasted text while hiding it from the screen.
-    """
-    if os.name != "nt":
-        raise RuntimeError("WINDOWS_INTERACTIVE_CONSOLE_REQUIRED")
-    import ctypes
-    from ctypes import wintypes
-
-    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
-    kernel.GetStdHandle.argtypes = [wintypes.DWORD]
-    kernel.GetStdHandle.restype = wintypes.HANDLE
-    kernel.GetConsoleMode.argtypes = [wintypes.HANDLE, ctypes.POINTER(wintypes.DWORD)]
-    kernel.GetConsoleMode.restype = wintypes.BOOL
-    kernel.SetConsoleMode.argtypes = [wintypes.HANDLE, wintypes.DWORD]
-    kernel.SetConsoleMode.restype = wintypes.BOOL
-    kernel.ReadConsoleW.argtypes = [
-        wintypes.HANDLE, wintypes.LPWSTR, wintypes.DWORD,
-        ctypes.POINTER(wintypes.DWORD), wintypes.LPVOID,
-    ]
-    kernel.ReadConsoleW.restype = wintypes.BOOL
-
-    handle = kernel.GetStdHandle(wintypes.DWORD(-10).value)  # STD_INPUT_HANDLE
-    original = wintypes.DWORD()
-    if not kernel.GetConsoleMode(handle, ctypes.byref(original)):
-        raise RuntimeError("WINDOWS_INTERACTIVE_CONSOLE_REQUIRED")
-    # ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT, disable ENABLE_ECHO_INPUT.
-    # Keep the user's other console options (including paste/quick edit) intact.
-    input_mode = (original.value | 0x0003) & ~0x0004
-    if not kernel.SetConsoleMode(handle, input_mode):
-        raise RuntimeError("WINDOWS_CONSOLE_INPUT_MODE_FAILED")
-    try:
-        sys.stdout.write(prompt)
-        sys.stdout.flush()
-        buffer = ctypes.create_unicode_buffer(4096)
-        count = wintypes.DWORD()
-        if not kernel.ReadConsoleW(handle, buffer, 4095, ctypes.byref(count), None):
-            raise RuntimeError("WINDOWS_CONSOLE_READ_FAILED")
-        secret = buffer.value[:count.value].strip()
-    finally:
-        kernel.SetConsoleMode(handle, original.value)
-        sys.stdout.write("\n")
-        sys.stdout.flush()
-    return secret
-
-
 
 def _self_test() -> None:
     ReadonlyFillAPI, FillDiagnosticBlocked = _read_h1()
@@ -146,7 +95,7 @@ def _connect() -> int:
         raise RuntimeError("V20_05_WINDOWS_REPORT_NOT_FOUND")
 
     # Shared diagnostic token is entered only once and never persisted.
-    token = _read_secret_from_windows_console("FINAM shared READONLY token (paste in PowerShell; hidden, press Enter): ")
+    token = input("FINAM shared READONLY token (VISIBLE in this PowerShell; paste and Enter): ").strip()
     if not token:
         raise RuntimeError("READONLY_TOKEN_MISSING")
     seen_accounts: set[str] = set()
