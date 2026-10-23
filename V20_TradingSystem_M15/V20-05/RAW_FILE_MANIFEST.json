@@ -1,0 +1,619 @@
+{
+  "schema": "v20.windows.raw_pinned_manifest.v1",
+  "repository": "alkospacer123/market-pattern-discovery",
+  "source_commit": "4fdf17bacfa12a4e84eaa0b6f0b9d2cfe412ec12",
+  "main_commit": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
+  "mode": "OFFLINE_FAKE_ONLY",
+  "files": [
+    {
+      "path": "IntradayLab/core/__init__.py",
+      "sha": "645b7c53d3366f6d8c84994cb0213356791c4b2d",
+      "size": 66
+    },
+    {
+      "path": "IntradayLab/core/backtester.py",
+      "sha": "31787487ae5508e85d999e5c6c9763fe0f6f9fcf",
+      "size": 20155
+    },
+    {
+      "path": "IntradayLab/core/calendar.py",
+      "sha": "55798e1d266a953d94879dabb8f9b6f938b85619",
+      "size": 1552
+    },
+    {
+      "path": "IntradayLab/core/data_loader.py",
+      "sha": "c0152b34955662811b7e0bc6a71b77a1ada63a3e",
+      "size": 3855
+    },
+    {
+      "path": "IntradayLab/core/data_quality.py",
+      "sha": "b0bc470e21526d7427ea889c936e3b514df1d369",
+      "size": 2083
+    },
+    {
+      "path": "IntradayLab/core/execution.py",
+      "sha": "5268a3673b980dc0063d177fa2da81ee8e36bcf7",
+      "size": 3248
+    },
+    {
+      "path": "IntradayLab/core/h1_context.py",
+      "sha": "0f4f05f25621671572285b8a8f83cbf0282c8a84",
+      "size": 3425
+    },
+    {
+      "path": "IntradayLab/core/indicators.py",
+      "sha": "7e627d8335907ae4bc8ce2f4970121116c2d7e2e",
+      "size": 1319
+    },
+    {
+      "path": "IntradayLab/core/m15_bars.py",
+      "sha": "7d2eefb949de05cbd53936a713bd37644bb01a35",
+      "size": 2409
+    },
+    {
+      "path": "IntradayLab/core/m15_context.py",
+      "sha": "bb89ba4b9834758280e16a324293f0b33050e57e",
+      "size": 4573
+    },
+    {
+      "path": "IntradayLab/core/metrics.py",
+      "sha": "4147717ee7ce3bcfe38b0276098642df07cbbc4f",
+      "size": 9742
+    },
+    {
+      "path": "IntradayLab/core/models.py",
+      "sha": "fe5283a627c83e37d6494e8210482c79fcbd3808",
+      "size": 1274
+    },
+    {
+      "path": "IntradayLab/core/reports.py",
+      "sha": "f2587da319714d0adf66175803f309192be47755",
+      "size": 9450
+    },
+    {
+      "path": "TradingSystemLab/__init__.py",
+      "sha": "cb28fab5eca3c5112654df1ce0c0f2b7e10d968c",
+      "size": 450
+    },
+    {
+      "path": "TradingSystemLab/authority_hashing.py",
+      "sha": "bbde754fb6cfe6baabaebd85ef609c15333c57b5",
+      "size": 925
+    },
+    {
+      "path": "TradingSystemLab/core/__init__.py",
+      "sha": "a12b51e4a6f74e000f34d7b53dbe3522d98c8f25",
+      "size": 46
+    },
+    {
+      "path": "TradingSystemLab/core/backtester.py",
+      "sha": "501f869012ac47b222183ff9e166d71f55551fec",
+      "size": 9183
+    },
+    {
+      "path": "TradingSystemLab/core/data_loader.py",
+      "sha": "974960d5803a3fc63406d80a310ee5e078304f09",
+      "size": 7640
+    },
+    {
+      "path": "TradingSystemLab/core/execution.py",
+      "sha": "f41b9d54943dd460ba8ab618216dccedf6821ae1",
+      "size": 863
+    },
+    {
+      "path": "TradingSystemLab/core/indicators.py",
+      "sha": "f390855c0514d3e6ca4600e73ecf146f90083f26",
+      "size": 3412
+    },
+    {
+      "path": "TradingSystemLab/core/instrument_specs.py",
+      "sha": "2d63e9b8827a94d1f937e48f68c0980412b11798",
+      "size": 1853
+    },
+    {
+      "path": "TradingSystemLab/core/levels.py",
+      "sha": "ec5d30be40bae9bead760cee36b98c5b9ef43b59",
+      "size": 1709
+    },
+    {
+      "path": "TradingSystemLab/core/metrics.py",
+      "sha": "6725c176c2c044720706d38feb4446d0158850d7",
+      "size": 1260
+    },
+    {
+      "path": "TradingSystemLab/core/mtf.py",
+      "sha": "33b9e9feeb84cfc4ea468a9e21b513be4b879070",
+      "size": 1544
+    },
+    {
+      "path": "TradingSystemLab/core/portfolio.py",
+      "sha": "56c75f6c16f0226674ce2c3904cf1ebe31ca2980",
+      "size": 544
+    },
+    {
+      "path": "TradingSystemLab/core/strategy.py",
+      "sha": "eb0e0c8ccab830406b95302d64da57bd8925bb5a",
+      "size": 1096
+    },
+    {
+      "path": "TradingSystemLab/core/unified_metrics.py",
+      "sha": "f9f15de1c67048fcef6349bc26d886e58bbb2478",
+      "size": 3504
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/__init__.py",
+      "sha": "c4d1bf39b191b0fd1d6a451c009ce0cb65788510",
+      "size": 275
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/account_cleanliness.py",
+      "sha": "e3ad17c6f4330431b173658800489722a5731037",
+      "size": 3861
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/audit_logging.py",
+      "sha": "673b5f5fbb3fa03ed7ac9933df54ab54048a244a",
+      "size": 603
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/audit_stage8.py",
+      "sha": "e2aa8ac2eca40532295d09c56f1c0b0cc70c9fe2",
+      "size": 146086
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/authority_replay.py",
+      "sha": "3d1b6525b11ddcd08777e262b3fa56a500ccd0cc",
+      "size": 1139
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/backup_state.py",
+      "sha": "03892f646a5aaaac27eb627faea1a5f0b52d40f5",
+      "size": 5128
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/broker.py",
+      "sha": "3573b4f88216086105fb577987f82310daf531dc",
+      "size": 6228
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/config.py",
+      "sha": "12138f74d71156147c617a181988054f89a51c1a",
+      "size": 2263
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/context_builder.py",
+      "sha": "82a456df45a4616ac32f2c5e698e8636a340ef3c",
+      "size": 2477
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/controlled_real_acceptance.py",
+      "sha": "ce791d3c55b67351dc4bfd8ae0f8bd51a56dd64f",
+      "size": 50484
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/demo_order_smoke.py",
+      "sha": "c1a0c0d198ae98f43cd7216caa36e8d9d0619b81",
+      "size": 1454
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/demo_smoke.py",
+      "sha": "ecacd597f23ed6904514b4e0ae9e918eb5be1469",
+      "size": 2183
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/execution_grid.py",
+      "sha": "d8e55d6083153f4854139ffcc9b921b35bdfca8a",
+      "size": 5488
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/final_operational_audit.py",
+      "sha": "183ba696110e68c2a4d9bdf55c7a7919def89b38",
+      "size": 132152
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/finam_api.py",
+      "sha": "a1126a7d2c618c19b5895f5c54da8e1ad73b339a",
+      "size": 12274
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/finam_fill_price_readonly.py",
+      "sha": "4b6d9b533058f31e70ef9e7a8068ea1fb6b83cc4",
+      "size": 15943
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/funding_margin_diagnostic.py",
+      "sha": "5a61adf1cb2627518c3d72aacbce62ebc19abba7",
+      "size": 18612
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/h1_timing_diagnostic.py",
+      "sha": "11d78e264d62d6242645f426fc160d1d64e02fc0",
+      "size": 5227
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/historical_conformance.py",
+      "sha": "6c398f4c9a30f452d847b2010143e6ef86792ebd",
+      "size": 9505
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/instrument_resolver.py",
+      "sha": "a174aee3fb4f5c68f2f00ff39a84527d9cd4642c",
+      "size": 10648
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/launcher_revision_guard.py",
+      "sha": "ee83dfc49198849f4045e3aaeb095016e8c483eb",
+      "size": 3585
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/live_execution.py",
+      "sha": "0c2fcd742a3157575cdecc5e1dac40d0c906b203",
+      "size": 7720
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/margin.py",
+      "sha": "80117ff6ea169305a7c22ee52a12e3e9103c9deb",
+      "size": 7326
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/market_data.py",
+      "sha": "56c0035a066962c9fd631786c3cd6785988caa1a",
+      "size": 1434
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/n4_capacity.py",
+      "sha": "cbee7a6f29f7c0c731ec579e35dac43762ccbf9d",
+      "size": 2903
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/operations.py",
+      "sha": "0d7ba1f2f9f4e6fa2f772921846bc334469dd3d5",
+      "size": 7978
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/order_path_dry_validation.py",
+      "sha": "1c259e5b7092e9fa0e5d8e08a3a9f4cf078d6f92",
+      "size": 7473
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/production_authorization.py",
+      "sha": "e90c8fe9999f3f0eea9c2691af6c110eab29cbea",
+      "size": 7232
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/production_broker_state.py",
+      "sha": "894321fc0d3101e75eea48f45ff3a26c0c0f58eb",
+      "size": 6486
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/production_history.py",
+      "sha": "90df4d6d1cf66a2427720fc9f91b3c1eb966447f",
+      "size": 18312
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/production_instrument_registry.csv",
+      "sha": "122fd8e6d17fefc1d060e8b36184f328e9404dbf",
+      "size": 1517
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/production_replay.py",
+      "sha": "f873fd57341229792db879acb4dd7fdec311abea",
+      "size": 3636
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/production_runtime.py",
+      "sha": "4ec35199be9269af5fc10093a086e0feb4207a34",
+      "size": 80100
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/production_safety_gate.py",
+      "sha": "f8c399bba0a373fe5154e96f43118871f90c0228",
+      "size": 11790
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/production_service.py",
+      "sha": "46b258c6b01d79fea4c3be9338185c121e575755",
+      "size": 54868
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/protective_stop_contract.py",
+      "sha": "51a7ab88d2f64f969088d8ef04927383b7abc1aa",
+      "size": 8179
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/readonly_supervisor.py",
+      "sha": "4c2006cd77c7826a01edd854d5eaf0cd15ee11eb",
+      "size": 17364
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/real_account_smoke.py",
+      "sha": "1a869d43b5d178bae75257f413df5265b69749e8",
+      "size": 5362
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/reconciliation.py",
+      "sha": "6585cfa96efd532ff651c23c5ce4b5b3880b88ad",
+      "size": 995
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/release_candidate_runner.py",
+      "sha": "300e3c1bd3023e7102c5a81c91e1c1d450e1bc31",
+      "size": 4620
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/release_preparation.py",
+      "sha": "a328af6adcb383b13759c87038dab2e1f2fc535d",
+      "size": 22901
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/restore_state.py",
+      "sha": "7f623df30671ce224f800584eda3866545968a77",
+      "size": 9158
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/risk.py",
+      "sha": "afaae0b8fc305dec690967f38ef7d33c7b8da909",
+      "size": 1246
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/runner.py",
+      "sha": "19af5df384f728a871049eee1e1a3997d9e27124",
+      "size": 5061
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/safety_gate_validation.py",
+      "sha": "01bf93c791603896e3d99d7e78dafd19f08e2238",
+      "size": 7271
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/server_preflight.py",
+      "sha": "c133dc21f5d5ffe3447c3d3222045627745d85d2",
+      "size": 2370
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/signal_execution_diagnostic.py",
+      "sha": "33f20607c828223d426718768ff3f4669dd31956",
+      "size": 9085
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/specification.py",
+      "sha": "29aec806c50b5ed40eebc150bde173a76ae83e99",
+      "size": 3655
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/stage8_11_attempt2_manual_recovery.py",
+      "sha": "ac03507b9b8dd1101482949788a41bb72b57e01c",
+      "size": 16543
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/stage8_11_attempt3_manual_close_recovery.py",
+      "sha": "82390981e7f4ec7e017aa2c2d1845f48e6057f8f",
+      "size": 19566
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/stage8_11_attempt4_manual_close_recovery.py",
+      "sha": "9b2b42a1107e6c43934e98f361dad91bfa048b5b",
+      "size": 19566
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/stage8_11_attempt5_manual_close_recovery.py",
+      "sha": "8c1d6f8f1ed08431a8dfe68cd0ec7647c91a1d99",
+      "size": 19566
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/stage8_11_attempt6_manual_close_recovery.py",
+      "sha": "20c7ee080cb2056ed333c9e2175a36e64a56b1e7",
+      "size": 15785
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/stage8_11_failed_attempt_recovery.py",
+      "sha": "c2a6b235b8eccff323ec0614dbb74282198b8d7c",
+      "size": 15457
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/stage8_11_intel_acceptance.py",
+      "sha": "90fc1508f28621b29becb8e35937e5c4e0d13b60",
+      "size": 10627
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/stage8_11_physical_acceptance_attempt3.py",
+      "sha": "c29d6fbaa28d5d1b96994213408ef4769dc9e12a",
+      "size": 16781
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/stage8_11_physical_acceptance_attempt4.py",
+      "sha": "81eb246c2041a003bfe265c59f4a2363a219e80b",
+      "size": 16797
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/stage8_11_physical_acceptance_attempt5.py",
+      "sha": "29d4f0d96cf64c46071b4214e7f323ac84b6b943",
+      "size": 16886
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/stage8_11_physical_acceptance_attempt6.py",
+      "sha": "3698414fc083cd1008b3bb12c703819720bb761d",
+      "size": 16886
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/stage8_11_physical_acceptance_attempt7.py",
+      "sha": "5a3aa28275a67c69edc982580023cb2c40e3cca4",
+      "size": 17243
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/stage8_11_physical_acceptance.py",
+      "sha": "375592b28413db155485df1730714342e273c518",
+      "size": 13614
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/stage8_12_intel_preflight.py",
+      "sha": "bf16b989c6519827586ced7d7d1dfc3b6a1fafc7",
+      "size": 32554
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/state.py",
+      "sha": "4f12e1cb61eccb0b14c1efb9ff0cdf2532a7b22b",
+      "size": 10742
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/strategy_core.py",
+      "sha": "3462a1e0232cf8ba3a973d22c4f691d23edb7201",
+      "size": 5000
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/trading_identity_binding.py",
+      "sha": "7f4c54debf8337fdde65cf18511a972444a8a2a0",
+      "size": 5063
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/trading_permission_boundary.py",
+      "sha": "2f6ea9b4fa515aa2e4090e22a4675a48686505ae",
+      "size": 6714
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/trading_safety_gate.py",
+      "sha": "e938048a8dc3caa9db29209489a7050e64d0bb5a",
+      "size": 9536
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/trading_token_intel_acceptance.py",
+      "sha": "cfea9c4f8ce6c2d71d4aa2e5fe048aac7114e21c",
+      "size": 7586
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/trail1_state.py",
+      "sha": "e7d4974330b28a73581b25b28fbfe9a065be561d",
+      "size": 2457
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/update_demo_registry.py",
+      "sha": "f2e59ea33b27ed2ffb3d3850bd16e0e4167b48ca",
+      "size": 3548
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/update_real_registry.py",
+      "sha": "4b3bdb18de30c3d6d3e5b2a2217783bd60e4b457",
+      "size": 5952
+    },
+    {
+      "path": "V20_TradingSystem_M15/research_original_v20/base.py",
+      "sha": "b917cc9c7c99fbad38423d9f4fdfbb82767545be",
+      "size": 16766
+    },
+    {
+      "path": "V20_TradingSystem_M15/research_original_v20/legacy_v4/dependencies/study.py",
+      "sha": "1294ff9884f7a1634fab67ee330ec702e0612c31",
+      "size": 12393
+    },
+    {
+      "path": "V20_TradingSystem_M15/research_original_v20/legacy_v4/study_v4.py",
+      "sha": "7749f82edcb8a04b4002978b588beeb26e484f71",
+      "size": 12519
+    },
+    {
+      "path": "V20_TradingSystem_M15/research_original_v20/run.py",
+      "sha": "7d9ddf0ef498f0c93a139c0104af2a72d0e79151",
+      "size": 6298
+    },
+    {
+      "path": "V20_TradingSystem_M15/v20_runtime/__init__.py",
+      "sha": "9a0512aaf8418df59f26fcfdeb1f181fc38e7139",
+      "size": 244
+    },
+    {
+      "path": "V20_TradingSystem_M15/v20_runtime/account_risk.py",
+      "sha": "50d0a924b0eccef45746c0111fa0df4803aed125",
+      "size": 13351
+    },
+    {
+      "path": "V20_TradingSystem_M15/v20_runtime/frozen_adapter.py",
+      "sha": "71d50f3f1227a00c8831e9a7f738dcf0d19ea49e",
+      "size": 4704
+    },
+    {
+      "path": "V20_TradingSystem_M15/v20_runtime/h1_execution.py",
+      "sha": "bbbf1255687ad9d1cdf00181d0480237dc019779",
+      "size": 33069
+    },
+    {
+      "path": "V20_TradingSystem_M15/v20_runtime/h1_state_journal.py",
+      "sha": "4bef35249b3999880b961233bc1bdabe635241d2",
+      "size": 7871
+    },
+    {
+      "path": "V20_TradingSystem_M15/v20_runtime/m15_runner.py",
+      "sha": "41c17be3469fd371d0288db78914ecc492197464",
+      "size": 21973
+    },
+    {
+      "path": "V20_TradingSystem_M15/v20_runtime/market_suitability.py",
+      "sha": "48ff6b79cb9e1759a66c8182b7ce77a51ba4cce6",
+      "size": 18717
+    },
+    {
+      "path": "V20_TradingSystem_M15/v20_runtime/offline_acceptance.py",
+      "sha": "5eb0951279e92373be9b79ca5eddc81d336befe1",
+      "size": 10399
+    },
+    {
+      "path": "V20_TradingSystem_M15/v20_runtime/offline_planner.py",
+      "sha": "9d42f2517218a4df1296c4188f123a469c6d569a",
+      "size": 5935
+    },
+    {
+      "path": "V20_TradingSystem_M15/v20_runtime/robots.json",
+      "sha": "709b33d6da7deb73402fe3ad6848783d977701d0",
+      "size": 1377
+    },
+    {
+      "path": "V20_TradingSystem_M15/v20_runtime/tests/__init__.py",
+      "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "size": 0
+    },
+    {
+      "path": "V20_TradingSystem_M15/v20_runtime/tests/acceptance_child.py",
+      "sha": "4b6efa568e43b82356edeef1f32d3c97ce893665",
+      "size": 3604
+    },
+    {
+      "path": "V20_TradingSystem_M15/v20_runtime/tests/test_h1_execution.py",
+      "sha": "3714d7d7c415524200dec45a4a0711b73908febe",
+      "size": 26230
+    },
+    {
+      "path": "V20_TradingSystem_M15/v20_runtime/tests/test_m15_runner.py",
+      "sha": "e13c28c2316774e5def4bdfce36735524666b028",
+      "size": 19542
+    },
+    {
+      "path": "V20_TradingSystem_M15/v20_runtime/tests/test_market_suitability.py",
+      "sha": "722b37f8712b1a3a4d6e4cd18062dea48a1e16ae",
+      "size": 14222
+    },
+    {
+      "path": "V20_TradingSystem_M15/v20_runtime/tests/test_system_acceptance.py",
+      "sha": "9653ff53266d20cb8a4e47bceae153db28b7419c",
+      "size": 12192
+    },
+    {
+      "path": "V20_TradingSystem_M15/V20-03/comparison/QUOTE_PATH_DIAGNOSTICS.csv",
+      "sha": "32e6ab8c4006f259efeab2d0ab4df0bf340457d9",
+      "size": 2740580
+    },
+    {
+      "path": "V20_TradingSystem_M15/V20-03/offline/stress_v20_03.py",
+      "sha": "f135b42219b816e7925892ac07404c61c4627cbf",
+      "size": 23965
+    },
+    {
+      "path": "V20_TradingSystem_M15/V20-04/OFFLINE_FRAMEWORK_ACCEPTANCE.json",
+      "sha": "51b9b139794512487e69e758461b76895ee32627",
+      "size": 28054
+    },
+    {
+      "path": "V20_TradingSystem_M15/V20-05/Invoke-OfflineAcceptance.ps1",
+      "sha": "8293b5dcd325e8219e17cfb22a21f73015c72057",
+      "size": 2011
+    }
+  ]
+}
