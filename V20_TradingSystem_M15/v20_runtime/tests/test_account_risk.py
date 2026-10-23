@@ -1,5 +1,4 @@
 """04.4 isolated tests with explicit account evidence; no FINAM connection."""
-from dataclasses import replace
 from decimal import Decimal
 import unittest
 
@@ -54,11 +53,16 @@ class MoneyRiskTests(unittest.TestCase):
 
     def test_six_percent_account_risk_cap_reservations(self):
         a = authority(cash="1000000", margin="1", cost="0")
-        taken = [take(a, str(i), planned_max_quantity=20, existing=[]) for i in range(4)]
-        # Aggregate exactly 4x original <6%, but a fifth enormous trusted commitment is rejected.
-        large = replace(taken[0], entry_key="prior", reserved_risk=Decimal("29999"))
+        active = []
+        for i in range(4):
+            x = take(a, str(i), planned_max_quantity=28, existing=active)
+            self.assertEqual(x.quantity, 28)
+            active.append(x)
+        self.assertEqual(sum((r.reserved_risk for r in active), Decimal(0)), Decimal("29120"))
+        fifth = take(a, "fifth", planned_max_quantity=28, existing=active)
+        self.assertEqual(fifth.quantity, 3)
         with self.assertRaisesRegex(RiskBlocked, "INSUFFICIENT_RISK_OR_MARGIN_FOR_ONE_LOT"):
-            take(a, "after", existing=[large])
+            take(a, "sixth", existing=active + [fifth])
 
     def test_account_isolation_and_duplicate_reservation(self):
         a = authority()
