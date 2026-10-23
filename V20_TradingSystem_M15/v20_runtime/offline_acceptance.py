@@ -35,7 +35,25 @@ def sha(path):
 
 
 def git(*args):
-    return subprocess.check_output(["git", *args], cwd=ROOT, text=True).strip()
+    """Use actual Git refs for checkouts; sealed raw manifests may supply provenance.
+
+    A raw-files transport has no .git directory. Its installation script checks
+    every downloaded Git blob against the pinned manifest before accepting it.
+    """
+    if (ROOT/".git").exists():
+        return subprocess.check_output(["git", *args], cwd=ROOT, text=True).strip()
+    if not (ROOT/"V20_TradingSystem_M15/V20-05/RAW_FILE_MANIFEST.json").is_file():
+        raise RuntimeError("GITLESS_SOURCE_MANIFEST_MISSING")
+    values = {
+        ("rev-parse", "origin/main"): os.environ.get("V20_MAIN_SHA_PIN", ""),
+        ("rev-parse", "HEAD"): os.environ.get("V20_SOURCE_SHA_PIN", ""),
+        ("branch", "--show-current"): "PINNED_RAW_MANIFEST_NOT_A_GIT_BRANCH",
+    }
+    value = values.get(args, "")
+    if not value or (args[0] == "rev-parse" and
+                     (len(value) != 40 or any(c not in "0123456789abcdef" for c in value))):
+        raise RuntimeError("PINNED_RAW_SOURCE_PROVENANCE_MISSING")
+    return value
 
 
 class RecordedResult(unittest.TextTestResult):
