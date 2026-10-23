@@ -50,11 +50,27 @@ $scratch = Join-Path $fullRoot 'acceptance'
 $branch = 'codex/v20-04-all-three-offline-foundation-20261021'
 $remote = 'https://github.com/alkospacer123/market-pattern-discovery.git'
 
+# Ctrl+C during a large clone may leave a partial source directory.
+# Never remove it automatically. Work in a new private directory instead.
+if (Test-Path -LiteralPath $checkout) {
+    $existingHead = $null
+    if (Test-Path -LiteralPath (Join-Path $checkout '.git')) {
+        $existingHead = & git.exe -C $checkout rev-parse --verify HEAD 2>$null
+    }
+    if (-not $existingHead -or $LASTEXITCODE -ne 0) {
+        $checkout = Join-Path $fullRoot 'source-fast'
+        if (Test-Path -LiteralPath $checkout) {
+            throw 'INTERRUPTED_SOURCE_AND_SOURCE_FAST_EXISTS_REQUIRES_MANUAL_DIAGNOSIS'
+        }
+        Write-Output "INCOMPLETE_SOURCE_LEFT_UNCHANGED; USING=$checkout"
+    }
+}
 if (-not (Test-Path -LiteralPath $checkout)) {
+    # Tree-less partial clone avoids fetching thousands of unrelated trees.
     # Preserve raw LF content: the acceptance receipt verifies byte-level SHA256.
     # Only this NEW checkout is modified. Git global configuration is not touched.
     Invoke-Checked 'git.exe' @('-c','core.autocrlf=false','-c','core.longpaths=true',
-        'clone','--filter=blob:none','--sparse','--depth','1','--single-branch',
+        'clone','--filter=tree:0','--sparse','--depth','1','--single-branch',
         '--branch',$branch,'--config','core.autocrlf=false',
         '--config','core.longpaths=true',$remote,$checkout)
 } else {
@@ -68,9 +84,22 @@ if (-not (Test-Path -LiteralPath (Join-Path $checkout '.git'))) {
 }
 # Only the three needed source trees: do not download unrelated research/data.
 # Ensure origin/main exists: the pinned acceptance runner reads this ref.
-Invoke-Checked 'git.exe' @('-C',$checkout,'sparse-checkout','set',
-    'TradingSystemLab','IntradayLab','V20_TradingSystem_M15')
-Invoke-Checked 'git.exe' @('-C',$checkout,'fetch','--depth','1','origin',
+# Fetch only the source files required by the acceptance, not historical CSV,
+# archives or unrelated TradingSystemLab/IntradayLab/V20 research trees.
+# --no-cone permits exact frozen reference file selection.
+Invoke-Checked 'git.exe' @('-C',$checkout,'sparse-checkout','set','--no-cone','--',
+    '/TradingSystemLab/stage8_robot/',
+    '/IntradayLab/core/',
+    '/V20_TradingSystem_M15/v20_runtime/',
+    '/V20_TradingSystem_M15/V20-04/',
+    '/V20_TradingSystem_M15/V20-05/',
+    '/V20_TradingSystem_M15/V20-03/offline/stress_v20_03.py',
+    '/V20_TradingSystem_M15/V20-03/comparison/QUOTE_PATH_DIAGNOSTICS.csv',
+    '/V20_TradingSystem_M15/research_original_v20/base.py',
+    '/V20_TradingSystem_M15/research_original_v20/run.py',
+    '/V20_TradingSystem_M15/research_original_v20/legacy_v4/study_v4.py',
+    '/V20_TradingSystem_M15/research_original_v20/legacy_v4/dependencies/study.py')
+Invoke-Checked 'git.exe' @('-C',$checkout,'fetch','--filter=tree:0','--depth','1','origin',
     'refs/heads/main:refs/remotes/origin/main')
 $origin = (& git.exe -C $checkout remote get-url origin)
 if ($LASTEXITCODE -ne 0 -or $origin.Trim() -ne $remote) {
