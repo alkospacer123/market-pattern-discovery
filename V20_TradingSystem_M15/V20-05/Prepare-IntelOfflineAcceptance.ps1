@@ -49,7 +49,7 @@ if (-not (Test-Path -LiteralPath $checkout)) {
     # Preserve raw LF content: the acceptance receipt verifies byte-level SHA256.
     # Only this NEW checkout is modified. Git global configuration is not touched.
     Invoke-Checked 'git.exe' @('-c','core.autocrlf=false','-c','core.longpaths=true',
-        'clone','--filter=blob:none','--depth','1','--single-branch',
+        'clone','--filter=blob:none','--sparse','--depth','1','--single-branch',
         '--branch',$branch,'--config','core.autocrlf=false',
         '--config','core.longpaths=true',$remote,$checkout)
 } else {
@@ -61,6 +61,12 @@ if (-not (Test-Path -LiteralPath $checkout)) {
 if (-not (Test-Path -LiteralPath (Join-Path $checkout '.git'))) {
     throw 'V20_SOURCE_IS_NOT_A_GIT_CHECKOUT'
 }
+# Only the three needed source trees: do not download unrelated research/data.
+# Ensure origin/main exists: the pinned acceptance runner reads this ref.
+Invoke-Checked 'git.exe' @('-C',$checkout,'sparse-checkout','set',
+    'TradingSystemLab','IntradayLab','V20_TradingSystem_M15')
+Invoke-Checked 'git.exe' @('-C',$checkout,'fetch','--depth','1','origin',
+    'refs/heads/main:refs/remotes/origin/main')
 $origin = (& git.exe -C $checkout remote get-url origin)
 if ($LASTEXITCODE -ne 0 -or $origin.Trim() -ne $remote) {
     throw 'WRONG_V20_GITHUB_REMOTE'
