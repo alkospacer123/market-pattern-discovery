@@ -8,6 +8,7 @@ is never retried, including after restart. This is not a LIVE executor.
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import replace
 from datetime import datetime
 from decimal import Decimal
 from fractions import Fraction
@@ -25,6 +26,7 @@ from TradingSystemLab.stage8_robot.reconciliation import reconcile, Reconciliati
 
 from .h1_state_journal import IsolatedReferenceJournal, V20StateBoundaryError
 from .offline_planner import N4
+from .account_risk import AccountAuthority, RiskBlocked, RiskReservation, reserve_entry, revalue_fill
 
 LIVE_ENABLED = False
 
@@ -150,7 +152,7 @@ class OfflineH1Executor:
             # Even an unfamiliar exception beyond this boundary cannot prove no POST.
             self.store.transition_intent(key, "UNCERTAIN")
 
-    def submit_entry(self, signal, entry, *, price_step):
+    def submit_entry(self, signal, entry, *, price_step, account_authority=None):
         if entry.symbol not in N4:
             raise V20StateBoundaryError("UNKNOWN_V20_SYMBOL")
         binding = _load_registry()[entry.symbol]
@@ -190,11 +192,38 @@ class OfflineH1Executor:
                 {"INTENT_PERSISTED", "SUBMITTED", "UNCERTAIN", "ACK", "PARTIAL_FILL"})
                for k, x in existing.items()):
             self._halt("ONE_OPEN_POSITION_PER_SYMBOL")
+        # Optional explicit offline money-authority path. Legacy FakeBroker-only
+        # tests without risk records remain untouched; real transport is disabled.
+        saved_risk = self.store.get("risk_reservations", {})
+        reservation = None
+        if account_authority is None:
+            if saved_risk:
+                self._halt("ACCOUNT_MONEY_AUTHORITY_REQUIRED")
+        else:
+            if type(account_authority) is not AccountAuthority or account_authority.account_id != self.broker.account_id:
+                self._halt("ACCOUNT_MONEY_AUTHORITY_MISMATCH")
+            try:
+                reservation = reserve_entry(
+                    authority=account_authority, entry_key=key,
+                    symbol=entry.symbol, direction=entry.direction,
+                    entry=entry.reference_entry, atr14=signal.atr14,
+                    planned_max_quantity=entry.quantity,
+                    current_reservations=[RiskReservation.restore(x) for x in saved_risk.values()])
+            except RiskBlocked as exc:
+                self._halt("ACCOUNT_RISK_" + str(exc))
+            if reservation.initial_stop != entry.initial_stop:
+                self._halt("ACCOUNT_RISK_FROZEN_STOP_MISMATCH")
+            row["quantity"] = reservation.quantity
+            entry = replace(entry, quantity=reservation.quantity,
+                            margin_required=reservation.reserved_margin)
         with self.store.transaction():
             self.journal.record_reference(signal, entry)
             existing[key] = row
             self.store.put("execution_entries", existing)
-            # Intent and session quota commit together BEFORE broker interaction.
+            if reservation is not None:
+                saved_risk[key] = reservation.record()
+                self.store.put("risk_reservations", saved_risk)
+            # Intent, session quota and account risk reservation commit together.
             payload = dict(kind="ENTRY", entry_key=key,
                            wire=self._market(self._action(row, "ENTRY", key)))
             self.store.persist_intent(key, payload)
@@ -310,6 +339,16 @@ class OfflineH1Executor:
                             self.broker.cancel(oid)
                             self.store.transition_intent(intent["idempotency_key"], "CANCELLED", oid)
                     self.store.transition_intent(key, "CLOSED")
+                    # Broker confirmed flat; release durable local risk reserve.
+                    risks = self.store.get("risk_reservations", {})
+                    if key in risks:
+                        del risks[key]
+                        self.store.put("risk_reservations", risks)
+                elif self.store.intent(key) and self.store.intent(key)["status"] in {"REJECTED", "CANCELLED", "CLOSED"}:
+                    risks = self.store.get("risk_reservations", {})
+                    if key in risks:
+                        del risks[key]
+                        self.store.put("risk_reservations", risks)
                 continue
             stop_key = key + ":stop"
             stop = self.store.intent(stop_key)
@@ -329,7 +368,31 @@ class OfflineH1Executor:
             stop_view = unique_order_by_client_id(orders, compact_client_order_id(stop_key))
             if stop_view is None or not stop_view.active:
                 self._halt("PROTECTION_UNCONFIRMED_NO_RETRANSMIT")
-            if average != Decimal(row["reference_entry"]) or Decimal(stop["payload"]["wire"]["sl_price"]["value"]) != stop_price:
+            installed_stop = Decimal(stop["payload"]["wire"]["sl_price"]["value"])
+            risk_record = self.store.get("risk_reservations", {}).get(key)
+            if risk_record is not None:
+                try:
+                    reservation = RiskReservation.restore(risk_record)
+                    actual_fills = [
+                        (int(x["quantity"]), x["price"], x.get("fee"))
+                        for x in snap["fills"]
+                        if x["trade_id"] == key and by_id[x["broker_order_id"]][0]["payload"]["kind"] == "ENTRY"
+                    ]
+                    other = sum(
+                        Decimal(str(v["reserved_risk"]))
+                        for k, v in self.store.get("risk_reservations", {}).items() if k != key
+                    )
+                    assessment = revalue_fill(reservation, actual_fills, other_reserved_risk=other)
+                except (RiskBlocked, ValueError, KeyError) as exc:
+                    self._halt("ACTUAL_FILL_MONEY_AUTHORITY_INVALID:" + str(exc))
+                self.store.put("actual_fill_risk:" + key, assessment)
+                if assessment["status"] != "PASS":
+                    self.store.put("execution_halt", assessment["reason"])
+                if installed_stop != Decimal(assessment["projected_stop"]):
+                    # Existing 100% protection remains in force. Never cancel/re-post
+                    # a broker stop blindly after another partial fill changes VWAP.
+                    self.store.put("execution_halt", "ACTUAL_FILL_STOP_UPDATE_UNCONFIRMED")
+            elif average != Decimal(row["reference_entry"]) or installed_stop != stop_price:
                 self.store.put("execution_halt", "ACTUAL_FILL_RISK_REQUIRES_V20_04_4")
         if uncertain:
             self._halt("UNCERTAIN_POST_NO_RETRANSMIT")
