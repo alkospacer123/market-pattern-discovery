@@ -40,3 +40,20 @@ python -m unittest V20_TradingSystem_M15.v20_runtime.tests.test_frozen_n4_parity
 ```
 
 Затем завершить оставшиеся реальные границы M15/session/roll/feed для всех N4 и только после подтверждения 04.2 перейти к 04.3 H1 execution. Никаких изменений frozen сигналов/риска/N4, H1/M15/FINAM/LIVE.
+
+## Входные котировки подтверждены 23.10.2026
+
+Получен от владельца `Si+Mix_2012-2018.zip` (фактическое содержимое до декабря 2022). Локальная проверка ZIP: **88 квартальных CSV / 299 998 M15 строк / CRC PASS**, **SHA256 `9b253772c6533235b1db0893b6b42472be86dff0862b6af390089608ac561fa2`**. Совпадает с уже опубликованным `V20_2012_2022_SOURCE_AUDIT.json` и не требует повторного replay. Прежние ранние ограничения tick/OPEN/Si-exit остаются.
+
+Подтверждено наличие всех 4 N4 M15 в **отдельном** GitHub-репозитории `alkospacer123/market-pattern-data`, каталог `forever/<SYMBOL>/<SYMBOL>_M15.csv`; подготовку закреплять за коммитом `f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8`, **не** за изменяемым `main`. Не путать его с кодовым `market-pattern-discovery`.
+
+Чтобы избежать ручного переноса котировок, добавлен **один** read-only helper `v20_runtime/prepare_n4_quotes.py`, использующий публичные GitHub raw ссылки и точные **SHA256 уже утверждённого `SOURCE_SHA256`**. Он создаёт **только** данные во внешнем каталоге, не затрагивает исходные файлы/репозитории и не используется торговым runtime; если SHA скачанного файла не соответствует эталону — FAIL без публикации источника. Никаких новых зависимостей или FINAM. Для research/Codex shell с доступом к GitHub:
+
+```sh
+python -m V20_TradingSystem_M15.v20_runtime.prepare_n4_quotes --output /tmp/v20-n4/forever
+V20_N4_QUOTES_ROOT=/tmp/v20-n4/forever python -m unittest V20_TradingSystem_M15.v20_runtime.tests.test_frozen_n4_parity -v
+```
+
+Имеющийся источник `/workspace/market-pattern-data/forever` также поддерживается без скачивания; для другого пути задать `V20_N4_QUOTES_ROOT`. В Windows PowerShell перед запуском теста использовать `$env:V20_N4_QUOTES_ROOT='<external-folder>'` вместо bash-переменной.
+
+**Проверено здесь:** идентичность приложенного архивного ZIP и наличие путей modern N4 в pinned GitHub. **Ещё не подтверждено:** SHA *содержимого* modern N4 в текущем окружении (GitHub connector не выдал содержимое файлов >2MB), исполнение адресного frozen parity и все feed/session/restart случаи. Для отсутствия доступа к GitHub/source нужен честный BLOCKED/SKIP; не заявлять нового PASS.
