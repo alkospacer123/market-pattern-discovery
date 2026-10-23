@@ -139,6 +139,30 @@ def parse(raw, robot, now, account_alias):
             "events": tuple(checked), "account_alias": account_alias}
 
 
+def heartbeat_health(report, now):
+    """Heartbeat freshness, independent of task/trading permission and engine health.
+
+    GREEN only for a recently observed, validated LOCAL_REPORT whose heartbeat
+    is not future-dated. Never synthesize a heartbeat from UI check time.
+    """
+    if now.tzinfo is None or report.get("reason") != "LOCAL_REPORT":
+        return "UNKNOWN"
+    observed, heartbeat = report.get("observed_at"), report.get("heartbeat_at")
+    if observed is None or observed.tzinfo is None:
+        return "UNKNOWN"
+    now = now.astimezone(timezone.utc)
+    if report["status"] == "STALE" or (now - observed).total_seconds() > TTL:
+        return "STALE"
+    if heartbeat is None or heartbeat.tzinfo is None:
+        return "UNKNOWN"
+    age_seconds = (now - heartbeat).total_seconds()
+    if age_seconds > TTL:
+        return "STALE"
+    if age_seconds < 0 or (now - observed).total_seconds() < 0:
+        return "UNKNOWN"
+    return "HEALTHY"
+
+
 def age(report, now):
     """Latch STALE/UNKNOWN; never resurrect expired data after a clock rollback."""
     if report["status"] in ("STALE", "NOT_CONNECTED", "UNKNOWN"):

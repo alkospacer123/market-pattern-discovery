@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import pytest
 from streamlit.testing.v1 import AppTest
-from cc.v20_contract import ROBOTS, LABELS, NAMES, MAX_BYTES, TTL, digest, parse, age, unconnected
+from cc.v20_contract import ROBOTS, LABELS, NAMES, MAX_BYTES, TTL, digest, parse, age, unconnected, heartbeat_health
 from cc import v20_receiver as receiver
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -163,6 +163,8 @@ def test_minimal_streamlit_starts_without_read_or_trading_controls(monkeypatch):
     assert "Позиции · локально" not in visible
     assert "Стопы · локально" not in visible
     assert "Цикл" not in visible
+    assert sum("Heartbeat:" in x.value and "UNKNOWN" in x.value for x in app.tabs[0].markdown) == 3
+    assert any("Последняя проверка: —" in x.value for x in app.caption)
     assert not app.get("plotly_chart")
     assert not app.dataframe
     assert sum("НЕ ПОДКЛЮЧЁН" in x.value for x in app.tabs[0].info) == 3
@@ -184,10 +186,15 @@ def test_manual_click_one_acquire_and_no_navigation_reread(monkeypatch):
     assert [tab.label for tab in app.tabs] == ["Главная", "Журнал", "Управление"]
     app.run()
     assert calls == []
+    assert "v20-last-checked-at" not in app.session_state
     app.button(key="v20-manual-refresh").click().run()
     assert len(calls) == 1
+    check_at = app.session_state["v20-last-checked-at"]
+    assert check_at.tzinfo is not None
+    assert any("Последняя проверка: " in x.value and "МСК" in x.value for x in app.caption)
     app.run()  # even a Streamlit rerun cannot trigger another V20 acquisition
     assert len(calls) == 1
+    assert app.session_state["v20-last-checked-at"] == check_at
 
 
 
@@ -209,8 +216,9 @@ def test_main_shows_only_current_operational_health_without_trade_metrics():
     assert "Kill switch" in visible and "ARMED" in visible
     assert "Последняя ошибка: нет" in visible
     assert "Heartbeat:" in visible
-    assert "текущее состояние Task/защиты не подтверждено" in visible
-    assert "Нет подтверждённых данных" in visible
+    assert "HEALTHY" in visible and "STALE" in visible and "UNKNOWN" in visible
+    assert "Текущее состояние Task/защиты и ошибок не подтверждено" in visible
+    assert "Состояние Windows Task и ошибок не подтверждено" in visible
     assert "Позиции · локально" not in visible
     assert "Стопы · локально" not in visible
     assert "Цикл" not in visible
@@ -218,3 +226,39 @@ def test_main_shows_only_current_operational_health_without_trade_metrics():
     assert [tab.label for tab in app.tabs] == ["Главная", "Журнал", "Управление"]
     assert not app.sidebar.button and not app.sidebar.radio
     assert not app.exception
+
+
+@pytest.mark.parametrize("case,expected", (
+    ("absent", "UNKNOWN"), ("fresh", "HEALTHY"), ("old_heartbeat", "STALE"),
+    ("old_source", "STALE"), ("missing_heartbeat", "UNKNOWN"),
+    ("failed_task", "HEALTHY"), ("future", "UNKNOWN"),
+))
+def test_heartbeat_independent_freshness(case, expected):
+    now = datetime.now(timezone.utc)
+    if case == "absent":
+        report = unconnected("V20_SHALLOW")
+    else:
+        value = example(at=now)
+        if case == "old_heartbeat":
+            value["heartbeat_at"] = (now - timedelta(seconds=TTL+5)).isoformat()
+        elif case == "old_source":
+            value["observed_at"] = (now - timedelta(seconds=TTL+5)).isoformat()
+            value["heartbeat_at"] = value["observed_at"]
+        elif case == "missing_heartbeat":
+            value["heartbeat_at"] = None
+        elif case == "failed_task":
+            value["task_state"] = "DISABLED"
+        report = parse(wire(value), "V20_SHALLOW", now, "V20-SHALLOW")
+        if case == "future":
+            report["heartbeat_at"] = now + timedelta(seconds=1)
+    assert heartbeat_health(report, now) == expected
+
+
+def test_no_false_top_update_from_opening_tabs_or_rerun():
+    app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15).run()
+    assert not app.exception
+    assert "v20-last-checked-at" not in app.session_state
+    assert any("Последняя проверка: —" in x.value for x in app.caption)
+    app.run()
+    assert not app.exception
+    assert "v20-last-checked-at" not in app.session_state

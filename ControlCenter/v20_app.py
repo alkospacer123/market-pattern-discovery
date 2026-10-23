@@ -2,7 +2,7 @@
 from datetime import datetime, timedelta, timezone
 import streamlit as st
 from cc.manual_gate import export_gate
-from cc.v20_contract import ROBOTS, LABELS, unconnected, age
+from cc.v20_contract import ROBOTS, LABELS, unconnected, age, heartbeat_health
 from cc.v20_receiver import acquire
 
 MSK = timezone(timedelta(hours=3))
@@ -17,6 +17,7 @@ with header:
 with actions:
     refresh = st.button("Обновить данные", key="v20-manual-refresh",
                         use_container_width=True)
+    last_check_view = st.empty()
 tabs = st.tabs(PAGES)
 
 
@@ -31,7 +32,7 @@ def healthy_label(report):
             "NOT_CONNECTED": "НЕ ПОДКЛЮЧЁН"}.get(status, "UNKNOWN")
 
 
-def overview(snapshots):
+def overview(snapshots, now):
     """Only operator health signals. Trading details belong in FINAM."""
     for robot in ROBOTS:
         report = snapshots[robot]
@@ -50,21 +51,27 @@ def overview(snapshots):
                 else:
                     st.info(healthy_label(report))
             with right:
+                pulse = heartbeat_health(report, now)
+                st.markdown("**Heartbeat:** " + {
+                    "HEALTHY": "🟢 HEALTHY",
+                    "STALE": "🟠 STALE",
+                    "UNKNOWN": "⚪ UNKNOWN",
+                }[pulse])
                 if current:
                     st.markdown("**Windows Task:** " + report["task_state"] +
                                 " · **Kill switch:** " + report["kill_switch"])
                     error_code = report["last_error_code"]
-                    st.caption("Heartbeat: " + show_time(report["heartbeat_at"]) +
-                               " · Последняя ошибка: " +
+                    st.caption("Последняя ошибка: " +
                                ("нет" if error_code == "NONE" else error_code))
                 elif status == "STALE":
-                    st.caption("Heartbeat: " + show_time(report["heartbeat_at"]) +
-                               " (устарел) · текущее состояние Task/защиты не подтверждено")
+                    st.caption("Текущее состояние Task/защиты и ошибок не подтверждено")
                 else:
-                    st.caption("Нет подтверждённых данных о задаче, heartbeat и ошибках")
+                    st.caption("Состояние Windows Task и ошибок не подтверждено")
     with st.expander("Об источниках", expanded=False):
         st.caption("Состояния приходят только из отдельных READONLY-отчётов V20. Пока источники не подключены, работоспособность неизвестна.")
         st.caption("HEALTHY означает состояние по локальному отчёту; не подтверждает сделки, брокерские позиции и SLTP FINAM.")
+        st.caption("Heartbeat HEALTHY означает только свежий сигнал, а не разрешение торговли и не исправность всех компонентов.")
+        st.caption("Дата рядом с кнопкой — время последней ручной проверки панелью, не обновления данных самого робота.")
         st.caption("Обновление только вручную; панель не получает торговые токены и не исполняет команды.")
 
 
@@ -103,8 +110,12 @@ def main():
         except Exception:
             st.session_state["v20-snapshots"] = {
                 robot: unconnected(robot, "READONLY_UNAVAILABLE") for robot in ROBOTS}
+        # Time of a completed manual attempt; a failed source remains NOT_CONNECTED.
+        st.session_state["v20-last-checked-at"] = datetime.now(timezone.utc)
     # Always age against a clock taken AFTER manual acquisition, not before.
     now = datetime.now(timezone.utc)
+    checked = st.session_state.get("v20-last-checked-at")
+    last_check_view.caption("Последняя проверка: " + show_time(checked))
     previous = st.session_state.get("v20-snapshots")
     snapshots = {}
     for robot in ROBOTS:
@@ -113,7 +124,7 @@ def main():
     if previous is not None:
         st.session_state["v20-snapshots"] = snapshots
     with tabs[0]:
-        overview(snapshots)
+        overview(snapshots, now)
     with tabs[1]:
         journal(snapshots)
     with tabs[2]:

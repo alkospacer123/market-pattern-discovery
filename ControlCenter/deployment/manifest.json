@@ -95,7 +95,7 @@
     },
     {
       "path": "cc/v20_contract.py",
-      "sha256": "8bdfe02825293feabc671616c010c0cdaedc1bea480f22e946d25ff896ff733a"
+      "sha256": "8a89b32788750ebc7adf9762ea5e0e43365b6b448c78d6fd57ac99d26b015212"
     },
     {
       "path": "cc/v20_receiver.py",
@@ -351,7 +351,7 @@
     },
     {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "4a1c8e097553dffe2613d00183cb83968abbfd24fe49b019c7c2859d65eba9d7"
+      "sha256": "cf4760e8db973ae1c01fdf44a2378e7a86bf0654f9decd193d1710ea0f146a9d"
     },
     {
       "path": "docs/browser-check.json",
@@ -507,7 +507,7 @@
     },
     {
       "path": "tests/test_v20_control_center.py",
-      "sha256": "b61928a12f3c798d721aba3f87d1e4dd695cbd42713456a0ca159e06823ac810"
+      "sha256": "1084a3d0d995d1996db84f23538bc579bde4877ce8d357a26d2d6aedb24cd409"
     },
     {
       "path": "tests/test_windows_reader.py",
@@ -519,7 +519,7 @@
     },
     {
       "path": "v20_app.py",
-      "sha256": "69e0d77a8d7ee5d8811e7d1168530e903e2c8e49341e6a00166109b6e0b77c56"
+      "sha256": "32745f97adc57be337b5bee4a4487d33f848cb94a0467fe866e163a840e41521"
     }
   ]
 }
