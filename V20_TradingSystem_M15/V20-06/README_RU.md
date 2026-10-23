@@ -1,6 +1,6 @@
 # V20-06.1 — привязка трёх FINAM-счетов, только READONLY
 
-Статус: **PREPARED / REAL FINAM NOT RUN**. Следующий подэтап после подтверждённой V20-05.5 (Intel Windows 10 Pro, FakeBroker 64/64 PASS).
+Статус: **V20-06.1 PASS READONLY 3/3 по выводу оператора Intel от 23.10.2026**. Оператор подтвердил `BINDING_v20-inside=PASS_READONLY`, `V20_06_1_FINAM_READONLY=PASS_3_OF_3`, локальный файл `C:\V20Lab\readonly-06\ACCOUNT_BINDING_REPORT.json`. Сам JSON не загружен в PR. Далее строго V20-06.2 (FINAM N4 specifications), 06.3 и 06.4, этап V20-06 целиком пока не PASS.
 
 - Повторно используется **неизменённый H1** `TradingSystemLab/stage8_robot/finam_fill_price_readonly.py` из отдельного закреплённого каталога `C:\V20Lab\source-raw`. Его `ReadonlyFillAPI` разрешает только POST создания/проверки сессии и чтение одного строго указанного счёта/истории; POST заявок, SLTP и DELETE запрещены на уровне запросов.
 - `verify_bindings.py --self-test` проверяет локально запрет POST/DELETE, запрет чужого счёта, отказ в доступе при `readonly=false`. Сеть FINAM не используется.
