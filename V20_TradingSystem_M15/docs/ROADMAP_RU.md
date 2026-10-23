@@ -14,8 +14,8 @@
 | V20-02 | Эталон трёх независимых счетов: неизменные сигналы/исполнение N4, M15, NEXT_OPEN, 2 ATR, C1 | Архивная parity 797+612+180=1589; сохранённые свидетельства | Архивный PASS; ранее полученный журнал подтверждён отдельно, диагностика описана в V20-03 |
 | V20-03 | Ограниченная история 2018–2022, fixed roll V1, диагностика падения PF и целесообразности разработки | comparison/PF_DIAGNOSTIC_REPORT_RU, METHODOLOGY_EFFECTS, DEVELOPMENT_DECISION, VERIFICATION | CLOSED / ACCEPTED WITH LIMITATIONS: исследование PARTIAL, разработка всех трёх разрешена |
 | V20-04 | Разработка на базе H1/M15: общий исполнительный каркас и автономные конфигурации, состояние и доступ каждого робота | Изолированный код; неизменные правила; без активации торговли | IN PROGRESS (offline only): общий H1/M15 каркас + три независимые конфигурации; LIVE запрещён |
-| V20-05 | Offline и Windows acceptance | Сигналы, M15/NEXT_OPEN, stop grid, sizing/ГО, комиссии, SLTP, идемпотентность, restart/recovery и изоляция | PARTIAL: 05.1–05.4 PASS OFFLINE; 05.5 Windows BLOCKED |
-| V20-06 | FINAM READONLY на трёх V20-счетах | Токен↔счёт, equity, ГО/тик, позиции/заявки/исполнения без изменения у брокера | NOT STARTED |
+| V20-05 | Offline и Windows acceptance | Сигналы, M15/NEXT_OPEN, stop grid, sizing/ГО, комиссии, SLTP, идемпотентность, restart/recovery и изоляция | PASS: 05.1–05.4 PASS OFFLINE; 05.5 NATIVE WINDOWS PASS (URIU-PC, 64/64, 23.10.2026) |
+| V20-06 | FINAM READONLY на трёх V20-счетах | Токен↔счёт, equity, ГО/тик, позиции/заявки/исполнения без изменения у брокера | NEXT: 06.1, FINAM READONLY ещё не выполнен |
 | V20-07 | Intel staging при LIVE off | Pinned SHA, изолированные состояние/логи, три Disabled Task, check/start/stop/restart, H1 без изменений | NOT STARTED |
 | V20-08 | Санкционированная пробная сделка и отдельный LIVE каждого робота | Каждая проба только с разрешением; исполнение/защита/выход/комиссии/reconcile; отдельное разрешение на штатный LIVE | NOT STARTED; индивидуальные разрешения обязательны |
 
