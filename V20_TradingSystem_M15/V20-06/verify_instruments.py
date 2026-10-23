@@ -53,7 +53,7 @@ def _h1_modules():
         if not source_file.is_file():
             raise RuntimeError("PINNED_H1_SOURCE_MISSING")
         raw = source_file.read_bytes()
-        actual = hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\\x00" + raw).hexdigest()
+        actual = hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\x00" + raw).hexdigest()
         if actual != expected:
             raise RuntimeError("PINNED_H1_SOURCE_BLOB_MISMATCH")
     logging.getLogger("TradingSystemLab.stage8_robot.finam_api").setLevel(logging.CRITICAL)
