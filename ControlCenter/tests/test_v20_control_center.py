@@ -154,7 +154,8 @@ def test_minimal_streamlit_starts_without_read_or_trading_controls(monkeypatch):
     monkeypatch.setattr(receiver, "read_windows", fail)
     app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15).run()
     assert not app.exception
-    assert list(app.radio[0].options) == ["Главная", "Журнал", "Управление"]
+    assert [tab.label for tab in app.tabs] == ["Главная", "Журнал", "Управление"]
+    assert not app.sidebar.button and not app.sidebar.radio
     assert len(app.button) == 1
     assert len(app.metric) == 0
     visible = "\\n".join(str(item.value) for kind in ("markdown", "caption", "info", "warning", "success", "error")
@@ -164,11 +165,12 @@ def test_minimal_streamlit_starts_without_read_or_trading_controls(monkeypatch):
     assert "Цикл" not in visible
     assert not app.get("plotly_chart")
     assert not app.dataframe
-    assert sum("НЕ ПОДКЛЮЧЁН" in x.value for x in app.info) == 3
-    for tab in ("Журнал", "Управление", "Главная"):
-        app.radio[0].set_value(tab).run()
-        assert not app.exception
-        assert len(app.button) == 1
+    assert sum("НЕ ПОДКЛЮЧЁН" in x.value for x in app.tabs[0].info) == 3
+    assert any("Последние циклы" in x.value for x in app.tabs[1].subheader)
+    assert any("Отключено." in x.value for x in app.tabs[2].info)
+    app.run()  # rerun without explicit click must not access any V20 source
+    assert not app.exception
+    assert len(app.button) == 1
 
 
 def test_manual_click_one_acquire_and_no_navigation_reread(monkeypatch):
@@ -179,13 +181,12 @@ def test_manual_click_one_acquire_and_no_navigation_reread(monkeypatch):
         return {r: unconnected(r) for r in ROBOTS}
     monkeypatch.setattr(source, "acquire", fake)
     app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15).run()
-    app.radio[0].set_value("Журнал").run()
-    app.radio[0].set_value("Главная").run()
+    assert [tab.label for tab in app.tabs] == ["Главная", "Журнал", "Управление"]
+    app.run()
     assert calls == []
     app.button(key="v20-manual-refresh").click().run()
     assert len(calls) == 1
-    app.radio[0].set_value("Управление").run()
-    app.radio[0].set_value("Главная").run()
+    app.run()  # even a Streamlit rerun cannot trigger another V20 acquisition
     assert len(calls) == 1
 
 
@@ -214,5 +215,6 @@ def test_main_shows_only_current_operational_health_without_trade_metrics():
     assert "Стопы · локально" not in visible
     assert "Цикл" not in visible
     assert len(app.button) == 1
-    app.radio[0].set_value("Журнал").run()
+    assert [tab.label for tab in app.tabs] == ["Главная", "Журнал", "Управление"]
+    assert not app.sidebar.button and not app.sidebar.radio
     assert not app.exception

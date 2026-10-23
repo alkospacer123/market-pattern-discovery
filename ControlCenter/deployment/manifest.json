@@ -351,7 +351,7 @@
     },
     {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "00f7b8a5d26c40cd8186f0b2003dc15cee5ece38566bee3306c9626e38d35203"
+      "sha256": "4a1c8e097553dffe2613d00183cb83968abbfd24fe49b019c7c2859d65eba9d7"
     },
     {
       "path": "docs/browser-check.json",
@@ -507,7 +507,7 @@
     },
     {
       "path": "tests/test_v20_control_center.py",
-      "sha256": "365aff62bfabc366f49ba100d0465be003d32cc369293a91301b2f3e6a07cd7c"
+      "sha256": "b61928a12f3c798d721aba3f87d1e4dd695cbd42713456a0ca159e06823ac810"
     },
     {
       "path": "tests/test_windows_reader.py",
@@ -519,7 +519,7 @@
     },
     {
       "path": "v20_app.py",
-      "sha256": "2e7f56d9934fcb126cf9517684c9e7db5cfa6bb6dfa288b0775d3a6940ca1d2b"
+      "sha256": "69e0d77a8d7ee5d8811e7d1168530e903e2c8e49341e6a00166109b6e0b77c56"
     }
   ]
 }

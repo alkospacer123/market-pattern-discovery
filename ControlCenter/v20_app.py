@@ -8,14 +8,16 @@ from cc.v20_receiver import acquire
 MSK = timezone(timedelta(hours=3))
 PAGES = ("Главная", "Журнал", "Управление")
 
-st.set_page_config(page_title="V20 · Control Center", page_icon="◈", layout="wide")
-st.title("V20 · Control Center")
-st.caption("Shallow · OBV · Inside | один проект, три независимых робота")
-with st.sidebar:
-    page = st.radio("Раздел", PAGES, label_visibility="collapsed")
+st.set_page_config(page_title="V20 · Control Center", page_icon="◈", layout="wide",
+                   initial_sidebar_state="collapsed")
+header, actions = st.columns([5, 1], vertical_alignment="center")
+with header:
+    st.title("V20 · Control Center")
+    st.caption("Shallow · OBV · Inside | один проект, три независимых робота")
+with actions:
     refresh = st.button("Обновить данные", key="v20-manual-refresh",
                         use_container_width=True)
-    st.caption("READONLY · только вручную")
+tabs = st.tabs(PAGES)
 
 
 def show_time(at):
@@ -110,11 +112,11 @@ def main():
         snapshots[robot] = age(report, now)
     if previous is not None:
         st.session_state["v20-snapshots"] = snapshots
-    if page == PAGES[0]:
+    with tabs[0]:
         overview(snapshots)
-    elif page == PAGES[1]:
+    with tabs[1]:
         journal(snapshots)
-    else:
+    with tabs[2]:
         controls()
 
 
