@@ -23,12 +23,22 @@ _REQUIRED = ("Datetime", "Open", "High", "Low", "Close", "Volume")
 _STEP = timedelta(minutes=15)
 
 
-def _frozen_immutable_features(source: pd.DataFrame) -> pd.DataFrame:
+def _locked_adapter():
     spec = importlib.util.spec_from_file_location("v20_03_readonly_frozen_adapter", _FROZEN_REPLAY_ADAPTER)
     if spec is None or spec.loader is None:
         raise RuntimeError("PINNED_FROZEN_ADAPTER_UNAVAILABLE")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    return module
+
+
+def known_m15_gap(previous, current):
+    """Reuse locked observed-hole/declared-break semantics; no inferred bars."""
+    return _locked_adapter().broken(previous, current)
+
+
+def _frozen_immutable_features(source: pd.DataFrame) -> pd.DataFrame:
+    module = _locked_adapter()
     # The locked helper needs a temporary CSV. Bind only its scratch parent to
     # an external OS workspace; BASE and every frozen AST/formula stay intact.
     # Source candles must never be copied into the repository checkout.
@@ -37,14 +47,9 @@ def _frozen_immutable_features(source: pd.DataFrame) -> pd.DataFrame:
         return module.frozen_signals(source)
 
 
-def completed_signal(symbol: str, strategy: str, bars: pd.DataFrame,
-                     *, observed_at: datetime) -> FrozenSignal | None:
-    """Evaluate only the most recently completed M15 bar at its NEXT_OPEN.
-
-    The input is an isolated OHLCV snapshot for one N4 symbol, with Moscow-naive
-    Open-labelled times. No interaction with FINAM or a running robot occurs.
-    """
-    if symbol not in N4 or strategy not in STRATEGIES:
+def validate_completed_history(symbol: str, bars: pd.DataFrame, *, observed_at: datetime):
+    """Shared immutable M15 input boundary, including stale warmup histories."""
+    if symbol not in N4:
         raise ValueError("UNKNOWN_SYMBOL_OR_STRATEGY")
     if not isinstance(bars, pd.DataFrame) or bars.empty:
         raise ValueError("EMPTY_M15_INPUT")
@@ -61,7 +66,7 @@ def completed_signal(symbol: str, strategy: str, bars: pd.DataFrame,
             or timestamps.dt.microsecond.any() or timestamps.dt.nanosecond.any()):
         raise ValueError("M15_GRID_INVALID")
     last_open = timestamps.iloc[-1].to_pydatetime()
-    if observed_at != last_open + _STEP:
+    if observed_at < last_open + _STEP:
         raise ValueError("ONLY_COMPLETED_SIGNAL_AT_IMMEDIATE_NEXT_OPEN")
     frame = bars[list(_REQUIRED)].copy()
     frame["Datetime"] = timestamps
@@ -72,6 +77,18 @@ def completed_signal(symbol: str, strategy: str, bars: pd.DataFrame,
             or not (frame.High >= frame[["Open", "Low", "Close"]].max(axis=1)).all()
             or not (frame.Low <= frame[["Open", "High", "Close"]].min(axis=1)).all()):
         raise ValueError("M15_OHLCV_INVALID")
+    return frame
+
+
+def completed_signal(symbol: str, strategy: str, bars: pd.DataFrame,
+                     *, observed_at: datetime) -> FrozenSignal | None:
+    """Exact frozen rule at immediate NEXT_OPEN, Moscow-naive Open labels."""
+    if strategy not in STRATEGIES:
+        raise ValueError("UNKNOWN_SYMBOL_OR_STRATEGY")
+    frame = validate_completed_history(symbol, bars, observed_at=observed_at)
+    last_open = frame.Datetime.iloc[-1].to_pydatetime()
+    if observed_at != last_open + _STEP:
+        raise ValueError("ONLY_COMPLETED_SIGNAL_AT_IMMEDIATE_NEXT_OPEN")
     features = _frozen_immutable_features(frame)
     side = int(features[strategy].iloc[-1])
     if side not in (-1, 0, 1):

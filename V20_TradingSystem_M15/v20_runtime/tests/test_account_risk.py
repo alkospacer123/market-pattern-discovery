@@ -1,5 +1,7 @@
 """04.4 isolated tests with explicit account evidence; no FINAM connection."""
 from decimal import Decimal
+from dataclasses import replace
+from TradingSystemLab.stage8_robot.broker import compact_client_order_id
 import unittest
 
 from V20_TradingSystem_M15.v20_runtime.account_risk import (
@@ -19,11 +21,46 @@ def take(a, key="a", *, entry="10.000", atr="0.013", planned_max_quantity=20, ex
 
 
 class MoneyRiskTests(unittest.TestCase):
+    def test_fresh_broker_cash_does_not_subtract_reflected_margin_twice(self):
+        old = take(authority(), planned_max_quantity=15)
+        fresh = replace(authority(cash="50000"), snapshot_revision=7,
+                        margin_reflected_client_ids=(compact_client_order_id(old.entry_key),))
+        new = take(fresh, "new", planned_max_quantity=15, existing=[old])
+        self.assertEqual(new.quantity, 4)  # existing unpaid 750 + new cost buffer
+
+    def test_mixed_reflected_and_local_pending_margin(self):
+        a = authority(cash="300000")
+        first = take(a, "first", planned_max_quantity=10)
+        pending = take(a, "pending", planned_max_quantity=5, existing=[first])
+        fresh = replace(a, available_cash=Decimal("200000"), snapshot_revision=8,
+                        margin_reflected_client_ids=(compact_client_order_id(first.entry_key),))
+        new = take(fresh, "new", planned_max_quantity=20, existing=[first, pending])
+        self.assertEqual(new.quantity, 14)
+
+    def test_planned_ceiling_and_trade_lot_are_both_respected(self):
+        a = replace(authority(), trade_lot_size=2)
+        self.assertEqual(take(a, planned_max_quantity=3).quantity, 2)
+
+    def test_installed_stop_risk_and_no_duplicate_fee_budget(self):
+        r = take(authority(cost="2"))
+        actual = revalue_fill(r, [(4, "10.005", "4")], installed_stop="9.974")
+        self.assertFalse(actual["stop_conforms"])
+        self.assertEqual(actual["projected_stop"], "9.979")
+        self.assertEqual(Decimal(actual["actual_risk"]), Decimal("1248"))
+
+    def test_corrupt_reservation_and_unproved_cash_reflection_rejected(self):
+        raw = take(authority()).record(); raw["reserved_risk"] = "NaN"
+        with self.assertRaises(RiskBlocked):
+            RiskReservation.restore(raw)
+        with self.assertRaises(RiskBlocked):
+            replace(authority(), margin_reflected_client_ids=("unproved",))
+
     def test_existing_h1_sizing_caps_r15_and_margin(self):
         x = take(authority(), planned_max_quantity=20)
         self.assertEqual(x.initial_stop, Decimal("9.974"))
-        self.assertEqual(x.quantity, 20)  # GO 200k/10k; 1.5% allows >20
-        self.assertEqual(x.reserved_margin, Decimal("200000"))
+        self.assertEqual(x.quantity, 19)  # GO + unpaid costs must fit cash
+        self.assertEqual(x.reserved_margin, Decimal("190000"))
+        self.assertEqual(x.reserved_cost, Decimal("950"))
         self.assertLessEqual(x.reserved_risk, Decimal("7500"))
 
     def test_local_pending_reservations_prevent_double_spend(self):
@@ -31,9 +68,14 @@ class MoneyRiskTests(unittest.TestCase):
         first = take(a, planned_max_quantity=15)
         self.assertEqual(first.reserved_margin, Decimal("150000"))
         second = take(a, "b", planned_max_quantity=15, existing=[first])
-        self.assertEqual(second.quantity, 5)
-        with self.assertRaisesRegex(RiskBlocked, "NO_ACCOUNT_RISK_OR_MARGIN_CAPACITY"):
+        self.assertEqual(second.quantity, 4)
+        with self.assertRaisesRegex(RiskBlocked, "INSUFFICIENT_RISK_OR_MARGIN_FOR_ONE_LOT"):
             take(a, "c", planned_max_quantity=15, existing=[first, second])
+
+    def test_old_reservation_migration_reserves_unpaid_cost_conservatively(self):
+        raw = take(authority()).record(); raw.pop("reserved_cost")
+        restored = RiskReservation.restore(raw)
+        self.assertEqual(restored.reserved_cost, restored.quantity*restored.cost_per_contract)
 
     def test_one_lot_cannot_fit_risk_or_go(self):
         with self.assertRaisesRegex(RiskBlocked, "INSUFFICIENT_RISK_OR_MARGIN"):

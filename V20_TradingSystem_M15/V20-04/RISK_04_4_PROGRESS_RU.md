@@ -1,6 +1,8 @@
+> **Текущий результат Codex Cloud, 23.10.2026:** **04.4 PASS OFFLINE**, **04.5 PASS — три автономных offline-процесса**, **04.6 PASS — минимальная общая интеграция**. Финальный запуск: **99 PASS / 0 FAIL / 0 SKIP**. [Машинный receipt, PID и SHA](OFFLINE_FRAMEWORK_ACCEPTANCE.json). Main `6f352acfac7ebdfabba73e143c4dfea3a6e48507`, входной head PR #567 `ad7cafde448f3737781a374550ed72c04f4d7491`. Production/LIVE не приняты. Следующий пункт — V20-05.
+
 # V20-04.4 — фактический денежный риск, ГО и исполнение (23.10.2026)
 
-**Статус: PARTIAL / INTEGRATION TESTS NOT VERIFIED. Не PASS. V20-04.5 автономный цикл пока не начинать как завершённый подпункт.**
+**Архивный статус до текущего запуска: PARTIAL / INTEGRATION TESTS NOT VERIFIED.** Следующие старые записи сохранены; актуальный результат — в разделе «Фактически выполнено» ниже.
 
 База на начало работы: PR #567 head `69c07faf181e515ac0e281feef942fc7c2d7d0a1`, main `6f352acfac7ebdfabba73e143c4dfea3a6e48507`. Всё только в `V20_TradingSystem_M15/`, Draft PR, без Merge, FINAM, токенов, H1/M15 и Windows Tasks.
 
@@ -35,3 +37,116 @@ python -m unittest V20_TradingSystem_M15.v20_runtime.tests.test_account_risk V20
 5. V20-04.5 (общий автономный M15 loop, три отдельных процесса и журналы) остаётся PARTIAL с прежней изоляцией SQLite/lock; **не переходить к 04.6/05 до фактического PASS 04.4/04.5**.
 
 Следующий конкретный шаг: выполнить два адресных набора в Codex Cloud; исправить FAIL; только после подтверждённого PASS 04.4 перейти к 04.5 в том же Draft PR. Roadmap строго 8/24.
+
+
+## Фактически выполнено в Codex Cloud — V20-04.4/04.5/04.6
+
+Фактические main/head совпали с заданием: `6f352acfac7ebdfabba73e143c4dfea3a6e48507` / `ad7cafde448f3737781a374550ed72c04f4d7491`. Ветка fast-forward, все опубликованные изменения сохранены. Исходная команда на входном checkout выполнила **38 tests PASS**. Однако одних прежних тестов было недостаточно: добавлены проверки конкретных требований владельца и исправлены стыки.
+
+### V20-04.4 — PASS OFFLINE
+
+- Денежная авторизация в автономном режиме обязательна: `M15OfflineRobot` всегда создаёт `OfflineH1Executor(..., require_money_authority=True)`. Требование сохраняется в SQLite и не снимается последующим вызовом старого конструктора. Старый API без финансовых полей оставлен только для прежних **FakeBroker-only** тестов; любой иной broker отклоняется точной проверкой типа, LIVE-пути нет.
+- Account-bound `AccountAuthority` содержит realized equity, свободный cash, шаг/стоимость шага, текущий направленный GO, lot, C1 buffer, revision snapshot и client IDs резервов, **уже отражённых** в его available_cash. В strict-режиме значение должно точно совпадать с текущим снимком fake broker book. Stale/подложенная/чужая authority запрещает новый POST. Это модель доказательства, не сертификация физической атомарности FINAM endpoints.
+- Переиспользуются неизменённые H1 `size_position`, `cap_r15_by_margin`, `portfolio_authority`, `initial_projection/project_stop`, Decimal/Fraction. Лимиты остаются **1,5% realized equity на вход / 6% nominal initial risk на счёт**, frozen **2×ATR14 Wilder** и исходные N4 grids. Никакого изменения сигналов, стоп-множителя или PF-оптимизации.
+
+**Разделение доступных денег:**
+
+```text
+cash для нового входа = свежий broker available_cash
+                      − локальный GO, ещё не отражённый в этом snapshot
+                      − ещё не оплаченный cost buffer существующих позиций/intents
+новый GO + новый cost buffer должны полностью помещаться в остатке
+```
+
+Брокерское GO из available_cash второй раз не вычитается. Уже оплаченный C1 отражён в equity/free cash и исключается из оставшегося cost reserve. До fill резервируется полный ожидаемый roundtrip buffer; после него — неоплаченный остаток. Отдельный тест: cash 200 000, GO 10 000, cost 50/контракт позволяют **19** контрактов, не 20; при CNY GO 10 000/cost 2 и fill 19 контрактов с fee 19 остаток free cash **9 981**, future cost reserve **19**, nominal stop-aware risk **532**. Исходные проверки количества, игнорировавшие стоимость cash buffer, уточнены по этой бухгалтерии.
+
+- Snapshot proof, резерв GO/расходов/риска, session quota и order intent фиксируются одной SQLite transaction **до POST**. Ошибка записи intent откатывает все четыре части; после restart сохраняются авторизация, уменьшенный объём и idempotency. `reserved_cost` мигрируется из старых записей консервативно, без удаления прежних полей/журналов.
+- Реальный VWAP считается Fraction по order-linked fills. Риск оценивается по **фактически установленному** стопу, не по пока не установленному новому уровню. Pending остаток ордера тоже остаётся в денежном резерве. Текущий equity проверяется для совокупного 6% cap.
+- Если следующий partial fill изменяет нужный 2×ATR stop, прежний 100% SLTP сохраняется; новые входы блокируются `ACTUAL_FILL_STOP_UPDATE_UNCONFIRMED`. Отмена старого/слепая установка нового не выполняются. При превышении R15/R6, неизвестных данных или GO — никаких новых входов. Штатное закрытие подтверждённой позиции остаётся доступно, stop снимается только после verified flat.
+
+### V20-04.5 — PASS, три автономных offline-процесса
+
+Добавлен **один** `v20_runtime/m15_runner.py`: тонкий цикл над frozen adapter, существующим planner, H1 executor и `IntradayLab/core/execution.py` (`at_open`, `in_bar`). Новый торговый движок, индикатор или сервис не создавался. Все три записи `robots.json` используют его с разными robot/account identity, будущими state/log/process names. Каждый обрабатывает **весь N4**, в исходном стабильном порядке CNYRUBF → GLDRUBF → IMOEXF → USDRUBF.
+
+Только завершённые M15 и отдельный scalar Open текущей boundary. Общая валидация вынесена из прежнего `completed_signal` в `validate_completed_history` без правки frozen AST. Текущие HLCV в решение не попадают. Duplicate/stale/revised history и пропущенный NEXT_OPEN не порождают запоздалых входов. Торговая сессия 09:00 MSK; выход перед **третьей наблюдаемой**, а не третьей календарной сессией, сохраняется после restart.
+
+Максимум два новых входа/сессию на робот, один вход/символ/сессию, одна открытая или pending позиция/символ проверяются существующим persistent executor/journal. Обычная занятость одного символа теперь не превращается в глобальный HALT всего счёта. Пересечения сигналов между тремя счетами не блокируют друг друга. В тесте каждый робот самостоятельно открыл все **4 N4 за 2 сессии**: **4 entry + 4 stop POST**, собственный суммарный риск ≤30 000 при equity 500 000.
+
+Модель брокера пишет свой отдельный `fake-broker.json` **до возврата ACK/fill**, независимо от SQLite робота. После сбоя между fill и SLTP рестарт сам сверяет fills и устанавливает недостающую защиту без повторного entry. Отсутствующий broker book не пересоздаётся: startup blocked. При пропаже финансового подтверждения оно не подставляется из config: новые входы запрещены, но известная защищённая позиция продолжает сверяться и закрывается по штатному time-exit. Отдельно проверено отсутствие fee: защита и безопасный exit сохраняются, денежная неопределённость не считается нулевыми расходами.
+
+Внешние исходные котировки и runtime-cache не сохраняются в checkout. Для корня `/tmp/.../V20Lab` (будущий `C:\V20Lab`) каждый робот получает:
+```text
+shallow|obv|inside/
+  state/v20-offline-execution.sqlite3
+  state/fake-broker.json
+  logs/m15.jsonl
+  status.json
+  v20-instance.lock
+```
+
+Логи и status содержат robot/account hash, PID, последнюю обработанную boundary, N4, halt/refusal reason и `live_enabled=false`. Двойной экземпляр блокируется прежним H1 lock. При обнаружении неизвестного внутрисессионного пути применяется прежний `LOCKED_V1.broken`, исход помечается censored, новые входы блокируются до сверки/flat. Не изобретаются отсутствующие свечи или стоп-исполнения.
+
+### Фактически запущенные отдельные процессы
+
+Первый frozen signal и warmup — реальные CNY из неизменённого опубликованного ledger и pinned quotes `market-pattern-data@f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8`, SHA256 `259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4`. **Следующая adverse M15 — явно синтетическая контрольная свеча**, чтобы проверить срабатывание стопа. Это структурная acceptance, не историческая доходность/PF и не новый replay эпох.
+
+| Робот | Frozen signal M15 Open MSK | Side / модельный объём | PID входа | PID после restart/stop | PID повторного restart | Итог |
+|---|---|---|---:|---:|---:|---|
+| v20-shallow | 2024-01-09 12:30:00 | SHORT / 33 | 48679 | 48690 | 48701 | FLAT, POST count 2 без роста |
+| v20-obv | 2024-01-09 13:15:00 | SHORT / 33 | 48680 | 48691 | 48702 | FLAT, POST count 2 без роста |
+| v20-inside | 2024-01-18 12:00:00 | LONG / 49 | 48681 | 48692 | 48703 | FLAT, POST count 2 без роста |
+
+Для каждой фазы все три `Popen` запущены до ожидания результатов: действительно отдельные процессы, не три вызова класса в одном процессе. На каждый счёт было 2 accepted fake POST (entry + protective stop); исполнение стопа не является новым POST. После двух перезапусков каждый счёт flat, новых заявок нет. Отдельный unit-тест проверил time-exit по третьей наблюдаемой сессии через календарные пропуски и restart.
+
+### V20-04.6 — минимальная интеграционная приёмка PASS OFFLINE
+
+| Набор | Tests | Итог |
+|---|---:|---|
+| `test_account_risk` | 15 | PASS |
+| `test_h1_execution` | 38 | PASS |
+| `test_m15_runner` | 16 | PASS |
+| `test_m15_boundaries` | 9 | PASS |
+| `test_offline_planner` | 11 | PASS |
+| `test_h1_state_journal` | 10 | PASS |
+| **Финальный совместный запуск** | **99** | **PASS, 0 failures/errors/skips** |
+
+Тесты 04.5 используют синтетические сигналы только для адресных full-N4/cap/ошибочных стыков; отдельные дочерние CLI-процессы вызывают реальный `completed_signal` без monkey patch. `--offline` обязателен, `--live` отсутствует; модель прошла socket-forbidden тест. Фактические SHA кода/тестов/неизменённых H1/M15/frozen источников, PID и перечень tests сохранены в JSON. До финального запуска один тест ожидал margin refusal, а получил корректный `NEGATIVE_FORTS_FUNDS`: тестовая сумма не учитывала уже оплаченный C1; fixture исправлен на строго нулевой free cash. Других неустранённых FAIL нет.
+
+**SKIP вне suite:** прежние USD/N4 parity, исследования 2012–2026 и тяжёлые replay переиспользованы без повторения. FINAM/настоящие счета/Windows/Intel/Tasks/LIVE не запускались. Это не 0 SKIP всей дорожной карты; 0 SKIP относится к 99 адресным tests.
+
+### Как запустить общий offline-цикл
+
+Нужен внешний JSONL-файл или stdin. Команды из корня репозитория:
+```sh
+python -m V20_TradingSystem_M15.v20_runtime.m15_runner --offline --root /tmp/V20Lab --robot v20-shallow --events /tmp/shallow-events.jsonl
+python -m V20_TradingSystem_M15.v20_runtime.m15_runner --offline --root /tmp/V20Lab --robot v20-obv --events /tmp/obv-events.jsonl
+python -m V20_TradingSystem_M15.v20_runtime.m15_runner --offline --root /tmp/V20Lab --robot v20-inside --events /tmp/inside-events.jsonl
+```
+
+Три процесса запускать параллельно; один и тот же код, отдельные identity/state/log/book. `--events -` читает непрерывный stdin до EOF, без FINAM poller. Первая строка может содержать causal warmup:
+```json
+{"at":"2024-01-09T10:15:00","history":{"CNYRUBF":[{"Datetime":"2024-01-09T10:00:00","Open":"10","High":"10.001","Low":"9.999","Close":"10","Volume":"100"}]}}
+{"at":"2024-01-09T10:15:00","updates":{"CNYRUBF":{"bars":[],"open":"10"}}}
+```
+
+Это **схема события**, не достаточный реальный warmup: EMA/Inside требуют полноценной исходной истории. В `updates.bars` приходят лишь новые полностью закрытые свечи; `open` — единственная доступная цена текущей новой M15, без её будущих HLCV. Неполные/неизвестные данные не синтезируются. История не обрезается с изменением EMA, не склеивает Si/MIX с N4.
+
+Воспроизведение финального suite:
+```sh
+python -m unittest V20_TradingSystem_M15.v20_runtime.tests.test_account_risk V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal -v
+```
+
+### Границы и следующий пункт
+
+**V20-04.4 PASS OFFLINE; V20-04.5 PASS OFFLINE; V20-04.6 PASS MINIMAL OFFLINE.** Следующий пункт действующего roadmap — **V20-05**, расширенная offline/Windows acceptance. Не новый этап и не разрешение размещать заявки. Roadmap остаётся 8/24; PR #567 остаётся Draft.
+
+**Оставшиеся ограничения V20-04.3:**
+
+- Физический V20 transport/authorization и связанный источник свежих FINAM position/fill/cash/GO ещё не подключены/не приняты. Только FakeBroker с точной identity, никакого пути production в этом CLI.
+- Реальные FINAM M15 Open/Close labels, время доступности, частично исполненные ордера/страницы trades, лаг согласования позиций и wire-specific race ещё требуют отдельных проверок V20-05/06. Fake использует полную проверяемую историю fills.
+- Безопасная подтверждённая замена SLTP при изменившемся VWAP не реализована. Старая 100% защита остаётся; новые входы запрещены, причина явная, штатный exit доступен. Не объявляется, что старый уровень уже соответствует новому 2×ATR.
+- При сбое между claim свечи и созданием intent возможно пропустить вход. Это намеренное at-most-once ограничение: исторический NEXT_OPEN не исполняется задним числом.
+- GO 10 000 LONG / 15 000 SHORT и стартовые 500 000 equity/cash — явные **fixture-only** параметры `offline_model`, не спецификация реальных счетов. Риск 1,5%/6% и N4 не менялись.
+- Физическая Windows/Intel установка, настоящие Tasks, FINAM READONLY трёх счетов и тем более LIVE не проверялись и не активировались.
+
+Работающий H1 и IntradayLab не изменены: diff относительно main пуст. Frozen исходники V20 относительно входного head неизменны. Исследования карточки остаются архивом и не участвуют в торговых решениях.

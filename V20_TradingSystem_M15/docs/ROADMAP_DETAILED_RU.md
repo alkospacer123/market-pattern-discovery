@@ -39,10 +39,10 @@
 |---|---|---|
 | **04.1** | SOURCE MAP PASS | Закреплены H1/M15 source SHA в SOURCE_MAP.md; runtime acceptance отдельно |
 | **04.2** | PASS OFFLINE | 18 новых N4 signal/ATR/NEXT_OPEN + 6 прежних USD, M15/session/gap/roll boundaries PASS. Физический FINAM feed NOT VERIFIED; полного нового 1589 replay нет. FROZEN_EXECUTION_OFFLINE_VERIFICATION.json |
-| **04.3** | MINIMAL OFFLINE PASS / PRODUCTION PARTIAL | Общий H1 order/100% SLTP/intent/fill/reconcile/restart adapter с exact FakeBroker. 24 tests + 18 real-signal flows PASS; реальный transport не активирован |
-| **04.4** | PARTIAL | В offline planner переиспользованы H1 sizing/GO и резерв расходов; реальный fill, equity и совокупный риск ещё не интегрированы |
-| **04.5** | PARTIAL | Config/state identity, SQLite persistence/locks/restart PASS offline; общий автономный цикл и три процесса ещё не приняты |
-| **04.6** | DRAFT OPEN | 55 адресных tests PASS, PR #567 Draft. Полная приёмка трёх автономных роботов ещё не проведена |
+| **04.3** | OFFLINE PASS / PRODUCTION PARTIAL | H1 wire/readers/StateStore/reconcile reused. Physical transport/account evidence, bounded broker history and safe stop replacement remain unverified |
+| **04.4** | PASS OFFLINE | Mandatory fresh account proof, R15/R6, current cash/GO and unpaid C1, atomic reservations, actual installed-stop/VWAP risk. 15 money + 38 executor tests PASS |
+| **04.5** | PASS OFFLINE | One common M15 loop, independent full-N4 configs, 3 actual concurrent processes and restart. 16 runner tests PASS. No Windows installation |
+| **04.6** | PASS MINIMAL OFFLINE / DRAFT OPEN | 99 targeted tests PASS, source integrity and three-process acceptance in OFFLINE_FRAMEWORK_ACCEPTANCE.json. Next V20-05. No Merge/LIVE |
 
 Это **подэтапы**, а не дополнительные этапы дорожной карты. Статусы не заменяют критерия PASS V20-04.
 

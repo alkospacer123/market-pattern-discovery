@@ -23,6 +23,7 @@ from TradingSystemLab.stage8_robot.production_broker_state import (
 )
 from TradingSystemLab.stage8_robot.protective_stop_contract import percent_position_stop_payload
 from TradingSystemLab.stage8_robot.reconciliation import reconcile, Reconciliation
+from TradingSystemLab.stage8_robot.margin import portfolio_authority, AVAILABLE_CASH_SEMANTICS
 
 from .h1_state_journal import IsolatedReferenceJournal, V20StateBoundaryError
 from .offline_planner import N4
@@ -47,35 +48,127 @@ class FakeBroker:
         self.fills = []
         self.post_count = 0
         self.next_fault = None
+        self.revision = 0
+        self.financials = None
+        self.on_change = None
 
-    def submit(self, wire, *, sltp=False):
+    def _checkpoint(self):
+        if self.on_change is not None:
+            self.on_change(self.export())
+
+    def submit(self, wire, *, sltp=False, kind=None, trade_id=None):
         self.post_count += 1
         fault, self.next_fault = self.next_fault, None
         if fault == "rejected":
+            self.revision += 1; self._checkpoint()
             raise FinamOrderRejected(400)
         if fault == "timeout_before_accept":
+            self.revision += 1; self._checkpoint()
             raise FinamUncertainSubmission("SIMULATED_NO_ACK")
         oid = f"fake-{self.post_count}"
         self.orders.append(dict(order_id=oid, status="NEW",
+                                fake_kind=kind or ("STOP" if sltp else "ENTRY"),
+                                fake_trade_id=trade_id,
                                 **{"sltp_order" if sltp else "order": deepcopy(wire)}))
+        self.revision += 1
+        self._checkpoint()  # broker book survives an ACK lost to the robot process
         if fault == "timeout_after_accept":
             raise FinamUncertainSubmission("SIMULATED_ACK_LOST")
         return {"order_id": oid}  # deliberately no fill authority
 
-    def fill(self, order_id, trade_id, quantity, price, timestamp):
+    def fill(self, order_id, trade_id, quantity, price, timestamp, fee="0"):
         row = next(x for x in self.orders if x["order_id"] == order_id)
         wire = row.get("order", row.get("sltp_order"))
+        if row["status"] not in {"NEW", "PARTIAL_FILL"} or type(quantity) is not int or quantity <= 0:
+            raise ExecutionBlocked("FAKE_TERMINAL_OR_INVALID_FILL")
+        if "sltp_order" in row:
+            current = position_quantities(self.snapshot()).get(wire["symbol"], 0)
+            if not current or quantity > abs(current):
+                raise ExecutionBlocked("FAKE_STOP_MUST_REDUCE_CURRENT_POSITION")
+            target_remaining = abs(current)
+        else:
+            old_qty = sum(int(x["quantity"]) for x in self.fills if x["broker_order_id"] == order_id)
+            target_remaining = int(wire["quantity"]["value"]) - old_qty
+            if quantity > target_remaining:
+                raise ExecutionBlocked("FAKE_OVERFILL")
         self.fills.append(dict(fill_id=f"fill-{len(self.fills)+1}",
                                broker_order_id=order_id, trade_id=trade_id,
-                               quantity=str(quantity), price=str(price), fee="0",
+                               quantity=str(quantity), price=str(price), fee=str(fee),
                                timestamp=timestamp))
-        filled = sum(int(x["quantity"]) for x in self.fills
-                     if x["broker_order_id"] == order_id)
-        target = int(wire["quantity"]["value"]) if "order" in row else filled
-        row["status"] = "FILLED" if filled >= target else "PARTIAL_FILL"
+        row["status"] = "FILLED" if quantity == target_remaining else "PARTIAL_FILL"
+        self.revision += 1
+        self._checkpoint()
 
     def cancel(self, order_id):
         next(x for x in self.orders if x["order_id"] == order_id)["status"] = "CANCELLED"
+        self.revision += 1
+        self._checkpoint()
+
+    def configure_funds(self, *, realized_equity, available_cash, margins):
+        """Explicit fake account baseline, never an estimate of real FINAM GO."""
+        self.financials = dict(realized_equity=str(realized_equity),
+                               available_cash=str(available_cash), margins=deepcopy(margins))
+        self.revision += 1
+        self._checkpoint()
+
+    def financial_snapshot(self):
+        if self.financials is None:
+            raise ExecutionBlocked("FAKE_FINANCIAL_SOURCE_NOT_CONFIGURED")
+        bindings = _load_registry()
+        committed, pnl = Decimal(0), Decimal(0)
+        covered = []
+        for row in self.orders:
+            if row.get("fake_kind") != "ENTRY":
+                continue
+            wire = row["order"]
+            symbol = wire["symbol"].split("@")[0]
+            side = 1 if wire["side"] == "SIDE_BUY" else -1
+            entry_fills = [f for f in self.fills if f["broker_order_id"] == row["order_id"]]
+            quantity = sum(int(f["quantity"]) for f in entry_fills)
+            trade_ids = {f["trade_id"] for f in entry_fills}
+            closed = [f for f in self.fills if f["trade_id"] in trade_ids
+                      and f["broker_order_id"] != row["order_id"]]
+            closed_qty = sum(int(f["quantity"]) for f in closed)
+            pending = max(0, int(wire["quantity"]["value"]) - quantity) if row["status"] in {"NEW", "PARTIAL_FILL"} else 0
+            margin = Decimal(self.financials["margins"][symbol]["LONG" if side == 1 else "SHORT"])
+            committed += (quantity - closed_qty + pending)*margin
+            covered.append(wire["client_order_id"])
+            if closed and quantity:
+                average = sum(Decimal(f["price"])*int(f["quantity"]) for f in entry_fills)/quantity
+                multiplier = Decimal(bindings[symbol]["tick_value"])/Decimal(bindings[symbol]["price_step"])
+                pnl += sum((Decimal(f["price"])-average)*side*int(f["quantity"])*multiplier for f in closed)
+        fees = sum((Decimal(f.get("fee", "0")) for f in self.fills), Decimal(0))
+        equity = Decimal(self.financials["realized_equity"]) + pnl - fees
+        cash = Decimal(self.financials["available_cash"]) + pnl - fees - committed
+        return dict(revision=self.revision, realized_equity=str(equity),
+                    available_cash=str(cash), money_reserved=str(committed),
+                    margin_reflected_client_ids=tuple(sorted(covered)))
+
+    def authority(self, symbol, direction):
+        evidence = self.financial_snapshot()
+        binding = _load_registry()[symbol]
+        # Same H1 parser/available_cash semantics, with explicit fake evidence.
+        funds = portfolio_authority(dict(type="FORTS", portfolio_forts=dict(
+            available_cash={"value": evidence["available_cash"]},
+            money_reserved={"value": evidence["money_reserved"]})))
+        return AccountAuthority(self.account_id, Decimal(evidence["realized_equity"]),
+                                funds.available_cash, Decimal(binding["price_step"]),
+                                Decimal(binding["tick_value"]),
+                                Decimal(self.financials["margins"][symbol][direction]),
+                                int(binding["quantity_granularity"]),
+                                2*Decimal(binding["tick_value"]), evidence["revision"],
+                                evidence["margin_reflected_client_ids"])
+
+    def export(self):
+        return deepcopy({k: getattr(self, k) for k in
+                         ("account_id", "orders", "fills", "post_count", "next_fault", "revision", "financials")})
+
+    @classmethod
+    def restore(cls, book):
+        broker = cls(book["account_id"])
+        for key in ("orders", "fills", "post_count", "next_fault", "revision", "financials"):
+            setattr(broker, key, deepcopy(book[key]))
+        return broker
 
     def snapshot(self):
         positions = {}
@@ -98,17 +191,21 @@ class _ExecutionJournal(IsolatedReferenceJournal):
 class OfflineH1Executor:
     """One identical executor per robot and account; separate durable state.
 
-    Caller supplies frozen signal/plan and frozen exit decision. Full event-loop,
-    account-wide actual-fill risk/GO and physical broker validation remain later
-    roadmap acceptance. Slipped fills are protected but block further entries
-    pending V20-04.4 risk reconciliation.
+    M15OfflineRobot supplies frozen signals/plans and observed-session exits.
+    Autonomous mode requires fresh account-bound monetary evidence; the older
+    optional-authority interface is fake-only compatibility, never production.
+    Actual fills are valued against installed protection. An unconfirmed stop
+    amendment blocks new entries and retains the previous 100% backstop.
     """
-    def __init__(self, root, robot_id, account_id, broker):
+    def __init__(self, root, robot_id, account_id, broker, *, require_money_authority=False):
         if type(broker) is not FakeBroker or broker.account_id != account_id:
             raise ExecutionBlocked("EXACT_OFFLINE_FAKE_ACCOUNT_REQUIRED")
         self.broker = broker
         self.journal = _ExecutionJournal(root, robot_id, account_id)
         self.store = self.journal._require_open()
+        self.money_required = require_money_authority or self.store.get("money_required", False)
+        if self.money_required:
+            self.store.put("money_required", True)
 
     def __enter__(self):
         return self
@@ -143,7 +240,8 @@ class OfflineH1Executor:
             self.store.persist_intent(key, payload)
             self.store.transition_intent(key, "SUBMITTED")
         try:
-            self.broker.submit(payload["wire"], sltp=payload["kind"] == "STOP")
+            self.broker.submit(payload["wire"], sltp=payload["kind"] == "STOP",
+                               kind=payload["kind"], trade_id=payload["entry_key"])
         except FinamOrderRejected:
             self.store.transition_intent(key, "REJECTED")
             if payload["kind"] != "ENTRY":
@@ -153,6 +251,8 @@ class OfflineH1Executor:
             self.store.transition_intent(key, "UNCERTAIN")
 
     def submit_entry(self, signal, entry, *, price_step, account_authority=None):
+        if self.money_required and account_authority is None:
+            raise ExecutionBlocked("ACCOUNT_MONEY_AUTHORITY_REQUIRED")
         if entry.symbol not in N4:
             raise V20StateBoundaryError("UNKNOWN_V20_SYMBOL")
         binding = _load_registry()[entry.symbol]
@@ -179,7 +279,11 @@ class OfflineH1Executor:
                    price_step=str(price_step), entry_at=entry.entry_bar_open.isoformat())
         existing = self.store.get("execution_entries", {})
         if key in existing:
-            self.journal.record_reference(signal, entry)
+            # A money cap may have reduced the original reference quantity.
+            if entry.quantity < existing[key]["quantity"]:
+                self._halt("CONFLICTING_ENTRY_REPLAY")
+            row["quantity"] = existing[key]["quantity"]
+            self.journal.record_reference(signal, replace(entry, quantity=row["quantity"]))
             if existing[key] != row:
                 self._halt("CONFLICTING_ENTRY_REPLAY")
             self.recover()
@@ -191,9 +295,8 @@ class OfflineH1Executor:
                (self.store.get("remaining:" + k, 0) or self.store.intent(k)["status"] in
                 {"INTENT_PERSISTED", "SUBMITTED", "UNCERTAIN", "ACK", "PARTIAL_FILL"})
                for k, x in existing.items()):
-            self._halt("ONE_OPEN_POSITION_PER_SYMBOL")
-        # Optional explicit offline money-authority path. Legacy FakeBroker-only
-        # tests without risk records remain untouched; real transport is disabled.
+            raise ExecutionBlocked("ONE_OPEN_POSITION_PER_SYMBOL")
+        # Required in autonomous mode; optional only for older fake-only tests.
         saved_risk = self.store.get("risk_reservations", {})
         reservation = None
         if account_authority is None:
@@ -204,6 +307,11 @@ class OfflineH1Executor:
                 self._halt("ACCOUNT_MONEY_AUTHORITY_MISMATCH")
             if account_authority.price_step != Decimal(str(price_step)):
                 self._halt("ACCOUNT_MONEY_PRICE_STEP_MISMATCH")
+            if account_authority.tick_value != Decimal(binding["tick_value"]):
+                self._halt("ACCOUNT_MONEY_TICK_VALUE_MISMATCH")
+            if self.money_required:
+                if account_authority != self.broker.authority(entry.symbol, entry.direction):
+                    raise ExecutionBlocked("STALE_OR_UNVERIFIED_ACCOUNT_SNAPSHOT")
             # Do not silently exclude positions entered by the older fake-only
             # path from the account-wide R6/margin budget.
             for old_key in existing:
@@ -220,7 +328,7 @@ class OfflineH1Executor:
                     planned_max_quantity=entry.quantity,
                     current_reservations=[RiskReservation.restore(x) for x in saved_risk.values()])
             except RiskBlocked as exc:
-                self._halt("ACCOUNT_RISK_" + str(exc))
+                raise ExecutionBlocked("ACCOUNT_RISK_" + str(exc)) from exc
             if reservation.initial_stop != entry.initial_stop:
                 self._halt("ACCOUNT_RISK_FROZEN_STOP_MISMATCH")
             row["quantity"] = reservation.quantity
@@ -233,6 +341,11 @@ class OfflineH1Executor:
             if reservation is not None:
                 saved_risk[key] = reservation.record()
                 self.store.put("risk_reservations", saved_risk)
+                authorities = self.store.get("risk_authorities", {})
+                authorities[key] = dict(account_authority.record(),
+                    available_cash_semantics=AVAILABLE_CASH_SEMANTICS,
+                    mode="OFFLINE_FAKE_ONLY")
+                self.store.put("risk_authorities", authorities)
             # Intent, session quota and account risk reservation commit together.
             payload = dict(kind="ENTRY", entry_key=key,
                            wire=self._market(self._action(row, "ENTRY", key)))
@@ -241,7 +354,7 @@ class OfflineH1Executor:
         # marks it SUBMITTED before leaving SQLite. A restart never repeats it.
         self.store.transition_intent(key, "SUBMITTED")
         try:
-            self.broker.submit(payload["wire"])
+            self.broker.submit(payload["wire"], kind="ENTRY", trade_id=key)
         except FinamOrderRejected:
             self.store.transition_intent(key, "REJECTED")
         except Exception:
@@ -392,10 +505,32 @@ class OfflineH1Executor:
                         Decimal(str(v["reserved_risk"]))
                         for k, v in self.store.get("risk_reservations", {}).items() if k != key
                     )
-                    assessment = revalue_fill(reservation, actual_fills, other_reserved_risk=other)
+                    assessment = revalue_fill(reservation, actual_fills, other_reserved_risk=other,
+                                               installed_stop=installed_stop)
                 except (RiskBlocked, ValueError, KeyError) as exc:
-                    self._halt("ACTUAL_FILL_MONEY_AUTHORITY_INVALID:" + str(exc))
+                    # Positions/fills and active stop were already reconciled.
+                    # Missing money evidence forbids entries, not risk reduction.
+                    reason = "ACTUAL_FILL_MONEY_AUTHORITY_INVALID:" + str(exc)
+                    self.store.put("execution_halt", reason)
+                    self.store.put("actual_fill_risk:"+key,
+                                   dict(status="HALT_NEW_ENTRIES", reason=reason))
+                    continue
                 self.store.put("actual_fill_risk:" + key, assessment)
+                total_filled = sum(q for q, _, _ in actual_fills)
+                entry_view = unique_order_by_client_id(orders, compact_client_order_id(key))
+                pending = max(0, reservation.quantity - total_filled) if entry_view.active else 0
+                planned_unit_risk = (abs(reservation.planned_entry - reservation.initial_stop)
+                                     / reservation.price_step * reservation.tick_value
+                                     + reservation.cost_per_contract)
+                committed_risk = Decimal(assessment["actual_risk"])*qty/total_filled + pending*planned_unit_risk
+                records = self.store.get("risk_reservations", {})
+                known_entry_fees = sum(Decimal(fee) for _, _, fee in actual_fills)
+                outstanding_cost = max(Decimal(0), reservation.cost_per_contract*(qty + pending)
+                                        - known_entry_fees*qty/total_filled)
+                records[key] = replace(reservation, reserved_risk=committed_risk,
+                                       reserved_margin=(qty + pending)*reservation.initial_margin,
+                                       reserved_cost=outstanding_cost).record()
+                self.store.put("risk_reservations", records)
                 if assessment["status"] != "PASS":
                     self.store.put("execution_halt", assessment["reason"])
                 if installed_stop != Decimal(assessment["projected_stop"]):
@@ -406,6 +541,23 @@ class OfflineH1Executor:
                 self.store.put("execution_halt", "ACTUAL_FILL_RISK_REQUIRES_V20_04_4")
         if uncertain:
             self._halt("UNCERTAIN_POST_NO_RETRANSMIT")
+        if self.money_required:
+            if self.broker.financials is None:
+                self.store.put("execution_halt", "ACCOUNT_FINANCIAL_SOURCE_UNAVAILABLE")
+            else:
+                try:
+                    financial = self.broker.financial_snapshot()
+                    total_risk = sum((RiskReservation.restore(v).reserved_risk for v in
+                                      self.store.get("risk_reservations", {}).values()), Decimal(0))
+                    if total_risk > Decimal(financial["realized_equity"])*Decimal("0.06"):
+                        self.store.put("execution_halt", "ACCOUNT_INITIAL_RISK_EXCEEDS_R6")
+                    elif not any(quantities.values()) and self.store.get("execution_halt") in {
+                            "ACTUAL_FILL_STOP_UPDATE_UNCONFIRMED", "ACTUAL_FILL_EXCEEDS_R15",
+                            "ACCOUNT_INITIAL_RISK_EXCEEDS_R6", "ACCOUNT_FINANCIAL_SOURCE_UNAVAILABLE",
+                            "M15_PATH_CENSORED_RECONCILE_REQUIRED"}:
+                        self.store.put("execution_halt", None)
+                except (RiskBlocked, ValueError, ArithmeticError, KeyError):
+                    self.store.put("execution_halt", "ACCOUNT_FINANCIAL_SOURCE_UNAVAILABLE")
         return {"mode": "OFFLINE_FAKE_ONLY", "reconciliation": "RECONCILED",
                 "positions": positions, "halt": self.store.get("execution_halt")}
 

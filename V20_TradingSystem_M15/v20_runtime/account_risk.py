@@ -13,6 +13,7 @@ from fractions import Fraction
 from TradingSystemLab.stage8_robot.execution_grid import project_stop, require_on_grid
 from TradingSystemLab.stage8_robot.margin import cap_r15_by_margin, floor_to_trade_lot
 from TradingSystemLab.stage8_robot.risk import ContractEconomics, size_position
+from TradingSystemLab.stage8_robot.broker import compact_client_order_id
 
 RISK_PER_TRADE = Decimal("0.015")  # existing frozen H1 R15
 MAX_ACCOUNT_RISK = Decimal("0.06")  # existing V20 roadmap
@@ -52,6 +53,12 @@ class AccountAuthority:
     initial_margin: Decimal
     trade_lot_size: int
     roundtrip_cost_per_contract: Decimal
+    snapshot_revision: int | None = None
+    margin_reflected_client_ids: tuple[str, ...] = ()
+
+    def record(self):
+        return {name: str(getattr(self, name)) if isinstance(getattr(self, name), Decimal)
+                else getattr(self, name) for name in self.__dataclass_fields__}
 
     def __post_init__(self):
         if not isinstance(self.account_id, str) or not self.account_id.strip():
@@ -62,6 +69,14 @@ class AccountAuthority:
             object.__setattr__(self, name, _nonnegative(getattr(self, name), name.upper()))
         if type(self.trade_lot_size) is not int or self.trade_lot_size <= 0:
             raise RiskBlocked("TRADE_LOT_SIZE_INVALID")
+        if self.snapshot_revision is not None and (type(self.snapshot_revision) is not int or self.snapshot_revision < 0):
+            raise RiskBlocked("SNAPSHOT_REVISION_INVALID")
+        ids = self.margin_reflected_client_ids
+        if (not isinstance(ids, tuple) or len(set(ids)) != len(ids)
+                or any(not isinstance(x, str) or not x for x in ids)):
+            raise RiskBlocked("MARGIN_REFLECTION_EVIDENCE_INVALID")
+        if ids and self.snapshot_revision is None:
+            raise RiskBlocked("MARGIN_REFLECTION_WITHOUT_SNAPSHOT")
 
 
 @dataclass(frozen=True)
@@ -81,6 +96,18 @@ class RiskReservation:
     reserved_risk: Decimal
     reserved_margin: Decimal
     realized_equity: Decimal
+    reserved_cost: Decimal = Decimal("0")
+
+    def __post_init__(self):
+        if (any(not isinstance(v, str) or not v for v in (self.account_id, self.entry_key, self.symbol))
+                or self.direction not in {"LONG", "SHORT"}
+                or type(self.quantity) is not int or self.quantity <= 0):
+            raise RiskBlocked("RESERVATION_IDENTITY_INVALID")
+        for name in ("planned_entry", "initial_stop", "atr14", "price_step", "tick_value",
+                     "initial_margin", "reserved_risk", "reserved_margin", "realized_equity"):
+            object.__setattr__(self, name, _positive(getattr(self, name), name.upper()))
+        object.__setattr__(self, "cost_per_contract", _nonnegative(self.cost_per_contract, "COST"))
+        object.__setattr__(self, "reserved_cost", _nonnegative(self.reserved_cost, "RESERVED_COST"))
 
     def record(self) -> dict:
         return {name: str(getattr(self, name)) if isinstance(getattr(self, name), Decimal)
@@ -88,11 +115,16 @@ class RiskReservation:
 
     @classmethod
     def restore(cls, raw: dict):
+        # Earlier published fake-only journals predate the cash cost reserve.
+        raw = dict(raw) if isinstance(raw, dict) else raw
+        if isinstance(raw, dict) and "reserved_cost" not in raw:
+            raw["reserved_cost"] = str(_nonnegative(raw.get("cost_per_contract"), "COST")
+                                       * _positive(raw.get("quantity"), "QUANTITY"))
         if not isinstance(raw, dict) or set(raw) != set(cls.__dataclass_fields__):
             raise RiskBlocked("RESERVATION_SCHEMA_INVALID")
         decs = {"planned_entry", "initial_stop", "atr14", "price_step", "tick_value",
                 "initial_margin", "cost_per_contract", "reserved_risk", "reserved_margin",
-                "realized_equity"}
+                "realized_equity", "reserved_cost"}
         try:
             return cls(**{k: Decimal(str(v)) if k in decs else v for k, v in raw.items()})
         except (ValueError, ArithmeticError, TypeError) as exc:
@@ -113,7 +145,9 @@ def _committed(authority, reservations, key):
                 or old.reserved_risk <= 0 or not old.reserved_margin.is_finite()
                 or old.reserved_margin <= 0):
             raise RiskBlocked("RESERVATION_CORRUPT")
-        used_cash += old.reserved_margin
+        if compact_client_order_id(old.entry_key) not in authority.margin_reflected_client_ids:
+            used_cash += old.reserved_margin
+        used_cash += old.reserved_cost  # only unpaid costs, not broker-accounted fees
         used_risk += old.reserved_risk
     return used_cash, used_risk
 
@@ -157,7 +191,10 @@ def reserve_entry(*, authority: AccountAuthority, entry_key: str, symbol: str,
     lot = authority.trade_lot_size
     permitted = floor_to_trade_lot(
         int((per_entry_limit / per_contract).to_integral_value(rounding=ROUND_FLOOR)), lot)
-    risk_limited = min(permitted, h1.quantity, planned_max_quantity)
+    risk_limited = floor_to_trade_lot(min(permitted, h1.quantity, planned_max_quantity), lot)
+    cash_qty = floor_to_trade_lot(int((cash_left / (authority.initial_margin + cost))
+                                      .to_integral_value(rounding=ROUND_FLOOR)), lot)
+    risk_limited = min(risk_limited, cash_qty)
     try:
         margin = cap_r15_by_margin(realized_equity=authority.realized_equity,
             entry=price, stop=stop, price_step=authority.price_step,
@@ -171,15 +208,16 @@ def reserve_entry(*, authority: AccountAuthority, entry_key: str, symbol: str,
         raise RiskBlocked("INSUFFICIENT_RISK_OR_MARGIN_FOR_ONE_LOT")
     risk, hold = per_contract * qty, authority.initial_margin * qty
     if (risk > per_entry_limit or risk_committed + risk > MAX_ACCOUNT_RISK * authority.realized_equity
-            or cash_committed + hold > authority.available_cash):
+            or cash_committed + hold + cost*qty > authority.available_cash):
         raise RiskBlocked("RISK_OR_MARGIN_CAP_EXCEEDED")
     return RiskReservation(authority.account_id, entry_key, symbol, direction,
                            qty, price, stop, atr, authority.price_step, authority.tick_value,
                            authority.initial_margin, cost, risk, hold,
-                           authority.realized_equity)
+                           authority.realized_equity, cost*qty)
 
 
-def revalue_fill(reservation: RiskReservation, fills, *, other_reserved_risk=Decimal("0")) -> dict:
+def revalue_fill(reservation: RiskReservation, fills, *, other_reserved_risk=Decimal("0"),
+                 installed_stop=None) -> dict:
     """Reconcile actual VWAP, stop and exposure without modifying an active SLTP.
 
     Caller must separately confirm 100% SLTP and any required stop amendment.
@@ -206,9 +244,12 @@ def revalue_fill(reservation: RiskReservation, fills, *, other_reserved_risk=Dec
     side = 1 if reservation.direction == "LONG" else -1
     stop = project_stop(reservation.direction, average - side * 2 * Fraction(reservation.atr14),
                         reservation.price_step)
-    raw_ticks = abs(average - Fraction(stop)) / Fraction(reservation.price_step)
+    actual_stop = stop if installed_stop is None else _positive(installed_stop, "INSTALLED_STOP")
+    require_on_grid(actual_stop, reservation.price_step)
+    raw_ticks = abs(average - Fraction(actual_stop)) / Fraction(reservation.price_step)
     loss = Decimal(raw_ticks.numerator) / Decimal(raw_ticks.denominator) * reservation.tick_value
-    risk = (loss + reservation.cost_per_contract) * quantity + fees
+    # Known fees replace the already budgeted cost component, never add it twice.
+    risk = loss * quantity + max(reservation.cost_per_contract * quantity, fees)
     other = _nonnegative(other_reserved_risk, "OTHER_RISK")
     per_trade_cap = RISK_PER_TRADE * reservation.realized_equity
     account_cap = MAX_ACCOUNT_RISK * reservation.realized_equity
@@ -220,5 +261,6 @@ def revalue_fill(reservation: RiskReservation, fills, *, other_reserved_risk=Dec
     return dict(status="PASS" if reason is None else "HALT_NEW_ENTRIES",
                 reason=reason, filled_quantity=quantity, average_price=str(average),
                 projected_stop=str(stop), actual_risk=str(risk), entry_risk_cap=str(per_trade_cap),
+                installed_stop=str(actual_stop), stop_conforms=actual_stop == stop,
                 account_risk_cap=str(account_cap), known_fees=str(fees),
                 reserved_margin=str(reservation.initial_margin * quantity))

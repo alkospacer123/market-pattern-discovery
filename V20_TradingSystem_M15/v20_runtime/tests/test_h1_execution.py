@@ -367,3 +367,122 @@ class H1ExecutionTests(TestCase):
                 e.submit_entry(sig, second, price_step=binding["price_step"],
                                account_authority=authority)
             self.assertEqual(self.broker.post_count, 1)
+
+    def strict_executor(self, cash="500000"):
+        if self.broker.financials is None:
+            self.broker.configure_funds(realized_equity="500000", available_cash=cash,
+                margins={s: {"LONG": "10000", "SHORT": "15000"} for s in BINDINGS})
+        return OfflineH1Executor(self.root, "v20-shallow", self.broker.account_id,
+                                 self.broker, require_money_authority=True)
+
+    def strict_submit(self, e, sig=None, entry=None):
+        sig, entry = sig or self.signal, entry or self.entry
+        return e.submit_entry(sig, entry, price_step=BINDINGS[entry.symbol]["price_step"],
+                               account_authority=self.broker.authority(entry.symbol, entry.direction))
+
+    def test_strict_money_required_and_sticky_across_legacy_constructor(self):
+        with self.strict_executor() as e:
+            with self.assertRaisesRegex(ExecutionBlocked, "MONEY_AUTHORITY_REQUIRED"):
+                self.submit(e)
+        with self.executor() as e:
+            with self.assertRaisesRegex(ExecutionBlocked, "MONEY_AUTHORITY_REQUIRED"):
+                self.submit(e)
+        self.assertEqual(self.broker.post_count, 0)
+
+    def test_fresh_broker_snapshot_does_not_double_subtract_go(self):
+        with self.strict_executor() as e:
+            first = self.strict_submit(e)
+            sig, entry = plan("SHALLOW_PULLBACK", "GLDRUBF", at=datetime(2024, 1, 9, 11))
+            evidence = self.broker.authority(entry.symbol, entry.direction)
+            self.assertEqual(evidence.available_cash, Decimal("300000"))
+            second = self.strict_submit(e, sig, entry)
+            self.assertEqual(e.store.get("execution_entries")[second]["quantity"], 20)
+            self.assertEqual(self.broker.financial_snapshot()["available_cash"], "100000")
+            self.assertIn(compact_client_order_id(first), evidence.margin_reflected_client_ids)
+
+    def test_stale_financial_snapshot_blocks_before_post(self):
+        with self.strict_executor() as e:
+            stale = self.broker.authority(self.entry.symbol, self.entry.direction)
+            self.broker.configure_funds(realized_equity="500000", available_cash="0",
+                                       margins=self.broker.financials["margins"])
+            with self.assertRaisesRegex(ExecutionBlocked, "STALE_OR_UNVERIFIED"):
+                e.submit_entry(self.signal, self.entry, price_step="0.001", account_authority=stale)
+            self.assertEqual(self.broker.post_count, 0)
+
+    def test_money_reserve_and_intent_rollback_together(self):
+        with self.strict_executor() as e:
+            with patch.object(e.store, "persist_intent", side_effect=RuntimeError("write failed")):
+                with self.assertRaisesRegex(RuntimeError, "write failed"):
+                    self.strict_submit(e)
+            self.assertEqual(e.store.get("execution_entries", {}), {})
+            self.assertEqual(e.store.get("risk_reservations", {}), {})
+            self.assertEqual(e.store.get("risk_authorities", {}), {})
+            self.assertEqual(e.journal.offline_snapshot(), [])
+            self.assertEqual(self.broker.post_count, 0)
+
+    def test_changed_partial_vwap_keeps_stop_blocks_entries_and_allows_exit(self):
+        with self.strict_executor() as e:
+            key = self.strict_submit(e); self.fill_entry(key, 2); e.recover()
+            original = deepcopy(self.broker.orders[1])
+            before = Decimal(e.store.get("risk_reservations")[key]["reserved_risk"])
+            self.fill_entry(key, 2, "10.010")
+            result = e.recover()
+            self.assertEqual(result["halt"], "ACTUAL_FILL_STOP_UPDATE_UNCONFIRMED")
+            self.assertEqual(original, self.broker.orders[1])
+            self.assertEqual(self.broker.post_count, 2)
+            self.assertGreater(Decimal(e.store.get("risk_reservations")[key]["reserved_risk"]), before)
+            sig, entry = plan("SHALLOW_PULLBACK", "GLDRUBF", at=datetime(2024, 1, 9, 11))
+            with self.assertRaisesRegex(ExecutionBlocked, "STOP_UPDATE_UNCONFIRMED"):
+                self.strict_submit(e, sig, entry)
+            e.request_frozen_exit(key)
+            self.broker.fill(self.broker.orders[-1]["order_id"], key, 4, "10.000", "2024-01-11T09:00:00")
+            e.recover()
+            self.assertEqual(e.store.get("risk_reservations"), {})
+            self.assertEqual(self.broker.orders[1]["status"], "CANCELLED")
+
+    def test_reduced_money_quantity_is_idempotent_after_restart(self):
+        with self.strict_executor(cash="50000") as e:
+            key = self.strict_submit(e)
+            self.assertEqual(e.store.get("execution_entries")[key]["quantity"], 4)
+        with self.strict_executor() as e:
+            self.assertEqual(self.strict_submit(e), key)
+            self.assertEqual(self.broker.post_count, 1)
+
+    def test_current_account_equity_r6_blocks_new_entries_keeps_stops(self):
+        with self.strict_executor() as e:
+            key = self.strict_submit(e); self.fill_entry(key, 20); e.recover()
+            self.broker.configure_funds(realized_equity="5000", available_cash="500000",
+                                       margins=self.broker.financials["margins"])
+            result = e.recover()
+            self.assertEqual(result["halt"], "ACCOUNT_INITIAL_RISK_EXCEEDS_R6")
+            self.assertEqual(self.broker.orders[1]["status"], "NEW")
+            sig, entry = plan("SHALLOW_PULLBACK", "GLDRUBF", at=datetime(2024, 1, 9, 11))
+            with self.assertRaisesRegex(ExecutionBlocked, "ACCOUNT_INITIAL_RISK_EXCEEDS_R6"):
+                self.strict_submit(e, sig, entry)
+            e.request_frozen_exit(key)
+            self.assertEqual(self.broker.orders[1]["status"], "NEW")
+
+    def test_go_and_cost_reserve_fit_cash_and_paid_fee_is_not_reserved_twice(self):
+        with self.strict_executor(cash="200000") as e:
+            key = self.strict_submit(e)
+            qty = e.store.get("execution_entries")[key]["quantity"]
+            self.assertEqual(qty, 19)
+            self.broker.fill(self.broker.orders[0]["order_id"], key, qty, "10",
+                             "2024-01-09T10:15:00", fee=str(qty))
+            e.recover()
+            reserve = e.store.get("risk_reservations")[key]
+            self.assertEqual(Decimal(reserve["reserved_cost"]), Decimal(qty))
+            self.assertEqual(Decimal(self.broker.financial_snapshot()["available_cash"]), Decimal("9981"))
+            self.assertEqual(Decimal(e.store.get("actual_fill_risk:"+key)["actual_risk"]), Decimal("532"))
+
+    def test_unknown_fee_keeps_protection_and_does_not_disable_safe_exit(self):
+        with self.strict_executor() as e:
+            key = self.strict_submit(e)
+            self.broker.fill(self.broker.orders[0]["order_id"], key, 1, "10",
+                             "2024-01-09T10:15:00", fee="UNKNOWN")
+            result = e.recover()
+            self.assertIsNotNone(result["halt"])
+            self.assertEqual(self.broker.orders[1]["status"], "NEW")
+            e.request_frozen_exit(key)
+            self.assertEqual(self.broker.orders[-1]["fake_kind"], "EXIT")
+            self.assertEqual(self.broker.orders[1]["status"], "NEW")
