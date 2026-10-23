@@ -127,11 +127,9 @@ class H1ExecutionTests(TestCase):
         with self.executor() as e:
             key = self.submit(e); self.fill_entry(key, 1)
             self.broker.next_fault = "timeout_before_accept"
-            with self.assertRaisesRegex(ExecutionBlocked, "PROTECTION_UNCONFIRMED"):
-                e.recover()
+            self.assertEqual(e.recover()["halt"], "PROTECTION_UNCONFIRMED_NO_RETRANSMIT")
         with self.executor() as e:
-            with self.assertRaisesRegex(ExecutionBlocked, "PROTECTION_UNCONFIRMED"):
-                e.recover()
+            self.assertEqual(e.recover()["halt"], "PROTECTION_UNCONFIRMED_NO_RETRANSMIT")
         self.assertEqual(self.broker.post_count, 2)
 
     def test_rejected_entry_is_terminal_without_retry(self):
@@ -293,8 +291,7 @@ class H1ExecutionTests(TestCase):
             with self.assertRaisesRegex(ExecutionBlocked, "PROTECTION_OR_EXIT_REJECTED"):
                 e.recover()
         with self.executor() as e:
-            with self.assertRaisesRegex(ExecutionBlocked, "PROTECTION_UNCONFIRMED"):
-                e.recover()
+            self.assertEqual(e.recover()["halt"], "PROTECTION_UNCONFIRMED_NO_RETRANSMIT")
         self.assertEqual(self.broker.post_count, 2)
 
 

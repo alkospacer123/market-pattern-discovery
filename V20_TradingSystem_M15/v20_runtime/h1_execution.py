@@ -386,7 +386,10 @@ class OfflineH1Executor:
             if view is None:
                 if intent["status"] not in {"REJECTED", "CANCELLED", "CLOSED"}:
                     self.store.transition_intent(key, "UNCERTAIN")
-                    uncertain = True
+                    # A missing protective ACK must prohibit entries without
+                    # disabling a verified position's risk-reducing exit.
+                    # An unknown ENTRY/EXIT still prevents safe quantity proof.
+                    uncertain |= intent["payload"]["kind"] != "STOP"
                 continue
             if (view.request != intent["payload"]["wire"]
                     or view.kind != ("SLTP" if intent["payload"]["kind"] == "STOP" else "REGULAR")):
@@ -490,7 +493,10 @@ class OfflineH1Executor:
                 return self.recover()  # at most one new stop per entry
             stop_view = unique_order_by_client_id(orders, compact_client_order_id(stop_key))
             if stop_view is None or not stop_view.active:
-                self._halt("PROTECTION_UNCONFIRMED_NO_RETRANSMIT")
+                # Positions/fills were reconciled above. Do not blindly retry
+                # protection, but keep the verified quantity available for exit.
+                self.store.put("execution_halt", "PROTECTION_UNCONFIRMED_NO_RETRANSMIT")
+                continue
             installed_stop = Decimal(stop["payload"]["wire"]["sl_price"]["value"])
             risk_record = self.store.get("risk_reservations", {}).get(key)
             if risk_record is not None:

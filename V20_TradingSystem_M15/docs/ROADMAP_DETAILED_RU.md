@@ -18,7 +18,7 @@
 | V20-02 | Воспроизведение эталона 797 + 612 + 180 = **1 589** сделок C1 | **PASS** (локальный replay) |
 | V20-03 | История 2018–2022 на доступных Si/MIX/CNY; frozen-правила | **CLOSED / ACCEPTED WITH LIMITATIONS** (research PARTIAL; PR #565 merged) |
 | **V20-04** | Разработка одного исполнителя на основе H1/M15 и трёх изолированных экземпляров | **IN PROGRESS — OFFLINE ONLY** (Draft PR #567) |
-| **V20-05** | Offline-приёмка нового V20-кода и Windows acceptance | **NOT STARTED** |
+| **V20-05** | Offline-приёмка нового V20-кода и Windows acceptance | **PARTIAL: 05.1–05.4 PASS OFFLINE; 05.5 Windows BLOCKED / NOT RUN** |
 | **V20-06** | FINAM READONLY на трёх счетах V20 | **NOT STARTED — нужны счета/токены** |
 | **V20-07** | Изолированная установка Intel, LIVE отключён | **NOT STARTED** |
 | **V20-08** | Разрешённая пробная сделка каждого робота, затем отдельно разрешённый LIVE-запуск | **NOT STARTED — разрешения обязательны** |
@@ -94,6 +94,8 @@
 ---
 
 ## V20-05 — Offline-приёмка и Windows acceptance
+
+**Факт 23.10.2026:** [отчёт](../V20-05/REPORT_RU.md), [JSON/PID/SHA](../V20-05/ACCEPTANCE_REPORT.json): 64 PASS / 0 FAIL / 0 SKIP; 05.1–05.4 PASS OFFLINE, 05.5 BLOCKED до native Windows. Сценарий Intel подготовлен, полный этап ещё не PASS. Требования и нумерация ниже сохранены.
 
 **Цель:** проверить именно новое V20-сочетание замороженных сигналов и готового исполнителя H1 перед доступом к реальным счетам.
 

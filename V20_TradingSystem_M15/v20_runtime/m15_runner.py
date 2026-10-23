@@ -22,6 +22,9 @@ from IntradayLab.core.execution import at_open, in_bar
 from IntradayLab.core.models import Bar
 from TradingSystemLab.stage8_robot.production_runtime import _load_registry
 from TradingSystemLab.stage8_robot.production_broker_state import order_views
+from TradingSystemLab.stage8_robot.trading_safety_gate import (
+    load_kill_switch, write_kill_switch, emergency_halt,
+)
 
 from .account_risk import RiskBlocked
 from .frozen_adapter import completed_signal, validate_completed_history, known_m15_gap
@@ -82,7 +85,7 @@ class M15OfflineRobot:
         self.executor = OfflineH1Executor(root, robot_id, robot["account_id"], broker,
                                           require_money_authority=True)
         self.broker, self.store = broker, self.executor.store
-        self.robot_id, self.strategy = robot_id, robot["strategy"]
+        self.robot_id, self.strategy, self.instance = robot_id, robot["strategy"], instance
         self.bindings = _load_registry()
         try:
             if not book_path.exists() and self.store.all_intents():
@@ -103,6 +106,11 @@ class M15OfflineRobot:
                 broker.configure_funds(realized_equity=model["realized_equity"],
                     available_cash=model["available_cash"],
                     margins={s: model["initial_margin"] for s in N4})
+                # Explicit FakeBroker fixture only; never a LIVE authorization.
+                # A missing/corrupt switch in existing state is never re-armed.
+                switch, switch_error = load_kill_switch(instance)
+                if switch_error == "KILL_SWITCH_MISSING":
+                    write_kill_switch(instance, "ARMED", allow_arm=True)
             self.executor.recover()
             interrupted = self.store.get("in_progress")
             self._status("RECOVERED_WITH_SKIPPED_DECISION" if interrupted else "RECOVERED", None)
@@ -126,12 +134,14 @@ class M15OfflineRobot:
     def _status(self, reason, at, **details):
         if reason in {"ENTRY_REFUSED", "EVENT_BLOCKED"}:
             self.store.put("last_refusal", dict(at=at, reason=reason, **details))
+        switch, switch_error = load_kill_switch(self.instance)
         record = dict(mode="OFFLINE_FAKE_ONLY", robot_id=self.robot_id,
                       account_hash=self.executor.journal.account_hash, pid=os.getpid(),
                       observed_at=at, last_clock=self.store.get("last_clock"),
                       reason=reason, halt=self.store.get("execution_halt"),
                       last_refusal=self.store.get("last_refusal"),
-                      symbols=sorted(N4), live_enabled=False, **details)
+                      symbols=sorted(N4), live_enabled=False,
+                      kill_switch=switch["state"] if switch else switch_error, **details)
         with (self.logs/"m15.jsonl").open("a", encoding="utf-8") as f:
             f.write(json.dumps(record, sort_keys=True)+"\n")
         atomic_json(self.status_path, record)
@@ -169,7 +179,19 @@ class M15OfflineRobot:
             stop = next((x for x in self.broker.orders if x.get("sltp_order", {}).get("comment") == key+":stop"
                          and x["status"] in {"NEW", "PARTIAL_FILL"}), None)
             if stop is None:
-                raise ExecutionBlocked("PROTECTION_UNCONFIRMED_NO_RETRANSMIT")
+                entered = OfflinePlanner._session_key(datetime.fromisoformat(entry["entry_at"]))
+                days = {datetime.fromisoformat(d).date() for d in self.store.get("sessions:"+symbol, [])}
+                if witnessed_open is not None and len([d for d in days if d >= entered]) >= 3:
+                    self.executor.request_frozen_exit(key)
+                    exit_order = next(x for x in self.broker.orders
+                                      if x.get("fake_trade_id") == key and x.get("fake_kind") == "EXIT")
+                    self._fill(exit_order, key, self.store.get("remaining:"+key), witnessed_open, at)
+                    self._status("THIRD_OBSERVED_SESSION_EXIT", at.isoformat(), symbol=symbol)
+                    continue
+                # Do not invent a stop execution path or prevent management of
+                # other verified positions in this account's boundary batch.
+                self.store.put("execution_halt", "PROTECTION_UNCONFIRMED_NO_RETRANSMIT")
+                continue
             stop_price = Decimal(stop["sltp_order"]["sl_price"]["value"])
             side = 1 if entry["direction"] == "LONG" else -1
             entry_at = datetime.fromisoformat(entry["entry_at"])
@@ -265,6 +287,9 @@ class M15OfflineRobot:
                 try:
                     if opened is None or stamp+STEP != at:
                         raise ExecutionBlocked("MISSING_IMMEDIATE_NEXT_OPEN")
+                    switch, error = load_kill_switch(self.instance)
+                    if error or switch["state"] != "ARMED":
+                        raise ExecutionBlocked(error or "KILL_SWITCH_HALTED")
                     signal = completed_signal(symbol, self.strategy, frame, observed_at=at)
                     if signal is None:
                         self._status("NO_FROZEN_SIGNAL", at.isoformat(), symbol=symbol)
@@ -294,14 +319,50 @@ class M15OfflineRobot:
             return self._status("EVENT_BLOCKED", event.get("at"), detail=str(exc))
 
 
+def offline_diagnostic(root, robot_id, *, halt=False, config_path=CONFIG):
+    """Local status/entry halt also works while the instance lock is held.
+
+    No executor, SQLite writer or broker is constructed by operator commands.
+    H1's atomic kill switch is confined to this V20 robot directory.
+    """
+    _, robot = robot_config(config_path, robot_id)
+    root = _require_v20_root(Path(root))
+    checkout = CONFIG.resolve().parents[2]
+    if root == checkout or checkout in root.parents:
+        raise ExecutionBlocked("RUNTIME_MUST_BE_OUTSIDE_CHECKOUT")
+    instance = root/robot_id.removeprefix("v20-")
+    for path in (instance, instance/"safety", instance/"safety/stage8-trading-kill-switch.json",
+                 instance/"status.json"):
+        if path.is_symlink():
+            raise ExecutionBlocked("DIAGNOSTIC_SYMLINK_FORBIDDEN")
+    path = instance/"status.json"
+    saved = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    if saved and (saved.get("robot_id") != robot_id or saved.get("account_hash") !=
+                  hashlib.sha256(robot["account_id"].encode()).hexdigest()):
+        raise ExecutionBlocked("DIAGNOSTIC_IDENTITY_MISMATCH")
+    if halt:
+        emergency_halt(instance)
+    switch, error = load_kill_switch(instance)
+    return dict(saved, robot_id=robot_id, mode="OFFLINE_FAKE_ONLY", live_enabled=False,
+                kill_switch=switch["state"] if switch else error,
+                diagnostic="LOCAL_SNAPSHOT_NOT_LIVENESS_PROOF")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--robot", choices=tuple(ROBOT_STRATEGIES), required=True)
     parser.add_argument("--root", type=Path, required=True)
-    parser.add_argument("--events", required=True, help="external JSONL path or - for stdin")
+    command = parser.add_mutually_exclusive_group(required=True)
+    command.add_argument("--events", help="external JSONL path or - for stdin")
+    command.add_argument("--status", action="store_true", help="local fake-only diagnostic")
+    command.add_argument("--halt-entries", action="store_true", help="H1 kill switch in this V20 instance only")
     parser.add_argument("--config", type=Path, default=CONFIG)
     parser.add_argument("--offline", action="store_true", required=True)
     args = parser.parse_args()
+    if args.status or args.halt_entries:
+        print(json.dumps(offline_diagnostic(args.root, args.robot, halt=args.halt_entries,
+                                           config_path=args.config), sort_keys=True))
+        return 0
     failed = False
     with M15OfflineRobot(args.root, args.robot, config_path=args.config) as robot:
         stream = sys.stdin if args.events == "-" else Path(args.events).open()
