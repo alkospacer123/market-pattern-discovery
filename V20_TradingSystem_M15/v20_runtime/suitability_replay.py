@@ -41,15 +41,15 @@ def masks(frames,method,tracks,modern):
     return result,removed
 
 
-def run_replays(archive,market,work,tracks,evidence):
+def run_replays(archive,market,work,tracks,evidence,*,methods=METHODS,cache_tag=''):
     assert ROOT not in work.resolve().parents and work.resolve()!=ROOT
     _,_,published,input_hashes=load_sources()
     signature=hashlib.sha256(json.dumps(dict(inputs=input_hashes,
         code={str(p):digest(p) for p in (ROOT/'V20-02_AUDIT/replay_independent.py',ROOT/'V20-03/offline/stress_v20_03.py')},
         quotes={s:digest(market/s/(s+'_M15.csv')) for s in SOURCE_SHA256},zip=digest(archive),
         masks=[(m,r['strategy'],r['instrument'],str(r['decision']),tracks[r['strategy'],r['instrument'],m].at(r['decision']))
-               for m in METHODS for r in published]),sort_keys=True).encode()).hexdigest()
-    cache=work/'conditional_replay.json';metadata=work/'conditional_replay_receipt.json'
+               for m in methods for r in published]),sort_keys=True).encode()).hexdigest()
+    cache=work/(cache_tag+'conditional_replay.json');metadata=work/(cache_tag+'conditional_replay_receipt.json')
     if cache.exists() and metadata.exists():
         saved=json.loads(metadata.read_text())
         code_unchanged=all(digest(ROOT/name)==want for name,want in saved['receipt']['source_hashes'].items()
@@ -112,7 +112,7 @@ def run_replays(archive,market,work,tracks,evidence):
                         actual.add((mode,instrument,t.to_pydatetime()))
     assert actual==wanted,('FROZEN_SIGNAL_ADAPTER',len(actual),len(wanted),list(actual^wanted)[:3])
     receipt['frozen_raw_catalog_parity']=dict(status='PASS',signals=len(actual))
-    for method in METHODS[1:]:
+    for method in methods[1:]:
         rows=[];status={}
         for modern,ds in ((False,old),(True,frames)):
             masked,removed=masks(ds,method,tracks,modern)
