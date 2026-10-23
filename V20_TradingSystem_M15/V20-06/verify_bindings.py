@@ -101,6 +101,8 @@ def _connect() -> int:
         try:
             api = ReadonlyFillAPI(token, account_id)
             api.connect_readonly()
+            if not isinstance(api.read_account(), dict):
+                raise RuntimeError('FINAM_ACCOUNT_READ_SCHEMA_INVALID')
         except Exception:
             # Do not print errors with URL, account ID or token-derived values.
             raise RuntimeError("FINAM_READONLY_BINDING_FAILED_FOR_" + robot) from None
