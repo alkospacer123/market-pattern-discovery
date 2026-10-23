@@ -1,7 +1,7 @@
 {
   "schema": "v20.windows.raw_pinned_manifest.v1",
   "repository": "alkospacer123/market-pattern-discovery",
-  "source_commit": "4fdf17bacfa12a4e84eaa0b6f0b9d2cfe412ec12",
+  "source_commit": "52e8be3bb11eb5e968abab502acfebaa200b2b62",
   "main_commit": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
   "mode": "OFFLINE_FAKE_ONLY",
   "files": [
@@ -597,7 +597,7 @@
     },
     {
       "path": "V20_TradingSystem_M15/v20_runtime/tests/test_system_acceptance.py",
-      "sha": "9653ff53266d20cb8a4e47bceae153db28b7419c",
+      "sha": "13d5193da4c738f6cccba0aa44858b8aeb0f89bb",
       "size": 12192
     },
     {
