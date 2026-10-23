@@ -159,6 +159,9 @@ def _self_test(mod):
 
 def _money(account):
     from TradingSystemLab.stage8_robot.margin import portfolio_authority, parse_rest_decimal_value_object
+    from TradingSystemLab.stage8_robot.funding_margin_diagnostic import ACTIVE_ACCOUNT_STATUSES
+    if account.get("status") not in ACTIVE_ACCOUNT_STATUSES:
+        raise ValueError("V20_06_3_ACCOUNT_NOT_ACTIVE")
     portfolio = portfolio_authority(account)
     equity = parse_rest_decimal_value_object(account.get("equity"))
     unrealized = parse_rest_decimal_value_object(account.get("unrealized_profit"))
@@ -210,7 +213,9 @@ def _observe(api, robot, account, specs):
     try:
         portfolio, equity, unrealized, realized = _money(account_data)
         money = {"status": "PASS", "equity_rub": str(equity),
-                 "unrealized_rub": str(unrealized), "realized_equity_rub": str(realized),
+                 "unrealized_rub": str(unrealized),
+                 "broker_derived_realized_equity_reference_rub": str(realized),
+                 "not_live_ledger_authority": True,
                  "available_cash_rub": str(portfolio.available_cash),
                  "portfolio_variant": portfolio.variant,
                  "risk_budget_r15_rub": str(realized * Decimal("0.015")),
@@ -247,12 +252,10 @@ def _observe(api, robot, account, specs):
             "entry_block_reason": "06_3_READONLY_ONLY_NO_LIVE"}
 
 
-def _run():
+def _run(mod):
     if REPORT.exists():
         raise RuntimeError("V20_06_3_REPORT_EXISTS_NO_OVERWRITE")
-    mod = _load_v20_06_2()
     api_type, _ = _api_type(mod)
-    _self_test(mod)
     receipts, specs = _verified_reports(mod)
     accounts = {}
     for robot in ROBOTS:
@@ -305,7 +308,7 @@ def main():
         _self_test(mod)
         if args.self_test:
             return 0
-        return _run()
+        return _run(mod)
     except Exception as exc:
         # Never expose private FINAM account IDs, URLs, tokens or raw responses.
         value = str(exc)
