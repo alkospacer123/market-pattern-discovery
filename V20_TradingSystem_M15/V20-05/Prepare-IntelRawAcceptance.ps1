@@ -126,7 +126,7 @@ if (-not (Test-Path -LiteralPath $python -PathType Leaf)) {
         checked -executable $pyLauncher.Source -argumentlist @('-m','venv',$venv)
     }
 }
-$pyVersion = & $python -c 'import sys;print("{}.{}".format(*sys.version_info[:2]))'
+$pyVersion = & $python -c 'import sys;print(sys.version_info.major,sys.version_info.minor,sep=chr(46))'
 if ($LASTEXITCODE -ne 0 -or $pyVersion.Trim() -ne '3.12') {
     throw "PYTHON_3_12_REQUIRED: $pyVersion"
 }
