@@ -163,7 +163,8 @@ def test_minimal_streamlit_starts_without_read_or_trading_controls(monkeypatch):
     assert "Позиции · локально" not in visible
     assert "Стопы · локально" not in visible
     assert "Цикл" not in visible
-    assert sum("Heartbeat:" in x.value and "UNKNOWN" in x.value for x in app.tabs[0].markdown) == 3
+    assert sum("Heartbeat:" in x.value and "НЕТ ДАННЫХ" in x.value for x in app.tabs[0].markdown) == 3
+    assert all("UNHEALTHY" not in x.value for x in app.tabs[0].markdown)
     assert any("Последняя проверка: —" in x.value for x in app.caption)
     assert not app.get("plotly_chart")
     assert not app.dataframe
@@ -216,7 +217,12 @@ def test_main_shows_only_current_operational_health_without_trade_metrics():
     assert "Kill switch" in visible and "ARMED" in visible
     assert "Последняя ошибка: нет" in visible
     assert "Heartbeat:" in visible
-    assert "HEALTHY" in visible and "STALE" in visible and "UNKNOWN" in visible
+    heartbeat_lines = [x.value for x in app.tabs[0].markdown if "Heartbeat:" in x.value]
+    assert len(heartbeat_lines) == 3
+    assert any("🟢 HEALTHY" in x for x in heartbeat_lines)
+    assert any("🔴 UNHEALTHY" in x for x in heartbeat_lines)
+    assert any("⚪ НЕТ ДАННЫХ" in x for x in heartbeat_lines)
+    assert all("STALE" not in x and "UNKNOWN" not in x for x in heartbeat_lines)
     assert "Текущее состояние Task/защиты и ошибок не подтверждено" in visible
     assert "Состояние Windows Task и ошибок не подтверждено" in visible
     assert "Позиции · локально" not in visible

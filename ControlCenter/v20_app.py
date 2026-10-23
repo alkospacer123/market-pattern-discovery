@@ -54,8 +54,8 @@ def overview(snapshots, now):
                 pulse = heartbeat_health(report, now)
                 st.markdown("**Heartbeat:** " + {
                     "HEALTHY": "🟢 HEALTHY",
-                    "STALE": "🟠 STALE",
-                    "UNKNOWN": "⚪ UNKNOWN",
+                    "STALE": "🔴 UNHEALTHY",
+                    "UNKNOWN": "⚪ НЕТ ДАННЫХ",
                 }[pulse])
                 if current:
                     st.markdown("**Windows Task:** " + report["task_state"] +
@@ -70,6 +70,7 @@ def overview(snapshots, now):
     with st.expander("Об источниках", expanded=False):
         st.caption("Состояния приходят только из отдельных READONLY-отчётов V20. Пока источники не подключены, работоспособность неизвестна.")
         st.caption("HEALTHY означает состояние по локальному отчёту; не подтверждает сделки, брокерские позиции и SLTP FINAM.")
+        st.caption("Heartbeat: HEALTHY — свежий сигнал; UNHEALTHY — сигнал просрочен более чем на 5 минут; НЕТ ДАННЫХ — источник или подтверждённый heartbeat отсутствует.")
         st.caption("Heartbeat HEALTHY означает только свежий сигнал, а не разрешение торговли и не исправность всех компонентов.")
         st.caption("Дата рядом с кнопкой — время последней ручной проверки панелью, не обновления данных самого робота.")
         st.caption("Обновление только вручную; панель не получает торговые токены и не исполняет команды.")
