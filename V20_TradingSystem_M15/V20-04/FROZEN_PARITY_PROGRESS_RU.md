@@ -26,3 +26,17 @@
 ```sh
 python -m unittest discover -s V20_TradingSystem_M15/v20_runtime/tests -v
 ```
+
+## Продолжение 23.10.2026 — проверка на оставшихся трёх N4
+
+В дополнение к шести уже подтверждённым USD-примерам добавлен только адресный тест `v20_runtime/tests/test_frozen_n4_parity.py`. Он сверяет первые опубликованные `RAW_SIGNAL` 2024 года по каждой стратегии и доступному направлению на `CNYRUBF`, `GLDRUBF`, `IMOEXF` с исходным frozen `completed_signal`; сравнивает момент, сторону, ATR14, отсутствие изменений input-DataFrame. Выбор **без отбора по будущему PnL**. Проверяет SHA внешних M15 и исходного RAW CSV, читает OHLCV только до свечи сигнала. Сессионные/dedup/reset проверки уже выполненного USD-теста не повторяются.
+
+**Текущий статус: TEST ADDED / EXECUTION NOT VERIFIED, V20-04.2 по-прежнему PARTIAL.** В данном GitHub-сеансе нет внешних SHA-pinned котировок `/workspace/market-pattern-data/forever/`; без них тест сообщает **SKIP, не PASS**. Нельзя утверждать parity других трёх символов до фактического прогона в исходной исследовательской среде. Даже его PASS подтверждает только адресные сигналы, не полную 1 589-trade parity и не feed/session/recovery acceptance.
+
+Команда в среде, где доступны исходные CSV и зависимости:
+
+```sh
+python -m unittest V20_TradingSystem_M15.v20_runtime.tests.test_frozen_n4_parity -v
+```
+
+Затем завершить оставшиеся реальные границы M15/session/roll/feed для всех N4 и только после подтверждения 04.2 перейти к 04.3 H1 execution. Никаких изменений frozen сигналов/риска/N4, H1/M15/FINAM/LIVE.
