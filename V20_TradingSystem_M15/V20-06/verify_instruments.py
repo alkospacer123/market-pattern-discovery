@@ -9,6 +9,7 @@ import argparse
 from datetime import datetime, timedelta, timezone
 import hashlib
 import json
+import logging
 from pathlib import Path
 import sys
 from urllib.parse import parse_qs, urlencode, urlsplit
@@ -38,8 +39,24 @@ def _utc(value: str) -> datetime:
 
 
 def _h1_modules():
-    if not (SOURCE / "TradingSystemLab/stage8_robot/finam_fill_price_readonly.py").is_file():
-        raise RuntimeError("PINNED_H1_SOURCE_MISSING")
+    # Re-verify the exact H1 Git blobs installed by the V20-05.5 pinned-RAW bundle.
+    # A Git blob hash is SHA1("blob <byte_length>\\0" + file_bytes).
+    expected_blobs = {
+        "finam_api.py": "a1126a7d2c618c19b5895f5c54da8e1ad73b339a",
+        "finam_fill_price_readonly.py": "4b6d9b533058f31e70ef9e7a8068ea1fb6b83cc4",
+        "instrument_resolver.py": "a174aee3fb4f5c68f2f00ff39a84527d9cd4642c",
+        "margin.py": "80117ff6ea169305a7c22ee52a12e3e9103c9deb",
+        "protective_stop_contract.py": "51a7ab88d2f64f969088d8ef04927383b7abc1aa",
+    }
+    for name, expected in expected_blobs.items():
+        source_file = SOURCE / "TradingSystemLab/stage8_robot" / name
+        if not source_file.is_file():
+            raise RuntimeError("PINNED_H1_SOURCE_MISSING")
+        raw = source_file.read_bytes()
+        actual = hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\\x00" + raw).hexdigest()
+        if actual != expected:
+            raise RuntimeError("PINNED_H1_SOURCE_BLOB_MISMATCH")
+    logging.getLogger("TradingSystemLab.stage8_robot.finam_api").setLevel(logging.CRITICAL)
     sys.path.insert(0, str(SOURCE))
     from TradingSystemLab.stage8_robot.finam_api import FinamAPI
     from TradingSystemLab.stage8_robot.finam_fill_price_readonly import ReadonlyFillAPI, FillDiagnosticBlocked
