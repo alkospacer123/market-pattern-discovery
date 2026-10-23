@@ -1,0 +1,1616 @@
+{
+  "grid": [
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 923,
+      "off_grid": 923,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 971,
+      "off_grid": 971,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 949,
+      "off_grid": 949,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 989,
+      "off_grid": 989,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 744,
+      "off_grid": 744,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 769,
+      "off_grid": 769,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 1185,
+      "off_grid": 1185,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 1243,
+      "off_grid": 1243,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 686,
+      "off_grid": 686,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 739,
+      "off_grid": 739,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 757,
+      "off_grid": 757,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 802,
+      "off_grid": 802,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 497,
+      "off_grid": 497,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 526,
+      "off_grid": 526,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 879,
+      "off_grid": 879,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 946,
+      "off_grid": 946,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 802,
+      "off_grid": 802,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 852,
+      "off_grid": 852,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 928,
+      "off_grid": 928,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 968,
+      "off_grid": 968,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 504,
+      "off_grid": 504,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 531,
+      "off_grid": 531,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 1023,
+      "off_grid": 1023,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "baseline",
+      "observations": 1083,
+      "off_grid": 1083,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 1302,
+      "off_grid": 1302,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 1352,
+      "off_grid": 1352,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 1004,
+      "off_grid": 1004,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 1044,
+      "off_grid": 1044,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 1467,
+      "off_grid": 1467,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 1517,
+      "off_grid": 1517,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 1229,
+      "off_grid": 1229,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 1273,
+      "off_grid": 1273,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 808,
+      "off_grid": 808,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 860,
+      "off_grid": 860,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 797,
+      "off_grid": 797,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 849,
+      "off_grid": 849,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 913,
+      "off_grid": 913,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 977,
+      "off_grid": 977,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 903,
+      "off_grid": 903,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 954,
+      "off_grid": 954,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 991,
+      "off_grid": 991,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 1042,
+      "off_grid": 1042,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 900,
+      "off_grid": 900,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 944,
+      "off_grid": 944,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 1132,
+      "off_grid": 1132,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 1187,
+      "off_grid": 1187,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 1058,
+      "off_grid": 1058,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "historical_true_oos",
+      "observations": 1105,
+      "off_grid": 1105,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 27,
+      "off_grid": 27,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 28,
+      "off_grid": 28,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 207,
+      "off_grid": 207,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 213,
+      "off_grid": 213,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 16,
+      "off_grid": 16,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 19,
+      "off_grid": 19,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 20,
+      "off_grid": 20,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 22,
+      "off_grid": 22,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 1,
+      "off_grid": 1,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 2,
+      "off_grid": 2,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 158,
+      "off_grid": 158,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 166,
+      "off_grid": 166,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 13,
+      "off_grid": 13,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 16,
+      "off_grid": 16,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 16,
+      "off_grid": 16,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 18,
+      "off_grid": 18,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 17,
+      "off_grid": 17,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 18,
+      "off_grid": 18,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 200,
+      "off_grid": 200,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 206,
+      "off_grid": 206,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 14,
+      "off_grid": 14,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 17,
+      "off_grid": 17,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 17,
+      "off_grid": 17,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF01",
+      "lifecycle": "walk_forward",
+      "observations": 19,
+      "off_grid": 19,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 132,
+      "off_grid": 132,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 136,
+      "off_grid": 136,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 164,
+      "off_grid": 164,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 169,
+      "off_grid": 169,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 89,
+      "off_grid": 89,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 94,
+      "off_grid": 94,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 162,
+      "off_grid": 162,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 167,
+      "off_grid": 167,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 93,
+      "off_grid": 93,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 98,
+      "off_grid": 98,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 111,
+      "off_grid": 111,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 116,
+      "off_grid": 116,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 79,
+      "off_grid": 79,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 85,
+      "off_grid": 85,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 92,
+      "off_grid": 92,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 97,
+      "off_grid": 97,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 125,
+      "off_grid": 125,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 129,
+      "off_grid": 129,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 157,
+      "off_grid": 157,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 162,
+      "off_grid": 162,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 80,
+      "off_grid": 80,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 86,
+      "off_grid": 86,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 133,
+      "off_grid": 133,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF02",
+      "lifecycle": "walk_forward",
+      "observations": 138,
+      "off_grid": 138,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 114,
+      "off_grid": 114,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 119,
+      "off_grid": 119,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 84,
+      "off_grid": 84,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 90,
+      "off_grid": 90,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 63,
+      "off_grid": 63,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 66,
+      "off_grid": 66,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 149,
+      "off_grid": 149,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 153,
+      "off_grid": 153,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 95,
+      "off_grid": 95,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 101,
+      "off_grid": 101,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 82,
+      "off_grid": 82,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 88,
+      "off_grid": 88,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 63,
+      "off_grid": 63,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 66,
+      "off_grid": 66,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 104,
+      "off_grid": 104,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 108,
+      "off_grid": 108,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 114,
+      "off_grid": 114,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 119,
+      "off_grid": 119,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 84,
+      "off_grid": 84,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 90,
+      "off_grid": 90,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 63,
+      "off_grid": 63,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 66,
+      "off_grid": 66,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 118,
+      "off_grid": 118,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF03",
+      "lifecycle": "walk_forward",
+      "observations": 122,
+      "off_grid": 122,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 84,
+      "off_grid": 84,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 88,
+      "off_grid": 88,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 41,
+      "off_grid": 41,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 45,
+      "off_grid": 45,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 133,
+      "off_grid": 133,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 136,
+      "off_grid": 136,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 57,
+      "off_grid": 57,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 60,
+      "off_grid": 60,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 46,
+      "off_grid": 46,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 51,
+      "off_grid": 51,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 41,
+      "off_grid": 41,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 45,
+      "off_grid": 45,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 133,
+      "off_grid": 133,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 136,
+      "off_grid": 136,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 57,
+      "off_grid": 57,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 60,
+      "off_grid": 60,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 65,
+      "off_grid": 65,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 70,
+      "off_grid": 70,
+      "symbol": "CNYRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 41,
+      "off_grid": 41,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 45,
+      "off_grid": 45,
+      "symbol": "GLDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 133,
+      "off_grid": 133,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 136,
+      "off_grid": 136,
+      "symbol": "IMOEXF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 57,
+      "off_grid": 57,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "WF04",
+      "lifecycle": "walk_forward",
+      "observations": 60,
+      "off_grid": 60,
+      "symbol": "USDRUBF",
+      "system": "H1",
+      "variant": "STOP_2p0"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "history_2023_2026",
+      "observations": 6121,
+      "off_grid": 6121,
+      "symbol": "CNYRUBF",
+      "system": "M15",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "history_2023_2026",
+      "observations": 6393,
+      "off_grid": 6393,
+      "symbol": "CNYRUBF",
+      "system": "M15",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "history_2023_2026",
+      "observations": 5682,
+      "off_grid": 5682,
+      "symbol": "GLDRUBF",
+      "system": "M15",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "history_2023_2026",
+      "observations": 5950,
+      "off_grid": 5950,
+      "symbol": "GLDRUBF",
+      "system": "M15",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "history_2023_2026",
+      "observations": 6376,
+      "off_grid": 6376,
+      "symbol": "IMOEXF",
+      "system": "M15",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "history_2023_2026",
+      "observations": 6665,
+      "off_grid": 6665,
+      "symbol": "IMOEXF",
+      "system": "M15",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "history_2023_2026",
+      "observations": 6388,
+      "off_grid": 6388,
+      "symbol": "USDRUBF",
+      "system": "M15",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "history_2023_2026",
+      "observations": 6673,
+      "off_grid": 6673,
+      "symbol": "USDRUBF",
+      "system": "M15",
+      "variant": "CONTROL"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "history_2023_2026",
+      "observations": 5342,
+      "off_grid": 5342,
+      "symbol": "CNYRUBF",
+      "system": "M15",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "history_2023_2026",
+      "observations": 5634,
+      "off_grid": 5634,
+      "symbol": "CNYRUBF",
+      "system": "M15",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "history_2023_2026",
+      "observations": 4860,
+      "off_grid": 4860,
+      "symbol": "GLDRUBF",
+      "system": "M15",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "history_2023_2026",
+      "observations": 5140,
+      "off_grid": 5140,
+      "symbol": "GLDRUBF",
+      "system": "M15",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "history_2023_2026",
+      "observations": 5487,
+      "off_grid": 5487,
+      "symbol": "IMOEXF",
+      "system": "M15",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "history_2023_2026",
+      "observations": 5795,
+      "off_grid": 5795,
+      "symbol": "IMOEXF",
+      "system": "M15",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_after",
+      "fold_id": "",
+      "lifecycle": "history_2023_2026",
+      "observations": 5555,
+      "off_grid": 5555,
+      "symbol": "USDRUBF",
+      "system": "M15",
+      "variant": "STOP_1p5"
+    },
+    {
+      "field": "stop_entering",
+      "fold_id": "",
+      "lifecycle": "history_2023_2026",
+      "observations": 5858,
+      "off_grid": 5858,
+      "symbol": "USDRUBF",
+      "system": "M15",
+      "variant": "STOP_1p5"
+    }
+  ],
+  "missing": [
+    "starting equity and cashflows for every separate account/lifecycle",
+    "dated historical GO and margin constraints",
+    "dated contract/tick-size/tick-value authority for full history",
+    "verified fees, slippage, funding and settlement costs"
+  ],
+  "no_cash_return_inferred_from_R": true,
+  "nominal_limit": 0.06,
+  "normalised_costs": "H1 C1 .002/Risk0 round trip, not broker fees; M15 GROSS_ONLY",
+  "risk_fraction": 0.015,
+  "static_registry_sha256": "90d64e16dfeb292b4b339ac3eb196074e133bf52a962cc6715c488a32d16e013",
+  "status": "NOT_VALIDATED"
+}

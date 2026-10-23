@@ -1,0 +1,12 @@
+{
+  "capital_rows": 3645,
+  "comparison_rows": 2110,
+  "fields_checked": 178156,
+  "large_winner_rows": 124,
+  "lost_winner_rows": 158,
+  "max_abs_numeric_error": 1.3642420526593924e-11,
+  "method": "Fresh CSV signal identity join; Decimal CONTROL-R0 exits; lost winners/newmissed/activation cohorts/ranks/profit shares; independent Decimal static-grid rounding/risk and unvalidated cash fields; fresh trace grid aggregation",
+  "new_missed_rows": 153,
+  "status": "PASS",
+  "stop_grid_groups": 160
+}

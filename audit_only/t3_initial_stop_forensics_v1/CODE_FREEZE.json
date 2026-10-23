@@ -1,0 +1,52 @@
+{
+  "data": {
+    "H1": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+    "M15": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8"
+  },
+  "development": "Pre-freeze full run passed independent execution/features/forensics/post-stop/arithmetic, comparison/capital passed separately; final repeats run every check together",
+  "files": {
+    ".gitignore": "7c0e3807a109f275f04fa607825e26c8d69f2e23f684cf4ca68e03df1173780a",
+    "ENGINE_LINEAGE.json": "eb63fae19f2500afbec867bfb5a828c2263f9cbef5ca0f549b2da554d16552c6",
+    "ENGINE_LINEAGE.patch": "88cb80831bd28ba5e59269cefb2ec430f933aa68509be2f095f51256f8a2efe2",
+    "PROTOCOL_RU.md": "c84b3488791387f79389629a661399429d55e0555f0d402d556bda7e15ac5561",
+    "README.md": "3f782b5223970dd5f0a763551d1f15c43399bc73a18a7a93c6825252805e603c",
+    "analyze.py": "4463a7889fb525f352e4f6156268dde576b1443cc73eccfc1bcdfa7f6743060a",
+    "common.py": "878260548db77f436f129f83e3639cd18f318868b08bf5e9c994895359ab7e21",
+    "engines.py": "0f9a71fe6e91d87dcea2e73cf6fe3f5efc6b7f6110371d10f7f832fdc2033514",
+    "forensics.py": "b0165c822345f783b2a0810fe6820cc02f85a4fcb39b119896f85eae01cb5561",
+    "gate.py": "08acad88f8111bf50cb658e3d0b2dfbd1ea4101b627e78afbd31fbff7b3da1f6",
+    "reconcile.py": "519de218078eb041cf4b3d1a241c2903eb266eb82ebddd2a1e1d48eefa31bc0c",
+    "repeat.py": "f947da91aed0ee67e28b9ce60fa381c4a8cf70f57eb418410eef101b254841e1",
+    "report.py": "69120c2f81112a691d9ea07557fd2964e7dbbea3525834927d9a0b9f0a708545",
+    "requirements.txt": "50bd36afe0a4a4950f51db01fddfedc5d16814a1664c8a21a02e7c247b481bda",
+    "run.py": "5f61c34a18f1c0102b72c5d9117958545432d00866d999abf73acfe4e427d93c",
+    "test_synthetic.py": "42173180b084f803cc8db6c9dc93ebd8fecf1bc64d84b555c94976d7d60874b8",
+    "verifier/ADDED_FIELDS_SYNTHETIC.json": "5b9dd753c2ada28c94e9cc16ad745c6d188d8ff3cc4a3d2a4ee1a3ee27522c0d",
+    "verifier/COMPARISON_CAPITAL_VERIFIER.json": "c69867b7bd75c90e6d8d1ddcb1b7749e2de5d75f0ab70cd69231b7b8675e80d1",
+    "verifier/FRESH_CONTROL_VERIFIER.json": "89b017eb0eafd1231f453e3c1c9310ea514bc56e0d702fbb23df804eaf8b9e9e",
+    "verifier/PRE_FREEZE_ALL_VERIFIER.json": "1fc6cfcbfaf2502af718e8543da20877aeb2b48a235e798c2b13863ad0b76c01",
+    "verifier/SOURCE_CONTROL_RECEIPT.json": "9b8ba320c327c255b593e83f2304806de6d443c032ece171d6b9bc6939bcde8a",
+    "verifier/arithmetic_verifier.py": "04733ff7d88106eaa9c36a66e7b6eb95a7124041fdf5f3b9839b3162bc226633",
+    "verifier/check_all.py": "675818a6b8d7a1fd7566b6c1bee4da612e4a43c1e462b654d4d134d544dcefc6",
+    "verifier/comparison_verifier.py": "62102d62078f64f59fd67700ee1d701c4be7851ac9208bc140e617aeea34a6bc",
+    "verifier/forensics_verifier.py": "588cafde5b3c9e027fd6f012a66726af5f52873536e4bd879f192ee1c470fb83",
+    "verifier/replay_verifier.py": "55a632fddbe20d472914e6ef6b5cfa868f11d5044dac59532e936d5467e17444",
+    "verifier/source_control_receipt.py": "0ef4dc42b92a2adf0ed2a207e0ccb7d5118021d43c745b9a45d0a0daa129d423",
+    "verifier/verify.py": "5435363c8fad5b30fe7e1f8119011485df978bb405370cc17d4219d1cc6ea992"
+  },
+  "prepared_on_commit": "d726402d0cef17d934f70aeba1cd74f778468a75",
+  "preregistered_protocol_commit": "b29400d1",
+  "risk": "R15 unchanged; cash NOT_VALIDATED",
+  "status": "FINAL_CODE_FREEZE_BEFORE_THREE_FRESH_PROCESSES",
+  "variants": {
+    "H1": {
+      "CONTROL": 2.5,
+      "STOP_1p5": 1.5,
+      "STOP_2p0": 2.0
+    },
+    "M15": {
+      "CONTROL": 2.0,
+      "STOP_1p5": 1.5
+    }
+  }
+}
