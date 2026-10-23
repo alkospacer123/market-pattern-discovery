@@ -94,6 +94,14 @@
       "sha256": "2cdd7b45bdce24ba9c6d994a2bfcd8b26d2789c840b7b8d21ca63a3b77fbfed7"
     },
     {
+      "path": "cc/v20_contract.py",
+      "sha256": "97407ed4aac76fdfe2d13ec2c34f15cd964bf2629d817b42b074052400749352"
+    },
+    {
+      "path": "cc/v20_receiver.py",
+      "sha256": "c013136cd03f02ad9956925ac805f8d9b8d958d858036276a32f76037b5d3c83"
+    },
+    {
       "path": "ci/Os-Fixtures.ps1",
       "sha256": "b3fecd44b17805a401ec3fc3e584d682ba7b40bbb5834310b2c845cced15f9e8"
     },
@@ -218,6 +226,10 @@
       "sha256": "78edef261b00da8f50a8dc31ba748a031ef8eae038360ed6e42906080b6a4ed5"
     },
     {
+      "path": "deployment/v20-readonly-policy.example.json",
+      "sha256": "c9b9a9076256e39f2833d8784b1f72edf48b859b157470554b2bfd2ccd6dcef2"
+    },
+    {
       "path": "docs/ACCEPTANCE_REPORT.md",
       "sha256": "379e998b908321cc76b3428d4daec1aae8ce2ea61f673100d8e7b1e5747badbc"
     },
@@ -338,6 +350,10 @@
       "sha256": "a27cc8b2f9f2563984088621e6dd50b9f74e31cbebc05fddbac3e007594f37cb"
     },
     {
+      "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
+      "sha256": "730e206c22be1a03beb3c4e9e2c0dea14bc4d246344744e107b54eb881035c2e"
+    },
+    {
       "path": "docs/browser-check.json",
       "sha256": "8189aa474bffff4dcec7c987da990d4c36b828b322d5b75add0eae94ba7249d6"
     },
@@ -419,7 +435,7 @@
     },
     {
       "path": "tests/test_boundary.py",
-      "sha256": "8344a60b3f9ec74244a98593aa5b930354ac18f5449e236c7f320a953f90687f"
+      "sha256": "2799bac9ada5b8a13a816e30bdc7bf0a33590147b43d00a6eb5cf60c6d7c800f"
     },
     {
       "path": "tests/test_cc03_source.py",
@@ -490,12 +506,20 @@
       "sha256": "d8c5eae06f18bf60056cfc06dc403f166090d6074a8e177505188c0525114483"
     },
     {
+      "path": "tests/test_v20_control_center.py",
+      "sha256": "56dffbb48e24de36550fca23fa15f7611b85582be6bd1ae1ec73463faa09a620"
+    },
+    {
       "path": "tests/test_windows_reader.py",
       "sha256": "c5fc0344e914c0430488515a5307b770e7ab1bd4a5ea5fe0327b19c8796fea17"
     },
     {
       "path": "tests/test_windows_transport.py",
       "sha256": "6cde297462b4f4f9127cc936a2c6617f3a139da866d0b121fdb3e3f1b7e0db65"
+    },
+    {
+      "path": "v20_app.py",
+      "sha256": "2eb883ab1e49aeada91b4d8ce55dba77e7238e94ff0e3731475ab684dfca4328"
     }
   ]
 }
