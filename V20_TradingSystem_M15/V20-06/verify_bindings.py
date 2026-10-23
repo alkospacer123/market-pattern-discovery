@@ -1,4 +1,4 @@
-"""V20-06.1: three FINAM READONLY account↔token bindings on the user's Intel.
+"""V20-06.1: one shared FINAM READONLY token, three V20 accounts on Intel.
 
 Reuse H1 ReadonlyFillAPI unmodified. No trading commands, H1 token reuse, broker
 state import, Windows Task operations, or secret persistence.
@@ -69,10 +69,23 @@ def _self_test() -> None:
         pass
     else:
         raise AssertionError("FOREIGN_ACCOUNT_WAS_ACCEPTED")
-    api.details = {"readonly": True, "account_ids": ["demo-a"]}
+    # A single readonly token can be authorized for multiple accounts,
+    # while each H1 ReadonlyFillAPI instance is bound to only one account.
+    api.details = {"readonly": True, "account_ids": ["demo-a", "demo-b", "demo-c"]}
     api.connect_readonly()
     if not api.bound:
         raise AssertionError("EXACT_READONLY_ACCOUNT_NOT_BOUND")
+    try:
+        api._request("GET", "/v1/accounts/demo-b")
+    except FillDiagnosticBlocked:
+        pass
+    else:
+        raise AssertionError("BOUND_API_COULD_READ_OTHER_ACCOUNT")
+    second = Stub("fake-token", "demo-b")
+    second.details = api.details
+    second.connect_readonly()
+    if not second.bound:
+        raise AssertionError("SHARED_TOKEN_SECOND_ACCOUNT_NOT_BOUND")
     print("V20_06_1_OFFLINE_SOURCE_AND_REQUEST_GATES=PASS")
 
 
@@ -83,49 +96,50 @@ def _connect() -> int:
     if not (BASE / "acceptance-raw" / "WINDOWS_ACCEPTANCE_REPORT.json").is_file():
         raise RuntimeError("V20_05_WINDOWS_REPORT_NOT_FOUND")
 
+    # Shared diagnostic token is entered only once and never persisted.
+    token = getpass.getpass("FINAM shared READONLY token for 3 V20 accounts (hidden): ").strip()
+    if not token:
+        raise RuntimeError("READONLY_TOKEN_MISSING")
     seen_accounts: set[str] = set()
-    seen_token_digests: set[str] = set()
     results: list[dict] = []
-    for robot in ROBOTS:
-        print("READONLY_BINDING_CHECK=" + robot)
-        account_id = getpass.getpass("FINAM account_id for " + robot + " (hidden): ").strip()
-        token = getpass.getpass("FINAM READONLY token for " + robot + " (hidden): ").strip()
-        if (not account_id or not token or any(ch in account_id for ch in "/?#\r\n")
-                or len(account_id) > 128):
-            raise RuntimeError("ACCOUNT_OR_TOKEN_MISSING_OR_INVALID")
-        digest = _fingerprint(token)
-        if account_id in seen_accounts or digest in seen_token_digests:
-            raise RuntimeError("V20_ACCOUNT_OR_TOKEN_NOT_UNIQUE")
-        # H1's accepted ReadonlyFillAPI: two session POSTs only, no order endpoints.
-        # FINAM session details must prove readonly=true and exactly this account.
-        try:
-            api = ReadonlyFillAPI(token, account_id)
-            api.connect_readonly()
-            if not isinstance(api.read_account(), dict):
-                raise RuntimeError('FINAM_ACCOUNT_READ_SCHEMA_INVALID')
-        except Exception:
-            # Do not print errors with URL, account ID or token-derived values.
-            raise RuntimeError("FINAM_READONLY_BINDING_FAILED_FOR_" + robot) from None
-        finally:
-            token = ""
-        seen_accounts.add(account_id)
-        seen_token_digests.add(digest)
-        results.append({
-            "robot": robot,
-            "status": "PASS_READONLY",
-            "account_sha256": _fingerprint(account_id),
-            "session_readonly": True,
-            "requests": [x["resource"] for x in api.request_shapes],
-        })
-        print("BINDING_" + robot + "=PASS_READONLY")
-    if len(results) != 3 or len(seen_accounts) != 3 or len(seen_token_digests) != 3:
-        raise RuntimeError("THREE_INDEPENDENT_BINDINGS_NOT_CONFIRMED")
+    try:
+        for robot in ROBOTS:
+            print("READONLY_BINDING_CHECK=" + robot)
+            account_id = getpass.getpass("FINAM account_id for " + robot + " (hidden): ").strip()
+            if (not account_id or any(ch in account_id for ch in "/?#\\r\\n")
+                    or len(account_id) > 128):
+                raise RuntimeError("ACCOUNT_MISSING_OR_INVALID")
+            if account_id in seen_accounts:
+                raise RuntimeError("V20_ACCOUNT_NOT_UNIQUE")
+            # Unmodified H1 ReadonlyFillAPI binds each instance to one account.
+            # Its request gate permits only auth POST and this account's GET.
+            try:
+                api = ReadonlyFillAPI(token, account_id)
+                api.connect_readonly()
+                if not isinstance(api.read_account(), dict):
+                    raise RuntimeError("FINAM_ACCOUNT_READ_SCHEMA_INVALID")
+            except Exception:
+                raise RuntimeError("FINAM_READONLY_BINDING_FAILED_FOR_" + robot) from None
+            seen_accounts.add(account_id)
+            results.append({
+                "robot": robot,
+                "status": "PASS_READONLY",
+                "account_sha256": _fingerprint(account_id),
+                "session_readonly": True,
+                "requests": [x["resource"] for x in api.request_shapes],
+            })
+            print("BINDING_" + robot + "=PASS_READONLY")
+    finally:
+        token = ""
+    if len(results) != 3 or len(seen_accounts) != 3:
+        raise RuntimeError("THREE_INDEPENDENT_ACCOUNTS_NOT_CONFIRMED")
 
     # Report never contains tokens, account IDs, account state or raw FINAM responses.
     receipt = {
         "schema": "v20.finam.account_bindings_readonly.v1",
         "time_utc": datetime.now(timezone.utc).isoformat(),
         "status": "PASS_3_OF_3",
+        "readonly_token_scope": "ONE_SHARED_TOKEN_THREE_DISTINCT_ACCOUNTS",
         "no_orders_or_cancellations": True,
         "source": "H1 ReadonlyFillAPI in V20 pinned offline source",
         "results": results,
