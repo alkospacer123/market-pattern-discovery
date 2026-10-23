@@ -125,9 +125,9 @@ def parse(raw, robot, now, account_alias):
         checked.append({"at": event_at, "cycle": number, "result": event["result"],
                         "code": event["code"]})
     age = (now - at).total_seconds()
-    status = "STALE" if age > TTL or age < 0 else value["engine_state"]
+    status = "STALE" if age > TTL or age < -30 else value["engine_state"]
     if status == "HEALTHY":
-        if (heartbeat is None or not 0 <= (now - heartbeat).total_seconds() <= TTL
+        if (heartbeat is None or not -30 <= (now - heartbeat).total_seconds() <= TTL
                 or value["task_state"] != "RUNNING" or value["kill_switch"] != "ARMED"
                 or unresolved is None or unresolved != 0):
             status = "UNKNOWN"

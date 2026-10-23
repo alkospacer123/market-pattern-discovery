@@ -92,6 +92,8 @@ def main():
         except Exception:
             st.session_state["v20-snapshots"] = {
                 robot: unconnected(robot, "READONLY_UNAVAILABLE") for robot in ROBOTS}
+    # Always age against a clock taken AFTER manual acquisition, not before.
+    now = datetime.now(timezone.utc)
     previous = st.session_state.get("v20-snapshots")
     snapshots = {}
     for robot in ROBOTS:
