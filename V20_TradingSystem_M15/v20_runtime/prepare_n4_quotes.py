@@ -24,7 +24,8 @@ SYMBOLS = ("USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF")
 
 def prepare(root: Path) -> dict[str, str]:
     root = root.expanduser().resolve()
-    if root == PROJECT_ROOT or PROJECT_ROOT in root.parents:
+    checkout = PROJECT_ROOT.parent
+    if root == checkout or checkout in root.parents:
         raise ValueError("SOURCE_FIXTURES_MUST_BE_OUTSIDE_V20_CHECKOUT")
     results: dict[str, str] = {}
     for symbol in SYMBOLS:

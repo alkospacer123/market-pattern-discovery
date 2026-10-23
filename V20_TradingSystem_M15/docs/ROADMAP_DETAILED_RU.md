@@ -37,12 +37,12 @@
 
 | Подэтап | Текущий статус | Подтверждение / недостающее |
 |---|---|---|
-| **04.1** | PARTIAL | Модули H1 в фактическом main обнаружены; закреплённый SOURCE_MAP.md и M15 source SHA ещё не представлены |
-| **04.2** | PARTIAL | Созданы три конфигурации и frozen offline adapter; full signal parity с production M15 ещё не выполнена |
-| **04.3** | NOT DONE | Перенесены только H1-функции initial stop/risk для offline; FINAM orders, SLTP, reconcile, recover ещё не интегрированы |
+| **04.1** | SOURCE MAP PASS | Закреплены H1/M15 source SHA в SOURCE_MAP.md; runtime acceptance отдельно |
+| **04.2** | PASS OFFLINE | 18 новых N4 signal/ATR/NEXT_OPEN + 6 прежних USD, M15/session/gap/roll boundaries PASS. Физический FINAM feed NOT VERIFIED; полного нового 1589 replay нет. FROZEN_EXECUTION_OFFLINE_VERIFICATION.json |
+| **04.3** | MINIMAL OFFLINE PASS / PRODUCTION PARTIAL | Общий H1 order/100% SLTP/intent/fill/reconcile/restart adapter с exact FakeBroker. 24 tests + 18 real-signal flows PASS; реальный transport не активирован |
 | **04.4** | PARTIAL | В offline planner переиспользованы H1 sizing/GO и резерв расходов; реальный fill, equity и совокупный риск ещё не интегрированы |
-| **04.5** | PARTIAL | Имена, отдельные state paths в конфигурациях; три автономных процесса и persistent state пока не созданы |
-| **04.6** | DRAFT OPEN | PR #567 создан; новые тесты/запуск, интеграционные PASS и критерии сдачи ещё не подтверждены |
+| **04.5** | PARTIAL | Config/state identity, SQLite persistence/locks/restart PASS offline; общий автономный цикл и три процесса ещё не приняты |
+| **04.6** | DRAFT OPEN | 55 адресных tests PASS, PR #567 Draft. Полная приёмка трёх автономных роботов ещё не проведена |
 
 Это **подэтапы**, а не дополнительные этапы дорожной карты. Статусы не заменяют критерия PASS V20-04.
 

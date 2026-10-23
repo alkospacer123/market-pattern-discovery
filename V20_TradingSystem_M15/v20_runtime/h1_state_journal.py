@@ -47,6 +47,9 @@ def _require_v20_root(root: Path) -> Path:
 
 
 class IsolatedReferenceJournal:
+    state_file = STATE_FILE
+    schema = SCHEMA
+
     def __init__(self, v20_root: Path, robot_id: str, account_id: str):
         if robot_id not in ROBOT_STRATEGIES:
             raise V20StateBoundaryError("UNKNOWN_V20_ROBOT")
@@ -63,11 +66,11 @@ class IsolatedReferenceJournal:
             if path.is_symlink():
                 raise V20StateBoundaryError("V20_STATE_SYMLINK_FORBIDDEN")
         state_dir.mkdir(parents=True, exist_ok=True)
-        self.state_path = state_dir / STATE_FILE
+        self.state_path = state_dir / self.state_file
         if self.state_path.is_symlink():
             raise V20StateBoundaryError("V20_STATE_SYMLINK_FORBIDDEN")
         self.identity = {
-            "schema_id": SCHEMA,
+            "schema_id": self.schema,
             "robot_id": robot_id,
             "strategy": self.strategy,
             "account_sha256": self.account_hash,

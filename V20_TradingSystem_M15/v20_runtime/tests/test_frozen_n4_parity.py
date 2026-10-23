@@ -10,7 +10,9 @@ import csv
 import hashlib
 import os
 from datetime import datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
+from tempfile import TemporaryDirectory
 import unittest
 
 try:
@@ -21,6 +23,10 @@ except ImportError:
     frozen_adapter = None
 
 from V20_TradingSystem_M15.v20_runtime.market_reference_descriptive import SOURCE_SHA256
+from V20_TradingSystem_M15.v20_runtime.offline_planner import OfflinePlanner
+from V20_TradingSystem_M15.v20_runtime.h1_execution import FakeBroker, OfflineH1Executor
+from V20_TradingSystem_M15.v20_runtime.h1_state_journal import ROBOT_STRATEGIES
+from TradingSystemLab.stage8_robot.production_runtime import _load_registry
 
 ROOT = Path(__file__).resolve().parents[2]
 RAW = ROOT / "V20-03" / "comparison" / "QUOTE_PATH_DIAGNOSTICS.csv"
@@ -53,6 +59,7 @@ class AdditionalN4FrozenSignalParity(unittest.TestCase):
         # First signal per symbol / strategy / direction in 2024, no PnL or
         # eventual success selection. Use only known signal time as cutoff.
         cls.cases = {}
+        cls.evidence = []
         with RAW.open(newline="") as f:
             for row in csv.DictReader(f):
                 if (row["record_type"] != "RAW_SIGNAL"
@@ -62,13 +69,12 @@ class AdditionalN4FrozenSignalParity(unittest.TestCase):
                 key = (row["instrument"], row["strategy"], int(row["side"]))
                 if row["strategy"] in STRATEGIES:
                     cls.cases.setdefault(key, row)
-        required_pairs = {(symbol, strategy)
-                          for symbol in NEW_N4 for strategy in STRATEGIES}
-        found_pairs = {(symbol, strategy)
-                       for symbol, strategy, _side in cls.cases}
-        if required_pairs - found_pairs:
+        required_pairs = {(symbol, strategy, side)
+                          for symbol in NEW_N4 for strategy in STRATEGIES
+                          for side in (-1, 1)}
+        if required_pairs - cls.cases.keys():
             raise AssertionError("NO_PUBLISHED_2024_RAW_FOR_PAIRS:"
-                                 + repr(sorted(required_pairs - found_pairs)))
+                                 + repr(sorted(required_pairs - cls.cases.keys())))
 
     @staticmethod
     def prefix(symbol, cutoff):
@@ -90,6 +96,8 @@ class AdditionalN4FrozenSignalParity(unittest.TestCase):
         for (symbol, strategy, side), row in sorted(self.cases.items()):
             with self.subTest(symbol=symbol, strategy=strategy, side=side):
                 cutoff = datetime.fromisoformat(row["signal_bar_dt"])
+                next_open = cutoff + timedelta(minutes=15)
+                self.assertEqual(datetime.fromisoformat(row["entry_dt"]), next_open)
                 source = self.prefix(symbol, cutoff)
                 original = source.copy(deep=True)
                 signal = frozen_adapter.completed_signal(
@@ -105,6 +113,44 @@ class AdditionalN4FrozenSignalParity(unittest.TestCase):
                 self.assertAlmostEqual(float(signal.atr14), expected_atr,
                                        delta=max(1e-11, abs(expected_atr) * 1e-9))
                 pd.testing.assert_frame_equal(source, original)
+                # At NEXT_OPEN only its Open is available, never its future HLCV.
+                with (QUOTE_ROOT / symbol / (symbol + "_M15.csv")).open() as f:
+                    entry = next(x for x in csv.DictReader(f, delimiter=";")
+                                 if datetime.fromisoformat(x["Datetime"]) == next_open)
+                self.assertAlmostEqual(float(entry["Open"]), float(row["entry"]))
+                binding = _load_registry()[symbol]
+                plan = OfflinePlanner(strategy).reference_next_open(
+                    signal, at=next_open, entry_open=entry["Open"],
+                    realized_equity="500000", price_step=binding["price_step"],
+                    tick_value=binding["tick_value"], initial_margin="10000",
+                    available_cash="200000", trade_lot_size=1,
+                    cost_buffer_per_contract=2*Decimal(binding["tick_value"]))
+                robot = next(k for k, v in ROBOT_STRATEGIES.items() if v == strategy)
+                broker = FakeBroker("fixture-"+robot)
+                with TemporaryDirectory(prefix="v20_n4_execution_") as tmp:
+                    state_root = Path(tmp)/"V20Lab"
+                    with OfflineH1Executor(state_root, robot, broker.account_id, broker) as executor:
+                        key = executor.submit_entry(signal, plan, price_step=binding["price_step"])
+                        broker.fill(broker.orders[0]["order_id"], key, plan.quantity,
+                                    entry["Open"], next_open.isoformat())
+                        result = executor.recover()
+                        self.assertIsNone(result["halt"])
+                        self.assertEqual(broker.orders[1]["sltp_order"]["sl_price"],
+                                         {"value": str(plan.initial_stop)})
+                    with OfflineH1Executor(state_root, robot, broker.account_id, broker) as executor:
+                        executor.recover()
+                        self.assertEqual(executor.submit_entry(signal, plan,
+                                         price_step=binding["price_step"]), key)
+                        self.assertEqual(broker.post_count, 2)
+                self.evidence.append(dict(symbol=symbol, strategy=strategy, side=side,
+                                          signal_bar_open=cutoff.isoformat(),
+                                          known_at=next_open.isoformat(),
+                                          atr=float(signal.atr14), expected_atr=expected_atr,
+                                          next_open=float(entry["Open"]),
+                                          prefix_rows=len(source), status="PASS",
+                                          execution_restart="PASS_FAKE_ONLY",
+                                          reference_quantity=plan.quantity,
+                                          initial_stop=str(plan.initial_stop)))
                 checked.add((symbol, strategy))
         self.assertEqual(
             checked,

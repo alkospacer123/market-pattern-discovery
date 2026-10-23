@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 import pandas as pd
+import numpy as np
 
 from .offline_planner import FrozenSignal, N4, STRATEGIES
 
@@ -49,18 +50,28 @@ def completed_signal(symbol: str, strategy: str, bars: pd.DataFrame,
         raise ValueError("EMPTY_M15_INPUT")
     if any(c not in bars.columns for c in _REQUIRED):
         raise ValueError("M15_FIELDS_INCOMPLETE")
+    if "Ticker" in bars and not bars["Ticker"].eq(symbol).all():
+        raise ValueError("M15_MIXED_CONTRACT_OR_SYMBOL")
     if not isinstance(observed_at, datetime) or observed_at.tzinfo is not None:
         raise ValueError("MOSCOW_NAIVE_OBSERVATION_REQUIRED")
     timestamps = pd.to_datetime(bars["Datetime"], errors="raise")
     if timestamps.dt.tz is not None or not timestamps.is_monotonic_increasing or timestamps.duplicated().any():
         raise ValueError("M15_TIMESTAMP_ORDER_OR_TIMEZONE")
-    if (timestamps.dt.minute % 15).any() or timestamps.dt.second.any():
+    if ((timestamps.dt.minute % 15).any() or timestamps.dt.second.any()
+            or timestamps.dt.microsecond.any() or timestamps.dt.nanosecond.any()):
         raise ValueError("M15_GRID_INVALID")
     last_open = timestamps.iloc[-1].to_pydatetime()
     if observed_at != last_open + _STEP:
         raise ValueError("ONLY_COMPLETED_SIGNAL_AT_IMMEDIATE_NEXT_OPEN")
     frame = bars[list(_REQUIRED)].copy()
     frame["Datetime"] = timestamps
+    values = frame[list(_REQUIRED[1:])].to_numpy(dtype=float)
+    frame[list(_REQUIRED[1:])] = values
+    if (not np.isfinite(values).all() or (values[:, :4] <= 0).any()
+            or (values[:, 4] < 0).any()
+            or not (frame.High >= frame[["Open", "Low", "Close"]].max(axis=1)).all()
+            or not (frame.Low <= frame[["Open", "High", "Close"]].min(axis=1)).all()):
+        raise ValueError("M15_OHLCV_INVALID")
     features = _frozen_immutable_features(frame)
     side = int(features[strategy].iloc[-1])
     if side not in (-1, 0, 1):
