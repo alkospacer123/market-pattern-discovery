@@ -156,7 +156,12 @@ def test_minimal_streamlit_starts_without_read_or_trading_controls(monkeypatch):
     assert not app.exception
     assert list(app.radio[0].options) == ["Главная", "Журнал", "Управление"]
     assert len(app.button) == 1
-    assert len(app.metric) == 9
+    assert len(app.metric) == 0
+    visible = "\\n".join(str(item.value) for kind in ("markdown", "caption", "info", "warning", "success", "error")
+                         for item in getattr(app, kind))
+    assert "Позиции · локально" not in visible
+    assert "Стопы · локально" not in visible
+    assert "Цикл" not in visible
     assert not app.get("plotly_chart")
     assert not app.dataframe
     assert sum("НЕ ПОДКЛЮЧЁН" in x.value for x in app.info) == 3
@@ -182,3 +187,32 @@ def test_manual_click_one_acquire_and_no_navigation_reread(monkeypatch):
     app.radio[0].set_value("Управление").run()
     app.radio[0].set_value("Главная").run()
     assert len(calls) == 1
+
+
+
+def test_main_shows_only_current_operational_health_without_trade_metrics():
+    now = datetime.now(timezone.utc)
+    states = {r: unconnected(r) for r in ROBOTS}
+    states["V20_SHALLOW"] = parse(wire(example("V20_SHALLOW", now)),
+                                  "V20_SHALLOW", now, "V20-SHALLOW")
+    states["V20_OBV"] = parse(wire(example("V20_OBV", now - timedelta(seconds=TTL + 5))),
+                             "V20_OBV", now, "V20-OBV")
+    app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15)
+    app.session_state["v20-snapshots"] = states
+    app.run()
+    assert not app.exception
+    assert len(app.metric) == 0
+    visible = "\\n".join(str(item.value) for kind in ("markdown", "caption", "info", "warning", "success", "error")
+                         for item in getattr(app, kind))
+    assert "Windows Task" in visible and "RUNNING" in visible
+    assert "Kill switch" in visible and "ARMED" in visible
+    assert "Последняя ошибка: нет" in visible
+    assert "Heartbeat:" in visible
+    assert "текущее состояние Task/защиты не подтверждено" in visible
+    assert "Нет подтверждённых данных" in visible
+    assert "Позиции · локально" not in visible
+    assert "Стопы · локально" not in visible
+    assert "Цикл" not in visible
+    assert len(app.button) == 1
+    app.radio[0].set_value("Журнал").run()
+    assert not app.exception

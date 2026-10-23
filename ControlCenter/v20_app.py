@@ -30,31 +30,40 @@ def healthy_label(report):
 
 
 def overview(snapshots):
+    """Only operator health signals. Trading details belong in FINAM."""
     for robot in ROBOTS:
         report = snapshots[robot]
+        status = report["status"]
+        current = status in ("HEALTHY", "HALTED", "FAULT")
         with st.container(border=True):
             left, right = st.columns([2, 3])
             with left:
                 st.subheader(LABELS[robot])
-                if report["status"] == "HEALTHY":
+                if status == "HEALTHY":
                     st.success(healthy_label(report))
-                elif report["status"] in ("STALE", "FAULT"):
+                elif status == "FAULT":
+                    st.error(healthy_label(report))
+                elif status in ("STALE", "HALTED"):
                     st.warning(healthy_label(report))
                 else:
                     st.info(healthy_label(report))
-                st.caption("Heartbeat: " + show_time(report["heartbeat_at"]))
             with right:
-                a, b, c = st.columns(3)
-                a.metric("Цикл", str(report["cycle"]) if report["status"] not in ("STALE", "NOT_CONNECTED", "UNKNOWN") and report["cycle"] is not None else "—")
-                b.metric("Позиции · локально", str(report["positions_local"]) if report["status"] not in ("STALE", "NOT_CONNECTED", "UNKNOWN") and report["positions_local"] is not None else "—")
-                c.metric("Стопы · локально", str(report["stops_local"]) if report["status"] not in ("STALE", "NOT_CONNECTED", "UNKNOWN") and report["stops_local"] is not None else "—")
-                st.caption("Task: " + report["task_state"] + " · Ошибка: " +
-                           report["last_error_code"] + " · Снимок: " +
-                           show_time(report["observed_at"]))
-    with st.expander("Источники и ограничения", expanded=False):
-        st.caption("Состояние каждого робота приходит только из собственного CC READONLY-снимка. На этапе V20-04 реальные источники ещё не подключены.")
-        st.caption("Локальные позиции/стопы не являются независимой брокерской сверкой FINAM. Нет подтверждения исполнения, SLTP и торговой авторизации.")
-        st.caption("Панель не получает торговые токены и не отправляет заявки. Никаких автоматических запросов или фонового обновления.")
+                if current:
+                    st.markdown("**Windows Task:** " + report["task_state"] +
+                                " · **Kill switch:** " + report["kill_switch"])
+                    error_code = report["last_error_code"]
+                    st.caption("Heartbeat: " + show_time(report["heartbeat_at"]) +
+                               " · Последняя ошибка: " +
+                               ("нет" if error_code == "NONE" else error_code))
+                elif status == "STALE":
+                    st.caption("Heartbeat: " + show_time(report["heartbeat_at"]) +
+                               " (устарел) · текущее состояние Task/защиты не подтверждено")
+                else:
+                    st.caption("Нет подтверждённых данных о задаче, heartbeat и ошибках")
+    with st.expander("Об источниках", expanded=False):
+        st.caption("Состояния приходят только из отдельных READONLY-отчётов V20. Пока источники не подключены, работоспособность неизвестна.")
+        st.caption("HEALTHY означает состояние по локальному отчёту; не подтверждает сделки, брокерские позиции и SLTP FINAM.")
+        st.caption("Обновление только вручную; панель не получает торговые токены и не исполняет команды.")
 
 
 def journal(snapshots):
