@@ -106,7 +106,7 @@ def _connect() -> int:
         for robot in ROBOTS:
             print("READONLY_BINDING_CHECK=" + robot)
             account_id = getpass.getpass("FINAM account_id for " + robot + " (hidden): ").strip()
-            if (not account_id or any(ch in account_id for ch in "/?#\\r\\n")
+            if (not account_id or any(ch in account_id for ch in "/?#" + chr(13) + chr(10))
                     or len(account_id) > 128):
                 raise RuntimeError("ACCOUNT_MISSING_OR_INVALID")
             if account_id in seen_accounts:
