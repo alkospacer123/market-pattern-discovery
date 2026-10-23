@@ -1,10 +1,12 @@
-> **Уточнение по реальной машине Intel (23.10.2026):** прежнее требование Windows Server 2022 было проектным предположением, а не проверенной ОС. Фактически работающий Intel — `URIU-PC`, Windows 10 Pro 22H2 (`10.0.19045`), MSI MS-7996; на нём работает H1. Подготовлены исправленные `Prepare-IntelOfflineAcceptance.ps1` и `Invoke-OfflineAcceptance.ps1` для **нативной приёмки на настоящем Windows 10 Pro**. Тест на Intel после исправления **ещё не выполнялся**; статус 05.5 по-прежнему NOT RUN. Скрипты не трогают H1/M15, токены, FINAM или Tasks. Не заявлять, что проверена Windows Server 2022. Roadmap 8/24 не расширялся. 
+> **Фактическое завершение V20-05 на Intel URIU-PC, 23.10.2026 — PASS NATIVE WINDOWS.** По присланному оператором выводу с Windows 10 Pro: `Ran 64 tests in 34.449s / OK`, `overall=PASS_OFFLINE_AND_WINDOWS`, `V20_05_5_NATIVE_WINDOWS=PASS`, `V20_05_5_TESTS=64_PASS`. Локальный отчёт: `C:\V20Lab\acceptance-raw\WINDOWS_ACCEPTANCE_REPORT.json`. В GitHub записан результат **из операторского журнала**, но сам локальный JSON-отчёт в PR не загружен; не выдавать Linux JSON `ACCEPTANCE_REPORT.json` за Windows-файл. FakeBroker only; никаких реальных заявок, H1 и M15 не изменены. Следующий шаг по roadmap: **V20-06.1 FINAM READONLY**. Подэтапы 05.1–05.5 закрыты, новых этапов нет.
+
+> **Уточнение по реальной машине Intel (23.10.2026):** прежнее требование Windows Server 2022 было проектным предположением, а не проверенной ОС. Фактически работающий Intel — `URIU-PC`, Windows 10 Pro 22H2 (`10.0.19045`), MSI MS-7996; на нём работает H1. Подготовлены исправленные `Prepare-IntelOfflineAcceptance.ps1` и `Invoke-OfflineAcceptance.ps1` для **нативной приёмки на настоящем Windows 10 Pro**. Последующий фактический запуск на Intel успешно выполнен (см. итог выше). Скрипты не трогают H1/M15, токены, FINAM или Tasks. Не заявлять, что проверена Windows Server 2022. Roadmap 8/24 не расширялся. 
 
 # V20-05 — приёмка трёх роботов, 23.10.2026
 
-**Итог: PARTIAL. 05.1–05.4 PASS OFFLINE; 05.5 BLOCKED / NOT RUN.**
+**Итог на 23.10.2026: PASS. 05.1–05.4 PASS OFFLINE; 05.5 PASS NATIVE WINDOWS по журналу оператора.**
 Фактически выполнены **64 теста: 64 PASS, 0 FAIL, 0 SKIP**.
-Это приёмка FakeBroker, не разрешение FINAM/LIVE и не Windows PASS.
+Это приёмка FakeBroker; допуск FINAM/LIVE не выдавался.
 Проверяемые значения, PID, SHA256 и полный список тестов —
 [ACCEPTANCE_REPORT.json](ACCEPTANCE_REPORT.json).
 
@@ -20,7 +22,7 @@
 | 05.2 Исполнение/деньги | PASS OFFLINE | 38 execution-тестов: full/partial fill, grid 2×ATR, VWAP/проскальзывание, 100% SLTP, R15/R6, fresh cash/GO, оплаченные комиссии, атомарный reserve+intent, отказ при нехватке денег, выход и сверка |
 | 05.3 Сбои | PASS OFFLINE | OS kill в 6 точках, потеря ACK и неопределённый POST, конфликт broker/SQLite, запрет дублей и новых входов, неподтверждённый стоп с сохранённой возможностью выхода, H1 kill switch |
 | 05.4 Изоляция | PASS OFFLINE | 3 одновременных процесса/счёта на CNY, отдельные SQLite/book/SLTP/budget/log/status/lock; kill Shallow не меняет OBV/Inside; оставшиеся процессы самостоятельно доходят до выхода |
-| 05.5 Windows | BLOCKED / NOT RUN | Облако Linux, нет подключённого Windows executor, capabilities, VPN или private TCP grants. Подготовлен проверяемый сценарий; фактического Windows-запуска нет |
+| 05.5 Windows | PASS NATIVE WINDOWS | Оператор Intel URIU-PC: 64/64 PASS, 0 FAIL, 0 SKIP, Windows 10 Pro; `C:\V20Lab\acceptance-raw\WINDOWS_ACCEPTANCE_REPORT.json`. Cloud Linux в прежнем отчёте не был Windows-проверкой |
 
 ## Что запускалось
 
