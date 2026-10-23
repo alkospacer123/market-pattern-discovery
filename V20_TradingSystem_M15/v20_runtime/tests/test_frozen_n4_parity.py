@@ -25,7 +25,8 @@ from V20_TradingSystem_M15.v20_runtime.market_reference_descriptive import SOURC
 ROOT = Path(__file__).resolve().parents[2]
 RAW = ROOT / "V20-03" / "comparison" / "QUOTE_PATH_DIAGNOSTICS.csv"
 RAW_SHA = "1f936dca02b9c99ed1df6ca30ef52c4c33128c9d06743175b6f5d6f59dee9c0f"
-QUOTE_ROOT = Path(os.environ.get("V20_N4_QUOTES_ROOT",\n                                     "/workspace/market-pattern-data/forever"))
+QUOTE_ROOT = Path(os.environ.get("V20_N4_QUOTES_ROOT",
+                                     "/workspace/market-pattern-data/forever"))
 # USD parity (three strategies, two sides) is already verified in test_frozen_adapter.py.
 NEW_N4 = ("CNYRUBF", "GLDRUBF", "IMOEXF")
 STRATEGIES = ("SHALLOW_PULLBACK", "OBV_PRESSURE", "INSIDE_DAY_RELEASE")
