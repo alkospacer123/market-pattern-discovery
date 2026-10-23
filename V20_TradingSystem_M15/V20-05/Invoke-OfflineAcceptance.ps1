@@ -9,8 +9,12 @@ param(
 $ErrorActionPreference = "Stop"
 if ($env:OS -ne "Windows_NT") { throw "Native Windows required; Linux is NOT Windows acceptance" }
 $osInfo = Get-CimInstance Win32_OperatingSystem
-if ($osInfo.Caption -notmatch 'Windows Server 2022') {
-    throw "Target is Intel Windows Server 2022; detected $($osInfo.Caption)"
+# Actual verified Intel host is URIU-PC, Windows 10 Pro build 19045.
+# Native Windows acceptance is valid for this host; Server 2022 is not assumed.
+$isRealIntel = ($osInfo.ProductType -eq 1 -and $osInfo.Version -eq '10.0.19045' -and $osInfo.Caption -match 'Windows 10 Pro')
+$isServer2022 = ($osInfo.ProductType -ne 1 -and $osInfo.BuildNumber -eq '20348')
+if (-not ($isRealIntel -or $isServer2022)) {
+    throw "UNSUPPORTED_WINDOWS_HOST: $($osInfo.Caption), version=$($osInfo.Version)"
 }
 $repo = (Resolve-Path -LiteralPath $Checkout).Path
 if (!(Test-Path -LiteralPath (Join-Path $repo "V20_TradingSystem_M15\v20_runtime\m15_runner.py"))) {
