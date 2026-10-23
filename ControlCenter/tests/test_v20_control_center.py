@@ -250,6 +250,7 @@ def test_heartbeat_independent_freshness(case, expected):
         elif case == "old_source":
             value["observed_at"] = (now - timedelta(seconds=TTL+5)).isoformat()
             value["heartbeat_at"] = value["observed_at"]
+            value["events"][0]["at"] = value["observed_at"]
         elif case == "missing_heartbeat":
             value["heartbeat_at"] = None
         elif case == "failed_task":

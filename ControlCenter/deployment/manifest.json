@@ -507,7 +507,7 @@
     },
     {
       "path": "tests/test_v20_control_center.py",
-      "sha256": "137198972cfd0eee08d8e6c76a4f18b3cca534ef0c3f06dadf6e90c239b2d357"
+      "sha256": "206a08905fc0fd75575ddd7497752ef93024b9aa716f5f954a71a9a2e2f5c196"
     },
     {
       "path": "tests/test_windows_reader.py",
