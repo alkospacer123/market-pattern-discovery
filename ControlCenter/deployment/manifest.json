@@ -95,7 +95,7 @@
     },
     {
       "path": "cc/v20_contract.py",
-      "sha256": "97407ed4aac76fdfe2d13ec2c34f15cd964bf2629d817b42b074052400749352"
+      "sha256": "8bdfe02825293feabc671616c010c0cdaedc1bea480f22e946d25ff896ff733a"
     },
     {
       "path": "cc/v20_receiver.py",
@@ -519,7 +519,7 @@
     },
     {
       "path": "v20_app.py",
-      "sha256": "2eb883ab1e49aeada91b4d8ce55dba77e7238e94ff0e3731475ab684dfca4328"
+      "sha256": "c9dcdadd2de47a8dc1880e861957aa46db5496844fa4af54fce2b1d7cc9708ff"
     }
   ]
 }
