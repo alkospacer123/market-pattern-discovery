@@ -144,6 +144,7 @@ def main(argv: list[str] | None = None) -> int:
                         help="locally verified closed sessions JSON")
     source.add_argument('--symbol',help='instrument with published frozen raw paths; no FINAM calls')
     parser.add_argument('--as-of',help='Moscow naive ISO time; defaults to current Moscow time')
+    parser.add_argument('--monitoring',action='store_true',help='archive-only completed C1 monitoring; --symbol ALL or a single instrument')
     parser.add_argument('--data-dir',type=Path,help='optional SHA-verified N4 quotes for reference ATR only')
     parser.add_argument('--raw-profile',type=Path,default=DEFAULT_PROFILE)
     parser.add_argument('--legacy-diagnostics',action='store_true',help='archived five-group interface')
@@ -161,6 +162,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--details", action="store_true", help="show numeric details in text output")
     args = parser.parse_args(argv)
     try:
+        if args.monitoring:
+            from .market_monitoring import load_data,monitoring_card,format_text as render_monitor
+            if not args.symbol:raise ValueError('MONITORING_REQUIRES_SYMBOL_OR_ALL')
+            as_of=stamp(args.as_of) if args.as_of else datetime.now(ZoneInfo('Europe/Moscow')).replace(tzinfo=None)
+            groups,bounds,raw,censored,_=load_data()
+            card=monitoring_card(groups,bounds,raw,censored,as_of,args.symbol)
+            print(json.dumps(card,ensure_ascii=False,indent=2,default=str,allow_nan=False) if args.format=='json' else render_monitor(card))
+            return 0
         raw_profile=(json.loads(args.raw_profile.read_text(encoding='utf-8')) if args.raw_profile.exists() else None)
         if args.symbol:
             if args.legacy_diagnostics:
