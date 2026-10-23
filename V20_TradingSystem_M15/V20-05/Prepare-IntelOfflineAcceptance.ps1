@@ -20,8 +20,13 @@ function Invoke-Checked {
 
 if ($env:OS -ne 'Windows_NT') { throw 'NATIVE_WINDOWS_REQUIRED' }
 $osInfo = Get-CimInstance Win32_OperatingSystem -ErrorAction Stop
-if ($osInfo.Caption -notmatch 'Windows Server 2022') {
-    throw "WRONG_WINDOWS_HOST: $($osInfo.Caption)"
+# Verified Intel is URIU-PC: Windows 10 Pro 22H2, build 19045.
+# Also allow the originally planned Windows Server 2022 (build 20348).
+# ProductType=1 denotes client Windows; >=2 denotes Windows Server.
+$isRealIntel = ($osInfo.ProductType -eq 1 -and $osInfo.Version -eq '10.0.19045' -and $osInfo.Caption -match 'Windows 10 Pro')
+$isServer2022 = ($osInfo.ProductType -ne 1 -and $osInfo.BuildNumber -eq '20348')
+if (-not ($isRealIntel -or $isServer2022)) {
+    throw "WRONG_WINDOWS_HOST: $($osInfo.Caption), version=$($osInfo.Version), build=$($osInfo.BuildNumber)"
 }
 if (-not [Environment]::Is64BitOperatingSystem) { throw 'WINDOWS_X64_REQUIRED' }
 $fullRoot = [IO.Path]::GetFullPath($Root).TrimEnd('\')
