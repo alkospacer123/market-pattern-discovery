@@ -76,7 +76,7 @@ def _read_secret_from_windows_console(prompt: str) -> str:
         secret = buffer.value[:count.value].strip()
     finally:
         kernel.SetConsoleMode(handle, original.value)
-        sys.stdout.write("\\n")
+        sys.stdout.write("\n")
         sys.stdout.flush()
     return secret
 
