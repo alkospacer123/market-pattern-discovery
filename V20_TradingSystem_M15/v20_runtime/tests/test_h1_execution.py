@@ -14,6 +14,7 @@ from V20_TradingSystem_M15.v20_runtime.h1_execution import (
 )
 from V20_TradingSystem_M15.v20_runtime.h1_state_journal import V20StateBoundaryError
 from decimal import Decimal
+from V20_TradingSystem_M15.v20_runtime.account_risk import AccountAuthority
 from TradingSystemLab.stage8_robot.production_runtime import _load_registry
 from V20_TradingSystem_M15.v20_runtime.offline_planner import FrozenSignal, OfflinePlanner
 
@@ -295,3 +296,74 @@ class H1ExecutionTests(TestCase):
             with self.assertRaisesRegex(ExecutionBlocked, "PROTECTION_UNCONFIRMED"):
                 e.recover()
         self.assertEqual(self.broker.post_count, 2)
+
+
+    def money_authority(self, *, cash="200000", cost="50", step=None):
+        binding = BINDINGS[self.entry.symbol]
+        return AccountAuthority(
+            self.broker.account_id, Decimal("500000"), Decimal(cash),
+            Decimal(str(binding["price_step"] if step is None else step)),
+            Decimal(str(binding["tick_value"])), Decimal("10000"), 1,
+            Decimal(cost))
+
+    def test_account_risk_reservation_is_durable_with_order_intent(self):
+        with self.executor() as e:
+            key = e.submit_entry(self.signal, self.entry,
+                                 price_step=BINDINGS[self.entry.symbol]["price_step"],
+                                 account_authority=self.money_authority())
+            reservations = e.store.get("risk_reservations")
+            self.assertIn(key, reservations)
+            self.assertEqual(reservations[key]["account_id"], self.broker.account_id)
+            self.assertEqual(int(reservations[key]["quantity"]),
+                             e.store.get("execution_entries")[key]["quantity"])
+            self.assertLessEqual(Decimal(reservations[key]["reserved_risk"]), Decimal("7500"))
+            self.assertEqual(self.broker.post_count, 1)
+        with self.executor() as e:
+            self.assertIn(key, e.store.get("risk_reservations"))
+            e.recover()
+            self.assertEqual(self.broker.post_count, 1)
+
+    def test_actual_slipped_fill_money_risk_and_protection(self):
+        with self.executor() as e:
+            key = e.submit_entry(self.signal, self.entry,
+                                 price_step=BINDINGS[self.entry.symbol]["price_step"],
+                                 account_authority=self.money_authority())
+            qty = e.store.get("execution_entries")[key]["quantity"]
+            self.fill_entry(key, quantity=qty, price="10.001")
+            result = e.recover()
+            self.assertEqual(result["reconciliation"], "RECONCILED")
+            self.assertFalse(result["halt"])
+            self.assertEqual(e.store.get("actual_fill_risk:" + key)["status"], "PASS")
+            self.assertEqual(self.broker.orders[1]["sltp_order"]["quantity_sl"], {"value": "100"})
+            self.assertEqual(self.broker.orders[1]["sltp_order"]["sl_price"], {"value": "9.975"})
+
+    def test_missing_or_wrong_money_authority_blocks_before_post(self):
+        with self.executor() as e:
+            with self.assertRaisesRegex(ExecutionBlocked, "ACCOUNT_MONEY_PRICE_STEP_MISMATCH"):
+                e.submit_entry(self.signal, self.entry,
+                               price_step=BINDINGS[self.entry.symbol]["price_step"],
+                               account_authority=self.money_authority(step="0.01"))
+            self.assertEqual(self.broker.post_count, 0)
+
+    def test_insufficient_money_capacity_blocks_before_post(self):
+        with self.executor() as e:
+            with self.assertRaisesRegex(ExecutionBlocked, "ACCOUNT_RISK_"):
+                e.submit_entry(self.signal, self.entry,
+                               price_step=BINDINGS[self.entry.symbol]["price_step"],
+                               account_authority=self.money_authority(cash="0"))
+            self.assertEqual(self.broker.post_count, 0)
+
+    def test_legacy_unaccounted_position_cannot_share_money_budget(self):
+        with self.executor() as e:
+            key = self.submit(e)  # prior reference-only FakeBroker path
+            sig, second = plan("SHALLOW_PULLBACK", "GLDRUBF",
+                               at=datetime(2024, 1, 9, 11))
+            binding = BINDINGS[second.symbol]
+            authority = AccountAuthority(self.broker.account_id,
+                Decimal("500000"), Decimal("200000"),
+                Decimal(str(binding["price_step"])),
+                Decimal(str(binding["tick_value"])), Decimal("10000"), 1, Decimal("50"))
+            with self.assertRaisesRegex(ExecutionBlocked, "UNACCOUNTED_EXISTING_POSITION_RISK"):
+                e.submit_entry(sig, second, price_step=binding["price_step"],
+                               account_authority=authority)
+            self.assertEqual(self.broker.post_count, 1)
