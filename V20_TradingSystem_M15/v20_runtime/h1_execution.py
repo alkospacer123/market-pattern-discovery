@@ -202,6 +202,16 @@ class OfflineH1Executor:
         else:
             if type(account_authority) is not AccountAuthority or account_authority.account_id != self.broker.account_id:
                 self._halt("ACCOUNT_MONEY_AUTHORITY_MISMATCH")
+            if account_authority.price_step != Decimal(str(price_step)):
+                self._halt("ACCOUNT_MONEY_PRICE_STEP_MISMATCH")
+            # Do not silently exclude positions entered by the older fake-only
+            # path from the account-wide R6/margin budget.
+            for old_key in existing:
+                if old_key not in saved_risk and (
+                        self.store.get("remaining:" + old_key, 0) or
+                        (self.store.intent(old_key) and self.store.intent(old_key)["status"] in
+                         {"INTENT_PERSISTED", "SUBMITTED", "UNCERTAIN", "ACK", "PARTIAL_FILL"})):
+                    self._halt("UNACCOUNTED_EXISTING_POSITION_RISK")
             try:
                 reservation = reserve_entry(
                     authority=account_authority, entry_key=key,
