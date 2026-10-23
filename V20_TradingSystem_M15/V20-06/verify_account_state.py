@@ -122,20 +122,35 @@ def _self_test(mod):
     class FakeResponse:
         status = 200
         headers = {}
+        def __init__(self, body):
+            self.body = body
         def read(self):
-            return b'{"orders":[],"trades":[]}'
+            return json.dumps(self.body).encode("utf-8")
     def fake_transport(request, timeout):
-        observed.append((request.get_method(), request.full_url))
-        return FakeResponse()
+        method, url = request.get_method(), request.full_url
+        observed.append((method, url))
+        if method == "POST" and url.endswith("/v1/sessions"):
+            return FakeResponse({"token": "offline-test-jwt"})
+        if method == "POST" and url.endswith("/v1/sessions/details"):
+            return FakeResponse({"readonly": True, "account_ids": ["demo-a"]})
+        return FakeResponse({"orders": [], "trades": []})
     api = API("dummy-readonly", "demo-a", transport=fake_transport)
-    api.bound = True
+    api.connect_readonly()
     valid_start = (datetime.now(timezone.utc)-timedelta(days=2)).isoformat()
     valid_end = (datetime.now(timezone.utc)-timedelta(minutes=2)).isoformat()
     response = api._request("GET", api.account_path + "/orders")
     if response.status != 200:
         raise RuntimeError("V20_06_3_ORDERS_GET_FAILED")
     api.read_history(valid_start, valid_end, HISTORY_LIMIT)
-    if len(observed) != 2 or any(method != "GET" for method, _ in observed):
+    expected = [
+        ("POST", "/v1/sessions"),
+        ("POST", "/v1/sessions/details"),
+        ("GET", api.account_path + "/orders"),
+        ("GET", api.account_path + "/trades?"),
+    ]
+    if (len(observed) != len(expected)
+            or any(method != expected_method or not urlsplit(url).path.endswith(path.rstrip("?"))
+                   for (method, url), (expected_method, path) in zip(observed, expected))):
         raise RuntimeError("V20_06_3_GET_ALLOWLIST_FAILED")
     forbidden = (
         ("POST", api.account_path + "/orders"),
@@ -152,7 +167,7 @@ def _self_test(mod):
             pass
         else:
             raise RuntimeError("V20_06_3_UNAUTHORIZED_TRANSPORT")
-    if len(observed) != 2:
+    if len(observed) != 4:
         raise RuntimeError("V20_06_3_FORBIDDEN_REQUEST_WAS_SENT")
     print("V20_06_3_GET_ONLY_BOUNDARIES=PASS")
 
