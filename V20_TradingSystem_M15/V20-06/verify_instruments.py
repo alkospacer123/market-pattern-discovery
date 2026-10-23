@@ -10,6 +10,7 @@ from datetime import datetime, timedelta, timezone
 import hashlib
 import json
 import logging
+import re
 from pathlib import Path
 import sys
 from urllib.parse import parse_qs, urlencode, urlsplit
@@ -301,8 +302,13 @@ def main() -> int:
             return 0
         return _connect()
     except Exception as exc:
-        # Do not print exception text: transport exceptions can include private IDs.
-        print("V20_06_2_FAIL=" + type(exc).__name__, file=sys.stderr)
+        # Print only predefined, all-caps local failure codes. Never echo H1
+        # transport exception strings (they can include private account IDs).
+        code = str(exc) if type(exc) in (RuntimeError, ValueError) else ""
+        known = code if (re.fullmatch(r"[A-Z0-9_]{1,120}", code)
+                         and code.startswith(("V20_", "N4_", "M15_", "READONLY_",
+                                              "PINNED_", "H1_"))) else type(exc).__name__
+        print("V20_06_2_FAIL=" + known, file=sys.stderr)
         return 1
 
 
