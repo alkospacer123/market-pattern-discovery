@@ -546,6 +546,11 @@
       "size": 21973
     },
     {
+      "path": "V20_TradingSystem_M15/v20_runtime/market_reference_descriptive.py",
+      "sha": "20c23eeaf5d5fef7fd08cbc379f9bca601fbdad2",
+      "size": 5580
+    },
+    {
       "path": "V20_TradingSystem_M15/v20_runtime/market_suitability.py",
       "sha": "48ff6b79cb9e1759a66c8182b7ce77a51ba4cce6",
       "size": 18717
