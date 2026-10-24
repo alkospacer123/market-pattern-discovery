@@ -1140,3 +1140,58 @@ def frozen_observed_session_exit(
             and not any(OfflinePlanner._session_key(t) == third for t in rows)):
         return "EXIT_AT_THIRD_OBSERVED_SESSION_OPEN"
     return "MISSED_OR_PASSED_THIRD_SESSION_OPEN_HALT"
+
+
+def propose_finam_m15_next_open(
+    reader: V20FinamReadAdapter, *, symbol: str, from_utc: datetime,
+    now: datetime, cost_per_contract: Decimal,
+) -> tuple[FrozenSignal, ProposedEntry, AccountAuthority, LiveAccountSnapshot] | None:
+    """08.1: one common NO-POST path FINAM M15 -> frozen V20 -> reused H1 risk.
+
+    Return None on a verified no-signal bar, otherwise an *unpersisted*
+    candidate. Neither durable authority nor permission to place an order
+    is granted here. Caller still needs its per-account journal/kill switch,
+    approved trial, fresh broker reconciliation and H1 order transport.
+    """
+    if not isinstance(reader, V20FinamReadAdapter) or reader.robot_id not in ROBOT_STRATEGIES:
+        raise V20FinamBlocked("NEXT_OPEN_ROBOT_IDENTITY_INVALID")
+    boundary = read_finam_m15_boundary(
+        reader, symbol=symbol, from_utc=from_utc, now=now,
+    )
+    if boundary.at_msk != (
+        now.astimezone(ZoneInfo("Europe/Moscow"))
+        .replace(tzinfo=None, minute=now.astimezone(ZoneInfo("Europe/Moscow")).minute//15*15,
+                 second=0, microsecond=0)
+    ):
+        raise V20FinamBlocked("NEXT_OPEN_BOUNDARY_INVALID")
+    signal = completed_signal(
+        symbol, ROBOT_STRATEGIES[reader.robot_id],
+        boundary.completed, observed_at=boundary.at_msk,
+    )
+    if signal is None:
+        return None
+    if (signal.strategy != ROBOT_STRATEGIES[reader.robot_id]
+            or signal.symbol != symbol
+            or signal.signal_bar_open + STEP != boundary.at_msk):
+        raise V20FinamBlocked("NEXT_OPEN_FROZEN_SIGNAL_MISMATCH")
+    snapshot = reader.snapshot(now=now)
+    if not snapshot.clean:
+        raise V20FinamBlocked("NEXT_OPEN_NONFLAT_ACCOUNT_NO_BOOTSTRAP")
+    direction = "LONG" if signal.side == 1 else "SHORT"
+    authority = reader.authority(
+        snapshot, symbol=symbol, direction=direction,
+        roundtrip_cost_per_contract=cost_per_contract, now=now,
+    )
+    candidate = OfflinePlanner(ROBOT_STRATEGIES[reader.robot_id]).reference_next_open(
+        signal, at=boundary.at_msk, entry_open=boundary.witnessed_open,
+        realized_equity=authority.realized_equity, price_step=authority.price_step,
+        tick_value=authority.tick_value, initial_margin=authority.initial_margin,
+        available_cash=authority.available_cash,
+        trade_lot_size=authority.trade_lot_size,
+        cost_buffer_per_contract=authority.roundtrip_cost_per_contract,
+    )
+    if (candidate.strategy != signal.strategy or candidate.symbol != symbol
+            or candidate.entry_bar_open != boundary.at_msk
+            or candidate.reference_entry != boundary.witnessed_open):
+        raise V20FinamBlocked("NEXT_OPEN_PLANNER_MISMATCH")
+    return signal, candidate, authority, snapshot
