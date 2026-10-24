@@ -6,16 +6,17 @@ writer. In particular it must never be treated as proof of executable LIVE.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
+from fractions import Fraction
 import hashlib
 import re
 from typing import Any
 
 from TradingSystemLab.stage8_robot.finam_api import FinamAPI
 from TradingSystemLab.stage8_robot.broker import compact_client_order_id
-from TradingSystemLab.stage8_robot.execution_grid import require_on_grid, initial_projection
+from TradingSystemLab.stage8_robot.execution_grid import require_on_grid, initial_projection, project_stop
 from TradingSystemLab.stage8_robot.finam_fill_price_readonly import (
     Target, analyze_history,
 )
@@ -31,7 +32,7 @@ from TradingSystemLab.stage8_robot.production_broker_state import (
 from TradingSystemLab.stage8_robot.production_runtime import _load_registry, RuntimeAction
 
 from TradingSystemLab.stage8_robot.live_execution import AuthorizedFinamProductionTransport
-from .account_risk import AccountAuthority, RiskReservation, reserve_entry
+from .account_risk import AccountAuthority, RiskReservation, reserve_entry, revalue_fill
 from .h1_state_journal import ROBOT_STRATEGIES, IsolatedReferenceJournal
 from .offline_planner import N4, FrozenSignal, ProposedEntry, OfflinePlanner, STEP
 
@@ -427,3 +428,146 @@ class V20TradeJournal(IsolatedReferenceJournal):
         self.store.transition_intent(key, "ACK", found.order_id)
         # Broker ACK does not prove fill price, quantity or stop protection.
         return "BROKER_ACK_NO_FILL_OR_SLTP_PROOF"
+
+    def observe_protected_entry(
+        self, *, key: str, reader: V20FinamReadAdapter,
+        snapshot: LiveAccountSnapshot, now: datetime,
+    ) -> dict[str, Any]:
+        """Persist order-linked fill and active 100% stop *observations* only.
+
+        FINAM must prove every observed contract via H1 trade-history parsing,
+        and the current SLTP must match VWAP +/- frozen 2*ATR14 on the tick
+        grid. No method transmits an order or changes the active stop. Fees
+        remain a budget estimate until separate FINAM fee authority arrives.
+        """
+        if (not isinstance(reader, V20FinamReadAdapter)
+                or reader.account_hash != self.account_hash
+                or reader.robot_id != self.robot_id
+                or not isinstance(snapshot, LiveAccountSnapshot)
+                or snapshot.account_hash != self.account_hash
+                or snapshot.robot_id != self.robot_id):
+            raise V20FinamBlocked("PROTECTED_FILL_ACCOUNT_IDENTITY_MISMATCH")
+        reader._fresh(snapshot, now)
+        intent = self.store.intent(key)
+        if (intent is None or intent["payload"].get("kind") != "ENTRY"
+                or intent["payload"].get("mode") != "PRETRADE_NOT_AUTHORIZED"
+                or intent["status"] not in {"ACK", "PARTIAL_FILL", "FILL", "RECONCILED"}
+                or not intent["broker_order_id"]):
+            raise V20FinamBlocked("BROKER_ACK_RECONCILIATION_REQUIRED")
+        submission = self.store.get("entry_submission:" + key)
+        if (not isinstance(submission, dict)
+                or submission.get("account_sha256") != self.account_hash
+                or not isinstance(submission.get("submitted_at"), str)):
+            raise V20FinamBlocked("DURABLE_SUBMISSION_TIME_MISSING")
+        payload = intent["payload"]
+        reservation_data = self.store.get("risk_reservations", {}).get(key)
+        reservation = RiskReservation.restore(reservation_data)
+        symbol = payload["symbol"]
+        direction = payload["direction"]
+        observed_at = datetime.fromisoformat(submission["submitted_at"])
+        try:
+            history = reader.inspect_entry_fills(
+                snapshot, entry_key=key, symbol=symbol,
+                direction=direction, requested_quantity=reservation.quantity,
+                submitted_at=observed_at, now=now,
+            )
+        except Exception:
+            self.store.put("execution_halt", "ENTRY_FILL_HISTORY_UNVERIFIED")
+            raise
+        facts = history.get("matched_unique_fills", [])
+        filled = history.get("matched_quantity")
+        if (history.get("authority_scope") !=
+                "READONLY_DIAGNOSTIC_ONLY_NO_RUNTIME_HANDOFF"
+                or type(filled) is not int or filled <= 0
+                or not isinstance(facts, list) or not facts
+                or filled != sum(row["quantity"] for row in facts)):
+            self.store.put("execution_halt", "ENTRY_FILL_HISTORY_UNVERIFIED")
+            raise V20FinamBlocked("ENTRY_FILL_HISTORY_INCOMPLETE")
+        registry = _load_registry()[symbol]
+        finam_symbol = registry["finam_symbol"]
+        expected_position = filled if direction == "LONG" else -filled
+        if snapshot.positions.get(finam_symbol, 0) != expected_position:
+            self.store.put("execution_halt", "ENTRY_BROKER_POSITION_FILL_MISMATCH")
+            raise V20FinamBlocked("ENTRY_BROKER_POSITION_FILL_MISMATCH")
+        matched_order = unique_order_by_client_id(
+            list(snapshot.orders), compact_client_order_id(key),
+        )
+        if (matched_order is None or matched_order.order_id != intent["broker_order_id"]
+                or matched_order.kind != "REGULAR"
+                or matched_order.symbol != finam_symbol):
+            self.store.put("execution_halt", "ENTRY_ORDER_IDENTITY_CHANGED")
+            raise V20FinamBlocked("ENTRY_ORDER_IDENTITY_CHANGED")
+        exact_average = (sum(
+            (int(fact["quantity"]) * Fraction(fact["price"]) for fact in facts),
+            Fraction(0),
+        ) / filled)
+        side = 1 if direction == "LONG" else -1
+        projected_stop = project_stop(
+            direction, exact_average - side * 2 * Fraction(reservation.atr14),
+            reservation.price_step,
+        )
+        try:
+            stop = reader.inspect_protective_stop(
+                snapshot, entry_key=key, symbol=symbol, direction=direction,
+                stop_price=projected_stop, now=now,
+            )
+        except Exception:
+            self.store.put("execution_halt", "OPEN_POSITION_PROTECTION_UNVERIFIED")
+            raise
+        # No actual broker fee in H1 /trades diagnostic; the *reserved* roundtrip
+        # amount is the conservative provisional cost, not a verified fee.
+        assessment = revalue_fill(
+            reservation,
+            [(int(f["quantity"]), f["price"], "0") for f in facts],
+            installed_stop=projected_stop,
+            other_reserved_risk=sum(
+                (RiskReservation.restore(r).reserved_risk for k, r in
+                 self.store.get("risk_reservations", {}).items() if k != key),
+                Decimal(0),
+            ),
+        )
+        with self.store.transaction():
+            # H1's strict SQLite fill identity detects changed data on restart.
+            durable = self.store.fills_for_order(matched_order.order_id)
+            known = {f["fill_id"] for f in durable}
+            newly_seen = set()
+            for fact in facts:
+                fid = ("finam:" + self.account_hash + ":" + fact["trade_id_sha256"])
+                newly_seen.add(fid)
+                entry_fill = {
+                    "fill_id": fid, "broker_order_id": matched_order.order_id,
+                    "trade_id": key, "entry_key": key,
+                    "quantity": str(fact["quantity"]), "price": fact["price"],
+                    "timestamp": str(fact["utc_seconds"]) + ":" + str(fact["nanoseconds"]),
+                    "broker_trade_id_sha256": fact["trade_id_sha256"],
+                    "account_sha256": self.account_hash,
+                    "fees": "NOT_YET_CONFIRMED_BY_FINAM",
+                }
+                self.store.persist_fill(entry_fill, strict=True)
+            if not known.issubset(newly_seen):
+                raise V20FinamBlocked("HISTORICAL_FINAM_FILL_DISAPPEARED")
+            observation = {
+                "account_sha256": self.account_hash,
+                "broker_order_id": matched_order.order_id,
+                "broker_stop_id": stop.order_id,
+                "fill_set_sha256": history["fill_set_sha256"],
+                "filled_quantity": filled, "average_exact": str(exact_average),
+                "installed_stop": str(projected_stop),
+                "broker_stop_percent": "100",
+                "risk_assessment": assessment,
+                "fees_status": "BUDGETED_ONLY_NOT_ACTUAL",
+                "observed_at_utc": now.astimezone(timezone.utc).isoformat(),
+            }
+            self.store.put("protected_fill:" + key, observation)
+            if matched_order.status in {"FILLED", "EXECUTED"}:
+                if filled != reservation.quantity:
+                    raise V20FinamBlocked("TERMINAL_ENTRY_FILL_QUANTITY_MISMATCH")
+                self.store.transition_intent(key, "RECONCILED", matched_order.order_id)
+            else:
+                self.store.transition_intent(key, "PARTIAL_FILL", matched_order.order_id)
+            self.store.put(
+                "execution_halt",
+                assessment["reason"] if assessment["status"] != "PASS"
+                else "ACTUAL_FINAM_FEE_AUTHORITY_PENDING",
+            )
+        return observation
