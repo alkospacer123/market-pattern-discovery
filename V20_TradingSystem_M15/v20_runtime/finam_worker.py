@@ -207,8 +207,8 @@ def main():
                 print("v20_08_1_open_" + symbol.lower() + "=" + status)
         print("v20_08_1_orders=zero")
         print("v20_08_1_live=off")
-        return 0 if result["status"].startswith("PASS") or result[
-            "status"] == "NEXT_OPEN_NOT_IN_CURRENT_60_SECONDS" else 2
+        # A missed time window is NOT a passed real-time Open witness.
+        return 0 if result["status"].startswith("PASS") else 2
     except BaseException as exc:
         name = type(exc).__name__
         if isinstance(exc, V20FinamBlocked):
