@@ -62,8 +62,9 @@ Write-Output ('V20_TASK_LIVE_NOT_AUTHORIZED=' + $Robot)
 exit 87
 '@
 if (Test-Path -LiteralPath $blocker) {
-    $old = (Get-Content -LiteralPath $blocker -Raw -Encoding UTF8).Trim()
-    require ($old -eq $blockerText.Trim()) 'V20_07_2_BLOCKER_CHANGED'
+    $old = ((Get-Content -LiteralPath $blocker -Raw -Encoding UTF8) -replace "`r`n", "`n").Trim()
+    $expectedBlocker = ($blockerText -replace "`r`n", "`n").Trim()
+    require ($old -ceq $expectedBlocker) 'V20_07_2_BLOCKER_CHANGED'
 } else {
     $blockerText | Set-Content -LiteralPath $blocker -Encoding UTF8 -ErrorAction Stop
 }
