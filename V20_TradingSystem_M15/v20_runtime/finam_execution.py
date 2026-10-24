@@ -285,7 +285,7 @@ class V20TradeJournal(IsolatedReferenceJournal):
         if (not isinstance(entry, ProposedEntry)
                 or entry.symbol not in N4
                 or entry.direction not in {"LONG", "SHORT"}
-                or not isinstance(entry.entry_bar_open, datetime)
+                or not hasattr(entry.entry_bar_open, "tzinfo")
                 or entry.entry_bar_open.tzinfo is not None):
             raise V20FinamBlocked("TRIAL_PREVIEW_KEY_INVALID")
         return ("v20:" + self.robot_id + ":" + self.account_hash[:16] + ":" +
@@ -1205,3 +1205,72 @@ def propose_finam_m15_next_open(
             or candidate.reference_entry != boundary.witnessed_open):
         raise V20FinamBlocked("NEXT_OPEN_PLANNER_MISMATCH")
     return signal, candidate, authority, snapshot
+
+
+def prepare_finam_single_trial(
+    transport: V20SingleTradeTransport, *, symbol: str, from_utc: datetime,
+    now: datetime, cost_per_contract: Decimal,
+) -> dict[str, Any]:
+    """08.1 common preflight: exact trial authority -> durable H1 intent.
+
+    Does NOT send a FINAM order. Its returned key may only be submitted by
+    V20SingleTradeTransport.submit_entry_once after the same broker guards.
+    A no-signal boundary does not consume the single-trial permit.
+    """
+    if not isinstance(transport, V20SingleTradeTransport):
+        raise V20FinamBlocked("TRIAL_PREPARER_TRANSPORT_INVALID")
+    journal, reader = transport.journal, transport.reader
+    if (journal.robot_id != reader.robot_id
+            or journal.account_hash != reader.account_hash
+            or journal.store.get("execution_halt") is not None
+            or journal.store.all_intents()):
+        raise V20FinamBlocked("TRIAL_PREPARER_EXISTING_INTENT_OR_HALT")
+    from TradingSystemLab.stage8_robot.trading_safety_gate import load_kill_switch
+    switch, switch_error = load_kill_switch(journal.instance_root)
+    if switch_error or not switch or switch["state"] != "ARMED":
+        raise V20FinamBlocked("TRIAL_PREPARER_V20_KILL_SWITCH_NOT_ARMED")
+    draft = propose_finam_m15_next_open(
+        reader, symbol=symbol, from_utc=from_utc,
+        now=now, cost_per_contract=cost_per_contract,
+    )
+    if draft is None:
+        return {"status": "NO_FROZEN_SIGNAL", "orders": 0}
+    signal, candidate, authority, snapshot = draft
+    key = journal.preview_entry_key(candidate)
+    approval = transport._permit(key=key, kind="ENTRY")
+    if (approval["instrument"] != candidate.symbol
+            or approval["direction"] != candidate.direction):
+        raise V20FinamBlocked("TRIAL_PREPARER_SCOPE_NOT_APPROVED")
+    candidate = replace(candidate, quantity=min(
+        candidate.quantity, approval["max_quantity"],
+    ))
+    # Reuse exactly the current H1 risk authority to validate the owner's
+    # monetary ceiling BEFORE writing an intent that could never be approved.
+    risk = reserve_entry(
+        authority=authority, entry_key=key, symbol=symbol,
+        direction=candidate.direction, entry=candidate.reference_entry,
+        atr14=signal.atr14, planned_max_quantity=candidate.quantity,
+        current_reservations=(),
+    )
+    try:
+        cap = Decimal(str(approval["max_risk_rub"]))
+    except (ValueError, TypeError, ArithmeticError):
+        raise V20FinamBlocked("TRIAL_PREPARER_APPROVED_RISK_INVALID") from None
+    if not cap.is_finite() or cap <= 0 or risk.reserved_risk > cap:
+        raise V20FinamBlocked("TRIAL_PREPARER_RISK_EXCEEDS_APPROVAL")
+    persisted = journal.prepare_entry(
+        signal=signal, entry=candidate, authority=authority, snapshot=snapshot,
+    )
+    if persisted != key:
+        journal.store.put("execution_halt", "TRIAL_PREPARER_INTENT_KEY_CHANGED")
+        raise V20FinamBlocked("TRIAL_PREPARER_INTENT_KEY_CHANGED")
+    return {
+        "status": "APPROVED_PREPARED_ONLY_NO_ORDER",
+        "robot_id": journal.robot_id,
+        "entry_key": persisted,
+        "symbol": candidate.symbol,
+        "direction": candidate.direction,
+        "quantity": risk.quantity,
+        "reserved_risk_rub": str(risk.reserved_risk),
+        "orders": 0,
+    }
