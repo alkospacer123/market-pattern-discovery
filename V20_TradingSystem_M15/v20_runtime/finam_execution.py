@@ -761,6 +761,9 @@ class V20SingleTradeTransport:
         with self.journal.store.transaction():
             if self.journal.store.intent(stop_key) is not None:
                 raise V20FinamBlocked("STOP_ALREADY_ATTEMPTED_NO_RETRANSMIT")
+            if any(o.active and o.kind == "SLTP" and o.symbol == payload["finam_symbol"]
+                   for o in current.orders):
+                raise V20FinamBlocked("PREEXISTING_BROKER_STOP_REQUIRES_RECONCILIATION")
             self.journal.store.persist_intent(stop_key, {
                 "kind": "STOP", "entry_key": key, "wire": wire,
                 "account_sha256": self.journal.account_hash,
