@@ -1,6 +1,6 @@
 # v20-08.1: four new offline tests only, artificial approval file in a temp directory.
 $ErrorActionPreference = 'Stop'
-$pin = '7151c69a9652bd9adddb36a0a4374740e0e73f7f'
+$pin = '1bb2fabf816272a95363fc4b9226ce3953d91906'
 $root = 'c:\v20lab'
 $source = Join-Path $root 'source-raw'
 $python = Join-Path $root '.venv-raw\scripts\python.exe'
@@ -11,7 +11,7 @@ $pkg = Join-Path $workspace 'V20_TradingSystem_M15\v20_runtime'
 $tests = Join-Path $pkg 'tests'
 New-Item -ItemType Directory -Path $tests -Force | Out-Null
 $files = @(
-    @('v20_runtime/finam_execution.py','cd84d1e22f8a473e3473509bdce3fa3efa4d5cdb',$pkg,'finam_execution.py'),
+    @('v20_runtime/finam_execution.py','27d753377afbdd2238dcd60a920f298f0203cf77',$pkg,'finam_execution.py'),
     @('v20_runtime/h1_state_journal.py','f9fb32a50eb712aeae4690dd85d4e7aa512ef15c',$pkg,'h1_state_journal.py'),
     @('v20_runtime/tests/test_finam_trial_transport.py','509adfef1a0bfad75e8a2232fa2b00bdef2f8c28',$tests,'test_finam_trial_transport.py')
 )
