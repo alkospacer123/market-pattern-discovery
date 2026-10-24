@@ -10,7 +10,7 @@ from datetime import datetime, timedelta, timezone
 import argparse
 from decimal import Decimal
 from pathlib import Path
-from urllib.parse import parse_qs, urlencode, urlsplit
+from urllib.parse import parse_qs, urlencode, urlparse
 import hashlib
 import json
 import os
@@ -78,7 +78,7 @@ def prepare_h1():
 
 
 def bounds(path, now):
-    parsed = urlsplit(path)
+    parsed = urlparse(path)
     if (parsed.fragment or parsed.params or parsed.path not in
             {"/v1/instruments/" + symbol + "/bars" for symbol in N4}):
         return False
