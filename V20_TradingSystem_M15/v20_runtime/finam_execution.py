@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 from fractions import Fraction
@@ -613,7 +614,8 @@ class V20SingleTradeTransport:
         path = self.trial_permit_path
         authorized = self.journal.instance_root / "safety" / "v20-single-trial-approval.json"
         if (path is None or Path(path).resolve(strict=False) != authorized.resolve(strict=False)
-                or not authorized.is_file() or authorized.is_symlink()):
+                or not authorized.is_file() or authorized.is_symlink()
+                or authorized.parent.is_symlink()):
             raise V20FinamBlocked("SINGLE_TRIAL_EXPLICIT_AUTHORIZATION_MISSING")
         try:
             approval = json.loads(authorized.read_text(encoding="utf-8"))
@@ -646,8 +648,11 @@ class V20SingleTradeTransport:
 
     def _entry(self, key: str, *, snapshot: LiveAccountSnapshot, now: datetime):
         self.reader._fresh(snapshot, now)
-        if not snapshot.clean:
-            raise V20FinamBlocked("TRIAL_ACCOUNT_NOT_FLAT")
+        current = self.reader.snapshot(now=now)
+        if (not snapshot.clean or not current.clean
+                or current.realized_equity != snapshot.realized_equity
+                or current.available_cash != snapshot.available_cash):
+            raise V20FinamBlocked("TRIAL_ACCOUNT_NOT_FLAT_OR_MONEY_CHANGED")
         if self.journal.store.get("execution_halt") is not None:
             raise V20FinamBlocked("TRIAL_JOURNAL_HALTED")
         approval = self._permit(key=key, kind="ENTRY")
@@ -661,6 +666,13 @@ class V20SingleTradeTransport:
                 or payload["quantity"] > approval["max_quantity"]
                 or len(self.journal.store.all_intents()) != 1):
             raise V20FinamBlocked("TRIAL_SCOPE_NOT_EXACT")
+        entry_open = datetime.fromisoformat(payload["entry_at"])
+        if entry_open.tzinfo is not None or now.tzinfo is None:
+            raise V20FinamBlocked("TRIAL_NEXT_OPEN_TIME_INVALID")
+        expected_utc = entry_open.replace(tzinfo=ZoneInfo("Europe/Moscow")).astimezone(timezone.utc)
+        elapsed = now.astimezone(timezone.utc) - expected_utc
+        if not timedelta(0) <= elapsed <= timedelta(seconds=60):
+            raise V20FinamBlocked("TRIAL_NEXT_OPEN_EXPIRED_OR_FUTURE")
         reservation = RiskReservation.restore(
             self.journal.store.get("risk_reservations", {}).get(key),
         )
@@ -706,6 +718,9 @@ class V20SingleTradeTransport:
         never creates an automatic second stop.
         """
         self.reader._fresh(snapshot, now)
+        current = self.reader.snapshot(now=now)
+        if current.positions != snapshot.positions:
+            raise V20FinamBlocked("STOP_BROKER_POSITION_CHANGED")
         approval = self._permit(key=key, kind="PROTECTIVE_STOP")
         entry = self.journal.store.intent(key)
         if (entry is None or entry["status"] not in
@@ -725,6 +740,9 @@ class V20SingleTradeTransport:
         step = Decimal(registry["price_step"])
         price = Decimal(str(stop_price))
         require_on_grid(price, step)
+        if (payload["direction"] == "LONG" and price >= Decimal(payload["reference_entry"])
+                or payload["direction"] == "SHORT" and price <= Decimal(payload["reference_entry"])):
+            raise V20FinamBlocked("STOP_ON_WRONG_SIDE")
         stop_key = key + ":stop"
         action = RuntimeAction(
             "PROTECTIVE_STOP_INSTALL", stop_key, payload["symbol"],
