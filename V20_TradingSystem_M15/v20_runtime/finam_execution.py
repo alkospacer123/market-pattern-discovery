@@ -279,8 +279,7 @@ class V20TradeJournal(IsolatedReferenceJournal):
                 or not isinstance(snapshot, LiveAccountSnapshot)
                 or snapshot.robot_id != self.robot_id
                 or snapshot.account_hash != self.account_hash
-                or authority.account_id != snapshot.account_hash and
-                   hashlib.sha256(authority.account_id.encode("utf-8")).hexdigest() != self.account_hash):
+                or hashlib.sha256(authority.account_id.encode("utf-8")).hexdigest() != self.account_hash):
             raise V20FinamBlocked("PRETRADE_ACCOUNT_AUTHORITY_MISMATCH")
         if (signal.strategy != self.strategy or entry.strategy != self.strategy
                 or signal.symbol not in N4 or entry.symbol != signal.symbol
