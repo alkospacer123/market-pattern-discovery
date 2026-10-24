@@ -27,3 +27,15 @@
 Исправление ограничено `Install-StagingOnly.ps1`: Python делает только import, строка PASS выводится штатным `Write-Output` PowerShell после exitcode=0; существующий чистый checkout переиспользуется, без повторного fetch. Полный импорт не является включением LIVE или запуском торгового процесса. Требуется повторное фактическое выполнение.
 
 **Вторая попытка Intel 24.10.2026:** `V20_07_1_EXISTING_PINNED_CHECKOUT=REUSE`, `V20_07_1_IMPORT_CHECK=PASS_OFFLINE_ONLY`, затем `VariableNotWritable` при присваивании `$home`: Windows PowerShell не различает `$home` и встроенную read-only `$HOME`. До создания `config\staging.json` для первого робота исполнение не дошло, `INSTALL_07_1_REPORT.json` не создан. Адресный фикс: заменить 5 употреблений `$home` на `$instanceDir` только в `Install-StagingOnly.ps1`. Git checkout не скачивать снова, состояние H1/M15 не трогать. Статус **07.1 NOT PASS; SECOND FIX READY / INTEL NOT YET RE-RUN**.
+
+## Факт Intel 24.10.2026 — V20-07.1 PASS 3/3
+
+Повторный запуск на `URIU-PC` подтвердил `V20_07_1_EXISTING_PINNED_CHECKOUT=REUSE`, `V20_07_1_IMPORT_CHECK=PASS_OFFLINE_ONLY`, `V20_07_1_v20-shallow/obv/inside=INSTALLED_LIVE_OFF`, `V20_07_1_RESULT=PASS_STAGING_ONLY_3_OF_3`. Закреплённый checkout SHA `610109b736c53a5cc1025657291e272b1136b254` и локальный отчёт `C:\V20Lab\staging-07\INSTALL_07_1_REPORT.json` подтверждены выводом оператора. FINAM, H1/M15 и Windows Tasks не затронуты. **07.1 CLOSED / PASS**.
+
+## V20-07.2 — три Windows Tasks в Disabled, СКРИПТ ГОТОВ / INTEL NOT RUN
+
+Создан `Install-DisabledTasks.ps1` по штатной H1-схеме `New-ScheduledTask` / `Register-ScheduledTask` / `Disable-ScheduledTask` — **только три новых имени**: `v20-shallow`, `v20-obv`, `v20-inside`. Устанавливаются от текущей учётной записи Windows (локальная `Interactive`-привязка, `RunLevel Limited`, без запроса пароля и без всплывающих окон). Этот тип входа **не означает автономную работу при разлогиненном пользователе**: полноценную независимую учётную запись/хранение секретов/разрешённый LIVE-лаунчер конфигурируем позднее по отдельному разрешению, не подменяя стадийный факт.
+
+Task имеет триггер `AtStartup`, но **действие намеренно только** `C:\V20Lab\staging-07\v20-task-live-blocked.ps1`, которое печатает `V20_TASK_LIVE_NOT_AUTHORIZED` и завершается с кодом 87. Никаких торговых библиотек, токенов, FINAM, заявок. Запуск отключённых Tasks не выполняется; при установке каждый Task сразу переводится в `Disabled`, затем проверяется. При повторной установке уже существующие задачи могут быть только переиспользованы при строгом совпадении Disabled / SID / действия / рабочего каталога; конфликтная задача не перезаписывается.
+
+До установки проверяется локальный PASS `INSTALL_07_1_REPORT.json`, funded 06.4 PASS, pinned Git SHA и три staging-конфига `LIVE=OFF` / `NOT_CONFIGURED`. Фактический отчёт после установки — `C:\V20Lab\staging-07\TASKS_07_2_REPORT.json` (SID, Task principal, action, hash/commit, задачи). Скрипт не затрагивает H1/M15. **07.2 пока НЕ PASS**, пока три `Get-ScheduledTask` реально не покажут Disabled.
