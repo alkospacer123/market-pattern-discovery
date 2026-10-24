@@ -30,3 +30,7 @@
 ## 24.10.2026 — адресные FINAM/SLTP тесты перед LIVE
 
 В `v20_runtime/finam_execution.py` имеются read-side методы `inspect_entry_fills` (проверенная H1 привязка сделки к FINAM order_id и client_order_id) и `inspect_protective_stop` (только точный активный H1 SLTP 100% брокерской позиции). Присоединить этот reader к настоящему ордерному маршруту можно только после завершения V20-08.1, durable V20 SQLite reconciliation и отдельного разрешения. До этого никаких реальных заявок, H1/IntradayLab/Tasks изменений не происходит. Для native Intel теста добавлен `V20-08/invoke-offline-finam-bridge-tests.ps1` (7 новых fake FINAM случаев, скачивает 2 exact pinned Git blobs, вообще не использует торговые токены). **Запуск Intel ещё не подтверждён**, не обозначать PASS 08.1.
+
+## 24.10.2026 — SQLite fill/stop observation (no LIVE)
+
+Intel подтвердил 11/11 ранее подготовленных тестов (7+4). Новый `V20TradeJournal.observe_protected_entry` в существующем `v20_runtime/finam_execution.py` соединяет H1 FINAM order-linked fill GET, проверку текущего SLTP 100%, `StateStore.persist_fill(strict=True)` и V20 фактическую переоценку стопа/риска. При отсутствии SLTP, смене order ID, расхождении позиции или истории новые входы остаются HALTED. Из-за неполной комиссии из `/trades` сохраняется `ACTUAL_FINAM_FEE_AUTHORITY_PENDING`: не объявлять реальную финансовую приёмку. Три новых fake-only сценария проверяются `invoke-offline-protected-recovery-tests.ps1`. **Intel NOT RUN для новых сценариев; 08.1 NOT PASS**, 08.2 не разрешён, V20 Tasks остаются Disabled.
