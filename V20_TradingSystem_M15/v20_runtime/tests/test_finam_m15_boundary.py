@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 import hashlib
 import unittest
+import pandas as pd
 from urllib.parse import parse_qs, urlsplit
 
 from TradingSystemLab.stage8_robot.finam_api import FinamAPI, Response
@@ -12,6 +13,7 @@ from TradingSystemLab.stage8_robot.production_runtime import _load_registry
 
 from V20_TradingSystem_M15.v20_runtime.finam_execution import (
     V20FinamBlocked, V20FinamReadAdapter, read_finam_m15_boundary,
+    V20M15Boundary, frozen_observed_session_exit,
 )
 
 ACCOUNT = "no-network-m15-boundary-a"
@@ -104,6 +106,34 @@ class M15BoundaryTests(unittest.TestCase):
                          bar(CURRENT, current=True)]
         with self.assertRaisesRegex(V20FinamBlocked, "M15_DUPLICATE_OR_UNSORTED_BARS"):
             read_finam_m15_boundary(self.reader, symbol="USDRUBF", from_utc=START, now=AT)
+
+    def test_third_observed_session_exit_only_at_witnessed_open(self):
+        entry = datetime(2026, 10, 20, 10, 15)
+        completed_days = [entry, datetime(2026, 10, 21, 10, 0)]
+        frame = pd.DataFrame({"Datetime": completed_days})
+        due = V20M15Boundary("USDRUBF", datetime(2026, 10, 22, 10, 0),
+                              frame, Decimal("85.00"), AT)
+        self.assertEqual(frozen_observed_session_exit(due, entry_open_msk=entry),
+                         "EXIT_AT_THIRD_OBSERVED_SESSION_OPEN")
+        waiting = V20M15Boundary("USDRUBF", datetime(2026, 10, 21, 10, 15),
+                                  frame, Decimal("85.00"), AT)
+        self.assertEqual(frozen_observed_session_exit(waiting, entry_open_msk=entry),
+                         "HOLD_UNTIL_THIRD_OBSERVED_SESSION")
+
+    def test_missed_third_open_refuses_historical_exit_and_missing_entry(self):
+        entry = datetime(2026, 10, 20, 10, 15)
+        frame = pd.DataFrame({"Datetime": [
+            entry, datetime(2026, 10, 21, 10, 0),
+            datetime(2026, 10, 22, 10, 0),
+        ]})
+        late = V20M15Boundary("USDRUBF", datetime(2026, 10, 22, 10, 15),
+                               frame, Decimal("85.00"), AT)
+        self.assertEqual(frozen_observed_session_exit(late, entry_open_msk=entry),
+                         "MISSED_OR_PASSED_THIRD_SESSION_OPEN_HALT")
+        missing = V20M15Boundary("USDRUBF", datetime(2026, 10, 22, 10, 0),
+                                  frame.iloc[1:], Decimal("85.00"), AT)
+        with self.assertRaisesRegex(V20FinamBlocked, "ENTRY_SESSION_OBSERVATION_MISSING"):
+            frozen_observed_session_exit(missing, entry_open_msk=entry)
 
 
 if __name__ == "__main__":
