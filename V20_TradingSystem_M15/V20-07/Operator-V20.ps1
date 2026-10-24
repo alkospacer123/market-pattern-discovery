@@ -31,6 +31,8 @@ function task-proof {
              $receipt.status -eq 'PASS_3_OF_3_DISABLED' -and
              $receipt.source_commit -eq $pin -and
              $receipt.live_enabled -eq $false -and $receipt.trading_authorized -eq $false) 'V20_OP_TASK_RECEIPT_INVALID'
+    $currentSid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+    require ($currentSid -eq $receipt.principal_sid) 'V20_OP_OPERATOR_SID_MISMATCH'
     $rows = @($receipt.tasks)
     require ($rows.Count -eq 3) 'V20_OP_TASK_COUNT_INVALID'
     $one = @($rows | Where-Object { $_.robot -eq $Robot })
