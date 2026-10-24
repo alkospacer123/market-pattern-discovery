@@ -744,9 +744,6 @@ class V20SingleTradeTransport:
         step = Decimal(registry["price_step"])
         price = Decimal(str(stop_price))
         require_on_grid(price, step)
-        if (payload["direction"] == "LONG" and price >= Decimal(payload["reference_entry"])
-                or payload["direction"] == "SHORT" and price <= Decimal(payload["reference_entry"])):
-            raise V20FinamBlocked("STOP_ON_WRONG_SIDE")
         # Reuse the SAME strict H1 FINAM /trades order-linked fill proof that
         # our V20 SQLite protected-entry observer already trusts. A caller
         # cannot supply an arbitrary stop merely because it lies on the grid.
@@ -788,6 +785,10 @@ class V20SingleTradeTransport:
             )
             if valuation["stop_conforms"] is not True:
                 raise V20FinamBlocked("STOP_NOT_FROM_ACTUAL_FINAM_FILL_VWAP")
+            actual_vwap = Fraction(valuation["average_price"])
+            if ((payload["direction"] == "LONG" and Fraction(price) >= actual_vwap)
+                    or (payload["direction"] == "SHORT" and Fraction(price) <= actual_vwap)):
+                raise V20FinamBlocked("STOP_ON_WRONG_SIDE_OF_ACTUAL_FILL")
         except Exception:
             self.journal.store.put("execution_halt", "STOP_FILL_OR_PRICE_AUTHORITY_UNVERIFIED")
             raise
