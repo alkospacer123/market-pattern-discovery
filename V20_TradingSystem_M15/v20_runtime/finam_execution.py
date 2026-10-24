@@ -820,7 +820,7 @@ def read_finam_m15_boundary(
         raise V20FinamBlocked("M15_READ_INPUT_INVALID")
     start = from_utc.astimezone(timezone.utc)
     observed = now.astimezone(timezone.utc)
-    if not timedelta(minutes=15) <= observed - start <= timedelta(days=30):
+    if not timedelta(minutes=15) <= observed + STEP - start <= timedelta(days=30):
         raise V20FinamBlocked("M15_FINAM_HISTORY_INTERVAL_INVALID")
     at_msk = observed.astimezone(ZoneInfo("Europe/Moscow")).replace(tzinfo=None)
     boundary = at_msk.replace(minute=at_msk.minute//15*15, second=0, microsecond=0)
@@ -858,6 +858,12 @@ def read_finam_m15_boundary(
         stamp = utc_open.astimezone(ZoneInfo("Europe/Moscow")).replace(tzinfo=None)
         if stamp.minute % 15:
             raise V20FinamBlocked("M15_FINAM_GRID_MISMATCH")
+        if stamp == boundary:
+            # FINAM may not yet have final High/Low/Close/Volume in the
+            # still-forming opening candle. Never inspect or trust them.
+            opened = parse_rest_decimal_value_object(item.get("open"), positive=True)
+            rows.append((stamp, {"open": opened}))
+            continue
         price = {}
         for field in ("open", "high", "low", "close", "volume"):
             price[field] = parse_rest_decimal_value_object(item.get(field))
