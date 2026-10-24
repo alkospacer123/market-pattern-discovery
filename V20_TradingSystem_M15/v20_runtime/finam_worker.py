@@ -16,7 +16,7 @@ from urllib.parse import parse_qs, urlparse, urlencode
 from zoneinfo import ZoneInfo
 
 from TradingSystemLab.stage8_robot.finam_api import (
-    BARS_PATH_TEMPLATE, FinamAPI, SESSION_PATH, SESSION_DETAILS_PATH,
+    ACTIVE_ASSETS_PATH, BARS_PATH_TEMPLATE, FinamAPI, SESSION_PATH, SESSION_DETAILS_PATH,
 )
 from TradingSystemLab.stage8_robot.production_runtime import _load_registry
 
@@ -90,7 +90,29 @@ class AuthorityReadOnlyAPI(ReadonlyWorkerAPI):
             f"/v1/assets/{symbol}/params?"+urlencode({"account_id": self.account_id})
             for symbol in symbols
         } | {f"/v1/assets/{symbol}/schedule" for symbol in symbols}
-        if method == "GET" and auth is True and payload is None and path in extra:
+        # Reuse the H1 authoritative *active catalog* pagination, not an
+        # account-scoped asset record posing as a catalog record.
+        catalog_get = False
+        if method == "GET" and auth is True and payload is None:
+            parsed = urlparse(path)
+            if (parsed.path == ACTIVE_ASSETS_PATH and not parsed.fragment
+                    and not parsed.params):
+                try:
+                    query = parse_qs(parsed.query, strict_parsing=True)
+                    catalog_get = (
+                        set(query) in ({"only_active"}, {"only_active", "cursor"})
+                        and all(len(v) == 1 for v in query.values())
+                        and query["only_active"] == ["true"]
+                        and (
+                            "cursor" not in query
+                            or (0 < len(query["cursor"][0]) <= 512
+                                and not any(c.isspace() for c in query["cursor"][0]))
+                        )
+                    )
+                except (ValueError, TypeError):
+                    catalog_get = False
+        if (method == "GET" and auth is True and payload is None
+                and (path in extra or catalog_get)):
             return FinamAPI._request(
                 self, method, path, payload=payload, auth=auth, retries=retries,
             )
@@ -106,7 +128,7 @@ def run_n4_authority(robot_id: str) -> dict:
     MOEX tick price/tick value reference, not current NEXT_OPEN/fill/fees.
     """
     from TradingSystemLab.stage8_robot.instrument_resolver import (
-        AUTHENTICATED, validate_finam_binding,
+        AUTHENTICATED, discover_finam_asset, validate_finam_binding,
     )
     from TradingSystemLab.stage8_robot.margin import directional_initial_margin
 
@@ -128,20 +150,35 @@ def run_n4_authority(robot_id: str) -> dict:
     if not snap.clean:
         return {"status": "HOLD_BROKER_NOT_FLAT_NEEDS_RECONCILIATION",
                 "robot": robot_id, "instruments": {}, "orders": 0}
+    # Exactly the H1 funding-margin diagnostic lineage: discover the
+    # catalog record independently, then validate account-specific GetAsset.
+    # All four contracts are resolved before any sizing authority is issued.
+    active_assets = api.assets_all_active()
     result = {}
     registry = _load_registry()
     for symbol in sorted(N4):
+        catalog_asset, reason = discover_finam_asset(symbol, active_assets)
+        if reason:
+            result[symbol] = "HOLD_" + reason
+            continue
         remote = registry[symbol]["finam_symbol"]
-        asset = api.asset(remote, account)
+        if catalog_asset.get("symbol") != remote:
+            result[symbol] = "HOLD_H1_REGISTRY_SYMBOL_CONFLICT"
+            continue
+        account_asset = api.asset(remote, account)
         params = api.asset_params(remote, account)
         schedule = api.schedule(remote)
-        evidence = validate_finam_binding(symbol, asset, params, schedule,
-                                          account_asset=asset)
+        evidence = validate_finam_binding(
+            symbol, catalog_asset, params, schedule, account_asset=account_asset,
+        )
         go_long = directional_initial_margin(params, "LONG")
         go_short = directional_initial_margin(params, "SHORT")
         # FINAM step/lot bound to the validated MOEX/H1 specification.
         if evidence.status != AUTHENTICATED or go_long <= 0 or go_short <= 0:
-            result[symbol] = "HOLD_FINAM_ASSET_OR_MARGIN_AUTHORITY"
+            # H1 status is a stable non-secret code, unlike raw broker records.
+            result[symbol] = ("HOLD_" + evidence.status
+                              if evidence.status != AUTHENTICATED else
+                              "HOLD_DIRECTIONAL_MARGIN_INVALID")
         elif (Decimal(str(registry[symbol]["price_step"])) !=
               Decimal(str(evidence.moex_price_step))
               or Decimal(str(registry[symbol]["tick_value"])) !=
