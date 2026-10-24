@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 from datetime import datetime, timezone
+from decimal import Decimal
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
@@ -46,7 +47,7 @@ class DurableOrderStateTests(unittest.TestCase):
         }]})
         snapshot = LiveAccountSnapshot(
             ROBOT, ACCOUNT_HASH, datetime.now(timezone.utc),
-            realized_equity=0, available_cash=0,
+            realized_equity=Decimal("45000"), available_cash=Decimal("43000"),
             positions={"CNYRUBF@RTSX": 1}, orders=tuple(broker_order),
         )
         return key, snapshot
@@ -54,25 +55,22 @@ class DurableOrderStateTests(unittest.TestCase):
     def test_repeated_h1_order_poll_preserves_fill_states_after_restart(self):
         for state in ("PARTIAL_FILL", "FILL", "RECONCILED"):
             with self.subTest(state=state):
-                with V20TradeJournal(self.root, ROBOT, ACCOUNT) as journal:
+                root = self.root / state.lower() / "v20lab"
+                root.mkdir(parents=True)
+                with V20TradeJournal(root, ROBOT, ACCOUNT) as journal:
                     key, snapshot = self.setup_case(journal, state)
                     result = journal.reconcile_order(key=key, snapshot=snapshot)
                     self.assertEqual(
                         result, f"BROKER_ORDER_ALREADY_{state}_NO_RETRANSMIT",
                     )
                     self.assertEqual(journal.store.intent(key)["status"], state)
-                with V20TradeJournal(self.root, ROBOT, ACCOUNT) as journal:
+                with V20TradeJournal(root, ROBOT, ACCOUNT) as journal:
                     self.assertEqual(journal.store.intent(key)["status"], state)
                     self.assertEqual(
                         journal.reconcile_order(key=key, snapshot=snapshot),
                         f"BROKER_ORDER_ALREADY_{state}_NO_RETRANSMIT",
                     )
                     self.assertEqual(journal.store.intent(key)["status"], state)
-                # Reset per-subtest SQLite state while keeping tests isolated.
-                (self.root / "obv" / "state" / "v20-real-intents.sqlite3").unlink()
-                for suffix in ("-wal", "-shm"):
-                    (self.root / "obv" / "state" /
-                     ("v20-real-intents.sqlite3" + suffix)).unlink(missing_ok=True)
 
     def test_broker_order_id_change_fails_closed_without_demotion(self):
         with V20TradeJournal(self.root, ROBOT, ACCOUNT) as journal:
