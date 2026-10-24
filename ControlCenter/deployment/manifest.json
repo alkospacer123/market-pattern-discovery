@@ -370,8 +370,12 @@
       "sha256": "a27cc8b2f9f2563984088621e6dd50b9f74e31cbebc05fddbac3e007594f37cb"
     },
     {
+      "path": "docs/V20_CC08_OPERATIONS.md",
+      "sha256": "0b0988508cf02fd8b35fe57227ff574fc7aee65258513674b8121ddbd821d3bf"
+    },
+    {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "880229c1ba6554d029dd50bc7ac76eb8c2c547d6249f7b8a58c5e9a1e8f08721"
+      "sha256": "8a860ace0d6bafafd305938bf659104a6e4ef7072f6e8fabbefc7f88bb5871f4"
     },
     {
       "path": "docs/browser-check.json",
